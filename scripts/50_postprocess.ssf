@@ -1,0 +1,10 @@
+requires 1.4.0
+cd results
+load stack_latest
+# Session is moonlit + light polluted: remove sky gradient while linear.
+# Degree-1 (planar) only — RBF overfits around the treeline and carves holes
+# in the sky. -dither avoids banding in the low-SNR stretch.
+subsky 1 -dither
+autostretch
+savejpg preview 90
+close

@@ -1,0 +1,7 @@
+requires 1.4.0
+cd work
+load masters/flat_master
+stat
+autostretch
+savejpg ../results/flatmaster_check 85
+close

@@ -9,7 +9,4 @@ calibrate light -dark=masters/dark_master -flat=masters/flat_master -cc=dark 3 3
 register pp_light
 set32bits
 stack r_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_latest
-load ../results/stack_latest
-autostretch
-savejpg ../results/preview 90
 close

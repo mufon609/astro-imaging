@@ -43,22 +43,44 @@ Sensor offset (black level) ≈ 1008 ADU.
    Z6III's second gain stage starts at ISO 800 — ISO 200 has the high-read-noise
    path. Expect heavy stretch, watch for pattern noise.
 
-## Pipeline v1 design
+## Pipeline design (v2)
 
-`scripts/run_pipeline.sh <session-dir>` orchestrates four siril-cli stages,
+`scripts/run_pipeline.sh <session-dir>` orchestrates five siril-cli stages,
 deleting each stage's intermediates before the next (disk-limited):
 
+0. preflight — exiftool check: hard-fails if a dir mixes exposure/ISO
+   (protects against stale frames after a re-shoot), warns on darks/lights
+   exposure mismatch and ISO mismatches
 1. `10_master_bias.ssf` — stack biases, Winsorized rej 3/3, no norm
 2. `20_master_flat.ssf` — calibrate flats with master bias, stack norm=mul
-3. `30_master_dark.ssf` — stack darks (used for cosmetic correction only)
-4. `40_lights.ssf` — calibrate (dark as bias-equivalent + cc, flat, equalize_cfa,
-   debayer) → register → 32-bit rej stack norm=addscale + rgb_equal
-   → autostretched JPEG preview
+3. `30_master_dark.ssf` — stack darks
+4. `40_lights.ssf` — calibrate (`-dark` + `-cc=dark` hot-pixel removal, flat,
+   equalize_cfa, debayer) → register → 32-bit rej stack norm=addscale +
+   rgb_equal. Same command is correct for matched *and* mismatched darks.
+5. `50_postprocess.ssf` — planar background extraction + autostretch → JPEG
+   preview. Run standalone via `scripts/run_post.sh <session>` to iterate on
+   post without re-registering (~seconds instead of minutes).
 
-Masters are kept in `<session>/work/masters/` and **reused if present** — delete
-that dir (or a single master) to force a rebuild. Big FITS result is
-overwritten each run (`results/stack_latest.fit`); small timestamped JPEG
-previews accumulate for run-to-run comparison.
+Masters live in `<session>/work/masters/` and are **rebuilt automatically**
+when any source DNG is newer than the master (drop in re-shot frames and just
+re-run). Big FITS result is overwritten each run (`results/stack_latest.fit`);
+small timestamped JPEG previews accumulate for run-to-run comparison.
+
+## Iteration log (session 07-02-26)
+
+| preview | variant | verdict |
+|---|---|---|
+| `preview_20260705_131357` | v1: no gradient removal | strong moonlit gradient, edges bright |
+| `preview_20260705_131715` | subsky RBF s=20 tol=0.5 | **worse** — overfit, dark hole in sky center |
+| `preview_20260705_131832` | subsky poly degree 1 | keeper — gentle, no artifacts |
+| `preview_20260705_132244` | same, full-pipeline validation run | = |
+
+Registration drops frames 27 & 32 (star matching fails despite ~390 stars —
+field drift on fixed tripod reduces overlap with reference). 30/32 stacked.
+Try `-2pass` registration if more frames start dropping.
+
+The remaining bright-bottom gradient is real sky (waning gibbous moon + horizon
+glow); stronger removal needs treeline-aware masking (GraXpert) — future work.
 
 ## Iteration ideas (not yet tried)
 
@@ -70,9 +92,26 @@ previews accumulate for run-to-run comparison.
 - Photometric color calibration (`pcc`) vs `rgb_equal`
 - Denoising after stretch; starnet/star recomposition
 
-## Checklist for the next acquisition session
+## Re-shoot plan for THIS session (in progress)
 
-- Darks: same exposure/ISO as lights (20s), shot at night-time temps
-- Flats: histogram peak ~50% (raise exposure ~1/60s or add light)
+User is re-taking calibration frames for 07-02-26:
+
+- **Darks @ 20s ISO 200**: lens cap + viewfinder covered, long-exposure NR OFF,
+  ambient temp as close to the night session as possible, ~40+ frames.
+  Replace (delete) the old 1/10s files in `darks/` — preflight hard-fails on a
+  mixed dir by design.
+- **Flats via MacBook Air screen**: full-screen white, max brightness,
+  True Tone / Night Shift / auto-brightness OFF; 1–2 sheets of plain white
+  paper on the lens as diffuser (kills pixel grid + moiré); keep ISO 200 f/4
+  focus untouched; adjust only shutter until histogram peaks near mid-scale
+  (~50%, vs the ~20% we got at 1/200s) — expect somewhere around 1/60–1/15s;
+  slower than ~1/60s also dodges screen-refresh banding.
+- Then just `./scripts/run_pipeline.sh 07-02-26` — dark & flat masters rebuild
+  automatically, bias master is reused.
+
+## Checklist for future acquisition sessions
+
+- Darks: same exposure/ISO as lights, shot at night-time temps
+- Flats: histogram peak ~50%
 - Consider ISO 800 (Z6III dual-gain step) if staying at 20s subs
 - Dither between subs — it's what rescues us when darks are imperfect
