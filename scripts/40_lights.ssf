@@ -1,0 +1,15 @@
+requires 1.4.0
+set16bits
+cd lights
+convert light -out=../work
+cd ../work
+# Master dark is 1/10s (mismatched, see NOTES.md): acts as bias-equivalent
+# subtraction plus hot-pixel map for cosmetic correction. No -opt on purpose.
+calibrate light -dark=masters/dark_master -flat=masters/flat_master -cc=dark 3 3 -cfa -equalize_cfa -debayer
+register pp_light
+set32bits
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_latest
+load ../results/stack_latest
+autostretch
+savejpg ../results/preview 90
+close

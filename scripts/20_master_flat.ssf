@@ -1,0 +1,8 @@
+requires 1.4.0
+set16bits
+cd flats
+convert flat -out=../work
+cd ../work
+calibrate flat -bias=masters/bias_master
+stack pp_flat rej 3 3 -norm=mul -out=masters/flat_master
+close

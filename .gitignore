@@ -1,0 +1,13 @@
+# Git tracks the *process* (scripts, notes), never the data.
+# Raw frames, FITS intermediates, and stacked results are too large
+# for a 40GB disk to hold twice.
+*.dng
+*.DNG
+*.nef
+*.NEF
+*.fit
+*.fits
+*.fts
+*.seq
+**/work/
+**/results/

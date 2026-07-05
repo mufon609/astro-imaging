@@ -1,0 +1,7 @@
+requires 1.4.0
+set16bits
+cd darks
+convert dark -out=../work
+cd ../work
+stack dark rej 3 3 -nonorm -out=masters/dark_master
+close

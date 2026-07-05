@@ -1,0 +1,7 @@
+requires 1.4.0
+set16bits
+cd biases
+convert bias -out=../work
+cd ../work
+stack bias rej 3 3 -nonorm -out=masters/bias_master
+close
