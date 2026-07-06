@@ -118,7 +118,7 @@ unaffected away from the trees; a dedicated foreground blend is the real fix.
 | what | value |
 |---|---|
 | frames | 21 × 25s ISO 200 f/4, Jul 3 00:47–00:57 |
-| focal | **mixed: 8 × 37mm + 13 × 38mm** (zoom moved mid-set) |
+| focal | **mixed: 8 × 37mm + 13 × 38mm** — single step at a ~57s mid-set pause (frame 8→9, camera touched); EXIF is integer-mm so true change is ≥1 reporting step, ≤ 2.7% scale |
 | calibration | darks 20s (warn: bias+hot-pixel-map mode), **no flat** (24mm flats ≠ 37/38mm — preflight auto-disables), biases n/a for lights |
 | registration | 20/21 (2-pass ref → frame 8; frame 19 unmatchable). Mixed focal absorbed by homography — corner crops show no scale smear |
 | stack | `stack_set-03.fit`, G noise/median 1.08% |
@@ -180,7 +180,8 @@ cloth/t-shirt diffuser over the lens + more screen distance.
   this time, avoidable always)
 - Flats: shoot a flat set **per focal length used** that night, before touching
   the zoom — a 24mm flat cannot calibrate 37mm lights (set-03 ran flatless)
-- Lock the zoom ring (tape) — set-03 drifted 37→38mm mid-set
+- Lock the zoom ring (tape) and avoid touching the camera mid-set — set-03
+  stepped 37→38mm exactly at a mid-set pause where the camera was handled
 - Sub length ≤ 500/focal (13s at 38mm, 20s at 24mm) or stars trail — trailing,
   not noise, capped set-03's sharpness
 - Consider ISO 800 (Z6III dual-gain step), especially with shorter subs
