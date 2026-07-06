@@ -72,8 +72,11 @@ fi
 
 # A flat is usable only if flats AND biases exist (flat calibration needs the
 # bias) and the flats' optics match this set. Otherwise: self-flat path.
-# Self-flat sets keep curved glow residue (clouds/moon) -> subsky degree 2;
-# degree 1 leaves enough residual that the linked autostretch lands darker.
+# Self-flat sets subtract per-frame planar glow (seqsubsky) BEFORE the
+# vignette division, so the stacked background is already flat in
+# luminance; post subsky degree 2 is kept for per-channel CURVATURE — it
+# neutralizes the chromatic corner residue (red tint) that planar
+# per-channel fits cannot reach.
 FLATOPT=""
 SUBSKY_DEG=2
 if [[ -d "$S/flats" && -d "$S/biases" ]]; then
@@ -164,8 +167,8 @@ else
       echo "requires 1.4.0"
       echo "set16bits"
       echo "cd work"
-      echo "setref pp_pp_light $ref"
-      echo "register pp_pp_light"
+      echo "setref pp_bkg_pp_light $ref"
+      echo "register pp_bkg_pp_light"
       echo "close"
     } > "$GENREG"
     siril_run "$GENREG" | tee "$W/reg_attempt.log"
@@ -189,8 +192,9 @@ else
   echo "=== stage 4d/5: stack $SET ($best_n/$NFRAMES frames, ref $best_ref) ==="
   siril_run "$GEN4D"
 fi
-rm -f "$W"/light_* "$W"/pp_light_* "$W"/pp_pp_light_* "$W"/r_pp_light_* \
-      "$W"/r_pp_pp_light_* "$W"/selfflat_med.* "$W"/selfflat_gain.*
+rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \
+      "$W"/r_pp_light_* "$W"/r_pp_bkg_pp_light_* \
+      "$W"/selfflat_med.* "$W"/selfflat_gain.*
 
 echo "=== stage 5/5: post-process ==="
 "$REPO/scripts/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"

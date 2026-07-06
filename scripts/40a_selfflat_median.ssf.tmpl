@@ -4,11 +4,21 @@ cd @SET@
 convert light -out=../work
 cd ../work
 # No matching flat exists for this set (preflight decides): calibrate without
-# flat, then build a SELF-FLAT from the frames themselves. The per-pixel
-# median of the UNREGISTERED calibrated frames rejects the drifting stars
-# (fixed tripod) and keeps the static-in-sensor-coords surface:
-# vignette x sky (+ dust). scripts/selfflat.py fits the smooth gain from it.
+# flat, then build a SELF-FLAT from the frames themselves.
 calibrate light -dark=masters/dark_master -cc=dark 3 3 -cfa -debayer
+# V is ESTIMATED from the untouched median: per-pixel median of the
+# UNREGISTERED calibrated frames — drifting stars reject (fixed tripod),
+# the static vignette x sky survives, and the multiplicative factorization
+# V x S holds. (Estimating from glow-subtracted frames does NOT work:
+# subsky's per-channel level restoration shifts the pedestal/bowl ratio and
+# the extracted V diverges per channel — measured 0.61/0.37/0.47 corners vs
+# the true coherent 0.52-0.56 — which would tint the corners on division.)
 set32bits
 stack pp_light med -norm=mul -out=selfflat_med
+set16bits
+# The frames that continue through the pipeline DO get their planar glow
+# subtracted first (level-preserving, sensor coords, while linear): the
+# later V division then amplifies only the glow's small curvature residual
+# at the corners instead of the full tilt. Sequence -> bkg_pp_light.
+seqsubsky pp_light 1
 close

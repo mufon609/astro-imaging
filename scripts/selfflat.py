@@ -221,6 +221,16 @@ def main():
           f"x{data.shape[0]}ch, level ~{np.median(data):.4g}")
     gain = np.stack([fit_channel(data[c], f"ch{c}")
                      for c in range(data.shape[0])])
+    # Divide by a GRAY gain: the per-channel profiles differ mostly because
+    # the colored glow's radial component contaminates each channel's
+    # apparent falloff (measured spread ~5%, e.g. R 0.515 vs B 0.560 at the
+    # corner) — real chromatic vignette is much smaller. Per-channel division
+    # tints the corners (red, with warm moonglow); a single mean profile
+    # cannot change color by construction.
+    gray = gain.mean(axis=0, keepdims=True)
+    gain = np.repeat(gray, gain.shape[0], axis=0)
+    print(f"selfflat: gray V applied to all channels "
+          f"(corner {gain[0,0,0]:.3f})")
     write_fits(sys.argv[2], gain)
     print(f"selfflat: wrote {sys.argv[2]}")
 
