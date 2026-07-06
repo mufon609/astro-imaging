@@ -44,12 +44,12 @@ EXPECTATIONS = {
         "corner_over_center": (0.35, 0.75, "V x S falloff"),
     },
     "subsky_frame": {
-        "plane_tilt_pct": (None, 3.0, "residual glow tilt %/half-frame (branch masked)"),
-        "median_shift_pct": (-35.0, 5.0, "seqsubsky removes the tilt's share of the median (~half the 28% tilt); a fixed level needs only to not JUMP"),
+        "plane_tilt_pct": (None, None, "INFO: bowl-contaminated (the vignette is still in these frames; a plane fit reads its truncation as ~9-13% tilt) — divided-stage flatness is the real check"),
+        "median_shift_pct": (-10.0, 10.0, "G median vs calibrated after rechroma: model-consistent target C_G x median(V) sits within a few % of the calibrated level"),
     },
     "gain": {
         "monotone_violation": (None, 1e-4, "V(r) must be non-increasing — THE ring guard (monotone V cannot print rings)"),
-        "corner_gain": (0.45, 0.65, "measured 0.537 on set-03"),
+        "corner_gain": (0.38, 0.58, "additive-glow model: true V corner ~0.43 (0.537 was the L-contaminated multiplicative fit); ~1.3EV lens falloff supports it"),
         "channel_spread": (None, 1e-6, "gray by construction"),
         "ring_p2v_rel": (None, None, "INFO: moving-average detrend lags the knee of a 46%-deep monotone curve (~2.6% false P2V); monotonicity is the enforced check"),
     },

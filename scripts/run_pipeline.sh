@@ -163,11 +163,31 @@ else
   siril_run "$GEN4A"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
   INS stage selfflat_median --in "$W/selfflat_med.fit"
-  INS stage subsky_frame --in "$W/bkg_pp_light_$F1.fit" "$W/bkg_pp_light_$FM.fit" "$W/bkg_pp_light_$FN.fit"
   echo "=== stage 4b/5: fit self-flat gain surface ==="
   python3 "$REPO/scripts/selfflat.py" "$W/selfflat_med.fit" "$W/selfflat_gain.fit"
   cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"   # for inspection
   INS stage gain --in "$W/selfflat_gain.fit"
+  # Zero each frame's additive residual per channel (constants only):
+  # division by V(r) returns a flat sky only for purely multiplicative
+  # frames; siril's seqsubsky re-centers channels on their own medians
+  # (magenta rim, R-G +148 at the stack rim) and leaves a pedestal whose
+  # division printed the -16% luminance rim. Targets = C_c x median(V)
+  # from selfflat_levels.json. See NOTES.md "RIM/RING ROOT CAUSE" + "(L)".
+  python3 "$REPO/scripts/rechroma.py" "$W" "$NFRAMES"
+  INS stage subsky_frame --in "$W/bkg_pp_light_$F1.fit" "$W/bkg_pp_light_$FM.fit" "$W/bkg_pp_light_$FN.fit"
+  # The divisor V2 is measured from the frames actually being divided:
+  # siril's plane subtraction also removes the planar share of the bowl,
+  # so neither the multiplicative fit (0.537 corner: -16% rim) nor the
+  # additive fit (0.472: +7%) matches the frames — their own median does,
+  # by construction (NOTES.md experiment L2).
+  GEN4A2="$W/40a2_selfflat.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40a2_selfflat_median2.ssf.tmpl" > "$GEN4A2"
+  echo "=== stage 4b2/5: median of glow-subtracted frames + V2 fit ==="
+  siril_run "$GEN4A2"
+  mv "$W/selfflat_gain.fit" "$W/selfflat_gain1.fit"
+  python3 "$REPO/scripts/selfflat.py" "$W/selfflat_med2.fit" "$W/selfflat_gain.fit"
+  cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"
+  INS stage gain --in "$W/selfflat_gain.fit" --label v2
   GEN4B="$W/40b_selfflat.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" "$REPO/scripts/40b_selfflat_divide.ssf.tmpl" > "$GEN4B"
   echo "=== stage 4c/5: divide by self-flat $SET ==="
@@ -217,7 +237,7 @@ else
 fi
 rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \
       "$W"/r_pp_light_* "$W"/r_pp_bkg_pp_light_* \
-      "$W"/selfflat_med.* "$W"/selfflat_gain.*
+      "$W"/selfflat_med*.* "$W"/selfflat_gain*.*
 
 echo "=== stage 5/5: post-process ==="
 "$REPO/scripts/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"

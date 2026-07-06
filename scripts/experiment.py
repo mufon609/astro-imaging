@@ -70,6 +70,49 @@ CHAINS = {
         "crop": 250,
         "jpgq": 92,
     },
+    # candidate + the star-recovering stretch target measured in
+    # exp_set-03_stretch_target_20260706_125602 (A1): 0.12 restores
+    # baseline-level star peaks (sat 13%/mid 255 vs baseline 12/254).
+    # The prospective recipe IF the rim can be fixed at full frame.
+    "candidate_bright": {
+        "graxpert": "on",
+        "subsky": "2",
+        "denoise": "off",
+        "stretch_sigma": -1.5,
+        "stretch_target": 0.12,
+        "stretch_linked": "unlinked",
+        "satu": 0.2,
+        "crop": 250,
+        "jpgq": 92,
+    },
+    # FULL-FRAME QA PASS on the L2 stack (exp_set-03_subsky_20260706_133842):
+    # gx -> subsky 1 -> unlinked -1.5 0.07 -> satu 0.2 -> NO crop.
+    # (higher subsky degrees overfit per channel and re-create the color
+    # failure: deg1 |B-G| 6 PASS, deg2 8, deg3 9)
+    "fullframe_v5": {
+        "graxpert": "on",
+        "subsky": "1",
+        "denoise": "off",
+        "stretch_sigma": -1.5,
+        "stretch_target": 0.07,
+        "stretch_linked": "unlinked",
+        "satu": 0.2,
+        "crop": 0,
+        "jpgq": 92,
+    },
+    # candidate at FULL FRAME (crop 0): the deliverable target. On the L2
+    # stack the rim rings pass here; the open item is large-scale B-G.
+    "candidate_full": {
+        "graxpert": "on",
+        "subsky": "2",
+        "denoise": "off",
+        "stretch_sigma": -1.5,
+        "stretch_target": 0.07,
+        "stretch_linked": "unlinked",
+        "satu": 0.2,
+        "crop": 0,
+        "jpgq": 92,
+    },
 }
 
 # op order in the chain; each param belongs to one op
@@ -367,22 +410,20 @@ def main():
         rest = vops[len(common):]
         jpg_base = f"v{i}_{sanitize(v)}"
         lines = ["requires 1.4.0", "cd results", f"load {prefix_load}"]
-        for op in rest:
-            if op == "graxpert":
-                sys.exit("experiment: graxpert can only be varied as the "
-                         "first op (chain graxpert=off -> values on/off ok; "
-                         "mixing it later is unsupported)")
-            if op == "jpg":
-                lines += op_lines(op, c, dims, jpg_base)
-            else:
-                lines += op_lines(op, c, dims, jpg_base)
-        lines += ["close"]
-        # value 'on' for graxpert with chain graxpert=off: rest starts at
-        # the top anyway; handle by swapping the load to the gx output
-        if args.param == "graxpert" and c["graxpert"] != "off":
+        # graxpert runs outside siril: when it is part of this value's op
+        # list (only legal as the first op, i.e. empty common prefix), run
+        # it now (cached) and load its output instead of the pinned stack.
+        if "graxpert" in rest:
+            if rest[0] != "graxpert" or prefix_load != rel_pinned:
+                sys.exit("experiment: graxpert is only supported as the "
+                         "first op of the chain")
             gx = run_graxpert(stack, work, log)
             rel = os.path.relpath(gx, os.path.join(sdir, "results"))
             lines[2] = "load " + (rel[:-5] if rel.endswith(".fits") else rel)
+            rest = rest[1:]
+        for op in rest:
+            lines += op_lines(op, c, dims, jpg_base)
+        lines += ["close"]
         sp = os.path.join(work, f"exp_value_{i}.gen.ssf")
         with open(sp, "w") as f:
             f.write("\n".join(lines) + "\n")

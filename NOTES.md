@@ -146,7 +146,7 @@ set-03 (21×25s ISO200 37/38mm, self-flat path), 2026-07-06.
 |---|---|---|
 | calibrated frame (`pp_light_*`) | sky with vignette bowl + moonglow tilt, stars to the corners, offset gone, hot px mapped out | bg median (16-bit units) 100–1500 (measured 115); clipped px < 0.5%; stars ≥ 150 (measured ~5000); no channel median at 0 |
 | self-flat median (`selfflat_med`) | smooth V×S surface: bowl + tilt only — drifting stars self-rejected, MW smeared away | stars ≤ 5% of calibrated-frame count (star detector uses a 0.4%-of-local-bg prominence floor — pure σ thresholds promote glow mottles to "stars" on smooth surfaces); radial corner/center 0.35–0.75; `selfflat.py` grid rejection < 25% (aborts above) |
-| glow-subtracted frame (`bkg_pp_light_*`) | tilt GONE, bowl and levels intact | fitted plane tilt ≤ 3%/half-frame (branch masked in the fit; from 27–31% before); bg median shift vs calibrated in −35…+5% (seqsubsky removes the tilt's share of the median — a *drop* ~half the tilt amplitude is the expected signature, a *jump* is not) |
+| glow-subtracted frame (`bkg_pp_light_*`, after rechroma) | tilt gone, bowl intact, per-channel medians at the model-consistent targets C_c·median(V) | plane tilt is INFO-only (the bowl's truncation reads as ~9–13% "tilt" in any plane fit — divided-stage flatness is the real check); G median within ±10% of calibrated |
 | self-flat gain (`selfflat_gain`) | smooth gray radial falloff, 1.0 center → ~0.54 corner, **no rings** | monotone non-increasing (exact — THE ring guard); corner 0.45–0.65; channel spread 0 (gray by construction); detrended radial P2V is INFO-only (detrend lag on the knee reads ~2.6% on a ring-free monotone curve) |
 | divided frame (`pp_bkg_pp_light_*`) | flat sky edge-to-edge, corner stars re-brightened with the sky; noise rises ~1/V toward corners | radial P2V (r ≤ 0.85) ≤ 20% of median full-range (the recorded "±9%" = 18% full-range); rim zone r > 0.9 deviation ≤ 25% (open defect: extrapolation zone) |
 | registration (sweep) | best reference registers (nearly) all frames | registered/total ≥ 0.9 (measured 21/21 @ ref 12; 2-pass auto-pick was 18/21) |
@@ -253,6 +253,148 @@ renders as the bright-ring-at-0.93 / dark-edge-at-0.98 signature (G 30.8 →
 35.0 → 15.8). The 150–250px crop has been hiding exactly these two rims.
 Fix experiments must attack (C) the seqsubsky chroma re-centering and (L)
 the V(r)/glow rim under-correction separately.
+
+**Experiment campaign (a) star quality — RESOLVED 2026-07-06 (ladders in
+`results/exp_set-03_*`; all on the candidate chain, one knob each, fresh
+canonical stack; star metrics re-anchored with the current prominence-floor
+detector: candidate_v4 = sat 7%/mid 249, approved baseline = 12%/254):**
+
+| exp | knob | result |
+|---|---|---|
+| A1 `stretch_target` | 0.05 / 0.07 / 0.12 | **THE washout driver**: sat 3→6→13%, mid-peak 239→247→255. 0.12 restores baseline-level stars exactly (13%/255 vs baseline 12/254). BUT rings/blocks fail at 0.12 (4.3 / \|R−G\| 13): the dark 0.07 render was *hiding* the rim, not fixing it |
+| A2 `stretch_linked` | linked / unlinked | linked does NOT recover stars (4%/242) and FAILS QA blocks (\|R−G\| 8 — preserves the global cast). Unlinked stays |
+| A3 `satu` | off / 0.2 / 0.3 | no star-core effect (sat 5–6%, mid 245–247), no QA effect. Not a washout driver |
+| A4 `graxpert` | off / on | off: QA FAIL (blocks 1.88, \|R−G\| 15, ring RG 4.2) AND worse stars (mid 207, sat 1%) — GraXpert is the load-bearing flattener of the candidate chain and *helps* stars via better stretch anchoring. Stays |
+| smoke `jpgq` | 85 / 92 / 98 | ring P2V jitter ±0.4 count, sat ±few % — measurement noise floor, not a lever |
+
+**Verdict (a): stars washed out = stretch target 0.07.** Fix = target
+~0.12 (chain `candidate_bright` in experiment.py) — blocked solely by the
+rim. → resolves into (b).
+
+**Experiment campaign (b) rim, crop ladders (B1 dark / B2 bright chain):**
+candidate@0.07: crop 250 PASS / 150 FAIL (\|R−G\| 9) / 0 FAIL (\|R−G\| 12,
+rings 5.3/6.6). candidate_bright@0.12: FAILS at every margin (250: \|R−G\|
+13; 0: \|R−G\| 19, rings 8.0/9.6). Chroma blocks+rings dominate at full
+frame in both — the rim chroma born at seqsubsky must be fixed in the
+pipeline, not in post.
+
+**B3 — CHROMA RE-CENTERING FIX (scripts/rechroma.py), 2026-07-06, run
+`inspect_set-03_20260706_130456`:** after seqsubsky, each frame's R/B
+medians are shifted by a constant back to their calibrated offsets
+relative to G (R ≈ −53, B ≈ −17 counts/frame; G untouched; constants
+cannot create spatial structure). Measured rim chroma R−G @ r=0.98:
+subsky frame +20 → **−33**, divided +37 → **−60 with the radial spread
+collapsed 48 → 5 counts**, stack +148 → **−15 (10×)**. B−G similar.
+The magenta rim is gone at the stack level. Residual final-image failure
+(baseline RBF render: rings lum 5.7 / R−G 6.6 / B−G 4.4) is now dominated
+by (L): the real **G luminance falloff −13…−16% at r>0.93** present in
+every divided frame (V(r) tail resolution + glow curvature residual —
+NOT fixed by rechroma, expected) plus the background model's own edge
+extrapolation error (±3–4 counts chroma at the edge after stretch).
+Pre-fix stack preserved as `results/stack_set-03_prechroma.fit`.
+G-based inspection metrics are bit-identical pre/post fix (the fix moves
+only R/B) — a good null check that nothing else changed.
+(L) fix candidates, one at a time: V(r) rim resolution (NBINS 24→48 +
+slope-extrapolated tail beyond the last bin center — the flat tail +
+0.958–1.0 pooling under-corrects corners by est. ~10 of the 16%), then
+estimator edge behavior (denser RBF samples / GraXpert), then a minimal
+crop only if a hard floor remains.
+
+**(L) ROOT CAUSE FOUND ANALYTICALLY before trying the above (2026-07-06,
+from the 130456 report's stored profiles):** S(r) = median/V_fit is flat
+±1% to r=0.93 → the fitted V tracks the *median* fine; the −16% appears
+only when dividing the glow-SUBTRACTED frames. The additive glow level
+L ≈ 25 counts inside the median flattens the multiplicative fit:
+V_fit = (V·S̄+L)/(S̄+L) = 0.537 measured, so true V = (V_fit·(S̄+L)−L)/S̄
+≈ 0.43 (S̄≈105). Dividing frames whose additive part subsky already
+removed by the too-shallow V_fit under-corrects the bowl by
+(1−V)·L/(V·S̄+L) ≈ 16% at the rim — the measured value, to the count.
+Also explains why the remaining chroma ring tracks G(r): rgb_equal turns
+any luminance rim into a chroma rim (R−G ≈ (k−1)·G(r)).
+**Experiment L1 (hypothesis, pre-registered):** change selfflat.py to the
+additive-glow factorization `median = V(r)·C + A(planar)` (V isotonic
+non-increasing as before, A planar so it cannot absorb falloff, C scalar
+sky level; per-channel C_c exported) and make rechroma.py's target
+model-consistent: shift each bkg channel to median = C_c·median(V_gray)
+so the frames' additive residual is ~zero and division returns flat S̄_c
+per channel. Expected: divided-frame rim_dev −16% → ~0, gain corner
+~0.43, stack G rim flat, final ring lum ≤ 4 at small/no crop; chroma
+follows luminance via rgb_equal. If divided rim_dev does NOT collapse,
+the additive model is wrong — revert both and write the dead end.
+
+**L1 result (run `inspect_set-03_20260706_132051`): half right —
+direction correct, magnitude overshoots.** Gain corner 0.472 (predicted
+0.43); divided-frame flatness HALVED (p2v 0.136→0.060, rim_dev
+0.175→0.090) and chroma flat (R−G −68…−75 across r, spread 8 counts);
+the −16% dark rim is gone — but replaced by **+7% bright rim** (stack
++10%), which the stretch blows into ring lum 18.3 = QA FAIL worse.
+Cause: siril's per-frame plane subtraction removes the planar COMPONENT
+of the vignetted bowl too, so the frames' actual radial falloff is
+shallower than the true lens V — the "right" V for division lies between
+the multiplicative fit (0.537: −16%) and the additive fit (0.472: +7%),
+and no a-priori model of siril's internals will nail it.
+*Sub-lesson: first L1 attempt exported float-unit rechroma targets that
+would have zeroed every background — killed mid-run; rechroma now has a
+75%-of-level sanity guard and explicit 16-bit units.*
+
+**Experiment L2 (hypothesis, pre-registered): close the loop empirically —
+divide by the measured shape of the actual frames.** After rechroma,
+median-stack the glow-subtracted frames themselves (`selfflat_med2`,
+nonorm — levels already aligned) and fit V2 from THAT (same isotonic gray
+fit; its A term should come out ≈0 since the planes are subtracted).
+Division by V2 flattens the divided median BY CONSTRUCTION. The old
+"never estimate V from glow-subtracted frames" dead end does not apply:
+that failure was siril's per-channel level restoration corrupting
+per-channel V ratios (0.61/0.37/0.47), which rechroma now normalizes
+before the estimate — and V stays gray regardless. Expected: V2 corner
+between 0.47 and 0.54, per-channel corner spread ≤ 0.05 (else the dead
+end IS back → abort), divided rim_dev ≤ 3%, stack rim flat, final ring
+lum ≤ 4 before crop enters the discussion.
+
+**FULL-FRAME QA PASS — candidate_v5 (2026-07-06,
+`results/candidate_v5_fullframe.jpg`, UNAPPROVED pending user judgment).**
+On the L2 stack (rechroma + V2), chain `fullframe_v5` = GraXpert BGE →
+`subsky 1` → `autostretch (unlinked) -1.5 0.07` → `satu 0.2` → **no crop**
+→ jpg 92: QA blocks 1.35 / colors ≤ 6 / rings 3.7 / 3.4 / 3.4 at the full
+6064×4040. Stars: mid-tier peak 250, sat 7% (≥ candidate_v4's 249/7 —
+same dark-render tier). Found via the subsky-degree ladder
+(`exp_set-03_subsky_20260706_133842`): after GraXpert, post-subsky degree
+**1** passes while 2/3 overfit per channel and re-create the color
+failure (|B−G| 6 / 8 / 9 for degree 1/2/3) — higher degree HURTS.
+**The remaining trade is render brightness vs the rim residual**
+(`exp_set-03_stretch_target_20260706_133958`): target 0.07 PASS / sat 7%;
+0.09 FAIL rings 4.3 (sat 11%); 0.12 FAIL rings 5.4 (sat 17% = baseline
+stars). The +2% linear rim (post-estimator extrapolation zone) caps how
+bright the full frame can be rendered; brighter needs either the crop
+back or a better rim model. USER JUDGMENT NEEDED: approve candidate_v5
+(full frame, dark) vs bright-with-crop vs keep hunting the last 2%.
+
+**Experiments (c) denoise — CLOSED (`exp_set-03_denoise_20260706_134059`,
+fullframe_v5 chain):** `-vst` before stretch FAIL (rings 5.1 — the known
+~1-count radial shift, amplified by the stretch); after stretch NEAR MISS
+(ring R−G 4.2 vs gate 4.0, blocks fine); off PASS. Denoise stays OUT of
+the chain. Only untested option left: post-stretch `-vst` with a
+modulation blend (`-mod≈0.5`) — expected ~halved ring effect; run as its
+own single-knob ladder if grain bothers the user in candidate_v5.
+
+**L2 result (run `inspect_set-03_20260706_132833`): upstream now clean;
+the last standing defect is the POST estimator's rim extrapolation ×
+stretch amplification.** V2 corner 0.489 (between 0.472/0.537 exactly as
+predicted), per-channel spread 0.036 ✓ no dead-end recurrence. Divided
+p2v 0.052 / rim_dev 0.067 (from 0.136/0.175 at session start); chroma
+flat (R−G spread ≤ 7 counts pre-rgb_equal). The residue: a NON-MONOTONE
++5% bump at r=0.93 in the divided frames = the per-frame glow curvature
+that `seqsubsky 1` (planar) cannot remove and a monotone V must not
+absorb (a monotone gain cannot remove a bump — that IS the anti-ring
+guard working). Post-RBF flattens it to **+2.3% linear at the rim** —
+and the MTF stretch amplifies deviations at the background point by
+~2.5 8-bit counts per 1% linear → ring lum 17. THE BAR, made explicit:
+**rim-vs-mid flatness after the post background model must be ≤ ~1.5%
+linear for ring ≤ 4.** Both failed models bracket truth; further V
+tinkering is pointless — the remaining battle is the background
+estimator's behavior in the outer zone (RBF extrapolates; GraXpert may
+model it), or a minimal crop of the r>0.93 zone (≈ the existing 250px —
+which is exactly why that crop "worked").
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
