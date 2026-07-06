@@ -69,15 +69,22 @@ the next (disk-limited):
    **Flatless sets take the SELF-FLAT path instead** (4a/4b/4c):
    `40a_selfflat_median.ssf.tmpl` calibrates without flat and median-stacks
    the UNREGISTERED frames (drifting stars self-reject; the static
-   vignette × sky survives) → `scripts/selfflat.py` fits a degree-4 gain
-   surface per channel to a 101px block-median grid with 2.5σ clipping
-   (foreground silhouettes/star residue/dust can't imprint; aborts if >25%
-   of the grid rejects) and writes a mean-1.0 float FITS →
-   `40b_selfflat_stack.ssf.tmpl` DIVIDES every frame by it (second
-   `calibrate -flat=` pass), then registers + stacks as usual. Division is
-   the multiplicatively-correct vignette fix — corner stars and sky
-   re-brighten together, which additive `subsky` can never do. Gain kept at
-   `work/masters/selfflat_<set>.fit` for inspection.
+   vignette × sky survives) → `scripts/selfflat.py` separates that median
+   into **V(r) × S(planar)** on a 101px block-median grid with 2.5σ clipping
+   (alternating fits; planar S has no r² term so all radial curvature lands
+   in V; foreground/star residue reject as outliers; aborts if >25% of the
+   grid rejects) and writes V only (V(center)=1, float FITS) →
+   `40b_selfflat_stack.ssf.tmpl` DIVIDES every frame by V (second
+   `calibrate -flat=` pass), then registers + stacks as usual. The sky glow
+   S stays in the frames — it is additive and belongs to `subsky`, not to a
+   gain. Division is the multiplicatively-correct vignette fix — corner
+   stars and sky re-brighten together, which `subsky` can never do.
+   Gain kept at `work/masters/selfflat_<set>.fit` for inspection.
+   *v1 lesson (2026-07-06): fitting ONE free-form surface and dividing bakes
+   the moonglow into the gain — its peak lands off the optical axis and
+   regional brightness distorts (visible as blotchy over/under-corrected
+   sky). Always sanity-check a fitted gain by its center: a vignette is
+   radially symmetric about the image center.*
 5. `50_postprocess.ssf.tmpl` — stat + bgnoise of the linear stack (the
    before/after record), then background extraction (`@SUBSKY@`) + autostretch
    → `preview_<set>_<timestamp>.jpg`. Iterate standalone:
@@ -108,7 +115,11 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | `preview_set-03_20260706_011304` | set-03 first run (no flat, subsky 1) | 20/21; planar subsky can't fit vignette bowl, corners near clip |
 | `preview_set-03_20260706_011346` | set-03 subsky 2 | **keeper** — flattest practical sky (σ 77.6 vs 87.6), Milky Way visible; mottling is real sky (clouds/moonglow), not artifacts |
 | `preview_set-03_deconv` | + makepsf stars + RL 20 iters | no de-trailing benefit — rejected |
-| `preview_set-03_20260706_014933` | **self-flat** (divide by fitted gain) + subsky 1 | **keeper** — corners flat to ±5% (was −62%/−19%), corner stars ×2 brighter, 21/21 registered, MW edge-to-edge; corner noise honestly amplified with its signal |
+| `preview_set-03_20260706_014933` | self-flat v1 (single free-form gain) + subsky 1 | background flat to ±5% and 21/21 registered, **but looked wrong** — glow baked into the gain (peak off-center), regional brightness distorted. Deleted with the old-data purge |
+| `preview_set-03_20260706_020421` | **self-flat v2: radial V(r) only** + subsky 1 | **keeper** — natural look, vignette gone, glow left for subsky, MW intact |
+| `preview_set-03_20260706_020759` | same, subsky 2 | marginally flatter mid-field, MW intact — either is fine |
+| `preview_set-03-38mm_*` | 13×38mm-only experiment | rejected (see set-03 table) — artifacts removed |
+| `preview_set-03_denoised` | + `denoise -vst` | bgnoise −41%, grain visibly reduced, faint stars kept — good final-polish option |
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
@@ -133,10 +144,12 @@ unaffected away from the trees; a dedicated foreground blend is the real fix.
 | frames | 21 × 25s ISO 200 f/4, Jul 3 00:47–00:57 |
 | focal | **mixed: 8 × 37mm + 13 × 38mm** — single step at a ~57s mid-set pause (frame 8→9, camera touched); EXIF is integer-mm so true change is ≥1 reporting step, ≤ 2.7% scale |
 | calibration | darks 20s (warn: bias+hot-pixel-map mode), **no flat** (24mm flats ≠ 37/38mm — preflight auto-routes to SELF-FLAT path) |
-| self-flat | gain fitted from median of unregistered frames: 5–8% grid outliers (branch/stars), corner gains 0.36–0.76, center 1.32. Corner/center background: **38%/81% → 102%/105%** (flat to ±5%) |
-| registration | **21/21 after self-flat** (corner stars re-brightened enough to recover frame 19; was 20/21). Mixed focal absorbed by homography — corner crops show no scale smear |
-| stack | `stack_set-03.fit`; global bgnoise/median rises ~9% after division — that's the honest re-weighting of intrinsically noisier corners to full display scale, not a quality loss (per-region SNR unchanged) |
-| gradient | pre-self-flat subsky ladder: deg 1 = 87.6, deg 2 = 77.6, deg 3 = 77.0, deg 4 = 76.9, RBF = 76.8 (additive ceiling). **After self-flat: deg 1 = deg 2 = 119** (σ now star/noise-dominated; nothing left to fit) → pipeline auto-uses subsky 1 |
+| self-flat (radial model) | median separates into **V(r) corners 0.73–0.76** (−0.45 EV true vignette, per channel) × **glow tilt 26–30%/half-frame** (left additive). Grid outliers ~1% (branch/stars) |
+| registration | 18/21 with the correct mild division (frames 1, 10, 20 fail star matching). Marginal frames flip between runs — trailed stars at 2× rule-of-500 are the root cause, not worth chasing. Mixed focal absorbed by homography — corner crops show no scale smear |
+| stack | `stack_set-03.fit`, G noise/median 1.078% — best of any variant |
+| gradient | vignette divided out → subsky handles only the glow; degree 1 auto (degree 2 marginally flatter, both keep the MW) |
+| 38mm-only experiment | **rejected**: 11/13 registered (same ~85% fraction as the full set — failures are per-frame matching luck, not focal mix), G noise/median 1.324% = the full √(18/11) penalty for dropping 7 frames. Keep all 21 |
+| denoise | `denoise -vst` (NL-Bayes) on the post-subsky linear: bgnoise **−41%** (ch0 5.16→3.05), faint stars preserved, no artifacts. Post-polish option, not in the default pipeline — it can't add signal and aggressive use eats faint MW |
 | stars | uniformly elongated: **in-exposure trailing** (25s at 37–38mm ≈ 2× rule-of-500 ≈ 13s) — the crispness ceiling; NOT misregistration (no doubling) |
 | deconv | tried `makepsf stars` + `rl -iters=20` on the linear: no visible de-trailing (fitted PSF ≈ symmetric), PSF fit unstable on ≈0 background — rejected (`preview_set-03_deconv.jpg`) |
 
