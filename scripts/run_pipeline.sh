@@ -183,7 +183,7 @@ else
   (( best_n > 0 )) || { echo "ERROR: registration failed for every candidate reference" >&2; exit 1; }
   if (( last_ref != best_ref )); then
     echo "=== re-running best reference $best_ref ($best_n/$NFRAMES) ==="
-    sed -i "s|setref pp_pp_light $last_ref|setref pp_pp_light $best_ref|" "$GENREG"
+    sed -i "s|setref pp_bkg_pp_light $last_ref|setref pp_bkg_pp_light $best_ref|" "$GENREG"
     siril_run "$GENREG"
   fi
 

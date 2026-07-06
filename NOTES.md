@@ -157,6 +157,14 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | unlinked + satu render (removed) | unlinked autostretch, satu 0.3, no rmgreen | still rejected by user ("dyed red/brown, not black"). Root cause of the whole arc: judging by hand-picked patches — whole-frame QA scored it 2.69 luminance spread / 38 color dev = objectively awful |
 | RBF ladder (removed) | subsky -rbf, tolerance/samples/smooth swept under whole-frame QA | tolerance=1 rejected the horizon glow from its own background model (that is WHY the bottom band survived everything); tol=3 + samples=30 + smooth=0.15 + 150px edge crop + no satu → QA 1.13 / 7 |
 | `preview_set-03_20260706_104902` | **APPROVED BASELINE** — full recipe in `50_postprocess.ssf.tmpl` | user-approved neutral dark sky, MW intact; QA gate now runs in every `run_post`. Known residual (next audit target): faint concentric chroma/lum rings, measured radial P2V lum 4.9 / R-G 6.8 counts, worst at the rim (r≈0.86–0.96) |
+| refine-gain / radial-polish (dead end, 3× confirmed) | measure gain residual from the stack, fold back, re-divide | **impossible on this data**: the sky's own per-channel structure (MW band, glow, clouds; 2–8%) exceeds the ~2% gain residual being measured. Median AND 30th-percentile azimuthal statistics both returned opposite-sign per-channel "residuals" (the sky, not the lens). Never scale the stack in place either |
+| `candidate_v4` (unapproved) | GraXpert BGE → subsky 2 → autostretch -1.5 0.07 unlinked → satu 0.2 → crop 250 | QA PASS (blocks 1.31, rings 3.9/2.3/2.8), bg truly black (6.7%, R=G=B=17); user verdict: rings/vignette/black much better BUT **stars washed out + smokey, crop must go**. Also: denoise shifts the radial profile ~1 count (fails the gate margin) wherever placed — currently out of the chain |
+
+**Process reset (user directive 2026-07-06):** no more multi-knob iterations.
+Single-variable ladders only (test X at 0.3/0.5/0.7-style brackets), hypothesis
+stated before each run, per-stage inspection artifacts auto-generated so every
+pipeline stage can be judged — not just the final preview. Handoff prompt for
+the implementation session: `NEXT_SESSION_PROMPT.md`.
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
