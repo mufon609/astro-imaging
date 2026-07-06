@@ -11,3 +11,4 @@
 *.seq
 **/work/
 **/results/
+__pycache__/
