@@ -73,12 +73,12 @@ fi
 # A flat is usable only if flats AND biases exist (flat calibration needs the
 # bias) and the flats' optics match this set. Otherwise: self-flat path.
 # Self-flat sets subtract per-frame planar glow (seqsubsky) BEFORE the
-# vignette division, so the stacked background is already flat in
-# luminance; post subsky degree 2 is kept for per-channel CURVATURE — it
-# neutralizes the chromatic corner residue (red tint) that planar
-# per-channel fits cannot reach.
+# vignette division; post uses RBF background extraction (dense samples,
+# raised tolerance so the horizon glow is SAMPLED not rejected, low
+# smoothing to follow cloud-scale color) — the approved neutral-sky
+# recipe. Landscape (flat-matched) sets keep polynomial subsky.
 FLATOPT=""
-SUBSKY_DEG=2
+SUBSKY_DEG="-rbf -samples=30 -tolerance=3 -smooth=0.15"
 if [[ -d "$S/flats" && -d "$S/biases" ]]; then
   fopt="$(optics "$S/flats")"
   if [[ "$lopt" == "$fopt" ]]; then
