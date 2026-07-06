@@ -161,7 +161,7 @@ def radial_profile(r, target, keep):
     return centers, v / v[0]
 
 
-def fit_channel(ch, label):
+def fit_channel(ch, label, model="add"):
     med, cy, cx = block_median_grid(ch)
     Y, X = np.meshgrid(cy, cx, indexing="ij")
     b = med.ravel()
@@ -169,35 +169,75 @@ def fit_channel(ch, label):
     r = np.sqrt((x**2 + y**2) / 2.0)   # 0 at center, 1.0 at the corners
     keep = np.isfinite(b) & (b > 0)
 
-    # Alternating separation: m ~ V(r)*C + A(planar). The glow is ADDITIVE
-    # in origin, so it must enter the model additively: the earlier
-    # multiplicative form m ~ V(r)*S(planar) baked the glow level L into V
-    # (V_fit = (V*S+L)/(S+L) — measured 0.537 corner instead of the true
-    # ~0.43) and dividing the glow-SUBTRACTED frames by that too-shallow V
-    # under-corrected the bowl by ~16% at the rim (the crop-forcing rim).
-    # A is planar (no radial term) so all radial falloff still lands in V;
-    # V is a monotone non-increasing binned profile, not a polynomial.
+    # Alternating separation, two models:
+    # model="add" (DEFAULT, the L2 architecture): m ~ V(r)*C + A(planar).
+    # The glow is ADDITIVE in origin, so it must enter the model additively:
+    # the earlier multiplicative form m ~ V(r)*S(planar) baked the glow
+    # level L into V (V_fit = (V*S+L)/(S+L) — measured 0.537 corner instead
+    # of the true ~0.43) and dividing the glow-SUBTRACTED frames by that
+    # too-shallow V under-corrected the bowl by ~16% at the rim.
+    # model="mult" (the pre-L1 form, kept for the divide-first/stack-level-
+    # BGE experiment): m ~ V(r)*S(planar). For frames that RETAIN their
+    # glow this is the self-consistent divisor — dividing the untouched
+    # frames by this V flattens their median by construction; the amplified
+    # additive glow residual is then removed once, on the stack.
+    # In both: planar term has no radial component so all falloff lands in
+    # V; V is a monotone non-increasing binned profile, not a polynomial.
     centers = None
     prof = None
     V = np.ones_like(b)
     C = float(np.median(b[keep]))
-    A = np.zeros_like(b)
     As = np.stack([np.ones_like(x), x, y], axis=1)
     cs = np.zeros(3)
-    for it in range(ALT_ITERS):
-        cs, *_ = np.linalg.lstsq(As[keep], (b - V * C)[keep], rcond=None)
-        A = As @ cs
-        target = b - A
-        centers, prof = radial_profile(r, target / C, keep)
-        V = np.interp(r, centers, prof)
-        scale = target[keep & (V > 0.05)] / V[keep & (V > 0.05)]
-        C = float(np.median(scale))
-        resid = b - (V * C + A)
-        s = resid[keep].std()
-        if it >= 1:                    # first pass: model still settling
-            newkeep = keep & (np.abs(resid) < CLIP_SIGMA * s)
-            if newkeep.sum() >= 30:
-                keep = newkeep
+    if model == "mult":
+        # Two mult-only robustness changes (the "add" path below stays
+        # byte-identical — it is the canonical L2 pipeline):
+        # 1. keep REGROWS (recomputed from all valid blocks each iteration)
+        #    instead of monotone-shrinking, so early-model evictions can
+        #    return once the fit settles.
+        # 2. the clip threshold is floored at 3% of the local model value:
+        #    the bulk residual sigma (~0.2 counts, pure interp noise) is far
+        #    tighter than the legitimate ~1-count systematic that the
+        #    piecewise-linear V carries where it is steep (the corners) —
+        #    without the floor the corner blocks evict one by one, the tail
+        #    bins empty, flat-fill inflates V there and the eviction
+        #    cascades (measured on synthetic VxS: corner 0.657 vs true
+        #    0.540; exact with the floor). Real outliers stay clipped:
+        #    foreground sits 30%+ below the model, star residue 5-20%
+        #    above — both far outside 3%.
+        valid = keep.copy()
+        S = np.full_like(b, C)
+        for it in range(ALT_ITERS):
+            cs, *_ = np.linalg.lstsq(
+                As[keep], (b / np.clip(V, 0.05, None))[keep], rcond=None)
+            S = As @ cs
+            target = b / np.clip(S, 1e-9, None)
+            centers, prof = radial_profile(r, target, keep)
+            V = np.interp(r, centers, prof)
+            resid = b - V * S
+            s = resid[keep].std()
+            if it >= 1:                # first pass: model still settling
+                thresh = np.maximum(CLIP_SIGMA * s, 0.03 * np.abs(V * S))
+                newkeep = valid & (np.abs(resid) < thresh)
+                if newkeep.sum() >= 30:
+                    keep = newkeep
+        C = float(np.median(S[keep]))
+    else:
+        A = np.zeros_like(b)
+        for it in range(ALT_ITERS):
+            cs, *_ = np.linalg.lstsq(As[keep], (b - V * C)[keep], rcond=None)
+            A = As @ cs
+            target = b - A
+            centers, prof = radial_profile(r, target / C, keep)
+            V = np.interp(r, centers, prof)
+            scale = target[keep & (V > 0.05)] / V[keep & (V > 0.05)]
+            C = float(np.median(scale))
+            resid = b - (V * C + A)
+            s = resid[keep].std()
+            if it >= 1:                # first pass: model still settling
+                newkeep = keep & (np.abs(resid) < CLIP_SIGMA * s)
+                if newkeep.sum() >= 30:
+                    keep = newkeep
     rejected = 100.0 * (1 - keep.sum() / b.size)
     if rejected > 25:
         sys.exit(f"selfflat: {label}: {rejected:.0f}% of grid rejected — "
@@ -216,22 +256,33 @@ def fit_channel(ch, label):
     surf = np.clip(surf, lo, hi)       # V(center)=1 by construction
     g = surf
     tilt = 100.0 * np.hypot(cs[1], cs[2]) / max(C, 1e-9)
-    mid = np.interp(0.5, centers, prof)
+    mname = ("multiplicative VxS model" if model == "mult"
+             else "additive-glow model")
     print(f"selfflat {label}: grid rejected {rejected:4.1f}% | V(r) "
-          f"1.000 -> {mid:.3f} @ r=0.5 -> {prof[-1]:.3f} @ corner "
-          f"(monotone, additive-glow model) | corners TL {g[0,0]:.3f} "
+          f"1.000 -> {mid_of(centers, prof):.3f} @ r=0.5 -> {prof[-1]:.3f} @ corner "
+          f"(monotone, {mname}) | corners TL {g[0,0]:.3f} "
           f"TR {g[0,-1]:.3f} BL {g[-1,0]:.3f} BR {g[-1,-1]:.3f} | sky C "
-          f"{C:.1f} | glow tilt {tilt:.1f}%/half-frame (additive, planar)")
+          f"{C:.1f} | glow tilt {tilt:.1f}%/half-frame (planar)")
     return surf, C
 
 
+def mid_of(centers, prof):
+    return float(np.interp(0.5, centers, prof))
+
+
 def main():
-    if len(sys.argv) != 3:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    model = "add"
+    for a in sys.argv[1:]:
+        if a.startswith("--model="):
+            model = a.split("=", 1)[1]
+    if len(args) != 2 or model not in ("add", "mult"):
         sys.exit(__doc__)
-    data = read_fits(sys.argv[1])
+    data = read_fits(args[0])
     print(f"selfflat: median stack {data.shape[2]}x{data.shape[1]} "
-          f"x{data.shape[0]}ch, level ~{np.median(data):.4g}")
-    fits = [fit_channel(data[c], f"ch{c}") for c in range(data.shape[0])]
+          f"x{data.shape[0]}ch, level ~{np.median(data):.4g}, model={model}")
+    fits = [fit_channel(data[c], f"ch{c}", model)
+            for c in range(data.shape[0])]
     gain = np.stack([f[0] for f in fits])
     C = [f[1] for f in fits]
     # Divide by a GRAY gain: the per-channel profiles differ mostly because
@@ -245,7 +296,7 @@ def main():
     med_v = float(np.median(gain[0][::8, ::8]))
     print(f"selfflat: gray V applied to all channels "
           f"(corner {gain[0,0,0]:.3f}, frame-median V {med_v:.4f})")
-    write_fits(sys.argv[2], gain)
+    write_fits(args[1], gain)
     # Per-channel sky level x frame-median V = the model-consistent target
     # median for each glow-subtracted frame (rechroma.py): with the additive
     # residual zeroed, dividing by V returns a flat S̄_c in luminance AND
@@ -256,12 +307,12 @@ def main():
     to16 = 65535.0 if np.median(data) < 1.5 else 1.0
     C16 = [c * to16 for c in C]
     import json
-    with open(os.path.join(os.path.dirname(sys.argv[2]),
+    with open(os.path.join(os.path.dirname(args[1]),
                            "selfflat_levels.json"), "w") as f:
         json.dump({"C_16bit": C16, "median_V": med_v,
                    "target_median_16bit": [c * med_v for c in C16]}, f,
                   indent=1)
-    print(f"selfflat: wrote {sys.argv[2]} + selfflat_levels.json "
+    print(f"selfflat: wrote {args[1]} + selfflat_levels.json "
           f"(C16={['%.1f' % c for c in C16]}, targets="
           f"{['%.1f' % (c * med_v) for c in C16]})")
 
