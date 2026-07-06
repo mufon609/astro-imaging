@@ -130,6 +130,38 @@ when any source DNG is newer than the master (drop in re-shot frames and just
 re-run). Big FITS results are overwritten per set (`results/stack_<set>.fit`);
 small timestamped JPEG previews accumulate for run-to-run comparison.
 
+## Per-stage expectations (inspection contract)
+
+Every pipeline run auto-produces `results/inspect_<set>_<timestamp>/`
+(index.html + one JPEG, radial-profile PNG and metric block per stage) via
+`scripts/inspect_stage.py`. All stage JPEGs use the **same** rendering — MTF
+autostretch, linked, shadow clip median−2.8·σ, background target 0.25,
+data-driven anchors — so stages are visually comparable. The numeric bounds
+below are mirrored in `EXPECTATIONS` inside `inspect_stage.py`; violations
+mark the stage **WARN** in the report (inspection never aborts a run — the
+hard gate stays `bg_qa.py` on the final preview). Values calibrated on
+set-03 (21×25s ISO200 37/38mm, self-flat path), 2026-07-06.
+
+| stage | output SHOULD look like | verifying metric → PASS bound |
+|---|---|---|
+| calibrated frame (`pp_light_*`) | sky with vignette bowl + moonglow tilt, stars to the corners, offset gone, hot px mapped out | bg median (16-bit units) 100–1500 (measured 115); clipped px < 0.5%; stars ≥ 150 (measured ~5000); no channel median at 0 |
+| self-flat median (`selfflat_med`) | smooth V×S surface: bowl + tilt only — drifting stars self-rejected, MW smeared away | stars ≤ 5% of calibrated-frame count (star detector uses a 0.4%-of-local-bg prominence floor — pure σ thresholds promote glow mottles to "stars" on smooth surfaces); radial corner/center 0.35–0.75; `selfflat.py` grid rejection < 25% (aborts above) |
+| glow-subtracted frame (`bkg_pp_light_*`) | tilt GONE, bowl and levels intact | fitted plane tilt ≤ 3%/half-frame (branch masked in the fit; from 27–31% before); bg median shift vs calibrated in −35…+5% (seqsubsky removes the tilt's share of the median — a *drop* ~half the tilt amplitude is the expected signature, a *jump* is not) |
+| self-flat gain (`selfflat_gain`) | smooth gray radial falloff, 1.0 center → ~0.54 corner, **no rings** | monotone non-increasing (exact — THE ring guard); corner 0.45–0.65; channel spread 0 (gray by construction); detrended radial P2V is INFO-only (detrend lag on the knee reads ~2.6% on a ring-free monotone curve) |
+| divided frame (`pp_bkg_pp_light_*`) | flat sky edge-to-edge, corner stars re-brightened with the sky; noise rises ~1/V toward corners | radial P2V (r ≤ 0.85) ≤ 20% of median full-range (the recorded "±9%" = 18% full-range); rim zone r > 0.9 deviation ≤ 25% (open defect: extrapolation zone) |
+| registration (sweep) | best reference registers (nearly) all frames | registered/total ≥ 0.9 (measured 21/21 @ ref 12; 2-pass auto-pick was 18/21) |
+| linear stack (`stack_<set>`) | flat bg, MW visible under stretch, no rejection artifacts, rim slightly thinner coverage | bgnoise/median (G) 1.2–1.7% (measured 1.46%); radial P2V (r ≤ 0.85) ≤ 20% full-range (glow+MW still present — absolute flatness is judged after subsky); stars ≥ 300; median 150–1500 |
+| post: subsky | glow/gradient removed, background centered near zero offset from median, MW untouched | block-map spread (P95−P5 of block medians) ≤ 4× bgnoise; radial P2V not worse than input |
+| post: denoise | grain −35…−45%, faint stars survive | bgnoise ratio 0.5–0.75 of input; star count Δ ≥ −10%; radial-profile shift < 1.0 8-bit count (KNOWN FAIL — out of chain until placement passes) |
+| post: autostretch | neutral dark sky at the target bg, casts equalized, stars bright not gray | bg median (8-bit) within ±6 of target×255; bg |R−G|,|B−G| ≤ 3; top-100 star peak median ≥ 200/255 (below = "washed out") |
+| post: satu (if used) | color saturation up in stars/MW, background chroma unchanged | bg color dev change ≤ 1 count; star peak median must not drop |
+| final preview JPEG | black sky, structured MW, sharp bright stars, no rings, full frame | `bg_qa.py` gate PASS (blocks P95/P50 ≤ 1.6, color ≤ 7; rings lum ≤ 4, chroma ≤ 4) + star metrics reported (count, FWHM-eq, top-100 peak, halo ratio) |
+
+Star metrics (count/FWHM/peak/halo) come from a numpy detector in
+`inspect_stage.py` (local maxima > bg+8σ, equivalent-area FWHM, halo =
+flux(3–8px)/flux(<3px)) — consistent across linear FITS and 8-bit JPEG, so
+"washed out stars" is now a measured quantity, not an impression.
+
 ## Iteration log (session 07-02-26)
 
 | preview | variant | verdict |
@@ -165,6 +197,62 @@ Single-variable ladders only (test X at 0.3/0.5/0.7-style brackets), hypothesis
 stated before each run, per-stage inspection artifacts auto-generated so every
 pipeline stage can be judged — not just the final preview. Handoff prompt for
 the implementation session: `NEXT_SESSION_PROMPT.md`.
+
+**Inspection + experiment tooling (2026-07-06, this session):**
+- `scripts/astrometrics.py` — shared measurement lib (minimal FITS reader
+  with display-orientation flip, gradient-immune diff-MAD bgnoise, radial
+  lum+chroma profiles, numpy star detector: count / FWHM-eq / elongation /
+  halo ratio / top-100 & mid-tier(100–500) peak / saturated-star fraction).
+  Star "washed out" is now measurable: candidate_v4 saturates only 57% of
+  its measured stars (mid-tier peak 249/255) vs 100% (254/255) for the
+  approved-baseline render — matches the user's verdict exactly.
+- `scripts/inspect_stage.py` — per-stage inspection (consistent linked MTF
+  autostretch on every stage JPEG: shadow σ=-2.8, bg target 0.25), metrics +
+  PASS/WARN vs the expectations table, browsable per-run report
+  (`results/inspect_<set>_<ts>/index.html`); wired into `run_pipeline.sh` +
+  `run_post.sh` (post ops save intermediates via `save` in the template,
+  measured then deleted). Inspection warns, never aborts; `bg_qa.py`
+  (refactored importable, thresholds byte-identical) stays the hard gate.
+- `scripts/experiment.py` — single-variable ladder harness: one `--param`,
+  bracketed `--values` (control auto-included, bracketing enforced),
+  mandatory `--hypothesis`; reruns only the affected ops from the pinned
+  stack (shared prefix computed once, GraXpert cached), emits per-value
+  JPEGs + QA/star metric table + side-by-side full/star-field/corner strips
+  into `results/exp_*/`, then stops for user judgment. Chains: `baseline`
+  (approved recipe) and `candidate` (candidate_v4 recipe).
+- Measured while validating: JPEG quality 85→98 only jitters ring P2V by
+  ~±0.4 count and star sat% by a few points — that is the metric noise
+  floor, not a star-quality lever.
+- **Current-stack drift finding:** re-running the approved recipe on the
+  stack rebuilt at 11:21 (post refine-gain dead end) gives QA FAIL rings
+  lum 7.2 / R-G 4.9 — worse than the 104902 approved render (4.9/6.8, gate
+  added later). The stack behind the approved preview no longer exists;
+  the instrumented full run regenerates the canonical stack + per-stage
+  report, and all experiments pin against that. Fresh canonical run
+  (`inspect_set-03_20260706_123508`): 21/21 @ ref 13 (sweep: 10→15, 11→18,
+  12→20, 13→21 — reference-dependence confirmed yet again), stack noise/med
+  1.57%, recipe rerun QA FAIL rings lum 4.7 / R-G 6.7 ≈ the approved-era
+  values. Canonical current state to beat.
+
+**RIM/RING ROOT CAUSE — measured, 2026-07-06 (from the per-stage radial
+chroma profiles in `inspect_set-03_20260706_123508`).** R−G in 16-bit
+counts at r=0.3 → r=0.98, per stage: calibrated −63→−32 (natural
+G-dominant sky, multiplicative bowl, ratios consistent) | seqsubsky output
+−11→**+20** (SIGN FLIP BORN HERE: per-channel planar fit + per-channel
+level restoration re-centers each channel on its own median; G's bowl is
+~65 counts deep vs R's ~34, so after re-centering the rim goes R−G
+positive) | divided −11→**+37** (gray-V division amplifies the rim ×1.9 —
+it preserves ratios but scales the absolute imbalance) | stack −27→**+148**
+(addscale normalization + rgb_equal scale R up globally ≈4×) | post-subsky
+~0→+4.5 (RBF cleans everything below r≈0.93; the extrapolation zone keeps
+the residual) | post-stretch ~0→**+13** at r=0.98 (the QA R−G ring).
+Luminance has a second, independent component: the divided frame keeps a
+real **−16% G falloff at r>0.93** (V(r) under-corrects the outer 2–4% of
+radius and/or glow curvature is concentrated there); after RBF + stretch it
+renders as the bright-ring-at-0.93 / dark-edge-at-0.98 signature (G 30.8 →
+35.0 → 15.8). The 150–250px crop has been hiding exactly these two rims.
+Fix experiments must attack (C) the seqsubsky chroma re-centering and (L)
+the V(r)/glow rim under-correction separately.
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
