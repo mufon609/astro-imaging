@@ -16,9 +16,13 @@ calibrate light -dark=masters/dark_master -cc=dark 3 3 -cfa -debayer
 set32bits
 stack pp_light med -norm=mul -out=selfflat_med
 set16bits
-# The frames that continue through the pipeline DO get their planar glow
-# subtracted first (level-preserving, sensor coords, while linear): the
-# later V division then amplifies only the glow's small curvature residual
-# at the corners instead of the full tilt. Sequence -> bkg_pp_light.
+# The frames that continue through the pipeline DO get their PLANAR glow
+# subtracted first (level-preserving, sensor coords, while linear).
+# Degree stays 1 — L3 (2026-07-06) tried degree 2 to kill the +5% rim
+# curvature bump and it DID (divided frames flat to 0.975) but it ALSO
+# erased the Milky Way from the stack (+38 -> 0.0 linear contrast): at
+# 37mm the MW band is frame-scale curvature, indistinguishable from glow
+# curvature by any unmasked smooth fit. Only a geometric band mask can
+# separate them; that lives at the starless-layer stage, not here.
 seqsubsky pp_light 1
 close

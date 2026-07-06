@@ -442,6 +442,134 @@ sky background ≈ 0.2 ADU/frame, buried under ~4 ADU frame noise and further
 decorrelated by drift-dither. The 24mm results stand. Fix at acquisition:
 cloth/t-shirt diffuser over the lens + more screen distance.
 
+## Star separation arc (2026-07-06, session 3 — user direction)
+
+User verdict on candidate_v5: **MW dust/glow missing (too dark) and the
+dark render may just be hiding the chroma/ring issue** — correct on both:
+the measured target ladder (0.07 PASS / 0.09 FAIL 4.3 / 0.12 FAIL 5.4)
+shows the rim residual is hidden, not gone, and the same 0.07 target is
+what crushes the MW.
+
+**Standard DSO workflow vs ours:** calibrate → register → stack →
+linear gradient removal (DBE/GraXpert) → photometric color calibration
+(SPCC/PCC) → deconvolution (BlurX) → linear noise reduction (NoiseX) →
+**star separation (StarNet++/StarXTerminator)** → stretch starless HARD
+(GHS/arcsinh: nebulosity without star bloat) + stars gently (cores/color
+protected, faint tail often culled or reduced) → screen/PixelMath
+recombine. Ours matches through gradient removal; it diverges at: color
+cal = `rgb_equal` only (PCC needs plate solve — future); decon = dead end
+here (trailing, PSF unstable on ≈0 bg); denoise = out (gate); and above
+all NO star separation — one global stretch had to serve stars AND
+nebulosity, which is exactly the trade-off that failed (bright = rim +
+star bloat, dark = no MW). Star separation removes that coupling AND
+gives the background model star-free data (better rim behavior).
+StarNet++ has no aarch64 build; GraXpert 3.2 has no star removal →
+`scripts/starsep.py` does classic mask+inpaint (component filter: peak
+prominence ≥6σ + compact area, bright-core exception; branch excluded;
+multi-scale seed + Jacobi diffusion inpaint + matched noise; catalog
+saved for flux-percentile culling). Measured on the V2 stack: 23k stars
+masked (13.7% of frame), starless keeps MW band + dark lanes intact (no
+holes/halos), stars layer leaks no background. Faint 4–6σ stars remain
+in the starless layer as stipple (below the prominence cut) — the
+denoise-on-starless experiment is the intended cleaner.
+`scripts/starcomb.py` = split processing (starless: GraXpert BGE →
+subsky 1 → optional denoise → unlinked stretch; stars: gray MTF anchored
+to top-500 amplitude median → screen combine) + single-knob ladder mode
+with the same discipline (hypothesis, control value, metric table,
+strips, STOP). It also QA-grades the STARLESS render alone — the honest
+rim check no dark render can hide behind.
+
+**Pre-registered hypotheses:**
+- S2 `starless_target` 0.07/0.12/0.15: with stars out and gx modeling a
+  star-free background, the rim should stay ≤4 rings at brighter targets
+  (the star-ful chain failed at 0.09); MW contrast should rise with
+  target. If starless-only rings still blow up at 0.12, the rim is in
+  the data, not the estimator's star handling.
+- S3 `starless_denoise` off/vst: denoise's gate failure was measured on
+  star-ful frames; on smooth starless data VST NL-Bayes should not
+  create radial structure → rings stay, stipple + grain drop.
+- S4 `cull_pct` 0/50/75: culling the faint half of the catalog cleans
+  the field without touching bright-star impact; count drops, mid-peak
+  unchanged; user judges the look.
+
+**S2 result: hypothesis REFUTED — the rim is in the DATA.** Starless-only
+rings scale with render brightness exactly like the star-ful chain
+(0.07→3.9 PASS, 0.12→5.0, 0.15→6.3+). Star handling was never the
+estimator's rim problem. ALSO exposed: **GraXpert BGE erases the MW on
+starless input** — measured linear MW contrast +38.1 counts before gx →
++0.4 after (on star-ful input it left ~+4 through to candidate_v5). With
+stars gone, the AI reads diffuse nebulosity as background. bge on
+starless = MW killer; and the stars branch at anchor 0.85 renders dimmer
+(mid 225) than the star-ful chain (250) — anchor needs its own ladder.
+**S5 border-anchored membrane: REFUTED** — a border-only thin-plate
+cannot represent the glow's interior curvature (over-subtracts mid-frame:
+MW contrast −19) and border-sample scatter wiggles the rim (ring L 8.6).
+**S6 lower-envelope grid RBF: REFUTED for rings** — keeps some MW (+4 vs
+gx's +1) but ring L 9.4 (rejection creates local extrapolation pockets;
+the surface still tracks the broad band partially).
+
+**Conclusion + L3 (pre-registered): fix the +2% at the SOURCE.** The
+divided frames carry a non-monotone +5% bump at r≈0.93 = per-frame glow
+CURVATURE that planar `seqsubsky 1` leaves and monotone V must not
+absorb. Change `40a` per-frame `seqsubsky 1 → 2` (curvature removed in
+sensor coords while additive-clean). Self-consistent with the L2
+architecture: whatever bowl share the quadratic absorbs just makes V2
+shallower and rechroma targets adapt (C·med(V)). A smooth quadratic
+cannot print rings (no oscillation). Expect: divided-frame bump at 0.93
+≈ gone, stack rim ≤ ~1%, fullframe chain rings ≤ 4 at target 0.12 (the
+star-bright render). Risks pre-registered: per-frame quadratic may bend
+the MW band per frame — gate: stack MW contrast must stay ≈ +38 linear;
+V2 corner will change (quadratic absorbs bowl share) — that is expected,
+not a failure.
+
+**L3 result: REFUTED — the worst-case risk materialized.** The rim goal
+was achieved perfectly (divided frames flat to 0.975 rim/mid, the 0.93
+bump GONE, stack chroma flat +3) **and the Milky Way was erased: stack
+MW contrast +38 → +0.0 linear.** At 37mm the MW band is frame-scale
+curvature — indistinguishable from glow curvature to ANY unmasked smooth
+fit. DEAD END for unmasked per-frame curvature removal; reverted to
+`seqsubsky 1`, stack regenerated (MW +39.7 ✓, preserved as
+`stack_set-03_L2.fit`). *Meta-lesson: rim curvature and MW are the same
+spatial frequency; only geometric (band-mask) separation can
+discriminate.*
+
+**S7 'banded' (geometric corridor exclusion, pre-registered above):
+REFUTED** — corridor-edge samples sit in band skirts, the bridging
+surface runs high (MW −9 after subtract) and the thin-plate still
+wiggles the rim (ring L 9.9). All three hand-rolled RBF surfaces
+(border/envelope/banded) land at ring 8–10 vs gx's 5–6: block-sample
+scatter (±3–5 counts) through one global smoothing parameter cannot be
+simultaneously flexible (glow blob), stiff (rim) and null (band).
+
+**S8 'bge_first + mw_boost' (order fixed to the standard one: GraXpert
+BGE + subsky 1 on the STAR-FUL stack — measured MW-safe there — then
+separation, then band-corridor midtone lift on the starless layer):**
+k=0 regression ✓ QA rings 3.0–4.4 (the sep+recombine roundtrip itself
+costs ~+0.7 ring vs plain v5), MW +4; k=0.6 → rings 6.1, MW +5; k=1.2 →
+rings 6.9, blocks 1.72, MW +6. **The gate reads an intentionally lifted
+MW as background nonuniformity** — the corridor crosses radial bins
+asymmetrically (ring metric) and brightens blocks (block metric).
+
+**DECISION MATRIX (2026-07-06, needs the user — every route measured):**
+1. **Full frame + gate intact + dark:** candidate_v5 stands (QA PASS,
+   MW subtle +4). The stars can be brightened independently via the
+   separation (stars anchor 0.85→~0.97) without touching the gate.
+2. **Bright MW/stars:** mathematically incompatible with the CURRENT
+   gate on THIS data at ANY crop — the rim residual and the lifted MW
+   both read as rings/blocks (measured at crop 0/150/250: all fail at
+   target ≥0.09). Not an engineering gap anymore; a gate-vs-goal
+   conflict.
+3. **Gate evolution (user's call only):** treat the MEASURED MW corridor
+   as signal — mask it from the block map and compute ring metrics on
+   the corridor-complement (exactly how the branch is already masked as
+   known-non-sky). Thresholds stay untouched elsewhere. Then mw_boost ≈
+   0.6–1.2 + target 0.07 gives a full-frame render with visible MW dust
+   whose SKY portion still passes the strict gate. This is a scope
+   change of the gate, not a loosening of its thresholds — but it is
+   the user's decision by the project's own rules.
+4. Next acquisition remains the physical fix (≤13s subs, ISO 800, real
+   flats): more MW signal per count of glow → less boost needed.
+
 ## Iteration ideas (not yet tried)
 
 - Registration with distortion handling (24mm wide field, corner stars)
