@@ -3,10 +3,18 @@ set16bits
 cd lights
 convert light -out=../work
 cd ../work
-# Master dark is 1/10s (mismatched, see NOTES.md): acts as bias-equivalent
-# subtraction plus hot-pixel map for cosmetic correction. No -opt on purpose.
+# Dark is exposure/ISO-matched (20s ISO200 re-shoot): full dark subtraction
+# plus hot-pixel map for cosmetic correction. -opt unnecessary with matched
+# darks (Z6III mean dark current at 20s is ~0; hot-pixel mapping is the win).
 calibrate light -dark=masters/dark_master -flat=masters/flat_master -cc=dark 3 3 -cfa -equalize_cfa -debayer
-register pp_light
+# Two-pass: measure all frames first, pick the reference that maximizes
+# registrable overlap — the fixed-tripod field drift otherwise strands the
+# late frames too far from a sequence-start reference (6/32 dropped in 1-pass).
+# Lower detection threshold: default sigma 1.0 finds ~370 stars/frame and the
+# matcher still fails on 2 frames; fainter stars give it more triangles.
+setfindstar -sigma=0.5
+register pp_light -2pass
+seqapplyreg pp_light
 set32bits
 stack r_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_latest
 close
