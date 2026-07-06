@@ -1,0 +1,12 @@
+requires 1.4.0
+set16bits
+cd work
+# Divide every calibrated frame by the fitted radial vignette: a second
+# calibrate pass with only -flat. V(center)=1 so levels are preserved;
+# division is the correct (multiplicative) vignette removal — corner stars
+# and sky re-brighten together, which additive subsky can never do. The sky
+# glow S stays in the frames for subsky. Registration runs as a separate
+# stage: the reference is swept by run_pipeline.sh (star matching on trailed
+# stars succeeds or fails per reference — measured, not predictable).
+calibrate pp_light -flat=selfflat_gain
+close

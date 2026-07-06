@@ -51,12 +51,16 @@ more **light-frame sets** (`lights/`, `set-03/`, …).
 orchestrates five siril-cli stages, deleting each stage's intermediates before
 the next (disk-limited):
 
-0. preflight — exiftool check: hard-fails if a dir mixes exposure/ISO
-   (protects against stale frames after a re-shoot); warns on darks/set
-   exposure mismatch and ISO mismatches; compares **focal length + f-number**
-   of flats vs the set and calibrates WITHOUT flat when they differ (a flat
-   only corrects vignetting for its own optics), switching post-process to
-   subsky degree 2 to fit the un-flattened vignette bowl
+0. preflight — exiftool check: hard-fails on an empty frame dir or a dir
+   mixing exposure/ISO (protects against stale frames after a re-shoot);
+   warns on darks/set exposure mismatch and ISO mismatches; compares
+   **focal length + f-number** of flats vs the set. A flat is used only when
+   flats AND biases dirs exist and the optics match — otherwise the set
+   takes the self-flat path. Only darks + the set dir are required at all;
+   flat/bias master stages are skipped entirely when unused.
+   Masters rebuild on **manifest change** (file names+sizes+mtimes recorded
+   at build time) — catches re-shot frames even when copied with older
+   timestamps, which a plain `-newer` check silently misses.
 1. `10_master_bias.ssf` — stack biases, Winsorized rej 3/3, no norm
 2. `20_master_flat.ssf` — calibrate flats with master bias, stack norm=mul
 3. `30_master_dark.ssf` — stack darks
@@ -74,21 +78,29 @@ the next (disk-limited):
    (alternating fits; planar S has no r² term so all radial curvature lands
    in V; foreground/star residue reject as outliers; aborts if >25% of the
    grid rejects) and writes V only (V(center)=1, float FITS) →
-   `40b_selfflat_stack.ssf.tmpl` DIVIDES every frame by V (second
-   `calibrate -flat=` pass), then registers + stacks as usual. The sky glow
-   S stays in the frames — it is additive and belongs to `subsky`, not to a
-   gain. Division is the multiplicatively-correct vignette fix — corner
-   stars and sky re-brighten together, which `subsky` can never do.
+   `40b_selfflat_divide.ssf.tmpl` DIVIDES every frame by V (second
+   `calibrate -flat=` pass). The sky glow S stays in the frames — it is
+   additive and belongs to `subsky`, not to a gain. Division is the
+   multiplicatively-correct vignette fix — corner stars and sky re-brighten
+   together, which `subsky` can never do.
    Gain kept at `work/masters/selfflat_<set>.fit` for inspection.
+   Registration then runs as a **reference sweep** (bash loop, 1-pass
+   `setref` + `register` per candidate, mid-sequence outward, early-stop on
+   all-registered, best kept): with trailed stars, star matching succeeds or
+   fails per reference and no heuristic predicts it — measured on set-03:
+   ref 11 → 19/21, ref 12 → 21/21, 2-pass auto-pick (14) → 18/21.
+   `40d_selfflat_stack.ssf.tmpl` stacks the winner.
    *v1 lesson (2026-07-06): fitting ONE free-form surface and dividing bakes
    the moonglow into the gain — its peak lands off the optical axis and
    regional brightness distorts (visible as blotchy over/under-corrected
    sky). Always sanity-check a fitted gain by its center: a vignette is
    radially symmetric about the image center.*
 5. `50_postprocess.ssf.tmpl` — stat + bgnoise of the linear stack (the
-   before/after record), then background extraction (`@SUBSKY@`) + autostretch
+   before/after record), then background extraction (`@SUBSKY@`) →
+   `denoise -vst` → `autostretch -linked -2.8 0.10` → `rmgreen` → `satu 0.3`
    → `preview_<set>_<timestamp>.jpg`. Iterate standalone:
-   `scripts/run_post.sh <session> [set] [subsky-degree]` (~seconds).
+   `scripts/run_post.sh <session> [set] [subsky-degree]` (denoise costs
+   ~3 min — comment it out in the tmpl when iterating on gradients only).
 
 Diagnostics: `diag_flat.ssf` (stretched master-flat check → JPEG); stack stats
 print in every post run. Record stack median + bgnoise **before and after every
@@ -120,6 +132,8 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | `preview_set-03_20260706_020759` | same, subsky 2 | marginally flatter mid-field, MW intact — either is fine |
 | `preview_set-03-38mm_*` | 13×38mm-only experiment | rejected (see set-03 table) — artifacts removed |
 | `preview_set-03_denoised` | + `denoise -vst` | bgnoise −41%, grain visibly reduced, faint stars kept — good final-polish option |
+| stretch ladder (removed) | 21-frame stack, `autostretch -linked -2.8` at bg 0.10 / 0.15 ± denoise/rmgreen/satu | **the "smokey" look was the stretch**: default autostretch targets bg 0.25 unlinked → gray veil; 0.10 overshoots dark and crushes the faint MW. Keeper: **0.15 linked + denoise + rmgreen + satu 0.3**, baked into `50_postprocess.ssf.tmpl` |
+| `preview_set-03_<final>` | full pipeline: radial self-flat + ref sweep (21/21) + subsky 2 + new stretch | current keeper |
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
@@ -145,8 +159,8 @@ unaffected away from the trees; a dedicated foreground blend is the real fix.
 | focal | **mixed: 8 × 37mm + 13 × 38mm** — single step at a ~57s mid-set pause (frame 8→9, camera touched); EXIF is integer-mm so true change is ≥1 reporting step, ≤ 2.7% scale |
 | calibration | darks 20s (warn: bias+hot-pixel-map mode), **no flat** (24mm flats ≠ 37/38mm — preflight auto-routes to SELF-FLAT path) |
 | self-flat (radial model) | median separates into **V(r) corners 0.73–0.76** (−0.45 EV true vignette, per channel) × **glow tilt 26–30%/half-frame** (left additive). Grid outliers ~1% (branch/stars) |
-| registration | 18/21 with the correct mild division (frames 1, 10, 20 fail star matching). Marginal frames flip between runs — trailed stars at 2× rule-of-500 are the root cause, not worth chasing. Mixed focal absorbed by homography — corner crops show no scale smear |
-| stack | `stack_set-03.fit`, G noise/median 1.078% — best of any variant |
+| registration | **21/21 via reference sweep** (ref 12; the 2-pass auto-reference stranded 3 frames — trailed stars make matching reference-dependent). Mixed focal absorbed by homography — corner crops show no scale smear |
+| stack | `stack_set-03.fit` 21 frames, G bgnoise 3.33 vs 3.57 @ 18 frames — the full √(21/18) recovered |
 | gradient | vignette divided out → subsky handles only the glow; degree 1 auto (degree 2 marginally flatter, both keep the MW) |
 | 38mm-only experiment | **rejected**: 11/13 registered (same ~85% fraction as the full set — failures are per-frame matching luck, not focal mix), G noise/median 1.324% = the full √(18/11) penalty for dropping 7 frames. Keep all 21 |
 | denoise | `denoise -vst` (NL-Bayes) on the post-subsky linear: bgnoise **−41%** (ch0 5.16→3.05), faint stars preserved, no artifacts. Post-polish option, not in the default pipeline — it can't add signal and aggressive use eats faint MW |

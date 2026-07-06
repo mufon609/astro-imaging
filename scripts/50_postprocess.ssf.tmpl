@@ -6,11 +6,17 @@ load stack_@SET@
 # output normalization rescales the stack when the reference frame changes).
 stat
 bgnoise
-# Gradient removal while linear. Degree 1 (planar) for the moonlit treeline
-# composition — RBF overfits around trees and carves holes in the sky.
-# Higher degree (run_post.sh arg 3) fits the radial vignette bowl when a set
-# was calibrated without a matching flat.
+# Gradient removal while linear. Degree 1 (planar) suffices when vignette
+# was flat-fielded (real flat or self-flat); RBF overfits around foreground.
 subsky @SUBSKY@ -dither
-autostretch
+# NL-Bayes with variance stabilization: ~-40% background grain, faint stars
+# survive. Costs ~3 min/run — comment out when iterating on gradients only.
+denoise -vst
+# Linked stretch to a dark 0.15 background: the default 0.25 target reads as
+# smokey gray, 0.10 crushes the faint MW. Then kill the green cast and
+# restore some color.
+autostretch -linked -2.8 0.15
+rmgreen
+satu 0.3
 savejpg preview_@SET@ 90
 close
