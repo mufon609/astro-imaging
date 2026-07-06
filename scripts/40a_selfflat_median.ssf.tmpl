@@ -1,0 +1,14 @@
+requires 1.4.0
+set16bits
+cd @SET@
+convert light -out=../work
+cd ../work
+# No matching flat exists for this set (preflight decides): calibrate without
+# flat, then build a SELF-FLAT from the frames themselves. The per-pixel
+# median of the UNREGISTERED calibrated frames rejects the drifting stars
+# (fixed tripod) and keeps the static-in-sensor-coords surface:
+# vignette x sky (+ dust). scripts/selfflat.py fits the smooth gain from it.
+calibrate light -dark=masters/dark_master -cc=dark 3 3 -cfa -debayer
+set32bits
+stack pp_light med -norm=mul -out=selfflat_med
+close

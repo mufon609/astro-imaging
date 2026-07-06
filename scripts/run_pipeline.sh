@@ -59,10 +59,10 @@ FLATOPT="-flat=masters/flat_master -equalize_cfa"
 SUBSKY_DEG=1
 if [[ "$lopt" != "$fopt" ]]; then
   echo "WARNING: flats optics ($(tr '\t' '/' <<<"$fopt" | tr '\n' ' ')) != $SET optics ($(tr '\t' '/' <<<"$lopt" | tr '\n' ' '))"
-  echo "         calibrating WITHOUT flat — vignette stays; re-shoot flats at the lights' focal length to enable it"
-  echo "         post-process will use subsky degree 2 to fit the vignette bowl"
+  echo "         no usable flat — stage 4 will build a SELF-FLAT from the frames"
+  echo "         (median of unregistered lights -> fitted gain -> division)"
   FLATOPT=""
-  SUBSKY_DEG=2
+  SUBSKY_DEG=1   # self-flat divides out bowl+glow; planar residue at most
 fi
 if [[ $(wc -l <<<"$lopt") -ne 1 ]]; then
   echo "WARNING: mixed focal/aperture inside $SET — homography registration absorbs scale, but vignetting varies between frames"
@@ -103,12 +103,31 @@ else
 fi
 
 # --- stage 4: per-set script generated from template -------------------------
-GEN4="$W/40_lights.$SET.gen.ssf"
-sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
-    "$REPO/scripts/40_lights.ssf.tmpl" > "$GEN4"
-echo "=== stage 4/5: calibrate + register + stack $SET ==="
-siril_run "$GEN4"
-rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
+if [[ -n "$FLATOPT" ]]; then
+  GEN4="$W/40_lights.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
+      "$REPO/scripts/40_lights.ssf.tmpl" > "$GEN4"
+  echo "=== stage 4/5: calibrate + register + stack $SET ==="
+  siril_run "$GEN4"
+else
+  # No usable flat: self-flat path (see NOTES.md). 4a median of unregistered
+  # calibrated frames -> 4b fit smooth gain surface -> 4c divide + register
+  # + stack. The gain is multiplicative (real vignette correction) where
+  # subsky is only additive.
+  GEN4A="$W/40a_selfflat.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40a_selfflat_median.ssf.tmpl" > "$GEN4A"
+  echo "=== stage 4a/5: calibrate + median self-flat $SET ==="
+  siril_run "$GEN4A"
+  echo "=== stage 4b/5: fit self-flat gain surface ==="
+  python3 "$REPO/scripts/selfflat.py" "$W/selfflat_med.fit" "$W/selfflat_gain.fit"
+  cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"   # for inspection
+  GEN4B="$W/40b_selfflat.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40b_selfflat_stack.ssf.tmpl" > "$GEN4B"
+  echo "=== stage 4c/5: divide by self-flat + register + stack $SET ==="
+  siril_run "$GEN4B"
+fi
+rm -f "$W"/light_* "$W"/pp_light_* "$W"/pp_pp_light_* "$W"/r_pp_light_* \
+      "$W"/r_pp_pp_light_* "$W"/selfflat_med.* "$W"/selfflat_gain.*
 
 echo "=== stage 5/5: post-process ==="
 "$REPO/scripts/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"
