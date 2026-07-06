@@ -1,9 +1,0 @@
-requires 1.4.0
-# Stats for before/after comparison: record Median + bgnoise per channel
-# before AND after any pipeline change; compare noise/median (level-independent
-# — output normalization rescales the stack when the reference frame changes).
-cd results
-load stack_latest
-stat
-bgnoise
-close

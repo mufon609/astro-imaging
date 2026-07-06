@@ -1,0 +1,16 @@
+requires 1.4.0
+cd results
+load stack_@SET@
+# Stats first, on the linear stack: record Median + bgnoise per channel before
+# and after any pipeline change; compare noise/median (level-independent —
+# output normalization rescales the stack when the reference frame changes).
+stat
+bgnoise
+# Gradient removal while linear. Degree 1 (planar) for the moonlit treeline
+# composition — RBF overfits around trees and carves holes in the sky.
+# Higher degree (run_post.sh arg 3) fits the radial vignette bowl when a set
+# was calibrated without a matching flat.
+subsky @SUBSKY@ -dither
+autostretch
+savejpg preview_@SET@ 90
+close

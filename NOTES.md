@@ -43,34 +43,43 @@ so they double as exact flat-darks.
    Z6III's second gain stage starts at ISO 800 — ISO 200 has the high-read-noise
    path. Expect heavy stretch, watch for pattern noise.
 
-## Pipeline design (v2)
+## Pipeline design (v4 — per-set)
 
-`scripts/run_pipeline.sh <session-dir>` orchestrates five siril-cli stages,
-deleting each stage's intermediates before the next (disk-limited):
+A session dir holds **shared calibration** (darks/biases/flats) plus one or
+more **light-frame sets** (`lights/`, `set-03/`, …).
+`scripts/run_pipeline.sh <session-dir> [lights-set]` (set defaults to `lights`)
+orchestrates five siril-cli stages, deleting each stage's intermediates before
+the next (disk-limited):
 
 0. preflight — exiftool check: hard-fails if a dir mixes exposure/ISO
-   (protects against stale frames after a re-shoot), warns on darks/lights
-   exposure mismatch and ISO mismatches
+   (protects against stale frames after a re-shoot); warns on darks/set
+   exposure mismatch and ISO mismatches; compares **focal length + f-number**
+   of flats vs the set and calibrates WITHOUT flat when they differ (a flat
+   only corrects vignetting for its own optics), switching post-process to
+   subsky degree 2 to fit the un-flattened vignette bowl
 1. `10_master_bias.ssf` — stack biases, Winsorized rej 3/3, no norm
 2. `20_master_flat.ssf` — calibrate flats with master bias, stack norm=mul
 3. `30_master_dark.ssf` — stack darks
-4. `40_lights.ssf` — calibrate (`-dark` + `-cc=dark` hot-pixel removal, flat,
-   equalize_cfa, debayer) → `setfindstar -sigma=0.5` + **two-pass** register +
-   `seqapplyreg` → 32-bit rej stack norm=addscale + rgb_equal. The calibrate
-   command is correct for matched *and* mismatched darks.
-5. `50_postprocess.ssf` — planar background extraction + autostretch → JPEG
-   preview. Run standalone via `scripts/run_post.sh <session>` to iterate on
-   post without re-registering (~seconds instead of minutes).
+4. `40_lights.ssf.tmpl` — per-set script generated into `work/` (`@SET@`,
+   `@FLATOPT@`): calibrate (`-dark` + `-cc=dark` hot-pixel removal, flat +
+   equalize_cfa when optics match, debayer) → `setfindstar -sigma=0.5` +
+   **two-pass** register + `seqapplyreg` → 32-bit rej stack norm=addscale +
+   rgb_equal → `results/stack_<set>.fit`. The calibrate command is correct
+   for matched *and* mismatched darks.
+5. `50_postprocess.ssf.tmpl` — stat + bgnoise of the linear stack (the
+   before/after record), then background extraction (`@SUBSKY@`) + autostretch
+   → `preview_<set>_<timestamp>.jpg`. Iterate standalone:
+   `scripts/run_post.sh <session> [set] [subsky-degree]` (~seconds).
 
-Diagnostics: `diag_flat.ssf` (stretched master-flat check → JPEG) and
-`diag_stack.ssf` (stat + bgnoise of the current stack). Record stack
-median + bgnoise **before and after every change** and compare noise/median —
-output normalization rescales levels when the reference frame changes, so raw
-bgnoise numbers across runs are not comparable.
+Diagnostics: `diag_flat.ssf` (stretched master-flat check → JPEG); stack stats
+print in every post run. Record stack median + bgnoise **before and after every
+change** and compare noise/median — output normalization rescales levels when
+the reference frame changes, so raw bgnoise numbers across runs are not
+comparable.
 
 Masters live in `<session>/work/masters/` and are **rebuilt automatically**
 when any source DNG is newer than the master (drop in re-shot frames and just
-re-run). Big FITS result is overwritten each run (`results/stack_latest.fit`);
+re-run). Big FITS results are overwritten per set (`results/stack_<set>.fit`);
 small timestamped JPEG previews accumulate for run-to-run comparison.
 
 ## Iteration log (session 07-02-26)
@@ -84,6 +93,9 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | `preview_20260706_003151` | **re-shot cals**, 1-pass reg | calibration clean (corners/color/center ✓) but 26/32 — 4 more drifted tail frames dropped; G 1.58% |
 | `preview_20260706_003913` | + 2-pass registration | 30/32 (auto-ref → frame 32); G 1.42% — beats old-cal |
 | `preview_20260706_004620` | + `setfindstar -sigma=0.5` | **keeper** — 31/32 (ref → 18), G 1.40%, stars tight, no artifacts |
+| `preview_set-03_20260706_011304` | set-03 first run (no flat, subsky 1) | 20/21; planar subsky can't fit vignette bowl, corners near clip |
+| `preview_set-03_20260706_011346` | set-03 subsky 2 | **keeper** — flattest practical sky (σ 77.6 vs 87.6), Milky Way visible; mottling is real sky (clouds/moonglow), not artifacts |
+| `preview_set-03_deconv` | + makepsf stars + RL 20 iters | no de-trailing benefit — rejected |
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
@@ -96,6 +108,37 @@ chasing (+1 frame ≈ 1.6% noise). Per-frame FWHM spread is only ~6%
 
 The remaining bright-bottom gradient is real sky (waning gibbous moon + horizon
 glow); stronger removal needs treeline-aware masking (GraXpert) — future work.
+The halos in the sky around the treeline are inherent to star-aligned stacking
+of a landscape: treeline pixels flip between tree and sky across drifting
+frames and rejection only partially cleans the transition. Sky-only quality is
+unaffected away from the trees; a dedicated foreground blend is the real fix.
+
+## set-03 (same night, second composition — nearly pure sky, Big Dipper area)
+
+| what | value |
+|---|---|
+| frames | 21 × 25s ISO 200 f/4, Jul 3 00:47–00:57 |
+| focal | **mixed: 8 × 37mm + 13 × 38mm** (zoom moved mid-set) |
+| calibration | darks 20s (warn: bias+hot-pixel-map mode), **no flat** (24mm flats ≠ 37/38mm — preflight auto-disables), biases n/a for lights |
+| registration | 20/21 (2-pass ref → frame 8; frame 19 unmatchable). Mixed focal absorbed by homography — corner crops show no scale smear |
+| stack | `stack_set-03.fit`, G noise/median 1.08% |
+| gradient | post-subsky G sigma: degree 1 = 87.6, **degree 2 = 77.6 (chosen)**, RBF = 76.8 (+1%, not worth overfit risk; degree 1 leaves corners near clipping, min 16 vs 97) |
+| stars | uniformly elongated: **in-exposure trailing** (25s at 37–38mm ≈ 2× rule-of-500 ≈ 13s) — the crispness ceiling; NOT misregistration (no doubling) |
+| deconv | tried `makepsf stars` + `rl -iters=20` on the linear: no visible de-trailing (fitted PSF ≈ symmetric), PSF fit unstable on ≈0 background — rejected (`preview_set-03_deconv.jpg`) |
+
+Verdict: sky quality is registration/stack-limited no more — it's exposure-
+limited (trailing + ISO 200). For crisp stars at ~38mm: ≤13s subs, ISO 800,
+and more of them.
+
+## Master flat screen-pixel check (user spotted grid in raw flats)
+
+Confirmed by per-CFA-plane FFT (Bayer mosaic excluded by construction):
+coherent horizontal banding, periods 4–12 sensor px, peaks 88–166× above the
+spectrum floor, **~0.3% RMS** (vs ~0.1–0.15% pure shot-noise floor for a
+100-frame master). Impact on stacked lights: negligible — 0.3% of a ~57 ADU
+sky background ≈ 0.2 ADU/frame, buried under ~4 ADU frame noise and further
+decorrelated by drift-dither. The 24mm results stand. Fix at acquisition:
+cloth/t-shirt diffuser over the lens + more screen distance.
 
 ## Iteration ideas (not yet tried)
 
@@ -132,5 +175,13 @@ glow); stronger removal needs treeline-aware masking (GraXpert) — future work.
 - Darks: same exposure/ISO as lights, shot at night-time temps
 - Flats: histogram peak ~50% — the Jul 5 MacBook-screen setup at 1/160s gave
   only ~27%; use ≈1/50s at that screen brightness
-- Consider ISO 800 (Z6III dual-gain step) if staying at 20s subs
+- Flats: **diffuse the screen** — cloth/t-shirt over the lens + distance from
+  the screen (Jul 5 flats show the screen pixel grid at ~0.3% RMS: harmless
+  this time, avoidable always)
+- Flats: shoot a flat set **per focal length used** that night, before touching
+  the zoom — a 24mm flat cannot calibrate 37mm lights (set-03 ran flatless)
+- Lock the zoom ring (tape) — set-03 drifted 37→38mm mid-set
+- Sub length ≤ 500/focal (13s at 38mm, 20s at 24mm) or stars trail — trailing,
+  not noise, capped set-03's sharpness
+- Consider ISO 800 (Z6III dual-gain step), especially with shorter subs
 - Dither between subs — it's what rescues us when darks are imperfect
