@@ -75,9 +75,14 @@ the next (disk-limited):
    the UNREGISTERED frames (drifting stars self-reject; the static
    vignette × sky survives) → `scripts/selfflat.py` separates that median
    into **V(r) × S(planar)** on a 101px block-median grid with 2.5σ clipping
-   (alternating fits; planar S has no r² term so all radial curvature lands
+   (alternating fits; planar S has no radial term so all falloff lands
    in V; foreground/star residue reject as outliers; aborts if >25% of the
-   grid rejects) and writes V only (V(center)=1, float FITS) →
+   grid rejects). V(r) is **binned radial medians + isotonic non-increasing
+   regression**, NOT a polynomial — an r²/r⁴/r⁶ fit oscillated (+4%
+   mid-radius hump, corner upturn) and printed concentric light/dark RINGS
+   into the sky after division; concentric structure is invisible to x-y
+   subsky, so it must never enter the gain. Writes V only (V(center)=1,
+   float FITS) →
    `40b_selfflat_divide.ssf.tmpl` DIVIDES every frame by V (second
    `calibrate -flat=` pass). The sky glow S stays in the frames — it is
    additive and belongs to `subsky`, not to a gain. Division is the
@@ -133,7 +138,8 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | `preview_set-03-38mm_*` | 13×38mm-only experiment | rejected (see set-03 table) — artifacts removed |
 | `preview_set-03_denoised` | + `denoise -vst` | bgnoise −41%, grain visibly reduced, faint stars kept — good final-polish option |
 | stretch ladder (removed) | 21-frame stack, `autostretch -linked -2.8` at bg 0.10 / 0.15 ± denoise/rmgreen/satu | **the "smokey" look was the stretch**: default autostretch targets bg 0.25 unlinked → gray veil; 0.10 overshoots dark and crushes the faint MW. Keeper: **0.15 linked + denoise + rmgreen + satu 0.3**, baked into `50_postprocess.ssf.tmpl` |
-| `preview_set-03_<final>` | full pipeline: radial self-flat + ref sweep (21/21) + subsky 2 + new stretch | current keeper |
+| ringed preview (removed) | radial-POLY self-flat + full pipeline | **concentric rings** (user spotted): preview radial profile oscillated 54→31→54→6 because the r²/r⁴/r⁶ V(r) had a +4% hump and corner upturn — division printed inverse rings |
+| `preview_set-03_20260706_025515` | **isotonic self-flat** + ref sweep (21/21) + subsky 2 + stretch | **keeper** — V strictly monotone, preview profile smooth (33→41→51→45, glow not rings), MW intact |
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,
@@ -158,7 +164,7 @@ unaffected away from the trees; a dedicated foreground blend is the real fix.
 | frames | 21 × 25s ISO 200 f/4, Jul 3 00:47–00:57 |
 | focal | **mixed: 8 × 37mm + 13 × 38mm** — single step at a ~57s mid-set pause (frame 8→9, camera touched); EXIF is integer-mm so true change is ≥1 reporting step, ≤ 2.7% scale |
 | calibration | darks 20s (warn: bias+hot-pixel-map mode), **no flat** (24mm flats ≠ 37/38mm — preflight auto-routes to SELF-FLAT path) |
-| self-flat (radial model) | median separates into **V(r) corners 0.73–0.76** (−0.45 EV true vignette, per channel) × **glow tilt 26–30%/half-frame** (left additive). Grid outliers ~1% (branch/stars) |
+| self-flat (isotonic model) | median separates into **V(r) monotone 1.00 → 0.91 @ r=0.5 → 0.52–0.56 @ corners** (per channel) × **glow tilt 27–31%/half-frame** (left additive). Grid outliers 3–4%. The earlier r²/r⁴/r⁶ poly claimed corners 0.73 but oscillated → rings (see iteration log) |
 | registration | **21/21 via reference sweep** (ref 12; the 2-pass auto-reference stranded 3 frames — trailed stars make matching reference-dependent). Mixed focal absorbed by homography — corner crops show no scale smear |
 | stack | `stack_set-03.fit` 21 frames, G bgnoise 3.33 vs 3.57 @ 18 frames — the full √(21/18) recovered |
 | gradient | vignette divided out → subsky handles only the glow; degree 1 auto (degree 2 marginally flatter, both keep the MW) |

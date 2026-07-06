@@ -12,10 +12,16 @@ of them may be divided out:
     median(x,y) ~ V(r) * S(x,y)
 
   V(r)   multiplicative lens vignette — radial, centered on the optical
-         axis (image center). This is the gain to remove by division.
+         axis (image center), and MONOTONE NON-INCREASING with radius
+         (physics: falloff never brightens outward). Estimated as binned
+         radial medians + isotonic (pool-adjacent-violators) regression —
+         NOT a polynomial: a fitted r^2/r^4/r^6 profile oscillated (+4%
+         mid-radius hump, corner upturn) and division printed concentric
+         light/dark rings that no x-y subsky can remove.
   S(x,y) the sky itself — level + glow gradient (moon/horizon), additive
-         in origin. Modeled as PLANAR so it cannot absorb V's curvature
-         (a planar surface has no r^2 component); subsky removes it later.
+         in origin. Modeled as PLANAR so it cannot absorb V's falloff
+         (a planar surface has no radial component); subsky removes it
+         later.
 
 Fitting one free-form surface and dividing (v1 of this script) bakes the
 glow into the gain: the fitted peak lands off-center toward the bright sky
@@ -31,10 +37,9 @@ import sys
 import numpy as np
 
 BLOCK = 101          # px per grid cell; big enough to reject star cores
-RADIAL_POWERS = (2, 4, 6)   # V(r) = 1 + k1 r^2 + k2 r^4 + k3 r^6
+NBINS = 24           # radial bins for the non-parametric V(r) profile
 ALT_ITERS = 6        # alternating V/S refits
 CLIP_SIGMA = 2.5
-CLIP_ITERS = 4
 GUARD = (0.15, 3.0)  # sane gain range
 
 
@@ -109,34 +114,73 @@ def block_median_grid(ch):
     return med, cy, cx
 
 
-def vignette_of(r2, k):
-    """V = 1 + k1 r^2 + k2 r^4 + k3 r^6 given r^2 (any shape)."""
-    v = np.ones_like(r2)
-    for kk, p in zip(k, RADIAL_POWERS):
-        v = v + kk * r2 ** (p // 2)
-    return v
+def pav_nonincreasing(v, w):
+    """Isotonic regression, non-increasing: pool adjacent violators.
+
+    A lens vignette can only fall with radius. Any parametric radial
+    polynomial fitted to noisy sky data oscillates (measured: a r^2/r^4/r^6
+    fit produced a +4% mid-radius hump and a corner upturn -> concentric
+    light/dark rings after division). Monotone pooling removes the wiggle
+    while keeping the true falloff knee.
+    """
+    vals, wts, idx = list(v), list(w), [[i] for i in range(len(v))]
+    i = 0
+    while i < len(vals) - 1:
+        if vals[i + 1] > vals[i] + 1e-12:
+            tot = wts[i] + wts[i + 1]
+            vals[i] = (vals[i] * wts[i] + vals[i + 1] * wts[i + 1]) / tot
+            wts[i] = tot
+            idx[i] += idx[i + 1]
+            del vals[i + 1], wts[i + 1], idx[i + 1]
+            i = max(i - 1, 0)
+        else:
+            i += 1
+    out = np.empty(len(v))
+    for vv, ii in zip(vals, idx):
+        out[ii] = vv
+    return out
+
+
+def radial_profile(r, target, keep):
+    """Sigma-clipped bin medians of `target` vs r, then monotone pooling.
+    Returns bin centers and the isotonic profile, normalized to V(0)=1."""
+    edges = np.linspace(0, 1, NBINS + 1)
+    centers = (edges[:-1] + edges[1:]) / 2
+    v = np.ones(NBINS)
+    w = np.zeros(NBINS)
+    for i in range(NBINS):
+        m = keep & (r >= edges[i]) & (r < edges[i + 1])
+        if m.sum() >= 3:
+            v[i] = np.median(target[m])
+            w[i] = m.sum()
+    filled = w > 0
+    v[~filled] = np.interp(centers[~filled], centers[filled], v[filled])
+    w[~filled] = 1
+    v = pav_nonincreasing(v, w)
+    return centers, v / v[0]
 
 
 def fit_channel(ch, label):
     med, cy, cx = block_median_grid(ch)
     Y, X = np.meshgrid(cy, cx, indexing="ij")
-    r2 = (X**2 + Y**2) / 2.0          # r^2 normalized: 1.0 at the corners
     b = med.ravel()
-    x, y, r2f = X.ravel(), Y.ravel(), r2.ravel()
+    x, y = X.ravel(), Y.ravel()
+    r = np.sqrt((x**2 + y**2) / 2.0)   # 0 at center, 1.0 at the corners
     keep = np.isfinite(b) & (b > 0)
 
-    # Alternating separation: m ~ V(r; k) * S(planar). Planar S has no r^2
-    # term, so all radial curvature is forced into V — no degeneracy.
-    k = np.zeros(len(RADIAL_POWERS))
+    # Alternating separation: m ~ V(r) * S(planar). Planar S has no radial
+    # term, so all radial falloff is forced into V — no degeneracy. V is a
+    # monotone non-increasing binned profile, not a polynomial.
+    centers = None
+    prof = None
+    V = np.ones_like(b)
     for it in range(ALT_ITERS):
-        V = vignette_of(r2f, k)
         As = np.stack([np.ones_like(x), x, y], axis=1)
         cs, *_ = np.linalg.lstsq(As[keep], (b / V)[keep], rcond=None)
         S = As @ cs
-        Av = np.stack([r2f ** (p // 2) for p in RADIAL_POWERS], axis=1)
-        target = b / S - 1.0
-        k, *_ = np.linalg.lstsq(Av[keep], target[keep], rcond=None)
-        resid = b - vignette_of(r2f, k) * S
+        centers, prof = radial_profile(r, b / S, keep)
+        V = np.interp(r, centers, prof)
+        resid = b - V * S
         s = resid[keep].std()
         if it >= 1:                    # first pass: model still settling
             newkeep = keep & (np.abs(resid) < CLIP_SIGMA * s)
@@ -154,16 +198,18 @@ def fit_channel(ch, label):
     for row0 in range(0, ny, 256):
         row1 = min(row0 + 256, ny)
         yy = np.linspace(-1, 1, ny)[row0:row1][:, None]
-        surf[row0:row1] = vignette_of((xs**2 + yy**2) / 2.0,
-                                      k).astype(np.float32)
+        rr = np.sqrt((xs**2 + yy**2) / 2.0)
+        surf[row0:row1] = np.interp(rr, centers, prof).astype(np.float32)
     lo, hi = GUARD
     surf = np.clip(surf, lo, hi)       # V(center)=1 by construction
     g = surf
     tilt = 100.0 * np.hypot(cs[1], cs[2]) / cs[0]
-    print(f"selfflat {label}: grid rejected {rejected:4.1f}% | vignette "
-          f"corners TL {g[0,0]:.3f} TR {g[0,-1]:.3f} BL {g[-1,0]:.3f} "
-          f"BR {g[-1,-1]:.3f} | glow tilt {tilt:.1f}%/half-frame "
-          f"(left additive, for subsky)")
+    mid = np.interp(0.5, centers, prof)
+    print(f"selfflat {label}: grid rejected {rejected:4.1f}% | V(r) "
+          f"1.000 -> {mid:.3f} @ r=0.5 -> {prof[-1]:.3f} @ corner "
+          f"(monotone) | corners TL {g[0,0]:.3f} TR {g[0,-1]:.3f} "
+          f"BL {g[-1,0]:.3f} BR {g[-1,-1]:.3f} | glow tilt "
+          f"{tilt:.1f}%/half-frame (left additive, for subsky)")
     return surf
 
 
