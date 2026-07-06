@@ -112,10 +112,12 @@ the next (disk-limited):
    radially symmetric about the image center.*
 5. `50_postprocess.ssf.tmpl` — stat + bgnoise of the linear stack (the
    before/after record), then background extraction (`@SUBSKY@`) →
-   `denoise -vst` → `autostretch -linked -2.8 0.10` → `rmgreen` → `satu 0.3`
-   → `preview_<set>_<timestamp>.jpg`. Iterate standalone:
-   `scripts/run_post.sh <session> [set] [subsky-degree]` (denoise costs
-   ~3 min — comment it out in the tmpl when iterating on gradients only).
+   `denoise -vst` → **unlinked** `autostretch -2.8 0.15` (per-channel bg
+   equalization kills global casts; `-linked` preserves them) → `satu 0.3`
+   → `preview_<set>_<timestamp>.jpg`. **No rmgreen**: SCNR on a sky that
+   is not green-dominant dyes the whole image magenta/red. Iterate
+   standalone: `scripts/run_post.sh <session> [set] [subsky-degree]`
+   (denoise costs ~3 min — comment it out when iterating on gradients).
 
 Diagnostics: `diag_flat.ssf` (stretched master-flat check → JPEG); stack stats
 print in every post run. Record stack median + bgnoise **before and after every
@@ -151,7 +153,8 @@ small timestamped JPEG previews accumulate for run-to-run comparison.
 | ringed preview (removed) | radial-POLY self-flat + full pipeline | **concentric rings** (user spotted): preview radial profile oscillated 54→31→54→6 because the r²/r⁴/r⁶ V(r) had a +4% hump and corner upturn — division printed inverse rings |
 | isotonic preview (removed) | **isotonic self-flat** + ref sweep (21/21) + subsky 2 + stretch | rings gone (profile 33→41→51→45) but periphery lifted +55% — the additive glow amplified by the corner division (glow/V) |
 | seqsubsky orderings (removed) | per-frame `seqsubsky 1` BEFORE division | flattest field yet (profile 43→38→36, ±9%). Two sub-lessons: V must be estimated from the UNTOUCHED median (glow-subtracted frames break the pedestal/bowl ratio → per-channel V diverged 0.61/0.37/0.47 → tint); per-channel division tints corners anyway (glow contaminates per-channel profiles) → **gray V** |
-| `preview_set-03_20260706_<final>` | + gray V + post subsky 2 (chroma cleanup) | **keeper** — flat luminance ±9%, corner red tint neutralized by per-channel degree-2 curvature fit, 21/21 frames, MW intact |
+| gray-V + subsky-2 render (removed) | + gray V + post subsky 2 (chroma cleanup) | flat luminance ±9%, corner red largely neutralized — **but globally "dyed red"** (user): `rmgreen` clamps G on a sky that is not green-dominant → magenta shift everywhere, `-linked` stretch preserves it, `satu` amplifies it |
+| `preview_set-03_20260706_<final>` | UNLINKED autostretch, satu 0.3, **no rmgreen** | **keeper** — per-channel background equalization kills the global cast; remaining warmth is signal (MW dust, moonlit cloud TL). RGB medians confirmed ~unchanged by rmgreen removal — the dye was the G-clamp, not a channel offset |
 
 Registration history: with a sequence-start reference (1-pass default), the
 fixed-tripod field drift strands the tail frames — 2/32 dropped with old cals,

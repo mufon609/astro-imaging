@@ -12,11 +12,12 @@ subsky @SUBSKY@ -dither
 # NL-Bayes with variance stabilization: ~-40% background grain, faint stars
 # survive. Costs ~3 min/run — comment out when iterating on gradients only.
 denoise -vst
-# Linked stretch to a dark 0.15 background: the default 0.25 target reads as
-# smokey gray, 0.10 crushes the faint MW. Then kill the green cast and
-# restore some color.
-autostretch -linked -2.8 0.15
-rmgreen
+# UNLINKED stretch to a dark 0.15 background: each channel's background is
+# forced to the same target, which neutralizes global color casts that a
+# -linked stretch would preserve (0.25 default reads smokey; 0.10 crushes
+# the faint MW). No rmgreen: SCNR on a sky that is not green-dominant
+# clamps G everywhere and dyes the image magenta/red.
+autostretch -2.8 0.15
 satu 0.3
 savejpg preview_@SET@ 90
 close
