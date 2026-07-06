@@ -90,6 +90,40 @@ def load_image(path):
 
 # --- basic statistics ----------------------------------------------------------
 
+# --- MW band corridor (shared geometry) ---------------------------------------
+# The Milky Way band corridor in display fractions, measured on the L2
+# starless layer (band-course measurement, see NOTES). Single source of
+# truth: starcomb uses it to LOCALIZE the mw_boost (and to exclude
+# background samples in mode 'banded'); bg_qa uses it to EXCLUDE the
+# corridor from background statistics under the layer-appropriate QA scope
+# (ratified 2026-07-06) — the corridor is known signal, exactly like the
+# branch corner is known non-sky.
+
+BAND_P0 = (0.30, 1.00)   # (x, y) fractions, bottom end
+BAND_P1 = (0.80, 0.00)   # top-right exit (widened after the overlay check)
+BAND_HALFW = 0.19        # fraction of the frame diagonal
+
+
+def band_mask_frac(h, w, feather=0.0):
+    """Soft [0..1] corridor mask of the MW band (1 inside). feather is an
+    extra half-width over which the mask rolls off smoothly."""
+    ys = (np.arange(h) + 0.5) / h
+    xs = (np.arange(w) + 0.5) / w
+    X, Y = np.meshgrid(xs, ys)
+    x0, y0 = BAND_P0
+    x1, y1 = BAND_P1
+    dx, dy = x1 - x0, y1 - y0
+    n2 = dx * dx + dy * dy
+    t = ((X - x0) * dx + (Y - y0) * dy) / n2
+    t = np.clip(t, 0.0, 1.0)
+    px, py = x0 + t * dx, y0 + t * dy
+    d = np.hypot(X - px, Y - py)  # distance in frame-fraction units
+    if feather <= 0:
+        return (d <= BAND_HALFW).astype(np.float32)
+    return np.clip((BAND_HALFW + feather - d) / feather, 0.0, 1.0) \
+        .astype(np.float32)
+
+
 def bg_stats(ch, iters=5, stride=2):
     """(background median, robust pixel noise sigma).
 

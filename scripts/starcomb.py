@@ -44,35 +44,11 @@ from starsep import write_fits_fitsorder  # noqa: E402
 MW_BOX = (0.40, 0.30, 0.70, 0.55)
 SKY_BOX = (0.05, 0.25, 0.25, 0.50)
 
-# MW band corridor (display fractions): the band runs from the bottom
-# center-left to the top-right corner. Endpoints + half-width set from the
-# band-course measurement on the L2 starless layer (see NOTES). Used to
-# EXCLUDE background samples (mode 'banded') and to LOCALIZE the mw_boost.
-BAND_P0 = (0.30, 1.00)   # (x, y) fractions, bottom end
-BAND_P1 = (0.80, 0.00)   # top-right exit (widened after the overlay check)
-BAND_HALFW = 0.19        # fraction of the frame diagonal
+# MW band corridor geometry lives in astrometrics (shared with bg_qa's
+# layer-appropriate sky scope); names re-exported for existing callers.
+from astrometrics import BAND_P0, BAND_P1, BAND_HALFW, band_mask_frac  # noqa: E402,F401
 
 BLOCK = 101
-
-
-def band_mask_frac(h, w, feather=0.0):
-    """Soft [0..1] corridor mask of the MW band (1 inside). feather is an
-    extra half-width over which the mask rolls off smoothly."""
-    ys = (np.arange(h) + 0.5) / h
-    xs = (np.arange(w) + 0.5) / w
-    X, Y = np.meshgrid(xs, ys)
-    x0, y0 = BAND_P0
-    x1, y1 = BAND_P1
-    dx, dy = x1 - x0, y1 - y0
-    n2 = dx * dx + dy * dy
-    t = ((X - x0) * dx + (Y - y0) * dy) / n2
-    t = np.clip(t, 0.0, 1.0)
-    px, py = x0 + t * dx, y0 + t * dy
-    d = np.hypot(X - px, Y - py)  # distance in frame-fraction units
-    if feather <= 0:
-        return (d <= BAND_HALFW).astype(np.float32)
-    return np.clip((BAND_HALFW + feather - d) / feather, 0.0, 1.0) \
-        .astype(np.float32)
 
 
 def background_model(data, mode):
@@ -219,6 +195,25 @@ def ensure_bge_linear(ctx):
     return out
 
 
+def run_graxpert_denoise(work, fit):
+    """GraXpert AI denoising on a linear FITS (Ladder D rung 'gx'),
+    cached by input identity. Standard-order placement: linear, on the
+    STARLESS layer, before the stretch."""
+    st = os.stat(fit)
+    out = os.path.join(work, f"gxdn_{st.st_size}_{int(st.st_mtime)}.fits")
+    if os.path.exists(out):
+        print(f"[starcomb] gx-denoise cache hit {os.path.basename(out)}")
+        return out
+    print("[starcomb] graxpert denoising (linear, starless) ...", flush=True)
+    r = subprocess.run([exp.GRAXPERT, "-cmd", "denoising", fit,
+                        "-output", out[:-5], "-gpu", "false"],
+                       capture_output=True, text=True)
+    if not os.path.exists(out):
+        sys.exit("starcomb: graxpert denoising produced no output:\n"
+                 + r.stdout[-2000:] + "\n" + r.stderr[-1000:])
+    return out
+
+
 def solve_mtf_m(x0, y0):
     x0 = min(max(x0, 1e-6), 0.9999)
     m = x0 * (y0 - 1.0) / (2.0 * x0 * y0 - x0 - y0)
@@ -238,8 +233,12 @@ def render_config(ctx, cfg, jpg_out):
         starless_fit, stars_fit, cat_npz = ensure_starsep(
             ctx["repo"], sdir, bgelin)
         ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
+        if cfg["starless_denoise"] == "gx":
+            # AI denoise, linear, starless (standard step-5 placement)
+            starless_fit = run_graxpert_denoise(work, starless_fit)
         rel = os.path.relpath(starless_fit, sdir)
-        lines = ["requires 1.4.0", f"load {rel[:-4]}"]
+        suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
+        lines = ["requires 1.4.0", f"load {suffix}"]
     elif cfg["starless_bge"] in ("border", "envelope", "banded"):
         # numpy MW-protecting model (rim interpolated, not extrapolated),
         # then siril for denoise/stretch on the subtracted layer
@@ -281,12 +280,18 @@ def render_config(ctx, cfg, jpg_out):
             bglev + (starless_st - bglev) * gain[None, :, :], 0.0, 1.0)
         print(f"[starcomb] mw_boost {k}: band lift around bg {bglev:.3f}")
 
-    # honest rim check: QA the starless render ALONE
+    # THE GATE (layer-appropriate QA, ratified 2026-07-06): strict
+    # blocks/rings on the starless render's SKY — MW corridor (incl. the
+    # boost feather zone) + branch masked as known signal/non-sky,
+    # thresholds byte-identical. The recombined whole-frame QA below stays
+    # as a reported reference, never the gate.
     from PIL import Image
     tmp8 = (np.clip(starless_st.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     slpath = jpg_out.replace(".jpg", "_starless.jpg")
     Image.fromarray(tmp8).save(slpath, quality=92)
-    qa_sl = bg_qa.qa_metrics(np.asarray(Image.open(slpath), dtype=np.float64))
+    a_sl = np.asarray(Image.open(slpath), dtype=np.float64)
+    qa_sl = bg_qa.qa_metrics(
+        a_sl, bg_qa.sky_signal_mask(a_sl.shape[0], a_sl.shape[1]))
 
     # --- stars branch (numpy) --------------------------------------------
     stars, _ = am.load_image(ctx["stars_fit"])
@@ -328,7 +333,8 @@ def main():
     ap.add_argument("session")
     ap.add_argument("set")
     ap.add_argument("--starless-target", type=float, default=0.12)
-    ap.add_argument("--starless-denoise", default="off", choices=["off", "vst"])
+    ap.add_argument("--starless-denoise", default="off",
+                    choices=["off", "vst", "gx"])
     ap.add_argument("--starless-bge", default="banded",
                     choices=["banded", "envelope", "border", "gx"])
     ap.add_argument("--cull-pct", type=float, default=0)
@@ -340,6 +346,10 @@ def main():
                          "separation (standard order; gx measured MW-safe "
                          "only with stars present). sep_first: the earlier "
                          "arrangement, kept for reference.")
+    ap.add_argument("--stack", default=None,
+                    help="override input stack path (default "
+                         "results/stack_<set>.fit) — for pipeline-variant "
+                         "stacks, e.g. stack_set-03_bgeonly.fit")
     ap.add_argument("--tag", default=None)
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
@@ -352,7 +362,8 @@ def main():
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sdir = os.path.join(repo, args.session)
     work = os.path.join(sdir, "work")
-    stack = os.path.join(sdir, "results", f"stack_{args.set}.fit")
+    stack = (os.path.abspath(args.stack) if args.stack
+             else os.path.join(sdir, "results", f"stack_{args.set}.fit"))
     if not os.path.exists(stack):
         sys.exit(f"starcomb: no {stack}")
     ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack}
@@ -414,9 +425,10 @@ def main():
         met["crop"] = 0
         results.append(met)
         q, qs, s = met["qa"], met["qa_starless"], met["stars"]
-        print(f"[starcomb]   combined QA {'PASS' if q['pass'] else 'FAIL'} "
+        print(f"[starcomb]   GATE starless-sky {'PASS' if qs['pass'] else 'FAIL'} "
+              f"blocks {qs['ratio']:.2f} rings {qs['ring_l']:.1f}/{qs['ring_rg']:.1f}/{qs['ring_bg']:.1f}"
+              f" | ref whole-frame {'PASS' if q['pass'] else 'FAIL'} "
               f"blocks {q['ratio']:.2f} rings {q['ring_l']:.1f}/{q['ring_rg']:.1f}/{q['ring_bg']:.1f}"
-              f" | starless-only rings {qs['ring_l']:.1f}/{qs['ring_rg']:.1f}/{qs['ring_bg']:.1f}"
               f" | MW contrast {met['mw_contrast8']:.1f} | stars mid "
               f"{(s.get('mid_peak_med') or 0) * 255:.0f} sat "
               f"{(s.get('sat_star_frac') or 0) * 100:.0f}%")
@@ -425,21 +437,21 @@ def main():
         for r in results:
             f.write(json.dumps(r) + "\n")
 
-    cols = ["value", "QA", "blocks", "ring L", "ring RG", "ring BG",
-            "SL ringL", "SL ringRG", "MW", "bg", "stars", "mid pk", "sat%",
-            "FWHM", "halo"]
+    cols = ["value", "GATE", "SLblk", "SLringL", "SLringRG", "SLringBG",
+            "refQA", "blocks", "ring L", "MW", "bg", "stars", "mid pk",
+            "sat%", "halo"]
     rows = []
     for r in results:
         q, qs, s = r["qa"], r["qa_starless"], r["stars"]
-        rows.append([str(r["value"]), "PASS" if q["pass"] else "FAIL",
+        rows.append([str(r["value"]), "PASS" if qs["pass"] else "FAIL",
+                     f"{qs['ratio']:.2f}", f"{qs['ring_l']:.1f}",
+                     f"{qs['ring_rg']:.1f}", f"{qs['ring_bg']:.1f}",
+                     "PASS" if q["pass"] else "FAIL",
                      f"{q['ratio']:.2f}", f"{q['ring_l']:.1f}",
-                     f"{q['ring_rg']:.1f}", f"{q['ring_bg']:.1f}",
-                     f"{qs['ring_l']:.1f}", f"{qs['ring_rg']:.1f}",
                      f"{r['mw_contrast8']:.1f}", f"{r['bg_med8']:.0f}",
                      str(s.get("n_stars", 0)),
                      exp.fmt((s.get("mid_peak_med") or 0) * 255, "{:.0f}"),
                      exp.fmt((s.get("sat_star_frac") or 0) * 100, "{:.0f}"),
-                     exp.fmt(s.get("fwhm_med"), "{:.1f}"),
                      exp.fmt(s.get("halo_med"))])
     widths = [max(len(c), *(len(r[j]) for r in rows)) for j, c in enumerate(cols)]
     print()
@@ -457,7 +469,8 @@ def main():
     strips = [exp.value_row(os.path.join(exp_dir, r["jpg"]), 0, sx)
               for r in results]
     labels = [f"{args.param} = {r['value']}   "
-              f"[{'PASS' if r['qa']['pass'] else 'FAIL'}]" for r in results]
+              f"[{'PASS' if r['qa_starless']['pass'] else 'FAIL'}]"
+              for r in results]
     exp.compose_rows(strips, labels, os.path.join(exp_dir, "side_by_side.jpg"))
     print(f"\n[starcomb] STOP — user judgment required. Review {exp_dir}/")
 

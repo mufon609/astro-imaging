@@ -24,8 +24,12 @@ RING_COLOR_MAX = 4.0    # detrended radial peak-to-valley, R-G / B-G
 NB = 40                 # radial bins
 
 
-def block_metrics(a):
+def block_metrics(a, signal_mask=None):
     """Star-robust block medians over the whole frame, branch corner masked.
+    signal_mask (HxW bool, True = known-signal pixels, e.g. the measured MW
+    corridor under the layer-appropriate sky scope): blocks that are mostly
+    signal leave the statistics exactly like the branch blocks do — scope
+    change only, the thresholds are untouched.
     Returns dict with percentiles, worst color deviations and offender
     locations (block row/col, 1-based, and approx pixel coords)."""
     h, w, _ = a.shape
@@ -36,6 +40,10 @@ def block_metrics(a):
 
     mask = np.ones((gy, gx), bool)
     mask[int(gy*0.75):, :int(gx*0.22)] = False   # branch, bottom-left
+    if signal_mask is not None:
+        sm = signal_mask[:gy*BLOCK, :gx*BLOCK] \
+            .reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
+        mask &= sm <= 0.5
 
     lum = med[..., 1]  # G as luminance proxy
     lv = lum[mask]
@@ -55,17 +63,21 @@ def block_metrics(a):
             "bright_block": bright, "color_block": (int(yy), int(xx))}
 
 
-def radial_profile_rgb(a, nb=NB):
+def radial_profile_rgb(a, nb=NB, signal_mask=None):
     """Per-channel median radial profile (r=1 at the corners). Returns the
-    profile rows that had enough pixels."""
+    profile rows that had enough pixels. signal_mask pixels (known signal)
+    are excluded from the bin medians."""
     h, w = a.shape[:2]
     yyc = (np.arange(h) - h / 2)[:, None] / (h / 2)
     xxc = (np.arange(w) - w / 2)[None, :] / (w / 2)
     r = np.sqrt((yyc**2 + xxc**2) / 2.0)
     edges = np.linspace(0, 1, nb + 1)
     prof = np.full((nb, 3), np.nan)
+    sky = None if signal_mask is None else ~signal_mask
     for i in range(nb):
         m = (r >= edges[i]) & (r < edges[i + 1])
+        if sky is not None:
+            m &= sky
         if m.sum() > 500:
             prof[i] = [np.median(a[..., c][m]) for c in range(3)]
     return prof[~np.isnan(prof[:, 0])]
@@ -78,31 +90,49 @@ def ring_amp(v, win=9):
     return float(d.max() - d.min())
 
 
-def ring_metrics(a):
-    prof = radial_profile_rgb(a)
+def ring_metrics(a, signal_mask=None):
+    prof = radial_profile_rgb(a, signal_mask=signal_mask)
     return {"ring_l": ring_amp(prof[:, 1]),
             "ring_rg": ring_amp(prof[:, 0] - prof[:, 1]),
             "ring_bg": ring_amp(prof[:, 2] - prof[:, 1])}
 
 
-def qa_metrics(a):
-    """All QA numbers + the verdict, without printing."""
-    bm = block_metrics(a)
-    rm = ring_metrics(a)
+def sky_signal_mask(h, w):
+    """The layer-appropriate sky scope's signal mask (ratified 2026-07-06):
+    the measured MW band corridor incl. the mw_boost feather zone — every
+    pixel an intentional MW lift can touch. True = signal, excluded from
+    background statistics. The branch corner is excluded separately by
+    block_metrics (unchanged)."""
+    import astrometrics as am
+    return am.band_mask_frac(h, w, feather=0.10) > 0.01
+
+
+def qa_metrics(a, signal_mask=None):
+    """All QA numbers + the verdict, without printing.
+    signal_mask=None: the historical whole-frame scope (byte-identical).
+    signal_mask=<HxW bool>: layer-appropriate sky scope — known-signal
+    pixels leave the background statistics; thresholds identical."""
+    bm = block_metrics(a, signal_mask)
+    rm = ring_metrics(a, signal_mask)
     ok_b = (bm["ratio"] <= LUM_RATIO_MAX and bm["worst_rg"] <= COLOR_DEV_MAX
             and bm["worst_bg"] <= COLOR_DEV_MAX)
     ok_r = (rm["ring_l"] <= RING_LUM_MAX and rm["ring_rg"] <= RING_COLOR_MAX
             and rm["ring_bg"] <= RING_COLOR_MAX)
     return {**bm, **rm, "ok_blocks": ok_b, "ok_rings": ok_r,
-            "pass": ok_b and ok_r}
+            "pass": ok_b and ok_r,
+            "scope": "whole-frame" if signal_mask is None else "sky"}
 
 
 def main():
     from PIL import Image
-    a = np.asarray(Image.open(sys.argv[1]), dtype=np.float64)
-    m = qa_metrics(a)
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    sky = "--sky-scope" in sys.argv[1:]
+    a = np.asarray(Image.open(args[0]), dtype=np.float64)
+    sm = sky_signal_mask(a.shape[0], a.shape[1]) if sky else None
+    m = qa_metrics(a, sm)
 
-    print(f"{sys.argv[1].split('/')[-1]}")
+    print(f"{args[0].split('/')[-1]}"
+          + ("  [sky scope: MW corridor + branch masked]" if sky else ""))
     print(f"  luminance blocks: P5 {m['p5']:.0f}  P50 {m['p50']:.0f}  "
           f"P95 {m['p95']:.0f}  (P95/P50 {m['ratio']:.2f}, limit {LUM_RATIO_MAX})")
     print(f"  color: worst |R-G| {m['worst_rg']:.1f}, worst |B-G| {m['worst_bg']:.1f} "
