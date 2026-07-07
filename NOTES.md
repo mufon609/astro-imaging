@@ -17,11 +17,21 @@ revert with git if a change makes things worse.
   set-03 --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit
   --lossless` → jpg q100/4:4:4 + PNG8 + PNG16, all byte-reproducible.
   Gate PASS blocks 1.375 (bg at the approved black level 8) colors 2/2
-  rings 3.0/1.3/1.2. Details: "APPROVED RECIPE — B7". B6 remains
-  reproducible (its section) from `stack_set-03_spcc.fit` with
-  `--stars-floor 0 --black-point 0 --jpg-quality 92 --jpg-subsampling -1`.
+  rings 3.0/1.3/1.2. Details: "APPROVED RECIPE — B7". **B6 is
+  HISTORICAL, not approved** (user 2026-07-07): its jpg+png stay as the
+  record, its numbers are in its section, but its stack was pruned in
+  the close-out cleanup — B6 is no longer byte-reproducible (rebuilding
+  would need re-stacking with -rgb_equal restored from git history).
   The `lights` set is EXPLICITLY NOT APPROVED (generalization test
   article only — user verdict recorded).
+- **Standing per-render audits (every starcomb run prints + logs):**
+  the GATE (starless-sky), whole-frame reference QA, corridor_report
+  (floor/bands/seams), **star_shell_report** (the ghost-aura defect
+  class: aura_lum WARN > 4.0 — calibrated fixed +2.0 vs defect +12.0;
+  shell_chroma reported as trend, no bound — it mixes honest PSF
+  fringe), black_point clip0 corridor/sky, stars anchor + MTF low-end
+  gain (drift watch: ×864→×996 class), star metrics, MW box contrast.
+  Inspection (pipeline stages) stays WARN-only via inspect_stage.
 - **Per-set geometry is config now** (`config_<set>.json`: corridor
   manual/wcs/none, foreground rect/mask/none, boxes, crops — README
   "Per-set geometry"). No set silently inherits set-03's masks; a
@@ -1945,6 +1955,38 @@ texture; the honest route there is more integration, not a deeper clip.
    removal condition still "enough integration next acquisition".
 10. **Legacy quick-look named `preview_*`** — renamed `quicklook_*`
     (was repeatedly mistaken for the product render).
+
+### Session-6 close-out (2026-07-07): standing star audit + cleanup
+
+**star_shell_report baked into every starcomb render** (astrometrics) —
+the test for this round's star fixes: bright-tier (catalog ranks 10-80)
+annulus metrics. Calibration on the approved artifacts, SAME star
+sample: B7 aura_lum **+2.0** / B6 (defect era) **+12.0** → WARN bound
+4.0 with clean margin both sides. shell_chroma is REPORT-ONLY (B7 28.9
+vs B6 16.7 — dominated by honest PSF fringe whose rendered amplitude
+scales with the chain's low-end gain; a fixed bound would cry wolf;
+first drafted at 18 and RECALIBRATED after it mis-fired on the approved
+render — the trend drops when acquisition fixes the fringe). Anchor +
+low-end gain now print per run (the ×864→×996 drift class stays visible
+until the noise-relative anchor lands). B7 re-verified byte-exact with
+the audit wired in (all four artifacts).
+
+**Close-out cleanup (18 → 24 GB free), keep/delete with regen paths:**
+KEPT: B7 approved set (jpg/png/png16/starless) + `stack_set-03.fit`
+(raw, rgb_equal-free) + `stack_set-03_norgbeq_spcc.fit` (canonical
+render input) + hot caches (bgelin/gx/starsep for the canonical stack)
++ masters (incl. selfflat gain) + wcs jsons + fgmask npz + decision
+evidence (judgment_B_norgbeq incl. the corner panel, judgment_B7_vs_B6,
+judge_star_tiles, black_point judgment, wcs overlay) + B6 jpg+png
+(historical record) + every exp dir's hypothesis.md/metrics.jsonl.
+DELETED: B4/B5/candidate_v5/104902-preview era artifacts; B6 16-bit +
+starless + BOTH B6-era stacks (rgbeq backup + old spcc → **B6 render no
+longer byte-reproducible**, accepted per the user's "B6 is not
+approved"); all lights stacks/renders/quicklooks (NOT approved;
+regen: run_pipeline + solve_field + spcc chunks are installed);
+norgbeq/floor intermediate renders (superseded by B7; regen by flags);
+all inspect_* dirs (regenerate per run); session5_judgment; exp rung
+images; stale work/ caches, test/tmp siril scripts, old pipeline logs.
 
 ## Iteration ideas (not yet tried)
 

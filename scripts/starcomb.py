@@ -415,6 +415,14 @@ def render_config(ctx, cfg, jpg_out):
     amps = np.sort(cat["peak"])[::-1]
     anchor = float(np.median(amps[:min(500, len(amps))]))
     m = solve_mtf_m(anchor, cfg["stars_peak"])
+    # the anchor is data-dependent (median top-500 catalog amplitude), so
+    # the MTF's low-end gain drifts with the stack normalization
+    # (measured x864 -> x996 between two builds of the same sky, +15%
+    # shell brightness). Print it so drift is visible per run; the
+    # robust fix (noise-relative anchor) is queued.
+    gain0 = am.mtf(1e-4, m) / 1e-4
+    print(f"[starcomb] stars anchor {anchor:.4f} -> m {m:.5f} "
+          f"(low-end gain x{gain0:.0f})")
     stars_st = am.mtf(np.clip(stars, 0, 1), m)
 
     # --- combine ----------------------------------------------------------
@@ -456,6 +464,19 @@ def render_config(ctx, cfg, jpg_out):
         am.write_png16(png16_out, u16)
         print(f"[starcomb] 16-bit PNG: {png16_out}")
 
+    # REPORTED star-shell metrics (the ghost-aura defect class — lives ON
+    # stars where the background gate cannot see it; WARN-only)
+    shell = am.star_shell_report(u8, ctx["cat_npz"])
+    warn = ""
+    if shell["aura_lum"] is not None:
+        over = [k for k, b in am.STAR_SHELL_WARN.items()
+                if shell[k] is not None and shell[k] > b]
+        warn = ("  WARN: " + ",".join(over) + " over bound") if over else ""
+    print(f"[starcomb]   star shells: aura_lum "
+          f"{shell['aura_lum']:+.1f} (warn >{am.STAR_SHELL_WARN['aura_lum']}) "
+          f"| shell_chroma {shell['shell_chroma']:.1f} (trend, no bound) "
+          f"| n {shell['n_sample']}{warn}")
+
     qa, smet, lev = exp.measure_jpg(jpg_out)
     a8 = np.asarray(Image.open(jpg_out), dtype=np.float32).transpose(2, 0, 1)
     mwb, skb = am.report_boxes(a8.shape[1], a8.shape[2])
@@ -465,7 +486,7 @@ def render_config(ctx, cfg, jpg_out):
             "qa_starless": {k: v for k, v in qa_sl.items()
                             if isinstance(v, (int, float, bool))},
             "stars": smet, "bg_med8": lev[1]["median"] * 255.0,
-            "mw_contrast8": mw, "corridor": corr,
+            "mw_contrast8": mw, "corridor": corr, "star_shells": shell,
             "starless_jpg": os.path.basename(slpath)}
 
 

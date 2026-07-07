@@ -663,6 +663,70 @@ def corridor_report(img8_hwc):
     return res
 
 
+def star_shell_report(img8_hwc, cat_npz):
+    """REPORTED star-shell metrics — the ghost-aura defect class: the
+    stars-layer MTF amplifies skirt noise into a colored shell between
+    each star's core and its dilated mask edge, ending at a cliff.
+    Invisible to the background gate (it lives ON stars), so it gets its
+    own numbers in every render, like corridor_report for the corridor.
+
+    Sample: catalog peak ranks 10..80 (bright tier, worst shells),
+    frame-interior. Median annulus profiles around their centroids:
+      aura_lum:    max over r in [8,16) of median G minus the r in
+                   [32,40) baseline (counts). THE defect discriminant —
+                   calibrated on the approved renders: fixed
+                   (stars_floor 3) = +2.0, defect era = +12.0, an
+                   unseparated stretch of the same stack = +0.5.
+                   WARN bound 4.0 (clean margin both sides).
+      shell_chroma: max over r in [4,12) of mean(MAD(R-G), MAD(B-G)).
+                   REPORT-ONLY, no bound: it mixes noise speckle with
+                   the HONEST PSF fringe (dispersion/CA on trailed
+                   stars) and is sample/chain dependent (measured 28.9
+                   on the approved fixed render vs 16.7 on the dimmer
+                   defect-era render) — a fixed threshold would cry
+                   wolf. Track the trend; it drops when acquisition
+                   fixes the fringe.
+    WARN only, never a gate."""
+    from scipy import ndimage
+    a = np.asarray(img8_hwc, dtype=np.float32)
+    h, w = a.shape[:2]
+    cat = np.load(cat_npz) if isinstance(cat_npz, str) else cat_npz
+    peak, ids, labels = cat["peak"], cat["ids"], cat["labels"]
+    order = np.argsort(peak)[::-1][10:80]
+    coms = ndimage.center_of_mass(np.ones_like(labels, np.uint8),
+                                  labels, ids[order])
+    R = 40
+    yy, xx = np.mgrid[-R:R + 1, -R:R + 1]
+    rr = np.hypot(yy, xx)
+    rings = [(rr >= i) & (rr < i + 1) for i in range(R)]
+    lum = [[] for _ in range(R)]
+    ch = [[] for _ in range(R)]
+    for (cy, cx) in coms:
+        cy, cx = int(round(cy)), int(round(cx))
+        if not (R < cy < h - R and R < cx < w - R):
+            continue
+        t = a[cy - R:cy + R + 1, cx - R:cx + R + 1]
+        G = t[..., 1]
+        RG = t[..., 0] - G
+        BG = t[..., 2] - G
+        for i in range(R):
+            m = rings[i]
+            lum[i].append(np.median(G[m]))
+            ch[i].append((1.4826 * np.median(np.abs(RG[m] - np.median(RG[m])))
+                          + 1.4826 * np.median(np.abs(BG[m] - np.median(BG[m])))) / 2)
+    if not lum[0]:
+        return {"aura_lum": None, "shell_chroma": None, "n_sample": 0}
+    pl = np.array([np.median(v) for v in lum])
+    pc = np.array([np.median(v) for v in ch])
+    base = float(np.median(pl[32:40]))
+    return {"aura_lum": float(np.max(pl[8:16]) - base),
+            "shell_chroma": float(np.max(pc[4:12])),
+            "n_sample": len(lum[0])}
+
+
+STAR_SHELL_WARN = {"aura_lum": 4.0}
+
+
 def radial_profile(data, nbins=48, stride=4, mask_branch=False):
     """Median radial profile per channel on a subsampled grid.
     Returns (bin centers, prof (nbins, C) with NaN for empty bins)."""

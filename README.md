@@ -60,9 +60,22 @@ Principles that keep this honest:
    never gated.
 4. **Star metrics** (count / FWHM-eq / mid-tier peak / saturated fraction /
    halo) on the stars layer / combined render — reported.
-5. **The user judges aesthetics on the recombine.** Objective fixes with
+5. **Star-shell audit** (`astrometrics.star_shell_report`, every starcomb
+   run): the ghost-aura defect class lives ON stars where the background
+   gate cannot see it — bright-tier annulus metrics, `aura_lum` WARN > 4.0
+   (calibrated: fixed recipe +2.0, defect era +12.0), `shell_chroma`
+   reported as a trend (honest PSF fringe dominates it). The stars anchor +
+   its MTF low-end gain print per run so normalization drift is visible.
+6. **The user judges aesthetics on the recombine.** Objective fixes with
    pass/fail metrics may commit; recipe/aesthetic changes require the user's
    visual approval before they are baked as defaults.
+
+**North star:** every stage audits itself with numbers so that eventually
+ANY dataset can be dropped into a session dir and be properly judged and
+processed to its best honest outcome — composition facts from config or
+derivation, defects caught by the standing checks, aesthetics decided by
+the user from measured candidates, and every divergence carrying its
+removal condition.
 
 ## The experiment discipline
 
