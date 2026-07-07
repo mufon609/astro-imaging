@@ -34,6 +34,7 @@ mkdir -p "$INSPECT"
 export INSPECT_DIR="$INSPECT"
 INS() {
   python3 "$REPO/scripts/inspect_stage.py" "$@" --dir "$INSPECT" \
+      --session "$S" --set "$SET" \
     || echo "WARNING: inspection failed for: $* (run continues)" >&2
 }
 

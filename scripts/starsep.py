@@ -136,14 +136,23 @@ def inpaint(ch, mask):
 
 
 def main():
+    global AREA_MAX, AREA_MAX_BRIGHT
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    k_prom = K_PROM
-    for a in sys.argv[1:]:
-        if a.startswith("--prom="):
-            k_prom = float(a.split("=", 1)[1])
+    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
+                if a.startswith("--") and "=" in a)
+    k_prom = float(opts.get("prom", K_PROM))
     if len(args) != 2:
         sys.exit(__doc__)
     stack_path, outdir = args
+    if "session" in opts and "set" in opts:
+        # per-set geometry (foreground never-star zone, MW readout box) +
+        # optional starsep overrides (area caps are px^2: tuned on 8px-
+        # trailed 37mm stars, config-overridable for very different scales)
+        ctx = am.configure(opts["session"], opts["set"], stack=stack_path,
+                           quiet=True)
+        AREA_MAX = int(ctx.starsep.get("area_max", AREA_MAX))
+        AREA_MAX_BRIGHT = int(ctx.starsep.get("area_max_bright",
+                                              AREA_MAX_BRIGHT))
     os.makedirs(outdir, exist_ok=True)
     st = os.stat(stack_path)
     # prom is part of the separation identity; default keeps legacy names
@@ -163,11 +172,17 @@ def main():
     mask, labels, cat, stats = build_star_mask(data, k_prom)
     # MW-protection readout: masked fraction inside the MW core box vs frame
     h, w = mask.shape
-    mwbox = mask[int(0.30 * h):int(0.55 * h), int(0.40 * w):int(0.70 * w)]
+    mwb, _ = am.report_boxes(h, w)
+    if mwb:
+        bx0, by0, bx1, by1 = mwb
+        mwbox = mask[int(by0 * h):int(by1 * h), int(bx0 * w):int(bx1 * w)]
+        mwtxt = (f"({mwbox.mean() * 100:.2f}% inside the MW core box — "
+                 "should be star-density-like, NOT structure-sized)")
+    else:
+        mwtxt = "(no MW box: corridor undefined for this set)"
     print(f"starsep: components {stats['n_components']}, stars kept "
           f"{stats['n_stars']}, masked {stats['mask_frac'] * 100:.2f}% of frame "
-          f"({mwbox.mean() * 100:.2f}% inside the MW core box — should be "
-          "star-density-like, NOT structure-sized)")
+          f"{mwtxt}")
     starless = np.empty_like(data)
     rng = np.random.default_rng(20260706)
     for c in range(data.shape[0]):

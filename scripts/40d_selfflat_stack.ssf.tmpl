@@ -1,6 +1,7 @@
 requires 1.4.0
 set32bits
 cd work
-# -rgb_equal: inert under SPCC, removal queued (see 40_lights note + NOTES).
-stack r_pp_bkg_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_@SET@
+# No stack-time white balance (-rgb_equal): SPCC on the stack absorbs
+# any linear channel scaling (same reasoning as 40_lights).
+stack r_pp_bkg_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_@SET@
 close

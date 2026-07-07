@@ -1,0 +1,24 @@
+{
+  "_readme": "Per-set composition facts (session-6 generalization). Consumed by astrometrics.configure() for every product entry point (starcomb, starsep, bg_qa CLI, inspect_stage, judgment_crops, measure_stack). Values here are MEASUREMENTS of this framing, moved out of the scripts; edit only with numbers (NOTES.md).",
+  "set": "set-03",
+  "corridor": {
+    "mode": "manual",
+    "p0": [0.30, 1.00],
+    "p1": [0.80, 0.00],
+    "halfw": 0.19,
+    "_note": "MW band corridor, hand-measured on the L2 starless layer (session 4). Mode 'wcs' candidate VALIDATED session 6: |b|<=9.0deg gives IoU 0.776 vs this hand strip, gate verdict unchanged (PASS), and the overlay shows the derived band tracks the real MW course better (results/wcs_corridor_overlay_set-03.png). Stays 'manual' so the approved B6 render reproduces byte-exactly — switching to 'wcs' re-renders and needs user approval.",
+    "b_halfwidth_deg": 9.0
+  },
+  "foreground": {
+    "rect": [0.0, 0.75, 0.22, 1.0],
+    "_note": "tree branch, bottom-left (x0,y0,x1,y1 frame fractions)"
+  },
+  "mw_box": [0.40, 0.30, 0.70, 0.55],
+  "sky_box": [0.05, 0.25, 0.25, 0.50],
+  "judgment_crops": {
+    "mw_mid": [2500, 1300, 4500, 2700],
+    "lefttop": [0, 200, 2000, 1600],
+    "seam": [600, 2500, 2600, 3900],
+    "band": [3600, 300, 5600, 1700]
+  }
+}

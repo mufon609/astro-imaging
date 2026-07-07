@@ -48,7 +48,14 @@ def block_metrics(a, signal_mask=None):
                     axis=2)
 
     mask = np.ones((gy, gx), bool)
-    mask[int(gy*0.75):, :int(gx*0.22)] = False   # branch, bottom-left
+    import astrometrics as am  # lazy: astrometrics imports bg_qa at top
+    if am.CTX.foreground == "mask":     # block-level foreground fraction
+        fg = am._fg_mask(h, w)[:gy*BLOCK, :gx*BLOCK] \
+            .reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
+        mask &= fg <= 0.5
+    elif am.CTX.foreground is not None:  # foreground rect (set-03: branch)
+        fx0, fy0, fx1, fy1 = am.CTX.foreground
+        mask[int(gy * fy0):int(gy * fy1), int(gx * fx0):int(gx * fx1)] = False
     if signal_mask is not None:
         sm = signal_mask[:gy*BLOCK, :gx*BLOCK] \
             .reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
@@ -136,6 +143,14 @@ def main():
     from PIL import Image
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     sky = "--sky-scope" in sys.argv[1:]
+    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
+                if a.startswith("--") and "=" in a)
+    if "session" in opts and "set" in opts:
+        # per-set geometry context (corridor + foreground); without these
+        # the legacy builtin (set-03) geometry applies — fine for set-03-era
+        # artifacts, wrong for anything else.
+        import astrometrics as am
+        am.configure(opts["session"], opts["set"], stack=opts.get("stack"))
     a = np.asarray(Image.open(args[0]), dtype=np.float64)
     sm = sky_signal_mask(a.shape[0], a.shape[1]) if sky else None
     m = qa_metrics(a, sm)

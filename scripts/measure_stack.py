@@ -3,6 +3,8 @@
 profile at key radii, rim-vs-mid deviation, and per-channel rim chroma.
 
 Usage: measure_stack.py <stack.fit> [reference_stack.fit ...]
+       [--session=<dir> --set=<name>]  (per-set report boxes; without
+       these the legacy set-03 boxes apply)
 
 All values in 16-bit counts (read_fits returns [0,1]; scaled here).
 rim_dev = mean(G, r>0.93) / mean(G, 0.3<r<0.7) - 1 — the G luminance rim
@@ -15,13 +17,16 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import astrometrics as am  # noqa: E402
-from starcomb import box_median_g, MW_BOX, SKY_BOX  # noqa: E402
+from starcomb import box_median_g  # noqa: E402
 
 
 def measure(path):
     d, _ = am.read_fits(path)
     d16 = d * 65535.0
-    mw = box_median_g(d16, MW_BOX) - box_median_g(d16, SKY_BOX)
+    c, h0, w0 = d16.shape
+    mwb, skb = am.report_boxes(h0, w0)
+    mw = (box_median_g(d16, mwb) - box_median_g(d16, skb)
+          if mwb and skb else float("nan"))
     c, h, w = d16.shape
     yy = (np.arange(h) - h / 2)[:, None] / (h / 2)
     xx = (np.arange(w) - w / 2)[None, :] / (w / 2)
@@ -49,9 +54,15 @@ def measure(path):
 
 
 def main():
-    if len(sys.argv) < 2:
+    paths = [a for a in sys.argv[1:] if not a.startswith("--")]
+    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
+                if a.startswith("--") and "=" in a)
+    if "session" in opts and "set" in opts:
+        am.configure(opts["session"], opts["set"],
+                     stack=paths[0] if paths else None)
+    if not paths:
         sys.exit(__doc__)
-    for p in sys.argv[1:]:
+    for p in paths:
         m = measure(p)
         pr = m["prof"]
         print(f"{os.path.basename(p)}:")

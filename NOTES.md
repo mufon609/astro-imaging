@@ -4,34 +4,51 @@ Repo tracks the **processing pipeline** (Siril scripts + notes), not image data
 (see `.gitignore`). Iterate on the pipeline, commit, re-run, compare previews;
 revert with git if a change makes things worse.
 
-## STATUS — read this first (2026-07-06, end of session 5)
+## STATUS — read this first (2026-07-07, end of session 6)
 
 - **Process contract & how to run: `README.md`.** This file is the
   chronological lab notebook — the sections below are HISTORY (kept with
   their numbers so dead ends are never re-attempted); a few carry
   `[SUPERSEDED]`/`[RESOLVED]` markers where a skimmer might mistake them
   for open items.
-- **Current approved recipe: B6** (user-approved, baked as the starcomb
-  defaults, byte-verified; git tag `B6-approved`). One command:
-  `python3 scripts/starcomb.py 07-02-26 set-03 --stack
-  07-02-26/results/stack_set-03_spcc.fit --lossless`. Details: section
-  "APPROVED RECIPE — B6".
+- **Current approved recipe: B6** (user-approved, starcomb defaults,
+  byte-verified again at session-6 start AND after the context refactor;
+  git tag `B6-approved`). One command: `python3 scripts/starcomb.py
+  07-02-26 set-03 --stack 07-02-26/results/stack_set-03_spcc.fit
+  --lossless`. Reproduction contract: the 8-bit PNG (and starless jpg)
+  are byte-identical; the final jpg default is now q100/4:4:4 (measured
+  mean 0.44 counts vs PNG — the approved q92 artifact reproduces with
+  `--jpg-quality 92 --jpg-subsampling -1`); `--lossless` also writes a
+  16-bit PNG. True B6 gate numbers: blocks 1.12 colors 2/3 rings
+  2.2/1.0/1.7 (the old "2/4, 1.9/1.4/1.9" line was B5's, corrected).
+- **Per-set geometry is config now** (`config_<set>.json`: corridor
+  manual/wcs/none, foreground rect/mask/none, boxes, crops — README
+  "Per-set geometry"). No set silently inherits set-03's masks; a
+  configless+WCSless set degrades loudly. Data-generalization proven on
+  the `lights` set (Boötes, matched-flat path) end-to-end to a gated
+  render — see "A3 RESULT".
 - **The gate:** `bg_qa.py --sky-scope` on the STARLESS render (thresholds
   never loosen). Whole-frame QA + `corridor_report` numbers are REPORTED
   context in every run. Star metrics on the stars layer. The user judges
   aesthetics on the recombine before anything is baked.
 - **Discipline:** single-knob ladders, hypotheses pre-registered here
   BEFORE running, dead ends written with numbers, stale-knob rule (a
-  fixed root cause makes every knob tuned during the hunt stale — see
-  the session-5 provenance audit for why this exists).
-- **Open queue:** rgb_equal removal from the stack templates (inert
-  under SPCC; needs catalog re-download + re-stack + re-SPCC + gate
-  verify), optional M6 starless_target re-ladder (user request only),
-  WCS-derived corridor mask, data-derived foreground mask, and — the
-  real quality lever — the next acquisition (ISO 800, ≤13s subs, matched
-  flats per focal; see "Checklist for future acquisition sessions").
-- **Current bandaid/adaptation ledger:** section "Bandaid ledger —
-  session 5 refresh" (older ledgers in the history are superseded).
+  fixed root cause makes every knob tuned during the hunt stale).
+- **AWAITING USER JUDGMENT (session-6 packages, nothing baked):**
+  (1) B: rgb_equal removed — render pair `judgment_B_norgbeq/`; on
+  approval the canonical stack switches to `stack_set-03_norgbeq_spcc.fit`.
+  (2) D: star ghost-aura fix — `stars_floor` 0/1.5/3.0 in
+  `exp_starsep_stars_floor_*/` (`judge_star_tiles.png`); root cause +
+  numbers in "D ROOT CAUSE". (3) E: output black point 0/4/6/8 in
+  `exp_starsep_black_point_*/`. (4) A2: WCS-derived corridor for set-03
+  (validated, `wcs_corridor_overlay_set-03.png`) — switching re-renders.
+- **Open queue:** StarNet-ONNX aarch64 check (bandaid #5 removal — see
+  ledger), optional starless_target re-ladder (user request only), and
+  the real quality lever — the next acquisition (ISO 800, ≤13s subs,
+  matched flats per focal; see "Checklist for future acquisition
+  sessions").
+- **Current bandaid/adaptation ledger:** "Bandaid ledger — session 6
+  refresh" (older ledgers superseded).
 
 ## Environment
 
@@ -1398,14 +1415,437 @@ bands −40%, star color −1% on the linked chain), satu 0.35→0.2 (M5:
 fringe span −12%), lum_core branch seam fixed (M0). Kept: cull 50 (M4 —
 the far-right panel; C1's cull-0 faint-field kept as the recorded
 alternate `starcomb_set-03_C1_recommended_*.png`, regen `--cull-pct 0`).
-Gate PASS blocks 1.12 colors 2/4 rings 1.9/1.4/1.9 (starless-sky scope);
-corridor REPORTED floor **+5.0/−1.0** (B5-era geo: +6.2/−3.0), bands
-**0.73/1.25** (B5: 1.16/2.31), no mask seam. **VERIFIED: the
+Gate PASS blocks 1.12 colors 2/3 rings 2.2/1.0/1.7 (starless-sky scope;
+correction 2026-07-07: this line originally carried B5's gate numbers
+"2/4, 1.9/1.4/1.9" by transcription — the byte-verified B6 artifact
+itself measures 2/3, 2.2/1.0/1.7 PASS, re-confirmed against the
+approved file at session-6 start); corridor REPORTED floor
+**+5.0/−1.0** (B5-era geo: +6.2/−3.0), bands **0.73/1.25**
+(B5: 1.16/2.31), no mask seam. **VERIFIED: the
 defaults-only render is BYTE-IDENTICAL to the approved C3 files (max
 diff 0, mean 0.0000)** — product:
 `starcomb_set-03_APPROVED_B6_*.{jpg,png}` (+`_starless`). Superseded
 loose renders pruned (C2, C3-tagged duplicates, M0a/M0b intermediates —
 all regenerable by flags recorded above); C1 kept as the alternate.
+
+## Session 6 (2026-07-07): data-generalization + bandaid removal
+
+**Session mission (user):** make the pipeline DATA-GENERAL (a new session
+of files must not break scripts tailored to set-03), remove remaining
+bandaids (rgb_equal), root-cause the star ghost-aura, upgrade export
+quality objectively, and build a blacks/bands candidate set for judgment.
+Session start state verified: B6 defaults render byte-identical to the
+approved artifacts (jpg + starless jpg + png all `cmp`-identical);
+NOTES B6 gate line corrected (was carrying B5's numbers).
+
+### A1 — hard-coded constant inventory (2026-07-07, every script read)
+
+Classification: U = universal (algorithm/sanity, data-independent) ·
+D = per-image DERIVABLE (from WCS/EXIF/data) · C = needs per-session
+CONFIG (composition fact) · L = legacy-only (not in the product chain).
+
+| # | location | constant | class | plan |
+|---|---|---|---|---|
+| 1 | astrometrics `BAND_P0/P1/HALFW` (single source; re-exported to starcomb, used by bg_qa `sky_signal_mask`, `corridor_report`, starcomb boost mask + `lum_core`/`chroma_core` sky scopes) | corridor (0.30,1.00)→(0.80,0.00) halfw 0.19 — HAND-MEASURED on set-03's framing | **D** (WCS → galactic-latitude band) + C override | A2: WCS-derived mask, config `corridor` |
+| 2 | astrometrics `branch_mask`/`branch_mask_frac` (used by starsep never-star zone, star_metrics, corridor_report, chroma/lum_core noise scopes) | foreground rect y≥0.75h, x<0.22w | **C** (composition fact; data-derived candidate reported) | A2: config `foreground.rect`; absent → none |
+| 3 | bg_qa `block_metrics` inline `mask[gy*0.75:, :gx*0.22]` | same rect, duplicated | **C** | A2: read from shared context (one source) |
+| 4 | inspect_stage `post_subsky` inline `ys≥0.75, xs<0.22` | same rect, third copy | **C** | A2: shared context |
+| 5 | astrometrics `plane_tilt` `(cy≥0.5)&(cx<−0.56)` | same rect in ±1 block coords | **C** | A2: shared context |
+| 6 | astrometrics `corridor_report` seam strips at y=0.75h/x=0.22w (+0.05–0.20w, 0.78–0.97h sample bands) | seam gauges anchored to the branch rect | **C** (follows #2; gauges skipped when no foreground) | A2 |
+| 7 | starcomb `MW_BOX`/`SKY_BOX` (0.40,0.30,0.70,0.55)/(0.05,0.25,0.25,0.50) + starsep MW readout box (same) | MW-contrast report boxes, set-03 framing | **D** (derive: densest in-corridor box vs farthest sky box) + C override | A2: derive from corridor mask |
+| 8 | starsep `AREA_MAX` 1500 / `AREA_MAX_BRIGHT` 12000 px | component caps tuned on 8px-trailed 37mm stars | **U-ish with C escape** (px² does not scale with focal; safe shorter, risky longer focals) | config `starsep.area_max*` override; keep defaults |
+| 9 | starsep `K_DETECT` 4σ, `K_PROM` 6σ, `K_BRIGHT` 40σ, `DILATE_ALL` 3 / `DILATE_BRIGHT` 5, `JACOBI_ITERS` 40, fill noise 0.7σ, rng seed | σ-relative detection/inpaint params | **U** (scale-free) — DILATE/0.7σ under D-stream (aura) scrutiny | leave; D-stream may re-derive |
+| 10 | solve_field `SizeHint(26.0, 40.0)` arcsec/px + `scales={13..19}` | plate-solve scale hint — set-03's 32.78″/px only; **24mm set = 50.9″/px is OUTSIDE → solve would fail** | **D** (compute from EXIF focal + sensor pitch, widen envelope) | A2/A3: derive hint per stack; keep blind fallback |
+| 11 | inspect_stage `EXPECTATIONS` bounds | per-stage WARN bounds calibrated on set-03 (some self-flat-specific: corner_gain 0.38–0.58, stack noise 1.2–2.2%) | **U as sanity envelopes** (WARN-only by design, never abort) | annotate set-03 calibration in table header; revisit per new data class |
+| 12 | judgment_crops `CROPS` 4 fixed px boxes | session-5 defect zones on set-03 | **C** (defect zones are per-image) | config `judgment_crops`; absent → derived defaults (corridor center/edge, lefttop, foreground corner) |
+| 13 | starcomb starless-jpg q92 (gate input!) + final jpg q92 | export encoding | starless q92 = **U frozen** (gate identity — never touch); final = C-stream ladder | C-stream |
+| 14 | selfflat `BLOCK` 101 / `NBINS` 24 / `CLIP_SIGMA` 2.5 / `GUARD`, rechroma 75% guard | fit algorithm params | **U** | none |
+| 15 | experiment.py chains (crop 150/250, RBF spec), run_post `M=150`, `SUBSKY_DEG` | legacy quick-look recipes | **L** | none (documented legacy) |
+| 16 | 40_lights/40d `-rgb_equal` | stack-time WB | bandaid #3 | B-stream removal |
+
+### A2 — pre-registered (2026-07-07): per-set context + WCS corridor
+
+**Change:** introduce a per-set context loaded from
+`<session>/config_<set>.json` (tracked in git — composition facts are
+process, not image data): corridor (manual params | `wcs` mode with
+`b_halfwidth_deg` | none), foreground rect (or none), report boxes,
+judgment crops, optional starsep overrides. All geometry consumers (#1–#7,
+#12) read the context. set-03's measured values MOVE into
+`config_set-03.json`; the module-level constants become the no-config
+legacy fallback ONLY for direct library calls on set-03-era artifacts
+(product entry points all configure the context explicitly, and a set
+with no config + no WCS gets corridor=None (gate falls back to
+whole-frame scope on the starless render = stricter, warned), foreground
+=None, boost skipped with a warning — NO silent set-03 inheritance).
+
+**WCS corridor derivation:** pixel grid → RA/Dec via the injected TAN-SIP
+WCS (numpy: CRPIX/CD + forward SIP; SIP terms ~arcmin at edges, kept
+anyway) → galactic latitude b via the fixed J2000 ICRS→galactic rotation
+matrix (no astropy) → corridor = |b| ≤ b_halfwidth. Hand-measured halfw
+0.19·diag at 32.78″/px ≈ **12.6° galactic halfwidth** (first guess;
+calibrated by overlap sweep).
+
+**Hypotheses (validation on set-03, B6 render):**
+1. With `config_set-03.json` carrying exactly the current constants, the
+   B6 defaults render stays **byte-identical** (config == constants ⇒
+   same masks ⇒ same pixels). HARD REQUIREMENT.
+2. The WCS-derived corridor at the IoU-best halfwidth reproduces the
+   hand-measured corridor: IoU ≥ ~0.75 expected (the hand corridor is a
+   straight strip in frame coords; the galactic band is gently curved).
+3. Swapping the derived mask into the GATE SCOPE on the byte-verified B6
+   starless render leaves the verdict PASS (thresholds untouched; scope
+   geometry shifts slightly). Gate-scope swap is validation-only this
+   session — set-03's shipping config stays manual until the user
+   approves any re-render.
+If IoU lands far below or the gate flips, the derivation (or the 12.6°
+guess) is wrong — investigate before any adoption, numbers into NOTES.
+
+**A2 RESULTS (2026-07-07): all three hypotheses CONFIRMED.**
+1. Context refactor byte-clean: every mask (band hard/feathered, branch
+   hard/frac, sky scope) `np.array_equal` between builtin constants and
+   `config_set-03.json`-sourced context; full B6 defaults re-render under
+   the new code = **byte-identical** (jpg + starless jpg + png `cmp`).
+2. WCS corridor: galactic b spans −26.9°..+30.4° over the frame (the
+   plane crosses it, as it must in Cygnus). IoU vs the hand corridor
+   peaks at **b_halfwidth 9.0° → IoU 0.776** (sweep 6°..17°, single
+   smooth peak; 12.6° first-guess was too wide — the hand strip's 0.19
+   diag halfwidth is anisotropic frame-fraction units, not sky degrees).
+   Config + SetContext default set to the calibrated 9.0°.
+3. Gate-scope swap on the approved B6 starless render: manual PASS
+   1.12 / 2/3 / 2.2/1.0/1.7 → wcs-derived PASS 1.20 / 2/1 / 2.3/2.0/1.0
+   — verdict unchanged, numbers move within thresholds as the scope
+   geometry shifts. corridor_report in wcs mode: floor +5.0/−2.0, bands
+   0.68/2.44 (l-binned axis instead of the strip projection — different
+   binning, same story).
+   **Overlay** (`results/wcs_corridor_overlay_set-03.png`): the derived
+   band VISIBLY tracks the real MW course (incl. its gnomonic curvature)
+   better than the straight hand strip. Adoption for set-03 = a render
+   change → user approval; new sets default to wcs mode automatically.
+   solve_field scale hint now derived from FITS FOCALLEN/XPIXSZ
+   (hard-coded 26–40″/px would have made every 24mm solve fail).
+
+### C — pre-registered (2026-07-07): final-export quality ladder
+
+The B6 jpg ships at q92 with PIL's default chroma subsampling and is
+MEASURED to cost mean 2.6 counts (max 242 at star edges, 32% of px >2)
+vs the lossless PNG on this grain-heavy content. Ladder (objective,
+pass/fail decided by numbers — the pixel DATA is unchanged, only the
+encoding): q92 control (must byte-reproduce the approved jpg from the
+PNG pixels — sanity), then subsampling=0 at q92/q95/q98/q100. Metrics
+per rung: file size, mean |diff| vs PNG, max |diff|, %px>2, star-pixel
+chroma diff (subsampling's main victim). **Decision rule (pre-registered):
+adopt the cheapest rung with mean ≤ 0.5 counts AND %px>2 ≤ 2%;** PNG
+stays the canonical final regardless; the approved q92 artifact stays
+reproducible via an explicit --jpg-quality/--jpg-subsampling override.
+Hypothesis: subsampling=0 alone kills most of the star-edge max error;
+q98+ brings the mean under 0.5; q100 ~ lossless-adjacent at ~2-3x q92
+size.
+
+**C RESULT (2026-07-07): q100 + subsampling=0 adopted (only rung meeting
+the pre-registered bar).** Vs the canonical PNG pixels (control q92 +
+default 4:2:0 byte-reproduces the approved jpg ✓ measurement chain
+sound):
+
+| rung | MB | mean err | max | %px>2 | star-px chroma err |
+|---|---|---|---|---|---|
+| q92 sub=4:2:0 (B6 control) | 6.9 | 2.291 | 176 | 27.3 | 9.68 |
+| q92 sub=0 | 8.7 | 1.963 | 47 | 25.7 | 6.83 |
+| q95 sub=0 | 11.9 | 1.489 | 34 | 17.7 | 4.54 |
+| q98 sub=0 | 18.1 | 0.823 | 13 | 4.2 | 1.95 |
+| **q100 sub=0** | **29.7** | **0.437** | **5** | **0.72** | **0.69** |
+
+Chroma subsampling alone was the star-edge killer (max 176 → 47).
+Baked as the starcomb final-jpg default (`--jpg-quality 100
+--jpg-subsampling 0`); the approved B6 q92 artifact reproduces with
+`--jpg-quality 92 --jpg-subsampling -1`. The STARLESS jpg (gate input)
+is untouched at q92 — its encoding is part of the gate identity. PNG
+(`--lossless`) stays the canonical final.
+
+**C USER VERDICT (2026-07-07): "those uncompressed versions are really
+good. they look pretty sharp"** — the q100/4:4:4 + 16-bit-PNG export
+upgrade is confirmed by eye, not just by the diff numbers.
+
+**C addendum — full lossiness inventory (2026-07-07, user asked for
+finals as close to lossless as possible).** Product pixel path audited
+end-to-end: float from the 32-bit stack through every op (the q92
+starless jpg is gate INPUT only, never product). The three real cuts:
+(1) JPEG encoding — ceiling reached at q100/4:4:4 (mean 0.44, max 5;
+JPEG is 8-bit + DCT by construction, cannot go further); (2) 8-bit
+export depth — the render is float, 8-bit keeps 256 levels: `--lossless`
+now ALSO writes a **16-bit PNG** (`*_16bit.png`, 65536 levels quantized
+straight from the float render; dependency-free writer in astrometrics
+`write_png16`, roundtrip verified bit-exact — Pillow cannot write
+48-bit RGB PNGs) next to the byte-verification 8-bit PNG; (3) 16-bit
+integer calibrated intermediates (disk constraint): quantization step
+≈ 18× below per-frame noise σ → ~+0.3% stack noise in quadrature —
+negligible, documented. NOTE for D-stream: 4:2:0's
+9.7-count star-pixel chroma error + DCT blocking at q92 is itself a
+"pixeled aura around stars" candidate — the D measurement must run on
+the PNG to separate encoding artifact from pipeline artifact.
+
+### D — pre-registered (2026-07-07): star ghost-aura root cause
+
+User issue 3 (session 5): zoomed in, stars show a pixeled ghost
+ring/aura (streaks fine). MEASURE FIRST on the pixel-true PNG, then the
+q92 jpg (encoding candidate), against the no-separation raw stretch of
+the same stack. Method: median luminance annulus profile r=0..40 px
+around a mid-bright star sample (starsep catalog ranks ~100-500, cores
+unsaturated), on (a) B6 PNG, (b) B6 q92 jpg, (c) consistent autostretch
+of the SPCC stack (no separation — the control that never saw
+mask/inpaint), plus the layer decomposition (starless_st, stars_st
+contributions). Suspects in order (from the separation architecture):
+(1) starsep hard dilated mask boundary (DILATE_ALL 3 / +5 bright): an
+annulus of inpaint fill + 0.7σ matched noise whose texture diverges
+from the vstpost-denoised surroundings; (2) the stars-layer MTF
+(anchor 0.97 ⇒ huge low-end gain) amplifying the fill-residual inside
+the dilation annulus into a plateau that ends at the mask cliff;
+(3) q92 4:2:0 DCT blocking (encoding, killed by C). Discriminators:
+a plateau-then-cliff at the mask radius in the stars-layer profile ⇒
+(2); a texture/level step at mask radius in the starless profile ⇒
+(1); aura present in jpg but absent in PNG ⇒ (3).
+
+**D ROOT CAUSE (2026-07-07, measured on the pixel-true PNG — annulus
+profiles, 300 mid-bright stars ranks 100-400 + 70 bright ranks 10-80):**
+The ghost aura is the STARS-LAYER SKIRT ANNULUS (core → dilated mask
+edge), three stacked amplifiers + one encoder:
+1. stars-layer MTF (anchor 0.97 ⇒ huge low-end gain) lifts subtracted
+   PSF-wing luminance to **+7 (bright tier, r=12) / +11 (mid tier, r=8)
+   counts over background vs +0.5 / +3 for the raw no-separation
+   stretch** of the same stack;
+2. the same gain × satu lifts the skirt's subtraction-noise chroma to
+   **MAD 20-30 counts at r=4-10 vs 6 for raw** — the visible COLORED
+   SPECKLE SHELL;
+3. both terminate at the mask cliff against a starless layer whose
+   texture is far smoother than raw (chroma MAD 1.5 vs 5.9) —
+   maximum perceptual contrast ⇒ reads as a ring;
+4. q92 4:2:0 JPEG adds DCT blocking + 9.7-count star-pixel chroma error
+   on top = the "pixeled" quality (KILLED by C: q100 subsampling=0).
+The starless layer itself is CLEAN (level ring ≤ +0.7 count): the
+inpaint+matched-noise annulus (suspect 1) and cull-50 patches are NOT
+the level/chroma driver. Dark ring: −1 count = negligible.
+
+**StarNet-on-aarch64 feasibility (2026-07-07 re-check, bandaid #5
+removal condition):** still NO Linux aarch64 build (v2.5.3, 2026-06-27)
+— BUT StarNet's current packages moved from TensorFlow to **self-
+contained ONNX Runtime** on Linux/Windows/macOS-x64. onnxruntime wheels
+for linux-aarch64 py3.13 EXIST (1.20–1.27, verified installable here).
+Concrete route next session: download the official Linux x64 CLI
+package, check it ships a loose readable .onnx (vs embedded in the
+binary — the go/no-go), then a small tiled-inference driver (256px
+tiles, the nekitmm/starnet protocol) on the aarch64 wheel. If the model
+is embedded/encrypted: dead end, mask+inpaint stays. Landing this
+retires starsep's ADAPTATION entirely. Sources:
+https://starnetastro.com/cli-tools/starnet/ ·
+https://starnetastro.com/release-notes/ ·
+https://github.com/nekitmm/starnet
+
+**D fix ladder (pre-registered): `stars_floor` 0 (control) / 1.5 / 3.0.**
+Subtract k·σ_c (per-channel linear sky noise measured on the linear
+starless layer) from the stars LINEAR layer before its MTF — skirt
+residuals below the noise floor stop being amplified; genuine star
+signal (amplitude ≫ kσ) passes. Prediction: bright-tier aura lum
++7 → ≤ +2 at r=12; skirt chroma MAD 20-30 → < 10; top-100/mid star
+peaks UNCHANGED (anchor comes from the catalog, floor ≪ star
+amplitudes); gate bit-identical (starless untouched). Risk owned by the
+user: the faintest stars (amplitude ~ kσ) lose their skirts and may
+read "cut out" — judgment panels decide. Fallback rung if the cliff
+still shows after flooring: feathered combine at the mask boundary.
+
+**D LADDER RESULT (`exp_starsep_stars_floor_20260707_005345`):
+CONFIRMED — the floor kills the aura, cores untouched, gate
+bit-identical.** Bright-tier (ranks 10-80) annulus metrics per rung:
+
+| stars_floor | aura lum (r12-25 − base) | skirt chroma MAD (r6-10) | core | halo ratio | gate |
+|---|---|---|---|---|---|
+| 0 (B6) | **+7.0** | 24.5 | 248.5 | 1.73 | PASS 1.12/2.2/1.0/1.7 |
+| 1.5 | **+1.5** (prediction ≤2 ✓) | 21.5 | 248.5 | 1.54 | bit-identical PASS |
+| 3.0 | +2.0 | **13.3** | 248.5 | 1.41 | bit-identical PASS |
+
+Star mid-peak 248 / sat 6% at every rung (cores untouched ✓ anchor is
+catalog-derived). The chroma-MAD floor (~13 at r6-10, k=3) is the
+HONEST trailed-PSF/atmospheric-dispersion fringe — flooring removes the
+noise speckle, not real star color (the "<10" prediction was half
+wrong: it assumed all skirt chroma was noise). MW box 6→6→5 (k=3 shaves
+faint-star skirt flux inside the MW box; reporting artifact, the
+starless MW is untouched). Panels: `judge_star_tiles.png` (5 star
+ranks × 3 rungs, 3× zoom — the speckle shell visibly gone at 1.5,
+clean at 3.0) + full strips. **USER JUDGES k (0/1.5/3.0); nothing
+baked.** The mask-cliff fallback (feathered combine) was NOT needed at
+the level metric; park it.
+
+### A3 RESULT (2026-07-07): the lights set ran END-TO-END — generalization proven
+
+`scripts/run_pipeline.sh 07-02-26` → solve → SPCC → starcomb, zero
+script edits during the runs; every failure fixed as a PROCESS fix:
+1. **Pipeline (matched-flat path)**: preflight routed correctly, self-flat
+   chain stayed dormant, masters rebuilt (manifests were missing), 31/32
+   registered (frame 2 = the known unmatchable), stack built. Stage WARNs
+   were all honest data statements: stack radial p2v 0.82 (the moon-glow
+   ring, not a flat failure), post_subsky block spread 40x (the treeline
+   was unmasked until config_lights.json existed).
+2. **Process fixes exposed (all data-general, none set-03-specific):**
+   solve_field star-window clipping at frame edges (mgrid/data shape
+   mismatch crash); venv bootstrap re-exec check (realpath of the venv
+   python symlink == system python → "already inside" while outside;
+   fixed via sys.prefix); hard-coded solve scale hint (26–40″/px could
+   never solve a 24mm field — now derived from FOCALLEN/XPIXSZ);
+   foreground detection: binary_closing erosion eats border pixels →
+   border-BAND test; and the composition itself demanded a pixel-MASK
+   foreground (treeline arc — a rect can't model it): new
+   `suggest_foreground.py` + mask support in the context (EDT feather).
+3. **Solve**: RA 227.209° Dec +45.187°, 48.89″/px, logodds 115 —
+   **Boötes** (the session-1 "Big Dipper area" label belonged to THIS
+   composition; solved only after foreground-masked star detection —
+   treeline/glow peaks poisoned the matcher before).
+4. **SPCC**: 518 matched stars (needed 8 more xpsamp chunks — nside=2
+   cone-cover computed in numpy, validated by reproducing set-03's
+   11-chunk list exactly; ~1.2 GB added).
+5. **starcomb**: full chain ran; corridor honestly EMPTY (no |b|≤9°
+   pixel in a Boötes frame) → mw_boost auto-skipped, MW contrast NaN,
+   floor/seam metrics null; **gate reported an honest FAIL** (blocks
+   6.64 — p95 106 vs p50 16: the moonlit horizon-glow band above the
+   treeline survives BGE+subsky; rings 10.1; colors 28/22). That is the
+   DATA (glow-dominated composition), not a pipeline break — exactly
+   what the gate exists to say. Render `starcomb_lights_a3proof_*.jpg`:
+   dark star-rich sky, 3321 stars (elong 1.48 — 20s at 24mm sits at the
+   rule-of-500 limit), treeline glow band + reddish high-noise corners
+   as the visible residuals. Follow-ups if this set ever becomes a
+   product: treeline-aware background model, corner chroma.
+
+### B — pre-registered (2026-07-07): rgb_equal removal (bandaid #3)
+
+Catalogs reinstalled (7.4 GB: astro + 11 Cygnus chunks + 8 Boötes
+chunks). Change: drop `-rgb_equal` from both stack templates (40_lights,
+40d) — ONE architectural knob. Verification on set-03: re-stack
+(preserve the current canonical as `stack_set-03_rgbeq.fit`), re-solve +
+re-SPCC the new stack, render with B6 defaults, compare: SPCC K factors
+(expect K_G to move from 0.904 toward ~1 — SPCC absorbing the raw
+balance instead of the pre-scaled one), MW contrast (expect ≈ +35.9
+linear ± the K change), gate + corridor report vs B6, judgment panels
+for the user (a render-affecting change — canonical stack does NOT
+switch without the user's eyes). If anything degrades measurably: dead
+end with numbers, annotation restored. Note the stack rebuild also
+re-runs registration (sweep is deterministic given the same frames) —
+byte-identity of the new stack vs old is NOT expected (independent
+build); the comparison is metric + visual.
+
+**B RESULT (2026-07-07): rgb_equal is OUT — SPCC absorbs the full raw
+balance; nothing degrades at the gate; user judges the render pair
+before the canonical stack switches.**
+- Re-stack clean: sweep ref 11→20/21, ref 12→**21/21** (same as
+  history); stack inspect PASS noise/med 1.30%, p2v 0.048; rgb_equal-era
+  stack preserved as `stack_set-03_rgbeq.fit`.
+- Solve identical (RA 312.945 Dec +48.148, 32.78″/px, logodds 361).
+- **SPCC on the RAW stack: 508 stars, K ≈ R 1.675 / G 0.749 / B 0.935**
+  (recovered as post/pre medians). The pre-registration guessed "K_G
+  0.904 → ~1" — WRONG in magnitude: rgb_equal was not a small tweak, it
+  was the primary raw-Bayer-balance normalizer (G ~2× sensitive); SPCC
+  is designed to do exactly that job itself, which is why the removal is
+  architecture-correct.
+- Linear: MW box +31.5 (rgbeq-era: +35.9 — different global norm, see
+  render), rim_dev +6.4% (was +8.2%), rim R−G −7.2 (was −9.0) — rim
+  IMPROVES.
+- **Render (B6 defaults): GATE PASS blocks 1.12 colors 2/2 rings
+  3.2/1.2/1.1** (B6: 1.12, 2/3, 2.2/1.0/1.7 — all far under limits;
+  ring_l +1.0 = independent stack build + fresh separation, watch it,
+  don't hide it). Corridor floor +5.0/−2.0, bands 0.60/1.33 (B6:
+  +5.0/−1.0, 0.73/1.25). MW render contrast 5.0 vs 6.0. Stars: mid 248
+  vs 255, sat 6.0% vs 14.6% — the fresh separation on the differently-
+  normalized stack shifts the anchor's amplitude distribution → bright
+  tail renders slightly dimmer; visible in panels, user judges (a
+  stars_peak re-ladder on the new stack is the knob if wanted).
+- Panels: `results/judgment_B_norgbeq/` (B6_approved vs no_rgbeq, 4
+  zones). Files: `starcomb_set-03_norgbeq_20260707_*.{jpg,png,_16bit.png}`,
+  stack `stack_set-03_norgbeq_spcc.fit`.
+- **Templates edited** (40_lights + 40d): `-rgb_equal` dropped with a
+  plain standing comment; the lights A3 stack predates this change
+  (built WITH rgb_equal — inert under its SPCC; rebuild optional).
+- CANONICAL SWITCH PENDING USER: on approval, `stack_set-03_norgbeq_spcc.fit`
+  becomes the render input (and the B6 byte-verify target re-anchors to
+  the newly approved render); until then B6 remains the approved product
+  on `stack_set-03_spcc.fit`.
+
+### E — pre-registered (2026-07-07): blacker blacks (output black point)
+
+User issue 2: background should be BLACK (sits at ~16/255 by
+construction, autostretch target 0.07) without losing star/MW glow;
+residual gray patches 1.5/2.4/1.3 counts at 16/48/128 px and bands
+0.73/1.25 remain. There is NO output-levels op in the chain today; the
+industry move is an output black point (levels) — LINEAR, linked (no
+cast change), applied to the STARLESS layer AFTER the boost and BEFORE
+the gate jpg (so the gate + corridor metrics SEE it — no hiding):
+out = (x − b)/(1 − b). Linear shift preserves differences (MW box
+contrast should survive ~unchanged, scaled ×255/(255−b) ≈ +3%);
+everything below b clips to true black — that is the point for the sky,
+and the RISK for the corridor (the boost lifts glow ABOVE bg, so
+corridor pixels should sit above b — measure, don't assume).
+**Ladder `black_point` b = 0 (control) / 4 / 6 / 8 (8-bit counts);
+bg 16 → ~16/12/10/8.** New reported numbers per rung: corridor
+clip0 fraction (glow pixels driven to 0 — must stay ≈ 0) vs sky clip0
+fraction (growing = blacker blacks working), floor/bands, MW contrast,
+gate. AESTHETIC: judgment panels per rung, USER DECIDES; nothing bakes.
+lum_core/chroma_core re-ladder only if patches/bands still show at the
+approved black point (deferred).
+
+**E RESULT (`exp_starsep_black_point_20260707_013304`): every rung
+gate-PASS with the MW/glow untouched by measurement; one prediction
+inverted, instructively.**
+
+| b | bg | gate blocks | rings | corridor clip0 | sky clip0 | MW | floor P50 |
+|---|---|---|---|---|---|---|---|
+| 0 | 16 | PASS 1.12 | 2.2/1.0/1.7 | — | — | 6.0 | +5.0 |
+| 4 | 12 | PASS 1.17 | 2.3/1.3/1.3 | 9.3% | 0.01% | 6.0 | +5.0 |
+| 6 | 10 | PASS 1.20 | 2.4/1.3/1.0 | 12.1% | 0.23% | 6.0 | +5.0 |
+| 8 | 8 | PASS 1.25 | 2.4/1.3/1.0 | 15.6% | 1.05% | 6.0 | +5.0 |
+
+The clip0 prediction was BACKWARDS: the corridor scope is 42% of the
+frame and includes the dark gaps/lanes + boost-amplified grain's low
+tail — ITS pixels clip (9–16%), and that clipping is the user's
+requested effect (gaps at true black); the lum-cored SKY is so smooth
+that almost nothing in it reaches b (0.01–1%) — the sky gets uniformly
+DARKER (16→8) rather than crushed. The signal metrics prove glow
+survival: MW contrast 6.0, floor P50 +5.0, bands 0.7/1.2–1.3 at every
+rung; blocks ratio drifts 1.12→1.25 purely because P50 drops (P95/P50
+arithmetic), rings stay ≤2.4. Stars bit-stable (mid 248, sat 6%).
+Panels: `exp_starsep_black_point_*/judgment/` (4 zones × 4 rungs).
+**USER PICKS b (0/4/6/8); nothing baked.** If the user wants sky at
+TRUE 0, b must exceed the sky floor (~13) — that would clip real sky
+texture; the honest route there is more integration, not a deeper clip.
+
+### Bandaid ledger — session 6 refresh (THE CURRENT LEDGER; session-5 list superseded)
+
+1. **Self-flat chain** — ADAPTATION, unchanged. Dies when real flats
+   exist at the set's focal (preflight auto-routes; the matched-flat
+   path was exercised end-to-end by the lights set this session ✓).
+2. **Per-frame `seqsubsky 1`** — ADAPTATION, unchanged (self-flat
+   branch only; dies with real flats).
+3. **`rgb_equal`** — **REMOVED from both templates** (B). SPCC absorbs
+   the full raw balance (K R 1.675 / G 0.749 / B 0.935, 508 stars);
+   gate PASS with equivalent numbers. Fully closed once the user
+   approves the norgbeq render pair and the canonical stack switches.
+4. **Whole-frame QA on the recombine** — reported reference only
+   (unchanged since the ratified scope change).
+5. **Star separation by mask+inpaint** — ADAPTATION. Removal condition
+   now CONCRETE: StarNet ships self-contained ONNX packages (no aarch64
+   build, but onnxruntime aarch64 wheels verified installable) — next
+   session: check the Linux x64 package for a loose .onnx; if readable,
+   a tiled-inference driver retires this. Its measured aura cost has a
+   working fix meanwhile (stars_floor ladder, D — awaiting user's k).
+6. **Denoise** — post-stretch `-vst -mod=0.5` on the starless render is
+   in the approved chain; linear placements remain a measured dead end
+   on self-flat data (unchanged).
+7. **Crop** — eliminated (unchanged).
+8. **Hard-coded set-03 geometry in scripts** — **CLOSED (A1/A2)**:
+   corridor/foreground/boxes/crops live in `config_<set>.json` or derive
+   (WCS galactic corridor; suggest_foreground mask); no silent set-03
+   inheritance (corridor=none + warning when nothing is available).
+   set-03's manual corridor stays config'd for byte-identity; the
+   validated WCS corridor (IoU 0.776, gate-equivalent) awaits user
+   approval since switching re-renders.
+9. **Flat geometric mw_boost** — luminosity-weighted mask (unchanged);
+   removal condition still "enough integration next acquisition".
+10. **Legacy quick-look named `preview_*`** — renamed `quicklook_*`
+    (was repeatedly mistaken for the product render).
 
 ## Iteration ideas (not yet tried)
 

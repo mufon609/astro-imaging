@@ -38,8 +38,10 @@ rm -f "$S/work"/post_*.fit
 flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$GEN"
 
 stamp="$(date +%Y%m%d_%H%M%S)"
-mv "$S/results/preview_$SET.jpg" "$S/results/preview_${SET}_${stamp}.jpg"
-echo "=== done: $S/results/preview_${SET}_${stamp}.jpg (subsky $SUBSKY) ==="
+# "quicklook", not "preview": this single-stretch debug render is easily
+# mistaken for the product (starcomb's render) when browsing results/
+mv "$S/results/preview_$SET.jpg" "$S/results/quicklook_${SET}_${stamp}.jpg"
+echo "=== done: $S/results/quicklook_${SET}_${stamp}.jpg (LEGACY QUICK-LOOK, not the product chain; subsky $SUBSKY) ==="
 
 # Per-op inspection: reuse the pipeline's inspect dir when called from
 # run_pipeline.sh (INSPECT_DIR), else open a post-only one.
@@ -51,6 +53,7 @@ else
 fi
 INS() {
   python3 "$REPO/scripts/inspect_stage.py" "$@" --dir "$INSPECT" \
+      --session "$S" --set "$SET" \
     || echo "WARNING: inspection failed for: $* (run continues)" >&2
 }
 [[ -f "$S/work/post_subsky.fit" ]]  && INS stage post_subsky  --in "$S/work/post_subsky.fit"
@@ -60,14 +63,14 @@ if [[ -f "$S/work/post_stretch.fit" ]]; then
   INS stage post_stretch --target "${TARGET:-0.12}" --in "$S/work/post_stretch.fit"
 fi
 [[ -f "$S/work/post_satu.fit" ]] && INS stage post_satu --in "$S/work/post_satu.fit"
-INS stage final --in "$S/results/preview_${SET}_${stamp}.jpg"
+INS stage final --in "$S/results/quicklook_${SET}_${stamp}.jpg"
 cp "$GEN" "$INSPECT/recipe_post.ssf"
 
 # Whole-frame background QA gate: block-median map of the ENTIRE frame,
 # luminance spread + per-channel color deviation thresholds. Reports PASS or
 # FAIL with offender locations — recipes are graded by this, not by eye alone.
-python3 "$REPO/scripts/bg_qa.py" "$S/results/preview_${SET}_${stamp}.jpg" \
-  | tee "$INSPECT/qa.txt" || true
+python3 "$REPO/scripts/bg_qa.py" "$S/results/quicklook_${SET}_${stamp}.jpg" \
+  --session="$S" --set="$SET" | tee "$INSPECT/qa.txt" || true
 INS report --title "$SESSION $SET — $stamp" --qa "$INSPECT/qa.txt"
 rm -f "$S/work"/post_*.fit
 echo "=== inspection report: $INSPECT/index.html ==="

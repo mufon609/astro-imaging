@@ -90,28 +90,293 @@ def load_image(path):
 
 # --- basic statistics ----------------------------------------------------------
 
-# --- MW band corridor (shared geometry) ---------------------------------------
-# The Milky Way band corridor in display fractions, measured on the L2
-# starless layer (band-course measurement, see NOTES). Single source of
-# truth: starcomb uses it to LOCALIZE the mw_boost (and to exclude
-# background samples in mode 'banded'); bg_qa uses it to EXCLUDE the
-# corridor from background statistics under the layer-appropriate QA scope
-# (ratified 2026-07-06) — the corridor is known signal, exactly like the
-# branch corner is known non-sky.
+# --- per-set geometry context ---------------------------------------------
+# Corridor, foreground and report-box geometry are COMPOSITION facts, not
+# algorithm constants. Product entry points call configure(session, set,
+# stack) which resolves, in order:
+#   <session>/config_<set>.json  (tracked; composition facts are process)
+#   corridor mode "manual" (explicit p0/p1/halfw)  |  "wcs" (galactic-
+#   latitude band from the plate solve: work/wcs_<set>.json or the stack
+#   header)  |  "none" (no config + no WCS: corridor absent -> the gate's
+#   sky scope degrades to whole-frame on the starless render = stricter,
+#   with a warning; mw_boost is skipped).
+# The module-level defaults below carry set-03's hand-measured geometry
+# ONLY as the legacy fallback for direct library calls on set-03-era
+# artifacts — a configured run NEVER inherits them silently.
 
-BAND_P0 = (0.30, 1.00)   # (x, y) fractions, bottom end
+BAND_P0 = (0.30, 1.00)   # (x, y) fractions, bottom end (set-03, hand-measured)
 BAND_P1 = (0.80, 0.00)   # top-right exit (widened after the overlay check)
 BAND_HALFW = 0.19        # fraction of the frame diagonal
+_FG_RECT_LEGACY = (0.0, 0.75, 0.22, 1.0)    # x0, y0, x1, y1 fractions
+_MW_BOX_LEGACY = (0.40, 0.30, 0.70, 0.55)
+_SKY_BOX_LEGACY = (0.05, 0.25, 0.25, 0.50)
+
+# ICRS (J2000) equatorial -> galactic unit-vector rotation (IAU 1958
+# pole/center as realized for J2000; standard 3x3, no astropy needed).
+_EQ2GAL = np.array([
+    [-0.0548755604, -0.8734370902, -0.4838350155],
+    [+0.4941094279, -0.4448296300, +0.7469822445],
+    [-0.8676661490, -0.1980763734, +0.4559837762]])
+
+
+class SetContext:
+    """Resolved per-set geometry (see configure())."""
+
+    def __init__(self):
+        self.source = "builtin-legacy-set03"
+        self.corridor_mode = "manual"        # manual | wcs | none
+        self.band_p0 = BAND_P0
+        self.band_p1 = BAND_P1
+        self.band_halfw = BAND_HALFW
+        self.b_halfwidth_deg = 9.0           # wcs mode: |b| <= this
+        # (calibrated against set-03's hand-measured corridor: IoU 0.776,
+        # gate verdict unchanged)
+        self.wcs = None                      # dict of WCS cards (floats)
+        self.foreground = _FG_RECT_LEGACY    # (x0,y0,x1,y1) fractions | None
+        self.fg_mask_path = None             # npz pixel mask (landscape
+        #                                      compositions a rect can't
+        #                                      model); wins over rect
+        self.mw_box = _MW_BOX_LEGACY         # report boxes | None = derive
+        self.sky_box = _SKY_BOX_LEGACY
+        self.judgment_crops = None           # {name: [x0,y0,x1,y1] px} | None
+        self.starsep = {}                    # optional per-set overrides
+        self._cache = {}
+
+
+CTX = SetContext()
+
+
+def _wcs_floats(d):
+    """Normalize a WCS dict ({KEY: value} or {KEY: [value, comment]} from
+    solve_field --json / FITS header parse) to plain floats/strings."""
+    out = {}
+    for k, v in d.items():
+        val = v[0] if isinstance(v, (list, tuple)) else v
+        if isinstance(val, str):
+            val = val.strip().strip("'").strip()
+        try:
+            out[k] = float(val)
+        except (TypeError, ValueError):
+            out[k] = val
+    return out
+
+
+def read_fits_header(path):
+    """Header cards only (same parse as read_fits, no data)."""
+    hdr = {}
+    with open(path, "rb") as f:
+        off = 0
+        while True:
+            block = f.read(2880).decode("ascii", "replace")
+            if not block:
+                sys.exit(f"astrometrics: no END card in {path}")
+            off += 2880
+            for i in range(0, 2880, 80):
+                c = block[i:i + 80]
+                key = c[:8].strip()
+                if key == "END":
+                    return hdr
+                if "=" in c:
+                    hdr[key] = c[10:].split("/")[0].strip()
+
+
+def _find_wcs(session_dir, set_name, stack=None):
+    """WCS source resolution: work/wcs_<set>.json, else the stack header
+    (solve_field-injected or siril platesolve). Returns (dict, src) or
+    (None, None)."""
+    import json as _json
+    if session_dir and set_name:
+        p = os.path.join(session_dir, "work", f"wcs_{set_name}.json")
+        if os.path.exists(p):
+            return _wcs_floats(_json.load(open(p))), os.path.basename(p)
+    if stack and os.path.exists(stack):
+        hdr = _wcs_floats(read_fits_header(stack))
+        if "CRVAL1" in hdr and "CD1_1" in hdr:
+            return hdr, os.path.basename(stack) + " header"
+    return None, None
+
+
+def configure(session_dir, set_name, stack=None, quiet=False):
+    """Resolve the per-set geometry context (module global CTX).
+
+    Precedence: config_<set>.json fields; corridor 'wcs' mode (default
+    when no config) pulls the plate-solve WCS; nothing found -> corridor
+    'none' + foreground None, loudly. Returns the context."""
+    global CTX
+    ctx = SetContext()
+    ctx.corridor_mode = "none"
+    ctx.foreground = None
+    ctx.mw_box = ctx.sky_box = None
+    src = []
+    cfg = {}
+    cfgp = (os.path.join(session_dir, f"config_{set_name}.json")
+            if session_dir and set_name else None)
+    if cfgp and os.path.exists(cfgp):
+        import json as _json
+        cfg = _json.load(open(cfgp))
+        src.append(os.path.basename(cfgp))
+    cor = cfg.get("corridor", {"mode": "wcs"})
+    mode = (cor or {}).get("mode", "wcs")
+    if mode == "manual":
+        ctx.corridor_mode = "manual"
+        ctx.band_p0 = tuple(cor["p0"])
+        ctx.band_p1 = tuple(cor["p1"])
+        ctx.band_halfw = float(cor["halfw"])
+    elif mode == "wcs":
+        ctx.b_halfwidth_deg = float((cor or {}).get("b_halfwidth_deg",
+                                                    ctx.b_halfwidth_deg))
+        wcs, wsrc = _find_wcs(session_dir, set_name, stack)
+        if wcs is not None:
+            ctx.wcs = wcs
+            ctx.corridor_mode = "wcs"
+            src.append(f"wcs:{wsrc}")
+        else:
+            ctx.corridor_mode = "none"
+    fg = cfg.get("foreground")
+    if fg and fg.get("mask"):
+        p = fg["mask"]
+        if not os.path.isabs(p):
+            p = os.path.join(session_dir, p)
+        if os.path.exists(p):
+            ctx.fg_mask_path = p
+            ctx.foreground = "mask"
+        else:
+            print(f"[setctx] WARNING: foreground mask {p} missing "
+                  "(regen: scripts/suggest_foreground.py) — foreground "
+                  "treated as none", flush=True)
+    elif fg and fg.get("rect"):
+        ctx.foreground = tuple(float(v) for v in fg["rect"])
+    if cfg.get("mw_box"):
+        ctx.mw_box = tuple(cfg["mw_box"])
+    if cfg.get("sky_box"):
+        ctx.sky_box = tuple(cfg["sky_box"])
+    if cfg.get("judgment_crops"):
+        ctx.judgment_crops = {k: tuple(v)
+                              for k, v in cfg["judgment_crops"].items()}
+    ctx.starsep = cfg.get("starsep", {})
+    ctx.source = "+".join(src) if src else "none"
+    if not quiet:
+        msg = (f"[setctx] {set_name}: corridor={ctx.corridor_mode}"
+               + (f" (|b|<={ctx.b_halfwidth_deg}deg)"
+                  if ctx.corridor_mode == "wcs" else "")
+               + f", foreground={'rect' if ctx.foreground else 'none'}"
+               + f", source={ctx.source}")
+        print(msg, flush=True)
+        if ctx.corridor_mode == "none":
+            print("[setctx] WARNING: no corridor (no config, no WCS) — "
+                  "sky-scope QA degrades to whole-frame on the starless "
+                  "render; mw_boost will be skipped", flush=True)
+    CTX = ctx
+    return ctx
+
+
+def _radec_grid(wcs, h, w, step=16):
+    """Coarse display-oriented RA/Dec grids (radians) from a TAN-SIP WCS.
+    Rows are display order (top-down); FITS y = h - display_row."""
+    nr = max(2, h // step)
+    nc = max(2, w // step)
+    rs = np.linspace(0.0, h - 1.0, nr)
+    cs = np.linspace(0.0, w - 1.0, nc)
+    C, R = np.meshgrid(cs, rs)
+    xf = C + 1.0            # FITS 1-based x
+    yf = h - R              # FITS y (bottom-up) for display row R
+    u = xf - float(wcs["CRPIX1"])
+    v = yf - float(wcs["CRPIX2"])
+    ao = int(wcs.get("A_ORDER", 0) or 0)
+    bo = int(wcs.get("B_ORDER", 0) or 0)
+    du = np.zeros_like(u)
+    dv = np.zeros_like(v)
+    for p in range(ao + 1):
+        for q in range(ao + 1 - p):
+            cpq = float(wcs.get(f"A_{p}_{q}", 0.0) or 0.0)
+            if cpq:
+                du += cpq * (u ** p) * (v ** q)
+    for p in range(bo + 1):
+        for q in range(bo + 1 - p):
+            cpq = float(wcs.get(f"B_{p}_{q}", 0.0) or 0.0)
+            if cpq:
+                dv += cpq * (u ** p) * (v ** q)
+    u2, v2 = u + du, v + dv
+    xi = np.radians(float(wcs["CD1_1"]) * u2 + float(wcs["CD1_2"]) * v2)
+    eta = np.radians(float(wcs["CD2_1"]) * u2 + float(wcs["CD2_2"]) * v2)
+    ra0 = np.radians(float(wcs["CRVAL1"]))
+    dec0 = np.radians(float(wcs["CRVAL2"]))
+    rr = np.hypot(xi, eta)
+    cang = np.arctan(rr)                      # inverse gnomonic
+    cosc = np.cos(cang)
+    sinc_r = np.where(rr > 1e-12, np.sin(cang) / np.maximum(rr, 1e-12), 1.0)
+    dec = np.arcsin(np.clip(
+        cosc * np.sin(dec0) + eta * sinc_r * np.cos(dec0), -1.0, 1.0))
+    ra = ra0 + np.arctan2(
+        xi * sinc_r, cosc * np.cos(dec0) - eta * sinc_r * np.sin(dec0))
+    return ra, dec
+
+
+def galactic_maps(h, w):
+    """Full-res float32 (b_deg, l_deg) maps for CTX.wcs, display-oriented.
+    Computed on a coarse grid (WCS is smooth), upsampled via the galactic
+    unit VECTOR (wrap-safe for l), cached per (h, w)."""
+    key = ("gal", h, w)
+    if key in CTX._cache:
+        return CTX._cache[key]
+    from scipy.ndimage import zoom
+    ra, dec = _radec_grid(CTX.wcs, h, w)
+    cd = np.cos(dec)
+    vec = np.stack([cd * np.cos(ra), cd * np.sin(ra), np.sin(dec)])
+    g = np.tensordot(_EQ2GAL, vec, axes=1)
+    full = []
+    for i in range(3):
+        z = zoom(g[i].astype(np.float32),
+                 (h / g.shape[1], w / g.shape[2]), order=1)
+        # zoom rounds the output shape; pad/crop the last px to (h, w)
+        if z.shape[0] < h:
+            z = np.pad(z, ((0, h - z.shape[0]), (0, 0)), mode="edge")
+        if z.shape[1] < w:
+            z = np.pad(z, ((0, 0), (0, w - z.shape[1])), mode="edge")
+        full.append(z[:h, :w])
+    gx, gy, gz = full
+    b = np.degrees(np.arcsin(np.clip(gz, -1.0, 1.0))).astype(np.float32)
+    l = (np.degrees(np.arctan2(gy, gx)) % 360.0).astype(np.float32)
+    CTX._cache[key] = (b, l)
+    return b, l
+
+
+def frame_diag_deg(h, w):
+    """Angular length of the frame diagonal (deg) from CTX.wcs — converts
+    'fraction of the frame diagonal' feathers into degrees in wcs mode."""
+    key = ("diag", h, w)
+    if key in CTX._cache:
+        return CTX._cache[key]
+    ra, dec = _radec_grid(CTX.wcs, h, w, step=max(h, w))  # corners only
+    v = np.stack([np.cos(dec) * np.cos(ra),
+                  np.cos(dec) * np.sin(ra), np.sin(dec)], axis=-1)
+    dot = float(np.clip((v[0, 0] * v[-1, -1]).sum(), -1.0, 1.0))
+    d = float(np.degrees(np.arccos(dot)))
+    CTX._cache[key] = d
+    return d
 
 
 def band_mask_frac(h, w, feather=0.0):
     """Soft [0..1] corridor mask of the MW band (1 inside). feather is an
-    extra half-width over which the mask rolls off smoothly."""
+    extra half-width over which the mask rolls off smoothly, as a fraction
+    of the frame diagonal (converted to degrees in wcs mode).
+    Modes (CTX): manual = legacy straight strip (byte-identical math);
+    wcs = |galactic b| <= b_halfwidth_deg; none = zeros."""
+    if CTX.corridor_mode == "none":
+        return np.zeros((h, w), np.float32)
+    if CTX.corridor_mode == "wcs":
+        b, _ = galactic_maps(h, w)
+        d = np.abs(b)
+        hw = float(CTX.b_halfwidth_deg)
+        if feather <= 0:
+            return (d <= hw).astype(np.float32)
+        fdeg = feather * frame_diag_deg(h, w)
+        return np.clip((hw + fdeg - d) / fdeg, 0.0, 1.0).astype(np.float32)
     ys = (np.arange(h) + 0.5) / h
     xs = (np.arange(w) + 0.5) / w
     X, Y = np.meshgrid(xs, ys)
-    x0, y0 = BAND_P0
-    x1, y1 = BAND_P1
+    x0, y0 = CTX.band_p0
+    x1, y1 = CTX.band_p1
     dx, dy = x1 - x0, y1 - y0
     n2 = dx * dx + dy * dy
     t = ((X - x0) * dx + (Y - y0) * dy) / n2
@@ -119,9 +384,66 @@ def band_mask_frac(h, w, feather=0.0):
     px, py = x0 + t * dx, y0 + t * dy
     d = np.hypot(X - px, Y - py)  # distance in frame-fraction units
     if feather <= 0:
-        return (d <= BAND_HALFW).astype(np.float32)
-    return np.clip((BAND_HALFW + feather - d) / feather, 0.0, 1.0) \
+        return (d <= CTX.band_halfw).astype(np.float32)
+    return np.clip((CTX.band_halfw + feather - d) / feather, 0.0, 1.0) \
         .astype(np.float32)
+
+
+def band_along_coord(h, w, stride=1):
+    """Per-pixel 'along the band' coordinate for profile binning
+    (corridor_report): manual mode = projection onto the band axis (px
+    units, legacy math); wcs mode = galactic longitude l (deg); none ->
+    None."""
+    if CTX.corridor_mode == "none":
+        return None
+    if CTX.corridor_mode == "wcs":
+        _, l = galactic_maps(h, w)
+        return l[::stride, ::stride]
+    p0 = np.array([CTX.band_p0[0] * w, CTX.band_p0[1] * h])
+    p1 = np.array([CTX.band_p1[0] * w, CTX.band_p1[1] * h])
+    u = (p1 - p0) / np.linalg.norm(p1 - p0)
+    yy, xx = np.mgrid[0:h:stride, 0:w:stride]
+    return (xx - p0[0]) * u[0] + (yy - p0[1]) * u[1]
+
+
+def report_boxes(h, w):
+    """(mw_box, sky_box) fractions for the MW-contrast report. Config'd
+    boxes win; else derived from the corridor mask: densest-corridor
+    0.30x0.25 window vs the least-corridor window (deterministic grid
+    search, foreground excluded); no corridor -> None."""
+    if CTX.mw_box and CTX.sky_box:
+        return CTX.mw_box, CTX.sky_box
+    key = ("boxes", h, w)
+    if key in CTX._cache:
+        return CTX._cache[key]
+    if CTX.corridor_mode == "none":
+        return None, None
+    s = 8
+    m = band_mask_frac(h, w)[::s, ::s]
+    keep = branch_mask(h, w, stride=s).astype(np.float32)
+    bw, bh = 0.30, 0.25
+    hh, ww = m.shape
+    bwp, bhp = int(ww * bw), int(hh * bh)
+    best_mw, best_sky = None, None
+    hi, lo = -1.0, 2.0
+    for fy in np.linspace(0.0, 1.0 - bh, 13):
+        for fx in np.linspace(0.0, 1.0 - bw, 13):
+            y0, x0 = int(fy * hh), int(fx * ww)
+            sl = np.s_[y0:y0 + bhp, x0:x0 + bwp]
+            kfrac = keep[sl].mean()
+            if kfrac < 0.98:          # stay clear of the foreground
+                continue
+            v = float(m[sl].mean())
+            box = (round(fx, 3), round(fy, 3),
+                   round(fx + bw, 3), round(fy + bh, 3))
+            if v > hi:
+                hi, best_mw = v, box
+            if v < lo:
+                lo, best_sky = v, box
+    if hi < 0.02:   # corridor never actually crosses the frame (e.g. a
+        best_mw = best_sky = None   # high-galactic-latitude field)
+    CTX._cache[key] = (best_mw, best_sky)
+    return best_mw, best_sky
 
 
 def bg_stats(ch, iters=5, stride=2):
@@ -176,31 +498,74 @@ def radius_map(h, w, stride=1):
     return np.sqrt((yy[:, None] ** 2 + xx[None, :] ** 2) / 2.0)
 
 
+def _fg_mask(h, w):
+    """Full-res boolean foreground mask from CTX.fg_mask_path (cached).
+    True = foreground."""
+    key = ("fgmask", h, w)
+    if key in CTX._cache:
+        return CTX._cache[key]
+    m = np.load(CTX.fg_mask_path)["mask"].astype(bool)
+    if m.shape != (h, w):
+        from scipy.ndimage import zoom
+        m = zoom(m.astype(np.uint8),
+                 (h / m.shape[0], w / m.shape[1]), order=0).astype(bool)
+        if m.shape[0] < h:
+            m = np.pad(m, ((0, h - m.shape[0]), (0, 0)), mode="edge")
+        if m.shape[1] < w:
+            m = np.pad(m, ((0, 0), (0, w - m.shape[1])), mode="edge")
+        m = m[:h, :w]
+    CTX._cache[key] = m
+    return m
+
+
 def branch_mask(h, w, stride=1):
-    """True where measurable (the bottom-left foreground branch excluded) —
-    same geometry as bg_qa's block mask (rows >=75% height, cols <22% w).
+    """True where measurable (the foreground excluded; set-03: the
+    bottom-left branch rect, rows >=75% height, cols <22% w; mask-file
+    foregrounds for compositions a rect can't model).
     STATISTICS scope only: a hard edge is fine when selecting samples. Any
     RENDERING operator must use branch_mask_frac instead — a hard mask
     multiplied into a correction prints a visible seam (measured +1.0/−1.5
-    counts on B5, session 5)."""
+    counts). CTX.foreground None -> all True."""
+    if CTX.foreground == "mask":
+        return ~_fg_mask(h, w)[::stride, ::stride]
     m = np.ones((len(range(0, h, stride)), len(range(0, w, stride))), bool)
+    if CTX.foreground is None:
+        return m
+    x0, y0, x1, y1 = CTX.foreground
     ys = np.arange(0, h, stride) / h
     xs = np.arange(0, w, stride) / w
-    m[np.ix_(ys >= 0.75, xs < 0.22)] = False
+    m[np.ix_((ys >= y0) & (ys < y1), (xs >= x0) & (xs < x1))] = False
     return m
 
 
 def branch_mask_frac(h, w, feather=0.05):
-    """Soft [0..1] branch mask (1 = branch corner, 0 = sky), same rectangle
-    as branch_mask (y>=0.75h, x<0.22w) with a smooth rolloff over `feather`
-    (fraction of frame height) OUTSIDE the rectangle. For rendering
-    operators (lum_core weight, mw_boost exclusion): corrections fade over
-    ~feather*h px instead of stopping at a hard printed edge."""
+    """Soft [0..1] foreground mask (1 = foreground rect, 0 = sky) with a
+    smooth rolloff over `feather` (fraction of frame height) OUTSIDE the
+    rectangle. For rendering operators (lum_core weight, mw_boost
+    exclusion): corrections fade over ~feather*h px instead of stopping at
+    a hard printed edge. CTX.foreground None -> zeros."""
+    if CTX.foreground is None:
+        return np.zeros((h, w), np.float32)
+    if CTX.foreground == "mask":
+        key = ("fgfrac", h, w, round(float(feather), 4))
+        if key in CTX._cache:
+            return CTX._cache[key]
+        m = _fg_mask(h, w)
+        if feather <= 0:
+            out = m.astype(np.float32)
+        else:
+            from scipy.ndimage import distance_transform_edt
+            d = distance_transform_edt(~m)  # px to the mask
+            out = np.clip(1.0 - d / (feather * h), 0.0, 1.0) \
+                .astype(np.float32)
+        CTX._cache[key] = out
+        return out
+    x0, y0, x1, y1 = CTX.foreground
     ys = (np.arange(h) + 0.5) / h
     xs = (np.arange(w) + 0.5) / w
     # signed distance outside the rectangle along each axis (0 inside)
-    dy = np.maximum(0.75 - ys, 0.0)[:, None]
-    dx = np.maximum(xs - 0.22, 0.0)[None, :]
+    dy = np.maximum(np.maximum(y0 - ys, ys - y1), 0.0)[:, None]
+    dx = np.maximum(np.maximum(x0 - xs, xs - x1), 0.0)[None, :]
     d = np.hypot(dy, dx)  # frame-fraction distance to the rectangle
     if feather <= 0:
         return (d <= 0).astype(np.float32)
@@ -208,10 +573,10 @@ def branch_mask_frac(h, w, feather=0.05):
 
 
 def corridor_report(img8_hwc):
-    """REPORTED corridor + seam metrics (session 5 QA blind-spot fix) on an
-    8-bit HxWx3 render of the STARLESS layer. Not a gate — the ratified
-    gate scope is unchanged; these make corridor-contained costs and mask
-    seams measurable instead of invisible.
+    """REPORTED corridor + seam metrics on an 8-bit HxWx3 render of the
+    STARLESS layer. Not a gate — the gate scope masks the corridor, so
+    these exist to make corridor-contained costs and mask seams
+    measurable instead of invisible.
 
     Returns dict:
       floor_p50/floor_p5: corridor starless block-median G percentiles
@@ -219,18 +584,20 @@ def corridor_report(img8_hwc):
         above the sky; P5 ~ 'do the gaps reach sky black').
       band_rg/band_bg: P2V of the sigma-24-smoothed chroma profile binned
         along the band axis, hi-pass (issue 1's diffuse color bands).
-      seam_y/seam_x: blotch-TEXTURE ratio across the branch-rectangle
+      seam_y/seam_x: blotch-TEXTURE ratio across the foreground-rectangle
         edges (un-cored side MAD / cored side MAD of the sigma-48 mid-scale
-        residual field). A level-step gauge failed here (session 5): the
-        coring seam is a texture discontinuity whose strip-median is ~0;
-        real sky gradients and 8-bit quantization dominate level steps.
-        ~1.0 = no seam; B5's hard mask measured 4.5 (y) / 1.35 (x)."""
+        residual field). A level-step gauge fails here: the coring seam is
+        a texture discontinuity whose strip-median is ~0; real sky
+        gradients and 8-bit quantization dominate level steps. ~1.0 = no
+        seam; a hard rendering mask measured 4.5 (y) / 1.35 (x)."""
     from scipy.ndimage import gaussian_filter, median_filter
     a = np.asarray(img8_hwc, dtype=np.float32)
     h, w, _ = a.shape
     G = a[..., 1]
-    corr = band_mask_frac(h, w, feather=0.10)
     keep = branch_mask(h, w)
+    res = {"floor_p50": None, "floor_p5": None,
+           "band_rg": None, "band_bg": None,
+           "seam_y": None, "seam_x": None}
     blk = 100
 
     def blocks(mask):
@@ -244,44 +611,55 @@ def corridor_report(img8_hwc):
                         G[by * blk:(by + 1) * blk, bx * blk:(bx + 1) * blk]))
         return np.asarray(out)
 
-    sky_b = blocks((corr < 0.01) & keep)
-    cor_b = blocks((corr > 0.9) & keep)
-    sky50 = float(np.percentile(sky_b, 50)) if len(sky_b) else float("nan")
-    res = {
-        "floor_p50": float(np.percentile(cor_b, 50) - sky50) if len(cor_b) else 0.0,
-        "floor_p5": float(np.percentile(cor_b, 5) - sky50) if len(cor_b) else 0.0,
-    }
+    if CTX.corridor_mode != "none":
+        corr = band_mask_frac(h, w, feather=0.10)
+        sky_b = blocks((corr < 0.01) & keep)
+        cor_b = blocks((corr > 0.9) & keep)
+        sky50 = float(np.percentile(sky_b, 50)) if len(sky_b) else float("nan")
+        if len(cor_b):
+            res["floor_p50"] = float(np.percentile(cor_b, 50) - sky50)
+            res["floor_p5"] = float(np.percentile(cor_b, 5) - sky50)
 
-    p0 = np.array([BAND_P0[0] * w, BAND_P0[1] * h])
-    p1 = np.array([BAND_P1[0] * w, BAND_P1[1] * h])
-    u = (p1 - p0) / np.linalg.norm(p1 - p0)
-    yy, xx = np.mgrid[0:h:4, 0:w:4]
-    t_along = ((xx - p0[0]) * u[0] + (yy - p0[1]) * u[1]).ravel()
-    msk = keep[::4, ::4].ravel()
-    for key, ch in (("band_rg", a[..., 0] - G), ("band_bg", a[..., 2] - G)):
-        sm = gaussian_filter(ch, 24)[::4, ::4].ravel()
-        bins = np.linspace(t_along[msk].min(), t_along[msk].max(), 160)
-        idx = np.digitize(t_along, bins)
-        prof = np.array([np.median(sm[(idx == i) & msk])
-                         for i in range(1, len(bins))
-                         if ((idx == i) & msk).sum() > 200])
-        resid = prof - median_filter(prof, 31, mode="nearest")
-        res[key] = float(np.percentile(resid, 99) - np.percentile(resid, 1))
+        t_along = band_along_coord(h, w, stride=4)
+        t_along = np.asarray(t_along).ravel()
+        msk = keep[::4, ::4].ravel()
+        for key, ch in (("band_rg", a[..., 0] - G), ("band_bg", a[..., 2] - G)):
+            sm = gaussian_filter(ch, 24)[::4, ::4].ravel()
+            bins = np.linspace(t_along[msk].min(), t_along[msk].max(), 160)
+            idx = np.digitize(t_along, bins)
+            prof = np.array([np.median(sm[(idx == i) & msk])
+                             for i in range(1, len(bins))
+                             if ((idx == i) & msk).sum() > 200])
+            resid = prof - median_filter(prof, 31, mode="nearest")
+            res[key] = float(np.percentile(resid, 99) - np.percentile(resid, 1))
 
-    resid = G - gaussian_filter(G, 16)
-    blotch = gaussian_filter(resid, 48)
+    if CTX.foreground is not None and CTX.foreground != "mask":
+        # seam gauges are rect-edge-specific; mask foregrounds have no
+        # straight printed edge to gauge (and no rendering op multiplies
+        # a hard mask since M0)
+        resid = G - gaussian_filter(G, 16)
+        blotch = gaussian_filter(resid, 48)
 
-    def tex(sl):
-        v = blotch[sl]
-        return 1.4826 * float(np.median(np.abs(v)))
+        def tex(sl):
+            v = blotch[sl]
+            return 1.4826 * float(np.median(np.abs(v)))
 
-    y_e, x_e = int(0.75 * h), int(0.22 * w)
-    x0, x1 = int(0.05 * w), int(0.20 * w)
-    res["seam_y"] = tex(np.s_[y_e + 40:y_e + 320, x0:x1]) \
-        / max(tex(np.s_[y_e - 320:y_e - 40, x0:x1]), 1e-6)
-    y0, y1 = int(0.78 * h), int(0.97 * h)
-    res["seam_x"] = tex(np.s_[y0:y1, x_e - 320:x_e - 40]) \
-        / max(tex(np.s_[y0:y1, x_e + 40:x_e + 320]), 1e-6)
+        # seam gauges anchored to the foreground rect edges; the sampling
+        # strips are rect-proportional with fractions chosen to reproduce
+        # the original set-03 strips EXACTLY (rect (0,0.75,0.22,1.0):
+        # x 5/22..20/22 of rect width = 0.05w..0.20w, y 3/25..22/25 of
+        # rect height = 0.78h..0.97h — the calibrated gauge positions).
+        fx0, fy0, fx1, fy1 = CTX.foreground
+        rw, rh = fx1 - fx0, fy1 - fy0
+        y_e, x_e = int(fy0 * h), int(fx1 * w)
+        x0 = int((fx0 + rw * 5.0 / 22.0) * w)
+        x1 = int((fx0 + rw * 20.0 / 22.0) * w)
+        res["seam_y"] = tex(np.s_[y_e + 40:y_e + 320, x0:x1]) \
+            / max(tex(np.s_[y_e - 320:y_e - 40, x0:x1]), 1e-6)
+        y0 = int((fy0 + rh * 3.0 / 25.0) * h)
+        y1 = int((fy0 + rh * 22.0 / 25.0) * h)
+        res["seam_x"] = tex(np.s_[y0:y1, x_e - 320:x_e - 40]) \
+            / max(tex(np.s_[y0:y1, x_e + 40:x_e + 320]), 1e-6)
     return res
 
 
@@ -345,7 +723,16 @@ def plane_tilt(ch, block=101):
                     .reshape(gy, gx, -1), axis=2)
     cy = (np.arange(gy) * block + block / 2) / ny * 2 - 1
     cx = (np.arange(gx) * block + block / 2) / nx * 2 - 1
-    keep2d = ~((cy[:, None] >= 0.5) & (cx[None, :] < -0.56))  # branch corner
+    if CTX.foreground == "mask":     # block-level foreground fraction
+        fg = _fg_mask(ny, nx)[:gy * block, :gx * block]
+        bf = fg.reshape(gy, block, gx, block).mean(axis=(1, 3))
+        keep2d = bf < 0.5
+    elif CTX.foreground is not None:  # foreground rect in ±1 block coords
+        fx0, fy0, fx1, fy1 = CTX.foreground
+        keep2d = ~(((cy[:, None] >= 2 * fy0 - 1) & (cy[:, None] <= 2 * fy1 - 1))
+                   & ((cx[None, :] >= 2 * fx0 - 1) & (cx[None, :] < 2 * fx1 - 1)))
+    else:
+        keep2d = np.ones((gy, gx), bool)
     Y, X = np.meshgrid(cy, cx, indexing="ij")
     A = np.stack([np.ones(med.size), X.ravel(), Y.ravel()], axis=1)
     b = med.ravel()
@@ -462,6 +849,33 @@ def star_metrics(ch, max_stars=500, k_sigma=8.0, cut=12, min_prom_frac=0.004):
         "contrast_med": float(np.median(contrasts)),
         "sat_star_frac": float((peak_arr >= 0.98).mean()),
     }
+
+
+def write_png16(path, arr16):
+    """Write a 16-bit RGB PNG (color type 2, bit depth 16) from a uint16
+    (H, W, 3) array. Pure zlib/struct — Pillow cannot write 48-bit RGB
+    PNGs, and the render is computed in float: an 8-bit final quantizes
+    to 256 levels, this keeps 65536 (visually indistinguishable from the
+    float render)."""
+    import struct
+    import zlib
+    h, w, c = arr16.shape
+    assert c == 3 and arr16.dtype == np.uint16
+
+    def chunk(tag, payload):
+        return (struct.pack(">I", len(payload)) + tag + payload
+                + struct.pack(">I", zlib.crc32(tag + payload) & 0xffffffff))
+
+    # scanlines: filter byte 0 + big-endian samples per row
+    body = np.empty((h, 1 + w * 6), np.uint8)
+    body[:, 0] = 0
+    body[:, 1:] = arr16.astype(">u2").reshape(h, -1).view(np.uint8)
+    ihdr = struct.pack(">IIBBBBB", w, h, 16, 2, 0, 0, 0)
+    with open(path, "wb") as f:
+        f.write(b"\x89PNG\r\n\x1a\n")
+        f.write(chunk(b"IHDR", ihdr))
+        f.write(chunk(b"IDAT", zlib.compress(body.tobytes(), 6)))
+        f.write(chunk(b"IEND", b""))
 
 
 # --- consistent rendering -------------------------------------------------------

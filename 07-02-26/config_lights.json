@@ -1,0 +1,13 @@
+{
+  "_readme": "Per-set composition facts for the 24mm 'lights' set (32x20s ISO200 f/4, matched flats). Generalization test set, session 6.",
+  "set": "lights",
+  "corridor": {
+    "mode": "wcs",
+    "b_halfwidth_deg": 9.0,
+    "_note": "galactic-latitude corridor from the plate solve (work/wcs_lights.json / stack header); halfwidth calibrated on set-03 (IoU 0.776 vs the hand-measured corridor)"
+  },
+  "foreground": {
+    "mask": "work/fgmask_lights.npz",
+    "_note": "treeline arc across bottom+sides — a rect cannot model it. DERIVED from the stack: scripts/suggest_foreground.py 07-02-26/results/stack_lights.fit 07-02-26/work/fgmask_lights.npz --overlay=... (threshold 0.4x sky median = -42 sigma, border-anchored components, dilate 48; overlay eyeballed 2026-07-07: silhouettes covered, smear tips partially — revisit with numbers if edge blocks misbehave)"
+  }
+}

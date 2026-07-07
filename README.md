@@ -75,6 +75,34 @@ Principles that keep this honest:
   side-by-side strips into `results/exp_*/` and STOP for user judgment.
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
+## Per-set geometry (data-generalization)
+
+Corridor, foreground and report-box geometry are **composition facts**,
+not code: they live in `<session>/config_<set>.json` (tracked) and are
+resolved by `astrometrics.configure()` in every product entry point
+(starcomb, starsep, bg_qa CLI, inspect_stage, judgment_crops,
+measure_stack, solve_field). Resolution order per set:
+
+1. `config_<set>.json` values — `corridor` (mode `manual` p0/p1/halfw, or
+   `wcs` with `b_halfwidth_deg`, default 9.0° = calibrated on set-03,
+   IoU 0.776 vs the hand-measured strip), `foreground` (`rect` fractions
+   or a derived pixel-`mask` npz), `mw_box`/`sky_box`, `judgment_crops`,
+   optional `starsep` overrides (area caps).
+2. No config: corridor from the plate-solve WCS (`work/wcs_<set>.json`
+   or the stack header) at the default galactic halfwidth; foreground
+   none.
+3. No config + no WCS: corridor **none** — the gate's sky scope degrades
+   to whole-frame on the starless render (stricter), `mw_boost` is
+   skipped, and a warning prints. A new set NEVER inherits set-03's
+   geometry silently.
+
+Foreground masks for non-rectangular compositions (treelines) are
+derived from the linear stack: `scripts/suggest_foreground.py <stack>
+<out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the
+config at the npz. set-03's approved geometry stays in
+`config_set-03.json` (mode `manual`) so B6 reproduces byte-exactly; the
+WCS corridor is validated there and waits on user approval (it re-renders).
+
 ## Running it
 
 ```bash
@@ -107,7 +135,8 @@ live in NOTES "Environment" + auto-memory.
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
 | `10/20/30_master_*.ssf`, `40_lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `40a/40a2/40b/40d_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
-| `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc` |
+| `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
+| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
 | `starsep.py` | star separation by mask+inpaint (no aarch64 StarNet); catalog for culling |
 | `starcomb.py` | **the product chain** (defaults = approved recipe B6) + single-knob ladder harness |
 | `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
@@ -115,7 +144,7 @@ live in NOTES "Environment" + auto-memory.
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
 | `experiment.py` | legacy post-chain ladder harness + shared helpers (GraXpert runner, strips, measure_jpg) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
-| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look (single stretch, whole-frame reference QA) — not the product chain |
+| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
 | `measure_stack.py`, `diag_flat.ssf`, `exp_bgeonly.sh` | stack stats, master-flat diagnostic, G1 variant runner |
 
 ## Data layout

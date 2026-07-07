@@ -34,7 +34,10 @@ CACHE = os.path.join(VENV, "index-cache")
 
 def bootstrap():
     py = os.path.join(VENV, "bin", "python")
-    if os.path.realpath(sys.executable) != os.path.realpath(py):
+    # compare sys.prefix, not executable realpaths: the venv python is a
+    # symlink to the system python, so realpath() says "already inside"
+    # while running OUTSIDE the venv and the astrometry import then fails
+    if os.path.realpath(sys.prefix) != os.path.realpath(VENV):
         if not os.path.exists(py):
             print(f"[solve_field] creating venv {VENV} + installing "
                   "astrometry/numpy/scipy (one-time)")
@@ -59,7 +62,16 @@ def detect_stars(path):
     d = g[:gy * bs, :gx * bs] - np.repeat(np.repeat(bg, bs, 0), bs, 1)
     sig = 1.4826 * np.median(np.abs(d - np.median(d)))
     mx = maximum_filter(d, size=9)
-    ys0, xs0 = np.nonzero((d == mx) & (d > 20 * sig))
+    cand = (d == mx) & (d > 20 * sig)
+    # exclude the configured foreground (+ a margin for its glow/smear
+    # halo): treeline tips and glow edges detect as bright "peaks" and
+    # poison the matcher — a treed field solves only with them excluded
+    if am.CTX.foreground is not None:
+        keep = am.branch_mask(h, w)[:gy * bs, :gx * bs]
+        from scipy.ndimage import binary_erosion
+        keep = binary_erosion(keep, np.ones((49, 49)))
+        cand &= keep
+    ys0, xs0 = np.nonzero(cand)
     vals = d[ys0, xs0]
     order = np.argsort(vals)[::-1][:1200]
     taken = np.zeros((h // 25 + 2, w // 25 + 2), bool)
@@ -70,8 +82,13 @@ def detect_stars(path):
             continue
         taken[cy, cx] = True
         y0, x0 = ys0[k], xs0[k]
-        win = d[max(0, y0 - 4):y0 + 5, max(0, x0 - 4):x0 + 5].clip(0)
-        wy, wx = np.mgrid[max(0, y0 - 4):y0 + 5, max(0, x0 - 4):x0 + 5]
+        # clamp the centroid window to the array on BOTH sides: a peak
+        # within 4 px of an edge otherwise clips the data window while
+        # mgrid keeps the full 9x9 — shape-mismatch crash
+        dy0, dy1 = max(0, y0 - 4), min(d.shape[0], y0 + 5)
+        dx0, dx1 = max(0, x0 - 4), min(d.shape[1], x0 + 5)
+        win = d[dy0:dy1, dx0:dx1].clip(0)
+        wy, wx = np.mgrid[dy0:dy1, dx0:dx1]
         s = win.sum()
         # FITS convention: 1-based, bottom-up rows
         stars.append((float((win * wx).sum() / s + 1.0),
@@ -81,14 +98,34 @@ def detect_stars(path):
     return stars, h, w
 
 
-def solve(stars):
+def scale_hint(path):
+    """Pixel-scale hint (arcsec/px) from the FITS header (siril propagates
+    FOCALLEN + XPIXSZ from EXIF). A hard-coded scale range fits only one
+    rig/focal — 26-40"/px missed a 24mm field (~44-51"/px), which could
+    never solve. Returns (lo, hi) or None (blind)."""
+    import re
+    try:
+        raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
+        fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+        px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+        s = 206.265 * px / fl   # center scale, arcsec/px
+        # wide envelope: wide-angle projection + integer-mm EXIF wobble
+        return (0.6 * s, 1.5 * s)
+    except (AttributeError, ValueError, OSError):
+        return None
+
+
+def solve(stars, hint=None):
     import astrometry
     solver = astrometry.Solver(
         astrometry.series_4200.index_files(
             cache_directory=CACHE, scales={13, 14, 15, 16, 17, 18, 19}))
+    print(f"[solve_field] scale hint: "
+          + (f"{hint[0]:.1f}-{hint[1]:.1f} arcsec/px" if hint else
+             "none (blind)"))
     sol = solver.solve(
         stars=stars,
-        size_hint=astrometry.SizeHint(26.0, 40.0),
+        size_hint=(astrometry.SizeHint(hint[0], hint[1]) if hint else None),
         position_hint=None,
         solution_parameters=astrometry.SolutionParameters(
             sip_order=3,
@@ -145,9 +182,13 @@ def main():
     if not args:
         sys.exit(__doc__)
     src = args[0]
+    if "session" in opts and "set" in opts:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import astrometrics as am
+        am.configure(opts["session"], opts["set"], quiet=True)
     stars, h, w = detect_stars(src)
     print(f"[solve_field] {len(stars)} peak-detected stars")
-    m = solve(stars)
+    m = solve(stars, hint=scale_hint(src))
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")

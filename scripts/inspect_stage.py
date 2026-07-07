@@ -32,7 +32,10 @@ D16 = 65535.0
 
 # stage -> metric -> (lo, hi, note); units: 16-bit display counts for linear
 # stages, 8-bit counts for stretched. Mirrors the NOTES.md table — keep both
-# in sync. Bounds are WARN bounds (inspection), not the bg_qa gate.
+# in sync. Bounds are WARN bounds (inspection), not the bg_qa gate. They are
+# sanity ENVELOPES calibrated on set-03 (some self-flat-specific:
+# corner_gain, stack noise%) — a new data class may WARN legitimately;
+# revisit bounds there instead of ignoring the WARNs.
 EXPECTATIONS = {
     "calibrated": {
         "bg_median16": (100, 1500, "sky level, offset subtracted"),
@@ -250,9 +253,18 @@ def handle_stage(args):
         gy, gx = h2 // 100, w2 // 100
         blocks = sub[g][:gy * 100, :gx * 100].reshape(gy, 100, gx, 100)
         bmed = np.median(blocks.transpose(0, 2, 1, 3).reshape(gy, gx, -1), axis=2)
-        ys = (np.arange(gy) + 0.5) * 100 / h2
-        xs = (np.arange(gx) + 0.5) * 100 / w2
-        bm = ~((ys[:, None] >= 0.75) & (xs[None, :] < 0.22))  # branch corner
+        if am.CTX.foreground == "mask":   # block-level foreground fraction
+            fg = am._fg_mask(h2, w2)[:gy * 100, :gx * 100] \
+                .reshape(gy, 100, gx, 100).mean(axis=(1, 3))
+            bm = fg <= 0.5
+        elif am.CTX.foreground is not None:  # foreground rect (block centers)
+            fx0, fy0, fx1, fy1 = am.CTX.foreground
+            ys = (np.arange(gy) + 0.5) * 100 / h2
+            xs = (np.arange(gx) + 0.5) * 100 / w2
+            bm = ~(((ys[:, None] >= fy0) & (ys[:, None] < fy1))
+                   & ((xs[None, :] >= fx0) & (xs[None, :] < fx1)))
+        else:
+            bm = np.ones((gy, gx), bool)
         vals = bmed[bm]
         spread = float(np.percentile(vals, 95) - np.percentile(vals, 5))
         checks.append(check(stage, "block_spread_over_noise",
@@ -463,26 +475,32 @@ def handle_report(args):
 
 def main():
     ap = argparse.ArgumentParser()
+    ctxp = argparse.ArgumentParser(add_help=False)
+    ctxp.add_argument("--session", default=None,
+                      help="session dir (per-set geometry context)")
+    ctxp.add_argument("--set", dest="set_name", default=None)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("stage")
+    s = sub.add_parser("stage", parents=[ctxp])
     s.add_argument("stage", choices=[k for k in ORDER if k != "registration"])
     s.add_argument("--dir", required=True)
     s.add_argument("--in", dest="inputs", nargs="+", required=True)
     s.add_argument("--label", default=None)
     s.add_argument("--target", type=float, default=None,
                    help="autostretch bg target (post_stretch check)")
-    r = sub.add_parser("reg")
+    r = sub.add_parser("reg", parents=[ctxp])
     r.add_argument("--dir", required=True)
     r.add_argument("--registered", type=int, required=True)
     r.add_argument("--total", type=int, required=True)
     r.add_argument("--ref", type=int, required=True)
     r.add_argument("--sweep", default=None)
     r.add_argument("--seq", default=None)
-    p = sub.add_parser("report")
+    p = sub.add_parser("report", parents=[ctxp])
     p.add_argument("--dir", required=True)
     p.add_argument("--title", default=None)
     p.add_argument("--qa", default=None)
     args = ap.parse_args()
+    if args.session and args.set_name:
+        am.configure(args.session, args.set_name, quiet=True)
     if args.cmd == "stage":
         handle_stage(args)
     elif args.cmd == "reg":
