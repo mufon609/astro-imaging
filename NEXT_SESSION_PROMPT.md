@@ -1,111 +1,73 @@
-# Next-session prompt (copy-paste; delete this file once executed)
+CLAUDE.md (auto-loaded) is the agent operating manual. Then read
+~/Desktop/astrophotography/README.md (process contract), then NOTES.md
+TOP TO BOTTOM (STATUS, design + knob provenance, DEAD ENDS — never
+re-attempt those, bandaid ledger, acquisition checklist). NOTES is the
+source of truth for state; history lives in git log only.
 
-CLAUDE.md (auto-loaded) is the agent operating manual: environment
-facts (flatpak siril invocation + the /tmp rule, hardware/disk,
-python stack with NO astropy, GraXpert, astrometry venv, local Gaia
-catalogs) and the binding working rules. Then read
-~/Desktop/astrophotography/README.md (the process contract:
-standard-workflow mapping, review contract incl. the standing audits,
-per-set geometry, experiment discipline, the NORTH STAR), then NOTES.md
-TOP TO BOTTOM (short by design: STATUS, current design with each
-knob's measured WHY, the DEAD ENDS registry — NEVER re-attempt those,
-bandaid ledger, acquisition checklist). NOTES is the source of truth
-for state; full chronological history lives in git log only.
-
-CURRENT STATE: approved recipe B7 (git tag B7-approved; B6/B5 are
-HISTORY, not approved — B6's stack was pruned, only its jpg+png record
-remains). Reproduce before touching anything:
+CURRENT STATE: approved recipe B7 unchanged (tag B7-approved; defaults
+byte-reproduce it — verified 3× on 2026-07-07 including after every
+script change). Reproduce before touching anything:
     python3 scripts/starcomb.py 07-02-26 set-03 \
         --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
-expect: gate (starless-sky) PASS blocks 1.375 (P5/P50/P95 = 5/8/11)
-colors 2/2 rings 3.0/1.3/1.2; corridor floor +4.0/-3.0, bands 0.6/1.2,
-black_point clip0 corridor ~16.2% / sky ~1.2%; star shells aura_lum
-+2.0 (WARN >4.0) shell_chroma ~28.9 (trend); stars anchor 0.0284 -> m
-0.00090 (low-end gain x996); all four artifacts byte-identical to
-results/starcomb_set-03_APPROVED_B7_20260707_103839.{jpg,png,_16bit.png,
-_starless.jpg}. Per-set geometry: config_set-03.json (corridor manual,
-foreground rect) + config_lights.json (corridor wcs, foreground mask) —
-new sets derive from WCS/config, NEVER inherit set-03 silently.
+expect: gate (starless-sky) PASS blocks 1.375 (5/8/11), colors 2/2,
+rings 3.0/1.3/1.2; corridor +4.0/-3.0, bands 0.6/1.2; clip0 ~16.2%/1.2%;
+aura_lum +2.0, shell_chroma ~28.9; anchor 0.0284 [catalog] -> m 0.00090
+(x996); all four artifacts byte-identical to
+results/starcomb_set-03_APPROVED_B7_20260707_103839.*. Then delete the
+duplicate renders (watch the shell cwd and the .png glob: it also
+matches _16bit.png — compare exact stamped names).
 
-MISSION — audit first, then the queued work, one knob at a time,
-hypotheses pre-registered in NOTES before each run:
+TWO USER JUDGMENTS ARE PENDING (do not bake either without the user):
 
-0. AUDIT (blocking): reproduce B7 byte-exact (above). Then verify the
-   standing audits fire by measurement, not by trust: star_shell_report
-   on results/starcomb_set-03_APPROVED_B6_20260706_232205.png (the
-   defect-era record; use the newest starsep catalog in work/starsep/)
-   must WARN (aura ~+12), on the B7 png must be clean (~+2); the gate
-   scope must match config_set-03.json geometry. Spot-check 2-3 numbers
-   from the NOTES knob-provenance table against the artifacts. Any
-   mismatch: STOP, root-cause, write it into NOTES before proceeding.
+1. sep_engine `hybrid` (NOTES ledger #4 — StarNet2-ONNX on aarch64,
+   validated end-to-end this session). Every objective bar met: gate
+   PASS 1.375 (= control), aura_lum +2.0 (= approved), pedestal = the
+   inpaint fill, faint-tail residual 589 vs ~5.1k, chroma rings improve
+   1.33/1.22 -> 1.11/1.00. The user judges:
+   results/exp_starsep_sep_engine_20260707_125122/judgment/
+   (judge_starless_stipple.jpg is the headline; judge_bright_shells.jpg
+   shows shells unchanged; 4 standard zone panels) + the full renders
+   v0_hybrid.jpg / v1_inpaint.jpg. The killed stock-net A/B record is
+   exp_starsep_sep_engine_20260707_120825/ (aura +12 — do not revisit;
+   numbers in ledger #4). If APPROVED: flip starcomb default
+   --sep-engine to hybrid, re-render --lossless, verify expected
+   numbers, tag B8-approved, bake artifacts + STATUS (the starless jpg
+   = gate input changes identity: new byte-reproduce contract), move
+   ledger #4 to CLOSED (starsep.py becomes the fallback), update the
+   README step-6 row. The hybrid needs the net cache trio
+   work/starsep/*_neth.* (kept; regens in ~7 min if pruned).
 
-A. StarNet-ONNX on aarch64 (bandaid #5 removal — the deepest remaining
-   processing-quality lever). Recorded facts: StarNet v2.5.3 ships
-   self-contained ONNX Runtime packages for Linux x64 (no aarch64
-   build); onnxruntime aarch64 wheels 1.20-1.27 verified installable
-   here. Next actions, in order: download the official Linux x64 CLI
-   package; check it contains a LOOSE readable .onnx (the go/no-go —
-   if embedded/encrypted in the binary: DEAD END, write it with what
-   was found, mask+inpaint stays); if loose: build a tiled-inference
-   driver (256px tiles + overlap blending, the nekitmm/starnet
-   protocol) in the astrometry venv or its own; VALIDATE on set-03's
-   bgelin: starless MW contrast must survive (>= the mask+inpaint
-   chain's +2.6 at bgelin, ideally ~+39 stack-level), no structure
-   holes, star recovery >= current catalog, gate + star_shell on a
-   B7-config render with the net-separated layers; user judges panels
-   vs B7 before ANY bake. If adopted: starsep.py becomes the fallback,
-   bandaid #5 closes, and the <6σ faint-tail cost + skirt-aura class
-   disappears at the source.
+2. stars_anchor `noise` default flip (NOTES ledger #7). Mechanism
+   measured and killed in synthesis: per-channel gain (the real drift
+   class) moves catalog-mode G rendering -8.5/-20 counts (mid/faint)
+   while noise mode holds <= 0.6. ACCEPTANCE ALREADY MEASURED: a full
+   noise-mode render on the canonical stack came out byte-IDENTICAL to
+   all four B7 artifacts. If the user approves: flip the default,
+   byte-verify once more, keep `catalog` as a flag.
 
-B. Noise-relative stars anchor (kills the measured x864->x996 low-end
-   gain drift between stacks of the SAME sky). Pre-register: replace
-   the data-dependent anchor (median top-500 catalog amplitude) with a
-   noise-relative or fixed-gain anchor such that the SAME sky renders
-   the same star brightness across stack builds; MUST keep B7
-   byte-identical via default plumbing (e.g. the new mode defaults off
-   until approved, or reproduces m=0.00090 exactly on the canonical
-   stack); ladder + panels; star_shell + star metrics decide
-   objectively, user approves the look.
+ENVIRONMENT ADDITIONS (in CLAUDE.md now): StarNet2 weights + venv at
+~/.local/share/starnet/ (license: personal astrophotography use only —
+keep weights out of the repo). scripts/starnet_sep.py bootstraps its
+venv; scripts/spcc_run.py runs siril SPCC and captures K factors to
+work/spcc_<set>.{json,log} — USE IT for every future spcc (canonical K:
+R 1.000 / G 0.656 / B 0.837, 509/2850 kept; spcc rerun measured
+pixel-deterministic; the old 1.675/0.749/0.935 triple was a grep-loss
+casualty and does not reproduce).
 
-C. North-star robustness (continue as capacity allows): the pipeline
-   should judge ANY dropped-in dataset honestly. The lights set is the
-   standing testbed (NOT approved, massive known issues: treeline glow
-   band above the mask, reddish high-noise corners, glow-dominated gate
-   FAIL — regen: run_pipeline 07-02-26 && solve_field && spcc, chunks
-   installed). Candidate process fixes must be data-general (e.g.
-   foreground-aware background modeling, corner chroma handling) — no
-   set-specific patches. Also queued small: capture SPCC K factors
-   into a log/json automatically at spcc time (they were grep-lost
-   once).
+REMAINING QUEUE AFTER THE JUDGMENTS: lights-set data-general fixes
+(treeline-aware background modeling, corner chroma) only if that set
+matters; NEXT ACQUISITION outranks everything (checklist in NOTES: ISO
+800, subs <= 500/focal, matched flats per focal BEFORE zoom changes,
+dither, no moon). The hybrid's render-domain gain was measurably
+subtler than its linear-domain gain BECAUSE the data is
+exposure-limited — more photons buy more than any remaining knob.
 
-RULES (README has the full contract): one knob per experiment, control
-bracketed; measurement kills a hypothesis -> dead end into NOTES with
-numbers BEFORE trying anything else; gate thresholds NEVER loosen
-(scope changes need explicit user ratification); corridor + star-shell
-metrics are REPORTED/WARN context, never silently gated; aesthetic
-changes need the user's eyes on judgment panels before any bake;
-objective fixes with pass/fail metrics may commit; after ANY script
-change re-verify B7 byte-identical (all four artifacts) or document
-exactly why it legitimately changed and get the new render approved;
-NO session/stream/ladder tags in script comments (plain standalone
-descriptions; history lives in git); background long runs and keep
-working; preserve stacks per experiment (cp to tagged names); keep
-NOTES.md current as you go — IN ITS REFACTORED SHAPE: update STATUS /
-design / knob-provenance / dead-ends / ledger IN PLACE, add new dead
-ends to the registry with their numbers, and NEVER append
-chronological session narrative (that is what git history is for).
-
-SUCCESS CRITERIA: (1) audit passed with numbers recorded (or the
-mismatch root-caused); (2) StarNet-ONNX either WORKING with validated
-layers + panels awaiting judgment, or a dead end with exact findings;
-(3) the anchor is data-stable with B7 reproducibility intact (or its
-dead end written); (4) any lights-set process fixes are data-general
-and measured; (5) NOTES STATUS + README + bandaid ledger + memory
-updated — every surviving divergence still carries its removal
-condition; (6) repo clean, committed, and this file deleted with a
-fresh NEXT_SESSION_PROMPT.md if work remains.
-
-Remember the user's standing directive: the acquisition checklist (ISO
-800, <=13s subs, matched flats per focal, no moon, dithering) is worth
-more than all remaining processing work combined — surface it whenever
-image quality is discussed, and never bandaid what photons must fix.
+RULES (README has the full contract): one knob per experiment,
+hypothesis pre-registered in NOTES before the run; killed hypotheses
+get their numbers written before anything else is tried; the gate
+never loosens; corridor/star-shell/clip0 are REPORTED context; nothing
+aesthetic bakes without the user's eyes on like-encoding panels; after
+ANY script change byte-verify B7 (all four artifacts, exact names);
+no session tags in script comments; NOTES stays in its refactored
+shape (update in place, never append narrative); background long runs;
+preserve stacks per experiment; track disk (~22 GB free).

@@ -30,18 +30,28 @@ never let it grow narrative again.
   0.0284 → m 0.00090 (low-end gain ×996) · all four artifacts
   byte-identical to
   `results/starcomb_set-03_APPROVED_B7_20260707_103839.{jpg,png,_16bit.png,_starless.jpg}`.
+- Last audited 2026-07-07: byte-reproduce 4/4 cmp-identical; star-shell
+  audit fires by measurement (B6 defect record aura +12.0 WARN / B7
+  +2.0 clean, shell_chroma 16.7/28.9, newest starsep catalog); gate
+  scope = config_set-03.json geometry; artifact spot-checks — jpg
+  q100/4:4:4 vs PNG mean 0.41/max 5 (table: 0.44/5), PNG16→PNG8
+  requantize max diff 0.
 - **The `lights` set is NOT approved** (user verdict: "massive issues -
   just different quality issues") — it is the generalization testbed
   only. Its stacks/renders were pruned; regen:
   `scripts/run_pipeline.sh 07-02-26 && solve_field + spcc` (catalogs
   installed).
-- **Open queue (payoff order):** StarNet-ONNX aarch64 check (ledger
-  #4); noise-relative stars anchor (kills the measured ×864→×996
-  low-end-gain drift between builds of the same sky); SPCC K-factor
-  auto-capture at spcc time; lights-set data-general process fixes
-  (treeline-aware background, corner chroma) if that set ever matters;
-  **next acquisition (see checklist) — worth more than all remaining
-  processing work combined.**
+- **Open queue (payoff order):** TWO USER JUDGMENTS PENDING —
+  (1) `sep_engine hybrid` adoption (ledger #4: all objective bars
+  met, panels in `results/exp_starsep_sep_engine_20260707_125122/
+  judgment/`); (2) `stars_anchor noise` default flip (ledger #7:
+  drift mechanism killed in synthesis, canonical render reproduced;
+  acceptance = byte-compare at flip). Then: lights-set data-general
+  process fixes (treeline-aware background, corner chroma) if that
+  set ever matters; **next acquisition (see checklist) — worth more
+  than all remaining processing work combined.** SPCC K-factor
+  auto-capture: DONE (`spcc_run.py`, 2026-07-07; canonical K
+  R1.000/G0.656/B0.837, spcc rerun pixel-deterministic).
 - Optional, unapplied: WCS-derived corridor for set-03 (validated
   IoU 0.776 vs the hand strip, gate-equivalent; switching re-renders →
   needs user approval; new sets already default to it).
@@ -158,7 +168,7 @@ to whole-frame on the starless render = stricter) and mw_boost skips —
 
 | knob = value | the number that set it |
 |---|---|
-| SPCC (not rgb_equal) | K R1.675/G0.749/B0.935 · 508 stars · gate equivalent · rim chroma improves (−9.0→−7.2) |
+| SPCC (not rgb_equal) | K R1.000/G0.656/B0.837 (R-normalized; raw G runs ×1.5 hot — the Bayer imbalance rgb_equal used to hide) · 509/2850 stars kept · gate equivalent · rim chroma improves (−9.0→−7.2). Captured by `spcc_run.py` (work/spcc_<set>.{json,log}); rerun on the canonical stack is pixel-IDENTICAL (spcc deterministic). An older grep-lost triple (1.675/0.749/0.935) does not reproduce — trust the json |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
 | linked stretch | unlinked = per-channel noise → chroma blotches (the "rainbow" engine); on a calibrated stack linked PASSES (2.8/1.2/1.8) and cuts blotches ~12% at source |
 | starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL (corridor-masked scope) |
@@ -167,7 +177,7 @@ to whole-frame on the starless render = stricter) and mw_boost skips —
 | lum_core 2 | gray patches (stretch-amplified lum noise ±2 counts) removed; blocks 1.20→1.12; NO geometric foreground factor (a hard rect printed a 4.5× texture seam; the Wiener gate already protects real structure) |
 | mw_boost 1.2, lum mask | boost is corridor-contained (gate bit-identical at any k); the flat geo mask lifted noise floor AND darkened the darkest blocks (P5 −3.0 vs lum −1.0); k is aesthetic |
 | black_point 8 | user "blackest": bg 16→8; corridor clip0 16.2% = the requested gap blackness; sky clip0 1.2%; MW box contrast + floor P50 survive (linear shift preserves differences) |
-| stars anchor 0.97 | mid-peak 255 vs 225 at 0.85; layers decoupled (gate untouched). CAVEAT: anchor is data-dependent → low-end gain drifted ×864→×996 between builds of the same sky (queued fix) |
+| stars anchor 0.97 | mid-peak 255 vs 225 at 0.85; layers decoupled (gate untouched). CAVEAT: the catalog anchor is data-dependent → low-end gain drifted ×864→×996 between builds of the same sky; measured mechanism = per-channel gain (catalog mode −8.5/−20 counts mid/faint G drift under the SPCC K set vs noise mode ≤0.6 — see ledger #7; `--stars-anchor noise` ready, default-off) |
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
 | cull 50 | metric-invisible; user's max-removal pole (the alternate cull-0 faint-field look remains a flag away) |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
@@ -327,12 +337,53 @@ Prediction inversions worth remembering (recorded, instructive):
 3. ~~rgb_equal~~ — CLOSED 2026-07-07 (user-approved): SPCC calibrates
    the raw stack directly.
 4. **Star separation by mask+inpaint** — ADAPTATION (no aarch64
-   StarNet). Removal condition: official StarNet ONNX package ships a
-   loose readable .onnx → tiled aarch64 onnxruntime driver → validate
-   (MW contrast survives, no holes, star recovery ≥ catalog, gate +
-   star_shell clean) → user judges panels. Cost documented: <6σ faint
-   tail in the starless layer; skirt-aura class (mitigated by
-   stars_floor).
+   StarNet). Removal IN PROGRESS 2026-07-07: official v2.5.3 Linux x64
+   CLI package DOES ship a loose StarNet2_weights.onnx (131 MB, NHWC
+   1×512×512×3 float [0,1], clip tail in-graph; license = personal
+   astrophotography use only) → `scripts/starnet_sep.py` runs it on
+   aarch64 ORT (0.3 s/tile, bit-deterministic; invertible zero-clip MTF
+   pre-stretch to bg 0.25, window 512 stride 256 central-crop
+   assembly; weights+venv under ~/.local/share/starnet/). Smoke crop
+   (1024², MW corridor): starless residual detections 83 vs the
+   engine-invariant catalog's 1440 components, faint-tail stipple
+   visually gone, bg med/σ unchanged vs inpaint (Δp50 1e-6).
+   Full-frame validation, measured (exp_starsep_sep_engine_20260707_
+   120825, `--sep-engine net`, default-off in starcomb — B7
+   byte-verified after the plumbing): sky side all PASS and better
+   than inpaint — gate blocks 1.25 vs 1.38, MW contrast 5.0 vs 4.0,
+   corridor floor +5.0/−2.6 vs +4.0/−3.0, starless residual
+   detections 1180 vs ~5.1k (stipple visually gone), no structure
+   holes (sky delta p0.1 −1.2 counts16 < 1σ; foreground restore w/
+   8px feather required — the net eats treeline texture, −221
+   counts16, policy = branch not sky, same as the mask engine).
+   KILLED at stock settings: star_shell aura_lum +12.0 WARN (bound
+   4.0, inpaint +2.0). Mechanism measured on the bright-tier sample:
+   the net STARLESS keeps a residual halo pedestal under bright stars
+   (+8.0/+6.7/+2.2 counts16 at r0-4/4-8/8-12 vs r32-40 baseline;
+   inpaint fill is flat +0.3/+0.4/+0.5) and the starless autostretch
+   amplifies it; the stars layer is NOT the engine (its skirts are
+   dimmer than inpaint's: 10.9 vs 17.8 counts16 at r4-8; flux books
+   balance). 2× upsampled inference (official bright-star mode,
+   `--upsample`, 4× runtime): pedestal r4-8 +6.7→+4.2 but r0-4
+   +8.0→+7.7 — bar (≤ +1) NOT met, killed as the fix. HYBRID (engine
+   `hybrid` = net inference ON the inpaint starless, stars = stack −
+   final starless): ALL BARS MET 2026-07-07 — pedestal +0.3/+0.4
+   (= the inpaint fill exactly), starless residual detections 589
+   (vs inpaint ~5.1k, stock net 1180), MW contrast +7.0 (= control),
+   no holes (sky delta p0.1 −1.1 counts16 < 1σ; the negative patches
+   ARE the removed stipple), σ16 3.79 unchanged; B7-config render:
+   gate PASS blocks 1.375 (= control), aura_lum +2.0 (= the approved
+   render), corridor +4.0/−3.0, chroma rings IMPROVE 1.33/1.22 →
+   1.11/1.00 (the stipple was corridor-oriented chroma). Render-domain
+   stipple gain is subtler than linear (much of the tail sits near
+   the render floor on this underexposed data — photons still rule).
+   PENDING USER JUDGMENT:
+   `results/exp_starsep_sep_engine_20260707_125122/` (renders,
+   metrics, judgment/ crops incl. starless-stipple + bright-shell
+   panels; the killed stock-net A/B is exp_..._120825). Default stays
+   `inpaint` until approved; the net pass adds ~5 min on this box.
+   Cost of the inpaint engine documented: <6σ faint tail in the
+   starless layer; skirt-aura class (mitigated by stars_floor).
 5. **Denoise** — linear placements structurally dead on self-flat data;
    post-stretch `-vst -mod=0.5` is in the approved chain.
 6. **mw_boost** (luminosity-weighted) — the lift itself dies when the
@@ -341,6 +392,23 @@ Prediction inversions worth remembering (recorded, instructive):
 7. **Stars anchor (median top-500)** — data-dependent low-end gain
    (×864→×996 drift measured). Removal: noise-relative/fixed-gain
    anchor, pre-registered, B7-reproducibility preserved.
+   MEASURED 2026-07-07 (hypothesis confirmed, sharpened): the drift
+   class is PER-CHANNEL gain (the rgb_equal→SPCC transition), not
+   global gain. Synthetic test on the canonical layers (per-component
+   per-channel amplitudes, floor+MTF replicated, G-channel u8 vs
+   control): pure global gain ×0.8/×1.25 → BOTH modes track (max
+   drift 0.45 counts, identical — catalog also follows global gain);
+   per-channel SPCC K (1.0/0.656/0.837) → catalog mode drifts −1.0/
+   −8.5/−20.0 median counts (bright/mid/faint tier, max 20.2) because
+   the max-over-channel top-500 median moves differently than any one
+   channel, while noise mode holds +0.05/+0.17/+0.60 (its m tracks
+   K_G exactly: 0.656×0.000904 = 0.000587). `--stars-anchor noise`
+   default-off in starcomb (catalog = B7 identity, byte-verified);
+   k_anchor 490.9663661574939 = canonical anchor 0.0284109 / σ_G
+   5.78673e-5. ACCEPTANCE MEASURED: a full noise-mode render on the
+   canonical stack is byte-IDENTICAL to all four B7 artifacts — the
+   default flip is a render no-op there and awaits only the user's
+   go-ahead.
 8. **Whole-frame QA on the recombine** — retired as gate (scope
    ratified 2026-07-06); lives on as a reported reference.
 

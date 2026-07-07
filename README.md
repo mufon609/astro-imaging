@@ -27,10 +27,10 @@ follows, in order — linear until step 6:
 | 1 | calibrate (bias/dark/flat) → register → integrate | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack | COMPLIANT (matched darks/biases; flats when optics match) |
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | GraXpert BGE + `subsky 1`, star-ful (`starcomb bge_first`) | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder) |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + siril `spcc` with local Gaia catalogs → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved) |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (no aarch64 StarNet) | ADAPTATION — dies when a real star-removal net runs on this box; leaves the <6σ faint tail in the starless layer (known cost, see NOTES session 5) |
+| 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (default) · `starnet_sep.py` StarNet2-ONNX runs on aarch64 (engines `net`/`hybrid` in starcomb) | ADAPTATION, removal candidate VALIDATED — the `hybrid` engine (net on the inpaint starless) meets every objective bar incl. the faint-tail removal (residual 589 vs ~5.1k) and awaits user judgment (NOTES ledger #4); `inpaint` stays default |
 | 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + **luminosity-weighted** corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "APPROVED RECIPE — B6") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
@@ -152,8 +152,10 @@ live in NOTES "Environment" + auto-memory.
 | `10/20/30_master_*.ssf`, `40_lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `40a/40a2/40b/40d_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 | `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
+| `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` (they used to live only in a transient log) |
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
-| `starsep.py` | star separation by mask+inpaint (no aarch64 StarNet); catalog for culling |
+| `starsep.py` | star separation by mask+inpaint; catalog for culling |
+| `starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
 | `starcomb.py` | **the product chain** (defaults = approved recipe B6) + single-knob ladder harness |
 | `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
 | `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |

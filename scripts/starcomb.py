@@ -80,25 +80,49 @@ def run_siril(session_dir, lines, name):
         sys.exit(f"starcomb: siril failed ({name}):\n" + r.stdout[-2500:])
 
 
-def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None):
-    """Run (cached) star separation on any linear FITS. prom = the
-    component prominence cut in sigma (starsep K_PROM; lower moves the
-    faint 4-6 sigma tail out of the starless layer into the stars layer,
-    where cull_pct can reach it). starsep runs as a subprocess, so the
-    per-set geometry context is passed explicitly."""
+def _run_sep(repo, sdir, script, input_fit, set_name, extra=()):
+    """One separation subprocess; returns its starless/stars/catalog
+    trio (the last three printed paths — cache hits print the same)."""
     outdir = os.path.join(sdir, "work", "starsep")
-    cmd = [sys.executable, os.path.join(repo, "scripts", "starsep.py"),
+    cmd = [sys.executable, os.path.join(repo, "scripts", script),
            input_fit, outdir]
     if set_name:
         cmd += [f"--session={sdir}", f"--set={set_name}"]
-    if prom != 6.0:
-        cmd.append(f"--prom={prom:g}")
+    cmd += list(extra)
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit("starcomb: starsep failed:\n" + r.stdout[-2000:] + r.stderr[-1000:])
     print(r.stdout.rstrip())
     paths = [l for l in r.stdout.strip().splitlines() if l.endswith((".fit", ".npz"))]
     return paths[-3], paths[-2], paths[-1]
+
+
+def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None,
+                   engine="inpaint"):
+    """Run (cached) star separation on any linear FITS. engine picks the
+    separator: 'inpaint' = starsep.py mask+inpaint (detection-bounded:
+    leaves the <6 sigma faint tail in the starless layer); 'net' =
+    starnet_sep.py StarNet2 ONNX inference (removes the faint tail but
+    leaves a halo pedestal under bright stars); 'hybrid' = the net run
+    ON the inpaint starless (flat-filled bright disks + net faint-tail
+    removal; stars recomputed against the stack). prom = the component
+    prominence cut in sigma (inpaint detection only). All engines run
+    as subprocesses, so the per-set geometry context is passed
+    explicitly, and all print the same starless/stars/catalog trio."""
+    if prom != 6.0 and engine != "inpaint":
+        # the net has no prominence cut, and the hybrid's cache stem
+        # does not encode prom — only the default-prom base is valid
+        print(f"[starcomb] sep_prom ignored by the {engine} engine")
+        prom = 6.0
+    prom_args = [f"--prom={prom:g}"] if prom != 6.0 else []
+    if engine == "net":
+        return _run_sep(repo, sdir, "starnet_sep.py", input_fit, set_name)
+    trio = _run_sep(repo, sdir, "starsep.py", input_fit, set_name,
+                    prom_args)
+    if engine != "hybrid":
+        return trio
+    return _run_sep(repo, sdir, "starnet_sep.py", input_fit, set_name,
+                    [f"--base-starless={trio[0]}"])
 
 
 def ensure_bge_linear(ctx):
@@ -251,7 +275,8 @@ def render_config(ctx, cfg, jpg_out):
     bgelin = ensure_bge_linear(ctx)
     starless_fit, stars_fit, cat_npz = ensure_starsep(
         ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0),
-        set_name=ctx.get("set"))
+        set_name=ctx.get("set"),
+        engine=cfg.get("sep_engine", "inpaint"))
     ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
     if cfg["starless_denoise"] == "gx":
         # AI denoise, linear, starless (standard step-5 placement; a
@@ -394,6 +419,7 @@ def render_config(ctx, cfg, jpg_out):
         stars[:, km] = 0.0
         print(f"[starcomb] culled {len(kill)}/{len(ids)} stars "
               f"(< p{cfg['cull_pct']} flux)")
+    sigs = None
     if cfg.get("stars_floor", 0) > 0:
         # ghost-aura fix: the skirt annulus (star core -> dilated mask
         # edge) carries subtraction noise that the stars MTF amplifies
@@ -412,16 +438,34 @@ def render_config(ctx, cfg, jpg_out):
         del sl_lin
         print(f"[starcomb] stars_floor {k}: skirt cored below k*sigma "
               f"(sigma16 {'/'.join(f'{s * 65535:.1f}' for s in sigs)})")
-    amps = np.sort(cat["peak"])[::-1]
-    anchor = float(np.median(amps[:min(500, len(amps))]))
+    if cfg.get("stars_anchor", "catalog") == "noise":
+        # noise-relative anchor: k * sigma_G of the linear starless.
+        # sigma and per-channel star amplitudes scale together under a
+        # stack-normalization change, so this renders the same physical
+        # star at the same brightness across builds of the same sky —
+        # the catalog anchor (median top-500 max-over-channel amplitude)
+        # instead mixes channels and drifted the low-end gain x864 ->
+        # x996 (+15% shell brightness) between two builds. k calibrated
+        # so the canonical set-03 stack renders identically in both
+        # modes (anchor 0.0284109 / sigma_G 5.78673e-5).
+        K_NOISE_ANCHOR = 490.9663661574939
+        if sigs:
+            sig_g = sigs[min(1, stars.shape[0] - 1)]
+        else:
+            sl_lin, _ = am.load_image(starless_fit)
+            _, sig_g = am.bg_stats(sl_lin[min(1, sl_lin.shape[0] - 1)])
+            del sl_lin
+        anchor = float(K_NOISE_ANCHOR * sig_g)
+        mode = f"noise ({K_NOISE_ANCHOR:.1f}*sigma_G)"
+    else:
+        amps = np.sort(cat["peak"])[::-1]
+        anchor = float(np.median(amps[:min(500, len(amps))]))
+        mode = "catalog"
     m = solve_mtf_m(anchor, cfg["stars_peak"])
-    # the anchor is data-dependent (median top-500 catalog amplitude), so
-    # the MTF's low-end gain drifts with the stack normalization
-    # (measured x864 -> x996 between two builds of the same sky, +15%
-    # shell brightness). Print it so drift is visible per run; the
-    # robust fix (noise-relative anchor) is queued.
+    # print anchor + low-end gain every run so normalization drift stays
+    # visible whichever mode is active
     gain0 = am.mtf(1e-4, m) / 1e-4
-    print(f"[starcomb] stars anchor {anchor:.4f} -> m {m:.5f} "
+    print(f"[starcomb] stars anchor {anchor:.4f} [{mode}] -> m {m:.5f} "
           f"(low-end gain x{gain0:.0f})")
     stars_st = am.mtf(np.clip(stars, 0, 1), m)
 
@@ -508,6 +552,14 @@ def main():
                     help="starsep component prominence cut (sigma); lower "
                          "moves the faint tail into the stars layer "
                          "(measured null on this data)")
+    ap.add_argument("--sep-engine", default="inpaint",
+                    choices=["inpaint", "net", "hybrid"],
+                    help="star separation engine: inpaint = mask+inpaint "
+                         "(starsep.py), net = StarNet2 ONNX on the stack "
+                         "(removes the <6 sigma faint tail but leaves a "
+                         "bright-star halo pedestal), hybrid = net run "
+                         "on the inpaint starless (flat bright disks + "
+                         "net faint-tail removal)")
     ap.add_argument("--chroma-core", type=float, default=4,
                     help="significance k for multi-scale chroma coring "
                          "toward neutral; 0 = off")
@@ -529,6 +581,14 @@ def main():
                          "0 = off")
     ap.add_argument("--cull-pct", type=float, default=50)
     ap.add_argument("--stars-peak", type=float, default=0.97)
+    ap.add_argument("--stars-anchor", default="catalog",
+                    choices=["catalog", "noise"],
+                    help="MTF anchor source: catalog = median top-500 "
+                         "catalog amplitude (data-dependent — drifted "
+                         "x864->x996 between builds of the same sky), "
+                         "noise = k*sigma_G of the linear starless "
+                         "(k calibrated so the canonical set-03 stack "
+                         "renders identically in both modes)")
     ap.add_argument("--stars-floor", type=float, default=3.0,
                     help="core the stars layer below k*sigma (linear) "
                          "before its MTF — kills the amplified-skirt "
@@ -558,10 +618,11 @@ def main():
                     help="also write a lossless PNG next to each jpg")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
-                             "cull_pct", "stars_peak", "mw_boost",
-                             "sep_prom", "chroma_core", "satu",
-                             "core_order", "stretch_linked", "lum_core",
-                             "boost_mask", "stars_floor", "black_point"])
+                             "cull_pct", "stars_peak", "stars_anchor",
+                             "mw_boost", "sep_prom", "sep_engine",
+                             "chroma_core", "satu", "core_order",
+                             "stretch_linked", "lum_core", "boost_mask",
+                             "stars_floor", "black_point"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
@@ -582,8 +643,9 @@ def main():
     base = {"starless_target": args.starless_target,
             "starless_denoise": args.starless_denoise,
             "cull_pct": args.cull_pct, "stars_peak": args.stars_peak,
+            "stars_anchor": args.stars_anchor,
             "mw_boost": args.mw_boost, "boost_mask": args.boost_mask,
-            "sep_prom": args.sep_prom,
+            "sep_prom": args.sep_prom, "sep_engine": args.sep_engine,
             "chroma_core": args.chroma_core, "satu": args.satu,
             "core_order": args.core_order,
             "stretch_linked": args.stretch_linked,
@@ -605,7 +667,7 @@ def main():
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     enum_params = ("starless_denoise", "core_order", "stretch_linked",
-                   "boost_mask")
+                   "boost_mask", "sep_engine", "stars_anchor")
     vals = []
     for v in args.values.split(","):
         v = v.strip()
