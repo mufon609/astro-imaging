@@ -48,27 +48,16 @@ never let it grow narrative again.
 
 ## Environment
 
-- Nikon Z6 III, raws → DNG (Adobe DNG Converter 18.4), 14-bit, RGGB
-- Siril 1.4.4 user flatpak: `flatpak run --command=siril-cli
-  org.siril.Siril -d <dir> -s <script>` — sandbox has home/host access
-  but its OWN /tmp: scripts must live under $HOME
-- Host: Kali linux arm64, 4 cores, 7.7 GB RAM, ~24 GB free disk;
-  16-bit intermediates + per-stage cleanup are a DISK constraint
-  (quantization ≈ 18× below per-frame noise σ → ~+0.3% stack noise in
-  quadrature — measured negligible); final stack 32-bit float
-- python3 numpy+scipy+PIL, **no astropy** (galactic transform is a
-  fixed 3×3 in `astrometrics._EQ2GAL`)
-- GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise only)
-- astrometry venv `~/.local/share/astrometry-venv` (pip `astrometry`,
-  Tycho-2 indexes 4213–4219 auto-cached; `solve_field.py` bootstraps)
-- Local Gaia catalogs INSTALLED (7.4 GB):
-  `~/.local/share/siril/siril_catalogues/siril_cat_healpix8_astro.dat`
-  + `spcc/` xpsamp chunks {2,3,5,7,8,9,10,11,12,13,14,15,19,25,27,29,
-  30,31,43} (Cygnus + Boötes cones). Re-download: zenodo 14692304
-  (astro) + 14738271 (chunks). SPCC needs the FULL cone of chunks —
-  siril names the first missing one; the nside=2 nested cone-cover is
-  computable in numpy (validated: reproduces the Cygnus 11-chunk list
-  exactly for the 33.5° cone at 312.77,+48.16).
+Rig/tooling facts live in **`CLAUDE.md`** (git-tracked, auto-loaded
+into agent sessions): flatpak siril invocation + the /tmp rule,
+hardware/disk constraints, python stack (no astropy), GraXpert,
+astrometry venv, local Gaia catalog layout. Catalog chunk state as of
+2026-07-07: astro + SPCC xpsamp {2,3,5,7,8,9,10,11,12,13,14,15,19,25,
+27,29,30,31,43} = the Cygnus + Boötes cones (7.4 GB); SPCC needs the
+FULL cone; the nside=2 nested cone-cover is computable in numpy
+(validated: reproduces the Cygnus 11-chunk list for the 33.5° cone at
+312.77,+48.16). Camera: Nikon Z6 III, raws → DNG (Adobe DNG Converter
+18.4), 14-bit RGGB.
 
 ## Data (session 07-02-26)
 

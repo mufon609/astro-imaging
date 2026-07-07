@@ -1,18 +1,16 @@
 # Next-session prompt (copy-paste; delete this file once executed)
 
-Read ~/Desktop/astrophotography/README.md first (the process contract:
+CLAUDE.md (auto-loaded) is the agent operating manual: environment
+facts (flatpak siril invocation + the /tmp rule, hardware/disk,
+python stack with NO astropy, GraXpert, astrometry venv, local Gaia
+catalogs) and the binding working rules. Then read
+~/Desktop/astrophotography/README.md (the process contract:
 standard-workflow mapping, review contract incl. the standing audits,
 per-set geometry, experiment discipline, the NORTH STAR), then NOTES.md
-TOP TO BOTTOM (it is short by design: STATUS, current design with each
+TOP TO BOTTOM (short by design: STATUS, current design with each
 knob's measured WHY, the DEAD ENDS registry — NEVER re-attempt those,
-bandaid ledger, acquisition checklist). NOTES is the source of truth;
-full chronological history lives in git log only. Environment facts live in auto-memory: Siril 1.4.4 user
-flatpak (`flatpak run --command=siril-cli org.siril.Siril -d <dir> -s
-<script>`, scripts under $HOME not /tmp), 4-core arm64 / 7.7GB RAM /
-~24GB free disk, python3 numpy+scipy+PIL (NO astropy), GraXpert 3.2 at
-~/.local/bin/graxpert (BGE + denoise only), local Gaia/SPCC catalogs
-INSTALLED (7.4GB: astro + Cygnus + Boötes xpsamp chunks), astrometry
-venv at ~/.local/share/astrometry-venv.
+bandaid ledger, acquisition checklist). NOTES is the source of truth
+for state; full chronological history lives in git log only.
 
 CURRENT STATE: approved recipe B7 (git tag B7-approved; B6/B5 are
 HISTORY, not approved — B6's stack was pruned, only its jpg+png record
