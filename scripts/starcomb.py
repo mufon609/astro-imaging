@@ -468,6 +468,12 @@ def render_config(ctx, cfg, jpg_out):
         print(f"[starcomb] satu {s}: chroma gain on the combined render")
     u8 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     Image.fromarray(u8).save(jpg_out, quality=92)
+    if ctx.get("lossless"):
+        # lossless deliverable: PNG (deflate is lossless), same 8-bit
+        # pixels the JPEG quantizes — for final-product verification
+        png_out = jpg_out[:-4] + ".png"
+        Image.fromarray(u8).save(png_out)
+        print(f"[starcomb] lossless PNG: {png_out}")
 
     qa, smet, lev = exp.measure_jpg(jpg_out)
     a8 = np.asarray(Image.open(jpg_out), dtype=np.float32).transpose(2, 0, 1)
@@ -531,6 +537,8 @@ def main():
                          "results/stack_<set>.fit) — for pipeline-variant "
                          "stacks, e.g. stack_set-03_bgeonly.fit")
     ap.add_argument("--tag", default=None)
+    ap.add_argument("--lossless", action="store_true",
+                    help="also write a lossless PNG next to each jpg")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
                              "starless_bge", "cull_pct", "stars_peak",
@@ -548,7 +556,8 @@ def main():
              else os.path.join(sdir, "results", f"stack_{args.set}.fit"))
     if not os.path.exists(stack):
         sys.exit(f"starcomb: no {stack}")
-    ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack}
+    ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack,
+           "lossless": args.lossless}
     if args.order == "sep_first":
         starless_fit, stars_fit, cat_npz = ensure_starsep(repo, sdir, stack)
         ctx.update({"starless_fit": starless_fit, "stars_fit": stars_fit,

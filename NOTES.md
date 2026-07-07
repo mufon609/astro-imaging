@@ -1070,6 +1070,18 @@ Rejected on measurement: sep_prom (F: null), vst_after_boost (G:
 non-stationary noise), chroma-blur+satu (H+I: made the rainbow worse —
 withdrawn).
 
+**PIPELINE VERIFICATION (2026-07-06): the baked defaults reproduce the
+approved image PIXEL-EXACTLY.** One command, no flags beyond the stack:
+`starcomb.py 07-02-26 set-03 --stack results/stack_set-03_spcc.fit
+--lossless` → jpg byte-equivalent to the promoted B⁵ (max diff 0, mean
+0.000 — the whole chain incl. NL-Bayes denoise is deterministic), gate
+PASS identical (1.12, 1.9/1.4/1.9). Side-finding: **JPEG q92 costs
+mean 2.6 counts (max 242 at star edges, 32% of pixels >2) on this
+grain-heavy content** — the earlier "diff" was entirely jpg
+quantization. Finals ship as lossless PNG (`--lossless`):
+`results/starcomb_set-03_approved_verify_20260706_212422.png` (43.6 MB,
+6064×4040) = the pixel-true approved product.
+
 ## Iteration ideas (not yet tried)
 
 - Registration with distortion handling (24mm wide field, corner stars)
