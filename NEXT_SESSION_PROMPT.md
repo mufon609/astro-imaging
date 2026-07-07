@@ -34,11 +34,12 @@ hypotheses pre-registered in NOTES before each run:
 
 0. AUDIT (blocking): reproduce B7 byte-exact (above). Then verify the
    standing audits fire by measurement, not by trust: star_shell_report
-   on the B6 record jpg (results/) must WARN (aura ~+12), on the B7
-   render must be clean (~+2); the gate scope must match
-   config_set-03.json geometry. Spot-check 2-3 numbers from the NOTES
-   knob-provenance table against the artifacts. Any mismatch: STOP,
-   root-cause, write it into NOTES before proceeding.
+   on results/starcomb_set-03_APPROVED_B6_20260706_232205.png (the
+   defect-era record; use the newest starsep catalog in work/starsep/)
+   must WARN (aura ~+12), on the B7 png must be clean (~+2); the gate
+   scope must match config_set-03.json geometry. Spot-check 2-3 numbers
+   from the NOTES knob-provenance table against the artifacts. Any
+   mismatch: STOP, root-cause, write it into NOTES before proceeding.
 
 A. StarNet-ONNX on aarch64 (bandaid #5 removal — the deepest remaining
    processing-quality lever). Recorded facts: StarNet v2.5.3 ships
@@ -89,9 +90,12 @@ objective fixes with pass/fail metrics may commit; after ANY script
 change re-verify B7 byte-identical (all four artifacts) or document
 exactly why it legitimately changed and get the new render approved;
 NO session/stream/ladder tags in script comments (plain standalone
-descriptions; history lives in NOTES/git); background long runs and
-keep working; preserve stacks per experiment (cp to tagged names);
-keep NOTES.md current as you go.
+descriptions; history lives in git); background long runs and keep
+working; preserve stacks per experiment (cp to tagged names); keep
+NOTES.md current as you go — IN ITS REFACTORED SHAPE: update STATUS /
+design / knob-provenance / dead-ends / ledger IN PLACE, add new dead
+ends to the registry with their numbers, and NEVER append
+chronological session narrative (that is what git history is for).
 
 SUCCESS CRITERIA: (1) audit passed with numbers recorded (or the
 mismatch root-caused); (2) StarNet-ONNX either WORKING with validated
