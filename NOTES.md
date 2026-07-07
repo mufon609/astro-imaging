@@ -35,8 +35,11 @@ revert with git if a change makes things worse.
   BEFORE running, dead ends written with numbers, stale-knob rule (a
   fixed root cause makes every knob tuned during the hunt stale).
 - **AWAITING USER JUDGMENT (session-6 packages, nothing baked):**
-  (1) B: rgb_equal removed — render pair `judgment_B_norgbeq/`; on
-  approval the canonical stack switches to `stack_set-03_norgbeq_spcc.fit`.
+  (1) B: rgb_equal removed — render pair `judgment_B_norgbeq/`
+  (PNG-fair panels + `judge_corner_stars_userzone.png` for the corner-
+  star shells the user flagged; see "B addendum"); on approval the
+  canonical stack switches to `stack_set-03_norgbeq_spcc.fit`, ideally
+  jointly with a stars_floor value (the corner shells' noise share).
   (2) D: star ghost-aura fix — `stars_floor` 0/1.5/3.0 in
   `exp_starsep_stars_floor_*/` (`judge_star_tiles.png`); root cause +
   numbers in "D ROOT CAUSE". (3) E: output black point 0/4/6/8 in
@@ -1764,6 +1767,40 @@ before the canonical stack switches.**
   becomes the render input (and the B6 byte-verify target re-anchors to
   the newly approved render); until then B6 remains the approved product
   on `stack_set-03_spcc.fit`.
+
+**B addendum — the user's corner crop (2026-07-07, top-left corner of
+the norgbeq render; colored shells around larger stars).** Measured on
+the same 23 corner stars (peaks 0.005–0.075, the aberrated-PSF zone):
+
+| render | corner aura lum (r8-16) | corner skirt chroma MAD (r4-12) |
+|---|---|---|
+| B6 **q92 jpg** (4:2:0) | — | 13.3 ← the subsampling SMEARS it |
+| B6 **PNG** (pixel-true) | — | **21.9 = B6's real corner state** |
+| norgbeq floor 0 (the crop) | +3.5 | 33.4 |
+| norgbeq + stars_floor 1.5 | **+1.0** | 35.2 |
+| norgbeq + stars_floor 3.0 | +1.0 | 28.9 |
+
+Three findings: (1) **encoding-fairness** — the original judgment_B
+panels compared B6's q92 jpg against the norgbeq q100 jpg; 4:2:0
+subsampling hides ~40% of B6's own corner shell chroma, so the panels
+were rebuilt from PNGs (the sharper new exports REVEAL fringes the old
+encoding blurred — same coin as the user's "sharper" verdict).
+(2) The true chain regression norgbeq vs B6 is 21.9 → 33.4 (+53%), of
+which +15% is measured **anchor sensitivity**: stars anchor = median
+top-500 catalog amplitude ⇒ data-dependent MTF low-end gain (B6 ×864,
+norgbeq ×996 for the same sky) — QUEUED: a noise-relative or fixed-gain
+anchor makes star rendering data-stable (generalization hygiene);
+remainder unattributed (interaction of stretch shape/satu with the
+fringe amplitudes — open, numbers above).
+(3) The corner shells decompose into noise speckle (killed by
+stars_floor: aura +3.5→+1.0; visually rows 3–4 of
+`judgment_B_norgbeq/judge_corner_stars_userzone.png` are far cleaner)
+and **coherent aberrated-PSF color fringe** (survives the floor by
+design — it is real star signal: corner coma + lateral CA + dispersion
+on trailed PSFs; the chroma MAD stays ~29–35 because the metric zone
+sits on the fringes). Fixing the physical fringe is acquisition
+(checklist) or a NEW pre-registered knob (stars-layer chroma clamp) —
+NOT invented mid-stream.
 
 ### E — pre-registered (2026-07-07): blacker blacks (output black point)
 
