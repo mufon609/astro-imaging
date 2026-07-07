@@ -260,8 +260,16 @@ def lum_core(starless_st, k=3.0):
     c, h, w = starless_st.shape
     g2 = min(1, c - 1)
     G = starless_st[g2].astype(np.float64)
-    sky_w = (1.0 - band_mask_frac(h, w, feather=0.10)) * am.branch_mask(h, w)
-    skyb = sky_w > 0.9
+    # M0 (session 5): NO branch factor in the applied weight. The hard
+    # branch rectangle printed a seam (measured 4.5x blotch-texture step
+    # at y=0.75h on B5), and even feathered it leaves a rectangle of
+    # un-cored patchy sky. The Wiener gate below already protects real
+    # structure (trees/halo energy >> noise => correction ~ 0), so the
+    # geometric protection was redundant for the foreground and harmful
+    # for the sky sharing its rectangle. The branch stays excluded from
+    # the noise ESTIMATE (skyb, hard mask — statistics scope).
+    sky_w = 1.0 - band_mask_frac(h, w, feather=0.10)
+    skyb = (sky_w > 0.9) & am.branch_mask(h, w)
     levels = []
     prev = G
     for s in (8, 32, 128):
@@ -376,14 +384,35 @@ def render_config(ctx, cfg, jpg_out):
 
     if cfg.get("mw_boost", 0) > 0:
         # band-localized midtone lift on the stretched starless layer:
-        # out = bg + (x - bg) * (1 + k*M), M = feathered band corridor.
-        # Lifts the MW's above-background signal without touching the rim
-        # (corridor only), stars (separate layer) or the background level.
+        # out = bg + (x - bg) * (1 + k*M). Lifts the MW's above-background
+        # signal without touching the rim (corridor only), stars (separate
+        # layer) or the background level. The branch is excluded smoothly
+        # (M0: the flat mask used to lift the branch halo too).
         c2, h2, w2 = starless_st.shape
-        M = band_mask_frac(h2, w2, feather=0.10)
+        M = (band_mask_frac(h2, w2, feather=0.10)
+             * (1.0 - am.branch_mask_frac(h2, w2, feather=0.05)))
         g2 = min(1, c2 - 1)
         bglev, _ = am.bg_stats(starless_st[g2])
         k = float(cfg["mw_boost"])
+        if cfg.get("boost_mask", "geo") == "lum":
+            # M1: LUMINOSITY-WEIGHTED lift (the standard luminosity-mask /
+            # masked-stretch idiom) — the geometric corridor gain is flat,
+            # so it multiplies the noise floor and the dark gaps by the
+            # same (1+k) as the glow (measured: corridor starless floor
+            # P50 +7 counts over sky = the user's issue 3). Weighting the
+            # corridor by the smoothed above-bg glow makes the lift follow
+            # the actual signal; gaps and floor stay at sky black. The
+            # weight is capped at 1 so k keeps the same meaning at the
+            # glow peaks; it can only reduce the lift elsewhere.
+            from scipy.ndimage import gaussian_filter
+            sig = gaussian_filter(
+                np.maximum(starless_st[g2] - bglev, 0.0), 64)
+            core = M > 0.5
+            ref = float(np.percentile(sig[core], 95)) if core.any() else 0.0
+            if ref > 1e-6:
+                M = M * np.clip(sig / ref, 0.0, 1.0).astype(np.float32)
+                print(f"[starcomb] boost_mask lum: glow-weighted "
+                      f"(ref p95 {ref * 255:.1f} counts)")
         gain = 1.0 + k * M
         starless_st = np.clip(
             bglev + (starless_st - bglev) * gain[None, :, :], 0.0, 1.0)
@@ -434,6 +463,14 @@ def render_config(ctx, cfg, jpg_out):
     a_sl = np.asarray(Image.open(slpath), dtype=np.float64)
     qa_sl = bg_qa.qa_metrics(
         a_sl, bg_qa.sky_signal_mask(a_sl.shape[0], a_sl.shape[1]))
+    # REPORTED corridor + seam metrics (session 5): the gate masks the
+    # corridor, so corridor-contained costs (boost floor lift, chroma
+    # bands) and mask seams need their own numbers — reported, never gated.
+    corr = am.corridor_report(tmp8)
+    print(f"[starcomb]   corridor floor Δ P50 {corr['floor_p50']:+.1f} / "
+          f"P5 {corr['floor_p5']:+.1f} | band chroma RG {corr['band_rg']:.1f} "
+          f"BG {corr['band_bg']:.1f} | seam tex y {corr['seam_y']:.2f} "
+          f"x {corr['seam_x']:.2f} (1=none)")
 
     # --- stars branch (numpy) --------------------------------------------
     stars, _ = am.load_image(ctx["stars_fit"])
@@ -482,7 +519,8 @@ def render_config(ctx, cfg, jpg_out):
             "qa_starless": {k: v for k, v in qa_sl.items()
                             if isinstance(v, (int, float, bool))},
             "stars": smet, "bg_med8": lev[1]["median"] * 255.0,
-            "mw_contrast8": mw, "starless_jpg": os.path.basename(slpath)}
+            "mw_contrast8": mw, "corridor": corr,
+            "starless_jpg": os.path.basename(slpath)}
 
 
 def main():
@@ -526,6 +564,11 @@ def main():
     ap.add_argument("--cull-pct", type=float, default=50)
     ap.add_argument("--stars-peak", type=float, default=0.97)
     ap.add_argument("--mw-boost", type=float, default=1.2)
+    ap.add_argument("--boost-mask", default="geo", choices=["geo", "lum"],
+                    help="mw_boost mask: geo = flat geometric corridor "
+                         "(control; lifts glow AND floor/gaps by 1+k), "
+                         "lum = corridor x glow-luminosity weight (M1: "
+                         "lift follows the signal, gaps stay at sky black)")
     ap.add_argument("--order", default="bge_first",
                     choices=["bge_first", "sep_first"],
                     help="bge_first: gx+subsky on the STAR-FUL stack, then "
@@ -544,7 +587,7 @@ def main():
                              "starless_bge", "cull_pct", "stars_peak",
                              "mw_boost", "sep_prom", "chroma_nr",
                              "chroma_core", "satu", "core_order",
-                             "stretch_linked", "lum_core"])
+                             "stretch_linked", "lum_core", "boost_mask"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
@@ -567,7 +610,8 @@ def main():
             "starless_denoise": args.starless_denoise,
             "starless_bge": args.starless_bge,
             "cull_pct": args.cull_pct, "stars_peak": args.stars_peak,
-            "mw_boost": args.mw_boost, "order": args.order,
+            "mw_boost": args.mw_boost, "boost_mask": args.boost_mask,
+            "order": args.order,
             "sep_prom": args.sep_prom, "chroma_nr": args.chroma_nr,
             "chroma_core": args.chroma_core, "satu": args.satu,
             "core_order": args.core_order,
@@ -586,7 +630,7 @@ def main():
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     enum_params = ("starless_denoise", "starless_bge", "core_order",
-                   "stretch_linked")
+                   "stretch_linked", "boost_mask")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

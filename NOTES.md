@@ -1082,6 +1082,157 @@ quantization. Finals ship as lossless PNG (`--lossless`):
 `results/starcomb_set-03_approved_verify_20260706_212422.png` (43.6 MB,
 6064×4040) = the pixel-true approved product.
 
+## Session 5 (2026-07-06/07): four-defect audit — provenance, QA blind spots, re-derivation
+
+**USER VERDICT on B⁵ (start of session): four defects, all confirmed and
+measured on the approved render** (`_approved_verify_...png`, pixel-true;
+gate re-run first: starless-sky PASS 1.12 / 1.9/1.4/1.9 = recorded values
+— the state reproduces, the defects live where the gate does not look):
+
+1. **"Leftover chroma, banding streaks/strips of red and blue."** Two
+   measured components: (i) diffuse chroma bands in/along the corridor —
+   large-scale (σ24-smoothed) profile P2V along the band axis **B−G 4.0 /
+   R−G 2.2 counts** (across-band ~1.0, rows ~0.5 — the structure is
+   corridor-oriented, not sensor row/col banding; linear sensor banding
+   was ruled out at 0.2–0.5 count rms hi-pass); (ii) per-star red/blue
+   fringing on the trailed PSFs: star-pixel R−B spans **P5 −76 / P95 +72
+   counts** (÷1.35 without satu). Both are *survivors × amplifiers*:
+   chroma that passes the core gets ×2.2 (boost, corridor) then ×1.35
+   (satu).
+2. **"Gray left where red chroma bands were removed (left-top)."**
+   Left-top starless sky blocks span 12–20 vs global P50 15 (+5-count
+   patches). Mechanism: coring R−G→0 removes the *chroma*, not the
+   correlated G-luminance of the blotch; lum_core k=2 shrinks it only
+   partially (K: residual 1.5/2.4/1.3 counts at 16/48/128 px), and satu
+   re-amplifies survivors ×1.35.
+3. **"Dark areas inside the MW glow gray instead of deep black."**
+   Corridor starless floor **P50 22 / P5 12** vs deep-sky **P50 15**
+   (block G medians, branch excluded). The geometric boost multiplies
+   *everything* above bg ×(1+k)=2.2 inside the corridor: real glow AND
+   noise AND the gaps the user wants black. **The ratified gate masks the
+   corridor, so this cost is structurally invisible to QA** — it was
+   accepted on S8′ "corridor containment" (true for the SKY statistics)
+   without any corridor-scoped metric existing.
+4. **"Faint star removal half-done."** Sub-prominence (<6σ) stars stay in
+   the starless layer (F: ~5.1k detector counts, unmovable by prom
+   4/5/6) and are boosted ×2.2 into smudges; meanwhile cull 50 deletes
+   the separated faint half (~11.5k stars) from the stars layer entirely,
+   leaving their inpaint fills — adjacent "shows-through" and
+   "removed-hole" states = the user's "caught between" look. C recorded
+   the cull as metric-invisible and left it at 50 by default; the
+   aesthetic was never actually judged.
+
+**+ objective defect found during the audit: the branch-rectangle SEAM.**
+`lum_core` multiplies its correction by the *hard* branch rectangle
+(rows ≥0.75h, cols <0.22w) — the correction stops dead at the edge and
+prints a straight line into the sky: measured starless G step **+1.0
+count** across y=0.75h and **−1.5** across x=0.22w (visible in crops).
+The mask was borrowed from the QA block scope, where a hard rectangle is
+fine; in a *rendering* operator it must be feathered (or tight to the
+actual treeline). Related known cosmetic: the boost mask does not exclude
+the branch at all (S8-era note) — same class of fix.
+
+**Knob-provenance audit (the user's rule: when a root cause is fixed,
+every variable tuned while hunting it must be re-derived).** The root
+causes fixed late in session 4 were SPCC (replacing rgb_equal's cast) and
+the linked stretch (retiring the unlinked bandaid = the blotch engine).
+Provenance of every B⁵ knob, from the exp-dir fixed-configs:
+
+| knob = value | derived in | chain it was tuned on | verdict |
+|---|---|---|---|
+| starless_target 0.07 | A-starsep 16:50 | canonical (non-SPCC) stack, unlinked, NO corings, boost 0 | **STALE — re-derive** (the 0.12-fails-gate cap predates every noise treatment now in the chain) |
+| starless_denoise vstpost | D 16:55→17:21 | canonical stack, unlinked, no corings | **STALE — re-verify** (placement lesson likely still holds; the *need* may not) |
+| mw_boost 1.2 | E 17:24 | canonical stack, unlinked, no corings, stars 0.92 | **STALE — re-derive**, and the geometric-corridor *architecture* itself is the issue-3 engine |
+| chroma_core 3 | J 19:58 | SPCC stack but **unlinked**, core_order post | **STALE — re-ladder** (J2 measured linked cuts blotch amplitude ~12% at source; k was never re-chosen) |
+| core_order pre | J3 20:45 | linked chain | current ✓ |
+| lum_core 2 | K 20:50 | linked chain | current ✓ (but its branch mask prints the seam — fix objectively) |
+| stars_peak 0.97 / cull 50 | B/C 16:52/16:54 | stars layer (stretch-independent) | anchor ✓; **cull 50 re-judge** (issue 4; "metric-invisible" ≠ approved) |
+| satu 0.35 | I′ 21:09 | linked B⁴ chain | current ✓ mechanically; **re-judge at the end** (it amplifies every surviving defect: bands, fringes, gray patches) |
+
+**QA blind-spot fixes (scope stays ratified: gate thresholds untouched,
+corridor stays masked from the GATE).** New REPORTED corridor metrics in
+every starcomb run, so corridor-contained costs are measured instead of
+invisible: `corridor_floor` (P50 and P5 of corridor starless block
+medians minus sky P50 — issue 3's number), `corridor_chroma` (along-band
+R−G/B−G profile P2V — issue 1's number), `seam_step` (starless G step
+across the branch-mask edges — the objective defect gauge). Reported
+next to the gate line in every run and logged in metrics.jsonl.
+
+**Pre-registered experiments (single knob each, control bracketed,
+verdicts by measurement; aesthetic winners need the user):**
+- **M0 (objective fix, commit on pass/fail): feather the rendering
+  masks.** lum_core's branch factor and the boost mask's branch exclusion
+  become smooth (feathered rectangle, σ≈0.02·h at the edges; geometry
+  unchanged otherwise). Hypothesis: seam_step → <0.3 counts both edges;
+  gate + all other metrics unchanged within noise. (The QA/block masks
+  are statistics scopes and stay hard — this touches only rendering
+  operators.)
+- **M1 `boost_mask` geo (control) / lum:** replace the flat geometric
+  corridor gain with a LUMINOSITY-WEIGHTED lift (standard astrophoto
+  practice: luminosity masks / masked stretch): M_lum =
+  corridor_geo × norm(smooth(starless − bg, σ≈64px))₊, so the lift
+  follows the actual glow and the gaps/floor stay put. Hypothesis:
+  corridor_floor P5-delta → ~0 (gaps reach sky black), MW contrast
+  within ~1 of control, gate PASS, stipple amplification in gaps drops.
+  If MW visibly weakens the mask normalization is wrong, not the idea —
+  measure before judging.
+- **M2 `mw_boost` re-ladder on the winning mask: 1.2 (control) / 0.8 /
+  0.5.** With the floor fixed, k trades MW pop vs corridor noise
+  amplification honestly. corridor_floor + corridor grain + MW contrast
+  reported; user judges the strips.
+- **M3 `chroma_core` re-ladder on the linked chain: 3 (control) / 2 / 4.**
+  Acceptance per J: sky chroma ≤ ~0.5 counts at 16/48/128 px, star
+  |chroma| within ~10% of control, gate PASS — plus the new
+  corridor_chroma metric for the band residual (issue 1i).
+- **M4 `cull_pct` re-judge with corridor crops: 50 (control) / 25 / 0.**
+  Hypothesis: cull 0 restores the separated faint stars over their own
+  inpaint sites, converting "smudge + hole" into "faint star" (issue 4);
+  metrics unchanged (C); the look is the user's call — this time with
+  corridor close-ups in the strips, not full-frame thumbnails.
+- **M5 `satu` 0.35 (control) / 0.2 / 0:** after M1–M4 remove/reduce the
+  defect signal satu was amplifying, re-judge how much chroma gain the
+  render wants. Star fringe span (R−B P5..P95 over star pixels) reported.
+- **M6 `starless_target` 0.07 (control) / 0.10 / 0.12 — only if the user
+  wants a brighter overall render** after M1–M5: the 0.07 cap predates
+  the corings; the gate ceiling may have moved. bg level rises with
+  target (0.07→18, 0.12→31 of 255) — this knob trades global sky
+  blackness for MW brightness, which is the user's aesthetic call, so it
+  runs LAST and only on request.
+
+**Sensor-banding check (session 5, measured before touching anything):**
+axis-aligned banding in the LINEAR SPCC stack, sky-only hi-pass column/row
+median profiles: cols P2V 5.3–7.9 / rows 3.1 (16-bit counts) ≈ 0.008–0.012%
+of signal — real but sub-visible after the stretch (rendered axis-aligned
+residual 0.2–0.5 count rms vs the 1.2–2.5 count corridor-oriented bands).
+**Verdict: NO fixbanding-class step needed; the user's "bands" are
+corridor-oriented chroma survivors + per-star trailing fringes, not sensor
+pattern.** Dead end for a fixbanding experiment — don't run one.
+
+**M0 results (objective seam fix, two iterations):**
+- Metric lesson first: a level-step seam gauge FAILED (strip-median ≈ 0 —
+  the coring seam is a TEXTURE discontinuity; level steps are dominated by
+  real sky gradients + 8-bit quantization). corridor_report's seam gauge
+  is now the blotch-texture MAD ratio across each rectangle edge (σ16
+  hi-pass → σ48 smooth, un-cored/cored side; 1.0 = no seam). B5 measures
+  **4.46 (y) / 1.35 (x)** — the objective number behind the visible line.
+- M0a (feathered branch factor, feather 0.05): y-ratio 4.46 → 3.13, x
+  1.35 → 0.86 — the LINE goes away but the rectangle remains a zone of
+  un-cored, texture-mismatched sky (ramp just hides the edge).
+- M0b (branch factor REMOVED from lum_core's applied correction; branch
+  stays excluded from the noise ESTIMATE): the Wiener significance gate
+  already protects real structure (tree/halo energy ≫ noise ⇒ correction
+  ≈ 0 there) — the geometric protection was redundant for the foreground
+  and harmful for the sky sharing its rectangle. The mw_boost mask keeps
+  a FEATHERED branch exclusion (a gain has no significance gate; unfixed
+  it lifted the tree halo — the S8-era known cosmetic, now closed).
+  **M0b ADOPTED (objective): gate byte-identical PASS (1.12, 2/4,
+  1.9/1.4/1.9), floor/band metrics unchanged, no line at either rectangle
+  edge (none can exist — the correction has no boundary), the old
+  rectangle's sky visibly smoother in the A/B crops, tree halo no longer
+  lifted.** Residual seam_y texture ratio 2.94 (from 4.46) = the corner's
+  honest glow structure passing the significance gate, not a mask
+  artifact; it may improve further at M2 (less boost) but is not a seam.
+
 ## Iteration ideas (not yet tried)
 
 - Registration with distortion handling (24mm wide field, corner stars)

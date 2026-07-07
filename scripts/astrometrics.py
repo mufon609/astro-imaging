@@ -178,12 +178,111 @@ def radius_map(h, w, stride=1):
 
 def branch_mask(h, w, stride=1):
     """True where measurable (the bottom-left foreground branch excluded) —
-    same geometry as bg_qa's block mask (rows >=75% height, cols <22% w)."""
+    same geometry as bg_qa's block mask (rows >=75% height, cols <22% w).
+    STATISTICS scope only: a hard edge is fine when selecting samples. Any
+    RENDERING operator must use branch_mask_frac instead — a hard mask
+    multiplied into a correction prints a visible seam (measured +1.0/−1.5
+    counts on B5, session 5)."""
     m = np.ones((len(range(0, h, stride)), len(range(0, w, stride))), bool)
     ys = np.arange(0, h, stride) / h
     xs = np.arange(0, w, stride) / w
     m[np.ix_(ys >= 0.75, xs < 0.22)] = False
     return m
+
+
+def branch_mask_frac(h, w, feather=0.05):
+    """Soft [0..1] branch mask (1 = branch corner, 0 = sky), same rectangle
+    as branch_mask (y>=0.75h, x<0.22w) with a smooth rolloff over `feather`
+    (fraction of frame height) OUTSIDE the rectangle. For rendering
+    operators (lum_core weight, mw_boost exclusion): corrections fade over
+    ~feather*h px instead of stopping at a hard printed edge."""
+    ys = (np.arange(h) + 0.5) / h
+    xs = (np.arange(w) + 0.5) / w
+    # signed distance outside the rectangle along each axis (0 inside)
+    dy = np.maximum(0.75 - ys, 0.0)[:, None]
+    dx = np.maximum(xs - 0.22, 0.0)[None, :]
+    d = np.hypot(dy, dx)  # frame-fraction distance to the rectangle
+    if feather <= 0:
+        return (d <= 0).astype(np.float32)
+    return np.clip(1.0 - d / feather, 0.0, 1.0).astype(np.float32)
+
+
+def corridor_report(img8_hwc):
+    """REPORTED corridor + seam metrics (session 5 QA blind-spot fix) on an
+    8-bit HxWx3 render of the STARLESS layer. Not a gate — the ratified
+    gate scope is unchanged; these make corridor-contained costs and mask
+    seams measurable instead of invisible.
+
+    Returns dict:
+      floor_p50/floor_p5: corridor starless block-median G percentiles
+        minus deep-sky block P50 (issue 3: how far the corridor floor sits
+        above the sky; P5 ~ 'do the gaps reach sky black').
+      band_rg/band_bg: P2V of the sigma-24-smoothed chroma profile binned
+        along the band axis, hi-pass (issue 1's diffuse color bands).
+      seam_y/seam_x: blotch-TEXTURE ratio across the branch-rectangle
+        edges (un-cored side MAD / cored side MAD of the sigma-48 mid-scale
+        residual field). A level-step gauge failed here (session 5): the
+        coring seam is a texture discontinuity whose strip-median is ~0;
+        real sky gradients and 8-bit quantization dominate level steps.
+        ~1.0 = no seam; B5's hard mask measured 4.5 (y) / 1.35 (x)."""
+    from scipy.ndimage import gaussian_filter, median_filter
+    a = np.asarray(img8_hwc, dtype=np.float32)
+    h, w, _ = a.shape
+    G = a[..., 1]
+    corr = band_mask_frac(h, w, feather=0.10)
+    keep = branch_mask(h, w)
+    blk = 100
+
+    def blocks(mask):
+        gy, gx = h // blk, w // blk
+        out = []
+        for by in range(gy):
+            for bx in range(gx):
+                m = mask[by * blk:(by + 1) * blk, bx * blk:(bx + 1) * blk]
+                if m.mean() > 0.8:
+                    out.append(np.median(
+                        G[by * blk:(by + 1) * blk, bx * blk:(bx + 1) * blk]))
+        return np.asarray(out)
+
+    sky_b = blocks((corr < 0.01) & keep)
+    cor_b = blocks((corr > 0.9) & keep)
+    sky50 = float(np.percentile(sky_b, 50)) if len(sky_b) else float("nan")
+    res = {
+        "floor_p50": float(np.percentile(cor_b, 50) - sky50) if len(cor_b) else 0.0,
+        "floor_p5": float(np.percentile(cor_b, 5) - sky50) if len(cor_b) else 0.0,
+    }
+
+    p0 = np.array([BAND_P0[0] * w, BAND_P0[1] * h])
+    p1 = np.array([BAND_P1[0] * w, BAND_P1[1] * h])
+    u = (p1 - p0) / np.linalg.norm(p1 - p0)
+    yy, xx = np.mgrid[0:h:4, 0:w:4]
+    t_along = ((xx - p0[0]) * u[0] + (yy - p0[1]) * u[1]).ravel()
+    msk = keep[::4, ::4].ravel()
+    for key, ch in (("band_rg", a[..., 0] - G), ("band_bg", a[..., 2] - G)):
+        sm = gaussian_filter(ch, 24)[::4, ::4].ravel()
+        bins = np.linspace(t_along[msk].min(), t_along[msk].max(), 160)
+        idx = np.digitize(t_along, bins)
+        prof = np.array([np.median(sm[(idx == i) & msk])
+                         for i in range(1, len(bins))
+                         if ((idx == i) & msk).sum() > 200])
+        resid = prof - median_filter(prof, 31, mode="nearest")
+        res[key] = float(np.percentile(resid, 99) - np.percentile(resid, 1))
+
+    resid = G - gaussian_filter(G, 16)
+    blotch = gaussian_filter(resid, 48)
+
+    def tex(sl):
+        v = blotch[sl]
+        return 1.4826 * float(np.median(np.abs(v)))
+
+    y_e, x_e = int(0.75 * h), int(0.22 * w)
+    x0, x1 = int(0.05 * w), int(0.20 * w)
+    res["seam_y"] = tex(np.s_[y_e + 40:y_e + 320, x0:x1]) \
+        / max(tex(np.s_[y_e - 320:y_e - 40, x0:x1]), 1e-6)
+    y0, y1 = int(0.78 * h), int(0.97 * h)
+    res["seam_x"] = tex(np.s_[y0:y1, x_e - 320:x_e - 40]) \
+        / max(tex(np.s_[y0:y1, x_e + 40:x_e + 320]), 1e-6)
+    return res
 
 
 def radial_profile(data, nbins=48, stride=4, mask_branch=False):
