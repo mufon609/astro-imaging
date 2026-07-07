@@ -160,11 +160,17 @@ def run_siril(session_dir, lines, name):
         sys.exit(f"starcomb: siril failed ({name}):\n" + r.stdout[-2500:])
 
 
-def ensure_starsep(repo, sdir, input_fit):
-    """Run (cached) star separation on any linear FITS."""
+def ensure_starsep(repo, sdir, input_fit, prom=6.0):
+    """Run (cached) star separation on any linear FITS. prom = the
+    component prominence cut in sigma (starsep K_PROM; lower moves the
+    faint 4-6 sigma tail out of the starless layer into the stars layer,
+    where cull_pct can reach it)."""
     outdir = os.path.join(sdir, "work", "starsep")
-    r = subprocess.run([sys.executable, os.path.join(repo, "scripts", "starsep.py"),
-                        input_fit, outdir], capture_output=True, text=True)
+    cmd = [sys.executable, os.path.join(repo, "scripts", "starsep.py"),
+           input_fit, outdir]
+    if prom != 6.0:
+        cmd.append(f"--prom={prom:g}")
+    r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit("starcomb: starsep failed:\n" + r.stdout[-2000:] + r.stderr[-1000:])
     print(r.stdout.rstrip())
@@ -193,6 +199,87 @@ def ensure_bge_linear(ctx):
                      f"save {rel_out[:-4]}",
                      "close"], "starcomb_bgelin.gen.ssf")
     return out
+
+
+def chroma_core(starless_st, k=3.0):
+    """Multi-scale significance coring of chroma toward NEUTRAL.
+
+    The stretch amplifies per-channel noise into colored blotches at ALL
+    scales (measured 1-3 counts at 16-128 px on a linear floor of ~0.1);
+    blurring chroma just moves speckle up in scale, and saturation then
+    re-amplifies it. Instead: decompose R-G and B-G into a gaussian
+    pyramid (sigma 2/8/32/128 + residual), measure each level's noise on
+    the corridor-excluded sky, and Wiener-shrink each level by its local
+    energy e/(e + (k*sigma)^2). Chroma that is not significantly above
+    its own noise goes to gray; genuinely colored signal (bright star
+    hues, real tint standing above noise) passes near-unchanged by
+    construction. G (luminance) is never touched."""
+    from scipy.ndimage import gaussian_filter
+    import bg_qa
+    c, h, w = starless_st.shape
+    g2 = min(1, c - 1)
+    G = starless_st[g2]
+    sky = ~bg_qa.sky_signal_mask(h, w) & am.branch_mask(h, w)
+    out = {0: None, 2: None}
+    for ci in (0, 2):
+        cch = starless_st[ci] - G
+        levels = []
+        prev = cch
+        for s in (2, 8, 32, 128):
+            sm = gaussian_filter(cch, s)
+            levels.append(prev - sm)
+            prev = sm
+        levels.append(prev)                      # sigma-128 residual
+        rec = np.zeros_like(cch)
+        for lev in levels:
+            v = lev[sky]
+            sig = 1.4826 * np.median(np.abs(v - np.median(v)))
+            e = gaussian_filter(lev * lev, 4)
+            rec += lev * (e / (e + (k * sig) ** 2 + 1e-20))
+        out[ci] = rec
+    R = np.clip(G + out[0], 0.0, 1.0)
+    B = np.clip(G + out[2], 0.0, 1.0)
+    print(f"[starcomb] chroma_core k={k}: insignificant chroma -> neutral")
+    return np.clip(np.stack([R, G, B]), 0.0, 1.0)
+
+
+def lum_core(starless_st, k=3.0):
+    """Sky-only LUMINANCE significance coring — the gray-patch fix.
+
+    The stretch amplifies G noise into 1.2-2.7 counts of mid-scale gray
+    patchiness on a sky whose linear floor is 0.06-0.10 (measured); with
+    the chroma cored to neutral, the eye picks up that luminance
+    unevenness. The sky is supposed to be FLAT (the gate's own premise),
+    so mid-scale sky structure below significance is shrunk toward the
+    smooth background: gaussian pyramid (sigma 8/32/128) of G, per-level
+    sky-noise, Wiener shrinkage. The correction is applied identically to
+    R/G/B (no chroma created) and ONLY on the sky — the MW corridor
+    (feathered) and branch keep their honest structure untouched."""
+    from scipy.ndimage import gaussian_filter
+    import bg_qa
+    c, h, w = starless_st.shape
+    g2 = min(1, c - 1)
+    G = starless_st[g2].astype(np.float64)
+    sky_w = (1.0 - band_mask_frac(h, w, feather=0.10)) * am.branch_mask(h, w)
+    skyb = sky_w > 0.9
+    levels = []
+    prev = G
+    for s in (8, 32, 128):
+        sm = gaussian_filter(G, s)
+        levels.append(prev - sm)
+        prev = sm
+    correction = np.zeros_like(G)
+    for lev in levels:
+        v = lev[skyb]
+        sig = 1.4826 * np.median(np.abs(v - np.median(v)))
+        e = gaussian_filter(lev * lev, 4)
+        keep_frac = e / (e + (k * sig) ** 2 + 1e-20)
+        correction += lev * (1.0 - keep_frac)
+    correction *= sky_w
+    out = np.clip(starless_st - correction[None, :, :], 0.0, 1.0)
+    print(f"[starcomb] lum_core k={k}: insignificant sky luminance -> "
+          f"smooth bg (corridor/branch protected)")
+    return out.astype(starless_st.dtype)
 
 
 def run_graxpert_denoise(work, fit):
@@ -231,7 +318,7 @@ def render_config(ctx, cfg, jpg_out):
         # THEN separation; the starless branch only denoises/stretches.
         bgelin = ensure_bge_linear(ctx)
         starless_fit, stars_fit, cat_npz = ensure_starsep(
-            ctx["repo"], sdir, bgelin)
+            ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0))
         ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
         if cfg["starless_denoise"] == "gx":
             # AI denoise, linear, starless (standard step-5 placement)
@@ -245,7 +332,6 @@ def render_config(ctx, cfg, jpg_out):
         raw, _ = am.load_image(ctx["starless_fit"])
         model = background_model(raw, cfg["starless_bge"])
         sub = np.clip(raw - model, 0.0, 1.0)
-        from starsep import write_fits_fitsorder
         p_sub = os.path.join(work, "starless_bsub.fit")
         write_fits_fitsorder(p_sub, sub)
         del raw, model, sub
@@ -259,11 +345,34 @@ def render_config(ctx, cfg, jpg_out):
                  "subsky 1 -dither"]
     if cfg["starless_denoise"] == "vst":
         lines.append("denoise -vst")
-    lines.append(f"autostretch -1.5 {cfg['starless_target']}")
+    # Stretch linkage: unlinked was the historical cast bandaid (per-
+    # channel bg equalization) and is also the chroma-blotch engine
+    # (per-channel curves differentially amplify per-channel noise).
+    # On the SPCC-calibrated stack there is no cast to compensate —
+    # linked is the standard, tested by ladder J2.
+    linkflag = "-linked " if cfg.get("stretch_linked") == "linked" else ""
+    lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
+    if cfg["starless_denoise"] == "vstpost":
+        # post-stretch, half-modulated: the linear placements imprint a
+        # radial signature (Ladder D); after the stretch the radial noise
+        # differential is already rendered, and -mod blends 50% original
+        # back — the halved-ring hypothesis from the star-ful near miss.
+        lines.append("denoise -vst -mod=0.5")
     lines.append("save work/starless_st")
     lines.append("close")
     run_siril(sdir, lines, "starcomb_starless.gen.ssf")
     starless_st, _ = am.load_image(st_out)
+
+    if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
+        # coring BEFORE the boost (default): thresholds are calibrated on
+        # the un-boosted sky, so they are valid frame-wide; the boost then
+        # amplifies already-neutralized chroma and cannot re-create color.
+        # (post-boost coring left boosted corridor noise-chroma alive —
+        # the user's "leftover coloration toward the middle", ladder J3.)
+        starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
+
+    if cfg.get("lum_core", 0) > 0:
+        starless_st = lum_core(starless_st, float(cfg["lum_core"]))
 
     if cfg.get("mw_boost", 0) > 0:
         # band-localized midtone lift on the stretched starless layer:
@@ -279,6 +388,39 @@ def render_config(ctx, cfg, jpg_out):
         starless_st = np.clip(
             bglev + (starless_st - bglev) * gain[None, :, :], 0.0, 1.0)
         print(f"[starcomb] mw_boost {k}: band lift around bg {bglev:.3f}")
+
+    if cfg["starless_denoise"] == "vst_after_boost":
+        # same half-modulated post-stretch denoise as 'vstpost', but AFTER
+        # the boost: 'vstpost' runs before the boost, so the boost
+        # re-amplifies its residual corridor grain x(1+k). Costs one siril
+        # round-trip on the boosted layer.
+        p_ab = os.path.join(work, "starless_ab.fit")
+        write_fits_fitsorder(p_ab, starless_st)
+        run_siril(sdir, ["requires 1.4.0", "load work/starless_ab",
+                         "denoise -vst -mod=0.5",
+                         "save work/starless_ab_dn", "close"],
+                  "starcomb_ab_denoise.gen.ssf")
+        starless_st, _ = am.load_image(os.path.join(work, "starless_ab_dn.fit"))
+        print("[starcomb] vst_after_boost: denoised the boosted layer")
+
+    if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
+        starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
+
+    if cfg.get("chroma_nr", 0) > 0:
+        # chroma-only NR: the residual speckle is color-dominant (measured
+        # on the composites: R/G/B clumps, luminance grain much lower).
+        # Blur the R-G and B-G difference fields, keep G (luminance proxy)
+        # untouched: chroma carries no real few-px astronomical structure,
+        # so this kills color speckle at zero luminance cost. Same
+        # vocabulary as the QA color metrics.
+        from scipy.ndimage import gaussian_filter
+        sg = float(cfg["chroma_nr"])
+        g2 = min(1, starless_st.shape[0] - 1)
+        G = starless_st[g2]
+        R = G + gaussian_filter(starless_st[0] - G, sg)
+        B = G + gaussian_filter(starless_st[2] - G, sg)
+        starless_st = np.clip(np.stack([R, G, B]), 0.0, 1.0)
+        print(f"[starcomb] chroma_nr sigma {sg}px on R-G/B-G")
 
     # THE GATE (layer-appropriate QA, ratified 2026-07-06): strict
     # blocks/rings on the starless render's SKY — MW corridor (incl. the
@@ -315,6 +457,15 @@ def render_config(ctx, cfg, jpg_out):
 
     # --- combine ----------------------------------------------------------
     out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
+    if cfg.get("satu", 0) > 0:
+        # chroma gain on the combined render (the old chain's `satu` had
+        # no QA effect but the new chain shipped without any saturation —
+        # star/MW color pop). Runs AFTER chroma_nr so it amplifies real
+        # color, not speckle.
+        s = float(cfg["satu"])
+        mean = out.mean(axis=0, keepdims=True)
+        out = np.clip(mean + (1.0 + s) * (out - mean), 0.0, 1.0)
+        print(f"[starcomb] satu {s}: chroma gain on the combined render")
     u8 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     Image.fromarray(u8).save(jpg_out, quality=92)
 
@@ -332,14 +483,43 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("session")
     ap.add_argument("set")
-    ap.add_argument("--starless-target", type=float, default=0.12)
-    ap.add_argument("--starless-denoise", default="off",
-                    choices=["off", "vst", "gx"])
+    # Defaults = the APPROVED RECIPE B5 (2026-07-06, user-approved; see
+    # NOTES.md "APPROVED RECIPE"). Run against the SPCC-calibrated stack:
+    #   starcomb.py <session> <set> --stack results/stack_<set>_spcc.fit
+    # Every default below was set by a measured single-knob ladder.
+    ap.add_argument("--starless-target", type=float, default=0.07)
+    ap.add_argument("--starless-denoise", default="vstpost",
+                    choices=["off", "vst", "gx", "vstpost", "vst_after_boost"])
+    ap.add_argument("--sep-prom", type=float, default=6.0,
+                    help="starsep component prominence cut (sigma); lower "
+                         "moves the faint tail into the stars layer")
+    ap.add_argument("--chroma-nr", type=float, default=0,
+                    help="gaussian sigma (px) for R-G/B-G chroma NR on the "
+                         "starless render; 0 = off (superseded by "
+                         "--chroma-core; kept for the record)")
+    ap.add_argument("--chroma-core", type=float, default=3,
+                    help="significance k for multi-scale chroma coring "
+                         "toward neutral; 0 = off")
+    ap.add_argument("--lum-core", type=float, default=2,
+                    help="significance k for sky-only luminance coring "
+                         "(gray-patch fix); 0 = off")
+    ap.add_argument("--core-order", default="pre", choices=["pre", "post"],
+                    help="chroma coring before (pre, default) or after "
+                         "(post) the mw_boost")
+    ap.add_argument("--stretch-linked", default="linked",
+                    choices=["unlinked", "linked"],
+                    help="autostretch channel linkage (unlinked = the "
+                         "historical cast bandaid, retired by J2; linked = "
+                         "standard on a calibrated stack)")
+    ap.add_argument("--satu", type=float, default=0.35,
+                    help="chroma gain on the combined render, AFTER the "
+                         "corings (amplifies only significant color); "
+                         "0 = off")
     ap.add_argument("--starless-bge", default="banded",
                     choices=["banded", "envelope", "border", "gx"])
-    ap.add_argument("--cull-pct", type=float, default=0)
-    ap.add_argument("--stars-peak", type=float, default=0.85)
-    ap.add_argument("--mw-boost", type=float, default=0)
+    ap.add_argument("--cull-pct", type=float, default=50)
+    ap.add_argument("--stars-peak", type=float, default=0.97)
+    ap.add_argument("--mw-boost", type=float, default=1.2)
     ap.add_argument("--order", default="bge_first",
                     choices=["bge_first", "sep_first"],
                     help="bge_first: gx+subsky on the STAR-FUL stack, then "
@@ -354,7 +534,9 @@ def main():
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
                              "starless_bge", "cull_pct", "stars_peak",
-                             "mw_boost"])
+                             "mw_boost", "sep_prom", "chroma_nr",
+                             "chroma_core", "satu", "core_order",
+                             "stretch_linked", "lum_core"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
@@ -376,7 +558,12 @@ def main():
             "starless_denoise": args.starless_denoise,
             "starless_bge": args.starless_bge,
             "cull_pct": args.cull_pct, "stars_peak": args.stars_peak,
-            "mw_boost": args.mw_boost, "order": args.order}
+            "mw_boost": args.mw_boost, "order": args.order,
+            "sep_prom": args.sep_prom, "chroma_nr": args.chroma_nr,
+            "chroma_core": args.chroma_core, "satu": args.satu,
+            "core_order": args.core_order,
+            "stretch_linked": args.stretch_linked,
+            "lum_core": args.lum_core}
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
     if not args.param:
@@ -389,7 +576,8 @@ def main():
 
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
-    enum_params = ("starless_denoise", "starless_bge")
+    enum_params = ("starless_denoise", "starless_bge", "core_order",
+                   "stretch_linked")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

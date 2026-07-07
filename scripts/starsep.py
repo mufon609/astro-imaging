@@ -68,7 +68,9 @@ def local_background(L, stride=4, size=33):
                              L.shape[1] / bg.shape[1]), order=1)
 
 
-def build_star_mask(data):
+def build_star_mask(data, k_prom=None):
+    if k_prom is None:
+        k_prom = K_PROM
     L = data.max(axis=0)
     h, w = L.shape
     bgmap = local_background(L)
@@ -82,7 +84,7 @@ def build_star_mask(data):
     idx = np.arange(1, n + 1)
     area = ndimage.sum_labels(cand, labels, idx)
     peak = ndimage.maximum(resid, labels, idx)
-    is_star = (peak >= K_PROM * sig) & (
+    is_star = (peak >= k_prom * sig) & (
         (area <= AREA_MAX) | ((peak >= K_BRIGHT * sig) & (area <= AREA_MAX_BRIGHT)))
     star_ids = idx[is_star]
     mask = np.isin(labels, star_ids)
@@ -134,12 +136,20 @@ def inpaint(ch, mask):
 
 
 def main():
-    if len(sys.argv) != 3:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    k_prom = K_PROM
+    for a in sys.argv[1:]:
+        if a.startswith("--prom="):
+            k_prom = float(a.split("=", 1)[1])
+    if len(args) != 2:
         sys.exit(__doc__)
-    stack_path, outdir = sys.argv[1], sys.argv[2]
+    stack_path, outdir = args
     os.makedirs(outdir, exist_ok=True)
     st = os.stat(stack_path)
+    # prom is part of the separation identity; default keeps legacy names
     stem = f"{st.st_size}_{int(st.st_mtime)}"
+    if k_prom != K_PROM:
+        stem += f"_p{k_prom:g}"
     p_starless = os.path.join(outdir, f"starless_{stem}.fit")
     p_stars = os.path.join(outdir, f"stars_{stem}.fit")
     p_cat = os.path.join(outdir, f"starsep_{stem}.npz")
@@ -148,8 +158,9 @@ def main():
         print(p_starless); print(p_stars); print(p_cat)
         return
     data, _ = am.load_image(stack_path)
-    print(f"starsep: {data.shape[2]}x{data.shape[1]}x{data.shape[0]}ch")
-    mask, labels, cat, stats = build_star_mask(data)
+    print(f"starsep: {data.shape[2]}x{data.shape[1]}x{data.shape[0]}ch "
+          f"(prominence {k_prom:g} sigma)")
+    mask, labels, cat, stats = build_star_mask(data, k_prom)
     # MW-protection readout: masked fraction inside the MW core box vs frame
     h, w = mask.shape
     mwbox = mask[int(0.30 * h):int(0.55 * h), int(0.40 * w):int(0.70 * w)]

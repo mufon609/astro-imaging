@@ -412,7 +412,17 @@ of a landscape: treeline pixels flip between tree and sky across drifting
 frames and rejection only partially cleans the transition. Sky-only quality is
 unaffected away from the trees; a dedicated foreground blend is the real fix.
 
-## set-03 (same night, second composition — nearly pure sky, Big Dipper area)
+## set-03 (same night, second composition — nearly pure sky, **CYGNUS**)
+
+**Field identity corrected 2026-07-06 by blind astrometric solve** (local
+astrometry.net engine, Tycho-2 wide-field indexes 4213–4219, 200
+peak-detected stars): center **RA 312.774° = 20h51m, Dec +48.156°**,
+scale 32.78″/px (= the 37.5mm/5.92µm prediction), logodds 373.5 —
+certain. The brightest frame star (px 3258,1775) is **Deneb**. The old
+"Big Dipper area" label was wrong (~70° off) and is why every
+position-hinted platesolve failed; the strong MW band through the frame
+is the Cygnus Milky Way, which retroactively strengthens the
+corridor-as-signal QA scope.
 
 | what | value |
 |---|---|
@@ -569,6 +579,496 @@ asymmetrically (ring metric) and brightens blocks (block metric).
    the user's decision by the project's own rules.
 4. Next acquisition remains the physical fix (≤13s subs, ISO 800, real
    flats): more MW signal per count of glow → less boost needed.
+
+## Standard-workflow audit (2026-07-06, session 4)
+
+Mission: restructure to the industry-standard deep-sky order (calibrate →
+stack → linear BGE → SPCC → [decon] → linear NR → star separation → split
+stretch → recombine); every divergence is a bandaid unless measured and
+forced by this data.
+
+**Audit (a) — the recorded state REPRODUCES exactly (2026-07-06):**
+- `bg_qa candidate_v5_fullframe.jpg`: PASS — blocks 1.35, colors 4.0/6.0,
+  rings 3.7/3.4/3.4 (= recorded to the decimal)
+- `bg_qa preview_set-03_20260706_104902.jpg`: FAIL — rings lum 4.9,
+  R−G 6.8 (= recorded)
+- MW contrast via `starcomb.box_median_g`: `stack_set-03.fit` = `_L2.fit`
+  = **+39.7** linear counts (= recorded)
+- Exp-dir spot-checks all match NOTES: stretch_target 133958
+  (0.07 PASS / 0.09 rings 4.3 / 0.12 rings 5.4), subsky 133842 (worst
+  color 6/8/9 for degree 1/2/3), mw_boost 143904 (k=0 ring 4.4 blocks
+  1.33 / k=0.6 ring 6.1 / k=1.2 ring 6.9 blocks 1.72)
+
+**Gap analysis — standard step | our implementation | verdict | plan:**
+
+| # | standard | ours | verdict | fix plan / removal condition |
+|---|---|---|---|---|
+| 1 | calibrate bias/dark/flat | darks+biases matched ✓; **no 37/38mm flats** → self-flat chain (median → V2 → rechroma → divide) | **ADAPTATION** (measured: L1/L2 arc, rings/rim root-caused) | dies when real flats exist at the set's focal — preflight already auto-routes to the flat path; chain stays isolated to the flatless branch (40a/40a2/40b/40d) |
+| 1b | gradients removed ONCE, on the stack | per-frame `seqsubsky 1` before division | **ADAPTATION** (justification predates GraXpert — re-examining) | measure: divide-first (multiplicative V from untouched median), NO per-frame subsky, stack-level GraXpert BGE only. Must not revive the +55% periphery lift. Keep whichever measures flatter at the rim |
+| 2 | linear BGE on the stack, star-ful | GraXpert BGE + `subsky 1`, star-ful linear | **COMPLIANT** | order measured MW-safe (+38 in → +4 at render); BGE on starless ERASES the MW (+38 → +0.4) — never reorder |
+| 3 | SPCC/PCC via plate solve | `rgb_equal` | **BANDAID** | SPCC feasibility test in progress: online cone is capped ≈2.5° (measured: NOMAD 1727 stars, solve FAIL on the 52° field) → local Gaia astro catalog (1.14 GB, zenodo 14692304) + `platesolve -nocrop`; SPCC needs per-field healpix-1 xpsamp chunks (zenodo 14738271, 0.03–0.63 GB each). If the solver can't do 52° trailed-star fields → rgb_equal stays, removal = narrower field / solver improvement |
+| 4 | deconvolution (optional, data permitting) | skipped | **COMPLIANT** | measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 bg) — data-limited, not process-limited |
+| 5 | linear noise reduction | none (denoise OUT by gate) | **GAP — standard placement untested** | S3 ladder: off / `-vst` / GraXpert denoise on the STARLESS linear inside the standard order; fallback rung post-stretch `-vst -mod=0.5` |
+| 6 | star separation (StarNet/SXT) | `starsep.py` mask+inpaint | **ADAPTATION** (no aarch64 StarNet; layers validated clean, MW intact) | dies when a real star-removal net runs on this box (or an off-box step) |
+| 7 | stretch starless hard, stars gently, cull faint tail | starcomb split stretch; stars anchor 0.85 renders dim (mid-peak 225 vs 250 star-ful); cull untested | **PARTIAL — ladders pending** | stars_peak ladder 0.85/0.92/0.97; S4 cull_pct 0/50/75; starless target + mw_boost under the ratified QA scope |
+| 8 | screen recombine + final touches | starcomb screen combine + satu | **COMPLIANT** | sep+recombine roundtrip costs ~+0.7 ring (measured) — watch it, don't hide it |
+| QA | layer-appropriate checks | whole-frame `bg_qa` on the recombined jpg | **MIS-SCOPED for a separated workflow** (measured: mw_boost 0.6 → ring 6.1 — an intentional MW lift reads as background artifact) | layer-appropriate QA: strict blocks/rings gate on the STARLESS render's SKY (MW corridor + branch masked as known signal/non-sky), star metrics on the stars layer, user judges the recombine. Scope change, thresholds byte-identical — **RATIFIED by user in-session 2026-07-06**: gate = starless-sky (corridor+branch masked), star metrics on stars layer, user judges recombine; whole-frame QA stays as a reported reference, never the gate on the recombine |
+
+**Experiment G1 (pre-registered 2026-07-06): divide-first + stack-level BGE
+vs per-frame seqsubsky.** The per-frame `seqsubsky 1` is non-standard
+(standard removes gradients once, on the stack); its justification predates
+GraXpert in the chain. Variant (`scripts/exp_bgeonly.sh`, single
+architectural knob = the glow path): calibrate → median (norm=mul) →
+**multiplicative** V×S fit (`selfflat.py --model=mult`, clip floored at 3%
+of model so the steep tail survives — synthetic: corner 0.657→0.576 vs
+true 0.540; the additive/L2 path byte-untouched) → divide the UNTOUCHED
+frames → sweep → stack → `stack_set-03_bgeonly.fit`; glow removed ONCE by
+GraXpert BGE + subsky 1 on the stack (starcomb bge_first). No rechroma
+(nothing re-centered channels), no V2 (mult-V matches glow-retaining
+frames by construction). Hypothesis: gx (blob-capable, measured MW-safe
+star-ful) models the amplified corner glow (glow/V) that subsky-2 could
+not in the isotonic arc (+55% periphery, the recorded dead end). IF TRUE:
+MW ≈ +39 preserved, starless-sky QA ≈ canonical at 0.07, comparable rim.
+IF FALSE: stack radial profile shows the periphery lift and starless-sky
+rings ≫ 4 — write the dead end, keep per-frame subsky as a measured
+ADAPTATION. Decision on corridor-masked starless-sky QA + stack rim + MW.
+
+**G1 result (run 16:11, `stack_set-03_bgeonly.fit` kept): REFUTED at the
+gate — per-frame seqsubsky stays, with its justification refreshed
+against the CURRENT (GraXpert-era) chain.** The linear stage was the
+cleanest of any chain yet: stack rim_dev **−4.6% smooth monotone** (vs
+canonical +9.0% with the 0.93 bump), stack rim chroma R−G **−0.3** (vs
+−12.5 — no seqsubsky ⇒ the re-centering wound never exists ⇒ no rechroma
+needed), 21/21 @ ref 12 same as canonical; post-gx linear dead flat
+(rim_dev −0.4%, rim chroma +0.5/+0.3). **The +55% periphery dead end did
+NOT return — GraXpert models the amplified corner glow that subsky-2
+could not.** But it loses where it counts: (i) gx pays for the larger
+extraction in MW — bgelin MW **+0.7 linear vs +2.6** canonical (render
+MW 2.0 vs 4.0); (ii) the gx residual after the big extraction is
+STRUCTURED (mid-scale radial wiggle ±1.5 counts + a −3 count rim dip)
+where canonical's is a smooth trend, and the stretch amplifies that into
+starless-sky rings **4.8 = GATE FAIL vs canonical 2.7 PASS** at the
+identical render config (bge_first, target 0.07, k=0). Kept for reuse:
+runner `scripts/exp_bgeonly.sh`, `selfflat.py --model=mult` (tail-robust
+clip: floor at 3% of model — synthetic corner 0.657→0.576, true 0.540),
+and the variant stack. Real-flat sets have the variant's division
+geometry — revisit the mult fit then.
+Side-finding: BOTH chains crush the broad MW at BGE (canonical keeps
+only +2.6 of the stack's +39.7) — the corridor boost re-lifts it later.
+Follow-up single-knob candidate (pre-register first): GraXpert
+`-smoothing` ladder — stiffer background ↔ MW retention trade, measured
+at the gate.
+
+**SPCC feasibility arc (2026-07-06, standard-workflow step 3).** Measured
+path to a working plate solve on this rig's ultra-wide trailed fields:
+- Siril internal solver: online catalog cone hard-capped ≈2.5° (NOMAD
+  1727 stars fetched for a 52° field → fail). Local Gaia astro catalog
+  (zenodo 14692304, 1.14 GB bz2 → 1.5 GB, installed at
+  `~/.local/share/siril/siril_catalogues/`, setting
+  `core.catalogue_gaia_astro`) lifts the cone cap (33°, 5507 stars) but
+  star MATCHING still fails at 52° AND at a 26° center crop, even with
+  the correct center, `-nocrop`, `-order=3..5`, `-downscale`,
+  `-limitmag=+1.5` — every combination "Initial solve failed".
+- astrometry.net engine (pip `astrometry`, Tycho-2 indexes 4213–4219 =
+  quads 2.8–33°) blind-solves the SAME field from **200 peak-detected
+  stars** in seconds: logodds 361–373. Two lessons: (i) the star SOURCE
+  matters — starsep blob centroids failed to match, coarse
+  bg-subtracted peak centroids solved (`scripts/solve_field.py`,
+  self-bootstrapping venv); (ii) the recorded field identity was WRONG —
+  the frame is **CYGNUS (center 20h51m +48.2°, Deneb near center)**, not
+  Big Dipper, so every position hint before the blind solve was ~70° off.
+- Siril ACCEPTS an injected TAN-SIP WCS (header surgery on a copy:
+  `solve_field.py --inject=`); `spcc` proceeds to catalog fetch on it.
+  SPCC xpsamp chunks for this footprint (nested nside=2 healpix
+  {2,9,12,13,14,15,31} ≈ the installer's "Summer Triangle" preset):
+  zenodo 14738271, ~2.2 GB, installed to
+  `.../siril_catalogues/spcc/`, setting `core.catalogue_gaia_photo`.
+
+**SPCC experiment (pre-registered): replace the rgb_equal BANDAID with
+photometric calibration.** Run `spcc -catalog=localgaia` on the
+WCS-injected canonical stack → `stack_set-03_spcc.fit`. Accept if: spcc
+converges on ≥50 matched stars, MW contrast (G) survives ≈ +39, and the
+standard render chain on the SPCC'd stack passes the starless-sky gate
+with bg color dev ≤ current (colors ≤ 6). User judges star/MW color on
+the recombine. If accepted: rgb_equal stays in 40d for now (linear
+scalings compose; removing it is its own later change), unlinked-vs-
+linked stretch gets re-laddered on the SPCC chain since the cast SPCC
+fixes is what unlinked stretch was compensating.
+
+**SPCC RESULT (2026-07-06, 32 s with local catalogs):
+"Spectrophotometric Color Calibration succeeded."** White-balance
+factors K = 0.987 / **0.904** / 1.000 (R/G/B) — the photometric truth
+wants G ~10% below the rgb_equal stack, i.e. rgb_equal leaves a
+measured green-strong cast (exactly what the unlinked stretch has been
+compensating). Linear checks: MW contrast +35.9 = 39.7 × 0.904 to the
+decimal (pure multiplicative rescale — structure untouched); rim
+chroma IMPROVES (R−G −9.0 vs −12.5, B−G +0.4 vs −4.8). Saved as
+`results/stack_set-03_spcc.fit`. Note: SPCC needs the full 33°-radius
+CONE of xpsamp chunks — the footprint set alone fails on the first
+missing chunk (siril names it). Render acceptance test (gate + colors)
+pending in the composite runs; matched-star count not captured in the
+truncated log (rerun with full capture if it ever matters).
+
+**S8′ — the ratified gate applied to the existing S8 renders (2026-07-06,
+no re-render, same JPEGs):** starless-sky scope (corridor incl. boost
+feather + branch masked, thresholds identical): k=0 / 0.6 / 1.2 ALL PASS
+with IDENTICAL sky numbers — blocks 1.27, colors 4/5, rings 2.7/2.3/2.9.
+The boost is provably corridor-contained (the sky statistics do not move
+with k); the old whole-frame "ring 6.1" at k=0.6 was pure corridor
+signal. Whole-frame numbers remain as recorded in S8 (reference).
+Regression guard: whole-frame scope on candidate_v5 still PASS
+1.35/3.7/3.4/3.4 byte-identical after the bg_qa change.
+
+**Ladder pre-registrations (2026-07-06, all: starcomb bge_first on the
+canonical stack, single knob, NEW starless-sky gate + whole-frame
+reference reported):**
+- **A `starless_target` 0.07 (control) / 0.12 / 0.15** — S2's failure
+  (0.12 → rings 5.0) was WHOLE-FRAME (corridor included). With the
+  corridor masked, the only offender should be the +2.3% linear rim ×
+  stretch slope; prediction: sky rings at 0.12 < 5.0, and the admissible
+  target is whatever holds ≤4 — that value becomes the render target.
+  **A RESULT (`exp_starsep_starless_target_20260706_165048`): the sky
+  rim is real — base target stays 0.07.** Sky-scope rings: 0.07 → 2.7
+  PASS | 0.12 → **4.4 FAIL** | 0.15 → 5.3 FAIL. The corridor masking
+  explains only 5.0→4.4 of S2's failure at 0.12; the remaining 4.4 is
+  rim in the corridor-complement sky. Render MW 4.0/7.0/9.0 with target
+  — but the layered route gets MW visibility from the boost instead
+  (S8′: k=1.2 on the 0.07 base = MW 6.0, sky PASS 2.7 unchanged), so
+  brightness is assembled from gated parts: base 0.07 + boost k (user
+  taste, extend ladder past 1.2 if wanted) + stars anchor (Ladder B).
+- **B `stars_peak` 0.85 (control) / 0.92 / 0.97** — the stars-layer MTF
+  anchor renders mid-peak 225 vs the star-ful chain's 250. Prediction:
+  mid-peak rises monotonically with the anchor toward ≥250 (sat% toward
+  the baseline 12–17%); sky gate untouched (different layer). User
+  judges the look.
+  **B RESULT (`exp_starsep_stars_peak_20260706_165244`): CONFIRMED —
+  the anchor is the star-brightness lever and the layers are decoupled.**
+  mid-peak 223 / 242 / **255** and sat 2 / 4 / **16%** for anchor
+  0.85 / 0.92 / 0.97 (0.97 = the A1 baseline star tier); the sky gate is
+  bit-identical 2.7/2.3/2.9 PASS at every rung. Halo ratio rises with
+  brightness (1.14 / 1.39 / 1.96) — user judges 0.92 vs 0.97 on the
+  strips.
+- **C `cull_pct` 0 (control) / 50 / 75** — culling the faint half/¾ of
+  the star catalog cleans field stipple; count drops, top-100 and
+  mid-peak unchanged (bright tail untouched), gate unchanged. User
+  judges.
+  **C RESULT (`exp_starsep_cull_pct_20260706_165419`): metric-invisible,
+  purely aesthetic.** Gate identical PASS (2.7/2.3/2.9), mid-peak 242 /
+  halo 1.38 at every rung; detector count wiggles +30 (blend
+  separation, cosmetic). The faint-field look is the user's call from
+  the strips; no metric constrains it.
+- **D `starless_denoise` off (control) / vst / gx** — linear NR on the
+  STARLESS layer (standard step 5 placement). The old gate failures
+  (pre-stretch 5.1 / post-stretch 4.2) were measured on STAR-FUL data;
+  starless has no cores to ring around. Prediction: vst (and GraXpert
+  denoise) on the linear starless keeps sky rings ≤ control and cuts
+  grain 30–45%; if rings move, denoise stays OUT and the dead end gets
+  its number.
+  **D RESULT (`exp_starsep_starless_denoise_20260706_165555`): REFUTED —
+  denoise is out at the STANDARD placement too, with numbers.** Sky
+  rings: off 2.7 PASS | vst 4.1 FAIL | gx 4.6 FAIL (blocks unchanged
+  1.27 — the damage is purely radial). Mechanism now clear: after the
+  V(r) division the noise level is RADIAL by construction (corner noise
+  amplified 1/V), any noise-adaptive denoiser smooths more where noise
+  is higher, and that radial smoothing differential shifts the radial
+  profile — the stretch amplifies it past the gate. Linear denoise is
+  structurally incompatible with the ring gate on self-flat data; not a
+  placement problem. Last untested rung: post-stretch `-vst -mod=0.5`
+  (measured next).
+  **vstpost RESULT (`exp_starsep_starless_denoise_20260706_172142`):
+  PASSES — denoise is back, post-stretch only.** Sky gate 2.6/3.0/1.9
+  blocks 1.20 (≈ control 2.7/2.3/2.9 @ 1.27); central grain −40%
+  (diff-MAD 5.0→3.0 8-bit), bg σ −29% (7.3→5.2). Placement lesson
+  complete: pre-stretch/linear = radial imprint = FAIL; post-stretch
+  half-modulated on the STARLESS render = grain cut with the sky
+  metrics unmoved. Optional composite rung (user judges smoothness;
+  starcomb `--starless-denoise vstpost`).
+
+**Ladder E `mw_boost` 0 / 1.2 / 2.0 (pre-registered above as extension of
+S8′; `exp_starsep_mw_boost_20260706_172414`): CONFIRMED — corridor
+containment holds at full strength.** Sky gate bit-identical
+2.7/2.3/2.9 PASS at every k; MW render contrast 5 → 7 → 9; whole-frame
+reference rises 3.8 → 8.8 → 10.4 (that IS the MW lifting — reference
+only). Strips: k=1.2 shows the band + dark-lane structure with no
+visible corridor edge (feather works); k=2.0 is dramatic but amplifies
+corridor grain (vstpost is the matching fix) and makes the
+canonical-stack greenish cast obvious — the SPCC stack should render
+cleaner color. Admissible k is now purely the user's aesthetic call.
+
+**Composite candidates (rendered on `stack_set-03_spcc.fit`, target
+0.07 base, both must pass the starless-sky gate to be offered):**
+- comp_a_conservative: mw_boost 0.6, stars_peak 0.92, cull 0, denoise off
+- comp_b_bold: mw_boost 1.2, stars_peak 0.97, cull 50, denoise vstpost
+Known cosmetic caveat measured on the E strips: the corridor's bottom
+end reaches the branch, so the boost also lifts the branch halo a bit
+(gate unaffected — the zone is masked); if it bothers the eye, the fix
+is one line (zero the boost mask over the branch block).
+**Both composites GATE PASS on the SPCC stack (2026-07-06 17:28):**
+comp_a blocks 1.20 rings 2.7/2.9/2.1 MW 6.0 | comp_b blocks 1.20 rings
+2.6/3.0/1.9 MW 8.0 — colors ≤6 = the SPCC render acceptance criterion
+met. Full-frame, no crop. Files:
+`starcomb_set-03_comp_a_conservative_20260706_172551.jpg`,
+`starcomb_set-03_comp_b_bold_20260706_172741.jpg` (+ `_starless`
+each). AWAITING USER JUDGMENT.
+
+**REMAINING BANDAIDS + removal conditions (success criterion 3, kept
+current):**
+1. **Self-flat chain** (median → V1 → rechroma → V2 → divide) —
+   ADAPTATION, measured. Dies when real flats exist at the set's focal
+   length; preflight already auto-routes to the flat path.
+2. **Per-frame `seqsubsky 1`** — ADAPTATION, re-justified 2026-07-06
+   against the current chain by G1 (stack-level-only BGE: gate FAIL 4.8
+   vs 2.7 + MW loss). Exists only on the self-flat branch → dies with
+   real flats.
+3. **`rgb_equal` at stack time** — BANDAID; SPCC measured it ~10%
+   G-strong. Removal: user accepts the SPCC render → solve+spcc becomes
+   a post-stack stage (tooling + catalogs installed), rgb_equal dropped
+   from 40d in its own gated change.
+4. **Whole-frame QA as the recombine gate** — RETIRED by ratified scope
+   change (2026-07-06); lives on as a reported reference metric.
+5. **Star separation by mask+inpaint** (`starsep.py`) — ADAPTATION
+   (no aarch64 StarNet). Dies when a real star-removal net runs on this
+   box or off-box.
+6. **Denoise** — linear placements are a measured structural dead end on
+   self-flat data (radial-adaptive smoothing = radial imprint); the
+   post-stretch `-mod=0.5` starless rung PASSES and is an optional
+   aesthetic knob, not a default.
+7. **Crop** — eliminated; the layered chain passes the gate at full
+   frame (crop's only remaining use would be aesthetic framing).
+
+**"Cleanliness" ladder set F–I (pre-registered 2026-07-06, user-directed
+after the grain audit: corridor signal/grain ≈ 1 at 8.75 min ISO 200 —
+the knobs polish presentation, photons are the real fix). All on the
+SPCC stack, base = comp_b config, each experiment varies ONE knob and
+adopts the previous winner:**
+- **F `sep_prom` 6 (control) / 5 / 4** — the 4–6σ faint tail currently
+  stays in the STARLESS layer as stipple (below starsep's prominence
+  cut) where the boost amplifies it and cull can't reach it. Lowering
+  the cut moves it to the stars layer. Predict: starless stipple count
+  drops, stars-layer count rises (cull 50 eats it), MW contrast
+  unchanged (MW knots are extended — the compactness test keeps them),
+  gate PASS. ABORT if MW linear contrast drops >10% (separation eating
+  MW).
+  **F RESULT (`exp_starsep_sep_prom_20260706_180933`): NULL — the
+  prominence cut is not the stipple lever.** Starless residual star
+  count 5137 / 5179 / 5159 and corridor grain 6.00 / 6.00 / 6.00 for
+  prom 6 / 5 / 4; gate PASS and MW 8.0 everywhere. The "stipple" is not
+  made of separable 4–6σ components — it is noise-level clumping (the
+  post-stretch detector counts noise maxima), exactly what
+  signal/grain ≈ 1 predicts. sep_prom stays 6; the denoise/chroma
+  knobs are the real levers.
+- **G `starless_denoise` vstpost (control) / vst_after_boost** — vstpost
+  runs before the boost so the boost re-amplifies residual grain
+  ×(1+k). After-boost denoising sees the amplified grain. Predict:
+  corridor grain 7 → ≤5 at identical MW contrast; gate PASS.
+  **G RESULT (`exp_starsep_starless_denoise_20260706_181710`): REFUTED —
+  vstpost (before boost) stays.** vst_after_boost: corridor grain 6→**7**
+  (worse), sky 4→2 (over-smoothed, don't care), MW 8→7 (lift eaten).
+  Mechanism: after the boost the noise field is NON-STATIONARY (corridor
+  ×2.2 vs sky); NL-Bayes with a global σ under-averages the noisy
+  corridor patches and over-smooths the quiet sky — the opposite of the
+  goal. Denoise-before-boost sees stationary noise and treats the
+  corridor properly; the boost then amplifies a residual that is
+  already minimized.
+- **H `chroma_nr` 0 (control) / 2 / 4 px** — the speckle is
+  color-dominant; blur R−G/B−G only, G untouched. Predict: chroma grain
+  collapses, luminance grain unchanged, sky color-dev ≤ control, gate
+  PASS; large-scale star/MW color intact (strips).
+  **H RESULT (`exp_starsep_chroma_nr_20260706_181938`): CONFIRMED —
+  chroma_nr 4 is free money.** 4px-lag chroma clump amplitude in the
+  corridor 7.0 / 4.0 / **2.0** for σ 0 / 2 / 4 (the crops' visible
+  speckle scale); luminance grain flat (7→8 = jpg-quantization floor
+  jitter); gate PASS everywhere and best at σ4 (2.3/2.3/1.8); MW 8.0
+  and star metrics identical. Winner σ=4 — adopted.
+- **I `satu` 0 (control) / 0.2 / 0.35** — the new chain shipped with NO
+  saturation step; chroma gain on the combined render, AFTER chroma_nr
+  so it amplifies color, not speckle. Gate + color-dev decide the
+  ceiling; user judges the look.
+Then **B″** = comp_b + all four winners, full audit, user judgment.
+  **I RESULT (`exp_starsep_satu_20260706_182244`): CONFIRMED — satu is a
+  free color knob post-chroma-NR.** Star-pixel mean |chroma| 18.1 /
+  21.9 / 24.7 for s 0 / 0.2 / 0.35; sky gate BIT-IDENTICAL (satu runs
+  on the combined render, the gated starless layer never sees it);
+  speckle stays down (4px clump 2→3); sat% 13→15/16 (mild clip growth).
+  Ceiling not reached at 0.35; 0.2 = safe default, taste decides.
+
+**B″ final config: SPCC stack · target 0.07 · mw_boost 1.2 ·
+stars_peak 0.97 · cull 50 · vstpost (before boost) · chroma_nr 4 ·
+satu 0.2 · sep_prom 6.**
+
+**Disk cleanup (2026-07-06, user-directed; 15→32 GB free).** Deleted, with
+regeneration paths: `stack_set-03_L2.fit` (verified byte-identical to
+`stack_set-03.fit` — dedup, canonical name kept); `_prechroma` (historic,
+numbers in NOTES); `_bgeonly` (G1, regen via `exp_bgeonly.sh`); `_wcs`
+(regen in seconds: `solve_field.py <stack> --inject=...`; the solved WCS
+itself kept at `work/wcs_set-03.json`, and `stack_set-03_spcc.fit`
+carries it in-header). Siril local catalogs REMOVED (7.5 GB):
+re-download = zenodo 14692304 (astro, 1.14 GB bz2) + 14738271 chunks
+{2,3,9,11,12,13,14,15,19,29,31} for this field (settings
+`core.catalogue_gaia_astro/photo`). Superseded exp dirs: images
+stripped, hypothesis.md + metrics.jsonl kept (full-strip list = morning
+arc + S2/S5–S8 + F/G refuted). work/ caches: only the SPCC chain's
+bgelin/gx/starsep kept hot. Old previews deleted except the two audit
+anchors (`preview_set-03_20260706_104902.jpg`, `candidate_v5_fullframe.jpg`).
+
+**CHROMA SIGNIFICANCE CORING (pre-registered 2026-07-06, the correct-step
+fix for the user's "rainbow" — measured birth + scale trace above the
+composite list).** Diagnosis recap (all measured, sky-only, corridor
+excluded): linear chroma structure ≤0.1 counts at 16–128 px after BGE →
+the UNLINKED STRETCH amplifies per-channel noise into 1–3 counts of
+colored blotch at ALL scales → NL-Bayes (few-px) and chroma-blur σ4
+(≤16 px) are scale-blind to the 48–128 px blotches → satu re-amplified
+everything ~×1.25 (B″ measurably worst at 48–128 px; B″ withdrawn).
+FIX: multi-scale Wiener shrinkage of R−G/B−G toward NEUTRAL — gaussian
+pyramid (σ 2/8/32/128), per-level noise measured from the corridor-
+excluded sky, per-level energy gate e/(e+(kσ)²); chroma that is not
+significantly above its own noise goes to gray instead of being smeared.
+Real color (bright-star hues, genuinely tinted signal) passes by
+construction. `starcomb --chroma-core k` (0=off), applied AFTER
+boost+denoise; satu only after coring, if at all. Ladder J: k = 2/3/4
+(control 0). ACCEPTANCE: the scale-trace table re-run lands the rendered
+sky ≤ ~0.5 counts at 16/48/128 px; star-pixel mean |chroma| within ~10%
+of control; gate PASS; MW contrast unchanged; user judges B‴.
+
+**J RESULT (`exp_starsep_chroma_core_20260706_195853`): CONFIRMED,
+decisively.** Sky chroma structure RG/BG at 16 / 48 / 128 px:
+k=0 → 2.52/3.01 · 1.47/2.03 · 1.10/1.67 | k=2 → 0.83/1.12 · 0.51/0.80 ·
+0.37/0.57 | **k=3 → 0.12/0.54 · 0.34/0.50 · 0.28/0.38 (acceptance met)**
+| k=4 → 0.02/0.05 · 0.26/0.36 · 0.24/0.32 (≈ linear floor). Star-pixel
+|chroma| 19.5 → 18.9/18.5/18.2 (−3/−5/−7%, within acceptance). Gate PASS
+at every k and the sky ring-color metrics IMPROVE (ringRG 3.0→1.3,
+ringBG 1.9→1.0): the coring also removes the large-scale color wobble
+the ring meter was seeing. MW 8.0, stars mid 255 / sat 13, halo —
+unchanged. **Winner k=3** (k=4 = maximal neutrality at −7% star color,
+kept in the strips). B‴ = comp_b config + chroma_core 3, NO satu, NO
+chroma-blur (both superseded by coring).
+
+**USER VERDICT on B‴ (2026-07-06): "much better, correct direction" —
+two residuals + a directive.** (i) Leftover coloration toward the
+middle; (ii) the former color bands now read as GRAY patches — the
+background contrast is uneven (the coring removed the blotches' chroma,
+not their luminance; the rainbow was masking the gray). Directive:
+bandaids whose root cause is now fixed must be REVERTED, and nothing is
+baked/committed until this is addressed.
+
+**Bandaid ledger for the color cast (user question answered):**
+`rgb_equal` = stack-time bandaid, INERT under SPCC (linear scalings
+compose; SPCC's fit absorbs it) — removal is hygiene, queued (needs
+re-stack + catalog re-download). **Unlinked autostretch = ACTIVE
+bandaid** ("per-channel bg equalization kills global casts" — stretch-
+time cast compensation) **and the rainbow's engine**: per-channel curves
+differentially amplify per-channel noise into color blotches. A2's
+linked-stretch QA failure was measured on the PRE-SPCC cast — invalid
+against the calibrated stack.
+
+**J2 (pre-registered): stretch linkage on the SPCC chain, unlinked
+(control) / linked, B‴ config otherwise.** Predict: linked on the
+CALIBRATED stack keeps a neutral bg (no cast to preserve), REDUCES
+chroma blotch amplitude at the source (one curve for all channels), gate
+PASS, stars unaffected (separate layer). If bg casts return → SPCC
+didn't fully fix the root cause, unlinked stays and is re-documented as
+a measured adaptation (not a stale bandaid).
+
+**J2 RESULT (`exp_starsep_stretch_linked_20260706_203750`): CONFIRMED —
+the unlinked-stretch bandaid is REVERTED; linked is the chain's stretch.**
+On the SPCC-calibrated stack, linked PASSES the gate (2.8/1.2/1.8,
+blocks 1.20; A2's old linked failure was the pre-SPCC cast, now
+measured stale), cuts luminance blotches ~12% at the source (L16/L48
+2.33/1.40 vs 2.65/1.58), improves the whole-frame reference (7.0 vs
+7.9). Cost: MW render contrast 6 vs 8 at the same boost (different
+curve shape; recoverable via k if wanted). Linked adopted.
+
+**J3 (pre-registered): coring order, post-boost (control) / pre-boost.**
+The middle's leftover color = boosted corridor noise-chroma (×2.2)
+beating significance thresholds calibrated on the un-boosted sky.
+Pre-boost coring neutralizes first; the boost then amplifies neutral
+signal and cannot re-create color. Predict: corridor chroma residual
+drops to sky levels; MW luminance contrast unchanged.
+
+**J3 RESULT (`exp_starsep_core_order_20260706_204538`): CONFIRMED —
+coring moves BEFORE the boost.** Corridor chroma residual (the user's
+"middle coloration"): post → 1.89/2.36 (16px RG/BG), 1.38/1.81 (48px)
+| pre → **0.81/1.18, 0.54/0.87**. Gate identical PASS, MW luminance
+contrast unchanged (coring is chroma-only). Residual sits above sky
+level because the boost ×2.2 amplifies the significant survivors —
+honest color, user judges.
+
+**K measurement (gray patches quantified):** sky G blotch, detrended,
+16/48/128 px: linear after BGE 0.10/0.08/0.06 → stretched
+2.65/1.59/1.16 (unlinked; linked 2.33/1.40) → B‴ identical (chroma
+coring correctly does not touch luminance). The unevenness is
+stretch-amplified luminance noise, ~±2 counts on a 15-count sky.
+
+**K (measure first, decide after J2/J3): mid-scale LUMINANCE blotches**
+— same trace as the chroma one but on G (detrended), sky-only, linear vs
+rendered stages. If the gray patches are stretch-born noise (expected),
+options: sky-only luminance significance coring toward the smooth
+background (corridor protected), or acceptance as honest grain — user
+judges with the numbers in hand.
+
+**K RESULT (`exp_starsep_lum_core_20260706_205037`): CONFIRMED — the
+gray patches were the sky's own stretch-amplified luminance noise and
+the sky-only coring removes them.** k=0 → blocks 1.20 rings 2.8 | k=2 →
+**blocks 1.12 rings 1.9** | k=3 ≡ k=2. Winner k=2 (lighter touch).
+Bonus: MW render contrast 6→8 at the same boost (flatter sky makes the
+corridor stand out). Combined-frame lum blotch 3.31/2.90/1.55 →
+1.51/2.37/1.25 at 16/48/128 px. Note for the user's star judgment:
+star-pixel |chroma| eased 18.5→15.2 with the linked stretch — a
+satu-after-coring rung can restore star color selectively if wanted.
+
+**B⁗ (`starcomb_set-03_final_B4_20260706.jpg`, promoted from the K
+ladder's k=2 rung): the full winner chain** = SPCC stack · linked
+stretch (bandaid reverted, J2) · target 0.07 · vstpost · chroma_core 3
+PRE-boost (J3) · lum_core 2 (K) · mw_boost 1.2 · stars anchor 0.97 ·
+cull 50 · no satu · no chroma-blur · full frame. **GATE: PASS blocks
+1.12, colors 2/4, rings 1.9/1.4/1.9 — the flattest, most neutral sky
+of the project.** AWAITING USER JUDGMENT; nothing baked or committed
+per user directive.
+
+**USER: B⁴ APPROVED** ("much better") + directive: restore/maximize
+color now that the root causes are fixed. SPCC + linked stretch
+accepted as the color chain. Bake+commit after the final tuning rung.
+
+**I′ (pre-registered): satu-after-coring on the B⁴ base, 0 (control) /
+0.2 / 0.35.** Both corings run on the starless layer BEFORE the
+combine; satu runs on the combined render — so it amplifies only
+surviving (significant) color: star hues and honest corridor tint, not
+noise. Predict: star-pixel |chroma| recovers from 15.2 toward ≥19; sky
+chroma traces stay at the floor (neutral × gain = neutral); gate PASS.
+Winner becomes B⁵ = the APPROVED RECIPE.
+
+**I′ RESULT (`exp_starsep_satu_20260706_210947`): CONFIRMED.**
+star |chroma| 15.2 / 18.5 / **20.9** for satu 0 / 0.2 / 0.35; sky
+chroma16 stays 0.29/0.56 → 0.79/0.97 at 0.35 (≈⅓ of the old rainbow's
+2.5–3.3, at the jpg quantization scale); gate bit-identical PASS.
+Winner **0.35**.
+
+## APPROVED RECIPE — B⁵ (2026-07-06, USER-APPROVED)
+
+`results/starcomb_set-03_APPROVED_B5_20260706.jpg` — full frame
+6064×4040, GATE PASS blocks **1.12**, colors 2/4, rings
+**1.9/1.4/1.9** (the flattest sky of the project).
+
+    python3 scripts/starcomb.py 07-02-26 set-03 \
+        --stack results/stack_set-03_spcc.fit
+    # all knobs are now the starcomb DEFAULTS (baked 2026-07-06):
+    #   starless: linked autostretch -1.5 0.07 · vstpost denoise
+    #             · chroma_core 3 (pre-boost) · lum_core 2 · mw_boost 1.2
+    #   stars:    anchor 0.97 · cull 50
+    #   combine:  screen · satu 0.35 · full frame · no crop
+    # input = the SPCC-calibrated stack (solve_field.py --inject + spcc)
+
+Chain provenance, each knob a measured ladder: target 0.07 (A: rim caps
+brighter), vstpost (D: linear NR structurally dead, post-stretch −40%
+grain), anchor 0.97 (B: mid-peak 255, layers decoupled), cull 50 (C:
+metric-invisible), boost 1.2 (E/S8′: corridor-contained at any k),
+chroma_core 3 (J: rainbow → neutral, sky at linear floor), pre-boost
+order (J3: middle coloration halved+), linked stretch (J2: unlinked
+bandaid retired post-SPCC), lum_core 2 (K: gray patches removed, blocks
+1.20→1.12, MW +2 free), satu 0.35 (I′: star color 20.9, sky ≤1 count).
+Rejected on measurement: sep_prom (F: null), vst_after_boost (G:
+non-stationary noise), chroma-blur+satu (H+I: made the rainbow worse —
+withdrawn).
 
 ## Iteration ideas (not yet tried)
 
