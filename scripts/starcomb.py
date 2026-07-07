@@ -541,7 +541,7 @@ def main():
                     help="gaussian sigma (px) for R-G/B-G chroma NR on the "
                          "starless render; 0 = off (superseded by "
                          "--chroma-core; kept for the record)")
-    ap.add_argument("--chroma-core", type=float, default=3,
+    ap.add_argument("--chroma-core", type=float, default=4,
                     help="significance k for multi-scale chroma coring "
                          "toward neutral; 0 = off")
     ap.add_argument("--lum-core", type=float, default=2,
@@ -555,7 +555,7 @@ def main():
                     help="autostretch channel linkage (unlinked = the "
                          "historical cast bandaid, retired by J2; linked = "
                          "standard on a calibrated stack)")
-    ap.add_argument("--satu", type=float, default=0.35,
+    ap.add_argument("--satu", type=float, default=0.2,
                     help="chroma gain on the combined render, AFTER the "
                          "corings (amplifies only significant color); "
                          "0 = off")
@@ -564,7 +564,7 @@ def main():
     ap.add_argument("--cull-pct", type=float, default=50)
     ap.add_argument("--stars-peak", type=float, default=0.97)
     ap.add_argument("--mw-boost", type=float, default=1.2)
-    ap.add_argument("--boost-mask", default="geo", choices=["geo", "lum"],
+    ap.add_argument("--boost-mask", default="lum", choices=["geo", "lum"],
                     help="mw_boost mask: geo = flat geometric corridor "
                          "(control; lifts glow AND floor/gaps by 1+k), "
                          "lum = corridor x glow-luminosity weight (M1: "
@@ -592,6 +592,11 @@ def main():
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
 
+    # Defaults = APPROVED RECIPE B6 (2026-07-06 session 5, user-approved:
+    # "C1 chain + the far-right judgment panel" = the C3_maxremoval render).
+    # Delta to B5: boost_mask lum (M1), chroma_core 4 (M3), satu 0.2 (M5);
+    # cull stays 50 (M4, the user's max-removal pole). See NOTES "APPROVED
+    # RECIPE — B6".
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sdir = os.path.join(repo, args.session)
     work = os.path.join(sdir, "work")

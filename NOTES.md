@@ -1329,6 +1329,37 @@ inert under SPCC with removal queued, starsep mask+inpaint).
    (M4), target 0.07 re-validated only in so far as the corings moved the
    rim numbers — M6 remains available on request.
 
+## APPROVED RECIPE — B6 (2026-07-06 session 5, USER-APPROVED)
+
+**User verdict on the session-5 candidates: "C1 with … the judge box on
+the far right side wins and is approved" — the far-right judgment-panel
+tile is C3_maxremoval = the C1 chain with cull 50 (the user's stated
+issue-4 pole: faint stars removed).** Approved config, now the starcomb
+DEFAULTS (this commit):
+
+    python3 scripts/starcomb.py 07-02-26 set-03 \
+        --stack 07-02-26/results/stack_set-03_spcc.fit [--lossless]
+    # defaults (B6): SPCC stack · linked autostretch -1.5 0.07 · vstpost
+    #   · chroma_core 4 pre-boost (M3) · lum_core 2 (no branch factor, M0)
+    #   · mw_boost 1.2 on the LUMINOSITY-WEIGHTED corridor mask (M1/M2)
+    #   · stars anchor 0.97 · cull 50 (M4, user choice) · screen
+    #   · satu 0.2 (M5) · full frame · no crop
+
+Delta to B5, each from a measured ladder: boost_mask geo→lum (M1: gaps
+at sky black, floor P5 −3.0→−1.0, bands −20%), chroma_core 3→4 (M3:
+bands −40%, star color −1% on the linked chain), satu 0.35→0.2 (M5:
+fringe span −12%), lum_core branch seam fixed (M0). Kept: cull 50 (M4 —
+the far-right panel; C1's cull-0 faint-field kept as the recorded
+alternate `starcomb_set-03_C1_recommended_*.png`, regen `--cull-pct 0`).
+Gate PASS blocks 1.12 colors 2/4 rings 1.9/1.4/1.9 (starless-sky scope);
+corridor REPORTED floor **+5.0/−1.0** (B5-era geo: +6.2/−3.0), bands
+**0.73/1.25** (B5: 1.16/2.31), no mask seam. **VERIFIED: the
+defaults-only render is BYTE-IDENTICAL to the approved C3 files (max
+diff 0, mean 0.0000)** — product:
+`starcomb_set-03_APPROVED_B6_*.{jpg,png}` (+`_starless`). Superseded
+loose renders pruned (C2, C3-tagged duplicates, M0a/M0b intermediates —
+all regenerable by flags recorded above); C1 kept as the alternate.
+
 ## Iteration ideas (not yet tried)
 
 - Registration with distortion handling (24mm wide field, corner stars)
