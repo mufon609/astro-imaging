@@ -1,5 +1,6 @@
 requires 1.4.0
 set32bits
 cd work
+# -rgb_equal: inert under SPCC, removal queued (see 40_lights note + NOTES).
 stack r_pp_bkg_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_@SET@
 close

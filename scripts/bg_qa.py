@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
-"""Whole-frame background QA for a stretched preview JPEG.
+"""Background QA for a stretched render — THE GATE.
 
 Two independent checks, PASS/FAIL per fixed thresholds so a recipe cannot
 be graded by hand-picked patches:
-- block map: star-robust block medians over the ENTIRE frame (branch corner
-  excluded) — luminance uniformity (P95/P50) and color neutrality (worst
-  |R-G|, |B-G|);
+- block map: star-robust block medians (branch corner excluded) —
+  luminance uniformity (P95/P50) and color neutrality (worst |R-G|,
+  |B-G|);
 - radial rings: per-channel radial profiles detrended with a wide moving
   average — the residual peak-to-valley is the concentric-ring amplitude
   the eye picks up even when the block map passes.
 
-Importable (functions below) for the inspection/experiment tooling; the
-thresholds are the gate and must never be loosened to make a result pass.
+Two SCOPES, same thresholds (scope changes are ratified, thresholds never
+loosen):
+- whole-frame (default): the historical scope; on the separated chain it
+  reads intentional MW signal as artifact, so it is REPORTED as reference
+  on recombined images, never gated.
+- --sky-scope (ratified 2026-07-06): the gate for the separated chain —
+  run on the STARLESS render with the measured MW corridor (+ feather)
+  masked as known signal. Corridor-contained costs are covered separately
+  by astrometrics.corridor_report (reported, not gated).
+
+Importable (functions below) for the inspection/experiment tooling.
 """
 import sys
 import numpy as np

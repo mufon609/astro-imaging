@@ -1,8 +1,37 @@
-# Astrophotography processing pipeline
+# Astrophotography processing pipeline — lab notebook
 
 Repo tracks the **processing pipeline** (Siril scripts + notes), not image data
 (see `.gitignore`). Iterate on the pipeline, commit, re-run, compare previews;
 revert with git if a change makes things worse.
+
+## STATUS — read this first (2026-07-06, end of session 5)
+
+- **Process contract & how to run: `README.md`.** This file is the
+  chronological lab notebook — the sections below are HISTORY (kept with
+  their numbers so dead ends are never re-attempted); a few carry
+  `[SUPERSEDED]`/`[RESOLVED]` markers where a skimmer might mistake them
+  for open items.
+- **Current approved recipe: B6** (user-approved, baked as the starcomb
+  defaults, byte-verified; git tag `B6-approved`). One command:
+  `python3 scripts/starcomb.py 07-02-26 set-03 --stack
+  07-02-26/results/stack_set-03_spcc.fit --lossless`. Details: section
+  "APPROVED RECIPE — B6".
+- **The gate:** `bg_qa.py --sky-scope` on the STARLESS render (thresholds
+  never loosen). Whole-frame QA + `corridor_report` numbers are REPORTED
+  context in every run. Star metrics on the stars layer. The user judges
+  aesthetics on the recombine before anything is baked.
+- **Discipline:** single-knob ladders, hypotheses pre-registered here
+  BEFORE running, dead ends written with numbers, stale-knob rule (a
+  fixed root cause makes every knob tuned during the hunt stale — see
+  the session-5 provenance audit for why this exists).
+- **Open queue:** rgb_equal removal from the stack templates (inert
+  under SPCC; needs catalog re-download + re-stack + re-SPCC + gate
+  verify), optional M6 starless_target re-ladder (user request only),
+  WCS-derived corridor mask, data-derived foreground mask, and — the
+  real quality lever — the next acquisition (ISO 800, ≤13s subs, matched
+  flats per focal; see "Checklist for future acquisition sessions").
+- **Current bandaid/adaptation ledger:** section "Bandaid ledger —
+  session 5 refresh" (older ledgers in the history are superseded).
 
 ## Environment
 
@@ -196,7 +225,8 @@ flux(3–8px)/flux(<3px)) — consistent across linear FITS and 8-bit JPEG, so
 Single-variable ladders only (test X at 0.3/0.5/0.7-style brackets), hypothesis
 stated before each run, per-stage inspection artifacts auto-generated so every
 pipeline stage can be judged — not just the final preview. Handoff prompt for
-the implementation session: `NEXT_SESSION_PROMPT.md`.
+the implementation session: `NEXT_SESSION_PROMPT.md` [executed in sessions
+4–5, file deleted; `README.md` is the standing process contract].
 
 **Inspection + experiment tooling (2026-07-06, this session):**
 - `scripts/astrometrics.py` — shared measurement lib (minimal FITS reader
@@ -352,7 +382,7 @@ end IS back → abort), divided rim_dev ≤ 3%, stack rim flat, final ring
 lum ≤ 4 before crop enters the discussion.
 
 **FULL-FRAME QA PASS — candidate_v5 (2026-07-06,
-`results/candidate_v5_fullframe.jpg`, UNAPPROVED pending user judgment).**
+`results/candidate_v5_fullframe.jpg`) [HISTORY: user verdict below — MW too dark; superseded by the separation chain; file kept as audit anchor].**
 On the L2 stack (rechroma + V2), chain `fullframe_v5` = GraXpert BGE →
 `subsky 1` → `autostretch (unlinked) -1.5 0.07` → `satu 0.2` → **no crop**
 → jpg 92: QA blocks 1.35 / colors ≤ 6 / rings 3.7 / 3.4 / 3.4 at the full
@@ -560,7 +590,7 @@ rings 6.9, blocks 1.72, MW +6. **The gate reads an intentionally lifted
 MW as background nonuniformity** — the corridor crosses radial bins
 asymmetrically (ring metric) and brightens blocks (block metric).
 
-**DECISION MATRIX (2026-07-06, needs the user — every route measured):**
+**DECISION MATRIX (2026-07-06) [RESOLVED same day: option 3 ratified (layer-appropriate QA scope); session 5 then replaced the geometric boost with the luminosity-weighted lift]:**
 1. **Full frame + gate intact + dark:** candidate_v5 stands (QA PASS,
    MW subtle +4). The stars can be brightened independently via the
    separation (stars anchor 0.85→~0.97) without touching the gate.
@@ -706,7 +736,7 @@ chroma IMPROVES (R−G −9.0 vs −12.5, B−G +0.4 vs −4.8). Saved as
 `results/stack_set-03_spcc.fit`. Note: SPCC needs the full 33°-radius
 CONE of xpsamp chunks — the footprint set alone fails on the first
 missing chunk (siril names it). Render acceptance test (gate + colors)
-pending in the composite runs; matched-star count not captured in the
+[RESOLVED: met in the composite runs, S8']; matched-star count not captured in the
 truncated log (rerun with full capture if it ever matters).
 
 **S8′ — the ratified gate applied to the existing S8 renders (2026-07-06,
@@ -809,10 +839,11 @@ comp_a blocks 1.20 rings 2.7/2.9/2.1 MW 6.0 | comp_b blocks 1.20 rings
 met. Full-frame, no crop. Files:
 `starcomb_set-03_comp_a_conservative_20260706_172551.jpg`,
 `starcomb_set-03_comp_b_bold_20260706_172741.jpg` (+ `_starless`
-each). AWAITING USER JUDGMENT.
+each). [RESOLVED: superseded by the B-series; renders pruned.]
 
-**REMAINING BANDAIDS + removal conditions (success criterion 3, kept
-current):**
+**REMAINING BANDAIDS + removal conditions [SUPERSEDED by "Bandaid
+ledger — session 5 refresh" further down; kept as the session-4
+snapshot]:**
 1. **Self-flat chain** (median → V1 → rechroma → V2 → divide) —
    ADAPTATION, measured. Dies when real flats exist at the set's focal
    length; preflight already auto-routes to the flat path.
@@ -1022,8 +1053,7 @@ stretch (bandaid reverted, J2) · target 0.07 · vstpost · chroma_core 3
 PRE-boost (J3) · lum_core 2 (K) · mw_boost 1.2 · stars anchor 0.97 ·
 cull 50 · no satu · no chroma-blur · full frame. **GATE: PASS blocks
 1.12, colors 2/4, rings 1.9/1.4/1.9 — the flattest, most neutral sky
-of the project.** AWAITING USER JUDGMENT; nothing baked or committed
-per user directive.
+of the project.** [RESOLVED: user approved as B4 below.]
 
 **USER: B⁴ APPROVED** ("much better") + directive: restore/maximize
 color now that the root causes are fixed. SPCC + linked stretch
@@ -1043,7 +1073,7 @@ chroma16 stays 0.29/0.56 → 0.79/0.97 at 0.35 (≈⅓ of the old rainbow's
 2.5–3.3, at the jpg quantization scale); gate bit-identical PASS.
 Winner **0.35**.
 
-## APPROVED RECIPE — B⁵ (2026-07-06, USER-APPROVED)
+## APPROVED RECIPE — B⁵ (2026-07-06, USER-APPROVED) [SUPERSEDED by B6, session 5]
 
 `results/starcomb_set-03_APPROVED_B5_20260706.jpg` — full frame
 6064×4040, GATE PASS blocks **1.12**, colors 2/4, rings
@@ -1304,14 +1334,31 @@ flags on the M0-fixed scripts):**
 - satu poles on the C1 base: 0 (fringe-minimal, muted) and 0.35
   (B5-level color) live in `exp_starsep_satu_20260706_224743/`.
 
-**Bandaid ledger — session 5 refresh (delta to the session-4 list):**
-1–3, 5 unchanged (self-flat chain, per-frame seqsubsky, rgb_equal-in-40d
-inert under SPCC with removal queued, starsep mask+inpaint).
-4. whole-frame QA as recombine gate — retired (unchanged), and the
-   corridor blind spot it left is now covered by REPORTED corridor
-   metrics (`astrometrics.corridor_report`) in every starcomb run.
-6. denoise — unchanged (vstpost optional rung).
-7. crop — unchanged (eliminated).
+**Bandaid ledger — session 5 refresh (THE CURRENT LEDGER; the session-4
+list above is superseded). Every divergence from the standard workflow,
+with its class and removal condition:**
+1. **Self-flat chain** (median → V1 → rechroma → V2 → divide) —
+   ADAPTATION, measured. Dies when real flats exist at the set's focal
+   length; preflight already auto-routes to the flat path.
+2. **Per-frame `seqsubsky 1`** — ADAPTATION, re-justified by G1 against
+   the GraXpert-era chain (stack-level-only BGE: gate FAIL 4.8 vs 2.7 +
+   MW loss). Exists only on the self-flat branch → dies with real flats.
+3. **`rgb_equal` at stack time** — BANDAID made INERT by SPCC (linear
+   scalings compose). Removal queued: catalog re-download + re-stack +
+   re-SPCC + gate verify, its own gated change (templates annotated).
+4. **Whole-frame QA as the recombine gate** — RETIRED by the ratified
+   scope change; lives on as a reported reference. Its corridor blind
+   spot is covered by REPORTED corridor metrics
+   (`astrometrics.corridor_report`) in every starcomb run.
+5. **Star separation by mask+inpaint** (`starsep.py`) — ADAPTATION (no
+   aarch64 StarNet). Dies when a real star-removal net runs on this box
+   or off-box. Cost documented: the <6σ faint tail stays in the starless
+   layer (physical floor, M4/F).
+6. **Denoise** — linear placements are a measured structural dead end on
+   self-flat data (radial-adaptive smoothing = radial imprint); the
+   post-stretch `-vst -mod=0.5` starless rung is in the approved chain.
+7. **Crop** — eliminated; the layered chain passes the gate at full
+   frame.
 8. **NEW/CLOSED: hard branch rectangle in rendering operators** — was
    printing a seam (M0); rendering ops now use significance protection
    (lum_core) or feathered masks (mw_boost). Statistics scopes keep the
@@ -1362,16 +1409,14 @@ all regenerable by flags recorded above); C1 kept as the alternate.
 
 ## Iteration ideas (not yet tried)
 
+(Pruned 2026-07-06: GraXpert BGE, photometric color calibration, post-stretch
+denoise and star separation/recombination all graduated into the chain.)
+
 - Registration with distortion handling (24mm wide field, corner stars)
 - `-filter-wfwhm` / `-weight_from_wfwhm`: no-op for THIS session (FWHM spread
   ~6%) — revisit when a session has variable seeing/clouds/wind
 - Drizzle (probably not: undersampled? no — 24mm @ 5.9µm is heavily oversampled
   spatially, skip)
-- GraXpert background extraction (installed at ~/.local/bin/graxpert) for
-  treeline-aware gradient removal — `subsky 1` is the in-Siril ceiling
-- Photometric color calibration (`pcc`) vs `rgb_equal` (needs plate solve +
-  catalog access)
-- Denoising after stretch; starnet/star recomposition
 
 ## Re-shoot outcome (2026-07-05, all three calibration sets replaced)
 

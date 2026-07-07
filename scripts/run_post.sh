@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Post-process an existing stack (fast iteration loop — no re-registration).
+# LEGACY QUICK-LOOK post-process of an existing stack (single stretch, no
+# star separation; fast iteration — no re-registration). The PRODUCT chain
+# is scripts/starcomb.py (approved recipe B6); this path serves pipeline
+# debugging + the historical QA anchors. Its bg_qa runs whole-frame scope
+# = REFERENCE numbers, not the gate.
 # Usage: scripts/run_post.sh <session-dir> [lights-set] [subsky-arg]
 #   subsky-arg: polynomial degree (1..4) or a full RBF spec, e.g.
 #   "-rbf -samples=30 -tolerance=3 -smooth=0.15". Defaults to 1.

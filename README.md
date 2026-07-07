@@ -6,6 +6,14 @@ every dead end with its numbers. This file is the **process contract**: what
 each step is for, what the industry standard does there, where we diverge and
 why, and how every step is reviewed.
 
+**New contributor start here:** (1) this file top to bottom; (2) the
+`STATUS` section at the top of `NOTES.md` (current approved recipe,
+gate, open queue); (3) the NOTES history *before* proposing any
+experiment — if it was tried, its numbers are there and dead ends are
+not re-attempted. Approved recipes are git-tagged (`B5-approved`,
+`B6-approved`); the current one is **B6** = the starcomb defaults,
+byte-verified to reproduce the approved image.
+
 ## The reference standard
 
 The industry deep-sky workflow (PixInsight/Siril practice) that this pipeline
@@ -20,7 +28,7 @@ follows, in order — linear until step 6:
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (no aarch64 StarNet) | ADAPTATION — dies when a real star-removal net runs on this box; leaves the <6σ faint tail in the starless layer (known cost, see NOTES session 5) |
-| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; knob values are measured ladders (see NOTES "APPROVED RECIPE" + session 5 re-derivations) |
+| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + **luminosity-weighted** corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "APPROVED RECIPE — B6") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
@@ -91,6 +99,24 @@ scripts/run_post.sh 07-02-26 set-03
 
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
 live in NOTES "Environment" + auto-memory.
+
+## Repo map (scripts/, one line each)
+
+| script | role |
+|---|---|
+| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
+| `10/20/30_master_*.ssf`, `40_lights.ssf.tmpl` | siril stages for the matched-flat path |
+| `40a/40a2/40b/40d_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
+| `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc` |
+| `starsep.py` | star separation by mask+inpaint (no aarch64 StarNet); catalog for culling |
+| `starcomb.py` | **the product chain** (defaults = approved recipe B6) + single-knob ladder harness |
+| `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
+| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
+| `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `experiment.py` | legacy post-chain ladder harness + shared helpers (GraXpert runner, strips, measure_jpg) |
+| `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
+| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look (single stretch, whole-frame reference QA) — not the product chain |
+| `measure_stack.py`, `diag_flat.ssf`, `exp_bgeonly.sh` | stack stats, master-flat diagnostic, G1 variant runner |
 
 ## Data layout
 

@@ -1,29 +1,43 @@
 #!/usr/bin/env python3
 """Starless/stars split processing + recombination (standard-DSO style).
 
-Single run:
-  starcomb.py <session> <set> [--starless-target 0.12] [--starless-denoise off|vst]
-              [--cull-pct 0] [--stars-peak 0.85] [--tag name]
+The product chain. Defaults = APPROVED RECIPE B6 (2026-07-06, session 5;
+see NOTES.md "APPROVED RECIPE — B6"):
 
-Ladder (single-knob, bracketed, stops for judgment — same discipline as
-experiment.py):
-  starcomb.py <session> <set> --param starless_target --values 0.07,0.12,0.15
-              --hypothesis "..."
-  params: starless_target | starless_denoise | cull_pct | stars_peak
+  starcomb.py <session> <set> --stack results/stack_<set>_spcc.fit [--lossless]
 
-Chain per configuration (the pieces the standard workflow separates):
-  starless = inpainted stack (starsep.py, cached)
-    -> GraXpert BGE (cached) -> subsky 1 -> [denoise -vst] ->
-       autostretch (unlinked) -1.5 <starless_target>
-  stars    = stack - starless, faint components culled below the
-             <cull_pct> flux percentile, gray MTF anchored so the median
-             top-500 star amplitude renders at <stars_peak>
-  combine  = screen: 1 - (1-starless)(1-stars) -> JPEG q92
+Chain (each knob set by a measured single-knob ladder; input is the
+SPCC-calibrated stack — solve_field.py --inject + siril spcc):
+  1. GraXpert BGE + subsky 1 on the STAR-FUL linear (cached; the only
+     order measured MW-safe — BGE on starless ERASES the MW)
+  2. starsep.py mask+inpaint separation (cached)
+  starless: LINKED autostretch -1.5 <starless_target=0.07>
+    -> post-stretch denoise -vst -mod=0.5 (<starless_denoise=vstpost>;
+       every linear placement imprints a radial signature on self-flat
+       data)
+    -> chroma_core <4>  (multi-scale Wiener chroma coring, PRE-boost)
+    -> lum_core <2>     (sky-only luminance coring; corridor protected)
+    -> mw_boost <1.2> on the LUMINOSITY-WEIGHTED corridor mask
+       (<boost_mask=lum>; the flat geometric gain lifted noise floor and
+       dark gaps alongside the glow)
+  stars: faint components culled below the <cull_pct=50> flux
+    percentile, gray MTF anchored so the median top-500 amplitude
+    renders at <stars_peak=0.97>
+  combine: screen 1-(1-a)(1-b) -> satu <0.2> -> JPEG q92 [+ PNG].
 
-Reported per configuration: bg_qa + star metrics on the COMBINED image,
-bg_qa on the STARLESS render alone (the honest rim/ring check — nothing
-for a dark render to hide behind), and MW-vs-dark-sky contrast (G median
-delta between fixed boxes, 8-bit counts).
+Ladder mode (single knob, control auto-bracketed, STOPS for judgment):
+  starcomb.py <session> <set> --stack ... --param mw_boost \\
+      --values 0.8,1.6 --hypothesis "..."
+
+Reported per configuration: THE GATE = bg_qa starless-sky scope
+(corridor+branch masked, thresholds never loosen) on the starless
+render; whole-frame bg_qa on the recombine as reference; corridor_report
+(floor delta / along-band chroma / seam texture — the costs the gate
+scope cannot see); star metrics; MW-vs-dark-sky box contrast.
+
+Refuted/superseded paths were removed from this file with their numbers
+kept in NOTES.md (sep_first order + numpy background models S5-S7,
+chroma_nr blur H, vst_after_boost G).
 """
 import argparse
 import json
@@ -38,7 +52,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import astrometrics as am  # noqa: E402
 import bg_qa  # noqa: E402
 import experiment as exp  # noqa: E402  (run_graxpert, strips, measure_jpg)
-from starsep import write_fits_fitsorder  # noqa: E402
 
 # MW core vs dark-sky boxes (fractions of w,h; display orientation).
 MW_BOX = (0.40, 0.30, 0.70, 0.55)
@@ -47,99 +60,6 @@ SKY_BOX = (0.05, 0.25, 0.25, 0.50)
 # MW band corridor geometry lives in astrometrics (shared with bg_qa's
 # layer-appropriate sky scope); names re-exported for existing callers.
 from astrometrics import BAND_P0, BAND_P1, BAND_HALFW, band_mask_frac  # noqa: E402,F401
-
-BLOCK = 101
-
-
-def background_model(data, mode):
-    """Smooth background for the STARLESS layer, MW-protecting.
-
-    mode='border': samples ONLY in a 2-block border ring (MW exit corner
-    and branch excluded). REFUTED on this data: a border-pinned membrane
-    cannot represent the glow's interior curvature (over-subtracted the MW
-    region by ~19 counts) and sample noise wiggles the rim (ring L 8.6).
-    Kept for reference.
-
-    mode='envelope': grid samples EVERYWHERE (branch excluded), p30 block
-    values (star-residue resistant), thin-plate RBF with real smoothing,
-    then 4 rounds of LOWER-ENVELOPE rejection: drop samples sitting above
-    the fit (bg + MW), keep those at/below (pure bg — the MW's dark lanes
-    anchor the surface under the band). DBE's target-protection, automated.
-    Border samples are in the grid, so the rim is interpolated, not
-    extrapolated. Returns model with median removed.
-    REFUTED for rings (9.4): rejection leaves local extrapolation pockets
-    and the surface still tracks the broad band partially.
-
-    mode='banded': like envelope but the MW protection is GEOMETRIC and
-    deterministic — no samples inside the band corridor (band_mask_frac),
-    no rejection iterations. The glow's interior curvature is modeled from
-    everywhere else; the corridor is bridged smoothly by the thin-plate
-    surface. This is DBE with target-avoiding sample placement, exactly
-    what the L3 lesson demands (rim curvature and MW are the same
-    frequency — only geometry separates them)."""
-    from scipy.interpolate import RBFInterpolator
-    from scipy import ndimage
-    c, h, w = data.shape
-    gy, gx = h // BLOCK, w // BLOCK
-    pts, vals = [], []
-    for by in range(gy):
-        for bx in range(gx):
-            edge_y = min(by, gy - 1 - by)
-            edge_x = min(bx, gx - 1 - bx)
-            cy = (by + 0.5) * BLOCK / h
-            cx = (bx + 0.5) * BLOCK / w
-            if mode == "border":
-                if min(edge_y, edge_x) >= 2:
-                    continue
-                if cy < 2 * BLOCK / h and cx > 0.55:
-                    continue
-                if cx > 1 - 2 * BLOCK / w and cy < 0.45:
-                    continue
-            if cy > 0.72 and cx < 0.25:
-                continue  # branch corner is not sky
-            block = data[:, by * BLOCK:(by + 1) * BLOCK,
-                         bx * BLOCK:(bx + 1) * BLOCK]
-            pts.append((cy, cx))
-            q = 30 if mode == "envelope" else 50
-            vals.append(np.percentile(block.reshape(c, -1), q, axis=1))
-    pts = np.array(pts)
-    vals = np.array(vals)  # (n, c)
-    keep = np.ones(len(pts), bool)
-    smoothing = 1e-4 if mode in ("envelope", "banded") else 1e-7
-    gl = min(1, c - 1)
-    if mode == "banded":
-        bm = band_mask_frac(200, 200)  # coarse lookup is plenty for points
-        for i, (cy, cx) in enumerate(pts):
-            if bm[min(int(cy * 200), 199), min(int(cx * 200), 199)] > 0:
-                keep[i] = False
-    if mode == "envelope":
-        for it in range(4):
-            rbf = RBFInterpolator(pts[keep], vals[keep, gl],
-                                  kernel="thin_plate_spline",
-                                  smoothing=smoothing)
-            fit = rbf(pts)
-            resid = vals[:, gl] - fit
-            mad = 1.4826 * np.median(np.abs(resid[keep] - np.median(resid[keep])))
-            new = resid <= 0.6 * mad          # keep lower envelope
-            if new.sum() < 0.4 * len(pts):    # never starve the fit
-                break
-            keep = new
-    ys = np.linspace(0, 1, h // 4)
-    xs = np.linspace(0, 1, w // 4)
-    Y, X = np.meshgrid(ys, xs, indexing="ij")
-    grid = np.stack([Y.ravel(), X.ravel()], axis=1)
-    model = np.empty_like(data)
-    for ch in range(c):
-        rbf = RBFInterpolator(pts[keep], vals[keep, ch],
-                              kernel="thin_plate_spline", smoothing=smoothing)
-        small = rbf(grid).reshape(len(ys), len(xs)).astype(np.float32)
-        full = ndimage.zoom(small, (h / small.shape[0], w / small.shape[1]),
-                            order=1)[:h, :w]
-        model[ch] = full - np.median(full)
-    print(f"[starcomb] {mode} background: {int(keep.sum())}/{len(pts)} samples, "
-          f"model span G {model[gl].min() * 65535:.0f}"
-          f"..{model[gl].max() * 65535:.0f} counts")
-    return model
 
 
 def box_median_g(img_chw, box):
@@ -321,36 +241,23 @@ def render_config(ctx, cfg, jpg_out):
     st_out = os.path.join(work, "starless_st.fit")
     if os.path.exists(st_out):
         os.remove(st_out)
-    if cfg["order"] == "bge_first":
-        # background removed on the STAR-FUL linear (MW-safe, rim-best),
-        # THEN separation; the starless branch only denoises/stretches.
-        bgelin = ensure_bge_linear(ctx)
-        starless_fit, stars_fit, cat_npz = ensure_starsep(
-            ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0))
-        ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
-        if cfg["starless_denoise"] == "gx":
-            # AI denoise, linear, starless (standard step-5 placement)
-            starless_fit = run_graxpert_denoise(work, starless_fit)
-        rel = os.path.relpath(starless_fit, sdir)
-        suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
-        lines = ["requires 1.4.0", f"load {suffix}"]
-    elif cfg["starless_bge"] in ("border", "envelope", "banded"):
-        # numpy MW-protecting model (rim interpolated, not extrapolated),
-        # then siril for denoise/stretch on the subtracted layer
-        raw, _ = am.load_image(ctx["starless_fit"])
-        model = background_model(raw, cfg["starless_bge"])
-        sub = np.clip(raw - model, 0.0, 1.0)
-        p_sub = os.path.join(work, "starless_bsub.fit")
-        write_fits_fitsorder(p_sub, sub)
-        del raw, model, sub
-        lines = ["requires 1.4.0", "load work/starless_bsub"]
-    else:
-        gx = exp.run_graxpert(ctx["starless_fit"], work,
-                              lambda m: print(f"[starcomb] {m}", flush=True))
-        rel_gx = os.path.relpath(gx, sdir)
-        lines = ["requires 1.4.0",
-                 f"load {rel_gx[:-5] if rel_gx.endswith('.fits') else rel_gx}",
-                 "subsky 1 -dither"]
+    # Background removed on the STAR-FUL linear (the standard order and
+    # the only one measured MW-safe: gx on starless erased the MW +38 ->
+    # +0.4), THEN separation; the starless branch only denoises/stretches.
+    # (A sep_first order + three numpy background models lived here until
+    # session 5 — all REFUTED, numbers in NOTES S5-S7.)
+    bgelin = ensure_bge_linear(ctx)
+    starless_fit, stars_fit, cat_npz = ensure_starsep(
+        ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0))
+    ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
+    if cfg["starless_denoise"] == "gx":
+        # AI denoise, linear, starless (standard step-5 placement; a
+        # measured FAIL on this self-flat data — kept as a ladder rung
+        # because new data changes the noise structure)
+        starless_fit = run_graxpert_denoise(work, starless_fit)
+    rel = os.path.relpath(starless_fit, sdir)
+    suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
+    lines = ["requires 1.4.0", f"load {suffix}"]
     if cfg["starless_denoise"] == "vst":
         lines.append("denoise -vst")
     # Stretch linkage: unlinked was the historical cast bandaid (per-
@@ -418,38 +325,8 @@ def render_config(ctx, cfg, jpg_out):
             bglev + (starless_st - bglev) * gain[None, :, :], 0.0, 1.0)
         print(f"[starcomb] mw_boost {k}: band lift around bg {bglev:.3f}")
 
-    if cfg["starless_denoise"] == "vst_after_boost":
-        # same half-modulated post-stretch denoise as 'vstpost', but AFTER
-        # the boost: 'vstpost' runs before the boost, so the boost
-        # re-amplifies its residual corridor grain x(1+k). Costs one siril
-        # round-trip on the boosted layer.
-        p_ab = os.path.join(work, "starless_ab.fit")
-        write_fits_fitsorder(p_ab, starless_st)
-        run_siril(sdir, ["requires 1.4.0", "load work/starless_ab",
-                         "denoise -vst -mod=0.5",
-                         "save work/starless_ab_dn", "close"],
-                  "starcomb_ab_denoise.gen.ssf")
-        starless_st, _ = am.load_image(os.path.join(work, "starless_ab_dn.fit"))
-        print("[starcomb] vst_after_boost: denoised the boosted layer")
-
     if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
         starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
-
-    if cfg.get("chroma_nr", 0) > 0:
-        # chroma-only NR: the residual speckle is color-dominant (measured
-        # on the composites: R/G/B clumps, luminance grain much lower).
-        # Blur the R-G and B-G difference fields, keep G (luminance proxy)
-        # untouched: chroma carries no real few-px astronomical structure,
-        # so this kills color speckle at zero luminance cost. Same
-        # vocabulary as the QA color metrics.
-        from scipy.ndimage import gaussian_filter
-        sg = float(cfg["chroma_nr"])
-        g2 = min(1, starless_st.shape[0] - 1)
-        G = starless_st[g2]
-        R = G + gaussian_filter(starless_st[0] - G, sg)
-        B = G + gaussian_filter(starless_st[2] - G, sg)
-        starless_st = np.clip(np.stack([R, G, B]), 0.0, 1.0)
-        print(f"[starcomb] chroma_nr sigma {sg}px on R-G/B-G")
 
     # THE GATE (layer-appropriate QA, ratified 2026-07-06): strict
     # blocks/rings on the starless render's SKY — MW corridor (incl. the
@@ -495,10 +372,9 @@ def render_config(ctx, cfg, jpg_out):
     # --- combine ----------------------------------------------------------
     out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
     if cfg.get("satu", 0) > 0:
-        # chroma gain on the combined render (the old chain's `satu` had
-        # no QA effect but the new chain shipped without any saturation —
-        # star/MW color pop). Runs AFTER chroma_nr so it amplifies real
-        # color, not speckle.
+        # chroma gain on the combined render, AFTER the corings — so it
+        # amplifies only significant (surviving) color: star hues and
+        # honest MW tint, not noise chroma (I'/M5).
         s = float(cfg["satu"])
         mean = out.mean(axis=0, keepdims=True)
         out = np.clip(mean + (1.0 + s) * (out - mean), 0.0, 1.0)
@@ -533,14 +409,15 @@ def main():
     # Every default below was set by a measured single-knob ladder.
     ap.add_argument("--starless-target", type=float, default=0.07)
     ap.add_argument("--starless-denoise", default="vstpost",
-                    choices=["off", "vst", "gx", "vstpost", "vst_after_boost"])
+                    choices=["off", "vst", "gx", "vstpost"],
+                    help="vstpost = post-stretch -vst -mod=0.5 (B6). vst/gx "
+                         "are the LINEAR placements: measured FAIL on "
+                         "self-flat data (radial imprint, NOTES ladder D) — "
+                         "kept as rungs for future data")
     ap.add_argument("--sep-prom", type=float, default=6.0,
                     help="starsep component prominence cut (sigma); lower "
-                         "moves the faint tail into the stars layer")
-    ap.add_argument("--chroma-nr", type=float, default=0,
-                    help="gaussian sigma (px) for R-G/B-G chroma NR on the "
-                         "starless render; 0 = off (superseded by "
-                         "--chroma-core; kept for the record)")
+                         "moves the faint tail into the stars layer "
+                         "(measured NULL on this data, NOTES F)")
     ap.add_argument("--chroma-core", type=float, default=4,
                     help="significance k for multi-scale chroma coring "
                          "toward neutral; 0 = off")
@@ -559,8 +436,6 @@ def main():
                     help="chroma gain on the combined render, AFTER the "
                          "corings (amplifies only significant color); "
                          "0 = off")
-    ap.add_argument("--starless-bge", default="banded",
-                    choices=["banded", "envelope", "border", "gx"])
     ap.add_argument("--cull-pct", type=float, default=50)
     ap.add_argument("--stars-peak", type=float, default=0.97)
     ap.add_argument("--mw-boost", type=float, default=1.2)
@@ -569,12 +444,6 @@ def main():
                          "(control; lifts glow AND floor/gaps by 1+k), "
                          "lum = corridor x glow-luminosity weight (M1: "
                          "lift follows the signal, gaps stay at sky black)")
-    ap.add_argument("--order", default="bge_first",
-                    choices=["bge_first", "sep_first"],
-                    help="bge_first: gx+subsky on the STAR-FUL stack, then "
-                         "separation (standard order; gx measured MW-safe "
-                         "only with stars present). sep_first: the earlier "
-                         "arrangement, kept for reference.")
     ap.add_argument("--stack", default=None,
                     help="override input stack path (default "
                          "results/stack_<set>.fit) — for pipeline-variant "
@@ -584,10 +453,10 @@ def main():
                     help="also write a lossless PNG next to each jpg")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
-                             "starless_bge", "cull_pct", "stars_peak",
-                             "mw_boost", "sep_prom", "chroma_nr",
-                             "chroma_core", "satu", "core_order",
-                             "stretch_linked", "lum_core", "boost_mask"])
+                             "cull_pct", "stars_peak", "mw_boost",
+                             "sep_prom", "chroma_core", "satu",
+                             "core_order", "stretch_linked", "lum_core",
+                             "boost_mask"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
@@ -606,18 +475,12 @@ def main():
         sys.exit(f"starcomb: no {stack}")
     ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack,
            "lossless": args.lossless}
-    if args.order == "sep_first":
-        starless_fit, stars_fit, cat_npz = ensure_starsep(repo, sdir, stack)
-        ctx.update({"starless_fit": starless_fit, "stars_fit": stars_fit,
-                    "cat_npz": cat_npz})
 
     base = {"starless_target": args.starless_target,
             "starless_denoise": args.starless_denoise,
-            "starless_bge": args.starless_bge,
             "cull_pct": args.cull_pct, "stars_peak": args.stars_peak,
             "mw_boost": args.mw_boost, "boost_mask": args.boost_mask,
-            "order": args.order,
-            "sep_prom": args.sep_prom, "chroma_nr": args.chroma_nr,
+            "sep_prom": args.sep_prom,
             "chroma_core": args.chroma_core, "satu": args.satu,
             "core_order": args.core_order,
             "stretch_linked": args.stretch_linked,
@@ -634,8 +497,8 @@ def main():
 
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
-    enum_params = ("starless_denoise", "starless_bge", "core_order",
-                   "stretch_linked", "boost_mask")
+    enum_params = ("starless_denoise", "core_order", "stretch_linked",
+                   "boost_mask")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

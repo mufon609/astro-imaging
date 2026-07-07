@@ -18,5 +18,8 @@ setfindstar -sigma=0.5
 register pp_light -2pass
 seqapplyreg pp_light
 set32bits
+# -rgb_equal: stack-time white balance. INERT once SPCC runs on the stack
+# (linear scalings compose; SPCC's fit absorbs it) — removal queued, needs
+# catalog re-download + re-stack + re-SPCC + gate verify (NOTES ledger).
 stack r_pp_light rej 3 3 -norm=addscale -output_norm -rgb_equal -out=../results/stack_@SET@
 close
