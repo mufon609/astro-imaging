@@ -11,16 +11,17 @@ revert with git if a change makes things worse.
   their numbers so dead ends are never re-attempted); a few carry
   `[SUPERSEDED]`/`[RESOLVED]` markers where a skimmer might mistake them
   for open items.
-- **Current approved recipe: B6** (user-approved, starcomb defaults,
-  byte-verified again at session-6 start AND after the context refactor;
-  git tag `B6-approved`). One command: `python3 scripts/starcomb.py
-  07-02-26 set-03 --stack 07-02-26/results/stack_set-03_spcc.fit
-  --lossless`. Reproduction contract: the 8-bit PNG (and starless jpg)
-  are byte-identical; the final jpg default is now q100/4:4:4 (measured
-  mean 0.44 counts vs PNG — the approved q92 artifact reproduces with
-  `--jpg-quality 92 --jpg-subsampling -1`); `--lossless` also writes a
-  16-bit PNG. True B6 gate numbers: blocks 1.12 colors 2/3 rings
-  2.2/1.0/1.7 (the old "2/4, 1.9/1.4/1.9" line was B5's, corrected).
+- **Current approved recipe: B7** (2026-07-07 user verdicts: rgb_equal
+  out, stars_floor 3.0, black_point 8; defaults byte-verified; git tag
+  `B7-approved`). One command: `python3 scripts/starcomb.py 07-02-26
+  set-03 --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit
+  --lossless` → jpg q100/4:4:4 + PNG8 + PNG16, all byte-reproducible.
+  Gate PASS blocks 1.375 (bg at the approved black level 8) colors 2/2
+  rings 3.0/1.3/1.2. Details: "APPROVED RECIPE — B7". B6 remains
+  reproducible (its section) from `stack_set-03_spcc.fit` with
+  `--stars-floor 0 --black-point 0 --jpg-quality 92 --jpg-subsampling -1`.
+  The `lights` set is EXPLICITLY NOT APPROVED (generalization test
+  article only — user verdict recorded).
 - **Per-set geometry is config now** (`config_<set>.json`: corridor
   manual/wcs/none, foreground rect/mask/none, boxes, crops — README
   "Per-set geometry"). No set silently inherits set-03's masks; a
@@ -34,17 +35,12 @@ revert with git if a change makes things worse.
 - **Discipline:** single-knob ladders, hypotheses pre-registered here
   BEFORE running, dead ends written with numbers, stale-knob rule (a
   fixed root cause makes every knob tuned during the hunt stale).
-- **AWAITING USER JUDGMENT (session-6 packages, nothing baked):**
-  (1) B: rgb_equal removed — render pair `judgment_B_norgbeq/`
-  (PNG-fair panels + `judge_corner_stars_userzone.png` for the corner-
-  star shells the user flagged; see "B addendum"); on approval the
-  canonical stack switches to `stack_set-03_norgbeq_spcc.fit`, ideally
-  jointly with a stars_floor value (the corner shells' noise share).
-  (2) D: star ghost-aura fix — `stars_floor` 0/1.5/3.0 in
-  `exp_starsep_stars_floor_*/` (`judge_star_tiles.png`); root cause +
-  numbers in "D ROOT CAUSE". (3) E: output black point 0/4/6/8 in
-  `exp_starsep_black_point_*/`. (4) A2: WCS-derived corridor for set-03
-  (validated, `wcs_corridor_overlay_set-03.png`) — switching re-renders.
+- **Session-6 judgments RESOLVED (2026-07-07, "USER VERDICTS" section):**
+  B/D/E approved and BAKED as B7 (rgb_equal-free stack + stars_floor
+  3.0 + black_point 8). The WCS corridor for set-03 (A2) stays OPTIONAL
+  and unapplied — config remains 'manual'; the derived mask is
+  validated and documented for whenever the user wants it (it
+  re-renders). The lights set: NOT approved (test article).
 - **Open queue:** StarNet-ONNX aarch64 check (bandaid #5 removal — see
   ledger), optional starless_target re-ladder (user request only), and
   the real quality lever — the next acquisition (ISO 800, ≤13s subs,
@@ -1396,6 +1392,72 @@ with its class and removal condition:**
    (M4), target 0.07 re-validated only in so far as the corings moved the
    rim numbers — M6 remains available on request.
 
+## USER VERDICTS on the session-6 packages (2026-07-07)
+
+- **"the lights renders are not approved by me. they have massive
+  issues - just different quality issues."** — RECORDED: the lights set
+  is the generalization TEST ARTICLE only; `starcomb_lights_a3proof_*`
+  and `quicklook_lights_*` are NOT approved products (the gate already
+  says FAIL honestly on that glow-dominated composition). Its defect
+  list (treeline glow band, corner chroma, glow residual) stays in "A3
+  RESULT" as future work only if that set ever becomes a product.
+- **(1) rgb_equal removal: YES** — canonical stack switches to
+  `stack_set-03_norgbeq_spcc.fit`.
+- **(2) stars_floor: 3.0 wins.**
+- **(3) black_point: "blackest background — the right most square
+  wins" = b 8** (bg 16 → ~8).
+- **(4) WCS corridor: user asked "what is this? why is it here?"** —
+  explained (it is the data-general replacement for the hand-measured
+  corridor, produced by stream A; switching set-03 to it is OPTIONAL
+  and re-renders, so it stays 'manual' in config until the user ever
+  wants it). NOT approved, NOT applied; no action.
+
+**→ B7 bake pre-registration:** defaults become stack =
+`stack_set-03_norgbeq_spcc.fit` · stars_floor 3.0 · black_point 8 ·
+everything else B6-unchanged (target 0.07 · vstpost · chroma_core 4
+pre · lum_core 2 · mw_boost 1.2 lum · stars 0.97 · cull 50 · satu 0.2
+· jpg q100/4:4:4 · --lossless PNG8+PNG16). The user judged each knob
+from its own panel (floor 3.0 seen ON the norgbeq stack in the corner
+panel; b8 seen on the B6-era stack); the composite render must pass the
+gate with the expected union of numbers (floor: starless untouched;
+bp8: blocks ratio ~1.25, corridor clip0 ~15% = the requested gap
+blackness, sky clip0 ~1%, MW/floor unchanged) — then defaults are
+byte-verified to reproduce it and the recipe is tagged. If the
+composite gate FAILS or metrics land off-family, STOP and report
+instead of baking.
+
+## APPROVED RECIPE — B7 (2026-07-07 session 6, USER-APPROVED)
+
+**User verdicts baked: rgb_equal-free stack (1: yes) · stars_floor 3.0
+(2) · black_point 8 (3: "blackest").** One command reproduces the
+approved product byte-exactly (verified: two default runs, all four
+artifacts `cmp`-identical — jpg, PNG, 16-bit PNG, starless jpg):
+
+    python3 scripts/starcomb.py 07-02-26 set-03 \
+        --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
+    # defaults (B7): rgb_equal-free SPCC stack · linked autostretch
+    #   -1.5 0.07 · vstpost · chroma_core 4 pre-boost · lum_core 2 ·
+    #   mw_boost 1.2 on the luminosity-weighted corridor mask ·
+    #   black_point 8 · stars anchor 0.97 · cull 50 · stars_floor 3.0 ·
+    #   screen · satu 0.2 · jpg q100/4:4:4 + PNG8 + PNG16 · full frame
+
+Product: `starcomb_set-03_APPROVED_B7_20260707_103839.{jpg,png,_16bit.png}`.
+**Gate PASS blocks 1.375 (P5/P50/P95 = 5/8/11 — the approved black
+level) colors 2/2 rings 3.0/1.3/1.2.** Composite behavior vs the
+single-knob ladders, as predicted with small integer-granularity
+shifts: corridor clip0 16.2% / sky 1.2% (gap blackness as requested),
+floor +4.0/−3.0, bands 0.6/1.2, MW box contrast 4.0 (B6: 6.0 — the
+darker render compresses box DIFFERENCES; against the darker bg the
+corridor stands out equally, user judged the look), stars mid 248 /
+sat 5.9% / halo 1.36 (B6: 1.73 — the floor's skirt cut). Panels:
+`judgment_B7_vs_B6/` (PNG-fair). Delta to B6, each user-picked from a
+measured ladder: stack rgb_equal-free (SPCC absorbs the raw balance),
+stars_floor 3.0 (ghost-aura noise share dead: bright-tier aura +7.0 →
++2.0, corner +3.5 → +1.0), black_point 8 (bg 16 → 8). B6 artifacts +
+its stack stay for reproducibility (`stack_set-03_spcc.fit` +
+`--stars-floor 0 --black-point 0 --jpg-quality 92 --jpg-subsampling
+-1` on it).
+
 ## APPROVED RECIPE — B6 (2026-07-06 session 5, USER-APPROVED)
 
 **User verdict on the session-5 candidates: "C1 with … the judge box on
@@ -1856,10 +1918,10 @@ texture; the honest route there is more integration, not a deeper clip.
    path was exercised end-to-end by the lights set this session ✓).
 2. **Per-frame `seqsubsky 1`** — ADAPTATION, unchanged (self-flat
    branch only; dies with real flats).
-3. **`rgb_equal`** — **REMOVED from both templates** (B). SPCC absorbs
-   the full raw balance (K R 1.675 / G 0.749 / B 0.935, 508 stars);
-   gate PASS with equivalent numbers. Fully closed once the user
-   approves the norgbeq render pair and the canonical stack switches.
+3. **`rgb_equal`** — **CLOSED (user-approved 2026-07-07, B7).** Removed
+   from both templates; SPCC absorbs the full raw balance (K R 1.675 /
+   G 0.749 / B 0.935, 508 stars); canonical stack =
+   `stack_set-03_norgbeq_spcc.fit`.
 4. **Whole-frame QA on the recombine** — reported reference only
    (unchanged since the ratified scope change).
 5. **Star separation by mask+inpaint** — ADAPTATION. Removal condition

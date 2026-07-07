@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Starless/stars split processing + recombination (standard-DSO style).
 
-The product chain. Defaults = the user-approved recipe B6 (byte-verified
+The product chain. Defaults = the user-approved recipe B7 (byte-verified
 to reproduce the approved render; recipe provenance in NOTES.md):
 
-  starcomb.py <session> <set> --stack results/stack_<set>_spcc.fit [--lossless]
+  starcomb.py <session> <set> --stack results/stack_<set>_norgbeq_spcc.fit [--lossless]
 
 Chain (each knob set by a measured single-knob ladder; input is the
 SPCC-calibrated stack — solve_field.py --inject + siril spcc):
@@ -20,10 +20,15 @@ SPCC-calibrated stack — solve_field.py --inject + siril spcc):
     -> mw_boost <1.2> on the LUMINOSITY-WEIGHTED corridor mask
        (<boost_mask=lum>; the flat geometric gain lifted noise floor and
        dark gaps alongside the glow)
+    -> black_point <8> (output levels on the starless layer: bg ~16 ->
+       ~8; gaps clip to true black, the lifted MW glow sits above the
+       clip by measurement)
   stars: faint components culled below the <cull_pct=50> flux
-    percentile, gray MTF anchored so the median top-500 amplitude
-    renders at <stars_peak=0.97>
-  combine: screen 1-(1-a)(1-b) -> satu <0.2> -> JPEG q92 [+ PNG].
+    percentile, skirt cored below <stars_floor=3.0> x sigma (the
+    ghost-aura fix: only genuine star signal reaches the stretch), gray
+    MTF anchored so the median top-500 amplitude renders at
+    <stars_peak=0.97>
+  combine: screen 1-(1-a)(1-b) -> satu <0.2> -> JPEG q100/4:4:4 [+ PNG].
 
 Ladder mode (single knob, control auto-bracketed, STOPS for judgment):
   starcomb.py <session> <set> --stack ... --param mw_boost \\
@@ -503,11 +508,11 @@ def main():
                          "0 = off")
     ap.add_argument("--cull-pct", type=float, default=50)
     ap.add_argument("--stars-peak", type=float, default=0.97)
-    ap.add_argument("--stars-floor", type=float, default=0,
+    ap.add_argument("--stars-floor", type=float, default=3.0,
                     help="core the stars layer below k*sigma (linear) "
                          "before its MTF — kills the amplified-skirt "
                          "ghost aura around stars; 0 = off")
-    ap.add_argument("--black-point", type=float, default=0,
+    ap.add_argument("--black-point", type=float, default=8,
                     help="output black point on the starless layer, "
                          "8-bit counts (bg 16 -> ~16-b); 0 = off")
     ap.add_argument("--mw-boost", type=float, default=1.2)
