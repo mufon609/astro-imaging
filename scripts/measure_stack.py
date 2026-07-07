@@ -8,7 +8,7 @@ Usage: measure_stack.py <stack.fit> [reference_stack.fit ...]
 
 All values in 16-bit counts (read_fits returns [0,1]; scaled here).
 rim_dev = mean(G, r>0.93) / mean(G, 0.3<r<0.7) - 1 — the G luminance rim
-number the RIM/RING root-cause arc tracks (NOTES.md).
+number that tracks V(r)/glow rim correction quality.
 """
 import os
 import sys

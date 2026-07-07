@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Experiment G1 (NOTES.md): divide-first + stack-level BGE variant.
+# Divide-first + stack-level BGE variant (a measured dead end kept as
+# a reusable runner; see the NOTES dead-end registry).
 # Single architectural knob vs the canonical self-flat path: the per-frame
 # glow handling (seqsubsky 1 + rechroma + V2) is REMOVED; the untouched
 # calibrated frames are divided by the multiplicative-fit V (the

@@ -6,13 +6,16 @@ every dead end with its numbers. This file is the **process contract**: what
 each step is for, what the industry standard does there, where we diverge and
 why, and how every step is reviewed.
 
-**New contributor start here:** (1) this file top to bottom; (2) the
-`STATUS` section at the top of `NOTES.md` (current approved recipe,
-gate, open queue); (3) the NOTES history *before* proposing any
-experiment — if it was tried, its numbers are there and dead ends are
-not re-attempted. Approved recipes are git-tagged (`B5-approved`,
-`B6-approved`, `B7-approved`); the current one is **B7** = the starcomb
-defaults, byte-verified to reproduce the approved image.
+**New contributor start here:** (1) this file top to bottom; (2)
+`NOTES.md` top to bottom — it is deliberately short: STATUS (current
+approved recipe + reproduce contract), the current design with every
+knob's measured WHY, and the **DEAD ENDS registry** (read it before
+proposing ANY experiment — if it was tried, its killing number is
+there). Full chronological history lives in git (`git log`; every
+commit carries the NOTES of its time). Approved recipes are git-tagged
+(`B5-approved`, `B6-approved`, `B7-approved`); the current one is
+**B7** = the starcomb defaults, byte-verified to reproduce the
+approved image.
 
 ## The reference standard
 

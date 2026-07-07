@@ -3,9 +3,8 @@
 
 Usage: rechroma.py <workdir> <nframes>
 
-WHY (measured 2026-07-06, NOTES.md "RIM/RING ROOT CAUSE" + "(L) ROOT
-CAUSE"): the pipeline divides glow-subtracted frames by the self-flat
-V(r). Division only returns a flat sky if the frame is purely
+WHY (measured; the mechanism): the pipeline divides glow-subtracted
+frames by the self-flat V(r). Division only returns a flat sky if the frame is purely
 multiplicative, bkg_c ≈ V(r)·S̄_c. siril's seqsubsky leaves each channel
 re-centered on its own median (flipping rim chroma positive: the magenta
 rim) and an arbitrary additive pedestal (whose division by V(r) prints

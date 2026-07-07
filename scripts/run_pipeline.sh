@@ -180,7 +180,7 @@ else
   # siril's plane subtraction also removes the planar share of the bowl,
   # so neither the multiplicative fit (0.537 corner: -16% rim) nor the
   # additive fit (0.472: +7%) matches the frames — their own median does,
-  # by construction (NOTES.md experiment L2).
+  # by construction.
   GEN4A2="$W/40a2_selfflat.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" "$REPO/scripts/40a2_selfflat_median2.ssf.tmpl" > "$GEN4A2"
   echo "=== stage 4b2/5: median of glow-subtracted frames + V2 fit ==="

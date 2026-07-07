@@ -31,11 +31,11 @@ import bg_qa  # noqa: E402
 D16 = 65535.0
 
 # stage -> metric -> (lo, hi, note); units: 16-bit display counts for linear
-# stages, 8-bit counts for stretched. Mirrors the NOTES.md table — keep both
-# in sync. Bounds are WARN bounds (inspection), not the bg_qa gate. They are
-# sanity ENVELOPES calibrated on set-03 (some self-flat-specific:
-# corner_gain, stack noise%) — a new data class may WARN legitimately;
-# revisit bounds there instead of ignoring the WARNs.
+# stages, 8-bit counts for stretched. THIS table is authoritative (NOTES.md
+# carries a summary). Bounds are WARN bounds (inspection), not the bg_qa
+# gate. They are sanity ENVELOPES calibrated on set-03 (some
+# self-flat-specific: corner_gain, stack noise%) — a new data class may
+# WARN legitimately; revisit bounds there instead of ignoring the WARNs.
 EXPECTATIONS = {
     "calibrated": {
         "bg_median16": (100, 1500, "sky level, offset subtracted"),

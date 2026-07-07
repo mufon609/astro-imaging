@@ -3,9 +3,10 @@
 Read ~/Desktop/astrophotography/README.md first (the process contract:
 standard-workflow mapping, review contract incl. the standing audits,
 per-set geometry, experiment discipline, the NORTH STAR), then NOTES.md
-— the STATUS section at top, then enough history to respect the dead
-ends (every one has numbers; NEVER re-attempt them). NOTES is the source
-of truth. Environment facts live in auto-memory: Siril 1.4.4 user
+TOP TO BOTTOM (it is short by design: STATUS, current design with each
+knob's measured WHY, the DEAD ENDS registry — NEVER re-attempt those,
+bandaid ledger, acquisition checklist). NOTES is the source of truth;
+full chronological history lives in git log only. Environment facts live in auto-memory: Siril 1.4.4 user
 flatpak (`flatpak run --command=siril-cli org.siril.Siril -d <dir> -s
 <script>`, scripts under $HOME not /tmp), 4-core arm64 / 7.7GB RAM /
 ~24GB free disk, python3 numpy+scipy+PIL (NO astropy), GraXpert 3.2 at
@@ -31,13 +32,13 @@ new sets derive from WCS/config, NEVER inherit set-03 silently.
 MISSION — audit first, then the queued work, one knob at a time,
 hypotheses pre-registered in NOTES before each run:
 
-0. AUDIT (blocking): reproduce B7 byte-exact (above). Then re-read the
-   session-6 sections of NOTES and verify the standing audits fire by
-   measurement, not by trust: star_shell_report on the B6 record jpg
-   must WARN (aura +12), on B7 must be clean (+2); the gate scopes must
-   match config_set-03.json geometry. Spot-check 2-3 recorded numbers
-   (SPCC K, corridor floor, export diffs) against the artifacts. Any
-   mismatch: STOP, root-cause, write it into NOTES before proceeding.
+0. AUDIT (blocking): reproduce B7 byte-exact (above). Then verify the
+   standing audits fire by measurement, not by trust: star_shell_report
+   on the B6 record jpg (results/) must WARN (aura ~+12), on the B7
+   render must be clean (~+2); the gate scope must match
+   config_set-03.json geometry. Spot-check 2-3 numbers from the NOTES
+   knob-provenance table against the artifacts. Any mismatch: STOP,
+   root-cause, write it into NOTES before proceeding.
 
 A. StarNet-ONNX on aarch64 (bandaid #5 removal — the deepest remaining
    processing-quality lever). Recorded facts: StarNet v2.5.3 ships
