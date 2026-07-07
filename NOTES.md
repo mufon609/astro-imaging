@@ -1180,15 +1180,57 @@ verdicts by measurement; aesthetic winners need the user):**
   0.5.** With the floor fixed, k trades MW pop vs corridor noise
   amplification honestly. corridor_floor + corridor grain + MW contrast
   reported; user judges the strips.
+  **M1 RESULT (`exp_starsep_boost_mask_20260706_220955`): CONFIRMED —
+  lum adopted.** geo → lum: floor P50 +6.2 → **+5.0**, floor P5 **−3.0 →
+  −1.0** (the flat gain was amplifying NEGATIVE deviations too — geo
+  pushed the darkest corridor blocks 3 counts BELOW sky level; the
+  glow-weighted lift leaves the gaps at sky black), band chroma RG/BG
+  1.27/2.50 → **1.08/1.88**, gate byte-identical PASS, stars unchanged.
+  Cost as predicted: MW 8.0 → 6.0 (mid-glow weight < 1) → M2 re-ladders
+  k UPWARD on the lum mask (revised from the pre-registration above:
+  values 1.6/2.0, control 1.2): at the glow the weight ≈ 0.5–1 so k=2.0
+  restores mid-glow gain ≈ geo@1.2 while the gaps (weight ≈ 0.1) stay
+  ≈ dark. Hypothesis: MW → ≈8 with floor P50 ≤ +6, P5 ≥ −1.5, bands ≤
+  geo control, gate PASS.
+  **M2 RESULT (`exp_starsep_mw_boost_20260706_221706`): k recovers MW
+  linearly but trades the M1 gains back proportionally.** k=1.2/1.6/2.0
+  → MW 6/7/8, floor P50 +5.0/+6.0/+6.0, P5 −1.0/−1.8/−2.0, bands RG/BG
+  1.08/1.88 · 1.2/2.1 · 1.3/2.4; gate identical PASS throughout. At
+  matched MW 8, lum@2.0 still beats geo@1.2 on gaps (P5 −2.0 vs −3.0,
+  P50 6.0 vs 6.2) — never worse. **The k value is an honest aesthetic
+  trade (gap blackness ↔ MW brightness): user judges. Ladder base for
+  M3–M5 = lum @ k=1.2** (max issue-3 fix, matching the complaint);
+  k=2.0 rendered for the judgment package as the MW-parity option.
 - **M3 `chroma_core` re-ladder on the linked chain: 3 (control) / 2 / 4.**
   Acceptance per J: sky chroma ≤ ~0.5 counts at 16/48/128 px, star
   |chroma| within ~10% of control, gate PASS — plus the new
   corridor_chroma metric for the band residual (issue 1i).
+  **M3 RESULT (`exp_starsep_chroma_core_20260706_222709`): k=4 WINS by
+  the pre-registered criterion.** Corridor bands RG/BG: k=2 → 1.66/3.08,
+  k=3 → 1.08/1.88, **k=4 → 0.73/1.25** (vs B5's 1.16/2.31 ≈ −40%);
+  sky colors 2/3; star|chroma| 18.7/18.5/18.3 — the J-era −7% star-color
+  cost of k=4 was an UNLINKED-chain artifact, on the linked chain it is
+  −1%. Gate PASS everywhere, floor/MW untouched (chroma-only op ✓).
+  chroma_core 4 adopted for the candidate.
 - **M4 `cull_pct` re-judge with corridor crops: 50 (control) / 25 / 0.**
   Hypothesis: cull 0 restores the separated faint stars over their own
   inpaint sites, converting "smudge + hole" into "faint star" (issue 4);
   metrics unchanged (C); the look is the user's call — this time with
   corridor close-ups in the strips, not full-frame thumbnails.
+  **M4 RESULT (`exp_starsep_cull_pct_20260706_223650`): metrics invariant
+  (re-confirms C) — the corridor close-ups are decisive and split the
+  issue into two coherent looks.** cull 0 restores the separated faint
+  half over their own inpaint sites: the half-state ("smudge + hole")
+  visibly disappears — the corridor reads as a dense honest star field
+  on black. cull 50 (+lum boost, which amplifies near-bg fills less than
+  geo did) is cleaner than B5 but keeps residual smudges = the
+  UNSEPARABLE sub-6σ stipple (F: noise-level clumping) + 11.4k inpaint
+  fills. The user's stated expectation ("properly removed → black") is
+  the cull-high pole and is PHYSICALLY CAPPED on this data — full
+  removal of the faint tail is impossible below the separation floor, so
+  the honest choices are: no half-state via cull 0 (candidate default,
+  recommended) or maximal removal via cull 50+ accepting the stipple
+  floor. USER DECIDES; both rendered in the judgment package.
 - **M5 `satu` 0.35 (control) / 0.2 / 0:** after M1–M4 remove/reduce the
   defect signal satu was amplifying, re-judge how much chroma gain the
   render wants. Star fringe span (R−B P5..P95 over star pixels) reported.
@@ -1198,6 +1240,17 @@ verdicts by measurement; aesthetic winners need the user):**
   target (0.07→18, 0.12→31 of 255) — this knob trades global sky
   blackness for MW brightness, which is the user's aesthetic call, so it
   runs LAST and only on request.
+
+  **M5 RESULT (`exp_starsep_satu_20260706_224743`): fringe span scales
+  ~(1+s) exactly; the chain changes already cut it.** satu 0/0.2/0.35 →
+  star|chroma| 13.4/16.4/18.7, star R−B span 79/94/107 counts (B5
+  measured 148 at satu 0.35 — cull-0's faint-star population + the M1–M3
+  chain lowered the per-pixel extremes). Gate/bands/floor bit-identical
+  (satu never touches the gated layer ✓ re-confirmed). The residual
+  fringe driver is physical (trailed PSF + atmospheric dispersion —
+  acquisition checklist item), satu only multiplies it. **Candidate
+  default satu 0.2** (clear star color at −12% fringe vs 0.35); 0 and
+  0.35 rungs kept as the color poles for the user.
 
 **Sensor-banding check (session 5, measured before touching anything):**
 axis-aligned banding in the LINEAR SPCC stack, sky-only hi-pass column/row
@@ -1232,6 +1285,49 @@ pattern.** Dead end for a fixbanding experiment — don't run one.
   lifted.** Residual seam_y texture ratio 2.94 (from 4.46) = the corner's
   honest glow structure passing the significance gate, not a mask
   artifact; it may improve further at M2 (less boost) but is not a seam.
+
+**SESSION 5 CANDIDATES (all gate PASS, full frame, awaiting user judgment
+— per the rules NOTHING is baked as defaults until approval; run via
+flags on the M0-fixed scripts):**
+- **C1 (recommended)** `--boost-mask lum --chroma-core 4 --cull-pct 0
+  --satu 0.2`: every measured defect number at its session-best — floor
+  +5.0/−1.0 (B5: +7/−3 at the old metric run, geo +6.2/−3.0 same-day),
+  bands 0.73/1.25 (B5 1.16/2.31), no seam, no half-removed stars
+  (restored faint field), fringe span 94 (B5 148). Cost vs B5: MW box
+  contrast 6 vs 8, busier faint-star field.
+- **C2 (MW parity)** = C1 + `--mw-boost 2.0`: MW 8 = B5's level; floor
+  +6.0/−2.0, bands 1.3/2.4 (≈B5's, still no geo gap-darkening).
+- **C3 (max removal)** = C1 + `--cull-pct 50`: the user's stated issue-4
+  pole (faint stars removed) — cleaner than B5 (lum boost amplifies
+  near-bg inpaint fills less) but the sub-6σ stipple floor is physical;
+  gaps can never be fully starless-black on this data.
+- satu poles on the C1 base: 0 (fringe-minimal, muted) and 0.35
+  (B5-level color) live in `exp_starsep_satu_20260706_224743/`.
+
+**Bandaid ledger — session 5 refresh (delta to the session-4 list):**
+1–3, 5 unchanged (self-flat chain, per-frame seqsubsky, rgb_equal-in-40d
+inert under SPCC with removal queued, starsep mask+inpaint).
+4. whole-frame QA as recombine gate — retired (unchanged), and the
+   corridor blind spot it left is now covered by REPORTED corridor
+   metrics (`astrometrics.corridor_report`) in every starcomb run.
+6. denoise — unchanged (vstpost optional rung).
+7. crop — unchanged (eliminated).
+8. **NEW/CLOSED: hard branch rectangle in rendering operators** — was
+   printing a seam (M0); rendering ops now use significance protection
+   (lum_core) or feathered masks (mw_boost). Statistics scopes keep the
+   hard rectangle by design.
+9. **RECLASSIFIED: flat geometric mw_boost** — was an unmeasured
+   corridor-wide gain (the issue-3 engine, invisible to the gate);
+   replaced by the luminosity-weighted lift (M1) = the standard
+   luminosity-mask idiom. The knob k remains aesthetic (M2), its cost is
+   now measured (floor/band metrics). Removal condition for the boost
+   entirely: enough integration at the next acquisition that the global
+   stretch renders the MW without a local lift (ISO 800, ≤13s subs, real
+   flats).
+10. **STALE-KNOB RULE INSTITUTIONALIZED:** chroma_core 3 → 4 (M3, linked
+   chain), satu 0.35 → 0.2 recommended (M5), cull 50 → user decision
+   (M4), target 0.07 re-validated only in so far as the corings moved the
+   rim numbers — M6 remains available on request.
 
 ## Iteration ideas (not yet tried)
 
