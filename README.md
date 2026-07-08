@@ -12,10 +12,10 @@ approved recipe + reproduce contract), the current design with every
 knob's measured WHY, and the **DEAD ENDS registry** (read it before
 proposing ANY experiment — if it was tried, its killing number is
 there). Full chronological history lives in git (`git log`; every
-commit carries the NOTES of its time). Approved recipes are git-tagged
-(`B5-approved`, `B6-approved`, `B7-approved`); the current one is
-**B7** = the starcomb defaults, byte-verified to reproduce the
-approved image.
+commit carries the NOTES of its time). The current approved recipe is
+**the starcomb defaults, corridor-free** (the MW-corridor + `mw_boost`
+bandaid was removed 2026-07-08, user-approved); the corridor-era
+`B5/B6/B7-approved` tags are history.
 
 ## The reference standard
 
@@ -31,7 +31,7 @@ follows, in order — linear until step 6:
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (default) · `starnet_sep.py` StarNet2-ONNX runs on aarch64 (engines `net`/`hybrid` in starcomb) | ADAPTATION, removal candidate VALIDATED — the `hybrid` engine (net on the inpaint starless) meets every objective bar incl. the faint-tail removal (residual 589 vs ~5.1k) and awaits user judgment (NOTES ledger #4); `inpaint` stays default |
-| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + **luminosity-weighted** corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
+| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings (chroma/lum, Wiener-gated on the statistical dark sky); stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
@@ -51,25 +51,23 @@ Principles that keep this honest:
 1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
    each stage rendered identically + metric bounds from the expectations
    table in NOTES. WARN only — inspection never aborts.
-2. **The gate** (`bg_qa.py`, layer-appropriate sky scope):
-   strict blocks/rings thresholds on the **starless render's sky** (MW
-   corridor + branch masked as known signal/non-sky). Thresholds never
-   loosen. Whole-frame QA on the recombine is reported as reference, never
+2. **The gate** (`bg_qa.py`, composition-agnostic sky scope): strict
+   thresholds on the **starless render's sky**, selected STATISTICALLY (dark
+   blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,
+   plane-fit gradient ≤ 8, blotch ≤ 5, rings ≤ 8. Thresholds never loosen.
+   Real signal (a galaxy / the MW / a nebula) is bright and drops out of the
+   sky selection, so it is never read as a defect and no per-set corridor is
+   needed. Whole-frame QA on the recombine is reported as reference, never
    gated.
-3. **Reported corridor metrics** (`astrometrics.corridor_report`):
-   corridor floor Δ (P50/P5 vs sky), along-band chroma P2V, branch-mask seam
-   steps. The gate masks the corridor, so these numbers exist to keep
-   corridor-contained costs measurable. Reported in every starcomb run,
-   never gated.
-4. **Star metrics** (count / FWHM-eq / mid-tier peak / saturated fraction /
+3. **Star metrics** (count / FWHM-eq / mid-tier peak / saturated fraction /
    halo) on the stars layer / combined render — reported.
-5. **Star-shell audit** (`astrometrics.star_shell_report`, every starcomb
+4. **Star-shell audit** (`astrometrics.star_shell_report`, every starcomb
    run): the ghost-aura defect class lives ON stars where the background
    gate cannot see it — bright-tier annulus metrics, `aura_lum` WARN > 4.0
    (calibrated: fixed recipe +2.0, defect era +12.0), `shell_chroma`
    reported as a trend (honest PSF fringe dominates it). The stars anchor +
    its MTF low-end gain print per run so normalization drift is visible.
-6. **The user judges aesthetics on the recombine.** Objective fixes with
+5. **The user judges aesthetics on the recombine.** Objective fixes with
    pass/fail metrics may commit; recipe/aesthetic changes require the user's
    visual approval before they are baked as defaults.
 
@@ -93,31 +91,26 @@ removal condition.
 
 ## Per-set geometry (data-generalization)
 
-Corridor, foreground and report-box geometry are **composition facts**,
-not code: they live in `<session>/config_<set>.json` (tracked) and are
-resolved by `astrometrics.configure()` in every product entry point
-(starcomb, starsep, bg_qa CLI, inspect_stage, judgment_crops,
-measure_stack, solve_field). Resolution order per set:
+The only per-set **composition fact** is the terrestrial **foreground** (a
+treeline to exclude from sky statistics and the fixed judgment-crop boxes) —
+it lives in `<session>/config_<set>.json` (tracked) and is resolved by
+`astrometrics.configure()` in every product entry point (starcomb, starsep,
+bg_qa CLI, inspect_stage, judgment_crops, measure_stack, solve_field):
 
-1. `config_<set>.json` values — `corridor` (mode `manual` p0/p1/halfw, or
-   `wcs` with `b_halfwidth_deg`, default 9.0° = calibrated on set-03,
-   IoU 0.776 vs the hand-measured strip), `foreground` (`rect` fractions
-   or a derived pixel-`mask` npz), `mw_box`/`sky_box`, `judgment_crops`,
-   optional `starsep` overrides (area caps).
-2. No config: corridor from the plate-solve WCS (`work/wcs_<set>.json`
-   or the stack header) at the default galactic halfwidth; foreground
-   none.
-3. No config + no WCS: corridor **none** — the gate's sky scope degrades
-   to whole-frame on the starless render (stricter), `mw_boost` is
-   skipped, and a warning prints. A new set NEVER inherits set-03's
-   geometry silently.
+1. `config_<set>.json` values — `foreground` (`rect` fractions or a derived
+   pixel-`mask` npz), `judgment_crops`, optional `starsep` overrides.
+2. No config: foreground **none** (whole frame is eligible sky). A new set
+   NEVER inherits another set's foreground silently.
 
-Foreground masks for non-rectangular compositions (treelines) are
-derived from the linear stack: `scripts/geometry/suggest_foreground.py <stack>
-<out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the
-config at the npz. set-03's approved geometry stays in
-`config_set-03.json` (mode `manual`) so B7 reproduces byte-exactly; the
-WCS corridor is validated there and waits on user approval (it re-renders).
+The background is NOT a per-set composition fact: the gate selects its sky
+STATISTICALLY (dark blocks, foreground excluded — see the review contract),
+so there is no MW corridor to configure or derive. That geometric band was a
+set-03-specific bandaid that broke on an object-dominated field.
+
+Foreground masks for non-rectangular compositions (treelines) are derived
+from the linear stack: `scripts/geometry/suggest_foreground.py <stack>
+<out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the config
+at the npz. (The derivation itself is flagged for redesign — see BACKLOG.)
 
 ## Running it
 
@@ -135,7 +128,7 @@ python3 scripts/render/starcomb.py 07-02-26 set-03 \
 
 # single-knob ladder
 python3 scripts/render/starcomb.py 07-02-26 set-03 --stack ... \
-    --param mw_boost --values 0.5,0.8 --hypothesis "..."
+    --param chroma_core --values 2,6 --hypothesis "..."
 ```
 
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
@@ -147,8 +140,8 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
-| `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
+| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, foreground (`branch_mask`) + statistical-sky (`sky_pixel_mask`) masks, `star_shell_report` |
+| `bg_qa.py` | THE GATE (composition-agnostic statistical sky scope on the starless render); thresholds never loosen |
 | `render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |
 
 **`stack/`** — build the integrated stack
@@ -170,7 +163,7 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
+| `starcomb.py` | **the product chain** (corridor-free approved defaults) + single-knob ladder harness |
 | `separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
 | `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
 

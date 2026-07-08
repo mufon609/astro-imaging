@@ -39,8 +39,8 @@ GAIN = 3.0
 
 def resolve_crops(h, w):
     """Config crops win; else derive deterministic defect-zone boxes from
-    the corridor/foreground geometry (an unconfigured context yields just
-    the left-top quadrant — no set inherits another's crop boxes)."""
+    the foreground geometry (an unconfigured context yields just the
+    left-top quadrant — no set inherits another's crop boxes)."""
     if am.CTX.judgment_crops:
         return dict(am.CTX.judgment_crops)
     bw, bh = w // 3, h // 3          # crop size ~ a ninth of the frame
@@ -51,17 +51,6 @@ def resolve_crops(h, w):
         return (x0, y0, x0 + bw, y0 + bh)
 
     crops = {"lefttop": (0, int(0.05 * h), bw, int(0.05 * h) + bh)}
-    if am.CTX.corridor_mode != "none":
-        m = am.band_mask_frac(h, w, feather=0.05)[::8, ::8]
-        keep = am.branch_mask(h, w, stride=8)
-        ys, xs = np.nonzero((m > 0.9) & keep)
-        if len(ys):
-            crops["mw_mid"] = box_at(float(xs.mean()) * 8,
-                                     float(ys.mean()) * 8)
-        ye, xe = np.nonzero((m > 0.2) & (m < 0.8) & keep)  # feather zone
-        if len(ye):
-            crops["band"] = box_at(float(xe.mean()) * 8,
-                                   float(ye.mean()) * 8)
     if am.CTX.foreground == "mask":
         fg = am._fg_mask(h, w)
         ys, xs = np.nonzero(fg)

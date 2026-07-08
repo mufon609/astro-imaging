@@ -141,8 +141,7 @@ def main():
                  "download.starnetastro.com (starnet2_linux_*_ORT_x64_cli"
                  ".zip) and copy StarNet2_weights.onnx there.")
     if "session" in opts and "set" in opts:
-        am.configure(opts["session"], opts["set"], stack=stack_path,
-                     quiet=True)
+        am.configure(opts["session"], opts["set"], quiet=True)
 
     os.makedirs(outdir, exist_ok=True)
     st = os.stat(stack_path)

@@ -151,11 +151,10 @@ def main():
         sys.exit(__doc__)
     stack_path, outdir = args
     if "session" in opts and "set" in opts:
-        # per-set geometry (foreground never-star zone, MW readout box) +
-        # optional starsep overrides (area caps are px^2: tuned on 8px-
-        # trailed 37mm stars, config-overridable for very different scales)
-        ctx = am.configure(opts["session"], opts["set"], stack=stack_path,
-                           quiet=True)
+        # per-set geometry (foreground never-star zone) + optional starsep
+        # overrides (area caps are px^2: tuned on 8px-trailed 37mm stars,
+        # config-overridable for very different scales)
+        ctx = am.configure(opts["session"], opts["set"], quiet=True)
         AREA_MAX = int(ctx.starsep.get("area_max", AREA_MAX))
         AREA_MAX_BRIGHT = int(ctx.starsep.get("area_max_bright",
                                               AREA_MAX_BRIGHT))
@@ -176,19 +175,8 @@ def main():
     print(f"starsep: {data.shape[2]}x{data.shape[1]}x{data.shape[0]}ch "
           f"(prominence {k_prom:g} sigma)")
     mask, labels, cat, stats = build_star_mask(data, k_prom)
-    # MW-protection readout: masked fraction inside the MW core box vs frame
-    h, w = mask.shape
-    mwb, _ = am.report_boxes(h, w)
-    if mwb:
-        bx0, by0, bx1, by1 = mwb
-        mwbox = mask[int(by0 * h):int(by1 * h), int(bx0 * w):int(bx1 * w)]
-        mwtxt = (f"({mwbox.mean() * 100:.2f}% inside the MW core box — "
-                 "should be star-density-like, NOT structure-sized)")
-    else:
-        mwtxt = "(no MW box: corridor undefined for this set)"
     print(f"starsep: components {stats['n_components']}, stars kept "
-          f"{stats['n_stars']}, masked {stats['mask_frac'] * 100:.2f}% of frame "
-          f"{mwtxt}")
+          f"{stats['n_stars']}, masked {stats['mask_frac'] * 100:.2f}% of frame")
     starless = np.empty_like(data)
     rng = np.random.default_rng(20260706)
     for c in range(data.shape[0]):

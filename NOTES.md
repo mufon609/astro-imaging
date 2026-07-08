@@ -11,49 +11,51 @@ carries the NOTES of its time; recipe tags: `B5-approved`,
 per-set geometry, north star). Update THIS file as states change;
 never let it grow narrative again.
 
-## STATUS (2026-07-07)
+## STATUS (2026-07-08)
 
-- **Approved recipe: B7** (git tag `B7-approved`; defaults
-  byte-reproduce it). B6/B5 are HISTORY — explicitly not approved and
-  superseded by B7; their renders and stacks are pruned, the record lives
-  in git (tags `B5-approved` / `B6-approved`).
-- Reproduce before touching anything:
+- **Approved recipe: the starcomb defaults, corridor-free.** The MW
+  corridor + `mw_boost` were REMOVED 2026-07-08 (user-approved: "cleaner,
+  more natural, less noisy… the process is better off without the corridor
+  enhancement"). The corridor-era B5/B6/B7 recipes are HISTORY (git tags
+  `B5/B6/B7-approved`); their renders are pruned. The removal made set-03's
+  sky measurably cleaner (gradient 4.5→3.4, rings 5.1→2.9, colour 4.0→2.0,
+  star aura +2.0→+0.0) — the boost was amplifying corridor noise.
+- Reproduce the set-03 reference (the render chain is deterministic on the
+  fixed SPCC stack; a stack is NOT byte-reproducible — its register sweep is
+  non-deterministic — so reproduce the RENDER, verify the STACK by the gate):
 
       python3 scripts/render/starcomb.py 07-02-26 set-03 \
           --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
 
-  Expected: gate (starless-sky) PASS blocks 1.375 (P5/P50/P95 = 5/8/11)
-  colors 2/2 rings 3.0/1.3/1.2 · corridor floor +4.0/−3.0, bands
-  0.6/1.2 · black_point clip0 corridor ~16.2% / sky ~1.2% · star shells
-  aura_lum +2.0 (WARN >4.0), shell_chroma ~28.9 (trend) · stars anchor
-  0.0284 → m 0.00090 (low-end gain ×996) · all four artifacts
-  byte-identical to
-  `results/starcomb_set-03_APPROVED_B7_20260707_103839.{jpg,png,_16bit.png,_starless.jpg}`.
-- Last audited 2026-07-07: byte-reproduce 4/4 cmp-identical; star-shell
-  audit fires by measurement (B6 defect record aura +12.0 WARN / B7
-  +2.0 clean, shell_chroma 16.7/28.9, newest starsep catalog); gate
-  scope = config_set-03.json geometry; artifact spot-checks — jpg
-  q100/4:4:4 vs PNG mean 0.41/max 5 (table: 0.44/5), PNG16→PNG8
-  requantize max diff 0.
-- **The `lights` set is NOT approved** (user verdict: "massive issues -
-  just different quality issues") — it is the generalization testbed
-  only. Its stacks/renders were pruned; regen:
-  `scripts/stack/run_pipeline.sh 07-02-26 && solve_field + spcc` (catalogs
-  installed).
-- **Open queue (payoff order):** TWO USER JUDGMENTS PENDING —
-  (1) `sep_engine hybrid` adoption (ledger #4: all objective bars
-  met, panels in `results/exp_starsep_sep_engine_20260707_125122/
-  judgment/`); (2) `stars_anchor noise` default flip (ledger #7:
-  drift mechanism killed in synthesis, canonical render reproduced;
-  acceptance = byte-compare at flip). Then: lights-set data-general
-  process fixes (treeline-aware background, corner chroma) if that
-  set ever matters; **next acquisition (see checklist) — worth more
-  than all remaining processing work combined.** SPCC K-factor
-  auto-capture: DONE (`spcc_run.py`, 2026-07-07; canonical K
-  R1.000/G0.656/B0.837, spcc rerun pixel-deterministic).
-- Optional, unapplied: WCS-derived corridor for set-03 (validated
-  IoU 0.776 vs the hand strip, gate-equivalent; switching re-renders →
-  needs user approval; new sets already default to it).
+  Expected: GATE PASS — sky floor 9, colour 2.0 (≤7), gradient 3.4 (≤8),
+  blotch 2.6 (≤5), rings 2.9 (≤8), 94% sky · black_point clip0 sky ~0.5% ·
+  star shells aura_lum +0.0 (WARN >4.0) · stars anchor 0.0284 → m 0.00090
+  (low-end gain ×996) · four artifacts identical to
+  `results/starcomb_set-03_APPROVED_20260708_144034.{jpg,png,_16bit.png,_starless.jpg}`.
+- **The gate is now composition-agnostic** (`bg_qa`): it selects the sky
+  STATISTICALLY (blocks ≤ P50+2.5·MAD of block luminance, terrestrial
+  foreground excluded) and grades colour / plane-fit gradient / blotch /
+  rings — NO per-set corridor. Calibrated: set-03 + LMC references pass with
+  margin; an injected 8-count gradient / ring / colour cast FAILS. WHY the
+  removal: the geometric MW corridor was set-03-specific and broke on the
+  D810A LMC (an object-dominated field with no band) — the old whole-frame
+  gate false-failed on the galaxy (block ratio 8.6) though the sky was clean,
+  and even a statistical object-exclusion left the luminance ratio failing
+  (the LMC envelope is a continuum). A plane fit to the statistical sky is
+  robust to a localized object and generalizes.
+- **nikon-test/lmc_180mm processed** — first real matched-flat exercise
+  (D810A, 180 mm, 13×181s): 13/13 registered, solved RA 80.6 Dec −69.0
+  5.70″/px, SPCC K R1.00/G0.80/B0.90 on 2954 stars (southern Gaia chunks
+  32/33/36/38 fetched). Gate PASS (grad 1.9, rings 4.3). Data-sound but the
+  render is COLOUR-DESATURATED — `chroma_core k=4` (tuned for underexposed
+  set-03) over-neutralizes the LMC's real pink/Hα. That knob awaits a user
+  judgment ladder (aesthetic, not a defect).
+- **The `lights` set is NOT approved** (user: "massive issues") —
+  generalization testbed only; stacks/renders pruned.
+- **Next acquisition (see checklist) — worth more than all remaining
+  processing.** Two prior user-judgment items still open: `sep_engine hybrid`
+  (ledger #4), `stars_anchor noise` flip (ledger #6). SPCC runs sensor-null
+  (relative channel balance, not sensor-grounded) — BACKLOG.
 
 ## Environment
 
@@ -133,17 +135,15 @@ tips/glow edges poison the matcher — a treed field solved only after
 exclusion). TAN-SIP WCS injected for siril `spcc`.
 
 **Per-set geometry (`config_<set>.json` + `astrometrics.configure`)** —
-corridor (manual | wcs: galactic |b| ≤ 9.0°, calibrated IoU 0.776
-against set-03's hand-measured strip with the gate verdict unchanged |
-none+loud warning), foreground (rect | pixel mask from
-`suggest_foreground.py` — threshold 0.4×sky-median ≈ −42σ,
-border-band-anchored components, dilated for the drift-smear halo |
-none), report boxes and judgment crops (config or derived from the
-corridor). A configless+WCSless set gets corridor NONE (gate degrades
-to whole-frame on the starless render = stricter) and mw_boost skips —
-**no set ever inherits set-03's masks silently.**
+the only per-set composition fact is the terrestrial FOREGROUND (rect |
+pixel mask from `suggest_foreground.py` — threshold 0.4×sky-median ≈ −42σ,
+border-band-anchored components, dilated for the drift-smear halo | none)
+plus its judgment crops. No config → foreground none. There is NO MW
+corridor: the background gate selects its sky STATISTICALLY (below), so a
+galactic band is never a per-set input — that geometric mask was a
+set-03-specific bandaid that broke on an object-dominated field (the LMC).
 
-**Product chain (`starcomb.py`, defaults = B7)** on the SPCC stack:
+**Product chain (`starcomb.py`, corridor-free defaults)** on the SPCC stack:
 1. GraXpert BGE + `subsky 1` on the STAR-FUL linear (the only
    MW-safe order: BGE on starless erases the MW, +38 → +0.4 linear).
 2. `starsep.py` mask+inpaint separation (no aarch64 StarNet): local-bg
@@ -154,10 +154,11 @@ to whole-frame on the starless render = stricter) and mw_boost skips —
    (physical floor — prominence 4/5/6 all measured ~5.1k residual
    detections, the "stipple" is noise-level clumping).
 3. Starless: **linked** autostretch −1.5 **0.07** → post-stretch
-   `denoise -vst -mod=0.5` → chroma_core 4 (pre-boost) → lum_core 2 →
-   mw_boost 1.2 on the luminosity-weighted corridor mask →
-   black_point 8. The gate jpg (q92, frozen — gate identity) is
-   written HERE, before the combine.
+   `denoise -vst -mod=0.5` → chroma_core 4 → lum_core 2 → black_point 8.
+   The corings estimate their noise on the statistical dark sky and are
+   Wiener-gated everywhere (no corridor to protect real structure — energy
+   ≫ noise does). The gate jpg (q92, frozen — gate identity) is written
+   HERE, before the combine.
 4. Stars: cull 50 (< p50 flux) → stars_floor 3.0×σ → gray MTF anchored
    so the median top-500 amplitude renders at 0.97.
 5. Screen combine → satu 0.2 → jpg q100/4:4:4 (+ PNG8 + PNG16 with
@@ -170,12 +171,11 @@ to whole-frame on the starless render = stricter) and mw_boost skips —
 | SPCC (not rgb_equal) | K R1.000/G0.656/B0.837 (R-normalized; raw G runs ×1.5 hot — the Bayer imbalance rgb_equal used to hide) · 509/2850 stars kept · gate equivalent · rim chroma improves (−9.0→−7.2). Captured by `spcc_run.py` (work/spcc_<set>.{json,log}); rerun on the canonical stack is pixel-IDENTICAL (spcc deterministic). An older grep-lost triple (1.675/0.749/0.935) does not reproduce — trust the json |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
 | linked stretch | unlinked = per-channel noise → chroma blotches (the "rainbow" engine); on a calibrated stack linked PASSES (2.8/1.2/1.8) and cuts blotches ~12% at source |
-| starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL (corridor-masked scope) |
+| starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL |
 | vstpost -mod=0.5 | every linear denoise placement imprints a radial signature on self-flat data (5.1/4.6 FAIL); post-stretch half-mod: grain −40%, gate clean |
-| chroma_core 4, pre-boost | bands 0.73/1.25 (k=3: 1.08/1.88); pre-boost halves the boosted-noise coloration; star-color cost −1% on the linked chain |
-| lum_core 2 | gray patches (stretch-amplified lum noise ±2 counts) removed; blocks 1.20→1.12; NO geometric foreground factor (a hard rect printed a 4.5× texture seam; the Wiener gate already protects real structure) |
-| mw_boost 1.2, lum mask | boost is corridor-contained (gate bit-identical at any k); the flat geo mask lifted noise floor AND darkened the darkest blocks (P5 −3.0 vs lum −1.0); k is aesthetic |
-| black_point 8 | user "blackest": bg 16→8; corridor clip0 16.2% = the requested gap blackness; sky clip0 1.2%; MW box contrast + floor P50 survive (linear shift preserves differences) |
+| chroma_core 4 | bands 0.73/1.25 (k=3: 1.08/1.88); star-color cost −1% on the linked chain. NOTE: tuned on underexposed set-03 (colour ≈ noise); on a bright real-colour target (the LMC) k=4 over-neutralizes real Hα — revisit per data class |
+| lum_core 2 | gray patches (stretch-amplified lum noise ±2 counts) removed; noise estimated on the statistical dark sky, correction Wiener-gated everywhere; NO geometric factor (a hard rect printed a 4.5× texture seam; the Wiener gate protects real structure) |
+| black_point 8 | user "blackest": bg 16→8; dark-sky clip0 ~0.5% (the gap/lane blackness requested); floor P50 + contrast survive (linear shift preserves differences) |
 | stars anchor 0.97 | mid-peak 255 vs 225 at 0.85; layers decoupled (gate untouched). CAVEAT: the catalog anchor is data-dependent → low-end gain drifted ×864→×996 between builds of the same sky; measured mechanism = per-channel gain (catalog mode −8.5/−20 counts mid/faint G drift under the SPCC K set vs noise mode ≤0.6 — see ledger #7; `--stars-anchor noise` ready, default-off) |
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
 | cull 50 | metric-invisible; user's max-removal pole (the alternate cull-0 faint-field look remains a flag away) |
@@ -183,15 +183,14 @@ to whole-frame on the starless render = stricter) and mw_boost skips —
 | jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = byte-verify artifact; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
 
 **Standing per-render audits (printed + logged every starcomb run):**
-the GATE (`bg_qa --sky-scope` on the starless render: blocks P95/P50 ≤
-1.6, colors ≤ 7, rings ≤ 4 — **thresholds never loosen**; corridor +
-foreground masked as known signal/non-sky); whole-frame QA as reference;
-`corridor_report` (floor Δ, along-band chroma P2V, seam texture);
-`star_shell_report` (aura_lum WARN > 4.0 — calibrated fixed +2.0 vs
-defect +12.0 on the same star sample; shell_chroma is a TREND, no bound
-— honest PSF fringe dominates it and a fixed bound cried wolf on the
-approved render); black_point clip0 corridor/sky; stars anchor + MTF
-low-end gain (drift watch); star metrics; MW box contrast.
+the GATE (`bg_qa` on the starless render, composition-agnostic sky scope:
+colour ≤ 7, gradient ≤ 8, blotch ≤ 5, rings ≤ 8 on the statistical dark
+sky, terrestrial foreground excluded — **thresholds never loosen**);
+whole-frame QA as reference; `star_shell_report` (aura_lum WARN > 4.0 —
+calibrated fixed +2.0 vs defect +12.0 on the same star sample; shell_chroma
+is a TREND, no bound — honest PSF fringe dominates it and a fixed bound
+cried wolf on the approved render); black_point clip0 sky; stars anchor +
+MTF low-end gain (drift watch); star metrics.
 
 ## Per-stage expectations (inspection contract)
 
@@ -253,9 +252,6 @@ Stretch/denoise/color:
   noise is radial after V(r) division; adaptive smoothing imprints a
   radial signature → rings 4.1–5.1 FAIL. Only post-stretch
   `-vst -mod=0.5` on the starless render passes.
-- Denoise AFTER the boost → noise field is non-stationary (corridor
-  ×2.2) → NL-Bayes under-averages the corridor, over-smooths the sky:
-  corridor grain 6→7, MW −1.
 - Chroma blur (σ2/4) + satu → scale-blind to 48–128 px blotches; satu
   re-amplifies everything ×1.25 → rainbow WORSE. The fix is
   significance coring (Wiener, multi-scale), not blurring.
@@ -296,17 +292,18 @@ Separation/stars:
   (doesn't touch the amplified wing).
 
 QA/scope:
-- Whole-frame QA as the gate on a separated chain → reads intentional
-  MW lift as background artifact (k=0.6 → "ring 6.1" was pure corridor
-  signal). Gate scope = starless-sky (corridor+foreground masked),
-  ratified 2026-07-06; whole-frame stays a reported reference.
+- Whole-frame QA as the gate on a separated chain → reads real MW/object
+  signal as a background artifact ("ring 6.1" was pure MW signal). The gate
+  runs a composition-agnostic STATISTICAL sky scope instead (dark blocks,
+  foreground excluded); whole-frame stays a reported reference. (The interim
+  corridor-masked scope was itself a bandaid — removed 2026-07-08.)
 - Judging by hand-picked patches → the whole-frame-QA lesson that
   started the gate (2.69/38 on a render that "looked fine" in patches).
 - A level-step seam gauge across mask edges → strip-median ≈ 0; the
   coring seam is a TEXTURE discontinuity (blotch-MAD ratio works).
-- Sensor `fixbanding` → the visible bands are corridor-oriented chroma
+- Sensor `fixbanding` → the visible bands are MW-oriented chroma
   survivors + star fringes, NOT row/col pattern (axis-aligned residual
-  0.2–0.5 rms vs 1.2–2.5 corridor-oriented). Don't run it.
+  0.2–0.5 rms vs 1.2–2.5 band-oriented). Don't run it.
 - Hiding defects with darkness/crops → the 0.07-target "fix" and the
   150–250px crops were masking the rim, not fixing it; the rim was in
   the data (estimator extrapolation × stretch amplification).
@@ -317,9 +314,9 @@ QA/scope:
 Prediction inversions worth remembering (recorded, instructive):
 - "K_G will move 0.904→~1 without rgb_equal" → actual K_G 0.749:
   rgb_equal was the PRIMARY raw-Bayer normalizer, not a tweak.
-- "corridor clip0 must stay ~0 under black_point" → inverted: the
-  corridor's dark gaps/lanes clip (9–16%) and that IS the requested
-  effect; the smooth cored sky barely clips (0.01–1%).
+- "the dark gaps must stay ~0-clip under black_point" → inverted: the MW's
+  dark gaps/lanes clip (9–16%) and that IS the requested gap blackness; the
+  smooth cored sky barely clips (0.01–1%).
 
 ## Bandaid/adaptation ledger (every divergence carries its removal condition)
 
@@ -379,34 +376,32 @@ Prediction inversions worth remembering (recorded, instructive):
    `inpaint` until approved; the net pass adds ~5 min on this box.
    Cost of the inpaint engine documented: <6σ faint tail in the
    starless layer; skirt-aura class (mitigated by stars_floor).
+   CAVEAT: the objective bars above (gate blocks/rings, corridor floor,
+   chroma-ring numbers, B7 byte-identity) were all measured under the
+   REMOVED corridor-gate — they must be RE-MEASURED against the new
+   composition-agnostic gate + corridor-free baseline before adoption.
 5. **Denoise** — linear placements structurally dead on self-flat data;
    post-stretch `-vst -mod=0.5` is in the approved chain.
-6. **mw_boost** (luminosity-weighted) — the lift itself dies when the
-   next acquisition has enough integration that a global stretch
-   renders the MW without local help.
-7. **Stars anchor (median top-500)** — data-dependent low-end gain
-   (×864→×996 drift measured). Removal: noise-relative/fixed-gain
-   anchor, pre-registered, B7-reproducibility preserved.
-   MEASURED 2026-07-07 (hypothesis confirmed, sharpened): the drift
-   class is PER-CHANNEL gain (the rgb_equal→SPCC transition), not
-   global gain. Synthetic test on the canonical layers (per-component
-   per-channel amplitudes, floor+MTF replicated, G-channel u8 vs
-   control): pure global gain ×0.8/×1.25 → BOTH modes track (max
-   drift 0.45 counts, identical — catalog also follows global gain);
-   per-channel SPCC K (1.0/0.656/0.837) → catalog mode drifts −1.0/
-   −8.5/−20.0 median counts (bright/mid/faint tier, max 20.2) because
-   the max-over-channel top-500 median moves differently than any one
-   channel, while noise mode holds +0.05/+0.17/+0.60 (its m tracks
-   K_G exactly: 0.656×0.000904 = 0.000587). `--stars-anchor noise`
-   default-off in starcomb (catalog = B7 identity, byte-verified);
-   k_anchor 490.9663661574939 = canonical anchor 0.0284109 / σ_G
-   5.78673e-5. ACCEPTANCE MEASURED: a full noise-mode render on the
-   canonical stack is byte-IDENTICAL to all four B7 artifacts — the
-   default flip is a render no-op there and awaits only the user's
-   go-ahead.
-8. **Whole-frame QA on the recombine** — retired as gate (scope
-   ratified 2026-07-06); lives on as a reported reference.
-9. **Raw ingest** — RESOLVED for any siril-readable raw. `run_pipeline.sh`
+6. **Stars anchor (median top-500)** — data-dependent low-end gain
+   (×864→×996 drift measured). Removal: noise-relative anchor
+   (`--stars-anchor noise`, k_anchor 490.9663661574939 = canonical anchor
+   0.0284109 / σ_G 5.78673e-5), pre-registered. MEASURED 2026-07-07: the
+   drift class is PER-CHANNEL gain (the rgb_equal→SPCC transition), not
+   global. Synthetic test on the canonical layers: pure global gain
+   ×0.8/×1.25 → BOTH modes track (max 0.45 counts); per-channel SPCC K
+   (1.0/0.656/0.837) → catalog mode drifts −1.0/−8.5/−20.0 counts
+   (bright/mid/faint) while noise mode holds +0.05/+0.17/+0.60 (its m
+   tracks K_G: 0.656×0.000904 = 0.000587). Default-off; the flip's
+   acceptance (a byte no-op render) must be RE-VERIFIED against the new
+   corridor-free baseline before flipping.
+7. **Whole-frame QA as the gate** — SUPERSEDED, not adapted: the gate now
+   selects its sky STATISTICALLY (composition-agnostic — colour / gradient /
+   blotch / rings on the dark blocks, foreground excluded), so it neither
+   reads real MW/object as a defect NOR needs a per-set corridor. The
+   2026-07-06 sky-scope-via-corridor decision is gone with the corridor
+   itself (removed 2026-07-08). Whole-frame QA lives on as a reported
+   reference.
+8. **Raw ingest** — RESOLVED for any siril-readable raw. `run_pipeline.sh`
    (`raw_find`) globs every common camera raw — NEF/DNG/CR2/CR3/ARW/RAF/
    ORF/RW2/PEF/SRW — and siril's `convert` debayers them directly (verified:
    Wang's D810A NEF ingests RGGB 14-bit and stacks a clean master; set-03's

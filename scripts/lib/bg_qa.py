@@ -1,171 +1,188 @@
 #!/usr/bin/env python3
 """Background QA for a stretched render — THE GATE.
 
-Two independent checks, PASS/FAIL per fixed thresholds so a recipe cannot
-be graded by hand-picked patches:
-- block map: star-robust block medians (branch corner excluded) —
-  luminance uniformity (P95/P50) and color neutrality (worst |R-G|,
-  |B-G|);
-- radial rings: per-channel radial profiles detrended with a wide moving
-  average — the residual peak-to-valley is the concentric-ring amplitude
-  the eye picks up even when the block map passes.
+A background DEFECT is a property of the SKY — the dark, empty regions; real
+signal (stars, galaxy, Milky Way, nebula) is BRIGHT and must NEVER count as a
+defect. So the gate selects the sky STATISTICALLY (no per-set corridor / no
+composition mask) and grades the defects that generalize across any framing:
 
-Two SCOPES, same thresholds (thresholds never loosen):
-- whole-frame (default): on the separated chain it reads intentional MW
-  signal as artifact, so it is REPORTED as reference on recombined images,
-  never gated.
-- --sky-scope: the gate for the separated chain — run on the STARLESS
-  render with the measured MW corridor (+ feather) masked as known signal.
-  Corridor-contained costs are covered separately by
-  astrometrics.corridor_report (reported, not gated).
+- color:    worst |R-G| / |B-G| among sky blocks       (color cast / blotch)
+- gradient: peak-to-valley of a least-squares PLANE fit to the sky-block
+            luminance                                   (vignette / glow gradient)
+- resid:    sky-block scatter about that plane          (mid-scale blotches)
+- rings:    detrended radial P2V on sky pixels          (concentric vignette rings)
 
-Importable (functions below) for the inspection/experiment tooling.
+The plane fit is robust to a localized bright object (the object blocks are not
+in the sky selection and cannot tilt the plane), so an object-dominated frame
+(a galaxy filling the center) is graded on its true sky exactly like an empty
+field or a Milky-Way band — the corridor mask this used to need does not
+generalize (a galaxy has no band and no maskable boundary).
+
+The terrestrial FOREGROUND (a treeline: real, but DARK, so the statistical sky
+selector would wrongly include it) is excluded via astrometrics.branch_mask,
+applied to BOTH the block and the ring scope.
+
+Thresholds never loosen; they are calibrated so the deep/clean references pass
+with margin and a real gradient/cast fails. Importable for the inspection and
+experiment tooling.
 """
 import sys
 import numpy as np
 
 BLOCK = 200
-LUM_RATIO_MAX = 1.6     # brightest block / median block luminance
-COLOR_DEV_MAX = 7.0     # worst |R-G| or |B-G| among blocks (8-bit counts)
-RING_LUM_MAX = 4.0      # detrended radial peak-to-valley, luminance
-RING_COLOR_MAX = 4.0    # detrended radial peak-to-valley, R-G / B-G
+SKY_K = 2.5             # sky = blocks with luminance <= P50 + SKY_K*MAD
+COLOR_DEV_MAX = 7.0     # worst |R-G| or |B-G| among sky blocks (8-bit counts)
+GRAD_MAX = 8.0          # plane-fit P2V over the sky blocks (8-bit counts)
+RESID_MAX = 5.0         # sky-block MAD about the plane (8-bit counts)
+RING_MAX = 8.0          # detrended radial P2V on sky pixels (8-bit counts)
 NB = 40                 # radial bins
 
 
-def block_metrics(a, signal_mask=None):
-    """Star-robust block medians over the whole frame, branch corner masked.
-    signal_mask (HxW bool, True = known-signal pixels, e.g. the measured MW
-    corridor under the layer-appropriate sky scope): blocks that are mostly
-    signal leave the statistics exactly like the branch blocks do — scope
-    change only, the thresholds are untouched.
-    Returns dict with percentiles, worst color deviations and offender
-    locations (block row/col, 1-based, and approx pixel coords)."""
-    h, w, _ = a.shape
-    gy, gx = h // BLOCK, w // BLOCK
-    blocks = a[:gy*BLOCK, :gx*BLOCK].reshape(gy, BLOCK, gx, BLOCK, 3)
-    med = np.median(blocks.transpose(0, 2, 1, 3, 4).reshape(gy, gx, -1, 3),
-                    axis=2)
-
-    mask = np.ones((gy, gx), bool)
-    import astrometrics as am  # lazy: astrometrics imports bg_qa at top
-    if am.CTX.foreground == "mask":     # block-level foreground fraction
-        fg = am._fg_mask(h, w)[:gy*BLOCK, :gx*BLOCK] \
-            .reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
-        mask &= fg <= 0.5
-    elif am.CTX.foreground is not None:  # foreground rect (set-03: branch)
-        fx0, fy0, fx1, fy1 = am.CTX.foreground
-        mask[int(gy * fy0):int(gy * fy1), int(gx * fx0):int(gx * fx1)] = False
-    if signal_mask is not None:
-        sm = signal_mask[:gy*BLOCK, :gx*BLOCK] \
-            .reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
-        mask &= sm <= 0.5
-
-    lum = med[..., 1]  # G as luminance proxy
-    lv = lum[mask]
-    p5, p50, p95 = np.percentile(lv, [5, 50, 95])
-    rg = med[..., 0] - med[..., 1]
-    bg = med[..., 2] - med[..., 1]
-    worst_rg = float(np.abs(rg[mask]).max())
-    worst_bg = float(np.abs(bg[mask]).max())
-    ratio = p95 / max(p50, 1)
-
-    yy, xx = np.unravel_index(np.argmax(np.where(mask, lum, 0)), lum.shape)
-    bright = (int(yy), int(xx), gy, gx)
-    dev = np.maximum(np.abs(rg), np.abs(bg))
-    yy, xx = np.unravel_index(np.argmax(np.where(mask, dev, 0)), dev.shape)
-    return {"p5": float(p5), "p50": float(p50), "p95": float(p95),
-            "ratio": float(ratio), "worst_rg": worst_rg, "worst_bg": worst_bg,
-            "bright_block": bright, "color_block": (int(yy), int(xx))}
-
-
-def radial_profile_rgb(a, nb=NB, signal_mask=None):
-    """Per-channel median radial profile (r=1 at the corners). Returns the
-    profile rows that had enough pixels. signal_mask pixels (known signal)
-    are excluded from the bin medians."""
-    h, w = a.shape[:2]
-    yyc = (np.arange(h) - h / 2)[:, None] / (h / 2)
-    xxc = (np.arange(w) - w / 2)[None, :] / (w / 2)
-    r = np.sqrt((yyc**2 + xxc**2) / 2.0)
-    edges = np.linspace(0, 1, nb + 1)
-    prof = np.full((nb, 3), np.nan)
-    sky = None if signal_mask is None else ~signal_mask
-    for i in range(nb):
-        m = (r >= edges[i]) & (r < edges[i + 1])
-        if sky is not None:
-            m &= sky
-        if m.sum() > 500:
-            prof[i] = [np.median(a[..., c][m]) for c in range(3)]
-    return prof[~np.isnan(prof[:, 0])]
-
-
 def ring_amp(v, win=9):
+    """Detrended peak-to-valley of a 1-D profile (moving-average residual)."""
     pad = np.pad(v, win // 2, mode="edge")
     smooth = np.convolve(pad, np.ones(win) / win, mode="valid")
     d = v - smooth
     return float(d.max() - d.min())
 
 
-def ring_metrics(a, signal_mask=None):
-    prof = radial_profile_rgb(a, signal_mask=signal_mask)
-    return {"ring_l": ring_amp(prof[:, 1]),
-            "ring_rg": ring_amp(prof[:, 0] - prof[:, 1]),
-            "ring_bg": ring_amp(prof[:, 2] - prof[:, 1])}
-
-
-def sky_signal_mask(h, w):
-    """The layer-appropriate sky scope's signal mask: the measured MW band
-    corridor incl. the mw_boost feather zone — every pixel an intentional MW
-    lift can touch. True = signal, excluded from background statistics. The
-    branch corner is excluded separately by block_metrics."""
+def _fg_block_frac(h, w):
+    """Per-block foreground fraction (gy, gx) from the resolved CTX, or None
+    when no foreground is configured. astrometrics imports bg_qa at module
+    load, so import it lazily here."""
     import astrometrics as am
-    return am.band_mask_frac(h, w, feather=0.10) > 0.01
+    gy, gx = h // BLOCK, w // BLOCK
+    if am.CTX.foreground == "mask":
+        fg = am._fg_mask(h, w)[:gy * BLOCK, :gx * BLOCK]
+        return fg.reshape(gy, BLOCK, gx, BLOCK).mean(axis=(1, 3))
+    if am.CTX.foreground is not None:
+        fx0, fy0, fx1, fy1 = am.CTX.foreground
+        m = np.zeros((gy, gx), np.float32)
+        m[int(gy * fy0):int(gy * fy1), int(gx * fx0):int(gx * fx1)] = 1.0
+        return m
+    return None
 
 
-def qa_metrics(a, signal_mask=None):
-    """All QA numbers + the verdict, without printing.
-    signal_mask=None: the historical whole-frame scope (byte-identical).
-    signal_mask=<HxW bool>: layer-appropriate sky scope — known-signal
-    pixels leave the background statistics; thresholds identical."""
-    bm = block_metrics(a, signal_mask)
-    rm = ring_metrics(a, signal_mask)
-    ok_b = (bm["ratio"] <= LUM_RATIO_MAX and bm["worst_rg"] <= COLOR_DEV_MAX
-            and bm["worst_bg"] <= COLOR_DEV_MAX)
-    ok_r = (rm["ring_l"] <= RING_LUM_MAX and rm["ring_rg"] <= RING_COLOR_MAX
-            and rm["ring_bg"] <= RING_COLOR_MAX)
-    return {**bm, **rm, "ok_blocks": ok_b, "ok_rings": ok_r,
-            "pass": ok_b and ok_r,
-            "scope": "whole-frame" if signal_mask is None else "sky"}
+def sky_mask_blocks(a):
+    """Block medians + the statistical SKY block mask (not-bright, foreground
+    excluded). Returns (med (gy,gx,3), lum (gy,gx), sky bool (gy,gx))."""
+    h, w, _ = a.shape
+    gy, gx = h // BLOCK, w // BLOCK
+    blocks = a[:gy * BLOCK, :gx * BLOCK].reshape(gy, BLOCK, gx, BLOCK, 3)
+    med = np.median(blocks.transpose(0, 2, 1, 3, 4).reshape(gy, gx, -1, 3),
+                    axis=2)
+    lum = med[..., 1]                       # G as luminance proxy
+    valid = np.ones((gy, gx), bool)
+    fg = _fg_block_frac(h, w)
+    if fg is not None:
+        valid &= fg <= 0.5
+    lv = lum[valid]
+    p50 = np.median(lv)
+    mad = 1.4826 * np.median(np.abs(lv - p50))
+    sky = valid & (lum <= p50 + SKY_K * max(mad, 1e-6))
+    return med, lum, sky
+
+
+def _plane_p2v(lum, sky):
+    """(gradient P2V, residual MAD) of a least-squares plane fit L ~ ax+by+c
+    to the sky blocks, one round of outlier rejection so a faint object wing
+    or a stray bright block does not tilt it. P2V is evaluated over the whole
+    grid (the worst-corner extent of the fitted background trend)."""
+    gy, gx = lum.shape
+    ys, xs = np.nonzero(sky)
+    if len(ys) < 12:
+        return 0.0, 0.0
+    A = np.c_[xs, ys, np.ones(len(xs))]
+    coef, *_ = np.linalg.lstsq(A, lum[sky], rcond=None)
+    resid = lum[sky] - A @ coef
+    sig = 1.4826 * np.median(np.abs(resid - np.median(resid)))
+    keep = np.abs(resid - np.median(resid)) < 3.0 * (sig + 1e-9)
+    if keep.sum() >= 12:
+        A2, b2 = A[keep], lum[sky][keep]
+        coef, *_ = np.linalg.lstsq(A2, b2, rcond=None)
+        resid = b2 - A2 @ coef
+        sig = 1.4826 * np.median(np.abs(resid - np.median(resid)))
+    YY, XX = np.mgrid[0:gy, 0:gx]
+    plane = coef[0] * XX + coef[1] * YY + coef[2]
+    return float(plane.max() - plane.min()), float(sig)
+
+
+def _sky_rings(a, sky_blocks):
+    """Detrended radial G-P2V over the SKY pixels only (sky block mask
+    upsampled to full res). Object / foreground pixels are excluded so the
+    profile measures concentric background rings, not the object."""
+    h, w = a.shape[:2]
+    sky_pix = np.repeat(np.repeat(sky_blocks, BLOCK, 0), BLOCK, 1)
+    if sky_pix.shape[0] < h or sky_pix.shape[1] < w:
+        sky_pix = np.pad(sky_pix, ((0, h - sky_pix.shape[0]),
+                                   (0, w - sky_pix.shape[1])), mode="edge")
+    sky_pix = sky_pix[:h, :w]
+    yyc = (np.arange(h) - h / 2)[:, None] / (h / 2)
+    xxc = (np.arange(w) - w / 2)[None, :] / (w / 2)
+    r = np.sqrt((yyc ** 2 + xxc ** 2) / 2.0)
+    edges = np.linspace(0, 1, NB + 1)
+    prof = []
+    G = a[..., 1]
+    for i in range(NB):
+        m = (r >= edges[i]) & (r < edges[i + 1]) & sky_pix
+        if m.sum() > 500:
+            prof.append(np.median(G[m]))
+    prof = np.asarray(prof)
+    return ring_amp(prof) if len(prof) > 3 else 0.0
+
+
+def qa_metrics(a, _ignored=None):
+    """All gate numbers + the verdict for an 8-bit HxWx3 render, without
+    printing. Composition-agnostic: sky is selected statistically and the
+    terrestrial foreground (CTX) is excluded. The second positional arg is
+    accepted and ignored for call-site compatibility (there is no per-set
+    signal mask anymore)."""
+    a = np.asarray(a, dtype=np.float64)
+    med, lum, sky = sky_mask_blocks(a)
+    rg = med[..., 0] - med[..., 1]
+    bg = med[..., 2] - med[..., 1]
+    color = float(max(np.abs(rg[sky]).max(), np.abs(bg[sky]).max())) \
+        if sky.any() else 0.0
+    grad, resid = _plane_p2v(lum, sky)
+    ring_l = _sky_rings(a, sky)
+    floor = float(np.median(lum[sky])) if sky.any() else float(np.median(lum))
+    ok_color = color <= COLOR_DEV_MAX
+    ok_grad = grad <= GRAD_MAX
+    ok_resid = resid <= RESID_MAX
+    ok_rings = ring_l <= RING_MAX
+    # offender block for reporting (brightest sky block)
+    yy, xx = np.unravel_index(np.argmax(np.where(sky, lum, -1)), lum.shape)
+    return {"color": color, "grad": grad, "resid": resid, "ring_l": ring_l,
+            "floor": floor, "skyfrac": float(sky.mean()),
+            "ok_color": ok_color, "ok_grad": ok_grad, "ok_resid": ok_resid,
+            "ok_rings": ok_rings,
+            "pass": bool(ok_color and ok_grad and ok_resid and ok_rings),
+            "bright_sky_block": (int(yy), int(xx))}
 
 
 def main():
     from PIL import Image
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    sky = "--sky-scope" in sys.argv[1:]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
                 if a.startswith("--") and "=" in a)
-    # per-set geometry (corridor + foreground): config_<set>.json, else
-    # WCS-derived, else none (whole-frame QA, warned). Without
-    # --session/--set the context stays unconfigured = none, never set-03.
+    # Foreground geometry (a treeline to exclude from the sky) comes from
+    # config_<set>.json via configure(); without --session/--set the context
+    # stays foreground-None and the whole frame is eligible sky.
     import astrometrics as am
-    am.configure(opts.get("session"), opts.get("set"), stack=opts.get("stack"))
+    am.configure(opts.get("session"), opts.get("set"))
     a = np.asarray(Image.open(args[0]), dtype=np.float64)
-    sm = sky_signal_mask(a.shape[0], a.shape[1]) if sky else None
-    m = qa_metrics(a, sm)
-
-    print(f"{args[0].split('/')[-1]}"
-          + ("  [sky scope: MW corridor + branch masked]" if sky else ""))
-    print(f"  luminance blocks: P5 {m['p5']:.0f}  P50 {m['p50']:.0f}  "
-          f"P95 {m['p95']:.0f}  (P95/P50 {m['ratio']:.2f}, limit {LUM_RATIO_MAX})")
-    print(f"  color: worst |R-G| {m['worst_rg']:.1f}, worst |B-G| {m['worst_bg']:.1f} "
-          f"(limit {COLOR_DEV_MAX})")
-    if not m["ok_blocks"]:
-        yy, xx, gy, gx = m["bright_block"]
-        print(f"  brightest block at row {yy+1}/{gy}, col {xx+1}/{gx} "
-              f"(y~{(yy+0.5)*BLOCK:.0f}px, x~{(xx+0.5)*BLOCK:.0f}px)")
-        yy, xx = m["color_block"]
-        print(f"  worst color block at row {yy+1}/{gy}, col {xx+1}/{gx}")
-    print(f"  radial rings: lum P2V {m['ring_l']:.1f} (limit {RING_LUM_MAX}), "
-          f"R-G {m['ring_rg']:.1f} / B-G {m['ring_bg']:.1f} (limit {RING_COLOR_MAX})")
+    m = qa_metrics(a)
+    print(f"{args[0].split('/')[-1]}  [sky scope: {m['skyfrac']*100:.0f}% of "
+          "blocks, foreground excluded]")
+    print(f"  sky floor G {m['floor']:.0f}  "
+          f"| color worst |R-G|/|B-G| {m['color']:.1f} (limit {COLOR_DEV_MAX})"
+          f"  {'OK' if m['ok_color'] else 'FAIL'}")
+    print(f"  gradient (plane P2V) {m['grad']:.1f} (limit {GRAD_MAX})  "
+          f"{'OK' if m['ok_grad'] else 'FAIL'}"
+          f"  | blotch resid {m['resid']:.1f} (limit {RESID_MAX})  "
+          f"{'OK' if m['ok_resid'] else 'FAIL'}")
+    print(f"  radial rings {m['ring_l']:.1f} (limit {RING_MAX})  "
+          f"{'OK' if m['ok_rings'] else 'FAIL'}")
     print("  PASS" if m["pass"] else "  FAIL")
     sys.exit(0 if m["pass"] else 1)
 

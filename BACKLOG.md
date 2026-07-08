@@ -55,12 +55,13 @@ Items with ordering or coupling constraints.
 
 ### A1 — Adopt the StarNet2 hybrid star-separation engine
 
-The `hybrid` engine (StarNet2-ONNX run on the mask+inpaint starless) meets
-every objective bar: gate PASS 1.375 (= the inpaint control), star aura_lum
-+2.0 (= the approved render), the bright-star pedestal equals the inpaint
-fill, the faint-tail residual drops to 589 detections (vs ~5.1k), and the
-chroma rings improve 1.33/1.22 -> 1.11/1.00. Validated end-to-end; it awaits
-only the user's aesthetic sign-off on like-encoding panels.
+The `hybrid` engine (StarNet2-ONNX run on the mask+inpaint starless) met
+every objective bar when last measured: gate PASS (= the inpaint control),
+star aura_lum +2.0, the bright-star pedestal equals the inpaint fill, the
+faint-tail residual drops to 589 detections (vs ~5.1k), chroma rings improve.
+It awaits the user's aesthetic sign-off on like-encoding panels. NOTE: those
+bars were measured under the REMOVED corridor-gate — re-measure against the
+composition-agnostic gate + corridor-free baseline before adopting.
 
 Judge `07-02-26/results/exp_starsep_sep_engine_20260707_125122/judgment/`
 (`judge_starless_stipple.jpg` is the headline; `judge_bright_shells.jpg`
@@ -83,14 +84,27 @@ fallback and update the README step-6 row. Needs the net cache trio
 The catalog anchor (median top-500 max-over-channel amplitude) is
 data-dependent: under the SPCC per-channel gains it drifts the G-channel
 star rendering -8.5/-20 counts (mid/faint), while the noise-relative anchor
-(k x sigma_G of the linear starless) holds to <=0.6. Acceptance is already
-measured — a full noise-mode render on the canonical stack came out
-byte-IDENTICAL to all four approved artifacts (k = 490.9663661574939). On
-approval: flip the default, byte-verify the approved recipe once more, keep
-`catalog` as a flag.
+(k x sigma_G of the linear starless) holds to <=0.6 (k = 490.9663661574939).
+On approval: flip the default, byte-verify the reproduce once more, keep
+`catalog` as a flag. NOTE: the earlier byte-identity acceptance was against
+the retired B7 artifacts — re-verify the noise-mode render is a byte no-op
+against the new corridor-free set-03 baseline before flipping.
 
 **Blocked by:** user's go-ahead (a render no-op on the current stack, but a
 default change).
+
+### A3 — Redesign the foreground-mask derivation
+
+The terrestrial `foreground` still uses a rect or a `suggest_foreground.py`
+-derived pixel mask, and the DERIVATION is weak: the treeline mask was never
+good (its own config note admits the smear tips are only partially covered)
+and a rect cannot model a real treeline arc. (The old structural complaint —
+foreground excluded from the gate's blocks but not its rings — is FIXED: the
+composition-agnostic gate now excludes the foreground from BOTH scopes.)
+Redesign the derivation to robustly capture a real treeline silhouette + its
+drift-smear halo, validated with numbers on the `lights` set. Keep terrestrial
+masking distinct from the statistical sky selection that already handles bright
+celestial signal (a galaxy / the MW / a nebula) with no mask at all.
 
 ---
 
@@ -118,7 +132,7 @@ No upstream blockers; safe to pick up in any session. Default-focus tier.
 
 The scripts are dataset-generic (`run_pipeline.sh <session> <set>`; `raw_find`
 ingests any camera raw), but the repo's per-dataset STATE is still
-single-session: NOTES STATUS, the "approved recipe" (B7), and the byte-reproduce
+single-session: NOTES STATUS, the approved recipe, and the byte-reproduce
 contract are all set-03-specific, and a `config_<set>.json` must live inside the
 gitignored session dir — so a copyright-ignored dataset (e.g. Wang's raws) can
 hold NO tracked config or record at all. To manage many stacking workflows the
@@ -130,13 +144,35 @@ repo needs, roughly:
 - **A tracked home for per-dataset config/recipe outside the gitignored data
   dir** (e.g. `configs/<dataset>/`), so a copyright-ignored dataset is
   version-controlled without committing its raws.
-- **Generalize "approved recipe" from one global B7 to per-dataset**: starcomb's
-  defaults are set-03-tuned (its SNR/target); a different camera/target/
-  integration needs its own tuned recipe + its own byte-reproduce.
+- **Generalize the approved recipe from one global default to per-dataset**:
+  starcomb's defaults are set-03-tuned (its SNR/target); a different camera/
+  target/integration needs its own tuned recipe + its own byte-reproduce (the
+  LMC's `chroma_core` desaturation is the live example).
 - **Re-cast the byte-reproduce gate as per-dataset** — each approved render
   carries its own reproduce command + numbers.
 
 Non-blocking: configless datasets already degrade loudly and process to an
 honest (if generic) result. This is the structural work that stops set-03 from
 being the unicorn.
+
+### C2 — Give SPCC the real OSC sensor + filter profile
+
+`spcc_run.py` runs bare `spcc -catalog=localgaia`; siril logs `mono sensor
+"(null)"` with `filters "(null)"` and derives the K factors by fitting Gaia
+star colours against a default response — for every set (set-03's Z6III and
+the D810A alike). That is a relative channel balance (it does neutralise the
+sky: LMC corner G/R 1.44 -> 0.98, B/R 0.71 -> 0.99) but not the
+sensor-grounded spectrophotometric calibration the `SPCC`/`_spcc` naming
+implies. Siril's `spcc` accepts `-oscsensor=` (+ optional filter / white
+reference); passing the camera's actual OSC response grounds the per-channel
+scaling in real QE curves instead of a generic default.
+
+Do it as a measured, per-set choice: add an optional sensor spec to
+`spcc_run.py` (sourced from `config_<set>.json` so it rides the per-dataset
+config work), run the null-vs-OSC K-factor ladder, and get the colour result
+judged. The spec must DEFAULT to the current null behaviour so set-03's
+existing calibration (K R1.000/G0.656/B0.837) and reproduce are untouched —
+only sets that opt in get the sensor-grounded calibration.
+
+**Relates to:** C1 (the sensor spec is a per-dataset config field).
 
