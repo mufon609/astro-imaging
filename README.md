@@ -126,7 +126,7 @@ WCS corridor is validated there and waits on user approval (it re-renders).
 scripts/stack/run_pipeline.sh 07-02-26 set-03
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
-python3 scripts/solve_field.py 07-02-26/results/stack_set-03.fit \
+python3 scripts/calibrate/solve_field.py 07-02-26/results/stack_set-03.fit \
     --inject=07-02-26/results/stack_set-03_wcs.fit   # then siril spcc → _spcc.fit
 
 # final render, approved defaults (~3 min; --lossless adds PNG8 + PNG16)
@@ -138,7 +138,7 @@ python3 scripts/render/starcomb.py 07-02-26 set-03 --stack ... \
     --param mw_boost --values 0.5,0.8 --hypothesis "..."
 
 # quick-look legacy post chain + gate (no separation)
-scripts/run_post.sh 07-02-26 set-03
+scripts/legacy/run_post.sh 07-02-26 set-03
 ```
 
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
@@ -151,20 +151,20 @@ live in NOTES "Environment" + auto-memory.
 | `stack/run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
 | `stack/siril/{10,20,30}_master_*.ssf`, `stack/siril/40_lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `stack/siril/40{a,a2,b,d}_selfflat_*.ssf.tmpl`, `stack/selfflat.py`, `stack/rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
-| `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
-| `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
-| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
+| `calibrate/solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
+| `calibrate/spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
+| `geometry/suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
 | `render/separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
 | `render/separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
 | `render/starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
 | `lib/bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
 | `lib/astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
 | `lib/render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |
-| `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
-| `experiment.py` | legacy post-chain single-knob ladder harness (shared helpers now in `lib/render_helpers.py`) |
-| `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
-| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
-| `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
+| `qa/inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `legacy/experiment.py` | legacy post-chain single-knob ladder harness (one linked baseline chain; shared helpers in `lib/render_helpers.py`) |
+| `qa/judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
+| `legacy/run_post.sh`, `legacy/50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
+| `qa/measure_stack.py`, `qa/diag_flat.ssf` | stack stats, master-flat diagnostic |
 
 ## Data layout
 

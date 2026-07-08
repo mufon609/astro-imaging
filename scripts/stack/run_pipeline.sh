@@ -34,7 +34,7 @@ INSPECT="$S/results/inspect_${SET}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$INSPECT"
 export INSPECT_DIR="$INSPECT"
 INS() {
-  python3 "$REPO/scripts/inspect_stage.py" "$@" --dir "$INSPECT" \
+  python3 "$REPO/scripts/qa/inspect_stage.py" "$@" --dir "$INSPECT" \
       --session "$S" --set "$SET" \
     || echo "WARNING: inspection failed for: $* (run continues)" >&2
 }
@@ -246,5 +246,5 @@ rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \
       "$W"/selfflat_med*.* "$W"/selfflat_gain*.*
 
 echo "=== stage 5/5: post-process ==="
-"$REPO/scripts/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"
+"$REPO/scripts/legacy/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"
 df -h "$S" | tail -1

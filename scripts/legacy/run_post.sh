@@ -4,12 +4,13 @@
 # is scripts/starcomb.py (approved recipe B7); this path serves pipeline
 # debugging + the historical QA anchors. Its bg_qa runs whole-frame scope
 # = REFERENCE numbers, not the gate.
-# Usage: scripts/run_post.sh <session-dir> [lights-set] [subsky-arg]
+# Usage: scripts/legacy/run_post.sh <session-dir> [lights-set] [subsky-arg]
 #   subsky-arg: polynomial degree (1..4) or a full RBF spec, e.g.
 #   "-rbf -samples=30 -tolerance=3 -smooth=0.15". Defaults to 1.
 set -euo pipefail
 
-REPO="$(cd "$(dirname "$0")/.." && pwd)"
+# repo root is two up: this script is scripts/legacy/run_post.sh
+REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 SESSION="${1:?usage: run_post.sh <session-dir> [lights-set] [subsky-arg]}"
 SET="${2:-lights}"
 SUBSKY="${3:-1}"
@@ -33,7 +34,7 @@ GEN="$S/work/50_post.$SET.gen.ssf"
 sed -e "s|@SET@|$SET|g" -e "s|@SUBSKY@|$SUBSKY|g" \
     -e "s|@CROPX@|$M|g" -e "s|@CROPY@|$M|g" \
     -e "s|@CROPW@|$((W - 2 * M))|g" -e "s|@CROPH@|$((H - 2 * M))|g" \
-    "$REPO/scripts/50_postprocess.ssf.tmpl" > "$GEN"
+    "$REPO/scripts/legacy/50_postprocess.ssf.tmpl" > "$GEN"
 rm -f "$S/work"/post_*.fit
 flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$GEN"
 
@@ -52,7 +53,7 @@ else
   mkdir -p "$INSPECT"
 fi
 INS() {
-  python3 "$REPO/scripts/inspect_stage.py" "$@" --dir "$INSPECT" \
+  python3 "$REPO/scripts/qa/inspect_stage.py" "$@" --dir "$INSPECT" \
       --session "$S" --set "$SET" \
     || echo "WARNING: inspection failed for: $* (run continues)" >&2
 }

@@ -8,7 +8,7 @@ the recipe templates.
 
 Usage:
   experiment.py <session> <set> --param P --values a,b,c --hypothesis "..."
-                [--chain baseline|candidate] [--name tag]
+                [--chain baseline] [--name tag]
 
 Params (op it belongs to):
   graxpert        off|on              (GraXpert AI background extraction)
@@ -21,13 +21,11 @@ Params (op it belongs to):
   crop            edge margin px (0 = full frame)
   jpgq            JPEG quality (85,92,98)
 
-Chains (the fixed context the knob varies inside) — LEGACY quicklook
-post-chains for stage debugging only; the approved product recipe is B7
-in starcomb.py, not any chain here:
+Chain (the fixed context the knob varies inside) — a single LEGACY quicklook
+post-chain for stage debugging only; the approved product recipe is B7 in
+starcomb.py, not this chain:
   baseline   = subsky RBF(30/3/0.15) -> denoise vst ->
                autostretch linked -2.0 0.12 -> crop 150 -> jpg 92
-  candidate  = graxpert -> subsky 2 ->
-               autostretch unlinked -1.5 0.07 -> satu 0.2 -> crop 250 -> jpg 92
 
 Numeric values must bracket the chain's current value; the current value is
 auto-added to the list if missing (every ladder includes its control).
@@ -64,57 +62,6 @@ CHAINS = {
         "stretch_linked": "linked",
         "satu": "off",
         "crop": 150,
-        "jpgq": 92,
-    },
-    "candidate": {
-        "graxpert": "on",
-        "subsky": "2",
-        "denoise": "off",
-        "stretch_sigma": -1.5,
-        "stretch_target": 0.07,
-        "stretch_linked": "unlinked",
-        "satu": 0.2,
-        "crop": 250,
-        "jpgq": 92,
-    },
-    # candidate with a star-recovering stretch target: 0.12 restores
-    # baseline-level star peaks (sat 13%/mid 255 vs baseline 12/254).
-    "candidate_bright": {
-        "graxpert": "on",
-        "subsky": "2",
-        "denoise": "off",
-        "stretch_sigma": -1.5,
-        "stretch_target": 0.12,
-        "stretch_linked": "unlinked",
-        "satu": 0.2,
-        "crop": 250,
-        "jpgq": 92,
-    },
-    # Full-frame QA PASS: gx -> subsky 1 -> unlinked -1.5 0.07 -> satu 0.2
-    # -> NO crop. (higher subsky degrees overfit per channel and re-create
-    # the color failure: deg1 |B-G| 6 PASS, deg2 8, deg3 9)
-    "fullframe_v5": {
-        "graxpert": "on",
-        "subsky": "1",
-        "denoise": "off",
-        "stretch_sigma": -1.5,
-        "stretch_target": 0.07,
-        "stretch_linked": "unlinked",
-        "satu": 0.2,
-        "crop": 0,
-        "jpgq": 92,
-    },
-    # candidate at FULL FRAME (crop 0): the rim rings pass here; the open
-    # item is large-scale B-G.
-    "candidate_full": {
-        "graxpert": "on",
-        "subsky": "2",
-        "denoise": "off",
-        "stretch_sigma": -1.5,
-        "stretch_target": 0.07,
-        "stretch_linked": "unlinked",
-        "satu": 0.2,
-        "crop": 0,
         "jpgq": 92,
     },
 }

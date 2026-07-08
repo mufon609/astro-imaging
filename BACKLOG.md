@@ -166,10 +166,17 @@ the files is safe — only the shell source path changes.
      set-03): all stage inspections PASS. The register sweep is non-
      deterministic (stack not byte-reproducible run-to-run), consistent with
      B7 rendering from the FIXED spcc stack, not a rebuild.
-  5. calibrate/ qa/ geometry/ legacy/ groupings; update the remaining paths.
-     legacy/ receives experiment.py (thinned first: prune the four
-     unlinked-stretch CHAINS to the one linked baseline), run_post.sh,
-     postprocess.ssf.tmpl.
+  5. DONE — calibrate/ (solve_field, spcc_run), qa/ (inspect_stage,
+     judgment_crops, measure_stack, diag_flat), geometry/ (suggest_foreground),
+     legacy/ (experiment [thinned to the one linked baseline chain: the four
+     unlinked-stretch CHAINS pruned], run_post.sh, 50_postprocess.ssf.tmpl).
+     run_pipeline + run_post repointed (inspect_stage -> qa/, run_post ->
+     legacy/, postprocess -> legacy/, run_post $REPO now 2 up); no module
+     imports any of these (all import only lib), so the moves were import-clean.
+     Validated: py_compile + import from the new dirs, experiment CHAINS ==
+     {baseline}, run_post.sh run standalone end-to-end (inspect + gate), B7
+     byte-identical. scripts/ root now holds no files -- every script lives
+     under its stage dir.
   6. Docs + polish: sweep the descriptive path pointers deferred from earlier
      phases (CLAUDE.md's scripts/astrometrics.py + scripts/starnet_sep.py,
      NOTES ledger prose e.g. scripts/starnet_sep.py, run_post.sh comments),
