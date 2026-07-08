@@ -191,9 +191,10 @@ live in NOTES "Environment" + auto-memory.
 ## Data layout
 
 ```
-<session>/           e.g. 07-02-26/
-  biases/ darks/ flats/ lights/ <set>/   raw DNGs (ignored)
+<session>/           e.g. 07-02-26/ or nikon-test/
+  biases/ darks/ flats/ <set>/           raw frames (NEF/DNG/CR2/…, ignored)
   work/                                  masters, caches, generated scripts
   results/                               stacks, renders, exp_*/, inspect_*/
 scripts/                                 the pipeline (tracked)
+SESSIONS.md                              dataset registry (what's been processed)
 ```

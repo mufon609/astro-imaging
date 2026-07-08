@@ -114,3 +114,29 @@ the render.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
+### C1 — Multi-dataset architecture (per-dataset state as first-class)
+
+The scripts are dataset-generic (`run_pipeline.sh <session> <set>`; `raw_find`
+ingests any camera raw), but the repo's per-dataset STATE is still
+single-session: NOTES STATUS, the "approved recipe" (B7), and the byte-reproduce
+contract are all set-03-specific, and a `config_<set>.json` must live inside the
+gitignored session dir — so a copyright-ignored dataset (e.g. Wang's raws) can
+hold NO tracked config or record at all. To manage many stacking workflows the
+repo needs, roughly:
+
+- **Split NOTES** into dataset-independent design + dead-ends (stays) vs a
+  per-dataset record (approved recipe, reproduce target, pending items, config
+  rationale). `SESSIONS.md` is the index; each dataset gets its own record.
+- **A tracked home for per-dataset config/recipe outside the gitignored data
+  dir** (e.g. `configs/<dataset>/`), so a copyright-ignored dataset is
+  version-controlled without committing its raws.
+- **Generalize "approved recipe" from one global B7 to per-dataset**: starcomb's
+  defaults are set-03-tuned (its SNR/target); a different camera/target/
+  integration needs its own tuned recipe + its own byte-reproduce.
+- **Re-cast the byte-reproduce gate as per-dataset** — each approved render
+  carries its own reproduce command + numbers.
+
+Non-blocking: configless datasets already degrade loudly and process to an
+honest (if generic) result. This is the structural work that stops set-03 from
+being the unicorn.
+
