@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Siril processing pipeline. Usage: scripts/run_pipeline.sh <session-dir> [lights-set]
-#   e.g. scripts/run_pipeline.sh 07-02-26          # processes <session>/lights
-#        scripts/run_pipeline.sh 07-02-26 set-03   # processes <session>/set-03
+# Siril processing pipeline. Usage: scripts/stack/run_pipeline.sh <session-dir> [lights-set]
+#   e.g. scripts/stack/run_pipeline.sh 07-02-26          # processes <session>/lights
+#        scripts/stack/run_pipeline.sh 07-02-26 set-03   # processes <session>/set-03
 # A session dir holds shared calibration (darks required; biases+flats
 # optional) plus one or more light-frame sets; each set stacks to
 # results/stack_<set>.fit + its previews. Sets without a usable flat
@@ -11,7 +11,8 @@
 # copied with older timestamps. Intermediates are deleted per stage.
 set -euo pipefail
 
-REPO="$(cd "$(dirname "$0")/.." && pwd)"
+# repo root is two up: this script is scripts/stack/run_pipeline.sh
+REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
 SET="${2:-lights}"
 S="$REPO/$SESSION"
@@ -119,7 +120,7 @@ if [[ -n "$FLATOPT" ]]; then
   else
     echo "=== stage 1/5: master bias ==="
     rm -f "$W/masters/bias_master.fit"
-    siril_run "$REPO/scripts/10_master_bias.ssf"
+    siril_run "$REPO/scripts/stack/siril/10_master_bias.ssf"
     manifest "$S/biases" > "$W/masters/bias.manifest"
     rm -f "$W"/bias_*
   fi
@@ -130,7 +131,7 @@ if [[ -n "$FLATOPT" ]]; then
   else
     echo "=== stage 2/5: master flat ==="
     rm -f "$W/masters/flat_master.fit"
-    siril_run "$REPO/scripts/20_master_flat.ssf"
+    siril_run "$REPO/scripts/stack/siril/20_master_flat.ssf"
     manifest "$S/flats" > "$W/masters/flat.manifest"
     rm -f "$W"/flat_* "$W"/pp_flat_*
   fi
@@ -141,7 +142,7 @@ if fresh "$W/masters/dark_master.fit" "$S/darks" "$W/masters/dark.manifest"; the
 else
   echo "=== stage 3/5: master dark ==="
   rm -f "$W/masters/dark_master.fit"
-  siril_run "$REPO/scripts/30_master_dark.ssf"
+  siril_run "$REPO/scripts/stack/siril/30_master_dark.ssf"
   manifest "$S/darks" > "$W/masters/dark.manifest"
   rm -f "$W"/dark_*
 fi
@@ -153,7 +154,7 @@ F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES"
 if [[ -n "$FLATOPT" ]]; then
   GEN4="$W/40_lights.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
-      "$REPO/scripts/40_lights.ssf.tmpl" > "$GEN4"
+      "$REPO/scripts/stack/siril/40_lights.ssf.tmpl" > "$GEN4"
   echo "=== stage 4/5: calibrate + register + stack $SET ==="
   siril_run "$GEN4"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
@@ -163,13 +164,13 @@ else
   # frames -> 4b fit radial gain V(r), glow left additive -> 4c divide ->
   # registration reference sweep -> 4d stack.
   GEN4A="$W/40a_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40a_selfflat_median.ssf.tmpl" > "$GEN4A"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40a_selfflat_median.ssf.tmpl" > "$GEN4A"
   echo "=== stage 4a/5: calibrate + median self-flat $SET ==="
   siril_run "$GEN4A"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
   INS stage selfflat_median --in "$W/selfflat_med.fit"
   echo "=== stage 4b/5: fit self-flat gain surface ==="
-  python3 "$REPO/scripts/selfflat.py" "$W/selfflat_med.fit" "$W/selfflat_gain.fit"
+  python3 "$REPO/scripts/stack/selfflat.py" "$W/selfflat_med.fit" "$W/selfflat_gain.fit"
   cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"   # for inspection
   INS stage gain --in "$W/selfflat_gain.fit"
   # Zero each frame's additive residual per channel (constants only):
@@ -178,7 +179,7 @@ else
   # (magenta rim, R-G +148 at the stack rim) and leaves a pedestal whose
   # division printed the -16% luminance rim. Targets = C_c x median(V)
   # from selfflat_levels.json. See NOTES.md "RIM/RING ROOT CAUSE" + "(L)".
-  python3 "$REPO/scripts/rechroma.py" "$W" "$NFRAMES"
+  python3 "$REPO/scripts/stack/rechroma.py" "$W" "$NFRAMES"
   INS stage subsky_frame --in "$W/bkg_pp_light_$F1.fit" "$W/bkg_pp_light_$FM.fit" "$W/bkg_pp_light_$FN.fit"
   # The divisor V2 is measured from the frames actually being divided:
   # siril's plane subtraction also removes the planar share of the bowl,
@@ -186,15 +187,15 @@ else
   # additive fit (0.472: +7%) matches the frames — their own median does,
   # by construction.
   GEN4A2="$W/40a2_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40a2_selfflat_median2.ssf.tmpl" > "$GEN4A2"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40a2_selfflat_median2.ssf.tmpl" > "$GEN4A2"
   echo "=== stage 4b2/5: median of glow-subtracted frames + V2 fit ==="
   siril_run "$GEN4A2"
   mv "$W/selfflat_gain.fit" "$W/selfflat_gain1.fit"
-  python3 "$REPO/scripts/selfflat.py" "$W/selfflat_med2.fit" "$W/selfflat_gain.fit"
+  python3 "$REPO/scripts/stack/selfflat.py" "$W/selfflat_med2.fit" "$W/selfflat_gain.fit"
   cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"
   INS stage gain --in "$W/selfflat_gain.fit" --label v2
   GEN4B="$W/40b_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40b_selfflat_divide.ssf.tmpl" > "$GEN4B"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40b_selfflat_divide.ssf.tmpl" > "$GEN4B"
   echo "=== stage 4c/5: divide by self-flat $SET ==="
   siril_run "$GEN4B"
   INS stage divided --in "$W/pp_bkg_pp_light_$F1.fit" "$W/pp_bkg_pp_light_$FM.fit" "$W/pp_bkg_pp_light_$FN.fit"
@@ -235,7 +236,7 @@ else
       --sweep "$sweep_log" --seq "$W/pp_bkg_pp_light_.seq"
 
   GEN4D="$W/40d_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/40d_selfflat_stack.ssf.tmpl" > "$GEN4D"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40d_selfflat_stack.ssf.tmpl" > "$GEN4D"
   echo "=== stage 4d/5: stack $SET ($best_n/$NFRAMES frames, ref $best_ref) ==="
   siril_run "$GEN4D"
   INS stage stack --in "$S/results/stack_$SET.fit"

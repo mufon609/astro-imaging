@@ -39,7 +39,7 @@ never let it grow narrative again.
 - **The `lights` set is NOT approved** (user verdict: "massive issues -
   just different quality issues") — it is the generalization testbed
   only. Its stacks/renders were pruned; regen:
-  `scripts/run_pipeline.sh 07-02-26 && solve_field + spcc` (catalogs
+  `scripts/stack/run_pipeline.sh 07-02-26 && solve_field + spcc` (catalogs
   installed).
 - **Open queue (payoff order):** TWO USER JUDGMENTS PENDING —
   (1) `sep_engine hybrid` adoption (ledger #4: all objective bars
@@ -411,9 +411,27 @@ Prediction inversions worth remembering (recorded, instructive):
    go-ahead.
 8. **Whole-frame QA on the recombine** — retired as gate (scope
    ratified 2026-07-06); lives on as a reported reference.
+9. **NEF→DNG conversion (raw ingest)** — ADAPTATION. This rig's Siril
+   1.4.4 bundles LibRaw 0.22.0-Devel202502, which does NOT list the
+   Z6III body (only Z6/Z6II) and cannot decode Nikon HE/HE★ (TicoRAW);
+   so Z6III raws are converted to DNG (Adobe DNG Converter licenses that
+   decode) for a libraw-independent ingest. Z6III-only: Wang's D810A NEF
+   (14-bit Lossless, body in libraw's DB) loads in this Siril directly
+   (verified — RGGB, sane 14-bit stats). Dies when BOTH (a) acquisition
+   records 14-bit **Lossless**-compressed NEF (not HE/HE★ — see
+   checklist) and (b) the rig's Siril bundles a LibRaw that lists the
+   Z6III (released 0.22 does; the bundled Feb-2025 devel predates it).
+   Then run_pipeline.sh can glob *.nef too (Siril's convert reads NEF
+   natively) and the manual step is gone.
 
 ## Checklist for future acquisition sessions (the real quality lever)
 
+- Record **14-bit Lossless-compressed NEF**, NOT High-Efficiency
+  (HE/HE★): menu Photo Shooting → RAW Recording → Lossless. HE is
+  TicoRAW-compressed (LibRaw can't decode → forces the NEF→DNG bandaid,
+  ledger #9) and lossy-ish; Lossless matches Wang's D810A and preserves
+  faint linear signal. Confirm 14-bit (high-speed continuous can drop
+  to 12-bit).
 - ISO 800 (Z6III second gain stage), subs ≤ 500/focal (13s @ 38 mm,
   20s @ 24 mm) — trailing, not noise, capped set-03's sharpness
 - MORE integration: corridor signal/grain ≈ 1 at 8.75 min ISO 200 —

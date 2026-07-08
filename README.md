@@ -123,7 +123,7 @@ WCS corridor is validated there and waits on user approval (it re-renders).
 
 ```bash
 # full pipeline (session dir, set name; ~15 min)
-scripts/run_pipeline.sh 07-02-26 set-03
+scripts/stack/run_pipeline.sh 07-02-26 set-03
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
 python3 scripts/solve_field.py 07-02-26/results/stack_set-03.fit \
@@ -148,9 +148,9 @@ live in NOTES "Environment" + auto-memory.
 
 | script | role |
 |---|---|
-| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
-| `10/20/30_master_*.ssf`, `40_lights.ssf.tmpl` | siril stages for the matched-flat path |
-| `40a/40a2/40b/40d_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
+| `stack/run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
+| `stack/siril/{10,20,30}_master_*.ssf`, `stack/siril/40_lights.ssf.tmpl` | siril stages for the matched-flat path |
+| `stack/siril/40{a,a2,b,d}_selfflat_*.ssf.tmpl`, `stack/selfflat.py`, `stack/rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 | `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |

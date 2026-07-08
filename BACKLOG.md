@@ -158,8 +158,14 @@ the files is safe — only the shell source path changes.
      coupling) — lifted box_median_g to lib/astrometrics (beside report_boxes);
      both call sites are now am.box_median_g. NOTES reproduce command + README
      starcomb examples repointed to scripts/render/starcomb.py.
-  4. Stack pipeline: run_pipeline + selfflat + rechroma -> stack/, templates
-     -> stack/siril/; update run_pipeline's sed/exec paths.
+  4. DONE — Stack pipeline: run_pipeline.sh + selfflat.py + rechroma.py ->
+     stack/, siril templates -> stack/siril/. run_pipeline's $REPO recompute
+     (2 up) + 11 template/py path refs updated (inspect_stage + run_post refs
+     stay; templates are workdir-relative so their internals need no edit).
+     Validated by a FULL end-to-end run from the new location (self-flat path,
+     set-03): all stage inspections PASS. The register sweep is non-
+     deterministic (stack not byte-reproducible run-to-run), consistent with
+     B7 rendering from the FIXED spcc stack, not a rebuild.
   5. calibrate/ qa/ geometry/ legacy/ groupings; update the remaining paths.
      legacy/ receives experiment.py (thinned first: prune the four
      unlinked-stretch CHAINS to the one linked baseline), run_post.sh,
