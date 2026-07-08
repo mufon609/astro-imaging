@@ -145,6 +145,8 @@ def main():
         stem += f"_s{stride}"
     if upsample:
         stem += "_u"
+    if target != 0.25:
+        stem += f"_t{target:g}"
     p_starless = os.path.join(outdir, f"starless_{stem}.fit")
     p_stars = os.path.join(outdir, f"stars_{stem}.fit")
     p_cat = os.path.join(outdir, f"starsep_{stem}.npz")

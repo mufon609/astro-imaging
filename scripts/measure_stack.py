@@ -4,7 +4,7 @@ profile at key radii, rim-vs-mid deviation, and per-channel rim chroma.
 
 Usage: measure_stack.py <stack.fit> [reference_stack.fit ...]
        [--session=<dir> --set=<name>]  (per-set report boxes; without
-       these the legacy set-03 boxes apply)
+       these there is no corridor, so MW contrast reads n/a)
 
 All values in 16-bit counts (read_fits returns [0,1]; scaled here).
 rim_dev = mean(G, r>0.93) / mean(G, 0.3<r<0.7) - 1 — the G luminance rim

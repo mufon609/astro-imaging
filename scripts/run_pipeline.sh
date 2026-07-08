@@ -100,6 +100,10 @@ if [[ -d "$S/flats" && -d "$S/biases" ]]; then
     [[ "$fiso" == "$liso" ]] || echo "WARNING: flats ISO${fiso} != $SET ISO${liso}"
     [[ "$biso" == "$liso" ]] || echo "WARNING: biases ISO${biso} != $SET ISO${liso}"
     FLATOPT="-flat=masters/flat_master -equalize_cfa"
+    # Quicklook background extraction (run_post): flat-matched landscape
+    # sets use polynomial degree 1 — RBF carves around treelines; the
+    # self-flat RBF default (set above) stays for pure-sky sets.
+    SUBSKY_DEG="1"
   else
     echo "WARNING: flats optics ($(tr '\t' '/' <<<"$fopt" | tr '\n' ' ')) != $SET optics ($(tr '\t' '/' <<<"$lopt" | tr '\n' ' '))"
     echo "         self-flat path (median of unregistered lights -> fitted radial gain -> division)"

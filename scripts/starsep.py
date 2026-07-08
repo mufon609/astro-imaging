@@ -119,7 +119,6 @@ def inpaint(ch, mask):
         nans = np.isnan(coarse)
         if not nans.any():
             break
-        fill = ndimage.generic_filter  # noqa: F841  (kept simple below)
         m = np.where(np.isnan(coarse), 0, coarse)
         cnt = ndimage.uniform_filter((~np.isnan(coarse)).astype(np.float32), 3)
         sm = ndimage.uniform_filter(m, 3)

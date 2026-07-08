@@ -57,8 +57,8 @@ import experiment as exp  # noqa: E402  (run_graxpert, strips, measure_jpg)
 # All corridor / foreground / report-box geometry lives in the per-set
 # context (astrometrics.CTX): main() calls am.configure(session, set,
 # stack) — config_<set>.json values, else WCS-derived corridor, else none
-# (warned). The legacy set-03 constants remain in astrometrics only as
-# the no-configure library fallback.
+# (warned). An unconfigured CTX carries no geometry (none/None), so a
+# forgotten configure() degrades loudly, never to set-03's masks.
 from astrometrics import band_mask_frac  # noqa: E402
 
 
@@ -239,9 +239,9 @@ def lum_core(starless_st, k=3.0):
 
 
 def run_graxpert_denoise(work, fit):
-    """GraXpert AI denoising on a linear FITS (Ladder D rung 'gx'),
-    cached by input identity. Standard-order placement: linear, on the
-    STARLESS layer, before the stretch."""
+    """GraXpert AI denoising on a linear FITS (the --starless-denoise gx
+    option), cached by input identity. Standard-order placement: linear,
+    on the STARLESS layer, before the stretch."""
     st = os.stat(fit)
     out = os.path.join(work, f"gxdn_{st.st_size}_{int(st.st_mtime)}.fits")
     if os.path.exists(out):
@@ -305,6 +305,7 @@ def render_config(ctx, cfg, jpg_out):
     lines.append("close")
     run_siril(sdir, lines, "starcomb_starless.gen.ssf")
     starless_st, _ = am.load_image(st_out)
+    os.remove(st_out)  # 294 MB scratch: free it now (all in memory)
 
     if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
         # coring BEFORE the boost (default): thresholds are calibrated on
@@ -595,7 +596,7 @@ def main():
                          "ghost aura around stars; 0 = off")
     ap.add_argument("--black-point", type=float, default=8,
                     help="output black point on the starless layer, "
-                         "8-bit counts (bg 16 -> ~16-b); 0 = off")
+                         "8-bit counts (bg ~16 -> ~8); 0 = off")
     ap.add_argument("--mw-boost", type=float, default=1.2)
     ap.add_argument("--boost-mask", default="lum", choices=["geo", "lum"],
                     help="mw_boost mask: geo = flat geometric corridor "

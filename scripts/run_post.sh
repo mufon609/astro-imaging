@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LEGACY QUICK-LOOK post-process of an existing stack (single stretch, no
 # star separation; fast iteration — no re-registration). The PRODUCT chain
-# is scripts/starcomb.py (approved recipe B6); this path serves pipeline
+# is scripts/starcomb.py (approved recipe B7); this path serves pipeline
 # debugging + the historical QA anchors. Its bg_qa runs whole-frame scope
 # = REFERENCE numbers, not the gate.
 # Usage: scripts/run_post.sh <session-dir> [lights-set] [subsky-arg]
@@ -62,7 +62,6 @@ if [[ -f "$S/work/post_stretch.fit" ]]; then
   TARGET=$(awk '/^autostretch/ {print $NF; exit}' "$GEN")
   INS stage post_stretch --target "${TARGET:-0.12}" --in "$S/work/post_stretch.fit"
 fi
-[[ -f "$S/work/post_satu.fit" ]] && INS stage post_satu --in "$S/work/post_satu.fit"
 INS stage final --in "$S/results/quicklook_${SET}_${stamp}.jpg"
 cp "$GEN" "$INSPECT/recipe_post.ssf"
 

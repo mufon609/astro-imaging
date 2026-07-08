@@ -7,7 +7,7 @@ Why this exists: Siril 1.4's internal solver cannot match this rig's
 ultra-wide trailed-star fields (measured 2026-07-06: online cone capped at
 2.5 deg; with the local Gaia astro catalog + correct center it still fails
 star matching at 52 and 26 deg FOV). The astrometry.net engine with
-Tycho-2 wide-field indexes (4213-4219) solves the same field from 200
+field-size-derived index scales solves the same field from 200
 peak-detected stars in seconds (set-03: RA 312.774 Dec +48.156, 32.78
 arcsec/px, logodds 361 — Cygnus, not the "Big Dipper" the session notes
 originally claimed). SPCC accepts the injected TAN-SIP WCS.
@@ -115,12 +115,52 @@ def scale_hint(path):
         return None
 
 
-def solve(stars, hint=None):
+# astrometry.net 42xx index scale -> (lo, hi) skymark/quad diameter, arcmin.
+# Load index scales whose quad size spans ~7-100% of the field width. The
+# low bound sits below the textbook 10% because a wide, star-rich blind
+# field matches on quads well under 10% of the full frame — set-03's
+# solution is at scale 13 (~6%), and dropping it gives NO SOLUTION
+# (measured). 0.07*W reproduces the proven {13..19} for set-03 while still
+# admitting the lower scales a narrow telescope field needs. A fixed set
+# fits only one focal length; loading dense low scales on a wide field just
+# grinds — so the window is bounded on BOTH ends.
+_SCALE_ARCMIN = {
+    0: (2.0, 2.8), 1: (2.8, 4.0), 2: (4.0, 5.6), 3: (5.6, 8.0),
+    4: (8.0, 11.0), 5: (11.0, 16.0), 6: (16.0, 22.0), 7: (22.0, 30.0),
+    8: (30.0, 42.0), 9: (42.0, 60.0), 10: (60.0, 85.0), 11: (85.0, 120.0),
+    12: (120.0, 170.0), 13: (170.0, 240.0), 14: (240.0, 340.0),
+    15: (340.0, 480.0), 16: (480.0, 680.0), 17: (680.0, 1000.0),
+    18: (1000.0, 1400.0), 19: (1400.0, 2000.0)}
+_SCALE_FALLBACK = {13, 14, 15, 16, 17, 18, 19}
+
+
+def scale_set(path):
+    """Index scales to load, derived from the field width (arcsec/px x
+    NAXIS1) so any focal length can solve. Falls back to the wide-field
+    set when the header lacks FOCALLEN/XPIXSZ. set-03 (55 deg) -> {13..19}
+    (the proven set); a 500 mm field (~4 deg) -> {6..14}, which the fixed
+    set could not."""
+    import re
+    try:
+        raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
+        fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+        px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+        nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
+    except (AttributeError, ValueError, OSError):
+        return set(_SCALE_FALLBACK)
+    w_arcmin = 206.265 * px / fl * nx / 60.0      # field width, arcmin
+    lo, hi = 0.07 * w_arcmin, 1.0 * w_arcmin      # quads ~7-100% of the field
+    sel = {s for s, (a, b) in _SCALE_ARCMIN.items() if b >= lo and a <= hi}
+    return sel or set(_SCALE_FALLBACK)
+
+
+def solve(stars, hint=None, scales=None):
     import astrometry
+    scales = set(scales) if scales else set(_SCALE_FALLBACK)
     solver = astrometry.Solver(
         astrometry.series_4200.index_files(
-            cache_directory=CACHE, scales={13, 14, 15, 16, 17, 18, 19}))
-    print(f"[solve_field] scale hint: "
+            cache_directory=CACHE, scales=scales))
+    print(f"[solve_field] index scales {sorted(scales)} | scale hint: "
           + (f"{hint[0]:.1f}-{hint[1]:.1f} arcsec/px" if hint else
              "none (blind)"))
     sol = solver.solve(
@@ -129,7 +169,16 @@ def solve(stars, hint=None):
         position_hint=None,
         solution_parameters=astrometry.SolutionParameters(
             sip_order=3,
-            logodds_callback=lambda lo: astrometry.Action.CONTINUE))
+            # Stop at the first astronomically-confident match instead of
+            # grinding every quad of every loaded scale. Field-derived
+            # scale sets can be large (dense low scales for narrow fields),
+            # and CONTINUE-to-exhaustion made even set-03 minutes-slow once
+            # scale 12 was added. logodds 100 = odds ~1e43, far above both
+            # the ~20.7 default solve floor and the 115-373 these blind
+            # solves actually reach — so it never stops on a spurious match.
+            logodds_callback=lambda lo: (
+                astrometry.Action.STOP if lo >= 100.0
+                else astrometry.Action.CONTINUE)))
     if not sol.has_match():
         sys.exit("solve_field: NO SOLUTION")
     return sol.best_match()
@@ -188,7 +237,7 @@ def main():
         am.configure(opts["session"], opts["set"], quiet=True)
     stars, h, w = detect_stars(src)
     print(f"[solve_field] {len(stars)} peak-detected stars")
-    m = solve(stars, hint=scale_hint(src))
+    m = solve(stars, hint=scale_hint(src), scales=scale_set(src))
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")

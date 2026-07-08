@@ -6,7 +6,7 @@
     "p0": [0.30, 1.00],
     "p1": [0.80, 0.00],
     "halfw": 0.19,
-    "_note": "MW band corridor, hand-measured on the L2 starless layer (session 4). Mode 'wcs' candidate VALIDATED session 6: |b|<=9.0deg gives IoU 0.776 vs this hand strip, gate verdict unchanged (PASS), and the overlay shows the derived band tracks the real MW course better (results/wcs_corridor_overlay_set-03.png). Stays 'manual' so the approved B6 render reproduces byte-exactly — switching to 'wcs' re-renders and needs user approval.",
+    "_note": "MW band corridor, hand-measured on the L2 starless layer (session 4). Mode 'wcs' candidate VALIDATED session 6: |b|<=9.0deg gives IoU 0.776 vs this hand strip, gate verdict unchanged (PASS), and the overlay shows the derived band tracks the real MW course better (results/wcs_corridor_overlay_set-03.png). Stays 'manual' so the approved B7 render reproduces byte-exactly — switching to 'wcs' re-renders and needs user approval.",
     "b_halfwidth_deg": 9.0
   },
   "foreground": {

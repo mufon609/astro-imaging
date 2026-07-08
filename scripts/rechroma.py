@@ -100,7 +100,7 @@ def main():
             if abs(shift) > 0.75 * max(med, 1.0):
                 sys.exit(f"rechroma: frame {i} ch{c}: target {targets[c]:.1f}"
                          f" vs median {med:.1f} — shift {shift:+.1f} exceeds"
-                         " 60% of the level; unit mismatch/model breakdown,"
+                         " 75% of the level; unit mismatch/model breakdown,"
                          " aborting with frames untouched")
             shifts.append(shift)
         for c in range(bkg.shape[0]):

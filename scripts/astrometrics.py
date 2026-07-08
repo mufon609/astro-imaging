@@ -100,16 +100,12 @@ def load_image(path):
 #   header)  |  "none" (no config + no WCS: corridor absent -> the gate's
 #   sky scope degrades to whole-frame on the starless render = stricter,
 #   with a warning; mw_boost is skipped).
-# The module-level defaults below carry set-03's hand-measured geometry
-# ONLY as the legacy fallback for direct library calls on set-03-era
-# artifacts — a configured run NEVER inherits them silently.
-
-BAND_P0 = (0.30, 1.00)   # (x, y) fractions, bottom end (set-03, hand-measured)
-BAND_P1 = (0.80, 0.00)   # top-right exit (widened after the overlay check)
-BAND_HALFW = 0.19        # fraction of the frame diagonal
-_FG_RECT_LEGACY = (0.0, 0.75, 0.22, 1.0)    # x0, y0, x1, y1 fractions
-_MW_BOX_LEGACY = (0.40, 0.30, 0.70, 0.55)
-_SKY_BOX_LEGACY = (0.05, 0.25, 0.25, 0.50)
+# A bare, unconfigured CTX carries NO composition geometry (see
+# SetContext.__init__): corridor 'none', foreground None. The real
+# geometry is resolved per set by configure() from config_<set>.json or
+# the plate-solve WCS; set-03's hand-measured values live in its config,
+# NEVER as a module default — so importing this module and forgetting to
+# configure() can never apply one dataset's masks to another's data.
 
 # ICRS (J2000) equatorial -> galactic unit-vector rotation (IAU 1958
 # pole/center as realized for J2000; standard 3x3, no astropy needed).
@@ -120,24 +116,29 @@ _EQ2GAL = np.array([
 
 
 class SetContext:
-    """Resolved per-set geometry (see configure())."""
+    """Resolved per-set geometry (see configure()). A freshly constructed
+    (unconfigured) context carries NO geometry — corridor 'none',
+    foreground None, no report boxes — so any entry point that forgets to
+    call configure() degrades to whole-frame / no-mask (stricter, and
+    warned by configure()) instead of silently inheriting set-03's masks.
+    configure() fills these from config_<set>.json or the plate solve."""
 
     def __init__(self):
-        self.source = "builtin-legacy-set03"
-        self.corridor_mode = "manual"        # manual | wcs | none
-        self.band_p0 = BAND_P0
-        self.band_p1 = BAND_P1
-        self.band_halfw = BAND_HALFW
-        self.b_halfwidth_deg = 9.0           # wcs mode: |b| <= this
+        self.source = "unconfigured"
+        self.corridor_mode = "none"          # manual | wcs | none
+        self.band_p0 = None                  # manual mode: set by configure()
+        self.band_p1 = None
+        self.band_halfw = None
+        self.b_halfwidth_deg = 9.0           # wcs mode default: |b| <= this
         # (calibrated against set-03's hand-measured corridor: IoU 0.776,
         # gate verdict unchanged)
         self.wcs = None                      # dict of WCS cards (floats)
-        self.foreground = _FG_RECT_LEGACY    # (x0,y0,x1,y1) fractions | None
+        self.foreground = None               # (x0,y0,x1,y1) | "mask" | None
         self.fg_mask_path = None             # npz pixel mask (landscape
         #                                      compositions a rect can't
         #                                      model); wins over rect
-        self.mw_box = _MW_BOX_LEGACY         # report boxes | None = derive
-        self.sky_box = _SKY_BOX_LEGACY
+        self.mw_box = None                   # report boxes | None = derive
+        self.sky_box = None
         self.judgment_crops = None           # {name: [x0,y0,x1,y1] px} | None
         self.starsep = {}                    # optional per-set overrides
         self._cache = {}
@@ -256,7 +257,8 @@ def configure(session_dir, set_name, stack=None, quiet=False):
     ctx.starsep = cfg.get("starsep", {})
     ctx.source = "+".join(src) if src else "none"
     if not quiet:
-        msg = (f"[setctx] {set_name}: corridor={ctx.corridor_mode}"
+        msg = (f"[setctx] {set_name or 'unconfigured'}: "
+               f"corridor={ctx.corridor_mode}"
                + (f" (|b|<={ctx.b_halfwidth_deg}deg)"
                   if ctx.corridor_mode == "wcs" else "")
                + f", foreground={'rect' if ctx.foreground else 'none'}"
@@ -620,18 +622,34 @@ def corridor_report(img8_hwc):
             res["floor_p50"] = float(np.percentile(cor_b, 50) - sky50)
             res["floor_p5"] = float(np.percentile(cor_b, 5) - sky50)
 
-        t_along = band_along_coord(h, w, stride=4)
-        t_along = np.asarray(t_along).ravel()
-        msk = keep[::4, ::4].ravel()
-        for key, ch in (("band_rg", a[..., 0] - G), ("band_bg", a[..., 2] - G)):
-            sm = gaussian_filter(ch, 24)[::4, ::4].ravel()
-            bins = np.linspace(t_along[msk].min(), t_along[msk].max(), 160)
-            idx = np.digitize(t_along, bins)
-            prof = np.array([np.median(sm[(idx == i) & msk])
-                             for i in range(1, len(bins))
-                             if ((idx == i) & msk).sum() > 200])
-            resid = prof - median_filter(prof, 31, mode="nearest")
-            res[key] = float(np.percentile(resid, 99) - np.percentile(resid, 1))
+        # band chroma along the corridor axis — only when the corridor
+        # actually crosses the frame (len(cor_b)); a high-galactic-latitude
+        # field has no band, so the whole-frame chroma spread it would
+        # otherwise report is meaningless (the floor guard above skips it
+        # for the same reason).
+        if len(cor_b):
+            t_along = band_along_coord(h, w, stride=4)
+            t_along = np.asarray(t_along).ravel()
+            msk = keep[::4, ::4].ravel()
+            if CTX.corridor_mode == "wcs":
+                # t_along is galactic longitude l in [0,360): a field
+                # straddling l=0 (Sagittarius/Scutum) splits into two
+                # clusters at the ends of a raw min->max axis and empties
+                # the middle bins. Re-center on the circular mean of the
+                # in-frame l so the bins span one contiguous arc.
+                ang = np.radians(t_along[msk])
+                lc = np.degrees(np.arctan2(np.sin(ang).mean(),
+                                           np.cos(ang).mean()))
+                t_along = (t_along - lc + 180.0) % 360.0 - 180.0
+            for key, ch in (("band_rg", a[..., 0] - G), ("band_bg", a[..., 2] - G)):
+                sm = gaussian_filter(ch, 24)[::4, ::4].ravel()
+                bins = np.linspace(t_along[msk].min(), t_along[msk].max(), 160)
+                idx = np.digitize(t_along, bins)
+                prof = np.array([np.median(sm[(idx == i) & msk])
+                                 for i in range(1, len(bins))
+                                 if ((idx == i) & msk).sum() > 200])
+                resid = prof - median_filter(prof, 31, mode="nearest")
+                res[key] = float(np.percentile(resid, 99) - np.percentile(resid, 1))
 
     if CTX.foreground is not None and CTX.foreground != "mask":
         # seam gauges are rect-edge-specific; mask foregrounds have no

@@ -10,7 +10,7 @@ Usage:
   inspect_stage.py report --dir <inspect-dir> [--title T] [--qa qa.txt]
 
 Stage names: calibrated, selfflat_median, subsky_frame, gain, divided,
-stack, post_subsky, post_denoise, post_stretch, post_satu, final.
+stack, post_subsky, post_denoise, post_stretch, final.
 
 Every 'stage' call appends one JSON line to <dir>/metrics.jsonl and writes
 <NN>_<stage>.jpg (one CONSISTENT autostretch: linked MTF, shadow clip
@@ -82,9 +82,6 @@ EXPECTATIONS = {
         "bg_cast8": (None, 3.0, "bg |R-G|,|B-G| (8-bit)"),
         "top100_peak8": (200.0, None, "star peaks (8-bit); below = washed out"),
     },
-    "post_satu": {
-        "bg_cast_delta8": (None, 1.0, "bg color change (8-bit)"),
-    },
     "final": {
         "qa_pass": (1, None, "bg_qa gate (hard gate)"),
         "top100_peak8": (200.0, None, "star peaks (8-bit)"),
@@ -93,7 +90,7 @@ EXPECTATIONS = {
 
 ORDER = ["calibrated", "selfflat_median", "subsky_frame", "gain", "divided",
          "registration", "stack", "post_subsky", "post_denoise",
-         "post_stretch", "post_satu", "final"]
+         "post_stretch", "final"]
 
 
 def check(stage, metric, value):
@@ -288,15 +285,6 @@ def handle_stage(args):
         checks.append(check(stage, "bg_cast8", cast))
         tp = mrep["stars"].get("top100_peak_med")
         checks.append(check(stage, "top100_peak8", tp * 255.0 if tp is not None else None))
-    elif stage == "post_satu":
-        pv = find_stage("post_stretch")
-        if pv:
-            m0 = pv["per_frame"][0]["levels"]
-            c0 = max(abs(m0[0]["median"] - m0[1]["median"]),
-                     abs(m0[2]["median"] - m0[1]["median"])) * 255.0
-            meds = [l["median"] * 255.0 for l in mrep["levels"]]
-            c1 = max(abs(meds[0] - meds[1]), abs(meds[2] - meds[1]))
-            checks.append(check(stage, "bg_cast_delta8", c1 - c0))
     elif stage == "final":
         from PIL import Image
         a = np.asarray(Image.open(args.inputs[rep_idx]), dtype=np.float64)

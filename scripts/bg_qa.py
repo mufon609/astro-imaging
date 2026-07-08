@@ -145,12 +145,11 @@ def main():
     sky = "--sky-scope" in sys.argv[1:]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
                 if a.startswith("--") and "=" in a)
-    if "session" in opts and "set" in opts:
-        # per-set geometry context (corridor + foreground); without these
-        # the legacy builtin (set-03) geometry applies — fine for set-03-era
-        # artifacts, wrong for anything else.
-        import astrometrics as am
-        am.configure(opts["session"], opts["set"], stack=opts.get("stack"))
+    # per-set geometry (corridor + foreground): config_<set>.json, else
+    # WCS-derived, else none (whole-frame QA, warned). Without
+    # --session/--set the context stays unconfigured = none, never set-03.
+    import astrometrics as am
+    am.configure(opts.get("session"), opts.get("set"), stack=opts.get("stack"))
     a = np.asarray(Image.open(args[0]), dtype=np.float64)
     sm = sky_signal_mask(a.shape[0], a.shape[1]) if sky else None
     m = qa_metrics(a, sm)

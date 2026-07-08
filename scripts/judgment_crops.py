@@ -27,23 +27,15 @@ from PIL import Image, ImageDraw
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import astrometrics as am  # noqa: E402
 
-# legacy set-03 zones (config_set-03.json carries the same values)
-CROPS = {
-    "mw_mid": (2500, 1300, 4500, 2700),
-    "lefttop": (0, 200, 2000, 1600),
-    "seam": (600, 2500, 2600, 3900),
-    "band": (3600, 300, 5600, 1700),
-}
 GAIN = 3.0
 
 
 def resolve_crops(h, w):
     """Config crops win; else derive deterministic defect-zone boxes from
-    the corridor/foreground geometry; no context at all -> legacy CROPS."""
+    the corridor/foreground geometry (an unconfigured context yields just
+    the left-top quadrant — no set inherits another's crop boxes)."""
     if am.CTX.judgment_crops:
         return dict(am.CTX.judgment_crops)
-    if am.CTX.source == "builtin-legacy-set03":
-        return dict(CROPS)
     bw, bh = w // 3, h // 3          # crop size ~ a ninth of the frame
 
     def box_at(cx, cy):

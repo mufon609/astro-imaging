@@ -21,10 +21,12 @@ Params (op it belongs to):
   crop            edge margin px (0 = full frame)
   jpgq            JPEG quality (85,92,98)
 
-Chains (the fixed context the knob varies inside):
-  baseline   = approved recipe: subsky RBF(30/3/0.15) -> denoise vst ->
+Chains (the fixed context the knob varies inside) — LEGACY quicklook
+post-chains for stage debugging only; the approved product recipe is B7
+in starcomb.py, not any chain here:
+  baseline   = subsky RBF(30/3/0.15) -> denoise vst ->
                autostretch linked -2.0 0.12 -> crop 150 -> jpg 92
-  candidate  = candidate_v4 chain: graxpert -> subsky 2 ->
+  candidate  = graxpert -> subsky 2 ->
                autostretch unlinked -1.5 0.07 -> satu 0.2 -> crop 250 -> jpg 92
 
 Numeric values must bracket the chain's current value; the current value is
@@ -70,10 +72,8 @@ CHAINS = {
         "crop": 250,
         "jpgq": 92,
     },
-    # candidate + the star-recovering stretch target measured in
-    # exp_set-03_stretch_target_20260706_125602 (A1): 0.12 restores
+    # candidate with a star-recovering stretch target: 0.12 restores
     # baseline-level star peaks (sat 13%/mid 255 vs baseline 12/254).
-    # The prospective recipe IF the rim can be fixed at full frame.
     "candidate_bright": {
         "graxpert": "on",
         "subsky": "2",
@@ -85,10 +85,9 @@ CHAINS = {
         "crop": 250,
         "jpgq": 92,
     },
-    # FULL-FRAME QA PASS on the L2 stack (exp_set-03_subsky_20260706_133842):
-    # gx -> subsky 1 -> unlinked -1.5 0.07 -> satu 0.2 -> NO crop.
-    # (higher subsky degrees overfit per channel and re-create the color
-    # failure: deg1 |B-G| 6 PASS, deg2 8, deg3 9)
+    # Full-frame QA PASS: gx -> subsky 1 -> unlinked -1.5 0.07 -> satu 0.2
+    # -> NO crop. (higher subsky degrees overfit per channel and re-create
+    # the color failure: deg1 |B-G| 6 PASS, deg2 8, deg3 9)
     "fullframe_v5": {
         "graxpert": "on",
         "subsky": "1",
@@ -100,8 +99,8 @@ CHAINS = {
         "crop": 0,
         "jpgq": 92,
     },
-    # candidate at FULL FRAME (crop 0): the deliverable target. On the L2
-    # stack the rim rings pass here; the open item is large-scale B-G.
+    # candidate at FULL FRAME (crop 0): the rim rings pass here; the open
+    # item is large-scale B-G.
     "candidate_full": {
         "graxpert": "on",
         "subsky": "2",

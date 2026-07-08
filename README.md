@@ -31,7 +31,7 @@ follows, in order — linear until step 6:
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (default) · `starnet_sep.py` StarNet2-ONNX runs on aarch64 (engines `net`/`hybrid` in starcomb) | ADAPTATION, removal candidate VALIDATED — the `hybrid` engine (net on the inpaint starless) meets every objective bar incl. the faint-tail removal (residual 589 vs ~5.1k) and awaits user judgment (NOTES ledger #4); `inpaint` stays default |
-| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + **luminosity-weighted** corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "APPROVED RECIPE — B6") |
+| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings + **luminosity-weighted** corridor MW lift; stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
@@ -116,7 +116,7 @@ Foreground masks for non-rectangular compositions (treelines) are
 derived from the linear stack: `scripts/suggest_foreground.py <stack>
 <out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the
 config at the npz. set-03's approved geometry stays in
-`config_set-03.json` (mode `manual`) so B6 reproduces byte-exactly; the
+`config_set-03.json` (mode `manual`) so B7 reproduces byte-exactly; the
 WCS corridor is validated there and waits on user approval (it re-renders).
 
 ## Running it
@@ -156,14 +156,14 @@ live in NOTES "Environment" + auto-memory.
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
 | `starsep.py` | star separation by mask+inpaint; catalog for culling |
 | `starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
-| `starcomb.py` | **the product chain** (defaults = approved recipe B6) + single-knob ladder harness |
+| `starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
 | `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
 | `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
 | `experiment.py` | legacy post-chain ladder harness + shared helpers (GraXpert runner, strips, measure_jpg) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
-| `measure_stack.py`, `diag_flat.ssf`, `exp_bgeonly.sh` | stack stats, master-flat diagnostic, G1 variant runner |
+| `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
 
 ## Data layout
 
