@@ -70,14 +70,26 @@ def ang2pix_nest_nside2(ra_deg, dec_deg):
 
 
 def _offset(ra0, dec0, d_deg, pa_deg):
-    """Point at angular distance d, position angle pa from (ra0, dec0)."""
+    """Sky points at angular distance d, position angle pa from (ra0, dec0),
+    by rotating the centre's unit vector in the local (north, east) tangent
+    basis. Vector rotation stays well-defined at the poles: a spherical
+    RA-offset formula degenerates there (cos(dec0) -> 0 collapses the
+    position-angle sweep onto a few meridians, so a polar cone samples only
+    a cross and under-reports the chunks it truly covers)."""
     ra0r, dec0r = np.radians(ra0), np.radians(dec0)
     d, pa = np.radians(d_deg), np.radians(pa_deg)
-    dec = np.arcsin(np.sin(dec0r) * np.cos(d) +
-                    np.cos(dec0r) * np.sin(d) * np.cos(pa))
-    ra = ra0r + np.arctan2(np.sin(pa) * np.sin(d) * np.cos(dec0r),
-                           np.cos(d) - np.sin(dec0r) * np.sin(dec))
-    return np.degrees(ra) % 360.0, np.degrees(dec)
+    n = np.array([np.cos(dec0r) * np.cos(ra0r),
+                  np.cos(dec0r) * np.sin(ra0r),
+                  np.sin(dec0r)])                          # cone axis
+    east = np.array([-np.sin(ra0r), np.cos(ra0r), 0.0])
+    north = np.array([-np.sin(dec0r) * np.cos(ra0r),
+                      -np.sin(dec0r) * np.sin(ra0r),
+                      np.cos(dec0r)])                      # tangent basis
+    t = np.cos(pa) * north[:, None] + np.sin(pa) * east[:, None]  # PA: N->E
+    v = np.cos(d) * n[:, None] + np.sin(d) * t                   # (3, N) dirs
+    dec = np.degrees(np.arcsin(np.clip(v[2], -1.0, 1.0)))
+    ra = np.degrees(np.arctan2(v[1], v[0])) % 360.0
+    return ra, dec
 
 
 def cone_chunks(ra0, dec0, radius_deg, n_r=80, n_pa=720):
