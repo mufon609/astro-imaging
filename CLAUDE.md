@@ -40,8 +40,10 @@ in NOTES STATUS — trust it over anything here.
 - Local Gaia catalogs at `~/.local/share/siril/siril_catalogues/`
   (astro + SPCC xpsamp chunks; siril settings already point there).
   SPCC needs the FULL cone of chunks — siril names the first missing
-  one; a validated numpy cone-cover recipe is in NOTES. Re-download:
-  zenodo 14692304 (astro) + 14738271 (chunks).
+  one. `scripts/calibrate/spcc_cone.py <solved_wcs.fit> [--fetch]` computes
+  the nside=2 nested cover from the solved WCS and downloads any missing
+  chunk (md5-verified). Re-download source: zenodo 14692304 (astro) +
+  14738271 (chunks).
 
 ## Binding rules (the contract in README, distilled for agents)
 

@@ -120,7 +120,11 @@ scripts/stack/run_pipeline.sh 07-02-26 set-03
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
 python3 scripts/calibrate/solve_field.py 07-02-26/results/stack_set-03.fit \
-    --inject=07-02-26/results/stack_set-03_wcs.fit   # then siril spcc → _spcc.fit
+    --inject=07-02-26/results/stack_set-03_wcs.fit
+# NEW FIELD: make sure the local Gaia chunks cover it before SPCC (a southern
+# field needs southern chunks); --fetch downloads any missing ones
+python3 scripts/calibrate/spcc_cone.py 07-02-26/results/stack_set-03_wcs.fit --fetch
+# then siril spcc (spcc_run.py) → _spcc.fit
 
 # final render, approved defaults (~3 min; --lossless adds PNG8 + PNG16)
 python3 scripts/render/starcomb.py 07-02-26 set-03 \
@@ -157,6 +161,7 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
+| `spcc_cone.py` | which local Gaia SPCC chunks a solved field needs (nside=2 nested HEALPix cover from the WCS) + `--fetch` to download the missing ones (md5-verified) — turnkey SPCC coverage for any field |
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 
 **`render/`** — the product chain + star separation

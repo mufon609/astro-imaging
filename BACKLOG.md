@@ -176,3 +176,17 @@ only sets that opt in get the sensor-grounded calibration.
 
 **Relates to:** C1 (the sensor spec is a per-dataset config field).
 
+### C3 — Make the stack-inspection bounds data-class-aware
+
+`inspect_stage.py`'s stack-stage bounds (`p2v_inner_rel <= 0.2`,
+`noise_over_median 1.2-2.2%`) are calibrated on set-03's near-empty field.
+Every object-dominated field WARNs on them by construction — the LMC
+(p2v 0.78, noise 4.5%) and SMC (p2v 0.73, noise 2.4%) both did, because a
+galaxy/cluster filling the frame is real signal, not a flat defect, and the
+pre-BGE stack legitimately isn't flat. WARN-only (non-blocking) but it cries
+wolf on every good object frame. Recognize the data class (e.g., bounds
+keyed off a "frame-filling object" flag, or measure flatness on the
+statistical dark sky the way the gate now does) so the WARN means something.
+The hard gate (`bg_qa`, post-render) is already composition-agnostic; this is
+the same lesson for the linear-stage inspection.
+

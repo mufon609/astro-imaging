@@ -70,10 +70,13 @@ into agent sessions): flatpak siril invocation + the /tmp rule,
 hardware/disk constraints, python stack (no astropy), GraXpert,
 astrometry venv, local Gaia catalog layout. Catalog chunk state as of
 2026-07-07: astro + SPCC xpsamp {2,3,5,7,8,9,10,11,12,13,14,15,19,25,
-27,29,30,31,43} = the Cygnus + Boötes cones (7.4 GB); SPCC needs the
-FULL cone; the nside=2 nested cone-cover is computable in numpy
-(validated: reproduces the Cygnus 11-chunk list for the 33.5° cone at
-312.77,+48.16). Camera: Nikon Z6 III, raws → DNG (Adobe DNG Converter
+27,29,30,31,43} = the Cygnus + Boötes cones (northern), plus the southern
+LMC/SMC chunks {32,33,34,36,38,44,45} added 2026-07-08; SPCC needs the
+FULL cone. `scripts/calibrate/spcc_cone.py <solved_wcs.fit> [--fetch]`
+computes the nside=2 nested cover from the solved WCS (projects the true
+image centre, not CRVAL) and fetches any missing chunk (validated:
+reproduces the Cygnus 11-chunk cover for the 33.5° cone at 312.77,+48.16).
+Camera: Nikon Z6 III, raws → DNG (Adobe DNG Converter
 18.4), 14-bit RGGB.
 
 ## Data (session 07-02-26)
