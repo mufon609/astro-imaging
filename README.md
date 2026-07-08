@@ -157,8 +157,8 @@ live in NOTES "Environment" + auto-memory.
 | `starsep.py` | star separation by mask+inpaint; catalog for culling |
 | `starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
 | `starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
-| `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
-| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
+| `lib/bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
+| `lib/astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
 | `experiment.py` | legacy post-chain ladder harness + shared helpers (GraXpert runner, strips, measure_jpg) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |

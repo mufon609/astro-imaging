@@ -49,6 +49,15 @@ import subprocess
 import sys
 import time
 
+# scripts/lib holds the shared libs (astrometrics, bg_qa); locate it by
+# walking up from this file so one bootstrap works at any nesting depth.
+_libdir = os.path.dirname(os.path.abspath(__file__))
+while _libdir != os.path.dirname(_libdir):
+    if os.path.isdir(os.path.join(_libdir, "lib")):
+        sys.path.insert(0, os.path.join(_libdir, "lib"))
+        break
+    _libdir = os.path.dirname(_libdir)
+
 VENV = os.path.expanduser("~/.local/share/starnet/venv")
 WEIGHTS = os.path.expanduser("~/.local/share/starnet/StarNet2_weights.onnx")
 WINDOW = 512
@@ -111,7 +120,6 @@ def main():
     bootstrap()
     import numpy as np
 
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import astrometrics as am
     import starsep
 

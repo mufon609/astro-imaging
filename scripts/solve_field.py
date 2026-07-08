@@ -27,6 +27,15 @@ import os
 import subprocess
 import sys
 
+# scripts/lib holds the shared libs (astrometrics, bg_qa); locate it by
+# walking up from this file so one bootstrap works at any nesting depth.
+_libdir = os.path.dirname(os.path.abspath(__file__))
+while _libdir != os.path.dirname(_libdir):
+    if os.path.isdir(os.path.join(_libdir, "lib")):
+        sys.path.insert(0, os.path.join(_libdir, "lib"))
+        break
+    _libdir = os.path.dirname(_libdir)
+
 VENV = os.path.expanduser("~/.local/share/astrometry-venv")
 CACHE = os.path.join(VENV, "index-cache")
 
@@ -47,7 +56,6 @@ def bootstrap():
 
 
 def detect_stars(path):
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import astrometrics as am
     import numpy as np
     from scipy.ndimage import maximum_filter
@@ -231,7 +239,6 @@ def main():
         sys.exit(__doc__)
     src = args[0]
     if "session" in opts and "set" in opts:
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import astrometrics as am
         am.configure(opts["session"], opts["set"], quiet=True)
     stars, h, w = detect_stars(src)

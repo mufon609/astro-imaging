@@ -30,7 +30,14 @@ import sys
 import numpy as np
 from scipy import ndimage
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# scripts/lib holds the shared libs (astrometrics, bg_qa); locate it by
+# walking up from this file so one bootstrap works at any nesting depth.
+_libdir = os.path.dirname(os.path.abspath(__file__))
+while _libdir != os.path.dirname(_libdir):
+    if os.path.isdir(os.path.join(_libdir, "lib")):
+        sys.path.insert(0, os.path.join(_libdir, "lib"))
+        break
+    _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402
 
 K_DETECT = 4.0        # detection threshold above local bg, in sigma

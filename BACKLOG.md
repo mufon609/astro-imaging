@@ -101,15 +101,23 @@ a pure move + path/import update with ZERO logic change, and the approved
 recipe B7 must stay byte-identical (all four artifacts) after each phase —
 that invariant gates the whole effort.
 
-**Linchpin — the import strategy (Phase 1, do first, alone).** Every script
-starts with `sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))`
-and imports siblings (`astrometrics`, `bg_qa`, `starsep`, `experiment`);
-nesting files breaks that. Fix: a `scripts/lib/` holding the shared
-importables (astrometrics, bg_qa, and the extracted quicklook helpers) plus
-a uniform bootstrap that puts `lib/` on sys.path (computed from __file__,
-depth-agnostic; sibling imports like starnet_sep->starsep rely on Python's
-same-dir auto-add). Import STATEMENTS stay the same; only the path insertion
-changes. Land + byte-verify this before moving anything else.
+**Linchpin — the import strategy (Phase 1, DONE).** `scripts/lib/` now holds
+the shared libs (astrometrics, bg_qa); every consumer got a uniform
+depth-agnostic bootstrap that walks up from __file__ to the nearest dir
+containing `lib/` and puts it on sys.path, so import STATEMENTS are unchanged
+and Phases 3-5 file moves are pure `git mv` (no bootstrap edits). Constraint
+for later phases: the non-lib sibling imports (starcomb->experiment,
+starnet_sep->starsep, measure_stack->starcomb) resolve via Python's same-dir
+auto-add, so keep each pair co-located when moved. Phase 2 adds the extracted
+quicklook helpers into lib/. Audit refinements to the original plan, verified
+in Phase 1: (a) the two lib files moved as PURE RENAMES — astrometrics's
+own-dir insert now resolves to lib/ and bg_qa has no bootstrap (lazy `import
+astrometrics`), so neither needed editing; the bootstrap is a consumer-only
+concern. (b) solve_field (2 sites) + starnet_sep (1) had inside-function
+inserts, hoisted to the module-top uniform bootstrap (their lazy
+astrometrics/starsep imports kept). (c) the only Phase-1 by-path coupling was
+run_post.sh's `bg_qa.py` invocation (repointed to `lib/bg_qa.py`);
+run_pipeline.sh references neither lib.
 
 **Target tree** (final; approached over phases):
 
@@ -134,7 +142,7 @@ load/save paths are relative to the siril workdir, NOT scripts/, so moving
 the files is safe — only the shell source path changes.
 
 **Phases** (one per session-sized chunk; byte-verify + commit each):
-  1. Import foundation: lib/ + the uniform bootstrap (the linchpin above).
+  1. DONE — Import foundation: lib/ + the uniform bootstrap (the linchpin above).
   2. Extract experiment.py's eight shared helpers (run_graxpert, GRAXPERT,
      measure_jpg, sanitize, star_region, value_row, compose_rows, fmt) into
      lib/; repoint starcomb; thin/retire experiment.py into legacy/, pruning

@@ -68,7 +68,7 @@ cp "$GEN" "$INSPECT/recipe_post.ssf"
 # Whole-frame background QA gate: block-median map of the ENTIRE frame,
 # luminance spread + per-channel color deviation thresholds. Reports PASS or
 # FAIL with offender locations — recipes are graded by this, not by eye alone.
-python3 "$REPO/scripts/bg_qa.py" "$S/results/quicklook_${SET}_${stamp}.jpg" \
+python3 "$REPO/scripts/lib/bg_qa.py" "$S/results/quicklook_${SET}_${stamp}.jpg" \
   --session="$S" --set="$SET" | tee "$INSPECT/qa.txt" || true
 INS report --title "$SESSION $SET — $stamp" --qa "$INSPECT/qa.txt"
 rm -f "$S/work"/post_*.fit
