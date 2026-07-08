@@ -43,13 +43,19 @@ never let it grow narrative again.
   and even a statistical object-exclusion left the luminance ratio failing
   (the LMC envelope is a continuum). A plane fit to the statistical sky is
   robust to a localized object and generalizes.
-- **nikon-test/lmc_180mm processed** — first real matched-flat exercise
-  (D810A, 180 mm, 13×181s): 13/13 registered, solved RA 80.6 Dec −69.0
-  5.70″/px, SPCC K R1.00/G0.80/B0.90 on 2954 stars (southern Gaia chunks
-  32/33/36/38 fetched). Gate PASS (grad 1.9, rings 4.3). Data-sound but the
-  render is COLOUR-DESATURATED — `chroma_core k=4` (tuned for underexposed
-  set-03) over-neutralizes the LMC's real pink/Hα. That knob awaits a user
-  judgment ladder (aesthetic, not a defect).
+- **nikon-test/lmc_180mm processed + APPROVED** — first real matched-flat
+  exercise (D810A, 180 mm, 13×181s): 13/13 registered, solved RA 80.6 Dec
+  −69.0 5.70″/px, SPCC K R1.00/G0.80/B0.90 on 2954 stars (southern Gaia
+  chunks 32/33/36/38 fetched). Gate PASS (grad 1.9, rings 4.3). Deliverable
+  `results/starcomb_lmc_180mm_nocorridor_20260708_140837.{jpg,png,_16bit.png}`
+  = the corridor-free defaults, user-approved at `chroma_core k=4` (the
+  neutral look won over k=0/2 on the ladder). The red halo around BRIGHT
+  stars is PHYSICAL (measured in the linear stack: R−G +6..+9 counts to
+  r≥16 on the top tier, ~0 on faint) — longitudinal CA of the Sigma 180/2.8
+  wide-open + the D810A's Hα-extended red response; the render's star MTF +
+  `satu` amplify it (this is `star_shell_report`'s `shell_chroma` ≈12). Kept
+  as natural, user-ratified; the real fix is acquisition (stop down / better
+  optics), not processing.
 - **The `lights` set is NOT approved** (user: "massive issues") —
   generalization testbed only; stacks/renders pruned.
 - **Next acquisition (see checklist) — worth more than all remaining
