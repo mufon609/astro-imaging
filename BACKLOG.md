@@ -108,8 +108,8 @@ containing `lib/` and puts it on sys.path, so import STATEMENTS are unchanged
 and Phases 3-5 file moves are pure `git mv` (no bootstrap edits). Constraint
 for later phases: the non-lib sibling imports (starcomb->experiment,
 starnet_sep->starsep, measure_stack->starcomb) resolve via Python's same-dir
-auto-add, so keep each pair co-located when moved. Phase 2 adds the extracted
-quicklook helpers into lib/. Audit refinements to the original plan, verified
+auto-add, so keep each pair co-located when moved. Phase 2 (DONE) extracted the
+shared helpers to lib/render_helpers.py. Audit refinements to the original plan, verified
 in Phase 1: (a) the two lib files moved as PURE RENAMES — astrometrics's
 own-dir insert now resolves to lib/ and bg_qa has no bootstrap (lazy `import
 astrometrics`), so neither needed editing; the bootstrap is a consumer-only
@@ -123,7 +123,7 @@ run_pipeline.sh references neither lib.
 
     scripts/
       lib/         astrometrics.py, bg_qa.py (gate, still runnable),
-                   <quicklook helpers extracted from experiment.py>
+                   render_helpers.py (GraXpert runner, measure_jpg, strips)
       stack/       run_pipeline.sh, selfflat.py, rechroma.py,
                    siril/  master_{bias,flat,dark}.ssf, lights.ssf.tmpl,
                            selfflat_{median,median2,divide,stack}.ssf.tmpl
@@ -143,16 +143,22 @@ the files is safe — only the shell source path changes.
 
 **Phases** (one per session-sized chunk; byte-verify + commit each):
   1. DONE — Import foundation: lib/ + the uniform bootstrap (the linchpin above).
-  2. Extract experiment.py's eight shared helpers (run_graxpert, GRAXPERT,
-     measure_jpg, sanitize, star_region, value_row, compose_rows, fmt) into
-     lib/; repoint starcomb; thin/retire experiment.py into legacy/, pruning
-     the four unlinked-stretch CHAINS (a dead end) to the one linked
-     baseline.
+  2. DONE — Extracted experiment.py's eight shared helpers (run_graxpert,
+     GRAXPERT, measure_jpg, sanitize, star_region, value_row, compose_rows,
+     fmt) into lib/render_helpers.py (VERBATIM, source-identical); repointed
+     starcomb (`rh.`) and experiment (from-import); dropped experiment's
+     now-dead numpy/bg_qa imports. The thin+retire of experiment.py (prune
+     the four unlinked-stretch CHAINS — a measured dead end — to the one
+     linked baseline, then move to legacy/) regrouped into Phase 5, where
+     legacy/ is created and the other legacy items move.
   3. Render chain: starcomb -> render/, starsep + starnet -> render/
      separation/; update the subprocess paths.
   4. Stack pipeline: run_pipeline + selfflat + rechroma -> stack/, templates
      -> stack/siril/; update run_pipeline's sed/exec paths.
   5. calibrate/ qa/ geometry/ legacy/ groupings; update the remaining paths.
+     legacy/ receives experiment.py (thinned first: prune the four
+     unlinked-stretch CHAINS to the one linked baseline), run_post.sh,
+     postprocess.ssf.tmpl.
   6. Docs + polish: README repo map, CLAUDE.md, help strings, config note;
      optionally rename the numeric-prefixed templates to descriptive names.
 

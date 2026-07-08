@@ -59,7 +59,7 @@ while _libdir != os.path.dirname(_libdir):
     _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402
 import bg_qa  # noqa: E402
-import experiment as exp  # noqa: E402  (run_graxpert, strips, measure_jpg)
+import render_helpers as rh  # noqa: E402  (run_graxpert, strips, measure_jpg)
 
 # All corridor / foreground / report-box geometry lives in the per-set
 # context (astrometrics.CTX): main() calls am.configure(session, set,
@@ -143,7 +143,7 @@ def ensure_bge_linear(ctx):
     if os.path.exists(out):
         print(f"[starcomb] bge-linear cache hit {os.path.basename(out)}")
         return out
-    gx = exp.run_graxpert(stack, work,
+    gx = rh.run_graxpert(stack, work,
                           lambda m: print(f"[starcomb] {m}", flush=True))
     rel_gx = os.path.relpath(gx, sdir)
     rel_out = os.path.relpath(out, sdir)
@@ -255,7 +255,7 @@ def run_graxpert_denoise(work, fit):
         print(f"[starcomb] gx-denoise cache hit {os.path.basename(out)}")
         return out
     print("[starcomb] graxpert denoising (linear, starless) ...", flush=True)
-    r = subprocess.run([exp.GRAXPERT, "-cmd", "denoising", fit,
+    r = subprocess.run([rh.GRAXPERT, "-cmd", "denoising", fit,
                         "-output", out[:-5], "-gpu", "false"],
                        capture_output=True, text=True)
     if not os.path.exists(out):
@@ -528,7 +528,7 @@ def render_config(ctx, cfg, jpg_out):
           f"| shell_chroma {shell['shell_chroma']:.1f} (trend, no bound) "
           f"| n {shell['n_sample']}{warn}")
 
-    qa, smet, lev = exp.measure_jpg(jpg_out)
+    qa, smet, lev = rh.measure_jpg(jpg_out)
     a8 = np.asarray(Image.open(jpg_out), dtype=np.float32).transpose(2, 0, 1)
     mwb, skb = am.report_boxes(a8.shape[1], a8.shape[2])
     mw = (box_median_g(a8, mwb) - box_median_g(a8, skb)
@@ -702,7 +702,7 @@ def main():
     for i, v in enumerate(vals):
         cfg = dict(base)
         cfg[args.param] = v
-        jpg = os.path.join(exp_dir, f"v{i}_{exp.sanitize(v)}.jpg")
+        jpg = os.path.join(exp_dir, f"v{i}_{rh.sanitize(v)}.jpg")
         print(f"[starcomb] value {v!r}")
         met = render_config(ctx, cfg, jpg)
         met["value"] = v
@@ -735,9 +735,9 @@ def main():
                      f"{q['ratio']:.2f}", f"{q['ring_l']:.1f}",
                      f"{r['mw_contrast8']:.1f}", f"{r['bg_med8']:.0f}",
                      str(s.get("n_stars", 0)),
-                     exp.fmt((s.get("mid_peak_med") or 0) * 255, "{:.0f}"),
-                     exp.fmt((s.get("sat_star_frac") or 0) * 100, "{:.0f}"),
-                     exp.fmt(s.get("halo_med"))])
+                     rh.fmt((s.get("mid_peak_med") or 0) * 255, "{:.0f}"),
+                     rh.fmt((s.get("sat_star_frac") or 0) * 100, "{:.0f}"),
+                     rh.fmt(s.get("halo_med"))])
     widths = [max(len(c), *(len(r[j]) for r in rows)) for j, c in enumerate(cols)]
     print()
     print("  ".join(c.ljust(widths[j]) for j, c in enumerate(cols)))
@@ -750,13 +750,13 @@ def main():
     with open(os.path.join(exp_dir, "hypothesis.md"), "a") as f:
         f.write("\n## Results\n\n" + "\n".join(md) + "\n")
 
-    sx = exp.star_region(stack)
-    strips = [exp.value_row(os.path.join(exp_dir, r["jpg"]), 0, sx)
+    sx = rh.star_region(stack)
+    strips = [rh.value_row(os.path.join(exp_dir, r["jpg"]), 0, sx)
               for r in results]
     labels = [f"{args.param} = {r['value']}   "
               f"[{'PASS' if r['qa_starless']['pass'] else 'FAIL'}]"
               for r in results]
-    exp.compose_rows(strips, labels, os.path.join(exp_dir, "side_by_side.jpg"))
+    rh.compose_rows(strips, labels, os.path.join(exp_dir, "side_by_side.jpg"))
     print(f"\n[starcomb] STOP — user judgment required. Review {exp_dir}/")
 
 
