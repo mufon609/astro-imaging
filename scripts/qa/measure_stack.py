@@ -37,20 +37,25 @@ def measure(path):
     rs, gs = r[sub, sub], g[sub, sub]
     rr = d16[0][sub, sub]
     bb = d16[2][sub, sub] if c >= 3 else gs
+    # exclude the terrestrial foreground (CTX): a treeline sits in the rim
+    # zone and would bias rim_dev + rim chroma. Unconfigured -> all-True.
+    keep = am.branch_mask(h, w, 4)
     prof = {}
     for lo, hi, name in ((0.3, 0.7, "mid"), (0.85, 0.93, "outer"),
                          (0.93, 1.01, "rim")):
-        m = (rs >= lo) & (rs < hi)
+        m = (rs >= lo) & (rs < hi) & keep
         prof[name] = (float(np.median(gs[m])),
                       float(np.median(rr[m] - gs[m])),
                       float(np.median(bb[m] - gs[m])))
     bins = np.linspace(0, 1, 21)
     gprof = []
     for i in range(20):
-        m = (rs >= bins[i]) & (rs < bins[i + 1])
+        m = (rs >= bins[i]) & (rs < bins[i + 1]) & keep
         if m.sum() > 200:
             gprof.append(float(np.median(gs[m])))
-    rim_dev = prof["rim"][0] / prof["mid"][0] - 1 if prof["mid"][0] else 0.0
+    mid_g = prof["mid"][0]
+    rim_dev = (prof["rim"][0] / mid_g - 1
+               if np.isfinite(mid_g) and mid_g else 0.0)
     return {"prof": prof, "rim_dev": rim_dev, "gprof": gprof}
 
 

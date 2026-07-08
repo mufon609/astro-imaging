@@ -6,15 +6,11 @@ with the same crop of the reference render.
 Usage: judgment_crops.py <outdir> <label=render.jpg> [...]
        [--session=<dir> --set=<name>]
 
-Crop zones come from the per-set config (`judgment_crops`, px boxes —
-chosen once per set and kept fixed so runs stay comparable):
-  mw_mid    corridor middle w/ dark gaps + stipple
-  lefttop   gray-patch zone
-  seam      foreground-rectangle corner
-  band      corridor edge w/ the strongest chroma bands
-Without config crops they are DERIVED per image: corridor centroid
-(mw_mid), corridor edge (band), left-top quadrant, foreground corner
-(seam, only if a foreground rect exists). Each crop is exported at native
+Crop zones come from the per-set config (`judgment_crops`: arbitrary named
+px boxes, chosen once per set over that set's interesting regions and kept
+fixed so runs stay comparable). Without config they are DERIVED per image:
+the left-top quadrant, plus the foreground silhouette's sky-facing corner
+(`seam`) when a foreground is configured. Each crop is exported at native
 resolution with a fixed mild enhancement (bg-anchored gain 3) so faint
 defects are visible identically everywhere.
 """

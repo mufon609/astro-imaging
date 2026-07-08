@@ -68,6 +68,10 @@ def sky_mask_blocks(a):
     excluded). Returns (med (gy,gx,3), lum (gy,gx), sky bool (gy,gx))."""
     h, w, _ = a.shape
     gy, gx = h // BLOCK, w // BLOCK
+    if gy < 1 or gx < 1:
+        raise ValueError(
+            f"bg_qa: render {w}x{h} is smaller than one {BLOCK}px block — too "
+            "small to grade a sky (the gate is calibrated on full-frame renders)")
     blocks = a[:gy * BLOCK, :gx * BLOCK].reshape(gy, BLOCK, gx, BLOCK, 3)
     med = np.median(blocks.transpose(0, 2, 1, 3, 4).reshape(gy, gx, -1, 3),
                     axis=2)
@@ -131,12 +135,10 @@ def _sky_rings(a, sky_blocks):
     return ring_amp(prof) if len(prof) > 3 else 0.0
 
 
-def qa_metrics(a, _ignored=None):
+def qa_metrics(a):
     """All gate numbers + the verdict for an 8-bit HxWx3 render, without
     printing. Composition-agnostic: sky is selected statistically and the
-    terrestrial foreground (CTX) is excluded. The second positional arg is
-    accepted and ignored for call-site compatibility (there is no per-set
-    signal mask anymore)."""
+    terrestrial foreground (CTX) is excluded."""
     a = np.asarray(a, dtype=np.float64)
     med, lum, sky = sky_mask_blocks(a)
     rg = med[..., 0] - med[..., 1]
