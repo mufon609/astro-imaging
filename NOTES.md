@@ -53,9 +53,15 @@ never let it grow narrative again.
   stars is PHYSICAL (measured in the linear stack: R−G +6..+9 counts to
   r≥16 on the top tier, ~0 on faint) — longitudinal CA of the Sigma 180/2.8
   wide-open + the D810A's Hα-extended red response; the render's star MTF +
-  `satu` amplify it (this is `star_shell_report`'s `shell_chroma` ≈12). Kept
-  as natural, user-ratified; the real fix is acquisition (stop down / better
-  optics), not processing.
+  `satu` amplify it (this is `star_shell_report`'s `shell_chroma` ≈12).
+  USER VERDICT 2026-07-08: the red halos are objectionable across ALL renders
+  (LMC + SMC, and worse up the satu ladder) — the earlier "keep as natural"
+  is REVERSED. Physical cause stands, but the render must DAMPEN it without
+  hiding real signal → BACKLOG. Acquisition (stop down / better optics) is
+  the root fix; a render-side mitigation is now wanted meanwhile. `satu`
+  0.35/0.5 ladders on the SMC were run (records in
+  `results/exp_starsep_satu_*`) but NOT adopted — richer colour also grows
+  the halos, so satu stays 0.2 pending the halo fix.
 - **The `lights` set is NOT approved** (user: "massive issues") —
   generalization testbed only; stacks/renders pruned.
 - **Next acquisition (see checklist) — worth more than all remaining
