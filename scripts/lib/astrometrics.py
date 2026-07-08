@@ -243,7 +243,7 @@ def configure(session_dir, set_name, stack=None, quiet=False):
             ctx.foreground = "mask"
         else:
             print(f"[setctx] WARNING: foreground mask {p} missing "
-                  "(regen: scripts/suggest_foreground.py) — foreground "
+                  "(regen: scripts/geometry/suggest_foreground.py) — foreground "
                   "treated as none", flush=True)
     elif fg and fg.get("rect"):
         ctx.foreground = tuple(float(v) for v in fg["rect"])

@@ -113,7 +113,7 @@ measure_stack, solve_field). Resolution order per set:
    geometry silently.
 
 Foreground masks for non-rectangular compositions (treelines) are
-derived from the linear stack: `scripts/suggest_foreground.py <stack>
+derived from the linear stack: `scripts/geometry/suggest_foreground.py <stack>
 <out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the
 config at the npz. set-03's approved geometry stays in
 `config_set-03.json` (mode `manual`) so B7 reproduces byte-exactly; the
@@ -144,27 +144,59 @@ scripts/legacy/run_post.sh 07-02-26 set-03
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
 live in NOTES "Environment" + auto-memory.
 
-## Repo map (scripts/, one line each)
+## Repo map (`scripts/`, by stage directory)
 
-| script | role |
+**`lib/`** — shared measurement + gate, imported everywhere via the walk-up bootstrap
+
+| file | role |
 |---|---|
-| `stack/run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
-| `stack/siril/{10,20,30}_master_*.ssf`, `stack/siril/40_lights.ssf.tmpl` | siril stages for the matched-flat path |
-| `stack/siril/40{a,a2,b,d}_selfflat_*.ssf.tmpl`, `stack/selfflat.py`, `stack/rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
-| `calibrate/solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
-| `calibrate/spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
-| `geometry/suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
-| `render/separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
-| `render/separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
-| `render/starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
-| `lib/bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
-| `lib/astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
-| `lib/render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |
-| `qa/inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
-| `legacy/experiment.py` | legacy post-chain single-knob ladder harness (one linked baseline chain; shared helpers in `lib/render_helpers.py`) |
-| `qa/judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
-| `legacy/run_post.sh`, `legacy/50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
-| `qa/measure_stack.py`, `qa/diag_flat.ssf` | stack stats, master-flat diagnostic |
+| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
+| `bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
+| `render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |
+
+**`stack/`** — build the integrated stack
+
+| file | role |
+|---|---|
+| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
+| `siril/{10,20,30}_master_*.ssf`, `siril/40_lights.ssf.tmpl` | siril stages for the matched-flat path |
+| `siril/40{a,a2,b,d}_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
+
+**`calibrate/`** — astrometric + photometric calibration
+
+| file | role |
+|---|---|
+| `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
+| `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
+
+**`render/`** — the product chain + star separation
+
+| file | role |
+|---|---|
+| `starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
+| `separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
+| `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
+
+**`qa/`** — standing audits + diagnostics (WARN-only)
+
+| file | role |
+|---|---|
+| `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
+| `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
+
+**`geometry/`** — per-set composition facts
+
+| file | role |
+|---|---|
+| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
+
+**`legacy/`** — quick-look, not the product chain
+
+| file | role |
+|---|---|
+| `experiment.py` | legacy post-chain single-knob ladder harness (one linked baseline chain; shared helpers in `lib/render_helpers.py`) |
+| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
 
 ## Data layout
 

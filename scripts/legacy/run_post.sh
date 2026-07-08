@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # LEGACY QUICK-LOOK post-process of an existing stack (single stretch, no
 # star separation; fast iteration — no re-registration). The PRODUCT chain
-# is scripts/starcomb.py (approved recipe B7); this path serves pipeline
+# is scripts/render/starcomb.py (approved recipe B7); this path serves pipeline
 # debugging + the historical QA anchors. Its bg_qa runs whole-frame scope
 # = REFERENCE numbers, not the gate.
 # Usage: scripts/legacy/run_post.sh <session-dir> [lights-set] [subsky-arg]

@@ -340,8 +340,8 @@ Prediction inversions worth remembering (recorded, instructive):
    StarNet). Removal IN PROGRESS 2026-07-07: official v2.5.3 Linux x64
    CLI package DOES ship a loose StarNet2_weights.onnx (131 MB, NHWC
    1×512×512×3 float [0,1], clip tail in-graph; license = personal
-   astrophotography use only) → `scripts/starnet_sep.py` runs it on
-   aarch64 ORT (0.3 s/tile, bit-deterministic; invertible zero-clip MTF
+   astrophotography use only) → `scripts/render/separation/starnet_sep.py`
+   runs it on aarch64 ORT (0.3 s/tile, bit-deterministic; invertible zero-clip MTF
    pre-stretch to bg 0.25, window 512 stride 256 central-crop
    assembly; weights+venv under ~/.local/share/starnet/). Smoke crop
    (1024², MW corridor): starless residual detections 83 vs the

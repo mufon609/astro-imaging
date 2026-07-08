@@ -23,17 +23,17 @@ in NOTES STATUS — trust it over anything here.
   measured ≈18× below per-frame noise → ~+0.3% stack noise: negligible)
   and why big FITS get pruned once their numbers are recorded.
 - Host python3: numpy + scipy + PIL, **no astropy** (equatorial→galactic
-  is a fixed 3×3 in `scripts/astrometrics.py`), no rawpy.
+  is a fixed 3×3 in `scripts/lib/astrometrics.py`), no rawpy.
 - GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise only, no star
   removal). exiftool/exiv2 present. Outbound network works.
 - StarNet2 ONNX weights at `~/.local/share/starnet/StarNet2_weights.onnx`
   (from the official Linux x64 CLI zip at download.starnetastro.com;
   license = personal astrophotography use, keep out of the repo) +
   its venv at `~/.local/share/starnet/venv` (onnxruntime aarch64).
-  `scripts/starnet_sep.py` bootstraps the venv and errors loudly if
-  the weights are missing.
+  `scripts/render/separation/starnet_sep.py` bootstraps the venv and
+  errors loudly if the weights are missing.
 - Plate solving: siril's internal solver cannot match this rig's
-  ultra-wide trailed-star fields — use `scripts/solve_field.py` (blind
+  ultra-wide trailed-star fields — use `scripts/calibrate/solve_field.py` (blind
   astrometry.net from peak centroids; venv auto-bootstraps at
   `~/.local/share/astrometry-venv`; scale hint derives from the FITS
   header; the configured foreground is excluded from detection).

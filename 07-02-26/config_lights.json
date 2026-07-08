@@ -8,6 +8,6 @@
   },
   "foreground": {
     "mask": "work/fgmask_lights.npz",
-    "_note": "treeline arc across bottom+sides — a rect cannot model it. DERIVED from the stack: scripts/suggest_foreground.py 07-02-26/results/stack_lights.fit 07-02-26/work/fgmask_lights.npz --overlay=... (threshold 0.4x sky median = -42 sigma, border-anchored components, dilate 48; overlay eyeballed 2026-07-07: silhouettes covered, smear tips partially — revisit with numbers if edge blocks misbehave)"
+    "_note": "treeline arc across bottom+sides — a rect cannot model it. DERIVED from the stack: scripts/geometry/suggest_foreground.py 07-02-26/results/stack_lights.fit 07-02-26/work/fgmask_lights.npz --overlay=... (threshold 0.4x sky median = -42 sigma, border-anchored components, dilate 48; overlay eyeballed 2026-07-07: silhouettes covered, smear tips partially — revisit with numbers if edge blocks misbehave)"
   }
 }
