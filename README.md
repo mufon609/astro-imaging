@@ -159,8 +159,8 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
-| `siril/{10,20,30}_master_*.ssf`, `siril/40_lights.ssf.tmpl` | siril stages for the matched-flat path |
-| `siril/40{a,a2,b,d}_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
+| `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
+| `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 
 **`calibrate/`** — astrometric + photometric calibration
 
@@ -196,7 +196,7 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `experiment.py` | legacy post-chain single-knob ladder harness (one linked baseline chain; shared helpers in `lib/render_helpers.py`) |
-| `run_post.sh`, `50_postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
+| `run_post.sh`, `postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
 
 ## Data layout
 

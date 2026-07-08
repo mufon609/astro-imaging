@@ -30,11 +30,11 @@ PY
 )
 M=150
 
-GEN="$S/work/50_post.$SET.gen.ssf"
+GEN="$S/work/post.$SET.gen.ssf"
 sed -e "s|@SET@|$SET|g" -e "s|@SUBSKY@|$SUBSKY|g" \
     -e "s|@CROPX@|$M|g" -e "s|@CROPY@|$M|g" \
     -e "s|@CROPW@|$((W - 2 * M))|g" -e "s|@CROPH@|$((H - 2 * M))|g" \
-    "$REPO/scripts/legacy/50_postprocess.ssf.tmpl" > "$GEN"
+    "$REPO/scripts/legacy/postprocess.ssf.tmpl" > "$GEN"
 rm -f "$S/work"/post_*.fit
 flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$GEN"
 

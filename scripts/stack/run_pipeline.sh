@@ -120,7 +120,7 @@ if [[ -n "$FLATOPT" ]]; then
   else
     echo "=== stage 1/5: master bias ==="
     rm -f "$W/masters/bias_master.fit"
-    siril_run "$REPO/scripts/stack/siril/10_master_bias.ssf"
+    siril_run "$REPO/scripts/stack/siril/master_bias.ssf"
     manifest "$S/biases" > "$W/masters/bias.manifest"
     rm -f "$W"/bias_*
   fi
@@ -131,7 +131,7 @@ if [[ -n "$FLATOPT" ]]; then
   else
     echo "=== stage 2/5: master flat ==="
     rm -f "$W/masters/flat_master.fit"
-    siril_run "$REPO/scripts/stack/siril/20_master_flat.ssf"
+    siril_run "$REPO/scripts/stack/siril/master_flat.ssf"
     manifest "$S/flats" > "$W/masters/flat.manifest"
     rm -f "$W"/flat_* "$W"/pp_flat_*
   fi
@@ -142,7 +142,7 @@ if fresh "$W/masters/dark_master.fit" "$S/darks" "$W/masters/dark.manifest"; the
 else
   echo "=== stage 3/5: master dark ==="
   rm -f "$W/masters/dark_master.fit"
-  siril_run "$REPO/scripts/stack/siril/30_master_dark.ssf"
+  siril_run "$REPO/scripts/stack/siril/master_dark.ssf"
   manifest "$S/darks" > "$W/masters/dark.manifest"
   rm -f "$W"/dark_*
 fi
@@ -152,9 +152,9 @@ NFRAMES=$(find "$S/$SET" -maxdepth 1 -iname '*.dng' | wc -l)
 MID=$(( (NFRAMES + 1) / 2 ))
 F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES")
 if [[ -n "$FLATOPT" ]]; then
-  GEN4="$W/40_lights.$SET.gen.ssf"
+  GEN4="$W/lights.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
-      "$REPO/scripts/stack/siril/40_lights.ssf.tmpl" > "$GEN4"
+      "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN4"
   echo "=== stage 4/5: calibrate + register + stack $SET ==="
   siril_run "$GEN4"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
@@ -163,8 +163,8 @@ else
   # Self-flat path (see NOTES.md). 4a median of unregistered calibrated
   # frames -> 4b fit radial gain V(r), glow left additive -> 4c divide ->
   # registration reference sweep -> 4d stack.
-  GEN4A="$W/40a_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40a_selfflat_median.ssf.tmpl" > "$GEN4A"
+  GEN4A="$W/selfflat_1_median.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/1_median.ssf.tmpl" > "$GEN4A"
   echo "=== stage 4a/5: calibrate + median self-flat $SET ==="
   siril_run "$GEN4A"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
@@ -186,16 +186,16 @@ else
   # so neither the multiplicative fit (0.537 corner: -16% rim) nor the
   # additive fit (0.472: +7%) matches the frames — their own median does,
   # by construction.
-  GEN4A2="$W/40a2_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40a2_selfflat_median2.ssf.tmpl" > "$GEN4A2"
+  GEN4A2="$W/selfflat_2_median2.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/2_median2.ssf.tmpl" > "$GEN4A2"
   echo "=== stage 4b2/5: median of glow-subtracted frames + V2 fit ==="
   siril_run "$GEN4A2"
   mv "$W/selfflat_gain.fit" "$W/selfflat_gain1.fit"
   python3 "$REPO/scripts/stack/selfflat.py" "$W/selfflat_med2.fit" "$W/selfflat_gain.fit"
   cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"
   INS stage gain --in "$W/selfflat_gain.fit" --label v2
-  GEN4B="$W/40b_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40b_selfflat_divide.ssf.tmpl" > "$GEN4B"
+  GEN4B="$W/selfflat_3_divide.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/3_divide.ssf.tmpl" > "$GEN4B"
   echo "=== stage 4c/5: divide by self-flat $SET ==="
   siril_run "$GEN4B"
   INS stage divided --in "$W/pp_bkg_pp_light_$F1.fit" "$W/pp_bkg_pp_light_$FM.fit" "$W/pp_bkg_pp_light_$FN.fit"
@@ -207,7 +207,7 @@ else
   best_ref=0 best_n=0 last_ref=0 sweep_log=""
   for ref in "$MID" "$((MID+1))" "$((MID-1))" "$((MID+2))" "$((MID-2))"; do
     (( ref >= 1 && ref <= NFRAMES )) || continue
-    GENREG="$W/40c_register.$SET.gen.ssf"
+    GENREG="$W/selfflat_register.$SET.gen.ssf"
     {
       echo "requires 1.4.0"
       echo "set16bits"
@@ -235,8 +235,8 @@ else
   INS reg --registered "$best_n" --total "$NFRAMES" --ref "$best_ref" \
       --sweep "$sweep_log" --seq "$W/pp_bkg_pp_light_.seq"
 
-  GEN4D="$W/40d_selfflat.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/40d_selfflat_stack.ssf.tmpl" > "$GEN4D"
+  GEN4D="$W/selfflat_4_stack.$SET.gen.ssf"
+  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/4_stack.ssf.tmpl" > "$GEN4D"
   echo "=== stage 4d/5: stack $SET ($best_n/$NFRAMES frames, ref $best_ref) ==="
   siril_run "$GEN4D"
   INS stage stack --in "$S/results/stack_$SET.fit"
