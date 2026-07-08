@@ -406,18 +406,18 @@ Prediction inversions worth remembering (recorded, instructive):
    go-ahead.
 8. **Whole-frame QA on the recombine** — retired as gate (scope
    ratified 2026-07-06); lives on as a reported reference.
-9. **NEF→DNG conversion (raw ingest)** — ADAPTATION. This rig's Siril
-   1.4.4 bundles LibRaw 0.22.0-Devel202502, which does NOT list the
-   Z6III body (only Z6/Z6II) and cannot decode Nikon HE/HE★ (TicoRAW);
-   so Z6III raws are converted to DNG (Adobe DNG Converter licenses that
-   decode) for a libraw-independent ingest. Z6III-only: Wang's D810A NEF
-   (14-bit Lossless, body in libraw's DB) loads in this Siril directly
-   (verified — RGGB, sane 14-bit stats). Dies when BOTH (a) acquisition
-   records 14-bit **Lossless**-compressed NEF (not HE/HE★ — see
-   checklist) and (b) the rig's Siril bundles a LibRaw that lists the
-   Z6III (released 0.22 does; the bundled Feb-2025 devel predates it).
-   Then run_pipeline.sh can glob *.nef too (Siril's convert reads NEF
-   natively) and the manual step is gone.
+9. **Raw ingest** — RESOLVED for any siril-readable raw. `run_pipeline.sh`
+   (`raw_find`) globs every common camera raw — NEF/DNG/CR2/CR3/ARW/RAF/
+   ORF/RW2/PEF/SRW — and siril's `convert` debayers them directly (verified:
+   Wang's D810A NEF ingests RGGB 14-bit and stacks a clean master; set-03's
+   DNG still matches the same glob). DNG conversion is retained ONLY as a
+   FALLBACK for a raw THIS rig's siril cannot decode: siril 1.4.4 bundles
+   LibRaw 0.22.0-Devel202502, which does not list the Z6III body and cannot
+   decode Nikon HE/HE★ (TicoRAW) — so a Z6III **HE** frame still needs Adobe
+   DNG Converter (which licenses that decode). That last fallback dies once
+   Z6III acquisition records 14-bit **Lossless** NEF (see checklist) or the
+   rig's siril bundles a LibRaw that lists the body (released 0.22 does; the
+   Feb-2025 devel predates it).
 
 ## Checklist for future acquisition sessions (the real quality lever)
 

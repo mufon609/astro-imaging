@@ -40,14 +40,24 @@ INS() {
 }
 
 # --- preflight helpers -------------------------------------------------------
+# Ingestable raw frames, any camera format: siril debayers these and exiftool
+# reads their EXIF, so a session may hold NEF, DNG, CR2/CR3, ARW, etc. directly.
+# DNG conversion is only a fallback for a raw this rig's siril cannot decode
+# (e.g. Nikon HE/TicoRAW), never a requirement.
+raw_find() { # <dir> [extra find args...]
+  find "$1" -maxdepth 1 -type f \( \
+      -iname '*.dng' -o -iname '*.nef' -o -iname '*.cr2' -o -iname '*.cr3' \
+      -o -iname '*.arw' -o -iname '*.raf' -o -iname '*.orf' -o -iname '*.rw2' \
+      -o -iname '*.pef' -o -iname '*.srw' \) "${@:2}"
+}
 uniform() { # dir -> "exposure<TAB>iso"; hard-fails on empty or mixed frames
   local vals n
-  n=$(find "$1" -maxdepth 1 -iname '*.dng' | wc -l)
+  n=$(raw_find "$1" | wc -l)
   if [[ "$n" -eq 0 ]]; then
-    echo "ERROR: no DNG frames in $1" >&2
+    echo "ERROR: no raw frames in $1" >&2
     exit 1
   fi
-  vals=$(find "$1" -maxdepth 1 -iname '*.dng' -print0 \
+  vals=$(raw_find "$1" -print0 \
          | xargs -0 exiftool -q -T -ExposureTime -ISO | sort -u)
   if [[ $(wc -l <<<"$vals") -ne 1 ]]; then
     echo "ERROR: mixed exposure/ISO inside $1 — remove stale frames:" >&2
@@ -57,11 +67,11 @@ uniform() { # dir -> "exposure<TAB>iso"; hard-fails on empty or mixed frames
   printf '%s' "$vals"
 }
 optics() { # dir -> sorted unique "focal<TAB>fnumber" lines (several if mixed)
-  find "$1" -maxdepth 1 -iname '*.dng' -print0 \
+  raw_find "$1" -print0 \
     | xargs -0 exiftool -q -T -FocalLength -FNumber | sort -u
 }
-manifest() { # dir -> one line per DNG: name size mtime (identity of the set)
-  find "$1" -maxdepth 1 -iname '*.dng' -printf '%P %s %T@\n' | sort
+manifest() { # dir -> one line per frame: name size mtime (identity of the set)
+  raw_find "$1" -printf '%P %s %T@\n' | sort
 }
 fresh() { # masterfile srcdir manifestfile — master is current iff the
           # recorded source manifest matches exactly (adds/removals/replaces
@@ -138,7 +148,7 @@ else
 fi
 
 # --- stage 4: per-set script generated from template -------------------------
-NFRAMES=$(find "$S/$SET" -maxdepth 1 -iname '*.dng' | wc -l)
+NFRAMES=$(raw_find "$S/$SET" | wc -l)
 MID=$(( (NFRAMES + 1) / 2 ))
 F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES")
 if [[ -n "$FLATOPT" ]]; then
