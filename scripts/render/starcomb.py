@@ -69,13 +69,6 @@ import render_helpers as rh  # noqa: E402  (run_graxpert, strips, measure_jpg)
 from astrometrics import band_mask_frac  # noqa: E402
 
 
-def box_median_g(img_chw, box):
-    c, h, w = img_chw.shape
-    x0, y0, x1, y1 = (int(box[0] * w), int(box[1] * h),
-                      int(box[2] * w), int(box[3] * h))
-    return float(np.median(img_chw[min(1, c - 1), y0:y1, x0:x1]))
-
-
 def run_siril(session_dir, lines, name):
     p = os.path.join(session_dir, "work", name)
     with open(p, "w") as f:
@@ -91,7 +84,8 @@ def _run_sep(repo, sdir, script, input_fit, set_name, extra=()):
     """One separation subprocess; returns its starless/stars/catalog
     trio (the last three printed paths — cache hits print the same)."""
     outdir = os.path.join(sdir, "work", "starsep")
-    cmd = [sys.executable, os.path.join(repo, "scripts", script),
+    cmd = [sys.executable,
+           os.path.join(repo, "scripts", "render", "separation", script),
            input_fit, outdir]
     if set_name:
         cmd += [f"--session={sdir}", f"--set={set_name}"]
@@ -531,7 +525,7 @@ def render_config(ctx, cfg, jpg_out):
     qa, smet, lev = rh.measure_jpg(jpg_out)
     a8 = np.asarray(Image.open(jpg_out), dtype=np.float32).transpose(2, 0, 1)
     mwb, skb = am.report_boxes(a8.shape[1], a8.shape[2])
-    mw = (box_median_g(a8, mwb) - box_median_g(a8, skb)
+    mw = (am.box_median_g(a8, mwb) - am.box_median_g(a8, skb)
           if mwb and skb else float("nan"))
     return {"qa": {k: v for k, v in qa.items() if isinstance(v, (int, float, bool))},
             "qa_starless": {k: v for k, v in qa_sl.items()
@@ -634,7 +628,8 @@ def main():
     ap.add_argument("--hypothesis", default=None)
     args = ap.parse_args()
 
-    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # repo root is three up: this file is scripts/render/starcomb.py
+    repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sdir = os.path.join(repo, args.session)
     work = os.path.join(sdir, "work")
     stack = (os.path.abspath(args.stack) if args.stack

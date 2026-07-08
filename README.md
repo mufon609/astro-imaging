@@ -130,11 +130,11 @@ python3 scripts/solve_field.py 07-02-26/results/stack_set-03.fit \
     --inject=07-02-26/results/stack_set-03_wcs.fit   # then siril spcc → _spcc.fit
 
 # final render, approved defaults (~3 min; --lossless adds PNG8 + PNG16)
-python3 scripts/starcomb.py 07-02-26 set-03 \
+python3 scripts/render/starcomb.py 07-02-26 set-03 \
     --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
 
 # single-knob ladder
-python3 scripts/starcomb.py 07-02-26 set-03 --stack ... \
+python3 scripts/render/starcomb.py 07-02-26 set-03 --stack ... \
     --param mw_boost --values 0.5,0.8 --hypothesis "..."
 
 # quick-look legacy post chain + gate (no separation)
@@ -154,9 +154,9 @@ live in NOTES "Environment" + auto-memory.
 | `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
-| `starsep.py` | star separation by mask+inpaint; catalog for culling |
-| `starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
-| `starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
+| `render/separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
+| `render/separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
+| `render/starcomb.py` | **the product chain** (defaults = approved recipe B7) + single-knob ladder harness |
 | `lib/bg_qa.py` | THE GATE (`--sky-scope` on the starless render) / whole-frame reference; thresholds never loosen |
 | `lib/astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, corridor + branch masks, `corridor_report` |
 | `lib/render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |

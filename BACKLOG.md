@@ -151,16 +151,24 @@ the files is safe — only the shell source path changes.
      the four unlinked-stretch CHAINS — a measured dead end — to the one
      linked baseline, then move to legacy/) regrouped into Phase 5, where
      legacy/ is created and the other legacy items move.
-  3. Render chain: starcomb -> render/, starsep + starnet -> render/
-     separation/; update the subprocess paths.
+  3. DONE — Render chain: starcomb -> render/, starsep + starnet ->
+     render/separation/; starcomb's repo root recomputed (3 up) and the
+     separation subprocess path updated. Audit correction: the move surfaced
+     measure_stack's `from starcomb import box_median_g` (a qa->render
+     coupling) — lifted box_median_g to lib/astrometrics (beside report_boxes);
+     both call sites are now am.box_median_g. NOTES reproduce command + README
+     starcomb examples repointed to scripts/render/starcomb.py.
   4. Stack pipeline: run_pipeline + selfflat + rechroma -> stack/, templates
      -> stack/siril/; update run_pipeline's sed/exec paths.
   5. calibrate/ qa/ geometry/ legacy/ groupings; update the remaining paths.
      legacy/ receives experiment.py (thinned first: prune the four
      unlinked-stretch CHAINS to the one linked baseline), run_post.sh,
      postprocess.ssf.tmpl.
-  6. Docs + polish: README repo map, CLAUDE.md, help strings, config note;
-     optionally rename the numeric-prefixed templates to descriptive names.
+  6. Docs + polish: sweep the descriptive path pointers deferred from earlier
+     phases (CLAUDE.md's scripts/astrometrics.py + scripts/starnet_sep.py,
+     NOTES ledger prose e.g. scripts/starnet_sep.py, run_post.sh comments),
+     README repo map, help strings, config note; optionally rename the
+     numeric-prefixed templates to descriptive names.
 
 **Every phase:** pure move (no logic change); py_compile + import-check every
 touched module; byte-verify B7 (all four artifacts cmp-identical) — one

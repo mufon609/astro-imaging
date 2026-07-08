@@ -24,7 +24,6 @@ while _libdir != os.path.dirname(_libdir):
         break
     _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402
-from starcomb import box_median_g  # noqa: E402
 
 
 def measure(path):
@@ -32,7 +31,7 @@ def measure(path):
     d16 = d * 65535.0
     c, h0, w0 = d16.shape
     mwb, skb = am.report_boxes(h0, w0)
-    mw = (box_median_g(d16, mwb) - box_median_g(d16, skb)
+    mw = (am.box_median_g(d16, mwb) - am.box_median_g(d16, skb)
           if mwb and skb else float("nan"))
     c, h, w = d16.shape
     yy = (np.arange(h) - h / 2)[:, None] / (h / 2)

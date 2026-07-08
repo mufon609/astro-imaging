@@ -408,6 +408,13 @@ def band_along_coord(h, w, stride=1):
     return (xx - p0[0]) * u[0] + (yy - p0[1]) * u[1]
 
 
+def box_median_g(img_chw, box):
+    c, h, w = img_chw.shape
+    x0, y0, x1, y1 = (int(box[0] * w), int(box[1] * h),
+                      int(box[2] * w), int(box[3] * h))
+    return float(np.median(img_chw[min(1, c - 1), y0:y1, x0:x1]))
+
+
 def report_boxes(h, w):
     """(mw_box, sky_box) fractions for the MW-contrast report. Config'd
     boxes win; else derived from the corridor mask: densest-corridor

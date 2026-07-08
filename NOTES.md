@@ -20,7 +20,7 @@ never let it grow narrative again.
   from git history).
 - Reproduce before touching anything:
 
-      python3 scripts/starcomb.py 07-02-26 set-03 \
+      python3 scripts/render/starcomb.py 07-02-26 set-03 \
           --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
 
   Expected: gate (starless-sky) PASS blocks 1.375 (P5/P50/P95 = 5/8/11)
