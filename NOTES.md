@@ -210,10 +210,6 @@ data class may WARN legitimately — revisit bounds there, don't ignore.
 | divided | p2v(r≤0.85) ≤ 0.20; rim(r>0.9) ≤ 0.25 |
 | registration | registered/total ≥ 0.9 |
 | stack | noise/median(G) 1.2–2.2%; p2v ≤ 0.20; stars ≥ 300; median16 150–1500 |
-| post_subsky | block spread ≤ 4× bgnoise |
-| post_denoise | bgnoise ratio 0.5–0.75; star Δ ≥ −10% |
-| post_stretch | bg err ≤ ±6 of target×255; cast ≤ 3; top100 ≥ 200 |
-| final (legacy quicklook) | whole-frame bg_qa reported |
 
 ## DEAD ENDS — never re-attempt (each killed by measurement)
 

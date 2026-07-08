@@ -86,9 +86,9 @@ removal condition.
   pre-registered in NOTES *before* the run.
 - A measurement that kills a hypothesis becomes a dead end **written into
   NOTES with its numbers** before anything else is tried.
-- Harnesses: `experiment.py` (legacy post chain), `starcomb.py --param
-  --values --hypothesis` (current chain). Both emit per-value metrics +
-  side-by-side strips into `results/exp_*/` and STOP for user judgment.
+- Harness: `starcomb.py --param --values --hypothesis` emits per-value
+  metrics + side-by-side strips into `results/exp_*/` and STOPs for user
+  judgment.
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
 ## Per-set geometry (data-generalization)
@@ -136,9 +136,6 @@ python3 scripts/render/starcomb.py 07-02-26 set-03 \
 # single-knob ladder
 python3 scripts/render/starcomb.py 07-02-26 set-03 --stack ... \
     --param mw_boost --values 0.5,0.8 --hypothesis "..."
-
-# quick-look legacy post chain + gate (no separation)
-scripts/legacy/run_post.sh 07-02-26 set-03
 ```
 
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
@@ -190,13 +187,6 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
-
-**`legacy/`** — quick-look, not the product chain
-
-| file | role |
-|---|---|
-| `experiment.py` | legacy post-chain single-knob ladder harness (one linked baseline chain; shared helpers in `lib/render_helpers.py`) |
-| `run_post.sh`, `postprocess.ssf.tmpl` | LEGACY quick-look → `quicklook_<set>_*.jpg` (single stretch, whole-frame reference QA) — not the product chain, easily mistaken for it |
 
 ## Data layout
 

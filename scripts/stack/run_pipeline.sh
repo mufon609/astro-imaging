@@ -28,8 +28,8 @@ siril_run() { # absolute script path
 }
 
 # Per-run inspection dir: every stage drops a consistent-stretch JPEG +
-# metrics (PASS/WARN vs the NOTES.md expectations table); run_post assembles
-# index.html. Inspection failures warn but never abort a run.
+# metrics (PASS/WARN vs the NOTES.md expectations table); the run assembles
+# them into index.html at the end. Inspection failures warn but never abort.
 INSPECT="$S/results/inspect_${SET}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$INSPECT"
 export INSPECT_DIR="$INSPECT"
@@ -85,13 +85,7 @@ fi
 
 # A flat is usable only if flats AND biases exist (flat calibration needs the
 # bias) and the flats' optics match this set. Otherwise: self-flat path.
-# Self-flat sets subtract per-frame planar glow (seqsubsky) BEFORE the
-# vignette division; post uses RBF background extraction (dense samples,
-# raised tolerance so the horizon glow is SAMPLED not rejected, low
-# smoothing to follow cloud-scale color) — the approved neutral-sky
-# recipe. Landscape (flat-matched) sets keep polynomial subsky.
 FLATOPT=""
-SUBSKY_DEG="-rbf -samples=30 -tolerance=3 -smooth=0.15"
 if [[ -d "$S/flats" && -d "$S/biases" ]]; then
   fopt="$(optics "$S/flats")"
   if [[ "$lopt" == "$fopt" ]]; then
@@ -101,10 +95,6 @@ if [[ -d "$S/flats" && -d "$S/biases" ]]; then
     [[ "$fiso" == "$liso" ]] || echo "WARNING: flats ISO${fiso} != $SET ISO${liso}"
     [[ "$biso" == "$liso" ]] || echo "WARNING: biases ISO${biso} != $SET ISO${liso}"
     FLATOPT="-flat=masters/flat_master -equalize_cfa"
-    # Quicklook background extraction (run_post): flat-matched landscape
-    # sets use polynomial degree 1 — RBF carves around treelines; the
-    # self-flat RBF default (set above) stays for pure-sky sets.
-    SUBSKY_DEG="1"
   else
     echo "WARNING: flats optics ($(tr '\t' '/' <<<"$fopt" | tr '\n' ' ')) != $SET optics ($(tr '\t' '/' <<<"$lopt" | tr '\n' ' '))"
     echo "         self-flat path (median of unregistered lights -> fitted radial gain -> division)"
@@ -245,6 +235,7 @@ rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \
       "$W"/r_pp_light_* "$W"/r_pp_bkg_pp_light_* \
       "$W"/selfflat_med*.* "$W"/selfflat_gain*.*
 
-echo "=== stage 5/5: post-process ==="
-"$REPO/scripts/legacy/run_post.sh" "$SESSION" "$SET" "$SUBSKY_DEG"
+echo "=== assembling inspection report ==="
+INS report --title "$SESSION $SET"
+echo "=== inspection report: $INSPECT/index.html ==="
 df -h "$S" | tail -1

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Shared measurement library for pipeline inspection and experiments.
+"""Shared measurement library for pipeline inspection and rendering.
 
 Pure numpy/scipy/PIL. Everything that grades an image lives here so
-inspect_stage.py (per-stage report) and experiment.py (single-variable
-ladders) measure identically. bg_qa.py stays the final hard gate; this
+inspect_stage.py (per-stage report) and starcomb's ladder (single-variable
+sweeps) measure identically. bg_qa.py stays the final hard gate; this
 module imports its constants/functions where they overlap.
 
 Units convention: FITS data are normalized to [0,1] floats internally;

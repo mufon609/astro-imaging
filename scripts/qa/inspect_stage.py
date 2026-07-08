@@ -9,8 +9,7 @@ Usage:
                    --ref R [--sweep "11:19,12:21"] [--seq seqfile]
   inspect_stage.py report --dir <inspect-dir> [--title T] [--qa qa.txt]
 
-Stage names: calibrated, selfflat_median, subsky_frame, gain, divided,
-stack, post_subsky, post_denoise, post_stretch, final.
+Stage names: calibrated, selfflat_median, subsky_frame, gain, divided, stack.
 
 Every 'stage' call appends one JSON line to <dir>/metrics.jsonl and writes
 <NN>_<stage>.jpg (one CONSISTENT autostretch: linked MTF, shadow clip
@@ -33,7 +32,6 @@ while _libdir != os.path.dirname(_libdir):
         break
     _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402
-import bg_qa  # noqa: E402
 
 D16 = 65535.0
 
@@ -76,28 +74,10 @@ EXPECTATIONS = {
         "n_stars": (300, None, ""),
         "bg_median16": (150, 1500, "normalized stack level"),
     },
-    "post_subsky": {
-        "block_spread_over_noise": (None, 4.0, "(P95-P5 block medians)/bgnoise"),
-        "ring_p2v16": (None, None, "info: rings in 16-bit counts"),
-    },
-    "post_denoise": {
-        "bgnoise_ratio": (0.5, 0.75, "vs previous stage"),
-        "star_delta_pct": (-10.0, None, "star count change"),
-    },
-    "post_stretch": {
-        "bg_target_err8": (-6.0, 6.0, "bg median - target*255 (8-bit)"),
-        "bg_cast8": (None, 3.0, "bg |R-G|,|B-G| (8-bit)"),
-        "top100_peak8": (200.0, None, "star peaks (8-bit); below = washed out"),
-    },
-    "final": {
-        "qa_pass": (1, None, "bg_qa gate (hard gate)"),
-        "top100_peak8": (200.0, None, "star peaks (8-bit)"),
-    },
 }
 
 ORDER = ["calibrated", "selfflat_median", "subsky_frame", "gain", "divided",
-         "registration", "stack", "post_subsky", "post_denoise",
-         "post_stretch", "final"]
+         "registration", "stack"]
 
 
 def check(stage, metric, value):
@@ -172,7 +152,7 @@ def handle_stage(args):
     for i, p in enumerate(args.inputs):
         want_stars = stage not in ("gain",)
         data, m = measure_frame(p, want_stars=want_stars,
-                                mask_branch=stage.startswith("post") or stage in ("stack", "final"))
+                                mask_branch=stage == "stack")
         m["file"] = os.path.basename(p)
         per_frame.append(m)
         if i == rep_idx:
@@ -250,57 +230,6 @@ def handle_stage(args):
         checks.append(check(stage, "p2v_inner_rel", mrep["radial"].get("p2v_inner_rel")))
         checks.append(check(stage, "n_stars", mrep["stars"].get("n_stars", 0)))
         checks.append(check(stage, "bg_median16", lev["median"] * D16))
-    elif stage == "post_subsky":
-        # block spread on the subsky'd linear image, star-robust
-        sub = data[:, ::2, ::2]
-        h2, w2 = sub.shape[1:]
-        gy, gx = h2 // 100, w2 // 100
-        blocks = sub[g][:gy * 100, :gx * 100].reshape(gy, 100, gx, 100)
-        bmed = np.median(blocks.transpose(0, 2, 1, 3).reshape(gy, gx, -1), axis=2)
-        if am.CTX.foreground == "mask":   # block-level foreground fraction
-            fg = am._fg_mask(h2, w2)[:gy * 100, :gx * 100] \
-                .reshape(gy, 100, gx, 100).mean(axis=(1, 3))
-            bm = fg <= 0.5
-        elif am.CTX.foreground is not None:  # foreground rect (block centers)
-            fx0, fy0, fx1, fy1 = am.CTX.foreground
-            ys = (np.arange(gy) + 0.5) * 100 / h2
-            xs = (np.arange(gx) + 0.5) * 100 / w2
-            bm = ~(((ys[:, None] >= fy0) & (ys[:, None] < fy1))
-                   & ((xs[None, :] >= fx0) & (xs[None, :] < fx1)))
-        else:
-            bm = np.ones((gy, gx), bool)
-        vals = bmed[bm]
-        spread = float(np.percentile(vals, 95) - np.percentile(vals, 5))
-        checks.append(check(stage, "block_spread_over_noise",
-                            spread / max(lev["bgnoise"], 1e-9)))
-        rp = mrep["radial"].get("ring_p2v")
-        checks.append(check(stage, "ring_p2v16", rp * D16 if rp is not None else None))
-    elif stage == "post_denoise":
-        pv = find_stage("post_subsky")
-        if pv:
-            pn = pv["per_frame"][0]["levels"][g]["bgnoise"]
-            checks.append(check(stage, "bgnoise_ratio", lev["bgnoise"] / max(pn, 1e-12)))
-            ps = pv["per_frame"][0]["stars"].get("n_stars", 0)
-            ns = mrep["stars"].get("n_stars", 0)
-            if ps:
-                checks.append(check(stage, "star_delta_pct", 100.0 * (ns - ps) / ps))
-    elif stage == "post_stretch":
-        target = args.target if args.target is not None else 0.12
-        checks.append(check(stage, "bg_target_err8", lev["median"] * 255.0 - target * 255.0))
-        meds = [l["median"] * 255.0 for l in mrep["levels"]]
-        cast = max(abs(meds[0] - meds[g]), abs(meds[-1] - meds[g])) if len(meds) == 3 else 0.0
-        checks.append(check(stage, "bg_cast8", cast))
-        tp = mrep["stars"].get("top100_peak_med")
-        checks.append(check(stage, "top100_peak8", tp * 255.0 if tp is not None else None))
-    elif stage == "final":
-        from PIL import Image
-        a = np.asarray(Image.open(args.inputs[rep_idx]), dtype=np.float64)
-        qa = bg_qa.qa_metrics(a)
-        checks.append(check(stage, "qa_pass", 1 if qa["pass"] else 0))
-        tp = mrep["stars"].get("top100_peak_med")
-        checks.append(check(stage, "top100_peak8", tp * 255.0 if tp is not None else None))
-        mrep["qa"] = {k: v for k, v in qa.items()
-                      if isinstance(v, (int, float, bool))}
 
     entry = {"stage": stage, "label": args.label, "inputs": args.inputs,
              "panel": os.path.basename(base + ".jpg"),
@@ -480,8 +409,6 @@ def main():
     s.add_argument("--dir", required=True)
     s.add_argument("--in", dest="inputs", nargs="+", required=True)
     s.add_argument("--label", default=None)
-    s.add_argument("--target", type=float, default=None,
-                   help="autostretch bg target (post_stretch check)")
     r = sub.add_parser("reg", parents=[ctxp])
     r.add_argument("--dir", required=True)
     r.add_argument("--registered", type=int, required=True)

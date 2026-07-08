@@ -1,7 +1,6 @@
-"""Shared helpers for the comparison-ladder harnesses (starcomb's --param mode
-and the legacy experiment.py post-chain): the GraXpert runner, rendered-JPEG
-measurement, and side-by-side strip composition. Imported by both harnesses;
-not run standalone (astrometrics/bg_qa resolve as lib siblings)."""
+"""Shared helpers for starcomb's comparison-ladder (--param mode): the GraXpert
+runner, rendered-JPEG measurement, and side-by-side strip composition.
+Imported, not run standalone (astrometrics/bg_qa resolve as lib siblings)."""
 import os
 import subprocess
 import sys
@@ -29,7 +28,7 @@ def run_graxpert(stack_fit, work, log):
                         stack_fit, "-output", out[:-5], "-gpu", "false"],
                        capture_output=True, text=True)
     if not os.path.exists(out):
-        sys.exit("experiment: graxpert produced no output:\n"
+        sys.exit("graxpert: produced no output:\n"
                  + r.stdout[-3000:] + "\n" + r.stderr[-2000:])
     return out
 
