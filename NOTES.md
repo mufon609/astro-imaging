@@ -14,10 +14,9 @@ never let it grow narrative again.
 ## STATUS (2026-07-07)
 
 - **Approved recipe: B7** (git tag `B7-approved`; defaults
-  byte-reproduce it). B6/B5 are HISTORY — explicitly not approved; B6's
-  jpg+png remain in `results/` as the record but its stack was pruned
-  (not byte-reproducible without re-stacking with `-rgb_equal` restored
-  from git history).
+  byte-reproduce it). B6/B5 are HISTORY — explicitly not approved and
+  superseded by B7; their renders and stacks are pruned, the record lives
+  in git (tags `B5-approved` / `B6-approved`).
 - Reproduce before touching anything:
 
       python3 scripts/render/starcomb.py 07-02-26 set-03 \
