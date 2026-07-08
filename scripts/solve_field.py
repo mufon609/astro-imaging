@@ -3,14 +3,13 @@
 
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
 
-Why this exists: Siril 1.4's internal solver cannot match this rig's
-ultra-wide trailed-star fields (measured 2026-07-06: online cone capped at
-2.5 deg; with the local Gaia astro catalog + correct center it still fails
-star matching at 52 and 26 deg FOV). The astrometry.net engine with
-field-size-derived index scales solves the same field from 200
-peak-detected stars in seconds (set-03: RA 312.774 Dec +48.156, 32.78
-arcsec/px, logodds 361 — Cygnus, not the "Big Dipper" the session notes
-originally claimed). SPCC accepts the injected TAN-SIP WCS.
+Why this exists: Siril's internal solver cannot match this rig's ultra-wide
+trailed-star fields (its online cone caps at ~2.5 deg, and with the local
+Gaia catalog + correct center it still fails star matching at 52 and 26 deg
+FOV). The astrometry.net engine with field-size-derived index scales solves
+the same field from 200 peak-detected stars in seconds (set-03: RA 312.774
+Dec +48.156, 32.78 arcsec/px, logodds 361, Cygnus). SPCC accepts the
+injected TAN-SIP WCS.
 
 Star detection: coarse background-subtracted local maxima (trail-robust
 peak centroids — component/blob centroids and Siril's PSF-fit detection

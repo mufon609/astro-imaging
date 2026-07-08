@@ -9,20 +9,19 @@ calibrate light -dark=masters/dark_master -cc=dark 3 3 -cfa -debayer
 # V is ESTIMATED from the untouched median: per-pixel median of the
 # UNREGISTERED calibrated frames — drifting stars reject (fixed tripod),
 # the static vignette x sky survives, and the multiplicative factorization
-# V x S holds. (Estimating from glow-subtracted frames does NOT work:
-# subsky's per-channel level restoration shifts the pedestal/bowl ratio and
-# the extracted V diverges per channel — measured 0.61/0.37/0.47 corners vs
-# the true coherent 0.52-0.56 — which would tint the corners on division.)
+# V x S holds. Estimating it from the glow-subtracted frames instead makes
+# the extracted V diverge per channel (subsky's per-channel level
+# restoration shifts the pedestal/bowl ratio) and tints the corners on
+# division.
 set32bits
 stack pp_light med -norm=mul -out=selfflat_med
 set16bits
 # The frames that continue through the pipeline DO get their PLANAR glow
 # subtracted first (level-preserving, sensor coords, while linear).
-# Degree stays 1 — L3 (2026-07-06) tried degree 2 to kill the +5% rim
-# curvature bump and it DID (divided frames flat to 0.975) but it ALSO
-# erased the Milky Way from the stack (+38 -> 0.0 linear contrast): at
-# 37mm the MW band is frame-scale curvature, indistinguishable from glow
-# curvature by any unmasked smooth fit. Only a geometric band mask can
-# separate them; that lives at the starless-layer stage, not here.
+# Degree stays 1: a higher degree flattens the rim curvature but ALSO
+# erases the Milky Way from the stack — at 37mm the MW band is frame-scale
+# curvature, indistinguishable from glow curvature by any unmasked smooth
+# fit. Only a geometric band mask can separate them, and that lives at the
+# starless-layer stage, not here.
 seqsubsky pp_light 1
 close

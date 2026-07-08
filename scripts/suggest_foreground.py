@@ -60,7 +60,7 @@ def main():
         border = np.zeros((h, w), bool)
         # a BAND, not the exact edge rows: binary_closing's erosion step
         # (border_value=0) eats the outermost pixels, so components never
-        # touch row h-1 exactly (measured: 902 components, 0 "touching")
+        # touch row h-1 exactly
         border[-16:, :] = True                     # bottom
         border[:, :16] = border[:, -16:] = True    # sides
         border_labels = np.unique(labels[border & cand])

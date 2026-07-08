@@ -4,19 +4,16 @@
 Usage: spcc_run.py <session> <set> [--in=<fits>] [--out=<fits>]
                    [--catalog=localgaia]
 
-SPCC's measured white-balance factors (K per channel, printed only in
-siril's log) are the record of what the raw stack's balance actually
-was — the raw G channel running ~1.5x hot (K G 0.656 vs R 1.000 on the
-reference stack, 509 kept stars) is the Bayer imbalance that justified
-removing rgb_equal — and they are the first thing to compare when a
-new stack of the same sky calibrates differently. This runner exists
-so they are never grep-lost again (an earlier hand-grepped triple was
-lost and later proved wrong): the full siril log lands in
-work/spcc_<set>.log and the parsed factors + stack identity in
-work/spcc_<set>.json.
+SPCC's measured white-balance factors (K per channel) are printed only in
+siril's log; they record what the raw stack's balance actually was (the raw
+G channel runs ~1.5x hot: K G 0.656 vs R 1.000 on the reference stack, 509
+kept stars, the Bayer imbalance) and are the first thing to compare when a
+new stack of the same sky calibrates differently. This runner captures them
+so they survive: the full siril log lands in work/spcc_<set>.log and the
+parsed factors + stack identity in work/spcc_<set>.json.
 
 Defaults: in results/stack_<set>_wcs.fit, out results/stack_<set>_spcc.fit
-(override both for historical stems like stack_set-03_norgbeq_*).
+(override both for non-default stems like stack_set-03_norgbeq_*).
 The generated .ssf lives under work/ — the siril flatpak has its own
 private /tmp, so scripts must stay under $HOME.
 

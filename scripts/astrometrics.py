@@ -654,7 +654,7 @@ def corridor_report(img8_hwc):
     if CTX.foreground is not None and CTX.foreground != "mask":
         # seam gauges are rect-edge-specific; mask foregrounds have no
         # straight printed edge to gauge (and no rendering op multiplies
-        # a hard mask since M0)
+        # a hard mask)
         resid = G - gaussian_filter(G, 16)
         blotch = gaussian_filter(resid, 48)
 
@@ -691,18 +691,15 @@ def star_shell_report(img8_hwc, cat_npz):
     Sample: catalog peak ranks 10..80 (bright tier, worst shells),
     frame-interior. Median annulus profiles around their centroids:
       aura_lum:    max over r in [8,16) of median G minus the r in
-                   [32,40) baseline (counts). THE defect discriminant —
-                   calibrated on the approved renders: fixed
-                   (stars_floor 3) = +2.0, defect era = +12.0, an
-                   unseparated stretch of the same stack = +0.5.
-                   WARN bound 4.0 (clean margin both sides).
+                   [32,40) baseline (counts). THE defect discriminant: the
+                   ghost-aura shell reads high here while a clean render
+                   reads low, so the WARN bound 4.0 sits with clean margin
+                   on both sides.
       shell_chroma: max over r in [4,12) of mean(MAD(R-G), MAD(B-G)).
-                   REPORT-ONLY, no bound: it mixes noise speckle with
-                   the HONEST PSF fringe (dispersion/CA on trailed
-                   stars) and is sample/chain dependent (measured 28.9
-                   on the approved fixed render vs 16.7 on the dimmer
-                   defect-era render) — a fixed threshold would cry
-                   wolf. Track the trend; it drops when acquisition
+                   REPORT-ONLY, no bound: it mixes noise speckle with the
+                   HONEST PSF fringe (dispersion/CA on trailed stars) and
+                   is sample/chain dependent, so a fixed threshold would
+                   cry wolf. Track the trend; it drops when acquisition
                    fixes the fringe.
     WARN only, never a gate."""
     from scipy import ndimage

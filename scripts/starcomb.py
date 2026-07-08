@@ -280,8 +280,8 @@ def render_config(ctx, cfg, jpg_out):
     ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
     if cfg["starless_denoise"] == "gx":
         # AI denoise, linear, starless (standard step-5 placement; a
-        # measured FAIL on this self-flat data — kept as a ladder rung
-        # because new data changes the noise structure)
+        # measured FAIL on this self-flat data, kept as an option because
+        # new data may have a different noise structure)
         starless_fit = run_graxpert_denoise(work, starless_fit)
     rel = os.path.relpath(starless_fit, sdir)
     suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
@@ -380,11 +380,10 @@ def render_config(ctx, cfg, jpg_out):
               f"clip0 corridor {clip_cor * 100:.2f}% sky "
               f"{clip_sky * 100:.2f}% (corridor must stay ~0)")
 
-    # THE GATE (layer-appropriate QA, ratified 2026-07-06): strict
-    # blocks/rings on the starless render's SKY — MW corridor (incl. the
-    # boost feather zone) + branch masked as known signal/non-sky,
-    # thresholds byte-identical. The recombined whole-frame QA below stays
-    # as a reported reference, never the gate.
+    # THE GATE (layer-appropriate QA): strict blocks/rings on the starless
+    # render's SKY — MW corridor (incl. the boost feather zone) + branch
+    # masked as known signal/non-sky. The recombined whole-frame QA below
+    # stays a reported reference, never the gate.
     from PIL import Image
     tmp8 = (np.clip(starless_st.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     slpath = jpg_out.replace(".jpg", "_starless.jpg")

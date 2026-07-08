@@ -23,11 +23,11 @@ of them may be divided out:
          (a planar surface has no radial component); subsky removes it
          later.
 
-Fitting one free-form surface and dividing (v1 of this script) bakes the
-glow into the gain: the fitted peak lands off-center toward the bright sky
-and division distorts regional brightness. The alternating fit below
-separates the factors. Block-median grid + iterative sigma clipping keeps
-foreground silhouettes, star residue and dust out of both factors.
+Fitting one free-form surface bakes the glow into the gain: the fitted peak
+lands off-center toward the bright sky and division distorts regional
+brightness. The alternating fit below separates the factors. Block-median
+grid + iterative sigma clipping keeps foreground silhouettes, star residue
+and dust out of both factors.
 Output: 3-channel float32 FITS of V only, V(center)=1, ready for
 `calibrate ... -flat=`.
 
@@ -170,13 +170,11 @@ def fit_channel(ch, label):
     keep = np.isfinite(b) & (b > 0)
 
     # Alternating V/S separation: m ~ V(r)*C + A(planar). The glow is
-    # ADDITIVE in origin, so it enters the model additively — the earlier
-    # multiplicative form m ~ V(r)*S(planar) baked the glow level L into V
-    # (V_fit = (V*S+L)/(S+L) — measured 0.537 corner instead of the true
-    # ~0.43) and dividing the glow-SUBTRACTED frames by that too-shallow V
-    # under-corrected the bowl by ~16% at the rim. The planar term has no
-    # radial component so all falloff lands in V; V is a monotone
-    # non-increasing binned profile, not a polynomial.
+    # ADDITIVE in origin, so it enters the model additively — a
+    # multiplicative form would bake the glow level into V, leaving V too
+    # shallow to flatten the bowl at the rim. The planar term has no radial
+    # component so all falloff lands in V; V is a monotone non-increasing
+    # binned profile, not a polynomial.
     centers = None
     prof = None
     V = np.ones_like(b)
@@ -255,9 +253,9 @@ def main():
     # median for each glow-subtracted frame (rechroma.py): with the additive
     # residual zeroed, dividing by V returns a flat S̄_c in luminance AND
     # chroma. ALWAYS exported in 16-bit counts: the median stack is 32-bit
-    # float (0..1) while the per-frame bkg files are 16-bit ushort — the
-    # first L1 attempt exported float units and rechroma would have zeroed
-    # every background (caught by its sanity guard now).
+    # float (0..1) while the per-frame bkg files are 16-bit ushort, and a
+    # unit mismatch here would make rechroma zero every background (its
+    # sanity guard catches it).
     to16 = 65535.0 if np.median(data) < 1.5 else 1.0
     C16 = [c * to16 for c in C]
     import json

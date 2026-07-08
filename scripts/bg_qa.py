@@ -10,15 +10,14 @@ be graded by hand-picked patches:
   average — the residual peak-to-valley is the concentric-ring amplitude
   the eye picks up even when the block map passes.
 
-Two SCOPES, same thresholds (scope changes are ratified, thresholds never
-loosen):
-- whole-frame (default): the historical scope; on the separated chain it
-  reads intentional MW signal as artifact, so it is REPORTED as reference
-  on recombined images, never gated.
-- --sky-scope (ratified 2026-07-06): the gate for the separated chain —
-  run on the STARLESS render with the measured MW corridor (+ feather)
-  masked as known signal. Corridor-contained costs are covered separately
-  by astrometrics.corridor_report (reported, not gated).
+Two SCOPES, same thresholds (thresholds never loosen):
+- whole-frame (default): on the separated chain it reads intentional MW
+  signal as artifact, so it is REPORTED as reference on recombined images,
+  never gated.
+- --sky-scope: the gate for the separated chain — run on the STARLESS
+  render with the measured MW corridor (+ feather) masked as known signal.
+  Corridor-contained costs are covered separately by
+  astrometrics.corridor_report (reported, not gated).
 
 Importable (functions below) for the inspection/experiment tooling.
 """
@@ -114,11 +113,10 @@ def ring_metrics(a, signal_mask=None):
 
 
 def sky_signal_mask(h, w):
-    """The layer-appropriate sky scope's signal mask (ratified 2026-07-06):
-    the measured MW band corridor incl. the mw_boost feather zone — every
-    pixel an intentional MW lift can touch. True = signal, excluded from
-    background statistics. The branch corner is excluded separately by
-    block_metrics (unchanged)."""
+    """The layer-appropriate sky scope's signal mask: the measured MW band
+    corridor incl. the mw_boost feather zone — every pixel an intentional MW
+    lift can touch. True = signal, excluded from background statistics. The
+    branch corner is excluded separately by block_metrics."""
     import astrometrics as am
     return am.band_mask_frac(h, w, feather=0.10) > 0.01
 

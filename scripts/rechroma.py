@@ -94,9 +94,8 @@ def main():
             shift = targets[c] - med
             # Sanity guard: a constant re-centering is a small correction.
             # A target far from the current median means a unit mismatch or
-            # a model breakdown — abort BEFORE touching any file (the first
-            # L1 attempt exported float-unit targets that would have zeroed
-            # every background).
+            # a model breakdown — abort BEFORE touching any file (a
+            # float-unit target would zero every background).
             if abs(shift) > 0.75 * max(med, 1.0):
                 sys.exit(f"rechroma: frame {i} ch{c}: target {targets[c]:.1f}"
                          f" vs median {med:.1f} — shift {shift:+.1f} exceeds"

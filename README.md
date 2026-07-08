@@ -44,19 +44,19 @@ Principles that keep this honest:
   rendering operators).
 - **Root-cause rule:** when a root cause is found and fixed, every knob that
   was tuned while the root cause was still present is STALE and must be
-  re-derived (session 5 was exactly this audit).
+  re-derived.
 
 ## The review contract (who/what judges each step)
 
 1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
    each stage rendered identically + metric bounds from the expectations
    table in NOTES. WARN only — inspection never aborts.
-2. **The gate** (`bg_qa.py`, layer-appropriate scope ratified 2026-07-06):
+2. **The gate** (`bg_qa.py`, layer-appropriate sky scope):
    strict blocks/rings thresholds on the **starless render's sky** (MW
    corridor + branch masked as known signal/non-sky). Thresholds never
    loosen. Whole-frame QA on the recombine is reported as reference, never
    gated.
-3. **Reported corridor metrics** (session 5, `astrometrics.corridor_report`):
+3. **Reported corridor metrics** (`astrometrics.corridor_report`):
    corridor floor Δ (P50/P5 vs sky), along-band chroma P2V, branch-mask seam
    steps. The gate masks the corridor, so these numbers exist to keep
    corridor-contained costs measurable. Reported in every starcomb run,
@@ -152,7 +152,7 @@ live in NOTES "Environment" + auto-memory.
 | `10/20/30_master_*.ssf`, `40_lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `40a/40a2/40b/40d_selfflat_*.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 | `solve_field.py` | blind astrometric solve (astrometry.net) + TAN-SIP WCS injection — unblocks siril `spcc`; scale hint derived from the FITS header, foreground-masked star detection |
-| `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` (they used to live only in a transient log) |
+| `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 | `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
 | `starsep.py` | star separation by mask+inpaint; catalog for culling |
 | `starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |

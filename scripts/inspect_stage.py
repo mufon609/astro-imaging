@@ -52,7 +52,7 @@ EXPECTATIONS = {
     },
     "gain": {
         "monotone_violation": (None, 1e-4, "V(r) must be non-increasing — THE ring guard (monotone V cannot print rings)"),
-        "corner_gain": (0.38, 0.58, "additive-glow model: true V corner ~0.43 (0.537 was the L-contaminated multiplicative fit); ~1.3EV lens falloff supports it"),
+        "corner_gain": (0.38, 0.58, "additive-glow model: true V corner ~0.43, consistent with ~1.3EV lens falloff"),
         "channel_spread": (None, 1e-6, "gray by construction"),
         "ring_p2v_rel": (None, None, "INFO: moving-average detrend lags the knee of a 46%-deep monotone curve (~2.6% false P2V); monotonicity is the enforced check"),
     },
