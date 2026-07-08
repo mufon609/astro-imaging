@@ -179,12 +179,14 @@ def solve(stars, hint=None, scales=None):
             # Stop at the first astronomically-confident match instead of
             # grinding every quad of every loaded scale. Field-derived
             # scale sets can be large (dense low scales for narrow fields),
-            # and CONTINUE-to-exhaustion made even set-03 minutes-slow once
-            # scale 12 was added. logodds 100 = odds ~1e43, far above both
-            # the ~20.7 default solve floor and the 115-373 these blind
-            # solves actually reach — so it never stops on a spurious match.
-            logodds_callback=lambda lo: (
-                astrometry.Action.STOP if lo >= 100.0
+            # and CONTINUE-to-exhaustion made even a 55-deg field
+            # minutes-slow once scale 12 was added. logodds 100 = odds
+            # ~1e43, far above both the ~20.7 default solve floor and the
+            # 115-373 these blind solves reach — never stops on a spurious
+            # match. The solver hands the callback the running list of match
+            # log-odds, so test the best (max) against the threshold.
+            logodds_callback=lambda los: (
+                astrometry.Action.STOP if max(los) >= 100.0
                 else astrometry.Action.CONTINUE)))
     if not sol.has_match():
         sys.exit("solve_field: NO SOLUTION")
