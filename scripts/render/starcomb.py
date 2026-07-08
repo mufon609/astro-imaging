@@ -484,7 +484,7 @@ def render_config(ctx, cfg, jpg_out):
     # Final-export encoding, measured vs the lossless PNG on this
     # grain-heavy content: q92 + default 4:2:0 subsampling costs mean
     # 2.29 counts / max 176 at star edges / 9.7 star-pixel chroma error;
-    # q100 + subsampling=0 costs mean 0.44 / max 5. The legacy encoding
+    # q100 + subsampling=0 costs mean 0.44 / max 5. The prior encoding
     # reproduces with --jpg-quality 92 --jpg-subsampling -1. The STARLESS
     # jpg (gate input) is untouched — its q92 encoding is part of the
     # gate identity.
@@ -611,10 +611,10 @@ def main():
     ap.add_argument("--jpg-quality", type=int, default=100,
                     help="final jpg quality (default 100 + subsampling 0 "
                          "= mean 0.44 counts vs the lossless PNG; 92 + "
-                         "subsampling -1 reproduces the legacy encoding)")
+                         "subsampling -1 reproduces the prior encoding)")
     ap.add_argument("--jpg-subsampling", type=int, default=0,
                     help="PIL subsampling for the final jpg (0=4:4:4; "
-                         "-1=encoder default 4:2:0, the legacy encoding)")
+                         "-1=encoder default 4:2:0, the prior encoding)")
     ap.add_argument("--lossless", action="store_true",
                     help="also write a lossless PNG next to each jpg")
     ap.add_argument("--param", default=None,

@@ -161,7 +161,7 @@ def main():
                                               AREA_MAX_BRIGHT))
     os.makedirs(outdir, exist_ok=True)
     st = os.stat(stack_path)
-    # prom is part of the separation identity; default keeps legacy names
+    # prom is part of the separation identity; default keeps the original names
     stem = f"{st.st_size}_{int(st.st_mtime)}"
     if k_prom != K_PROM:
         stem += f"_p{k_prom:g}"

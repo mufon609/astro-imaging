@@ -362,7 +362,7 @@ def band_mask_frac(h, w, feather=0.0):
     """Soft [0..1] corridor mask of the MW band (1 inside). feather is an
     extra half-width over which the mask rolls off smoothly, as a fraction
     of the frame diagonal (converted to degrees in wcs mode).
-    Modes (CTX): manual = legacy straight strip (byte-identical math);
+    Modes (CTX): manual = original straight strip (byte-identical math);
     wcs = |galactic b| <= b_halfwidth_deg; none = zeros."""
     if CTX.corridor_mode == "none":
         return np.zeros((h, w), np.float32)
@@ -394,7 +394,7 @@ def band_mask_frac(h, w, feather=0.0):
 def band_along_coord(h, w, stride=1):
     """Per-pixel 'along the band' coordinate for profile binning
     (corridor_report): manual mode = projection onto the band axis (px
-    units, legacy math); wcs mode = galactic longitude l (deg); none ->
+    units, original math); wcs mode = galactic longitude l (deg); none ->
     None."""
     if CTX.corridor_mode == "none":
         return None
