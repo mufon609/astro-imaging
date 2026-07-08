@@ -92,25 +92,74 @@ approval: flip the default, byte-verify the approved recipe once more, keep
 **Blocked by:** user's go-ahead (a render no-op on the current stack, but a
 default change).
 
+### A3 — Reorganize scripts/ into a professional, future-proof layout
+
+scripts/ is a flat dump of ~two dozen files (orchestrators, siril templates,
+the render chain, shared libs, QA, legacy). Group it by pipeline stage so
+the workspace reads as a professional project. Multi-session; every step is
+a pure move + path/import update with ZERO logic change, and the approved
+recipe B7 must stay byte-identical (all four artifacts) after each phase —
+that invariant gates the whole effort.
+
+**Linchpin — the import strategy (Phase 1, do first, alone).** Every script
+starts with `sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))`
+and imports siblings (`astrometrics`, `bg_qa`, `starsep`, `experiment`);
+nesting files breaks that. Fix: a `scripts/lib/` holding the shared
+importables (astrometrics, bg_qa, and the extracted quicklook helpers) plus
+a uniform bootstrap that puts `lib/` on sys.path (computed from __file__,
+depth-agnostic; sibling imports like starnet_sep->starsep rely on Python's
+same-dir auto-add). Import STATEMENTS stay the same; only the path insertion
+changes. Land + byte-verify this before moving anything else.
+
+**Target tree** (final; approached over phases):
+
+    scripts/
+      lib/         astrometrics.py, bg_qa.py (gate, still runnable),
+                   <quicklook helpers extracted from experiment.py>
+      stack/       run_pipeline.sh, selfflat.py, rechroma.py,
+                   siril/  master_{bias,flat,dark}.ssf, lights.ssf.tmpl,
+                           selfflat_{median,median2,divide,stack}.ssf.tmpl
+      calibrate/   solve_field.py, spcc_run.py
+      render/      starcomb.py, separation/ starsep.py starnet_sep.py
+      qa/          inspect_stage.py, judgment_crops.py, measure_stack.py,
+                   diag_flat.ssf
+      geometry/    suggest_foreground.py
+      legacy/      experiment.py (thinned), run_post.sh, postprocess.ssf.tmpl
+
+**Coupling to update on each move:** run_pipeline.sh + run_post.sh sed/exec
+paths (~13 template + py references); starcomb's subprocess construction of
+the starsep/starnet paths; help strings, the README repo map, CLAUDE.md
+paths, and the config_<set>.json _readme. The .ssf templates' INTERNAL
+load/save paths are relative to the siril workdir, NOT scripts/, so moving
+the files is safe — only the shell source path changes.
+
+**Phases** (one per session-sized chunk; byte-verify + commit each):
+  1. Import foundation: lib/ + the uniform bootstrap (the linchpin above).
+  2. Extract experiment.py's eight shared helpers (run_graxpert, GRAXPERT,
+     measure_jpg, sanitize, star_region, value_row, compose_rows, fmt) into
+     lib/; repoint starcomb; thin/retire experiment.py into legacy/, pruning
+     the four unlinked-stretch CHAINS (a dead end) to the one linked
+     baseline.
+  3. Render chain: starcomb -> render/, starsep + starnet -> render/
+     separation/; update the subprocess paths.
+  4. Stack pipeline: run_pipeline + selfflat + rechroma -> stack/, templates
+     -> stack/siril/; update run_pipeline's sed/exec paths.
+  5. calibrate/ qa/ geometry/ legacy/ groupings; update the remaining paths.
+  6. Docs + polish: README repo map, CLAUDE.md, help strings, config note;
+     optionally rename the numeric-prefixed templates to descriptive names.
+
+**Every phase:** pure move (no logic change); py_compile + import-check every
+touched module; byte-verify B7 (all four artifacts cmp-identical) — one
+differing byte STOPS the phase; commit the phase alone; new/edited comments
+follow the no-history-in-comments bar.
+
 ---
 
 ## B. Parallel batch (renderer pass)
 
 Renderer-touching items that batch into a single polish pass.
 
-### B1 — Extract experiment.py's shared helpers
-
-`experiment.py` is half load-bearing library, half stale legacy harness.
-`starcomb.py` imports eight names from it (`run_graxpert`, `GRAXPERT`,
-`measure_jpg`, `sanitize`, `star_region`, `value_row`, `compose_rows`,
-`fmt`), so it cannot simply be deleted. Move those helpers into a neutral
-module (astrometrics, or a small new `pipelib.py`) and leave `experiment.py`
-a thin legacy harness or retire it. Four of its five `CHAINS` bake
-`unlinked` stretch — a measured dead end on calibrated stacks; prune to the
-one linked `baseline` chain when retiring. Byte-verify the approved recipe
-afterward, since starcomb's imports change.
-
-### B2 — Harden the star-separation stdout trio contract
+### B1 — Harden the star-separation stdout trio contract
 
 `starcomb._run_sep` picks the starless/stars/catalog paths as "the last
 three printed lines ending .fit/.npz". It survives every current print in
