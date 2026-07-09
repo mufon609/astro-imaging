@@ -190,3 +190,21 @@ statistical dark sky the way the gate now does) so the WARN means something.
 The hard gate (`bg_qa`, post-render) is already composition-agnostic; this is
 the same lesson for the linear-stage inspection.
 
+### C4 — Per-stage cleanup for the self-flat sequence chain
+
+The self-flat branch accumulates four full frame sequences in `work/`
+(converted `light_*` → calibrated `pp_light_*` → glow-subtracted
+`bkg_pp_light_*` → divided `pp_bkg_pp_light_*`) and never removes a consumed
+one, so peak disk is ~4× a single sequence. On this rig's ~417 MB D810A
+frames that is ~22 GB for a 28-frame set — over the free disk, so a large set
+cannot process without babysitting `work/` by hand. Each stage needs only the
+current + previous sequence: `light_*` is dead after calibrate, `pp_light_*`
+after subsky, `bkg_pp_light_*` after divide. Delete each consumed sequence at
+its stage boundary (after its inspection stage has read it), which drops the
+peak to ~2 sequences (~14 GB for 28 frames). This is the "per-stage cleanup"
+CLAUDE.md already names as the design intent; it is simply missing for the
+self-flat chain (the matched-flat path is smaller and less affected). Verify a
+self-flat set still stacks by the gate + inspection bounds (a stack is not
+byte-reproducible), and that each removed sequence is genuinely unreferenced
+downstream before deleting it.
+
