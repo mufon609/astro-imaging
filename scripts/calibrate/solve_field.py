@@ -2,6 +2,7 @@
 """Blind astrometric solve of a linear stack; optionally inject the WCS.
 
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
+                     [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
 
 Why this exists: Siril's internal solver cannot match this rig's ultra-wide
 trailed-star fields (its online cone caps at ~2.5 deg, and with the local
@@ -10,6 +11,17 @@ FOV). The astrometry.net engine with field-size-derived index scales solves
 the same field from 200 peak-detected stars in seconds (set-03: RA 312.774
 Dec +48.156, 32.78 arcsec/px, logodds 361, Cygnus). SPCC accepts the
 injected TAN-SIP WCS.
+
+Blind is the default (and the right first move — a wrong position guess just
+fails the solve, it cannot mis-solve, so a bad label produces NO SOLUTION,
+not a wrong answer). But a very wide, distorted field can defeat the blind
+match: a fast wide lens warps the outer star quads, and the true field then
+never surfaces above the all-sky false-match noise. Two overrides for that
+case (a wide-field Milky-Way frame at 50 mm/41 deg needed both): --ra/--dec
+[+--radius-deg] gives a position hint so the search is local (the region can
+be read straight off a first no-WCS render), and --central=<frac> restricts
+detection to the low-distortion central fraction of the frame (|dx|,|dy| <
+frac x size) so the quads it forms actually match a TAN projection.
 
 Star detection: coarse background-subtracted local maxima (trail-robust
 peak centroids — component/blob centroids and Siril's PSF-fit detection
@@ -55,7 +67,7 @@ def bootstrap():
         os.execv(py, [py] + sys.argv)
 
 
-def detect_stars(path):
+def detect_stars(path, central=None):
     import astrometrics as am
     import numpy as np
     from scipy.ndimage import maximum_filter
@@ -80,15 +92,20 @@ def detect_stars(path):
         cand &= keep
     ys0, xs0 = np.nonzero(cand)
     vals = d[ys0, xs0]
-    order = np.argsort(vals)[::-1][:1200]
+    # `central` shrinks the pool a lot (frac^2 of the area), so widen the
+    # candidate cut so 200 still fill from the low-distortion centre
+    order = np.argsort(vals)[::-1][:(6000 if central else 1200)]
     taken = np.zeros((h // 25 + 2, w // 25 + 2), bool)
     stars = []
     for k in order:
-        cy, cx = ys0[k] // 25, xs0[k] // 25
+        y0, x0 = ys0[k], xs0[k]
+        if central is not None and (abs(x0 - w / 2) > central * w
+                                    or abs(y0 - h / 2) > central * h):
+            continue                          # low-distortion centre only
+        cy, cx = y0 // 25, x0 // 25
         if taken[max(0, cy - 1):cy + 2, max(0, cx - 1):cx + 2].any():
             continue
         taken[cy, cx] = True
-        y0, x0 = ys0[k], xs0[k]
         # clamp the centroid window to the array on BOTH sides: a peak
         # within 4 px of an edge otherwise clips the data window while
         # mgrid keeps the full 9x9 — shape-mismatch crash
@@ -161,19 +178,21 @@ def scale_set(path):
     return sel or set(_SCALE_FALLBACK)
 
 
-def solve(stars, hint=None, scales=None):
+def solve(stars, hint=None, scales=None, pos=None):
     import astrometry
     scales = set(scales) if scales else set(_SCALE_FALLBACK)
     solver = astrometry.Solver(
         astrometry.series_4200.index_files(
             cache_directory=CACHE, scales=scales))
     print(f"[solve_field] index scales {sorted(scales)} | scale hint: "
-          + (f"{hint[0]:.1f}-{hint[1]:.1f} arcsec/px" if hint else
-             "none (blind)"))
+          + (f"{hint[0]:.1f}-{hint[1]:.1f} arcsec/px" if hint else "none (blind)")
+          + (f" | position hint RA {pos[0]:.1f} Dec {pos[1]:+.1f} r{pos[2]:g} deg"
+             if pos else ""))
     sol = solver.solve(
         stars=stars,
         size_hint=(astrometry.SizeHint(hint[0], hint[1]) if hint else None),
-        position_hint=None,
+        position_hint=(astrometry.PositionHint(
+            ra_deg=pos[0], dec_deg=pos[1], radius_deg=pos[2]) if pos else None),
         solution_parameters=astrometry.SolutionParameters(
             sip_order=3,
             # Stop at the first astronomically-confident match instead of
@@ -243,9 +262,15 @@ def main():
     if "session" in opts and "set" in opts:
         import astrometrics as am
         am.configure(opts["session"], opts["set"], quiet=True)
-    stars, h, w = detect_stars(src)
-    print(f"[solve_field] {len(stars)} peak-detected stars")
-    m = solve(stars, hint=scale_hint(src), scales=scale_set(src))
+    central = float(opts["central"]) if "central" in opts else None
+    pos = None
+    if "ra" in opts and "dec" in opts:
+        pos = (float(opts["ra"]), float(opts["dec"]),
+               float(opts.get("radius-deg", 15.0)))
+    stars, h, w = detect_stars(src, central=central)
+    print(f"[solve_field] {len(stars)} peak-detected stars"
+          + (f" (central {central:g} of frame)" if central else ""))
+    m = solve(stars, hint=scale_hint(src), scales=scale_set(src), pos=pos)
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")
