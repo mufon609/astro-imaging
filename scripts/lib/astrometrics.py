@@ -303,6 +303,52 @@ def sky_pixel_mask(ch, k=3.0):
     return (ch <= bg + k * sig) & branch_mask(h, w)
 
 
+def sky_flatness(data, stride=2):
+    """Composition-agnostic stack flatness + noise, measured on the statistical
+    dark sky (sky_pixel_mask) so a frame-filling object (galaxy / nebula / MW
+    band) does not read as a flatness or noise defect — the scope the gate uses,
+    applied to the linear stack. All values in [0,1] float units (x65535 for
+    16-bit display):
+      sky_frac       fraction of the frame the dark-sky selector kept (a
+                     frame-filling object reads low — the data class, not a defect)
+      sky_median     robust sky level (median of the sky pixels)
+      sky_noise      diff-MAD of horizontally-adjacent SKY pairs / sqrt(2) (a
+                     smooth gradient cancels in the difference; object structure
+                     is excluded from the estimate)
+      sky_p2v_inner  radial peak-to-valley of the sky over r<=0.85 vs its median
+                     (object radii drop out — the sky's own flatness)"""
+    g = min(1, data.shape[0] - 1)
+    G = data[g].astype(np.float64)
+    sky = sky_pixel_mask(G)
+    out = {"sky_frac": float(sky.mean()), "sky_median": None,
+           "sky_noise": None, "sky_p2v_inner": None}
+    if sky.sum() < 1000:
+        return out
+    out["sky_median"] = float(np.median(G[sky]))
+    d = (G[:, 1:] - G[:, :-1])[sky[:, 1:] & sky[:, :-1]]
+    if d.size > 100:
+        out["sky_noise"] = float(1.4826 * np.median(np.abs(d - np.median(d)))
+                                 / np.sqrt(2.0))
+    Gs, skys = G[::stride, ::stride], sky[::stride, ::stride]
+    r = radius_map(*G.shape, stride=stride)
+    edges = np.linspace(0, 1, 49)
+    centers = (edges[:-1] + edges[1:]) / 2
+    prof, cc = [], []
+    for i in range(48):
+        m = (r >= edges[i]) & (r < edges[i + 1]) & skys
+        if m.sum() > 100:
+            prof.append(float(np.median(Gs[m])))
+            cc.append(centers[i])
+    if len(prof) >= 4:
+        prof, cc = np.asarray(prof), np.asarray(cc)
+        inner = cc <= 0.85
+        if inner.sum() >= 4:
+            v = prof[inner]
+            out["sky_p2v_inner"] = float((v.max() - v.min())
+                                         / max(abs(np.median(v)), 1e-9))
+    return out
+
+
 def star_shell_report(img8_hwc, cat_npz):
     """REPORTED star-shell metrics — the ghost-aura defect class: the
     stars-layer MTF amplifies skirt noise into a colored shell between

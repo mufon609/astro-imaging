@@ -167,21 +167,7 @@ only sets that opt in get the sensor-grounded calibration.
 
 **Relates to:** C1 (the sensor spec is a per-dataset config field).
 
-### C3 — Make the stack-inspection bounds data-class-aware
-
-`inspect_stage.py`'s stack-stage bounds (`p2v_inner_rel <= 0.2`,
-`noise_over_median 1.2-2.2%`) are calibrated on set-03's near-empty field.
-Every object-dominated field WARNs on them by construction — the LMC
-(p2v 0.78, noise 4.5%) and SMC (p2v 0.73, noise 2.4%) both did, because a
-galaxy/cluster filling the frame is real signal, not a flat defect, and the
-pre-BGE stack legitimately isn't flat. WARN-only (non-blocking) but it cries
-wolf on every good object frame. Recognize the data class (e.g., bounds
-keyed off a "frame-filling object" flag, or measure flatness on the
-statistical dark sky the way the gate now does) so the WARN means something.
-The hard gate (`bg_qa`, post-render) is already composition-agnostic; this is
-the same lesson for the linear-stage inspection.
-
-### C4 — Per-stage cleanup for the self-flat sequence chain
+### C3 — Per-stage cleanup for the self-flat sequence chain
 
 The self-flat branch accumulates four full frame sequences in `work/`
 (converted `light_*` → calibrated `pp_light_*` → glow-subtracted
@@ -199,7 +185,7 @@ self-flat set still stacks by the gate + inspection bounds (a stack is not
 byte-reproducible), and that each removed sequence is genuinely unreferenced
 downstream before deleting it.
 
-### C5 — Ingest FITS-native dedicated-astrocam data (mono + OSC data classes)
+### C4 — Ingest FITS-native dedicated-astrocam data (mono + OSC data classes)
 
 The pipeline is DSLR-raw + OSC only. `run_pipeline.sh`'s `raw_find` globs
 camera-raw extensions (NEF/DNG/CR2/…) but NOT `.fits/.fit/.fts`, so a
@@ -226,10 +212,10 @@ The `imx585c` session (Player One IMX585 **mono**, TOA-130, M74/NGC 7331) is
 the staged test bed; both galaxy sets currently cannot be ingested. The user's
 standing goal is the OSC IMX585**C** — so the OSC-FITS class matters too, not
 just mono. **Relates to:** C1 (per-dataset config/recipe), C2 (OSC sensor
-profile applies to the OSC class only), C3 (object-field inspection bounds),
-C4 (a 167-frame FITS set stresses self-flat disk if it takes that path).
+profile applies to the OSC class only), C3 (a 167-frame FITS set stresses
+self-flat disk if it takes that path).
 
-### C6 — Calibrate flats with dark-flats on the CMOS path
+### C5 — Calibrate flats with dark-flats on the CMOS path
 
 `master_flat.ssf` calibrates flats with `-bias=masters/bias_master`. For a
 DSLR that is correct (short flats, negligible dark current, bias is the right
@@ -242,9 +228,9 @@ when `darkflats/` exists and its exposure matches the flats, build a dark-flat
 master and calibrate the flats against it instead of bias. Low practical error
 on a ~zero-amp-glow sensor at short flat exposures, but the robust, standard
 CMOS calibration and required to generalize to amp-glow sensors. **Relates to:**
-C5 (both are the dedicated-astrocam calibrate branch).
+C4 (both are the dedicated-astrocam calibrate branch).
 
-### C7 — Optional deconvolution stage for well-sampled data
+### C6 — Optional deconvolution stage for well-sampled data
 
 The pipeline has NO deconvolution and the standard-workflow row marks step 4
 COMPLIANT-SKIP — correct on set-03 (in-exposure star trailing is not a static
@@ -262,7 +248,7 @@ unmeasured detail on faint signal — conservative/PSF-correct-only defaults).
 No free deconvolution runs natively on this rig beyond these two: BlurXTerminator
 is paid + x86-64, Cosmic Clarity has no aarch64 binary.
 
-### C8 — Add ASTAP as a fast offline solver complement
+### C7 — Add ASTAP as a fast offline solver complement
 
 `solve_field.py` (blind astrometry.net from peak centroids) is the RIGHT and
 necessary solver for this rig's ultra-wide trailed fields — ASTAP is documented
@@ -274,6 +260,6 @@ galaxy at ~0.6″/px) it is faster, simpler, fully offline, and needs no
 astrometry.net index download. Add ASTAP as an optional solver backend chosen
 per field (or auto by field width from the header), with `solve_field.py`
 retained as the fallback for wide/trailed frames. Its Johnson/Bessel photometry
-is also an SPCC-adjacent color check worth capturing. **Relates to:** C5 (the
+is also an SPCC-adjacent color check worth capturing. **Relates to:** C4 (the
 dedicated-astrocam sets are the narrow-field case ASTAP suits).
 

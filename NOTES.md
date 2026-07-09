@@ -226,7 +226,7 @@ data class may WARN legitimately — revisit bounds there, don't ignore.
 | gain | monotone non-increasing (THE ring guard); corner 0.38–0.58; gray (spread 0) |
 | divided | p2v(r≤0.85) ≤ 0.20; rim(r>0.9) ≤ 0.25 |
 | registration | registered/total ≥ 0.9 |
-| stack | noise/median(G) 1.2–2.2%; p2v ≤ 0.20; stars ≥ 300; median16 150–1500 |
+| stack | dark-sky noise/median(G) 0.5–4.0% (coarse, camera-dependent) + dark-sky p2v ≤ 0.20, both on the statistical sky so a frame-filling object doesn't read as a defect; sky_frac INFO; stars ≥ 300; median16 150–1500 |
 
 ## DEAD ENDS — never re-attempt (each killed by measurement)
 

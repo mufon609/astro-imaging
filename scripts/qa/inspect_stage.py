@@ -69,8 +69,9 @@ EXPECTATIONS = {
         "reg_fraction": (0.9, None, "registered/total"),
     },
     "stack": {
-        "noise_over_median_pct": (1.2, 2.2, "G diff-MAD noise/median; reads ~25% above siril bgnoise (measured 1.84 == siril 1.46)"),
-        "p2v_inner_rel": (None, 0.20, "radial flatness r<=0.85 (glow+MW still in: absolute flatness lands after subsky)"),
+        "noise_over_median_pct": (0.5, 4.0, "G diff-MAD noise/median on the statistical dark sky; a coarse cross-camera SNR envelope (noise% is integration/camera-dependent, so it flags only a grossly under/over-clean stack) — object structure excluded"),
+        "p2v_inner_rel": (None, 0.20, "radial flatness r<=0.85 on the DARK SKY (frame-filling object excluded — composition-agnostic, the gate's lesson for the linear stage)"),
+        "sky_frac": (None, None, "INFO: fraction of frame the dark-sky selector kept; a frame-filling object (galaxy / nebula) reads low — that is the data class, not a defect"),
         "n_stars": (300, None, ""),
         "bg_median16": (150, 1500, "normalized stack level"),
     },
@@ -225,9 +226,17 @@ def handle_stage(args):
         checks.append(check(stage, "p2v_inner_rel", mrep["radial"].get("p2v_inner_rel")))
         checks.append(check(stage, "rim_dev_rel", mrep["radial"].get("rim_dev_rel")))
     elif stage == "stack":
-        nm = 100.0 * lev["bgnoise"] / max(lev["median"], 1e-9)
+        # flatness + noise on the statistical dark sky (composition-agnostic):
+        # a frame-filling object (galaxy / nebula / MW) is real signal, not a
+        # flat-field defect, so it must not read as one — the gate's lesson,
+        # applied to the linear stack. The whole-frame radial plot still shows
+        # the object; only the graded numbers use the sky scope.
+        sf = am.sky_flatness(data)
+        nm = (100.0 * sf["sky_noise"] / max(sf["sky_median"], 1e-9)
+              if sf["sky_noise"] and sf["sky_median"] else None)
         checks.append(check(stage, "noise_over_median_pct", nm))
-        checks.append(check(stage, "p2v_inner_rel", mrep["radial"].get("p2v_inner_rel")))
+        checks.append(check(stage, "p2v_inner_rel", sf["sky_p2v_inner"]))
+        checks.append(check(stage, "sky_frac", sf["sky_frac"]))
         checks.append(check(stage, "n_stars", mrep["stars"].get("n_stars", 0)))
         checks.append(check(stage, "bg_median16", lev["median"] * D16))
 
