@@ -20,56 +20,51 @@ never let it grow narrative again.
   command** — `python3 scripts/qa/sweep.py` — gate + shell bounds + metric
   drift + artifact-byte comparison over every baselined dataset;
   `--determinism` double-renders cold.
-- **The render chain is now deterministic from the stack, cold caches
+- **The render chain is deterministic from the stack, cold caches
   included** (measured: two fully-cold M74 builds byte-identical across all
-  four artifacts). Root cause of the old nondeterminism: `subsky -dither` in
-  the bgelin step — unseeded ±1 LSB16 noise, pointless on a 32-bit float
-  chain, REMOVED. One-time declared delta on set-03 (fresh deterministic
-  baseline vs the 2026-07-08 approved artifacts): every reported metric
-  IDENTICAL — gate PASS floor 9, colour 2.0, gradient 3.4, blotch 2.6, rings
-  2.9, 94% sky, clip0 ~0.5%, aura_lum +0.0, anchor 0.0284 → m 0.00090
-  (×996) — while 17.3% of pixels moved (RMS 2.2 counts16): the seeded
-  inpaint fill re-drew over a slightly different mask (catalog 22916→22966;
-  dither-free detection) plus ~50 faint cull flips. Panels:
-  `results/judge_dither_baseline/` — PENDING USER CONFIRMATION; the
-  2026-07-08 artifacts stay on disk until then. Rebuild:
-
-      python3 scripts/render/starcomb.py 07-02-26 set-03 \
-          --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
-
-- **Star separation architecture settled** (measured on three data classes,
-  ladders in `07-02-26/results/exp_starsep_sep_engine_20260709_163552/` +
-  `imx585c/results/exp_starsep_sep_engine_20260709_163127/` + the wide_50mm
-  sweep): StarNet2 ONNX (`net`) is the generic default via `sep_engine
-  auto` — its failure mode is LOUD (the gate catches it) while inpaint's is
-  silent (real structure destroyed on a PASSing render; the new >10%
-  in-envelope WARN is its only tell). Engine facts by class: resolved
-  object (M74) → net preserves what inpaint destroys, aura also better
-  (+4.0 vs +4.9); ultra-wide MW-dominated self-flat DSLR (wide_50mm 41°) →
-  net FAILS the gate outright (grad 9.0 / rings 9.0 / aura +5.0 vs inpaint
-  PASS 6.4 / 4.2 — residual large-scale structure + bright-star shells),
-  set-03 (37 mm) shows the same class cosmetically (aura +4.0 vs +0.0);
-  matched-flat off-centre object (SMC) → both pass, net aura +3.2. The
-  `hybrid` engine is DELETED (ledger #4). Recipes pin per measurement:
-  set-03 + LMC (approved looks) + wide_50mm (measured gate fail) =
-  `inpaint`; M74 = `net`; SMC tracks generic.
-- **Datasets** (registry: SESSIONS.md; records: `datasets/`):
-  - `07-02-26/set-03` — APPROVED 2026-07-08 (corridor-free; corridor-era
-    B5/B6/B7 tags are history). Underexposed: quality is exposure-limited.
-  - `nikon-test/lmc_180mm` — APPROVED 2026-07-08 at chroma_core k=4. The
-    bright-star red halo is the Sigma-180-wide-open veiling-glare signature
-    (R−G plateau +4..+5 counts r≈6–38; absent on the same body at 50 mm f/4
-    and on set-03) — USER VERDICT final: honest gear data, no render-side
-    de-fringe; fix is acquisition (stop down). satu stays 0.2.
-  - `nikon-test/smc_180mm`, `nikon-test/wide_50mm` — processed, gate PASS,
-    looks not approved (provisional recipes).
+  four artifacts; the full sweep byte-reproduces every baseline). The
+  bgelin subsky runs WITHOUT dither: unseeded ±1 LSB16 noise, pointless on
+  a 32-bit float chain, was the one nondeterministic step (two cold builds
+  differed on 100% of pixels, RMS 0.41 counts16, detection 852→858). The
+  deterministic re-render was verified metric-identical on every dataset
+  and USER-CONFIRMED visually equivalent 2026-07-09 (set-03 churn 17.3% of
+  pixels at RMS 2.2 counts16 = the seeded fill re-drawing over a slightly
+  different mask + ~50 faint cull flips; LMC 52% at RMS 1.3 counts8).
+- **Star separation architecture settled** (measured on three data
+  classes; numbers in ledger #4 and the per-dataset recipes): StarNet2
+  ONNX (`net`) is the generic default via `sep_engine auto` — its failure
+  mode is LOUD (the gate catches it) while inpaint's is silent (real
+  structure destroyed on a PASSing render; the >10% in-envelope WARN is
+  its only tell). Engine facts by class: resolved object (M74) → net
+  preserves what inpaint destroys, aura also better (+4.0 vs +4.9);
+  ultra-wide MW-dominated self-flat DSLR (wide_50mm 41°) → net FAILS the
+  gate outright (grad 9.0 / rings 9.0 / aura +5.0 vs inpaint PASS
+  6.4 / 4.2 — residual large-scale structure + bright-star shells);
+  set-03 (37 mm) carries the same class cosmetically (aura +4.0, inside
+  the bound — USER-ACCEPTED 2026-07-09); matched-flat off-centre object
+  (SMC) → both pass, net aura +3.2. The `hybrid` engine is DELETED
+  (ledger #4). The ONLY engine pin is wide_50mm = `inpaint` (measured
+  gate fail; lifts when a better separation model lands — BACKLOG); every
+  other dataset tracks generic.
+- **Datasets** (registry: SESSIONS.md; records: `datasets/`; every recipe
+  tracks the GENERIC pipeline — per the user's direction the repo optimizes
+  the generalized chain, not any one dataset's frozen render — with
+  wide_50mm's engine pin as the single measured exception):
+  - `07-02-26/set-03` — processed; underexposed: quality is
+    exposure-limited (corridor-era B5/B6/B7 tags are history).
+  - `nikon-test/lmc_180mm` — processed. The bright-star red halo is the
+    Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5 counts
+    r≈6–38; absent on the same body at 50 mm f/4 and on set-03) — USER
+    VERDICT final: honest gear data, no render-side de-fringe; fix is
+    acquisition (stop down). chroma_core k=4 was the user's ladder pick.
+  - `nikon-test/smc_180mm`, `nikon-test/wide_50mm` — processed, gate PASS.
   - `imx585c/m74_toa130` — processed (first FITS + first mono set), gate
-    PASS, look not approved; reference master in `imx585c/reference/`.
+    PASS; reference master in `imx585c/reference/`.
   - `07-02-26/lights` — NOT approved (user: "massive issues");
     generalization testbed only.
-  - `siril-m8m20` — staged, unprocessed: the C7 OSC-CFA verification set +
-    C6 dual-band case. The rest of the C6 corpus (colonnello-m20 mono-RGB,
-    mlnoga-ngc7635 SHO) is off-disk; re-stage via
+  - `siril-m8m20` — the C7 OSC-CFA verification set + C6 dual-band case.
+    The rest of the C6 corpus (colonnello-m20 mono-RGB, mlnoga-ngc7635
+    SHO) is off-disk; re-stage via
     `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected STATISTICALLY
   (blocks ≤ P50+2.5·MAD, foreground excluded), grading colour / plane-fit
@@ -77,11 +72,10 @@ never let it grow narrative again.
   broke on the object-dominated LMC; a plane fit to the statistical sky
   generalizes). Calibrated: references pass with margin; injected 8-count
   gradient / ring / colour cast FAILS.
-- **Open user-judgment items**: (1) confirm the deterministic set-03
-  baseline panels (`judge_dither_baseline/`); (2) set-03 `sep_engine net`
-  look — striped bright-star shell at aura +4.0 vs inpaint +0.0
-  (`exp_starsep_sep_engine_20260709_163552/`); (3) `stars_anchor_basis g`
-  on the approved looks (set-03/LMC pin `max` until judged). SPCC still
+- **No user-judgment items open.** Judgment packages
+  (`scripts/qa/judgment_crops.py`) must state their question
+  (`--question=`) and ship a full-frame pair + lossless 1:1 crops — a
+  package that makes the judge guess the question is a defect. SPCC still
   runs sensor-null — BACKLOG C2.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
@@ -229,8 +223,8 @@ per run; a recipe-less dataset renders generic and says so):
    HERE, before the combine.
 4. Stars: cull 50 (< p50 flux) → stars_floor 3.0×σ → gray MTF anchored
    so the median top-500 amplitude ON THE FIXED G BASIS (`peak_g`)
-   renders at 0.97; `basis max` remains only as the pin for approved
-   looks that predate the fix.
+   renders at 0.97 (`basis max`, the max-over-channels reading, exists
+   only as a recipe escape hatch — nothing uses it).
 5. Screen combine → satu 0.2 → jpg q100/4:4:4 (+ PNG8 + PNG16 with
    `--lossless`).
 
@@ -454,12 +448,11 @@ Prediction inversions worth remembering (recorded, instructive):
    of its detections sit inside an extended-object envelope. The
    `hybrid` engine (net run ON the inpaint starless — a repo invention
    with no standard-practice counterpart, structurally unable to
-   restore knots its base already destroyed) is DELETED. Remaining
-   user judgment: set-03's recipe pins `inpaint` until the net look is
-   judged (`results/exp_starsep_sep_engine_20260709_163552/`); LMC's
-   approved recipe likewise pins `inpaint`; wide_50mm pins `inpaint`
-   on its measured gate FAIL. Costs owned while pinned: <6σ faint tail
-   in the starless layer; skirt-aura class (mitigated by stars_floor).
+   restore knots its base already destroyed) is DELETED. The set-03
+   bright-star shell under net was USER-ACCEPTED 2026-07-09; the single
+   engine pin is wide_50mm = `inpaint` on its measured gate FAIL. Costs
+   owned where inpaint runs: <6σ faint tail in the starless layer;
+   skirt-aura class (mitigated by stars_floor).
 5. **Denoise** — linear placements structurally dead on self-flat data;
    post-stretch `-vst -mod=0.5` is in the approved chain.
 6. **Stars anchor** — the same-sky drift class is FIXED structurally:
@@ -468,9 +461,8 @@ Prediction inversions worth remembering (recorded, instructive):
    → the max-over-channels catalog anchor drifts −1.0/−8.5/−20.0 counts
    bright/mid/faint), so the catalog anchor now reads the component peak
    on the FIXED G basis (`peak_g`, generic default `stars_anchor_basis
-   g`), which rescales with its channel and cannot drift. Approved looks
-   that predate the fix pin `basis max`; flipping them is a declared
-   delta for the user's eyes. `--stars-anchor noise` remains a same-sky
+   g`), which rescales with its channel and cannot drift; `basis max` is
+   a recipe escape hatch nothing uses. `--stars-anchor noise` remains a same-sky
    stability tool ONLY: its k is per-dataset by construction (k =
    anchor/σ_G literally restates one dataset's star statistics — set-03's
    491σ asserts an 11.5× star-brightness error on M74's 44σ field), so

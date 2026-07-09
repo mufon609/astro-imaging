@@ -29,7 +29,7 @@ follows, in order — linear until step 6:
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. Per-dataset recipes pin the engine; set-03's approved look pins `inpaint` pending user judgment of net's bright-star shell | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
+| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. A recipe pins the engine only on measurement (one exists: wide_50mm, where net fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
 | 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings (chroma/lum, Wiener-gated on the statistical dark sky); stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
@@ -55,7 +55,9 @@ Principles that keep this honest:
    separation / stretch / corings / black point / stars / combine) into
    `results/inspect_render_<set>_<stamp>/`, so a defect in a final render is
    localized to the stage that introduced it in one run; diff any two runs'
-   stages with `judgment_crops.py <outdir> a=<stage.jpg> b=<stage.jpg>`.
+   stages with `judgment_crops.py <outdir> a=<x.jpg> b=<y.jpg>
+   --question="..."` (every judgment package states its question and ships
+   a full-frame pair + lossless 1:1 crops).
 2. **The gate** (`bg_qa.py`, composition-agnostic sky scope): strict
    thresholds on the **starless render's sky**, selected STATISTICALLY (dark
    blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,

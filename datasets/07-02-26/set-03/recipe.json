@@ -1,29 +1,9 @@
 {
-  "_readme": "Approved render recipe (starcomb resolution: CLI > this file > GENERIC). Every knob is pinned because the look is approved: a later change to a generic default must not silently restyle it. Knob WHYs live in NOTES 'Knob provenance'.",
+  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
   "dataset": "07-02-26/set-03",
-  "status": "approved",
-  "approved": "2026-07-08 (user): corridor-free defaults — cleaner, more natural, less noisy",
-  "render": {
-    "starless_target": 0.07,
-    "starless_denoise": "vstpost",
-    "sep_prom": 6.0,
-    "sep_engine": "inpaint",
-    "chroma_core": 4.0,
-    "lum_core": 2.0,
-    "core_order": "pre",
-    "stretch_linked": "linked",
-    "satu": 0.2,
-    "cull_pct": 50.0,
-    "stars_peak": 0.97,
-    "stars_anchor": "catalog",
-    "stars_anchor_basis": "max",
-    "stars_floor": 3.0,
-    "black_point": 8.0,
-    "jpg_quality": 100,
-    "jpg_subsampling": 0
-  },
+  "status": "provisional",
+  "render": {},
   "notes": {
-    "sep_engine": "inpaint pinned: net passes the gate and every bound here but prints a striped bright-star shell (aura_lum +0.0 -> +4.0) — aesthetic, PENDING USER JUDGMENT on results/exp_starsep_sep_engine_20260709_163552/. This field holds no resolved object, so inpaint's structure-destruction failure mode cannot fire (its in-envelope detection fraction reads ~4%: Milky-Way-band stars, not knots).",
-    "stars_anchor_basis": "max pinned: the approved look predates the fixed G basis; the flip changes star brightness slightly and goes to the user's eyes as a declared delta before this pin moves"
+    "quality": "exposure-limited data (signal/grain ~1 at 8.75 min ISO 200): render knobs are presentation only; acquisition is the fix"
   }
 }
