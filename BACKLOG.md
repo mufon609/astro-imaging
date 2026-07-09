@@ -110,17 +110,8 @@ celestial signal (a galaxy / the MW / a nebula) with no mask at all.
 
 ## B. Parallel batch (renderer pass)
 
-Renderer-touching items that batch into a single polish pass.
-
-### B1 — Harden the star-separation stdout trio contract
-
-`starcomb._run_sep` picks the starless/stars/catalog paths as "the last
-three printed lines ending .fit/.npz". It survives every current print in
-both separators but is one future diagnostic line away from mis-parsing.
-Have `starsep.py` and `starnet_sep.py` emit a sentinel-prefixed trio line
-and parse THAT explicitly, with an index guard for fewer than three paths.
-Byte-verify the approved recipe afterward, since the separation output feeds
-the render.
+Renderer-touching items that batch into a single polish pass. None currently
+open.
 
 ---
 
@@ -207,4 +198,82 @@ self-flat chain (the matched-flat path is smaller and less affected). Verify a
 self-flat set still stacks by the gate + inspection bounds (a stack is not
 byte-reproducible), and that each removed sequence is genuinely unreferenced
 downstream before deleting it.
+
+### C5 — Ingest FITS-native dedicated-astrocam data (mono + OSC data classes)
+
+The pipeline is DSLR-raw + OSC only. `run_pipeline.sh`'s `raw_find` globs
+camera-raw extensions (NEF/DNG/CR2/…) but NOT `.fits/.fit/.fts`, so a
+dedicated-astrocam FITS set fails at preflight ("no raw frames") — it degrades
+loudly, but cannot process at all. A cooled-CMOS FITS set (mono luminance, or
+OSC with a Bayer header) needs its own ingest → calibrate → render branch:
+
+- **Ingest:** accept `.fits/.fit/.fts` in the frame glob. Frames from a
+  dedicated cam are already FITS; siril `convert` still stacks them, but
+  debayer must become conditional.
+- **Debayer conditional on the CFA header:** `lights.ssf.tmpl` hardcodes
+  `-cfa -debayer`. A mono frame (no `BAYERPAT`, `NAXIS=2`) must NOT be
+  debayered; an OSC CFA FITS (`BAYERPAT` present) must. Route on the header,
+  not on the file extension.
+- **Mono render path:** the product chain assumes 3 channels — `chroma_core`
+  indexes channel 2 (IndexError on a 1-channel stack), SPCC does not apply,
+  `satu` is meaningless. A mono set needs a luminance-only path (linked
+  stretch + `lum_core`; no `chroma_core`/`satu`/SPCC). Make mono vs OSC an
+  explicit data class, not a silent inheritance — a mono stack reaching the
+  OSC render must fail loudly, not crash mid-chain.
+- **CMOS flats want dark-flats, not bias** (see C6).
+
+The `imx585c` session (Player One IMX585 **mono**, TOA-130, M74/NGC 7331) is
+the staged test bed; both galaxy sets currently cannot be ingested. The user's
+standing goal is the OSC IMX585**C** — so the OSC-FITS class matters too, not
+just mono. **Relates to:** C1 (per-dataset config/recipe), C2 (OSC sensor
+profile applies to the OSC class only), C3 (object-field inspection bounds),
+C4 (a 167-frame FITS set stresses self-flat disk if it takes that path).
+
+### C6 — Calibrate flats with dark-flats on the CMOS path
+
+`master_flat.ssf` calibrates flats with `-bias=masters/bias_master`. For a
+DSLR that is correct (short flats, negligible dark current, bias is the right
+pedestal). The CMOS standard — and the `imx585c` set's own calibration library
+— is to calibrate flats with **dark-flats** (matched-exposure darks for the
+flats), which subtract the flat-exposure dark signal and any amp glow, not just
+the read pedestal. The routing (`flats && biases` → matched-flat path) has no
+dark-flat concept, so a `darkflats/` dir is ignored. Add dark-flat routing:
+when `darkflats/` exists and its exposure matches the flats, build a dark-flat
+master and calibrate the flats against it instead of bias. Low practical error
+on a ~zero-amp-glow sensor at short flat exposures, but the robust, standard
+CMOS calibration and required to generalize to amp-glow sensors. **Relates to:**
+C5 (both are the dedicated-astrocam calibrate branch).
+
+### C7 — Optional deconvolution stage for well-sampled data
+
+The pipeline has NO deconvolution and the standard-workflow row marks step 4
+COMPLIANT-SKIP — correct on set-03 (in-exposure star trailing is not a static
+PSF; the fitted PSF is symmetric and unstable on ≈0 background, measured). But
+that is a per-data measurement, not a pipeline capability: linear deconvolution
+is now a routine standard step for well-sampled data (a TOA-130 galaxy field at
+long integration is the textbook case), and the rig already has two free
+aarch64-capable options — GraXpert 3.2.0a2 exposes `deconv-obj`/`deconv-stellar`
+(AI, CPU), and Siril 1.4.4 ships classical `makepsf` + `rl`/`sb`/`wiener`. Add
+an optional, off-by-default deconvolution stage (linear, after gradient removal
++ color calibration, BEFORE noise reduction — the firm ordering rule). Keep the
+measured set-03 SKIP as its removal/skip condition, and note the low-SNR
+hallucination risk of AI deconvolution (learned priors can synthesize
+unmeasured detail on faint signal — conservative/PSF-correct-only defaults).
+No free deconvolution runs natively on this rig beyond these two: BlurXTerminator
+is paid + x86-64, Cosmic Clarity has no aarch64 binary.
+
+### C8 — Add ASTAP as a fast offline solver complement
+
+`solve_field.py` (blind astrometry.net from peak centroids) is the RIGHT and
+necessary solver for this rig's ultra-wide trailed fields — ASTAP is documented
+to fail where astrometry.net solves them (33°+ distorted frames), and it builds
+quads from centroids that trailing degrades. But ASTAP 2026.06.29 (free,
+MPL-2.0) ships a **native aarch64 headless CLI** (`astap_cli`) with built-in
+Gaia photometric calibration, and for NARROWER, round-star fields (a TOA-130
+galaxy at ~0.6″/px) it is faster, simpler, fully offline, and needs no
+astrometry.net index download. Add ASTAP as an optional solver backend chosen
+per field (or auto by field width from the header), with `solve_field.py`
+retained as the fallback for wide/trailed frames. Its Johnson/Bessel photometry
+is also an SPCC-adjacent color check worth capturing. **Relates to:** C5 (the
+dedicated-astrocam sets are the narrow-field case ASTAP suits).
 

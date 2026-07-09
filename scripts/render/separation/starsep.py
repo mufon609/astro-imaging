@@ -49,6 +49,18 @@ DILATE_ALL = 3        # skirt for every star, px
 DILATE_BRIGHT = 5     # extra skirt for bright stars
 JACOBI_ITERS = 40
 
+# Machine-readable output contract: both separators end with ONE line of this
+# form carrying the three output paths, tab-separated (fresh run AND cache
+# hit). starcomb._run_sep parses THIS sentinel, not "lines ending .fit/.npz",
+# so a future diagnostic print can never be mistaken for an output path.
+TRIO_SENTINEL = "SEPTRIO"
+
+
+def emit_trio(p_starless, p_stars, p_cat):
+    """Print the starless/stars/catalog trio as the machine-readable sentinel
+    line starcomb parses. Keep it the last line the separator prints."""
+    print(f"{TRIO_SENTINEL}\t{p_starless}\t{p_stars}\t{p_cat}")
+
 
 def write_fits_fitsorder(path, data_display):
     """float32 (C,H,W) display-oriented -> FITS (bottom-up rows)."""
@@ -169,7 +181,7 @@ def main():
     p_cat = os.path.join(outdir, f"starsep_{stem}.npz")
     if all(os.path.exists(p) for p in (p_starless, p_stars, p_cat)):
         print(f"starsep: cache hit {os.path.basename(p_starless)}")
-        print(p_starless); print(p_stars); print(p_cat)
+        emit_trio(p_starless, p_stars, p_cat)
         return
     data, _ = am.load_image(stack_path)
     print(f"starsep: {data.shape[2]}x{data.shape[1]}x{data.shape[0]}ch "
@@ -193,7 +205,7 @@ def main():
     resid = am.star_metrics(starless[min(1, starless.shape[0] - 1)])
     print(f"starsep: starless residual star count {resid.get('n_stars', 0)} "
           f"(detector w/ prominence floor; input had thousands)")
-    print(p_starless); print(p_stars); print(p_cat)
+    emit_trio(p_starless, p_stars, p_cat)
 
 
 if __name__ == "__main__":

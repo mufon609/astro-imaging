@@ -3,8 +3,8 @@
 
 A background DEFECT is a property of the SKY — the dark, empty regions; real
 signal (stars, galaxy, Milky Way, nebula) is BRIGHT and must NEVER count as a
-defect. So the gate selects the sky STATISTICALLY (no per-set corridor / no
-composition mask) and grades the defects that generalize across any framing:
+defect. So the gate selects the sky STATISTICALLY (no composition mask) and
+grades the defects that generalize across any framing:
 
 - color:    worst |R-G| / |B-G| among sky blocks       (color cast / blotch)
 - gradient: peak-to-valley of a least-squares PLANE fit to the sky-block
@@ -15,8 +15,9 @@ composition mask) and grades the defects that generalize across any framing:
 The plane fit is robust to a localized bright object (the object blocks are not
 in the sky selection and cannot tilt the plane), so an object-dominated frame
 (a galaxy filling the center) is graded on its true sky exactly like an empty
-field or a Milky-Way band — the corridor mask this used to need does not
-generalize (a galaxy has no band and no maskable boundary).
+field or a Milky-Way band. Selecting the sky statistically is what makes that
+generalize: a bright object has no fixed band and no maskable boundary, so no
+geometric per-composition mask could scope it.
 
 The terrestrial FOREGROUND (a treeline: real, but DARK, so the statistical sky
 selector would wrongly include it) is excluded via astrometrics.branch_mask,

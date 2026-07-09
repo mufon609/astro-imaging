@@ -18,9 +18,8 @@ setfindstar -sigma=0.5
 register pp_light -2pass
 seqapplyreg pp_light
 set32bits
-# No stack-time white balance (-rgb_equal): SPCC on the stack is the
-# color calibration and absorbs any linear channel scaling — a stack-time
-# rescale only obscures the raw balance SPCC measures (it graded one
-# ~10% G-strong).
+# Color is calibrated by SPCC on the stack — no per-channel white balance
+# at stack time (-rgb_equal): a stack-time rescale would only obscure the
+# raw channel balance SPCC measures.
 stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_@SET@
 close

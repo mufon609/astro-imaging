@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Starless/stars split processing + recombination (standard-DSO style).
 
-The product chain. Defaults = the user-approved recipe B7 (byte-verified
-to reproduce the approved render; recipe provenance in NOTES.md):
+The product chain; the defaults byte-reproduce the user-approved render
+(recipe provenance in NOTES.md):
 
   starcomb.py <session> <set> --stack results/stack_<set>_norgbeq_spcc.fit [--lossless]
 
@@ -60,8 +60,8 @@ import render_helpers as rh  # noqa: E402  (run_graxpert, strips, measure_jpg)
 # .CTX): main() calls am.configure(session, set) — config_<set>.json values,
 # else foreground None. An unconfigured CTX carries no geometry, so a
 # forgotten configure() degrades to whole-frame, never another set's mask.
-# The background gate selects its sky statistically (bg_qa); there is no
-# MW corridor.
+# The background gate (bg_qa) selects its sky statistically, not from any
+# per-set composition input.
 
 
 def run_siril(session_dir, lines, name):
@@ -76,8 +76,11 @@ def run_siril(session_dir, lines, name):
 
 
 def _run_sep(repo, sdir, script, input_fit, set_name, extra=()):
-    """One separation subprocess; returns its starless/stars/catalog
-    trio (the last three printed paths — cache hits print the same)."""
+    """One separation subprocess; returns its (starless, stars, catalog)
+    trio, parsed from the machine-readable SEPTRIO sentinel line both
+    separators emit last (fresh run and cache hit alike). Parsing the
+    sentinel — not "the last lines ending .fit/.npz" — means a future
+    diagnostic print can never be mistaken for an output path."""
     outdir = os.path.join(sdir, "work", "starsep")
     cmd = [sys.executable,
            os.path.join(repo, "scripts", "render", "separation", script),
@@ -89,8 +92,16 @@ def _run_sep(repo, sdir, script, input_fit, set_name, extra=()):
     if r.returncode != 0:
         sys.exit("starcomb: starsep failed:\n" + r.stdout[-2000:] + r.stderr[-1000:])
     print(r.stdout.rstrip())
-    paths = [l for l in r.stdout.strip().splitlines() if l.endswith((".fit", ".npz"))]
-    return paths[-3], paths[-2], paths[-1]
+    trio = None
+    for line in r.stdout.splitlines():
+        if line.startswith("SEPTRIO\t"):
+            parts = line.split("\t")[1:]
+            if len(parts) == 3:       # index guard: ignore a malformed line
+                trio = parts
+    if trio is None:
+        sys.exit("starcomb: separator emitted no valid SEPTRIO trio line "
+                 f"({script}):\n" + r.stdout[-2000:])
+    return trio[0], trio[1], trio[2]
 
 
 def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None,
@@ -162,7 +173,7 @@ def chroma_core(starless_st, k=3.0):
     g2 = min(1, c - 1)
     G = starless_st[g2]
     # noise estimated on the statistical dark sky (bright signal + foreground
-    # excluded) — composition-agnostic, no MW corridor
+    # excluded) — composition-agnostic
     sky = am.sky_pixel_mask(G)
     out = {0: None, 2: None}
     for ci in (0, 2):
@@ -415,10 +426,8 @@ def render_config(ctx, cfg, jpg_out):
     # Final-export encoding, measured vs the lossless PNG on this
     # grain-heavy content: q92 + default 4:2:0 subsampling costs mean
     # 2.29 counts / max 176 at star edges / 9.7 star-pixel chroma error;
-    # q100 + subsampling=0 costs mean 0.44 / max 5. The prior encoding
-    # reproduces with --jpg-quality 92 --jpg-subsampling -1. The STARLESS
-    # jpg (gate input) is untouched — its q92 encoding is part of the
-    # gate identity.
+    # q100 + subsampling=0 costs mean 0.44 / max 5. The STARLESS jpg (gate
+    # input) is untouched — its q92 encoding is part of the gate identity.
     jq = int(cfg.get("jpg_quality", 100))
     jsub = int(cfg.get("jpg_subsampling", 0))
     if jsub < 0:
@@ -531,11 +540,10 @@ def main():
     ap.add_argument("--tag", default=None)
     ap.add_argument("--jpg-quality", type=int, default=100,
                     help="final jpg quality (default 100 + subsampling 0 "
-                         "= mean 0.44 counts vs the lossless PNG; 92 + "
-                         "subsampling -1 reproduces the prior encoding)")
+                         "= mean 0.44 counts vs the lossless PNG)")
     ap.add_argument("--jpg-subsampling", type=int, default=0,
                     help="PIL subsampling for the final jpg (0=4:4:4; "
-                         "-1=encoder default 4:2:0, the prior encoding)")
+                         "-1=encoder default 4:2:0)")
     ap.add_argument("--lossless", action="store_true",
                     help="also write a lossless PNG next to each jpg")
     ap.add_argument("--param", default=None,

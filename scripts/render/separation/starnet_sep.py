@@ -159,7 +159,7 @@ def main():
     p_cat = os.path.join(outdir, f"starsep_{stem}.npz")
     if all(os.path.exists(p) for p in (p_starless, p_stars, p_cat)):
         print(f"starnet_sep: cache hit {os.path.basename(p_starless)}")
-        print(p_starless); print(p_stars); print(p_cat)
+        starsep.emit_trio(p_starless, p_stars, p_cat)
         return
 
     data, _ = am.load_image(stack_path)
@@ -252,7 +252,7 @@ def main():
     resid = am.star_metrics(starless[min(1, starless.shape[0] - 1)])
     print(f"starnet_sep: catalog stars {stats['n_stars']}, starless "
           f"residual star count {resid.get('n_stars', 0)}")
-    print(p_starless); print(p_stars); print(p_cat)
+    starsep.emit_trio(p_starless, p_stars, p_cat)
 
 
 if __name__ == "__main__":

@@ -97,8 +97,9 @@ def load_image(path):
 # reads <session>/config_<set>.json. A bare, unconfigured CTX carries NO
 # geometry (foreground None), so a forgotten configure() degrades to
 # whole-frame / no-mask instead of inheriting another dataset's foreground.
-# The background gate (bg_qa) selects its sky STATISTICALLY — there is no MW
-# corridor; a geometric band cannot scope an object-dominated field.
+# The background is NOT a per-set composition fact: the gate (bg_qa) selects
+# its sky STATISTICALLY, because a geometric band cannot scope an
+# object-dominated field.
 
 
 class SetContext:
@@ -296,8 +297,7 @@ def sky_pixel_mask(ch, k=3.0):
     sky), foreground excluded. The composition-agnostic scope for noise
     estimation in the rendering corings — real signal (galaxy / Milky Way /
     nebula) is brighter than the sky and drops out, so the estimate tracks
-    the true sky noise on ANY framing. Replaces the MW-corridor exclusion,
-    which assumed the only non-sky signal was a galactic band."""
+    the true sky noise on ANY framing."""
     bg, sig = bg_stats(ch)
     h, w = ch.shape
     return (ch <= bg + k * sig) & branch_mask(h, w)
