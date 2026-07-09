@@ -305,7 +305,19 @@ def render_config(ctx, cfg, jpg_out):
     starless_st, _ = am.load_image(st_out)
     os.remove(st_out)  # 294 MB scratch: free it now (all in memory)
 
-    if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
+    # A single-filter (mono) stack carries luminance only. Replicate it to RGB
+    # so the gate, star-shell audit and 8-bit writers see the three channels
+    # they expect, and skip the colour operators: chroma coring and saturation
+    # both act on channel differences that are identically zero here, so they
+    # can only cost time (chroma_core also indexes a blue channel that a
+    # 1-channel stack does not have).
+    mono = starless_st.shape[0] == 1
+    if mono:
+        starless_st = np.repeat(starless_st, 3, axis=0)
+        print("[starcomb] mono stack -> luminance render "
+              "(chroma_core / satu skipped: no colour)")
+
+    if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
         # chroma coring BEFORE lum_core (default): chroma is neutralized on
         # the raw stretched sky, then lum_core smooths only luminance and
         # cannot revive the neutralized chroma.
@@ -314,7 +326,7 @@ def render_config(ctx, cfg, jpg_out):
     if cfg.get("lum_core", 0) > 0:
         starless_st = lum_core(starless_st, float(cfg["lum_core"]))
 
-    if cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
+    if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
         starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
 
     if cfg.get("black_point", 0) > 0:
@@ -349,6 +361,8 @@ def render_config(ctx, cfg, jpg_out):
 
     # --- stars branch (numpy) --------------------------------------------
     stars, _ = am.load_image(ctx["stars_fit"])
+    if mono:
+        stars = np.repeat(stars, 3, axis=0)
     cat = np.load(ctx["cat_npz"])
     if cfg["cull_pct"] > 0:
         flux, ids = cat["flux"], cat["ids"]
@@ -372,6 +386,8 @@ def render_config(ctx, cfg, jpg_out):
         # starless layer) so only genuine star signal reaches the
         # stretch.
         sl_lin, _ = am.load_image(starless_fit)
+        if mono:
+            sl_lin = np.repeat(sl_lin, 3, axis=0)
         k = float(cfg["stars_floor"])
         sigs = []
         for c in range(stars.shape[0]):
@@ -414,7 +430,7 @@ def render_config(ctx, cfg, jpg_out):
 
     # --- combine ----------------------------------------------------------
     out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
-    if cfg.get("satu", 0) > 0:
+    if not mono and cfg.get("satu", 0) > 0:
         # chroma gain on the combined render, AFTER the corings — so it
         # amplifies only significant (surviving) color: star hues and
         # honest MW tint, not noise chroma.

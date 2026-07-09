@@ -63,12 +63,19 @@ def emit_trio(p_starless, p_stars, p_cat):
 
 
 def write_fits_fitsorder(path, data_display):
-    """float32 (C,H,W) display-oriented -> FITS (bottom-up rows)."""
+    """float32 (C,H,W) display-oriented -> FITS (bottom-up rows).
+
+    A single-channel image is written as a 2D FITS (NAXIS=2, no NAXIS3) — the
+    convention siril writes and reads for mono. A degenerate NAXIS3=1 cube is
+    legal FITS but siril's reader rejects it."""
     arr = data_display[:, ::-1, :]
     nc, ny, nx = arr.shape
     cards = ["SIMPLE  =                    T", "BITPIX  =                  -32",
-             "NAXIS   =                    3", f"NAXIS1  = {nx:>20d}",
-             f"NAXIS2  = {ny:>20d}", f"NAXIS3  = {nc:>20d}", "END"]
+             f"NAXIS   = {2 if nc == 1 else 3:>20d}",
+             f"NAXIS1  = {nx:>20d}", f"NAXIS2  = {ny:>20d}"]
+    if nc > 1:
+        cards.append(f"NAXIS3  = {nc:>20d}")
+    cards.append("END")
     hdr = "".join(c.ljust(80) for c in cards)
     hdr += " " * (2880 - len(hdr) % 2880)
     body = arr.astype(">f4").tobytes()

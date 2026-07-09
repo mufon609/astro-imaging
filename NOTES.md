@@ -121,6 +121,24 @@ calibrates the raw balance directly; it measured K R 1.675 / G 0.749 /
 B 0.935 on 508 stars — rgb_equal was the primary raw-Bayer normalizer
 and only obscured what SPCC measures).
 
+**Dedicated-astrocam FITS branch (cooled mono/OSC)** — a set of `.fits` lights
+forks to a FITS ingest: `fitsmeta.py` reads exposure/gain/offset/filter/mono
+from the headers (the free-text `FILTER` keyword — an SBIG convention, not
+validated core FITS — is normalized to a canonical token; a mixed dir fails
+loud). Flats are matched to the lights **by FILTER** (vignetting and dust
+shadows are wavelength-dependent, so a flat is valid only for its own filter)
+and calibrated with **dark-flats**, darks matched to the flat exposure: the
+CMOS standard, since a multi-second flat carries dark current a bias cannot
+remove (`biases/` is the fallback). Darks are filter-independent, matched by
+exposure/gain/offset. A mono light is never debayered (no `BAYERPAT`); an OSC
+CFA FITS gets `-cfa -debayer` (that branch is written but unverified). The
+render detects a 1-channel stack and takes the luminance-only path — chroma
+coring and saturation act on channel differences that are identically zero, and
+SPCC has no colour to calibrate. A single-channel FITS must be written
+`NAXIS=2`: siril's reader rejects a degenerate `NAXIS3=1` cube. Measured on M74
+(47×120 s, TOA-130 mono L): 47/47 registered, gate PASS (colour 0.0, gradient
+0.5, blotch 0.1, rings 1.0); the flat master falls off only 1.3% to the corner.
+
 **Self-flat branch (flatless sets)** — median of UNREGISTERED
 calibrated frames (drifting stars self-reject) → per-frame planar glow
 subtraction (`seqsubsky 1`, sensor coords, while linear) → `rechroma.py`

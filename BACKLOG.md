@@ -185,52 +185,7 @@ self-flat set still stacks by the gate + inspection bounds (a stack is not
 byte-reproducible), and that each removed sequence is genuinely unreferenced
 downstream before deleting it.
 
-### C4 — Ingest FITS-native dedicated-astrocam data (mono + OSC data classes)
-
-The pipeline is DSLR-raw + OSC only. `run_pipeline.sh`'s `raw_find` globs
-camera-raw extensions (NEF/DNG/CR2/…) but NOT `.fits/.fit/.fts`, so a
-dedicated-astrocam FITS set fails at preflight ("no raw frames") — it degrades
-loudly, but cannot process at all. A cooled-CMOS FITS set (mono luminance, or
-OSC with a Bayer header) needs its own ingest → calibrate → render branch:
-
-- **Ingest:** accept `.fits/.fit/.fts` in the frame glob. Frames from a
-  dedicated cam are already FITS; siril `convert` still stacks them, but
-  debayer must become conditional.
-- **Debayer conditional on the CFA header:** `lights.ssf.tmpl` hardcodes
-  `-cfa -debayer`. A mono frame (no `BAYERPAT`, `NAXIS=2`) must NOT be
-  debayered; an OSC CFA FITS (`BAYERPAT` present) must. Route on the header,
-  not on the file extension.
-- **Mono render path:** the product chain assumes 3 channels — `chroma_core`
-  indexes channel 2 (IndexError on a 1-channel stack), SPCC does not apply,
-  `satu` is meaningless. A mono set needs a luminance-only path (linked
-  stretch + `lum_core`; no `chroma_core`/`satu`/SPCC). Make mono vs OSC an
-  explicit data class, not a silent inheritance — a mono stack reaching the
-  OSC render must fail loudly, not crash mid-chain.
-- **CMOS flats want dark-flats, not bias** (see C6).
-
-The `imx585c` session (Player One IMX585 **mono**, TOA-130, M74/NGC 7331) is
-the staged test bed; both galaxy sets currently cannot be ingested. The user's
-standing goal is the OSC IMX585**C** — so the OSC-FITS class matters too, not
-just mono. **Relates to:** C1 (per-dataset config/recipe), C2 (OSC sensor
-profile applies to the OSC class only), C3 (a 167-frame FITS set stresses
-self-flat disk if it takes that path).
-
-### C5 — Calibrate flats with dark-flats on the CMOS path
-
-`master_flat.ssf` calibrates flats with `-bias=masters/bias_master`. For a
-DSLR that is correct (short flats, negligible dark current, bias is the right
-pedestal). The CMOS standard — and the `imx585c` set's own calibration library
-— is to calibrate flats with **dark-flats** (matched-exposure darks for the
-flats), which subtract the flat-exposure dark signal and any amp glow, not just
-the read pedestal. The routing (`flats && biases` → matched-flat path) has no
-dark-flat concept, so a `darkflats/` dir is ignored. Add dark-flat routing:
-when `darkflats/` exists and its exposure matches the flats, build a dark-flat
-master and calibrate the flats against it instead of bias. Low practical error
-on a ~zero-amp-glow sensor at short flat exposures, but the robust, standard
-CMOS calibration and required to generalize to amp-glow sensors. **Relates to:**
-C4 (both are the dedicated-astrocam calibrate branch).
-
-### C6 — Optional deconvolution stage for well-sampled data
+### C4 — Optional deconvolution stage for well-sampled data
 
 The pipeline has NO deconvolution and the standard-workflow row marks step 4
 COMPLIANT-SKIP — correct on set-03 (in-exposure star trailing is not a static
@@ -248,7 +203,7 @@ unmeasured detail on faint signal — conservative/PSF-correct-only defaults).
 No free deconvolution runs natively on this rig beyond these two: BlurXTerminator
 is paid + x86-64, Cosmic Clarity has no aarch64 binary.
 
-### C7 — Add ASTAP as a fast offline solver complement
+### C5 — Add ASTAP as a fast offline solver complement
 
 `solve_field.py` (blind astrometry.net from peak centroids) is the RIGHT and
 necessary solver for this rig's ultra-wide trailed fields — ASTAP is documented
@@ -260,6 +215,70 @@ galaxy at ~0.6″/px) it is faster, simpler, fully offline, and needs no
 astrometry.net index download. Add ASTAP as an optional solver backend chosen
 per field (or auto by field width from the header), with `solve_field.py`
 retained as the fallback for wide/trailed frames. Its Johnson/Bessel photometry
-is also an SPCC-adjacent color check worth capturing. **Relates to:** C4 (the
-dedicated-astrocam sets are the narrow-field case ASTAP suits).
+is also an SPCC-adjacent color check worth capturing. The dedicated-astrocam
+sets (TOA-130 at ~0.6″/px) are exactly the narrow, round-star case ASTAP suits.
+
+### C6 — Combine multi-filter mono channels (LRGB + narrowband palettes)
+
+The FITS ingest reads and normalizes the `FILTER` header and matches flats to
+lights by filter, so a single-filter mono set (luminance) processes end to end.
+What is missing is the CONVERGENCE step: a target shot through several filters
+is N independent per-filter stacks that must be combined.
+
+- **Register every filter's stack to ONE common reference** (siril global
+  registration takes `-extref=<file>`), so channels overlay pixel-for-pixel and
+  composition needs no second interpolation pass.
+- **Broadband LRGB:** combine R/G/B, run SPCC on the RGB **only**, stretch
+  LINKED (an unlinked stretch alters the calibrated white balance), then apply
+  L as luminance (`rgbcomp -lum=`). L is added after the histograms are
+  stretched, not before.
+- **Narrowband:** SPCC must be **gated OFF** — a palette is a false-colour
+  mapping of emission-line intensity, not a photometric calibration. Assign
+  channels by palette with `pm` (PixelMath): SHO = SII→R, Ha→G, OIII→B; HOO =
+  Ha→R, OIII→G+B. Normalize/stretch each channel independently (there is no
+  true white to protect), then `rmgreen` (SCNR) — Ha→G makes green dominate.
+- Narrowband palette colour is aesthetic and therefore goes through the user's
+  eyes, never an objective colour gate.
+
+Needs a multi-filter dataset to verify: `imx585c` is single-filter (L), so an
+LRGB/SHO combiner built against it would be unverifiable. Acquire or download a
+mono LRGB or SHO set first. **Relates to:** C1 (each palette/target is its own
+per-dataset recipe), C2 (SPCC sensor profile is a broadband-only concern).
+
+### C7 — Verify the OSC-CFA FITS branch
+
+The FITS ingest routes debayer on the header — a mono frame (no `BAYERPAT`,
+`NAXIS=2`) is never debayered, an OSC CFA FITS (`BAYERPAT` present) gets
+`-cfa -debayer`. Only the MONO branch is verified (imx585c). The CFA branch is
+written but has never seen data: a dedicated OSC camera (e.g. the IMX585**C**
+the practice set was meant to be) writes a single-channel CFA FITS that siril
+must debayer, and the render then takes the normal colour chain (SPCC, chroma
+coring, satu). Verify on a real OSC-FITS set: confirm the Bayer pattern is read
+from the header, the debayered stack is 3-channel, SPCC runs, and the colour
+render passes the gate. Until then, treat the CFA branch as untested code.
+
+### C8 — Stack-inspection metrics for low-background / centered-object fields
+
+`sky_flatness()` grades the stack on the statistical dark sky, which fixed the
+off-centre object case (LMC/SMC). Two limits remain, both measured on the
+imx585c M74 stack (mono, dark sky, 47×120 s):
+
+- **A CENTERED object contaminates a RADIAL sky profile by construction.** M74
+  sits at frame centre; its faint outer envelope lies between `bg` and `bg+3σ`,
+  so the dark-sky selector keeps it (sky_frac 0.97) and the sky radial profile
+  reads 50.7 counts at r≈0 falling to 37.7 at r≈0.5 — a `p2v_inner_rel` of
+  0.35 that is the GALAXY, not a flat-field defect (the flat master measures
+  only 1.3% radial falloff and 1.9% large-scale structure). A plane fit over
+  sky blocks, or the detrended ring amplitude the gate already uses, is robust
+  to a smooth centred envelope where a raw radial P2V is not.
+- **`noise_over_median_pct` and `bg_median16` are ratios to an arbitrary
+  pedestal.** The stack background is 38 counts here (dark sky, plus siril's
+  `-output_norm` compressing by the saturated-star max) vs ~370–600 on the DSLR
+  sets, so noise/median reads 11% and bg_median16 falls under its 150 floor —
+  both WARN on a stack that is demonstrably good. Either measure noise against
+  the signal scale rather than the pedestal, or make the level bound a
+  data-class fact instead of one absolute range.
+
+Do not simply widen the bounds: re-derive what each metric is meant to catch
+(vignetting residual; grossly wrong exposure/SNR) and measure that directly.
 

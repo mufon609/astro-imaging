@@ -80,6 +80,157 @@ fresh() { # masterfile srcdir manifestfile — master is current iff the
   diff -q <(manifest "$2") "$3" >/dev/null 2>&1
 }
 
+# --- dedicated-astrocam (FITS) ingest ---------------------------------------
+# A cooled mono/OSC camera writes 16-bit FITS carrying its own acquisition
+# metadata (FILTER, EXPTIME, GAIN, OFFSET, BAYERPAT), so the preflight reads
+# headers (fitsmeta.py) instead of EXIF. Frame TYPE stays the directory
+# convention (darks/ darkflats/ flats/ <set>/). Calibration rules that differ
+# from the camera-raw path:
+#   - flats are per-FILTER (vignetting and dust shadows are wavelength
+#     dependent), so a flat set whose filter differs from the lights is refused
+#   - flats are calibrated with DARK-FLATS (darks matched to the flat exposure),
+#     the CMOS standard: multi-second flats carry dark current a bias cannot
+#     remove. biases/ is the fallback when no darkflats/ exist.
+#   - darks/biases are filter-independent, matched by exposure/gain/offset
+#   - a MONO light is never debayered; an OSC CFA FITS (BAYERPAT present) is
+fits_glob() { find "$1" -maxdepth 1 -type f \( -iname '*.fit' -o -iname '*.fits' \
+    -o -iname '*.fts' \) "${@:2}"; }
+manifest_fits() { fits_glob "$1" -printf '%P %s %T@\n' | sort; }
+fresh_fits() { [[ -f "$1" && -f "$3" ]] || return 1
+  diff -q <(manifest_fits "$2") "$3" >/dev/null 2>&1; }
+fits_meta() { python3 "$REPO/scripts/stack/fitsmeta.py" "$1"; }
+
+# convert+stack a dark-type dir into a master: <srcdir-name> <prefix> <outname>
+_fits_dark_master() {
+  { echo "requires 1.4.0"; echo "set16bits"
+    echo "cd $1"; echo "convert $2 -out=../work"
+    echo "cd ../work"; echo "stack $2 rej 3 3 -nonorm -out=masters/$3"
+    echo "close"; } > "$W/fits_master_$2.gen.ssf"
+  siril_run "$W/fits_master_$2.gen.ssf"
+}
+# master flat, calibrated by $1 (-dark=masters/darkflat_master | -bias=...)
+_fits_flat_master() {
+  { echo "requires 1.4.0"; echo "set16bits"
+    echo "cd flats"; echo "convert fl -out=../work"
+    echo "cd ../work"; echo "calibrate fl $1"
+    echo "stack pp_fl rej 3 3 -norm=mul -out=masters/flat_master"
+    echo "close"; } > "$W/fits_flat.gen.ssf"
+  siril_run "$W/fits_flat.gen.ssf"
+}
+# lights: calibrate -> 2-pass register -> rejection stack. $1 = cfa/debayer
+# flags (empty for mono), $2 = flat option (empty when no usable flat).
+_fits_lights() {
+  { echo "requires 1.4.0"; echo "set16bits"
+    echo "cd $SET"; echo "convert light -out=../work"
+    echo "cd ../work"
+    echo "calibrate light -dark=masters/dark_master $2 -cc=dark 3 3 $1"
+    echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
+    echo "set32bits"
+    echo "stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_$SET"
+    echo "close"; } > "$W/fits_lights.gen.ssf"
+  siril_run "$W/fits_lights.gen.ssf"
+}
+
+fits_ingest() {
+  echo "=== preflight: FITS acquisition metadata (set: $SET) ==="
+  local lexp lgain loff lfilt lmono dexp dgain doff _f _m sm
+  sm=$(fits_meta "$S/$SET") || exit 1
+  IFS=$'\t' read -r lexp lgain loff lfilt lmono <<<"$sm"
+  echo "$SET: ${lexp}s gain${lgain} offset${loff} filter=${lfilt:-none} mono=${lmono}"
+  [[ -d "$S/darks" ]] || { echo "missing $S/darks" >&2; exit 1; }
+  sm=$(fits_meta "$S/darks") || exit 1
+  IFS=$'\t' read -r dexp dgain doff _f _m <<<"$sm"
+  echo "darks: ${dexp}s gain${dgain} offset${doff}"
+  [[ "$dexp" == "$lexp" ]] || echo "WARNING: darks (${dexp}s) != $SET (${lexp}s) — dark works as bias+hot-pixel map only"
+  [[ "$dgain" == "$lgain" && "$doff" == "$loff" ]] || \
+    echo "WARNING: darks gain/offset ${dgain}/${doff} != $SET ${lgain}/${loff}"
+
+  # mono lights carry no CFA: no debayer, no cfa-aware cosmetic correction
+  local CFAOPT="" FLATOPT="" FLATCAL="" FLATCALOPT=""
+  [[ "$lmono" == "1" ]] || CFAOPT="-cfa -debayer"
+
+  if [[ -d "$S/flats" ]]; then
+    local fexp ffilt fmono dfexp
+    sm=$(fits_meta "$S/flats") || exit 1
+    IFS=$'\t' read -r fexp _f _m ffilt fmono <<<"$sm"
+    if [[ "$ffilt" != "$lfilt" ]]; then
+      echo "WARNING: flats filter '${ffilt}' != $SET filter '${lfilt}' — flats NOT applied (a flat is only valid for its own filter)"
+    else
+      if [[ -d "$S/darkflats" ]] && fits_glob "$S/darkflats" | grep -q .; then
+        sm=$(fits_meta "$S/darkflats") || exit 1
+        IFS=$'\t' read -r dfexp _f _m _f _m <<<"$sm"
+        [[ "$dfexp" == "$fexp" ]] || echo "WARNING: darkflats (${dfexp}s) != flats (${fexp}s) — dark-flat must match the flat exposure"
+        FLATCAL="darkflat"; FLATCALOPT="-dark=masters/darkflat_master"
+      elif [[ -d "$S/biases" ]] && fits_glob "$S/biases" | grep -q .; then
+        FLATCAL="bias"; FLATCALOPT="-bias=masters/bias_master"
+        echo "note: no darkflats/ — calibrating flats with bias (dark-flats are the CMOS standard)"
+      else
+        echo "WARNING: flats/ present but neither darkflats/ nor biases/ — flats NOT applied"
+      fi
+      [[ -n "$FLATCAL" ]] && { FLATOPT="-flat=masters/flat_master"
+        echo "flats: ${fexp}s filter=${ffilt}, calibrated with ${FLATCAL}"; }
+    fi
+  else
+    echo "no flats/ — lights calibrated with dark only"
+  fi
+
+  # --- masters ---
+  if fresh_fits "$W/masters/dark_master.fit" "$S/darks" "$W/masters/dark.manifest"; then
+    echo "=== master dark up to date, skipping ==="
+  else
+    echo "=== master dark ==="; rm -f "$W/masters/dark_master.fit"
+    _fits_dark_master darks dk dark_master
+    manifest_fits "$S/darks" > "$W/masters/dark.manifest"; rm -f "$W"/dk_*
+  fi
+
+  if [[ -n "$FLATCAL" ]]; then
+    local calsrc="$S/darkflats" calname=darkflat
+    [[ "$FLATCAL" == "bias" ]] && { calsrc="$S/biases"; calname=bias; }
+    if fresh_fits "$W/masters/${calname}_master.fit" "$calsrc" "$W/masters/${calname}.manifest"; then
+      echo "=== master ${calname} up to date, skipping ==="
+    else
+      echo "=== master ${calname} ==="; rm -f "$W/masters/${calname}_master.fit"
+      _fits_dark_master "$(basename "$calsrc")" df "${calname}_master"
+      manifest_fits "$calsrc" > "$W/masters/${calname}.manifest"; rm -f "$W"/df_*
+    fi
+    if fresh_fits "$W/masters/flat_master.fit" "$S/flats" "$W/masters/flat.manifest" \
+       && [[ "$W/masters/flat_master.fit" -nt "$W/masters/${calname}_master.fit" ]]; then
+      echo "=== master flat up to date, skipping ==="
+    else
+      echo "=== master flat (calibrated with ${calname}) ==="
+      rm -f "$W/masters/flat_master.fit"
+      _fits_flat_master "$FLATCALOPT"
+      manifest_fits "$S/flats" > "$W/masters/flat.manifest"; rm -f "$W"/fl_* "$W"/pp_fl_*
+    fi
+  fi
+
+  # --- lights ---
+  local NF F1 FM FN
+  NF=$(fits_glob "$S/$SET" | wc -l)
+  F1=$(printf '%05d' 1); FM=$(printf '%05d' $(( (NF + 1) / 2 ))); FN=$(printf '%05d' "$NF")
+  echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
+  _fits_lights "$CFAOPT" "$FLATOPT"
+  INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
+  INS stage stack --in "$S/results/stack_$SET.fit"
+  rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
+}
+
+# Data-class fork: a set of dedicated-camera FITS frames takes the FITS ingest
+# above; camera raws (DSLR/OSC) take the raw path below. A set holding both is
+# ambiguous and must be split, not guessed.
+if fits_glob "$S/$SET" | grep -q .; then
+  if raw_find "$S/$SET" | grep -q .; then
+    echo "ERROR: $SET holds BOTH camera raws and FITS frames — split them" >&2
+    exit 1
+  fi
+  fits_ingest
+  echo "=== assembling inspection report ==="
+  INS report --title "$SESSION $SET"
+  echo "=== inspection report: $INSPECT/index.html ==="
+  df -h "$S" | tail -1
+  exit 0
+fi
+
 # --- preflight: metadata consistency ----------------------------------------
 echo "=== preflight: metadata consistency (set: $SET) ==="
 IFS=$'\t' read -r lexp liso <<<"$(uniform "$S/$SET")"

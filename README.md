@@ -27,7 +27,7 @@ follows, in order — linear until step 6:
 | 1 | calibrate (bias/dark/flat) → register → integrate | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack | COMPLIANT (matched darks/biases; flats when optics match) |
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | GraXpert BGE + `subsky 1`, star-ful (`starcomb bge_first`) | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder) |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (default) · `starnet_sep.py` StarNet2-ONNX runs on aarch64 (engines `net`/`hybrid` in starcomb) | ADAPTATION, removal candidate VALIDATED — the `hybrid` engine (net on the inpaint starless) meets every objective bar incl. the faint-tail removal (residual 589 vs ~5.1k) and awaits user judgment (NOTES ledger #4); `inpaint` stays default |
@@ -152,7 +152,8 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; auto-routes flatless sets to the self-flat branch |
+| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, and auto-routes flatless sets to the self-flat branch |
+| `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 
@@ -189,8 +190,11 @@ live in NOTES "Environment" + auto-memory.
 ## Data layout
 
 ```
-<session>/           e.g. 07-02-26/ or nikon-test/
-  biases/ darks/ flats/ <set>/           raw frames (NEF/DNG/CR2/…, ignored)
+<session>/           e.g. 07-02-26/ or nikon-test/ or imx585c/
+  biases/ darks/ flats/ darkflats/       calibration (darkflats = the FITS path's
+                                         matched darks for the flats)
+  <set>/                                 lights: camera raw (NEF/DNG/CR2/…) or
+                                         dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts
   results/                               stacks, renders, exp_*/, inspect_*/
 scripts/                                 the pipeline (tracked)
