@@ -319,9 +319,22 @@ Separation on resolved objects:
   14 px² — HII knots), and the largest admitted component is 6212 px² (the
   core, allowed by AREA_MAX_BRIGHT=12000). Those knots are inpainted OUT of the
   starless and screened back through the stars MTF, rendering as hard white
-  blobs. StarNet2 (`--sep-engine net`) renders the same field correctly. The
+  blobs. StarNet2 (`--sep-engine net`) renders the same field correctly: it
+  keeps 100.0% of the genuine field-star flux while pulling 32% LESS galaxy
+  structure into the stars layer (measured over the same components). The
   `hybrid` engine cannot fix it — hybrid's base IS the inpaint starless, which
   has already lost the knots.
+- StarNet2's bright-star residual is a per-DATA property, not a fixed defect.
+  On M74 the net starless pedestal is 1.28 counts16 at r0-4 (0.26σ), SMALLER
+  than the inpaint fill's 1.85 (0.38σ); on set-03 the same engine prints a
+  visible striped bright-star shell (aura_lum +0.0 → +4.0). Measure it per
+  dataset; do not carry one set's number to another.
+- A mono starless must leave the separator with ONE channel. The net's graph
+  takes 3, so a mono stack is replicated to feed it; returning 3 channels drops
+  the render off its luminance path onto the colour chain, whose patch-based
+  `denoise -vst` printed rectangular blocks across the sky (gate rings 10.2 vs
+  1.0). The linear starless was clean throughout — the artifact was the wrong
+  render path, never StarNet2.
 
 Detection/solve/registration:
 - Siril internal solver on these ultra-wide trailed fields → fails

@@ -163,7 +163,11 @@ def main():
         return
 
     data, _ = am.load_image(stack_path)
-    if data.shape[0] == 1:
+    # the net's graph takes 3 channels, so a mono stack is replicated to feed
+    # it — and COLLAPSED BACK before the trio is written. A mono starless that
+    # leaves here with 3 channels drops the render off its luminance path.
+    mono = data.shape[0] == 1
+    if mono:
         data = np.repeat(data, 3, axis=0)
     clipped = float(np.mean((data < 0) | (data > 1)))
     if clipped > 0:
@@ -244,6 +248,8 @@ def main():
     # a measurement of the sky (components above local bg), not of the
     # separation — identical machinery keeps the engines comparable
     _, labels, cat, stats = starsep.build_star_mask(data)
+    if mono:                       # the replicated channels are identical
+        starless, stars = starless[:1], stars[:1]
     starsep.write_fits_fitsorder(p_starless, starless)
     starsep.write_fits_fitsorder(p_stars, stars)
     np.savez_compressed(p_cat, labels=labels.astype(np.uint32),

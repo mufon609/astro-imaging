@@ -68,31 +68,59 @@ hybrid runs the net ON the inpaint starless, so it inherits a base whose knots
 are already destroyed. Hybrid remains interesting only where the frame holds no
 resolved extended object.
 
-Blocking problem to solve first: stock `net` leaves a residual halo pedestal
-under bright stars. On the DSLR set that read aura_lum +12; on M74, whose very
-low background forces a ×4991 stars MTF low-end gain, it amplifies into
-gate-FAILING sky blobs (rings 10.2, blotch 3.4 vs the inpaint control's
-1.0/0.1). Options to measure: bound the pedestal by restoring a flat fill under
-genuinely-stellar components only (never galaxy structure); the `--upsample`
-bright-star mode; or fix the anchor (A2) so the low-end gain stops being
-data-dependent — the ×4991 is what turns a small pedestal into a defect.
+Measured on both classes (single-knob `sep_engine` ladders, gate + star shells):
 
-Then: pick the default per data class (resolved object → net), demote
-mask+inpaint to the documented fallback, update the README step-6 row, and
-bring the like-encoding panels for judgment. Aesthetic → the user's eyes.
+| engine  | set-03 gate | set-03 aura | M74 gate | M74 aura | M74 galaxy |
+|---|---|---|---|---|---|
+| inpaint | PASS | +0.0 | PASS | +4.9 WARN | steals 32% more structure |
+| net     | PASS | +4.0 | PASS | +4.0 | preserves |
+| hybrid  | PASS | +0.0 | — | — | invalid (inpaint base) |
 
-**Blocked by:** the net bright-star pedestal (above); relates to A2.
+net keeps 100.0% of genuine field-star flux while pulling 32% less galaxy
+structure into the stars layer. Its cost is a visible striped residual around
+BRIGHT stars on set-03 (aura +0.0 → +4.0, still inside the bound). hybrid is
+clean there but cannot be used where a resolved object exists.
 
-### A2 — Flip the stars anchor default to noise-relative
+The choice is therefore data-class dependent, and the failure modes are not
+symmetric: net's worst case is cosmetic (a bright-star shell), inpaint's worst
+case DESTROYS real signal. Prefer the fail-safe engine as the default.
 
-The catalog anchor (median top-500 max-over-channel amplitude) is
-data-dependent: under the SPCC per-channel gains it drifts the G-channel
-star rendering -8.5/-20 counts (mid/faint), while the noise-relative anchor
-(k x sigma_G of the linear starless) holds to <=0.6 (k = 490.9663661574939).
-On approval: flip the default, declare the delta on every registered dataset
-(metric deltas + like-encoding panels), keep `catalog` as a flag. The anchor is
-also implicated in A1: it is what produced M74's ×4991 stars MTF low-end gain,
-which turns StarNet2's small bright-star pedestal into a gate-failing defect.
+Best candidate to measure next: exclude extended objects from the inpaint star
+mask (`build_star_mask` already has `extended_object_mask` available). Then the
+inpaint base flattens bright FIELD stars only — never galaxy knots — and the net
+run over it removes the stars inside the object. That would make one engine
+correct on both classes: clean bright stars (hybrid's win) AND preserved galaxy
+structure (net's win).
+
+Then: demote mask+inpaint to the fallback used when the StarNet2 weights are
+absent, update the README step-6 row, declare the delta and bring the
+like-encoding panels. The set-03 bright-star change is aesthetic → user's eyes.
+
+**Relates to:** A2 (the anchor is a per-dataset knob, not the cause here).
+
+### A2 — Make the stars anchor stable within a dataset (do NOT globalize it)
+
+Do not flip the default to `noise`. Measured: `k = 490.9663661574939` is DEFINED
+as set-03's catalog anchor divided by set-03's sigma_G, so the noise anchor
+simply re-states set-03's star statistics as if they were universal. On M74 the
+catalog anchor sits at 44 sigma; the noise anchor asserts 491 sigma — an 11x
+mismatch that would render that field's stars far too dim (m 0.000100 ->
+0.001155).
+
+The real defect is that the anchor samples a different depth of each field's
+luminosity function. "median of the top 500" is the brightest 2% of set-03's
+22916 catalog stars but the brightest 59% of M74's 852. A fixed FRACTION is no
+better and swings the other way (top-10%: 143 sigma on set-03, 1824 sigma on
+M74). No single rule sets a star brightness across fields — the anchor's
+absolute level is a per-dataset recipe knob (C1).
+
+What IS worth fixing narrowly, and is objective: `cat["peak"]` is the component
+peak of the MAX-OVER-CHANNELS residual, so SPCC's per-channel gains move which
+channel wins and the anchor drifts (measured: G-channel star rendering -8.5/-20
+counts at mid/faint tiers between builds of the same sky). Compute the anchor on
+a FIXED basis (the luminance / G channel) so a per-channel rescale cannot move
+it, and declare the delta. Keep `noise` as a flag, documented as a same-dataset
+stability tool, never a cross-dataset default.
 
 **Blocked by:** user's go-ahead (a render no-op on the current stack, but a
 default change).
