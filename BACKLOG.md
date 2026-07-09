@@ -131,8 +131,8 @@ a FIXED basis (the luminance / G channel) so a per-channel rescale cannot move
 it, and declare the delta. Keep `noise` as a flag, documented as a same-dataset
 stability tool, never a cross-dataset default.
 
-**Blocked by:** user's go-ahead (a render no-op on the current stack, but a
-default change).
+The anchor's absolute LEVEL is not fixable here at all — it belongs with the
+per-dataset recipe. **Relates to:** C1.
 
 ### A3 — Redesign the foreground-mask derivation
 
