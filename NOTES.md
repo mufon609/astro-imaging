@@ -50,18 +50,22 @@ never let it grow narrative again.
   `results/starcomb_lmc_180mm_nocorridor_20260708_140837.{jpg,png,_16bit.png}`
   = the corridor-free defaults, user-approved at `chroma_core k=4` (the
   neutral look won over k=0/2 on the ladder). The red halo around BRIGHT
-  stars is PHYSICAL (measured in the linear stack: R−G +6..+9 counts to
-  r≥16 on the top tier, ~0 on faint) — longitudinal CA of the Sigma 180/2.8
-  wide-open + the D810A's Hα-extended red response; the render's star MTF +
-  `satu` amplify it (this is `star_shell_report`'s `shell_chroma` ≈12).
-  USER VERDICT 2026-07-08: the red halos are objectionable across ALL renders
-  (LMC + SMC, and worse up the satu ladder) — the earlier "keep as natural"
-  is REVERSED. Physical cause stands, but the render must DAMPEN it without
-  hiding real signal → BACKLOG. Acquisition (stop down / better optics) is
-  the root fix; a render-side mitigation is now wanted meanwhile. `satu`
-  0.35/0.5 ladders on the SMC were run (records in
-  `results/exp_starsep_satu_*`) but NOT adopted — richer colour also grows
-  the halos, so satu stays 0.2 pending the halo fix.
+  stars is an OPTICAL signature of the Sigma 180/2.8 WIDE-OPEN — a broad red
+  veiling-glare halo (flat R−G plateau +4..+5 counts from r≈6 to r≈38 on the
+  SPCC-neutral sky, far beyond the star PSF), amplified by the D810A's
+  red-extended response. It is NOT longitudinal CA (the R/G/B PSF cores are
+  equal-width and colour-neutral, measured) and NOT the camera body:
+  cross-dataset measurement isolates the LENS — the halo is on both Sigma-180
+  sets (LMC +4.8, SMC +3.1 over the dark-sky field) but ABSENT on the SAME
+  D810A body at 50 mm f/4 (−9, the stars' natural blue skirt) and on the
+  Z6III set-03 (−1.1). USER VERDICT 2026-07-08 (final): a render-side
+  mitigation was prototyped (a chroma-only, local-core-protected star-skirt
+  red de-fringe — measured −53% ring with cores / nebula / luminance
+  untouched) but REJECTED as a bandaid on an honest optical characteristic of
+  the gear. The image is left AS-IS; the only real fix is ACQUISITION — stop
+  the fast lens down (the 50 mm f/4 frames are clean). `satu` stays 0.2
+  (richer colour grows the halo, which is real lens data); the 0.35/0.5 SMC
+  satu ladders were run but NOT adopted.
 - **The `lights` set is NOT approved** (user: "massive issues") —
   generalization testbed only; stacks/renders pruned.
 - **Next acquisition (see checklist) — worth more than all remaining
@@ -451,3 +455,8 @@ Prediction inversions worth remembering (recorded, instructive):
   37→38 mm step happened at a handled pause)
 - Dither between subs; avoid the moon (star fringes on trailed PSFs
   are dispersion — physical, satu only multiplies them)
+- A fast lens WIDE OPEN adds a red veiling-glare halo around bright stars
+  (measured: Sigma 180 @ f/2.8 = a +4..+5 count R−G plateau to r≈38; the
+  SAME body at 50 mm f/4 is clean) — stop any fast lens down ≥1 stop for
+  bright-star fields. It is an honest optical signature, not removable in
+  processing without a bandaid.

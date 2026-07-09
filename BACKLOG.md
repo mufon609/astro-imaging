@@ -122,25 +122,6 @@ and parse THAT explicitly, with an index guard for fewer than three paths.
 Byte-verify the approved recipe afterward, since the separation output feeds
 the render.
 
-### B2 — Dampen the bright-star red halo without hiding real signal
-
-Bright stars carry a red halo (measured PHYSICAL in the linear stack: R−G
-+6..+9 counts to r≥16 on the top brightness tier, ~0 on faint — longitudinal
-CA of the Sigma 180/2.8 wide-open + the D810A Hα-extended red response). The
-render amplifies it (stars-layer MTF low-end gain + `satu`, which scales the
-fringe ~1+s), and the user finds it objectionable across ALL D810A renders
-(LMC + SMC). `star_shell_report` already quantifies it as `shell_chroma` (a
-reported trend, currently no bound). Design a render-side mitigation that
-attenuates the star halo's CHROMA specifically — e.g., a radius-dependent
-chroma taper on the stars layer beyond the core, or a chroma-only shell
-de-fringe — WITHOUT desaturating star cores or touching luminance/detail, and
-without hiding real nebular colour (the effect must be confined to the
-star-skirt annulus, like `stars_floor` is for luminance). Ladder it with the
-`shell_chroma` metric + user judgment; consider promoting `shell_chroma` to a
-gated bound once a target is set. Root fix remains acquisition (stop down);
-this is the meanwhile-mitigation. Note: `satu` interacts — richer colour vs
-bigger halo — so co-tune, ideally per-dataset (see C1).
-
 ---
 
 ## C. Anytime (no dependencies)
