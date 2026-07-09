@@ -57,9 +57,15 @@ in NOTES STATUS — trust it over anything here.
 - **Aesthetic changes need the user's eyes** on judgment panels before
   any bake; objective fixes with pass/fail metrics may commit. Compare
   renders in LIKE encodings (a q92 4:2:0 jpg hides chroma a PNG shows).
-- **After ANY script change, byte-verify the approved recipe** (all
-  artifacts `cmp`-identical) or document exactly why it legitimately
-  changed and get the new render approved.
+- **A change is accepted by three checks, never by byte-identity with one
+  dataset** (README "How a change is accepted"): the render is DETERMINISTIC
+  (run twice on the same inputs → identical artifacts); every registered
+  dataset still PASSES the gate + star-shell + inspection (gate thresholds
+  never loosen); and any render the change alters is a **declared delta** —
+  report metric deltas + like-encoding panels, objective-better-or-equal may
+  commit, anything aesthetic needs the user's eyes, then re-baseline and tag.
+  Freezing one imperfect render as "correct" only breeds bandaids to preserve
+  it.
 - **No session/stream/ladder tags in script comments** — plain,
   standalone descriptions with their measured numbers; provenance
   narrative lives in NOTES/git only.

@@ -53,31 +53,35 @@ blocked" heading at the foot of this file.
 
 Items with ordering or coupling constraints.
 
-### A1 — Adopt the StarNet2 hybrid star-separation engine
+### A1 — Retire mask+inpaint as the default star separator
 
-The `hybrid` engine (StarNet2-ONNX run on the mask+inpaint starless) met
-every objective bar when last measured: gate PASS (= the inpaint control),
-star aura_lum +2.0, the bright-star pedestal equals the inpaint fill, the
-faint-tail residual drops to 589 detections (vs ~5.1k), chroma rings improve.
-It awaits the user's aesthetic sign-off on like-encoding panels. NOTE: those
-bars were measured under the REMOVED corridor-gate — re-measure against the
-composition-agnostic gate + corridor-free baseline before adopting.
+mask+inpaint is the aarch64 bandaid (written when no StarNet build existed) and
+it is now measured to be WRONG on resolved objects: on M74 it classifies 229 of
+852 detections (26.9%) — the galaxy's HII knots — as stars, inpaints them out
+of the starless, and screens them back through the stars MTF as hard white
+blobs; the 6212 px² galaxy core is admitted by `AREA_MAX_BRIGHT`. StarNet2
+(`--sep-engine net`) renders the same field correctly. Star separation on any
+resolved target must not use it.
 
-Judge `07-02-26/results/exp_starsep_sep_engine_20260707_125122/judgment/`
-(`judge_starless_stipple.jpg` is the headline; `judge_bright_shells.jpg`
-shows the bright shells unchanged) plus the full renders `v0_hybrid.jpg` /
-`v1_inpaint.jpg`. Do NOT revisit the stock-net A/B in
-`exp_starsep_sep_engine_20260707_120825` (aura +12, killed).
+This INVALIDATES the previously-planned `hybrid` adoption for such fields:
+hybrid runs the net ON the inpaint starless, so it inherits a base whose knots
+are already destroyed. Hybrid remains interesting only where the frame holds no
+resolved extended object.
 
-On approval the change is coupled: flip the starcomb default `--sep-engine`
-to `hybrid`, re-render `--lossless`, verify the numbers, tag the render, and
-bake the artifacts + NOTES STATUS. The starless jpg is the gate input, so
-its identity changes — this establishes a NEW byte-reproduce contract that
-supersedes the current one. Then demote mask+inpaint to the documented
-fallback and update the README step-6 row. Needs the net cache trio
-`work/starsep/*_neth.*` (regens in ~7 min if pruned).
+Blocking problem to solve first: stock `net` leaves a residual halo pedestal
+under bright stars. On the DSLR set that read aura_lum +12; on M74, whose very
+low background forces a ×4991 stars MTF low-end gain, it amplifies into
+gate-FAILING sky blobs (rings 10.2, blotch 3.4 vs the inpaint control's
+1.0/0.1). Options to measure: bound the pedestal by restoring a flat fill under
+genuinely-stellar components only (never galaxy structure); the `--upsample`
+bright-star mode; or fix the anchor (A2) so the low-end gain stops being
+data-dependent — the ×4991 is what turns a small pedestal into a defect.
 
-**Blocked by:** user's visual judgment.
+Then: pick the default per data class (resolved object → net), demote
+mask+inpaint to the documented fallback, update the README step-6 row, and
+bring the like-encoding panels for judgment. Aesthetic → the user's eyes.
+
+**Blocked by:** the net bright-star pedestal (above); relates to A2.
 
 ### A2 — Flip the stars anchor default to noise-relative
 
@@ -85,10 +89,10 @@ The catalog anchor (median top-500 max-over-channel amplitude) is
 data-dependent: under the SPCC per-channel gains it drifts the G-channel
 star rendering -8.5/-20 counts (mid/faint), while the noise-relative anchor
 (k x sigma_G of the linear starless) holds to <=0.6 (k = 490.9663661574939).
-On approval: flip the default, byte-verify the reproduce once more, keep
-`catalog` as a flag. NOTE: the earlier byte-identity acceptance was against
-the retired B7 artifacts — re-verify the noise-mode render is a byte no-op
-against the new corridor-free set-03 baseline before flipping.
+On approval: flip the default, declare the delta on every registered dataset
+(metric deltas + like-encoding panels), keep `catalog` as a flag. The anchor is
+also implicated in A1: it is what produced M74's ×4991 stars MTF low-end gain,
+which turns StarNet2's small bright-star pedestal into a gate-failing defect.
 
 **Blocked by:** user's go-ahead (a render no-op on the current stack, but a
 default change).
@@ -123,8 +127,8 @@ No upstream blockers; safe to pick up in any session. Default-focus tier.
 
 The scripts are dataset-generic (`run_pipeline.sh <session> <set>`; `raw_find`
 ingests any camera raw), but the repo's per-dataset STATE is still
-single-session: NOTES STATUS, the approved recipe, and the byte-reproduce
-contract are all set-03-specific, and a `config_<set>.json` must live inside the
+single-session: NOTES STATUS, the approved recipe, and the recorded baseline
+metrics are all set-03-specific, and a `config_<set>.json` must live inside the
 gitignored session dir — so a copyright-ignored dataset (e.g. Wang's raws) can
 hold NO tracked config or record at all. To manage many stacking workflows the
 repo needs, roughly:
@@ -137,10 +141,10 @@ repo needs, roughly:
   version-controlled without committing its raws.
 - **Generalize the approved recipe from one global default to per-dataset**:
   starcomb's defaults are set-03-tuned (its SNR/target); a different camera/
-  target/integration needs its own tuned recipe + its own byte-reproduce (the
-  LMC's `chroma_core` desaturation is the live example).
-- **Re-cast the byte-reproduce gate as per-dataset** — each approved render
-  carries its own reproduce command + numbers.
+  target/integration needs its own tuned recipe (the LMC's `chroma_core`
+  desaturation and M74's blown core are the live examples).
+- **Per-dataset recorded baseline** — each approved render carries its own
+  rebuild command + baseline metrics, which the no-regression sweep reads.
 
 Non-blocking: configless datasets already degrade loudly and process to an
 honest (if generic) result. This is the structural work that stops set-03 from
@@ -257,28 +261,18 @@ coring, satu). Verify on a real OSC-FITS set: confirm the Bayer pattern is read
 from the header, the debayered stack is 3-channel, SPCC runs, and the colour
 render passes the gate. Until then, treat the CFA branch as untested code.
 
-### C8 — Stack-inspection metrics for low-background / centered-object fields
+### C8 — Re-baseline the reference renders under the new acceptance contract
 
-`sky_flatness()` grades the stack on the statistical dark sky, which fixed the
-off-centre object case (LMC/SMC). Two limits remain, both measured on the
-imx585c M74 stack (mono, dark sky, 47×120 s):
+The acceptance contract is now determinism + no-regression across data classes
++ declared delta (README "How a change is accepted"), not byte-identity with
+set-03. Two follow-ups:
 
-- **A CENTERED object contaminates a RADIAL sky profile by construction.** M74
-  sits at frame centre; its faint outer envelope lies between `bg` and `bg+3σ`,
-  so the dark-sky selector keeps it (sky_frac 0.97) and the sky radial profile
-  reads 50.7 counts at r≈0 falling to 37.7 at r≈0.5 — a `p2v_inner_rel` of
-  0.35 that is the GALAXY, not a flat-field defect (the flat master measures
-  only 1.3% radial falloff and 1.9% large-scale structure). A plane fit over
-  sky blocks, or the detrended ring amplitude the gate already uses, is robust
-  to a smooth centred envelope where a raw radial P2V is not.
-- **`noise_over_median_pct` and `bg_median16` are ratios to an arbitrary
-  pedestal.** The stack background is 38 counts here (dark sky, plus siril's
-  `-output_norm` compressing by the saturated-star max) vs ~370–600 on the DSLR
-  sets, so noise/median reads 11% and bg_median16 falls under its 150 floor —
-  both WARN on a stack that is demonstrably good. Either measure noise against
-  the signal scale rather than the pedestal, or make the level bound a
-  data-class fact instead of one absolute range.
-
-Do not simply widen the bounds: re-derive what each metric is meant to catch
-(vignetting residual; grossly wrong exposure/SNR) and measure that directly.
+- The recorded set-03 baseline artifacts (`starcomb_set-03_APPROVED_20260708_*`)
+  now differ from a fresh render by ±1 count on ~1% of pixels (all gate and
+  star-shell metrics identical). Decide whether to re-baseline + tag them so the
+  determinism check compares against current code, or keep them as the approved
+  look and record the tolerance.
+- The no-regression sweep needs to be runnable in one command over every
+  registered dataset (currently it is a manual per-dataset render + gate read),
+  and LMC/SMC need their render caches regenerated to be included.
 

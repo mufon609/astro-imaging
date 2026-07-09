@@ -292,31 +292,70 @@ def branch_mask_frac(h, w, feather=0.05):
     return np.clip(1.0 - d / feather, 0.0, 1.0).astype(np.float32)
 
 
-def sky_pixel_mask(ch, k=3.0):
-    """Boolean background-sky mask: pixels at or below bg + k*sigma (the dark
-    sky), foreground excluded. The composition-agnostic scope for noise
-    estimation in the rendering corings — real signal (galaxy / Milky Way /
-    nebula) is brighter than the sky and drops out, so the estimate tracks
-    the true sky noise on ANY framing."""
+def sky_pixel_mask(ch, k=3.0, exclude_objects=True):
+    """Boolean background-sky mask: the dark sky, with the terrestrial
+    foreground AND extended celestial objects excluded. The composition-agnostic
+    scope for noise estimation in the rendering corings and the stack audit.
+
+    A per-pixel cut (`ch <= bg + k*sigma`) alone is not a sky selector: the faint
+    outer disk of a galaxy lies WITHIN a few sigma of the sky, so it survives the
+    cut. Measured on M74 (centred, 992 mm): 91% of the galaxy's 1-3 sigma outer
+    disk passed the per-pixel cut, which left the corings estimating their noise
+    on the object and gating against it. `extended_object_mask` judges on the
+    heavily smoothed image, where only a source's envelope stands above the sky,
+    and removes it."""
     bg, sig = bg_stats(ch)
     h, w = ch.shape
-    return (ch <= bg + k * sig) & branch_mask(h, w)
+    m = (ch <= bg + k * sig) & branch_mask(h, w)
+    if exclude_objects:
+        m &= ~extended_object_mask(ch)
+    return m
+
+
+def extended_object_mask(ch, k=4.0, scale=48, iters=4, max_frac=0.6):
+    """True on LARGE-SCALE bright structure (a galaxy / nebula / Milky-Way
+    envelope). A per-pixel cut cannot find it: the faint outer disk of a galaxy
+    sits within a few sigma of the sky, so `ch <= bg + k*sigma` keeps it. Judge
+    on the HEAVILY SMOOTHED image instead, where pixel noise is suppressed and
+    only the source's envelope stands above the background.
+
+    The threshold is re-estimated with the object excluded (the object inflates
+    the very median/MAD used to find it, so one pass under-reaches: on M74 a
+    single pass flagged only 24% of the annulus at r=375 px). Iterating settles
+    the sky statistics on true sky. `max_frac` refuses to call most of the frame
+    an object — a genuinely object-filling frame degrades to the per-pixel cut
+    rather than masking everything away."""
+    from scipy.ndimage import gaussian_filter
+    sm = gaussian_filter(ch.astype(np.float64), scale)
+    obj = np.zeros(sm.shape, bool)
+    for _ in range(iters):
+        keep = ~obj
+        m = float(np.median(sm[keep]))
+        s = 1.4826 * float(np.median(np.abs(sm[keep] - m)))
+        new = sm > m + k * max(s, 1e-12)
+        if new.mean() > max_frac or new.sum() == obj.sum():
+            break
+        obj = new
+    return obj
 
 
 def sky_flatness(data, stride=2):
     """Composition-agnostic stack flatness + noise, measured on the statistical
-    dark sky (sky_pixel_mask) so a frame-filling object (galaxy / nebula / MW
-    band) does not read as a flatness or noise defect — the scope the gate uses,
-    applied to the linear stack. All values in [0,1] float units (x65535 for
-    16-bit display):
-      sky_frac       fraction of the frame the dark-sky selector kept (a
-                     frame-filling object reads low — the data class, not a defect)
+    dark sky with EXTENDED OBJECTS EXCLUDED, so neither a frame-filling nor a
+    frame-CENTRED object reads as a flatness or noise defect. The per-pixel
+    dark-sky cut alone is not enough: a centred galaxy's faint envelope lies
+    within a few sigma of the sky, so it survives the cut and its smooth central
+    excess is then read as a radial gradient by any radial profile. The
+    large-scale-structure mask removes it. Values in [0,1] float units:
+      sky_frac       fraction of the frame graded as sky after BOTH cuts (an
+                     object-dominated field reads low — the data class, not a defect)
       sky_median     robust sky level (median of the sky pixels)
       sky_noise      diff-MAD of horizontally-adjacent SKY pairs / sqrt(2) (a
                      smooth gradient cancels in the difference; object structure
                      is excluded from the estimate)
       sky_p2v_inner  radial peak-to-valley of the sky over r<=0.85 vs its median
-                     (object radii drop out — the sky's own flatness)"""
+                     — with the object gone this measures the VIGNETTING
+                     residual it is meant to catch, on any framing"""
     g = min(1, data.shape[0] - 1)
     G = data[g].astype(np.float64)
     sky = sky_pixel_mask(G)
@@ -335,8 +374,13 @@ def sky_flatness(data, stride=2):
     centers = (edges[:-1] + edges[1:]) / 2
     prof, cc = [], []
     for i in range(48):
-        m = (r >= edges[i]) & (r < edges[i + 1]) & skys
-        if m.sum() > 100:
+        ann = (r >= edges[i]) & (r < edges[i + 1])
+        m = ann & skys
+        # a bin must be MEANINGFULLY sky: an annulus that a centred object fills
+        # can still leave a hundred stray "sky" pixels, and their median is the
+        # object, not the sky (on M74 the r=0.06-0.12 bin was 0.3% sky and read
+        # +7 counts high, carrying the whole false gradient)
+        if m.sum() > 100 and m.sum() >= 0.25 * max(ann.sum(), 1):
             prof.append(float(np.median(Gs[m])))
             cc.append(centers[i])
     if len(prof) >= 4:

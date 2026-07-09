@@ -69,11 +69,11 @@ EXPECTATIONS = {
         "reg_fraction": (0.9, None, "registered/total"),
     },
     "stack": {
-        "noise_over_median_pct": (0.5, 4.0, "G diff-MAD noise/median on the statistical dark sky; a coarse cross-camera SNR envelope (noise% is integration/camera-dependent, so it flags only a grossly under/over-clean stack) — object structure excluded"),
-        "p2v_inner_rel": (None, 0.20, "radial flatness r<=0.85 on the DARK SKY (frame-filling object excluded — composition-agnostic, the gate's lesson for the linear stage)"),
-        "sky_frac": (None, None, "INFO: fraction of frame the dark-sky selector kept; a frame-filling object (galaxy / nebula) reads low — that is the data class, not a defect"),
-        "n_stars": (300, None, ""),
-        "bg_median16": (150, 1500, "normalized stack level"),
+        "p2v_inner_rel": (None, 0.20, "THE flatness check: radial P2V over r<=0.85 of the dark sky with extended objects excluded, so it measures the VIGNETTING RESIDUAL it exists to catch on any framing (empty field, off-centre object, or a galaxy at frame centre)"),
+        "n_stars": (300, None, "detected stars — registration/detection sanity"),
+        "noise_over_median_pct": (None, None, "INFO: sky diff-MAD noise / sky median. A RATIO TO AN ARBITRARY PEDESTAL — the sky level depends on site darkness and focal ratio, and on siril's -output_norm rescaling by the saturated-star max (38 counts on a dark-sky cooled mono stack vs ~370-600 on a light-polluted DSLR). Not a defect signal; reported as a trend"),
+        "bg_median16": (None, None, "INFO: normalized stack level — a normalization and site fact, not a defect"),
+        "sky_frac": (None, None, "INFO: fraction of frame graded as sky after the dark-sky and extended-object cuts; an object-dominated field reads low — that is the data class"),
     },
 }
 

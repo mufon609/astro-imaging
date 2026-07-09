@@ -71,6 +71,37 @@ Principles that keep this honest:
    pass/fail metrics may commit; recipe/aesthetic changes require the user's
    visual approval before they are baked as defaults.
 
+### How a change is accepted
+
+Byte-identity with one dataset's render is **not** the bar. It answers "did the
+output change?", never "is the output right?" — so it promotes a single
+imperfect recipe into the definition of correct, and the cheapest way to stay
+green becomes a bandaid that special-cases that dataset. Three checks replace
+it, each answering a question it can actually answer:
+
+1. **Determinism.** The render is reproducible *from its own inputs*: run it
+   twice on the same stack, the artifacts are byte-identical. This is a
+   property of the CODE (no hidden RNG, no thread nondeterminism) and stays
+   true across every improvement. A STACK is exempt — its register sweep is
+   non-deterministic; verify a stack by the gate + inspection.
+2. **No regression, across data classes.** Every registered dataset
+   (`SESSIONS.md`) still PASSES the gate, the star-shell bounds and the
+   per-stage inspection. **Gate thresholds never loosen.** The reference suite
+   spans the classes the pipeline actually meets — self-flat underexposed DSLR
+   wide-field, matched-flat off-centre object, self-flat wide, and mono FITS
+   with a frame-centred galaxy — so no single dataset can hold the pipeline
+   hostage.
+3. **Declared delta.** A change that alters a registered render is *expected*,
+   not forbidden. It must report the metric deltas and side-by-side panels in
+   LIKE encodings. Strictly-better-or-equal objective metrics may commit; any
+   aesthetic change needs the user's eyes before it is baked as a default. An
+   approved render is re-baselined and git-tagged — the tag is the record, not
+   a frozen file.
+
+Pinned narrowly: the starless gate JPEG's q92 encoding **is** the gate's
+identity (change it and the gate measures something else). Pin that, not the
+whole product chain.
+
 **North star:** every stage audits itself with numbers so that eventually
 ANY dataset can be dropped into a session dir and be properly judged and
 processed to its best honest outcome — composition facts from config or

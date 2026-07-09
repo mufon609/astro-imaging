@@ -20,18 +20,25 @@ never let it grow narrative again.
   `B5/B6/B7-approved`); their renders are pruned. The removal made set-03's
   sky measurably cleaner (gradient 4.5→3.4, rings 5.1→2.9, colour 4.0→2.0,
   star aura +2.0→+0.0) — the boost was amplifying corridor noise.
-- Reproduce the set-03 reference (the render chain is deterministic on the
-  fixed SPCC stack; a stack is NOT byte-reproducible — its register sweep is
-  non-deterministic — so reproduce the RENDER, verify the STACK by the gate):
+- set-03 is ONE reference among several, not the definition of correct. Its
+  recorded baseline (rebuild with the command below; the render chain is
+  deterministic on the fixed SPCC stack, a stack is not — verify a stack by the
+  gate + inspection):
 
       python3 scripts/render/starcomb.py 07-02-26 set-03 \
           --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
 
-  Expected: GATE PASS — sky floor 9, colour 2.0 (≤7), gradient 3.4 (≤8),
-  blotch 2.6 (≤5), rings 2.9 (≤8), 94% sky · black_point clip0 sky ~0.5% ·
-  star shells aura_lum +0.0 (WARN >4.0) · stars anchor 0.0284 → m 0.00090
-  (low-end gain ×996) · four artifacts identical to
-  `results/starcomb_set-03_APPROVED_20260708_144034.{jpg,png,_16bit.png,_starless.jpg}`.
+  Baseline metrics: GATE PASS — sky floor 9, colour 2.0 (≤7), gradient 3.4
+  (≤8), blotch 2.6 (≤5), rings 2.9 (≤8), 94% sky · black_point clip0 sky ~0.5%
+  · star shells aura_lum +0.0 (WARN >4.0) · stars anchor 0.0284 → m 0.00090
+  (low-end gain ×996). Current baseline artifacts:
+  `results/starcomb_set-03_APPROVED_20260708_144034.*`. A change that MOVES
+  these numbers is a **declared delta** (README "How a change is accepted"),
+  not a violation: report the deltas + like-encoding panels, let the user judge
+  anything aesthetic, then re-baseline and tag. Byte-identity with this one
+  render is no longer the acceptance bar — freezing an underexposed,
+  set-03-tuned recipe would force bandaids to keep it identical while the
+  pipeline matures.
 - **The gate is now composition-agnostic** (`bg_qa`): it selects the sky
   STATISTICALLY (blocks ≤ P50+2.5·MAD of block luminance, terrestrial
   foreground excluded) and grades colour / plane-fit gradient / blotch /
@@ -217,7 +224,7 @@ set-03-specific bandaid that broke on an object-dominated field (the LMC).
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
 | cull 50 | metric-invisible; user's max-removal pole (the alternate cull-0 faint-field look remains a flag away) |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
-| jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = byte-verify artifact; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
+| jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
 
 **Standing per-render audits (printed + logged every starcomb run):**
 the GATE (`bg_qa` on the starless render, composition-agnostic sky scope:
@@ -295,6 +302,26 @@ Stretch/denoise/color:
 - A fixed shell_chroma WARN bound → cried wolf on the approved render
   (honest PSF fringe dominates and scales with the chain's low-end
   gain). aura_lum is the defect discriminant.
+- "lum_core erases a centred galaxy's faint outer disk" → KILLED. Measured on
+  M74 (lum_core 0 vs 2, same stretch, starless layers): the galaxy's median
+  profile is preserved at 100% of its counts-above-background at EVERY radius
+  out to r=525 px, while sky noise falls 5.93 → 1.48 counts (−75%). The Wiener
+  gate does protect real structure; the coring is not what damages a galaxy.
+- "GraXpert BGE absorbs a centred galaxy's halo" → KILLED. Halo survival
+  pre-BGE → post-BGE is 101–144% at every radius (BGE removed a broad
+  background gradient, so the halo measures STRONGER against a lower far-field
+  sky). Background extraction is not what damages a galaxy.
+
+Separation on resolved objects:
+- mask+inpaint star separation cannot process a RESOLVED galaxy. It keys on
+  compactness + prominence and has no notion of "galaxy": on M74 (992 mm) 229
+  of 852 kept detections (26.9%) lie inside the galaxy (r < 350 px, median area
+  14 px² — HII knots), and the largest admitted component is 6212 px² (the
+  core, allowed by AREA_MAX_BRIGHT=12000). Those knots are inpainted OUT of the
+  starless and screened back through the stars MTF, rendering as hard white
+  blobs. StarNet2 (`--sep-engine net`) renders the same field correctly. The
+  `hybrid` engine cannot fix it — hybrid's base IS the inpaint starless, which
+  has already lost the knots.
 
 Detection/solve/registration:
 - Siril internal solver on these ultra-wide trailed fields → fails
