@@ -281,6 +281,36 @@ def solve_mtf_m(x0, y0):
     return min(max(m, 1e-4), 1 - 1e-4)
 
 
+def _inspect_stage(ctx, name, arr, stretched, note=""):
+    """Render-chain provenance (--inspect): one consistent JPEG + one
+    metrics line per render stage, so a defect in the final render can be
+    localized to the stage that introduced it without re-running the
+    chain. Linear stages go through the shared inspection autostretch;
+    stretched stages are written as-is (they ARE display-referred)."""
+    d = ctx.get("inspect_dir")
+    if not d:
+        return
+    import json as _json
+    from PIL import Image
+    os.makedirs(d, exist_ok=True)
+    n = len([f for f in os.listdir(d) if f.endswith(".jpg")])
+    if stretched:
+        u8 = (np.clip(arr.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
+    else:
+        u8 = am.autostretch_u8(arr)
+    Image.fromarray(u8[::3, ::3]).save(
+        os.path.join(d, f"{n:02d}_{name}.jpg"), quality=90)
+    g = arr[min(1, arr.shape[0] - 1)]
+    bg, sig = am.bg_stats(g)
+    rec = {"stage": name, "stretched": bool(stretched),
+           "bg_g": round(float(bg), 6), "sigma_g": round(float(sig), 7),
+           "p99_g": round(float(np.percentile(g[::4, ::4], 99)), 6),
+           "note": note}
+    with open(os.path.join(d, "metrics.jsonl"), "a") as f:
+        f.write(_json.dumps(rec) + "\n")
+    print(f"[inspect-render] {name}: bg {bg:.5f} sigma {sig:.6f}")
+
+
 def render_config(ctx, cfg, jpg_out):
     """Run one configuration; returns metrics dict (also writes jpg)."""
     sdir, work = ctx["sdir"], ctx["work"]
@@ -291,11 +321,20 @@ def render_config(ctx, cfg, jpg_out):
     # the only one measured MW-safe: gx on starless erased the MW +38 ->
     # +0.4), THEN separation; the starless branch only denoises/stretches.
     bgelin = ensure_bge_linear(ctx)
+    if ctx.get("inspect_dir"):
+        b, _ = am.load_image(bgelin)
+        _inspect_stage(ctx, "bgelin", b, False, "BGE'd linear (star-ful)")
+        del b
     starless_fit, stars_fit, cat_npz = ensure_starsep(
         ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0),
         set_name=ctx.get("set"),
         engine=cfg.get("sep_engine", "auto"))
     ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
+    if ctx.get("inspect_dir"):
+        b, _ = am.load_image(starless_fit)
+        _inspect_stage(ctx, "starless_linear", b, False,
+                       "separation output, linear")
+        del b
     if cfg["starless_denoise"] == "gx":
         # AI denoise, linear, starless (standard step-5 placement; a
         # measured FAIL on this self-flat data, kept as an option because
@@ -336,6 +375,9 @@ def render_config(ctx, cfg, jpg_out):
         starless_st = np.repeat(starless_st, 3, axis=0)
         print("[starcomb] mono stack -> luminance render "
               "(chroma_core / satu skipped: no colour)")
+    _inspect_stage(ctx, "starless_stretch", starless_st, True,
+                   f"autostretch {cfg.get('stretch_linked')} "
+                   f"{cfg['starless_target']} + {cfg['starless_denoise']}")
 
     if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
         # chroma coring BEFORE lum_core (default): chroma is neutralized on
@@ -348,6 +390,10 @@ def render_config(ctx, cfg, jpg_out):
 
     if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
         starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
+
+    _inspect_stage(ctx, "starless_cored", starless_st, True,
+                   f"chroma_core {cfg.get('chroma_core')} / lum_core "
+                   f"{cfg.get('lum_core')}")
 
     if cfg.get("black_point", 0) > 0:
         # output black point on the starless layer — the only place the
@@ -362,6 +408,9 @@ def render_config(ctx, cfg, jpg_out):
         starless_st = np.clip((starless_st - b) / (1.0 - b), 0.0, 1.0)
         print(f"[starcomb] black_point {cfg['black_point']:g}/255: "
               f"clip0 sky {clip_sky * 100:.2f}%")
+
+    _inspect_stage(ctx, "starless_final", starless_st, True,
+                   f"black_point {cfg.get('black_point')} — the gate input")
 
     # THE GATE (bg_qa on the starless render): a composition-agnostic sky
     # scope (statistical dark-sky blocks, terrestrial foreground excluded)
@@ -467,6 +516,9 @@ def render_config(ctx, cfg, jpg_out):
     print(f"[starcomb] stars anchor {anchor:.4f} [{mode}] -> m {m:.5f} "
           f"(low-end gain x{gain0:.0f})")
     stars_st = am.mtf(np.clip(stars, 0, 1), m)
+    _inspect_stage(ctx, "stars_mtf", stars_st, True,
+                   f"cull {cfg.get('cull_pct')} / floor "
+                   f"{cfg.get('stars_floor')} / anchor {mode} m {m:.5f}")
 
     # --- combine ----------------------------------------------------------
     out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
@@ -478,6 +530,8 @@ def render_config(ctx, cfg, jpg_out):
         mean = out.mean(axis=0, keepdims=True)
         out = np.clip(mean + (1.0 + s) * (out - mean), 0.0, 1.0)
         print(f"[starcomb] satu {s}: chroma gain on the combined render")
+    _inspect_stage(ctx, "combine", out, True,
+                   f"screen combine + satu {cfg.get('satu')}")
     u8 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     # Final-export encoding, measured vs the lossless PNG on this
     # grain-heavy content: q92 + default 4:2:0 subsampling costs mean
@@ -683,6 +737,12 @@ def main():
     ap.add_argument("--metrics-out", default=None,
                     help="write the single-run metrics dict to this JSON "
                          "path (the no-regression sweep's interface)")
+    ap.add_argument("--inspect", action="store_true",
+                    help="write per-stage render provenance (consistent "
+                         "JPEG + metrics line for bgelin / separation / "
+                         "stretch / corings / stars / combine) into "
+                         "results/inspect_render_<set>_<stamp>/ — localize "
+                         "a render defect to its stage in one run")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
                              "cull_pct", "stars_peak", "stars_anchor",
@@ -707,12 +767,14 @@ def main():
     # geometry.json, else foreground none — never silent inheritance of
     # another set's mask
     am.configure(sdir, args.set)
+    stamp = time.strftime("%Y%m%d_%H%M%S")
     ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack,
-           "set": args.set, "lossless": args.lossless}
+           "set": args.set, "lossless": args.lossless,
+           "inspect_dir": (os.path.join(
+               sdir, "results", f"inspect_render_{args.set}_{stamp}")
+               if args.inspect else None)}
 
     base = resolve_recipe(sdir, args.set, args)
-
-    stamp = time.strftime("%Y%m%d_%H%M%S")
     if not args.param:
         tag = args.tag or "single"
         out = os.path.join(sdir, "results", f"starcomb_{args.set}_{tag}_{stamp}.jpg")

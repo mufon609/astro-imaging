@@ -49,8 +49,14 @@ Principles that keep this honest:
 ## The review contract (who/what judges each step)
 
 1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
-   each stage rendered identically + metric bounds from the expectations
-   table in NOTES. WARN only — inspection never aborts.
+   each STACK stage rendered identically + metric bounds from the
+   expectations table in NOTES. WARN only — inspection never aborts. The
+   RENDER chain has the same provenance on demand: `starcomb.py --inspect`
+   writes one consistent JPEG + metrics line per render stage (bgelin /
+   separation / stretch / corings / black point / stars / combine) into
+   `results/inspect_render_<set>_<stamp>/`, so a defect in a final render is
+   localized to the stage that introduced it in one run; diff any two runs'
+   stages with `judgment_crops.py <outdir> a=<stage.jpg> b=<stage.jpg>`.
 2. **The gate** (`bg_qa.py`, composition-agnostic sky scope): strict
    thresholds on the **starless render's sky**, selected STATISTICALLY (dark
    blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,
