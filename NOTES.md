@@ -67,10 +67,10 @@ never let it grow narrative again.
     PASS, look not approved; reference master in `imx585c/reference/`.
   - `07-02-26/lights` — NOT approved (user: "massive issues");
     generalization testbed only.
-  - `siril-m8m20` — on disk (removed for space, then restored by the user
-    2026-07-09): the C7 OSC-CFA verification set + C6 dual-band case. The
-    rest of the C6 corpus (colonnello-m20 mono-RGB, mlnoga-ngc7635 SHO)
-    stays off-disk; re-stage via `~/.cache/astro_recovery/fetch_corpus.sh`.
+  - `siril-m8m20` — staged, unprocessed: the C7 OSC-CFA verification set +
+    C6 dual-band case. The rest of the C6 corpus (colonnello-m20 mono-RGB,
+    mlnoga-ngc7635 SHO) is off-disk; re-stage via
+    `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected STATISTICALLY
   (blocks ≤ P50+2.5·MAD, foreground excluded), grading colour / plane-fit
   gradient / blotch / rings — no per-set corridor (the geometric corridor

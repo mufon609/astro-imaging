@@ -113,6 +113,11 @@ def main():
                              f"filter={k[3]!r}\n")
         sys.exit(1)
     exp, gain, offset, filt, mono = metas[0]
+    # the filter field is '-' when absent, NEVER empty: the consumer parses
+    # this line with IFS=tab `read`, and bash collapses consecutive tabs, so
+    # an empty field would shift every later field left and a no-FILTER mono
+    # set would silently take the debayer path
+    filt = filt or "-"
     # warn (do not fail) on a filter string the synonym table did not know:
     # a real but unlisted filter must degrade loudly, not be dropped
     raw_filts = {read_header(os.path.join(d, f)).get("FILTER", "") for f in frames}

@@ -200,14 +200,13 @@ is N independent per-filter stacks that must be combined.
   drizzle rather than interpolating), then the per-line stacks combine as
   above. This is an ingest-path fork, not a render-side one.
 
-Test data: the coverage corpus (`siril-m8m20/` ASI2600MC OSC HOO+L-Pro with
-the author's finished masters, `colonnello-m20/` mono RGB wheel,
-`mlnoga-ngc7635/` mono SHO) was staged 2026-07-09 and **removed for disk
-space by the user the same day, unprocessed** — re-stage on demand with
-`~/.cache/astro_recovery/{fetch_siril.sh,fetch_corpus.sh}`; sources +
-license terms are recorded in `.gitignore`, layout caveats in SESSIONS.md.
-**Relates to:** C2 (the m8m20 chip has a real SPCC profile: Sony IMX571),
-C7 (its L-Pro set exercises the OSC-CFA branch).
+Test data: `siril-m8m20/` (ASI2600MC OSC HOO+L-Pro, author's finished
+masters as the answer key) is on disk; the mono corpus (`colonnello-m20/`
+RGB wheel, `mlnoga-ngc7635/` SHO) is off-disk — re-stage with
+`~/.cache/astro_recovery/fetch_corpus.sh`. Sources + license terms are
+recorded in `.gitignore`, layout caveats in SESSIONS.md. **Relates to:** C2
+(the m8m20 chip has a real SPCC profile: Sony IMX571), C7 (its L-Pro set
+exercises the OSC-CFA branch).
 
 ### C7 — Verify the OSC-CFA FITS branch
 

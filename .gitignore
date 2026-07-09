@@ -36,6 +36,6 @@ __pycache__/
 /siril-m8m20/
 /colonnello-m20/
 /mlnoga-ngc7635/
-# app-ngc292 (SMC mono LRGB, Christian Sasse) was skipped by user request —
-# the dir holds only the stager's .done marker, never data to commit.
+# app-ngc292 (SMC mono LRGB, Christian Sasse): excluded from the corpus;
+# at most a stager marker exists here, never data to commit.
 /app-ngc292/
