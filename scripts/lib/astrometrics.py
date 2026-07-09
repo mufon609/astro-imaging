@@ -94,9 +94,9 @@ def load_image(path):
 # The only per-set COMPOSITION fact is the terrestrial FOREGROUND (a treeline
 # to exclude from sky statistics and protect in rendering operators) plus its
 # report/crop boxes. Product entry points call configure(session, set) which
-# reads <session>/config_<set>.json. A bare, unconfigured CTX carries NO
-# geometry (foreground None), so a forgotten configure() degrades to
-# whole-frame / no-mask instead of inheriting another dataset's foreground.
+# reads datasets/<session>/<set>/geometry.json. A bare, unconfigured CTX
+# carries NO geometry (foreground None), so a forgotten configure() degrades
+# to whole-frame / no-mask instead of inheriting another dataset's foreground.
 # The background is NOT a per-set composition fact: the gate (bg_qa) selects
 # its sky STATISTICALLY, because a geometric band cannot scope an
 # object-dominated field.
@@ -107,7 +107,7 @@ class SetContext:
     (unconfigured) context carries NO geometry — foreground None, no boxes —
     so any entry point that forgets to call configure() degrades to
     whole-frame / no-mask instead of silently inheriting another set's
-    foreground. configure() fills these from config_<set>.json."""
+    foreground. configure() fills these from geometry.json."""
 
     def __init__(self):
         self.source = "unconfigured"
@@ -123,22 +123,37 @@ class SetContext:
 CTX = SetContext()
 
 
+def dataset_dir(session_dir, set_name):
+    """Tracked per-dataset home: <repo>/datasets/<session-basename>/<set>/.
+    Session data dirs are gitignored (third-party raws must never be
+    committed), so everything the repo must version about a dataset —
+    geometry, recipe, baseline — lives here instead."""
+    repo = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+    return os.path.join(repo, "datasets",
+                        os.path.basename(os.path.normpath(session_dir)),
+                        set_name)
+
+
 def configure(session_dir, set_name, stack=None, quiet=False):
     """Resolve the per-set geometry context (module global CTX) from
-    <session>/config_<set>.json: the terrestrial foreground (rect or npz
-    mask), its report/crop boxes, and optional starsep overrides. No config
-    -> foreground None (whole-frame, no mask). `stack` is accepted and
-    ignored (kept for call-site compatibility). Returns the context."""
+    datasets/<session>/<set>/geometry.json: the terrestrial foreground
+    (rect or npz mask), its report/crop boxes, and optional starsep
+    overrides. No geometry file -> foreground None (whole-frame, no mask).
+    Relative mask paths resolve against the SESSION dir (derived masks are
+    data, they live with the data). `stack` is accepted and ignored (kept
+    for call-site compatibility). Returns the context."""
     global CTX
     ctx = SetContext()
     src = []
     cfg = {}
-    cfgp = (os.path.join(session_dir, f"config_{set_name}.json")
+    cfgp = (os.path.join(dataset_dir(session_dir, set_name), "geometry.json")
             if session_dir and set_name else None)
     if cfgp and os.path.exists(cfgp):
         import json as _json
         cfg = _json.load(open(cfgp))
-        src.append(os.path.basename(cfgp))
+        src.append(os.path.relpath(cfgp,
+                                   os.path.dirname(os.path.dirname(cfgp))))
     fg = cfg.get("foreground")
     if fg and fg.get("mask"):
         p = fg["mask"]

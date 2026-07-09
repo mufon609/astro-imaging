@@ -72,9 +72,12 @@ in NOTES STATUS — trust it over anything here.
 - **Maintain NOTES.md in its refactored shape**: update STATUS /
   design / knob-provenance / dead-ends / ledger IN PLACE; never append
   chronological session narrative.
-- **New datasets get `config_<set>.json` / derived geometry** (WCS
-  corridor, foreground mask) — never set-03-specific script patches; a
-  configless set must degrade loudly, not inherit silently.
+- **New datasets get tracked per-dataset state** in
+  `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),
+  `recipe.json` (render knobs; approved looks pin every knob),
+  `baseline.json` (written by `sweep.py --rebaseline` only) — never
+  set-03-specific script patches; a dataset without them must degrade
+  loudly, not inherit silently.
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.
 

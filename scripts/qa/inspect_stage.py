@@ -43,7 +43,7 @@ D16 = 65535.0
 # WARN legitimately; revisit bounds there instead of ignoring the WARNs.
 EXPECTATIONS = {
     "calibrated": {
-        "bg_median16": (100, 1500, "sky level, offset subtracted"),
+        "bg_median16": (None, None, "INFO: sky level, offset subtracted — a SITE/SENSOR fact, not a defect signal (dark-site cooled mono reads ~35 counts, light-polluted DSLR ~370-600; same pedestal-ratio class as the demoted stack metrics)"),
         "clip_frac": (None, 0.005, "saturated fraction"),
         "n_stars": (150, None, "detected stars (numpy detector)"),
     },

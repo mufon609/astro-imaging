@@ -53,87 +53,6 @@ blocked" heading at the foot of this file.
 
 Items with ordering or coupling constraints.
 
-### A1 — Retire mask+inpaint as the default star separator
-
-mask+inpaint is the aarch64 bandaid (written when no StarNet build existed) and
-it is now measured to be WRONG on resolved objects: on M74 it classifies 229 of
-852 detections (26.9%) — the galaxy's HII knots — as stars, inpaints them out
-of the starless, and screens them back through the stars MTF as hard white
-blobs; the 6212 px² galaxy core is admitted by `AREA_MAX_BRIGHT`. StarNet2
-(`--sep-engine net`) renders the same field correctly. Star separation on any
-resolved target must not use it.
-
-This INVALIDATES the previously-planned `hybrid` adoption for such fields:
-hybrid runs the net ON the inpaint starless, so it inherits a base whose knots
-are already destroyed. Hybrid remains interesting only where the frame holds no
-resolved extended object.
-
-Measured on both classes (single-knob `sep_engine` ladders, gate + star shells):
-
-| engine  | set-03 gate | set-03 aura | M74 gate | M74 aura | M74 galaxy |
-|---|---|---|---|---|---|
-| inpaint | PASS | +0.0 | PASS | +4.9 WARN | steals 32% more structure |
-| net     | PASS | +4.0 | PASS | +4.0 | preserves |
-| hybrid  | PASS | +0.0 | — | — | invalid (inpaint base) |
-
-net keeps 100.0% of genuine field-star flux while pulling 32% less galaxy
-structure into the stars layer. Its cost is a visible striped residual around
-BRIGHT stars on set-03 (aura +0.0 → +4.0, still inside the bound). hybrid is
-clean there but cannot be used where a resolved object exists.
-
-The choice is therefore data-class dependent, and the failure modes are not
-symmetric: net's worst case is cosmetic (a bright-star shell), inpaint's worst
-case DESTROYS real signal. Prefer the fail-safe engine as the default.
-
-A geometric fix to hybrid's base is NOT available, and this was measured before
-being proposed: excluding `extended_object_mask` regions from star DETECTION
-would drop 840 real set-03 stars lying on the Milky-Way band (3.7% of its
-catalog) and 44.2% of M74's, most of which are genuine stars superimposed on the
-galaxy. A mask cannot tell an HII knot from a star on a nebulous background —
-that discrimination is precisely what StarNet2 learned, and it is why the
-hand-coded separator fails here. Restricting a pre-flatten to the unambiguous
-bright tier does not close it either: 18 components inside M74 still exceed the
-40-sigma `K_BRIGHT` cut.
-
-So the remaining routes to kill net's bright-star shell are empirical, not
-geometric: measure `--upsample` (the official bright-star mode) against the
-aura bound on set-03, or accept the shell and treat the engine choice as a
-per-dataset recipe (C1). Do not invent a hand-coded galaxy discriminator.
-
-Then: demote mask+inpaint to the fallback used when the StarNet2 weights are
-absent, update the README step-6 row, declare the delta and bring the
-like-encoding panels. The set-03 bright-star change is aesthetic → user's eyes.
-
-**Blocks:** A4 (the `hybrid` engine cannot be deleted until a default is chosen).
-**Relates to:** A2 (the anchor is a per-dataset knob, not the cause here).
-
-### A2 — Make the stars anchor stable within a dataset (do NOT globalize it)
-
-Do not flip the default to `noise`. Measured: `k = 490.9663661574939` is DEFINED
-as set-03's catalog anchor divided by set-03's sigma_G, so the noise anchor
-simply re-states set-03's star statistics as if they were universal. On M74 the
-catalog anchor sits at 44 sigma; the noise anchor asserts 491 sigma — an 11x
-mismatch that would render that field's stars far too dim (m 0.000100 ->
-0.001155).
-
-The real defect is that the anchor samples a different depth of each field's
-luminosity function. "median of the top 500" is the brightest 2% of set-03's
-22916 catalog stars but the brightest 59% of M74's 852. A fixed FRACTION is no
-better and swings the other way (top-10%: 143 sigma on set-03, 1824 sigma on
-M74). No single rule sets a star brightness across fields — the anchor's
-absolute level is a per-dataset recipe knob (C1).
-
-What IS worth fixing narrowly, and is objective: `cat["peak"]` is the component
-peak of the MAX-OVER-CHANNELS residual, so SPCC's per-channel gains move which
-channel wins and the anchor drifts (measured: G-channel star rendering -8.5/-20
-counts at mid/faint tiers between builds of the same sky). Compute the anchor on
-a FIXED basis (the luminance / G channel) so a per-channel rescale cannot move
-it, and declare the delta. Keep `noise` as a flag, documented as a same-dataset
-stability tool, never a cross-dataset default.
-
-The anchor's absolute LEVEL is not fixable here at all — it belongs with the
-per-dataset recipe. **Relates to:** C1.
-
 ### A3 — Redesign the foreground-mask derivation
 
 The terrestrial `foreground` still uses a rect or a `suggest_foreground.py`
@@ -146,39 +65,6 @@ Redesign the derivation to robustly capture a real treeline silhouette + its
 drift-smear halo, validated with numbers on the `lights` set. Keep terrestrial
 masking distinct from the statistical sky selection that already handles bright
 celestial signal (a galaxy / the MW / a nebula) with no mask at all.
-
-### A4 — Delete the `hybrid` star-separation engine
-
-`hybrid` runs StarNet2 over the mask+inpaint starless. It exists only to hide
-StarNet2's bright-star shell behind the inpaint flat fill: a repo-local
-composition of two separators with no counterpart in any standard workflow — a
-bandaid layered on the aarch64 bandaid. It is also structurally incapable of
-processing a resolved object, because its BASE is the inpaint starless, whose
-HII knots have already been inpainted away; no amount of net inference
-downstream can restore them.
-
-It currently measures BEST on set-03 (aura_lum +0.0, against net's +4.0). That
-is the seduction, not a justification: the number is one underexposed dataset's
-bright stars, and keeping an engine alive to preserve it is precisely how a
-bandaid becomes permanent. The pipeline must generalize, not defend set-03.
-
-Removal is coupled to choosing the separator default (A1): deleting `hybrid`
-first would regress set-03's bright-star shells with nothing selected in its
-place. Do both in one pass:
-
-- `starcomb.py` — drop `hybrid` from the `--sep-engine` choices and remove the
-  hybrid branch of `ensure_starsep`.
-- `starnet_sep.py` — drop `--base-starless`, its docstring paragraph, and the
-  `h` cache-stem suffix it introduces.
-- `README.md` step-6 row and `NOTES.md` (design + bandaid ledger) — describe
-  only the engines that remain.
-- Prune any `work/starsep/*_neth.*` caches.
-
-Verify: every registered dataset still PASSES the gate + star-shell +
-inspection; declare the delta; the set-03 bright-star change is aesthetic and
-goes to the user's eyes before it is baked.
-
-**Blocked by:** A1 (the separator default must be chosen first).
 
 ---
 
@@ -193,33 +79,6 @@ open.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
-### C1 — Multi-dataset architecture (per-dataset state as first-class)
-
-The scripts are dataset-generic (`run_pipeline.sh <session> <set>`; `raw_find`
-ingests any camera raw), but the repo's per-dataset STATE is still
-single-session: NOTES STATUS, the approved recipe, and the recorded baseline
-metrics are all set-03-specific, and a `config_<set>.json` must live inside the
-gitignored session dir — so a copyright-ignored dataset (e.g. Wang's raws) can
-hold NO tracked config or record at all. To manage many stacking workflows the
-repo needs, roughly:
-
-- **Split NOTES** into dataset-independent design + dead-ends (stays) vs a
-  per-dataset record (approved recipe, reproduce target, pending items, config
-  rationale). `SESSIONS.md` is the index; each dataset gets its own record.
-- **A tracked home for per-dataset config/recipe outside the gitignored data
-  dir** (e.g. `configs/<dataset>/`), so a copyright-ignored dataset is
-  version-controlled without committing its raws.
-- **Generalize the approved recipe from one global default to per-dataset**:
-  starcomb's defaults are set-03-tuned (its SNR/target); a different camera/
-  target/integration needs its own tuned recipe (the LMC's `chroma_core`
-  desaturation and M74's blown core are the live examples).
-- **Per-dataset recorded baseline** — each approved render carries its own
-  rebuild command + baseline metrics, which the no-regression sweep reads.
-
-Non-blocking: configless datasets already degrade loudly and process to an
-honest (if generic) result. This is the structural work that stops set-03 from
-being the unicorn.
-
 ### C2 — Give SPCC the real OSC sensor + filter profile
 
 `spcc_run.py` runs bare `spcc -catalog=localgaia`; siril logs `mono sensor
@@ -233,13 +92,17 @@ reference); passing the camera's actual OSC response grounds the per-channel
 scaling in real QE curves instead of a generic default.
 
 Do it as a measured, per-set choice: add an optional sensor spec to
-`spcc_run.py` (sourced from `config_<set>.json` so it rides the per-dataset
-config work), run the null-vs-OSC K-factor ladder, and get the colour result
-judged. The spec must DEFAULT to the current null behaviour so set-03's
-existing calibration (K R1.000/G0.656/B0.837) and reproduce are untouched —
-only sets that opt in get the sensor-grounded calibration.
+`spcc_run.py` (sourced from `datasets/<session>/<set>/recipe.json`), run the
+null-vs-OSC K-factor ladder, and get the colour result judged. The spec must
+DEFAULT to the current null behaviour so set-03's existing calibration
+(K R1.000/G0.656/B0.837) and reproduce are untouched — only sets that opt in
+get the sensor-grounded calibration.
 
-**Relates to:** C1 (the sensor spec is a per-dataset config field).
+Verified against the SPCC database (July 2026): sensors are filed by CHIP —
+`Sony_IMX571.json` covers the siril-m8m20 ASI2600MC set (the ready test case),
+but no Z6III or D810A curve exists; those need a digitized response curve
+contributed by GitLab MR to siril-spcc-database before this can ground them.
+`spcc_list oscsensor` enumerates the exact names.
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
@@ -265,34 +128,52 @@ The pipeline has NO deconvolution and the standard-workflow row marks step 4
 COMPLIANT-SKIP — correct on set-03 (in-exposure star trailing is not a static
 PSF; the fitted PSF is symmetric and unstable on ≈0 background, measured). But
 that is a per-data measurement, not a pipeline capability: linear deconvolution
-is now a routine standard step for well-sampled data (a TOA-130 galaxy field at
-long integration is the textbook case), and the rig already has two free
-aarch64-capable options — GraXpert 3.2.0a2 exposes `deconv-obj`/`deconv-stellar`
-(AI, CPU), and Siril 1.4.4 ships classical `makepsf` + `rl`/`sb`/`wiener`. Add
-an optional, off-by-default deconvolution stage (linear, after gradient removal
-+ color calibration, BEFORE noise reduction — the firm ordering rule). Keep the
-measured set-03 SKIP as its removal/skip condition, and note the low-SNR
-hallucination risk of AI deconvolution (learned priors can synthesize
-unmeasured detail on faint signal — conservative/PSF-correct-only defaults).
-No free deconvolution runs natively on this rig beyond these two: BlurXTerminator
-is paid + x86-64, Cosmic Clarity has no aarch64 binary.
+is a routine standard step for well-sampled data (a TOA-130 galaxy field at
+long integration is the textbook case), and the rig has exactly two free
+aarch64-capable options (verified July 2026):
+
+- **Siril 1.4.4 `makepsf` + `rl`** — the classical route; official guidance:
+  `makepsf stars` on LINEAR data, RL with the gradient-descent formulation to
+  prevent ringing, `-alpha` regularization, few iterations first. Placement:
+  after colour calibration, before stretch. Note the vendor disagreement on
+  noise-reduction order: siril docs say denoise BEFORE its RL (classical decon
+  amplifies noise); RC-Astro says never denoise before ITS deconvolution —
+  the rule is per-tool, and for siril rl the denoise-first order applies.
+- **GraXpert `deconv-obj` / `deconv-stellar`** — AI (ONNX models 1.0.x,
+  Jan 2025), CPU-capable, but ALPHA: no stable GraXpert release ships it
+  (3.2.0a2 is the newest of the 3.2 alphas; last stable is 3.0.2). Low-SNR
+  hallucination risk: learned priors can synthesize unmeasured detail —
+  conservative settings, and judge against the classical result.
+
+Add the stage optional and off by default, driven by the dataset recipe; keep
+the measured set-03 SKIP as its removal condition. m74_toa130 (0.72"/px,
+94 min) is the test case, and its `imx585c/reference/` master is the honest
+comparison target. Still no third option: BlurXTerminator is paid + x86-64 +
+AVX; Cosmic Clarity ships no aarch64 binary (its MIT source + ONNX models
+could be wrapped like StarNet2 if ever needed).
 
 ### C5 — Add ASTAP as a fast offline solver complement
 
 `solve_field.py` (blind astrometry.net from peak centroids) is the RIGHT and
-necessary solver for this rig's ultra-wide trailed fields — ASTAP is documented
-to fail where astrometry.net solves them (33°+ distorted frames), and it builds
-quads from centroids that trailing degrades. But ASTAP 2026.06.29 (free,
-MPL-2.0) ships a **native aarch64 headless CLI** (`astap_cli`) with built-in
-Gaia photometric calibration, and for NARROWER, round-star fields (a TOA-130
-galaxy at ~0.6″/px) it is faster, simpler, fully offline, and needs no
-astrometry.net index download. Add ASTAP as an optional solver backend chosen
-per field (or auto by field width from the header), with `solve_field.py`
-retained as the fallback for wide/trailed frames. Its Johnson/Bessel photometry
-is also an SPCC-adjacent color check worth capturing. The dedicated-astrocam
-sets (TOA-130 at ~0.6″/px) are exactly the narrow, round-star case ASTAP suits.
+necessary solver for this rig's ultra-wide trailed fields — ASTAP's own docs
+disqualify it there (verified July 2026, hnsky.org "Conditions required for
+solving": "Stars streaks due to tracking errors or severe optical distortion
+will be ignored and solving could fail"; its wide-field W08 database is
+mag-8-limited). But ASTAP v2026.06.29 (free) ships a **native aarch64
+headless CLI** (`astap_cli`, 298 kB zip) with the D50/D05 databases, and for
+NARROWER, round-star fields (a TOA-130 galaxy at ~0.7″/px) it is faster,
+simpler, fully offline, and needs no astrometry.net index download. Add ASTAP
+as an optional solver backend chosen per field (or auto by field width from
+the header), with `solve_field.py` retained as the fallback for wide/trailed
+frames. Its Johnson/Bessel photometry is also an SPCC-adjacent color check
+worth capturing.
 
-### C6 — Combine multi-filter mono channels (LRGB + narrowband palettes)
+For the OTHER end — the 41° wide_50mm class where even blind astrometry.net
+needed a position hint against wide-lens distortion — the candidate worth a
+trial is **tetra3/cedar-solve** (ESA lost-in-space solver, default database
+10–30° FOV, solves from centroids in milliseconds on Pi-class ARM).
+
+### C6 — Combine multi-filter channels (LRGB, narrowband palettes, dual-band OSC)
 
 The FITS ingest reads and normalizes the `FILTER` header and matches flats to
 lights by filter, so a single-filter mono set (luminance) processes end to end.
@@ -303,21 +184,27 @@ is N independent per-filter stacks that must be combined.
   registration takes `-extref=<file>`), so channels overlay pixel-for-pixel and
   composition needs no second interpolation pass.
 - **Broadband LRGB:** combine R/G/B, run SPCC on the RGB **only**, stretch
-  LINKED (an unlinked stretch alters the calibrated white balance), then apply
-  L as luminance (`rgbcomp -lum=`). L is added after the histograms are
-  stretched, not before.
-- **Narrowband:** SPCC must be **gated OFF** — a palette is a false-colour
-  mapping of emission-line intensity, not a photometric calibration. Assign
-  channels by palette with `pm` (PixelMath): SHO = SII→R, Ha→G, OIII→B; HOO =
-  Ha→R, OIII→G+B. Normalize/stretch each channel independently (there is no
-  true white to protect), then `rmgreen` (SCNR) — Ha→G makes green dominate.
-- Narrowband palette colour is aesthetic and therefore goes through the user's
-  eyes, never an objective colour gate.
+  LINKED, then apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB
+  combination is a nonlinear-space operation (CIE L*a*b*), the
+  linear-combine shortcut is wrong per PixInsight doctrine and the Siril book.
+- **Narrowband palettes:** assign channels with `pm`: SHO = SII→R, Ha→G,
+  OIII→B; HOO = Ha→R, OIII→G+B; `rmgreen` after Ha→G mappings. CORRECTED
+  against Siril 1.4.4 docs (July 2026): "SPCC never on narrowband" is
+  outdated — SPCC has a dedicated **narrowband mode** (`-narrowband
+  -rwl/-gwl/-bwl + bandwidths`, filters synthesized in siril; for HOO set the
+  two OIII channels to the same wavelength). Palette AESTHETICS still go to
+  the user's eyes; the narrowband-mode calibration itself is objective.
+- **Dual-band OSC (the siril-m8m20 case):** extraction happens in
+  PREPROCESSING, per frame, from the CFA data (`seqextract_HaOIII`; Ha from
+  the R photosites at half size — the docs' quality path stacks Ha with 2×
+  drizzle rather than interpolating), then the per-line stacks combine as
+  above. This is an ingest-path fork, not a render-side one.
 
-Needs a multi-filter dataset to verify: `imx585c` is single-filter (L), so an
-LRGB/SHO combiner built against it would be unverifiable. Acquire or download a
-mono LRGB or SHO set first. **Relates to:** C1 (each palette/target is its own
-per-dataset recipe), C2 (SPCC sensor profile is a broadband-only concern).
+Test data ON DISK (gitignored, sources in .gitignore): `siril-m8m20/`
+(ASI2600MC OSC, HOO dual-band + L-Pro broadband, author's finished masters as
+the answer key), `colonnello-m20/` (mono RGB wheel), `mlnoga-ngc7635/` (mono
+SHO), `app-ngc292/` (mono LRGB). **Relates to:** C2 (the m8m20 chip has a real
+SPCC profile: Sony IMX571), C7 (its L-Pro set exercises the OSC-CFA branch).
 
 ### C7 — Verify the OSC-CFA FITS branch
 
@@ -331,18 +218,51 @@ coring, satu). Verify on a real OSC-FITS set: confirm the Bayer pattern is read
 from the header, the debayered stack is 3-channel, SPCC runs, and the colour
 render passes the gate. Until then, treat the CFA branch as untested code.
 
-### C8 — Re-baseline the reference renders under the new acceptance contract
+### C8 — Evaluate newer star-separation models (declared-delta ladders)
 
-The acceptance contract is now determinism + no-regression across data classes
-+ declared delta (README "How a change is accepted"), not byte-identity with
-set-03. Two follow-ups:
+The engine abstraction is in place (net/inpaint per recipe); the MODEL behind
+`net` is the StarNet2 weights snapshot this repo bootstrapped. Verified July
+2026, three candidates worth a measured ladder each, all CPU/aarch64-plausible:
 
-- The recorded set-03 baseline artifacts (`starcomb_set-03_APPROVED_20260708_*`)
-  now differ from a fresh render by ±1 count on ~1% of pixels (all gate and
-  star-shell metrics identical). Decide whether to re-baseline + tag them so the
-  determinism check compares against current code, or keep them as the approved
-  look and record the tolerance.
-- The no-regression sweep needs to be runnable in one command over every
-  registered dataset (currently it is a manual per-dataset render + gate read),
-  and LMC/SMC need their render caches regenerated to be included.
+- **StarNet2 2.5.3 weights** (released 2026-06-27; the Linux x64 CLI zip still
+  ships a loose `StarNet2_weights.onnx`, now under a 2026 license text).
+  2.5.2/2.5.3 added *highlight protection* around saturated regions — exactly
+  the bright-star-shell class that keeps set-03 pinned to inpaint. Verify the
+  graph I/O shape first (may differ from the current weights), then run the
+  sep_engine ladder on set-03 (aura bound) + M74 (knot preservation).
+- **SyQon Zenith** (free star-removal model, siril.org-announced 2026-01;
+  PyTorch, runs near native resolution, CPU-capable via aarch64 torch wheels;
+  ~2x slower, RAM-hungry — watch the 7.7 GB ceiling).
+- **Cosmic Clarity Dark Star v2.1c** (MIT, ships a 14.5 MB ONNX — would slot
+  into the existing onnxruntime wrapper directly).
+
+Bars: aura_lum within bound on set-03, 100% field-star flux + knot
+preservation on M74, byte-determinism, and like-encoding panels for anything
+that changes an approved look.
+
+### C9 — Measure the two canonical-order deviations
+
+The linear chain deviates from the 2026 canonical order (crop → BGE → solve →
+SPCC → …) in two measurable places; neither has been quantified here:
+
+- **SPCC runs on the un-BGE'd stack** (solve+SPCC happen before starcomb's
+  BGE). PixInsight's SPCC doc names strong gradients as a white-balance
+  dispersion source; siril's book also orders BGE before colour calibration.
+  Measure: SPCC K factors + kept-star count on the raw vs BGE'd stack (one
+  dataset per class). If the K set moves materially, reorder (BGE becomes a
+  pre-SPCC stack product, not a render-side step).
+- **No crop stage.** Registration edge bands are currently handled only by
+  the statistical sky selection; the canonical chains crop first because edge
+  artifacts skew global statistics (GraXpert BGE sees them too). Measure the
+  edge influence on one stack (gate metrics with/without a trim) before
+  adding any stage.
+
+### C10 — Try a GHS finishing stretch (aesthetic ladder)
+
+Siril's docs now position GHS as the most capable stretch ("rarely advisable"
+to use plain autostretch as-is) and provide the scriptable `autoghs` (+
+`-clipmode=rgbblend` unclipped highlights). The current chain uses linked MTF
+`autostretch` + significance corings. Run a like-encoding ladder (autostretch
+control vs `autoghs` variants) on one approved + one provisional dataset —
+pure aesthetics, user's eyes decide; no bake without approval.
 

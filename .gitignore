@@ -12,3 +12,30 @@
 **/work/
 **/results/
 __pycache__/
+
+# Third-party practice data (Wei-Hao Wang's publicly-released D810A raws).
+# Free to download and PROCESS, but his terms forbid REDISTRIBUTING the raw
+# data — so this dir is never committed or pushed. Attribution: data by
+# Wei-Hao Wang (王為豪), group.asiaa.sinica.edu.tw/whwang/Astrophoto/
+/nikon-test/
+
+# Third-party practice data (Player One Uranus-M Pro / Sony IMX585 mono raws,
+# shared publicly by AstroBin user John Stone for processing help). No license
+# stated → download and PROCESS only, do NOT redistribute; point people at the
+# AstroBin thread (ssr.app.astrobin.com/forum/topic/194770). Never commit/push.
+/imx585c/
+
+# Third-party practice data — filter/sensor coverage corpus. Free to download and
+# PROCESS; do NOT redistribute the raw data, link the source instead.
+#   siril-m8m20/     Siril's own tutorial set (M8+M20, ASI2600MC OSC, HOO + L-Pro),
+#                    by "colmic" — astrosurf.com/colmic/Traitement_SiriL/brutes/
+#   colonnello-m20/  M20 mono RGB filter wheel + raw calib + finished RGB FITS, by
+#                    Diego Colonnello via astropixelprocessor.com (attribution required)
+#   mlnoga-ngc7635/  NGC7635 mono SHO narrowband (ASI183MM), Markus Noga,
+#                    CC BY-NC-SA 4.0 — github.com/mlnoga/dataset-NGC7635-nb
+/siril-m8m20/
+/colonnello-m20/
+/mlnoga-ngc7635/
+# app-ngc292 (SMC mono LRGB, Christian Sasse) was skipped by user request —
+# the dir holds only the stager's .done marker, never data to commit.
+/app-ngc292/

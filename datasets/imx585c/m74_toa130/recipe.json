@@ -1,0 +1,11 @@
+{
+  "_readme": "Provisional recipe (look not user-approved). starcomb resolution: CLI > this file > GENERIC.",
+  "dataset": "imx585c/m74_toa130",
+  "status": "provisional",
+  "render": {
+    "sep_engine": "net"
+  },
+  "notes": {
+    "sep_engine": "net pinned on measurement, objective: mask+inpaint classifies 225/852 detections (26%) inside the galaxy as stars — HII knots inpainted out of the starless and screened back through the stars MTF as hard white blobs; the 6212 px^2 galaxy core passes AREA_MAX_BRIGHT. net keeps 100.0% of field-star flux, pulls 33% less galaxy-zone flux into the stars layer, and its shell metric is BETTER here (aura +4.0 vs +4.9). Failure modes are asymmetric: net's worst case is cosmetic, inpaint's destroys signal."
+  }
+}

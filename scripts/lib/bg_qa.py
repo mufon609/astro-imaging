@@ -169,8 +169,8 @@ def main():
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:]
                 if a.startswith("--") and "=" in a)
     # Foreground geometry (a treeline to exclude from the sky) comes from
-    # config_<set>.json via configure(); without --session/--set the context
-    # stays foreground-None and the whole frame is eligible sky.
+    # the dataset's geometry.json via configure(); without --session/--set
+    # the context stays foreground-None and the whole frame is eligible sky.
     import astrometrics as am
     am.configure(opts.get("session"), opts.get("set"))
     a = np.asarray(Image.open(args[0]), dtype=np.float64)

@@ -3,15 +3,6 @@
 
 Usage: starnet_sep.py <stack.fit> <outdir> [--session=<dir> --set=<name>]
                       [--stride=256] [--target=0.25] [--upsample]
-                      [--base-starless=<fit>]
-
---base-starless runs the net on that layer instead of the stack (the
-hybrid engine): with the mask+inpaint starless as base, bright star
-disks are already flat-filled (the net leaves a residual halo pedestal
-under bright stars when it removes them itself — measured +8/+7
-counts16 at r0-4/4-8, vs +0.3 for the inpaint fill) and the net only
-has to remove what the mask engine cannot: the <6 sigma faint tail.
-stars and the catalog are still computed against the ORIGINAL stack.
 
 The official StarNet2 CLI (v2.5.3) ships Linux x64 only, but its
 package carries the model as a loose file — StarNet2_weights.onnx
@@ -132,7 +123,6 @@ def main():
     stride = int(opts.get("stride", 256))
     target = float(opts.get("target", 0.25))
     upsample = "--upsample" in sys.argv[1:]
-    base_starless = opts.get("base-starless")
     if stride % 2 or not (2 <= stride <= WINDOW):
         sys.exit("starnet_sep: stride must be even and in [2, 512]")
     if not os.path.exists(WEIGHTS):
@@ -146,8 +136,6 @@ def main():
     os.makedirs(outdir, exist_ok=True)
     st = os.stat(stack_path)
     stem = f"{st.st_size}_{int(st.st_mtime)}_net"
-    if base_starless:
-        stem += "h"
     if stride != 256:
         stem += f"_s{stride}"
     if upsample:
@@ -178,27 +166,15 @@ def main():
     if h < WINDOW or w < WINDOW:
         sys.exit(f"starnet_sep: image {w}x{h} smaller than the "
                  f"{WINDOW}px window")
-    if base_starless:
-        net_in, _ = am.load_image(base_starless)
-        net_in = np.clip(net_in, 0.0, 1.0)
-        if net_in.shape != data.shape:
-            sys.exit(f"starnet_sep: base starless shape {net_in.shape} "
-                     f"!= stack {data.shape}")
-        print(f"[starnet_sep] hybrid: net runs on "
-              f"{os.path.basename(base_starless)}")
-    else:
-        net_in = data
 
     # linked pre-stretch: one m from the G-channel background median,
     # zero shadow clip -> exactly invertible
-    med, _ = am.bg_stats(net_in[min(1, c - 1)])
+    med, _ = am.bg_stats(data[min(1, c - 1)])
     m_pre = solve_mtf_m(float(med), target)
     grid = np.linspace(0.0, 1.0, 1025)
     err = float(np.abs(am.mtf(am.mtf(grid, m_pre), 1.0 - m_pre) - grid).max())
     assert err < 1e-5, f"MTF roundtrip error {err}"
-    stretched = am.mtf(net_in.astype(np.float64), m_pre).astype(np.float32)
-    if base_starless:
-        del net_in
+    stretched = am.mtf(data.astype(np.float64), m_pre).astype(np.float32)
     print(f"[starnet_sep] pre-stretch: bg med {med:.5f} -> {target} "
           f"(m {m_pre:.5f}, roundtrip err {err:.1e})")
 
@@ -254,7 +230,8 @@ def main():
     starsep.write_fits_fitsorder(p_stars, stars)
     np.savez_compressed(p_cat, labels=labels.astype(np.uint32),
                         ids=cat["ids"], flux=cat["flux"], peak=cat["peak"],
-                        area=cat["area"], mask_frac=stats["mask_frac"])
+                        peak_g=cat["peak_g"], area=cat["area"],
+                        mask_frac=stats["mask_frac"])
     resid = am.star_metrics(starless[min(1, starless.shape[0] - 1)])
     print(f"starnet_sep: catalog stars {stats['n_stars']}, starless "
           f"residual star count {resid.get('n_stars', 0)}")

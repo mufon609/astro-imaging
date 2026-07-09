@@ -1,0 +1,9 @@
+{
+  "_readme": "Provisional recipe (deliverable rendered, look not user-approved). Tracks GENERIC.",
+  "dataset": "nikon-test/wide_50mm",
+  "status": "provisional",
+  "render": {},
+  "notes": {
+    "solve": "blind plate-solve fails on this 41-degree field's wide-lens edge distortion; solved via solve_field.py --central=0.25 --ra=186.7 --dec=-62.2 --radius-deg=15 (region read off a first no-WCS render)"
+  }
+}

@@ -1,0 +1,46 @@
+{
+ "_readme": "Measured no-regression record \u2014 written by sweep.py --rebaseline, never by hand.",
+ "dataset": "07-02-26/set-03",
+ "approved": null,
+ "stack": "results/stack_set-03_norgbeq_spcc.fit",
+ "stack_sha256": "a97c0295ad08e825702c8561650e9f6bb3c2eac87a6ba1c5a2fee9cd7fef4639",
+ "rebuild": "python3 scripts/render/starcomb.py 07-02-26 set-03 --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless",
+ "metrics": {
+  "qa_starless.color": 2.0,
+  "qa_starless.grad": 3.3886237320886012,
+  "qa_starless.resid": 2.6161677820293434,
+  "qa_starless.ring_l": 2.8888888888888893,
+  "qa_starless.floor": 9.0,
+  "star_shells.aura_lum": 0.0,
+  "star_shells.shell_chroma": 29.652000427246094
+ },
+ "gate_pass": true,
+ "artifact_sha256": {
+  "jpg": "9704f482a86397e61523fdaa117ac81afa64a527ea74d75a344a6343b48ccf5b",
+  "png": "dc6a8fb8017be360a766a348e6c5da8f617a49aff483b2d02f55d7d4d686ef77",
+  "png16": "59595cb675219004c148a306f990ceec63c0e4ef95e990138b3e0f4a2018c474",
+  "starless_jpg": "d25f2b6d1c1f32ec2c90a948a5ab7b8d5444a03730f9fe4f2965f5aebd13611d"
+ },
+ "recipe": {
+  "starless_target": 0.07,
+  "starless_denoise": "vstpost",
+  "sep_prom": 6.0,
+  "sep_engine": "inpaint",
+  "chroma_core": 4.0,
+  "lum_core": 2.0,
+  "core_order": "pre",
+  "stretch_linked": "linked",
+  "satu": 0.2,
+  "cull_pct": 50.0,
+  "stars_peak": 0.97,
+  "stars_anchor": "catalog",
+  "stars_anchor_basis": "max",
+  "stars_floor": 3.0,
+  "black_point": 8.0,
+  "jpg_quality": 100,
+  "jpg_subsampling": 0,
+  "noise_anchor_k": null
+ },
+ "date": "2026-07-09 18:00:32",
+ "git": "d3d05c5"
+}

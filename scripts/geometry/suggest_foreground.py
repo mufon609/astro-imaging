@@ -17,8 +17,9 @@ stacking paints around foreground silhouettes.
 
 Output npz: mask (bool, display orientation), k, dilate, source stack
 name. The mask is a per-session work/ artifact (gitignored, regenerable
-by this command — record the command in config_<set>.json). Point the
-config at it:  "foreground": {"mask": "work/fgmask_<set>.npz"}.
+by this command — record the command in the dataset's geometry.json).
+Point datasets/<session>/<set>/geometry.json at it:
+  "foreground": {"mask": "work/fgmask_<set>.npz"}.
 Always eyeball the --overlay before trusting it.
 """
 import os

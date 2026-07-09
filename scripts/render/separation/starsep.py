@@ -120,11 +120,22 @@ def build_star_mask(data, k_prom=None):
         bm = np.isin(labels, bright_ids)
         bm = ndimage.binary_dilation(bm, iterations=DILATE_ALL + DILATE_BRIGHT)
         mask |= bm
-    # catalog on the undilated labels: flux above local bg per component
+    # catalog on the undilated labels: flux above local bg per component.
+    # peak (max-over-channels) drives detection; peak_g is the same
+    # component peak measured on the G/luminance channel alone — the fixed
+    # anchoring basis: a per-channel recalibration (SPCC K factors) moves
+    # which channel wins the max, so a max-basis anchor drifts (measured
+    # -8.5/-20 counts16 at mid/faint tiers between builds of one sky); the
+    # G basis rescales WITH its channel and the anchor tracks exactly.
     flux = ndimage.sum_labels(np.clip(resid, 0, None), labels, idx)
+    G = data[min(1, data.shape[0] - 1)]
+    resid_g = G - (bgmap if data.shape[0] == 1
+                   else local_background(G))
+    peak_g = ndimage.maximum(resid_g, labels, idx)
     cat = {"ids": star_ids,
            "flux": flux[is_star],
            "peak": peak[is_star],
+           "peak_g": peak_g[is_star],
            "area": area[is_star]}
     stats = {"n_components": int(n), "n_stars": int(is_star.sum()),
              "mask_frac": float(mask.mean()), "sigma": float(sig)}
@@ -196,6 +207,32 @@ def main():
     mask, labels, cat, stats = build_star_mask(data, k_prom)
     print(f"starsep: components {stats['n_components']}, stars kept "
           f"{stats['n_stars']}, masked {stats['mask_frac'] * 100:.2f}% of frame")
+    # Resolved-object guard: this engine keys on compactness + prominence
+    # and has no notion of "galaxy" — a detection inside an extended
+    # object's envelope is usually real structure (HII knots; on M74 it
+    # inpainted 26.9% of its detections out of the galaxy and screened
+    # them back as hard white blobs, and the 6212 px^2 core passed
+    # AREA_MAX_BRIGHT). Genuine stars superimposed on a bright envelope
+    # (a Milky-Way band reads ~4%) also land here, so a small fraction is
+    # normal; a LARGE fraction means the frame holds a resolved object
+    # this engine cannot process.
+    G = data[min(1, data.shape[0] - 1)]
+    obj = am.extended_object_mask(G)
+    if obj.any() and len(cat["ids"]):
+        coms = ndimage.center_of_mass(np.ones_like(labels, np.uint8),
+                                      labels, cat["ids"])
+        cy = np.clip(np.round([c[0] for c in coms]).astype(int), 0,
+                     obj.shape[0] - 1)
+        cx = np.clip(np.round([c[1] for c in coms]).astype(int), 0,
+                     obj.shape[1] - 1)
+        in_obj = float(obj[cy, cx].mean())
+        note = ""
+        if in_obj > 0.10:
+            note = ("  WARN: mask+inpaint cannot separate a resolved "
+                    "object — its structure will be inpainted away; "
+                    "use --sep-engine net")
+        print(f"starsep: detections inside an extended-object envelope: "
+              f"{in_obj * 100:.1f}%{note}")
     starless = np.empty_like(data)
     rng = np.random.default_rng(20260706)
     for c in range(data.shape[0]):
@@ -208,7 +245,8 @@ def main():
     write_fits_fitsorder(p_stars, stars)
     np.savez_compressed(p_cat, labels=labels.astype(np.uint32),
                         ids=cat["ids"], flux=cat["flux"], peak=cat["peak"],
-                        area=cat["area"], mask_frac=stats["mask_frac"])
+                        peak_g=cat["peak_g"], area=cat["area"],
+                        mask_frac=stats["mask_frac"])
     resid = am.star_metrics(starless[min(1, starless.shape[0] - 1)])
     print(f"starsep: starless residual star count {resid.get('n_stars', 0)} "
           f"(detector w/ prominence floor; input had thousands)")

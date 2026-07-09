@@ -30,7 +30,7 @@ follows, in order — linear until step 6:
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6 | star separation (StarNet/StarXTerminator) | `starsep.py` mask+inpaint (default) · `starnet_sep.py` StarNet2-ONNX runs on aarch64 (engines `net`/`hybrid` in starcomb) | ADAPTATION, removal candidate VALIDATED — the `hybrid` engine (net on the inpaint starless) meets every objective bar incl. the faint-tail removal (residual 589 vs ~5.1k) and awaits user judgment (NOTES ledger #4); `inpaint` stays default |
+| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. Per-dataset recipes pin the engine; set-03's approved look pins `inpaint` pending user judgment of net's bright-star shell | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
 | 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings (chroma/lum, Wiener-gated on the statistical dark sky); stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
@@ -80,17 +80,24 @@ green becomes a bandaid that special-cases that dataset. Three checks replace
 it, each answering a question it can actually answer:
 
 1. **Determinism.** The render is reproducible *from its own inputs*: run it
-   twice on the same stack, the artifacts are byte-identical. This is a
-   property of the CODE (no hidden RNG, no thread nondeterminism) and stays
-   true across every improvement. A STACK is exempt — its register sweep is
-   non-deterministic; verify a stack by the gate + inspection.
+   twice on the same stack — cold caches included — and the artifacts are
+   byte-identical. This is a property of the CODE (no hidden RNG, no thread
+   nondeterminism; measured: GraXpert BGE, the ONNX net and siril's
+   autostretch/denoise all reproduce bit-exactly, and the one unseeded step
+   the chain used to carry, `subsky -dither`, was removed for exactly this
+   reason). Verify with `scripts/qa/sweep.py --determinism`. A STACK is
+   exempt — its register sweep is non-deterministic; verify a stack by the
+   gate + inspection.
 2. **No regression, across data classes.** Every registered dataset
    (`SESSIONS.md`) still PASSES the gate, the star-shell bounds and the
    per-stage inspection. **Gate thresholds never loosen.** The reference suite
    spans the classes the pipeline actually meets — self-flat underexposed DSLR
    wide-field, matched-flat off-centre object, self-flat wide, and mono FITS
    with a frame-centred galaxy — so no single dataset can hold the pipeline
-   hostage.
+   hostage. One command runs it: `python3 scripts/qa/sweep.py` (renders every
+   dataset with a `datasets/*/*/baseline.json`, requires gate PASS + shell
+   bounds, diffs every metric against the baseline, and flags any byte delta
+   as a declared-delta prompt; absent third-party data SKIPs loudly).
 3. **Declared delta.** A change that alters a registered render is *expected*,
    not forbidden. It must report the metric deltas and side-by-side panels in
    LIKE encodings. Strictly-better-or-equal objective metrics may commit; any
@@ -120,18 +127,26 @@ removal condition.
   judgment.
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
-## Per-set geometry (data-generalization)
+## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
-The only per-set **composition fact** is the terrestrial **foreground** (a
-treeline to exclude from sky statistics and the fixed judgment-crop boxes) —
-it lives in `<session>/config_<set>.json` (tracked) and is resolved by
-`astrometrics.configure()` in every product entry point (starcomb, starsep,
-bg_qa CLI, inspect_stage, judgment_crops, measure_stack, solve_field):
+Session data dirs are gitignored (several hold third-party raws that must
+never be committed), so everything the repo versions about a dataset lives
+in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 
-1. `config_<set>.json` values — `foreground` (`rect` fractions or a derived
-   pixel-`mask` npz), `judgment_crops`, optional `starsep` overrides.
-2. No config: foreground **none** (whole frame is eligible sky). A new set
-   NEVER inherits another set's foreground silently.
+- `geometry.json` — the only per-set **composition fact**: the terrestrial
+  **foreground** (`rect` fractions or a derived pixel-`mask` npz, session-
+  relative) plus `judgment_crops` and optional `starsep` overrides. Resolved
+  by `astrometrics.configure()` in every product entry point (starcomb,
+  starsep, bg_qa CLI, inspect_stage, judgment_crops, measure_stack,
+  solve_field). No file: foreground **none** (whole frame is eligible sky).
+  A new set NEVER inherits another set's foreground silently.
+- `recipe.json` — the render knobs. starcomb resolves CLI > recipe >
+  GENERIC and prints the provenance; a dataset with no recipe renders
+  data-class-blind generic and says so. An **approved** recipe pins every
+  knob so a later generic-default change cannot silently restyle it.
+- `baseline.json` — the measured no-regression record (pinned stack sha,
+  expected gate/shell numbers, artifact hashes), written only by
+  `scripts/qa/sweep.py --rebaseline`.
 
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
@@ -200,15 +215,16 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `starcomb.py` | **the product chain** (corridor-free approved defaults) + single-knob ladder harness |
-| `separation/starsep.py` | star separation by mask+inpaint; catalog for culling |
-| `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (same output trio as starsep.py; needs the official weights file — see NOTES ledger #4; experimental until user-approved) |
+| `starcomb.py` | **the product chain** (knobs: CLI > `datasets/<session>/<set>/recipe.json` > GENERIC) + single-knob ladder harness |
+| `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (the generic default via `auto`; needs the official weights file at `~/.local/share/starnet/`) |
+| `separation/starsep.py` | star separation by mask+inpaint — the weights-absent fallback; warns when the frame holds a resolved object it would damage; also builds the engine-invariant detection catalog |
 
 **`qa/`** — standing audits + diagnostics (WARN-only)
 
 | file | role |
 |---|---|
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate + shell bounds, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
 
@@ -216,7 +232,7 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for `config_<set>.json` — always eyeball the `--overlay` |
+| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for the dataset's `geometry.json` — always eyeball the `--overlay` |
 
 ## Data layout
 
@@ -228,6 +244,8 @@ live in NOTES "Environment" + auto-memory.
                                          dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts
   results/                               stacks, renders, exp_*/, inspect_*/
+datasets/<session>/<set>/                tracked per-dataset state: geometry.json,
+                                         recipe.json, baseline.json (see datasets/README.md)
 scripts/                                 the pipeline (tracked)
 SESSIONS.md                              dataset registry (what's been processed)
 ```

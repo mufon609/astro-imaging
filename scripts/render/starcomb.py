@@ -1,30 +1,33 @@
 #!/usr/bin/env python3
 """Starless/stars split processing + recombination (standard-DSO style).
 
-The product chain; the defaults byte-reproduce the user-approved render
-(recipe provenance in NOTES.md):
+The product chain. Knob values resolve CLI > the dataset's tracked
+recipe (datasets/<session>/<set>/recipe.json) > the GENERIC defaults —
+so an approved look is pinned per dataset, and a dataset without a
+recipe renders honestly generic and says so:
 
   starcomb.py <session> <set> --stack results/stack_<set>_norgbeq_spcc.fit [--lossless]
 
-Chain (each knob set by a measured single-knob ladder; input is the
-SPCC-calibrated stack — solve_field.py --inject + siril spcc):
+Chain (input is the SPCC-calibrated stack — solve_field.py --inject +
+siril spcc; every generic value came from a measured single-knob ladder):
   1. GraXpert BGE + subsky 1 on the STAR-FUL linear (cached; the only
      order measured MW-safe — BGE on starless ERASES the MW)
-  2. starsep.py mask+inpaint separation (cached)
-  starless: LINKED autostretch -1.5 <starless_target=0.07>
+  2. star separation (cached): StarNet2 ONNX (net) or mask+inpaint
+     (inpaint); auto = net when the weights are installed
+  starless: LINKED autostretch -1.5 <starless_target>
     -> post-stretch denoise -vst -mod=0.5 (<starless_denoise=vstpost>;
        every linear placement imprints a radial signature on self-flat
        data)
-    -> chroma_core <4>  (multi-scale Wiener chroma coring toward neutral)
-    -> lum_core <2>     (sky luminance coring; real structure Wiener-protected)
-    -> black_point <8> (output levels on the starless layer: bg ~16 ->
-       ~8; gaps clip to true black, real signal sits above the clip)
-  stars: faint components culled below the <cull_pct=50> flux
-    percentile, skirt cored below <stars_floor=3.0> x sigma (the
-    ghost-aura fix: only genuine star signal reaches the stretch), gray
-    MTF anchored so the median top-500 amplitude renders at
-    <stars_peak=0.97>
-  combine: screen 1-(1-a)(1-b) -> satu <0.2> -> JPEG q100/4:4:4 [+ PNG].
+    -> chroma_core  (multi-scale Wiener chroma coring toward neutral)
+    -> lum_core     (sky luminance coring; real structure Wiener-protected)
+    -> black_point  (output levels on the starless layer: gaps clip to
+       true black, real signal sits above the clip)
+  stars: faint components culled below the <cull_pct> flux percentile,
+    skirt cored below <stars_floor> x sigma (the ghost-aura fix: only
+    genuine star signal reaches the stretch), gray MTF anchored so the
+    median top-500 amplitude (on the fixed G basis) renders at
+    <stars_peak>
+  combine: screen 1-(1-a)(1-b) -> satu -> JPEG q100/4:4:4 [+ PNG].
 
 Ladder mode (single knob, control auto-bracketed, STOPS for judgment):
   starcomb.py <session> <set> --stack ... --param chroma_core \\
@@ -57,9 +60,10 @@ import bg_qa  # noqa: E402
 import render_helpers as rh  # noqa: E402  (run_graxpert, strips, measure_jpg)
 
 # The only per-set geometry left is the terrestrial foreground (astrometrics
-# .CTX): main() calls am.configure(session, set) — config_<set>.json values,
-# else foreground None. An unconfigured CTX carries no geometry, so a
-# forgotten configure() degrades to whole-frame, never another set's mask.
+# .CTX): main() calls am.configure(session, set) — datasets/<session>/<set>/
+# geometry.json values, else foreground None. An unconfigured CTX carries no
+# geometry, so a forgotten configure() degrades to whole-frame, never another
+# set's mask.
 # The background gate (bg_qa) selects its sky statistically, not from any
 # per-set composition input.
 
@@ -105,31 +109,42 @@ def _run_sep(repo, sdir, script, input_fit, set_name, extra=()):
 
 
 def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None,
-                   engine="inpaint"):
+                   engine="auto"):
     """Run (cached) star separation on any linear FITS. engine picks the
-    separator: 'inpaint' = starsep.py mask+inpaint (detection-bounded:
-    leaves the <6 sigma faint tail in the starless layer); 'net' =
-    starnet_sep.py StarNet2 ONNX inference (removes the faint tail but
-    leaves a halo pedestal under bright stars); 'hybrid' = the net run
-    ON the inpaint starless (flat-filled bright disks + net faint-tail
-    removal; stars recomputed against the stack). prom = the component
-    prominence cut in sigma (inpaint detection only). All engines run
-    as subprocesses, so the per-set geometry context is passed
-    explicitly, and all print the same starless/stars/catalog trio."""
+    separator: 'net' = starnet_sep.py StarNet2 ONNX inference (learned
+    star/structure discrimination — the fail-safe on a resolved object;
+    its worst case is a cosmetic bright-star shell); 'inpaint' =
+    starsep.py mask+inpaint (detection-bounded: leaves the <6 sigma
+    faint tail in the starless layer, and DESTROYS resolved-object
+    structure it classifies as stars — it warns when that risk is
+    measured); 'auto' = net when the StarNet2 weights are installed,
+    else inpaint with the risk stated. prom = the component prominence
+    cut in sigma (inpaint detection only). Engines run as subprocesses,
+    so the per-set geometry context is passed explicitly, and both
+    print the same starless/stars/catalog trio."""
+    if engine == "auto":
+        sys.path.insert(0, os.path.join(repo, "scripts", "render",
+                                        "separation"))
+        import starnet_sep
+        if os.path.exists(starnet_sep.WEIGHTS):
+            engine = "net"
+        else:
+            engine = "inpaint"
+            print("[starcomb] sep_engine auto -> inpaint: StarNet2 weights "
+                  f"not found at {starnet_sep.WEIGHTS}. The mask+inpaint "
+                  "fallback destroys resolved-object structure (galaxy "
+                  "knots read as stars) — install the weights for any "
+                  "frame holding a resolved object.")
+        print(f"[starcomb] sep_engine auto -> {engine}")
     if prom != 6.0 and engine != "inpaint":
-        # the net has no prominence cut, and the hybrid's cache stem
-        # does not encode prom — only the default-prom base is valid
+        # the net has no prominence cut
         print(f"[starcomb] sep_prom ignored by the {engine} engine")
         prom = 6.0
     prom_args = [f"--prom={prom:g}"] if prom != 6.0 else []
     if engine == "net":
         return _run_sep(repo, sdir, "starnet_sep.py", input_fit, set_name)
-    trio = _run_sep(repo, sdir, "starsep.py", input_fit, set_name,
+    return _run_sep(repo, sdir, "starsep.py", input_fit, set_name,
                     prom_args)
-    if engine != "hybrid":
-        return trio
-    return _run_sep(repo, sdir, "starnet_sep.py", input_fit, set_name,
-                    [f"--base-starless={trio[0]}"])
 
 
 def ensure_bge_linear(ctx):
@@ -147,9 +162,14 @@ def ensure_bge_linear(ctx):
                           lambda m: print(f"[starcomb] {m}", flush=True))
     rel_gx = os.path.relpath(gx, sdir)
     rel_out = os.path.relpath(out, sdir)
+    # subsky WITHOUT -dither: dither injects ±1 LSB16 random noise to mask
+    # quantization banding, which cannot occur on this 32-bit float chain —
+    # and it is unseeded, so it was the one nondeterministic step in the
+    # render (measured: two cold builds differ on 100% of pixels, RMS 0.41
+    # counts16 = 0.08 sigma; downstream star detection moved 852 -> 858).
     run_siril(sdir, ["requires 1.4.0",
                      f"load {rel_gx[:-5] if rel_gx.endswith('.fits') else rel_gx}",
-                     "subsky 1 -dither",
+                     "subsky 1",
                      f"save {rel_out[:-4]}",
                      "close"], "starcomb_bgelin.gen.ssf")
     return out
@@ -274,7 +294,7 @@ def render_config(ctx, cfg, jpg_out):
     starless_fit, stars_fit, cat_npz = ensure_starsep(
         ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0),
         set_name=ctx.get("set"),
-        engine=cfg.get("sep_engine", "inpaint"))
+        engine=cfg.get("sep_engine", "auto"))
     ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
     if cfg["starless_denoise"] == "gx":
         # AI denoise, linear, starless (standard step-5 placement; a
@@ -398,28 +418,48 @@ def render_config(ctx, cfg, jpg_out):
         print(f"[starcomb] stars_floor {k}: skirt cored below k*sigma "
               f"(sigma16 {'/'.join(f'{s * 65535:.1f}' for s in sigs)})")
     if cfg.get("stars_anchor", "catalog") == "noise":
-        # noise-relative anchor: k * sigma_G of the linear starless.
-        # sigma and per-channel star amplitudes scale together under a
-        # stack-normalization change, so this renders the same physical
-        # star at the same brightness across builds of the same sky —
-        # the catalog anchor (median top-500 max-over-channel amplitude)
-        # instead mixes channels and drifted the low-end gain x864 ->
-        # x996 (+15% shell brightness) between two builds. k calibrated
-        # so the canonical set-03 stack renders identically in both
-        # modes (anchor 0.0284109 / sigma_G 5.78673e-5).
-        K_NOISE_ANCHOR = 490.9663661574939
+        # noise-relative anchor: k * sigma_G of the linear starless —
+        # renders the same physical star at the same brightness across
+        # rebuilds of the SAME sky (sigma and star amplitudes rescale
+        # together). k has NO universal value: it encodes one dataset's
+        # star statistics over its noise (a k calibrated on one field is
+        # an 11x brightness error on another — measured 44 sigma vs 491
+        # sigma anchors on two real fields), so it must come from the
+        # dataset's recipe, never a default.
+        k = cfg.get("noise_anchor_k")
+        if not k:
+            sys.exit("starcomb: stars_anchor=noise needs noise_anchor_k in "
+                     "the dataset recipe (datasets/<session>/<set>/"
+                     "recipe.json). The k is per-dataset by construction — "
+                     "calibrate it against this dataset's catalog anchor "
+                     "(k = anchor / sigma_G) if same-sky stability is "
+                     "wanted; there is no cross-dataset value.")
+        k = float(k)
         if sigs:
             sig_g = sigs[min(1, stars.shape[0] - 1)]
         else:
             sl_lin, _ = am.load_image(starless_fit)
             _, sig_g = am.bg_stats(sl_lin[min(1, sl_lin.shape[0] - 1)])
             del sl_lin
-        anchor = float(K_NOISE_ANCHOR * sig_g)
-        mode = f"noise ({K_NOISE_ANCHOR:.1f}*sigma_G)"
+        anchor = float(k * sig_g)
+        mode = f"noise ({k:.1f}*sigma_G)"
     else:
-        amps = np.sort(cat["peak"])[::-1]
+        # catalog anchor on a FIXED channel basis (G/luminance) by
+        # default: the component peak of the max-over-channels residual
+        # follows whichever channel wins, so a per-channel recalibration
+        # (SPCC K factors) moves the anchor and the low-end gain drifts
+        # (measured x864 -> x996 between builds of one sky). peak_g
+        # rescales WITH its channel; basis "max" is kept only for
+        # recipes whose approved look predates the fixed basis.
+        basis = cfg.get("stars_anchor_basis", "g")
+        key = {"g": "peak_g", "max": "peak"}[basis]
+        if key not in cat:
+            sys.exit(f"starcomb: catalog {ctx['cat_npz']} predates the "
+                     f"'{key}' anchor basis — delete the work/starsep "
+                     "cache and re-run so the separator regenerates it")
+        amps = np.sort(cat[key])[::-1]
         anchor = float(np.median(amps[:min(500, len(amps))]))
-        mode = "catalog"
+        mode = f"catalog[{basis}]"
     m = solve_mtf_m(anchor, cfg["stars_peak"])
     # print anchor + low-end gain every run so normalization drift stays
     # visible whichever mode is active
@@ -487,66 +527,144 @@ def render_config(ctx, cfg, jpg_out):
             "starless_jpg": os.path.basename(slpath)}
 
 
+# Data-class-blind GENERIC knob values (most were measured on one
+# underexposed DSLR wide-field, so they are honest starting points, not a
+# look): a dataset's APPROVED recipe lives in datasets/<session>/<set>/
+# recipe.json and overrides these; explicit CLI flags override both. A
+# dataset without a recipe renders with these and says so loudly.
+GENERIC = {
+    "starless_target": 0.07, "starless_denoise": "vstpost",
+    "sep_prom": 6.0, "sep_engine": "auto",
+    "chroma_core": 4.0, "lum_core": 2.0, "core_order": "pre",
+    "stretch_linked": "linked", "satu": 0.2, "cull_pct": 50.0,
+    "stars_peak": 0.97, "stars_anchor": "catalog",
+    "stars_anchor_basis": "g", "stars_floor": 3.0, "black_point": 8.0,
+    "jpg_quality": 100, "jpg_subsampling": 0, "noise_anchor_k": None,
+}
+
+ENUM_CHOICES = {
+    "starless_denoise": ["off", "vst", "gx", "vstpost"],
+    "sep_engine": ["auto", "inpaint", "net"],
+    "core_order": ["pre", "post"],
+    "stretch_linked": ["unlinked", "linked"],
+    "stars_anchor": ["catalog", "noise"],
+    "stars_anchor_basis": ["g", "max"],
+}
+
+
+def resolve_recipe(sdir, set_name, args):
+    """CLI > datasets/<session>/<set>/recipe.json > GENERIC, per knob.
+    Prints where each non-generic value came from; a dataset with no
+    recipe file renders generic and says so — it never inherits another
+    dataset's look."""
+    recipe_p = os.path.join(am.dataset_dir(sdir, set_name), "recipe.json")
+    recipe = {}
+    if os.path.exists(recipe_p):
+        rec = json.load(open(recipe_p))
+        recipe = rec.get("render", {})
+        unknown = set(recipe) - set(GENERIC)
+        if unknown:
+            sys.exit(f"starcomb: unknown recipe knobs {sorted(unknown)} in "
+                     f"{recipe_p}")
+        print(f"[recipe] {rec.get('dataset', set_name)}: "
+              f"{rec.get('status', 'provisional')}"
+              + (f" — {rec['approved']}" if rec.get("approved") else ""))
+    else:
+        print(f"[recipe] NONE for {set_name} — GENERIC defaults "
+              "(honest but not an approved look); create "
+              f"{os.path.relpath(recipe_p)} to pin one")
+    base, srcs = {}, []
+    for k, gen in GENERIC.items():
+        cli = getattr(args, k)
+        if cli is not None:
+            base[k] = cli
+            srcs.append(f"{k}={cli!r}(cli)")
+        elif k in recipe:
+            base[k] = recipe[k]
+            srcs.append(f"{k}={recipe[k]!r}")
+        else:
+            base[k] = gen
+        if k in ENUM_CHOICES and base[k] is not None \
+                and base[k] not in ENUM_CHOICES[k]:
+            sys.exit(f"starcomb: {k}={base[k]!r} not in {ENUM_CHOICES[k]}")
+    if srcs:
+        print("[recipe] non-generic: " + " ".join(srcs))
+    return base
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("session")
     ap.add_argument("set")
     # Run against the SPCC-calibrated stack:
     #   starcomb.py <session> <set> --stack results/stack_<set>_spcc.fit
-    # Every default below was set by a measured single-knob ladder.
-    ap.add_argument("--starless-target", type=float, default=0.07)
-    ap.add_argument("--starless-denoise", default="vstpost",
-                    choices=["off", "vst", "gx", "vstpost"],
-                    help="vstpost = post-stretch -vst -mod=0.5 (default). "
+    # Knob defaults resolve CLI > dataset recipe > GENERIC (see
+    # resolve_recipe); the GENERIC values were each set by a measured
+    # single-knob ladder.
+    ap.add_argument("--starless-target", type=float, default=None)
+    ap.add_argument("--starless-denoise", default=None,
+                    choices=ENUM_CHOICES["starless_denoise"],
+                    help="vstpost = post-stretch -vst -mod=0.5 (generic). "
                          "vst/gx are the LINEAR placements: measured FAIL "
-                         "on self-flat data (radial imprint) — kept as "
-                         "rungs for future data")
-    ap.add_argument("--sep-prom", type=float, default=6.0,
+                         "on self-flat data (radial imprint) — standard "
+                         "rungs for data classes without that structure")
+    ap.add_argument("--sep-prom", type=float, default=None,
                     help="starsep component prominence cut (sigma); lower "
                          "moves the faint tail into the stars layer "
                          "(measured null on this data)")
-    ap.add_argument("--sep-engine", default="inpaint",
-                    choices=["inpaint", "net", "hybrid"],
-                    help="star separation engine: inpaint = mask+inpaint "
-                         "(starsep.py), net = StarNet2 ONNX on the stack "
-                         "(removes the <6 sigma faint tail but leaves a "
-                         "bright-star halo pedestal), hybrid = net run "
-                         "on the inpaint starless (flat bright disks + "
-                         "net faint-tail removal)")
-    ap.add_argument("--chroma-core", type=float, default=4,
+    ap.add_argument("--sep-engine", default=None,
+                    choices=ENUM_CHOICES["sep_engine"],
+                    help="star separation engine: net = StarNet2 ONNX "
+                         "(fail-safe on resolved objects; bright-star "
+                         "shell is its worst case), inpaint = mask+"
+                         "inpaint (destroys resolved-object structure — "
+                         "it warns when it measures that risk), auto = "
+                         "net when the weights are installed else "
+                         "inpaint (generic)")
+    ap.add_argument("--chroma-core", type=float, default=None,
                     help="significance k for multi-scale chroma coring "
                          "toward neutral; 0 = off")
-    ap.add_argument("--lum-core", type=float, default=2,
+    ap.add_argument("--lum-core", type=float, default=None,
                     help="significance k for sky-only luminance coring "
                          "(gray-patch fix); 0 = off")
-    ap.add_argument("--core-order", default="pre", choices=["pre", "post"],
-                    help="chroma coring before (pre, default) or after "
+    ap.add_argument("--core-order", default=None,
+                    choices=ENUM_CHOICES["core_order"],
+                    help="chroma coring before (pre, generic) or after "
                          "(post) lum_core")
-    ap.add_argument("--stretch-linked", default="linked",
-                    choices=["unlinked", "linked"],
+    ap.add_argument("--stretch-linked", default=None,
+                    choices=ENUM_CHOICES["stretch_linked"],
                     help="autostretch channel linkage (linked = standard "
                          "on a calibrated stack; unlinked compensates "
                          "casts but amplifies per-channel noise into "
                          "chroma blotches)")
-    ap.add_argument("--satu", type=float, default=0.2,
+    ap.add_argument("--satu", type=float, default=None,
                     help="chroma gain on the combined render, AFTER the "
                          "corings (amplifies only significant color); "
                          "0 = off")
-    ap.add_argument("--cull-pct", type=float, default=50)
-    ap.add_argument("--stars-peak", type=float, default=0.97)
-    ap.add_argument("--stars-anchor", default="catalog",
-                    choices=["catalog", "noise"],
+    ap.add_argument("--cull-pct", type=float, default=None)
+    ap.add_argument("--stars-peak", type=float, default=None)
+    ap.add_argument("--stars-anchor", default=None,
+                    choices=ENUM_CHOICES["stars_anchor"],
                     help="MTF anchor source: catalog = median top-500 "
-                         "catalog amplitude (data-dependent — drifted "
-                         "x864->x996 between builds of the same sky), "
-                         "noise = k*sigma_G of the linear starless "
-                         "(k calibrated so the canonical set-03 stack "
-                         "renders identically in both modes)")
-    ap.add_argument("--stars-floor", type=float, default=3.0,
+                         "catalog amplitude on the anchor basis channel, "
+                         "noise = k*sigma_G with k from the dataset "
+                         "recipe (same-sky stability tool; k is "
+                         "per-dataset by construction)")
+    ap.add_argument("--stars-anchor-basis", default=None,
+                    choices=ENUM_CHOICES["stars_anchor_basis"],
+                    help="channel basis for the catalog anchor: g = "
+                         "G/luminance residual peak (stable under "
+                         "per-channel recalibration, generic), max = "
+                         "max-over-channels (drifts with SPCC K factors; "
+                         "kept for approved looks that predate the fix)")
+    ap.add_argument("--noise-anchor-k", type=float, default=None,
+                    help="k for stars_anchor=noise (per-dataset; no "
+                         "generic value exists)")
+    ap.add_argument("--stars-floor", type=float, default=None,
                     help="core the stars layer below k*sigma (linear) "
                          "before its MTF — kills the amplified-skirt "
                          "ghost aura around stars; 0 = off")
-    ap.add_argument("--black-point", type=float, default=8,
+    ap.add_argument("--black-point", type=float, default=None,
                     help="output black point on the starless layer, "
                          "8-bit counts (bg ~16 -> ~8); 0 = off")
     ap.add_argument("--stack", default=None,
@@ -554,17 +672,21 @@ def main():
                          "results/stack_<set>.fit) — for pipeline-variant "
                          "stacks, e.g. stack_set-03_bgeonly.fit")
     ap.add_argument("--tag", default=None)
-    ap.add_argument("--jpg-quality", type=int, default=100,
-                    help="final jpg quality (default 100 + subsampling 0 "
+    ap.add_argument("--jpg-quality", type=int, default=None,
+                    help="final jpg quality (generic 100 + subsampling 0 "
                          "= mean 0.44 counts vs the lossless PNG)")
-    ap.add_argument("--jpg-subsampling", type=int, default=0,
+    ap.add_argument("--jpg-subsampling", type=int, default=None,
                     help="PIL subsampling for the final jpg (0=4:4:4; "
                          "-1=encoder default 4:2:0)")
     ap.add_argument("--lossless", action="store_true",
                     help="also write a lossless PNG next to each jpg")
+    ap.add_argument("--metrics-out", default=None,
+                    help="write the single-run metrics dict to this JSON "
+                         "path (the no-regression sweep's interface)")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
                              "cull_pct", "stars_peak", "stars_anchor",
+                             "stars_anchor_basis",
                              "sep_prom", "sep_engine",
                              "chroma_core", "satu", "core_order",
                              "stretch_linked", "lum_core",
@@ -581,39 +703,33 @@ def main():
              else os.path.join(sdir, "results", f"stack_{args.set}.fit"))
     if not os.path.exists(stack):
         sys.exit(f"starcomb: no {stack}")
-    # per-set geometry (terrestrial foreground only): config_<set>.json,
-    # else foreground none — never silent inheritance of another set's mask
+    # per-set geometry (terrestrial foreground only): the dataset's
+    # geometry.json, else foreground none — never silent inheritance of
+    # another set's mask
     am.configure(sdir, args.set)
     ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack,
            "set": args.set, "lossless": args.lossless}
 
-    base = {"starless_target": args.starless_target,
-            "starless_denoise": args.starless_denoise,
-            "cull_pct": args.cull_pct, "stars_peak": args.stars_peak,
-            "stars_anchor": args.stars_anchor,
-            "sep_prom": args.sep_prom, "sep_engine": args.sep_engine,
-            "chroma_core": args.chroma_core, "satu": args.satu,
-            "core_order": args.core_order,
-            "stretch_linked": args.stretch_linked,
-            "lum_core": args.lum_core,
-            "stars_floor": args.stars_floor,
-            "black_point": args.black_point,
-            "jpg_quality": args.jpg_quality,
-            "jpg_subsampling": args.jpg_subsampling}
+    base = resolve_recipe(sdir, args.set, args)
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
     if not args.param:
         tag = args.tag or "single"
         out = os.path.join(sdir, "results", f"starcomb_{args.set}_{tag}_{stamp}.jpg")
         met = render_config(ctx, base, out)
+        met["recipe"] = base
         print(json.dumps(met, indent=1))
+        if args.metrics_out:
+            met["jpg"] = out
+            with open(args.metrics_out, "w") as f:
+                json.dump(met, f, indent=1)
         print(f"[starcomb] wrote {out}")
         return
 
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     enum_params = ("starless_denoise", "core_order", "stretch_linked",
-                   "sep_engine", "stars_anchor")
+                   "sep_engine", "stars_anchor", "stars_anchor_basis")
     vals = []
     for v in args.values.split(","):
         v = v.strip()
