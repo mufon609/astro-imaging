@@ -104,6 +104,7 @@ Then: demote mask+inpaint to the fallback used when the StarNet2 weights are
 absent, update the README step-6 row, declare the delta and bring the
 like-encoding panels. The set-03 bright-star change is aesthetic → user's eyes.
 
+**Blocks:** A4 (the `hybrid` engine cannot be deleted until a default is chosen).
 **Relates to:** A2 (the anchor is a per-dataset knob, not the cause here).
 
 ### A2 — Make the stars anchor stable within a dataset (do NOT globalize it)
@@ -145,6 +146,39 @@ Redesign the derivation to robustly capture a real treeline silhouette + its
 drift-smear halo, validated with numbers on the `lights` set. Keep terrestrial
 masking distinct from the statistical sky selection that already handles bright
 celestial signal (a galaxy / the MW / a nebula) with no mask at all.
+
+### A4 — Delete the `hybrid` star-separation engine
+
+`hybrid` runs StarNet2 over the mask+inpaint starless. It exists only to hide
+StarNet2's bright-star shell behind the inpaint flat fill: a repo-local
+composition of two separators with no counterpart in any standard workflow — a
+bandaid layered on the aarch64 bandaid. It is also structurally incapable of
+processing a resolved object, because its BASE is the inpaint starless, whose
+HII knots have already been inpainted away; no amount of net inference
+downstream can restore them.
+
+It currently measures BEST on set-03 (aura_lum +0.0, against net's +4.0). That
+is the seduction, not a justification: the number is one underexposed dataset's
+bright stars, and keeping an engine alive to preserve it is precisely how a
+bandaid becomes permanent. The pipeline must generalize, not defend set-03.
+
+Removal is coupled to choosing the separator default (A1): deleting `hybrid`
+first would regress set-03's bright-star shells with nothing selected in its
+place. Do both in one pass:
+
+- `starcomb.py` — drop `hybrid` from the `--sep-engine` choices and remove the
+  hybrid branch of `ensure_starsep`.
+- `starnet_sep.py` — drop `--base-starless`, its docstring paragraph, and the
+  `h` cache-stem suffix it introduces.
+- `README.md` step-6 row and `NOTES.md` (design + bandaid ledger) — describe
+  only the engines that remain.
+- Prune any `work/starsep/*_neth.*` caches.
+
+Verify: every registered dataset still PASSES the gate + star-shell +
+inspection; declare the delta; the set-03 bright-star change is aesthetic and
+goes to the user's eyes before it is baked.
+
+**Blocked by:** A1 (the separator default must be chosen first).
 
 ---
 
