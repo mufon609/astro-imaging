@@ -5,8 +5,8 @@ knob has its value (measured), and the dead-end registry (what was
 tried, what number killed it — NEVER re-attempt these). The full
 chronological history — every experiment arc, superseded recipe and
 session narrative — lives in **git** (`git log`, and every commit
-carries the NOTES of its time; recipe tags: `B5-approved`,
-`B6-approved`, `B7-approved`). `README.md` is the process contract
+carries the NOTES of its time; each approved baseline is git-tagged, e.g.
+`set-03-baseline-20260709`). `README.md` is the process contract
 (standard-workflow mapping, review contract, experiment discipline,
 per-set geometry, north star). Update THIS file as states change;
 never let it grow narrative again.
@@ -32,7 +32,8 @@ never let it grow narrative again.
   (≤8), blotch 2.6 (≤5), rings 2.9 (≤8), 94% sky · black_point clip0 sky ~0.5%
   · star shells aura_lum +0.0 (WARN >4.0) · stars anchor 0.0284 → m 0.00090
   (low-end gain ×996). Current baseline artifacts:
-  `results/starcomb_set-03_APPROVED_20260708_144034.*`. A change that MOVES
+  `results/starcomb_set-03_APPROVED_20260709_170325.*` (tag
+  `set-03-baseline-20260709`). A change that MOVES
   these numbers is a **declared delta** (README "How a change is accepted"),
   not a violation: report the deltas + like-encoding panels, let the user judge
   anything aesthetic, then re-baseline and tag. Byte-identity with this one
