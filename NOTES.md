@@ -37,13 +37,22 @@ never let it grow narrative again.
       python3 scripts/render/starcomb.py 07-02-26 set-03 \
           --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
 
-- **Star separation architecture settled** (measured on both data classes,
+- **Star separation architecture settled** (measured on three data classes,
   ladders in `07-02-26/results/exp_starsep_sep_engine_20260709_163552/` +
-  `imx585c/results/exp_starsep_sep_engine_20260709_163127/`): StarNet2 ONNX
-  (`net`) is the generic default via `sep_engine auto`; mask+inpaint is the
-  weights-absent fallback and WARNs on resolved objects; the `hybrid` engine
-  is DELETED (ledger #4). Approved looks pin their engine in their recipes
-  (set-03 + LMC: `inpaint`); M74 pins `net` on measurement.
+  `imx585c/results/exp_starsep_sep_engine_20260709_163127/` + the wide_50mm
+  sweep): StarNet2 ONNX (`net`) is the generic default via `sep_engine
+  auto` — its failure mode is LOUD (the gate catches it) while inpaint's is
+  silent (real structure destroyed on a PASSing render; the new >10%
+  in-envelope WARN is its only tell). Engine facts by class: resolved
+  object (M74) → net preserves what inpaint destroys, aura also better
+  (+4.0 vs +4.9); ultra-wide MW-dominated self-flat DSLR (wide_50mm 41°) →
+  net FAILS the gate outright (grad 9.0 / rings 9.0 / aura +5.0 vs inpaint
+  PASS 6.4 / 4.2 — residual large-scale structure + bright-star shells),
+  set-03 (37 mm) shows the same class cosmetically (aura +4.0 vs +0.0);
+  matched-flat off-centre object (SMC) → both pass, net aura +3.2. The
+  `hybrid` engine is DELETED (ledger #4). Recipes pin per measurement:
+  set-03 + LMC (approved looks) + wide_50mm (measured gate fail) =
+  `inpaint`; M74 = `net`; SMC tracks generic.
 - **Datasets** (registry: SESSIONS.md; records: `datasets/`):
   - `07-02-26/set-03` — APPROVED 2026-07-08 (corridor-free; corridor-era
     B5/B6/B7 tags are history). Underexposed: quality is exposure-limited.
@@ -58,7 +67,10 @@ never let it grow narrative again.
     PASS, look not approved; reference master in `imx585c/reference/`.
   - `07-02-26/lights` — NOT approved (user: "massive issues");
     generalization testbed only.
-  - `siril-m8m20` — STAGED (OSC-CFA + dual-band corpus; C6/C7 test data).
+  - `siril-m8m20` — on disk (removed for space, then restored by the user
+    2026-07-09): the C7 OSC-CFA verification set + C6 dual-band case. The
+    rest of the C6 corpus (colonnello-m20 mono-RGB, mlnoga-ngc7635 SHO)
+    stays off-disk; re-stage via `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected STATISTICALLY
   (blocks ≤ P50+2.5·MAD, foreground excluded), grading colour / plane-fit
   gradient / blotch / rings — no per-set corridor (the geometric corridor
@@ -433,17 +445,21 @@ Prediction inversions worth remembering (recorded, instructive):
    AREA_MAX_BRIGHT) while net keeps 100.0% of field-star flux and
    pulls 33% less galaxy-zone flux; on the star-field set-03 net's
    only cost is a striped bright-star shell (aura +0.0 → +4.0, at the
-   WARN bound) — failure modes are asymmetric: net's worst case is
-   cosmetic, inpaint's destroys signal. starsep.py now WARNs when >10%
+   WARN bound); on the MORE extreme ultra-wide class (wide_50mm, 41°
+   MW-dominated self-flat) the same residual-structure class FAILS the
+   gate outright (grad/rings 9.0/9.0, aura +5.0 vs inpaint PASS
+   6.4/4.2) — so net's failure mode is LOUD where inpaint's (structure
+   destruction on a PASSing render) is silent; the asymmetry still
+   favours net as the generic default. starsep.py now WARNs when >10%
    of its detections sit inside an extended-object envelope. The
    `hybrid` engine (net run ON the inpaint starless — a repo invention
    with no standard-practice counterpart, structurally unable to
    restore knots its base already destroyed) is DELETED. Remaining
    user judgment: set-03's recipe pins `inpaint` until the net look is
    judged (`results/exp_starsep_sep_engine_20260709_163552/`); LMC's
-   approved recipe likewise pins `inpaint`. Costs owned while pinned:
-   <6σ faint tail in the starless layer; skirt-aura class (mitigated
-   by stars_floor).
+   approved recipe likewise pins `inpaint`; wide_50mm pins `inpaint`
+   on its measured gate FAIL. Costs owned while pinned: <6σ faint tail
+   in the starless layer; skirt-aura class (mitigated by stars_floor).
 5. **Denoise** — linear placements structurally dead on self-flat data;
    post-stretch `-vst -mod=0.5` is in the approved chain.
 6. **Stars anchor** — the same-sky drift class is FIXED structurally:

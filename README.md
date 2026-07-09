@@ -8,14 +8,13 @@ why, and how every step is reviewed.
 
 **New contributor start here:** (1) this file top to bottom; (2)
 `NOTES.md` top to bottom — it is deliberately short: STATUS (current
-approved recipe + reproduce contract), the current design with every
-knob's measured WHY, and the **DEAD ENDS registry** (read it before
+state + reproduce contracts), the current design with every knob's
+measured WHY, and the **DEAD ENDS registry** (read it before
 proposing ANY experiment — if it was tried, its killing number is
 there). Full chronological history lives in git (`git log`; every
-commit carries the NOTES of its time). The current approved recipe is
-**the starcomb defaults, corridor-free** (the MW-corridor + `mw_boost`
-bandaid was removed 2026-07-08, user-approved); the corridor-era
-`B5/B6/B7-approved` tags are history.
+commit carries the NOTES of its time). Each dataset's approved recipe
+lives in `datasets/<session>/<set>/recipe.json` (see "Per-dataset
+state" below); the corridor-era `B5/B6/B7-approved` tags are history.
 
 ## The reference standard
 

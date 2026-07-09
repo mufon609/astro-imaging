@@ -200,23 +200,32 @@ is N independent per-filter stacks that must be combined.
   drizzle rather than interpolating), then the per-line stacks combine as
   above. This is an ingest-path fork, not a render-side one.
 
-Test data ON DISK (gitignored, sources in .gitignore): `siril-m8m20/`
-(ASI2600MC OSC, HOO dual-band + L-Pro broadband, author's finished masters as
-the answer key), `colonnello-m20/` (mono RGB wheel), `mlnoga-ngc7635/` (mono
-SHO), `app-ngc292/` (mono LRGB). **Relates to:** C2 (the m8m20 chip has a real
-SPCC profile: Sony IMX571), C7 (its L-Pro set exercises the OSC-CFA branch).
+Test data: the coverage corpus (`siril-m8m20/` ASI2600MC OSC HOO+L-Pro with
+the author's finished masters, `colonnello-m20/` mono RGB wheel,
+`mlnoga-ngc7635/` mono SHO) was staged 2026-07-09 and **removed for disk
+space by the user the same day, unprocessed** — re-stage on demand with
+`~/.cache/astro_recovery/{fetch_siril.sh,fetch_corpus.sh}`; sources +
+license terms are recorded in `.gitignore`, layout caveats in SESSIONS.md.
+**Relates to:** C2 (the m8m20 chip has a real SPCC profile: Sony IMX571),
+C7 (its L-Pro set exercises the OSC-CFA branch).
 
 ### C7 — Verify the OSC-CFA FITS branch
 
 The FITS ingest routes debayer on the header — a mono frame (no `BAYERPAT`,
 `NAXIS=2`) is never debayered, an OSC CFA FITS (`BAYERPAT` present) gets
 `-cfa -debayer`. Only the MONO branch is verified (imx585c). The CFA branch is
-written but has never seen data: a dedicated OSC camera (e.g. the IMX585**C**
-the practice set was meant to be) writes a single-channel CFA FITS that siril
-must debayer, and the render then takes the normal colour chain (SPCC, chroma
-coring, satu). Verify on a real OSC-FITS set: confirm the Bayer pattern is read
-from the header, the debayered stack is 3-channel, SPCC runs, and the colour
-render passes the gate. Until then, treat the CFA branch as untested code.
+written but has never seen data: a dedicated OSC camera writes a
+single-channel CFA FITS that siril must debayer, and the render then takes
+the normal colour chain (SPCC, chroma coring, satu). Verify on a real
+OSC-FITS set: confirm the Bayer pattern is read from the header, the
+debayered stack is 3-channel, SPCC runs, and the colour render passes the
+gate. The verification dataset (siril-m8m20 `lpro_180s`, ASI2600MC RGGB) was
+staged with `flats/`+`darkflats/` symlinks and its preflight verified
+(uniform 180 s gain100 offset50, flats matched, mono=0 → debayer path), but
+the data was removed for disk space before the run — re-stage with
+`~/.cache/astro_recovery/fetch_siril.sh` and run
+`scripts/stack/run_pipeline.sh siril-m8m20 lpro_180s`. Until then, treat the
+CFA branch as untested code.
 
 ### C8 — Evaluate newer star-separation models (declared-delta ladders)
 

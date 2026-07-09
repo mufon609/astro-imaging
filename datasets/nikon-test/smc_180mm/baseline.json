@@ -1,0 +1,46 @@
+{
+ "_readme": "Measured no-regression record \u2014 written by sweep.py --rebaseline, never by hand.",
+ "dataset": "nikon-test/smc_180mm",
+ "approved": null,
+ "stack": "results/stack_smc_180mm_norgbeq_spcc.fit",
+ "stack_sha256": "33b51dbcc1c64728f0d8c9c4ebaa345ac4a453d4fbe8cb3041920150b5e06631",
+ "rebuild": "python3 scripts/render/starcomb.py nikon-test smc_180mm --stack nikon-test/results/stack_smc_180mm_norgbeq_spcc.fit --lossless",
+ "metrics": {
+  "qa_starless.color": 4.0,
+  "qa_starless.grad": 0.7205904774391634,
+  "qa_starless.resid": 1.366205195364518,
+  "qa_starless.ring_l": 2.0000000000000018,
+  "qa_starless.floor": 8.0,
+  "star_shells.aura_lum": 3.25,
+  "star_shells.shell_chroma": 16.123273849487305
+ },
+ "gate_pass": true,
+ "artifact_sha256": {
+  "jpg": "781c03b430792d7320f2ed6da85374bf43341554f3b3555484660901a47da71d",
+  "png": "04885b877b68faa08da8ae89608947d4b1068f273307248df0ab9f702fe678b1",
+  "png16": "d3221cf74f1ae02d3236c4dbdcbe02c0f05cb7b25e43e26eedc3afdffbc3f68e",
+  "starless_jpg": "a7a8f7420a49a735fd06554e9ff4650f39536d29a7bc3381d7d4405f5cbab4b1"
+ },
+ "recipe": {
+  "starless_target": 0.07,
+  "starless_denoise": "vstpost",
+  "sep_prom": 6.0,
+  "sep_engine": "auto",
+  "chroma_core": 4.0,
+  "lum_core": 2.0,
+  "core_order": "pre",
+  "stretch_linked": "linked",
+  "satu": 0.2,
+  "cull_pct": 50.0,
+  "stars_peak": 0.97,
+  "stars_anchor": "catalog",
+  "stars_anchor_basis": "g",
+  "stars_floor": 3.0,
+  "black_point": 8.0,
+  "jpg_quality": 100,
+  "jpg_subsampling": 0,
+  "noise_anchor_k": null
+ },
+ "date": "2026-07-09 18:22:06",
+ "git": "185220e"
+}
