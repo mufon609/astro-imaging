@@ -85,12 +85,20 @@ The choice is therefore data-class dependent, and the failure modes are not
 symmetric: net's worst case is cosmetic (a bright-star shell), inpaint's worst
 case DESTROYS real signal. Prefer the fail-safe engine as the default.
 
-Best candidate to measure next: exclude extended objects from the inpaint star
-mask (`build_star_mask` already has `extended_object_mask` available). Then the
-inpaint base flattens bright FIELD stars only — never galaxy knots — and the net
-run over it removes the stars inside the object. That would make one engine
-correct on both classes: clean bright stars (hybrid's win) AND preserved galaxy
-structure (net's win).
+A geometric fix to hybrid's base is NOT available, and this was measured before
+being proposed: excluding `extended_object_mask` regions from star DETECTION
+would drop 840 real set-03 stars lying on the Milky-Way band (3.7% of its
+catalog) and 44.2% of M74's, most of which are genuine stars superimposed on the
+galaxy. A mask cannot tell an HII knot from a star on a nebulous background —
+that discrimination is precisely what StarNet2 learned, and it is why the
+hand-coded separator fails here. Restricting a pre-flatten to the unambiguous
+bright tier does not close it either: 18 components inside M74 still exceed the
+40-sigma `K_BRIGHT` cut.
+
+So the remaining routes to kill net's bright-star shell are empirical, not
+geometric: measure `--upsample` (the official bright-star mode) against the
+aura bound on set-03, or accept the shell and treat the engine choice as a
+per-dataset recipe (C1). Do not invent a hand-coded galaxy discriminator.
 
 Then: demote mask+inpaint to the fallback used when the StarNet2 weights are
 absent, update the README step-6 row, declare the delta and bring the
