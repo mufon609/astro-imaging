@@ -81,9 +81,16 @@ Principles that keep this honest:
    (calibrated: fixed recipe +2.0, defect era +12.0), `shell_chroma`
    reported as a trend (honest PSF fringe dominates it). The stars anchor +
    its MTF low-end gain print per run so normalization drift is visible.
-5. **The user judges aesthetics on the recombine.** Objective fixes with
-   pass/fail metrics may commit; recipe/aesthetic changes require the user's
-   visual approval before they are baked as defaults.
+5. **The user judges aesthetics on the recombine — from FULL-FRAME
+   LOSSLESS FINALS, opened independently.** A judgment set is a folder of
+   whole-frame lossless images (PNG16 + PNG8) with clean names and a
+   QUESTION.md, nothing else: no crops, no composited panels, no lossy
+   surface — the judge pulls each file into their own viewers and
+   environments. Ladder runs emit per-value lossless finals for exactly
+   this. Crops/panels (`judgment_crops.py`) are an on-request supplement,
+   never the judgment surface. Objective fixes with pass/fail metrics may
+   commit; recipe/aesthetic changes require the user's visual approval
+   before they are baked as defaults.
 
 ### How a change is accepted
 

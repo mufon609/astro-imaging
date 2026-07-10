@@ -826,6 +826,8 @@ def main():
 
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
+    # every ladder value is a judgment surface: lossless, always
+    ctx = {**ctx, "lossless": True}
     enum_params = ("starless_denoise", "core_order", "stretch_linked",
                    "sep_engine", "stars_anchor")
     vals = []
@@ -901,14 +903,9 @@ def main():
     with open(os.path.join(exp_dir, "hypothesis.md"), "a") as f:
         f.write("\n## Results\n\n" + "\n".join(md) + "\n")
 
-    sx = rh.star_region(stack)
-    strips = [rh.value_row(os.path.join(exp_dir, r["jpg"]), 0, sx)
-              for r in results]
-    labels = [f"{args.param} = {r['value']}   "
-              f"[{'PASS' if r['qa_starless']['pass'] else 'FAIL'}]"
-              for r in results]
-    rh.compose_rows(strips, labels, os.path.join(exp_dir, "side_by_side.jpg"))
-    print(f"\n[starcomb] STOP — user judgment required. Review {exp_dir}/")
+    print(f"\n[starcomb] STOP — user judgment required: open the per-value "
+          f"FULL lossless finals in {exp_dir}/ independently (no panels, "
+          "no crops — the judge sees whole frames in their own viewer)")
 
 
 if __name__ == "__main__":

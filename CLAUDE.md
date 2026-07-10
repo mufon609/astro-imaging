@@ -57,9 +57,11 @@ in NOTES STATUS — trust it over anything here.
   thresholds; scope changes need explicit user ratification).
   Star-shell/clip0 metrics are REPORTED or WARN context — never
   silently gated.
-- **Aesthetic changes need the user's eyes** on judgment panels before
-  any bake; objective fixes with pass/fail metrics may commit. Compare
-  renders in LIKE encodings (a q92 4:2:0 jpg hides chroma a PNG shows).
+- **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
+  finals** (PNG16+PNG8, opened independently in the user's own viewers)
+  before any bake — never crops, composited panels, or any lossy
+  surface; objective fixes with pass/fail metrics may commit. Compare
+  renders in LIKE encodings.
 - **A change is accepted by three checks, never by byte-identity with one
   dataset** (README "How a change is accepted"): the render is DETERMINISTIC
   (run twice on the same inputs → identical artifacts); every registered

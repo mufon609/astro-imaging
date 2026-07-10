@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Assemble the user-judgment package for a set of candidate renders:
-QUESTION.md stating what is being decided, a full-frame side-by-side
-(1:4, as-encoded), and lossless 1:1 crops of the known defect zones per
-candidate — all PNG so the judge sees pixels, not JPEG artifacts.
+"""ON-REQUEST SUPPLEMENT, never the judgment surface: the review contract
+(README) is that the user judges FULL-FRAME LOSSLESS FINALS opened
+independently in their own viewers — this tool's crop panels exist only
+when the user explicitly asks for a zoomed defect-zone comparison on top
+of that.
+
+Assembles: QUESTION.md stating what is being decided, a full-frame
+side-by-side (1:4, as-encoded), and lossless 1:1 crops of the known
+defect zones per candidate — all PNG so the judge sees pixels, not JPEG
+artifacts.
 
 Usage: judgment_crops.py <outdir> <label=render.jpg> [...]
        --question="what the judge is deciding"
