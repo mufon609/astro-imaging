@@ -137,21 +137,37 @@ never let it grow narrative.
     approved mtf look. Measured interaction: the brighter starless
     pushes combine-stage star saturation (SHO 6%→12% at k2, 15% at k1;
     LMC 2%→5%) — the stars-side compressive transfer is the companion
-    work if the direction wins. Judgment packages pending
-    (judgment_sho_ghs_* + judgment_lmc_ghs_*); stretch_mode stays
-    generic mtf and all four approved recipes pin mtf explicitly.
-    **OPEN DEFECT (user; supersedes the ghs judgment on this target):
-    the Bubble's central sphere is MISSING from our renders while the
-    author's finish shows it crisply** — measured: the sphere is in
-    the linear data, STRONGEST in O3 (rim/surround 4.29 vs Ha 3.00;
-    interior O3/Ha 0.24 vs surround 0.11) but 4–9× below Ha in
-    absolute flux, so the single linked stretch renders the Ha image
-    and the corings neutralize the sphere's hue. Candidate root cause
-    is ARCHITECTURAL (the standard SHO chain stretches lines
-    separately before palette combination; compose-then-one-linked-
-    stretch cannot lift a weak line) — full record + screenshot paths
-    in the dataset recipe's OPEN_DEFECT note; next session's priority,
-    no workarounds.
+    work if the direction wins. judgment_lmc_ghs_* PENDING the user;
+    the SHO ghs package is SUPERSEDED by the sphere defect below (its
+    surfaces pruned — rungs regenerate from the pinned stack; a ghs
+    pass on the perline base is a NEW unprobed combination, see the
+    ghs backlog entry); stretch_mode stays generic mtf and all four
+    approved recipes pin mtf explicitly.
+    **Missing-sphere defect (user) ROOT-CAUSED + architecture landed;
+    judgment pending** — the sphere is in the linear data, STRONGEST
+    in O3 (rim/surround 4.29 vs Ha 3.00) but 4–9× below Ha in flux.
+    Stage-traced (sphere fit y1662 x1646 R88 display): the linked
+    stretch passed the 5× line ratio straight through (rim step Ha
+    +50 vs O3 +15 counts8); the corings only trimmed the teal delta
+    (+14.5→+12.6 — exonerated as the killer); the killer was display
+    ALLOCATION + chroma grain (B−G MAD 53 counts8/px → 0.3σ/px
+    feature; vst moved that grain 53.6→53.5, no help). Doctrine
+    (Siril GHS/RGB-composition tutorials, PixInsight practice):
+    narrowband palettes get PER-LINE intensity adaptation — the
+    linked-only stretch of an unequalized composite is the documented
+    green-SHO failure mode; linked doctrine is scoped to calibrated
+    BROADBAND. Pre-registered ladder CONFIRMED the hypothesis, all
+    predictions met: perline (each line's p90-of-significant →
+    perline_target 0.25, sky re-pinned at starless_target) renders
+    sphere interior display O3/Ha 1.05 (linked 0.50), interior B−G −2
+    counts8 (linked −20), chroma grain 8.9 MAD (linked 59), gate FULL
+    PASS incl. colour 5.0 (linked 11.0 scope-FAIL) at sky clip0 0%;
+    broadband stays byte-identical (auto→linked; sweep-proven).
+    Judgment package `judgment_sho_perline_20260710` (linked control
+    vs T 0.20/0.25/0.30 vs the author's finish) AWAITS THE USER —
+    stretch_linked auto/perline is live generic, but the SHO look
+    itself bakes only on those eyes. Known remaining gap, separate:
+    the faint-end/star-top allocation (GHS entry).
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
@@ -361,12 +377,20 @@ per run; a recipe-less dataset renders generic and says so):
      ~5.1k residual detections — noise-level clumping).
    Both engines emit the same trio + the engine-invariant detection
    catalog, so culling/anchoring/shell audits measure them identically.
-3. Starless: **linked** autostretch −1.5 **0.07** → post-stretch
-   `denoise -vst -mod=0.5` → chroma_core 4 → lum_core 2 → black_point 8.
-   The corings estimate their noise on the statistical dark sky and are
-   Wiener-gated everywhere (no corridor to protect real structure — energy
-   ≫ noise does). The gate jpg (q92, frozen — gate identity) is written
-   HERE, before the combine.
+3. Starless stretch, class-resolved (`stretch_linked auto`, provenance
+   printed): broadband/mono → **linked** autostretch −1.5 **0.07**;
+   narrowband-palette composition (recipe `spcc.narrowband`) →
+   **perline**: per-line OBJECT-anchored MTF (each line's
+   p90-of-significant → `perline_target` 0.25) + per-channel sky re-pin
+   at 0.07 (background neutralization; the shift preserves the boosted
+   contrast). The standard SHO chain stretches lines separately — one
+   linked MTF renders only the dominant line (the drowned-O3-sphere
+   defect), and sky-anchored unlinking is a no-op after BGE+SPCC (dead
+   ends). Then post-stretch `denoise -vst -mod=0.5` → chroma_core 4 →
+   lum_core 2 → black_point 8. The corings estimate their noise on the
+   statistical dark sky and are Wiener-gated everywhere (no corridor to
+   protect real structure — energy ≫ noise does). The gate jpg (q92,
+   frozen — gate identity) is written HERE, before the combine.
 4. Stars: cull 50 (< p50 flux) → stars_floor 3.0×σ → gray MTF anchored
    so the median top-500 G-basis component amplitude (`peak_g`) renders
    at 0.97.
@@ -382,7 +406,8 @@ per run; a recipe-less dataset renders generic and says so):
 | SPCC placement = pre-BGE | rerun on the BGE'd (gx + subsky 1) stack of the strongest-gradient field on hand (Sagittarius core, lpro_180s): K R0.370→0.371 / G,B unchanged / kept 1862→1887 of 5014 — per-star local-annulus photometry cancels the smooth background, so solve+SPCC stay a stack product ahead of the render's BGE; re-measure opportunistically when a DSLR-class pre-SPCC stack next exists |
 | no crop stage | canonical chains crop registration borders first; measured unnecessary here. Stack probe (set-03): borders carry only a smooth ±2σ level plane, MAD BELOW the core — no band at any depth 2–160 px. 128px/side trim render: color 2.0→2.0, grad 3.2→4.8, blotch 2.7→2.4, rings 3.1→4.4 (both PASS) — trimming improves NOTHING; the borders never flattered the gate. The 1.3–1.6pt grad/ring movements are frame-extent sensitivity (BGE refit + block grid + radial bins), so gate numbers compare only at a fixed extent; the trim also moved aura +4.0→+4.5 purely through the top-500 anchor population (scale-awareness entry in BACKLOG). Re-open only on a measured edge-driven FAIL |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
-| linked stretch | unlinked = per-channel noise → chroma blotches (the "rainbow" engine); on a calibrated stack linked PASSES (2.8/1.2/1.8) and cuts blotches ~12% at source |
+| stretch_linked auto | class-resolved: broadband → linked (unlinked = per-channel noise → chroma blotches, the "rainbow" engine; on a calibrated stack linked PASSES 2.8/1.2/1.8 and cuts blotches ~12% at source); narrowband palette (recipe spcc.narrowband) → perline (one linked MTF passes the 5× Ha/O3 line ratio through — rim +50 vs +15 counts8, sphere drowned at 0.3σ/px of 53-count chroma grain; sky-anchored unlinked is a no-op after BGE+SPCC, dead ends). perline on the SHO target: gate FULL-PASS incl. colour 5.0 (linked: colour 11.0 scope-FAIL), achromatics 0.0/0.0/0.0, sky clip0 0% |
+| perline_target 0.25 | each line's p90-of-significant (>3σ above its own sky, starless) → 0.25: zero sky clip (0.30 clipped S2/O3 sky 8–11% via the negative re-pin shift; 0.20 dims the deep line); sphere interior display O3/Ha 1.05 vs surround 0.77 on the final (linked control: 0.50/0.37), interior B−G −2 counts8 at 8.9 MAD (control −20 at 59) |
 | starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL |
 | vstpost -mod=0.5 | every linear denoise placement imprints a radial signature on self-flat data (5.1/4.6 FAIL); post-stretch half-mod: grain −40%, gate clean |
 | chroma_core 4 | bands 0.73/1.25 (k=3: 1.08/1.88); star-color cost −1% on the linked chain. NOTE: tuned on underexposed set-03 (colour ≈ noise); on a bright real-colour target (the LMC) k=4 over-neutralizes real Hα — revisit per data class |
@@ -461,6 +486,13 @@ Stretch/denoise/color:
 - Unlinked autostretch on a CALIBRATED stack → per-channel curves
   differentially amplify noise = the chroma-blotch ("rainbow") engine;
   there is no cast left for it to compensate after SPCC.
+- Unlinked (sky-anchored per-channel) autostretch as the NARROWBAND-
+  palette line-lift → NO-OP on this chain: BGE+SPCC already equalize
+  the channel SKIES (49.5/48.2/48.1 e-4 on the SHO stack), and
+  autostretch anchors on sky, so unlinked ≡ linked (sphere O3
+  interior 1271 vs 1337 e-4; every sphere metric within noise). The
+  line imbalance is OBJECT flux above a common sky — only an
+  object-anchored per-line stretch can address it (perline mode).
 - `rmgreen` on a sky that is not green-dominant → global magenta.
 - Linear denoise (vst or GraXpert), ANY placement on self-flat data →
   noise is radial after V(r) division; adaptive smoothing imprints a

@@ -22,7 +22,9 @@
     "stars_floor": 3.0,
     "black_point": 8.0,
     "jpg_quality": 100,
-    "jpg_subsampling": 0
+    "jpg_subsampling": 0,
+    "perline_target": 0.25,
+    "noise_anchor_k": null
   },
   "spcc": {
     "narrowband": true,

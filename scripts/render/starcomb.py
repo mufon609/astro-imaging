@@ -14,7 +14,12 @@ siril spcc; every generic value came from a measured single-knob ladder):
      order measured MW-safe — BGE on starless ERASES the MW)
   2. star separation (cached): StarNet2 ONNX (net) or mask+inpaint
      (inpaint); auto = net when the weights are installed
-  starless: LINKED autostretch -1.5 <starless_target>
+  starless: stretch per <stretch_linked> — linked autostretch -1.5
+       <starless_target> (broadband standard; auto resolves here for
+       any non-narrowband dataset) or per-line OBJECT-anchored MTF +
+       sky re-pin (perline; auto resolves here for a narrowband
+       palette composition — one linked MTF renders only the dominant
+       emission line)
     -> post-stretch denoise -vst -mod=0.5 (<starless_denoise=vstpost>;
        every linear placement imprints a radial signature on self-flat
        data)
@@ -286,6 +291,56 @@ def solve_mtf_m(x0, y0):
     return min(max(m, 1e-4), 1 - 1e-4)
 
 
+def perline_starless_stretch(starless_fit, out_fit, t_obj, sky_target):
+    """Per-LINE object-anchored stretch — the narrowband-palette stretch
+    (stretch_linked=perline). The standard SHO/HOO chain stretches each
+    emission line separately: one linked MTF renders only the dominant
+    line (measured on the Bubble: the 5x Ha/O3 line ratio passes straight
+    through as rim step +50 vs +15 counts8 and the O3 sphere drowns), and
+    per-channel SKY-anchored stretching is a no-op here because BGE+SPCC
+    already equalize the channel skies — the imbalance is OBJECT flux
+    above a common sky.
+
+    Per channel: shadows clip at sky - 1.5*sigma (the chain's autostretch
+    clip), MTF with m solved so the line's p90-of-significant signal
+    (> 3 sigma above its own sky; stars are already separated out, so the
+    high tail is the nebula) lands at t_obj, then a per-channel OFFSET
+    re-pins the sky at sky_target — background neutralization; a linear
+    shift preserves the boosted object contrast. A line with no
+    significant signal has nothing to lift and takes the plain
+    sky-target MTF, stated loudly. numpy end to end (deterministic);
+    file order and header cards round-trip untouched."""
+    cards, planes, _ = am.read_fits_planes(starless_fit)
+    out = np.empty_like(planes)
+    for ci in range(planes.shape[0]):
+        ch = planes[ci]
+        sky, sig = am.bg_stats(ch)
+        shadow = max(sky - 1.5 * sig, 0.0)
+        span = max(1.0 - shadow, 1e-9)
+        x = np.clip((ch - shadow) / span, 0.0, 1.0)
+        x_sky = (sky - shadow) / span
+        above = ch[ch > sky + 3.0 * sig] - sky
+        if above.size < ch.size * 5e-4:
+            # no significant-signal population on this line — nothing to
+            # object-anchor; sky-target MTF, no shift
+            m = solve_mtf_m(x_sky, sky_target)
+            out[ci] = am.mtf(x, m)
+            print(f"[starcomb] perline ch{ci}: no significant signal "
+                  f"({above.size} px > 3 sigma) — sky-target stretch only")
+            continue
+        anchor = float(np.percentile(above, 90.0))
+        x_anchor = (sky + anchor - shadow) / span
+        m = solve_mtf_m(x_anchor, t_obj)
+        st = am.mtf(x, m)
+        shift = sky_target - am.mtf(np.float64(x_sky), m)
+        out[ci] = np.clip(st + np.float32(shift), 0.0, 1.0)
+        clip0 = float((st + shift <= 0).mean())
+        print(f"[starcomb] perline ch{ci}: sky {sky:.5f} sigma {sig:.6f} "
+              f"anchor(p90 sig) {anchor:.5f} -> m {m:.5f} "
+              f"skyshift {shift * 255:+.2f}/255 clip0 {clip0 * 100:.2f}%")
+    am.write_fits_planes(out_fit, cards, out)
+
+
 def _inspect_stage(ctx, name, arr, stretched, note=""):
     """Render-chain provenance (--inspect): one consistent JPEG + one
     metrics line per render stage, so a defect in the final render can be
@@ -356,7 +411,19 @@ def render_config(ctx, cfg, jpg_out):
         # measured FAIL on this self-flat data, kept as an option because
         # new data may have a different noise structure)
         starless_fit = run_graxpert_denoise(work, starless_fit)
-    rel = os.path.relpath(starless_fit, sdir)
+    perline_fit = None
+    if cfg.get("stretch_linked") == "perline":
+        # narrowband-palette stretch: each line object-anchored in numpy,
+        # THEN the siril tail (ghs finishing / vstpost denoise) runs on
+        # the pre-stretched file exactly like on an autostretch result
+        perline_fit = os.path.join(work, "perline_st.fit")
+        perline_starless_stretch(starless_fit, perline_fit,
+                                 float(cfg["perline_target"]),
+                                 float(cfg["starless_target"]))
+        starless_fit_for_siril = perline_fit
+    else:
+        starless_fit_for_siril = starless_fit
+    rel = os.path.relpath(starless_fit_for_siril, sdir)
     suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
     lines = ["requires 1.4.0", f"load {suffix}"]
     if cfg["starless_denoise"] == "vst":
@@ -364,9 +431,13 @@ def render_config(ctx, cfg, jpg_out):
     # Stretch linkage: unlinked equalizes per-channel backgrounds (cast
     # compensation) but per-channel curves differentially amplify
     # per-channel noise into chroma blotches. On an SPCC-calibrated
-    # stack there is no cast to compensate — linked is the standard.
-    linkflag = "-linked " if cfg.get("stretch_linked") == "linked" else ""
-    lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
+    # BROADBAND stack there is no cast to compensate — linked is the
+    # standard there. perline is the narrowband-palette mode (per-line
+    # object-anchored stretch above); any siril-side pass that follows it
+    # (ghs finishing) runs linked — the lines are already equalized.
+    linkflag = "-linked " if cfg.get("stretch_linked") != "unlinked" else ""
+    if cfg.get("stretch_linked") != "perline":
+        lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
     if cfg.get("stretch_mode", "mtf") == "ghs":
         # GHS FINISHING pass on the autostretched starless: SP placed
         # ghs_sp_k sigma ABOVE the stretched sky so the gain lands on the
@@ -391,6 +462,8 @@ def render_config(ctx, cfg, jpg_out):
     run_siril(sdir, lines, "starcomb_starless.gen.ssf")
     starless_st = am.load_linear(st_out)
     os.remove(st_out)  # 294 MB scratch: free it now (all in memory)
+    if perline_fit and os.path.exists(perline_fit):
+        os.remove(perline_fit)  # same-size scratch, consumed by the save
 
     # A single-filter (mono) stack carries luminance only. Replicate it to RGB
     # so the gate, star-shell audit and 8-bit writers see the three channels
@@ -406,11 +479,13 @@ def render_config(ctx, cfg, jpg_out):
     ghs_tag = (f" + ghs k{cfg.get('ghs_sp_k')}/D{cfg.get('ghs_amount')}"
                f"/b{cfg.get('ghs_focus')}"
                if cfg.get("stretch_mode", "mtf") == "ghs" else "")
-    _stage_line(f"stretch [{cfg.get('stretch_linked')} "
+    pl_tag = (f" obj->{cfg.get('perline_target'):g}"
+              if cfg.get("stretch_linked") == "perline" else "")
+    _stage_line(f"stretch [{cfg.get('stretch_linked')}{pl_tag} "
                 f"{cfg['starless_target']:g}{ghs_tag} + "
                 f"{cfg['starless_denoise']}]", starless_st)
     _inspect_stage(ctx, "starless_stretch", starless_st, True,
-                   f"autostretch {cfg.get('stretch_linked')} "
+                   f"stretch {cfg.get('stretch_linked')}{pl_tag} "
                    f"{cfg['starless_target']}{ghs_tag} + "
                    f"{cfg['starless_denoise']}")
 
@@ -635,7 +710,8 @@ def render_config(ctx, cfg, jpg_out):
 KNOBS = (
     "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
     "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
-    "chroma_core", "lum_core", "core_order", "stretch_linked", "satu",
+    "chroma_core", "lum_core", "core_order", "stretch_linked",
+    "perline_target", "satu",
     "cull_pct", "stars_peak", "stars_anchor", "stars_floor",
     "black_point", "jpg_quality", "jpg_subsampling", "noise_anchor_k",
 )
@@ -645,7 +721,7 @@ ENUM_CHOICES = {
     "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
     "core_order": ["pre", "post"],
-    "stretch_linked": ["unlinked", "linked"],
+    "stretch_linked": ["auto", "unlinked", "linked", "perline"],
     "stars_anchor": ["catalog", "noise"],
 }
 
@@ -676,7 +752,7 @@ def resolve_recipe(repo, sdir, set_name, args):
     another dataset's look."""
     generic = load_generic(repo)
     recipe_p = os.path.join(am.dataset_dir(sdir, set_name), "recipe.json")
-    recipe = {}
+    recipe, rec = {}, {}
     if os.path.exists(recipe_p):
         rec = json.load(open(recipe_p))
         recipe = rec.get("render", {})
@@ -690,7 +766,9 @@ def resolve_recipe(repo, sdir, set_name, args):
     else:
         print(f"[recipe] NONE for {set_name} — GENERIC defaults "
               "(honest but not an approved look); create "
-              f"{os.path.relpath(recipe_p)} to pin one")
+              f"{os.path.relpath(recipe_p)} to pin one. First render of a "
+              "NEW data class? Run the new-class triage ladders (README, "
+              "experiment discipline) before any judgment package")
     base, srcs = {}, []
     for k in KNOBS:
         cli = getattr(args, k)
@@ -705,6 +783,17 @@ def resolve_recipe(repo, sdir, set_name, args):
         if k in ENUM_CHOICES and base[k] is not None \
                 and base[k] not in ENUM_CHOICES[k]:
             sys.exit(f"starcomb: {k}={base[k]!r} not in {ENUM_CHOICES[k]}")
+    if base["stretch_linked"] == "auto":
+        # class resolution from tracked per-dataset state: a narrowband
+        # PALETTE composition (the recipe's spcc.narrowband marker — the
+        # same fact that drives SPCC's -narrowband mode) stretches
+        # per-line; everything else takes the broadband linked standard
+        nb = bool(rec.get("spcc", {}).get("narrowband"))
+        base["stretch_linked"] = "perline" if nb else "linked"
+        print(f"[recipe] stretch_linked auto -> {base['stretch_linked']} "
+              + ("(narrowband palette composition: per-line "
+                 "object-anchored stretch)" if nb
+                 else "(broadband/mono: single linked stretch)"))
     if srcs:
         print("[recipe] non-generic: " + " ".join(srcs))
     return base
@@ -767,10 +856,19 @@ def main():
                          "(post) lum_core")
     ap.add_argument("--stretch-linked", default=None,
                     choices=ENUM_CHOICES["stretch_linked"],
-                    help="autostretch channel linkage (linked = standard "
-                         "on a calibrated stack; unlinked compensates "
-                         "casts but amplifies per-channel noise into "
-                         "chroma blotches)")
+                    help="stretch channel coupling: linked = one transfer "
+                         "(broadband standard); unlinked = per-channel "
+                         "SKY-anchored (cast compensation; amplifies "
+                         "channel noise into chroma blotches, and a "
+                         "measured no-op on bg-equalized narrowband); "
+                         "perline = per-line OBJECT-anchored + sky re-pin "
+                         "(the narrowband-palette standard); auto = "
+                         "perline when the recipe marks a narrowband "
+                         "composition, else linked (generic)")
+    ap.add_argument("--perline-target", type=float, default=None,
+                    help="perline stretch: display level where each "
+                         "line's p90-of-significant signal lands (its "
+                         "sky re-pins at starless-target)")
     ap.add_argument("--satu", type=float, default=None,
                     help="chroma gain on the combined render, AFTER the "
                          "corings (amplifies only significant color); "
@@ -823,7 +921,8 @@ def main():
                              "cull_pct", "stars_peak", "stars_anchor",
                              "sep_prom", "sep_engine",
                              "chroma_core", "satu", "core_order",
-                             "stretch_linked", "lum_core",
+                             "stretch_linked", "perline_target",
+                             "lum_core",
                              "stars_floor", "black_point"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)

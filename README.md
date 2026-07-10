@@ -31,7 +31,7 @@ follows, in order — linear until step 6:
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. A recipe pins the engine only on measurement (one exists: wide_50mm, where net fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
-| 7 | stretch starless hard / stars gently; optional faint-tail treatment | `starcomb.py`: starless **linked** autostretch + significance corings (chroma/lum, Wiener-gated on the statistical dark sky); stars gray-MTF anchor + flux-percentile cull | COMPLIANT in shape; every knob value is a measured ladder (NOTES "Knob provenance") |
+| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately (Siril/PixInsight doctrine: a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py`: starless stretch per class — **linked** autostretch (broadband; one calibrated scene, one transfer) or **per-line object-anchored MTF + sky re-pin** (`stretch_linked auto` → `perline` on a narrowband-palette composition: each line's p90-of-significant → `perline_target`, sky re-pinned at `starless_target`); + significance corings (chroma/lum, Wiener-gated on the statistical dark sky); stars gray-MTF anchor + flux-percentile cull | COMPLIANT (per-line adaptation verified against 2026 doctrine — Siril GHS/RGB-composition tutorials, PixInsight practice; sky-anchored unlinked measured a no-op on this bg-equalized chain, NOTES dead ends); every knob value is a measured ladder (NOTES "Knob provenance") |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
@@ -168,6 +168,25 @@ removal condition.
   judgment.
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
+### New-class triage (BEFORE the first judgment package)
+
+The GENERIC layer was tuned on specific data classes and a knob correct
+there can silently damage another class until a human notices the defect
+(measured twice: post-stretch vst crushed 40–50% of a high-SNR nebula's
+chroma across four judged renders; the linked stretch drowned a
+narrowband target's O3 sphere). When a dataset CLASS first arrives (new
+sensor class, new SNR regime, new target-brightness class, new
+composition kind), ladder the generic knobs whose `datasets/GENERIC.json`
+why-notes name a class risk — that file is the checklist's source of
+truth; today: `starless_denoise` (the proven chroma killer),
+`chroma_core` (over-neutralizes faint real colour), `black_point`
+(crushes faint extended signal), `starless_target` (darker than
+necessary on clean data), `stars_peak` (blows star tops on deep data),
+and the stretch architecture itself (`stretch_linked` — a narrowband
+palette needs the per-line mode, auto-resolved from the recipe's
+narrowband marker). Each is a single-knob ladder the harness already
+runs; the user judges once per class instead of debugging after.
+
 ## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
 Session data dirs are gitignored (several hold third-party raws that must
@@ -279,6 +298,7 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, writes the QUESTION.md skeleton |
 | `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |

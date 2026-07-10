@@ -24,10 +24,14 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C17 → C16 → C18 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
-C14 → C12/C7/C3/C15** (C17/C16/C18 lead: all three are direct user
-directives).
-C8 and C10 run when their external/user inputs arrive; C13 after its
+asks "what next", take: **C18 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
+C14 → C12/C7/C3/C15** (C18 leads: direct user directive; the other two
+former leads closed — the class-triage checklist shipped into README,
+and C17's report-card half shipped with its preset half moving to the
+awaiting-inputs tier below, its redesigned scope needing user
+ratification).
+C8 and C10 run when their external/user inputs arrive, C17's preset
+half on its ratification; C13 after its
 industry-norm research; C5 only on a measured solve failure; A3 in a
 session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
@@ -328,7 +332,12 @@ above-sky contrast, linear-shift invariance; stars_peak fixes tops only
 at a faint-field cost). GHS's toe+shoulder is the structural answer to
 all of it. Run a like-encoding ladder (autostretch control vs `autoghs`
 variants) on two datasets of different classes — pure aesthetics,
-user's eyes decide; no bake without approval.
+user's eyes decide; no bake without approval. Narrowband-palette
+interaction: the per-line stretch replaced the class's LMC-style ghs
+case study (the superseded SHO ghs package predates it), and a ghs
+finishing pass now composes ON TOP of the perline base (linked, the
+lines already equalized) — that combination is unprobed; ladder it on
+the perline class only after the perline look itself is judged.
 
 ### C11 — Redesign the colour gate as chain-added colour (ratified direction)
 
@@ -372,6 +381,19 @@ Context (measured): the 22.0 colour excess is REAL SKY, not a calibration
 artifact — grounding SPCC in the true train response moves K ≤1.5% and
 the output ≤2.6e-4 p99, and SPCC on the BGE'd stack moves K_R +0.3% —
 neither the calibration nor the chain order explains it.
+
+Scope update, measured: the per-line stretch (`stretch_linked perline`)
+re-pins every channel's sky at the same target, so a narrowband-palette
+render passes the CURRENT colour gate outright (the SHO target: colour
+11.0 scope-FAIL linked → 5.0 PASS perline, achromatics 0.0) — that
+class no longer motivates this redesign and can baseline as-is. The
+remaining un-baselineable cases are broadband emission-flooded fields
+(lpro_180s, 22.0) and the APPROVED hoo look (26.0 — pinned to the
+linked stretch; per-line for it would be a new declared delta through
+the user's eyes, not a gate change). The redesigned comparison must
+also stay honest under per-line stretching: each channel's transform
+differs by design, so "chain-added colour" is divergence from the
+calibrated stack pushed through THAT channel's own transform.
 
 ### C12 — Measure the OSC calibration divergence between the raw and FITS paths
 
@@ -431,73 +453,42 @@ inputs for composed targets) — so any future drift localizes to its
 stage from the records alone, prune or no prune. Hashing ~0.5 GB per
 dataset at rebaseline is seconds; do NOT hash on ordinary sweeps.
 
-### C16 — Class-triage the generic knobs when a new data class arrives
+### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 
-User-directed after the M20 vst incident: the GENERIC layer was tuned on
-one underexposed DSLR wide-field, and a knob correct there can silently
-damage another class until a human notices a defect (measured: vstpost —
-a self-flat adaptation — crushed 40–50% of a high-SNR bright nebula's
-chroma; the defect shipped in four judged renders before the user's eyes
-caught it). Make the triage systematic: when a DATASET CLASS first
-arrives (new sensor class, new SNR regime, new target brightness class),
-ladder the generic knobs whose why-notes name a class risk BEFORE the
-first judgment package — today that list is `starless_denoise` (the
-proven killer), `chroma_core` (over-neutralizes faint real colour),
-`black_point` (crushes faint extended signal — measured: a 5.1σ shell
-in the linear stack rendered at +5.7 display counts vs the reference's
-+36), `starless_target` (darker than necessary on clean data), and
-`stars_peak` (the 0.97 anchor blows the star top on deep data —
-measured 3.1% of like-scale peaks ≥250 vs the reference's 0%). The why-notes already carry the
-risks; this entry turns them into a first-render checklist instead of a
-post-defect investigation. Cheap: each is a single-knob ladder the
-harness already runs; the user judges once per class instead of
-debugging after.
-
-### C17 — Per-channel capture report card + palette-balance presets
-
-User-specified. Every multi-channel target gets a REPORT CARD at compose
-time (objective, inspection-style; the first instance was hand-measured
-on the SHO target and lives in its session results/): per member —
-filter identity in nm + the line/gas (SII 671.6 / Ha 656.28 / OIII
-500.7 / broadband L,R,G,B), subs × exposure + gain/offset, the measured
-EFFECTIVE capture rate from dark-subtracted raw lights (object-region
-net ADU/s — one number folding filter transmission × sensor QE at that
-wavelength × optics; spec-sheet QE curves are an optional later
-refinement via siril's SPCC response data), the SKY rate per band (how
-sky-effective each filter is), per-channel object SNR in the stack, and
-a gathered-vs-missed estimate (hours needed at the same settings for
-SNR parity with the best channel). Plus the capture-ratio table and the
-composed-stack ratio — the gap states what member normalization + SPCC
-did to the balance. L slots in as one more member row when the LRGB
-join lands.
-
-From those numbers, a palette-balance preset knob (resolution CLI >
-recipe > GENERIC as ever — a custom tmp run is just CLI flags, no file
-edits):
-- `natural` — display channel energy proportional to the MEASURED line
-  flux: weights applied LINEARLY pre-stretch (a recalibration like
-  SPCC's K, not an unlinked stretch — the linked stretch stays);
-- `per-source` — each channel is allowed only the gain its own SNR
-  supports (noise-visibility cap): a starved band renders fainter,
-  never noisier — it is not pushed to keep up with the others;
-- `custom` — explicit per-channel weights in the recipe.
-Presets are aesthetic DEFAULTS: each lands via ladder + the user's eyes
-per class. The report card itself is pure measurement and can ship
-first, alone. FIRST CLASS VERDICT (narrowband mono-filters, judged on
-the SHO target's four-candidate package): the SPCC-continuum scale
-as-is WINS as the class default; per-source/natural stay as the preset
-options; the equalized endpoint is destructive through the significance
-corings (amplified channel noise inflates the coring estimates and the
-object itself is neutralized) — any preset implementation must couple
-channel gain with coring noise scope.
+User-specified; the capture REPORT CARD half is shipped
+(`scripts/qa/capture_report.py`, wired into compose for mono-filters —
+dualband raw rates await the extraction step; spec-sheet QE curves via
+siril's SPCC response data remain an optional refinement; L slots in as
+one more member row when the LRGB join lands). What remains is the
+PRESET knob — and it needs a redesign decision before implementation:
+the original spec (LINEAR pre-stretch channel weights: `natural` ∝
+measured line flux, `per-source` SNR-capped, `custom`) predates the
+per-line stretch architecture. Measured since: linear equalization is
+destructive through the corings (the SHO balance ladder: ×13/×7.3
+collapsed the object; the user judged SPCC-continuum as-is the winner
+over ×2.7–2.9 natural), and the narrowband class's real balance
+mechanism is the NONLINEAR per-line object-anchored stretch
+(`stretch_linked perline`), which equalizes object prominence with the
+sky pinned. Candidate redesign: presets become perline ANCHOR POLICIES
+(how each line's anchor/target resolves — e.g. `natural` = anchors from
+the card's measured line rates; `per-source` = noise-capped per-line
+gain, a starved band renders fainter never noisier; `custom` = explicit
+per-line targets in the recipe), with linear weights remaining only as
+the broadband mono-filters option (mild wheel imbalance, linked stretch
+kept). Any preset implementation must still couple channel gain with
+the corings' noise scope. USER RATIFICATION required for the redesigned
+scope before code.
 
 ### C18 — Object-integrity audit: catch chain-REMOVED object signal
 
-User-ratified after two measured escapes: a render whose OBJECT was
+User-ratified after THREE measured escapes: a render whose OBJECT was
 destroyed can pass every standing audit — the balance probe that
 neutralized the whole nebula through the corings PASSED the gate
-(colour 4.0, all achromatics green), and the vst chroma-crush defect
-shipped in four gate-PASSing judged renders. The gate grades the SKY by
+(colour 4.0, all achromatics green), the vst chroma-crush defect
+shipped in four gate-PASSing judged renders, and the linked-stretch
+narrowband renders shipped with the Bubble's O3 sphere drowned
+(interior B−G −20 counts8 under 59 counts of chroma grain — the user's
+eyes caught it against the author's finish). The gate grades the SKY by
 design; nothing grades the object. Add a standing WARN-level render
 audit measuring object-region retention against the CALIBRATED linear
 stack: above-sky chroma energy and structure contrast at matched
@@ -506,6 +497,12 @@ removed toward neutral does not). Companion to the ratified colour-gate
 redesign (which catches chain-ADDED colour); together they bound the
 chain from both sides. Same implementation care: compare at matched
 luminance levels or push the reference through the same stretch, so the
-stretch itself cannot game the comparison. Thresholds calibrate on the
-two measured escapes (both must WARN) and every approved render (none
-may). WARN-only until a class history exists; the gate never loosens.
+stretch itself cannot game the comparison — and the per-line stretch
+makes "the same stretch" a PER-CHANNEL transform, so the comparison
+must be built per channel (the perline transform is closed-form and
+printable; the linked autostretch is siril-internal — deriving its
+equivalent MTF from the rendered sky/anchor levels is part of this
+design). Thresholds calibrate on the three measured escapes (all must
+WARN — the sphere case's artifacts regenerate from the pinned SHO stack
+with `--stretch-linked linked`) and every approved render (none may).
+WARN-only until a class history exists; the gate never loosens.

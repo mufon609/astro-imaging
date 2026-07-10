@@ -697,6 +697,78 @@ def write_png16(path, arr16):
         f.write(chunk(b"IEND", b""))
 
 
+def read_fits_planes(path):
+    """Raw float32 FITS read, FILE order (no orientation flip): returns
+    (header cards, planes (C,H,W) float32, hdr dict). For processing
+    stages that write their result back out — pair with
+    write_fits_planes so the header cards and the pixel order round-trip
+    untouched (read_fits flips to display orientation and is for
+    measurement)."""
+    raw = open(path, "rb").read()
+    cards, off, end = [], 0, False
+    while not end:
+        block = raw[off:off + 2880]
+        for i in range(0, 2880, 80):
+            c = block[i:i + 80].decode("ascii")
+            if c.startswith("END"):
+                end = True
+                break
+            cards.append(c)
+        off += 2880
+        if off > len(raw):
+            sys.exit(f"astrometrics: no END card in {path}")
+    hdr = {c[:8].strip(): c[10:].split("/")[0].strip()
+           for c in cards if "=" in c}
+    bitpix = int(hdr["BITPIX"])
+    if bitpix != -32:
+        sys.exit(f"astrometrics: read_fits_planes expects a float32 FITS, "
+                 f"got BITPIX {bitpix} in {path}")
+    nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
+    nc = int(hdr.get("NAXIS3", "1")) if int(hdr["NAXIS"]) == 3 else 1
+    planes = np.frombuffer(raw, dtype=">f4", count=nc * ny * nx,
+                           offset=off).reshape(nc, ny, nx)
+    return cards, planes.astype(np.float32), hdr
+
+
+def write_fits_planes(path, cards_src, planes):
+    """Write float32 planes (C,H,W) in FILE order under the source header
+    cards, geometry patched to the array. The card grid is 80-byte cells:
+    one oversized card would shift END off its boundary and every reader
+    rejects the file, so refuse those loudly."""
+    over = [c for c in cards_src if len(c) > 80]
+    if over:
+        sys.exit(f"astrometrics: header card exceeds 80 bytes "
+                 f"({len(over[0])}): {over[0][:60]!r}...")
+    nc, ny, nx = planes.shape
+    out, seen3 = [], False
+    for c in cards_src:
+        key = c[:8].strip()
+        if key == "NAXIS":
+            out.append(f"{'NAXIS':<8s}= {(3 if nc == 3 else 2):>20d}".ljust(80))
+        elif key == "NAXIS1":
+            out.append(f"{'NAXIS1':<8s}= {nx:>20d}".ljust(80))
+        elif key == "NAXIS2":
+            out.append(f"{'NAXIS2':<8s}= {ny:>20d}".ljust(80))
+        elif key == "NAXIS3":
+            if nc > 1:
+                out.append(f"{'NAXIS3':<8s}= {nc:>20d}".ljust(80))
+                seen3 = True
+        else:
+            out.append(c)
+    if nc > 1 and not seen3:
+        for i, c in enumerate(out):
+            if c[:8].strip() == "NAXIS2":
+                out.insert(i + 1, f"{'NAXIS3':<8s}= {nc:>20d}".ljust(80))
+                break
+    hdr = "".join(out) + "END".ljust(80)
+    hdr += " " * ((-len(hdr)) % 2880)
+    body = planes.astype(">f4").tobytes()
+    with open(path, "wb") as f:
+        f.write(hdr.encode("ascii"))
+        f.write(body)
+        f.write(b"\x00" * ((-len(body)) % 2880))
+
+
 # --- consistent rendering -------------------------------------------------------
 
 def mtf(x, m):
