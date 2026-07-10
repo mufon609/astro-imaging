@@ -16,9 +16,12 @@ never let it grow narrative.
   holds each dataset's `geometry.json` + `recipe.json` (knobs resolve CLI >
   recipe > GENERIC, provenance printed) + `baseline.json` (written only by
   `scripts/qa/sweep.py --rebaseline`). **The no-regression sweep is one
-  command** — `python3 scripts/qa/sweep.py` — gate + shell bounds + metric
-  drift + artifact-byte comparison over every baselined dataset;
-  `--determinism` double-renders cold.
+  command** — `python3 scripts/qa/sweep.py` — gate PASS + shell-aura
+  non-worsening vs each dataset's own baseline (tolerance 0.5; the absolute
+  audit WARN applies only where no baseline exists, and recording a baseline
+  above it needs `--ack-aura-warn`) + metric drift + artifact-byte
+  comparison over every baselined dataset; `--determinism` double-renders
+  cold.
 - **The render chain is deterministic from the stack, cold caches
   included** (measured: two fully-cold builds byte-identical across all
   four artifacts; the sweep byte-reproduces every recorded baseline).

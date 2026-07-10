@@ -35,6 +35,12 @@ follows, in order — linear until step 6:
 
 Principles that keep this honest:
 
+- **The mapping above is re-verified against current Siril/PixInsight
+  doctrine at every siril minor-version bump** — tool positions move
+  (stretch guidance, SPCC modes, separation models), so the comparison is
+  standing work, not a one-time audit; per-item verifications carry their
+  dates in the BACKLOG entries they feed.
+
 - **A divergence from the standard is a bandaid unless it is a measured,
   documented adaptation forced by this data** — each one carries its removal
   condition in NOTES ("REMAINING BANDAIDS" ledger).
@@ -96,15 +102,20 @@ it, each answering a question it can actually answer:
    exempt — its register sweep is non-deterministic; verify a stack by the
    gate + inspection.
 2. **No regression, across data classes.** Every registered dataset
-   (`SESSIONS.md`) still PASSES the gate, the star-shell bounds and the
-   per-stage inspection. **Gate thresholds never loosen.** The reference suite
-   spans the classes the pipeline actually meets — self-flat underexposed DSLR
-   wide-field, matched-flat off-centre object, self-flat wide, and mono FITS
-   with a frame-centred galaxy — so no single dataset can hold the pipeline
-   hostage. One command runs it: `python3 scripts/qa/sweep.py` (renders every
-   dataset with a `datasets/*/*/baseline.json`, requires gate PASS + shell
-   bounds, diffs every metric against the baseline, and flags any byte delta
-   as a declared-delta prompt; absent third-party data SKIPs loudly).
+   (`SESSIONS.md`) still PASSES the gate, shows no star-shell WORSENING vs
+   its own recorded baseline (regression semantics — a clean dataset rotting
+   toward the defect class fails long before any absolute line; recording a
+   baseline above the audit WARN bound requires an explicit
+   `--ack-aura-warn`), and passes the per-stage inspection. **Gate
+   thresholds never loosen.** The reference suite spans the classes the
+   pipeline actually meets — self-flat underexposed DSLR wide-field,
+   matched-flat off-centre object, self-flat wide, and mono FITS with a
+   frame-centred galaxy — so no single dataset can hold the pipeline
+   hostage. One command runs it: `python3 scripts/qa/sweep.py` (renders
+   every dataset with a `datasets/*/*/baseline.json`, requires gate PASS +
+   baseline-relative shell check, diffs every metric against the baseline,
+   and flags any byte delta as a declared-delta prompt; absent third-party
+   data SKIPs loudly).
 3. **Declared delta.** A change that alters a registered render is *expected*,
    not forbidden. It must report the metric deltas and side-by-side panels in
    LIKE encodings. Strictly-better-or-equal objective metrics may commit; any
@@ -231,7 +242,7 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
-| `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate + shell bounds, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline |
+| `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
 

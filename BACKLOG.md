@@ -23,6 +23,13 @@ to them — starting a constrained item out of order half-bakes it and
 clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
+**Pick-up order** (user-ratified; re-rank when items close). When a session
+asks "what next", take: **C6 → B1 → C9 → C1+C2 → C4 → C11 →
+C12/C7/C3**. C8 and C10 run when their external/user inputs arrive; C5
+only on a measured solve failure; A3 in a session scoped to it. The order
+optimizes for the north star: capability breadth first (any data class),
+then trustworthy cross-class measurement, then stage-check completeness.
+
 **Identifiers** (A1, B1, C1…) are positional working labels, not stable
 IDs. A new entry takes the lowest unused number in its section, so numbers
 **recycle**; once a section — and ultimately the whole BACKLOG — is cleared,
@@ -78,27 +85,30 @@ The measurement/operator stack hardcodes absolute-pixel scales that encode
 one PSF/resolution class and are not comparable across rigs:
 
 - `star_shell_report` samples the aura at fixed annuli (peak 8-16 px minus
-  baseline 32-40 px, ranks 10..80) with no per-set override — and the sweep
-  promotes its WARN bound to a HARD no-regression FAIL while two baselines
-  (set-03 at ~8 px trailed PSF, m74 at 2-3 px tight PSF) sit EXACTLY at the
-  +4.0 bound. On a tight PSF those annuli measure sky, not shell; on a big
-  one they sit inside the core. Any small render change tips either dataset
-  over on a number that means different things per class.
+  baseline 32-40 px, ranks 10..80) with no per-set override. On a tight
+  2-3 px PSF (m74) those annuli measure sky, not shell; on a big trailed
+  one (set-03, ~8 px) they sit near the core — the same number means
+  different things per class. (The sweep no longer hard-fails on the
+  absolute WARN bound — aura regression is graded against each dataset's
+  own baseline — so the brittleness is gone, but the METRIC still is not
+  a cross-class physical quantity.)
 - `chroma_core`/`lum_core` pyramid sigmas (2/8/32/128 px) + 4 px energy
   window; `extended_object_mask` smoothing scale (48 px); `starsep` skirt
   dilations (3/+5 px) and local-background footprint (33 px, stride 4) —
   the area caps are geometry-overridable, these are not; `star_metrics`
   windows (9 px dedup, core <=3 px, halo 3-8 px).
 
-Redesign requirement: express each scale per data class (from measured
-FWHM, arcsec/px, or frame fraction), overridable per set exactly like the
-starsep area caps, and PRINT the effective values in the metric line so a
-recorded number is interpretable. Gate thresholds never loosen; every
-change lands as a declared delta re-derived per dataset (one knob at a
-time). Until then the recorded aura/coring numbers are only comparable
-within one dataset AT ONE FRAME EXTENT — measured: a 128 px border trim
-alone moved set-03's aura +4.0→+4.5 purely through the top-500 anchor
-population, with no change to any star's rendering context.
+Design commitment: **derive, don't configure.** The pipeline already
+measures FWHM, pixel scale and frame geometry — each scale above must be
+derived from those measured data properties (per-set override remaining
+as a measured exception only), and the EFFECTIVE values must print in the
+metric line so a recorded number is interpretable. Gate thresholds never
+loosen; every change lands as a declared delta re-derived per dataset
+(one knob at a time). Until then the recorded aura/coring numbers are
+only comparable within one dataset AT ONE FRAME EXTENT — measured: a
+128 px border trim alone moved set-03's aura +4.0→+4.5 purely through
+the top-500 anchor population, with no change to any star's rendering
+context.
 
 ---
 
@@ -121,11 +131,13 @@ on the masters already measured (the m74 flat falls 1.3% to the corner).
 
 All three stack paths now report registered/total (INS reg), but a run
 that registers a fraction of its frames still proceeds to stack and
-render. The self-flat path aborts only at zero. Decide and implement a
-hard floor (the inspection table already carries reg_fraction >= 0.9 as
-the WARN bound) so a mostly-unregistered set fails loud at the stack
-stage instead of surfacing as a mysteriously noisy render. Keep INS
-WARN-only; the floor belongs to the runner.
+render. The self-flat path aborts only at zero. Implement a hard floor in
+the runner at CATASTROPHE level — reg_fraction < 0.5 (less than half the
+set is not the set; the abort message must name the reg log and the
+reference-sweep option) — while 0.9 stays the advisory WARN: a 60-90%
+set is degraded-but-honest data that should stack LOUDLY, not an error.
+The 0.5 value is a design pick (half the set); revisit it with the first
+real failure case. Keep INS WARN-only; the floor belongs to the runner.
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
@@ -168,33 +180,40 @@ aarch64-capable options (verified July 2026):
   hallucination risk: learned priors can synthesize unmeasured detail —
   conservative settings, and judge against the classical result.
 
-Add the stage optional and off by default, driven by the dataset recipe; keep
-the measured set-03 SKIP as its removal condition. m74_toa130 (0.72"/px,
-94 min) is the test case, and its `imx585c/reference/` master is the honest
-comparison target. Still no third option: BlurXTerminator is paid + x86-64 +
-AVX; Cosmic Clarity ships no aarch64 binary (its MIT source + ONNX models
-could be wrapped like StarNet2 if ever needed).
+Add the stage optional and off by default — but ELIGIBILITY IS MEASURED,
+not assumed: the per-frame assessment (C9) supplies the sampling ratio
+(measured FWHM vs pixel scale) and PSF stability, and the stage runs only
+when the data supports it, with the dataset recipe as the explicit
+override in both directions. Keep the measured set-03 SKIP as its removal
+condition. m74_toa130 (0.72"/px, 94 min) is the test case, and its
+`imx585c/reference/` master is the honest comparison target. Still no
+third option: BlurXTerminator is paid + x86-64 + AVX; Cosmic Clarity
+ships no aarch64 binary (its MIT source + ONNX models could be wrapped
+like StarNet2 if ever needed).
 
 ### C5 — Add ASTAP as a fast offline solver complement
 
-`solve_field.py` (blind astrometry.net from peak centroids) is the RIGHT and
-necessary solver for this rig's ultra-wide trailed fields — ASTAP's own docs
-disqualify it there (verified July 2026, hnsky.org "Conditions required for
-solving": "Stars streaks due to tracking errors or severe optical distortion
-will be ignored and solving could fail"; its wide-field W08 database is
-mag-8-limited). But ASTAP v2026.06.29 (free) ships a **native aarch64
-headless CLI** (`astap_cli`, 298 kB zip) with the D50/D05 databases, and for
-NARROWER, round-star fields (a TOA-130 galaxy at ~0.7″/px) it is faster,
-simpler, fully offline, and needs no astrometry.net index download. Add ASTAP
-as an optional solver backend chosen per field (or auto by field width from
-the header), with `solve_field.py` retained as the fallback for wide/trailed
-frames. Its Johnson/Bessel photometry is also an SPCC-adjacent color check
-worth capturing.
+**CONDITIONAL — do not implement on convenience.** The solve stage runs
+once per dataset and caches its WCS; a second solver backend adds
+divergence surface (two code paths, two failure modes) for no capability
+gain while `solve_field.py` keeps solving every class on disk (wide
+trailed blind; narrow fields with a position hint). The trigger that
+makes this real is a MEASURED solve failure — a dataset class the
+current path cannot solve at all (not "grinds without a hint") — and the
+entry then earns implementation with that dataset as its test case.
 
-For the OTHER end — the 41° wide_50mm class where even blind astrometry.net
-needed a position hint against wide-lens distortion — the candidate worth a
-trial is **tetra3/cedar-solve** (ESA lost-in-space solver, default database
-10–30° FOV, solves from centroids in milliseconds on Pi-class ARM).
+Research retained for that day: ASTAP is disqualified for this rig's
+wide trailed fields by its own docs (verified July 2026, hnsky.org:
+"Stars streaks due to tracking errors or severe optical distortion will
+be ignored and solving could fail"; the W08 wide database is
+mag-8-limited), but ASTAP v2026.06.29 ships a native aarch64 headless
+CLI (`astap_cli`, 298 kB) with D50/D05 databases — faster, simpler, and
+fully offline for narrow round-star fields; its Johnson/Bessel
+photometry is an SPCC-adjacent colour check worth capturing. For the
+opposite end (the 41° class where blind solving needed a position hint
+against wide-lens distortion), the trial candidate is tetra3/cedar-solve
+(ESA lost-in-space solver, 10–30° FOV database, centroid-based,
+milliseconds on Pi-class ARM).
 
 ### C6 — Combine multi-filter channels (LRGB, narrowband palettes, dual-band OSC)
 
@@ -222,6 +241,20 @@ is N independent per-filter stacks that must be combined.
   the R photosites at half size — the docs' quality path stacks Ha with 2×
   drizzle rather than interpolating), then the per-line stacks combine as
   above. This is an ingest-path fork, not a render-side one.
+
+**Architecture (ratified direction): composition is a STACK-LEVEL
+product, not a render feature.** Per-filter sets stay ordinary sets
+(filter identity is already per-directory); a new convergence stage
+registers the per-filter stacks to one reference and emits ONE composed
+linear image that the existing render chain consumes unchanged. The
+per-target facts — member sets, channel roles (R/G/B/L/Hα/OIII/SII),
+palette, extraction params — live in a tracked composition record beside
+the per-set state, with the same degrade-loudly rule: no composition
+record → the member sets render individually exactly as today. New
+inspection metric: channel-registration residual on the composed stack.
+Palette aesthetics go to the user's eyes; channel assignment and
+narrowband-mode SPCC are objective. This is the largest capability gap
+between the pipeline and "any astro data" — first in the pick-up order.
 
 Test data: `siril-m8m20/` (ASI2600MC OSC HOO+L-Pro, author's finished
 masters as the answer key) is on disk; the mono corpus (`colonnello-m20/`
@@ -262,6 +295,24 @@ Bars: aura_lum within bound on set-03, 100% field-star flux + knot
 preservation on M74, byte-determinism, and like-encoding panels for anything
 that changes an approved look.
 
+### C9 — Per-frame quality assessment stage (measure what the data is)
+
+The pipeline reads acquisition METADATA at preflight but never measures
+the per-frame QUALITY distribution — the SubframeSelector/weighting step
+of the standard workflow, and the literal "assess the data before
+processing it" stage. Siril already writes per-frame FWHM/roundness into
+the registration `.seq` (inspect_stage parses that file for shifts);
+extend the parse and add an INS stage after registration reporting the
+distribution — FWHM median + spread, roundness, background level drift
+across the sequence — with per-frame outliers flagged. Policy stays
+measured: culling/weighting remain OFF by default (the wFWHM no-op is a
+set-03 fact at 6% spread, not a law); a dataset whose measured spread
+justifies it gets a one-knob ladder via its recipe. Feeds: deconvolution
+eligibility (C4: sampling ratio + PSF stability), the acquisition
+checklist feedback loop (drift and passing clouds become visible per
+frame), and honest per-class decisions everywhere a "the data supports
+X" question arises. **Blocks:** C4 (eligibility inputs).
+
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 
 Siril's docs now position GHS as the most capable stretch ("rarely advisable"
@@ -271,7 +322,7 @@ to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 control vs `autoghs` variants) on two datasets of different classes —
 pure aesthetics, user's eyes decide; no bake without approval.
 
-### C11 — Gate sky scope on emission-flooded frames (scope change; needs ratification)
+### C11 — Redesign the colour gate as chain-added colour (ratified direction)
 
 On a frame whose every block carries real emission (siril-m8m20 `lpro_180s`:
 M8/M20 with the Sagittarius MW core filling the 2.5° field), the gate's
@@ -281,28 +332,38 @@ defect: the render fails ONLY colour (22.0 vs limit 7; gradient 2.0, blotch
 2.2, rings 3.2 all pass, shells +2.2). The author's own finished RGB of the
 same data reads colour 65.4 / gradient 27.7 through the same gate — the
 field is coloured at every luminance level; a ≤7 sky-colour bar is
-structurally unreachable there without destroying real signal.
+structurally unreachable there without destroying real signal. Leaving the
+class permanently un-baselineable is also unacceptable: the no-regression
+suite would be blind to an entire data class.
 
-The gate stays as-is until a SCOPE decision is ratified (thresholds never
-loosen; this is not a threshold question). The first candidate — exclude
-`extended_object_mask` regions from the COLOUR grading blocks — is
-MEASURED DEAD on the motivating case: the mask covers only 14% of this
-frame (the bright cores; the diffuse Hα carrying the colour sits below
-the smoothed 4σ envelope) and drops just 3 of 529 sky blocks, leaving
-colour at 22.0 unchanged; on the five passing references it moves
-nothing (lmc 6.0→5.0 the only delta). Do not re-propose it. A viable
-candidate must either classify the emission-flooded field itself (e.g.
-from measured sky-block chroma statistics → colour reported as INFO for
-the class) or accept colour-FAIL as this class's honest verdict (no
-baseline possible). Either is a user ratification, not a code default.
+**Ratified direction:** the colour gate's question becomes "did the CHAIN
+ADD colour the calibrated data does not have?" — a process gate, not a
+neutrality demand. SPCC provides a star-grounded colour reference in the
+linear stack; grade the render's sky colour as DIVERGENCE from the
+calibrated stack's own colour at matched locations, one-sided (added
+chroma fails; noise-chroma the corings removed toward neutral does not).
+Honest Hα then passes on any field while a chain-introduced cast fails
+everywhere. Implementation care: the stretch is nonlinear, so compare
+chroma at matched luminance levels (or push the reference through the
+same stretch) — design the comparison so it cannot be gamed by the
+stretch itself.
 
-Independent of scope: the colour excess is REAL SKY, not a calibration
-artifact — measured. Grounding SPCC in the true train response
-(`-oscsensor "Sony IMX571" -oscfilter "Optolong L-Pro"`) moves K by
-<=1.5% and the output by <=2.6e-4 p99 of full scale vs the sensor-null
-run, and rerunning SPCC on the BGE'd stack moves K_R by +0.3% with the
-same star set — the 22.0 colour number cannot be blamed on the
-calibration or the chain order.
+Two dead candidates, measured — do not re-propose: excluding
+`extended_object_mask` regions from the colour blocks (mask covers 14% of
+the motivating frame, drops 3/529 sky blocks, colour 22.0 unchanged;
+references move ≤1.0), and accepting permanent colour-FAIL for the class
+(blinds the regression suite).
+
+The switch LANDS only with calibration evidence presented to the user:
+the injected 8-count cast still FAILS, all currently-passing datasets
+still PASS, lpro_180s's honest colour passes — then lpro is baselined.
+Thresholds never loosen; this changes what colour MEASURES, with proof it
+still catches every defect it caught before.
+
+Context (measured): the 22.0 colour excess is REAL SKY, not a calibration
+artifact — grounding SPCC in the true train response moves K ≤1.5% and
+the output ≤2.6e-4 p99, and SPCC on the BGE'd stack moves K_R +0.3% —
+neither the calibration nor the chain order explains it.
 
 ### C12 — Measure the OSC calibration divergence between the raw and FITS paths
 

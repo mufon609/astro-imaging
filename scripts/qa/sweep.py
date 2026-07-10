@@ -14,7 +14,12 @@ stack exists on this machine:
 
   1. render with starcomb (knobs from the dataset recipe),
   2. GATE: the starless render must PASS bg_qa — thresholds never loosen,
-  3. star shells: aura_lum must sit inside its WARN bound,
+  3. star shells: aura_lum must NOT WORSEN vs the recorded baseline
+     (regression semantics — a clean dataset rotting from +2.0 toward the
+     defect class fails long before any absolute line). The absolute
+     audit WARN bound applies only when no baseline number exists, and
+     recording a baseline above that bound requires --ack-aura-warn, so
+     the tolerance cannot ratchet a dataset over the bound unnoticed,
   4. declared-delta detector: every metric is diffed against the recorded
      baseline; drift is REPORTED (a delta is expected under a declared
      change, a silent one is the bug),
@@ -54,12 +59,40 @@ import astrometrics as am  # noqa: E402
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 AURA_BOUND = am.STAR_SHELL_WARN["aura_lum"]
+# Aura no-regression tolerance vs the recorded baseline. The metric's
+# calibrated separation is fixed recipe +2.0 vs defect era +12.0, and its
+# rendering-context sensitivity is ±0.5 (measured: a 128 px frame trim
+# alone moves it +0.5 through the top-500 anchor population, no shell
+# physics involved) — so 0.5 sits above context wiggle and far below the
+# smallest real step toward the defect class. A slow ratchet across
+# rebaselines is capped by the --ack-aura-warn refusal at the audit bound.
+AURA_WORSEN_TOL = 0.5
 # gate + shell numbers the sweep records and diffs, pulled from starcomb's
 # metrics dict: (json section, key)
 TRACKED = [("qa_starless", "color"), ("qa_starless", "grad"),
            ("qa_starless", "resid"), ("qa_starless", "ring_l"),
            ("qa_starless", "floor"), ("star_shells", "aura_lum"),
            ("star_shells", "shell_chroma")]
+
+
+def aura_verdict(aura, bl_aura):
+    """Shell-audit regression check: (ok, note). Baseline-relative — FAIL
+    only when the render's aura WORSENS beyond AURA_WORSEN_TOL vs the
+    recorded baseline (an improvement or small context wiggle passes; a
+    clean +2.0 dataset rotting to +3.5 fails even though it is under the
+    absolute audit bound). Without a baseline number the absolute audit
+    WARN bound is the only available reference."""
+    if aura is None:
+        return True, None
+    if bl_aura is None:
+        if aura <= AURA_BOUND:
+            return True, None
+        return False, (f"aura {aura:+.1f} > {AURA_BOUND} "
+                       "(audit bound; no baseline aura)")
+    if aura <= bl_aura + AURA_WORSEN_TOL:
+        return True, None
+    return False, (f"aura worsened {bl_aura:+.1f} -> {aura:+.1f} "
+                   f"(tol {AURA_WORSEN_TOL})")
 
 
 def sha256(path, bufsize=1 << 20):
@@ -145,6 +178,10 @@ def main():
                          "fresh runs to be byte-identical")
     ap.add_argument("--keep", action="store_true",
                     help="keep the sweep render artifacts")
+    ap.add_argument("--ack-aura-warn", action="store_true",
+                    help="allow --rebaseline to record an aura_lum above "
+                         "the audit WARN bound — a deliberate, "
+                         "acknowledged decision, never a default")
     args = ap.parse_args()
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
@@ -206,11 +243,13 @@ def main():
         notes = []
         gate_ok = bool(met["qa_starless"]["pass"])
         aura = met["star_shells"]["aura_lum"]
-        aura_ok = aura is None or aura <= AURA_BOUND
+        bl_aura = bl.get("metrics", {}).get("star_shells.aura_lum") \
+            if bl else None
+        aura_ok, aura_note = aura_verdict(aura, bl_aura)
         if not gate_ok:
             notes.append("GATE FAIL")
-        if not aura_ok:
-            notes.append(f"aura {aura:+.1f} > {AURA_BOUND}")
+        if aura_note:
+            notes.append(aura_note)
 
         if args.determinism:
             met2 = render_once(session, set_name, stack_rel, False,
@@ -241,6 +280,17 @@ def main():
             if drift:
                 notes.append("drift: " + ", ".join(drift))
 
+        refused = False
+        if rebase and aura is not None and aura > AURA_BOUND \
+                and not args.ack_aura_warn:
+            # recording a baseline above the audit WARN bound must be a
+            # deliberate act, or the worsening tolerance could ratchet a
+            # dataset over the bound one rebaseline at a time
+            notes.append(f"REBASELINE REFUSED: aura {aura:+.1f} over the "
+                         f"audit WARN {AURA_BOUND} — pass --ack-aura-warn "
+                         "to record it deliberately")
+            rebase = False
+            refused = True
         if rebase:
             new_bl = {
                 "_readme": "Measured no-regression record — written by "
@@ -265,7 +315,7 @@ def main():
                 json.dump(new_bl, f, indent=1)
             notes.append("REBASELINED")
 
-        ok = gate_ok and aura_ok and \
+        ok = gate_ok and aura_ok and not refused and \
             not any(n.startswith("NONDETERMINISTIC") or n == "2nd render FAILED"
                     for n in notes)
         verdict = "PASS" if ok else "FAIL"
