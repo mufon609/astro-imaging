@@ -1,0 +1,16 @@
+{
+  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "dataset": "siril-m8m20/hoo_180s",
+  "status": "provisional",
+  "render": {},
+  "spcc": {
+    "narrowband": true,
+    "rwl": 656.28,
+    "gwl": 500.7,
+    "bwl": 500.7
+  },
+  "notes": {
+    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
+    "solve": "same field and hint as the lpro set (M8/M20): solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
+  }
+}

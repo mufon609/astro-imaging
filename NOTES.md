@@ -55,8 +55,15 @@ never let it grow narrative.
   - `siril-m8m20` — OSC-CFA + dual-band class. `lpro_180s` processed
     (no baseline: gate colour scope decision pending); SPCC
     sensor-grounding AND SPCC-vs-BGE order both measured immaterial on
-    it (knob table). The mono multi-filter corpus (colonnello-m20 RGB,
-    mlnoga-ngc7635 SHO) is off-disk; re-stage via
+    it (knob table). `hoo_180s` processed through the COMPOSITION
+    machinery (design section): 20/20 both lines, channel alignment
+    0.589 px, narrowband SPCC K R0.127, gate colour 26.0 scope-FAIL
+    (same emission-flooded class as lpro) with all achromatic metrics
+    PASS (grad 1.5 / blotch 1.6 / rings 5.2, aura +1.0), render
+    byte-deterministic; look UNJUDGED — judgment package vs the
+    author's finished HOO in results/judgment_hoo_*/; no baseline until
+    the colour-scope redesign lands. The mono multi-filter corpus
+    (colonnello-m20 RGB, mlnoga-ngc7635 SHO) is off-disk; re-stage via
     `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
   STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
@@ -138,6 +145,31 @@ L): 47/47 registered, gate PASS (colour 0.0, gradient 0.5, blotch 0.1, rings
 is optional in practice (ASIAIR writes none): an absent filter normalizes to
 `-` on both lights and flats, so they match; filter identity then rests on
 the directory staging.
+
+**Dual-band OSC composition (`composition.json` + `compose.py`)** — a set
+whose composition record is kind `dualband-osc` calibrates the CFA mosaic
+(no debayer — the lines live on distinct photosites), splits each frame
+into its emission lines (`seqextract_HaOIII -resample=oiii`: Ha native
+half-size from the R photosites, XPIXSZ doubling keeps the header-derived
+solve hint correct; OIII downsampled to the same size so NO channel
+carries invented detail), registers BOTH line sequences to the same
+mid-sequence reference frame — the channels must overlay without a second
+interpolation pass, and that is MEASURED, not assumed: star-centroid
+residual between composed channels prints every compose and lands in the
+inspection report (bound 1.0 px; hoo_180s measured 0.589 median / 0.968
+p95 — the ~0.5 px floor is the R-vs-G/B CFA phase offset plus independent
+per-line transform fits) — then stacks per line and composes R/G/B per
+the palette mapping into `stack_<set>_comp.fit`. The composed stack
+enters the ordinary flow: solve (the half-size header solves clean) →
+SPCC `-narrowband` with per-channel wavelengths from the recipe (hoo:
+656.28/500.7/500.7 nm → K R0.127/G1.000/B1.000 on 2641 stars; the
+narrowband mode measurably changes the fit vs broadband-null, R 0.127 vs
+0.130, and G≡B falls out of the identical synthesized filters) → render
+unchanged. The full-size path (native Ha + 2× drizzle) is the BACKLOG
+upgrade, gated on measured dither coverage. No composition record → the
+set processes as an ordinary single stack (a dual-band set then debayers
+like broadband: legal, but its lines stay merged — the record encodes the
+data's goal).
 
 **Self-flat branch (flatless sets)** — median of UNREGISTERED
 calibrated frames (drifting stars self-reject) → per-frame planar glow
@@ -267,6 +299,7 @@ data class may WARN legitimately — revisit bounds there, don't ignore.
 | divided | p2v(r≤0.85) ≤ 0.20; rim(r>0.9) ≤ 0.25 |
 | registration | registered/total ≥ 0.9 |
 | stack | dark-sky p2v ≤ 0.20 on the statistical sky (a frame-filling object doesn't read as a defect); stars ≥ 300; noise/median, median16, sky_frac all INFO (ratios to an arbitrary pedestal / data-class facts) |
+| compose | median star-centroid offset between composed channels ≤ 1.0 px (the lines must overlay without a second interpolation pass); p95 INFO |
 
 ## DEAD ENDS — never re-attempt (each killed by measurement)
 

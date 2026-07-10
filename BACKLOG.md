@@ -215,52 +215,47 @@ against wide-lens distortion), the trial candidate is tetra3/cedar-solve
 (ESA lost-in-space solver, 10–30° FOV database, centroid-based,
 milliseconds on Pi-class ARM).
 
-### C6 — Combine multi-filter channels (LRGB, narrowband palettes, dual-band OSC)
+### C6 — Combine multi-filter channels: the mono per-filter kinds
 
-The FITS ingest reads and normalizes the `FILTER` header and matches flats to
-lights by filter, so a single-filter mono set (luminance) processes end to end.
-What is missing is the CONVERGENCE step: a target shot through several filters
-is N independent per-filter stacks that must be combined.
+The composition machinery is LIVE for dual-band OSC (`composition.json`
+kind `dualband-osc` → per-line stacks → `compose.py` palette compose →
+narrowband SPCC → unchanged render; NOTES design section carries the
+measured numbers). What remains is the mono per-filter side — a target
+shot through a filter WHEEL, where each channel comes from DIFFERENT
+frames (no same-frame registration luxury):
 
-- **Register every filter's stack to ONE common reference** (siril global
-  registration takes `-extref=<file>`), so channels overlay pixel-for-pixel and
-  composition needs no second interpolation pass.
-- **Broadband LRGB:** combine R/G/B, run SPCC on the RGB **only**, stretch
-  LINKED, then apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB
-  combination is a nonlinear-space operation (CIE L*a*b*), the
-  linear-combine shortcut is wrong per PixInsight doctrine and the Siril book.
-- **Narrowband palettes:** assign channels with `pm`: SHO = SII→R, Ha→G,
-  OIII→B; HOO = Ha→R, OIII→G+B; `rmgreen` after Ha→G mappings. CORRECTED
-  against Siril 1.4.4 docs (July 2026): "SPCC never on narrowband" is
-  outdated — SPCC has a dedicated **narrowband mode** (`-narrowband
-  -rwl/-gwl/-bwl + bandwidths`, filters synthesized in siril; for HOO set the
-  two OIII channels to the same wavelength). Palette AESTHETICS still go to
-  the user's eyes; the narrowband-mode calibration itself is objective.
-- **Dual-band OSC (the siril-m8m20 case):** extraction happens in
-  PREPROCESSING, per frame, from the CFA data (`seqextract_HaOIII`; Ha from
-  the R photosites at half size — the docs' quality path stacks Ha with 2×
-  drizzle rather than interpolating), then the per-line stacks combine as
-  above. This is an ingest-path fork, not a render-side one.
+- **Cross-set channel registration:** register every filter's stack to
+  ONE common reference (siril global registration takes `-extref=<file>`)
+  so channels overlay without a second interpolation pass; the compose
+  stage's channel-alignment inspection (bound 1.0 px) already measures
+  the result and generalizes as-is.
+- **`composition.json` kind `mono-filters`:** members are sibling SETS
+  (one per filter) with channel roles R/G/B/L or SHO; `compose.py` grows
+  the kind but keeps its contract (palette mapping in, one composed
+  linear out, residual measured).
+- **Broadband LRGB:** compose R/G/B, SPCC the RGB only, stretch LINKED,
+  apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB combination
+  is a nonlinear-space operation (CIE L*a*b*); the linear-combine
+  shortcut is wrong per PixInsight doctrine and the Siril book. This is
+  the one piece the current compose-then-render flow cannot express (L
+  joins post-stretch, inside the render) — design it against the render
+  chain, not around it.
+- **SHO palettes:** channel assignment objective, `rmgreen` after Ha→G
+  mappings, SPCC narrowband mode with per-channel wavelengths (already
+  plumbed through the recipe). Palette aesthetics go to the user's eyes.
 
-**Architecture (ratified direction): composition is a STACK-LEVEL
-product, not a render feature.** Per-filter sets stay ordinary sets
-(filter identity is already per-directory); a new convergence stage
-registers the per-filter stacks to one reference and emits ONE composed
-linear image that the existing render chain consumes unchanged. The
-per-target facts — member sets, channel roles (R/G/B/L/Hα/OIII/SII),
-palette, extraction params — live in a tracked composition record beside
-the per-set state, with the same degrade-loudly rule: no composition
-record → the member sets render individually exactly as today. New
-inspection metric: channel-registration residual on the composed stack.
-Palette aesthetics go to the user's eyes; channel assignment and
-narrowband-mode SPCC are objective. This is the largest capability gap
-between the pipeline and "any astro data" — first in the pick-up order.
+Also carried here: the dual-band FULL-SIZE upgrade (native half-size Ha
+stacked with 2× drizzle instead of downsampling OIII — the docs' quality
+path) — gated on MEASURED dither coverage of the set; and cross-geometry
+judgment packaging (pipeline render vs an answer key at a different
+scale) recurs with every author-master corpus — worth promoting from the
+one-off script into `judgment_crops.py` when the mono corpus lands.
 
-Test data: `siril-m8m20/` (ASI2600MC OSC HOO+L-Pro, author's finished
-masters as the answer key) is on disk; the mono corpus (`colonnello-m20/`
-RGB wheel, `mlnoga-ngc7635/` SHO) is off-disk — re-stage with
-`~/.cache/astro_recovery/fetch_corpus.sh`. Sources + license terms are
-recorded in `.gitignore`, layout caveats in SESSIONS.md.
+Test data: the mono corpus (`colonnello-m20/` RGB wheel,
+`mlnoga-ngc7635/` SHO) is off-disk — re-stage with
+`~/.cache/astro_recovery/fetch_corpus.sh`; each ships the author's
+finished masters as an answer key. Sources + license terms are recorded
+in `.gitignore`, layout caveats in SESSIONS.md.
 
 ### C7 — Deduplicate the FITS I/O and MTF-solve helpers
 

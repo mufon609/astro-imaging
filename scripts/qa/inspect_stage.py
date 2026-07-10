@@ -75,10 +75,14 @@ EXPECTATIONS = {
         "bg_median16": (None, None, "INFO: normalized stack level — a normalization and site fact, not a defect"),
         "sky_frac": (None, None, "INFO: fraction of frame graded as sky after the dark-sky and extended-object cuts; an object-dominated field reads low — that is the data class"),
     },
+    "compose": {
+        "chan_align_px": (None, 1.0, "median star-centroid offset between composed channels — the lines must overlay without a second interpolation pass; measured by compose.py on the composed stack"),
+        "chan_align_p95_px": (None, None, "INFO: p95 of the same offsets — outlier tail (field-edge distortion residue)"),
+    },
 }
 
 ORDER = ["calibrated", "selfflat_median", "subsky_frame", "gain", "divided",
-         "registration", "stack"]
+         "registration", "stack", "compose"]
 
 
 def check(stage, metric, value):
@@ -278,6 +282,15 @@ def parse_seq_shifts(seqfile):
         return None
 
 
+def handle_compose(args):
+    d = args.dir
+    os.makedirs(d, exist_ok=True)
+    checks = [check("compose", "chan_align_px", args.resid),
+              check("compose", "chan_align_p95_px", args.p95)]
+    emit(d, {"stage": "compose", "label": None, "inputs": [],
+             "checks": checks})
+
+
 def handle_reg(args):
     d = args.dir
     os.makedirs(d, exist_ok=True)
@@ -428,6 +441,11 @@ def main():
                         "auto-pick chose it)")
     r.add_argument("--sweep", default=None)
     r.add_argument("--seq", default=None)
+    c = sub.add_parser("compose", parents=[ctxp])
+    c.add_argument("--dir", required=True)
+    c.add_argument("--resid", type=float, required=True,
+                   help="median channel-registration residual, px")
+    c.add_argument("--p95", type=float, default=None)
     p = sub.add_parser("report", parents=[ctxp])
     p.add_argument("--dir", required=True)
     p.add_argument("--title", default=None)
@@ -439,6 +457,8 @@ def main():
         handle_stage(args)
     elif args.cmd == "reg":
         handle_reg(args)
+    elif args.cmd == "compose":
+        handle_compose(args)
     else:
         handle_report(args)
 

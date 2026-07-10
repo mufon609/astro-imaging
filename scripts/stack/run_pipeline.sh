@@ -127,6 +127,31 @@ _fits_flat_master() {
     echo "close"; } > "$W/fits_flat.gen.ssf"
   siril_run "$W/fits_flat.gen.ssf"
 }
+# Dual-band OSC lights: calibrate the CFA mosaic (no debayer — the lines
+# live on distinct photosites), split each frame into its emission lines
+# (Ha from the R sites at half size; -resample=oiii brings OIII to the
+# same half size so neither channel carries invented detail), then
+# register BOTH line sequences to the SAME mid-sequence reference frame
+# (same-ref by construction — the composed channels must overlay without
+# a second interpolation pass) and stack each line. $1 = flat option.
+_fits_dualband() {
+  local MIDX="$2"
+  { echo "requires 1.4.0"; echo "set16bits"
+    echo "cd $SET"; echo "convert light -out=../work"
+    echo "cd ../work"
+    echo "calibrate light -dark=masters/dark_master $1 -cc=dark 3 3 -cfa"
+    echo "seqextract_HaOIII pp_light -resample=oiii"
+    echo "setref Ha_pp_light $MIDX"
+    echo "register Ha_pp_light"
+    echo "setref OIII_pp_light $MIDX"
+    echo "register OIII_pp_light"
+    echo "set32bits"
+    echo "stack r_Ha_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_${SET}_Ha"
+    echo "stack r_OIII_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_${SET}_OIII"
+    echo "close"; } > "$W/fits_dualband.gen.ssf"
+  siril_run "$W/fits_dualband.gen.ssf" | tee "$W/lights_run.log"
+}
+
 # lights: calibrate -> 2-pass register -> rejection stack. $1 = cfa/debayer
 # flags (empty for mono), $2 = flat option (empty when no usable flat).
 _fits_lights() {
@@ -218,20 +243,68 @@ fits_ingest() {
   local NF F1 FM FN
   NF=$(fits_glob "$S/$SET" | wc -l)
   F1=$(printf '%05d' 1); FM=$(printf '%05d' $(( (NF + 1) / 2 ))); FN=$(printf '%05d' "$NF")
-  echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
-  _fits_lights "$CFAOPT" "$FLATOPT"
-  INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
-  local rn
-  rn=$(reg_count "$W/lights_run.log")
-  if [[ -n "$rn" ]]; then
-    echo "=== registration: $rn/$NF frames (2-pass auto reference) ==="
-    INS reg --registered "$rn" --total "$NF" --seq "$W/pp_light_.seq"
-  else
-    echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
-    tail -5 "$W/lights_run.log" >&2
+
+  # Composition record (datasets/<session>/<set>/composition.json) drives a
+  # convergence build: a dual-band OSC set splits into per-line stacks and
+  # composes them. No record -> the ordinary single-stack path (a dual-band
+  # set then debayers like broadband: legal, but its lines stay merged —
+  # the record is what encodes the data's goal).
+  local COMP COMP_KIND=""
+  COMP="$REPO/datasets/$SESSION/$SET/composition.json"
+  if [[ -f "$COMP" ]]; then
+    COMP_KIND=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('kind',''))" "$COMP")
+    echo "composition: $COMP_KIND ($COMP)"
   fi
-  INS stage stack --in "$S/results/stack_$SET.fit"
-  rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
+
+  if [[ "$COMP_KIND" == "dualband-osc" ]]; then
+    [[ "$lmono" == "1" ]] && { echo "ERROR: composition kind dualband-osc but $SET is mono (no CFA to split)" >&2; exit 1; }
+    local MID=$(( (NF + 1) / 2 ))
+    echo "=== lights: calibrate + extract Ha/OIII + register (ref $MID) + stack $SET ($NF frames) ==="
+    _fits_dualband "$FLATOPT" "$MID"
+    INS stage calibrated --in "$W/Ha_pp_light_$F1.fit" "$W/Ha_pp_light_$FM.fit" "$W/Ha_pp_light_$FN.fit" --label Ha
+    INS stage calibrated --in "$W/OIII_pp_light_$F1.fit" "$W/OIII_pp_light_$FM.fit" "$W/OIII_pp_light_$FN.fit" --label OIII
+    # two register runs in one log -> per-line counts, in order
+    local RCOUNTS
+    mapfile -t RCOUNTS < <(tr '\r' '\n' < "$W/lights_run.log" \
+      | grep -oE 'Total: [0-9]+ failed, [0-9]+ registered' \
+      | grep -oE '[0-9]+ registered' | grep -oE '[0-9]+')
+    if [[ ${#RCOUNTS[@]} -eq 2 ]]; then
+      echo "=== registration: Ha ${RCOUNTS[0]}/$NF, OIII ${RCOUNTS[1]}/$NF (ref $MID) ==="
+      INS reg --registered "${RCOUNTS[0]}" --total "$NF" --ref "$MID" --seq "$W/Ha_pp_light_.seq"
+      INS reg --registered "${RCOUNTS[1]}" --total "$NF" --ref "$MID" --seq "$W/OIII_pp_light_.seq"
+    else
+      echo "WARNING: expected 2 registration summaries, parsed ${#RCOUNTS[@]} (siril format change?) — tail:" >&2
+      tail -8 "$W/lights_run.log" >&2
+    fi
+    INS stage stack --in "$S/results/stack_${SET}_Ha.fit" --label Ha
+    INS stage stack --in "$S/results/stack_${SET}_OIII.fit" --label OIII
+    echo "=== compose: per-line stacks -> composed linear ==="
+    python3 "$REPO/scripts/stack/compose.py" "$SESSION" "$SET" | tee "$W/compose_run.log"
+    local CR
+    CR=$(grep -oE 'COMPOSE_RESID [0-9.]+ [0-9.]+' "$W/compose_run.log" | tail -1) || true
+    if [[ -n "$CR" ]]; then
+      INS compose --resid "$(awk '{print $2}' <<<"$CR")" --p95 "$(awk '{print $3}' <<<"$CR")"
+    else
+      echo "WARNING: compose emitted no COMPOSE_RESID line" >&2
+    fi
+    rm -f "$W"/light_* "$W"/pp_light_* "$W"/Ha_pp_light_* "$W"/OIII_pp_light_* \
+          "$W"/r_Ha_pp_light_* "$W"/r_OIII_pp_light_*
+  else
+    echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
+    _fits_lights "$CFAOPT" "$FLATOPT"
+    INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
+    local rn
+    rn=$(reg_count "$W/lights_run.log")
+    if [[ -n "$rn" ]]; then
+      echo "=== registration: $rn/$NF frames (2-pass auto reference) ==="
+      INS reg --registered "$rn" --total "$NF" --seq "$W/pp_light_.seq"
+    else
+      echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
+      tail -5 "$W/lights_run.log" >&2
+    fi
+    INS stage stack --in "$S/results/stack_$SET.fit"
+    rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
+  fi
 }
 
 # Data-class fork: a set of dedicated-camera FITS frames takes the FITS ingest

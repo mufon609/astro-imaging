@@ -25,6 +25,7 @@ follows, in order — linear until step 6:
 |---|---|---|---|
 | 1 | calibrate (bias/dark/flat) → register → integrate | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack | COMPLIANT (matched darks/biases; flats when optics match) |
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
+| 1c | dual-band OSC: extract the emission lines per frame from the CFA, stack per line, compose (the standard Ha/OIII extraction workflow) | `composition.json` (kind `dualband-osc`) routes the ingest: `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line registration → per-line stacks → `compose.py` palette compose → narrowband SPCC | COMPLIANT (the docs' 2× drizzle full-size variant is a BACKLOG upgrade; mono filter-wheel combine still BACKLOG) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | GraXpert BGE + `subsky 1`, star-ful (`starcomb bge_first`) | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder) |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC on the un-BGE'd stack is measured harmless (K moves ≤0.3% on the strongest-gradient field on hand — NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
@@ -158,13 +159,18 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
   starsep, bg_qa CLI, inspect_stage, judgment_crops, measure_stack,
   solve_field). No file: foreground **none** (whole frame is eligible sky).
   A new set NEVER inherits another set's foreground silently.
-- `recipe.json` — the render knobs. starcomb resolves CLI > recipe >
-  GENERIC and prints the provenance; a dataset with no recipe renders
-  data-class-blind generic and says so. An **approved** recipe pins every
-  knob so a later generic-default change cannot silently restyle it.
+- `recipe.json` — the processing knobs: the `render` dict (starcomb
+  resolves CLI > recipe > GENERIC and prints the provenance; a dataset
+  with no recipe renders data-class-blind generic and says so) plus the
+  optional `spcc` spec (sensor/filter names or narrowband wavelengths,
+  same resolution order in `spcc_run.py`). An **approved** recipe pins
+  every knob so a later generic-default change cannot silently restyle it.
 - `baseline.json` — the measured no-regression record (pinned stack sha,
   expected gate/shell numbers, artifact hashes), written only by
   `scripts/qa/sweep.py --rebaseline`.
+- `composition.json` — only for multi-line/multi-filter targets: how the
+  composed linear stack is BUILT (kind, extraction, lines, palette
+  channel mapping). Absent = ordinary single-stack set.
 
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
@@ -216,7 +222,8 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, and auto-routes flatless sets to the self-flat branch |
+| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, auto-routes flatless sets to the self-flat branch, and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
+| `compose.py` | the convergence stage: per-line stacks → ONE composed linear colour stack per the composition record's palette mapping; measures the channel-alignment residual (inspected, bound 1.0 px) |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
@@ -263,7 +270,8 @@ live in NOTES "Environment" + auto-memory.
   work/                                  masters, caches, generated scripts
   results/                               stacks, renders, exp_*/, inspect_*/
 datasets/<session>/<set>/                tracked per-dataset state: geometry.json,
-                                         recipe.json, baseline.json (see datasets/README.md)
+                                         recipe.json, baseline.json, composition.json
+                                         (see datasets/README.md)
 scripts/                                 the pipeline (tracked)
 SESSIONS.md                              dataset registry (what's been processed)
 ```

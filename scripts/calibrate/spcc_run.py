@@ -5,6 +5,8 @@ Usage: spcc_run.py <session> <set> [--in=<fits>] [--out=<fits>]
                    [--catalog=localgaia] [--tag=<suffix>]
                    [--oscsensor=<name>] [--oscfilter=<name>]
                    [--whiteref=<name>]
+                   [--narrowband=true --rwl=<nm> --gwl=<nm> --bwl=<nm>
+                    [--rbw/--gbw/--bbw=<nm>]]
 
 SPCC's measured white-balance factors (K per channel) are printed only in
 siril's log; they record what the raw stack's balance actually was (the raw
@@ -41,11 +43,14 @@ import time
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
-SPEC_KEYS = ("oscsensor", "oscfilter", "whiteref")
+NAME_KEYS = ("oscsensor", "oscfilter", "whiteref")   # database names (quoted)
+NB_KEYS = ("narrowband", "rwl", "gwl", "bwl",        # narrowband mode: flag +
+           "rbw", "gbw", "bbw")                      # wavelengths/bandwidths
+SPEC_KEYS = NAME_KEYS + NB_KEYS
 
 
 def resolve_spec(opts, session, set_name):
-    """Sensor spec per key: CLI > recipe.json "spcc" > none. Returns
+    """SPCC spec per key: CLI > recipe.json "spcc" > none. Returns
     ({key: value}, {key: source}) with only the keys that resolved."""
     repo = os.path.dirname(os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))))
@@ -62,6 +67,22 @@ def resolve_spec(opts, session, set_name):
         elif k in recipe:
             spec[k], prov[k] = recipe[k], "recipe"
     return spec, prov
+
+
+def spcc_extra_args(spec):
+    """Spec dict -> siril `spcc` argument string. Database names are
+    quoted (spaces); `narrowband` is a bare flag; wavelengths/bandwidths
+    are plain numerics."""
+    parts = []
+    for k in NAME_KEYS:
+        if k in spec:
+            parts.append(f'"-{k}={spec[k]}"')
+    if spec.get("narrowband") in (True, "true", "1", 1):
+        parts.append("-narrowband")
+    for k in NB_KEYS[1:]:
+        if k in spec:
+            parts.append(f"-{k}={spec[k]}")
+    return "".join(" " + p for p in parts)
 
 
 def main():
@@ -83,8 +104,7 @@ def main():
     os.makedirs(work, exist_ok=True)
 
     tag = f"_{opts['tag']}" if opts.get("tag") else ""
-    spcc_args = f"-catalog={catalog}" + "".join(
-        f' "-{k}={spec[k]}"' for k in SPEC_KEYS if k in spec)
+    spcc_args = f"-catalog={catalog}" + spcc_extra_args(spec)
     rel_in = os.path.relpath(p_in, sdir)
     rel_out = os.path.relpath(p_out, sdir)
     ssf = os.path.join(work, f"spcc_{set_name}{tag}.gen.ssf")
