@@ -172,6 +172,11 @@ def ensure_bge_linear(ctx):
                      "subsky 1",
                      f"save {rel_out[:-4]}",
                      "close"], "starcomb_bgelin.gen.ssf")
+    # the GraXpert intermediate is consumed the moment bgelin exists —
+    # per-stage cleanup (200-450 MB per dataset on this disk); a cold
+    # rebuild regenerates it from the stack deterministically
+    if os.path.exists(out) and os.path.exists(gx):
+        os.remove(gx)
     return out
 
 
