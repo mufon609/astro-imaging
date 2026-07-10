@@ -1,10 +1,34 @@
 {
-  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
   "dataset": "nikon-test/lmc_180mm",
-  "status": "provisional",
-  "render": {},
+  "status": "approved",
+  "render": {
+    "starless_target": 0.07,
+    "starless_denoise": "off",
+    "sep_prom": 6.0,
+    "sep_engine": "net",
+    "chroma_core": 4.0,
+    "lum_core": 2.0,
+    "core_order": "pre",
+    "stretch_linked": "linked",
+    "satu": 0.2,
+    "cull_pct": 50.0,
+    "stars_peak": 0.97,
+    "stars_anchor": "catalog",
+    "stars_floor": 3.0,
+    "black_point": 8.0,
+    "jpg_quality": 100,
+    "jpg_subsampling": 0,
+    "noise_anchor_k": null
+  },
   "notes": {
+    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed this target's object chroma -31..-50% (A/B probe R-G -16.4 -> -8.2; the final render doubles back to -17.5 with off) and smeared the blotchy blue/white galaxy body the user reported — off restores the subtle nebula dust detail at gate PASS (colour 6.0 / grad 2.3 / blotch 1.5 / rings 5.4)",
     "red_halo": "the bright-star red halo is the Sigma-180-wide-open veiling-glare signature (R-G plateau +4..+5 counts r~6-38; absent on the same body at 50 mm f/4) — USER VERDICT: honest gear data, never de-fringe it in the render; the fix is acquisition (stop down)",
     "chroma_core": "the generic k=4 was the user's pick on this set's k=0/2/4 ladder (neutral look); it does mute some real H-alpha colour on bright targets — re-ladder only with a hypothesis"
+  },
+  "approved": {
+    "date": "2026-07-10",
+    "judgment": "results/judgment_lmc_denoise_20260710 (denoise-off vs vstpost control; full-frame lossless pairs)",
+    "note": "approved for the same reason as the M20 fix: vst was destroying moderate-contrast object colour class-wide"
   }
 }

@@ -314,15 +314,21 @@ Siril's docs now position GHS as the most capable stretch ("rarely advisable"
 to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 `-clipmode=rgbblend` unclipped highlights). The current chain uses linked MTF
 `autostretch` + significance corings. MEASURED MOTIVATION (deep-data
-classes, user-flagged across targets): the MTF chain buries faint
-extended signal AND blows star tops in one move — a 5.1σ linear shell
-renders at +5.7 display counts vs a reference finish's +36 (sky floor 7
-vs 21), while like-scale star peaks read 3.1% ≥250 / p99 255 vs their
-0% / 200. GHS's toe+shoulder decouples exactly those two ends; the
-black_point / stars_peak ladders are the interim per-knob fixes. Run a
-like-encoding ladder (autostretch control vs `autoghs` variants) on two
-datasets of different classes — pure aesthetics, user's eyes decide; no
-bake without approval.
+classes, user-flagged across targets; user calls the fix foundational):
+the single-midtone MTF mis-serves BOTH ends of high-DR data at once —
+a 5.1σ linear shell renders at +5.7 display counts vs a reference
+finish's +40.7 (sky floor 7 vs 22); the bright-core structure/grain
+ratio collapses 5.58 (linear) → 1.07 through the stretch (grain ×150,
+structure ×29 — the object's mid-tones land on the flattened shoulder)
+and the core sits at 6/255 above sky where the reference allocates
+33–57/255 to the same structure; like-scale star peaks read 3.1% ≥250
+/ p99 255 vs their 0% / 200 with a dimmer faint field. The floor/top
+single-knob ladders were judged (generic wins — black_point cannot move
+above-sky contrast, linear-shift invariance; stars_peak fixes tops only
+at a faint-field cost). GHS's toe+shoulder is the structural answer to
+all of it. Run a like-encoding ladder (autostretch control vs `autoghs`
+variants) on two datasets of different classes — pure aesthetics,
+user's eyes decide; no bake without approval.
 
 ### C11 — Redesign the colour gate as chain-added colour (ratified direction)
 
@@ -380,11 +386,14 @@ document the measured reason they differ.
 
 ### C13 — Decide the canonical final orientation (research the norm first)
 
-Both composed products are parity-MIRRORED against the solved sky
+The composed products are parity-MIRRORED against the solved sky
 (det(CD) > 0; root cause: top-down camera FITS carrying no ROWORDER
 keyword, ingested under siril's bottom-up default — self-consistent
-everywhere downstream, so only the solve can see it), while both
-data-author references publish sky-true. `solve_field` now prints and
+everywhere downstream, so only the solve can see it), while ALL THREE
+data-author references publish sky-true (the SHO author's finish
+verified vertically mirrored vs our render by flip-correlation 0.185
+vs 0.081 direct — an eyeball same-orientation call had it wrong once,
+so verify parity numerically, never visually). `solve_field` now prints and
 records parity on every solve, so the fact is never hidden. RESEARCH
 FIRST: what the publication norm actually is (sky-true parity vs
 camera-native; AAVSO/professional conventions vs amateur practice),

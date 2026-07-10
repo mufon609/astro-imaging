@@ -7,27 +7,27 @@
  "rebuild": "python3 scripts/render/starcomb.py nikon-test lmc_180mm --stack nikon-test/results/stack_lmc_180mm_norgbeq_spcc.fit --lossless",
  "metrics": {
   "qa_starless.color": 6.0,
-  "qa_starless.grad": 2.5796190342853578,
-  "qa_starless.resid": 1.4611148313167952,
-  "qa_starless.ring_l": 4.777777777777775,
+  "qa_starless.grad": 2.3216464006283823,
+  "qa_starless.resid": 1.4935384030836565,
+  "qa_starless.ring_l": 5.444444444444443,
   "qa_starless.floor": 7.0,
-  "star_shells.aura_lum": 2.0,
+  "star_shells.aura_lum": 2.75,
   "star_shells.shell_chroma": 12.972749710083008
  },
  "gate_pass": true,
  "artifact_sha256": {
-  "jpg": "831521d740ff86ec8209185eee3dad267fe3e8620a6af31be67709be60426e1e",
-  "png": "9f1e85b7cc8e3a9c6d9d4b203450360be7e9d48dd5c8c6978a4a9e0b3f71ce13",
-  "png16": "fd959d83a8df7a01950a0bb32a3c648d30efef1cd4a6ecb38c348f284896e7f0",
-  "starless_jpg": "a6fbb2d68297fe0cd7726b930b8b0e77ebbf4e362f2519a4af0379adfe543ead",
-  "starless_png": "21c140fe2edc82d2b539c55a3b8aab9aa588bd7c50039ccbb227d4d9e061fd67",
-  "starless_png16": "cf569f314da23fb977b8a114236e15ae98740dd681303d7561c80cad7cc73ed4"
+  "jpg": "2e404760413d9e8b19c47aaada0a38e18104fbeb41c65bebf53b46b8d6870318",
+  "png": "79fae412068f528b8cacceecb285d6f8c6bf5880baceffd8713d3de0081cf7f3",
+  "png16": "45abe289286e761bd171b1b0f5116669a312129aeade6ec5383633c584fa16f1",
+  "starless_jpg": "cda21c89d4b783d9150612388a369fb074de3815cf59071e0daf934bf3045d91",
+  "starless_png": "c3cb381377c2e2f462ff7f2ba6f93e0b081a0410e3a78f8bb989f50e8803fa0c",
+  "starless_png16": "635faf121507a39badf8e369708e4aff7a904d1e311d9d2c305a7f0f070bf72c"
  },
  "recipe": {
   "starless_target": 0.07,
-  "starless_denoise": "vstpost",
+  "starless_denoise": "off",
   "sep_prom": 6.0,
-  "sep_engine": "auto",
+  "sep_engine": "net",
   "chroma_core": 4.0,
   "lum_core": 2.0,
   "core_order": "pre",
@@ -42,6 +42,6 @@
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-10 00:40:11",
- "git": "79f7ddf"
+ "date": "2026-07-10 15:22:36",
+ "git": "a0b230e"
 }

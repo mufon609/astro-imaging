@@ -1,10 +1,34 @@
 {
-  "_readme": "Provisional recipe (deliverable rendered, look not user-approved). Tracks GENERIC except the pins below.",
+  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
   "dataset": "nikon-test/smc_180mm",
-  "status": "provisional",
-  "render": {},
+  "status": "approved",
+  "render": {
+    "starless_target": 0.07,
+    "starless_denoise": "off",
+    "sep_prom": 6.0,
+    "sep_engine": "net",
+    "chroma_core": 4.0,
+    "lum_core": 2.0,
+    "core_order": "pre",
+    "stretch_linked": "linked",
+    "satu": 0.2,
+    "cull_pct": 50.0,
+    "stars_peak": 0.97,
+    "stars_anchor": "catalog",
+    "stars_floor": 3.0,
+    "black_point": 8.0,
+    "jpg_quality": 100,
+    "jpg_subsampling": 0,
+    "noise_anchor_k": null
+  },
   "notes": {
-    "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted — satu stays generic 0.2",
-    "sep_engine": "generic (auto -> net when weights installed). The recorded deliverable used inpaint; a net re-render is a declared delta on an unapproved look."
+    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst crushed this target's object chroma -47..-50% (the hardest-hit dataset; A/B probe R-G -18.5 -> -9.3; the final render doubles back to -23.4 with off) — off restores it at gate PASS (colour 4.0 / grad 0.9 / blotch 1.2 / rings 1.7)",
+    "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted — satu stays generic 0.2; re-judge the OIII region post-vst-fix before any new satu hypothesis",
+    "sep_engine": "net pinned with the approval (the approved surfaces are net renders; the earlier provisional deliverable used inpaint)"
+  },
+  "approved": {
+    "date": "2026-07-10",
+    "judgment": "results/judgment_smc_denoise_20260710 (denoise-off vs vstpost control; full-frame lossless pairs)",
+    "note": "approved for the same reason as the M20 fix: vst was destroying moderate-contrast object colour class-wide"
   }
 }

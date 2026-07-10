@@ -48,15 +48,15 @@ never let it grow narrative.
     Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5
     counts r≈6–38; absent on the same body at 50 mm f/4): honest optical
     data — a render-side de-fringe would fabricate lens performance, so
-    the fix is acquisition (stop down). MEASURED (vst A/B probe on the
-    cached starless): the post-stretch vst crushes the object chroma
-    −31…−50% (R−G −16.4→−8.2, −10.5→−7.2) — the M20 class defect.
-    HYPOTHESIS (pre-registered): `starless_denoise off` restores it at
-    gate PASS; ladder pending user judgment (declared delta +
-    rebaseline on approval).
-  - `nikon-test/smc_180mm` — processed, gate PASS. Same vst probe:
-    object chroma −47…−50% (R−G −18.5→−9.3, −15.4→−8.1) — the hardest
-    hit yet; same pre-registered off-ladder pending judgment.
+    the fix is acquisition (stop down). **Look APPROVED 2026-07-10 +
+    rebaselined**: `starless_denoise off` pinned (vst crushed the
+    object chroma −31…−50%, R−G −16.4→−8.2; off doubles it back to
+    −17.5 at gate PASS and restores the dust detail — the user's
+    blotchy blue/white body fixed).
+  - `nikon-test/smc_180mm` — **look APPROVED 2026-07-10 + rebaselined**:
+    `starless_denoise off` pinned (the hardest-hit dataset, chroma
+    −47…−50%, R−G −18.5→−9.3; off doubles it back to −23.4 at gate
+    PASS).
   - `nikon-test/wide_50mm` — processed, gate PASS (self-flat class —
     vstpost's home turf, no probe indication).
   - `imx585c/m74_toa130` — processed (mono FITS class). The session dir
@@ -111,10 +111,16 @@ never let it grow narrative.
     GHS entry's case). (b) `stars_peak` 0.85/0.90/0.97 — CONFIRMED for
     the top: like-scale peaks ≥250 fall 2.3% → 1.2% → 0.9% (reference
     0.0%), p99 255 → 253 → 247 (reference 200), halo 1.88 → 1.11 →
-    0.92; cost: the faint field dims further (the reference lifts
-    faint stars AND caps tops — a compressive stars transfer, shape
-    not anchor). Packages pending user judgment; knobs stay per-recipe
-    until judged.
+    0.92; cost: the faint field dims further. JUDGED 2026-07-10: the
+    generic control wins both ladders — no floor/top pin. The
+    reference gap is STRETCH SHAPE, stage-measured on the bright core:
+    linear structure/grain 5.58 collapses to 1.07 through the MTF
+    (grain ×150 vs structure ×29; vst and separation exonerated, leak
+    0.000) and the core renders at 6/255 above sky where the reference
+    allocates 33–57/255 — the GHS entry carries all numbers as the
+    structural fix. Reference-comparison note: the author's finish is
+    vertically MIRRORED vs our render (flip-correlation 0.185 vs 0.081
+    direct) — all three corpus authors publish sky-true.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
