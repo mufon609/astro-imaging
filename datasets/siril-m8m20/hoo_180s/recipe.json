@@ -1,8 +1,25 @@
 {
-  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
   "dataset": "siril-m8m20/hoo_180s",
-  "status": "provisional",
-  "render": {},
+  "status": "approved",
+  "render": {
+    "starless_target": 0.07,
+    "starless_denoise": "vstpost",
+    "sep_prom": 6.0,
+    "sep_engine": "net",
+    "chroma_core": 4.0,
+    "lum_core": 2.0,
+    "core_order": "pre",
+    "stretch_linked": "linked",
+    "satu": 0.2,
+    "cull_pct": 50.0,
+    "stars_peak": 0.97,
+    "stars_anchor": "catalog",
+    "stars_floor": 3.0,
+    "black_point": 8.0,
+    "jpg_quality": 100,
+    "jpg_subsampling": 0
+  },
   "spcc": {
     "narrowband": true,
     "rwl": 656.28,
@@ -12,5 +29,10 @@
   "notes": {
     "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
     "solve": "same field and hint as the lpro set (M8/M20): solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
+  },
+  "approved": {
+    "date": "2026-07-09",
+    "judgment": "results/judgment_hoo_20260709_223314 (vs the data author: full pair + ha_core/oiii_region/dark_sky crops)",
+    "note": "no-regression baseline BLOCKED on the colour-gate redesign (emission-flooded class fails colour by scope, achromatic metrics clean); record it when that lands"
   }
 }

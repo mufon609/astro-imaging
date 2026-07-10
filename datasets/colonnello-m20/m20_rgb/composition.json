@@ -1,0 +1,19 @@
+{
+  "_readme": "Composition record for a VIRTUAL target (no lights dir of its own): the members are sibling per-filter sets, each stacked by the ordinary mono path; compose.py aligns them to the reference member and composes (contract: datasets/README.md).",
+  "target": "colonnello-m20/m20_rgb",
+  "kind": "mono-filters",
+  "members": {
+    "R": "lights_Red",
+    "G": "lights_Green",
+    "B": "lights_Blue"
+  },
+  "reference": "G",
+  "channels": {
+    "R": "R",
+    "G": "G",
+    "B": "B"
+  },
+  "notes": {
+    "reference": "G stays un-interpolated (the identity transform); R and B carry the single alignment pass. G is also the perceptually dominant channel, so the pristine one is the one the eye weighs most."
+  }
+}

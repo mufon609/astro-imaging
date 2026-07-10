@@ -60,9 +60,9 @@ never let it grow narrative.
     0.589 px, narrowband SPCC K R0.127, gate colour 26.0 scope-FAIL
     (same emission-flooded class as lpro) with all achromatic metrics
     PASS (grad 1.5 / blotch 1.6 / rings 5.2, aura +1.0), render
-    byte-deterministic; look UNJUDGED — judgment package vs the
-    author's finished HOO in results/judgment_hoo_*/; no baseline until
-    the colour-scope redesign lands. The mono multi-filter corpus
+    byte-deterministic; look APPROVED 2026-07-09 vs the author's
+    finished HOO (recipe pins every knob); baseline still blocked on
+    the colour-scope redesign. The mono multi-filter corpus
     (colonnello-m20 RGB, mlnoga-ngc7635 SHO) is off-disk; re-stage via
     `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected

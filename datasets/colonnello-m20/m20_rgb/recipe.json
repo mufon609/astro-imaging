@@ -1,0 +1,10 @@
+{
+  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "dataset": "colonnello-m20/m20_rgb",
+  "status": "provisional",
+  "render": {},
+  "notes": {
+    "spcc": "broadband RGB from a mono filter wheel — SPCC runs sensor-null on the composed stack (the generic default; grounding measured immaterial on the one chip with a database curve)",
+    "solve": "M20/Trifid field; if the blind solve grinds on the narrow field, hint: solve_field.py --ra=270.6 --dec=-23.0 --radius-deg=10"
+  }
+}
