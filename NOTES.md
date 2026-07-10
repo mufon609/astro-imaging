@@ -140,6 +140,18 @@ never let it grow narrative.
     work if the direction wins. Judgment packages pending
     (judgment_sho_ghs_* + judgment_lmc_ghs_*); stretch_mode stays
     generic mtf and all four approved recipes pin mtf explicitly.
+    **OPEN DEFECT (user; supersedes the ghs judgment on this target):
+    the Bubble's central sphere is MISSING from our renders while the
+    author's finish shows it crisply** — measured: the sphere is in
+    the linear data, STRONGEST in O3 (rim/surround 4.29 vs Ha 3.00;
+    interior O3/Ha 0.24 vs surround 0.11) but 4–9× below Ha in
+    absolute flux, so the single linked stretch renders the Ha image
+    and the corings neutralize the sphere's hue. Candidate root cause
+    is ARCHITECTURAL (the standard SHO chain stretches lines
+    separately before palette combination; compose-then-one-linked-
+    stretch cannot lift a weak line) — full record + screenshot paths
+    in the dataset recipe's OPEN_DEFECT note; next session's priority,
+    no workarounds.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected

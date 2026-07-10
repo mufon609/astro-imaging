@@ -39,3 +39,7 @@ __pycache__/
 # app-ngc292 (SMC mono LRGB, Christian Sasse): excluded from the corpus;
 # at most a stager marker exists here, never data to commit.
 /app-ngc292/
+
+# Root-level images are user judgment screenshots (working files, never repo data)
+/*.png
+/*.jpg
