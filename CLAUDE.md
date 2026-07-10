@@ -18,10 +18,12 @@ in NOTES STATUS — trust it over anything here.
   The sandbox has home/host access but **its own private /tmp**: `.ssf`
   scripts MUST live under $HOME (repo `scripts/` or `<session>/work/`),
   never /tmp or a scratchpad.
-- Kali linux arm64, 4 cores, 7.7 GB RAM, ~20-25 GB free disk. The disk
-  is why intermediates are 16-bit with per-stage cleanup (quantization
-  measured ≈18× below per-frame noise → ~+0.3% stack noise: negligible)
-  and why big FITS get pruned once their numbers are recorded.
+- Kali linux arm64, 4 cores, 7.7 GB RAM, tight disk (single ~118 GB
+  volume shared with everything else — check `df` at session start;
+  it has run as low as ~6 GB free). The disk is why intermediates are
+  16-bit with per-stage cleanup (quantization measured ≈18× below
+  per-frame noise → ~+0.3% stack noise: negligible) and why big FITS
+  get pruned once their numbers are recorded.
 - Host python3: numpy + scipy + PIL, **no astropy** (equatorial→galactic
   is a fixed 3×3 in `scripts/lib/astrometrics.py`), no rawpy.
 - GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise only, no star
@@ -51,9 +53,10 @@ in NOTES STATUS — trust it over anything here.
   pre-registered in NOTES BEFORE the run. A measurement that kills a
   hypothesis becomes a dead-end entry WITH ITS NUMBERS before anything
   else is tried.
-- **The gate never loosens** (`bg_qa.py --sky-scope` thresholds; scope
-  changes need explicit user ratification). Corridor/star-shell/clip0
-  metrics are REPORTED or WARN context — never silently gated.
+- **The gate never loosens** (`bg_qa.py`'s statistical sky-scope
+  thresholds; scope changes need explicit user ratification).
+  Star-shell/clip0 metrics are REPORTED or WARN context — never
+  silently gated.
 - **Aesthetic changes need the user's eyes** on judgment panels before
   any bake; objective fixes with pass/fail metrics may commit. Compare
   renders in LIKE encodings (a q92 4:2:0 jpg hides chroma a PNG shows).

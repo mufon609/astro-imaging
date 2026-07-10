@@ -7,7 +7,7 @@ about a dataset lives here, keyed `datasets/<session>/<set>/`:
 | file | role | consumed by |
 |---|---|---|
 | `geometry.json` | per-set composition facts: terrestrial `foreground` (rect \| npz `mask` path, session-relative), `judgment_crops`, optional `starsep` overrides | `astrometrics.configure()` in every product entry point |
-| `recipe.json` | the render knobs for this dataset (`render` dict, same names as starcomb's GENERIC table) + `status` (`approved` \| `provisional`) + `approved` provenance + per-knob `notes` | `starcomb.resolve_recipe()` — resolution is CLI > recipe > GENERIC, printed per run |
+| `recipe.json` | the processing knobs for this dataset: `render` dict (same names as starcomb's GENERIC table), optional `spcc` dict (`oscsensor`/`oscfilter`/`whiteref` — names from siril `spcc_list`; absent = sensor-null, the generic default), `status` (`approved` \| `provisional`) + `approved` provenance + per-knob `notes` | `starcomb.resolve_recipe()` and `spcc_run.py` — resolution is CLI > recipe > GENERIC, printed per run |
 | `baseline.json` | the recorded no-regression target: pinned stack identity (sha256), rebuild command, expected gate/shell metrics, artifact hashes; written by `sweep.py --rebaseline`, never by hand | `scripts/qa/sweep.py` |
 
 Rules (the same contract as README "How a change is accepted"):

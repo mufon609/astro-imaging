@@ -311,6 +311,17 @@ def _inspect_stage(ctx, name, arr, stretched, note=""):
     print(f"[inspect-render] {name}: bg {bg:.5f} sigma {sig:.6f}")
 
 
+def _stage_line(name, arr):
+    """Always-on one-line stage metric (bg / sigma / p99 of G): every
+    transform that mutates the image reports itself, so a defect in a
+    final render localizes to a stage from the normal run's log alone
+    (--inspect adds the per-stage JPEGs on top)."""
+    g = arr[min(1, arr.shape[0] - 1)]
+    bg, sig = am.bg_stats(g)
+    p99 = float(np.percentile(g[::4, ::4], 99))
+    print(f"[starcomb] {name}: bg {bg:.5f} sigma {sig:.6f} p99 {p99:.5f}")
+
+
 def render_config(ctx, cfg, jpg_out):
     """Run one configuration; returns metrics dict (also writes jpg)."""
     sdir, work = ctx["sdir"], ctx["work"]
@@ -375,6 +386,9 @@ def render_config(ctx, cfg, jpg_out):
         starless_st = np.repeat(starless_st, 3, axis=0)
         print("[starcomb] mono stack -> luminance render "
               "(chroma_core / satu skipped: no colour)")
+    _stage_line(f"stretch [{cfg.get('stretch_linked')} "
+                f"{cfg['starless_target']:g} + {cfg['starless_denoise']}]",
+                starless_st)
     _inspect_stage(ctx, "starless_stretch", starless_st, True,
                    f"autostretch {cfg.get('stretch_linked')} "
                    f"{cfg['starless_target']} + {cfg['starless_denoise']}")
@@ -527,6 +541,7 @@ def render_config(ctx, cfg, jpg_out):
         mean = out.mean(axis=0, keepdims=True)
         out = np.clip(mean + (1.0 + s) * (out - mean), 0.0, 1.0)
         print(f"[starcomb] satu {s}: chroma gain on the combined render")
+    _stage_line(f"combine [screen + satu {cfg.get('satu')}]", out)
     _inspect_stage(ctx, "combine", out, True,
                    f"screen combine + satu {cfg.get('satu')}")
     u8 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)

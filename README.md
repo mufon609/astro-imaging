@@ -26,7 +26,7 @@ follows, in order — linear until step 6:
 | 1 | calibrate (bias/dark/flat) → register → integrate | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack | COMPLIANT (matched darks/biases; flats when optics match) |
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | GraXpert BGE + `subsky 1`, star-ful (`starcomb bge_first`) | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder) |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly (`rgb_equal` removed 2026-07-07, user-approved); spcc rerun measured pixel-deterministic. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC on the un-BGE'd stack is measured harmless (K moves ≤0.3% on the strongest-gradient field on hand — NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. A recipe pins the engine only on measurement (one exists: wide_50mm, where net fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
@@ -90,8 +90,8 @@ it, each answering a question it can actually answer:
    twice on the same stack — cold caches included — and the artifacts are
    byte-identical. This is a property of the CODE (no hidden RNG, no thread
    nondeterminism; measured: GraXpert BGE, the ONNX net and siril's
-   autostretch/denoise all reproduce bit-exactly, and the one unseeded step
-   the chain used to carry, `subsky -dither`, was removed for exactly this
+   autostretch/denoise all reproduce bit-exactly, and the chain carries no
+   unseeded step — `subsky` runs without `-dither` for exactly this
    reason). Verify with `scripts/qa/sweep.py --determinism`. A STACK is
    exempt — its register sweep is non-deterministic; verify a stack by the
    gate + inspection.
@@ -157,8 +157,8 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
-so there is no MW corridor to configure or derive. That geometric band was a
-set-03-specific bandaid that broke on an object-dominated field.
+so no galactic band or object region is ever configured per set (a bright
+object has no fixed geometry a mask could scope — see NOTES dead ends).
 
 Foreground masks for non-rectangular compositions (treelines) are derived
 from the linear stack: `scripts/geometry/suggest_foreground.py <stack>

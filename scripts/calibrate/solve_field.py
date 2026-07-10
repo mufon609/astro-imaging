@@ -3,6 +3,7 @@
 
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
                      [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
+                     [--field-width-arcmin=<N>]
 
 Why this exists: Siril's internal solver cannot match this rig's ultra-wide
 trailed-star fields (its online cone caps at ~2.5 deg, and with the local
@@ -122,17 +123,22 @@ def detect_stars(path, central=None):
     return stars, h, w
 
 
-def scale_hint(path):
+def scale_hint(path, width_arcmin=None):
     """Pixel-scale hint (arcsec/px) from the FITS header (siril propagates
-    FOCALLEN + XPIXSZ from EXIF). A hard-coded scale range fits only one
-    rig/focal — 26-40"/px missed a 24mm field (~44-51"/px), which could
-    never solve. Returns (lo, hi) or None (blind)."""
+    FOCALLEN + XPIXSZ from EXIF), or from an explicit --field-width-arcmin.
+    A hard-coded scale range fits only one rig/focal — 26-40"/px missed a
+    24mm field (~44-51"/px), which could never solve. Returns (lo, hi) or
+    None (blind)."""
     import re
     try:
         raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
-        fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-        px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-        s = 206.265 * px / fl   # center scale, arcsec/px
+        if width_arcmin is not None:
+            nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
+            s = width_arcmin * 60.0 / nx
+        else:
+            fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+            px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+            s = 206.265 * px / fl   # center scale, arcsec/px
         # wide envelope: wide-angle projection + integer-mm EXIF wobble
         return (0.6 * s, 1.5 * s)
     except (AttributeError, ValueError, OSError):
@@ -158,21 +164,32 @@ _SCALE_ARCMIN = {
 _SCALE_FALLBACK = {13, 14, 15, 16, 17, 18, 19}
 
 
-def scale_set(path):
+def scale_set(path, width_arcmin=None):
     """Index scales to load, derived from the field width (arcsec/px x
-    NAXIS1) so any focal length can solve. Falls back to the wide-field
-    set when the header lacks FOCALLEN/XPIXSZ. set-03 (55 deg) -> {13..19}
-    (the proven set); a 500 mm field (~4 deg) -> {6..14}, which the fixed
-    set could not."""
+    NAXIS1, or an explicit --field-width-arcmin) so any focal length can
+    solve. set-03 (55 deg) -> {13..19} (the proven set); a 500 mm field
+    (~4 deg) -> {6..14}, which a fixed set could not. When the header
+    lacks FOCALLEN/XPIXSZ and no width is given, the WIDE-FIELD scales
+    are all that can be loaded (loading every scale grinds) — that
+    fallback cannot solve a narrow field, so it warns loudly and names
+    the override."""
     import re
-    try:
-        raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
-        fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-        px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-        nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
-    except (AttributeError, ValueError, OSError):
-        return set(_SCALE_FALLBACK)
-    w_arcmin = 206.265 * px / fl * nx / 60.0      # field width, arcmin
+    w_arcmin = width_arcmin
+    if w_arcmin is None:
+        try:
+            raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
+            fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+            px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
+            nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
+            w_arcmin = 206.265 * px / fl * nx / 60.0
+        except (AttributeError, ValueError, OSError):
+            print("[solve_field] WARNING: header has no FOCALLEN/XPIXSZ and "
+                  "no --field-width-arcmin given — falling back to the "
+                  f"WIDE-FIELD index scales {sorted(_SCALE_FALLBACK)} "
+                  "(~3-33 deg quads). A narrow (telescope) field CANNOT "
+                  "solve on these; pass --field-width-arcmin=<true field "
+                  "width> to load the right scales.")
+            return set(_SCALE_FALLBACK)
     lo, hi = 0.07 * w_arcmin, 1.0 * w_arcmin      # quads ~7-100% of the field
     sel = {s for s, (a, b) in _SCALE_ARCMIN.items() if b >= lo and a <= hi}
     return sel or set(_SCALE_FALLBACK)
@@ -198,8 +215,8 @@ def solve(stars, hint=None, scales=None, pos=None):
             # Stop at the first astronomically-confident match instead of
             # grinding every quad of every loaded scale. Field-derived
             # scale sets can be large (dense low scales for narrow fields),
-            # and CONTINUE-to-exhaustion made even a 55-deg field
-            # minutes-slow once scale 12 was added. logodds 100 = odds
+            # and CONTINUE-to-exhaustion makes even a 55-deg field
+            # minutes-slow with dense low scales in the set. logodds 100 = odds
             # ~1e43, far above both the ~20.7 default solve floor and the
             # 115-373 these blind solves reach — never stops on a spurious
             # match. The solver hands the callback the running list of match
@@ -263,6 +280,8 @@ def main():
         import astrometrics as am
         am.configure(opts["session"], opts["set"], quiet=True)
     central = float(opts["central"]) if "central" in opts else None
+    width_arcmin = (float(opts["field-width-arcmin"])
+                    if "field-width-arcmin" in opts else None)
     pos = None
     if "ra" in opts and "dec" in opts:
         pos = (float(opts["ra"]), float(opts["dec"]),
@@ -270,7 +289,9 @@ def main():
     stars, h, w = detect_stars(src, central=central)
     print(f"[solve_field] {len(stars)} peak-detected stars"
           + (f" (central {central:g} of frame)" if central else ""))
-    m = solve(stars, hint=scale_hint(src), scales=scale_set(src), pos=pos)
+    hint = scale_hint(src, width_arcmin)
+    scales = scale_set(src, width_arcmin)
+    m = solve(stars, hint=hint, scales=scales, pos=pos)
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")
@@ -282,6 +303,25 @@ def main():
     if "inject" in opts:
         inject(src, opts["inject"], wcs, m.logodds)
         print(f"[solve_field] wrote {opts['inject']} (WCS-injected copy)")
+    # durable per-solve record next to the session's other capture files
+    # (spcc_run writes work/spcc_<set>.json; a wrong solve needs the same
+    # after-the-fact trail: what was detected, hinted, loaded, and found)
+    stem = os.path.splitext(os.path.basename(src))[0]
+    wdir = os.path.normpath(os.path.join(os.path.dirname(src), "..", "work"))
+    if not os.path.isdir(wdir):
+        wdir = os.path.dirname(src) or "."
+    rec = {"input": src, "n_stars_detected": len(stars),
+           "central": central, "position_hint": pos,
+           "field_width_arcmin_arg": width_arcmin,
+           "scale_hint_arcsec_px": list(hint) if hint else None,
+           "index_scales": sorted(scales),
+           "ra_deg": m.center_ra_deg, "dec_deg": m.center_dec_deg,
+           "scale_arcsec_px": m.scale_arcsec_per_pixel,
+           "logodds": m.logodds,
+           "injected": opts.get("inject")}
+    p_rec = os.path.join(wdir, f"solve_{stem}.json")
+    json.dump(rec, open(p_rec, "w"), indent=1)
+    print(f"[solve_field] record -> {p_rec}")
 
 
 if __name__ == "__main__":

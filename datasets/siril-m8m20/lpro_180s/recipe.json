@@ -4,8 +4,8 @@
   "status": "provisional",
   "render": {},
   "notes": {
-    "solve": "blind solve grinds on this 2.5-degree field (narrow-field index scales); solve with the position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10 (the ASTAP complement in BACKLOG is the structural fix for narrow fields)",
-    "spcc": "sensor-null K R0.370/G0.912/B1.000 on 1862/5014 stars — the strong R down-scale is the L-Pro passband on an Ha-rich field; this chip (Sony IMX571) has a real profile in the SPCC database, the -oscsensor ladder is the C2 test case",
+    "solve": "blind solve grinds on this 2.5-degree field (narrow-field index scales); solve with the position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10 (an offline narrow-field solver complement, BACKLOG, is the structural fix)",
+    "spcc": "sensor-null K R0.370/G0.912/B1.000 on 1862/5014 stars — the strong R down-scale is the L-Pro passband on an Ha-rich field. Grounding SPCC in the real train (-oscsensor 'Sony IMX571' -oscfilter 'Optolong L-Pro') is measured IMMATERIAL on this class: K deltas <=1.5%, output pixel deltas p50 <=5e-6 / p99 <=2.6e-4 of full scale — the null default stands, nothing pinned.",
     "filters": "no FILTER keywords in any header: filter identity is directory-only; flats/ and darkflats/ are per-set staging symlinks (flats_lpro, biases)"
   }
 }

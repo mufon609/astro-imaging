@@ -6,7 +6,7 @@
     "sep_engine": "inpaint"
   },
   "notes": {
-    "sep_engine": "inpaint pinned on measurement: the net engine FAILS the gate on this 41-degree MW-dominated self-flat field (gradient 9.0 > 8, rings 9.0 > 8, aura +5.0 > 4.0) while inpaint PASSES (6.4 / 4.2) — the net starless keeps large-scale residual structure + bright-star shells on this data class. No resolved object is in frame, so inpaint's structure-destruction failure mode cannot fire. Re-measure when a newer separation model lands (BACKLOG: highlight-protection-era StarNet2 weights / Zenith / Dark Star).",
+    "sep_engine": "inpaint pinned on measurement: the net engine FAILS the gate on this 41-degree MW-dominated self-flat field (gradient 9.0 > 8, rings 9.0 > 8, aura +5.0 > 4.0) while inpaint PASSES (6.4 / 4.2) — the net starless keeps large-scale residual structure + bright-star shells on this data class. No resolved object is in frame, so inpaint's structure-destruction failure mode cannot fire. Re-measure when a newer separation model lands (BACKLOG: StarNet2 weights with highlight protection / Zenith / Dark Star).",
     "solve": "blind plate-solve fails on this 41-degree field's wide-lens edge distortion; solved via solve_field.py --central=0.25 --ra=186.7 --dec=-62.2 --radius-deg=15 (region read off a first no-WCS render)"
   }
 }

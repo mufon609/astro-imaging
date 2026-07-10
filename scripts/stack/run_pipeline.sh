@@ -27,6 +27,16 @@ siril_run() { # absolute script path
   flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$1"
 }
 
+# Last sequence-op summary count from a captured siril log ("Total: N
+# failed, M registered"). Prints the registered count, or NOTHING when the
+# pattern is absent — callers must treat an empty result as "parser found
+# no summary" (siril output format change / aborted run), never as 0.
+reg_count() {
+  tr '\r' '\n' < "$1" \
+    | grep -oE 'Total: [0-9]+ failed, [0-9]+ registered' | tail -1 \
+    | grep -oE '[0-9]+ registered' | grep -oE '[0-9]+' || true
+}
+
 # Per-run inspection dir: every stage drops a consistent-stretch JPEG +
 # metrics (PASS/WARN vs the NOTES.md expectations table); the run assembles
 # them into index.html at the end. Inspection failures warn but never abort.
@@ -128,7 +138,7 @@ _fits_lights() {
     echo "set32bits"
     echo "stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"
-  siril_run "$W/fits_lights.gen.ssf"
+  siril_run "$W/fits_lights.gen.ssf" | tee "$W/lights_run.log"
 }
 
 fits_ingest() {
@@ -211,6 +221,15 @@ fits_ingest() {
   echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
   _fits_lights "$CFAOPT" "$FLATOPT"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
+  local rn
+  rn=$(reg_count "$W/lights_run.log")
+  if [[ -n "$rn" ]]; then
+    echo "=== registration: $rn/$NF frames (2-pass auto reference) ==="
+    INS reg --registered "$rn" --total "$NF" --seq "$W/pp_light_.seq"
+  else
+    echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
+    tail -5 "$W/lights_run.log" >&2
+  fi
   INS stage stack --in "$S/results/stack_$SET.fit"
   rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
 }
@@ -307,8 +326,16 @@ if [[ -n "$FLATOPT" ]]; then
   sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
       "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN_LIGHTS"
   echo "=== lights: calibrate + register + stack $SET ==="
-  siril_run "$GEN_LIGHTS"
+  siril_run "$GEN_LIGHTS" | tee "$W/lights_run.log"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
+  rn=$(reg_count "$W/lights_run.log")
+  if [[ -n "$rn" ]]; then
+    echo "=== registration: $rn/$NFRAMES frames (2-pass auto reference) ==="
+    INS reg --registered "$rn" --total "$NFRAMES" --seq "$W/pp_light_.seq"
+  else
+    echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
+    tail -5 "$W/lights_run.log" >&2
+  fi
   INS stage stack --in "$S/results/stack_$SET.fit"
 else
   # Self-flat path (see NOTES.md): median of unregistered calibrated frames
@@ -370,10 +397,13 @@ else
     } > "$GEN_REGISTER"
     siril_run "$GEN_REGISTER" | tee "$W/reg_attempt.log"
     last_ref=$ref
-    n=$(tr '\r' '\n' < "$W/reg_attempt.log" \
-        | grep -oE 'Total: [0-9]+ failed, [0-9]+ registered' | tail -1 \
-        | grep -oE '[0-9]+ registered' | grep -oE '[0-9]+' || echo 0)
-    echo "=== registration reference $ref: ${n:-0}/$NFRAMES frames ==="
+    n=$(reg_count "$W/reg_attempt.log")
+    if [[ -z "$n" ]]; then
+      echo "WARNING: no registration summary parsed for ref $ref (siril format change?) — tail:" >&2
+      tail -5 "$W/reg_attempt.log" >&2
+      n=0
+    fi
+    echo "=== registration reference $ref: $n/$NFRAMES frames ==="
     sweep_log+="$ref:${n:-0} "
     if (( n > best_n )); then best_n=$n; best_ref=$ref; fi
     (( n == NFRAMES )) && break

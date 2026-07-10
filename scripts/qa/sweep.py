@@ -169,6 +169,24 @@ def main():
                     stack_rel = cand
                     break
             stack_rel = stack_rel or f"results/stack_{set_name}.fit"
+            print(f"== {name}: first baseline — input resolved to "
+                  f"{stack_rel}")
+            if "_spcc" not in stack_rel:
+                # a 3-channel stack without an _spcc product is a colour
+                # set about to be baselined UN-colour-calibrated — legal
+                # for mono (SPCC has nothing to calibrate) but a mistake
+                # everywhere else, so say it before it is pinned
+                p = os.path.join(REPO, session, stack_rel)
+                if os.path.exists(p):
+                    import re as _re
+                    raw = open(p, "rb").read(2880 * 4).decode(
+                        "ascii", "replace")
+                    m3 = _re.search(r"NAXIS3\s*=\s*(\d+)", raw)
+                    if m3 and int(m3.group(1)) >= 3:
+                        print(f"== {name}: NOTICE — no _spcc stack found; "
+                              "this pins a 3-channel stack BEFORE colour "
+                              "calibration (solve + spcc_run first unless "
+                              "that is deliberate)")
         stack = os.path.join(REPO, session, stack_rel)
         if not os.path.exists(stack):
             print(f"== {name}: SKIP — stack {stack_rel} absent on this "

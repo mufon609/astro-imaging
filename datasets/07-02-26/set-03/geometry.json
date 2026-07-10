@@ -1,14 +1,39 @@
 {
-  "_readme": "Per-set composition facts consumed by astrometrics.configure(): the terrestrial foreground and the fixed judgment-crop boxes. The background gate selects its sky statistically (no corridor). Edit only with numbers (NOTES.md).",
+  "_readme": "Per-set composition facts consumed by astrometrics.configure(): the terrestrial foreground and the fixed judgment-crop boxes. The background gate selects its sky statistically. Edit only with numbers (NOTES.md).",
   "set": "set-03",
   "foreground": {
-    "rect": [0.0, 0.75, 0.22, 1.0],
+    "rect": [
+      0.0,
+      0.75,
+      0.22,
+      1.0
+    ],
     "_note": "tree branch, bottom-left (x0,y0,x1,y1 frame fractions)"
   },
   "judgment_crops": {
-    "mw_mid": [2500, 1300, 4500, 2700],
-    "lefttop": [0, 200, 2000, 1600],
-    "seam": [600, 2500, 2600, 3900],
-    "band": [3600, 300, 5600, 1700]
+    "mw_mid": [
+      2500,
+      1300,
+      4500,
+      2700
+    ],
+    "lefttop": [
+      0,
+      200,
+      2000,
+      1600
+    ],
+    "seam": [
+      600,
+      2500,
+      2600,
+      3900
+    ],
+    "band": [
+      3600,
+      300,
+      5600,
+      1700
+    ]
   }
 }

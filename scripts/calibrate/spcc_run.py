@@ -2,7 +2,9 @@
 """Run siril SPCC on a plate-solved stack and CAPTURE the K factors.
 
 Usage: spcc_run.py <session> <set> [--in=<fits>] [--out=<fits>]
-                   [--catalog=localgaia]
+                   [--catalog=localgaia] [--tag=<suffix>]
+                   [--oscsensor=<name>] [--oscfilter=<name>]
+                   [--whiteref=<name>]
 
 SPCC's measured white-balance factors (K per channel) are printed only in
 siril's log; they record what the raw stack's balance actually was (the raw
@@ -10,7 +12,17 @@ G channel runs ~1.5x hot: K G 0.656 vs R 1.000 on the reference stack, 509
 kept stars, the Bayer imbalance) and are the first thing to compare when a
 new stack of the same sky calibrates differently. This runner captures them
 so they survive: the full siril log lands in work/spcc_<set>.log and the
-parsed factors + stack identity in work/spcc_<set>.json.
+parsed factors + stack identity in work/spcc_<set>.json (--tag suffixes
+both, so an experiment run never overwrites the set's canonical record).
+
+The sensor/filter/white-reference spec resolves CLI > recipe > sensor-null
+and the provenance is printed. `datasets/<session>/<set>/recipe.json` may
+carry {"spcc": {"oscsensor": ..., "oscfilter": ..., "whiteref": ...}};
+names must match `spcc_list` entries (quote names with spaces on the CLI).
+With no spec anywhere, SPCC fits Gaia star colours against siril's default
+response — the generic sensor-null calibration (measured on the one chip
+with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
+p99, so null is the adequate default; NOTES knob table).
 
 Defaults: in results/stack_<set>_wcs.fit, out results/stack_<set>_spcc.fit
 (override both for non-default stems like stack_set-03_norgbeq_*).
@@ -29,6 +41,28 @@ import time
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
+SPEC_KEYS = ("oscsensor", "oscfilter", "whiteref")
+
+
+def resolve_spec(opts, session, set_name):
+    """Sensor spec per key: CLI > recipe.json "spcc" > none. Returns
+    ({key: value}, {key: source}) with only the keys that resolved."""
+    repo = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))
+    p_recipe = os.path.join(repo, "datasets", os.path.basename(
+        os.path.normpath(session)), set_name, "recipe.json")
+    recipe = {}
+    if os.path.exists(p_recipe):
+        with open(p_recipe) as f:
+            recipe = json.load(f).get("spcc", {})
+    spec, prov = {}, {}
+    for k in SPEC_KEYS:
+        if k in opts:
+            spec[k], prov[k] = opts[k], "cli"
+        elif k in recipe:
+            spec[k], prov[k] = recipe[k], "recipe"
+    return spec, prov
+
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
@@ -39,6 +73,7 @@ def main():
     session, set_name = args
     sdir = os.path.abspath(session)
     catalog = opts.get("catalog", "localgaia")
+    spec, spec_prov = resolve_spec(opts, session, set_name)
     p_in = os.path.join(sdir, opts.get("in", f"results/stack_{set_name}_wcs.fit"))
     p_out = os.path.join(sdir, opts.get("out", f"results/stack_{set_name}_spcc.fit"))
     if not os.path.exists(p_in):
@@ -47,20 +82,26 @@ def main():
     work = os.path.join(sdir, "work")
     os.makedirs(work, exist_ok=True)
 
+    tag = f"_{opts['tag']}" if opts.get("tag") else ""
+    spcc_args = f"-catalog={catalog}" + "".join(
+        f' "-{k}={spec[k]}"' for k in SPEC_KEYS if k in spec)
     rel_in = os.path.relpath(p_in, sdir)
     rel_out = os.path.relpath(p_out, sdir)
-    ssf = os.path.join(work, f"spcc_{set_name}.gen.ssf")
+    ssf = os.path.join(work, f"spcc_{set_name}{tag}.gen.ssf")
     with open(ssf, "w") as f:
         f.write("requires 1.4.0\n"
                 f"load {rel_in[:-4] if rel_in.endswith('.fit') else rel_in}\n"
-                f"spcc -catalog={catalog}\n"
+                f"spcc {spcc_args}\n"
                 f"save {rel_out[:-4] if rel_out.endswith('.fit') else rel_out}\n"
                 "close\n")
     print(f"[spcc_run] {rel_in} -> {rel_out} (catalog {catalog})")
+    print("[spcc_run] sensor spec: " + (" ".join(
+        f"{k}='{spec[k]}' ({spec_prov[k]})" for k in SPEC_KEYS if k in spec)
+        or "sensor-null (generic default)"))
     r = subprocess.run(SIRIL + ["-d", sdir, "-s", ssf],
                        capture_output=True, text=True)
     log = r.stdout + ("\n--- stderr ---\n" + r.stderr if r.stderr else "")
-    p_log = os.path.join(work, f"spcc_{set_name}.log")
+    p_log = os.path.join(work, f"spcc_{set_name}{tag}.log")
     with open(p_log, "w") as f:
         f.write(log)
     if r.returncode != 0 or not os.path.exists(p_out):
@@ -86,12 +127,14 @@ def main():
               if n_phot else None)
     st = os.stat(p_in)
     rec = {"set": set_name, "catalog": catalog,
+           "sensor_spec": {k: spec[k] for k in SPEC_KEYS if k in spec} or None,
+           "sensor_spec_source": spec_prov or None,
            "input": rel_in, "output": rel_out,
            "input_size": st.st_size, "input_mtime": int(st.st_mtime),
            "k_factors": ks or None, "b_offsets": bs or None,
            "n_photometry": n_phot, "n_kept": n_kept,
            "date": time.strftime("%Y-%m-%d %H:%M:%S")}
-    p_json = os.path.join(work, f"spcc_{set_name}.json")
+    p_json = os.path.join(work, f"spcc_{set_name}{tag}.json")
     with open(p_json, "w") as f:
         json.dump(rec, f, indent=1)
     if not ks:

@@ -49,9 +49,12 @@ never let it grow narrative.
     in `imx585c/reference/`.
   - `07-02-26/lights` — registration/generalization testbed only, no
     deliverable.
-  - `siril-m8m20` — OSC-CFA + dual-band class. The mono multi-filter
-    corpus (colonnello-m20 RGB, mlnoga-ngc7635 SHO) is off-disk;
-    re-stage via `~/.cache/astro_recovery/fetch_corpus.sh`.
+  - `siril-m8m20` — OSC-CFA + dual-band class. `lpro_180s` processed
+    (no baseline: gate colour scope decision pending); SPCC
+    sensor-grounding AND SPCC-vs-BGE order both measured immaterial on
+    it (knob table). The mono multi-filter corpus (colonnello-m20 RGB,
+    mlnoga-ngc7635 SHO) is off-disk; re-stage via
+    `~/.cache/astro_recovery/fetch_corpus.sh`.
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
   STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
   colour / plane-fit gradient / blotch / rings. Bright celestial signal
@@ -59,7 +62,8 @@ never let it grow narrative.
   exists; the statistical selection drops bright signal out of scope and
   the plane fit is robust to a localized object. Calibrated: references
   pass with margin; an injected 8-count gradient / ring / colour cast
-  FAILS. SPCC runs sensor-null — BACKLOG C2.
+  FAILS. SPCC runs sensor-null: grounding it in the real train response
+  is measured immaterial on the one chip with a database curve (below).
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -91,7 +95,7 @@ flats 100×1/160s (~27% of full scale — under the ~50% goal; the
 MacBook-screen grid shows at ~0.3% RMS: harmless at these SNRs,
 avoidable — see checklist). Sensor offset ≈ 1008 ADU. set-03 sky bg
 ~57 ADU above offset: heavily underexposed (ISO 200 is below the
-Z6III's second gain stage) — corridor signal/grain ≈ 1 at 8.75 min;
+Z6III's second gain stage) — MW-band signal/grain ≈ 1 at 8.75 min;
 **quality is exposure-limited, not process-limited.** Stars are
 uniformly elongated by in-exposure trailing (25s ≈ 2× rule-of-500 at
 38 mm): the crispness ceiling, not misregistration.
@@ -169,10 +173,9 @@ exclusion). TAN-SIP WCS injected for siril `spcc`.
 terrestrial FOREGROUND (rect | pixel mask from `suggest_foreground.py` —
 threshold 0.4×sky-median ≈ −42σ, border-band-anchored components, dilated
 for the drift-smear halo | none) plus its judgment crops. No geometry file
-→ foreground none. There is NO MW corridor: the background gate selects
-its sky STATISTICALLY (below), so a galactic band is never a per-set
-input — that geometric mask was a set-03-specific bandaid that broke on an
-object-dominated field (the LMC).
+→ foreground none. The background is never a per-set input: the gate
+selects its sky STATISTICALLY (below) because bright celestial signal has
+no fixed geometry a mask could scope (see dead ends).
 
 **Product chain (`starcomb.py`)** on the SPCC stack — knob values resolve
 CLI > `datasets/<session>/<set>/recipe.json` > GENERIC (provenance printed
@@ -217,6 +220,9 @@ per run; a recipe-less dataset renders generic and says so):
 | knob = value | the number that set it |
 |---|---|
 | SPCC (not rgb_equal) | K R1.000/G0.656/B0.837 (R-normalized; raw G runs ×1.5 hot — the Bayer imbalance a pre-normalizer would hide) · 509/2850 stars kept · gate equivalent · rim chroma improves (−9.0→−7.2). Captured by `spcc_run.py` (work/spcc_<set>.{json,log}); rerun on the canonical stack is pixel-IDENTICAL (spcc deterministic) |
+| SPCC sensor spec = null | grounding the response in the real train (`-oscsensor "Sony IMX571"` + `-oscfilter "Optolong L-Pro"`, the one chip with a database curve) measured IMMATERIAL on lpro_180s: K R0.370→0.371 / G0.912→0.898 / B1.000 (≤1.5%), B-offsets 5th decimal, output pixels p50 ≤5e-6 / p99 ≤2.6e-4 of full scale, sensor-only ≡ sensor+filter — the star-colour fit lands on the same balance, so the null default stands; a recipe opts in (`"spcc"` block) only with a measured reason |
+| SPCC placement = pre-BGE | rerun on the BGE'd (gx + subsky 1) stack of the strongest-gradient field on hand (Sagittarius core, lpro_180s): K R0.370→0.371 / G,B unchanged / kept 1862→1887 of 5014 — per-star local-annulus photometry cancels the smooth background, so solve+SPCC stay a stack product ahead of the render's BGE; re-measure opportunistically when a DSLR-class pre-SPCC stack next exists |
+| no crop stage | canonical chains crop registration borders first; measured unnecessary here. Stack probe (set-03): borders carry only a smooth ±2σ level plane, MAD BELOW the core — no band at any depth 2–160 px. 128px/side trim render: color 2.0→2.0, grad 3.2→4.8, blotch 2.7→2.4, rings 3.1→4.4 (both PASS) — trimming improves NOTHING; the borders never flattered the gate. The 1.3–1.6pt grad/ring movements are frame-extent sensitivity (BGE refit + block grid + radial bins), so gate numbers compare only at a fixed extent; the trim also moved aura +4.0→+4.5 purely through the top-500 anchor population (scale-awareness entry in BACKLOG). Re-open only on a measured edge-driven FAIL |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
 | linked stretch | unlinked = per-channel noise → chroma blotches (the "rainbow" engine); on a calibrated stack linked PASSES (2.8/1.2/1.8) and cuts blotches ~12% at source |
 | starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL |
@@ -443,7 +449,7 @@ Prediction inversions worth remembering (recorded, instructive):
   Confirm 14-bit (high-speed continuous can drop to 12-bit).
 - ISO 800 (Z6III second gain stage), subs ≤ 500/focal (13s @ 38 mm,
   20s @ 24 mm) — trailing, not noise, capped set-03's sharpness
-- MORE integration: corridor signal/grain ≈ 1 at 8.75 min ISO 200 —
+- MORE integration: MW-band signal/grain ≈ 1 at 8.75 min ISO 200 —
   every processing knob is polishing presentation until photons improve
 - Flats per focal length used that night, BEFORE touching the zoom;
   histogram peak ~50% (1/50s at the Jul-5 screen brightness); diffuse

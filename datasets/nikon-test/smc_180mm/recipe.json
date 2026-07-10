@@ -5,6 +5,6 @@
   "render": {},
   "notes": {
     "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted — satu stays generic 0.2",
-    "sep_engine": "generic (auto -> net when weights installed). The recorded 2026-07-08 deliverable used inpaint; a net re-render is a declared delta on an unapproved look."
+    "sep_engine": "generic (auto -> net when weights installed). The recorded deliverable used inpaint; a net re-render is a declared delta on an unapproved look."
   }
 }

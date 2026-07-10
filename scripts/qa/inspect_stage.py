@@ -345,7 +345,8 @@ def handle_report(args):
                     f"<span class='badge' style='background:{BADGE[w]}'>{w}</span></h2>")
         md.append(f"## {label} — {w}")
         if e["stage"] == "registration":
-            info = (f"registered {e['registered']}/{e['total']} @ ref {e['ref']}"
+            ref = e["ref"] if e.get("ref") is not None else "auto (2-pass)"
+            info = (f"registered {e['registered']}/{e['total']} @ ref {ref}"
                     + (f", sweep {e['sweep']}" if e.get("sweep") else "")
                     + (f", shift range {e.get('shift_range_px')} px"
                        if e.get("shift_range_px") else ""))
@@ -422,7 +423,9 @@ def main():
     r.add_argument("--dir", required=True)
     r.add_argument("--registered", type=int, required=True)
     r.add_argument("--total", type=int, required=True)
-    r.add_argument("--ref", type=int, required=True)
+    r.add_argument("--ref", type=int, default=None,
+                   help="reference frame index (omit when siril's 2-pass "
+                        "auto-pick chose it)")
     r.add_argument("--sweep", default=None)
     r.add_argument("--seq", default=None)
     p = sub.add_parser("report", parents=[ctxp])

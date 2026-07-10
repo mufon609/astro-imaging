@@ -19,9 +19,8 @@ set16bits
 # The frames that continue through the pipeline DO get their PLANAR glow
 # subtracted first (level-preserving, sensor coords, while linear).
 # Degree stays 1: a higher degree flattens the rim curvature but ALSO
-# erases the Milky Way from the stack — at 37mm the MW band is frame-scale
-# curvature, indistinguishable from glow curvature by any unmasked smooth
-# fit. Only a geometric band mask can separate them, and that lives at the
-# starless-layer stage, not here.
+# erases the Milky Way from the stack — at wide focals the MW band is
+# frame-scale curvature, indistinguishable from glow curvature by any
+# unmasked smooth fit (measured: seqsubsky 2 took the MW +38 -> +0.0).
 seqsubsky pp_light 1
 close

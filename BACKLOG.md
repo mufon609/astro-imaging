@@ -70,8 +70,35 @@ celestial signal (a galaxy / the MW / a nebula) with no mask at all.
 
 ## B. Parallel batch (renderer pass)
 
-Renderer-touching items that batch into a single polish pass. None currently
-open.
+Renderer-touching items that batch into a single polish pass.
+
+### B1 — Scale-aware pixel constants in the metrics and render operators
+
+The measurement/operator stack hardcodes absolute-pixel scales that encode
+one PSF/resolution class and are not comparable across rigs:
+
+- `star_shell_report` samples the aura at fixed annuli (peak 8-16 px minus
+  baseline 32-40 px, ranks 10..80) with no per-set override — and the sweep
+  promotes its WARN bound to a HARD no-regression FAIL while two baselines
+  (set-03 at ~8 px trailed PSF, m74 at 2-3 px tight PSF) sit EXACTLY at the
+  +4.0 bound. On a tight PSF those annuli measure sky, not shell; on a big
+  one they sit inside the core. Any small render change tips either dataset
+  over on a number that means different things per class.
+- `chroma_core`/`lum_core` pyramid sigmas (2/8/32/128 px) + 4 px energy
+  window; `extended_object_mask` smoothing scale (48 px); `starsep` skirt
+  dilations (3/+5 px) and local-background footprint (33 px, stride 4) —
+  the area caps are geometry-overridable, these are not; `star_metrics`
+  windows (9 px dedup, core <=3 px, halo 3-8 px).
+
+Redesign requirement: express each scale per data class (from measured
+FWHM, arcsec/px, or frame fraction), overridable per set exactly like the
+starsep area caps, and PRINT the effective values in the metric line so a
+recorded number is interpretable. Gate thresholds never loosen; every
+change lands as a declared delta re-derived per dataset (one knob at a
+time). Until then the recorded aura/coring numbers are only comparable
+within one dataset AT ONE FRAME EXTENT — measured: a 128 px border trim
+alone moved set-03's aura +4.0→+4.5 purely through the top-500 anchor
+population, with no change to any star's rendering context.
 
 ---
 
@@ -79,30 +106,26 @@ open.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
-### C2 — Give SPCC the real OSC sensor + filter profile
+### C1 — Master calibration frames get an inspection stage
 
-`spcc_run.py` runs bare `spcc -catalog=localgaia`; siril logs `mono sensor
-"(null)"` with `filters "(null)"` and derives the K factors by fitting Gaia
-star colours against a default response — for every set (set-03's Z6III and
-the D810A alike). That is a relative channel balance (it does neutralise the
-sky: LMC corner G/R 1.44 -> 0.98, B/R 0.71 -> 0.99) but not the
-sensor-grounded spectrophotometric calibration the `SPCC`/`_spcc` naming
-implies. Siril's `spcc` accepts `-oscsensor=` (+ optional filter / white
-reference); passing the camera's actual OSC response grounds the per-channel
-scaling in real QE curves instead of a generic default.
+The masters (bias/dark/flat) most directly cause background gradients and
+dust rings, yet they are the only pipeline products with no inspection
+metric — a bad flat surfaces only downstream as a stack gradient.
+`diag_flat.ssf` exists but is manual. Add an INS stage after each master
+build reporting the numbers that matter per master: flat corner falloff %
+and dust-shadow depth, dark/bias median + clipped-pixel fraction, into the
+same run report (WARN-only, per the inspection contract). Calibrate bounds
+on the masters already measured (the m74 flat falls 1.3% to the corner).
 
-Do it as a measured, per-set choice: add an optional sensor spec to
-`spcc_run.py` (sourced from `datasets/<session>/<set>/recipe.json`), run the
-null-vs-OSC K-factor ladder, and get the colour result judged. The spec must
-DEFAULT to the current null behaviour so set-03's existing calibration
-(K R1.000/G0.656/B0.837) and reproduce are untouched — only sets that opt in
-get the sensor-grounded calibration.
+### C2 — Registration floor: abort a near-empty stack
 
-Verified against the SPCC database (July 2026): sensors are filed by CHIP —
-`Sony_IMX571.json` covers the siril-m8m20 ASI2600MC set (the ready test case),
-but no Z6III or D810A curve exists; those need a digitized response curve
-contributed by GitLab MR to siril-spcc-database before this can ground them.
-`spcc_list oscsensor` enumerates the exact names.
+All three stack paths now report registered/total (INS reg), but a run
+that registers a fraction of its frames still proceeds to stack and
+render. The self-flat path aborts only at zero. Decide and implement a
+hard floor (the inspection table already carries reg_fraction >= 0.9 as
+the WARN bound) so a mostly-unregistered set fails loud at the stack
+stage instead of surfacing as a mysteriously noisy render. Keep INS
+WARN-only; the floor belongs to the runner.
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
@@ -204,9 +227,18 @@ Test data: `siril-m8m20/` (ASI2600MC OSC HOO+L-Pro, author's finished
 masters as the answer key) is on disk; the mono corpus (`colonnello-m20/`
 RGB wheel, `mlnoga-ngc7635/` SHO) is off-disk — re-stage with
 `~/.cache/astro_recovery/fetch_corpus.sh`. Sources + license terms are
-recorded in `.gitignore`, layout caveats in SESSIONS.md. **Relates to:** C2
-(the m8m20 chip has a real SPCC profile: Sony IMX571), C7 (its L-Pro set
-exercises the OSC-CFA branch).
+recorded in `.gitignore`, layout caveats in SESSIONS.md.
+
+### C7 — Deduplicate the FITS I/O and MTF-solve helpers
+
+Four minimal FITS header parsers (astrometrics/selfflat/rechroma/fitsmeta)
+and two writers (selfflat 3-D, starsep mono NAXIS=2) copy the same
+BITPIX/BZERO/END-card logic with divergent orientation/normalization
+conventions; `solve_mtf_m` exists three times and only starcomb's copy
+clamps degenerate inputs. Hoist into `astrometrics` with explicit
+orientation/normalization flags, preserving each caller's EXACT current
+behaviour. Acceptance: the sweep byte-reproduces every baseline and
+`--determinism` passes — this refactor must be invisible in the artifacts.
 
 ### C8 — Evaluate newer star-separation models (declared-delta ladders)
 
@@ -230,30 +262,13 @@ Bars: aura_lum within bound on set-03, 100% field-star flux + knot
 preservation on M74, byte-determinism, and like-encoding panels for anything
 that changes an approved look.
 
-### C9 — Measure the two canonical-order deviations
-
-The linear chain deviates from the 2026 canonical order (crop → BGE → solve →
-SPCC → …) in two measurable places; neither has been quantified here:
-
-- **SPCC runs on the un-BGE'd stack** (solve+SPCC happen before starcomb's
-  BGE). PixInsight's SPCC doc names strong gradients as a white-balance
-  dispersion source; siril's book also orders BGE before colour calibration.
-  Measure: SPCC K factors + kept-star count on the raw vs BGE'd stack (one
-  dataset per class). If the K set moves materially, reorder (BGE becomes a
-  pre-SPCC stack product, not a render-side step).
-- **No crop stage.** Registration edge bands are currently handled only by
-  the statistical sky selection; the canonical chains crop first because edge
-  artifacts skew global statistics (GraXpert BGE sees them too). Measure the
-  edge influence on one stack (gate metrics with/without a trim) before
-  adding any stage.
-
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 
 Siril's docs now position GHS as the most capable stretch ("rarely advisable"
 to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 `-clipmode=rgbblend` unclipped highlights). The current chain uses linked MTF
 `autostretch` + significance corings. Run a like-encoding ladder (autostretch
-control vs `autoghs` variants) on one approved + one provisional dataset —
+control vs `autoghs` variants) on two datasets of different classes —
 pure aesthetics, user's eyes decide; no bake without approval.
 
 ### C11 — Gate sky scope on emission-flooded frames (scope change; needs ratification)
@@ -269,15 +284,33 @@ field is coloured at every luminance level; a ≤7 sky-colour bar is
 structurally unreachable there without destroying real signal.
 
 The gate stays as-is until a SCOPE decision is ratified (thresholds never
-loosen; this is not a threshold question). Candidate scope refinement:
-exclude `extended_object_mask` regions from the COLOUR grading blocks (the
-corings' `sky_pixel_mask` already excludes them), so colour grades true sky
-where any exists and reports INFO where none does — grading gradient/blotch/
-rings unchanged. Prerequisite measurements: the mask's coverage on this
-frame, and the colour number it then yields on all six datasets (must not
-move any existing PASS).
+loosen; this is not a threshold question). The first candidate — exclude
+`extended_object_mask` regions from the COLOUR grading blocks — is
+MEASURED DEAD on the motivating case: the mask covers only 14% of this
+frame (the bright cores; the diffuse Hα carrying the colour sits below
+the smoothed 4σ envelope) and drops just 3 of 529 sky blocks, leaving
+colour at 22.0 unchanged; on the five passing references it moves
+nothing (lmc 6.0→5.0 the only delta). Do not re-propose it. A viable
+candidate must either classify the emission-flooded field itself (e.g.
+from measured sky-block chroma statistics → colour reported as INFO for
+the class) or accept colour-FAIL as this class's honest verdict (no
+baseline possible). Either is a user ratification, not a code default.
 
-Independent of scope: SPCC ran sensor-null here (K R0.370/G0.912/B1.000 on
-1862 stars); the C2 `-oscsensor "Sony IMX571"` ladder is the designed test
-of whether a real chip profile moves the sky balance materially on this
-class.
+Independent of scope: the colour excess is REAL SKY, not a calibration
+artifact — measured. Grounding SPCC in the true train response
+(`-oscsensor "Sony IMX571" -oscfilter "Optolong L-Pro"`) moves K by
+<=1.5% and the output by <=2.6e-4 p99 of full scale vs the sensor-null
+run, and rerunning SPCC on the BGE'd stack moves K_R by +0.3% with the
+same star set — the 22.0 colour number cannot be blamed on the
+calibration or the chain order.
+
+### C12 — Measure the OSC calibration divergence between the raw and FITS paths
+
+The camera-raw path calibrates OSC lights with `-flat=... -equalize_cfa`;
+the FITS OSC path applies the flat WITHOUT `-equalize_cfa` (only mono FITS
+and one OSC set have run through it). The flag normalizes the FLAT's CFA
+channel means so division does not re-tint the light — a flat-artifact
+correction, distinct from the sky balance SPCC measures downstream. Run the
+one-knob stack experiment on the OSC-CFA set (with/without, compare SPCC K
+factors + gate metrics + rim chroma), then either align the two paths or
+document the measured reason they differ.
