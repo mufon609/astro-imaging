@@ -21,7 +21,7 @@
   },
   "why": {
     "starless_target": "set-03 ladder: 0.12 lit the sky rim (rings 4.4 FAIL); 0.07 is that dataset's safe autostretch target. Class risk: darker-than-necessary sky on clean data.",
-    "starless_denoise": "vstpost is a SELF-FLAT adaptation (noise is radial after V(r) division; every linear placement printed rings). Other classes may prefer the standard linear placement ('gx'/'vst') — measured per class, recipe-expressible.",
+    "starless_denoise": "vstpost is a SELF-FLAT adaptation (noise is radial after V(r) division; every linear placement printed rings). Other classes may prefer the standard linear placement ('gx'/'vst') — measured per class, recipe-expressible. MEASURED CLASS LIMIT: on a high-SNR bright nebula (mono filter-wheel M20) the post-stretch vst at mod 0.5 crushed 40-50% of the object's display chroma (petal R-G +41.7 -> +25.1, core -49%, blue reflection B-G -43%) and blurred red structure into flat patches — the first knob to ladder on bright high-SNR targets ('off' PASSED the gate there with the best numbers; 'gx' FAILED it, colour 11.0 sky tint).",
     "sep_prom": "starsep detection prominence; 4/5/6 sigma all measured ~equal residual on set-03 (faint tail is noise clumping there).",
     "sep_engine": "auto = StarNet2 when the weights are installed, else inpaint. Engine pins are per-dataset measurements (one exists: a 41-degree MW class where net fails the gate).",
     "chroma_core": "k=4 from set-03 (colour ~ noise there) and the user's LMC pick. KNOWN CLASS LIMIT: over-neutralizes faint REAL colour — muted LMC Halpha, SMC OIII, M20's blue reflection nebula. The first knob to ladder on colour-rich targets.",

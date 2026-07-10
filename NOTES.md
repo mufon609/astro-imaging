@@ -10,7 +10,7 @@ time). Per-dataset records live in `datasets/<session>/<set>/`
 per-set geometry, north star). Update THIS file as states change;
 never let it grow narrative.
 
-## STATUS (2026-07-09)
+## STATUS (2026-07-10)
 
 - **Per-dataset state is first-class**: `datasets/<session>/<set>/` (tracked)
   holds each dataset's `geometry.json` + `recipe.json` (knobs resolve CLI >
@@ -50,8 +50,9 @@ never let it grow narrative.
     data — a render-side de-fringe would fabricate lens performance, so
     the fix is acquisition (stop down).
   - `nikon-test/smc_180mm`, `nikon-test/wide_50mm` — processed, gate PASS.
-  - `imx585c/m74_toa130` — processed (mono FITS class); reference master
-    in `imx585c/reference/`.
+  - `imx585c/m74_toa130` — processed (mono FITS class). The session dir
+    is OFF-DISK (moved 2026-07-10 for space, with its reference master):
+    the sweep SKIPs it loudly until the pinned stack returns.
   - `07-02-26/lights` — registration/generalization testbed only, no
     deliverable.
   - `siril-m8m20` — OSC-CFA + dual-band class. `lpro_180s` processed
@@ -64,9 +65,38 @@ never let it grow narrative.
     PASS (grad 1.5 / blotch 1.6 / rings 5.2, aura +1.0), render
     byte-deterministic; look APPROVED 2026-07-09 vs the author's
     finished HOO (recipe pins every knob); baseline still blocked on
-    the colour-scope redesign. The mono multi-filter corpus
-    (colonnello-m20 RGB, mlnoga-ngc7635 SHO) is off-disk; re-stage via
-    `~/.cache/astro_recovery/fetch_corpus.sh`.
+    the colour-scope redesign.
+  - `colonnello-m20/m20_rgb` — processed: the first mono FILTER-WHEEL
+    composition (15R/15G/16B × 80 s aligned to G, channel alignment
+    0.072 px median; SPCC K R0.880/G0.881/B1.000; gate PASS colour 3.0
+    / grad 1.4 / blotch 1.0 / rings 3.9). No baseline; look unapproved.
+    **OPEN DEFECT (user, on the lossless finals): the deep red emission
+    behind the reflection layer over the Trifid core is missing;
+    surviving red reads bloaty/flattened at zoom. LOCALIZED to the
+    post-stretch `denoise -vst -mod=0.5`** — stage probes on the cached
+    trio: stretch-only petal R−G +41.7 → +25.1 after vst (−40%; core
+    +19.1 → +9.7, reflection B−G +17.3 → +9.8; the faint rim is
+    untouched, +48.4 → +47.1), and every other stage measured
+    chroma-neutral there (corings: chroma_core 0/2/4 starless petal
+    R−G 26.1/25.8/25.6 — identical; black_point ×1.033; stars screen
+    combine +3 off-star; satu ×1.2). Upstream exonerated: our linear
+    above-sky petal R/G 2.21 (rim 3.10) vs the author's own calibrated
+    linear 1.95 (2.26) — our stack is redder than theirs; their finish
+    reads petal R−G +72 vs our +30.8. MEASURED (pre-registered
+    single-knob ladder, starless_denoise off/gx/vstpost): `off` PASSES
+    the gate with the best numbers of the three (colour 2.0 / grad 1.4
+    / blotch 0.9 / rings 3.3 vs control 3.0/1.4/1.0/3.9) and restores
+    the red — final petal R−G +50.1 (predicted ≈+51) vs control +31.5,
+    core +23.7 vs +12.7, reflection B−G +19.5 vs +10.8 (author +72 /
+    +54 / +31: the remaining gap is finishing-saturation philosophy, a
+    separate knob). `gx` (linear GraXpert denoise) KILLED on this
+    class: gate colour 11.0 FAIL (sky tint) + rings 5.0. The vstpost
+    control rung byte-reproduced the recorded control final. Recipe pin
+    `starless_denoise off` awaits the user's eyes on the lossless
+    finals (judgment package in colonnello-m20/results/).
+    The SHO corpus (mlnoga-ngc7635) stages via
+    `~/.cache/astro_recovery/fetch_corpus.sh`; no LRGB corpus is staged
+    (app-ngc292 is excluded by user request — .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
   STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
   colour / plane-fit gradient / blotch / rings. Bright celestial signal
@@ -193,7 +223,7 @@ read R−G +8 on an otherwise 0.0-median-neutral sky and failed the
 colour gate; the intersection crop is 12×9 px on this target and
 integer-aligned, so the reference channel is still never interpolated).
 The composed stack then solves/SPCCs/renders exactly like any colour
-stack (SPCC sensor-null broadband; K R0.881/G0.882/B1.000 on 917 stars
+stack (SPCC sensor-null broadband; K R0.880/G0.881/B1.000 on 913 stars
 — a mild wheel balance). A composition naming a `luminance` member is
 REFUSED: LRGB joins L after both parts are stretched, which
 compose-then-render cannot express — that design lands with the LRGB
