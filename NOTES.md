@@ -48,8 +48,17 @@ never let it grow narrative.
     Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5
     counts r≈6–38; absent on the same body at 50 mm f/4): honest optical
     data — a render-side de-fringe would fabricate lens performance, so
-    the fix is acquisition (stop down).
-  - `nikon-test/smc_180mm`, `nikon-test/wide_50mm` — processed, gate PASS.
+    the fix is acquisition (stop down). MEASURED (vst A/B probe on the
+    cached starless): the post-stretch vst crushes the object chroma
+    −31…−50% (R−G −16.4→−8.2, −10.5→−7.2) — the M20 class defect.
+    HYPOTHESIS (pre-registered): `starless_denoise off` restores it at
+    gate PASS; ladder pending user judgment (declared delta +
+    rebaseline on approval).
+  - `nikon-test/smc_180mm` — processed, gate PASS. Same vst probe:
+    object chroma −47…−50% (R−G −18.5→−9.3, −15.4→−8.1) — the hardest
+    hit yet; same pre-registered off-ladder pending judgment.
+  - `nikon-test/wide_50mm` — processed, gate PASS (self-flat class —
+    vstpost's home turf, no probe indication).
   - `imx585c/m74_toa130` — processed (mono FITS class). The session dir
     is OFF-DISK (moved 2026-07-10 for space, with its reference master):
     the sweep SKIPs it loudly until the pinned stack returns.
@@ -93,13 +102,19 @@ never let it grow narrative.
     faint extended signal buried and star tops blown — shell_N +5.7
     display counts vs their +36 (sky 7 vs 21) while the shell is 5.1σ
     in the LINEAR stack; star peaks 3.1% ≥250 / p99 255 vs their 0% /
-    p99 200.** Pre-registered single-knob ladders: (a) `black_point`
-    0/4 vs 8 — hypothesis: the 8-count output floor buries the shell;
-    lower floors surface it at achromatic-gate PASS. (b) `stars_peak`
-    0.85/0.90 vs 0.97 — hypothesis: the 0.97 anchor is the star-top
-    blowout; 0.85–0.90 caps peaks ≈200–230 without dimming the mid
-    tier below the reference look. Class-general (the user sees the
-    same on other targets); knobs stay per-recipe until judged.
+    p99 200.** Ladders measured: (a) `black_point` 0/4/8 — hypothesis
+    KILLED for the shell: above-sky contrast is INVARIANT
+    (+5.3/+5.7/+5.7 — a linear shift preserves differences, as the
+    knob's own design note says); bp only sets the sky pedestal
+    (15/11/7 at like scale; the reference runs 21) and what clips.
+    The shell-contrast deficit is STRETCH SHAPE (faint-end gain — the
+    GHS entry's case). (b) `stars_peak` 0.85/0.90/0.97 — CONFIRMED for
+    the top: like-scale peaks ≥250 fall 2.3% → 1.2% → 0.9% (reference
+    0.0%), p99 255 → 253 → 247 (reference 200), halo 1.88 → 1.11 →
+    0.92; cost: the faint field dims further (the reference lifts
+    faint stars AND caps tops — a compressive stars transfer, shape
+    not anchor). Packages pending user judgment; knobs stay per-recipe
+    until judged.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
