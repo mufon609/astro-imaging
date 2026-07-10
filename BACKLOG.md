@@ -249,16 +249,6 @@ package, not here. What remains:
   (the per-frame quality stage supplies exactly this) or re-run the
   line extraction + registration to measure. **Blocked by:** the
   per-frame quality assessment entry (or a one-off re-registration).
-- **Judgment packaging must be scripted, not hand-assembled** — the
-  cross-geometry case (pipeline render vs an answer key at a different
-  scale) recurs with every author-master corpus, and hand-linking has a
-  measured failure mode: one package shipped the STARLESS-layer PNG16
-  mislinked as the final for 3 of 4 candidates (caught by inode audit;
-  the render prints both artifact names and `_starless` sorts adjacent).
-  The packager takes starcomb's printed FINAL pair per candidate,
-  verifies each link target by bytes, and writes the QUESTION.md
-  skeleton. Promote the session scratch script into `judgment_crops.py`
-  or a sibling.
 
 Test data: the SHO corpus (mlnoga-ngc7635) stages via
 `~/.cache/astro_recovery/fetch_corpus.sh` (idempotent, disk-floor

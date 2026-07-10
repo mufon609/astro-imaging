@@ -86,7 +86,8 @@ Principles that keep this honest:
    whole-frame lossless images (PNG16 + PNG8) with clean names and a
    QUESTION.md, nothing else: no crops, no composited panels, no lossy
    surface — the judge pulls each file into their own viewers and
-   environments. Ladder runs emit per-value lossless finals for exactly
+   environments. Assemble it with `judgment_package.py`, which verifies
+   every PNG8+PNG16 pair pixel-wise before linking — never by hand. Ladder runs emit per-value lossless finals for exactly
    this. Crops/panels (`judgment_crops.py`) are an on-request supplement,
    never the judgment surface. Objective fixes with pass/fail metrics may
    commit; recipe/aesthetic changes require the user's visual approval
@@ -278,6 +279,7 @@ live in NOTES "Environment" + auto-memory.
 | file | role |
 |---|---|
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners |
+| `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, writes the QUESTION.md skeleton |
 | `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
