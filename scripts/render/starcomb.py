@@ -367,6 +367,18 @@ def render_config(ctx, cfg, jpg_out):
     # stack there is no cast to compensate — linked is the standard.
     linkflag = "-linked " if cfg.get("stretch_linked") == "linked" else ""
     lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
+    if cfg.get("stretch_mode", "mtf") == "ghs":
+        # GHS FINISHING pass on the autostretched starless: SP placed
+        # ghs_sp_k sigma ABOVE the stretched sky so the gain lands on the
+        # object's mid-tones, not the sky (a single autoghs from linear
+        # measured +0.2..+1.1/255 object-above-sky across a full (k,D,b)
+        # grid vs the MTF's +6.5 — its gain concentrates at SP, so it
+        # cannot replace the MTF; the composite lifts the object 2-3x
+        # while siril's default highlight protection (HP 0.7, rgbblend)
+        # holds the top).
+        lines.append(f"autoghs {linkflag}{float(cfg['ghs_sp_k']):g} "
+                     f"{float(cfg['ghs_amount']):g} "
+                     f"-b={float(cfg['ghs_focus']):g}")
     if cfg["starless_denoise"] == "vstpost":
         # post-stretch, half-modulated: every linear placement imprints a
         # radial signature on self-flat data (noise is radial after V(r)
@@ -391,12 +403,16 @@ def render_config(ctx, cfg, jpg_out):
         starless_st = np.repeat(starless_st, 3, axis=0)
         print("[starcomb] mono stack -> luminance render "
               "(chroma_core / satu skipped: no colour)")
+    ghs_tag = (f" + ghs k{cfg.get('ghs_sp_k')}/D{cfg.get('ghs_amount')}"
+               f"/b{cfg.get('ghs_focus')}"
+               if cfg.get("stretch_mode", "mtf") == "ghs" else "")
     _stage_line(f"stretch [{cfg.get('stretch_linked')} "
-                f"{cfg['starless_target']:g} + {cfg['starless_denoise']}]",
-                starless_st)
+                f"{cfg['starless_target']:g}{ghs_tag} + "
+                f"{cfg['starless_denoise']}]", starless_st)
     _inspect_stage(ctx, "starless_stretch", starless_st, True,
                    f"autostretch {cfg.get('stretch_linked')} "
-                   f"{cfg['starless_target']} + {cfg['starless_denoise']}")
+                   f"{cfg['starless_target']}{ghs_tag} + "
+                   f"{cfg['starless_denoise']}")
 
     if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
         # chroma coring BEFORE lum_core (default): chroma is neutralized on
@@ -617,7 +633,8 @@ def render_config(ctx, cfg, jpg_out):
 # limits. A dataset's recipe overrides per knob; CLI overrides both. The
 # file and this schema must agree exactly or the render refuses to run.
 KNOBS = (
-    "starless_target", "starless_denoise", "sep_prom", "sep_engine",
+    "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
+    "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
     "chroma_core", "lum_core", "core_order", "stretch_linked", "satu",
     "cull_pct", "stars_peak", "stars_anchor", "stars_floor",
     "black_point", "jpg_quality", "jpg_subsampling", "noise_anchor_k",
@@ -625,6 +642,7 @@ KNOBS = (
 
 ENUM_CHOICES = {
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
+    "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
     "core_order": ["pre", "post"],
     "stretch_linked": ["unlinked", "linked"],
@@ -702,6 +720,22 @@ def main():
     # (see resolve_recipe); the generic values were each set by a measured
     # single-knob ladder and carry per-knob provenance in that file.
     ap.add_argument("--starless-target", type=float, default=None)
+    ap.add_argument("--stretch-mode", default=None,
+                    choices=ENUM_CHOICES["stretch_mode"],
+                    help="mtf = linked autostretch only (generic); ghs = "
+                         "autostretch + autoghs FINISHING pass (SP above "
+                         "the stretched sky lifts the object's mid-tones; "
+                         "a single autoghs from linear cannot replace the "
+                         "MTF — measured)")
+    ap.add_argument("--ghs-sp-k", type=float, default=None,
+                    help="ghs finishing: SP = stretched-sky median + "
+                         "k*sigma (higher k = gain lands higher above the "
+                         "sky, sky stays darker)")
+    ap.add_argument("--ghs-amount", type=float, default=None,
+                    help="ghs finishing stretch amount D")
+    ap.add_argument("--ghs-focus", type=float, default=None,
+                    help="ghs finishing focus b (siril default 13 is too "
+                         "SP-concentrated for object lifting — measured)")
     ap.add_argument("--starless-denoise", default=None,
                     choices=ENUM_CHOICES["starless_denoise"],
                     help="vstpost = post-stretch -vst -mod=0.5 (generic). "
@@ -784,6 +818,8 @@ def main():
                          "a render defect to its stage in one run")
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
+                             "stretch_mode", "ghs_sp_k", "ghs_amount",
+                             "ghs_focus",
                              "cull_pct", "stars_peak", "stars_anchor",
                              "sep_prom", "sep_engine",
                              "chroma_core", "satu", "core_order",
@@ -833,8 +869,8 @@ def main():
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     # every ladder value is a judgment surface: lossless, always
     ctx = {**ctx, "lossless": True}
-    enum_params = ("starless_denoise", "core_order", "stretch_linked",
-                   "sep_engine", "stars_anchor")
+    enum_params = ("starless_denoise", "stretch_mode", "core_order",
+                   "stretch_linked", "sep_engine", "stars_anchor")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

@@ -5,6 +5,10 @@
   "render": {
     "starless_target": 0.07,
     "starless_denoise": "off",
+    "stretch_mode": "mtf",
+    "ghs_sp_k": 2.0,
+    "ghs_amount": 3.0,
+    "ghs_focus": 3.0,
     "sep_prom": 6.0,
     "sep_engine": "net",
     "chroma_core": 4.0,
@@ -22,9 +26,9 @@
     "noise_anchor_k": null
   },
   "notes": {
-    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed this target's object chroma -31..-50% (A/B probe R-G -16.4 -> -8.2; the final render doubles back to -17.5 with off) and smeared the blotchy blue/white galaxy body the user reported — off restores the subtle nebula dust detail at gate PASS (colour 6.0 / grad 2.3 / blotch 1.5 / rings 5.4)",
-    "red_halo": "the bright-star red halo is the Sigma-180-wide-open veiling-glare signature (R-G plateau +4..+5 counts r~6-38; absent on the same body at 50 mm f/4) — USER VERDICT: honest gear data, never de-fringe it in the render; the fix is acquisition (stop down)",
-    "chroma_core": "the generic k=4 was the user's pick on this set's k=0/2/4 ladder (neutral look); it does mute some real H-alpha colour on bright targets — re-ladder only with a hypothesis"
+    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed this target's object chroma -31..-50% (A/B probe R-G -16.4 -> -8.2; the final render doubles back to -17.5 with off) and smeared the blotchy blue/white galaxy body the user reported \u2014 off restores the subtle nebula dust detail at gate PASS (colour 6.0 / grad 2.3 / blotch 1.5 / rings 5.4)",
+    "red_halo": "the bright-star red halo is the Sigma-180-wide-open veiling-glare signature (R-G plateau +4..+5 counts r~6-38; absent on the same body at 50 mm f/4) \u2014 USER VERDICT: honest gear data, never de-fringe it in the render; the fix is acquisition (stop down)",
+    "chroma_core": "the generic k=4 was the user's pick on this set's k=0/2/4 ladder (neutral look); it does mute some real H-alpha colour on bright targets \u2014 re-ladder only with a hypothesis"
   },
   "approved": {
     "date": "2026-07-10",

@@ -5,6 +5,10 @@
   "render": {
     "starless_target": 0.07,
     "starless_denoise": "off",
+    "stretch_mode": "mtf",
+    "ghs_sp_k": 2.0,
+    "ghs_amount": 3.0,
+    "ghs_focus": 3.0,
     "sep_prom": 6.0,
     "sep_engine": "net",
     "chroma_core": 4.0,
@@ -22,8 +26,8 @@
     "noise_anchor_k": null
   },
   "notes": {
-    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst crushed this target's object chroma -47..-50% (the hardest-hit dataset; A/B probe R-G -18.5 -> -9.3; the final render doubles back to -23.4 with off) — off restores it at gate PASS (colour 4.0 / grad 0.9 / blotch 1.2 / rings 1.7)",
-    "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted — satu stays generic 0.2; re-judge the OIII region post-vst-fix before any new satu hypothesis",
+    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst crushed this target's object chroma -47..-50% (the hardest-hit dataset; A/B probe R-G -18.5 -> -9.3; the final render doubles back to -23.4 with off) \u2014 off restores it at gate PASS (colour 4.0 / grad 0.9 / blotch 1.2 / rings 1.7)",
+    "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted \u2014 satu stays generic 0.2; re-judge the OIII region post-vst-fix before any new satu hypothesis",
     "sep_engine": "net pinned with the approval (the approved surfaces are net renders; the earlier provisional deliverable used inpaint)"
   },
   "approved": {

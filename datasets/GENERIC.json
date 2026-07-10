@@ -3,6 +3,10 @@
   "render": {
     "starless_target": 0.07,
     "starless_denoise": "vstpost",
+    "stretch_mode": "mtf",
+    "ghs_sp_k": 2.0,
+    "ghs_amount": 3.0,
+    "ghs_focus": 3.0,
     "sep_prom": 6.0,
     "sep_engine": "auto",
     "chroma_core": 4.0,
@@ -21,6 +25,10 @@
   },
   "why": {
     "starless_target": "set-03 ladder: 0.12 lit the sky rim (rings 4.4 FAIL); 0.07 is that dataset's safe autostretch target. Class risk: darker-than-necessary sky on clean data.",
+    "stretch_mode": "mtf = the linked autostretch alone (the historical chain). ghs = autostretch + autoghs FINISHING pass: the MTF mis-serves both ends of high-DR deep data (measured: bright-core structure/grain 5.58 linear -> 1.07 stretched, core at 6/255 above sky where a reference finish allocates 33-57; faint shell +5.7 vs +40.7) and a single autoghs from linear cannot replace it (gain concentrates at SP=sky: object +0.2..+1.1 across a full grid). Generic stays mtf until a class look is user-approved.",
+    "ghs_sp_k": "SP = stretched-sky median + k*sigma. k=2 measured on the SHO class: sky 21.8/255 (the reference finish's own pedestal) with core +11.6 vs mtf's +6.5; k=1 lifts everything harder (sky 30, core +17).",
+    "ghs_amount": "D=3 from the same grid: D<2 under-lifts, D>4 mostly raises the sky pedestal at equal focus.",
+    "ghs_focus": "b=3: siril's default b=13 is so SP-focused the object above SP gets almost nothing (measured on the single-pass grid); b=2-3 spreads the gain across the object's mid-tones.",
     "starless_denoise": "vstpost is a SELF-FLAT adaptation (noise is radial after V(r) division; every linear placement printed rings there). MEASURED CLASS LIMIT: vstpost crushes object chroma whose contrast sits near the grain scale — M20 wheel -40%, LMC -31..-50%, SMC -47..-50% (A/B probes) — while strong chroma passes untouched (HOO +61 -> -1%, SHO ~nil). On colour-rich moderate-contrast classes ladder this knob FIRST ('off' won on M20, pinned there); 'gx' FAILED the gate on that class (colour 11.0, sky tint). 'gx'/'vst' stay recipe-expressible per class.",
     "sep_prom": "starsep detection prominence; 4/5/6 sigma all measured ~equal residual on set-03 (faint tail is noise clumping there).",
     "sep_engine": "auto = StarNet2 when the weights are installed, else inpaint. Engine pins are per-dataset measurements (one exists: a 41-degree MW class where net fails the gate).",

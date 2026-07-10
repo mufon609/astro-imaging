@@ -5,6 +5,10 @@
   "render": {
     "starless_target": 0.07,
     "starless_denoise": "vstpost",
+    "stretch_mode": "mtf",
+    "ghs_sp_k": 2.0,
+    "ghs_amount": 3.0,
+    "ghs_focus": 3.0,
     "sep_prom": 6.0,
     "sep_engine": "net",
     "chroma_core": 4.0,
@@ -27,7 +31,7 @@
     "bwl": 500.7
   },
   "notes": {
-    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
+    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) \u2014 the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
     "solve": "same field and hint as the lpro set (M8/M20): solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
   },
   "approved": {

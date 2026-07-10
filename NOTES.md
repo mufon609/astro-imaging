@@ -120,7 +120,26 @@ never let it grow narrative.
     allocates 33–57/255 — the GHS entry carries all numbers as the
     structural fix. Reference-comparison note: the author's finish is
     vertically MIRRORED vs our render (flip-correlation 0.185 vs 0.081
-    direct) — all three corpus authors publish sky-true.
+    direct) — all three corpus authors publish sky-true. GHS
+    calibration (measured, 22 probes on the cached starless): a SINGLE
+    autoghs from linear CANNOT replace the MTF — its gain concentrates
+    at SP=sky and the object lands at +0.2…+1.1/255 vs the MTF's +6.5
+    across the whole (k,D,b) grid; the working shape is the FINISHING
+    composite (autostretch THEN autoghs with SP above the stretched
+    sky): k2/D3/b3 → sky 21.8 (reference 22) core +11.6 shell +12.5
+    st/gr 1.21; k1/D3/b3 → sky 30.1 core +17.1 shell +18.5.
+    MEASURED (three pre-registered single-knob ladders): the ghs
+    finishing mode lifts the object as calibrated at achromatic-gate
+    PASS on both classes — SHO ghs-k2 grad 2.2 / blotch 2.0 / rings
+    2.6 with colour 18.0 scope-FAIL (lifted diffuse Hα reads as sky
+    colour: the colour-redesign case; k1 colour 28.0), LMC ghs-k2
+    full-PASS (colour 5.0 / grad 2.2 / blotch 1.3 / rings 5.7) vs its
+    approved mtf look. Measured interaction: the brighter starless
+    pushes combine-stage star saturation (SHO 6%→12% at k2, 15% at k1;
+    LMC 2%→5%) — the stars-side compressive transfer is the companion
+    work if the direction wins. Judgment packages pending
+    (judgment_sho_ghs_* + judgment_lmc_ghs_*); stretch_mode stays
+    generic mtf and all four approved recipes pin mtf explicitly.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
