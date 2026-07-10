@@ -215,47 +215,42 @@ against wide-lens distortion), the trial candidate is tetra3/cedar-solve
 (ESA lost-in-space solver, 10–30° FOV database, centroid-based,
 milliseconds on Pi-class ARM).
 
-### C6 — Combine multi-filter channels: the mono per-filter kinds
+### C6 — Multi-filter combine: the remaining kinds
 
-The composition machinery is LIVE for dual-band OSC (`composition.json`
-kind `dualband-osc` → per-line stacks → `compose.py` palette compose →
-narrowband SPCC → unchanged render; NOTES design section carries the
-measured numbers). What remains is the mono per-filter side — a target
-shot through a filter WHEEL, where each channel comes from DIFFERENT
-frames (no same-frame registration luxury):
+The composition machinery is LIVE for both shipped kinds (NOTES design
+section carries the measured numbers): `dualband-osc` (per-line stacks
+from one set's CFA frames) and `mono-filters` (sibling per-filter sets
+aligned to a reference member — the M20 wheel target measured 0.077 px
+median channel alignment). What remains:
 
-- **Cross-set channel registration:** register every filter's stack to
-  ONE common reference (siril global registration takes `-extref=<file>`)
-  so channels overlay without a second interpolation pass; the compose
-  stage's channel-alignment inspection (bound 1.0 px) already measures
-  the result and generalizes as-is.
-- **`composition.json` kind `mono-filters`:** members are sibling SETS
-  (one per filter) with channel roles R/G/B/L or SHO; `compose.py` grows
-  the kind but keeps its contract (palette mapping in, one composed
-  linear out, residual measured).
-- **Broadband LRGB:** compose R/G/B, SPCC the RGB only, stretch LINKED,
-  apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB combination
-  is a nonlinear-space operation (CIE L*a*b*); the linear-combine
-  shortcut is wrong per PixInsight doctrine and the Siril book. This is
-  the one piece the current compose-then-render flow cannot express (L
-  joins post-stretch, inside the render) — design it against the render
-  chain, not around it.
-- **SHO palettes:** channel assignment objective, `rmgreen` after Ha→G
-  mappings, SPCC narrowband mode with per-channel wavelengths (already
-  plumbed through the recipe). Palette aesthetics go to the user's eyes.
+- **SHO palettes** (the mlnoga NGC7635 corpus): a `mono-filters`
+  composition with narrowband members — channel assignment objective,
+  SPCC narrowband wavelengths already plumbed through the recipe
+  (SII→R 671.6 nm / Ha→G 656.28 / OIII→B 500.7); `rmgreen` after the
+  Ha→G mapping is a render-side aesthetic the user judges (the dead-end
+  registry's magenta warning applies only to non-green-dominant skies —
+  SHO is green-dominant by construction). NOTE: this corpus ships MASTER
+  calibration files, which the pipeline cannot ingest (it builds masters
+  from raw dirs) — assess master-calib ingest when staging it.
+- **Broadband LRGB** (the app-ngc292 corpus): compose R/G/B, SPCC the
+  RGB only, stretch LINKED, apply L AFTER both are stretched
+  (`rgbcomp -lum=`) — LRGB combination is a nonlinear-space operation
+  (CIE L*a*b*); the linear-combine shortcut is wrong per PixInsight
+  doctrine and the Siril book. This is the one piece compose-then-render
+  cannot express (L joins post-stretch, inside the render) — design it
+  against the render chain, not around it. compose.py REFUSES a
+  `luminance` member until then.
+- **Dual-band FULL-SIZE upgrade:** native half-size Ha stacked with 2×
+  drizzle instead of downsampling OIII (the docs' quality path) — gated
+  on MEASURED dither coverage of the set.
+- **Cross-geometry judgment packaging** (pipeline render vs an answer
+  key at a different scale) recurs with every author-master corpus —
+  promote the session scratch script into `judgment_crops.py`.
 
-Also carried here: the dual-band FULL-SIZE upgrade (native half-size Ha
-stacked with 2× drizzle instead of downsampling OIII — the docs' quality
-path) — gated on MEASURED dither coverage of the set; and cross-geometry
-judgment packaging (pipeline render vs an answer key at a different
-scale) recurs with every author-master corpus — worth promoting from the
-one-off script into `judgment_crops.py` when the mono corpus lands.
-
-Test data: the mono corpus (`colonnello-m20/` RGB wheel,
-`mlnoga-ngc7635/` SHO) is off-disk — re-stage with
-`~/.cache/astro_recovery/fetch_corpus.sh`; each ships the author's
-finished masters as an answer key. Sources + license terms are recorded
-in `.gitignore`, layout caveats in SESSIONS.md.
+Test data: both remaining corpora are off-disk (the fetch stopped at its
+disk floor after M20) — free disk, re-run
+`~/.cache/astro_recovery/fetch_corpus.sh` (idempotent). Sources +
+license terms in `.gitignore`, layout caveats in SESSIONS.md.
 
 ### C7 — Deduplicate the FITS I/O and MTF-solve helpers
 

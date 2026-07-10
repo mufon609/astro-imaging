@@ -214,16 +214,27 @@ def align_members(repo, sdir, set_name, members, reference):
         if not os.path.exists(src):
             sys.exit(f"compose: member stack missing: {src} (stack the "
                      f"member set '{members[n]}' first)")
-        os.link(src, os.path.join(work, f"ch_{i:05d}.fit"))
+        # staged inputs must NOT share the sequence prefix: siril
+        # `convert ch` symlinks its sequence entries over same-named
+        # files — a ch_*.fit input becomes a self-referential link
+        os.link(src, os.path.join(work, f"in_{i:05d}.fit"))
     ref_idx = names.index(reference) + 1
     rel = os.path.relpath(work, sdir)
     ssf = os.path.join(sdir, "work", f"compose_{set_name}.gen.ssf")
+    # -framing=min crops every output to the INTERSECTION of member
+    # coverage: a pixel the composed product ships must exist in EVERY
+    # channel — compositing an uncovered margin fabricates colour there
+    # (measured: a single uncovered corner block read R-G +8 and failed
+    # the colour gate on an otherwise neutral sky). The crop is integer-
+    # aligned, so the reference channel is still never interpolated.
     with open(ssf, "w") as f:
         f.write("requires 1.4.0\n"
                 f"cd {rel}\n"
                 "convert ch\n"
                 f"setref ch {ref_idx}\n"
-                "register ch\n"
+                "register ch -2pass\n"
+                f"setref ch {ref_idx}\n"
+                "seqapplyreg ch -framing=min\n"
                 "close\n")
     print(f"[compose] aligning {len(names)} member stacks to "
           f"'{reference}' (ref index {ref_idx})")

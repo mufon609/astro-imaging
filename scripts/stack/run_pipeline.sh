@@ -191,12 +191,16 @@ fits_ingest() {
     if [[ "$ffilt" != "$lfilt" ]]; then
       echo "WARNING: flats filter '${ffilt}' != $SET filter '${lfilt}' — flats NOT applied (a flat is only valid for its own filter)"
     else
-      if [[ -d "$S/darkflats" ]] && fits_glob "$S/darkflats" | grep -q .; then
+      # NEVER `fits_glob | grep -q` here: under pipefail, grep -q's early
+      # exit SIGPIPEs a find that is still scanning — a TIMING RACE that
+      # read a 100-file dir as empty (measured). Substitution consumes
+      # all output; no pipe, no race.
+      if [[ -d "$S/darkflats" && -n "$(fits_glob "$S/darkflats")" ]]; then
         sm=$(fits_meta "$S/darkflats") || exit 1
         IFS=$'\t' read -r dfexp _f _m _f _m <<<"$sm"
         [[ "$dfexp" == "$fexp" ]] || echo "WARNING: darkflats (${dfexp}s) != flats (${fexp}s) — dark-flat must match the flat exposure"
         FLATCAL="darkflat"; FLATCALOPT="-dark=masters/darkflat_master"
-      elif [[ -d "$S/biases" ]] && fits_glob "$S/biases" | grep -q .; then
+      elif [[ -d "$S/biases" && -n "$(fits_glob "$S/biases")" ]]; then
         FLATCAL="bias"; FLATCALOPT="-bias=masters/bias_master"
         echo "note: no darkflats/ — calibrating flats with bias (dark-flats are the CMOS standard)"
       else
@@ -310,8 +314,8 @@ fits_ingest() {
 # Data-class fork: a set of dedicated-camera FITS frames takes the FITS ingest
 # above; camera raws (DSLR/OSC) take the raw path below. A set holding both is
 # ambiguous and must be split, not guessed.
-if fits_glob "$S/$SET" | grep -q .; then
-  if raw_find "$S/$SET" | grep -q .; then
+if [[ -n "$(fits_glob "$S/$SET")" ]]; then
+  if [[ -n "$(raw_find "$S/$SET")" ]]; then
     echo "ERROR: $SET holds BOTH camera raws and FITS frames — split them" >&2
     exit 1
   fi

@@ -41,7 +41,9 @@ never let it grow narrative.
 - **Datasets** (registry: SESSIONS.md; records: `datasets/`; recipes
   track GENERIC — a knob is pinned only with a measured, dataset-specific
   reason):
-  - `07-02-26/set-03` — processed; quality is exposure-limited.
+  - `07-02-26/set-03` — processed; quality is exposure-limited. The
+    session dir is OFF-DISK (moved 2026-07-09 for space): the sweep
+    SKIPs it loudly until the pinned stack returns.
   - `nikon-test/lmc_180mm` — processed. The bright-star red halo is the
     Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5
     counts r≈6–38; absent on the same body at 50 mm f/4): honest optical
@@ -170,6 +172,31 @@ upgrade, gated on measured dither coverage. No composition record → the
 set processes as an ordinary single stack (a dual-band set then debayers
 like broadband: legal, but its lines stay merged — the record encodes the
 data's goal).
+
+**Mono filter-wheel composition (kind `mono-filters`)** — members are
+SIBLING per-filter sets (each stacked by the ordinary mono path,
+per-filter flats matched by FILTER keyword), keyed by a VIRTUAL target
+name. Different frames per channel → nothing overlays by construction,
+so `compose.py` aligns the member STACKS first: a siril sequence
+registration to the composition's `reference` member — ONE interpolation
+pass, and the reference channel itself carries only the identity
+transform (choose the perceptually dominant member; m20_rgb uses G).
+Measured on the first target (M20, 15R/15G/16B × 80 s at 0.68″/px):
+channel alignment 0.072 px median / 0.445 px p95 over 300 stars — an
+order of magnitude inside the 1.0 px bound (stack-level star fields are
+registration-rich, and no CFA phase offset exists on this path). The
+alignment applies `-framing=min` (intersection): a pixel the composed
+product ships must exist in EVERY channel — compositing an uncovered
+margin fabricates colour there (measured: one uncovered corner block
+read R−G +8 on an otherwise 0.0-median-neutral sky and failed the
+colour gate; the intersection crop is 12×9 px on this target and
+integer-aligned, so the reference channel is still never interpolated).
+The composed stack then solves/SPCCs/renders exactly like any colour
+stack (SPCC sensor-null broadband; K R0.881/G0.882/B1.000 on 917 stars
+— a mild wheel balance). A composition naming a `luminance` member is
+REFUSED: LRGB joins L after both parts are stretched, which
+compose-then-render cannot express — that design lands with the LRGB
+corpus (BACKLOG).
 
 **Self-flat branch (flatless sets)** — median of UNREGISTERED
 calibrated frames (drifting stars self-reject) → per-frame planar glow

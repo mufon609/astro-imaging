@@ -3,7 +3,12 @@
 
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
                      [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
-                     [--field-width-arcmin=<N>]
+                     [--field-width-arcmin=<N>] [--scales=<lo>-<hi>]
+
+--scales overrides the field-derived index-scale set (the operator's
+download/breadth control: a narrow field derives scales whose low end
+means multi-GB index downloads; the cached mid scales usually carry the
+solution — quads 10-50% of the field width are the prime matching range).
 
 Why this exists: Siril's internal solver cannot match this rig's ultra-wide
 trailed-star fields (its online cone caps at ~2.5 deg, and with the local
@@ -290,7 +295,13 @@ def main():
     print(f"[solve_field] {len(stars)} peak-detected stars"
           + (f" (central {central:g} of frame)" if central else ""))
     hint = scale_hint(src, width_arcmin)
-    scales = scale_set(src, width_arcmin)
+    if "scales" in opts:
+        lo, hi = (int(v) for v in opts["scales"].split("-", 1))
+        scales = set(range(lo, hi + 1))
+        print(f"[solve_field] index scales OVERRIDDEN to {lo}-{hi} "
+              "(--scales; field-derived set not used)")
+    else:
+        scales = scale_set(src, width_arcmin)
     m = solve(stars, hint=hint, scales=scales, pos=pos)
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
