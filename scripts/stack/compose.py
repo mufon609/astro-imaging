@@ -79,6 +79,12 @@ def read_fits_raw(path):
 def write_fits3(path, cards_src, planes):
     """Write (3,H,W) float32 in FILE order, header = source cards with the
     NAXIS geometry patched to the cube and provenance comments appended."""
+    over = [c for c in cards_src if len(c) > 80]
+    if over:
+        # a >80-byte card shifts the whole 80-byte card grid: END never
+        # lands on a boundary and every FITS reader rejects the file
+        sys.exit(f"compose: header card exceeds 80 bytes ({len(over[0])}): "
+                 f"{over[0][:60]!r}...")
     ny, nx = planes.shape[1], planes.shape[2]
     out = []
     seen_naxis3 = False
