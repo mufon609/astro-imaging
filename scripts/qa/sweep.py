@@ -199,10 +199,12 @@ def main():
         if not stack_rel:
             # first baseline for this dataset: resolve the render input by
             # the pipeline's naming convention — the SPCC-calibrated stack
-            # when one exists (colour sets), else the plain stack (mono
-            # sets skip SPCC)
+            # when one exists (colour sets; composed targets carry _comp),
+            # else the plain stack (mono sets skip SPCC)
             for cand in (f"results/stack_{set_name}_norgbeq_spcc.fit",
+                         f"results/stack_{set_name}_comp_spcc.fit",
                          f"results/stack_{set_name}_spcc.fit",
+                         f"results/stack_{set_name}_comp.fit",
                          f"results/stack_{set_name}.fit"):
                 if os.path.exists(os.path.join(REPO, session, cand)):
                     stack_rel = cand

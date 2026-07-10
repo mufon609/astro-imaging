@@ -412,3 +412,22 @@ rebaseline time — bgelin sha256 + separation-trio sha256s (+ compose
 inputs for composed targets) — so any future drift localizes to its
 stage from the records alone, prune or no prune. Hashing ~0.5 GB per
 dataset at rebaseline is seconds; do NOT hash on ordinary sweeps.
+
+### C16 — Class-triage the generic knobs when a new data class arrives
+
+User-directed after the M20 vst incident: the GENERIC layer was tuned on
+one underexposed DSLR wide-field, and a knob correct there can silently
+damage another class until a human notices a defect (measured: vstpost —
+a self-flat adaptation — crushed 40–50% of a high-SNR bright nebula's
+chroma; the defect shipped in four judged renders before the user's eyes
+caught it). Make the triage systematic: when a DATASET CLASS first
+arrives (new sensor class, new SNR regime, new target brightness class),
+ladder the generic knobs whose why-notes name a class risk BEFORE the
+first judgment package — today that list is `starless_denoise` (the
+proven killer), `chroma_core` (over-neutralizes faint real colour),
+`black_point` (crushes faint extended signal), `starless_target`
+(darker than necessary on clean data). The why-notes already carry the
+risks; this entry turns them into a first-render checklist instead of a
+post-defect investigation. Cheap: each is a single-knob ladder the
+harness already runs; the user judges once per class instead of
+debugging after.

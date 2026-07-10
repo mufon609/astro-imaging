@@ -1,0 +1,47 @@
+{
+ "_readme": "Measured no-regression record \u2014 written by sweep.py --rebaseline, never by hand.",
+ "dataset": "colonnello-m20/m20_rgb",
+ "approved": null,
+ "stack": "results/stack_m20_rgb_comp_spcc.fit",
+ "stack_sha256": "706c09bf4a3097a622b7e612620bd5fd70312b20c9845de5ab6291f6cfa59584",
+ "rebuild": "python3 scripts/render/starcomb.py colonnello-m20 m20_rgb --stack colonnello-m20/results/stack_m20_rgb_comp_spcc.fit --lossless",
+ "metrics": {
+  "qa_starless.color": 2.0,
+  "qa_starless.grad": 1.4102669245598296,
+  "qa_starless.resid": 0.9353606825407509,
+  "qa_starless.ring_l": 3.333333333333334,
+  "qa_starless.floor": 8.0,
+  "star_shells.aura_lum": 19.5,
+  "star_shells.shell_chroma": 8.895599365234375
+ },
+ "gate_pass": true,
+ "artifact_sha256": {
+  "jpg": "697ede3c2f4640559a558abae15baa1482f16ebcf3e8fc5535397495ccc792bf",
+  "png": "f94a93614e930568feaa2822084c0498485746278c0dcbc2afcea79219fab855",
+  "png16": "c68622d86abfa564c86cfe7a3f4b8121c7238abab540346ff22d536e527697d1",
+  "starless_jpg": "246568c96cc7024ec15c18c786d2cfafc187677b48524084e7af6bce28576d0b",
+  "starless_png": "f4abd103f1f6dbc5d3cd936e868358ca34410d926ee5a381271c3fb054ad7da8",
+  "starless_png16": "ff81951d71f0085c1498a8749001e997e5ff88f11181d21695ee223e4737bec3"
+ },
+ "recipe": {
+  "starless_target": 0.07,
+  "starless_denoise": "off",
+  "sep_prom": 6.0,
+  "sep_engine": "net",
+  "chroma_core": 4.0,
+  "lum_core": 2.0,
+  "core_order": "pre",
+  "stretch_linked": "linked",
+  "satu": 0.2,
+  "cull_pct": 50.0,
+  "stars_peak": 0.97,
+  "stars_anchor": "catalog",
+  "stars_floor": 3.0,
+  "black_point": 8.0,
+  "jpg_quality": 100,
+  "jpg_subsampling": 0,
+  "noise_anchor_k": null
+ },
+ "date": "2026-07-10 12:21:29",
+ "git": "c707fb0"
+}

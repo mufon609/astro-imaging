@@ -1,12 +1,35 @@
 {
-  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
   "dataset": "colonnello-m20/m20_rgb",
-  "status": "provisional",
-  "render": {},
+  "status": "approved",
+  "render": {
+    "starless_target": 0.07,
+    "starless_denoise": "off",
+    "sep_prom": 6.0,
+    "sep_engine": "net",
+    "chroma_core": 4.0,
+    "lum_core": 2.0,
+    "core_order": "pre",
+    "stretch_linked": "linked",
+    "satu": 0.2,
+    "cull_pct": 50.0,
+    "stars_peak": 0.97,
+    "stars_anchor": "catalog",
+    "stars_floor": 3.0,
+    "black_point": 8.0,
+    "jpg_quality": 100,
+    "jpg_subsampling": 0,
+    "noise_anchor_k": null
+  },
   "notes": {
+    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed 40-50% of this high-SNR target's bright-object chroma (petal R-G +41.7 -> +25.1, core -49%, blue reflection B-G -43%) and flattened the survivors into soft patches — the user-reported missing-red defect. off gate-PASSES with the ladder's best numbers (colour 2.0 / grad 1.4 / blotch 0.9 / rings 3.3) and restores the red (petal +50.1); gx KILLED (gate colour 11.0, sky tint). Full stage localization: git log (the defect commit).",
     "spcc": "broadband RGB from a mono filter wheel — SPCC runs sensor-null on the composed stack (the generic default; grounding measured immaterial on the one chip with a database curve)",
     "solve": "narrow 53-arcmin field at 0.68\"/px (FOCALLEN 1150 mm): solve with the position hint + the cached index scales — solve_field.py --ra=270.6 --dec=-23.0 --radius-deg=10 --scales=4-9 (the derived set reaches scale 1; scales 1-3 are multi-GB index downloads; scale 4 carried the solution)",
-    "OPEN_DEFECT": "deep red emission missing behind the reflection layer over the Trifid core; surviving red bloaty/flattened at zoom (user, on the lossless finals). LOCALIZED by stage probes on the cached trio: the post-stretch 'denoise -vst -mod=0.5' crushes bright-object chroma — petal R-G +41.7 (stretch only) -> +25.1 after vst (core +19.1 -> +9.7, reflection B-G +17.3 -> +9.8; faint rim untouched +48.4 -> +47.1) — and blurs the surviving red into soft flat patches. Every other stage measured chroma-neutral in the core boxes: chroma_core 0/2/4 starless petal R-G 26.1/25.8/25.6 (identical), black_point x1.033, stars screen-combine +3 off-star, satu x1.2. Separation exonerated (starless keeps >=98.8% of nebula flux; stars-layer median 0.00 between stars). Upstream exonerated (our linear above-sky petal R/G 2.21, rim 3.10 vs the author's calibrated linear 1.95/2.26). Fix ladder run: starless_denoise off/gx vs vstpost control; DEFECT STAYS OPEN until the user approves a look from the lossless finals",
-    "ladders": "four single-knob ladders measured on this set: chroma_core 0/2/4 -> gate colour 5/4/3, small real-chroma gains, the blue reflection stays floor-bound (k is NOT its suppressor); cull_pct 0/25/50 -> NULL (identical metrics and panels); black_point 0/4/8 -> sky floor 15/11/7, gate slightly better at the lower floor, faint dust emerges; starless_denoise off/gx/vstpost -> off PASSES with the best gate numbers (colour 2.0/grad 1.4/blotch 0.9/rings 3.3) and restores the bright-object chroma the OPEN_DEFECT names (final petal R-G +50.1 vs vstpost +31.5, core +23.7 vs +12.7, reflection B-G +19.5 vs +10.8), gx KILLED (gate colour 11.0 FAIL, sky tint). Candidate chroma_core=2 + black_point=4 rendered lossless, gate PASS (colour 4.0, grad 1.1, blotch 0.9, rings 3.3). Pinning awaits the user's judgment vs control + the author's finish"
+    "ladders": "measured on this set: chroma_core 0/2/4 (identical bright-object medians; gate colour 5/4/3), cull_pct 0/25/50 (NULL), black_point 0/4/8 (sky floor 15/11/7; faint dust emerges at 0), starless_denoise off/gx/vstpost (see starless_denoise note). Generic values kept everywhere the ladder showed no dataset-specific reason to move."
+  },
+  "approved": {
+    "date": "2026-07-10",
+    "judgment": "results/judgment_m20_denoise_20260710 (candidate denoise-off vs vstpost control vs the data author's finish; full-frame lossless pairs)",
+    "note": "aura +19.5 recorded with --ack-aura-warn: the fixed-px shell annuli read star-halo zone at 0.68\"/px (scale-awareness BACKLOG); no visible ghost aura at 1:1"
   }
 }

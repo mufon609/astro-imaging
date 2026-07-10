@@ -66,45 +66,25 @@ never let it grow narrative.
     byte-deterministic; look APPROVED 2026-07-09 vs the author's
     finished HOO (recipe pins every knob); baseline still blocked on
     the colour-scope redesign.
-  - `colonnello-m20/m20_rgb` — processed: the first mono FILTER-WHEEL
-    composition (15R/15G/16B × 80 s aligned to G, channel alignment
-    0.072 px median; SPCC K R0.880/G0.881/B1.000; gate PASS colour 3.0
-    / grad 1.4 / blotch 1.0 / rings 3.9). No baseline; look unapproved.
-    **OPEN DEFECT (user, on the lossless finals): the deep red emission
-    behind the reflection layer over the Trifid core is missing;
-    surviving red reads bloaty/flattened at zoom. LOCALIZED to the
-    post-stretch `denoise -vst -mod=0.5`** — stage probes on the cached
-    trio: stretch-only petal R−G +41.7 → +25.1 after vst (−40%; core
-    +19.1 → +9.7, reflection B−G +17.3 → +9.8; the faint rim is
-    untouched, +48.4 → +47.1), and every other stage measured
-    chroma-neutral there (corings: chroma_core 0/2/4 starless petal
-    R−G 26.1/25.8/25.6 — identical; black_point ×1.033; stars screen
-    combine +3 off-star; satu ×1.2). Upstream exonerated: our linear
-    above-sky petal R/G 2.21 (rim 3.10) vs the author's own calibrated
-    linear 1.95 (2.26) — our stack is redder than theirs; their finish
-    reads petal R−G +72 vs our +30.8. MEASURED (pre-registered
-    single-knob ladder, starless_denoise off/gx/vstpost): `off` PASSES
-    the gate with the best numbers of the three (colour 2.0 / grad 1.4
-    / blotch 0.9 / rings 3.3 vs control 3.0/1.4/1.0/3.9) and restores
-    the red — final petal R−G +50.1 (predicted ≈+51) vs control +31.5,
-    core +23.7 vs +12.7, reflection B−G +19.5 vs +10.8 (author +72 /
-    +54 / +31: the remaining gap is finishing-saturation philosophy, a
-    separate knob). `gx` (linear GraXpert denoise) KILLED on this
-    class: gate colour 11.0 FAIL (sky tint) + rings 5.0. The vstpost
-    control rung byte-reproduced the recorded control final. Recipe pin
-    `starless_denoise off` awaits the user's eyes on the lossless
-    finals (judgment package in colonnello-m20/results/).
-  - `mlnoga-ngc7635/ngc7635_sho` — processed: the first PREBUILT-MASTER
-    ingest (header-bare `calib/` masters, filename-token identity —
-    design section) and the first narrowband mono-filters composition
-    (19/19 ×3 members, inspection 0 WARN; channel alignment 0.040 px
-    median / 0.247 p95; narrowband SPCC K R0.872/G0.868/B1.000 on 2034
-    stars). Gate colour 11.0 scope-FAIL — the emission-flooded class
-    (achromatics clean: grad 1.4 / blotch 1.2 / rings 1.2); aura +44.0
-    reported (fixed-px annuli at 1.07″/px, the scale-awareness case).
-    No baseline (colour-scope redesign pending); look unjudged
-    (package in `mlnoga-ngc7635/results/judgment_sho_*/`). No LRGB
-    corpus is staged (app-ngc292 is excluded by user request —
+  - `colonnello-m20/m20_rgb` — processed (first mono filter-wheel
+    composition: 15R/15G/16B × 80 s aligned to G, channel alignment
+    0.072 px median; SPCC K R0.880/G0.881/B1.000); **look APPROVED
+    2026-07-10, baseline recorded** (`--ack-aura-warn`: aura +19.5 is
+    the fixed-px annuli reading at 0.68″/px — scale-awareness entry —
+    no visible shell at 1:1). One non-generic pin, measured:
+    `starless_denoise off` — the post-stretch vst crushed 40–50% of
+    this high-SNR class's bright-object chroma (petal R−G +41.7→+25.1;
+    the user-reported missing-red defect), `gx` FAILED the gate (colour
+    11.0, sky tint); full stage localization in the recipe note + git.
+    Gate at approval: colour 2.0 / grad 1.4 / blotch 0.9 / rings 3.3.
+  - `mlnoga-ngc7635/ngc7635_sho` — processed (first prebuilt-master
+    ingest + first narrowband mono-filters composition: 19/19 ×3
+    members, 0 WARN; alignment 0.040 px median; narrowband SPCC K
+    R0.872/G0.868/B1.000). Gate colour 11.0 scope-FAIL (emission-
+    flooded class; achromatics clean 1.4/1.2/1.2; aura +44.0 = the
+    annuli-scale reading at 1.07″/px). No baseline until the
+    colour-scope redesign; look unjudged (package in `results/`).
+    No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
   STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
@@ -186,18 +166,15 @@ L): 47/47 registered, gate PASS (colour 0.0, gradient 0.5, blotch 0.1, rings
 1.0); the flat master falls off only 1.3% to the corner. The `FILTER` keyword
 is optional in practice (ASIAIR writes none): an absent filter normalizes to
 `-` on both lights and flats, so they match; filter identity then rests on
-the directory staging. A master-only corpus (no raw calibration frames)
-stages PREBUILT masters in `<session>/calib/{dark,flat}_<token>.fits`,
-matched by the normalized FILENAME token — measured on the SHO corpus,
-such masters carry NO headers at all (no exposure/gain/filter), so the
-filename is the whole identity and the exposure match is unverifiable
-(both stated per run); raw dirs take precedence when both exist. Their
-ADU-scale float pixels are safe as-is: siril normalizes float FITS to its
-[0,1] range on import (logged), the same convention as the ushort lights.
-Staging tracks SOURCE identity (name+size+mtime marker), never file
-mtime — work/masters/ is shared across a session's sets, and a freshly
-staged per-filter master is always newer than every calib/ source, so an
-mtime test would silently keep the previous filter's dark.
+the directory staging. A master-only corpus stages PREBUILT masters in
+`<session>/calib/{dark,flat}_<token>.fits`, matched by the normalized
+FILENAME token — such masters carry NO headers (measured), so the filename
+is the whole identity and the exposure match is unverifiable, both stated
+per run; raw dirs win when both exist. Siril normalizes their ADU-scale
+floats to [0,1] on import (same convention as ushort lights), so staging
+is a plain copy — tracked by SOURCE identity (name+size+mtime marker),
+never file mtime: a freshly staged master is always newer than every
+calib/ source, so an mtime test would keep the previous filter's dark.
 
 **Dual-band OSC composition (`composition.json` + `compose.py`)** — a set
 whose composition record is kind `dualband-osc` calibrates the CFA mosaic
