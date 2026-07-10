@@ -218,21 +218,16 @@ milliseconds on Pi-class ARM).
 
 ### C6 — Multi-filter combine: the remaining kinds
 
-The composition machinery is LIVE for both shipped kinds (NOTES design
-section carries the measured numbers): `dualband-osc` (per-line stacks
-from one set's CFA frames) and `mono-filters` (sibling per-filter sets
-aligned to a reference member — the M20 wheel target measured 0.072 px
-median channel alignment). What remains:
+The composition machinery is LIVE for both shipped kinds and both
+mono-filters classes (NOTES design section carries the measured
+numbers): `dualband-osc` (per-line stacks from one set's CFA frames)
+and `mono-filters` broadband (M20 wheel, 0.072 px median channel
+alignment) + narrowband SHO (NGC7635, 0.040 px; prebuilt-master ingest;
+recipe-driven narrowband SPCC). The SHO PALETTE AESTHETICS (green
+dominance vs the finished gold/teal looks; `rmgreen` is legal on this
+green-dominant class) are render-side and sit with the user's judgment
+package, not here. What remains:
 
-- **SHO palettes** (the mlnoga NGC7635 corpus): a `mono-filters`
-  composition with narrowband members — channel assignment objective,
-  SPCC narrowband wavelengths already plumbed through the recipe
-  (SII→R 671.6 nm / Ha→G 656.28 / OIII→B 500.7); `rmgreen` after the
-  Ha→G mapping is a render-side aesthetic the user judges (the dead-end
-  registry's magenta warning applies only to non-green-dominant skies —
-  SHO is green-dominant by construction). NOTE: this corpus ships MASTER
-  calibration files, which the pipeline cannot ingest (it builds masters
-  from raw dirs) — assess master-calib ingest when staging it.
 - **Broadband LRGB**: compose R/G/B, SPCC the RGB only, stretch LINKED,
   apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB combination
   is a nonlinear-space operation (CIE L*a*b*); the linear-combine

@@ -94,9 +94,18 @@ never let it grow narrative.
     control rung byte-reproduced the recorded control final. Recipe pin
     `starless_denoise off` awaits the user's eyes on the lossless
     finals (judgment package in colonnello-m20/results/).
-    The SHO corpus (mlnoga-ngc7635) stages via
-    `~/.cache/astro_recovery/fetch_corpus.sh`; no LRGB corpus is staged
-    (app-ngc292 is excluded by user request — .gitignore note).
+  - `mlnoga-ngc7635/ngc7635_sho` — processed: the first PREBUILT-MASTER
+    ingest (header-bare `calib/` masters, filename-token identity —
+    design section) and the first narrowband mono-filters composition
+    (19/19 ×3 members, inspection 0 WARN; channel alignment 0.040 px
+    median / 0.247 p95; narrowband SPCC K R0.872/G0.868/B1.000 on 2034
+    stars). Gate colour 11.0 scope-FAIL — the emission-flooded class
+    (achromatics clean: grad 1.4 / blotch 1.2 / rings 1.2); aura +44.0
+    reported (fixed-px annuli at 1.07″/px, the scale-awareness case).
+    No baseline (colour-scope redesign pending); look unjudged
+    (package in `mlnoga-ngc7635/results/judgment_sho_*/`). No LRGB
+    corpus is staged (app-ngc292 is excluded by user request —
+    .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
   STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
   colour / plane-fit gradient / blotch / rings. Bright celestial signal
