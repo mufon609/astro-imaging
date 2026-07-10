@@ -493,22 +493,19 @@ def render_config(ctx, cfg, jpg_out):
         anchor = float(k * sig_g)
         mode = f"noise ({k:.1f}*sigma_G)"
     else:
-        # catalog anchor on a FIXED channel basis (G/luminance) by
-        # default: the component peak of the max-over-channels residual
-        # follows whichever channel wins, so a per-channel recalibration
-        # (SPCC K factors) moves the anchor and the low-end gain drifts
-        # (measured x864 -> x996 between builds of one sky). peak_g
-        # rescales WITH its channel; basis "max" is kept only for
-        # recipes whose approved look predates the fixed basis.
-        basis = cfg.get("stars_anchor_basis", "g")
-        key = {"g": "peak_g", "max": "peak"}[basis]
-        if key not in cat:
+        # catalog anchor on the FIXED G/luminance basis: a
+        # max-over-channels amplitude follows whichever channel wins, so
+        # a per-channel recalibration (SPCC K factors) would move the
+        # anchor and drift the low-end gain (measured x864 -> x996
+        # between builds of one sky); the G-basis amplitude rescales
+        # WITH its channel and cannot drift.
+        if "peak_g" not in cat:
             sys.exit(f"starcomb: catalog {ctx['cat_npz']} predates the "
-                     f"'{key}' anchor basis — delete the work/starsep "
+                     "peak_g anchor basis — delete the work/starsep "
                      "cache and re-run so the separator regenerates it")
-        amps = np.sort(cat[key])[::-1]
+        amps = np.sort(cat["peak_g"])[::-1]
         anchor = float(np.median(amps[:min(500, len(amps))]))
-        mode = f"catalog[{basis}]"
+        mode = "catalog[g]"
     m = solve_mtf_m(anchor, cfg["stars_peak"])
     # print anchor + low-end gain every run so normalization drift stays
     # visible whichever mode is active
@@ -592,7 +589,7 @@ GENERIC = {
     "chroma_core": 4.0, "lum_core": 2.0, "core_order": "pre",
     "stretch_linked": "linked", "satu": 0.2, "cull_pct": 50.0,
     "stars_peak": 0.97, "stars_anchor": "catalog",
-    "stars_anchor_basis": "g", "stars_floor": 3.0, "black_point": 8.0,
+    "stars_floor": 3.0, "black_point": 8.0,
     "jpg_quality": 100, "jpg_subsampling": 0, "noise_anchor_k": None,
 }
 
@@ -602,7 +599,6 @@ ENUM_CHOICES = {
     "core_order": ["pre", "post"],
     "stretch_linked": ["unlinked", "linked"],
     "stars_anchor": ["catalog", "noise"],
-    "stars_anchor_basis": ["g", "max"],
 }
 
 
@@ -700,17 +696,10 @@ def main():
     ap.add_argument("--stars-anchor", default=None,
                     choices=ENUM_CHOICES["stars_anchor"],
                     help="MTF anchor source: catalog = median top-500 "
-                         "catalog amplitude on the anchor basis channel, "
-                         "noise = k*sigma_G with k from the dataset "
-                         "recipe (same-sky stability tool; k is "
-                         "per-dataset by construction)")
-    ap.add_argument("--stars-anchor-basis", default=None,
-                    choices=ENUM_CHOICES["stars_anchor_basis"],
-                    help="channel basis for the catalog anchor: g = "
-                         "G/luminance residual peak (stable under "
-                         "per-channel recalibration, generic), max = "
-                         "max-over-channels (drifts with SPCC K factors; "
-                         "kept for approved looks that predate the fix)")
+                         "G-basis catalog amplitude, noise = k*sigma_G "
+                         "with k from the dataset recipe (same-sky "
+                         "stability tool; k is per-dataset by "
+                         "construction)")
     ap.add_argument("--noise-anchor-k", type=float, default=None,
                     help="k for stars_anchor=noise (per-dataset; no "
                          "generic value exists)")
@@ -746,7 +735,6 @@ def main():
     ap.add_argument("--param", default=None,
                     choices=["starless_target", "starless_denoise",
                              "cull_pct", "stars_peak", "stars_anchor",
-                             "stars_anchor_basis",
                              "sep_prom", "sep_engine",
                              "chroma_core", "satu", "core_order",
                              "stretch_linked", "lum_core",
@@ -791,7 +779,7 @@ def main():
     if not args.hypothesis:
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     enum_params = ("starless_denoise", "core_order", "stretch_linked",
-                   "sep_engine", "stars_anchor", "stars_anchor_basis")
+                   "sep_engine", "stars_anchor")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

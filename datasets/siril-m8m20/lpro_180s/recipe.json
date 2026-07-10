@@ -1,0 +1,11 @@
+{
+  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "dataset": "siril-m8m20/lpro_180s",
+  "status": "provisional",
+  "render": {},
+  "notes": {
+    "solve": "blind solve grinds on this 2.5-degree field (narrow-field index scales); solve with the position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10 (the ASTAP complement in BACKLOG is the structural fix for narrow fields)",
+    "spcc": "sensor-null K R0.370/G0.912/B1.000 on 1862/5014 stars — the strong R down-scale is the L-Pro passband on an Ha-rich field; this chip (Sony IMX571) has a real profile in the SPCC database, the -oscsensor ladder is the C2 test case",
+    "filters": "no FILTER keywords in any header: filter identity is directory-only; flats/ and darkflats/ are per-set staging symlinks (flats_lpro, biases)"
+  }
+}

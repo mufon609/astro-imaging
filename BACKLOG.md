@@ -208,24 +208,6 @@ recorded in `.gitignore`, layout caveats in SESSIONS.md. **Relates to:** C2
 (the m8m20 chip has a real SPCC profile: Sony IMX571), C7 (its L-Pro set
 exercises the OSC-CFA branch).
 
-### C7 — Verify the OSC-CFA FITS branch
-
-The FITS ingest routes debayer on the header — a mono frame (no `BAYERPAT`,
-`NAXIS=2`) is never debayered, an OSC CFA FITS (`BAYERPAT` present) gets
-`-cfa -debayer`. Only the MONO branch is verified (imx585c). The CFA branch is
-written but has never seen data: a dedicated OSC camera writes a
-single-channel CFA FITS that siril must debayer, and the render then takes
-the normal colour chain (SPCC, chroma coring, satu). Verify on a real
-OSC-FITS set: confirm the Bayer pattern is read from the header, the
-debayered stack is 3-channel, SPCC runs, and the colour render passes the
-gate. The verification dataset (siril-m8m20 `lpro_180s`, ASI2600MC RGGB) was
-staged with `flats/`+`darkflats/` symlinks and its preflight verified
-(uniform 180 s gain100 offset50, flats matched, mono=0 → debayer path), but
-the data was removed for disk space before the run — re-stage with
-`~/.cache/astro_recovery/fetch_siril.sh` and run
-`scripts/stack/run_pipeline.sh siril-m8m20 lpro_180s`. Until then, treat the
-CFA branch as untested code.
-
 ### C8 — Evaluate newer star-separation models (declared-delta ladders)
 
 The engine abstraction is in place (net/inpaint per recipe); the MODEL behind
@@ -274,3 +256,28 @@ to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 control vs `autoghs` variants) on one approved + one provisional dataset —
 pure aesthetics, user's eyes decide; no bake without approval.
 
+### C11 — Gate sky scope on emission-flooded frames (scope change; needs ratification)
+
+On a frame whose every block carries real emission (siril-m8m20 `lpro_180s`:
+M8/M20 with the Sagittarius MW core filling the 2.5° field), the gate's
+block-luminance sky selector has no true dark sky to find — the faintest 85%
+of blocks still hold diffuse Hα, and its real chroma reads as a colour
+defect: the render fails ONLY colour (22.0 vs limit 7; gradient 2.0, blotch
+2.2, rings 3.2 all pass, shells +2.2). The author's own finished RGB of the
+same data reads colour 65.4 / gradient 27.7 through the same gate — the
+field is coloured at every luminance level; a ≤7 sky-colour bar is
+structurally unreachable there without destroying real signal.
+
+The gate stays as-is until a SCOPE decision is ratified (thresholds never
+loosen; this is not a threshold question). Candidate scope refinement:
+exclude `extended_object_mask` regions from the COLOUR grading blocks (the
+corings' `sky_pixel_mask` already excludes them), so colour grades true sky
+where any exists and reports INFO where none does — grading gradient/blotch/
+rings unchanged. Prerequisite measurements: the mask's coverage on this
+frame, and the colour number it then yields on all six datasets (must not
+move any existing PASS).
+
+Independent of scope: SPCC ran sensor-null here (K R0.370/G0.912/B1.000 on
+1862 stars); the C2 `-oscsensor "Sony IMX571"` ladder is the designed test
+of whether a real chip profile moves the sky balance materially on this
+class.

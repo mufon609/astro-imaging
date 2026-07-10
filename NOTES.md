@@ -2,14 +2,13 @@
 
 This file is the **current truth**: what the pipeline is, why every
 knob has its value (measured), and the dead-end registry (what was
-tried, what number killed it — NEVER re-attempt these). The full
-chronological history — every experiment arc, superseded recipe and
-session narrative — lives in **git** (`git log`, and every commit
-carries the NOTES of its time; each approved baseline is git-tagged, e.g.
-`set-03-baseline-20260709`). `README.md` is the process contract
+tried, what number killed it — NEVER re-attempt these). All history
+lives in **git** (`git log`; every commit carries the NOTES of its
+time). Per-dataset records live in `datasets/<session>/<set>/`
+(recipe + measured baseline). `README.md` is the process contract
 (standard-workflow mapping, review contract, experiment discipline,
 per-set geometry, north star). Update THIS file as states change;
-never let it grow narrative again.
+never let it grow narrative.
 
 ## STATUS (2026-07-09)
 
@@ -21,62 +20,46 @@ never let it grow narrative again.
   drift + artifact-byte comparison over every baselined dataset;
   `--determinism` double-renders cold.
 - **The render chain is deterministic from the stack, cold caches
-  included** (measured: two fully-cold M74 builds byte-identical across all
-  four artifacts; the full sweep byte-reproduces every baseline). The
-  bgelin subsky runs WITHOUT dither: unseeded ±1 LSB16 noise, pointless on
-  a 32-bit float chain, was the one nondeterministic step (two cold builds
-  differed on 100% of pixels, RMS 0.41 counts16, detection 852→858). The
-  deterministic re-render was verified metric-identical on every dataset
-  and USER-CONFIRMED visually equivalent 2026-07-09 (set-03 churn 17.3% of
-  pixels at RMS 2.2 counts16 = the seeded fill re-drawing over a slightly
-  different mask + ~50 faint cull flips; LMC 52% at RMS 1.3 counts8).
-- **Star separation architecture settled** (measured on three data
-  classes; numbers in ledger #4 and the per-dataset recipes): StarNet2
-  ONNX (`net`) is the generic default via `sep_engine auto` — its failure
-  mode is LOUD (the gate catches it) while inpaint's is silent (real
-  structure destroyed on a PASSing render; the >10% in-envelope WARN is
-  its only tell). Engine facts by class: resolved object (M74) → net
-  preserves what inpaint destroys, aura also better (+4.0 vs +4.9);
-  ultra-wide MW-dominated self-flat DSLR (wide_50mm 41°) → net FAILS the
-  gate outright (grad 9.0 / rings 9.0 / aura +5.0 vs inpaint PASS
-  6.4 / 4.2 — residual large-scale structure + bright-star shells);
-  set-03 (37 mm) carries the same class cosmetically (aura +4.0, inside
-  the bound — USER-ACCEPTED 2026-07-09); matched-flat off-centre object
-  (SMC) → both pass, net aura +3.2. The `hybrid` engine is DELETED
-  (ledger #4). The ONLY engine pin is wide_50mm = `inpaint` (measured
-  gate fail; lifts when a better separation model lands — BACKLOG); every
-  other dataset tracks generic.
-- **Datasets** (registry: SESSIONS.md; records: `datasets/`; every recipe
-  tracks the GENERIC pipeline — per the user's direction the repo optimizes
-  the generalized chain, not any one dataset's frozen render — with
-  wide_50mm's engine pin as the single measured exception):
-  - `07-02-26/set-03` — processed; underexposed: quality is
-    exposure-limited (corridor-era B5/B6/B7 tags are history).
+  included** (measured: two fully-cold builds byte-identical across all
+  four artifacts; the sweep byte-reproduces every recorded baseline).
+- **Star separation** is data-class dependent, measured: StarNet2 ONNX
+  (`net`) is the generic default via `sep_engine auto`. Its failure mode
+  is LOUD (residual large-scale structure fails the gate) where
+  mask+inpaint's is silent (real structure destroyed on a PASSing
+  render — the >10% in-envelope WARN is its only tell). Per class:
+  resolved object (M74) → net preserves what inpaint destroys, shells
+  also better (aura +4.0 vs +4.9); ultra-wide MW-dominated self-flat
+  DSLR at 41° (wide_50mm) → net fails the gate (grad 9.0 / rings 9.0 /
+  aura +5.0 vs inpaint 6.4 / 4.2 / +3.0) and the recipe pins `inpaint`
+  there — the one pin, lifted when a separation model without the
+  bright-star-shell class lands (BACKLOG); at 37° (set-03) the same
+  class stays inside bounds (aura +4.0); matched-flat off-centre object
+  (SMC) → both engines pass.
+- **Datasets** (registry: SESSIONS.md; records: `datasets/`; recipes
+  track GENERIC — a knob is pinned only with a measured, dataset-specific
+  reason):
+  - `07-02-26/set-03` — processed; quality is exposure-limited.
   - `nikon-test/lmc_180mm` — processed. The bright-star red halo is the
-    Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5 counts
-    r≈6–38; absent on the same body at 50 mm f/4 and on set-03) — USER
-    VERDICT final: honest gear data, no render-side de-fringe; fix is
-    acquisition (stop down). chroma_core k=4 was the user's ladder pick.
+    Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5
+    counts r≈6–38; absent on the same body at 50 mm f/4): honest optical
+    data — a render-side de-fringe would fabricate lens performance, so
+    the fix is acquisition (stop down).
   - `nikon-test/smc_180mm`, `nikon-test/wide_50mm` — processed, gate PASS.
-  - `imx585c/m74_toa130` — processed (first FITS + first mono set), gate
-    PASS; reference master in `imx585c/reference/`.
-  - `07-02-26/lights` — NOT approved (user: "massive issues");
-    generalization testbed only.
-  - `siril-m8m20` — the C7 OSC-CFA verification set + C6 dual-band case.
-    The rest of the C6 corpus (colonnello-m20 mono-RGB, mlnoga-ngc7635
-    SHO) is off-disk; re-stage via
-    `~/.cache/astro_recovery/fetch_corpus.sh`.
-- **The gate is composition-agnostic** (`bg_qa`): sky selected STATISTICALLY
-  (blocks ≤ P50+2.5·MAD, foreground excluded), grading colour / plane-fit
-  gradient / blotch / rings — no per-set corridor (the geometric corridor
-  broke on the object-dominated LMC; a plane fit to the statistical sky
-  generalizes). Calibrated: references pass with margin; injected 8-count
-  gradient / ring / colour cast FAILS.
-- **No user-judgment items open.** Judgment packages
-  (`scripts/qa/judgment_crops.py`) must state their question
-  (`--question=`) and ship a full-frame pair + lossless 1:1 crops — a
-  package that makes the judge guess the question is a defect. SPCC still
-  runs sensor-null — BACKLOG C2.
+  - `imx585c/m74_toa130` — processed (mono FITS class); reference master
+    in `imx585c/reference/`.
+  - `07-02-26/lights` — registration/generalization testbed only, no
+    deliverable.
+  - `siril-m8m20` — OSC-CFA + dual-band class. The mono multi-filter
+    corpus (colonnello-m20 RGB, mlnoga-ngc7635 SHO) is off-disk;
+    re-stage via `~/.cache/astro_recovery/fetch_corpus.sh`.
+- **The gate is composition-agnostic** (`bg_qa`): sky selected
+  STATISTICALLY (blocks ≤ P50+2.5·MAD, foreground excluded), grading
+  colour / plane-fit gradient / blotch / rings. Bright celestial signal
+  has no fixed geometry a mask could scope, so no per-set sky mask
+  exists; the statistical selection drops bright signal out of scope and
+  the plane fit is robust to a localized object. Calibrated: references
+  pass with margin; an injected 8-count gradient / ring / colour cast
+  FAILS. SPCC runs sensor-null — BACKLOG C2.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -85,10 +68,9 @@ never let it grow narrative again.
 Rig/tooling facts live in **`CLAUDE.md`** (git-tracked, auto-loaded
 into agent sessions): flatpak siril invocation + the /tmp rule,
 hardware/disk constraints, python stack (no astropy), GraXpert,
-astrometry venv, local Gaia catalog layout. Catalog chunk state as of
-2026-07-07: astro + SPCC xpsamp {2,3,5,7,8,9,10,11,12,13,14,15,19,25,
-27,29,30,31,43} = the Cygnus + Boötes cones (northern), plus the southern
-LMC/SMC chunks {32,33,34,36,38,44,45} added 2026-07-08; SPCC needs the
+astrometry venv, local Gaia catalog layout. Local SPCC xpsamp chunks:
+{2,3,5,7,8,9,10,11,12,13,14,15,19,25,27,28,29,30,31,43} (Cygnus, Boötes,
+Sagittarius cones) + {32,33,34,36,38,44,45} (LMC/SMC); SPCC needs the
 FULL cone. `scripts/calibrate/spcc_cone.py <solved_wcs.fit> [--fetch]`
 computes the nside=2 nested cover from the solved WCS (projects the true
 image centre, not CRVAL) and fetches any missing chunk (validated:
@@ -123,10 +105,10 @@ change (names+sizes+mtimes — catches re-shot frames with old
 timestamps). Calibrate `-dark -cc=dark` (+flat +equalize_cfa when
 matched) → `setfindstar -sigma=0.5` (~870 vs ~370 stars/frame: the
 matcher needs the extra triangles) → two-pass register → 32-bit
-rejection stack, `-norm=addscale -output_norm`, **no rgb_equal** (SPCC
-calibrates the raw balance directly; it measured K R 1.675 / G 0.749 /
-B 0.935 on 508 stars — rgb_equal was the primary raw-Bayer normalizer
-and only obscured what SPCC measures).
+rejection stack, `-norm=addscale -output_norm`, **no `-rgb_equal`** (a
+live stacking option): SPCC calibrates the raw Bayer balance directly —
+raw G runs ~×1.5 hot and SPCC measures it (K R 1.675 / G 0.749 / B 0.935
+on 508 stars); a pre-normalizer would hide exactly what SPCC measures.
 
 **Dedicated-astrocam FITS branch (cooled mono/OSC)** — a set of `.fits` lights
 forks to a FITS ingest: `fitsmeta.py` reads exposure/gain/offset/filter/mono
@@ -138,13 +120,17 @@ and calibrated with **dark-flats**, darks matched to the flat exposure: the
 CMOS standard, since a multi-second flat carries dark current a bias cannot
 remove (`biases/` is the fallback). Darks are filter-independent, matched by
 exposure/gain/offset. A mono light is never debayered (no `BAYERPAT`); an OSC
-CFA FITS gets `-cfa -debayer` (that branch is written but unverified). The
-render detects a 1-channel stack and takes the luminance-only path — chroma
-coring and saturation act on channel differences that are identically zero, and
-SPCC has no colour to calibrate. A single-channel FITS must be written
-`NAXIS=2`: siril's reader rejects a degenerate `NAXIS3=1` cube. Measured on M74
-(47×120 s, TOA-130 mono L): 47/47 registered, gate PASS (colour 0.0, gradient
-0.5, blotch 0.1, rings 1.0); the flat master falls off only 1.3% to the corner.
+CFA FITS gets `-cfa -debayer` (measured on the ASI2600MC set: 15/15 debayered
+to a 3-channel stack, inspection PASS). The render detects a 1-channel stack
+and takes the luminance-only path — chroma coring and saturation act on
+channel differences that are identically zero, and SPCC has no colour to
+calibrate. A single-channel FITS must be written `NAXIS=2`: siril's reader
+rejects a degenerate `NAXIS3=1` cube. Measured on M74 (47×120 s, TOA-130 mono
+L): 47/47 registered, gate PASS (colour 0.0, gradient 0.5, blotch 0.1, rings
+1.0); the flat master falls off only 1.3% to the corner. The `FILTER` keyword
+is optional in practice (ASIAIR writes none): an absent filter normalizes to
+`-` on both lights and flats, so they match; filter identity then rests on
+the directory staging.
 
 **Self-flat branch (flatless sets)** — median of UNREGISTERED
 calibrated frames (drifting stars self-reject) → per-frame planar glow
@@ -193,10 +179,9 @@ CLI > `datasets/<session>/<set>/recipe.json` > GENERIC (provenance printed
 per run; a recipe-less dataset renders generic and says so):
 1. GraXpert BGE + `subsky 1` on the STAR-FUL linear (the only
    MW-safe order: BGE on starless erases the MW, +38 → +0.4 linear).
-   NO `-dither`: dither is unseeded ±1 LSB16 noise for banding that
-   cannot occur on a 32-bit float chain, and it was the render's one
-   nondeterministic step (two cold builds differed on 100% of pixels,
-   RMS 0.41 counts16 = 0.08σ, moving downstream star detection 852→858).
+   `subsky` runs WITHOUT `-dither`: dither injects unseeded ±1 LSB16
+   noise (0.08σ — breaks byte-determinism) to mask quantization banding
+   that cannot occur on a 32-bit float chain.
 2. Star separation, engine per recipe (`auto` = net when the StarNet2
    weights are installed, else inpaint):
    - `net` (`starnet_sep.py`, StarNet2 ONNX on aarch64, linear under an
@@ -222,9 +207,8 @@ per run; a recipe-less dataset renders generic and says so):
    ≫ noise does). The gate jpg (q92, frozen — gate identity) is written
    HERE, before the combine.
 4. Stars: cull 50 (< p50 flux) → stars_floor 3.0×σ → gray MTF anchored
-   so the median top-500 amplitude ON THE FIXED G BASIS (`peak_g`)
-   renders at 0.97 (`basis max`, the max-over-channels reading, exists
-   only as a recipe escape hatch — nothing uses it).
+   so the median top-500 G-basis component amplitude (`peak_g`) renders
+   at 0.97.
 5. Screen combine → satu 0.2 → jpg q100/4:4:4 (+ PNG8 + PNG16 with
    `--lossless`).
 
@@ -232,18 +216,19 @@ per run; a recipe-less dataset renders generic and says so):
 
 | knob = value | the number that set it |
 |---|---|
-| SPCC (not rgb_equal) | K R1.000/G0.656/B0.837 (R-normalized; raw G runs ×1.5 hot — the Bayer imbalance rgb_equal used to hide) · 509/2850 stars kept · gate equivalent · rim chroma improves (−9.0→−7.2). Captured by `spcc_run.py` (work/spcc_<set>.{json,log}); rerun on the canonical stack is pixel-IDENTICAL (spcc deterministic). An older grep-lost triple (1.675/0.749/0.935) does not reproduce — trust the json |
+| SPCC (not rgb_equal) | K R1.000/G0.656/B0.837 (R-normalized; raw G runs ×1.5 hot — the Bayer imbalance a pre-normalizer would hide) · 509/2850 stars kept · gate equivalent · rim chroma improves (−9.0→−7.2). Captured by `spcc_run.py` (work/spcc_<set>.{json,log}); rerun on the canonical stack is pixel-IDENTICAL (spcc deterministic) |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
 | linked stretch | unlinked = per-channel noise → chroma blotches (the "rainbow" engine); on a calibrated stack linked PASSES (2.8/1.2/1.8) and cuts blotches ~12% at source |
 | starless_target 0.07 | sky rim is real: 0.12 → sky rings 4.4 FAIL |
 | vstpost -mod=0.5 | every linear denoise placement imprints a radial signature on self-flat data (5.1/4.6 FAIL); post-stretch half-mod: grain −40%, gate clean |
 | chroma_core 4 | bands 0.73/1.25 (k=3: 1.08/1.88); star-color cost −1% on the linked chain. NOTE: tuned on underexposed set-03 (colour ≈ noise); on a bright real-colour target (the LMC) k=4 over-neutralizes real Hα — revisit per data class |
 | lum_core 2 | gray patches (stretch-amplified lum noise ±2 counts) removed; noise estimated on the statistical dark sky, correction Wiener-gated everywhere; NO geometric factor (a hard rect printed a 4.5× texture seam; the Wiener gate protects real structure) |
-| black_point 8 | user "blackest": bg 16→8; dark-sky clip0 ~0.5% (the gap/lane blackness requested); floor P50 + contrast survive (linear shift preserves differences) |
+| black_point 8 | bg 16→8; dark-sky clip0 ~0.5% = the intended gap/lane blackness; floor P50 + contrast survive (linear shift preserves differences) |
 | stars anchor 0.97 | mid-peak 255 vs 225 at 0.85; layers decoupled (gate untouched) |
-| stars_anchor_basis g | the anchor is the median top-500 component peak; on the MAX-over-channels basis a per-channel recalibration (SPCC K) moves which channel wins and the anchor drifts (measured −8.5/−20 counts16 mid/faint G, low-end gain ×864→×996 between builds of one sky); the G basis rescales WITH its channel and cannot drift. `max` survives only as the pin on approved looks that predate the fix. The anchor's ABSOLUTE level stays a per-dataset recipe fact: top-500 is the brightest 2.2% of set-03's 22916-star catalog but 59% of M74's 852 — no single rule sets star brightness across fields |
+| anchor basis = G (`peak_g`) | a max-over-channels anchor follows whichever channel wins, so a per-channel recalibration (SPCC K) moves it (measured −8.5/−20 counts16 mid/faint G, low-end gain ×864→×996 between builds of one sky); the G-basis amplitude rescales WITH its channel and cannot drift. The anchor's ABSOLUTE level is a per-dataset fact: top-500 is the brightest 2.2% of a 22916-star catalog but 59% of an 852-star one — no single rule sets star brightness across fields |
+| stars_anchor catalog (noise = per-dataset tool) | `--stars-anchor noise` (k·σ_G) holds a physical star's brightness constant across rebuilds of ONE sky; k has no cross-dataset value by construction (k = anchor/σ_G restates one field's star statistics — a 491σ field's k is an 11.5× brightness error on a 44σ field), so noise mode requires `noise_anchor_k` from the dataset recipe |
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
-| cull 50 | metric-invisible; user's max-removal pole (the alternate cull-0 faint-field look remains a flag away) |
+| cull 50 | metric-invisible across the 0–50 ladder; 50 is the maximal-removal end (the cull-0 faint-field look remains a flag away) |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
 | jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
 
@@ -254,7 +239,7 @@ sky, terrestrial foreground excluded — **thresholds never loosen**);
 whole-frame QA as reference; `star_shell_report` (aura_lum WARN > 4.0 —
 calibrated fixed +2.0 vs defect +12.0 on the same star sample; shell_chroma
 is a TREND, no bound — honest PSF fringe dominates it and a fixed bound
-cried wolf on the approved render); black_point clip0 sky; stars anchor +
+cries wolf on clean renders); black_point clip0 sky; stars anchor +
 MTF low-end gain (drift watch); star metrics.
 
 ## Per-stage expectations (inspection contract)
@@ -309,9 +294,8 @@ Gain/flat estimation:
 
 Stretch/denoise/color:
 - Unlinked autostretch on a CALIBRATED stack → per-channel curves
-  differentially amplify noise = the chroma-blotch ("rainbow") engine.
-  (Pre-SPCC it was compensating a cast — that justification died with
-  SPCC.)
+  differentially amplify noise = the chroma-blotch ("rainbow") engine;
+  there is no cast left for it to compensate after SPCC.
 - `rmgreen` on a sky that is not green-dominant → global magenta.
 - Linear denoise (vst or GraXpert), ANY placement on self-flat data →
   noise is radial after V(r) division; adaptive smoothing imprints a
@@ -320,7 +304,7 @@ Stretch/denoise/color:
 - Chroma blur (σ2/4) + satu → scale-blind to 48–128 px blotches; satu
   re-amplifies everything ×1.25 → rainbow WORSE. The fix is
   significance coring (Wiener, multi-scale), not blurring.
-- A fixed shell_chroma WARN bound → cried wolf on the approved render
+- A fixed shell_chroma WARN bound → cried wolf on a clean render
   (honest PSF fringe dominates and scales with the chain's low-end
   gain). aura_lum is the defect discriminant.
 - "lum_core erases a centred galaxy's faint outer disk" → KILLED. Measured on
@@ -342,9 +326,9 @@ Separation on resolved objects:
   starless and screened back through the stars MTF, rendering as hard white
   blobs. StarNet2 (`--sep-engine net`) renders the same field correctly: it
   keeps 100.0% of the genuine field-star flux while pulling 32% LESS galaxy
-  structure into the stars layer (measured over the same components). The
-  `hybrid` engine cannot fix it — hybrid's base IS the inpaint starless, which
-  has already lost the knots.
+  structure into the stars layer (measured over the same components). Running
+  the net ON an inpaint starless cannot fix it either — that base has already
+  lost the knots, and no downstream inference can restore them.
 - StarNet2's bright-star residual is a per-DATA property, not a fixed defect.
   On M74 the net starless pedestal is 1.28 counts16 at r0-4 (0.26σ), SMALLER
   than the inpaint fill's 1.85 (0.38σ); on set-03 the same engine prints a
@@ -380,10 +364,10 @@ Separation/stars:
 - Lowering starsep prominence (6→5→4σ) to catch the faint tail → NULL:
   residual starless detections 5137/5179/5159 — the stipple is
   noise-level clumping, not separable stars.
-- StarNet: no Linux aarch64 build through v2.5.3. Route that remains:
-  official ONNX packages (Linux x64) + verified-installable aarch64
-  onnxruntime wheels — go/no-go is whether the .onnx is loose in the
-  package (ledger #4).
+- StarNet official binaries on Linux aarch64 → none exists through
+  v2.5.3 (x64 + macOS-ARM only). The weights file inside the official
+  Linux x64 package runs under an aarch64 onnxruntime wheel — the `net`
+  engine.
 - The stars-layer skirt annulus is the ghost-aura engine (MTF ×~10³
   low-end gain on subtraction noise): fixed by stars_floor, NOT by
   smaller dilation (cliff moves brighter), NOT by feathering alone
@@ -391,10 +375,10 @@ Separation/stars:
 
 QA/scope:
 - Whole-frame QA as the gate on a separated chain → reads real MW/object
-  signal as a background artifact ("ring 6.1" was pure MW signal). The gate
-  runs a composition-agnostic STATISTICAL sky scope instead (dark blocks,
-  foreground excluded); whole-frame stays a reported reference. (The interim
-  corridor-masked scope was itself a bandaid — removed 2026-07-08.)
+  signal as a background artifact ("ring 6.1" was pure MW signal); a
+  geometric sky mask cannot fix it (a bright object has no fixed band to
+  configure). The gate runs a composition-agnostic STATISTICAL sky scope;
+  whole-frame stays a reported reference.
 - Judging by hand-picked patches → the whole-frame-QA lesson that
   started the gate (2.69/38 on a render that "looked fine" in patches).
 - A level-step seam gauge across mask edges → strip-median ≈ 0; the
@@ -424,80 +408,39 @@ Prediction inversions worth remembering (recorded, instructive):
 2. **Per-frame `seqsubsky 1`** — ADAPTATION on the self-flat branch
    only (stack-level-only BGE measured FAIL, see dead ends). Dies with
    real flats.
-3. ~~rgb_equal~~ — CLOSED 2026-07-07 (user-approved): SPCC calibrates
-   the raw stack directly.
-4. **Star separation by mask+inpaint** — DEMOTED to the weights-absent
-   fallback (and set-03's pinned approved look). The StarNet2 ONNX
-   engine (`starnet_sep.py`: official v2.5.3 weights, personal-use
-   license, aarch64 ORT, invertible zero-clip MTF pre-stretch to bg
-   0.25 — the vendor-sanctioned linear placement) is the generic
-   default via `sep_engine auto`. Measured basis (2026-07-09 ladders
-   under the composition-agnostic gate, both PASS everywhere):
-   inpaint mis-classifies a resolved object's structure as stars (M74:
-   26% of its 852 detections are in-galaxy HII knots, inpainted out
-   and screened back as hard white blobs; the 6212 px² core passes
-   AREA_MAX_BRIGHT) while net keeps 100.0% of field-star flux and
-   pulls 33% less galaxy-zone flux; on the star-field set-03 net's
-   only cost is a striped bright-star shell (aura +0.0 → +4.0, at the
-   WARN bound); on the MORE extreme ultra-wide class (wide_50mm, 41°
-   MW-dominated self-flat) the same residual-structure class FAILS the
-   gate outright (grad/rings 9.0/9.0, aura +5.0 vs inpaint PASS
-   6.4/4.2) — so net's failure mode is LOUD where inpaint's (structure
-   destruction on a PASSing render) is silent; the asymmetry still
-   favours net as the generic default. starsep.py now WARNs when >10%
-   of its detections sit inside an extended-object envelope. The
-   `hybrid` engine (net run ON the inpaint starless — a repo invention
-   with no standard-practice counterpart, structurally unable to
-   restore knots its base already destroyed) is DELETED. The set-03
-   bright-star shell under net was USER-ACCEPTED 2026-07-09; the single
-   engine pin is wide_50mm = `inpaint` on its measured gate FAIL. Costs
-   owned where inpaint runs: <6σ faint tail in the starless layer;
-   skirt-aura class (mitigated by stars_floor).
-5. **Denoise** — linear placements structurally dead on self-flat data;
-   post-stretch `-vst -mod=0.5` is in the approved chain.
-6. **Stars anchor** — the same-sky drift class is FIXED structurally:
-   the drift was PER-CHANNEL gain (measured: pure global gain ×0.8/×1.25
-   → both anchor modes track ≤0.45 counts; the SPCC K set 1.0/0.656/0.837
-   → the max-over-channels catalog anchor drifts −1.0/−8.5/−20.0 counts
-   bright/mid/faint), so the catalog anchor now reads the component peak
-   on the FIXED G basis (`peak_g`, generic default `stars_anchor_basis
-   g`), which rescales with its channel and cannot drift; `basis max` is
-   a recipe escape hatch nothing uses. `--stars-anchor noise` remains a same-sky
-   stability tool ONLY: its k is per-dataset by construction (k =
-   anchor/σ_G literally restates one dataset's star statistics — set-03's
-   491σ asserts an 11.5× star-brightness error on M74's 44σ field), so
-   the hardcoded default was DELETED and noise mode requires
-   `noise_anchor_k` from the dataset recipe. The anchor's ABSOLUTE level
-   (top-500 samples 2.2% of set-03's luminosity function but 59% of
-   M74's) stays a per-dataset recipe fact.
-7. **Whole-frame QA as the gate** — SUPERSEDED, not adapted: the gate now
-   selects its sky STATISTICALLY (composition-agnostic — colour / gradient /
-   blotch / rings on the dark blocks, foreground excluded), so it neither
-   reads real MW/object as a defect NOR needs a per-set corridor. The
-   2026-07-06 sky-scope-via-corridor decision is gone with the corridor
-   itself (removed 2026-07-08). Whole-frame QA lives on as a reported
-   reference.
-8. **Raw ingest** — RESOLVED for any siril-readable raw. `run_pipeline.sh`
-   (`raw_find`) globs every common camera raw — NEF/DNG/CR2/CR3/ARW/RAF/
-   ORF/RW2/PEF/SRW — and siril's `convert` debayers them directly (verified:
-   Wang's D810A NEF ingests RGGB 14-bit and stacks a clean master; set-03's
-   DNG still matches the same glob). DNG conversion is retained ONLY as a
-   FALLBACK for a raw THIS rig's siril cannot decode: siril 1.4.4 bundles
-   LibRaw 0.22.0-Devel202502, which does not list the Z6III body and cannot
-   decode Nikon HE/HE★ (TicoRAW) — so a Z6III **HE** frame still needs Adobe
-   DNG Converter (which licenses that decode). That last fallback dies once
-   Z6III acquisition records 14-bit **Lossless** NEF (see checklist) or the
-   rig's siril bundles a LibRaw that lists the body (released 0.22 does; the
-   Feb-2025 devel predates it).
+3. **mask+inpaint separation as the weights-absent fallback** — the
+   StarNet2 weights are an external, personally-licensed file, so the
+   pipeline must still render without them; the fallback engine cannot
+   tell an HII knot from a star (26% of a resolved object's detections
+   were structure, inpainted away — see dead ends) and WARNs when >10%
+   of its detections sit inside an extended-object envelope. Dies if a
+   redistributable separation model replaces the licensed weights.
+   Also carries the wide_50mm engine pin: on that 41° MW-dominated
+   self-flat class the net's residual structure fails the gate
+   (grad/rings 9.0/9.0 vs 6.4/4.2), so the recipe pins `inpaint`; dies
+   when a separation model without the bright-star-shell class lands
+   (BACKLOG). Costs owned where inpaint runs: <6σ faint tail left in
+   the starless layer; skirt-aura class (mitigated by stars_floor).
+4. **Post-stretch denoise** (`-vst -mod=0.5` on the starless render) —
+   ADAPTATION for self-flat data, where noise is radial after V(r)
+   division and every linear denoise placement imprints a radial
+   signature (measured FAIL, see dead ends). Standard linear placement
+   (`--starless-denoise gx`) stays available per data class.
+5. **NEF→DNG conversion for Z6III High-Efficiency frames** — siril
+   1.4.4 bundles LibRaw 0.22.0-Devel202502, which cannot decode Nikon
+   HE/HE★ (TicoRAW); Adobe DNG Converter licenses that decode. Every
+   other camera raw ingests directly (`raw_find` globs NEF/DNG/CR2/CR3/
+   ARW/RAF/ORF/RW2/PEF/SRW and siril debayers them). Dies when
+   acquisition records 14-bit Lossless NEF (see checklist) or the
+   bundled LibRaw lists the Z6III body (released 0.22 does).
 
 ## Checklist for future acquisition sessions (the real quality lever)
 
 - Record **14-bit Lossless-compressed NEF**, NOT High-Efficiency
   (HE/HE★): menu Photo Shooting → RAW Recording → Lossless. HE is
-  TicoRAW-compressed (LibRaw can't decode → forces the NEF→DNG bandaid,
-  ledger #9) and lossy-ish; Lossless matches Wang's D810A and preserves
-  faint linear signal. Confirm 14-bit (high-speed continuous can drop
-  to 12-bit).
+  TicoRAW-compressed (LibRaw can't decode → forces the NEF→DNG fallback
+  in the ledger) and lossy-ish; Lossless preserves faint linear signal.
+  Confirm 14-bit (high-speed continuous can drop to 12-bit).
 - ISO 800 (Z6III second gain stage), subs ≤ 500/focal (13s @ 38 mm,
   20s @ 24 mm) — trailing, not noise, capped set-03's sharpness
 - MORE integration: corridor signal/grain ≈ 1 at 8.75 min ISO 200 —

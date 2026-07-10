@@ -6,26 +6,26 @@
  "stack_sha256": "c7d980c8b4fee889cd6ff95d46beca0e661f051f65a04e717494b4bd031c3cd1",
  "rebuild": "python3 scripts/render/starcomb.py nikon-test lmc_180mm --stack nikon-test/results/stack_lmc_180mm_norgbeq_spcc.fit --lossless",
  "metrics": {
-  "qa_starless.color": 5.0,
-  "qa_starless.grad": 1.891472508459847,
-  "qa_starless.resid": 1.8195560220983582,
-  "qa_starless.ring_l": 4.333333333333332,
+  "qa_starless.color": 6.0,
+  "qa_starless.grad": 2.5796190342853578,
+  "qa_starless.resid": 1.4611148313167952,
+  "qa_starless.ring_l": 4.777777777777775,
   "qa_starless.floor": 7.0,
-  "star_shells.aura_lum": 1.0,
-  "star_shells.shell_chroma": 12.231449127197266
+  "star_shells.aura_lum": 2.0,
+  "star_shells.shell_chroma": 12.972749710083008
  },
  "gate_pass": true,
  "artifact_sha256": {
-  "jpg": "829e1a0ae6cddaa6c89454150ad3c7e711eb5faa981963e2e6e1fce96a85fb25",
-  "png": "9e38f1ef43c1d9599aed0c3a8d5ecf6b4a6a09c194a4a104f8bcc5093c3e904e",
-  "png16": "2d5962d2800dcb1971d6b47e99bc9d5c5007fba6bf673c0278bcb137497c3ffe",
-  "starless_jpg": "265b5c36b79fcf6e6e6b7b3def0eca228376065634c927e5741a02535ebb819d"
+  "jpg": "831521d740ff86ec8209185eee3dad267fe3e8620a6af31be67709be60426e1e",
+  "png": "9f1e85b7cc8e3a9c6d9d4b203450360be7e9d48dd5c8c6978a4a9e0b3f71ce13",
+  "png16": "fd959d83a8df7a01950a0bb32a3c648d30efef1cd4a6ecb38c348f284896e7f0",
+  "starless_jpg": "a6fbb2d68297fe0cd7726b930b8b0e77ebbf4e362f2519a4af0379adfe543ead"
  },
  "recipe": {
   "starless_target": 0.07,
   "starless_denoise": "vstpost",
   "sep_prom": 6.0,
-  "sep_engine": "inpaint",
+  "sep_engine": "auto",
   "chroma_core": 4.0,
   "lum_core": 2.0,
   "core_order": "pre",
@@ -34,13 +34,13 @@
   "cull_pct": 50.0,
   "stars_peak": 0.97,
   "stars_anchor": "catalog",
-  "stars_anchor_basis": "max",
+  "stars_anchor_basis": "g",
   "stars_floor": 3.0,
   "black_point": 8.0,
   "jpg_quality": 100,
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-09 18:12:44",
- "git": "185220e"
+ "date": "2026-07-09 20:07:36",
+ "git": "975af50"
 }
