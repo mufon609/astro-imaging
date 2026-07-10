@@ -21,7 +21,10 @@ live in **git** (recipe tags) and NOTES.
    (calibration, each one internally-uniform group) + one `<session>/<set>/` per
    single-pointing light set. Any siril-readable camera raw works — no
    conversion — as do dedicated-astrocam **FITS** frames, where `darkflats/`
-   (darks matched to the flat exposure) calibrates the flats.
+   (darks matched to the flat exposure) calibrates the flats. A master-only
+   corpus stages prebuilt masters as `<session>/calib/{dark,flat}_<token>.fits`
+   instead (FITS sets only; the normalized filename token is the identity —
+   such masters carry no headers).
 2. `scripts/stack/run_pipeline.sh <session> <set>` — forks on the data class
    (camera raw vs FITS; `fitsmeta.py` reads filter/exposure/gain from the FITS
    headers), then routes matched-flat vs self-flat → `results/stack_<set>.fit`.

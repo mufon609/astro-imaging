@@ -1,0 +1,16 @@
+{
+  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "dataset": "mlnoga-ngc7635/ngc7635_sho",
+  "status": "provisional",
+  "render": {},
+  "spcc": {
+    "narrowband": true,
+    "rwl": 671.6,
+    "gwl": 656.28,
+    "bwl": 500.7
+  },
+  "notes": {
+    "spcc": "narrowband mode on the composed SHO stack: R carries SII (671.6 nm), G Ha (656.28), B OIII (500.7); bandwidths at siril defaults (the corpus names the filter wheel but not the narrowband bandwidths)",
+    "calib": "prebuilt-master ingest: the corpus ships header-bare masters (calib/{dark,flat}_<token>.fits) — the filename token is the whole identity; per-filter darks pair with the per-filter exposures (Ha 600 s / S2 500 s / O3 400 s)"
+  }
+}

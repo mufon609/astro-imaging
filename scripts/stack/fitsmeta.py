@@ -2,6 +2,7 @@
 """FITS acquisition-metadata probe for the dedicated-astrocam preflight.
 
 Usage: fitsmeta.py <dir>
+       fitsmeta.py --pick-masters <calibdir> <filter-token>
 
 Reads every FITS frame's header in <dir> and prints ONE tab-separated line:
 
@@ -13,6 +14,17 @@ the dedicated-camera analog of run_pipeline.sh's exiftool uniformity check and
 exits nonzero with a message when <dir> is empty or its frames are not
 internally uniform in exptime/gain/offset/filter — a mixed dir must fail loud,
 never be averaged into a wrong master.
+
+--pick-masters resolves PREBUILT master calibration for a set: <calibdir>
+holds single-FITS masters named {dark,flat}_<token>.<ext>, and the token in
+the FILENAME is the only identity these files carry (measured on the SHO
+corpus: the masters' headers hold no exposure/gain/filter at all), so both
+the filename token and the argument go through the same synonym table the
+frame FILTER keyword uses. Prints one line, '-' for a missing kind:
+
+    <dark-path-or-->\t<flat-path-or-->
+
+Two files normalizing to the same kind+token is ambiguity and fails loud.
 
 Filter identity is the FITS FILTER keyword (a free-text SBIG convention, not a
 validated core-FITS keyword), so its value is normalized to a canonical token
@@ -94,7 +106,37 @@ def frame_meta(path):
     return exp, gain, offset, filt, mono
 
 
+def pick_masters(calibdir, token):
+    """{dark,flat}_<token> master paths from <calibdir>, matched on the
+    NORMALIZED filename token; '-' when that kind has no match."""
+    want = normalize_filter(token)
+    if not want or want == "-":
+        sys.exit(f"fitsmeta: --pick-masters needs a real filter token, "
+                 f"got {token!r} (a filterless set has no per-filter "
+                 "master to match)")
+    found = {}
+    for f in sorted(os.listdir(calibdir)):
+        base, ext = os.path.splitext(f)
+        if ext.lower() not in EXTS:
+            continue
+        m = re.match(r"(dark|flat)_(.+)$", base, re.IGNORECASE)
+        if not m:
+            continue
+        kind = m.group(1).lower()
+        if normalize_filter(m.group(2)) != want:
+            continue
+        if kind in found:
+            sys.exit(f"fitsmeta: ambiguous prebuilt masters in {calibdir}: "
+                     f"both {os.path.basename(found[kind])} and {f} "
+                     f"normalize to {kind}_{want} — remove one")
+        found[kind] = os.path.join(calibdir, f)
+    print(f"{found.get('dark', '-')}\t{found.get('flat', '-')}")
+
+
 def main():
+    if len(sys.argv) == 4 and sys.argv[1] == "--pick-masters":
+        pick_masters(sys.argv[2], sys.argv[3])
+        return
     if len(sys.argv) != 2:
         sys.exit(__doc__)
     d = sys.argv[1]

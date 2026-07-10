@@ -2,13 +2,17 @@
 # Siril processing pipeline. Usage: scripts/stack/run_pipeline.sh <session-dir> [lights-set]
 #   e.g. scripts/stack/run_pipeline.sh 07-02-26          # processes <session>/lights
 #        scripts/stack/run_pipeline.sh 07-02-26 set-03   # processes <session>/set-03
-# A session dir holds shared calibration (darks required; biases+flats
-# optional) plus one or more light-frame sets; each set stacks to
-# results/stack_<set>.fit + its previews. Sets without a usable flat
-# (missing dirs or focal/aperture mismatch) take the self-flat path.
-# Masters in <session>/work/masters/ are rebuilt whenever the source frame
-# manifest (names+sizes+mtimes) changes — catches re-shot frames even when
-# copied with older timestamps. Intermediates are deleted per stage.
+# A session dir holds shared calibration — raw frame dirs (darks required;
+# biases+flats optional), or for master-only corpora a calib/ dir of
+# prebuilt {dark,flat}_<filter-token>.fits masters (FITS sets only; matched
+# by the normalized FILENAME token — such masters carry no headers) — plus
+# one or more light-frame sets; each set stacks to results/stack_<set>.fit
+# + its previews. Sets without a usable flat (missing dirs or
+# focal/aperture mismatch) take the self-flat path. Masters in
+# <session>/work/masters/ are rebuilt whenever the source frame manifest
+# (names+sizes+mtimes) changes — catches re-shot frames even when copied
+# with older timestamps; prebuilt masters re-stage on source identity.
+# Intermediates are deleted per stage.
 set -euo pipefail
 
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
@@ -18,9 +22,11 @@ SET="${2:-lights}"
 S="$REPO/$SESSION"
 W="$S/work"
 
-for d in "$SET" darks; do
-  [[ -d "$S/$d" ]] || { echo "missing $S/$d" >&2; exit 1; }
-done
+[[ -d "$S/$SET" ]] || { echo "missing $S/$SET" >&2; exit 1; }
+# calibration source: raw darks/ frames, or prebuilt masters in calib/
+# (the FITS ingest matches those by filename token and validates the match)
+[[ -d "$S/darks" || -d "$S/calib" ]] || \
+  { echo "missing $S/darks (no raw darks and no calib/ prebuilt masters)" >&2; exit 1; }
 mkdir -p "$W/masters" "$S/results"
 
 siril_run() { # absolute script path
@@ -172,19 +178,54 @@ fits_ingest() {
   sm=$(fits_meta "$S/$SET") || exit 1
   IFS=$'\t' read -r lexp lgain loff lfilt lmono <<<"$sm"
   echo "$SET: ${lexp}s gain${lgain} offset${loff} filter=${lfilt:-none} mono=${lmono}"
-  [[ -d "$S/darks" ]] || { echo "missing $S/darks" >&2; exit 1; }
-  sm=$(fits_meta "$S/darks") || exit 1
-  IFS=$'\t' read -r dexp dgain doff _f _m <<<"$sm"
-  echo "darks: ${dexp}s gain${dgain} offset${doff}"
-  [[ "$dexp" == "$lexp" ]] || echo "WARNING: darks (${dexp}s) != $SET (${lexp}s) — dark works as bias+hot-pixel map only"
-  [[ "$dgain" == "$lgain" && "$doff" == "$loff" ]] || \
-    echo "WARNING: darks gain/offset ${dgain}/${doff} != $SET ${lgain}/${loff}"
+
+  # Prebuilt-master ingest (a corpus shipping MASTER calibration instead of
+  # raw frame dirs): <session>/calib/ holds {dark,flat}_<token>.fits singles,
+  # matched to the set by the NORMALIZED filter token in the FILENAME — such
+  # masters carry no exposure/gain/filter headers (measured: every keyword
+  # absent on the SHO corpus), so the filename is the whole identity and the
+  # exposure match is unverifiable; both facts are stated per run. Raw
+  # calibration dirs take precedence: masters built from frames have
+  # verifiable headers, prebuilt is the adaptation for master-only data.
+  # Siril normalizes the ADU-scale float masters to its [0,1] range on
+  # import (logged "Normalizing input data"), same convention as the ushort
+  # lights — staging is a plain copy, no rescale.
+  local CALDARK="" CALFLAT=""
+  if [[ -d "$S/calib" && -n "$(fits_glob "$S/calib")" ]]; then
+    if [[ -d "$S/darks" ]]; then
+      echo "note: both darks/ (raw frames) and calib/ (prebuilt masters) exist — raw wins (verifiable headers); calib/ ignored"
+    else
+      sm=$(python3 "$REPO/scripts/stack/fitsmeta.py" --pick-masters "$S/calib" "$lfilt") || exit 1
+      IFS=$'\t' read -r CALDARK CALFLAT <<<"$sm"
+      [[ "$CALDARK" == "-" ]] && CALDARK=""
+      [[ "$CALFLAT" == "-" ]] && CALFLAT=""
+      if [[ -z "$CALDARK" ]]; then
+        echo "ERROR: calib/ has no dark master for filter token '${lfilt}' — expected calib/dark_<token>.fits (the filename token IS the identity; these masters carry no headers)" >&2
+        exit 1
+      fi
+      echo "prebuilt masters (calib/): dark=$(basename "$CALDARK") flat=$([[ -n "$CALFLAT" ]] && basename "$CALFLAT" || echo NONE) — filename-token identity; exposure/gain match vs lights UNVERIFIABLE (masters carry no headers)"
+    fi
+  fi
+
+  if [[ -z "$CALDARK" ]]; then
+    [[ -d "$S/darks" ]] || { echo "missing $S/darks (and no calib/ prebuilt dark for '${lfilt}')" >&2; exit 1; }
+    local dexp dgain doff
+    sm=$(fits_meta "$S/darks") || exit 1
+    IFS=$'\t' read -r dexp dgain doff _f _m <<<"$sm"
+    echo "darks: ${dexp}s gain${dgain} offset${doff}"
+    [[ "$dexp" == "$lexp" ]] || echo "WARNING: darks (${dexp}s) != $SET (${lexp}s) — dark works as bias+hot-pixel map only"
+    [[ "$dgain" == "$lgain" && "$doff" == "$loff" ]] || \
+      echo "WARNING: darks gain/offset ${dgain}/${doff} != $SET ${lgain}/${loff}"
+  fi
 
   # mono lights carry no CFA: no debayer, no cfa-aware cosmetic correction
   local CFAOPT="" FLATOPT="" FLATCAL="" FLATCALOPT=""
   [[ "$lmono" == "1" ]] || CFAOPT="-cfa -debayer"
 
-  if [[ -d "$S/flats" ]]; then
+  if [[ -n "$CALFLAT" ]]; then
+    FLATOPT="-flat=masters/flat_master"
+    echo "flats: prebuilt master $(basename "$CALFLAT") (already calibrated — no darkflat/bias step)"
+  elif [[ -d "$S/flats" ]]; then
     local fexp ffilt fmono dfexp
     sm=$(fits_meta "$S/flats") || exit 1
     IFS=$'\t' read -r fexp _f _m ffilt fmono <<<"$sm"
@@ -214,6 +255,28 @@ fits_ingest() {
   fi
 
   # --- masters ---
+  if [[ -n "$CALDARK" ]]; then
+    # Stage by SOURCE IDENTITY (name+size+mtime marker), never by file
+    # mtime alone: work/masters/ is shared across the session's sets, and
+    # a freshly staged per-filter master is always newer than every calib/
+    # source — an mtime test would silently keep the previous set's dark
+    # for the next filter.
+    mkdir -p "$W/masters"
+    local src dst srcid kind
+    for kind in dark flat; do
+      src="$CALDARK"; [[ "$kind" == "flat" ]] && src="$CALFLAT"
+      [[ -z "$src" ]] && continue
+      dst="$W/masters/${kind}_master.fit"
+      srcid="$(basename "$src") $(stat -c '%s %Y' "$src")"
+      if [[ -f "$dst" && -f "$dst.src" && "$(cat "$dst.src")" == "$srcid" ]]; then
+        echo "=== prebuilt master $kind already staged ($(basename "$src")) ==="
+      else
+        echo "=== staging prebuilt master $kind ($(basename "$src")) ==="
+        cp -f "$src" "$dst"
+        printf '%s' "$srcid" > "$dst.src"
+      fi
+    done
+  else
   if fresh_fits "$W/masters/dark_master.fit" "$S/darks" "$W/masters/dark.manifest"; then
     echo "=== master dark up to date, skipping ==="
   else
@@ -241,6 +304,7 @@ fits_ingest() {
       _fits_flat_master "$FLATCALOPT"
       manifest_fits "$S/flats" > "$W/masters/flat.manifest"; rm -f "$W"/fl_* "$W"/pp_fl_*
     fi
+  fi
   fi
 
   # --- lights ---

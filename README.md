@@ -294,6 +294,12 @@ live in NOTES "Environment" + auto-memory.
 <session>/           e.g. 07-02-26/ or nikon-test/ or imx585c/
   biases/ darks/ flats/ darkflats/       calibration (darkflats = the FITS path's
                                          matched darks for the flats)
+  calib/                                 OR prebuilt master calibration for
+                                         master-only corpora (FITS sets only):
+                                         {dark,flat}_<filter-token>.fits, matched
+                                         by the normalized FILENAME token (such
+                                         masters carry no headers); raw dirs win
+                                         when both exist
   <set>/                                 lights: camera raw (NEF/DNG/CR2/…) or
                                          dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts

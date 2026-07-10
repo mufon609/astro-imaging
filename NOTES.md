@@ -177,7 +177,18 @@ L): 47/47 registered, gate PASS (colour 0.0, gradient 0.5, blotch 0.1, rings
 1.0); the flat master falls off only 1.3% to the corner. The `FILTER` keyword
 is optional in practice (ASIAIR writes none): an absent filter normalizes to
 `-` on both lights and flats, so they match; filter identity then rests on
-the directory staging.
+the directory staging. A master-only corpus (no raw calibration frames)
+stages PREBUILT masters in `<session>/calib/{dark,flat}_<token>.fits`,
+matched by the normalized FILENAME token — measured on the SHO corpus,
+such masters carry NO headers at all (no exposure/gain/filter), so the
+filename is the whole identity and the exposure match is unverifiable
+(both stated per run); raw dirs take precedence when both exist. Their
+ADU-scale float pixels are safe as-is: siril normalizes float FITS to its
+[0,1] range on import (logged), the same convention as the ushort lights.
+Staging tracks SOURCE identity (name+size+mtime marker), never file
+mtime — work/masters/ is shared across a session's sets, and a freshly
+staged per-filter master is always newer than every calib/ source, so an
+mtime test would silently keep the previous filter's dark.
 
 **Dual-band OSC composition (`composition.json` + `compose.py`)** — a set
 whose composition record is kind `dualband-osc` calibrates the CFA mosaic
