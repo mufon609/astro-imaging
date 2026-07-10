@@ -24,8 +24,9 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C17 → C16 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
-C14 → C12/C7/C3/C15** (C17/C16 lead: both are direct user directives).
+asks "what next", take: **C17 → C16 → C18 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
+C14 → C12/C7/C3/C15** (C17/C16/C18 lead: all three are direct user
+directives).
 C8 and C10 run when their external/user inputs arrive; C13 after its
 industry-norm research; C5 only on a measured solve failure; A3 in a
 session scoped to it. The order
@@ -312,9 +313,16 @@ X" question arises. **Blocks:** C4 (eligibility inputs).
 Siril's docs now position GHS as the most capable stretch ("rarely advisable"
 to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 `-clipmode=rgbblend` unclipped highlights). The current chain uses linked MTF
-`autostretch` + significance corings. Run a like-encoding ladder (autostretch
-control vs `autoghs` variants) on two datasets of different classes —
-pure aesthetics, user's eyes decide; no bake without approval.
+`autostretch` + significance corings. MEASURED MOTIVATION (deep-data
+classes, user-flagged across targets): the MTF chain buries faint
+extended signal AND blows star tops in one move — a 5.1σ linear shell
+renders at +5.7 display counts vs a reference finish's +36 (sky floor 7
+vs 21), while like-scale star peaks read 3.1% ≥250 / p99 255 vs their
+0% / 200. GHS's toe+shoulder decouples exactly those two ends; the
+black_point / stars_peak ladders are the interim per-knob fixes. Run a
+like-encoding ladder (autostretch control vs `autoghs` variants) on two
+datasets of different classes — pure aesthetics, user's eyes decide; no
+bake without approval.
 
 ### C11 — Redesign the colour gate as chain-added colour (ratified direction)
 
@@ -426,8 +434,11 @@ arrives (new sensor class, new SNR regime, new target brightness class),
 ladder the generic knobs whose why-notes name a class risk BEFORE the
 first judgment package — today that list is `starless_denoise` (the
 proven killer), `chroma_core` (over-neutralizes faint real colour),
-`black_point` (crushes faint extended signal), `starless_target`
-(darker than necessary on clean data). The why-notes already carry the
+`black_point` (crushes faint extended signal — measured: a 5.1σ shell
+in the linear stack rendered at +5.7 display counts vs the reference's
++36), `starless_target` (darker than necessary on clean data), and
+`stars_peak` (the 0.97 anchor blows the star top on deep data —
+measured 3.1% of like-scale peaks ≥250 vs the reference's 0%). The why-notes already carry the
 risks; this entry turns them into a first-render checklist instead of a
 post-defect investigation. Cheap: each is a single-knob ladder the
 harness already runs; the user judges once per class instead of
@@ -463,4 +474,29 @@ edits):
 - `custom` — explicit per-channel weights in the recipe.
 Presets are aesthetic DEFAULTS: each lands via ladder + the user's eyes
 per class. The report card itself is pure measurement and can ship
-first, alone.
+first, alone. FIRST CLASS VERDICT (narrowband mono-filters, judged on
+the SHO target's four-candidate package): the SPCC-continuum scale
+as-is WINS as the class default; per-source/natural stay as the preset
+options; the equalized endpoint is destructive through the significance
+corings (amplified channel noise inflates the coring estimates and the
+object itself is neutralized) — any preset implementation must couple
+channel gain with coring noise scope.
+
+### C18 — Object-integrity audit: catch chain-REMOVED object signal
+
+User-ratified after two measured escapes: a render whose OBJECT was
+destroyed can pass every standing audit — the balance probe that
+neutralized the whole nebula through the corings PASSED the gate
+(colour 4.0, all achromatics green), and the vst chroma-crush defect
+shipped in four gate-PASSing judged renders. The gate grades the SKY by
+design; nothing grades the object. Add a standing WARN-level render
+audit measuring object-region retention against the CALIBRATED linear
+stack: above-sky chroma energy and structure contrast at matched
+locations, one-sided (chain-REMOVED signal warns; noise the corings
+removed toward neutral does not). Companion to the ratified colour-gate
+redesign (which catches chain-ADDED colour); together they bound the
+chain from both sides. Same implementation care: compare at matched
+luminance levels or push the reference through the same stretch, so the
+stretch itself cannot game the comparison. Thresholds calibrate on the
+two measured escapes (both must WARN) and every approved render (none
+may). WARN-only until a class history exists; the gate never loosens.

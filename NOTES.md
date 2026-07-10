@@ -83,7 +83,23 @@ never let it grow narrative.
     R0.872/G0.868/B1.000). Gate colour 11.0 scope-FAIL (emission-
     flooded class; achromatics clean 1.4/1.2/1.2; aura +44.0 = the
     annuli-scale reading at 1.07″/px). No baseline until the
-    colour-scope redesign; look unjudged (package in `results/`).
+    colour-scope redesign. **Palette balance JUDGED 2026-07-10: the
+    SPCC-continuum scale as-is wins** (probes: per-source S2×1.60/O3
+    ×1.00 — O3 noise-capped at zero headroom; natural ×2.88/×2.74;
+    equalized ×13/×7.3 collapsed the object through the corings).
+    Member `output_norm` is a linear per-member rescale — no data
+    harmed; cross-channel display scale is DEFINED by SPCC. **OPEN
+    (user, vs the author's finish; measured at like scale/encoding):
+    faint extended signal buried and star tops blown — shell_N +5.7
+    display counts vs their +36 (sky 7 vs 21) while the shell is 5.1σ
+    in the LINEAR stack; star peaks 3.1% ≥250 / p99 255 vs their 0% /
+    p99 200.** Pre-registered single-knob ladders: (a) `black_point`
+    0/4 vs 8 — hypothesis: the 8-count output floor buries the shell;
+    lower floors surface it at achromatic-gate PASS. (b) `stars_peak`
+    0.85/0.90 vs 0.97 — hypothesis: the 0.97 anchor is the star-top
+    blowout; 0.85–0.90 caps peaks ≈200–230 without dimming the mid
+    tier below the reference look. Class-general (the user sees the
+    same on other targets); knobs stay per-recipe until judged.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
