@@ -221,7 +221,7 @@ milliseconds on Pi-class ARM).
 The composition machinery is LIVE for both shipped kinds (NOTES design
 section carries the measured numbers): `dualband-osc` (per-line stacks
 from one set's CFA frames) and `mono-filters` (sibling per-filter sets
-aligned to a reference member — the M20 wheel target measured 0.077 px
+aligned to a reference member — the M20 wheel target measured 0.072 px
 median channel alignment). What remains:
 
 - **SHO palettes** (the mlnoga NGC7635 corpus): a `mono-filters`
@@ -233,25 +233,42 @@ median channel alignment). What remains:
   SHO is green-dominant by construction). NOTE: this corpus ships MASTER
   calibration files, which the pipeline cannot ingest (it builds masters
   from raw dirs) — assess master-calib ingest when staging it.
-- **Broadband LRGB** (the app-ngc292 corpus): compose R/G/B, SPCC the
-  RGB only, stretch LINKED, apply L AFTER both are stretched
-  (`rgbcomp -lum=`) — LRGB combination is a nonlinear-space operation
-  (CIE L*a*b*); the linear-combine shortcut is wrong per PixInsight
-  doctrine and the Siril book. This is the one piece compose-then-render
-  cannot express (L joins post-stretch, inside the render) — design it
-  against the render chain, not around it. compose.py REFUSES a
-  `luminance` member until then.
+- **Broadband LRGB**: compose R/G/B, SPCC the RGB only, stretch LINKED,
+  apply L AFTER both are stretched (`rgbcomp -lum=`) — LRGB combination
+  is a nonlinear-space operation (CIE L*a*b*); the linear-combine
+  shortcut is wrong per PixInsight doctrine and the Siril book. This is
+  the one piece compose-then-render cannot express (L joins
+  post-stretch, inside the render) — design it against the render
+  chain, not around it. compose.py REFUSES a `luminance` member until
+  then. NO TEST CORPUS IS STAGED for this: the one LRGB candidate
+  (app-ngc292) is excluded by user request (.gitignore note; the
+  stager's `.done` marker enforces the skip) — pick an L-bearing corpus
+  with the user before starting.
 - **Dual-band FULL-SIZE upgrade:** native half-size Ha stacked with 2×
   drizzle instead of downsampling OIII (the docs' quality path) — gated
-  on MEASURED dither coverage of the set.
-- **Cross-geometry judgment packaging** (pipeline render vs an answer
-  key at a different scale) recurs with every author-master corpus —
-  promote the session scratch script into `judgment_crops.py`.
+  on MEASURED dither coverage of the set. Coverage means sub-pixel
+  PHASE diversity of the per-frame shifts, and the inspection records
+  keep only shift RANGES (hoo_180s: 552.7/1.6 px Ha, 39.3/1.6 OIII —
+  amplitude is ample, phase unknown); the pruned `.seq` held the
+  per-frame list. Either extend INS reg to record per-frame shifts
+  (the per-frame quality stage supplies exactly this) or re-run the
+  line extraction + registration to measure. **Blocked by:** the
+  per-frame quality assessment entry (or a one-off re-registration).
+- **Judgment packaging must be scripted, not hand-assembled** — the
+  cross-geometry case (pipeline render vs an answer key at a different
+  scale) recurs with every author-master corpus, and hand-linking has a
+  measured failure mode: one package shipped the STARLESS-layer PNG16
+  mislinked as the final for 3 of 4 candidates (caught by inode audit;
+  the render prints both artifact names and `_starless` sorts adjacent).
+  The packager takes starcomb's printed FINAL pair per candidate,
+  verifies each link target by bytes, and writes the QUESTION.md
+  skeleton. Promote the session scratch script into `judgment_crops.py`
+  or a sibling.
 
-Test data: both remaining corpora are off-disk (the fetch stopped at its
-disk floor after M20) — free disk, re-run
-`~/.cache/astro_recovery/fetch_corpus.sh` (idempotent). Sources +
-license terms in `.gitignore`, layout caveats in SESSIONS.md.
+Test data: the SHO corpus (mlnoga-ngc7635) stages via
+`~/.cache/astro_recovery/fetch_corpus.sh` (idempotent, disk-floor
+guarded); the LRGB slot has no staged corpus (see the LRGB bullet).
+Sources + license terms in `.gitignore`, layout caveats in SESSIONS.md.
 
 ### C7 — Deduplicate the FITS I/O and MTF-solve helpers
 

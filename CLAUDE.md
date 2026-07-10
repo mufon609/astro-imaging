@@ -6,7 +6,8 @@ per-set geometry, experiment discipline, north star); (3) `NOTES.md`
 top to bottom — current truth ONLY: STATUS (approved recipe + byte-
 reproduce command + expected numbers), design with each knob's measured
 WHY, the DEAD-END registry (never re-attempt those), bandaid ledger,
-acquisition checklist. Full history lives in `git log` (every commit
+acquisition checklist; (4) `BACKLOG.md` — deferred work + the pick-up
+order (self-governing; its IDs never leave that file). Full history lives in `git log` (every commit
 carries the NOTES of its time; approved recipes are git-tagged).
 Volatile state (what is approved, open queue, disk-heavy artifacts) is
 in NOTES STATUS — trust it over anything here.
