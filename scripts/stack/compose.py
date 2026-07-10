@@ -361,6 +361,27 @@ def main():
     if os.path.isdir(walign):
         shutil.rmtree(walign)
 
+    # capture report card (WARN-only QA, never a gate): per-member raw
+    # capture rates + stack SNRs + the composed display ratio — the
+    # members' raw lights exist by construction at compose time for
+    # mono-filters. Re-run the tool after SPCC for the calibrated
+    # display-ratio section. dualband-osc: per-line raw rates need the
+    # CFA extraction step; the tool refuses it loudly, so skip here.
+    if kind == "mono-filters":
+        r = subprocess.run([sys.executable,
+                            os.path.join(repo, "scripts", "qa",
+                                         "capture_report.py"),
+                            session, set_name],
+                           capture_output=True, text=True)
+        if r.returncode == 0:
+            tails = [ln for ln in r.stdout.splitlines()
+                     if ln.startswith("[capture_report]")]
+            for ln in tails:
+                print(ln)
+        else:
+            print("[compose] WARNING: capture report failed (the card is "
+                  "WARN-only):\n" + (r.stdout + r.stderr)[-600:])
+
 
 if __name__ == "__main__":
     main()
