@@ -24,10 +24,11 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C6 → B1 → C9 → C1+C2 → C4 → C11 → C14 →
-C12/C7/C3/C15**. C8 and C10 run when their external/user inputs arrive;
-C13 after its industry-norm research; C5 only on a measured solve
-failure; A3 in a session scoped to it. The order
+asks "what next", take: **C17 → C16 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
+C14 → C12/C7/C3/C15** (C17/C16 lead: both are direct user directives).
+C8 and C10 run when their external/user inputs arrive; C13 after its
+industry-norm research; C5 only on a measured solve failure; A3 in a
+session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
 then trustworthy cross-class measurement, then stage-check completeness.
 
@@ -431,3 +432,35 @@ risks; this entry turns them into a first-render checklist instead of a
 post-defect investigation. Cheap: each is a single-knob ladder the
 harness already runs; the user judges once per class instead of
 debugging after.
+
+### C17 — Per-channel capture report card + palette-balance presets
+
+User-specified. Every multi-channel target gets a REPORT CARD at compose
+time (objective, inspection-style; the first instance was hand-measured
+on the SHO target and lives in its session results/): per member —
+filter identity in nm + the line/gas (SII 671.6 / Ha 656.28 / OIII
+500.7 / broadband L,R,G,B), subs × exposure + gain/offset, the measured
+EFFECTIVE capture rate from dark-subtracted raw lights (object-region
+net ADU/s — one number folding filter transmission × sensor QE at that
+wavelength × optics; spec-sheet QE curves are an optional later
+refinement via siril's SPCC response data), the SKY rate per band (how
+sky-effective each filter is), per-channel object SNR in the stack, and
+a gathered-vs-missed estimate (hours needed at the same settings for
+SNR parity with the best channel). Plus the capture-ratio table and the
+composed-stack ratio — the gap states what member normalization + SPCC
+did to the balance. L slots in as one more member row when the LRGB
+join lands.
+
+From those numbers, a palette-balance preset knob (resolution CLI >
+recipe > GENERIC as ever — a custom tmp run is just CLI flags, no file
+edits):
+- `natural` — display channel energy proportional to the MEASURED line
+  flux: weights applied LINEARLY pre-stretch (a recalibration like
+  SPCC's K, not an unlinked stretch — the linked stretch stays);
+- `per-source` — each channel is allowed only the gain its own SNR
+  supports (noise-visibility cap): a starved band renders fainter,
+  never noisier — it is not pushed to keep up with the others;
+- `custom` — explicit per-channel weights in the recipe.
+Presets are aesthetic DEFAULTS: each lands via ladder + the user's eyes
+per class. The report card itself is pure measurement and can ship
+first, alone.

@@ -11,6 +11,7 @@
   },
   "notes": {
     "spcc": "narrowband mode on the composed SHO stack: R carries SII (671.6 nm), G Ha (656.28), B OIII (500.7); bandwidths at siril defaults (the corpus names the filter wheel but not the narrowband bandwidths)",
-    "calib": "prebuilt-master ingest: the corpus ships header-bare masters (calib/{dark,flat}_<token>.fits) — the filename token is the whole identity; per-filter darks pair with the per-filter exposures (Ha 600 s / S2 500 s / O3 400 s)"
+    "calib": "prebuilt-master ingest: the corpus ships header-bare masters (calib/{dark,flat}_<token>.fits) — the filename token is the whole identity; per-filter darks pair with the per-filter exposures (Ha 600 s / S2 500 s / O3 400 s)",
+    "capture": "measured line-flux ratios S2 0.222 : Ha 1.000 : O3 0.375 (p90 0.301/1.000/0.458); O3 sky rate 1.8x Ha's (the 501 nm band sits in the skyglow); SNR parity with Ha needs ~+32 h O3 / ~+57 h S2 — Ha-rich, O3/S2-starved. Full card: results/capture_report_ngc7635_sho.md; digital palette equalization multiplies O3 noise x2.7 and S2 noise x4.5"
   }
 }
