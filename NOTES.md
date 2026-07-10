@@ -79,20 +79,6 @@ never let it grow narrative.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
-**Open experiments (pre-registered; an entry leaves when its numbers land):**
-Three single-knob recipe ladders on `colonnello-m20/m20_rgb` (user-requested:
-recover what the generic knobs suppress on this colour-rich class; GENERIC
-values unchanged — this is per-dataset recipe territory, user judges panels):
-1. *chroma_core 0,2 vs control 4* — hypothesis: lowering k restores the
-   blue reflection nebula's real chroma (B−G excess in its region rises
-   visibly) without re-admitting chroma noise on this well-exposed field;
-   gate colour stays PASS and blotch ≤ 5 at k=2.
-2. *cull_pct 0,25 vs control 50* — hypothesis: the faint starfield returns
-   (rendered star count rises materially toward the answer key's field);
-   starless layer and gate untouched (stars-branch-only knob).
-3. *black_point 0,4 vs control 8* — hypothesis: the faint dust floor
-   becomes visible (sky floor rises a few counts, clip0 sky → ~0);
-   contrast in bright structure unchanged (linear shift).
 
 ## Environment
 
@@ -311,7 +297,7 @@ per run; a recipe-less dataset renders generic and says so):
 | anchor basis = G (`peak_g`) | a max-over-channels anchor follows whichever channel wins, so a per-channel recalibration (SPCC K) moves it (measured −8.5/−20 counts16 mid/faint G, low-end gain ×864→×996 between builds of one sky); the G-basis amplitude rescales WITH its channel and cannot drift. The anchor's ABSOLUTE level is a per-dataset fact: top-500 is the brightest 2.2% of a 22916-star catalog but 59% of an 852-star one — no single rule sets star brightness across fields |
 | stars_anchor catalog (noise = per-dataset tool) | `--stars-anchor noise` (k·σ_G) holds a physical star's brightness constant across rebuilds of ONE sky; k has no cross-dataset value by construction (k = anchor/σ_G restates one field's star statistics — a 491σ field's k is an 11.5× brightness error on a 44σ field), so noise mode requires `noise_anchor_k` from the dataset recipe |
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
-| cull 50 | metric-invisible across the 0–50 ladder; 50 is the maximal-removal end (the cull-0 faint-field look remains a flag away) |
+| cull 50 | metric-invisible across the 0–50 ladder on set-03 AND visually+metrically null on a rich wheel field (M20, 0/25/50) — the faint-field difference vs reference finishes lives in the stars MTF anchoring + the starless floor, not the cull |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
 | jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
 

@@ -29,7 +29,7 @@
     "core_order": "chroma before lum: lum smoothing cannot revive neutralized chroma.",
     "stretch_linked": "linked is standard on a calibrated stack; unlinked differentially amplifies channel noise (the rainbow engine).",
     "satu": "0.2 keeps star colour at -12% fringe cost (fringe span scales ~(1+s)); tuned on set-03 star fringes.",
-    "cull_pct": "50 was metric-invisible on set-03's star population. KNOWN CLASS LIMIT: visibly thins rich faint fields next to reference finishes (M20, M8/M20) — cull 0 is a recipe flag away.",
+    "cull_pct": "50 was metric-invisible on set-03's star population, and a 0/25/50 ladder on a RICH wheel field (M20) was ALSO visually and metrically null — the thin faint field next to reference finishes lives in the stars MTF anchoring and the starless floor, not the cull.",
     "stars_peak": "anchor the median top-500 G-basis star amplitude at 0.97 (255 vs 225 at 0.85, set-03 panel pick). The anchor POPULATION is frame/dataset-dependent (top-500 of 22916 vs 852 stars differ in meaning).",
     "stars_anchor": "catalog = per-dataset star statistics; 'noise' mode exists for same-sky rebuild stability and requires a per-dataset k.",
     "stars_floor": "3 sigma skirt coring kills the amplified subtraction-noise aura (+7.0 -> +2.0 on set-03); mechanism argued class-general (it removes only sub-noise signal).",
