@@ -149,7 +149,9 @@ def render_once(session, set_name, stack_rel, keep, run_tag):
     jpg = met.pop("jpg")
     arts = {"jpg": jpg, "png": jpg[:-4] + ".png",
             "png16": jpg[:-4] + "_16bit.png",
-            "starless_jpg": jpg[:-4] + "_starless.jpg"}
+            "starless_jpg": jpg[:-4] + "_starless.jpg",
+            "starless_png": jpg[:-4] + "_starless.png",
+            "starless_png16": jpg[:-4] + "_starless_16bit.png"}
     met["artifact_sha256"] = {k: sha256(p) for k, p in arts.items()
                               if os.path.exists(p)}
     if not keep:
@@ -252,20 +254,49 @@ def main():
             notes.append(aura_note)
 
         if args.determinism:
+            # COLD for real: the render caches are keyed by the stack's
+            # size+mtime, so without clearing them the second render
+            # reuses the first's GraXpert/separation outputs and the
+            # check never exercises the heavy stages (measured: that
+            # blind spot hid an era drift on one dataset until an
+            # unrelated cache prune exposed it)
+            st = os.stat(stack)
+            key = f"{st.st_size}_{int(st.st_mtime)}"
+            wdir = os.path.join(REPO, session, "work")
+            import glob as _glob
+            cleared = 0
+            for pat in (f"bgelin_{key}.fit", f"gx_{key}.fits",
+                        os.path.join("starsep", f"*_{key}*")):
+                for p in _glob.glob(os.path.join(wdir, pat)):
+                    os.remove(p)
+                    cleared += 1
             met2 = render_once(session, set_name, stack_rel, False,
                                f"sweep{stamp}b")
             if "error" in met2:
                 notes.append("2nd render FAILED")
             elif met2["artifact_sha256"] != met["artifact_sha256"]:
-                notes.append("NONDETERMINISTIC (two fresh runs differ)")
+                notes.append("NONDETERMINISTIC (two cold runs differ, "
+                             f"{cleared} caches cleared)")
             else:
-                notes.append("deterministic")
+                notes.append(f"deterministic (cold: {cleared} caches "
+                             "cleared before rerun)")
 
         if bl:
             same_stack = bl.get("stack_sha256") == stack_sha
             if same_stack and bl.get("artifact_sha256"):
-                if bl["artifact_sha256"] == met["artifact_sha256"]:
+                # byte-compare over the BASELINE's recorded artifacts: a
+                # recorded artifact that changed or vanished is the
+                # regression; an artifact class ADDED since the baseline
+                # is a declared addition, reported until a rebaseline
+                # records it
+                bl_arts = bl["artifact_sha256"]
+                got = met["artifact_sha256"]
+                if all(got.get(k) == v for k, v in bl_arts.items()):
                     notes.append("= baseline bytes")
+                    extra = sorted(set(got) - set(bl_arts))
+                    if extra:
+                        notes.append(f"new artifacts {extra} "
+                                     "(--rebaseline to record)")
                 else:
                     notes.append("DELTA vs baseline (declare/judge/"
                                  "--rebaseline)")

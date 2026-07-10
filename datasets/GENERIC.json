@@ -1,0 +1,41 @@
+{
+  "_readme": "The GENERIC base layer — the foundational knob values every render inherits (resolution: CLI > recipe.json > THIS FILE). These are honest, measured STARTING POINTS, not a universal look: most were calibrated by single-knob ladders on ONE underexposed DSLR wide-field (the 'why' notes name what each value encodes and where other data classes have already disagreed). Tweak deliberately: a change here restyles every dataset whose recipe does not pin the knob (approved recipes pin ALL knobs and are immune) and must run the no-regression sweep as a declared delta. starcomb hard-fails if this file and its knob schema drift apart.",
+  "render": {
+    "starless_target": 0.07,
+    "starless_denoise": "vstpost",
+    "sep_prom": 6.0,
+    "sep_engine": "auto",
+    "chroma_core": 4.0,
+    "lum_core": 2.0,
+    "core_order": "pre",
+    "stretch_linked": "linked",
+    "satu": 0.2,
+    "cull_pct": 50.0,
+    "stars_peak": 0.97,
+    "stars_anchor": "catalog",
+    "stars_floor": 3.0,
+    "black_point": 8.0,
+    "jpg_quality": 100,
+    "jpg_subsampling": 0,
+    "noise_anchor_k": null
+  },
+  "why": {
+    "starless_target": "set-03 ladder: 0.12 lit the sky rim (rings 4.4 FAIL); 0.07 is that dataset's safe autostretch target. Class risk: darker-than-necessary sky on clean data.",
+    "starless_denoise": "vstpost is a SELF-FLAT adaptation (noise is radial after V(r) division; every linear placement printed rings). Other classes may prefer the standard linear placement ('gx'/'vst') — measured per class, recipe-expressible.",
+    "sep_prom": "starsep detection prominence; 4/5/6 sigma all measured ~equal residual on set-03 (faint tail is noise clumping there).",
+    "sep_engine": "auto = StarNet2 when the weights are installed, else inpaint. Engine pins are per-dataset measurements (one exists: a 41-degree MW class where net fails the gate).",
+    "chroma_core": "k=4 from set-03 (colour ~ noise there) and the user's LMC pick. KNOWN CLASS LIMIT: over-neutralizes faint REAL colour — muted LMC Halpha, SMC OIII, M20's blue reflection nebula. The first knob to ladder on colour-rich targets.",
+    "lum_core": "k=2 kills stretch-amplified gray patches; Wiener gate measured structure-safe on a centred galaxy (M74 profile preserved at every radius).",
+    "core_order": "chroma before lum: lum smoothing cannot revive neutralized chroma.",
+    "stretch_linked": "linked is standard on a calibrated stack; unlinked differentially amplifies channel noise (the rainbow engine).",
+    "satu": "0.2 keeps star colour at -12% fringe cost (fringe span scales ~(1+s)); tuned on set-03 star fringes.",
+    "cull_pct": "50 was metric-invisible on set-03's star population. KNOWN CLASS LIMIT: visibly thins rich faint fields next to reference finishes (M20, M8/M20) — cull 0 is a recipe flag away.",
+    "stars_peak": "anchor the median top-500 G-basis star amplitude at 0.97 (255 vs 225 at 0.85, set-03 panel pick). The anchor POPULATION is frame/dataset-dependent (top-500 of 22916 vs 852 stars differ in meaning).",
+    "stars_anchor": "catalog = per-dataset star statistics; 'noise' mode exists for same-sky rebuild stability and requires a per-dataset k.",
+    "stars_floor": "3 sigma skirt coring kills the amplified subtraction-noise aura (+7.0 -> +2.0 on set-03); mechanism argued class-general (it removes only sub-noise signal).",
+    "black_point": "8/255 output floor from set-03 (bg 16 -> 8; MW gap clipping there was the DESIRED blackness). Class risk: crushes faint extended signal on deeper data.",
+    "jpg_quality": "q100 + 4:4:4: q92/4:2:0 measured mean 2.29 / max 176 counts of star-edge error and hid ~40% of shell chroma. Finals also export lossless PNGs.",
+    "jpg_subsampling": "0 = 4:4:4 (see jpg_quality).",
+    "noise_anchor_k": "no generic value EXISTS by construction (k restates one field's star statistics; 11.5x brightness error measured across two real fields); per-dataset recipes only."
+  }
+}

@@ -24,9 +24,10 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C6 → B1 → C9 → C1+C2 → C4 → C11 →
-C12/C7/C3**. C8 and C10 run when their external/user inputs arrive; C5
-only on a measured solve failure; A3 in a session scoped to it. The order
+asks "what next", take: **C6 → B1 → C9 → C1+C2 → C4 → C11 → C14 →
+C12/C7/C3/C15**. C8 and C10 run when their external/user inputs arrive;
+C13 after its industry-norm research; C5 only on a measured solve
+failure; A3 in a session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
 then trustworthy cross-class measurement, then stage-check completeness.
 
@@ -365,3 +366,47 @@ correction, distinct from the sky balance SPCC measures downstream. Run the
 one-knob stack experiment on the OSC-CFA set (with/without, compare SPCC K
 factors + gate metrics + rim chroma), then either align the two paths or
 document the measured reason they differ.
+
+### C13 — Decide the canonical final orientation (research the norm first)
+
+Both composed products are parity-MIRRORED against the solved sky
+(det(CD) > 0; root cause: top-down camera FITS carrying no ROWORDER
+keyword, ingested under siril's bottom-up default — self-consistent
+everywhere downstream, so only the solve can see it), while both
+data-author references publish sky-true. `solve_field` now prints and
+records parity on every solve, so the fact is never hidden. RESEARCH
+FIRST: what the publication norm actually is (sky-true parity vs
+camera-native; AAVSO/professional conventions vs amateur practice),
+then decide the canonical export orientation. Implementing sky-true
+means flipping finals at export when the solve knows parity — a
+declared delta across every baselined dataset (full rebaseline) and a
+visual change to any approved look, so the decision and the numbers go
+to the user before any code moves.
+
+### C14 — Audit and tighten the global-vs-local recipe layering
+
+The layering is live (CLI > `recipe.json` > `datasets/GENERIC.json`,
+schema in code, per-knob provenance notes in the file) but grew across
+sessions — audit it as ONE design: naming and terminology consistency
+("generic" vs "base" vs "foundational"), what belongs in the generic
+file vs a recipe vs a composition record vs geometry (the four-file
+contract should state a crisp decision rule), how the `spcc` block and
+future stage knobs (decon, weighting) slot into the same resolution
+order, whether approved-recipe pinning should snapshot the generic
+"why" notes it froze against, and whether the docs (README + both
+dataset contracts + NOTES design section) tell one coherent story a new
+contributor can follow. Edit and tighten — documentation and structure,
+no behavior change without its own declared delta.
+
+### C15 — Baselines record per-stage intermediate hashes (drift forensics)
+
+A baseline pins the stack sha and the final artifact hashes — nothing in
+between. When a render drifts against its baseline, the stage that moved
+is unrecoverable if the era caches are gone (measured: one dataset's
+era drift could not be localized because the deterministic caches had
+been pruned; the answer would have been one `cmp` against the era
+bgelin/trio). Record the intermediate identities in `baseline.json` at
+rebaseline time — bgelin sha256 + separation-trio sha256s (+ compose
+inputs for composed targets) — so any future drift localizes to its
+stage from the records alone, prune or no prune. Hashing ~0.5 GB per
+dataset at rebaseline is seconds; do NOT hash on ordinary sweeps.

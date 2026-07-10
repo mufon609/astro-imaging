@@ -7,19 +7,21 @@
  "rebuild": "python3 scripts/render/starcomb.py nikon-test wide_50mm --stack nikon-test/results/stack_wide_50mm_norgbeq_spcc.fit --lossless",
  "metrics": {
   "qa_starless.color": 3.0,
-  "qa_starless.grad": 6.360140603231907,
-  "qa_starless.resid": 2.3384570435597025,
-  "qa_starless.ring_l": 4.222222222222221,
+  "qa_starless.grad": 6.508133254045287,
+  "qa_starless.resid": 2.333143041514658,
+  "qa_starless.ring_l": 4.333333333333332,
   "qa_starless.floor": 7.0,
-  "star_shells.aura_lum": 3.0,
-  "star_shells.shell_chroma": 8.895599365234375
+  "star_shells.aura_lum": 3.5,
+  "star_shells.shell_chroma": 9.266249656677246
  },
  "gate_pass": true,
  "artifact_sha256": {
-  "jpg": "a5db1ee2c708460abb7cbc0574b733c95245f151a97b2927326a0206deaf1ea6",
-  "png": "9d8bd3ca4d535134ee8a99a7d58fde96163d901dcf973e8f7c429565692a2341",
-  "png16": "1a502b206f8c1a9c4a7375a6983d7553a275d3e79a44341b4d57cb472919036a",
-  "starless_jpg": "35b08a13d7dfa030b5097f8598151c19a8cbdf7b5bfe495204cb32c87877053f"
+  "jpg": "3e6ce4f93624be37556952537c628bc3d4430e098635b055485a8bc38885c989",
+  "png": "02d3d80f296ac16f28b38de268b9545c9ff7e0c1b824c01b4223c6f5bca66893",
+  "png16": "67034dede6663e5e6c5b203ee2790604d0b69d9ad263ac356220117a98d1d8c5",
+  "starless_jpg": "e0d3ebc3b6430beb9d56fa7ef373eb22865a9108dbd42a40109c92fa2e3d7aca",
+  "starless_png": "6447c614469e4f4160a349ab7dfa38ef272e623bccb1cd90406b2e21f2bb959a",
+  "starless_png16": "0a2e7b80621221ba0b2c7cf7e02a615caded98ac410a726436338a69c12467ab"
  },
  "recipe": {
   "starless_target": 0.07,
@@ -34,13 +36,12 @@
   "cull_pct": 50.0,
   "stars_peak": 0.97,
   "stars_anchor": "catalog",
-  "stars_anchor_basis": "g",
   "stars_floor": 3.0,
   "black_point": 8.0,
   "jpg_quality": 100,
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-09 18:45:02",
- "git": "185220e"
+ "date": "2026-07-10 00:50:25",
+ "git": "79f7ddf"
 }

@@ -19,7 +19,9 @@
   "jpg": "831521d740ff86ec8209185eee3dad267fe3e8620a6af31be67709be60426e1e",
   "png": "9f1e85b7cc8e3a9c6d9d4b203450360be7e9d48dd5c8c6978a4a9e0b3f71ce13",
   "png16": "fd959d83a8df7a01950a0bb32a3c648d30efef1cd4a6ecb38c348f284896e7f0",
-  "starless_jpg": "a6fbb2d68297fe0cd7726b930b8b0e77ebbf4e362f2519a4af0379adfe543ead"
+  "starless_jpg": "a6fbb2d68297fe0cd7726b930b8b0e77ebbf4e362f2519a4af0379adfe543ead",
+  "starless_png": "21c140fe2edc82d2b539c55a3b8aab9aa588bd7c50039ccbb227d4d9e061fd67",
+  "starless_png16": "cf569f314da23fb977b8a114236e15ae98740dd681303d7561c80cad7cc73ed4"
  },
  "recipe": {
   "starless_target": 0.07,
@@ -34,13 +36,12 @@
   "cull_pct": 50.0,
   "stars_peak": 0.97,
   "stars_anchor": "catalog",
-  "stars_anchor_basis": "g",
   "stars_floor": 3.0,
   "black_point": 8.0,
   "jpg_quality": 100,
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-09 20:07:36",
- "git": "975af50"
+ "date": "2026-07-10 00:40:11",
+ "git": "79f7ddf"
 }

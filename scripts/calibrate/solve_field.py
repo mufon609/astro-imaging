@@ -306,6 +306,18 @@ def main():
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")
+    # Parity: det(CD) < 0 = the stored image displays SKY-TRUE (east
+    # counter-clockwise from north); det > 0 = mirrored vs the sky. The
+    # classic cause is top-down camera FITS carrying no ROWORDER keyword
+    # ingested under the bottom-up default — self-consistent all the way
+    # through, so only the solve can see it. Reported every solve.
+    cd = {k: v[0] for k, v in m.wcs_fields.items()
+          if k in ("CD1_1", "CD1_2", "CD2_1", "CD2_2")}
+    det = (cd.get("CD1_1", 0) * cd.get("CD2_2", 0)
+           - cd.get("CD1_2", 0) * cd.get("CD2_1", 0))
+    par = "sky-true" if det < 0 else "MIRRORED vs sky"
+    print(f"[solve_field] parity: det(CD) {det:+.2e} -> displayed image "
+          f"is {par}")
     wcs = {k: [v[0] if not isinstance(v[0], bytes) else v[0].decode(), v[1]]
            for k, v in m.wcs_fields.items()}
     if "json" in opts:
@@ -329,6 +341,7 @@ def main():
            "ra_deg": m.center_ra_deg, "dec_deg": m.center_dec_deg,
            "scale_arcsec_px": m.scale_arcsec_per_pixel,
            "logodds": m.logodds,
+           "parity": par, "cd_det": det,
            "injected": opts.get("inject")}
     p_rec = os.path.join(wdir, f"solve_{stem}.json")
     json.dump(rec, open(p_rec, "w"), indent=1)

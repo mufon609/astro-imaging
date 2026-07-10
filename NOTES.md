@@ -79,6 +79,21 @@ never let it grow narrative.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
+**Open experiments (pre-registered; an entry leaves when its numbers land):**
+Three single-knob recipe ladders on `colonnello-m20/m20_rgb` (user-requested:
+recover what the generic knobs suppress on this colour-rich class; GENERIC
+values unchanged — this is per-dataset recipe territory, user judges panels):
+1. *chroma_core 0,2 vs control 4* — hypothesis: lowering k restores the
+   blue reflection nebula's real chroma (B−G excess in its region rises
+   visibly) without re-admitting chroma noise on this well-exposed field;
+   gate colour stays PASS and blotch ≤ 5 at k=2.
+2. *cull_pct 0,25 vs control 50* — hypothesis: the faint starfield returns
+   (rendered star count rises materially toward the answer key's field);
+   starless layer and gate untouched (stars-branch-only knob).
+3. *black_point 0,4 vs control 8* — hypothesis: the faint dust floor
+   becomes visible (sky floor rises a few counts, clip0 sky → ~0);
+   contrast in bright structure unchanged (linear shift).
+
 ## Environment
 
 Rig/tooling facts live in **`CLAUDE.md`** (git-tracked, auto-loaded

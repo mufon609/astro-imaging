@@ -372,7 +372,7 @@ def render_config(ctx, cfg, jpg_out):
     lines.append("save work/starless_st")
     lines.append("close")
     run_siril(sdir, lines, "starcomb_starless.gen.ssf")
-    starless_st, _ = am.load_image(st_out)
+    starless_st = am.load_linear(st_out)
     os.remove(st_out)  # 294 MB scratch: free it now (all in memory)
 
     # A single-filter (mono) stack carries luminance only. Replicate it to RGB
@@ -434,6 +434,18 @@ def render_config(ctx, cfg, jpg_out):
     tmp8 = (np.clip(starless_st.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     slpath = jpg_out.replace(".jpg", "_starless.jpg")
     Image.fromarray(tmp8).save(slpath, quality=92)
+    if ctx.get("lossless"):
+        # the q92 jpg above is THE GATE'S pinned identity, never a
+        # judgment surface — human eyes get the lossless pair: PNG8 =
+        # the exact pixels the gate encoder consumed, PNG16 = the float
+        # starless layer itself
+        Image.fromarray(tmp8).save(slpath.replace(".jpg", ".png"))
+        am.write_png16(slpath.replace(".jpg", "_16bit.png"),
+                       (np.clip(starless_st.transpose(1, 2, 0), 0, 1)
+                        * 65535 + .5).astype(np.uint16))
+        print("[starcomb] starless lossless: "
+              + os.path.basename(slpath.replace(".jpg", ".png"))
+              + " + _16bit.png")
     a_sl = np.asarray(Image.open(slpath), dtype=np.float64)
     qa_sl = bg_qa.qa_metrics(a_sl)
     print(f"[starcomb]   GATE sky floor {qa_sl['floor']:.0f} | color "
@@ -443,7 +455,7 @@ def render_config(ctx, cfg, jpg_out):
           f"{'PASS' if qa_sl['pass'] else 'FAIL'}")
 
     # --- stars branch (numpy) --------------------------------------------
-    stars, _ = am.load_image(ctx["stars_fit"])
+    stars = am.load_linear(ctx["stars_fit"])
     if mono:
         stars = np.repeat(stars, 3, axis=0)
     cat = np.load(ctx["cat_npz"])
@@ -468,7 +480,7 @@ def render_config(ctx, cfg, jpg_out):
         # layer at k*sigma (per-channel linear sky noise from the linear
         # starless layer) so only genuine star signal reaches the
         # stretch.
-        sl_lin, _ = am.load_image(starless_fit)
+        sl_lin = am.load_linear(starless_fit)
         if mono:
             sl_lin = np.repeat(sl_lin, 3, axis=0)
         k = float(cfg["stars_floor"])
@@ -501,7 +513,7 @@ def render_config(ctx, cfg, jpg_out):
         if sigs:
             sig_g = sigs[min(1, stars.shape[0] - 1)]
         else:
-            sl_lin, _ = am.load_image(starless_fit)
+            sl_lin = am.load_linear(starless_fit)
             _, sig_g = am.bg_stats(sl_lin[min(1, sl_lin.shape[0] - 1)])
             del sl_lin
         anchor = float(k * sig_g)
@@ -593,20 +605,18 @@ def render_config(ctx, cfg, jpg_out):
             "starless_jpg": os.path.basename(slpath)}
 
 
-# Data-class-blind GENERIC knob values (most were measured on one
-# underexposed DSLR wide-field, so they are honest starting points, not a
-# look): a dataset's APPROVED recipe lives in datasets/<session>/<set>/
-# recipe.json and overrides these; explicit CLI flags override both. A
-# dataset without a recipe renders with these and says so loudly.
-GENERIC = {
-    "starless_target": 0.07, "starless_denoise": "vstpost",
-    "sep_prom": 6.0, "sep_engine": "auto",
-    "chroma_core": 4.0, "lum_core": 2.0, "core_order": "pre",
-    "stretch_linked": "linked", "satu": 0.2, "cull_pct": 50.0,
-    "stars_peak": 0.97, "stars_anchor": "catalog",
-    "stars_floor": 3.0, "black_point": 8.0,
-    "jpg_quality": 100, "jpg_subsampling": 0, "noise_anchor_k": None,
-}
+# The knob SCHEMA lives in code (argparse flags, enum validation, the
+# render logic); the generic VALUES live in the tracked config
+# datasets/GENERIC.json — the base layer every render inherits, with a
+# per-knob "why" note naming what each value encodes and its known class
+# limits. A dataset's recipe overrides per knob; CLI overrides both. The
+# file and this schema must agree exactly or the render refuses to run.
+KNOBS = (
+    "starless_target", "starless_denoise", "sep_prom", "sep_engine",
+    "chroma_core", "lum_core", "core_order", "stretch_linked", "satu",
+    "cull_pct", "stars_peak", "stars_anchor", "stars_floor",
+    "black_point", "jpg_quality", "jpg_subsampling", "noise_anchor_k",
+)
 
 ENUM_CHOICES = {
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
@@ -617,17 +627,37 @@ ENUM_CHOICES = {
 }
 
 
-def resolve_recipe(sdir, set_name, args):
-    """CLI > datasets/<session>/<set>/recipe.json > GENERIC, per knob.
-    Prints where each non-generic value came from; a dataset with no
-    recipe file renders generic and says so — it never inherits another
-    dataset's look."""
+def load_generic(repo):
+    """datasets/GENERIC.json 'render' values, validated against KNOBS —
+    missing file or a key mismatch is repo corruption, never a silent
+    code fallback."""
+    p = os.path.join(repo, "datasets", "GENERIC.json")
+    if not os.path.exists(p):
+        sys.exit(f"starcomb: {p} missing — the generic base layer is a "
+                 "tracked file; restore it from git")
+    vals = json.load(open(p)).get("render", {})
+    if set(vals) != set(KNOBS):
+        missing = set(KNOBS) - set(vals)
+        extra = set(vals) - set(KNOBS)
+        sys.exit(f"starcomb: datasets/GENERIC.json disagrees with the knob "
+                 f"schema (missing {sorted(missing)}, unknown "
+                 f"{sorted(extra)}) — fix the file, the schema owns the "
+                 "knob set")
+    return vals
+
+
+def resolve_recipe(repo, sdir, set_name, args):
+    """CLI > datasets/<session>/<set>/recipe.json > datasets/GENERIC.json,
+    per knob. Prints where each non-generic value came from; a dataset
+    with no recipe file renders generic and says so — it never inherits
+    another dataset's look."""
+    generic = load_generic(repo)
     recipe_p = os.path.join(am.dataset_dir(sdir, set_name), "recipe.json")
     recipe = {}
     if os.path.exists(recipe_p):
         rec = json.load(open(recipe_p))
         recipe = rec.get("render", {})
-        unknown = set(recipe) - set(GENERIC)
+        unknown = set(recipe) - set(KNOBS)
         if unknown:
             sys.exit(f"starcomb: unknown recipe knobs {sorted(unknown)} in "
                      f"{recipe_p}")
@@ -639,7 +669,7 @@ def resolve_recipe(sdir, set_name, args):
               "(honest but not an approved look); create "
               f"{os.path.relpath(recipe_p)} to pin one")
     base, srcs = {}, []
-    for k, gen in GENERIC.items():
+    for k in KNOBS:
         cli = getattr(args, k)
         if cli is not None:
             base[k] = cli
@@ -648,7 +678,7 @@ def resolve_recipe(sdir, set_name, args):
             base[k] = recipe[k]
             srcs.append(f"{k}={recipe[k]!r}")
         else:
-            base[k] = gen
+            base[k] = generic[k]
         if k in ENUM_CHOICES and base[k] is not None \
                 and base[k] not in ENUM_CHOICES[k]:
             sys.exit(f"starcomb: {k}={base[k]!r} not in {ENUM_CHOICES[k]}")
@@ -663,9 +693,9 @@ def main():
     ap.add_argument("set")
     # Run against the SPCC-calibrated stack:
     #   starcomb.py <session> <set> --stack results/stack_<set>_spcc.fit
-    # Knob defaults resolve CLI > dataset recipe > GENERIC (see
-    # resolve_recipe); the GENERIC values were each set by a measured
-    # single-knob ladder.
+    # Knob defaults resolve CLI > dataset recipe > datasets/GENERIC.json
+    # (see resolve_recipe); the generic values were each set by a measured
+    # single-knob ladder and carry per-knob provenance in that file.
     ap.add_argument("--starless-target", type=float, default=None)
     ap.add_argument("--starless-denoise", default=None,
                     choices=ENUM_CHOICES["starless_denoise"],
@@ -766,6 +796,9 @@ def main():
              else os.path.join(sdir, "results", f"stack_{args.set}.fit"))
     if not os.path.exists(stack):
         sys.exit(f"starcomb: no {stack}")
+    if not stack.lower().endswith((".fit", ".fits", ".fts")):
+        sys.exit(f"starcomb: --stack must be a linear FITS, got {stack} "
+                 "(jpg/png are QA/judgment surfaces, never inputs)")
     # per-set geometry (terrestrial foreground only): the dataset's
     # geometry.json, else foreground none — never silent inheritance of
     # another set's mask
@@ -777,7 +810,7 @@ def main():
                sdir, "results", f"inspect_render_{args.set}_{stamp}")
                if args.inspect else None)}
 
-    base = resolve_recipe(sdir, args.set, args)
+    base = resolve_recipe(repo, sdir, args.set, args)
     if not args.param:
         tag = args.tag or "single"
         out = os.path.join(sdir, "results", f"starcomb_{args.set}_{tag}_{stamp}.jpg")

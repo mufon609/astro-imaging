@@ -128,6 +128,20 @@ Pinned narrowly: the starless gate JPEG's q92 encoding **is** the gate's
 identity (change it and the gate measures something else). Pin that, not the
 whole product chain.
 
+**Data integrity (what is lossy, where, and the guards).** The processing
+path is linear FITS end to end: 32-bit float stacks/products, with ONE
+documented precision reduction — 16-bit stack-time intermediates
+(quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
+Lossy/display files exist ONLY as OUTPUT surfaces: the gate's pinned q92
+starless jpg (its identity, never a judgment surface), the q100/4:4:4
+final jpg, and judgment panels. GUARDS keep it that way: processing loads
+go through `astrometrics.load_linear` (refuses non-FITS), `starcomb
+--stack` refuses non-FITS paths, and `compose.py` asserts float32 inputs.
+Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
+PNG16 for the final **and the starless layer** (PNG8 = the exact pixels
+the gate encoder consumed; PNG16 = the float layer at 65536 levels).
+Never judge a q92 surface.
+
 **North star:** every stage audits itself with numbers so that eventually
 ANY dataset can be dropped into a session dir and be properly judged and
 processed to its best honest outcome — composition facts from config or
@@ -160,11 +174,19 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
   solve_field). No file: foreground **none** (whole frame is eligible sky).
   A new set NEVER inherits another set's foreground silently.
 - `recipe.json` — the processing knobs: the `render` dict (starcomb
-  resolves CLI > recipe > GENERIC and prints the provenance; a dataset
-  with no recipe renders data-class-blind generic and says so) plus the
-  optional `spcc` spec (sensor/filter names or narrowband wavelengths,
-  same resolution order in `spcc_run.py`). An **approved** recipe pins
-  every knob so a later generic-default change cannot silently restyle it.
+  resolves CLI > recipe > `datasets/GENERIC.json` and prints the
+  provenance; a dataset with no recipe renders data-class-blind generic
+  and says so) plus the optional `spcc` spec (sensor/filter names or
+  narrowband wavelengths, same resolution order in `spcc_run.py`). An
+  **approved** recipe pins every knob so a later generic-default change
+  cannot silently restyle it.
+- `GENERIC.json` (one per repo, beside this contract's per-set dirs) —
+  the tracked base layer every render inherits: the generic value AND a
+  per-knob "why" note naming what it encodes (most were measured on one
+  underexposed DSLR wide-field) and its known class limits. Tweakable at
+  any time — but a change restyles every non-approved dataset, so it
+  lands as a declared delta through the sweep. The knob SCHEMA stays in
+  code; starcomb hard-fails on any file/schema drift.
 - `baseline.json` — the measured no-regression record (pinned stack sha,
   expected gate/shell numbers, artifact hashes), written only by
   `scripts/qa/sweep.py --rebaseline`.

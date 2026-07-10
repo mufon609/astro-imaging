@@ -73,6 +73,19 @@ def fits_dims(path):
             int(re.search(r"NAXIS2\s*=\s*(\d+)", raw).group(1)))
 
 
+def load_linear(path):
+    """Processing-input loader: FITS ONLY. Display-referred / lossy files
+    (jpg, png) exist solely as QA, gate and judgment surfaces — a
+    processing stage fed one would silently work on quantized or
+    chroma-subsampled data, so this guard refuses instead."""
+    data, kind = load_image(path)
+    if kind != "fits":
+        sys.exit(f"astrometrics: {path} is not FITS — processing stages "
+                 "take linear FITS only (jpg/png are QA/judgment "
+                 "surfaces, never inputs)")
+    return data
+
+
 def load_image(path):
     """FITS or JPEG/PNG -> (data float32 (C,H,W) in [0,1], kind str).
     kind is 'fits' or 'jpg' (jpg == 8-bit display referred)."""
