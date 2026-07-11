@@ -32,7 +32,8 @@
     "huerot_to": 147.5,
     "huerot_by": -35.0,
     "scnr": 0.5,
-    "stars_opacity": 1.0
+    "stars_opacity": 1.0,
+    "bgelin_mode": "gx"
   },
   "notes": {
     "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed 40-50% of this high-SNR target's bright-object chroma (petal R-G +41.7 -> +25.1, core -49%, blue reflection B-G -43%) and flattened the survivors into soft patches \u2014 the user-reported missing-red defect. off gate-PASSES with the ladder's best numbers (colour 2.0 / grad 1.4 / blotch 0.9 / rings 3.3) and restores the red (petal +50.1); gx KILLED (gate colour 11.0, sky tint). Full stage localization: git log (the defect commit).",

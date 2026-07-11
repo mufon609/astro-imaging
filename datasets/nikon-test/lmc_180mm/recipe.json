@@ -32,7 +32,8 @@
     "huerot_to": 147.5,
     "huerot_by": -35.0,
     "scnr": 0.5,
-    "stars_opacity": 1.0
+    "stars_opacity": 1.0,
+    "bgelin_mode": "gx"
   },
   "notes": {
     "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed this target's object chroma -31..-50% (A/B probe R-G -16.4 -> -8.2; the final render doubles back to -17.5 with off) and smeared the blotchy blue/white galaxy body the user reported \u2014 off restores the subtle nebula dust detail at gate PASS (colour 6.0 / grad 2.3 / blotch 1.5 / rings 5.4)",

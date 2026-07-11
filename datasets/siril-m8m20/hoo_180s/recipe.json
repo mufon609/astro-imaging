@@ -32,7 +32,8 @@
     "huerot_to": 147.5,
     "huerot_by": -35.0,
     "scnr": 0.5,
-    "stars_opacity": 1.0
+    "stars_opacity": 1.0,
+    "bgelin_mode": "gx"
   },
   "spcc": {
     "narrowband": true,

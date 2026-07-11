@@ -152,20 +152,40 @@ def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None,
                     prom_args)
 
 
-def ensure_bge_linear(ctx):
-    """GraXpert BGE + subsky 1 on the STAR-FUL stack (the order the
-    standard workflow uses, and the only one measured MW-safe here: gx on
-    starless erased the MW +38 -> +0.4, gx on the star-ful stack kept it),
-    cached by stack identity."""
+def ensure_bge_linear(ctx, mode="gx"):
+    """Linear background handling on the STAR-FUL stack, cached by stack
+    identity + mode:
+
+    - `gx` — GraXpert BGE + `subsky 1` (the standard full extraction; the
+      order measured MW-safe on the DSLR class: gx on starless erased the
+      MW +38 -> +0.4, gx on the star-ful stack kept it). MEASURED CLASS
+      LIMIT: GraXpert's model absorbs frame-filling FAINT nebulosity —
+      75-98% of the Bubble complex's +3..11 e-4 dust amplitude was
+      subtracted as background while the +38 e-4 MW band survived; the
+      model cannot tell a frame-scale cloud from sky.
+    - `plane` — `subsky 1` only: a first-degree plane removes the gate's
+      gradient class but cannot absorb localized nebulosity by
+      construction. The retention mode for fields that ARE mostly object.
+    - `off` — the stack passes through untouched (measurement rungs; the
+      gate still judges the result).
+    """
     sdir, work, stack = ctx["sdir"], ctx["work"], ctx["stack"]
+    if mode == "off":
+        print("[starcomb] bgelin off — stack passes through (gate judges)")
+        return stack
     st = os.stat(stack)
-    out = os.path.join(work, f"bgelin_{st.st_size}_{int(st.st_mtime)}.fit")
+    suffix = "" if mode == "gx" else f"_{mode}"
+    out = os.path.join(work,
+                       f"bgelin_{st.st_size}_{int(st.st_mtime)}{suffix}.fit")
     if os.path.exists(out):
         print(f"[starcomb] bge-linear cache hit {os.path.basename(out)}")
         return out
-    gx = rh.run_graxpert(stack, work,
-                          lambda m: print(f"[starcomb] {m}", flush=True))
-    rel_gx = os.path.relpath(gx, sdir)
+    if mode == "gx":
+        src = rh.run_graxpert(stack, work,
+                              lambda m: print(f"[starcomb] {m}", flush=True))
+    else:
+        src = stack
+    rel_src = os.path.relpath(src, sdir)
     rel_out = os.path.relpath(out, sdir)
     # subsky WITHOUT -dither: dither injects ±1 LSB16 random noise to mask
     # quantization banding, which cannot occur on this 32-bit float chain —
@@ -173,15 +193,15 @@ def ensure_bge_linear(ctx):
     # render (measured: two cold builds differ on 100% of pixels, RMS 0.41
     # counts16 = 0.08 sigma; downstream star detection moved 852 -> 858).
     run_siril(sdir, ["requires 1.4.0",
-                     f"load {rel_gx[:-5] if rel_gx.endswith('.fits') else rel_gx}",
+                     f"load {rel_src[:-5] if rel_src.endswith('.fits') else rel_src}",
                      "subsky 1",
                      f"save {rel_out[:-4]}",
                      "close"], "starcomb_bgelin.gen.ssf")
     # the GraXpert intermediate is consumed the moment bgelin exists —
     # per-stage cleanup (200-450 MB per dataset on this disk); a cold
     # rebuild regenerates it from the stack deterministically
-    if os.path.exists(out) and os.path.exists(gx):
-        os.remove(gx)
+    if mode == "gx" and os.path.exists(out) and os.path.exists(src):
+        os.remove(src)
     return out
 
 
@@ -489,7 +509,7 @@ def render_config(ctx, cfg, jpg_out):
     # Background removed on the STAR-FUL linear (the standard order and
     # the only one measured MW-safe: gx on starless erased the MW +38 ->
     # +0.4), THEN separation; the starless branch only denoises/stretches.
-    bgelin = ensure_bge_linear(ctx)
+    bgelin = ensure_bge_linear(ctx, mode=cfg.get("bgelin_mode", "gx"))
     if ctx.get("inspect_dir"):
         b, _ = am.load_image(bgelin)
         _inspect_stage(ctx, "bgelin", b, False, "BGE'd linear (star-ful)")
@@ -532,8 +552,8 @@ def render_config(ctx, cfg, jpg_out):
     # per-channel noise into chroma blotches. On an SPCC-calibrated
     # BROADBAND stack there is no cast to compensate — linked is the
     # standard there. perline is the narrowband-palette mode (per-line
-    # object-anchored stretch above); any siril-side pass that follows it
-    # (ghs finishing) runs linked — the lines are already equalized.
+    # noise-width-capped stretch above); any siril-side pass that follows
+    # it (ghs finishing) runs linked — the lines are already equalized.
     linkflag = "-linked " if cfg.get("stretch_linked") != "unlinked" else ""
     if cfg.get("stretch_linked") != "perline":
         lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
@@ -827,6 +847,7 @@ def render_config(ctx, cfg, jpg_out):
 # limits. A dataset's recipe overrides per knob; CLI overrides both. The
 # file and this schema must agree exactly or the render refuses to run.
 KNOBS = (
+    "bgelin_mode",
     "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
     "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
     "chroma_core", "lum_core", "core_order", "stretch_linked",
@@ -838,6 +859,7 @@ KNOBS = (
 )
 
 ENUM_CHOICES = {
+    "bgelin_mode": ["gx", "plane", "off"],
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
     "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
@@ -913,7 +935,7 @@ def resolve_recipe(repo, sdir, set_name, args):
         base["stretch_linked"] = "perline" if nb else "linked"
         print(f"[recipe] stretch_linked auto -> {base['stretch_linked']} "
               + ("(narrowband palette composition: per-line "
-                 "object-anchored stretch)" if nb
+                 "noise-width-capped stretch + LCh finishing)" if nb
                  else "(broadband/mono: single linked stretch)"))
     if srcs:
         print("[recipe] non-generic: " + " ".join(srcs))
@@ -929,6 +951,13 @@ def main():
     # Knob defaults resolve CLI > dataset recipe > datasets/GENERIC.json
     # (see resolve_recipe); the generic values were each set by a measured
     # single-knob ladder and carry per-knob provenance in that file.
+    ap.add_argument("--bgelin-mode", default=None,
+                    choices=ENUM_CHOICES["bgelin_mode"],
+                    help="linear background handling: gx = GraXpert BGE + "
+                         "subsky 1 (full extraction — measured to absorb "
+                         "frame-filling faint nebulosity), plane = subsky "
+                         "1 only (gradient removal that cannot absorb "
+                         "localized nebulosity), off = passthrough")
     ap.add_argument("--starless-target", type=float, default=None)
     ap.add_argument("--stretch-mode", default=None,
                     choices=ENUM_CHOICES["stretch_mode"],
@@ -1066,7 +1095,8 @@ def main():
                          "results/inspect_render_<set>_<stamp>/ — localize "
                          "a render defect to its stage in one run")
     ap.add_argument("--param", default=None,
-                    choices=["starless_target", "starless_denoise",
+                    choices=["bgelin_mode",
+                             "starless_target", "starless_denoise",
                              "stretch_mode", "ghs_sp_k", "ghs_amount",
                              "ghs_focus",
                              "cull_pct", "stars_peak", "stars_anchor",
@@ -1122,8 +1152,9 @@ def main():
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     # every ladder value is a judgment surface: lossless, always
     ctx = {**ctx, "lossless": True}
-    enum_params = ("starless_denoise", "stretch_mode", "core_order",
-                   "stretch_linked", "sep_engine", "stars_anchor")
+    enum_params = ("bgelin_mode", "starless_denoise", "stretch_mode",
+                   "core_order", "stretch_linked", "sep_engine",
+                   "stars_anchor")
     vals = []
     for v in args.values.split(","):
         v = v.strip()

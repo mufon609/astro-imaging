@@ -267,7 +267,7 @@ def main():
             wdir = os.path.join(REPO, session, "work")
             import glob as _glob
             cleared = 0
-            for pat in (f"bgelin_{key}.fit", f"gx_{key}.fits",
+            for pat in (f"bgelin_{key}*.fit", f"gx_{key}.fits",
                         os.path.join("starsep", f"*_{key}*")):
                 for p in _glob.glob(os.path.join(wdir, pat)):
                     os.remove(p)

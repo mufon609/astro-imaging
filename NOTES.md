@@ -253,13 +253,38 @@ never let it grow narrative.
     164/205/249, sat 0/0/6%, starless bit-identical);
     perline_scale 2.0 = the gamma-10 ceiling case (stated);
     black_point 0 = sky 18 ≈ the author's pedestal (rings 0.9→3.1,
-    bound ≤8). Package judgment_sho_authorchain_20260711 (base +
-    the three brackets + reference, INSPECTION.md attached per the
-    contract) AWAITS THE USER. Open judgment flags: the rim knot's
-    hue (100–119°) sits below the rotation interval (huerot_from
-    100 = the candidate follow-up); dust extent still trails the
-    reference at fit scale (the gamma ceiling is the lever);
-    satu-on-satgamma interaction untested but clean at 1:1.
+    bound ≤8). Package judgment_sho_authorchain_* REJECTED by the
+    user 2026-07-11: the dust STRUCTURE around the core is MISSING
+    (the goal is recovering the gas/dust clouds, not palette match)
+    and the sphere region reads as yellow-green mush.
+    SIGNAL-RETENTION TRACE (the object-integrity audit's
+    measurement, run by hand — five dust-cloud probes picked on the
+    reference, mapped through the mirror): the dust is IN our
+    composed stack at the author's own ratios (Ha +5.8…+10.9 e-4
+    above far sky ≈ +17…+32% of sky, matching his no-BGE stack's
+    +15…+29%) and DIES AT ONE STAGE — GraXpert BGE absorbs 75–98%
+    of it (post-bgelin +0.8/−0.2/+2.7/+0.2/+0.2 e-4); StarNet
+    preserves what remains. The set-03 "BGE is MW-safe" measurement
+    (+38 e-4 band) did not generalize to +3–11 e-4 frame-filling
+    dust. LADDER MEASURED (bgelin_mode gx-control vs plane), every
+    prediction met: the plane bgelin retains 93–97% of the stack's
+    dust amplitude (+9.9/+5.4/+10.5/+9.6 vs GraXpert's
+    +0.8/−0.2/+2.7/+0.2 e-4), the finals carry the clouds at
+    +25…+47 counts8 above far sky where the gx control renders +1,
+    and the gate FULL-PASSES on both rungs — plane colour 2.0 is
+    CLEANER than gx 3.0, achromatics 0.0/0.0/0.9. The per-line
+    gammas drop 9.8/4.3/3.9 → 5.0/3.2/3.0 (real signal re-enters
+    the stretch statistics). Companion candidate plane+black_point
+    0: the cloud tail fades continuously into the stretch's sky
+    pedestal (floor 18 ≈ the reference's ~20), colour 1.0. The
+    dust/sky transition grain at 1:1 is the stretch's noise budget,
+    not a clip (bp0 disproved the clip theory; the author's chain
+    carries the same at native scale). Package
+    judgment_sho_dustretention_* (plane / plane+bp0 / gx control /
+    reference, INSPECTION.md attached) AWAITS THE USER — the
+    structural verdict; the palette refinements (huerot_from 100
+    for the sub-interval green patches + the sphere-teal question,
+    satu-on-satgamma) queue behind it.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
@@ -446,11 +471,20 @@ no fixed geometry a mask could scope (see dead ends).
 **Product chain (`starcomb.py`)** on the SPCC stack — knob values resolve
 CLI > `datasets/<session>/<set>/recipe.json` > GENERIC (provenance printed
 per run; a recipe-less dataset renders generic and says so):
-1. GraXpert BGE + `subsky 1` on the STAR-FUL linear (the only
-   MW-safe order: BGE on starless erases the MW, +38 → +0.4 linear).
-   `subsky` runs WITHOUT `-dither`: dither injects unseeded ±1 LSB16
-   noise (0.08σ — breaks byte-determinism) to mask quantization banding
-   that cannot occur on a 32-bit float chain.
+1. Linear background handling per `bgelin_mode`: **gx** (generic) =
+   GraXpert BGE + `subsky 1` on the STAR-FUL linear (the only MW-safe
+   order: BGE on starless erases the MW, +38 → +0.4 linear). MEASURED
+   CLASS LIMIT: GraXpert's model absorbs frame-filling FAINT
+   nebulosity — 75–98% of the Bubble complex's +3…11 e-4 dust
+   subtracted as background while set-03's +38 e-4 MW band survived;
+   **plane** = `subsky 1` only (a first-degree plane removes the
+   gate's gradient class and cannot absorb a localized cloud by
+   construction — the retention mode for fields that ARE mostly
+   object; 93–97% dust retention measured, gate colour 2.0);
+   **off** = passthrough (measurement rungs). `subsky` runs WITHOUT
+   `-dither`: dither injects unseeded ±1 LSB16 noise (0.08σ — breaks
+   byte-determinism) to mask quantization banding that cannot occur
+   on a 32-bit float chain.
 2. Star separation, engine per recipe (`auto` = net when the StarNet2
    weights are installed, else inpaint):
    - `net` (`starnet_sep.py`, StarNet2 ONNX on aarch64, linear under an
