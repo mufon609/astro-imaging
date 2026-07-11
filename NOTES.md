@@ -163,11 +163,35 @@ never let it grow narrative.
     counts8 (linked −20), chroma grain 8.9 MAD (linked 59), gate FULL
     PASS incl. colour 5.0 (linked 11.0 scope-FAIL) at sky clip0 0%;
     broadband stays byte-identical (auto→linked; sweep-proven).
-    Judgment package `judgment_sho_perline_20260710` (linked control
-    vs T 0.20/0.25/0.30 vs the author's finish) AWAITS THE USER —
-    stretch_linked auto/perline is live generic, but the SHO look
-    itself bakes only on those eyes. Known remaining gap, separate:
-    the faint-end/star-top allocation (GHS entry).
+    perline JUDGED 2026-07-10 (package judgment_sho_perline_*): the
+    sphere reads and the frame is clear — but the user's eye finds
+    the EXTENDED DUST missing vs the author's finish (by-eye at like
+    scale/orientation: their olive dust complex sits ~40–90/255 with
+    saturated hue; ours ~12–25, just above the black point, colour
+    neutralized). Gap decomposition: faint-end ALLOCATION (the GHS
+    entry's case — the perline anchor places each line's p90-of-
+    significant, so the sub-p90 dust lands on the MTF toe) + faint
+    CHROMA SURVIVAL (chroma_core k=4's recorded class limit + satu
+    0.2 conservatism). Round-2 ladders MEASURED on the perline base
+    (both hypotheses confirmed): (a) stretch_mode ghs (k2/D3/b3) —
+    on the line-EQUALIZED base the finishing lift lands the sky at
+    the reference's own pedestal (floor 22 vs mtf 10) with the dust
+    complex reading as an extended olive mass and the sphere intact
+    (the earlier "ghs worsens the drowning" was the UN-equalized
+    linked base feeding the Ha flood); achromatics clean (0.7/0.6/
+    1.2), star cost mild (sat 6→7%), but colour 12.0 SCOPE-FAILS the
+    current gate — the lift pulls coloured dust into the statistical
+    sky scope (97% of blocks): the colour-gate-redesign class, hoo
+    precedent (approval possible, baseline blocked). (b) chroma_core
+    2 — the dust's hue survives at gate FULL PASS (colour 6.0 vs 5.0
+    at k=4, achromatics 0.0). Combination ghs+cc2: floor 22,
+    achromatics 0.7/0.5/1.3, colour 13.0 scope-FAIL — closest to the
+    reference of the four. Judgment package
+    judgment_sho_dust_20260710 (control / ghs / cc2 / ghs+cc2 /
+    author) AWAITS THE USER; satu 0.2 is the recorded fast-follow if
+    colour still lags, black_point the pedestal lever (linear-shift
+    invariant). stretch_linked auto/perline is live generic; the SHO
+    look bakes only on the user's eyes.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
