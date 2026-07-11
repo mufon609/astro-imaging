@@ -194,7 +194,10 @@ narrowband target's O3 sphere). When a dataset CLASS first arrives (new
 sensor class, new SNR regime, new target-brightness class, new
 composition kind), ladder the generic knobs whose `datasets/GENERIC.json`
 why-notes name a class risk — that file is the checklist's source of
-truth; today: `starless_denoise` (the proven chroma killer),
+truth; today: `bgelin_mode` (the proven signal eater: full AI
+background extraction absorbs frame-filling faint nebulosity — trace
+object-region retention stack→bgelin before trusting any faint-object
+render), `starless_denoise` (the proven chroma killer),
 `chroma_core` (over-neutralizes faint real colour), `black_point`
 (crushes faint extended signal), `starless_target` (darker than
 necessary on clean data), `stars_peak` (blows star tops on deep data),

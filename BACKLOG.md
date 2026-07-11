@@ -496,6 +496,28 @@ treatment. Placement in the pick-up order needs user ratification
 (natural fit: before the next reference-bearing corpus lands;
 complements the object-integrity audit's retention traces).
 
+### C19 — bgelin_mode `rbf`: constrained extraction for gradient + object fields
+
+**CONDITIONAL — implement only when a dataset measures BOTH.** The
+background-handling modes now split clean cases: `gx` (full AI
+extraction) for gradient-dominated fields, `plane` for fields that ARE
+mostly object (a plane cannot absorb a cloud). The uncovered case is a
+field with a REAL measured gradient (beyond first-degree) AND
+frame-filling faint object signal — there `gx` eats the object (the AI
+infers on a 256 px thumbnail where a faint complex reads as the
+light-pollution class; its own team's FAQ acknowledges "sometimes it
+subtracts too much from my target" with retraining as the only fix,
+and smoothing is explicitly not a protection lever) while `plane`
+under-corrects. GraXpert's CLI supports the constrained classical path
+via `-preferences_file`: RBF/Kriging/Splines with EXPLICIT background
+grid points, sample size, kernel and true fit-regularizing smoothing —
+the pipeline can generate the off-object sample grid from its own
+statistical sky selection (the gate's dark-block machinery) so samples
+never land on the object. Trigger: the first dataset whose gate FAILS
+gradient under `plane` while the retention trace shows `gx` eating its
+object; until then this stays research-recorded (the trace + the
+team-doctrine quotes live in NOTES/git).
+
 ### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 
 User-specified; the capture REPORT CARD half is shipped

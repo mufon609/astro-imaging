@@ -648,6 +648,20 @@ Stretch/denoise/color:
   autostretch anchors on sky, so unlinked ≡ linked (sphere O3
   interior 1271 vs 1337 e-4; every sphere metric within noise). The
   line imbalance is OBJECT flux above a common sky.
+- GraXpert AI smoothing as faint-nebulosity protection → NON-FIX by
+  design AND by measurement: the team states smoothing "does not
+  influence the result produced by the AI model" (it gaussian-blurs
+  the model output), and max smoothing 1.0 still absorbed the Bubble
+  dust (Ha probes +10.3/+5.8/+10.9/+9.9/+2.8 e-4 → +3.1/+0.5/+1.1/
+  −1.3/−2.0 — retention 5–30% with over-subtraction). Mechanism: the
+  AI infers on a 256 px thumbnail where a frame-filling faint complex
+  is an ~85 px blob ≡ the trained-on light-pollution class, and its
+  ±25·MAD input clip keeps 3–10σ dust fully inside the absorbable
+  range while bright objects saturate out (why compact objects
+  survive). The team's own FAQ: "sometimes it subtracts too much from
+  my target" — their fix is retraining, not a knob. bgelin_mode
+  plane/off (or preferences-file RBF with off-object samples) are the
+  admissible handlings for object-filling fields.
 - OBJECT-anchored per-line stretch (each line's p90-of-significant →
   a display target) → lifts the faint end past its noise budget; the
   corings then partial-Wiener-shrink the lifted grain into 40–120 px
