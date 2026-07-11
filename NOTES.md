@@ -279,12 +279,26 @@ never let it grow narrative.
     pedestal (floor 18 ≈ the reference's ~20), colour 1.0. The
     dust/sky transition grain at 1:1 is the stretch's noise budget,
     not a clip (bp0 disproved the clip theory; the author's chain
-    carries the same at native scale). Package
-    judgment_sho_dustretention_* (plane / plane+bp0 / gx control /
-    reference, INSPECTION.md attached) AWAITS THE USER — the
-    structural verdict; the palette refinements (huerot_from 100
-    for the sub-interval green patches + the sphere-teal question,
-    satu-on-satgamma) queue behind it.
+    carries the same at native scale). USER VERDICT 2026-07-11 on
+    judgment_sho_dustretention_*: candidate 01 (plane) is a STEP IN
+    THE CORRECT DIRECTION; the core now reads subdued — adjustable,
+    the milder solved gammas render bright mid-tones lower
+    (ppgamma / perline_scale are the levers) — and the palette
+    refinements (huerot_from 100 for the sub-interval green
+    patches, the sphere-teal question, satu-on-satgamma) queue
+    behind the structural direction. CROSS-DATASET RETENTION TRACE
+    (stack→bgelin, G channel, faint 3–10σ / mid 10–30σ / bright
+    >30σ bands): smc_180mm 27%/101%/101% (GraXpert eats ~73% of
+    the SMC's faint envelope — the worst case), m20_rgb
+    72%/84%/89%, hoo_180s 81%/98%/99%, lmc_180mm 81%/89%/97%,
+    wide_50mm 118%/120%/121% (EXONERATED — the self-flat class's
+    BGE removes glow, raising above-sky contrast); m74's
+    compact-galaxy class was already measured SAFE (halo retention
+    101–144%, dead ends); lpro_180s untraced (no bgelin cache);
+    set-03/m74 off-disk. All four hit datasets carry APPROVED
+    looks — each re-process is a bgelin_mode ladder + declared
+    delta through the user's eyes, queued for the user's pick-up
+    call.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected

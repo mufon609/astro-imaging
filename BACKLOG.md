@@ -31,7 +31,8 @@ and C17's report-card half shipped with its preset half moving to the
 awaiting-inputs tier below, its redesigned scope needing user
 ratification).
 C8 and C10 run when their external/user inputs arrive, C17's preset
-half on its ratification; C13 after its
+half on its ratification; C16 (new, user-specified) awaits its
+ratified position; C13 after its
 industry-norm research; C5 only on a measured solve failure; A3 in a
 session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
@@ -452,6 +453,48 @@ rebaseline time — bgelin sha256 + separation-trio sha256s (+ compose
 inputs for composed targets) — so any future drift localizes to its
 stage from the records alone, prune or no prune. Hashing ~0.5 GB per
 dataset at rebaseline is seconds; do NOT hash on ordinary sweeps.
+
+### C16 — Reference-finish reverse-engineering: report, then the user picks mirror / diverge / learn
+
+User-specified. When a corpus ships a reference finish (the answer
+key), its study becomes a standing PROCESS with a deliverable report —
+never an ad-hoc investigation. The process:
+
+1. ANALYZE the reference image, measured: structure/allocation map
+   (percentile levels of object vs sky), palette/hue distribution,
+   noise and texture character at native scale, star treatment,
+   orientation/parity vs our chain (numerically, never by eye).
+2. REVERSE-ENGINEER the toolchain: image metadata, the author's
+   published tooling and recipes (repos, Makefiles, articles, forum
+   threads), tool-signature heuristics; when the tool is open and
+   runnable, REPRODUCE the reference on this rig and keep the
+   intermediates as calibration targets. (First instance exists: the
+   SHO corpus's finish traced to the author's open-source tool, his
+   published per-target recipe recovered from his dataset repo, and
+   the pipeline reproduced locally — structure NCC 0.768 — which
+   yielded the noise-capped stretch, the LCh finishing set, and the
+   background-retention fix.)
+3. REPORT honestly, mechanism by mechanism: what our chain can mirror
+   (and with which knobs), what used tools/steps we DO NOT have (with
+   license and platform reality, per the separation-weights
+   precedent), what is data vs processing, and what is manual
+   finishing no tool encodes.
+4. STOP and ASK the user, report in hand: (a) COPY the style —
+   calibrate our chain toward the reference via ladders and their
+   eyes; (b) DIVERGE deliberately — record the chosen difference and
+   its reason; (c) LEARN — follow the reference process itself,
+   integrate the key insights of the industry process actually used
+   into our chain as measured mechanisms, and examine our outcome
+   against the reproduced original.
+
+Deliverable: the documented procedure + a report template, with a
+`scripts/qa/` tool for the automatable measurements (parity, palette
+distribution, allocation, texture — library pieces exist). SESSIONS
+"Adding a dataset" step 0 already mandates the study; this entry
+builds the skill so ANY reference-bearing corpus gets the same
+treatment. Placement in the pick-up order needs user ratification
+(natural fit: before the next reference-bearing corpus lands;
+complements the object-integrity audit's retention traces).
 
 ### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 
