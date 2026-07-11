@@ -56,7 +56,33 @@ never let it grow narrative.
   - `nikon-test/smc_180mm` — **look APPROVED 2026-07-10 + rebaselined**:
     `starless_denoise off` pinned (the hardest-hit dataset, chroma
     −47…−50%, R−G −18.5→−9.3; off doubles it back to −23.4 at gate
-    PASS).
+    PASS). USER-ORDERED REPROCESS 2026-07-11 (bgelin_mode plane —
+    the retention trace measured the approved gx look keeping only
+    27% of the SMC's faint 3–10σ envelope, the worst case on disk).
+    Plane ladder MEASURED — both predictions KILLED on this class:
+    plane retention only 38% (not ≥80% — with the envelope spread
+    frame-wide the plane fit TILTS INTO the object; mid/bright
+    ~101%) and the gate FAILS colour 13.0 (grad 6.0 / rings 6.3 vs
+    gx 0.9/1.7): the D810A field carries a REAL coloured
+    light-pollution gradient beyond first degree that gx had been
+    legitimately removing. Neither simple mode serves this class —
+    the rbf trigger case. RBF ladder MEASURED — KILLED, two
+    independent failure modes: (1) faint-band retention 27.4% (≡
+    gx): the quarter-res extended-object mask excluded only 4/150
+    cells — it never detected the 3–10σ envelope, so samples sat ON
+    it and the interpolant modeled it as background (the exclusion
+    must come from a SIGNIFICANCE mask at the smoothing scale, not
+    the current extended-object params); (2) gate colour 31.0 while
+    the bgelin's global sky medians are NEUTRAL (R−G −0.01 e-4):
+    three independently-fit per-channel RBF surfaces ripple CHROMA
+    at block scale — invisible to the achromatic metrics (grad 0.6,
+    blotch 0.4) and exactly the recorded self-flat lesson
+    "per-channel V → corner tint; V must be GRAY" recurring at the
+    extraction stage. The SMC stays on its APPROVED gx look;
+    envelope recovery on this class is BLOCKED on the constrained-
+    extraction redesign (backlog: significance-based sample
+    exclusion + a chroma-rigid model — gray RBF + low-order chroma).
+    Neither plane (retention 38%, colour 13) nor rbf-v1 may pin.
   - `nikon-test/wide_50mm` — processed, gate PASS (self-flat class —
     vstpost's home turf, no probe indication).
   - `imx585c/m74_toa130` — processed (mono FITS class). The session dir

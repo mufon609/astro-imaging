@@ -163,9 +163,17 @@ def ensure_bge_linear(ctx, mode="gx"):
       75-98% of the Bubble complex's +3..11 e-4 dust amplitude was
       subtracted as background while the +38 e-4 MW band survived; the
       model cannot tell a frame-scale cloud from sky.
+    - `rbf` — GraXpert CLASSICAL RBF through pipeline-generated
+      OFF-OBJECT sample points + `subsky 1`: models a real coloured /
+      higher-order gradient while the object (extended-object mask,
+      dilated) contributes no samples. For fields carrying BOTH a
+      gradient and a frame-filling object (measured: the SMC — the AI
+      ate 73% of its faint envelope, a plane tilted into it, 38%
+      retention, and FAILED colour 13).
     - `plane` — `subsky 1` only: a first-degree plane removes the gate's
       gradient class but cannot absorb localized nebulosity by
-      construction. The retention mode for fields that ARE mostly object.
+      construction. The retention mode for fields that ARE mostly object
+      when their residual gradient is first-degree-small.
     - `off` — the stack passes through untouched (measurement rungs; the
       gate still judges the result).
     """
@@ -183,6 +191,10 @@ def ensure_bge_linear(ctx, mode="gx"):
     if mode == "gx":
         src = rh.run_graxpert(stack, work,
                               lambda m: print(f"[starcomb] {m}", flush=True))
+    elif mode == "rbf":
+        src = rh.run_graxpert_rbf(stack, work,
+                                  lambda m: print(f"[starcomb] {m}",
+                                                  flush=True))
     else:
         src = stack
     rel_src = os.path.relpath(src, sdir)
@@ -200,7 +212,8 @@ def ensure_bge_linear(ctx, mode="gx"):
     # the GraXpert intermediate is consumed the moment bgelin exists —
     # per-stage cleanup (200-450 MB per dataset on this disk); a cold
     # rebuild regenerates it from the stack deterministically
-    if mode == "gx" and os.path.exists(out) and os.path.exists(src):
+    if mode in ("gx", "rbf") and os.path.exists(out) \
+            and os.path.exists(src):
         os.remove(src)
     return out
 
@@ -859,7 +872,7 @@ KNOBS = (
 )
 
 ENUM_CHOICES = {
-    "bgelin_mode": ["gx", "plane", "off"],
+    "bgelin_mode": ["gx", "rbf", "plane", "off"],
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
     "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
@@ -953,11 +966,13 @@ def main():
     # single-knob ladder and carry per-knob provenance in that file.
     ap.add_argument("--bgelin-mode", default=None,
                     choices=ENUM_CHOICES["bgelin_mode"],
-                    help="linear background handling: gx = GraXpert BGE + "
-                         "subsky 1 (full extraction — measured to absorb "
-                         "frame-filling faint nebulosity), plane = subsky "
-                         "1 only (gradient removal that cannot absorb "
-                         "localized nebulosity), off = passthrough")
+                    help="linear background handling: gx = GraXpert AI "
+                         "BGE + subsky 1 (full extraction — measured to "
+                         "absorb frame-filling faint nebulosity), rbf = "
+                         "GraXpert classical RBF on pipeline-generated "
+                         "OFF-OBJECT samples + subsky 1 (gradient removal "
+                         "constrained away from the object), plane = "
+                         "subsky 1 only, off = passthrough")
     ap.add_argument("--starless-target", type=float, default=None)
     ap.add_argument("--stretch-mode", default=None,
                     choices=ENUM_CHOICES["stretch_mode"],

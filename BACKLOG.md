@@ -496,27 +496,39 @@ treatment. Placement in the pick-up order needs user ratification
 (natural fit: before the next reference-bearing corpus lands;
 complements the object-integrity audit's retention traces).
 
-### C19 — bgelin_mode `rbf`: constrained extraction for gradient + object fields
+### C19 — Constrained background extraction v2 for gradient + object fields
 
-**CONDITIONAL — implement only when a dataset measures BOTH.** The
-background-handling modes now split clean cases: `gx` (full AI
-extraction) for gradient-dominated fields, `plane` for fields that ARE
-mostly object (a plane cannot absorb a cloud). The uncovered case is a
-field with a REAL measured gradient (beyond first-degree) AND
-frame-filling faint object signal — there `gx` eats the object (the AI
-infers on a 256 px thumbnail where a faint complex reads as the
-light-pollution class; its own team's FAQ acknowledges "sometimes it
-subtracts too much from my target" with retraining as the only fix,
-and smoothing is explicitly not a protection lever) while `plane`
-under-corrects. GraXpert's CLI supports the constrained classical path
-via `-preferences_file`: RBF/Kriging/Splines with EXPLICIT background
-grid points, sample size, kernel and true fit-regularizing smoothing —
-the pipeline can generate the off-object sample grid from its own
-statistical sky selection (the gate's dark-block machinery) so samples
-never land on the object. Trigger: the first dataset whose gate FAILS
-gradient under `plane` while the retention trace shows `gx` eating its
-object; until then this stays research-recorded (the trace + the
-team-doctrine quotes live in NOTES/git).
+The trigger case exists (the SMC: a real coloured higher-order LP
+gradient AND a frame-filling faint envelope — `gx` keeps 27% of the
+faint band, `plane` keeps 38% by tilting into it and fails colour 13)
+and the v1 implementation (`bgelin_mode rbf`: GraXpert classical RBF
+via `-preferences_file` on pipeline-generated off-object samples) is
+MEASURED FAILING with two independent modes that define the v2 work:
+
+1. **The sample exclusion must be a significance mask at the
+   smoothing scale, not the current extended-object params** — v1's
+   quarter-res mask excluded 4/150 cells, never detecting the 3–10σ
+   envelope, so samples sat on it and the interpolant absorbed it
+   (retention 27.4%, ≡ gx). Build the exclusion from the same
+   definition the retention trace uses (smoothed G above sky + kσ of
+   the smoothed noise), with the too-few-sky-cells refusal kept.
+2. **The background model must be chroma-rigid** — three
+   independently-fit per-channel surfaces ripple chroma at block
+   scale (gate colour 31 with NEUTRAL global sky medians, achromatics
+   clean 0.6/0.4: colour-only structure evades the luminance
+   metrics), the recorded self-flat lesson "per-channel V → corner
+   tint; V must be GRAY" recurring at the extraction stage. v2 fits
+   ONE gray surface (RBF through the sample luminances) plus a
+   LOW-ORDER per-channel chroma correction (the coloured part of LP
+   is smooth; a plane per chroma channel), likely in-house
+   (scipy RBFInterpolator) rather than GraXpert — the per-channel
+   independence is GraXpert-internal and unreachable via preferences.
+
+Acceptance: on the SMC — faint-band retention ≥80%, gate FULL PASS
+(colour ≤7 back at the gx level), the envelope rendered; and the mode
+stays byte-inert everywhere unpinned. The `rbf` enum value stays wired
+(loud, measured-failing why-note) until v2 replaces its internals; gx
+remains the SMC's only gate-passing look meanwhile.
 
 ### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 
