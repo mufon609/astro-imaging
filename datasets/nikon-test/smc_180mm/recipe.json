@@ -24,7 +24,15 @@
     "jpg_quality": 100,
     "jpg_subsampling": 0,
     "noise_anchor_k": null,
-    "perline_target": 0.25
+    "perline_scale": 0.5,
+    "ppgamma": 2.7,
+    "ppsigma": 1.0,
+    "satgamma": 1.1,
+    "huerot_from": 120.0,
+    "huerot_to": 147.5,
+    "huerot_by": -35.0,
+    "scnr": 0.5,
+    "stars_opacity": 1.0
   },
   "notes": {
     "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst crushed this target's object chroma -47..-50% (the hardest-hit dataset; A/B probe R-G -18.5 -> -9.3; the final render doubles back to -23.4 with off) \u2014 off restores it at gate PASS (colour 4.0 / grad 0.9 / blotch 1.2 / rings 1.7)",

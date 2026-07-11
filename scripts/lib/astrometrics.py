@@ -769,6 +769,72 @@ def write_fits_planes(path, cards_src, planes):
         f.write(b"\x00" * ((-len(body)) % 2880))
 
 
+# --- colour space (CIE Luv / LCh_uv) ---------------------------------------
+# Display-referred [0,1] RGB treated as sRGB-companded, D65 white — the
+# convention the narrowband finishing ops need: hue angles here equal
+# HSLuv hue (HSLuv keeps LCh_uv hue), luminance L is perceptual, and a
+# luminance-only lift leaves chroma untouched by construction.
+
+_SRGB_TO_XYZ = np.array([[0.4124564, 0.3575761, 0.1804375],
+                         [0.2126729, 0.7151522, 0.0721750],
+                         [0.0193339, 0.1191920, 0.9503041]], np.float32)
+_XYZ_TO_SRGB = np.linalg.inv(_SRGB_TO_XYZ.astype(np.float64)).astype(np.float32)
+# D65 reference white u', v'
+_UN = 4.0 * 0.95047 / (0.95047 + 15.0 + 3.0 * 1.08883)
+_VN = 9.0 / (0.95047 + 15.0 + 3.0 * 1.08883)
+
+
+def rgb_to_lch(rgb):
+    """(3,H,W) sRGB-companded [0,1] -> (L*, C*, h_deg) float32 planes.
+    L* in [0,100]; h in [0,360)."""
+    x = np.clip(rgb, 0.0, 1.0).astype(np.float32)
+    lin = np.where(x <= 0.04045, x / 12.92,
+                   ((x + 0.055) / 1.055) ** 2.4).astype(np.float32)
+    X = (_SRGB_TO_XYZ[0, 0] * lin[0] + _SRGB_TO_XYZ[0, 1] * lin[1]
+         + _SRGB_TO_XYZ[0, 2] * lin[2])
+    Y = (_SRGB_TO_XYZ[1, 0] * lin[0] + _SRGB_TO_XYZ[1, 1] * lin[1]
+         + _SRGB_TO_XYZ[1, 2] * lin[2])
+    Z = (_SRGB_TO_XYZ[2, 0] * lin[0] + _SRGB_TO_XYZ[2, 1] * lin[1]
+         + _SRGB_TO_XYZ[2, 2] * lin[2])
+    yr = Y / 1.0
+    L = np.where(yr > 216.0 / 24389.0, 116.0 * np.cbrt(yr) - 16.0,
+                 24389.0 / 27.0 * yr).astype(np.float32)
+    d = X + 15.0 * Y + 3.0 * Z
+    d = np.where(d <= 0, 1e-9, d)
+    up = 4.0 * X / d
+    vp = 9.0 * Y / d
+    u = 13.0 * L * (up - _UN)
+    v = 13.0 * L * (vp - _VN)
+    C = np.hypot(u, v).astype(np.float32)
+    h = np.degrees(np.arctan2(v, u)).astype(np.float32)
+    h = np.where(h < 0, h + 360.0, h)
+    return L, C, h
+
+
+def lch_to_rgb(L, C, h):
+    """Inverse of rgb_to_lch: (L*, C*, h_deg) -> (3,H,W) sRGB [0,1]."""
+    hr = np.radians(h.astype(np.float32))
+    u = C * np.cos(hr)
+    v = C * np.sin(hr)
+    Lsafe = np.where(L <= 1e-6, 1e-6, L)
+    up = u / (13.0 * Lsafe) + _UN
+    vp = v / (13.0 * Lsafe) + _VN
+    Y = np.where(L > 8.0, ((L + 16.0) / 116.0) ** 3,
+                 L * 27.0 / 24389.0).astype(np.float32)
+    vps = np.where(vp <= 0, 1e-9, vp)
+    X = Y * 9.0 * up / (4.0 * vps)
+    Z = Y * (12.0 - 3.0 * up - 20.0 * vp) / (4.0 * vps)
+    lin = np.stack([
+        _XYZ_TO_SRGB[0, 0] * X + _XYZ_TO_SRGB[0, 1] * Y + _XYZ_TO_SRGB[0, 2] * Z,
+        _XYZ_TO_SRGB[1, 0] * X + _XYZ_TO_SRGB[1, 1] * Y + _XYZ_TO_SRGB[1, 2] * Z,
+        _XYZ_TO_SRGB[2, 0] * X + _XYZ_TO_SRGB[2, 1] * Y + _XYZ_TO_SRGB[2, 2] * Z,
+    ])
+    lin = np.clip(lin, 0.0, None)
+    out = np.where(lin <= 0.0031308, 12.92 * lin,
+                   1.055 * lin ** (1.0 / 2.4) - 0.055).astype(np.float32)
+    return np.clip(out, 0.0, 1.0)
+
+
 # --- consistent rendering -------------------------------------------------------
 
 def mtf(x, m):

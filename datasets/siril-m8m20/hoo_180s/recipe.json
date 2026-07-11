@@ -23,8 +23,16 @@
     "black_point": 8.0,
     "jpg_quality": 100,
     "jpg_subsampling": 0,
-    "perline_target": 0.25,
-    "noise_anchor_k": null
+    "noise_anchor_k": null,
+    "perline_scale": 0.5,
+    "ppgamma": 2.7,
+    "ppsigma": 1.0,
+    "satgamma": 1.1,
+    "huerot_from": 120.0,
+    "huerot_to": 147.5,
+    "huerot_by": -35.0,
+    "scnr": 0.5,
+    "stars_opacity": 1.0
   },
   "spcc": {
     "narrowband": true,

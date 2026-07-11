@@ -291,54 +291,152 @@ def solve_mtf_m(x0, y0):
     return min(max(m, 1e-4), 1 - 1e-4)
 
 
-def perline_starless_stretch(starless_fit, out_fit, t_obj, sky_target):
-    """Per-LINE object-anchored stretch — the narrowband-palette stretch
-    (stretch_linked=perline). The standard SHO/HOO chain stretches each
-    emission line separately: one linked MTF renders only the dominant
-    line (measured on the Bubble: the 5x Ha/O3 line ratio passes straight
-    through as rim step +50 vs +15 counts8 and the O3 sphere drowns), and
-    per-channel SKY-anchored stretching is a no-op here because BGE+SPCC
-    already equalize the channel skies — the imbalance is OBJECT flux
-    above a common sky.
-
-    Per channel: shadows clip at sky - 1.5*sigma (the chain's autostretch
-    clip), MTF with m solved so the line's p90-of-significant signal
-    (> 3 sigma above its own sky; stars are already separated out, so the
-    high tail is the nebula) lands at t_obj, then a per-channel OFFSET
-    re-pins the sky at sky_target — background neutralization; a linear
-    shift preserves the boosted object contrast. A line with no
-    significant signal has nothing to lift and takes the plain
-    sky-target MTF, stated loudly. numpy end to end (deterministic);
-    file order and header cards round-trip untouched."""
+def perline_starless_stretch(starless_fit, out_fit, sky_target,
+                             width_target):
+    """Per-LINE NOISE-WIDTH-CAPPED stretch — the narrowband-palette
+    stretch (stretch_linked=perline). Each emission line is stretched
+    separately (one linked MTF renders only the dominant line — the
+    drowned-O3-sphere defect), and the stretch is bounded by a display
+    NOISE BUDGET, not an object anchor: per channel, gamma-then-black-pin
+    y = (x^(1/g) - b)/(1 - b) with b always solving sky -> sky_target and
+    g solved (fixed 24-step bisection, deterministic) so the sky NOISE
+    WIDTH lands at width_target. The stretch therefore stops before
+    amplifying noise into visibility — the reference finish's own
+    mechanism (its chain carries no denoiser at all), and the fix for the
+    coring-mottle class: noise that is never lifted needs no smoothing.
+    Sky-anchored per-channel stretching (siril unlinked) cannot do this
+    (no width control), and the earlier object-anchored form lifted the
+    faint end past its noise budget. A gamma of 1 already over budget
+    means the data is noisier than the target at unity stretch — stated,
+    never forced. numpy end to end; file order and header cards
+    round-trip untouched."""
     cards, planes, _ = am.read_fits_planes(starless_fit)
     out = np.empty_like(planes)
     for ci in range(planes.shape[0]):
         ch = planes[ci]
-        sky, sig = am.bg_stats(ch)
-        shadow = max(sky - 1.5 * sig, 0.0)
-        span = max(1.0 - shadow, 1e-9)
-        x = np.clip((ch - shadow) / span, 0.0, 1.0)
-        x_sky = (sky - shadow) / span
-        above = ch[ch > sky + 3.0 * sig] - sky
-        if above.size < ch.size * 5e-4:
-            # no significant-signal population on this line — nothing to
-            # object-anchor; sky-target MTF, no shift
-            m = solve_mtf_m(x_sky, sky_target)
-            out[ci] = am.mtf(x, m)
-            print(f"[starcomb] perline ch{ci}: no significant signal "
-                  f"({above.size} px > 3 sigma) — sky-target stretch only")
-            continue
-        anchor = float(np.percentile(above, 90.0))
-        x_anchor = (sky + anchor - shadow) / span
-        m = solve_mtf_m(x_anchor, t_obj)
-        st = am.mtf(x, m)
-        shift = sky_target - am.mtf(np.float64(x_sky), m)
-        out[ci] = np.clip(st + np.float32(shift), 0.0, 1.0)
-        clip0 = float((st + shift <= 0).mean())
-        print(f"[starcomb] perline ch{ci}: sky {sky:.5f} sigma {sig:.6f} "
-              f"anchor(p90 sig) {anchor:.5f} -> m {m:.5f} "
-              f"skyshift {shift * 255:+.2f}/255 clip0 {clip0 * 100:.2f}%")
+        sub = ch[::4, ::4].astype(np.float64)
+
+        def width_at(g):
+            y = np.clip(sub, 0.0, 1.0) ** (1.0 / g)
+            loc, sig = am.bg_stats(y.astype(np.float32), stride=1)
+            b = (loc - sky_target) / max(1.0 - sky_target, 1e-9)
+            b = min(b, 0.999)
+            return sig / max(1.0 - b, 1e-9), loc, b
+
+        w1, _, _ = width_at(1.0)
+        if w1 >= width_target:
+            g = 1.0
+            print(f"[starcomb] perline ch{ci}: width {w1 * 100:.2f}% >= "
+                  f"budget {width_target * 100:.2f}% at unity gamma — no "
+                  "stretch headroom, black-pin only")
+        else:
+            lo, hi = 1.0, 10.0
+            for _ in range(24):
+                mid = 0.5 * (lo + hi)
+                w, _, _ = width_at(mid)
+                if w < width_target:
+                    lo = mid
+                else:
+                    hi = mid
+            g = lo
+        _, loc_g, b = width_at(g)
+        y = np.clip(ch, 0.0, 1.0) ** np.float32(1.0 / g)
+        z = (y - np.float32(b)) / np.float32(max(1.0 - b, 1e-9))
+        out[ci] = np.clip(z, 0.0, 1.0)
+        clip0 = float((z <= 0).mean())
+        _, w_fin = am.bg_stats(out[ci])
+        print(f"[starcomb] perline ch{ci}: gamma {g:.3f} black "
+              f"{b * 100:+.2f}% -> sky {sky_target * 100:.1f}% width "
+              f"{w_fin * 100:.3f}% (budget {width_target * 100:.2f}%) "
+              f"clip0 {clip0 * 100:.2f}%")
     am.write_fits_planes(out_fit, cards, out)
+
+
+def perline_finish(starless_st, cfg):
+    """Narrowband finishing on the per-line-stretched starless — the
+    reference chain's operator set, in its order, each gated at the sky
+    significance threshold so the noise floor is never touched:
+
+    1. saturation gamma (satgamma): LCh chroma C -> Cref*(C/Cref)^(1/y)
+       for pixels above the luminance gate (Cref = p99.9 of gated C);
+    2. hue rotation (huerot_from/to/by, LCh hue degrees): the Hubble-
+       palette shift — the reference's golds ARE its rotated Ha greens;
+    3. SCNR (scnr): average-neutral green blend g' = (1-a)g +
+       a*min(g,(r+b)/2), ungated (the classic full-frame operator);
+    4. post-peak luminance lift (ppgamma): partial gamma on Luv L over
+       [gate,1], applied as an RGB-ratio-preserving gain — LUMINANCE
+       ONLY, chroma noise is never stretched (the anti-mottle property).
+
+    Gate = sky L + ppsigma * sky L width, measured on the stretched
+    image's Luv luminance. All-neutral knobs (satgamma 1, huerot_by 0,
+    scnr 0, ppgamma 1) make this an exact no-op."""
+    satg = float(cfg.get("satgamma", 1.0))
+    rot_by = float(cfg.get("huerot_by", 0.0))
+    scnr_a = float(cfg.get("scnr", 0.0))
+    ppg = float(cfg.get("ppgamma", 1.0))
+    pps = float(cfg.get("ppsigma", 1.0))
+    if satg == 1.0 and rot_by == 0.0 and scnr_a == 0.0 and ppg == 1.0:
+        return starless_st
+
+    L, C, h = am.rgb_to_lch(starless_st)
+    Ln = L / 100.0
+    loc, wid = am.bg_stats(Ln)
+    gate = np.float32(loc + pps * wid)
+    # smooth significance blend, not a hard cut: a binary gate stipples
+    # the boundary (pixels flickering across the threshold get binary
+    # treatment — measured as a speckle fringe around the dust edges);
+    # ramp the ops in over two noise widths above the gate instead
+    ramp = np.float32(max(2.0 * wid, 1e-6))
+    w01 = np.clip((Ln - gate) / ramp, 0.0, 1.0).astype(np.float32)
+    gm = w01 > 0
+    gfrac = float((w01 >= 1.0).mean())
+    print(f"[starcomb] perline finish: L gate {loc * 100:.2f}% + "
+          f"{pps:g}*{wid * 100:.3f}% -> {float(gate) * 100:.2f}%, "
+          f"ramp +{float(ramp) * 100:.3f}% "
+          f"({gfrac * 100:.1f}% of px fully above)")
+
+    if satg != 1.0 and gm.any():
+        cref = float(np.percentile(C[w01 >= 1.0], 99.9)) \
+            if (w01 >= 1.0).any() else 0.0
+        if cref > 0:
+            cn = np.clip(C / cref, 0.0, None)
+            C = C + w01 * (cref * cn ** np.float32(1.0 / satg) - C)
+            print(f"[starcomb]   satgamma {satg:g} (Cref {cref:.2f})")
+    if rot_by != 0.0:
+        f0 = float(cfg.get("huerot_from", 0.0))
+        t0 = float(cfg.get("huerot_to", 360.0))
+        # feather the interval edges (8 deg cosine ramps): a hard hue
+        # boundary splits adjacent pixels of one structure into rotated
+        # vs unrotated colour — measured as a neon seam where the object
+        # hue straddles the interval edge
+        fw = np.float32(8.0)
+        lo_r = np.clip((h - np.float32(f0)) / fw, 0.0, 1.0)
+        hi_r = np.clip((np.float32(t0) - h) / fw, 0.0, 1.0)
+        hue_w = (lo_r * hi_r).astype(np.float32)
+        sel_w = w01 * hue_w
+        h = (h + sel_w * np.float32(rot_by)) % 360.0
+        print(f"[starcomb]   huerot [{f0:g},{t0:g}]±8 by {rot_by:+g} deg "
+              f"({float((sel_w > 0.5).mean()) * 100:.1f}% of px)")
+    out = am.lch_to_rgb(L, C, h)
+    del L, C, h
+    if scnr_a > 0.0:
+        gmin = np.minimum(out[1], 0.5 * (out[0] + out[2]))
+        out[1] = (1.0 - scnr_a) * out[1] + scnr_a * gmin
+        print(f"[starcomb]   scnr {scnr_a:g}")
+    if ppg != 1.0:
+        L2, _, _ = am.rgb_to_lch(out)
+        Ln2 = L2 / 100.0
+        del L2
+        t = float(gate)
+        span = max(1.0 - t, 1e-9)
+        lifted = t + span * ((np.clip(Ln2, t, 1.0) - t) / span) \
+            ** np.float32(1.0 / ppg)
+        gain = np.where(Ln2 > t, lifted / np.maximum(Ln2, 1e-6), 1.0) \
+            .astype(np.float32)
+        out = np.clip(out * gain[None, :, :], 0.0, 1.0)
+        print(f"[starcomb]   ppgamma {ppg:g} above {t * 100:.2f}% "
+              f"(max gain x{float(gain.max()):.2f})")
+    return out.astype(starless_st.dtype)
 
 
 def _inspect_stage(ctx, name, arr, stretched, note=""):
@@ -413,13 +511,14 @@ def render_config(ctx, cfg, jpg_out):
         starless_fit = run_graxpert_denoise(work, starless_fit)
     perline_fit = None
     if cfg.get("stretch_linked") == "perline":
-        # narrowband-palette stretch: each line object-anchored in numpy,
-        # THEN the siril tail (ghs finishing / vstpost denoise) runs on
-        # the pre-stretched file exactly like on an autostretch result
+        # narrowband-palette stretch: each line noise-width-capped in
+        # numpy, THEN the siril tail (ghs finishing / vstpost denoise)
+        # runs on the pre-stretched file exactly like on an autostretch
+        # result; the LCh finishing ops apply after load (below)
         perline_fit = os.path.join(work, "perline_st.fit")
         perline_starless_stretch(starless_fit, perline_fit,
-                                 float(cfg["perline_target"]),
-                                 float(cfg["starless_target"]))
+                                 float(cfg["starless_target"]),
+                                 float(cfg["perline_scale"]) / 100.0)
         starless_fit_for_siril = perline_fit
     else:
         starless_fit_for_siril = starless_fit
@@ -479,7 +578,7 @@ def render_config(ctx, cfg, jpg_out):
     ghs_tag = (f" + ghs k{cfg.get('ghs_sp_k')}/D{cfg.get('ghs_amount')}"
                f"/b{cfg.get('ghs_focus')}"
                if cfg.get("stretch_mode", "mtf") == "ghs" else "")
-    pl_tag = (f" obj->{cfg.get('perline_target'):g}"
+    pl_tag = (f" width->{cfg.get('perline_scale'):g}%"
               if cfg.get("stretch_linked") == "perline" else "")
     _stage_line(f"stretch [{cfg.get('stretch_linked')}{pl_tag} "
                 f"{cfg['starless_target']:g}{ghs_tag} + "
@@ -488,6 +587,19 @@ def render_config(ctx, cfg, jpg_out):
                    f"stretch {cfg.get('stretch_linked')}{pl_tag} "
                    f"{cfg['starless_target']}{ghs_tag} + "
                    f"{cfg['starless_denoise']}")
+
+    if not mono and cfg.get("stretch_linked") == "perline":
+        # narrowband finishing (the reference chain's operator set:
+        # gated saturation gamma, Hubble hue rotation, SCNR, post-peak
+        # luminance-only lift) — LUMINANCE is lifted, chroma never
+        # stretched, so the noise floor stays at the stretch's budget
+        starless_st = perline_finish(starless_st, cfg)
+        _stage_line("perline finish [satgamma/huerot/scnr/ppgamma]",
+                    starless_st)
+        _inspect_stage(ctx, "perline_finish", starless_st, True,
+                       f"satgamma {cfg.get('satgamma')} huerot "
+                       f"{cfg.get('huerot_by')} scnr {cfg.get('scnr')} "
+                       f"ppgamma {cfg.get('ppgamma')}")
 
     if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
         # chroma coring BEFORE lum_core (default): chroma is neutralized on
@@ -640,6 +752,13 @@ def render_config(ctx, cfg, jpg_out):
                    f"{cfg.get('stars_floor')} / anchor {mode} m {m:.5f}")
 
     # --- combine ----------------------------------------------------------
+    k_st = float(cfg.get("stars_opacity", 1.0))
+    if k_st != 1.0:
+        # industry star-subduing: screen with stars*k so the star field
+        # stops competing with the object (the standard reduced-opacity
+        # recombine); 1.0 = the plain screen, bit-exact
+        stars_st = stars_st * np.float32(k_st)
+        print(f"[starcomb] stars_opacity {k_st:g}")
     out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
     if not mono and cfg.get("satu", 0) > 0:
         # chroma gain on the combined render, AFTER the corings — so it
@@ -711,8 +830,10 @@ KNOBS = (
     "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
     "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
     "chroma_core", "lum_core", "core_order", "stretch_linked",
-    "perline_target", "satu",
+    "perline_scale", "ppgamma", "ppsigma", "satgamma",
+    "huerot_from", "huerot_to", "huerot_by", "scnr", "satu",
     "cull_pct", "stars_peak", "stars_anchor", "stars_floor",
+    "stars_opacity",
     "black_point", "jpg_quality", "jpg_subsampling", "noise_anchor_k",
 )
 
@@ -865,10 +986,40 @@ def main():
                          "(the narrowband-palette standard); auto = "
                          "perline when the recipe marks a narrowband "
                          "composition, else linked (generic)")
-    ap.add_argument("--perline-target", type=float, default=None,
-                    help="perline stretch: display level where each "
-                         "line's p90-of-significant signal lands (its "
-                         "sky re-pins at starless-target)")
+    ap.add_argument("--perline-scale", type=float, default=None,
+                    help="perline stretch: sky NOISE-WIDTH budget in %% "
+                         "of range — the stretch stops when the sky "
+                         "width reaches it (sky location pins at "
+                         "starless-target); noise never lifts past the "
+                         "budget")
+    ap.add_argument("--ppgamma", type=float, default=None,
+                    help="perline finishing: post-peak gamma on Luv "
+                         "LUMINANCE only, applied above the sky "
+                         "significance gate; 1 = off")
+    ap.add_argument("--ppsigma", type=float, default=None,
+                    help="perline finishing: the significance gate = "
+                         "sky L + ppsigma * sky L width (gates ppgamma, "
+                         "satgamma, huerot)")
+    ap.add_argument("--satgamma", type=float, default=None,
+                    help="perline finishing: LCh chroma gamma above the "
+                         "gate (saturation of significant signal; the "
+                         "noise floor untouched); 1 = off")
+    ap.add_argument("--huerot-from", type=float, default=None,
+                    help="perline finishing: hue rotation interval "
+                         "start, LCh degrees")
+    ap.add_argument("--huerot-to", type=float, default=None,
+                    help="perline finishing: hue rotation interval end")
+    ap.add_argument("--huerot-by", type=float, default=None,
+                    help="perline finishing: rotate hues in the "
+                         "interval by this many degrees (Hubble gold = "
+                         "rotate the Ha greens negative); 0 = off")
+    ap.add_argument("--scnr", type=float, default=None,
+                    help="perline finishing: average-neutral green "
+                         "removal amount in [0,1]; 0 = off")
+    ap.add_argument("--stars-opacity", type=float, default=None,
+                    help="screen combine with stars*k — star-field "
+                         "subduing (industry reduced-opacity "
+                         "recombine); 1 = plain screen")
     ap.add_argument("--satu", type=float, default=None,
                     help="chroma gain on the combined render, AFTER the "
                          "corings (amplifies only significant color); "
@@ -921,7 +1072,10 @@ def main():
                              "cull_pct", "stars_peak", "stars_anchor",
                              "sep_prom", "sep_engine",
                              "chroma_core", "satu", "core_order",
-                             "stretch_linked", "perline_target",
+                             "stretch_linked", "perline_scale",
+                             "ppgamma", "ppsigma", "satgamma",
+                             "huerot_from", "huerot_to", "huerot_by",
+                             "scnr", "stars_opacity",
                              "lum_core",
                              "stars_floor", "black_point"])
     ap.add_argument("--values", default=None)
