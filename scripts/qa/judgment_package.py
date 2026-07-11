@@ -3,6 +3,7 @@
 
 Usage: judgment_package.py <outdir> <label>=<final.png> [...]
            --question="what the judge is deciding"
+           --inspection=<notes.md>
            [--reference=<label>=<path.jpg>] [--note="..." ...]
 
 The review contract (README): a judgment set is a folder of WHOLE-FRAME
@@ -18,6 +19,15 @@ derives its _16bit.png sibling, and VERIFIES the pair before linking:
 - the pair must agree pixel-wise (PNG16/257 vs PNG8 within 8-bit rounding
   on a sample grid) — a mixed pair (e.g. a starless PNG16 beside a final
   PNG8) cannot pass this.
+
+--inspection is REQUIRED (README pre-handoff contract; measured failure:
+two consecutive packages shipped defects — a faint-dust allocation gap,
+then 1:1 coring mottle — that native-resolution inspection of the object /
+sky / star regions would have caught before the user's eyes were spent on
+them). It names a notes file recording the assembler's own 1:1 inspection
+of every candidate (+ the like-scale reference comparison when the dataset
+has an answer key); it is copied into the package as INSPECTION.md and
+linked from QUESTION.md.
 
 Candidates are hardlinked (copy fallback) as NN_<label>.png +
 NN_<label>_16bit.png in argument order. --reference adds ONE third-party
@@ -130,8 +140,23 @@ def main():
                      if a.startswith("--question=")), None)
     reference = next((a[12:] for a in sys.argv[1:]
                       if a.startswith("--reference=")), None)
+    inspection = next((a[13:] for a in sys.argv[1:]
+                       if a.startswith("--inspection=")), None)
     if len(args) < 2 or not question:
         sys.exit(__doc__)
+    if not inspection:
+        sys.exit("judgment_package: --inspection=<notes.md> is required — "
+                 "the README pre-handoff contract: the assembler inspects "
+                 "every candidate at native 1:1 (object / sky / stars, "
+                 "whole frame at fit, like-scale reference comparison when "
+                 "an answer key exists) and records what they see BEFORE "
+                 "the user's eyes are asked for")
+    if not os.path.exists(inspection):
+        sys.exit(f"judgment_package: inspection notes {inspection} missing")
+    if os.path.getsize(inspection) < 200:
+        sys.exit(f"judgment_package: inspection notes {inspection} are "
+                 "under 200 bytes — a real 1:1 inspection of every "
+                 "candidate says more than that")
     outdir, cands = args[0], args[1:]
     if os.path.isdir(outdir) and os.listdir(outdir):
         sys.exit(f"judgment_package: {outdir} exists and is not empty — "
@@ -175,7 +200,11 @@ def main():
         print(f"[judgment_package] {dn}: reference (comparison only)")
         lines.append(f"- {dn}: third-party reference — LOSSY original, "
                      "comparison only, never a judgment surface")
+    shutil.copy2(inspection, os.path.join(outdir, "INSPECTION.md"))
     lines.append("")
+    lines.append("- INSPECTION.md: the assembler's own 1:1 pre-handoff "
+                 "inspection of every candidate (README contract) — what "
+                 "was seen, including known defects, before handover")
     lines += notes
     lines += ["", "Say which candidate pins (or what to ladder next)."]
     with open(os.path.join(outdir, "QUESTION.md"), "w") as f:

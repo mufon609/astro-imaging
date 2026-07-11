@@ -479,30 +479,35 @@ kept). Any preset implementation must still couple channel gain with
 the corings' noise scope. USER RATIFICATION required for the redesigned
 scope before code.
 
-### C18 — Object-integrity audit: catch chain-REMOVED object signal
+### C18 — Object-integrity audit: the object region is metrically blind, both directions
 
-User-ratified after THREE measured escapes: a render whose OBJECT was
-destroyed can pass every standing audit — the balance probe that
+User-ratified after FOUR measured escapes: a render whose OBJECT was
+damaged can pass every standing audit — the balance probe that
 neutralized the whole nebula through the corings PASSED the gate
 (colour 4.0, all achromatics green), the vst chroma-crush defect
-shipped in four gate-PASSing judged renders, and the linked-stretch
+shipped in four gate-PASSing judged renders, the linked-stretch
 narrowband renders shipped with the Bubble's O3 sphere drowned
-(interior B−G −20 counts8 under 59 counts of chroma grain — the user's
-eyes caught it against the author's finish). The gate grades the SKY by
-design; nothing grades the object. Add a standing WARN-level render
-audit measuring object-region retention against the CALIBRATED linear
-stack: above-sky chroma energy and structure contrast at matched
-locations, one-sided (chain-REMOVED signal warns; noise the corings
-removed toward neutral does not). Companion to the ratified colour-gate
-redesign (which catches chain-ADDED colour); together they bound the
-chain from both sides. Same implementation care: compare at matched
-luminance levels or push the reference through the same stretch, so the
-stretch itself cannot game the comparison — and the per-line stretch
-makes "the same stretch" a PER-CHANNEL transform, so the comparison
-must be built per channel (the perline transform is closed-form and
-printable; the linked autostretch is siril-internal — deriving its
-equivalent MTF from the rendered sky/anchor levels is part of this
-design). Thresholds calibrate on the three measured escapes (all must
-WARN — the sphere case's artifacts regenerate from the pinned SHO stack
-with `--stretch-linked linked`) and every approved render (none may).
-WARN-only until a class history exists; the gate never loosens.
+(interior B−G −20 counts8 under 59 counts of chroma grain), and the
+lifted-faint-end renders shipped with coring MOTTLE — the partial
+Wiener shrinkage broke low-SNR dust into soft-edged 40–120 px
+kept-vs-flattened patches ("blotchy", the user's eyes at 1:1) that the
+gate cannot see because the dust drops out of its statistical sky
+scope. The gate grades the SKY by design; nothing grades the object.
+Add a standing WARN-level render audit on the object region, BOTH
+directions: (a) retention vs the CALIBRATED linear stack — above-sky
+chroma energy and structure contrast at matched locations, one-sided
+(chain-REMOVED signal warns; noise the corings removed toward neutral
+does not); (b) chain-INTRODUCED texture — mid-scale (coring-pyramid
+scale) energy/patchiness in the rendered object region that the
+reference stack pushed through the same transform does NOT carry
+(partial-shrink mottle, seams). Companion to the ratified colour-gate
+redesign (chain-ADDED colour); together they bound the chain from both
+sides. Implementation care: compare at matched luminance levels or
+push the reference through the same per-CHANNEL transform (the perline
+transform is closed-form and printable; the linked autostretch is
+siril-internal — deriving its equivalent MTF from the rendered
+sky/anchor levels is part of this design). Thresholds calibrate on the
+four measured escapes (all must WARN — each regenerates from the
+pinned SHO/M20 stacks with the recorded knobs) and every approved
+render (none may). WARN-only until a class history exists; the gate
+never loosens.

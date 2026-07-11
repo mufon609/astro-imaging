@@ -18,6 +18,13 @@ live in **git** (recipe tags) and NOTES.
 
 ## Adding a dataset
 
+0. **If the corpus ships a reference finish** (`<session>/reference/`,
+   the answer key), STUDY IT BEFORE tuning any look: like-scale,
+   like-orientation comparison notes, and — when the author's
+   processing is documented or their tool is open — recover the
+   actual recipe/mechanisms first. Measured lesson: two judgment
+   rounds were burned tuning toward an unstudied reference whose
+   maker's exact recipe was published in the dataset's own repo.
 1. Lay it out as a session dir: `<session>/{darks,flats,biases,darkflats}/`
    (calibration, each one internally-uniform group) + one `<session>/<set>/` per
    single-pointing light set. Any siril-readable camera raw works — no

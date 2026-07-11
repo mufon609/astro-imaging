@@ -185,13 +185,47 @@ never let it grow narrative.
     precedent (approval possible, baseline blocked). (b) chroma_core
     2 — the dust's hue survives at gate FULL PASS (colour 6.0 vs 5.0
     at k=4, achromatics 0.0). Combination ghs+cc2: floor 22,
-    achromatics 0.7/0.5/1.3, colour 13.0 scope-FAIL — closest to the
-    reference of the four. Judgment package
-    judgment_sho_dust_20260710 (control / ghs / cc2 / ghs+cc2 /
-    author) AWAITS THE USER; satu 0.2 is the recorded fast-follow if
-    colour still lags, black_point the pedestal lever (linear-shift
-    invariant). stretch_linked auto/perline is live generic; the SHO
-    look bakes only on the user's eyes.
+    achromatics 0.7/0.5/1.3, colour 13.0 scope-FAIL. **Package
+    judgment_sho_dust_* REJECTED by the user 2026-07-11 — every
+    candidate including the round-1 control**: the lifted faint
+    structure reads BLOTCHY at 1:1 (measured character: soft-edged
+    40–120 px luminance+chroma patches — the coring pyramid's mid
+    scales partially shrunk, kept-vs-flattened patchwork on low-SNR
+    dust — plus chroma speckle rims; the author's finish shows only
+    gentle large-scale mottle with coherent hue), and our STAR FIELD
+    inverts the reference's hierarchy (fat near-saturated discs at
+    the 0.97 anchor vs their tiny subdued pinpoints over luminous
+    dust). Both defects are invisible to every standing audit — the
+    object region is metrically blind (object-integrity backlog
+    entry, now four escapes). STUDY COMPLETE (2026-07-11, full notes
+    in the session's study_reference_vs_ours_*.md): the reference is
+    the output of the data author's own open-source tool
+    (mlnoga/nightlight; native arm64 binary runs on this rig, his
+    stacks+combine reproduced locally, structure NCC 0.768 direct)
+    and his dataset repo publishes the EXACT recipe — the mechanisms
+    are (a) noise-WIDTH-capped stretch (iterative gamma stops when
+    the sky peak width hits a display budget — noise is never
+    amplified into visibility, so his chain needs NO denoiser), (b)
+    post-peak lift ppGamma 2.7 applied only ≥ sky+1σ and ONLY to
+    HSLuv luminance (chroma is never stretched — no chroma-noise
+    mottle by construction), (c) explicit LCH colour work: hue
+    rotation 120–147.5°→−35° (the golds ARE rotated Ha greens), SCNR
+    0.5, saturation gamma gated ≥1σ above sky, star-white channel
+    balance, (d) NO star reduction — the nebula is lifted toward the
+    stars, never star wings up (vs our 0.97 mid-star re-anchor: the
+    star-dominance inversion). Our blotch root cause: we stretch RGB
+    (chroma noise amplified), lift, then PARTIALLY Wiener-shrink —
+    the kept-vs-flattened patchwork IS the mottle; the author never
+    lifts past the budget so has nothing to smooth. Industry
+    cross-check agrees (RC-Astro names LF "blotches"; cure when
+    lifting hard = chroma-heavy LF denoise AFTER combination; star
+    practice = separate stretches + reduced-opacity screen). NEXT
+    DIRECTION AWAITS USER RATIFICATION (options in the study doc:
+    author-faithful finishing chain vs hybrid-on-current vs
+    nightlight-stage integration); no render until ratified.
+    stretch_linked auto/perline stays live generic (the sphere
+    mechanism is not in question); the SHO look bakes only on the
+    user's eyes.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected

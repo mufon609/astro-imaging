@@ -93,6 +93,22 @@ Principles that keep this honest:
    commit; recipe/aesthetic changes require the user's visual approval
    before they are baked as defaults.
 
+   **Pre-handoff inspection is mandatory** (measured failure: two
+   packages in a row shipped defects the assembler had not seen — a
+   faint-dust allocation gap, then coring-mottle "blotch" visible at
+   1:1 — because candidates were checked only in downscaled views and
+   one crop). Before a package is handed over, its assembler inspects
+   every candidate AT NATIVE 1:1 in the object region, the sky, and the
+   star field, plus whole-frame at fit — and, when the dataset carries a
+   reference finish (`<session>/reference/`, the answer key), compares
+   at like scale and orientation. The findings go into the package as
+   inspection notes; `judgment_package.py` REFUSES to assemble without
+   them. The notes state what the assembler sees wrong or unresolved —
+   a package with unstated known defects is a contract violation, not a
+   judgment set. The user's eyes remain the judgment; the inspection
+   exists so they are never spent discovering what the assembler could
+   have seen.
+
 ### How a change is accepted
 
 Byte-identity with one dataset's render is **not** the bar. It answers "did the
