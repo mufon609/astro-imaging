@@ -276,10 +276,26 @@ never let it grow narrative.
   preserves both — the recorded faint-real-colour limit reproduced.
   (F) ghs_amount 3 vs 4.5: NULL (every comparator equal) — D=3 stays.
   Compound winners (plane+ghs+bp0+lum_core0+chroma_core2): lane
-  contrast +14, fiber MAD 1.98, lane R−G +1.0. Gate is OUT OF SCOPE
-  by user direction here (plane keeps the honest sky envelope: grad
-  8.6/blotch 10 FAIL as expected). NOTHING BAKED — any generic/recipe
-  adoption is a declared delta through the user's eyes.
+  contrast +14, fiber MAD 1.98, lane R−G +1.0. **USER VERDICT
+  2026-07-12: compound REJECTED** — reads as vignetting/skyglow/
+  blotch amplification, not dust; the right-side "lanes" stand
+  RECLASSIFIED as sky-envelope structure (not the target; artifact
+  until proven otherwise), and the user reports a blue-poor star
+  zone down the frame middle in the E1 baseline (OPEN issue: spatial
+  star-colour nonuniformity — candidates: chroma coring spatial
+  behaviour, gray-V assumption, honest lateral CA). The REAL target
+  is the compact diffuse dust at final coords ~(3639,270) (top-right;
+  user screenshot matched into the E1 final by NCC 0.70 at scale
+  1.0): wispy +1.44 / blob +1.73 c16 over local sky in the LINEAR
+  stack — and gx eats THIS class too (retention 22–29%; plane ~110%)
+  — 50–150 px faint wisps sit inside gx's absorbable range, NOT the
+  compact-bright class that saturates out. The baseline render shows
+  ~1/4 of the dust the stack holds. Amplifying it honestly needs
+  background removal that spares faint structure = the C19
+  constrained-extraction redesign (this is its SECOND measured
+  trigger case, after the SMC envelope). NOTHING BAKED — any
+  generic/recipe adoption is a declared delta through the user's
+  eyes.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
