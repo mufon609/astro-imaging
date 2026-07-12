@@ -592,7 +592,8 @@ per run; a recipe-less dataset renders generic and says so):
    so the median top-500 G-basis component amplitude (`peak_g`) renders
    at 0.97.
 5. Screen combine → satu 0.2 → jpg q100/4:4:4 (+ PNG8 + PNG16 with
-   `--lossless`).
+   `--lossless`) — every final sRGB-tagged (JPEG ICC + PNG chunks;
+   the gate's q92 starless jpg carries none: gate identity).
 
 **Knob provenance (every value from a measured single-knob ladder):**
 
@@ -621,7 +622,7 @@ per run; a recipe-less dataset renders generic and says so):
 | stars_floor 3.0 | ghost-aura fix: bright-tier aura +7.0→+2.0 (raw stretch = +0.5), halo 1.73→1.36, cores/mid-peak untouched, gate bit-identical |
 | cull 50 | metric-invisible across the 0–50 ladder on set-03 AND visually+metrically null on a rich wheel field (M20, 0/25/50) — the faint-field difference vs reference finishes lives in the stars MTF anchoring + the starless floor, not the cull |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
-| jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified) |
+| jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified); finals embed sRGB colorimetry (588-byte vendored lcms profile, timestamp/ID zeroed → byte-deterministic; PNG sRGB/gAMA/cHRM chunks) with pixels IDENTICAL — the gate q92 jpg carries none (gate identity) |
 
 **Standing per-render audits (printed + logged every starcomb run):**
 the GATE (`bg_qa` on the starless render, composition-agnostic sky scope:

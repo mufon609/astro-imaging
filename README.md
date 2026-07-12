@@ -173,7 +173,12 @@ go through `astrometrics.load_linear` (refuses non-FITS), `starcomb
 Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
 PNG16 for the final **and the starless layer** (PNG8 = the exact pixels
 the gate encoder consumed; PNG16 = the float layer at 65536 levels).
-Never judge a q92 surface.
+Never judge a q92 surface. Finals carry EMBEDDED sRGB COLORIMETRY (JPEG
+ICC + PNG sRGB/gAMA/cHRM chunks): the chain's LCh math already treats
+display RGB as sRGB-companded, so the tag declares that instead of
+leaving viewers to assume it — pixels untouched, profile vendored at
+`scripts/lib/srgb.icc` with timestamp/ID zeroed for byte-determinism.
+The gate's pinned q92 starless jpg stays byte-untouched (gate identity).
 
 **North star:** every stage audits itself with numbers so that eventually
 ANY dataset can be dropped into a session dir and be properly judged and

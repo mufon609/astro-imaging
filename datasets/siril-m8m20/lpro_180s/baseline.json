@@ -16,12 +16,12 @@
  },
  "gate_pass": false,
  "artifact_sha256": {
-  "jpg": "bb8876dd85114cd14ddb80f061203d2fd5538f79ddb40c825e0d7c69ef04d8b3",
-  "png": "c444adb1c5069c652fffe2630b4522d6a178d50f04a2cd4dc1dae36022d24a93",
-  "png16": "7909b0e27e35aa43be762eca26b831da7bac81c23ec1ae34180f386c01d9e745",
+  "jpg": "4b7fb4c150666e3594e5ad31c8162d52a5d8bfbfba5239d6660205476d6fb116",
+  "png": "4e9013f1624e2903540e05c7eb370ed96a0b93fe5f3bf83a7f64606f02086935",
+  "png16": "9dda60e99dd7f435be2ad24697ff4e2a0d8010aee8eb72dd6e0ecf635a59fa56",
   "starless_jpg": "858b6ff7b85a4001f1df701d2907f97f833b86156120b5ae0f1757193d980b83",
-  "starless_png": "288f38fd62b728236556826302a2b0d56313e49062b297b7d5ef0da455bad78f",
-  "starless_png16": "7ed2625cc0845974f2f389608da55a66be4dfef4ed92a222f7265ad3fca689fa"
+  "starless_png": "3356542a51d11635dc6a88e4f5f178cc21ab5a89a48c2b53e7dc4e7a607bc99e",
+  "starless_png16": "3964d1d1076ab6f1ff8348da4644cad96cb41b1c219a6bdf88b5b7019922e154"
  },
  "recipe": {
   "bgelin_mode": "gx",
@@ -56,7 +56,7 @@
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-12 00:14:40",
- "git": "663a798",
+ "date": "2026-07-12 01:16:24",
+ "git": "5747a89",
  "color_scope_ack": true
 }

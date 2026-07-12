@@ -680,7 +680,8 @@ def render_config(ctx, cfg, jpg_out):
         # judgment surface — human eyes get the lossless pair: PNG8 =
         # the exact pixels the gate encoder consumed, PNG16 = the float
         # starless layer itself
-        Image.fromarray(tmp8).save(slpath.replace(".jpg", ".png"))
+        Image.fromarray(tmp8).save(slpath.replace(".jpg", ".png"),
+                                   pnginfo=am.png_srgb_info())
         am.write_png16(slpath.replace(".jpg", "_16bit.png"),
                        (np.clip(starless_st.transpose(1, 2, 0), 0, 1)
                         * 65535 + .5).astype(np.uint16))
@@ -808,14 +809,19 @@ def render_config(ctx, cfg, jpg_out):
     # Final-export encoding, measured vs the lossless PNG on this
     # grain-heavy content: q92 + default 4:2:0 subsampling costs mean
     # 2.29 counts / max 176 at star edges / 9.7 star-pixel chroma error;
-    # q100 + subsampling=0 costs mean 0.44 / max 5. The STARLESS jpg (gate
-    # input) is untouched — its q92 encoding is part of the gate identity.
+    # q100 + subsampling=0 costs mean 0.44 / max 5. Finals carry embedded
+    # sRGB colorimetry (JPEG ICC + PNG sRGB/gAMA/cHRM — the chain's LCh
+    # math already treats display RGB as sRGB-companded; pixels are
+    # untouched). The STARLESS jpg (gate input) is untouched entirely —
+    # its q92 encoding is part of the gate identity.
     jq = int(cfg.get("jpg_quality", 100))
     jsub = int(cfg.get("jpg_subsampling", 0))
     if jsub < 0:
-        Image.fromarray(u8).save(jpg_out, quality=jq)
+        Image.fromarray(u8).save(jpg_out, quality=jq,
+                                 icc_profile=am.srgb_icc())
     else:
-        Image.fromarray(u8).save(jpg_out, quality=jq, subsampling=jsub)
+        Image.fromarray(u8).save(jpg_out, quality=jq, subsampling=jsub,
+                                 icc_profile=am.srgb_icc())
     if ctx.get("lossless"):
         # lossless deliverables: 8-bit PNG (deflate is lossless; the same
         # pixels the JPEG quantizes — the byte-verification artifact) and
@@ -823,7 +829,7 @@ def render_config(ctx, cfg, jpg_out):
         # levels vs 256: everything the chain computes, in a file viewers
         # can open)
         png_out = jpg_out[:-4] + ".png"
-        Image.fromarray(u8).save(png_out)
+        Image.fromarray(u8).save(png_out, pnginfo=am.png_srgb_info())
         print(f"[starcomb] lossless PNG: {png_out}")
         u16 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 65535.0
                + 0.5).astype(np.uint16)

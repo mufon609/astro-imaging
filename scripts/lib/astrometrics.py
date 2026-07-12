@@ -699,12 +699,47 @@ def star_metrics(ch, max_stars=500, k_sigma=8.0, cut=12, min_prom_frac=0.004):
     }
 
 
+SRGB_ICC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "srgb.icc")
+# PNG colorimetry signal chunks (sRGB perceptual + the spec's companion
+# gAMA/cHRM fallbacks for non-sRGB-aware decoders): the render's colour
+# math (LCh operators, Luv luminance) treats display RGB as
+# sRGB-companded, so finals DECLARE that instead of leaving viewers to
+# assume it. Fixed bytes — deterministic by construction.
+PNG_SRGB_CHUNKS = (
+    (b"sRGB", b"\x00"),
+    (b"gAMA", (45455).to_bytes(4, "big")),
+    (b"cHRM", b"".join(v.to_bytes(4, "big") for v in
+                       (31270, 32900, 64000, 33000,
+                        30000, 60000, 15000, 6000))),
+)
+
+
+def srgb_icc():
+    """The vendored sRGB profile finals embed (lcms matrix profile with
+    the creation timestamp and profile ID zeroed, so embedding stays
+    byte-deterministic across machines and runs)."""
+    with open(SRGB_ICC, "rb") as f:
+        return f.read()
+
+
+def png_srgb_info():
+    """PngInfo carrying PNG_SRGB_CHUNKS for PIL PNG saves (written before
+    IDAT, per spec)."""
+    from PIL.PngImagePlugin import PngInfo
+    pi = PngInfo()
+    for tag, payload in PNG_SRGB_CHUNKS:
+        pi.add(tag, payload)
+    return pi
+
+
 def write_png16(path, arr16):
     """Write a 16-bit RGB PNG (color type 2, bit depth 16) from a uint16
     (H, W, 3) array. Pure zlib/struct — Pillow cannot write 48-bit RGB
     PNGs, and the render is computed in float: an 8-bit final quantizes
     to 256 levels, this keeps 65536 (visually indistinguishable from the
-    float render)."""
+    float render). Carries the same sRGB colorimetry chunks as the PIL
+    finals."""
     import struct
     import zlib
     h, w, c = arr16.shape
@@ -722,6 +757,8 @@ def write_png16(path, arr16):
     with open(path, "wb") as f:
         f.write(b"\x89PNG\r\n\x1a\n")
         f.write(chunk(b"IHDR", ihdr))
+        for tag, payload in PNG_SRGB_CHUNKS:
+            f.write(chunk(tag, payload))
         f.write(chunk(b"IDAT", zlib.compress(body.tobytes(), 6)))
         f.write(chunk(b"IEND", b""))
 

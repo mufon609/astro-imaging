@@ -1,7 +1,11 @@
 {
  "_readme": "Measured no-regression record \u2014 written by sweep.py --rebaseline, never by hand.",
  "dataset": "nikon-test/lmc_180mm",
- "approved": null,
+ "approved": {
+  "date": "2026-07-10",
+  "judgment": "results/judgment_lmc_denoise_20260710 (denoise-off vs vstpost control; full-frame lossless pairs)",
+  "note": "approved for the same reason as the M20 fix: vst was destroying moderate-contrast object colour class-wide"
+ },
  "stack": "results/stack_lmc_180mm_norgbeq_spcc.fit",
  "stack_sha256": "c7d980c8b4fee889cd6ff95d46beca0e661f051f65a04e717494b4bd031c3cd1",
  "rebuild": "python3 scripts/render/starcomb.py nikon-test lmc_180mm --stack nikon-test/results/stack_lmc_180mm_norgbeq_spcc.fit --lossless",
@@ -16,32 +20,46 @@
  },
  "gate_pass": true,
  "artifact_sha256": {
-  "jpg": "2e404760413d9e8b19c47aaada0a38e18104fbeb41c65bebf53b46b8d6870318",
-  "png": "79fae412068f528b8cacceecb285d6f8c6bf5880baceffd8713d3de0081cf7f3",
-  "png16": "45abe289286e761bd171b1b0f5116669a312129aeade6ec5383633c584fa16f1",
+  "jpg": "7c202dfdcd70316bc1ad86546e50e87ec604308d25feae9e7f98940a50d6876a",
+  "png": "a8a97215790e9d7dc9f39036f7cdc7d9d38b3019a5512abcfd2dce4e5a1f66a0",
+  "png16": "e6a4fab43167608bc01f69de4780558eb5dca464a94fb1dea20539c68a113fbc",
   "starless_jpg": "cda21c89d4b783d9150612388a369fb074de3815cf59071e0daf934bf3045d91",
-  "starless_png": "c3cb381377c2e2f462ff7f2ba6f93e0b081a0410e3a78f8bb989f50e8803fa0c",
-  "starless_png16": "635faf121507a39badf8e369708e4aff7a904d1e311d9d2c305a7f0f070bf72c"
+  "starless_png": "c6c8b42bd104e22afd535d559daa3de98fbf4df45da800d7a493142009da1ab8",
+  "starless_png16": "c735e36232336a40e1001b4bd0886f42dd162bfce1cc9912fb87764831c5b5a0"
  },
  "recipe": {
+  "bgelin_mode": "gx",
   "starless_target": 0.07,
   "starless_denoise": "off",
+  "stretch_mode": "mtf",
+  "ghs_sp_k": 2.0,
+  "ghs_amount": 3.0,
+  "ghs_focus": 3.0,
   "sep_prom": 6.0,
   "sep_engine": "net",
   "chroma_core": 4.0,
   "lum_core": 2.0,
   "core_order": "pre",
   "stretch_linked": "linked",
+  "perline_scale": 0.5,
+  "ppgamma": 2.7,
+  "ppsigma": 1.0,
+  "satgamma": 1.1,
+  "huerot_from": 120.0,
+  "huerot_to": 147.5,
+  "huerot_by": -35.0,
+  "scnr": 0.5,
   "satu": 0.2,
   "cull_pct": 50.0,
   "stars_peak": 0.97,
   "stars_anchor": "catalog",
   "stars_floor": 3.0,
+  "stars_opacity": 1.0,
   "black_point": 8.0,
   "jpg_quality": 100,
   "jpg_subsampling": 0,
   "noise_anchor_k": null
  },
- "date": "2026-07-10 15:22:36",
- "git": "a0b230e"
+ "date": "2026-07-12 00:54:36",
+ "git": "5747a89"
 }
