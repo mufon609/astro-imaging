@@ -329,8 +329,13 @@ nebulosity — C19's significance mask upgraded from image-statistics
 to sky-truth. Research first (sources, licenses, resolution limits at
 35″/px wide fields vs 1″/px scopes), then design as an OPTIONAL
 sample-veto layer on the C19 mechanism — never a hard dependency
-(offline operation must survive). Blocked by: C19 (the mechanism it
-feeds).
+(offline operation must survive). The veto point now EXISTS: the v2
+significance mask (shipped 2026-07-12) is exactly the surface a
+survey prior would upgrade from image-statistics to sky-truth — and
+it would retire the `rbf_protect` knob's per-dataset judgment call
+(the C9 information gap that knob encodes). Research can start any
+time; the C19 SMC validation (its remaining half) is the natural
+first beneficiary.
 
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 
@@ -524,47 +529,37 @@ treatment. Placement in the pick-up order needs user ratification
 (natural fit: before the next reference-bearing corpus lands;
 complements the object-integrity audit's retention traces).
 
-### C19 — Constrained background extraction v2 for gradient + object fields
+### C19 — Constrained extraction v2: the SMC (significance-reference) acceptance half
 
-TWO trigger cases exist. (1) The SMC: a real coloured higher-order LP
-gradient AND a frame-filling faint envelope — `gx` keeps 27% of the
-faint band, `plane` keeps 38% by tilting into it and fails colour 13.
-(2) session_02/set-02's compact diffuse dust (user-identified, final
-coords ~(3639,270); the acceptance judge is the user's eyes THERE):
-wispy +1.44 / blob +1.73 c16 over local sky linear — gx keeps 22–29%
-(50–150 px faint wisps sit inside its absorbable range), plane keeps
-~110% but ships the sky envelope the user rejected (vignette residual
-+ glow: this set's flats were unusable, so the envelope is calibration
-debt a proper flat would mostly retire — background extraction must
-not be the rescue for calibration debt)
-and the v1 implementation (`bgelin_mode rbf`: GraXpert classical RBF
-via `-preferences_file` on pipeline-generated off-object samples) is
-MEASURED FAILING with two independent modes that define the v2 work:
+The v2 mechanism SHIPPED 2026-07-12 (in-house `bgelin_mode rbf`: one
+gray thin-plate RBF through significance-masked clean-core samples +
+quadratic per-channel chroma, protection reference per the
+`rbf_protect` knob, deterministic, byte-inert unpinned — design,
+constants and every calibration verdict live in NOTES). The set-02
+`band` half is measured (gate PASS, dust structure-scale 95–96%) and
+sits with the user (judgment_set02_c19_rbfband — a win pins rbf+band
+in that dataset's recipe as a declared delta).
 
-1. **The sample exclusion must be a significance mask at the
-   smoothing scale, not the current extended-object params** — v1's
-   quarter-res mask excluded 4/150 cells, never detecting the 3–10σ
-   envelope, so samples sat on it and the interpolant absorbed it
-   (retention 27.4%, ≡ gx). Build the exclusion from the same
-   definition the retention trace uses (smoothed G above sky + kσ of
-   the smoothed noise), with the too-few-sky-cells refusal kept.
-2. **The background model must be chroma-rigid** — three
-   independently-fit per-channel surfaces ripple chroma at block
-   scale (gate colour 31 with NEUTRAL global sky medians, achromatics
-   clean 0.6/0.4: colour-only structure evades the luminance
-   metrics), the recorded self-flat lesson "per-channel V → corner
-   tint; V must be GRAY" recurring at the extraction stage. v2 fits
-   ONE gray surface (RBF through the sample luminances) plus a
-   LOW-ORDER per-channel chroma correction (the coloured part of LP
-   is smooth; a plane per chroma channel), likely in-house
-   (scipy RBFInterpolator) rather than GraXpert — the per-channel
-   independence is GraXpert-internal and unreachable via preferences.
+What REMAINS is the entry's original acceptance case, blocked on
+data: the SMC (`significance` reference — its frame-filling faint
+envelope is the TARGET, protected above the global statistical sky).
+When the off-disk nikon-test stacks return:
 
-Acceptance: on the SMC — faint-band retention ≥80%, gate FULL PASS
-(colour ≤7 back at the gx level), the envelope rendered; and the mode
-stays byte-inert everywhere unpinned. The `rbf` enum value stays wired
-(loud, measured-failing why-note) until v2 replaces its internals; gx
-remains the SMC's only gate-passing look meanwhile.
+1. Validate the significance mask against the SMC's recorded 3–10σ
+   envelope (the v1 quarter-res mask detected none of it — 4/150
+   cells; the v2 analytic smoothed-noise threshold must cover it,
+   k=3 at σ_s 32, before any fit runs).
+2. Run the mode and grade by the recorded conventions: faint-band
+   retention ≥80% (v1: 27.4% ≡ gx; plane: 38% + colour 13), gate
+   FULL PASS (colour ≤7 back at the gx level — watch the quadratic
+   chroma against the D810A field's higher-order coloured LP), the
+   envelope rendered. Cell geometry on a frame-filling-envelope
+   field is the untested regime (the <20-cell refusal is the
+   designed failure mode; set-02's texture-starvation lesson —
+   clean-core eligibility — already ships).
+
+The SMC keeps its approved gx look until those numbers exist; neither
+plane nor rbf may pin there meanwhile.
 
 ### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 

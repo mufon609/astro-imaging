@@ -296,6 +296,73 @@ never let it grow narrative.
   trigger case, after the SMC envelope). NOTHING BAKED — any
   generic/recipe adoption is a declared delta through the user's
   eyes.
+- **C19 CONSTRAINED EXTRACTION v2 — SHIPPED, set-02/band half MEASURED
+  (2026-07-12); SMC/significance half BLOCKED on its off-disk stack.**
+  `bgelin_mode rbf` internals replaced in-house (v1 GraXpert-preferences
+  path measured failing twice: samples on the undetected 3–10σ envelope
+  → retention 27.4% ≡ gx; three independent per-channel surfaces →
+  colour 31). v2 mechanism: significance mask on star-suppressed
+  (median-15) G smoothed at σ_s 32 (below the 50 px protected-class
+  floor; threshold 3× the ANALYTIC smoothed-noise floor — pixel σ
+  through the kernel, ≈0.026 c16 here; v1's spatial-MAD threshold was
+  gradient-inflated and blind), 64 px dilation; protection reference =
+  per-dataset knob `rbf_protect` (the C9 information gap made
+  explicit): `significance` (generic default — everything above global
+  statistical sky protected; the SMC class) | `band` (structure between
+  σ_s and the 202 px protection ceiling protected, frame-scale absorbed
+  — ceiling is a CLASS constant ~1.35× the 150 px structure top,
+  deliberately decoupled from sample spacing; only for envelopes
+  measured as calibration debt). Cell eligibility CLEAN-CORE (a cell
+  samples wherever a fully-unmasked 25 px window survives erosion —
+  the v1-style >50%-masked skip rule starved 37/150 cells on this
+  texture-dense field and left whole bands unsampled → grad 10.7;
+  clean-core: 311/600 cells, zero in the dust zones). Fit: ONE gray
+  thin-plate RBF (normalized coords, 30×20 darkest-of-cell samples at
+  ~160 px spacing — a 15×10 grid left a 200–600 px aliasing zone that
+  rendered rings 11.4; λ 1e-3, the noise-matched regularizer:
+  sample-residual RMS 0.086 c16 ≈ the 25 px median-window noise) + a
+  QUADRATIC chroma correction per channel (six coefficients cannot
+  ripple at block scale; FIRST-degree left colour 9.0 — this field's
+  coloured LP curves, chroma residual rms 1.41/0.97→0.42/0.47 c16
+  through quad — the iteration that took the gate from 3 failing
+  metrics to PASS: grad 9.2→5.9, rings 9.6→3.7, colour 9→7) +
+  per-channel scalar re-pedestal; `subsky 1` after and the <20-cell
+  refusal kept. **Measured on set-02 (all conventions + controls
+  recorded here first: dust relocated by NCC 1.00, window center
+  (3640,268), wispy (3623,229) blob (3642,299), amplitudes stack
+  +1.22/+1.78 c16; retention scales — complex-local σ12−σ128 disk at
+  the stack peaks, and region one-sided vs the DARKEST ±250/300 px
+  compass box fixed on the stack, after the first-registered SYMMETRIC
+  reference was measured structurally blind to gx's ramp (93–108%
+  through it) and corrected before v2 grading; controls gx 102/101%
+  complex + 50–62% one-sided, plane 100/100% + 105–107%)**: rbf-band
+  gate **PASS colour 7.0 (AT bound; gx 2.0) / grad 5.9 / blotch 2.5 /
+  rings 3.7** (baseline gx 2.0/3.0/1.0/6.6 — rings IMPROVES), dust
+  structure-scale **95/96%**, one-sided **63–75%** (vs gx 50–62%; the
+  one-sided number measures the envelope-flattening tradeoff itself
+  and CANNOT reach ~100% with the envelope flattened — plane's 105%
+  ships the envelope), aura +10.5 (the recorded annuli-scale WARN
+  class, baseline +10.0), two cold builds byte-identical, sweep green
+  with `= baseline bytes` on every on-disk baselined dataset (rbf
+  unpinned everywhere = byte-inert; off-disk sets SKIP loudly).
+  DISPLAY-DOMAIN finding: at the generic MTF stretch the flattened
+  (narrower) sky pulls the autostretch gain DOWN, so the dust's
+  visible gain over the gx baseline is modest (dust-over-dark-zone
+  +9.8/+14.0 vs +8.3/+12.9 counts8; wisp-over-neighborhood slightly
+  lower) — the mechanism's deliverable is the LINEAR headroom; the
+  visibility lever is the queued stretch work (ghs/bp0 probe numbers:
+  +14 vs +9 counts8 lane contrast). Gate-lever exhaustion recorded:
+  grid×λ combos leave the sky-scope linear residual nearly invariant
+  (planar 1.35–1.57 c16 + non-planar block shape 3.6–4.3 c16 ≈ 7–10
+  counts8 through this class's ×1300–1500 low-end gain) — whole-frame
+  offline proxies mispredicted rendered grad twice; only the
+  gate-scope proxy tracks. **AWAITING THE USER:
+  judgment_set02_c19_rbfband (gx baseline vs rbf-band, inspection
+  notes attached) — the set-02 background verdict; a win pins
+  rbf+band in this dataset's recipe as a declared delta. NOTHING
+  BAKED; datasets keep gx generic.** SMC half (significance
+  reference: faint-band ≥80% at gate FULL PASS incl. colour ≤7)
+  blocked on the nikon-test stacks returning.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -518,6 +585,12 @@ per run; a recipe-less dataset renders generic and says so):
    gate's gradient class and cannot absorb a localized cloud by
    construction — the retention mode for fields that ARE mostly
    object; 93–97% dust retention measured, gate colour 2.0);
+   **rbf** = in-house constrained extraction + `subsky 1` (ONE gray
+   thin-plate RBF through significance-masked clean-core samples +
+   QUADRATIC per-channel chroma, deterministic; protection reference
+   per `rbf_protect` — knob table; a per-dataset mode for fields
+   carrying both a real gradient and faint signal a full extraction
+   eats, never generic);
    **off** = passthrough (measurement rungs). `subsky` runs WITHOUT
    `-dither`: dither injects unseeded ±1 LSB16 noise (0.08σ — breaks
    byte-determinism) to mask quantization banding that cannot occur
@@ -600,6 +673,8 @@ per run; a recipe-less dataset renders generic and says so):
 | cull 50 | metric-invisible across the 0–50 ladder on set-03 AND visually+metrically null on a rich wheel field (M20, 0/25/50) — the faint-field difference vs reference finishes lives in the stars MTF anchoring + the starless floor, not the cull |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
 | jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified); finals embed sRGB colorimetry (588-byte vendored lcms profile, timestamp/ID zeroed → byte-deterministic; PNG sRGB/gAMA/cHRM chunks) with pixels IDENTICAL — the gate q92 jpg carries none (gate identity) |
+| rbf_protect significance (generic) | the C9 information gap as per-dataset state — single-image statistics cannot tell frame-filling faint nebulosity from instrumental envelope: `significance` protects everything above global statistical sky (the SMC class, envelope IS the target; acceptance numbers await the off-disk stack), `band` protects only the 32–202 px structure class and absorbs frame-scale elevation (calibration-debt envelopes; set-02 measured: gate PASS 7.0/5.9/2.5/3.7, dust structure-scale 95–96%, one-sided 63–75% vs gx 50–62%). Inert unless bgelin_mode rbf; nothing pins either value without the user's eyes |
+| rbf internals: σ_s 32 / ceiling 202 / grid 30×20 / λ 1e-3 / quad chroma | each constant measured on set-02: σ_s 32 keeps the 50 px class above the smoothing (dust detects at 51–53σ_band); ceiling 202 = class constant ~1.35× the 150 px structure top, DECOUPLED from spacing (0.65×spacing at the denser grid would expose the 100–200 px class); grid 15×10→30×20 resolved the 200–600 px aliasing zone (with quad chroma: rings 11.4→3.7); λ noise-matched (sample-residual RMS 0.086 c16 ≈ window noise — λ shapes nothing, dead ends); chroma quad per channel = the 3-FAIL→PASS iteration (first-degree ceiling colour 9, quad rms 1.41→0.42 c16) |
 
 **Standing per-render audits (printed + logged every starcomb run):**
 the GATE (`bg_qa` on the starless render, composition-agnostic sky scope:
@@ -713,6 +788,30 @@ Gain/flat estimation:
   structure (MW/glow/clouds, 2–8%) exceeds the ~2% residual being
   measured; opposite-sign "residuals" from different statistics.
   3× confirmed. Never scale the stack in place either.
+
+Constrained extraction (v2 calibration, set-02):
+- Symmetric compass sky references for retention grading → BLIND to a
+  locally-linear absorption ramp by construction (gx's measured
+  −1.1..−2.3 c16 differential read 93–108% through them; plane reads
+  ~100% for the same reason). Retention local-sky references must be
+  ONE-SIDED — darkest compass direction, geometry fixed on the stack.
+- Masked-fraction cell eligibility (skip a sample cell at >50%
+  masked) → starves texture-dense fields: 37/150 cells, whole frame
+  bands unsampled, rendered grad 10.7. Eligibility = CLEAN-CORE (a
+  fully unmasked value window surviving erosion), never area
+  fraction — the mask itself knows where the clean sky is.
+- RBF smoothing λ as a mid-scale-wiggle fix → four decades
+  (1e-8→1e-2) moved the surface's 50–400 px MAD only 0.64→0.46 c16;
+  the content was REAL 200–600 px sky structure ALIASED by the ~300
+  px sample spacing — fixed by grid density (Nyquist), not
+  regularization. λ stays at its noise-matched value (sample-residual
+  RMS ≈ window noise); it shapes nothing.
+- First-degree per-channel chroma correction on a curved coloured-LP
+  field → colour 9 (plane's subsky reads 7.0 — the same first-degree
+  ceiling). QUADRATIC per channel is the working low-order form
+  (chroma residual rms 1.41/0.97→0.42/0.47 c16), block-scale rigidity
+  preserved by construction; full per-channel spatial freedom stays
+  the recorded colour-31 dead end.
 - Per-frame `seqsubsky 2` (curvature) → erases the MW (+38 → +0.0
   linear): at 37 mm the MW band IS frame-scale curvature. Only
   geometric (band-mask) separation can discriminate — and hand-rolled
@@ -895,6 +994,12 @@ Prediction inversions worth remembering (recorded, instructive):
 - "the dark gaps must stay ~0-clip under black_point" → inverted: the MW's
   dark gaps/lanes clip (9–16%) and that IS the requested gap blackness; the
   smooth cored sky barely clips (0.01–1%).
+- "the offline whole-frame trend proxy predicts the rendered gradient" →
+  mispredicted twice on the constrained-extraction ladder (proxy improved
+  while rendered grad went 4.8→9.2): the gate measures the STRETCHED sky
+  through the adaptive chain (autostretch parameters, corings, black
+  point). Only a gate-scope proxy — dark-block selection + plane fit on
+  the LINEAR residual — tracked the render; whole-frame P2V does not.
 
 ## Bandaid/adaptation ledger (every divergence carries its removal condition)
 
