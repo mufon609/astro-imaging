@@ -10,7 +10,7 @@ time). Per-dataset records live in `datasets/<session>/<set>/`
 per-set geometry, north star). Update THIS file as states change;
 never let it grow narrative.
 
-## STATUS (2026-07-10)
+## STATUS (2026-07-12)
 
 - **Per-dataset state is first-class**: `datasets/<session>/<set>/` (tracked)
   holds each dataset's `geometry.json` + `recipe.json` (knobs resolve CLI >
@@ -27,6 +27,14 @@ never let it grow narrative.
   colour graded one-sided vs the record (tolerance 0.5), bytes/shells/drift
   as normal — tracking, never colour judgment; full admission waits on the
   colour-gate redesign (BACKLOG).
+- **The stack policy surface is live and byte-inert** (2026-07-12): the
+  optional recipe `"stack"` block (weight wfwhm|nbstars|null + exclude
+  frame numbers) resolves at stack time on all four paths, provenance
+  printed; absence = today's unweighted `rej 3 3` with generated
+  scripts byte-identical (sweep green). NO dataset opts in — the first
+  real weighting/culling ladder waits for a recorded trigger (design
+  section carries mechanisms + doctrine; dead ends carry the ramp
+  numbers).
 - **The render chain is deterministic from the stack, cold caches
   included** (measured: two fully-cold builds byte-identical across all
   four artifacts; the sweep byte-reproduces every recorded baseline).
@@ -57,37 +65,26 @@ never let it grow narrative.
     rebaselined**: `starless_denoise off` pinned (vst crushed the
     object chroma −31…−50%, R−G −16.4→−8.2; off doubles it back to
     −17.5 at gate PASS and restores the dust detail — the user's
-    blotchy blue/white body fixed).
+    blotchy blue/white body fixed). OPEN: judgment_lmc_ghs_* awaits
+    the user — the ghs finishing ladder measured full-PASS on this
+    class (k2/D3/b3: colour 5.0 / grad 2.2 / blotch 1.3 / rings 5.7
+    vs the approved mtf look; star saturation 2→5%, the stars-side
+    compressive transfer is the companion work if the direction
+    wins); `stretch_mode` stays generic mtf and every approved recipe
+    pins mtf.
   - `nikon-test/smc_180mm` — **look APPROVED 2026-07-10 + rebaselined**:
-    `starless_denoise off` pinned (the hardest-hit dataset, chroma
-    −47…−50%, R−G −18.5→−9.3; off doubles it back to −23.4 at gate
-    PASS). USER-ORDERED REPROCESS 2026-07-11 (bgelin_mode plane —
-    the retention trace measured the approved gx look keeping only
-    27% of the SMC's faint 3–10σ envelope, the worst case on disk).
-    Plane ladder MEASURED — both predictions KILLED on this class:
-    plane retention only 38% (not ≥80% — with the envelope spread
-    frame-wide the plane fit TILTS INTO the object; mid/bright
-    ~101%) and the gate FAILS colour 13.0 (grad 6.0 / rings 6.3 vs
-    gx 0.9/1.7): the D810A field carries a REAL coloured
-    light-pollution gradient beyond first degree that gx had been
-    legitimately removing. Neither simple mode serves this class —
-    the rbf trigger case. RBF ladder MEASURED — KILLED, two
-    independent failure modes: (1) faint-band retention 27.4% (≡
-    gx): the quarter-res extended-object mask excluded only 4/150
-    cells — it never detected the 3–10σ envelope, so samples sat ON
-    it and the interpolant modeled it as background (the exclusion
-    must come from a SIGNIFICANCE mask at the smoothing scale, not
-    the current extended-object params); (2) gate colour 31.0 while
-    the bgelin's global sky medians are NEUTRAL (R−G −0.01 e-4):
-    three independently-fit per-channel RBF surfaces ripple CHROMA
-    at block scale — invisible to the achromatic metrics (grad 0.6,
-    blotch 0.4) and exactly the recorded self-flat lesson
-    "per-channel V → corner tint; V must be GRAY" recurring at the
-    extraction stage. The SMC stays on its APPROVED gx look;
-    envelope recovery on this class is BLOCKED on the constrained-
-    extraction redesign (backlog: significance-based sample
-    exclusion + a chroma-rigid model — gray RBF + low-order chroma).
-    Neither plane (retention 38%, colour 13) nor rbf-v1 may pin.
+    `starless_denoise off` pinned (the hardest-hit dataset of the vst
+    chroma-crush class, R−G −18.5→−9.3 through vst; off restores −23.4
+    at gate PASS). The gx class limit stands measured (27% faint-band
+    retention, the worst on disk) but BOTH alternatives failed the
+    user-ordered reprocess: plane retains 38% (the fit tilts into the
+    frame-wide envelope) and FAILS colour 13.0 — the D810A field
+    carries a REAL coloured higher-order LP gradient gx legitimately
+    removes — and rbf-v1 failed twice over; the constrained-extraction
+    v2 backlog entry carries every number and the v2 design (a
+    significance mask at the smoothing scale + a chroma-rigid model).
+    The SMC keeps its approved gx look; neither plane nor rbf-v1 may
+    pin; envelope recovery is BLOCKED on that redesign.
   - `nikon-test/wide_50mm` — processed, gate PASS (self-flat class —
     vstpost's home turf, no probe indication).
   - `imx585c/m74_toa130` — processed (mono FITS class). The session dir
@@ -124,219 +121,56 @@ never let it grow narrative.
   - `mlnoga-ngc7635/ngc7635_sho` — processed (first prebuilt-master
     ingest + first narrowband mono-filters composition: 19/19 ×3
     members, 0 WARN; alignment 0.040 px median; narrowband SPCC K
-    R0.872/G0.868/B1.000). Gate colour 11.0 scope-FAIL (emission-
-    flooded class; achromatics clean 1.4/1.2/1.2; aura +44.0 = the
-    annuli-scale reading at 1.07″/px). No baseline yet: scope-ACK
-    tracking (`--ack-color-scope`) is available but DEFERRED until the
-    dust-retention look settles — every deliberate knob change would
-    churn the record; record it at settlement (aura +44.0 will also
-    need `--ack-aura-warn`, the annuli-scale reading). **Palette balance JUDGED 2026-07-10: the
-    SPCC-continuum scale as-is wins** (probes: per-source S2×1.60/O3
-    ×1.00 — O3 noise-capped at zero headroom; natural ×2.88/×2.74;
-    equalized ×13/×7.3 collapsed the object through the corings).
-    Member `output_norm` is a linear per-member rescale — no data
-    harmed; cross-channel display scale is DEFINED by SPCC. **OPEN
-    (user, vs the author's finish; measured at like scale/encoding):
-    faint extended signal buried and star tops blown — shell_N +5.7
-    display counts vs their +36 (sky 7 vs 21) while the shell is 5.1σ
-    in the LINEAR stack; star peaks 3.1% ≥250 / p99 255 vs their 0% /
-    p99 200.** Ladders measured: (a) `black_point` 0/4/8 — hypothesis
-    KILLED for the shell: above-sky contrast is INVARIANT
-    (+5.3/+5.7/+5.7 — a linear shift preserves differences, as the
-    knob's own design note says); bp only sets the sky pedestal
-    (15/11/7 at like scale; the reference runs 21) and what clips.
-    The shell-contrast deficit is STRETCH SHAPE (faint-end gain — the
-    GHS entry's case). (b) `stars_peak` 0.85/0.90/0.97 — CONFIRMED for
-    the top: like-scale peaks ≥250 fall 2.3% → 1.2% → 0.9% (reference
-    0.0%), p99 255 → 253 → 247 (reference 200), halo 1.88 → 1.11 →
-    0.92; cost: the faint field dims further. JUDGED 2026-07-10: the
-    generic control wins both ladders — no floor/top pin. The
-    reference gap is STRETCH SHAPE, stage-measured on the bright core:
-    linear structure/grain 5.58 collapses to 1.07 through the MTF
-    (grain ×150 vs structure ×29; vst and separation exonerated, leak
-    0.000) and the core renders at 6/255 above sky where the reference
-    allocates 33–57/255 — the GHS entry carries all numbers as the
-    structural fix. Reference-comparison note: the author's finish is
-    vertically MIRRORED vs our render (flip-correlation 0.185 vs 0.081
-    direct) — all three corpus authors publish sky-true. GHS
-    calibration (measured, 22 probes on the cached starless): a SINGLE
-    autoghs from linear CANNOT replace the MTF — its gain concentrates
-    at SP=sky and the object lands at +0.2…+1.1/255 vs the MTF's +6.5
-    across the whole (k,D,b) grid; the working shape is the FINISHING
-    composite (autostretch THEN autoghs with SP above the stretched
-    sky): k2/D3/b3 → sky 21.8 (reference 22) core +11.6 shell +12.5
-    st/gr 1.21; k1/D3/b3 → sky 30.1 core +17.1 shell +18.5.
-    MEASURED (three pre-registered single-knob ladders): the ghs
-    finishing mode lifts the object as calibrated at achromatic-gate
-    PASS on both classes — SHO ghs-k2 grad 2.2 / blotch 2.0 / rings
-    2.6 with colour 18.0 scope-FAIL (lifted diffuse Hα reads as sky
-    colour: the colour-redesign case; k1 colour 28.0), LMC ghs-k2
-    full-PASS (colour 5.0 / grad 2.2 / blotch 1.3 / rings 5.7) vs its
-    approved mtf look. Measured interaction: the brighter starless
-    pushes combine-stage star saturation (SHO 6%→12% at k2, 15% at k1;
-    LMC 2%→5%) — the stars-side compressive transfer is the companion
-    work if the direction wins. judgment_lmc_ghs_* PENDING the user;
-    the SHO ghs package is SUPERSEDED by the sphere defect below (its
-    surfaces pruned — rungs regenerate from the pinned stack; a ghs
-    pass on the perline base is a NEW unprobed combination, see the
-    ghs backlog entry); stretch_mode stays generic mtf and all four
-    approved recipes pin mtf explicitly.
-    **Missing-sphere defect (user) ROOT-CAUSED + architecture landed;
-    judgment pending** — the sphere is in the linear data, STRONGEST
-    in O3 (rim/surround 4.29 vs Ha 3.00) but 4–9× below Ha in flux.
-    Stage-traced (sphere fit y1662 x1646 R88 display): the linked
-    stretch passed the 5× line ratio straight through (rim step Ha
-    +50 vs O3 +15 counts8); the corings only trimmed the teal delta
-    (+14.5→+12.6 — exonerated as the killer); the killer was display
-    ALLOCATION + chroma grain (B−G MAD 53 counts8/px → 0.3σ/px
-    feature; vst moved that grain 53.6→53.5, no help). Doctrine
-    (Siril GHS/RGB-composition tutorials, PixInsight practice):
-    narrowband palettes get PER-LINE intensity adaptation — the
-    linked-only stretch of an unequalized composite is the documented
-    green-SHO failure mode; linked doctrine is scoped to calibrated
-    BROADBAND. Pre-registered ladder CONFIRMED the hypothesis, all
-    predictions met: perline (each line's p90-of-significant →
-    perline_target 0.25, sky re-pinned at starless_target) renders
-    sphere interior display O3/Ha 1.05 (linked 0.50), interior B−G −2
-    counts8 (linked −20), chroma grain 8.9 MAD (linked 59), gate FULL
-    PASS incl. colour 5.0 (linked 11.0 scope-FAIL) at sky clip0 0%;
-    broadband stays byte-identical (auto→linked; sweep-proven).
-    perline JUDGED 2026-07-10 (package judgment_sho_perline_*): the
-    sphere reads and the frame is clear — but the user's eye finds
-    the EXTENDED DUST missing vs the author's finish (by-eye at like
-    scale/orientation: their olive dust complex sits ~40–90/255 with
-    saturated hue; ours ~12–25, just above the black point, colour
-    neutralized). Gap decomposition: faint-end ALLOCATION (the GHS
-    entry's case — the perline anchor places each line's p90-of-
-    significant, so the sub-p90 dust lands on the MTF toe) + faint
-    CHROMA SURVIVAL (chroma_core k=4's recorded class limit + satu
-    0.2 conservatism). Round-2 ladders MEASURED on the perline base
-    (both hypotheses confirmed): (a) stretch_mode ghs (k2/D3/b3) —
-    on the line-EQUALIZED base the finishing lift lands the sky at
-    the reference's own pedestal (floor 22 vs mtf 10) with the dust
-    complex reading as an extended olive mass and the sphere intact
-    (the earlier "ghs worsens the drowning" was the UN-equalized
-    linked base feeding the Ha flood); achromatics clean (0.7/0.6/
-    1.2), star cost mild (sat 6→7%), but colour 12.0 SCOPE-FAILS the
-    current gate — the lift pulls coloured dust into the statistical
-    sky scope (97% of blocks): the colour-gate-redesign class, hoo
-    precedent (approval possible, baseline blocked). (b) chroma_core
-    2 — the dust's hue survives at gate FULL PASS (colour 6.0 vs 5.0
-    at k=4, achromatics 0.0). Combination ghs+cc2: floor 22,
-    achromatics 0.7/0.5/1.3, colour 13.0 scope-FAIL. **Package
-    judgment_sho_dust_* REJECTED by the user 2026-07-11 — every
-    candidate including the round-1 control**: the lifted faint
-    structure reads BLOTCHY at 1:1 (measured character: soft-edged
-    40–120 px luminance+chroma patches — the coring pyramid's mid
-    scales partially shrunk, kept-vs-flattened patchwork on low-SNR
-    dust — plus chroma speckle rims; the author's finish shows only
-    gentle large-scale mottle with coherent hue), and our STAR FIELD
-    inverts the reference's hierarchy (fat near-saturated discs at
-    the 0.97 anchor vs their tiny subdued pinpoints over luminous
-    dust). Both defects are invisible to every standing audit — the
-    object region is metrically blind (object-integrity backlog
-    entry, now four escapes). STUDY COMPLETE (2026-07-11, full notes
-    in the session's study_reference_vs_ours_*.md): the reference is
-    the output of the data author's own open-source tool
-    (mlnoga/nightlight; native arm64 binary runs on this rig, his
-    stacks+combine reproduced locally, structure NCC 0.768 direct)
-    and his dataset repo publishes the EXACT recipe — the mechanisms
-    are (a) noise-WIDTH-capped stretch (iterative gamma stops when
-    the sky peak width hits a display budget — noise is never
-    amplified into visibility, so his chain needs NO denoiser), (b)
-    post-peak lift ppGamma 2.7 applied only ≥ sky+1σ and ONLY to
-    HSLuv luminance (chroma is never stretched — no chroma-noise
-    mottle by construction), (c) explicit LCH colour work: hue
-    rotation 120–147.5°→−35° (the golds ARE rotated Ha greens), SCNR
-    0.5, saturation gamma gated ≥1σ above sky, star-white channel
-    balance, (d) NO star reduction — the nebula is lifted toward the
-    stars, never star wings up (vs our 0.97 mid-star re-anchor: the
-    star-dominance inversion). Our blotch root cause: we stretch RGB
-    (chroma noise amplified), lift, then PARTIALLY Wiener-shrink —
-    the kept-vs-flattened patchwork IS the mottle; the author never
-    lifts past the budget so has nothing to smooth. Industry
-    cross-check agrees (RC-Astro names LF "blotches"; cure when
-    lifting hard = chroma-heavy LF denoise AFTER combination; star
-    practice = separate stretches + reduced-opacity screen). USER
-    RATIFIED Option A 2026-07-11 (the author-faithful finishing
-    chain). PRE-REGISTERED build+calibration: the perline mode
-    becomes NOISE-WIDTH-CAPPED per-line stretch (per channel:
-    gamma∘black-pin solved so sky location = starless_target AND
-    sky width = perline_scale — the stretch can never lift noise
-    past the display budget; replaces the p90-object anchor, whose
-    knob perline_target retires) + the author's finishing ops on
-    the composed starless in his order, each significance-GATED at
-    sky + ppsigma·width: saturation gamma (satgamma, LCh chroma),
-    hue rotation (huerot_from/to/by, LCh hue degrees — the Hubble
-    gold), SCNR (scnr, avg-neutral blend), post-peak luminance lift
-    (ppgamma, partial gamma on Luv-L applied as an
-    RGB-ratio-preserving gain — chroma is never stretched). Plus
-    stars_opacity (screen combine with stars×k — the industry
-    star-subduing lever; generic 1.0 = byte-inert). Generic values
-    = the author's published recipe for this dataset (perline_scale
-    0.5, ppgamma 2.7, ppsigma 1.0, satgamma 1.1, huerot 120–147.5
-    by −35, scnr 0.5). MEASURED (hypothesis confirmed with one
-    surprise): the base render's dust is smooth and continuous at
-    1:1 (no coring mottle — the corings find ~nothing above the
-    capped noise), the sphere holds, and the gate FULL-PASSES
-    INCLUDING COLOUR 3.0 (grad/blotch 0.0, rings 0.9, clip0 0%) —
-    the expected scope-FAIL did not happen: hue rotation + SCNR
-    move the flood out of the colour scope's failure mode. Two
-    chain-introduced seams were caught by the pre-handoff 1:1
-    inspection and fixed before packaging (hard significance gate
-    stippled → two-noise-width ramp; hard hue-interval edge left a
-    neon seam → ±8° feather; both in the dead-ends note).
-    Broadband byte-identity sweep-proven (all four baselines).
-    Ladders measured: stars_opacity 0.6/0.8/1.0 (mid peaks
-    164/205/249, sat 0/0/6%, starless bit-identical);
-    perline_scale 2.0 = the gamma-10 ceiling case (stated);
-    black_point 0 = sky 18 ≈ the author's pedestal (rings 0.9→3.1,
-    bound ≤8). Package judgment_sho_authorchain_* REJECTED by the
-    user 2026-07-11: the dust STRUCTURE around the core is MISSING
-    (the goal is recovering the gas/dust clouds, not palette match)
-    and the sphere region reads as yellow-green mush.
-    SIGNAL-RETENTION TRACE (the object-integrity audit's
-    measurement, run by hand — five dust-cloud probes picked on the
-    reference, mapped through the mirror): the dust is IN our
-    composed stack at the author's own ratios (Ha +5.8…+10.9 e-4
-    above far sky ≈ +17…+32% of sky, matching his no-BGE stack's
-    +15…+29%) and DIES AT ONE STAGE — GraXpert BGE absorbs 75–98%
-    of it (post-bgelin +0.8/−0.2/+2.7/+0.2/+0.2 e-4); StarNet
-    preserves what remains. The set-03 "BGE is MW-safe" measurement
-    (+38 e-4 band) did not generalize to +3–11 e-4 frame-filling
-    dust. LADDER MEASURED (bgelin_mode gx-control vs plane), every
-    prediction met: the plane bgelin retains 93–97% of the stack's
-    dust amplitude (+9.9/+5.4/+10.5/+9.6 vs GraXpert's
-    +0.8/−0.2/+2.7/+0.2 e-4), the finals carry the clouds at
-    +25…+47 counts8 above far sky where the gx control renders +1,
-    and the gate FULL-PASSES on both rungs — plane colour 2.0 is
-    CLEANER than gx 3.0, achromatics 0.0/0.0/0.9. The per-line
-    gammas drop 9.8/4.3/3.9 → 5.0/3.2/3.0 (real signal re-enters
-    the stretch statistics). Companion candidate plane+black_point
-    0: the cloud tail fades continuously into the stretch's sky
-    pedestal (floor 18 ≈ the reference's ~20), colour 1.0. The
-    dust/sky transition grain at 1:1 is the stretch's noise budget,
-    not a clip (bp0 disproved the clip theory; the author's chain
-    carries the same at native scale). USER VERDICT 2026-07-11 on
-    judgment_sho_dustretention_*: candidate 01 (plane) is a STEP IN
-    THE CORRECT DIRECTION; the core now reads subdued — adjustable,
-    the milder solved gammas render bright mid-tones lower
-    (ppgamma / perline_scale are the levers) — and the palette
-    refinements (huerot_from 100 for the sub-interval green
-    patches, the sphere-teal question, satu-on-satgamma) queue
-    behind the structural direction. CROSS-DATASET RETENTION TRACE
-    (stack→bgelin, G channel, faint 3–10σ / mid 10–30σ / bright
-    >30σ bands): smc_180mm 27%/101%/101% (GraXpert eats ~73% of
-    the SMC's faint envelope — the worst case), m20_rgb
-    72%/84%/89%, hoo_180s 81%/98%/99%, lmc_180mm 81%/89%/97%,
-    wide_50mm 118%/120%/121% (EXONERATED — the self-flat class's
-    BGE removes glow, raising above-sky contrast); m74's
-    compact-galaxy class was already measured SAFE (halo retention
-    101–144%, dead ends); lpro_180s untraced (no bgelin cache);
-    set-03/m74 off-disk. All four hit datasets carry APPROVED
-    looks — each re-process is a bgelin_mode ladder + declared
-    delta through the user's eyes, queued for the user's pick-up
-    call.
+    R0.872/G0.868/B1.000; solved parity MIRRORED vs sky, and all
+    three corpus authors publish sky-true — the orientation decision
+    is its backlog entry). This class drove the render architecture
+    that now IS the design section: the per-line NOISE-WIDTH-CAPPED
+    stretch + gated LCh finishing set (the author-faithful chain —
+    his open-source tool reproduced on this rig, structure NCC 0.768,
+    his published per-target recipe recovered) and `bgelin_mode
+    plane` as the faint-retention mode. Judged ladders stand: palette
+    balance 2026-07-10 — the SPCC-continuum scale as-is beats every
+    linear weighting (the palette-presets entry carries the numbers;
+    member `output_norm` is a linear per-member rescale, cross-channel
+    display scale is DEFINED by SPCC); floor/top 2026-07-10 — the
+    generic control wins both (`black_point` cannot move above-sky
+    contrast; `stars_peak` fixes tops only at a faint-field cost; the
+    GHS entry carries those numbers + the stretch-shape stage trace).
+    The SHO ghs finishing probe is SUPERSEDED — a ghs pass on the
+    perline base is a NEW unprobed combination (ghs backlog entry);
+    the LMC ghs half lives in the lmc bullet, judgment pending.
+    **Current base (USER VERDICT 2026-07-11 on
+    judgment_sho_dustretention_*): plane bgelin + perline/finishing
+    is a STEP IN THE CORRECT DIRECTION.** Its measured case: plane
+    retains 93–97% of the stack's dust amplitude where gx kept
+    75–98% ABSORBED (the bgelin_mode class limit), the finals carry
+    the clouds at +25…+47 counts8 above far sky where the gx control
+    rendered +1, the per-line gammas relax 9.8/4.3/3.9 → 5.0/3.2/3.0
+    (real signal re-enters the stretch statistics), and the gate
+    FULL-PASSES — plane colour 2.0 CLEANER than gx 3.0, achromatics
+    0.0/0.0/0.9. Companion candidate plane+black_point 0: the cloud
+    tail fades continuously into the sky pedestal (floor 18 ≈ the
+    reference's ~20, colour 1.0); the dust/sky transition grain at
+    1:1 is the stretch's noise budget, not a clip (bp0 disproved the
+    clip theory). Three earlier judged/rejected rounds' lessons are
+    recorded where they bind — linked-stretch line drowning: knob
+    table + dead ends; object-anchored lifting → coring mottle: dead
+    ends; the four audit-blind object escapes: the object-integrity
+    entry. QUEUED behind the structural direction (user's calls):
+    core brightness (the milder solved gammas render bright
+    mid-tones lower — ppgamma / perline_scale are the levers), then
+    the palette refinements (huerot_from 100 for the sub-interval
+    green patches, the sphere-teal question, satu-on-satgamma). No
+    baseline yet — record at look settlement (the current base
+    full-passes colour, so plain rebaseline + `--ack-aura-warn` for
+    the annuli-scale aura reading at 1.07″/px). CROSS-DATASET
+    RETENTION TRACE (stack→bgelin, G, faint 3–10σ band): smc 27%
+    (worst), m20_rgb 72%, hoo 81%, lmc 81%, wide_50mm 118%
+    (EXONERATED — self-flat BGE removes glow), m74's compact-galaxy
+    class measured SAFE (dead ends), lpro untraced (no bgelin
+    cache). All four hit datasets carry APPROVED looks — each
+    re-process is a bgelin_mode ladder + declared delta through the
+    user's eyes, queued for the user's pick-up call.
     No LRGB corpus is staged (app-ngc292: excluded by user request,
     .gitignore note).
 - **The gate is composition-agnostic** (`bg_qa`): sky selected
@@ -367,23 +201,22 @@ reproduces the Cygnus 11-chunk cover for the 33.5° cone at 312.77,+48.16).
 Camera: Nikon Z6 III, raws → DNG (Adobe DNG Converter
 18.4), 14-bit RGGB.
 
-## Data (session 07-02-26)
+## Data (session 07-02-26 — off-disk since 2026-07-09; tracked state in datasets/)
 
-| set | frames | optics | field (blind-solved) | calibration | path |
-|---|---|---|---|---|---|
-| `set-03` | 21×25s ISO200 | 37/38 mm f/4 (mid-set 1 mm EXIF step) | **Cygnus** — RA 312.77° Dec +48.16°, 32.78″/px, Deneb near center | darks matched, **no flat at this focal** | self-flat branch |
-| `lights` | 32×20s ISO200 | 24 mm f/4 | **Boötes** — RA 227.21° Dec +45.19°, 48.9″/px (the session's old "Big Dipper" label belonged HERE, not set-03) | darks+biases+flats matched | matched-flat path |
+| set | frames | optics | field (blind-solved) | path |
+|---|---|---|---|---|
+| `set-03` | 21×25s ISO200 | 37/38 mm f/4 (mid-set 1 mm EXIF step) | **Cygnus** — 32.78″/px, Deneb near center | self-flat (no flat at this focal) |
+| `lights` | 32×20s ISO200 | 24 mm f/4 | **Boötes** — 48.9″/px | matched-flat |
 
-Calibration frames (re-shot 2026-07-05): darks 40×20s (mean ≈ bias:
+Calibration re-shot 2026-07-05: darks 40×20s (mean ≈ bias — the
 hot-pixel map is the win), biases 98×1/160s (= exact flat-darks),
-flats 100×1/160s (~27% of full scale — under the ~50% goal; the
-MacBook-screen grid shows at ~0.3% RMS: harmless at these SNRs,
-avoidable — see checklist). Sensor offset ≈ 1008 ADU. set-03 sky bg
-~57 ADU above offset: heavily underexposed (ISO 200 is below the
-Z6III's second gain stage) — MW-band signal/grain ≈ 1 at 8.75 min;
-**quality is exposure-limited, not process-limited.** Stars are
-uniformly elongated by in-exposure trailing (25s ≈ 2× rule-of-500 at
-38 mm): the crispness ceiling, not misregistration.
+flats 100×1/160s at ~27% scale (under the ~50% goal; MacBook-grid
+~0.3% RMS — harmless, avoidable). Sensor offset ≈ 1008 ADU; set-03
+sky ~57 ADU above offset at ISO 200 (below the Z6III's second gain
+stage): heavily underexposed, MW-band signal/grain ≈ 1 at 8.75 min —
+**quality is exposure-limited, not process-limited** — and stars are
+uniformly trailed in-exposure (25 s ≈ 2× rule-of-500 at 38 mm): the
+crispness ceiling. The acquisition checklist below is the fix list.
 
 ## Current design (each piece carries its measured WHY)
 
@@ -634,7 +467,7 @@ per run; a recipe-less dataset renders generic and says so):
 | SPCC placement = pre-BGE | rerun on the BGE'd (gx + subsky 1) stack of the strongest-gradient field on hand (Sagittarius core, lpro_180s): K R0.370→0.371 / G,B unchanged / kept 1862→1887 of 5014 — per-star local-annulus photometry cancels the smooth background, so solve+SPCC stay a stack product ahead of the render's BGE; re-measure opportunistically when a DSLR-class pre-SPCC stack next exists |
 | no crop stage | canonical chains crop registration borders first; measured unnecessary here. Stack probe (set-03): borders carry only a smooth ±2σ level plane, MAD BELOW the core — no band at any depth 2–160 px. 128px/side trim render: color 2.0→2.0, grad 3.2→4.8, blotch 2.7→2.4, rings 3.1→4.4 (both PASS) — trimming improves NOTHING; the borders never flattered the gate. The 1.3–1.6pt grad/ring movements are frame-extent sensitivity (BGE refit + block grid + radial bins), so gate numbers compare only at a fixed extent; the trim also moved aura +4.0→+4.5 purely through the top-500 anchor population (scale-awareness entry in BACKLOG). Re-open only on a measured edge-driven FAIL |
 | bge_first order | MW +38 survives star-ful BGE; starless BGE kills it (+0.4) |
-| stretch_linked auto | class-resolved: broadband → linked (unlinked = per-channel noise → chroma blotches, the "rainbow" engine; on a calibrated stack linked PASSES 2.8/1.2/1.8 and cuts blotches ~12% at source); narrowband palette (recipe spcc.narrowband) → perline (one linked MTF passes the 5× Ha/O3 line ratio through — rim +50 vs +15 counts8, sphere drowned at 0.3σ/px of 53-count chroma grain; sky-anchored unlinked is a no-op after BGE+SPCC, dead ends). perline+finishing on the SHO target: gate FULL-PASS incl. colour 3.0 (linked control: colour 11.0 scope-FAIL), grad/blotch 0.0, sky clip0 0% — the first lifted narrowband render to pass the colour scope (hue rotation + SCNR move the flood out of its failure mode; the gated lift never touches the sky) |
+| stretch_linked auto | class-resolved: broadband → linked (unlinked = per-channel noise → chroma blotches, the "rainbow" engine; on a calibrated stack linked PASSES 2.8/1.2/1.8 and cuts blotches ~12% at source); narrowband palette (recipe spcc.narrowband) → perline (one linked MTF passes the 5× Ha/O3 line ratio through — rim +50 vs +15 counts8, sphere drowned at 0.3σ/px of 53-count chroma grain; perline renders sphere interior O3/Ha 1.05 vs linked 0.50 at chroma grain 8.9 vs 59 MAD; sky-anchored unlinked is a no-op after BGE+SPCC, dead ends). perline+finishing on the SHO target: gate FULL-PASS incl. colour 3.0 (linked control: colour 11.0 scope-FAIL), grad/blotch 0.0, sky clip0 0% — the first lifted narrowband render to pass the colour scope (hue rotation + SCNR move the flood out of its failure mode; the gated lift never touches the sky) |
 | perline_scale 0.5 | the per-line stretch's sky noise-width budget (%): solved gammas S2 9.79 / Ha 4.27 / O3 3.94 land widths 0.485–0.496% at sky 7.0%, clip0 ~0 — each starved line stretched hardest, all to the SAME noise-relative depth; the reference corpus author's published value for this dataset (his 2021 revision used 2.0, unreachable here below the gamma-10 ceiling — all lines cap at 10.000, widths 0.49–0.78%, stated per run) |
 | ppgamma 2.7 / ppsigma 1.0 | post-peak partial gamma on Luv L above sky+1σw, as an RGB-ratio-preserving gain (max gain ×3.72 measured); chroma never stretched — the anti-mottle property; author's published values |
 | satgamma 1.1 | LCh chroma gamma above the same gate (Cref = p99.9 of gated chroma); author's 2020 value (1.4 in his 2021 revision) |
@@ -711,32 +544,17 @@ until a recipe opts in with a measured reason; NO dataset pins one
 (low-spread weighting measured actively harmful — the dead-end entry
 carries the ramp numbers — and the honest corpus 2.0–34.0% CV all
 stacked clean unweighted).
-MECHANISM VERIFIED (2026-07-12, pre-registered runs on colonnello-m20
-lights_Blue, 16×80 s mono B, fwhm_cv_pct 7.42; pinned member stack
-mv'd aside/restored, experimental stacks under tagged names, nothing
-pinned; full probe log in the session's
-work/stack_policy_mechanism_findings.md):
-(a) weight — `-weight=wfwhm` runs end-to-end on the r_ sequence
-(regdata carries through BOTH seqapplyreg and direct register —
-probed on all four stack-path mechanisms). The no-op PREDICTION WAS
-KILLED: siril 1.4.4's weight scheme is a MIN-MAX RAMP — at CV 7.4%
-weights still span 1.93 (wfwhm 3.14) down to −0.00 (4.25), the worst
-frame effectively dropped regardless of spread; N_eff 11.9 of 16 →
-statistical-sky noise +20.7% vs control (inspection 10.93%→11.62% at
-bg 181.7→206.3 counts16) and a +24-count16 sky pedestal (ramp
-weights correlate with session sky drift). Same ramp on nbstars (5%
-star-count spread → full 0→2.15 range). Siril weighting is
-SOFT-CULLING, all noise cost at low spread — the measured number
-behind the ratified OFF-generically doctrine; the set-03-era "~6%
-spread → no-op" line was an unrun prediction, and its dead-end entry
-now carries these numbers (low-spread weighting is actively harmful,
-not null).
-(b) exclude — `unselect r_pp_light 9 9` flips exactly I-line 9;
-plain `stack` IGNORES manual selection (16 stacked, byte-identical
-to control — `-filter-incl` is MANDATORY with any exclude);
-`stack -filter-incl` integrates exactly 15/16, noise ×1.0278 vs
-control (predicted √(16/15)=1.0328), median +0.06% — both
-predictions CONFIRMED.
+Mechanism verification (2026-07-12, pre-registered on colonnello-m20
+lights_Blue, 16×80 s mono B, fwhm_cv 7.42; pinned stack mv'd
+aside/restored, experimental stacks preserved tagged, nothing
+pinned): `-weight=wfwhm` ran end-to-end on the stacked r_ sequence
+on both r_-producing mechanisms; the no-op prediction was KILLED —
+the wFWHM dead-end entry now carries the measured ramp numbers.
+Exclude: unselect flipped exactly the named I-line; plain `stack`
+ignored the selection (byte-identical output — `-filter-incl`
+mandatory); `-filter-incl` integrated exactly 15/16 at noise ×1.0278
+(predicted √(16/15)=1.0328) — both predictions confirmed, and the
+positional-unselect mis-map guard was exercised both ways.
 
 ## Per-stage expectations (inspection contract)
 
