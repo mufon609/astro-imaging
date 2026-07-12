@@ -309,6 +309,29 @@ Bars: aura_lum within bound on set-03, 100% field-star flux + knot
 preservation on M74, byte-determinism, and like-encoding panels for anything
 that changes an approved look.
 
+### C9 — Survey-referenced background separation (the long-term professional direction)
+
+From a single image alone, no estimator can distinguish frame-filling
+faint nebulosity from sky gradient at similar spatial scales — every
+failure in the retention ledger (SHO Bubble 75–98% absorbed, SMC 27%,
+set-02 dust 22–29%) is this one information gap wearing different
+data. The industry's emerging answer is EXTERNAL knowledge:
+PixInsight's MultiscaleGradientCorrection subtracts a calibrated
+all-sky survey reference (the MARS database) so the background model
+comes from survey truth instead of the image's own statistics; manual
+DBE sample placement encodes the same knowledge by hand. This
+pipeline already plate-solves every stack, so the same move is open
+to us: fetch a low-resolution reference of the solved field (dust-map
+/ survey class TBD — IRAS/Planck dust maps are the classic prior;
+licensing, resolution and photometric-scale questions are the
+research half) and use it to VETO background samples on known
+nebulosity — C19's significance mask upgraded from image-statistics
+to sky-truth. Research first (sources, licenses, resolution limits at
+35″/px wide fields vs 1″/px scopes), then design as an OPTIONAL
+sample-veto layer on the C19 mechanism — never a hard dependency
+(offline operation must survive). Blocked by: C19 (the mechanism it
+feeds).
+
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 
 Siril's docs now position GHS as the most capable stretch ("rarely advisable"
@@ -503,9 +526,17 @@ complements the object-integrity audit's retention traces).
 
 ### C19 — Constrained background extraction v2 for gradient + object fields
 
-The trigger case exists (the SMC: a real coloured higher-order LP
+TWO trigger cases exist. (1) The SMC: a real coloured higher-order LP
 gradient AND a frame-filling faint envelope — `gx` keeps 27% of the
-faint band, `plane` keeps 38% by tilting into it and fails colour 13)
+faint band, `plane` keeps 38% by tilting into it and fails colour 13.
+(2) session_02/set-02's compact diffuse dust (user-identified, final
+coords ~(3639,270); the acceptance judge is the user's eyes THERE):
+wispy +1.44 / blob +1.73 c16 over local sky linear — gx keeps 22–29%
+(50–150 px faint wisps sit inside its absorbable range), plane keeps
+~110% but ships the sky envelope the user rejected (vignette residual
++ glow: this set's flats were unusable, so the envelope is calibration
+debt a proper flat would mostly retire — background extraction must
+not be the rescue for calibration debt)
 and the v1 implementation (`bgelin_mode rbf`: GraXpert classical RBF
 via `-preferences_file` on pipeline-generated off-object samples) is
 MEASURED FAILING with two independent modes that define the v2 work:
