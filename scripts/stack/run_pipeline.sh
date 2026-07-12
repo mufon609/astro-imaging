@@ -536,17 +536,28 @@ if [[ $(wc -l <<<"$lopt") -ne 1 ]]; then
   echo "WARNING: mixed focal/aperture inside $SET — homography registration absorbs scale, but vignetting varies between frames"
 fi
 
-# A flat is usable only if flats AND biases exist (flat calibration needs the
-# bias) and the flats' optics match this set. Otherwise: self-flat path.
-FLATOPT=""
-if [[ -d "$S/flats" && -d "$S/biases" ]]; then
+# A flat is usable when flats exist and their optics match this set. Flat
+# calibration removes the offset with a bias master when biases/ holds
+# frames; with no biases the flats calibrate with siril's documented
+# SYNTHETIC bias for modern CMOS (-bias="=N", N = the measured master-dark
+# median ADU — at any dark exposure this sensor's dark median equals the
+# bias level, and the flat term only needs the offset removed). No flats
+# (or an optics mismatch): self-flat path.
+FLATOPT="" FLATBIAS=""
+if [[ -d "$S/flats" ]]; then
   fopt="$(optics "$S/flats")"
   if [[ "$lopt" == "$fopt" ]]; then
     IFS=$'\t' read -r fexp fiso <<<"$(uniform "$S/flats")"
-    IFS=$'\t' read -r bexp biso <<<"$(uniform "$S/biases")"
-    echo "flats: ${fexp}s ISO${fiso} | biases: ${bexp}s ISO${biso}"
+    if [[ -d "$S/biases" && -n "$(raw_find "$S/biases")" ]]; then
+      FLATBIAS="classic"
+      IFS=$'\t' read -r bexp biso <<<"$(uniform "$S/biases")"
+      echo "flats: ${fexp}s ISO${fiso} | biases: ${bexp}s ISO${biso}"
+      [[ "$biso" == "$liso" ]] || echo "WARNING: biases ISO${biso} != $SET ISO${liso}"
+    else
+      FLATBIAS="synth"
+      echo "flats: ${fexp}s ISO${fiso} | biases/ EMPTY or absent — flats will calibrate with a SYNTHETIC bias (measured master-dark median; the documented CMOS offset handling). Real biases win whenever they exist."
+    fi
     [[ "$fiso" == "$liso" ]] || echo "WARNING: flats ISO${fiso} != $SET ISO${liso}"
-    [[ "$biso" == "$liso" ]] || echo "WARNING: biases ISO${biso} != $SET ISO${liso}"
     FLATOPT="-flat=masters/flat_master -equalize_cfa"
   else
     echo "WARNING: flats optics ($(tr '\t' '/' <<<"$fopt" | tr '\n' ' ')) != $SET optics ($(tr '\t' '/' <<<"$lopt" | tr '\n' ' '))"
@@ -557,7 +568,7 @@ else
 fi
 
 # --- masters (only the ones this run uses) -----------------------------------
-if [[ -n "$FLATOPT" ]]; then
+if [[ "$FLATBIAS" == "classic" ]]; then
   if fresh "$W/masters/bias_master.fit" "$S/biases" "$W/masters/bias.manifest"; then
     echo "=== master bias up to date, skipping ==="
   else
@@ -590,10 +601,39 @@ else
   rm -f "$W"/dark_*
 fi
 
+# Synthetic-bias flat master builds AFTER the dark (its bias value is the
+# dark's measured median); the generated script is the tracked
+# master_flat.ssf with only the -bias= argument substituted.
+if [[ "$FLATBIAS" == "synth" ]]; then
+  if fresh "$W/masters/flat_master.fit" "$S/flats" "$W/masters/flat.manifest" \
+     && [[ "$W/masters/flat_master.fit" -nt "$W/masters/dark_master.fit" ]]; then
+    echo "=== master flat up to date, skipping ==="
+  else
+    MEDADU=$(python3 -c "
+import sys
+sys.path.insert(0, '$REPO/scripts/lib')
+import astrometrics as am
+import numpy as np
+d, _ = am.read_fits(sys.argv[1])
+print(int(round(float(np.median(d)) * 65535.0)))
+" "$W/masters/dark_master.fit") || { echo "ERROR: master-dark median measurement failed" >&2; exit 1; }
+    echo "=== master flat (synthetic bias =${MEDADU} ADU, measured master-dark median) ==="
+    rm -f "$W/masters/flat_master.fit"
+    sed "s|-bias=masters/bias_master|-bias=\"=${MEDADU}\"|" \
+        "$REPO/scripts/stack/siril/master_flat.ssf" > "$W/master_flat_synth.gen.ssf"
+    siril_run "$W/master_flat_synth.gen.ssf"
+    printf '%s\n' "-bias=\"=${MEDADU}\"" > "$W/masters/flat_bias_provenance.txt"
+    manifest "$S/flats" > "$W/masters/flat.manifest"
+    rm -f "$W"/flat_* "$W"/pp_flat_*
+  fi
+fi
+
 # masters inspection (WARN-only, every run): a bad flat/dark otherwise
 # surfaces only downstream as a stack gradient or dust ring
-if [[ -n "$FLATOPT" ]]; then
+if [[ "$FLATBIAS" == "classic" ]]; then
   INS stage master_dark --in "$W/masters/bias_master.fit" --label bias
+fi
+if [[ -n "$FLATOPT" ]]; then
   INS stage master_flat --in "$W/masters/flat_master.fit"
 fi
 INS stage master_dark --in "$W/masters/dark_master.fit" --label dark

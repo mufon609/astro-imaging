@@ -126,6 +126,38 @@ context.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
+### C1 — Flat USABILITY gate in the raw-path preflight (awaits pick-up ranking)
+
+The preflight accepts any flats whose optics match the set, but a flat can
+be present, matched, and WRONG: session_02's flats carried ~3× extra
+corner falloff from a non-uniform light source (flat corner/center
+0.165–0.21 vs the lights' own sky falloff 0.52–0.72) and would have
+over-brightened corners ~3–5× through division. The `master_flat`
+inspection already WARNs on exactly this (corner_over_center < 0.35) but
+inspection never routes. Add a measured usability check to the raw-path
+preflight: build the master flat, compare its corner/center against the
+lights' own sky falloff (a dark-subtracted median probe of a few lights —
+the sky IS a uniform source through the same optics), and route to
+self-flat LOUDLY with both numbers when they disagree beyond a calibrated
+bound. The flat stays on disk as evidence; the route decision prints its
+numbers. Keep the check cheap (a few frames, coarse grid).
+
+### C2 — Integrate the partitioned runner: auto-route + inspection stages (awaits pick-up ranking)
+
+`partitioned_stack.py` (common-reference partitioned integration for
+sets whose intermediates exceed free disk) runs standalone and proved
+the mechanism set on session_02 (240×24.5 MP on ~5 GB free). Two
+integration steps remain: (1) run_pipeline.sh computes the projected
+single-pass footprint (frames × per-frame stage cost vs `df`) and
+routes to the partitioned runner loudly when the monolithic path cannot
+fit — mirroring the self-flat auto-route pattern; (2) the runner emits
+the standard per-stage inspection (INS master/calibrated/reg/stack) —
+session_02's unusable flat sailed past the runner precisely because the
+INS stages were skipped there (the standing audit caught it the moment
+it was invoked); wire them in so the partitioned path carries the same
+review contract as the monolithic one. Byte-inert for every set the
+monolithic path still serves.
+
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
 The self-flat branch accumulates four full frame sequences in `work/`

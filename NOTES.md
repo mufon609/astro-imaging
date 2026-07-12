@@ -182,6 +182,44 @@ never let it grow narrative.
   pass with margin; an injected 8-count gradient / ring / colour cast
   FAILS. SPCC runs sensor-null: grounding it in the real train response
   is measured immaterial on the one chip with a database curve (below).
+- **session_02/set-02 IN-FLIGHT (2026-07-12)** — Z6III 240×10 s ISO1600
+  34.5 mm f/4, one continuous 48-min run (no cadence gaps), 14-bit
+  **Lossless NEF** (first direct-NEF ingest — the DNG ledger bandaid
+  goes unused). **The session's flats are measured-UNUSABLE**: corner/
+  center 0.165–0.21 on every CFA site vs the lights' own sky falloff
+  0.52–0.72 (dcraw document-mode probe) — the flat light source added
+  ~3× extra corner falloff, so division would over-brighten corners
+  ~3–5× (a partition stacked through it read G median 271 vs ~190
+  expected). The standing `master_flat` inspection catches exactly
+  this (WARN corner_over_center 0.165 < 0.35 bound; level 0.9% — the
+  flats are also ~9× underexposed, G FPN 0.47%/px) — the defect
+  initially sailed through because the partitioned runner skipped the
+  INS stages; inspection is not optional plumbing. Set routed to the
+  partitioned SELF-FLAT branch (V from 16 measured-clear frames).
+  **Biases ABSENT** → the synthetic-bias fallback is now in
+  run_pipeline (siril's documented CMOS offset handling, `-bias="=N"`,
+  N = measured master-dark median — verified: pp_fl median == flat −
+  1007 exactly); moot for this set once the flats were condemned, but
+  the capability is generic and stays. A cloud passage crosses the set
+  (previews: bright band ~frames 168–214 peaking at 6.8% frame area;
+  sentinel LINEAR regdata says attenuation, not blur: bg +8.6%,
+  nstars −11%, fwhm UNCHANGED 2.58–2.60 px). Disk forces partitioned
+  integration (~70 GB single-pass intermediates vs ~5 GB free):
+  common-reference partitions → pooled per-frame regdata → per-
+  partition `rej 3 3 -norm=addscale` stacks → siril mean combine.
+  **PRE-REGISTERED CULL EXPERIMENT** (decided before any production
+  stack ran): rung E1 = exclude frames flagged by pooled robust z,
+  defect-side ≥ 3.5 (bg+ / nstars− / fwhm+ / round−) over all 240
+  frames' registration regdata, plus any match-failures; control
+  E0 = no exclusion; E2 = the full preview-visible band, run ONLY if
+  E1's stack carries band residue. H1: E0 ≈ E1 on statistical-sky
+  noise + dark-sky p2v (per-pixel rejection + addscale absorb a
+  minority-area moving band — the SHO dawn-glow precedent). H2: E2
+  costs ≈ √(frame-ratio) ≈ +12% sky noise for no defect benefit.
+  Decision rule: adopt the smallest exclusion whose stack is
+  defect-free (dark-sky p2v, band-zone residue vs clear-zone, star
+  metrics); on a tie prefer inclusion (community + repo doctrine:
+  photons outrank culling).
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -689,6 +727,16 @@ Separation on resolved objects:
   render path, never StarNet2.
 
 Detection/solve/registration:
+- CFA-lattice (undebayered) registration as a frame-QA instrument →
+  false positives on cloud texture. Measured (6-frame control, 3 clear
+  + 3 cloud-band): the 2-pass reference chooser PICKED a band frame —
+  cloud texture reads as detections (nstars 1899 vs clear 1848, fwhm
+  2.83 ≈ stellar) — and the adjacent band frames cross-matched each
+  other on cloud structure (near-identity H) while a clear frame
+  FAILED. The same six frames debayered: reference lands clear, all
+  three band frames fail matching, clear frames register. Frame QA and
+  registration run on DEBAYERED calibrated data only; the CFA
+  shortcut's disk savings are not worth a poisoned instrument.
 - Siril internal solver on these ultra-wide trailed fields → fails
   star matching at 52° AND 26° even with the local Gaia catalog and
   correct center. astrometry.net blind solve from coarse PEAK
@@ -801,11 +849,20 @@ Prediction inversions worth remembering (recorded, instructive):
 - MORE integration: MW-band signal/grain ≈ 1 at 8.75 min ISO 200 —
   every processing knob is polishing presentation until photons improve
 - Flats per focal length used that night, BEFORE touching the zoom;
-  histogram peak ~50% (1/50s at the Jul-5 screen brightness); diffuse
-  the screen (cloth over lens + distance — the pixel grid showed at
-  ~0.3% RMS)
+  histogram peak ~50% — METER IT, don't trust a shutter value (Jul-5:
+  1/160 s landed ~27%; session_02: 1/640 s landed ~6% = a visibly
+  noisy master; ~1/50 s at the Jul-5 screen brightness was right);
+  diffuse the screen (cloth over lens + distance — the pixel grid
+  showed at ~0.3% RMS)
+- VERIFY the flat source is uniform: shoot one flat, rotate the camera
+  180° against the source, shoot another — the two corner/center
+  ratios must match (session_02's flats carried ~3× extra source
+  falloff over the lens's real vignette and were unusable; the lights'
+  own sky is the cross-check: sky corner/center ≈ lens falloff)
 - Darks same exposure/ISO at night temps; biases at the flats' shutter
-  (= exact flat-darks)
+  (= exact flat-darks). Missing biases degrade to the documented
+  synthetic-offset fallback (fine for the flat term) — shoot them
+  anyway; they are 30 seconds of work
 - Lock the zoom ring (tape); don't touch the camera mid-set (set-03's
   37→38 mm step happened at a handled pause)
 - Dither between subs; avoid the moon (star fringes on trailed PSFs

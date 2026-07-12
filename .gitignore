@@ -43,3 +43,6 @@ __pycache__/
 # Root-level images are user judgment screenshots (working files, never repo data)
 /*.png
 /*.jpg
+
+# macOS Finder droppings (frames copied from a Mac)
+.DS_Store
