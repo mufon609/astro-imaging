@@ -673,9 +673,11 @@ Consumers: deconvolution eligibility reads `fwhm_med_px` (sampling —
 hoo's extracted lines measure 1.58–1.61 px, undersampled, the drizzle
 case) + `fwhm_cv_pct`/`round_med` (PSF stability); the acquisition
 checklist reads the per-frame flags. Weighting/culling POLICY is
-deliberately not here — ratification-gated proposal in BACKLOG, stack
-defaults untouched (the wFWHM dead end is a set-03 DEFAULT fact at ~6%
-spread, not a per-dataset ban).
+deliberately not here — its shape is RATIFIED (2026-07-12, the BACKLOG
+entry is the contract) with implementation pending as its own
+declared-delta session; stack defaults stay untouched until then (the
+wFWHM dead end is a set-03 DEFAULT fact at ~6% spread, not a
+per-dataset ban).
 
 ## Per-stage expectations (inspection contract)
 

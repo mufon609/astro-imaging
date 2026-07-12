@@ -24,16 +24,17 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C18 → C6 → B1 → C4 → C11 →
-C14 → C12/C7/C3/C15** (C18 leads: direct user directive; the other two
+asks "what next", take: **C1 → C18 → C6 → B1 → C4 → C11 →
+C14 → C12/C7/C3/C15** (C1 leads: its policy shape was ratified
+2026-07-12 with the user directing immediate continuation; C18 next:
+direct user directive; the other two
 former leads closed — the class-triage checklist shipped into README,
 and C17's report-card half shipped with its preset half moving to the
 awaiting-inputs tier below, its redesigned scope needing user
 ratification).
 C8 and C10 run when their external/user inputs arrive, C17's preset
 half on its ratification; C16 (new, user-specified) awaits its
-ratified position; C1 (stack weighting/culling policy) awaits its
-ratification; C13 after its
+ratified position; C13 after its
 industry-norm research; C5 only on a measured solve failure; A3 in a
 session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
@@ -125,13 +126,16 @@ context.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
-### C1 — Stack weighting/culling policy (ratification-pending proposal)
+### C1 — Stack weighting/culling policy (RATIFIED; implementation pending)
 
 The measurement half exists: the registration inspection records
 per-frame FWHM/wFWHM/roundness/background/star-count distributions and
 flags outlier frames on every run. This entry is the POLICY half —
-proposed, research-grounded, and awaiting USER RATIFICATION; nothing
-touches any stack default without it.
+**RATIFIED by the user 2026-07-12 exactly as below**; what remains is
+the implementation, shipped as its own one-knob, declared-delta
+session. No stack default changes: ABSENCE of the recipe block is the
+generic default, so implementing the surface is byte-inert everywhere
+until a dataset's recipe opts in with a measured reason.
 
 - **Recipe surface:** an optional `"stack"` block in recipe.json —
   `{"weight": "wfwhm"|"nbstars"|null, "exclude": [frame numbers]}` —
@@ -157,9 +161,9 @@ touches any stack default without it.
   crispness gain — is the standing cost warning).
 - One knob per experiment; any weight/cull change rebuilds the stack =
   declared delta through gate + inspection + the user's eyes on the
-  render downstream.
-
-**Blocked by:** user ratification of this policy shape.
+  render downstream. Frame identity in `exclude` = the sequence file
+  numbers the registration inspection records as `n` (the same numbers
+  its outlier flags name).
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
