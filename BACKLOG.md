@@ -24,7 +24,7 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C18 → C6 → B1 → C9 → C4 → C11 →
+asks "what next", take: **C18 → C6 → B1 → C4 → C11 →
 C14 → C12/C7/C3/C15** (C18 leads: direct user directive; the other two
 former leads closed — the class-triage checklist shipped into README,
 and C17's report-card half shipped with its preset half moving to the
@@ -32,7 +32,8 @@ awaiting-inputs tier below, its redesigned scope needing user
 ratification).
 C8 and C10 run when their external/user inputs arrive, C17's preset
 half on its ratification; C16 (new, user-specified) awaits its
-ratified position; C13 after its
+ratified position; C1 (stack weighting/culling policy) awaits its
+ratification; C13 after its
 industry-norm research; C5 only on a measured solve failure; A3 in a
 session scoped to it. The order
 optimizes for the north star: capability breadth first (any data class),
@@ -124,6 +125,42 @@ context.
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
 
+### C1 — Stack weighting/culling policy (ratification-pending proposal)
+
+The measurement half exists: the registration inspection records
+per-frame FWHM/wFWHM/roundness/background/star-count distributions and
+flags outlier frames on every run. This entry is the POLICY half —
+proposed, research-grounded, and awaiting USER RATIFICATION; nothing
+touches any stack default without it.
+
+- **Recipe surface:** an optional `"stack"` block in recipe.json —
+  `{"weight": "wfwhm"|"nbstars"|null, "exclude": [frame numbers]}` —
+  read by run_pipeline at stack time; absent/null = today's behaviour
+  (unweighted `rej 3 3`), provenance printed like every render knob.
+- **Weighting doctrine:** siril 1.4.4 exposes
+  `-weight={noise|wfwhm|nbstars|nbstack}`. `noise` carries the failure
+  mode PixInsight abandoned when WBPP moved to PSF Signal Weight
+  (2021): noise/SNR weights are positively biased by sky brightness —
+  thin cloud reads as signal, promoting the worst frames — so the
+  star-anchored `wfwhm` is the only candidate direction here. OFF
+  generically: the dead-end registry's wFWHM no-op at ~6% FWHM spread
+  stands; the measured trigger for a per-dataset ladder is a recorded
+  fwhm_cv_pct well above that regime (the honest corpus spans
+  2.0–34.0%) or recorded cloud-class outlier flags.
+- **Culling doctrine:** rejection + addscale normalization already
+  absorb transients AND frame-level excursions (measured: the SHO
+  corpus's dawn-glow final frames, bg z +10.9…+119, stacked into the
+  approved base); culling is justified only for frame-wide
+  PSF/geometry damage. Never automatic: `exclude` is explicit
+  per-dataset state, adopted only through a with-vs-without ladder
+  (the 38mm-subset dead end — full √(18/11) noise penalty for zero
+  crispness gain — is the standing cost warning).
+- One knob per experiment; any weight/cull change rebuilds the stack =
+  declared delta through gate + inspection + the user's eyes on the
+  render downstream.
+
+**Blocked by:** user ratification of this policy shape.
+
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
 The self-flat branch accumulates four full frame sequences in `work/`
@@ -166,10 +203,11 @@ aarch64-capable options (verified July 2026):
   conservative settings, and judge against the classical result.
 
 Add the stage optional and off by default — but ELIGIBILITY IS MEASURED,
-not assumed: the per-frame assessment (C9) supplies the sampling ratio
-(measured FWHM vs pixel scale) and PSF stability, and the stage runs only
-when the data supports it, with the dataset recipe as the explicit
-override in both directions. Keep the measured set-03 SKIP as its removal
+not assumed: the registration inspection records supply the sampling
+ratio (fwhm_med_px vs the 2.0 px Nyquist floor, with its arcsec twin)
+and PSF stability (fwhm_cv_pct + round_med) per sequence, and the stage
+runs only when the data supports it, with the dataset recipe as the
+explicit override in both directions. Keep the measured set-03 SKIP as its removal
 condition. m74_toa130 (0.72"/px, 94 min) is the test case, and its
 `imx585c/reference/` master is the honest comparison target. Still no
 third option: BlurXTerminator is paid + x86-64 + AVX; Cosmic Clarity
@@ -225,14 +263,16 @@ package, not here. What remains:
   with the user before starting.
 - **Dual-band FULL-SIZE upgrade:** native half-size Ha stacked with 2×
   drizzle instead of downsampling OIII (the docs' quality path) — gated
-  on MEASURED dither coverage of the set. Coverage means sub-pixel
-  PHASE diversity of the per-frame shifts, and the inspection records
-  keep only shift RANGES (hoo_180s: 552.7/1.6 px Ha, 39.3/1.6 OIII —
-  amplitude is ample, phase unknown); the pruned `.seq` held the
-  per-frame list. Either extend INS reg to record per-frame shifts
-  (the per-frame quality stage supplies exactly this) or re-run the
-  line extraction + registration to measure. **Blocked by:** the
-  per-frame quality assessment entry (or a one-off re-registration).
+  on MEASURED dither coverage of the set, meaning sub-pixel PHASE
+  diversity of the per-frame shifts. The registration inspection now
+  records the full per-frame shift list + 4×4-bin phase coverage on
+  every run, and the gate question is ANSWERED for this set:
+  dither_phase_frac 0.69 per line (11/16 bins over 20 frames, Ha and
+  OIII alike — hoo_180s registration inspection record, 2026-07-12),
+  so phase diversity is confirmed and the upgrade is unblocked. The
+  motivation is also now on record: extracted-line FWHM measures
+  1.58–1.61 px (under the 2 px Nyquist floor — the half-size stacks
+  are undersampled; drizzle is the recovery path).
 
 Test data: the SHO corpus (mlnoga-ngc7635) stages via
 `~/.cache/astro_recovery/fetch_corpus.sh` (idempotent, disk-floor
@@ -271,24 +311,6 @@ The engine abstraction is in place (net/inpaint per recipe); the MODEL behind
 Bars: aura_lum within bound on set-03, 100% field-star flux + knot
 preservation on M74, byte-determinism, and like-encoding panels for anything
 that changes an approved look.
-
-### C9 — Per-frame quality assessment stage (measure what the data is)
-
-The pipeline reads acquisition METADATA at preflight but never measures
-the per-frame QUALITY distribution — the SubframeSelector/weighting step
-of the standard workflow, and the literal "assess the data before
-processing it" stage. Siril already writes per-frame FWHM/roundness into
-the registration `.seq` (inspect_stage parses that file for shifts);
-extend the parse and add an INS stage after registration reporting the
-distribution — FWHM median + spread, roundness, background level drift
-across the sequence — with per-frame outliers flagged. Policy stays
-measured: culling/weighting remain OFF by default (the wFWHM no-op is a
-set-03 fact at 6% spread, not a law); a dataset whose measured spread
-justifies it gets a one-knob ladder via its recipe. Feeds: deconvolution
-eligibility (C4: sampling ratio + PSF stability), the acquisition
-checklist feedback loop (drift and passing clouds become visible per
-frame), and honest per-class decisions everywhere a "the data supports
-X" question arises. **Blocks:** C4 (eligibility inputs).
 
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 

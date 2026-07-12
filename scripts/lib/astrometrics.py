@@ -73,6 +73,28 @@ def fits_dims(path):
             int(re.search(r"NAXIS2\s*=\s*(\d+)", raw).group(1)))
 
 
+def fits_pixel_scale(path):
+    """Pixel scale (arcsec/px) derived from the FOCALLEN (mm) + XPIXSZ (µm)
+    header cards: 206.265·XPIXSZ/FOCALLEN — the same derivation the
+    plate-solve scale hint uses, so recorded FWHM numbers stay
+    rig-interpretable without any configured constant. None when either
+    card is absent or degenerate (callers report px-only and say so
+    rather than inventing a scale)."""
+    import re
+    raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
+    fl = re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw)
+    px = re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw)
+    if not fl or not px:
+        return None
+    try:
+        fl_v, px_v = float(fl.group(1)), float(px.group(1))
+    except ValueError:
+        return None
+    if fl_v <= 0 or px_v <= 0:
+        return None
+    return 206.265 * px_v / fl_v
+
+
 def load_linear(path):
     """Processing-input loader: FITS ONLY. Display-referred / lossy files
     (jpg, png) exist solely as QA, gate and judgment surfaces — a

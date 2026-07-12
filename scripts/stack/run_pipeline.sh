@@ -368,8 +368,8 @@ fits_ingest() {
       | grep -oE '[0-9]+ registered' | grep -oE '[0-9]+')
     if [[ ${#RCOUNTS[@]} -eq 2 ]]; then
       echo "=== registration: Ha ${RCOUNTS[0]}/$NF, OIII ${RCOUNTS[1]}/$NF (ref $MID) ==="
-      INS reg --registered "${RCOUNTS[0]}" --total "$NF" --ref "$MID" --seq "$W/Ha_pp_light_.seq"
-      INS reg --registered "${RCOUNTS[1]}" --total "$NF" --ref "$MID" --seq "$W/OIII_pp_light_.seq"
+      INS reg --label Ha --registered "${RCOUNTS[0]}" --total "$NF" --ref "$MID" --seq "$W/Ha_pp_light_.seq"
+      INS reg --label OIII --registered "${RCOUNTS[1]}" --total "$NF" --ref "$MID" --seq "$W/OIII_pp_light_.seq"
       reg_floor "${RCOUNTS[0]}" "$NF" "$W/lights_run.log" "Ha line"
       reg_floor "${RCOUNTS[1]}" "$NF" "$W/lights_run.log" "OIII line"
     else

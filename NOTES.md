@@ -634,6 +634,49 @@ is a TREND, no bound — honest PSF fringe dominates it and a fixed bound
 cries wolf on clean renders); black_point clip0 sky; stars anchor +
 MTF low-end gain (drift watch); star metrics.
 
+**Per-frame quality assessment (the registration inspection)** — the
+standard workflow's SubframeSelector step, measurement half only,
+WARN-only, on every stack path (matched-flat, self-flat, FITS,
+dual-band per line). At each runner `INS reg` call — BEFORE per-stage
+cleanup prunes the sequence — `inspect_stage.py` parses the .seq
+regdata siril already computed during registration (structure verified
+against siril 1.4.4 seqfile.c: per frame fwhm, wfwhm, roundness,
+quality, background, nstars + frame→reference homography) and persists
+the full per-frame records + a .seq copy into the run's inspection
+dir. Units are derived, never configured: FWHM px AND arcsec
+(206.265·XPIXSZ/FOCALLEN from the sequence's own reference frame — the
+solve-hint derivation; missing cards → px-only, stated; the dual-band
+path's doubled XPIXSZ flows through, measured 4.00″/px on 1.99″/px
+data); background normalized to counts16 (raw regdata units are
+bitdepth-dependent — measured ADU-16 on 16-bit sequences, not [0,1]).
+The record carries the FULL SHIFT LIST (homography translation terms)
+plus 4×4-bin sub-pixel `dither_phase_frac` — the drizzle upgrade's
+gating record (hoo_180s: 0.69 per line). `wfwhm_excess_pct` reads
+matching LOSS distinctly from seeing (wfwhm = fwhm·(1 + 2·lost
+matches/ref stars), 1.4.4 source; honest corpus 1.6–85%). Per-frame
+outlier flags: robust z vs the sequence's own median/MAD, defect side
+only (fwhm+, bg+, round−, nstars−), threshold 3.5 — calibrated on the
+11-sequence corpus where non-event frames stay under |z|≈3.4 and every
+3.5+ flag maps to a physical event (SHO dawn-glow final frames bg z
++10.9…+119; hoo seeing excursions fwhm z +4.4/+5.5; smc trailing spike
+round −3.9 with nstars −13.6), each of which still stacked into an
+approved/passing base — WHY flags WARN and never cull. Distribution
+bounds are envelopes of the measured honest corpus (per-class
+subranges in the expectations row; the SELF-FLAT class contributed no
+sequence — wide_50mm's 28-frame D810A re-registration exceeds current
+free disk and set-03 is off-disk — so its first future run may WARN
+legitimately: revisit bounds there, don't ignore); per-dataset
+override = optional `frame_qa` block in recipe.json ({metric:
+[lo, hi]}, provenance printed; a stateless dataset degrades loudly to
+generic bounds).
+Consumers: deconvolution eligibility reads `fwhm_med_px` (sampling —
+hoo's extracted lines measure 1.58–1.61 px, undersampled, the drizzle
+case) + `fwhm_cv_pct`/`round_med` (PSF stability); the acquisition
+checklist reads the per-frame flags. Weighting/culling POLICY is
+deliberately not here — ratification-gated proposal in BACKLOG, stack
+defaults untouched (the wFWHM dead end is a set-03 DEFAULT fact at ~6%
+spread, not a per-dataset ban).
+
 ## Per-stage expectations (inspection contract)
 
 Mirrored in `inspect_stage.py EXPECTATIONS` (keep in sync). WARN-only —
@@ -650,7 +693,7 @@ data class may WARN legitimately — revisit bounds there, don't ignore.
 | subsky_frame | G median within ±10% of calibrated (tilt is INFO — bowl reads ~9–13% in any plane fit) |
 | gain | monotone non-increasing (THE ring guard); corner 0.38–0.58; gray (spread 0) |
 | divided | p2v(r≤0.85) ≤ 0.20; rim(r>0.9) ≤ 0.25 |
-| registration | registered/total ≥ 0.9 |
+| registration | registered/total ≥ 0.9; fwhm_cv_pct ≤ 45 (honest corpus: guided classes 2.0–16.2, multi-hour 400–600 s archive 21.6–34.0); round_med ≥ 0.30 (corpus 0.71–0.90; the trailed-tripod class ≈ 0.5 must pass); bg_span_pct ≤ 130 (stable classes 2.5–9.6; dawn-flank archive members 51–103); nstars_min_frac ≥ 0.35 (stable 0.74–1.00; dawn-flank 0.47–0.62); per-frame outliers flagged at robust z 3.5 defect-side (fwhm+/bg+/round−/nstars−); INFO: fwhm med px+arcsec (sampling ratio, scale printed), wfwhm excess (matching loss), dither phase coverage (4×4 bins), shift range |
 | stack | dark-sky p2v ≤ 0.20 on the statistical sky (a frame-filling object doesn't read as a defect); stars ≥ 300; noise/median, median16, sky_frac all INFO (ratios to an arbitrary pedestal / data-class facts) |
 | compose | median star-centroid offset between composed channels ≤ 1.0 px (the lines must overlay without a second interpolation pass); p95 INFO |
 

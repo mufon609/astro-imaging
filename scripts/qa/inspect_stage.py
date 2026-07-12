@@ -6,8 +6,18 @@ Usage:
   inspect_stage.py stage <stage-name> --dir <inspect-dir> --in F [F ...]
                    [--label L]
   inspect_stage.py reg   --dir <inspect-dir> --registered N --total M
-                   --ref R [--sweep "11:19,12:21"] [--seq seqfile]
+                   --ref R [--sweep "11:19,12:21"] [--seq seqfile] [--label L]
   inspect_stage.py report --dir <inspect-dir> [--title T] [--qa qa.txt]
+
+The reg call is the pipeline's per-frame quality assessment stage (the
+SubframeSelector step of the standard workflow, measurement half only):
+it parses the registration .seq regdata siril already computed — FWHM /
+wFWHM / roundness / background / star count / homography per frame — and
+persists the full per-frame records (including the shift list, the
+dither-phase input the drizzle path needs) into metrics.jsonl plus a .seq
+copy, BEFORE per-stage cleanup prunes the sequence. Distribution checks
+are WARN-only like every inspection; weighting/culling policy is a
+separate, ratification-gated layer and no default here.
 
 Stage names: calibrated, selfflat_median, subsky_frame, gain, divided, stack.
 
@@ -20,6 +30,7 @@ Inspection WARNs, it never fails a run — the hard gate stays bg_qa.py.
 import argparse
 import json
 import os
+import re
 import sys
 import numpy as np
 
@@ -78,6 +89,15 @@ EXPECTATIONS = {
     },
     "registration": {
         "reg_fraction": (0.9, None, "registered/total"),
+        "fwhm_med_px": (None, None, "INFO: sampling ratio — px per FWHM; < 2.0 is undersampled (Nyquist) where deconvolution has nothing to recover and drizzle becomes the upgrade path; a deconvolution eligibility input"),
+        "fwhm_med_arcsec": (None, None, "INFO: the same FWHM on the sky via the header-derived scale (206.265*XPIXSZ/FOCALLEN, the plate-solve hint derivation); null = header carries no FOCALLEN/XPIXSZ, px-only stated per run"),
+        "fwhm_cv_pct": (None, 45.0, "robust FWHM spread (1.4826*MAD/median) across included frames = PSF stability, a deconvolution eligibility input; measured honest corpus (11 sequences, 5 classes): guided short-sub classes 2.0-16.2%, a multi-hour 400-600s archive session 21.6-34.0% (seeing drift, still stacked clean) — the bound clears the worst honest case by ~1.3x"),
+        "round_med": (0.30, None, "median roundness fwhmy/fwhmx in (0,1]; measured honest corpus 0.71-0.90 (0.71 = Sigma-180 wide open); the trailed-tripod class (off-disk) reads ~2:1 elongation ~= 0.5 by its recorded star geometry and must pass — 0.30 sits under it with margin; below, stars are >3:1 streaks frame-wide"),
+        "bg_span_pct": (None, 130.0, "background level spread (p90-p10)/median of the PSF-fit local background — the cloud/glow drift detector; measured honest corpus: stable-sky classes 2.5-9.6%, dawn-flank archive members 51-103% (final-frame glow the rejection+normalization stack absorbed into an approved base) — the bound clears the worst honest case; a stable-rig dataset can tighten via recipe frame_qa"),
+        "nstars_min_frac": (0.35, None, "weakest frame's detected stars / sequence median — the cloud-hit / trailing-spike collapse detector (thin cloud kills the star count while RAISING the background); measured honest corpus: stable classes 0.74-1.00, dawn-flank members 0.47-0.62"),
+        "outlier_frames": (None, None, "INFO: frames flagged by robust z (|z|>3.5, the modified-z convention) on fwhm+/bg+/round-/nstars- vs the sequence's own distribution; the per-frame evidence list for any future recipe-level cull ladder — flags in the record, frames named in the report"),
+        "wfwhm_excess_pct": (None, None, "INFO: median wFWHM/FWHM - 1; wfwhm = fwhm*(1 + 2*(lost ref matches)/ref stars) per siril 1.4.4, so excess is matching LOSS (cloud/trailing), not seeing"),
+        "dither_phase_frac": (None, None, "INFO: fraction of 4x4 sub-pixel phase bins covered by the included frames' registration shifts — the dither-coverage input the full-size drizzle upgrade is gated on"),
     },
     "stack": {
         "p2v_inner_rel": (None, 0.20, "THE flatness check: radial P2V over r<=0.85 of the dark sky with extended objects excluded, so it measures the VIGNETTING RESIDUAL it exists to catch on any framing (empty field, off-centre object, or a galaxy at frame centre)"),
@@ -97,8 +117,13 @@ ORDER = ["master_dark", "master_flat", "calibrated", "selfflat_median",
          "compose"]
 
 
-def check(stage, metric, value):
+def check(stage, metric, value, bounds=None):
     lo, hi, note = EXPECTATIONS[stage][metric]
+    if bounds is not None:
+        # dataset recipe frame_qa override — same resolution direction as
+        # every knob (dataset state > generic), provenance stated in the note
+        lo, hi = bounds
+        note = f"{note} [dataset frame_qa bounds]"
     if value is None:
         return {"metric": metric, "value": None, "status": "INFO", "note": note}
     st = "PASS"
@@ -306,9 +331,64 @@ def handle_stage(args):
     emit(d, entry)
 
 
+def parse_seq_regdata(seqfile):
+    """Full parse of siril .seq registration data. Structure verified
+    against siril 1.4.4 (seqfile.c, R-line format v4+):
+
+        R<layer> fwhm wfwhm roundness quality background_lvl nstars H h00..h22
+
+    Semantics per the official regdata reference: fwhm = PSF fwhmx (px on
+    these unsolved work frames); roundness = fwhmy/fwhmx in (0,1];
+    background_lvl = PSF-fit local background, UNITS BITDEPTH-DEPENDENT
+    (measured on this rig's 16-bit sequences: 16-bit ADU counts, not
+    [0,1] — the caller normalizes to counts16 by value range); wfwhm =
+    fwhm*(1 + 2*(ref stars - matched)/ref stars) — a matching-loss metric;
+    quality is the planetary registration score (unset for star reg); H
+    maps this frame -> reference, h02/h12 = translation px. Returns
+    {"name", "fixed", "reference", "images": [(filenum, incl), ...],
+    "layers": {layer: [row, ...]}} or None when ANY line deviates from the
+    known structure — a siril format change must fall back loudly, never
+    mis-parse silently."""
+    try:
+        name, fixed, reference = None, 5, -1
+        images, layers = [], {}
+        with open(seqfile) as f:
+            for line in f:
+                if line.startswith("S "):
+                    m = re.match(
+                        r"S '(.*)' (-?\d+) (\d+) (\d+) (\d+) (-?\d+)", line)
+                    if not m:
+                        return None
+                    name = m.group(1)
+                    fixed = int(m.group(5))
+                    reference = int(m.group(6))
+                elif line.startswith("I "):
+                    t = line.split()
+                    if len(t) < 3:
+                        return None
+                    images.append((int(t[1]), int(t[2])))
+                elif line.startswith("R") and len(line) > 1 \
+                        and (line[1].isdigit() or line[1] == "*"):
+                    t = line.split()
+                    if len(t) < 17 or t[7] != "H":
+                        return None
+                    row = {"fwhm": float(t[1]), "wfwhm": float(t[2]),
+                           "round": float(t[3]), "quality": float(t[4]),
+                           "bg": float(t[5]), "nstars": int(t[6]),
+                           "H": [float(x) for x in t[8:17]]}
+                    layers.setdefault(t[0][1:], []).append(row)
+        if name is None or not images or not layers:
+            return None
+        return {"name": name, "fixed": fixed, "reference": reference,
+                "images": images, "layers": layers}
+    except (OSError, ValueError):
+        return None
+
+
 def parse_seq_shifts(seqfile):
-    """Best-effort: pull per-frame translation from siril .seq regdata
-    (9-float homography rows). Returns list of (dx, dy) or None."""
+    """Fallback shift extraction when parse_seq_regdata refuses a .seq
+    (unknown structure): pull per-frame translation from any 9-float
+    homography-looking window. Returns list of (dx, dy) or None."""
     try:
         shifts = []
         with open(seqfile) as f:
@@ -343,23 +423,220 @@ def handle_compose(args):
              "checks": checks})
 
 
+def _robust_z(vals):
+    """Per-value robust z vs the list's own median/MAD (1.4826*MAD ~ sigma).
+    MAD 0 (constant metric) -> all z 0: a flat distribution has no outliers."""
+    a = np.asarray(vals, dtype=float)
+    med = float(np.median(a))
+    s = 1.4826 * float(np.median(np.abs(a - med)))
+    return [(float(v) - med) / s if s > 0 else 0.0 for v in a]
+
+
+# Robust per-frame outlier flag threshold: the modified-z convention (a
+# metric 3.5 robust sigmas from the sequence's own median). Calibrated on
+# the 11-sequence on-disk corpus: non-event frames stay under |z| ~3.4,
+# while every flag at 3.5+ maps to an interpretable physical event —
+# dawn-glow frames at bg z +3.8..+119, seeing excursions at fwhm z
+# +4.4/+5.5, one trailing spike at round -3.9 with nstars -13.6.
+OUTLIER_Z = 3.5
+
+
+def _frame_qa_bounds(session, set_name):
+    """Per-dataset WARN-bound overrides: optional 'frame_qa' block in the
+    dataset recipe ({metric: [lo, hi]}), same resolution direction as every
+    knob (dataset state > generic). Returns ({metric: (lo, hi)}, provenance
+    string) — datasets without state degrade to the generic EXPECTATIONS
+    table, and the provenance line says which layer applied either way."""
+    if not (session and set_name):
+        return {}, "generic (no dataset context)"
+    p = os.path.join(am.dataset_dir(session, set_name), "recipe.json")
+    if not os.path.exists(p):
+        return {}, "generic (no dataset recipe)"
+    try:
+        fq = json.load(open(p)).get("frame_qa", {})
+    except (OSError, ValueError) as e:
+        return {}, f"generic (recipe unreadable: {e})"
+    known = set(EXPECTATIONS["registration"])
+    unknown = set(fq) - known
+    if unknown:
+        print(f"[inspect] WARNING: recipe frame_qa names unknown metrics "
+              f"{sorted(unknown)} — ignored (known: {sorted(known)})")
+    ov = {k: (v[0], v[1]) for k, v in fq.items() if k in known}
+    if ov:
+        return ov, "recipe frame_qa: " + ", ".join(
+            f"{k}={list(v)}" for k, v in sorted(ov.items()))
+    return {}, "generic (recipe has no frame_qa)"
+
+
+def _seq_frame_path(seqdir, name, fixed, filenum):
+    for ext in (".fit", ".fits", ".fts"):
+        p = os.path.join(seqdir, f"{name}{filenum:0{fixed}d}{ext}")
+        if os.path.exists(p):
+            return p
+    return None
+
+
 def handle_reg(args):
     d = args.dir
     os.makedirs(d, exist_ok=True)
     frac = args.registered / max(args.total, 1)
-    checks = [check("registration", "reg_fraction", frac)]
-    entry = {"stage": "registration", "label": None,
+    ov, prov = _frame_qa_bounds(args.session, args.set_name)
+
+    def rcheck(metric, value):
+        return check("registration", metric, value, bounds=ov.get(metric))
+
+    checks = [rcheck("reg_fraction", frac)]
+    entry = {"stage": "registration", "label": args.label,
              "inputs": [], "checks": checks,
              "registered": args.registered, "total": args.total,
              "ref": args.ref, "sweep": args.sweep}
+    print(f"[inspect] registration bounds: {prov}")
     if args.seq and os.path.exists(args.seq):
-        sh = parse_seq_shifts(args.seq)
-        if sh:
-            dx = [s[0] for s in sh]
-            dy = [s[1] for s in sh]
-            entry["shift_range_px"] = [round(max(dx) - min(dx), 1),
-                                       round(max(dy) - min(dy), 1)]
+        # Persist the ground truth alongside the parsed record: the .seq
+        # dies in per-stage cleanup, and a future format question is only
+        # answerable from the file itself (KB-scale, kept per run).
+        base = out_base(d, "registration", args.label)
+        with open(args.seq) as fsrc, open(base + ".seq", "w") as fdst:
+            fdst.write(fsrc.read())
+        entry["seq_copy"] = os.path.basename(base + ".seq")
+        parsed = parse_seq_regdata(args.seq)
+        if parsed is None:
+            print("[inspect] WARNING: .seq regdata structure not the known "
+                  "siril 1.4 form — per-frame stats NOT parsed (format "
+                  "change?); shift range from fallback heuristic only")
+            sh = parse_seq_shifts(args.seq)
+            if sh:
+                dx = [s[0] for s in sh]
+                dy = [s[1] for s in sh]
+                entry["shift_range_px"] = [round(max(dx) - min(dx), 1),
+                                           round(max(dy) - min(dy), 1)]
+        else:
+            _reg_frames(entry, checks, parsed, args, rcheck)
     emit(d, entry)
+
+
+def _reg_frames(entry, checks, parsed, args, rcheck):
+    """Per-frame quality records + distribution checks from parsed regdata.
+    Everything lands in the metrics.jsonl entry BEFORE the runner prunes
+    the sequence: records first, cleanup after."""
+    # registration layer = the layer that carries star data (green for
+    # colour by siril default, 0 for mono); a layer with no stars anywhere
+    # is transform-only padding
+    layers = {L: rows for L, rows in parsed["layers"].items()
+              if any(r["nstars"] > 0 or r["fwhm"] > 0 for r in rows)}
+    if not layers:
+        print("[inspect] WARNING: .seq carries no star regdata on any "
+              "layer — per-frame stats empty")
+        return
+    reg_layer = max(layers, key=lambda L: sum(r["nstars"]
+                                              for r in layers[L]))
+    rows = layers[reg_layer]
+    if len(rows) != len(parsed["images"]):
+        print(f"[inspect] WARNING: regdata rows ({len(rows)}) != images "
+              f"({len(parsed['images'])}) — per-frame stats skipped")
+        return
+
+    # pixel scale from the sequence's own reference frame header (frames
+    # still on disk at this point; the derivation is the plate-solve hint's)
+    seqdir = os.path.dirname(os.path.abspath(args.seq))
+    ref_i = parsed["reference"] if 0 <= parsed["reference"] < len(rows) \
+        else next((i for i, (_, inc) in enumerate(parsed["images"]) if inc),
+                  0)
+    spath = _seq_frame_path(seqdir, parsed["name"], parsed["fixed"],
+                            parsed["images"][ref_i][0])
+    scale = am.fits_pixel_scale(spath) if spath else None
+    if scale:
+        print(f"[inspect] registration scale: {scale:.3f} arcsec/px "
+              f"(FOCALLEN/XPIXSZ, {os.path.basename(spath)})")
+    else:
+        print("[inspect] registration scale: UNKNOWN (no FOCALLEN/XPIXSZ "
+              "in frame header) — FWHM px only")
+
+    # background_lvl units are sequence-bitdepth dependent (measured on this
+    # rig's 16-bit sequences: values land in 16-bit ADU counts, ~1060 on a
+    # ~958-count sky — NOT [0,1]); a float sequence stores [0,1]. Normalize
+    # to counts16 either way so the record reads like every other bg metric.
+    bgraw = [r["bg"] for r in rows if r["nstars"] > 0 or r["fwhm"] > 0]
+    bg_is_float = bool(bgraw) and max(bgraw) <= 1.5
+    frames = []
+    for (filenum, incl), r in zip(parsed["images"], rows):
+        has = r["nstars"] > 0 or r["fwhm"] > 0
+        frames.append({
+            "n": filenum, "incl": incl,
+            "fwhm_px": round(r["fwhm"], 3) if has else None,
+            "fwhm_arcsec": (round(r["fwhm"] * scale, 3)
+                            if has and scale else None),
+            "wfwhm_px": round(r["wfwhm"], 3) if has else None,
+            "round": round(r["round"], 4) if has else None,
+            "bg16": (round(r["bg"] * D16 if bg_is_float else r["bg"], 1)
+                     if has else None),
+            "nstars": r["nstars"] if has else None,
+            "quality": round(r["quality"], 6),
+            "dx": round(r["H"][2], 3), "dy": round(r["H"][5], 3)})
+    entry["seq_name"] = parsed["name"]
+    entry["reg_layer"] = reg_layer
+    entry["pixel_scale_arcsec"] = round(scale, 4) if scale else None
+    entry["frames"] = frames
+
+    sel = [f for f in frames if f["incl"] and f["fwhm_px"] is not None]
+    if not sel:
+        print("[inspect] WARNING: no included frame carries regdata — "
+              "distribution checks skipped")
+        return
+    fwhm = [f["fwhm_px"] for f in sel]
+    wfw = [f["wfwhm_px"] for f in sel]
+    rnd = [f["round"] for f in sel]
+    bg = [f["bg16"] for f in sel]
+    nst = [f["nstars"] for f in sel]
+    fmed = float(np.median(fwhm))
+    fmad = 1.4826 * float(np.median(np.abs(np.array(fwhm) - fmed)))
+    bmed = float(np.median(bg))
+    checks.append(rcheck("fwhm_med_px", fmed))
+    checks.append(rcheck("fwhm_med_arcsec",
+                         fmed * scale if scale else None))
+    checks.append(rcheck("fwhm_cv_pct",
+                         100.0 * fmad / fmed if fmed > 0 else None))
+    checks.append(rcheck("round_med", float(np.median(rnd))))
+    checks.append(rcheck("bg_span_pct",
+                         (100.0 * (float(np.percentile(bg, 90))
+                                   - float(np.percentile(bg, 10))) / bmed
+                          if bmed > 0 else None)))
+    checks.append(rcheck("nstars_min_frac",
+                         min(nst) / max(float(np.median(nst)), 1.0)))
+    checks.append(rcheck("wfwhm_excess_pct",
+                         (100.0 * (float(np.median(wfw)) / fmed - 1.0)
+                          if fmed > 0 else None)))
+
+    # per-frame outliers: each metric graded against the sequence's own
+    # distribution, defect side only (fwhm/bg high = seeing-focus/cloud;
+    # roundness/nstars low = trailing/cloud)
+    zf, zb = _robust_z(fwhm), _robust_z(bg)
+    zr, zn = _robust_z(rnd), _robust_z(nst)
+    outliers = []
+    for i, f in enumerate(sel):
+        flags = []
+        if zf[i] > OUTLIER_Z:
+            flags.append(f"fwhm+{zf[i]:.1f}z")
+        if zb[i] > OUTLIER_Z:
+            flags.append(f"bg+{zb[i]:.1f}z")
+        if zr[i] < -OUTLIER_Z:
+            flags.append(f"round{zr[i]:.1f}z")
+        if zn[i] < -OUTLIER_Z:
+            flags.append(f"nstars{zn[i]:.1f}z")
+        if flags:
+            outliers.append({"n": f["n"], "flags": flags})
+    entry["outliers"] = outliers
+    checks.append(rcheck("outlier_frames", float(len(outliers))))
+
+    dx = [f["dx"] for f in sel]
+    dy = [f["dy"] for f in sel]
+    entry["shift_range_px"] = [round(max(dx) - min(dx), 1),
+                               round(max(dy) - min(dy), 1)]
+    # dither-phase coverage: sub-pixel phase of each shift, binned 4x4 —
+    # the drizzle upgrade's gating question is whether these phases are
+    # DIVERSE, and ranges alone cannot answer it (the recorded lesson)
+    bins = {(int((x % 1.0) * 4), int((y % 1.0) * 4)) for x, y in zip(dx, dy)}
+    checks.append(rcheck("dither_phase_frac", len(bins) / 16.0))
 
 
 BADGE = {"PASS": "#2e7d32", "WARN": "#e65100", "INFO": "#546e7a"}
@@ -414,9 +691,42 @@ def handle_report(args):
             info = (f"registered {e['registered']}/{e['total']} @ ref {ref}"
                     + (f", sweep {e['sweep']}" if e.get("sweep") else "")
                     + (f", shift range {e.get('shift_range_px')} px"
-                       if e.get("shift_range_px") else ""))
+                       if e.get("shift_range_px") else "")
+                    + (f", layer {e['reg_layer']}"
+                       if e.get("reg_layer") is not None else "")
+                    + (f", scale {e['pixel_scale_arcsec']} arcsec/px"
+                       if e.get("pixel_scale_arcsec")
+                       else ", scale unknown (px only)"))
+            if e.get("outliers"):
+                info += ", outlier frames: " + "; ".join(
+                    f"{o['n']} ({','.join(o['flags'])})"
+                    for o in e["outliers"])
             html.append(f"<p>{info}</p>")
             md.append(info)
+            fr = e.get("frames") or []
+            if fr:
+                oflag = {o["n"]: ",".join(o["flags"])
+                         for o in e.get("outliers", [])}
+                html.append("<details><summary>per-frame registration "
+                            "quality (regdata)</summary><table>")
+                html.append("<tr><th>frame</th><th>incl</th>"
+                            "<th>FWHM px</th><th>FWHM \"</th>"
+                            "<th>wFWHM px</th><th>round</th>"
+                            "<th>bg(16b)</th><th>stars</th>"
+                            "<th>dx</th><th>dy</th><th>flags</th></tr>")
+                for f in fr:
+                    def c(v):
+                        return "" if v is None else v
+                    html.append(
+                        f"<tr><td>{f['n']}</td><td>{f['incl']}</td>"
+                        f"<td>{c(f['fwhm_px'])}</td>"
+                        f"<td>{c(f['fwhm_arcsec'])}</td>"
+                        f"<td>{c(f['wfwhm_px'])}</td>"
+                        f"<td>{c(f['round'])}</td><td>{c(f['bg16'])}</td>"
+                        f"<td>{c(f['nstars'])}</td><td>{f['dx']}</td>"
+                        f"<td>{f['dy']}</td>"
+                        f"<td>{oflag.get(f['n'], '')}</td></tr>")
+                html.append("</table></details>")
         if e.get("panel"):
             html.append(f"<p><img src='{e['panel']}' loading='lazy'></p>"
                         f"<p style='color:#888;font-size:12px'>{e.get('panel_note', {}).get('panels', '')}</p>")
@@ -486,6 +796,9 @@ def main():
     s.add_argument("--label", default=None)
     r = sub.add_parser("reg", parents=[ctxp])
     r.add_argument("--dir", required=True)
+    r.add_argument("--label", default=None,
+                   help="distinguishes multiple registrations in one run "
+                        "(dual-band line sequences)")
     r.add_argument("--registered", type=int, required=True)
     r.add_argument("--total", type=int, required=True)
     r.add_argument("--ref", type=int, default=None,
