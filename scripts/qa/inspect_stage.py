@@ -42,6 +42,17 @@ D16 = 65535.0
 # self-flat-specific: corner_gain, stack noise%) — a new data class may
 # WARN legitimately; revisit bounds there instead of ignoring the WARNs.
 EXPECTATIONS = {
+    "master_dark": {
+        "bg_median16": (None, None, "INFO: master level — an offset/sensor fact (measured: bias 155, matched darks 168-501 counts16; a prebuilt ADU-scale master is normalized /65535 first)"),
+        "clip_frac": (None, None, "INFO: pixels at ceiling — saturated hot pixels, a sensor/gain fact (the hot-pixel map is the -cc=dark win, not a defect)"),
+        "hot_frac": (None, None, "INFO: fraction > median+10*noise — the hot-pixel population (measured: 0.02-0.35% cooled low gain, 1.5% at gain 150)"),
+    },
+    "master_flat": {
+        "flat_level_pct": (None, None, "INFO: median % of full scale — the exposure-checklist fact (goal ~50%; measured corpora 28-37%)"),
+        "corner_over_center": (0.35, 1.02, "field illumination falloff (measured flats 0.87-0.94, the m74 flat 0.99; below 0.35 exceeds every honest falloff class on record, above 1.02 is not a flat)"),
+        "dust_min_rel": (None, 0.05, "deepest coherent small-scale dip vs the smooth field (measured clean flats 0.3-0.9%); a >5% shadow is a real mote — verify it matches the lights' dust or it prints a ring downstream"),
+        "clip_frac": (None, 0.005, "a clipped flat is broken by construction"),
+    },
     "calibrated": {
         "bg_median16": (None, None, "INFO: sky level, offset subtracted — a SITE/SENSOR fact, not a defect signal (dark-site cooled mono reads ~35 counts, light-polluted DSLR ~370-600; same pedestal-ratio class as the demoted stack metrics)"),
         "clip_frac": (None, 0.005, "saturated fraction"),
@@ -81,8 +92,9 @@ EXPECTATIONS = {
     },
 }
 
-ORDER = ["calibrated", "selfflat_median", "subsky_frame", "gain", "divided",
-         "registration", "stack", "compose"]
+ORDER = ["master_dark", "master_flat", "calibrated", "selfflat_median",
+         "subsky_frame", "gain", "divided", "registration", "stack",
+         "compose"]
 
 
 def check(stage, metric, value):
@@ -135,6 +147,22 @@ def measure_frame(path, want_stars=True, mask_branch=False):
                   "profile": np.where(np.isnan(prof), None, prof).tolist()}
 
 
+def dust_depth(ch, stride=2, sigma=48):
+    """Deepest COHERENT small-scale dip of a flat vs its smooth field:
+    1 - min(flat / gaussian(flat, sigma)) over the interior (border band
+    excluded — the vignette knee is not dust). A 3 px pre-smooth makes the
+    minimum a spatial feature, not a noise tail; dust donuts are 50-500 px
+    multiplicative dips, the exact class a flat exists to correct."""
+    from scipy import ndimage
+    sub = ch[::stride, ::stride].astype(np.float32)
+    sub = ndimage.gaussian_filter(sub, 3.0)
+    smooth = ndimage.gaussian_filter(sub, sigma / stride)
+    ratio = sub / np.maximum(smooth, 1e-6)
+    b = max(4, int(0.02 * min(ratio.shape)))
+    inner = ratio[b:-b, b:-b]
+    return float(1.0 - np.nanmin(inner)) if inner.size else None
+
+
 def stage_index(stage):
     return ORDER.index(stage) if stage in ORDER else 99
 
@@ -155,7 +183,7 @@ def handle_stage(args):
     rep_idx = len(args.inputs) // 2  # representative: middle sample
     rep = None
     for i, p in enumerate(args.inputs):
-        want_stars = stage not in ("gain",)
+        want_stars = stage not in ("gain", "master_dark", "master_flat")
         data, m = measure_frame(p, want_stars=want_stars,
                                 mask_branch=stage == "stack")
         m["file"] = os.path.basename(p)
@@ -165,6 +193,14 @@ def handle_stage(args):
         else:
             del data
     data, mrep = rep
+    if stage in ("master_dark", "master_flat") \
+            and float(np.nanmax(data)) > 1.5:
+        # prebuilt header-less masters store ADU-scale floats (measured on
+        # the SHO corpus: max 65504); normalize so the level checks and the
+        # panel read in the same [0,1] units as built masters — the ratio
+        # metrics (corner/center, dust) are scale-invariant either way
+        data = data / 65535.0
+        mrep["levels"] = am.channel_levels(data)
     base = out_base(d, stage, args.label)
     panel_note = am.render_panel(data, base + ".jpg")
     is8 = mrep.get("kind") == "jpg"
@@ -187,7 +223,23 @@ def handle_stage(args):
                 return e
         return None
 
-    if stage == "calibrated":
+    if stage == "master_dark":
+        checks.append(check(stage, "bg_median16", lev["median"] * D16))
+        checks.append(check(stage, "clip_frac",
+                            max(l["clip_frac"] for l in mrep["levels"])))
+        hot = float((data[g] > lev["median"]
+                     + 10 * max(lev["bgnoise"], 1e-9)).mean())
+        checks.append(check(stage, "hot_frac", hot))
+    elif stage == "master_flat":
+        checks.append(check(stage, "flat_level_pct", lev["median"] * 100.0))
+        profg = [row[g] for row in mrep["profile"] if row[g] is not None]
+        cc = (float(np.mean(profg[-2:]) / max(np.mean(profg[:2]), 1e-9))
+              if len(profg) > 4 else None)
+        checks.append(check(stage, "corner_over_center", cc))
+        checks.append(check(stage, "dust_min_rel", dust_depth(data[g])))
+        checks.append(check(stage, "clip_frac",
+                            max(l["clip_frac"] for l in mrep["levels"])))
+    elif stage == "calibrated":
         checks.append(check(stage, "bg_median16", lev["median"] * D16))
         checks.append(check(stage, "clip_frac", max(l["clip_frac"] for l in mrep["levels"])))
         checks.append(check(stage, "n_stars", mrep["stars"].get("n_stars", 0)))

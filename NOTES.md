@@ -21,7 +21,12 @@ never let it grow narrative.
   audit WARN applies only where no baseline exists, and recording a baseline
   above it needs `--ack-aura-warn`) + metric drift + artifact-byte
   comparison over every baselined dataset; `--determinism` double-renders
-  cold.
+  cold. An emission-flooded field whose SOLE failing gate metric is colour
+  holds a scope-ACKED baseline (`--ack-color-scope`, refused if any
+  achromatic metric fails): achromatic thresholds enforced unchanged,
+  colour graded one-sided vs the record (tolerance 0.5), bytes/shells/drift
+  as normal — tracking, never colour judgment; full admission waits on the
+  colour-gate redesign (BACKLOG).
 - **The render chain is deterministic from the stack, cold caches
   included** (measured: two fully-cold builds byte-identical across all
   four artifacts; the sweep byte-reproduces every recorded baseline).
@@ -91,7 +96,9 @@ never let it grow narrative.
   - `07-02-26/lights` — registration/generalization testbed only, no
     deliverable.
   - `siril-m8m20` — OSC-CFA + dual-band class. `lpro_180s` processed
-    (no baseline: gate colour scope decision pending); SPCC
+    (scope-ACKED baseline 2026-07-12: colour 22.0 tracked one-sided,
+    achromatics/bytes/shells enforced; full colour admission pending
+    the colour-scope redesign); SPCC
     sensor-grounding AND SPCC-vs-BGE order both measured immaterial on
     it (knob table). `hoo_180s` processed through the COMPOSITION
     machinery (design section): 20/20 both lines, channel alignment
@@ -99,8 +106,10 @@ never let it grow narrative.
     (same emission-flooded class as lpro) with all achromatic metrics
     PASS (grad 1.5 / blotch 1.6 / rings 5.2, aura +1.0), render
     byte-deterministic; look APPROVED 2026-07-09 vs the author's
-    finished HOO (recipe pins every knob); baseline still blocked on
-    the colour-scope redesign.
+    finished HOO (recipe pins every knob); scope-ACKED baseline
+    recorded 2026-07-12 (`--ack-color-scope`: colour 26.0 tracked
+    one-sided, achromatics/bytes/shells fully enforced) — full colour
+    admission still blocked on the colour-scope redesign.
   - `colonnello-m20/m20_rgb` — processed (first mono filter-wheel
     composition: 15R/15G/16B × 80 s aligned to G, channel alignment
     0.072 px median; SPCC K R0.880/G0.881/B1.000); **look APPROVED
@@ -117,8 +126,11 @@ never let it grow narrative.
     members, 0 WARN; alignment 0.040 px median; narrowband SPCC K
     R0.872/G0.868/B1.000). Gate colour 11.0 scope-FAIL (emission-
     flooded class; achromatics clean 1.4/1.2/1.2; aura +44.0 = the
-    annuli-scale reading at 1.07″/px). No baseline until the
-    colour-scope redesign. **Palette balance JUDGED 2026-07-10: the
+    annuli-scale reading at 1.07″/px). No baseline yet: scope-ACK
+    tracking (`--ack-color-scope`) is available but DEFERRED until the
+    dust-retention look settles — every deliberate knob change would
+    churn the record; record it at settlement (aura +44.0 will also
+    need `--ack-aura-warn`, the annuli-scale reading). **Palette balance JUDGED 2026-07-10: the
     SPCC-continuum scale as-is wins** (probes: per-source S2×1.60/O3
     ×1.00 — O3 noise-capped at zero headroom; natural ×2.88/×2.74;
     equalized ×13/×7.3 collapsed the object through the corings).
@@ -377,7 +389,11 @@ uniformly elongated by in-exposure trailing (25s ≈ 2× rule-of-500 at
 
 **Stack builder (`run_pipeline.sh`)** — preflight (exiftool): hard-fail
 on empty/mixed frame dirs; flats used only when flats+biases exist AND
-optics match the set, else self-flat path. Masters rebuild on manifest
+optics match the set, else self-flat path. Registration floor on every
+path: under HALF the set registered ABORTS the run (0.5 = a design
+pick, half the set is not the set — revisit on the first real failure;
+the 0.9 advisory WARN stays inspection-side, a 60–90% set stacks
+LOUDLY). Masters rebuild on manifest
 change (names+sizes+mtimes — catches re-shot frames with old
 timestamps). Calibrate `-dark -cc=dark` (+flat +equalize_cfa when
 matched) → `setfindstar -sigma=0.5` (~870 vs ~370 stars/frame: the
@@ -504,7 +520,11 @@ exclusion). TAN-SIP WCS injected for siril `spcc`.
 terrestrial FOREGROUND (rect | pixel mask from `suggest_foreground.py` —
 threshold 0.4×sky-median ≈ −42σ, border-band-anchored components, dilated
 for the drift-smear halo | none) plus its judgment crops. No geometry file
-→ foreground none. The background is never a per-set input: the gate
+→ foreground none. Border-anchor invariant, enforced at configure/load: a
+foreground that touches no frame border is REFUSED (the foreground is
+excluded from the gate's sky scope, so an interior "foreground" would
+silently shrink the gate's jurisdiction; terrestrial obstructions enter
+from an edge by construction). The background is never a per-set input: the gate
 selects its sky STATISTICALLY (below) because bright celestial signal has
 no fixed geometry a mask could scope (see dead ends).
 
@@ -622,6 +642,8 @@ data class may WARN legitimately — revisit bounds there, don't ignore.
 
 | stage | PASS bound (short) |
 |---|---|
+| master_dark | level16 / ceiling-clip / hot-frac all INFO (offset, sensor and gain facts — measured bias 155, darks 168–1316 c16, hot 0.001–1.5%; prebuilt ADU-scale masters normalized /65535) |
+| master_flat | corner/center 0.35–1.02; coherent dust dip ≤ 5% (measured clean flats 0.3–0.9%); clip < 0.5%; level % INFO (histogram-peak exposure fact, goal ~50%) |
 | calibrated | clip < 0.5%; stars ≥ 150; bg median16 INFO (a site/sensor fact — dark-site cooled mono ~35, light-polluted DSLR ~370–600) |
 | selfflat_median | star ratio ≤ 5% of calibrated; corner/center 0.35–0.75 |
 | subsky_frame | G median within ±10% of calibrated (tilt is INFO — bowl reads ~9–13% in any plane fit) |

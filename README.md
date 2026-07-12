@@ -132,7 +132,16 @@ it, each answering a question it can actually answer:
    toward the defect class fails long before any absolute line; recording a
    baseline above the audit WARN bound requires an explicit
    `--ack-aura-warn`), and passes the per-stage inspection. **Gate
-   thresholds never loosen.** The reference suite spans the classes the
+   thresholds never loosen.** An emission-flooded field whose ONLY failing
+   metric is colour (real sky colour outside the current colour scope's
+   reach — the ratified colour-redesign class) is kept inside the
+   regression net by a scope-ACKNOWLEDGED baseline
+   (`sweep.py --rebaseline <ds> --ack-color-scope`): the achromatic
+   thresholds stay fully enforced, colour is graded ONE-SIDED against the
+   record (worsening fails), and bytes/shells/drift are checked as normal.
+   The ack is explicit, per-dataset, refused when any achromatic metric
+   fails, and is tracking — never colour judgment: full colour admission
+   still waits on the redesign. The reference suite spans the classes the
    pipeline actually meets — self-flat underexposed DSLR wide-field,
    matched-flat off-centre object, self-flat wide, and mono FITS with a
    frame-centred galaxy — so no single dataset can hold the pipeline
@@ -218,7 +227,11 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
   by `astrometrics.configure()` in every product entry point (starcomb,
   starsep, bg_qa CLI, inspect_stage, judgment_crops, measure_stack,
   solve_field). No file: foreground **none** (whole frame is eligible sky).
-  A new set NEVER inherits another set's foreground silently.
+  A new set NEVER inherits another set's foreground silently. A configured
+  foreground must TOUCH A FRAME BORDER (terrestrial obstructions are
+  border-anchored by construction; the foreground is excluded from the
+  gate's sky scope, so a floating interior one would carve graded sky out
+  of the gate's jurisdiction) — refused loudly at configure time.
 - `recipe.json` — the processing knobs: the `render` dict (starcomb
   resolves CLI > recipe > `datasets/GENERIC.json` and prints the
   provenance; a dataset with no recipe renders data-class-blind generic

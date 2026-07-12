@@ -5,6 +5,7 @@ Usage:
   sweep.py                          # sweep everything with a baseline.json
   sweep.py --only 07-02-26/set-03 [--only ...]
   sweep.py --rebaseline imx585c/m74_toa130 [--rebaseline ...]
+  sweep.py --rebaseline siril-m8m20/hoo_180s --ack-color-scope
   sweep.py --determinism            # render each target TWICE, compare bytes
   sweep.py --keep                   # keep the sweep render artifacts
 
@@ -13,7 +14,15 @@ command. For each datasets/<session>/<set>/baseline.json whose pinned
 stack exists on this machine:
 
   1. render with starcomb (knobs from the dataset recipe),
-  2. GATE: the starless render must PASS bg_qa — thresholds never loosen,
+  2. GATE: the starless render must PASS bg_qa — thresholds never loosen.
+     One explicit, per-dataset exception keeps emission-flooded fields
+     inside the regression net instead of outside every check: a baseline
+     recorded with --ack-color-scope (legal ONLY when color is the sole
+     failing metric — real sky colour the current color scope cannot
+     admit) enforces the achromatic thresholds unchanged and grades color
+     ONE-SIDED against the recorded value (worsening fails). Full ≤limit
+     color admission still waits on the color-gate redesign; the ack is
+     tracking, never judgment,
   3. star shells: aura_lum must NOT WORSEN vs the recorded baseline
      (regression semantics — a clean dataset rotting from +2.0 toward the
      defect class fails long before any absolute line). The absolute
@@ -55,6 +64,7 @@ while _libdir != os.path.dirname(_libdir):
         break
     _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402
+import bg_qa  # noqa: E402
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
@@ -67,6 +77,14 @@ AURA_BOUND = am.STAR_SHELL_WARN["aura_lum"]
 # smallest real step toward the defect class. A slow ratchet across
 # rebaselines is capped by the --ack-aura-warn refusal at the audit bound.
 AURA_WORSEN_TOL = 0.5
+# One-sided color tolerance for scope-ACKED baselines. The render is
+# byte-deterministic from its stack, so on an unchanged stack the color
+# metric reproduces exactly; 0.5 covers stack-rebuild jitter while any
+# real added cast (the calibrated defect class is ~8 counts) fails by an
+# order of magnitude. Deliberately recording a higher color is possible
+# only through --rebaseline with the ack flag passed again — the same
+# explicit-act anti-ratchet as --ack-aura-warn.
+COLOR_WORSEN_TOL = 0.5
 # gate + shell numbers the sweep records and diffs, pulled from starcomb's
 # metrics dict: (json section, key)
 TRACKED = [("qa_starless", "color"), ("qa_starless", "grad"),
@@ -168,6 +186,21 @@ def flat(met):
             for sec, key in TRACKED}
 
 
+def recipe_approved(dsdir):
+    """Approval provenance for a FIRST baseline of an approved look: the
+    recipe.json carries the approval record (status + approved block), and
+    a baseline must never read approved:null while its recipe says
+    approved — one truth, copied at record time (later rebaselines
+    preserve the baseline's own field)."""
+    try:
+        r = json.load(open(os.path.join(dsdir, "recipe.json")))
+    except (OSError, ValueError):
+        return None
+    if r.get("status") == "approved":
+        return r.get("approved") or {"status": "approved"}
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", action="append", default=[],
@@ -184,6 +217,14 @@ def main():
                     help="allow --rebaseline to record an aura_lum above "
                          "the audit WARN bound — a deliberate, "
                          "acknowledged decision, never a default")
+    ap.add_argument("--ack-color-scope", action="store_true",
+                    help="allow --rebaseline to record a baseline whose "
+                         "ONLY failing gate metric is color (an emission-"
+                         "flooded sky the current color scope cannot "
+                         "admit): achromatic thresholds stay enforced and "
+                         "color is graded one-sided vs the record — "
+                         "explicit per-dataset tracking, never a gate "
+                         "loosening")
     args = ap.parse_args()
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
@@ -245,13 +286,41 @@ def main():
             continue
 
         notes = []
-        gate_ok = bool(met["qa_starless"]["pass"])
+        qs = met["qa_starless"]
+        gate_ok = bool(qs["pass"])
+        achrom_ok = bool(qs["ok_grad"] and qs["ok_resid"] and qs["ok_rings"])
+        color = float(qs["color"])
+        # a color-scope ACK is active from the recorded baseline, or on the
+        # rebaseline run that is recording it (the flag is the explicit act)
+        ack_active = bool(bl.get("color_scope_ack")) or \
+            (rebase and args.ack_color_scope)
         aura = met["star_shells"]["aura_lum"]
         bl_aura = bl.get("metrics", {}).get("star_shells.aura_lum") \
             if bl else None
         aura_ok, aura_note = aura_verdict(aura, bl_aura)
+        gate_req_ok = gate_ok
         if not gate_ok:
-            notes.append("GATE FAIL")
+            if ack_active and achrom_ok and not qs["ok_color"]:
+                # scope-ACKED: achromatic thresholds enforced unchanged;
+                # color graded one-sided against the record
+                bl_color = bl.get("metrics", {}).get("qa_starless.color") \
+                    if bl else None
+                if bl_color is not None and \
+                        color > bl_color + COLOR_WORSEN_TOL:
+                    notes.append(f"color worsened {bl_color:g} -> {color:g}"
+                                 f" (tol {COLOR_WORSEN_TOL}) vs the "
+                                 "scope-ack record")
+                else:
+                    gate_req_ok = True
+                    notes.append(f"color {color:.1f} scope-ACK (sole "
+                                 "failing metric; achromatics + one-sided "
+                                 "color enforced — full admission waits on "
+                                 "the color-gate redesign)")
+            else:
+                notes.append("GATE FAIL")
+        elif bl.get("color_scope_ack"):
+            notes.append("color now within the gate — rebaseline to drop "
+                         "the scope ack")
         if aura_note:
             notes.append(aura_note)
 
@@ -324,12 +393,32 @@ def main():
                          "to record it deliberately")
             rebase = False
             refused = True
+        if rebase and not gate_ok:
+            # a baseline is the record of a passing state; the only gate
+            # failure a record may carry is the acknowledged color scope
+            # (real emission-flooded sky, color the SOLE failing metric)
+            if not (achrom_ok and not qs["ok_color"]):
+                notes.append("REBASELINE REFUSED: gate fails on an "
+                             "achromatic metric — a chain defect, never "
+                             "sky-colour scope")
+                rebase = False
+                refused = True
+            elif not args.ack_color_scope:
+                notes.append(f"REBASELINE REFUSED: color {color:.1f} over "
+                             f"the gate limit {bg_qa.COLOR_DEV_MAX:g} — "
+                             "pass --ack-color-scope to record a "
+                             "scope-acknowledged baseline (achromatics "
+                             "stay enforced; color graded one-sided)")
+                rebase = False
+                refused = True
+        if rebase and args.ack_color_scope and gate_ok:
+            notes.append("color within the gate — no scope ack recorded")
         if rebase:
             new_bl = {
                 "_readme": "Measured no-regression record — written by "
                            "sweep.py --rebaseline, never by hand.",
                 "dataset": name,
-                "approved": bl.get("approved"),
+                "approved": bl.get("approved") or recipe_approved(dsdir),
                 "stack": stack_rel,
                 "stack_sha256": stack_sha,
                 "rebuild": f"python3 scripts/render/starcomb.py {session} "
@@ -344,17 +433,21 @@ def main():
                     ["git", "rev-parse", "--short", "HEAD"], cwd=REPO,
                     capture_output=True, text=True).stdout.strip() or None,
             }
+            if not gate_ok and args.ack_color_scope:
+                # reaching here with a failing gate means the refusals
+                # above admitted it: color is the sole failing metric and
+                # the ack was passed — record the acknowledgment
+                new_bl["color_scope_ack"] = True
             with open(bl_path, "w") as f:
                 json.dump(new_bl, f, indent=1)
             notes.append("REBASELINED")
 
-        ok = gate_ok and aura_ok and not refused and \
+        ok = gate_req_ok and aura_ok and not refused and \
             not any(n.startswith("NONDETERMINISTIC") or n == "2nd render FAILED"
                     for n in notes)
         verdict = "PASS" if ok else "FAIL"
         if not ok:
             failed.append(name)
-        qs = met["qa_starless"]
         print(f"   {verdict}  gate color {qs['color']:.1f} grad "
               f"{qs['grad']:.1f} blotch {qs['resid']:.1f} rings "
               f"{qs['ring_l']:.1f} | aura "

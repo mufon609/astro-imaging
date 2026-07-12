@@ -43,6 +43,25 @@ reg_count() {
     | grep -oE '[0-9]+ registered' | grep -oE '[0-9]+' || true
 }
 
+# Hard registration floor — the runner's own abort, distinct from the
+# WARN-only inspection: under half the set registered means the stack is
+# NOT the set (it would carry the set's name with a fraction of its
+# photons). 0.5 is a design pick (half the set) — revisit with the first
+# real failure case; the 0.9 advisory WARN stays inspection-side (a
+# 60-90% set is degraded-but-honest data that stacks LOUDLY).
+# args: <registered> <total> <reg-log-path> [context]
+reg_floor() {
+  local rn=$1 total=$2 log=$3 ctx=${4:-}
+  (( total > 0 )) || return 0
+  if (( rn * 2 < total )); then
+    INS report --title "$SESSION $SET (ABORTED: registration floor)" || true
+    echo "ERROR: registration floor: $rn/$total frames registered${ctx:+ ($ctx)} — less than half the set; a stack from this would not be the set." >&2
+    echo "       registration log: $log" >&2
+    echo "       options: cull/fix the failing frames, or try a different reference frame (the self-flat path sweeps references — see the registration dead ends in NOTES)" >&2
+    exit 1
+  fi
+}
+
 # Per-run inspection dir: every stage drops a consistent-stretch JPEG +
 # metrics (PASS/WARN vs the NOTES.md expectations table); the run assembles
 # them into index.html at the end. Inspection failures warn but never abort.
@@ -307,6 +326,17 @@ fits_ingest() {
   fi
   fi
 
+  # masters inspection (WARN-only): the masters most directly cause stack
+  # gradients and dust rings — inspect them every run (fresh or rebuilt)
+  # so each run's report carries their numbers
+  INS stage master_dark --in "$W/masters/dark_master.fit" --label dark
+  if [[ -n "$FLATCAL" && -f "$W/masters/${FLATCAL}_master.fit" ]]; then
+    INS stage master_dark --in "$W/masters/${FLATCAL}_master.fit" --label "$FLATCAL"
+  fi
+  if [[ -n "$FLATOPT" && -f "$W/masters/flat_master.fit" ]]; then
+    INS stage master_flat --in "$W/masters/flat_master.fit"
+  fi
+
   # --- lights ---
   local NF F1 FM FN
   NF=$(fits_glob "$S/$SET" | wc -l)
@@ -340,6 +370,8 @@ fits_ingest() {
       echo "=== registration: Ha ${RCOUNTS[0]}/$NF, OIII ${RCOUNTS[1]}/$NF (ref $MID) ==="
       INS reg --registered "${RCOUNTS[0]}" --total "$NF" --ref "$MID" --seq "$W/Ha_pp_light_.seq"
       INS reg --registered "${RCOUNTS[1]}" --total "$NF" --ref "$MID" --seq "$W/OIII_pp_light_.seq"
+      reg_floor "${RCOUNTS[0]}" "$NF" "$W/lights_run.log" "Ha line"
+      reg_floor "${RCOUNTS[1]}" "$NF" "$W/lights_run.log" "OIII line"
     else
       echo "WARNING: expected 2 registration summaries, parsed ${#RCOUNTS[@]} (siril format change?) — tail:" >&2
       tail -8 "$W/lights_run.log" >&2
@@ -366,6 +398,7 @@ fits_ingest() {
     if [[ -n "$rn" ]]; then
       echo "=== registration: $rn/$NF frames (2-pass auto reference) ==="
       INS reg --registered "$rn" --total "$NF" --seq "$W/pp_light_.seq"
+      reg_floor "$rn" "$NF" "$W/lights_run.log" "2-pass auto reference"
     else
       echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
       tail -5 "$W/lights_run.log" >&2
@@ -458,6 +491,14 @@ else
   rm -f "$W"/dark_*
 fi
 
+# masters inspection (WARN-only, every run): a bad flat/dark otherwise
+# surfaces only downstream as a stack gradient or dust ring
+if [[ -n "$FLATOPT" ]]; then
+  INS stage master_dark --in "$W/masters/bias_master.fit" --label bias
+  INS stage master_flat --in "$W/masters/flat_master.fit"
+fi
+INS stage master_dark --in "$W/masters/dark_master.fit" --label dark
+
 # --- stage 4: per-set script generated from template -------------------------
 NFRAMES=$(raw_find "$S/$SET" | wc -l)
 MID=$(( (NFRAMES + 1) / 2 ))
@@ -473,6 +514,7 @@ if [[ -n "$FLATOPT" ]]; then
   if [[ -n "$rn" ]]; then
     echo "=== registration: $rn/$NFRAMES frames (2-pass auto reference) ==="
     INS reg --registered "$rn" --total "$NFRAMES" --seq "$W/pp_light_.seq"
+    reg_floor "$rn" "$NFRAMES" "$W/lights_run.log" "2-pass auto reference"
   else
     echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
     tail -5 "$W/lights_run.log" >&2
@@ -557,6 +599,8 @@ else
   fi
   INS reg --registered "$best_n" --total "$NFRAMES" --ref "$best_ref" \
       --sweep "$sweep_log" --seq "$W/pp_bkg_pp_light_.seq"
+  reg_floor "$best_n" "$NFRAMES" "$W/reg_attempt.log" \
+      "best reference after sweep $sweep_log"
 
   GEN_STACK="$W/selfflat_4_stack.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/4_stack.ssf.tmpl" > "$GEN_STACK"

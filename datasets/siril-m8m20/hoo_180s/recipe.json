@@ -48,6 +48,6 @@
   "approved": {
     "date": "2026-07-09",
     "judgment": "results/judgment_hoo_20260709_223314 (vs the data author: full pair + ha_core/oiii_region/dark_sky crops)",
-    "note": "no-regression baseline BLOCKED on the colour-gate redesign (emission-flooded class fails colour by scope, achromatic metrics clean); record it when that lands"
+    "note": "scope-ACKED no-regression baseline recorded (--ack-color-scope: colour 26.0 tracked one-sided, achromatics/bytes/shells fully enforced — the emission-flooded class fails colour by scope with achromatic metrics clean); FULL colour admission still waits on the colour-gate redesign"
   }
 }

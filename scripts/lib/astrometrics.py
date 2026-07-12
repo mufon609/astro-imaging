@@ -181,6 +181,13 @@ def configure(session_dir, set_name, stack=None, quiet=False):
                   "treated as none", flush=True)
     elif fg and fg.get("rect"):
         ctx.foreground = tuple(float(v) for v in fg["rect"])
+        if not fg_rect_touches_border(ctx.foreground):
+            raise ValueError(
+                f"geometry: foreground rect {ctx.foreground} touches no "
+                "frame border — a terrestrial obstruction enters from an "
+                "edge, and the foreground is EXCLUDED from the gate's sky "
+                "scope, so an interior rect would carve graded sky out of "
+                f"the gate's jurisdiction. Fix {cfgp}.")
     if cfg.get("judgment_crops"):
         ctx.judgment_crops = {k: tuple(v)
                               for k, v in cfg["judgment_crops"].items()}
@@ -246,6 +253,16 @@ def radius_map(h, w, stride=1):
     return np.sqrt((yy[:, None] ** 2 + xx[None, :] ** 2) / 2.0)
 
 
+def fg_rect_touches_border(rect, eps=0.002):
+    """Border-anchor invariant for a foreground rect (frame fractions
+    x0,y0,x1,y1): a terrestrial obstruction is border-anchored by
+    construction, and the foreground is excluded from the gate's sky
+    scope — so a floating interior 'foreground' is a config error that
+    would silently shrink the gate's jurisdiction, never a real treeline."""
+    x0, y0, x1, y1 = rect
+    return x0 <= eps or y0 <= eps or x1 >= 1.0 - eps or y1 >= 1.0 - eps
+
+
 def _fg_mask(h, w):
     """Full-res boolean foreground mask from CTX.fg_mask_path (cached).
     True = foreground."""
@@ -253,6 +270,18 @@ def _fg_mask(h, w):
     if key in CTX._cache:
         return CTX._cache[key]
     m = np.load(CTX.fg_mask_path)["mask"].astype(bool)
+    # border-anchor invariant (same reasoning as fg_rect_touches_border;
+    # the derivation tool keeps border-anchored components only, so a
+    # violating mask is hand-made or corrupt). An empty mask excludes
+    # nothing and passes.
+    b = max(2, int(round(0.002 * max(m.shape))))
+    if m.any() and not (m[:b].any() or m[-b:].any()
+                        or m[:, :b].any() or m[:, -b:].any()):
+        raise ValueError(
+            f"geometry: foreground mask {CTX.fg_mask_path} touches no frame "
+            "border — terrestrial masks are border-anchored, and the "
+            "foreground is EXCLUDED from the gate's sky scope; an interior "
+            "mask would carve graded sky out of the gate's jurisdiction.")
     if m.shape != (h, w):
         from scipy.ndimage import zoom
         m = zoom(m.astype(np.uint8),

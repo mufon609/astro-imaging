@@ -24,7 +24,7 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C18 → C6 → B1 → C9 → C1+C2 → C4 → C11 →
+asks "what next", take: **C18 → C6 → B1 → C9 → C4 → C11 →
 C14 → C12/C7/C3/C15** (C18 leads: direct user directive; the other two
 former leads closed — the class-triage checklist shipped into README,
 and C17's report-card half shipped with its preset half moving to the
@@ -123,29 +123,6 @@ context.
 ## C. Anytime (no dependencies)
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
-
-### C1 — Master calibration frames get an inspection stage
-
-The masters (bias/dark/flat) most directly cause background gradients and
-dust rings, yet they are the only pipeline products with no inspection
-metric — a bad flat surfaces only downstream as a stack gradient.
-`diag_flat.ssf` exists but is manual. Add an INS stage after each master
-build reporting the numbers that matter per master: flat corner falloff %
-and dust-shadow depth, dark/bias median + clipped-pixel fraction, into the
-same run report (WARN-only, per the inspection contract). Calibrate bounds
-on the masters already measured (the m74 flat falls 1.3% to the corner).
-
-### C2 — Registration floor: abort a near-empty stack
-
-All three stack paths now report registered/total (INS reg), but a run
-that registers a fraction of its frames still proceeds to stack and
-render. The self-flat path aborts only at zero. Implement a hard floor in
-the runner at CATASTROPHE level — reg_fraction < 0.5 (less than half the
-set is not the set; the abort message must name the reg log and the
-reference-sweep option) — while 0.9 stays the advisory WARN: a 60-90%
-set is degraded-but-honest data that should stack LOUDLY, not an error.
-The 0.5 value is a design pick (half the set); revisit it with the first
-real failure case. Keep INS WARN-only; the floor belongs to the runner.
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
@@ -354,6 +331,14 @@ structurally unreachable there without destroying real signal. Leaving the
 class permanently un-baselineable is also unacceptable: the no-regression
 suite would be blind to an entire data class.
 
+**Interim (landed):** the class is no longer regression-blind — a
+scope-ACKED baseline (`sweep.py --rebaseline <ds> --ack-color-scope`,
+refused unless colour is the SOLE failing gate metric) keeps an
+emission-flooded dataset inside the byte/achromatic/shell regression net
+with colour graded one-sided vs its record. That is drift TRACKING only;
+this redesign remains the sole path to full colour admission (an acked
+colour is never judged against the ≤7 bar).
+
 **Ratified direction:** the colour gate's question becomes "did the CHAIN
 ADD colour the calibrated data does not have?" — a process gate, not a
 neutrality demand. SPCC provides a star-grounded colour reference in the
@@ -388,10 +373,11 @@ re-pins every channel's sky at the same target, so a narrowband-palette
 render passes the CURRENT colour gate outright (the SHO target: colour
 11.0 scope-FAIL linked → 5.0 PASS perline, achromatics 0.0) — that
 class no longer motivates this redesign and can baseline as-is. The
-remaining un-baselineable cases are broadband emission-flooded fields
-(lpro_180s, 22.0) and the APPROVED hoo look (26.0 — pinned to the
-linked stretch; per-line for it would be a new declared delta through
-the user's eyes, not a gate change). The redesigned comparison must
+broadband emission-flooded fields — lpro_180s (22.0) and the APPROVED
+hoo look (26.0 — pinned to the linked stretch; per-line for it would be
+a new declared delta through the user's eyes, not a gate change) — are
+scope-ACK tracked in the interim (see above); full colour admission
+still needs this redesign. The redesigned comparison must
 also stay honest under per-line stretching: each channel's transform
 differs by design, so "chain-added colour" is divergence from the
 calibrated stack pushed through THAT channel's own transform.
