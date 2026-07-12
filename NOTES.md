@@ -241,8 +241,12 @@ never let it grow narrative.
   set-03's Z6III balance) → generic render: gate PASS colour 2.0 /
   grad 3.0 / blotch 1.0 / rings 6.6; shells aura_lum +10.0 WARN =
   the fixed-px annuli read at 35.9″/px (the scale-awareness class,
-  recorded via --ack-aura-warn like m20). Look NOT user-approved yet
-  (judgment package pending).
+  recorded via --ack-aura-warn like m20). **USER VERDICT 2026-07-12:
+  E1 RATIFIED ("culling was worth it")** — the recipe stack block is
+  confirmed policy, not just the ladder's pick. The LOOK itself
+  (generic render as this dataset's baseline look + the two
+  unresolved sky features in the package's inspection notes) is
+  still open with the user.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
