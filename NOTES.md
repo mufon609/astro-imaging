@@ -57,7 +57,10 @@ never let it grow narrative.
   - `07-02-26/set-03` — processed; quality is exposure-limited. The
     session dir is OFF-DISK (moved 2026-07-09 for space): the sweep
     SKIPs it loudly until the pinned stack returns.
-  - `nikon-test/lmc_180mm` — processed. The bright-star red halo is the
+  - `nikon-test/lmc_180mm` — processed; session dir OFF-DISK (moved
+    2026-07-12 by the user for space, backed up): the sweep SKIPs all
+    three nikon-test sets loudly until the pinned stacks return. The
+    bright-star red halo is the
     Sigma-180-wide-open veiling-glare signature (R−G plateau +4..+5
     counts r≈6–38; absent on the same body at 50 mm f/4): honest optical
     data — a render-side de-fringe would fabricate lens performance, so
@@ -107,7 +110,9 @@ never let it grow narrative.
     recorded 2026-07-12 (`--ack-color-scope`: colour 26.0 tracked
     one-sided, achromatics/bytes/shells fully enforced) — full colour
     admission still blocked on the colour-scope redesign.
-  - `colonnello-m20/m20_rgb` — processed (first mono filter-wheel
+  - `colonnello-m20/m20_rgb` — processed; session dir OFF-DISK (moved
+    2026-07-12 by the user for space, backed up; sweep SKIPs loudly
+    until the pinned stack returns). First mono filter-wheel
     composition: 15R/15G/16B × 80 s aligned to G, channel alignment
     0.072 px median; SPCC K R0.880/G0.881/B1.000); **look APPROVED
     2026-07-10, baseline recorded** (`--ack-aura-warn`: aura +19.5 is
@@ -203,23 +208,41 @@ never let it grow narrative.
   the capability is generic and stays. A cloud passage crosses the set
   (previews: bright band ~frames 168–214 peaking at 6.8% frame area;
   sentinel LINEAR regdata says attenuation, not blur: bg +8.6%,
-  nstars −11%, fwhm UNCHANGED 2.58–2.60 px). Disk forces partitioned
+  nstars −11%, fwhm UNCHANGED 2.58–2.60 px). Disk forced partitioned
   integration (~70 GB single-pass intermediates vs ~5 GB free):
   common-reference partitions → pooled per-frame regdata → per-
-  partition `rej 3 3 -norm=addscale` stacks → siril mean combine.
-  **PRE-REGISTERED CULL EXPERIMENT** (decided before any production
-  stack ran): rung E1 = exclude frames flagged by pooled robust z,
-  defect-side ≥ 3.5 (bg+ / nstars− / fwhm+ / round−) over all 240
-  frames' registration regdata, plus any match-failures; control
-  E0 = no exclusion; E2 = the full preview-visible band, run ONLY if
-  E1's stack carries band residue. H1: E0 ≈ E1 on statistical-sky
-  noise + dark-sky p2v (per-pixel rejection + addscale absorb a
-  minority-area moving band — the SHO dawn-glow precedent). H2: E2
-  costs ≈ √(frame-ratio) ≈ +12% sky noise for no defect benefit.
-  Decision rule: adopt the smallest exclusion whose stack is
-  defect-free (dark-sky p2v, band-zone residue vs clear-zone, star
-  metrics); on a tie prefer inclusion (community + repo doctrine:
-  photons outrank culling).
+  partition `rej 3 3 -norm=addscale` stacks → weighted mean combine.
+  **CULL EXPERIMENT DECIDED (2026-07-12, rule pre-registered before
+  the runs)**: E0 control (all 240) vs E1 (pooled defect-side robust
+  z ≥ 3.5 → 31 frames: 30 deep-band by bg z +3.6..+7.3 + frame 1 by
+  fwhm z +9.5/round z +3.6 defocus; nstars was BLIND — detection
+  saturates at siril's 2000-star cap at sigma 0.5, recorded). Both
+  built at 100% registration (240/240, 209/209 — even peak-band
+  frames register to the pinned clean ref: match-failure is NOT a
+  cloud cull on this class). Measured: E0 sky noise 2.853 c16 BEATS
+  E1 3.065 (+7.5% ≈ the √(240/209) photon prediction) — but the E1−E0
+  difference image shows COHERENT fibrous cloud residue in E0 (block
+  structure 3.7 c16, upper-left, matching the band's morphology), and
+  the gate reads it: E0 rings 8.0 = AT the bound (zero margin) vs E1
+  6.6; both PASS colour 2.0 / grad ≤3.0 / blotch ≤1.1. H1 (rejection
+  absorbs the band) PARTIALLY KILLED → dead-end entry (long-dwell
+  band = per-pixel majority). H2 moot (E2 never triggered — E1 is
+  defect-free). **ADOPTED: E1** per the rule (smallest defect-free
+  exclusion; recipe stack block records the 31). Byte-reproduce:
+  `partitioned_stack.py session_02 set-02 --ref 120 --route selfflat
+  --part-size 14 --variant e1 --exclude <recipe list> --gain-subset
+  5,15,...,135,220,235` → `crop_coverage.py` (bounds in
+  work/frameqa/crop_bounds.json: rows 456..3567 cols 824..5799, the
+  240-frame coverage-complete rect — drift+rotation over 48 min costs
+  36.8% of frame area; rim before/after: −43.3% fake falloff → −3.4%
+  honest residual, stack p2v 0.208 WARN → 0.030 PASS) → solve
+  (RA 278.92 +54.75, 35.9″/px, sky-true, logodds 356; Draco/Lyra,
+  Vega in-frame) → SPCC K R1.000/G0.663/B0.820 on 1872 stars (≈
+  set-03's Z6III balance) → generic render: gate PASS colour 2.0 /
+  grad 3.0 / blotch 1.0 / rings 6.6; shells aura_lum +10.0 WARN =
+  the fixed-px annuli read at 35.9″/px (the scale-awareness class,
+  recorded via --ack-aura-warn like m20). Look NOT user-approved yet
+  (judgment package pending).
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -750,6 +773,23 @@ Detection/solve/registration:
   auto-reference under-performs a SWEEP (18/21 vs 21/21 @ ref 12).
 - 38mm-only subset (dropping the 8×37mm frames) → same per-frame
   matching luck, full √(18/11) noise penalty. Keep all frames.
+- "Per-pixel rejection + addscale absorb any cloud passage" (the
+  dawn-glow generalization) → PARTIALLY KILLED. Holds for transients
+  and short tails; FAILS for a band that DWELLS over one sky region:
+  ~30 frames (12% of the set) kept a slow cirrus band over the same
+  upper-left zone, cloud-affected values became the per-pixel MAJORITY
+  there, and `rej 3 3` kept them — the all-frames stack carried
+  coherent fibrous residue (E1−E0 diff block structure 3.7 c16) and
+  its render's rings metric sat AT the 8.0 bound. Excluding the 31
+  z-flagged frames removed the residue (rings 6.6) at exactly the
+  √(240/209) = +7.5% noise price. Cull clouds by PER-PIXEL MAJORITY
+  RISK, not by visibility: a moving minority band stacks clean, a
+  dwelling one does not.
+- nstars as a cloud discriminant at `setfindstar -sigma=0.5` → BLIND
+  on rich fields: detection saturates at siril's 2000-star cap on
+  every frame (240/240 read exactly 2000), so nstars z ≡ 0. The bg
+  channel carried the entire cloud signal instead. Raise the cap or
+  the sigma before trusting nstars flags on wide MW fields.
 - wFWHM weighting at low FWHM spread → WORSE than the recorded "no-op":
   siril's -weight is a min-max RAMP over the sequence (worst frame → ~0
   weight at ANY spread; measured at 7.4% CV: weights 1.93..−0.00, N_eff

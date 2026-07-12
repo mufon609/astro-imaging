@@ -1,0 +1,9 @@
+{
+  "_note": "Stack policy from the measured with/without ladder (2026-07-12): rung E1 excludes the 31 frames flagged by pooled defect-side robust z >= 3.5 over all 240 frames' registration regdata (30 deep-cloud-band frames, bg z +3.6..+7.3; frame 1, fwhm z +9.5 defocus/settling). Control E0 (no exclusion) measured BETTER on sky noise (2.853 vs 3.065 MAD, the sqrt-N prediction) but carried coherent cloud residue rejection could not remove (the band dwelt over one sky region long enough to be the per-pixel majority: diff structure 3.7 c16, gate rings at-bound 8.0); E1 restores the margin (rings 6.6) and is the smallest defect-free exclusion. Render knobs track GENERIC (no approved look yet). Stack build: partitioned selfflat route, pinned ref n=120, coverage crop — the byte-reproduce command lives in NOTES STATUS.",
+  "stack": {
+    "weight": null,
+    "exclude": [1, 178, 179, 183, 186, 187, 188, 189, 190, 191, 192,
+                193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203,
+                204, 205, 206, 207, 208, 209, 210, 212, 214]
+  }
+}

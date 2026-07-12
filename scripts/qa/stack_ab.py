@@ -38,8 +38,9 @@ import astrometrics as am  # noqa: E402
 
 
 def gchan(path):
+    # read_fits returns planes-first (C,H,W)
     d, _ = am.read_fits(path)
-    return d[..., 1] if d.ndim == 3 else d
+    return d[1] if d.ndim == 3 else d
 
 
 def block_medians(ch, mask, block=32):
