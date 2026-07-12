@@ -247,6 +247,39 @@ never let it grow narrative.
   (generic render as this dataset's baseline look + the two
   unresolved sky features in the package's inspection notes) is
   still open with the user.
+- **set-02 FAINT-STRUCTURE PROBE — MEASURED (tmp, 2026-07-12,
+  user-directed; baseline/recipe untouched; finals in results/exp_*
+  + the winners-compound starcomb_set-02_single_20260712_160958)** —
+  the right-side "smudges" are a REAL dark-lane complex (linear:
+  laneB −3.5..−3.7 c16 on ~150 c16 sky = 2.4% absorption; laneA −1.5;
+  MW-edge band +5.9). Ladder verdicts (one knob each, plane+ghs+bp0
+  carried forward as rungs won):
+  (A) bgelin_mode: gx ERASED 79–100% of the lanes linearly (laneB
+  −3.55→+0.15 sign-flipped, knot −3.73→−0.16) — the recorded
+  frame-filling-faint class limit now proven on dark-absorption lanes;
+  plane retained 100.0% of every box. The baseline gx render had +2
+  counts8 of lane contrast — nothing left to stretch.
+  (B) stretch_mode: ghs +14 counts8 lane contrast vs mtf +9 with the
+  lane floor CLIPPED at 0 — the C10 mid-tone allocation mechanism.
+  (C) black_point: contrast invariant (+13 vs +14, linear-shift
+  lesson reproduced) but bp8 clips the darkest knots (3→11 at bp0);
+  bp0 for this goal.
+  (D1) starless_denoise vstpost vs off: NULL at lane scales (contrast
+  +13.0 both, 17px texture 1.48 both) — generic stays.
+  (D2) lum_core: k=2 ZEROES the lane zone's 9–65 px structure
+  (MAD 1.48→0.00) — the M74 "Wiener gate is structure-safe"
+  measurement DOES NOT generalize to ~1σ faint structure; lum_core 0
+  wins. GENERIC why-note updated with the class limit; feeds C18(a)
+  (chain-removed signal, exactly this defect class).
+  (E) chroma_core: k=4 neutralizes 60% of the extended-structure
+  colour (MW band R−G −15→−6) and erases the lanes' warm hint; k=2
+  preserves both — the recorded faint-real-colour limit reproduced.
+  (F) ghs_amount 3 vs 4.5: NULL (every comparator equal) — D=3 stays.
+  Compound winners (plane+ghs+bp0+lum_core0+chroma_core2): lane
+  contrast +14, fiber MAD 1.98, lane R−G +1.0. Gate is OUT OF SCOPE
+  by user direction here (plane keeps the honest sky envelope: grad
+  8.6/blotch 10 FAIL as expected). NOTHING BAKED — any generic/recipe
+  adoption is a declared delta through the user's eyes.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
