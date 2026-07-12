@@ -16,8 +16,10 @@ wFWHM / roundness / background / star count / homography per frame — and
 persists the full per-frame records (including the shift list, the
 dither-phase input the drizzle path needs) into metrics.jsonl plus a .seq
 copy, BEFORE per-stage cleanup prunes the sequence. Distribution checks
-are WARN-only like every inspection; weighting/culling policy is a
-separate, ratification-gated layer and no default here.
+are WARN-only like every inspection; weighting/culling POLICY lives
+elsewhere (the optional per-dataset "stack" recipe block, applied by
+run_pipeline at stack time) — this stage only measures, and its per-frame
+"n" numbers are the frame identity that block's exclude list names.
 
 Stage names: calibrated, selfflat_median, subsky_frame, gain, divided, stack.
 

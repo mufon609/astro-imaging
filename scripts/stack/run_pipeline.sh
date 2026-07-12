@@ -74,6 +74,99 @@ INS() {
     || echo "WARNING: inspection failed for: $* (run continues)" >&2
 }
 
+# --- stack policy (optional "stack" block in the dataset recipe) -------------
+# {"weight": "wfwhm"|"nbstars"|null, "exclude": [frame numbers]} — read here,
+# applied on every stack path. ABSENCE IS THE GENERIC DEFAULT (unweighted
+# rej 3 3 over all registered frames): a weight or cull is only ever
+# per-dataset state with a measured reason, because siril's -weight= is a
+# min-max RAMP over the sequence's regdata — the worst frame drops to ~0
+# weight regardless of how tight the spread is (measured: 7.4% FWHM CV still
+# spans weights 1.93..0.00, N_eff 11.9/16, +21% sky noise) — soft-culling,
+# not gentle reweighting. Exclusion = unselect on the stacked r_ sequence +
+# -filter-incl at stack; the flag is mandatory (plain stack measured to
+# IGNORE manual selection). Frame numbers in "exclude" are the sequence file
+# numbers the registration inspection records as "n" (the numbers its
+# outlier flags name); a dual-band set's extracted line sequences inherit
+# the lights' numbering, so one exclude list governs both line stacks.
+# CAVEAT the guard below enforces: unselect indexes by 1-based sequential
+# POSITION (measured: on a gapped sequence "unselect 10 10" flips file 11),
+# and position == file number only while the sequence is contiguous from 1
+# — true of every convert-produced input, broken on an r_ sequence that
+# registration reduced (dropped frames keep their numbers: the reduced
+# sequence is GAPPED, measured). verify_exclusion re-reads the stacked .seq
+# after the run and hard-fails, removing the stack, unless exactly the
+# named file numbers were deselected.
+STACK_WEIGHT="" STACK_EXCLUDE=""
+STACK_RECIPE="$REPO/datasets/$SESSION/$SET/recipe.json"
+if [[ -f "$STACK_RECIPE" ]]; then
+  sp=$(python3 -c '
+import json, sys
+s = json.load(open(sys.argv[1])).get("stack") or {}
+w = s.get("weight")
+e = s.get("exclude") or []
+if w not in (None, "wfwhm", "nbstars"):
+    sys.exit(f"stack.weight {w!r} not one of wfwhm|nbstars|null")
+if not (isinstance(e, list) and all(isinstance(n, int) and n > 0 for n in e)):
+    sys.exit(f"stack.exclude {e!r} must be a list of positive frame numbers")
+print((w or "") + "\t" + " ".join(str(n) for n in sorted(set(e))))
+' "$STACK_RECIPE") || { echo "ERROR: invalid \"stack\" block in $STACK_RECIPE" >&2; exit 1; }
+  IFS=$'\t' read -r STACK_WEIGHT STACK_EXCLUDE <<<"$sp"
+fi
+STACKPOL=""
+[[ -n "$STACK_EXCLUDE" ]] && STACKPOL="-filter-incl "
+[[ -n "$STACK_WEIGHT" ]] && STACKPOL="${STACKPOL}-weight=${STACK_WEIGHT} "
+if [[ -n "$STACKPOL" ]]; then
+  echo "stack policy: weight=${STACK_WEIGHT:-none} exclude=[${STACK_EXCLUDE:-none}] (recipe \"stack\" block; exclude numbers = registration inspection frame n)"
+else
+  echo "stack policy: unweighted rej 3 3, all registered frames (generic default; no recipe \"stack\" block)"
+fi
+
+# Emit "unselect <seq> n n" lines for the recipe's excluded frames — the
+# lines precede the stack command in every generated script; nothing is
+# emitted (and no generated file is rewritten) when the exclude is empty.
+unselect_lines() { # <sequence-name>
+  local n
+  for n in $STACK_EXCLUDE; do echo "unselect $1 $n $n"; done
+}
+# Insert the unselect lines into an already-generated script, immediately
+# before its stack command. No-op (file untouched) with an empty exclude.
+inject_unselect() { # <gen.ssf> <sequence-name>
+  [[ -n "$STACK_EXCLUDE" ]] || return 0
+  awk -v u="$(unselect_lines "$2")" \
+      -v s="^stack $2 " '$0 ~ s {print u} {print}' "$1" > "$1.tmp" \
+    && mv "$1.tmp" "$1"
+}
+# After a stack that carried an exclude, verify from the stacked .seq that
+# exactly the named FILE numbers were deselected (see the caveat above:
+# unselect is positional, so a registration-reduced sequence mis-maps).
+# A mismatch removes the tainted stack and aborts. No-op without exclude.
+verify_exclusion() { # <stacked .seq> <stack output> [context]
+  [[ -n "$STACK_EXCLUDE" ]] || return 0
+  local seq=$1 out=$2 ctx=${3:-}
+  if python3 - "$seq" $STACK_EXCLUDE <<'PYEOF'
+import sys
+seq, excl = sys.argv[1], set(map(int, sys.argv[2:]))
+inc = {}
+for line in open(seq):
+    if line.startswith("I "):
+        t = line.split()
+        inc[int(t[1])] = int(t[2])
+still = sorted(n for n in excl if inc.get(n) != 0)
+wrong = sorted(n for n, v in inc.items() if v == 0 and n not in excl)
+if still or wrong:
+    sys.exit(f"named-but-still-selected {still}; deselected-but-not-named "
+             f"{wrong}; sequence holds files {min(inc)}..{max(inc)} "
+             f"({len(inc)} frames)")
+print(f"exclusion verified ({seq.rsplit('/', 1)[-1]}): frames "
+      f"{sorted(excl)} deselected, {sum(inc.values())}/{len(inc)} stacked")
+PYEOF
+  then return 0; fi
+  rm -f "$out"
+  echo "ERROR: exclude mis-mapped onto the stacked sequence${ctx:+ ($ctx)} — the sequence is not contiguous (registration dropped frames), so positional unselect hit the wrong frames. Stack output removed: $out" >&2
+  echo "       re-derive the exclude against this registration's inspection record, or fix registration first" >&2
+  exit 1
+}
+
 # --- preflight helpers -------------------------------------------------------
 # Ingestable raw frames, any camera format: siril debayers these and exiftool
 # reads their EXIF, so a session may hold NEF, DNG, CR2/CR3, ARW, etc. directly.
@@ -171,8 +264,10 @@ _fits_dualband() {
     echo "setref OIII_pp_light $MIDX"
     echo "register OIII_pp_light"
     echo "set32bits"
-    echo "stack r_Ha_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_${SET}_Ha"
-    echo "stack r_OIII_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_${SET}_OIII"
+    unselect_lines r_Ha_pp_light
+    echo "stack r_Ha_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_${SET}_Ha"
+    unselect_lines r_OIII_pp_light
+    echo "stack r_OIII_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_${SET}_OIII"
     echo "close"; } > "$W/fits_dualband.gen.ssf"
   siril_run "$W/fits_dualband.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -186,7 +281,8 @@ _fits_lights() {
     echo "calibrate light -dark=masters/dark_master $2 -cc=dark 3 3 $1"
     echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
     echo "set32bits"
-    echo "stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=../results/stack_$SET"
+    unselect_lines r_pp_light
+    echo "stack r_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"
   siril_run "$W/fits_lights.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -359,6 +455,8 @@ fits_ingest() {
     local MID=$(( (NF + 1) / 2 ))
     echo "=== lights: calibrate + extract Ha/OIII + register (ref $MID) + stack $SET ($NF frames) ==="
     _fits_dualband "$FLATOPT" "$MID"
+    verify_exclusion "$W/r_Ha_pp_light_.seq" "$S/results/stack_${SET}_Ha.fit" "Ha line"
+    verify_exclusion "$W/r_OIII_pp_light_.seq" "$S/results/stack_${SET}_OIII.fit" "OIII line"
     INS stage calibrated --in "$W/Ha_pp_light_$F1.fit" "$W/Ha_pp_light_$FM.fit" "$W/Ha_pp_light_$FN.fit" --label Ha
     INS stage calibrated --in "$W/OIII_pp_light_$F1.fit" "$W/OIII_pp_light_$FM.fit" "$W/OIII_pp_light_$FN.fit" --label OIII
     # two register runs in one log -> per-line counts, in order
@@ -392,6 +490,7 @@ fits_ingest() {
   else
     echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
     _fits_lights "$CFAOPT" "$FLATOPT"
+    verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
     INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
     local rn
     rn=$(reg_count "$W/lights_run.log")
@@ -506,9 +605,12 @@ F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES"
 if [[ -n "$FLATOPT" ]]; then
   GEN_LIGHTS="$W/lights.$SET.gen.ssf"
   sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
+      -e "s|@STACKPOL@|$STACKPOL|g" \
       "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN_LIGHTS"
+  inject_unselect "$GEN_LIGHTS" r_pp_light
   echo "=== lights: calibrate + register + stack $SET ==="
   siril_run "$GEN_LIGHTS" | tee "$W/lights_run.log"
+  verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
   INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
   rn=$(reg_count "$W/lights_run.log")
   if [[ -n "$rn" ]]; then
@@ -603,9 +705,12 @@ else
       "best reference after sweep $sweep_log"
 
   GEN_STACK="$W/selfflat_4_stack.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/4_stack.ssf.tmpl" > "$GEN_STACK"
+  sed -e "s|@SET@|$SET|g" -e "s|@STACKPOL@|$STACKPOL|g" \
+      "$REPO/scripts/stack/siril/selfflat/4_stack.ssf.tmpl" > "$GEN_STACK"
+  inject_unselect "$GEN_STACK" r_pp_bkg_pp_light
   echo "=== self-flat 4/4: stack $SET ($best_n/$NFRAMES frames, ref $best_ref) ==="
   siril_run "$GEN_STACK"
+  verify_exclusion "$W/r_pp_bkg_pp_light_.seq" "$S/results/stack_$SET.fit"
   INS stage stack --in "$S/results/stack_$SET.fit"
 fi
 rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \

@@ -402,6 +402,36 @@ rejection stack, `-norm=addscale -output_norm`, **no `-rgb_equal`** (a
 live stacking option): SPCC calibrates the raw Bayer balance directly —
 raw G runs ~×1.5 hot and SPCC measures it (K R 1.675 / G 0.749 / B 0.935
 on 508 stars); a pre-normalizer would hide exactly what SPCC measures.
+**Stack policy (optional `"stack"` recipe block)** — run_pipeline
+resolves `{"weight": "wfwhm"|"nbstars"|null, "exclude": [frame
+numbers]}` from the dataset recipe at stack time (recipe-only knob, no
+generic layer; provenance printed every run) and applies it on every
+stack path — matched-flat template, FITS single, dual-band per line,
+self-flat. ABSENT block/null/empty = the generic default: today's
+unweighted `rej 3 3` with generated scripts byte-identical (proven by
+text diff per path + green sweep). Weight → `-weight=` on the stack
+line (regdata carries through both seqapplyreg and direct register —
+verified on the installed 1.4.4); exclude → `unselect <r_seq> n n`
+lines + `-filter-incl` (MANDATORY: plain stack measured to ignore
+manual selection), where n = the registration inspection's per-frame
+`n` (a dual-band set's one list governs both line stacks). Identity
+caveat, measured: unselect indexes by 1-based POSITION while a
+registration-REDUCED sequence keeps original file numbers with gaps —
+position == n only on contiguous sequences — so with any exclude the
+runner re-reads the stacked .seq after the run (`verify_exclusion`)
+and hard-fails, REMOVING the stack, unless exactly the named file
+numbers were deselected. Trigger doctrine: OFF everywhere generically — siril's
+`-weight` is a min-max RAMP over the sequence's regdata (soft-culling:
+worst frame → ~0 weight at ANY spread; measured N_eff 11.9/16 and +21%
+sky noise at 7.4% FWHM CV), so a weight or cull is per-dataset state
+adopted only through a with-vs-without ladder when a dataset's RECORDED
+registration-inspection numbers show a real trigger (fwhm_cv_pct far
+above the measured low-spread-harm regime, or cloud-class outlier
+flags); rejection +
+addscale normalization already absorb transients and frame-level
+excursions (the SHO dawn-glow class stacked into an approved base), and
+any weight/cull change rebuilds the stack = declared delta through gate
++ inspection + the user's eyes downstream.
 
 **Dedicated-astrocam FITS branch (cooled mono/OSC)** — a set of `.fits` lights
 forks to a FITS ingest: `fitsmeta.py` reads exposure/gain/offset/filter/mono
@@ -672,12 +702,41 @@ generic bounds).
 Consumers: deconvolution eligibility reads `fwhm_med_px` (sampling —
 hoo's extracted lines measure 1.58–1.61 px, undersampled, the drizzle
 case) + `fwhm_cv_pct`/`round_med` (PSF stability); the acquisition
-checklist reads the per-frame flags. Weighting/culling POLICY is
-deliberately not here — its shape is RATIFIED (2026-07-12, the BACKLOG
-entry is the contract) with implementation pending as its own
-declared-delta session; stack defaults stay untouched until then (the
-wFWHM dead end is a set-03 DEFAULT fact at ~6% spread, not a
-per-dataset ban).
+checklist reads the per-frame flags; the stack-policy `exclude` list
+names frames by this stage's recorded `n`. Weighting/culling POLICY is
+deliberately not part of the measurement stage — its surface SHIPPED
+2026-07-12 as the per-dataset `"stack"` recipe block (stack-builder
+paragraph above: resolution, mechanisms, trigger doctrine), byte-inert
+until a recipe opts in with a measured reason; NO dataset pins one
+(low-spread weighting measured actively harmful — the dead-end entry
+carries the ramp numbers — and the honest corpus 2.0–34.0% CV all
+stacked clean unweighted).
+MECHANISM VERIFIED (2026-07-12, pre-registered runs on colonnello-m20
+lights_Blue, 16×80 s mono B, fwhm_cv_pct 7.42; pinned member stack
+mv'd aside/restored, experimental stacks under tagged names, nothing
+pinned; full probe log in the session's
+work/stack_policy_mechanism_findings.md):
+(a) weight — `-weight=wfwhm` runs end-to-end on the r_ sequence
+(regdata carries through BOTH seqapplyreg and direct register —
+probed on all four stack-path mechanisms). The no-op PREDICTION WAS
+KILLED: siril 1.4.4's weight scheme is a MIN-MAX RAMP — at CV 7.4%
+weights still span 1.93 (wfwhm 3.14) down to −0.00 (4.25), the worst
+frame effectively dropped regardless of spread; N_eff 11.9 of 16 →
+statistical-sky noise +20.7% vs control (inspection 10.93%→11.62% at
+bg 181.7→206.3 counts16) and a +24-count16 sky pedestal (ramp
+weights correlate with session sky drift). Same ramp on nbstars (5%
+star-count spread → full 0→2.15 range). Siril weighting is
+SOFT-CULLING, all noise cost at low spread — the measured number
+behind the ratified OFF-generically doctrine; the set-03-era "~6%
+spread → no-op" line was an unrun prediction, and its dead-end entry
+now carries these numbers (low-spread weighting is actively harmful,
+not null).
+(b) exclude — `unselect r_pp_light 9 9` flips exactly I-line 9;
+plain `stack` IGNORES manual selection (16 stacked, byte-identical
+to control — `-filter-incl` is MANDATORY with any exclude);
+`stack -filter-incl` integrates exactly 15/16, noise ×1.0278 vs
+control (predicted √(16/15)=1.0328), median +0.06% — both
+predictions CONFIRMED.
 
 ## Per-stage expectations (inspection contract)
 
@@ -825,7 +884,15 @@ Detection/solve/registration:
   auto-reference under-performs a SWEEP (18/21 vs 21/21 @ ref 12).
 - 38mm-only subset (dropping the 8×37mm frames) → same per-frame
   matching luck, full √(18/11) noise penalty. Keep all frames.
-- wFWHM weighting/filtering → no-op at ~6% FWHM spread.
+- wFWHM weighting at low FWHM spread → WORSE than the recorded "no-op":
+  siril's -weight is a min-max RAMP over the sequence (worst frame → ~0
+  weight at ANY spread; measured at 7.4% CV: weights 1.93..−0.00, N_eff
+  11.9/16, +21% statistical-sky noise, +24 c16 pedestal from the
+  weight×sky-drift correlation). The set-03-era "~6% spread → would be
+  a no-op" line was an unrun prediction; the measurement replaces it:
+  at low spread weighting is all noise cost for zero crispness need.
+  Per-dataset tool ONLY, on a recorded trigger (fwhm_cv_pct far above
+  this regime, or cloud-class outlier flags) — never a default.
 - Drizzle → heavily oversampled at 24 mm/5.9 µm; pointless.
 - Deconvolution (makepsf + RL) → fitted PSF ≈ symmetric (trailing is
   in-exposure), unstable on ≈0 background; no de-trailing.

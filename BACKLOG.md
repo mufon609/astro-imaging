@@ -24,12 +24,12 @@ clutters the file. Cross-reference entries with `**Blocks:**` /
 `**Blocked by:**` lines so the dependency graph stays inline.
 
 **Pick-up order** (user-ratified; re-rank when items close). When a session
-asks "what next", take: **C1 → C18 → C6 → B1 → C4 → C11 →
-C14 → C12/C7/C3/C15** (C1 leads: its policy shape was ratified
-2026-07-12 with the user directing immediate continuation; C18 next:
-direct user directive; the other two
-former leads closed — the class-triage checklist shipped into README,
-and C17's report-card half shipped with its preset half moving to the
+asks "what next", take: **C18 → C6 → B1 → C4 → C11 →
+C14 → C12/C7/C3/C15** (C18 leads: direct user directive; the former
+lead closed — the ratified stack weighting/culling policy surface
+shipped as per-dataset recipe state with its mechanism verification;
+earlier closures: the class-triage checklist shipped into README, and
+C17's report-card half shipped with its preset half moving to the
 awaiting-inputs tier below, its redesigned scope needing user
 ratification).
 C8 and C10 run when their external/user inputs arrive, C17's preset
@@ -125,45 +125,6 @@ context.
 ## C. Anytime (no dependencies)
 
 No upstream blockers; safe to pick up in any session. Default-focus tier.
-
-### C1 — Stack weighting/culling policy (RATIFIED; implementation pending)
-
-The measurement half exists: the registration inspection records
-per-frame FWHM/wFWHM/roundness/background/star-count distributions and
-flags outlier frames on every run. This entry is the POLICY half —
-**RATIFIED by the user 2026-07-12 exactly as below**; what remains is
-the implementation, shipped as its own one-knob, declared-delta
-session. No stack default changes: ABSENCE of the recipe block is the
-generic default, so implementing the surface is byte-inert everywhere
-until a dataset's recipe opts in with a measured reason.
-
-- **Recipe surface:** an optional `"stack"` block in recipe.json —
-  `{"weight": "wfwhm"|"nbstars"|null, "exclude": [frame numbers]}` —
-  read by run_pipeline at stack time; absent/null = today's behaviour
-  (unweighted `rej 3 3`), provenance printed like every render knob.
-- **Weighting doctrine:** siril 1.4.4 exposes
-  `-weight={noise|wfwhm|nbstars|nbstack}`. `noise` carries the failure
-  mode PixInsight abandoned when WBPP moved to PSF Signal Weight
-  (2021): noise/SNR weights are positively biased by sky brightness —
-  thin cloud reads as signal, promoting the worst frames — so the
-  star-anchored `wfwhm` is the only candidate direction here. OFF
-  generically: the dead-end registry's wFWHM no-op at ~6% FWHM spread
-  stands; the measured trigger for a per-dataset ladder is a recorded
-  fwhm_cv_pct well above that regime (the honest corpus spans
-  2.0–34.0%) or recorded cloud-class outlier flags.
-- **Culling doctrine:** rejection + addscale normalization already
-  absorb transients AND frame-level excursions (measured: the SHO
-  corpus's dawn-glow final frames, bg z +10.9…+119, stacked into the
-  approved base); culling is justified only for frame-wide
-  PSF/geometry damage. Never automatic: `exclude` is explicit
-  per-dataset state, adopted only through a with-vs-without ladder
-  (the 38mm-subset dead end — full √(18/11) noise penalty for zero
-  crispness gain — is the standing cost warning).
-- One knob per experiment; any weight/cull change rebuilds the stack =
-  declared delta through gate + inspection + the user's eyes on the
-  render downstream. Frame identity in `exclude` = the sequence file
-  numbers the registration inspection records as `n` (the same numbers
-  its outlier flags name).
 
 ### C3 — Per-stage cleanup for the self-flat sequence chain
 
@@ -445,9 +406,9 @@ schema in code, per-knob provenance notes in the file) but grew across
 sessions — audit it as ONE design: naming and terminology consistency
 ("generic" vs "base" vs "foundational"), what belongs in the generic
 file vs a recipe vs a composition record vs geometry (the four-file
-contract should state a crisp decision rule), how the `spcc` block and
-future stage knobs (decon, weighting) slot into the same resolution
-order, whether approved-recipe pinning should snapshot the generic
+contract should state a crisp decision rule), how the `spcc` and
+`stack` blocks and future stage knobs (decon) slot into the same
+resolution order, whether approved-recipe pinning should snapshot the generic
 "why" notes it froze against, and whether the docs (README + both
 dataset contracts + NOTES design section) tell one coherent story a new
 contributor can follow. Edit and tighten — documentation and structure,
