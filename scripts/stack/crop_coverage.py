@@ -3,9 +3,10 @@
 
 A long untracked sequence drifts and rotates, so the registered stack's
 border band is covered by only a subset of frames: rejection zeroes the
-uncovered contributions and the band reads as a huge fake falloff
-(measured: G rim -43% on a 48-min 240-frame set whose interior is flat —
-against set-03's +-2sigma borders that justified the no-crop default).
+uncovered contributions and the band reads as a large fake falloff (a
+long drifting set can lose tens of percent at the rim while its interior
+is flat, unlike a rigidly-registered set whose fully-covered borders
+carry only a small level plane).
 Downstream assumes uniform sky statistics (the gate's statistical block
 selection would embrace the dark band), so the stack ships only the
 region every kept frame covered.

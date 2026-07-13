@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Derive a foreground (non-sky) mask from a linear stack — trees,
 horizon objects — for the per-set config (the alternative is a hand-set
-rect like set-03's branch).
+rect).
 
 Usage: suggest_foreground.py <stack.fit> <out.npz>
            [--k=0.4] [--dilate=48] [--overlay=<path.jpg>]
 
 Detection: foreground pixels block the sky, so on the LINEAR stack they
-sit far below the sky level (set-03 sky noise is ~40 sigma above 0.4x
-median — sky cannot reach the threshold). Candidates = G < k * sky
+sit far below the sky level (sky noise sits many sigma above the 0.4x-
+median threshold, so real sky cannot reach it). Candidates = G < k * sky
 median, kept only if their connected component touches the bottom/left/
 right border (trees grow from edges; a dark nebula or lane never touches
 the border at these focal lengths). Morphological close bridges branch

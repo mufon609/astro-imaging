@@ -4,7 +4,7 @@
 process contract (workflow mapping, review contract + standing audits,
 per-set geometry, experiment discipline, north star); (3) `NOTES.md`
 top to bottom — the technical pipeline: the environment, the design
-with each knob's measured WHY, the DEAD-END registry (never re-attempt
+with each knob's technical why, the DEAD-END registry (never re-attempt
 those), bandaid ledger, acquisition checklist; (4) `BACKLOG.md` —
 deferred work + the pick-up order (self-governing; its IDs never leave
 that file). Full history lives in `git log` (every commit carries the

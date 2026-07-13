@@ -51,8 +51,8 @@ D16 = 65535.0
 # stage -> metric -> (lo, hi, note); units: 16-bit display counts for linear
 # stages, 8-bit counts for stretched. THIS table is authoritative (NOTES.md
 # carries a summary). Bounds are WARN bounds (inspection), not the bg_qa
-# gate. They are sanity ENVELOPES calibrated on set-03 (some
-# self-flat-specific: corner_gain, stack noise%) — a new data class may
+# gate. They are sanity ENVELOPES (some self-flat-specific: corner_gain,
+# stack noise%) — a new data class may
 # WARN legitimately; revisit bounds there instead of ignoring the WARNs.
 EXPECTATIONS = {
     "master_dark": {
@@ -62,7 +62,7 @@ EXPECTATIONS = {
     },
     "master_flat": {
         "flat_level_pct": (None, None, "INFO: median % of full scale — the exposure-checklist fact (goal ~50%; measured corpora 28-37%)"),
-        "corner_over_center": (0.35, 1.02, "field illumination falloff (measured flats 0.87-0.94, the m74 flat 0.99; below 0.35 exceeds every honest falloff class on record, above 1.02 is not a flat)"),
+        "corner_over_center": (0.35, 1.02, "field illumination falloff to the corner (a clean flat sits ~0.85-1.0; below 0.35 exceeds every honest falloff class, above 1.02 is not a flat)"),
         "dust_min_rel": (None, 0.05, "deepest coherent small-scale dip vs the smooth field (measured clean flats 0.3-0.9%); a >5% shadow is a real mote — verify it matches the lights' dust or it prints a ring downstream"),
         "clip_frac": (None, 0.005, "a clipped flat is broken by construction"),
     },

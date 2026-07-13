@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Siril processing pipeline. Usage: scripts/stack/run_pipeline.sh <session-dir> [lights-set]
-#   e.g. scripts/stack/run_pipeline.sh 07-02-26          # processes <session>/lights
-#        scripts/stack/run_pipeline.sh 07-02-26 set-03   # processes <session>/set-03
+#   e.g. scripts/stack/run_pipeline.sh <session>          # processes <session>/lights
+#        scripts/stack/run_pipeline.sh <session> <set>   # processes <session>/<set>
 # A session dir holds shared calibration — raw frame dirs (darks required;
 # biases+flats optional), or for master-only corpora a calib/ dir of
 # prebuilt {dark,flat}_<filter-token>.fits masters (FITS sets only; matched
@@ -705,8 +705,8 @@ else
   INS stage divided --in "$W/pp_bkg_pp_light_$F1.fit" "$W/pp_bkg_pp_light_$FM.fit" "$W/pp_bkg_pp_light_$FN.fit"
 
   # Registration reference sweep: with trailed stars, star matching succeeds
-  # or fails depending on the reference frame (measured on set-03: ref 11 ->
-  # 19/21, 12 -> 21/21, 2-pass auto-pick 14 -> 18/21). Sweep candidates from
+  # or fails depending on the reference frame, and an auto-picked reference
+  # can under-perform a swept one. Sweep candidates from
   # the drift-central middle outward, keep the best, stop early on all-in.
   best_ref=0 best_n=0 last_ref=0 sweep_log=""
   for ref in "$MID" "$((MID+1))" "$((MID-1))" "$((MID+2))" "$((MID-2))"; do

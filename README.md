@@ -8,9 +8,9 @@ why, and how every step is reviewed.
 
 **New contributor start here:** (1) this file top to bottom; (2)
 `NOTES.md` top to bottom — the technical pipeline: the environment, the
-current design with every knob's measured WHY, and the **DEAD ENDS
-registry** (read it before proposing ANY experiment — if it was tried,
-its killing number is there). Full chronological history lives in git
+design with each knob's technical why, and the **dead-ends registry**
+(read it before proposing ANY experiment — if it does not work, the
+mechanism why is there). Full chronological history lives in git
 (`git log`; every commit carries the NOTES of its time). Each dataset's
 approved recipe lives in `datasets/<session>/<set>/recipe.json` (see
 "Per-dataset state" below).

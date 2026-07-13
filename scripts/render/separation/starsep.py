@@ -209,12 +209,11 @@ def main():
           f"{stats['n_stars']}, masked {stats['mask_frac'] * 100:.2f}% of frame")
     # Resolved-object guard: this engine keys on compactness + prominence
     # and has no notion of "galaxy" — a detection inside an extended
-    # object's envelope is usually real structure (HII knots; on M74 it
-    # inpainted 26.9% of its detections out of the galaxy and screened
-    # them back as hard white blobs, and the 6212 px^2 core passed
-    # AREA_MAX_BRIGHT). Genuine stars superimposed on a bright envelope
-    # (a Milky-Way band reads ~4%) also land here, so a small fraction is
-    # normal; a LARGE fraction means the frame holds a resolved object
+    # object's envelope is usually real structure (HII knots), not a
+    # star, which this engine would inpaint out and screen back as hard
+    # blobs. Genuine stars superimposed on a bright envelope (a Milky-Way
+    # band) also land here, so a small fraction is normal; a LARGE
+    # fraction means the frame holds a resolved object
     # this engine cannot process.
     G = data[min(1, data.shape[0] - 1)]
     obj = am.extended_object_mask(G)

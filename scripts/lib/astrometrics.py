@@ -318,9 +318,8 @@ def _fg_mask(h, w):
 
 
 def branch_mask(h, w, stride=1):
-    """True where measurable (the foreground excluded; set-03: the
-    bottom-left branch rect, rows >=75% height, cols <22% w; mask-file
-    foregrounds for compositions a rect can't model).
+    """True where measurable (the terrestrial foreground excluded — a rect,
+    or a mask-file foreground for shapes a rect can't model).
     STATISTICS scope only: a hard edge is fine when selecting samples. Any
     RENDERING operator must use branch_mask_frac instead — a hard mask
     multiplied into a correction prints a visible seam (measured +1.0/−1.5
@@ -378,9 +377,9 @@ def sky_pixel_mask(ch, k=3.0, exclude_objects=True):
 
     A per-pixel cut (`ch <= bg + k*sigma`) alone is not a sky selector: the faint
     outer disk of a galaxy lies WITHIN a few sigma of the sky, so it survives the
-    cut. Measured on M74 (centred, 992 mm): 91% of the galaxy's 1-3 sigma outer
-    disk passed the per-pixel cut, which left the corings estimating their noise
-    on the object and gating against it. `extended_object_mask` judges on the
+    cut. A centred resolved galaxy's 1-3 sigma outer disk passes the per-pixel
+    cut, which would leave the corings estimating their noise on the object
+    and gating against it. `extended_object_mask` judges on the
     heavily smoothed image, where only a source's envelope stands above the sky,
     and removes it."""
     bg, sig = bg_stats(ch)
@@ -399,8 +398,8 @@ def extended_object_mask(ch, k=4.0, scale=48, iters=4, max_frac=0.6):
     only the source's envelope stands above the background.
 
     The threshold is re-estimated with the object excluded (the object inflates
-    the very median/MAD used to find it, so one pass under-reaches: on M74 a
-    single pass flagged only 24% of the annulus at r=375 px). Iterating settles
+    the very median/MAD used to find it, so one pass under-reaches (it flags
+    only part of a large object's outer annulus). Iterating settles
     the sky statistics on true sky. `max_frac` refuses to call most of the frame
     an object — a genuinely object-filling frame degrades to the per-pixel cut
     rather than masking everything away."""
@@ -457,8 +456,8 @@ def sky_flatness(data, stride=2):
         m = ann & skys
         # a bin must be MEANINGFULLY sky: an annulus that a centred object fills
         # can still leave a hundred stray "sky" pixels, and their median is the
-        # object, not the sky (on M74 the r=0.06-0.12 bin was 0.3% sky and read
-        # +7 counts high, carrying the whole false gradient)
+        # object, not the sky (a bin a centred object fills can be a fraction
+        # of a percent sky yet read several counts high, a false gradient)
         if m.sum() > 100 and m.sum() >= 0.25 * max(ann.sum(), 1):
             prof.append(float(np.median(Gs[m])))
             cc.append(centers[i])

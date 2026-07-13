@@ -18,8 +18,8 @@ diagonal + 1 deg margin, derived from FOCALLEN/XPIXSZ/NAXIS in the header
 Zenodo record (md5-verified, decompressed in place).
 
 Pure numpy; the HEALPix ang2pix (nested) is the standard algorithm — no
-healpy. Validated: reproduces the Cygnus 11-chunk cover for the 33.5 deg
-cone at (312.77, +48.16), all within the installed northern set.
+healpy. Validated against a hand-checked reference cover (an 11-chunk
+cover for a 33.5 deg cone).
 """
 import os
 import re

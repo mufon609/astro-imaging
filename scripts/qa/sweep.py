@@ -3,9 +3,9 @@
 
 Usage:
   sweep.py                          # sweep everything with a baseline.json
-  sweep.py --only 07-02-26/set-03 [--only ...]
-  sweep.py --rebaseline imx585c/m74_toa130 [--rebaseline ...]
-  sweep.py --rebaseline siril-m8m20/hoo_180s --ack-color-scope
+  sweep.py --only <session>/<set> [--only ...]
+  sweep.py --rebaseline <session>/<set> [--rebaseline ...]
+  sweep.py --rebaseline <session>/<set> --ack-color-scope
   sweep.py --determinism            # render each target TWICE, compare bytes
   sweep.py --keep                   # keep the sweep render artifacts
 

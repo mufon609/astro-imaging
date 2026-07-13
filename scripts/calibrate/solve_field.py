@@ -14,8 +14,7 @@ Why this exists: Siril's internal solver cannot match this rig's ultra-wide
 trailed-star fields (its online cone caps at ~2.5 deg, and with the local
 Gaia catalog + correct center it still fails star matching at 52 and 26 deg
 FOV). The astrometry.net engine with field-size-derived index scales solves
-the same field from 200 peak-detected stars in seconds (set-03: RA 312.774
-Dec +48.156, 32.78 arcsec/px, logodds 361, Cygnus). SPCC accepts the
+the same field from 200 peak-detected stars in seconds. SPCC accepts the
 injected TAN-SIP WCS.
 
 Blind is the default (and the right first move — a wrong position guess just
@@ -153,10 +152,10 @@ def scale_hint(path, width_arcmin=None):
 # astrometry.net 42xx index scale -> (lo, hi) skymark/quad diameter, arcmin.
 # Load index scales whose quad size spans ~7-100% of the field width. The
 # low bound sits below the textbook 10% because a wide, star-rich blind
-# field matches on quads well under 10% of the full frame — set-03's
-# solution is at scale 13 (~6%), and dropping it gives NO SOLUTION
-# (measured). 0.07*W reproduces the proven {13..19} for set-03 while still
-# admitting the lower scales a narrow telescope field needs. A fixed set
+# field matches on quads well under 10% of the full frame (a wide field's
+# solution can sit near ~6% of the width, and excluding it gives no
+# solution). 0.07*W admits those low scales while still covering the higher
+# scales a narrow telescope field needs. A fixed set
 # fits only one focal length; loading dense low scales on a wide field just
 # grinds — so the window is bounded on BOTH ends.
 _SCALE_ARCMIN = {
@@ -172,8 +171,8 @@ _SCALE_FALLBACK = {13, 14, 15, 16, 17, 18, 19}
 def scale_set(path, width_arcmin=None):
     """Index scales to load, derived from the field width (arcsec/px x
     NAXIS1, or an explicit --field-width-arcmin) so any focal length can
-    solve. set-03 (55 deg) -> {13..19} (the proven set); a 500 mm field
-    (~4 deg) -> {6..14}, which a fixed set could not. When the header
+    solve. A ~55 deg wide-lens field -> {13..19}; a ~4 deg (500 mm scope)
+    field -> {6..14}, which a fixed set could not. When the header
     lacks FOCALLEN/XPIXSZ and no width is given, the WIDE-FIELD scales
     are all that can be loaded (loading every scale grinds) — that
     fallback cannot solve a narrow field, so it warns loudly and names

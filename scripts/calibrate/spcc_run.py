@@ -27,7 +27,7 @@ with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
 p99, so null is the adequate default; NOTES knob table).
 
 Defaults: in results/stack_<set>_wcs.fit, out results/stack_<set>_spcc.fit
-(override both for non-default stems like stack_set-03_norgbeq_*).
+(override both for non-default stems like stack_<set>_norgbeq_*).
 The generated .ssf lives under work/ — the siril flatpak has its own
 private /tmp, so scripts must stay under $HOME.
 

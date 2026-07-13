@@ -167,18 +167,17 @@ def ensure_bge_linear(ctx, mode="gx", rbf_protect="significance"):
       thin-plate RBF through samples a significance mask keeps off the
       structure, plus a QUADRATIC chroma correction per channel
       (chroma-rigid — independent per-channel surfaces measured to
-      ripple chroma at block scale, while first-degree chroma left
-      colour 9 on a field whose coloured LP curves; six coefficients
-      cannot ripple). The protection reference (`rbf_protect`) is
-      per-dataset state: `significance` protects everything above the
-      statistical sky (frame-filling envelope = the target), `band`
-      protects mid-scale structure only (frame-scale envelope =
-      measured calibration debt, absorbed). For fields carrying BOTH
-      a real gradient and faint signal a full extraction eats
-      (measured: the SMC — gx ate 73% of its faint envelope, a plane
-      tilted into it, 38% retention, FAILED colour 13; set-02's
-      compact dust — gx kept 22-46% region-scale where rbf-band keeps
-      63-75% at gate PASS).
+      ripple chroma at block scale, while a first-degree chroma
+      correction cannot follow a curved coloured-LP field; six
+      coefficients cannot ripple). The protection reference
+      (`rbf_protect`) is per-dataset state: `significance` protects
+      everything above the statistical sky (frame-filling envelope =
+      the target), `band` protects mid-scale structure only (frame-
+      scale envelope = calibration debt, absorbed). The mode targets
+      fields carrying BOTH a real gradient and faint signal a full AI
+      extraction would eat — where gx absorbs the faint envelope and a
+      plane tilts into it. Not a default, and not validated on a
+      target that needs it.
     - `plane` — `subsky 1` only: a first-degree plane removes the gate's
       gradient class but cannot absorb localized nebulosity by
       construction. The retention mode for fields that ARE mostly object
@@ -1120,7 +1119,7 @@ def main():
     ap.add_argument("--stack", default=None,
                     help="override input stack path (default "
                          "results/stack_<set>.fit) — for pipeline-variant "
-                         "stacks, e.g. stack_set-03_bgeonly.fit")
+                         "stacks, e.g. stack_<set>_bgeonly.fit")
     ap.add_argument("--tag", default=None)
     ap.add_argument("--jpg-quality", type=int, default=None,
                     help="final jpg quality (generic 100 + subsampling 0 "
