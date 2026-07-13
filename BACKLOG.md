@@ -96,8 +96,8 @@ one PSF/resolution class and are not comparable across rigs:
 
 - `star_shell_report` samples the aura at fixed annuli (peak 8-16 px minus
   baseline 32-40 px, ranks 10..80) with no per-set override. On a tight
-  2-3 px PSF (m74) those annuli measure sky, not shell; on a big trailed
-  one (set-03, ~8 px) they sit near the core — the same number means
+  2-3 px PSF those annuli measure sky, not shell; on a big trailed
+  one (~8 px) they sit near the core — the same number means
   different things per class. (The sweep no longer hard-fails on the
   absolute WARN bound — aura regression is graded against each dataset's
   own baseline — so the brittleness is gone, but the METRIC still is not
@@ -116,7 +116,7 @@ metric line so a recorded number is interpretable. Gate thresholds never
 loosen; every change lands as a declared delta re-derived per dataset
 (one knob at a time). Until then the recorded aura/coring numbers are
 only comparable within one dataset AT ONE FRAME EXTENT — measured: a
-128 px border trim alone moved set-03's aura +4.0→+4.5 purely through
+128 px border trim alone shifts the aura reading purely through
 the top-500 anchor population, with no change to any star's rendering
 context.
 
@@ -129,10 +129,9 @@ No upstream blockers; safe to pick up in any session. Default-focus tier.
 ### C1 — Flat USABILITY gate in the raw-path preflight (awaits pick-up ranking)
 
 The preflight accepts any flats whose optics match the set, but a flat can
-be present, matched, and WRONG: session_02's flats carried ~3× extra
-corner falloff from a non-uniform light source (flat corner/center
-0.165–0.21 vs the lights' own sky falloff 0.52–0.72) and would have
-over-brightened corners ~3–5× through division. The `master_flat`
+be present, matched, and WRONG: a flat shot against a non-uniform light
+source can carry several times the lens's real corner falloff, and
+dividing by it would over-brighten the corners badly. The `master_flat`
 inspection already WARNs on exactly this (corner_over_center < 0.35) but
 inspection never routes. Add a measured usability check to the raw-path
 preflight: build the master flat, compare its corner/center against the
@@ -146,13 +145,13 @@ numbers. Keep the check cheap (a few frames, coarse grid).
 
 `partitioned_stack.py` (common-reference partitioned integration for
 sets whose intermediates exceed free disk) runs standalone and proved
-the mechanism set on session_02 (240×24.5 MP on ~5 GB free). Two
+the mechanism set on a 240-frame 24.5 MP set with ~5 GB free. Two
 integration steps remain: (1) run_pipeline.sh computes the projected
 single-pass footprint (frames × per-frame stage cost vs `df`) and
 routes to the partitioned runner loudly when the monolithic path cannot
 fit — mirroring the self-flat auto-route pattern; (2) the runner emits
 the standard per-stage inspection (INS master/calibrated/reg/stack) —
-session_02's unusable flat sailed past the runner precisely because the
+an unusable flat once sailed past the runner precisely because the
 INS stages were skipped there (the standing audit caught it the moment
 it was invoked); wire them in so the partitioned path carries the same
 review contract as the monolithic one. Byte-inert for every set the
@@ -163,7 +162,7 @@ monolithic path still serves.
 The self-flat branch accumulates four full frame sequences in `work/`
 (converted `light_*` → calibrated `pp_light_*` → glow-subtracted
 `bkg_pp_light_*` → divided `pp_bkg_pp_light_*`) and never removes a consumed
-one, so peak disk is ~4× a single sequence. On this rig's ~417 MB D810A
+one, so peak disk is ~4× a single sequence. On large (~417 MB) raw
 frames that is ~22 GB for a 28-frame set — over the free disk, so a large set
 cannot process without babysitting `work/` by hand. Each stage needs only the
 current + previous sequence: `light_*` is dead after calibrate, `pp_light_*`
@@ -179,11 +178,11 @@ downstream before deleting it.
 ### C4 — Optional deconvolution stage for well-sampled data
 
 The pipeline has NO deconvolution and the standard-workflow row marks step 4
-COMPLIANT-SKIP — correct on set-03 (in-exposure star trailing is not a static
-PSF; the fitted PSF is symmetric and unstable on ≈0 background, measured). But
+COMPLIANT-SKIP where star trailing is in-exposure (not a static PSF; the
+fitted PSF is symmetric and unstable on ≈0 background). But
 that is a per-data measurement, not a pipeline capability: linear deconvolution
-is a routine standard step for well-sampled data (a TOA-130 galaxy field at
-long integration is the textbook case), and the rig has exactly two free
+is a routine standard step for well-sampled data (a well-sampled galaxy
+field at long integration is the textbook case), and the rig has exactly two free
 aarch64-capable options (verified July 2026):
 
 - **Siril 1.4.4 `makepsf` + `rl`** — the classical route; official guidance:
@@ -204,9 +203,9 @@ not assumed: the registration inspection records supply the sampling
 ratio (fwhm_med_px vs the 2.0 px Nyquist floor, with its arcsec twin)
 and PSF stability (fwhm_cv_pct + round_med) per sequence, and the stage
 runs only when the data supports it, with the dataset recipe as the
-explicit override in both directions. Keep the measured set-03 SKIP as its removal
-condition. m74_toa130 (0.72"/px, 94 min) is the test case, and its
-`imx585c/reference/` master is the honest comparison target. Still no
+explicit override in both directions. Keep the in-exposure-trailing SKIP
+as its removal condition. A well-sampled long-integration mono galaxy set,
+with a reference master to compare against, is the test case. Still no
 third option: BlurXTerminator is paid + x86-64 + AVX; Cosmic Clarity
 ships no aarch64 binary (its MIT source + ONNX models could be wrapped
 like StarNet2 if ever needed).
@@ -240,9 +239,8 @@ milliseconds on Pi-class ARM).
 The composition machinery is LIVE for both shipped kinds and both
 mono-filters classes (NOTES design section carries the measured
 numbers): `dualband-osc` (per-line stacks from one set's CFA frames)
-and `mono-filters` broadband (M20 wheel, 0.072 px median channel
-alignment) + narrowband SHO (NGC7635, 0.040 px; prebuilt-master ingest;
-recipe-driven narrowband SPCC). The SHO PALETTE AESTHETICS (green
+and `mono-filters` broadband (an RGB filter-wheel target) + narrowband
+SHO (a prebuilt-master SHO target, recipe-driven narrowband SPCC). The SHO PALETTE AESTHETICS (green
 dominance vs the finished gold/teal looks; `rmgreen` is legal on this
 green-dominant class) are render-side and sit with the user's judgment
 package, not here. What remains:
@@ -254,24 +252,22 @@ package, not here. What remains:
   the one piece compose-then-render cannot express (L joins
   post-stretch, inside the render) — design it against the render
   chain, not around it. compose.py REFUSES a `luminance` member until
-  then. NO TEST CORPUS IS STAGED for this: the one LRGB candidate
-  (app-ngc292) is excluded by user request (.gitignore note; the
-  stager's `.done` marker enforces the skip) — pick an L-bearing corpus
+  then. NO TEST CORPUS IS STAGED for this: the one LRGB candidate is excluded
+  by user request (.gitignore note; the stager's `.done` marker enforces
+  the skip) — pick an L-bearing corpus
   with the user before starting.
 - **Dual-band FULL-SIZE upgrade:** native half-size Ha stacked with 2×
   drizzle instead of downsampling OIII (the docs' quality path) — gated
   on MEASURED dither coverage of the set, meaning sub-pixel PHASE
   diversity of the per-frame shifts. The registration inspection now
   records the full per-frame shift list + 4×4-bin phase coverage on
-  every run, and the gate question is ANSWERED for this set:
-  dither_phase_frac 0.69 per line (11/16 bins over 20 frames, Ha and
-  OIII alike — hoo_180s registration inspection record, 2026-07-12),
-  so phase diversity is confirmed and the upgrade is unblocked. The
-  motivation is also now on record: extracted-line FWHM measures
-  1.58–1.61 px (under the 2 px Nyquist floor — the half-size stacks
-  are undersampled; drizzle is the recovery path).
+  every run, and it confirmed sub-pixel phase diversity on the dual-band
+  set (dither coverage spread across the shift bins), so the upgrade is
+  unblocked. The motivation is on record too: the extracted half-size
+  lines measure under the 2 px Nyquist floor — they are undersampled,
+  and drizzle is the recovery path.
 
-Test data: the SHO corpus (mlnoga-ngc7635) stages via
+Test data: the SHO corpus stages via
 `~/.cache/astro_recovery/fetch_corpus.sh` (idempotent, disk-floor
 guarded); the LRGB slot has no staged corpus (see the LRGB bullet).
 Sources + license terms in `.gitignore`; per-corpus layout caveats in
@@ -297,26 +293,27 @@ The engine abstraction is in place (net/inpaint per recipe); the MODEL behind
 - **StarNet2 2.5.3 weights** (released 2026-06-27; the Linux x64 CLI zip still
   ships a loose `StarNet2_weights.onnx`, now under a 2026 license text).
   2.5.2/2.5.3 added *highlight protection* around saturated regions — exactly
-  the bright-star-shell class that keeps set-03 pinned to inpaint. Verify the
+  the bright-star-shell class that pins a wide trailed field to inpaint. Verify the
   graph I/O shape first (may differ from the current weights), then run the
-  sep_engine ladder on set-03 (aura bound) + M74 (knot preservation).
+  sep_engine ladder on a wide trailed field (aura bound) + a resolved galaxy (knot preservation).
 - **SyQon Zenith** (free star-removal model, siril.org-announced 2026-01;
   PyTorch, runs near native resolution, CPU-capable via aarch64 torch wheels;
   ~2x slower, RAM-hungry — watch the 7.7 GB ceiling).
 - **Cosmic Clarity Dark Star v2.1c** (MIT, ships a 14.5 MB ONNX — would slot
   into the existing onnxruntime wrapper directly).
 
-Bars: aura_lum within bound on set-03, 100% field-star flux + knot
-preservation on M74, byte-determinism, and like-encoding panels for anything
+Bars: aura_lum within bound on the wide trailed field, field-star flux +
+knot preservation on the resolved galaxy, byte-determinism, and
+like-encoding panels for anything
 that changes an approved look.
 
 ### C9 — Survey-referenced background separation (the long-term professional direction)
 
 From a single image alone, no estimator can distinguish frame-filling
 faint nebulosity from sky gradient at similar spatial scales — every
-failure in the retention ledger (SHO Bubble 75–98% absorbed, SMC 27%,
-set-02 dust 22–29%) is this one information gap wearing different
-data. The industry's emerging answer is EXTERNAL knowledge:
+failure in the retention ledger (a frame-filling nebula complex, a faint
+galaxy envelope, dark-lane dust, all partly absorbed) is this one
+information gap wearing different data. The industry's emerging answer is EXTERNAL knowledge:
 PixInsight's MultiscaleGradientCorrection subtracts a calibrated
 all-sky survey reference (the MARS database) so the background model
 comes from survey truth instead of the image's own statistics; manual
@@ -326,8 +323,8 @@ to us: fetch a low-resolution reference of the solved field (dust-map
 / survey class TBD — IRAS/Planck dust maps are the classic prior;
 licensing, resolution and photometric-scale questions are the
 research half) and use it to VETO background samples on known
-nebulosity , so the background model comes from survey truth rather than the
-image's own statistics. Research first (sources, licenses, resolution
+nebulosity, so the model rests on survey truth, not the image's own
+statistics. Research first (sources, licenses, resolution
 limits at 35″/px wide fields vs 1″/px scopes), then design as an
 OPTIONAL sample-veto layer over the background extractor — never a
 hard dependency (offline operation must survive). This is the
@@ -340,39 +337,36 @@ real, but a solved field plus a survey prior can.
 Siril's docs now position GHS as the most capable stretch ("rarely advisable"
 to use plain autostretch as-is) and provide the scriptable `autoghs` (+
 `-clipmode=rgbblend` unclipped highlights). The current chain uses linked MTF
-`autostretch` + significance corings. MEASURED MOTIVATION (deep-data
-classes, user-flagged across targets; user calls the fix foundational):
-the single-midtone MTF mis-serves BOTH ends of high-DR data at once —
-a 5.1σ linear shell renders at +5.7 display counts vs a reference
-finish's +40.7 (sky floor 7 vs 22); the bright-core structure/grain
-ratio collapses 5.58 (linear) → 1.07 through the stretch (grain ×150,
-structure ×29 — the object's mid-tones land on the flattened shoulder)
-and the core sits at 6/255 above sky where the reference allocates
-33–57/255 to the same structure; like-scale star peaks read 3.1% ≥250
-/ p99 255 vs their 0% / 200 with a dimmer faint field. The floor/top
+`autostretch` + significance corings. MOTIVATION (deep-data classes,
+user-flagged across targets, user calls the fix foundational): the
+single-midtone MTF mis-serves BOTH ends of high-DR data at once — the
+faint shell renders far dimmer than a good allocation gives it, and the
+bright-core structure/grain ratio collapses through the stretch (the
+object's mid-tones land on the flattened shoulder), so the core sits
+just above sky where a reference finish allocates a wide band to the
+same structure. The floor/top
 single-knob ladders were judged (generic wins — black_point cannot move
 above-sky contrast, linear-shift invariance; stars_peak fixes tops only
 at a faint-field cost). GHS's toe+shoulder is the structural answer to
 all of it. Run a like-encoding ladder (autostretch control vs `autoghs`
 variants) on two datasets of different classes — pure aesthetics,
 user's eyes decide; no bake without approval. Narrowband-palette
-interaction: the per-line stretch replaced the class's LMC-style ghs
-case study (the superseded SHO ghs package predates it), and a ghs
-finishing pass now composes ON TOP of the perline base (linked, the
+interaction: the per-line stretch superseded the earlier narrowband ghs
+case study, and a ghs finishing pass now composes ON TOP of the perline
+base (linked, the
 lines already equalized) — that combination is unprobed; ladder it on
 the perline class only after the perline look itself is judged.
 
 ### C11 — Redesign the colour gate as chain-added colour (ratified direction)
 
-On a frame whose every block carries real emission (siril-m8m20 `lpro_180s`:
-M8/M20 with the Sagittarius MW core filling the 2.5° field), the gate's
-block-luminance sky selector has no true dark sky to find — the faintest 85%
-of blocks still hold diffuse Hα, and its real chroma reads as a colour
-defect: the render fails ONLY colour (22.0 vs limit 7; gradient 2.0, blotch
-2.2, rings 3.2 all pass, shells +2.2). The author's own finished RGB of the
-same data reads colour 65.4 / gradient 27.7 through the same gate — the
-field is coloured at every luminance level; a ≤7 sky-colour bar is
-structurally unreachable there without destroying real signal. Leaving the
+On a frame whose every block carries real emission (a broadband field the
+Milky Way core fills edge to edge), the gate's block-luminance sky selector
+has no true dark sky to find — the faintest blocks still hold diffuse Hα,
+and that real chroma reads as a colour defect: the render fails ONLY colour
+while every achromatic metric passes. Even the data author's own finished
+RGB of such a field fails the same colour bar — the field is coloured at
+every luminance level, so a ≤7 sky-colour bar is structurally unreachable
+there without destroying real signal. Leaving the
 class permanently un-baselineable is also unacceptable: the no-regression
 suite would be blind to an entire data class.
 
@@ -397,30 +391,31 @@ same stretch) — design the comparison so it cannot be gamed by the
 stretch itself.
 
 Two dead candidates, measured — do not re-propose: excluding
-`extended_object_mask` regions from the colour blocks (mask covers 14% of
-the motivating frame, drops 3/529 sky blocks, colour 22.0 unchanged;
-references move ≤1.0), and accepting permanent colour-FAIL for the class
+`extended_object_mask` regions from the colour blocks (the mask covers only
+a small fraction of an emission-flooded frame and leaves the colour metric
+unchanged), and accepting permanent colour-FAIL for the class
 (blinds the regression suite).
 
 The switch LANDS only with calibration evidence presented to the user:
 the injected 8-count cast still FAILS, all currently-passing datasets
-still PASS, lpro_180s's honest colour passes — then lpro is baselined.
+still PASS, and the emission-flooded field's honest colour passes — then
+it is baselined.
 Thresholds never loosen; this changes what colour MEASURES, with proof it
 still catches every defect it caught before.
 
-Context (measured): the 22.0 colour excess is REAL SKY, not a calibration
-artifact — grounding SPCC in the true train response moves K ≤1.5% and
-the output ≤2.6e-4 p99, and SPCC on the BGE'd stack moves K_R +0.3% —
-neither the calibration nor the chain order explains it.
+Context: the colour excess is REAL SKY, not a calibration artifact —
+grounding SPCC in the true sensor response, and running SPCC before vs
+after background extraction, both move the fit negligibly, so neither the
+calibration nor the chain order explains it.
 
-Scope update, measured: the per-line stretch (`stretch_linked perline`)
-re-pins every channel's sky at the same target, so a narrowband-palette
-render passes the CURRENT colour gate outright (the SHO target: colour
-11.0 scope-FAIL linked → 5.0 PASS perline, achromatics 0.0) — that
-class no longer motivates this redesign and can baseline as-is. The
-broadband emission-flooded fields — lpro_180s (22.0) and the APPROVED
-hoo look (26.0 — pinned to the linked stretch; per-line for it would be
-a new declared delta through the user's eyes, not a gate change) — are
+Scope update: the per-line stretch (`stretch_linked perline`) re-pins
+every channel's sky at the same target, so a narrowband-palette render
+passes the CURRENT colour gate outright (linked scope-FAILs on colour,
+perline PASSes with achromatics clean) — that class no longer motivates
+this redesign and can baseline as-is. The broadband emission-flooded
+fields — a broadband OSC set, and an approved dual-band look pinned to the
+linked stretch (per-line for it would be a new declared delta through the
+user's eyes, not a gate change) — are
 scope-ACK tracked in the interim (see above); full colour admission
 still needs this redesign. The redesigned comparison must
 also stay honest under per-line stretching: each channel's transform
@@ -443,11 +438,10 @@ document the measured reason they differ.
 The composed products are parity-MIRRORED against the solved sky
 (det(CD) > 0; root cause: top-down camera FITS carrying no ROWORDER
 keyword, ingested under siril's bottom-up default — self-consistent
-everywhere downstream, so only the solve can see it), while ALL THREE
-data-author references publish sky-true (the SHO author's finish
-verified vertically mirrored vs our render by flip-correlation 0.185
-vs 0.081 direct — an eyeball same-orientation call had it wrong once,
-so verify parity numerically, never visually). `solve_field` now prints and
+everywhere downstream, so only the solve can see it), while every
+data-author reference on hand publishes sky-true (verified numerically by
+flip-correlation, not by eye — an eyeball same-orientation call was wrong
+once, so parity is always checked numerically). `solve_field` now prints and
 records parity on every solve, so the fact is never hidden. RESEARCH
 FIRST: what the publication norm actually is (sky-true parity vs
 camera-native; AAVSO/professional conventions vs amateur practice),
@@ -460,8 +454,8 @@ to the user before any code moves.
 ### C14 — Audit and tighten the global-vs-local recipe layering
 
 The layering is live (CLI > `recipe.json` > `datasets/GENERIC.json`,
-schema in code, per-knob provenance notes in the file) but grew across
-sessions — audit it as ONE design: naming and terminology consistency
+schema in code, per-knob why notes in the file) but grew organically —
+audit it as ONE design: naming and terminology consistency
 ("generic" vs "base" vs "foundational"), what belongs in the generic
 file vs a recipe vs a composition record vs geometry (the four-file
 contract should state a crisp decision rule), how the `spcc` and
@@ -476,10 +470,9 @@ no behavior change without its own declared delta.
 
 A baseline pins the stack sha and the final artifact hashes — nothing in
 between. When a render drifts against its baseline, the stage that moved
-is unrecoverable if the era caches are gone (measured: one dataset's
-era drift could not be localized because the deterministic caches had
-been pruned; the answer would have been one `cmp` against the era
-bgelin/trio). Record the intermediate identities in `baseline.json` at
+is unrecoverable if the per-stage caches are gone (a real drift once
+could not be localized because the deterministic caches had been pruned;
+the answer would have been one `cmp` against the cached bgelin/trio). Record the intermediate identities in `baseline.json` at
 rebaseline time — bgelin sha256 + separation-trio sha256s (+ compose
 inputs for composed targets) — so any future drift localizes to its
 stage from the records alone, prune or no prune. Hashing ~0.5 GB per
@@ -499,12 +492,10 @@ never an ad-hoc investigation. The process:
    published tooling and recipes (repos, Makefiles, articles, forum
    threads), tool-signature heuristics; when the tool is open and
    runnable, REPRODUCE the reference on this rig and keep the
-   intermediates as calibration targets. (First instance exists: the
-   SHO corpus's finish traced to the author's open-source tool, his
-   published per-target recipe recovered from his dataset repo, and
-   the pipeline reproduced locally — structure NCC 0.768 — which
-   yielded the noise-capped stretch, the LCh finishing set, and the
-   background-retention fix.)
+   intermediates as calibration targets. (This has been done once: a
+   narrowband corpus's finish traced to the author's open-source tool and
+   published recipe, reproduced locally, which yielded the noise-capped
+   stretch, the LCh finishing set, and the background-retention fix.)
 3. REPORT honestly, mechanism by mechanism: what our chain can mirror
    (and with which knobs), what used tools/steps we DO NOT have (with
    license and platform reality, per the separation-weights
@@ -538,9 +529,9 @@ PRESET knob — and it needs a redesign decision before implementation:
 the original spec (LINEAR pre-stretch channel weights: `natural` ∝
 measured line flux, `per-source` SNR-capped, `custom`) predates the
 per-line stretch architecture. Measured since: linear equalization is
-destructive through the corings (the SHO balance ladder: ×13/×7.3
-collapsed the object; the user judged SPCC-continuum as-is the winner
-over ×2.7–2.9 natural), and the narrowband class's real balance
+destructive through the corings (a large linear channel weight collapses
+the object; the user judged the SPCC continuum as-is the winner over
+linear-weighted variants), and the narrowband class's real balance
 mechanism is the NONLINEAR per-line object-anchored stretch
 (`stretch_linked perline`), which equalizes object prominence with the
 sky pinned. Candidate redesign: presets become perline ANCHOR POLICIES
@@ -559,11 +550,10 @@ User-ratified after FOUR measured escapes: a render whose OBJECT was
 damaged can pass every standing audit — the balance probe that
 neutralized the whole nebula through the corings PASSED the gate
 (colour 4.0, all achromatics green), the vst chroma-crush defect
-shipped in four gate-PASSing judged renders, the linked-stretch
-narrowband renders shipped with the Bubble's O3 sphere drowned
-(interior B−G −20 counts8 under 59 counts of chroma grain), and the
-lifted-faint-end renders shipped with coring MOTTLE — the partial
-Wiener shrinkage broke low-SNR dust into soft-edged 40–120 px
+shipped in four gate-PASSing judged renders, a linked-stretch narrowband
+render shipped with its O3 sphere drowned under the dominant line's chroma
+grain, and lifted-faint-end renders shipped with coring MOTTLE — the
+partial Wiener shrinkage broke low-SNR dust into soft-edged
 kept-vs-flattened patches ("blotchy", the user's eyes at 1:1) that the
 gate cannot see because the dust drops out of its statistical sky
 scope. The gate grades the SKY by design; nothing grades the object.
@@ -582,6 +572,6 @@ transform is closed-form and printable; the linked autostretch is
 siril-internal — deriving its equivalent MTF from the rendered
 sky/anchor levels is part of this design). Thresholds calibrate on the
 four measured escapes (all must WARN — each regenerates from the
-pinned SHO/M20 stacks with the recorded knobs) and every approved
+pinned stacks with the recorded knobs) and every approved
 render (none may). WARN-only until a class history exists; the gate
 never loosens.

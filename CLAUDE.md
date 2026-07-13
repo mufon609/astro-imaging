@@ -83,7 +83,7 @@ anything here.
   `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
   `baseline.json` (written by `sweep.py --rebaseline` only) — never
-  set-03-specific script patches; a dataset without them must degrade
+  dataset-specific script patches; a dataset without them must degrade
   loudly, not inherit silently.
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.

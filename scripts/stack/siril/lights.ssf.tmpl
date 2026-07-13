@@ -4,8 +4,9 @@ cd @SET@
 convert light -out=../work
 cd ../work
 # Dark: full subtraction when exposure-matched, bias+hot-pixel map otherwise
-# (preflight warns) — Z6III mean dark current is ~0 either way; the hot-pixel
-# map for -cc=dark is the win. -opt never needed. @FLATOPT@ is set by
+# (preflight warns) — on a low-dark-current sensor the master dark is ~0
+# either way, so the hot-pixel map for -cc=dark is the win. -opt never
+# needed. @FLATOPT@ is set by
 # run_pipeline.sh preflight: flat + equalize_cfa when flats match the set's
 # focal/aperture, empty (no flat) when they don't.
 calibrate light -dark=masters/dark_master @FLATOPT@ -cc=dark 3 3 -cfa -debayer
