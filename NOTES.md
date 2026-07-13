@@ -198,13 +198,6 @@ CLI > `datasets/<session>/<set>/recipe.json` > `datasets/GENERIC.json`
    - **plane** = `subsky 1` only. A first-degree plane removes the gate's
      gradient class and cannot absorb a localized cloud/object by
      construction — the retention mode for fields that ARE mostly object.
-   - **rbf** = in-house constrained extraction + `subsky 1` (one gray
-     thin-plate RBF through significance-masked clean-core samples +
-     quadratic per-channel chroma, deterministic; protection reference per
-     `rbf_protect` — knob table). A per-dataset mode for fields carrying
-     both a real gradient and faint signal a full AI extraction eats. NOT a
-     default and NOT validated on a target where it is needed (see the knob
-     table's honest status).
    - **off** = passthrough (measurement rungs).
 
    `subsky` runs WITHOUT `-dither`: dither injects unseeded noise (breaking
@@ -296,8 +289,6 @@ class through a one-knob ladder):**
 | cull 50 | Culls the faintest half of detections (noise-level clumping) before the star MTF. The faint-field character is set by the star MTF anchor + the starless floor, not the cull, so the exact value is not critical. |
 | satu 0.2 | Final saturation gain. Saturation scales all colour including star-edge fringe ~(1+s), so it is kept low to avoid amplifying the fringe. *Tuned default.* |
 | jpg q100/4:4:4 | The final JPEG. q92 + 4:2:0 chroma subsampling halves chroma resolution and adds star-edge ringing (visible as a pixeled aura); q100/4:4:4 avoids it. PNG8 is the lossless artifact the determinism check compares; PNG16 is the float render at 65536 levels. Finals embed sRGB colorimetry (vendored lcms profile, timestamp/ID zeroed for byte-determinism) with pixels identical; the gate q92 jpg carries none (gate identity). |
-| rbf_protect significance / band | The protection reference for `bgelin_mode rbf`. Single-image statistics cannot distinguish frame-filling faint nebulosity from an instrumental envelope at similar scales; this knob makes that information gap an explicit per-dataset choice. `significance` protects everything above the statistical sky (for targets where the envelope IS the signal). `band` protects only mid-scale structure and absorbs frame-scale elevation — but flattening a dark envelope toward the fitted surface brightens it into a WASH, so band trades a real dark region for a metric-clean but worse-looking one. STATUS: neither value is used by any dataset; band's look was rejected on its one trial; significance is unvalidated. Candidate for removal — it is dead weight until a target that needs it is validated. |
-| rbf internals (σ_s / ceiling / grid / λ / quad chroma) | Constants of the in-house RBF, tuned to a single field and unvalidated: σ_s (smoothing scale) sits below the protected structure scale; the protection ceiling is a class constant decoupled from the sample spacing; the grid must be dense enough not to alias real sky structure at the sample spacing (a Nyquist argument, not a regularization one); λ is noise-matched (sample-residual RMS ≈ window noise), so it shapes nothing; the chroma correction is quadratic per channel because a first-degree fit cannot follow a curved coloured-LP field and full per-channel spatial freedom ripples colour at block scale. |
 
 **Standing per-render audits (printed + logged every starcomb run):** the
 GATE (`bg_qa` on the starless render, composition-agnostic statistical sky
@@ -380,23 +371,7 @@ Gain/flat estimation:
   so different statistics give opposite-sign "residuals." Never scale the
   stack in place.
 
-Constrained extraction (the in-house RBF; unvalidated mode):
-- Symmetric sky references for retention grading are BLIND to a
-  locally-linear absorption ramp by construction. A retention local-sky
-  reference must be ONE-SIDED (the darkest compass direction, geometry
-  fixed on the stack).
-- Masked-fraction cell eligibility (skip a sample cell above X% masked)
-  starves texture-dense fields and leaves whole bands unsampled. Eligibility
-  must be CLEAN-CORE (a fully unmasked value window surviving erosion) — the
-  mask itself knows where the clean sky is.
-- Tuning the RBF smoothing λ to remove mid-scale wiggle does nothing: the
-  wiggle is REAL sky structure ALIASED by the sample spacing, fixed by grid
-  density (Nyquist), not regularization. λ stays noise-matched; it shapes
-  nothing.
-- A first-degree per-channel chroma correction cannot follow a curved
-  coloured-LP field (residual colour fails the gate). Quadratic per channel
-  is the working low-order form; full per-channel spatial freedom ripples
-  colour at block scale (a dead end).
+Background handling:
 - Per-frame `seqsubsky 2` (curvature) erases the Milky Way: at wide focal
   lengths the MW band IS frame-scale curvature, so only a geometric
   (band-mask) separation could discriminate it — and every hand-rolled

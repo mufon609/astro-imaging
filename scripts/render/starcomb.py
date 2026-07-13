@@ -152,36 +152,20 @@ def ensure_starsep(repo, sdir, input_fit, prom=6.0, set_name=None,
                     prom_args)
 
 
-def ensure_bge_linear(ctx, mode="gx", rbf_protect="significance"):
+def ensure_bge_linear(ctx, mode="gx"):
     """Linear background handling on the STAR-FUL stack, cached by stack
     identity + mode:
 
-    - `gx` — GraXpert BGE + `subsky 1` (the standard full extraction; the
-      order measured MW-safe on the DSLR class: gx on starless erased the
-      MW +38 -> +0.4, gx on the star-ful stack kept it). MEASURED CLASS
-      LIMIT: GraXpert's model absorbs frame-filling FAINT nebulosity —
-      75-98% of the Bubble complex's +3..11 e-4 dust amplitude was
-      subtracted as background while the +38 e-4 MW band survived; the
-      model cannot tell a frame-scale cloud from sky.
-    - `rbf` — in-house constrained extraction + `subsky 1`: ONE gray
-      thin-plate RBF through samples a significance mask keeps off the
-      structure, plus a QUADRATIC chroma correction per channel
-      (chroma-rigid — independent per-channel surfaces measured to
-      ripple chroma at block scale, while a first-degree chroma
-      correction cannot follow a curved coloured-LP field; six
-      coefficients cannot ripple). The protection reference
-      (`rbf_protect`) is per-dataset state: `significance` protects
-      everything above the statistical sky (frame-filling envelope =
-      the target), `band` protects mid-scale structure only (frame-
-      scale envelope = calibration debt, absorbed). The mode targets
-      fields carrying BOTH a real gradient and faint signal a full AI
-      extraction would eat — where gx absorbs the faint envelope and a
-      plane tilts into it. Not a default, and not validated on a
-      target that needs it.
+    - `gx` — GraXpert BGE + `subsky 1` (the standard full extraction). It
+      runs before star separation: on a star-removed frame the
+      frame-filling Milky Way reads as background and is absorbed, so the
+      star-ful order preserves it. CLASS LIMIT: GraXpert's model cannot
+      distinguish frame-filling FAINT nebulosity from a sky gradient and
+      absorbs it as background (bright compact objects saturate out of
+      its input clip and survive).
     - `plane` — `subsky 1` only: a first-degree plane removes the gate's
       gradient class but cannot absorb localized nebulosity by
-      construction. The retention mode for fields that ARE mostly object
-      when their residual gradient is first-degree-small.
+      construction. The retention mode for fields that ARE mostly object.
     - `off` — the stack passes through untouched (measurement rungs; the
       gate still judges the result).
     """
@@ -190,7 +174,7 @@ def ensure_bge_linear(ctx, mode="gx", rbf_protect="significance"):
         print("[starcomb] bgelin off — stack passes through (gate judges)")
         return stack
     st = os.stat(stack)
-    suffix = {"gx": "", "rbf": f"_rbf_{rbf_protect}"}.get(mode, f"_{mode}")
+    suffix = "" if mode == "gx" else f"_{mode}"
     out = os.path.join(work,
                        f"bgelin_{st.st_size}_{int(st.st_mtime)}{suffix}.fit")
     if os.path.exists(out):
@@ -199,11 +183,6 @@ def ensure_bge_linear(ctx, mode="gx", rbf_protect="significance"):
     if mode == "gx":
         src = rh.run_graxpert(stack, work,
                               lambda m: print(f"[starcomb] {m}", flush=True))
-    elif mode == "rbf":
-        src = rh.run_rbf_constrained(stack, work,
-                                     lambda m: print(f"[starcomb] {m}",
-                                                     flush=True),
-                                     protect=rbf_protect)
     else:
         src = stack
     rel_src = os.path.relpath(src, sdir)
@@ -221,7 +200,7 @@ def ensure_bge_linear(ctx, mode="gx", rbf_protect="significance"):
     # the GraXpert intermediate is consumed the moment bgelin exists —
     # per-stage cleanup (200-450 MB per dataset on this disk); a cold
     # rebuild regenerates it from the stack deterministically
-    if mode in ("gx", "rbf") and os.path.exists(out) \
+    if mode == "gx" and os.path.exists(out) \
             and os.path.exists(src):
         os.remove(src)
     return out
@@ -531,9 +510,7 @@ def render_config(ctx, cfg, jpg_out):
     # Background removed on the STAR-FUL linear (the standard order and
     # the only one measured MW-safe: gx on starless erased the MW +38 ->
     # +0.4), THEN separation; the starless branch only denoises/stretches.
-    bgelin = ensure_bge_linear(ctx, mode=cfg.get("bgelin_mode", "gx"),
-                               rbf_protect=cfg.get("rbf_protect",
-                                                   "significance"))
+    bgelin = ensure_bge_linear(ctx, mode=cfg.get("bgelin_mode", "gx"))
     if ctx.get("inspect_dir"):
         b, _ = am.load_image(bgelin)
         _inspect_stage(ctx, "bgelin", b, False, "BGE'd linear (star-ful)")
@@ -877,7 +854,7 @@ def render_config(ctx, cfg, jpg_out):
 # limits. A dataset's recipe overrides per knob; CLI overrides both. The
 # file and this schema must agree exactly or the render refuses to run.
 KNOBS = (
-    "bgelin_mode", "rbf_protect",
+    "bgelin_mode",
     "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
     "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
     "chroma_core", "lum_core", "core_order", "stretch_linked",
@@ -889,8 +866,7 @@ KNOBS = (
 )
 
 ENUM_CHOICES = {
-    "bgelin_mode": ["gx", "rbf", "plane", "off"],
-    "rbf_protect": ["significance", "band"],
+    "bgelin_mode": ["gx", "plane", "off"],
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
     "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
@@ -985,23 +961,9 @@ def main():
     ap.add_argument("--bgelin-mode", default=None,
                     choices=ENUM_CHOICES["bgelin_mode"],
                     help="linear background handling: gx = GraXpert AI "
-                         "BGE + subsky 1 (full extraction — measured to "
-                         "absorb frame-filling faint nebulosity), rbf = "
-                         "in-house constrained extraction + subsky 1 "
-                         "(one gray RBF through significance-masked "
-                         "samples + per-channel chroma planes; see "
-                         "--rbf-protect), plane = subsky 1 only, off = "
-                         "passthrough")
-    ap.add_argument("--rbf-protect", default=None,
-                    choices=ENUM_CHOICES["rbf_protect"],
-                    help="rbf mode's protection reference — per-dataset "
-                         "knowledge single-image statistics cannot "
-                         "supply: significance = everything above the "
-                         "statistical sky is protected (frame-filling "
-                         "faint envelope IS the target), band = only "
-                         "mid-scale structure is protected and frame-"
-                         "scale elevation is absorbed (envelope is "
-                         "measured calibration debt — unusable flats)")
+                         "BGE + subsky 1 (full extraction; absorbs "
+                         "frame-filling faint nebulosity), plane = "
+                         "subsky 1 only, off = passthrough")
     ap.add_argument("--starless-target", type=float, default=None)
     ap.add_argument("--stretch-mode", default=None,
                     choices=ENUM_CHOICES["stretch_mode"],
@@ -1196,7 +1158,7 @@ def main():
         sys.exit("starcomb: ladders require --hypothesis (discipline)")
     # every ladder value is a judgment surface: lossless, always
     ctx = {**ctx, "lossless": True}
-    enum_params = ("bgelin_mode", "rbf_protect", "starless_denoise",
+    enum_params = ("bgelin_mode", "starless_denoise",
                    "stretch_mode", "core_order", "stretch_linked",
                    "sep_engine", "stars_anchor")
     vals = []

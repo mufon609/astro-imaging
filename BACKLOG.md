@@ -326,17 +326,14 @@ to us: fetch a low-resolution reference of the solved field (dust-map
 / survey class TBD — IRAS/Planck dust maps are the classic prior;
 licensing, resolution and photometric-scale questions are the
 research half) and use it to VETO background samples on known
-nebulosity — C19's significance mask upgraded from image-statistics
-to sky-truth. Research first (sources, licenses, resolution limits at
-35″/px wide fields vs 1″/px scopes), then design as an OPTIONAL
-sample-veto layer on the C19 mechanism — never a hard dependency
-(offline operation must survive). The veto point now EXISTS: the v2
-significance mask (shipped 2026-07-12) is exactly the surface a
-survey prior would upgrade from image-statistics to sky-truth — and
-it would retire the `rbf_protect` knob's per-dataset judgment call
-(the C9 information gap that knob encodes). Research can start any
-time; the C19 SMC validation (its remaining half) is the natural
-first beneficiary.
+nebulosity , so the background model comes from survey truth rather than the
+image's own statistics. Research first (sources, licenses, resolution
+limits at 35″/px wide fields vs 1″/px scopes), then design as an
+OPTIONAL sample-veto layer over the background extractor — never a
+hard dependency (offline operation must survive). This is the
+principled fix for the information gap the retention ledger keeps
+hitting: an image-only estimator cannot know which faint structure is
+real, but a solved field plus a survey prior can.
 
 ### C10 — Try a GHS finishing stretch (aesthetic ladder)
 
@@ -529,46 +526,6 @@ builds the skill so ANY reference-bearing corpus gets the same
 treatment. Placement in the pick-up order needs user ratification
 (natural fit: before the next reference-bearing corpus lands;
 complements the object-integrity audit's retention traces).
-
-### C19 — Constrained extraction v2: the SMC (significance-reference) acceptance half
-
-The v2 mechanism SHIPPED 2026-07-12 (in-house `bgelin_mode rbf`: one
-gray thin-plate RBF through significance-masked clean-core samples +
-quadratic per-channel chroma, protection reference per the
-`rbf_protect` knob, deterministic, byte-inert unpinned — design,
-constants and every calibration verdict live in NOTES). The set-02
-`band` half was measured to gate PASS (dust structure-scale 95–96%)
-and USER-REJECTED on look 2026-07-12: absorbing a dark envelope
-LIFTS it into a wash — band is dead on its trigger case as judged
-(gate-PASS-but-look-rejected; the lesson feeds the object-integrity
-audit's calibration set). set-02 stays on its gx baseline. The
-original entry's own warning stands vindicated: this set's envelope
-is calibration debt a proper flat would retire, and background
-extraction must not be its rescue — the rejected wash is what that
-rescue looks like. The set-02 dust question rejoins the queue behind
-acquisition (reshoot with verified flats) and the stretch-side work,
-not behind more extraction surgery.
-
-What REMAINS is the entry's original acceptance case, blocked on
-data: the SMC (`significance` reference — its frame-filling faint
-envelope is the TARGET, protected above the global statistical sky).
-When the off-disk nikon-test stacks return:
-
-1. Validate the significance mask against the SMC's recorded 3–10σ
-   envelope (the v1 quarter-res mask detected none of it — 4/150
-   cells; the v2 analytic smoothed-noise threshold must cover it,
-   k=3 at σ_s 32, before any fit runs).
-2. Run the mode and grade by the recorded conventions: faint-band
-   retention ≥80% (v1: 27.4% ≡ gx; plane: 38% + colour 13), gate
-   FULL PASS (colour ≤7 back at the gx level — watch the quadratic
-   chroma against the D810A field's higher-order coloured LP), the
-   envelope rendered. Cell geometry on a frame-filling-envelope
-   field is the untested regime (the <20-cell refusal is the
-   designed failure mode; set-02's texture-starvation lesson —
-   clean-core eligibility — already ships).
-
-The SMC keeps its approved gx look until those numbers exist; neither
-plane nor rbf may pin there meanwhile.
 
 ### C17 — Palette-balance presets (REDESIGN against the per-line stretch)
 
