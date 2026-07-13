@@ -536,9 +536,17 @@ gray thin-plate RBF through significance-masked clean-core samples +
 quadratic per-channel chroma, protection reference per the
 `rbf_protect` knob, deterministic, byte-inert unpinned — design,
 constants and every calibration verdict live in NOTES). The set-02
-`band` half is measured (gate PASS, dust structure-scale 95–96%) and
-sits with the user (judgment_set02_c19_rbfband — a win pins rbf+band
-in that dataset's recipe as a declared delta).
+`band` half was measured to gate PASS (dust structure-scale 95–96%)
+and USER-REJECTED on look 2026-07-12: absorbing a dark envelope
+LIFTS it into a wash — band is dead on its trigger case as judged
+(gate-PASS-but-look-rejected; the lesson feeds the object-integrity
+audit's calibration set). set-02 stays on its gx baseline. The
+original entry's own warning stands vindicated: this set's envelope
+is calibration debt a proper flat would retire, and background
+extraction must not be its rescue — the rejected wash is what that
+rescue looks like. The set-02 dust question rejoins the queue behind
+acquisition (reshoot with verified flats) and the stretch-side work,
+not behind more extraction surgery.
 
 What REMAINS is the entry's original acceptance case, blocked on
 data: the SMC (`significance` reference — its frame-filling faint

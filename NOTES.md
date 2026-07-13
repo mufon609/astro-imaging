@@ -356,13 +356,26 @@ never let it grow narrative.
   (planar 1.35–1.57 c16 + non-planar block shape 3.6–4.3 c16 ≈ 7–10
   counts8 through this class's ×1300–1500 low-end gain) — whole-frame
   offline proxies mispredicted rendered grad twice; only the
-  gate-scope proxy tracks. **AWAITING THE USER:
-  judgment_set02_c19_rbfband (gx baseline vs rbf-band, inspection
-  notes attached) — the set-02 background verdict; a win pins
-  rbf+band in this dataset's recipe as a declared delta. NOTHING
-  BAKED; datasets keep gx generic.** SMC half (significance
-  reference: faint-band ≥80% at gate FULL PASS incl. colour ≤7)
-  blocked on the nikon-test stacks returning.
+  gate-scope proxy tracks. **USER VERDICT 2026-07-12
+  (judgment_set02_c19_rbfband): rbf-band REJECTED — reads WORSE than
+  the gx baseline at full frame. rbf/band may NOT pin on set-02; the
+  E1 gx baseline stands (byte-untouched, sweep-proven). The
+  band-protect direction is dead on its trigger case as judged: the
+  candidate mechanisms my own inspection flagged but under-weighted —
+  the absorbed dark zone rendered as a LIFTED wash (flattening a dark
+  envelope brightens it toward the fitted surface), the at-bound
+  colour 7.0 tint vs gx's 2.0, and the narrowed sky lowering the
+  stretch gain (faded wisps) — read together as an uglier image than
+  every number suggested. GATE-PASS-BUT-LOOK-REJECTED is the recorded
+  lesson: all four sky metrics + retention + determinism passed on a
+  render the judge rejects outright — a fifth calibration case for
+  the object-integrity/look gap (the audit entry's class: the gate
+  grades the statistical sky, nothing grades the look), and a
+  pre-handoff inspection failure mode reproduced (assembler graded
+  the defects individually and called the sum "comparable").** SMC
+  half (significance reference: faint-band ≥80% at gate FULL PASS
+  incl. colour ≤7) blocked on the nikon-test stacks returning — the
+  mode stays byte-inert everywhere meanwhile.
 - **Next acquisition (see checklist) — worth more than all remaining
   processing.**
 
@@ -673,7 +686,7 @@ per run; a recipe-less dataset renders generic and says so):
 | cull 50 | metric-invisible across the 0–50 ladder on set-03 AND visually+metrically null on a rich wheel field (M20, 0/25/50) — the faint-field difference vs reference finishes lives in the stars MTF anchoring + the starless floor, not the cull |
 | satu 0.2 | fringe span scales ~(1+s): 79/94/107 for 0/0.2/0.35; 0.2 keeps star color at −12% fringe |
 | jpg q100/4:4:4 | q92+4:2:0 cost mean 2.29 / max 176 counts at star edges / 9.7 star chroma (part of the "pixeled aura"); q100/4:4:4 = mean 0.44 / max 5; PNG8 = the lossless artifact the determinism check compares; PNG16 = the float render at 65536 levels (writer roundtrip-verified); finals embed sRGB colorimetry (588-byte vendored lcms profile, timestamp/ID zeroed → byte-deterministic; PNG sRGB/gAMA/cHRM chunks) with pixels IDENTICAL — the gate q92 jpg carries none (gate identity) |
-| rbf_protect significance (generic) | the C9 information gap as per-dataset state — single-image statistics cannot tell frame-filling faint nebulosity from instrumental envelope: `significance` protects everything above global statistical sky (the SMC class, envelope IS the target; acceptance numbers await the off-disk stack), `band` protects only the 32–202 px structure class and absorbs frame-scale elevation (calibration-debt envelopes; set-02 measured: gate PASS 7.0/5.9/2.5/3.7, dust structure-scale 95–96%, one-sided 63–75% vs gx 50–62%). Inert unless bgelin_mode rbf; nothing pins either value without the user's eyes |
+| rbf_protect significance (generic) | the C9 information gap as per-dataset state — single-image statistics cannot tell frame-filling faint nebulosity from instrumental envelope: `significance` protects everything above global statistical sky (the SMC class, envelope IS the target; acceptance numbers await the off-disk stack), `band` protects only the 32–202 px structure class and absorbs frame-scale elevation (calibration-debt envelopes; set-02 measured gate PASS 7.0/5.9/2.5/3.7 with dust structure-scale 95–96% — and the USER REJECTED the look 2026-07-12: flattening a dark envelope LIFTS it into a wash; gate-PASS-but-look-rejected). Inert unless bgelin_mode rbf; NO dataset pins either value |
 | rbf internals: σ_s 32 / ceiling 202 / grid 30×20 / λ 1e-3 / quad chroma | each constant measured on set-02: σ_s 32 keeps the 50 px class above the smoothing (dust detects at 51–53σ_band); ceiling 202 = class constant ~1.35× the 150 px structure top, DECOUPLED from spacing (0.65×spacing at the denser grid would expose the 100–200 px class); grid 15×10→30×20 resolved the 200–600 px aliasing zone (with quad chroma: rings 11.4→3.7); λ noise-matched (sample-residual RMS 0.086 c16 ≈ window noise — λ shapes nothing, dead ends); chroma quad per channel = the 3-FAIL→PASS iteration (first-degree ceiling colour 9, quad rms 1.41→0.42 c16) |
 
 **Standing per-render audits (printed + logged every starcomb run):**
