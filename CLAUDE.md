@@ -3,14 +3,15 @@
 **Read order, every session:** (1) this file; (2) `README.md` — the
 process contract (workflow mapping, review contract + standing audits,
 per-set geometry, experiment discipline, north star); (3) `NOTES.md`
-top to bottom — current truth ONLY: STATUS (approved recipe + byte-
-reproduce command + expected numbers), design with each knob's measured
-WHY, the DEAD-END registry (never re-attempt those), bandaid ledger,
-acquisition checklist; (4) `BACKLOG.md` — deferred work + the pick-up
-order (self-governing; its IDs never leave that file). Full history lives in `git log` (every commit
-carries the NOTES of its time; approved recipes are git-tagged).
-Volatile state (what is approved, open queue, disk-heavy artifacts) is
-in NOTES STATUS — trust it over anything here.
+top to bottom — the technical pipeline: the environment, the design
+with each knob's measured WHY, the DEAD-END registry (never re-attempt
+those), bandaid ledger, acquisition checklist; (4) `BACKLOG.md` —
+deferred work + the pick-up order (self-governing; its IDs never leave
+that file). Full history lives in `git log` (every commit carries the
+NOTES of its time; approved recipes are git-tagged).
+Per-dataset state (what is approved for a set, its measured baseline)
+is the tracked `datasets/<session>/<set>/` records — trust them over
+anything here.
 
 ## Environment (this rig)
 
@@ -75,8 +76,8 @@ in NOTES STATUS — trust it over anything here.
 - **No session/stream/ladder tags in script comments** — plain,
   standalone descriptions with their measured numbers; provenance
   narrative lives in NOTES/git only.
-- **Maintain NOTES.md in its refactored shape**: update STATUS /
-  design / knob-provenance / dead-ends / ledger IN PLACE; never append
+- **Maintain NOTES.md in its refactored shape**: update the design /
+  knob-provenance / dead-ends / ledger IN PLACE; never append
   chronological session narrative.
 - **New datasets get tracked per-dataset state** in
   `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),

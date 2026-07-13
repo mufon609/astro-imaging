@@ -274,7 +274,8 @@ package, not here. What remains:
 Test data: the SHO corpus (mlnoga-ngc7635) stages via
 `~/.cache/astro_recovery/fetch_corpus.sh` (idempotent, disk-floor
 guarded); the LRGB slot has no staged corpus (see the LRGB bullet).
-Sources + license terms in `.gitignore`, layout caveats in SESSIONS.md.
+Sources + license terms in `.gitignore`; per-corpus layout caveats in
+each gitignored `<session>/README.md`.
 
 ### C7 — Deduplicate the FITS I/O and MTF-solve helpers
 
@@ -522,7 +523,7 @@ never an ad-hoc investigation. The process:
 
 Deliverable: the documented procedure + a report template, with a
 `scripts/qa/` tool for the automatable measurements (parity, palette
-distribution, allocation, texture — library pieces exist). SESSIONS
+distribution, allocation, texture — library pieces exist). README's
 "Adding a dataset" step 0 already mandates the study; this entry
 builds the skill so ANY reference-bearing corpus gets the same
 treatment. Placement in the pick-up order needs user ratification

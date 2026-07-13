@@ -70,7 +70,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 AURA_BOUND = am.STAR_SHELL_WARN["aura_lum"]
 # Aura no-regression tolerance vs the recorded baseline. The metric's
-# calibrated separation is fixed recipe +2.0 vs defect era +12.0, and its
+# calibrated separation is a clean recipe +2.0 vs a defective render +12.0, and its
 # rendering-context sensitivity is ±0.5 (measured: a 128 px frame trim
 # alone moves it +0.5 through the top-500 anchor population, no shell
 # physics involved) — so 0.5 sits above context wiggle and far below the
@@ -329,7 +329,7 @@ def main():
             # size+mtime, so without clearing them the second render
             # reuses the first's GraXpert/separation outputs and the
             # check never exercises the heavy stages (measured: that
-            # blind spot hid an era drift on one dataset until an
+            # blind spot hid a real render drift on one dataset until an
             # unrelated cache prune exposed it)
             st = os.stat(stack)
             key = f"{st.st_size}_{int(st.st_mtime)}"

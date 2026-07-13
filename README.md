@@ -7,14 +7,13 @@ each step is for, what the industry standard does there, where we diverge and
 why, and how every step is reviewed.
 
 **New contributor start here:** (1) this file top to bottom; (2)
-`NOTES.md` top to bottom — it is deliberately short: STATUS (current
-state + reproduce contracts), the current design with every knob's
-measured WHY, and the **DEAD ENDS registry** (read it before
-proposing ANY experiment — if it was tried, its killing number is
-there). Full chronological history lives in git (`git log`; every
-commit carries the NOTES of its time). Each dataset's approved recipe
-lives in `datasets/<session>/<set>/recipe.json` (see "Per-dataset
-state" below); the corridor-era `B5/B6/B7-approved` tags are history.
+`NOTES.md` top to bottom — the technical pipeline: the environment, the
+current design with every knob's measured WHY, and the **DEAD ENDS
+registry** (read it before proposing ANY experiment — if it was tried,
+its killing number is there). Full chronological history lives in git
+(`git log`; every commit carries the NOTES of its time). Each dataset's
+approved recipe lives in `datasets/<session>/<set>/recipe.json` (see
+"Per-dataset state" below).
 
 ## The reference standard
 
@@ -127,7 +126,8 @@ it, each answering a question it can actually answer:
    exempt — its register sweep is non-deterministic; verify a stack by the
    gate + inspection.
 2. **No regression, across data classes.** Every registered dataset
-   (`SESSIONS.md`) still PASSES the gate, shows no star-shell WORSENING vs
+   (each baselined under `datasets/`) still PASSES the gate, shows no
+   star-shell WORSENING vs
    its own recorded baseline (regression semantics — a clean dataset rotting
    toward the defect class fails long before any absolute line; recording a
    baseline above the audit WARN bound requires an explicit
@@ -311,6 +311,8 @@ live in NOTES "Environment" + auto-memory.
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, auto-routes flatless sets to the self-flat branch, and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member first); measures the channel-alignment residual (inspected, bound 1.0 px) |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
+| `partitioned_stack.py` | common-reference partitioned integration for sets whose single-pass intermediates exceed free disk — time-contiguous partitions all register 1-pass to one pinned reference, combined as a frame-count-weighted mean (standalone; run_pipeline auto-routing is BACKLOG) |
+| `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle (a long drifting sequence's border band is covered by only some frames and reads as fake falloff) |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 
@@ -338,6 +340,8 @@ live in NOTES "Environment" + auto-memory.
 | `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, writes the QUESTION.md skeleton |
 | `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
+| `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
+| `stack_ab.py` | stack-vs-stack comparators for a with/without policy ladder (sky noise, blotch-proxy, difference structure + a stretched diff JPEG) — the instrument for a measured weight/cull adoption |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `measure_stack.py`, `diag_flat.ssf` | stack stats, master-flat diagnostic |
 
@@ -367,5 +371,31 @@ datasets/<session>/<set>/                tracked per-dataset state: geometry.jso
                                          recipe.json, baseline.json, composition.json
                                          (see datasets/README.md)
 scripts/                                 the pipeline (tracked)
-SESSIONS.md                              dataset registry (what's been processed)
 ```
+
+## Adding a dataset
+
+0. **If the corpus ships a reference finish** (`<session>/reference/`, the
+   answer key), STUDY IT BEFORE tuning any look: like-scale/like-orientation
+   comparison notes, and — when the author's processing is documented or their
+   tool is open — recover the actual recipe/mechanisms first (measured lesson:
+   two judgment rounds were burned tuning toward an unstudied reference whose
+   maker's recipe was published in the dataset's own repo).
+1. Lay it out as a session dir: `<session>/{darks,flats,biases,darkflats}/`
+   (calibration, each an internally-uniform group) + one `<session>/<set>/` per
+   single-pointing light set. Any siril-readable camera raw works with no
+   conversion, as do dedicated-astrocam **FITS** frames (`darkflats/` = darks
+   matched to the flat exposure). A master-only corpus stages prebuilt masters
+   as `<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only; the
+   normalized filename token is the identity — such masters carry no headers).
+2. `scripts/stack/run_pipeline.sh <session> <set>` — forks on the data class
+   (camera raw vs FITS), routes matched-flat vs self-flat → `stack_<set>.fit`.
+   Flats match lights by filter on the FITS path; mono lights never debayer.
+3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render
+   (`starcomb.py`). A **mono** (single-filter) set skips SPCC and renders
+   luminance-only.
+4. A set with no `datasets/<session>/<set>/` state **degrades loudly**
+   (whole-frame gate, no foreground mask, GENERIC knobs, printed as such) —
+   safe, just generic. Add `geometry.json` once solved, pin a `recipe.json`
+   when a look is chosen, and record the no-regression target with
+   `scripts/qa/sweep.py --rebaseline <session>/<set>`.
