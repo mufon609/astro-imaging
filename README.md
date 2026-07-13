@@ -22,15 +22,15 @@ follows, in order — linear until step 6:
 
 | # | standard step | our implementation | status |
 |---|---|---|---|
-| 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted `rej 3 3`, byte-identical generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING, measured +21% sky noise at 7.4% FWHM CV for zero crispness need — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
+| 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted `rej 3 3`, byte-identical generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
-| 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). MEASURED CLASS LIMIT: a full extraction model absorbs frame-filling faint nebulosity (75–98% of the Bubble complex; the reference author runs no extraction at all) — a plane keeps 93–97% and still clears the gate's gradient class |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC on the un-BGE'd stack is measured harmless (K moves ≤0.3% on the strongest-gradient field on hand — NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
+| 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). CLASS LIMIT: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — a plane keeps that signal (it removes only the first-degree gradient) and still clears the gate's gradient class |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background (NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (measured: 26% of M74's detections were HII knots) and warns when it measures that risk. A recipe pins the engine only on measurement (one exists: wide_50mm, where net fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
-| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately and finish with palette colour work (Siril/PixInsight doctrine; a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py`: starless stretch per class — **linked** autostretch (broadband; one calibrated scene, one transfer) or **per-line NOISE-WIDTH-CAPPED stretch** (`stretch_linked auto` → `perline` on a narrowband-palette composition: per line, gamma∘black-pin solved so sky location = `starless_target` and sky noise width = `perline_scale` — the stretch stops before amplifying noise into visibility) + the **gated LCh finishing set** (saturation gamma, Hubble hue rotation, SCNR, post-peak LUMINANCE-only lift `ppgamma` — chroma is never stretched); + significance corings (chroma/lum, Wiener-gated); stars gray-MTF anchor + flux-percentile cull + `stars_opacity` reduced-opacity screen | COMPLIANT (the reference-corpus author's own published chain implements exactly this mechanism set — noise-budgeted stretch, post-peak L-only lift, LCh colour ops, no denoiser; verified from his open-source tool + recipe and reproduced on this rig; sky-anchored unlinked measured a no-op, NOTES dead ends) |
+| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (it inpaints an extended object's HII knots out as if they were stars) and warns when it measures that risk. A recipe pins the engine only on measurement (e.g. an ultra-wide MW field where net's residual structure fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
+| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately and finish with palette colour work (Siril/PixInsight doctrine; a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py`: starless stretch per class — **linked** autostretch (broadband; one calibrated scene, one transfer) or **per-line NOISE-WIDTH-CAPPED stretch** (`stretch_linked auto` → `perline` on a narrowband-palette composition: per line, gamma∘black-pin solved so sky location = `starless_target` and sky noise width = `perline_scale` — the stretch stops before amplifying noise into visibility) + the **gated LCh finishing set** (saturation gamma, Hubble hue rotation, SCNR, post-peak LUMINANCE-only lift `ppgamma` — chroma is never stretched); + significance corings (chroma/lum, Wiener-gated); stars gray-MTF anchor + flux-percentile cull + `stars_opacity` reduced-opacity screen | COMPLIANT (this mechanism set — noise-budgeted stretch, post-peak L-only lift, LCh colour ops, no denoiser — is the established narrowband-palette finishing chain; sky-anchored unlinked is a no-op after BGE+SPCC, NOTES dead ends) |
 | 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
@@ -69,15 +69,15 @@ Principles that keep this honest:
    blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,
    plane-fit gradient ≤ 8, blotch ≤ 5, rings ≤ 8. Thresholds never loosen.
    Real signal (a galaxy / the MW / a nebula) is bright and drops out of the
-   sky selection, so it is never read as a defect and no per-set corridor is
-   needed. Whole-frame QA on the recombine is reported as reference, never
+   sky selection, so it is never read as a defect. Whole-frame QA on the
+   recombine is reported as reference, never
    gated.
 3. **Star metrics** (count / FWHM-eq / mid-tier peak / saturated fraction /
    halo) on the stars layer / combined render — reported.
 4. **Star-shell audit** (`astrometrics.star_shell_report`, every starcomb
    run): the ghost-aura defect class lives ON stars where the background
    gate cannot see it — bright-tier annulus metrics, `aura_lum` WARN > 4.0
-   (calibrated: fixed recipe +2.0, defect era +12.0), `shell_chroma`
+   (calibrated to separate a clean render from a defective one), `shell_chroma`
    reported as a trend (honest PSF fringe dominates it). The stars anchor +
    its MTF low-end gain print per run so normalization drift is visible.
 5. **The user judges aesthetics on the recombine — from FULL-FRAME
@@ -272,22 +272,22 @@ at the npz. (The derivation itself is flagged for redesign — see BACKLOG.)
 
 ```bash
 # full pipeline (session dir, set name; ~15 min)
-scripts/stack/run_pipeline.sh 07-02-26 set-03
+scripts/stack/run_pipeline.sh <session> <set>
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
-python3 scripts/calibrate/solve_field.py 07-02-26/results/stack_set-03.fit \
-    --inject=07-02-26/results/stack_set-03_wcs.fit
+python3 scripts/calibrate/solve_field.py <session>/results/stack_<set>.fit \
+    --inject=<session>/results/stack_<set>_wcs.fit
 # NEW FIELD: make sure the local Gaia chunks cover it before SPCC (a southern
 # field needs southern chunks); --fetch downloads any missing ones
-python3 scripts/calibrate/spcc_cone.py 07-02-26/results/stack_set-03_wcs.fit --fetch
+python3 scripts/calibrate/spcc_cone.py <session>/results/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
-# final render, approved defaults (~3 min; --lossless adds PNG8 + PNG16)
-python3 scripts/render/starcomb.py 07-02-26 set-03 \
-    --stack 07-02-26/results/stack_set-03_norgbeq_spcc.fit --lossless
+# final render (~3 min; --lossless adds PNG8 + PNG16)
+python3 scripts/render/starcomb.py <session> <set> \
+    --stack <session>/results/stack_<set>_norgbeq_spcc.fit --lossless
 
 # single-knob ladder
-python3 scripts/render/starcomb.py 07-02-26 set-03 --stack ... \
+python3 scripts/render/starcomb.py <session> <set> --stack ... \
     --param chroma_core --values 2,6 --hypothesis "..."
 ```
 
@@ -354,7 +354,7 @@ live in NOTES "Environment" + auto-memory.
 ## Data layout
 
 ```
-<session>/           e.g. 07-02-26/ or nikon-test/ or imx585c/
+<session>/           one acquisition session (any directory name)
   biases/ darks/ flats/ darkflats/       calibration (darkflats = the FITS path's
                                          matched darks for the flats)
   calib/                                 OR prebuilt master calibration for
