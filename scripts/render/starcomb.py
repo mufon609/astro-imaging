@@ -1122,6 +1122,7 @@ def main():
     repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sdir = os.path.join(repo, args.session)
     work = os.path.join(sdir, "work")
+    os.makedirs(work, exist_ok=True)  # render scratch (bgelin, gen scripts, starsep); not guaranteed to exist
     stack = (os.path.abspath(args.stack) if args.stack
              else os.path.join(sdir, "results", f"stack_{args.set}.fit"))
     if not os.path.exists(stack):
