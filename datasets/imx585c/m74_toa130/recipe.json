@@ -6,6 +6,6 @@
     "sep_engine": "net"
   },
   "notes": {
-    "sep_engine": "net pinned on measurement, objective: mask+inpaint classifies 225/852 detections (26%) inside the galaxy as stars — HII knots inpainted out of the starless and screened back through the stars MTF as hard white blobs; the 6212 px^2 galaxy core passes AREA_MAX_BRIGHT. net keeps 100.0% of field-star flux, pulls 33% less galaxy-zone flux into the stars layer, and its shell metric is BETTER here (aura +4.0 vs +4.9). Failure modes are asymmetric: net's worst case is cosmetic, inpaint's destroys signal."
+    "sep_engine": "net pinned, not the mask+inpaint fallback: this frame holds a resolved galaxy, and inpaint (which keys on compactness + prominence, with no notion of a galaxy) classifies the galaxy's HII knots as stars -- inpainting them out of the starless and screening them back as hard blobs. net keeps the field-star flux and pulls far less galaxy structure into the stars layer. The failure modes are asymmetric: net's worst case is cosmetic, inpaint's destroys signal."
   }
 }

@@ -42,12 +42,10 @@
     "bwl": 500.7
   },
   "notes": {
-    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) \u2014 the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
-    "solve": "same field and hint as the lpro set (M8/M20): solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
+    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
+    "solve": "narrow field, solve with a position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
   },
   "approved": {
-    "date": "2026-07-09",
-    "judgment": "results/judgment_hoo_20260709_223314 (vs the data author: full pair + ha_core/oiii_region/dark_sky crops)",
-    "note": "scope-ACKED no-regression baseline recorded (--ack-color-scope: colour 26.0 tracked one-sided, achromatics/bytes/shells fully enforced — the emission-flooded class fails colour by scope with achromatic metrics clean); FULL colour admission still waits on the colour-gate redesign"
+    "note": "scope-ACKED baseline (--ack-color-scope): this emission-flooded class fails the colour gate by scope with the achromatic metrics clean, so colour is tracked one-sided; full colour admission waits on the colour-gate redesign (BACKLOG)"
   }
 }

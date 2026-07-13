@@ -36,13 +36,11 @@
     "bgelin_mode": "gx"
   },
   "notes": {
-    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst crushed this target's object chroma -47..-50% (the hardest-hit dataset; A/B probe R-G -18.5 -> -9.3; the final render doubles back to -23.4 with off) \u2014 off restores it at gate PASS (colour 4.0 / grad 0.9 / blotch 1.2 / rings 1.7)",
-    "satu": "0.35/0.5 ladders were run for the SMC's OIII and NOT adopted \u2014 satu stays generic 0.2; re-judge the OIII region post-vst-fix before any new satu hypothesis",
-    "sep_engine": "net pinned with the approval (the approved surfaces are net renders; the earlier provisional deliverable used inpaint)"
+    "starless_denoise": "off, not vstpost: the post-stretch VST (a self-flat denoise adaptation) crushes this target's object chroma hardest of the class; off restores it at gate PASS",
+    "satu": "satu ladders were run for the OIII region and NOT adopted -- satu stays generic 0.2; re-judge the OIII region before any new satu hypothesis",
+    "sep_engine": "net pinned (the approved surfaces are net renders)"
   },
   "approved": {
-    "date": "2026-07-10",
-    "judgment": "results/judgment_smc_denoise_20260710 (denoise-off vs vstpost control; full-frame lossless pairs)",
-    "note": "approved for the same reason as the M20 fix: vst was destroying moderate-contrast object colour class-wide"
+    "note": "the post-stretch VST was destroying moderate-contrast object colour across this class; off is the fix"
   }
 }

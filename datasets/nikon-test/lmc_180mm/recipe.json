@@ -36,13 +36,11 @@
     "bgelin_mode": "gx"
   },
   "notes": {
-    "starless_denoise": "off is the one non-generic pin, measured: the post-stretch vst (the self-flat class's adaptation) crushed this target's object chroma -31..-50% (A/B probe R-G -16.4 -> -8.2; the final render doubles back to -17.5 with off) and smeared the blotchy blue/white galaxy body the user reported \u2014 off restores the subtle nebula dust detail at gate PASS (colour 6.0 / grad 2.3 / blotch 1.5 / rings 5.4)",
-    "red_halo": "the bright-star red halo is the Sigma-180-wide-open veiling-glare signature (R-G plateau +4..+5 counts r~6-38; absent on the same body at 50 mm f/4) \u2014 USER VERDICT: honest gear data, never de-fringe it in the render; the fix is acquisition (stop down)",
-    "chroma_core": "the generic k=4 was the user's pick on this set's k=0/2/4 ladder (neutral look); it does mute some real H-alpha colour on bright targets \u2014 re-ladder only with a hypothesis"
+    "starless_denoise": "off, not vstpost: the post-stretch VST (a self-flat denoise adaptation) crushes this moderate-contrast target's object chroma and smears the galaxy body; off restores the chroma and the subtle nebula dust at gate PASS",
+    "red_halo": "the bright-star red halo is a fast-lens-wide-open veiling-glare signature (an R-G plateau around bright stars, absent stopped down): honest optical data, never de-fringed in the render -- the fix is acquisition (stop the lens down)",
+    "chroma_core": "generic k=4 kept (neutral look); it mutes some real H-alpha colour on bright targets -- re-ladder only with a hypothesis"
   },
   "approved": {
-    "date": "2026-07-10",
-    "judgment": "results/judgment_lmc_denoise_20260710 (denoise-off vs vstpost control; full-frame lossless pairs)",
-    "note": "approved for the same reason as the M20 fix: vst was destroying moderate-contrast object colour class-wide"
+    "note": "the post-stretch VST was destroying moderate-contrast object colour across this class; off is the fix"
   }
 }

@@ -4,6 +4,6 @@
   "status": "provisional",
   "render": {},
   "notes": {
-    "quality": "exposure-limited data (signal/grain ~1 at 8.75 min ISO 200): render knobs are presentation only; acquisition is the fix"
+    "quality": "exposure-limited data (band signal barely above grain): render knobs are presentation only; the fix is acquisition, not processing"
   }
 }
