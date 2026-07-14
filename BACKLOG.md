@@ -115,6 +115,44 @@ mechanism, the replacement, the action, and the source. "x86-gated" = needs
 
 - **Confirmed CLEAN (audited, no change).** `inspect_stage.py` and
   `cull_report.py` compute only over Siril's regdata, not pixels; `judgment_
-  crops.py` is PIL inspection rendering; `compose.py`'s core is channel assembly;
-  the `astrometrics` foreground masks are per-set config geometry. All ALLOWED
-  (orchestration / decision-logic over tool numbers).
+  crops.py` is PIL inspection rendering; the `astrometrics` foreground masks are
+  per-set config geometry. All ALLOWED (orchestration / decision-logic over tool
+  numbers).
+
+## Script-level audit — does each whole script still make sense?
+
+Beyond the I/O reinventions above: which WHOLE scripts a tool can replace or
+remove under the checklist-workspace model. No kept script flagrantly breaks the
+"no in-house pixel ANALYSIS / gate" rule — the measurement layer that did was
+already deleted. What remains are two scripts doing an in-house pixel OPERATION a
+tool owns, and two dormant on the wiped render chain. (run_pipeline, the
+calibrate/SPCC set, inspect_stage, cull_report, and anomaly_audit are solid
+orchestration / record / checklist / detector — not listed.)
+
+- **`compose.py` → REPLACE its core with Siril `rgbcomp`.** The member ALIGN is
+  already Siril (`register` + `seqapplyreg -framing=min`); the channel COMBINE is
+  in-house (`np.stack` three mono planes → hand-rolled 3-plane FITS write). Siril
+  `rgbcomp red green blue -out=` does exactly that (confirmed on-rig), so the
+  in-house assembly + FITS I/O should be it. Bonus: `rgbcomp -lum={img}` performs
+  the LRGB luminance join `compose` currently REFUSES — i.e. the "LRGB join"
+  carried-forward item is a native primitive, not a gap. `compose` shrinks to:
+  resolve `composition.json` → drive the Siril align (mono-filters) → `rgbcomp`.
+  Needs a real dual-band and a mono-filter set to verify (absent here).
+
+- **`crop_coverage.py` → REPLACE with `seqapplyreg -framing=min`, likely REMOVE.**
+  It applies a precomputed coverage rectangle (array slice → FITS write) to trim a
+  drift set's uncovered border band. Siril does this natively at registration:
+  `-framing=min` crops to the coverage INTERSECTION (compose already uses it). The
+  ordinary stack template uses plain `seqapplyreg` (keeps the uncovered borders
+  the crop fixes); adding `-framing=min` there makes the separate crop script AND
+  its bounds-JSON producer redundant. `crop x y w h` is the native primitive if a
+  post-hoc crop is ever needed. Needs a real long-drift set to verify (absent
+  here).
+
+- **`judgment_package.py` / `judgment_crops.py` → DORMANT (render-coupled).** They
+  assemble judgment sets from render FINALS; the render chain is wiped/pending on
+  x86, so they cannot run until it produces finals. The CONTRACT they encode
+  (PNG8+PNG16 export-verify, WIN/NULL/needs-eyes, QUESTION.md, native-1:1
+  pre-handoff inspection) is durable doctrine — keep the pattern — but reactivate
+  them with the render rebuild, replacing the hand-rolled PNG codec then
+  (`savepng` writer + `tifffile`/TIFF reader, per the reinventions section).
