@@ -65,13 +65,35 @@ star-match solver fails ultra-wide **trailed** fields.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **Siril 1.4 native astrometry.net** (`platesolve -localasnet`, blind + SIP + auto-crop-wide) | FREE | siril-native | ✅ / ✅ / ✅ | **Now native in 1.4** (Dec 2025). Strong candidate to REPLACE our custom `solve_field.py` — VERIFY it solves trailed/ultra-wide (our dead-end was the *internal* solver; this calls `solve-field`). If it works, drop the custom script. |
+| **Siril 1.4 native astrometry.net** (`platesolve -localasnet -blindpos -blindres`, SIP, auto-crop-wide) | FREE | siril-native | ✅ / ✅ / ✅ | **Now native in 1.4** (Dec 2025) — replaces our custom solve for ROUND-STAR (tracked) data. VERIFIED it does NOT drop-in replace `solve_field.py` for the TRAILED class: Siril feeds astrometry.net its own `findstar` (PSF-fit) star list, which is exactly the detection our dead-end says fails on trailed stars (ours feeds trail-robust PEAK centroids). Mitigation to TEST on x86: `setfindstar -relax=on` accepts non-star-shaped/trailed objects — may let native localasnet solve the trailed class too. See the verification note below. |
 | **ASTAP** (`astap -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** (~2 s local blind solve vs astrometry.net's 5–30 s); its own star-pattern solver + local star DB. Best when a rough center is known; excellent headless. A third solver option distinct from astrometry.net. |
 | **astrometry.net** (`solve-field`, our `solve_field.py`) | FREE | CLI | ✅ / ✅ / ✅ | Our current workaround — blind solve from PEAK centroids, which is what beat the trailed-star problem. Keep as the fallback until native/ASTAP are verified on trailed data. |
 
-**Pick:** try Siril-native or ASTAP first on x86; keep `solve_field.py` only
-if both still choke on trailed stars. This tier likely **simplifies** (a
-native command replacing a custom script).
+**Pick:** native localasnet for round-star data; **keep `solve_field.py` for
+the trailed/ultra-wide class** (verified: native feeds Siril's PSF findstar,
+the failing detection). On x86, run the empirical test — `setfindstar
+-relax=on` + `platesolve -localasnet -blindpos -blindres` on a real trailed
+stack vs `solve_field.py` vs ASTAP; if native/relaxed solves reliably, retire
+the custom script; else it stays the trailed-field tool. VERIFICATION detail
+below the table.
+
+**Verification — does Siril 1.4 native solve replace `solve_field.py`?**
+PARTIALLY. Both now use the astrometry.net ENGINE (Siril's *internal*
+star-matcher was what failed on ultra-wide; localasnet bypasses it — that
+half is native now). BUT the star DETECTION differs and that was the other
+half of the failure: Siril localasnet "extracts the stars from your images
+[with `findstar`] and submits this list to `solve-field`" (Siril docs) — i.e.
+PSF-fit detection, which the `solve_field.py` docstring explicitly built
+around ("Siril's PSF-fit detection ... fail to feed the matcher on this
+[trailed] data"; ours uses trail-robust peak local-maxima). `solve_field.py`
+also carries edges native lacks as first-class options: foreground-masked
+detection (treeline/glow peaks poison the matcher), `--central` low-distortion
+crop for warped wide lenses, and field-width-derived index-scale selection.
+Net: native REPLACES for tracked/round-star data; for the trailed class it is
+unverified and likely needs `-relax=on` tuning or the custom script. (This is
+a MECHANISM verification from Siril docs + our source + the rig's command
+help; no empirical solve was possible — the image data is deleted and this is
+the arm rig. The x86 test above is definitive.)
 
 ## Tier 3 — Photometric colour calibration
 

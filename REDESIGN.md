@@ -72,8 +72,11 @@ option — free/paid, Linux/CPU/headless, when & why — is **[`TOOLS.md`]
 - **GraXpert 3.x** now does BGE + denoise + AI deconvolution, all free + in
   Siril 1.4.
 - **Siril 1.4 natives** may replace custom scripts: native astrometry.net
-  blindsolve (verify on trailed → maybe drop `solve_field.py`), native
-  drizzle, `ccm`, curves, Star Re-composition.
+  blindsolve (VERIFIED — replaces `solve_field.py` for round-star data, but
+  NOT the trailed/ultra-wide class: it feeds astrometry.net Siril's PSF
+  `findstar`, the detection that fails on trails; keep `solve_field.py` for
+  that class, test `-relax=on` on x86 — TOOLS.md Tier 2), native drizzle,
+  `ccm`, curves, Star Re-composition.
 - **PixInsight** (if licensed): the reference environment (WBPP, DBE/MARS).
 
 ## Architecture thesis: invert the ratio
