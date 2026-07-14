@@ -7,8 +7,7 @@ measured evidence. UNKNOWN is the honest anomaly surface: an obstruction that
 matches no known signature and deserves human eyes.
 
   Usage: anomaly_audit.py <frame.NEF | dir | glob> [--work=<dir>]
-                          [--session=<dir> --set=<name>] [--curv=<f>]
-                          [--json=<out>] [--keep-resid]
+                          [--curv=<f>] [--json=<out>] [--keep-resid]
 
 CLASSIFICATION MODEL — a registry of "callouts". Detected light-trails are
 grouped into candidate OBJECTS (an aircraft leaves several trails; a satellite
@@ -55,7 +54,7 @@ in-house code only for a derived result no tool provides):
 
   In-house kernel (numpy/scipy, EXAMINE only — reads Siril's products, writes
   no deliverable). These ARE pixel operations; they are not Siril:
-    - reads Siril's green residual FITS (shared read_fits) + findstar's star list
+    - reads Siril's green residual TIFF via PIL (Siril writes it) + its star list
     - STREAK DETECTION: threshold the green residual at bg + k*noise (both from
       findstar's report) and connected-component label it (ndimage.label).
     - reads residual pixel brightness inside each component (for the weights)
@@ -67,8 +66,10 @@ in-house code only for a derived result no tool provides):
   No tool detects/measures/classifies transient obstructions; that whole
   in-house layer is a SANCTIONED gap-filler. REMOVAL CONDITION: retire it the
   day a tool provides the streak detection/geometry/classification mechanism.
-  Reused from scripts/lib (shared EXAMINE helpers, not new mechanism):
-  read_fits (FITS I/O of Siril's product), branch_mask (per-set foreground).
+  Depends only on Siril + PIL + numpy/scipy — Siril writes the residual as a
+  16-bit TIFF and PIL reads it, so there is no in-house format parser.
+  Terrestrial-foreground masking is not wired in; the shape filter rejects
+  horizon/tree structure instead.
 
 VALIDATION (maturity per class — honest; lengths are extracted-green px):
   satellite — well exercised: real straight-trail passes and clean frames
@@ -112,29 +113,34 @@ import subprocess
 import sys
 
 import numpy as np
+from PIL import Image
 from scipy import ndimage
-
-_lib = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                    "lib")
-sys.path.insert(0, _lib)
-import astrometrics as am  # noqa: E402
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
 
+def read_green(path):
+    """Read Siril's extracted-green residual (a 16-bit TIFF written by Siril's
+    `savetif`) into a (H, W) float array in [0,1] via PIL — Siril writes the
+    format and PIL reads it, so there is no in-house format parser. Orientation
+    is Siril's top-down; the classifier is orientation-independent, no flip."""
+    return np.asarray(Image.open(path)).astype(np.float32) / 65535.0
+
+
 def run_siril(nef, work):
     """Drive Siril headless on ONE frame and return its products:
-    (residual_fits, star_lst, bg, noise). Siril does every pixel operation and
+    (residual_tif, star_lst, bg, noise). Siril does every pixel operation and
     every standard measurement — decode, GREEN-CHANNEL extraction from the CFA
     (explicit, so the analysis domain is deterministic — never the ambient
-    debayer setting), background extraction, the star table, and the background
+    debayer setting), background extraction, the residual as a 16-bit TIFF (PIL
+    reads it — no in-house format parser), the star table, and the background
     level + noise (findstar's report). Reads `nef`, writes only into `work`
     (the input is never modified). The .ssf lives under $HOME (the flatpak
-    sandbox has a private /tmp). bg/noise are returned in [0,1] to match
-    read_fits' normalization."""
+    sandbox has a private /tmp). bg/noise are returned in [0,1] to match the
+    TIFF's /65535 normalization."""
     stem = os.path.splitext(os.path.basename(nef))[0]
     green = f"Green_{stem}"                   # extract_Green's output basename
-    resid = os.path.join(work, "_resid")      # siril appends .fit
+    resid = os.path.join(work, "_resid")      # savetif appends .tif
     stars = os.path.join(work, "_stars.lst")
     ssf = os.path.join(work, "_audit.ssf")
     # extract_Green SAVES the green plane to a file but leaves the mosaic in
@@ -150,29 +156,29 @@ def run_siril(nef, work):
                 "extract_Green\n"            # CFA -> clean single-channel green
                 f"load {green}\n"            # process the GREEN, not the mosaic
                 "subsky 4\n"                 # background extraction (a tool)
-                f"save {resid}\n"
+                f"savetif {resid}\n"         # 16-bit TIFF -> PIL reads it
                 f"findstar -out={stars}\n")  # stars + its bg level + noise
     r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     for gf in glob.glob(os.path.join(work, f"{green}.fit*")):
         os.remove(gf)                        # drop the intermediate green file
-    fit = resid + ".fit"
-    if not os.path.exists(fit):
+    tif = resid + ".tif"
+    if not os.path.exists(tif):
         raise RuntimeError(f"siril produced no residual for {nef}:\n"
                            + r.stdout[-600:] + r.stderr[-600:])
     # Background level + noise from findstar's report ("Threshold: T
     # (background level: B, noise: N, norm: M)"). On the extracted green these
     # equal Siril `stat`'s background/noise (both measure the same background),
     # so either tool is correct; findstar's is used because findstar is already
-    # invoked for the star table (no redundant command). norm rescales to
-    # read_fits' [0,1]. Loud-fail if the format ever drifts.
+    # invoked for the star table (no redundant command). norm rescales to the
+    # TIFF's [0,1]. Loud-fail if the format ever drifts.
     m = re.search(r"background level:\s*([0-9.eE+-]+),\s*noise:\s*"
                   r"([0-9.eE+-]+),\s*norm:\s*([0-9.eE+-]+)", r.stdout)
     if not m:
         raise RuntimeError(f"could not parse findstar bg/noise for {nef} "
                            f"(Siril output format drift?):\n{r.stdout[-600:]}")
     bg, noise, norm = float(m.group(1)), float(m.group(2)), float(m.group(3))
-    return fit, stars, bg / norm, noise / norm
+    return tif, stars, bg / norm, noise / norm
 
 
 def stellar_trail_px(star_lst):
@@ -468,9 +474,8 @@ def link_objects(results, max_gap=2, pa_tol=12.0, colin_tol=60.0):
 def audit_frame(nef, work, curv_thr):
     # Siril: decode + green extraction + background extraction + star table +
     # bg/noise (findstar). The residual is the CLEAN extracted green (mono).
-    fit, star_lst, bg, sig = run_siril(nef, work)
-    data, _ = am.read_fits(fit)               # read Siril's residual (I/O)
-    g = data[0]                               # single-channel extracted green
+    tif, star_lst, bg, sig = run_siril(nef, work)
+    g = read_green(tif)                        # PIL reads Siril's TIFF (I/O)
     h, wid = g.shape
     trail = stellar_trail_px(star_lst)
     # a trail is far longer than a point source; 5x the Siril-measured median
@@ -481,11 +486,13 @@ def audit_frame(nef, work, curv_thr):
     # trail DETECTION (in-house — no tool emits trails): threshold the clean
     # green residual at 5x findstar's reported noise — the standard astronomical
     # source-detection significance (~1-2 false clusters/frame on Gaussian
-    # noise, which the shape filter below removes). Foreground excluded, then
-    # connected-component label; findstar catalogs STARS, trails are the
-    # elongated components left over. Detecting on the extracted green (NOT the
-    # Bayer mosaic) is what lets a faint track survive as one component.
-    det = (g > bg + 5 * sig) & am.branch_mask(h, wid)
+    # noise, which the shape filter below removes), then connected-component
+    # label; findstar catalogs STARS, trails are the elongated components left
+    # over. Detecting on the extracted green (NOT the Bayer mosaic) is what lets
+    # a faint track survive as one component. (A terrestrial-foreground mask is
+    # not applied here; the length + elongation shape filter rejects horizon and
+    # tree structure, which is not a long thin trail.)
+    det = g > bg + 5 * sig
     lbl, n = ndimage.label(det)
     streaks = []
     for k, sl in enumerate(ndimage.find_objects(lbl), start=1):
@@ -528,8 +535,6 @@ def main():
                            or os.path.join(os.path.dirname(frames[0]) or ".",
                                            "audit_work"))
     os.makedirs(work, exist_ok=True)
-    if "session" in opts and "set" in opts:
-        am.configure(opts["session"], opts["set"])
     curv_thr = float(opts.get("curv", 0.03))
 
     print(f"obstruction classifier: {len(frames)} frames | callouts: "
@@ -552,7 +557,7 @@ def main():
                             for o in res["objects"]) or "clear"
         print(f"  [{i}/{len(frames)}] {res['file']}: {summary}")
         if not opts.get("keep-resid"):
-            for f in glob.glob(os.path.join(work, "_resid.fit*")):
+            for f in glob.glob(os.path.join(work, "_resid.tif*")):
                 os.remove(f)
 
     tracks = link_objects(results)
