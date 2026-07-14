@@ -1,9 +1,0 @@
-{
-  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
-  "dataset": "07-02-26/set-03",
-  "status": "provisional",
-  "render": {},
-  "notes": {
-    "quality": "exposure-limited data (band signal barely above grain): render knobs are presentation only; the fix is acquisition, not processing"
-  }
-}
