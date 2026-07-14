@@ -2,46 +2,56 @@
 
 ## What this repo IS (read first, every session)
 
-A **self-auditing orchestration harness** for astrophotography — **NOT an
-image processor.** It does three things, and refuses a fourth:
+A **checklist + knowledge workspace** for astrophotography image processing —
+**NOT an image processor, and NOT an in-house measurement engine.** Every pixel
+operation AND every measurement of an image is performed by an **official
+industry tool** (Siril, PixInsight, ASTAP, GraXpert, RC-Astro, StarNet,
+astrometry.net, …); the repo's own code never processes or analyzes the
+deliverable's pixels. It does four things:
 
-- **RECORD** — versions the *process* (scripts, docs, per-dataset state, the
-  dead-end registry, git history), never the image data. The durable memory
-  of what was tried, what's approved, and what's ruled out *with its mechanism*.
-- **AUDIT** — measures everything. Each image is graded by the gate + the
-  standing audits; each process step by the orchestrate guard, the
-  no-regression sweep, and the reproducibility check — against objective,
-  never-loosening measures. **The measurement layer IS the product.**
-- **AUTOMATE** — sequences and drives industry tools headless, resolves
-  per-dataset config, and packages judgment sets, so ANY dataset can be
-  dropped in and carried to its best honest outcome.
+- **ORCHESTRATE** — drive those tools headless, per dataset, as a sequenced
+  checklist; resolve config; package judgment sets.
+- **RECORD** — version the *process* (scripts, docs, per-dataset state, the
+  dead-end registry, git), never image data: what was done, what each tool
+  measured, what's approved, what's ruled out *with its mechanism*.
+- **RESEARCH** — constantly, from official docs + forums, to get the most out of
+  each tool and keep the toolkit ([`TOOLS.md`](TOOLS.md)) current. First-class
+  and ongoing, not occasional.
+- **AUDIT THE PROCESS** — inspect config / logic / sequence / tuning for errors
+  and drive every fix from a **researched root cause**; never thrash knobs
+  hoping the output changes.
 
-The fourth thing it **refuses to do — process pixels itself.** Every
-operation that rewrites the deliverable's pixels drives a real,
-industry-standard tool (Siril, GraXpert, StarNet, RC-Astro, astrometry.net,
-or a reference author's own open tool). The repo's own code only EXAMINES
-(measures) and ORCHESTRATES (sequences / config / judgment). No tool for a
-mechanism = a documented gap, **never a numpy hand-roll.**
+**The bright line — what in-house code may and may not do:**
+- **FORBIDDEN** if it does ANY of: (1) reads or analyzes the deliverable's
+  pixels; (2) makes an automated judgment / threshold call that gates, shapes,
+  or tunes the final product; (3) reimplements an analysis an official tool
+  already provides.
+- **ALLOWED** only if ALL hold: (1) it is *outside* the final-product pipeline
+  (a checklist / record / orchestrator / standalone detector — never a gate or
+  processor on the deliverable); (2) every pixel and every standard measurement
+  it uses comes from an official tool; (3) it computes only a *derived* result
+  no tool provides; (4) it examines and reports only — rewrites no deliverable,
+  never auto-decides the final product; (5) it carries a removal condition.
 
-**This inversion is the whole point.** Processing is commoditized — great
-free and paid tools exist ([`TOOLS.md`](TOOLS.md)) — so the repo spends ALL
-its effort on the parts that aren't: rigorous measurement, honest
-orchestration, and a permanent record. It is therefore NOT an image
-processor, NOT a home for hand-rolled processing, NOT a chaser of one image's
-look (aesthetics are the user's eyes on lossless finals — the repo emits
-measured *candidates*, not a hand-crafted picture), and NOT a frozen chain
-(the tools are a TOOLKIT, picked per dataset for a stated reason).
+`scripts/qa/anomaly_audit.py` is the reference **ALLOWED** example (Siril does
+every pixel op + measurement; the in-house kernel does only the streak geometry
+no tool provides; report-only; removal-conditioned). An in-house **gate or audit
+that reads the render and blocks it** is the reference **FORBIDDEN** case — those
+are being replaced by orchestrating the tools' own analysis + checklist logic.
 
-**Anti-drift test for any session:** if you are about to hand-tune a knob to
-make one image look right, or to write numpy that transforms deliverable
-pixels — STOP, you have left the mission. Drive a tool, measure the result,
-and change the PROCESS, not the picture.
+**Anti-drift test:** if you are about to hand-tune a knob to make one image look
+right, write numpy that reads / transforms / analyzes the deliverable's pixels,
+or reimplement a measurement a tool already gives — STOP. Research the tool, drive
+it, record what it measured, and fix the PROCESS from the root cause, not the
+picture.
 
-**This repo is mid-migration to x86 — read [`REDESIGN.md`](REDESIGN.md)
-first.** The render chain and the aarch64 workarounds were wiped in the
-x86 reset; the durable core (measurement/audit + calibration/stack/compose)
-is kept and the chain is rebuilt tool-first on x86. REDESIGN.md is the
-go-forward authority (target env, keep/wipe manifest, rebuild order).
+**This repo is mid-redesign — read [`REDESIGN.md`](REDESIGN.md) first.** The
+render chain and the aarch64 workarounds were wiped in the x86 reset; and the
+in-house measurement/audit layer (`bg_qa` gate + the pixel-reading audits) is now
+FORBIDDEN-class — being retired for tool-orchestration + a checklist of the tools'
+own numbers. What's kept is the tool-driving orchestration (calibrate / stack /
+compose / solve) + the records + the discipline. REDESIGN.md is the go-forward
+authority (target env, keep/retire manifest, rebuild order).
 
 **Read order, every session:** (1) this file; (2) `REDESIGN.md` — the x86
 redesign plan AND the durable technical reference: the keep/wipe manifest,
@@ -118,21 +128,22 @@ core here now:**
   TOOLS.md — but that is provisional until the x86 empirical test runs.)
   Especially across the rig migration: every arm-era finding is a
   hypothesis on the desktop until re-measured there.
-- **Orchestrate industry tools; NEVER hand-roll the image processing.**
-  The bright line is PROCESSING vs EXAMINING. Examining numpy (metrics,
-  the gate, masks, inspection rendering) is what the pipeline is FOR.
-  Processing numpy — anything that rewrites the deliverable's pixels (a
-  stretch, denoise, colour transform, saturation, SCNR, combine,
-  background fit) — must drive a real tool (Siril / GraXpert / StarNet /
-  StarXTerminator / NoiseXTerminator / BlurXTerminator / astrometry.net, or a
-  reference author's own open tool), UNLESS no available tool provides the
-  mechanism, documented as a sanctioned alternative with a removal condition
-  (the astrometry.net precedent). This is the whole thesis of the x86
-  redesign (REDESIGN.md): a THIN orchestration layer over best-in-class
-  tools. The wiped chain proved it end-to-end (tool-only, in history at the
-  `checkpoint` commit); the x86 rebuild re-establishes the operator catalog +
-  the standing hand-roll guard around the new chain. When a tool cannot run,
-  say so and use the sanctioned alternative — never a silent numpy substitute.
+- **Official tools do ALL pixel work — processing AND analysis** (the bright
+  line in "What this repo IS"). In-house code never reads, transforms, or
+  analyzes the deliverable's pixels, never auto-gates the final product, and
+  never reimplements a measurement a tool provides. It may only orchestrate,
+  record, research, and run *standalone* gap-filler detectors that source every
+  pixel + measurement from a tool and carry a removal condition
+  (`scripts/qa/anomaly_audit.py` is the model; the astrometry.net precedent).
+  When no tool provides a mechanism, that is a **documented gap** — never a
+  silent numpy substitute.
+- **Root cause over thrash.** When output is wrong, AUDIT the config / logic /
+  sequence / tuning and RESEARCH the tool (official docs + forums) to find the
+  cause, then fix THAT. Never try random knob values hoping the output changes —
+  a change with no researched cause is a bandaid.
+- **Research is standing work.** Keep the toolkit ([`TOOLS.md`](TOOLS.md))
+  current from primary sources; a tool's best setting is discovered by reading
+  its docs + the community, not guessed.
 - **No bandaids.** Never compress, darken, crop, or otherwise HIDE a
   symptom instead of fixing its cause. A blown star means the
   stretch/balance upstream is wrong; a rim artifact is in the data — fix
@@ -150,10 +161,12 @@ core here now:**
   dead-end entry in REDESIGN with its numbers). Comparisons report measured deltas with an
   objective WIN | NULL | needs-eyes verdict — NEVER "fixed/final/matched/
   close" language; aesthetics are the user's eyes on the finals.
-- **The gate never loosens** (`bg_qa.py`'s statistical sky-scope
-  thresholds; scope changes need explicit user ratification).
-  Star-shell/clip0 metrics are REPORTED or WARN context — never
-  silently gated.
+- **Acceptance measures don't loosen — but they come from the tools now.** The
+  in-house `bg_qa` gate + standing audits read the deliverable's pixels, so they
+  are FORBIDDEN-class and are being retired in favour of orchestrating the tools'
+  own analysis + a checklist that records their numbers (README review-contract;
+  cascade in progress). Whatever tool-sourced measure gates a candidate stays
+  strict; loosening it needs explicit user ratification.
 - **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
   finals** (PNG16+PNG8, opened independently in the user's own viewers)
   before any bake — never crops, composited panels, or any lossy
@@ -164,8 +177,8 @@ core here now:**
   (pinned tool versions/params/seeds, no unseeded step; verified cheaply to a
   documented tolerance — NOT a byte-identical double-render, since the neural
   tools' multi-threaded inference isn't bit-reproducible); the affected data
-  class(es) + a canary still PASS the gate + star-shell + inspection (gate
-  thresholds never loosen; the full-suite sweep is a cadence / pre-release run,
+  class(es) + a canary still PASS the tool-sourced acceptance checklist (its
+  measures never loosen; the full-suite sweep is a cadence / pre-release run,
   not every commit); and any render the change alters is a **declared delta** —
   report metric deltas + like-encoding panels, objective-better-or-equal may
   commit, anything aesthetic needs the user's eyes, then re-baseline and tag.
@@ -191,9 +204,9 @@ core here now:**
 
 ## North star (the goal the identity above serves)
 
-The harness constantly audits its images and process steps so that
-eventually ANY dataset can be dropped into a session dir and be properly
-judged and processed — by industry tools — to its best honest outcome.
+The workspace constantly drives industry tools to judge + process its images,
+and audits its own PROCESS, so that eventually ANY dataset can be dropped into a
+session dir and be carried — by those tools — to its best honest outcome.
 Every divergence from the standard workflow is a measured adaptation carrying
 its removal condition; the tools are a toolkit picked per dataset; finals as
 close to lossless as possible; and acquisition quality (the checklist in
