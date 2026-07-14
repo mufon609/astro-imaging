@@ -10,7 +10,7 @@ image processor.** It does three things, and refuses a fourth:
   of what was tried, what's approved, and what's ruled out *with its mechanism*.
 - **AUDIT** — measures everything. Each image is graded by the gate + the
   standing audits; each process step by the orchestrate guard, the
-  no-regression sweep, and the determinism check — against objective,
+  no-regression sweep, and the reproducibility check — against objective,
   never-loosening measures. **The measurement layer IS the product.**
 - **AUTOMATE** — sequences and drives industry tools headless, resolves
   per-dataset config, and packages judgment sets, so ANY dataset can be
@@ -160,10 +160,13 @@ core here now:**
   surface; objective fixes with pass/fail metrics may commit. Compare
   renders in LIKE encodings.
 - **A change is accepted by three checks, never by byte-identity with one
-  dataset** (README "How a change is accepted"): the render is DETERMINISTIC
-  (run twice on the same inputs → identical artifacts); every registered
-  dataset still PASSES the gate + star-shell + inspection (gate thresholds
-  never loosen); and any render the change alters is a **declared delta** —
+  dataset** (README "How a change is accepted"): the render is REPRODUCIBLE
+  (pinned tool versions/params/seeds, no unseeded step; verified cheaply to a
+  documented tolerance — NOT a byte-identical double-render, since the neural
+  tools' multi-threaded inference isn't bit-reproducible); the affected data
+  class(es) + a canary still PASS the gate + star-shell + inspection (gate
+  thresholds never loosen; the full-suite sweep is a cadence / pre-release run,
+  not every commit); and any render the change alters is a **declared delta** —
   report metric deltas + like-encoding panels, objective-better-or-equal may
   commit, anything aesthetic needs the user's eyes, then re-baseline and tag.
   Freezing one imperfect render as "correct" only breeds bandaids to preserve

@@ -49,10 +49,12 @@ follows, in order — linear until step 6:
 Principles that keep this honest:
 
 - **The mapping above is re-verified against current Siril/PixInsight
-  doctrine at every siril minor-version bump** — tool positions move
-  (stretch guidance, SPCC modes, separation models), so the comparison is
-  standing work, not a one-time audit; per-item verifications carry their
-  dates in the BACKLOG entries they feed.
+  doctrine at every siril MAJOR-version bump** (e.g. 1.4→1.6), plus a
+  **changelog scan** on point releases that re-audits only a stage a release
+  actually touches (stretch guidance, SPCC modes, separation/drizzle models) —
+  tool positions move, so the comparison is standing work, not a one-time audit;
+  a full re-audit every *minor* version is over-frequent and gets skipped.
+  Per-item verifications carry their dates in the BACKLOG entries they feed.
 
 - **A divergence from the standard is a bandaid unless it is a measured,
   documented adaptation forced by this data** — each one carries its removal
@@ -132,16 +134,26 @@ imperfect recipe into the definition of correct, and the cheapest way to stay
 green becomes a bandaid that special-cases that dataset. Three checks replace
 it, each answering a question it can actually answer:
 
-1. **Determinism.** The render is reproducible *from its own inputs*: run it
-   twice on the same stack — cold caches included — and the artifacts are
-   byte-identical. This is a property of the CODE (no hidden RNG, no thread
-   nondeterminism; measured: GraXpert BGE, the ONNX net and siril's
-   autostretch / denoise / mtf / pm / satu all reproduce bit-exactly, and
-   the chain carries no unseeded step — `subsky` runs without `-dither` for
-   exactly this reason; the tool round-trips through temp FITS are
-   deterministic float32). Verify with `scripts/qa/sweep.py --determinism`. A STACK is
-   exempt — its register sweep is non-deterministic; verify a stack by the
-   gate + inspection.
+1. **Reproducibility (not byte-identity).** The render is a function of its
+   *pinned* inputs — tool versions (the install manifest), every param and seed
+   pinned, no unseeded step. It does NOT require a byte-identical re-render, and
+   demanding one is the wrong bar on the tool-first x86 chain: its multi-threaded
+   neural inference (RC-Astro BXT/NXT/SXT, Cosmic Clarity, StarNet) uses ONNX
+   reductions that are often not bit-reproducible, so byte-identity would fail a
+   *correct* render — and it already cost `subsky` its `-dither` (anti-banding
+   sacrificed to the check; re-enable it). Verify **cheaply** (a fast canary + the
+   deterministic orchestration, not a doubled full-res render) to a documented
+   **tolerance**: byte-identity where a tool actually gives it (siril native
+   single-thread, deterministic float32 temp-FITS round-trips), reproducibility
+   within a tolerance negligible vs the metrics we judge on where it can't (a
+   stage that varies above that tolerance is flagged and pinned to deterministic
+   settings — single-thread / fixed device — if it can be). This extends the
+   existing **STACK exemption** (its register sweep is already non-deterministic →
+   verified by gate + inspection, not bytes) to the neural render tools. The
+   intent survives: a candidate-vs-control delta reflects the CHANGE, because the
+   tolerance sits far below the deltas we judge on. (An unrealistic byte-identity
+   check on a slow, non-deterministic chain doesn't add rigor — it gets skipped or
+   blocks valid work; a right-sized one actually runs.)
 2. **No regression, across data classes.** Every registered dataset
    (each baselined under `datasets/`) still PASSES the gate, shows no
    star-shell WORSENING vs
@@ -149,7 +161,13 @@ it, each answering a question it can actually answer:
    toward the defect class fails long before any absolute line; recording a
    baseline above the audit WARN bound requires an explicit
    `--ack-aura-warn`), and passes the per-stage inspection. **Gate
-   thresholds never loosen.** An emission-flooded field whose ONLY failing
+   thresholds never loosen.** **The per-change COST is tiered** — a full render
+   across the whole suite is hours on the no-GPU AI chain and grows with the
+   corpus, so a change runs the sweep on the **class(es) it can affect + one
+   canary**, and the **full suite** runs on a cadence / before a re-baseline or
+   release / when the change touches shared code — not on every commit (the
+   standard is unchanged, no dataset may rot another class; only the per-change
+   scope is right-sized so the check actually runs). An emission-flooded field whose ONLY failing
    metric is colour (real sky colour outside the current colour scope's
    reach — the ratified colour-redesign class) is kept inside the
    regression net by a scope-ACKNOWLEDGED baseline
@@ -162,7 +180,8 @@ it, each answering a question it can actually answer:
    pipeline actually meets — self-flat underexposed DSLR wide-field,
    matched-flat off-centre object, self-flat wide, and mono FITS with a
    frame-centred galaxy — so no single dataset can hold the pipeline
-   hostage. One command runs it: `python3 scripts/qa/sweep.py` (renders
+   hostage. One command runs the **full suite** (the cadence / pre-release form):
+   `python3 scripts/qa/sweep.py` (renders
    every dataset with a `datasets/*/*/baseline.json`, requires gate PASS +
    baseline-relative shell check, diffs every metric against the baseline,
    and flags any byte delta as a declared-delta prompt; absent third-party
