@@ -15,7 +15,7 @@ The per-dataset state MODEL (durable — a new dataset gets these files):
 | `geometry.json` | per-set composition facts: terrestrial `foreground` (rect \| npz `mask` path, session-relative), `judgment_crops`, optional `starsep` overrides | DURABLE — resolved by `astrometrics.configure()` in every product entry point |
 | `composition.json` | how a multi-line/multi-filter target's composed linear stack is BUILT: `kind: dualband-osc` (CFA line extraction) or `mono-filters` (`members` = channel → sibling per-filter SET, `reference` = the un-interpolated member), plus the `channels` R/G/B palette mapping. Build-side facts only. Absent = ordinary single stack (degrade-loudly) | DURABLE — `run_pipeline.sh` + `compose.py` |
 | `recipe.json` | the per-dataset processing knobs + `spcc` spec (broadband sensor/filter names, or narrowband `rwl`/`gwl`/`bwl` wavelengths) + optional `frame_qa` / `stack` policy blocks | MIXED — the `spcc`/`frame_qa`/`stack` blocks are durable; the **`render` knob block is PENDING the x86 chain's schema** (the old schema died with the wiped chain) |
-| `experiments.jsonl` | the tuning-experiment ledger (append-only: param, values, control, hypothesis, pinned stack, verdict). A killed hypothesis is ALSO written to REDESIGN's dead-end registry with its mechanism | DURABLE model — re-wired to the x86 chain's ladder |
+| `experiments.jsonl` | the tuning-experiment ledger (append-only: param, values, control, hypothesis, pinned stack, verdict). A killed hypothesis is ALSO written to the dead-end registry (`docs/dead-ends.md`) with its mechanism | DURABLE model — re-wired to the x86 chain's ladder |
 | `baseline.json` | the no-regression record (pinned stack sha, expected gate/shell metrics, artifact hashes) | PENDING — written by the re-ported no-regression sweep on x86; chain-coupled, so none exist yet |
 | `../GENERIC.json` | the repo-wide base layer of generic render knobs | STUB — pending the x86 chain re-seeding its knob set |
 
@@ -34,4 +34,4 @@ Rules (the same contract as README "How a change is accepted"):
   `geometry.json` only points at them.
 
 The render-knob schema, the resolution tooling (`resolve_recipe`), and the
-sweep re-establish with the x86 render chain — see `REDESIGN.md`.
+sweep re-establish with the x86 render chain — see `docs/x86-empirical-test-plan.md`.

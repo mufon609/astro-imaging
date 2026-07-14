@@ -61,7 +61,7 @@ reg_floor() {
     INS report --title "$SESSION $SET (ABORTED: registration floor)" || true
     echo "ERROR: registration floor: $rn/$total frames registered${ctx:+ ($ctx)} — less than half the set; a stack from this would not be the set." >&2
     echo "       registration log: $log" >&2
-    echo "       options: cull/fix the failing frames, or try a different reference frame (the registration dead ends are in REDESIGN.md)" >&2
+    echo "       options: cull/fix the failing frames, or try a different reference frame (the registration dead ends are in docs/dead-ends.md)" >&2
     exit 1
   fi
 }
@@ -634,7 +634,7 @@ if [[ -n "$FLATOPT" ]]; then
 else
   echo "ERROR: $SET has no usable flat (no flats/ dir, or the flats' optics do not match the lights)." >&2
   echo "       A matching flat is REQUIRED. The self-flat path (an in-house numpy vignette fit + chroma re-centre + per-frame division) was removed: it PROCESSED the deliverable's pixels in-house, which this harness does not do — it orchestrates industry tools and measures, it does not hand-roll pixel processing." >&2
-  echo "       Shoot a flat matching this set's optics (the acquisition checklist in REDESIGN.md), or drop a master flat in place, and re-run." >&2
+  echo "       Shoot a flat matching this set's optics (the acquisition checklist in docs/dead-ends.md), or drop a master flat in place, and re-run." >&2
   exit 1
 fi
 rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*

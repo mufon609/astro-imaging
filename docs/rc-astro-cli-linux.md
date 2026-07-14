@@ -159,7 +159,7 @@ at our frame sizes
 - **TOOLS.md Tier 7 (SXT)** — AI11, CPU tens-of-sec, $49.95, `rc-astro sxt`.
 - **TOOLS.md cross-cutting "PAID but Linux-CLI"** — replace the general claim with
   the concrete `rc-astro` v0.9.9 CLI, prices, AVX2, offline, Ubuntu-22.04 caveat.
-- **REDESIGN** — the RC-Astro-Linux-CLI bullet → concrete; add "call the binary
+- **TOOLS.md** — the RC-Astro-Linux-CLI bullet → concrete; add "call the binary
   directly, don't wrap the GUI pyscript" + "activate-once-online then offline" to
   x86 setup; chroma-noise dead-end → NXT AI3 colour separation is the **likely** fill
   (verify it exposes a chroma control).

@@ -29,7 +29,7 @@
 - **Feature-by-version:** BGE = all 3.x; **denoise added 3.0.0** (2024-04-17);
   **object deconv → 3.1.0rc1** (2024-11-10); **stellar deconv → 3.1.0rc2**
   (2025-01-01). **Deconvolution has therefore NEVER been in a stable release.**
-- → This **corrects the current TOOLS.md/REDESIGN framing** ("GraXpert
+- → This **corrects the current TOOLS.md framing** ("GraXpert
   deconvolution, object + stellar AI, 2026" as a settled free option). Correct
   facts: deconv is a **pre-release feature** (3.1.0-RC / 3.2.0-alpha, late-2024
   → Dec-2025), never in a stable release; the x86 inventory must record the
@@ -201,7 +201,7 @@ synthesis, not an empirical result on our data.
   deconv is accepted (Siril VST); star-removal placement is variable; 2026 AI tools
   loosen the linear-only rule (ben.land/Cuiv), a measurable alternative not a
   violation.
-- **REDESIGN** — x86 inventory: record GraXpert's actual installed version + model
+- **TOOLS.md** — x86 inventory: record GraXpert's actual installed version + model
   versions (GitHub stable = 3.0.2; deconv only in 3.1.0rc2; "3.2" unverified);
   dead-end/Tier-5 note: GraXpert deconv is RC-and-buggy, BXT is the mature path.
 - Applied in the graduation commit.

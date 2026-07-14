@@ -144,7 +144,7 @@ that the sphere lifts and stars go neutral, bracketed against SPCC and against N
   native fix; measurement in the examine layer); (2) **Nightlight** verified but
   dormant; (3) **Alchemy/DBXtract** = OSC nebula-normalization / Bayer-crosstalk unmix
   (GUI-only Class-1), NOT star-neutral. Note SPCC-is-the-cause + PixInsight X11-only.
-- **REDESIGN dead-end (SPCC/OIII sphere)** — update: the star-neutral gap has a
+- **The dead-end registry (`docs/dead-ends.md`)** — update: the star-neutral gap has a
   doctrine-clean headless resolution (measure mean star colour in examine layer → apply
   native `ccm` diagonal); Nightlight is the dormant reference; the *measurement* is an
   audit-layer item, linking to [[objective-qa-defect-metrics]].

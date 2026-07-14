@@ -1,6 +1,6 @@
 # x86-64 Kali setup & reproducible tool install — deep dive
 
-- **Question / scope** — REDESIGN's "x86 tool inventory — DO THIS FIRST": for every
+- **Question / scope** — the "x86 tool inventory — DO THIS FIRST" (`TOOLS.md`): for every
   tool in TOOLS.md, what is the **best install method on x86-64 Kali** (Debian-based,
   headless, **no GPU**) for a **reproducible, version-pinned** setup — exact command,
   source, integrity (sha256/signature), install path, deps, and Kali-vs-Ubuntu
@@ -128,7 +128,7 @@ the flagged unknowns (rc-astro `/opt` path + Kali-glibc smoke test; GraXpert Lin
 model-cache dir; StarNet/DeepSNR/rc-astro actually run CPU-only at usable wall-clock).
 
 ## Graduation
-- **REDESIGN "x86 tool inventory — DO THIS FIRST"** — point it at this deep-dive +
+- **`TOOLS.md` — the x86 tool inventory** — point it at this deep-dive +
   `scripts/setup/x86_bootstrap.sh` as the concrete inventory/bootstrap; the manifest
   seeds the new CLAUDE.md environment section.
 - **`scripts/setup/`** — the drafted bootstrap + requirements are the artifact (marked

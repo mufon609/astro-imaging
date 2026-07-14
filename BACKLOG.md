@@ -5,7 +5,7 @@ type: meta
 
 # BACKLOG
 
-**Superseded by the x86 redesign — see [REDESIGN.md](REDESIGN.md).**
+**Superseded by the x86 redesign — see `docs/x86-empirical-test-plan.md`.**
 
 The prior BACKLOG was a long queue of refinements and adaptations for the
 aarch64 base rig and its hand-rolled render chain. The rig migration to
@@ -19,7 +19,7 @@ the rebuild actually surfaces.
 
 These are real imaging capabilities the pipeline does not yet have; they
 survive the rig change and should be reconsidered during the x86 rebuild
-(REDESIGN step 4+), each as a measured declared delta:
+(x86 rebuild step 4+), each as a measured declared delta:
 
 - **LRGB join** — compose L after both L and RGB are stretched (the standard
   luminance-detail join). The compose stage currently REFUSES a `luminance`

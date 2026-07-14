@@ -161,7 +161,7 @@ residual RMS + wall-clock; and measure minor-axis FWHM + dither before any drizz
   deprecated), HFD-centroid (no roundness gate) *predicted* to keep mild trailing; add the 3-way
   robustness ranking; note astrometry.net xylist-of-peaks is the *intended* override
   (validates `solve_field.py`); `--scale-low/high` pin.
-- **REDESIGN dead-ends** — (a) strengthen the trailed-solve entry with the detection-method
+- **The dead-end registry (`docs/dead-ends.md`)** — (a) strengthen the trailed-solve entry with the detection-method
   ranking + the xylist-is-intended confirmation; (b) **CORRECT the drizzle entry**: "short
   focal / large pixels ⇒ oversampled" is backwards (that geometry is *under*sampled); the
   data is oversampled only if star *trailing/bloat* spreads it — judge by **minor-axis

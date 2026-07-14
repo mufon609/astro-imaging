@@ -22,7 +22,7 @@ session** (the repo drives industry tools; it never processes pixels itself —
 - **Cite sources** (links). Prefer primary + recent (2025–2026).
 - **Graduate durable findings.** docs/ is the deep record; the *operating*
   docs are the distilled truth. When a finding is solid, fold it into the
-  right operating doc — a `TOOLS.md` tier entry, a `REDESIGN.md` dead-end, a
+  right operating doc — a `TOOLS.md` tier entry, a `docs/dead-ends.md` dead-end, a
   `MEMORY.md` note — and record that graduation in the writeup. Don't let
   docs/ and the operating docs drift.
 
@@ -38,7 +38,7 @@ session** (the repo drives industry tools; it never processes pixels itself —
 - **Sources** — cited links.
 - **Verdict / recommendation** — adopt / skip / alternatives, and why.
 - **Status** — PROVISIONAL (mechanism/research) vs EMPIRICALLY TESTED.
-- **Graduation** — what this changed in TOOLS.md / REDESIGN / MEMORY (or "none yet").
+- **Graduation** — what this changed in TOOLS.md / `docs/dead-ends.md` / MEMORY (or "none yet").
 ```
 
 ## Index
@@ -77,4 +77,4 @@ _(add each writeup here, newest first)_
   over-smoothing, over-flattening) to extend the measurement layer.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
   "provisional until x86" flag from all deep-dives collapsed into one ordered,
-  bracketed test protocol keyed to REDESIGN's rebuild order (Phase 0→5).
+  bracketed test protocol keyed to the x86 rebuild order (`docs/x86-empirical-test-plan.md`, Phase 0→5).

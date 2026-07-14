@@ -1,11 +1,12 @@
 # Astrophotography processing pipeline
 
-> **⚠ MID-RESET to x86 — read [`REDESIGN.md`](REDESIGN.md) first.** The
-> render chain and the aarch64 workarounds were wiped and the chain is
-> rebuilt tool-first on x86. Below, the **process contract, review contract,
-> acceptance model, experiment discipline, per-dataset state, and north star
-> are all portable and stay** — but anything that names the RENDER chain
-> (`starcomb.py`, `operators.json`, `hand_roll_audit.py`, `sweep.py`,
+> **⚠ MID-RESET to x86.** The render chain and the aarch64 workarounds were
+> wiped and the chain is rebuilt tool-first on x86 (the build order is
+> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md); the
+> toolkit is [`TOOLS.md`](TOOLS.md)). Below, the **process contract, review
+> contract, acceptance model, experiment discipline, per-dataset state, and
+> north star are all portable and stay** — but anything that names the RENDER
+> chain (`starcomb.py`, `operators.json`, `hand_roll_audit.py`, `sweep.py`,
 > `nightlight_sho.py`, the separation engines) describes the wiped chain,
 > preserved at the `checkpoint` commit and being re-established on x86. Treat
 > those as the PATTERN the rebuild carries, not current code.
@@ -18,11 +19,12 @@ this repo IS"). It tracks the **process** (Siril/Python orchestration + notes),
 never image data (`.gitignore`). This file is the **process contract**: what each
 step is for, what the industry tool does there, where we diverge and why, and how
 every step is reviewed (tools measure, the checklist records, the user judges).
-`REDESIGN.md` holds the go-forward plan + the **dead-end registry** (every
-measured lesson with its numbers) + the acquisition checklist.
+[`docs/dead-ends.md`](docs/dead-ends.md) holds the **dead-end registry** (every
+measured lesson with its numbers) + the acquisition checklist; the x86 build
+order is [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
-**New contributor start here:** (1) `REDESIGN.md` — the x86 plan + the
-dead-end registry (read it before proposing ANY experiment — if it does not
+**New contributor start here:** (1) [`docs/dead-ends.md`](docs/dead-ends.md) —
+the dead-end registry (read it before proposing ANY experiment — if it does not
 work, the mechanism why is there); (2) this file top to bottom — the process
 contract; (3) the kept scripts' docstrings for each stage's technical why.
 Full chronological history lives in git (`git log`; the complete pre-reset
@@ -44,7 +46,7 @@ follows, in order — linear until step 6:
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86 (REDESIGN.md).** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) | PENDING x86 rebuild |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86.** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) (build order: `docs/x86-empirical-test-plan.md`) | PENDING x86 rebuild |
 
 Principles that keep this honest:
 
@@ -58,7 +60,8 @@ Principles that keep this honest:
 
 - **A divergence from the standard is a bandaid unless it is a measured,
   documented adaptation forced by this data** — each one carries its removal
-  condition in REDESIGN.md (the wipe manifest; full ledger in git).
+  condition (recorded with the adaptation in its script docstring or recipe;
+  full ledger in git).
 - **Full frame is mandatory.** No crops hiding defects; the foreground branch
   never drives decisions (it is masked in QA statistics, feathered in
   rendering operators).
@@ -212,7 +215,7 @@ removal condition.
 ## The experiment discipline
 
 - One knob per experiment, values bracketing the control; hypothesis
-  pre-registered *before* the run (REDESIGN dead-end registry). The ladder enforces it:
+  pre-registered *before* the run (`docs/dead-ends.md`). The ladder enforces it:
   `starcomb.py --param --values --hypothesis` (hypothesis REQUIRED, one
   knob, control auto-bracketed) renders each value as a full-frame lossless
   final + stage sequence into `results/exp_<param>_<stamp>/`, appends the
@@ -221,8 +224,8 @@ removal condition.
 - The verdict round-trips: once judged, `starcomb.py --verdict
   win|null|deadend --because "…" --exp <dir>` closes the ledger entry. A
   measurement that kills a hypothesis becomes a dead end **written into
-  REDESIGN's dead-end registry with its numbers** before anything else is
-  tried (the ledger indexes it; REDESIGN states the mechanism).
+  `docs/dead-ends.md` with its numbers** before anything else is
+  tried (the ledger indexes it; `docs/dead-ends.md` states the mechanism).
 - Comparisons are honest: `judgment_package.py --control=<label>` embeds
   the measured candidate-vs-control deltas + an objective **WIN | NULL |
   needs-eyes** verdict on the gate/defect metrics (auto-discovered from the
@@ -304,7 +307,7 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
 so no galactic band or object region is ever configured per set (a bright
-object has no fixed geometry a mask could scope — see REDESIGN dead-ends).
+object has no fixed geometry a mask could scope — see `docs/dead-ends.md`).
 
 Foreground masks for non-rectangular compositions (treelines) are derived
 from the linear stack: `scripts/geometry/suggest_foreground.py <stack>
@@ -326,12 +329,12 @@ python3 scripts/calibrate/spcc_cone.py <session>/results/stack_<set>_wcs.fit --f
 # then siril spcc (spcc_run.py) → _spcc.fit
 
 # final render + single-knob ladder — the render chain is WIPED; it is
-# rebuilt tool-first on x86 (REDESIGN.md). Everything ABOVE (stack → solve →
-# spcc → compose) is the KEPT durable core and runs today.
+# rebuilt tool-first on x86 (docs/x86-empirical-test-plan.md). Everything ABOVE
+# (stack → solve → spcc → compose) is the KEPT durable core and runs today.
 ```
 
 Environment specifics (siril invocation, catalogs, GraXpert, the x86 target)
-live in CLAUDE.md "Environment" + REDESIGN.md.
+live in CLAUDE.md "Environment".
 
 ## Repo map (`scripts/`, by stage directory)
 
@@ -348,9 +351,7 @@ live in CLAUDE.md "Environment" + REDESIGN.md.
 |---|---|
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, auto-routes flatless sets to the self-flat branch, and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member first); measures the channel-alignment residual (inspected, bound 1.0 px) |
-| `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
-| `partitioned_stack.py` | **WIPED** (7.7 GB-RAM workaround; unnecessary at 32 GB — REDESIGN). In history at the `checkpoint` commit |
-| `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle (a long drifting sequence's border band is covered by only some frames and reads as fake falloff) |
+| `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir || `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle (a long drifting sequence's border band is covered by only some frames and reads as fake falloff) |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 
@@ -363,7 +364,7 @@ live in CLAUDE.md "Environment" + REDESIGN.md.
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 
 **`render/`** — **WIPED in the x86 reset** (rebuilt tool-first on x86 —
-REDESIGN.md). The product chain (`starcomb.py`), its operator catalog
+`docs/x86-empirical-test-plan.md`). The product chain (`starcomb.py`), its operator catalog
 (`operators.json`), the Nightlight narrowband driver (`nightlight_sho.py`),
 and the separation engines (`separation/starnet_sep.py` ONNX-arm64,
 `separation/starsep.py` inpaint fallback) are preserved at the `checkpoint`

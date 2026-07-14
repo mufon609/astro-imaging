@@ -45,7 +45,7 @@ processing it audits.
 ## Tier 0 — Acquisition
 
 Not a software tier, but it outranks every tool: acquisition quality is the
-real lever (REDESIGN "Acquisition checklist"). No processing tool recovers
+real lever (the acquisition checklist, `docs/dead-ends.md`). No processing tool recovers
 photons you didn't collect or fixes a focal-length step mid-set.
 
 ## Tier 1 — Calibration & Integration (stacking)

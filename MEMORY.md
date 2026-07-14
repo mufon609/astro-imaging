@@ -9,8 +9,8 @@ repo. It supersedes the machine-local auto-memory for the transfer.
 
 Where knowledge is already saved (don't duplicate it here — go read it):
 - Binding rules + environment → `CLAUDE.md`
-- Reset plan, target architecture, **dead-end registry**, acquisition
-  checklist → `REDESIGN.md`
+- **Dead-end registry** + acquisition checklist → `docs/dead-ends.md`
+- x86 build order / rebuild plan → `docs/x86-empirical-test-plan.md`
 - The tier-by-tier **tool audit** (2026 landscape) → `TOOLS.md`
 - Process/review/acceptance contract → `README.md`
 - Per-dataset state model → `datasets/README.md`

@@ -3,7 +3,7 @@
 - **Question / scope** — Two linked questions that gate a whole class of tools:
   (1) Can the Siril community `pyscript` ecosystem (VeraLux, SyQon, Cosmic Clarity,
   StarNet, RC-Astro wrappers) run **headless on Linux** (no display / Xvfb)?
-  (2) The REDESIGN **open philosophy question**: is numpy processing inside a
+  (2) The **open philosophy question** behind CLAUDE.md's tool-vs-hand-roll bright line: is numpy processing inside a
   `sirilpy` pyscript a genuine **TOOL** (adoptable like Nightlight) or **someone
   else's hand-rolled numpy in a wrapper** (rejected by the same rule that removed
   ours)? The answer decides whether the VeraLux/SyQon class is in-bounds at all.
@@ -122,7 +122,7 @@ alternative with a removal condition." Applying that test to the two classes:
   ad-hoc in-repo hand-roll — but it is **not** equivalent to Siril/GraXpert/StarNet-
   the-binary, and the mechanism test is what decides in-bounds vs escape-hatch.
 
-This **refines REDESIGN's working recommendation.** The old cut was "official repo &
+This **refines the working recommendation** now in CLAUDE.md's tool-vs-hand-roll bright line + TOOLS.md's tool classes. The old cut was "official repo &
 reputationally-vouched = tool; a script we'd fork/edit = not." The sharper,
 mechanism-based cut is: **subprocess-to-a-compiled-tool = tool; numpy-inside =
 escape-hatch-with-removal-condition, regardless of repo or author.** The old cut
@@ -170,7 +170,7 @@ fact be driven under Xvfb/offscreen (expected: no useful parameter control); (b)
 headless-run teething errors reported for `Statistical_Stretch.py` via `.ssf`.
 
 ## Graduation
-- **REDESIGN "Open philosophy question"** — RESOLVE it: replace the provenance-based
+- **CLAUDE.md bright line + TOOLS.md tool classes** — replace the provenance-based
   working recommendation with the **mechanism-location** criterion (subprocess-to-a-
   binary = tool; numpy-inside = sanctioned-alternative-with-removal-condition).
 - **TOOLS.md "three tool CLASSES"** — correct Class 3: split the pyscript ecosystem
@@ -182,4 +182,4 @@ headless-run teething errors reported for `Statistical_Stretch.py` via `.ssf`.
   Cosmic Clarity/RC-Astro/StarNet/**DeepSNR** wrappers as Class-2 drivers.
 - **MEMORY [[siril-tool-ecosystem]]** — add the Class-1/Class-2 split, the headless
   reality, and the "Seti = standalone, not a repo folder" correction.
-- Done in the commit that follows the TOOLS/REDESIGN graduations.
+- Done in the commit that follows the CLAUDE.md/TOOLS.md graduations.

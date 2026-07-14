@@ -196,7 +196,7 @@ known-bad renders (deliberately over-sharpened / over-smoothed / over-flattened
 examples) and stays quiet on known-good ones, on real data — before it can gate.
 
 ## Graduation
-- **REDESIGN** — "Audit measures — get them from the tools": the estimators come from
+- **TOOLS.md** — "Audit measures — get them from the tools": the estimators come from
   Siril `stat`/`register` / SubframeSelector / ASTAP / SPCC; the defect detectors are
   candidate standalone ALLOWED detectors (`anomaly_audit.py` pattern) only where no
   tool measures them.

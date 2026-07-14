@@ -191,7 +191,7 @@ performed (research-only session).
 - **TOOLS.md** — note **1.5.0-dev `-mask` + Python mask/bgsample API** as the
   coming native path to region-confined ops; note `drizzle` is `-drizzle` on
   register (not a standalone command).
-- **REDESIGN dead-ends** — reinforce the trailed-solve entry with the findstar +
+- **The dead-end registry (`docs/dead-ends.md`)** — reinforce the trailed-solve entry with the findstar +
   >5°-crop mechanism; reinforce the chroma-noise-gap entry (still non-native in
   1.5.0-dev).
 - Done in this commit (see below).

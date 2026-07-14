@@ -3,7 +3,7 @@
 - **Question / scope** — Every finding in this research pass is marked PROVISIONAL
   until run on the x86 rig (the contract: "nothing is final until empirically tested").
   This consolidates all those flags into ONE ordered, bracketed protocol, keyed to
-  REDESIGN's rebuild order — an executable checklist so the rebuild settles each
+  the x86 rebuild order — an executable checklist so the rebuild settles each
   hypothesis with a control and a pass/fail metric, not by assertion.
 - **Context** — 2026-07-14. Written from the ten deep-dives in `docs/`. Rig: x86-64
   Kali, i7-14gen, 32 GB, **no GPU**, headless. Each test names what it SETTLES, the
@@ -21,7 +21,7 @@
 | GraXpert `-cli -cmd denoising/deconv-obj -gpu false` timed | GraXpert CPU cost + which version installed | wall-clock; `pip show graxpert` | record; confirm 3.0.2 vs 3.2.0a2 |
 | StarNet2 / DeepSNR / Cosmic Clarity headless run + timed | do the free binaries run CPU-only + wall-clock | seconds/min per frame | run headless, no display |
 
-### Phase 1 — Port the measurement core (REDESIGN KEEP set)
+### Phase 1 — Port the measurement core (the kept durable core)
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | Run `bg_qa` gate + `object_integrity` + `star_shell_report` on a known stack | the core ports verbatim (numpy/FITS/Siril-CLI) | same outputs as arm on the same inputs | identical within tolerance |
@@ -62,7 +62,7 @@ Every render-altering result is judged by the three-check acceptance: **determin
 the gate + star-shell + inspection; the gate never loosens), and **declared delta**
 (metric deltas + like-encoding panels; objective-better-or-equal may commit, anything
 aesthetic needs the user's eyes on full-frame lossless finals). One bracketed knob per
-experiment; a killed hypothesis becomes a REDESIGN dead-end entry **with its numbers**.
+experiment; a killed hypothesis becomes a `docs/dead-ends.md` entry **with its numbers**.
 
 ## Sources
 Internal synthesis of the ten `docs/` deep-dives (each carries its own primary
@@ -72,7 +72,7 @@ citations + Status/Graduation). No new external sources.
 Run the phases in order on the x86 rig. Phase 0–2 are prerequisites (environment +
 ported core + stack builder); Phase 3 settles the solve doctrine; Phase 4 is the
 per-tier toolkit selection (each a measured declared delta); Phase 5 grows the product
-(the audit layer). This document is the executable form of REDESIGN's rebuild order — it
+(the audit layer). This document is the executable x86 rebuild order — it
 is where "provisional" becomes "verified."
 
 ## Status
@@ -81,7 +81,7 @@ nothing itself; it makes the settling reproducible. Every row is a hypothesis wi
 named control + metric.
 
 ## Graduation
-- **REDESIGN "Rebuild order"** — cross-reference this plan from each rebuild step, so the
+- **This plan IS the x86 rebuild order** — each rebuild step runs from this plan, so the
   order is executed as bracketed experiments, not asserted.
 - No TOOLS.md change (this is a test protocol, not a tool).
 - Applied in this deep-dive's commit.

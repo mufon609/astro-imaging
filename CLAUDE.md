@@ -45,15 +45,15 @@ or reimplement a measurement a tool already gives — STOP. Research the tool, d
 it, record what it measured, and fix the PROCESS from the root cause, not the
 picture.
 
-**This repo targets x86 — read [`REDESIGN.md`](REDESIGN.md) first** for the target
-environment, the tool inventory, and the build order. Processing and measurement
-are done entirely by industry tools ([`TOOLS.md`](TOOLS.md)); the repo is the
-orchestration + records + discipline around them.
+**This repo targets x86.** Processing and measurement are done entirely by
+industry tools ([`TOOLS.md`](TOOLS.md) — the toolkit); the target environment is
+in "Environment" below and the x86 build order is
+[`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). The repo is
+the orchestration + records + discipline around the tools.
 
-**Read order, every session:** (1) this file; (2) `REDESIGN.md` — the x86
-redesign plan AND the durable technical reference: the keep/wipe manifest,
-the target architecture, the **DEAD-END registry** (never re-attempt those —
-read it before proposing any experiment), and the acquisition checklist;
+**Read order, every session:** (1) this file; (2) [`docs/dead-ends.md`]
+(docs/dead-ends.md) — the **DEAD-END registry** (never re-attempt those — read it
+before proposing any experiment) + the acquisition checklist;
 (2b) `TOOLS.md` — the tier-by-tier tool audit (every option per pipeline
 stage, when/why, cost/Linux/CPU/headless) — the TOOLKIT the x86 render is
 built from; (2c) `MEMORY.md` — the collaboration context (who the user is,
@@ -64,9 +64,10 @@ contract + standing audits, per-set geometry, experiment discipline, north
 star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
 self-flat) lives in the kept scripts' own docstrings. `docs/` holds research
 deep-dives (one cited `.md` per major investigation — see `docs/README.md`),
-whose durable findings graduate into TOOLS/REDESIGN/MEMORY. `BACKLOG.md` is a
-stub (superseded by REDESIGN). Full history lives in `git log` — the complete
-pre-reset chain AND the old NOTES.md are at the `checkpoint` commit.
+whose durable findings graduate into TOOLS / `docs/dead-ends.md` / MEMORY.
+`BACKLOG.md` is a stub (superseded by the x86 test plan). Full history lives in
+`git log` — the complete pre-reset chain AND the old NOTES.md are at the
+`checkpoint` commit.
 Per-dataset state is the tracked `datasets/<session>/<set>/` records; NOTE
 its `recipe.json` render blocks + `baseline.json` are chain-coupled and
 PENDING the new chain.
@@ -75,7 +76,7 @@ PENDING the new chain.
 
 **Target (go-forward): x86-64 Kali** — Intel i7 14th-gen, 32 GB RAM, 1 TB
 NVMe, **no GPU**. The full tool inventory + the reasons the arm64
-workarounds die are in REDESIGN.md. In one line: x86 unlocks native
+workarounds die are in [`TOOLS.md`](TOOLS.md). In one line: x86 unlocks native
 StarNet/StarXTerminator, NoiseXTerminator/Cosmic Clarity (the denoise gap),
 BlurXTerminator (deconv), and astropy; 32 GB/1 TB relax the RAM/disk
 adaptations (32-bit intermediates, no partitioned stacking); no GPU means
@@ -92,7 +93,7 @@ core here now:**
   (`pyscript` + bundled `sirilpy`) that runs headless via an `.ssf` wrapper
   (`requires 1.4.0` + `pyscript foo.py`) — proven on this rig.
 - Kali linux arm64, 4 cores, 7.7 GB RAM, tight ~118 GB shared disk (check
-  `df` at session start). These constraints DIE on x86 (REDESIGN).
+  `df` at session start). These constraints DIE on x86.
 - Host python3: numpy + scipy + PIL, **no astropy** (equatorial→galactic
   is a fixed 3×3 in `scripts/lib/astrometrics.py`), no rawpy. astropy is
   available on x86.
@@ -114,9 +115,10 @@ core here now:**
 ## Binding rules (the contract in README, distilled for agents)
 
 - **One knob per experiment**, control bracketed, hypothesis
-  pre-registered BEFORE the run (the experiment record + REDESIGN's
-  dead-end registry). A measurement that kills a hypothesis becomes a
-  dead-end entry in REDESIGN WITH ITS NUMBERS before anything else is tried.
+  pre-registered BEFORE the run (the experiment record + the dead-end
+  registry, `docs/dead-ends.md`). A measurement that kills a hypothesis becomes
+  a dead-end entry in `docs/dead-ends.md` WITH ITS NUMBERS before anything else
+  is tried.
 - **Nothing is final until it is empirically tested on real data.** A
   mechanism analysis, a doc reading, or a comparison of source is a
   HYPOTHESIS, not a verified fact — mark it as such and state the concrete
@@ -155,7 +157,7 @@ core here now:**
   experiment is one knob, control bracketed, hypothesis required, judged on
   full-frame lossless finals, closed with a verdict into the tracked
   per-dataset `experiments.jsonl` (a killed hypothesis also becomes a
-  dead-end entry in REDESIGN with its numbers). Comparisons report measured deltas with an
+  dead-end entry in `docs/dead-ends.md` with its numbers). Comparisons report measured deltas with an
   objective WIN | NULL | needs-eyes verdict — NEVER "fixed/final/matched/
   close" language; aesthetics are the user's eyes on the finals.
 - **Acceptance measures come from the tools and don't loosen.** The measures that
@@ -181,8 +183,8 @@ core here now:**
 - **No session/stream/ladder tags in script comments** — plain,
   standalone descriptions with their measured numbers; provenance
   narrative lives in git only.
-- **Maintain REDESIGN's dead-end registry IN PLACE**: add/refine the
-  mechanism entries (data/physics/tool-doctrine); never append chronological
+- **Maintain the dead-end registry (`docs/dead-ends.md`) IN PLACE**: add/refine
+  the mechanism entries (data/physics/tool-doctrine); never append chronological
   session narrative. The durable stage-design "why" lives in each kept
   script's docstring — keep it there, update in place.
 - **New datasets get tracked per-dataset state** in
@@ -191,8 +193,7 @@ core here now:**
   `baseline.json` (written only by the no-regression sweep, re-ported on
   x86) — never dataset-specific script patches; a dataset without them must
   degrade loudly, not inherit silently. (The existing recipe render blocks +
-  baselines are chain-coupled and PENDING the new chain's schema —
-  REDESIGN.md.)
+  baselines are chain-coupled and PENDING the new chain's schema.)
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.
 
@@ -204,4 +205,4 @@ session dir and be carried — by those tools — to its best honest outcome.
 Every divergence from the standard workflow is a measured adaptation carrying
 its removal condition; the tools are a toolkit picked per dataset; finals as
 close to lossless as possible; and acquisition quality (the checklist in
-REDESIGN) outranks processing — never bandaid what photons must fix.
+`docs/dead-ends.md`) outranks processing — never bandaid what photons must fix.
