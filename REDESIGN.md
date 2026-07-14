@@ -168,7 +168,10 @@ commit.
 **[`TOOLS.md`](TOOLS.md) is the tier-by-tier audit** of everything the rig
 could use — the options at each pipeline stage, when/why to pick each, the
 alternatives, and the cost / Linux / CPU / headless constraints. It is a
-TOOLKIT, not a prescribed chain. The setup task on the x86 rig is to walk
+TOOLKIT, not a prescribed chain. **The concrete install plan + a drafted (untested)
+bootstrap are `docs/x86-setup-and-install.md` + `scripts/setup/x86_bootstrap.sh`** —
+the four-layer reproducible install (apt/flatpak/venv/pinned `/opt`), per-tool
+sources + checksums, and the manifest that seeds this file's environment section. The setup task on the x86 rig is to walk
 TOOLS.md and record, per tool: does it install, does it license, and its
 CPU wall-clock (no GPU → time the AI inference; use `rc-astro <t> --benchmark-all`).
 Confirm at minimum: Siril 1.4.4 (`pyscript`, `denoise -da3d/-sos/-indep`, `ccm`,

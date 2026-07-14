@@ -46,6 +46,9 @@ session** (the repo drives industry tools; it never processes pixels itself —
 _(add each writeup here, newest first)_
 
 **Research pass — mid-2026 tool/technique landscape** (2026-07-14):
+- [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
+  on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
+  `/opt`), checksums, gotchas + a drafted **untested** `scripts/setup/x86_bootstrap.sh`.
 - [siril-natives-and-trailed-solve](siril-natives-and-trailed-solve.md) — Siril
   1.4.4/1.5.0-dev native surface; the chroma-noise / AI-deconv / star-neutral gaps
   all still non-native; sharpened trailed-field `-localasnet` verification.

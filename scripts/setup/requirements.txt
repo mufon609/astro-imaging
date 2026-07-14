@@ -1,0 +1,16 @@
+# Python libs for the x86 measurement/orchestration layer — pinned, installed into a
+# project venv (NEVER system pip; Kali enforces PEP 668). See docs/x86-setup-and-install.md.
+#
+# These pins match what's current mid-2026 (astropy 8.0.1 verified on PyPI; numpy/scipy/
+# pillow match the versions already resolved on the base rig). All ship manylinux wheels
+# → no compilation, no system liberfa/wcslib needed (astropy bundles them).
+#
+# The AUTHORITATIVE lock is generated on the first x86 install:
+#   /opt/astro-venv/bin/pip freeze > requirements.lock
+#   # then re-install elsewhere with --require-hashes for byte-reproducibility.
+# Until then these are version pins, not hash pins (UNTESTED on x86).
+
+astropy==8.0.1        # unblocked on x86 (absent on arm); supports numpy 2.x
+numpy==2.3.5
+scipy==1.17.1
+Pillow==12.2.0
