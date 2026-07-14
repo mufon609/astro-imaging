@@ -52,18 +52,29 @@ history at the `checkpoint` commit that precedes the reset.
 - **x86-64 Kali**: unlocks native binaries and `astropy` (the equatorial→
   galactic 3×3 and other astropy gaps close).
 
-What x86 unlocks that arm64 blocked:
+What x86 unlocks that arm64 blocked (the full tier-by-tier audit of every
+option — free/paid, Linux/CPU/headless, when & why — is **[`TOOLS.md`]
+(TOOLS.md)**; the highlights):
 
-- **Star removal**: native StarNet2, or StarXTerminator (best-in-class) —
-  replaces BOTH the ONNX-under-onnxruntime workaround and the mask+inpaint
-  fallback.
-- **Denoise**: NoiseXTerminator / Cosmic Clarity Denoise / SCUNet — real AI
-  denoisers that **close the chroma/luminance-noise gap** the removed corings
-  left (Siril has no native chrominance-noise tool — its own docs punt to
-  GIMP).
-- **Deconvolution**: BlurXTerminator — the deconv step that was a measured
-  dead-end on arm64 (unstable PSF, no tool).
-- **PixInsight** (if licensed): the full reference toolset for cross-checking.
+- **Star removal**: native StarNet2 (free CLI now runs — no ONNX workaround),
+  StarXTerminator (best), or SyQon Zenith (new 2026 free AI).
+- **Denoise**: NoiseXTerminator (best) / Siril native `denoise` (free,
+  headless) / GraXpert / Cosmic Clarity / DeepSNR — real denoisers that
+  **close the chroma-noise gap** the removed corings left (Siril has no
+  native chrominance-noise tool — its docs punt to GIMP).
+- **Deconvolution** REOPENS (it was a dead-end on arm — no tool + unstable
+  PSF): BlurXTerminator (best; "correct only" even fixes elongated/trailed
+  stars — the base rig's core data problem), or GraXpert deconv (free), or
+  AstroSharp (free). 2026 rule: decon goes early-linear, BEFORE denoise.
+- **RC-Astro (BXT/NXT/SXT) are now standalone Linux CLI + Siril-integrated**
+  (2026) — NOT PixInsight-only anymore; one cross-platform license, AVX2 CPU
+  (the i7-14700 qualifies), no GPU required.
+- **GraXpert 3.x** now does BGE + denoise + AI deconvolution, all free + in
+  Siril 1.4.
+- **Siril 1.4 natives** may replace custom scripts: native astrometry.net
+  blindsolve (verify on trailed → maybe drop `solve_field.py`), native
+  drizzle, `ccm`, curves, Star Re-composition.
+- **PixInsight** (if licensed): the reference environment (WBPP, DBE/MARS).
 
 ## Architecture thesis: invert the ratio
 
@@ -147,27 +158,18 @@ commit.
 
 ## x86 tool inventory — DO THIS FIRST on the new rig
 
-The chain design depends on what actually runs. On the x86 rig, verify /
-install and record versions + CPU wall-clock (no GPU → time the inference):
-
-- [ ] **Siril 1.4.4+** — native or flatpak? confirm `pyscript`/`sirilpy`,
-  `denoise -da3d/-sos/-indep`, `ccm`, `synthstar`, `unclipstars`, `rgbcomp`,
-  `linstretch`, `subsky -rbf`.
-- [ ] **StarNet2** native x86 CLI (star-removal baseline).
-- [ ] **StarXTerminator** (RC-Astro) — standalone or PixInsight-only? license?
-  CPU wall-clock.
-- [ ] **NoiseXTerminator** (RC-Astro) — the chroma/luminance-noise gap filler.
-  CPU wall-clock.
-- [ ] **BlurXTerminator** (RC-Astro) — deconvolution (a dead-end on arm).
-- [ ] **Cosmic Clarity** (Seti Astro) — Linux x86 CPU build (denoise / sharpen
-  / darkstar) — the free alternative to RC-Astro.
-- [ ] **GraXpert** x86 (BGE + denoise) — already used; confirm.
-- [ ] **PixInsight** — licensed? (reference cross-check; SPCC/BXT/NXT host).
-- [ ] **astrometry.net** local indexes; **astropy** (installable on x86 —
-  retire the fixed 3×3 equatorial→galactic fallback if wanted).
-- [ ] Siril community scripts (VeraLux, SyQon, Naztronomy…): headless-viable?
-  PyQt6 GUIs need a display (Xvfb, or a headless/argv fork). See the
-  philosophy question below.
+**[`TOOLS.md`](TOOLS.md) is the tier-by-tier audit** of everything the rig
+could use — the options at each pipeline stage, when/why to pick each, the
+alternatives, and the cost / Linux / CPU / headless constraints. It is a
+TOOLKIT, not a prescribed chain. The setup task on the x86 rig is to walk
+TOOLS.md and record, per tool: does it install, does it license, and its
+CPU wall-clock (no GPU → time the AI inference). Confirm at minimum: Siril
+1.4.4+ (`pyscript`, `denoise -da3d/-sos/-indep`, `ccm`, `synthstar`,
+`unclipstars`, native astrometry.net solve), GraXpert 3.x (BGE/denoise/
+deconv), StarNet2 native CLI, astrometry.net + astropy; then decide whether
+to license RC-Astro (BXT/NXT/SXT — best-in-class, now Linux CLI) and which
+free AI tools (Cosmic Clarity, SyQon Zenith/Prism, AstroSharp, DeepSNR) to
+stage.
 
 ## Open philosophy question (decide before adopting the Siril script ecosystem)
 
@@ -189,12 +191,15 @@ reputationally-vouched tool from the official Siril repo counts as a tool
 3. **Rebuild the stack builder** minimally: drop `partitioned_stack`, go
    32-bit intermediates, confirm calibrate/register/stack + self-flat +
    compose on x86 Siril.
-4. **Rebuild the render chain tool-first**, one operator at a time, each a
-   measured declared delta against the ported gate/audits: star removal →
-   StarXT/StarNet; denoise → NoiseXT/Cosmic Clarity (closes the coring gap);
-   stretch → Siril autostretch/GHS or Statistical_Stretch; stars →
-   synthstar/unclipstars; deconv → BlurXT; narrowband → the star-neutral
-   question (Nightlight x86 or native `ccm` + recombine).
+4. **Rebuild the render as a TOOLKIT, not a fixed chain** — pick the tool
+   per tier from [`TOOLS.md`](TOOLS.md) for the dataset + goal in front of
+   you, each choice a measured declared delta against the ported gate/audits
+   ([[pipeline-as-toolkit]]). The one process rule to honour (2026 consensus):
+   gradient removal → colour calibration → **deconvolution (linear, before
+   denoise)** → noise reduction (linear, on starless) → star removal (linear)
+   → **stretch** → detail / colour / recomposition (nonlinear). What used to
+   be a hole (deconv) is now a real early step; what used to be a hand-rolled
+   coring (denoise) is now a tool.
 5. **Re-port the guards**: hand_roll_audit + sweep around the new chain;
    re-seed operators.json; rebaseline every dataset on x86.
 6. **Re-found BACKLOG** from what the x86 rebuild actually surfaces.
@@ -269,9 +274,13 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   carries the cloud signal).
 - wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
   min-max ramp → worst frame ~0 weight at any spread).
-- Drizzle on heavily oversampled data is pointless; deconvolution where
-  trailing is in-exposure fails (unstable symmetric PSF on ≈0 background) —
-  revisit with BlurXTerminator on x86.
+- Drizzle on heavily oversampled data (short focal / large pixels) is
+  pointless. CLASSICAL deconvolution (makepsf + RL) where trailing is
+  in-exposure fails — unstable symmetric PSF on ≈0 background. This is NO
+  LONGER a blanket dead-end on x86: BlurXTerminator's learned model corrects
+  elongated/trailed stars where classical RL cannot (TOOLS.md Tier 5), and
+  GraXpert/AstroSharp are free learned alternatives. Deconv is now a real
+  early-linear step, done BEFORE denoise.
 
 **QA / scope:**
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame

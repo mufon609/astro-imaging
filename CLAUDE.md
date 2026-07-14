@@ -8,9 +8,11 @@ go-forward authority (target env, keep/wipe manifest, rebuild order).
 
 **Read order, every session:** (1) this file; (2) `REDESIGN.md` — the x86
 redesign plan AND the durable technical reference: the keep/wipe manifest,
-the target architecture, the rebuild order, the **DEAD-END registry** (never
-re-attempt those — read it before proposing any experiment), and the
-acquisition checklist; (3) `README.md` — the process contract (review
+the target architecture, the **DEAD-END registry** (never re-attempt those —
+read it before proposing any experiment), and the acquisition checklist;
+(2b) `TOOLS.md` — the tier-by-tier tool audit (every option per pipeline
+stage, when/why, cost/Linux/CPU/headless) — the TOOLKIT the x86 render is
+built from; (3) `README.md` — the process contract (review
 contract + standing audits, per-set geometry, experiment discipline, north
 star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
 self-flat) lives in the kept scripts' own docstrings. `BACKLOG.md` is a stub
