@@ -1,9 +1,11 @@
 # Astrophotography processing pipeline
 
 > **⚠ MID-RESET to x86 — read [`REDESIGN.md`](REDESIGN.md) first.** The
-> render chain and the aarch64 workarounds were wiped; the durable core
-> (measurement/audit + calibration/stack/compose) is kept and the chain is
-> rebuilt tool-first on x86. Below, the **process contract, review contract,
+> render chain and the aarch64 workarounds were wiped; the in-house
+> measurement/audit layer is now FORBIDDEN-class too (it reads the deliverable's
+> pixels) and is being retired for tool-orchestration + a checklist; the
+> tool-driving calibration/stack/compose orchestration is kept, rebuilt
+> tool-first on x86. Below, the **process contract, review contract,
 > acceptance model, experiment discipline, per-dataset state, and north star
 > are all portable and stay** — but anything that names the RENDER chain
 > (`starcomb.py`, `operators.json`, `hand_roll_audit.py`, `sweep.py`,
@@ -11,13 +13,14 @@
 > preserved at the `checkpoint` commit and being re-established on x86. Treat
 > those as the PATTERN the rebuild carries, not current code.
 
-This repo is a **self-auditing orchestration harness** — it RECORDS the
-process, AUDITS every image and step, and AUTOMATES the workflow by driving
-industry tools; it never processes pixels itself (full identity + the
-anti-drift test: `CLAUDE.md` "What this repo IS"). It tracks the **process**
-(Siril/Python scripts + notes), never image data (`.gitignore`). This file is
-the **process contract**: what each step is for, what the industry standard
-does there, where we diverge and why, and how every step is reviewed.
+This repo is a **checklist + knowledge workspace** for astrophotography
+processing — official tools do ALL pixel work (processing AND analysis); the
+repo's own code never processes or analyzes the deliverable's pixels (full
+identity + the ALLOWED/FORBIDDEN line + the anti-drift test: `CLAUDE.md` "What
+this repo IS"). It tracks the **process** (Siril/Python orchestration + notes),
+never image data (`.gitignore`). This file is the **process contract**: what each
+step is for, what the industry tool does there, where we diverge and why, and how
+every step is reviewed (tools measure, the checklist records, the user judges).
 `REDESIGN.md` holds the go-forward plan + the **dead-end registry** (every
 measured lesson with its numbers) + the acquisition checklist.
 
@@ -68,45 +71,31 @@ Principles that keep this honest:
 
 ## The review contract (who/what judges each step)
 
-1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
-   each STACK stage rendered identically + metric bounds from the
-   expectations table in `inspect_stage.py` (its `EXPECTATIONS`). WARN only — inspection never aborts. The
-   RENDER chain has the same provenance STANDING ON EVERY BUILD: each
-   `starcomb.py` render writes a labeled full-frame stage sequence
-   (background → separation → stretch → denoise → black point →
-   stars → combine) + `index.html` + per-stage measured numbers into
-   `<final>_stages/`, so the treatment at each step is visible and a defect
-   in a final render is localized to the stage that introduced it in one
-   run (`--no-stage-vis` opts out for a fast run). This is a DIAGNOSTIC
-   surface, never the aesthetic-judgment surface (that stays the full-frame
-   lossless finals). Diff any two runs' stages with `judgment_crops.py
-   <outdir> a=<x.jpg> b=<y.jpg> --question="..."` (an on-request supplement,
-   never the judgment surface).
-2. **The gate** (`bg_qa.py`, composition-agnostic sky scope): strict
-   thresholds on the **starless render's sky**, selected STATISTICALLY (dark
-   blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,
-   plane-fit gradient ≤ 8, blotch ≤ 5, rings ≤ 8. Thresholds never loosen.
-   Real signal (a galaxy / the MW / a nebula) is bright and drops out of the
-   sky selection, so it is never read as a defect. Whole-frame QA on the
-   recombine is reported as reference, never
-   gated.
-3. **Star metrics** (count / FWHM-eq / mid-tier peak / saturated fraction /
-   halo) on the stars layer / combined render — reported.
-4. **Star-shell audit** (`astrometrics.star_shell_report`, every starcomb
-   run): the ghost-aura defect class lives ON stars where the background
-   gate cannot see it — bright-tier annulus metrics, `aura_lum` WARN > 4.0
-   (calibrated to separate a clean render from a defective one), `shell_chroma`
-   reported as a trend (honest PSF fringe dominates it). The stars anchor +
-   its MTF low-end gain print per run so normalization drift is visible.
-5. **The user judges aesthetics on the recombine — from FULL-FRAME
+1. **The tools measure (orchestrated + recorded).** Frame and render quality come
+   from the tools' own analysis, driven headless and captured to the dataset's
+   record — Siril `stat` / `register` (background, noise, FWHM, roundness, star
+   count) + its SubframeSelector-class metrics, ASTAP (HFD, star count), the solver
+   + SPCC logs. The repo never recomputes these in numpy: it runs the tool, parses
+   its report, records it. [`TOOLS.md`](TOOLS.md) maps which tool measures what. A
+   labeled per-stage sequence still stands on every render (each stage written
+   full-frame + the tool's measured numbers into `<final>_stages/`), so a defect
+   localizes to the stage that introduced it — a DIAGNOSTIC surface, never the
+   aesthetic-judgment surface (that stays the full-frame lossless finals).
+2. **The checklist decides pass/fail from the tools' numbers.** A per-dataset
+   checklist applies the acceptance criteria (see "How a change is accepted") to
+   the *tool-reported* measures — decision logic over tool outputs, never in-house
+   pixel analysis. Criteria don't loosen without explicit user ratification.
+3. **The user judges aesthetics on the recombine — from FULL-FRAME
    LOSSLESS FINALS, opened independently.** A judgment set is a folder of
    whole-frame lossless images (PNG16 + PNG8) with clean names and a
    QUESTION.md, nothing else: no crops, no composited panels, no lossy
    surface — the judge pulls each file into their own viewers and
-   environments. Assemble it with `judgment_package.py`, which verifies
-   every PNG8+PNG16 pair pixel-wise before linking — never by hand. Ladder runs emit per-value lossless finals for exactly
-   this. Crops/panels (`judgment_crops.py`) are an on-request supplement,
-   never the judgment surface. Objective fixes with pass/fail metrics may
+   environments. Assemble it with `judgment_package.py` (orchestration +
+   record: it verifies every PNG8+PNG16 pair pixel-wise for export integrity
+   before linking — never by hand, embeds the tool-reported candidate-vs-control
+   deltas + an objective WIN|NULL|needs-eyes verdict, writes QUESTION.md).
+   Crops/panels (`judgment_crops.py`) are an on-request supplement,
+   never the judgment surface. Objective fixes with tool pass/fail metrics may
    commit; recipe/aesthetic changes require the user's visual approval
    before they are baked as defaults.
 
@@ -125,6 +114,15 @@ Principles that keep this honest:
    judgment set. The user's eyes remain the judgment; the inspection
    exists so they are never spent discovering what the assembler could
    have seen.
+
+**Retired (FORBIDDEN-class — they read the deliverable's pixels in numpy):** the
+`bg_qa` statistical-sky gate (colour / gradient / blotch / rings thresholds), the
+`star_shell_report` aura audit, `object_integrity`, and `inspect_stage`'s in-house
+metrics. Their INTENT — catch gradient / blotch / ring / aura / chroma defects and
+grade frames — is kept, but sourced from the tools' own analysis + the checklist,
+not in-house pixel math. Where no tool provides a defect measure, that is a
+documented gap (a candidate for a standalone ALLOWED detector like
+`anomaly_audit.py`, or a tool to adopt) — never a numpy gate.
 
 ### How a change is accepted
 
@@ -155,13 +153,10 @@ it, each answering a question it can actually answer:
    check on a slow, non-deterministic chain doesn't add rigor — it gets skipped or
    blocks valid work; a right-sized one actually runs.)
 2. **No regression, across data classes.** Every registered dataset
-   (each baselined under `datasets/`) still PASSES the gate, shows no
-   star-shell WORSENING vs
-   its own recorded baseline (regression semantics — a clean dataset rotting
-   toward the defect class fails long before any absolute line; recording a
-   baseline above the audit WARN bound requires an explicit
-   `--ack-aura-warn`), and passes the per-stage inspection. **Gate
-   thresholds never loosen.** **The per-change COST is tiered** — a full render
+   (each baselined under `datasets/`) still PASSES the **tool-sourced acceptance
+   checklist** and shows no WORSENING of the tools' recorded measures vs its own
+   baseline (regression semantics — a clean dataset rotting toward the defect
+   class fails long before any absolute line). **The criteria never loosen.** **The per-change COST is tiered** — a full render
    across the whole suite is hours on the no-GPU AI chain and grows with the
    corpus, so a change runs the sweep on the **class(es) it can affect + one
    canary**, and the **full suite** runs on a cadence / before a re-baseline or
@@ -182,8 +177,8 @@ it, each answering a question it can actually answer:
    frame-centred galaxy — so no single dataset can hold the pipeline
    hostage. One command runs the **full suite** (the cadence / pre-release form):
    `python3 scripts/qa/sweep.py` (renders
-   every dataset with a `datasets/*/*/baseline.json`, requires gate PASS +
-   baseline-relative shell check, diffs every metric against the baseline,
+   every dataset with a `datasets/*/*/baseline.json`, requires the checklist to
+   PASS + a baseline-relative comparison of the tools' measures, diffs each against the baseline,
    and flags any byte delta as a declared-delta prompt; absent third-party
    data SKIPs loudly).
 3. **Declared delta.** A change that alters a registered render is *expected*,
@@ -193,34 +188,31 @@ it, each answering a question it can actually answer:
    approved render is re-baselined and git-tagged — the tag is the record, not
    a frozen file.
 
-Pinned narrowly: the starless gate JPEG's q92 encoding **is** the gate's
-identity (change it and the gate measures something else). Pin that, not the
-whole product chain.
+Pin narrowly where identity IS the contract — a tool's exact invocation +
+version that a recorded measure depends on — not the whole product chain.
 
 **Data integrity (what is lossy, where, and the guards).** The processing
 path is linear FITS end to end: 32-bit float stacks/products, with ONE
 documented precision reduction — 16-bit stack-time intermediates
 (quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
-Lossy/display files exist ONLY as OUTPUT surfaces: the gate's pinned q92
-starless jpg (its identity, never a judgment surface), the q100/4:4:4
-final jpg, and judgment panels. GUARDS keep it that way: processing loads
+Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
+(never a judgment surface), the q100/4:4:4 final jpg, and judgment panels. GUARDS keep it that way: processing loads
 go through `astrometrics.load_linear` (refuses non-FITS), `starcomb
 --stack` refuses non-FITS paths, and `compose.py` asserts float32 inputs.
 Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
-PNG16 for the final **and the starless layer** (PNG8 = the exact pixels
-the gate encoder consumed; PNG16 = the float layer at 65536 levels).
+PNG16 for the final **and the starless layer** (PNG8 = the 8-bit display
+pixels; PNG16 = the float layer at 65536 levels).
 Never judge a q92 surface. Finals carry EMBEDDED sRGB COLORIMETRY (JPEG
 ICC + PNG sRGB/gAMA/cHRM chunks): the render's display-referred output is
 sRGB-companded (siril's autostretch/mtf/satu operate in display RGB), so
 the tag declares that instead of leaving viewers to assume it — pixels
 untouched, profile vendored at `scripts/lib/srgb.icc` with timestamp/ID
 zeroed for byte-determinism.
-The gate's pinned q92 starless jpg stays byte-untouched (gate identity).
 
-**North star:** every stage audits itself with numbers so that eventually
+**North star:** every stage's TOOLS report their numbers so that eventually
 ANY dataset can be dropped into a session dir and be properly judged and
 processed to its best honest outcome — composition facts from config or
-derivation, defects caught by the standing checks, aesthetics decided by
+derivation, defects caught by the tools' analysis + the checklist, aesthetics decided by
 the user from measured candidates, and every divergence carrying its
 removal condition.
 
@@ -350,12 +342,12 @@ live in CLAUDE.md "Environment" + REDESIGN.md.
 
 ## Repo map (`scripts/`, by stage directory)
 
-**`lib/`** — shared measurement + gate, imported everywhere via the walk-up bootstrap
+**`lib/`** — shared FITS-I/O + orchestration helpers (the in-house measurement/gate code is RETIRED — tools measure now), imported everywhere via the walk-up bootstrap
 
 | file | role |
 |---|---|
 | `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, foreground (`branch_mask`) + statistical-sky (`sky_pixel_mask`) masks, `star_shell_report` |
-| `bg_qa.py` | THE GATE (composition-agnostic statistical sky scope on the starless render); thresholds never loosen |
+| `bg_qa.py` | **RETIRED** (FORBIDDEN-class — reads the starless render's pixels). Its intent (sky gradient / blotch / ring / colour defects) is re-sourced from the tools' own analysis + the checklist |
 | `render_helpers.py` | shared helpers for the ladder harnesses: GraXpert runner, `measure_jpg`, side-by-side strips |
 
 **`stack/`** — build the integrated stack
@@ -391,10 +383,10 @@ BlurXTerminator + siril (`autostretch`/`mtf`/`pm`/`satu`/`synthstar`).
 
 | file | role |
 |---|---|
-| `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners; its registration stage is the per-frame quality assessment (the SubframeSelector step, measurement half): .seq regdata parsed and persisted per frame — FWHM px+arcsec, roundness, background, star count, full shift list — into metrics.jsonl + a .seq copy before per-stage cleanup prunes the sequence |
+| `inspect_stage.py` | orchestration + record: persists the TOOLS' per-frame measures (Siril `register`'s .seq regdata — FWHM px+arcsec, roundness, background, star count, shifts) into metrics.jsonl before cleanup, and writes the per-stage diagnostic sequence. The in-house metric bounds it used to compute are RETIRED — the checklist reads the tools' numbers |
 | `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
-| `object_integrity.py` | **the object-region audit** (standing WARN): grades the OBJECT the gate is blind to against the render's own same-balance co-registered input — chroma-neutralization + mid-scale mottle (reliable) + gross structure-flattening (a small local hollow is an upstream alignment concern, see its docstring) |
+| `object_integrity.py` | **RETIRED** (FORBIDDEN-class — reads the render's object region). Intent (chroma-neutralization / mid-scale mottle / gross-flattening) re-sourced from tool analysis + the checklist |
 | `hand_roll_audit.py`, `sweep.py` | **WIPED (re-ported on x86)** — the orchestrate-not-hand-roll guard + the no-regression sweep were coupled to the wiped chain (they scanned/rendered it). The PATTERNS are durable (guard the new chain's operator catalog; render every baselined dataset + diff gate/metrics/bytes vs baseline); they re-establish around the x86 chain. In history at the `checkpoint` commit |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `stack_ab.py` | stack-vs-stack comparators for a with/without policy ladder (sky noise, blotch-proxy, difference structure + a stretched diff JPEG) — the instrument for a measured weight/cull adoption |
