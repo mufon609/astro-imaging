@@ -32,12 +32,15 @@
   · D80 (1.2 GB) · V50/V05 (photometry). → **ultra-wide = W08 + G05.** A wrong-DB pick
   (D-series above 6°) is a top wide-field failure cause.
 - **Detection = HFD (half-flux-diameter) flux-weighted centroid, NOT a PSF fit.** Source
-  reads (`unit_stack.pas`) show the accept test is size + SNR only — `((hfd1<=~15) and
-  (snr>snr_min) and (hfd1>hfd_min))` — **no roundness/axis-ratio term** (HFD is radially
+  reads (`unit_stack.pas`) show the accept test is size + SNR only — `hfd1 <= max_cap`
+  (a version-dependent HFD ceiling — the code shows `<= 30`, and the 2026 changelog
+  relaxed the practical max toward ~15–16) AND `snr > snr_min` AND `hfd1 > hfd_min` —
+  **no roundness/axis-ratio term** (HFD is radially
   symmetric). The quad matcher hashes 4-star asterisms into a rotation/scale/flip-invariant
   code (tol 0.007) — **star shape never enters it.**
-- **Trailing tolerance: better than Siril findstar for MILD/MODERATE trailing, with a
-  ceiling.** No shape filter → a trailed star is kept while its peak SNR stays up and HFD
+- **Trailing tolerance (mechanism inference — untested): the no-shape-filter design
+  PREDICTS it keeps MILD/MODERATE trailing where findstar rejects it, with a ceiling.**
+  No shape filter → a trailed star is kept while its peak SNR stays up and HFD
   stays under the cap; a flux-weighted centroid sits at the trail midpoint, so *uniform*
   mild trailing shifts all centroids consistently and preserves the quad ratios. **But
   ASTAP's own docs:** *"Oval stars due to tracking errors or severe optical distortion
@@ -79,8 +82,8 @@
    control the centroids; matches the untracked all-sky / meteor-network precedent. **Validates
    `solve_field.py`.**
 2. **ASTAP + W08/G05 — second.** HFD/centroid, no roundness gate, shape-blind quads;
-   tolerates mild trailing where Siril rejects it, **but needs the correct wide DB** or it
-   silently fails; severe/rotational trailing still breaks it.
+   should keep mild trailing where Siril rejects it (mechanism prediction), **but needs
+   the correct wide DB** or it silently fails; severe/rotational trailing still breaks it.
 3. **Siril native (internal AND `-localasnet`) — least robust here.** Load-bearing:
    `-localasnet` does **not** hand the raw image to astrometry.net — Siril *"extracts the
    stars from your images [with findstar] and submits this list to solve-field."* findstar
@@ -143,7 +146,8 @@
   reject + >5° crop) — use `-nocrop` + relaxed findstar only as the x86 test, not the default.
 - **Drizzle: measure the minor-axis FWHM.** Oversampled → skip; genuinely undersampled +
   dithered + many-frame → 2× can help; but trailing usually breaks the preconditions, so
-  default to skipping upscale-drizzle for trailed data. **CFA-drizzle 1× is the OSC default.**
+  default to skipping upscale-drizzle for trailed data. **CFA-drizzle 1× is Siril's
+  recommended OSC setting** (cleaner colour noise than interpolated demosaic).
 
 ## Status
 **PROVISIONAL.** Install/CLI/detection-method facts are PRIMARY-VERIFIED (vendor docs +
@@ -154,7 +158,7 @@ residual RMS + wall-clock; and measure minor-axis FWHM + dither before any drizz
 
 ## Graduation
 - **TOOLS.md Tier 2** — ASTAP row: **W08/G05 for wide** (D-series caps at 6°; G17/H17
-  deprecated), HFD-centroid (no roundness gate) tolerates mild trailing; add the 3-way
+  deprecated), HFD-centroid (no roundness gate) *predicted* to keep mild trailing; add the 3-way
   robustness ranking; note astrometry.net xylist-of-peaks is the *intended* override
   (validates `solve_field.py`); `--scale-low/high` pin.
 - **REDESIGN dead-ends** — (a) strengthen the trailed-solve entry with the detection-method

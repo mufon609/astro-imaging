@@ -152,5 +152,5 @@ is a clean calibrate→register→stack on a known set with the corrected flags.
   drizzle-on-register, and the WBPP gaps (Local Norm / PSF-Signal-Weight — none native).
 - **REDESIGN** — record the migrated-script breakage (unified `-weight=`, no `-noout`/
   `-cc=bothpasses`) as a rebuild gotcha for `run_pipeline.sh`; note drizzle is a
-  registration option and CFA-drizzle 1× is the OSC default.
+  registration option and CFA-drizzle 1× is Siril's recommended OSC setting.
 - Applied in this deep-dive's commit.

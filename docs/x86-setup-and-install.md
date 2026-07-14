@@ -105,9 +105,10 @@ passed — so it cannot execute on the arm box (or interfere with anything). It 
 - **Install by isolation layer:** apt (signed) → flatpak Siril → project venv →
   pinned `/opt` self-contained binaries. Never system pip. Record every source +
   version + sha256 in the manifest; end with the verification pass.
-- **The free stack installs cleanly and reproducibly** (Siril flatpak, StarNet/DeepSNR
-  checksummed zips, ASTAP + astrometry.net apt, GraXpert). **rc-astro is the only
-  license-gated / manual step**, and the one glibc-compat unknown to smoke-test.
+- **The free stack is the cleanly-and-reproducibly-installable part** (Siril flatpak,
+  StarNet/DeepSNR checksummed zips, ASTAP + astrometry.net apt, GraXpert) — once the TODO
+  checksums are filled, and UNTESTED until run. **rc-astro is the only license-gated /
+  manual step**, and the one glibc-compat unknown to smoke-test.
 - **Prefer GraXpert 3.0.2 stable zip** for the reproducible base; add the 3.2.0a2 alpha
   (pipx) only if deconv is wanted, knowing it's pre-release.
 

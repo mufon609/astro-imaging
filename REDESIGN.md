@@ -352,8 +352,8 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   (solve-field with an xylist runs NO extraction; the matcher is geometry-only,
   Lang 2010) — this confirms `solve_field.py` is doing the sanctioned thing, not a
   hack. Robustness ranking: (1) astrometry.net + own peak xylist, (2) ASTAP + the
-  wide DBs **W08/G05** (HFD centroids, no roundness gate — tolerates mild trailing;
-  the D-series caps at 6°, G17/H17 deprecated), (3) native `-localasnet` (least).
+  wide DBs **W08/G05** (HFD centroids, no roundness gate — *predicted* to keep mild
+  trailing, measure; the D-series caps at 6°, G17/H17 deprecated), (3) native `-localasnet` (least).
   Keep `solve_field.py`; the x86 test is `-relax=on -roundness=0.1 -maxR=large` +
   `-nocrop` vs the custom script vs ASTAP+W08 (TOOLS.md Tier 2).
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass +
