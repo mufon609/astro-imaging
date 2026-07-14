@@ -63,14 +63,17 @@ option — free/paid, Linux/CPU/headless, when & why — is **[`TOOLS.md`]
   **close the chroma-noise gap** the removed corings left (Siril has no
   native chrominance-noise tool — its docs punt to GIMP).
 - **Deconvolution** REOPENS (it was a dead-end on arm — no tool + unstable
-  PSF): BlurXTerminator (best; "correct only" even fixes elongated/trailed
-  stars — the base rig's core data problem), or GraXpert deconv (free), or
-  AstroSharp (free). 2026 rule: decon goes early-linear, BEFORE denoise.
+  PSF): BlurXTerminator (best + mature; `--correct-only` even fixes
+  elongated/trailed stars — the base rig's core data problem), or GraXpert
+  deconv (free but **RC-only/pre-release**, object-mode bug #243), or Cosmic
+  Clarity (free, CPU-slow). (AstroSharp is OUT — no Linux/CLI.) 2026 rule
+  (strong default, not absolute): decon early-linear, before *heavy* denoise.
 - **RC-Astro (BXT/NXT/SXT) are now standalone Linux CLI + Siril-integrated**
   (2026) — NOT PixInsight-only anymore; one cross-platform license, AVX2 CPU
   (the i7-14700 qualifies), no GPU required.
-- **GraXpert 3.x** now does BGE + denoise + AI deconvolution, all free + in
-  Siril 1.4.
+- **GraXpert** does BGE (CPU-fast) + denoise (CPU-slow) free + in Siril 1.4;
+  AI deconvolution exists but **only in the 3.1.0-RC2 pre-release** (stable is
+  3.0.2; deconv never shipped stable — record the actual installed version).
 - **Siril 1.4 natives** may replace custom scripts: native astrometry.net
   blindsolve (VERIFIED — replaces `solve_field.py` for round-star data, but
   NOT the trailed/ultra-wide class: it feeds astrometry.net Siril's PSF
@@ -154,7 +157,7 @@ commit.
 | `render/operators.json` | Catalogs the wiped chain's operators | Re-seed with the new chain |
 | `render/separation/starnet_sep.py` | ONNX-under-onnxruntime StarNet aarch64 workaround | Native StarNet2 / StarXTerminator |
 | `render/separation/starsep.py` | mask+inpaint fallback (destroys resolved structure) — existed only because the weights were arch-blocked | Real star removal always available on x86 → no fallback needed |
-| `render/nightlight_sho.py` | Nightlight arm64-staged binary driver | Revisit on x86 (Nightlight x86, or a native star-neutral path) |
+| `render/nightlight_sho.py` | Nightlight arm64-staged binary driver | Prefer the **native star-neutral path** (measure mean star colour in the examine layer → apply a diagonal `ccm`); Nightlight is a dormant cross-check only (dead-end registry / `docs/narrowband-star-neutral-options.md`) |
 | `stack/partitioned_stack.py` | 651-line workaround for 7.7 GB RAM | 32 GB → hold full sequences; unnecessary |
 | `qa/hand_roll_audit.py` | The orchestrate-guard — scans the wiped chain | Re-port around the new chain (the guard PATTERN is durable) |
 | `qa/sweep.py` | No-regression harness — renders via the wiped chain | Re-port around the new chain (the no-regression + declared-delta PATTERN is durable) |
@@ -166,24 +169,44 @@ could use — the options at each pipeline stage, when/why to pick each, the
 alternatives, and the cost / Linux / CPU / headless constraints. It is a
 TOOLKIT, not a prescribed chain. The setup task on the x86 rig is to walk
 TOOLS.md and record, per tool: does it install, does it license, and its
-CPU wall-clock (no GPU → time the AI inference). Confirm at minimum: Siril
-1.4.4+ (`pyscript`, `denoise -da3d/-sos/-indep`, `ccm`, `synthstar`,
-`unclipstars`, native astrometry.net solve), GraXpert 3.x (BGE/denoise/
-deconv), StarNet2 native CLI, astrometry.net + astropy; then decide whether
-to license RC-Astro (BXT/NXT/SXT — best-in-class, now Linux CLI) and which
-free AI tools (Cosmic Clarity, SyQon Zenith/Prism, AstroSharp, DeepSNR) to
-stage.
+CPU wall-clock (no GPU → time the AI inference; use `rc-astro <t> --benchmark-all`).
+Confirm at minimum: Siril 1.4.4 (`pyscript`, `denoise -da3d/-sos/-indep`, `ccm`,
+`synthstar`, `unclipstars`, native astrometry.net solve); **GraXpert — record the
+ACTUAL version + model versions** (GitHub stable is **3.0.2 = BGE+denoise only**;
+deconv needs the **3.1.0-RC2** pre-release; the repo's "3.2" reference is
+unverified/likely wrong); StarNet2 **v2.5.3** native CLI + **DeepSNR** (free NAFNet
+Linux CLI); astrometry.net + astropy. Then decide whether to license RC-Astro
+(BXT $99.95 / NXT $59.95 / SXT $49.95 — best-in-class, the **`rc-astro` v0.9.9**
+CLI on Ubuntu-22.04+ [**verify on Kali**]; one cross-platform perpetual license,
+CLI free for holders; **activate once online + `download-models`, then it runs
+offline**; call the binary directly for headless). Free AI to stage: Cosmic
+Clarity (native Linux, CPU-slow), DeepSNR, AstroDenoisePy. **AstroSharp is OUT**
+(no Linux/CLI, 600 KB cap). SyQon free tiers are GUI-in-Siril (not headless-confirmed).
 
-## Open philosophy question (decide before adopting the Siril script ecosystem)
+## RESOLVED — the Siril-pyscript "tool vs hand-roll" question (mechanism, not provenance)
 
-A `sirilpy` `pyscript` doing numpy processing (e.g. VeraLux Silentium's
-wavelet denoise) — is that **"orchestrating a Siril-ecosystem tool"**
-(adoptable, like Nightlight) or **"someone else's hand-rolled numpy in a
-wrapper"** (rejected by the same rule that removed ours)? The answer sets
-whether the VeraLux/SyQon class is in-bounds at all, and whether they run
-headless (Xvfb). Working recommendation: a distributed, versioned,
-reputationally-vouched tool from the official Siril repo counts as a tool
-(the Nightlight precedent); a script we would fork or edit does not.
+The line is **where the pixel mechanism lives**, not repo provenance (research
+2026-07; `docs/siril-pyscript-headless.md`, from reading the actual script source):
+
+- **Class-2 — the pyscript `subprocess`es a real compiled binary** (`RC-Astro/*`,
+  `CosmicClarity_*`, `GraXpert-AI`, `StarNet`): a genuine TOOL, in-bounds, the same
+  category as our `solve_field.py` driving astrometry.net. Adopt freely.
+- **Class-1 — the pyscript does the pixel math in its own numpy/scipy/pywt/torch**
+  (VeraLux suite, SyQon Prism, SCUNet, DBXtract): the mechanism IS numpy — running
+  VeraLux Silentium *is* running a numpy denoiser. Admissible **only as a sanctioned
+  alternative with a removal condition** (the astrometry.net precedent), **never
+  relabeled "a tool" for free** — and a versioned, reputationally-vouched,
+  official-repo script (even one Cyril Richard ported) does **not** change that.
+
+This **overturns the old working recommendation** (which keyed on official-repo +
+vouched → "a tool," and would have wrongly blessed VeraLux Silentium). Provenance
+is not the test; mechanism location is. Headless corollary: most Class-1 scripts are
+**GUI-mandatory PyQt6 with no arg vector → not headless-drivable even under Xvfb**;
+only dual-mode ones (Statistical_Stretch, SyQon Prism `--no-gpu`) and all Class-2
+drivers run under `siril-cli`. So on a headless box: adopt Class-2 binaries; treat
+Class-1 as escape-hatch-with-removal-condition, and prefer a compiled tool whenever
+one provides the mechanism. (Doctrine call — the user may override; it is a docs
+change, not code.)
 
 ## Rebuild order (on x86 — each step a measured experiment)
 
@@ -206,6 +229,35 @@ reputationally-vouched tool from the official Siril repo counts as a tool
 5. **Re-port the guards**: hand_roll_audit + sweep around the new chain;
    re-seed operators.json; rebaseline every dataset on x86.
 6. **Re-found BACKLOG** from what the x86 rebuild actually surfaces.
+
+## Audit-layer adoption candidates (the measurement layer IS the product)
+
+Researched, cited, numpy/scipy-computable metrics to EXTEND the audit layer —
+each a measured experiment, the gate never loosens (`docs/objective-qa-defect-metrics.md`).
+These are the highest-leverage additions because measurement is what the repo is
+*for*. Prioritized:
+
+1. **Radial-profile undershoot** → objective **deconvolution-ringing** detector
+   (a negative "moat" below background just outside the FWHM). Reuses the existing
+   radial-profile code — cheapest high-value win.
+2. **Residual-autocorrelation whiteness + fine-scale-energy-vs-noise** → objective
+   **denoise over-smoothing** ("plastic") detector (residual `pre−post` must be
+   white; texture below the shot-noise floor = eaten).
+3. **Removed-background-model spectral/negative-bowl analysis** → objective
+   **BGE over-flattening** detector (the removed model must be low-order; a bowl
+   around the object = nebulosity eaten). Formalizes the gross-flattening audit.
+4. **N\* / M\* / MRS noise+background** (Starck-Murtagh + PixInsight) — a robust,
+   gradient-immune noise+background pair to share across the gate + all detectors.
+5. **PSFSignalWeight proxy + StarResidual** — composition-agnostic frame weight +
+   a PSF-goodness over-processing sensor (approximable from SNR²,SNR,Stars).
+6. **Gradient-decay sharpness** (2024, arXiv 2410.10488) — per-frame sharpness
+   grade + over-smoothing sensor.
+7. **Mean-star-colour** measurement — feeds the native-`ccm` star-neutral balance
+   (narrowband dead-end); an audit-layer output, not a processing step.
+
+Each is CODE for a future (non-research) session; the concrete acceptance test is:
+it fires on deliberately-degraded renders (over-sharpened/-smoothed/-flattened) and
+stays quiet on good ones, on real data, before it can gate.
 
 ## Dead-end registry — do NOT re-attempt (rehomed from the deleted NOTES.md)
 
@@ -241,15 +293,25 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   sky-anchored stretch as a narrowband line-lift is a NO-OP (BGE+SPCC already
   equalize the channel skies; the line imbalance is OBJECT flux, not sky).
 - SPCC narrowband equalizes O3=Ha and erases the O3 sphere (raw O3/Ha ~1.5 →
-  ~1.0; sphere B/R 0.77 vs 3.21). The sphere needs a **star-colour-neutral**
-  balance (neutralise the mean star colour → O3 boosted, stars carry ~no O3)
-  — a different question than SPCC's photometric fit. (Nightlight's mechanism;
-  a native star-neutral tool is the open gap.)
+  ~1.0; sphere B/R 0.77 vs 3.21). Siril's own docs confirm SPCC-NB gives "real
+  intensities"/"a huge green cast" and recommend Manual Color Calibration for
+  SHO — i.e. SPCC is the *cause*, not the fix. The sphere needs a
+  **star-colour-neutral** balance (neutralise the mean star colour → O3 boosted,
+  stars carry ~no O3). **RESOLVED headless path** (2026-07; `docs/narrowband-star-neutral-options.md`):
+  a **diagonal `ccm` IS that balance** — measure the field's mean star colour in
+  the EXAMINE layer (numpy; no native command outputs it — an audit-layer item),
+  then apply native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3) does this
+  by name but is **dormant** (2024) — a reference, not a dependency. Don't conflate
+  with the *nebula/QE-anchored* unmix (VeraLux Alchemy / DBXtract, OSC dual-band,
+  GUI-only Class-1) — that excludes stars, the opposite anchor.
 - `rmgreen`/SCNR on a sky that is not green-dominant prints a global magenta
   cast.
 - Siril has NO native chrominance-noise tool (its own docs punt to GIMP) — the
-  chroma-noise gap is real; on x86 fill it with an AI denoiser (NoiseXT /
-  Cosmic Clarity), NEVER a hand-rolled coring.
+  chroma-noise gap is real and **confirmed still non-native as of 1.5.0-dev**
+  (same GIMP disclaimer). On x86 fill it with an AI denoiser, NEVER a hand-rolled
+  coring — **NoiseXTerminator AI3 is the concrete fill** (its new architecture does
+  explicit "noise COLOUR & frequency separation"; `rc-astro nxt`, CPU ~20–30 s);
+  free fallbacks are DeepSNR / GraXpert / Cosmic Clarity.
 
 **Separation (informs the x86 tool choice):**
 - A mask+inpaint separator DESTROYS resolved-object structure (inpaints HII
@@ -266,6 +328,13 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
 - Siril's internal solver fails ultra-wide trailed fields even with the local
   catalog; astrometry.net blind solve from coarse PEAK centroids works
   (blob/PSF centroids don't feed the matcher). Blind-solve first, label after.
+  Native `platesolve -localasnet` does NOT rescue this class: it still feeds
+  astrometry.net Siril's `findstar` PSF-fit detection (on the green layer), and
+  when FOV > 5° it further **crops detection to the central area** unless
+  `-nocrop`. `setfindstar -relax=on` only loosens quality checks (more
+  false-positives) — it does not become a peak-centroid detector. Keep
+  `solve_field.py`; the x86 test is `-relax=on -roundness=0.1 -maxR=large` +
+  `-nocrop` vs the custom script vs ASTAP (TOOLS.md Tier 2).
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass +
   low detection sigma recovers them; on trailed frames a reference sweep beats
   the auto-reference. Keep all frames (dropping a minority sub-focal subset
@@ -281,9 +350,14 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   pointless. CLASSICAL deconvolution (makepsf + RL) where trailing is
   in-exposure fails — unstable symmetric PSF on ≈0 background. This is NO
   LONGER a blanket dead-end on x86: BlurXTerminator's learned model corrects
-  elongated/trailed stars where classical RL cannot (TOOLS.md Tier 5), and
-  GraXpert/AstroSharp are free learned alternatives. Deconv is now a real
-  early-linear step, done BEFORE denoise.
+  elongated/trailed stars where classical RL cannot (`--correct-only`, `rc-astro
+  bxt`, CPU ~30–40 s) — **BXT is the mature deconv path**. Free learned
+  alternatives are weaker: **GraXpert deconv is RC-only** (3.1.0rc2, never
+  shipped stable, open object-mode artifact bug #243) and Cosmic Clarity (CPU
+  15–30 min); **AstroSharp is OUT** (no Linux/CLI, 600 KB TIFF cap). Deconv is a
+  real early-linear step (before *heavy* denoise) — a strong default, not
+  absolute (light VST NR first is fine; 2026 AI tools tolerate nonlinear-stage
+  deconv — TOOLS.md process-rule note).
 
 **QA / scope:**
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame
