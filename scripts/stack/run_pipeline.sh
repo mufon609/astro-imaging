@@ -7,8 +7,12 @@
 # prebuilt {dark,flat}_<filter-token>.fits masters (FITS sets only; matched
 # by the normalized FILENAME token — such masters carry no headers) — plus
 # one or more light-frame sets; each set stacks to results/stack_<set>.fit
-# + its previews. Sets without a usable flat (missing dirs or
-# focal/aperture mismatch) take the self-flat path. Masters in
+# + its previews. A raw-camera set without a usable flat (missing dirs or
+# focal/aperture mismatch) is a DOCUMENTED ACQUISITION GAP: the run stops and
+# asks for a matching flat. The in-house self-flat (a numpy vignette fit +
+# chroma re-centre + per-frame division) was removed — this harness
+# orchestrates industry tools and measures; it does not process pixels
+# itself. Masters in
 # <session>/work/masters/ are rebuilt whenever the source frame manifest
 # (names+sizes+mtimes) changes — catches re-shot frames even when copied
 # with older timestamps; prebuilt masters re-stage on source identity.
@@ -57,14 +61,14 @@ reg_floor() {
     INS report --title "$SESSION $SET (ABORTED: registration floor)" || true
     echo "ERROR: registration floor: $rn/$total frames registered${ctx:+ ($ctx)} — less than half the set; a stack from this would not be the set." >&2
     echo "       registration log: $log" >&2
-    echo "       options: cull/fix the failing frames, or try a different reference frame (the self-flat path sweeps references — see the registration dead ends in NOTES)" >&2
+    echo "       options: cull/fix the failing frames, or try a different reference frame (the registration dead ends are in REDESIGN.md)" >&2
     exit 1
   fi
 }
 
-# Per-run inspection dir: every stage drops a consistent-stretch JPEG +
-# metrics (PASS/WARN vs the NOTES.md expectations table); the run assembles
-# them into index.html at the end. Inspection failures warn but never abort.
+# Per-run inspection dir: the registration stage records siril's per-frame
+# regdata (inspect_stage reg) and the run assembles it into index.html at the
+# end. Inspection records + reports; it never gates or aborts a run.
 INSPECT="$S/results/inspect_${SET}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$INSPECT"
 export INSPECT_DIR="$INSPECT"
@@ -422,17 +426,6 @@ fits_ingest() {
   fi
   fi
 
-  # masters inspection (WARN-only): the masters most directly cause stack
-  # gradients and dust rings — inspect them every run (fresh or rebuilt)
-  # so each run's report carries their numbers
-  INS stage master_dark --in "$W/masters/dark_master.fit" --label dark
-  if [[ -n "$FLATCAL" && -f "$W/masters/${FLATCAL}_master.fit" ]]; then
-    INS stage master_dark --in "$W/masters/${FLATCAL}_master.fit" --label "$FLATCAL"
-  fi
-  if [[ -n "$FLATOPT" && -f "$W/masters/flat_master.fit" ]]; then
-    INS stage master_flat --in "$W/masters/flat_master.fit"
-  fi
-
   # --- lights ---
   local NF F1 FM FN
   NF=$(fits_glob "$S/$SET" | wc -l)
@@ -457,8 +450,6 @@ fits_ingest() {
     _fits_dualband "$FLATOPT" "$MID"
     verify_exclusion "$W/r_Ha_pp_light_.seq" "$S/results/stack_${SET}_Ha.fit" "Ha line"
     verify_exclusion "$W/r_OIII_pp_light_.seq" "$S/results/stack_${SET}_OIII.fit" "OIII line"
-    INS stage calibrated --in "$W/Ha_pp_light_$F1.fit" "$W/Ha_pp_light_$FM.fit" "$W/Ha_pp_light_$FN.fit" --label Ha
-    INS stage calibrated --in "$W/OIII_pp_light_$F1.fit" "$W/OIII_pp_light_$FM.fit" "$W/OIII_pp_light_$FN.fit" --label OIII
     # two register runs in one log -> per-line counts, in order
     local RCOUNTS
     mapfile -t RCOUNTS < <(tr '\r' '\n' < "$W/lights_run.log" \
@@ -474,24 +465,14 @@ fits_ingest() {
       echo "WARNING: expected 2 registration summaries, parsed ${#RCOUNTS[@]} (siril format change?) — tail:" >&2
       tail -8 "$W/lights_run.log" >&2
     fi
-    INS stage stack --in "$S/results/stack_${SET}_Ha.fit" --label Ha
-    INS stage stack --in "$S/results/stack_${SET}_OIII.fit" --label OIII
     echo "=== compose: per-line stacks -> composed linear ==="
     python3 "$REPO/scripts/stack/compose.py" "$SESSION" "$SET" | tee "$W/compose_run.log"
-    local CR
-    CR=$(grep -oE 'COMPOSE_RESID [0-9.]+ [0-9.]+' "$W/compose_run.log" | tail -1) || true
-    if [[ -n "$CR" ]]; then
-      INS compose --resid "$(awk '{print $2}' <<<"$CR")" --p95 "$(awk '{print $3}' <<<"$CR")"
-    else
-      echo "WARNING: compose emitted no COMPOSE_RESID line" >&2
-    fi
     rm -f "$W"/light_* "$W"/pp_light_* "$W"/Ha_pp_light_* "$W"/OIII_pp_light_* \
           "$W"/r_Ha_pp_light_* "$W"/r_OIII_pp_light_*
   else
     echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
     _fits_lights "$CFAOPT" "$FLATOPT"
     verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
-    INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
     local rn
     rn=$(reg_count "$W/lights_run.log")
     if [[ -n "$rn" ]]; then
@@ -502,7 +483,6 @@ fits_ingest() {
       echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
       tail -5 "$W/lights_run.log" >&2
     fi
-    INS stage stack --in "$S/results/stack_$SET.fit"
     rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
   fi
 }
@@ -542,7 +522,8 @@ fi
 # SYNTHETIC bias for modern CMOS (-bias="=N", N = the measured master-dark
 # median ADU — at any dark exposure this sensor's dark median equals the
 # bias level, and the flat term only needs the offset removed). No flats
-# (or an optics mismatch): self-flat path.
+# (or an optics mismatch) leaves FLATOPT empty and the run stops at the
+# lights stage asking for a matching flat (the self-flat path was removed).
 FLATOPT="" FLATBIAS=""
 if [[ -d "$S/flats" ]]; then
   fopt="$(optics "$S/flats")"
@@ -561,10 +542,10 @@ if [[ -d "$S/flats" ]]; then
     FLATOPT="-flat=masters/flat_master -equalize_cfa"
   else
     echo "WARNING: flats optics ($(tr '\t' '/' <<<"$fopt" | tr '\n' ' ')) != $SET optics ($(tr '\t' '/' <<<"$lopt" | tr '\n' ' '))"
-    echo "         self-flat path (median of unregistered lights -> fitted radial gain -> division)"
+    echo "         -> no usable flat for $SET; the run will stop and ask for a matching flat"
   fi
 else
-  echo "no flats+biases dirs — self-flat path"
+  echo "no flats/ dir — no usable flat for $SET (a matching flat is required; the run will stop below)"
 fi
 
 # --- masters (only the ones this run uses) -----------------------------------
@@ -628,16 +609,6 @@ print(int(round(float(np.median(d)) * 65535.0)))
   fi
 fi
 
-# masters inspection (WARN-only, every run): a bad flat/dark otherwise
-# surfaces only downstream as a stack gradient or dust ring
-if [[ "$FLATBIAS" == "classic" ]]; then
-  INS stage master_dark --in "$W/masters/bias_master.fit" --label bias
-fi
-if [[ -n "$FLATOPT" ]]; then
-  INS stage master_flat --in "$W/masters/flat_master.fit"
-fi
-INS stage master_dark --in "$W/masters/dark_master.fit" --label dark
-
 # --- stage 4: per-set script generated from template -------------------------
 NFRAMES=$(raw_find "$S/$SET" | wc -l)
 MID=$(( (NFRAMES + 1) / 2 ))
@@ -651,7 +622,6 @@ if [[ -n "$FLATOPT" ]]; then
   echo "=== lights: calibrate + register + stack $SET ==="
   siril_run "$GEN_LIGHTS" | tee "$W/lights_run.log"
   verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
-  INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
   rn=$(reg_count "$W/lights_run.log")
   if [[ -n "$rn" ]]; then
     echo "=== registration: $rn/$NFRAMES frames (2-pass auto reference) ==="
@@ -661,101 +631,13 @@ if [[ -n "$FLATOPT" ]]; then
     echo "WARNING: no registration summary parsed from siril output (format change?) — tail:" >&2
     tail -5 "$W/lights_run.log" >&2
   fi
-  INS stage stack --in "$S/results/stack_$SET.fit"
 else
-  # Self-flat path (see NOTES.md): median of unregistered calibrated frames
-  # -> fit radial gain V(r) (glow left additive) -> median of glow-subtracted
-  # frames + V2 fit -> divide -> register reference sweep -> stack. The four
-  # siril steps are stack/siril/selfflat/{1..4}.
-  GEN_MEDIAN="$W/selfflat_1_median.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/1_median.ssf.tmpl" > "$GEN_MEDIAN"
-  echo "=== self-flat 1/4: calibrate + median $SET ==="
-  siril_run "$GEN_MEDIAN"
-  INS stage calibrated --in "$W/pp_light_$F1.fit" "$W/pp_light_$FM.fit" "$W/pp_light_$FN.fit"
-  INS stage selfflat_median --in "$W/selfflat_med.fit"
-  echo "=== self-flat: fit gain surface V(r) ==="
-  python3 "$REPO/scripts/stack/selfflat.py" "$W/selfflat_med.fit" "$W/selfflat_gain.fit"
-  cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"   # for inspection
-  INS stage gain --in "$W/selfflat_gain.fit"
-  # Zero each frame's additive residual per channel (constants only):
-  # division by V(r) returns a flat sky only for purely multiplicative
-  # frames; siril's seqsubsky re-centers channels on their own medians
-  # (magenta rim, R-G +148 at the stack rim) and leaves a pedestal whose
-  # division printed the -16% luminance rim. Targets = C_c x median(V)
-  # from selfflat_levels.json. See NOTES.md "RIM/RING ROOT CAUSE" + "(L)".
-  python3 "$REPO/scripts/stack/rechroma.py" "$W" "$NFRAMES"
-  INS stage subsky_frame --in "$W/bkg_pp_light_$F1.fit" "$W/bkg_pp_light_$FM.fit" "$W/bkg_pp_light_$FN.fit"
-  # The divisor V2 is measured from the frames actually being divided:
-  # siril's plane subtraction also removes the planar share of the bowl,
-  # so neither the multiplicative fit (0.537 corner: -16% rim) nor the
-  # additive fit (0.472: +7%) matches the frames — their own median does,
-  # by construction.
-  GEN_MEDIAN2="$W/selfflat_2_median2.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/2_median2.ssf.tmpl" > "$GEN_MEDIAN2"
-  echo "=== self-flat 2/4: median of glow-subtracted frames + V2 fit ==="
-  siril_run "$GEN_MEDIAN2"
-  mv "$W/selfflat_gain.fit" "$W/selfflat_gain1.fit"
-  python3 "$REPO/scripts/stack/selfflat.py" "$W/selfflat_med2.fit" "$W/selfflat_gain.fit"
-  cp "$W/selfflat_gain.fit" "$W/masters/selfflat_$SET.fit"
-  INS stage gain --in "$W/selfflat_gain.fit" --label v2
-  GEN_DIVIDE="$W/selfflat_3_divide.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" "$REPO/scripts/stack/siril/selfflat/3_divide.ssf.tmpl" > "$GEN_DIVIDE"
-  echo "=== self-flat 3/4: divide by gain $SET ==="
-  siril_run "$GEN_DIVIDE"
-  INS stage divided --in "$W/pp_bkg_pp_light_$F1.fit" "$W/pp_bkg_pp_light_$FM.fit" "$W/pp_bkg_pp_light_$FN.fit"
-
-  # Registration reference sweep: with trailed stars, star matching succeeds
-  # or fails depending on the reference frame, and an auto-picked reference
-  # can under-perform a swept one. Sweep candidates from
-  # the drift-central middle outward, keep the best, stop early on all-in.
-  best_ref=0 best_n=0 last_ref=0 sweep_log=""
-  for ref in "$MID" "$((MID+1))" "$((MID-1))" "$((MID+2))" "$((MID-2))"; do
-    (( ref >= 1 && ref <= NFRAMES )) || continue
-    GEN_REGISTER="$W/selfflat_register.$SET.gen.ssf"
-    {
-      echo "requires 1.4.0"
-      echo "set16bits"
-      echo "cd work"
-      echo "setref pp_bkg_pp_light $ref"
-      echo "register pp_bkg_pp_light"
-      echo "close"
-    } > "$GEN_REGISTER"
-    siril_run "$GEN_REGISTER" | tee "$W/reg_attempt.log"
-    last_ref=$ref
-    n=$(reg_count "$W/reg_attempt.log")
-    if [[ -z "$n" ]]; then
-      echo "WARNING: no registration summary parsed for ref $ref (siril format change?) — tail:" >&2
-      tail -5 "$W/reg_attempt.log" >&2
-      n=0
-    fi
-    echo "=== registration reference $ref: $n/$NFRAMES frames ==="
-    sweep_log+="$ref:${n:-0} "
-    if (( n > best_n )); then best_n=$n; best_ref=$ref; fi
-    (( n == NFRAMES )) && break
-  done
-  (( best_n > 0 )) || { echo "ERROR: registration failed for every candidate reference" >&2; exit 1; }
-  if (( last_ref != best_ref )); then
-    echo "=== re-running best reference $best_ref ($best_n/$NFRAMES) ==="
-    sed -i "s|setref pp_bkg_pp_light $last_ref|setref pp_bkg_pp_light $best_ref|" "$GEN_REGISTER"
-    siril_run "$GEN_REGISTER"
-  fi
-  INS reg --registered "$best_n" --total "$NFRAMES" --ref "$best_ref" \
-      --sweep "$sweep_log" --seq "$W/pp_bkg_pp_light_.seq"
-  reg_floor "$best_n" "$NFRAMES" "$W/reg_attempt.log" \
-      "best reference after sweep $sweep_log"
-
-  GEN_STACK="$W/selfflat_4_stack.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" -e "s|@STACKPOL@|$STACKPOL|g" \
-      "$REPO/scripts/stack/siril/selfflat/4_stack.ssf.tmpl" > "$GEN_STACK"
-  inject_unselect "$GEN_STACK" r_pp_bkg_pp_light
-  echo "=== self-flat 4/4: stack $SET ($best_n/$NFRAMES frames, ref $best_ref) ==="
-  siril_run "$GEN_STACK"
-  verify_exclusion "$W/r_pp_bkg_pp_light_.seq" "$S/results/stack_$SET.fit"
-  INS stage stack --in "$S/results/stack_$SET.fit"
+  echo "ERROR: $SET has no usable flat (no flats/ dir, or the flats' optics do not match the lights)." >&2
+  echo "       A matching flat is REQUIRED. The self-flat path (an in-house numpy vignette fit + chroma re-centre + per-frame division) was removed: it PROCESSED the deliverable's pixels in-house, which this harness does not do — it orchestrates industry tools and measures, it does not hand-roll pixel processing." >&2
+  echo "       Shoot a flat matching this set's optics (the acquisition checklist in REDESIGN.md), or drop a master flat in place, and re-run." >&2
+  exit 1
 fi
-rm -f "$W"/light_* "$W"/pp_light_* "$W"/bkg_pp_light_* "$W"/pp_bkg_pp_light_* \
-      "$W"/r_pp_light_* "$W"/r_pp_bkg_pp_light_* \
-      "$W"/selfflat_med*.* "$W"/selfflat_gain*.*
+rm -f "$W"/light_* "$W"/pp_light_* "$W"/r_pp_light_*
 
 echo "=== assembling inspection report ==="
 INS report --title "$SESSION $SET"

@@ -22,11 +22,12 @@ Two kinds:
   (one interpolation pass — the reference channel itself gets only the
   identity transform).
 
-Either way the overlay is MEASURED, never assumed: star centroids are
-detected on the first channel and re-centroided on every other distinct
-channel; the median offset prints, lands in the inspection report
-(compose stage, bound 1.0 px), and is emitted as a machine line
-(COMPOSE_RESID <median_px> <p95_px>) for the pipeline runner.
+Either way the overlay is produced by a tool, never re-measured in-house:
+the dual-band lines share the same frames and reference (aligned by
+construction) and the mono-filter members are aligned by siril (register +
+seqapplyreg) before assembly. Per-frame registration quality is the
+registration inspection's job (inspect_stage reg, from siril's regdata) —
+this stage only assembles the channels into the cube.
 
 A composition with a `luminance` member is REFUSED for now: LRGB joins L
 after both parts are stretched (a nonlinear-space operation), which this
@@ -114,75 +115,6 @@ def write_fits3(path, cards_src, planes):
         f.write(hdr.encode("ascii"))
         f.write(body)
         f.write(b"\x00" * ((-len(body)) % 2880))
-
-
-def bg_subtract(ch, bs=128):
-    """Coarse block-median background removal (crops to block multiples —
-    identical crop for every channel of one composed stack)."""
-    h, w = ch.shape
-    gy, gx = h // bs, w // bs
-    bg = np.median(ch[:gy * bs, :gx * bs].reshape(gy, bs, gx, bs),
-                   axis=(1, 3))
-    return ch[:gy * bs, :gx * bs] - np.repeat(np.repeat(bg, bs, 0), bs, 1)
-
-
-def detect_peaks(d, n_max=150, k_sig=20.0, minsep=25, border=32):
-    """Bright local maxima on a background-subtracted channel (the same
-    trail-robust peak approach the solver uses)."""
-    from scipy.ndimage import maximum_filter
-    h, w = d.shape
-    sig = 1.4826 * np.median(np.abs(d - np.median(d)))
-    mx = maximum_filter(d, size=9)
-    cand = (d == mx) & (d > k_sig * max(sig, 1e-9))
-    cand[:border] = cand[-border:] = False
-    cand[:, :border] = cand[:, -border:] = False
-    ys, xs = np.nonzero(cand)
-    order = np.argsort(d[ys, xs])[::-1]
-    taken = np.zeros((h // minsep + 2, w // minsep + 2), bool)
-    picks = []
-    for k in order:
-        cy, cx = ys[k] // minsep, xs[k] // minsep
-        if taken[max(0, cy - 1):cy + 2, max(0, cx - 1):cx + 2].any():
-            continue
-        taken[cy, cx] = True
-        picks.append((ys[k], xs[k]))
-        if len(picks) >= n_max:
-            break
-    return picks
-
-
-def centroid(d, y, x, r=4):
-    """Flux-weighted centroid in a (2r+1)^2 window, clipped at 0."""
-    y0, y1 = max(0, y - r), min(d.shape[0], y + r + 1)
-    x0, x1 = max(0, x - r), min(d.shape[1], x + r + 1)
-    win = np.clip(d[y0:y1, x0:x1], 0, None)
-    s = win.sum()
-    if s <= 0:
-        return None
-    wy, wx = np.mgrid[y0:y1, x0:x1]
-    return float((win * wy).sum() / s), float((win * wx).sum() / s)
-
-
-def channel_residual(planes, line_of_channel):
-    """Median + p95 star-centroid offset (px) between the first line and
-    every OTHER distinct line, measured on the composed planes."""
-    lines = list(dict.fromkeys(line_of_channel))      # unique, ordered
-    if len(lines) < 2:
-        return 0.0, 0.0, 0
-    dref = bg_subtract(planes[line_of_channel.index(lines[0])])
-    peaks = detect_peaks(dref)
-    offs = []
-    for other in lines[1:]:
-        doth = bg_subtract(planes[line_of_channel.index(other)])
-        for (y, x) in peaks:
-            a = centroid(dref, y, x)
-            b = centroid(doth, y, x)
-            if a and b:
-                offs.append(np.hypot(a[0] - b[0], a[1] - b[1]))
-    if not offs:
-        return None, None, 0
-    offs = np.asarray(offs)
-    return float(np.median(offs)), float(np.percentile(offs, 95)), len(offs)
 
 
 def load_plane(path, name):
@@ -318,27 +250,9 @@ def main():
                  f"{ {c: channels[c] for c in missing} }")
 
     order = ["R", "G", "B"]
-    line_of_channel = [channels[c] for c in order]
     planes = np.stack([line_data[channels[c]] for c in order])
     print(f"[compose] channels: " +
           " ".join(f"{c}={channels[c]}" for c in order))
-
-    # per-channel always-on stats (the stage reports itself)
-    for i, c in enumerate(order):
-        p = planes[i]
-        bg = float(np.median(p))
-        sig = float(1.4826 * np.median(np.abs(p - bg)))
-        print(f"[compose] {c} ({channels[c]}): bg {bg:.5f} sigma "
-              f"{sig:.6f} p99 {float(np.percentile(p[::4, ::4], 99)):.5f}")
-
-    med, p95, n = channel_residual(planes, line_of_channel)
-    if med is None:
-        print("[compose] WARNING: no common stars centroided — channel "
-              "alignment UNMEASURED")
-    else:
-        print(f"[compose] channel alignment: median {med:.3f} px, "
-              f"p95 {p95:.3f} px over {n} star pairs")
-        print(f"COMPOSE_RESID {med:.3f} {p95:.3f}")
 
     if kind == "dualband-osc":
         inputs = [f"{ln} = stack_{set_name}_{ln}.fit"
@@ -360,27 +274,6 @@ def main():
     walign = os.path.join(sdir, "work", f"compose_{set_name}")
     if os.path.isdir(walign):
         shutil.rmtree(walign)
-
-    # capture report card (WARN-only QA, never a gate): per-member raw
-    # capture rates + stack SNRs + the composed display ratio — the
-    # members' raw lights exist by construction at compose time for
-    # mono-filters. Re-run the tool after SPCC for the calibrated
-    # display-ratio section. dualband-osc: per-line raw rates need the
-    # CFA extraction step; the tool refuses it loudly, so skip here.
-    if kind == "mono-filters":
-        r = subprocess.run([sys.executable,
-                            os.path.join(repo, "scripts", "qa",
-                                         "capture_report.py"),
-                            session, set_name],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            tails = [ln for ln in r.stdout.splitlines()
-                     if ln.startswith("[capture_report]")]
-            for ln in tails:
-                print(ln)
-        else:
-            print("[compose] WARNING: capture report failed (the card is "
-                  "WARN-only):\n" + (r.stdout + r.stderr)[-600:])
 
 
 if __name__ == "__main__":

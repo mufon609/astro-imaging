@@ -267,7 +267,10 @@ Data / physics / tool-doctrine mechanism lessons, arch-independent. **Read
 this before proposing any experiment** (the contract's standing rule). Full
 detail + the numbers live in git history (the `checkpoint` commit's NOTES).
 
-**Gain/flat (the self-flat branch — kept code):**
+**Gain/flat (self-calibration — real flats are the primary path; when they
+have issues, synthetic-flat / vignetting correction is a GAP to fill with an
+OFFICIAL tool, never an in-house fit. The entries below are methods that FAIL
+— the constraints any such tool must satisfy):**
 - A free-form gain fit bakes sky glow into the gain (peaks off-axis toward
   the glow) — sanity-check any gain by its centre.
 - A polynomial radial V(r) oscillates → concentric RINGS after division; only
@@ -281,8 +284,8 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
 **Background:**
 - The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases
   it; only a first-degree plane or a full BGE is MW-safe.
-- Stack-level-only BGE leaves a STRUCTURED residual (fails the rings gate,
-  loses MW); per-frame `subsky 1` on the self-flat branch.
+- Stack-level-only BGE leaves a STRUCTURED residual (visible rings, loses
+  MW); per-frame `subsky 1` is the MW-safe background step.
 - GraXpert AI smoothing is NOT faint-nebulosity protection — smoothing blurs
   the model OUTPUT, not the inference; a frame-filling faint complex reads as
   the trained light-pollution class and is absorbed. Use a plane/off for

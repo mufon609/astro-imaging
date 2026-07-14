@@ -28,7 +28,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-# scripts/lib holds the shared libs (astrometrics, bg_qa); locate it by
+# scripts/lib holds the shared lib (astrometrics); locate it by
 # walking up from this file so one bootstrap works at any nesting depth.
 _libdir = os.path.dirname(os.path.abspath(__file__))
 while _libdir != os.path.dirname(_libdir):

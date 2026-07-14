@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""Shared measurement library for pipeline inspection and rendering.
+"""Shared I/O + per-set geometry helpers for the orchestration layer.
 
-Pure numpy/scipy/PIL. Everything that grades an image lives here so
-inspect_stage.py (per-stage report) and starcomb's ladder (single-variable
-sweeps) measure identically. bg_qa.py stays the final hard gate; this
-module imports its constants/functions where they overlap.
+Pure numpy/scipy/PIL, EXAMINE/orchestrate only: FITS and display-image readers,
+the FITS/PNG writers finals are packaged with (incl. the sRGB colorimetry
+tags), and the per-set foreground geometry the tools are pointed around. It
+does NOT grade or transform the deliverable's pixels — every pixel
+measurement and every pixel operation is sourced from an industry tool
+(Siril / GraXpert / astrometry.net / …), never hand-rolled here.
 
-Units convention: FITS data are normalized to [0,1] floats internally;
-"display units" in reports are 16-bit counts (x65535) for linear stages —
-matching siril's stat output — and 8-bit counts for stretched JPEGs.
+Units convention: FITS data are normalized to [0,1] floats internally.
 """
 import os
 import sys
 import numpy as np
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import bg_qa  # noqa: E402  (constants + ring_amp shared with the gate)
 
 
 # --- I/O ----------------------------------------------------------------------
@@ -123,8 +120,6 @@ def load_image(path):
     return a, "jpg"
 
 
-# --- basic statistics ----------------------------------------------------------
-
 # --- per-set geometry context ---------------------------------------------
 # The only per-set COMPOSITION fact is the terrestrial FOREGROUND (a treeline
 # to exclude from sky statistics and protect in rendering operators) plus its
@@ -132,9 +127,9 @@ def load_image(path):
 # reads datasets/<session>/<set>/geometry.json. A bare, unconfigured CTX
 # carries NO geometry (foreground None), so a forgotten configure() degrades
 # to whole-frame / no-mask instead of inheriting another dataset's foreground.
-# The background is NOT a per-set composition fact: the gate (bg_qa) selects
-# its sky STATISTICALLY, because a geometric band cannot scope an
-# object-dominated field.
+# Only the terrestrial FOREGROUND is a per-set geometry fact (a mask/rect the
+# tools are pointed around); the sky itself is never geometrically scoped
+# here — its statistics are a tool's job.
 
 
 class SetContext:
@@ -198,18 +193,19 @@ def configure(session_dir, set_name, stack=None, quiet=False):
             ctx.fg_mask_path = p
             ctx.foreground = "mask"
         else:
-            print(f"[setctx] WARNING: foreground mask {p} missing "
-                  "(regen: scripts/geometry/suggest_foreground.py) — foreground "
-                  "treated as none", flush=True)
+            print(f"[setctx] WARNING: foreground mask {p} missing — "
+                  "foreground treated as none (supply the mask "
+                  "datasets/<session>/<set>/geometry.json points at)",
+                  flush=True)
     elif fg and fg.get("rect"):
         ctx.foreground = tuple(float(v) for v in fg["rect"])
         if not fg_rect_touches_border(ctx.foreground):
             raise ValueError(
                 f"geometry: foreground rect {ctx.foreground} touches no "
                 "frame border — a terrestrial obstruction enters from an "
-                "edge, and the foreground is EXCLUDED from the gate's sky "
-                "scope, so an interior rect would carve graded sky out of "
-                f"the gate's jurisdiction. Fix {cfgp}.")
+                "edge, and the foreground is EXCLUDED from the sky-statistics "
+                "scope, so an interior rect would carve sky out of that "
+                f"scope. Fix {cfgp}.")
     if cfg.get("judgment_crops"):
         ctx.judgment_crops = {k: tuple(v)
                               for k, v in cfg["judgment_crops"].items()}
@@ -223,64 +219,14 @@ def configure(session_dir, set_name, stack=None, quiet=False):
     return ctx
 
 
-def bg_stats(ch, iters=5, stride=2):
-    """(background median, robust pixel noise sigma).
-
-    Median: iterative 3-sigma MAD clip (star-resistant level estimate).
-    Sigma: MAD of ADJACENT-pixel differences / sqrt(2) — smooth gradients
-    (moonglow, vignette, MW) cancel in the difference, so this tracks true
-    pixel noise; a plain global MAD measured the gradient instead (10.5%
-    "noise" on a stack siril grades at 1.46%)."""
-    sub = ch[::stride, ::stride]
-    x = sub.ravel()
-    x = x[np.isfinite(x)]
-    for _ in range(iters):
-        med = np.median(x)
-        s = 1.4826 * np.median(np.abs(x - med))
-        if s == 0:
-            break
-        keep = np.abs(x - med) < 3.0 * s
-        if keep.sum() < 1000 or keep.all():
-            break
-        x = x[keep]
-    d = np.diff(sub, axis=1).ravel()
-    d = d[np.isfinite(d)]
-    sig = 1.4826 * np.median(np.abs(d - np.median(d))) / np.sqrt(2.0)
-    return float(np.median(x)), float(sig)
-
-
-def channel_levels(data):
-    """Per-channel level summary in [0,1] units."""
-    out = []
-    for c in range(data.shape[0]):
-        ch = data[c]
-        sub = ch[::4, ::4]
-        med, sig = bg_stats(ch)
-        out.append({
-            "median": med, "bgnoise": sig,
-            "mean": float(sub.mean()),
-            "p01": float(np.percentile(sub, 1)),
-            "p99": float(np.percentile(sub, 99)),
-            "max": float(ch.max()),
-            "clip_frac": float((sub >= 0.999).mean()),
-        })
-    return out
-
-
 # --- geometry helpers ----------------------------------------------------------
-
-def radius_map(h, w, stride=1):
-    yy = (np.arange(0, h, stride) - h / 2) / (h / 2)
-    xx = (np.arange(0, w, stride) - w / 2) / (w / 2)
-    return np.sqrt((yy[:, None] ** 2 + xx[None, :] ** 2) / 2.0)
-
 
 def fg_rect_touches_border(rect, eps=0.002):
     """Border-anchor invariant for a foreground rect (frame fractions
     x0,y0,x1,y1): a terrestrial obstruction is border-anchored by
-    construction, and the foreground is excluded from the gate's sky
+    construction, and the foreground is excluded from the sky-statistics
     scope — so a floating interior 'foreground' is a config error that
-    would silently shrink the gate's jurisdiction, never a real treeline."""
+    would silently shrink that scope, never a real treeline."""
     x0, y0, x1, y1 = rect
     return x0 <= eps or y0 <= eps or x1 >= 1.0 - eps or y1 >= 1.0 - eps
 
@@ -293,17 +239,16 @@ def _fg_mask(h, w):
         return CTX._cache[key]
     m = np.load(CTX.fg_mask_path)["mask"].astype(bool)
     # border-anchor invariant (same reasoning as fg_rect_touches_border;
-    # the derivation tool keeps border-anchored components only, so a
-    # violating mask is hand-made or corrupt). An empty mask excludes
-    # nothing and passes.
+    # terrestrial masks are border-anchored by construction, so a violating
+    # mask is malformed). An empty mask excludes nothing and passes.
     b = max(2, int(round(0.002 * max(m.shape))))
     if m.any() and not (m[:b].any() or m[-b:].any()
                         or m[:, :b].any() or m[:, -b:].any()):
         raise ValueError(
             f"geometry: foreground mask {CTX.fg_mask_path} touches no frame "
             "border — terrestrial masks are border-anchored, and the "
-            "foreground is EXCLUDED from the gate's sky scope; an interior "
-            "mask would carve graded sky out of the gate's jurisdiction.")
+            "foreground is EXCLUDED from the sky-statistics scope; an interior "
+            "mask would carve sky out of that scope.")
     if m.shape != (h, w):
         from scipy.ndimage import zoom
         m = zoom(m.astype(np.uint8),
@@ -368,356 +313,6 @@ def branch_mask_frac(h, w, feather=0.05):
     if feather <= 0:
         return (d <= 0).astype(np.float32)
     return np.clip(1.0 - d / feather, 0.0, 1.0).astype(np.float32)
-
-
-def sky_pixel_mask(ch, k=3.0, exclude_objects=True):
-    """Boolean background-sky mask: the dark sky, with the terrestrial
-    foreground AND extended celestial objects excluded. The composition-agnostic
-    scope for noise estimation in the rendering corings and the stack audit.
-
-    A per-pixel cut (`ch <= bg + k*sigma`) alone is not a sky selector: the faint
-    outer disk of a galaxy lies WITHIN a few sigma of the sky, so it survives the
-    cut. A centred resolved galaxy's 1-3 sigma outer disk passes the per-pixel
-    cut, which would leave the corings estimating their noise on the object
-    and gating against it. `extended_object_mask` judges on the
-    heavily smoothed image, where only a source's envelope stands above the sky,
-    and removes it."""
-    bg, sig = bg_stats(ch)
-    h, w = ch.shape
-    m = (ch <= bg + k * sig) & branch_mask(h, w)
-    if exclude_objects:
-        m &= ~extended_object_mask(ch)
-    return m
-
-
-def extended_object_mask(ch, k=4.0, scale=48, iters=4, max_frac=0.6):
-    """True on LARGE-SCALE bright structure (a galaxy / nebula / Milky-Way
-    envelope). A per-pixel cut cannot find it: the faint outer disk of a galaxy
-    sits within a few sigma of the sky, so `ch <= bg + k*sigma` keeps it. Judge
-    on the HEAVILY SMOOTHED image instead, where pixel noise is suppressed and
-    only the source's envelope stands above the background.
-
-    The threshold is re-estimated with the object excluded (the object inflates
-    the very median/MAD used to find it, so one pass under-reaches (it flags
-    only part of a large object's outer annulus). Iterating settles
-    the sky statistics on true sky. `max_frac` refuses to call most of the frame
-    an object — a genuinely object-filling frame degrades to the per-pixel cut
-    rather than masking everything away."""
-    from scipy.ndimage import gaussian_filter
-    sm = gaussian_filter(ch.astype(np.float64), scale)
-    obj = np.zeros(sm.shape, bool)
-    for _ in range(iters):
-        keep = ~obj
-        m = float(np.median(sm[keep]))
-        s = 1.4826 * float(np.median(np.abs(sm[keep] - m)))
-        new = sm > m + k * max(s, 1e-12)
-        if new.mean() > max_frac or new.sum() == obj.sum():
-            break
-        obj = new
-    return obj
-
-
-def sky_flatness(data, stride=2):
-    """Composition-agnostic stack flatness + noise, measured on the statistical
-    dark sky with EXTENDED OBJECTS EXCLUDED, so neither a frame-filling nor a
-    frame-CENTRED object reads as a flatness or noise defect. The per-pixel
-    dark-sky cut alone is not enough: a centred galaxy's faint envelope lies
-    within a few sigma of the sky, so it survives the cut and its smooth central
-    excess is then read as a radial gradient by any radial profile. The
-    large-scale-structure mask removes it. Values in [0,1] float units:
-      sky_frac       fraction of the frame graded as sky after BOTH cuts (an
-                     object-dominated field reads low — the data class, not a defect)
-      sky_median     robust sky level (median of the sky pixels)
-      sky_noise      diff-MAD of horizontally-adjacent SKY pairs / sqrt(2) (a
-                     smooth gradient cancels in the difference; object structure
-                     is excluded from the estimate)
-      sky_p2v_inner  radial peak-to-valley of the sky over r<=0.85 vs its median
-                     — with the object gone this measures the VIGNETTING
-                     residual it is meant to catch, on any framing"""
-    g = min(1, data.shape[0] - 1)
-    G = data[g].astype(np.float64)
-    sky = sky_pixel_mask(G)
-    out = {"sky_frac": float(sky.mean()), "sky_median": None,
-           "sky_noise": None, "sky_p2v_inner": None}
-    if sky.sum() < 1000:
-        return out
-    out["sky_median"] = float(np.median(G[sky]))
-    d = (G[:, 1:] - G[:, :-1])[sky[:, 1:] & sky[:, :-1]]
-    if d.size > 100:
-        out["sky_noise"] = float(1.4826 * np.median(np.abs(d - np.median(d)))
-                                 / np.sqrt(2.0))
-    Gs, skys = G[::stride, ::stride], sky[::stride, ::stride]
-    r = radius_map(*G.shape, stride=stride)
-    edges = np.linspace(0, 1, 49)
-    centers = (edges[:-1] + edges[1:]) / 2
-    prof, cc = [], []
-    for i in range(48):
-        ann = (r >= edges[i]) & (r < edges[i + 1])
-        m = ann & skys
-        # a bin must be MEANINGFULLY sky: an annulus that a centred object fills
-        # can still leave a hundred stray "sky" pixels, and their median is the
-        # object, not the sky (a bin a centred object fills can be a fraction
-        # of a percent sky yet read several counts high, a false gradient)
-        if m.sum() > 100 and m.sum() >= 0.25 * max(ann.sum(), 1):
-            prof.append(float(np.median(Gs[m])))
-            cc.append(centers[i])
-    if len(prof) >= 4:
-        prof, cc = np.asarray(prof), np.asarray(cc)
-        inner = cc <= 0.85
-        if inner.sum() >= 4:
-            v = prof[inner]
-            out["sky_p2v_inner"] = float((v.max() - v.min())
-                                         / max(abs(np.median(v)), 1e-9))
-    return out
-
-
-def star_shell_report(img8_hwc, cat_npz):
-    """REPORTED star-shell metrics — the ghost-aura defect class: the
-    stars-layer MTF amplifies skirt noise into a colored shell between
-    each star's core and its dilated mask edge, ending at a cliff.
-    Invisible to the background gate (it lives ON stars), so it gets its
-    own reported numbers in every render.
-
-    Sample: catalog peak ranks 10..80 (bright tier, worst shells),
-    frame-interior. Median annulus profiles around their centroids:
-      aura_lum:    max over r in [8,16) of median G minus the r in
-                   [32,40) baseline (counts). THE defect discriminant: the
-                   ghost-aura shell reads high here while a clean render
-                   reads low, so the WARN bound 4.0 sits with clean margin
-                   on both sides.
-      shell_chroma: max over r in [4,12) of mean(MAD(R-G), MAD(B-G)).
-                   REPORT-ONLY, no bound: it mixes noise speckle with the
-                   HONEST PSF fringe (dispersion/CA on trailed stars) and
-                   is sample/chain dependent, so a fixed threshold would
-                   cry wolf. Track the trend; it drops when acquisition
-                   fixes the fringe.
-    WARN only, never a gate."""
-    from scipy import ndimage
-    a = np.asarray(img8_hwc, dtype=np.float32)
-    h, w = a.shape[:2]
-    cat = np.load(cat_npz) if isinstance(cat_npz, str) else cat_npz
-    peak, ids, labels = cat["peak"], cat["ids"], cat["labels"]
-    order = np.argsort(peak)[::-1][10:80]
-    coms = ndimage.center_of_mass(np.ones_like(labels, np.uint8),
-                                  labels, ids[order])
-    R = 40
-    yy, xx = np.mgrid[-R:R + 1, -R:R + 1]
-    rr = np.hypot(yy, xx)
-    rings = [(rr >= i) & (rr < i + 1) for i in range(R)]
-    lum = [[] for _ in range(R)]
-    ch = [[] for _ in range(R)]
-    for (cy, cx) in coms:
-        cy, cx = int(round(cy)), int(round(cx))
-        if not (R < cy < h - R and R < cx < w - R):
-            continue
-        t = a[cy - R:cy + R + 1, cx - R:cx + R + 1]
-        G = t[..., 1]
-        RG = t[..., 0] - G
-        BG = t[..., 2] - G
-        for i in range(R):
-            m = rings[i]
-            lum[i].append(np.median(G[m]))
-            ch[i].append((1.4826 * np.median(np.abs(RG[m] - np.median(RG[m])))
-                          + 1.4826 * np.median(np.abs(BG[m] - np.median(BG[m])))) / 2)
-    if not lum[0]:
-        return {"aura_lum": None, "shell_chroma": None, "n_sample": 0}
-    pl = np.array([np.median(v) for v in lum])
-    pc = np.array([np.median(v) for v in ch])
-    base = float(np.median(pl[32:40]))
-    return {"aura_lum": float(np.max(pl[8:16]) - base),
-            "shell_chroma": float(np.max(pc[4:12])),
-            "n_sample": len(lum[0])}
-
-
-STAR_SHELL_WARN = {"aura_lum": 4.0}
-
-
-def radial_profile(data, nbins=48, stride=4, mask_branch=False):
-    """Median radial profile per channel on a subsampled grid.
-    Returns (bin centers, prof (nbins, C) with NaN for empty bins)."""
-    c, h, w = data.shape
-    r = radius_map(h, w, stride)
-    sub = data[:, ::stride, ::stride]
-    keep = np.isfinite(sub[0])
-    if mask_branch:
-        keep &= branch_mask(h, w, stride)
-    edges = np.linspace(0, 1, nbins + 1)
-    centers = (edges[:-1] + edges[1:]) / 2
-    prof = np.full((nbins, c), np.nan)
-    idx = np.digitize(r.ravel(), edges) - 1
-    kr = keep.ravel()
-    for i in range(nbins):
-        m = kr & (idx == i)
-        if m.sum() > 200:
-            for ci in range(c):
-                prof[i, ci] = np.median(sub[ci].ravel()[m])
-    return centers, prof
-
-
-def radial_metrics(centers, prof):
-    """Flatness numbers from a luminance (G) radial profile:
-    - p2v_inner: peak-to-valley over r<=0.85 relative to its median
-    - rim_dev: worst relative deviation in r>0.9 from the r~0.85 level
-    - ring P2V (detrended, absolute in profile units) via bg_qa.ring_amp."""
-    g = prof[:, min(1, prof.shape[1] - 1)]
-    ok = ~np.isnan(g)
-    inner = ok & (centers <= 0.85)
-    rim = ok & (centers > 0.9)
-    out = {}
-    if inner.sum() >= 4:
-        v = g[inner]
-        ref = float(np.median(v))
-        out["p2v_inner_rel"] = float((v.max() - v.min()) / max(abs(ref), 1e-9))
-        anchor = float(v[-1])
-        if rim.any():
-            out["rim_dev_rel"] = float(
-                np.max(np.abs(g[rim] - anchor)) / max(abs(ref), 1e-9))
-    if ok.sum() >= 12:
-        out["ring_p2v"] = bg_qa.ring_amp(g[ok])
-        if prof.shape[1] == 3:
-            out["ring_rg_p2v"] = bg_qa.ring_amp((prof[:, 0] - prof[:, 1])[ok])
-            out["ring_bg_p2v"] = bg_qa.ring_amp((prof[:, 2] - prof[:, 1])[ok])
-    return out
-
-
-def plane_tilt(ch, block=101):
-    """Fit a plane to block medians (branch corner masked); tilt as % of
-    mean level per half-frame (same convention as selfflat.py's glow-tilt
-    print). Without the mask the dark branch drags the fit and a glow-free
-    frame still reads ~10%/half-frame."""
-    ny, nx = ch.shape
-    gy, gx = ny // block, nx // block
-    t = ch[:gy * block, :gx * block]
-    med = np.median(t.reshape(gy, block, gx, block).transpose(0, 2, 1, 3)
-                    .reshape(gy, gx, -1), axis=2)
-    cy = (np.arange(gy) * block + block / 2) / ny * 2 - 1
-    cx = (np.arange(gx) * block + block / 2) / nx * 2 - 1
-    if CTX.foreground == "mask":     # block-level foreground fraction
-        fg = _fg_mask(ny, nx)[:gy * block, :gx * block]
-        bf = fg.reshape(gy, block, gx, block).mean(axis=(1, 3))
-        keep2d = bf < 0.5
-    elif CTX.foreground is not None:  # foreground rect in ±1 block coords
-        fx0, fy0, fx1, fy1 = CTX.foreground
-        keep2d = ~(((cy[:, None] >= 2 * fy0 - 1) & (cy[:, None] <= 2 * fy1 - 1))
-                   & ((cx[None, :] >= 2 * fx0 - 1) & (cx[None, :] < 2 * fx1 - 1)))
-    else:
-        keep2d = np.ones((gy, gx), bool)
-    Y, X = np.meshgrid(cy, cx, indexing="ij")
-    A = np.stack([np.ones(med.size), X.ravel(), Y.ravel()], axis=1)
-    b = med.ravel()
-    A, b = A[keep2d.ravel()], b[keep2d.ravel()]
-    # one round of outlier rejection so stars/branch don't skew the plane
-    cs, *_ = np.linalg.lstsq(A, b, rcond=None)
-    r = b - A @ cs
-    keep = np.abs(r - np.median(r)) < 3 * (1.4826 * np.median(np.abs(r - np.median(r))) + 1e-12)
-    if keep.sum() >= 12:
-        cs, *_ = np.linalg.lstsq(A[keep], b[keep], rcond=None)
-    denom = abs(cs[0]) if abs(cs[0]) > 1e-9 else max(abs(np.median(b)), 1e-9)
-    return float(100.0 * np.hypot(cs[1], cs[2]) / denom)
-
-
-# --- star metrics ---------------------------------------------------------------
-
-def star_metrics(ch, max_stars=500, k_sigma=8.0, cut=12, min_prom_frac=0.004):
-    """Detect stars on one channel (local maxima above bg + k*sigma) and
-    measure: count, equivalent-area FWHM, elongation, peak levels, halo
-    ratio (flux 3-8px annulus / flux <=3px core). Works on linear FITS and
-    stretched 8-bit alike (all values in [0,1]).
-
-    A candidate counts as a star only if its prominence over the LOCAL ring
-    background exceeds max(4*sigma, min_prom_frac*local_bg): on smooth
-    surfaces (self-flat median) the noise sigma collapses and pure-sigma
-    thresholds promote glow mottles to "stars" (measured: ratio 1.06 vs
-    calibrated frames instead of ~0). n_stars counts ALL prominence-passing
-    maxima; shape stats come from the brightest max_stars of them."""
-    from scipy import ndimage
-    h, w = ch.shape
-    bg, sig = bg_stats(ch)
-    if sig <= 0:
-        return {"n_stars": 0}
-    thr = bg + k_sigma * sig
-    mx = ndimage.maximum_filter(ch, size=5, mode="nearest")
-    cand = (ch >= mx) & (ch > thr)
-    cand[:cut + 1, :] = cand[-cut - 1:, :] = False
-    cand[:, :cut + 1] = cand[:, -cut - 1:] = False
-    bm = branch_mask(h, w)
-    cand &= bm
-    ys, xs = np.nonzero(cand)
-    if len(ys) == 0:
-        return {"n_stars": 0, "bg": bg, "sigma": sig}
-    peaks = ch[ys, xs]
-    order = np.argsort(peaks)[::-1][:6000]  # brightest candidates only
-    # de-duplicate plateau maxima (saturated cores): keep one per 9px box
-    seen = np.zeros((h // 9 + 2, w // 9 + 2), bool)
-    stars = []
-    for i in order:
-        gy, gx = ys[i] // 9, xs[i] // 9
-        if seen[gy, gx]:
-            continue
-        seen[gy, gx] = True
-        stars.append(i)
-    yy0, xx0 = np.mgrid[-cut:cut + 1, -cut:cut + 1]
-    rr = np.hypot(yy0, xx0)
-    ring = rr >= cut - 1
-    core = rr <= 3
-    halo_a = (rr > 3) & (rr <= 8)
-    half_zone = rr <= 10
-    fwhms, elongs, halos, peak_list, contrasts = [], [], [], [], []
-    n_pass = 0
-    for i in stars:
-        y, x = ys[i], xs[i]
-        c = ch[y - cut:y + cut + 1, x - cut:x + cut + 1]
-        if c.shape != (2 * cut + 1, 2 * cut + 1):
-            continue
-        loc_bg = float(np.median(c[ring]))
-        pk = float(c[cut, cut])
-        amp = pk - loc_bg
-        if amp <= max(4 * sig, min_prom_frac * max(loc_bg, 1e-6)):
-            continue
-        n_pass += 1
-        peak_list.append(pk)
-        if n_pass > max_stars:
-            continue  # count everything, shape-measure the brightest
-        contrasts.append(amp)
-        above = (c - loc_bg > amp / 2) & half_zone
-        area = int(above.sum())
-        fwhms.append(2.0 * np.sqrt(area / np.pi))
-        if area >= 3:
-            ay, ax = np.nonzero(above)
-            wgt = (c - loc_bg)[above]
-            cy = np.average(ay, weights=wgt)
-            cx2 = np.average(ax, weights=wgt)
-            vy = np.average((ay - cy) ** 2, weights=wgt)
-            vx = np.average((ax - cx2) ** 2, weights=wgt)
-            vxy = np.average((ay - cy) * (ax - cx2), weights=wgt)
-            tr, det = vy + vx, vy * vx - vxy ** 2
-            disc = max(tr * tr / 4 - det, 0.0)
-            l1 = tr / 2 + np.sqrt(disc)
-            l2 = max(tr / 2 - np.sqrt(disc), 1e-6)
-            elongs.append(float(np.sqrt(l1 / l2)))
-        cflux = float(np.clip(c - loc_bg, 0, None)[core].sum())
-        hflux = float(np.clip(c - loc_bg, 0, None)[halo_a].sum())
-        if cflux > 0:
-            halos.append(hflux / cflux)
-    if not peak_list:
-        return {"n_stars": 0, "bg": bg, "sigma": sig}
-    peak_arr = np.array(peak_list)
-    top = peak_arr[:min(100, len(peak_arr))]  # already peak-sorted
-    mid = peak_arr[100:500] if len(peak_arr) > 120 else peak_arr
-    return {
-        "n_stars": n_pass,  # prominence-passing maxima (uncapped)
-        "n_maxima": int(len(stars)),  # raw dedup'd maxima among 6000 brightest
-        "n_measured": min(n_pass, max_stars),
-        "bg": bg, "sigma": sig,
-        "fwhm_med": float(np.median(fwhms)),
-        "elong_med": float(np.median(elongs)) if elongs else None,
-        "halo_med": float(np.median(halos)) if halos else None,
-        "top100_peak_med": float(np.median(top)),
-        "mid_peak_med": float(np.median(mid)),  # ranks 100-500: the tier that
-        # actually separates crisp from washed-out (top-100 saturate anyway)
-        "contrast_med": float(np.median(contrasts)),
-        "sat_star_frac": float((peak_arr >= 0.98).mean()),
-    }
 
 
 SRGB_ICC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -854,158 +449,3 @@ def write_fits_planes(path, cards_src, planes):
         f.write(hdr.encode("ascii"))
         f.write(body)
         f.write(b"\x00" * ((-len(body)) % 2880))
-
-
-# --- colour space (CIE Luv / LCh_uv) ---------------------------------------
-# Display-referred [0,1] RGB treated as sRGB-companded, D65 white — the
-# convention the narrowband finishing ops need: hue angles here equal
-# HSLuv hue (HSLuv keeps LCh_uv hue), luminance L is perceptual, and a
-# luminance-only lift leaves chroma untouched by construction.
-
-_SRGB_TO_XYZ = np.array([[0.4124564, 0.3575761, 0.1804375],
-                         [0.2126729, 0.7151522, 0.0721750],
-                         [0.0193339, 0.1191920, 0.9503041]], np.float32)
-_XYZ_TO_SRGB = np.linalg.inv(_SRGB_TO_XYZ.astype(np.float64)).astype(np.float32)
-# D65 reference white u', v'
-_UN = 4.0 * 0.95047 / (0.95047 + 15.0 + 3.0 * 1.08883)
-_VN = 9.0 / (0.95047 + 15.0 + 3.0 * 1.08883)
-
-
-def rgb_to_lch(rgb):
-    """(3,H,W) sRGB-companded [0,1] -> (L*, C*, h_deg) float32 planes.
-    L* in [0,100]; h in [0,360)."""
-    x = np.clip(rgb, 0.0, 1.0).astype(np.float32)
-    lin = np.where(x <= 0.04045, x / 12.92,
-                   ((x + 0.055) / 1.055) ** 2.4).astype(np.float32)
-    X = (_SRGB_TO_XYZ[0, 0] * lin[0] + _SRGB_TO_XYZ[0, 1] * lin[1]
-         + _SRGB_TO_XYZ[0, 2] * lin[2])
-    Y = (_SRGB_TO_XYZ[1, 0] * lin[0] + _SRGB_TO_XYZ[1, 1] * lin[1]
-         + _SRGB_TO_XYZ[1, 2] * lin[2])
-    Z = (_SRGB_TO_XYZ[2, 0] * lin[0] + _SRGB_TO_XYZ[2, 1] * lin[1]
-         + _SRGB_TO_XYZ[2, 2] * lin[2])
-    yr = Y / 1.0
-    L = np.where(yr > 216.0 / 24389.0, 116.0 * np.cbrt(yr) - 16.0,
-                 24389.0 / 27.0 * yr).astype(np.float32)
-    d = X + 15.0 * Y + 3.0 * Z
-    d = np.where(d <= 0, 1e-9, d)
-    up = 4.0 * X / d
-    vp = 9.0 * Y / d
-    u = 13.0 * L * (up - _UN)
-    v = 13.0 * L * (vp - _VN)
-    C = np.hypot(u, v).astype(np.float32)
-    h = np.degrees(np.arctan2(v, u)).astype(np.float32)
-    h = np.where(h < 0, h + 360.0, h)
-    return L, C, h
-
-
-def lch_to_rgb(L, C, h):
-    """Inverse of rgb_to_lch: (L*, C*, h_deg) -> (3,H,W) sRGB [0,1]."""
-    hr = np.radians(h.astype(np.float32))
-    u = C * np.cos(hr)
-    v = C * np.sin(hr)
-    Lsafe = np.where(L <= 1e-6, 1e-6, L)
-    up = u / (13.0 * Lsafe) + _UN
-    vp = v / (13.0 * Lsafe) + _VN
-    Y = np.where(L > 8.0, ((L + 16.0) / 116.0) ** 3,
-                 L * 27.0 / 24389.0).astype(np.float32)
-    vps = np.where(vp <= 0, 1e-9, vp)
-    X = Y * 9.0 * up / (4.0 * vps)
-    Z = Y * (12.0 - 3.0 * up - 20.0 * vp) / (4.0 * vps)
-    lin = np.stack([
-        _XYZ_TO_SRGB[0, 0] * X + _XYZ_TO_SRGB[0, 1] * Y + _XYZ_TO_SRGB[0, 2] * Z,
-        _XYZ_TO_SRGB[1, 0] * X + _XYZ_TO_SRGB[1, 1] * Y + _XYZ_TO_SRGB[1, 2] * Z,
-        _XYZ_TO_SRGB[2, 0] * X + _XYZ_TO_SRGB[2, 1] * Y + _XYZ_TO_SRGB[2, 2] * Z,
-    ])
-    lin = np.clip(lin, 0.0, None)
-    out = np.where(lin <= 0.0031308, 12.92 * lin,
-                   1.055 * lin ** (1.0 / 2.4) - 0.055).astype(np.float32)
-    return np.clip(out, 0.0, 1.0)
-
-
-# --- consistent rendering -------------------------------------------------------
-
-def mtf(x, m):
-    """PixInsight/siril midtone transfer function, x in [0,1]."""
-    return ((m - 1.0) * x) / (((2.0 * m - 1.0) * x) - m)
-
-
-def autostretch_u8(data, sigma=-2.8, target=0.25):
-    """The ONE consistent rendering used for every inspection JPEG:
-    linked MTF autostretch — shadow clip at median + sigma*bgnoise (G
-    channel stats), midtone solved so the background lands on `target`.
-    Returns uint8 (H,W,3)."""
-    g = data[min(1, data.shape[0] - 1)]
-    med, sig = bg_stats(g)
-    lo = max(0.0, med + sigma * sig)
-    hi = 1.0
-    x0 = (med - lo) / (hi - lo) if hi > lo else 0.5
-    x0 = min(max(x0, 1e-6), 0.9999)
-    m = x0 * (target - 1.0) / (2.0 * x0 * target - x0 - target)
-    m = min(max(m, 1e-4), 1 - 1e-4)
-    out = []
-    for c in range(data.shape[0]):
-        x = np.clip((data[c] - lo) / (hi - lo), 0.0, 1.0)
-        out.append(mtf(x, m))
-    a = np.stack(out, axis=-1)
-    if a.shape[-1] == 1:
-        a = np.repeat(a, 3, axis=-1)
-    return (np.clip(a, 0, 1) * 255.0 + 0.5).astype(np.uint8)
-
-
-def render_panel(data, out_path, thumb_stride=4, crop=700, quality=88):
-    """Write the stage inspection JPEG: full-frame thumb (stride-subsampled)
-    on the left; 1:1 center crop over 1:1 top-right corner crop on the
-    right — all through the SAME autostretch (computed once, full image)."""
-    from PIL import Image
-    u8 = autostretch_u8(data)  # full res, one stretch for all panels
-    h, w = u8.shape[:2]
-    thumb = u8[::thumb_stride, ::thumb_stride]
-    th, tw = thumb.shape[:2]
-    gutter = 12
-    ch = (th - gutter) // 2
-    cw = min(crop, w)
-    cy, cx = h // 2, w // 2
-    center = u8[cy - ch // 2:cy + ch - ch // 2, cx - cw // 2:cx + cw - cw // 2]
-    inset = 60
-    corner = u8[inset:inset + ch, w - inset - cw:w - inset]
-    canvas = np.full((th, tw + cw + gutter, 3), 24, np.uint8)
-    canvas[:th, :tw] = thumb
-    canvas[:center.shape[0], tw + gutter:tw + gutter + center.shape[1]] = center
-    canvas[ch + gutter:ch + gutter + corner.shape[0],
-           tw + gutter:tw + gutter + corner.shape[1]] = corner
-    Image.fromarray(canvas).save(out_path, quality=quality)
-    return {"panels": "left: full frame (1/%d); right: center 1:1 (top), "
-                      "top-right corner 1:1 (bottom)" % thumb_stride}
-
-
-def plot_radial(centers, prof, out_path, title="", display_scale=65535.0,
-                ylabel="counts (16-bit)"):
-    """Radial luminance + chroma profile PNG with the rim zone shaded."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 5), sharex=True,
-                                   height_ratios=[2, 1])
-    ok = ~np.isnan(prof[:, 0])
-    colors = ["#d62728", "#2ca02c", "#1f77b4"]
-    names = ["R", "G", "B"]
-    for c in range(prof.shape[1]):
-        ax1.plot(centers[ok], prof[ok, c] * display_scale, color=colors[c % 3],
-                 lw=1.2, label=names[c % 3])
-    ax1.axvspan(0.9, 1.0, alpha=0.12, color="orange", label="rim zone")
-    ax1.set_ylabel(ylabel)
-    ax1.legend(fontsize=8, ncol=4)
-    ax1.set_title(title, fontsize=10)
-    if prof.shape[1] == 3:
-        ax2.plot(centers[ok], (prof[ok, 0] - prof[ok, 1]) * display_scale,
-                 color="#d62728", lw=1.0, label="R-G")
-        ax2.plot(centers[ok], (prof[ok, 2] - prof[ok, 1]) * display_scale,
-                 color="#1f77b4", lw=1.0, label="B-G")
-        ax2.axhline(0, color="gray", lw=0.6)
-        ax2.axvspan(0.9, 1.0, alpha=0.12, color="orange")
-        ax2.legend(fontsize=8)
-        ax2.set_ylabel("chroma")
-    ax2.set_xlabel("normalized radius (1 = corner)")
-    fig.tight_layout()
-    fig.savefig(out_path, dpi=90)
-    plt.close(fig)
