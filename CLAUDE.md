@@ -36,8 +36,8 @@ deliverable's pixels. It does four things:
 `scripts/qa/anomaly_audit.py` is the reference **ALLOWED** example (Siril does
 every pixel op + measurement; the in-house kernel does only the streak geometry
 no tool provides; report-only; removal-conditioned). An in-house **gate or audit
-that reads the render and blocks it** is the reference **FORBIDDEN** case — those
-are being replaced by orchestrating the tools' own analysis + checklist logic.
+that reads the render and blocks it** would be the reference **FORBIDDEN** case;
+the tools' own analysis + the checklist do that job.
 
 **Anti-drift test:** if you are about to hand-tune a knob to make one image look
 right, write numpy that reads / transforms / analyzes the deliverable's pixels,
@@ -45,13 +45,10 @@ or reimplement a measurement a tool already gives — STOP. Research the tool, d
 it, record what it measured, and fix the PROCESS from the root cause, not the
 picture.
 
-**This repo is mid-redesign — read [`REDESIGN.md`](REDESIGN.md) first.** The
-render chain and the aarch64 workarounds were wiped in the x86 reset; and the
-in-house measurement/audit layer (`bg_qa` gate + the pixel-reading audits) is now
-FORBIDDEN-class — being retired for tool-orchestration + a checklist of the tools'
-own numbers. What's kept is the tool-driving orchestration (calibrate / stack /
-compose / solve) + the records + the discipline. REDESIGN.md is the go-forward
-authority (target env, keep/retire manifest, rebuild order).
+**This repo targets x86 — read [`REDESIGN.md`](REDESIGN.md) first** for the target
+environment, the tool inventory, and the build order. Processing and measurement
+are done entirely by industry tools ([`TOOLS.md`](TOOLS.md)); the repo is the
+orchestration + records + discipline around them.
 
 **Read order, every session:** (1) this file; (2) `REDESIGN.md` — the x86
 redesign plan AND the durable technical reference: the keep/wipe manifest,
@@ -161,12 +158,9 @@ core here now:**
   dead-end entry in REDESIGN with its numbers). Comparisons report measured deltas with an
   objective WIN | NULL | needs-eyes verdict — NEVER "fixed/final/matched/
   close" language; aesthetics are the user's eyes on the finals.
-- **Acceptance measures don't loosen — but they come from the tools now.** The
-  in-house `bg_qa` gate + standing audits read the deliverable's pixels, so they
-  are FORBIDDEN-class and are being retired in favour of orchestrating the tools'
-  own analysis + a checklist that records their numbers (README review-contract;
-  cascade in progress). Whatever tool-sourced measure gates a candidate stays
-  strict; loosening it needs explicit user ratification.
+- **Acceptance measures come from the tools and don't loosen.** The measures that
+  gate a candidate are the tools' own numbers, recorded in the per-dataset
+  checklist (README review-contract); loosening one needs explicit user ratification.
 - **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
   finals** (PNG16+PNG8, opened independently in the user's own viewers)
   before any bake — never crops, composited panels, or any lossy
