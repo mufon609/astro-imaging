@@ -1,12 +1,17 @@
-# Objective image-quality & processing-defect metrics for the audit layer — deep dive
+# Objective image-quality & processing-defect metrics — deep dive
 
-- **Question / scope** — The AUDIT side (the measurement layer IS the product): what
-  MODERN + STANDARD objective image-quality and **processing-defect** metrics could a
-  numpy/scipy measurement layer (no GPU) ADOPT to grade images and — the high-value
-  part — **objectively detect over-processing** (deconvolution ringing, denoise
-  over-smoothing, background over-flattening, star-colour loss, chroma noise)? This
-  extends `lib/astrometrics.py`, `lib/bg_qa.py`, `qa/object_integrity.py`,
-  `qa/inspect_stage.py` — the durable core the reset kept.
+> **Read this as a map of WHAT TO PULL FROM THE TOOLS, not what to build.** The repo
+> never computes image metrics in numpy — the tools measure (Siril
+> `stat`/`register`/SubframeSelector, ASTAP, SPCC) and the checklist records their
+> numbers. The definitions below say what each tool gives you; a defect measure no
+> tool provides is a candidate *standalone ALLOWED detector* (the `anomaly_audit.py`
+> pattern — sources pixels from a tool, computes only the derived metric,
+> report-only), never a numpy gate.
+
+- **Question / scope** — What objective image-quality and **processing-defect**
+  measures does the checklist need — FWHM, noise, SNR, eccentricity; and the
+  over-processing classes (deconvolution ringing, denoise over-smoothing, background
+  over-flattening, star-colour loss, chroma noise) — and **which tool provides each**?
 - **Context** — 2026-07-14. Rig: x86-64, numpy/scipy/**astropy** (photutils
   optional), **no GPU**. Existing harness already computes: the statistical-sky gate,
   `star_shell_report`, radial profiles, chroma-neutralization / mid-scale-mottle /
@@ -157,7 +162,8 @@ ridge** around bright stars. Objective detectors a numpy layer can build:
 - Chroma noise (ISO 15739) — https://www.imatest.com/docs/color-tone-esfriso-noise/ · Star-colour loss — https://www.astropix.com/html/processing/starcolr.html
 
 ## Verdict / recommendation
-The high-value, fully-numpy additions for the x86 measurement layer, prioritized:
+Where each measure comes from (the checklist ORCHESTRATES + records these; it does
+not build them). The list below is prioritized by value; each names its tool source:
 1. **Radial-profile undershoot ringing detector** — reuses the existing radial
    profiles; turns "deconv over-sharpened?" into a scalar. Cheapest high-value win.
 2. **Residual-autocorrelation whiteness + fine-scale-energy-vs-noise** — objective
@@ -165,15 +171,15 @@ The high-value, fully-numpy additions for the x86 measurement layer, prioritized
 3. **Removed-background-model spectral/negative-bowl analysis** — objective
    over-flattening detection; formalizes the gross-flattening audit + the BGE
    dead-end.
-4. **N\* / M\* / MRS noise + background** — lift near-verbatim; a robust,
-   gradient-immune noise+background pair the gate and all defect detectors can share.
-5. **PSFSW proxy + StarResidual** — a composition-agnostic frame-quality weight and a
-   PSF-goodness over-processing sensor; approximable from SNR²,SNR,Stars.
-6. **Gradient-decay sharpness (2024)** — per-frame sharpness grade + over-smoothing
-   sensor.
-These are candidates for the ported/rebuilt audit layer — **measurement, not
-processing** — and none needs a GPU. They EXTEND the gate/audits; they never loosen
-the gate (per the contract).
+4. **Noise + background** (MRS / N\* / M\*) — from Siril `stat`/`bgnoise`; orchestrate
+   + record, don't reimplement Starck-Murtagh.
+5. **Frame weight + PSF goodness** (PSFSignalWeight, StarResidual, FWHM, eccentricity)
+   — from PixInsight SubframeSelector / Siril `register`.
+6. **Gradient-decay sharpness (2024)** — a per-frame sharpness grade a tool (or a
+   standalone ALLOWED detector) computes.
+The estimators (4–6) come from the tools; the defect detectors (1–3) are candidate
+*standalone ALLOWED detectors* on the `anomaly_audit.py` pattern **only where no tool
+measures them** — never a numpy gate. None needs a GPU.
 
 ## Status
 **PROVISIONAL — and two different confidence levels here, don't blur them.** The
@@ -190,11 +196,10 @@ known-bad renders (deliberately over-sharpened / over-smoothed / over-flattened
 examples) and stays quiet on known-good ones, on real data — before it can gate.
 
 ## Graduation
-- **REDESIGN** — add an "audit-layer adoption candidates" note (the measurement
-  harness is the crown jewel; these six are the researched next metrics, each a
-  measured experiment, gate-never-loosens preserved).
-- **MEMORY** — a reference note that the audit side has a concrete, cited metric
-  roadmap (SubframeSelector vocabulary, MRS/N\*/M\* noise, and the three
-  over-processing detectors), so a future session starts from it rather than re-deriving.
-- No TOOLS.md change (TOOLS is the *processing* toolkit; this is the measurement layer).
-- Applied in the graduation commit.
+- **REDESIGN** — "Audit measures — get them from the tools": the estimators come from
+  Siril `stat`/`register` / SubframeSelector / ASTAP / SPCC; the defect detectors are
+  candidate standalone ALLOWED detectors (`anomaly_audit.py` pattern) only where no
+  tool measures them.
+- **MEMORY** — the checklist sources every measure from the tools; a defect measure no
+  tool provides is a standalone ALLOWED detector, never a numpy gate.
+- No TOOLS.md change (TOOLS is the toolkit; this maps its analysis outputs to the checklist).
