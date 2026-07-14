@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
-"""Anomalous-transient audit: flag frames holding an OUT-OF-THE-ORDINARY
-streak (a curved or brightness-modulated track, not the straight uniform line
-a satellite or plane leaves). REPORT-ONLY — it never moves, deletes, or
-rewrites any input frame, and it does not gate or feed the final-product
-pipeline; it emits a list of flagged frames with the measured evidence.
+"""Transient-obstruction classifier + anomaly surface: for each frame, decide
+what each in-frame obstruction is — AIRCRAFT, SATELLITE, or UNKNOWN. REPORT-ONLY
+— it never moves, deletes, or rewrites any input frame, and it does not gate or
+feed the final-product pipeline; it emits a per-frame classification with the
+measured evidence. UNKNOWN is the honest anomaly surface: an obstruction that
+matches no known signature and deserves human eyes.
 
   Usage: anomaly_audit.py <frame.NEF | dir | glob> [--work=<dir>]
-                          [--session=<dir> --set=<name>] [--curv=<ratio>]
+                          [--session=<dir> --set=<name>] [--curv=<f>]
                           [--json=<out>] [--keep-resid]
 
-ORDINARY (never flagged): stars (any trailing), and a straight, uniform
-streak — a satellite or aircraft, which rejection stacking already removes.
-Grading the subs (FWHM / roundness / background / star count) is a SEPARATE,
-already-solved job (Siril `register` -> `cull_report.py`); this tool does not
-touch it.
-
-ANOMALOUS (flagged): a streak whose pixels bend off a straight line (curvature
->= --curv over a track long enough to trust), or whose along-track brightness
-is strongly non-uniform / periodic (tumbler flare, unexpected strobe). No
-off-the-shelf tool detects this.
+CLASSIFICATION MODEL — a registry of "callouts". Detected light-trails are
+grouped into candidate OBJECTS (an aircraft leaves several trails; a satellite
+one), then each object is run past CALLOUTS in order; the first signature that
+matches wins, and an object matching none is UNKNOWN. To teach the tool a
+newly-identified object, ADD a callout with its MEASURED signature — nothing
+else changes. Current callouts (most specific first):
+  aircraft   two or more PARALLEL twin trails (separate lights on one airframe)
+             — a signature a single-point satellite cannot make.
+  satellite  a single STRAIGHT continuous trail (one light on an orbital path).
+  <else>     UNKNOWN (curved track, unmatched multi-trail, anything odd).
+Across frames, per-frame objects are LINKED into UNIQUE physical objects: on a
+fixed (untracked) camera each crossing traces a straight sensor-plane line, so
+same-class + colinear + consecutive detections are ONE object (a satellite over
+4 frames = 1 object, 4 detections). The final report gives per-frame contents,
+the unique-object list with frame spans, and BOTH totals (unique vs per-frame).
+Grading the subs themselves (FWHM / roundness / background / star count) is a
+SEPARATE, already-solved job (Siril `register` -> `cull_report.py`); not here.
 
 WHAT SIRIL DOES vs WHAT IS IN-HOUSE  (mechanism honesty — the repo sources
 every pixel operation and every STANDARD measurement from a tool, and writes
@@ -30,64 +38,58 @@ in-house code only for a derived result no tool provides):
                   frame linear resolution). Explicit, so the analysis DOMAIN is
                   deterministic — never the ambient debayer setting. Everything
                   below runs on this green, never the mosaic. (extract_Green
-                  saves the green to a file that MUST be re-loaded, else subsky/
-                  findstar run on the mosaic — verified failure mode.)
+                  saves the green to a file that MUST be re-loaded before
+                  processing, or subsky/findstar run on the mosaic instead.)
     subsky        background extraction (flatten vignette + Milky-Way glow so a
                   faint track clears threshold) -> the residual image
     save          write the residual FITS the kernel reads
     findstar      the stellar PSF table (median trail length -> the adaptive
                   streak-length floor), the star catalog, AND the background
                   level + noise it reports -> the detection threshold, parsed
-                  from Siril, NOT recomputed in-house. On the clean green these
-                  EQUAL Siril `stat`'s Median/bgnoise exactly (verified 1117 /
-                  14.50 both), so either is correct here; findstar's is used
-                  because findstar is already invoked for the star table. (The
-                  earlier CFA-mosaic domain inflated `stat` bgnoise ~2x via the
-                  Bayer checkerboard; extracting green removes that entirely.)
+                  from Siril, NOT recomputed in-house. On the extracted green
+                  these equal Siril `stat`'s background/noise (both measure the
+                  same background), so either is correct; findstar's is used
+                  because findstar is already invoked for the star table. (On
+                  the raw CFA mosaic `stat`'s noise is inflated by the Bayer
+                  R/G/B channel-level checkerboard; extracting green removes it.)
 
   In-house kernel (numpy/scipy, EXAMINE only — reads Siril's products, writes
   no deliverable). These ARE pixel operations; they are not Siril:
     - reads Siril's green residual FITS (shared read_fits) + findstar's star list
     - STREAK DETECTION: threshold the green residual at bg + k*noise (both from
       findstar's report) and connected-component label it (ndimage.label).
-      findstar emits STARS; no tool emits streaks, so the streak-finding is
-      in-house.
     - reads residual pixel brightness inside each component (for the weights)
-    - STREAK GEOMETRY: principal-axis fit -> curvature (deviation from a
-      straight line); along-track brightness profile -> uniformity
+    - STREAK GEOMETRY: principal-axis fit -> curvature; along-track brightness
+    - OBJECT GROUPING + CLASSIFICATION: group trails into objects, then match
+      each against the callout signatures.
+    - CROSS-FRAME LINKING: chain per-frame objects into unique physical objects
+      by class + colinearity + frame adjacency (fixed-camera line assumption).
+  No tool detects/measures/classifies transient obstructions; that whole
+  in-house layer is a SANCTIONED gap-filler. REMOVAL CONDITION: retire it the
+  day a tool provides the streak detection/geometry/classification mechanism.
   Reused from scripts/lib (shared EXAMINE helpers, not new mechanism):
-  read_fits (FITS I/O of Siril's product), branch_mask (per-set foreground
-  exclusion).
+  read_fits (FITS I/O of Siril's product), branch_mask (per-set foreground).
 
-  The in-house parts (streak DETECTION + GEOMETRY) are a SANCTIONED gap-filler:
-  no compiled tool detects or measures anomalous-streak morphology. REMOVAL
-  CONDITION: retire them the day a tool (a Siril-native streak/anomaly
-  detector, or an adoptable streak library) provides the mechanism.
+VALIDATION (maturity per class — honest; lengths are extracted-green px):
+  satellite — well exercised: real straight-trail passes and clean frames
+    classify correctly with no false object.
+  aircraft  — the twin-trail signature is confirmed on a single real example,
+    so its thresholds are PROVISIONAL; a strobe-periodicity callout (for a
+    single-light aircraft, which the twin rule cannot catch) is NOT yet built.
+  unknown   — the residual bucket by construction; a candidate surface for
+    human confirmation, never a verified "anomaly" claim on its own.
+  linking   — collapses a night's per-frame detections into its distinct
+    passes; PROVISIONAL colinearity/gap/PA tolerances, and it assumes a fixed/
+    untracked camera.
 
-VALIDATION (real-data status — honest; lengths are extracted-green px):
-  NULL confirmed on REAL data (clean-green domain): the BRIGHT satellite pass
-  (july13 set-07 frames 6644-6646, ~360 px straight streaks, curv 0.006-0.015),
-  the FAINT pass (6540-6545, now detected in EVERY frame on the green — it was
-  mostly missed on the mosaic), and clean Milky-Way frames all -> 0 anomalies
-  (neither the glow nor star trailing false-triggers).
-  POSITIVE tested on SYNTHETIC only: a synthetic curved arc (curv 0.045) and a
-  synthetic strobe (cv 0.81) are flagged; NO real curved/flaring transient has
-  been tested. OPEN ITEM — the flag thresholds are PROVISIONAL and cannot be
-  trusted as a detector until confirmed against a real anomalous transient.
-  Until then this is a candidate-surfacer for human confirmation, not a
-  verified detector.
-
-KNOWN LIMITATIONS (open items, not defects hidden as features):
-  - faint tracks that dip below 5-sigma along their path fragment into short
-    segments — genuine faintness, NOT the Bayer/connectivity artifact the green
-    extraction fixed. A short segment is below the curvature length floor, so a
-    faint CURVED anomaly could be missed. Cross-frame + cross-segment track
-    linking is the fix (not yet built).
-  - per-frame only: no trajectory continuity across frames yet.
+PLANNED CALLOUTS (each an "unknown" until measured on a real example):
+  strobe-periodicity aircraft (single light, regular beading along the trail);
+  colinear regular-dash vs irregular-fragment (strobe aircraft vs faint broken
+  satellite); meteor (brightens-then-fades profile); Starlink train (many
+  colinear equal trails). Add each as a callout with its measured signature.
 
 THRESHOLDS: every magic number is derived or PROVISIONAL — see the inline
-comment at each site (min_len, elong, curvature, length floor, bright_cv, the
-5-sigma detection cut). All lengths are extracted-green px.
+comment at each site. All lengths are extracted-green px.
 
 COMPLIANCE self-audit (allowed iff ALL hold):
   (a) outside the final-product pipeline, never gates/processes the
@@ -95,9 +97,8 @@ COMPLIANCE self-audit (allowed iff ALL hold):
   (b) every pixel + standard measurement tool-sourced: YES — decode, green
       extraction, subsky, the star table, and the background level + noise
       (findstar's report) are all Siril; the kernel only reads those products.
-  (c) computes only a derived result no tool provides: YES — streak detection
-      (threshold + connected components) and streak geometry (curvature,
-      brightness uniformity).
+  (c) computes only a derived result no tool provides: YES — streak detection,
+      geometry, object grouping, and classification.
   (d) examine/report only, rewrites no deliverable, never modifies an input:
       YES — Siril reads the NEF and writes to a work dir; this tool writes only
       a report + transient residuals it deletes.
@@ -138,10 +139,11 @@ def run_siril(nef, work):
     ssf = os.path.join(work, "_audit.ssf")
     # extract_Green SAVES the green plane to a file but leaves the mosaic in
     # memory, so it must be re-loaded before processing — otherwise subsky and
-    # findstar run on the Bayer mosaic (verified: identical bgnoise/adjacent-
-    # MAD to the raw CFA), and threshold + connected-components on a quincunx
-    # green pattern fragments faint tracks. Working on the extracted green
-    # makes every downstream measurement single-channel and mosaic-free.
+    # findstar run on the Bayer mosaic, whose channel-level checkerboard inflates
+    # the noise estimate and whose quincunx green pattern breaks threshold +
+    # connected-components apart, fragmenting faint tracks. Working on the
+    # extracted green makes every downstream measurement single-channel and
+    # mosaic-free.
     with open(ssf, "w") as f:
         f.write("requires 1.4.4\n"           # findstar stdout format tested here
                 f"load {os.path.abspath(nef)}\n"
@@ -160,10 +162,10 @@ def run_siril(nef, work):
                            + r.stdout[-600:] + r.stderr[-600:])
     # Background level + noise from findstar's report ("Threshold: T
     # (background level: B, noise: N, norm: M)"). On the extracted green these
-    # equal Siril `stat`'s Median/bgnoise exactly (verified 1117 / 14.50 both),
-    # so either tool is correct here; findstar's is used because findstar is
-    # already invoked for the star table (no redundant command). norm rescales
-    # to read_fits' [0,1]. Loud-fail if the format ever drifts.
+    # equal Siril `stat`'s background/noise (both measure the same background),
+    # so either tool is correct; findstar's is used because findstar is already
+    # invoked for the star table (no redundant command). norm rescales to
+    # read_fits' [0,1]. Loud-fail if the format ever drifts.
     m = re.search(r"background level:\s*([0-9.eE+-]+),\s*noise:\s*"
                   r"([0-9.eE+-]+),\s*norm:\s*([0-9.eE+-]+)", r.stdout)
     if not m:
@@ -246,6 +248,223 @@ def measure_streak(ys, xs, w):
                 cx=float(cx), cy=float(cy), npix=int(len(ys)))
 
 
+# --- object grouping + classification ("callouts") ---------------------------
+# A detected trail is one light-track. A real object can leave MORE than one
+# trail in a frame (an aircraft's separate lights) or a broken one (a strobe).
+# group_objects() assembles related trails into candidate OBJECTS; each object
+# is then classified by the CALLOUTS registry — first signature that matches
+# wins; an object matching none is UNKNOWN. To teach the tool a newly-identified
+# object, add a callout below with its MEASURED signature; nothing else changes.
+
+def _twin(a, b):
+    """True if two trails are parallel twin lights of ONE airframe: shared
+    heading (PA within 5 deg — a rigid airframe), matched length (both lights
+    trace the same path), a small RESOLVED perpendicular offset (the light
+    separation, << the trail length), and co-located along-track (side by side,
+    not lead/trail). PROVISIONAL — the tolerances are calibrated on a single
+    real aircraft."""
+    dpa = abs(((a["pa_deg"] - b["pa_deg"] + 90) % 180) - 90)
+    if dpa > 5.0:
+        return False
+    if not 0.75 <= a["length"] / max(b["length"], 1e-6) <= 1.33:
+        return False
+    pa = np.radians((a["pa_deg"] + b["pa_deg"]) / 2)
+    ux, uy = np.cos(pa), np.sin(pa)
+    dcx, dcy = b["cx"] - a["cx"], b["cy"] - a["cy"]
+    offset = abs(-dcx * uy + dcy * ux)         # perpendicular separation
+    along = abs(dcx * ux + dcy * uy)           # along-track separation
+    minlen = min(a["length"], b["length"])
+    return 3.0 <= offset <= 0.2 * minlen and along <= 0.5 * minlen
+
+
+def _related(a, b):
+    """True if two trails belong to ONE physical object in a frame: shared
+    heading and lying on ~one line (small perpendicular offset). Covers BOTH a
+    faint trail broken into colinear fragments (offset ~0, separated along the
+    line) AND an aircraft's side-by-side twin lights (a small resolved offset).
+    Length is NOT required to match — the fragments of one broken trail vary
+    widely. PROVISIONAL near-line tolerance: it must exceed the twin-light
+    offset and the fragment scatter while staying well below the perpendicular
+    separation of distinct parallel passes."""
+    if abs(((a["pa_deg"] - b["pa_deg"] + 90) % 180) - 90) > 5.0:
+        return False
+    pa = np.radians((a["pa_deg"] + b["pa_deg"]) / 2)
+    dcx, dcy = b["cx"] - a["cx"], b["cy"] - a["cy"]
+    return abs(-dcx * np.sin(pa) + dcy * np.cos(pa)) <= 30.0
+
+
+def _track_span(obj):
+    """Along-track extent (px) across all of an object's fragments — the whole
+    trail's length even when broken into pieces."""
+    pa = np.radians(float(np.median([s["pa_deg"] for s in obj])))
+    ux, uy = np.cos(pa), np.sin(pa)
+    ts = []
+    for s in obj:
+        c = s["cx"] * ux + s["cy"] * uy
+        ts += [c - s["length"] / 2, c + s["length"] / 2]
+    return float(max(ts) - min(ts))
+
+
+def _perp_span(obj):
+    """Perpendicular spread of an object's trail centroids (px) about their
+    shared heading — the light-separation reported as aircraft evidence."""
+    pa = np.radians(float(np.median([s["pa_deg"] for s in obj])))
+    ux, uy = np.cos(pa), np.sin(pa)
+    perp = [(-s["cx"] * uy + s["cy"] * ux) for s in obj]
+    return float(max(perp) - min(perp))
+
+
+def group_objects(streaks):
+    """Assemble detected trails into candidate objects: parallel-twin trails
+    merge (union-find over _twin); every other trail is its own object."""
+    n = len(streaks)
+    parent = list(range(n))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]; i = parent[i]
+        return i
+    for i in range(n):
+        for j in range(i + 1, n):
+            if _related(streaks[i], streaks[j]):
+                parent[find(i)] = find(j)
+    groups = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(streaks[i])
+    return list(groups.values())
+
+
+def _reliably_curved(s, curv_thr):
+    """A trail counts as CURVED only when the bend is trustworthy: curvature
+    (sagitta/length) is unstable on short segments — the denominator is small and
+    a neighbouring star can bias the axis fit — so require a minimum length,
+    where a straight track's residual curvature settles low. curv_thr must sit
+    above that residual (the small bend a straight track shows from wide-field
+    projection + subsky residual). Both PROVISIONAL; the length floor means a
+    faint SHORT curved fragment is not assessed (needs cross-segment linking)."""
+    return s["length"] >= 200 and s["curvature"] >= curv_thr
+
+
+def classify_aircraft(obj, curv_thr):
+    """AIRCRAFT: the object contains a PARALLEL TWIN pair — two lights side by
+    side on one airframe (resolved perpendicular offset, co-located along-track,
+    matched length), which a single-point satellite cannot make. (A strobe-
+    periodicity callout for single-light aircraft is planned, not yet built.)"""
+    if not any(_twin(a, b) for i, a in enumerate(obj) for b in obj[i + 1:]):
+        return None
+    off = _perp_span(obj)
+    return dict(cls="aircraft", confidence=0.9,
+                reason=f"parallel twin pair among {len(obj)} trail(s), offset {off:.0f}px",
+                evidence=dict(n_trails=len(obj), offset_px=round(off, 1),
+                              pa_deg=round(float(np.median([s["pa_deg"] for s in obj])), 1),
+                              length_px=round(float(np.median([s["length"] for s in obj])))))
+
+
+def classify_satellite(obj, curv_thr):
+    """SATELLITE: one light on an orbital path — a single STRAIGHT trail, OR
+    several COLINEAR fragments of one faint broken trail (grouped onto one line,
+    so straight by construction). A single long trail that is RELIABLY curved is
+    NOT a satellite (it falls to UNKNOWN); a short fragment with unstable
+    curvature stays a satellite. bright_cv is reported (a distorted sub can read
+    high) but does not change the class."""
+    if len(obj) == 1:
+        s = obj[0]
+        if _reliably_curved(s, curv_thr):
+            return None
+        return dict(cls="satellite", confidence=0.8,
+                    reason=f"single straight trail (curv {s['curvature']:.3f})",
+                    evidence=dict(span_px=round(s["length"]), n_fragments=1,
+                                  pa_deg=round(s["pa_deg"], 1),
+                                  curvature=round(s["curvature"], 3),
+                                  bright_cv=round(s["bright_cv"], 2)))
+    span = _track_span(obj)
+    return dict(cls="satellite", confidence=0.7,
+                reason=f"{len(obj)} colinear fragments of one trail, span {span:.0f}px",
+                evidence=dict(span_px=round(span), n_fragments=len(obj),
+                              pa_deg=round(float(np.median([s["pa_deg"] for s in obj])), 1)))
+
+
+CALLOUTS = [classify_aircraft, classify_satellite]   # most specific first
+
+
+def classify_object(obj, curv_thr):
+    """Run the callout registry; first match wins. No match -> UNKNOWN (a curved
+    track, an unmatched multi-trail, anything out of the ordinary): the surface
+    that deserves human eyes."""
+    for callout in CALLOUTS:
+        v = callout(obj, curv_thr)
+        if v:
+            v["streaks"] = obj
+            return v
+    s0 = obj[0]
+    return dict(cls="unknown", confidence=1.0, streaks=obj,
+                reason=(f"curved track (curv {s0['curvature']:.3f} over "
+                        f"{s0['length']:.0f}px)" if _reliably_curved(s0, curv_thr)
+                        else f"{len(obj)} trail(s) matching no known signature"),
+                evidence=dict(n_trails=len(obj), length_px=round(s0["length"]),
+                              curvature=round(s0["curvature"], 3),
+                              bright_cv=round(s0["bright_cv"], 2),
+                              pa_deg=round(s0["pa_deg"], 1)))
+
+
+# --- cross-frame linking (per-frame objects -> unique physical objects) ------
+# A per-frame object is one crossing captured in one 8s exposure. The SAME
+# physical object reappears in consecutive frames as it crosses. On a fixed
+# (untracked) camera its path is a straight LINE across the sensor, so a track =
+# same class + colinear + consecutive-ish frames. (A satellite spanning 4 frames
+# is ONE object, four detections.) EXAMINE-only: this groups detections, it
+# reads no pixels.
+
+def _obj_geom(o):
+    """Object's representative centroid (cx, cy) and heading (pa_deg) from its
+    member trails."""
+    ss = o["streaks"]
+    return (float(np.mean([s["cx"] for s in ss])),
+            float(np.mean([s["cy"] for s in ss])),
+            float(np.median([s["pa_deg"] for s in ss])))
+
+
+def _colinear(a, b, pa_tol, colin_tol):
+    """True if two per-frame objects lie on ~one line: headings agree, and each
+    centroid sits within colin_tol of the other's line (the object advances
+    ALONG its track between frames, so centroids are far apart but co-linear)."""
+    ax, ay, apa = a; bx, by, bpa = b
+    if abs(((apa - bpa + 90) % 180) - 90) > pa_tol:
+        return False
+    for (px, py), (ox, oy, opa) in (((bx, by), a), ((ax, ay), b)):
+        u = np.radians(opa)
+        if abs((px - ox) * -np.sin(u) + (py - oy) * np.cos(u)) > colin_tol:
+            return False
+    return True
+
+
+def link_objects(results, max_gap=2, pa_tol=12.0, colin_tol=60.0):
+    """Greedy cross-frame chaining of per-frame objects into UNIQUE physical
+    objects (tracks). Returns [{cls, files:[...], first, last, n, pa}]. Assumes
+    a fixed/untracked camera (each object's ground track is a sensor-plane
+    line). PROVISIONAL params (max_gap 2 frames to bridge a missed detection,
+    pa_tol 12 deg for slow apparent rotation, colin_tol 60 green px): a
+    with/without check on hand-labelled tracks would settle them."""
+    tracks = []
+    for fi, r in enumerate(results):
+        for o in r.get("objects", []):
+            g = _obj_geom(o)
+            cand = [t for t in tracks if t["cls"] == o["cls"]
+                    and 0 < fi - t["_fi"] <= max_gap
+                    and _colinear(g, t["_geom"], pa_tol, colin_tol)]
+            if cand:
+                t = min(cand, key=lambda t: fi - t["_fi"])   # freshest track
+                t["files"].append(r["file"]); t["n"] += 1
+                t["last"] = r["file"]; t["_fi"] = fi; t["_geom"] = g
+            else:
+                tracks.append(dict(cls=o["cls"], files=[r["file"]],
+                                   first=r["file"], last=r["file"], n=1,
+                                   pa=round(g[2], 1), _fi=fi, _geom=g))
+    for t in tracks:
+        t.pop("_fi"); t.pop("_geom")
+    return tracks
+
+
 def audit_frame(nef, work, curv_thr):
     # Siril: decode + green extraction + background extraction + star table +
     # bg/noise (findstar). The residual is the CLEAN extracted green (mono).
@@ -254,23 +473,18 @@ def audit_frame(nef, work, curv_thr):
     g = data[0]                               # single-channel extracted green
     h, wid = g.shape
     trail = stellar_trail_px(star_lst)
-    # a streak is far longer than a point source; 5x the Siril-measured median
+    # a trail is far longer than a point source; 5x the Siril-measured median
     # stellar trail (green px) adapts to tracked (round stars) vs untracked
     # (trailed). PROVISIONAL: the 5x multiplier is a heuristic — a with/without
     # sweep on a labelled streak/star set would settle it.
     min_len = max(5 * trail, 40)
-    # streak DETECTION (in-house — no tool emits streaks): threshold the clean
+    # trail DETECTION (in-house — no tool emits trails): threshold the clean
     # green residual at 5x findstar's reported noise — the standard astronomical
     # source-detection significance (~1-2 false clusters/frame on Gaussian
-    # noise, which the streak-shape filter below removes). Foreground excluded,
-    # then connected-component label; findstar catalogs STARS, streaks are the
+    # noise, which the shape filter below removes). Foreground excluded, then
+    # connected-component label; findstar catalogs STARS, trails are the
     # elongated components left over. Detecting on the extracted green (NOT the
-    # Bayer mosaic) is what lets a faint track survive as one component: on the
-    # mosaic the quincunx green pattern + a single green threshold across all
-    # channels dropped it (verified — the faint 6540-6545 pass detects on green,
-    # not on the mosaic). Faint tracks that still dip below 5-sigma along their
-    # path fragment into short segments (genuine faintness, not a Bayer
-    # artifact); those skip the curvature test (length floor below).
+    # Bayer mosaic) is what lets a faint track survive as one component.
     det = (g > bg + 5 * sig) & am.branch_mask(h, wid)
     lbl, n = ndimage.label(det)
     streaks = []
@@ -283,37 +497,17 @@ def audit_frame(nef, work, curv_thr):
         if wv.sum() <= 0:
             continue
         m = measure_streak(yy, xx, wv)
-        # a streak candidate must be long (>= min_len) and thin: elong >= 6 is
-        # well above the stellar population (trailed stars here reach ~2-3), so
-        # no star cluster qualifies. PROVISIONAL: derived from this data's
-        # stellar elongation ceiling.
+        # a trail candidate must be long (>= min_len) and thin: elong >= 6 is
+        # well above any point source — even a trailed star stays far rounder —
+        # so no star or star cluster qualifies. PROVISIONAL threshold.
         if m["length"] >= min_len and m["elong"] >= 6:
-            # curved = bend fraction (sagitta/length) >= curv_thr over a track
-            # long enough to trust. All lengths are EXTRACTED-GREEN px (half the
-            # full-frame linear resolution — see run_siril).
-            #  curv_thr default 0.03 sits above the 0.006-0.015 that real
-            #    straight satellites reach on the clean green here; PROVISIONAL
-            #    until a real curved transient is measured.
-            #  length>=200 — sagitta/length is unstable for short segments
-            #    (small denominator; a neighbour star bends the axis): entry/
-            #    exit + faint fragments (<=152 px) read spurious curv up to 0.05
-            #    while the >=360 px bright track sat at ~0.01. PROVISIONAL floor
-            #    from this dataset. It also implies sagitta = curv*length >= 6
-            #    px, so a tiny wiggle cannot flag (no separate sagitta cut).
-            curved = m["length"] >= 200 and m["curvature"] >= curv_thr
-            # non-uniform: along-track brightness CV. Uniform satellites read
-            # ~0.06; a synthetic strobe read 0.81. PROVISIONAL 0.6 — only
-            # synthetic tested; needs a real strobing/tumbling example.
-            nonunif = m["bright_cv"] >= 0.6
-            m["anomaly"] = curved or nonunif
-            m["why"] = (("curved " if curved else "")
-                        + ("non-uniform" if nonunif else "")).strip() \
-                or "straight+uniform (ordinary sat/plane)"
             streaks.append(m)
-    return dict(file=os.path.basename(nef), n_streaks=len(streaks),
-                stellar_trail_px=round(trail, 1),
-                anomalies=[s for s in streaks if s["anomaly"]],
-                streaks=streaks)
+    objects = [classify_object(o, curv_thr) for o in group_objects(streaks)]
+    counts = {}
+    for o in objects:
+        counts[o["cls"]] = counts.get(o["cls"], 0) + 1
+    return dict(file=os.path.basename(nef), n_trails=len(streaks),
+                stellar_trail_px=round(trail, 1), counts=counts, objects=objects)
 
 
 def main():
@@ -338,46 +532,76 @@ def main():
         am.configure(opts["session"], opts["set"])
     curv_thr = float(opts.get("curv", 0.03))
 
-    print(f"anomaly audit: {len(frames)} frames | curve flag: curvature "
-          f"(sagitta/length) >= {curv_thr} | work={work}\n(Siril: decode / "
-          f"extract_Green / subsky / findstar + bg/noise; in-house kernel reads "
-          f"the green residual and does streak detection + geometry on it; "
-          f"inputs never modified)")
-    results, flagged = [], []
+    print(f"obstruction classifier: {len(frames)} frames | callouts: "
+          + ", ".join(c.__name__.replace("classify_", "") for c in CALLOUTS)
+          + f", else unknown | work={work}\n(Siril: decode / extract_Green / "
+          f"subsky / findstar + bg/noise; in-house kernel groups + classifies "
+          f"the green residual's trails; inputs never modified)")
+    results, totals = [], {}
     for i, nef in enumerate(frames, 1):
         try:
             res = audit_frame(nef, work, curv_thr)
         except Exception as e:
-            res = {"file": os.path.basename(nef), "error": str(e)[:200]}
-            print(f"  [{i}/{len(frames)}] {res['file']}: ERROR {res['error']}")
-            results.append(res)
+            print(f"  [{i}/{len(frames)}] {os.path.basename(nef)}: ERROR {str(e)[:160]}")
+            results.append({"file": os.path.basename(nef), "error": str(e)[:200]})
             continue
         results.append(res)
-        tag = ""
-        if res["anomalies"]:
-            flagged.append(res)
-            tag = "  <== ANOMALY: " + "; ".join(
-                f"{a['why']} (curv {a['curvature']:.3f}, cv {a['bright_cv']:.2f}, "
-                f"len {a['length']:.0f}px)" for a in res["anomalies"])
-        elif res["n_streaks"]:
-            tag = "  " + "; ".join(
-                f"ordinary streak len {s['length']:.0f}px curv {s['curvature']:.3f}"
-                for s in res["streaks"])
-        print(f"  [{i}/{len(frames)}] {res['file']}: {res['n_streaks']} streak(s)"
-              f"{tag}")
+        for o in res["objects"]:
+            totals[o["cls"]] = totals.get(o["cls"], 0) + 1
+        summary = "; ".join(f"{o['cls'].upper()} — {o['reason']}"
+                            for o in res["objects"]) or "clear"
+        print(f"  [{i}/{len(frames)}] {res['file']}: {summary}")
         if not opts.get("keep-resid"):
             for f in glob.glob(os.path.join(work, "_resid.fit*")):
                 os.remove(f)
 
-    print(f"\n{len(flagged)} of {len(frames)} frames flagged as ANOMALOUS "
-          f"(curved or non-uniform streak).")
-    for r in flagged:
+    tracks = link_objects(results)
+
+    print("\n" + "=" * 64 + "\nOVERALL REPORT\n" + "=" * 64)
+    graded = [r for r in results if "objects" in r]
+    withobj = [r for r in graded if r["objects"]]
+    print(f"frames: {len(frames)} | with an object: {len(withobj)} | clear: "
+          f"{len(graded) - len(withobj)}"
+          + (f" | errors: {len(results) - len(graded)}"
+             if len(results) > len(graded) else ""))
+
+    print("\nper-frame (objects only):")
+    for r in withobj:
+        by = {}
+        for o in r["objects"]:
+            by[o["cls"]] = by.get(o["cls"], 0) + 1
         print(f"  {r['file']}: "
-              + "; ".join(f"{a['why']} curv={a['curvature']:.3f} "
-                          f"cv={a['bright_cv']:.2f} len={a['length']:.0f}px "
-                          f"PA={a['pa_deg']:.0f}" for a in r["anomalies"]))
+              + ", ".join(f"{k} x{v}" for k, v in sorted(by.items())))
+
+    print(f"\nunique physical objects — linked across frames: {len(tracks)}")
+    for i, t in enumerate(sorted(tracks, key=lambda t: t["first"]), 1):
+        span = t["first"] if t["n"] == 1 else f"{t['first']}..{t['last']}"
+        print(f"  #{i:<2} {t['cls']:9} {span:30} "
+              f"({t['n']} frame{'s' if t['n'] > 1 else ''})  PA {t['pa']:+.0f}")
+
+    uniq = {}
+    for t in tracks:
+        uniq[t["cls"]] = uniq.get(t["cls"], 0) + 1
+    print("\ntotals:")
+    print(f"  unique objects:       {sum(uniq.values())}  ("
+          + (", ".join(f"{k}={v}" for k, v in sorted(uniq.items())) or "none") + ")")
+    print(f"  per-frame detections: {sum(totals.values())}  ("
+          + (", ".join(f"{k}={v}" for k, v in sorted(totals.items())) or "none")
+          + ")   [same object across N frames counts N times here, once above]")
+
+    unk = [t for t in tracks if t["cls"] == "unknown"]
+    if unk:
+        print(f"\nUNKNOWN — {len(unk)} object(s) matching no known signature "
+              f"(human review; the anomaly surface):")
+        for t in unk:
+            span = t["first"] if t["n"] == 1 else f"{t['first']}..{t['last']}"
+            print(f"  {span} ({t['n']} frame(s))  PA {t['pa']:+.0f}")
+    else:
+        print("\nUNKNOWN: none (every object matched a known signature).")
+
     if "json" in opts:
-        json.dump(results, open(opts["json"], "w"), indent=1)
+        json.dump({"frames": results, "unique_objects": tracks},
+                  open(opts["json"], "w"), indent=1)
         print(f"\nrecord -> {opts['json']}")
 
 
