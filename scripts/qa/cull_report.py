@@ -4,9 +4,9 @@
 recipe state adopted through a with/without ladder — README's stack-policy
 doctrine).
 
-Input: the records_<variant>.jsonl a partitioned_stack.py run harvests
-(one record per staged frame: n, fwhm, wfwhm, round, bg, nstars,
-registered, ref_copy) or any file of the same shape. Pooling is valid
+Input: a per-frame records file (records_<variant>.jsonl — one record per
+staged frame: n, fwhm, wfwhm, round, bg, nstars, registered, ref_copy) or
+any file of the same shape. Pooling is valid
 across partitions because every partition registers to the SAME pinned
 reference frame.
 

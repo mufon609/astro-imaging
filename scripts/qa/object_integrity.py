@@ -33,9 +33,9 @@ HONEST reliability (measured against synthetic + real defects; WARN-only):
   flattening (a hard wide blur 0.65) without false-flagging a good render
   (0.90), but does NOT reliably resolve a SMALL LOCAL hollow (a hollowed
   shell ~2% of the object reads ~0.87) — it is washed out by the surrounding
-  object. A small local structure defect (e.g. the Bubble's hollow sphere)
-  is better caught upstream: that specific case was a channel MISALIGNMENT,
-  flagged by nightlight_sho's alignment check, not by this render audit.
+  object. A small local structure defect (a hollow shell/knot) is better
+  caught upstream: that class is typically a channel MISALIGNMENT, flagged by
+  the compose-stage channel-alignment residual, not by this render audit.
 
 Usage:
   object_integrity.py <render.png|jpg> <linear_stack.fit>

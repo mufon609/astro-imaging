@@ -1,5 +1,16 @@
 # Astrophotography processing pipeline
 
+> **⚠ MID-RESET to x86 — read [`REDESIGN.md`](REDESIGN.md) first.** The
+> render chain and the aarch64 workarounds were wiped; the durable core
+> (measurement/audit + calibration/stack/compose) is kept and the chain is
+> rebuilt tool-first on x86. Below, the **process contract, review contract,
+> acceptance model, experiment discipline, per-dataset state, and north star
+> are all portable and stay** — but anything that names the RENDER chain
+> (`starcomb.py`, `operators.json`, `hand_roll_audit.py`, `sweep.py`,
+> `nightlight_sho.py`, the separation engines) describes the wiped chain,
+> preserved at the `checkpoint` commit and being re-established on x86. Treat
+> those as the PATTERN the rebuild carries, not current code.
+
 This repo tracks the **process** (Siril/Python scripts + notes), never image
 data (`.gitignore`). `NOTES.md` is the lab notebook: every measured lesson,
 every dead end with its numbers. This file is the **process contract**: what
@@ -29,9 +40,7 @@ follows, in order — linear until step 6:
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background (NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
-| 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (it inpaints an extended object's HII knots out as if they were stars) and warns when it measures that risk. A recipe pins the engine only on measurement (e.g. an ultra-wide MW field where net's residual structure fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
-| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately and finish with palette colour work (Siril/PixInsight doctrine; a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py` (TOOL-ONLY): starless stretched by **siril `autostretch`** (`-linked` broadband standard, one calibrated scene one transfer; `unlinked` a measurement rung) → **siril `denoise -vst -mod=0.5`** (or GraXpert) → black point by **siril `mtf b 0.5 1`**; stars flux-percentile culled + k·σ floored, rendered by **siril `mtf 0 m 1`** with a data-derived anchor m, screened at `stars_opacity`. Narrowband-palette colour+develop (per-line stretch + the O3-sphere star-neutral balance Siril has no equivalent for) is **Nightlight's job** (`nightlight_sho.py`), auto-routed by `render_engine` — NOT an in-house numpy stretch | COMPLIANT (tool-only: siril for stretch/levels/star-MTF, GraXpert/siril for denoise; the narrowband palette finish is the reference author's own open tool, the sanctioned mechanism Siril lacks) |
-| 8 | recombine (screen) + final touches, export | `starcomb.py` (TOOL-ONLY): **siril `pm`** screen combine (star opacity folded into the PixelMath expression) + **siril `satu`** chroma gain; JPEG q100/4:4:4 + `--lossless` PNG for finals | COMPLIANT |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86 (REDESIGN.md).** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) | PENDING x86 rebuild |
 
 Principles that keep this honest:
 
@@ -308,17 +317,13 @@ python3 scripts/calibrate/solve_field.py <session>/results/stack_<set>.fit \
 python3 scripts/calibrate/spcc_cone.py <session>/results/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
-# final render (~3 min; --lossless adds PNG8 + PNG16)
-python3 scripts/render/starcomb.py <session> <set> \
-    --stack <session>/results/stack_<set>_norgbeq_spcc.fit --lossless
-
-# single-knob ladder
-python3 scripts/render/starcomb.py <session> <set> --stack ... \
-    --param black_point --values 4,12 --hypothesis "..."
+# final render + single-knob ladder — the render chain is WIPED; it is
+# rebuilt tool-first on x86 (REDESIGN.md). Everything ABOVE (stack → solve →
+# spcc → compose) is the KEPT durable core and runs today.
 ```
 
-Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
-live in NOTES "Environment" + auto-memory.
+Environment specifics (siril invocation, catalogs, GraXpert, the x86 target)
+live in CLAUDE.md "Environment" + REDESIGN.md.
 
 ## Repo map (`scripts/`, by stage directory)
 
@@ -337,7 +342,7 @@ live in NOTES "Environment" + auto-memory.
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, auto-routes flatless sets to the self-flat branch, and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member first); measures the channel-alignment residual (inspected, bound 1.0 px) |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
-| `partitioned_stack.py` | common-reference partitioned integration for sets whose single-pass intermediates exceed free disk — time-contiguous partitions all register 1-pass to one pinned reference, combined as a frame-count-weighted mean (standalone; run_pipeline auto-routing is BACKLOG) |
+| `partitioned_stack.py` | **WIPED** (7.7 GB-RAM workaround; unnecessary at 32 GB — REDESIGN). In history at the `checkpoint` commit |
 | `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle (a long drifting sequence's border band is covered by only some frames and reads as fake falloff) |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 | `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
@@ -350,15 +355,14 @@ live in NOTES "Environment" + auto-memory.
 | `spcc_cone.py` | which local Gaia SPCC chunks a solved field needs (nside=2 nested HEALPix cover from the WCS) + `--fetch` to download the missing ones (md5-verified) — turnkey SPCC coverage for any field |
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 
-**`render/`** — the product chain + star separation
-
-| file | role |
-|---|---|
-| `starcomb.py` | **the product chain** (knobs: CLI > `datasets/<session>/<set>/recipe.json` > GENERIC) + single-knob ladder harness; emits per-stage visibility (`<final>_stages/` + index) on EVERY build, a `<final>.metrics.json` sidecar with `--lossless`, and the experiment ledger + `--verdict` close-out |
-| `operators.json` | the honest catalog of the chain's PROCESSING operators (processing vs examining) — currently TOOL-ONLY: every processing op drives a real tool (siril/GraXpert/StarNet2); the `sanctioned` (no tool provides it, with a removal condition) and `migration-candidate` statuses stay available for a future mechanism, but the catalog carries none today — the record `hand_roll_audit.py` enforces |
-| `nightlight_sho.py` | narrowband SHO render by driving **Nightlight** (the reference author's own open tool, staged) — the tool-honest colour+develop step for the narrowband class: a STAR-COLOUR-NEUTRAL balance (boosts O3 → reveals the O3 sphere, which SPCC's photometric fit erases) + one global stretch, NO star-sep/corings/denoise. Recipe `nightlight` block tunes brightness/saturation/hue |
-| `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (the generic default via `auto`; needs the official weights file at `~/.local/share/starnet/`) |
-| `separation/starsep.py` | star separation by mask+inpaint — the weights-absent fallback; warns when the frame holds a resolved object it would damage; also builds the engine-invariant detection catalog |
+**`render/`** — **WIPED in the x86 reset** (rebuilt tool-first on x86 —
+REDESIGN.md). The product chain (`starcomb.py`), its operator catalog
+(`operators.json`), the Nightlight narrowband driver (`nightlight_sho.py`),
+and the separation engines (`separation/starnet_sep.py` ONNX-arm64,
+`separation/starsep.py` inpaint fallback) are preserved at the `checkpoint`
+commit. On x86 the chain becomes a thin orchestration over
+StarXTerminator/native StarNet + NoiseXTerminator/Cosmic Clarity +
+BlurXTerminator + siril (`autostretch`/`mtf`/`pm`/`satu`/`synthstar`).
 
 **`qa/`** — standing audits + diagnostics (WARN-only)
 
@@ -367,9 +371,8 @@ live in NOTES "Environment" + auto-memory.
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners; its registration stage is the per-frame quality assessment (the SubframeSelector step, measurement half): .seq regdata parsed and persisted per frame — FWHM px+arcsec, roundness, background, star count, full shift list — into metrics.jsonl + a .seq copy before per-stage cleanup prunes the sequence |
 | `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
-| `hand_roll_audit.py` | **the orchestrate-not-hand-roll guard** (standing, wired into the sweep): validates `render/operators.json` and fails on an unregistered hand-rolled processing function in the product chain; WARNs on migration-candidates |
-| `object_integrity.py` | **the object-region audit** (standing WARN, wired into every starcomb render): grades the OBJECT the gate is blind to against the render's own same-balance co-registered input — chroma-neutralization + coring-mottle (reliable) + gross structure-flattening (a small local hollow is an upstream alignment concern, see its docstring) |
-| `sweep.py` | **the no-regression sweep**: runs `hand_roll_audit`, then renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
+| `object_integrity.py` | **the object-region audit** (standing WARN): grades the OBJECT the gate is blind to against the render's own same-balance co-registered input — chroma-neutralization + mid-scale mottle (reliable) + gross structure-flattening (a small local hollow is an upstream alignment concern, see its docstring) |
+| `hand_roll_audit.py`, `sweep.py` | **WIPED (re-ported on x86)** — the orchestrate-not-hand-roll guard + the no-regression sweep were coupled to the wiped chain (they scanned/rendered it). The PATTERNS are durable (guard the new chain's operator catalog; render every baselined dataset + diff gate/metrics/bytes vs baseline); they re-establish around the x86 chain. In history at the `checkpoint` commit |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `stack_ab.py` | stack-vs-stack comparators for a with/without policy ladder (sky noise, blotch-proxy, difference structure + a stretched diff JPEG) — the instrument for a measured weight/cull adoption |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |

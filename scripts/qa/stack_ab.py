@@ -4,8 +4,8 @@ adoption instrument: README's trigger doctrine wants a measured
 with-vs-without before any weight/cull pins).
 
 Both stacks must be registered to the SAME reference (true for
-partitioned_stack.py variants and for rebuilt monolithic stacks with a
-pinned reference): then A-B isolates exactly what the policy change did,
+common-reference partitioned variants and for rebuilt monolithic stacks
+with a pinned reference): then A-B isolates exactly what the policy change did,
 and structure in the difference is the contamination one variant admitted
 (or the signal it lost).
 
