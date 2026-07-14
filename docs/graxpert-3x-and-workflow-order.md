@@ -12,24 +12,30 @@
 
 ## Findings — Part 1: GraXpert 3.x (a material correction)
 
-### Version & development status — GraXpert is effectively frozen, deconv is RC-only
-- **Latest release of any kind: `3.1.0rc2` (2025-01-01), a pre-release. Latest
-  *stable*: `3.0.2` (2024-05-03).** Confirmed via the GitHub releases API. The
-  `main` branch's last commit is 2025-01-01 — the public/stable line is frozen.
-- Development did not fully stop but **nothing has shipped in ~18 months**: the
-  `develop` branch has commits to 2025-10-03 (build/onnxruntime fixes) and an
-  experimental `codex/reimplement-inference-with-pytorch` branch (2025-10-04,
-  swapping ONNX for PyTorch — likely to ease the CUDA/CPU-fallback pain). No
-  release resulted.
+### Version & development status — stable frozen at 3.0.2; a 3.2.0 ALPHA lives on PyPI
+- **Two distribution channels diverge** (verified first-hand on the arm rig +
+  PyPI/GitHub APIs, 2026-07): **GitHub releases** peak at **`3.1.0rc2` (2025-01-01,
+  pre-release)** over stable **`3.0.2` (2024-05-03)** with `main` frozen; but
+  **PyPI** carries a newer **`3.2.0` ALPHA line** — `3.2.0a0.dev4…a2`, latest
+  **`3.2.0a2` (2025-12-17)** — installable via `pip`/`pipx` (the arm rig runs
+  exactly this). So CLAUDE.md's "GraXpert 3.2" is *correct* (3.2.0a2); there is no
+  3.2.0 *stable*. **Net: latest stable = 3.0.2 (BGE+denoise only); everything with
+  deconvolution is pre-release** (the 3.1.0-RC and 3.2.0-alpha lines).
+- Development continues but **no STABLE release in ~2 years** (since 3.0.2,
+  2024-05): the `develop` branch has commits through late-2025 (build/onnxruntime
+  fixes; an experimental ONNX→PyTorch inference swap), and the **3.2.0-alpha line
+  shipped to PyPI (a2, 2025-12-17)** — so it is not abandoned, just perpetually
+  pre-release, with deconvolution never graduating to stable.
 - **Feature-by-version:** BGE = all 3.x; **denoise added 3.0.0** (2024-04-17);
   **object deconv → 3.1.0rc1** (2024-11-10); **stellar deconv → 3.1.0rc2**
   (2025-01-01). **Deconvolution has therefore NEVER been in a stable release.**
 - → This **corrects the current TOOLS.md/REDESIGN framing** ("GraXpert
   deconvolution, object + stellar AI, 2026" as a settled free option). Correct
-  facts: deconv is a **release-candidate feature from late-2024/early-2025**, and
-  CLAUDE.md's "GraXpert 3.2" reference points at a version that **does not exist**
-  on GitHub (stable is 3.0.2; the x86 inventory must record the actual installed
-  build + model versions).
+  facts: deconv is a **pre-release feature** (3.1.0-RC / 3.2.0-alpha, late-2024
+  → Dec-2025), never in a stable release; the x86 inventory must record the
+  actual installed build (`pip show graxpert`) + model versions, and check via
+  PyPI (`pip index versions graxpert`), not GitHub releases alone — the two
+  channels diverge.
 
 ### (a) BGE — the free gradient standard, CPU-fast
 De-facto free gradient-removal standard; BGE inference is **"almost instantaneous"

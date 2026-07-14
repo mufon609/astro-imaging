@@ -72,8 +72,9 @@ option — free/paid, Linux/CPU/headless, when & why — is **[`TOOLS.md`]
   (2026) — NOT PixInsight-only anymore; one cross-platform license, AVX2 CPU
   (the i7-14700 qualifies), no GPU required.
 - **GraXpert** does BGE (CPU-fast) + denoise (CPU-slow) free + in Siril 1.4;
-  AI deconvolution exists but **only in the 3.1.0-RC2 pre-release** (stable is
-  3.0.2; deconv never shipped stable — record the actual installed version).
+  AI deconvolution exists but **only in the pre-release line** (3.1.0-RC2 on
+  GitHub; 3.2.0-alpha on PyPI, latest 3.2.0a2 Dec-2025) — stable is 3.0.2, deconv
+  never shipped stable; record the actual installed version.
 - **Siril 1.4 natives** may replace custom scripts: native astrometry.net
   blindsolve (VERIFIED — replaces `solve_field.py` for round-star data, but
   NOT the trailed/ultra-wide class: it feeds astrometry.net Siril's PSF
@@ -172,9 +173,10 @@ TOOLS.md and record, per tool: does it install, does it license, and its
 CPU wall-clock (no GPU → time the AI inference; use `rc-astro <t> --benchmark-all`).
 Confirm at minimum: Siril 1.4.4 (`pyscript`, `denoise -da3d/-sos/-indep`, `ccm`,
 `synthstar`, `unclipstars`, native astrometry.net solve); **GraXpert — record the
-ACTUAL version + model versions** (GitHub stable is **3.0.2 = BGE+denoise only**;
-deconv needs the **3.1.0-RC2** pre-release; the repo's "3.2" reference is
-unverified/likely wrong); StarNet2 **v2.5.3** native CLI + **DeepSNR** (free NAFNet
+ACTUAL version + model versions via `pip show graxpert` / PyPI** (GitHub stable is
+**3.0.2 = BGE+denoise only**; deconv is pre-release — the 3.1.0-RC / **3.2.0-alpha**
+line, PyPI latest **3.2.0a2**; GitHub releases and PyPI diverge, so check PyPI);
+StarNet2 **v2.5.3** native CLI + **DeepSNR** (free NAFNet
 Linux CLI); astrometry.net + astropy. Then decide whether to license RC-Astro
 (BXT $99.95 / NXT $59.95 / SXT $49.95 — best-in-class, the **`rc-astro` v0.9.9**
 CLI on Ubuntu-22.04+ [**verify on Kali**]; one cross-platform perpetual license,
@@ -352,8 +354,8 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   LONGER a blanket dead-end on x86: BlurXTerminator's learned model corrects
   elongated/trailed stars where classical RL cannot (`--correct-only`, `rc-astro
   bxt`, CPU ~30–40 s) — **BXT is the mature deconv path**. Free learned
-  alternatives are weaker: **GraXpert deconv is RC-only** (3.1.0rc2, never
-  shipped stable, open object-mode artifact bug #243) and Cosmic Clarity (CPU
+  alternatives are weaker: **GraXpert deconv is pre-release only** (3.1.0rc2 /
+  3.2.0-alpha, never shipped stable, open object-mode artifact bug #243) and Cosmic Clarity (CPU
   15–30 min); **AstroSharp is OUT** (no Linux/CLI, 600 KB TIFF cap). Deconv is a
   real early-linear step (before *heavy* denoise) — a strong default, not
   absolute (light VST NR first is fine; 2026 AI tools tolerate nonlinear-stage
