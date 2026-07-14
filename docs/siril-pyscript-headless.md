@@ -60,8 +60,12 @@ the transform in-script, and push back with `set_image_pixeldata(...)` — they 
 - **SyQon Prism** (denoise/restore) — **PyTorch NAFNet** tiled inference + numpy
   IHS stretch, all in-memory.
 - **Statistical_Stretch** (Seti Astro algorithm, Cyril Richard's port) — numpy.
-- Same pattern for `SCUNet_Denoise.py`, `DeepSNR.py`, most of the 9-script VeraLux
-  suite.
+- Same pattern **inferred** (not all source-read) for `SCUNet_Denoise.py` and the
+  rest of the ~9-script VeraLux suite (3 read directly: Silentium, HyperMetric, Nox).
+  ⚠ **Correction — DeepSNR is NOT here:** the DeepSNR *tool* is a self-contained
+  Class-2 CLI binary ([[free-ai-tool-wave-2026]]), so a `DeepSNR.py` Siril wrapper
+  most likely *drives* that binary (Class-2), like `StarNet.py`; its source was not
+  read, so treat DeepSNR as Class-2 pending a check, not Class-1.
 - **Running VeraLux Silentium IS running a numpy denoiser.** The mechanism is
   numpy/scipy/pywt/torch, not a compiled tool with standing independent of that code.
 
@@ -174,8 +178,8 @@ headless-run teething errors reported for `Statistical_Stretch.py` via `.ssf`.
   blanket "🖥 needs Xvfb" implication — most VeraLux GUI-mandatory scripts are **not
   headless-drivable at all**, while dual-mode/driver scripts run under `siril-cli`.
 - **TOOLS.md "FREE but DISPLAY-gated"** — correct: VeraLux GUI-mandatory ≠ "usable
-  via Xvfb"; and mark VeraLux/SyQon-Prism/SCUNet/DeepSNR as numpy-inside (escape-
-  hatch), Cosmic Clarity/RC-Astro/StarNet wrappers as Class-2 drivers.
+  via Xvfb"; and mark VeraLux/SyQon-Prism/SCUNet as numpy-inside (escape-hatch),
+  Cosmic Clarity/RC-Astro/StarNet/**DeepSNR** wrappers as Class-2 drivers.
 - **MEMORY [[siril-tool-ecosystem]]** — add the Class-1/Class-2 split, the headless
   reality, and the "Seti = standalone, not a repo folder" correction.
 - Done in the commit that follows the TOOLS/REDESIGN graduations.

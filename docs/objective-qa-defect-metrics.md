@@ -74,7 +74,8 @@ Levenberg–Marquardt; Auto keeps least-absolute-residual over Moffat β∈{2.5,
 ### Area 3 — Over-sharpening / deconvolution-RINGING detection (high-value, reuses radial profiles)
 Deconvolution/USM overshoot makes a **dark ring (negative "moat") + outer bright
 ridge** around bright stars. Objective detectors a numpy layer can build:
-1. **Radial-profile undershoot (best; reuses the existing radial-profile code):** for
+1. **Radial-profile undershoot (the most astro-specific; a DERIVED construction,
+   reuses the existing radial-profile code):** for
    each bright non-saturated star, azimuthally-average I(r); a clean star decays
    monotonically to background B. Ringing ⇒ `min_r I(r) < B − τ·σ_bg` just outside
    the FWHM, often followed by `I(r) > B`. Metrics: undershoot depth `(B−minI)/σ_bg`
@@ -175,8 +176,14 @@ processing** — and none needs a GPU. They EXTEND the gate/audits; they never l
 the gate (per the contract).
 
 ## Status
-**PROVISIONAL (methods established/computable; not yet implemented or validated
-here).** All definitions are primary-verified or standard. This session RECORDS the
+**PROVISIONAL — and two different confidence levels here, don't blur them.** The
+*estimators* (SubframeSelector definitions, MAD / sigma-clip / MRS / N\*/M\*, the
+gradient-decay sharpness metric, the classic focus operators) are **primary-verified
+or standard published methods**. The *over-processing DETECTORS* (radial-profile
+undershoot, residual-autocorrelation whiteness, removed-background-model spectral /
+negative-bowl, fine-scale-energy-vs-noise) are **DERIVED constructions** — built from
+those primitives + the ringing/denoise literature, **not validated published astro
+metrics**; they are plausible and computable, not proven. This session RECORDS the
 candidates; it writes no code and processes no pixels. The concrete test for each,
 on a future (non-research) session: implement it, then validate that it fires on
 known-bad renders (deliberately over-sharpened / over-smoothed / over-flattened

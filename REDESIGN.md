@@ -237,7 +237,10 @@ change, not code.)
 Researched, cited, numpy/scipy-computable metrics to EXTEND the audit layer —
 each a measured experiment, the gate never loosens (`docs/objective-qa-defect-metrics.md`).
 These are the highest-leverage additions because measurement is what the repo is
-*for*. Prioritized:
+*for*. **Two confidence levels:** the estimators (items 4–6) are standard/published;
+the three over-processing DETECTORS (items 1–3) are **derived constructions, not
+validated published metrics** — plausible and computable, but validate before any
+gate. Prioritized:
 
 1. **Radial-profile undershoot** → objective **deconvolution-ringing** detector
    (a negative "moat" below background just outside the FWHM). Reuses the existing
@@ -299,10 +302,10 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   intensities"/"a huge green cast" and recommend Manual Color Calibration for
   SHO — i.e. SPCC is the *cause*, not the fix. The sphere needs a
   **star-colour-neutral** balance (neutralise the mean star colour → O3 boosted,
-  stars carry ~no O3). **RESOLVED headless path** (2026-07; `docs/narrowband-star-neutral-options.md`):
-  a **diagonal `ccm` IS that balance** — measure the field's mean star colour in
-  the EXAMINE layer (numpy; no native command outputs it — an audit-layer item),
-  then apply native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3) does this
+  stars carry ~no O3). **Headless path — a design to test, not yet run** (2026-07;
+  `docs/narrowband-star-neutral-options.md`): a **diagonal `ccm` IS that balance**
+  (arithmetic) — measure the field's mean star colour in the EXAMINE layer (numpy; no
+  native command outputs it — an audit-layer item), then apply native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3) does this
   by name but is **dormant** (2024) — a reference, not a dependency. Don't conflate
   with the *nebula/QE-anchored* unmix (VeraLux Alchemy / DBXtract, OSC dual-band,
   GUI-only Class-1) — that excludes stars, the opposite anchor.
@@ -311,9 +314,10 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
 - Siril has NO native chrominance-noise tool (its own docs punt to GIMP) — the
   chroma-noise gap is real and **confirmed still non-native as of 1.5.0-dev**
   (same GIMP disclaimer). On x86 fill it with an AI denoiser, NEVER a hand-rolled
-  coring — **NoiseXTerminator AI3 is the concrete fill** (its new architecture does
-  explicit "noise COLOUR & frequency separation"; `rc-astro nxt`, CPU ~20–30 s);
-  free fallbacks are DeepSNR / GraXpert / Cosmic Clarity.
+  coring — **NoiseXTerminator AI3 is the likely fill** (its architecture advertises
+  "noise COLOUR & frequency separation"; `rc-astro nxt`, CPU ~20–30 s) — though a
+  chroma-specific CLI control is unverified, so confirm before calling the gap
+  closed; free fallbacks are DeepSNR / GraXpert / Cosmic Clarity.
 
 **Separation (informs the x86 tool choice):**
 - A mask+inpaint separator DESTROYS resolved-object structure (inpaints HII

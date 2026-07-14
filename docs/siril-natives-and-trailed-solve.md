@@ -127,10 +127,11 @@ All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki:
   `get_image_stars()` (PSFStar) + `pix2radec()/radec2pix()`, and file ops that do
   **not** disturb the loaded image (`analyse_image_from_file`, `load_image_from_file`,
   `save_image_file`), plus a thread-safe `image_lock()`.
-- **Design philosophy (decisive for the philosophy question):** the API *"keeps
-  most data read-only, routing edits through Siril commands — the sanctioned
-  exception is `set_image_pixeldata()`."* i.e. sirilpy itself is built to
-  ORCHESTRATE Siril, with a single explicit escape hatch for direct pixel writes.
+- **Design philosophy (decisive for the philosophy question):** the API's shape
+  (characterization, not a verbatim doc quote) keeps most data read-only and routes
+  edits through Siril commands, with `set_image_pixeldata()` as the one explicit
+  direct-pixel-write path — i.e. sirilpy is built to ORCHESTRATE Siril, with a single
+  escape hatch.
   A pyscript that stays on `.cmd()` is pure orchestration; one that leans on
   `set_image_pixeldata()` to do its own numpy image-processing is using the escape
   hatch — which is the exact line the "tool vs hand-roll" question must draw. Fed

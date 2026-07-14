@@ -159,19 +159,20 @@ it. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU ~20–30 s** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v0.9.9 CLI. **AI3 = new architecture with "noise COLOUR & frequency separation" → the concrete fill for Siril's chroma-noise gap** (dead-end). Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
+| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v0.9.9 CLI. AI3's new architecture advertises "noise COLOUR & frequency separation" → the **likely** fill for Siril's chroma-noise gap (dead-end), though a chroma-specific CLI control is **unverified** — test. Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
 | **Siril `denoise`** (NL-Bayes; `-da3d`/`-sos`/`-indep`/`-mod`/`-mask`) | FREE | siril-native | ✅ / ✅ / ✅ | **Free, headless, deterministic.** Plain NL-Bayes on stacks; `-da3d` refine, `-sos` background artefacts, `-indep` blocky colour, `-mod` blend, **`-mask` (1.5.0-dev) to confine to a region**. **No native chroma mode** (docs still punt to GIMP — gap confirmed in 1.5.0-dev). Clean default when free+headless matters. |
-| **DeepSNR 1.2.1** (NAFNet AI; StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **First-class free headless denoiser** — NAFNet trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. A Class-2 binary. The strongest free NXT alternative. |
+| **DeepSNR 1.2.1** (NAFNet AI; StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — NAFNet trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. A Class-2 binary. A strong free NXT alternative (quality vs NXT/GraXpert unmeasured here). |
 | **GraXpert denoise** (AI, one strength knob) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**>30 min large frames; regressed from ~5 min**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. Slight quality edge to NXT. CPU-slow is the real cost. |
 | **SyQon Prism** (free "Siril Edition" / paid "Deep") | FREEMIUM | pyscript (**Class-1**) | ✅ via Siril / ✅ (Parallax **Nano** is CPU-only) / **🖥 GUI-in-Siril, not headless-confirmed** | 2026 neural (PyTorch NAFNet) denoise; numpy/torch-inside (escape-hatch). Free labels are Zenith/Prism-Siril-Edition/Parallax-**Nano** (not "Mini"). Competitive quality; but presents a GUI dialog in Siril → not confirmed headless. |
 | **Cosmic Clarity Denoise** (Seti) | FREE (donation) | CLI (folder-batch) | ✅ native Linux / 🐢 (~7 min CPU) / ✅ | Free AI denoise, v6.5; CPU-slow; Class-2 binary driver. |
 | **AstroDenoisePy 0.5.8** | FREE | CLI (`--device CPU`) | ✅ (py) / 🐢 / ✅ | CSBDeep/Noise2Noise; headless CLI; older, below NXT/DeepSNR. |
 | **VeraLux Silentium** (SWT wavelet) | FREE | pyscript (**Class-1**) | ✅ via Siril / ✅ / **❌ GUI-mandatory** | `pywt` SWT denoise — **numpy-inside** (escape-hatch, not "a tool") and **GUI-mandatory PyQt6 with no arg vector → not headless-drivable** even under Xvfb. |
 
-**Pick:** NXT (`rc-astro nxt`) if licensed — fastest, best, and **AI3 closes the
-chroma-noise gap**; else **DeepSNR** (free, native Linux CLI, CPU) or Siril native
-`denoise` (headless, deterministic) or GraXpert (CPU-slow). For chroma noise
-specifically, NXT-AI3 is the concrete fill; native Siril still has none. **Do it
+**Pick:** NXT (`rc-astro nxt`) if licensed — fastest, best, and AI3's "colour
+separation" **likely** fills the chroma-noise gap (verify); else **DeepSNR** (free,
+native Linux CLI, CPU) or Siril native `denoise` (headless, deterministic) or
+GraXpert (CPU-slow). For chroma noise specifically, NXT-AI3 is the likely fill;
+native Siril still has none. **Do it
 after (heavy) denoise-destroying steps — i.e. after deconvolution, on the starless
 layer** — as a strong default (see the process-rule note).
 
@@ -220,7 +221,7 @@ Recombine stars over starless; optionally shrink stars.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **Siril `ccm` (diagonal) + our examine layer** ← the recommended star-neutral path | FREE | siril-native + numpy | ✅ / ✅ / ✅ | **The doctrine-clean, headless star-neutral fix:** a **diagonal `ccm` IS a per-channel star-neutral balance**; MEASURE the field's mean star colour in our EXAMINE layer (numpy over detected stars — no native command outputs it), then APPLY via native `ccm`. Pixel op = a tool; measurement = ours. Recommended for the x86 chain. |
+| **Siril `ccm` (diagonal) + our examine layer** ← the recommended star-neutral *approach* (untested) | FREE | siril-native + numpy | ✅ / ✅ / ✅ | **The doctrine-clean, headless star-neutral approach (a design to test, not yet run):** a **diagonal `ccm` IS a per-channel star-neutral balance** (arithmetic); MEASURE the field's mean star colour in our EXAMINE layer (numpy over detected stars — no native command outputs it), then APPLY via native `ccm`. Pixel op = a tool; measurement = ours. Recommended to adopt+test on the x86 chain. |
 | **Nightlight** (mlnoga; star-neutral SHO) | FREE (GPL-3) | **headless Go CLI** | ✅ x86/ARM / ✅ (no-GPU, AVX2) / ✅ | The ready reference for star-neutral: `OpRGBBalance` balances the mid-population stars to neutral RGB{1,1,1} → lifts OIII vs Ha. **But DORMANT** (v0.2.6 2023, last commit 2024-01; Go-drift risk) — use to validate the mechanism, not as a load-bearing dependency. |
 | **VeraLux Alchemy / DBXtract** (NOT star-neutral) | FREE (GPL-3) | pyscript (**Class-1**) | ✅ via Siril / ✅ / **🖥 GUI-only** | Alchemy = nebula-anchored NB normalization + Ha/OIII crosstalk-unmix (**excludes stars** — opposite anchor from star-neutral); DBXtract = the GPL-3 Bayer-crosstalk-unmix reference (12-sensor QE tables + linear solve). For OSC dual-band unmix only; numpy-inside escape-hatch, GUI-gated. |
 | **Siril `pm` / `rmgreen` / `satu` / `rgbcomp`** | FREE | siril-native | ✅ / ✅ / ✅ | `pm` NBRGB/palette mixing (per-channel via separate mono images), `rmgreen` SCNR (kill SPCC's warned green cast), `satu` hue-targeted saturation, `rgbcomp` SHO/HOO assembly. Headless toolbox. |
@@ -274,7 +275,7 @@ A complete, competitive pipeline. (`AstroSharp` is OUT — no Linux/CLI,
 **PAID, now a real Linux CLI** (worth it if budget allows): **RC-Astro
 BXT $99.95 / NXT $59.95 / SXT $49.95** via the standalone **`rc-astro` v0.9.9**
 binary (Ubuntu 22.04+, **verify on Kali**) — best-in-class deconv (incl.
-`--correct-only` trailing fix) / denoise (**AI3 closes the chroma-noise gap**) /
+`--correct-only` trailing fix) / denoise (AI3 "colour separation" **likely** fills the chroma-noise gap — verify) /
 star removal. One cross-platform perpetual license, **CLI free for holders**,
 AVX2 CPU (i7-14700 ok, ~20–40 s), no GPU, **offline after one-time activation**.
 For headless, **call the binary directly** (Class-2), not the GUI pyscript.
@@ -294,10 +295,12 @@ Clarity — all Class-2 binaries) whenever one provides the mechanism.
 ## The no-GPU reality
 
 Every AI tool here runs CPU-only on the i7-14700 (AVX2), but slower — and the
-spread is large: **RC-Astro is reasonable on CPU** (BXT ~30–40 s, NXT ~20–30 s,
-SXT tens-of-sec on 14th-gen); **GraXpert denoise (>30 min large frames) and
-Cosmic Clarity sharpen (15–30 min) are the slow ones**; GraXpert BGE is
-near-instant. Measure wall-clock and budget it — nothing here REQUIRES a GPU.
+spread is large. **Indicative CPU figures (from mixed / comparable hardware, NOT
+measured on our rig — re-measure):** RC-Astro is reasonable on CPU (BXT ~30–40 s
+from an i5-14600K; NXT/SXT lighter/faster — the NXT ~20–30 s figure is a
+5-yr-old Mac, not 14th-gen); **GraXpert denoise (>30 min on large frames) and
+Cosmic Clarity sharpen (15–30 min) are the slow ones** (also other CPUs);
+GraXpert BGE is near-instant. Measure wall-clock and budget it — nothing here REQUIRES a GPU.
 (An NVIDIA GPU accelerates all of them via CUDA/cuDNN on Linux — including
 RC-Astro, whose Linux GPU path is NVIDIA-only — but every tool has a supported
 CPU fallback; use `rc-astro <tool> --benchmark-all` to pin the fastest device.)

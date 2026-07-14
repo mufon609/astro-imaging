@@ -18,7 +18,7 @@
 | **StarNet v2.5.3** (CLI) | Star removal | native x64 | **yes** | free | yes (minutes) |
 | **DeepSNR 1.2.1** (CLI) | Denoise (NAFNet) | native x64 | **yes** | free | yes (ONNX CPU) |
 | **GraXpert** | BGE + denoise (+ deconv RC) | native | **yes** | free/OSS | yes (denoise slow) |
-| **AstroDenoisePy 0.5.8** | Denoise (CSBDeep/N2N) | native (py) | **yes** (`--device CPU`) | free | yes (slow) |
+| **AstroDenoisePy 0.5.8** | Denoise (CSBDeep/N2N) | likely (py, not documented) | **yes** (`--device CPU`) | free | yes (slow) |
 | **Cosmic Clarity v6.5** | sharpen/denoise/star/upscale/sat/aberration | native x64 | partial (arg-drivable, under-doc) | free (donation) | yes but SLOW (sharpen 15–30 min) |
 | **SyQon** Zenith/Prism/Parallax-Nano | star / denoise / deconv | via Siril | **no** (GUI dialog in Siril) | free tiers | yes (Nano CPU-only) |
 | **SCUNet** Siril script | denoise (stretched) | via Siril | unclear | free/OSS | likely |
@@ -32,9 +32,10 @@
 - **DeepSNR 1.2.1 (Linux CLI, May 2026)** — same author; **NAFNet** denoiser trained
   on astro data. **Self-contained (ONNX Runtime bundled, no CUDA/TF), CPU fallback on
   all platforms, explicitly built for automation/scripts/Siril**, TIFF/PNG 8/16-bit.
-  This is the **strongest free headless denoiser fit** — a real NXT alternative from
-  a trusted author, and a Class-2 binary. **Upgrade its standing** (TOOLS Tier 6 had
-  it as a footnote).
+  On the headless-CPU criteria this is the **cleanest free denoiser fit** (self-contained,
+  CPU, automation-built) — a real NXT alternative from a trusted author, and a Class-2
+  binary. **Upgrade its standing** (TOOLS Tier 6 had it as a footnote). (Quality vs
+  NXT/GraXpert not measured here — a comparison to run on x86.)
 - **GraXpert** — BGE (CPU-fast) + denoise (CPU-slow) + deconv (RC-only); full CLI,
   CPU fallback. Details in [[graxpert-3x-and-workflow-order]].
 - **AstroDenoisePy 0.5.8** (BSD-3, Sep-2024) — CSBDeep / Noise2Noise (TF/Keras),

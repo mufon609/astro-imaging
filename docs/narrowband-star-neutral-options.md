@@ -59,9 +59,10 @@
   population colour. So the **measurement** must live in our **examine layer** (numpy
   over `get_image_stars` / detected-star photometry) — which is EXAMINING, squarely
   in-bounds — and the **application** is native + headless (`ccm` diagonal).
-- **This is the cleanest resolution of the whole problem:** it is fully headless, uses
-  a real tool for the pixel op (Siril `ccm`), keeps only measurement in our code, and
-  needs neither the dormant Nightlight nor a GUI-gated script. It also unifies with the
+- **This is the cleanest approach we've identified (a design, untested here):** it is
+  fully headless, uses a real tool for the pixel op (Siril `ccm`), keeps only
+  measurement in our code, and needs neither the dormant Nightlight nor a GUI-gated
+  script. It also unifies with the
   audit side ([[objective-qa-defect-metrics]]): "mean star colour" is just another
   measured quantity. Manual Color Calibration in Siril does the same balance but is
   **GUI-only**.
@@ -112,12 +113,13 @@ magenta star cores), **Foraxx / dynamic** (Blanshan / "The Coldest Nights"), **A
 - OIII-shell objects / [OIII] traces the shell — https://en.wikipedia.org/wiki/NGC_2359 · https://arxiv.org/pdf/2403.12754
 
 ## Verdict / recommendation
-- **Best headless, doctrine-clean path for star-neutral balance:** measure the mean
-  star colour in the **examine layer** (numpy over detected-star photometry) → apply a
-  **diagonal `ccm`** natively in Siril (headless). This closes the gap without a GUI
-  tool, without hand-rolling the pixel op, and folds "mean star colour" into the audit
-  layer. **This is the recommended design** for the x86 chain — a measured experiment
-  against a controlled bracket.
+- **The cleanest headless, doctrine-clean path we've identified for star-neutral
+  balance** (a design to test, not yet run): measure the mean star colour in the
+  **examine layer** (numpy over detected-star photometry) → apply a **diagonal `ccm`**
+  natively in Siril (headless). This would close the gap without a GUI tool, without
+  hand-rolling the pixel op, and folds "mean star colour" into the audit layer.
+  **Recommended to adopt and test** on the x86 chain — a measured experiment against a
+  controlled bracket.
 - **Nightlight** is the ready-made reference (it does exactly this by name, headless,
   Linux, no-GPU) — but **dormant since 2024**; use it to validate the mechanism/coeffs
   and as a cross-check, not as a load-bearing go-forward dependency (Go-drift risk).

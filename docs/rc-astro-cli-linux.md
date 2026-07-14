@@ -95,10 +95,12 @@
 ### 5. Current AI model versions (mid-2026)
 - **BXT: AI4** (2023-12; expanded aberration correction, direct linear processing).
   AI2 selectable. **No AI5.** PixInsight module 2.1.5 (2026-04).
-- **NXT: AI3** (2025-02; *"completely new architecture — iterative noise reduction,
-  noise **colour & frequency separation**"*). AI2 selectable. → the "colour
-  separation" is exactly a **chrominance-noise** mechanism — NXT is the concrete fill
-  for Siril's chroma-noise gap. PixInsight module 2.3.4.
+- **NXT: AI3** (2025-02; vendor description: *"completely new architecture —
+  iterative noise reduction, noise colour & frequency separation"*). AI2 selectable.
+  → the "colour separation" wording **strongly implies** a chrominance-noise mechanism,
+  making NXT the **likely** fill for Siril's chroma-noise gap — but whether the CLI
+  exposes a chroma-specific control (vs handling it internally) is **UNVERIFIED**;
+  confirm on x86 before treating the gap as closed. PixInsight module 2.3.4.
 - **SXT: AI11** (2022-09, trained incl. JWST/Hubble). **No AI12.** "Lite" variants
   for low memory. PixInsight module 2.4.12.
 - CLI model select: `--ml-version N` (0 = latest).
@@ -122,8 +124,8 @@
   wall-clock.** The old "PixInsight-only on Linux" blocker is gone. If any budget
   exists, **BXT ($99.95) is the strongest single spend** (best deconvolution +
   fixes trailed/elongated stars via `--correct-only` — the base rig's core data
-  problem), **NXT ($59.95)** is the fastest best denoise *and closes the chroma-noise
-  gap* (AI3 colour separation), **SXT ($49.95)** the best star separation.
+  problem), **NXT ($59.95)** the fastest best denoise (and its AI3 "colour separation"
+  is the **likely** chroma-noise-gap fill — verify), **SXT ($49.95)** the best star separation.
 - **Orchestrate the `rc-astro` binary directly** (Class-2, file-in→file-out), not the
   GUI-first Siril pyscript. Activate once online + `download-models`, then run
   offline. Use `--benchmark-all` on real frames to get true wall-clock and to pin
@@ -151,5 +153,6 @@ Kali (glibc/ABI); (b) true i7-14700 CPU wall-clock per tool at our frame sizes
   the concrete `rc-astro` v0.9.9 CLI, prices, AVX2, offline, Ubuntu-22.04 caveat.
 - **REDESIGN** — the RC-Astro-Linux-CLI bullet → concrete; add "call the binary
   directly, don't wrap the GUI pyscript" + "activate-once-online then offline" to
-  x86 setup; chroma-noise dead-end → NXT AI3 colour separation is the sanctioned fill.
+  x86 setup; chroma-noise dead-end → NXT AI3 colour separation is the **likely** fill
+  (verify it exposes a chroma control).
 - Applied in the graduation commit.
