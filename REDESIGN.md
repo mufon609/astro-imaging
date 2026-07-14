@@ -83,44 +83,45 @@ option — free/paid, Linux/CPU/headless, when & why — is **[`TOOLS.md`]
   `ccm`, curves, Star Re-composition.
 - **PixInsight** (if licensed): the reference environment (WBPP, DBE/MARS).
 
-## Architecture thesis: invert the ratio
+## Architecture thesis: a thin layer over the tools
 
-Today the pipeline is a **thick adaptation-chain** with a thin audit layer
-bolted on. The redesign inverts it:
+> **A THIN orchestration + checklist + records layer over best-in-class tools —
+> the tools do all the pixels AND all the measurement.**
 
-> **A THIN orchestration layer + a THICK measurement harness, over
-> best-in-class tools.**
-
-The audit layer *is* the product. Processing is "drive the good tools and
-measure honestly." Every pixel-rewriting step drives a real tool (Siril /
-StarXTerminator / NoiseXTerminator / GraXpert / BlurXTerminator /
-astrometry.net, or a reference author's own open tool); python only computes
-parameters, sequences, and MEASURES. The orchestrate-not-hand-roll guard
-stays — now trivially satisfiable because the tools exist.
+The repo's value is driving the tools well, researching to get the most from each,
+auditing the PROCESS (config / logic / sequence) to root cause, and keeping an
+honest record. Python computes parameters, sequences the tools, records what they
+measured, applies the checklist to those numbers, and runs standalone ALLOWED
+detectors for gaps no tool fills (`qa/anomaly_audit.py`) — it never reads,
+processes, or analyzes the deliverable's pixels.
 
 ## KEEP — the durable core (ports to x86 ~verbatim)
 
 Platform-independent numpy/FITS measurement + tool-orchestration + the
 discipline. This is the hard-won value.
 
-**Measurement & audit (the crown jewel):**
-- `lib/astrometrics.py` — FITS I/O, bg/star metrics, radial profiles, masks
-  (foreground + statistical sky + extended-object), `star_shell_report`,
-  colour/MTF primitives.
-- `lib/bg_qa.py` — THE GATE (statistical sky-scope; thresholds never loosen).
-- `lib/render_helpers.py` — GraXpert runner, `measure_jpg`, ladder strips
-  (prune unused after the rebuild).
+**Records + ALLOWED detectors (the durable core):**
+- `lib/astrometrics.py` — the tool-I/O + geometry + config core: FITS read/write,
+  pixel scale, `configure`/`dataset_dir`, the foreground/geometry masks, PNG/sRGB
+  writers. (No in-house pixel-analysis — the tools measure.)
 - `lib/srgb.icc` — vendored sRGB profile (output colorimetry).
-- `qa/inspect_stage.py` — per-stage inspection + the per-frame registration
-  QA (the SubframeSelector measurement step).
-- `qa/object_integrity.py` — object-region audit (chroma-neutralization +
-  mid-scale mottle + gross-flattening).
-- `qa/judgment_package.py` — judgment-set assembler (PNG8+PNG16 pixel-verify,
-  WIN/NULL/needs-eyes verdicts).
-- `qa/capture_report.py`, `qa/measure_stack.py`, `qa/cull_report.py`,
-  `qa/stack_ab.py`, `qa/judgment_crops.py`, `qa/diag_flat.ssf` — capture
-  card, stack stats, frame-cull analysis, stack comparators, crop panels,
-  flat diagnostic.
+- `qa/anomaly_audit.py` — the canonical ALLOWED detector: Siril does every pixel
+  op + measurement; the kernel computes only the streak geometry no tool provides;
+  report-only, removal-conditioned.
+- `qa/inspect_stage.py` — records the TOOLS' per-frame measures (Siril `register`
+  regdata → metrics.jsonl) + the per-stage diagnostic sequence.
+- `qa/cull_report.py` — frame-cull decision logic over the tools' regdata (never
+  reads pixels).
+- `qa/judgment_package.py`, `qa/judgment_crops.py`, `qa/diag_flat.ssf` —
+  judgment-set assembler (PNG8+PNG16 export-verify, WIN/NULL/needs-eyes verdicts),
+  crop panels, Siril flat diagnostic.
+
+**NOT in the repo (FORBIDDEN — the tools + checklist do this):** an in-house gate,
+star / gradient / shell / object-region metrics, capture/stack measurement,
+`render_helpers` pixel measures, foreground-mask pixel-derivation, and the
+self-flat numpy processing branch. Their job belongs to the tools (Siril
+`stat` / `register` / SubframeSelector, ASTAP) + the checklist; flatless
+self-calibration is a documented gap (shoot flats — acquisition checklist).
 
 **Calibration / stack / compose drivers (data-class, not arch):**
 - `calibrate/solve_field.py` — blind astrometry.net solve (Siril's internal
@@ -129,12 +130,8 @@ discipline. This is the hard-won value.
 - `calibrate/spcc_cone.py`, `spcc_run.py` — local-Gaia SPCC coverage + runner.
 - `stack/run_pipeline.sh` + `stack/siril/*.ssf(.tmpl)` — the Siril
   calibrate/register/stack orchestration.
-- `stack/compose.py`, `fitsmeta.py`, `crop_coverage.py` — composition
-  convergence, FITS metadata probe, drift-crop.
-- `stack/selfflat.py`, `rechroma.py`, `siril/selfflat/*` — the self-flat
-  branch (data-class adaptation for flatless sets; **not** arch-specific — it
-  stays).
-- `geometry/suggest_foreground.py` — per-set foreground derivation.
+- `stack/compose.py`, `fitsmeta.py`, `crop_coverage.py` — compose orchestration,
+  FITS metadata probe, drift-crop.
 
 **The discipline & records:**
 - The contract & acceptance model (CLAUDE.md rules, README process contract,
@@ -160,8 +157,8 @@ commit.
 | `render/separation/starsep.py` | mask+inpaint fallback (destroys resolved structure) — existed only because the weights were arch-blocked | Real star removal always available on x86 → no fallback needed |
 | `render/nightlight_sho.py` | Nightlight arm64-staged binary driver | Prefer the **native star-neutral path** (measure mean star colour in the examine layer → apply a diagonal `ccm`); Nightlight is a dormant cross-check only (dead-end registry / `docs/narrowband-star-neutral-options.md`) |
 | `stack/partitioned_stack.py` | 651-line workaround for 7.7 GB RAM | 32 GB → hold full sequences; unnecessary |
-| `qa/hand_roll_audit.py` | The orchestrate-guard — scans the wiped chain | Re-port around the new chain (the guard PATTERN is durable) |
-| `qa/sweep.py` | No-regression harness — renders via the wiped chain | Re-port around the new chain (the no-regression + declared-delta PATTERN is durable) |
+| `qa/hand_roll_audit.py` | in-house orchestrate-guard | The **ALLOWED/FORBIDDEN doctrine** is the guard (enforced by review + a lint that flags in-house code reading/processing the deliverable's pixels) |
+| `qa/sweep.py` | in-house no-regression harness | The **checklist + declared-delta** is the no-regression mechanism (compare the tools' recorded measures vs baseline) |
 
 ## x86 tool inventory — DO THIS FIRST on the new rig
 
@@ -238,41 +235,31 @@ change, not code.)
    → **stretch** → detail / colour / recomposition (nonlinear). What used to
    be a hole (deconv) is now a real early step; what used to be a hand-rolled
    coring (denoise) is now a tool.
-5. **Re-port the guards**: hand_roll_audit + sweep around the new chain;
-   re-seed operators.json; rebaseline every dataset on x86.
+5. **The guards are the doctrine + the checklist**: the ALLOWED/FORBIDDEN line
+   (a lint flags in-house pixel code) + the checklist/declared-delta over the
+   tools' recorded measures; rebaseline every dataset on x86.
 6. **Re-found BACKLOG** from what the x86 rebuild actually surfaces.
 
-## Audit-layer adoption candidates (the measurement layer IS the product)
+## Audit measures — get them from the tools
 
-Researched, cited, numpy/scipy-computable metrics to EXTEND the audit layer —
-each a measured experiment, the gate never loosens (`docs/objective-qa-defect-metrics.md`).
-These are the highest-leverage additions because measurement is what the repo is
-*for*. **Two confidence levels:** the estimators (items 4–6) are standard/published;
-the three over-processing DETECTORS (items 1–3) are **derived constructions, not
-validated published metrics** — plausible and computable, but validate before any
-gate. Prioritized:
+The frame-quality + defect measures the checklist needs come from the TOOLS, not
+in-house numpy. Read `docs/objective-qa-defect-metrics.md` as *what to pull from a
+tool*, not *what to build*:
 
-1. **Radial-profile undershoot** → objective **deconvolution-ringing** detector
-   (a negative "moat" below background just outside the FWHM). Reuses the existing
-   radial-profile code — cheapest high-value win.
-2. **Residual-autocorrelation whiteness + fine-scale-energy-vs-noise** → objective
-   **denoise over-smoothing** ("plastic") detector (residual `pre−post` must be
-   white; texture below the shot-noise floor = eaten).
-3. **Removed-background-model spectral/negative-bowl analysis** → objective
-   **BGE over-flattening** detector (the removed model must be low-order; a bowl
-   around the object = nebulosity eaten). Formalizes the gross-flattening audit.
-4. **N\* / M\* / MRS noise+background** (Starck-Murtagh + PixInsight) — a robust,
-   gradient-immune noise+background pair to share across the gate + all detectors.
-5. **PSFSignalWeight proxy + StarResidual** — composition-agnostic frame weight +
-   a PSF-goodness over-processing sensor (approximable from SNR²,SNR,Stars).
-6. **Gradient-decay sharpness** (2024, arXiv 2410.10488) — per-frame sharpness
-   grade + over-smoothing sensor.
-7. **Mean-star-colour** measurement — feeds the native-`ccm` star-neutral balance
-   (narrowband dead-end); an audit-layer output, not a processing step.
-
-Each is CODE for a future (non-research) session; the concrete acceptance test is:
-it fires on deliberately-degraded renders (over-sharpened/-smoothed/-flattened) and
-stays quiet on good ones, on real data, before it can gate.
+- **Frame quality** (FWHM, eccentricity, SNR / SNRWeight, PSFSignalWeight, noise,
+  background, star count) — Siril `register`/`stat`, PixInsight SubframeSelector,
+  ASTAP. Orchestrate them; record their numbers into the checklist.
+- **Robust noise + background** (MRS / N\* / M\* / MAD) — Siril `stat`/`bgnoise`;
+  do not reimplement Starck-Murtagh in numpy.
+- **Mean star colour** (for the narrowband star-neutral `ccm` balance) — from the
+  tools' star photometry (Siril `findstar` + SPCC's per-star measures).
+- **Over-processing DEFECT detectors** (deconvolution ringing, denoise
+  over-smoothing, BGE over-flattening) — **first check whether a tool measures
+  them.** If none does, each is a candidate *standalone ALLOWED detector* on the
+  `anomaly_audit.py` pattern (outside the pipeline; sources pixels + standard
+  measures from a tool; computes only the derived defect metric; report-only;
+  removal-conditioned) — NOT a numpy gate wired into the render. Build one only
+  when the gap is confirmed, and log its removal condition.
 
 ## Dead-end registry — do NOT re-attempt (rehomed from the deleted NOTES.md)
 
