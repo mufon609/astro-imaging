@@ -40,12 +40,12 @@ follows, in order — linear until step 6:
 | # | standard step | our implementation | status |
 |---|---|---|---|
 | 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted `rej 3 3`, byte-identical generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
-| 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
+| 1b | — | **flatless sets** — the in-house numpy self-flat branch was REMOVED; a set without a matching flat loudly STOPS | GAP — fill with a real flat (primary) or an official synthetic flat (GraXpert `-correction Division`, BACKLOG), never an in-house fit |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). CLASS LIMIT: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — a plane keeps that signal (it removes only the first-degree gradient) and still clears the gate's gradient class |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
+| 5 | linear noise reduction | PENDING x86 — a tool step | On x86 this is a real tool (NoiseXTerminator / GraXpert / Cosmic Clarity — the chroma-noise gap closes, `docs/dead-ends.md`). The old "radial noise after self-flat V(r) division" dead-end retired with the self-flat branch |
 | 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86.** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) (build order: `docs/x86-empirical-test-plan.md`) | PENDING x86 rebuild |
 
 Principles that keep this honest:
@@ -168,8 +168,8 @@ it, each answering a question it can actually answer:
    The ack is explicit, per-dataset, refused when any achromatic metric
    fails, and is tracking — never colour judgment: full colour admission
    still waits on the redesign. The reference suite spans the classes the
-   pipeline actually meets — self-flat underexposed DSLR wide-field,
-   matched-flat off-centre object, self-flat wide, and mono FITS with a
+   pipeline actually meets — underexposed DSLR wide-field,
+   matched-flat off-centre object, wide-field, and mono FITS with a
    frame-centred galaxy — so no single dataset can hold the pipeline
    hostage. One command runs the **full suite** (the cadence / pre-release form):
    `python3 scripts/qa/sweep.py` (renders
@@ -271,9 +271,9 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 - `geometry.json` — the only per-set **composition fact**: the terrestrial
   **foreground** (`rect` fractions or a derived pixel-`mask` npz, session-
   relative) plus `judgment_crops` and optional `starsep` overrides. Resolved
-  by `astrometrics.configure()` in every product entry point (starcomb,
-  starsep, bg_qa CLI, inspect_stage, judgment_crops, measure_stack,
-  solve_field). No file: foreground **none** (whole frame is eligible sky).
+  by `astrometrics.configure()` in the entry points that need it (inspect_stage,
+  judgment_crops, solve_field, compose). No file: foreground **none** (whole
+  frame is eligible sky).
   A new set NEVER inherits another set's foreground silently. A configured
   foreground must TOUCH A FRAME BORDER (terrestrial obstructions are
   border-anchored by construction; the foreground is excluded from the
@@ -309,10 +309,11 @@ STATISTICALLY (dark blocks, foreground excluded — see the review contract),
 so no galactic band or object region is ever configured per set (a bright
 object has no fixed geometry a mask could scope — see `docs/dead-ends.md`).
 
-Foreground masks for non-rectangular compositions (treelines) are derived
-from the linear stack: `scripts/geometry/suggest_foreground.py <stack>
-<out.npz> --overlay=<review.jpg>` — eyeball the overlay, then point the config
-at the npz. (The derivation itself is flagged for redesign — see BACKLOG.)
+A rectangular foreground (`rect`) covers most terrestrial obstructions; a
+non-rectangular pixel `mask` npz is still honoured by `geometry.json`, but the
+in-house mask-DERIVATION tool was removed (it read the stack pixels). Deriving a
+mask is now a documented gap — an official tool or a hand-drawn mask, never an
+in-house fit.
 
 ## Running it
 
@@ -338,22 +339,21 @@ live in CLAUDE.md "Environment".
 
 ## Repo map (`scripts/`, by stage directory)
 
-**`lib/`** — shared FITS-I/O + orchestration helpers, imported everywhere via the walk-up bootstrap
+**`lib/`** — shared FITS-I/O + per-set geometry helper, imported via the walk-up bootstrap
 
 | file | role |
 |---|---|
-| `astrometrics.py` | shared measurement lib: FITS reader, bg/star metrics, radial profiles, foreground (`branch_mask`) + statistical-sky (`sky_pixel_mask`) masks, `star_shell_report` |
-| `render_helpers.py` | shared orchestration helpers: GraXpert runner, side-by-side strips |
+| `astrometrics.py` | shared FITS/PNG I/O + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure (the hand-rolled I/O itself moves to astropy/Siril — BACKLOG) |
 
 **`stack/`** — build the integrated stack
 
 | file | role |
 |---|---|
-| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (sweep) → stack; forks camera-raw vs dedicated-astrocam FITS, auto-routes flatless sets to the self-flat branch, and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
-| `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member first); measures the channel-alignment residual (inspected, bound 1.0 px) |
-| `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir || `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle (a long drifting sequence's border band is covered by only some frames and reads as fake falloff) |
+| `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (2-pass/sweep) → rejection stack; forks camera-raw vs dedicated-astrocam FITS, loudly STOPS a flatless set demanding a matching flat (synthetic-flat is a documented gap — BACKLOG), and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
+| `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member by Siril first). Its channel combine + FITS I/O should move to Siril `rgbcomp` — BACKLOG |
+| `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
+| `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle; replaceable by Siril `seqapplyreg -framing=min` — BACKLOG |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
-| `siril/selfflat/{1_median,2_median2,3_divide,4_stack}.ssf.tmpl`, `selfflat.py`, `rechroma.py` | the self-flat branch (V(r) isotonic gray gain, V2 re-fit, chroma re-centering) — dies when real flats exist |
 
 **`calibrate/`** — astrometric + photometric calibration
 
@@ -377,18 +377,10 @@ BlurXTerminator + siril (`autostretch`/`mtf`/`pm`/`satu`/`synthstar`).
 | file | role |
 |---|---|
 | `inspect_stage.py` | orchestration + record: persists the TOOLS' per-frame measures (Siril `register`'s .seq regdata — FWHM px+arcsec, roundness, background, star count, shifts) into metrics.jsonl before cleanup, and writes the per-stage diagnostic sequence; the checklist reads the tools' numbers |
-| `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
-| `hand_roll_audit.py`, `sweep.py` | **WIPED (re-ported on x86)** — the orchestrate-not-hand-roll guard + the no-regression sweep were coupled to the wiped chain (they scanned/rendered it). The PATTERNS are durable (guard the new chain's operator catalog; render every baselined dataset + diff gate/metrics/bytes vs baseline); they re-establish around the x86 chain. In history at the `checkpoint` commit |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `diag_flat.ssf` | master-flat diagnostic (Siril) |
-
-**`geometry/`** — per-set composition facts
-
-| file | role |
-|---|---|
-| `suggest_foreground.py` | derive a foreground pixel mask (treelines etc.) from the linear stack for the dataset's `geometry.json` — always eyeball the `--overlay` |
 
 ## Data layout
 
@@ -428,7 +420,8 @@ scripts/                                 the pipeline (tracked)
    as `<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only; the
    normalized filename token is the identity — such masters carry no headers).
 2. `scripts/stack/run_pipeline.sh <session> <set>` — forks on the data class
-   (camera raw vs FITS), routes matched-flat vs self-flat → `stack_<set>.fit`.
+   (camera raw vs FITS) → `stack_<set>.fit` (matched-flat path; a flatless set
+   hard-stops — synthetic-flat is a gap, BACKLOG).
    Flats match lights by filter on the FITS path; mono lights never debayer.
 3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render
    (`starcomb.py`). A **mono** (single-filter) set skips SPCC and renders

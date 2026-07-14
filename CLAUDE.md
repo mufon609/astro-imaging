@@ -61,8 +61,8 @@ how they judge/work) + residual lessons migrated off the machine-local
 auto-memory so they transfer with the repo; (3) `README.md` — the process
 contract (review
 contract + standing audits, per-set geometry, experiment discipline, north
-star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
-self-flat) lives in the kept scripts' own docstrings. `docs/` holds research
+star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC) lives in
+the kept scripts' own docstrings. `docs/` holds research
 deep-dives (one cited `.md` per major investigation — see `docs/README.md`),
 whose durable findings graduate into TOOLS / `docs/dead-ends.md` / MEMORY.
 `BACKLOG.md` is a stub (superseded by the x86 test plan). Full history lives in
