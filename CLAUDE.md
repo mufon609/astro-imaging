@@ -190,8 +190,8 @@ core here now:**
 - **New datasets get tracked per-dataset state** in
   `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
-  `baseline.json` (written only by the no-regression sweep, re-ported on
-  x86) — never dataset-specific script patches; a dataset without them must
+  `baseline.json` (written only by the no-regression harness — pending x86) —
+  never dataset-specific script patches; a dataset without them must
   degrade loudly, not inherit silently. (The existing recipe render blocks +
   baselines are chain-coupled and PENDING the new chain's schema.)
 - Background long siril/render runs and keep working; preserve stacks

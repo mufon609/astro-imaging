@@ -1,15 +1,13 @@
 # Astrophotography processing pipeline
 
-> **⚠ MID-RESET to x86.** The render chain and the aarch64 workarounds were
-> wiped and the chain is rebuilt tool-first on x86 (the build order is
-> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md); the
-> toolkit is [`TOOLS.md`](TOOLS.md)). Below, the **process contract, review
-> contract, acceptance model, experiment discipline, per-dataset state, and
-> north star are all portable and stay** — but anything that names the RENDER
-> chain (`starcomb.py`, `operators.json`, `hand_roll_audit.py`, `sweep.py`,
-> `nightlight_sho.py`, the separation engines) describes the wiped chain,
-> preserved at the `checkpoint` commit and being re-established on x86. Treat
-> those as the PATTERN the rebuild carries, not current code.
+> **⚠ MID-RESET to x86.** The durable core — calibrate → register → stack →
+> solve → SPCC → compose — runs today. The final **render is a GAP pending
+> x86**: a per-dataset toolkit of official tools (StarXTerminator / native
+> StarNet, NoiseXTerminator / GraXpert / Cosmic Clarity, BlurXTerminator, Siril
+> `synthstar`/`rgbcomp`/natives — [`TOOLS.md`](TOOLS.md)), built in the order in
+> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). The
+> process contract, review contract, acceptance model, experiment discipline,
+> per-dataset state, and north star below are all portable and stand.
 
 This repo is a **checklist + knowledge workspace** for astrophotography
 processing — official tools do ALL pixel work (processing AND analysis); the
@@ -46,7 +44,7 @@ follows, in order — linear until step 6:
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | PENDING x86 — a tool step | On x86 this is a real tool (NoiseXTerminator / GraXpert / Cosmic Clarity — the chroma-noise gap closes, `docs/dead-ends.md`). The old "radial noise after self-flat V(r) division" dead-end retired with the self-flat branch |
-| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86.** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) (build order: `docs/x86-empirical-test-plan.md`) | PENDING x86 rebuild |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **GAP (pending x86)** — a per-dataset tool toolkit: StarXTerminator / native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars), `rgbcomp` (recombine). Build order: `docs/x86-empirical-test-plan.md` | PENDING x86 |
 
 Principles that keep this honest:
 
@@ -148,35 +146,20 @@ it, each answering a question it can actually answer:
    tolerance sits far below the deltas we judge on. (An unrealistic byte-identity
    check on a slow, non-deterministic chain doesn't add rigor — it gets skipped or
    blocks valid work; a right-sized one actually runs.)
-2. **No regression, across data classes.** Every registered dataset
-   (each baselined under `datasets/`) still PASSES the **tool-sourced acceptance
-   checklist** and shows no WORSENING of the tools' recorded measures vs its own
+2. **No regression, across data classes.** Every registered dataset (each
+   baselined under `datasets/`) must still PASS the **tool-sourced acceptance
+   checklist** and show no WORSENING of the tools' recorded measures vs its own
    baseline (regression semantics — a clean dataset rotting toward the defect
-   class fails long before any absolute line). **The criteria never loosen.** **The per-change COST is tiered** — a full render
-   across the whole suite is hours on the no-GPU AI chain and grows with the
-   corpus, so a change runs the sweep on the **class(es) it can affect + one
-   canary**, and the **full suite** runs on a cadence / before a re-baseline or
-   release / when the change touches shared code — not on every commit (the
-   standard is unchanged, no dataset may rot another class; only the per-change
-   scope is right-sized so the check actually runs). An emission-flooded field whose ONLY failing
-   metric is colour (real sky colour outside the current colour scope's
-   reach — the ratified colour-redesign class) is kept inside the
-   regression net by a scope-ACKNOWLEDGED baseline
-   (`sweep.py --rebaseline <ds> --ack-color-scope`): the achromatic
-   thresholds stay fully enforced, colour is graded ONE-SIDED against the
-   record (worsening fails), and bytes/shells/drift are checked as normal.
-   The ack is explicit, per-dataset, refused when any achromatic metric
-   fails, and is tracking — never colour judgment: full colour admission
-   still waits on the redesign. The reference suite spans the classes the
-   pipeline actually meets — underexposed DSLR wide-field,
-   matched-flat off-centre object, wide-field, and mono FITS with a
-   frame-centred galaxy — so no single dataset can hold the pipeline
-   hostage. One command runs the **full suite** (the cadence / pre-release form):
-   `python3 scripts/qa/sweep.py` (renders
-   every dataset with a `datasets/*/*/baseline.json`, requires the checklist to
-   PASS + a baseline-relative comparison of the tools' measures, diffs each against the baseline,
-   and flags any byte delta as a declared-delta prompt; absent third-party
-   data SKIPs loudly).
+   class fails long before any absolute line). **The criteria never loosen.** The
+   reference suite spans the classes the pipeline actually meets — underexposed
+   DSLR wide-field, matched-flat off-centre object, wide-field, and mono FITS
+   with a frame-centred galaxy — so no single dataset can hold the pipeline
+   hostage. The **per-change cost is tiered**: run the affected class(es) + one
+   canary per change; the **full suite** on a cadence / before a re-baseline or
+   release / when a change touches shared code — not every commit. (The harness
+   that renders every baselined dataset and diffs the tools' measures rides the
+   render — a GAP pending x86; the no-regression standard is binding now,
+   enforced by the checklist + declared-delta.)
 3. **Declared delta.** A change that alters a registered render is *expected*,
    not forbidden. It must report the metric deltas and side-by-side panels in
    LIKE encodings. Strictly-better-or-equal objective metrics may commit; any
@@ -193,8 +176,8 @@ documented precision reduction — 16-bit stack-time intermediates
 (quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
 (never a judgment surface), the q100/4:4:4 final jpg, and judgment panels. GUARDS keep it that way: processing loads
-go through `astrometrics.load_linear` (refuses non-FITS), `starcomb
---stack` refuses non-FITS paths, and `compose.py` asserts float32 inputs.
+go through `astrometrics.load_linear` (refuses non-FITS) and `compose.py`
+asserts float32 inputs.
 Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
 PNG16 for the final **and the starless layer** (PNG8 = the 8-bit display
 pixels; PNG16 = the float layer at 65536 levels).
@@ -215,28 +198,26 @@ removal condition.
 ## The experiment discipline
 
 - One knob per experiment, values bracketing the control; hypothesis
-  pre-registered *before* the run (`docs/dead-ends.md`). The ladder enforces it:
-  `starcomb.py --param --values --hypothesis` (hypothesis REQUIRED, one
-  knob, control auto-bracketed) renders each value as a full-frame lossless
-  final + stage sequence into `results/exp_<param>_<stamp>/`, appends the
-  experiment to the tracked per-dataset `experiments.jsonl`, and STOPs for
-  user judgment.
-- The verdict round-trips: once judged, `starcomb.py --verdict
-  win|null|deadend --because "…" --exp <dir>` closes the ledger entry. A
-  measurement that kills a hypothesis becomes a dead end **written into
-  `docs/dead-ends.md` with its numbers** before anything else is
-  tried (the ledger indexes it; `docs/dead-ends.md` states the mechanism).
-- Comparisons are honest: `judgment_package.py --control=<label>` embeds
-  the measured candidate-vs-control deltas + an objective **WIN | NULL |
-  needs-eyes** verdict on the gate/defect metrics (auto-discovered from the
-  `<final>.metrics.json` sidecar). A WIN names the delta that earns it;
-  needs-eyes = mixed or aesthetic (the user's eyes on the finals). Report
-  each result as a WIN or a clean NULL — never "fixed/final/matched/close".
-- Processing is a TOOL, not hand-rolled numpy. Every render-chain
-  processing operator is catalogued in `scripts/render/operators.json`;
-  `hand_roll_audit.py` (standing, wired into the sweep) guards the rule.
-  When a target's honest best outcome needs a stage turned off or swapped,
-  that is the toolkit working as intended (each choice carries its reason).
+  pre-registered *before* the run (`docs/dead-ends.md`). Each value is rendered
+  as a full-frame lossless final + stage sequence into
+  `results/exp_<param>_<stamp>/`, appended to the tracked per-dataset
+  `experiments.jsonl`, and STOPs for user judgment. (The ladder that automates
+  this rides the render — a GAP pending x86; the discipline is binding now.)
+- The verdict round-trips: once judged, the ledger entry is closed
+  win|null|deadend with its reason. A measurement that kills a hypothesis
+  becomes a dead end **written into `docs/dead-ends.md` with its numbers**
+  before anything else is tried (the ledger indexes it; `docs/dead-ends.md`
+  states the mechanism).
+- Comparisons are honest: `judgment_package.py --control=<label>` embeds the
+  measured candidate-vs-control deltas + an objective **WIN | NULL | needs-eyes**
+  verdict on the tools' metrics (auto-discovered from the `<final>.metrics.json`
+  sidecar). A WIN names the delta that earns it; needs-eyes = mixed or aesthetic
+  (the user's eyes on the finals). Report each result as a WIN or a clean NULL —
+  never "fixed/final/matched/close".
+- Processing is a TOOL, not hand-rolled numpy — the ALLOWED/FORBIDDEN doctrine
+  (`CLAUDE.md` "What this repo IS") is the guard. When a target's honest best
+  outcome needs a stage turned off or swapped, that is the toolkit working as
+  intended (each choice carries its reason).
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
 ### New-class triage (BEFORE the first judgment package)
@@ -259,8 +240,8 @@ were removed), `black_point` (crushes faint extended signal),
 (blows star tops on deep data), and `stretch_linked` (linked vs the
 per-channel measurement rung). Each is a single-knob ladder the harness
 already runs; the user judges once per class instead of debugging after.
-(Narrowband-palette colour+develop is not laddered here — it routes to
-Nightlight, `nightlight_sho.py`, with its own recipe block.)
+(Narrowband-palette colour is not laddered here — the star-neutral colour
+balance is a GAP, `docs/dead-ends.md`.)
 
 ## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
@@ -279,23 +260,23 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
   border-anchored by construction; the foreground is excluded from the
   gate's sky scope, so a floating interior one would carve graded sky out
   of the gate's jurisdiction) — refused loudly at configure time.
-- `recipe.json` — the processing knobs: the `render` dict (starcomb
-  resolves CLI > recipe > `datasets/GENERIC.json` and prints the
-  provenance; a dataset with no recipe renders data-class-blind generic
-  and says so) plus the optional `spcc` spec (sensor/filter names or
-  narrowband wavelengths, same resolution order in `spcc_run.py`). An
-  **approved** recipe pins every knob so a later generic-default change
-  cannot silently restyle it.
+- `recipe.json` — the processing knobs: the `render` dict (the render chain
+  resolves CLI > recipe > `datasets/GENERIC.json` and prints the provenance; a
+  dataset with no recipe renders data-class-blind generic and says so — the
+  render dict's schema is PENDING x86) plus the optional `spcc` spec
+  (sensor/filter names or narrowband wavelengths, same resolution order in
+  `spcc_run.py`). An **approved** recipe pins every knob so a later
+  generic-default change cannot silently restyle it.
 - `GENERIC.json` (one per repo, beside this contract's per-set dirs) —
   the tracked base layer every render inherits: the generic value AND a
   per-knob "why" note naming what it encodes (most were measured on one
   underexposed DSLR wide-field) and its known class limits. Tweakable at
   any time — but a change restyles every non-approved dataset, so it
-  lands as a declared delta through the sweep. The knob SCHEMA stays in
-  code; starcomb hard-fails on any file/schema drift.
+  lands as a declared delta. The knob SCHEMA stays in code; the render chain
+  hard-fails on any file/schema drift (pending x86).
 - `baseline.json` — the measured no-regression record (pinned stack sha,
-  expected gate/shell numbers, artifact hashes), written only by
-  `scripts/qa/sweep.py --rebaseline`.
+  expected tool measures, artifact hashes), written only by the no-regression
+  harness (pending x86).
 - `composition.json` — only for multi-line/multi-filter targets: how the
   composed linear stack is BUILT (kind, extraction, lines, palette
   channel mapping). Absent = ordinary single-stack set.
@@ -329,9 +310,9 @@ python3 scripts/calibrate/solve_field.py <session>/results/stack_<set>.fit \
 python3 scripts/calibrate/spcc_cone.py <session>/results/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
-# final render + single-knob ladder — the render chain is WIPED; it is
-# rebuilt tool-first on x86 (docs/x86-empirical-test-plan.md). Everything ABOVE
-# (stack → solve → spcc → compose) is the KEPT durable core and runs today.
+# final render — a GAP pending x86 (tool toolkit: TOOLS.md; build order:
+# docs/x86-empirical-test-plan.md). Everything ABOVE (stack → solve → spcc →
+# compose) is the durable core and runs today.
 ```
 
 Environment specifics (siril invocation, catalogs, GraXpert, the x86 target)
@@ -363,14 +344,12 @@ live in CLAUDE.md "Environment".
 | `spcc_cone.py` | which local Gaia SPCC chunks a solved field needs (nside=2 nested HEALPix cover from the WCS) + `--fetch` to download the missing ones (md5-verified) — turnkey SPCC coverage for any field |
 | `spcc_run.py` | siril SPCC runner that CAPTURES the K factors + star counts into `work/spcc_<set>.{json,log}` |
 
-**`render/`** — **WIPED in the x86 reset** (rebuilt tool-first on x86 —
-`docs/x86-empirical-test-plan.md`). The product chain (`starcomb.py`), its operator catalog
-(`operators.json`), the Nightlight narrowband driver (`nightlight_sho.py`),
-and the separation engines (`separation/starnet_sep.py` ONNX-arm64,
-`separation/starsep.py` inpaint fallback) are preserved at the `checkpoint`
-commit. On x86 the chain becomes a thin orchestration over
-StarXTerminator/native StarNet + NoiseXTerminator/Cosmic Clarity +
-BlurXTerminator + siril (`autostretch`/`mtf`/`pm`/`satu`/`synthstar`).
+**`render/`** — **GAP, pending x86.** The render is a thin orchestration over
+official tools, picked per dataset ([`TOOLS.md`](TOOLS.md)): StarXTerminator /
+native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity
+(denoise), BlurXTerminator (deconv), Siril `autostretch`/`mtf`/`pm`/`satu`/
+`synthstar`/`rgbcomp` (stretch / stars / recombine). Build order:
+[`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
 **`qa/`** — standing audits + diagnostics (WARN-only)
 
@@ -423,11 +402,10 @@ scripts/                                 the pipeline (tracked)
    (camera raw vs FITS) → `stack_<set>.fit` (matched-flat path; a flatless set
    hard-stops — synthetic-flat is a gap, BACKLOG).
    Flats match lights by filter on the FITS path; mono lights never debayer.
-3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render
-   (`starcomb.py`). A **mono** (single-filter) set skips SPCC and renders
-   luminance-only.
+3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (a GAP
+   pending x86 — the tool toolkit, `TOOLS.md`). A **mono** (single-filter) set
+   skips SPCC and renders luminance-only.
 4. A set with no `datasets/<session>/<set>/` state **degrades loudly**
    (whole-frame gate, no foreground mask, GENERIC knobs, printed as such) —
    safe, just generic. Add `geometry.json` once solved, pin a `recipe.json`
-   when a look is chosen, and record the no-regression target with
-   `scripts/qa/sweep.py --rebaseline <session>/<set>`.
+   when a look is chosen, and record the no-regression baseline (pending x86).
