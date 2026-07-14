@@ -12,7 +12,10 @@ the target architecture, the **DEAD-END registry** (never re-attempt those —
 read it before proposing any experiment), and the acquisition checklist;
 (2b) `TOOLS.md` — the tier-by-tier tool audit (every option per pipeline
 stage, when/why, cost/Linux/CPU/headless) — the TOOLKIT the x86 render is
-built from; (3) `README.md` — the process contract (review
+built from; (2c) `MEMORY.md` — the collaboration context (who the user is,
+how they judge/work) + residual lessons migrated off the machine-local
+auto-memory so they transfer with the repo; (3) `README.md` — the process
+contract (review
 contract + standing audits, per-set geometry, experiment discipline, north
 star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
 self-flat) lives in the kept scripts' own docstrings. `BACKLOG.md` is a stub
@@ -68,6 +71,14 @@ core here now:**
   pre-registered BEFORE the run (the experiment record + REDESIGN's
   dead-end registry). A measurement that kills a hypothesis becomes a
   dead-end entry in REDESIGN WITH ITS NUMBERS before anything else is tried.
+- **Nothing is final until it is empirically tested on real data.** A
+  mechanism analysis, a doc reading, or a comparison of source is a
+  HYPOTHESIS, not a verified fact — mark it as such and state the concrete
+  test that would settle it. (Live example: native Siril solve was
+  *mechanism-verified* not to replace `solve_field.py` for trailed fields —
+  TOOLS.md — but that is provisional until the x86 empirical test runs.)
+  Especially across the rig migration: every arm-era finding is a
+  hypothesis on the desktop until re-measured there.
 - **Orchestrate industry tools; NEVER hand-roll the image processing.**
   The bright line is PROCESSING vs EXAMINING. Examining numpy (metrics,
   the gate, masks, inspection rendering) is what the pipeline is FOR.
