@@ -75,3 +75,6 @@ _(add each writeup here, newest first)_
 - [objective-qa-defect-metrics](objective-qa-defect-metrics.md) — the AUDIT side:
   numpy/scipy-computable frame-quality + processing-defect metrics (ringing,
   over-smoothing, over-flattening) to extend the measurement layer.
+- [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
+  "provisional until x86" flag from all deep-dives collapsed into one ordered,
+  bracketed test protocol keyed to REDESIGN's rebuild order (Phase 0→5).

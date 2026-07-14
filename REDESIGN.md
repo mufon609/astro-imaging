@@ -215,6 +215,12 @@ change, not code.)
 
 ## Rebuild order (on x86 — each step a measured experiment)
 
+> **The executable version of this order is `docs/x86-empirical-test-plan.md`** — it
+> collapses every "provisional until x86" flag from the `docs/` deep-dives into an
+> ordered, bracketed protocol (Phase 0 environment → 1 core → 2 stack → 3 solve → 4
+> render toolkit → 5 audit layer), each test naming its control + pass/fail metric.
+> Run the phases in step order below; that is where "provisional" becomes "verified."
+
 1. **Found the environment**: run the inventory above → new CLAUDE.md
    environment section + tool paths.
 2. **Port the core verbatim**: the KEEP set runs unchanged (numpy / FITS /
