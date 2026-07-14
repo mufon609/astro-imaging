@@ -45,4 +45,24 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
-- _none yet — the next research session starts this._
+**Research pass — mid-2026 tool/technique landscape** (2026-07-14):
+- [siril-natives-and-trailed-solve](siril-natives-and-trailed-solve.md) — Siril
+  1.4.4/1.5.0-dev native surface; the chroma-noise / AI-deconv / star-neutral gaps
+  all still non-native; sharpened trailed-field `-localasnet` verification.
+- [siril-pyscript-headless](siril-pyscript-headless.md) — resolves the "numpy-inside
+  pyscript = tool or hand-roll?" question (mechanism-location split: Class-2 drivers
+  vs Class-1 numpy-inside) + headless viability on Linux.
+- [rc-astro-cli-linux](rc-astro-cli-linux.md) — the deep-verify: `rc-astro` v0.9.9
+  standalone Linux CLI (BXT/NXT/SXT), exact flags, CPU wall-clock, license, offline.
+- [graxpert-3x-and-workflow-order](graxpert-3x-and-workflow-order.md) — GraXpert
+  deconv is RC-only/stalled/buggy (correction); the linear-first workflow order is a
+  strong default, not absolute (2026 AI-driven loosening).
+- [free-ai-tool-wave-2026](free-ai-tool-wave-2026.md) — free AI tools filtered for
+  headless-Linux-CPU (StarNet2.5.3, DeepSNR, GraXpert, AstroDenoisePy, Cosmic
+  Clarity); AstroSharp dead-end; SyQon GUI-gated.
+- [narrowband-star-neutral-options](narrowband-star-neutral-options.md) — VeraLux
+  Alchemy + DBXtract are the free OIII-unmix mechanism, but GUI-only Class-1; the
+  headless narrowband-colour gap stays open.
+- [objective-qa-defect-metrics](objective-qa-defect-metrics.md) — the AUDIT side:
+  numpy/scipy-computable frame-quality + processing-defect metrics (ringing,
+  over-smoothing, over-flattening) to extend the measurement layer.
