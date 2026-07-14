@@ -11,12 +11,15 @@
 > preserved at the `checkpoint` commit and being re-established on x86. Treat
 > those as the PATTERN the rebuild carries, not current code.
 
-This repo tracks the **process** (Siril/Python scripts + notes), never image
-data (`.gitignore`). This file is the **process contract**: what each step is
-for, what the industry standard does there, where we diverge and why, and how
-every step is reviewed. `REDESIGN.md` holds the go-forward plan + the
-**dead-end registry** (every measured lesson with its numbers) + the
-acquisition checklist.
+This repo is a **self-auditing orchestration harness** — it RECORDS the
+process, AUDITS every image and step, and AUTOMATES the workflow by driving
+industry tools; it never processes pixels itself (full identity + the
+anti-drift test: `CLAUDE.md` "What this repo IS"). It tracks the **process**
+(Siril/Python scripts + notes), never image data (`.gitignore`). This file is
+the **process contract**: what each step is for, what the industry standard
+does there, where we diverge and why, and how every step is reviewed.
+`REDESIGN.md` holds the go-forward plan + the **dead-end registry** (every
+measured lesson with its numbers) + the acquisition checklist.
 
 **New contributor start here:** (1) `REDESIGN.md` — the x86 plan + the
 dead-end registry (read it before proposing ANY experiment — if it does not

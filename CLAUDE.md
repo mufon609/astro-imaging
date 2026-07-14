@@ -1,5 +1,42 @@
 # CLAUDE.md — operating manual for agents working in this repo
 
+## What this repo IS (read first, every session)
+
+A **self-auditing orchestration harness** for astrophotography — **NOT an
+image processor.** It does three things, and refuses a fourth:
+
+- **RECORD** — versions the *process* (scripts, docs, per-dataset state, the
+  dead-end registry, git history), never the image data. The durable memory
+  of what was tried, what's approved, and what's ruled out *with its mechanism*.
+- **AUDIT** — measures everything. Each image is graded by the gate + the
+  standing audits; each process step by the orchestrate guard, the
+  no-regression sweep, and the determinism check — against objective,
+  never-loosening measures. **The measurement layer IS the product.**
+- **AUTOMATE** — sequences and drives industry tools headless, resolves
+  per-dataset config, and packages judgment sets, so ANY dataset can be
+  dropped in and carried to its best honest outcome.
+
+The fourth thing it **refuses to do — process pixels itself.** Every
+operation that rewrites the deliverable's pixels drives a real,
+industry-standard tool (Siril, GraXpert, StarNet, RC-Astro, astrometry.net,
+or a reference author's own open tool). The repo's own code only EXAMINES
+(measures) and ORCHESTRATES (sequences / config / judgment). No tool for a
+mechanism = a documented gap, **never a numpy hand-roll.**
+
+**This inversion is the whole point.** Processing is commoditized — great
+free and paid tools exist ([`TOOLS.md`](TOOLS.md)) — so the repo spends ALL
+its effort on the parts that aren't: rigorous measurement, honest
+orchestration, and a permanent record. It is therefore NOT an image
+processor, NOT a home for hand-rolled processing, NOT a chaser of one image's
+look (aesthetics are the user's eyes on lossless finals — the repo emits
+measured *candidates*, not a hand-crafted picture), and NOT a frozen chain
+(the tools are a TOOLKIT, picked per dataset for a stated reason).
+
+**Anti-drift test for any session:** if you are about to hand-tune a knob to
+make one image look right, or to write numpy that transforms deliverable
+pixels — STOP, you have left the mission. Drive a tool, measure the result,
+and change the PROCESS, not the picture.
+
 **This repo is mid-migration to x86 — read [`REDESIGN.md`](REDESIGN.md)
 first.** The render chain and the aarch64 workarounds were wiped in the
 x86 reset; the durable core (measurement/audit + calibration/stack/compose)
@@ -147,12 +184,12 @@ core here now:**
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.
 
-## North star (the user's standing goal)
+## North star (the goal the identity above serves)
 
-A pipeline that constantly audits its images and process steps so that
-eventually ANY dataset can be dropped into a session dir and be
-properly judged and processed to its best honest outcome. Every
-divergence from the standard workflow is a measured adaptation carrying
-its removal condition; finals as close to lossless as possible; and
-acquisition quality (the checklist in REDESIGN) outranks processing —
-never bandaid what photons must fix.
+The harness constantly audits its images and process steps so that
+eventually ANY dataset can be dropped into a session dir and be properly
+judged and processed — by industry tools — to its best honest outcome.
+Every divergence from the standard workflow is a measured adaptation carrying
+its removal condition; the tools are a toolkit picked per dataset; finals as
+close to lossless as possible; and acquisition quality (the checklist in
+REDESIGN) outranks processing — never bandaid what photons must fix.
