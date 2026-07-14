@@ -12,17 +12,18 @@
 > those as the PATTERN the rebuild carries, not current code.
 
 This repo tracks the **process** (Siril/Python scripts + notes), never image
-data (`.gitignore`). `NOTES.md` is the lab notebook: every measured lesson,
-every dead end with its numbers. This file is the **process contract**: what
-each step is for, what the industry standard does there, where we diverge and
-why, and how every step is reviewed.
+data (`.gitignore`). This file is the **process contract**: what each step is
+for, what the industry standard does there, where we diverge and why, and how
+every step is reviewed. `REDESIGN.md` holds the go-forward plan + the
+**dead-end registry** (every measured lesson with its numbers) + the
+acquisition checklist.
 
-**New contributor start here:** (1) this file top to bottom; (2)
-`NOTES.md` top to bottom — the technical pipeline: the environment, the
-design with each knob's technical why, and the **dead-ends registry**
-(read it before proposing ANY experiment — if it does not work, the
-mechanism why is there). Full chronological history lives in git
-(`git log`; every commit carries the NOTES of its time). Each dataset's
+**New contributor start here:** (1) `REDESIGN.md` — the x86 plan + the
+dead-end registry (read it before proposing ANY experiment — if it does not
+work, the mechanism why is there); (2) this file top to bottom — the process
+contract; (3) the kept scripts' docstrings for each stage's technical why.
+Full chronological history lives in git (`git log`; the complete pre-reset
+chain + the old NOTES.md are at the `checkpoint` commit). Each dataset's
 approved recipe lives in `datasets/<session>/<set>/recipe.json` (see
 "Per-dataset state" below).
 
@@ -37,7 +38,7 @@ follows, in order — linear until step 6:
 | 1b | — | **self-flat branch** for sets without a matching flat (median → V(r) isotonic gray gain → rechroma → V2 divide; per-frame planar glow subtraction) | ADAPTATION — dies when real flats exist at the set's focal length (preflight auto-routes) |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). CLASS LIMIT: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — a plane keeps that signal (it removes only the first-degree gradient) and still clears the gate's gradient class |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background (NOTES knob table). SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **RENDER CHAIN WIPED — rebuilt tool-first on x86 (REDESIGN.md).** The checkpoint chain (in history) proved the tool-only form: siril `autostretch`/`mtf`/`pm`/`satu`/`denoise`, GraXpert, StarNet2, Nightlight for narrowband. On x86: StarXTerminator/native StarNet (separation), NoiseXTerminator/Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars) | PENDING x86 rebuild |
@@ -52,7 +53,7 @@ Principles that keep this honest:
 
 - **A divergence from the standard is a bandaid unless it is a measured,
   documented adaptation forced by this data** — each one carries its removal
-  condition in NOTES ("REMAINING BANDAIDS" ledger).
+  condition in REDESIGN.md (the wipe manifest; full ledger in git).
 - **Full frame is mandatory.** No crops hiding defects; the foreground branch
   never drives decisions (it is masked in QA statistics, feathered in
   rendering operators).
@@ -64,7 +65,7 @@ Principles that keep this honest:
 
 1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
    each STACK stage rendered identically + metric bounds from the
-   expectations table in NOTES. WARN only — inspection never aborts. The
+   expectations table in `inspect_stage.py` (its `EXPECTATIONS`). WARN only — inspection never aborts. The
    RENDER chain has the same provenance STANDING ON EVERY BUILD: each
    `starcomb.py` render writes a labeled full-frame stage sequence
    (background → separation → stretch → denoise → black point →
@@ -204,7 +205,7 @@ removal condition.
 ## The experiment discipline
 
 - One knob per experiment, values bracketing the control; hypothesis
-  pre-registered in NOTES *before* the run. The ladder enforces it:
+  pre-registered *before* the run (REDESIGN dead-end registry). The ladder enforces it:
   `starcomb.py --param --values --hypothesis` (hypothesis REQUIRED, one
   knob, control auto-bracketed) renders each value as a full-frame lossless
   final + stage sequence into `results/exp_<param>_<stamp>/`, appends the
@@ -213,8 +214,8 @@ removal condition.
 - The verdict round-trips: once judged, `starcomb.py --verdict
   win|null|deadend --because "…" --exp <dir>` closes the ledger entry. A
   measurement that kills a hypothesis becomes a dead end **written into
-  NOTES with its numbers** before anything else is tried (the ledger
-  indexes it; NOTES states the mechanism).
+  REDESIGN's dead-end registry with its numbers** before anything else is
+  tried (the ledger indexes it; REDESIGN states the mechanism).
 - Comparisons are honest: `judgment_package.py --control=<label>` embeds
   the measured candidate-vs-control deltas + an objective **WIN | NULL |
   needs-eyes** verdict on the gate/defect metrics (auto-discovered from the
@@ -296,7 +297,7 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
 so no galactic band or object region is ever configured per set (a bright
-object has no fixed geometry a mask could scope — see NOTES dead ends).
+object has no fixed geometry a mask could scope — see REDESIGN dead-ends).
 
 Foreground masks for non-rectangular compositions (treelines) are derived
 from the linear stack: `scripts/geometry/suggest_foreground.py <stack>

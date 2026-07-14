@@ -7,15 +7,18 @@ is kept and the chain is rebuilt tool-first on x86. REDESIGN.md is the
 go-forward authority (target env, keep/wipe manifest, rebuild order).
 
 **Read order, every session:** (1) this file; (2) `REDESIGN.md` — the x86
-redesign plan; (3) `README.md` — the process contract (review contract +
-standing audits, per-set geometry, experiment discipline, north star);
-(4) `NOTES.md` — the technical pipeline: environment, the DURABLE design
-(stack/calibrate/compose/solve/SPCC), the DEAD-END registry (never
-re-attempt those), acquisition checklist. `BACKLOG.md` is a stub
+redesign plan AND the durable technical reference: the keep/wipe manifest,
+the target architecture, the rebuild order, the **DEAD-END registry** (never
+re-attempt those — read it before proposing any experiment), and the
+acquisition checklist; (3) `README.md` — the process contract (review
+contract + standing audits, per-set geometry, experiment discipline, north
+star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
+self-flat) lives in the kept scripts' own docstrings. `BACKLOG.md` is a stub
 (superseded by REDESIGN). Full history lives in `git log` — the complete
-pre-reset chain is at the `checkpoint` commit. Per-dataset state is the
-tracked `datasets/<session>/<set>/` records; NOTE its `recipe.json` render
-blocks + `baseline.json` are chain-coupled and PENDING the new chain.
+pre-reset chain AND the old NOTES.md are at the `checkpoint` commit.
+Per-dataset state is the tracked `datasets/<session>/<set>/` records; NOTE
+its `recipe.json` render blocks + `baseline.json` are chain-coupled and
+PENDING the new chain.
 
 ## Environment
 
@@ -60,9 +63,9 @@ core here now:**
 ## Binding rules (the contract in README, distilled for agents)
 
 - **One knob per experiment**, control bracketed, hypothesis
-  pre-registered in NOTES BEFORE the run. A measurement that kills a
-  hypothesis becomes a dead-end entry WITH ITS NUMBERS before anything
-  else is tried.
+  pre-registered BEFORE the run (the experiment record + REDESIGN's
+  dead-end registry). A measurement that kills a hypothesis becomes a
+  dead-end entry in REDESIGN WITH ITS NUMBERS before anything else is tried.
 - **Orchestrate industry tools; NEVER hand-roll the image processing.**
   The bright line is PROCESSING vs EXAMINING. Examining numpy (metrics,
   the gate, masks, inspection rendering) is what the pipeline is FOR.
@@ -91,8 +94,8 @@ core here now:**
   a final-render defect localizes to the stage that introduced it.) A tuning
   experiment is one knob, control bracketed, hypothesis required, judged on
   full-frame lossless finals, closed with a verdict into the tracked
-  per-dataset `experiments.jsonl` (a killed hypothesis also becomes a NOTES
-  dead-end with its numbers). Comparisons report measured deltas with an
+  per-dataset `experiments.jsonl` (a killed hypothesis also becomes a
+  dead-end entry in REDESIGN with its numbers). Comparisons report measured deltas with an
   objective WIN | NULL | needs-eyes verdict — NEVER "fixed/final/matched/
   close" language; aesthetics are the user's eyes on the finals.
 - **The gate never loosens** (`bg_qa.py`'s statistical sky-scope
@@ -115,10 +118,11 @@ core here now:**
   it.
 - **No session/stream/ladder tags in script comments** — plain,
   standalone descriptions with their measured numbers; provenance
-  narrative lives in NOTES/git only.
-- **Maintain NOTES.md in its refactored shape**: update the design /
-  knob-provenance / dead-ends / ledger IN PLACE; never append
-  chronological session narrative.
+  narrative lives in git only.
+- **Maintain REDESIGN's dead-end registry IN PLACE**: add/refine the
+  mechanism entries (data/physics/tool-doctrine); never append chronological
+  session narrative. The durable stage-design "why" lives in each kept
+  script's docstring — keep it there, update in place.
 - **New datasets get tracked per-dataset state** in
   `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
@@ -137,5 +141,5 @@ eventually ANY dataset can be dropped into a session dir and be
 properly judged and processed to its best honest outcome. Every
 divergence from the standard workflow is a measured adaptation carrying
 its removal condition; finals as close to lossless as possible; and
-acquisition quality (the checklist in NOTES) outranks processing —
+acquisition quality (the checklist in REDESIGN) outranks processing —
 never bandaid what photons must fix.
