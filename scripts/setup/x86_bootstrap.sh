@@ -42,12 +42,15 @@ GRAXPERT_VER="3.0.2"
 GRAXPERT_URL="https://github.com/Steffenhir/GraXpert/releases/download/${GRAXPERT_VER}/graxpert-linux-amd64.zip"
 GRAXPERT_SHA=""      # TODO: fill from the GitHub asset digest before running
 
-# ASTAP CLI (no-GTK) + one star DB (.deb). D50 (~850 MB) covers FOV >= 0.6 deg.
+# ASTAP CLI (no-GTK) + star DB(s). For the ULTRA-WIDE/trailed class use the WIDE DBs
+# W08 (276 kB, 20-80 deg) + G05 (101 MB, 3-20 deg) — the D-series caps at 6 deg and
+# G17/H17 are deprecated (docs/plate-solving-and-drizzle.md). For NARROW fields swap in
+# d50_star_database.deb (~850 MB) instead.
 ASTAP_URL="https://sourceforge.net/projects/astap-program/files/linux_installer/astap_command-line_version_Linux_amd64.zip/download"
-ASTAP_DB_URL="https://sourceforge.net/projects/astap-program/files/star_databases/d50_star_database.deb/download"
+ASTAP_DB_W08_URL="https://sourceforge.net/projects/astap-program/files/star_databases/w08_star_database.deb/download"
+ASTAP_DB_G05_URL="https://sourceforge.net/projects/astap-program/files/star_databases/g05_star_database.deb/download"
 # SourceForge publishes SHA-1/MD5 only — compute + record sha256 yourself:
-ASTAP_SHA=""         # TODO: compute-your-own
-ASTAP_DB_SHA=""      # TODO: compute-your-own
+ASTAP_SHA=""; ASTAP_DB_W08_SHA=""; ASTAP_DB_G05_SHA=""   # TODO: compute-your-own
 
 # Cosmic Clarity: rolling GitHub "Linux" tag (2025-03-29), frozen self-contained bins.
 COSMIC_TAG="Linux"   # pin by asset digest + the date below
@@ -131,14 +134,15 @@ run "sudo mkdir -p $OPT/graxpert-${GRAXPERT_VER}"
 run "sudo unzip -q -o '$tmp/graxpert.zip' -d $OPT/graxpert-${GRAXPERT_VER}"
 manifest GraXpert "$GRAXPERT_VER" "$GRAXPERT_URL" "$GRAXPERT_SHA" "$OPT/graxpert-${GRAXPERT_VER}" "GraXpert-linux -h" "stable=BGE+denoise; -gpu false; alpha via pipx --pre for deconv"
 
-# ASTAP CLI + D50 star DB
+# ASTAP CLI + wide-field star DBs (W08 + G05) for the ultra-wide/trailed class
 if [[ $DO_DATA -eq 1 ]]; then
   fetch "$ASTAP_URL" "$tmp/astap.zip" "$ASTAP_SHA"
-  fetch "$ASTAP_DB_URL" "$tmp/astap_d50.deb" "$ASTAP_DB_SHA"
+  fetch "$ASTAP_DB_W08_URL" "$tmp/astap_w08.deb" "$ASTAP_DB_W08_SHA"
+  fetch "$ASTAP_DB_G05_URL" "$tmp/astap_g05.deb" "$ASTAP_DB_G05_SHA"
   run "sudo mkdir -p $OPT/astap"
   run "sudo unzip -q -o '$tmp/astap.zip' -d $OPT/astap"
-  run "sudo dpkg -i '$tmp/astap_d50.deb' || sudo apt -f install -y"   # DB installs under /opt/astap
-  manifest ASTAP 2026.06.29 "$ASTAP_URL" "$ASTAP_SHA" "$OPT/astap" "astap --version" "D50 DB, FOV>=0.6deg; libssl-dev if TLS errors"
+  run "sudo dpkg -i '$tmp/astap_w08.deb' '$tmp/astap_g05.deb' || sudo apt -f install -y"   # DBs install under /opt/astap
+  manifest ASTAP 2026.06.29 "$ASTAP_URL" "$ASTAP_SHA" "$OPT/astap" "astap_cli --version" "W08+G05 wide DBs (ultra-wide class); d50 for narrow; use astap_cli headless; libssl-dev if TLS errors"
 fi
 
 # Cosmic Clarity — frozen bins + model assets from the rolling GH tag (pin by date+digest)
@@ -180,7 +184,7 @@ if [[ $DRY -eq 0 ]]; then
   check "$OPT/deepsnr-${DEEPSNR_VER}/deepsnr -h"
   check "$OPT/graxpert-${GRAXPERT_VER}/GraXpert-linux -h"
   check "$OPT/nightlight-0.2.6/nightlight version"
-  [[ $DO_DATA -eq 1 ]] && { check "astap --version"; check "solve-field --help"; }
+  [[ $DO_DATA -eq 1 ]] && { check "astap_cli --version || astap --version"; check "solve-field --help"; }
   check "'$VENV/bin/python' -c 'import numpy,scipy,PIL,astropy;print(astropy.__version__)'"
   [[ $fail -eq 0 ]] && log "ALL VERIFY OK — manifest at $MANIFEST" || { echo "[bootstrap] VERIFY FAILURES — see above"; exit 1; }
 else

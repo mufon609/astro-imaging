@@ -49,6 +49,12 @@ _(add each writeup here, newest first)_
 - [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
   on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
   `/opt`), checksums, gotchas + a drafted **untested** `scripts/setup/x86_bootstrap.sh`.
+- [siril-stacking-workflow](siril-stacking-workflow.md) — 2026 headless calibrate/
+  register/integrate: rejection-by-sub-count, the unified `-weight=` that breaks
+  migrated scripts, drizzle-on-register, and the WBPP gaps (no Local Norm / PSF-Signal-Weight).
+- [plate-solving-and-drizzle](plate-solving-and-drizzle.md) — the trailed/ultra-wide
+  solve (astrometry.net peak-xylist is the *intended* override; ASTAP W08/G05 HFD; Siril
+  findstar least-robust) + the drizzle sampling truth (short-focal is *under*sampled).
 - [siril-natives-and-trailed-solve](siril-natives-and-trailed-solve.md) — Siril
   1.4.4/1.5.0-dev native surface; the chroma-noise / AI-deconv / star-neutral gaps
   all still non-native; sharpened trailed-field `-localasnet` verification.

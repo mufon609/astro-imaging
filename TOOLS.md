@@ -64,6 +64,18 @@ Bias/dark/flat calibrate → register → integrate → one linear master.
 flatless sets (data-class, not a tool gap). PI/APP only as reference or for
 a normalization edge case.
 
+**Workflow specifics (headless, 1.4.4 — `docs/siril-stacking-workflow.md`):** masters
+bias/dark `-nonorm`, flats `-norm=mul`; lights `-norm=addscale`. **Rejection by sub
+count:** ≤6 percentile (`p`), ~7–50 winsorized (`rej w 3 3`), >50 GESD (`rej g 0.3 0.05`
+— fraction+significance, NOT sigmas), large+gradients linear-fit (`rej l 3 3`).
+Weighting `-weight={wfwhm|noise|nbstars|nbstack}` (unified — the old `-weight_from_*`
+flags are REMOVED and will error migrated scripts). Registration: `-2pass`→`seqapplyreg`,
+homography for wide fields, lanczos4+clamp. **Drizzle is a `register` option, not `stack`**
+(CFA-drizzle 1×/pixfrac 1.0 for OSC; upscale only if sampling+dither justify —
+[[plate-solving-and-drizzle]]). **Two real gaps vs PixInsight WBPP:** no Local
+Normalization and no PSF-Signal-Weight equivalent (our audit layer can supply a PSFSW
+proxy — [[objective-qa-defect-metrics]]).
+
 ## Tier 2 — Registration reference / plate solving / astrometry
 
 Blind-solve → WCS for SPCC + annotation. Our dead-end: Siril's *internal*
@@ -72,7 +84,7 @@ star-match solver fails ultra-wide **trailed** fields.
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
 | **Siril 1.4 native astrometry.net** (`platesolve -localasnet -blindpos -blindres`, SIP, auto-crop-wide) | FREE | siril-native | ✅ / ✅ / ✅ | **Now native in 1.4** (Dec 2025) — replaces our custom solve for ROUND-STAR (tracked) data. VERIFIED it does NOT drop-in replace `solve_field.py` for the TRAILED class: Siril feeds astrometry.net its own `findstar` (PSF-fit) star list, which is exactly the detection our dead-end says fails on trailed stars (ours feeds trail-robust PEAK centroids). Mitigation to TEST on x86: `setfindstar -relax=on` accepts non-star-shaped/trailed objects — may let native localasnet solve the trailed class too. See the verification note below. |
-| **ASTAP** (`astap -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** (~2 s local blind solve vs astrometry.net's 5–30 s); its own star-pattern solver + local star DB. Best when a rough center is known; excellent headless. A third solver option distinct from astrometry.net. |
+| **ASTAP** (`astap_cli -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** local blind solve; **HFD flux-weighted-centroid detection with NO roundness gate → tolerates MILD/MODERATE trailing where Siril findstar rejects it** (severe/rotational still fails: "oval stars ignored"). **Wide-field DBs = W08 (80°>FOV>20°, 276 kB) + G05 (20°>3°)** — the D-series caps at 6°; **G17/H17/H18 are deprecated**. Key lever `-z` downsample. A strong complementary trailed-field solver — measure it vs `solve_field.py`. |
 | **astrometry.net** (`solve-field`, our `solve_field.py`) | FREE | CLI | ✅ / ✅ / ✅ | Our current workaround — blind solve from PEAK centroids, which is what beat the trailed-star problem. Keep as the fallback until native/ASTAP are verified on trailed data. |
 
 **Pick:** native localasnet for round-star data; **keep `solve_field.py` for
@@ -85,7 +97,13 @@ for ultra-wide trailed fields). On x86, run the empirical test — `setfindstar
 native/relaxed solves reliably, retire the custom script; else it stays the
 trailed-field tool. (`-relax=on` only loosens quality checks — more
 false-positives — it does NOT convert findstar's round-PSF model into a
-peak-centroid detector.) VERIFICATION detail below the table.
+peak-centroid detector.) **Trailed-class robustness ranking (mechanism —
+`docs/plate-solving-and-drizzle.md`):** (1) astrometry.net fed our own
+peak-centroid xylist — MOST robust, and confirmed the *intended* shape-blind
+override (solve-field with an xylist runs no extraction; the matcher is
+geometry-only), which VALIDATES `solve_field.py`; (2) ASTAP + W08/G05 (HFD, no
+roundness gate) for mild trailing; (3) native `-localasnet` — least (findstar
+PSF-fit + >5° crop). VERIFICATION detail below the table.
 
 **Verification — does Siril 1.4 native solve replace `solve_field.py`?**
 PARTIALLY. Both now use the astrometry.net ENGINE (Siril's *internal*

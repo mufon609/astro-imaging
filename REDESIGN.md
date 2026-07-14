@@ -341,9 +341,15 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   astrometry.net Siril's `findstar` PSF-fit detection (on the green layer), and
   when FOV > 5° it further **crops detection to the central area** unless
   `-nocrop`. `setfindstar -relax=on` only loosens quality checks (more
-  false-positives) — it does not become a peak-centroid detector. Keep
-  `solve_field.py`; the x86 test is `-relax=on -roundness=0.1 -maxR=large` +
-  `-nocrop` vs the custom script vs ASTAP (TOOLS.md Tier 2).
+  false-positives) — it does not become a peak-centroid detector. **Feeding
+  astrometry.net a peak-centroid xylist is the INTENDED shape-blind override**
+  (solve-field with an xylist runs NO extraction; the matcher is geometry-only,
+  Lang 2010) — this confirms `solve_field.py` is doing the sanctioned thing, not a
+  hack. Robustness ranking: (1) astrometry.net + own peak xylist, (2) ASTAP + the
+  wide DBs **W08/G05** (HFD centroids, no roundness gate — tolerates mild trailing;
+  the D-series caps at 6°, G17/H17 deprecated), (3) native `-localasnet` (least).
+  Keep `solve_field.py`; the x86 test is `-relax=on -roundness=0.1 -maxR=large` +
+  `-nocrop` vs the custom script vs ASTAP+W08 (TOOLS.md Tier 2).
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass +
   low detection sigma recovers them; on trailed frames a reference sweep beats
   the auto-reference. Keep all frames (dropping a minority sub-focal subset
@@ -355,8 +361,17 @@ detail + the numbers live in git history (the `checkpoint` commit's NOTES).
   carries the cloud signal).
 - wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
   min-max ramp → worst frame ~0 weight at any spread).
-- Drizzle on heavily oversampled data (short focal / large pixels) is
-  pointless. CLASSICAL deconvolution (makepsf + RL) where trailing is
+- Drizzle: **CORRECTION to the old phrasing** — "short focal / large pixels ⇒
+  oversampled" is BACKWARDS (that geometry gives large arcsec/px → *few* px per
+  star → UNDER-sampled, drizzle's home turf). Judge sampling by measured
+  **minor-axis FWHM**, not the "wide" label: ≥~2–3 px = oversampled (skip),
+  <2 px = undersampled (2× drizzle *can* help IF real sub-pixel dither + many
+  registered frames). Our trailed data is oversampled only where *trailing/bloat*
+  spreads the star; drizzle is pointless there because trailing breaks the
+  dither/registration preconditions AND drizzle can't de-trail (it renders a
+  sharper *smeared* star). CFA-drizzle 1×/pixfrac 1.0 is a separate OSC-only win
+  (cleaner colour noise). `docs/plate-solving-and-drizzle.md`.
+  CLASSICAL deconvolution (makepsf + RL) where trailing is
   in-exposure fails — unstable symmetric PSF on ≈0 background. This is NO
   LONGER a blanket dead-end on x86: BlurXTerminator's learned model corrects
   elongated/trailed stars where classical RL cannot (`--correct-only`, `rc-astro
