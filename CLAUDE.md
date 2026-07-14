@@ -55,8 +55,10 @@ auto-memory so they transfer with the repo; (3) `README.md` — the process
 contract (review
 contract + standing audits, per-set geometry, experiment discipline, north
 star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC/
-self-flat) lives in the kept scripts' own docstrings. `BACKLOG.md` is a stub
-(superseded by REDESIGN). Full history lives in `git log` — the complete
+self-flat) lives in the kept scripts' own docstrings. `docs/` holds research
+deep-dives (one cited `.md` per major investigation — see `docs/README.md`),
+whose durable findings graduate into TOOLS/REDESIGN/MEMORY. `BACKLOG.md` is a
+stub (superseded by REDESIGN). Full history lives in `git log` — the complete
 pre-reset chain AND the old NOTES.md are at the `checkpoint` commit.
 Per-dataset state is the tracked `datasets/<session>/<set>/` records; NOTE
 its `recipe.json` render blocks + `baseline.json` are chain-coupled and
