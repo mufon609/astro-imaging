@@ -17,9 +17,14 @@
 - **Binary `rc-astro`**, one multi-tool with per-product subcommands **`bxt` / `nxt`
   / `sxt`**. Linux install `/opt/rc-astro`, symlinked into `/usr/local/bin`. Beta
   (v0.9.9, 2026-07-02); standalone announced 2026-06-24.
-- **Linux requirement: Ubuntu 22.04+** (the CLI's own stated baseline; installer is
-  a shell script). ⚠ Our rig is Debian-based **Kali** — glibc/ABI compat is a
-  concrete x86-setup item to verify (expected OK, not confirmed).
+- **Linux requirement: "Ubuntu 22.04+" is a glibc FLOOR, not a desktop or distro
+  requirement.** RC-Astro states Linux reqs as glibc versions (its PixInsight build asks
+  "Ubuntu 18.04 / glibc 2.27") → the standalone decodes to **glibc ≥ 2.35 + GLIBCXX ≥
+  3.4.30 + AVX/AVX2/SSE**. It is a headless CLI (no GTK/GNOME libs), so **the desktop
+  environment does not matter** — switching DE to "mimic Ubuntu" is a bandaid on a
+  non-problem (Kali-GNOME is still Kali, same glibc). Debian-based **Kali has glibc 2.42
+  + GLIBCXX 3.4.35 (verified) → clears the floor by forward-compatibility.** The
+  definitive check is `ldd` on the binary, not the OS label.
 - **Pure CLI, no display.** Reads/writes files directly; **formats TIF, FITS, XISF,
   PNG**; `--depth {8U,16U,32F,64F}` (default = input; RC recommends 32/64-bit float
   for linear BXT). Output defaults to `<input>-<product>.<ext>`; `-o/--output` (file
@@ -137,8 +142,11 @@
 ## Status
 **PROVISIONAL (primary-verified specs; not yet run on our rig).** All CLI/flags/
 license/model facts are PRIMARY-VERIFIED from rc-astro.com + the Siril script source.
-The two empirical unknowns for x86: (a) does the Ubuntu-22.04-targeted binary run on
-Kali (glibc/ABI); (b) true i7-14700 CPU wall-clock per tool at our frame sizes
+The two empirical unknowns for x86: (a) the *full* shared-lib set the binary pulls — the
+stated glibc-2.35 / GLIBCXX-3.4.30 floor is already cleared by Kali's 2.42 / 3.4.35
+(verified), so confirm the rest with `ldd <rc-astro>` on the rig; any gap is a specific
+`apt install`, never a distro/desktop change; (b) true i7-14700 CPU wall-clock per tool
+at our frame sizes
 (`--benchmark-all` + timed run). Also verify the Siril script's CLI branch avoids
 `QApplication` if wrapping it headless (or just call `rc-astro` directly and moot it).
 

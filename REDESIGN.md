@@ -182,7 +182,8 @@ line, PyPI latest **3.2.0a2**; GitHub releases and PyPI diverge, so check PyPI);
 StarNet2 **v2.5.3** native CLI + **DeepSNR** (free NAFNet
 Linux CLI); astrometry.net + astropy. Then decide whether to license RC-Astro
 (BXT $99.95 / NXT $59.95 / SXT $49.95 — best-in-class, the **`rc-astro` v0.9.9**
-CLI on Ubuntu-22.04+ [**verify on Kali**]; one cross-platform perpetual license,
+CLI on Ubuntu-22.04+ (a **glibc-2.35/GLIBCXX-3.4.30 floor**, NOT a desktop req —
+Kali's glibc 2.42 clears it; verify with `ldd`, never switch DE); one cross-platform perpetual license,
 CLI free for holders; **activate once online + `download-models`, then it runs
 offline**; call the binary directly for headless). Free AI to stage: Cosmic
 Clarity (native Linux, CPU-slow), DeepSNR, AstroDenoisePy. **AstroSharp is OUT**

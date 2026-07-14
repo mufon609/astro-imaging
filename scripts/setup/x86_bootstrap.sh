@@ -168,7 +168,9 @@ cat <<'RCASTRO'
   2) Run it; the `rc-astro` binary lands on PATH (record its /opt path in the manifest).
   3) rc-astro <bxt|nxt|sxt> --activate <email> <license-key>     # once, online
   4) rc-astro download-models                                    # cache models, then offline
-  5) Smoke test on this box (Ubuntu-22.04 build on Kali glibc — verify forward-compat):
+  5) Verify LIBRARIES (the req is a glibc-2.35/GLIBCXX-3.4.30 floor + AVX2, NOT a
+     desktop — Kali glibc 2.42 clears it; a missing lib => apt install <it>, never a DE switch):
+       ldd "$(command -v rc-astro)"   # confirm no 'not found'
        rc-astro bxt            # prints help + license state
        rc-astro --device       # list devices; use --device cpu (no GPU). (--engine is legacy)
   6) sha256 the installer yourself and add a manifest row.

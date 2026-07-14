@@ -6,7 +6,7 @@
   source, integrity (sha256/signature), install path, deps, and Kali-vs-Ubuntu
   gotchas — plus a drafted `scripts/setup/` **bootstrap** that installs → pins →
   verifies → emits a manifest. This is the environment-founding step of the rebuild.
-- **Context** — 2026-07-14. Target: x86-64 Kali (rolling, glibc ~2.38), i7-14gen,
+- **Context** — 2026-07-14. Target: x86-64 Kali (rolling, glibc 2.42), i7-14gen,
   32 GB, 1 TB NVMe, **no GPU**, headless. Overlapping facts were verified first-hand
   on the arm box (Siril flatpak, GraXpert pipx, apt availability) where arch-agnostic;
   x86-only specifics are primary-sourced. Builds on all seven tool deep-dives.
@@ -57,12 +57,18 @@ system Python).
 - **StarNet/DeepSNR/Cosmic Clarity take TIFF/PNG, not FITS** — convert via Siril in the
   chain. StarNet & DeepSNR ship a **published sha256** (verify it); Cosmic Clarity is a
   rolling GH tag (pin by date + per-asset digest).
-- **rc-astro:** Ubuntu-22.04-built (glibc 2.35); Kali's newer glibc (~2.38) is
-  **forward-compatible** → should run, **verify with a `--version` smoke test**. No GPU
-  → force CPU. ⚠ **flag correction:** the current (v0.9.9) flag is **`--device cpu`**;
-  the older `--engine` name is legacy. `--activate <email> <key>` once online +
-  `download-models`, then offline. The installer is **license-gated** → the bootstrap
-  can't auto-fetch it; it prints the manual steps.
+- **rc-astro — the "Ubuntu 22.04+" requirement is a glibc FLOOR, not a desktop/distro
+  requirement.** RC-Astro states Linux reqs as glibc versions (its PixInsight build asks
+  "Ubuntu 18.04 / glibc 2.27" — same pattern), so the standalone CLI's "Ubuntu 22.04"
+  decodes to **glibc ≥ 2.35 + GLIBCXX ≥ 3.4.30 + AVX/AVX2/SSE**. It is a headless CLI
+  with no GTK/GNOME libs → **the desktop environment is irrelevant** (do NOT switch DE to
+  "mimic Ubuntu" — a bandaid; Kali-GNOME is still Kali, same glibc). **Kali has glibc 2.42
+  + GLIBCXX 3.4.35 (verified) → clears the floor by forward-compatibility on any desktop.**
+  Real check = **`ldd <rc-astro> && rc-astro --version`** on the rig (not the OS label);
+  a missing *specific* lib → `apt install <it>`, never a DE change. No GPU → **`--device
+  cpu`** (older `--engine` name is legacy). `--activate <email> <key>` once online +
+  `download-models`, then offline. Installer is **license-gated** → the bootstrap can't
+  auto-fetch it; it prints the manual steps.
 - **astrometry.net index for OUR class:** the **4100-series (Tycho-2)** is the
   wide-field set (index quads should be 10–100% of image width); the widest Debian
   sub-packages are `astrometry-data-tycho2-10-19` (60′–2000′). `solve_field.py`
