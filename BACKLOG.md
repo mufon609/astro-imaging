@@ -544,34 +544,82 @@ kept). Any preset implementation must still couple channel gain with
 the corings' noise scope. USER RATIFICATION required for the redesigned
 scope before code.
 
-### C18 — Object-integrity audit: the object region is metrically blind, both directions
+### C18 — Object-integrity audit: sharpen the structure measure + calibrate on the escapes
 
-User-ratified after FOUR measured escapes: a render whose OBJECT was
-damaged can pass every standing audit — the balance probe that
-neutralized the whole nebula through the corings PASSED the gate
-(colour 4.0, all achromatics green), the vst chroma-crush defect
-shipped in four gate-PASSing judged renders, a linked-stretch narrowband
-render shipped with its O3 sphere drowned under the dominant line's chroma
-grain, and lifted-faint-end renders shipped with coring MOTTLE — the
-partial Wiener shrinkage broke low-SNR dust into soft-edged
-kept-vs-flattened patches ("blotchy", the user's eyes at 1:1) that the
-gate cannot see because the dust drops out of its statistical sky
-scope. The gate grades the SKY by design; nothing grades the object.
-Add a standing WARN-level render audit on the object region, BOTH
-directions: (a) retention vs the CALIBRATED linear stack — above-sky
-chroma energy and structure contrast at matched locations, one-sided
-(chain-REMOVED signal warns; noise the corings removed toward neutral
-does not); (b) chain-INTRODUCED texture — mid-scale (coring-pyramid
-scale) energy/patchiness in the rendered object region that the
-reference stack pushed through the same transform does NOT carry
-(partial-shrink mottle, seams). Companion to the ratified colour-gate
-redesign (chain-ADDED colour); together they bound the chain from both
-sides. Implementation care: compare at matched luminance levels or
-push the reference through the same per-CHANNEL transform (the perline
-transform is closed-form and printable; the linked autostretch is
-siril-internal — deriving its equivalent MTF from the rendered
-sky/anchor levels is part of this design). Thresholds calibrate on the
-four measured escapes (all must WARN — each regenerates from the
-pinned stacks with the recorded knobs) and every approved
-render (none may). WARN-only until a class history exists; the gate
-never loosens.
+The standing object-region audit LANDED (`scripts/qa/object_integrity.py`,
+wired WARN-only into every starcomb render): it grades the object the gate
+is blind to against the render's OWN same-balance, co-registered input.
+RELIABLE today: chroma neutralization (absolute object chroma vs the input
+— catches the balance-probe/vst chroma-crush class) and coring MOTTLE
+(mid-scale texture excess). Structure is a grain-robust, registration-
+tolerant, worst-region correlation that catches GROSS object flattening but
+does NOT resolve a SMALL LOCAL hollow (a Bubble-sized shell reads ~0.87,
+washed out by the surrounding object; pushing the block smaller false-flags
+on mottle). That specific hollow-shell class turned out to be an upstream
+channel MISALIGNMENT, caught by `nightlight_sho.py`'s alignment check — a
+complementary guard, not this render audit.
+
+Remaining:
+- **Small-local structure sensitivity** — a measure that isolates a
+  shell-sized structure loss without false-flagging mottle (a matched-scale
+  template / local-vs-neighborhood coherence, not a whole-object or
+  fixed-block correlation). Real, separate effort.
+- **Calibrate the thresholds on the FOUR measured escapes** (balance-probe
+  neutralization, vst chroma-crush, linked-stretch drowned O3 sphere,
+  coring mottle) — each must WARN, every approved render must not; the
+  escapes regenerate from the pinned stacks with the recorded knobs.
+- WARN-only until a class history exists; the gate never loosens. Companion
+  to the ratified colour-gate redesign (C11, chain-ADDED colour) — together
+  they bound the chain from both sides.
+
+### C19 — Migrate the remaining hand-rolled processing operators to their tools — DONE
+
+The render chain (`starcomb.py`) is now TOOL-ONLY: `operators.json` carries
+6 processing operators, ALL status `tool`, 0 sanctioned / 0
+migration-candidate, and `hand_roll_audit.py` PASSes with zero custom
+processing. What happened, per operator:
+- MIGRATED to siril: black point → `mtf b 0.5 1`; stars layer → `mtf 0 m 1`
+  (python computes anchor m, siril applies); recombine → `pm` screen; final
+  saturation → `satu`. (SCNR had already moved to siril `rmgreen`.)
+- DELETED, hole left (NOT refilled with numpy): the multi-scale Wiener
+  significance corings (`chroma_core`/`lum_core`). No tool provides
+  multi-scale significance coring, and the tool denoisers (siril VST /
+  GraXpert) ARE the denoise operators, so the corings were pure hand-rolled
+  processing. Removing them raises stretch-amplified sky noise (a broadband
+  set measured gate rings 8.2 vs the 8.0 bound — a declared delta needing
+  rebaseline/re-judgment); the replacement lever is `starless_denoise`
+  strength, laddered per class.
+- DELETED as a Nightlight duplicate: the in-house per-line narrowband stretch
+  + LCh finish (`satgamma`/`huerot`/`scnr`/`ppgamma`) and the in-house
+  `color_engine=star_neutral` balance. Narrowband SHO colour+develop is
+  Nightlight's job (C20), so the numpy that duplicated it is gone.
+
+Determinism holds (byte-identical re-render measured). FOLLOW-ON (own
+declared deltas, the user's eyes on finals): re-judge + rebaseline the
+datasets whose look changed when the corings were removed (the 4
+formerly-approved recipes were downgraded to `provisional` with a
+`tool_migration` note); and if a non-self-flat faint-signal class wants more
+sky-noise suppression than the tool VST gives, ladder `starless_denoise` gx
+vs vstpost vs off — never reintroduce a numpy coring.
+
+### C20 — Narrowband path: generalize Nightlight beyond SHO, calibrate
+
+LANDED: **render-engine routing** (`render_engine` recipe field; a
+mono-filters NARROWBAND SHO composition delegates to `nightlight_sho.py` by
+default — the author's tool, sanctioned). The in-house numpy narrowband path
+(`color_engine=star_neutral` + per-line stretch + LCh finish) was REMOVED in
+C19 as hand-rolled processing that duplicated Nightlight — Nightlight is now
+the SOLE honest narrowband colour+develop path (the star-neutral O3-sphere
+mechanism siril has no equivalent for). A narrowband set on the starcomb
+path gets the broadband linked stretch (dominant line only) and says so.
+
+Remaining:
+- **Generalize the nightlight engine beyond SHO** (dual-band HOO, other
+  narrowband compositions) — `nightlight_sho.py` is 3-channel SHO-specific;
+  a HOO or other-palette composition needs its own channel mapping / develop.
+- **A native star-neutral colour tool** (so the O3-sphere balance is not
+  Nightlight-only) stays a genuine gap — but it must be a TOOL mechanism, not
+  the removed in-house numpy. Until one exists, Nightlight is the path.
+- **Gold hue finish** on the green SHO base is a finishing CHOICE (the
+  reference gold is the author's manual GIMP hue); drive it in Nightlight
+  (`hue_offset`) on the user's eyes, never a rehydrated numpy huerot.

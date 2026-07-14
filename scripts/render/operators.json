@@ -1,0 +1,65 @@
+{
+  "_readme": "Honest catalog of the render chain's PROCESSING operators (code in starcomb.py that rewrites the deliverable's pixels) — the record behind the orchestrate-not-hand-roll rule (CLAUDE.md). scripts/qa/hand_roll_audit.py enforces it: it FAILS on an incoherent entry or an unregistered processing function in the product chain, and WARNS on migration-candidates. EXAMINING code (astrometrics metrics/masks/inspection rendering, bg_qa gate, the qa/ tools) is measurement, not processing, and is not listed. kind 'processing' = an image-processing ALGORITHM (stretch/denoise/colour transform/saturation/SCNR/combine/levels); kind 'glue' = trivial arithmetic between tool outputs (affine shift, scalar multiply, threshold clip, catalog-mask). A processing operator's status is one of: 'tool' (drives a real tool — the goal, and now the ONLY status any processing operator carries), 'sanctioned' (numpy is the sanctioned alternative because no available tool provides the mechanism ON THIS RIG; requires reason + removal_condition, the StarNet-aarch64 / DNG / astrometry.net precedent), or 'migration-candidate' (an AVAILABLE tool should do it; numpy is a standing debt). This chain is TOOL-ONLY: every pixel-rewriting operator drives Siril / GraXpert / StarNet2; narrowband SHO colour+develop (the star-neutral / O3-sphere mechanism Siril has no equivalent for) is Nightlight's job (scripts/render/nightlight_sho.py), auto-routed by render_engine and NOT part of this chain.",
+  "chain_file": "scripts/render/starcomb.py",
+  "orchestration_allowlist": [
+    "run_siril", "_run_sep", "ensure_starsep", "ensure_bge_linear",
+    "run_graxpert_denoise", "siril_apply", "siril_combine",
+    "_minimal_fits_cards", "solve_mtf_m", "_stage", "_write_stage_index",
+    "render_config", "load_generic", "resolve_recipe", "_experiments_path",
+    "ledger_append", "ledger_close", "close_experiment", "resolve_engine",
+    "main"
+  ],
+  "operators": [
+    {
+      "name": "starless_stretch", "func": "render_config:inline", "kind": "processing",
+      "status": "tool",
+      "what": "starless tone stretch (broadband/mono): one autostretch transfer, optional autoghs finishing pass",
+      "tool": "siril `autostretch [-linked] -1.5 <target>` (+ `autoghs` when stretch_mode=ghs); the linked/unlinked coupling is a siril flag"
+    },
+    {
+      "name": "starless_denoise", "func": "render_config:inline", "kind": "processing",
+      "status": "tool",
+      "what": "starless noise reduction (linear or post-stretch VST placements, or GraXpert AI)",
+      "tool": "siril `denoise -vst [-mod=0.5]` (vst/vstpost) or GraXpert denoising (gx, via run_graxpert_denoise); off = skip"
+    },
+    {
+      "name": "black_point", "func": "render_config:inline(siril_apply)", "kind": "processing",
+      "status": "tool",
+      "what": "linear black-point shift on the starless output floor (moves the floor, preserves all differences)",
+      "tool": "siril `mtf b 0.5 1` via siril_apply: a midtones balance of 0.5 is the identity transfer, so a low shadow clip at b is exactly the linear rescale (x-b)/(1-b). The clip fraction is MEASURED in numpy (examining); the transform is siril's"
+    },
+    {
+      "name": "stars_mtf", "func": "render_config:inline(siril_apply)", "kind": "processing",
+      "status": "tool",
+      "what": "midtones tone curve on the stars layer, anchored on a data-derived per-build level",
+      "tool": "siril `mtf 0 m 1` via siril_apply, with the anchor m computed in python (solve_mtf_m over the catalog top-tier G-basis amplitude, or k*sigma_G) and APPLIED by siril; `mtf 0 m 1` is exactly the single-parameter midtones transfer"
+    },
+    {
+      "name": "screen_combine", "func": "siril_combine", "kind": "processing",
+      "status": "tool",
+      "what": "screen blend of the stars layer over the starless: 1-(1-a)(1-b*opacity)",
+      "tool": "siril `pm \"1 - (1 - $starless$) * (1 - $stars$ * k)\"` (PixelMath); the star-layer opacity k is folded into the expression as a scalar inside the tool"
+    },
+    {
+      "name": "final_satu", "func": "siril_combine", "kind": "processing",
+      "status": "tool",
+      "what": "final saturation gain on the combined render",
+      "tool": "siril `satu <amount> 0 6` (background_factor 0 = all pixels, hue index 6 = all hues), run in the same siril_combine script right after the pm screen"
+    },
+    {
+      "name": "stars_floor", "func": "render_config:inline", "kind": "glue",
+      "what": "clip the stars layer below k*sigma before its MTF: clip(stars - k*sigma, 0)",
+      "note": "a per-channel pedestal-subtract-and-clip on the stars layer (the ghost-aura fix); the sigma is MEASURED on the linear starless, the op is trivial affine+clip arithmetic between tool outputs — not a reimplemented tool algorithm"
+    },
+    {
+      "name": "stars_opacity", "func": "siril_combine", "kind": "glue",
+      "what": "reduced-opacity star screen: stars * k inside the screen blend",
+      "note": "a scalar weight, applied inside the siril pm screen expression (see screen_combine); trivial arithmetic"
+    },
+    {
+      "name": "star_cull", "func": "render_config:inline", "kind": "glue",
+      "what": "zero star-layer pixels of catalog detections below the flux percentile",
+      "note": "masks CATALOG detections (measurement-driven culling), not an image-processing algorithm"
+    }
+  ]
+}

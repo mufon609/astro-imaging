@@ -1,42 +1,42 @@
 #!/usr/bin/env python3
-"""Starless/stars split processing + recombination (standard-DSO style).
+"""Starless/stars split render + recombination (standard-DSO style).
 
-The product chain. Knob values resolve CLI > the dataset's tracked
-recipe (datasets/<session>/<set>/recipe.json) > the GENERIC defaults —
-so an approved look is pinned per dataset, and a dataset without a
-recipe renders honestly generic and says so:
+The product chain ORCHESTRATES industry tools — every operator that
+rewrites the deliverable's pixels drives a real tool (Siril / GraXpert /
+StarNet2), never hand-rolled numpy. Knob values resolve CLI > the
+dataset's tracked recipe (datasets/<session>/<set>/recipe.json) > the
+GENERIC defaults — so an approved look is pinned per dataset, and a
+dataset without a recipe renders honestly generic and says so:
 
   starcomb.py <session> <set> --stack results/stack_<set>_norgbeq_spcc.fit [--lossless]
 
 Chain (input is the SPCC-calibrated stack — solve_field.py --inject +
-siril spcc; every generic value came from a measured single-knob ladder):
-  1. GraXpert BGE + subsky 1 on the STAR-FUL linear (cached; the only
-     order measured MW-safe — BGE on starless ERASES the MW)
+siril spcc):
+  1. GraXpert BGE + siril subsky 1 on the STAR-FUL linear (cached; the
+     only order measured MW-safe — BGE on starless ERASES the MW)
   2. star separation (cached): StarNet2 ONNX (net) or mask+inpaint
      (inpaint); auto = net when the weights are installed
-  starless: stretch per <stretch_linked> — linked autostretch -1.5
-       <starless_target> (broadband standard; auto resolves here for
-       any non-narrowband dataset) or per-line OBJECT-anchored MTF +
-       sky re-pin (perline; auto resolves here for a narrowband
-       palette composition — one linked MTF renders only the dominant
-       emission line)
-    -> post-stretch denoise -vst -mod=0.5 (<starless_denoise=vstpost>;
-       every linear placement imprints a radial signature on self-flat
-       data)
-    -> chroma_core  (multi-scale Wiener chroma coring toward neutral)
-    -> lum_core     (sky luminance coring; real structure Wiener-protected)
-    -> black_point  (output levels on the starless layer: gaps clip to
-       true black, real signal sits above the clip)
+  starless: siril autostretch -1.5 <starless_target> (linked broadband
+       standard; unlinked is a measurement rung)
+    -> siril denoise -vst -mod=0.5 (<starless_denoise=vstpost>; a linear
+       placement imprints a radial signature on self-flat data)
+    -> black_point via siril `mtf b 0.5 1` (linear black-point rescale:
+       gaps clip to true black, real signal sits above the clip)
   stars: faint components culled below the <cull_pct> flux percentile,
     skirt cored below <stars_floor> x sigma (the ghost-aura fix: only
-    genuine star signal reaches the stretch), gray MTF anchored so the
-    median top-500 amplitude (on the fixed G basis) renders at
-    <stars_peak>
-  combine: screen 1-(1-a)(1-b) -> satu -> JPEG q100/4:4:4 [+ PNG].
+    genuine star signal reaches the stretch), then rendered by siril
+    `mtf 0 m 1` with a data-derived anchor m so the median top-500
+    amplitude (on the fixed G basis) renders at <stars_peak>
+  combine: siril pm screen 1-(1-a)(1-b) -> siril satu -> JPEG q100/4:4:4
+    [+ PNG].
+
+Narrowband SHO colour+develop (the O3-sphere star-neutral mechanism
+Siril has no equivalent for) is NOT in this chain: it is Nightlight's
+job (scripts/render/nightlight_sho.py), auto-routed via render_engine.
 
 Ladder mode (single knob, control auto-bracketed, STOPS for judgment):
-  starcomb.py <session> <set> --stack ... --param chroma_core \\
-      --values 2,6 --hypothesis "..."
+  starcomb.py <session> <set> --stack ... --param starless_target \\
+      --values 0.05,0.09 --hypothesis "..."
 
 Reported per configuration: THE GATE = bg_qa on the starless render
 (composition-agnostic statistical sky scope, foreground excluded,
@@ -206,87 +206,6 @@ def ensure_bge_linear(ctx, mode="gx"):
     return out
 
 
-def chroma_core(starless_st, k=3.0):
-    """Multi-scale significance coring of chroma toward NEUTRAL.
-
-    The stretch amplifies per-channel noise into colored blotches at ALL
-    scales (measured 1-3 counts at 16-128 px on a linear floor of ~0.1);
-    blurring chroma just moves speckle up in scale, and saturation then
-    re-amplifies it. Instead: decompose R-G and B-G into a gaussian
-    pyramid (sigma 2/8/32/128 + residual), measure each level's noise on
-    the statistical dark sky, and Wiener-shrink each level by its local
-    energy e/(e + (k*sigma)^2). Chroma that is not significantly above
-    its own noise goes to gray; genuinely colored signal (bright star
-    hues, real tint standing above noise) passes near-unchanged by
-    construction. G (luminance) is never touched."""
-    from scipy.ndimage import gaussian_filter
-    c, h, w = starless_st.shape
-    g2 = min(1, c - 1)
-    G = starless_st[g2]
-    # noise estimated on the statistical dark sky (bright signal + foreground
-    # excluded) — composition-agnostic
-    sky = am.sky_pixel_mask(G)
-    out = {0: None, 2: None}
-    for ci in (0, 2):
-        cch = starless_st[ci] - G
-        levels = []
-        prev = cch
-        for s in (2, 8, 32, 128):
-            sm = gaussian_filter(cch, s)
-            levels.append(prev - sm)
-            prev = sm
-        levels.append(prev)                      # sigma-128 residual
-        rec = np.zeros_like(cch)
-        for lev in levels:
-            v = lev[sky]
-            sig = 1.4826 * np.median(np.abs(v - np.median(v)))
-            e = gaussian_filter(lev * lev, 4)
-            rec += lev * (e / (e + (k * sig) ** 2 + 1e-20))
-        out[ci] = rec
-    R = np.clip(G + out[0], 0.0, 1.0)
-    B = np.clip(G + out[2], 0.0, 1.0)
-    print(f"[starcomb] chroma_core k={k}: insignificant chroma -> neutral")
-    return np.clip(np.stack([R, G, B]), 0.0, 1.0)
-
-
-def lum_core(starless_st, k=3.0):
-    """Sky LUMINANCE significance coring — the gray-patch fix.
-
-    The stretch amplifies G noise into 1.2-2.7 counts of mid-scale gray
-    patchiness on a sky whose linear floor is 0.06-0.10 (measured); with the
-    chroma cored to neutral, the eye picks up that luminance unevenness. The
-    sky should be FLAT, so mid-scale sky structure below significance is
-    shrunk toward the smooth background: gaussian pyramid (sigma 8/32/128) of
-    G, per-level sky-noise, Wiener shrinkage, applied identically to R/G/B (no
-    chroma created). Noise is estimated on the statistical dark sky; the
-    correction is Wiener-gated everywhere, so real structure (a galaxy, the
-    MW, a treeline: energy >> noise => correction ~ 0) keeps its honest
-    structure with no geometric mask (a hard mask multiplied into the
-    correction printed a 4.5x blotch-texture seam at its edge)."""
-    from scipy.ndimage import gaussian_filter
-    c, h, w = starless_st.shape
-    g2 = min(1, c - 1)
-    G = starless_st[g2].astype(np.float64)
-    skyb = am.sky_pixel_mask(starless_st[g2])
-    levels = []
-    prev = G
-    for s in (8, 32, 128):
-        sm = gaussian_filter(G, s)
-        levels.append(prev - sm)
-        prev = sm
-    correction = np.zeros_like(G)
-    for lev in levels:
-        v = lev[skyb]
-        sig = 1.4826 * np.median(np.abs(v - np.median(v)))
-        e = gaussian_filter(lev * lev, 4)
-        keep_frac = e / (e + (k * sig) ** 2 + 1e-20)
-        correction += lev * (1.0 - keep_frac)
-    out = np.clip(starless_st - correction[None, :, :], 0.0, 1.0)
-    print(f"[starcomb] lum_core k={k}: insignificant sky luminance -> "
-          f"smooth bg (real structure Wiener-protected)")
-    return out.astype(starless_st.dtype)
-
-
 def run_graxpert_denoise(work, fit):
     """GraXpert AI denoising on a linear FITS (the --starless-denoise gx
     option), cached by input identity. Standard-order placement: linear,
@@ -312,161 +231,93 @@ def solve_mtf_m(x0, y0):
     return min(max(m, 1e-4), 1 - 1e-4)
 
 
-def perline_starless_stretch(starless_fit, out_fit, sky_target,
-                             width_target):
-    """Per-LINE NOISE-WIDTH-CAPPED stretch — the narrowband-palette
-    stretch (stretch_linked=perline). Each emission line is stretched
-    separately (one linked MTF renders only the dominant line — the
-    drowned-O3-sphere defect), and the stretch is bounded by a display
-    NOISE BUDGET, not an object anchor: per channel, gamma-then-black-pin
-    y = (x^(1/g) - b)/(1 - b) with b always solving sky -> sky_target and
-    g solved (fixed 24-step bisection, deterministic) so the sky NOISE
-    WIDTH lands at width_target. The stretch therefore stops before
-    amplifying noise into visibility — the reference finish's own
-    mechanism (its chain carries no denoiser at all), and the fix for the
-    coring-mottle class: noise that is never lifted needs no smoothing.
-    Sky-anchored per-channel stretching (siril unlinked) cannot do this
-    (no width control), and the earlier object-anchored form lifted the
-    faint end past its noise budget. A gamma of 1 already over budget
-    means the data is noisier than the target at unity stretch — stated,
-    never forced. numpy end to end; file order and header cards
-    round-trip untouched."""
-    cards, planes, _ = am.read_fits_planes(starless_fit)
-    out = np.empty_like(planes)
-    for ci in range(planes.shape[0]):
-        ch = planes[ci]
-        sub = ch[::4, ::4].astype(np.float64)
-
-        def width_at(g):
-            y = np.clip(sub, 0.0, 1.0) ** (1.0 / g)
-            loc, sig = am.bg_stats(y.astype(np.float32), stride=1)
-            b = (loc - sky_target) / max(1.0 - sky_target, 1e-9)
-            b = min(b, 0.999)
-            return sig / max(1.0 - b, 1e-9), loc, b
-
-        w1, _, _ = width_at(1.0)
-        if w1 >= width_target:
-            g = 1.0
-            print(f"[starcomb] perline ch{ci}: width {w1 * 100:.2f}% >= "
-                  f"budget {width_target * 100:.2f}% at unity gamma — no "
-                  "stretch headroom, black-pin only")
-        else:
-            lo, hi = 1.0, 10.0
-            for _ in range(24):
-                mid = 0.5 * (lo + hi)
-                w, _, _ = width_at(mid)
-                if w < width_target:
-                    lo = mid
-                else:
-                    hi = mid
-            g = lo
-        _, loc_g, b = width_at(g)
-        y = np.clip(ch, 0.0, 1.0) ** np.float32(1.0 / g)
-        z = (y - np.float32(b)) / np.float32(max(1.0 - b, 1e-9))
-        out[ci] = np.clip(z, 0.0, 1.0)
-        clip0 = float((z <= 0).mean())
-        _, w_fin = am.bg_stats(out[ci])
-        print(f"[starcomb] perline ch{ci}: gamma {g:.3f} black "
-              f"{b * 100:+.2f}% -> sky {sky_target * 100:.1f}% width "
-              f"{w_fin * 100:.3f}% (budget {width_target * 100:.2f}%) "
-              f"clip0 {clip0 * 100:.2f}%")
-    am.write_fits_planes(out_fit, cards, out)
+def _minimal_fits_cards(nc, h, w):
+    """A minimal valid float32 header (write_fits_planes patches the NAXIS
+    geometry from the array) — for round-tripping an in-memory array
+    through a siril command that has no numpy equivalent we should use."""
+    def card(k, v):
+        return f"{k:<8}= {v:>20}".ljust(80)
+    return [card("SIMPLE", "T"), card("BITPIX", "-32"),
+            card("NAXIS", 3 if nc == 3 else 2),
+            card("NAXIS1", w), card("NAXIS2", h)] \
+        + ([card("NAXIS3", nc)] if nc == 3 else [])
 
 
-def perline_finish(starless_st, cfg):
-    """Narrowband finishing on the per-line-stretched starless — the
-    reference chain's operator set, in its order, each gated at the sky
-    significance threshold so the noise floor is never touched:
-
-    1. saturation gamma (satgamma): LCh chroma C -> Cref*(C/Cref)^(1/y)
-       for pixels above the luminance gate (Cref = p99.9 of gated C);
-    2. hue rotation (huerot_from/to/by, LCh hue degrees): the Hubble-
-       palette shift — the reference's golds ARE its rotated Ha greens;
-    3. SCNR (scnr): average-neutral green blend g' = (1-a)g +
-       a*min(g,(r+b)/2), ungated (the classic full-frame operator);
-    4. post-peak luminance lift (ppgamma): partial gamma on Luv L over
-       [gate,1], applied as an RGB-ratio-preserving gain — LUMINANCE
-       ONLY, chroma noise is never stretched (the anti-mottle property).
-
-    Gate = sky L + ppsigma * sky L width, measured on the stretched
-    image's Luv luminance. All-neutral knobs (satgamma 1, huerot_by 0,
-    scnr 0, ppgamma 1) make this an exact no-op."""
-    satg = float(cfg.get("satgamma", 1.0))
-    rot_by = float(cfg.get("huerot_by", 0.0))
-    scnr_a = float(cfg.get("scnr", 0.0))
-    ppg = float(cfg.get("ppgamma", 1.0))
-    pps = float(cfg.get("ppsigma", 1.0))
-    if satg == 1.0 and rot_by == 0.0 and scnr_a == 0.0 and ppg == 1.0:
-        return starless_st
-
-    L, C, h = am.rgb_to_lch(starless_st)
-    Ln = L / 100.0
-    loc, wid = am.bg_stats(Ln)
-    gate = np.float32(loc + pps * wid)
-    # smooth significance blend, not a hard cut: a binary gate stipples
-    # the boundary (pixels flickering across the threshold get binary
-    # treatment — measured as a speckle fringe around the dust edges);
-    # ramp the ops in over two noise widths above the gate instead
-    ramp = np.float32(max(2.0 * wid, 1e-6))
-    w01 = np.clip((Ln - gate) / ramp, 0.0, 1.0).astype(np.float32)
-    gm = w01 > 0
-    gfrac = float((w01 >= 1.0).mean())
-    print(f"[starcomb] perline finish: L gate {loc * 100:.2f}% + "
-          f"{pps:g}*{wid * 100:.3f}% -> {float(gate) * 100:.2f}%, "
-          f"ramp +{float(ramp) * 100:.3f}% "
-          f"({gfrac * 100:.1f}% of px fully above)")
-
-    if satg != 1.0 and gm.any():
-        cref = float(np.percentile(C[w01 >= 1.0], 99.9)) \
-            if (w01 >= 1.0).any() else 0.0
-        if cref > 0:
-            cn = np.clip(C / cref, 0.0, None)
-            C = C + w01 * (cref * cn ** np.float32(1.0 / satg) - C)
-            print(f"[starcomb]   satgamma {satg:g} (Cref {cref:.2f})")
-    if rot_by != 0.0:
-        f0 = float(cfg.get("huerot_from", 0.0))
-        t0 = float(cfg.get("huerot_to", 360.0))
-        # feather the interval edges (8 deg cosine ramps): a hard hue
-        # boundary splits adjacent pixels of one structure into rotated
-        # vs unrotated colour — measured as a neon seam where the object
-        # hue straddles the interval edge
-        fw = np.float32(8.0)
-        lo_r = np.clip((h - np.float32(f0)) / fw, 0.0, 1.0)
-        hi_r = np.clip((np.float32(t0) - h) / fw, 0.0, 1.0)
-        hue_w = (lo_r * hi_r).astype(np.float32)
-        sel_w = w01 * hue_w
-        h = (h + sel_w * np.float32(rot_by)) % 360.0
-        print(f"[starcomb]   huerot [{f0:g},{t0:g}]±8 by {rot_by:+g} deg "
-              f"({float((sel_w > 0.5).mean()) * 100:.1f}% of px)")
-    out = am.lch_to_rgb(L, C, h)
-    del L, C, h
-    if scnr_a > 0.0:
-        gmin = np.minimum(out[1], 0.5 * (out[0] + out[2]))
-        out[1] = (1.0 - scnr_a) * out[1] + scnr_a * gmin
-        print(f"[starcomb]   scnr {scnr_a:g}")
-    if ppg != 1.0:
-        L2, _, _ = am.rgb_to_lch(out)
-        Ln2 = L2 / 100.0
-        del L2
-        t = float(gate)
-        span = max(1.0 - t, 1e-9)
-        lifted = t + span * ((np.clip(Ln2, t, 1.0) - t) / span) \
-            ** np.float32(1.0 / ppg)
-        gain = np.where(Ln2 > t, lifted / np.maximum(Ln2, 1e-6), 1.0) \
-            .astype(np.float32)
-        out = np.clip(out * gain[None, :, :], 0.0, 1.0)
-        print(f"[starcomb]   ppgamma {ppg:g} above {t * 100:.2f}% "
-              f"(max gain x{float(gain.max()):.2f})")
-    return out.astype(starless_st.dtype)
+def siril_apply(ctx, arr, ops, tag):
+    """Apply siril image commands to an in-memory float array by round-
+    tripping through a temp FITS: write, `load`, run <ops>, `save`, read
+    back. The PROCESSING is siril's (the ops); write/load/save/read are I/O.
+    Deterministic: the commands driven here (mtf/pm) carry no RNG and the
+    float32 FITS round-trips exactly."""
+    work, sdir = ctx["work"], ctx["sdir"]
+    nc, h, w = arr.shape
+    tmp = os.path.join(work, f"siril_{tag}.fit")
+    am.write_fits_planes(tmp, _minimal_fits_cards(nc, h, w),
+                         np.clip(arr, 0.0, 1.0).astype(np.float32))
+    rel = os.path.relpath(tmp, sdir)[:-4]
+    run_siril(sdir, ["requires 1.4.0", f"load {rel}"] + list(ops)
+              + [f"save {rel}", "close"], f"starcomb_{tag}.gen.ssf")
+    _, planes, _ = am.read_fits_planes(tmp)
+    os.remove(tmp)
+    return planes.astype(arr.dtype)
 
 
-def _inspect_stage(ctx, name, arr, stretched, note=""):
-    """Render-chain provenance (--inspect): one consistent JPEG + one
-    metrics line per render stage, so a defect in the final render can be
-    localized to the stage that introduced it without re-running the
-    chain. Linear stages go through the shared inspection autostretch;
-    stretched stages are written as-is (they ARE display-referred)."""
-    d = ctx.get("inspect_dir")
+def siril_combine(ctx, starless, stars, opacity, satu_amt):
+    """Recombine + saturate by SIRIL (the tools): screen the star layer over
+    the starless with siril `pm` (PixelMath), then siril `satu`. The screen
+    blend and the saturation are siril's algorithms; the star-layer opacity
+    is folded into the pm expression (a scalar inside the tool). Screen =
+    1-(1-starless)(1-stars*opacity). satu background_factor 0 saturates all
+    pixels (the render carries no background saturation threshold), hue index
+    6 = all hues."""
+    work, sdir = ctx["work"], ctx["sdir"]
+    nc, h, w = starless.shape
+    cards = _minimal_fits_cards(nc, h, w)
+    sl = os.path.join(work, "combine_starless.fit")
+    stf = os.path.join(work, "combine_stars.fit")
+    out = os.path.join(work, "combine_out.fit")
+    am.write_fits_planes(sl, cards, np.clip(starless, 0, 1).astype(np.float32))
+    am.write_fits_planes(stf, cards, np.clip(stars, 0, 1).astype(np.float32))
+    relsl = os.path.relpath(sl, sdir)[:-4]
+    relst = os.path.relpath(stf, sdir)[:-4]
+    relout = os.path.relpath(out, sdir)[:-4]
+    star_term = (f"${relst}$" if float(opacity) == 1.0
+                 else f"${relst}$ * {float(opacity):g}")
+    lines = ["requires 1.4.0",
+             f'pm "1 - (1 - ${relsl}$) * (1 - {star_term})"']
+    if satu_amt and float(satu_amt) > 0:
+        lines.append(f"satu {float(satu_amt):g} 0 6")
+    lines += [f"save {relout}", "close"]
+    run_siril(sdir, lines, "starcomb_combine.gen.ssf")
+    _, planes, _ = am.read_fits_planes(out)
+    for f in (sl, stf, out):
+        if os.path.exists(f):
+            os.remove(f)
+    return planes.astype(starless.dtype)
+
+
+def _stage(ctx, name, arr, stretched, note="", extra=None):
+    """Per-stage visibility — STANDING on every build (unless
+    --no-stage-vis). One consistent full-frame image + one metrics row per
+    processing stage, in chain order, so the treatment at each step is
+    visible and a defect in the final render localizes to the stage that
+    introduced it — every build, not on demand. Linear stages go through
+    the shared inspection autostretch; stretched stages are display-
+    referred and shown as-is.
+
+    Always prints a one-line stage metric to the log (the textual trace,
+    even when images are disabled); writes the full-frame JPEG + metrics
+    row when a stage dir is active. This is a DIAGNOSTIC surface — it never
+    touches the float artifact chain, so determinism is unaffected, and it
+    is NOT the aesthetic-judgment surface (that stays the full-frame
+    lossless finals from judgment_package)."""
+    g = arr[min(1, arr.shape[0] - 1)]
+    bg, sig = am.bg_stats(g)
+    p99 = float(np.percentile(g[::4, ::4], 99))
+    tail = ("  " + "  ".join(f"{k} {v}" for k, v in extra.items())) \
+        if extra else ""
+    print(f"[stage] {name}: bg {bg:.5f} sigma {sig:.6f} p99 {p99:.5f}{tail}")
+    d = ctx.get("stage_dir")
     if not d:
         return
     import json as _json
@@ -477,33 +328,88 @@ def _inspect_stage(ctx, name, arr, stretched, note=""):
         u8 = (np.clip(arr.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     else:
         u8 = am.autostretch_u8(arr)
-    Image.fromarray(u8[::3, ::3]).save(
-        os.path.join(d, f"{n:02d}_{name}.jpg"), quality=90)
-    g = arr[min(1, arr.shape[0] - 1)]
-    bg, sig = am.bg_stats(g)
+    # full-frame, high quality: a diagnostic surface inspected at native
+    # scale (the user's stage-image choice), never downsampled
+    Image.fromarray(u8).save(os.path.join(d, f"{n:02d}_{name}.jpg"),
+                             quality=93)
     rec = {"stage": name, "stretched": bool(stretched),
            "bg_g": round(float(bg), 6), "sigma_g": round(float(sig), 7),
-           "p99_g": round(float(np.percentile(g[::4, ::4], 99)), 6),
-           "note": note}
+           "p99_g": round(p99, 6), "note": note}
+    if extra:
+        rec.update(extra)
     with open(os.path.join(d, "metrics.jsonl"), "a") as f:
         f.write(_json.dumps(rec) + "\n")
-    print(f"[inspect-render] {name}: bg {bg:.5f} sigma {sig:.6f}")
 
 
-def _stage_line(name, arr):
-    """Always-on one-line stage metric (bg / sigma / p99 of G): every
-    transform that mutates the image reports itself, so a defect in a
-    final render localizes to a stage from the normal run's log alone
-    (--inspect adds the per-stage JPEGs on top)."""
-    g = arr[min(1, arr.shape[0] - 1)]
-    bg, sig = am.bg_stats(g)
-    p99 = float(np.percentile(g[::4, ::4], 99))
-    print(f"[starcomb] {name}: bg {bg:.5f} sigma {sig:.6f} p99 {p99:.5f}")
+def _write_stage_index(ctx):
+    """Assemble index.html + index.md over the stage sequence: the labeled,
+    ordered full-frame stage images + their metrics in chain order, so the
+    whole treatment of one build reads as a sequence in one place."""
+    d = ctx.get("stage_dir")
+    if not d or not os.path.exists(os.path.join(d, "metrics.jsonl")):
+        return
+    import json as _json
+    rows = [_json.loads(x) for x in
+            open(os.path.join(d, "metrics.jsonl")) if x.strip()]
+    jpgs = sorted(f for f in os.listdir(d) if f.endswith(".jpg"))
+    std = ("stage", "stretched", "bg_g", "sigma_g", "p99_g", "note")
+    md = [f"# Render stage sequence — {ctx.get('set', '?')}", "",
+          "Full-frame diagnostic images, one per processing stage, in chain",
+          "order. DIAGNOSTIC surface (how the image is treated at each",
+          "step) — aesthetics are judged on the lossless finals, never here.",
+          "", "| # | stage | bg_g | sigma_g | p99_g | note |",
+          "|---|---|---|---|---|---|"]
+    html = ["<!doctype html><meta charset=utf-8>",
+            f"<title>stages {ctx.get('set', '?')}</title>",
+            "<style>body{background:#111;color:#ddd;font:14px sans-serif;"
+            "margin:0 auto;max-width:1100px;padding:1em}img{width:100%;"
+            "border:1px solid #333}h2{margin:1.4em 0 .2em}"
+            "pre{color:#9c9;white-space:pre-wrap;margin:.2em 0}</style>",
+            f"<h1>Render stages — {ctx.get('set', '?')}</h1>",
+            "<p>Diagnostic full-frame sequence in chain order. Aesthetics "
+            "are judged on the lossless finals, not here.</p>"]
+    for i, jpg in enumerate(jpgs):
+        r = rows[i] if i < len(rows) else {}
+        note = r.get("note", "")
+        md.append(f"| {i:02d} | {r.get('stage', '')} | {r.get('bg_g', '')} "
+                  f"| {r.get('sigma_g', '')} | {r.get('p99_g', '')} | "
+                  f"{note} |")
+        extra = {k: v for k, v in r.items() if k not in std}
+        html.append(f"<h2>{i:02d} — {r.get('stage', '')}</h2>")
+        html.append(f"<pre>bg {r.get('bg_g', '')}  sigma "
+                    f"{r.get('sigma_g', '')}  p99 {r.get('p99_g', '')}"
+                    + (f"  {extra}" if extra else "")
+                    + (f"\n{note}" if note else "") + "</pre>")
+        html.append(f"<img src='{jpg}'>")
+    open(os.path.join(d, "index.md"), "w").write("\n".join(md) + "\n")
+    open(os.path.join(d, "index.html"), "w").write("\n".join(html) + "\n")
+    print(f"[stage] sequence + index -> "
+          f"{os.path.relpath(d, ctx['sdir'])}/index.html")
 
 
 def render_config(ctx, cfg, jpg_out):
     """Run one configuration; returns metrics dict (also writes jpg)."""
     sdir, work = ctx["sdir"], ctx["work"]
+    if ctx.get("stage_vis"):
+        # per-render stage-visibility dir, fresh so the sequence counter
+        # resets: <final without ext>_stages/, beside the final it explains.
+        # Single renders, ladder values and sweep renders each get their own
+        # labeled full-frame sequence + index.
+        import glob
+        import shutil as _sh
+        sd = jpg_out[:-4] + "_stages"
+        if os.path.exists(sd):
+            _sh.rmtree(sd)
+        # disk hygiene: full-frame stage JPEGs accumulate every build, so
+        # keep only the most recent single/sweep stage dirs for this set
+        # (ladder stage dirs live under their exp_ dir and are untouched)
+        old = sorted(glob.glob(os.path.join(
+            os.path.dirname(jpg_out),
+            f"starcomb_{ctx.get('set', '')}_*_stages")))
+        for p in old[:-3]:
+            _sh.rmtree(p, ignore_errors=True)
+        os.makedirs(sd, exist_ok=True)
+        ctx = {**ctx, "stage_dir": sd}
     st_out = os.path.join(work, "starless_st.fit")
     if os.path.exists(st_out):
         os.remove(st_out)
@@ -511,39 +417,35 @@ def render_config(ctx, cfg, jpg_out):
     # the only one measured MW-safe: gx on starless erased the MW +38 ->
     # +0.4), THEN separation; the starless branch only denoises/stretches.
     bgelin = ensure_bge_linear(ctx, mode=cfg.get("bgelin_mode", "gx"))
-    if ctx.get("inspect_dir"):
+    if ctx.get("stage_dir"):
         b, _ = am.load_image(bgelin)
-        _inspect_stage(ctx, "bgelin", b, False, "BGE'd linear (star-ful)")
+        _stage(ctx, "bgelin", b, False,
+               f"background: bgelin_mode={cfg.get('bgelin_mode', 'gx')} "
+               "(BGE'd linear, star-ful)")
         del b
     starless_fit, stars_fit, cat_npz = ensure_starsep(
         ctx["repo"], sdir, bgelin, prom=cfg.get("sep_prom", 6.0),
         set_name=ctx.get("set"),
         engine=cfg.get("sep_engine", "auto"))
     ctx = {**ctx, "stars_fit": stars_fit, "cat_npz": cat_npz}
-    if ctx.get("inspect_dir"):
+    if ctx.get("stage_dir"):
         b, _ = am.load_image(starless_fit)
-        _inspect_stage(ctx, "starless_linear", b, False,
-                       "separation output, linear")
+        _stage(ctx, "starless_linear", b, False,
+               f"star separation: sep_engine={cfg.get('sep_engine', 'auto')} "
+               "(starless layer, linear)")
         del b
     if cfg["starless_denoise"] == "gx":
         # AI denoise, linear, starless (standard step-5 placement; a
         # measured FAIL on this self-flat data, kept as an option because
         # new data may have a different noise structure)
         starless_fit = run_graxpert_denoise(work, starless_fit)
-    perline_fit = None
-    if cfg.get("stretch_linked") == "perline":
-        # narrowband-palette stretch: each line noise-width-capped in
-        # numpy, THEN the siril tail (ghs finishing / vstpost denoise)
-        # runs on the pre-stretched file exactly like on an autostretch
-        # result; the LCh finishing ops apply after load (below)
-        perline_fit = os.path.join(work, "perline_st.fit")
-        perline_starless_stretch(starless_fit, perline_fit,
-                                 float(cfg["starless_target"]),
-                                 float(cfg["perline_scale"]) / 100.0)
-        starless_fit_for_siril = perline_fit
-    else:
-        starless_fit_for_siril = starless_fit
-    rel = os.path.relpath(starless_fit_for_siril, sdir)
+        if ctx.get("stage_dir"):
+            b, _ = am.load_image(starless_fit)
+            _stage(ctx, "denoise_gx_linear", b, False,
+                   "denoise: GraXpert AI (linear, starless — standard "
+                   "step-5 placement)")
+            del b
+    rel = os.path.relpath(starless_fit, sdir)
     suffix = rel[:-5] if rel.endswith(".fits") else rel[:-4]
     lines = ["requires 1.4.0", f"load {suffix}"]
     if cfg["starless_denoise"] == "vst":
@@ -552,12 +454,10 @@ def render_config(ctx, cfg, jpg_out):
     # compensation) but per-channel curves differentially amplify
     # per-channel noise into chroma blotches. On an SPCC-calibrated
     # BROADBAND stack there is no cast to compensate — linked is the
-    # standard there. perline is the narrowband-palette mode (per-line
-    # noise-width-capped stretch above); any siril-side pass that follows
-    # it (ghs finishing) runs linked — the lines are already equalized.
+    # standard there. (Narrowband-palette colour+develop is Nightlight's
+    # job — nightlight_sho.py — not an in-house per-line numpy stretch.)
     linkflag = "-linked " if cfg.get("stretch_linked") != "unlinked" else ""
-    if cfg.get("stretch_linked") != "perline":
-        lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
+    lines.append(f"autostretch {linkflag}-1.5 {cfg['starless_target']}")
     if cfg.get("stretch_mode", "mtf") == "ghs":
         # GHS FINISHING pass on the autostretched starless: SP placed
         # ghs_sp_k sigma ABOVE the stretched sky so the gain lands on the
@@ -576,84 +476,81 @@ def render_config(ctx, cfg, jpg_out):
         # division and adaptive denoisers smooth it unevenly); after the
         # stretch the differential is already rendered, and -mod blends
         # 50% original back.
+        if ctx.get("stage_dir"):
+            # vis-only: capture the pre-denoise stretch so denoise shows as
+            # its own stage; the float path still loads the denoised
+            # starless_st below, so the artifact is unchanged
+            lines.append("save work/starless_prestretch_vis")
         lines.append("denoise -vst -mod=0.5")
     lines.append("save work/starless_st")
     lines.append("close")
     run_siril(sdir, lines, "starcomb_starless.gen.ssf")
     starless_st = am.load_linear(st_out)
     os.remove(st_out)  # 294 MB scratch: free it now (all in memory)
-    if perline_fit and os.path.exists(perline_fit):
-        os.remove(perline_fit)  # same-size scratch, consumed by the save
+    # denoise its own visible stage: the post-stretch VST runs inside the
+    # siril stretch call, and a vis-only pre-denoise save (above) lets the
+    # stretch and the denoise show as two stages in true chain order
+    pre_vis = os.path.join(work, "starless_prestretch_vis.fit")
+    pre_dn = (am.load_linear(pre_vis)
+              if (ctx.get("stage_dir") and os.path.exists(pre_vis)) else None)
 
     # A single-filter (mono) stack carries luminance only. Replicate it to RGB
     # so the gate, star-shell audit and 8-bit writers see the three channels
-    # they expect, and skip the colour operators: chroma coring and saturation
-    # both act on channel differences that are identically zero here, so they
-    # can only cost time (chroma_core also indexes a blue channel that a
-    # 1-channel stack does not have).
+    # they expect, and skip the final saturation (it acts on channel
+    # differences that are identically zero here, so it can only cost time).
     mono = starless_st.shape[0] == 1
     if mono:
         starless_st = np.repeat(starless_st, 3, axis=0)
+        if pre_dn is not None:
+            pre_dn = np.repeat(pre_dn, 3, axis=0)
         print("[starcomb] mono stack -> luminance render "
-              "(chroma_core / satu skipped: no colour)")
+              "(satu skipped: no colour)")
     ghs_tag = (f" + ghs k{cfg.get('ghs_sp_k')}/D{cfg.get('ghs_amount')}"
                f"/b{cfg.get('ghs_focus')}"
                if cfg.get("stretch_mode", "mtf") == "ghs" else "")
-    pl_tag = (f" width->{cfg.get('perline_scale'):g}%"
-              if cfg.get("stretch_linked") == "perline" else "")
-    _stage_line(f"stretch [{cfg.get('stretch_linked')}{pl_tag} "
-                f"{cfg['starless_target']:g}{ghs_tag} + "
-                f"{cfg['starless_denoise']}]", starless_st)
-    _inspect_stage(ctx, "starless_stretch", starless_st, True,
-                   f"stretch {cfg.get('stretch_linked')}{pl_tag} "
-                   f"{cfg['starless_target']}{ghs_tag} + "
-                   f"{cfg['starless_denoise']}")
+    stretch_lbl = (f"stretch: {cfg.get('stretch_linked')} "
+                   f"target {cfg['starless_target']:g}{ghs_tag}")
+    if pre_dn is not None:
+        # pre-denoise stretch, then the denoise itself, as two stages
+        _stage(ctx, "stretch", pre_dn, True, stretch_lbl + " (pre-denoise)")
+        _, sig_pre = am.bg_stats(pre_dn[min(1, pre_dn.shape[0] - 1)])
+        _, sig_post = am.bg_stats(
+            starless_st[min(1, starless_st.shape[0] - 1)])
+        drop = 100.0 * (1.0 - sig_post / max(sig_pre, 1e-12))
+        _stage(ctx, "denoise", starless_st, True,
+               f"denoise: {cfg['starless_denoise']} -mod=0.5 "
+               "(post-stretch VST)",
+               extra={"sky_sigma_drop_pct": round(float(drop), 1)})
+        del pre_dn
+    else:
+        _stage(ctx, "stretch", starless_st, True,
+               stretch_lbl + f" + denoise={cfg['starless_denoise']}")
+    if os.path.exists(pre_vis):
+        os.remove(pre_vis)
 
-    if not mono and cfg.get("stretch_linked") == "perline":
-        # narrowband finishing (the reference chain's operator set:
-        # gated saturation gamma, Hubble hue rotation, SCNR, post-peak
-        # luminance-only lift) — LUMINANCE is lifted, chroma never
-        # stretched, so the noise floor stays at the stretch's budget
-        starless_st = perline_finish(starless_st, cfg)
-        _stage_line("perline finish [satgamma/huerot/scnr/ppgamma]",
-                    starless_st)
-        _inspect_stage(ctx, "perline_finish", starless_st, True,
-                       f"satgamma {cfg.get('satgamma')} huerot "
-                       f"{cfg.get('huerot_by')} scnr {cfg.get('scnr')} "
-                       f"ppgamma {cfg.get('ppgamma')}")
-
-    if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "pre":
-        # chroma coring BEFORE lum_core (default): chroma is neutralized on
-        # the raw stretched sky, then lum_core smooths only luminance and
-        # cannot revive the neutralized chroma.
-        starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
-
-    if cfg.get("lum_core", 0) > 0:
-        starless_st = lum_core(starless_st, float(cfg["lum_core"]))
-
-    if not mono and cfg.get("chroma_core", 0) > 0 and cfg.get("core_order", "pre") == "post":
-        starless_st = chroma_core(starless_st, float(cfg["chroma_core"]))
-
-    _inspect_stage(ctx, "starless_cored", starless_st, True,
-                   f"chroma_core {cfg.get('chroma_core')} / lum_core "
-                   f"{cfg.get('lum_core')}")
-
+    clip_sky = 0.0
     if cfg.get("black_point", 0) > 0:
         # output black point on the starless layer — the only place the
-        # render sets its own zero. Linear + linked (no cast, differences
-        # preserved), BEFORE the gate jpg so QA sees it.
+        # render sets its own zero — driven by siril `mtf b 0.5 1`: a
+        # midtones balance of 0.5 is the identity transfer, so `mtf` with a
+        # low shadow clip at b is exactly a linear black-point rescale
+        # (x-b)/(1-b), no cast, all differences preserved. The clip fraction
+        # is MEASURED in numpy (examining); the transform is siril's. Runs
+        # BEFORE the gate jpg so QA sees it.
         b = float(cfg["black_point"]) / 255.0
         c2, h2, w2 = starless_st.shape
         keepb = am.branch_mask(h2, w2)
         g2 = min(1, c2 - 1)
         pre = starless_st[g2]
         clip_sky = float(((pre <= b) & keepb).sum() / max(keepb.sum(), 1))
-        starless_st = np.clip((starless_st - b) / (1.0 - b), 0.0, 1.0)
-        print(f"[starcomb] black_point {cfg['black_point']:g}/255: "
-              f"clip0 sky {clip_sky * 100:.2f}%")
+        starless_st = siril_apply(ctx, starless_st, [f"mtf {b:g} 0.5 1"],
+                                  "blackpoint")
+        print(f"[starcomb] black_point {cfg['black_point']:g}/255 "
+              f"[siril mtf {b:g} 0.5 1]: clip0 sky {clip_sky * 100:.2f}%")
 
-    _inspect_stage(ctx, "starless_final", starless_st, True,
-                   f"black_point {cfg.get('black_point')} — the gate input")
+    _stage(ctx, "starless_final", starless_st, True,
+           f"black_point: {cfg.get('black_point')}/255 — the gate input",
+           extra={"clip0_sky_pct": round(clip_sky * 100, 2)})
 
     # THE GATE (bg_qa on the starless render): a composition-agnostic sky
     # scope (statistical dark-sky blocks, terrestrial foreground excluded)
@@ -764,44 +661,44 @@ def render_config(ctx, cfg, jpg_out):
         mode = "catalog[g]"
     m = solve_mtf_m(anchor, cfg["stars_peak"])
     # print anchor + low-end gain every run so normalization drift stays
-    # visible whichever mode is active
+    # visible whichever mode is active (evaluating the MTF at one point is a
+    # reported diagnostic, not the star render — that is siril below)
     gain0 = am.mtf(1e-4, m) / 1e-4
     print(f"[starcomb] stars anchor {anchor:.4f} [{mode}] -> m {m:.5f} "
           f"(low-end gain x{gain0:.0f})")
-    stars_st = am.mtf(np.clip(stars, 0, 1), m)
-    _inspect_stage(ctx, "stars_mtf", stars_st, True,
-                   f"cull {cfg.get('cull_pct')} / floor "
-                   f"{cfg.get('stars_floor')} / anchor {mode} m {m:.5f}")
+    # star layer rendered by siril `mtf 0 m 1` (the midtones transfer with a
+    # data-derived anchor m computed above): shadows 0, highlights 1, so it
+    # is exactly the single-parameter midtones stretch on the star layer.
+    stars_st = siril_apply(ctx, np.clip(stars, 0, 1), [f"mtf 0 {m:g} 1"],
+                           "starsmtf")
+    _stage(ctx, "stars_mtf", stars_st, True,
+           f"star rendering: cull {cfg.get('cull_pct')} / floor "
+           f"{cfg.get('stars_floor')} / anchor {mode}",
+           extra={"anchor": round(float(anchor), 4), "mtf_m": round(m, 5),
+                  "low_end_gain": round(float(gain0), 0)})
 
-    # --- combine ----------------------------------------------------------
+    # --- combine (siril) --------------------------------------------------
+    # Recombine + saturate by siril: screen the star layer over the starless
+    # with siril PixelMath (industry star-subduing folded in as the opacity
+    # scalar in the pm expression), then siril `satu` for the final chroma
+    # gain. A mono render carries no colour, so satu is skipped.
     k_st = float(cfg.get("stars_opacity", 1.0))
-    if k_st != 1.0:
-        # industry star-subduing: screen with stars*k so the star field
-        # stops competing with the object (the standard reduced-opacity
-        # recombine); 1.0 = the plain screen, bit-exact
-        stars_st = stars_st * np.float32(k_st)
-        print(f"[starcomb] stars_opacity {k_st:g}")
-    out = 1.0 - (1.0 - np.clip(starless_st, 0, 1)) * (1.0 - np.clip(stars_st, 0, 1))
-    if not mono and cfg.get("satu", 0) > 0:
-        # chroma gain on the combined render, AFTER the corings — so it
-        # amplifies only significant (surviving) color: star hues and
-        # honest MW tint, not noise chroma.
-        s = float(cfg["satu"])
-        mean = out.mean(axis=0, keepdims=True)
-        out = np.clip(mean + (1.0 + s) * (out - mean), 0.0, 1.0)
-        print(f"[starcomb] satu {s}: chroma gain on the combined render")
-    _stage_line(f"combine [screen + satu {cfg.get('satu')}]", out)
-    _inspect_stage(ctx, "combine", out, True,
-                   f"screen combine + satu {cfg.get('satu')}")
+    satu_amt = 0.0 if mono else float(cfg.get("satu", 0) or 0.0)
+    out = siril_combine(ctx, starless_st, stars_st, k_st, satu_amt)
+    print(f"[starcomb] combine [siril pm screen, stars_opacity {k_st:g}]"
+          + (f" + satu {satu_amt:g} [siril satu]" if satu_amt > 0 else ""))
+    _stage(ctx, "combine", out, True,
+           f"combine: siril pm screen (stars_opacity {cfg.get('stars_opacity', 1.0)}) "
+           f"+ siril satu {cfg.get('satu')}")
     u8 = (np.clip(out.transpose(1, 2, 0), 0, 1) * 255 + .5).astype(np.uint8)
     # Final-export encoding, measured vs the lossless PNG on this
     # grain-heavy content: q92 + default 4:2:0 subsampling costs mean
     # 2.29 counts / max 176 at star edges / 9.7 star-pixel chroma error;
     # q100 + subsampling=0 costs mean 0.44 / max 5. Finals carry embedded
-    # sRGB colorimetry (JPEG ICC + PNG sRGB/gAMA/cHRM — the chain's LCh
-    # math already treats display RGB as sRGB-companded; pixels are
-    # untouched). The STARLESS jpg (gate input) is untouched entirely —
-    # its q92 encoding is part of the gate identity.
+    # sRGB colorimetry (JPEG ICC + PNG sRGB/gAMA/cHRM — the render output is
+    # display-referred sRGB-companded; pixels are untouched). The STARLESS
+    # jpg (gate input) is untouched entirely — its q92 encoding is part of
+    # the gate identity.
     jq = int(cfg.get("jpg_quality", 100))
     jsub = int(cfg.get("jpg_subsampling", 0))
     if jsub < 0:
@@ -838,13 +735,36 @@ def render_config(ctx, cfg, jpg_out):
           f"| shell_chroma {shell['shell_chroma']:.1f} (trend, no bound) "
           f"| n {shell['n_sample']}{warn}")
 
+    # standing OBJECT-INTEGRITY audit (WARN-only): grade the OBJECT region the
+    # gate is blind to, against this render's OWN input stack (same balance,
+    # co-registered). Reliable for chroma-neutralization + coring mottle;
+    # gross-flattening for structure (a small local hollow is an upstream
+    # alignment concern, not this render audit — see the tool's docstring).
+    oi = subprocess.run(
+        [sys.executable, os.path.join(ctx["repo"], "scripts", "qa",
+                                      "object_integrity.py"),
+         jpg_out, ctx["stack"], "--session", sdir, "--set", ctx["set"]],
+        capture_output=True, text=True)
+    if oi.stdout.strip():
+        print(oi.stdout.rstrip())
+
+    _write_stage_index(ctx)
+
     qa, smet, lev = rh.measure_jpg(jpg_out)
-    return {"qa": {k: v for k, v in qa.items() if isinstance(v, (int, float, bool))},
-            "qa_starless": {k: v for k, v in qa_sl.items()
-                            if isinstance(v, (int, float, bool))},
-            "stars": smet, "bg_med8": lev[1]["median"] * 255.0,
-            "star_shells": shell,
-            "starless_jpg": os.path.basename(slpath)}
+    met = {"qa": {k: v for k, v in qa.items()
+                  if isinstance(v, (int, float, bool))},
+           "qa_starless": {k: v for k, v in qa_sl.items()
+                           if isinstance(v, (int, float, bool))},
+           "stars": smet, "bg_med8": lev[1]["median"] * 255.0,
+           "star_shells": shell,
+           "starless_jpg": os.path.basename(slpath)}
+    if ctx.get("lossless"):
+        # metrics sidecar beside the lossless final so the comparison
+        # harness (judgment_package) auto-discovers each candidate's
+        # measured numbers and computes control-relative deltas
+        with open(jpg_out[:-4] + ".metrics.json", "w") as f:
+            json.dump(met, f, indent=1)
+    return met
 
 
 # The knob SCHEMA lives in code (argparse flags, enum validation, the
@@ -857,9 +777,7 @@ KNOBS = (
     "bgelin_mode",
     "starless_target", "starless_denoise", "stretch_mode", "ghs_sp_k",
     "ghs_amount", "ghs_focus", "sep_prom", "sep_engine",
-    "chroma_core", "lum_core", "core_order", "stretch_linked",
-    "perline_scale", "ppgamma", "ppsigma", "satgamma",
-    "huerot_from", "huerot_to", "huerot_by", "scnr", "satu",
+    "stretch_linked", "satu",
     "cull_pct", "stars_peak", "stars_anchor", "stars_floor",
     "stars_opacity",
     "black_point", "jpg_quality", "jpg_subsampling", "noise_anchor_k",
@@ -870,8 +788,7 @@ ENUM_CHOICES = {
     "starless_denoise": ["off", "vst", "gx", "vstpost"],
     "stretch_mode": ["mtf", "ghs"],
     "sep_engine": ["auto", "inpaint", "net"],
-    "core_order": ["pre", "post"],
-    "stretch_linked": ["auto", "unlinked", "linked", "perline"],
+    "stretch_linked": ["auto", "unlinked", "linked"],
     "stars_anchor": ["catalog", "noise"],
 }
 
@@ -934,19 +851,112 @@ def resolve_recipe(repo, sdir, set_name, args):
                 and base[k] not in ENUM_CHOICES[k]:
             sys.exit(f"starcomb: {k}={base[k]!r} not in {ENUM_CHOICES[k]}")
     if base["stretch_linked"] == "auto":
-        # class resolution from tracked per-dataset state: a narrowband
-        # PALETTE composition (the recipe's spcc.narrowband marker — the
-        # same fact that drives SPCC's -narrowband mode) stretches
-        # per-line; everything else takes the broadband linked standard
-        nb = bool(rec.get("spcc", {}).get("narrowband"))
-        base["stretch_linked"] = "perline" if nb else "linked"
-        print(f"[recipe] stretch_linked auto -> {base['stretch_linked']} "
-              + ("(narrowband palette composition: per-line "
-                 "noise-width-capped stretch + LCh finishing)" if nb
-                 else "(broadband/mono: single linked stretch)"))
+        # In-house starcomb serves the broadband/mono class: one calibrated
+        # scene, one linked transfer. Narrowband-palette colour+develop is
+        # Nightlight's job (render_engine routes an SHO composition to
+        # nightlight_sho.py before this chain runs), so auto = linked here.
+        base["stretch_linked"] = "linked"
+        if bool(rec.get("spcc", {}).get("narrowband")):
+            print("[recipe] stretch_linked auto -> linked. NOTE: this is a "
+                  "narrowband set on the in-house chain (a linked stretch "
+                  "renders the dominant line only) — the honest narrowband "
+                  "render is Nightlight (render_engine=nightlight / "
+                  "nightlight_sho.py).")
+        else:
+            print("[recipe] stretch_linked auto -> linked (broadband/mono: "
+                  "single linked stretch)")
     if srcs:
         print("[recipe] non-generic: " + " ".join(srcs))
     return base
+
+
+def _experiments_path(sdir, set_name):
+    return os.path.join(am.dataset_dir(sdir, set_name), "experiments.jsonl")
+
+
+def ledger_append(sdir, set_name, entry):
+    """Append one experiment record to the TRACKED per-dataset ledger
+    (datasets/<session>/<set>/experiments.jsonl): a durable index of what
+    was laddered, its pinned inputs, and its verdict. The heavy per-value
+    finals stay in gitignored results/exp_*/; this is the record that
+    outlives them. Append-only; a verdict closes the entry in place by its
+    exp name."""
+    p = _experiments_path(sdir, set_name)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, "a") as f:
+        f.write(json.dumps(entry, sort_keys=True) + "\n")
+
+
+def ledger_close(sdir, set_name, exp_name, verdict, because):
+    """Close a PENDING experiment (matched by its exp dir name) with its
+    verdict + measured reason — the round-trip the discipline requires: a
+    measurement that kills a hypothesis is recorded, never left open.
+    Rewrites the small ledger."""
+    p = _experiments_path(sdir, set_name)
+    if not os.path.exists(p):
+        sys.exit(f"starcomb: no experiments ledger at "
+                 f"{os.path.relpath(p)} — run the ladder first")
+    recs = [json.loads(x) for x in open(p) if x.strip()]
+    hit = [r for r in recs if r.get("exp") == exp_name]
+    if not hit:
+        openx = [r["exp"] for r in recs if r.get("verdict") == "PENDING"]
+        sys.exit(f"starcomb: no experiment {exp_name!r} in "
+                 f"{os.path.relpath(p)} (open: {openx})")
+    for r in hit:
+        r["verdict"], r["because"] = verdict, because
+    with open(p, "w") as f:
+        for r in recs:
+            f.write(json.dumps(r, sort_keys=True) + "\n")
+    return hit[0]
+
+
+def close_experiment(sdir, set_name, exp_dir, verdict, because):
+    """The --verdict closing step: stamp the ledger AND the exp dir's
+    human-facing hypothesis.md so the record is complete in both places."""
+    if not because:
+        sys.exit("starcomb: --verdict requires --because \"<the measured "
+                 "reason>\" — a killed hypothesis is recorded WITH ITS "
+                 "NUMBERS, not left open (experiment discipline)")
+    exp_name = os.path.basename(os.path.normpath(exp_dir))
+    ledger_close(sdir, set_name, exp_name, verdict, because)
+    hp = os.path.join(exp_dir, "hypothesis.md")
+    if os.path.exists(hp):
+        with open(hp, "a") as f:
+            f.write(f"\n## Verdict: {verdict.upper()}\n\n{because}\n")
+    print(f"[starcomb] experiment {exp_name} closed: {verdict.upper()} — "
+          f"{because}")
+    if verdict == "deadend":
+        print("[starcomb] REMINDER: a dead end becomes a NOTES dead-end "
+              "entry WITH ITS NUMBERS (the mechanism why), per the "
+              "experiment discipline — the ledger indexes it, NOTES states "
+              "the mechanism.")
+
+
+def resolve_engine(sdir, set_name):
+    """Which RENDER ENGINE a dataset uses: `render_engine` in recipe.json
+    (auto|starcomb|nightlight), auto-resolved. A mono-filters NARROWBAND
+    (SHO) composition defaults to `nightlight` — the reference author's own
+    tool, whose star-neutral colour balance recovers the O3 sphere that our
+    chain's SPCC photometric fit equalises away (NOTES dead ends). Everything
+    else is `starcomb`, the in-house chain."""
+    dsdir = am.dataset_dir(sdir, set_name)
+    recipe = {}
+    p = os.path.join(dsdir, "recipe.json")
+    if os.path.exists(p):
+        recipe = json.load(open(p))
+    eng = recipe.get("render_engine", "auto")
+    if eng not in ("auto", "starcomb", "nightlight"):
+        sys.exit(f"starcomb: render_engine={eng!r} in {p} not in "
+                 "auto|starcomb|nightlight")
+    if eng != "auto":
+        return eng
+    comp_p = os.path.join(dsdir, "composition.json")
+    if os.path.exists(comp_p):
+        comp = json.load(open(comp_p))
+        if comp.get("kind") == "mono-filters" \
+                and bool(recipe.get("spcc", {}).get("narrowband")):
+            return "nightlight"
+    return "starcomb"
 
 
 def main():
@@ -1000,65 +1010,23 @@ def main():
                          "it warns when it measures that risk), auto = "
                          "net when the weights are installed else "
                          "inpaint (generic)")
-    ap.add_argument("--chroma-core", type=float, default=None,
-                    help="significance k for multi-scale chroma coring "
-                         "toward neutral; 0 = off")
-    ap.add_argument("--lum-core", type=float, default=None,
-                    help="significance k for sky-only luminance coring "
-                         "(gray-patch fix); 0 = off")
-    ap.add_argument("--core-order", default=None,
-                    choices=ENUM_CHOICES["core_order"],
-                    help="chroma coring before (pre, generic) or after "
-                         "(post) lum_core")
     ap.add_argument("--stretch-linked", default=None,
                     choices=ENUM_CHOICES["stretch_linked"],
-                    help="stretch channel coupling: linked = one transfer "
-                         "(broadband standard); unlinked = per-channel "
-                         "SKY-anchored (cast compensation; amplifies "
-                         "channel noise into chroma blotches, and a "
-                         "measured no-op on bg-equalized narrowband); "
-                         "perline = per-line OBJECT-anchored + sky re-pin "
-                         "(the narrowband-palette standard); auto = "
-                         "perline when the recipe marks a narrowband "
-                         "composition, else linked (generic)")
-    ap.add_argument("--perline-scale", type=float, default=None,
-                    help="perline stretch: sky NOISE-WIDTH budget in %% "
-                         "of range — the stretch stops when the sky "
-                         "width reaches it (sky location pins at "
-                         "starless-target); noise never lifts past the "
-                         "budget")
-    ap.add_argument("--ppgamma", type=float, default=None,
-                    help="perline finishing: post-peak gamma on Luv "
-                         "LUMINANCE only, applied above the sky "
-                         "significance gate; 1 = off")
-    ap.add_argument("--ppsigma", type=float, default=None,
-                    help="perline finishing: the significance gate = "
-                         "sky L + ppsigma * sky L width (gates ppgamma, "
-                         "satgamma, huerot)")
-    ap.add_argument("--satgamma", type=float, default=None,
-                    help="perline finishing: LCh chroma gamma above the "
-                         "gate (saturation of significant signal; the "
-                         "noise floor untouched); 1 = off")
-    ap.add_argument("--huerot-from", type=float, default=None,
-                    help="perline finishing: hue rotation interval "
-                         "start, LCh degrees")
-    ap.add_argument("--huerot-to", type=float, default=None,
-                    help="perline finishing: hue rotation interval end")
-    ap.add_argument("--huerot-by", type=float, default=None,
-                    help="perline finishing: rotate hues in the "
-                         "interval by this many degrees (Hubble gold = "
-                         "rotate the Ha greens negative); 0 = off")
-    ap.add_argument("--scnr", type=float, default=None,
-                    help="perline finishing: average-neutral green "
-                         "removal amount in [0,1]; 0 = off")
+                    help="siril autostretch channel coupling: linked = one "
+                         "transfer (broadband standard); unlinked = "
+                         "per-channel SKY-anchored (cast compensation; "
+                         "amplifies channel noise into chroma blotches — a "
+                         "measurement rung); auto = linked (generic). "
+                         "Narrowband colour+develop is Nightlight's job, not "
+                         "an in-house stretch mode.")
     ap.add_argument("--stars-opacity", type=float, default=None,
                     help="screen combine with stars*k — star-field "
                          "subduing (industry reduced-opacity "
                          "recombine); 1 = plain screen")
     ap.add_argument("--satu", type=float, default=None,
-                    help="chroma gain on the combined render, AFTER the "
-                         "corings (amplifies only significant color); "
-                         "0 = off")
+                    help="final chroma gain by siril `satu` on the combined "
+                         "render (amplifies surviving colour: star hues, "
+                         "honest tint); 0 = off")
     ap.add_argument("--cull-pct", type=float, default=None)
     ap.add_argument("--stars-peak", type=float, default=None)
     ap.add_argument("--stars-anchor", default=None,
@@ -1094,12 +1062,16 @@ def main():
     ap.add_argument("--metrics-out", default=None,
                     help="write the single-run metrics dict to this JSON "
                          "path (the no-regression sweep's interface)")
+    ap.add_argument("--no-stage-vis", action="store_true",
+                    help="disable per-stage visibility (default ON, EVERY "
+                         "build): the labeled full-frame stage sequence "
+                         "(background -> separation -> stretch -> denoise -> "
+                         "black point -> stars -> combine) + index.html "
+                         "written beside each final as <final>_stages/ — "
+                         "the escape hatch for a fast run")
     ap.add_argument("--inspect", action="store_true",
-                    help="write per-stage render provenance (consistent "
-                         "JPEG + metrics line for bgelin / separation / "
-                         "stretch / corings / stars / combine) into "
-                         "results/inspect_render_<set>_<stamp>/ — localize "
-                         "a render defect to its stage in one run")
+                    help="deprecated no-op: per-stage visibility is now "
+                         "standing on every build (see --no-stage-vis)")
     ap.add_argument("--param", default=None,
                     choices=["bgelin_mode",
                              "starless_target", "starless_denoise",
@@ -1107,20 +1079,53 @@ def main():
                              "ghs_focus",
                              "cull_pct", "stars_peak", "stars_anchor",
                              "sep_prom", "sep_engine",
-                             "chroma_core", "satu", "core_order",
-                             "stretch_linked", "perline_scale",
-                             "ppgamma", "ppsigma", "satgamma",
-                             "huerot_from", "huerot_to", "huerot_by",
-                             "scnr", "stars_opacity",
-                             "lum_core",
+                             "satu", "stretch_linked", "stars_opacity",
                              "stars_floor", "black_point"])
     ap.add_argument("--values", default=None)
     ap.add_argument("--hypothesis", default=None)
+    # experiment close-out (no render): record the judged outcome of a
+    # ladder back into the tracked per-dataset ledger + its hypothesis.md
+    ap.add_argument("--verdict", default=None,
+                    choices=["win", "null", "deadend"],
+                    help="close a laddered experiment (needs --exp + "
+                         "--because): win = a value pins, null = no "
+                         "measured difference, deadend = killed (then a "
+                         "NOTES dead-end entry with its numbers)")
+    ap.add_argument("--because", default=None,
+                    help="the measured reason for --verdict (required)")
+    ap.add_argument("--exp", default=None,
+                    help="the results/exp_<param>_<stamp>/ dir to close "
+                         "(printed at the ladder's STOP)")
     args = ap.parse_args()
 
     # repo root is three up: this file is scripts/render/starcomb.py
     repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sdir = os.path.join(repo, args.session)
+    if args.verdict:
+        # close-out mode: no render, no stack needed
+        if not args.exp:
+            sys.exit("starcomb: --verdict needs --exp <results/exp_*/ dir> "
+                     "(the ladder prints the exact command at its STOP)")
+        exp_dir = args.exp if os.path.isabs(args.exp) \
+            else os.path.join(repo, args.exp)
+        close_experiment(sdir, args.set, exp_dir, args.verdict, args.because)
+        return
+    # render-engine routing (BEFORE the stack check: a nightlight dataset has
+    # no single stack_<set>.fit — it composes per-channel member stacks). A
+    # ladder (--param) or an explicit --stack stays on the in-house chain.
+    if not args.param and not args.stack:
+        engine = resolve_engine(sdir, args.set)
+        if engine == "nightlight":
+            print(f"[starcomb] render_engine=nightlight — delegating "
+                  f"{args.set} to nightlight_sho.py (SHO narrowband: the "
+                  "author's tool, star-neutral balance recovers the O3 "
+                  "sphere our SPCC equalises)")
+            cmd = [sys.executable,
+                   os.path.join(repo, "scripts", "render", "nightlight_sho.py"),
+                   args.session, args.set]
+            if args.lossless:
+                cmd.append("--lossless")
+            sys.exit(subprocess.run(cmd).returncode)
     work = os.path.join(sdir, "work")
     os.makedirs(work, exist_ok=True)  # render scratch (bgelin, gen scripts, starsep); not guaranteed to exist
     stack = (os.path.abspath(args.stack) if args.stack
@@ -1137,9 +1142,7 @@ def main():
     stamp = time.strftime("%Y%m%d_%H%M%S")
     ctx = {"repo": repo, "sdir": sdir, "work": work, "stack": stack,
            "set": args.set, "lossless": args.lossless,
-           "inspect_dir": (os.path.join(
-               sdir, "results", f"inspect_render_{args.set}_{stamp}")
-               if args.inspect else None)}
+           "stage_vis": not args.no_stage_vis}
 
     base = resolve_recipe(repo, sdir, args.set, args)
     if not args.param:
@@ -1160,7 +1163,7 @@ def main():
     # every ladder value is a judgment surface: lossless, always
     ctx = {**ctx, "lossless": True}
     enum_params = ("bgelin_mode", "starless_denoise",
-                   "stretch_mode", "core_order", "stretch_linked",
+                   "stretch_mode", "stretch_linked",
                    "sep_engine", "stars_anchor")
     vals = []
     for v in args.values.split(","):
@@ -1173,17 +1176,24 @@ def main():
     if args.param not in enum_params:
         vals = sorted(vals)
 
-    exp_dir = os.path.join(sdir, "results",
-                           f"exp_starsep_{args.param}_{stamp}")
+    exp_dir = os.path.join(sdir, "results", f"exp_{args.param}_{stamp}")
     os.makedirs(exp_dir, exist_ok=True)
     st = os.stat(stack)
     with open(os.path.join(exp_dir, "hypothesis.md"), "w") as f:
-        f.write(f"# Starsep experiment: {args.param}\n\n"
+        f.write(f"# Experiment: {args.param}\n\n"
                 f"- **hypothesis**: {args.hypothesis}\n"
                 f"- **values**: {vals} (control {cur!r})\n"
                 f"- **fixed**: {base}\n"
                 f"- **pinned stack**: size {st.st_size} mtime {int(st.st_mtime)}\n\n"
                 "Verdict: PENDING USER JUDGMENT\n")
+    # durable, TRACKED index of the experiment (the per-value finals below
+    # live in gitignored results/); closed later by --verdict
+    ledger_append(sdir, args.set, {
+        "exp": os.path.basename(exp_dir), "stamp": stamp,
+        "param": args.param, "values": [str(v) for v in vals],
+        "control": str(cur), "hypothesis": args.hypothesis,
+        "stack_size": st.st_size, "stack_mtime": int(st.st_mtime),
+        "verdict": "PENDING"})
 
     results = []
     for i, v in enumerate(vals):
@@ -1238,6 +1248,10 @@ def main():
     print(f"\n[starcomb] STOP — user judgment required: open the per-value "
           f"FULL lossless finals in {exp_dir}/ independently (no panels, "
           "no crops — the judge sees whole frames in their own viewer)")
+    print("[starcomb] once judged, record the outcome (closes the ledger):\n"
+          f"  python3 scripts/render/starcomb.py {args.session} {args.set} "
+          f"--verdict win|null|deadend --because \"...\" "
+          f"--exp {os.path.relpath(exp_dir, repo)}")
 
 
 if __name__ == "__main__":

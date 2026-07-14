@@ -4,7 +4,15 @@
 Usage: judgment_package.py <outdir> <label>=<final.png> [...]
            --question="what the judge is deciding"
            --inspection=<notes.md>
-           [--reference=<label>=<path.jpg>] [--note="..." ...]
+           [--control=<label>] [--reference=<label>=<path.jpg>] [--note=... ]
+
+--control names the baseline candidate; the package embeds a measured
+candidate-vs-control delta table on the objective gate/defect metrics with
+a per-candidate objective WIN | NULL | needs-eyes verdict (auto-discovered
+from the <final>.metrics.json sidecar starcomb writes with --lossless). A
+WIN names the delta that earns it; needs-eyes = mixed or aesthetic (the
+user's call on the finals) — no "fixed/final/matched/close" language. With
+no --control the first candidate is the baseline.
 
 The review contract (README): a judgment set is a folder of WHOLE-FRAME
 LOSSLESS finals (PNG16 + PNG8) with clean names and a QUESTION.md — nothing
@@ -36,6 +44,7 @@ whatever encoding they published; it is comparison-only, never a judgment
 surface). QUESTION.md gets the question, the file list, and the --note
 lines verbatim; the caller states gate numbers and caveats there.
 """
+import json
 import os
 import shutil
 import struct
@@ -43,6 +52,79 @@ import sys
 import zlib
 
 import numpy as np
+
+# objective gate/defect metrics for the candidate-vs-control delta table:
+# (label, path-into-metrics, lower_is_better). Star BRIGHTNESS and the
+# other aesthetic dimensions are deliberately excluded — the harness
+# reports objective deltas + an objective WIN|NULL, never an aesthetic
+# verdict (that stays the user's eyes on the finals).
+CMP = [
+    ("SLpass", ("qa_starless", "pass"), None),
+    ("SLcolor", ("qa_starless", "color"), True),
+    ("SLgrad", ("qa_starless", "grad"), True),
+    ("SLblotch", ("qa_starless", "resid"), True),
+    ("SLrings", ("qa_starless", "ring_l"), True),
+    ("aura_lum", ("star_shells", "aura_lum"), True),
+]
+
+
+def load_metrics_sidecar(png8):
+    """The <final>.metrics.json starcomb writes beside every --lossless
+    final; None if absent (an externally-produced PNG has no sidecar)."""
+    p = png8[:-4] + ".metrics.json"
+    if not os.path.exists(p):
+        return None
+    try:
+        return json.load(open(p))
+    except (ValueError, OSError):
+        return None
+
+
+def _dig(met, path):
+    v = met
+    for k in path:
+        if not isinstance(v, dict) or k not in v:
+            return None
+        v = v[k]
+    return v
+
+
+def objective_verdict(control, cand, eps=0.15):
+    """Objective WIN | NULL | needs-eyes vs the control, on the gate/defect
+    metrics only. WIN = a defect metric improved beyond eps with NONE
+    worsened (or a gate FAIL->PASS with none worse); NULL = nothing moved
+    beyond eps; needs-eyes = mixed (some better, some worse) or a gate
+    PASS->FAIL — the honest split, because 'better on a mix' and every
+    AESTHETIC change are the user's call on the finals, never the
+    harness's. No 'fixed/final/matched/close' language anywhere: a result
+    is a WIN with its named delta, a clean NULL, or needs-eyes."""
+    better, worse, flip = [], [], None
+    for name, path, lower in CMP:
+        cv, dv = _dig(control, path), _dig(cand, path)
+        if cv is None or dv is None:
+            continue
+        if lower is None:                        # the PASS flag
+            if bool(cv) != bool(dv):
+                flip = "PASS->FAIL" if cv and not dv else "FAIL->PASS"
+            continue
+        d = float(dv) - float(cv)
+        if abs(d) < eps:
+            continue
+        improved = (d < 0) if lower else (d > 0)
+        tag = f"{name} {float(cv):.1f}->{float(dv):.1f}"
+        (better if improved else worse).append(tag)
+    if flip == "PASS->FAIL":
+        return "needs-eyes", "gate PASS->FAIL" + (
+            "; worse " + ", ".join(worse) if worse else "")
+    if better and not worse:
+        pfx = "gate FAIL->PASS, " if flip == "FAIL->PASS" else ""
+        return "WIN", pfx + ", ".join(better) + " (none worse)"
+    if not better and not worse and not flip:
+        return "NULL", f"no gate/defect metric moved > {eps:g}"
+    if flip == "FAIL->PASS" and not worse:
+        return "WIN", "gate FAIL->PASS (none worse)"
+    return "needs-eyes", ("mixed: better [" + ", ".join(better)
+                          + "] worse [" + ", ".join(worse) + "]")
 
 
 def read_png16_sampled(path, step=16):
@@ -142,6 +224,8 @@ def main():
                       if a.startswith("--reference=")), None)
     inspection = next((a[13:] for a in sys.argv[1:]
                        if a.startswith("--inspection=")), None)
+    control = next((a[10:] for a in sys.argv[1:]
+                    if a.startswith("--control=")), None)
     if len(args) < 2 or not question:
         sys.exit(__doc__)
     if not inspection:
@@ -168,6 +252,7 @@ def main():
              "_16bit.png = the float render at 65536 levels; .png = 8-bit",
              "lossless. All pipeline candidates are whole-frame lossless",
              "finals (verified pairs).", ""]
+    metas, order = {}, []
     for i, spec in enumerate(cands, 1):
         if "=" not in spec:
             sys.exit(f"judgment_package: candidate {spec!r} is not "
@@ -190,8 +275,48 @@ def main():
         d16 = os.path.join(outdir, f"{i:02d}_{label}_16bit.png")
         place(png8, d8)
         place(png16, d16)
-        print(f"[judgment_package] {i:02d}_{label}: verified pair linked")
+        metas[label], order = load_metrics_sidecar(png8), order + [label]
+        print(f"[judgment_package] {i:02d}_{label}: verified pair linked"
+              + ("" if metas[label] else " (no metrics sidecar)"))
         lines.append(f"- {i:02d}_{label}: FILL IN (knobs / what changed)")
+
+    # measured candidate-vs-control deltas + objective WIN|NULL (Part 1
+    # honest-comparison contract): each result is reported as an objective
+    # WIN with its named delta, a clean NULL, or needs-eyes — never with
+    # 'fixed/final/matched/close' language. Aesthetics stay the user's eyes.
+    ctrl = control or order[0]
+    if control and control not in order:
+        sys.exit(f"judgment_package: --control={control} is not among the "
+                 f"candidates {order}")
+    if metas.get(ctrl) and any(metas.values()):
+        lines += ["", f"## Objective deltas vs control ({ctrl})", "",
+                  "Gate/defect metrics only (lower is better; SLpass is the "
+                  "gate). WIN = a defect metric improved with none worse; "
+                  "NULL = nothing moved; needs-eyes = mixed or aesthetic "
+                  "(your call on the finals — the harness never judges the "
+                  "look).", "",
+                  "| candidate | verdict | measured detail |",
+                  "|---|---|---|"]
+        for lab in order:
+            m = metas.get(lab)
+            if m is None:
+                lines.append(f"| {lab} | — | no metrics sidecar |")
+            elif lab == ctrl:
+                sl = m.get("qa_starless", {})
+
+                def _r(k):
+                    v = sl.get(k)
+                    return f"{v:.1f}" if isinstance(v, (int, float)) else "?"
+                lines.append(
+                    f"| {lab} | (control) | SLcolor {_r('color')} grad "
+                    f"{_r('grad')} blotch {_r('resid')} rings {_r('ring_l')} "
+                    f"| ")
+            else:
+                verdict, detail = objective_verdict(metas[ctrl], m)
+                lines.append(f"| {lab} | **{verdict}** | {detail} |")
+    else:
+        lines += ["", "_(no metrics sidecars found — objective deltas "
+                  "unavailable; pass finals starcomb wrote with --lossless)_"]
     if reference:
         rl, rp = reference.split("=", 1)
         ext = os.path.splitext(rp)[1].lower() or ".jpg"

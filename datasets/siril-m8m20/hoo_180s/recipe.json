@@ -1,51 +1,41 @@
 {
-  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
-  "dataset": "siril-m8m20/hoo_180s",
-  "status": "approved",
-  "render": {
-    "starless_target": 0.07,
-    "starless_denoise": "vstpost",
-    "stretch_mode": "mtf",
-    "ghs_sp_k": 2.0,
-    "ghs_amount": 3.0,
-    "ghs_focus": 3.0,
-    "sep_prom": 6.0,
-    "sep_engine": "net",
-    "chroma_core": 4.0,
-    "lum_core": 2.0,
-    "core_order": "pre",
-    "stretch_linked": "linked",
-    "satu": 0.2,
-    "cull_pct": 50.0,
-    "stars_peak": 0.97,
-    "stars_anchor": "catalog",
-    "stars_floor": 3.0,
-    "black_point": 8.0,
-    "jpg_quality": 100,
-    "jpg_subsampling": 0,
-    "noise_anchor_k": null,
-    "perline_scale": 0.5,
-    "ppgamma": 2.7,
-    "ppsigma": 1.0,
-    "satgamma": 1.1,
-    "huerot_from": 120.0,
-    "huerot_to": 147.5,
-    "huerot_by": -35.0,
-    "scnr": 0.5,
-    "stars_opacity": 1.0,
-    "bgelin_mode": "gx"
-  },
-  "spcc": {
-    "narrowband": true,
-    "rwl": 656.28,
-    "gwl": 500.7,
-    "bwl": 500.7
-  },
-  "notes": {
-    "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
-    "solve": "narrow field, solve with a position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct"
-  },
-  "approved": {
-    "note": "scope-ACKED baseline (--ack-color-scope): this emission-flooded class fails the colour gate by scope with the achromatic metrics clean, so colour is tracked one-sided; full colour admission waits on the colour-gate redesign (BACKLOG)"
-  }
+ "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
+ "dataset": "siril-m8m20/hoo_180s",
+ "status": "provisional",
+ "render": {
+  "starless_target": 0.07,
+  "starless_denoise": "vstpost",
+  "stretch_mode": "mtf",
+  "ghs_sp_k": 2.0,
+  "ghs_amount": 3.0,
+  "ghs_focus": 3.0,
+  "sep_prom": 6.0,
+  "sep_engine": "net",
+  "stretch_linked": "linked",
+  "satu": 0.2,
+  "cull_pct": 50.0,
+  "stars_peak": 0.97,
+  "stars_anchor": "catalog",
+  "stars_floor": 3.0,
+  "black_point": 8.0,
+  "jpg_quality": 100,
+  "jpg_subsampling": 0,
+  "noise_anchor_k": null,
+  "stars_opacity": 1.0,
+  "bgelin_mode": "gx"
+ },
+ "spcc": {
+  "narrowband": true,
+  "rwl": 656.28,
+  "gwl": 500.7,
+  "bwl": 500.7
+ },
+ "notes": {
+  "spcc": "narrowband mode on the composed HOO stack: R sees Ha (656.28 nm), G and B both carry OIII (500.7 nm) — the palette assigns one line to two channels, so both get the OIII wavelength; bandwidths left at siril's defaults (the tutorial data's dual-band filter model is unrecorded)",
+  "solve": "narrow field, solve with a position hint: solve_field.py --ra=270.8 --dec=-23.9 --radius-deg=10; the composed stack is half-size and its doubled XPIXSZ keeps the header-derived scale hint correct",
+  "tool_migration": "tool-only migration: the in-house numpy corings (chroma_core/lum_core) were removed from the chain, so this recipe no longer applies them — a declared delta. The final saturation, star MTF, black point and screen combine now drive siril (satu/mtf/pm). Look + baseline need re-judgment + rebaseline; this recipe was approved for its denoise/anchor choices, not the corings."
+ },
+ "approved": {
+  "note": "scope-ACKED baseline (--ack-color-scope): this emission-flooded class fails the colour gate by scope with the achromatic metrics clean, so colour is tracked one-sided; full colour admission waits on the colour-gate redesign (BACKLOG)"
+ }
 }

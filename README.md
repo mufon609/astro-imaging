@@ -30,8 +30,8 @@ follows, in order — linear until step 6:
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
 | 5 | linear noise reduction | none linear | MEASURED DEAD END on self-flat data: any noise-adaptive linear denoise imprints a radial signature (noise is radial by construction after V(r) division). Post-stretch `-vst -mod=0.5` on the starless render is the working replacement |
 | 6 | star separation (StarNet/StarXTerminator) | `starnet_sep.py` StarNet2-ONNX on aarch64, run LINEAR under an invertible MTF pre-stretch (the vendor-sanctioned placement) — the generic default (`sep_engine auto` → `net` when the weights are installed). `starsep.py` mask+inpaint is the WEIGHTS-ABSENT FALLBACK: it destroys resolved-object structure (it inpaints an extended object's HII knots out as if they were stars) and warns when it measures that risk. A recipe pins the engine only on measurement (e.g. an ultra-wide MW field where net's residual structure fails the gate) | COMPLIANT (learned separator, standard placement); fallback is the documented adaptation |
-| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately and finish with palette colour work (Siril/PixInsight doctrine; a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py`: starless stretch per class — **linked** autostretch (broadband; one calibrated scene, one transfer) or **per-line NOISE-WIDTH-CAPPED stretch** (`stretch_linked auto` → `perline` on a narrowband-palette composition: per line, gamma∘black-pin solved so sky location = `starless_target` and sky noise width = `perline_scale` — the stretch stops before amplifying noise into visibility) + the **gated LCh finishing set** (saturation gamma, Hubble hue rotation, SCNR, post-peak LUMINANCE-only lift `ppgamma` — chroma is never stretched); + significance corings (chroma/lum, Wiener-gated); stars gray-MTF anchor + flux-percentile cull + `stars_opacity` reduced-opacity screen | COMPLIANT (this mechanism set — noise-budgeted stretch, post-peak L-only lift, LCh colour ops, no denoiser — is the established narrowband-palette finishing chain; sky-anchored unlinked is a no-op after BGE+SPCC, NOTES dead ends) |
-| 8 | recombine (screen) + final touches, export | `starcomb.py` screen combine + `satu` chroma gain; JPEG q92 + `--lossless` PNG for finals | COMPLIANT |
+| 7 | stretch starless hard / stars gently; narrowband palettes stretch each line separately and finish with palette colour work (Siril/PixInsight doctrine; a linked-only stretch of an unequalized narrowband composite is the documented green-SHO failure mode) | `starcomb.py` (TOOL-ONLY): starless stretched by **siril `autostretch`** (`-linked` broadband standard, one calibrated scene one transfer; `unlinked` a measurement rung) → **siril `denoise -vst -mod=0.5`** (or GraXpert) → black point by **siril `mtf b 0.5 1`**; stars flux-percentile culled + k·σ floored, rendered by **siril `mtf 0 m 1`** with a data-derived anchor m, screened at `stars_opacity`. Narrowband-palette colour+develop (per-line stretch + the O3-sphere star-neutral balance Siril has no equivalent for) is **Nightlight's job** (`nightlight_sho.py`), auto-routed by `render_engine` — NOT an in-house numpy stretch | COMPLIANT (tool-only: siril for stretch/levels/star-MTF, GraXpert/siril for denoise; the narrowband palette finish is the reference author's own open tool, the sanctioned mechanism Siril lacks) |
+| 8 | recombine (screen) + final touches, export | `starcomb.py` (TOOL-ONLY): **siril `pm`** screen combine (star opacity folded into the PixelMath expression) + **siril `satu`** chroma gain; JPEG q100/4:4:4 + `--lossless` PNG for finals | COMPLIANT |
 
 Principles that keep this honest:
 
@@ -56,14 +56,17 @@ Principles that keep this honest:
 1. **Per-stage inspection** (`inspect_stage.py`, auto in every pipeline run):
    each STACK stage rendered identically + metric bounds from the
    expectations table in NOTES. WARN only — inspection never aborts. The
-   RENDER chain has the same provenance on demand: `starcomb.py --inspect`
-   writes one consistent JPEG + metrics line per render stage (bgelin /
-   separation / stretch / corings / black point / stars / combine) into
-   `results/inspect_render_<set>_<stamp>/`, so a defect in a final render is
-   localized to the stage that introduced it in one run; diff any two runs'
-   stages with `judgment_crops.py <outdir> a=<x.jpg> b=<y.jpg>
-   --question="..."` (every judgment package states its question and ships
-   a full-frame pair + lossless 1:1 crops).
+   RENDER chain has the same provenance STANDING ON EVERY BUILD: each
+   `starcomb.py` render writes a labeled full-frame stage sequence
+   (background → separation → stretch → denoise → black point →
+   stars → combine) + `index.html` + per-stage measured numbers into
+   `<final>_stages/`, so the treatment at each step is visible and a defect
+   in a final render is localized to the stage that introduced it in one
+   run (`--no-stage-vis` opts out for a fast run). This is a DIAGNOSTIC
+   surface, never the aesthetic-judgment surface (that stays the full-frame
+   lossless finals). Diff any two runs' stages with `judgment_crops.py
+   <outdir> a=<x.jpg> b=<y.jpg> --question="..."` (an on-request supplement,
+   never the judgment surface).
 2. **The gate** (`bg_qa.py`, composition-agnostic sky scope): strict
    thresholds on the **starless render's sky**, selected STATISTICALLY (dark
    blocks ≤ P50+2.5·MAD, terrestrial foreground excluded) — colour ≤ 7,
@@ -120,9 +123,10 @@ it, each answering a question it can actually answer:
    twice on the same stack — cold caches included — and the artifacts are
    byte-identical. This is a property of the CODE (no hidden RNG, no thread
    nondeterminism; measured: GraXpert BGE, the ONNX net and siril's
-   autostretch/denoise all reproduce bit-exactly, and the chain carries no
-   unseeded step — `subsky` runs without `-dither` for exactly this
-   reason). Verify with `scripts/qa/sweep.py --determinism`. A STACK is
+   autostretch / denoise / mtf / pm / satu all reproduce bit-exactly, and
+   the chain carries no unseeded step — `subsky` runs without `-dither` for
+   exactly this reason; the tool round-trips through temp FITS are
+   deterministic float32). Verify with `scripts/qa/sweep.py --determinism`. A STACK is
    exempt — its register sweep is non-deterministic; verify a stack by the
    gate + inspection.
 2. **No regression, across data classes.** Every registered dataset
@@ -174,10 +178,11 @@ Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
 PNG16 for the final **and the starless layer** (PNG8 = the exact pixels
 the gate encoder consumed; PNG16 = the float layer at 65536 levels).
 Never judge a q92 surface. Finals carry EMBEDDED sRGB COLORIMETRY (JPEG
-ICC + PNG sRGB/gAMA/cHRM chunks): the chain's LCh math already treats
-display RGB as sRGB-companded, so the tag declares that instead of
-leaving viewers to assume it — pixels untouched, profile vendored at
-`scripts/lib/srgb.icc` with timestamp/ID zeroed for byte-determinism.
+ICC + PNG sRGB/gAMA/cHRM chunks): the render's display-referred output is
+sRGB-companded (siril's autostretch/mtf/satu operate in display RGB), so
+the tag declares that instead of leaving viewers to assume it — pixels
+untouched, profile vendored at `scripts/lib/srgb.icc` with timestamp/ID
+zeroed for byte-determinism.
 The gate's pinned q92 starless jpg stays byte-untouched (gate identity).
 
 **North star:** every stage audits itself with numbers so that eventually
@@ -190,12 +195,28 @@ removal condition.
 ## The experiment discipline
 
 - One knob per experiment, values bracketing the control; hypothesis
-  pre-registered in NOTES *before* the run.
-- A measurement that kills a hypothesis becomes a dead end **written into
-  NOTES with its numbers** before anything else is tried.
-- Harness: `starcomb.py --param --values --hypothesis` emits per-value
-  metrics + side-by-side strips into `results/exp_*/` and STOPs for user
-  judgment.
+  pre-registered in NOTES *before* the run. The ladder enforces it:
+  `starcomb.py --param --values --hypothesis` (hypothesis REQUIRED, one
+  knob, control auto-bracketed) renders each value as a full-frame lossless
+  final + stage sequence into `results/exp_<param>_<stamp>/`, appends the
+  experiment to the tracked per-dataset `experiments.jsonl`, and STOPs for
+  user judgment.
+- The verdict round-trips: once judged, `starcomb.py --verdict
+  win|null|deadend --because "…" --exp <dir>` closes the ledger entry. A
+  measurement that kills a hypothesis becomes a dead end **written into
+  NOTES with its numbers** before anything else is tried (the ledger
+  indexes it; NOTES states the mechanism).
+- Comparisons are honest: `judgment_package.py --control=<label>` embeds
+  the measured candidate-vs-control deltas + an objective **WIN | NULL |
+  needs-eyes** verdict on the gate/defect metrics (auto-discovered from the
+  `<final>.metrics.json` sidecar). A WIN names the delta that earns it;
+  needs-eyes = mixed or aesthetic (the user's eyes on the finals). Report
+  each result as a WIN or a clean NULL — never "fixed/final/matched/close".
+- Processing is a TOOL, not hand-rolled numpy. Every render-chain
+  processing operator is catalogued in `scripts/render/operators.json`;
+  `hand_roll_audit.py` (standing, wired into the sweep) guards the rule.
+  When a target's honest best outcome needs a stage turned off or swapped,
+  that is the toolkit working as intended (each choice carries its reason).
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
 
 ### New-class triage (BEFORE the first judgment package)
@@ -211,14 +232,15 @@ why-notes name a class risk — that file is the checklist's source of
 truth; today: `bgelin_mode` (the proven signal eater: full AI
 background extraction absorbs frame-filling faint nebulosity — trace
 object-region retention stack→bgelin before trusting any faint-object
-render), `starless_denoise` (the proven chroma killer),
-`chroma_core` (over-neutralizes faint real colour), `black_point`
-(crushes faint extended signal), `starless_target` (darker than
-necessary on clean data), `stars_peak` (blows star tops on deep data),
-and the stretch architecture itself (`stretch_linked` — a narrowband
-palette needs the per-line mode, auto-resolved from the recipe's
-narrowband marker). Each is a single-knob ladder the harness already
-runs; the user judges once per class instead of debugging after.
+render), `starless_denoise` (the proven chroma killer — the tool VST/GX
+denoise strength, now the only sky-noise lever since the numpy corings
+were removed), `black_point` (crushes faint extended signal),
+`starless_target` (darker than necessary on clean data), `stars_peak`
+(blows star tops on deep data), and `stretch_linked` (linked vs the
+per-channel measurement rung). Each is a single-knob ladder the harness
+already runs; the user judges once per class instead of debugging after.
+(Narrowband-palette colour+develop is not laddered here — it routes to
+Nightlight, `nightlight_sho.py`, with its own recipe block.)
 
 ## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
@@ -257,6 +279,10 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 - `composition.json` — only for multi-line/multi-filter targets: how the
   composed linear stack is BUILT (kind, extraction, lines, palette
   channel mapping). Absent = ordinary single-stack set.
+- `experiments.jsonl` — the tuning-experiment ledger (append-only): one
+  record per ladder (param, values, control, hypothesis, pinned stack,
+  verdict), closed by `--verdict`. The durable tracked index of what was
+  tried; heavy per-value finals stay in gitignored `results/exp_*/`.
 
 The background is NOT a per-set composition fact: the gate selects its sky
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
@@ -288,7 +314,7 @@ python3 scripts/render/starcomb.py <session> <set> \
 
 # single-knob ladder
 python3 scripts/render/starcomb.py <session> <set> --stack ... \
-    --param chroma_core --values 2,6 --hypothesis "..."
+    --param black_point --values 4,12 --hypothesis "..."
 ```
 
 Environment specifics (flatpak siril invocation, catalogs, GraXpert, timing)
@@ -328,7 +354,9 @@ live in NOTES "Environment" + auto-memory.
 
 | file | role |
 |---|---|
-| `starcomb.py` | **the product chain** (knobs: CLI > `datasets/<session>/<set>/recipe.json` > GENERIC) + single-knob ladder harness |
+| `starcomb.py` | **the product chain** (knobs: CLI > `datasets/<session>/<set>/recipe.json` > GENERIC) + single-knob ladder harness; emits per-stage visibility (`<final>_stages/` + index) on EVERY build, a `<final>.metrics.json` sidecar with `--lossless`, and the experiment ledger + `--verdict` close-out |
+| `operators.json` | the honest catalog of the chain's PROCESSING operators (processing vs examining) — currently TOOL-ONLY: every processing op drives a real tool (siril/GraXpert/StarNet2); the `sanctioned` (no tool provides it, with a removal condition) and `migration-candidate` statuses stay available for a future mechanism, but the catalog carries none today — the record `hand_roll_audit.py` enforces |
+| `nightlight_sho.py` | narrowband SHO render by driving **Nightlight** (the reference author's own open tool, staged) — the tool-honest colour+develop step for the narrowband class: a STAR-COLOUR-NEUTRAL balance (boosts O3 → reveals the O3 sphere, which SPCC's photometric fit erases) + one global stretch, NO star-sep/corings/denoise. Recipe `nightlight` block tunes brightness/saturation/hue |
 | `separation/starnet_sep.py` | star separation by StarNet2 ONNX inference on aarch64 (the generic default via `auto`; needs the official weights file at `~/.local/share/starnet/`) |
 | `separation/starsep.py` | star separation by mask+inpaint — the weights-absent fallback; warns when the frame holds a resolved object it would damage; also builds the engine-invariant detection catalog |
 
@@ -338,8 +366,10 @@ live in NOTES "Environment" + auto-memory.
 |---|---|
 | `inspect_stage.py` | per-stage inspection reports (WARN-only), wired into the runners; its registration stage is the per-frame quality assessment (the SubframeSelector step, measurement half): .seq regdata parsed and persisted per frame — FWHM px+arcsec, roundness, background, star count, full shift list — into metrics.jsonl + a .seq copy before per-stage cleanup prunes the sequence |
 | `capture_report.py` | per-channel capture report card for composed targets (WARN-only, run at compose time + re-run after SPCC): member rates from dark-subtracted raw lights, sky rates, stack SNRs, SNR-parity hours, captured-vs-displayed line ratios |
-| `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, writes the QUESTION.md skeleton |
-| `sweep.py` | **the no-regression sweep**: renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
+| `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
+| `hand_roll_audit.py` | **the orchestrate-not-hand-roll guard** (standing, wired into the sweep): validates `render/operators.json` and fails on an unregistered hand-rolled processing function in the product chain; WARNs on migration-candidates |
+| `object_integrity.py` | **the object-region audit** (standing WARN, wired into every starcomb render): grades the OBJECT the gate is blind to against the render's own same-balance co-registered input — chroma-neutralization + coring-mottle (reliable) + gross structure-flattening (a small local hollow is an upstream alignment concern, see its docstring) |
+| `sweep.py` | **the no-regression sweep**: runs `hand_roll_audit`, then renders every baselined dataset, enforces gate PASS + no shell worsening vs each baseline, diffs metrics + artifact bytes vs `datasets/*/*/baseline.json`; `--determinism` double-renders; `--rebaseline` records a new baseline (`--ack-aura-warn` to record over the audit bound) |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `stack_ab.py` | stack-vs-stack comparators for a with/without policy ladder (sky noise, blotch-proxy, difference structure + a stretched diff JPEG) — the instrument for a measured weight/cull adoption |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |

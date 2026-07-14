@@ -78,8 +78,8 @@ carries dark current a bias cannot remove (`biases/` is the fallback).
 Darks are filter-independent, matched by exposure/gain/offset. A mono light
 is never debayered (no `BAYERPAT`); an OSC CFA FITS gets `-cfa -debayer`.
 The render detects a 1-channel stack and takes the luminance-only path —
-chroma coring and saturation act on channel differences that are
-identically zero, and SPCC has no colour to calibrate. A single-channel
+the final saturation acts on channel differences that are identically zero,
+and SPCC has no colour to calibrate. A single-channel
 FITS must be written `NAXIS=2`: siril's reader rejects a degenerate
 `NAXIS3=1` cube. The `FILTER` keyword is optional in practice (some
 capture software writes none): an absent filter normalizes to `-` on both
@@ -181,9 +181,25 @@ an edge by construction). The background is never a per-set input: the gate
 selects its sky STATISTICALLY (below) because bright celestial signal has no
 fixed geometry a mask could scope.
 
+**Render-engine routing (`render_engine`)** — `starcomb.py` is the default
+render entry, but a dataset can declare its engine (`render_engine` in
+recipe.json: auto|starcomb|nightlight). A mono-filters NARROWBAND (SHO)
+composition auto-resolves to `nightlight` and starcomb DELEGATES to
+`nightlight_sho.py` — the reference author's own tool, whose star-neutral
+balance recovers the O3 sphere our SPCC equalizes away. Everything else is
+the in-house chain below. The in-house chain is TOOL-ONLY (every
+pixel-rewriting operator drives siril / GraXpert / StarNet2); the narrowband
+colour+develop mechanism Siril has no equivalent for (per-line stretch + the
+O3-sphere star-neutral balance) lives ONLY in Nightlight, not as an in-house
+numpy path — a `--stack`/`--param` run of a narrowband set on starcomb gets
+the broadband linked stretch (dominant line only) and says so.
+
 **Product chain (`starcomb.py`)** on the SPCC stack — knob values resolve
 CLI > `datasets/<session>/<set>/recipe.json` > `datasets/GENERIC.json`
-(provenance printed; a recipe-less dataset renders generic and says so):
+(provenance printed; a recipe-less dataset renders generic and says so).
+Every operator that rewrites the deliverable's pixels drives a tool;
+python computes parameters (anchors, thresholds, clip fractions) and
+MEASURES, siril/GraXpert/StarNet2 apply:
 
 1. Linear background handling per `bgelin_mode`:
    - **gx** (generic) = GraXpert BGE + `subsky 1` on the STAR-FUL linear.
@@ -223,41 +239,39 @@ CLI > `datasets/<session>/<set>/recipe.json` > `datasets/GENERIC.json`
    Both engines emit the same trio + an engine-invariant detection catalog,
    so culling/anchoring/shell audits measure them identically.
 
-3. Starless stretch, class-resolved (`stretch_linked auto`, provenance
-   printed):
-   - broadband/mono → **linked** autostretch (one calibrated scene, one
-     transfer for all channels — unlinked per-channel curves differentially
-     amplify noise into chroma blotches, and after SPCC there is no cast left
-     for them to compensate).
-   - narrowband-palette composition (recipe `spcc.narrowband`) → **perline**:
-     a per-line NOISE-WIDTH-CAPPED stretch (per channel, gamma∘black-pin
-     solved by bisection so the sky location = `starless_target` AND the sky
-     noise width = `perline_scale`), which stops each line before it
-     amplifies noise into visibility and stretches every line to the same
-     noise-relative depth. One linked MTF instead would render only the
-     dominant line (a strong line ratio drowns the weaker line). Then the
-     gated LCh finishing set, in order: satgamma (chroma gamma), huerot
-     (Hubble-palette hue rotation, feathered edges), scnr (average-neutral
-     green removal), ppgamma (post-peak partial gamma on Luv LUMINANCE
-     applied as an RGB-ratio-preserving gain — chroma is never stretched).
-     Every finishing op is blended in over a two-noise-width ramp above the
-     sky significance gate, because a hard gate stipples and a hard hue-edge
-     seams.
+3. Starless stretch by **siril `autostretch`** (`stretch_linked`): **linked**
+   (broadband/mono standard — one calibrated scene, one transfer for all
+   channels; unlinked per-channel curves differentially amplify noise into
+   chroma blotches, and after SPCC there is no cast left for them to
+   compensate). `auto` → linked (the in-house chain serves the broadband/mono
+   class; narrowband-palette colour+develop is Nightlight's job — a linked
+   MTF on a narrowband composite renders only the dominant line, the reason
+   Nightlight owns that class).
 
-   Then post-stretch `denoise -vst -mod=0.5` → chroma_core 4 → lum_core 2 →
-   black_point 8. The corings estimate their noise on the statistical dark
-   sky and are Wiener-gated everywhere — no protected corridor is needed,
-   because energy far above noise is protected by the gate itself. The gate
-   jpg (q92, pinned — this encoding IS the gate's identity) is written here,
-   before the combine.
+   Then post-stretch **siril `denoise -vst -mod=0.5`** (`starless_denoise`;
+   `gx` swaps in GraXpert AI denoise, `vst` the linear placement, `off`
+   none) → black_point by **siril `mtf b 0.5 1`** (a midtones balance of
+   0.5 is the identity transfer, so a low shadow clip at b is exactly the
+   linear rescale (x-b)/(1-b); the clip fraction is measured in python, the
+   transform is siril's). The gate jpg (q92, pinned — this encoding IS the
+   gate's identity) is written here, before the combine. There is NO
+   in-house significance-coring stage: the tool denoisers (siril VST /
+   GraXpert) are the denoise operators; the multi-scale Wiener corings were
+   hand-rolled numpy and were removed (a tool-only chain leaves that hole
+   rather than reintroduce numpy — ladder tool-denoise strength per class).
 
 4. Stars: cull the faintest half by flux → floor the star layer at
-   `stars_floor`×σ → gray MTF anchored so the median top-tier star component
-   renders at `stars anchor` on the G basis (`peak_g`).
+   `stars_floor`×σ (python threshold clip, catalog/σ measured) → rendered by
+   **siril `mtf 0 m 1`**, the single-parameter midtones transfer with a
+   data-derived anchor m (`solve_mtf_m` over the top-tier star amplitude on
+   the fixed G basis `peak_g`, or k·σ_G) computed in python and APPLIED by
+   siril.
 
-5. Screen combine → satu 0.2 → jpg q100/4:4:4 (+ PNG8 + PNG16 with
-   `--lossless`). Every final is sRGB-tagged (JPEG ICC + PNG chunks); the
-   gate's q92 starless jpg carries no tag (gate identity).
+5. Recombine + finish by siril: **siril `pm`** screen blend
+   1-(1-a)(1-b·opacity) (the star-layer opacity folded into the PixelMath
+   expression) → **siril `satu`** chroma gain → jpg q100/4:4:4 (+ PNG8 +
+   PNG16 with `--lossless`). Every final is sRGB-tagged (JPEG ICC + PNG
+   chunks); the gate's q92 starless jpg carries no tag (gate identity).
 
 **Knob reference (what each knob does and the technical reason; a value
 marked *tuned default* has no cross-data universal — re-derive per data
@@ -270,24 +284,17 @@ class through a one-knob ladder):**
 | SPCC placement = pre-BGE | SPCC uses per-star local-annulus photometry, which cancels the smooth background, so the star-colour fit is the same before or after background extraction. Solve+SPCC therefore stay stack products, ahead of the render's BGE. |
 | no crop stage (default) | Canonical chains crop registration borders because border pixels have fewer contributing frames. A rigidly-registered set has fully-covered borders carrying only a smooth low-amplitude level plane, so trimming changes nothing. A DRIFTING set is the exception — its under-covered border band is a real fake-falloff and is cropped by `crop_coverage.py` to the coverage-complete rectangle. |
 | bge_first order | Extract background before star separation: on a star-removed frame the frame-filling Milky Way looks like background and is absorbed; the star-ful order preserves it. |
-| stretch_linked auto | Class-resolved (above): broadband → linked (a calibrated scene needs one transfer; unlinked = the per-channel chroma-blotch engine), narrowband palette → perline (equal noise-relative depth per line so a strong line ratio does not drown a weak line). |
-| perline_scale 0.5 | The per-line stretch's sky noise-width budget (% of sky noise the stretch may widen the sky to). Lower is more conservative; it caps every line at the same noise-relative depth. *Tuned default.* |
-| ppgamma 2.7 / ppsigma 1.0 | Post-peak partial gamma on luminance (Luv L) above sky+1σ, applied as an RGB-ratio-preserving gain — lifting mid-tones without ever stretching chroma is the anti-mottle property. Values are *tuned defaults.* |
-| satgamma 1.1 | LCh chroma gamma above the sky significance gate (reference = a high chroma percentile), boosting object chroma while the gated sky is untouched. *Tuned default.* |
-| huerot (Hubble palette) | Rotates narrowband hues to the Hubble palette (Ha-green → gold). Edges are feathered and gated because a hard hue boundary stipples/seams. Angles are palette-defined; a knot below the interval stays off-palette (a `huerot_from` judgment flag). |
-| scnr 0.5 | Average-neutral green removal: RGB-mapped narrowband puts a pure-green cast where Ha dominates, and SCNR neutralizes it. 0.5 is the tricolor blend (lower for bicolor). *Tuned default.* |
-| stars_opacity 1.0 | Reduced-opacity star screen (industry star-subduing); the star layer is screened at ×opacity. 1.0 = plain screen (bit-exact). Lower subdues bright star tops at the cost of dimming all stars. |
+| stretch_linked auto | The channel coupling of siril `autostretch`: broadband/mono → linked (a calibrated scene needs one transfer; unlinked = the per-channel chroma-blotch engine, a measurement rung). `auto` → linked; narrowband-palette colour+develop is Nightlight's job, not an in-house stretch mode. |
+| stars_opacity 1.0 | Reduced-opacity star screen (industry star-subduing); the star layer is screened at ×opacity, folded into the siril `pm` screen expression as a scalar. 1.0 = plain screen. Lower subdues bright star tops at the cost of dimming all stars. |
 | starless_target 0.07 | The sky background's display level. Too high lifts the estimator's rim residual into visibility; the low target keeps the sky dark where the residual lives. *Tuned default.* |
 | vstpost -mod=0.5 | Post-stretch VST denoise at half strength. It is post-stretch, not a linear placement, because on self-flat data the noise is radial after V(r) division, so any linear adaptive denoise imprints a radial signature; a post-stretch half-mod pass avoids that. |
-| chroma_core 4 | Multi-scale Wiener coring strength on chroma. Higher k removes more chroma noise but over-neutralizes faint REAL colour — a direct tension. 4 suits a noise-dominated (underexposed, colour≈noise) set; a high-SNR real-colour target needs less. *Tuned default — re-derive per data class.* |
-| lum_core 2 | Multi-scale Wiener coring on luminance, removing stretch-amplified luminance-noise patches. Noise is estimated on the statistical dark sky and the correction is Wiener-gated everywhere; NO geometric factor is used (a hard region mask prints a texture seam; the Wiener gate protects real structure instead). *Tuned default.* |
-| black_point 8 | A linear black-point shift: it moves the floor while preserving contrast and all differences (linear shift). Set to place the sky floor just above clip; the intended gap/lane blackness clips, the smooth cored sky barely does. *Tuned default.* |
-| stars anchor 0.97 | The MTF anchor level for the star layer's median top-tier star. Decoupled from the gate (stars and starless are separate layers). *Tuned default.* |
+| black_point 8 | A linear black-point shift by siril `mtf b 0.5 1` (midtones 0.5 = identity transfer, low shadow clip at b): it moves the floor while preserving contrast and all differences. Set to place the sky floor just above clip; the intended gap/lane blackness clips, the smooth sky barely does. *Tuned default.* |
+| stars anchor 0.97 (`stars_peak`) | The `mtf 0 m 1` target for the star layer's median top-tier star; m is solved from it and applied by siril. Decoupled from the gate (stars and starless are separate layers). *Tuned default.* |
 | anchor basis = G (`peak_g`) | The anchor is measured on the G channel, not max-over-channels. A max-over-channels anchor follows whichever channel is brightest, so a per-channel recalibration (SPCC K) shifts it between builds; a fixed-channel amplitude rescales with its own channel and cannot drift. The anchor's ABSOLUTE level is inherently per-field (top-tier is a tiny fraction of a rich star catalog but a large fraction of a sparse one), so no single value sets star brightness across fields. |
 | stars_anchor catalog vs noise | `catalog` anchors on the top-tier star population; its absolute level is per-field. `noise` (k·σ_G) holds a physical star's brightness across rebuilds of ONE field, but k restates that field's star statistics and has no cross-field value, so noise mode requires `noise_anchor_k` from the recipe. |
 | stars_floor 3.0 | Floors the star layer at 3σ to kill the ghost aura: the stars-layer skirt annulus amplifies star-subtraction noise through the MTF's very large low-end gain, and flooring cuts that wing (a smaller dilation just moves the cliff brighter; feathering alone does not touch the amplified wing). *Tuned default.* |
 | cull 50 | Culls the faintest half of detections (noise-level clumping) before the star MTF. The faint-field character is set by the star MTF anchor + the starless floor, not the cull, so the exact value is not critical. |
-| satu 0.2 | Final saturation gain. Saturation scales all colour including star-edge fringe ~(1+s), so it is kept low to avoid amplifying the fringe. *Tuned default.* |
+| satu 0.2 | Final saturation gain by siril `satu <amount> 0 6` (background_factor 0 = all pixels, hue index 6 = all hues) on the combined render. Saturation scales all colour including star-edge fringe, so it is kept low to avoid amplifying the fringe. *Tuned default.* |
 | jpg q100/4:4:4 | The final JPEG. q92 + 4:2:0 chroma subsampling halves chroma resolution and adds star-edge ringing (visible as a pixeled aura); q100/4:4:4 avoids it. PNG8 is the lossless artifact the determinism check compares; PNG16 is the float render at 65536 levels. Finals embed sRGB colorimetry (vendored lcms profile, timestamp/ID zeroed for byte-determinism) with pixels identical; the gate q92 jpg carries none (gate identity). |
 
 **Standing per-render audits (printed + logged every starcomb run):** the
@@ -298,7 +305,26 @@ whole-frame QA as a reported reference; `star_shell_report` (aura_lum WARN >
 4.0 — the ghost-aura discriminant; shell_chroma is a reported TREND with no
 bound, because honest PSF fringe dominates it and a fixed bound would cry
 wolf on clean renders); black_point clip0 sky; the stars anchor + MTF
-low-end gain (a drift watch); star metrics.
+low-end gain (a drift watch); star metrics; and the OBJECT-INTEGRITY audit
+(`object_integrity.py`, WARN-only) grading the object region the gate cannot
+see — against the render's OWN same-balance, co-registered input: chroma
+neutralization (absolute object chroma vs the input) and coring mottle
+(mid-scale texture excess) are reliable; structure is a grain-robust
+worst-region correlation that catches GROSS flattening but not a small local
+hollow (that class is an upstream channel-alignment concern — see the tool).
+
+**Per-stage visibility (standing on every build)** — every starcomb render
+writes a labeled full-frame image + measured numbers for each processing
+stage (background → separation → stretch → denoise → black point → stars →
+combine) + an `index.html` into `<final>_stages/`, so the
+treatment at each step is visible and a final-render defect localizes to
+its stage from one run (`--no-stage-vis` opts out). Stretched stages are
+shown as-is (display-referred); linear stages go through the shared
+inspection autostretch. This is a DIAGNOSTIC surface — it runs on a side
+path and never touches the float artifact chain (determinism unaffected) —
+and is NOT the aesthetic-judgment surface (the full-frame lossless finals
+are). The denoise stage is captured via a vis-only pre-denoise save so the
+post-stretch VST shows as its own step in true chain order.
 
 **Per-frame quality assessment (the registration inspection)** — the
 standard workflow's SubframeSelector step, measurement half only, WARN-only,
@@ -397,28 +423,39 @@ Stretch/denoise/color:
   input clip keeps low-sigma diffuse signal inside the absorbable range
   (while bright compact objects saturate out and survive). `bgelin_mode`
   plane/off is the admissible handling for object-filling fields.
-- OBJECT-anchored per-line stretch (lifting each line's faint end to a
-  display target) overruns the noise budget; the corings then
-  partial-Wiener-shrink the lifted grain into mid-scale kept-vs-flattened
-  MOTTLE, and RGB-space stretching amplifies chroma noise wholesale. The
-  admissible per-line stretch is NOISE-WIDTH-CAPPED with luminance-only
-  post-peak lifting (design section); hard significance gates and hard
-  hue-interval edges stipple/seam — ramp and feather them.
+- In-house NUMPY narrowband finishing (a per-line stretch + LCh
+  saturation/hue/SCNR/luminance-lift set) was REMOVED — it hand-rolled
+  image processing that duplicates Nightlight. Mechanism lessons that stand:
+  an OBJECT-anchored per-line stretch (lifting each line's faint end to a
+  display target) overruns the noise budget and RGB-space stretching
+  amplifies chroma noise wholesale; hard significance gates and hard
+  hue-interval edges stipple/seam. Narrowband colour+develop is Nightlight's
+  job (the star-neutral O3-sphere mechanism siril has no equivalent for) —
+  a linked in-house autostretch on a narrowband composite renders only the
+  dominant line, which is exactly why the class routes to Nightlight.
 - `rmgreen` on a sky that is not green-dominant prints a global magenta cast.
+- SPCC narrowband mode is the WRONG colour step for an SHO sphere: its
+  photometric star fit equalises O3=Ha (both synthesised near-identically),
+  scaling O3 DOWN from its natural lead (measured raw O3/Ha ~1.5 -> ~1.0
+  after SPCC), which erases the blue O3 sphere (measured sphere B/R 0.77 vs
+  3.21). The mechanism the sphere needs is a STAR-COLOUR-NEUTRAL balance:
+  narrowband stars carry almost no O3, so neutralising the mean star colour
+  BOOSTS O3 several-fold and reveals the sphere. That is a different
+  question than SPCC answers (photometric star colour vs star-neutral tint)
+  — driven by Nightlight for now (ledger), a native colour tool is BACKLOG.
 - Linear denoise (VST or GraXpert) at ANY placement on self-flat data
   imprints a radial signature, because the noise is radial after V(r)
   division. Only a post-stretch `-vst -mod=0.5` on the starless render is
   clean.
 - Chroma blur + saturation is scale-blind to mid-scale blotches and
-  saturation re-amplifies them → worse rainbow. The fix is significance
-  coring (Wiener, multi-scale), not blurring.
+  saturation re-amplifies them → worse rainbow — so neither is used to fight
+  chroma noise. Multi-scale Wiener significance coring once did this in
+  numpy, but that was hand-rolled processing and was removed; the tool-only
+  chain leaves stretch-amplified chroma noise to the tool denoise (siril VST
+  / GraXpert) or accepts it (ladder the tool-denoise strength per class).
 - A fixed shell_chroma WARN bound cries wolf on clean renders (honest PSF
   fringe dominates it and scales with the chain's low-end gain). aura_lum is
   the defect discriminant.
-- lum_core does NOT erase a centred galaxy's faint outer disk: at matched
-  radii the galaxy profile is preserved while sky noise falls sharply — the
-  Wiener gate protects real structure. The coring is not what damages a
-  galaxy.
 - GraXpert BGE does NOT absorb a centred galaxy's halo: removing a broad
   background gradient makes the halo measure STRONGER against a lower
   far-field sky. Background extraction is not what damages a galaxy.
@@ -499,8 +536,9 @@ QA/scope:
   reported reference.
 - Judging background by hand-picked patches misses defects a whole-scope
   measurement catches — the lesson that motivated the statistical gate.
-- A level-step seam gauge across mask edges reads ≈ 0: the coring seam is a
-  TEXTURE discontinuity, so a blotch-MAD ratio is the right gauge.
+- A level-step seam gauge across mask edges reads ≈ 0: a mask-edge seam (e.g.
+  a hard region mask multiplied into any correction) is a TEXTURE
+  discontinuity, so a blotch-MAD ratio is the right gauge.
 - Sensor `fixbanding` is wrong here: the visible bands are MW-oriented
   chroma survivors + star fringes, not a row/col pattern (the axis-aligned
   residual is far below the band-oriented one). Don't run it.
@@ -511,7 +549,7 @@ QA/scope:
   star-edge errors, so judgment panels must compare LIKE encodings.
 - An offline whole-frame P2V proxy does NOT predict the rendered gate
   gradient, because the gate measures the STRETCHED sky through the adaptive
-  chain (autostretch, corings, black point). Only a gate-scope proxy (dark-
+  chain (autostretch, denoise, black point). Only a gate-scope proxy (dark-
   block selection + plane fit on the LINEAR residual) tracks the render.
 
 ## Bandaid/adaptation ledger (every divergence carries its removal condition)
@@ -542,6 +580,45 @@ QA/scope:
    decode. Every other camera raw ingests directly (siril debayers it). Dies
    when acquisition records 14-bit Lossless NEF (see checklist) or a bundled
    LibRaw that lists the body.
+6. **Hand-rolled numpy processing operators — RESOLVED (the render chain is
+   now TOOL-ONLY).** The chain formerly ran several pixel-rewriting operators
+   in numpy; all are gone (`scripts/render/operators.json` is the catalog,
+   now 6 processing operators, ALL status `tool`, 0 sanctioned):
+   - MIGRATED to siril: black point → `mtf b 0.5 1`; stars layer → `mtf 0 m 1`
+     (python computes the anchor m, siril applies); recombine → `pm` screen;
+     final saturation → `satu`. (Stretch and denoise already drove siril
+     `autostretch`/`denoise -vst` / GraXpert.)
+   - DELETED with the hole left, NOT refilled with numpy: the multi-scale
+     Wiener significance corings (`chroma_core`/`lum_core`). No tool provides
+     multi-scale significance coring, and the tool denoisers (siril VST /
+     GraXpert) ARE the denoise operators — so the corings were pure
+     hand-rolled processing. Removing them raises stretch-amplified sky noise
+     (a broadband set measured gate rings 8.2 vs the 8.0 bound — a declared
+     delta); the tool-only replacement is to ladder the tool-denoise strength
+     (`starless_denoise`) per class, never reintroduce the numpy coring.
+   - DELETED as a Nightlight duplicate: the in-house per-line narrowband
+     stretch + LCh finish (satgamma/huerot/scnr/ppgamma) and the in-house
+     `star_neutral` colour balance. Narrowband SHO colour+develop is
+     Nightlight's job (entry 7), so the in-house numpy that duplicated it is
+     gone; a narrowband set on the starcomb path now gets the broadband
+     linked stretch (dominant line only) and says so.
+   `scripts/qa/hand_roll_audit.py` keeps the catalog honest and fails on a
+   NEW unregistered hand-rolled processing function.
+7. **Nightlight as the narrowband SHO colour+develop tool**
+   (`scripts/render/nightlight_sho.py`) — a SANCTIONED TOOL for the
+   narrowband-palette class: the reference author's own open tool (staged
+   aarch64 binary), driven on our per-line member stacks. It provides the
+   one mechanism our chain lacks: a STAR-COLOUR-NEUTRAL colour balance.
+   Narrowband stars carry almost no O3, so neutralising the mean star
+   colour boosts O3 several-fold, and THAT reveals the O3 sphere; siril
+   SPCC's photometric fit instead equalises O3=Ha and erases it (see dead
+   ends). Nightlight then develops with ONE global stretch and NO
+   star-separation / corings / denoise — the un-conservative process a
+   high-SNR emission target needs, which our conservative chain crushes.
+   Reproduces the author's own output bit-closely on our data. Dies when
+   the star-neutral balance is integrated natively as a general colour tool
+   (BACKLOG); the published GOLD palette is the author's MANUAL finish (an
+   aesthetic hue choice), not part of the reproducible tool output.
 
 ## Checklist for future acquisition sessions (the real quality lever)
 

@@ -1,47 +1,37 @@
 {
-  "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
-  "dataset": "colonnello-m20/m20_rgb",
-  "status": "approved",
-  "render": {
-    "starless_target": 0.07,
-    "starless_denoise": "off",
-    "stretch_mode": "mtf",
-    "ghs_sp_k": 2.0,
-    "ghs_amount": 3.0,
-    "ghs_focus": 3.0,
-    "sep_prom": 6.0,
-    "sep_engine": "net",
-    "chroma_core": 4.0,
-    "lum_core": 2.0,
-    "core_order": "pre",
-    "stretch_linked": "linked",
-    "satu": 0.2,
-    "cull_pct": 50.0,
-    "stars_peak": 0.97,
-    "stars_anchor": "catalog",
-    "stars_floor": 3.0,
-    "black_point": 8.0,
-    "jpg_quality": 100,
-    "jpg_subsampling": 0,
-    "noise_anchor_k": null,
-    "perline_scale": 0.5,
-    "ppgamma": 2.7,
-    "ppsigma": 1.0,
-    "satgamma": 1.1,
-    "huerot_from": 120.0,
-    "huerot_to": 147.5,
-    "huerot_by": -35.0,
-    "scnr": 0.5,
-    "stars_opacity": 1.0,
-    "bgelin_mode": "gx"
-  },
-  "notes": {
-    "starless_denoise": "off, not the generic vstpost: this is a high-SNR real-colour target, and the post-stretch VST (a self-flat-class denoise adaptation) over-neutralizes bright-object chroma sitting near the grain scale, flattening real colour into soft patches. off keeps the real chroma at gate PASS; the linear GraXpert denoise (gx) tints the sky.",
-    "spcc": "broadband RGB from a mono filter wheel: SPCC runs sensor-null on the composed stack (the generic default; a known sensor curve is an immaterial refinement here)",
-    "solve": "narrow 53-arcmin field at 0.68\"/px (FOCALLEN 1150 mm): solve with a position hint + cached index scales -- solve_field.py --ra=270.6 --dec=-23.0 --radius-deg=10 --scales=4-9 (scales 1-3 are multi-GB index downloads; scale 4 carries the solution)",
-    "ladders": "ladders run (chroma_core, cull_pct, black_point, starless_denoise): generic values kept wherever no dataset-specific reason to move showed; starless_denoise off is the one exception (see its note)"
-  },
-  "approved": {
-    "note": "aura reads high here only because the fixed-px shell annuli sit in the star-halo zone at this pixel scale (scale-awareness, BACKLOG); no visible ghost aura at 1:1 -- baseline recorded with --ack-aura-warn"
-  }
+ "_readme": "APPROVED recipe: every knob pinned (a later generic-default change cannot restyle this look). starcomb resolution: CLI > this file > GENERIC.",
+ "dataset": "colonnello-m20/m20_rgb",
+ "status": "provisional",
+ "render": {
+  "starless_target": 0.07,
+  "starless_denoise": "off",
+  "stretch_mode": "mtf",
+  "ghs_sp_k": 2.0,
+  "ghs_amount": 3.0,
+  "ghs_focus": 3.0,
+  "sep_prom": 6.0,
+  "sep_engine": "net",
+  "stretch_linked": "linked",
+  "satu": 0.2,
+  "cull_pct": 50.0,
+  "stars_peak": 0.97,
+  "stars_anchor": "catalog",
+  "stars_floor": 3.0,
+  "black_point": 8.0,
+  "jpg_quality": 100,
+  "jpg_subsampling": 0,
+  "noise_anchor_k": null,
+  "stars_opacity": 1.0,
+  "bgelin_mode": "gx"
+ },
+ "notes": {
+  "starless_denoise": "off, not the generic vstpost: this is a high-SNR real-colour target, and the post-stretch VST (a self-flat-class denoise adaptation) over-neutralizes bright-object chroma sitting near the grain scale, flattening real colour into soft patches. off keeps the real chroma at gate PASS; the linear GraXpert denoise (gx) tints the sky.",
+  "spcc": "broadband RGB from a mono filter wheel: SPCC runs sensor-null on the composed stack (the generic default; a known sensor curve is an immaterial refinement here)",
+  "solve": "narrow 53-arcmin field at 0.68\"/px (FOCALLEN 1150 mm): solve with a position hint + cached index scales -- solve_field.py --ra=270.6 --dec=-23.0 --radius-deg=10 --scales=4-9 (scales 1-3 are multi-GB index downloads; scale 4 carries the solution)",
+  "ladders": "ladders run (cull_pct, black_point, starless_denoise): generic values kept wherever no dataset-specific reason to move showed; starless_denoise off is the one exception (see its note)",
+  "tool_migration": "tool-only migration: the in-house numpy corings (chroma_core/lum_core) were removed from the chain, so this recipe no longer applies them — a declared delta. The final saturation, star MTF, black point and screen combine now drive siril (satu/mtf/pm). Look + baseline need re-judgment + rebaseline; this recipe was approved for its denoise/anchor choices, not the corings."
+ },
+ "approved": {
+  "note": "aura reads high here only because the fixed-px shell annuli sit in the star-halo zone at this pixel scale (scale-awareness, BACKLOG); no visible ghost aura at 1:1 -- baseline recorded with --ack-aura-warn"
+ }
 }

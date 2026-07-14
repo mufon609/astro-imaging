@@ -53,6 +53,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -176,6 +177,15 @@ def render_once(session, set_name, stack_rel, keep, run_tag):
         for p in arts.values():
             if os.path.exists(p):
                 os.remove(p)
+        # the diagnostic side files starcomb wrote this build (a metrics
+        # sidecar + the per-stage sequence): clean with the artifacts so a
+        # sweep leaves no orphans (they are NOT hashed — not the artifact)
+        sc = jpg[:-4] + ".metrics.json"
+        if os.path.exists(sc):
+            os.remove(sc)
+        sd = jpg[:-4] + "_stages"
+        if os.path.isdir(sd):
+            shutil.rmtree(sd, ignore_errors=True)
     else:
         met["artifact_paths"] = arts
     return met
@@ -229,6 +239,17 @@ def main():
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
     rows, failed = [], []
+
+    # standing hand-roll rule guard (CLAUDE.md orchestrate-not-hand-roll):
+    # keeps the render chain's processing operators catalogued + honest and
+    # fails the sweep on a NEW unregistered hand-rolled processing function
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import hand_roll_audit
+    if not hand_roll_audit.audit()[0]:
+        failed.append("hand-roll-audit")
+        rows.append(("hand-roll-audit", "FAIL", "unregistered/incoherent "
+                     "processing operator — see scripts/render/operators.json"))
+
     for session, set_name, dsdir in targets(args):
         name = f"{session}/{set_name}"
         bl_path = os.path.join(dsdir, "baseline.json")

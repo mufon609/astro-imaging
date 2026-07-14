@@ -1,8 +1,23 @@
 {
-  "_readme": "Render recipe (starcomb resolution: CLI > this file > GENERIC). Tracks the generic pipeline; pin a knob here only with a measured, dataset-specific reason.",
+  "_readme": "Render recipe. This SHO target renders via render_engine=nightlight: the reference author's own open tool, whose STAR-NEUTRAL colour balance recovers the O3 sphere that our in-house chain's SPCC photometric fit equalises away (NOTES dead ends). The `nightlight` block tunes the develop; starcomb detects the mono-filters narrowband composition and delegates.",
   "dataset": "mlnoga-ngc7635/ngc7635_sho",
-  "status": "provisional",
-  "render": {},
+  "status": "approved",
+  "approved": {
+    "date": "2026-07-13",
+    "look": "honest green developed SHO — the filled O3 sphere + dust recovered via the star-neutral balance + one global stretch, no star-sep/corings/denoise. The shell is genuinely Ha-dominant (measured O3/Ha 0.45), so green is the data's true colour; the reference's teal is an explicit O3-emphasis (nightlight.o3_emphasis) plus the author's manual GIMP finish."
+  },
+  "render_engine": "nightlight",
+  "nightlight": {
+    "stretch_scale": 0.012,
+    "stretch_loc": 0.1,
+    "saturation": 1.5,
+    "black_sigma": 2,
+    "scnr": 0.5,
+    "hue_from": 100,
+    "hue_to": 190,
+    "hue_offset": 0,
+    "o3_emphasis": 1.0
+  },
   "spcc": {
     "narrowband": true,
     "rwl": 671.6,
@@ -10,9 +25,8 @@
     "bwl": 500.7
   },
   "notes": {
-    "spcc": "narrowband mode on the composed SHO stack: R carries SII (671.6 nm), G Ha (656.28), B OIII (500.7); bandwidths at siril defaults (the corpus names the filter wheel but not the narrowband bandwidths)",
-    "calib": "prebuilt-master ingest: the corpus ships header-bare masters (calib/{dark,flat}_<token>.fits) — the filename token is the whole identity; per-filter darks pair with the per-filter exposures (Ha 600 s / S2 500 s / O3 400 s)",
-    "capture": "measured line balance: Ha-rich, O3/S2-starved; the ~501 nm O3 band sits in the skyglow so its sky rate runs high, and a digital palette equalization would multiply the starved lines' noise several-fold -- SNR parity needs much more O3/S2 integration than Ha",
-    "OPEN_DEFECT": "the central SPHERE (the target's defining feature) is missing from our renders. The sphere IS in the linear data and O3 carries it most strongly, but O3 runs several times below Ha in absolute flux, so a single LINKED stretch renders the scene as the Ha image: the sphere's hue sits near grain and the chroma coring neutralizes it. Root cause is architectural (no knob fixes it): the industry SHO chain stretches each line SEPARATELY before palette combination, while compose-then-one-linked-stretch cannot give a weak line its own lift. Caution: the linked-stretch dead-end was measured on calibrated BROADBAND (channel noise, no cast) -- its scope does not decide the narrowband-palette regime, and a per-line design must still answer the noise question that entry measured. Exonerated here: the VST chroma effect, separation leak, black point (linear-shift invariance), and the stars combine. A GHS finishing lift alone WORSENS the drowning (it amplifies the Ha flood around the sphere). Resolve the architecture, not a workaround."
+    "render": "render_engine=nightlight — SPCC is NOT the render colour step here (its photometric fit equalises O3=Ha and erases the sphere). The spcc block stays for the compose/solve pipeline and the reference _spcc stack.",
+    "calib": "prebuilt-master ingest: the corpus ships header-bare masters (calib/{dark,flat}_<token>.fits); per-filter darks pair with the per-filter exposures (Ha 600 s / S2 500 s / O3 400 s)",
+    "sphere_RESOLVED": "the O3 sphere + dust are recovered by the Nightlight path: neutralising the mean star colour (stars carry ~no O3) boosts O3 several-fold and reveals the sphere; one global stretch develops the dust; no corings/denoise. A prior CRESCENT was our per-channel member stacks being mutually MISALIGNED (O3 offset ~57 px) fed raw — nightlight_sho aligns them and reports the offset."
   }
 }
