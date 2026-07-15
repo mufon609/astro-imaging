@@ -10,13 +10,19 @@
 # rc-astro steps for you to do by hand, emits a manifest, then runs a verification
 # pass. Never uses system `pip` (Kali PEP 668).
 #
+# INTEGRITY: FAIL-CLOSED. A download with no pinned sha256 ABORTS a --go install
+# (a dry-run lists which pins are missing) — pin it, or pass --allow-unpinned to
+# install unverified on purpose. A checksum mismatch always aborts. No silent
+# unverified install.
+#
 # SAFETY: refuses to run unless `uname -m` == x86_64 AND `--go` is passed. Default is
 # a dry-run that prints the plan. So it cannot execute on the arm box or touch anything.
 #
 # USAGE:
-#   ./x86_bootstrap.sh            # dry-run: print the plan
-#   ./x86_bootstrap.sh --go       # actually install (x86-64 only)
-#   ./x86_bootstrap.sh --go --skip-data   # skip the big ASTAP D50 DB + index files
+#   ./x86_bootstrap.sh                    # dry-run: print the plan + missing pins
+#   ./x86_bootstrap.sh --go               # install (x86-64 only; refuses unpinned downloads)
+#   ./x86_bootstrap.sh --go --allow-unpinned   # install even where a sha256 pin is missing
+#   ./x86_bootstrap.sh --go --skip-data   # skip the ASTAP wide DBs + astrometry.net indexes
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
@@ -36,8 +42,10 @@ DEEPSNR_VER="1.2.1-0112"
 DEEPSNR_URL="https://download.deepsnrastro.com/deepsnr_linux_${DEEPSNR_VER}_ORT_x64_cli.zip"
 DEEPSNR_SHA="05218b05460d3ff280d40bb97c9460f9464a8ebcbf08907d07085e61c97c17f9"   # published
 
-# GraXpert: stable 3.0.2 zip (BGE+denoise) is the reproducible base. The 3.2.0a2 alpha
-# (deconv models, pre-release, bug #243) is optional via pipx --pre.
+# GraXpert: official stable 3.0.2 zip (BGE+denoise) is the reproducible base. Deconv
+# exists only in the 3.1.0-RC line and a third-party fork's `3.2.0a2` (geeksville, a
+# PyPI test build — NOT official, bug #243) — pipx --pre it ONLY if deconv is wanted,
+# knowing it is neither official nor a reproducible pin.
 GRAXPERT_VER="3.0.2"
 GRAXPERT_URL="https://github.com/Steffenhir/GraXpert/releases/download/${GRAXPERT_VER}/graxpert-linux-amd64.zip"
 GRAXPERT_SHA=""      # TODO: fill from the GitHub asset digest before running
@@ -60,11 +68,12 @@ COSMIC_DATE="2025-03-29"
 NIGHTLIGHT_VER="v0.2.6"
 
 # ---------------------------------------------------------------------------
-DRY=1; DO_DATA=1
+DRY=1; DO_DATA=1; ALLOW_UNPINNED=0
 for a in "$@"; do case "$a" in
   --go) DRY=0 ;;
   --skip-data) DO_DATA=0 ;;
-  -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+  --allow-unpinned) ALLOW_UNPINNED=1 ;;
+  -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
   *) echo "unknown arg: $a" >&2; exit 2 ;;
 esac; done
 
@@ -73,25 +82,42 @@ log(){ printf '\033[1;34m[bootstrap]\033[0m %s\n' "$*"; }
 run(){ if [[ $DRY -eq 1 ]]; then printf '  (plan) %s\n' "$*"; else eval "$@"; fi; }
 manifest(){ [[ $DRY -eq 1 ]] || printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$@" >>"$MANIFEST"; }
 
-# fetch <url> <dest> <sha256|""> : download then verify sha256 (fail loud on mismatch)
+# fetch <url> <dest> <sha256|""> : require a pin (FAIL-CLOSED), download, verify sha256.
 fetch(){ local url="$1" dest="$2" sha="${3:-}"
+  if [[ -z "$sha" ]]; then
+    if [[ $DRY -eq 1 ]]; then
+      log "NOTE: $(basename "$dest") has NO pinned sha256 — pin it before --go (or use --allow-unpinned)."
+    elif [[ $ALLOW_UNPINNED -eq 1 ]]; then
+      log "WARN: installing $(basename "$dest") UNVERIFIED (--allow-unpinned) — record: sha256sum '$dest' → paste into its *_SHA pin."
+    else
+      echo "[bootstrap] REFUSING: no pinned sha256 for $url" >&2
+      echo "  Compute it (sha256sum the file) and set the *_SHA variable, or re-run with --allow-unpinned." >&2
+      exit 1
+    fi
+  fi
   run "curl -fL --retry 3 -o '$dest' '$url'"
   if [[ -n "$sha" && $DRY -eq 0 ]]; then
-    echo "$sha  $dest" | sha256sum -c - || { echo "SHA256 MISMATCH: $dest" >&2; exit 1; }
-  elif [[ -z "$sha" ]]; then
-    log "WARN: no pinned sha256 for $dest — compute + record it (\`sha256sum '$dest'\`)"
+    echo "$sha  $dest" | sha256sum -c - || { echo "[bootstrap] SHA256 MISMATCH: $dest ($url)" >&2; exit 1; }
   fi
 }
 
-# ---- guards ---------------------------------------------------------------
+# ---- guards + preflight ---------------------------------------------------
 [[ "$(uname -m)" == "x86_64" ]] || { echo "REFUSING: not x86_64 (this is a draft for the x86 rig)."; exit 1; }
-if [[ $DRY -eq 1 ]]; then log "DRY-RUN (plan only). Re-run with --go on the x86 rig to install."; fi
+if [[ $DRY -eq 0 ]]; then
+  for t in curl sha256sum sudo; do
+    command -v "$t" >/dev/null || { echo "[bootstrap] MISSING prerequisite: $t — apt install it first."; exit 1; }
+  done
+  tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT       # always clean up, even on an early exit
+else
+  tmp="<tmpdir>"
+  log "DRY-RUN (plan only). Re-run with --go on the x86 rig to install."
+fi
 [[ $DRY -eq 0 ]] && : >"$MANIFEST" && printf 'tool\tversion\tsource\tsha256\tpath\tverify\tnotes\n' >>"$MANIFEST"
 
 # ---- Layer A: apt (signed) ------------------------------------------------
 log "Layer A — apt base"
 run "sudo apt update"
-run "sudo apt install -y flatpak pipx golang libssl-dev"
+run "sudo apt install -y flatpak pipx golang git unzip libssl-dev"
 run "pipx ensurepath"
 [[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2"   # 4100-series = wide-field
 # xvfb only if you must run a GUI pyscript (we avoid): sudo apt install -y xvfb
@@ -106,15 +132,18 @@ manifest Siril 1.4.4 flathub:$SIRIL_FLATPAK_ID ostree-signed flatpak \
   "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v" "sandbox private /tmp: .ssf under \$HOME"
 
 # ---- Layer C: project venv (PEP 668 safe) ---------------------------------
+# $VENV defaults under /opt (root-owned parent) — create with sudo, then chown to the
+# invoking user so pip and later dep changes need no root and the venv is not a
+# root-owned artifact the orchestration must sudo to modify.
 log "Layer C — Python venv ($VENV) + pinned requirements"
-run "python3 -m venv '$VENV'"
+run "sudo python3 -m venv '$VENV'"
+run "sudo chown -R '$(id -un):$(id -gn)' '$VENV'"
 run "'$VENV/bin/pip' install -U pip"
 run "'$VENV/bin/pip' install -r '$(dirname "$0")/requirements.txt'"
 manifest python-libs venv requirements.txt pip-hashes "$VENV" "'$VENV/bin/python' -c 'import astropy'" "astropy==8.0.1"
 
 # ---- Layer D: pinned /opt self-contained binaries -------------------------
 log "Layer D — pinned /opt binaries"
-tmp="$(mktemp -d)"
 
 # StarNet2 (TIFF/PNG in, not FITS)
 fetch "$STARNET_URL" "$tmp/starnet.zip" "$STARNET_SHA"
@@ -145,20 +174,20 @@ if [[ $DO_DATA -eq 1 ]]; then
   manifest ASTAP 2026.06.29 "$ASTAP_URL" "$ASTAP_SHA" "$OPT/astap" "astap_cli --version" "W08+G05 wide DBs (ultra-wide class); d50 for narrow; use astap_cli headless; libssl-dev if TLS errors"
 fi
 
-# Cosmic Clarity — frozen bins + model assets from the rolling GH tag (pin by date+digest)
-log "Cosmic Clarity: fetch $COSMIC_TAG assets ($COSMIC_DATE) from github.com/setiastro/cosmicclarity/releases"
-run "sudo mkdir -p $OPT/cosmicclarity-${COSMIC_DATE}"
-# TODO: enumerate + sha256 each release asset (binaries + .onnx/.pth models) via the GH API, then unzip here.
-manifest CosmicClarity "$COSMIC_DATE" "gh:setiastro/cosmicclarity#$COSMIC_TAG" per-asset-sha256 "$OPT/cosmicclarity-${COSMIC_DATE}" "SetiAstroCosmicClarity --help" "--disable_gpu; gnome-terminal only for GUI launcher"
+# Cosmic Clarity — NOT auto-installed yet: the GH release is a rolling tag whose per-asset
+# digests must be enumerated first. Skip loudly rather than mkdir an empty dir + a
+# manifest row that falsely claims it's installed.
+log "Cosmic Clarity: NOT installed — TODO enumerate + sha256 each release asset (binaries + .onnx/.pth) via the GH API, then fetch+unzip. Install by hand meanwhile."
+manifest CosmicClarity PENDING "gh:setiastro/cosmicclarity#$COSMIC_TAG" TODO-per-asset-sha256 "$OPT/cosmicclarity-${COSMIC_DATE}" "SetiAstroCosmicClarity --help" "NOT AUTO-INSTALLED (TODO: asset enumeration); --disable_gpu; gnome-terminal only for GUI launcher"
 
 # Nightlight — go build from the dormant tag (optional; a cross-check tool)
 log "Nightlight: go build $NIGHTLIGHT_VER (Go >=1.20)"
 run "git clone --branch $NIGHTLIGHT_VER --depth 1 https://github.com/mlnoga/nightlight '$tmp/nightlight'"
+run "(cd '$tmp/nightlight' && go build -o '$tmp/nightlight/nightlight' ./cmd/nightlight)"   # build as user (Go cache in \$HOME); subshell isolates the cd
 run "sudo mkdir -p $OPT/nightlight-0.2.6"
-run "cd '$tmp/nightlight' && go build -o $OPT/nightlight-0.2.6/nightlight ./cmd/nightlight"
+run "sudo cp '$tmp/nightlight/nightlight' $OPT/nightlight-0.2.6/nightlight"                  # then install root-owned into /opt
 manifest Nightlight "$NIGHTLIGHT_VER" "gh:mlnoga/nightlight@$NIGHTLIGHT_VER" go.sum "$OPT/nightlight-0.2.6" "nightlight version" "dormant 2023; cross-check only"
-
-run "rm -rf '$tmp'"
+# ($tmp is cleaned by the EXIT trap set in the guards block)
 
 # ---- rc-astro: license-gated, manual --------------------------------------
 cat <<'RCASTRO'
@@ -173,14 +202,21 @@ cat <<'RCASTRO'
        ldd "$(command -v rc-astro)"   # confirm no 'not found'
        rc-astro bxt            # prints help + license state
        rc-astro --device       # list devices; use --device cpu (no GPU). (--engine is legacy)
-  6) sha256 the installer yourself and add a manifest row.
+       rc-astro nxt --benchmark-all   # measure + pin the fastest device (CPU here; no vendor figures exist)
+  6) Capture the REAL per-tool flags with a no-arg run — esp. `rc-astro nxt` (the exact
+     chroma flag spelling, e.g. denoise_color, that closes the chroma-noise gap) — and
+     reconcile TOOLS.md / docs/rc-astro-cli-linux.md to what is actually there.
+  7) sha256 the installer yourself and add a manifest row.
 RCASTRO
 
-# ---- Verification pass (fail loud) ----------------------------------------
+# ---- Verification pass (fail loud; surfaces the OBSERVED version) ----------
 if [[ $DRY -eq 0 ]]; then
   log "Verification pass"
   fail=0
-  check(){ log "verify: $*"; eval "$@" >/dev/null 2>&1 || { echo "  FAILED: $*" >&2; fail=1; }; }
+  # run the verify cmd; print its first output line (the observed version/reality); fail loud.
+  check(){ local out; log "verify: $*"
+    if out="$(eval "$@" 2>&1)"; then printf '  OK   %s\n' "$(printf '%s' "$out" | head -n1)"
+    else echo "  FAILED: $*" >&2; fail=1; fi; }
   check "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v"
   check "$OPT/starnet2-${STARNET_VER}/starnet2 --version"
   check "$OPT/deepsnr-${DEEPSNR_VER}/deepsnr -h"
@@ -188,7 +224,10 @@ if [[ $DRY -eq 0 ]]; then
   check "$OPT/nightlight-0.2.6/nightlight version"
   [[ $DO_DATA -eq 1 ]] && { check "astap_cli --version || astap --version"; check "solve-field --help"; }
   check "'$VENV/bin/python' -c 'import numpy,scipy,PIL,astropy;print(astropy.__version__)'"
+  # rc-astro is manual / license-gated — verify only if the operator has installed it
+  if command -v rc-astro >/dev/null; then check "rc-astro --device"
+  else log "rc-astro: not on PATH — install it manually (steps above), then re-verify."; fi
   [[ $fail -eq 0 ]] && log "ALL VERIFY OK — manifest at $MANIFEST" || { echo "[bootstrap] VERIFY FAILURES — see above"; exit 1; }
 else
-  log "DRY-RUN complete. Fill the TODO sha256 fields, then re-run with --go on the x86 rig."
+  log "DRY-RUN complete. Pin the missing sha256 fields (noted above), then re-run with --go on the x86 rig."
 fi
