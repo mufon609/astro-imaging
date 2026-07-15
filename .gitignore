@@ -27,6 +27,13 @@
 **/work/
 **/results/
 
+# --- anomaly-audit scratch ---
+# audit_work/ (under datasets/<session>/<set>/) holds transient Siril working
+# files — residual TIFFs, star lists, the .ssf, extracted-green FITS. ONLY the
+# anomaly_audit.json record it contains is versioned; the rest is regenerated.
+**/audit_work/*
+!**/audit_work/anomaly_audit.json
+
 # --- session data dirs ---
 # Each acquisition session is a dir at the repo root, keyed <session>/, holding
 # raw lights + calibration + intermediates. It is NEVER committed. The image
@@ -38,6 +45,7 @@
 # redistributed — download and PROCESS only, link the source (terms vary: some
 # are CC-BY-NC-SA / no-redistribute). Record each one's source + license in its
 # exclude comment when you add it.
+/july14/
 
 # --- tooling / OS cruft ---
 __pycache__/

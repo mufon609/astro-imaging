@@ -320,11 +320,12 @@ live in CLAUDE.md "Environment".
 
 ## Repo map (`scripts/`, by stage directory)
 
-**`lib/`** — shared FITS-I/O + per-set geometry helper, imported via the walk-up bootstrap
+**`lib/`** — shared helpers (FITS-I/O + geometry, acquisition), imported via the walk-up bootstrap
 
 | file | role |
 |---|---|
 | `astrometrics.py` | shared FITS/PNG I/O + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure (the hand-rolled I/O itself moves to astropy/Siril — BACKLOG) |
+| `acquisition.py` | per-dataset acquisition record: EXIF-derived facts (exposure/focal/ISO/FOV+pixel-scale/cadence) + the human-declared `mount`; `resolve()` seeds `datasets/<session>/<set>/acquisition.json` and STOPS if `mount` is undeclared (no silent camera model), `timeline()` feeds the audit's capture-run segmentation. Reads EXIF only, never deliverable pixels |
 
 **`stack/`** — build the integrated stack
 
@@ -355,6 +356,7 @@ native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity
 
 | file | role |
 |---|---|
+| `anomaly_audit.py` | transient-obstruction classifier (aircraft / satellite / unknown) over a frame set — the reference **ALLOWED** gap-filler: Siril does every pixel op + measurement (decode / green-extract / subsky / findstar), the in-house kernel does only the streak geometry + cross-frame linking no tool provides; report-only, removal-conditioned. Requires the declared `mount` (STOPS if absent), confines linking to capture runs (`segment_runs`); artifacts + the `anomaly_audit.json` record land in `datasets/<session>/<set>/audit_work/` |
 | `inspect_stage.py` | orchestration + record: persists the TOOLS' per-frame measures (Siril `register`'s .seq regdata — FWHM px+arcsec, roundness, background, star count, shifts) into metrics.jsonl before cleanup, and writes the per-stage diagnostic sequence; the checklist reads the tools' numbers |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
@@ -377,8 +379,9 @@ native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity
                                          dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts
   results/                               stacks, renders, exp_*/, inspect_*/
-datasets/<session>/<set>/                tracked per-dataset state: geometry.json,
-                                         recipe.json, baseline.json, composition.json
+datasets/<session>/<set>/                tracked per-dataset state: acquisition.json,
+                                         geometry.json, recipe.json, baseline.json,
+                                         composition.json, audit_work/anomaly_audit.json
                                          (see datasets/README.md)
 scripts/                                 the pipeline (tracked)
 ```

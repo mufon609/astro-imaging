@@ -8,6 +8,9 @@ matches no known signature and deserves human eyes.
 
   Usage: anomaly_audit.py <frame.NEF | dir | glob> [--work=<dir>]
                           [--curv=<f>] [--json=<out>] [--keep-resid]
+  Artifacts (work scratch + the anomaly_audit.json record) default to the tracked
+  per-dataset home datasets/<session>/<set>/audit_work/, so the raw image dir
+  keeps only frames; --work / --json override. The record is always written.
 
 CLASSIFICATION MODEL — a registry of "callouts". Detected light-trails are
 grouped into candidate OBJECTS (an aircraft leaves several trails; a satellite
@@ -20,10 +23,14 @@ else changes. Current callouts (most specific first):
   satellite  a single STRAIGHT continuous trail (one light on an orbital path).
   <else>     UNKNOWN (curved track, unmatched multi-trail, anything odd).
 Across frames, per-frame objects are LINKED into UNIQUE physical objects: on a
-fixed (untracked) camera each crossing traces a straight sensor-plane line, so
-same-class + colinear + consecutive detections are ONE object (a satellite over
-4 frames = 1 object, 4 detections). The final report gives per-frame contents,
-the unique-object list with frame spans, and BOTH totals (unique vs per-frame).
+fixed (untracked) camera — the DECLARED mount, resolved from acquisition.json
+before any work; the audit STOPS if it is undeclared rather than assume one —
+each crossing traces a straight sensor-plane line, so same-class + colinear +
+consecutive detections WITHIN one capture run (an ad-hoc dir holds several
+captures; segment_runs splits on a frame-number or time gap, and nothing links
+across the boundary) are ONE object (a satellite over 4 frames = 1 object, 4
+detections). The final report gives per-frame contents, the unique-object list
+with frame spans, and BOTH totals (unique vs per-frame).
 Grading the subs themselves (FWHM / roundness / background / star count) is a
 SEPARATE, already-solved job (Siril `register` -> `cull_report.py`); not here.
 
@@ -79,9 +86,14 @@ VALIDATION (maturity per class — honest; lengths are extracted-green px):
     single-light aircraft, which the twin rule cannot catch) is NOT yet built.
   unknown   — the residual bucket by construction; a candidate surface for
     human confirmation, never a verified "anomaly" claim on its own.
-  linking   — collapses a night's per-frame detections into its distinct
-    passes; PROVISIONAL colinearity/gap/PA tolerances, and it assumes a fixed/
-    untracked camera.
+  linking   — collapses per-frame detections into distinct passes, confined
+    WITHIN a capture run (segment_runs splits on a frame-number jump or a time
+    gap longer than one interval-timer cycle = exposure + ~1s cooldown, so an
+    object never links across a break). Needs the DECLARED fixed mount
+    (untracked). Within a run the tight cadence (a ~1s cooldown leaves no time to
+    recompose) keeps the framing stable, so no star-alignment check is required;
+    a re-aim can only occur across a break, which is not linked. PROVISIONAL
+    colinearity/gap/PA + run thresholds.
 
 PLANNED CALLOUTS (each an "unknown" until measured on a real example):
   strobe-periodicity aircraft (single light, regular beading along the trail);
@@ -115,6 +127,17 @@ import sys
 import numpy as np
 from PIL import Image
 from scipy import ndimage
+
+# scripts/lib holds the shared libs (astrometrics, acquisition); locate it by
+# walking up from this file so one bootstrap works at any nesting depth.
+_libdir = os.path.dirname(os.path.abspath(__file__))
+while _libdir != os.path.dirname(_libdir):
+    if os.path.isdir(os.path.join(_libdir, "lib")):
+        sys.path.insert(0, os.path.join(_libdir, "lib"))
+        break
+    _libdir = os.path.dirname(_libdir)
+import acquisition  # noqa: E402
+import astrometrics as am  # noqa: E402  (dataset_dir: the tracked per-dataset home)
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
@@ -414,12 +437,14 @@ def classify_object(obj, curv_thr):
 
 
 # --- cross-frame linking (per-frame objects -> unique physical objects) ------
-# A per-frame object is one crossing captured in one 8s exposure. The SAME
-# physical object reappears in consecutive frames as it crosses. On a fixed
-# (untracked) camera its path is a straight LINE across the sensor, so a track =
-# same class + colinear + consecutive-ish frames. (A satellite spanning 4 frames
-# is ONE object, four detections.) EXAMINE-only: this groups detections, it
-# reads no pixels.
+# A per-frame object is one crossing captured in one exposure. The SAME physical
+# object reappears in consecutive frames as it crosses. On a fixed (untracked)
+# camera — the DECLARED mount (acquisition.json) — its path is a straight LINE
+# across the sensor, so a track = same class + colinear + consecutive-ish frames
+# WITHIN one capture run (segment_runs; an ad-hoc dir holds several captures, and
+# an object is never linked across a frame-number/time discontinuity). (A
+# satellite spanning 4 frames is ONE object, four detections.) EXAMINE-only:
+# this groups detections, it reads no pixels.
 
 def _obj_geom(o):
     """Object's representative centroid (cx, cy) and heading (pa_deg) from its
@@ -444,18 +469,59 @@ def _colinear(a, b, pa_tol, colin_tol):
     return True
 
 
-def link_objects(results, max_gap=2, pa_tol=12.0, colin_tol=60.0):
+def segment_runs(timeline, num_gap=5, cooldown=1.0, jitter=3.0, fallback_gap=60.0):
+    """Split the frame timeline into contiguous CAPTURE RUNS: a boundary falls
+    where the filename frame-number jumps by more than num_gap OR the time gap
+    exceeds ONE interval-timer cycle. The timer fires every exposure + cooldown
+    seconds (a fixed ~1s cooldown after each exposure, from the rig — a 6s
+    exposure at 20:00:01 is followed by the next at 20:00:08, a 7s gap), so
+    back-to-back shots land ~exposure+cooldown apart; a gap beyond that (plus
+    `jitter` for timer/timestamp slack) means the timer was NOT running
+    continuously — a pause, a different burst, or a session change. WITHIN a run
+    the ~1s cooldown leaves no time to recompose, so the mount did not move and
+    the framing is stable: an object links safely and NO star alignment is
+    needed. A re-aim can only occur ACROSS a boundary, which is never linked. The
+    interval is derived per pair from the EARLIER frame's exposure; if exposure
+    is unknown, fall back to an absolute fallback_gap. The frame-number gap
+    catches a session change and covers missing timestamps. Returns
+    {file: run_id}. PROVISIONAL: cooldown 1s + jitter 3s (timer/rounding slack),
+    num_gap 5, fallback_gap 60s."""
+    runs, rid, prev = {}, 0, None
+    for row in timeline:
+        if prev is not None:
+            dn = (row["framenum"] - prev["framenum"]
+                  if row["framenum"] is not None and prev["framenum"] is not None
+                  else None)
+            dt = (row["epoch"] - prev["epoch"]
+                  if row["epoch"] is not None and prev["epoch"] is not None
+                  else None)
+            exp = prev.get("exposure_s")
+            interval = (exp + cooldown + jitter) if exp is not None else fallback_gap
+            if (dn is not None and dn > num_gap) or (dt is not None and dt > interval):
+                rid += 1
+        runs[row["file"]] = rid
+        prev = row
+    return runs
+
+
+def link_objects(results, runs, max_gap=2, pa_tol=12.0, colin_tol=60.0):
     """Greedy cross-frame chaining of per-frame objects into UNIQUE physical
-    objects (tracks). Returns [{cls, files:[...], first, last, n, pa}]. Assumes
-    a fixed/untracked camera (each object's ground track is a sensor-plane
-    line). PROVISIONAL params (max_gap 2 frames to bridge a missed detection,
-    pa_tol 12 deg for slow apparent rotation, colin_tol 60 green px): a
-    with/without check on hand-labelled tracks would settle them."""
+    objects (tracks). Returns [{cls, files:[...], first, last, n, pa}]. Two
+    guards keep a link honest: it stays WITHIN one capture run (segment_runs —
+    never chain across a frame-number/time discontinuity in an ad-hoc dir), and
+    the straight-sensor-line geometry is the FIXED (untracked) camera case,
+    where each object's ground track is a sensor-plane line (the caller resolves
+    the DECLARED mount and flags tracked data as unvalidated — never a silent
+    assumption). PROVISIONAL params (max_gap 2 frames to bridge a missed
+    detection, pa_tol 12 deg for slow apparent rotation, colin_tol 60 green px):
+    a with/without check on hand-labelled tracks would settle them."""
     tracks = []
     for fi, r in enumerate(results):
+        run = runs.get(r["file"])
         for o in r.get("objects", []):
             g = _obj_geom(o)
             cand = [t for t in tracks if t["cls"] == o["cls"]
+                    and t["_run"] == run          # never link across a capture boundary
                     and 0 < fi - t["_fi"] <= max_gap
                     and _colinear(g, t["_geom"], pa_tol, colin_tol)]
             if cand:
@@ -465,9 +531,9 @@ def link_objects(results, max_gap=2, pa_tol=12.0, colin_tol=60.0):
             else:
                 tracks.append(dict(cls=o["cls"], files=[r["file"]],
                                    first=r["file"], last=r["file"], n=1,
-                                   pa=round(g[2], 1), _fi=fi, _geom=g))
+                                   pa=round(g[2], 1), _fi=fi, _geom=g, _run=run))
     for t in tracks:
-        t.pop("_fi"); t.pop("_geom")
+        t.pop("_fi"); t.pop("_geom"); t.pop("_run")
     return tracks
 
 
@@ -531,17 +597,53 @@ def main():
         frames = sorted(glob.glob(target))
     if not frames:
         sys.exit(f"anomaly_audit: no frames match {target}")
+
+    # Resolve the per-dataset acquisition record FIRST — the cross-frame linking
+    # needs the camera mount (fixed vs tracked), which EXIF cannot provide. If it
+    # is undeclared, STOP with the ask rather than assume a model, and do it
+    # BEFORE the expensive per-frame loop. --mount=fixed|tracked overrides for a
+    # one-off; otherwise it comes from datasets/<session>/<set>/acquisition.json.
+    common = os.path.abspath(target if os.path.isdir(target)
+                             else os.path.dirname(frames[0]) or ".")
+    session_dir, set_name = os.path.dirname(common), os.path.basename(common)
+    if opts.get("mount") in acquisition.MOUNTS:
+        acq = {"mount": opts["mount"], "exif": acquisition.exif_facts(frames)}
+    else:
+        try:
+            acq = acquisition.resolve(session_dir, set_name, frames)
+        except acquisition.AcquisitionUndeclared as e:
+            sys.exit(str(e))
+    mount, exif = acq["mount"], acq.get("exif", {})
+
+    # Segment the frames into capture RUNS from the filename frame-numbers + EXIF
+    # timestamps: an ad-hoc dir holds several captures (a big frame-number jump
+    # or a long time gap between frames), and one moving object must not be
+    # linked across such a boundary. A timer-driven night sequence is one run.
+    runs = segment_runs(acquisition.timeline(frames))
+    nruns = len(set(runs.values()))
+
+    # All audit artifacts live in the tracked per-dataset home, NOT the raw image
+    # dir: work + the record go under datasets/<session>/<set>/audit_work/ so the
+    # raw dir keeps only frames. --work overrides the dir; --json overrides the
+    # record path. (The flatpak sandbox needs the .ssf under $HOME; datasets/ is.)
     work = os.path.abspath(opts.get("work")
-                           or os.path.join(os.path.dirname(frames[0]) or ".",
+                           or os.path.join(am.dataset_dir(session_dir, set_name),
                                            "audit_work"))
     os.makedirs(work, exist_ok=True)
+    json_path = (os.path.abspath(opts["json"]) if isinstance(opts.get("json"), str)
+                 else os.path.join(work, "anomaly_audit.json"))
     curv_thr = float(opts.get("curv", 0.03))
 
-    print(f"obstruction classifier: {len(frames)} frames | callouts: "
+    print(f"obstruction classifier: {len(frames)} frames | mount={mount} | "
+          f"{nruns} capture run(s) | callouts: "
           + ", ".join(c.__name__.replace("classify_", "") for c in CALLOUTS)
-          + f", else unknown | work={work}\n(Siril: decode / extract_Green / "
-          f"subsky / findstar + bg/noise; in-house kernel groups + classifies "
-          f"the green residual's trails; inputs never modified)")
+          + f", else unknown | work={work}")
+    print(f"(acquisition: {exif.get('camera', '?')} "
+          f"{exif.get('focal_length_mm', '?')}mm {exif.get('exposure_s', '?')}s "
+          f"ISO{exif.get('iso', '?')}, cadence {exif.get('cadence_s', '?')}s, "
+          f"~{exif.get('pixel_scale_arcsec', '?')}\"/px full-res | Siril: decode / "
+          f"extract_Green / subsky / findstar + bg/noise; in-house kernel groups "
+          f"+ classifies the green residual's trails; inputs never modified)")
     results, totals = [], {}
     for i, nef in enumerate(frames, 1):
         try:
@@ -560,7 +662,7 @@ def main():
             for f in glob.glob(os.path.join(work, "_resid.tif*")):
                 os.remove(f)
 
-    tracks = link_objects(results)
+    tracks = link_objects(results, runs)
 
     print("\n" + "=" * 64 + "\nOVERALL REPORT\n" + "=" * 64)
     graded = [r for r in results if "objects" in r]
@@ -578,6 +680,23 @@ def main():
         print(f"  {r['file']}: "
               + ", ".join(f"{k} x{v}" for k, v in sorted(by.items())))
 
+    print(f"\ncapture runs — linking is confined WITHIN each (a large frame-number "
+          f"or time gap\nbetween frames starts a new one; an ad-hoc dir holds "
+          f"several, a timer sequence one): {nruns}")
+    if nruns > 1:
+        run_files = {}
+        for r in results:
+            run_files.setdefault(runs.get(r["file"]), []).append(r["file"])
+        for rid in sorted(run_files):
+            ff = run_files[rid]
+            span = ff[0] if len(ff) == 1 else f"{ff[0]}..{ff[-1]}"
+            print(f"  run {rid + 1}: {span} "
+                  f"({len(ff)} frame{'s' if len(ff) > 1 else ''})")
+    if mount == "tracked":
+        print("\n! mount=tracked: the cross-frame linking model is validated for "
+              "FIXED (untracked)\n  cameras only — treat the unique-object linking "
+              "below as UNVALIDATED; the\n  per-frame classifications above are "
+              "mount-independent and stand.")
     print(f"\nunique physical objects — linked across frames: {len(tracks)}")
     for i, t in enumerate(sorted(tracks, key=lambda t: t["first"]), 1):
         span = t["first"] if t["n"] == 1 else f"{t['first']}..{t['last']}"
@@ -604,10 +723,16 @@ def main():
     else:
         print("\nUNKNOWN: none (every object matched a known signature).")
 
-    if "json" in opts:
-        json.dump({"frames": results, "unique_objects": tracks},
-                  open(opts["json"], "w"), indent=1)
-        print(f"\nrecord -> {opts['json']}")
+    run_files = {}
+    for r in results:
+        run_files.setdefault(runs.get(r["file"]), []).append(r["file"])
+    capture_runs = [{"run": rid + 1, "first": ff[0], "last": ff[-1],
+                     "n": len(ff)} for rid, ff in sorted(run_files.items())]
+    json.dump({"acquisition": {"mount": mount, "exif": exif},
+               "capture_runs": capture_runs,
+               "frames": results, "unique_objects": tracks},
+              open(json_path, "w"), indent=1)
+    print(f"\nrecord -> {json_path}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+"""Per-dataset acquisition record — the facts a tool needs about HOW a set was
+shot, split by provenance and kept honest:
+
+  exif.*  DERIVED from the frames' EXIF via exiftool: camera, lens, focal
+          length, exposure, ISO, image size, field of view + pixel scale, and
+          the inter-frame cadence / time span from the per-frame timestamps.
+  mount   DECLARED by a human — "fixed" (tripod) or "tracked" (driven mount).
+          EXIF does not record it, and it is not safely inferable (a short
+          enough exposure hides the drift), so a consumer must be TOLD.
+
+WHY THIS EXISTS: cross-frame reasoning — e.g. the anomaly audit chaining one
+satellite across consecutive frames — assumes a FIXED, untracked camera, where
+each crossing traces a straight sensor-plane line. That must be GROUND TRUTH,
+not a buried default; on a tracked mount it is wrong. So `resolve()` seeds this
+record with everything EXIF knows and STOPS if `mount` is undeclared, instead of
+silently assuming a camera model. The record is the tracked per-dataset home
+(datasets/<session>/<set>/acquisition.json), beside geometry.json / recipe.json;
+`exif.*` is tool-written (refreshed when it changes), `mount` is the human field.
+
+Reads only EXIF metadata (never the deliverable's pixels) and writes only this
+record: orchestration + records, not image analysis.
+"""
+import json
+import os
+import re
+import subprocess
+from datetime import datetime
+
+import astrometrics as am   # dataset_dir(): the tracked per-dataset home
+
+MOUNTS = ("fixed", "tracked")
+_NOTE = ("`mount` is the one acquisition fact EXIF cannot record and a consumer "
+         "must be told; `exif` is auto-derived by scripts/lib/acquisition.py — "
+         "do not hand-edit it.")
+
+
+class AcquisitionUndeclared(Exception):
+    """Raised when a set's `mount` is not declared. Carries the seeded record
+    path and a ready-to-print ask (derive-what-you-can, ask-what-you-can't)."""
+
+    def __init__(self, path, exif):
+        self.path = path
+        e = exif or {}
+        opt = (f"{e.get('focal_length_mm', '?')}mm {e.get('exposure_s', '?')}s "
+               f"ISO{e.get('iso', '?')}, cadence {e.get('cadence_s', '?')}s, "
+               f"{e.get('frames', '?')} frames")
+        super().__init__(
+            "acquisition: `mount` is not declared for this set.\n"
+            "  The cross-frame linking assumes a FIXED (untracked) camera; on a\n"
+            "  tracked mount it would mislink, so it will not be assumed.\n"
+            f"  EXIF facts were filled into: {path}\n"
+            '  Set  "mount": "fixed"  (tripod)  or  "tracked"  (driven mount),\n'
+            "  then re-run.\n"
+            f"  (EXIF: {e.get('camera', '?')}, {opt})")
+
+
+def _num(v):
+    """Leading number from an exiftool value: '6'->6.0, '70.0 mm'->70.0,
+    '28.6 deg (5.11 m)'->28.6, '1/200'->0.005. None if unparseable."""
+    if v is None:
+        return None
+    s = str(v).strip()
+    m = re.match(r"([0-9]+(?:\.[0-9]+)?)\s*/\s*([0-9]+(?:\.[0-9]+)?)$", s)
+    if m:
+        a, b = float(m.group(1)), float(m.group(2))
+        return a / b if b else None
+    m = re.match(r"[-+]?[0-9]*\.?[0-9]+", s)
+    return float(m.group(0)) if m else None
+
+
+def _epoch(v):
+    """exiftool timestamp ('2026:07:14 22:48:48.99-04:00', or without
+    subsecond / zone) -> epoch seconds; None if unparseable."""
+    if not v:
+        return None
+    s = str(v).strip()
+    for fmt in ("%Y:%m:%d %H:%M:%S.%f%z", "%Y:%m:%d %H:%M:%S%z",
+                "%Y:%m:%d %H:%M:%S.%f", "%Y:%m:%d %H:%M:%S"):
+        try:
+            return datetime.strptime(s, fmt).timestamp()
+        except ValueError:
+            continue
+    return None
+
+
+def _median(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    if not n:
+        return None
+    return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2.0
+
+
+def exif_facts(frames):
+    """Derive the acquisition facts EXIF knows, over all frames (one exiftool
+    call). Optics from the first frame; cadence / time-span from the per-frame
+    timestamps. pixel_scale (full-res arcsec/px) comes from exiftool's FOV,
+    which it computes from its own sensor database (no body hardcode); the green
+    plane the audit works on is 2x this. On any exiftool failure returns
+    {'_error': ...} so a consumer can still require `mount`."""
+    tags = ["-json", "-SubSecDateTimeOriginal", "-DateTimeOriginal",
+            "-ExposureTime", "-FocalLength", "-ISO", "-Model", "-LensID",
+            "-ImageWidth", "-ImageHeight", "-FOV"]
+    try:
+        r = subprocess.run(["exiftool", *tags, *frames],
+                           capture_output=True, text=True)
+        data = json.loads(r.stdout)
+    except (OSError, ValueError) as e:
+        return {"_error": f"exiftool unavailable ({e}); mount still required"}
+    if not data:
+        return {"_error": "exiftool returned no metadata"}
+    d0 = data[0]
+    ts = sorted(t for t in (_epoch(d.get("SubSecDateTimeOriginal")
+                                   or d.get("DateTimeOriginal")) for d in data)
+                if t is not None)
+    dts = [b - a for a, b in zip(ts, ts[1:]) if b > a]
+    width = d0.get("ImageWidth")
+    fov = _num(d0.get("FOV"))
+    iso = _num(d0.get("ISO"))
+    return {
+        "camera": d0.get("Model"),
+        "lens": d0.get("LensID"),
+        "focal_length_mm": _num(d0.get("FocalLength")),
+        "exposure_s": _num(d0.get("ExposureTime")),
+        "iso": int(iso) if iso is not None else None,
+        "image_wh": [width, d0.get("ImageHeight")],
+        "fov_deg": fov,
+        "pixel_scale_arcsec": round(fov * 3600.0 / width, 3)
+                              if fov and width else None,   # full-res
+        "cadence_s": round(_median(dts), 2) if dts else None,
+        "frames": len(data),
+        "time_span_s": round(ts[-1] - ts[0], 1) if len(ts) > 1 else 0.0,
+    }
+
+
+def timeline(frames):
+    """Per-frame [{file, framenum, epoch, exposure_s}] for detecting capture
+    discontinuities in an AD-HOC dir (a grab-bag some of whose frames form a
+    continuous burst and some of which do not). framenum is the filename's
+    trailing number (DSC_6896 -> 6896); epoch is the EXIF capture time;
+    exposure_s lets a consumer derive the expected interval-timer cycle
+    (exposure + a fixed cooldown), so a gap longer than one cycle is a boundary.
+    A big frame-number jump (files from a different capture) or such a long time
+    gap marks a boundary a moving object must not be linked across. One exiftool
+    pass; on failure fields are None. Sorted by (framenum, epoch, file)."""
+    meta = {}
+    try:
+        r = subprocess.run(["exiftool", "-json", "-SubSecDateTimeOriginal",
+                            "-DateTimeOriginal", "-ExposureTime", *frames],
+                           capture_output=True, text=True)
+        for d in json.loads(r.stdout):
+            src = d.get("SourceFile")
+            if src:
+                meta[os.path.basename(src)] = (
+                    _epoch(d.get("SubSecDateTimeOriginal")
+                           or d.get("DateTimeOriginal")),
+                    _num(d.get("ExposureTime")))
+    except (OSError, ValueError):
+        pass
+    rows = []
+    for f in frames:
+        base = os.path.basename(f)
+        nums = re.findall(r"\d+", os.path.splitext(base)[0])
+        epoch, exp = meta.get(base, (None, None))
+        rows.append({"file": base,
+                     "framenum": int(nums[-1]) if nums else None,
+                     "epoch": epoch, "exposure_s": exp})
+    rows.sort(key=lambda r: (r["framenum"] if r["framenum"] is not None else 0,
+                             r["epoch"] or 0.0, r["file"]))
+    return rows
+
+
+def record_path(session_dir, set_name):
+    return os.path.join(am.dataset_dir(session_dir, set_name),
+                        "acquisition.json")
+
+
+def resolve(session_dir, set_name, frames):
+    """Return the acquisition record for a set, or STOP if `mount` is not
+    declared. Seeds / refreshes datasets/<session>/<set>/acquisition.json with
+    the EXIF-derived facts, preserving any human-declared `mount` (normalized
+    case-insensitively). Raises AcquisitionUndeclared (a ready-to-print ask)
+    when `mount` is missing or not one of MOUNTS — the consumer stops rather
+    than assume a camera model. Writes only when the on-disk content would
+    change, so a report-only run does not churn a tracked file."""
+    path = record_path(session_dir, set_name)
+    existing = {}
+    if os.path.exists(path):
+        try:
+            existing = json.load(open(path))
+        except ValueError:
+            existing = {}
+    raw = existing.get("mount")
+    mount = raw.strip().lower() if isinstance(raw, str) else None
+    valid = mount in MOUNTS
+    exif = exif_facts(frames)
+    record = {"mount": mount if valid else None, "exif": exif, "_note": _NOTE}
+    if (existing.get("exif") != exif or existing.get("mount") != record["mount"]
+            or not os.path.exists(path)):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        json.dump(record, open(path, "w"), indent=1)
+    if not valid:
+        raise AcquisitionUndeclared(path, exif)
+    return record

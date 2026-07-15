@@ -188,7 +188,10 @@ core here now:**
   session narrative. The durable stage-design "why" lives in each kept
   script's docstring — keep it there, update in place.
 - **New datasets get tracked per-dataset state** in
-  `datasets/<session>/<set>/` — `geometry.json` (foreground mask/rect),
+  `datasets/<session>/<set>/` — `acquisition.json` (EXIF facts auto-derived +
+  the declared `mount` fixed/tracked that EXIF can't record; a consumer needing
+  it STOPS and asks rather than assume — `scripts/lib/acquisition.py`),
+  `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
   `baseline.json` (written only by the no-regression harness — pending x86) —
   never dataset-specific script patches; a dataset without them must
