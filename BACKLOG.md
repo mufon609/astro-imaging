@@ -35,9 +35,14 @@ survive the rig change and should be reconsidered during the x86 rebuild
 - **Deconvolution** — a measured dead-end on the arm64 data (unstable
   symmetric PSF on in-exposure trailing); revisit with BlurXTerminator on
   x86, where a real deconvolution tool exists.
-- **A native star-colour-neutral colour tool** — the O3-sphere mechanism
-  Siril has no equivalent for (currently Nightlight's job). Still a genuine
-  gap; the x86 chain decides Nightlight-x86 vs a native `ccm`+recombine path.
+- **A star-colour-neutral colour step** — the O3-sphere mechanism Siril has no
+  single-command equivalent for. The headless path is now identified and its tool
+  half EMPIRICALLY confirmed: measure mean star colour in the examine layer →
+  apply a diagonal `ccm` (the ONLY headless neutral-balance path; verified on
+  1.4.4). Nightlight is a dormant mechanism reference only — NOT "its job" (its
+  OpRGBBalance balances the brightest-quartile stars; the OIII-lift is our
+  inference, `docs/dead-ends.md`). The x86 chain runs the measure→ccm design
+  against a bracket (SPCC, Nightlight).
 
 ## Tool-first audit — in-house reinventions to retire
 
@@ -47,27 +52,34 @@ a format, a library reads it; never hand-parse). Priority-ordered; each names th
 mechanism, the replacement, the action, and the source. "x86-gated" = needs
 `astropy`, absent on the arm base rig; "now" = the tool runs on arm today.
 
-- **16-bit PNG writer + sRGB chunks → Siril `savepng` (NOW).**
-  `astrometrics.write_png16` is a from-scratch 16-bit RGB PNG encoder
+- **16-bit PNG writer + sRGB chunks → Siril `savepng` (NOW — EMPIRICALLY
+  CONFIRMED).** `astrometrics.write_png16` is a from-scratch 16-bit RGB PNG encoder
   (zlib/struct, because Pillow cannot write 48-bit RGB PNG) plus hand-built
-  sRGB/gAMA/cHRM chunks. Siril `savepng` writes 16-bit RGB PNG and embeds sRGB as
-  a full ICC (`iCCP`) chunk automatically (`icc_assign` to set explicitly) —
-  verified on the 1.4.4 flatpak; replaces the writer AND the colorimetry. Nuance:
-  Siril tags via `iCCP` (full profile), not the lightweight sRGB+gAMA+cHRM
-  triplet — both standards-compliant; only matters if a reader parses for those
-  ancillary chunks. Source: Siril Commands + color-management docs.
+  sRGB/gAMA/cHRM chunks (`png_srgb_info`/`srgb_icc`/`PNG_SRGB_CHUNKS`). **Probe on
+  the installed 1.4.4 flatpak**: `savepng` of a float32 FITS produced a PNG with
+  IHDR color-type 2, bit-depth 16, and an **iCCP** chunk — so it writes 16-bit RGB
+  PNG AND embeds the ICC automatically,
+  retiring the writer AND the colorimetry. `savepng filename` takes NO flags (16-bit
+  auto-selected when the source is 16/32-bit); the profile comes from a prior
+  `icc_assign {sRGB|…}` + a save-time Preference. Nuance: iCCP (full profile), not
+  the lightweight sRGB+gAMA+cHRM triplet — both standards-compliant. Source:
+  on-rig probe + Siril Commands / color-management docs.
 
 - **FITS I/O — 5 hand-rolled parsers → `astropy` (x86-gated).**
   `astrometrics.py` (`read_fits`/`read_fits_planes`/`write_fits_planes`/
   `fits_dims`/`fits_pixel_scale`), `compose.py` (its own `read_fits_raw` +
   writer), `solve_field.py` (header reads + manual TAN-SIP WCS card injection),
   `spcc_cone.py`, `fitsmeta.py` each re-parse 2880-byte cards by hand.
-  `astropy.io.fits` + `astropy.wcs` retire all five. Gotchas: write float32
-  directly so BZERO/BSCALE auto-scaling stays off; numpy `[y,x]` ↔ FITS `NAXIS1`
-  (x) is reversed; SIP needs `to_header(relax=True)` (adds the `-SIP` CTYPE
-  suffix). Interim on arm: read Siril outputs via `savetif` + PIL where only a
-  read is needed; the writes/WCS-inject wait for astropy. Source: astropy
-  io.fits / wcs docs.
+  `astropy.io.fits` + `astropy.wcs` retire all five — **CONFIRMED clean**
+  (astropy **8.0.1**, Python ≥3.11, NumPy ≥2.0). Gotchas all
+  primary-verified verbatim: write float32 directly so BZERO/BSCALE auto-scaling
+  stays off (BSCALE/BZERO exist to smuggle unsigned INT through signed BITPIX;
+  float32=-32 maps natively); numpy `[y,x]` ↔ FITS `NAXIS1` (x) reversed
+  (`.shape == (NAXIS2, NAXIS1)`); SIP needs `to_header(relax=True)` (adds the
+  `-SIP` CTYPE suffix; default `relax=False` OMITS it). Interim on arm: read
+  Siril outputs via `savetif` + **`tifffile`** where only a read is needed
+  (PIL misreads Siril's 16-bit RGB TIFF as uint8); the writes/WCS-inject wait
+  for astropy on x86. Source: astropy io.fits / wcs docs.
 
 - **Hand-rolled PNG decoder (export-verify) → library reader or 16-bit TIFF.**
   `judgment_package.read_png16_sampled` hand-implements a full PNG decoder — all
@@ -78,40 +90,73 @@ mechanism, the replacement, the action, and the source. "x86-gated" = needs
   IHDR/depth/colortype — not a decode, so no hand-roll violation). Pairs with the
   `savepng`/`savetif` adoption above. Source: tifffile / imageio docs.
 
-- **Synthetic-flat GAP → GraXpert `-correction Division` (adopt).**
-  The in-house self-flat was removed; a set with no matching flat now hard-stops.
-  Additive background subtraction ≠ a multiplicative flat. GraXpert
-  `-cli -cmd background-extraction -correction Division` is the ONLY headless-CPU
-  multiplicative option (models the low-frequency background, divides — the
-  synthetic-flat approximation); the repo already has GraXpert 3.2. Siril's
-  `subsky` CLI is additive-only (its Division mode is GUI-only); ASTAP has no
-  headless synth-flat; PixInsight is GUI/paid. Caveat: this corrects smooth
-  VIGNETTING only, not dust motes / high-frequency PRNU — a real master-flat is
-  the correct fix, so adopt as a documented gap-filler with "a matching real flat
-  exists" as its removal condition. Source: GraXpert README; Siril background docs.
+- **Synthetic-flat GAP → GraXpert `-correction Division` (adopt — mechanism
+  CONFIRMED in source).** The in-house self-flat was removed; a set with no
+  matching flat now hard-stops. Additive background subtraction ≠ a multiplicative
+  flat. `graxpert -cmd background-extraction -correction Division -smoothing <0-1>
+  -gpu false <file>` is the headless-CPU multiplicative option — source
+  (`background_extraction.py`): per channel `imarray/background*mean`, i.e. divide
+  by the low-frequency model = the synthetic-flat approximation. Flag corrections:
+  **`-cli` is deprecated** (no longer required), and **`-bg_pts` is NOT a real
+  flag** (the AI path needs zero sample points; `-preferences_file` matters only
+  for the classical RBF/Spline modes). Siril's `subsky` CLI is additive-only (its
+  Division mode is GUI-only); ASTAP has no headless synth-flat; PixInsight is
+  GUI/paid. Caveat 1: corrects smooth VIGNETTING only, not dust/PRNU (model built
+  from a ~240px downsample) — a real master-flat is the correct fix, so adopt with
+  "a matching real flat exists" as the removal condition. Caveat 2: the installed
+  GraXpert is a **third-party fork** (`geeksville`, PyPI test build), not official
+  — official stable 3.0.2 is BGE+denoise-only but DOES include `-correction
+  Division`. Source: GraXpert source (`main.py`/`background_extraction.py`).
 
-- **`solve_field` peak detection → `image2xy` (A/B test, not an automatic win).**
-  `solve_field.detect_stars` hand-rolls `maximum_filter` peak-centroid detection
-  to feed astrometry.net, because Siril's PSF-fit `findstar` rejects trailed
-  stars — a SANCTIONED gap-filler, not a blind reinvention. `image2xy` (simplexy),
-  astrometry.net's own extractor that `solve-field` runs by default, does NO
-  PSF-fit / roundness rejection, so it DOES return elongated sources — strictly
-  more tool-first, removes the hand-roll. BUT it is peak-based (peak not centroid;
-  `-a` saddle can split a long trail; `-m` can reject one), so on heavy trails it
-  shares the hand-roll's limitation. Action: A/B on a real trailed ultra-wide
-  frame (image2xy xylist vs the current peak-centroid xylist → solve-field) — a
-  hypothesis until measured. ASTAP is NOT the answer (docs: oval stars ignored →
-  solve fails on trailed fields, though it handles the wide FOV via W08/V17
-  databases). Source: image2xy man / simplexy.c; ASTAP docs.
+- **`solve_field` peak detection → `image2xy` (A/B test, NOT a clean win —
+  refined).** `solve_field.detect_stars` hand-rolls `maximum_filter` peak-centroid
+  detection to feed astrometry.net, because Siril's PSF-fit `findstar` rejects
+  trailed stars — a SANCTIONED gap-filler, not a blind reinvention. `image2xy`
+  (simplexy), astrometry.net's own extractor that `solve-field` runs by default,
+  is **source-verified to have NO shape/roundness gate at all** (estimate noise →
+  median-subtract → threshold → connected-components → pick representative peak;
+  grep for round/eccentric/psf-fit = zero) — so it DOES return trailed sources,
+  mechanically closer to our peak-centroid than to a rejecting fitter. BUT it is
+  NOT strictly-more-tool-first: (1) the trail-relevant knobs — `-a` saddle (σ,
+  def 5; can FRAGMENT one rippled trail into spurious detections), `-p`
+  significance (σ, def 8), `-m` **max deblend object size** (def 2000; NOT a
+  "reject" flag) — are NOT exposed by `solve-field`'s CLI, so tuning needs the
+  standalone `image2xy` binary; (2) `-s` = median-filter box (NOT sigma; sigma is
+  `-g`); (3) a symmetric Gaussian match kernel (`-w`, def 1px) is SNR-mismatched
+  to an elongated PSF. Action: A/B on a real trailed ultra-wide frame — tuned
+  `image2xy` → `.xy.fits` → `solve-field --x-column X --y-column Y --width W
+  --height H --no-remove-lines --uniformize 0` (those two flags off, else the
+  supplied xylist is still list-filtered) vs the current peak-centroid xylist; a
+  hypothesis until measured, record a dead-end with numbers either way. ASTAP is
+  NOT the answer (its own docs: streaks ignored, "stars reasonably round" → solve
+  fails on trailed fields; W08 FOV>20° / G05 FOV>6°). Source: image2xy man /
+  simplexy.c / augment-xylist.c; ASTAP hnsky.org docs.
 
 - **Under-used natives to adopt opportunistically.** `pm` (PixelMath) is
-  scriptable headless (verified) — any per-image arithmetic on a deliverable
-  moves to the tool (bound: ≤10 input images per expression). `seqstat` /
-  `seqpsf` / `seqheader` emit richer per-frame CSVs (bgnoise, full PSF params,
-  any header keyword) beyond the `register` regdata `inspect_stage` already
-  pulls — available if the checklist wants more measures. (No single Siril
-  command reproduces PixInsight SubframeSelector's exact SNRWeight/PSFSignalWeight/
-  Eccentricity set; roundness ↔ eccentricity and noise ↔ SNR are the analogs.)
+  scriptable headless — variables need **`$name$` tokens** (`"$img1$*0.5+$img2$*0.5"`;
+  the naked-name form errors, confirmed on-rig) — any per-image arithmetic on a
+  deliverable moves to the tool (bound: ≤10 input images per expression; full
+  operator set incl `iif`/`mtf`/`noise`). `seqstat seq out.csv {basic|main|full}`
+  and `seqheader seq KEY… -out=file.csv` emit clean headless CSVs (bgnoise/median/
+  MAD/BWMV/location/scale; any header keyword) beyond the `register` regdata
+  `inspect_stage` already pulls. **CAVEAT `seqpsf`/`psf`**: the PSF-fit photometry
+  is real (FWHM, Amplitude, Magnitude, Background, SNR, X/Y) but headless CSV is
+  NOT a documented flag — docs say it console-prints in headless mode; the GUI
+  Plot "Export to CSV" is GUI-only — so capturing it means log-parsing (test
+  before relying on it). Note Siril's **"roundness" = FWHMy/FWHMx, NOT
+  eccentricity** `e=√(1−(b/a)²)` — related but distinct; use the right term.
+  (No single Siril command reproduces PixInsight SubframeSelector's exact
+  SNRWeight/PSFSignalWeight set; roundness↔eccentricity and noise↔SNR are analogs.)
+
+- **`spcc_cone.py` cover math → Siril `healpix` (1.5.0-dev, NEW target).**
+  `scripts/calibrate/spcc_cone.py` hand-rolls the nside=2 nested-HEALPix cover of
+  a solved WCS to pick which local Gaia SPCC chunks to fetch. Siril 1.5.0-dev adds
+  **`healpix`** — *"lists the NESTED HEALPix pixels at level 1 (Nside=2) and level
+  8 (Nside=256) that overlap the currently loaded plate-solved image"* — the exact
+  computation. Candidate to retire/verify the in-house cover math once the rig runs
+  1.5.0; needs an empirical check that `healpix`'s pixel list maps to the
+  zenodo-catalogue chunk filenames the fetcher expects. 1.5.0-dev only (not 1.4.4).
+  Source: 1.5.0 ChangeLog / Commands (latest).
 
 - **Confirmed CLEAN (audited, no change).** `inspect_stage.py` and
   `cull_report.py` compute only over Siril's regdata, not pixels; `judgment_
@@ -129,25 +174,29 @@ tool owns, and two dormant on the wiped render chain. (run_pipeline, the
 calibrate/SPCC set, inspect_stage, cull_report, and anomaly_audit are solid
 orchestration / record / checklist / detector — not listed.)
 
-- **`compose.py` → REPLACE its core with Siril `rgbcomp`.** The member ALIGN is
-  already Siril (`register` + `seqapplyreg -framing=min`); the channel COMBINE is
-  in-house (`np.stack` three mono planes → hand-rolled 3-plane FITS write). Siril
-  `rgbcomp red green blue -out=` does exactly that (confirmed on-rig), so the
-  in-house assembly + FITS I/O should be it. Bonus: `rgbcomp -lum={img}` performs
-  the LRGB luminance join `compose` currently REFUSES — i.e. the "LRGB join"
-  carried-forward item is a native primitive, not a gap. `compose` shrinks to:
+- **`compose.py` → REPLACE its core with Siril `rgbcomp` (EMPIRICALLY confirmed).**
+  The member ALIGN is already Siril (`register` + `seqapplyreg -framing=min`); the
+  channel COMBINE is in-house (`np.stack` three mono planes → hand-rolled 3-plane
+  FITS write). **Probe on 1.4.4**: `rgbcomp chR chG chB -out=out` → a 3-plane
+  float32 RGB FITS ("Successful RGB composition"), and `rgbcomp -lum=chG chR chG
+  chB -out=out` → the LRGB join ran headless — so the in-house assembly + FITS I/O
+  retire, AND `rgbcomp -lum={img}` is the native LRGB primitive that closes the
+  "LRGB join" carried-forward gap `compose` currently REFUSES. `compose` shrinks to:
   resolve `composition.json` → drive the Siril align (mono-filters) → `rgbcomp`.
-  Needs a real dual-band and a mono-filter set to verify (absent here).
+  OPEN: the CLI `-lum` luminance-blend colour space (GUI offers HSL/HSV/Lab; the
+  CLI default is undocumented) — check on a real dual-band + mono-filter set.
 
 - **`crop_coverage.py` → REPLACE with `seqapplyreg -framing=min`, likely REMOVE.**
   It applies a precomputed coverage rectangle (array slice → FITS write) to trim a
   drift set's uncovered border band. Siril does this natively at registration:
-  `-framing=min` crops to the coverage INTERSECTION (compose already uses it). The
-  ordinary stack template uses plain `seqapplyreg` (keeps the uncovered borders
-  the crop fixes); adding `-framing=min` there makes the separate crop script AND
+  `-framing=min` *"crops each image to the area it has in common with all images
+  of the sequence"* BEFORE stacking (compose already uses it) — so no falloff band
+  ever forms, which is earlier + cleaner than the current post-stack crop. Adding
+  `-framing=min` to the ordinary stack template makes the separate crop script AND
   its bounds-JSON producer redundant. `crop x y w h` is the native primitive if a
-  post-hoc crop is ever needed. Needs a real long-drift set to verify (absent
-  here).
+  post-hoc crop is ever needed. PENDING a real long-drift set: confirm
+  `-framing=min`'s "common area" accounts for **drift AND rotation** (what
+  crop_coverage's "union variant" bounds encode), not just translation.
 
 - **`judgment_package.py` / `judgment_crops.py` → DORMANT (render-coupled).** They
   assemble judgment sets from render FINALS; the render chain is wiped/pending on
@@ -156,3 +205,25 @@ orchestration / record / checklist / detector — not listed.)
   pre-handoff inspection) is durable doctrine — keep the pattern — but reactivate
   them with the render rebuild, replacing the hand-rolled PNG codec then
   (`savepng` writer + `tifffile`/TIFF reader, per the reinventions section).
+
+## 1.5.0-dev — pre-register before the x86 Siril upgrade
+
+Siril 1.4.4 is current stable; 1.5.0 is unreleased (dev master). Nothing to adopt
+today, but three items to plan for when the x86 rig moves to 1.5.0:
+
+- **Native image-mask subsystem** — 12 `mask_*` commands (`mask_from_stars`/
+  `_lum`/`_color`/`_channel`, `mask_blur`/`_feather`/`_threshold`/`_invert`…) plus
+  a `-mask` flag on `denoise`/`rmgreen`/`epf`/`rl`/`sb`/`wiener` and a Python mask
+  API. This is the first NATIVE path to region-confined ops (e.g. denoise the
+  starless/background only) WITHOUT a hand-rolled numpy mask-blend — squarely
+  in-bounds; adopt for the render when on 1.5.0. (`-mask` is dev-only; absent from
+  1.4.4 syntax, confirmed.)
+- **`healpix` / `eqcrop`** — `healpix` is the `spcc_cone.py` retirement candidate
+  (above); `eqcrop ra1 dec1 ra2 dec2` is an RA/Dec-box crop (coordinate-defined
+  framing, reproducible).
+- **MIGRATION RISK: `starnet`/`seqstarnet` native commands are REMOVED in
+  1.5.0-dev** (Siril consolidated StarNet behind `pyscript StarNet.py`, same as
+  RC-Astro/SyQon). Capability kept, command surface gone — any `.ssf`/template that
+  calls `starnet`/`seqstarnet` must migrate to `pyscript StarNet.py` before a 1.5.0
+  bump. Also: `sb` deconv is **Split Bregman** (correct any doc/comment naming it
+  otherwise). Source: 1.5.0 ChangeLog / Commands (readthedocs latest).

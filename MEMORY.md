@@ -107,8 +107,9 @@ is the quality bar. The method that works (and the one that failed):
 Traps measured the hard way; the portable ones (re-verify arm-specifics on
 x86 — shell, /tmp, flatpak may differ):
 - **PIL silently truncates 16-bit RGB PNGs to 8-bit** (mode 'RGB', uint8, no
-  warning). Use the repo's PNG16 writer/decoder (`astrometrics.write_png16` /
-  the reader in `judgment_package.py`), never a bare `Image.save`.
+  warning) and misreads Siril's 16-bit RGB TIFF as uint8. Write 16-bit finals
+  with Siril `savepng` (16-bit RGB + iCCP) / `savetif`; read the lossless
+  surface with `tifffile` — never a bare `Image.save`/`Image.open`.
 - **FITS header cards are exactly 80 bytes** — one longer COMMENT shifts the
   card grid and every reader rejects the file. `compose.py` fails loud on it.
 - **Siril normalizes float FITS with values > 1 to [0,1] on import**

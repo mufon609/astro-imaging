@@ -84,26 +84,37 @@ star-match solver fails ultra-wide **trailed** fields.
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
 | **Siril 1.4 native astrometry.net** (`platesolve -localasnet -blindpos -blindres`, SIP, auto-crop-wide) | FREE | siril-native | ✅ / ✅ / ✅ | **Now native in 1.4** (Dec 2025) — replaces our custom solve for ROUND-STAR (tracked) data. VERIFIED it does NOT drop-in replace `solve_field.py` for the TRAILED class: Siril feeds astrometry.net its own `findstar` (PSF-fit) star list, which is exactly the detection our dead-end says fails on trailed stars (ours feeds trail-robust PEAK centroids). Mitigation to TEST on x86: `setfindstar -relax=on` accepts non-star-shaped/trailed objects — may let native localasnet solve the trailed class too. See the verification note below. |
-| **ASTAP** (`astap_cli -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** local blind solve; **HFD flux-weighted-centroid detection with NO roundness gate → *predicted* to keep MILD/MODERATE trailing where Siril findstar rejects it** (mechanism inference — measure; severe/rotational still fails: "oval stars ignored"). **Wide-field DBs = W08 (80°>FOV>20°, 276 kB) + G05 (20°>3°)** — the D-series caps at 6°; **G17/H17/H18 are deprecated**. Key lever `-z` downsample. A strong complementary trailed-field solver — measure it vs `solve_field.py`. |
+| **ASTAP** (`astap_cli -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** local blind solve, but **NOT a trailed-field escape**: ASTAP's own docs say *"star streaks due to tracking errors … will be ignored and solving could fail"* and list *"stars are reasonably round"* as a solving precondition — it shares the roundness limitation. **Wide-field DBs (auto-select): W08 for FOV>20°** (~330–580 kB bright-star cut) **+ G05 for FOV>6°** (D-series usable ≥0.6°); G17/H17/H18 deprecated. `-z` downsample; FOV-blind auto-learn caps at 10° so **pass `-fov` explicitly for ultra-wide**. Use ASTAP for the NON-trailed / moderate-FOV class, not the trailed one. |
 | **astrometry.net** (`solve-field`, our `solve_field.py`) | FREE | CLI | ✅ / ✅ / ✅ | Our current workaround — blind solve from PEAK centroids, which is what beat the trailed-star problem. Keep as the fallback until native/ASTAP are verified on trailed data. |
 
 **Pick:** native localasnet for round-star data; **keep `solve_field.py` for
 the trailed/ultra-wide class** (verified: native feeds Siril's PSF findstar on
-the GREEN layer — the failing detection — and, when computed FOV > 5°, further
-**crops detection to the central area** unless `-nocrop`, a second failure mode
-for ultra-wide trailed fields). On x86, run the empirical test — `setfindstar
--relax=on -roundness=0.1 -maxR=<large>` + `platesolve -localasnet -blindpos
--blindres -nocrop` on a real trailed stack vs `solve_field.py` vs ASTAP; if
-native/relaxed solves reliably, retire the custom script; else it stays the
-trailed-field tool. (`-relax=on` only loosens quality checks — more
-false-positives — it does NOT convert findstar's round-PSF model into a
-peak-centroid detector.) **Trailed-class robustness ranking (mechanism —
+the GREEN layer — the failing detection — which is a sufficient reason on its
+own; the FOV>5° detection auto-crop is *"Ignored for astrometry.net solves,"* so
+`-nocrop` is moot for `-localasnet` and only the PSF-fit findstar detection cuts
+against trailed fields). On x86, run the empirical test — `setfindstar -relax=on -roundness=0.1
+-maxR=<large>` + `platesolve -localasnet -blindpos -blindres` on a real trailed
+stack vs `solve_field.py` vs ASTAP; if native/relaxed solves reliably, retire
+the custom script; else it stays the trailed-field tool. (`-relax=on` only
+loosens quality checks — more false-positives — it does NOT convert findstar's
+round-PSF model into a peak-centroid detector.) **A tool-first alternative to
+the hand-rolled peak detector — `image2xy` (astrometry.net's own extractor):**
+source-verified it has NO shape/roundness gate at all (peak-in-connected-
+component, closer to our peak-centroid than to a rejecting fitter) — so it does
+return trailed sources. But it is NOT a clean win: the trail-relevant knobs
+(`-a` saddle / `-p` significance / `-m` max-deblend-size) are NOT exposed by
+`solve-field`'s CLI (need the standalone binary), a symmetric Gaussian match
+kernel (`-w`) is SNR-mismatched to elongated PSFs, and `-a` saddle can FRAGMENT
+one rippled trail into spurious detections. It's a **testable A/B, not a
+retirement** (BACKLOG). **Trailed-class robustness ranking (mechanism —
 `docs/plate-solving-and-drizzle.md`):** (1) astrometry.net fed our own
 peak-centroid xylist — MOST robust, and confirmed the *intended* shape-blind
-override (solve-field with an xylist runs no extraction; the matcher is
-geometry-only), which VALIDATES `solve_field.py`; (2) ASTAP + W08/G05 (HFD, no
-roundness gate) for mild trailing; (3) native `-localasnet` — least (findstar
-PSF-fit + >5° crop). VERIFICATION detail below the table.
+override (solve-field with an xylist runs no pixel extraction; the matcher is
+geometry-only — but ADD `--no-remove-lines --uniformize 0` or two list-level
+filters still thin the xylist), which VALIDATES `solve_field.py`; (2)
+`image2xy` xylist — shape-blind, A/B-pending vs (1); (3) native `-localasnet`
+and ASTAP — LEAST (both PSF-fit / roundness-gated; ASTAP's docs: "streaks …
+will be ignored"). VERIFICATION detail below the table.
 
 **Verification — does Siril 1.4 native solve replace `solve_field.py`?**
 PARTIALLY. Both now use the astrometry.net ENGINE (Siril's *internal*
@@ -137,7 +148,7 @@ O3=Ha — dead-end registry). Narrowband colour is Tier 10, not here.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **GraXpert** (AI BGE, or RBF/spline) | FREE | CLI + siril-native | ✅ / ✅ (**BGE is CPU-fast, near-instant**) / ✅ | **Default AI gradient removal**, integrated in Siril 1.4 and standalone. BGE inference is lightweight (CPU near-instant, unlike GraXpert denoise/deconv). CLASS LIMIT (dead-end): the AI absorbs frame-filling FAINT nebulosity as gradient — use a plane/off for object-filling fields. |
+| **GraXpert** (AI BGE, or RBF/spline) | FREE | CLI + siril-native | ✅ / ✅ (**BGE is CPU-fast** — inference runs once on a ~240px thumbnail, O(1)) / ✅ | **Default AI gradient removal**, integrated in Siril 1.4 and standalone (`graxpert -cmd background-extraction`; `-cli` deprecated). **`-correction Division` = the headless synthetic-flat gap-filler** (multiplicative; smooth VIGNETTING only — BACKLOG). CLASS LIMIT (dead-end): the AI absorbs frame-filling FAINT nebulosity as gradient — use a plane/off for object-filling fields. |
 | **Siril `subsky`** (`-rbf` or polynomial degree) | FREE | siril-native | ✅ / ✅ / ✅ | The retention mode — a first-degree plane removes the gradient class without absorbing localized nebulosity. Our `bgelin plane`. |
 | **VeraLux Nox** (pyscript) | FREE | pyscript-GUI | ✅ / ✅ / ❌ | scipy sparse-Poisson gradient solve — a **Class-1 numpy-inside** script (mechanism = scipy, escape-hatch only) and **GUI-mandatory PyQt6** (not headless-drivable). (A prior "Seti AutoBGe" reference is unverified — no such script confirmed in the repo.) |
 | **PixInsight DBE / GradientCorrection / MARS** | PAID | GUI-app | ✅ / ✅ / ❌ | DBE = manual sample gold standard; **MARS** (2026) = PI's new AI gradient model. Reference/cross-check. |
@@ -156,8 +167,8 @@ that were the base rig's core data problem.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **BlurXTerminator** (RC-Astro, `--correct-only` + sharpen) | PAID $99.95 | CLI (`rc-astro bxt`) + siril-script | ✅ (Ubuntu 22.04+; **verify on Kali**) / **AVX2 (i7-14700 ok), CPU ~30–40 s** / ✅ | **Best-in-class**, now the standalone **`rc-astro` v0.9.9 CLI** (Win/Mac/Linux) + a Siril script — no longer PI-only. `--correct-only` fixes optical aberration + star elongation/trailing. **AI4.** Cross-platform perpetual license, **CLI free for holders**, **offline after one-time activation**. For headless: **call `rc-astro bxt` directly** (Class-2 binary), don't wrap the GUI-first pyscript. See `docs/rc-astro-cli-linux.md`. |
-| **GraXpert deconvolution** (object + stellar AI) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (minutes CPU) / ✅ | **PRE-RELEASE only — NOT a shipped stable feature.** Deconv lives in the 3.1.0-RC / **3.2.0-alpha** builds (GitHub tops out at 3.1.0rc2; PyPI carries **3.2.0a2**, Dec-2025 — install via `pip`/`pipx`); **stable is 3.0.2 (BGE+denoise only)** — no stable deconv in ~2 yr. Object-mode has an **open artifact bug (#243)**. Siril needs GraXpert ≥3.1.0-RC2 for deconv. Usable free deconv, but BXT is the mature path; the "artificial" knock is unsubstantiated — the real issues are the bug + weaker star-shape correction. |
+| **BlurXTerminator** (RC-Astro, `--correct-only` + sharpen) | PAID $99.95 | CLI (`rc-astro bxt`) + siril-script | ✅ (**Ubuntu 22.04+ "or equivalent"; Kali not vendor-certified — verify**) / **AVX2 (i7-14700 ok); no vendor CPU figures → `--benchmark-all`** / ✅ | **Best-in-class**; standalone **`rc-astro` v1.0.0 CLI** + Siril script, no PixInsight host. `--correct-only` corrects PSF aberration without sharpening → fixes star elongation/trailing. Perpetual license, **CLI free for holders, offline after activation**. Linux GPU = **NVIDIA-CUDA only** → no-GPU rig runs the supported CPU fallback. Call `rc-astro bxt` directly (Class-2). See `docs/rc-astro-cli-linux.md`. |
+| **GraXpert deconvolution** (`deconv-obj` / `deconv-stellar` AI) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (minutes CPU) / ✅ | **PRE-RELEASE only — NOT a shipped stable feature.** Official stable is **3.0.2 (BGE+denoise only)**; deconv exists only in the 3.1.0-RC line and the installed **`3.2.0a2` third-party fork** (`geeksville`, not upstream — pin the official build). Real but undocumented CLI (`-cmd {deconv-obj,deconv-stellar}`, flags in BACKLOG); object-mode artifact bug **#243 open and unaddressed**. BXT is the mature path. |
 | **AstroSharp** (DeepSkyDetail) | FREE | Win .exe / R-Shiny | ❌ **dead end for us** / — / ❌ | **NOT viable**: TIFF-only with a **<600 KB file cap** (unusable full-frame), **no native Linux**, **no CLI**, C++ (no Python), multi-platform issue open+unresolved since 2023. Drop from consideration. |
 | **Cosmic Clarity — Sharpen** (Seti) | FREE (donation) | CLI (folder-batch) | ✅ native Linux (needs gnome-terminal) / 🐢 (**15–30 min CPU**) / ✅ | Free stellar/non-stellar sharpen, **v6.5 (AI3.5s-c)**; leading free BXT alternative, a notch below; CPU-brutal without a GPU. A Class-2 binary driver. |
 | **Siril `makepsf` + RL deconvolution** | FREE | siril-native | ✅ / ✅ / ✅ | Classical RL; our dead-end (unstable symmetric PSF on ≈0 background with in-exposure trailing). Only viable with a good stable PSF. |
@@ -177,22 +188,24 @@ it. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v0.9.9 CLI. AI3's new architecture advertises "noise COLOUR & frequency separation" → the **likely** fill for Siril's chroma-noise gap (dead-end), though a chroma-specific CLI control is **unverified** — test. Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
+| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v1.0.0 CLI. **Closes the chroma-noise gap:** AI3 has a *dedicated* chroma control (`denoise_color`, independent of the luminance `denoise` — not one global knob). Exact `rc-astro nxt` flag spelling is unpublished → capture with `rc-astro nxt` no-args on x86 (`docs/rc-astro-cli-linux.md`). Free CLI for holders, offline-after-activation. |
 | **Siril `denoise`** (NL-Bayes; `-da3d`/`-sos`/`-indep`/`-mod`/`-mask`) | FREE | siril-native | ✅ / ✅ / ✅ | **Free, headless, deterministic.** Plain NL-Bayes on stacks; `-da3d` refine, `-sos` background artefacts, `-indep` blocky colour, `-mod` blend, **`-mask` (1.5.0-dev) to confine to a region**. **No native chroma mode** (docs still punt to GIMP — gap confirmed in 1.5.0-dev). Clean default when free+headless matters. |
-| **DeepSNR 1.2.1** (NAFNet AI; StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — NAFNet trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. A Class-2 binary. A strong free NXT alternative (quality vs NXT/GraXpert unmeasured here). |
-| **GraXpert denoise** (AI, one strength knob) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**>30 min large frames; regressed from ~5 min**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. Slight quality edge to NXT. CPU-slow is the real cost. |
-| **SyQon Prism** (free "Siril Edition" / paid "Deep") | FREEMIUM | pyscript (**Class-1**) | ✅ via Siril / ✅ (Parallax **Nano** is CPU-only) / **🖥 GUI-in-Siril, not headless-confirmed** | 2026 neural (PyTorch NAFNet) denoise; numpy/torch-inside (escape-hatch). Free labels are Zenith/Prism-Siril-Edition/Parallax-**Nano** (not "Mini"). Competitive quality; but presents a GUI dialog in Siril → not confirmed headless. |
-| **Cosmic Clarity Denoise** (Seti) | FREE (donation) | CLI (folder-batch) | ✅ native Linux / 🐢 (~7 min CPU) / ✅ | Free AI denoise, v6.5; CPU-slow; Class-2 binary driver. |
+| **DeepSNR 1.2.1 (Linux)** (StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. v1.2.1 is the **Linux** build (Win 1.2.2 / mac 1.2.0). CLI `-m/--model {1=RGB-only,2=default}`; docs say *"intended for monochrome cameras."* Architecture is not stated on the primary source (NAFNet is a third-party attribution). Luminance-vs-chroma behaviour is undocumented — not a citable chroma-gap fill. A Class-2 binary. |
+| **GraXpert denoise** (AI, `-strength` + `-batch_size`) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**CPU-slow — ~14.5 min/48MP, >30 min large frames**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. CPU-slow is the real cost. **LEAD (untested): `pip install graxpert[openvino]` claims ~5× CPU speedup on AVX2/VNNI Intel CPUs = the target rig's exact class** — x86 empirical candidate. No luminance/chroma split (single strength knob). |
+| **SyQon Prism** (free "Siril Edition" / paid "Deep") | FREEMIUM | pyscript (**Class-1**) | ✅ via Siril / ✅ (Parallax **Nano** is CPU-only) / **✅ headless** (free tier, `is_cli()`) | 2026 neural (PyTorch NAFNet) denoise; numpy/torch-inside (escape-hatch). Free labels are Zenith/Prism-Siril-Edition/Parallax-**Nano** (not "Mini"). The free "Siril Edition" (`mini` model) branches on `siril.is_cli()` and runs headless — no dialog/license gate (an older community build was GUI-only; verify the free-tier headless run on-rig). |
+| **Cosmic Clarity Denoise** (Seti, v6.5) | FREE (donation) | CLI (folder-batch) | ✅ native Linux / 🐢 (~7 min CPU) / ✅ | Free AI denoise; CPU-slow; Class-2 binary. **A FREE chroma-noise control exists here** (candidate free fill for the chroma gap alongside paid NXT): `--denoise_mode {luminance,full,separate}` + **`--color_denoise_strength`** (+ `--separate_channels`) — chroma vs luminance, headless. gnome-terminal is needed only for Super-Res + Satellite-Removal (Qt, `QT_QPA_PLATFORM=offscreen`/Xvfb); Sharpen/Denoise/Dark-Star are plain CLI subprocesses (Dark Star has a `headless` gate). Source-verified, quality unmeasured — x86 test. |
 | **AstroDenoisePy 0.5.8** | FREE | CLI (`--device CPU`) | ✅ (py) / 🐢 / ✅ | CSBDeep/Noise2Noise; headless CLI; older, below NXT/DeepSNR. |
 | **VeraLux Silentium** (SWT wavelet) | FREE | pyscript (**Class-1**) | ✅ via Siril / ✅ / **❌ GUI-mandatory** | `pywt` SWT denoise — **numpy-inside** (escape-hatch, not "a tool") and **GUI-mandatory PyQt6 with no arg vector → not headless-drivable** even under Xvfb. |
 
-**Pick:** NXT (`rc-astro nxt`) if licensed — fastest, best, and AI3's "colour
-separation" **likely** fills the chroma-noise gap (verify); else **DeepSNR** (free,
-native Linux CLI, CPU) or Siril native `denoise` (headless, deterministic) or
-GraXpert (CPU-slow). For chroma noise specifically, NXT-AI3 is the likely fill;
-native Siril still has none. **Do it
-after (heavy) denoise-destroying steps — i.e. after deconvolution, on the starless
-layer** — as a strong default (see the process-rule note).
+**Pick:** NXT (`rc-astro nxt`) if licensed — fastest, best, and AI3's dedicated
+chroma path (`denoise_color`) **CONFIRMED** as the chroma-noise fill; else
+**DeepSNR** (free, native Linux CLI, CPU) or Siril native `denoise` (headless,
+deterministic) or GraXpert (CPU-slow). **For chroma noise specifically the gap is
+now closable two ways** — paid NXT-AI3 (`denoise_color`/`denoise_lf_color`) and
+**FREE Cosmic Clarity** (`--denoise_mode separate --color_denoise_strength`);
+native Siril still has none for GENERAL chroma (`rmgreen` = green-cast SCNR only).
+**Do it after (heavy) denoise-destroying steps — i.e. after deconvolution, on the
+starless layer** — as a strong default (see the process-rule note).
 
 ## Tier 7 — Star removal / separation (LINEAR, pre-stretch)
 
@@ -200,9 +213,9 @@ Split starless + stars so nebula and stars are processed independently.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **StarXTerminator** (RC-Astro) | PAID $49.95 | CLI (`rc-astro sxt`) + siril-script | ✅ / AVX2, **CPU tens-of-sec** / ✅🖥 | **Best** separation, fewest artefacts on resolved objects; `rc-astro` v0.9.9 CLI. **AI11.** Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
-| **StarNet2 v2.5.3** (native x86 CLI) | FREE | CLI + siril-native | ✅ / ✅ (self-contained ONNX) / ✅ | **Free default on x86** — native binary, `--unscreen` + highlight protection. Keeps field-star flux; safe on resolved objects. Siril-integrated. A Class-2 binary. |
-| **SyQon Zenith** (2026, AI) | FREE | pyscript (**Class-1**) | ✅ via Siril / ✅ / **🖥 GUI-in-Siril, not headless-confirmed** | Jan-2026 free high-fidelity AI star removal, in Siril via Get Scripts. Competitive; but presents a GUI dialog → not confirmed headless. |
+| **StarXTerminator** (RC-Astro) | PAID $49.95 | CLI (`rc-astro sxt`) + siril-script | ✅ / AVX2, **CPU tens-of-sec** / ✅🖥 | **Best** separation, fewest artefacts on resolved objects; `rc-astro` v1.0.0 CLI. **AI11.** Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
+| **StarNet2 v2.5.3** (native x86 CLI) | FREE | CLI + siril-native | ✅ / ✅ (self-contained ONNX, no TF/Torch/CUDA) / ✅ | **Free default on x86** — native binary. **`-n/--unscreen <FILENAME>`** writes a star-layer file (not a bare toggle); highlight protection is on by default so the opt-out is **`-d/--disable-highlights-protection`**. Keeps field-star flux; safe on resolved objects. CPU-only on Linux (no documented GPU path). Siril integration is thin ("point Siril at the executable"). Class-2 binary. |
+| **SyQon Zenith / Starless** (AI) | FREE | pyscript | ✅ via Siril / ✅ / **✅ headless** | Headless-capable: `SyQon_Starless.py` branches on `siril.is_cli()` and runs headless with the free `zenith` model (`pyscript SyQon_Starless.py --tile-size 512 --overlap 64`), no dialog/license gate; Prism (`mini`) and Parallax (`nano`) free tiers likewise. Verify the free-tier headless run on-rig. |
 | **Siril `starnet`/`seqstarnet`** integration | FREE | siril-native | ✅ / ✅ / ✅ | Drives StarNet under an invertible MTF pre-stretch (vendor-sanctioned). |
 
 **Dead-end (portable):** never use mask+inpaint on a RESOLVED object — it
@@ -239,8 +252,8 @@ Recombine stars over starless; optionally shrink stars.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **Siril `ccm` (diagonal) + our examine layer** ← the recommended star-neutral *approach* (untested) | FREE | siril-native + numpy | ✅ / ✅ / ✅ | **The doctrine-clean, headless star-neutral approach (a design to test, not yet run):** a **diagonal `ccm` IS a per-channel star-neutral balance** (arithmetic); MEASURE the field's mean star colour in our EXAMINE layer (numpy over detected stars — no native command outputs it), then APPLY via native `ccm`. Pixel op = a tool; measurement = ours. Recommended to adopt+test on the x86 chain. |
-| **Nightlight** (mlnoga; star-neutral SHO) | FREE (GPL-3) | **headless Go CLI** | ✅ x86/ARM / ✅ (no-GPU, AVX2) / ✅ | The ready reference for star-neutral: `OpRGBBalance` balances the mid-population stars to neutral RGB{1,1,1} → lifts OIII vs Ha. **But DORMANT** (v0.2.6 2023, last commit 2024-01; Go-drift risk) — use to validate the mechanism, not as a load-bearing dependency. |
+| **Siril `ccm` (diagonal) + our examine layer** ← the recommended star-neutral *approach* (tool half verified on 1.4.4; the measure→apply design untested) | FREE | siril-native + numpy | ✅ / ✅ / ✅ | **The doctrine-clean, headless star-neutral approach:** a DIAGONAL `ccm` (3×3 + gamma, verified on 1.4.4) IS a per-channel star-neutral balance, and the **ONLY headless neutral-balance path** (Manual Color Calibration has no CLI form). MEASURE the field's mean star colour in our EXAMINE layer (numpy over detected stars — no native command outputs it), then APPLY via `ccm` (`seqccm` batches). Pixel op = a tool; measurement = ours. The design still needs one real-data run. |
+| **Nightlight** (mlnoga; two-point RGB balance) | FREE (GPL-3) | **headless Go CLI** | ✅ x86/ARM / ✅ (no-GPU, AVX2) / ✅ | Headless Go star-balance reference. `OpRGBBalance` default params (`SkipBright=0, SkipDim=0.75`) balance the **brightest 25% of stars** to neutral RGB{1,1,1} — not a symmetric "mid-population"; its source/README say nothing of OIII/narrowband/SHO, so the **"lifts OIII" behaviour is our inference**, not a documented feature. **Unmaintained** (last release v0.2.6; Go-drift risk) — a mechanism reference, not a load-bearing dependency. |
 | **VeraLux Alchemy / DBXtract** (NOT star-neutral) | FREE (GPL-3) | pyscript (**Class-1**) | ✅ via Siril / ✅ / **🖥 GUI-only** | Alchemy = nebula-anchored NB normalization + Ha/OIII crosstalk-unmix (**excludes stars** — opposite anchor from star-neutral); DBXtract = the GPL-3 Bayer-crosstalk-unmix reference (12-sensor QE tables + linear solve). For OSC dual-band unmix only; numpy-inside escape-hatch, GUI-gated. |
 | **Siril `pm` / `rmgreen` / `satu` / `rgbcomp`** | FREE | siril-native | ✅ / ✅ / ✅ | `pm` NBRGB/palette mixing (per-channel via separate mono images), `rmgreen` SCNR (kill SPCC's warned green cast), `satu` hue-targeted saturation, `rgbcomp` SHO/HOO assembly. Headless toolbox. |
 | **PixInsight (NarrowbandNormalization, SHO-AIP, Foraxx)** | PAID €300 | GUI-app | ✅ (**X11 mandatory, Wayland unsupported**; Xvfb unverified) / ✅ / ❌ | The reference for palette work; none does star-neutral balance. GUI-bound. |
@@ -251,7 +264,9 @@ Siril's own docs say it gives "real intensities"/"a huge green cast" and
 recovers the sphere has a **clean headless resolution now**: measure the mean
 star colour in the examine layer, apply a diagonal `ccm` (the *measurement* is
 the only missing native piece, and it belongs in our audit layer anyway —
-[[objective-qa-defect-metrics]]). Nightlight is the dormant by-name reference.
+[[objective-qa-defect-metrics]]). Nightlight (dormant) does a brightest-quartile
+two-point RGB balance — a mechanism reference, but the OIII-lift is OUR inference,
+not its documented purpose (see the Nightlight row).
 Two mechanisms, don't conflate: **star-anchored** neutral balance (ccm+measure /
 Nightlight) vs **nebula/QE-anchored** unmix (Alchemy/DBXtract, OSC dual-band).
 Star-neutral is a valid mechanism but NOT a mainstream-named technique — the
@@ -271,10 +286,16 @@ mainstream decouples stars (remove → boost OIII starless → re-add stars). Se
 
 - **SCNR / green removal** — Siril `rmgreen` (headless). Broadband strong,
   narrowband mild (protect OIII green).
-- **Export** — Siril writes TIFF16 / PNG16 / PNG8 / q100 JPEG headless. Our
-  `--lossless` PNG8+PNG16 remains the judgment surface; JPEG q100/4:4:4 the
-  display final.
-- **Colorimetry** — sRGB-tag finals (our `srgb.icc`).
+- **Export** — Siril writes TIFF16 / PNG16 / PNG8 / q100 JPEG headless.
+  `savepng filename` auto-writes 16-bit RGB PNG (color-type 2, depth 16) with an
+  **iCCP** ICC chunk; `savetif filename [-astro] [-deflate]` writes 16-bit RGB
+  TIFF + ICC (`savetif8`/`savetif32` variants). These **own the finals write —
+  no in-house `write_png16` / hand-built sRGB chunks** (BACKLOG). Note: PIL
+  misreads Siril's 16-bit RGB TIFF as uint8 → read it with `tifffile`. Our
+  `--lossless` PNG8+PNG16 remains the judgment surface.
+- **Colorimetry** — Siril embeds ICC via `icc_assign {sRGB|…}` + a save-time
+  Preference (iCCP full profile), so the vendored `srgb.icc` is no longer needed
+  once `savepng`/`savetif` own the write.
 
 ---
 
@@ -284,20 +305,27 @@ mainstream decouples stars (remove → boost OIII starless → re-add stars). Se
 `siril-cli` or a Class-2 binary): Siril 1.4 natives (solve / SPCC / drizzle /
 ccm / curves / autostretch / GHS / denoise / synthstar / rgbcomp / wavelet /
 pm / rmgreen / satu) + **GraXpert** (BGE **CPU-fast**, denoise **CPU-slow**,
-deconv **RC-stage only**) + **StarNet2 v2.5.3** (star removal) + **DeepSNR**
-(NAFNet denoise, native Linux CLI) + **AstroDenoisePy** + **Cosmic Clarity**
-(sharpen/denoise/dark-star, native Linux, CPU-slow) + **ASTAP** (fast solve).
-A complete, competitive pipeline. (`AstroSharp` is OUT — no Linux/CLI,
+deconv **RC/fork only**) + **StarNet2 v2.5.3** (star removal) + **SyQon** free
+tiers (Zenith/Prism/Parallax — headless via `is_cli()`) + **DeepSNR 1.2.1**
+(denoise, native Linux CLI) + **AstroDenoisePy** (unmaintained — archival only) +
+**Cosmic Clarity** (sharpen/denoise incl. a FREE `--color_denoise_strength`
+chroma control / dark-star, native Linux, CPU-slow) + **ASTAP** (fast solve,
+non-trailed class). A complete, competitive pipeline — and the chroma-noise gap
+has a FREE fill here (Cosmic Clarity). (`AstroSharp` is OUT — no Linux/CLI,
 600 KB TIFF cap.)
 
-**PAID, now a real Linux CLI** (worth it if budget allows): **RC-Astro
-BXT $99.95 / NXT $59.95 / SXT $49.95** via the standalone **`rc-astro` v0.9.9**
-binary (Ubuntu 22.04+, **verify on Kali**) — best-in-class deconv (incl.
-`--correct-only` trailing fix) / denoise (AI3 "colour separation" **likely** fills the chroma-noise gap — verify) /
-star removal. One cross-platform perpetual license, **CLI free for holders**,
-AVX2 CPU (i7-14700 ok, ~20–40 s), no GPU, **offline after one-time activation**.
-For headless, **call the binary directly** (Class-2), not the GUI pyscript.
-**PixInsight** €300 — the reference (WBPP, DBE/MARS), **X11-only, not headless**.
+**PAID, real Linux CLI** (worth it if budget allows): **RC-Astro
+BXT $99.95 / NXT $59.95 / SXT $49.95** (bundle $189.85) via the standalone
+**`rc-astro` v1.0.0** binary (**Ubuntu 22.04+ "or equivalent," Kali not
+vendor-certified — verify**) — best-in-class deconv (incl. `--correct-only`
+trailing fix) / denoise (AI3 has a **dedicated chroma path `denoise_color` →
+closes the chroma-noise gap**, exact CLI flag spelling pending an x86 `rc-astro
+nxt` probe) / star removal. One cross-platform perpetual license, **CLI free for
+holders**, AVX2 CPU (no vendor wall-clock table — **self-benchmark via
+`--benchmark-all`**), **Linux GPU = NVIDIA-CUDA only** so a no-GPU box runs the
+supported CPU fallback, **offline after activation + `rc-astro download-models`**.
+Call the binary directly (Class-2). **PixInsight** €300 — reference (WBPP,
+DBE/MARS), X11-only.
 
 **FREE but GUI-gated / numpy-inside** (escape-hatch, per the resolved
 philosophy question — `docs/siril-pyscript-headless.md`): the **VeraLux** suite
@@ -347,7 +375,7 @@ Sources: the per-topic primary citations live in **`docs/`** (one cited `.md`
 per deep-dive — see `docs/README.md`). In brief: siril.org (1.4.0–1.4.4
 releases; RC-Astro-in-Siril 2026-06; Zenith 2026-01; Parallax 2026-06),
 siril.readthedocs `/latest` (1.5.0-dev commands / denoising / SPCC / platesolving /
-Python-API / scripts), rc-astro.com (`rc-astro` v0.9.9 standalone CLI, FAQ,
+Python-API / scripts), rc-astro.com (`rc-astro` v1.0.0 standalone CLI, FAQ,
 product pages) + the GitLab RC-Astro script source, GraXpert GitHub **API**
 (stable 3.0.2, deconv RC-only in 3.1.0rc2, bug #243), gitlab free-astro/siril-scripts
 (VeraLux/SyQon/DBXtract source), starnetastro.com (StarNet2.5.3 / DeepSNR),

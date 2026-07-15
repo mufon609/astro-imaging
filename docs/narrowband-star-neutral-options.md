@@ -14,7 +14,7 @@
 
 ## Findings
 
-### TWO distinct mechanisms — do not conflate (the earlier confusion, corrected)
+### TWO distinct mechanisms — do not conflate
 - **(1) Star-colour-neutral balance (star-ANCHORED):** neutralize the mean STAR
   colour → since stars carry ~no OIII, this lifts OIII/SII relative to Ha and reveals
   the sphere. This is the dead-end registry's mechanism (mono NB or any RGB NB
@@ -26,20 +26,20 @@
   and it explicitly **excludes stars as outliers** (the *opposite* anchor from
   star-neutral). Useful, but NOT the star-neutral mechanism.
 
-### Nightlight — the one tool that does star-neutral by name; headless, but dormant
+### Nightlight — a headless Go RGB-balance reference; dormant
 - Markus Noga, **github.com/mlnoga/nightlight**. Pure-**Go**, in-memory, **headless
   CLI** stack/compose pipeline (`stats/stack/rgb/argb/lrgb`; optional REST+Blockly
   GUI; JSON `-job` spec for scripted orchestration). **Linux x86-64 (+ARM), no GPU**
   (Go + AVX2 SIMD, multi-core), **GPL-3.0**. Reliable install = `go build` from source
   (release ships only a generic zip).
-- **The star-neutral mechanism (source-verified):** `OpRGBBalance`
-  (`internal/ops/rgb/rgb.go`) is a two-point white balance — black point = darkest
-  NxN block; **white point = the DETECTED STARS, skipping the brightest+dimmest
-  fractions, balancing the middle star population to neutral `RGB{1,1,1}`.** Forcing
-  Ha-dominated (red/magenta) stars to grey redistributes channel weight and **lifts
-  OIII/SII relative to Ha** — the described behaviour. Errors if zero stars detected.
-  Supporting NB flags: `scnr`, LCH hue-rotation (`rotFrom/To/By`), LCH chroma
-  (`chromaFrom/To/By`), `neutSigmaLow/High`.
+- **The mechanism (source-verified):** `OpRGBBalance` (`internal/ops/rgb/rgb.go`) is
+  a two-point white balance — black point = darkest NxN block; **white point = the
+  DETECTED STARS, skipping fractions per `SkipBright`/`SkipDim` (default → brightest
+  quartile), balancing them to neutral `RGB{1,1,1}`.** Forcing Ha-dominated
+  (red/magenta) stars toward grey redistributes channel weight, which WOULD lift
+  OIII/SII relative to Ha (our inference — the source makes no OIII claim). Errors if
+  zero stars detected. Supporting NB flags: `scnr`, LCH hue-rotation (`rotFrom/To/By`),
+  LCH chroma (`chromaFrom/To/By`), `neutSigmaLow/High`.
 - **Status: DORMANT.** Latest release **v0.2.6 (2023-02-27)**; last commit
   **2024-01-20**; nothing in 2025-2026; not archived (dormant, not retired). 51 stars,
   no by-name community footprint. Go-toolchain drift is a real risk for a go-forward
@@ -48,11 +48,12 @@
   and run on x86.)
 
 ### The doctrine-clean headless path — measure in the examine layer, apply via native `ccm`
-- **`ccm` (3×3 colour matrix, NEW in Siril 1.4.0, headless):** a **diagonal `ccm`
-  with gamma=1 is exactly a per-channel multiply** `r'=kr·r, g'=kg·g, b'=kb·b` — i.e.
-  a star-neutral balance *if* you supply `(kr,kg,kb)` that equalize the mean star
-  colour. `pm` can do the same but `ccm`-diagonal is cleaner for a straight RGB
-  per-channel scale.
+- **`ccm` (3×3 colour matrix, headless, in Siril 1.4.x):** a **diagonal `ccm` with
+  gamma=1 is exactly a per-channel multiply** `r'=kr·r, g'=kg·g, b'=kb·b` — i.e. a
+  star-neutral balance *if* you supply `(kr,kg,kb)` that equalize the mean star
+  colour. `seqccm` batches it. It is the ONLY headless neutral-balance path (Manual
+  Color Calibration has no CLI form). `pm` can do the same but `ccm`-diagonal is
+  cleaner for a straight RGB per-channel scale.
 - **The gap, located precisely:** **no native Siril command outputs a field's mean
   star colour.** SPCC/PCC measure the star population internally but *consume* it to
   fit a catalog white reference; `psf`/`seqpsf` measure *individual* stars, not a
@@ -67,7 +68,7 @@
   measured quantity. Manual Color Calibration in Siril does the same balance but is
   **GUI-only**.
 
-### VeraLux Alchemy + DBXtract — the nebula/crosstalk path (CORRECTED: not star-neutral)
+### VeraLux Alchemy + DBXtract — the nebula/crosstalk path (not star-neutral)
 - **VeraLux Alchemy** (Riccardo Paterniti, **v1.0.3**, GPL-3.0, free) — *"Linear-Phase
   Narrowband Normalization & Mixing."* Source shows two mechanisms: (1) channel
   normalization by a robust median+MAD **linear fit that aligns weak OIII/SII to the

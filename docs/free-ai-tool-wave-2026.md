@@ -20,7 +20,7 @@
 | **GraXpert** | BGE + denoise (+ deconv RC) | native | **yes** | free/OSS | yes (denoise slow) |
 | **AstroDenoisePy 0.5.8** | Denoise (CSBDeep/N2N) | likely (py, not documented) | **yes** (`--device CPU`) | free | yes (slow) |
 | **Cosmic Clarity v6.5** | sharpen/denoise/star/upscale/sat/aberration | native x64 | partial (arg-drivable, under-doc) | free (donation) | yes but SLOW (sharpen 15–30 min) |
-| **SyQon** Zenith/Prism/Parallax-Nano | star / denoise / deconv | via Siril | **no** (GUI dialog in Siril) | free tiers | yes (Nano CPU-only) |
+| **SyQon** Zenith/Prism/Parallax-Nano | star / denoise / deconv | via Siril | **yes** (`is_cli()` branch) | free tiers | yes (Nano CPU-only) |
 | **SCUNet** Siril script | denoise (stretched) | via Siril | unclear | free/OSS | likely |
 | **SASpro** | GUI suite (aggregator) | workaround (venv) | **no** (Qt GUI) | free (donation) | yes |
 | **AstroSharp** | deconv/sharpen | **no** | **no** | free | n/a |
@@ -55,18 +55,20 @@
 - Reputation: the **leading free BXT/NXT alternative**, a notch below RC-Astro. A
   Class-2 binary driver.
 
-### SyQon — competitive quality, but the free tiers are GUI-in-Siril (naming corrected)
+### SyQon — competitive quality; free tiers run headless via `is_cli()`
 - Naming split: standalone products **Parallax** (deconv), **DeepPrism** (denoise),
   **Starless** (star removal), **Continuum** (app, Win/Mac only, paid). The **free
   Siril editions** are **Zenith** (star removal, Jan-2026), **Prism** (denoise, a
   free "Siril Edition"; a paid "Prism Deep" exists), **Parallax Nano** (deconv,
   **CPU-only, free with account**). → **Correct TOOLS.md's "Prism Mini"** — the
   confirmed free labels are Zenith / Prism-Siril-Edition / Parallax-**Nano**.
-- **Headless: NOT confirmed.** They run inside Siril (itself Linux/headless-capable),
-  but present a **parameter GUI dialog**, and Siril's API raises `SirilError` if a
-  dialog is opened headless → in practice **GUI-driven within the Siril desktop.**
-  SyQon Prism is a Class-1 numpy/PyTorch-inside script (NAFNet). Paid pricing is
-  account-gated (undisclosed). Quality rated competitive with SXT/NXT/BXT.
+- **Headless: yes.** The scripts branch on `siril.is_cli()` and run headless with
+  their free models (`zenith` / Prism `mini` / Parallax `nano`), no dialog or
+  license gate — e.g. `pyscript SyQon_Starless.py --tile-size 512 --overlap 64`;
+  Parallax takes an `--edition` arg. (An older community version was GUI-only;
+  verify the current free-tier headless run on-rig.) SyQon Prism is a Class-1
+  numpy/PyTorch-inside script. Paid pricing is account-gated. Quality rated
+  competitive with SXT/NXT/BXT.
 
 ### Downgrades / dead ends / watch-list
 - **AstroSharp (DeepSkyDetail) — DEAD END for us.** Windows `.exe` + R/Shiny, C++
@@ -107,9 +109,9 @@
   free star-removal + denoise + gradient path with **no GPU and no GUI**.
 - **Cosmic Clarity** is the free sharpen/deconv option (and star removal via Dark
   Star) — adopt if you accept 15–30 min CPU sharpen; else prefer BXT if any budget.
-- **SyQon free tiers**: only if you accept **Siril-desktop GUI** operation — do not
-  count them as headless without an x86 test. Quality is competitive, so worth a
-  measured look on a desktop, but not a headless-pipeline primitive today.
+- **SyQon free tiers**: headless-capable — the scripts have an `is_cli()` branch that
+  runs the free models with no dialog. Quality is competitive; verify the free-tier
+  headless run on-rig before counting them a pipeline primitive.
 - **Drop AstroSharp**; keep AIDT/AIST + AstroForge on a watch-list pending verification.
 
 ## Status

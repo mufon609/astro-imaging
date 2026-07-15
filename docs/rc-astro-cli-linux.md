@@ -6,7 +6,7 @@
   license mechanics, and headless story? This is the single strongest paid
   recommendation in the toolkit; the money + doctrine decision rides on it.
 - **Context** — 2026-07-14. Standalone CLI announced 2026-06-24, **`rc-astro`
-  v0.9.9 released 2026-07-02 (beta)**; integrated into Siril (needs 1.4.4, announced
+  v0.9.9 beta 2026-07-02 → v1.0.0 production 2026-07 (out of beta)**; integrated into Siril (needs 1.4.4, announced
   2026-06). Target rig: x86-64 Kali, **i7-14700 (AVX2 ✓)**, 32 GB, **no GPU**,
   headless. Builds on [[siril-pyscript-headless]] (RC-Astro scripts are Class-2
   drivers).
@@ -15,8 +15,8 @@
 
 ### 1. A real standalone CLI exists — and it's the clean headless primitive
 - **Binary `rc-astro`**, one multi-tool with per-product subcommands **`bxt` / `nxt`
-  / `sxt`**. Linux install `/opt/rc-astro`, symlinked into `/usr/local/bin`. Beta
-  (v0.9.9, 2026-07-02); standalone announced 2026-06-24.
+  / `sxt`**. Linux install `/opt/rc-astro`, symlinked into `/usr/local/bin`.
+  v1.0.0 production 2026-07 (out of beta; 0.9.9 was the 2026-07-02 beta); standalone announced 2026-06-24.
 - **Linux requirement: "Ubuntu 22.04+" is a glibc FLOOR, not a desktop or distro
   requirement.** RC-Astro states Linux reqs as glibc versions (its PixInsight build asks
   "Ubuntu 18.04 / glibc 2.27") → the standalone decodes to **glibc ≥ 2.35 + GLIBCXX ≥
@@ -102,17 +102,19 @@
   AI2 selectable. **No AI5.** PixInsight module 2.1.5 (2026-04).
 - **NXT: AI3** (2025-02; vendor description: *"completely new architecture —
   iterative noise reduction, noise colour & frequency separation"*). AI2 selectable.
-  → the "colour separation" wording **strongly implies** a chrominance-noise mechanism,
-  making NXT the **likely** fill for Siril's chroma-noise gap — but whether the CLI
-  exposes a chroma-specific control (vs handling it internally) is **UNVERIFIED**;
-  confirm on x86 before treating the gap as closed. PixInsight module 2.3.4.
+  → AI3 has a **dedicated chroma control**, not one global knob: `enable_color_separation`
+  + `denoise_color` (chroma-HF, independent of the luminance `denoise`) + `denoise_lf_color`
+  (chroma-LF) + `iterations` (RC-Astro AI3 release + PixInsight AI3 manual). This is the
+  fill for Siril's chroma-noise gap. The only unobserved piece is the exact `rc-astro nxt`
+  CLI flag spelling — no verbatim `nxt --help` is published; BXT shows 1:1 CLI↔PixInsight-param
+  parity, so capture the real flags with `rc-astro nxt` no-args on x86. PixInsight module 2.3.4.
 - **SXT: AI11** (2022-09, trained incl. JWST/Hubble). **No AI12.** "Lite" variants
   for low memory. PixInsight module 2.4.12.
 - CLI model select: `--ml-version N` (0 = latest).
 
 ## Sources
 - Stand-Alone RC-Astro Tools — https://www.rc-astro.com/stand-alone-rc-astro-tools/
-- Stand-Alone CLI Release 0.9.9 (`--device`, `--benchmark-all`, breaking change) — https://www.rc-astro.com/stand-alone-cli-release-0-9-9/
+- Stand-Alone CLI Release 1.0.0 (production, out of beta) — https://www.rc-astro.com/stand-alone-cli-release-1-0-0/ ; 0.9.9 beta (`--device`, `--benchmark-all`, breaking change) — https://www.rc-astro.com/stand-alone-cli-release-0-9-9/
 - License FAQ (cross-platform, free for holders, 3 activations) — https://www.rc-astro.com/faq/do-i-need-to-purchase-new-licenses-to-use-the-cli/
 - RC-Astro FAQ (AVX req, offline-after-activation, Linux cuDNN/compute-cap, SXT memory) — https://www.rc-astro.com/frequently-asked-questions/
 - Product pages (prices, AI versions) — https://www.rc-astro.com/software/bxt/ · /nxt/ · /sxt/
@@ -158,7 +160,7 @@ at our frame sizes
   chroma-noise fill; CPU ~20–30 s; $59.95.
 - **TOOLS.md Tier 7 (SXT)** — AI11, CPU tens-of-sec, $49.95, `rc-astro sxt`.
 - **TOOLS.md cross-cutting "PAID but Linux-CLI"** — replace the general claim with
-  the concrete `rc-astro` v0.9.9 CLI, prices, AVX2, offline, Ubuntu-22.04 caveat.
+  the concrete `rc-astro` v1.0.0 CLI, prices, AVX2, offline, Ubuntu-22.04 caveat.
 - **TOOLS.md** — the RC-Astro-Linux-CLI bullet → concrete; add "call the binary
   directly, don't wrap the GUI pyscript" + "activate-once-online then offline" to
   x86 setup; chroma-noise dead-end → NXT AI3 colour separation is the **likely** fill

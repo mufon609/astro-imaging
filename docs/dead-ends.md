@@ -45,20 +45,29 @@ the constraints any such tool must satisfy):
   intensities"/"a huge green cast" and recommend Manual Color Calibration for
   SHO — i.e. SPCC is the *cause*, not the fix. The sphere needs a
   **star-colour-neutral** balance (neutralise the mean star colour → O3 boosted,
-  stars carry ~no O3). **Headless path — a design to test, not yet run**
-  (`docs/narrowband-star-neutral-options.md`): a **diagonal `ccm` IS that
-  balance** (arithmetic) — measure the field's mean star colour in the EXAMINE
-  layer (numpy; no native command outputs it — an audit-layer item), then apply
-  native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3) does this by name
-  but is **dormant** (2024) — a reference, not a dependency.
+  stars carry ~no O3). **Headless path — tool half verified on 1.4.4, the design
+  untested** (`docs/narrowband-star-neutral-options.md`): a **diagonal `ccm` IS
+  that balance** — `ccm m00..m22 [gamma]`, the ONLY headless neutral-balance path
+  (Manual Color Calibration has no CLI). Measure the field's mean star colour in
+  the EXAMINE layer (numpy; no native command outputs it — an audit-layer item),
+  then apply native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3,
+  **unmaintained**) does NOT do star-neutral-SHO "by name" — its `OpRGBBalance`
+  default balances the **brightest 25% of stars** (not a "mid-population"), and its
+  source says nothing of OIII/narrowband; the "lifts OIII" behaviour is our
+  inference. A mechanism reference, not a dependency.
 - `rmgreen`/SCNR on a sky that is not green-dominant prints a global magenta cast.
-- Siril has NO native chrominance-noise tool (its own docs punt to GIMP) — the
-  chroma-noise gap is real and **confirmed still non-native as of 1.5.0-dev**
-  (same GIMP disclaimer). On x86 fill it with an AI denoiser, NEVER a hand-rolled
-  coring — **NoiseXTerminator AI3 is the likely fill** (its architecture
-  advertises "noise COLOUR & frequency separation"; `rc-astro nxt`, CPU ~20–30 s)
-  — though a chroma-specific CLI control is unverified, so confirm before calling
-  the gap closed; free fallbacks are DeepSNR / GraXpert / Cosmic Clarity.
+- Siril has NO native GENERAL chrominance-noise tool (its own docs punt to GIMP,
+  byte-identical disclaimer in 1.4.4 AND 1.5.0-dev). `rmgreen` IS a native
+  SCNR-style "chromatic noise reduction filter" but SINGLE-HUE (green cast only) —
+  it does not close the general chroma gap. On x86 fill the general gap with an AI
+  denoiser, NEVER a hand-rolled coring. **The gap is closable two ways:** (1) paid
+  **NoiseXTerminator AI3** has a *dedicated* chroma path — `enable_color_separation`
+  + `denoise_color` (chroma-HF, independent of luminance `denoise`) +
+  `denoise_lf_color` (chroma-LF) — confirmed machinery (the only open piece is the
+  exact `rc-astro nxt` CLI flag spelling — probe on x86); (2) FREE **Cosmic Clarity**
+  Denoise `--denoise_mode separate --color_denoise_strength` is an explicit free
+  chroma-vs-luminance control (quality unmeasured — x86 test). Free fallbacks
+  without a chroma split: DeepSNR / GraXpert.
 
 **Separation** (informs the x86 tool choice):
 - A mask+inpaint separator DESTROYS resolved-object structure (inpaints HII knots
@@ -76,19 +85,31 @@ the constraints any such tool must satisfy):
   catalog; astrometry.net blind solve from coarse PEAK centroids works (blob/PSF
   centroids don't feed the matcher). Blind-solve first, label after. Native
   `platesolve -localasnet` does NOT rescue this class: it still feeds
-  astrometry.net Siril's `findstar` PSF-fit detection (on the green layer), and
-  when FOV > 5° it further **crops detection to the central area** unless
-  `-nocrop`. `setfindstar -relax=on` only loosens quality checks (more
-  false-positives) — it does not become a peak-centroid detector. **Feeding
-  astrometry.net a peak-centroid xylist is the INTENDED shape-blind override**
-  (solve-field with an xylist runs NO extraction; the matcher is geometry-only,
-  Lang 2010) — this confirms `solve_field.py` is doing the sanctioned thing, not
-  a hack. Robustness ranking: (1) astrometry.net + own peak xylist, (2) ASTAP +
-  the wide DBs **W08/G05** (HFD centroids, no roundness gate — *predicted* to keep
-  mild trailing, measure; the D-series caps at 6°, G17/H17 deprecated), (3) native
-  `-localasnet` (least). Keep `solve_field.py`; the x86 test is `-relax=on
-  -roundness=0.1 -maxR=large` + `-nocrop` vs the custom script vs ASTAP+W08
-  (TOOLS.md Tier 2).
+  astrometry.net Siril's `findstar` PSF-fit detection (on the green layer) — that
+  detection alone is the failure mode; the FOV>5° detection auto-crop is
+  *"Ignored for astrometry.net solves"* (Siril concept page) — a Siril-internal-
+  solver behaviour only, so it is not a `-localasnet` failure mode and `-nocrop`
+  is moot there.
+  `setfindstar -relax=on` only loosens quality checks (more false-positives) — it
+  does not become a peak-centroid detector. **Feeding astrometry.net a
+  peak-centroid xylist is the INTENDED shape-blind override** (solve-field given
+  an xylist runs NO pixel extraction; the matcher is geometry-only, Lang 2010) —
+  but ADD `--no-remove-lines --uniformize 0` or two LIST-level filters still thin
+  the supplied xylist. This confirms `solve_field.py` is sanctioned, not a hack.
+  **`image2xy`** (astrometry.net's own extractor) is source-verified to have NO
+  shape/roundness gate (peak-in-connected-component) so it DOES return trailed
+  sources — but it is NOT a clean retirement of the hand-roll: its trail knobs
+  (`-a` saddle / `-p` / `-m`) aren't exposed by `solve-field`, a symmetric match
+  kernel is SNR-mismatched to trails, and `-a` can fragment one trail into
+  spurious detections → a **testable A/B**, not a swap (BACKLOG). Robustness
+  ranking: (1) astrometry.net + own peak xylist; (2) `image2xy` xylist
+  (shape-blind, A/B-pending); (3) native `-localasnet` AND **ASTAP** — LEAST (both
+  PSF-fit / roundness-gated; ASTAP's own docs: *"star streaks … will be ignored,"*
+  precondition *"stars reasonably round"* — it shares the roundness limitation, not
+  an escape; wide DBs W08 FOV>20° / **G05 FOV>6°**; G17/H17/H18 deprecated). Keep
+  `solve_field.py`; the x86
+  test is `-relax=on -roundness=0.1 -maxR=large` vs the custom script vs ASTAP+W08
+  vs an image2xy xylist (TOOLS.md Tier 2).
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass + low
   detection sigma recovers them; on trailed frames a reference sweep beats the
   auto-reference. Keep all frames (dropping a minority sub-focal subset buys no

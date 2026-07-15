@@ -83,6 +83,12 @@ All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki:
 - `starnet [-stretch] [-upscale] [-stride=] [-nostarmask]` · `seqstarnet seq [...]`
 - **drizzle is NOT a standalone command** — it is `-drizzle` on `register` /
   `seqapplyreg`. (Correct the mental model: "drizzle" = a registration option.)
+- `savepng filename` (no flags) writes 16-bit RGB PNG (color-type 2, depth 16)
+  with an `iCCP` ICC chunk when the loaded image is 16/32-bit; `savetif filename
+  [-astro] [-deflate]` writes 16-bit RGB TIFF + ICC (`savetif8`/`savetif32`
+  variants). ICC content comes from a prior `icc_assign {sRGB|…}` + a save-time
+  Preference. Tested on 1.4.4. (PIL misreads Siril's 16-bit RGB TIFF as uint8 —
+  read it with `tifffile`.) These own the finals write; no in-house PNG encoder.
 - GraXpert-in-Siril: via the bundled **`GraXpert-AI.py`** script (the old C
   interface was removed in 1.4.0-beta2), headless through `pyscript` with
   `-bge` / `-denoise` / `-deconv_obj` / `-deconv_stellar`. **Deconv needs GraXpert
@@ -99,9 +105,11 @@ All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki:
   algorithm with the current settings"* — i.e. its **PSF-fitting** finder, on the
   **green layer** for RGB. This is exactly the detection our dead-end says fails on
   trailed stars (`solve_field.py` feeds trail-robust **peak** centroids instead).
-- **New ultra-wide detail:** if computed **FOV > 5°, detection is bounded to a
-  cropped central area** unless `-nocrop` is given. For an ultra-wide trailed field
-  that is a second failure mode to defeat (fewer stars, still round-PSF-gated).
+- **Ultra-wide detail:** the FOV>5° detection auto-crop is a **Siril-INTERNAL-solver
+  behaviour only** — the concept page states it is *"Ignored for astrometry.net
+  solves."* So it is not a `-localasnet` failure mode and `-nocrop` is moot there;
+  the round-PSF `findstar` detection is the sole mechanism working against trailed
+  ultra-wide fields on the localasnet path.
 - **`setfindstar ... [-roundness=] [-maxR=] [-relax=on|off] [-sigma=] [-radius=]`:**
   `-relax=on` *"allows relaxation of several of the star candidate quality checks …
   likely to result in a significant increase in false-positive star detections,
@@ -172,8 +180,9 @@ All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki:
   region-confined processing (e.g. denoise-on-starless) and is squarely in-bounds;
   adopt it when the x86 rig runs 1.5.
 - **Trailed solve:** keep `solve_field.py` as the trailed-class tool; the native
-  path is *more* likely-insufficient than the last pass implied (findstar PSF-fit
-  **and** the >5° detection crop both work against trailed ultra-wide fields).
+  path is likely-insufficient because findstar PSF-fit detection works against
+  trailed ultra-wide fields (the >5° detection crop does not apply to localasnet —
+  it is "ignored for astrometry.net solves").
   Run the concrete x86 test before any retirement.
 
 ## Status

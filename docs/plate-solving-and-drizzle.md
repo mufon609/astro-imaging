@@ -81,9 +81,12 @@
 1. **astrometry.net fed our own peak-centroid xylist — most robust.** No shape filter, we
    control the centroids; matches the untracked all-sky / meteor-network precedent. **Validates
    `solve_field.py`.**
-2. **ASTAP + W08/G05 — second.** HFD/centroid, no roundness gate, shape-blind quads;
-   should keep mild trailing where Siril rejects it (mechanism prediction), **but needs
-   the correct wide DB** or it silently fails; severe/rotational trailing still breaks it.
+2. **ASTAP — NOT a trailed-field escape.** Its own docs say *"star streaks due to
+   tracking errors … will be ignored and solving could fail"* and list *"stars
+   reasonably round"* as a precondition — so it shares the roundness limitation, it
+   does not dodge it. Fine for the non-trailed / moderate-FOV class with the correct
+   wide DB (W08 for FOV>20°, G05 for FOV>6°); FOV-blind auto-learn caps at 10° so pass
+   `-fov` explicitly for ultra-wide.
 3. **Siril native (internal AND `-localasnet`) — least robust here.** Load-bearing:
    `-localasnet` does **not** hand the raw image to astrometry.net — Siril *"extracts the
    stars from your images [with findstar] and submits this list to solve-field."* findstar
@@ -157,10 +160,10 @@ mechanism inference — the settling test: one real trailed ultra-wide set solve
 residual RMS + wall-clock; and measure minor-axis FWHM + dither before any drizzle.
 
 ## Graduation
-- **TOOLS.md Tier 2** — ASTAP row: **W08/G05 for wide** (D-series caps at 6°; G17/H17
-  deprecated), HFD-centroid (no roundness gate) *predicted* to keep mild trailing; add the 3-way
-  robustness ranking; note astrometry.net xylist-of-peaks is the *intended* override
-  (validates `solve_field.py`); `--scale-low/high` pin.
+- **TOOLS.md Tier 2** — ASTAP row: **W08 for FOV>20° / G05 for FOV>6°** (G17/H17
+  deprecated); ASTAP ignores trailed streaks ("stars reasonably round" precondition)
+  so it is not a trailed-field solver; add the robustness ranking; note astrometry.net
+  xylist-of-peaks is the *intended* override (validates `solve_field.py`); `--scale-low/high` pin.
 - **The dead-end registry (`docs/dead-ends.md`)** — (a) strengthen the trailed-solve entry with the detection-method
   ranking + the xylist-is-intended confirmation; (b) **CORRECT the drizzle entry**: "short
   focal / large pixels ⇒ oversampled" is backwards (that geometry is *under*sampled); the
