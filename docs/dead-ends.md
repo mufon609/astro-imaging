@@ -171,6 +171,21 @@ the constraints any such tool must satisfy):
   ~1.6:1 at BEST; success is the EDGE matching the CENTRE, never round stars. That
   the per-frame roundness is *uniform* is also the proof the radial smear is
   introduced by register+stack, not by the frames.
+- **Round-tripping linear astro data through a raw converter: MATCH the ICC tag, never
+  "force linear".** Siril's `savetif` embeds **`sRGB-elle-V2-srgbtrc.icc`** — an sRGB
+  TONE CURVE — on LINEAR pixels, and **`icc_assign sRGBlinear` does NOT change what
+  `savetif` embeds** (the export profile comes from a save-time preference; `set
+  gui.icc_pedantic_linear=true` does not change it either). So a converter reading that
+  TIFF applies an sRGB→linear DECODE to already-linear data. Exporting with a LINEAR
+  profile (`darktable --icc-type LIN_REC709`) then leaves that decode UNCANCELLED:
+  measured A_out/A_in climbing **0.1008 → 0.2121** across the brightness range
+  (effective gamma ≈1.34) — silently destroying photometry, SPCC and the stretch while
+  looking fine on a preview. **The fix is to MATCH the output profile to the input tag**
+  (`--icc-type SRGB`): the decode and the re-encode cancel exactly — VERIFIED as an
+  identity round trip, A_out/A_in = **0.9996–1.0000**, IQR 0.0003. The tag is
+  "wrong" either way; what matters is that it is wrong *consistently*. Always verify
+  linearity with star AMPLITUDES vs brightness (a constant ratio), never with a mean or
+  a preview: a gamma preserves the median's rank order and hides in a stretch.
 - **Two traps that make a registration comparison lie — both hit in one experiment.**
   (1) **Survivorship bias:** a bad registration spreads flux below the detection
   threshold, so the SURVIVING stars' median roundness/FWHM can *improve* while the
