@@ -90,19 +90,27 @@ What is left:
   darktable recomputes the autoscale per image. The same probe closed the rest of the
   blob: `focal`, `camera` and `lens` are all re-detected from EXIF too. **Only
   `modify_flags` carries**, so one style is camera-, lens- and focal-general.
-- **BUILD THE PREFLIGHT GUARD — this is now the route's biggest risk, and it is the
-  reason the above is not simply good news.** Because nothing is baked, **darktable never
-  fails**: a lens the DB cannot match gets **NO correction, silently** (measured: 0.000 px
-  over 413 stars, exit 0, nothing in the log), and a wrong-but-present lens gets a wrong,
-  weaker model just as quietly. A set that trips this stacks UNCORRECTED and the only
-  symptom is a worse `seqtilt` off-axis aberration in the final — the exact defect the
-  route removes, reintroduced with no warning. The guard must, per set and BEFORE the run:
-  assert EXIF camera+lens+focal against the lensfun DB **and** against the set's recorded
-  `acquisition.json`, and STOP on a miss or on **mixed** focal/lens within the set (each
-  frame silently gets its own EXIF's model — this is what makes mixed a hard stop rather
-  than an interpolation, the acquisition checklist's "lock the zoom ring" surfacing as a
-  processing consequence). A non-zero warp is only a secondary confirmation: **"did the
-  warp happen" passes the wrong-lens case.** Mechanism: `docs/dead-ends.md`.
+- **The preflight guard is BUILT** — `scripts/stack/lens_preflight.py`, run first by
+  `run_pipeline.sh`. It STOPS on a mixed-optics set (checked over every frame, which
+  `acquisition.json` cannot do — it reads the first frame only) and on a record-vs-frames
+  contradiction; `--require-profile` additionally makes darktable PROVE it corrects the
+  set. **Wire `--require-profile` in when the undistort stage joins the chain** — today
+  `run_pipeline.sh` has no undistort stage to protect, so it runs the free checks only.
+  Verified against all three failure cases + a no-regression pass on set-01.
+- **Why the guard asks darktable, not lensfun.** The question is not "does the lensfun DB
+  hold this lens" but "will darktable correct THIS set" — adjacent, not identical, since
+  darktable normalizes the EXIF strings itself before querying. And there is nothing to
+  ask: Debian packages no lensfun query CLI (`lenstool` is unpackaged), `python3-lensfun`
+  exposes only DB-path helpers and **no matcher**, and `liblensfun-bin` carries only the
+  update/adapter utilities. Querying lensfun would mean parsing its XML and reimplementing
+  its fuzzy matcher — an analysis the tool owns. So the guard asks the tool that does the
+  work to prove it did it, and Siril supplies the verdict: on an all-zero difference
+  `stat` refuses with *"Statistics computation failed … (all nil?)"*, which IS the no-op
+  proof. Mechanism: `docs/dead-ends.md`.
+- **Residual the guard does NOT close:** lensfun fuzzy-matching a correct EXIF string to a
+  wrong DB entry. That warp is non-zero, so the proof passes it; the uniformity + record
+  checks bound it but do not eliminate it. A lensfun-internal limit, not a claim the
+  guard makes.
 - **Wire it into the loop as the MATCH → RECOMMEND step for this footprint:** take the
   fingerprint (item 1) → check the lensfun DB → recommend the route with its reason (or
   a plain homography, with its reason) → report → user decides → execute → record the

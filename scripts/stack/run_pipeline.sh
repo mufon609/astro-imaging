@@ -33,6 +33,17 @@ W="$S/work"
   { echo "missing $S/darks (no raw darks and no calib/ prebuilt masters)" >&2; exit 1; }
 mkdir -p "$W/masters" "$S/results"
 
+# OPTICS PREFLIGHT — refuse a mixed-optics set before spending the run on it.
+# acquisition.json reads optics from the FIRST FRAME ONLY, so it cannot see a
+# zoom bump mid-set; this checks every frame. A mixed-focal set is not one
+# stack (each frame carries its own distortion) — a hard stop, not something to
+# average. No-op for a telescope/astrocam set (no camera raws, no lens EXIF).
+# It does NOT pass --require-profile: that proves darktable's lens correction
+# actually fires, and this script has no undistort stage to protect yet (the
+# wide-field-untracked route is driven separately — BACKLOG item 2). Add the
+# flag here when that stage lands.
+python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" || exit 1
+
 siril_run() { # absolute script path
   flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$1"
 }
