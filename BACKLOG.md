@@ -85,17 +85,24 @@ set with the same footprint. The generality question that gated this is **answer
 
 What is left:
 
-- **The autoscale is still baked** (`scale=1.046028`, computed at 70 mm) while focal is
-  re-detected. Whether darktable recomputes autoscale per focal is **untested**. It
-  affects framing, not the distortion model, but a wrong autoscale at another focal
-  would under- or over-crop. **Test before the route meets a non-70 mm set:** apply the
-  style at two focals and compare the output field of view.
-- **Degrade loudly** (the per-dataset rule): a set whose camera+lens is absent from the
-  lensfun DB, or whose focal EXIF is missing or **mixed across the set**, must STOP —
-  never fall back to an unrelated profile. `acquisition.json` already derives
-  `focal_length_mm`, so the check is cheap. Mixed-focal sets are a hard stop, not an
-  interpolation (the acquisition checklist's "lock the zoom ring" surfacing as a
-  processing consequence). Verify per set, not per session.
+- **The autoscale question is CLOSED — it is a non-issue.** `scale` is baked but
+  IGNORED: scale 1.046 vs 0 vs **1.5** produce warps identical to **0.000 px**, so
+  darktable recomputes the autoscale per image. The same probe closed the rest of the
+  blob: `focal`, `camera` and `lens` are all re-detected from EXIF too. **Only
+  `modify_flags` carries**, so one style is camera-, lens- and focal-general.
+- **BUILD THE PREFLIGHT GUARD — this is now the route's biggest risk, and it is the
+  reason the above is not simply good news.** Because nothing is baked, **darktable never
+  fails**: a lens the DB cannot match gets **NO correction, silently** (measured: 0.000 px
+  over 413 stars, exit 0, nothing in the log), and a wrong-but-present lens gets a wrong,
+  weaker model just as quietly. A set that trips this stacks UNCORRECTED and the only
+  symptom is a worse `seqtilt` off-axis aberration in the final — the exact defect the
+  route removes, reintroduced with no warning. The guard must, per set and BEFORE the run:
+  assert EXIF camera+lens+focal against the lensfun DB **and** against the set's recorded
+  `acquisition.json`, and STOP on a miss or on **mixed** focal/lens within the set (each
+  frame silently gets its own EXIF's model — this is what makes mixed a hard stop rather
+  than an interpolation, the acquisition checklist's "lock the zoom ring" surfacing as a
+  processing consequence). A non-zero warp is only a secondary confirmation: **"did the
+  warp happen" passes the wrong-lens case.** Mechanism: `docs/dead-ends.md`.
 - **Wire it into the loop as the MATCH → RECOMMEND step for this footprint:** take the
   fingerprint (item 1) → check the lensfun DB → recommend the route with its reason (or
   a plain homography, with its reason) → report → user decides → execute → record the
@@ -257,8 +264,12 @@ re-centring solved it in acquisition.
 Depends on items 2 (focal generality per set), 3 (culling), 4 (the chunk bug — chunking
 is mandatory here) and 5 (the sky flat). Ordered:
 
-1. **Verify every set is 70 mm** (both local sets are) and that ISO/exposure match the
-   darks. Item 2's degrade-loudly check is what enforces this.
+1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
+   Both local sets are 70 mm; the other three are unverified. This is a **hard
+   prerequisite, not a formality**: darktable silently applies NO correction to a lens it
+   cannot match and a wrong model to one it mis-matches, so a single set with a different
+   or unrecognised lens string would stack uncorrected into the combined result with no
+   warning. Item 2's preflight guard is what enforces it — build it before this runs.
 2. **Measure the re-aim scatter before committing to one combined stack.** `-framing=min`
    keeps only what is common to ALL frames: within a set the drift is ~1500 px, across
    sets it is drift + hand-re-centring error. If scatter is large the common area drops

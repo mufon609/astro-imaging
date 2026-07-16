@@ -185,6 +185,30 @@ the constraints any such tool must satisfy):
   ~1.6:1 at BEST; success is the EDGE matching the CENTRE, never round stars. That
   the per-frame roundness is *uniform* is also the proof the radial smear is
   introduced by register+stack, not by the frames.
+- **A darktable lens STYLE carries almost nothing — and an unmatched lens is a SILENT
+  NO-OP.** The style's `op_params` blob bakes camera, lens, focal, aperture and scale,
+  which reads like a hard-coded profile. **Measured: every one of those is IGNORED.**
+  darktable re-detects camera/lens/focal from each image's EXIF and recomputes the
+  autoscale; only **`modify_flags`** (which corrections to apply) actually carries.
+  Proof, one knob each, ~400 matched stars per arm: EXIF focal 70 vs 24 → **opposite-sign**
+  displacement fields (pincushion vs barrel: +26→+69 px vs −6→−19 px); `scale` 1.046 vs 0
+  vs **1.5** → warps identical to **0.000 px**; EXIF lens swapped to a 50 mm prime at the
+  same focal → that prime's own (much weaker) profile. **So ONE style is camera-, lens-
+  AND focal-general** — good news, and the reason no per-focal style is needed.
+  **The trap is the other side of the same mechanism.** Because nothing is baked, a lens
+  the DB cannot match gets **NO correction, silently**: an unrecognised `LensModel`
+  produced max |dr| = **0.000 px over 413 stars**, exit 0, and **not one word in the log**.
+  A wrong-but-present lens is worse — it applies a wrong, weaker model, also silently. So:
+  - **darktable CANNOT be relied on to degrade loudly. It never fails.** A set whose lens
+    is missing from the DB stacks UNCORRECTED and the only symptom is a worse `seqtilt`
+    off-axis aberration in the final — i.e. exactly the defect the route exists to remove,
+    reintroduced with no warning.
+  - **"Did the warp happen?" is NOT a sufficient guard** — it passes on the wrong-lens
+    case. The guard must assert the EXIF camera+lens+focal against the DB and against the
+    set's recorded `acquisition.json`, per set, BEFORE the run; a non-zero warp is only a
+    secondary confirmation.
+  - Corollary: this is what makes a MIXED-focal or mixed-lens set a hard stop rather than
+    an interpolation — every frame silently gets its own EXIF's model.
 - **Round-tripping linear astro data through a raw converter: MATCH the ICC tag, never
   "force linear".** Siril's `savetif` embeds **`sRGB-elle-V2-srgbtrc.icc`** — an sRGB
   TONE CURVE — on LINEAR pixels, and **`icc_assign sRGBlinear` does NOT change what

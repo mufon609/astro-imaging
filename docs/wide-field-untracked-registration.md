@@ -425,22 +425,34 @@ Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
   config, the warp reproduces to **0.000 px at every radius**. It carries
   `modify_flags=1` (distortion only — vignetting correction would fight the sky flat;
   TCA is unwanted).
-- **ONE style serves every focal — MEASURED, not assumed.** The blob bakes
-  `focal=70.0 aperture=4.0`, but darktable **re-detects focal from each image's EXIF and
-  overrides it**: the same RAW with EXIF focal 70 vs 24 produces opposite-sign
-  displacement fields (70 mm pushes outward +26→+69 px; 24 mm pulls inward −6→−19 px
-  before crossing over) — barrel at the wide end, pincushion at the long end, over ~400
-  matched stars. So the baked focal is inert and the route generalises across this lens's
-  range. The feared "a 24 mm frame silently gets a 70 mm correction" does **not** happen.
+- **The style carries ONLY `modify_flags` — everything else in the blob is inert.**
+  MEASURED, one knob each, ~400 matched stars per arm:
+
+  | baked field | honoured? | proof |
+  |---|---|---|
+  | `focal=70.0` | **no** — re-detected from EXIF | EXIF 70 vs 24 → opposite-sign warps (+26→+69 px vs −6→−19 px): pincushion at the long end, barrel at the wide |
+  | `scale=1.046028` | **no** — recomputed | scale 1.046 vs 0 vs **1.5** → identical to **0.000 px** |
+  | `camera`, `lens` | **no** — re-detected from EXIF | EXIF lens → a 50 mm prime at the same focal gets that prime's own, much weaker profile |
+  | `modify_flags=1` | **YES** | this is the only field that carries |
+
+  So **one style is camera-, lens- and focal-general** — no per-focal style is needed, and
+  the feared "a 24 mm frame silently gets a 70 mm correction" cannot happen.
+- **THE TRAP, and it is the same mechanism: darktable never fails.** Because nothing is
+  baked, a lens the DB cannot match gets **NO correction, silently** — an unrecognised
+  `LensModel` measured max |dr| = **0.000 px over 413 stars**, exit 0, **no warning in the
+  log**. A wrong-but-present lens is worse: a wrong, weaker model, equally silent. The
+  route therefore **cannot rely on the tool to degrade loudly** — the chain must assert
+  EXIF camera+lens+focal against the DB and against the set's `acquisition.json` BEFORE
+  the run, per set, and STOP on a miss. "Did the warp happen?" is not sufficient: it
+  passes the wrong-lens case. This is also why a mixed-focal or mixed-lens set is a hard
+  stop, not an interpolation — each frame silently gets its own EXIF's model. The DB gap
+  is real and ordinary: Debian's lensfun 0.3.4 lacks the Z6III; `lensfun-update-data`
+  supplies it.
 - **`--icc-type SRGB`, never `LIN_REC709`** — the round-trip linearity trap; mechanism
   and numbers in [`dead-ends.md`](dead-ends.md).
 - **darktable is deterministic; its container is not.** Same input + style twice differs
   by exactly **one byte** (a metadata timestamp), while the measured warp reproduces
   exactly. Never gate this route on a file hash — compare pixels or the warp.
-- **Degrade loudly:** a set whose camera+lens is absent from the lensfun DB, or whose
-  focal EXIF is missing or mixed across the set, must STOP — never fall back to an
-  unrelated profile. The DB gap is real: Debian's lensfun 0.3.4 lacks the Z6III;
-  `lensfun-update-data` supplies it.
 
 ## What graduates
 

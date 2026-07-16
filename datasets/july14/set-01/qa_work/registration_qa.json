@@ -355,5 +355,32 @@
   "result_radial": "WIN, on the tool's own measure: off-axis aberration 0.57 -> 0.31 (54 fr) and -> 0.25 at full 168-frame depth. Star count 5095 -> 10707 -> 11805. The radial degradation this deep dive set out to remove is removed.",
   "result_asymmetric": "NOT fixed, and now MEASURED rather than inferred: sensor tilt 0.50 (16%) -> 0.42 (13%) -> 0.51 (16%). A radial lens model cannot correct a one-sided term, and does not. Candidates unchanged: differential refraction (asymmetric with hour angle) vs lens decentering.",
   "result_fwhm": "NULL. Truncated mean FWHM 3.20 -> 3.28 -> 3.27 \u2014 flat to slightly worse. The correction buys star COUNT and radial UNIFORMITY, not sharpness; the in-exposure trailing floor (~3.4-3.6 px) is untouched, exactly as predicted."
+ },
+ "style_generality": {
+  "question": "Does the darktable style's baked op_params (focal/aperture/scale/camera/lens) override each image's EXIF? If so the route is locked to 70 mm and a mixed-focal set is silently wrong.",
+  "method": "One knob per arm on ONE real frame (DSC_6896.NEF), EXIF patched with exiftool; darktable does the warp, Siril findstar measures, radial displacement vs the unwarped arm over ~400 matched stars.",
+  "focal": {
+   "baked": 70.0,
+   "honoured": false,
+   "proof": "EXIF focal 70 vs 24 -> opposite-sign displacement fields (+25.8/+50.2/+67.6 px vs -6.1/-14.5/-19.2 px at r<500/500-1000/1000-1500): pincushion at the long end, barrel at the wide. Re-detected from EXIF."
+  },
+  "scale": {
+   "baked": 1.046028,
+   "honoured": false,
+   "proof": "scale 1.046 vs 0.0 vs 1.5 -> warps identical to 0.000 px (max and median) over 409 stars. Recomputed per image."
+  },
+  "camera_lens": {
+   "baked": "Nikon Z6_3 / Nikkor Z 24-70mm f/4 S",
+   "honoured": false,
+   "proof": "EXIF LensModel swapped to a 50 mm prime at the same focal -> that prime's own, much weaker profile (dr -1.65 -> +17.71 px vs the 24-70's +25.80 -> +42.19). Re-detected from EXIF."
+  },
+  "modify_flags": {
+   "baked": 1,
+   "honoured": true,
+   "note": "the ONLY field that carries: which corrections to apply (1 = distortion only)"
+  },
+  "verdict_generality": "ONE style is camera-, lens- AND focal-general. No per-focal style is needed.",
+  "verdict_risk": "SILENT NO-OP on an unmatched lens: an unrecognised LensModel produced max |dr| = 0.000 px over 413 stars, exit 0, and NO warning in the log. A wrong-but-present lens gets a wrong model just as silently. darktable cannot be relied on to degrade loudly.",
+  "required_guard": "Per set, BEFORE the run: assert EXIF camera+lens+focal against the lensfun DB and against acquisition.json; STOP on a miss or on mixed focal/lens within the set. A non-zero warp is only a secondary check \u2014 it passes the wrong-lens case."
  }
 }
