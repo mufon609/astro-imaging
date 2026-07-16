@@ -230,5 +230,67 @@
   },
   "method": "Siril findstar amplitude (A) of the same stars before/after a NO-OP round trip (lens module disabled), binned by brightness. A linear round trip gives a CONSTANT ratio; a gamma bends it. Never test linearity with a mean or a preview.",
   "rule": "MATCH the output profile to whatever tag the input carries; do not try to force a linear tag. The tag is wrong either way \u2014 it only has to be wrong consistently."
+ },
+ "production_experiment": {
+  "verdict": "WIN \u2014 CONFIRMED on the real production chain. Distortion-only, calibration intact, linearity verified.",
+  "chain": "Siril calibrate (CFA, master dark + validated sky flat) -> debayer -> savetif -> exiftool (Make/Model/LensModel/FocalLength; darktable needs them to match the profile) -> darktable-cli --style lensdist --style-overwrite --icc-type SRGB -> Siril register -2pass -> seqapplyreg -framing=min -> stack",
+  "one_knob": "the lens module's enabled bit (styles `lensdist` enabled=1 vs `nodist` enabled=0; identical op_params otherwise)",
+  "distortion_only": "modify_flags patched 7 -> 1 in darktable's own blob: DISTORTION only, no vignetting (which would fight the sky flat) and no TCA",
+  "linearity": "--icc-type SRGB matched to the sRGB-TRC tag savetif embeds; VERIFIED identity round trip (A_out/A_in 0.9996-1.0000, IQR 0.0003)",
+  "OFF": {
+   "frames": "54/54",
+   "stars": 13952,
+   "image_mpx": 13.82,
+   "stars_per_mpx": 1010,
+   "roundness": 0.551,
+   "major_fwhm_px": 4.42,
+   "radial_major_fwhm": [
+    3.99,
+    4.04,
+    4.26,
+    4.58,
+    4.86,
+    6.2
+   ],
+   "radial_roundness": [
+    0.558,
+    0.561,
+    0.551,
+    0.546,
+    0.548,
+    0.518
+   ]
+  },
+  "ON": {
+   "frames": "54/54",
+   "stars": 22601,
+   "image_mpx": 14.04,
+   "stars_per_mpx": 1610,
+   "roundness": 0.643,
+   "major_fwhm_px": 4.06,
+   "radial_major_fwhm": [
+    4.55,
+    4.02,
+    3.91,
+    3.92,
+    4.23,
+    5.14
+   ],
+   "radial_roundness": [
+    0.523,
+    0.644,
+    0.669,
+    0.649,
+    0.631,
+    0.621
+   ]
+  },
+  "result": "roundness 0.551 -> 0.643 (+17%); majFWHM 4.42 -> 4.06 px; star DENSITY 1010 -> 1610 /Mpx (+59%; ON's frame is only 1.6% larger, so the area trap is checked). The control's radial degradation (majFWHM 3.99 -> 6.20, +55% across the field) is largely removed: ON holds 3.91-4.23 px over the bulk of the field, 5.14 px in the outermost bin.",
+  "corrects_earlier_caution": "the vignetting confound flagged in lensfun_experiment did NOT drive the star-count gain: with vignetting REMOVED the gain is LARGER (+59% vs +45%). Sharper stars concentrate flux above the detection threshold. The confound was isolated, not assumed.",
+  "open": [
+   "ON's innermost bin (r<445, n=386 only) reads roundness 0.523 / majFWHM 4.55 \u2014 worse than its neighbours (0.644/4.02) and worse than OFF's centre. Small-n, but UNEXPLAINED; check before trusting the very centre.",
+   "The outermost bin is still elevated (5.14 vs 3.91 px mid-field) \u2014 the correction is large but not total. Residual candidates: the community profile's accuracy, and the unresolved one-sided component (refraction / decentering).",
+   "DUST GATE NOT RUN: priority #1. The warp resamples every pixel; whether it costs faint IFN is the user's eyes on FULL-FRAME LOSSLESS finals, with/without."
+  ]
  }
 }
