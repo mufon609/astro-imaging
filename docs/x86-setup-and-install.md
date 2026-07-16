@@ -41,7 +41,7 @@ system Python).
 | **rc-astro** (BXT/NXT/SXT) | D · vendor installer, **license-gated** | authenticated account-page installer → binary `rc-astro` on PATH | none public (compute own) | (installer-chosen; **path TBD**) | `rc-astro bxt` (prints help + license) |
 | **numpy/scipy/pillow/astropy** | C · venv | `requirements.txt` pinned (`astropy==8.0.1`, all manylinux wheels) | pip `--require-hashes` | `.venv` | `python -c "import astropy"` |
 | **Nightlight 0.2.6** | D · `go build` | `git clone --branch v0.2.6 mlnoga/nightlight` → `go build ./cmd/nightlight` (**Go ≥1.20** despite go.mod=1.17) | `go.sum` / GOSUMDB | `/opt/nightlight-0.2.6/` | `nightlight version` |
-| **darktable + lensfun** (the wide-field UNTRACKED distortion fix) | A · apt **+ a mandatory DB update + the repo's styles** | `apt install darktable liblensfun-bin python3-lensfun` → **`lensfun-update-data`** → `scripts/darktable/install_styles.sh <configdir>` | apt signature; DB over https from lensfun upstream; styles are tracked in-repo | system + `~/.local/share/lensfun/updates/version_1` + darktable's `data.db` | `darktable-cli --version` shows **`Lensfun -> 0.3.x`**; then PROVE a warp happens: `scripts/stack/lens_preflight.py <session> <set> --require-profile` |
+| **darktable + lensfun** (the wide-field UNTRACKED distortion fix) | A · apt **+ a mandatory DB update + the repo's styles** | `apt install darktable liblensfun-bin python3-lensfun` → **`lensfun-update-data`** → `scripts/darktable/install_styles.sh <configdir>` | apt signature; **DB over plain HTTP, unpinned — see the integrity note**; styles are tracked in-repo | system + `~/.local/share/lensfun/updates/version_1` + darktable's `data.db` | `darktable-cli --version` shows **`Lensfun -> 0.3.x`**; then PROVE a warp happens: `scripts/stack/lens_preflight.py <session> <set> --require-profile` |
 | pipx / xvfb | A · apt | `apt install pipx xvfb` (xvfb only for GUI pyscripts — avoid) | apt | system | `pipx --version` |
 
 ### darktable + lensfun — the setup that is NOT just an apt line
@@ -61,7 +61,19 @@ registration defect.
   matcher at all) — installs the upstream DB to
   `~/.local/share/lensfun/updates/version_1`, which HAS it. **That path is
   MACHINE-LOCAL and untracked: it does not migrate with the repo, so it is
-  re-created per rig** (the bootstrap does this in Layer A2). Run as the USER (root only if updating the system DB); lensfun searches the
+  re-created per rig** (the bootstrap does this in Layer A2).
+- **INTEGRITY EXCEPTION — declared, not hidden.** `lensfun-update-data` fetches over
+  **plain HTTP**, from `http://lensfun.sourceforge.net/db/versions.json` and
+  `http://wilson.bronger.org/lensfun-db/versions.json` (observed, both mirrors), with
+  **no signature and no checksum**. It is the one Layer-A input the bootstrap's
+  fail-closed sha256 model does NOT cover, and it supplies the distortion model that
+  shapes the deliverable's geometry. Two mitigations, neither complete: the update is
+  **deterministic** (verified — a from-scratch rebuild came back byte-identical to the
+  existing DB, so a sha256 of `version_1/` CAN be pinned per rig, at the cost of
+  re-pinning whenever upstream legitimately moves); and
+  `lens_preflight.py --require-profile` proves a correction actually fires, which
+  catches a BROKEN or missing DB but not a TAMPERED one. Pinning it is a real decision
+  with a maintenance cost, not a free win — take it deliberately. Run as the USER (root only if updating the system DB); lensfun searches the
   user path automatically — verify with
   `python3 -c "import lensfun; print(lensfun.get_database_directories())"`.
 - **RawTherapee is NOT a substitute:** Debian's build does not link lensfun at all,

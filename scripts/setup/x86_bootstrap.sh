@@ -140,7 +140,11 @@ manifest lensfun apt apt-signed apt /usr/share/lensfun "lensfun-update-data --he
 #     build a modifier at all — the body supplies the crop factor, the lens the
 #     distortion. lensfun-update-data writes the upstream DB to
 #     ~/.local/share/lensfun/updates/version_1 (a USER path — run it as the user
-#     who will process, not root).
+#     who will process, not root). INTEGRITY EXCEPTION: it fetches over plain
+#     HTTP, unsigned and unpinned — the one Layer-A input outside this script's
+#     fail-closed sha256 model, and it supplies the geometry model. The update
+#     IS deterministic (a from-scratch rebuild is byte-identical), so version_1/
+#     can be sha256-pinned per rig if that trade is worth its upkeep.
 #  2. The lens STYLES, from the repo. Their op_params blob is the pinned artifact;
 #     darktable has no CLI style import, so install_styles.sh writes them into
 #     darktable's data.db directly. Never re-create them by hand in the GUI.
