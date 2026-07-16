@@ -182,6 +182,26 @@ decides -> execute -> record the choice AND its trade-off. Route detail:
 [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md);
 setup traps: [`docs/x86-setup-and-install.md`](docs/x86-setup-and-install.md).
 
+## BUG — chunked Siril front ends must guard a remainder of 1 (MEASURED, cost a run)
+
+**Siril cannot build a sequence from a SINGLE frame.** `convert` writes the .fit but no
+.seq, so the next command dies with `No sequence 'x' found` → `invalid input sequence`.
+Any chunked front end whose frame count leaves a remainder of exactly 1 hits this on its
+last chunk.
+
+**It cost a real run:** the 169-frame render chunked at 12 → 14 full chunks + **1
+leftover**; chunk 15 failed to calibrate and `set -euo pipefail` (correctly) killed the
+script. All 168 warped frames survived and the stack was recovered directly from them,
+but the register/stack tail never ran unattended.
+
+This is a LANDMINE for the ~1865-frame 5-set render, where chunking is mandatory (the
+uncompressed TIFFs cannot coexist — 232 MB/frame peak). Fix when that front end is built:
+pad the final chunk, or merge a remainder of 1 into the previous chunk, or assert
+`n % CHUNK != 1` up front. Prefer failing at the ASSERT, before hours of warping.
+
+Note the failure mode is LOUD (script aborts) — the good case. The danger is the opposite
+temptation: dropping `set -e` to "get past it" would silently produce a short stack.
+
 ## NEXT THREAD — combine all 5 july14 sets into one deep render (~1865 frames)
 
 july14 is **5 sets of the same object**, same workflow, the camera **moved and
