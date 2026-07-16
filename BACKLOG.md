@@ -84,6 +84,44 @@ matching. Ordered:
 6. **Cross-check (x86/GUI, now optional):** APP / PixInsight fit distortion from
    star correspondences with no catalog. Only worth it if 1–3 disappoint.
 
+## NEXT THREAD — combine all 5 july14 sets into one deep render (~1865 frames)
+
+july14 is **5 sets of the same object**, same workflow, the camera **moved and
+re-centred on the target every ~45 min**. set-01 (373 frames, 43 min) is one such
+window; only set-01 + set-00 (4 frames) are local — the rest must be brought over.
+
+**The re-aims cost nothing — the validated route already covers them.** A manual
+re-centre is a rotation about the optical centre, and pure rotation with all scene
+points at infinity is EXACTLY a homography (Szeliski — the same result that pins the
+root cause). Stars are at infinity, so even a translated tripod head adds no parallax.
+Once undistorted, a re-aim is indistinguishable from drift: same `register -2pass`, no
+new mechanism. Lens distortion is fixed in SENSOR coordinates, so moving the camera
+does not invalidate the lensfun warp either. Expect ~5x integration = **~2.24x SNR**
+over set-01 alone.
+
+This also retires the fixed-tripod drift wall for THIS data: the field slides off the
+sensor after ~3.0 h at 70 mm (measured 34 px/min), so a single 2000-frame untracked
+window would have ZERO common area — but each 45-min set sits at 76% field retained.
+The re-centring solved it in acquisition.
+
+Ordered:
+1. **Verify every set is 70 mm** (both local sets are). The darktable style's
+   `op_params` bake in `focal=70.0`, and lensfun carries SEPARATE calibrated entries
+   at 24/28/35/50/70 — a zoom bump between sets silently applies the wrong distortion
+   model. This is the acquisition checklist's "lock the zoom ring" surfacing as a
+   processing consequence. Also confirm ISO/exposure match the darks.
+2. **Measure the re-aim scatter before committing to one combined stack.**
+   `-framing=min` keeps only what is common to ALL frames: within a set the drift is
+   ~1500 px, across sets it is drift + hand-re-centring error. If scatter is large the
+   common area drops below set-01's 76% — fallback is stack-per-set then combine the 5
+   stacks (worse: 5 discrete residuals rather than one fit).
+3. **Rebuild the sky flat from all ~1865 un-registered frames** — more frames = better
+   Milky-Way rejection, which directly addresses the "faint un-rejected star specks"
+   flagged in `skyflat_qa.json`. Same dust-contamination validation gate.
+4. **Storage: ~433 GB peak** (1865 x 232 MB uncompressed). Comfortable on the x86 1 TB;
+   impossible on the arm rig. No GPU needed — Siril has no GPU path, and the AI tier
+   runs once per stack, not per frame.
+
 ## SUPERSEDED — the earlier framing (kept for the mechanism)
 
 The deep dive is complete and the route was implemented + tested on the real frames —
