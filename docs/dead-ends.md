@@ -140,10 +140,15 @@ the constraints any such tool must satisfy):
   and no global fit absorbs the difference. So the fix is **undistort → homography**,
   NOT a local/elastic transform. Do not chase "better global transforms"
   (`-transf=` tops out at homography, which is already exactly right).
-  MEASURED on the 43-min/1500-px-drift Cygnus set: a 9-min (310 px) window is
-  better at EVERY radius and its inner field sits exactly at the single-frame
-  floor — remove the drift and the homography becomes exact
+  MEASURED on the 43-min/1500-px-drift Cygnus set, two independent ways: a 9-min
+  (310 px) window is better whole-frame (majFWHM 3.87 vs 4.74 px) and undistorting
+  the frames collapses Siril `seqtilt`'s off-axis aberration 0.57 → 0.25 px at FULL
+  depth — remove the drift *or* remove the distortion and the homography becomes
+  exact, which is the same statement twice
   ([`wide-field-untracked-registration.md`](wide-field-untracked-registration.md)).
+  (The short-window arm's per-radius numbers came from a retired in-house radial
+  metric — trap 3 below — and its stacks are gone, so they are not quoted; the
+  whole-frame and `seqtilt` evidence above is what the conclusion rests on.)
 - **astrometry.net's SIP is NOT a reproducible lens model at wide index scales —
   so `register -disto=` has no model to eat.** The camera was on a fixed tripod
   (lens distortion physically identical every frame), yet two independent solves
@@ -160,11 +165,19 @@ the constraints any such tool must satisfy):
   solution). The `-disto=` MECHANISM is sound — **the model source was the gap, and it
   is now closed**: use an OFFICIAL *measured* lens profile (darktable + lensfun,
   `TOOLS.md` Tier 2b) instead of fitting one from the data. A measured profile cannot
-  suffer index sparsity, and it is a measured WIN on this set (roundness 0.550→0.656,
-  flat across the field, 54/54 registered). **The lesson: for a wide UNTRACKED field,
-  fit-the-distortion-from-sparse-trailed-stars is the dead end; measured-profile is the
-  route.** (Fitting from star correspondences BETWEEN frames — PixInsight/APP — is a
-  different, viable mechanism; it is the per-frame *catalog* solve that fails.)
+  suffer index sparsity, and it is a measured WIN on this set — Siril `seqtilt`,
+  control → corrected → shipped 168-frame render: **off-axis aberration (the radial
+  term) 0.57 → 0.31 → 0.25 px**, stars 5095 → 10707 → 11805, 54/54 registered.
+  **The lesson: for a wide UNTRACKED field, fit-the-distortion-from-sparse-trailed-stars
+  is the dead end; measured-profile is the route.** (Fitting from star correspondences
+  BETWEEN frames — PixInsight/APP — is a different, viable mechanism; it is the
+  per-frame *catalog* solve that fails.)
+  **What the model does NOT buy, measured on the same runs:** sharpness is NULL
+  (truncated mean FWHM 3.20 → 3.28 → 3.27 px — the in-exposure floor below is
+  untouched, exactly as predicted), and the **one-sided component is NOT corrected**
+  (sensor tilt 0.50/16% → 0.42/13% → 0.51/16%). A radial model cannot fix a
+  one-sided term and does not. The correction buys star COUNT and radial UNIFORMITY.
+  Do not claim an FWHM win for it.
 - **In-exposure trailing is the unremovable FLOOR** — no registration method touches
   it. On a fixed tripod at 6 s / dec +47 / 18″px it is ~3.4 px predicted and ~3.6 px
   measured (per-frame roundness 0.615, uniform across the set). Stars are elongated
@@ -186,7 +199,7 @@ the constraints any such tool must satisfy):
   "wrong" either way; what matters is that it is wrong *consistently*. Always verify
   linearity with star AMPLITUDES vs brightness (a constant ratio), never with a mean or
   a preview: a gamma preserves the median's rank order and hides in a stretch.
-- **Two traps that make a registration comparison lie — both hit in one experiment.**
+- **Three traps that make a registration comparison lie — all three hit on one set.**
   (1) **Survivorship bias:** a bad registration spreads flux below the detection
   threshold, so the SURVIVING stars' median roundness/FWHM can *improve* while the
   image gets worse — the `-disto=` LOSS above reported a BETTER edge median (4.61 vs
@@ -198,6 +211,24 @@ the constraints any such tool must satisfy):
   not at all. Also open the detection gate (`setfindstar -roundness=0.05 -relax=on`)
   when measuring elongation, or the metric silently rejects exactly the stars under
   test.
+  (3) **A CIRCULAR METRIC — an origin inferred from the data it measures.** A radial
+  star-shape profile binned Siril's `findstar` list about the STAR BOUNDING-BOX centre.
+  That origin is a function of the defect: the smear suppresses edge detections, the
+  box shrinks toward the good region, the origin moves. **Measured: it moved 537 px**
+  (x 2068→1540) on ONE control stack purely by tightening `findstar` sigma 0.5→3.0 —
+  and at sigma=3.0 the profile reported roundness *improving* outward (0.543→0.635),
+  i.e. NO defect, on a stack whose right third yields no detections at all. **A worse
+  defect made the metric look better.** It also invented a phantom: the corrected
+  stack's innermost bin read "worst of frame", which was chased as "the route degrades
+  the centre" — it reverses at a sane threshold (corrected centre 0.595/3.89 vs control
+  0.543/4.01 at sigma=3.0). The generalisation: **never key a metric to a geometry
+  derived from the measurement itself** — measure about a FIXED, externally-known
+  origin, or use the tool's own measure. Here Siril already had one headless:
+  **`seqtilt`** (off-axis aberration = centre vs corners; sensor tilt = best vs worst
+  corner) — no origin to get wrong. `tilt`/`inspector` are "Can be used in a script:
+  NO", which is why it was missed. Star COUNT per radial bin is not a quality measure
+  either: it is sky density × detection efficiency, and the control's efficiency peaks
+  exactly where the sky is poorest.
 - Cloud culling is by per-pixel MAJORITY risk, not visibility: a moving minority
   band stacks clean through `rej 3 3`; a DWELLING band becomes the per-pixel
   majority and survives. `nstars` is a blind cloud discriminant on rich fields

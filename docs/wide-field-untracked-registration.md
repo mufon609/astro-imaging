@@ -91,33 +91,51 @@ Every number below comes from a tool: astrometry.net (solve), Siril `findstar`
   Per-frame roundness is *uniform across the set*; the radius-dependent smear
   appears only after register+stack.
 
-## The defect, quantified (Siril `findstar`, binned by field radius)
+## The defect, quantified (Siril `seqtilt`)
 
-`scripts/qa/star_shape_profile.py` bins Siril's PSF fits by distance from the
-field centre — the measurement that separates "the registration model is wrong"
-(shape degrades with radius) from "the frames are soft" (shape flat vs radius).
-Roundness here is orientation-blind minor/major; 1.0 = round.
+The measurement that separates "the registration model is wrong" (shape degrades
+with radius) from "the frames are soft" (shape flat vs radius) is **Siril's own**,
+headless: `seqtilt` fits the PSF across the frame and reports
 
-Existing baseline (124 frames, CFA-registered, full 43-min window), 23,830 stars,
-whole-frame roundness 0.542 / major-axis FWHM 5.25 px:
+- **Off-axis aberration[FWHM]** — centre vs corners = the **radial** term, i.e.
+  exactly the defect this deep dive is about;
+- **Sensor tilt[FWHM]** — best vs worst corner = the **asymmetric** term;
+- **Truncated mean[FWHM]** — whole-frame FWHM, outlier-truncated;
+- **Stars** — how many it fitted.
 
-| r (px) | roundness | major FWHM |
-|---|---|---|
-| 0–444 | 0.531 | 4.78 |
-| 889–1333 | 0.553 | 4.88 |
-| 1778–2222 | 0.520 | 6.05 |
-| 2222–2666 | **0.478** | **7.61** |
+Both terms are FWHM differences in px (bigger = worse). Driven + recorded by
+`scripts/qa/star_shape.py`; record: `qa_work/registration_qa.json`
+→ `spatial_star_shape`. `tilt` and `inspector` are GUI-only (*"Can be used in a
+script: NO"*); `seqtilt` is the only headless door.
 
-Monotonic growth with radius — the radial signature. The worst region (right
-edge) reaches majFWHM 9.66 px and roundness 0.35 in the top-right corner.
+| 54-frame production A/B | stars | truncated mean FWHM | **off-axis aberration** | sensor tilt |
+|---|---|---|---|---|
+| **OFF** — no distortion model | 5,095 | 3.20 px | **0.57 px** | 0.50 (16%) |
+| **ON** — lensfun | 10,707 | 3.28 px | **0.31 px** | 0.42 (13%) |
+| **shipped** — lensfun, 168 fr | 11,805 | 3.27 px | **0.25 px** | 0.51 (16%) |
 
-- **MEASURED — the asymmetry is NOT explained by an off-centre crop.** A scan for
-  the centre that best makes majFWHM a function of radius lands at (2000,1750) —
-  only 87 px from the crop centre — and improves the rank correlation only
-  0.320 → 0.331. So the pattern is predominantly radial **plus a genuine
-  one-sided component** (at comparable radius, right majFWHM 9.66 vs left 5.66).
-  Differential refraction (asymmetric with hour angle) and lens decentering are
-  the candidates; **UNRESOLVED** here.
+- **The radial term is the defect, and it is removed** — off-axis aberration
+  0.57 → 0.31, and **0.25 at full 168-frame depth** (the deepest render is the
+  most uniform, not the least).
+- **The one-sided component is MEASURED, not unresolved** — sensor tilt
+  0.50 (16%) → 0.42 (13%) → 0.51 (16%). A radial lens model cannot correct a
+  one-sided term, and does not: it survives the correction essentially untouched.
+  Candidates remain differential refraction (asymmetric with hour angle) and lens
+  decentering; distinguishing them is open, but the term itself is now a number
+  the tool prints rather than an inference.
+- **Sharpness is NULL** — truncated mean FWHM 3.20 → 3.28 → 3.27. The correction
+  buys star COUNT and radial UNIFORMITY, never sharpness; the in-exposure trailing
+  floor is untouched, exactly as predicted.
+
+> **Do not re-derive this by binning a `findstar` list by radius.** That was tried
+> and it is circular — the binning origin gets inferred from the detections, the
+> defect suppresses edge detections, so the origin moves *with* the defect and the
+> profile flattens as the defect worsens. Measured: the origin shifted 537 px on one
+> stack purely by tightening the detection sigma, and the profile then showed no
+> defect on a frame whose right third has no detectable stars. It also invented a
+> phantom "the correction degrades the centre" anomaly that reverses at a sane
+> threshold. `seqtilt` has no origin to get wrong. Mechanism: `dead-ends.md`,
+> "Three traps that make a registration comparison lie" (trap 3).
 
 ## The experiment — one knob, on the real frames
 
@@ -342,47 +360,40 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
   auto-matched: camera `Nikon Z6_3`, lens `Nikkor Z 24-70mm f/4 S`, focal 70.0,
   aperture 4.0, crop 1.0, autoscale 1.046.
 - **The experiment — one knob.** 54 lights, FULL 43-min window; the only difference is
-  the darktable lens module's *enabled bit* (matched `lensfix`/`nolens` styles, both
-  `--style-overwrite`, identical module sets).
-
-| | frames | stars/Mpx | roundness | majFWHM | roundness vs radius |
-|---|---|---|---|---|---|
-| **OFF** (control) | 52/54 | 981 | 0.550 | 4.63 px | 0.507→0.570→**0.556** (sags; majFWHM spikes 5.19) |
-| **ON** (lensfun) | **54/54** | **1418 (+45%)** | **0.656** | **4.25 px** | **0.674 / 0.683 / 0.655 / 0.631 / 0.659 — FLAT** |
-
-- **WIN.** The edge degradation is gone: roundness holds ~0.63–0.68 from r=448 to
-  r=2685. Crops: `qa_work/reg/star_shapes_lensfun.png` — the control's edge is washed
-  into diagonal streaks; the corrected edge is a dense field of point stars.
-- **MECHANISM CONFIRMED, not just the outcome:** the **CENTRE** bin also improved
-  (0.507 → 0.594) where distortion is ≈0. That is exactly the prediction — undistort
+  the darktable lens module's *enabled bit* (matched styles, both `--style-overwrite`,
+  identical module sets). The numbers that settle it are the **production** A/B in
+  "The defect, quantified" above: it runs on properly calibrated frames
+  (`modify_flags=1`, distortion only) and is measured with Siril's own `seqtilt`.
+- **WIN, on the tool's own measure:** off-axis aberration **0.57 → 0.31 px**, star
+  count **5,095 → 10,707**, and **54/54** frames register vs 52/54. Crops:
+  `qa_work/reg/star_shapes_lensfun.png` — the control's edge is washed into diagonal
+  streaks; the corrected edge is a dense field of point stars.
+- **MECHANISM CONFIRMED, not just the outcome:** the correction improves the field
+  **centre** too, where distortion is ≈0. That is exactly the prediction — undistort
   the frames and ONE global homography fits *every* star, instead of being a
   compromise that degrades everywhere. It also explains why two frames that could not
-  match now register (52/54 → 54/54).
-- **Traps checked:** this is stars **per Mpx** (ON's frame is 3% *smaller*, so +45% is
-  not the area artifact), and roundness is a shape measure, so it cannot be inflated
-  by extra detections.
-- **CONFOUND DECLARED:** the preset carries `modify_flags=7` = distortion|TCA|vignetting,
-  so vignetting + TCA correction were applied too. Vignetting cannot change star SHAPE
-  but it brightens corners and so inflates part of the star-COUNT gain; the
-  roundness/FWHM gains and the centre-bin gain (vignetting ≈1.0 there) are
-  uncontaminated. A distortion-only re-run (`modify_flags=1`) is BACKLOG.
-- **NOT a shippable render.** darktable works from raw, so this arm carries **no
-  darks/flats** — dark/flat calibration must happen in sensor space BEFORE any
-  geometric warp. It is a GEOMETRY test, which is valid precisely because the defect
-  is flat-independent. Absolute numbers are **not** comparable with the A/B/C
-  experiments (different pipeline); only OFF-vs-ON is.
+  match now register.
+- **What it does NOT buy:** sharpness (truncated mean FWHM 3.20 → 3.28 — NULL) and the
+  one-sided term (sensor tilt 0.50 → 0.42, and 0.51 at full depth — uncorrected). Claim
+  neither.
+- **Confound retired:** the first arm ran `modify_flags=7` (distortion|TCA|vignetting).
+  The production A/B re-ran distortion-only (`modify_flags=1`) — vignetting correction
+  would fight the sky flat — and the gain got LARGER, so the confound did not drive it.
+- **The raw arm was a GEOMETRY test, not a render:** darktable working from raw carries
+  no darks/flats, so that arm's absolute numbers are not comparable with anything else
+  (darktable also applies the EXIF orientation to raw but not to Siril's TIFF, so its
+  stacks are portrait where the production stacks are landscape). Superseded by the
+  production A/B, which calibrates in sensor space first.
 
 ## The july14 decision (the loop's RECOMMEND → REPORT → the user decides)
 
-- **Recommended:** the **lensfun distortion model**, productionised — it removes the
-  edge degradation **at full 43-min depth**, which neither route A nor C could do.
-  The remaining work is ORDERING, not discovery: Siril calibrate (CFA, dark + the
-  validated sky flat) → debayer → apply the warp → register → stack. The open
-  engineering question is applying the lensfun warp to a *calibrated linear image*
-  rather than to raw.
+- **Chosen, executed and SHIPPED:** the **lensfun distortion model**, productionised —
+  it removes the radial degradation at full depth, which neither route A nor C could
+  do. The ordering question is solved; the chain that ran is in "The production chain"
+  below. The user's eyes passed the dust gate on the full-frame lossless final.
 - **Superseded:** route A (full depth, measured edge defect) and route C (short
   window, floor-limited, 1/4 depth, +56% field). The depth-vs-edge trade-off is no
-  longer forced. Keep C as the fallback if productionisation fails.
+  longer forced. Keep C as the fallback if the route ever fails on a set.
 - **Not proposed:** cropping to the good field — that hides a defect that is in the data.
 - **The honest floor, restated:** ~3.4–3.6 px of in-exposure trailing is in every frame
   and **no method removes it**. Success is the edge matching the centre — which the
@@ -392,9 +403,52 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
   headless tool applies) and on a lensfun DB update the distro does not provide.
   Both are cheap and reproducible; neither is under our control.
 
+## The production chain (what actually ran, and the traps in it)
+
+Every pixel operation is a tool's. The order is forced by one constraint: **darks and
+flats are sensor-grid properties, so calibration must finish in SENSOR space before any
+geometric warp**, and a CFA mosaic cannot be interpolated — hence debayer sits between.
+
+```
+Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
+  → Siril savetif                       (16-bit TIFF, linear)
+  → exiftool -TagsFromFile              (Make/Model/LensModel/FocalLength — savetif
+                                         carries none, and darktable needs them to
+                                         match the lensfun profile)
+  → darktable-cli --style lensdist --style-overwrite --icc-type SRGB
+  → Siril register -2pass → seqapplyreg -framing=min → stack rej 3 3 -norm=addscale
+```
+
+- **The style is a pinned artifact, not a GUI step.** `scripts/darktable/lensdist.dtstyle`
+  (+ `nodist.dtstyle`, the disabled-bit control) with `scripts/darktable/install_styles.sh`
+  to install them headlessly into a darktable config. Verified: installed into a fresh
+  config, the warp reproduces to **0.000 px at every radius**. It carries
+  `modify_flags=1` (distortion only — vignetting correction would fight the sky flat;
+  TCA is unwanted).
+- **ONE style serves every focal — MEASURED, not assumed.** The blob bakes
+  `focal=70.0 aperture=4.0`, but darktable **re-detects focal from each image's EXIF and
+  overrides it**: the same RAW with EXIF focal 70 vs 24 produces opposite-sign
+  displacement fields (70 mm pushes outward +26→+69 px; 24 mm pulls inward −6→−19 px
+  before crossing over) — barrel at the wide end, pincushion at the long end, over ~400
+  matched stars. So the baked focal is inert and the route generalises across this lens's
+  range. The feared "a 24 mm frame silently gets a 70 mm correction" does **not** happen.
+- **`--icc-type SRGB`, never `LIN_REC709`** — the round-trip linearity trap; mechanism
+  and numbers in [`dead-ends.md`](dead-ends.md).
+- **darktable is deterministic; its container is not.** Same input + style twice differs
+  by exactly **one byte** (a metadata timestamp), while the measured warp reproduces
+  exactly. Never gate this route on a file hash — compare pixels or the warp.
+- **Degrade loudly:** a set whose camera+lens is absent from the lensfun DB, or whose
+  focal EXIF is missing or mixed across the set, must STOP — never fall back to an
+  unrelated profile. The DB gap is real: Debian's lensfun 0.3.4 lacks the Z6III;
+  `lensfun-update-data` supplies it.
+
 ## What graduates
 
-- **[`../TOOLS.md`](../TOOLS.md):** Tier 2 — Siril 1.4.4 `register -disto=`
+- **[`../TOOLS.md`](../TOOLS.md):** Tier 2b — **darktable-cli + lensfun** as the working
+  distortion route for this class, its pinned style + the focal re-detection that makes
+  it focal-general, `--icc-type SRGB` (match the tag), and `modify_flags=1`. Tier 2 —
+  Siril `seqtilt` as the headless spatial star-shape measure (off-axis aberration /
+  sensor tilt), and `tilt`/`inspector` as GUI-only. Siril 1.4.4 `register -disto=`
   (`image|file <path>|master`) as the ONLY native distortion route, its proven
   syntax, and that `seqapplyreg` carries it; `-transf=` is global-only (no
   local/TPS); Siril's matcher fails ~36° fields with magnitude/roundness
@@ -442,15 +496,29 @@ Practitioner / forum / reference:
 
 ## Status
 
-**EMPIRICALLY TESTED on the real july14 set-01 frames.** Two routes to a
-distortion model were implemented and measured against the SAME one-knob harness:
-Siril `register -disto=` fed an astrometry.net SIP — **killed (a LOSS), with its
-numbers**; and an OFFICIAL MEASURED profile (darktable + lensfun) — **WIN**:
-roundness-vs-radius flattens (0.550 → 0.656 whole-frame, flat 0.63–0.68 across the
-field) at FULL depth, and 54/54 frames register. Root cause established from theory
-(Szeliski), from the tools' own measurements, and from experiment C, then CONFIRMED
-by the fix behaving exactly as predicted (the centre improves too).
-**Remaining work is ordering, not discovery:** calibrate in sensor space → warp →
-register, so darks/flats and the validated sky flat survive. The dust-preservation
-gate (the user's eyes on full-frame lossless finals) has NOT yet run on a
-productionised render.
+**SOLVED AND SHIPPED on the real july14 set-01 frames.** Two routes to a distortion
+model were implemented and measured against the SAME one-knob harness: Siril
+`register -disto=` fed an astrometry.net SIP — **killed (a LOSS), with its numbers**;
+and an OFFICIAL MEASURED profile (darktable + lensfun) — **WIN**. Root cause
+established from theory (Szeliski) and from the tools' own measurements, then
+CONFIRMED by the fix behaving exactly as predicted (the centre improves too, where
+distortion is ≈0).
+
+On Siril `seqtilt`, control → corrected → shipped 168-frame render: **off-axis
+aberration 0.57 → 0.31 → 0.25 px**, stars 5,095 → 10,707 → 11,805, 54/54 registered.
+Sharpness is **NULL** (truncated mean FWHM 3.20 → 3.28 → 3.27) and the **one-sided
+term is uncorrected** (sensor tilt 0.50 → 0.42 → 0.51) — a radial model cannot fix it.
+The chain is productionised ("The production chain"), the style is pinned and its
+warp verified reproducible to 0.000 px, the route is measured focal-general, and the
+dust-preservation gate PASSED on the user's eyes on a full-frame lossless final.
+
+**Open, and specific:**
+- **Which mechanism drives the one-sided term** — differential refraction (asymmetric
+  with hour angle) vs lens decentering. Now measurable per set as `seqtilt`'s sensor
+  tilt; the discriminator is hour-angle dependence across sets.
+- **The autoscale is baked** (`scale=1.046028`, computed at 70 mm) while focal is
+  re-detected. Whether darktable recomputes autoscale per focal is **untested** — it
+  affects framing, not the distortion model, but a wrong autoscale at another focal
+  would under- or over-crop. Test before the route meets a non-70 mm set.
+- **The shipped render's frame selection was disk-bound, not chosen** (168 of 373 by
+  stride). An explicit culling decision is owed.

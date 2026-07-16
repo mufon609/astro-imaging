@@ -34,11 +34,15 @@ Constraint shorthand used below — **Cost** (FREE / PAID / FREEMIUM) ·
 ⚠ workaround / ❌) · **CPU** (✅ CPU-fine / 🐢 CPU-slow / needs-AVX2) ·
 **Headless** (✅ via -s or CLI / 🖥 needs Xvfb).
 
-**Orthogonal to all tiers: our own measurement/QA harness** (`bg_qa` gate,
-`object_integrity`, `star_shell_report`, `inspect_stage`, `judgment_package`)
-wraps whichever tools are chosen — it MEASURES and JUDGES, it does not
-process. That is the durable core the reset kept; the tiers below are the
-processing it audits.
+**Orthogonal to all tiers: the TOOLS measure, and the repo records.** Quality numbers
+come from the tools' own analysis, driven headless and captured to the dataset's record
+— Siril `register` regdata / `stat` / `seqstat` / `findstar` / **`seqtilt`**, the solver
+and SPCC logs. The in-house layer around them only orchestrates (`inspect_stage`,
+`star_shape.py`, `spcc_run`), records, and — in the one sanctioned case where no tool
+provides the mechanism — detects (`anomaly_audit`, report-only, removal-conditioned).
+It never re-derives a measurement a tool already gives; when it did, the metric was
+circular and lied (`docs/dead-ends.md`, trap 3). Which tool measures what is mapped
+per tier below.
 
 ---
 
@@ -156,19 +160,21 @@ already right and the fix is **undistort → homography**, not a local/elastic w
 | **PixInsight StarAlignment** (thin-plate-spline distortion correction) + DynamicAlignment | PAID | GUI-app | ✅ / ✅ / ❌ | The reference true-local distortion model. **x86/GUI — audit-only.** |
 | **Astro Pixel Processor** (distortion-model registration) | PAID | GUI-app | ✅ / ✅ / ❌ | A practitioner A/B on the same data class (250×5 s, R5 + Sigma 40 mm f/1.6) reports Siril's global alignment smears corner stars where APP's distortion model does not. **x86/GUI — audit-only.** |
 | **Sequator** (Lens / Complex distortion models) | FREE | GUI-app | ❌ (Win) | Its manual names our exact symptom (distortion → "false trails" worst at corners) and its models are gated on FIELD WIDTH, not tracking. First-party envelope: acceptable only to **~5 min of drift at 20 mm-equiv**. No Linux/headless — the METHOD transfers, not the tool. (It does NOT segment the sky and locally align — that common claim is refuted by its manual.) |
+| **darktable + lensfun** (`darktable-cli --style <s> --style-overwrite`) | FREE | CLI | ✅ / ✅ / ✅ | **THE ADOPTED FIX for this class — measured WIN, in production, shipped.** An OFFICIAL *measured* lens profile, immune to the index-sparsity that kills a per-frame SIP fit. darktable must be built against Lensfun (Debian's is; Debian's **RawTherapee is NOT** — it doesn't link lensfun, so its auto-match is unavailable). On july14, Siril `seqtilt` control → corrected → shipped 168 fr: **off-axis aberration 0.57→0.31→0.25 px**, stars 5,095→10,707→11,805, 54/54 register. Sharpness is NULL (truncated mean FWHM 3.20→3.28) and the one-sided term is uncorrected (sensor tilt 0.50→0.42→0.51) — claim neither. **The style is pinned in-repo** (`scripts/darktable/*.dtstyle` + `install_styles.sh`, verified to reproduce the warp to 0.000 px) — no GUI step. **`--style-overwrite` is REQUIRED**, else the style is silently ignored. `modify_flags=1` (distortion only): the GUI default 7 adds **vignetting**, which FIGHTS a master/sky flat. **`--icc-type SRGB`, never `LIN_REC709`** (match Siril's tag — `docs/dead-ends.md`). **Focal-general: darktable RE-DETECTS focal from EXIF and overrides the style's baked value (MEASURED — 70 mm vs 24 mm give opposite-sign warps), so ONE style serves the lens's range**; but a body+lens absent from the DB, or mixed focal in a set, must STOP. Debian's lensfun 0.3.4 lacks the Z6III → **`lensfun-update-data`** (needs `python3-lensfun`). Deterministic in pixels; its TIFF differs by one metadata byte per run, so never gate on a file hash. Ordering is load-bearing: calibrate in SENSOR space → debayer → warp → register. |
 
-| **darktable + lensfun** (`darktable-cli --style <s> --style-overwrite`) | FREE | CLI | ✅ / ✅ / ✅ | **THE WORKING FIX for this class (MEASURED WIN).** An OFFICIAL *measured* lens profile — immune to the index-sparsity that kills a per-frame SIP fit. darktable must be built against Lensfun (Debian's is; Debian's **RawTherapee is NOT** — it doesn't link lensfun, so its auto-match is unavailable). On july14: roundness 0.550→**0.656**, majFWHM 4.63→**4.25 px**, roundness FLAT across the field, 54/54 frames register. **Two setup gotchas:** (1) Debian's lensfun 0.3.4 DB lacks the Z6III → run **`lensfun-update-data`** (needs `python3-lensfun`) to install the upstream DB to `~/.local/share/lensfun/updates/version_1`, which has `Nikon Z6_3`; without a camera match no correction is possible (the body supplies the CROP FACTOR, the lens the distortion). (2) The lens module is **NOT auto-applied** and its `params` are packed binary — enable it once in the GUI, save a **preset**, then build a style from that preset's `op_params` (the presets table carries the real blob). **`--style-overwrite` is REQUIRED** — without it the style is silently ignored. Watch `modify_flags`: the GUI default 7 = distortion|TCA|**vignetting**, and vignetting correction FIGHTS a master/sky flat — use distortion-only in production. Ordering is load-bearing: calibrate in SENSOR space → debayer → warp → register. |
-
-**The blocker that made the Siril-native route fail (measured, not theoretical):**
-`register -disto=` needs a trustworthy distortion model and this rig cannot *fit* one. Siril's own matcher fails
-~36° fields (roundness + catalogue depth both eliminated — `docs/dead-ends.md`), and
-astrometry.net's SIP is **not reproducible** at wide index scales (two solves of the
-same fixed lens disagree 65 px median; more field stars fix only the linear solve).
-Feeding it in is a measured LOSS. **This blocks WCS-reprojection equally** (SWarp /
-astropy `reproject` need the same per-frame solution). The model IS present in the
-NEF — exiftool decodes `RadialDistortionCoefficient1/2/3` and
-`DistortionCorrection: On (Required)` — but **no headless Linux tool applies it**
-(BACKLOG).
+**Why the Siril-native `-disto=` route is not the one in production (measured, not
+theoretical):** `register -disto=` needs a trustworthy distortion model and this rig
+cannot *fit* one. Siril's own matcher fails ~36° fields (roundness + catalogue depth
+both eliminated — `docs/dead-ends.md`), and astrometry.net's SIP is **not reproducible**
+at wide index scales (two solves of the same fixed lens disagree 65 px median; more
+field stars fix only the linear solve). Feeding it in is a measured LOSS. **This blocks
+WCS-reprojection equally** (SWarp / astropy `reproject` need the same per-frame
+solution). The mechanism is sound and the model gap is **CLOSED** — by a measured
+profile applied upstream (the darktable+lensfun row), which needs no `-disto=` at all.
+Nikon's own coefficients also ship in every NEF (exiftool decodes
+`RadialDistortionCoefficient1/2/3` + `DistortionCorrection: On (Required)`), but they
+sit in a Nikon-private block **no headless Linux tool applies** — a better model if
+darktable's "embedded metadata" lens method ever reaches it, not a blocker today.
 
 **WCS-reprojection dust-safety notes (if the model gap ever closes):** SWarp's
 **`SUBTRACT_BACK=Y` is the DEFAULT and must be turned OFF** — it subtracts a sky
@@ -181,6 +187,22 @@ accurate under strong distortion / large sky areas; `reproject_exact` is an exac
 drizzle valid at any FOV but slow. `reproject_and_coadd`'s `match_background` models
 only a constant additive offset and forfeits the absolute zero point. astropy is
 x86-gated.
+
+**How this class is MEASURED — Siril `seqtilt`, and only `seqtilt`.** It is the tool's
+own spatial star-shape analysis and the only headless door to one:
+
+| command | headless? | reports |
+|---|---|---|
+| **`seqtilt <seq>`** | ✅ *"Can be used in a script: YES"* | `Stars`, `Truncated mean[FWHM]`, **`Sensor tilt[FWHM]`** (best vs worst corner = the ASYMMETRIC term), **`Off-axis aberration[FWHM]`** (centre vs corners = the RADIAL term — *this* class's defect) |
+| `tilt` | ❌ *"Can be used in a script: NO"* | same, single image |
+| `inspector` | ❌ *"Can be used in a script: NO"* | a nine-panel corner/centre mosaic — visual only, no numbers |
+
+Driven + recorded by `scripts/qa/star_shape.py`. `seqtilt` needs a SEQUENCE and Siril
+cannot build one from a single frame, so a lone stack is presented as a two-frame
+sequence of itself. Both terms are FWHM DIFFERENCES in px (bigger = worse) — not a
+roundness ratio, and not `findstar`'s per-star "roundness" (FWHMy/FWHMx); do not mix
+the three. **Never re-derive this by binning a `findstar` list by radius** — that is
+circular and it fails silently (`docs/dead-ends.md`, trap 3).
 
 ## Tier 3 — Photometric colour calibration
 
