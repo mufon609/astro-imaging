@@ -34,6 +34,13 @@
 **/audit_work/*
 !**/audit_work/anomaly_audit.json
 
+# --- QA / calibration scratch ---
+# qa_work/ (under datasets/<session>/<set>/) holds transient Siril working files
+# (CFA FITS / .seq / .ssf / previews / logs). Only its .json records are versioned
+# (frame_metrics.json, skyflat_qa.json, …); the rest is regenerated.
+**/qa_work/*
+!**/qa_work/*.json
+
 # --- session data dirs ---
 # Each acquisition session is a dir at the repo root, keyed <session>/, holding
 # raw lights + calibration + intermediates. It is NEVER committed. The image

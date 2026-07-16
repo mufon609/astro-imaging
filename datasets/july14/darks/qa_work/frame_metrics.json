@@ -1,0 +1,92 @@
+{
+ "measured": "2026-07-15",
+ "tool": "Siril 1.4.4 seqstat (per-frame) + rej-average master, on CFA (undebayered) FITS",
+ "frames": {
+  "count": 214,
+  "range": "DSC_6681..DSC_6894",
+  "exposure_uniform": "6s / ISO 1600"
+ },
+ "acquisition": {
+  "exposure_s": 6,
+  "iso": 1600,
+  "count": 214,
+  "shot": "2026-07-14 22:19:20..22:44:11",
+  "cadence_s": 7,
+  "vs_lights": "darks PRECEDE set-01 lights (22:48:48..23:32:12) by ~4.5 min; darks span the camera warm-up phase"
+ },
+ "caveats": [
+  "CFA-sampled (undebayered); 16-bit ADU scale; relative trends valid",
+  "arm base rig; a property of the data, transfers to x86"
+ ],
+ "dark_level_pedestal_ADU": {
+  "first100": 1007.16,
+  "last100": 1007.1,
+  "drift": -0.06,
+  "verdict": "FLAT \u2014 every dark subtracts the same level"
+ },
+ "noise_sigma_ADU": {
+  "first100": 6.463,
+  "last100": 6.881,
+  "drift_pct": 6.5,
+  "pattern": "monotonic rise, not plateaued = sensor self-heating over the 25-min run"
+ },
+ "hot_pixels_max_ADU": {
+  "first100": 4406,
+  "last100": 4801
+ },
+ "trend_by_fifths": [
+  {
+   "block": 1,
+   "frames": 42,
+   "mean": 1007.19,
+   "sigma": 6.378,
+   "max": 4420
+  },
+  {
+   "block": 2,
+   "frames": 43,
+   "mean": 1007.13,
+   "sigma": 6.494,
+   "max": 4366
+  },
+  {
+   "block": 3,
+   "frames": 43,
+   "mean": 1007.11,
+   "sigma": 6.68,
+   "max": 4575
+  },
+  {
+   "block": 4,
+   "frames": 43,
+   "mean": 1007.13,
+   "sigma": 6.829,
+   "max": 4810
+  },
+  {
+   "block": 5,
+   "frames": 43,
+   "mean": 1007.09,
+   "sigma": 6.976,
+   "max": 4835
+  }
+ ],
+ "light_leak_check": {
+  "mean_minus_median_ADU": 0.13,
+  "master_regional_mean_ADU": {
+   "TL": 1007.0,
+   "TR": 1007.3,
+   "BL": 1006.9,
+   "BR": 1007.1,
+   "center": 1007.1,
+   "whole": 1007.1
+  },
+  "corner_spread_ADU": 0.4,
+  "verdict": "CAP FULLY ON \u2014 uniform pedestal, no gradient, no light tail, no amp-glow corner"
+ },
+ "cull_question": {
+  "keep_all_master_noise_ADU": 0.456,
+  "last100_master_noise_ADU": 0.688,
+  "recommendation": "USE ALL 214. Flat pedestal = all darks subtract fairly; a 100-frame master injects ~53% more noise (0.45->0.69 ADU) than the full set, to address a ~0.1 ADU pedestal diff = net WORSE. N beats the small thermal drift. Last darks match lights' temp best, but the flat pedestal makes all fair."
+ }
+}

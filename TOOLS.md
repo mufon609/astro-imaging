@@ -60,9 +60,15 @@ Bias/dark/flat calibrate → register → integrate → one linear master.
 | **ASTAP** | FREE | CLI | ✅ / ✅ / ✅ | Fast astrometric stacker + solver; good for a quick headless stack or as the solver (Tier 2). |
 | **DeepSkyStacker** | FREE | GUI-app | ❌ (Win) | Legacy/simple; no reason over Siril here. |
 
-**Pick:** Siril for the headless pipeline. Keep our self-flat branch for
-flatless sets (data-class, not a tool gap). PI/APP only as reference or for
-a normalization edge case.
+**Pick:** Siril for the headless pipeline. **Flatless sets** → the researched
+synthetic routes ([`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-bias.md)):
+GraXpert `-correction Division` for dust-safe vignetting (x86 official; Siril's
+native `subsky` is subtraction-only — empirically confirmed on 1.4.4), or a Siril
+sky flat ONLY when the field is not frame-filling faint (else it bakes in and
+attenuates the IFN); **bias** = skip on CMOS (matched darks carry it; dark-scaling
+is invalid because CMOS dark current isn't constant across exposure), a synthetic
+constant offset if a flat needs one. A real flat stays primary. PI/APP only as
+reference or for a normalization edge case.
 
 **Workflow specifics (headless, 1.4.4 — `docs/siril-stacking-workflow.md`):** masters
 bias/dark `-nonorm`, flats `-norm=mul`; lights `-norm=addscale`. **Rejection by sub
@@ -133,6 +139,48 @@ unverified and likely needs `-relax=on` tuning or the custom script. (This is
 a MECHANISM verification from Siril docs + our source + the rig's command
 help; no empirical solve was possible — the image data is deleted and this is
 the arm rig. The x86 test above is definitive.)
+
+### Tier 2b — DISTORTION-aware registration (the wide-field UNTRACKED class)
+
+A global star alignment smears edge stars on a wide field that drifts far. The
+cause is **radial lens distortion**, not field rotation — for an ideal rectilinear
+lens a pure camera rotation is EXACTLY a homography, so the projective part is
+already right and the fix is **undistort → homography**, not a local/elastic warp
+(mechanism + numbers: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md)).
+
+| Tool | Cost | Runs | Linux/CPU/Headless | When & why |
+|---|---|---|---|---|
+| **Siril `register -disto=`** (`image` \| `file <path>` \| `master`) | FREE | siril-native | ✅ / ✅ / ✅ | **The ONLY native distortion route**, and the only one buildable on the identical tool. Consumes SIP terms from a prior `platesolve`/`seqplatesolve -order=2..5`; producer side can export a distortion master via `platesolve -disto=<file>`. **Syntax `-disto=file <path>` — two tokens** (`-disto=file=<path>` errors; `-disto=image` needs the loaded image solved). **`seqapplyreg` carries it** ("Distortion data was found in the sequence file") even though `-disto=` is absent from its own help — so `-2pass` + `seqapplyreg` works. Siril also READS an astrometry.net-injected TAN-SIP header. **MECHANISM PROVEN; the model source is the gap** (see the blocker below). |
+| **Siril `register -transf=`** | FREE | siril-native | ✅ / ✅ / ✅ | shift \| similarity \| affine \| **homography** (default) — **global only, no local/elastic/TPS**. Siril recommends homography for wide fields. Nothing above homography exists to try; it is already exact for pure rotation. |
+| **Siril multi-point registration** (`pss`/`register_mpp`/`stack_mpp`) | FREE | siril-native | ✅ / ✅ / ✅ | **NOT a route for this class.** 1.5-dev only (absent from 1.4.4), scoped to planetary/lunar **atmospheric seeing**, and the model is **piecewise TRANSLATION only** (affine/homographic components explicitly discarded). No `-disto=`/`-transf=`. |
+| **PixInsight StarAlignment** (thin-plate-spline distortion correction) + DynamicAlignment | PAID | GUI-app | ✅ / ✅ / ❌ | The reference true-local distortion model. **x86/GUI — audit-only.** |
+| **Astro Pixel Processor** (distortion-model registration) | PAID | GUI-app | ✅ / ✅ / ❌ | A practitioner A/B on the same data class (250×5 s, R5 + Sigma 40 mm f/1.6) reports Siril's global alignment smears corner stars where APP's distortion model does not. **x86/GUI — audit-only.** |
+| **Sequator** (Lens / Complex distortion models) | FREE | GUI-app | ❌ (Win) | Its manual names our exact symptom (distortion → "false trails" worst at corners) and its models are gated on FIELD WIDTH, not tracking. First-party envelope: acceptable only to **~5 min of drift at 20 mm-equiv**. No Linux/headless — the METHOD transfers, not the tool. (It does NOT segment the sky and locally align — that common claim is refuted by its manual.) |
+
+| **darktable + lensfun** (`darktable-cli --style <s> --style-overwrite`) | FREE | CLI | ✅ / ✅ / ✅ | **THE WORKING FIX for this class (MEASURED WIN).** An OFFICIAL *measured* lens profile — immune to the index-sparsity that kills a per-frame SIP fit. darktable must be built against Lensfun (Debian's is; Debian's **RawTherapee is NOT** — it doesn't link lensfun, so its auto-match is unavailable). On july14: roundness 0.550→**0.656**, majFWHM 4.63→**4.25 px**, roundness FLAT across the field, 54/54 frames register. **Two setup gotchas:** (1) Debian's lensfun 0.3.4 DB lacks the Z6III → run **`lensfun-update-data`** (needs `python3-lensfun`) to install the upstream DB to `~/.local/share/lensfun/updates/version_1`, which has `Nikon Z6_3`; without a camera match no correction is possible (the body supplies the CROP FACTOR, the lens the distortion). (2) The lens module is **NOT auto-applied** and its `params` are packed binary — enable it once in the GUI, save a **preset**, then build a style from that preset's `op_params` (the presets table carries the real blob). **`--style-overwrite` is REQUIRED** — without it the style is silently ignored. Watch `modify_flags`: the GUI default 7 = distortion|TCA|**vignetting**, and vignetting correction FIGHTS a master/sky flat — use distortion-only in production. Ordering is load-bearing: calibrate in SENSOR space → debayer → warp → register. |
+
+**The blocker that made the Siril-native route fail (measured, not theoretical):**
+`register -disto=` needs a trustworthy distortion model and this rig cannot *fit* one. Siril's own matcher fails
+~36° fields (roundness + catalogue depth both eliminated — `docs/dead-ends.md`), and
+astrometry.net's SIP is **not reproducible** at wide index scales (two solves of the
+same fixed lens disagree 65 px median; more field stars fix only the linear solve).
+Feeding it in is a measured LOSS. **This blocks WCS-reprojection equally** (SWarp /
+astropy `reproject` need the same per-frame solution). The model IS present in the
+NEF — exiftool decodes `RadialDistortionCoefficient1/2/3` and
+`DistortionCorrection: On (Required)` — but **no headless Linux tool applies it**
+(BACKLOG).
+
+**WCS-reprojection dust-safety notes (if the model gap ever closes):** SWarp's
+**`SUBTRACT_BACK=Y` is the DEFAULT and must be turned OFF** — it subtracts a sky
+model from every input and would eat frame-filling IFN. SWarp conserves flux only
+with equal-area output projections (`FSCALASTRO_TYPE` = NONE|FIXED); its author
+puts the TAN-safe limit at ~10° of field, so a ~30° field should not default to TAN.
+In astropy `reproject`, `reproject_interp` is **not** flux-conserving (and offers no
+Lanczos kernel); `reproject_adaptive` has `conserve_flux` and is documented as more
+accurate under strong distortion / large sky areas; `reproject_exact` is an exact
+drizzle valid at any FOV but slow. `reproject_and_coadd`'s `match_background` models
+only a constant additive offset and forfeits the absolute zero point. astropy is
+x86-gated.
 
 ## Tier 3 — Photometric colour calibration
 

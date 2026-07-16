@@ -45,6 +45,16 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [wide-field-untracked-registration](wide-field-untracked-registration.md) — why a
+  global homography smears edge stars on a wide UNTRACKED set, EMPIRICALLY TESTED on
+  july14 set-01: field rotation/gnomonic projection are NOT the cause (pure rotation
+  is exactly a homography — Szeliski); radial LENS DISTORTION is, so the class needed
+  is undistort→homography. Siril `register -disto=` is the native fix and its
+  mechanism is proven on-rig, but the MODEL is the blocker (Siril's matcher fails 36°
+  fields; astrometry.net's SIP is not reproducible at wide index scales → a measured
+  LOSS) — which blocks WCS-reprojection equally. The model IS in the NEF (exiftool
+  reads Nikon's radial coefficients); nothing headless applies it.
+
 **Research pass — mid-2026 tool/technique landscape** (2026-07-14):
 - [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
   on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
@@ -75,6 +85,11 @@ _(add each writeup here, newest first)_
 - [objective-qa-defect-metrics](objective-qa-defect-metrics.md) — the AUDIT side:
   numpy/scipy-computable frame-quality + processing-defect metrics (ringing,
   over-smoothing, over-flattening) to extend the measurement layer.
+- [synthetic-flats-and-bias](synthetic-flats-and-bias.md) — flatless/biasless
+  calibration routes: model-division (GraXpert, vignetting-only, dust-safe) vs a
+  sky flat (captures motes/PRNU but contaminates on frame-filling IFN) vs skip-bias
+  (CMOS) + synthetic offset; the dust-first route + july14's real-flats-impossible
+  decision.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
   "provisional until x86" flag from all deep-dives collapsed into one ordered,
   bracketed test protocol keyed to the x86 rebuild order (`docs/x86-empirical-test-plan.md`, Phase 0→5).

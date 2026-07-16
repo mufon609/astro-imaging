@@ -1,0 +1,126 @@
+{
+ "measured": "2026-07-16",
+ "tool": "Siril 1.4.4 (register/seqapplyreg/stack/findstar/platesolve), astrometry.net via scripts/calibrate/solve_field.py, exiftool. Radial binning of Siril's PSF fits by scripts/qa/star_shape_profile.py.",
+ "purpose": "Wide-field UNTRACKED registration defect: global star alignment (single homography) leaves the centre sharp and smears edge stars. Root-cause + candidate fix, tested on the real frames.",
+ "deep_dive": "docs/wide-field-untracked-registration.md",
+
+ "field": {
+  "solve": "astrometry.net blind, logodds 318",
+  "ra_deg": 306.047, "dec_deg": 47.043, "region": "Cygnus",
+  "scale_arcsec_px": 18.02,
+  "effective_focal_mm": 67.8,
+  "note": "nominal lens marking is 70 mm; the solved scale implies ~67.8 mm"
+ },
+
+ "mount_verification": {
+  "claim": "fixed tripod (acquisition.json declares mount=fixed) — independently confirmed",
+  "dec_start_deg": 47.043, "dec_end_deg": 47.045, "dec_constant_to_arcsec": 7,
+  "ra_drift_deg": 10.816, "span_s": 2597,
+  "measured_rate_deg_per_hr": 14.99, "sidereal_rate_deg_per_hr": 15.041, "agreement_pct": 0.3,
+  "mechanism": "a direction fixed in the rotating Earth frame traces a rotation about the polar axis, which preserves declination and advances RA at the sidereal rate"
+ },
+
+ "floor_in_exposure_trailing": {
+  "predicted_px": 3.40,
+  "derivation": "15 arcsec/s * cos(47.04 deg) * 6 s / 18.02 arcsec/px",
+  "measured_px": 3.6,
+  "measured_from": "Siril findstar per-frame fits over all 373 frames: roundness (FWHMy/FWHMx) 0.615 median, UNIFORM across the set (0.589-0.675), FWHM 3.634 px",
+  "consequence": "NO registration method can remove this - it is within-exposure. Stars are elongated ~1.6:1 at best. Success = the edge matching the centre, not round stars.",
+  "corollary": "per-frame roundness is uniform across the set, so the radius-dependent smear is introduced by register+stack, NOT by the frames"
+ },
+
+ "root_cause": {
+  "ruled_out": "field rotation + gnomonic projection. For an IDEAL rectilinear lens a pure camera rotation maps EXACTLY to an 8-DOF homography (Szeliski, Image Alignment and Stitching, sec. 2.3) - stars are at infinity and sky rotation is SO(3), linear in homogeneous coords. Zero residual. This was the assumed cause and it is wrong.",
+  "actual": "unmodelled RADIAL LENS DISTORTION. The real map is distort o H o distort^-1, which is not a homography. NIKKOR Z 24-70/4 S measures ~3.4% pincushion at 70 mm (~120 px at the r=3643 px corner). As a star drifts 1500 px it samples a different local distortion and no global 8-DOF fit absorbs the difference.",
+  "asymmetry_unresolved": "the pattern is predominantly radial but carries a genuine one-sided component (at comparable radius, right majFWHM 9.66 vs left 5.66). A best-fit radial centre lands only 87 px from the crop centre (rank-corr 0.320 -> 0.331), so an off-centre crop does NOT explain it. Candidates: differential refraction (asymmetric with hour angle, ~1-4 px) and lens decentering. UNRESOLVED."
+ },
+
+ "experiment": {
+  "design": "54 lights = every 7th of 373, spanning the FULL 43-min window (the residual scales with TIME SPAN, not frame count). Master dark + validated sky flat, -cfa -equalize_cfa -debayer (debayer BEFORE registration), -framing=min, stack rej 3 3 -norm=addscale. ONE knob: -disto=.",
+  "measures_from": "Siril findstar with the roundness gate opened (-roundness=0.05 -relax=on) so elongated stars are DETECTED rather than silently rejected",
+  "A_homography_control": {"stars": 17770, "image_mpx": 14.11, "stars_per_mpx": 1259, "roundness": 0.528, "major_fwhm_px": 4.74, "radial_centre_to_edge_px": [4.33, 6.46]},
+  "B_disto_sip":           {"stars": 7561,  "image_mpx": 13.97, "stars_per_mpx": 541,  "roundness": 0.569, "major_fwhm_px": 6.02, "radial_centre_to_edge_px": [7.92, 4.61], "verdict": "LOSS"},
+  "C_9min_window":         {"stars": 26354, "image_mpx": 22.05, "stars_per_mpx": 1195, "roundness": 0.600, "major_fwhm_px": 3.87, "radial_centre_to_edge_px": [3.52, 6.41], "frames": 12, "drift_px": 310},
+  "verdict_B": "LOSS. -disto= did not remove the defect; it relocated and worsened it, smearing the whole frame. Star density -57% (1259 -> 541 stars/Mpx) at near-identical frame size. Hypothesis killed with numbers.",
+  "verdict_C": "CONFIRMS THE MECHANISM. Better at EVERY radius; its inner field (r<1700) sits exactly at the single-frame floor (roundness 0.619-0.634 vs the 0.615 floor; majFWHM 3.52 vs the 3.63 per-frame FWHM) - registration adds nothing there. Remove the drift and the homography becomes exact. Cost: 12 frames vs 54. C ALSO keeps 56% more field (22.05 vs 14.11 Mpx) because less drift means -framing=min intersects away less.",
+  "measurement_trap": "TWO traps, both hit in this experiment. (1) SURVIVORSHIP BIAS: B's radial profile appears to IMPROVE at the edge (4.61 vs A's 6.46) because B's smear pushed most stars below the detection threshold, so the median is over the lucky survivors - the full-frame crops settle it. (2) AREA CONFOUND: raw star counts are NOT comparable across variants because -framing=min gives each a different frame size - C's higher raw count (26354 vs 17770) is entirely its 56% larger frame; per unit area C is slightly LOWER (1195 vs 1259 stars/Mpx), exactly as 4.5x less integration predicts. Read star-shape medians with their n, and n per unit area.",
+  "artifacts_gitignored": "reg/final_A.fit, reg/final_B.fit, reg/final_C.fit, reg/star_shapes_AB.png, reg/stars_{A,B,C}.lst, reg/profile_{A,B,C}.json"
+ },
+
+ "why_B_failed": {
+  "mechanism_is_sound": "register seq -2pass -disto=file <path> -> 'Distortion data is valid and will be used'; seqapplyreg -> 'Distortion data was found in the sequence file, undistortion will be applied'. The -2pass + seqapplyreg chain DOES carry the undistortion to export even though -disto= is absent from seqapplyreg's own help. Syntax: '-disto=file <path>' (two tokens); '-disto=file=<path>' errors; '-disto=image' needs the loaded image solved. Siril also READS an astrometry.net-injected TAN-SIP header it did not write.",
+  "model_is_the_broken_link": "the camera is on a fixed tripod, so lens distortion is physically IDENTICAL in every frame. Two independent astrometry.net solves 43 min apart disagree at the same sensor positions by a MEDIAN of 65.3 px (worst 127.9). A real lens model must agree to ~1 px.",
+  "more_stars_do_not_fix_it": "--max-stars=1500 cut the SIP disagreement only to 43.8 px median (worst 132.1), while the LINEAR solve improved sharply: scale 18.02/18.20 -> 18.05/18.06, RA-drift error 6% -> 0.3%, logodds 127 -> 782. More stars fix the position, not the distortion.",
+  "mechanism_of_that_failure": "astrometry.net's SIP tweak is constrained by MATCHED INDEX stars; the 4200-series index at the wide scales this field needs (12-19) is Tycho-2-based and sparse. Supplying more FIELD stars cannot help when few index stars exist to match.",
+  "also_blocks": "the WCS-reprojection route (SWarp / astropy reproject / Montage) needs the same trustworthy per-frame distortion solution, so it inherits this blocker."
+ },
+
+ "siril_solver_cannot_supply_it": {
+  "result": "reproduces AND refines the dead-end. With the correct centre, local Gaia and -nocrop, Siril reports 'Initial solve failed' -> near-solve failed at a computed FOV of 36.45 deg (diagonal).",
+  "eliminated_relaxed_detection": "setfindstar -relax=on -roundness=0.05 -sigma=0.5 raised candidates 3316 -> 8694; still failed",
+  "eliminated_catalogue_depth": "-limitmag=+4 raised the fetch 2177 -> 138498 Gaia stars (limit mag 7.81 -> 11.81); still failed",
+  "conclusion": "the blocker is Siril's star MATCHER at ultra-wide FOV, not the roundness gate and not the auto limit magnitude",
+  "side_finding": "Siril's auto limit magnitude for a 36 deg field is 7.81, while its detection goes far deeper - a real population mismatch worth knowing even though it is not the blocker"
+ },
+
+ "the_model_exists_in_the_data": {
+  "probe": "exiftool on DSC_6896.NEF",
+  "DistortionCorrection": "On (Required)",
+  "DistortionCorrectionVersion": "0100",
+  "RadialDistortionCoefficient1": 0.01821,
+  "RadialDistortionCoefficient2": -0.01132,
+  "RadialDistortionCoefficient3": 0.05939,
+  "meaning": "'On (Required)' = the raw is UNCORRECTED and the profile is meant to be applied downstream. The exact lens model ships in every frame.",
+  "supersedes": "research sources state the Nikon Z correction block is undecoded by open source and unreachable via exiv2 (discuss.pixls.us, 2023). The on-rig probe contradicts this for the radial terms - exiftool decodes them today. Doc-vs-binary conflict resolved by the probe.",
+  "the_gap": "no headless Linux tool APPLIES the profile (and the exact model form / normalisation is undocumented). That single missing link is what stands between this data and the proven -disto= mechanism."
+ },
+
+ "lensfun_experiment": {
+  "verdict": "WIN — the first route that fixes the defect. MECHANISM PROOF, not a shippable render (see limits).",
+  "question": "does an OFFICIAL lens distortion model (rather than a SIP fitted from sparse trailed stars) flatten roundness-vs-radius?",
+  "tools": "darktable 5.4.1 (built with Lensfun 0.3.4) + lensfun upstream DB via lensfun-update-data. darktable does every pixel op; lensfun owns the model and its normalisation.",
+  "why_this_source_works": "the model is MEASURED for the lens rather than fitted per-frame from the data, so it is immune to the index-sparsity failure that made the astrometry.net SIP non-reproducible.",
+  "profile": {
+   "camera_matched": "Nikon Z6_3", "lens_matched": "Nikkor Z 24-70mm f/4 S",
+   "focal": 70.0, "aperture": 4.0, "crop": 1.0, "autoscale": 1.046,
+   "model": "ptlens a=0.012 b=-0.017 c=0.039 (focal=70 is a CALIBRATED entry, not interpolated)",
+   "db_note": "Debian's lensfun 0.3.4 DB does NOT contain the Z6III; `lensfun-update-data` installs the upstream DB to ~/.local/share/lensfun/updates/version_1, which HAS `Nikon Z6_3`. Without that update the camera cannot match and no correction is possible."
+  },
+  "design": "54 lights = every 7th of 373, FULL 43-min window. ONE knob: the darktable lens module's enabled bit. Both arms run --style-overwrite with an IDENTICAL module set (styles `lensfix` enabled=1 vs `nolens` enabled=0), so histories differ only in that bit.",
+  "OFF_control":  {"frames_registered": "52/54", "stars": 14235, "image_mpx": 14.51, "stars_per_mpx": 981,  "roundness": 0.550, "major_fwhm_px": 4.63, "radial_roundness": [0.507, 0.531, 0.553, 0.570, 0.556, 0.635], "radial_major_fwhm": [4.82, 4.61, 4.57, 4.50, 5.19, 4.54]},
+  "ON_lensfun":   {"frames_registered": "54/54", "stars": 19921, "image_mpx": 14.05, "stars_per_mpx": 1418, "roundness": 0.656, "major_fwhm_px": 4.25, "radial_roundness": [0.594, 0.674, 0.683, 0.655, 0.631, 0.659], "radial_major_fwhm": [4.90, 4.27, 4.11, 4.15, 4.37, 4.65]},
+  "result": "roundness 0.550 -> 0.656 (+19%); majFWHM 4.63 -> 4.25 px; star DENSITY 981 -> 1418 /Mpx (+45%, and ON's frame is 3% SMALLER so this is not the area artifact); roundness FLAT across radius (0.674/0.683/0.655/0.631/0.659 from r=448 to r=2685) where OFF sags to 0.556 with majFWHM spiking to 5.19. Two frames that could not match now register (52/54 -> 54/54). Crops: reg/star_shapes_lensfun.png.",
+  "mechanism_confirmed_not_just_outcome": "the CENTRE bin also improved (roundness 0.507 -> 0.594) where distortion is ~0. That is what theory predicts: with the frames undistorted, ONE global homography fits every star instead of being a compromise that degrades everywhere. It also explains the two newly-matchable frames.",
+  "confound_declared": "the preset carries modify_flags=7 = distortion|TCA|vignetting, so vignetting and TCA correction were applied too. Vignetting cannot change star SHAPE, but it brightens the corners and therefore inflates part of the star-COUNT gain via extra detections. The roundness/FWHM gains are shape measures and are not affected; the centre-bin gain (where vignetting ~1.0) is uncontaminated. A clean distortion-only re-run (modify_flags=1) is BACKLOG.",
+  "limits": [
+   "NOT a shippable render: darktable works from raw, so this arm carries NO darks/flats (dark/flat calibration must happen in sensor space BEFORE any geometric warp). It is a GEOMETRY test; the defect is flat-independent, which is what makes it valid.",
+   "Depth differs slightly (52 vs 54 frames) — far too small to explain a 45% density gain.",
+   "The profile is a COMMUNITY measurement of the lens model, not Nikon's own coefficients (which ship in every NEF but live in a Nikon-private SubIFD block no headless Linux tool applies).",
+   "Absolute numbers are NOT comparable with the A/B/C experiments above: different pipeline (darktable 16-bit vs Siril CFA->debayer 32-bit). Only OFF-vs-ON is a valid comparison."
+  ],
+  "productionisation_required": "Siril calibrate (CFA, dark+sky flat) -> debayer -> apply the distortion warp -> register -> stack. The open question is applying the lensfun warp to a calibrated linear image rather than to raw."
+ },
+
+ "route_decision": {
+  "SUPERSEDED_BY": "lensfun_experiment - a distortion model from an OFFICIAL measured profile (darktable+lensfun) fixes the defect at full 43-min depth. The depth-vs-edge trade-off below is no longer forced.",
+  "recommended_today": "the lensfun distortion model, productionised (see lensfun_experiment.productionisation_required). It removes the edge degradation at FULL depth, which routes A and C could not both do.",
+  "superseded_route_A": "global homography, debayer-first, full 43-min depth (majFWHM 4.74 px whole-frame) - the best result available BEFORE a distortion model existed. Its edge degradation was a known, quantified defect.",
+  "not_proposed": "cropping to the good field. That hides a defect that is in the data.",
+  "superseded_route_C": "short window - bought floor-limited sharpness for ~4x less integration. Only needed while no distortion model existed; keep as the fallback if productionisation fails.",
+  "the_fix": "PROVEN (lensfun_experiment). Remaining work is ORDERING, not discovery: calibrate in sensor space, then warp, then register. Ranked in BACKLOG.",
+  "gate": "user confirms on own viewer, full-frame lossless finals, dust-preservation the deciding metric"
+ },
+
+ "trade_offs": [
+  "Route A ships full depth with a measured edge defect; route C ships a floor-limited frame at 1/4 depth. Neither is the fix; the fix needs a tool this rig does not have.",
+  "Short-window sub-stacking does NOT compose: combining the sub-stacks reintroduces the identical model error (mapping block k to block 1 spans the same drift) and turns a smooth smear into a few discrete ghosts.",
+  "The existing 124-frame baseline registered UNDEBAYERED CFA data through lanczos4, which mixes neighbouring R/G/B photosites (its previews carry no real colour). Variant A debayers first and measures better (majFWHM 5.25 -> 4.74 px) - but frame count and CFA sampling confound a strict comparison, so this is SUGGESTIVE, not proven."
+ ],
+
+ "caveats": [
+  "54 of 373 frames (every 7th) for disk/time; the FULL time span is preserved, which is what the geometry depends on. Depth is ~1/7 of a production stack.",
+  "arm base rig; Siril 1.4.4 is the IDENTICAL tool on the x86 target, so the method transfers (output is not bit-identical).",
+  "The one-sided component of the defect is unresolved (refraction vs decentering).",
+  "Route A vs C finals have not yet been judged by the user's eyes."
+ ]
+}

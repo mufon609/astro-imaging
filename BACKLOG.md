@@ -15,6 +15,126 @@ workarounds' removal conditions have fired. That queue lives in git history;
 it is not carried forward. The x86 rebuild will re-found this file from what
 the rebuild actually surfaces.
 
+## Architecture — build the chain AS the data-driven operating loop
+
+The x86 render chain must be built as the per-dataset operating loop, not a fixed
+sequence: **MEASURE** the dataset with the tools → **MATCH** its facts + the
+declared priorities to the toolkit's routes → **RECOMMEND** the optimum with its
+reason → **REPORT** it to the user → the user **accepts / adjusts / reroutes /
+clarifies** (the gate before execution) → **EXECUTE** → **RECORD** the choice AND
+its trade-off. Architecting this in from day one is far cheaper than retrofitting
+a recommender onto a hard-coded chain. Stated as doctrine in `CLAUDE.md` ("What
+this repo IS") and `README.md` ("The operating loop"); this item tracks realizing
+it in the chain ([`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md)).
+Each route it can recommend is one that RESEARCH has vetted and `TOOLS.md`
+carries; each choice + trade-off it records is what tells us what to improve next.
+
+## #1 PRIORITY (deep dive DONE, fix FOUND + PROVEN): productionise the lensfun warp
+
+**The fix works and is measured** — an OFFICIAL MEASURED lens profile (darktable
+5.4.1 built against Lensfun + the upstream lensfun DB) flattens roundness-vs-radius
+at FULL 43-min depth: whole-frame roundness 0.550 → **0.656**, majFWHM 4.63 → **4.25 px**,
+star density +45%/Mpx, roundness FLAT 0.63–0.68 from r=448 to r=2685, and 54/54
+frames register (vs 52/54). The centre improved too (0.507 → 0.594) where distortion
+is ≈0 — confirming the mechanism, not just the outcome. Crops:
+`qa_work/reg/star_shapes_lensfun.png`. Detail: the deep dive + `registration_qa.json`.
+
+**Remaining work is ORDERING, not discovery.** The proof ran darktable from RAW, so it
+carries no darks/flats — dark/flat calibration must happen in SENSOR space BEFORE any
+geometric warp, or the sky flat (validated, dust-safe) and the master dark stop
+matching. Ordered:
+
+1. **Productionise — the ORDERING IS SOLVED; only colour management is left.**
+   Chain: Siril `calibrate` (CFA, master dark + sky flat) → debayer → `savetif` →
+   copy the NEF's EXIF onto the TIFF with `exiftool -TagsFromFile` (Make/Model/
+   LensModel/FocalLength/FNumber — darktable needs them to match the profile) →
+   `darktable-cli --style lensfix --style-overwrite` → back to Siril → `register` →
+   `stack`. **PROVEN on a real calibrated frame:** darktable applied the lens module
+   to the Siril TIFF with the **identical piece hash** as the raw run
+   (`ca81489860523076` — same profile, same focal, same correction), and its module
+   list collapses to `colorin lens finalscale colorout gamma` (no demosaic/rawprepare),
+   so it does nothing but the warp. **Do not** reorder to warp-then-calibrate: darks and
+   flats are sensor-grid properties and a CFA mosaic cannot be interpolated at all.
+   **The remaining gotcha is LINEARITY, and it is a real trap:** Siril's `savetif`
+   tagged the linear data `sRGB-elle-V2-srgbtrc.icc` — an sRGB TONE CURVE on linear
+   pixels — so darktable's `colorin` would decode it as sRGB and `gamma` re-encode on
+   the way out. Measured on the round trip: means rose ~24% with mean/median ratios
+   DIVERGING (mean ×1.23–1.25 vs median ×1.15–1.19), which is consistent with the
+   vignetting correction and/or a tone transform — **not yet disentangled**. Fix
+   direction: export with **`--icc-type LIN_REC709`** (or `LIN_REC2020`) and make the
+   input tag match the data (Siril `icc_assign` a linear profile) so no TRC is applied
+   in either direction; then VERIFY linearity by checking a known-linear ramp of star
+   fluxes survives the round trip. A non-linear round trip would silently corrupt
+   photometry, SPCC and the stretch.
+2. **Clean the confound:** the proof used the GUI preset's `modify_flags=7`
+   (distortion|TCA|vignetting). Vignetting correction would FIGHT the sky flat in
+   production and inflates the star-count gain. Re-run distortion-only
+   (`modify_flags=1`) and confirm the roundness/FWHM gains survive.
+3. **The dust gate (priority #1, NOT yet run):** with/without on FULL-FRAME LOSSLESS
+   finals, dust-preservation the deciding metric, the user's eyes. The warp resamples
+   every pixel — confirm it costs no faint structure.
+4. **Setup dependency to record for x86:** Debian's lensfun 0.3.4 DB does NOT contain
+   the Z6III, so the correction is impossible until `lensfun-update-data` installs the
+   upstream DB (`~/.local/share/lensfun/updates/version_1` has `Nikon Z6_3`). Needs
+   `python3-lensfun`. Fold into `x86-setup-and-install`.
+5. **Better model (optional):** Nikon's OWN coefficients ship in every NEF
+   (`RadialDistortionCoefficient1/2/3`, `DistortionCorrection: On (Required)`) and would
+   beat a community measurement — but they live in a Nikon-private SubIFD block that no
+   headless Linux tool applies. Watch darktable's "embedded metadata" lens method.
+6. **Cross-check (x86/GUI, now optional):** APP / PixInsight fit distortion from
+   star correspondences with no catalog. Only worth it if 1–3 disappoint.
+
+## SUPERSEDED — the earlier framing (kept for the mechanism)
+
+The deep dive is complete and the route was implemented + tested on the real frames —
+[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md),
+record `datasets/july14/set-01/qa_work/registration_qa.json`. Settled:
+
+- **Root cause is radial LENS DISTORTION**, not field rotation/projection (a homography
+  is EXACT for pure rotation). Required transform class: **undistort → homography** —
+  nothing local/elastic is needed, and `-transf=` already tops out at the right model.
+- **Siril `register -disto=` is the native fix and its MECHANISM is proven on-rig**
+  (syntax `-disto=file <path>`; `seqapplyreg` carries the undistortion; Siril reads an
+  astrometry.net-injected TAN-SIP).
+- **The blocker is the MODEL, not the mechanism.** Siril's matcher fails ~36° fields
+  (roundness + catalogue depth eliminated); astrometry.net's SIP is not reproducible at
+  wide index scales (65 px median disagreement for a lens that never moved) and feeding
+  it in is a measured LOSS. Same blocker kills WCS-reprojection.
+- **The model IS in the data**: exiftool decodes `DistortionCorrection: On (Required)` +
+  `RadialDistortionCoefficient1/2/3` from every NEF. Nothing headless applies it.
+
+Ranked routes to a trustworthy distortion model (each ends in the same proven
+`register -disto=`; deciding metrics unchanged — removes edge trailing across the FULL
+frame, preserves the dust, headless-first, free):
+
+1. **Apply the NEF's own embedded Nikon profile (x86 test).** The exact model ships in
+   every frame. Test whether darktable / RawTherapee (recent versions claim embedded
+   lens-correction support for maker metadata) can apply it and emit linear 16-bit
+   output, then re-register. Order constraint: calibration (dark/flat) is CFA and must
+   precede any geometric warp, so the warp lands after debayer. Watch: the model form /
+   normalisation is Nikon-private and undocumented; verify against the measured ~3.4%
+   pincushion before trusting it.
+2. **Astro Pixel Processor distortion-model registration (x86/GUI).** The one route with
+   a published A/B fixing exactly this defect on this data class. Paid + GUI → audit,
+   then a one-off run to see whether the edge reaches the in-exposure floor.
+3. **PixInsight StarAlignment thin-plate-spline distortion correction (x86/GUI).** The
+   reference local distortion model; cross-check.
+4. **A denser index / better SIP for astrometry.net.** The failure is index sparsity at
+   scales 12–19, not field-star count. Worth re-testing only if a denser wide-scale index
+   series exists; otherwise closed.
+5. **Re-shoot with tracking** — future acquisition only, useless for these frames, and
+   would not remove the in-exposure trailing floor either (it would remove its CAUSE).
+
+**Do not re-attempt** (killed with numbers, `docs/dead-ends.md`): `-disto=` fed by a
+200-or-1500-star astrometry.net SIP; `setfindstar -relax=`/`-limitmag=` to rescue Siril's
+solver on a ~36° field; "a better global transform"; short-window sub-stacks recombined
+into one deep stack (the combine reintroduces the identical model error).
+
+**Open for july14 set-01:** the depth-vs-edge choice (route A full 43-min depth with a
+measured edge defect vs route C short-window at the floor for ~4× less integration) is an
+aesthetic judgement awaiting the user's eyes on full-frame lossless finals. Also
+unresolved: the defect's one-sided component (differential refraction vs lens decentering).
+
 ## Carried forward — durable data-capability items (not arch-specific)
 
 These are real imaging capabilities the pipeline does not yet have; they
@@ -106,7 +226,21 @@ mechanism, the replacement, the action, and the source. "x86-gated" = needs
   "a matching real flat exists" as the removal condition. Caveat 2: the installed
   GraXpert is a **third-party fork** (`geeksville`, PyPI test build), not official
   — official stable 3.0.2 is BGE+denoise-only but DOES include `-correction
-  Division`. Source: GraXpert source (`main.py`/`background_extraction.py`).
+  Division`. Source: GraXpert source (`main.py`/`background_extraction.py`). Full
+  route map + the Siril-native SKY-FLAT alternative (captures motes/PRNU but
+  contaminates on frame-filling IFN → dust-first sets must validate or reject it),
+  the CMOS skip-bias / synthetic-offset doctrine, and july14's real-flats-impossible
+  decision: [`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-bias.md).
+
+- **Sky-flat tightening (july14 set-01 sky flat validated CLEAN — `docs/synthetic-flats-and-bias.md`).**
+  The Siril-native sky flat is the recommended flat for this flatless set; before it
+  enters a stack, tighten: (a) winsorized/sigma rejection instead of pure median to
+  drop the faint un-rejected star specks; (b) smooth the flat to radial-only so
+  division corrects vignetting without flattening the low-order sky/IFN gradient
+  (leave that to the first-degree `subsky 1` background step); (c) dark-subtract the
+  lights before building the flat (production); (d) the deciding test is a
+  with/without comparison on full-frame lossless finals, dust-preservation the metric
+  (the user's eyes). x86 GraXpert `-correction Division` stays the vignetting-only fallback.
 
 - **`solve_field` peak detection → `image2xy` (A/B test, NOT a clean win —
   refined).** `solve_field.detect_stars` hand-rolls `maximum_filter` peak-centroid

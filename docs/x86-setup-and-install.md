@@ -45,7 +45,8 @@ system Python).
 
 ### The specifics that bite (carry into the manifest notes)
 - **Siril flatpak sandbox** has its own **private `/tmp`** → `.ssf`/`.py` must live under
-  `$HOME` (repo `scripts/` or `<session>/work/`), never `/tmp`. The sandbox also can't
+  `$HOME` (repo `scripts/`, session-level `<session>/work/`, or a per-set tool dir under
+  `datasets/<session>/<set>/` — never inside the raw `<session>/<set>/` frame dir), never `/tmp`. The sandbox also can't
   reach `/opt` tools via Siril's *internal* "call StarNet/GraXpert" menu without
   `flatpak override --filesystem=host` — **not a blocker here** (we orchestrate each
   tool as its own headless step, not through Siril's menu).

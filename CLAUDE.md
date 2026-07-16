@@ -21,6 +21,19 @@ deliverable's pixels. It does four things:
   and drive every fix from a **researched root cause**; never thrash knobs
   hoping the output changes.
 
+**The operating loop these four serve (per dataset — the model the x86 chain is
+built AROUND, not a retrofit).** The repo does not run a fixed chain; it proposes
+one from the data: **MEASURE** the dataset with the tools (frame/dark QA, field,
+the declared priorities) → **MATCH** those facts to the best-practice routes in
+the toolkit ([`TOOLS.md`](TOOLS.md)) → **RECOMMEND** the optimum for THIS data
+with the reason it beats the alternatives → **REPORT** the findings + the
+recommended pipeline to the user → the user **ACCEPTS / ADJUSTS / REROUTES /
+CLARIFIES** (the user is the gate before execution — nothing output-shaping
+auto-proceeds) → **EXECUTE** the chosen route → **RECORD** the choice AND its
+trade-off, so every honest compromise is legible and improvable later. The data
+selects the route; priorities steer it; the user decides; the record keeps us
+honest.
+
 **The bright line — what in-house code may and may not do:**
 - **FORBIDDEN** if it does ANY of: (1) reads or analyzes the deliverable's
   pixels; (2) makes an automated judgment / threshold call that gates, shapes,
@@ -88,8 +101,11 @@ core here now:**
 - Siril 1.4.4 as a **user flatpak**, not on PATH:
   `flatpak run --command=siril-cli org.siril.Siril -d <workdir> -s <script>`
   The sandbox has home/host access but **its own private /tmp**: `.ssf`
-  scripts MUST live under $HOME (repo `scripts/` or `<session>/work/`),
-  never /tmp or a scratchpad. Siril also has an integrated Python API
+  scripts MUST live under $HOME — repo `scripts/`, the session-level
+  `<session>/work/` (stacking pipeline), or a per-set tool dir under
+  `datasets/<session>/<set>/` (the `audit_work/`/`qa_work/` pattern); NEVER
+  inside the raw `<session>/<set>/` frame dir, never /tmp or a scratchpad.
+  Siril also has an integrated Python API
   (`pyscript` + bundled `sirilpy`) that runs headless via an `.ssf` wrapper
   (`requires 1.4.0` + `pyscript foo.py`) — proven on this rig.
 - Kali linux arm64, 4 cores, 7.7 GB RAM, tight ~118 GB shared disk (check
@@ -193,9 +209,14 @@ core here now:**
   it STOPS and asks rather than assume — `scripts/lib/acquisition.py`),
   `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
-  `baseline.json` (written only by the no-regression harness — pending x86) —
-  never dataset-specific script patches; a dataset without them must
-  degrade loudly, not inherit silently. (The existing recipe render blocks +
+  `baseline.json` (written only by the no-regression harness — pending x86),
+  and per-set tool records + scratch (`audit_work/anomaly_audit.json`,
+  `qa_work/frame_metrics.json`, …). The raw `<session>/<set>/` frame dir holds
+  ONLY raw frames — EVERY per-set record and tool work dir lives under
+  `datasets/<session>/<set>/` (that is what it exists for); derived image DATA
+  (FITS intermediates, masters, session-relative foreground masks) stays in the
+  gitignored session tree. Never dataset-specific script patches; a dataset
+  without this state must degrade loudly, not inherit silently. (The existing recipe render blocks +
   baselines are chain-coupled and PENDING the new chain's schema.)
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.
@@ -204,8 +225,9 @@ core here now:**
 
 The workspace constantly drives industry tools to judge + process its images,
 and audits its own PROCESS, so that eventually ANY dataset can be dropped into a
-session dir and be carried — by those tools — to its best honest outcome.
-Every divergence from the standard workflow is a measured adaptation carrying
-its removal condition; the tools are a toolkit picked per dataset; finals as
-close to lossless as possible; and acquisition quality (the checklist in
+session dir and be carried — by those tools — to its best honest outcome via the
+operating loop above (measure → match → recommend → report → the user decides →
+execute → record). Every divergence from the standard workflow is a measured
+adaptation carrying its removal condition; the tools are a toolkit the data picks
+from per dataset; finals as close to lossless as possible; and acquisition quality (the checklist in
 `docs/dead-ends.md`) outranks processing — never bandaid what photons must fix.

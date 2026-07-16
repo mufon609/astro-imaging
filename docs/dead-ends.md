@@ -23,6 +23,12 @@ the constraints any such tool must satisfy):
   only the empirical V2 of the frames ACTUALLY being divided is flat.
 - Never refine the gain from the STACK's residual — the sky's own structure
   (MW/glow/clouds) exceeds the residual, giving opposite-sign results.
+- A SKY FLAT (median of un-registered lights) captures vignetting + dust motes +
+  PRNU, but a frame-filling faint complex (MW/IFN) does NOT reject — it bakes into
+  the flat and division ATTENUATES the cosmic dust. The only fix is manual
+  clone-stamping (GUI, non-reproducible). So the sky flat is dust-safe ONLY when
+  faint structure is a small part of the frame; validate before use
+  ([`synthetic-flats-and-bias.md`](synthetic-flats-and-bias.md)).
 
 **Background:**
 - The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases it;
@@ -83,7 +89,16 @@ the constraints any such tool must satisfy):
   reference).
 - Siril's internal solver fails ultra-wide trailed fields even with the local
   catalog; astrometry.net blind solve from coarse PEAK centroids works (blob/PSF
-  centroids don't feed the matcher). Blind-solve first, label after. Native
+  centroids don't feed the matcher). Blind-solve first, label after.
+  **REFINED (measured, 36.45° field, correct centre from a blind solve, local Gaia,
+  `-nocrop`): the blocker is Siril's star MATCHER, not detection quality and not
+  catalogue depth — both were tested and ELIMINATED.** Relaxed detection
+  (`setfindstar -relax=on -roundness=0.05 -sigma=0.5`) raised candidates 3316→8694
+  and still failed; `-limitmag=+4` raised the catalogue fetch 2177→138,498 Gaia
+  stars (limit mag 7.81→11.81) and still failed ("Initial solve failed" → near-solve
+  failed). Do not re-attempt those two knobs. Side finding worth knowing: Siril's
+  AUTO limit magnitude for a 36° field is only **7.81**, while its detection goes far
+  deeper — a real population mismatch, just not the blocker. Native
   `platesolve -localasnet` does NOT rescue this class: it still feeds
   astrometry.net Siril's `findstar` PSF-fit detection (on the green layer) — that
   detection alone is the failure mode; the FOV>5° detection auto-crop is
@@ -114,6 +129,60 @@ the constraints any such tool must satisfy):
   detection sigma recovers them; on trailed frames a reference sweep beats the
   auto-reference. Keep all frames (dropping a minority sub-focal subset buys no
   matching gain and pays the full √N noise penalty).
+- **Wide UNTRACKED edge smear: "field rotation / gnomonic projection" is NOT the
+  cause.** For an IDEAL rectilinear lens a pure camera rotation maps EXACTLY to an
+  8-DOF homography (stars are at infinity; sky rotation is SO(3), linear in
+  homogeneous coordinates) — zero residual. Szeliski, *Image Alignment and
+  Stitching* §2.3, names the residuals that survive an optimal global fit, and for
+  a star field only one applies: **unmodelled RADIAL LENS DISTORTION**. The real
+  map is `distort ∘ H ∘ distort⁻¹`. Distortion displaces stars ∝ radius → centre
+  sharp, edges smeared; as a star drifts it samples a different local distortion
+  and no global fit absorbs the difference. So the fix is **undistort → homography**,
+  NOT a local/elastic transform. Do not chase "better global transforms"
+  (`-transf=` tops out at homography, which is already exactly right).
+  MEASURED on the 43-min/1500-px-drift Cygnus set: a 9-min (310 px) window is
+  better at EVERY radius and its inner field sits exactly at the single-frame
+  floor — remove the drift and the homography becomes exact
+  ([`wide-field-untracked-registration.md`](wide-field-untracked-registration.md)).
+- **astrometry.net's SIP is NOT a reproducible lens model at wide index scales —
+  so `register -disto=` has no model to eat.** The camera was on a fixed tripod
+  (lens distortion physically identical every frame), yet two independent solves
+  43 min apart disagree at the same sensor positions by **65 px median / 128 px
+  worst**; a real lens model must agree to ~1 px. Raising the star cap to 1500 cut
+  it only to 44 px (worst 132) while sharply improving the LINEAR solve (scale
+  agreement, RA-drift error 6%→0.3%, logodds 127→782) — **more stars fix the
+  position, not the distortion**. Mechanism: the SIP tweak is constrained by
+  *matched index* stars, and the 4200-series index at the wide scales an ultra-wide
+  field needs (12–19) is Tycho-2-based and sparse. Feeding this SIP to
+  `register -disto=` is a measured **LOSS** (whole-frame majFWHM 4.74→6.02 px,
+  detected stars 17,770→7,561, smear spread frame-wide). **This blocks the
+  WCS-reprojection route too** (SWarp / astropy `reproject` need the same per-frame
+  solution). The `-disto=` MECHANISM is sound — **the model source was the gap, and it
+  is now closed**: use an OFFICIAL *measured* lens profile (darktable + lensfun,
+  `TOOLS.md` Tier 2b) instead of fitting one from the data. A measured profile cannot
+  suffer index sparsity, and it is a measured WIN on this set (roundness 0.550→0.656,
+  flat across the field, 54/54 registered). **The lesson: for a wide UNTRACKED field,
+  fit-the-distortion-from-sparse-trailed-stars is the dead end; measured-profile is the
+  route.** (Fitting from star correspondences BETWEEN frames — PixInsight/APP — is a
+  different, viable mechanism; it is the per-frame *catalog* solve that fails.)
+- **In-exposure trailing is the unremovable FLOOR** — no registration method touches
+  it. On a fixed tripod at 6 s / dec +47 / 18″px it is ~3.4 px predicted and ~3.6 px
+  measured (per-frame roundness 0.615, uniform across the set). Stars are elongated
+  ~1.6:1 at BEST; success is the EDGE matching the CENTRE, never round stars. That
+  the per-frame roundness is *uniform* is also the proof the radial smear is
+  introduced by register+stack, not by the frames.
+- **Two traps that make a registration comparison lie — both hit in one experiment.**
+  (1) **Survivorship bias:** a bad registration spreads flux below the detection
+  threshold, so the SURVIVING stars' median roundness/FWHM can *improve* while the
+  image gets worse — the `-disto=` LOSS above reported a BETTER edge median (4.61 vs
+  6.46 px) on a visibly-destroyed frame. Always read a star-shape metric with its
+  **n**, and confirm on full-frame crops. (2) **Area confound:** `-framing=min` gives
+  each variant a DIFFERENT frame size (less drift ⇒ larger intersection), so raw star
+  counts are not comparable — a short-window stack's higher count was entirely its
+  56% larger frame; per unit area it was slightly LOWER. Compare **stars per Mpx**, or
+  not at all. Also open the detection gate (`setfindstar -roundness=0.05 -relax=on`)
+  when measuring elongation, or the metric silently rejects exactly the stars under
+  test.
 - Cloud culling is by per-pixel MAJORITY risk, not visibility: a moving minority
   band stacks clean through `rej 3 3`; a DWELLING band becomes the per-pixel
   majority and survives. `nstars` is a blind cloud discriminant on rich fields

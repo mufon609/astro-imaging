@@ -1,0 +1,144 @@
+{
+ "measured": "2026-07-15",
+ "tool": "Siril 1.4.4 register (2-pass global star alignment) regdata via scripts/qa/inspect_stage.py; flagged by scripts/qa/cull_report.py",
+ "method": "373 NEF -> CFA FITS (undebayered) -> register -2pass in 5 disk-bounded batches of 75; per-frame FWHM/roundness/background/#stars from Siril findstar PSF fits, pooled (these metrics are reference-independent, so pooling across independently-registered batches is valid)",
+ "provisional": true,
+ "caveats": [
+  "CFA-SAMPLED: frames were NOT debayered (to fit the arm base rig's ~6.8 GB free disk). Absolute FWHM is inflated by the Bayer mosaic and is NOT true stellar FWHM in arcsec -- only RELATIVE comparison across frames is valid. Removal condition: re-measure debayered on x86 (no disk limit).",
+  "wFWHM is batch-relative (each batch has its own reference) and is not a cull input.",
+  "Flags are CANDIDATES for a measured with/without cull ladder -- not an executed cull (repo stack-policy doctrine)."
+ ],
+ "frames_total": 373,
+ "registered": 373,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5,
+ "distribution": {
+  "fwhm_px": {
+   "median": 3.634,
+   "min": 3.36,
+   "max": 3.857,
+   "mad_x1p4826": 0.0178
+  },
+  "roundness": {
+   "median": 0.615,
+   "min": 0.589,
+   "max": 0.675,
+   "note": "FWHMy/FWHMx; <1 = elongated (fixed-tripod trailing), uniform across the set"
+  },
+  "nstars": {
+   "median": 1850,
+   "min": 1667,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1136,
+   "min": 1134,
+   "max": 1140
+  },
+  "wfwhm_excess_frac": {
+   "median": 0.052,
+   "p90": 0.081
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 75,
+   "fwhm": 3.657,
+   "round": 0.617,
+   "stars": 1860,
+   "bg16": 1138
+  },
+  {
+   "block": 2,
+   "frames": 75,
+   "fwhm": 3.635,
+   "round": 0.615,
+   "stars": 1871,
+   "bg16": 1135
+  },
+  {
+   "block": 3,
+   "frames": 75,
+   "fwhm": 3.627,
+   "round": 0.614,
+   "stars": 1846,
+   "bg16": 1137
+  },
+  {
+   "block": 4,
+   "frames": 75,
+   "fwhm": 3.63,
+   "round": 0.615,
+   "stars": 1859,
+   "bg16": 1135
+  },
+  {
+   "block": 5,
+   "frames": 73,
+   "fwhm": 3.627,
+   "round": 0.617,
+   "stars": 1826,
+   "bg16": 1136
+  }
+ ],
+ "flagged_defect_side_z3p5": [
+  {
+   "file": "DSC_6897.NEF",
+   "fwhm": 3.709,
+   "round": 0.6095,
+   "nstars": 1831,
+   "flags": [
+    "fwhm"
+   ]
+  },
+  {
+   "file": "DSC_6900.NEF",
+   "fwhm": 3.857,
+   "round": 0.5891,
+   "nstars": 1667,
+   "flags": [
+    "fwhm",
+    "round",
+    "nstars"
+   ],
+   "note": "worst on all three axes (one-off disturbance); anomaly audit also flagged a streak here"
+  },
+  {
+   "file": "DSC_7263.NEF",
+   "fwhm": 3.702,
+   "round": 0.6054,
+   "nstars": 1746,
+   "flags": [
+    "fwhm",
+    "round",
+    "nstars"
+   ],
+   "note": "brief 2-frame dip near session end; DSC_7265 immediately after is the best-focus frame (transient)"
+  },
+  {
+   "file": "DSC_7264.NEF",
+   "fwhm": 3.718,
+   "round": 0.6032,
+   "nstars": 1741,
+   "flags": [
+    "fwhm",
+    "round",
+    "nstars"
+   ],
+   "note": "brief 2-frame dip near session end; DSC_7265 immediately after is the best-focus frame (transient)"
+  }
+ ],
+ "cull_candidate": {
+  "stack": {
+   "weight": null,
+   "exclude": [
+    6897,
+    6900,
+    7263,
+    7264
+   ]
+  }
+ },
+ "assessment": "Clean, stable ~43-min run: 373/373 registered (0 match-failed), 98% of frames within +-2% of median FWHM, sky background flat to +-0.3% (no cloud/glow/gradient drift), steady star counts (~1850), uniform ~0.615 roundness (inherent 6 s fixed-tripod trailing, not a per-frame defect). Only ~1% flagged and even the worst frame is ~6% wider than median -- dropping the 4 candidates is very likely a NULL on the stack."
+}

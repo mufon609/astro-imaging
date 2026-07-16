@@ -30,6 +30,30 @@ chain + the old NOTES.md are at the `checkpoint` commit). Each dataset's
 approved recipe lives in `datasets/<session>/<set>/recipe.json` (see
 "Per-dataset state" below).
 
+## The operating loop (per dataset)
+
+The repo does not run a fixed chain — it PROPOSES one from the data and lets the
+user decide before it runs. For each dataset:
+
+1. **MEASURE** — the tools measure the data (frame/dark QA, field, the declared
+   priorities, e.g. dust-first).
+2. **MATCH** — those characteristics map to the best-practice routes in the
+   toolkit ([`TOOLS.md`](TOOLS.md)); many routes exist for different situations.
+3. **RECOMMEND** — the optimum process for THIS data, with the reason it beats
+   the alternatives.
+4. **REPORT** — a summary of what the data showed + the recommended pipeline is
+   presented to the user.
+5. **DECIDE** — the user **accepts / adjusts / reroutes / clarifies**. The user
+   is the gate before execution; nothing output-shaping auto-proceeds.
+6. **EXECUTE + RECORD** — run the chosen route, then record the choice AND its
+   trade-off in the per-dataset state, so every honest compromise is legible and
+   improvable later.
+
+The data selects the route; priorities steer it; the user decides; the record
+keeps us honest. This is the model the x86 render chain is built around. (The
+durable stacking core already defaults sanely when no per-dataset policy is set;
+the loop is the full go-forward workflow the render chain completes.)
+
 ## The reference standard
 
 The industry deep-sky workflow (PixInsight/Siril practice) that this pipeline

@@ -1,0 +1,32 @@
+{
+ "measured": "2026-07-16",
+ "tool": "Siril 1.4.4 — 373 unregistered lights: CFA convert -> median stack (-norm=mul); Siril regional stat + autostretch preview",
+ "purpose": "sky-flat viability test for flatless set-01 (real flats impossible: lens cleaned post-session). Empirical gate on IFN contamination.",
+ "build": {"frames": 373, "method": "median, multiplicative norm, UN-registered", "drift_px": "~1500 (>> the 20-100 px sky-flat threshold)"},
+ "siril_regional_mean_ADU": {"TL": 1060.4, "TR": 1080.3, "BL": 1060.9, "BR": 1085.7, "center": 1131.4, "whole": 1102.9},
+ "vignetting_pct_center_to_worst_corner": 6.3,
+ "finals_comparison": {
+  "run": "124 frames (every 3rd), master-dark calibrated, CFA, framing=min crop; proper flat = median of DARK-SUBTRACTED lights (pedestal-free — the raw sky flat's pedestal would under-correct); with vs without sky flat, registered (2-pass) + rej-stacked",
+  "flatness_corner_over_center_autostretched": {"without_flat": 0.44, "with_flat": 1.06},
+  "result": "WIN. The sky flat corrects the illumination (0.44 -> 1.06; the central vignetting glow removed) AND preserves the cosmic dust: the dark-nebula / Milky-Way dust lanes are REVEALED (buried under the vignetting glow without the flat), not erased. Dust-preservation gate PASSES.",
+  "caveats": "124-frame CFA (mono) comparison, central-overlap crop, autostretched previews (qualitative). Full-depth debayered COLOUR final = x86. Artifacts (gitignored): final_with.fit / final_without.fit / compare.png.",
+  "gate": "user confirms on own viewer"
+ },
+ "verdict": "CLEAN / VIABLE. Smooth radial vignetting (~6% center-to-corner) + a mild left-right residual gradient; NO Milky-Way band, NO IFN clumps, NO structured nebulosity baked in (the ~1500 px drift + 373-frame median rejected the sky). A handful of faint un-rejected star specks remain. The structured cosmic dust is NOT in the flat, so dividing by it preserves the IFN.",
+ "route_decision": {
+  "bias": "none - matched darks carry it (CMOS); a synthetic constant offset only if a flat needs calibrating",
+  "flat": "SKY FLAT (proper = median of dark-subtracted lights) - RECOMMENDED. The with/without finals comparison PASSED (see finals_comparison: vignetting 0.44->1.06, dust preserved/revealed). Final gate = user confirms on own viewer. Fallback if rejected: vignetting-only GraXpert Division (x86).",
+  "darks": "all 214"
+ },
+ "trade_offs_and_tightening": [
+  "Mild low-order L-R gradient in the flat = residual sky gradient; better handled by the separate background step - could smooth the flat to radial-only (BACKLOG).",
+  "Pure median left faint star specks; a winsorized/sigma rejection instead of median would remove them (BACKLOG).",
+  "Largest-scale IFN brightness gradient (if any) is partly in the flat's low-order component - low-risk residual, judged on finals.",
+  "Built from RAW lights (pedestal ~1007 included); a production flat would dark-subtract the lights first (x86 chain)."
+ ],
+ "caveats": [
+  "CFA (undebayered) - correct for the OSC pre-debayer flat order",
+  "arm base rig; the flat re-builds on x86 with the same Siril (method transfers, output not bit-identical)"
+ ],
+ "artifacts": {"flat": "skyflat.fit", "preview": "skyflat_view.png"}
+}

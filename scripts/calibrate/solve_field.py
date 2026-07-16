@@ -4,6 +4,16 @@
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
                      [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
                      [--field-width-arcmin=<N>] [--scales=<lo>-<hi>]
+                     [--max-stars=<N>]
+
+--max-stars sets how many detected stars are handed to the solver (default
+200). 200 is ample to MATCH a field — the matcher needs only a handful of
+quads — but the same list also constrains the solver's SIP distortion fit,
+and an order-3 SIP is 20 free parameters per axis. Brightest-first selection
+on a Milky-Way field clusters those stars in the band and leaves the corners
+carrying almost no constraint, so the polynomial extrapolates freely exactly
+where distortion is largest. Raise this when the SOLUTION's distortion terms
+are the product being consumed rather than just its position.
 
 --scales overrides the field-derived index-scale set (the operator's
 download/breadth control: a narrow field derives scales whose low end
@@ -72,7 +82,7 @@ def bootstrap():
         os.execv(py, [py] + sys.argv)
 
 
-def detect_stars(path, central=None):
+def detect_stars(path, central=None, max_stars=200):
     import astrometrics as am
     import numpy as np
     from scipy.ndimage import maximum_filter
@@ -98,8 +108,9 @@ def detect_stars(path, central=None):
     ys0, xs0 = np.nonzero(cand)
     vals = d[ys0, xs0]
     # `central` shrinks the pool a lot (frac^2 of the area), so widen the
-    # candidate cut so 200 still fill from the low-distortion centre
-    order = np.argsort(vals)[::-1][:(6000 if central else 1200)]
+    # candidate cut so the quota still fills from the low-distortion centre
+    order = np.argsort(vals)[::-1][:max(6000 if central else 1200,
+                                        6 * max_stars)]
     taken = np.zeros((h // 25 + 2, w // 25 + 2), bool)
     stars = []
     for k in order:
@@ -122,7 +133,7 @@ def detect_stars(path, central=None):
         # FITS convention: 1-based, bottom-up rows
         stars.append((float((win * wx).sum() / s + 1.0),
                       float(h - (win * wy).sum() / s)))
-        if len(stars) >= 200:
+        if len(stars) >= max_stars:
             break
     return stars, h, w
 
@@ -284,13 +295,14 @@ def main():
         import astrometrics as am
         am.configure(opts["session"], opts["set"], quiet=True)
     central = float(opts["central"]) if "central" in opts else None
+    max_stars = int(opts.get("max-stars", 200))
     width_arcmin = (float(opts["field-width-arcmin"])
                     if "field-width-arcmin" in opts else None)
     pos = None
     if "ra" in opts and "dec" in opts:
         pos = (float(opts["ra"]), float(opts["dec"]),
                float(opts.get("radius-deg", 15.0)))
-    stars, h, w = detect_stars(src, central=central)
+    stars, h, w = detect_stars(src, central=central, max_stars=max_stars)
     print(f"[solve_field] {len(stars)} peak-detected stars"
           + (f" (central {central:g} of frame)" if central else ""))
     hint = scale_hint(src, width_arcmin)
