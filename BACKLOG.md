@@ -84,6 +84,39 @@ matching. Ordered:
 6. **Cross-check (x86/GUI, now optional):** APP / PixInsight fit distortion from
    star correspondences with no catalog. Only worth it if 1–3 disappoint.
 
+## FRESH SESSION — DERIVE THE CONFIG FINGERPRINT FROM THE DATA (process organisation)
+
+A session on process ORGANISATION, not on any one route: **the pipeline should READ the
+gathered data and work out what it is**, then organise the processing around that. Today's
+route is chosen by a config fingerprint — untracked drift at wide focal — and that
+fingerprint is DERIVABLE, not something the user should have to declare.
+
+**july14 proves it is derivable — every number below was measured this session:**
+- **In-exposure trail, PREDICTED from EXIF alone:** 15"/s x cos(dec) x exposure / pixel
+  scale. At 6 s, dec +47, 18.02"/px -> **3.40 px**. Siril's per-frame `findstar` measured
+  roundness 0.615 (uniform across all 373) implying **~3.6 px**. Agreement within 6%.
+  Mild trailing at 6 s is exactly the untracked signature at this focal — long enough to
+  drift, short enough not to streak.
+- **Inter-frame drift:** measured **34 px/min**; two astrometric solves 43 min apart give
+  RA advancing **14.99°/hr vs the sidereal 15.041°/hr (0.3%)** with **Dec constant to 7
+  arcsec**. A direction fixed in the rotating Earth frame traces a rotation about the
+  polar axis: Dec preserved, RA at exactly the sidereal rate. That is a FIXED MOUNT,
+  proven from the data — not declared.
+- So the fingerprint = {exposure, focal, sensor/pixel scale, measured drift rate vs
+  sidereal, per-frame roundness} -> "untracked, wide, drifting N px/min".
+
+**Why this matters beyond convenience:** `mount` is currently a DECLARED fact
+([[stop-and-ask-not-assume]]) because EXIF cannot record it. That rule stays — a
+consumer must never ASSUME — but a derived measurement can now **CONFIRM or CONTRADICT**
+the declaration, which is strictly better than either alone. A set declared `tracked`
+whose stars drift at the sidereal rate is a labelling error the pipeline should catch and
+STOP on, loudly.
+
+Scope for that session: what can be derived vs what must stay declared; how the derived
+fingerprint drives the operating loop's MEASURE -> MATCH step; where it is recorded; and
+how a contradiction between declared and measured is surfaced. It should NOT re-litigate
+today's route — that route is settled and is just one fingerprint's answer.
+
 ## ADOPT — make the distortion route a REPO PROCESS, focal-general, with culling decided
 
 The wide-field untracked route is validated but currently exists as one dataset's
@@ -112,17 +145,13 @@ cheap and each one gates a design choice.
 - **Mixed-focal sets are a hard stop**, not an interpolation: the acquisition
   checklist's "lock the zoom ring" exists for this. Verify per-set, not per-session.
 
-### B. When should the loop RECOMMEND this route? — the MATCH rule
-The route is NOT universal: it pays only when stars MOVE across the sensor. A tracked
-set has each star at a fixed sensor position all night, so its distortion never changes
-and the homography is already exact — the warp would only add a resampling. Draft rule
-to validate: recommend when (1) measured inter-frame drift moves stars across a
-meaningful fraction of the field (untracked / mosaic / big dither — MEASURED from the
-registration data, never assumed), AND (2) a lensfun profile exists for the exact
-camera+lens+focal, AND (3) the field is wide enough that distortion x drift exceeds
-~1 px. Otherwise recommend plain homography and say why.
+### B. The CONFIG FINGERPRINT is what selects this route — see the separate item below
+This route is chosen by a config fingerprint the data itself carries (untracked drift at
+wide focal). DERIVING that fingerprint from the gathered data is its own problem and gets
+its own session — "DERIVE THE CONFIG FINGERPRINT" below. This item only needs the
+fingerprint as an INPUT: given "untracked + wide + profile exists", recommend the route.
 
-### C. Culling — ASSESSED but NEVER DECIDED, and the warp changes the answer
+### C. Culling — ASSESSED but NEVER DECIDED (FRESH SESSION; do not fold into a render run)
 - `frame_metrics.json` flagged 4 of 373 at z>3.5 (6897, 6900, 7263, 7264) and
   `cull_report` proposed excluding them. **No render in the registration deep-dive
   applied that.** It was an unexamined default, not a decision — the gap this item
