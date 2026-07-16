@@ -123,6 +123,37 @@ run "pipx ensurepath"
 # xvfb only if you must run a GUI pyscript (we avoid): sudo apt install -y xvfb
 manifest astrometry.net apt apt-signed apt /usr/share/astrometry "solve-field --help" "4100 Tycho-2 wide-field indexes"
 
+# darktable + lensfun = the UNDISTORT stage (the wide-field UNTRACKED class).
+# darktable must be BUILT AGAINST lensfun — Debian's is; its RawTherapee is NOT
+# (no lensfun link, so no auto-match). liblensfun-bin carries lensfun-update-data:
+# it is NOT in python3-lensfun (that package has only DB-path helpers and no
+# matcher), and without it the DB update below cannot run.
+run "sudo apt install -y darktable liblensfun-bin python3-lensfun"
+manifest darktable apt apt-signed apt /usr/bin/darktable-cli "darktable-cli --version" "UNDISTORT stage; must be built against lensfun"
+manifest lensfun apt apt-signed apt /usr/share/lensfun "lensfun-update-data --help" "liblensfun-bin ships lensfun-update-data (NOT python3-lensfun)"
+
+# The undistort route needs TWO things apt cannot give it, and BOTH are
+# machine-local — neither migrates with the repo, so they are re-created per rig:
+#
+#  1. The UPSTREAM lensfun DB. The distro's 0.3.4 DB predates recent bodies (it
+#     lacks the Nikon Z6III, measured), and without a CAMERA match lensfun cannot
+#     build a modifier at all — the body supplies the crop factor, the lens the
+#     distortion. lensfun-update-data writes the upstream DB to
+#     ~/.local/share/lensfun/updates/version_1 (a USER path — run it as the user
+#     who will process, not root).
+#  2. The lens STYLES, from the repo. Their op_params blob is the pinned artifact;
+#     darktable has no CLI style import, so install_styles.sh writes them into
+#     darktable's data.db directly. Never re-create them by hand in the GUI.
+#
+# Skipping either is SILENT: darktable applies no correction to a lens it cannot
+# match, exits 0, and logs nothing (measured). scripts/stack/lens_preflight.py
+# --require-profile is what catches that, and the verification pass below runs it.
+log "Layer A2 — lensfun DB update + the repo's darktable lens styles"
+run "lensfun-update-data"
+run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_styles.sh' \"\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable\""
+manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d $HOME/.local/share/lensfun/updates/version_1" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
+manifest dt-lens-styles repo scripts/darktable n/a "\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable/data.db" "true" "lensdist/nodist; op_params is the pinned artifact; no GUI step"
+
 # ---- Layer B: flatpak Siril ----------------------------------------------
 log "Layer B — Siril (flatpak $SIRIL_FLATPAK_ID, 1.4.4)"
 run "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
@@ -218,6 +249,17 @@ if [[ $DRY -eq 0 ]]; then
     if out="$(eval "$@" 2>&1)"; then printf '  OK   %s\n' "$(printf '%s' "$out" | head -n1)"
     else echo "  FAILED: $*" >&2; fail=1; fi; }
   check "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v"
+  check "darktable-cli --version"
+  # The UNDISTORT route's install is only real if the DB update landed AND the
+  # styles are in darktable's data.db. Prove both, not just that the binary
+  # exists: a missing DB or a missing style both fail SILENTLY at render time.
+  check "test -d '$HOME/.local/share/lensfun/updates/version_1' && echo 'upstream lensfun DB present'"
+  check "python3 -c \"import sqlite3,os,sys; d=os.path.expanduser('~/.config/darktable/data.db'); c=sqlite3.connect('file:%s?mode=ro'%d,uri=True); n=[r[0] for r in c.execute('SELECT name FROM styles')]; sys.exit(0 if {'lensdist','nodist'} <= set(n) else 1)\" && echo 'lensdist+nodist styles installed'"
+  log "NOTE: the styles + DB only PROVE out against real frames — run
+     scripts/stack/lens_preflight.py <session> <set> --require-profile
+  on a camera-lens set. It renders one frame through lensdist vs nodist and asks
+  Siril for the difference; an all-nil difference means no profile matched and the
+  set would stack UNCORRECTED with no warning from darktable."
   check "$OPT/starnet2-${STARNET_VER}/starnet2 --version"
   check "$OPT/deepsnr-${DEEPSNR_VER}/deepsnr -h"
   check "$OPT/graxpert-${GRAXPERT_VER}/GraXpert-linux -h"

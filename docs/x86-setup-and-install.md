@@ -41,7 +41,7 @@ system Python).
 | **rc-astro** (BXT/NXT/SXT) | D · vendor installer, **license-gated** | authenticated account-page installer → binary `rc-astro` on PATH | none public (compute own) | (installer-chosen; **path TBD**) | `rc-astro bxt` (prints help + license) |
 | **numpy/scipy/pillow/astropy** | C · venv | `requirements.txt` pinned (`astropy==8.0.1`, all manylinux wheels) | pip `--require-hashes` | `.venv` | `python -c "import astropy"` |
 | **Nightlight 0.2.6** | D · `go build` | `git clone --branch v0.2.6 mlnoga/nightlight` → `go build ./cmd/nightlight` (**Go ≥1.20** despite go.mod=1.17) | `go.sum` / GOSUMDB | `/opt/nightlight-0.2.6/` | `nightlight version` |
-| **darktable + lensfun** (the wide-field UNTRACKED distortion fix) | A · apt **+ a mandatory DB update + a one-time GUI step** | `apt install darktable python3-lensfun` then **`lensfun-update-data`** | apt signature; DB over https from lensfun upstream | system + `~/.local/share/lensfun/updates/version_1` | `darktable-cli --version` shows **`Lensfun -> 0.3.x`**; then verify a *warp actually happens* (below) |
+| **darktable + lensfun** (the wide-field UNTRACKED distortion fix) | A · apt **+ a mandatory DB update + the repo's styles** | `apt install darktable liblensfun-bin python3-lensfun` → **`lensfun-update-data`** → `scripts/darktable/install_styles.sh <configdir>` | apt signature; DB over https from lensfun upstream; styles are tracked in-repo | system + `~/.local/share/lensfun/updates/version_1` + darktable's `data.db` | `darktable-cli --version` shows **`Lensfun -> 0.3.x`**; then PROVE a warp happens: `scripts/stack/lens_preflight.py <session> <set> --require-profile` |
 | pipx / xvfb | A · apt | `apt install pipx xvfb` (xvfb only for GUI pyscripts — avoid) | apt | system | `pipx --version` |
 
 ### darktable + lensfun — the setup that is NOT just an apt line
@@ -55,20 +55,33 @@ registration defect.
   is 0.3.4 (~2018) and has no `Nikon Z6_3` (2024). lensfun needs a CAMERA match to
   build a modifier at all — the body supplies the CROP FACTOR, the lens the
   distortion — so **without the update no correction is possible**, silently.
-  **`lensfun-update-data`** (needs `python3-lensfun`; ships in `liblensfun-bin`)
-  installs the upstream DB to `~/.local/share/lensfun/updates/version_1`, which HAS
-  it. Run as the USER (root only if updating the system DB); lensfun searches the
+  **`lensfun-update-data`** — it ships in **`liblensfun-bin`**, NOT in
+  `python3-lensfun` (that package exposes only DB-path helpers —
+  `get_database_directories`/`system_db_path`/`get_database_version` — and no
+  matcher at all) — installs the upstream DB to
+  `~/.local/share/lensfun/updates/version_1`, which HAS it. **That path is
+  MACHINE-LOCAL and untracked: it does not migrate with the repo, so it is
+  re-created per rig** (the bootstrap does this in Layer A2). Run as the USER (root only if updating the system DB); lensfun searches the
   user path automatically — verify with
   `python3 -c "import lensfun; print(lensfun.get_database_directories())"`.
 - **RawTherapee is NOT a substitute:** Debian's build does not link lensfun at all,
   so its auto-matched profile is unavailable. darktable `Depends: liblensfun1`.
-- **The lens module is never auto-applied, and its `params` are packed binary.** They
+- **The lens module is never auto-applied, and its `params` are packed binary** — they
   cannot be hand-authored safely (a wrong `modify_flags` applies a silently wrong
-  correction). The only sound path is a **one-time GUI step per lens**: enable *lens
-  correction* on one frame, save a **preset**; the `presets` table in
-  `~/.config/darktable/data.db` then carries darktable's own `op_params` blob, from
-  which a headless **style** can be built (insert into `styles`/`style_items`).
-  Record the preset name in the manifest — this is a human step the bootstrap cannot do.
+  correction). **This no longer needs a GUI step: the styles are pinned in the repo.**
+  `scripts/darktable/{lensdist,nodist}.dtstyle` carry darktable's own `op_params` blob
+  and `install_styles.sh <configdir>` writes them into darktable's `data.db` headlessly
+  (darktable has no CLI style import, and only a real export job creates that db — the
+  installer bootstraps it with a 1×1 PNG). Verified: from a fresh config the warp
+  reproduces to **0.000 px at every radius**. Never re-create them by hand.
+- **ONE style covers every camera, lens and focal — and that is also the trap.** The
+  blob bakes camera/lens/focal/scale, but darktable **ignores all of them** and
+  re-detects from each image's EXIF (measured: focal 70 vs 24 → opposite-sign warps;
+  scale 1.046 vs 0 vs 1.5 → identical to 0.000 px). Only `modify_flags` carries. The
+  same mechanism means **darktable never fails**: a lens the DB cannot match gets NO
+  correction, silently — exit 0, nothing in the log. That is what makes the DB update
+  above load-bearing rather than a nicety, and why the install is only verified by
+  `lens_preflight.py --require-profile` against real frames.
 - **`--style-overwrite` is REQUIRED.** Without it the style is accepted and then
   **silently ignored** — the export succeeds and nothing is corrected.
 - **Use distortion-only.** The GUI default is `modify_flags=7` =
