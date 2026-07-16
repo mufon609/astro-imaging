@@ -84,6 +84,74 @@ matching. Ordered:
 6. **Cross-check (x86/GUI, now optional):** APP / PixInsight fit distortion from
    star correspondences with no catalog. Only worth it if 1–3 disappoint.
 
+## ADOPT — make the distortion route a REPO PROCESS, focal-general, with culling decided
+
+The wide-field untracked route is validated but currently exists as one dataset's
+experiment at ONE focal length with an UNEXAMINED frame-selection default. Both must
+change before it can be the process this repo recommends to any set with the same
+config footprint. **AUDIT first, then implement** — the audit questions below are
+cheap and each one gates a design choice.
+
+### A. Generalise beyond 70 mm — AUDIT
+- **THE decisive question: does darktable's lens module re-detect focal/aperture from
+  each image's EXIF when applied via a style, or use the `op_params` baked into the
+  style?** The `lensfix`/`lensdist` blobs hard-code `focal=70.0 aperture=4.0`. If
+  darktable re-detects, ONE style serves every focal and the route generalises for
+  free. If it uses the baked value, a 24 mm frame silently gets a 70 mm correction —
+  the same class of silent-wrong as the LIN_REC709 gamma. **Test:** apply the 70 mm
+  style to a 24 mm frame and measure the warp (`modified roi IN ... lens` + star
+  displacement vs radius) against a style built at 24 mm. Everything else in this
+  section depends on the answer.
+- lensfun carries CALIBRATED entries at 24/28/35/50/70 for this lens and interpolates
+  between them; confirm the interpolated behaviour at an intermediate focal, and that
+  `crop=1.0` holds for the body.
+- **Degrade loudly, never silently** (the repo's per-dataset rule): a set whose
+  camera+lens is absent from the lensfun DB, or whose focal EXIF is missing/mixed,
+  must STOP and say so — never fall back to an unrelated profile. `acquisition.json`
+  already derives `focal_length_mm`, so the check is cheap.
+- **Mixed-focal sets are a hard stop**, not an interpolation: the acquisition
+  checklist's "lock the zoom ring" exists for this. Verify per-set, not per-session.
+
+### B. When should the loop RECOMMEND this route? — the MATCH rule
+The route is NOT universal: it pays only when stars MOVE across the sensor. A tracked
+set has each star at a fixed sensor position all night, so its distortion never changes
+and the homography is already exact — the warp would only add a resampling. Draft rule
+to validate: recommend when (1) measured inter-frame drift moves stars across a
+meaningful fraction of the field (untracked / mosaic / big dither — MEASURED from the
+registration data, never assumed), AND (2) a lensfun profile exists for the exact
+camera+lens+focal, AND (3) the field is wide enough that distortion x drift exceeds
+~1 px. Otherwise recommend plain homography and say why.
+
+### C. Culling — ASSESSED but NEVER DECIDED, and the warp changes the answer
+- `frame_metrics.json` flagged 4 of 373 at z>3.5 (6897, 6900, 7263, 7264) and
+  `cull_report` proposed excluding them. **No render in the registration deep-dive
+  applied that.** It was an unexamined default, not a decision — the gap this item
+  closes.
+- **The stride subsets were quality-BLIND.** Every-7th (54 frames) and even-stride
+  (169 frames) selected by TIME to fit the disk, not by quality: the 169-frame render
+  INCLUDES DSC_6900, the frame flagged "worst on all three axes", while the 54-frame
+  render excluded all four by luck. Disk pressure silently became frame selection.
+  A full-depth render must use ALL frames plus an EXPLICIT culling decision.
+- **The likely right answer is still "keep all", but it must be decided and recorded.**
+  The spread is tiny — worst FWHM 3.857 vs median 3.634 (6.1%), background flat to
+  0.35%, 98% of frames within +-2% of median FWHM — and the dead-end registry already
+  says dropping a minority subset buys no matching gain and pays the full sqrt(N) noise
+  penalty, and that wFWHM weighting at low spread is WORSE than none.
+- **Re-assess culling AFTER the warp, not before.** The distortion correction made 2
+  previously-unmatchable frames register (52/54 -> 54/54), so frames that would have
+  been culled as match failures are now usable. Any cull computed on un-warped frames
+  is measuring the wrong pipeline.
+- Decide + record per set (accept/reject each candidate with its reason) in the
+  per-dataset record, so "keep all" is a ratified choice rather than a default.
+
+### D. Implement
+Fold A-C into the chain as the operating loop's MATCH -> RECOMMEND step for this
+footprint: measure drift + read focal/camera/lens -> check the lensfun DB -> recommend
+the route WITH its reason (or plain homography, with its reason) -> report -> user
+decides -> execute -> record the choice AND its trade-off. Route detail:
+[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md);
+setup traps: [`docs/x86-setup-and-install.md`](docs/x86-setup-and-install.md).
+
 ## NEXT THREAD — combine all 5 july14 sets into one deep render (~1865 frames)
 
 july14 is **5 sets of the same object**, same workflow, the camera **moved and
