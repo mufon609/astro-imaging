@@ -44,45 +44,46 @@ carries no darks/flats — dark/flat calibration must happen in SENSOR space BEF
 geometric warp, or the sky flat (validated, dust-safe) and the master dark stop
 matching. Ordered:
 
-1. **Productionise — the ORDERING IS SOLVED; only colour management is left.**
-   Chain: Siril `calibrate` (CFA, master dark + sky flat) → debayer → `savetif` →
-   copy the NEF's EXIF onto the TIFF with `exiftool -TagsFromFile` (Make/Model/
-   LensModel/FocalLength/FNumber — darktable needs them to match the profile) →
-   `darktable-cli --style lensfix --style-overwrite` → back to Siril → `register` →
-   `stack`. **PROVEN on a real calibrated frame:** darktable applied the lens module
-   to the Siril TIFF with the **identical piece hash** as the raw run
-   (`ca81489860523076` — same profile, same focal, same correction), and its module
-   list collapses to `colorin lens finalscale colorout gamma` (no demosaic/rawprepare),
-   so it does nothing but the warp. **Do not** reorder to warp-then-calibrate: darks and
-   flats are sensor-grid properties and a CFA mosaic cannot be interpolated at all.
-   **The remaining gotcha is LINEARITY, and it is a real trap:** Siril's `savetif`
-   tagged the linear data `sRGB-elle-V2-srgbtrc.icc` — an sRGB TONE CURVE on linear
-   pixels — so darktable's `colorin` would decode it as sRGB and `gamma` re-encode on
-   the way out. Measured on the round trip: means rose ~24% with mean/median ratios
-   DIVERGING (mean ×1.23–1.25 vs median ×1.15–1.19), which is consistent with the
-   vignetting correction and/or a tone transform — **not yet disentangled**. Fix
-   direction: export with **`--icc-type LIN_REC709`** (or `LIN_REC2020`) and make the
-   input tag match the data (Siril `icc_assign` a linear profile) so no TRC is applied
-   in either direction; then VERIFY linearity by checking a known-linear ramp of star
-   fluxes survives the round trip. A non-linear round trip would silently corrupt
-   photometry, SPCC and the stretch.
-2. **Clean the confound:** the proof used the GUI preset's `modify_flags=7`
-   (distortion|TCA|vignetting). Vignetting correction would FIGHT the sky flat in
-   production and inflates the star-count gain. Re-run distortion-only
-   (`modify_flags=1`) and confirm the roundness/FWHM gains survive.
-3. **The dust gate (priority #1, NOT yet run):** with/without on FULL-FRAME LOSSLESS
-   finals, dust-preservation the deciding metric, the user's eyes. The warp resamples
-   every pixel — confirm it costs no faint structure.
-4. **Setup dependency to record for x86:** Debian's lensfun 0.3.4 DB does NOT contain
-   the Z6III, so the correction is impossible until `lensfun-update-data` installs the
-   upstream DB (`~/.local/share/lensfun/updates/version_1` has `Nikon Z6_3`). Needs
-   `python3-lensfun`. Fold into `x86-setup-and-install`.
+1. **DONE — productionised, and the ordering + linearity are SOLVED.** Chain:
+   Siril `calibrate` (CFA, master dark + sky flat) → debayer → `savetif` → `exiftool
+   -TagsFromFile` (Make/Model/LensModel/FocalLength — darktable needs them to match
+   the profile) → `darktable-cli --style lensdist --style-overwrite --icc-type SRGB`
+   → Siril `register -2pass` → `seqapplyreg -framing=min` → `stack`. Proven on real
+   calibrated frames: darktable warps the Siril TIFF with the identical piece hash as
+   the raw run, and its module list collapses to `colorin lens finalscale colorout
+   gamma`. **Do not** reorder to warp-then-calibrate: darks/flats are sensor-grid
+   properties and a CFA mosaic cannot be interpolated.
+   **LINEARITY — the trap, and the fix (do not get this backwards):** Siril's
+   `savetif` embeds `sRGB-elle-V2-srgbtrc.icc` — a TONE CURVE — on linear pixels, and
+   neither `icc_assign sRGBlinear` nor `set gui.icc_pedantic_linear=true` changes it.
+   **`--icc-type SRGB` MATCHES that tag**, so darktable's decode and re-encode cancel:
+   VERIFIED identity round trip, A_out/A_in **0.9996–1.0000, IQR 0.0003**.
+   **`--icc-type LIN_REC709` is the BROKEN option** — it leaves the sRGB decode
+   uncancelled (measured A_out/A_in climbing 0.1008 → 0.2121, gamma ≈1.34) and
+   silently destroys photometry while looking correct on a preview. Match the tag;
+   never "force linear". Verify with star AMPLITUDES vs brightness (constant ratio),
+   never a mean or a preview.
+2. **DONE — confound cleaned.** Distortion-only (`modify_flags` 7 → 1: no vignetting,
+   which would fight the sky flat; no TCA) re-run on calibrated frames:
+   **1010 → 1610 stars/Mpx (+59%), roundness 0.551 → 0.643, majFWHM 4.42 → 4.06 px**,
+   the control's radial degradation (3.99 → 6.20 px) largely removed. The vignetting
+   confound did NOT drive the gain — removing it made the gain LARGER.
+3. **DONE — dust gate PASSED (the user's eyes, full-frame lossless).** Dust preserved,
+   deep red intact, centre and right side fixed. Priority #1 cleared.
+4. **Setup dependency — RECORDED** in `x86-setup-and-install` (lensfun DB update,
+   the one-time GUI preset step, `--style-overwrite`, distortion-only, colour).
 5. **Better model (optional):** Nikon's OWN coefficients ship in every NEF
    (`RadialDistortionCoefficient1/2/3`, `DistortionCorrection: On (Required)`) and would
    beat a community measurement — but they live in a Nikon-private SubIFD block that no
    headless Linux tool applies. Watch darktable's "embedded metadata" lens method.
 6. **Cross-check (x86/GUI, now optional):** APP / PixInsight fit distortion from
-   star correspondences with no catalog. Only worth it if 1–3 disappoint.
+   star correspondences with no catalog. Only worth it if the route disappoints.
+
+**OPEN (not yet explained):** the corrected stack's innermost bin (r<445, n=386) reads
+worse than its neighbours and than the control's centre; the outermost bin stays
+elevated (5.14 vs 3.91 px mid-field), so the correction is large but not total.
+Residual suspects: the community profile's accuracy, and the unresolved one-sided
+component (differential refraction vs lens decentering).
 
 ## FRESH SESSION — DERIVE THE CONFIG FINGERPRINT FROM THE DATA (process organisation)
 
