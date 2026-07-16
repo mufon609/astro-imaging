@@ -1,0 +1,10 @@
+{
+ "input": "datasets/july14/set-01/qa_work/reg/final_prod_off.fit",
+ "label": "OFF control (no distortion model)",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 5095,
+ "truncated_mean_fwhm_px": 3.2,
+ "sensor_tilt_fwhm_px": 0.5,
+ "sensor_tilt_pct": 16,
+ "off_axis_aberration_fwhm_px": 0.57
+}
