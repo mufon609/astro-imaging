@@ -292,5 +292,75 @@
    "The outermost bin is still elevated (5.14 vs 3.91 px mid-field) \u2014 the correction is large but not total. Residual candidates: the community profile's accuracy, and the unresolved one-sided component (refraction / decentering).",
    "DUST GATE NOT RUN: priority #1. The warp resamples every pixel; whether it costs faint IFN is the user's eyes on FULL-FRAME LOSSLESS finals, with/without."
   ]
+ },
+ "deepest_render": {
+  "verdict": "SHIPPED \u2014 dust gate PASSED on the user's eyes (dust preserved, deep red intact, centre and right fixed).",
+  "frames": "168 of 373 (even stride, FULL 43-min window preserved)",
+  "why_168": "DISK ceiling, not a choice: 231 MB/frame uncompressed (register needs the whole input set resident while seqapplyreg writes the output beside it) => 84 GB for 373 vs ~41 GB free. No compression (user rule: setcompress quantisation is lossless on int16 but silently lossy on float). Stride preserves the TIME SPAN, which is what the geometry depends on; only depth is traded.",
+  "lost_frame": "169th lost to the chunk-remainder bug (Siril cannot build a sequence from 1 frame) \u2014 0.3% of integration; bug recorded in BACKLOG.",
+  "measured": {
+   "stars": 23280,
+   "roundness": 0.637,
+   "major_fwhm_px": 4.07,
+   "radial_roundness": [
+    0.551,
+    0.648,
+    0.662,
+    0.641,
+    0.626,
+    0.611
+   ],
+   "radial_major_fwhm": [
+    4.39,
+    4.0,
+    3.88,
+    3.95,
+    4.29,
+    5.11
+   ]
+  },
+  "reproduces_the_54_frame_result": "roundness 0.643 -> 0.637, majFWHM 4.06 -> 4.07 across 3.1x the frames. The correction is a property of the OPTICS and the route, not of which frames are in the stack \u2014 a real check, not a restatement.",
+  "artifacts": "reg/FULL_lensfun.fit; judge/FINAL_deepest_lensfun.png (4181x3388, PNG16 lossless, full-frame)",
+  "known_defects_carried": [
+   "The stride is QUALITY-BLIND: this stack contains DSC_6900 (flagged 'worst on all three axes') by accident. 1 frame in 168 at 6% spread \u2014 not visible, but an unrecorded default. Culling is a BACKLOG item for a fresh session, deliberately NOT patched mid-render.",
+   "Innermost bin (r<445) reads WORSE than its neighbours \u2014 UNEXPLAINED, see innermost_bin_anomaly.",
+   "Outermost bin still elevated (5.11 vs 3.88 px mid-field): the correction is large but not total."
+  ]
+ },
+ "innermost_bin_anomaly": {
+  "status": "OPEN \u2014 reproduced, not explained. Flagged for a fresh session.",
+  "observation": "In BOTH distortion-corrected runs the INNERMOST radial bin is the WORST of the frame; in the CONTROL it is the BEST. So the correction appears to make the centre worse, where distortion is ~0.",
+  "numbers": {
+   "control_OFF_54fr": {
+    "r_bin": "0-433",
+    "n": 992,
+    "roundness": 0.558,
+    "major_fwhm_px": 3.99,
+    "note": "BEST bin of the control"
+   },
+   "corrected_ON_54fr": {
+    "r_bin": "0-445",
+    "n": 386,
+    "roundness": 0.523,
+    "major_fwhm_px": 4.55,
+    "note": "WORST bin; neighbour r445-889 is 0.644 / 4.02"
+   },
+   "corrected_168fr": {
+    "r_bin": "0-445",
+    "n": 423,
+    "roundness": 0.551,
+    "major_fwhm_px": 4.39,
+    "note": "WORST bin; neighbour r445-890 is 0.648 / 4.00"
+   }
+  },
+  "the_sharper_clue": "star COUNT in that bin collapses: control 992 vs corrected 386/423 (~2.3x fewer) over a near-identical pixel area. darktable's autoscale (1.046) magnifies by only 4.6% and cannot explain a 2.3x drop.",
+  "not_noise": "reproduced independently in two runs (54 and 168 frames, different frame subsets) and absent from the control.",
+  "candidate_causes_to_test": [
+   "The radial binning centre is the STAR BOUNDING-BOX centre (scripts/qa/star_shape_profile.py default), not the optical axis or darktable's distortion centre. If the warp moves the field, the assumed centre may be wrong \u2014 test with --center= at the true optical axis.",
+   "darktable's lens module autoscale (scale=1.046) \u2014 a uniform magnification; check whether it interacts with the innermost region or the ROI change (6064x4040 -> 6056x4036 -> back).",
+   "A lens-module artifact at/near the distortion centre (the polynomial's origin).",
+   "Small-n statistics: n=386-423 is the smallest bin, but the CONTROL's same bin has n=992, so a pure small-n explanation must also explain the count collapse."
+  ],
+  "why_it_matters": "if real, the route is degrading the sharpest part of the frame while fixing the edges \u2014 a trade nobody agreed to. If it is a measurement artifact of the binning centre, the metric is wrong and every radial profile in this deep-dive inherits it."
  }
 }
