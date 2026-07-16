@@ -4,7 +4,8 @@ Durable, arch-independent field lessons: the processing dead-ends never to
 re-attempt (each with its mechanism), and the acquisition choices that outrank
 any processing knob. **Read the dead-end registry before proposing ANY
 experiment** — if a thing does not work, the mechanism why is here. Full detail
-+ the original numbers live in git history (the `checkpoint` commit's NOTES).
++ the original numbers live in git history (the NOTES at the commit whose message
+begins `checkpoint:` — `git log --oneline --grep='^checkpoint:'`).
 
 ## Dead-end registry — do NOT re-attempt
 

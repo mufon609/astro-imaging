@@ -14,7 +14,9 @@ Where knowledge is already saved (don't duplicate it here — go read it):
 - The tier-by-tier **tool audit** (2026 landscape) → `TOOLS.md`
 - Process/review/acceptance contract → `README.md`
 - Per-dataset state model → `datasets/README.md`
-- Full history (pre-reset chain, old NOTES.md) → git, the `checkpoint` commit
+- Full history (pre-reset chain, old NOTES.md) → git, the commit whose message
+  begins `checkpoint:` (`git log --oneline --grep='^checkpoint:'` — a message
+  prefix, not a tag)
 
 Only what is NOT in those lives below.
 

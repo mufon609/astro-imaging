@@ -74,16 +74,21 @@ how they judge/work) + residual lessons migrated off the machine-local
 auto-memory so they transfer with the repo; (3) `README.md` — the process
 contract (review
 contract + standing audits, per-set geometry, experiment discipline, north
-star). The DURABLE stage design (stack/calibrate/compose/solve/SPCC) lives in
-the kept scripts' own docstrings. `docs/` holds research
-deep-dives (one cited `.md` per major investigation — see `docs/README.md`),
-whose durable findings graduate into TOOLS / `docs/dead-ends.md` / MEMORY.
-`BACKLOG.md` is a stub (superseded by the x86 test plan). Full history lives in
-`git log` — the complete pre-reset chain AND the old NOTES.md are at the
-`checkpoint` commit.
+star). The DURABLE stage design (calibrate → [undistort] → register → stack →
+solve → SPCC → compose) lives in the kept scripts' own docstrings; the
+**undistort** stage is the wide-field-untracked route and is documented in
+[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
+`docs/` holds research deep-dives (one cited `.md` per major investigation — see
+`docs/README.md`), whose durable findings graduate into TOOLS /
+`docs/dead-ends.md` / MEMORY. (4) `BACKLOG.md` — the ordered open queue + the
+**removal-condition register**; read it before starting work, since an item you
+are about to do may be gated on another. Full history lives in `git log` — the
+complete pre-reset chain AND the old NOTES.md are at the commit whose message
+begins `checkpoint:` (a message prefix, not a tag: find it with
+`git log --oneline --grep='^checkpoint:'`).
 Per-dataset state is the tracked `datasets/<session>/<set>/` records; NOTE
 its `recipe.json` render blocks + `baseline.json` are chain-coupled and
-PENDING the new chain.
+PENDING the new chain (no dataset carries either yet).
 
 ## Environment
 
@@ -115,6 +120,17 @@ core here now:**
   available on x86.
 - GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise). exiftool/exiv2
   present. Outbound network works.
+- **darktable 5.4.1 (`darktable-cli`, built against Lensfun 0.3.4)** — the
+  UNDISTORT stage for the wide-field-untracked class, and load-bearing on this
+  rig today. Styles are pinned in-repo: `scripts/darktable/{lensdist,nodist}.dtstyle`,
+  installed headlessly with `scripts/darktable/install_styles.sh <configdir>`
+  (darktable has no CLI style import; only a real export job creates its
+  `data.db`). **Never re-create them by hand in the GUI** — the `op_params` blob
+  is the pinned artifact. `--style-overwrite` is REQUIRED or the style is
+  silently ignored; `--icc-type SRGB` (match Siril's tag — forcing linear
+  destroys photometry, `docs/dead-ends.md`); the upstream DB needs
+  `lensfun-update-data` (Debian's 0.3.4 lacks the Z6III). Route +
+  traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
 - Plate solving: siril's internal solver cannot match ultra-wide
   trailed-star fields (a DATA issue, not arch) — use
   `scripts/calibrate/solve_field.py` (blind astrometry.net from peak
@@ -152,6 +168,26 @@ core here now:**
   (`scripts/qa/anomaly_audit.py` is the model; the astrometry.net precedent).
   When no tool provides a mechanism, that is a **documented gap** — never a
   silent numpy substitute.
+  **"Every number came from a tool" does NOT make it in-bounds.** Reading a
+  tool's output and then computing a *different analysis* from it is still an
+  in-house analysis, and the FORBIDDEN test ("reimplements an analysis an
+  official tool already provides") does not care that the inputs were
+  tool-sourced. Before writing any measurement, **search the tool for it** —
+  including its non-obvious surface: a GUI-only command may have a headless
+  sibling (`tilt`/`inspector` are GUI-only, but **`seqtilt`** is scriptable and
+  was the answer). MEASURED cost of skipping that search: an in-house radial
+  star-shape profile that a tool already provided, whose origin was inferred
+  from the very detections the defect suppressed — so a worse defect made the
+  metric look better, and it invented an anomaly a whole session was scoped to
+  chase (`docs/dead-ends.md`, trap 3).
+- **Re-check the removal conditions — a divergence nobody re-checks never ends.**
+  Every adaptation and gap-filler carries one; the register of them all, with
+  status, is in [`BACKLOG.md`](BACKLOG.md). Re-check it when a tool version
+  changes, when the rig changes, and before working any item it gates. Writing
+  the condition is not the work — firing it is. (`star_shape_profile.py`'s
+  condition had fired and nothing noticed; it stayed long enough to produce a
+  false result.) An adaptation with NO written condition is the worse case —
+  find it and write one.
 - **Root cause over thrash.** When output is wrong, AUDIT the config / logic /
   sequence / tuning and RESEARCH the tool (official docs + forums) to find the
   cause, then fix THAT. Never try random knob values hoping the output changes —

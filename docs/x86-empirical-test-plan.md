@@ -21,11 +21,12 @@
 | GraXpert `-cli -cmd denoising/deconv-obj -gpu false` timed | GraXpert CPU cost + which version installed | wall-clock; `pip show graxpert` | record; confirm 3.0.2 vs 3.2.0a2 |
 | StarNet2 / DeepSNR / Cosmic Clarity headless run + timed | do the free binaries run CPU-only + wall-clock | seconds/min per frame | run headless, no display |
 
-### Phase 1 — Port the measurement core (the kept durable core)
+### Phase 1 — Port the orchestration + record layer
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
-| Run `bg_qa` gate + `object_integrity` + `star_shell_report` on a known stack | the core ports verbatim (numpy/FITS/Siril-CLI) | same outputs as arm on the same inputs | identical within tolerance |
+| Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core to port — it was deleted) | same tool numbers as arm on the same inputs | agree within tolerance |
 | astropy equatorial→galactic vs our fixed 3×3 in `astrometrics.py` | the arm-era hand-rolled matrix (astropy was absent) | max angular error vs `astropy.coordinates` | agree to arcsec |
+| Fire the removal conditions the x86 rig unblocks — astropy (5 hand-rolled FITS parsers), 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
 | sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the "proven on arm" claim on x86 | a trivial pyscript runs headless | runs, no display |
 
 ### Phase 2 — Rebuild the stack builder (`docs/siril-stacking-workflow.md`)
@@ -33,7 +34,8 @@
 |---|---|---|---|
 | Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
 | `help stack` on the flatpak | bare-`rej` default algorithm (UNCERTAIN) | is it Winsorized? | confirm or switch to `rej w 3 3` |
-| Drop `partitioned_stack`; 32-bit end-to-end on a full sequence | the 7.7 GB→32 GB RAM relaxation | holds full sequence in RAM | completes without the workaround |
+| 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
+| Run the UNDISTORT stage end to end (`scripts/darktable/install_styles.sh` → the chain in `wide-field-untracked-registration.md`) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` off-axis aberration, control vs corrected | reproduces the 0.57 → ~0.25 px direction and magnitude |
 
 ### Phase 3 — Plate solving, the trailed class (`docs/plate-solving-and-drizzle.md`)
 | Test | Settles | Bracket / metric | Pass |
@@ -57,12 +59,16 @@
 | PSFSW proxy vs a PixInsight SubframeSelector export (if available) | the `(Σflux·Σmeanflux)/(noise·M*)` proxy | rank correlation | high correlation = usable weight |
 
 ## Cross-cutting acceptance (the contract)
-Every render-altering result is judged by the three-check acceptance: **deterministic**
-(run twice → identical artifacts), **no-regression** (all registered datasets still pass
-the gate + star-shell + inspection; the gate never loosens), and **declared delta**
-(metric deltas + like-encoding panels; objective-better-or-equal may commit, anything
-aesthetic needs the user's eyes on full-frame lossless finals). One bracketed knob per
-experiment; a killed hypothesis becomes a `docs/dead-ends.md` entry **with its numbers**.
+Every render-altering result is judged by the three-check acceptance in `README.md`
+("How a change is accepted"): **reproducible** — NOT a byte-identical double-render,
+which is the wrong bar on this chain (the neural tools' multi-threaded inference is not
+bit-reproducible, and even darktable's TIFF differs by a metadata byte per run while its
+warp reproduces exactly) — verified cheaply to a documented tolerance; **no-regression**
+across data classes, judged on the TOOLS' recorded measures against each dataset's
+baseline, criteria never loosening; and **declared delta** (metric deltas + like-encoding
+panels; objective-better-or-equal may commit, anything aesthetic needs the user's eyes on
+full-frame lossless finals). One bracketed knob per experiment; a killed hypothesis
+becomes a `docs/dead-ends.md` entry **with its numbers**.
 
 ## Sources
 Internal synthesis of the ten `docs/` deep-dives (each carries its own primary
