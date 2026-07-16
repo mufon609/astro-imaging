@@ -41,7 +41,55 @@ system Python).
 | **rc-astro** (BXT/NXT/SXT) | D · vendor installer, **license-gated** | authenticated account-page installer → binary `rc-astro` on PATH | none public (compute own) | (installer-chosen; **path TBD**) | `rc-astro bxt` (prints help + license) |
 | **numpy/scipy/pillow/astropy** | C · venv | `requirements.txt` pinned (`astropy==8.0.1`, all manylinux wheels) | pip `--require-hashes` | `.venv` | `python -c "import astropy"` |
 | **Nightlight 0.2.6** | D · `go build` | `git clone --branch v0.2.6 mlnoga/nightlight` → `go build ./cmd/nightlight` (**Go ≥1.20** despite go.mod=1.17) | `go.sum` / GOSUMDB | `/opt/nightlight-0.2.6/` | `nightlight version` |
+| **darktable + lensfun** (the wide-field UNTRACKED distortion fix) | A · apt **+ a mandatory DB update + a one-time GUI step** | `apt install darktable python3-lensfun` then **`lensfun-update-data`** | apt signature; DB over https from lensfun upstream | system + `~/.local/share/lensfun/updates/version_1` | `darktable-cli --version` shows **`Lensfun -> 0.3.x`**; then verify a *warp actually happens* (below) |
 | pipx / xvfb | A · apt | `apt install pipx xvfb` (xvfb only for GUI pyscripts — avoid) | apt | system | `pipx --version` |
+
+### darktable + lensfun — the setup that is NOT just an apt line
+This is the only tool here whose install is incomplete after `apt`, and every step
+below is a MEASURED failure mode, not a precaution
+([`wide-field-untracked-registration.md`](wide-field-untracked-registration.md)).
+It is load-bearing: it is the only route that fixes the wide-field untracked
+registration defect.
+
+- **The distro database does NOT know modern bodies.** Debian's `liblensfun-data-v1`
+  is 0.3.4 (~2018) and has no `Nikon Z6_3` (2024). lensfun needs a CAMERA match to
+  build a modifier at all — the body supplies the CROP FACTOR, the lens the
+  distortion — so **without the update no correction is possible**, silently.
+  **`lensfun-update-data`** (needs `python3-lensfun`; ships in `liblensfun-bin`)
+  installs the upstream DB to `~/.local/share/lensfun/updates/version_1`, which HAS
+  it. Run as the USER (root only if updating the system DB); lensfun searches the
+  user path automatically — verify with
+  `python3 -c "import lensfun; print(lensfun.get_database_directories())"`.
+- **RawTherapee is NOT a substitute:** Debian's build does not link lensfun at all,
+  so its auto-matched profile is unavailable. darktable `Depends: liblensfun1`.
+- **The lens module is never auto-applied, and its `params` are packed binary.** They
+  cannot be hand-authored safely (a wrong `modify_flags` applies a silently wrong
+  correction). The only sound path is a **one-time GUI step per lens**: enable *lens
+  correction* on one frame, save a **preset**; the `presets` table in
+  `~/.config/darktable/data.db` then carries darktable's own `op_params` blob, from
+  which a headless **style** can be built (insert into `styles`/`style_items`).
+  Record the preset name in the manifest — this is a human step the bootstrap cannot do.
+- **`--style-overwrite` is REQUIRED.** Without it the style is accepted and then
+  **silently ignored** — the export succeeds and nothing is corrected.
+- **Use distortion-only.** The GUI default is `modify_flags=7` =
+  distortion|TCA|**vignetting**; vignetting correction FIGHTS a master/sky flat. Patch
+  the blob's second int to `1` for production.
+- **COLOUR: match the profile, never "force linear".** Siril's `savetif` embeds
+  `sRGB-elle-V2-srgbtrc.icc` (a TONE CURVE) on linear pixels, and neither
+  `icc_assign sRGBlinear` nor `set gui.icc_pedantic_linear=true` changes that.
+  Export with **`--icc-type SRGB`** so darktable's decode and re-encode cancel
+  (verified identity round trip). `--icc-type LIN_REC709` leaves the decode
+  uncancelled — measured gamma ≈1.34 — and destroys photometry while looking fine.
+- **Headless verify (do NOT stop at `--version`):** export one frame with the style
+  and without it, and confirm the log shows `committed [export] lens ... enabled` and
+  a `modified roi IN ... lens` size change. A version string proves nothing here —
+  every failure mode above is silent.
+- **Ordering is load-bearing:** calibrate in SENSOR space (dark+flat) → debayer →
+  warp → register. Darks/flats are sensor-grid properties and a CFA mosaic cannot be
+  interpolated, so the warp has exactly one legal slot.
+- **NEVER compress pipeline intermediates.** Siril's `setcompress` quantisation is
+  lossless on 16-bit ints but **silently lossy on float** — one upstream `set32bits`
+  destroys data with no signal. Uncompressed only.
 
 ### The specifics that bite (carry into the manifest notes)
 - **Siril flatpak sandbox** has its own **private `/tmp`** → `.ssf`/`.py` must live under
