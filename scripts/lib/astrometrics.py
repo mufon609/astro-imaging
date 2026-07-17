@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Shared I/O + per-set geometry helpers for the orchestration layer.
+"""Shared FITS-read + per-set geometry helpers for the orchestration layer.
 
-Pure numpy/scipy/PIL, EXAMINE/orchestrate only: FITS and display-image readers,
-the FITS/PNG writers finals are packaged with (incl. the sRGB colorimetry
-tags), and the per-set foreground geometry the tools are pointed around. It
-does NOT grade or transform the deliverable's pixels — every pixel
-measurement and every pixel operation is sourced from an industry tool
-(Siril / GraXpert / astrometry.net / …), never hand-rolled here.
+Pure numpy/scipy, EXAMINE/orchestrate only: a minimal FITS reader (feeds the
+plate-solve star extraction), header-derived pixel scale, and the per-set
+foreground geometry the tools are pointed around. It does NOT grade or
+transform the deliverable's pixels — every pixel measurement and every pixel
+operation is sourced from an industry tool (Siril / darktable /
+astrometry.net / …), never hand-rolled here. Finals I/O is a tool's job
+(Siril `savepng`/`savetif`); the hand-rolled FITS parse itself retires to
+astropy on the target rig (removal-condition register).
 
 Units convention: FITS data are normalized to [0,1] floats internally.
 """
@@ -57,17 +59,8 @@ def read_fits(path):
     elif bitpix == 32:
         data /= 4294967295.0
     # FITS rows are bottom-up; flip to display orientation (top-down) so
-    # panels match the JPEG previews and the branch mask hits the right
-    # corner regardless of input type.
+    # the branch mask hits the right corner regardless of input type.
     return data.reshape(nc, ny, nx)[:, ::-1, :].copy(), hdr
-
-
-def fits_dims(path):
-    """(width, height) from the header only — no data read."""
-    import re
-    raw = open(path, "rb").read(2880 * 4).decode("ascii", "replace")
-    return (int(re.search(r"NAXIS1\s*=\s*(\d+)", raw).group(1)),
-            int(re.search(r"NAXIS2\s*=\s*(\d+)", raw).group(1)))
 
 
 def fits_pixel_scale(path):
@@ -90,34 +83,6 @@ def fits_pixel_scale(path):
     if fl_v <= 0 or px_v <= 0:
         return None
     return 206.265 * px_v / fl_v
-
-
-def load_linear(path):
-    """Processing-input loader: FITS ONLY. Display-referred / lossy files
-    (jpg, png) exist solely as QA, gate and judgment surfaces — a
-    processing stage fed one would silently work on quantized or
-    chroma-subsampled data, so this guard refuses instead."""
-    data, kind = load_image(path)
-    if kind != "fits":
-        sys.exit(f"astrometrics: {path} is not FITS — processing stages "
-                 "take linear FITS only (jpg/png are QA/judgment "
-                 "surfaces, never inputs)")
-    return data
-
-
-def load_image(path):
-    """FITS or JPEG/PNG -> (data float32 (C,H,W) in [0,1], kind str).
-    kind is 'fits' or 'jpg' (jpg == 8-bit display referred)."""
-    if path.lower().endswith((".fit", ".fits", ".fts")):
-        data, _ = read_fits(path)
-        return data, "fits"
-    from PIL import Image
-    a = np.asarray(Image.open(path), dtype=np.float32) / 255.0
-    if a.ndim == 2:
-        a = a[None]
-    else:
-        a = a.transpose(2, 0, 1)
-    return a, "jpg"
 
 
 # --- per-set geometry context ---------------------------------------------
@@ -265,10 +230,11 @@ def _fg_mask(h, w):
 def branch_mask(h, w, stride=1):
     """True where measurable (the terrestrial foreground excluded — a rect,
     or a mask-file foreground for shapes a rect can't model).
-    STATISTICS scope only: a hard edge is fine when selecting samples. Any
-    RENDERING operator must use branch_mask_frac instead — a hard mask
-    multiplied into a correction prints a visible seam (measured +1.0/−1.5
-    counts). CTX.foreground None -> all True."""
+    STATISTICS scope only: a hard edge is fine when selecting samples. A
+    RENDERING operator must never multiply a hard mask into a correction —
+    it prints a visible seam (measured +1.0/−1.5 counts); the render layer
+    re-derives a feathered variant when it lands. CTX.foreground None ->
+    all True."""
     if CTX.foreground == "mask":
         return ~_fg_mask(h, w)[::stride, ::stride]
     m = np.ones((len(range(0, h, stride)), len(range(0, w, stride))), bool)
@@ -279,173 +245,3 @@ def branch_mask(h, w, stride=1):
     xs = np.arange(0, w, stride) / w
     m[np.ix_((ys >= y0) & (ys < y1), (xs >= x0) & (xs < x1))] = False
     return m
-
-
-def branch_mask_frac(h, w, feather=0.05):
-    """Soft [0..1] foreground mask (1 = foreground rect, 0 = sky) with a
-    smooth rolloff over `feather` (fraction of frame height) OUTSIDE the
-    rectangle. For a rendering operator that needs a feathered foreground:
-    corrections fade over ~feather*h px instead of stopping at a hard
-    printed edge. CTX.foreground None -> zeros."""
-    if CTX.foreground is None:
-        return np.zeros((h, w), np.float32)
-    if CTX.foreground == "mask":
-        key = ("fgfrac", h, w, round(float(feather), 4))
-        if key in CTX._cache:
-            return CTX._cache[key]
-        m = _fg_mask(h, w)
-        if feather <= 0:
-            out = m.astype(np.float32)
-        else:
-            from scipy.ndimage import distance_transform_edt
-            d = distance_transform_edt(~m)  # px to the mask
-            out = np.clip(1.0 - d / (feather * h), 0.0, 1.0) \
-                .astype(np.float32)
-        CTX._cache[key] = out
-        return out
-    x0, y0, x1, y1 = CTX.foreground
-    ys = (np.arange(h) + 0.5) / h
-    xs = (np.arange(w) + 0.5) / w
-    # signed distance outside the rectangle along each axis (0 inside)
-    dy = np.maximum(np.maximum(y0 - ys, ys - y1), 0.0)[:, None]
-    dx = np.maximum(np.maximum(x0 - xs, xs - x1), 0.0)[None, :]
-    d = np.hypot(dy, dx)  # frame-fraction distance to the rectangle
-    if feather <= 0:
-        return (d <= 0).astype(np.float32)
-    return np.clip(1.0 - d / feather, 0.0, 1.0).astype(np.float32)
-
-
-SRGB_ICC = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "srgb.icc")
-# PNG colorimetry signal chunks (sRGB perceptual + the spec's companion
-# gAMA/cHRM fallbacks for non-sRGB-aware decoders): the render's colour
-# math (LCh operators, Luv luminance) treats display RGB as
-# sRGB-companded, so finals DECLARE that instead of leaving viewers to
-# assume it. Fixed bytes — deterministic by construction.
-PNG_SRGB_CHUNKS = (
-    (b"sRGB", b"\x00"),
-    (b"gAMA", (45455).to_bytes(4, "big")),
-    (b"cHRM", b"".join(v.to_bytes(4, "big") for v in
-                       (31270, 32900, 64000, 33000,
-                        30000, 60000, 15000, 6000))),
-)
-
-
-def srgb_icc():
-    """The vendored sRGB profile finals embed (lcms matrix profile with
-    the creation timestamp and profile ID zeroed, so embedding stays
-    byte-deterministic across machines and runs)."""
-    with open(SRGB_ICC, "rb") as f:
-        return f.read()
-
-
-def png_srgb_info():
-    """PngInfo carrying PNG_SRGB_CHUNKS for PIL PNG saves (written before
-    IDAT, per spec)."""
-    from PIL.PngImagePlugin import PngInfo
-    pi = PngInfo()
-    for tag, payload in PNG_SRGB_CHUNKS:
-        pi.add(tag, payload)
-    return pi
-
-
-def write_png16(path, arr16):
-    """Write a 16-bit RGB PNG (color type 2, bit depth 16) from a uint16
-    (H, W, 3) array. Pure zlib/struct — Pillow cannot write 48-bit RGB
-    PNGs, and the render is computed in float: an 8-bit final quantizes
-    to 256 levels, this keeps 65536 (visually indistinguishable from the
-    float render). Carries the same sRGB colorimetry chunks as the PIL
-    finals."""
-    import struct
-    import zlib
-    h, w, c = arr16.shape
-    assert c == 3 and arr16.dtype == np.uint16
-
-    def chunk(tag, payload):
-        return (struct.pack(">I", len(payload)) + tag + payload
-                + struct.pack(">I", zlib.crc32(tag + payload) & 0xffffffff))
-
-    # scanlines: filter byte 0 + big-endian samples per row
-    body = np.empty((h, 1 + w * 6), np.uint8)
-    body[:, 0] = 0
-    body[:, 1:] = arr16.astype(">u2").reshape(h, -1).view(np.uint8)
-    ihdr = struct.pack(">IIBBBBB", w, h, 16, 2, 0, 0, 0)
-    with open(path, "wb") as f:
-        f.write(b"\x89PNG\r\n\x1a\n")
-        f.write(chunk(b"IHDR", ihdr))
-        for tag, payload in PNG_SRGB_CHUNKS:
-            f.write(chunk(tag, payload))
-        f.write(chunk(b"IDAT", zlib.compress(body.tobytes(), 6)))
-        f.write(chunk(b"IEND", b""))
-
-
-def read_fits_planes(path):
-    """Raw float32 FITS read, FILE order (no orientation flip): returns
-    (header cards, planes (C,H,W) float32, hdr dict). For processing
-    stages that write their result back out — pair with
-    write_fits_planes so the header cards and the pixel order round-trip
-    untouched (read_fits flips to display orientation and is for
-    measurement)."""
-    raw = open(path, "rb").read()
-    cards, off, end = [], 0, False
-    while not end:
-        block = raw[off:off + 2880]
-        for i in range(0, 2880, 80):
-            c = block[i:i + 80].decode("ascii")
-            if c.startswith("END"):
-                end = True
-                break
-            cards.append(c)
-        off += 2880
-        if off > len(raw):
-            sys.exit(f"astrometrics: no END card in {path}")
-    hdr = {c[:8].strip(): c[10:].split("/")[0].strip()
-           for c in cards if "=" in c}
-    bitpix = int(hdr["BITPIX"])
-    if bitpix != -32:
-        sys.exit(f"astrometrics: read_fits_planes expects a float32 FITS, "
-                 f"got BITPIX {bitpix} in {path}")
-    nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
-    nc = int(hdr.get("NAXIS3", "1")) if int(hdr["NAXIS"]) == 3 else 1
-    planes = np.frombuffer(raw, dtype=">f4", count=nc * ny * nx,
-                           offset=off).reshape(nc, ny, nx)
-    return cards, planes.astype(np.float32), hdr
-
-
-def write_fits_planes(path, cards_src, planes):
-    """Write float32 planes (C,H,W) in FILE order under the source header
-    cards, geometry patched to the array. The card grid is 80-byte cells:
-    one oversized card would shift END off its boundary and every reader
-    rejects the file, so refuse those loudly."""
-    over = [c for c in cards_src if len(c) > 80]
-    if over:
-        sys.exit(f"astrometrics: header card exceeds 80 bytes "
-                 f"({len(over[0])}): {over[0][:60]!r}...")
-    nc, ny, nx = planes.shape
-    out, seen3 = [], False
-    for c in cards_src:
-        key = c[:8].strip()
-        if key == "NAXIS":
-            out.append(f"{'NAXIS':<8s}= {(3 if nc == 3 else 2):>20d}".ljust(80))
-        elif key == "NAXIS1":
-            out.append(f"{'NAXIS1':<8s}= {nx:>20d}".ljust(80))
-        elif key == "NAXIS2":
-            out.append(f"{'NAXIS2':<8s}= {ny:>20d}".ljust(80))
-        elif key == "NAXIS3":
-            if nc > 1:
-                out.append(f"{'NAXIS3':<8s}= {nc:>20d}".ljust(80))
-                seen3 = True
-        else:
-            out.append(c)
-    if nc > 1 and not seen3:
-        for i, c in enumerate(out):
-            if c[:8].strip() == "NAXIS2":
-                out.insert(i + 1, f"{'NAXIS3':<8s}= {nc:>20d}".ljust(80))
-                break
-    hdr = "".join(out) + "END".ljust(80)
-    hdr += " " * ((-len(hdr)) % 2880)
-    body = planes.astype(">f4").tobytes()
-    with open(path, "wb") as f:
-        f.write(hdr.encode("ascii"))
-        f.write(body)
-        f.write(b"\x00" * ((-len(body)) % 2880))

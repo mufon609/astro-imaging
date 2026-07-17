@@ -22,10 +22,7 @@ changes, when the rig changes, and before any item below is worked.
 | divergence | condition that retires it | status |
 |---|---|---|
 | `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. |
-| `astrometrics.write_png16` (hand-rolled 16-bit PNG encoder + sRGB chunks) | a tool writes 16-bit RGB PNG with its ICC | **FIRED** — Siril `savepng` writes *"16 bits per channel if the loaded image is 16 or 32 bits"* + an iCCP chunk. Retirement is open work (item 6). |
 | `compose.py` channel combine (`np.stack` + hand-rolled 3-plane FITS write) | a tool composes channels headless | **FIRED** — Siril `rgbcomp` verified on 1.4.4, and `rgbcomp -lum=` additionally closes the LRGB-join gap. Retirement is open work (item 6). |
-| `judgment_package.read_png16_sampled` (hand-rolled PNG decoder) | a library reader or a 16-bit TIFF surface | **FIRED** — `tifffile` reads Siril's 16-bit TIFF; Siril `savepng` writes the PNG. Retirement is open work (item 6). |
-| `crop_coverage.py` (post-stack coverage crop) | `seqapplyreg -framing=min` provably accounts for drift **and rotation** | **UNSETTLED** — a real 1500-px-drift, field-rotating set now runs through `-framing=min` in production and has never needed the script, but Siril's docs say only "the area it has in common with all images" and do not specify rotation handling. A border-vs-interior `stat` is confounded by the sky gradient. Needs a real coverage test (item 6). |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
@@ -188,40 +185,26 @@ fallback. A real matching flat retires the whole branch.
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
-Each has a **fired** removal condition (see the register); the finding is confirmed and
-only the retirement is outstanding. Do not re-research these — implement them.
-
-- **`astrometrics.write_png16` → Siril `savepng`.** Retires a from-scratch 16-bit RGB
-  PNG encoder *and* its hand-built sRGB/gAMA/cHRM colorimetry. `savepng filename` takes
-  no flags (16-bit auto-selected from a 16/32-bit source); the profile comes from a
-  prior `icc_assign` + a save-time preference, and lands as an **iCCP** chunk (a full
-  profile rather than the lightweight triplet — both standards-compliant).
 - **`compose.py` channel combine → Siril `rgbcomp`.** The member ALIGN is already Siril;
   only the combine is in-house. `rgbcomp chR chG chB -out=` produces a 3-plane float32
   RGB FITS, and **`rgbcomp -lum=`** runs the LRGB join headless — which also closes the
   long-standing LRGB gap `compose` currently REFUSES. `compose` shrinks to: resolve
-  `composition.json` → drive the Siril align → `rgbcomp`. Open: the CLI `-lum` blend
-  colour space is undocumented (GUI offers HSL/HSV/Lab) — check on a real dual-band +
-  mono-filter set.
-- **`judgment_package.read_png16_sampled` → a library reader.** It hand-implements a
-  full PNG decoder (all five scanline filters) for an integrity check. Once Siril writes
-  the file, switch the lossless judgment surface to 16-bit TIFF read with `tifffile`, or
-  read the PNG with a ~15-line stdlib chunk parser (IHDR/depth/colortype — an inspection,
-  not a decode). Pairs with the `savepng` adoption. Reactivate with the render rebuild.
-- **`crop_coverage.py` → `seqapplyreg -framing=min`, then REMOVE.** `-framing=min` crops
-  to the common area BEFORE stacking, so no falloff band ever forms — earlier and
-  cleaner than a post-stack crop, and it is already what production uses. **Settle the
-  condition first:** confirm the common area accounts for rotation, not just
-  translation. A border-vs-interior `stat` is confounded by the sky gradient; a real
-  test needs per-pixel coverage (e.g. stack a constant-valued sequence through the same
-  registration and look for a border falloff). `crop x y w h` remains the native
-  primitive if a post-hoc crop is ever needed.
+  `composition.json` → drive the Siril align → `rgbcomp`. Blocked on real data: the swap
+  is testable only on a dual-band / mono-filter set (none staged) — implement + verify
+  at first contact, never swap untested. Open: the CLI `-lum` blend colour space is
+  undocumented (GUI offers HSL/HSV/Lab).
 - **Write the missing removal condition for the 16-bit stack-time intermediates**, then
   fire it on x86. The quantization was measured ≈18× below per-frame noise (~+0.3% stack
   noise) and was forced by the arm rig's RAM/disk; 32 GB / 1 TB removes the reason. Note
   the shipped july14 stacks are `BITPIX=16` for this reason.
 
 ## 7. Open questions with a named test
+
+- **Does `seqapplyreg -framing=min` account for rotation, not just translation?**
+  Siril's docs say only "the area it has in common with all images". A
+  border-vs-interior `stat` is confounded by the sky gradient; the real test is
+  per-pixel coverage — stack a constant-valued sequence through a rotating
+  registration and look for border falloff.
 
 - **Which mechanism drives the RESIDUAL one-sided term.** Siril `seqtilt` measures it;
   the fitted lens model reduced it 0.51 → 0.31 px (16% → 10%) at full depth — that
@@ -257,9 +240,8 @@ only the retirement is outstanding. Do not re-research these — implement them.
 ## 8. Combine all 5 july14 sets into one deep render (~1865 frames)
 
 july14 is 5 sets of the same object, same workflow, the camera re-centred on the target
-every ~45 min. set-01 (373 frames, 43 min) is one such window. No raws remain on this
-rig (the july14 session tree was deleted after prep; set-03 stages outside the repo
-pending the desktop); every set's frames arrive with the x86 migration.
+every ~45 min. set-01 (373 frames, 43 min) is one such window and is the only set with raws
+on this rig; the others stage per-set as they arrive.
 
 **The re-aims cost nothing — the validated route already covers them.** A manual
 re-centre is a rotation about the optical centre, and pure rotation with all scene

@@ -64,13 +64,13 @@ follows, in order — linear until step 6:
 | # | standard step | our implementation | status |
 |---|---|---|---|
 | 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted `rej 3 3`, byte-identical generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
-| 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends.md` paraxial-band entry). The chain is scripted as `run_undistort_pipeline.sh` (assembled from the shipped chain; first as-written run = the x86 set-01 job). It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG item 2 |
-| 1b | — | **flatless sets** — the in-house numpy self-flat branch was REMOVED; a set without a matching flat loudly STOPS | GAP — fill with a real flat (primary) or an official synthetic flat (GraXpert `-correction Division`, BACKLOG), never an in-house fit |
+| 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends.md` paraxial-band entry). The chain is scripted as `run_undistort_pipeline.sh`. It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG item 2 |
+| 1b | — | **flatless sets** — a set without a matching flat loudly STOPS | GAP — fill with a real flat (primary) or an official synthetic flat (GraXpert `-correction Division`, BACKLOG), never an in-house fit |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
 | 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). CLASS LIMIT: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — a plane keeps that signal (it removes only the first-degree gradient) and still clears the gradient class the checklist tests |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction | PENDING x86 — a tool step | On x86 this is a real tool (NoiseXTerminator / GraXpert / Cosmic Clarity — the chroma-noise gap closes, `docs/dead-ends.md`). The old "radial noise after self-flat V(r) division" dead-end retired with the self-flat branch |
+| 5 | linear noise reduction | PENDING x86 — a tool step | On x86 this is a real tool (NoiseXTerminator / GraXpert / Cosmic Clarity — the chroma-noise gap closes, `docs/dead-ends.md`). |
 | 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **GAP (pending x86)** — a per-dataset tool toolkit: StarXTerminator / native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars), `rgbcomp` (recombine). Build order: `docs/x86-empirical-test-plan.md` | PENDING x86 |
 
 Principles that keep this honest:
@@ -205,19 +205,14 @@ float stacks/products, with ONE
 documented precision reduction — 16-bit stack-time intermediates
 (quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
-(never a judgment surface), the q100/4:4:4 final jpg, and judgment panels. GUARDS on the surviving core: `compose.py`
-asserts float32 inputs; the render chain's load guard
-(`astrometrics.load_linear`, currently caller-less) returns with the x86 render
-rebuild.
-Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
-PNG16 for the final **and the starless layer** (PNG8 = the 8-bit display
-pixels; PNG16 = the float layer at 65536 levels).
-Never judge a q92 surface. Finals carry EMBEDDED sRGB COLORIMETRY (JPEG
-ICC + PNG sRGB/gAMA/cHRM chunks): the render's display-referred output is
-sRGB-companded (siril's autostretch/mtf/satu operate in display RGB), so
-the tag declares that instead of leaving viewers to assume it — pixels
-untouched, profile vendored at `scripts/lib/srgb.icc` with timestamp/ID
-zeroed for byte-determinism.
+(never a judgment surface), the q100/4:4:4 final jpg, and judgment panels.
+GUARDS on the surviving core: `compose.py` asserts float32 inputs; a
+FITS-only load guard returns with the render rebuild.
+Human judgment uses the LOSSLESS artifacts: PNG8 + PNG16 for the final
+**and the starless layer** (PNG8 = the 8-bit display pixels; PNG16 = the
+float layer at 65536 levels), written by Siril `savepng` (16-bit
+auto-selected from a 16/32-bit source, sRGB declared via its own iCCP
+embed). Never judge a q92 surface.
 
 **North star:** every stage's TOOLS report their numbers so that eventually
 ANY dataset can be dropped into a session dir and be properly judged and
@@ -326,9 +321,8 @@ object has no fixed geometry a mask could scope — see `docs/dead-ends.md`).
 
 A rectangular foreground (`rect`) covers most terrestrial obstructions; a
 non-rectangular pixel `mask` npz is still honoured by `geometry.json`, but the
-in-house mask-DERIVATION tool was removed (it read the stack pixels). Deriving a
-mask is now a documented gap — an official tool or a hand-drawn mask, never an
-in-house fit.
+mask-DERIVATION step is a documented gap — an official tool or a hand-drawn
+mask, never an in-house fit (in-house derivation would read the stack pixels).
 
 ## Running it
 
@@ -371,7 +365,7 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `astrometrics.py` | shared FITS/PNG I/O + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure (the hand-rolled I/O itself moves to astropy/Siril — BACKLOG) |
+| `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure; the FITS parse itself moves to astropy on the target rig (removal register) |
 | `acquisition.py` | per-dataset acquisition record: EXIF-derived facts (exposure/focal/ISO/FOV+pixel-scale/cadence) + the human-declared `mount`; `resolve()` seeds `datasets/<session>/<set>/acquisition.json` and STOPS if `mount` is undeclared (no silent camera model), `timeline()` feeds the audit's capture-run segmentation. Reads EXIF only, never deliverable pixels |
 
 **`stack/`** — build the integrated stack
@@ -384,7 +378,6 @@ live in CLAUDE.md "Environment".
 | `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member by Siril first). Its channel combine + FITS I/O should move to Siril `rgbcomp` — BACKLOG |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
-| `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle; replaceable by Siril `seqapplyreg -framing=min` — BACKLOG |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
 
 **`calibrate/`** — astrometric + photometric calibration

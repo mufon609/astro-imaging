@@ -7,7 +7,7 @@
   `sirilpy` pyscript a genuine **TOOL** (adoptable like Nightlight) or **someone
   else's hand-rolled numpy in a wrapper** (rejected by the same rule that removed
   ours)? The answer decides whether the VeraLux/SyQon class is in-bounds at all.
-- **Context** — 2026-07-14. Siril 1.4.x stable / 1.5.0-dev; Python scripting is
+- **Context** — Siril 1.4.x stable / 1.5.0-dev; Python scripting is
   officially **EXPERIMENTAL** (introduced 1.3.5-dev); **sirilpy API 1.1.13**.
   Target rig: x86-64 Kali, i7-14gen, 32 GB, **no GPU**, **headless** via
   `siril-cli`. Builds on [[siril-tool-ecosystem]] and [[siril-natives-and-trailed-solve]].

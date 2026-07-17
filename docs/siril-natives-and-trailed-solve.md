@@ -7,7 +7,7 @@
   verification (does native `-localasnet` replace `solve_field.py`?). Siril is the
   free+headless substrate of the whole x86 stack, so its native surface sets what
   the orchestration layer must reach *outside* Siril for.
-- **Context** — 2026-07-14. Siril **1.4.4** (2026-06-17) is the current stable;
+- **Context** — Siril **1.4.4** (2026-06-17) is the current stable;
   **1.5.0** is the active development branch (docs at readthedocs `en/latest`,
   bundled **sirilpy 1.1.13**), no 1.5 beta/RC announced. Target rig: x86-64 Kali,
   i7-14gen, 32 GB, **no GPU**, headless via `siril-cli -s`.

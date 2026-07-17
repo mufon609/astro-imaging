@@ -5,7 +5,7 @@
   Linux CLI, and what are the exact invocation, CPU-only wall-clock (no GPU),
   license mechanics, and headless story? This is the single strongest paid
   recommendation in the toolkit; the money + doctrine decision rides on it.
-- **Context** — 2026-07-14. Standalone CLI announced 2026-06-24, **`rc-astro`
+- **Context** — Standalone CLI announced 2026-06-24, **`rc-astro`
   v0.9.9 beta 2026-07-02 → v1.0.0 production 2026-07 (out of beta)**; integrated into Siril (needs 1.4.4, announced
   2026-06). Target rig: x86-64 Kali, **i7-14700 (AVX2 ✓)**, 32 GB, **no GPU**,
   headless. Builds on [[siril-pyscript-headless]] (RC-Astro scripts are Class-2

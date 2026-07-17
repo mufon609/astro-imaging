@@ -12,7 +12,7 @@
   measures does the checklist need — FWHM, noise, SNR, eccentricity; and the
   over-processing classes (deconvolution ringing, denoise over-smoothing, background
   over-flattening, star-colour loss, chroma noise) — and **which tool provides each**?
-- **Context** — 2026-07-14. Rig: x86-64, numpy/scipy/**astropy** (photutils
+- **Context** — Rig: x86-64, numpy/scipy/**astropy** (photutils
   optional), **no GPU**. The repo computes no image metrics itself (the bright
   line): per-frame QA pulls Siril's own regdata, spatial star shape is Siril
   `seqtilt` + fixed-station `findstar` medians. Each metric below maps to the

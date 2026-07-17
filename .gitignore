@@ -34,6 +34,9 @@
 **/audit_work/*
 !**/audit_work/anomaly_audit.json
 
+# --- judgment surfaces (image data, never tracked) ---
+**/judge/
+
 # --- QA / calibration scratch ---
 # qa_work/ (under datasets/<session>/<set>/) holds transient Siril working files
 # (CFA FITS / .seq / .ssf / previews / logs). Only its .json records are versioned

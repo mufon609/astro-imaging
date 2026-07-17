@@ -52,6 +52,24 @@ no tool provides; report-only; removal-conditioned). An in-house **gate or audit
 that reads the render and blocks it** would be the reference **FORBIDDEN** case;
 the tools' own analysis + the checklist do that job.
 
+**Why this rule exists (measured, repeatedly, not doctrine for its own sake):**
+1. **An instrument must be independent of what it measures.** In-house metrics
+   have keyed themselves to the defect under test and manufactured findings —
+   a self-derived measurement can be wrong in ways that look like data.
+2. **Official tools are validated by mass use and documented behavior** —
+   their limits are discoverable by research; an in-house reimplementation's
+   limits are discoverable only by being burned. Beliefs about tool behavior
+   die the same way: verify with a probe, never assume (a style's params were
+   believed to carry for a whole route until a uniform-card probe showed the
+   tool ignores them).
+3. **Every measured head-to-head has gone to the official tool** — better
+   solve odds and identical downstream calibration from the official
+   extractor; the tool's own writer/reader over hand codecs; the tool's own
+   spatial star measure over hand binning. The pattern has no counterexample
+   in this repo's history.
+4. **Pipelines compound.** An in-house approximation upstream surfaces as an
+   unattributable artifact downstream, and the attribution costs sessions.
+
 **Anti-drift test:** if you are about to hand-tune a knob to make one image look
 right, write numpy that reads / transforms / analyzes the deliverable's pixels,
 or reimplement a measurement a tool already gives — STOP. Research the tool, drive
@@ -244,6 +262,20 @@ core here now:**
   the mechanism entries (data/physics/tool-doctrine); never append chronological
   session narrative. The durable stage-design "why" lives in each kept
   script's docstring — keep it there, update in place.
+- **Workspace + naming discipline (one predictable place per result).**
+  Raw `<session>/<set>/` holds raws ONLY. EVERY per-set tool run — QA,
+  audits, flat validation, diagnostics, one-off `.ssf` — lives under
+  `datasets/<session>/<set>/<tool>_work/` (scratch gitignored, the JSON
+  record tracked). Judgment surfaces go to exactly ONE place:
+  `datasets/<session>/<set>/judge/`, named `<set>_<recipe-tag>_<surface>`
+  (e.g. `set-01_168sp_spcc-linked.png`) — NEVER "FINAL_*" or adjective
+  variants, and never scattered across directories. Only bulk derived image
+  DATA stays in the gitignored session tree: pipeline intermediates
+  (`<session>/work/`) and stacks (`<session>/results/`, named
+  `stack_<set>_<recipe-tag>[_wcs|_spcc].fit`). The recipe-tag names the
+  chain shape, not a version history. Language rule, same discipline:
+  nothing is called "fixed" or "final" until it is measured on data — and
+  aesthetics, judged — say "candidate" / "awaiting verdict".
 - **New datasets get tracked per-dataset state** in
   `datasets/<session>/<set>/` — `acquisition.json` (EXIF facts auto-derived +
   the declared `mount` fixed/tracked that EXIF can't record; a consumer needing

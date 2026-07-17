@@ -29,9 +29,9 @@ derives its _16bit.png sibling, and VERIFIES the pair before linking:
 - the path must be a .png and must not name a _starless layer (the gate
   input is never a judgment surface),
 - both files of the pair must exist,
-- the pair must agree pixel-wise (PNG16/257 vs PNG8 within 8-bit rounding
-  on a sample grid) — a mixed pair (e.g. a starless PNG16 beside a final
-  PNG8) cannot pass this.
+- the pair's geometry and bit depths must agree (PNG header check); the
+  pixel-level identity check runs on the tool-readable lossless surface
+  (Siril `savetif` + `tifffile`) when the rebuilt render chain lands.
 
 --inspection is REQUIRED (README pre-handoff contract; measured failure:
 two consecutive packages shipped defects — a faint-dust allocation gap,
@@ -54,7 +54,6 @@ import os
 import shutil
 import struct
 import sys
-import zlib
 
 import numpy as np
 
@@ -132,85 +131,38 @@ def objective_verdict(control, cand, eps=0.15):
                           + "] worse [" + ", ".join(worse) + "]")
 
 
-def read_png16_sampled(path, step=16):
-    """Decode a 16-bit RGB PNG (color type 2, depth 16) and return a
-    row/column-sampled uint16 array — enough to identity-check against the
-    8-bit sibling without holding the full 100 MB decode."""
+def png_ihdr(path):
+    """IHDR inspection only (width, height, depth, color type) — a header
+    read, not a decode. Pixel-level pair verification is a tool's job: the
+    rebuilt finals surface reads Siril `savetif` output with `tifffile`
+    (the in-house PNG decoder this replaced is retired — removal-condition
+    register)."""
     with open(path, "rb") as f:
-        data = f.read()
-    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        head = f.read(33)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
         sys.exit(f"judgment_package: {path} is not a PNG")
-    pos, w, h, depth, ct, idat = 8, None, None, None, None, []
-    while pos < len(data):
-        ln = struct.unpack(">I", data[pos:pos + 4])[0]
-        tag = data[pos + 4:pos + 8]
-        if tag == b"IHDR":
-            w, h, depth, ct = struct.unpack(">IIBB", data[pos + 8:pos + 18])
-        elif tag == b"IDAT":
-            idat.append(data[pos + 8:pos + 8 + ln])
-        elif tag == b"IEND":
-            break
-        pos += 12 + ln
-    if depth != 16 or ct != 2:
-        sys.exit(f"judgment_package: {path} is not a 16-bit RGB PNG "
-                 f"(depth {depth}, color type {ct})")
-    raw = zlib.decompress(b"".join(idat))
-    stride, bpp = w * 6, 6
-    out_rows = []
-    prev = np.zeros(stride, np.int32)
-    p = 0
-    for y in range(h):
-        flt = raw[p]; p += 1
-        row = np.frombuffer(raw[p:p + stride], np.uint8).astype(np.int32)
-        p += stride
-        if flt == 0:
-            cur = row
-        elif flt == 1:
-            cur = row.copy()
-            for i in range(bpp, stride):
-                cur[i] = (cur[i] + cur[i - bpp]) & 0xff
-        elif flt == 2:
-            cur = (row + prev) & 0xff
-        elif flt == 3:
-            cur = row.copy()
-            cur[:bpp] = (cur[:bpp] + prev[:bpp] // 2) & 0xff
-            for i in range(bpp, stride):
-                cur[i] = (cur[i] + ((cur[i - bpp] + prev[i]) >> 1)) & 0xff
-        else:                                   # 4 = Paeth
-            cur = row.copy()
-            for i in range(stride):
-                a = cur[i - bpp] if i >= bpp else 0
-                b = prev[i]
-                c = prev[i - bpp] if i >= bpp else 0
-                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
-                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
-                cur[i] = (cur[i] + pr) & 0xff
-        if y % step == 0:
-            u8 = cur.astype(np.uint8).reshape(w, 3, 2)
-            out_rows.append(((u8[..., 0].astype(np.uint16) << 8)
-                             | u8[..., 1])[::step])
-        prev = cur
-    return np.stack(out_rows)
+    w, h, depth, ct = struct.unpack(">IIBB", head[16:26])
+    return w, h, depth, ct
 
 
 def verify_pair(png8, png16, step=16):
-    """The final pair must be the SAME render: PNG16/257 vs PNG8 within
-    8-bit rounding on the sample grid. A mixed pair (starless PNG16 beside
-    a final PNG8) differs by whole stars and cannot pass."""
-    from PIL import Image
-    Image.MAX_IMAGE_PIXELS = None
-    a8 = np.asarray(Image.open(png8))[::step, ::step].astype(np.float32)
-    a16 = read_png16_sampled(png16, step).astype(np.float32)
-    if a8.shape != a16.shape:
+    """The final pair must be the SAME render. Geometry + bit-depth are
+    verified from the PNG headers; the pixel-level identity check runs on
+    the tool-readable lossless surface (Siril `savetif` + `tifffile`) when
+    the rebuilt render chain lands — this tool is dormant until then (its
+    metrics sidecar producer is also pending)."""
+    w8, h8, d8, ct8 = png_ihdr(png8)
+    w16, h16, d16, ct16 = png_ihdr(png16)
+    if (w8, h8) != (w16, h16):
         sys.exit(f"judgment_package: {os.path.basename(png8)} and its "
-                 f"_16bit sibling differ in geometry {a8.shape} vs "
-                 f"{a16.shape}")
-    err = np.abs(a16 / 257.0 - a8)
-    if float(err.max()) > 0.51:
-        sys.exit(f"judgment_package: PAIR MISMATCH for "
-                 f"{os.path.basename(png8)}: PNG16 disagrees with PNG8 "
-                 f"(max {err.max():.1f} counts on the sample grid) — the "
-                 "16-bit file is NOT this final (mislinked layer?)")
+                 f"_16bit sibling differ in geometry {(w8, h8)} vs "
+                 f"{(w16, h16)}")
+    if d16 != 16 or ct16 != 2:
+        sys.exit(f"judgment_package: {png16} is not a 16-bit RGB PNG "
+                 f"(depth {d16}, color type {ct16})")
+    if d8 != 8:
+        sys.exit(f"judgment_package: {png8} is not the 8-bit sibling "
+                 f"(depth {d8})")
 
 
 def place(src, dst):

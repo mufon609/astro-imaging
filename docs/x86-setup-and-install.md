@@ -6,7 +6,7 @@
   source, integrity (sha256/signature), install path, deps, and Kali-vs-Ubuntu
   gotchas — plus a drafted `scripts/setup/` **bootstrap** that installs → pins →
   verifies → emits a manifest. This is the environment-founding step of the rebuild.
-- **Context** — 2026-07-14. Target: x86-64 Kali (rolling, glibc 2.42), i7-14gen,
+- **Context** — Target: x86-64 Kali (rolling, glibc 2.42), i7-14gen,
   32 GB, 1 TB NVMe, **no GPU**, headless. Overlapping facts were verified first-hand
   on the arm box (Siril flatpak, GraXpert pipx, apt availability) where arch-agnostic;
   x86-only specifics are primary-sourced. Builds on all seven tool deep-dives.

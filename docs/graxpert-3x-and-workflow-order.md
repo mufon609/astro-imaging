@@ -6,7 +6,7 @@
   and (2) validate the "one process rule" the toolkit states (deconvolution
   early-linear, before denoise; star-removal placement) across multiple credible
   2026 sources, and surface any consensus shift.
-- **Context** — 2026-07-14. Target rig: x86-64 Kali, i7-14gen (AVX2, ~20 threads),
+- **Context** — Target rig: x86-64 Kali, i7-14gen (AVX2, ~20 threads),
   32 GB, **no GPU**, headless. Siril 1.4.4 stable. Builds on
   [[siril-natives-and-trailed-solve]].
 

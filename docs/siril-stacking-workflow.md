@@ -5,7 +5,7 @@
   the kept `stack/run_pipeline.sh` + `.ssf` orchestration must re-verify against Siril
   1.4.4, and several 1.4 syntax changes will **break migrated scripts**. Also: what
   Siril lacks vs PixInsight WBPP.
-- **Context** — 2026-07-14. Siril **1.4.4** stable (1.4.0 = 2025-12-05). Syntax verified
+- **Context** — Siril **1.4.4** stable (1.4.0 = 2025-12-05). Syntax verified
   against the **git tag `1.4.4`** source (`command_list.h`/`command_def.h`) + the shipped
   `.ssf`, not just prose. Rig: x86-64, 32 GB, no GPU, headless. Ties to the kept core.
 

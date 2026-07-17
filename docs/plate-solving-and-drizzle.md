@@ -4,7 +4,7 @@
   astrometry.net vs Siril native — which detection method survives trailing, and is
   feeding astrometry.net peak centroids (our `solve_field.py`) the right move? Plus:
   correct the drizzle guidance for wide/short-focal data.
-- **Context** — 2026-07-14. Rig x86-64, no GPU, headless. Our dead-end: Siril's internal
+- **Context** — Rig x86-64, no GPU, headless. Our dead-end: Siril's internal
   solver fails ultra-wide trailed fields; we blind-solve astrometry.net from peak
   centroids. Detection-method rankings below are **mechanism inference** (grounded in
   source/doc reads) — HYPOTHESES until one bracketed empirical solve on real trailed data.

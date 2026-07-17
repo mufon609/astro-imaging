@@ -5,7 +5,7 @@
   actually runs **headless-CLI on Linux, CPU-only, no GPU** — the rig's real
   constraint. Extends TOOLS.md Tiers 5–7 and the free-stack cross-cutting section.
   Corrects several existing entries.
-- **Context** — 2026-07-14. Target rig: x86-64 Kali, i7-14gen (AVX2), 32 GB, **no
+- **Context** — Target rig: x86-64 Kali, i7-14gen (AVX2), 32 GB, **no
   GPU**, headless. The paid quality bar is RC-Astro ([[rc-astro-cli-linux]]); these
   free tools matter precisely where budget = 0. Architecture (numpy-inside vs
   binary-driver) per [[siril-pyscript-headless]].

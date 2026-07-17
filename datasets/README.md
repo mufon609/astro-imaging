@@ -45,15 +45,16 @@ Rules (the same contract as README "How a change is accepted"):
   by the no-regression sweep after an approved change, then git-tagged.
 - Geometry mask files (`*.npz`) are DERIVED data — they live in the session
   dir (`work/`) and `geometry.json` only points at them. **Deriving one is a
-  documented GAP**: the in-house mask-derivation tool was removed because it
-  read the stack's pixels. A mask comes from an official tool or is drawn by
-  hand — never an in-house fit. A `rect` foreground covers most terrestrial
+  documented GAP**: a mask comes from an official tool or is drawn by hand —
+  never an in-house fit (a fit would read the stack's pixels). A `rect` foreground covers most terrestrial
   obstructions and needs no mask.
 - Every per-set record and tool scratch dir lives HERE, under
-  `datasets/<session>/<set>/` (the `*_work/` pattern). The raw
-  `<session>/<set>/` dir holds raw frames ONLY; derived image DATA (FITS
-  intermediates, masters, session-relative masks) stays in the gitignored
-  session tree.
+  `datasets/<session>/<set>/` (the `*_work/` pattern), and judgment surfaces
+  live in exactly one place: `datasets/<session>/<set>/judge/` (gitignored),
+  named `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never
+  scattered across dirs. The raw `<session>/<set>/` dir holds raw frames
+  ONLY; bulk derived image DATA (FITS intermediates, masters,
+  session-relative masks, stacks) stays in the gitignored session tree.
 
 The render-knob schema and the no-regression sweep re-establish with the x86
 render chain — see `docs/x86-empirical-test-plan.md`.

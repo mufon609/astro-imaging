@@ -56,7 +56,7 @@ _(add each writeup here, newest first)_
   by the drift-axis station tool `seqtilt` cannot replace. Production:
   `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
 
-**Research pass — mid-2026 tool/technique landscape** (2026-07-14):
+**Research pass — mid-2026 tool/technique landscape**:
 - [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
   on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
   `/opt`), checksums, gotchas + a drafted **untested** `scripts/setup/x86_bootstrap.sh`.
@@ -78,7 +78,7 @@ _(add each writeup here, newest first)_
 - [graxpert-3x-and-workflow-order](graxpert-3x-and-workflow-order.md) — GraXpert
   deconv is RC-only/stalled/buggy (correction); the linear-first workflow order is a
   strong default, not absolute (2026 AI-driven loosening).
-- [free-ai-tool-wave-2026](free-ai-tool-wave-2026.md) — free AI tools filtered for
+- [free-ai-tool-wave-2026](free-ai-tool-wave.md) — free AI tools filtered for
   headless-Linux-CPU (StarNet2.5.3, DeepSNR, GraXpert, AstroDenoisePy, Cosmic
   Clarity); AstroSharp dead-end; SyQon GUI-gated.
 - [narrowband-star-neutral-options](narrowband-star-neutral-options.md) — VeraLux

@@ -5,7 +5,7 @@
   This consolidates all those flags into ONE ordered, bracketed protocol, keyed to
   the x86 rebuild order — an executable checklist so the rebuild settles each
   hypothesis with a control and a pass/fail metric, not by assertion.
-- **Context** — 2026-07-14. Written from the ten deep-dives in `docs/`. Rig: x86-64
+- **Context** — Written from the ten deep-dives in `docs/`. Rig: x86-64
   Kali, i7-14gen, 32 GB, **no GPU**, headless. Each test names what it SETTLES, the
   BRACKET/control, the METRIC, and the source deep-dive. Run them in phase order; a
   phase's result can change later phases.
@@ -24,7 +24,7 @@
 ### Phase 1 — Port the orchestration + record layer
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
-| Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core to port — it was deleted) | same tool numbers as arm on the same inputs | agree within tolerance |
+| Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core) | same tool numbers as arm on the same inputs | agree within tolerance |
 | astropy equatorial→galactic vs our fixed 3×3 in `astrometrics.py` | the arm-era hand-rolled matrix (astropy was absent) | max angular error vs `astropy.coordinates` | agree to arcsec |
 | Fire the removal conditions the x86 rig unblocks — astropy (5 hand-rolled FITS parsers), 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
 | sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the "proven on arm" claim on x86 | a trivial pyscript runs headless | runs, no display |

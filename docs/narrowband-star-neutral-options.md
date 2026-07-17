@@ -5,7 +5,7 @@
   The dead-end registry records that SPCC equalizes OIII=Ha and erases the sphere,
   and the fix is a **star-colour-neutral balance** (a genuine native-Siril gap). This
   updates TOOLS.md Tier 10 and that dead-end.
-- **Context** — 2026-07-14. Rig: x86-64 Kali, no GPU, headless. Native Siril has no
+- **Context** — Rig: x86-64 Kali, no GPU, headless. Native Siril has no
   star-population-measured neutral balance ([[siril-natives-and-trailed-solve]]:
   SPCC `-narrowband` is physical bandpass calibration; Siril docs themselves say it
   yields *"real intensities" / "a huge green cast"* and **recommend Manual Color
