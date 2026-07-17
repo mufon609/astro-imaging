@@ -6,7 +6,7 @@
 # biases+flats optional), or for master-only corpora a calib/ dir of
 # prebuilt {dark,flat}_<filter-token>.fits masters (FITS sets only; matched
 # by the normalized FILENAME token — such masters carry no headers) — plus
-# one or more light-frame sets; each set stacks to results/stack_<set>.fit
+# one or more light-frame sets; each set stacks to <repo>/results/<session>/stack_<set>.fit
 # + its previews. A raw-camera set without a usable flat (missing dirs or
 # focal/aperture mismatch) is a DOCUMENTED ACQUISITION GAP: the run stops and
 # asks for a matching flat. The in-house self-flat (a numpy vignette fit +
@@ -26,13 +26,14 @@ SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
 SET="${2:-lights}"
 S="$REPO/$SESSION"
 W="$S/work"
+RESULTS="$REPO/results/$(basename "$S")"   # derived stacks/renders live at the project root, not under the session tree
 
 [[ -d "$S/$SET" ]] || { echo "missing $S/$SET" >&2; exit 1; }
 # calibration source: raw darks/ frames, or prebuilt masters in calib/
 # (the FITS ingest matches those by filename token and validates the match)
 [[ -d "$S/darks" || -d "$S/calib" ]] || \
   { echo "missing $S/darks (no raw darks and no calib/ prebuilt masters)" >&2; exit 1; }
-mkdir -p "$W/masters" "$S/results"
+mkdir -p "$W/masters" "$RESULTS"
 
 # OPTICS PREFLIGHT — refuse a mixed-optics set before spending the run on it.
 # acquisition.json reads optics from the FIRST FRAME ONLY, so it cannot see a
@@ -81,7 +82,7 @@ reg_floor() {
 # Per-run inspection dir: the registration stage records siril's per-frame
 # regdata (inspect_stage reg) and the run assembles it into index.html at the
 # end. Inspection records + reports; it never gates or aborts a run.
-INSPECT="$S/results/inspect_${SET}_$(date +%Y%m%d_%H%M%S)"
+INSPECT="$RESULTS/inspect_${SET}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$INSPECT"
 export INSPECT_DIR="$INSPECT"
 INS() {
@@ -281,9 +282,9 @@ _fits_dualband() {
     echo "register OIII_pp_light"
     echo "set32bits"
     unselect_lines r_Ha_pp_light
-    echo "stack r_Ha_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_${SET}_Ha"
+    echo "stack r_Ha_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_Ha"
     unselect_lines r_OIII_pp_light
-    echo "stack r_OIII_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_${SET}_OIII"
+    echo "stack r_OIII_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_OIII"
     echo "close"; } > "$W/fits_dualband.gen.ssf"
   siril_run "$W/fits_dualband.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -298,7 +299,7 @@ _fits_lights() {
     echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
     echo "set32bits"
     unselect_lines r_pp_light
-    echo "stack r_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=../results/stack_$SET"
+    echo "stack r_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"
   siril_run "$W/fits_lights.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -460,8 +461,8 @@ fits_ingest() {
     local MID=$(( (NF + 1) / 2 ))
     echo "=== lights: calibrate + extract Ha/OIII + register (ref $MID) + stack $SET ($NF frames) ==="
     _fits_dualband "$FLATOPT" "$MID"
-    verify_exclusion "$W/r_Ha_pp_light_.seq" "$S/results/stack_${SET}_Ha.fit" "Ha line"
-    verify_exclusion "$W/r_OIII_pp_light_.seq" "$S/results/stack_${SET}_OIII.fit" "OIII line"
+    verify_exclusion "$W/r_Ha_pp_light_.seq" "$RESULTS/stack_${SET}_Ha.fit" "Ha line"
+    verify_exclusion "$W/r_OIII_pp_light_.seq" "$RESULTS/stack_${SET}_OIII.fit" "OIII line"
     # two register runs in one log -> per-line counts, in order
     local RCOUNTS
     mapfile -t RCOUNTS < <(tr '\r' '\n' < "$W/lights_run.log" \
@@ -484,7 +485,7 @@ fits_ingest() {
   else
     echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
     _fits_lights "$CFAOPT" "$FLATOPT"
-    verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
+    verify_exclusion "$W/r_pp_light_.seq" "$RESULTS/stack_$SET.fit"
     local rn
     rn=$(reg_count "$W/lights_run.log")
     if [[ -n "$rn" ]]; then
@@ -629,13 +630,13 @@ F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES"
 if [[ -n "$FLATOPT" ]]; then
   GEN_LIGHTS="$W/lights.$SET.gen.ssf"
   CAL_LIGHTS=$(calibrate_light_cmd light masters/dark_master $FLATOPT -cfa -debayer)
-  sed -e "s|@SET@|$SET|g" -e "s|@CALIBRATE@|$CAL_LIGHTS|g" \
+  sed -e "s|@SET@|$SET|g" -e "s|@CALIBRATE@|$CAL_LIGHTS|g" -e "s|@RESULTS@|$RESULTS|g" \
       -e "s|@STACKPOL@|$STACKPOL|g" \
       "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN_LIGHTS"
   inject_unselect "$GEN_LIGHTS" r_pp_light
   echo "=== lights: calibrate + register + stack $SET ==="
   siril_run "$GEN_LIGHTS" | tee "$W/lights_run.log"
-  verify_exclusion "$W/r_pp_light_.seq" "$S/results/stack_$SET.fit"
+  verify_exclusion "$W/r_pp_light_.seq" "$RESULTS/stack_$SET.fit"
   rn=$(reg_count "$W/lights_run.log")
   if [[ -n "$rn" ]]; then
     echo "=== registration: $rn/$NFRAMES frames (2-pass auto reference) ==="

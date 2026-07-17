@@ -267,11 +267,13 @@ core here now:**
   audits, flat validation, diagnostics, one-off `.ssf` — lives under
   `datasets/<session>/<set>/<tool>_work/` (scratch gitignored, the JSON
   record tracked). Judgment surfaces go to exactly ONE place:
-  `datasets/<session>/<set>/judge/`, named `<set>_<recipe-tag>_<surface>`
+  `results/<session>/<set>/judge/`, named `<set>_<recipe-tag>_<surface>`
   (e.g. `set-01_168sp_spcc-linked.png`) — NEVER "FINAL_*" or adjective
-  variants, and never scattered across directories. Only bulk derived image
-  DATA stays in the gitignored session tree: pipeline intermediates
-  (`<session>/work/`) and stacks (`<session>/results/`, named
+  variants, and never scattered across directories. `datasets/` holds tracked
+  RECORDS ONLY — never image data. All bulk derived image DATA is gitignored:
+  masters + pipeline intermediates stay in the session tree (`<session>/work/`),
+  and stacks/renders/judgment surfaces live at the PROJECT ROOT under
+  `results/<session>/` (stacks named
   `stack_<set>_<recipe-tag>[_wcs|_spcc].fit`). The recipe-tag names the
   chain shape, not a version history. Language rule, same discipline:
   nothing is called "fixed" or "final" until it is measured on data — and

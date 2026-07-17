@@ -23,5 +23,5 @@ set32bits
 # Color is calibrated by SPCC on the stack — no per-channel white balance
 # at stack time (-rgb_equal): a stack-time rescale would only obscure the
 # raw channel balance SPCC measures.
-stack r_pp_light rej 3 3 @STACKPOL@-norm=addscale -output_norm -out=../results/stack_@SET@
+stack r_pp_light rej 3 3 @STACKPOL@-norm=addscale -output_norm -out=@RESULTS@/stack_@SET@
 close

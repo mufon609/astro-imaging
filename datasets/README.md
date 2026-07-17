@@ -48,13 +48,16 @@ Rules (the same contract as README "How a change is accepted"):
   documented GAP**: a mask comes from an official tool or is drawn by hand —
   never an in-house fit (a fit would read the stack's pixels). A `rect` foreground covers most terrestrial
   obstructions and needs no mask.
-- Every per-set record and tool scratch dir lives HERE, under
-  `datasets/<session>/<set>/` (the `*_work/` pattern), and judgment surfaces
-  live in exactly one place: `datasets/<session>/<set>/judge/` (gitignored),
-  named `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never
-  scattered across dirs. The raw `<session>/<set>/` dir holds raw frames
-  ONLY; bulk derived image DATA (FITS intermediates, masters,
-  session-relative masks, stacks) stays in the gitignored session tree.
+- Every per-set RECORD and tool JSON lives HERE, under
+  `datasets/<session>/<set>/` (the `*_work/` pattern; only the `.json` records
+  are tracked, the scratch is gitignored). **`datasets/` holds RECORDS ONLY —
+  never image data.** Judgment surfaces live in exactly one place at the project
+  root: `results/<session>/<set>/judge/` (gitignored), named
+  `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never scattered.
+  The raw `<session>/<set>/` dir holds raw frames ONLY; bulk derived image DATA
+  (FITS intermediates, masters, session-relative masks) stays in the gitignored
+  session tree, and stacks/renders/judgment surfaces at the gitignored,
+  project-root `results/<session>/`.
 
 The render-knob schema and the no-regression sweep re-establish with the x86
 render chain — see `docs/x86-empirical-test-plan.md`.

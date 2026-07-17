@@ -50,7 +50,7 @@ esac; done
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 SESSION=$(cd "$SESSION" && pwd)
-OUT=${OUT:-$SESSION/results/stack_$SET}
+OUT=${OUT:-$REPO/results/$(basename "$SESSION")/stack_$SET}
 OUT=${OUT%.fit}
 mkdir -p "$(dirname "$OUT")" "$SESSION/work"
 P=$SESSION/work/undistort_$SET

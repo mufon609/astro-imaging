@@ -65,7 +65,7 @@ esac; done
 case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 SESSION=$(cd "$SESSION" && pwd)
-OUT=${OUT:-$SESSION/results/stack_${SET}_full}
+OUT=${OUT:-$REPO/results/$(basename "$SESSION")/stack_${SET}_full}
 OUT=${OUT%.fit}
 G=$SESSION/work/groups_$SET
 mkdir -p "$G" "$(dirname "$OUT")"

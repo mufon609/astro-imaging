@@ -344,11 +344,11 @@ scripts/stack/run_undistort_pipeline.sh <session> <set> --dark=<master> --flat=<
 scripts/stack/run_undistort_groups.sh <session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
-python3 scripts/calibrate/solve_field.py <session>/results/stack_<set>.fit \
-    --inject=<session>/results/stack_<set>_wcs.fit
+python3 scripts/calibrate/solve_field.py results/<session>/stack_<set>.fit \
+    --inject=results/<session>/stack_<set>_wcs.fit
 # NEW FIELD: make sure the local Gaia chunks cover it before SPCC (a southern
 # field needs southern chunks); --fetch downloads any missing ones
-python3 scripts/calibrate/spcc_cone.py <session>/results/stack_<set>_wcs.fit --fetch
+python3 scripts/calibrate/spcc_cone.py results/<session>/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
 # final render — a GAP pending x86 (tool toolkit: TOOLS.md; build order:
@@ -445,10 +445,14 @@ Clarity (denoise), BlurXTerminator (deconv), Siril `autostretch`/`mtf`/`pm`/`sat
   <set>/                                 lights: camera raw (NEF/DNG/CR2/…) or
                                          dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts
-  results/                               stacks, renders, exp_*/, inspect_*/
-datasets/<session>/<set>/                tracked per-dataset state: acquisition.json,
-                                         geometry.json, recipe.json, baseline.json,
-                                         composition.json, audit_work/anomaly_audit.json
+                                         (the session tree is raws + work ONLY)
+results/<session>/                       derived outputs at the PROJECT ROOT (gitignored):
+                                         stacks, renders, exp_*/, inspect_*/,
+                                         <set>/judge/ (judgment surfaces — image data)
+datasets/<session>/<set>/                tracked per-dataset RECORDS ONLY (no image data):
+                                         acquisition.json, geometry.json, recipe.json,
+                                         baseline.json, composition.json, experiments.jsonl,
+                                         qa_work/*.json, audit_work/anomaly_audit.json
                                          (see datasets/README.md)
 scripts/                                 the pipeline (tracked)
 ```
