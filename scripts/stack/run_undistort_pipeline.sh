@@ -55,6 +55,23 @@ python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-prof
 
 mapfile -t SRC < <(ls "$SESSION/$SET"/*.[Nn][Ee][Ff] 2>/dev/null | sort)
 [ ${#SRC[@]} -ge 2 ] || { echo "no raw frames under $SESSION/$SET" >&2; exit 1; }
+# The ratified per-set cull: recipe.json stack.exclude lists frame numbers that
+# never enter the stack (the decision + reasons live in the recipe's why block).
+RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
+mapfile -t SRC < <(python3 - "$RECIPE" "${SRC[@]}" <<'PY'
+import json, os, re, sys
+recipe, frames = sys.argv[1], sys.argv[2:]
+excl = set()
+if os.path.exists(recipe):
+    excl = {int(n) for n in (json.load(open(recipe)).get("stack") or {}).get("exclude") or []}
+kept = [f for f in frames
+        if not (m := re.search(r"(\d+)\D*$", os.path.basename(f))) or int(m.group(1)) not in excl]
+for f in kept: print(f)
+d = len(frames) - len(kept)
+print(f"cull: recipe excludes {d} frame(s); {len(kept)} eligible" if d
+      else f"cull: no recipe exclusions; {len(kept)} eligible", file=sys.stderr)
+PY
+)
 [ "$FRAMES" -gt 0 ] || FRAMES=${#SRC[@]}
 [ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --frames/--chunk" >&2; exit 1; }
 NEED_GB=$((FRAMES * 231 / 1024 + 3))
