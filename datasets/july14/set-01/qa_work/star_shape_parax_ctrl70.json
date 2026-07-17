@@ -1,0 +1,10 @@
+{
+ "input": "/home/neural/Desktop/astrophotography/datasets/july14/set-01/qa_work/paraxial/stack_ctrl70.fit",
+ "label": "paraxial instrument control ctrl70",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 6462,
+ "truncated_mean_fwhm_px": 3.19,
+ "sensor_tilt_fwhm_px": 0.3,
+ "sensor_tilt_pct": 10,
+ "off_axis_aberration_fwhm_px": 0.13
+}

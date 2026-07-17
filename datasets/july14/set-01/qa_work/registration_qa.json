@@ -288,13 +288,13 @@
   "result": "roundness 0.551 -> 0.643 (+17%); majFWHM 4.42 -> 4.06 px; star DENSITY 1010 -> 1610 /Mpx (+59%; ON's frame is only 1.6% larger, so the area trap is checked). The control's radial degradation (majFWHM 3.99 -> 6.20, +55% across the field) is largely removed: ON holds 3.91-4.23 px over the bulk of the field, 5.14 px in the outermost bin.",
   "corrects_earlier_caution": "the vignetting confound flagged in lensfun_experiment did NOT drive the star-count gain: with vignetting REMOVED the gain is LARGER (+59% vs +45%). Sharper stars concentrate flux above the detection threshold. The confound was isolated, not assumed.",
   "open": [
-   "ON's innermost bin (r<445, n=386 only) reads roundness 0.523 / majFWHM 4.55 \u2014 worse than its neighbours (0.644/4.02) and worse than OFF's centre. Small-n, but UNEXPLAINED; check before trusting the very centre.",
+   "ON's innermost bin (r<445) anomaly is EXPLAINED and REAL -- see centre_band: a paraxial model error, crossed by the drifting optical axis, writes an along-drift smear band through frame centre. The sigma=3.0 'reversal' that dismissed it compared against a control profile binned about a 537-px-shifted origin, on the bright population only (docs/dead-ends.md trap 3, refined).",
    "The outermost bin is still elevated (5.14 vs 3.91 px mid-field) \u2014 the correction is large but not total. Residual candidates: the community profile's accuracy, and the unresolved one-sided component (refraction / decentering).",
    "DUST GATE NOT RUN: priority #1. The warp resamples every pixel; whether it costs faint IFN is the user's eyes on FULL-FRAME LOSSLESS finals, with/without."
   ]
  },
  "deepest_render": {
-  "verdict": "SHIPPED \u2014 dust gate PASSED on the user's eyes (dust preserved, deep red intact, centre and right fixed).",
+  "verdict": "SUPERSEDED by the fitted-model render (see centre_band.fix_route): current artifacts are reg/FULL_lensfun_fit.fit + judge/FINAL_deepest_lensfun_fit.png, approved on the user's eyes. This block's measures stand as the community-profile A/B control.",
   "frames": "168 of 373 (even stride, FULL 43-min window preserved)",
   "why_168": "DISK ceiling, not a choice: 231 MB/frame uncompressed (register needs the whole input set resident while seqapplyreg writes the output beside it) => 84 GB for 373 vs ~41 GB free. No compression (user rule: setcompress quantisation is lossless on int16 but silently lossy on float). Stride preserves the TIME SPAN, which is what the geometry depends on; only depth is traded.",
   "lost_frame": "169th lost to the chunk-remainder bug (Siril cannot build a sequence from 1 frame) \u2014 0.3% of integration; bug recorded in BACKLOG.",
@@ -307,15 +307,34 @@
    "sensor_tilt_pct": 16
   },
   "reproduces_the_54_frame_result": "The correction is a property of the OPTICS, not the frame count: off-axis aberration 0.31 (54 fr) -> 0.25 px (168 fr) \u2014 it holds, and improves slightly, across 3.1x the frames.",
-  "artifacts": "reg/FULL_lensfun.fit; judge/FINAL_deepest_lensfun.png (4181x3388, PNG16 lossless, full-frame)",
+  "artifacts": "current render: reg/FULL_lensfun_fit.fit; judge/FINAL_deepest_lensfun_fit.png (4157x3382, PNG16 lossless, full-frame)",
   "known_defects_carried": [
    "The stride is QUALITY-BLIND: this stack contains DSC_6900 (flagged 'worst on all three axes') by accident. 1 frame in 168 at 6% spread \u2014 not visible, but an unrecorded default. Culling is a BACKLOG item for a fresh session, deliberately NOT patched mid-render.",
-   "Innermost bin (r<445) reads WORSE than its neighbours \u2014 UNEXPLAINED, see innermost_bin_anomaly.",
+   "CENTRE BAND (user-confirmed on this final): an along-drift smear through frame centre, worst at the centre station (majFWHM 5.30 / roundness 0.480 vs 3.60/0.706 perpendicular) -- the paraxial model error crossed by the drifting optical axis; mechanism, numbers and fix route in centre_band.",
+   "Rejection ran `rej 3 3` (winsorized) at 168 frames where the researched doctrine for >50 subs is GESD `rej g 0.3 0.05` -- an unrecorded deviation, now recorded; rejection is direction-blind so it is not implicated in the band. Align on the next full render.",
    "Outermost bin still elevated (5.11 vs 3.88 px mid-field): the correction is large but not total."
   ]
  },
+ "centre_band": {
+  "defect": "an along-drift smear band through frame centre in the lensfun-corrected renders, worst at the very centre, absent perpendicular to the drift -- the region under Deneb (Deneb sits ~320 px above the band core). Confirmed by the user's eyes on the shipped full-frame final.",
+  "measured_by": "scripts/qa/star_stations.py -- Siril findstar PSF fits (open gate) in fixed 350 px stations about the geometric centre, offset along/perpendicular to the drift axis (174.4 deg in image coords, from the frame-1/frame-373 astrometric solves; field rotation 7.6 deg over the session). Fixed external geometry -- never an origin derived from the detections (docs/dead-ends.md trap 3).",
+  "stations": {
+   "deepest_168fr_lensfun": {"centre": [927, 5.3, 0.48], "perp_-1300": [798, 3.6, 0.706], "along_+1300": [954, 4.32, 0.574], "record": "star_stations_deepest_lensfun.json"},
+   "prod_on_54fr_lensfun": {"centre": [837, 5.73, 0.437], "perp_-1300": [628, 3.62, 0.679], "record": "star_stations_prod_on.json"},
+   "prod_off_54fr_control": {"centre": [864, 4.03, 0.556], "along_+1300": [748, 4.83, 0.485], "record": "star_stations_prod_off.json"},
+   "deepest_168fr_FITTED_model": {"centre": [1086, 3.67, 0.629], "perp_-1300": [851, 3.41, 0.673], "along_+1300": [1005, 3.73, 0.638], "record": "star_stations_deepest_fit.json"},
+   "fields": "[n, majFWHM px, roundness]; equal-area stations, n comparable"
+  },
+  "inversion": "the control's centre is its BEST region and its defect grows outward along the drift axis; the corrected arms invert this -- centre worst, perpendicular stations at the in-exposure floor. The correction fixed the mid/edge and INTRODUCED the centre band.",
+  "mechanism": "true distortion -> 0 at the optical axis, so the uncorrected centre was pristine. The applied community profile carries a small paraxial error eps(r); as a star's sky position crosses the axis during the ~1500 px drift the radial unit vector flips sign, so +-eps becomes a ~2*eps along-drift smear confined to the corridor the axis swept. Mid-field never crosses the axis and its near-constant residual is absorbed by the per-frame homography.",
+  "brightness_split": "sigma=3.0 centre reads 3.89 px (bright cores fine); the faint population smears toward/below detection -- a faint-star/texture defect the stretch shows and bright-star medians hide. This is why the dust-gate pass and the band coexist on the same final.",
+  "seqtilt_blind": "off-axis aberration (centre vs corners) IMPROVED 0.57 -> 0.25 px across the same renders, and reads 0.13-0.16 px on instrument stacks whose centre station is 4.88-5.42 vs a 3.5 perpendicular floor -- it cannot see a drift-aligned band and never accepts this class alone.",
+  "focal_key_killed": "EXIF 67.8 (solved effective focal) as the lensfun key is WORSE at the centre (5.42/0.468 vs 4.88/0.516 on the 12-frame instrument) -- the calibrated focal=70 entry is the best community key (experiments.jsonl paraxial_focal_key).",
+  "fix_route": "ADOPTED: a model fitted from THIS unit's own frames (between-frame star correspondences -- the mechanism the SIP dead-end leaves viable), installed into the live lensfun DB so the production chain is unchanged. WIN at instrument depth AND at full 168-frame depth (centre station 5.30 -> 3.67 px, all-station spread 1.70 -> 0.52 px, seqtilt FWHM 3.27 -> 3.06, stars +10%, sensor tilt 0.51 -> 0.31), approved on the user's eyes: experiments.jsonl paraxial_model_source. Process: scripts/darktable/fit_lens_model.sh -> install_lens_model.sh; builder scripts/stack/run_undistort_pipeline.sh."
+ },
  "spatial_star_shape": {
   "measured_by": "Siril seqtilt (scripts/qa/star_shape.py runs it and records its report)",
+  "class_limit": "centre-vs-corners is blind to a drift-aligned band and improves as the centre degrades toward the corners' mean -- see centre_band; for the wide-untracked class seqtilt bounds the radial/asymmetric terms and star_stations.py carries the band measure.",
   "what_the_terms_are": "Siril's own names. 'Off-axis aberration[FWHM]' = centre vs corners = the RADIAL degradation this deep dive is about. 'Sensor tilt[FWHM]' = best vs worst corner = the ASYMMETRIC (one-sided) component. Both are FWHM differences in px; bigger is worse.",
   "method_note": "seqtilt takes a sequence and Siril cannot build one from a single frame, so each stack is presented as a two-frame sequence of itself. Every measurement is Siril's, on the real pixels.",
   "OFF_control_54fr": {
