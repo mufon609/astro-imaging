@@ -6,7 +6,16 @@
 # group sub-stacks are registered and rejection-stacked into the final.
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
-#                           [--group=15] [--chunk=12] [--out=<stack.fit>] [--plan]
+#                           [--group=15] [--chunk=12] [--out=<stack.fit>] [--plan] \
+#                           [--framing=min|max]
+#
+# --framing applies to the FINAL compose only (per-group registration always
+# uses min — a consecutive block's ~1% trim). min (default) keeps the area
+# common to every sub-stack: full depth at every pixel, uniform SNR. max keeps
+# the union: a canvas larger than the sensor frame whose edges are covered by
+# fewer sub-stacks — depth, rejection strength and SNR fall off toward the
+# union boundary. Re-invoking with all sub-stacks present re-runs just the
+# compose, so both framings can be produced from one set of groups.
 #
 # WHY THIS IS VALID (and when it was not): after the lens-distortion warp,
 # every frame-to-frame map is a pure homography and homographies COMPOSE — a
@@ -42,12 +51,14 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0
+DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
+  --framing=*) FRAMING=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$SESSION/results/stack_${SET}_full}
@@ -109,8 +120,8 @@ done
 echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
 for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\nstack r_s rej 3 3 -norm=addscale -output_norm -out=%s\n' \
-  "$G/final" "$G/finalseq" "$G/finalseq" "$OUT" > "$G/final.ssf"
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s rej 3 3 -norm=addscale -output_norm -out=%s\n' \
+  "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
 rm -rf "$G/final" "$G/finalseq"

@@ -3,20 +3,20 @@
  "catalog": "localgaia",
  "sensor_spec": null,
  "sensor_spec_source": null,
- "input": "results/stack_set-01_wcs.fit",
- "output": "results/stack_set-01_spcc.fit",
- "input_size": 84363840,
- "input_mtime": 1784265816,
+ "input": "results/stack_set-01_full369_wcs.fit",
+ "output": "results/stack_set-01_full369_spcc.fit",
+ "input_size": 84349440,
+ "input_mtime": 1784304444,
  "k_factors": {
   "R": 1.0,
-  "G": 0.713,
-  "B": 0.896
+  "G": 0.708,
+  "B": 0.904
  },
  "b_offsets": {
-  "R": 34.3333,
-  "G": 7.47533,
-  "B": 14.2562
+  "R": 31.3333,
+  "G": 7.53436,
+  "B": 12.3833
  },
- "n_photometry": 5210,
- "n_kept": 3056
+ "n_photometry": 5137,
+ "n_kept": 3014
 }
