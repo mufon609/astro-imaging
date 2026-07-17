@@ -70,69 +70,32 @@ settled and is one fingerprint's answer.
 
 ## 2. Make the distortion route a repo process
 
-The wide-field untracked route is validated, productionised and shipped
-([`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md)),
-but it exists as one dataset's chain rather than something the repo recommends to any
-set with the same footprint. The generality question that gated this is **answered**:
+The route is validated, productionised and scripted (`run_undistort_pipeline.sh`;
+[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md)).
+Its generality is settled — one style is camera-, lens- and focal-general (only
+`modify_flags` carries); the style and the fitted model are pinned in-repo and the
+preflight guard is wired in. What is left is making the repo RECOMMEND it:
 
-- **Focal generality — MEASURED, and the answer is good.** darktable's lens module
-  **re-detects focal from each image's EXIF and overrides the value baked into the
-  style's `op_params`**. Same RAW with EXIF focal 70 vs 24 gives opposite-sign
-  displacement fields (70 mm outward +26→+69 px; 24 mm inward −6→−19 px before
-  crossing over) over ~400 matched stars — barrel at the wide end, pincushion at the
-  long. **One style serves the lens's range**; the feared "a 24 mm frame silently gets
-  a 70 mm correction" does not occur.
-- **The style is pinned** (`scripts/darktable/*.dtstyle` + `install_styles.sh`,
-  verified to reproduce the warp to 0.000 px in a fresh config). No GUI step remains.
-
-What is left:
-
-- **The autoscale question is CLOSED — it is a non-issue.** `scale` is baked but
-  IGNORED: scale 1.046 vs 0 vs **1.5** produce warps identical to **0.000 px**, so
-  darktable recomputes the autoscale per image. The same probe closed the rest of the
-  blob: `focal`, `camera` and `lens` are all re-detected from EXIF too. **Only
-  `modify_flags` carries**, so one style is camera-, lens- and focal-general.
-- **The preflight guard is BUILT** — `scripts/stack/lens_preflight.py`, run first by
-  `run_pipeline.sh`. It STOPS on a mixed-optics set (checked over every frame, which
-  `acquisition.json` cannot do — it reads the first frame only) and on a record-vs-frames
-  contradiction; `--require-profile` additionally makes darktable PROVE it corrects the
-  set. **Wired into the undistort chain**: `run_undistort_pipeline.sh` runs it with
-  `--require-profile` before any work; `run_pipeline.sh` (no undistort stage to
-  protect) runs the free checks only.
-  Verified against all three failure cases + a no-regression pass on set-01.
-- **Why the guard asks darktable, not lensfun.** The question is not "does the lensfun DB
-  hold this lens" but "will darktable correct THIS set" — adjacent, not identical, since
-  darktable normalizes the EXIF strings itself before querying. And there is nothing to
-  ask: Debian packages no lensfun query CLI (`lenstool` is unpackaged), `python3-lensfun`
-  exposes only DB-path helpers and **no matcher**, and `liblensfun-bin` carries only the
-  update/adapter utilities. Querying lensfun would mean parsing its XML and reimplementing
-  its fuzzy matcher — an analysis the tool owns. So the guard asks the tool that does the
-  work to prove it did it, and Siril supplies the verdict: on an all-zero difference
-  `stat` refuses with *"Statistics computation failed … (all nil?)"*, which IS the no-op
-  proof. Mechanism: `docs/dead-ends.md`.
-- **Residual the guard does NOT close:** lensfun fuzzy-matching a correct EXIF string to a
-  wrong DB entry. That warp is non-zero, so the proof passes it; the uniformity + record
-  checks bound it but do not eliminate it. A lensfun-internal limit, not a claim the
-  guard makes.
 - **Wire it into the loop as the MATCH → RECOMMEND step for this footprint:** take the
   fingerprint (item 1) → check the lensfun DB → recommend the route with its reason (or
   a plain homography, with its reason) → report → user decides → execute → record the
   choice and its trade-off.
 - lensfun carries CALIBRATED entries at 24/28/35/50/70 for this lens and interpolates
   between them; confirm interpolated behaviour at an intermediate focal, and that
-  `crop=1.0` holds for the body.
+  `crop=1.0` holds for the body. The FITTED entry covers focal=70 only — any other
+  focal rides the community entries until fitted (`fit_lens_model.sh` per focal).
 - **The model source is per-rig and per-lens.** A community profile can be right at
   the corner and wrong in the paraxial region (the centre-band mechanism,
-  `docs/dead-ends.md`); the route's standard companion is the fit-from-own-frames
-  procedure (`scripts/darktable/fit_lens_model.sh` → `install_lens_model.sh`, in
-  production for the 24-70/4 S @ 70 — see the removal-condition register) and the
-  drift-axis station measure (`scripts/qa/star_stations.py`) in the class
-  checklist, since `seqtilt` cannot see the band. The fitted centre shift (d,e = −2.8, +21 px) is
-  deliberately NOT in the first arm: lensfun's `<center>` element is undocumented
-  (absent from the shipped DTD/XSD; parsed by `database.cpp`) and its sign convention
-  is unverified — it enters only as a separately-bracketed knob if the abc-only arm
-  leaves band residue, and carries a lensfun-version-bump removal condition if ever
-  adopted.
+  `docs/dead-ends.md`); the route's standard companions are the fit-from-own-frames
+  procedure (`scripts/darktable/fit_lens_model.sh` → `install_lens_model.sh`) and the
+  drift-axis station measure (`scripts/qa/star_stations.py`) in the class checklist,
+  since `seqtilt` cannot see the band. Two bounded limits, by design: the fitted
+  entry carries a,b,c only — the centre shift maps to lensfun's `<center>` element,
+  which is undocumented (absent from the shipped DTD/XSD) with an unverified sign
+  convention, so it enters only as a separately-bracketed knob if a set shows band
+  residue, carrying a lensfun-version-bump removal condition; and the preflight
+  cannot catch lensfun fuzzy-matching a correct EXIF string to a wrong-but-present
+  DB entry — the station measure is the backstop.
 
 ## 3. Culling — assessed, never decided
 
@@ -140,11 +103,12 @@ What is left:
 `cull_report` proposed excluding them. **No render has applied that.** It is an
 unexamined default, not a decision — the gap this item closes.
 
-- **Frame selection has been disk-bound, not chosen.** The shipped 168-frame render
-  selected by even stride to fit the disk, not by quality, and **includes DSC_6900**
-  — the frame flagged worst on all three axes — while an earlier 54-frame subset
-  excluded all four by luck. Disk pressure silently became frame selection. A
-  full-depth render must use ALL frames plus an EXPLICIT culling decision.
+- **Frame selection has been disk-bound, not chosen.** The approved render (168 of
+  373 by even stride, the disk ceiling; `run_undistort_pipeline.sh --frames=`)
+  is quality-blind and **includes DSC_6900** — the frame flagged worst on all three
+  axes — while the 54-frame A/B arms excluded all four by luck. Disk pressure
+  silently became frame selection. A full-depth render must use ALL frames plus an
+  EXPLICIT culling decision.
 - **The likely right answer is still "keep all", but it must be decided and recorded.**
   The spread is tiny — worst FWHM 3.857 vs median 3.634 (6.1%), background flat to
   0.35%, 98% of frames within ±2% of median FWHM — and the dead-end registry already
@@ -234,11 +198,12 @@ only the retirement is outstanding. Do not re-research these — implement them.
 
 ## 7. Open questions with a named test
 
-- **Which mechanism drives the one-sided term.** Siril `seqtilt` measures it (sensor
-  tilt 0.50/16% → 0.42/13% → 0.51/16% across control → corrected → shipped): a radial
-  lens model does not touch it. Candidates are differential refraction (asymmetric with
-  hour angle) and lens decentering. Discriminator: hour-angle dependence across sets —
-  refraction varies with it, decentering does not.
+- **Which mechanism drives the RESIDUAL one-sided term.** Siril `seqtilt` measures it;
+  the fitted lens model reduced it 0.51 → 0.31 px (16% → 10%) at full depth — that
+  fraction was paraxial model error, not tilt. For the 0.31 px remainder the candidates
+  stay differential refraction (asymmetric with hour angle) and lens decentering.
+  Discriminator: hour-angle dependence across sets — refraction varies with it,
+  decentering does not.
 - **`solve_field` peak detection → `image2xy` A/B.** `image2xy` (astrometry.net's own
   extractor) is source-verified to have NO shape/roundness gate, so it DOES return
   trailed sources — mechanically closer to our peak-centroid than to a rejecting fitter.
@@ -285,15 +250,18 @@ sensor after ~3.0 h at 70 mm (34 px/min measured), so a single 2000-frame untrac
 window would have ZERO common area — but each 45-min set sits at 76% field retained. The
 re-centring solved it in acquisition.
 
-Depends on items 2 (focal generality per set), 3 (culling), 4 (the chunk bug — chunking
-is mandatory here) and 5 (the sky flat). Ordered:
+Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here and the
+remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
    Both local sets are 70 mm; the other three are unverified. This is a **hard
    prerequisite, not a formality**: darktable silently applies NO correction to a lens it
    cannot match and a wrong model to one it mis-matches, so a single set with a different
    or unrecognised lens string would stack uncorrected into the combined result with no
-   warning. Item 2's preflight guard is what enforces it — build it before this runs.
+   warning. `lens_preflight.py` (run by the builder) enforces it per set — and the
+   FITTED entry covers focal=70 only, so a set at any other focal needs
+   `fit_lens_model.sh` for that focal first or it silently rides the community entry
+   and reintroduces the centre band.
 2. **Measure the re-aim scatter before committing to one combined stack.** `-framing=min`
    keeps only what is common to ALL frames: within a set the drift is ~1500 px, across
    sets it is drift + hand-re-centring error. If scatter is large the common area drops
