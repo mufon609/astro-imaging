@@ -31,6 +31,11 @@
 #   the shipped DTD/XSD) with an unverified sign convention — a
 #   separately-bracketed knob that has not been needed.
 #
+# PROVISIONAL AS-WRITTEN: the procedure this script encodes was proven step by step
+# on real frames (the fitted entry now in production came from it), but the
+# script artifact has not yet run end to end — its first as-written run is the
+# next lens/focal fit on the x86 rig.
+#
 # Output: fitted a,b,c (panotools convention — lensfun `model="ptlens"`
 # consumes them directly) printed with the matching install command, and the
 # fit record at datasets/<session>/<set>/qa_work/lens_fit.json. The fit is

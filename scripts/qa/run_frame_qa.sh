@@ -23,6 +23,10 @@
 # cannot build a sequence from a single frame) — it auto-shrinks the batch by
 # one instead, and states it.
 #
+# PROVISIONAL AS-WRITTEN: generalized from the driver that produced set-02's
+# record (same stages); the generalized artifact itself has not yet run end to
+# end — its first as-written run is the next set's prep on the x86 rig.
+#
 # The CULL DECISION stays with the user: this reports. The per-set policy
 # (aircraft out, flagged session-edge frames out, frame-wide degradation out,
 # satellites listed not culled) is applied against this record + the anomaly

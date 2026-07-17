@@ -2,9 +2,10 @@
 # Install the measured distortion model for the NIKKOR Z 24-70mm f/4 S @ 70 mm
 # into the live lensfun user DB (the one darktable reads).
 #
-# Why a fitted entry replaces the community one: the community ptlens profile is
-# right at the field corner (agrees with this fit to 0.06 px at r=2664) but
-# overcorrects the paraxial/mid region by 2.4-3.9 px (r=200-1000). On a
+# Why a fitted entry replaces the community one: the community ptlens profile
+# agrees with this fit at the field corner (0.06 px at r=2664) but diverges from
+# it by 2.4-3.9 px through the paraxial/mid region (r=200-1000) — the error the
+# A/B then confirmed empirically. On a
 # far-drifting untracked set that error is crossed by the optical axis and
 # smears an along-drift band through frame centre; with this entry the centre
 # station sits at the in-exposure floor and the whole frame sharpens

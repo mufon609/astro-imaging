@@ -27,6 +27,10 @@
 #   --frames=N selects an EVEN STRIDE over the whole set, which preserves the
 #   TIME SPAN (what the registration geometry depends on) and trades only depth.
 #
+# PROVISIONAL AS-WRITTEN: this script was assembled from the chain that shipped
+# the approved render (identical stages), but the artifact itself has not yet
+# run end to end — its first as-written run is the x86 set-01 full-depth job.
+#
 # The stack is `rej 3 3 -norm=addscale` — the chain the approved render pinned.
 # --icc-type SRGB is MATCHED to the sRGB-TRC tag Siril's savetif embeds
 # (verified identity round trip; forcing a linear tag leaves the decode

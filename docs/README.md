@@ -85,8 +85,10 @@ _(add each writeup here, newest first)_
   Alchemy + DBXtract are the free OIII-unmix mechanism, but GUI-only Class-1; the
   headless narrowband-colour gap stays open.
 - [objective-qa-defect-metrics](objective-qa-defect-metrics.md) — the AUDIT side:
-  numpy/scipy-computable frame-quality + processing-defect metrics (ringing,
-  over-smoothing, over-flattening) to extend the measurement layer.
+  which frame-quality / processing-defect classes (ringing, over-smoothing,
+  over-flattening) need coverage and which OFFICIAL TOOL measures each; where no
+  tool does, the documented-gap list (the tools measure — never an in-house
+  reimplementation).
 - [synthetic-flats-and-bias](synthetic-flats-and-bias.md) — flatless/biasless
   calibration routes: model-division (GraXpert, vignetting-only, dust-safe) vs a
   sky flat (captures motes/PRNU but contaminates on frame-filling IFN) vs skip-bias

@@ -35,7 +35,7 @@
 | Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
 | `help stack` on the flatpak | bare-`rej` default algorithm (UNCERTAIN) | is it Winsorized? | confirm or switch to `rej w 3 3` |
 | 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
-| Run the UNDISTORT stage end to end (`scripts/darktable/install_styles.sh` → the chain in `wide-field-untracked-registration.md`) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` off-axis aberration, control vs corrected | reproduces the 0.57 → ~0.25 px direction and magnitude |
+| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | reproduces the fitted-model render's direction and magnitudes: off-axis ~0.25 px; centre station at the perpendicular-station level (~3.4–3.8 px majFWHM, no along-drift band); seqtilt truncated-mean ~3.0–3.1 px |
 
 ### Phase 3 — Plate solving, the trailed class (`docs/plate-solving-and-drizzle.md`)
 | Test | Settles | Bracket / metric | Pass |

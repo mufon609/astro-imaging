@@ -180,8 +180,9 @@ the frame-1/373 solves; records `qa_work/star_stations_*.json`) — cells are
   `autooptimiser`, hfov pinned at the solved value), installed into the live
   lensfun DB (`scripts/darktable/install_lens_model.sh`) so the chain itself is
   unchanged. The fitted curve agrees with the community entry at the crop corner
-  (Δ 0.06 px) and shows it overcorrecting the paraxial/mid field by 2.4–3.9 px —
-  ε(r), measured. Full-depth A/B vs the community entry: centre station
+  (Δ 0.06 px) and diverges from it by 2.4–3.9 px through the paraxial/mid field —
+  the ε(r) the fit implies (model-vs-model; backed by the A/B confirming the
+  fit's predictions). Full-depth A/B vs the community entry: centre station
   **5.30 → 3.67 px** (roundness 0.480 → 0.629), all-station spread 1.70 →
   **0.52 px**, seqtilt truncated-mean FWHM **3.27 → 3.06 px**, stars +10%,
   sensor tilt 0.51 → 0.31 px. Approved on the user's eyes, full-frame lossless.

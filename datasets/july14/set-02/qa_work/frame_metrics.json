@@ -112,7 +112,7 @@
    "note": "fwhm z +6.05, nstars z -5.87, roundness 16 sigma HIGH; also carries a 583 px satellite streak (audit)"
   }
  ],
- "anomaly_summary": "44 satellites across 39 frames + 2 AIRCRAFT (DSC_7574/7575, parallel twin trails ~17 px apart, conf 0.9); bookends: DSC_7272 satellite 174 px, DSC_7575 aircraft (audit_work/anomaly_audit.json)",
+ "anomaly_summary": "44 satellite-classified across 39 frames + 2 aircraft-classified (DSC_7574/7575, parallel twin trails ~17 px apart, classifier conf 0.9); bookends: DSC_7272 satellite 174 px, DSC_7575 aircraft (audit_work/anomaly_audit.json)",
  "cull_candidate": {
   "stack": {
    "weight": null,

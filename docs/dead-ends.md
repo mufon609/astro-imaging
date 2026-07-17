@@ -185,6 +185,12 @@ the constraints any such tool must satisfy):
   ~1.6:1 at BEST; success is the EDGE matching the CENTRE, never round stars. That
   the per-frame roundness is *uniform* is also the proof the radial smear is
   introduced by register+stack, not by the frames.
+  **Measure note — the floor's px numbers are not one statistic.** ~3.4 is a predicted
+  trail LENGTH; the ~3.6 per-frame FWHM was CFA-sampled (Bayer-inflated, relative-only
+  — removal-condition register); station values are debayered majFWHM medians
+  (3.4–3.8 px at the perpendicular stations); `seqtilt`'s truncated mean mixes axes
+  and reads 3.0–3.1 px on the same stacks. Compare within one statistic; the operative
+  claim is edge ≈ centre, never an absolute px value across statistics.
 - **A community lens profile can fix the edges and still WRITE A NEW DEFECT into the
   centre — the paraxial-error × drift band.** True distortion → 0 at the optical axis,
   so an UNCORRECTED wide untracked stack has a pristine centre (the control's centre is
@@ -206,7 +212,7 @@ the constraints any such tool must satisfy):
   the same renders) — never accept a wide-untracked render on `seqtilt` alone; measure
   fixed stations along/perpendicular to the measured drift axis
   (`scripts/qa/star_stations.py`). A tracked rig can never see this term (no drift),
-  which is why no mainstream reference reports a "field-centre" residual. ε-source
+  consistent with no mainstream reference reporting a "field-centre" residual. ε-source
   candidates (open — the fix is the same regardless): community a/b/c are fitted with
   the distortion centre pinned at image centre, absorbing the calibrator copy's
   decentering into radial terms that do not transfer between units; focus-distance
@@ -215,10 +221,13 @@ the constraints any such tool must satisfy):
   viable (`scripts/darktable/fit_lens_model.sh`, installed by
   `install_lens_model.sh`; traps in the script + TOOLS.md Tier 2b) — removes the
   band (centre station 5.30 → 3.67 px at full depth, every station at the
-  3.4–3.8 px floor) and sharpens the WHOLE frame (seqtilt FWHM 3.27 → 3.06 px):
+  perpendicular-station level of 3.4–3.8 px majFWHM) and sharpens the WHOLE
+  frame (seqtilt truncated-mean 3.27 → 3.06 px — a different statistic; measure
+  note in the floor entry above):
   the fitted curve agrees with the community one at the crop corner (Δ 0.06 px)
-  and shows the community profile overcorrecting the paraxial/mid field by
-  2.4–3.9 px — ε(r), measured. Also KILLED:
+  and diverges from it by 2.4–3.9 px through the paraxial/mid field — the ε(r)
+  the fit implies (a model-vs-model difference; what backs it is the A/B
+  confirming the fit's predictions). Also KILLED:
   the solved effective focal (67.8) as the lensfun interpolation key — the
   interpolated 50–70 model is WORSE at the centre (5.42/0.468 vs 4.88/0.516); the
   calibrated focal=70 entry is the best community key.

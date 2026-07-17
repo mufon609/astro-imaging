@@ -266,7 +266,7 @@ Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here an
 remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Prep state: set-01
 (369 in / 4 out) and set-02 (299 in / 5 out) are prepped and ratified with complete
 tracked records + window solves (re-aim offset between them 2.24°, ~7% of width —
-single combined registration remains viable); sets 03/04/05 get the same per-set prep
+single combined registration remains viable on the 2 of 5 windows solved so far); sets 03/04/05 get the same per-set prep
 ON THE DESKTOP as they stage. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
