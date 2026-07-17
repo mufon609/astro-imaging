@@ -103,6 +103,15 @@ preflight guard is wired in. What is left is making the repo RECOMMEND it:
 `cull_report` proposed excluding them. **No render has applied that.** It is an
 unexamined default, not a decision — the gap this item closes.
 
+**Per-set culling policy (user-ratified):** run the anomaly audit per set and cull
+aircraft-classified frames; cull a set's FIRST and LAST frame when either is
+anomaly-flagged or QA-degraded (session-edge frames carry settle/handling risk).
+Everything else goes to the user as a full frames-with-objects list + the cull
+report for an explicit per-set call, recorded in the set's `recipe.json` stack
+block with its reason. Satellites are not culled by default — a moving minority
+trail stacks clean through `rej 3 3` (dead-end registry); they are listed, not
+excluded.
+
 - **Frame selection has been disk-bound, not chosen.** The approved render (168 of
   373 by even stride, the disk ceiling; `run_undistort_pipeline.sh --frames=`)
   is quality-blind and **includes DSC_6900** — the frame flagged worst on all three
