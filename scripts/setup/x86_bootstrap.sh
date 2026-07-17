@@ -128,12 +128,13 @@ manifest astrometry.net apt apt-signed apt /usr/share/astrometry "solve-field --
 # (no lensfun link, so no auto-match). liblensfun-bin carries lensfun-update-data:
 # it is NOT in python3-lensfun (that package has only DB-path helpers and no
 # matcher), and without it the DB update below cannot run.
-run "sudo apt install -y darktable liblensfun-bin python3-lensfun"
+run "sudo apt install -y darktable liblensfun-bin python3-lensfun hugin-tools"
 manifest darktable apt apt-signed apt /usr/bin/darktable-cli "darktable-cli --version" "UNDISTORT stage; must be built against lensfun"
 manifest lensfun apt apt-signed apt /usr/share/lensfun "lensfun-update-data --help" "liblensfun-bin ships lensfun-update-data (NOT python3-lensfun)"
+manifest hugin-tools apt apt-signed apt /usr/bin/cpfind "cpfind --version" "lens-model FIT route: cpfind/cpclean/autooptimiser fit ptlens a,b,c from a set's own frames (scripts/darktable/fit_lens_model.sh)"
 
-# The undistort route needs TWO things apt cannot give it, and BOTH are
-# machine-local — neither migrates with the repo, so they are re-created per rig:
+# The undistort route needs THREE things apt cannot give it, ALL
+# machine-local — none migrates with the repo, so they are re-created per rig:
 #
 #  1. The UPSTREAM lensfun DB. The distro's 0.3.4 DB predates recent bodies (it
 #     lacks the Nikon Z6III, measured), and without a CAMERA match lensfun cannot
@@ -148,15 +149,22 @@ manifest lensfun apt apt-signed apt /usr/share/lensfun "lensfun-update-data --he
 #  2. The lens STYLES, from the repo. Their op_params blob is the pinned artifact;
 #     darktable has no CLI style import, so install_styles.sh writes them into
 #     darktable's data.db directly. Never re-create them by hand in the GUI.
+#  3. The FITTED lens model. Where a community DB entry's paraxial error writes
+#     the centre band into a far-drifting set (docs/dead-ends.md), the entry
+#     measured from the unit's own frames replaces it: install_lens_model.sh
+#     patches the user updates DB (idempotent, loud on upstream drift) and MUST
+#     be re-run after every lensfun-update-data, which overwrites the patch.
 #
-# Skipping either is SILENT: darktable applies no correction to a lens it cannot
-# match, exits 0, and logs nothing (measured). scripts/stack/lens_preflight.py
+# Skipping any of these is SILENT: darktable applies no correction to a lens it
+# cannot match, exits 0, and logs nothing (measured). scripts/stack/lens_preflight.py
 # --require-profile is what catches that, and the verification pass below runs it.
-log "Layer A2 — lensfun DB update + the repo's darktable lens styles"
+log "Layer A2 — lensfun DB update + the repo's darktable lens styles + the fitted lens model"
 run "lensfun-update-data"
 run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_styles.sh' \"\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable\""
+run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_lens_model.sh'"
 manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d $HOME/.local/share/lensfun/updates/version_1" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
 manifest dt-lens-styles repo scripts/darktable n/a "\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable/data.db" "true" "lensdist/nodist; op_params is the pinned artifact; no GUI step"
+manifest dt-lens-model repo scripts/darktable n/a "$HOME/.local/share/lensfun/updates/version_1/mil-nikon.xml" "true" "fitted ptlens entry for the 24-70/4 S @ 70; re-install after every lensfun-update-data; re-fit per lens/body/focal (fit_lens_model.sh)"
 
 # ---- Layer B: flatpak Siril ----------------------------------------------
 log "Layer B — Siril (flatpak $SIRIL_FLATPAK_ID, 1.4.4)"

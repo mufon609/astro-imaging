@@ -53,7 +53,9 @@ sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/si
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile
 "$REPO/scripts/darktable/install_styles.sh" "$CFG"
 
-mapfile -t SRC < <(ls "$SESSION/$SET"/*.[Nn][Ee][Ff] 2>/dev/null | sort)
+mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+     -o -iname '*.arw' -o -iname '*.raf' \) | sort)
 [ ${#SRC[@]} -ge 2 ] || { echo "no raw frames under $SESSION/$SET" >&2; exit 1; }
 # The ratified per-set cull: recipe.json stack.exclude lists frame numbers that
 # never enter the stack (the decision + reasons live in the recipe's why block).

@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+# Per-frame registration QA for a light set — the MEASURE step of the operating
+# loop, and the input to the per-set culling decision (BACKLOG item 3 policy).
+#
+#   run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]
+#
+# Method: raw frames -> CFA FITS (undebayered) -> `register -2pass` in
+# disk-bounded batches (ANALYSIS pass only: regdata lands in the .seq, no
+# transformed frames are written) -> inspect_stage parses Siril's own per-frame
+# regdata (FWHM / roundness / background / star count) -> the records are
+# flattened per frame and cull_report flags the defect-side z outliers
+# (WARN-only). The tracked summary lands at
+# datasets/<session>/<set>/qa_work/frame_metrics.json.
+#
+# The metrics pooled across batches are reference-independent (FWHM/roundness/
+# background/star count come from per-frame PSF fits); wfwhm mixes matching
+# loss with drift distance so it is advisory only — cull_report never culls on
+# it. CFA (undebayered) keeps disk bounded and matches the recorded method:
+# absolute FWHM is Bayer-inflated, only relative comparison is valid
+# (removal-condition register: re-measure debayered where disk allows).
+#
+# Batch sizing: the driver refuses a final batch of exactly ONE frame (Siril
+# cannot build a sequence from a single frame) — it auto-shrinks the batch by
+# one instead, and states it.
+#
+# The CULL DECISION stays with the user: this reports. The per-set policy
+# (aircraft out, flagged session-edge frames out, frame-wide degradation out,
+# satellites listed not culled) is applied against this record + the anomaly
+# audit, and the ratified list goes to recipe.json's stack block with reasons.
+set -euo pipefail
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
+SET=${2:?missing <set>}
+BATCH=76 Z=3.5
+for a in "${@:3}"; do case "$a" in
+  --batch=*) BATCH=${a#*=};; --z=*) Z=${a#*=};;
+  *) echo "unknown arg $a" >&2; exit 1;;
+esac; done
+SESSION=$(cd "$SESSION" && pwd)
+Q=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
+P=$Q/frameqa
+sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
+
+mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+     -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+n=${#SRC[@]}
+[ "$n" -ge 8 ] || { echo "run_frame_qa: only $n raw frames under $SESSION/$SET" >&2; exit 1; }
+if [ $((n % BATCH)) -eq 1 ]; then
+  BATCH=$((BATCH - 1))
+  echo "run_frame_qa: batch shrunk to $BATCH (a final batch of 1 cannot be sequenced)"
+fi
+rm -rf "$P"; mkdir -p "$P"
+echo "run_frame_qa: $n frames in $(( (n + BATCH - 1) / BATCH )) batches of $BATCH"
+
+i=0; b=0
+while [ $i -lt $n ]; do
+  b=$((b+1))
+  W=$P/b$b; mkdir -p "$W/nef"
+  batch_files=()
+  for ((k=0; k<BATCH && i<n; k++, i++)); do
+    ln -sf "${SRC[$i]}" "$W/nef/$(basename "${SRC[$i]}")"
+    batch_files+=("$(basename "${SRC[$i]}")")
+  done
+  printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
+  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
+    "$W/nef" "$W" "$W" > "$W/r.ssf"
+  sir "$W" "$W/r.ssf"
+  reg=$(grep -c '^R0' "$W/c_.seq" || true)
+  [ "$reg" -gt 0 ] || reg=$(grep -c '^R1' "$W/c_.seq" || true)
+  tot=$(ls "$W"/c_*.fit 2>/dev/null | wc -l)
+  python3 "$REPO/scripts/qa/inspect_stage.py" reg --dir "$P" --seq "$W/c_.seq" \
+    --registered "$reg" --total "$tot" --label "batch$b"
+  rm -f "$W"/c_*.fit "$W"/*.seq; rm -rf "$W/nef"
+  echo "batch $b done ($i/$n)  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
+done
+
+python3 - "$P" "$Q/frame_metrics.json" "$Z" <<'PY'
+import glob, json, os, statistics as st, sys
+P, OUT, Z = sys.argv[1], sys.argv[2], float(sys.argv[3])
+
+entries = [json.loads(l) for l in open(f"{P}/metrics.jsonl")]
+flat = []
+for e in entries:
+    b = int(e["label"].replace("batch", ""))
+    names = open(f"{P}/b{b}/files.txt").read().split()
+    for r in e["frames"]:
+        fname = names[r["n"] - 1]
+        digits = "".join(c for c in os.path.splitext(fname)[0] if c.isdigit())
+        flat.append({"n": len(flat) + 1, "file": fname,
+                     "frame_number": int(digits) if digits else None,
+                     "fwhm": r["fwhm_px"], "wfwhm": r["wfwhm_px"], "round": r["round"],
+                     "bg": r["bg16"], "nstars": r["nstars"],
+                     "registered": bool(r["incl"]), "ref_copy": False,
+                     "part": b, "batch": b})
+with open(f"{P}/records.jsonl", "w") as f:
+    for r in flat: f.write(json.dumps(r) + "\n")
+
+def med(k): return round(st.median(r[k] for r in flat), 4)
+def mn(k):  return round(min(r[k] for r in flat), 4)
+def mx(k):  return round(max(r[k] for r in flat), 4)
+blocks = [{"block": b, "frames": len(rows),
+           "fwhm": round(st.median(r["fwhm"] for r in rows), 3),
+           "round": round(st.median(r["round"] for r in rows), 4),
+           "stars": int(st.median(r["nstars"] for r in rows)),
+           "bg16": int(st.median(r["bg"] for r in rows))}
+          for b in sorted({r["batch"] for r in flat})
+          if (rows := [r for r in flat if r["batch"] == b])]
+
+# defect-side robust z (same rule cull_report prints; recorded per flagged frame)
+def rz(vals):
+    m = st.median(vals); mad = st.median(abs(v - m) for v in vals) * 1.4826
+    return m, max(mad, 1e-9)
+side = {"fwhm": +1, "bg": +1, "round": -1, "nstars": -1}
+stats = {k: rz([r[k] for r in flat]) for k in side}
+flagged = []
+for r in flat:
+    flags = [k for k, s in side.items()
+             if (r[k] - stats[k][0]) / stats[k][1] * s >= Z]
+    if flags:
+        flagged.append({"file": r["file"], "flags": flags,
+                        **{k: r[k] for k in side}})
+
+scale = entries[0].get("pixel_scale_arcsec")
+rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; "
+               "flagged at defect-side robust z >= %g (scripts/qa/cull_report.py rule)" % Z,
+       "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
+                 "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
+                 "caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+       "frames_total": len(flat),
+       "registered": sum(r["registered"] for r in flat),
+       "match_failed": sum(not r["registered"] for r in flat),
+       "pixel_scale_arcsec_cfa": scale,
+       "distribution": {
+        "fwhm_px": {"median": med("fwhm"), "min": mn("fwhm"), "max": mx("fwhm")},
+        "roundness": {"median": med("round"), "min": mn("round"), "max": mx("round")},
+        "nstars": {"median": int(med("nstars")), "min": int(mn("nstars")), "max": int(mx("nstars"))},
+        "bg16": {"median": int(med("bg")), "min": int(mn("bg")), "max": int(mx("bg"))}},
+       "temporal_trend_contiguous_blocks": blocks,
+       "flagged_defect_side_z": flagged,
+       "cull_note": "decision is the user's, against this record + the anomaly audit, "
+                    "recorded in recipe.json stack.exclude with reasons (per-set policy: "
+                    "BACKLOG item 3)"}
+json.dump(rec, open(OUT, "w"), indent=1)
+print(f"wrote {OUT}  ({len(flagged)} flagged frame(s))")
+PY
+python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" | tee "$P/cull_report.txt" | tail -20
+echo "=== run_frame_qa DONE ==="

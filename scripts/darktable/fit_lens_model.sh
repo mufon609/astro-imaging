@@ -53,7 +53,9 @@ P=$W/lens_fit_work
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 rm -rf "$P"; mkdir -p "$P/nef" "$P/proc" "$P/st"
-mapfile -t SRC < <(ls "$SESSION/$SET"/*.NEF "$SESSION/$SET"/*.nef 2>/dev/null | sort)
+mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+     -o -iname '*.arw' -o -iname '*.raf' \) | sort)
 [ ${#SRC[@]} -ge "$FRAMES" ] || { echo "only ${#SRC[@]} frames" >&2; exit 1; }
 python3 - "$P/nef" "${SRC[@]}" <<PY
 import os, sys

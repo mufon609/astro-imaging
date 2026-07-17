@@ -58,8 +58,6 @@
 __pycache__/
 *.pyc
 .DS_Store
-# local disk-reclaim helper: machine-specific paths, not part of the pipeline
-/scripts/makeSpace.sh
 
 # --- root-level images are working screenshots (judgment surfaces), never data ---
 /*.png
