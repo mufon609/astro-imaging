@@ -3,13 +3,14 @@ set16bits
 cd @SET@
 convert light -out=../work
 cd ../work
-# Dark: full subtraction when exposure-matched, bias+hot-pixel map otherwise
-# (preflight warns) — on a low-dark-current sensor the master dark is ~0
-# either way, so the hot-pixel map for -cc=dark is the win. -opt never
-# needed. @FLATOPT@ is set by
-# run_pipeline.sh preflight: flat + equalize_cfa when flats match the set's
-# focal/aperture, empty (no flat) when they don't.
-calibrate light -dark=masters/dark_master @FLATOPT@ -cc=dark 3 3 -cfa -debayer
+# @CALIBRATE@ is the shared light-calibration command from
+# scripts/stack/calibrate_light.sh (calibrate_light_cmd): dark subtraction +
+# mandatory -cc=dark cosmetic hot/cold-pixel correction + the flat/CFA/debayer
+# flags run_pipeline.sh resolves for this set (flat + equalize_cfa when flats
+# match the set's focal/aperture, no flat when they don't). On a low-dark-
+# current sensor the master dark is ~0, so its hot-pixel map for -cc=dark is
+# the win; -opt is never needed.
+@CALIBRATE@
 # Two-pass: measure all frames first, pick the reference that maximizes
 # registrable overlap — the fixed-tripod field drift otherwise strands the
 # late frames too far from a sequence-start reference (6/32 dropped in 1-pass).

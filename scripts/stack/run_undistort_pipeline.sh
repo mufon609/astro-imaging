@@ -38,6 +38,7 @@
 # uncancelled and silently destroys photometry).
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=]}
 SET=${2:?missing <set>}
 DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT=
@@ -106,8 +107,9 @@ while [ $n -lt ${#ALL[@]} ]; do
   for ((k=0; k<CHUNK && n<${#ALL[@]}; k++, n++)); do
     ln -sf "${ALL[$n]}" "$P/nef/$(basename "${ALL[$n]}")"
   done
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
-    "$P/nef" "$P/proc" "$P/proc" "$DARK" "$FLAT" > "$P/c.ssf"
+  CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
+  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
+    "$P/nef" "$P/proc" "$P/proc" "$CAL" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
   for f in "$P/proc"/pp_c_*.fit; do

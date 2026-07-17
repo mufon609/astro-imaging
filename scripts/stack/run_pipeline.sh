@@ -21,6 +21,7 @@ set -euo pipefail
 
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
 SET="${2:-lights}"
 S="$REPO/$SESSION"
@@ -272,7 +273,7 @@ _fits_dualband() {
   { echo "requires 1.4.0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
-    echo "calibrate light -dark=masters/dark_master $1 -cc=dark 3 3 -cfa"
+    calibrate_light_cmd light masters/dark_master $1 -cfa
     echo "seqextract_HaOIII pp_light -resample=oiii"
     echo "setref Ha_pp_light $MIDX"
     echo "register Ha_pp_light"
@@ -293,7 +294,7 @@ _fits_lights() {
   { echo "requires 1.4.0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
-    echo "calibrate light -dark=masters/dark_master $2 -cc=dark 3 3 $1"
+    calibrate_light_cmd light masters/dark_master $2 $1
     echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
     echo "set32bits"
     unselect_lines r_pp_light
@@ -627,7 +628,8 @@ MID=$(( (NFRAMES + 1) / 2 ))
 F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES")
 if [[ -n "$FLATOPT" ]]; then
   GEN_LIGHTS="$W/lights.$SET.gen.ssf"
-  sed -e "s|@SET@|$SET|g" -e "s|@FLATOPT@|$FLATOPT|g" \
+  CAL_LIGHTS=$(calibrate_light_cmd light masters/dark_master $FLATOPT -cfa -debayer)
+  sed -e "s|@SET@|$SET|g" -e "s|@CALIBRATE@|$CAL_LIGHTS|g" \
       -e "s|@STACKPOL@|$STACKPOL|g" \
       "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN_LIGHTS"
   inject_unselect "$GEN_LIGHTS" r_pp_light
