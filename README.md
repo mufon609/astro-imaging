@@ -198,7 +198,10 @@ Pin narrowly where identity IS the contract — a tool's exact invocation +
 version that a recorded measure depends on — not the whole product chain.
 
 **Data integrity (what is lossy, where, and the guards).** The processing
-path is linear FITS end to end: 32-bit float stacks/products, with ONE
+path is linear FITS end to end, **UNCOMPRESSED at every stage** (a foundational
+rule: no compression anywhere in the pipeline — every generated `.ssf` pins
+`setcompress 0`, since siril persists that preference across sessions); 32-bit
+float stacks/products, with ONE
 documented precision reduction — 16-bit stack-time intermediates
 (quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
@@ -342,8 +345,8 @@ scripts/stack/run_pipeline.sh <session> <set>
 #   auto-routing by data fingerprint is BACKLOG items 1-2.
 scripts/stack/run_undistort_pipeline.sh <session> <set> --dark=<master> --flat=<master> [--frames=N]
 # same class at FULL depth on a disk below the ~231 MB/frame single-pass peak:
-#   balanced consecutive groups -> per-group stacks (rice-compressed, lossless
-#   on int16) -> register + stack the sub-stacks. Valid post-undistort ONLY.
+#   balanced consecutive groups -> per-group stacks -> register + stack the
+#   sub-stacks. Valid post-undistort ONLY.
 scripts/stack/run_undistort_groups.sh <session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
@@ -378,7 +381,7 @@ live in CLAUDE.md "Environment".
 | `lens_preflight.py` | optics guard, run first by `run_pipeline.sh`: reads EVERY frame's camera/lens/focal via exiftool and STOPS on a MIXED-optics set (`acquisition.json` derives optics from the FIRST FRAME ONLY, so it structurally cannot see a zoom bump mid-set) or on a set whose frames contradict the tracked record. With `--require-profile` it also makes darktable PROVE it corrects the set — rendering one frame through the pinned `lensdist`/`nodist` pair and asking Siril for the difference — because darktable silently applies NO correction to a lens lensfun cannot match and never says so |
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (2-pass/sweep) → rejection stack; forks camera-raw vs dedicated-astrocam FITS, loudly STOPS a flatless set demanding a matching flat (synthetic-flat is a documented gap — BACKLOG), and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
 | `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only via the stripped lensfun DB, incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the ~231 MB/frame uncompressed disk peak; `--frames=N` selects an even stride that preserves the full time span; `--select=<list>` processes an exact frame block (the groups driver's hook) |
-| `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group; sub-stacks stored rice-compressed — verified lossless on int16), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
+| `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member by Siril first). Its channel combine + FITS I/O should move to Siril `rgbcomp` — BACKLOG |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle; replaceable by Siril `seqapplyreg -framing=min` — BACKLOG |

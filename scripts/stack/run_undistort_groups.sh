@@ -35,10 +35,9 @@
 # EVERY group (sub-stacks accumulate); >=2 groups or it tells you to use the
 # single-pass builder.
 #
-# Sub-stacks are stored rice-compressed (lossless on 16-bit integer data —
-# quantization applies only to float; ~4.4x on a stack) and decompressed
-# only for the final register+stack — without this the accumulated sub-stacks
-# push the peak past a small disk at ANY group size.
+# NOTHING in the chain is compressed — the pipeline-wide rule; every
+# generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed
+# (~145 MB each), which the disk guard accounts for.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan]}
@@ -81,9 +80,9 @@ BASE=$((N / K)); REM=$((N % K))     # REM groups of BASE+1, K-REM of BASE
 MAXG=$BASE; [ "$REM" -eq 0 ] || MAXG=$((BASE + 1))
 # per-group transient ~290 MB/frame (full-frame warped + near-full registered:
 # a consecutive block drifts only ~60 px, so -framing=min barely crops);
-# accumulated sub-stacks ~35 MB each rice-compressed; final phase decompresses
-# (K x ~145 MB) beside the registered copies (K x ~85 MB)
-NEED_GB=$(( MAXG * 290 / 1024 + (K * 35) / 1024 + 2 ))
+# sub-stacks accumulate uncompressed at ~145 MB each; the final phase holds
+# them beside their registered copies (~85 MB each)
+NEED_GB=$(( MAXG * 290 / 1024 + (K * 145) / 1024 + 2 ))
 FINAL_GB=$(( K * 230 / 1024 + 2 ))
 [ "$FINAL_GB" -gt "$NEED_GB" ] && NEED_GB=$FINAL_GB
 echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G"
@@ -93,8 +92,8 @@ i=0
 for ((g=1; g<=K; g++)); do
   size=$BASE; [ "$g" -le "$REM" ] && size=$((BASE + 1))
   SUB=$G/sub_$(printf %02d "$g")
-  if [ -f "$SUB.fit.fz" ]; then
-    echo "=== group $g/$K: $SUB.fit.fz exists, skipping (resume) ==="; i=$((i + size)); continue
+  if [ -f "$SUB.fit" ]; then
+    echo "=== group $g/$K: $SUB.fit exists, skipping (resume) ==="; i=$((i + size)); continue
   fi
   FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
   GNEED=$(( size * 290 / 1024 + 1 ))
@@ -104,26 +103,17 @@ for ((g=1; g<=K; g++)); do
   echo "=== group $g/$K: $(wc -l < "$G/g$g.list") frames ==="
   "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" \
     --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit"
-  printf 'requires 1.2.0\nsetcompress 1 -type=rice 16\nload %s\nsave %s\nclose\n' \
-    "$SUB.fit" "$SUB" > "$G/zip.ssf"
-  sir "$SESSION" "$G/zip.ssf"
-  [ -f "$SUB.fit.fz" ] || { echo "ABORT: rice save failed for group $g" >&2; exit 1; }
-  rm -f "$SUB.fit"
+  [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
 done
 
-echo "=== final: decompress, register + stack $K sub-stacks ==="
+echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
-{ printf 'requires 1.2.0\nset16bits\nsetcompress 0\n'
-  for f in "$G"/sub_*.fit.fz; do
-    b=$(basename "$f" .fit.fz)
-    printf 'load %s\nsave %s\nclose\n' "$f" "$G/final/$b"
-  done; } > "$G/unzip.ssf"
-sir "$SESSION" "$G/unzip.ssf"
+for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
 printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\nstack r_s rej 3 3 -norm=addscale -output_norm -out=%s\n' \
   "$G/final" "$G/finalseq" "$G/finalseq" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
 rm -rf "$G/final" "$G/finalseq"
-echo "=== DONE: $OUT.fit (compressed sub-stacks kept in $G for re-composition) ==="
+echo "=== DONE: $OUT.fit (sub-stacks kept in $G for re-composition) ==="
 ls -la "$OUT.fit"
 df -h "$SESSION" | tail -1

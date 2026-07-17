@@ -25,9 +25,9 @@
 # - chunk remainder: Siril cannot build a sequence from ONE frame, so a frame
 #   count leaving a remainder of exactly 1 aborts HERE, not hours in.
 # - disk: registration keeps the warped input set resident while seqapplyreg
-#   writes the registered set beside it (~231 MB/frame peak, uncompressed —
-#   `setcompress` quantisation is silently lossy on float, so nothing here is
-#   compressed). Aborts up front if the selected frame count cannot fit;
+#   writes the registered set beside it (~231 MB/frame peak — NOTHING in the
+#   pipeline is compressed, the pipeline-wide rule; every .ssf pins
+#   `setcompress 0`). Aborts up front if the selected frame count cannot fit;
 #   --frames=N selects an EVEN STRIDE over the whole set, which preserves the
 #   TIME SPAN (what the registration geometry depends on) and trades only depth.
 #

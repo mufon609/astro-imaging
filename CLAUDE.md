@@ -259,6 +259,11 @@ core here now:**
   gitignored session tree. Never dataset-specific script patches; a dataset
   without this state must degrade loudly, not inherit silently. (The existing recipe render blocks +
   baselines are chain-coupled and PENDING the new chain's schema.)
+- **No compression anywhere in the pipeline** — every intermediate and product
+  is plain uncompressed FITS, and every generated `.ssf` pins `setcompress 0`
+  (siril persists the setting across sessions, so an unpinned script inherits
+  whatever ran last). Disk pressure is solved with group composition
+  (`run_undistort_groups.sh`), staging, or more disk — never compression.
 - Background long siril/render runs and keep working; preserve stacks
   per experiment (`cp` to tagged names); track disk.
 
