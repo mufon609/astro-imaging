@@ -1,0 +1,129 @@
+{
+ "measured": "2026-07-17",
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged by scripts/qa/cull_report.py",
+ "method": "304 NEF -> CFA FITS (undebayered) -> register -2pass in 4 batches of 76; per-frame FWHM/roundness/background/#stars pooled (reference-independent metrics; wfwhm advisory only). Same method as set-01's record so the two sets compare; CFA caveat carries: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 304,
+ "registered": 304,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.503,
+ "distribution": {
+  "fwhm_px": {
+   "median": 3.6325,
+   "min": 3.44,
+   "max": 3.794
+  },
+  "roundness": {
+   "median": 0.615,
+   "min": 0.5988,
+   "max": 0.6621
+  },
+  "nstars": {
+   "median": 1840,
+   "min": 1579,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1137,
+   "min": 1124,
+   "max": 1149
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 3.658,
+   "round": 0.6156,
+   "stars": 1822,
+   "bg16": 1129
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 3.638,
+   "round": 0.6158,
+   "stars": 1813,
+   "bg16": 1136
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 3.615,
+   "round": 0.614,
+   "stars": 1857,
+   "bg16": 1139
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 3.618,
+   "round": 0.6136,
+   "stars": 1845,
+   "bg16": 1140
+  }
+ ],
+ "flagged_defect_side_z3p5": [
+  {
+   "file": "DSC_7551.NEF",
+   "flags": [
+    "bg"
+   ],
+   "note": "start of a 5-frame thin-cloud/haze dwell (bg +3.3-3.7 sigma, nstars -3.4-3.9 sigma, FWHM normal)"
+  },
+  {
+   "file": "DSC_7552.NEF",
+   "flags": [
+    "nstars"
+   ]
+  },
+  {
+   "file": "DSC_7553.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ]
+  },
+  {
+   "file": "DSC_7554.NEF",
+   "flags": [
+    "bg"
+   ]
+  },
+  {
+   "file": "DSC_7555.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "note": "end of the dwell"
+  },
+  {
+   "file": "DSC_7569.NEF",
+   "flags": [
+    "round"
+   ],
+   "note": "single-frame elongation blip (round z 5.75) \u2014 wind/bump class"
+  },
+  {
+   "file": "DSC_7573.NEF",
+   "flags": [
+    "fwhm",
+    "nstars"
+   ],
+   "note": "fwhm z +6.05, nstars z -5.87, roundness 16 sigma HIGH; also carries a 583 px satellite streak (audit)"
+  }
+ ],
+ "anomaly_summary": "44 satellites across 39 frames + 2 AIRCRAFT (DSC_7574/7575, parallel twin trails ~17 px apart, conf 0.9); bookends: DSC_7272 satellite 174 px, DSC_7575 aircraft (audit_work/anomaly_audit.json)",
+ "cull_candidate": {
+  "stack": {
+   "weight": null,
+   "exclude": [
+    7272,
+    7573,
+    7574,
+    7575
+   ]
+  },
+  "policy": "7272 session-first + satellite (edge rule); 7574/7575 aircraft (policy) with 7575 also session-last; 7573 double-axis QA flag (fwhm +6, nstars -5.9) + 583 px streak. 7551-7555 (5-frame thin-cloud dwell) and 7569 (single-axis blip) proposed KEEP \u2014 minority transients stack clean through rej 3 3; listed for the user's call."
+ },
+ "assessment": "Clean, stable ~35-min run: 304/304 registered, FWHM spread tiny (median 3.633, max 3.723), roundness uniform 0.615 (the fixed-tripod in-exposure floor), background flat outside one 5-frame haze dwell near session end. The session tail carries all the events: the haze dwell, one elongation blip, and the 7573-7575 streak/aircraft finish."
+}

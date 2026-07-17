@@ -1,0 +1,13 @@
+{
+ "measured_by": "astrometry.net blind solves of the set's first and last frames (scripts/calibrate/solve_field.py); sensor-centre sky positions from the linear WCS",
+ "purpose": "re-aim scatter input for the 5-set combined render: -framing=min keeps only the area common to ALL frames, so the cross-set aim spread decides single-combined-stack vs stack-per-set fallback",
+ "first_frame": {"file": "DSC_7272.NEF", "centre_ra_deg": 303.466, "centre_dec_deg": 47.878},
+ "last_frame": {"file": "DSC_7575.NEF", "centre_ra_deg": 312.328, "centre_dec_deg": 47.862},
+ "span_s": 2121,
+ "ra_rate_deg_per_hr": 15.04,
+ "sidereal_deg_per_hr": 15.041,
+ "dec_change_arcsec": -55,
+ "mount_check": "declared fixed CONFIRMED from the data: RA advances at the sidereal rate to <0.1% with Dec constant to 55 arcsec — a direction fixed in the rotating Earth frame",
+ "mid_window_centre": {"ra_deg": 307.897, "dec_deg": 47.870},
+ "re_aim_offset_vs_set01": {"vs": "set-01 solved stack centre RA 310.787 Dec +46.792", "sep_deg": 2.24, "approx_px": 447, "frame_width_frac": 0.07}
+}
