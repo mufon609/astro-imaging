@@ -1,14 +1,27 @@
 {
- "measured": "2026-07-16",
- "tool": "Siril 1.4.4 — 373 unregistered lights: CFA convert -> median stack (-norm=mul); Siril regional stat + autostretch preview",
+ "tool": "Siril 1.4.4 \u2014 373 unregistered lights: CFA convert -> median stack (-norm=mul); Siril regional stat + autostretch preview",
  "purpose": "sky-flat viability test for flatless set-01 (real flats impossible: lens cleaned post-session). Empirical gate on IFN contamination.",
- "build": {"frames": 373, "method": "median, multiplicative norm, UN-registered", "drift_px": "~1500 (>> the 20-100 px sky-flat threshold)"},
- "siril_regional_mean_ADU": {"TL": 1060.4, "TR": 1080.3, "BL": 1060.9, "BR": 1085.7, "center": 1131.4, "whole": 1102.9},
+ "build": {
+  "frames": 373,
+  "method": "median, multiplicative norm, UN-registered",
+  "drift_px": "~1500 (>> the 20-100 px sky-flat threshold)"
+ },
+ "siril_regional_mean_ADU": {
+  "TL": 1060.4,
+  "TR": 1080.3,
+  "BL": 1060.9,
+  "BR": 1085.7,
+  "center": 1131.4,
+  "whole": 1102.9
+ },
  "vignetting_pct_center_to_worst_corner": 6.3,
  "finals_comparison": {
-  "run": "124 frames (every 3rd), master-dark calibrated, CFA, framing=min crop; proper flat = median of DARK-SUBTRACTED lights (pedestal-free — the raw sky flat's pedestal would under-correct); with vs without sky flat, registered (2-pass) + rej-stacked",
-  "flatness_corner_over_center_autostretched": {"without_flat": 0.44, "with_flat": 1.06},
-  "result": "WIN vs no flat, with a measured RESIDUAL: +6% OVERcorrection (corner/centre 1.06 — corners BRIGHT; the item-5 radial-only rebuild target). The illumination class is corrected (0.44 -> 1.06) AND the cosmic dust is preserved: the dark-nebula / Milky-Way dust lanes are REVEALED (buried under the vignetting glow without the flat), not erased. Dust-preservation gate PASSES.",
+  "run": "124 frames (every 3rd), master-dark calibrated, CFA, framing=min crop; proper flat = median of DARK-SUBTRACTED lights (pedestal-free \u2014 the raw sky flat's pedestal would under-correct); with vs without sky flat, registered (2-pass) + rej-stacked",
+  "flatness_corner_over_center_autostretched": {
+   "without_flat": 0.44,
+   "with_flat": 1.06
+  },
+  "result": "WIN vs no flat, with a measured RESIDUAL: +6% OVERcorrection (corner/centre 1.06 \u2014 corners BRIGHT; the item-5 radial-only rebuild target). The illumination class is corrected (0.44 -> 1.06) AND the cosmic dust is preserved: the dark-nebula / Milky-Way dust lanes are REVEALED (buried under the vignetting glow without the flat), not erased. Dust-preservation gate PASSES.",
   "caveats": "124-frame CFA (mono) comparison, central-overlap crop, autostretched previews (qualitative). Full-depth debayered COLOUR final = x86. Artifacts (gitignored): final_with.fit / final_without.fit / compare.png.",
   "gate": "user confirms on own viewer"
  },
@@ -28,5 +41,12 @@
   "CFA (undebayered) - correct for the OSC pre-debayer flat order",
   "arm base rig; the flat re-builds on x86 with the same Siril (method transfers, output not bit-identical)"
  ],
- "artifacts": {"flat": "skyflat.fit", "preview": "skyflat_view.png"}
+ "artifacts": {
+  "flat": "skyflat.fit",
+  "preview": "skyflat_view.png"
+ },
+ "post_stack_audit": {
+  "finding": "The approved 168-frame stack shows corner/centre 1.27-1.37 LINEAR (bright corners). That bowl is NOT this flat: it is the darktable warp stage applying lensfun VIGNETTING correction on top of the flat-corrected lights (double correction) \u2014 root cause, card-test evidence and the DB-level fix in gradient_qa.json. This record's with/without comparison ran WITHOUT the warp, so its validation of the flat stands.",
+  "number_corrections": "two figures above are domain-mislabeled: 'vignetting_pct_center_to_worst_corner: 6.3' is computed on PEDESTAL-INCLUDED ADU (center 1131 vs corners 1060-1086 with ~1007 ADU pedestal in both); pedestal-subtracted, the light-domain falloff is center ~124 vs corners ~53-79 = corner/center ~0.43-0.63, consistent with this lens's ~1+ EV wide-open falloff and with finals_comparison's 0.44. The '+6% OVERcorrection' (corner/centre 1.06) is an AUTOSTRETCHED display-domain ratio from a deleted preview \u2014 never read a linear residual off a stretched surface (dead-end registry, display-vs-linear trap)."
+ }
 }

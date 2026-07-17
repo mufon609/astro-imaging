@@ -1,0 +1,39 @@
+{
+ "tool": "sep 1.4.1 (SExtractor core, pip \u2014 same packaging precedent as the pip astrometry engine) vs the in-house peak-centroid detector; identical astrometry.net solver + cached 4200 indexes (scales 13-19), blind, sip_order 3; Siril 1.4.4 spcc for the end-to-end check",
+ "purpose": "A/B for the solve_field.detect_stars removal condition: does an official extractor return trailed sources and measure at least as well? (BACKLOG item 7; the image2xy binary variant needs `apt install astrometry.net` and stays open as a cross-check.)",
+ "input": "qa_work/reg/FULL_lensfun_fit.fit (the approved 168-frame stack)",
+ "extraction": {
+  "sep_raw_detections": 11881,
+  "sep_median_elongation_a_over_b": 1.314,
+  "note": "trailed sources ARE returned (no roundness gate), matching the source-verification in the dead-end registry; 20-sigma over sep's background model, flux-ranked, 25 px de-crowding, brightest 200 \u2014 the same post-processing the peaks detector applies"
+ },
+ "solve": {
+  "peaks_arm": {
+   "ra": 310.7865,
+   "dec": 46.7922,
+   "scale_arcsec_px": 17.01485,
+   "logodds": 288.6,
+   "reproduces_recorded_solve": "exactly"
+  },
+  "sep_arm": {
+   "ra": 310.9405,
+   "dec": 46.9108,
+   "scale_arcsec_px": 17.01505,
+   "logodds": 299.5
+  },
+  "scale_ratio": 0.999988,
+  "center_delta_arcsec": 570.9,
+  "center_delta_note": "the documented SIP wobble at wide index scales (dead-end registry: 65 px MEDIAN between two solves of the same sensor) \u2014 the linear solve is what the consumer uses"
+ },
+ "end_to_end": {
+  "check": "inject the sep-derived WCS -> siril spcc -catalog=localgaia (sensor-null), tag sepab",
+  "k_factors": {
+   "R": 1.0,
+   "G": 0.713,
+   "B": 0.896
+  },
+  "vs_recorded_peaks_run": "IDENTICAL K to all three decimals (recorded: 1.000/0.713/0.896); photometry 3058/5210 kept vs 3056/5210 (2-star border-reject difference, 0.07%); b_offsets agree to <0.1%",
+  "conclusion": "SPCC re-matches stars from the WCS seed itself, so the SIP-level center wobble does not reach the consumer"
+ },
+ "verdict": "REMOVAL CONDITION FIRED: an official extractor (SExtractor core) returns trailed sources, solves BETTER (logodds 299.5 vs 288.6), and measures at least as well end-to-end (identical SPCC K). solve_field.py default switched to --detect=sep; the in-house peaks path retained as --detect=peaks fallback until the x86 day-1 solve passes on sep, then delete."
+}

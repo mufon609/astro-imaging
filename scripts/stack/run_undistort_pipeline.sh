@@ -8,7 +8,11 @@
 # the community profile is inadequate — docs/wide-field-untracked-registration.md).
 #
 #   run_undistort_pipeline.sh <session-dir> <set> --dark=<master> --flat=<master> \
-#                             [--frames=N] [--chunk=12] [--out=<stack.fit>]
+#                             [--frames=N | --select=<list-file>] [--chunk=12] [--out=<stack.fit>]
+#
+# --select=<file> (one raw path per line) processes exactly those frames in
+# order — the group-composition driver (run_undistort_groups.sh) uses it to
+# feed consecutive blocks; mutually exclusive with --frames.
 #
 # Ordering is load-bearing: darks/flats are sensor-grid properties, so
 # calibration finishes in SENSOR space, debayer follows (a CFA mosaic cannot be
@@ -27,9 +31,6 @@
 #   --frames=N selects an EVEN STRIDE over the whole set, which preserves the
 #   TIME SPAN (what the registration geometry depends on) and trades only depth.
 #
-# PROVISIONAL AS-WRITTEN: this script was assembled from the chain that shipped
-# the approved render (identical stages), but the artifact itself has not yet
-# run end to end — its first as-written run is the x86 set-01 full-depth job.
 #
 # The stack is `rej 3 3 -norm=addscale` — the chain the approved render pinned.
 # --icc-type SRGB is MATCHED to the sRGB-TRC tag Siril's savetif embeds
@@ -39,12 +40,13 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT=
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
-  --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};;
+  --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+[ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$SESSION/results/stack_$SET}
@@ -78,9 +80,14 @@ print(f"cull: recipe excludes {d} frame(s); {len(kept)} eligible" if d
       else f"cull: no recipe exclusions; {len(kept)} eligible", file=sys.stderr)
 PY
 )
+if [ -n "$SELECT" ]; then
+  mapfile -t SRC < <(grep -v '^\s*$' "$SELECT")
+  for f in "${SRC[@]}"; do [ -f "$f" ] || { echo "ABORT: --select names missing frame $f" >&2; exit 1; }; done
+  FRAMES=${#SRC[@]}
+fi
 [ "$FRAMES" -gt 0 ] || FRAMES=${#SRC[@]}
 [ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --frames/--chunk" >&2; exit 1; }
-NEED_GB=$((FRAMES * 231 / 1024 + 3))
+NEED_GB=$((FRAMES * 231 / 1024 + 2))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames, ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span)" >&2; exit 1; }
 

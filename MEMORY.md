@@ -28,15 +28,16 @@ name the test that would settle it. Across the rig migration this is sharp:
 **every arm-era finding is a hypothesis on the desktop until re-measured
 there.** Live example — the solve verification below.
 
-### Solve verification (provisional finding, 2026-07)
+### Solve verification (provisional finding)
 Siril 1.4 native `platesolve -localasnet` was **mechanism-verified** (Siril
 docs + our source + rig command help) to: replace `solve_field.py` for
 ROUND-STAR data, but NOT the trailed/ultra-wide class — native feeds
 astrometry.net Siril's own PSF `findstar`, the detection our dead-end says
-fails on trails (ours feeds trail-robust peak centroids). Mitigation to test:
-`setfindstar -relax=on`. **Not empirically confirmed** — image data was
-deleted and this is the arm rig. Full detail + the x86 test = `TOOLS.md`
-Tier 2. Keep `solve_field.py` as the trailed-field tool until the x86 test says otherwise.
+fails on trails (`solve_field.py` feeds a shape-blind SExtractor-core
+xylist). Mitigation to test: `setfindstar -relax=on`. **Not empirically
+confirmed on the trailed class for native** — an arm-rig mechanism read. Full
+detail + the x86 test = `TOOLS.md` Tier 2. Keep `solve_field.py` as the
+trailed-field tool until the x86 test says otherwise.
 
 ## Who the user is & how they work
 

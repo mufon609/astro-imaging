@@ -81,7 +81,7 @@ Principles that keep this honest:
   actually touches (stretch guidance, SPCC modes, separation/drizzle models) —
   tool positions move, so the comparison is standing work, not a one-time audit;
   a full re-audit every *minor* version is over-frequent and gets skipped.
-  Per-item verifications carry their dates in the BACKLOG entries they feed.
+  Verification recency lives in git history, not in the entries themselves.
 
 - **A divergence from the standard is a bandaid unless it is a measured,
   documented adaptation forced by this data** — each one carries its removal
@@ -202,9 +202,10 @@ path is linear FITS end to end: 32-bit float stacks/products, with ONE
 documented precision reduction — 16-bit stack-time intermediates
 (quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
-(never a judgment surface), the q100/4:4:4 final jpg, and judgment panels. GUARDS keep it that way: processing loads
-go through `astrometrics.load_linear` (refuses non-FITS) and `compose.py`
-asserts float32 inputs.
+(never a judgment surface), the q100/4:4:4 final jpg, and judgment panels. GUARDS on the surviving core: `compose.py`
+asserts float32 inputs; the render chain's load guard
+(`astrometrics.load_linear`, currently caller-less) returns with the x86 render
+rebuild.
 Human judgment uses the LOSSLESS artifacts: `--lossless` exports PNG8 +
 PNG16 for the final **and the starless layer** (PNG8 = the 8-bit display
 pixels; PNG16 = the float layer at 65536 levels).
@@ -340,6 +341,10 @@ scripts/stack/run_pipeline.sh <session> <set>
 #   inadequate). Route + traps: docs/wide-field-untracked-registration.md;
 #   auto-routing by data fingerprint is BACKLOG items 1-2.
 scripts/stack/run_undistort_pipeline.sh <session> <set> --dark=<master> --flat=<master> [--frames=N]
+# same class at FULL depth on a disk below the ~231 MB/frame single-pass peak:
+#   balanced consecutive groups -> per-group stacks (rice-compressed, lossless
+#   on int16) -> register + stack the sub-stacks. Valid post-undistort ONLY.
+scripts/stack/run_undistort_groups.sh <session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
 python3 scripts/calibrate/solve_field.py <session>/results/stack_<set>.fit \
@@ -372,7 +377,8 @@ live in CLAUDE.md "Environment".
 |---|---|
 | `lens_preflight.py` | optics guard, run first by `run_pipeline.sh`: reads EVERY frame's camera/lens/focal via exiftool and STOPS on a MIXED-optics set (`acquisition.json` derives optics from the FIRST FRAME ONLY, so it structurally cannot see a zoom bump mid-set) or on a set whose frames contradict the tracked record. With `--require-profile` it also makes darktable PROVE it corrects the set — rendering one frame through the pinned `lensdist`/`nodist` pair and asking Siril for the difference — because darktable silently applies NO correction to a lens lensfun cannot match and never says so |
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (2-pass/sweep) → rejection stack; forks camera-raw vs dedicated-astrocam FITS, loudly STOPS a flatless set demanding a matching flat (synthetic-flat is a documented gap — BACKLOG), and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
-| `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only, the lensfun model incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the ~231 MB/frame uncompressed disk peak; `--frames=N` selects an even stride that preserves the full time span. PROVISIONAL as-written (assembled from the shipped chain; first end-to-end run = the x86 set-01 job) |
+| `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only via the stripped lensfun DB, incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the ~231 MB/frame uncompressed disk peak; `--frames=N` selects an even stride that preserves the full time span; `--select=<list>` processes an exact frame block (the groups driver's hook) |
+| `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group; sub-stacks stored rice-compressed — verified lossless on int16), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member by Siril first). Its channel combine + FITS I/O should move to Siril `rgbcomp` — BACKLOG |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `crop_coverage.py` | crop a drift-composited stack to its coverage-complete rectangle; replaceable by Siril `seqapplyreg -framing=min` — BACKLOG |
@@ -390,10 +396,10 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `lensdist.dtstyle`, `nodist.dtstyle` | the darktable lens-module styles: `lensdist` = distortion-only correction (`modify_flags=1`), `nodist` = the same module DISABLED (the one-knob control). The `op_params` blob is the pinned artifact — never re-create it by hand in the GUI. focal/aperture are baked but INERT: darktable re-detects focal from EXIF, so one style is focal-general (measured) |
+| `lensdist.dtstyle`, `nodist.dtstyle` | the darktable lens-module styles: `lensdist` = module ENABLED, `nodist` = DISABLED (the one-knob control). The styles carry ONLY that bit — darktable ignores a style's lens `op_params` (modify_flags included) and re-detects the lens per image with its DEFAULT correction set (measured, `docs/dead-ends.md`); distortion-only is enforced in the lensfun DB by `install_lens_model.sh`. The `op_params` blob stays pinned for byte-reproducibility — never re-create it by hand in the GUI |
 | `install_styles.sh` | installs them headlessly into a darktable configdir (darktable has no CLI style import, and only a real export job creates its `data.db`). Verified: from a fresh config the warp reproduces to 0.000 px |
 | `fit_lens_model.sh` | fit THIS unit's radial distortion model from a set's own frames — Siril calibrates/stretches, Hugin (`cpfind`/`cpclean`/staged `autooptimiser`, hfov pinned at the solved value) fits between-frame star correspondences; prints ptlens a,b,c + the install command, records the fit to the set's `qa_work/lens_fit.json`. Run for a new lens/body/focal, or when the drift-axis stations show a centre band a DB profile cannot remove. PROVISIONAL as-written (the procedure it encodes was proven step by step; the script's first end-to-end run is the next fit) |
-| `install_lens_model.sh` | installs the fitted entry into the live lensfun user DB (idempotent; STOPS loudly on upstream drift). Pinned values for the 24-70/4 S @ 70 mm; machine-local like `lensfun-update-data` — re-run per rig and after every DB update |
+| `install_lens_model.sh` | installs the fitted entry into the live lensfun user DB AND strips the lens's `<vignetting>`/`<tca>` calibrations — the distortion-only enforcement point, since darktable ignores a style's lens op_params (idempotent; STOPS loudly on upstream drift). Pinned values for the 24-70/4 S @ 70 mm; machine-local like `lensfun-update-data` — re-run per rig and after every DB update; verify with a uniform-card warp (corner medians == centre) |
 
 **`setup/`** — x86 bring-up
 
@@ -401,6 +407,11 @@ live in CLAUDE.md "Environment".
 |---|---|
 | `x86_bootstrap.sh` | fail-closed integrity-checked install of the x86 toolchain into `/opt` + a venv; PROVISIONAL (targets a rig that does not exist yet) — [`docs/x86-setup-and-install.md`](docs/x86-setup-and-install.md) |
 | `requirements.txt` | pinned python deps for that venv |
+
+**`makeSpace.sh`** (directly in `scripts/`) — MANUAL-RUN disk reclaim: clears the
+VM's file-transfer staging cache (`~/.cache/vmware/drag_and_drop`), which keeps a
+full duplicate of every file dragged into the guest. Run it by hand after
+confirming a transfer landed; nothing in the pipeline invokes it.
 
 **`render/` — a GAP, pending x86** (no directory exists yet). The render will be a
 thin orchestration over official tools, picked per dataset ([`TOOLS.md`](TOOLS.md)):

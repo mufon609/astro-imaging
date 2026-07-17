@@ -126,14 +126,16 @@ core here now:**
   rig today. Styles are pinned in-repo: `scripts/darktable/{lensdist,nodist}.dtstyle`,
   installed headlessly with `scripts/darktable/install_styles.sh <configdir>`
   (darktable has no CLI style import; only a real export job creates its
-  `data.db`). **Never re-create them by hand in the GUI** — the `op_params` blob
-  is the pinned artifact. `--style-overwrite` is REQUIRED or the style is
-  silently ignored; `--icc-type SRGB` (match Siril's tag — forcing linear
-  destroys photometry, `docs/dead-ends.md`); the upstream DB needs
-  `lensfun-update-data` (Debian's 0.3.4 lacks the Z6III), then
-  `install_lens_model.sh` re-applies the FITTED lens entry (every DB update
-  overwrites it; fit a new lens/focal with `fit_lens_model.sh`). Route +
-  traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
+  `data.db`). **Never re-create them by hand in the GUI.** The styles carry
+  ONLY the module's enabled bit (darktable ignores a style's lens op_params);
+  distortion-only is enforced by `install_lens_model.sh`, which installs the
+  FITTED lens entry AND strips the lens's vignetting/tca from the lensfun user
+  DB — re-run it after every `lensfun-update-data` (Debian's 0.3.4 lacks the
+  Z6III; fit a new lens/focal with `fit_lens_model.sh`), and verify with a
+  uniform-card warp (`docs/dead-ends.md`). `--style-overwrite` is REQUIRED or
+  the style is silently ignored; `--icc-type SRGB` (match Siril's tag —
+  forcing linear destroys photometry, `docs/dead-ends.md`). Route + traps:
+  [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
 - Plate solving: siril's internal solver cannot match ultra-wide
   trailed-star fields (a DATA issue, not arch) — use
   `scripts/calibrate/solve_field.py` (blind astrometry.net from peak

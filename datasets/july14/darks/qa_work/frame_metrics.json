@@ -1,5 +1,4 @@
 {
- "measured": "2026-07-15",
  "tool": "Siril 1.4.4 seqstat (per-frame) + rej-average master, on CFA (undebayered) FITS",
  "frames": {
   "count": 214,

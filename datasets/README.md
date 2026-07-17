@@ -4,13 +4,14 @@ Session data dirs are gitignored (raw frames; several are third-party sets
 that must never be committed), so everything the repo must VERSION about a
 dataset lives here, keyed `datasets/<session>/<set>/`.
 
-Tracked today: **july14** — `set-00` and `set-01` (acquisition + obstruction
-audit records; set-01 additionally carries the frame-quality, sky-flat,
-registration and star-shape records), plus `july14/darks/qa_work/` — a
-CALIBRATION group rather than a light set, which the `<session>/<set>/` key
-accommodates but the model below does not otherwise describe. Their measures
-were taken on the arm rig, so each is a hypothesis until re-measured on x86
-(`CLAUDE.md` binding rules).
+Tracked today: **july14** — `set-01` (acquisition + obstruction-audit,
+frame-quality, sky-flat, registration, star-shape, solve/SPCC, extractor-A/B
+and gradient records plus a ratified `recipe.json` stack block), plus
+`july14/darks/qa_work/` — a CALIBRATION group rather than a light set, which
+the `<session>/<set>/` key accommodates but the model below does not otherwise
+describe. Sibling sets get the same per-set prep as they stage. Arm-rig
+measures are each a hypothesis until re-measured on x86 (`CLAUDE.md` binding
+rules).
 
 The per-dataset state MODEL (durable — a new dataset gets these files):
 

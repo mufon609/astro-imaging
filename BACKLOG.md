@@ -30,11 +30,13 @@ changes, when the rig changes, and before any item below is worked.
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
 | Hand-rolled FITS parsers (5 sites) | `astropy` available | **not fired** — x86-gated; astropy 8.0.1 confirmed clean for the target. |
-| `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **not fired** — `image2xy` is shape-blind (source-verified) but its trail knobs are not exposed by `solve-field`; a measured A/B, not a swap (item 7). |
+| `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
+| lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
+| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). |
 
 ## 1. Derive the config fingerprint from the data
 
@@ -72,9 +74,11 @@ settled and is one fingerprint's answer.
 
 The route is validated, productionised and scripted (`run_undistort_pipeline.sh`;
 [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md)).
-Its generality is settled — one style is camera-, lens- and focal-general (only
-`modify_flags` carries); the style and the fitted model are pinned in-repo and the
-preflight guard is wired in. What is left is making the repo RECOMMEND it:
+Its generality is settled — one style is camera-, lens- and focal-general (the style
+carries only its enabled bit; the correction set is enforced at the lensfun DB —
+the register's vignetting/tca-strip row); the style and the fitted model are pinned
+in-repo and the preflight guard is wired in. What is left is making the repo
+RECOMMEND it:
 
 - **Wire it into the loop as the MATCH → RECOMMEND step for this footprint:** take the
   fingerprint (item 1) → check the lensfun DB → recommend the route with its reason (or
@@ -89,7 +93,12 @@ preflight guard is wired in. What is left is making the repo RECOMMEND it:
   `docs/dead-ends.md`); the route's standard companions are the fit-from-own-frames
   procedure (`scripts/darktable/fit_lens_model.sh` → `install_lens_model.sh`) and the
   drift-axis station measure (`scripts/qa/star_stations.py`) in the class checklist,
-  since `seqtilt` cannot see the band. Two bounded limits, by design: the fitted
+  since `seqtilt` cannot see the band.
+- **Wire the vignetting-off assertion into `lens_preflight.py --require-profile`:**
+  warp a uniform card through `lensdist` and require corner medians == centre via
+  Siril `stat`. darktable ignores a style's lens op_params, so the DB strip is the
+  enforcement and this card test is its per-run verification — today it is a manual
+  step documented in `install_lens_model.sh` (`docs/dead-ends.md` entry). Two bounded limits, by design: the fitted
   entry carries a,b,c only — the centre shift maps to lensfun's `<center>` element,
   which is undocumented (absent from the shipped DTD/XSD) with an unverified sign
   convention, so it enters only as a separately-bracketed knob if a set shows band
@@ -97,11 +106,12 @@ preflight guard is wired in. What is left is making the repo RECOMMEND it:
   cannot catch lensfun fuzzy-matching a correct EXIF string to a wrong-but-present
   DB entry — the station measure is the backstop.
 
-## 3. Culling — assessed, never decided
+## 3. Culling — decided and recorded; no render has consumed it yet
 
-`frame_metrics.json` flagged 4 of 373 at z>3.5 (6897, 6900, 7263, 7264) and
-`cull_report` proposed excluding them. **No render has applied that.** It is an
-unexamined default, not a decision — the gap this item closes.
+The per-set decision is RATIFIED and recorded in each set's `recipe.json`
+stack block (exclusions with per-frame reasons; assessed keeps recorded the
+same way), and both undistort builders consume `stack.exclude`. Open: the
+first full-depth render that applies it closes this item.
 
 **Per-set culling policy (user-ratified; drivers `scripts/qa/anomaly_audit.py` +
 `scripts/qa/run_frame_qa.sh`):** run the anomaly audit per set and cull
@@ -159,7 +169,10 @@ The same limitation forces the two-frame duplication in `scripts/qa/star_shape.p
 
 The Siril-native sky flat is the recommended flat for this flatless set and is
 validated dust-safe ([`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-bias.md)).
-Before it enters another stack, tighten:
+(The large stack-level bright-corner bowl is the warp stage's vignetting
+double-correction, fixed at the lensfun DB — `qa_work/gradient_qa.json`; this
+flat's own residuals are the smaller figures in `skyflat_qa.json`.) Before the
+flat enters another stack, tighten:
 
 - winsorized/sigma rejection instead of pure median, to drop the faint un-rejected star
   specks flagged in `skyflat_qa.json`;
@@ -216,25 +229,24 @@ only the retirement is outstanding. Do not re-research these — implement them.
   stay differential refraction (asymmetric with hour angle) and lens decentering.
   Discriminator: hour-angle dependence across sets — refraction varies with it,
   decentering does not.
-- **`solve_field` peak detection → `image2xy` A/B.** `image2xy` (astrometry.net's own
-  extractor) is source-verified to have NO shape/roundness gate, so it DOES return
-  trailed sources — mechanically closer to our peak-centroid than to a rejecting fitter.
-  But it is not strictly more tool-first: the trail-relevant knobs (`-a` saddle, which
-  can FRAGMENT one rippled trail into spurious detections; `-p` significance; `-m` max
-  deblend size) are not exposed by `solve-field`'s CLI, so tuning needs the standalone
-  binary; and a symmetric Gaussian match kernel (`-w`) is SNR-mismatched to an elongated
-  PSF. Test: tuned `image2xy` → `.xy.fits` → `solve-field --x-column X --y-column Y
-  --width W --height H --no-remove-lines --uniformize 0` vs the current xylist. Record a
-  dead-end with numbers either way. ASTAP is not the answer (its own docs: streaks
-  ignored, "stars reasonably round").
+- **`solve_field` official-extractor swap — DONE via `sep`; `image2xy` stays an
+  optional cross-check.** Measured on the set-01 stack (`qa_work/extractor_ab.json`):
+  SExtractor core (`sep` pip package — the same packaging precedent as the pip
+  astrometry engine) returns trailed sources, solves at higher odds than the peaks
+  arm, and its WCS gives identical SPCC K factors. Default is `--detect=sep`; peaks
+  is the labeled fallback until the x86 day-1 solve passes on sep. Open (optional):
+  the `image2xy` binary variant (`apt install astrometry.net`) as a second official
+  arm — its trail knobs (`-a` fragmentation / `-p` / `-m`) remain the caveats;
+  ASTAP is not the answer (roundness-gated by its own docs).
 - **Synthetic-flat gap → GraXpert `-correction Division`.** The headless-CPU
   multiplicative option; source-confirmed as per-channel `imarray/background*mean`, i.e.
   divide by the low-frequency model. Corrects smooth VIGNETTING only, not dust/PRNU
   (the model is built from a ~240 px downsample), so a real flat stays the correct fix
   and "a matching real flat exists" is the removal condition. Caveat: the installed
   GraXpert is a third-party fork (`geeksville`); official stable 3.0.2 is
-  BGE+denoise-only but does include `-correction Division`. `-cli` is deprecated;
-  `-bg_pts` is not a real flag.
+  BGE+denoise-only but does include `-correction Division`. `-cli` is deprecated on
+  the fork while official 3.0.x docs treat it as mandatory — build-specific, resolve
+  on the pinned official build; `-bg_pts` is not a real flag.
 - **A star-colour-neutral colour step.** The O3-sphere mechanism Siril has no single
   command for. Headless path identified, tool half confirmed on 1.4.4: measure mean star
   colour in the examine layer → apply a diagonal `ccm` (the only headless neutral-balance
@@ -245,8 +257,9 @@ only the retirement is outstanding. Do not re-research these — implement them.
 ## 8. Combine all 5 july14 sets into one deep render (~1865 frames)
 
 july14 is 5 sets of the same object, same workflow, the camera re-centred on the target
-every ~45 min. set-01 (373 frames, 43 min) is one such window; only set-01 + set-00 (4
-frames) are local — the rest must be brought over.
+every ~45 min. set-01 (373 frames, 43 min) is one such window. No raws remain on this
+rig (the july14 session tree was deleted after prep; set-03 stages outside the repo
+pending the desktop); every set's frames arrive with the x86 migration.
 
 **The re-aims cost nothing — the validated route already covers them.** A manual
 re-centre is a rotation about the optical centre, and pure rotation with all scene
@@ -264,13 +277,12 @@ re-centring solved it in acquisition.
 
 Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here and the
 remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Prep state: set-01
-(369 in / 4 out) and set-02 (299 in / 5 out) are prepped and ratified with complete
-tracked records + window solves (re-aim offset between them 2.24°, ~7% of width —
-single combined registration remains viable on the 2 of 5 windows solved so far); sets 03/04/05 get the same per-set prep
-ON THE DESKTOP as they stage. Ordered:
+is prepped and ratified with complete tracked records; sets 02–05 get the same
+per-set prep (`run_frame_qa.sh` + the anomaly audit + the cull policy + window
+solves) ON THE DESKTOP as they stage. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
-   Both local sets are 70 mm; the other three are unverified. This is a **hard
+   set-01 is 70 mm; the others are unverified. This is a **hard
    prerequisite, not a formality**: darktable silently applies NO correction to a lens it
    cannot match and a wrong model to one it mis-matches, so a single set with a different
    or unrecognised lens string would stack uncorrected into the combined result with no

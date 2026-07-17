@@ -16,7 +16,9 @@ Why this exists — two silent-wrong failures this guards, both MEASURED:
 
 2. **A lens the lensfun DB cannot match — which darktable NEVER reports.**
    darktable's lens module bakes nothing: camera, lens, focal and scale all come
-   from each image's EXIF (the style carries only `modify_flags`). The upside is
+   from each image's EXIF (the style carries only its enabled bit — every
+   op_params field is ignored, so the correction SET is enforced in the lensfun
+   DB by install_lens_model.sh, not here). The upside is
    that ONE style is camera-, lens- and focal-general. The trap is the same
    mechanism: an unmatched lens gets NO correction, silently — measured at max
    |dr| = 0.000 px over 413 stars, exit 0, and not one word in darktable's log.
@@ -196,7 +198,10 @@ def prove_correction(frame, work):
     ssf = os.path.join(work, "_diff.ssf")
     ref = os.path.join(work, "nodist_fits")   # isub takes FITS, not TIFF
     with open(ssf, "w") as f:
+        # setcompress is a PERSISTED siril preference — pin it off so the
+        # saved reference is the plain .fit the isub line names
         f.write("requires 1.4.4\n"
+                "setcompress 0\n"
                 f"load {outs['nodist']}\n"
                 f"save {ref}\n"
                 f"load {outs['lensdist']}\n"

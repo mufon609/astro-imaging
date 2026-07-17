@@ -5,11 +5,15 @@
 # for a .dtstyle file (the GUI's styles module is the only interactive route).
 # This installs them headlessly so a render is reproducible without a GUI step.
 #
-# The op_params blob is the pinned artifact: it names the camera, the lens, and
-# modify_flags=1 (distortion only — vignetting correction would fight the flat,
-# and TCA is not wanted). darktable re-detects focal length from each image's
-# EXIF and overrides the blob's focal value, so ONE style serves every focal
-# this lens covers; the blob's focal is inert.
+# The styles carry ONE effective bit: the lens module's enabled state
+# (lensdist=1, nodist=0). darktable IGNORES a style's lens op_params entirely —
+# modify_flags included — and re-detects the lens per image, applying its
+# DEFAULT correction set (measured: flag/method/lens-string changes in the blob
+# produce byte-identical output; docs/dead-ends.md). Distortion-only is
+# therefore enforced in the lensfun user DB instead: install_lens_model.sh
+# strips this lens's <vignetting>/<tca> calibrations (vignetting correction
+# here would double-correct flat-corrected lights). The blob stays pinned so
+# the pair is reproducible byte-for-byte, but do not encode intent in it.
 #
 # Usage: install_styles.sh <configdir>
 set -euo pipefail

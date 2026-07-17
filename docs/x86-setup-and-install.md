@@ -32,7 +32,7 @@ system Python).
 | Tool | Layer / method | Source (pinned) | Integrity | Install path | Headless verify |
 |---|---|---|---|---|---|
 | **Siril 1.4.4** | B · flatpak | flathub `org.siril.Siril` (id `org.free_astro.siril` is EOL) | Flathub GPG + OSTree commit | flatpak (sandbox) | `flatpak run --command=siril-cli org.siril.Siril -v` |
-| **GraXpert** | D (stable zip) *or* C (pipx alpha) | GH `3.0.2/graxpert-linux-amd64.zip` (stable, BGE+denoise) · *or* `pipx install --pip-args=--pre "graxpert==3.2.0a2"` (alpha, adds deconv models) | GH asset digest / PyPI sha256 | `/opt/graxpert-3.0.2/` | `GraXpert-linux -h` |
+| **GraXpert** | D (official zips only) | GH `Steffenhir/GraXpert` `3.0.2/graxpert-linux-amd64.zip` (stable, BGE+denoise) · deconv only via the official `3.1.0-RC` GH release if wanted (pre-release, bug #243). **NEVER `pipx install graxpert==3.2.0a2` — that PyPI artifact is the third-party `geeksville` fork, not upstream** (`graxpert-3x-and-workflow-order.md`; TOOLS.md) | GH asset digest | `/opt/graxpert-3.0.2/` | `GraXpert-linux -h` |
 | **StarNet2 2.5.3** | D · zip | `download.starnetastro.com/starnet2_linux_2.5.3-0208_ORT_x64_cli.zip` (142 MB) | **sha256 `101c724a…c29d99` (published)** | `/opt/starnet2-2.5.3/` | `starnet2 --version` |
 | **DeepSNR 1.2.1** | D · zip | `download.deepsnrastro.com/deepsnr_linux_1.2.1-0112_ORT_x64_cli.zip` (232 MB) | **sha256 `05218b05…c17f9` (published)** | `/opt/deepsnr-1.2.1/` | `deepsnr -h` |
 | **Cosmic Clarity** | D · frozen bins | GH `setiastro/cosmicclarity` "Linux" tag (2025-03-29) + model assets | per-asset sha256 (GH API) | `/opt/cosmicclarity-2025.03.29/` | `SetiAstroCosmicClarity --help` |
@@ -80,25 +80,30 @@ registration defect.
   so its auto-matched profile is unavailable. darktable `Depends: liblensfun1`.
 - **The lens module is never auto-applied, and its `params` are packed binary** — they
   cannot be hand-authored safely (a wrong `modify_flags` applies a silently wrong
-  correction). **This no longer needs a GUI step: the styles are pinned in the repo.**
+  correction). **No GUI step is needed: the styles are pinned in the repo.**
   `scripts/darktable/{lensdist,nodist}.dtstyle` carry darktable's own `op_params` blob
   and `install_styles.sh <configdir>` writes them into darktable's `data.db` headlessly
   (darktable has no CLI style import, and only a real export job creates that db — the
   installer bootstraps it with a 1×1 PNG). Verified: from a fresh config the warp
   reproduces to **0.000 px at every radius**. Never re-create them by hand.
 - **ONE style covers every camera, lens and focal — and that is also the trap.** The
-  blob bakes camera/lens/focal/scale, but darktable **ignores all of them** and
-  re-detects from each image's EXIF (measured: focal 70 vs 24 → opposite-sign warps;
-  scale 1.046 vs 0 vs 1.5 → identical to 0.000 px). Only `modify_flags` carries. The
+  blob bakes camera/lens/focal/scale/modify_flags, but darktable **ignores the whole
+  op_params blob** and re-detects from each image's EXIF with its default correction
+  set (measured: focal 70 vs 24 → opposite-sign warps; scale 1.046 vs 0 vs 1.5 →
+  identical to 0.000 px; modify_flags/method/inverse/lens-string changes →
+  byte-identical output). Only the enabled bit carries. The
   same mechanism means **darktable never fails**: a lens the DB cannot match gets NO
   correction, silently — exit 0, nothing in the log. That is what makes the DB update
   above load-bearing rather than a nicety, and why the install is only verified by
   `lens_preflight.py --require-profile` against real frames.
 - **`--style-overwrite` is REQUIRED.** Without it the style is accepted and then
   **silently ignored** — the export succeeds and nothing is corrected.
-- **Use distortion-only.** The GUI default is `modify_flags=7` =
-  distortion|TCA|**vignetting**; vignetting correction FIGHTS a master/sky flat. Patch
-  the blob's second int to `1` for production.
+- **Use distortion-only — enforced at the lensfun DB, not the style.** darktable's
+  default set includes **vignetting**, which FIGHTS a master/sky flat (the measured
+  set-01 double-correction bowl, `datasets/july14/set-01/qa_work/gradient_qa.json`);
+  `install_lens_model.sh` strips this lens's `<vignetting>`/`<tca>` from the user DB
+  and re-runs after every `lensfun-update-data`. Verify per rig: a uniform gray card
+  through `lensdist` must keep corner medians == centre (Siril `stat`).
 - **COLOUR: match the profile, never "force linear".** Siril's `savetif` embeds
   `sRGB-elle-V2-srgbtrc.icc` (a TONE CURVE) on linear pixels, and neither
   `icc_assign sRGBlinear` nor `set gui.icc_pedantic_linear=true` changes that.
@@ -123,11 +128,14 @@ registration defect.
   reach `/opt` tools via Siril's *internal* "call StarNet/GraXpert" menu without
   `flatpak override --filesystem=host` — **not a blocker here** (we orchestrate each
   tool as its own headless step, not through Siril's menu).
-- **GraXpert two channels diverge:** PyPI `3.2.0a2` (alpha, deconv) vs GitHub stable
-  `3.0.2` zip (BGE+denoise). For a *stable reproducible* base use the 3.0.2 zip; pipx
-  the alpha only if the deconv models are wanted (pre-release, bug #243). `-gpu false`
+- **GraXpert channels: official GitHub only.** Stable base = the official `3.0.2` zip
+  (BGE+denoise); deconv only from the official `3.1.0-RC` GitHub pre-release (bug
+  #243 open). **PyPI `3.2.0a2` is the third-party `geeksville` fork, NOT upstream —
+  do not install it** (the arm rig has it, which is one reason arm GraXpert results
+  are audit-only). `-gpu false`
   for CPU; models auto-download (~tens of MB) to the GraXpert user-data dir — pin
-  `-ai_version` + pre-cache online for offline runs.
+  `-ai_version` + pre-cache online for offline runs. CLI flag semantics (`-cli` vs
+  `-cmd`) are build-specific — resolve on the pinned official build at bring-up.
 - **StarNet/DeepSNR/Cosmic Clarity take TIFF/PNG, not FITS** — convert via Siril in the
   chain. StarNet & DeepSNR ship a **published sha256** (verify it); Cosmic Clarity is a
   rolling GH tag (pin by date + per-asset digest).

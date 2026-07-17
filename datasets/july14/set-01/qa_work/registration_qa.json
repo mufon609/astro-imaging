@@ -1,5 +1,4 @@
 {
- "measured": "2026-07-16",
  "tool": "Siril 1.4.4 (register/seqapplyreg/stack/findstar/platesolve), astrometry.net via scripts/calibrate/solve_field.py, exiftool. Radial binning of Siril's PSF fits by scripts/qa/star_shape_profile.py.",
  "purpose": "Wide-field UNTRACKED registration defect: global star alignment (single homography) leaves the centre sharp and smears edge stars. Root-cause + candidate fix, tested on the real frames.",
  "deep_dive": "docs/wide-field-untracked-registration.md",
@@ -235,7 +234,7 @@
   "verdict": "WIN \u2014 CONFIRMED on the real production chain. Distortion-only, calibration intact, linearity verified.",
   "chain": "Siril calibrate (CFA, master dark + validated sky flat) -> debayer -> savetif -> exiftool (Make/Model/LensModel/FocalLength; darktable needs them to match the profile) -> darktable-cli --style lensdist --style-overwrite --icc-type SRGB -> Siril register -2pass -> seqapplyreg -framing=min -> stack",
   "one_knob": "the lens module's enabled bit (styles `lensdist` enabled=1 vs `nodist` enabled=0; identical op_params otherwise)",
-  "distortion_only": "modify_flags patched 7 -> 1 in darktable's own blob: DISTORTION only, no vignetting (which would fight the sky flat) and no TCA",
+  "distortion_only": "INTENDED via modify_flags patched 7 -> 1 in the blob, but MEASURED FALSE: darktable ignores a style's lens op_params entirely (uniform-card test, qa_work/gradient_qa.json) and applied its default correction set INCLUDING VIGNETTING in every warped render \u2014 the double-correction bowl on the approved stack. Distortion-only is now enforced at the lensfun DB (install_lens_model.sh strips vignetting/tca); both arms of this A/B carried the identical vignetting gain, so the OFF-vs-ON comparison itself remains valid on shape measures",
   "linearity": "--icc-type SRGB matched to the sRGB-TRC tag savetif embeds; VERIFIED identity round trip (A_out/A_in 0.9996-1.0000, IQR 0.0003)",
   "OFF": {
    "frames": "54/54",
@@ -309,6 +308,7 @@
   "reproduces_the_54_frame_result": "The correction is a property of the OPTICS, not the frame count: off-axis aberration 0.31 (54 fr) -> 0.25 px (168 fr) \u2014 it holds, and improves slightly, across 3.1x the frames.",
   "artifacts": "current render: reg/FULL_lensfun_fit.fit; judge/FINAL_deepest_lensfun_fit.png (4157x3382, PNG16 lossless, full-frame)",
   "known_defects_carried": [
+   "VIGNETTING DOUBLE-CORRECTION (found after approval): the warp stage applied lensfun vignetting on top of the sky-flat-corrected lights \u2014 corner/centre 1.27-1.37x linear on this stack, 2.2-2.6x in the stretched judge PNGs. Root cause, measurements and the DB-level fix: qa_work/gradient_qa.json. The stack and its SPCC derivatives REBUILD on x86 through the stripped DB before any render work.",
    "The stride is QUALITY-BLIND: this stack contains DSC_6900 (flagged 'worst on all three axes') by accident. 1 frame in 168 at 6% spread \u2014 not visible, but an unrecorded default. Culling is a BACKLOG item for a fresh session, deliberately NOT patched mid-render.",
    "CENTRE BAND (user-confirmed on this final): an along-drift smear through frame centre, worst at the centre station (majFWHM 5.30 / roundness 0.480 vs 3.60/0.706 perpendicular) -- the paraxial model error crossed by the drifting optical axis; mechanism, numbers and fix route in centre_band.",
    "Rejection ran `rej 3 3` (winsorized) at 168 frames where the researched doctrine for >50 subs is GESD `rej g 0.3 0.05` -- an unrecorded deviation, now recorded; rejection is direction-blind so it is not implicated in the band. Align on the next full render.",
@@ -319,10 +319,68 @@
   "defect": "an along-drift smear band through frame centre in the lensfun-corrected renders, worst at the very centre, absent perpendicular to the drift -- the region under Deneb (Deneb sits ~320 px above the band core). Confirmed by the user's eyes on the shipped full-frame final.",
   "measured_by": "scripts/qa/star_stations.py -- Siril findstar PSF fits (open gate) in fixed 350 px stations about the geometric centre, offset along/perpendicular to the drift axis (174.4 deg in image coords, from the frame-1/frame-373 astrometric solves; field rotation 7.6 deg over the session). Fixed external geometry -- never an origin derived from the detections (docs/dead-ends.md trap 3).",
   "stations": {
-   "deepest_168fr_lensfun": {"centre": [927, 5.3, 0.48], "perp_-1300": [798, 3.6, 0.706], "along_+1300": [954, 4.32, 0.574], "record": "star_stations_deepest_lensfun.json"},
-   "prod_on_54fr_lensfun": {"centre": [837, 5.73, 0.437], "perp_-1300": [628, 3.62, 0.679], "record": "star_stations_prod_on.json"},
-   "prod_off_54fr_control": {"centre": [864, 4.03, 0.556], "along_+1300": [748, 4.83, 0.485], "record": "star_stations_prod_off.json"},
-   "deepest_168fr_FITTED_model": {"centre": [1086, 3.67, 0.629], "perp_-1300": [851, 3.41, 0.673], "along_+1300": [1005, 3.73, 0.638], "record": "star_stations_deepest_fit.json"},
+   "deepest_168fr_lensfun": {
+    "centre": [
+     927,
+     5.3,
+     0.48
+    ],
+    "perp_-1300": [
+     798,
+     3.6,
+     0.706
+    ],
+    "along_+1300": [
+     954,
+     4.32,
+     0.574
+    ],
+    "record": "star_stations_deepest_lensfun.json"
+   },
+   "prod_on_54fr_lensfun": {
+    "centre": [
+     837,
+     5.73,
+     0.437
+    ],
+    "perp_-1300": [
+     628,
+     3.62,
+     0.679
+    ],
+    "record": "star_stations_prod_on.json"
+   },
+   "prod_off_54fr_control": {
+    "centre": [
+     864,
+     4.03,
+     0.556
+    ],
+    "along_+1300": [
+     748,
+     4.83,
+     0.485
+    ],
+    "record": "star_stations_prod_off.json"
+   },
+   "deepest_168fr_FITTED_model": {
+    "centre": [
+     1086,
+     3.67,
+     0.629
+    ],
+    "perp_-1300": [
+     851,
+     3.41,
+     0.673
+    ],
+    "along_+1300": [
+     1005,
+     3.73,
+     0.638
+    ],
+    "record": "star_stations_deepest_fit.json"
+   },
    "fields": "[n, majFWHM px, roundness]; equal-area stations, n comparable"
   },
   "inversion": "the control's centre is its BEST region and its defect grows outward along the drift axis; the corrected arms invert this -- centre worst, perpendicular stations at the in-exposure floor. The correction fixed the mid/edge and INTRODUCED the centre band.",
@@ -382,8 +440,8 @@
   },
   "modify_flags": {
    "baked": 1,
-   "honoured": true,
-   "note": "the ONLY field that carries: which corrections to apply (1 = distortion only)"
+   "honoured": false,
+   "note": "MEASURED FALSE: modify_flags 0-7, method 0/1, a flipped inverse bit and a BLANKED lens string all produce byte-identical output \u2014 NO op_params field carries; only the style's enabled bit does. darktable re-detects the lens per image and applies its DEFAULT correction set (incl. vignetting). The correction set is enforced at the lensfun DB instead (install_lens_model.sh). Evidence: qa_work/gradient_qa.json"
   },
   "verdict_generality": "ONE style is camera-, lens- AND focal-general. No per-focal style is needed.",
   "verdict_risk": "SILENT NO-OP on an unmatched lens: an unrecognised LensModel produced max |dr| = 0.000 px over 413 stars, exit 0, and NO warning in the log. A wrong-but-present lens gets a wrong model just as silently. darktable cannot be relied on to degrade loudly.",

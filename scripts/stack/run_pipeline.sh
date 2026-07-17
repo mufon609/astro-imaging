@@ -601,14 +601,15 @@ if [[ "$FLATBIAS" == "synth" ]]; then
      && [[ "$W/masters/flat_master.fit" -nt "$W/masters/dark_master.fit" ]]; then
     echo "=== master flat up to date, skipping ==="
   else
-    MEDADU=$(python3 -c "
-import sys
-sys.path.insert(0, '$REPO/scripts/lib')
-import astrometrics as am
-import numpy as np
-d, _ = am.read_fits(sys.argv[1])
-print(int(round(float(np.median(d)) * 65535.0)))
-" "$W/masters/dark_master.fit") || { echo "ERROR: master-dark median measurement failed" >&2; exit 1; }
+    # Siril's own stat measures the dark median (tool-first — no in-house
+    # pixel read): a 16-bit load reports ADU directly, a float load reports
+    # [0,1] and is rescaled to ADU.
+    printf 'requires 1.2.0\nload work/masters/dark_master\nstat\nclose\n' \
+      > "$W/dark_median.gen.ssf"
+    MEDADU=$(siril_run "$W/dark_median.gen.ssf" 2>&1 | tr '\r' '\n' \
+      | grep -oE 'Median: [0-9.eE+-]+' | head -1 \
+      | awk '{v=$2; printf "%d", (v<1)? v*65535+0.5 : v+0.5}')
+    [[ -n "$MEDADU" ]] || { echo "ERROR: master-dark median measurement failed (no Median in siril stat output)" >&2; exit 1; }
     echo "=== master flat (synthetic bias =${MEDADU} ADU, measured master-dark median) ==="
     rm -f "$W/masters/flat_master.fit"
     sed "s|-bias=masters/bias_master|-bias=\"=${MEDADU}\"|" \

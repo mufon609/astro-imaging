@@ -1,5 +1,4 @@
 {
- "measured": "2026-07-15",
  "tool": "Siril 1.4.4 register (2-pass global star alignment) regdata via scripts/qa/inspect_stage.py; flagged by scripts/qa/cull_report.py",
  "method": "373 NEF -> CFA FITS (undebayered) -> register -2pass in 5 disk-bounded batches of 75; per-frame FWHM/roundness/background/#stars from Siril findstar PSF fits, pooled (these metrics are reference-independent, so pooling across independently-registered batches is valid)",
  "provisional": true,

@@ -38,16 +38,19 @@ be read straight off a first no-WCS render), and --central=<frac> restricts
 detection to the low-distortion central fraction of the frame (|dx|,|dy| <
 frac x size) so the quads it forms actually match a TAN projection.
 
-Star detection: coarse background-subtracted local maxima (trail-robust
-peak centroids — component/blob centroids and Siril's PSF-fit detection
-both fail to feed the matcher on this data; 20 sigma, 25 px min
-separation, brightest 200). Solve runs in FITS pixel convention (1-based,
-bottom-up rows) so the WCS can be written straight into the file.
+Star detection (--detect=sep, the default): SExtractor's own core via the
+`sep` package — official extraction, shape-blind so trailed sources feed
+the matcher (20 sigma over the SExtractor background model, flux-ranked,
+25 px de-crowding, brightest 200). --detect=peaks is the in-house
+peak-centroid fallback, pending removal (BACKLOG register). Solve runs in
+FITS pixel convention (1-based, bottom-up rows) so the WCS can be written
+straight into the file.
 
 Runs inside a private venv (~/.local/share/astrometry-venv) holding the
-`astrometry` pip package (bundled astrometry.net engine; index files
-auto-download to the venv dir on first use). Bootstraps itself: run with
-plain python3, it creates the venv and re-execs.
+`astrometry` + `sep` pip packages (bundled astrometry.net engine +
+SExtractor core; index files auto-download to the venv dir on first use).
+Bootstraps itself: run with plain python3, it creates the venv and
+re-execs.
 """
 import json
 import os
@@ -75,11 +78,58 @@ def bootstrap():
     if os.path.realpath(sys.prefix) != os.path.realpath(VENV):
         if not os.path.exists(py):
             print(f"[solve_field] creating venv {VENV} + installing "
-                  "astrometry/numpy/scipy (one-time)")
+                  "astrometry/sep/numpy/scipy (one-time)")
             subprocess.run([sys.executable, "-m", "venv", VENV], check=True)
             subprocess.run([py, "-m", "pip", "install", "--quiet",
-                            "astrometry", "numpy", "scipy"], check=True)
+                            "astrometry", "sep", "numpy", "scipy"], check=True)
+        elif subprocess.run([py, "-c", "import sep"],
+                            capture_output=True).returncode != 0:
+            # older venv predating the sep default — bring it up to date
+            subprocess.run([py, "-m", "pip", "install", "--quiet", "sep"],
+                           check=True)
         os.execv(py, [py] + sys.argv)
+
+
+def detect_stars_sep(path, central=None, max_stars=200):
+    """Official extraction: SExtractor's core (`sep`) — detection,
+    deblending and windowed centroids are the tool's own measurement; this
+    function only ranks, de-crowds and converts to FITS convention (the
+    same post-processing the peaks fallback applies to its candidates)."""
+    import astrometrics as am
+    import numpy as np
+    import sep
+
+    data, _ = am.read_fits(path)
+    g = np.ascontiguousarray(
+        data[min(1, data.shape[0] - 1)].astype(np.float32))
+    h, w = g.shape
+    sep.set_extract_pixstack(2_000_000)
+    bkg = sep.Background(g)
+    obj = sep.extract(g - bkg.back(), thresh=20.0, err=bkg.globalrms)
+    obj = np.sort(obj, order="flux")[::-1]
+    keep_mask = None
+    if am.CTX.foreground is not None:
+        from scipy.ndimage import binary_erosion
+        keep_mask = binary_erosion(am.branch_mask(h, w), np.ones((49, 49)))
+    taken = np.zeros((h // 25 + 2, w // 25 + 2), bool)
+    stars = []
+    for o in obj:
+        x0, y0 = float(o["x"]), float(o["y"])
+        if central is not None and (abs(x0 - w / 2) > central * w
+                                    or abs(y0 - h / 2) > central * h):
+            continue
+        if keep_mask is not None and not keep_mask[
+                min(h - 1, max(0, int(y0))), min(w - 1, max(0, int(x0)))]:
+            continue
+        cy, cx = int(y0) // 25, int(x0) // 25
+        if taken[max(0, cy - 1):cy + 2, max(0, cx - 1):cx + 2].any():
+            continue
+        taken[cy, cx] = True
+        # FITS convention: 1-based, bottom-up rows
+        stars.append((x0 + 1.0, h - y0))
+        if len(stars) >= max_stars:
+            break
+    return stars, h, w
 
 
 def detect_stars(path, central=None, max_stars=200):
@@ -302,8 +352,14 @@ def main():
     if "ra" in opts and "dec" in opts:
         pos = (float(opts["ra"]), float(opts["dec"]),
                float(opts.get("radius-deg", 15.0)))
-    stars, h, w = detect_stars(src, central=central, max_stars=max_stars)
-    print(f"[solve_field] {len(stars)} peak-detected stars"
+    detector = opts.get("detect", "sep")
+    if detector not in ("sep", "peaks"):
+        sys.exit(f"solve_field: unknown --detect={detector} (sep|peaks)")
+    fn = detect_stars_sep if detector == "sep" else detect_stars
+    stars, h, w = fn(src, central=central, max_stars=max_stars)
+    print(f"[solve_field] {len(stars)} stars via "
+          + ("sep (SExtractor core)" if detector == "sep"
+             else "in-house peak centroids (fallback)")
           + (f" (central {central:g} of frame)" if central else ""))
     hint = scale_hint(src, width_arcmin)
     if "scales" in opts:
@@ -344,7 +400,8 @@ def main():
     wdir = os.path.normpath(os.path.join(os.path.dirname(src), "..", "work"))
     if not os.path.isdir(wdir):
         wdir = os.path.dirname(src) or "."
-    rec = {"input": src, "n_stars_detected": len(stars),
+    rec = {"input": src, "detector": detector,
+           "n_stars_detected": len(stars),
            "central": central, "position_hint": pos,
            "field_width_arcmin_arg": width_arcmin,
            "scale_hint_arcsec_px": list(hint) if hint else None,

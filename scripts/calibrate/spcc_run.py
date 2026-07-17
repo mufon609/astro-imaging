@@ -9,9 +9,9 @@ Usage: spcc_run.py <session> <set> [--in=<fits>] [--out=<fits>]
                     [--rbw/--gbw/--bbw=<nm>]]
 
 SPCC's measured white-balance factors (K per channel) are printed only in
-siril's log; they record what the raw stack's balance actually was (the raw
-G channel runs ~1.5x hot: K G 0.656 vs R 1.000 on the reference stack, 509
-kept stars, the Bayer imbalance) and are the first thing to compare when a
+siril's log; they record what the raw stack's balance actually was (a raw
+OSC stack's G channel runs hot — the Bayer imbalance — so K G sits well
+below R) and are the first thing to compare when a
 new stack of the same sky calibrates differently. This runner captures them
 so they survive: the full siril log lands in work/spcc_<set>.log and the
 parsed factors + stack identity in work/spcc_<set>.json (--tag suffixes
@@ -24,7 +24,7 @@ names must match `spcc_list` entries (quote names with spaces on the CLI).
 With no spec anywhere, SPCC fits Gaia star colours against siril's default
 response — the generic sensor-null calibration (measured on the one chip
 with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
-p99, so null is the adequate default; NOTES knob table).
+p99, so null is the adequate default; measurement detail in git history).
 
 Defaults: in results/stack_<set>_wcs.fit, out results/stack_<set>_spcc.fit
 (override both for non-default stems like stack_<set>_norgbeq_*).
@@ -39,7 +39,6 @@ import os
 import re
 import subprocess
 import sys
-import time
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
@@ -109,7 +108,11 @@ def main():
     rel_out = os.path.relpath(p_out, sdir)
     ssf = os.path.join(work, f"spcc_{set_name}{tag}.gen.ssf")
     with open(ssf, "w") as f:
+        # setcompress is a PERSISTED siril preference (config.ini), not
+        # per-script state — pin it off or the save inherits whatever the
+        # last session left and writes .fit.fz where the record expects .fit
         f.write("requires 1.4.0\n"
+                "setcompress 0\n"
                 f"load {rel_in[:-4] if rel_in.endswith('.fit') else rel_in}\n"
                 f"spcc {spcc_args}\n"
                 f"save {rel_out[:-4] if rel_out.endswith('.fit') else rel_out}\n"
@@ -152,8 +155,7 @@ def main():
            "input": rel_in, "output": rel_out,
            "input_size": st.st_size, "input_mtime": int(st.st_mtime),
            "k_factors": ks or None, "b_offsets": bs or None,
-           "n_photometry": n_phot, "n_kept": n_kept,
-           "date": time.strftime("%Y-%m-%d %H:%M:%S")}
+           "n_photometry": n_phot, "n_kept": n_kept}
     p_json = os.path.join(work, f"spcc_{set_name}{tag}.json")
     with open(p_json, "w") as f:
         json.dump(rec, f, indent=1)

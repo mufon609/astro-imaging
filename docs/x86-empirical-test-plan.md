@@ -18,7 +18,7 @@
 | Run `scripts/setup/x86_bootstrap.sh --go` (fill TODO sha256 first) | the whole install plan | the verification pass (every tool `--version`/`--help`) | all exit 0 |
 | `ldd <rc-astro>` + `rc-astro --version` (a LIBRARY check, not a desktop one) | the real dep = glibc ≥2.35 / GLIBCXX ≥3.4.30 / AVX2 floor (Kali has 2.42 / 3.4.35 — verified) | no "not found" libs; runs | runs; a missing lib → `apt install <it>`, not a DE/distro change |
 | `rc-astro <t> --benchmark-all` + timed run (BXT/NXT/SXT) on a real frame, `--device cpu` | true CPU wall-clock (all quoted numbers are other CPUs) | seconds/frame at 24–60 MP | record; sanity ≈ tens-of-sec BXT |
-| GraXpert `-cli -cmd denoising/deconv-obj -gpu false` timed | GraXpert CPU cost + which version installed | wall-clock; `pip show graxpert` | record; confirm 3.0.2 vs 3.2.0a2 |
+| GraXpert `-cmd denoising`/`deconv-obj` `-gpu false` timed (flag spelling is build-specific — resolve on the pinned build) | GraXpert CPU cost + which version installed | wall-clock; version print | record; OFFICIAL 3.0.2 (or 3.1.0-RC for deconv) only — PyPI 3.2.0a2 is the geeksville fork, do not install |
 | StarNet2 / DeepSNR / Cosmic Clarity headless run + timed | do the free binaries run CPU-only + wall-clock | seconds/min per frame | run headless, no display |
 
 ### Phase 1 — Port the orchestration + record layer

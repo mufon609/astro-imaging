@@ -108,24 +108,28 @@ Both terms are FWHM differences in px (bigger = worse). Driven + recorded by
 → `spatial_star_shape`. `tilt` and `inspector` are GUI-only (*"Can be used in a
 script: NO"*); `seqtilt` is the only headless door.
 
-| 54-frame production A/B | stars | truncated mean FWHM | **off-axis aberration** | sensor tilt |
+| production A/B + full depth | stars | truncated mean FWHM | **off-axis aberration** | sensor tilt |
 |---|---|---|---|---|
-| **OFF** — no distortion model | 5,095 | 3.20 px | **0.57 px** | 0.50 (16%) |
-| **ON** — lensfun | 10,707 | 3.28 px | **0.31 px** | 0.42 (13%) |
-| **shipped** — lensfun, 168 fr | 11,805 | 3.27 px | **0.25 px** | 0.51 (16%) |
+| **OFF** — no distortion model, 54 fr | 5,095 | 3.20 px | **0.57 px** | 0.50 (16%) |
+| **ON** — lensfun community, 54 fr | 10,707 | 3.28 px | **0.31 px** | 0.42 (13%) |
+| community, 168 fr (superseded control) | 11,805 | 3.27 px | **0.25 px** | 0.51 (16%) |
+| **SHIPPED** — FITTED model, 168 fr | 12,976 | 3.06 px | **0.25 px** | 0.31 (10%) |
 
 - **The radial term is the defect, and it is removed** — off-axis aberration
   0.57 → 0.31, and **0.25 at full 168-frame depth** (the deepest render is the
   most uniform, not the least).
 - **The one-sided component is MEASURED, not unresolved** — sensor tilt
-  0.50 (16%) → 0.42 (13%) → 0.51 (16%). A radial lens model cannot correct a
-  one-sided term, and does not: it survives the correction essentially untouched.
-  Candidates remain differential refraction (asymmetric with hour angle) and lens
-  decentering; distinguishing them is open, but the term itself is now a number
-  the tool prints rather than an inference.
-- **Sharpness is NULL** — truncated mean FWHM 3.20 → 3.28 → 3.27. The correction
-  buys star COUNT and radial UNIFORMITY, never sharpness; the in-exposure trailing
-  floor is untouched, exactly as predicted.
+  0.50 (16%) → 0.42 (13%) → 0.51 (16%) across the community arms; a radial lens
+  model cannot correct a one-sided term. The FITTED model then cut it to
+  **0.31 (10%)** — that fraction was paraxial model error, not tilt. The
+  remainder's candidates stay differential refraction (asymmetric with hour
+  angle) and lens decentering; the term is a number the tool prints rather than
+  an inference.
+- **Sharpness vs the community model is NULL** — truncated mean FWHM
+  3.20 → 3.28 → 3.27: the correction buys star COUNT and radial UNIFORMITY; the
+  in-exposure floor is untouched, exactly as predicted. The FITTED model's
+  **3.06** is not the floor moving — it is the centre band (below) coming out
+  of the truncated mean.
 
 > **Do not re-derive this by binning a `findstar` list by radius.** That was tried
 > and it is circular — the binning origin gets inferred from the detections, the
@@ -148,9 +152,10 @@ the frame-1/373 solves; records `qa_work/star_stations_*.json`) — cells are
 
 | stack | centre | along +1300 | perp −1300 |
 |---|---|---|---|
-| shipped 168 fr lensfun | 927, **5.30**, 0.480 | 954, 4.32, 0.574 | 798, **3.60**, 0.706 |
+| 168 fr community model (the band; superseded) | 927, **5.30**, 0.480 | 954, 4.32, 0.574 | 798, **3.60**, 0.706 |
 | production 54 fr ON | 837, **5.73**, 0.437 | 914, 4.22, 0.585 | 628, 3.62, 0.679 |
 | production 54 fr OFF (control) | 864, **4.03**, 0.556 | 748, **4.83**, 0.485 | 234, 3.95, 0.594 |
+| **SHIPPED 168 fr FITTED model** (band removed) | 1086, **3.67**, 0.629 | 1005, 3.73, 0.638 | 851, **3.41**, 0.673 |
 
 - **The inversion is the finding.** The control's centre is its BEST region (true
   distortion → 0 at the axis) and its defect grows OUTWARD along the drift; the
@@ -412,8 +417,9 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
 - **The experiment — one knob.** 54 lights, FULL 43-min window; the only difference is
   the darktable lens module's *enabled bit* (matched styles, both `--style-overwrite`,
   identical module sets). The numbers that settle it are the **production** A/B in
-  "The defect, quantified" above: it runs on properly calibrated frames
-  (`modify_flags=1`, distortion only) and is measured with Siril's own `seqtilt`.
+  "The defect, quantified" above: it runs on properly calibrated frames and is
+  measured with Siril's own `seqtilt`. (A style's modify_flags pin is a no-op —
+  the vignetting-confound note below.)
 - **WIN, on the tool's own measure:** off-axis aberration **0.57 → 0.31 px**, star
   count **5,095 → 10,707**, and **54/54** frames register vs 52/54. Crops:
   `qa_work/reg/star_shapes_lensfun.png` — the control's edge is washed into diagonal
@@ -426,9 +432,14 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
 - **What it does NOT buy:** sharpness (truncated mean FWHM 3.20 → 3.28 — NULL) and the
   one-sided term (sensor tilt 0.50 → 0.42, and 0.51 at full depth — uncorrected). Claim
   neither.
-- **Confound retired:** the first arm ran `modify_flags=7` (distortion|TCA|vignetting).
-  The production A/B re-ran distortion-only (`modify_flags=1`) — vignetting correction
-  would fight the sky flat — and the gain got LARGER, so the confound did not drive it.
+- **Vignetting confound — PRESENT in every ON arm:** darktable ignores a style's
+  lens op_params (the correction set cannot be chosen in a style — `dead-ends.md`),
+  so vignetting correction is active whenever the module is enabled unless the DB
+  is stripped. The roundness/FWHM/station gains are shape measures and stand; the
+  star-COUNT gains are partly vignetting-inflated (brighter corners → more
+  detections) and must not be quoted as pure distortion wins. Distortion-only is
+  enforced at the lensfun DB (`install_lens_model.sh` strips the lens's
+  vignetting/tca).
 - **The raw arm was a GEOMETRY test, not a render:** darktable working from raw carries
   no darks/flats, so that arm's absolute numbers are not comparable with anything else
   (darktable also applies the EXIF orientation to raw but not to Siril's TIFF, so its
@@ -484,21 +495,23 @@ the community entry's paraxial error is the centre-band mechanism above.
 - **The style is a pinned artifact, not a GUI step.** `scripts/darktable/lensdist.dtstyle`
   (+ `nodist.dtstyle`, the disabled-bit control) with `scripts/darktable/install_styles.sh`
   to install them headlessly into a darktable config. Verified: installed into a fresh
-  config, the warp reproduces to **0.000 px at every radius**. It carries
-  `modify_flags=1` (distortion only — vignetting correction would fight the sky flat;
-  TCA is unwanted).
-- **The style carries ONLY `modify_flags` — everything else in the blob is inert.**
-  MEASURED, one knob each, ~400 matched stars per arm:
+  config, the warp reproduces to **0.000 px at every radius**.
+- **The style carries ONLY the enabled bit — the whole op_params blob is inert,
+  `modify_flags` included** (measured field by field):
 
   | baked field | honoured? | proof |
   |---|---|---|
   | `focal=70.0` | **no** — re-detected from EXIF | EXIF 70 vs 24 → opposite-sign warps (+26→+69 px vs −6→−19 px): pincushion at the long end, barrel at the wide |
   | `scale=1.046028` | **no** — recomputed | scale 1.046 vs 0 vs **1.5** → identical to **0.000 px** |
   | `camera`, `lens` | **no** — re-detected from EXIF | EXIF lens → a 50 mm prime at the same focal gets that prime's own, much weaker profile |
-  | `modify_flags=1` | **YES** | this is the only field that carries |
+  | `modify_flags`, `method`, `inverse`, blob lens string | **no** — defaults applied | values 0–7 / flipped bits / a BLANKED lens string → byte-identical output (uniform+grid card, Siril `stat`) |
 
   So **one style is camera-, lens- and focal-general** — no per-focal style is needed, and
-  the feared "a 24 mm frame silently gets a 70 mm correction" cannot happen.
+  the feared "a 24 mm frame silently gets a 70 mm correction" cannot happen. But the
+  correction SET cannot be chosen in the style: darktable applies distortion + TCA +
+  **vignetting** by default. **Distortion-only is enforced in the lensfun user DB**
+  (`install_lens_model.sh` strips this lens's `<vignetting>`/`<tca>`; re-run after every
+  `lensfun-update-data`; verify with a uniform-card warp — corner medians == centre).
 - **THE TRAP, and it is the same mechanism: darktable never fails.** Because nothing is
   baked, a lens the DB cannot match gets **NO correction, silently** — an unrecognised
   `LensModel` measured max |dr| = **0.000 px over 413 stars**, exit 0, **no warning in the
@@ -520,7 +533,8 @@ the community entry's paraxial error is the centre-band mechanism above.
 
 - **[`../TOOLS.md`](../TOOLS.md):** Tier 2b — **darktable-cli + lensfun** as the working
   distortion route for this class, its pinned style + the focal re-detection that makes
-  it focal-general, `--icc-type SRGB` (match the tag), and `modify_flags=1`. Tier 2 —
+  it focal-general, `--icc-type SRGB` (match the tag), and the DB-level
+  distortion-only enforcement (a style's lens op_params are ignored). Tier 2 —
   Siril `seqtilt` as the headless spatial star-shape measure (off-axis aberration /
   sensor tilt), and `tilt`/`inspector` as GUI-only. Siril 1.4.4 `register -disto=`
   (`image|file <path>|master`) as the ONLY native distortion route, its proven
@@ -579,13 +593,17 @@ band; the entry **fitted from this unit's frames** — the adopted route (centre
 the in-exposure floor, whole frame sharper, approved on the user's eyes). Root
 cause established from theory (Szeliski) and from the tools' own measurements.
 
-On Siril `seqtilt`, control → corrected → shipped 168-frame render: **off-axis
-aberration 0.57 → 0.31 → 0.25 px**, stars 5,095 → 10,707 → 11,805, 54/54 registered.
-Sharpness is **NULL** (truncated mean FWHM 3.20 → 3.28 → 3.27) and the **one-sided
-term is uncorrected** (sensor tilt 0.50 → 0.42 → 0.51) — a radial model cannot fix it.
+On Siril `seqtilt`, control → corrected → community 168-frame control: **off-axis
+aberration 0.57 → 0.31 → 0.25 px**, stars 5,095 → 10,707 → 11,805, 54/54 registered;
+sharpness NULL across those arms (truncated mean FWHM 3.20 → 3.28 → 3.27). The
+SHIPPED fitted-model render then measures **3.06 px / 12,976 stars / tilt 0.31
+(10%)** — the band leaving the truncated mean, not the floor moving.
 The chain is productionised ("The production chain"), the style is pinned and its
 warp verified reproducible to 0.000 px, the route is measured focal-general, and the
 dust-preservation gate PASSED on the user's eyes on a full-frame lossless final.
+Stacks built before the lensfun-DB vignetting strip carry a vignetting
+double-correction bowl (the vignetting-confound note; per-dataset gradient
+record) — rebuilds through the stripped DB supersede them.
 
 **Open, and specific:**
 - **Which mechanism drives the residual one-sided term** — the fitted model

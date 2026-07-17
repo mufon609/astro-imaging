@@ -13,6 +13,14 @@
 # paraxial_model_source). Values were fitted from this unit's own frames at
 # infinity focus by Hugin (scripts/darktable/fit_lens_model.sh).
 #
+# This script also STRIPS the <vignetting> and <tca> calibrations from this
+# lens's block. That is what makes the warp DISTORTION-ONLY: darktable ignores
+# a style's lens op_params (only the enabled bit carries) and applies its
+# default correction set, so the correction set can only be chosen in the data
+# lensfun reads — with vignetting/tca absent, distortion is the only
+# correction darktable CAN apply. Vignetting correction here would
+# double-correct lights already flat-corrected upstream (docs/dead-ends.md).
+#
 # The target file is the machine-local lensfun updates DB
 # (~/.local/share/lensfun/updates/version_1 — written by `lensfun-update-data`,
 # which the route already requires per rig). `lensfun-update-data` OVERWRITES
@@ -20,10 +28,16 @@
 # if the entry matches neither the community nor the fitted line (upstream
 # drift — re-fit or reconcile before trusting a render).
 #
+# Verify after any darktable/lensfun version change: a uniform gray card
+# warped through the `lensdist` style must keep corner medians == centre
+# (Siril `stat`); a changed corner median means vignetting is back in the path.
+#
 # Removal conditions: an upstream lensfun entry measured for THIS unit at
 # infinity focus, or a chain that consumes the model another way
-# (Siril `register -disto=` with a trustworthy source). Re-fit and re-install
-# on any lens/body change, and per focal length used.
+# (Siril `register -disto=` with a trustworthy source). The vignetting/tca
+# strip retires when darktable honors a style's lens op_params headless
+# (re-check the uniform-card test per darktable version bump). Re-fit and
+# re-install on any lens/body change, and per focal length used.
 set -euo pipefail
 DB="$HOME/.local/share/lensfun/updates/version_1/mil-nikon.xml"
 COMMUNITY='<distortion model="ptlens" focal="70" a="0.012" b="-0.017" c="0.039"/>'
@@ -51,4 +65,24 @@ else
   echo "Upstream drift — re-fit (fit_lens_model.sh) or reconcile before rendering this class." >&2
   exit 1
 fi
+
+# Distortion-only enforcement (see header): strip vignetting/tca from this
+# lens's block so darktable's ignore-the-style-params behavior cannot apply them.
+python3 - "$DB" <<'PY'
+import re, sys
+p = sys.argv[1]
+xml = open(p).read()
+m = re.search(r'(<lens>(?:(?!</lens>).)*?24-70mm f/4 S(?:(?!</lens>).)*?</lens>)', xml, re.S)
+assert m, "24-70mm f/4 S lens block not found — upstream drift, reconcile before rendering"
+block = m.group(1)
+stripped = re.sub(r'\s*<(?:vignetting|tca)\b[^>]*/>', '', block)
+stripped = re.sub(r'\s*<!-- Taken with Nikon Z6 -->', '', stripped)
+if stripped == block:
+    print("install_lens_model: vignetting/tca already absent — distortion-only holds")
+else:
+    n = len(re.findall(r'<(?:vignetting|tca)\b', block))
+    assert '<distortion' in stripped, "strip would leave no distortion model — refusing"
+    open(p, "w").write(xml.replace(block, stripped))
+    print(f"install_lens_model: stripped {n} vignetting/tca entries — this lens is now distortion-only in the DB")
+PY
 grep -n 'model="ptlens" focal="70"' "$DB" | head -3

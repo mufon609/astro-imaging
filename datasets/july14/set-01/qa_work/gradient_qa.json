@@ -1,0 +1,78 @@
+{
+ "tool": "Siril 1.4.4 `stat` over 480x480 boxselect regions (medians); darktable-cli 5.4.1 + lensfun updates DB for the synthetic-card arms",
+ "purpose": "Quantify the dark-centre / bright-corner gradient visible in the SPCC judgment PNGs, in the LINEAR domain, and attribute it to a stage.",
+ "stack_linear_medians": {
+  "input": "qa_work/reg/FULL_lensfun_fit.fit (the approved 168-frame stack; SPCC input via its WCS-injected copy)",
+  "regions_480px": {
+   "center": {
+    "R": 74,
+    "G": 139,
+    "B": 104
+   },
+   "corner_x60_y60": {
+    "R": 101,
+    "G": 185,
+    "B": 138
+   },
+   "corner_x3617_y60": {
+    "R": 98,
+    "G": 180,
+    "B": 135
+   },
+   "corner_x60_y2842": {
+    "R": 97,
+    "G": 178,
+    "B": 133
+   },
+   "corner_x3617_y2842": {
+    "R": 96,
+    "G": 176,
+    "B": 132
+   },
+   "mid_left": {
+    "R": 88,
+    "G": 163,
+    "B": 122
+   },
+   "mid_right": {
+    "R": 87,
+    "G": 161,
+    "B": 120
+   },
+   "mid_y60": {
+    "R": 82,
+    "G": 152,
+    "B": 113
+   },
+   "mid_y2842": {
+    "R": 81,
+    "G": 151,
+    "B": 112
+   }
+  },
+  "corner_over_center": "1.27-1.37 LINEAR (all three channels, all four corners; radially monotone, near-isotropic, mild extra tilt toward x=0/y=0)",
+  "display_domain_on_judge_pngs": "2.2-2.6 on both SPCC autostretch PNGs \u2014 the stretch amplifies the linear bowl; this is what the eye sees"
+ },
+ "attribution": {
+  "verdict": "The bowl is the darktable WARP stage applying lensfun VIGNETTING correction on top of the sky-flat-corrected lights \u2014 a double correction. It is NOT the sky flat (the validated with/without comparison ran without the warp and came out near-flat) and NOT sky structure (a real field is not radially isotropic about the frame centre).",
+  "card_test": "uniform 128-gray 6064x4040 TIFF carrying the set's EXIF identity, warped through the production invocation: `nodist` output uniform (32896 everywhere); `lensdist` output centre 32919 / corner medians 43282 (max 51154) = corner gain ~1.32 display, ~1.8x linear (up to ~2.65x at the extreme corner). A pure geometric warp cannot brighten a uniform field; a vignetting correction does exactly this.",
+  "op_params_ignored": "darktable applies a style's lens module with per-image auto-detected params and its DEFAULT correction set. Measured: modify_flags 0-7, method 0/1, a flipped inverse bit, and a BLANKED lens string all produce byte-identical corrected output; only the enabled bit carries. The pinned blob (method=lensfun, modify_flags=DIST, verified against darktable 5.4.1 source enums) was never honored, so the recorded 'modify_flags patched 7->1 = distortion-only' never took effect.",
+  "geometry_cross_check": "stack corners sit ~0.6-0.7 of the sensor's corner radius after the -framing=min crop; the lensfun pa-model gain there, averaged over the ~1500 px drift, matches the measured 1.27-1.37 bowl"
+ },
+ "fix": {
+  "mechanism": "strip <vignetting> and <tca> from this lens's block in the lensfun user-updates DB \u2014 the data layer darktable actually reads \u2014 so distortion is the only correction it CAN apply. Implemented in scripts/darktable/install_lens_model.sh (idempotent, loud on drift; re-run after every lensfun-update-data).",
+  "verified": "on the live DB: 55 vignetting/tca entries stripped, fitted distortion entry intact; uniform-card corner medians == centre (32896) through the production invocation while the distortion warp remains active.",
+  "standing_verification": "after any darktable/lensfun version change: warp a uniform gray card through `lensdist`; Siril `stat` corner medians must equal the centre"
+ },
+ "consequences": {
+  "artifacts_carrying_the_bowl": "every warped render made before the strip: the approved FULL_lensfun_fit.fit, its WCS/SPCC derivatives, and the judge PNGs (both community- and fitted-model arms carried the identical gain, so the fitted-vs-community A/B and its approval remain internally valid on star-shape measures; corner star-count gains were partly vignetting-inflated)",
+  "why_downstream_cannot_fix_it": "the sanctioned MW-safe background step for this dust-first frame-filling field is a first-degree plane (subsky 1), which cannot remove a radial bowl; full-model BGE could, but absorbs frame-filling faint MW/IFN (dead-end registry) and is ruled out by the dust priority",
+  "action": "REBUILD required before any render work: re-run the stack through the stripped DB, then re-solve + re-SPCC. No render knob may be tuned against a pre-strip stack."
+ },
+ "note_on_prior_records": "skyflat_qa.json's '+6% overcorrection' and 'vignetting_pct 6.3' are display-domain / pedestal-diluted numbers from the warpless comparison \u2014 see its post_stack_audit note. The linear-domain measurement above supersedes any gradient claim made from an autostretched preview (dead-end registry: display-vs-linear trap).",
+ "fix_validated_on_data": {
+  "build": "18-frame even stride of the 369 post-cull lights, full chain via run_undistort_pipeline.sh: master dark (214, pinned recipe) + sky flat (125 dark-subtracted lights, median, mul-norm \u2014 the validated recipe) + the STRIPPED lensfun DB. Artifact: july14/results/stack_set-01_novig18.fit",
+  "corner_over_center_medians": "1.000-1.014 across all channels and all four corners (Siril stat, 480px regions) vs 1.27-1.37 on the pre-fix approved stack \u2014 the bowl is REMOVED; the residual is within the flat's known small residuals",
+  "one_knob": "the lensfun DB strip is the only change vs the shipped chain (declared deltas: flat rebuilt per the recorded recipe at 125 frames; 18-frame depth \u2014 a per-frame multiplicative field is depth-independent)"
+ }
+}

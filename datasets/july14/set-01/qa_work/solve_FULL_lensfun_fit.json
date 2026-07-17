@@ -1,0 +1,24 @@
+{
+ "input": "datasets/july14/set-01/qa_work/reg/FULL_lensfun_fit.fit",
+ "n_stars_detected": 200,
+ "central": null,
+ "position_hint": null,
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": null,
+ "index_scales": [
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 310.78650488201646,
+ "dec_deg": 46.79220499433833,
+ "scale_arcsec_px": 17.01484669030464,
+ "logodds": 288.563232421875,
+ "parity": "sky-true",
+ "cd_det": -2.233834937458108e-05,
+ "injected": "july14/results/stack_set-01_wcs.fit"
+}

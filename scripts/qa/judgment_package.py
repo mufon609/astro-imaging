@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Assemble a user-judgment package from render FINALS — scripted, verified.
 
+DORMANT PENDING THE X86 RENDER REBUILD: the objective-delta path reads a
+`.metrics.json` sidecar that no current tool writes (the render layer that
+will is a gap pending x86), so the delta table cannot populate yet; the
+package/verify machinery itself is chain-independent and stands.
+
 Usage: judgment_package.py <outdir> <label>=<final.png> [...]
            --question="what the judge is deciding"
            --inspection=<notes.md>
