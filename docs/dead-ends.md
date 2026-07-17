@@ -185,6 +185,43 @@ the constraints any such tool must satisfy):
   ~1.6:1 at BEST; success is the EDGE matching the CENTRE, never round stars. That
   the per-frame roundness is *uniform* is also the proof the radial smear is
   introduced by register+stack, not by the frames.
+- **A community lens profile can fix the edges and still WRITE A NEW DEFECT into the
+  centre — the paraxial-error × drift band.** True distortion → 0 at the optical axis,
+  so an UNCORRECTED wide untracked stack has a pristine centre (the control's centre is
+  its best region). A community radial profile carries a small paraxial error ε(r);
+  as a star's sky position CROSSES the axis during the drift the radial unit vector
+  flips sign, so ±ε becomes a ~2ε smear ALONG THE DRIFT, confined to the corridor the
+  axis swept — a band through frame centre, worst at the very centre, invisible
+  perpendicular to the drift. MEASURED (Siril findstar at fixed 350 px stations about
+  the geometric centre, drift axis 174.4° from the astrometric solves,
+  `star_stations_*.json`): shipped 168-frame render centre majFWHM **5.30** /
+  roundness **0.480** vs perpendicular stations **3.60–4.12** / up to **0.706**
+  (54-frame corrected arm: centre **5.73/0.437**); the no-model control INVERTS it
+  (centre 4.03/0.556 — its best; degradation outward along the drift axis instead,
+  4.56→4.83). Brightness split: at sigma=3.0 the corrected centre reads fine (3.89 px)
+  — bright cores survive; the faint population smears toward/below detection, so the
+  band is a faint-star/texture defect that a stretch shows and bright-star medians
+  hide. **`seqtilt` off-axis aberration (centre vs corners) is BLIND to it and even
+  improves as the centre degrades toward the corners' mean** (0.57 → 0.25 px across
+  the same renders) — never accept a wide-untracked render on `seqtilt` alone; measure
+  fixed stations along/perpendicular to the measured drift axis
+  (`scripts/qa/star_stations.py`). A tracked rig can never see this term (no drift),
+  which is why no mainstream reference reports a "field-centre" residual. ε-source
+  candidates (open — the fix is the same regardless): community a/b/c are fitted with
+  the distortion centre pinned at image centre, absorbing the calibrator copy's
+  decentering into radial terms that do not transfer between units; focus-distance
+  dependence (charts vs infinity); unit-to-unit variation. **The fix:** a model fitted FROM THIS UNIT'S OWN FRAMES by between-frame
+  star-correspondence fitting — the mechanism the SIP dead-end explicitly leaves
+  viable (`scripts/darktable/fit_lens_model.sh`, installed by
+  `install_lens_model.sh`; traps in the script + TOOLS.md Tier 2b) — removes the
+  band (centre station 5.30 → 3.67 px at full depth, every station at the
+  3.4–3.8 px floor) and sharpens the WHOLE frame (seqtilt FWHM 3.27 → 3.06 px):
+  the fitted curve agrees with the community one at the crop corner (Δ 0.06 px)
+  and shows the community profile overcorrecting the paraxial/mid field by
+  2.4–3.9 px — ε(r), measured. Also KILLED:
+  the solved effective focal (67.8) as the lensfun interpolation key — the
+  interpolated 50–70 model is WORSE at the centre (5.42/0.468 vs 4.88/0.516); the
+  calibrated focal=70 entry is the best community key.
 - **A darktable lens STYLE carries almost nothing — and an unmatched lens is a SILENT
   NO-OP.** The style's `op_params` blob bakes camera, lens, focal, aperture and scale,
   which reads like a hard-coded profile. **Measured: every one of those is IGNORED.**
@@ -243,14 +280,20 @@ the constraints any such tool must satisfy):
   (x 2068→1540) on ONE control stack purely by tightening `findstar` sigma 0.5→3.0 —
   and at sigma=3.0 the profile reported roundness *improving* outward (0.543→0.635),
   i.e. NO defect, on a stack whose right third yields no detections at all. **A worse
-  defect made the metric look better.** It also invented a phantom: the corrected
-  stack's innermost bin read "worst of frame", which was chased as "the route degrades
-  the centre" — it reverses at a sane threshold (corrected centre 0.595/3.89 vs control
-  0.543/4.01 at sigma=3.0). The generalisation: **never key a metric to a geometry
+  defect made the metric look better.** The same circularity cuts the other way: the
+  corrected stack's innermost bin read "worst of frame" and was dismissed when a
+  sigma=3.0 re-run appeared to reverse it (corrected centre 0.595/3.89 vs control
+  0.543/4.01) — but that rebuttal compared the corrected profile against a control
+  binned about the 537-px-shifted origin, on the bright population only. Measured
+  about a FIXED origin, the corrected centre IS degraded for the faint population
+  (the paraxial-band entry above, with its numbers): a circular metric manufactures
+  doubt as easily as defects and settles nothing in either direction.
+  The generalisation: **never key a metric to a geometry
   derived from the measurement itself** — measure about a FIXED, externally-known
   origin, or use the tool's own measure. Here Siril already had one headless:
   **`seqtilt`** (off-axis aberration = centre vs corners; sensor tilt = best vs worst
-  corner) — no origin to get wrong. `tilt`/`inspector` are "Can be used in a script:
+  corner) — no origin to get wrong, though it is a WHOLE-FRAME measure and blind to a
+  drift-aligned band (paraxial-band entry). `tilt`/`inspector` are "Can be used in a script:
   NO", which is why it was missed. Star COUNT per radial bin is not a quality measure
   either: it is sky density × detection efficiency, and the control's efficiency peaks
   exactly where the sky is poorest.

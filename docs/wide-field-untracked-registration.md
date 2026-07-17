@@ -137,6 +137,55 @@ script: NO"*); `seqtilt` is the only headless door.
 > threshold. `seqtilt` has no origin to get wrong. Mechanism: `dead-ends.md`,
 > "Three traps that make a registration comparison lie" (trap 3).
 
+## The centre band the correction introduces (and the measure that sees it)
+
+`seqtilt`'s off-axis aberration is centre-vs-corners: a defect CONFINED TO A BAND
+along the drift axis makes that number BETTER as the centre degrades toward the
+corners' mean. Measured with fixed 350 px equal-area stations about the geometric
+centre (`scripts/qa/star_stations.py`; drift axis 174.4° in image coordinates from
+the frame-1/373 solves; records `qa_work/star_stations_*.json`) — cells are
+[n, majFWHM px, roundness]:
+
+| stack | centre | along +1300 | perp −1300 |
+|---|---|---|---|
+| shipped 168 fr lensfun | 927, **5.30**, 0.480 | 954, 4.32, 0.574 | 798, **3.60**, 0.706 |
+| production 54 fr ON | 837, **5.73**, 0.437 | 914, 4.22, 0.585 | 628, 3.62, 0.679 |
+| production 54 fr OFF (control) | 864, **4.03**, 0.556 | 748, **4.83**, 0.485 | 234, 3.95, 0.594 |
+
+- **The inversion is the finding.** The control's centre is its BEST region (true
+  distortion → 0 at the axis) and its defect grows OUTWARD along the drift; the
+  corrected arms fix mid/edge and INTRODUCE a centre band — worst at the very
+  centre, absent perpendicular to the drift (3.5–3.6 px = the in-exposure floor).
+  Confirmed by the user's eyes on the shipped full-frame final ("under Deneb" —
+  Deneb sits ~320 px above the band core).
+- **Mechanism.** The community profile carries a small paraxial error ε(r). A star
+  whose sky position CROSSES the optical axis during the ~1500 px drift has its
+  radial unit vector flip sign, so ±ε becomes a ~2ε along-drift smear confined to
+  the corridor the axis swept. Mid-field never crosses the axis; its near-constant
+  residual is absorbed by the per-frame homography. A tracked rig can never see
+  this term, which is why no mainstream reference reports a "field-centre" residual.
+- **Brightness split.** At detection sigma=3.0 the corrected centre reads 3.89 px —
+  bright cores survive; the faint population smears toward/below detection. The
+  band is a faint-star/texture defect: the dust-gate pass and the band coexist on
+  the same final, and bright-star medians (including the earlier sigma-3.0
+  "reversal", which also compared against a shifted-origin control profile —
+  `dead-ends.md` trap 3, refined) hide it.
+- **KILLED — the focal key.** EXIF 67.8 (the solved effective focal) as the lensfun
+  interpolation key is WORSE at the centre (5.42/0.468 vs control 4.88/0.516 on the
+  12-frame instrument; `experiments.jsonl` paraxial_focal_key): the calibrated
+  focal=70 entry is the best available community key.
+- **The fix — ADOPTED (`experiments.jsonl` paraxial_model_source):** a model
+  fitted from THIS unit's own frames by between-frame star-correspondence fitting
+  (`scripts/darktable/fit_lens_model.sh` — Hugin `cpfind`+`cpclean`+staged
+  `autooptimiser`, hfov pinned at the solved value), installed into the live
+  lensfun DB (`scripts/darktable/install_lens_model.sh`) so the chain itself is
+  unchanged. The fitted curve agrees with the community entry at the crop corner
+  (Δ 0.06 px) and shows it overcorrecting the paraxial/mid field by 2.4–3.9 px —
+  ε(r), measured. Full-depth A/B vs the community entry: centre station
+  **5.30 → 3.67 px** (roundness 0.480 → 0.629), all-station spread 1.70 →
+  **0.52 px**, seqtilt truncated-mean FWHM **3.27 → 3.06 px**, stars +10%,
+  sensor tilt 0.51 → 0.31 px. Approved on the user's eyes, full-frame lossless.
+
 ## The experiment — one knob, on the real frames
 
 54 lights = every 7th of 373, spanning the FULL 43-min window (the residual
@@ -387,10 +436,12 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
 
 ## The july14 decision (the loop's RECOMMEND → REPORT → the user decides)
 
-- **Chosen, executed and SHIPPED:** the **lensfun distortion model**, productionised —
-  it removes the radial degradation at full depth, which neither route A nor C could
-  do. The ordering question is solved; the chain that ran is in "The production chain"
-  below. The user's eyes passed the dust gate on the full-frame lossless final.
+- **Chosen, executed and SHIPPED:** the **lensfun distortion route with the model
+  FITTED FROM THE SET'S OWN FRAMES** — the community DB entry removes the radial
+  edge degradation but writes the paraxial centre band (section above), so the
+  fitted entry replaces it at this focal. The chain is "The production chain"
+  below, scripted as `scripts/stack/run_undistort_pipeline.sh`. Approved on the
+  user's eyes at full depth: dust preserved, centre at the floor, edges held.
 - **Superseded:** route A (full depth, measured edge defect) and route C (short
   window, floor-limited, 1/4 depth, +56% field). The depth-vs-edge trade-off is no
   longer forced. Keep C as the fallback if the route ever fails on a set.
@@ -418,6 +469,16 @@ Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
   → darktable-cli --style lensdist --style-overwrite --icc-type SRGB
   → Siril register -2pass → seqapplyreg -framing=min → stack rej 3 3 -norm=addscale
 ```
+
+Scripted as **`scripts/stack/run_undistort_pipeline.sh`** — it runs
+`lens_preflight.py --require-profile` first (darktable silently applies NO
+correction to a lens lensfun cannot match), refuses a frame count whose final
+chunk would be a single frame (Siril cannot sequence one frame), and checks the
+~231 MB/frame uncompressed disk peak before any work. The model the warp applies
+is the lensfun DB entry for the EXIF-matched lens; for this rig's 24-70/4 S at
+70 mm that is the entry **fitted from the set's own frames**
+(`scripts/darktable/fit_lens_model.sh`, installed by `install_lens_model.sh`) —
+the community entry's paraxial error is the centre-band mechanism above.
 
 - **The style is a pinned artifact, not a GUI step.** `scripts/darktable/lensdist.dtstyle`
   (+ `nodist.dtstyle`, the disabled-bit control) with `scripts/darktable/install_styles.sh`
@@ -508,13 +569,14 @@ Practitioner / forum / reference:
 
 ## Status
 
-**SOLVED AND SHIPPED on the real july14 set-01 frames.** Two routes to a distortion
-model were implemented and measured against the SAME one-knob harness: Siril
-`register -disto=` fed an astrometry.net SIP — **killed (a LOSS), with its numbers**;
-and an OFFICIAL MEASURED profile (darktable + lensfun) — **WIN**. Root cause
-established from theory (Szeliski) and from the tools' own measurements, then
-CONFIRMED by the fix behaving exactly as predicted (the centre improves too, where
-distortion is ≈0).
+**SOLVED AND SHIPPED on the real july14 set-01 frames — edges by the measured
+lens profile, the centre band by fitting the model from the set's own frames.**
+Three model sources were measured against the same one-knob harness: an
+astrometry.net SIP fed to `register -disto=` — **killed (a LOSS)**; the community
+lensfun entry — **WIN at mid/edge**, but its paraxial error writes the centre
+band; the entry **fitted from this unit's frames** — the adopted route (centre at
+the in-exposure floor, whole frame sharper, approved on the user's eyes). Root
+cause established from theory (Szeliski) and from the tools' own measurements.
 
 On Siril `seqtilt`, control → corrected → shipped 168-frame render: **off-axis
 aberration 0.57 → 0.31 → 0.25 px**, stars 5,095 → 10,707 → 11,805, 54/54 registered.
@@ -525,12 +587,9 @@ warp verified reproducible to 0.000 px, the route is measured focal-general, and
 dust-preservation gate PASSED on the user's eyes on a full-frame lossless final.
 
 **Open, and specific:**
-- **Which mechanism drives the one-sided term** — differential refraction (asymmetric
-  with hour angle) vs lens decentering. Now measurable per set as `seqtilt`'s sensor
-  tilt; the discriminator is hour-angle dependence across sets.
-- **The autoscale is baked** (`scale=1.046028`, computed at 70 mm) while focal is
-  re-detected. Whether darktable recomputes autoscale per focal is **untested** — it
-  affects framing, not the distortion model, but a wrong autoscale at another focal
-  would under- or over-crop. Test before the route meets a non-70 mm set.
+- **Which mechanism drives the residual one-sided term** — the fitted model
+  reduced sensor tilt 0.51 → 0.31 px (part of it was model error); the remainder's
+  candidates stay differential refraction (asymmetric with hour angle) vs lens
+  decentering, discriminated by hour-angle dependence across sets.
 - **The shipped render's frame selection was disk-bound, not chosen** (168 of 373 by
   stride). An explicit culling decision is owed.

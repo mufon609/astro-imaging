@@ -27,6 +27,8 @@ changes, when the rig changes, and before any item below is worked.
 | `judgment_package.read_png16_sampled` (hand-rolled PNG decoder) | a library reader or a 16-bit TIFF surface | **FIRED** — `tifffile` reads Siril's 16-bit TIFF; Siril `savepng` writes the PNG. Retirement is open work (item 6). |
 | `crop_coverage.py` (post-stack coverage crop) | `seqapplyreg -framing=min` provably accounts for drift **and rotation** | **UNSETTLED** — a real 1500-px-drift, field-rotating set now runs through `-framing=min` in production and has never needed the script, but Siril's docs say only "the area it has in common with all images" and do not specify rotation handling. A border-vs-interior `stat` is confounded by the sky gradient. Needs a real coverage test (item 6). |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
+| `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
+| fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
 | Hand-rolled FITS parsers (5 sites) | `astropy` available | **not fired** — x86-gated; astropy 8.0.1 confirmed clean for the target. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **not fired** — `image2xy` is shape-blind (source-verified) but its trail knobs are not exposed by `solve-field`; a measured A/B, not a swap (item 7). |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
@@ -94,8 +96,9 @@ What is left:
   `run_pipeline.sh`. It STOPS on a mixed-optics set (checked over every frame, which
   `acquisition.json` cannot do — it reads the first frame only) and on a record-vs-frames
   contradiction; `--require-profile` additionally makes darktable PROVE it corrects the
-  set. **Wire `--require-profile` in when the undistort stage joins the chain** — today
-  `run_pipeline.sh` has no undistort stage to protect, so it runs the free checks only.
+  set. **Wired into the undistort chain**: `run_undistort_pipeline.sh` runs it with
+  `--require-profile` before any work; `run_pipeline.sh` (no undistort stage to
+  protect) runs the free checks only.
   Verified against all three failure cases + a no-regression pass on set-01.
 - **Why the guard asks darktable, not lensfun.** The question is not "does the lensfun DB
   hold this lens" but "will darktable correct THIS set" — adjacent, not identical, since
@@ -118,6 +121,18 @@ What is left:
 - lensfun carries CALIBRATED entries at 24/28/35/50/70 for this lens and interpolates
   between them; confirm interpolated behaviour at an intermediate focal, and that
   `crop=1.0` holds for the body.
+- **The model source is per-rig and per-lens.** A community profile can be right at
+  the corner and wrong in the paraxial region (the centre-band mechanism,
+  `docs/dead-ends.md`); the route's standard companion is the fit-from-own-frames
+  procedure (`scripts/darktable/fit_lens_model.sh` → `install_lens_model.sh`, in
+  production for the 24-70/4 S @ 70 — see the removal-condition register) and the
+  drift-axis station measure (`scripts/qa/star_stations.py`) in the class
+  checklist, since `seqtilt` cannot see the band. The fitted centre shift (d,e = −2.8, +21 px) is
+  deliberately NOT in the first arm: lensfun's `<center>` element is undocumented
+  (absent from the shipped DTD/XSD; parsed by `database.cpp`) and its sign convention
+  is unverified — it enters only as a separately-bracketed knob if the abc-only arm
+  leaves band residue, and carries a lensfun-version-bump removal condition if ever
+  adopted.
 
 ## 3. Culling — assessed, never decided
 
@@ -147,7 +162,8 @@ unexamined default, not a decision — the gap this item closes.
 **Siril cannot build a sequence from a SINGLE frame.** `convert`/`link` write the .fit
 but no .seq, so the next command dies with `No sequence 'x' found` → `invalid input
 sequence`. Any chunked front end whose frame count leaves a remainder of exactly 1 hits
-this on its last chunk.
+this on its last chunk. `run_undistort_pipeline.sh` asserts `n % CHUNK != 1` up front —
+any NEW chunked front end (the ~1865-frame item 8 run) must carry the same guard.
 
 It cost a real run: a 169-frame render chunked at 12 → 14 full chunks + **1 leftover**;
 chunk 15 failed to calibrate and `set -euo pipefail` (correctly) killed the script. The
