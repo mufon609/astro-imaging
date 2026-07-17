@@ -310,6 +310,18 @@ the constraints any such tool must satisfy):
   signal).
 - wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
   min-max ramp → worst frame ~0 weight at any spread).
+- **Never sigma-reject across SUB-STACK composes.** Sub-stacks are clean
+  ~group-size means, so their mutual scatter is ~√group below per-frame noise —
+  a 3σ gate at that tiny σ fires on the systematic differences sub-pixel
+  registration leaves along steep gradients (star edges, MW lanes), not on
+  outliers. Measured (`rej 3 3` across 25 fifteen-frame sub-stacks vs a plain
+  mean of the same registered set): pixels rewritten by up to **±3800 ADU on a
+  ~140 ADU sky**, star cores carved out, dark rip-like streaks through
+  structured regions — while whole-frame `seqtilt` medians stayed FLAT (stars
+  13,903 vs 13,784; FWHM 3.07 vs 3.10), so the damage is invisible to
+  frame-wide statistics and shows on the stretched final. Reject within groups
+  (full per-frame strength, where satellites die); compose sub-stacks with a
+  PLAIN MEAN.
 - Drizzle: "short focal / large pixels ⇒ oversampled" is BACKWARDS (that geometry
   gives large arcsec/px → *few* px per star → UNDER-sampled, drizzle's home turf).
   Judge sampling by measured **minor-axis FWHM**, not the "wide" label: ≥~2–3 px =

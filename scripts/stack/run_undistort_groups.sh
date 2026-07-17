@@ -28,9 +28,13 @@
 # DECLARED COSTS vs the single-pass builder (run_undistort_pipeline.sh):
 # - one extra interpolation pass (each pixel is resampled twice: frame->group
 #   reference, group->final reference) — a small softening, judged on finals;
-# - rejection runs within groups (satellites reject there, at full strength)
-#   and then across the K sub-stacks (3-sigma over K samples — weaker, but the
-#   per-group pass has already cleaned the transients);
+# - rejection runs ONLY within groups (satellites reject there, at full
+#   strength). The final compose is a PLAIN MEAN — sub-stacks are clean
+#   ~group-size means whose mutual scatter is ~sqrt(group) below per-frame
+#   noise, so a sigma gate across them clips real structure instead of
+#   outliers (measured: rej 3 3 across 25 sub-stacks rewrote pixels by up to
+#   ~3800 ADU on a ~140 ADU sky, carving star cores and dark streaks along
+#   steep gradients — docs/dead-ends.md);
 # - groups are CONSECUTIVE blocks, sized as equally as possible, so each
 #   sub-stack is an equal-weight mean and the final mean equals the global
 #   mean; per-group -framing=min trims only that group's small drift, and the
@@ -120,7 +124,7 @@ done
 echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
 for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s rej 3 3 -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
   "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
