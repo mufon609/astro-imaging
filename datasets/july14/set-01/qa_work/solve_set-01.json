@@ -1,5 +1,5 @@
 {
- "input": "july14/results/stack_set-01_full369_mean.fit",
+ "input": "july14/results/stack_set-01_sp158.fit",
  "detector": "sep",
  "n_stars_detected": 200,
  "central": null,
@@ -15,11 +15,11 @@
   18,
   19
  ],
- "ra_deg": 311.6063917647105,
- "dec_deg": 47.24663748688371,
- "scale_arcsec_px": 17.019636673859083,
- "logodds": 303.67315673828125,
+ "ra_deg": 310.12635044576007,
+ "dec_deg": 46.752569278997065,
+ "scale_arcsec_px": 17.008704900989155,
+ "logodds": 283.4843444824219,
  "parity": "sky-true",
- "cd_det": -2.2350928434426624e-05,
- "injected": "july14/results/stack_set-01_full369_mean_wcs.fit"
+ "cd_det": -2.23222254945164e-05,
+ "injected": "july14/results/stack_set-01_sp158_wcs.fit"
 }
