@@ -1,0 +1,16 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [7272, 7569, 7573, 7574, 7575],
+  "why": {
+   "7272": "session-first frame + satellite trail (174 px) — session-edge cull policy",
+   "7569": "frame-wide elongation blip (roundness depressed in all four quadrants vs neighbour, -0.013..-0.021, majFWHM +0.08..0.13 px; vibration/wind class) — culled per the frame-wide rule",
+   "7573": "double defect-axis QA flag (fwhm z +6.05, nstars z -5.87, roundness 16 sigma anomalous) + 583 px satellite streak",
+   "7574": "AIRCRAFT (parallel twin trails 17.3 px apart, 690 px, conf 0.9) — aircraft policy",
+   "7575": "AIRCRAFT (twin trails 16.4 px apart, 612 px, conf 0.9) + session-last frame — aircraft and session-edge policies",
+   "kept_7551_7555": "5-frame thin-haze dwell (bg +3.3-3.7 sigma, nstars -3.4-3.9 sigma, FWHM normal) — a 5-of-304 moving transient stacks clean through rej 3 3; kept",
+   "satellites_kept": "44 detections across 39 frames (audit_work/anomaly_audit.json), single faint trails — listed, not culled; rejection handles them",
+   "weight_null": "wFWHM weighting at this set's sub-1% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)"
+  }
+ }
+}
