@@ -33,7 +33,7 @@ changes, when the rig changes, and before any item below is worked.
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
-| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). |
+| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production: requires the item-7 single-pass-vs-groups A/B (and the in-group rejection ladder) to pass on identical frames first. |
 
 ## 1. Derive the config fingerprint from the data
 
@@ -200,6 +200,25 @@ fallback. A real matching flat retires the whole branch.
 
 ## 7. Open questions with a named test
 
+- **Group composition vs single-pass — the architecture A/B.** Same frames, same
+  masters, one knob (the architecture): single-pass register+stack vs
+  `run_undistort_groups.sh`. Judged on full-frame lossless finals + `seqtilt` +
+  drift-axis stations; settles the second-interpolation cost and whether the
+  route may ship production stacks. Companion ladder: in-group rejection at
+  small n (none / percentile / winsorized) — Siril's docs prescribe percentile
+  ≤6 and GESD >50 and are silent between.
+- **Background-step LEVEL: per-frame vs on-stack `subsky 1`.** The dead-end
+  registry records "per-frame subsky 1 is the MW-safe background step;
+  stack-level-only leaves a structured residual" (measured on an earlier chain)
+  while README's reference-standard row 2 runs gradient removal ON THE STACK —
+  a standing contradiction. Settle with a one-knob A/B on a trusted stack
+  before the render chain's background stage is built; dust preservation is
+  the deciding metric.
+- **Pin the sky-flat build as a script.** The flat recipe lives only in prose
+  (a QA record) and session commands; an unpinned build is why reproduction
+  was impossible when the artifact was lost. A `scripts/stack/` flat builder
+  (recipe verbatim, validation gates included) closes it — item 5's ladder
+  lands on top of it.
 - **Does `seqapplyreg -framing=min` account for rotation, not just translation?**
   Siril's docs say only "the area it has in common with all images". A
   border-vs-interior `stat` is confounded by the sky gradient; the real test is
@@ -279,8 +298,9 @@ solves) ON THE DESKTOP as they stage. Ordered:
    discrete residuals rather than one fit).
 3. **Rebuild the sky flat from all ~1865 un-registered frames** (item 5). Same
    dust-contamination validation gate.
-4. **Storage: ~433 GB peak** (1865 × 232 MB uncompressed). Comfortable on the x86 1 TB;
-   impossible on the arm rig. No GPU needed — Siril has no GPU path and the AI tier runs
+4. **Storage: ~433 GB peak** (1865 × 232 MB uncompressed) for single-pass — comfortable
+   on the x86 1 TB; on the arm rig only the group-composition route fits, and it is
+   gated on its item-7 quality A/B. No GPU needed — Siril has no GPU path and the AI tier runs
    once per stack, not per frame.
 
 ## 9. Data-capability gaps (x86-gated)
