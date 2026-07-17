@@ -13,10 +13,11 @@
   over-processing classes (deconvolution ringing, denoise over-smoothing, background
   over-flattening, star-colour loss, chroma noise) — and **which tool provides each**?
 - **Context** — 2026-07-14. Rig: x86-64, numpy/scipy/**astropy** (photutils
-  optional), **no GPU**. Existing harness already computes: the statistical-sky gate,
-  `star_shell_report`, radial profiles, chroma-neutralization / mid-scale-mottle /
-  gross-flattening audits, per-frame registration QA. Every metric below is
-  CPU/numpy/scipy-computable. This is EXAMINING, not processing — squarely in-bounds.
+  optional), **no GPU**. The repo computes no image metrics itself (the bright
+  line): per-frame QA pulls Siril's own regdata, spatial star shape is Siril
+  `seqtilt` + fixed-station `findstar` medians. Each metric below maps to the
+  TOOL that provides it; one no tool provides is a documented gap — at most a
+  candidate standalone ALLOWED detector per the banner, never an in-house metric.
 
 ## Findings
 
