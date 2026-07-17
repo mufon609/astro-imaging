@@ -417,6 +417,7 @@ Clarity (denoise), BlurXTerminator (deconv), Siril `autostretch`/`mtf`/`pm`/`sat
 | `inspect_stage.py` | orchestration + record: persists the TOOLS' per-frame measures (Siril `register`'s .seq regdata — FWHM px+arcsec, roundness, background, star count, shifts) into metrics.jsonl before cleanup, and writes the per-stage diagnostic sequence; the checklist reads the tools' numbers |
 | `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
+| `run_frame_qa.sh` | the per-set frame-QA driver: raw → CFA FITS → `register -2pass` (analysis pass only, disk-bounded batches, 1-frame-batch guard) → `inspect_stage` persists Siril's per-frame regdata → flattened records + `cull_report` flags + the tracked `frame_metrics.json`. The cull decision stays the user's, recorded in `recipe.json`'s stack block per the per-set policy (BACKLOG item 3) |
 | `star_shape.py` | orchestration + record: runs Siril `seqtilt` and records its report — off-axis aberration (centre vs corners = the RADIAL term) and sensor tilt (best vs worst corner = the ASYMMETRIC term). The tool's own spatial star-shape analysis and the only headless one (`tilt`/`inspector` are GUI-only); it computes nothing. Never re-derive this by binning a `findstar` list by radius — that is circular and fails silently (`docs/dead-ends.md`, trap 3) |
 | `star_stations.py` | orchestration + record: Siril `crop` + `findstar` (open gate) at fixed equal-area stations along/perpendicular to the measured drift axis — the band measure `seqtilt` cannot see (a drift-aligned defect leaves centre-vs-corners clean while the centre station degrades); geometry is fixed and EXTERNAL (geometric centre + the solves' drift axis) so the trap-3 circularity cannot bite; records medians of the tool's own per-star fits, removal-conditioned on a tool shipping a headless local star-shape map |
 | `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
@@ -464,6 +465,10 @@ scripts/                                 the pipeline (tracked)
    (camera raw vs FITS) → `stack_<set>.fit` (matched-flat path; a flatless set
    hard-stops — synthetic-flat is a gap, BACKLOG).
    Flats match lights by filter on the FITS path; mono lights never debayer.
+   A wide-field UNTRACKED set uses `run_undistort_pipeline.sh` instead (the
+   undistort class), after the per-set prep: `run_frame_qa.sh` + the anomaly
+   audit → the cull policy (BACKLOG item 3) → the ratified `recipe.json` stack
+   block the builder consumes.
 3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (a GAP
    pending x86 — the tool toolkit, `TOOLS.md`). A **mono** (single-filter) set
    skips SPCC and renders luminance-only.

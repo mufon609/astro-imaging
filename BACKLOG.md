@@ -103,9 +103,12 @@ preflight guard is wired in. What is left is making the repo RECOMMEND it:
 `cull_report` proposed excluding them. **No render has applied that.** It is an
 unexamined default, not a decision — the gap this item closes.
 
-**Per-set culling policy (user-ratified):** run the anomaly audit per set and cull
+**Per-set culling policy (user-ratified; drivers `scripts/qa/anomaly_audit.py` +
+`scripts/qa/run_frame_qa.sh`):** run the anomaly audit per set and cull
 aircraft-classified frames; cull a set's FIRST and LAST frame when either is
-anomaly-flagged or QA-degraded (session-edge frames carry settle/handling risk).
+anomaly-flagged or QA-degraded (session-edge frames carry settle/handling risk);
+cull a QA-flagged frame whose degradation is FRAME-WIDE (verified against a
+neighbour frame in fixed quadrants — the vibration/wind class).
 Everything else goes to the user as a full frames-with-objects list + the cull
 report for an explicit per-set call, recorded in the set's `recipe.json` stack
 block with its reason. Satellites are not culled by default — a moving minority
@@ -260,7 +263,11 @@ window would have ZERO common area — but each 45-min set sits at 76% field ret
 re-centring solved it in acquisition.
 
 Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here and the
-remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Ordered:
+remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Prep state: set-01
+(369 in / 4 out) and set-02 (299 in / 5 out) are prepped and ratified with complete
+tracked records + window solves (re-aim offset between them 2.24°, ~7% of width —
+single combined registration remains viable); sets 03/04/05 get the same per-set prep
+ON THE DESKTOP as they stage. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
    Both local sets are 70 mm; the other three are unverified. This is a **hard

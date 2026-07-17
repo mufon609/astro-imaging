@@ -46,14 +46,15 @@ session** (the repo drives industry tools; it never processes pixels itself —
 _(add each writeup here, newest first)_
 
 - [wide-field-untracked-registration](wide-field-untracked-registration.md) — why a
-  global homography smears edge stars on a wide UNTRACKED set, EMPIRICALLY TESTED on
-  july14 set-01: field rotation/gnomonic projection are NOT the cause (pure rotation
-  is exactly a homography — Szeliski); radial LENS DISTORTION is, so the class needed
-  is undistort→homography. Siril `register -disto=` is the native fix and its
-  mechanism is proven on-rig, but the MODEL is the blocker (Siril's matcher fails 36°
-  fields; astrometry.net's SIP is not reproducible at wide index scales → a measured
-  LOSS) — which blocks WCS-reprojection equally. The model IS in the NEF (exiftool
-  reads Nikon's radial coefficients); nothing headless applies it.
+  global homography smears a wide UNTRACKED set, EMPIRICALLY TESTED and SOLVED:
+  field rotation/gnomonic projection are NOT the cause (pure rotation is exactly a
+  homography — Szeliski); radial LENS DISTORTION is, so the class is
+  undistort→homography. The model source decides everything: a per-frame SIP fit and
+  a community DB profile's paraxial region are both measured failure modes
+  (`dead-ends.md`); the adopted route corrects with a model **fitted from the set's
+  own frames** (Hugin between-frame fit → lensfun entry → darktable warp), measured
+  by the drift-axis station tool `seqtilt` cannot replace. Production:
+  `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
 
 **Research pass — mid-2026 tool/technique landscape** (2026-07-14):
 - [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
@@ -71,8 +72,9 @@ _(add each writeup here, newest first)_
 - [siril-pyscript-headless](siril-pyscript-headless.md) — resolves the "numpy-inside
   pyscript = tool or hand-roll?" question (mechanism-location split: Class-2 drivers
   vs Class-1 numpy-inside) + headless viability on Linux.
-- [rc-astro-cli-linux](rc-astro-cli-linux.md) — the deep-verify: `rc-astro` v0.9.9
-  standalone Linux CLI (BXT/NXT/SXT), exact flags, CPU wall-clock, license, offline.
+- [rc-astro-cli-linux](rc-astro-cli-linux.md) — the deep-verify: the `rc-astro`
+  standalone Linux CLI (BXT/NXT/SXT; v1.0.0 current per TOOLS), exact flags, CPU
+  wall-clock, license, offline.
 - [graxpert-3x-and-workflow-order](graxpert-3x-and-workflow-order.md) — GraXpert
   deconv is RC-only/stalled/buggy (correction); the linear-first workflow order is a
   strong default, not absolute (2026 AI-driven loosening).

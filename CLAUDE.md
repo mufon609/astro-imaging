@@ -86,9 +86,10 @@ are about to do may be gated on another. Full history lives in `git log` — the
 complete pre-reset chain AND the old NOTES.md are at the commit whose message
 begins `checkpoint:` (a message prefix, not a tag: find it with
 `git log --oneline --grep='^checkpoint:'`).
-Per-dataset state is the tracked `datasets/<session>/<set>/` records; NOTE
-its `recipe.json` render blocks + `baseline.json` are chain-coupled and
-PENDING the new chain (no dataset carries either yet).
+Per-dataset state is the tracked `datasets/<session>/<set>/` records;
+`recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
+by the stack builders); its RENDER block + `baseline.json` are chain-coupled
+and PENDING the x86 render chain.
 
 ## Environment
 
@@ -129,7 +130,9 @@ core here now:**
   is the pinned artifact. `--style-overwrite` is REQUIRED or the style is
   silently ignored; `--icc-type SRGB` (match Siril's tag — forcing linear
   destroys photometry, `docs/dead-ends.md`); the upstream DB needs
-  `lensfun-update-data` (Debian's 0.3.4 lacks the Z6III). Route +
+  `lensfun-update-data` (Debian's 0.3.4 lacks the Z6III), then
+  `install_lens_model.sh` re-applies the FITTED lens entry (every DB update
+  overwrites it; fit a new lens/focal with `fit_lens_model.sh`). Route +
   traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
 - Plate solving: siril's internal solver cannot match ultra-wide
   trailed-star fields (a DATA issue, not arch) — use
