@@ -50,31 +50,15 @@ the constraints any such tool must satisfy):
 - SPCC narrowband equalizes O3=Ha and erases the O3 sphere (raw O3/Ha ~1.5 →
   ~1.0; sphere B/R 0.77 vs 3.21). Siril's own docs confirm SPCC-NB gives "real
   intensities"/"a huge green cast" and recommend Manual Color Calibration for
-  SHO — i.e. SPCC is the *cause*, not the fix. The sphere needs a
-  **star-colour-neutral** balance (neutralise the mean star colour → O3 boosted,
-  stars carry ~no O3). **Headless path — tool half verified on 1.4.4, the design
-  untested** (`docs/narrowband-star-neutral-options.md`): a **diagonal `ccm` IS
-  that balance** — `ccm m00..m22 [gamma]`, the ONLY headless neutral-balance path
-  (Manual Color Calibration has no CLI). Measure the field's mean star colour in
-  the EXAMINE layer (numpy; no native command outputs it — an audit-layer item),
-  then apply native `ccm`. Nightlight (`mlnoga`, headless Go CLI, GPL-3,
-  **unmaintained**) does NOT do star-neutral-SHO "by name" — its `OpRGBBalance`
-  default balances the **brightest 25% of stars** (not a "mid-population"), and its
-  source says nothing of OIII/narrowband; the "lifts OIII" behaviour is our
-  inference. A mechanism reference, not a dependency.
+  SHO — i.e. for a narrowband SHO target, SPCC is the *cause* of the lost sphere,
+  not the fix. (The star-colour-neutral fix is a candidate DESIGN, UNTESTED —
+  `docs/narrowband-star-neutral-options.md`; not settled, do not cite as a method.)
 - `rmgreen`/SCNR on a sky that is not green-dominant prints a global magenta cast.
 - Siril has NO native GENERAL chrominance-noise tool (its own docs punt to GIMP,
   byte-identical disclaimer in 1.4.4 AND 1.5.0-dev). `rmgreen` IS a native
-  SCNR-style "chromatic noise reduction filter" but SINGLE-HUE (green cast only) —
-  it does not close the general chroma gap. On x86 fill the general gap with an AI
-  denoiser, NEVER a hand-rolled coring. **The gap is closable two ways:** (1) paid
-  **NoiseXTerminator AI3** has a *dedicated* chroma path — `enable_color_separation`
-  + `denoise_color` (chroma-HF, independent of luminance `denoise`) +
-  `denoise_lf_color` (chroma-LF) — confirmed machinery (the only open piece is the
-  exact `rc-astro nxt` CLI flag spelling — probe on x86); (2) FREE **Cosmic Clarity**
-  Denoise `--denoise_mode separate --color_denoise_strength` is an explicit free
-  chroma-vs-luminance control (quality unmeasured — x86 test). Free fallbacks
-  without a chroma split: DeepSNR / GraXpert.
+  SCNR-style filter but SINGLE-HUE (green cast only) — it does not close the general
+  chroma gap. NEVER hand-roll a chroma coring; close the gap with an AI denoiser on
+  x86 (tool options + their chroma-vs-luminance flags: `TOOLS.md`).
 
 **Separation** (informs the x86 tool choice):
 - A mask+inpaint separator DESTROYS resolved-object structure (inpaints HII knots
@@ -332,14 +316,8 @@ the constraints any such tool must satisfy):
   (it renders a sharper *smeared* star). CFA-drizzle 1×/pixfrac 1.0 is a separate
   OSC-only win (cleaner colour noise). `docs/plate-solving-and-drizzle.md`.
 - CLASSICAL deconvolution (makepsf + RL) where trailing is in-exposure fails —
-  unstable symmetric PSF on ≈0 background. This is NO LONGER a blanket dead-end on
-  x86: BlurXTerminator's learned model corrects elongated/trailed stars where
-  classical RL cannot (`--correct-only`, `rc-astro bxt`, CPU ~30–40 s) — **BXT is
-  the mature deconv path**. Free learned alternatives are weaker: **GraXpert deconv
-  is pre-release only** (never shipped stable, open object-mode artifact bug #243)
-  and Cosmic Clarity (CPU 15–30 min); **AstroSharp is OUT** (no Linux/CLI, 600 KB
-  TIFF cap). Deconv is a real early-linear step (before *heavy* denoise) — a strong
-  default, not absolute.
+  unstable symmetric PSF on ≈0 background. (A LEARNED deconvolver is NOT classical RL
+  and is a live x86 option, not a dead-end — tool choice + CPU costs in `TOOLS.md`.)
 
 **QA / scope:**
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame
