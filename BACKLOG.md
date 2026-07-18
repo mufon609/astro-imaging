@@ -26,7 +26,7 @@ changes, when the rig changes, and before any item below is worked.
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
-| Hand-rolled FITS parsers (5 sites) | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig; retirement is ARM-DOABLE open work (item 6, itemized per site), not x86-gated. `solve_field` + `astrometrics` done (git log), 3 remain. |
+| Hand-rolled FITS parsers (5 sites) | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig; retirement is ARM-DOABLE open work (item 6), not x86-gated. 4 of 5 done (git log); only `compose.py` remains, blocked on a multi-channel dataset. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
@@ -185,20 +185,16 @@ fallback. A real matching flat retires the whole branch.
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
-- **Retire the remaining 3 hand-rolled FITS parsers → `astropy` (ARM-DOABLE NOW).**
-  astropy 8.0.1 is installed and probed on the rig (FITS I/O + WCS/SIP + coordinates); it
-  is the identical tool on both rigs, so the method transfers to x86 unchanged. Done (git
-  log, each verified byte-behaviour-equivalent): `solve_field.py` (header read + WCS writer
-  — same solve + SPCC K) and `scripts/lib/astrometrics.py` (`read_fits` + `fits_pixel_scale`
-  — byte-identical data + identical solve). The three below still parse 2880-byte FITS
-  blocks by hand. Swap one at a time, each verified byte-behaviour-equivalent FIRST (a
-  wrong FITS read corrupts every downstream stage):
-  1. `scripts/stack/compose.py` — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
-     `astropy.io.fits`; retire jointly with the `rgbcomp` combine swap below, at first
-     contact with a dual-band / mono-filter set.
-  2. `scripts/calibrate/spcc_cone.py` — the FOCALLEN/XPIXSZ/NAXIS + WCS header read →
-     `astropy.io.fits` / `astropy.wcs`.
-  3. `scripts/stack/fitsmeta.py` — the 2880-block metadata probe → `astropy.io.fits`.
+- **Retire the last hand-rolled FITS parser (`compose.py`) → `astropy` — BLOCKED on data.**
+  astropy 8.0.1 is installed and probed on the rig; it is the identical tool on both rigs,
+  so the method transfers to x86 unchanged. Done (git log, each verified
+  byte-behaviour-equivalent): `solve_field.py` (same solve + SPCC K),
+  `scripts/lib/astrometrics.py` (byte-identical data + solve), `scripts/calibrate/spcc_cone.py`
+  (field/cone identical), `scripts/stack/fitsmeta.py` (metadata line identical). Only
+  `compose.py` remains — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
+  `astropy.io.fits`, retired jointly with the `rgbcomp` combine swap below. It is verifiable
+  only on a dual-band / mono-filter set (none staged), so retire it at first contact,
+  verified byte-behaviour-equivalent FIRST.
   Gotchas: write float32 directly (BZERO/BSCALE auto-scale off); numpy `[y,x]` ↔ FITS
   NAXIS reversed; `WCS(header, naxis=2)` on an RGB cube; astropy reads Siril's 16-bit RGB
   FITS directly (retires the `savetif`+`tifffile` read workaround). Each swap lands as a

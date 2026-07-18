@@ -68,26 +68,19 @@ def normalize_filter(raw):
 
 
 def read_header(path):
-    """Parse a FITS primary header into {KEY: value_str} (first 12 blocks max
-    covers any realistic header; stops at END)."""
-    hdr = {}
-    with open(path, "rb") as f:
-        for _ in range(12):
-            block = f.read(2880)
-            if not block:
-                break
-            done = False
-            for i in range(0, 2880, 80):
-                c = block[i:i + 80].decode("ascii", "replace")
-                key = c[:8].strip()
-                if key == "END":
-                    done = True
-                    break
-                if "=" in c:
-                    hdr[key] = c[10:].split("/")[0].strip().strip("'").strip()
-            if done:
-                break
-    return hdr
+    """FITS primary header as {KEY: value_str}. Values are stringified to match
+    what the metadata checks compare and print: string NAXIS (`== "2"`),
+    GAIN/OFFSET that must survive a `or "-"` even at 0, quote-stripped FILTER."""
+    from astropy.io import fits
+    out = {}
+    for card in fits.getheader(path).cards:
+        k = card.keyword
+        if not k or k in ("COMMENT", "HISTORY"):
+            continue
+        v = card.value
+        out[k] = (("T" if v else "F") if isinstance(v, bool)
+                  else v.strip() if isinstance(v, str) else str(v))
+    return out
 
 
 def frame_meta(path):
