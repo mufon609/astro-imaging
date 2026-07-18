@@ -1,0 +1,10 @@
+{
+ "input": "results/july14/stack_set-01+02_max.fit",
+ "label": "stack_set-01+02_max",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 26087,
+ "truncated_mean_fwhm_px": 3.29,
+ "sensor_tilt_fwhm_px": 0.27,
+ "sensor_tilt_pct": 8,
+ "off_axis_aberration_fwhm_px": 0.91
+}

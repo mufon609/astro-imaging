@@ -43,10 +43,12 @@
 # REMOVAL CONDITION: free disk >= the single-pass peak (~231 MB/frame; the
 # x86 1 TB target) — then use run_undistort_pipeline.sh and delete this route.
 #
-# GUARDS: balanced group sizes (never a 1-frame group; per-group chunk
-# remainder-of-1 asserted by the pipeline it calls); disk re-checked before
-# EVERY group (sub-stacks accumulate); >=2 groups or it tells you to use the
-# single-pass builder.
+# GUARDS: balanced group sizes (never a 1-frame group); every group size is
+# checked UP FRONT against --chunk for the 1-frame final chunk Siril cannot
+# sequence (deferring it to the per-group sub-pipeline would let a base-size
+# offender abort only at group REM+1, hours into warping); disk re-checked
+# before EVERY group (sub-stacks accumulate); >=2 groups or it tells you to use
+# the single-pass builder.
 #
 # NOTHING in the chain is compressed — the pipeline-wide rule; every
 # generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed
@@ -93,6 +95,15 @@ K=$(( (N + GROUP - 1) / GROUP ))
 BASE=$((N / K)); REM=$((N % K))     # REM groups of BASE+1, K-REM of BASE
 [ "$BASE" -ge 2 ] || { echo "ABORT: groups of $BASE frame(s) — raise --group" >&2; exit 1; }
 MAXG=$BASE; [ "$REM" -eq 0 ] || MAXG=$((BASE + 1))
+# Chunk remainder-of-1 guard, UP FRONT: the per-group pipeline chunks each group
+# at --chunk and Siril cannot build a sequence from a 1-frame final chunk, so a
+# group size ≡1 (mod CHUNK) dies in the sub-pipeline — and for a base-size
+# offender only at group REM+1, hours into warping. Assert every group size that
+# will actually be used, here, before any frame is touched.
+GSIZES=("$BASE"); [ "$REM" -eq 0 ] || GSIZES+=("$((BASE + 1))")
+for gsize in "${GSIZES[@]}"; do
+  [ $((gsize % CHUNK)) -ne 1 ] || { echo "ABORT: a group of $gsize frame(s) chunked at --chunk=$CHUNK leaves a final chunk of 1 (Siril cannot sequence one frame) — adjust --group or --chunk (plan: $N frames -> $K groups: $REM x $((BASE+1)) + $((K-REM)) x $BASE)" >&2; exit 1; }
+done
 # per-group transient ~290 MB/frame (full-frame warped + near-full registered:
 # a consecutive block drifts only ~60 px, so -framing=min barely crops);
 # sub-stacks accumulate uncompressed at ~145 MB each; the final phase holds

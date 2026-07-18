@@ -32,7 +32,9 @@
 #   TIME SPAN (what the registration geometry depends on) and trades only depth.
 #
 #
-# The stack is `rej 3 3 -norm=addscale` — the chain the approved render pinned.
+# The stack rejection is doctrine-selected by sub count (stack_rejection.sh:
+# percentile / winsorized / GESD — a deep stack gets GESD), with
+# `-norm=addscale -output_norm`.
 # --icc-type SRGB is MATCHED to the sRGB-TRC tag Siril's savetif embeds
 # (verified identity round trip; forcing a linear tag leaves the decode
 # uncancelled and silently destroys photometry).
@@ -126,7 +128,8 @@ while [ $n -lt ${#ALL[@]} ]; do
     timeout 900 darktable-cli "$t" "$P/tif/w_$(printf %02d $ci)_$(printf %02d $j).tif" \
       --style lensdist --style-overwrite --icc-type SRGB --core \
       --configdir "$CFG" --library ":memory:" \
-      --conf plugins/imageio/format/tiff/bpp=16 >/dev/null 2>&1 \
+      --conf plugins/imageio/format/tiff/bpp=16 \
+      --conf plugins/imageio/format/tiff/compress=0 >/dev/null 2>&1 \
       || { echo "WARP FAILED $b" >&2; exit 1; }
     rm -f "$t"
   done

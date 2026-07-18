@@ -30,12 +30,25 @@ changes, when the rig changes, and before any item below is worked.
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
+| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **not fired** — same camera/lens/focal/ISO/exposure, same session, sensor untouched between re-aims (dust in fixed sensor positions), so vignetting/PRNU/dust transfer; must be VALIDATED by the cross-set flat A/B (item 5) before a combined deliverable is trusted. Keep every set's raws while this is pending — the re-render needs them. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production: requires the item-7 single-pass-vs-groups A/B (and the in-group rejection ladder) to pass on identical frames first. |
 
 ## 1. Derive the config fingerprint from the data
+
+STATUS (core landed): `scripts/lib/fingerprint.py` derives the fingerprint from tool
+outputs only — EXIF (`acquisition.py`), astrometry.net solves (`solve_field.py`) and
+Siril findstar roundness — computing just the derived trail/drift geometry no tool
+reports, and records `datasets/<session>/<set>/fingerprint.json`. It CROSS-CHECKS the
+declared mount against the measured sky motion (a fixed mount advances RA at the sidereal
+rate, Dec constant; tracked holds both): `mount_verdict` returns CONFIRM / CONTRADICT
+(consumer STOPS on a mislabel) / INDETERMINATE. Self-tested against set-01's recorded
+numbers (trail 3.41 px, drift 34 px/min, RA 14.99°/hr); set-01 recorded CONFIRM fixed,
+set-02 seeded. REMAINS: run the two-window solve per new set to drive the check live
+(set-02 pending its solves), and wire the fingerprint into the builders' MATCH→RECOMMEND
+preflight (still user-gated — it recommends a route, never auto-executes).
 
 **The pipeline should READ the gathered data and work out what it is**, then organise
 processing around that. The route a dataset needs is selected by a config fingerprint
@@ -140,25 +153,17 @@ excluded.
 - Decide + record per set (accept/reject each candidate with its reason) in the
   per-dataset record, so "keep all" is a ratified choice rather than a default.
 
-## 4. BUG — chunked front ends must guard a remainder of 1
+## 4. RESOLVED — chunked front ends guard a remainder of 1
 
-**Siril cannot build a sequence from a SINGLE frame.** `convert`/`link` write the .fit
-but no .seq, so the next command dies with `No sequence 'x' found` → `invalid input
-sequence`. Any chunked front end whose frame count leaves a remainder of exactly 1 hits
-this on its last chunk. `run_undistort_pipeline.sh` asserts `n % CHUNK != 1` up front —
-any NEW chunked front end (the ~1865-frame item 8 run) must carry the same guard.
-
-It cost a real run: a 169-frame render chunked at 12 → 14 full chunks + **1 leftover**;
-chunk 15 failed to calibrate and `set -euo pipefail` (correctly) killed the script. The
-168 warped frames survived and the stack was recovered from them, but the register/stack
-tail never ran unattended.
-
-This is a landmine for the ~1865-frame 5-set render (item 8), where chunking is
-mandatory. Fix when that front end is built: pad the final chunk, merge a remainder of 1
-into the previous chunk, or assert `n % CHUNK != 1` up front. Prefer failing at the
-ASSERT, before hours of warping. The failure mode is LOUD (the script aborts) — the good
-case; the danger is the opposite temptation, since dropping `set -e` to "get past it"
-would silently produce a short stack.
+**Siril cannot build a sequence from a SINGLE frame** (`convert`/`link` write the .fit
+but no .seq → the next sequence command dies `No sequence 'x' found`). A chunked front
+end whose frame count leaves a remainder of exactly 1 hits this on its last chunk.
+Guarded UP FRONT, before any warping, in BOTH chunked builders:
+`run_undistort_pipeline.sh` asserts `FRAMES % CHUNK != 1`; `run_undistort_groups.sh`
+asserts every group size it will use at plan time (a base-size offender would otherwise
+die only at group REM+1, hours into warping — e.g. 1865 frames at `--group=14 --chunk=12`
+→ base size 13). Verified on Siril 1.4.4 (1-frame `link` → no .seq) and by good/bad
+plan-time cases. Never drop `set -e` to "get past it" — that silently produces a short stack.
 
 The same limitation forces the two-frame duplication in `scripts/qa/star_shape.py`.
 
@@ -182,6 +187,17 @@ flat enters another stack, tighten:
 Rebuilding it from all ~1865 frames (item 8) directly addresses the star specks — more
 frames reject better. GraXpert `-correction Division` stays the vignetting-only
 fallback. A real matching flat retires the whole branch.
+
+**Cross-set flat A/B (multi-set combine) — required before a combined deliverable is
+trusted.** The 2-/3-set combine currently calibrates EVERY set with set-01's `skyflat373`
+(removal register). That is sound in mechanism (a sky flat lives in sensor coordinates;
+same optics/sensor/session → vignetting/PRNU/dust transfer), but it is a HYPOTHESIS until
+measured. The test: rebuild a sky flat from ALL the combine's un-registered frames
+(set-01+02[+03]), re-render, and compare against the single-set-flat combine — gradient QA
+(linear corner/centre medians, Siril `stat`) + dust preservation on full-frame lossless
+finals (the user's eyes). NULL → keep the single-set flat (cheaper, one flat = no seam);
+material difference → adopt the combined flat. Do NOT free any set's raws while this is
+pending — the re-render consumes them.
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
@@ -273,6 +289,43 @@ fallback. A real matching flat retires the whole branch.
 
 ## 8. Combine all 5 july14 sets into one deep render (~1865 frames)
 
+STATUS — set-01+02+03 were rendered and combined on the arm base rig. **The route
+RUNS but its VALUE is UNCONFIRMED; finish and settle it on the x86 target.** Measured
+findings (all x86-portable, since Siril/astrometry/darktable are the identical tools):
+
+- **Re-aim scatter (item 8.2 — `datasets/july14/reaim_scatter.json`).** The re-aims
+  worked (each set's field jumps back on the sky; set-01/03 align to 45 px, set-02 is
+  ~400 px / 0.8° Dec off). But the `-framing=min` FIELD is ROTATION-limited, not
+  re-aim-limited: measured **57% (single) → 42% (2-set) → 24% (3-set, 5.9 Mpx)** as
+  field rotation over the ~2.5-h span compounds. The centre-offset 66% estimate was
+  optimistic — rotation dominates.
+- **DEPTH IS NOT MATERIALISING (the blocker).** 1032 vs 369 frames should cut
+  background noise to ~0.60×; measured whole-frame bgnoise is FLAT
+  (2.48 → 2.34 → 2.49) and star density DROPS (980 → 893 → 866 /Mpx). The combine buys
+  sharper stars (seqtilt off-axis 0.30 → 0.14) but NO lower noise — a big field traded
+  for depth that does not appear. Leading suspect: the **walking-noise floor (item 11)**
+  — a drift-locked fixed pattern that does not average down, apparently not even across
+  re-aimed sets; group-route double-interp (item 7) is a secondary suspect. UNSETTLED:
+  needs a normalization-INVARIANT SNR measure (bgnoise across `-output_norm`'d stacks is
+  confounded) before the deep combine is called a win. If depth truly does not improve,
+  the field cost is not worth it and combining this data is a NULL.
+- **WASHED-OUT render + rainbow streaks.** The combines stretch washed-out: blended
+  per-set sky gradients (each carrying set-01's flat residual — the flat-A/B register
+  row) leave a ~4% gradient vs a single set's ~1%, and the auto-stretch raises the
+  background to accommodate it. A stack-level `subsky` is a **BANDAID in the WRONG
+  PLACE** (dead-ends, background entry): it removes the linear tilt but the drift-aligned
+  walking noise (item 11) survives and the stretch amplifies it into bottom-to-top
+  rainbow streaks — worse, not better. The background step must be PER-FRAME/earlier; the
+  root is the walking noise + the flat mismatch, not the stretch.
+- **Per-set colour.** Independent per-set SPCC gives different K/levels (different
+  time/airmass): set-01 K_B 0.911, set-02 0.811, set-03 0.899. SPCC the COMBINE as ONE
+  unit (measured neutral R=G=B); never finish per-set.
+
+Tooling that landed this pass, all x86-portable: `run_undistort_compose.sh` (cross-set
+sub-stack compose, min/max), `finish_render.sh` (solve → SPCC → linked stretch → 16-bit
+PNG), `fingerprint.py` (item 1). The arm-rig `<session>/work/groups_*/` sub-stacks and
+`results/july14/*` stacks/renders are the measured artifacts behind the findings above.
+
 july14 is 5 sets of the same object, same workflow, the camera re-centred on the target
 every ~45 min. set-01 (373 frames, 43 min) is one such window and is the only set with raws
 on this rig; the others stage per-set as they arrive.
@@ -292,7 +345,11 @@ window would have ZERO common area — but each 45-min set sits at 76% field ret
 re-centring solved it in acquisition.
 
 Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here and the
-remainder-of-1 guard is in `run_undistort_pipeline.sh` (item 4). Prep state: set-01
+remainder-of-1 guard is now in BOTH undistort builders (item 4). The disk-bound route
+per set is the group composition (`run_undistort_groups.sh`), and
+`run_undistort_compose.sh` combines the per-set sub-stacks into one cross-set stack
+(undistorted sub-stacks compose as homographies — the re-aim is then just more drift).
+Prep state: set-01
 is prepped and ratified with complete tracked records; sets 02–05 get the same
 per-set prep (`run_frame_qa.sh` + the anomaly audit + the cull policy + window
 solves) ON THE DESKTOP as they stage. Ordered:
@@ -379,7 +436,14 @@ dragged into lines by the coherent, un-dithered drift. **Measured NULLs
 (`experiments.jsonl`):** `-cc=dark` cosmetic correction (`cc_dark_warped_spcc`) and
 GESD-vs-winsorized rejection (`reject_gesd_vs_winsorized`) — neither removes it,
 because the streaks are a sub-sigma structured pattern, not discrete rejectable
-outliers. **Untried levers, to test on the existing data:** (1) whether the master
+outliers. **NEW (multi-set combine, item 8):** combining set-01+02+03 did NOT reduce it —
+whole-frame bgnoise stayed FLAT across 369 → 1032 frames, so the combine's missing depth
+gain is most likely THIS floor (a drift-locked pattern that does not average down,
+apparently not even across re-aimed sets whose FPN sits at different target-frame
+positions). It is also what a stack-level `subsky` on a combined stack amplifies into
+bottom-to-top rainbow streaks (dead-ends, background entry) — the washed-out combines'
+root, not the stretch. So item 11 now gates item 8's whole premise: if this floor is not
+broken, deep-combining this data buys field loss for no noise gain. **Untried levers, to test on the existing data:** (1) whether the master
 dark captures the electronic-shutter pattern — check the darks' shutter mode / re-shoot
 matched darks and rebuild; (2) directional/pattern removal aligned to the measured
 174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a

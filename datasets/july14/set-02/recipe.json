@@ -1,0 +1,14 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [7574, 7575],
+  "why": {
+   "7574": "aircraft trail (anomaly_audit object #11, a 2-frame crossing DSC_7574-7575) — aircraft-classified, user-ratified cull; also session-penultimate",
+   "7575": "aircraft trail (same object #11) + session-last frame",
+   "blurry_none": "frame QA flagged no z>3.5 defect-side outliers; FWHM 3.44-3.79 (median 3.63, ~4.8% spread), roundness 0.599-0.662, 304/304 registered — a clean set, nothing bad/blurry to cull",
+   "satellites_kept": "10 satellite objects across 44 frame-detections kept — a moving minority trail stacks clean through rej 3 3 (dead-end registry); user-ratified 'satellites stay'",
+   "session_first_7272_kept": "DSC_7272 (set-02 session-first) carries a satellite but is QA-clean; its only cull trigger is that satellite, which the ratified set-02 policy keeps, so it stays",
+   "weight_null": "wFWHM weighting at this set's ~4.8% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)"
+  }
+ }
+}

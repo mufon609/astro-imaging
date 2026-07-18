@@ -1,0 +1,139 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 304,
+ "registered": 304,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 3.6325,
+   "min": 3.44,
+   "max": 3.794
+  },
+  "roundness": {
+   "median": 0.615,
+   "min": 0.5988,
+   "max": 0.6621
+  },
+  "nstars": {
+   "median": 1840,
+   "min": 1579,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1137,
+   "min": 1124,
+   "max": 1149
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 3.658,
+   "round": 0.6156,
+   "stars": 1822,
+   "bg16": 1129
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 3.638,
+   "round": 0.6158,
+   "stars": 1813,
+   "bg16": 1136
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 3.615,
+   "round": 0.614,
+   "stars": 1857,
+   "bg16": 1139
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 3.618,
+   "round": 0.6136,
+   "stars": 1845,
+   "bg16": 1140
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_7551.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 3.625,
+   "bg": 1149.4,
+   "round": 0.611,
+   "nstars": 1690
+  },
+  {
+   "file": "DSC_7552.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 3.625,
+   "bg": 1148.8,
+   "round": 0.6111,
+   "nstars": 1680
+  },
+  {
+   "file": "DSC_7553.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 3.609,
+   "bg": 1149.9,
+   "round": 0.6136,
+   "nstars": 1668
+  },
+  {
+   "file": "DSC_7554.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 3.612,
+   "bg": 1149.4,
+   "round": 0.6137,
+   "nstars": 1690
+  },
+  {
+   "file": "DSC_7555.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 3.615,
+   "bg": 1148.7,
+   "round": 0.6142,
+   "nstars": 1675
+  },
+  {
+   "file": "DSC_7569.NEF",
+   "flags": [
+    "round"
+   ],
+   "fwhm": 3.723,
+   "bg": 1142.5,
+   "round": 0.5988,
+   "nstars": 1760
+  },
+  {
+   "file": "DSC_7573.NEF",
+   "flags": [
+    "fwhm",
+    "nstars"
+   ],
+   "fwhm": 3.794,
+   "bg": 1142.9,
+   "round": 0.6621,
+   "nstars": 1579
+  }
+ ],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}
