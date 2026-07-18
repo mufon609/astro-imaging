@@ -72,48 +72,30 @@ the constraints any such tool must satisfy):
 - Frame QA + registration run on DEBAYERED data only — CFA-lattice registration
   false-positives on cloud texture (adjacent cloud frames cross-match → a cloud
   reference).
-- Siril's internal solver fails ultra-wide trailed fields even with the local
-  catalog; astrometry.net blind solve from coarse PEAK centroids works (blob/PSF
-  centroids don't feed the matcher). Blind-solve first, label after.
-  **REFINED (measured, 36.45° field, correct centre from a blind solve, local Gaia,
-  `-nocrop`): the blocker is Siril's star MATCHER, not detection quality and not
-  catalogue depth — both were tested and ELIMINATED.** Relaxed detection
-  (`setfindstar -relax=on -roundness=0.05 -sigma=0.5`) raised candidates 3316→8694
-  and still failed; `-limitmag=+4` raised the catalogue fetch 2177→138,498 Gaia
-  stars (limit mag 7.81→11.81) and still failed ("Initial solve failed" → near-solve
-  failed). Do not re-attempt those two knobs. Side finding worth knowing: Siril's
-  AUTO limit magnitude for a 36° field is only **7.81**, while its detection goes far
-  deeper — a real population mismatch, just not the blocker. Native
-  `platesolve -localasnet` does NOT rescue this class: it still feeds
-  astrometry.net Siril's `findstar` PSF-fit detection (on the green layer) — that
-  detection alone is the failure mode; the FOV>5° detection auto-crop is
-  *"Ignored for astrometry.net solves"* (Siril concept page) — a Siril-internal-
-  solver behaviour only, so it is not a `-localasnet` failure mode and `-nocrop`
-  is moot there.
-  `setfindstar -relax=on` only loosens quality checks (more false-positives) — it
-  does not become a peak-centroid detector. **Feeding astrometry.net a
-  peak-centroid xylist is the INTENDED shape-blind override** (solve-field given
-  an xylist runs NO pixel extraction; the matcher is geometry-only, Lang 2010) —
-  but ADD `--no-remove-lines --uniformize 0` or two LIST-level filters still thin
-  the supplied xylist. This confirms the xylist-feed design is sanctioned, not a hack.
-  **An official extractor does the job, better:** SExtractor's core (`sep`) is
-  shape-blind (returns trailed sources, median elongation ~1.3 measured),
-  blind-solves at HIGHER odds than in-house peak centroids (logodds 299 vs 289,
-  scale Δ 1.2e-5), and its WCS yields identical SPCC K factors — `solve_field.py`
-  defaults to it (per-dataset A/B record: `extractor_ab.json`). Two valid fits'
-  centres can differ by hundreds of arcsec — the SIP wobble documented below,
-  which never reaches SPCC (it re-matches stars from the seed).
-  **`image2xy`** (astrometry.net's own extractor) is source-verified shape-blind
-  too and stays an optional binary cross-check — its trail knobs (`-a` saddle /
-  `-p` / `-m`) aren't exposed by `solve-field`, a symmetric match kernel is
-  SNR-mismatched to trails, and `-a` can fragment one trail into spurious
-  detections. Robustness
-  ranking: (1) astrometry.net + a **sep** xylist (measured); (2) the
-  in-house peak xylist (fallback, retirement pending — removal register); (3)
-  `image2xy` xylist (shape-blind, untested); (4) native `-localasnet` AND **ASTAP** — LEAST (both
-  PSF-fit / roundness-gated; ASTAP's own docs: *"star streaks … will be ignored,"*
-  precondition *"stars reasonably round"* — it shares the roundness limitation, not
-  an escape; wide DBs W08 FOV>20° / **G05 FOV>6°**; G17/H17/H18 deprecated).
+- **Siril's internal solver fails ultra-wide TRAILED fields — the blocker is its star
+  MATCHER, not detection or catalogue depth (both tested and ELIMINATED).** Measured
+  (36.45° field, correct centre from a blind solve, local Gaia, `-nocrop`): relaxed
+  detection (`setfindstar -relax=on -roundness=0.05 -sigma=0.5`) raised candidates
+  3316→8694 and still failed; `-limitmag=+4` raised the fetch 2177→138,498 Gaia stars
+  (limit mag 7.81→11.81) and still failed — do NOT re-attempt those two knobs.
+  `platesolve -localasnet` does not rescue it: it still feeds astrometry.net Siril's
+  `findstar` PSF detection, which IS the failure mode (the FOV>5° detection auto-crop is
+  *"Ignored for astrometry.net solves"*, so `-nocrop` is moot there). Side fact: Siril's
+  AUTO limit mag for a 36° field is only 7.81 while detection goes far deeper — a
+  population mismatch, not the blocker.
+- **The fix: feed astrometry.net a SHAPE-BLIND xylist (its INTENDED override — solve-field
+  on an xylist runs NO pixel extraction, matcher geometry-only, Lang 2010). Blind-solve
+  first, label after.** Best source is SExtractor's core `sep`: returns trailed sources
+  (median elongation ~1.3), blind-solves at HIGHER odds than in-house peak centroids
+  (logodds 299 vs 289, scale Δ 1.2e-5), identical SPCC K — `solve_field.py` defaults to it
+  (`extractor_ab.json`). Robustness ranking: (1) asnet + **sep** xylist; (2) in-house peak
+  xylist (fallback, retirement pending); (3) `image2xy` xylist (shape-blind, untested — its
+  trail knobs `-a`/`-p`/`-m` aren't exposed by solve-field and `-a` can fragment one trail
+  into spurious detections); (4) `-localasnet` and ASTAP LEAST — both PSF-fit/roundness-gated
+  (ASTAP docs: *"star streaks … will be ignored"*; wide DBs W08 FOV>20°, G05 FOV>6°, G17/H17/H18
+  deprecated). Caveats: `--no-remove-lines --uniformize 0` (or list filters) still thin a
+  supplied xylist; and two valid fits' centres can differ by hundreds of arcsec (the SIP
+  wobble below), which never reaches SPCC (it re-matches stars from the seed).
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass + low
   detection sigma recovers them; on trailed frames a reference sweep beats the
   auto-reference. Keep all frames (dropping a minority sub-focal subset buys no
@@ -138,35 +120,27 @@ the constraints any such tool must satisfy):
   (The short-window arm's per-radius numbers came from a retired in-house radial
   metric — trap 3 below — and its stacks are gone, so they are not quoted; the
   whole-frame and `seqtilt` evidence above is what the conclusion rests on.)
-- **astrometry.net's SIP is NOT a reproducible lens model at wide index scales —
-  so `register -disto=` has no model to eat.** The camera was on a fixed tripod
-  (lens distortion physically identical every frame), yet two independent solves
-  43 min apart disagree at the same sensor positions by **65 px median / 128 px
-  worst**; a real lens model must agree to ~1 px. Raising the star cap to 1500 cut
-  it only to 44 px (worst 132) while sharply improving the LINEAR solve (scale
-  agreement, RA-drift error 6%→0.3%, logodds 127→782) — **more stars fix the
-  position, not the distortion**. Mechanism: the SIP tweak is constrained by
-  *matched index* stars, and the 4200-series index at the wide scales an ultra-wide
-  field needs (12–19) is Tycho-2-based and sparse. Feeding this SIP to
-  `register -disto=` is a measured **LOSS** (whole-frame majFWHM 4.74→6.02 px,
-  detected stars 17,770→7,561, smear spread frame-wide). **This blocks the
-  WCS-reprojection route too** (SWarp / astropy `reproject` need the same per-frame
-  solution). The `-disto=` MECHANISM is sound — **the model source was the gap, and it
-  is now closed**: use an OFFICIAL *measured* lens profile (darktable + lensfun,
-  `TOOLS.md` Tier 2b) instead of fitting one from the data. A measured profile cannot
-  suffer index sparsity, and it is a measured WIN — Siril `seqtilt`,
-  control → corrected → full-depth render: **off-axis aberration (the radial
-  term) 0.57 → 0.31 → 0.25 px**, stars 5095 → 10707 → 11805, 54/54 registered.
-  **The lesson: for a wide UNTRACKED field, fit-the-distortion-from-sparse-trailed-stars
-  is the dead end; measured-profile is the route.** (Fitting from star correspondences
-  BETWEEN frames — PixInsight/APP — is a different, viable mechanism; it is the
-  per-frame *catalog* solve that fails.)
-  **What the model does NOT buy, measured on the same runs:** sharpness is NULL
-  (truncated mean FWHM 3.20 → 3.28 → 3.27 px — the in-exposure floor below is
-  untouched, exactly as predicted), and the **one-sided component is NOT corrected**
-  (sensor tilt 0.50/16% → 0.42/13% → 0.51/16%). A radial model cannot fix a
-  one-sided term and does not. The correction buys star COUNT and radial UNIFORMITY.
-  Do not claim an FWHM win for it.
+- **astrometry.net's SIP is NOT a reproducible lens model at wide index scales — so
+  `register -disto=` has no model to eat.** Fixed tripod (distortion physically identical
+  every frame), yet two solves 43 min apart disagree at the same sensor positions by
+  65 px median / 128 px worst (a real lens model must agree to ~1 px). A 1500-star cap cut
+  it only to 44 px (worst 132) while sharply improving the LINEAR solve (RA-drift error
+  6%→0.3%, logodds 127→782) — more stars fix the POSITION, not the distortion. Mechanism:
+  the SIP tweak is constrained by *matched index* stars, and the 4200-series index at the
+  scales an ultra-wide field needs (12–19) is Tycho-2-based and sparse. Feeding this SIP to
+  `register -disto=` is a measured LOSS (whole-frame majFWHM 4.74→6.02 px, stars
+  17,770→7,561, smear frame-wide); this also blocks WCS-reprojection (SWarp / astropy
+  `reproject` need the same per-frame solution). **The lesson: for a wide UNTRACKED field,
+  fit-distortion-from-sparse-trailed-stars is the dead end; an OFFICIAL *measured* lens
+  profile is the route** (darktable + lensfun, `TOOLS.md` Tier 2b) — immune to index
+  sparsity, and a measured WIN: `seqtilt` off-axis aberration (radial term) 0.57 → 0.31 →
+  0.25 px, stars 5095 → 10707 → 11805, 54/54 registered (control → corrected → full depth).
+  (Fitting from star correspondences BETWEEN frames — PixInsight/APP — is a different, viable
+  mechanism; only the per-frame *catalog* solve fails.)
+  **What the model does NOT buy (same runs):** sharpness is NULL (truncated-mean FWHM
+  3.20 → 3.28 → 3.27 px — the in-exposure floor is untouched), and the one-sided component
+  is NOT corrected (sensor tilt 0.50/16% → 0.42/13% → 0.51/16%) — a radial model cannot fix
+  a one-sided term. It buys star COUNT and radial UNIFORMITY, not FWHM.
 - **In-exposure trailing is the unremovable FLOOR** — no registration method touches
   it. On a fixed tripod at 6 s / dec +47 / 18″px it is ~3.4 px predicted and ~3.6 px
   measured (per-frame roundness 0.615, uniform across the set). Stars are elongated
@@ -179,70 +153,46 @@ the constraints any such tool must satisfy):
   (3.4–3.8 px at the perpendicular stations); `seqtilt`'s truncated mean mixes axes
   and reads 3.0–3.1 px on the same stacks. Compare within one statistic; the operative
   claim is edge ≈ centre, never an absolute px value across statistics.
-- **A community lens profile can fix the edges and still WRITE A NEW DEFECT into the
-  centre — the paraxial-error × drift band.** True distortion → 0 at the optical axis,
-  so an UNCORRECTED wide untracked stack has a pristine centre (the control's centre is
-  its best region). A community radial profile carries a small paraxial error ε(r);
-  as a star's sky position CROSSES the axis during the drift the radial unit vector
-  flips sign, so ±ε becomes a ~2ε smear ALONG THE DRIFT, confined to the corridor the
-  axis swept — a band through frame centre, worst at the very centre, invisible
-  perpendicular to the drift. MEASURED (Siril findstar at fixed 350 px stations about
-  the geometric centre, along/perpendicular to the solved drift axis): full-depth
-  centre station majFWHM **5.30** / roundness **0.480** vs perpendicular
-  **3.60–4.12** / up to **0.706**; the no-model control INVERTS it (centre
-  4.03/0.556 — its best; degradation outward along the drift instead). The band is
-  a FAINT-star/texture defect (bright cores read fine at tight detection sigma) —
-  a stretch shows it and bright-star medians hide it. **`seqtilt` off-axis
-  aberration (centre vs corners) is BLIND to it and even improves as the centre
-  degrades toward the corners' mean** — never accept a wide-untracked render on
-  `seqtilt` alone; measure fixed drift-axis stations
-  (`scripts/qa/star_stations.py`). A tracked rig can never see this term (no
-  drift), consistent with no mainstream reference reporting a "field-centre"
-  residual. ε-source candidates (open — the fix is the same regardless):
-  community a/b/c fitted with the centre pinned at image centre (absorbing the
-  calibrator copy's decentering into radial terms that don't transfer between
-  units); focus-distance dependence; unit variation. **The fix:** a model fitted
-  FROM THIS UNIT'S OWN FRAMES by between-frame star-correspondence fitting — the
-  mechanism the SIP dead-end explicitly leaves viable
-  (`scripts/darktable/fit_lens_model.sh` → `install_lens_model.sh`; traps in the
-  script + TOOLS.md Tier 2b) — removes the band (centre station 5.30 → 3.67 px at
-  full depth, every station at the perpendicular-station level) and sharpens the
-  whole frame (seqtilt truncated-mean 3.27 → 3.06 px — a different statistic;
-  measure note in the floor entry above). Also KILLED: the solved effective focal
-  (67.8) as the lensfun interpolation key — the interpolated 50–70 model is WORSE
-  at the centre (5.42 vs 4.88 px); the calibrated focal=70 entry is the best
-  community key.
-- **A darktable lens STYLE carries NOTHING but the enabled bit — and an unmatched lens
-  is a SILENT NO-OP.** The `op_params` blob bakes method, modify_flags, camera, lens,
-  focal, aperture and scale; darktable IGNORES all of it, re-detects the lens from
-  each image's EXIF, and applies its DEFAULT correction set (distortion + TCA +
-  **vignetting**). Measured: EXIF focal 70 vs 24 → opposite-sign displacement fields
-  (+26→+69 px vs −6→−19 px); `scale` 1.046 vs 0 vs 1.5 → identical to 0.000 px; a
-  swapped lens string → that lens's own profile; modify_flags 0–7, method/inverse
-  flips, and a BLANKED blob lens string → byte-identical output (uniform/grid card,
-  Siril `stat`). ONE style is therefore camera-, lens- and focal-general — and the
-  correction SET cannot be chosen in a style at all. The unwanted vignetting
-  correction DOUBLE-corrects flat-corrected lights: corner/centre **1.27–1.37×
-  linear** measured on a full-depth stack, 2.2–2.6× after the stretch. **Enforce the
-  correction set in the DATA lensfun reads:** strip `<vignetting>`/`<tca>` from the
-  lens's block in the user DB (`install_lens_model.sh`) so distortion is the only
-  correction darktable CAN apply; verify after any darktable/lensfun bump by warping
-  a uniform card through the style — corner medians must equal the centre (Siril
-  `stat`).
-  **The trap is the other side of the same mechanism.** Because nothing is baked, a lens
-  the DB cannot match gets **NO correction, silently**: an unrecognised `LensModel`
-  produced max |dr| = **0.000 px over 413 stars**, exit 0, and **not one word in the log**.
-  A wrong-but-present lens is worse — it applies a wrong, weaker model, also silently. So:
-  - **darktable CANNOT be relied on to degrade loudly. It never fails.** A set whose lens
-    is missing from the DB stacks UNCORRECTED and the only symptom is a worse `seqtilt`
-    off-axis aberration in the final — i.e. exactly the defect the route exists to remove,
-    reintroduced with no warning.
-  - **"Did the warp happen?" is NOT a sufficient guard** — it passes on the wrong-lens
-    case. The guard must assert the EXIF camera+lens+focal against the DB and against the
-    set's recorded `acquisition.json`, per set, BEFORE the run; a non-zero warp is only a
-    secondary confirmation.
-  - Corollary: this is what makes a MIXED-focal or mixed-lens set a hard stop rather than
-    an interpolation — every frame silently gets its own EXIF's model.
+- **A community lens profile can fix the edges yet WRITE A NEW DEFECT into the centre —
+  the paraxial-error × drift band.** True distortion → 0 at the optical axis, so an
+  UNCORRECTED wide-untracked stack has a pristine centre; a community radial profile
+  carries a small paraxial error ε(r), and as a star crosses the axis during the drift the
+  radial unit vector flips sign, turning ±ε into a ~2ε smear ALONG THE DRIFT — a band
+  through frame centre, worst at the centre, invisible perpendicular. MEASURED (findstar at
+  fixed 350 px stations about the geometric centre): full-depth centre majFWHM 5.30 /
+  roundness 0.480 vs perpendicular 3.60–4.12 / up to 0.706; the no-model control INVERTS it
+  (centre 4.03/0.556, its best). It is a FAINT-star/texture defect (a stretch shows it,
+  bright-star medians hide it), and **`seqtilt` is BLIND to it — off-axis aberration even
+  IMPROVES as the centre degrades toward the corners' mean**, so never accept a
+  wide-untracked render on `seqtilt` alone; measure fixed drift-axis stations
+  (`scripts/qa/star_stations.py`). A tracked rig never sees it (no drift). **The fix: a
+  model fitted FROM THIS UNIT'S OWN FRAMES by between-frame star-correspondence
+  (`fit_lens_model.sh` → `install_lens_model.sh`)** — removes the band (centre 5.30 → 3.67 px
+  at full depth, every station at the perpendicular floor) and sharpens the whole frame
+  (`seqtilt` truncated-mean 3.27 → 3.06 px). ε-source candidates (open, fix is the same):
+  centre-pinned a/b/c absorbing the calibrator's decentering; focus-distance; unit variation.
+  Also KILLED: the solved effective focal (67.8) as the lensfun key — the interpolated 50–70
+  model is WORSE at the centre (5.42 vs 4.88 px); calibrated focal=70 is the best community key.
+- **A darktable lens STYLE carries NOTHING but the enabled bit.** darktable IGNORES the
+  `op_params` blob (method/flags/camera/lens/focal/aperture/scale), re-detects the lens from
+  each image's EXIF, and applies its DEFAULT correction set (distortion + TCA + **vignetting**).
+  Measured (uniform/grid card, Siril `stat`): EXIF focal 70 vs 24 → opposite-sign fields
+  (+26→+69 px vs −6→−19 px); `scale` 1.046 vs 0 vs 1.5 → identical to 0.000 px; a BLANKED blob
+  (or flags 0–7, method/inverse flips) → byte-identical output. So ONE style is
+  camera/lens/focal-general, and the correction SET cannot be chosen in a style — enforce it
+  in the DATA lensfun reads: strip `<vignetting>`/`<tca>` from the lens's DB block
+  (`install_lens_model.sh`) so distortion is the only correction darktable CAN apply (the
+  unwanted vignetting DOUBLE-corrects flat-corrected lights — corner/centre 1.27–1.37× linear,
+  2.2–2.6× stretched). Verify after any darktable/lensfun bump with a uniform-card warp: corner
+  medians must equal centre.
+- **The trap (same mechanism, other side): a lens the DB cannot match gets NO correction,
+  SILENTLY** — an unrecognised `LensModel` gave max |dr| = 0.000 px over 413 stars, exit 0, not
+  one word in the log; a wrong-but-present lens is worse (a wrong, weaker model, also silent).
+  darktable never degrades loudly, so a missing-lens set stacks UNCORRECTED and the only symptom
+  is a worse `seqtilt` off-axis in the final. "Did the warp happen?" is NOT a sufficient guard
+  (it passes the wrong-lens case): assert EXIF camera+lens+focal against the DB AND the set's
+  `acquisition.json`, per set, BEFORE the run. Corollary: a mixed-focal/mixed-lens set is a HARD
+  STOP, not an interpolation — every frame silently gets its own model.
 - **Round-tripping linear astro data through a raw converter: MATCH the ICC tag, never
   "force linear".** Siril's `savetif` embeds **`sRGB-elle-V2-srgbtrc.icc`** — an sRGB
   TONE CURVE — on LINEAR pixels, and **`icc_assign sRGBlinear` does NOT change what
@@ -258,35 +208,25 @@ the constraints any such tool must satisfy):
   "wrong" either way; what matters is that it is wrong *consistently*. Always verify
   linearity with star AMPLITUDES vs brightness (a constant ratio), never with a mean or
   a preview: a gamma preserves the median's rank order and hides in a stretch.
-- **Three traps that make a registration comparison lie — all three hit on one set.**
-  (1) **Survivorship bias:** a bad registration spreads flux below the detection
-  threshold, so the SURVIVING stars' median roundness/FWHM can *improve* while the
-  image gets worse — the `-disto=` LOSS above reported a BETTER edge median (4.61 vs
-  6.46 px) on a visibly-destroyed frame. Always read a star-shape metric with its
-  **n**, and confirm on full-frame crops. (2) **Area confound:** `-framing=min` gives
-  each variant a DIFFERENT frame size (less drift ⇒ larger intersection), so raw star
-  counts are not comparable — a short-window stack's higher count was entirely its
-  56% larger frame; per unit area it was slightly LOWER. Compare **stars per Mpx**, or
-  not at all. Also open the detection gate (`setfindstar -roundness=0.05 -relax=on`)
-  when measuring elongation, or the metric silently rejects exactly the stars under
-  test.
-  (3) **A CIRCULAR METRIC — an origin inferred from the data it measures.** A radial
-  star-shape profile binned Siril's `findstar` list about the STAR BOUNDING-BOX centre.
-  That origin is a function of the defect: the smear suppresses edge detections, the
-  box shrinks toward the good region, the origin moves — **measured 537 px of origin
-  shift** from a detection-sigma change alone, after which the profile reported
-  roundness *improving* outward on a stack whose right third yields no detections at
-  all. A worse defect makes the metric look better, and the same circularity
-  manufactures doubt about real defects just as easily — it settles nothing in either
-  direction. The generalisation: **never key a metric to a geometry
-  derived from the measurement itself** — measure about a FIXED, externally-known
-  origin, or use the tool's own measure. Siril has one headless:
-  **`seqtilt`** (off-axis aberration = centre vs corners; sensor tilt = best vs worst
-  corner) — no origin to get wrong, though it is a WHOLE-FRAME measure and blind to a
-  drift-aligned band (paraxial-band entry; `tilt`/`inspector` are "Can be used in a
-  script: NO"). Star COUNT per radial bin is not a quality measure
-  either: it is sky density × detection efficiency, and detection efficiency peaks
-  exactly where the sky is poorest.
+- **Three traps that make a registration comparison lie (all hit one set).**
+  (1) **Survivorship bias** — a bad registration spreads flux below the detection threshold,
+  so the SURVIVING stars' median can *improve* while the image gets worse (the `-disto=` LOSS
+  above showed a BETTER edge median, 4.61 vs 6.46 px, on a destroyed frame). Read a star-shape
+  metric with its **n** and confirm on full-frame crops.
+  (2) **Area confound** — `-framing=min` gives each variant a DIFFERENT frame size (less drift
+  ⇒ larger intersection), so raw counts aren't comparable (a short-window stack's higher count
+  was entirely its 56% larger frame; per Mpx it was LOWER). Compare **stars per Mpx**, and open
+  the detection gate (`setfindstar -roundness=0.05 -relax=on`) when measuring elongation or the
+  metric silently rejects the stars under test.
+  (3) **Circular metric** — a radial profile binned about the `findstar` BOUNDING-BOX centre
+  has an origin that MOVES with the defect (the smear suppresses edge detections → box shrinks
+  → origin shifts; **537 px** measured from a detection-sigma change alone), after which it
+  reads roundness *improving* outward on a stack whose right third has no detections. Never key
+  a metric to a geometry derived from the measurement itself — use a FIXED external origin or
+  the tool's own measure (`seqtilt`, no origin to get wrong, but WHOLE-FRAME and blind to a
+  drift-aligned band; `tilt`/`inspector` are script-NO). Star count per radial bin is not a
+  quality measure either — it is sky density × detection efficiency, which peaks where the sky
+  is poorest.
 - Cloud culling is by per-pixel MAJORITY risk, not visibility: a moving minority
   band stacks clean through `rej 3 3`; a DWELLING band becomes the per-pixel
   majority and survives. `nstars` is a blind cloud discriminant on rich fields
