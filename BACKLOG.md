@@ -185,25 +185,23 @@ fallback. A real matching flat retires the whole branch.
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
-- **Retire the 5 hand-rolled FITS parsers + the eq→galactic 3×3 → `astropy`
+- **Retire the remaining 4 hand-rolled FITS parsers + the eq→galactic 3×3 → `astropy`
   (ARM-DOABLE NOW).** astropy 8.0.1 is installed and probed on the rig (FITS I/O +
   WCS/SIP + ICRS→Galactic); it is the identical tool on both rigs, so the method
-  transfers to x86 unchanged. **Nothing is done — no script imports astropy yet;** all
-  five still parse 2880-byte FITS blocks by hand. Swap one site at a time, each verified
-  byte-behaviour-equivalent against the current output FIRST (a wrong FITS read corrupts
-  every downstream stage):
-  1. `scripts/calibrate/solve_field.py` — the header read + the hand-built WCS-card
-     writer (`inject()`/`fmt_card()`) → `astropy.wcs.WCS.to_header(relax=True)` (SIP) +
-     `astropy.io.fits`; verify an identical solve + SPCC on a solved stack.
-     **Highest value / most fragile — start here.**
-  2. `scripts/lib/astrometrics.py` — `read_fits()` → `astropy.io.fits`, and the fixed
-     eq→galactic 3×3 → `astropy.coordinates` (must agree to arcsec).
-  3. `scripts/stack/compose.py` — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
+  transfers to x86 unchanged. `solve_field.py`'s header read + WCS writer are done
+  (git log; astropy added to the solve venv, verified byte-behaviour-equivalent — same
+  solve + same SPCC K on a real stack). The four below still parse 2880-byte FITS blocks
+  by hand. Swap one site at a time, each verified byte-behaviour-equivalent against the
+  current output FIRST (a wrong FITS read corrupts every downstream stage):
+  1. `scripts/lib/astrometrics.py` — `read_fits()` → `astropy.io.fits`, and the fixed
+     eq→galactic 3×3 → `astropy.coordinates` (must agree to arcsec). `read_fits` is the
+     shared reader `solve_field` still calls for star detection — **next.**
+  2. `scripts/stack/compose.py` — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
      `astropy.io.fits`; retire jointly with the `rgbcomp` combine swap below, at first
      contact with a dual-band / mono-filter set.
-  4. `scripts/calibrate/spcc_cone.py` — the FOCALLEN/XPIXSZ/NAXIS + WCS header read →
+  3. `scripts/calibrate/spcc_cone.py` — the FOCALLEN/XPIXSZ/NAXIS + WCS header read →
      `astropy.io.fits` / `astropy.wcs`.
-  5. `scripts/stack/fitsmeta.py` — the 2880-block metadata probe → `astropy.io.fits`.
+  4. `scripts/stack/fitsmeta.py` — the 2880-block metadata probe → `astropy.io.fits`.
   Gotchas: write float32 directly (BZERO/BSCALE auto-scale off); numpy `[y,x]` ↔ FITS
   NAXIS reversed; `WCS(header, naxis=2)` on an RGB cube; astropy reads Siril's 16-bit RGB
   FITS directly (retires the `savetif`+`tifffile` read workaround). Each swap lands as a

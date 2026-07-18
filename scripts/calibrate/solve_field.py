@@ -78,15 +78,18 @@ def bootstrap():
     if os.path.realpath(sys.prefix) != os.path.realpath(VENV):
         if not os.path.exists(py):
             print(f"[solve_field] creating venv {VENV} + installing "
-                  "astrometry/sep/numpy/scipy (one-time)")
+                  "astrometry/sep/astropy/numpy/scipy (one-time)")
             subprocess.run([sys.executable, "-m", "venv", VENV], check=True)
             subprocess.run([py, "-m", "pip", "install", "--quiet",
-                            "astrometry", "sep", "numpy", "scipy"], check=True)
-        elif subprocess.run([py, "-c", "import sep"],
-                            capture_output=True).returncode != 0:
-            # older venv predating the sep default — bring it up to date
-            subprocess.run([py, "-m", "pip", "install", "--quiet", "sep"],
+                            "astrometry", "sep", "astropy", "numpy", "scipy"],
                            check=True)
+        else:
+            # bring an older venv up to date with the current defaults
+            for pkg in ("sep", "astropy"):
+                if subprocess.run([py, "-c", f"import {pkg}"],
+                                  capture_output=True).returncode != 0:
+                    subprocess.run([py, "-m", "pip", "install", "--quiet", pkg],
+                                   check=True)
         os.execv(py, [py] + sys.argv)
 
 
@@ -194,19 +197,17 @@ def scale_hint(path, width_arcmin=None):
     A hard-coded scale range fits only one rig/focal — 26-40"/px missed a
     24mm field (~44-51"/px), which could never solve. Returns (lo, hi) or
     None (blind)."""
-    import re
+    from astropy.io import fits
     try:
-        raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
+        hdr = fits.getheader(path)
         if width_arcmin is not None:
-            nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
-            s = width_arcmin * 60.0 / nx
+            s = width_arcmin * 60.0 / float(hdr["NAXIS1"])
         else:
-            fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-            px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-            s = 206.265 * px / fl   # center scale, arcsec/px
+            # center scale, arcsec/px
+            s = 206.265 * float(hdr["XPIXSZ"]) / float(hdr["FOCALLEN"])
         # wide envelope: wide-angle projection + integer-mm EXIF wobble
         return (0.6 * s, 1.5 * s)
-    except (AttributeError, ValueError, OSError):
+    except (KeyError, ValueError, OSError):
         return None
 
 
@@ -238,16 +239,14 @@ def scale_set(path, width_arcmin=None):
     are all that can be loaded (loading every scale grinds) — that
     fallback cannot solve a narrow field, so it warns loudly and names
     the override."""
-    import re
+    from astropy.io import fits
     w_arcmin = width_arcmin
     if w_arcmin is None:
         try:
-            raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
-            fl = float(re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-            px = float(re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw).group(1))
-            nx = float(re.search(r"NAXIS1\s*=\s*([0-9]+)", raw).group(1))
-            w_arcmin = 206.265 * px / fl * nx / 60.0
-        except (AttributeError, ValueError, OSError):
+            hdr = fits.getheader(path)
+            w_arcmin = (206.265 * float(hdr["XPIXSZ"]) / float(hdr["FOCALLEN"])
+                        * float(hdr["NAXIS1"]) / 60.0)
+        except (KeyError, ValueError, OSError):
             print("[solve_field] WARNING: header has no FOCALLEN/XPIXSZ and "
                   "no --field-width-arcmin given — falling back to the "
                   f"WIDE-FIELD index scales {sorted(_SCALE_FALLBACK)} "
@@ -294,44 +293,21 @@ def solve(stars, hint=None, scales=None, pos=None):
     return sol.best_match()
 
 
-def fmt_card(key, val, comment):
-    if isinstance(val, str):
-        body = f"{key:<8s}= '{val:<8s}'"
-    elif isinstance(val, bool):
-        body = f"{key:<8s}= {'T' if val else 'F':>20s}"
-    elif isinstance(val, int):
-        body = f"{key:<8s}= {val:>20d}"
-    else:
-        body = f"{key:<8s}= {val:>20.14G}"
-    if comment:
-        body += f" / {comment}"
-    return body[:80].ljust(80)
-
-
 def inject(src, dst, wcs, logodds):
-    raw = open(src, "rb").read()
-    cards, off, end = [], 0, False
-    while not end:
-        block = raw[off:off + 2880]
-        for i in range(0, 2880, 80):
-            c = block[i:i + 80].decode("ascii")
-            if c.startswith("END"):
-                end = True
-                break
-            cards.append(c)
-        off += 2880
-    wkeys = set(wcs.keys())
-    kept = [c for c in cards if c[:8].strip() not in wkeys]
-    new = kept + [f"COMMENT WCS injected by solve_field.py "
-                  f"(astrometry.net, logodds {logodds:.0f})".ljust(80)]
-    for k, (v, com) in wcs.items():
-        new.append(fmt_card(k, v, com))
-    new.append("END".ljust(80))
-    hdr = "".join(new)
-    hdr += " " * ((-len(hdr)) % 2880)
-    with open(dst, "wb") as f:
-        f.write(hdr.encode("ascii"))
-        f.write(raw[off:])
+    """Write a WCS-injected copy via astropy: the solver's WCS cards replace any
+    existing ones; every other header card and the exact pixel data are preserved
+    (do_not_scale_image_data keeps BITPIX/BZERO/BSCALE untouched, so the linear
+    stack round-trips unchanged for SPCC)."""
+    from astropy.io import fits
+    with fits.open(src, do_not_scale_image_data=True) as hdul:
+        hdr = hdul[0].header
+        for k in wcs:                        # drop any prior value we replace
+            hdr.remove(k, ignore_missing=True, remove_all=True)
+        hdr.add_comment("WCS injected by solve_field.py "
+                        f"(astrometry.net, logodds {logodds:.0f})")
+        for k, (v, com) in wcs.items():
+            hdr[k] = (v.decode() if isinstance(v, bytes) else v, com)
+        hdul.writeto(dst, overwrite=True)
 
 
 def main():
