@@ -1,0 +1,10 @@
+{
+ "input": "results/july14/stack_set-01_sp168.fit",
+ "label": "sp168 ON (-cc), 159fr fitted model",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 13695,
+ "truncated_mean_fwhm_px": 3.1,
+ "sensor_tilt_fwhm_px": 0.28,
+ "sensor_tilt_pct": 9,
+ "off_axis_aberration_fwhm_px": 0.29
+}

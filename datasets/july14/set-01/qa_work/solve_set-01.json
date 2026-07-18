@@ -1,5 +1,5 @@
 {
- "input": "july14/results/stack_set-01_sp158.fit",
+ "input": "results/july14/stack_set-01_sp168.fit",
  "detector": "sep",
  "n_stars_detected": 200,
  "central": null,
@@ -15,11 +15,11 @@
   18,
   19
  ],
- "ra_deg": 310.12635044576007,
- "dec_deg": 46.752569278997065,
- "scale_arcsec_px": 17.008704900989155,
- "logodds": 283.4843444824219,
+ "ra_deg": 310.1292100603262,
+ "dec_deg": 46.77112181745413,
+ "scale_arcsec_px": 17.00816401031216,
+ "logodds": 285.9967956542969,
  "parity": "sky-true",
- "cd_det": -2.23222254945164e-05,
- "injected": "july14/results/stack_set-01_sp158_wcs.fit"
+ "cd_det": -2.2320805787166493e-05,
+ "injected": "results/july14/stack_set-01_sp168_wcs.fit"
 }

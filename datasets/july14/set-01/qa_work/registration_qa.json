@@ -311,7 +311,6 @@
    "VIGNETTING DOUBLE-CORRECTION (found after approval): the warp stage applied lensfun vignetting on top of the sky-flat-corrected lights \u2014 corner/centre 1.27-1.37x linear on this stack, 2.2-2.6x in the stretched judge PNGs. Root cause, measurements and the DB-level fix: qa_work/gradient_qa.json. The stack and its SPCC derivatives REBUILD on x86 through the stripped DB before any render work.",
    "The stride is QUALITY-BLIND: this stack contains DSC_6900 (flagged 'worst on all three axes') by accident. 1 frame in 168 at 6% spread \u2014 not visible, but an unrecorded default. Culling is a BACKLOG item for a fresh session, deliberately NOT patched mid-render.",
    "CENTRE BAND (user-confirmed on this final): an along-drift smear through frame centre, worst at the centre station (majFWHM 5.30 / roundness 0.480 vs 3.60/0.706 perpendicular) -- the paraxial model error crossed by the drifting optical axis; mechanism, numbers and fix route in centre_band.",
-   "Rejection ran `rej 3 3` (winsorized) at 168 frames where the researched doctrine for >50 subs is GESD `rej g 0.3 0.05` -- an unrecorded deviation, now recorded; rejection is direction-blind so it is not implicated in the band. Align on the next full render.",
    "Outermost bin still elevated (5.11 vs 3.88 px mid-field): the correction is large but not total."
   ]
  },
