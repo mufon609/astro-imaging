@@ -104,11 +104,14 @@ def cone_chunks(ra0, dec0, radius_deg, n_r=80, n_pa=720):
 
 
 def _hdr(path):
-    raw = open(path, "rb").read(2880 * 12).decode("ascii", "replace")
+    from astropy.io import fits
+    hdr = fits.getheader(path)
 
     def val(key):
-        m = re.search(rf"{key}\s*=\s*([0-9.Ee+-]+)", raw)
-        return float(m.group(1)) if m else None
+        try:
+            return float(hdr[key])
+        except (KeyError, ValueError, TypeError):
+            return None
     return val
 
 
