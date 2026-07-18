@@ -8,7 +8,7 @@ transform the deliverable's pixels — every pixel measurement and every pixel
 operation is sourced from an industry tool (Siril / darktable /
 astrometry.net / …), never hand-rolled here. Finals I/O is a tool's job
 (Siril `savepng`/`savetif`); the hand-rolled FITS parse itself retires to
-astropy on the target rig (removal-condition register).
+astropy (installed on this rig — an arm-doable retirement, BACKLOG item 6).
 
 Units convention: FITS data are normalized to [0,1] floats internally.
 """

@@ -26,7 +26,7 @@ changes, when the rig changes, and before any item below is worked.
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
-| Hand-rolled FITS parsers (5 sites) | `astropy` available | **not fired** — x86-gated; astropy 8.0.1 confirmed clean for the target. |
+| Hand-rolled FITS parsers (5 sites) + the fixed eq→galactic 3×3 | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig (FITS I/O + WCS/SIP + coordinates probed working); retirement is ARM-DOABLE open work (item 6, itemized per site), not x86-gated. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
@@ -185,6 +185,30 @@ fallback. A real matching flat retires the whole branch.
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
+- **Retire the 5 hand-rolled FITS parsers + the eq→galactic 3×3 → `astropy`
+  (ARM-DOABLE NOW).** astropy 8.0.1 is installed and probed on the rig (FITS I/O +
+  WCS/SIP + ICRS→Galactic); it is the identical tool on both rigs, so the method
+  transfers to x86 unchanged. **Nothing is done — no script imports astropy yet;** all
+  five still parse 2880-byte FITS blocks by hand. Swap one site at a time, each verified
+  byte-behaviour-equivalent against the current output FIRST (a wrong FITS read corrupts
+  every downstream stage):
+  1. `scripts/calibrate/solve_field.py` — the header read + the hand-built WCS-card
+     writer (`inject()`/`fmt_card()`) → `astropy.wcs.WCS.to_header(relax=True)` (SIP) +
+     `astropy.io.fits`; verify an identical solve + SPCC on a solved stack.
+     **Highest value / most fragile — start here.**
+  2. `scripts/lib/astrometrics.py` — `read_fits()` → `astropy.io.fits`, and the fixed
+     eq→galactic 3×3 → `astropy.coordinates` (must agree to arcsec).
+  3. `scripts/stack/compose.py` — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
+     `astropy.io.fits`; retire jointly with the `rgbcomp` combine swap below, at first
+     contact with a dual-band / mono-filter set.
+  4. `scripts/calibrate/spcc_cone.py` — the FOCALLEN/XPIXSZ/NAXIS + WCS header read →
+     `astropy.io.fits` / `astropy.wcs`.
+  5. `scripts/stack/fitsmeta.py` — the 2880-block metadata probe → `astropy.io.fits`.
+  Gotchas: write float32 directly (BZERO/BSCALE auto-scale off); numpy `[y,x]` ↔ FITS
+  NAXIS reversed; `WCS(header, naxis=2)` on an RGB cube; astropy reads Siril's 16-bit RGB
+  FITS directly (retires the `savetif`+`tifffile` read workaround). Each swap lands as a
+  declared delta; the removal-register row is FIRED.
+
 - **`compose.py` channel combine → Siril `rgbcomp`.** The member ALIGN is already Siril;
   only the combine is in-house. `rgbcomp chR chG chB -out=` produces a 3-plane float32
   RGB FITS, and **`rgbcomp -lum=`** runs the LRGB join headless — which also closes the
@@ -312,12 +336,15 @@ declared delta during the x86 rebuild.
   to Ha's half size, gated on measured dither coverage (the per-frame
   `dither_phase_frac` record already exists).
 - **FITS I/O → astropy** (retires 5 hand-rolled parsers: `astrometrics`, `compose`,
-  `solve_field`, `spcc_cone`, `fitsmeta`). astropy 8.0.1 confirmed clean. Gotchas,
-  primary-verified: write float32 directly so BZERO/BSCALE auto-scaling stays off; numpy
-  `[y,x]` ↔ FITS `NAXIS1` reversed (`.shape == (NAXIS2, NAXIS1)`); SIP needs
-  `to_header(relax=True)` (default `relax=False` OMITS the `-SIP` CTYPE suffix). Interim
-  on arm: read Siril outputs via `savetif` + `tifffile` (PIL misreads Siril's 16-bit RGB
-  TIFF as uint8).
+  `solve_field`, `spcc_cone`, `fitsmeta`, plus the fixed eq→galactic 3×3). **astropy
+  8.0.1 is installed on the arm rig** (FITS I/O + WCS/SIP + ICRS→Galactic probed
+  working), so this is ARM-DOABLE now, not x86-gated — astropy is the identical tool on
+  both rigs. Gotchas, primary-verified: write float32 directly so BZERO/BSCALE
+  auto-scaling stays off; numpy `[y,x]` ↔ FITS `NAXIS1` reversed
+  (`.shape == (NAXIS2, NAXIS1)`); SIP needs `to_header(relax=True)` (default
+  `relax=False` OMITS the `-SIP` CTYPE suffix) and `WCS(header, naxis=2)` on an RGB cube.
+  astropy reads Siril's 16-bit RGB FITS directly — the `savetif`+`tifffile` read
+  workaround is retired.
 - **Deconvolution** — a measured dead-end on arm64 data (unstable symmetric PSF on
   in-exposure trailing); BlurXTerminator reopens it on x86 (`--correct-only`).
 - **`run_pipeline` auto-routing to a large-sequence path** — largely unnecessary at
@@ -352,3 +379,18 @@ things to plan for when the x86 rig moves.
   behind `pyscript StarNet.py`. Capability kept, command surface gone: any `.ssf` or
   template calling them must migrate before a 1.5.0 bump. Also: `sb` deconv is **Split
   Bregman** — correct any doc naming it otherwise.
+
+## 11. Walking noise in the wide-untracked data — OPEN gap
+
+Faint DRIFT-ALIGNED streaks the user sees at native 1:1, below whole-frame statistics
+— a sensor-fixed pattern (electronic-shutter readout FPN + residual hot/warm pixels)
+dragged into lines by the coherent, un-dithered drift. **Measured NULLs
+(`experiments.jsonl`):** `-cc=dark` cosmetic correction (`cc_dark_warped_spcc`) and
+GESD-vs-winsorized rejection (`reject_gesd_vs_winsorized`) — neither removes it,
+because the streaks are a sub-sigma structured pattern, not discrete rejectable
+outliers. **Untried levers, to test on the existing data:** (1) whether the master
+dark captures the electronic-shutter pattern — check the darks' shutter mode / re-shoot
+matched darks and rebuild; (2) directional/pattern removal aligned to the measured
+174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a
+bandaid, last resort). The go-forward acquisition fix is unsettled — do NOT assume a
+shutter-mode change removes it. OPEN gap, not a dead-end.

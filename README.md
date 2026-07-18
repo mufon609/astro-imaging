@@ -112,12 +112,13 @@ Principles that keep this honest:
    pixel analysis. Criteria don't loosen without explicit user ratification.
 3. **The user judges aesthetics on the recombine — from FULL-FRAME
    LOSSLESS FINALS, opened independently.** A judgment set is a folder of
-   whole-frame lossless images (PNG16 + PNG8) with clean names and a
-   QUESTION.md, nothing else: no crops, no composited panels, no lossy
-   surface — the judge pulls each file into their own viewers and
-   environments. Assemble it with `judgment_package.py` (orchestration +
-   record: it verifies every PNG8+PNG16 pair pixel-wise for export integrity
-   before linking — never by hand, embeds the tool-reported candidate-vs-control
+   whole-frame 16-bit lossless PNGs with clean names and a
+   QUESTION.md, nothing else. **Project policy: the judgment surface is the
+   16-bit PNG ONLY — no 8-bit/reduced-depth or lossy copy is ever produced or
+   judged** (no PNG8, no JPEG), no crops, no composited panels — the judge pulls
+   each full-precision file into their own viewers and environments. Assemble it
+   with `judgment_package.py` (orchestration + record: it refuses starless
+   layers before linking, embeds the tool-reported candidate-vs-control
    deltas + an objective WIN|NULL|needs-eyes verdict, writes QUESTION.md).
    Crops/panels (`judgment_crops.py`) are an on-request supplement,
    never the judgment surface. Objective fixes with tool pass/fail metrics may
@@ -208,9 +209,10 @@ Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
 (never a judgment surface), the q100/4:4:4 final jpg, and judgment panels.
 GUARDS on the surviving core: `compose.py` asserts float32 inputs; a
 FITS-only load guard returns with the render rebuild.
-Human judgment uses the LOSSLESS artifacts: PNG8 + PNG16 for the final
-**and the starless layer** (PNG8 = the 8-bit display pixels; PNG16 = the
-float layer at 65536 levels), written by Siril `savepng` (16-bit
+Human judgment uses the LOSSLESS artifact: the 16-bit PNG for the final
+**and the starless layer** (the full-precision layer at 65536 levels; project
+policy — NO 8-bit/reduced-depth or lossy copy is produced or judged), written
+by Siril `savepng` (16-bit
 auto-selected from a 16/32-bit source, sRGB declared via its own iCCP
 embed). Never judge a q92 surface.
 

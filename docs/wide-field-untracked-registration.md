@@ -343,7 +343,9 @@ on-rig, on Siril 1.4.4 (the identical tool the x86 target runs).
   projection is user-settable. `reproject_and_coadd`'s `match_background` models
   only a single CONSTANT ADDITIVE offset per image and forfeits the absolute
   photometric zero point (reproject.readthedocs.io celestial/mosaicking).
-  **astropy is x86-gated** (absent on the arm base rig).
+  **astropy 8.0.1 is present on the arm rig**; `reproject`/`astropy_healpix` are not
+  installed, and the reprojection route stays blocked by the per-frame SIP model gap
+  regardless (astropy supplies no distortion model).
 - **SWarp** — **`SUBTRACT_BACK = Y` by DEFAULT**: it subtracts a sky background
   model from every input. For a frame-filling faint IFN target this is the single
   most dangerous default in the route and **must be turned off**

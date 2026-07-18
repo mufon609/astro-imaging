@@ -22,6 +22,7 @@ set -euo pipefail
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
+source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
 SET="${2:-lights}"
 S="$REPO/$SESSION"
@@ -94,7 +95,7 @@ INS() {
 # --- stack policy (optional "stack" block in the dataset recipe) -------------
 # {"weight": "wfwhm"|"nbstars"|null, "exclude": [frame numbers]} — read here,
 # applied on every stack path. ABSENCE IS THE GENERIC DEFAULT (unweighted
-# rej 3 3 over all registered frames): a weight or cull is only ever
+# doctrine rejection over all registered frames): a weight or cull is only ever
 # per-dataset state with a measured reason, because siril's -weight= is a
 # min-max RAMP over the sequence's regdata — the worst frame drops to ~0
 # weight regardless of how tight the spread is (measured: 7.4% FWHM CV still
@@ -135,7 +136,7 @@ STACKPOL=""
 if [[ -n "$STACKPOL" ]]; then
   echo "stack policy: weight=${STACK_WEIGHT:-none} exclude=[${STACK_EXCLUDE:-none}] (recipe \"stack\" block; exclude numbers = registration inspection frame n)"
 else
-  echo "stack policy: unweighted rej 3 3, all registered frames (generic default; no recipe \"stack\" block)"
+  echo "stack policy: unweighted doctrine rejection (percentile/winsorized/GESD by sub count), all registered frames (generic default; no recipe \"stack\" block)"
 fi
 
 # Emit "unselect <seq> n n" lines for the recipe's excluded frames — the
@@ -271,6 +272,7 @@ _fits_flat_master() {
 # a second interpolation pass) and stack each line. $1 = flat option.
 _fits_dualband() {
   local MIDX="$2"
+  local N=$(fits_glob "$S/$SET" | wc -l)
   { echo "requires 1.4.0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
@@ -282,9 +284,9 @@ _fits_dualband() {
     echo "register OIII_pp_light"
     echo "set32bits"
     unselect_lines r_Ha_pp_light
-    echo "stack r_Ha_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_Ha"
+    echo "stack r_Ha_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_Ha"
     unselect_lines r_OIII_pp_light
-    echo "stack r_OIII_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_OIII"
+    echo "stack r_OIII_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_OIII"
     echo "close"; } > "$W/fits_dualband.gen.ssf"
   siril_run "$W/fits_dualband.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -292,6 +294,7 @@ _fits_dualband() {
 # lights: calibrate -> 2-pass register -> rejection stack. $1 = cfa/debayer
 # flags (empty for mono), $2 = flat option (empty when no usable flat).
 _fits_lights() {
+  local N=$(fits_glob "$S/$SET" | wc -l)
   { echo "requires 1.4.0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
@@ -299,7 +302,7 @@ _fits_lights() {
     echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
     echo "set32bits"
     unselect_lines r_pp_light
-    echo "stack r_pp_light rej 3 3 ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_$SET"
+    echo "stack r_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"
   siril_run "$W/fits_lights.gen.ssf" | tee "$W/lights_run.log"
 }
@@ -631,7 +634,7 @@ if [[ -n "$FLATOPT" ]]; then
   GEN_LIGHTS="$W/lights.$SET.gen.ssf"
   CAL_LIGHTS=$(calibrate_light_cmd light masters/dark_master $FLATOPT -cfa -debayer)
   sed -e "s|@SET@|$SET|g" -e "s|@CALIBRATE@|$CAL_LIGHTS|g" -e "s|@RESULTS@|$RESULTS|g" \
-      -e "s|@STACKPOL@|$STACKPOL|g" \
+      -e "s|@STACKPOL@|$STACKPOL|g" -e "s|@REJ@|$(stack_rejection_for "$NFRAMES")|g" \
       "$REPO/scripts/stack/siril/lights.ssf.tmpl" > "$GEN_LIGHTS"
   inject_unselect "$GEN_LIGHTS" r_pp_light
   echo "=== lights: calibrate + register + stack $SET ==="

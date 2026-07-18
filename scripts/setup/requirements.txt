@@ -10,7 +10,7 @@
 #   # then re-install elsewhere with --require-hashes for byte-reproducibility.
 # Until then these are version pins, not hash pins (UNTESTED on x86).
 
-astropy==8.0.1        # unblocked on x86 (absent on arm); supports numpy 2.x
+astropy==8.0.1        # also installed on arm (arm-doable parser retirement); supports numpy 2.x
 numpy==2.3.5
 scipy==1.17.1
 Pillow==12.2.0

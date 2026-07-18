@@ -25,8 +25,8 @@
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core) | same tool numbers as arm on the same inputs | agree within tolerance |
-| astropy equatorial→galactic vs our fixed 3×3 in `astrometrics.py` | the arm-era hand-rolled matrix (astropy was absent) | max angular error vs `astropy.coordinates` | agree to arcsec |
-| Fire the removal conditions the x86 rig unblocks — astropy (5 hand-rolled FITS parsers), 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
+| astropy equatorial→galactic vs our fixed 3×3 in `astrometrics.py` (ARM-doable now — astropy 8.0.1 installed) | the arm-era hand-rolled matrix | max angular error vs `astropy.coordinates` | agree to arcsec |
+| Fire the removal conditions the x86 rig unblocks — 32-bit intermediates, debayered `frame_metrics` re-measure (the astropy FITS-parser + 3×3 retirement is ARM-doable now, item 9) | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
 | sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the "proven on arm" claim on x86 | a trivial pyscript runs headless | runs, no display |
 
 ### Phase 2 — Rebuild the stack builder (`docs/siril-stacking-workflow.md`)

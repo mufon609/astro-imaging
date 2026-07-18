@@ -134,9 +134,11 @@ core here now:**
   (`requires 1.4.0` + `pyscript foo.py`) — proven on this rig.
 - Kali linux arm64, 4 cores, 7.7 GB RAM, tight ~118 GB shared disk (check
   `df` at session start). These constraints DIE on x86.
-- Host python3: numpy + scipy + PIL, **no astropy** (equatorial→galactic
-  is a fixed 3×3 in `scripts/lib/astrometrics.py`), no rawpy. astropy is
-  available on x86.
+- Host python3: numpy + scipy + PIL + **astropy 8.0.1** (FITS I/O + WCS/SIP +
+  ICRS→Galactic, probed on-rig), no rawpy; `astropy_healpix`/`reproject` not
+  installed. astropy being present RETIRES the arm-era hand-rolls it forced — the
+  5 FITS parsers and the fixed 3×3 in `scripts/lib/astrometrics.py` — an ARM-DOABLE
+  retirement (astropy is the identical tool on both rigs); BACKLOG item 9.
 - GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise). exiftool/exiv2
   present. Outbound network works.
 - **darktable 5.4.1 (`darktable-cli`, built against Lensfun 0.3.4)** — the
@@ -239,9 +241,11 @@ core here now:**
   gate a candidate are the tools' own numbers, recorded in the per-dataset
   checklist (README review-contract); loosening one needs explicit user ratification.
 - **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
-  finals** (PNG16+PNG8, opened independently in the user's own viewers)
-  before any bake — never crops, composited panels, or any lossy
-  surface; objective fixes with pass/fail metrics may commit. Compare
+  finals** — the 16-bit PNG ONLY, the full-precision surface, opened
+  independently in the user's own viewers, before any bake. **Project policy:
+  never produce or judge an 8-bit / reduced-depth / lossy copy** (no PNG8, no
+  JPEG), and never crops or composited panels; objective fixes with pass/fail
+  metrics may commit. Compare
   renders in LIKE encodings.
 - **A change is accepted by three checks, never by byte-identity with one
   dataset** (README "How a change is accepted"): the render is REPRODUCIBLE

@@ -379,7 +379,7 @@ mainstream decouples stars (remove → boost OIII starless → re-add stars). Se
   TIFF + ICC (`savetif8`/`savetif32` variants). These **own the finals write —
   no in-house `write_png16` / hand-built sRGB chunks** (BACKLOG). Note: PIL
   misreads Siril's 16-bit RGB TIFF as uint8 → read it with `tifffile`. Our
-  `--lossless` PNG8+PNG16 remains the judgment surface.
+  16-bit lossless PNG is the judgment surface — no 8-bit/reduced-depth copy.
 - **Colorimetry** — Siril embeds ICC via `icc_assign {sRGB|…}` + a save-time
   Preference (iCCP full profile); with `savepng`/`savetif` owning the write, no
   vendored ICC profile is needed.

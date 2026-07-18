@@ -39,6 +39,7 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
+source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=]}
 SET=${2:?missing <set>}
 DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT=
@@ -145,8 +146,9 @@ for i, (c, j, f) in enumerate(fs, 1):
 print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt rej 3 3 -norm=addscale -output_norm -out=%s\n' \
-  "$P/out" "$OUT" > "$P/s.ssf"
+REJ=$(stack_rejection_for "$FRAMES")
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
+  "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"
 echo "=== DONE: $OUT.fit ==="

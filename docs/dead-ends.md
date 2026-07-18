@@ -359,7 +359,8 @@ the constraints any such tool must satisfy):
   data (estimator extrapolation × stretch amplification), fix it there.
 - Compare finals in LIKE encodings (q92+4:2:0 loses star-edge chroma to
   subsampling). Judgment is the user's eyes on FULL-FRAME LOSSLESS finals
-  (PNG16+PNG8), opened independently; one bracketed knob per experiment; nothing
+  (16-bit PNG only — never an 8-bit/reduced-depth/lossy copy), opened
+  independently; one bracketed knob per experiment; nothing
   aesthetic commits before the user's eyes.
 
 ## Acquisition checklist — the real quality lever

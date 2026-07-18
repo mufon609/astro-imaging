@@ -20,11 +20,13 @@ user's call on the finals) — no "fixed/final/matched/close" language. With
 no --control the first candidate is the baseline.
 
 The review contract (README): a judgment set is a folder of WHOLE-FRAME
-LOSSLESS finals (PNG16 + PNG8) with clean names and a QUESTION.md — nothing
-else. Hand-assembly has a measured failure mode (a package shipped the
-STARLESS-layer PNG16 mislinked as the final for 3 of 4 candidates), so this
-tool takes each candidate's 8-bit lossless PNG (the path starcomb prints),
-derives its _16bit.png sibling, and VERIFIES the pair before linking:
+16-bit LOSSLESS PNGs with clean names and a QUESTION.md — nothing else.
+**Project policy: the 16-bit PNG is the ONLY judgment surface — no 8-bit /
+reduced-depth or lossy copy is produced or judged.** Hand-assembly has a
+measured failure mode (a package shipped the STARLESS-layer PNG16 mislinked as
+the final for 3 of 4 candidates), so this tool refuses starless layers before
+linking. (The PNG8+PNG16 pair-verification below predates this policy and is
+superseded — collapse to the single 16-bit surface in the x86 render rebuild.)
 
 - the path must be a .png and must not name a _starless layer (the gate
   input is never a judgment surface),

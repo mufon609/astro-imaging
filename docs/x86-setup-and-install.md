@@ -156,7 +156,7 @@ registration defect.
   sub-packages are `astrometry-data-tycho2-10-19` (60′–2000′). `solve_field.py`
   bootstraps its own venv but uses these apt-installed indexes + `solve-field`.
 - **PEP 668** (Kali externally-managed): venv/pipx only. **Go** is absent by default
-  (`apt install golang` or pin a tarball). astropy is **absent on arm, present on x86**
+  (`apt install golang` or pin a tarball). astropy is **present on arm (8.0.1) and x86**
   (venv `astropy==8.0.1`, or `apt python3-astropy`).
 
 ### The manifest + verification pass (the durable RECORD)
