@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 """Shared FITS-read + per-set geometry helpers for the orchestration layer.
 
-Pure numpy/scipy, EXAMINE/orchestrate only: a minimal FITS reader (feeds the
-plate-solve star extraction), header-derived pixel scale, and the per-set
-foreground geometry the tools are pointed around. It does NOT grade or
-transform the deliverable's pixels — every pixel measurement and every pixel
-operation is sourced from an industry tool (Siril / darktable /
-astrometry.net / …), never hand-rolled here. Finals I/O is a tool's job
-(Siril `savepng`/`savetif`); the hand-rolled FITS parse itself retires to
-astropy (installed on this rig — an arm-doable retirement, BACKLOG item 6).
+EXAMINE/orchestrate only (numpy/scipy + astropy for FITS I/O): a minimal FITS
+reader (feeds the plate-solve star extraction), header-derived pixel scale, and
+the per-set foreground geometry the tools are pointed around. It does NOT grade
+or transform the deliverable's pixels — every pixel measurement and every pixel
+operation is sourced from an industry tool (Siril / darktable / astrometry.net /
+…), never hand-rolled here. Finals I/O is a tool's job (Siril `savepng`/`savetif`).
 
 Units convention: FITS data are normalized to [0,1] floats internally.
 """
 import os
-import sys
 import numpy as np
 
 
@@ -23,44 +20,22 @@ def read_fits(path):
     """Minimal FITS reader (Siril-produced files): returns (data, hdr) with
     data float32 shaped (nchan, ny, nx) normalized to [0,1] for integer
     types; float data is taken as already 0..1 (Siril 32-bit convention)."""
-    with open(path, "rb") as f:
-        raw = f.read()
-    hdr = {}
-    off = 0
-    while True:
-        block = raw[off:off + 2880].decode("ascii", "replace")
-        off += 2880
-        done = False
-        for i in range(0, 2880, 80):
-            c = block[i:i + 80]
-            key = c[:8].strip()
-            if key == "END":
-                done = True
-                break
-            if "=" in c:
-                hdr[key] = c[10:].split("/")[0].strip()
-        if done:
-            break
-        if off >= len(raw):
-            sys.exit(f"astrometrics: no END card in {path}")
-    bitpix = int(hdr["BITPIX"])
-    naxis = int(hdr["NAXIS"])
-    nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
-    nc = int(hdr.get("NAXIS3", "1")) if naxis == 3 else 1
-    bzero = float(hdr.get("BZERO", "0"))
-    bscale = float(hdr.get("BSCALE", "1"))
-    dt = {-32: ">f4", -64: ">f8", 16: ">i2", 32: ">i4", 8: "u1"}[bitpix]
-    data = np.frombuffer(raw, dtype=dt, count=nc * ny * nx, offset=off)
-    data = data.astype(np.float32) * bscale + bzero
-    if bitpix == 16:
-        data /= 65535.0
-    elif bitpix == 8:
-        data /= 255.0
-    elif bitpix == 32:
-        data /= 4294967295.0
+    from astropy.io import fits
+    with fits.open(path) as hdul:
+        hdu = hdul[0]
+        bitpix = int(hdu.header["BITPIX"])
+        data = np.asarray(hdu.data, dtype=np.float32)   # BZERO/BSCALE applied
+        hdr = hdu.header
+    if data.ndim == 2:
+        data = data[None]
+    # integer types normalize to [0,1] over their full range; Siril float is
+    # already 0..1 (BITPIX -32/-64 skip the divide).
+    norm = {16: 65535.0, 8: 255.0, 32: 4294967295.0}.get(bitpix)
+    if norm:
+        data = data / norm
     # FITS rows are bottom-up; flip to display orientation (top-down) so
     # the branch mask hits the right corner regardless of input type.
-    return data.reshape(nc, ny, nx)[:, ::-1, :].copy(), hdr
+    return data[:, ::-1, :].copy(), hdr
 
 
 def fits_pixel_scale(path):
@@ -70,15 +45,11 @@ def fits_pixel_scale(path):
     rig-interpretable without any configured constant. None when either
     card is absent or degenerate (callers report px-only and say so
     rather than inventing a scale)."""
-    import re
-    raw = open(path, "rb").read(2880 * 8).decode("ascii", "replace")
-    fl = re.search(r"FOCALLEN\s*=\s*([0-9.Ee+-]+)", raw)
-    px = re.search(r"XPIXSZ\s*=\s*([0-9.Ee+-]+)", raw)
-    if not fl or not px:
-        return None
+    from astropy.io import fits
     try:
-        fl_v, px_v = float(fl.group(1)), float(px.group(1))
-    except ValueError:
+        hdr = fits.getheader(path)
+        fl_v, px_v = float(hdr["FOCALLEN"]), float(hdr["XPIXSZ"])
+    except (KeyError, ValueError, OSError):
         return None
     if fl_v <= 0 or px_v <= 0:
         return None
