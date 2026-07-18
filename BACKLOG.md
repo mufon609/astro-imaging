@@ -299,27 +299,34 @@ findings (all x86-portable, since Siril/astrometry/darktable are the identical t
   re-aim-limited: measured **57% (single) → 42% (2-set) → 24% (3-set, 5.9 Mpx)** as
   field rotation over the ~2.5-h span compounds. The centre-offset 66% estimate was
   optimistic — rotation dominates.
-- **DEPTH IS NOT MATERIALISING (the blocker).** 1032 vs 369 frames should cut
-  background noise to ~0.60×; measured whole-frame bgnoise is FLAT
-  (2.48 → 2.34 → 2.49) and star density DROPS (980 → 893 → 866 /Mpx). The combine buys
-  sharper stars (seqtilt off-axis 0.30 → 0.14) but NO lower noise — a big field traded
-  for depth that does not appear. Leading suspect: the **walking-noise floor (item 11)**
-  — a drift-locked fixed pattern that does not average down, apparently not even across
-  re-aimed sets; group-route double-interp (item 7) is a secondary suspect. UNSETTLED:
-  needs a normalization-INVARIANT SNR measure (bgnoise across `-output_norm`'d stacks is
-  confounded) before the deep combine is called a win. If depth truly does not improve,
-  the field cost is not worth it and combining this data is a NULL.
-- **WASHED-OUT render + rainbow streaks.** The combines stretch washed-out: blended
-  per-set sky gradients (each carrying set-01's flat residual — the flat-A/B register
-  row) leave a ~4% gradient vs a single set's ~1%, and the auto-stretch raises the
-  background to accommodate it. A stack-level `subsky` is a **BANDAID in the WRONG
-  PLACE** (dead-ends, background entry): it removes the linear tilt but the drift-aligned
-  walking noise (item 11) survives and the stretch amplifies it into bottom-to-top
-  rainbow streaks — worse, not better. The background step must be PER-FRAME/earlier; the
-  root is the walking noise + the flat mismatch, not the stretch.
-- **Per-set colour.** Independent per-set SPCC gives different K/levels (different
-  time/airmass): set-01 K_B 0.911, set-02 0.811, set-03 0.899. SPCC the COMBINE as ONE
-  unit (measured neutral R=G=B); never finish per-set.
+- **DEPTH BENEFIT UNCONFIRMED — MEASUREMENT CONFOUNDED, CAUSE UNDETERMINED.** 1032 vs
+  369 frames should cut background noise to ~0.60×; the numbers I took (whole-frame
+  bgnoise flat 2.48 → 2.34 → 2.49, star density 980 → 893 → 866 /Mpx) do NOT show that —
+  BUT that comparison is INVALID: each stack is independently `-output_norm`'d, so
+  absolute bgnoise is not comparable across them. So the depth benefit is neither
+  confirmed nor refuted. FIRST TASK: a normalization-INVARIANT SNR measure (matched-star
+  SNR, or noise on identically-scaled stacks). Only if a clean measure still shows no
+  gain do the candidate causes (untested) — walking noise (item 11), group-route second
+  interpolation (item 7) — come into play. What IS measured: sharper stars (seqtilt
+  off-axis 0.30 → 0.14). Do not call the combine a win OR a NULL until the depth is
+  measured properly.
+- **WASHED-OUT render + rainbow streaks — OPEN FLAW, ROOT CAUSE NOT DETERMINED (do not
+  reshoot; INVESTIGATE).** MEASURED SYMPTOMS ONLY: the combines stretch washed-out; the
+  3-set combine has a ~4% centre→corner linear gradient vs a single set's ~1%, and the
+  auto-stretch places its background ~2× higher (0.00019 → 0.00038). A stack-level
+  `subsky` removed the linear tilt but left/produced bottom-to-top rainbow streaks — that
+  was a MISUSE (a per-frame/early step applied to a final stack), not a diagnosis, and it
+  is reverted. **The cause of the gradient, the washed-out look, and the streaks is NOT
+  established.** Candidate hypotheses, NONE controlled-tested: shared-flat mismatch across
+  sets (flat-A/B row), walking noise (item 11), the cross-set registration / second
+  interpolation (item 7), or simply no per-frame background stage. NEXT: isolate each
+  candidate on the real data (one variable at a time) — e.g. does a per-set (not combined)
+  render show the streaks; do they scale with set count; are they present pre-combine.
+  Carry NO single cause as settled, and a reshoot is one untested hypothesis, not the fix.
+- **Per-set colour (resolved).** Independent per-set SPCC gives different K/levels
+  (set-01 K_B 0.911, set-02 0.811, set-03 0.899; background 107/97/95) — expected, since
+  each set is a separate calibration. Resolved by SPCC-ing the COMBINE as ONE unit
+  (measured neutral R=G=B); never finish per-set.
 
 Tooling that landed this pass, all x86-portable: `run_undistort_compose.sh` (cross-set
 sub-stack compose, min/max), `finish_render.sh` (solve → SPCC → linked stretch → 16-bit
@@ -436,14 +443,12 @@ dragged into lines by the coherent, un-dithered drift. **Measured NULLs
 (`experiments.jsonl`):** `-cc=dark` cosmetic correction (`cc_dark_warped_spcc`) and
 GESD-vs-winsorized rejection (`reject_gesd_vs_winsorized`) — neither removes it,
 because the streaks are a sub-sigma structured pattern, not discrete rejectable
-outliers. **NEW (multi-set combine, item 8):** combining set-01+02+03 did NOT reduce it —
-whole-frame bgnoise stayed FLAT across 369 → 1032 frames, so the combine's missing depth
-gain is most likely THIS floor (a drift-locked pattern that does not average down,
-apparently not even across re-aimed sets whose FPN sits at different target-frame
-positions). It is also what a stack-level `subsky` on a combined stack amplifies into
-bottom-to-top rainbow streaks (dead-ends, background entry) — the washed-out combines'
-root, not the stretch. So item 11 now gates item 8's whole premise: if this floor is not
-broken, deep-combining this data buys field loss for no noise gain. **Untried levers, to test on the existing data:** (1) whether the master
+outliers. **Possible (UNPROVEN) link to the multi-set combine (item 8):** the combine's
+whole-frame bgnoise did not visibly drop across 369 → 1032 frames — but that read is
+confounded (`-output_norm`), and the rainbow streaks seen on a stack-`subsky`'d combine
+could equally be an artifact of that misapplied step. Neither the combine's depth
+shortfall nor the streaks has been TRACED to walking noise by a controlled test; treat
+this as a hypothesis to investigate (item 8), not a finding. **Untried levers, to test on the existing data:** (1) whether the master
 dark captures the electronic-shutter pattern — check the darks' shutter mode / re-shoot
 matched darks and rebuild; (2) directional/pattern removal aligned to the measured
 174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a

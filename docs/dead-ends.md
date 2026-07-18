@@ -35,15 +35,7 @@ the constraints any such tool must satisfy):
 - The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases it;
   only a first-degree plane or a full BGE is MW-safe.
 - Stack-level-only BGE leaves a STRUCTURED residual (visible rings, loses MW);
-  per-frame `subsky 1` is the MW-safe background step. **On a wide-UNTRACKED multi-set
-  combine, a stack-level `subsky` is worse than useless as a "washed-out" fix:** it
-  removes the linear tilt (auto-stretch black point drops back to the single-set level,
-  0.00038 → 0.00019), but the drift-aligned WALKING NOISE (BACKLOG item 11) survives and
-  the stretch then amplifies it into bottom-to-top RAINBOW STREAKS across the whole frame
-  — measured on the set-01+02+03 combine. The washed-out look is blended per-set sky
-  gradients (each carrying the shared flat's residual) + no per-frame background stage;
-  the fix is per-frame/earlier background handling and the walking noise at the source,
-  never a subtraction slapped on the final stack.
+  per-frame `subsky 1` is the MW-safe background step.
 - GraXpert AI smoothing is NOT faint-nebulosity protection — smoothing blurs the
   model OUTPUT, not the inference; a frame-filling faint complex reads as the
   trained light-pollution class and is absorbed. Use a plane/off for
