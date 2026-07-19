@@ -197,7 +197,16 @@ the constraints any such tool must satisfy):
   (`install_lens_model.sh`) so distortion is the only correction darktable CAN apply (the
   unwanted vignetting DOUBLE-corrects flat-corrected lights — corner/centre 1.27–1.37× linear,
   2.2–2.6× stretched). Verify after any darktable/lensfun bump with a uniform-card warp: corner
-  medians must equal centre.
+  medians must equal centre — **but the uniform card ALONE is a VACUOUS test.** Warping a uniform
+  field yields the same uniform field, so corner==centre passes whether vignetting was stripped OR
+  the module never fired at all (MEASURED on x86: the uniform card's `lensdist` vs `nodist` renders
+  came back PIXEL-IDENTICAL, Siril `isub` → "all nil", while the module was demonstrably live). It
+  needs a GRID positive control that MUST differ (grid card gave sigma 45613–45620, max ~54000) to
+  prove the module fires; only then does the uniform card's flat corner-vs-centre mean "no
+  photometric correction". `scripts/darktable/verify_lens_card.py` runs both legs and fails if
+  either fails. Do NOT compare the rendered files byte-wise — `cmp` reported those same
+  pixel-identical renders as DIFFERING (TIFF metadata). This checks the correction SET, never its
+  CORRECTNESS: a wrong-but-present distortion model passes both legs.
 - **The trap (same mechanism, other side): a lens the DB cannot match gets NO correction,
   SILENTLY** — an unrecognised `LensModel` gave max |dr| = 0.000 px over 413 stars, exit 0, not
   one word in the log; a wrong-but-present lens is worse (a wrong, weaker model, also silent).

@@ -48,17 +48,32 @@ DEEPSNR_SHA="05218b05460d3ff280d40bb97c9460f9464a8ebcbf08907d07085e61c97c17f9"  
 # knowing it is neither official nor a reproducible pin.
 GRAXPERT_VER="3.0.2"
 GRAXPERT_URL="https://github.com/Steffenhir/GraXpert/releases/download/${GRAXPERT_VER}/graxpert-linux-amd64.zip"
-GRAXPERT_SHA=""      # TODO: fill from the GitHub asset digest before running
+# The GitHub API returns no `digest` for this release's assets (it predates asset
+# digests), so the pin below is a self-computed sha256 of the downloaded zip,
+# cross-checked against the API's published asset SIZE (392722792 B, exact match).
+# That pins REPRODUCIBILITY; authenticity rests on the HTTPS fetch from GitHub.
+GRAXPERT_SHA="0a7364c3304ba19f12231d533c80b294054d6558d54ecd81668e4dec49092588"
 
 # ASTAP CLI (no-GTK) + star DB(s). For the ULTRA-WIDE/trailed class use the WIDE DBs
 # W08 (276 kB, 20-80 deg) + G05 (101 MB, 3-20 deg) — the D-series caps at 6 deg and
 # G17/H17 are deprecated (docs/plate-solving-and-drizzle.md). For NARROW fields swap in
 # d50_star_database.deb (~850 MB) instead.
 ASTAP_URL="https://sourceforge.net/projects/astap-program/files/linux_installer/astap_command-line_version_Linux_amd64.zip/download"
-ASTAP_DB_W08_URL="https://sourceforge.net/projects/astap-program/files/star_databases/w08_star_database.deb/download"
+# NOTE: upstream RENAMED this file (w08_star_database.deb -> w08_star_database_mag08_astap.deb);
+# the old name now 404s. Coverage is unchanged and still correct for the ultra-wide
+# class — the upstream readme states W08 for 80>FOV>20 deg, G05 for 20>FOV>3 deg, and
+# the D-series (incl. the newer D80) caps at 6 deg.
+ASTAP_DB_W08_URL="https://sourceforge.net/projects/astap-program/files/star_databases/w08_star_database_mag08_astap.deb/download"
 ASTAP_DB_G05_URL="https://sourceforge.net/projects/astap-program/files/star_databases/g05_star_database.deb/download"
-# SourceForge publishes SHA-1/MD5 only — compute + record sha256 yourself:
-ASTAP_SHA=""; ASTAP_DB_W08_SHA=""; ASTAP_DB_G05_SHA=""   # TODO: compute-your-own
+# SourceForge publishes MD5 only (in its per-path RSS `<media:hash algo="md5">`), so
+# each artifact was fetched, verified against that published MD5, and its sha256
+# computed and pinned here. Published MD5s matched exactly:
+#   astap.zip      60728d212706efc0aad5a71a8f384311  (size 314864)
+#   w08 .deb       7d9e4a9625601777d556a6718fe9ab62  (size 276144)
+#   g05 .deb       63a92e1056dbd8fc84676ff5cdc14ced  (size 101323692)
+ASTAP_SHA="dbbc6e6949ccde637154dada10b7fba596d2efc8acb1539c3b9d89191b67c6d6"
+ASTAP_DB_W08_SHA="523131fbf448c547d42051df5d23aea7e92b0ca75484043abb35cd128da7beed"
+ASTAP_DB_G05_SHA="f4a93403a0c23ac3ca0e05d0fe91080b0f0a21739aa9fabd20bc0dd5e4f77099"
 
 # Cosmic Clarity: rolling GitHub "Linux" tag (2025-03-29), frozen self-contained bins.
 COSMIC_TAG="Linux"   # pin by asset digest + the date below
@@ -159,7 +174,25 @@ manifest hugin-tools apt apt-signed apt /usr/bin/cpfind "cpfind --version" "lens
 # cannot match, exits 0, and logs nothing (measured). scripts/stack/lens_preflight.py
 # --require-profile is what catches that, and the verification pass below runs it.
 log "Layer A2 — lensfun DB update + the repo's darktable lens styles + the fitted lens model"
-run "lensfun-update-data"
+# lensfun-update-data's exit codes (read from /usr/bin/lensfun-update-data, MEASURED here):
+#   0 = a newer DB was downloaded
+#   1 = "No newer database was found for last installed Lensfun" — ALREADY CURRENT,
+#       which is SUCCESS for us, not a failure
+#   3 = "No location was responsive.  Network down?" — a REAL failure
+# Under `set -e` a bare call aborts the whole bootstrap on code 1, so the script could
+# only ever run once: every re-run dies here the moment the DB is current. Tolerate 1
+# ONLY — 3 (and anything else) must still fail loud, because a stale or missing DB
+# disables lens correction SILENTLY (darktable exits 0 and logs nothing on no match).
+if [[ $DRY -eq 1 ]]; then
+  printf '  (plan) %s\n' "lensfun-update-data"
+else
+  set +e; lensfun-update-data; lu_rc=$?; set -e
+  case $lu_rc in
+    0) log "lensfun DB updated" ;;
+    1) log "lensfun DB already current (exit 1) — continuing" ;;
+    *) echo "[bootstrap] lensfun-update-data FAILED (exit $lu_rc) — DB not usable; aborting" >&2; exit 1 ;;
+  esac
+fi
 run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_styles.sh' \"\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable\""
 run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_lens_model.sh'"
 manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d $HOME/.local/share/lensfun/updates/version_1" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
@@ -170,8 +203,13 @@ manifest dt-lens-model repo scripts/darktable n/a "$HOME/.local/share/lensfun/up
 log "Layer B — Siril (flatpak $SIRIL_FLATPAK_ID, 1.4.4)"
 run "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
 run "sudo flatpak install -y flathub $SIRIL_FLATPAK_ID"
-# pin: flatpak remote-info --log flathub $SIRIL_FLATPAK_ID  -> record the OSTree commit
-manifest Siril 1.4.4 flathub:$SIRIL_FLATPAK_ID ostree-signed flatpak \
+# Flathub `stable` observed serving 1.4.4 at this OSTree commit (subject: "Merge pull
+# request #28 from flathub/1_4_4", 2026-06-19). Recorded so a later drift is visible:
+# re-check with `flatpak remote-info flathub $SIRIL_FLATPAK_ID` before trusting a
+# re-install. Siril 1.5.0-dev REMOVES starnet/seqstarnet and would break any .ssf that
+# calls them — never install that line here.
+SIRIL_OSTREE_COMMIT="9fad0dc12d090f6d0d0b4cb925904e4978e0943fb24a8acf703c33ee86f80e90"
+manifest Siril 1.4.4 "flathub:$SIRIL_FLATPAK_ID@$SIRIL_OSTREE_COMMIT" ostree-signed flatpak \
   "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v" "sandbox private /tmp: .ssf under \$HOME"
 
 # ---- Layer C: project venv (PEP 668 safe) ---------------------------------
@@ -188,23 +226,34 @@ manifest python-libs venv requirements.txt pip-hashes "$VENV" "'$VENV/bin/python
 # ---- Layer D: pinned /opt self-contained binaries -------------------------
 log "Layer D — pinned /opt binaries"
 
+# Each vendor zip contains a TOP-LEVEL DIRECTORY, so the binary does NOT land at
+# $OPT/<tool>-<ver>/<tool> as the manifest first assumed. These are the real paths,
+# MEASURED on this rig after extraction. Weights (.onnx) sit beside their binary, so
+# the archive layout is kept as shipped rather than flattened. Note GraXpert ships
+# `GraXpert-linux` as a DIRECTORY whose binary is `GraXpert` — running the directory
+# name is what produced the "permission denied" on the first run here.
+STARNET_BIN="$OPT/starnet2-${STARNET_VER}/starnet2_linux_${STARNET_VER}_ORT_x64_cli/starnet2"
+DEEPSNR_BIN="$OPT/deepsnr-${DEEPSNR_VER}/deepsnr_linux_${DEEPSNR_VER}_ORT_x64_cli/deepsnr"
+GRAXPERT_BIN="$OPT/graxpert-${GRAXPERT_VER}/GraXpert-linux/GraXpert"
+ASTAP_BIN="$OPT/astap/astap_cli"     # not on PATH — always invoke by absolute path
+
 # StarNet2 (TIFF/PNG in, not FITS)
 fetch "$STARNET_URL" "$tmp/starnet.zip" "$STARNET_SHA"
 run "sudo mkdir -p $OPT/starnet2-${STARNET_VER}"
 run "sudo unzip -q -o '$tmp/starnet.zip' -d $OPT/starnet2-${STARNET_VER}"
-manifest StarNet2 "$STARNET_VER" "$STARNET_URL" "$STARNET_SHA" "$OPT/starnet2-${STARNET_VER}" "starnet2 --version" "TIFF/PNG only"
+manifest StarNet2 "$STARNET_VER" "$STARNET_URL" "$STARNET_SHA" "$STARNET_BIN" "'$STARNET_BIN' --version" "TIFF/PNG only; zip nests a top-level dir"
 
 # DeepSNR
 fetch "$DEEPSNR_URL" "$tmp/deepsnr.zip" "$DEEPSNR_SHA"
 run "sudo mkdir -p $OPT/deepsnr-${DEEPSNR_VER}"
 run "sudo unzip -q -o '$tmp/deepsnr.zip' -d $OPT/deepsnr-${DEEPSNR_VER}"
-manifest DeepSNR "$DEEPSNR_VER" "$DEEPSNR_URL" "$DEEPSNR_SHA" "$OPT/deepsnr-${DEEPSNR_VER}" "deepsnr -h" "NAFNet, self-contained ONNX"
+manifest DeepSNR "$DEEPSNR_VER" "$DEEPSNR_URL" "$DEEPSNR_SHA" "$DEEPSNR_BIN" "'$DEEPSNR_BIN' -h" "NAFNet, self-contained ONNX; zip nests a top-level dir"
 
 # GraXpert stable zip (add pipx --pre 3.2.0a2 separately if deconv wanted)
 fetch "$GRAXPERT_URL" "$tmp/graxpert.zip" "$GRAXPERT_SHA"
 run "sudo mkdir -p $OPT/graxpert-${GRAXPERT_VER}"
 run "sudo unzip -q -o '$tmp/graxpert.zip' -d $OPT/graxpert-${GRAXPERT_VER}"
-manifest GraXpert "$GRAXPERT_VER" "$GRAXPERT_URL" "$GRAXPERT_SHA" "$OPT/graxpert-${GRAXPERT_VER}" "GraXpert-linux -h" "stable=BGE+denoise; -gpu false; alpha via pipx --pre for deconv"
+manifest GraXpert "$GRAXPERT_VER" "$GRAXPERT_URL" "$GRAXPERT_SHA" "$GRAXPERT_BIN" "'$GRAXPERT_BIN' -h" "stable=BGE+denoise; -gpu false; GraXpert-linux is a DIR, binary is GraXpert inside it"
 
 # ASTAP CLI + wide-field star DBs (W08 + G05) for the ultra-wide/trailed class
 if [[ $DO_DATA -eq 1 ]]; then
@@ -214,7 +263,9 @@ if [[ $DO_DATA -eq 1 ]]; then
   run "sudo mkdir -p $OPT/astap"
   run "sudo unzip -q -o '$tmp/astap.zip' -d $OPT/astap"
   run "sudo dpkg -i '$tmp/astap_w08.deb' '$tmp/astap_g05.deb' || sudo apt -f install -y"   # DBs install under /opt/astap
-  manifest ASTAP 2026.06.29 "$ASTAP_URL" "$ASTAP_SHA" "$OPT/astap" "astap_cli --version" "W08+G05 wide DBs (ultra-wide class); d50 for narrow; use astap_cli headless; libssl-dev if TLS errors"
+  # OBSERVED build is CLI-2026.07.16 (the SF zip moved on from the 2026.06.29 the docs
+  # recorded); the sha256 above pins the exact artifact regardless of the label.
+  manifest ASTAP CLI-2026.07.16 "$ASTAP_URL" "$ASTAP_SHA" "$ASTAP_BIN" "'$ASTAP_BIN'" "W08+G05 wide DBs (ultra-wide class); d50 for narrow; use astap_cli headless; libssl-dev if TLS errors"
 fi
 
 # Cosmic Clarity — NOT auto-installed yet: the GH release is a rolling tag whose per-asset
@@ -225,11 +276,17 @@ manifest CosmicClarity PENDING "gh:setiastro/cosmicclarity#$COSMIC_TAG" TODO-per
 
 # Nightlight — go build from the dormant tag (optional; a cross-check tool)
 log "Nightlight: go build $NIGHTLIGHT_VER (Go >=1.20)"
-run "git clone --branch $NIGHTLIGHT_VER --depth 1 https://github.com/mlnoga/nightlight '$tmp/nightlight'"
+# --recurse-submodules is REQUIRED, not a nicety: web/blockly is a git submodule
+# (google/blockly) and web/static.go has a `//go:embed blockly` directive, so a plain
+# --depth 1 clone leaves the dir empty and the build dies with
+#   "pattern blockly: cannot embed directory blockly: contains no embeddable files".
+# --shallow-submodules keeps the blockly fetch cheap (the REST/Blockly GUI is embedded
+# unconditionally even though we only ever use the headless CLI). MEASURED on this rig.
+run "git clone --branch $NIGHTLIGHT_VER --depth 1 --recurse-submodules --shallow-submodules https://github.com/mlnoga/nightlight '$tmp/nightlight'"
 run "(cd '$tmp/nightlight' && go build -o '$tmp/nightlight/nightlight' ./cmd/nightlight)"   # build as user (Go cache in \$HOME); subshell isolates the cd
 run "sudo mkdir -p $OPT/nightlight-0.2.6"
 run "sudo cp '$tmp/nightlight/nightlight' $OPT/nightlight-0.2.6/nightlight"                  # then install root-owned into /opt
-manifest Nightlight "$NIGHTLIGHT_VER" "gh:mlnoga/nightlight@$NIGHTLIGHT_VER" go.sum "$OPT/nightlight-0.2.6" "nightlight version" "dormant 2023; cross-check only"
+manifest Nightlight "$NIGHTLIGHT_VER" "gh:mlnoga/nightlight@$NIGHTLIGHT_VER" go.sum "$OPT/nightlight-0.2.6" "nightlight version" "dormant 2023; cross-check only; built from tag v0.2.6 but the binary self-reports 'Version 0.2.5' (upstream never bumped the string) - the TAG is the pin, not the printed version"
 # ($tmp is cleaned by the EXIT trap set in the guards block)
 
 # ---- rc-astro: license-gated, manual --------------------------------------
@@ -258,7 +315,10 @@ if [[ $DRY -eq 0 ]]; then
   fail=0
   # run the verify cmd; print its first output line (the observed version/reality); fail loud.
   check(){ local out; log "verify: $*"
-    if out="$(eval "$@" 2>&1)"; then printf '  OK   %s\n' "$(printf '%s' "$out" | head -n1)"
+    # Report the first NON-EMPTY line: StarNet2 and DeepSNR both emit a leading blank
+    # line before their version string, so a plain `head -n1` rendered a genuine PASS
+    # as empty output and made a working tool look unverified. (MEASURED here.)
+    if out="$(eval "$@" 2>&1)"; then printf '  OK   %s\n' "$(printf '%s' "$out" | awk 'NF{print;exit}')"
     else echo "  FAILED: $*" >&2; fail=1; fi; }
   check "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v"
   check "darktable-cli --version"
@@ -272,11 +332,20 @@ if [[ $DRY -eq 0 ]]; then
   on a camera-lens set. It renders one frame through lensdist vs nodist and asks
   Siril for the difference; an all-nil difference means no profile matched and the
   set would stack UNCORRECTED with no warning from darktable."
-  check "$OPT/starnet2-${STARNET_VER}/starnet2 --version"
-  check "$OPT/deepsnr-${DEEPSNR_VER}/deepsnr -h"
-  check "$OPT/graxpert-${GRAXPERT_VER}/GraXpert-linux -h"
+  check "'$STARNET_BIN' --version"
+  check "'$DEEPSNR_BIN' -h"
+  check "'$GRAXPERT_BIN' -h"
   check "$OPT/nightlight-0.2.6/nightlight version"
-  [[ $DO_DATA -eq 1 ]] && { check "astap_cli --version || astap --version"; check "solve-field --help"; }
+  # NO ||-fallback here: a shell command-not-found handler can exit 0 and turn a
+  # missing binary into a false PASS (observed on this rig with the old astap_cli ||
+  # astap chain). Check the absolute path, and assert the wide star DBs really landed.
+  if [[ $DO_DATA -eq 1 ]]; then
+    # astap_cli --version exits 0 printing NOTHING; only the no-arg run reports the
+    # build ("ASTAP astrometric solver version CLI-YYYY.MM.DD"). Verify by that.
+    check "'$ASTAP_BIN'"
+    check "ls $OPT/astap/w08_* >/dev/null && ls $OPT/astap/g05_* >/dev/null && echo 'W08+G05 star DBs present'"
+    check "solve-field --help"
+  fi
   check "'$VENV/bin/python' -c 'import numpy,scipy,PIL,astropy;print(astropy.__version__)'"
   # rc-astro is manual / license-gated — verify only if the operator has installed it
   if command -v rc-astro >/dev/null; then check "rc-astro --device"
