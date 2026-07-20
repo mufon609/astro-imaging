@@ -30,7 +30,7 @@ changes, when the rig changes, and before any item below is worked.
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
-| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **not fired** — same camera/lens/focal/ISO/exposure, same session, sensor untouched between re-aims (dust in fixed sensor positions), so vignetting/PRNU/dust transfer; must be VALIDATED by the cross-set flat A/B (item 5) before a combined deliverable is trusted. Keep every set's raws while this is pending — the re-render needs them. |
+| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **FIRED for per-set renders** — measured on set-03 (one-knob A/B, `datasets/july14/set-03/experiments.jsonl` flat_source_set03): the SENSOR content transfers (both flats' falloff shapes agree, corner/centre ~0.45–0.63) but the flat's LOW-ORDER term imprints the SOURCE set's sky gradient — set-03 rendered with set-01's flat carries a ±6% L-R linear tilt that its own flat reduces to ~1–2%. **USER-RATIFIED, divergence ENDED**: a flat calibrates ONLY the exact frames it was built from — cross-set reuse AND any shared/union flat on a combine are banned; combines calibrate each member set with its own flat before composing (item 8 step 3). Wrong-flat artifacts removed; a set-02 or combine re-render needs the original raws re-staged (not in this rig's session tree). |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
@@ -176,28 +176,35 @@ double-correction, fixed at the lensfun DB — `qa_work/gradient_qa.json`; this
 flat's own residuals are the smaller figures in `skyflat_qa.json`.) Before the
 flat enters another stack, tighten:
 
-- winsorized/sigma rejection instead of pure median, to drop the faint un-rejected star
-  specks flagged in `skyflat_qa.json`;
+- ~~winsorized/sigma rejection instead of pure median~~ — DONE in
+  `build_sky_flat.sh` (`--rej=wins` default): specks measured 101 (median 373-flat)
+  → 0 (winsorized set-03 flat);
+- ~~dark-subtract the lights before building the flat~~ — pinned in the builder
+  (the 373 production flat already did);
 - smooth the flat to radial-only so division corrects vignetting without flattening the
-  low-order sky/IFN gradient (leave that to the first-degree `subsky 1` step);
-- dark-subtract the lights before building the flat;
+  low-order sky/IFN gradient (leave that to the first-degree `subsky 1` step) — OPEN,
+  and now in tension with a measured result: in a chain with NO background stage, the
+  own-flat's MATCHED low-order term is precisely what removed set-03's ±6% tilt
+  (flat_source_set03). Settle radial-only TOGETHER with the item-7 background-step A/B,
+  not alone;
 - the deciding test is a with/without comparison on full-frame lossless finals, with
-  dust preservation the metric (the user's eyes).
+  dust preservation the metric (the user's eyes) — the set-03 pair
+  (`judge/set-03_full_spcc-linked.png` vs `judge/set-03_ownflat_spcc-linked.png`)
+  is staged for exactly this call.
 
 Rebuilding it from all ~1865 frames (item 8) directly addresses the star specks — more
 frames reject better. GraXpert `-correction Division` stays the vignetting-only
 fallback. A real matching flat retires the whole branch.
 
-**Cross-set flat A/B (multi-set combine) — required before a combined deliverable is
-trusted.** The 2-/3-set combine currently calibrates EVERY set with set-01's `skyflat373`
-(removal register). That is sound in mechanism (a sky flat lives in sensor coordinates;
-same optics/sensor/session → vignetting/PRNU/dust transfer), but it is a HYPOTHESIS until
-measured. The test: rebuild a sky flat from ALL the combine's un-registered frames
-(set-01+02[+03]), re-render, and compare against the single-set-flat combine — gradient QA
-(linear corner/centre medians, Siril `stat`) + dust preservation on full-frame lossless
-finals (the user's eyes). NULL → keep the single-set flat (cheaper, one flat = no seam);
-material difference → adopt the combined flat. Do NOT free any set's raws while this is
-pending — the re-render consumes them.
+**Cross-set flat question — SETTLED: per-set flats, user-ratified.** The per-set A/B
+(`flat_source_set03`) measured the mismatch the old hypothesis missed: a sky flat's
+low-order term imprints its SOURCE set's sky gradient (±6% L-R tilt on set-03 under
+set-01's flat; ~1–2% under its own; sensor content transfers, the sky term does not —
+`docs/dead-ends.md`). **RULE (user-ratified): a flat calibrates ONLY the exact frames
+it was built from** — no cross-set reuse, no single-set or union flat on a combine; a
+multi-set render calibrates each member set with its OWN flat BEFORE composing. Any
+future combine re-render therefore needs each member set's raws (set-01/02 raws are
+not in this rig's session tree — re-stage from the originals, or build on x86).
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
@@ -245,10 +252,12 @@ pending — the re-render consumes them.
   a standing contradiction. Settle with a one-knob A/B on a trusted stack
   before the render chain's background stage is built; dust preservation is
   the deciding metric.
-- **Pin the sky-flat build as a script.** The flat recipe lives only in prose
-  (a QA record) and session commands; an unpinned build is why reproduction
-  was impossible when the artifact was lost. A `scripts/stack/` flat builder
-  (recipe verbatim, validation gates included) closes it — item 5's ladder
+- ~~Pin the sky-flat build as a script~~ — LANDED: `scripts/stack/build_sky_flat.sh`
+  (recipe verbatim: CFA, dark-subtracted, un-registered, `-norm=mul`; `--rej=wins`
+  default per item 5's tightening, `median` kept as the attribution arm; validation
+  gates built in: regional `stat`, `findstar` speck count, autostretch preview, qa
+  record). First end-to-end run built + validated `skyflat361_set03` (specks 101→0
+  vs the median-built flat). Item 5's remaining ladder (radial-only smoothing)
   lands on top of it.
 - **Does `seqapplyreg -framing=min` account for rotation, not just translation?**
   Siril's docs say only "the area it has in common with all images". A
@@ -323,6 +332,13 @@ findings (all x86-portable, since Siril/astrometry/darktable are the identical t
   candidate on the real data (one variable at a time) — e.g. does a per-set (not combined)
   render show the streaks; do they scale with set count; are they present pre-combine.
   Carry NO single cause as settled, and a reshoot is one untested hypothesis, not the fix.
+  **First isolation measured (set-03, flat_source_set03):** the shared-flat candidate is
+  REAL for the gradient component — set-01's flat imprints a ±6% L-R tilt on set-03's
+  per-set render that set-03's own flat removes (linear regional medians); and the
+  per-set renders show NO rainbow streaks at fit view or inspected 1:1 zones, so the
+  streaks remain combine-associated (or sub-threshold per-set). Washout/streak root
+  cause still open; the other candidates (walking noise, cross-set second
+  interpolation, no background stage) remain untested.
 - **Per-set colour (resolved).** Independent per-set SPCC gives different K/levels
   (set-01 K_B 0.911, set-02 0.811, set-03 0.899; background 107/97/95) — expected, since
   each set is a separate calibration. Resolved by SPCC-ing the COMBINE as ONE unit
@@ -330,8 +346,12 @@ findings (all x86-portable, since Siril/astrometry/darktable are the identical t
 
 Tooling that landed this pass, all x86-portable: `run_undistort_compose.sh` (cross-set
 sub-stack compose, min/max), `finish_render.sh` (solve → SPCC → linked stretch → 16-bit
-PNG), `fingerprint.py` (item 1). The arm-rig `<session>/work/groups_*/` sub-stacks and
-`results/july14/*` stacks/renders are the measured artifacts behind the findings above.
+PNG), `fingerprint.py` (item 1). The combine stacks/renders and every wrong-flat
+artifact (set-02/03 products calibrated with set-01's flat) were REMOVED under the
+ratified per-set-flat rule — the findings above stand on their recorded numbers.
+Retained: set-01's sub-stacks + stacks (own flat — valid), set-03's own-flat
+sub-stacks/stack/render, and the set-03 A/B control stack + render (preserved
+experiment artifact, `flat_source_set03`).
 
 july14 is 5 sets of the same object, same workflow, the camera re-centred on the target
 every ~45 min. set-01 (373 frames, 43 min) is one such window and is the only set with raws
@@ -375,8 +395,10 @@ solves) ON THE DESKTOP as they stage. Ordered:
    sets it is drift + hand-re-centring error. If scatter is large the common area drops
    below set-01's 76% — fallback is stack-per-set then combine the 5 stacks (worse: 5
    discrete residuals rather than one fit).
-3. **Rebuild the sky flat from all ~1865 un-registered frames** (item 5). Same
-   dust-contamination validation gate.
+3. **Per-set sky flats — the user-ratified rule; no union or shared flat.** Each
+   set builds + validates its OWN flat (`build_sky_flat.sh`) and calibrates with it
+   before any compose (measured imprint mechanism, `docs/dead-ends.md`; same
+   dust-contamination validation gate per flat).
 4. **Storage: ~433 GB peak** (1865 × 232 MB uncompressed) for single-pass — comfortable
    on the x86 1 TB; on the arm rig only the group-composition route fits, and it is
    gated on its item-7 quality A/B. No GPU needed — Siril has no GPU path and the AI tier runs

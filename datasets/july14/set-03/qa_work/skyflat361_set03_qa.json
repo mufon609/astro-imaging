@@ -1,0 +1,44 @@
+{
+ "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
+ "flat": "/home/neural/Desktop/astrophotography/july14/work/masters/skyflat361_set03.fit",
+ "build": {
+  "frames": 361,
+  "rejection": "wins",
+  "dark": "/home/neural/Desktop/astrophotography/july14/work/masters/dark_master.fit",
+  "method": "UN-registered, dark-subtracted (pedestal-free), CFA, multiplicative norm"
+ },
+ "regional_stat_ADU": {
+  "center": {
+   "mean": 118.558844,
+   "median": 127.5,
+   "sigma": 27.761065
+  },
+  "TL": {
+   "mean": 56.884512,
+   "median": 57.0,
+   "sigma": 15.648742
+  },
+  "TR": {
+   "mean": 63.317681,
+   "median": 64.0,
+   "sigma": 17.164704
+  },
+  "BL": {
+   "mean": 56.820825,
+   "median": 57.0,
+   "sigma": 15.647216
+  },
+  "BR": {
+   "mean": 68.489275,
+   "median": 70.0,
+   "sigma": 18.243688
+  }
+ },
+ "region_geometry_px": {
+  "box": 400,
+  "corner_margin": 200
+ },
+ "findstar_speck_count": 0,
+ "gate": "smooth falloff (corners < centre), NO structured sky residual (MW band / IFN clumps) on the preview, speck count ~0; the eye check + the with/without finals comparison gate adoption (dead-end registry: a sky flat is dust-safe only when validated)",
+ "preview": "/home/neural/Desktop/astrophotography/july14/work/masters/skyflat361_set03_view.png"
+}
