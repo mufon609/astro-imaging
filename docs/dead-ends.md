@@ -30,6 +30,19 @@ the constraints any such tool must satisfy):
   clone-stamping (GUI, non-reproducible). So the sky flat is dust-safe ONLY when
   faint structure is a small part of the frame; validate before use
   ([`synthetic-flats-and-bias.md`](synthetic-flats-and-bias.md)).
+- A sky flat applied ACROSS SETS imprints the SOURCE set's sky. The flat's
+  low-order component carries the residual sky gradient of the lights it was
+  built from; the sensor-fixed content (vignetting/motes/PRNU) transfers between
+  same-session sets but the sky term does NOT — dividing another pointing's
+  lights by it prints that gradient into them. Measured (one knob, linear
+  regional medians on the SPCC'd stacks): set-03 under set-01's flat = ±6% L-R
+  tilt (corners 88–101 on a ~94.5 centre); under its own flat = flat to ~1–2%;
+  stars +8%/Mpx, off-axis aberration 0.49 → 0.37 px
+  (`datasets/july14/set-03/experiments.jsonl` flat_source_set03). **USER-RATIFIED
+  RULE: a flat calibrates ONLY the exact frames it was built from** — never
+  another set, and never a multi-set combine under any single set's (or a
+  union) flat: each member set calibrates with its OWN flat before composing.
+  Per-set builder with validation gates: `scripts/stack/build_sky_flat.sh`.
 
 **Background:**
 - The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases it;
