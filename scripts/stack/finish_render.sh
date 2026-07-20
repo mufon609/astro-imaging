@@ -24,10 +24,11 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA=310 DEC=47 RAD=40 SESSION=july14 SET=set-01
+RA=310 DEC=47 RAD=40 SESSION=july14 SET=set-01 CENTRAL=
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
+  --central=*) CENTRAL=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 [ -f "$STACK" ] || { echo "no such stack: $STACK" >&2; exit 1; }
@@ -38,9 +39,11 @@ JUDGE=$REPO/results/$(basename "$SESSION")/judge/${NAME}_spcc-linked
 mkdir -p "$(dirname "$JUDGE")"
 
 echo "[finish $NAME] 1/4 solve"
+# --central=<frac> restricts detection to the frame's central fraction — the
+# union-canvas (framing=max) case, whose coverage seams false-detect otherwise.
 python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --detect=sep --max-stars=400 \
-  --ra="$RA" --dec="$DEC" --radius-deg="$RAD" --inject="$WCS" 2>&1 \
-  | grep -iE 'SOLVED|fail' || true
+  --ra="$RA" --dec="$DEC" --radius-deg="$RAD" ${CENTRAL:+--central=$CENTRAL} \
+  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail' || true
 [ -f "$WCS" ] || { echo "[finish $NAME] SOLVE FAILED (no WCS injected)" >&2; exit 1; }
 
 echo "[finish $NAME] 2/4 catalog cone"
