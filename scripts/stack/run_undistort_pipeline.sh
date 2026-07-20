@@ -56,6 +56,10 @@ SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$REPO/results/$(basename "$SESSION")/stack_$SET}
 OUT=${OUT%.fit}
 mkdir -p "$(dirname "$OUT")" "$SESSION/work"
+# Absolutize: the flatpak Siril sandbox resolves the .ssf's -out= from the
+# script's own CWD, so a relative --out lands the final INSIDE the work tree
+# and the existence check fails on a stack that actually built.
+OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 P=$SESSION/work/undistort_$SET
 CFG=$SESSION/work/dtcfg
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
