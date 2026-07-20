@@ -288,6 +288,14 @@ the constraints any such tool must satisfy):
   domain falloff — a ~1 EV vignetting read "6.3%" with the ~1007 ADU pedestal in.)
 - Never hide a rim defect with a darker sky target or a crop — the rim is in the
   data (estimator extrapolation × stretch amplification), fix it there.
+- **Never export a numpy/FITS-row-order pixel box to Siril `crop` unverified** —
+  Siril's crop y-origin is the OPPOSITE end (y_siril = H − y_np − h), so an
+  unverified export ships a vertically mirrored window. Measured: a
+  coverage-validated box (map Min = 25 sub-stacks everywhere in numpy coords)
+  statted **Min 0** after export — a zero-coverage wedge shipped in a render.
+  The guard is tool-sourced and cheap: crop the instrument MAP with the exact
+  same args and require Siril `stat` to reproduce the claimed bound before any
+  product crop.
 - Compare finals in LIKE encodings (q92+4:2:0 loses star-edge chroma to
   subsampling). Judgment is the user's eyes on FULL-FRAME LOSSLESS finals
   (16-bit PNG only — never an 8-bit/reduced-depth/lossy copy), opened

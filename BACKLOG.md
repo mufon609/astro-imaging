@@ -30,7 +30,7 @@ changes, when the rig changes, and before any item below is worked.
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
-| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **FIRED for per-set renders** — measured on set-03 (one-knob A/B, `datasets/july14/set-03/experiments.jsonl` flat_source_set03): the SENSOR content transfers (both flats' falloff shapes agree, corner/centre ~0.45–0.63) but the flat's LOW-ORDER term imprints the SOURCE set's sky gradient — set-03 rendered with set-01's flat carries a ±6% L-R linear tilt that its own flat reduces to ~1–2%. **USER-RATIFIED, divergence ENDED**: a flat calibrates ONLY the exact frames it was built from — cross-set reuse AND any shared/union flat on a combine are banned; combines calibrate each member set with its own flat before composing (item 8 step 3). Wrong-flat artifacts removed; a set-02 or combine re-render needs the original raws re-staged (not in this rig's session tree). |
+| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **FIRED for per-set renders** — measured on set-03 (one-knob A/B, `datasets/july14/set-03/experiments.jsonl` flat_source_set03): the SENSOR content transfers (both flats' falloff shapes agree, corner/centre ~0.45–0.63) but the flat's LOW-ORDER term imprints the SOURCE set's sky gradient — set-03 rendered with set-01's flat carries a ±6% L-R linear tilt that its own flat reduces to ~1–2%. **USER-RATIFIED, divergence ENDED**: a flat calibrates ONLY the exact frames it was built from — cross-set reuse AND any shared/union flat on a combine are banned; combines calibrate each member set with its own flat before composing (item 8 step 3). Wrong-flat artifacts removed; set-01's raws are re-staged on this rig (373 NEF back in `july14/set-01/`), set-02's still need re-staging for any set-02 re-render. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
@@ -203,8 +203,9 @@ set-01's flat; ~1–2% under its own; sensor content transfers, the sky term doe
 `docs/dead-ends.md`). **RULE (user-ratified): a flat calibrates ONLY the exact frames
 it was built from** — no cross-set reuse, no single-set or union flat on a combine; a
 multi-set render calibrates each member set with its OWN flat BEFORE composing. Any
-future combine re-render therefore needs each member set's raws (set-01/02 raws are
-not in this rig's session tree — re-stage from the originals, or build on x86).
+future combine re-render therefore needs each member set's raws (set-01's are
+re-staged on this rig; set-02's are not — re-stage from the originals, or build on
+x86).
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
@@ -259,11 +260,16 @@ not in this rig's session tree — re-stage from the originals, or build on x86)
   record). First end-to-end run built + validated `skyflat361_set03` (specks 101→0
   vs the median-built flat). Item 5's remaining ladder (radial-only smoothing)
   lands on top of it.
-- **Does `seqapplyreg -framing=min` account for rotation, not just translation?**
-  Siril's docs say only "the area it has in common with all images". A
-  border-vs-interior `stat` is confounded by the sky gradient; the real test is
-  per-pixel coverage — stack a constant-valued sequence through a rotating
-  registration and look for border falloff.
+- **`seqapplyreg -framing=min` vs rotation — MEASURED (the named probe ran).**
+  The constant-frame coverage probe (`scripts/qa/coverage_probe.sh`; 50 rotated
+  members, 01+03 compose): the true all-members common area is **15.25 Mpx**, the
+  `-framing=min` canvas kept only **5.50 Mpx (36%)** — min's axis-aligned rectangle
+  discards ~2/3 of genuinely full-depth sky when members are mutually rotated
+  (measured cost: the NAN complex sat at 50/50 coverage and was cut). Corrective:
+  the coverage-thresholded crop (`coverage_threshold_frame_0103`) or the item-12
+  hand-crop; the probe is the standing instrument for any rotated compose. Still
+  open here: whether min's rule is per-member inscribed axis-rects or another
+  heuristic — irrelevant to practice now that the probe measures the truth.
 
 - **Which mechanism drives the RESIDUAL one-sided term.** Siril `seqtilt` measures it;
   the fitted lens model reduced it 0.51 → 0.31 px (16% → 10%) at full depth — that
@@ -336,9 +342,15 @@ findings (all x86-portable, since Siril/astrometry/darktable are the identical t
   REAL for the gradient component — set-01's flat imprints a ±6% L-R tilt on set-03's
   per-set render that set-03's own flat removes (linear regional medians); and the
   per-set renders show NO rainbow streaks at fit view or inspected 1:1 zones, so the
-  streaks remain combine-associated (or sub-threshold per-set). Washout/streak root
-  cause still open; the other candidates (walking noise, cross-set second
-  interpolation, no background stage) remain untested.
+  streaks remain combine-associated (or sub-threshold per-set).
+  **Second isolation (combine_0103_compliant_flats, set-01's ledger): the shared flat
+  was the DOMINANT cause.** A 01+03 compose whose member sets each carry their OWN
+  flat measures per-set-class flat (min arm 92–93 ADU all regions, ~1% vs the old
+  ~4% class), stretches with NO washout, and shows no streaks or join artifacts at
+  inspected zones; its min arm is the project's sharpest stack (seqtilt FWHM 3.02,
+  off-axis 0.12). Still open: the depth-benefit SNR measure (normalization-invariant
+  instrument), the second-interpolation A/B (item 7), walking noise (item 11), and
+  the min-vs-max framing verdict (the user's eyes).
 - **Per-set colour (resolved).** Independent per-set SPCC gives different K/levels
   (set-01 K_B 0.911, set-02 0.811, set-03 0.899; background 107/97/95) — expected, since
   each set is a separate calibration. Resolved by SPCC-ing the COMBINE as ONE unit
@@ -476,3 +488,36 @@ matched darks and rebuild; (2) directional/pattern removal aligned to the measur
 174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a
 bandaid, last resort). The go-forward acquisition fix is unsettled — do NOT assume a
 shutter-mode change removes it. OPEN gap, not a dead-end.
+
+## 12. Hand-crop framing via web browser — the user draws the final frame
+
+Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical
+extremes: `-framing=min` is the binary intersection (measured discarding sky
+covered by ALL 50 sub-stacks — the NAN sat at 50/50 coverage and was still cut),
+`max` is the raw union with single-coverage rims, and the coverage-threshold crop
+(`coverage_threshold_frame_0103`) is instrument-driven but still machine-chosen.
+Build the mechanism that captures the user's own frame and makes it THE framing:
+
+- **UI**: a local, browser-only page (no external service) that displays the
+  union/max judgment surface (a downscale is fine for panning — it is a SELECTION
+  surface, never a judgment surface) with the per-pixel coverage map overlaid as
+  ≥N contours (the Siril constant-frame probe, `scripts/qa/coverage_probe.sh`),
+  so the choice is depth-informed. The user drags/adjusts one rectangle.
+- **Record is the product**: the chosen box is saved to the tracked per-product
+  record (native-pixel box + WCS RA/Dec corners from the solved stack, so the
+  framing survives re-registration and canvas changes) — nothing renders from an
+  unrecorded box. The UI captures a human decision; it never touches pixels.
+  **Coordinate export MUST be stat-verified**: Siril `crop`'s y-origin is the
+  opposite end from numpy/FITS row order (y_siril = H − y_np − h — measured: an
+  unverified export shipped a zero-coverage wedge); crop the coverage MAP with
+  the same args and require the stat to hold before any product crop.
+- **The chain consumes it**: the render chain applies the recorded crop to the
+  LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on every rebuild.
+  Siril 1.5's `eqcrop ra1 dec1 ra2 dec2` (item 10) is the natural consumer of the
+  RA/Dec form when the x86 rig lands on 1.5.
+- **Close condition**: a box drawn on the 01+03 union renders through the chain
+  to a final whose framing matches the drawn box, and the record reproduces that
+  framing after a stack rebuild (RA/Dec-anchored). The `cov25` crop from
+  `coverage_threshold_frame_0103` is the machine-chosen precursor whose
+  record+Siril-crop plumbing this item reuses — only the rectangle CHOICE moves
+  to the user's hand.
