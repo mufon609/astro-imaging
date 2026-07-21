@@ -440,6 +440,14 @@ Clarity / DeepSNR, BlurXTerminator) are environment-blocked on arm (x86-64
 binaries — [`TOOLS.md`](TOOLS.md)) and ride
 [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
+**`web/`** (top-level, beside `scripts/`) — the local front end: `serve.py`
+(127.0.0.1-only static server over the repo + the framing-record POST),
+`index.html` (session/judge gallery — SELECTION surfaces, never judgment),
+`crop.html` (the BACKLOG-item-12 framing UI), `make_previews.sh` (Siril-made
+previews + manifest), `verify_framing.py` (mandatory Siril crop+stat check
+before any render consumes a framing record). Contract + usage: `web/README.md`;
+the durable output data tree lives beneath it at `web/results/<session>/`.
+
 **`qa/`** — standing audits + diagnostics (WARN-only)
 
 | file | role |

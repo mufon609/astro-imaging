@@ -348,28 +348,31 @@ extremes: `-framing=min` is the binary intersection (measured discarding sky
 covered by ALL 50 sub-stacks — the NAN sat at 50/50 coverage and was still cut),
 `max` is the raw union with single-coverage rims, and the coverage-threshold crop
 (`coverage_threshold_frame_0103`) is instrument-driven but still machine-chosen.
-Build the mechanism that captures the user's own frame and makes it THE framing:
 
-- **UI**: a local, browser-only page (no external service) that displays the
-  union/max judgment surface (a downscale is fine for panning — it is a SELECTION
-  surface, never a judgment surface) with the per-pixel coverage map overlaid as
-  ≥N contours (the Siril constant-frame probe, `scripts/qa/coverage_probe.sh`),
-  so the choice is depth-informed. The user drags/adjusts one rectangle.
-- **Record is the product**: the chosen box is saved to the tracked per-product
-  record (native-pixel box + WCS RA/Dec corners from the solved stack, so the
-  framing survives re-registration and canvas changes) — nothing renders from an
-  unrecorded box. The UI captures a human decision; it never touches pixels.
-  **Coordinate export MUST be stat-verified**: Siril `crop`'s y-origin is the
-  opposite end from numpy/FITS row order (y_siril = H − y_np − h — measured: an
-  unverified export shipped a zero-coverage wedge); crop the coverage MAP with
-  the same args and require the stat to hold before any product crop.
-- **The chain consumes it**: the render chain applies the recorded crop to the
-  LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on every rebuild.
-  Siril 1.5's `eqcrop ra1 dec1 ra2 dec2` (item 10) is the natural consumer of the
-  RA/Dec form when the x86 rig lands on 1.5.
-- **Close condition**: a box drawn on the 01+03 union renders through the chain
-  to a final whose framing matches the drawn box, and the record reproduces that
-  framing after a stack rebuild (RA/Dec-anchored). The `cov25` crop from
-  `coverage_threshold_frame_0103` is the machine-chosen precursor whose
-  record+Siril-crop plumbing this item reuses — only the rectangle CHOICE moves
-  to the user's hand.
+**STATUS — the capture side is BUILT (`web/`); the consume side rides item 0.**
+Landed: `web/serve.py` (127.0.0.1-only static server + the framing POST),
+`web/index.html` (session/judge gallery — selection surfaces, never judgment),
+`web/crop.html` (draws the rectangle over a Siril-made selection preview with
+existing `*_map.json` reference boxes overlaid), `web/make_previews.sh`
+(tool-driven previews + manifest), `web/verify_framing.py` (the mandatory
+Siril crop+stat verification — coverage-map `Min >= members*1000` or the
+sibling-class sky-floor mode; a render must refuse an unverified record). The
+record (`datasets/<session>/framing_<product>.json`) carries BOTH coordinate
+conventions (screen top-left AND Siril bottom-left — the measured y-flip trap)
+plus WCS RA/Dec corners so the framing survives re-registration.
+
+Open, in order:
+- **Coverage overlay as ≥N contours in the UI** — the crop page shows recorded
+  reference boxes today; the per-pixel coverage overlay lands when a
+  `coverage_probe.sh` map for the target compose is rendered to a preview PNG
+  (Siril `pm` threshold + `savepng` — tool-made, like every other preview).
+- **The chain consumes it**: the render chain applies the recorded, VERIFIED
+  crop to the LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on
+  every rebuild — wired into the render-tier build (item 0). Siril 1.5's
+  `eqcrop ra1 dec1 ra2 dec2` (item 10) is the natural consumer of the RA/Dec
+  form when the x86 rig lands on 1.5.
+- **Close condition** (unchanged): a box drawn on a union surface renders
+  through the chain to a final whose framing matches the drawn box, and the
+  record reproduces that framing after a stack rebuild (RA/Dec-anchored). The
+  `cov25` crop is the machine-chosen precursor whose record+Siril-crop
+  plumbing this reuses — only the rectangle CHOICE moves to the user's hand.

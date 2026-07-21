@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>framing — draw the product crop</title>
+<style>
+  body { font: 14px/1.45 system-ui, sans-serif; margin: 1rem; background:#14161a; color:#d8dbe0; }
+  a { color:#7ab7ff; }
+  .contract { border:1px solid #5a4d1f; background:#2a2410; color:#e8d48b;
+              padding:.5rem .8rem; border-radius:6px; margin-bottom:.8rem; font-size:.85rem; }
+  #stage { position:relative; display:inline-block; cursor:crosshair; user-select:none; }
+  #stage img { display:block; max-width:100%; }
+  .box { position:absolute; border:2px solid #ffd23e; background:rgba(255,210,62,.08);
+         pointer-events:none; }
+  .refbox { position:absolute; border:1.5px dashed #6fd3ff; pointer-events:none; }
+  .reflabel { position:absolute; color:#6fd3ff; font-size:.7rem; background:rgba(0,0,0,.5);
+              padding:0 .2rem; pointer-events:none; }
+  #panel { margin:.8rem 0; }
+  input[type=number] { width:7.5em; background:#1d2026; color:#d8dbe0;
+                       border:1px solid #333; border-radius:4px; padding:.15rem .3rem; }
+  button { background:#2b4d33; color:#dfe8df; border:1px solid #3a6a45; border-radius:5px;
+           padding:.35rem .9rem; cursor:pointer; }
+  button:disabled { opacity:.45; cursor:default; }
+  pre { background:#101216; border:1px solid #2c313a; padding:.6rem; border-radius:6px;
+        white-space:pre-wrap; word-break:break-all; font-size:.78rem; }
+  .muted { color:#78808c; }
+</style>
+</head>
+<body>
+<div class="contract"><b>Framing is a composition judgment and it is YOURS</b>
+ (BACKLOG item 12). This page displays a Siril-made selection preview, records
+ the rectangle you draw into the tracked per-product record, and nothing more —
+ it never touches pixels. The record starts <i>unverified</i>; a render may
+ consume it only after <code>web/verify_framing.py</code> passes the Siril
+ crop+stat check (the measured y-flip guard).</div>
+<h1 id="title" style="font-size:1.15rem">framing</h1>
+<div id="stage"><img id="img" alt="selection preview"><div id="box" class="box" hidden></div></div>
+<div id="panel">
+  native (screen top-left origin):
+  x <input id="bx" type="number" min="0"> y <input id="by" type="number" min="0">
+  w <input id="bw" type="number" min="1"> h <input id="bh" type="number" min="1">
+  <button id="save" disabled>write framing record</button>
+  <span id="siril" class="muted"></span>
+</div>
+<pre id="out" class="muted">drag on the image to draw the frame; fine-tune with the fields.
+dashed cyan boxes are existing crop-map references (e.g. the cov25 frame).</pre>
+<script>
+const qs = new URLSearchParams(location.search);
+const SESSION = qs.get('session'), PRODUCT = qs.get('product');
+const $ = id => document.getElementById(id);
+let item = null, scale = 1, rect = null;   // rect in NATIVE screen-topleft coords
+
+function show() {
+  const b = $('box');
+  if (!rect) { b.hidden = true; $('save').disabled = true; return; }
+  b.hidden = false;
+  b.style.left = (rect.x * scale) + 'px';
+  b.style.top = (rect.y * scale) + 'px';
+  b.style.width = (rect.w * scale) + 'px';
+  b.style.height = (rect.h * scale) + 'px';
+  $('bx').value = rect.x; $('by').value = rect.y;
+  $('bw').value = rect.w; $('bh').value = rect.h;
+  const ySiril = item.native_wh[1] - rect.y - rect.h;
+  $('siril').textContent = `siril crop args: ${rect.x} ${ySiril} ${rect.w} ${rect.h}`;
+  $('save').disabled = false;
+}
+
+function clampRect(r) {
+  const [W, H] = item.native_wh;
+  r.x = Math.max(0, Math.min(r.x, W - 1)); r.y = Math.max(0, Math.min(r.y, H - 1));
+  r.w = Math.max(1, Math.min(r.w, W - r.x)); r.h = Math.max(1, Math.min(r.h, H - r.y));
+  return r;
+}
+
+async function main() {
+  if (!SESSION || !PRODUCT) { $('out').textContent = 'missing ?session=&product='; return; }
+  $('title').textContent = `framing — ${SESSION} / ${PRODUCT}`;
+  const man = await (await fetch(`/web/results/${SESSION}/previews/manifest.json`)).json();
+  item = man.items.find(i => i.kind === 'selection' && i.product === PRODUCT);
+  if (!item) { $('out').textContent = 'product not in previews manifest — run web/make_previews.sh'; return; }
+  const img = $('img');
+  img.src = `/web/results/${SESSION}/${item.preview}`;
+  await img.decode();
+  // displayed scale = displayed px per NATIVE px (preview may be further
+  // shrunk by max-width) — recompute on resize
+  const setScale = () => { scale = img.clientWidth / item.native_wh[0]; show(); drawRefs(); };
+  new ResizeObserver(setScale).observe(img);
+  setScale();
+
+  function drawRefs() {
+    document.querySelectorAll('.refbox,.reflabel').forEach(e => e.remove());
+    for (const m of item.reference_boxes || []) {
+      const [x, ys, w, h] = m.siril_crop_args;
+      const yTop = item.native_wh[1] - ys - h;      // siril bottom-left -> screen top-left
+      const d = document.createElement('div');
+      d.className = 'refbox';
+      Object.assign(d.style, { left: x * scale + 'px', top: yTop * scale + 'px',
+                               width: w * scale + 'px', height: h * scale + 'px' });
+      const l = document.createElement('div');
+      l.className = 'reflabel';
+      l.textContent = m.record.split('/').pop();
+      Object.assign(l.style, { left: x * scale + 'px', top: (yTop * scale - 14) + 'px' });
+      $('stage').append(d, l);
+    }
+  }
+
+  let drag = null;
+  const toNative = ev => {
+    const r = img.getBoundingClientRect();
+    return { x: Math.round((ev.clientX - r.left) / scale),
+             y: Math.round((ev.clientY - r.top) / scale) };
+  };
+  $('stage').addEventListener('mousedown', ev => { drag = toNative(ev); ev.preventDefault(); });
+  window.addEventListener('mousemove', ev => {
+    if (!drag) return;
+    const p = toNative(ev);
+    rect = clampRect({ x: Math.min(drag.x, p.x), y: Math.min(drag.y, p.y),
+                       w: Math.abs(p.x - drag.x), h: Math.abs(p.y - drag.y) });
+    show();
+  });
+  window.addEventListener('mouseup', () => { drag = null; });
+  for (const id of ['bx', 'by', 'bw', 'bh']) $(id).addEventListener('change', () => {
+    rect = clampRect({ x: +$('bx').value, y: +$('by').value,
+                       w: +$('bw').value, h: +$('bh').value });
+    show();
+  });
+
+  $('save').addEventListener('click', async () => {
+    const payload = { session: SESSION, product: PRODUCT,
+                      canvas: { w: item.native_wh[0], h: item.native_wh[1] },
+                      rect_screen: rect };
+    const r = await fetch('/api/framing', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const j = await r.json();
+    $('out').textContent = r.ok
+      ? `WRITTEN (status: unverified) -> ${j.written}\n` +
+        `next: python3 web/verify_framing.py ${SESSION} ${PRODUCT} ` +
+        `[--map=<coverage-map.fit> --map-min=<members> | --min-floor=<ADU>]\n\n` +
+        JSON.stringify(j.record, null, 1)
+      : 'ERROR: ' + JSON.stringify(j);
+  });
+}
+main();
+</script>
+</body>
+</html>

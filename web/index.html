@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>workspace — sessions</title>
+<style>
+  body { font: 14px/1.45 system-ui, sans-serif; margin: 1.2rem; background:#14161a; color:#d8dbe0; }
+  a { color:#7ab7ff; text-decoration:none; } a:hover { text-decoration:underline; }
+  .contract { border:1px solid #5a4d1f; background:#2a2410; color:#e8d48b;
+              padding:.6rem .8rem; border-radius:6px; margin-bottom:1rem; }
+  h1 { font-size:1.3rem; } h2 { font-size:1.05rem; border-bottom:1px solid #333; padding-bottom:.2rem; }
+  .cards { display:flex; flex-wrap:wrap; gap:12px; }
+  .card { background:#1d2026; border:1px solid #2c313a; border-radius:8px;
+          padding:8px; width:270px; }
+  .card img { width:100%; border-radius:4px; display:block; }
+  .name { font-size:.8rem; word-break:break-all; margin:.4rem 0 .2rem; color:#aab0ba; }
+  .sel { border-color:#2e4d33; }
+  .path { font-size:.72rem; color:#78808c; word-break:break-all; }
+  .muted { color:#78808c; }
+  button.copy { font-size:.7rem; background:#262b33; color:#aab0ba; border:1px solid #333;
+                border-radius:4px; cursor:pointer; }
+</style>
+</head>
+<body>
+<h1>workspace sessions</h1>
+<div class="contract"><b>Selection / navigation surface only.</b>
+ Aesthetic judgment happens exclusively on the full-frame lossless PNG16
+ files opened in your own viewers (README review contract). Thumbnails here
+ are Siril-made downscales for finding things, not judging them.</div>
+<div id="root" class="muted">loading /api/sessions…</div>
+<script>
+async function main() {
+  const root = document.getElementById('root');
+  let sessions;
+  try { sessions = await (await fetch('/api/sessions')).json(); }
+  catch (e) { root.textContent = 'API unreachable — run: python3 web/serve.py'; return; }
+  if (!sessions.length) { root.textContent = 'no sessions under web/results/'; return; }
+  root.textContent = '';
+  for (const s of sessions) {
+    const h = document.createElement('h2');
+    h.textContent = s.session;
+    root.appendChild(h);
+    const man = s.previews_manifest;
+    if (!man) {
+      const p = document.createElement('p');
+      p.className = 'muted';
+      p.textContent = 'no previews yet — run: web/make_previews.sh ' + s.session +
+        '  (' + s.judge.length + ' judge surfaces, ' + s.stacks.length + ' stacks on disk)';
+      root.appendChild(p);
+      continue;
+    }
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+    for (const it of man.items) {
+      const c = document.createElement('div');
+      c.className = 'card' + (it.kind === 'selection' ? ' sel' : '');
+      const base = '/web/results/' + s.session + '/';
+      if (it.kind === 'judge') {
+        c.innerHTML =
+          '<a href="' + base + it.file + '"><img loading="lazy" src="' + base + it.thumb + '"></a>' +
+          '<div class="name">' + it.name + '</div>' +
+          '<div class="path">web/results/' + s.session + '/' + it.file +
+          ' <button class="copy" data-p="web/results/' + s.session + '/' + it.file + '">copy path</button></div>' +
+          '<div class="muted" style="font-size:.72rem">click image = full PNG16 (slow; judge in your own viewer)</div>';
+      } else {
+        c.innerHTML =
+          '<a href="crop.html?session=' + encodeURIComponent(s.session) +
+            '&product=' + encodeURIComponent(it.product) + '">' +
+            '<img loading="lazy" src="' + base + it.preview + '"></a>' +
+          '<div class="name">' + it.product + ' — ' + it.native_wh[0] + '×' + it.native_wh[1] + '</div>' +
+          '<div><a href="crop.html?session=' + encodeURIComponent(s.session) +
+            '&product=' + encodeURIComponent(it.product) + '">open FRAMING / crop UI →</a></div>';
+      }
+      cards.appendChild(c);
+    }
+    root.appendChild(cards);
+  }
+  root.addEventListener('click', e => {
+    if (e.target.matches('button.copy')) navigator.clipboard.writeText(e.target.dataset.p);
+  });
+}
+main();
+</script>
+</body>
+</html>
