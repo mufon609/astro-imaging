@@ -1,10 +1,18 @@
 # Astrophotography processing pipeline
 
-> **⚠ MID-RESET to x86.** The durable core — calibrate → register → stack →
-> solve → SPCC → compose — runs today. The final **render is a GAP pending
-> x86**: a per-dataset toolkit of official tools (StarXTerminator / native
-> StarNet, NoiseXTerminator / GraXpert / Cosmic Clarity, BlurXTerminator, Siril
-> `synthstar`/`rgbcomp`/natives — [`TOOLS.md`](TOOLS.md)), built in the order in
+> **⚠ MID-RESET (x86 migration pending).** The durable core — calibrate →
+> [undistort] → register → stack → solve → SPCC → compose — runs today. The
+> final **render tier is UNBUILT — a user-gated policy gap, not a rig gap**:
+> Siril 1.4.4's full native render surface (`subsky`, GHS via `ght`/`autoghs`,
+> `mtf`/`asinh`, `denoise`, `satu`, `synthstar`/`unclipstars`, `rl`/`sb`/
+> `wiener`, `epf`, `pm`, `rgbcomp`, `ccm`) is PRESENT and scriptable on THIS
+> arm rig (on-rig probe), and the installed GraXpert's BGE + denoise run here
+> too. What is genuinely **environment-blocked on arm are the neural x86-64
+> binaries** — StarNet2, RC-Astro BXT/NXT/SXT (and PixInsight itself, so every
+> PI-plugin route), Cosmic Clarity, DeepSNR (per-tool distribution evidence:
+> [`TOOLS.md`](TOOLS.md)). The arm-rig build plan is
+> [`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md); the x86
+> re-measure + the neural/separation tiers ride
 > [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). The
 > process contract, review contract, acceptance model, experiment discipline,
 > per-dataset state, and north star below are all portable and stand.
@@ -63,15 +71,15 @@ follows, in order — linear until step 6:
 
 | # | standard step | our implementation | status |
 |---|---|---|---|
-| 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted `rej 3 3`, byte-identical generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
+| 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted, rejection by sub count via `stack_rejection.sh`: percentile ≤6 / winsorized ≤50 / GESD >50; deterministic generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
 | 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends.md` paraxial-band entry). The chain is scripted as `run_undistort_pipeline.sh`. It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG item 2 |
 | 1b | — | **flatless sets** — a set without a matching flat loudly STOPS; the validated flatless route is the PER-SET sky flat (`build_sky_flat.sh`: the set's own un-registered, dark-subtracted lights, winsorized, validation gates built in). **A flat calibrates ONLY the exact frames it was built from** — cross-set reuse and any shared/union flat on a multi-set combine are banned (user-ratified; the measured imprint mechanism is in `docs/dead-ends.md`: the flat's low-order term carries its source set's sky gradient) | real flat (primary, shot at the session's optical state) → per-set sky flat (validated route) → GraXpert `-correction Division` (vignetting-only fallback, x86); never an in-house fit |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
-| 2 | linear gradient removal on the stack, star-ful (DBE/GraXpert) | `bgelin_mode`: `gx` = GraXpert BGE + `subsky 1`, star-ful (generic); `plane` = `subsky 1` only — the retention mode for fields that ARE mostly object | COMPLIANT — order measured MW-safe; BGE on starless ERASES the MW (never reorder). CLASS LIMIT: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — a plane keeps that signal (it removes only the first-degree gradient) and still clears the gradient class the checklist tests |
-| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_norgbeq_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Canonical chains order BGE before SPCC; running SPCC before or after background extraction gives the same star-colour fit — per-star local-annulus photometry cancels the smooth background. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
+| 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG item 7's A/B, pre-registered in `docs/render-tier-arm-plan.md` — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT stands: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — for the MW-filling class only a first-degree plane (or none) is dust-safe (`docs/dead-ends.md`); BGE on starless ERASES the MW (never reorder) |
+| 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Both vendors' doctrine orders BGE before SPCC; the repo's mechanism claim (per-star local-annulus photometry cancels a smooth background, so the K fit is order-robust) is CHECKED, not assumed, when the render build inserts the background step before SPCC — the recorded K delta is the check. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction | PENDING x86 — a tool step | On x86 this is a real tool (NoiseXTerminator / GraXpert / Cosmic Clarity — the chroma-noise gap closes, `docs/dead-ends.md`). |
-| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **GAP (pending x86)** — a per-dataset tool toolkit: StarXTerminator / native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic Clarity (denoise — closes the coring gap), BlurXTerminator (deconv), siril `synthstar`/`unclipstars` (stars), `rgbcomp` (recombine). Build order: `docs/x86-empirical-test-plan.md` | PENDING x86 |
+| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective target (the noise-split structured term, 0.34–0.48 ADU/half) are pre-registered in `docs/render-tier-arm-plan.md` | GAP until laddered + judged. The general CHROMA-noise fill stays environment-blocked on arm (NXT-AI3 `denoise_color` / Cosmic Clarity `--color_denoise_strength` are x86-64 binaries — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | SPLIT BY BLOCKER CLASS. **Separation is environment-blocked on arm**: StarNet2 / DeepSNR ship Linux x86-64 CLI builds only, RC-Astro requires an Intel/AMD x64 CPU, and PixInsight (every PI-plugin route) is x86-64+AVX2 — per-tool evidence in `TOOLS.md`; `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so separation-dependent star work waits for x86. **The rest is PRESENT on this rig** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered in `docs/render-tier-arm-plan.md`; the separation tier rides `docs/x86-empirical-test-plan.md` | GAP (user-gated build); separation environment-blocked on arm |
 
 Principles that keep this honest:
 
@@ -161,7 +169,8 @@ it, each answering a question it can actually answer:
    neural inference (RC-Astro BXT/NXT/SXT, Cosmic Clarity, StarNet) uses ONNX
    reductions that are often not bit-reproducible, so byte-identity would fail a
    *correct* render — and it already cost `subsky` its `-dither` (anti-banding
-   sacrificed to the check; re-enable it). Verify **cheaply** (a fast canary + the
+   sacrificed to the check; the item-7 background A/B's on-stack arm re-enables
+   it). Verify **cheaply** (a fast canary + the
    deterministic orchestration, not a doubled full-res render) to a documented
    **tolerance**: byte-identity where a tool actually gives it (siril native
    single-thread, deterministic float32 temp-FITS round-trips), reproducibility
@@ -230,7 +239,7 @@ removal condition.
   as a full-frame lossless final + stage sequence into
   `results/exp_<param>_<stamp>/`, appended to the tracked per-dataset
   `experiments.jsonl`, and STOPs for user judgment. (The ladder that automates
-  this rides the render — a GAP pending x86; the discipline is binding now.)
+  this rides the render-tier build — user-gated; the discipline is binding now.)
 - The verdict round-trips: once judged, the ledger entry is closed
   win|null|deadend with its reason. A measurement that kills a hypothesis
   becomes a dead end **written into `docs/dead-ends.md` with its numbers**
@@ -260,10 +269,12 @@ composition kind), ladder the generic knobs whose `datasets/GENERIC.json`
 why-notes name a class risk — one knob per ladder, the user judges once
 per class instead of debugging after.
 
-**Both halves of that are PENDING x86 today:** `datasets/GENERIC.json` is a
+**Both halves of that are PENDING the render-tier build today:**
+`datasets/GENERIC.json` is a
 stub (`"render": {}, "why": {}`) because the render-knob schema was wiped
-with the arm64 chain, and the ladder harness rides the render, which is a
-GAP. The knobs the previous chain laddered — background extraction mode
+with the arm64 chain, and the ladder harness rides that build (user-gated;
+arm plan `docs/render-tier-arm-plan.md`). The knobs the previous chain
+laddered — background extraction mode
 (the proven signal eater: full AI extraction absorbs frame-filling faint
 nebulosity), starless denoise strength (the proven chroma killer), black
 point (crushes faint extended signal), starless target, star peak, and
@@ -294,7 +305,7 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 - `recipe.json` — the processing knobs: the `render` dict (the render chain
   resolves CLI > recipe > `datasets/GENERIC.json` and prints the provenance; a
   dataset with no recipe renders data-class-blind generic and says so — the
-  render dict's schema is PENDING x86) plus the optional `spcc` spec
+  render dict's schema is PENDING the render-tier build) plus the optional `spcc` spec
   (sensor/filter names or narrowband wavelengths, same resolution order in
   `spcc_run.py`). An **approved** recipe pins every knob so a later
   generic-default change cannot silently restyle it.
@@ -304,10 +315,10 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
   underexposed DSLR wide-field) and its known class limits. Tweakable at
   any time — but a change restyles every non-approved dataset, so it
   lands as a declared delta. The knob SCHEMA stays in code; the render chain
-  hard-fails on any file/schema drift (pending x86).
+  hard-fails on any file/schema drift (pending the render-tier build).
 - `baseline.json` — the measured no-regression record (pinned stack sha,
   expected tool measures, artifact hashes), written only by the no-regression
-  harness (pending x86).
+  harness (rides the render-tier build).
 - `composition.json` — only for multi-line/multi-filter targets: how the
   composed linear stack is BUILT (kind, extraction, lines, palette
   channel mapping). Absent = ordinary single-stack set.
@@ -357,9 +368,10 @@ python3 scripts/calibrate/solve_field.py results/<session>/stack_<set>.fit \
 python3 scripts/calibrate/spcc_cone.py results/<session>/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
-# final render — a GAP pending x86 (tool toolkit: TOOLS.md; build order:
-# docs/x86-empirical-test-plan.md). Everything ABOVE (stack → solve → spcc →
-# compose) is the durable core and runs today.
+# final render — UNBUILT, user-gated (arm-rig plan: docs/render-tier-arm-plan.md;
+# the separation/neural tiers are environment-blocked on arm — TOOLS.md; the
+# x86 re-measure order: docs/x86-empirical-test-plan.md). Everything ABOVE
+# (stack → solve → spcc → compose) is the durable core and runs today.
 ```
 
 Environment specifics (siril invocation, catalogs, GraXpert, the x86 target)
@@ -418,11 +430,14 @@ VM's file-transfer staging cache (`~/.cache/vmware/drag_and_drop`), which keeps 
 full duplicate of every file dragged into the guest. Run it by hand after
 confirming a transfer landed; nothing in the pipeline invokes it.
 
-**`render/` — a GAP, pending x86** (no directory exists yet). The render will be a
-thin orchestration over official tools, picked per dataset ([`TOOLS.md`](TOOLS.md)):
-StarXTerminator / native StarNet (separation), NoiseXTerminator / GraXpert / Cosmic
-Clarity (denoise), BlurXTerminator (deconv), Siril `autostretch`/`mtf`/`pm`/`satu`/
-`synthstar`/`rgbcomp` (stretch / stars / recombine). Build order:
+**`render/` — UNBUILT (no directory exists yet), user-gated.** On this rig it
+will be a thin orchestration over the natives verified present by on-rig probe
+(`subsky`, `ght`/`autoghs`/`mtf`, `denoise`, `satu`, `unclipstars`, `pm`,
+`rgbcomp`) plus the installed GraXpert — the pre-registered plan is
+[`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md). The
+separation/neural tiers (StarXTerminator / StarNet, NoiseXTerminator / Cosmic
+Clarity / DeepSNR, BlurXTerminator) are environment-blocked on arm (x86-64
+binaries — [`TOOLS.md`](TOOLS.md)) and ride
 [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
 **`qa/`** — standing audits + diagnostics (WARN-only)
@@ -431,7 +446,7 @@ Clarity (denoise), BlurXTerminator (deconv), Siril `autostretch`/`mtf`/`pm`/`sat
 |---|---|
 | `anomaly_audit.py` | transient-obstruction classifier (aircraft / satellite / unknown) over a frame set — the reference **ALLOWED** gap-filler: Siril does every pixel op + measurement (decode / green-extract / subsky / findstar), the in-house kernel does only the streak geometry + cross-frame linking no tool provides; report-only, removal-conditioned. Requires the declared `mount` (STOPS if absent), confines linking to capture runs (`segment_runs`); artifacts + the `anomaly_audit.json` record land in `datasets/<session>/<set>/audit_work/` |
 | `inspect_stage.py` | orchestration + record: persists the TOOLS' per-frame measures (Siril `register`'s .seq regdata — FWHM px+arcsec, roundness, background, star count, shifts) into metrics.jsonl before cleanup, and writes the per-stage diagnostic sequence; the checklist reads the tools' numbers |
-| `judgment_package.py` | assembles a judgment set from render FINALS: verifies each PNG8+PNG16 pair pixel-wise before linking (a hand-linked package once shipped starless PNG16s as finals), refuses starless layers, embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton |
+| `judgment_package.py` | assembles a judgment set from render FINALS (DORMANT pending the render rebuild): refuses starless layers (a hand-linked package once shipped starless PNG16s as finals), embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton. Two re-wires ride the rebuild: its PNG8+PNG16 pairing predates the 16-bit-ONLY judgment policy, and its `.metrics.json` producer (the old chain's renderer) no longer exists — BACKLOG |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `run_frame_qa.sh` | the per-set frame-QA driver: raw → CFA FITS → `register -2pass` (analysis pass only, disk-bounded batches, 1-frame-batch guard) → `inspect_stage` persists Siril's per-frame regdata → flattened records + `cull_report` flags + the tracked `frame_metrics.json`. The cull decision stays the user's, recorded in `recipe.json`'s stack block per the per-set policy (BACKLOG item 3). PROVISIONAL as-written (generalized from the driver that produced set-02's record; first fresh run = the next set's prep) |
 | `star_shape.py` | orchestration + record: runs Siril `seqtilt` and records its report — off-axis aberration (centre vs corners = the RADIAL term) and sensor tilt (best vs worst corner = the ASYMMETRIC term). The tool's own spatial star-shape analysis and the only headless one (`tilt`/`inspector` are GUI-only); it computes nothing. Never re-derive this by binning a `findstar` list by radius — that is circular and fails silently (`docs/dead-ends.md`, trap 3) |
@@ -493,10 +508,11 @@ scripts/                                 the pipeline (tracked)
    undistort class), after the per-set prep: `run_frame_qa.sh` + the anomaly
    audit → the cull policy (BACKLOG item 3) → the ratified `recipe.json` stack
    block the builder consumes.
-3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (a GAP
-   pending x86 — the tool toolkit, `TOOLS.md`). A **mono** (single-filter) set
-   skips SPCC and renders luminance-only.
+3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (UNBUILT,
+   user-gated — `docs/render-tier-arm-plan.md`; the toolkit map is `TOOLS.md`).
+   A **mono** (single-filter) set skips SPCC and renders luminance-only.
 4. A set with no `datasets/<session>/<set>/` state **degrades loudly**
    (whole-frame gate, no foreground mask, GENERIC knobs, printed as such) —
    safe, just generic. Add `geometry.json` once solved, pin a `recipe.json`
-   when a look is chosen, and record the no-regression baseline (pending x86).
+   when a look is chosen, and record the no-regression baseline (rides the
+   render-tier build).

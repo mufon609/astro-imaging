@@ -32,7 +32,7 @@
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
-| `help stack` on the flatpak | bare-`rej` default algorithm (UNCERTAIN) | is it Winsorized? | confirm or switch to `rej w 3 3` |
+| `help stack` on the flatpak | bare-`rej` default algorithm — SETTLED on the arm rig's identical 1.4.4 (`help stack`: "If omitted, the default Winsorized is used") | re-confirm at bring-up (same version → formality) | matches the arm answer |
 | 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
 | Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | reproduces the fitted-model render's direction and magnitudes: off-axis ~0.25 px; centre station at the perpendicular-station level (~3.4–3.8 px majFWHM, no along-drift band); seqtilt truncated-mean ~3.0–3.1 px |
 
@@ -43,6 +43,14 @@
 | Inspect the trails | uniform vs rotational trailing (affects ASTAP) | centroid consistency across the field | informs the ranking |
 
 ### Phase 4 — The render toolkit, per tier (`TOOLS.md` + the tool deep-dives)
+
+**Phase 4 builds ON the arm-rig render-tier results** — the user-gated
+Siril-native + GraXpert ladders pre-registered in
+[`render-tier-arm-plan.md`](render-tier-arm-plan.md) run FIRST on the base rig
+(the render surface is probed present there; only the neural/separation
+binaries are arm-blocked). Whatever those ladders adopt is a measured PRIOR
+here, re-measured per the migration rule; the rows below then add the
+environment-unlocked tiers (separation, BXT/NXT, Cosmic Clarity, DeepSNR).
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | **Workflow order** on a real dataset: linear-first default vs the 2026 nonlinear-stage alternative (ben.land) | strong-default vs a measurable alternative | gate/audit deltas, full-frame lossless finals | declared delta; user's eyes on aesthetics |

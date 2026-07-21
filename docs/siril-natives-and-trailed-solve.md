@@ -67,16 +67,19 @@ for these three is re-validated against current docs, including 1.5.0-dev.
   stable at the syntax the toolkit already documents.
 
 ### 4. Confirmed current syntax (headless-relevant, for the operator catalog)
-All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki:
-- `denoise [-nocosmetic] [-mod=m] [ -vst | -da3d | -sos=n [-rho=r] ] [-indep] [-mask]`
+All [PRIMARY-VERIFIED] from readthedocs `latest` / FreeAstro wiki — **with the
+`[-mask]` tokens REMOVED below: they are 1.5.0-dev-only (§3) and readthedocs
+`latest` had leaked them into these lines; the rig's own 1.4.4 `help` confirms
+no processing command takes `-mask` (on-rig probe):**
+- `denoise [-nocosmetic] [-mod=m] [ -vst | -da3d | -sos=n [-rho=r] ] [-indep]`
 - `ccm m00 m01 m02 m10 m11 m12 m20 m21 m22 [gamma]`
 - `synthstar` (no args; synthetic round-PSF star mask for recombination) ·
   `unclipstars` (rebuilds clipped star cores; no documented args)
-- `linstretch -BP= [-sat] [-clipmode=] [channels] [-mask]`
+- `linstretch -BP= [-sat] [-clipmode=] [channels]`
 - `rgbcomp red green blue [-out=]` **or** `rgbcomp -lum=image {rgb | r g b} [-out=]` (LRGB)
 - `subsky { -rbf | degree } [-dither] [-samples=20] [-tolerance=1.0] [-smooth=0.5]`
-- `autostretch [-linked] [shadowsclip [targetbg]] [-mask]` ·
-  `autoghs [-linked] shadowsclip stretchamount [-b=] [-hp=] [-lp=] [-clipmode=] [-mask]`
+- `autostretch [-linked] [shadowsclip [targetbg]]` ·
+  `autoghs [-linked] shadowsclip stretchamount [-b=] [-hp=] [-lp=] [-clipmode=]`
 - `pm "expression" [-rescale [low] [high]] [-nosum]`
 - `rmgreen [-nopreserve] [type] [amount]` (type 0 avg / 1 max / 2 max-mask / 3 additive-mask)
 - `satu amount [background_factor [hue_range_index]]` (hue index 0–6)

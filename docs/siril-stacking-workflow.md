@@ -22,9 +22,10 @@
   for flats (frames used for division). No doc recommends multiplicative for NB lights. [PRIMARY]
 - **The old `register -noout` is gone** — its role is now `-2pass` (compute transforms
   without writing `r_` images). [PRIMARY absence]
-- **Bare `rej 3 3`'s default algorithm (Winsorized) is not doc-quoted** — write the
-  letter explicitly (`rej w 3 3`) for unambiguous headless scripts. [UNCERTAIN — confirm
-  with `help stack` on the rig.]
+- **Bare `rej 3 3` defaults to Winsorized — SETTLED on-rig**: `help stack` on the
+  installed 1.4.4 states *"If omitted, the default Winsorized is used"* (and default
+  normalization for rej/med is addscale). Writing the letter explicitly
+  (`rej w 3 3`) remains best practice for unambiguous headless scripts.
 
 ### Calibration (headless)
 - **Master stacking** (per the shipped scripts): bias/dark **`-nonorm`**, flats
@@ -141,8 +142,9 @@
 
 ## Status
 **PROVISIONAL (doc/source-verified syntax; not re-run on our data).** All commands are
-PRIMARY-VERIFIED against the Siril 1.4.4 tag + shipped scripts. Flagged UNCERTAIN: bare
-`rej` default letter; `-minpairs`/detection-sigma defaults. The kept `run_pipeline.sh`/
+PRIMARY-VERIFIED against the Siril 1.4.4 tag + shipped scripts. The bare-`rej`
+default is now SETTLED on-rig (Winsorized — `help stack`, 1.4.4). Still flagged
+UNCERTAIN: `-minpairs`/detection-sigma defaults. The kept `run_pipeline.sh`/
 `.ssf` must be re-run on x86 Siril 1.4.4 and its syntax reconciled — the acceptance test
 is a clean calibrate→register→stack on a known set with the corrected flags.
 

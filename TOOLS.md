@@ -87,6 +87,8 @@ reference or for a normalization edge case.
 bias/dark `-nonorm`, flats `-norm=mul`; lights `-norm=addscale`. **Rejection by sub
 count:** ≤6 percentile (`p`), ~7–50 winsorized (`rej w 3 3`), >50 GESD (`rej g 0.3 0.05`
 — fraction+significance, NOT sigmas), large+gradients linear-fit (`rej l 3 3`).
+Bare `rej n n` defaults to **Winsorized** and default light normalization is
+addscale — settled by `help stack` on the rig's own 1.4.4 (was doc-UNCERTAIN).
 Weighting `-weight={wfwhm|noise|nbstars|nbstack}` (unified — the old `-weight_from_*`
 flags are REMOVED and will error migrated scripts). Registration: `-2pass`→`seqapplyreg`,
 homography for wide fields, lanczos4+clamp. **`-framing=min` under-delivers on
@@ -109,7 +111,7 @@ star-match solver fails ultra-wide **trailed** fields.
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
 | **Siril 1.4 native astrometry.net** (`platesolve -localasnet -blindpos -blindres`, SIP, auto-crop-wide) | FREE | siril-native | ✅ / ✅ / ✅ | **Now native in 1.4** (Dec 2025) — replaces our custom solve for ROUND-STAR (tracked) data. VERIFIED it does NOT drop-in replace `solve_field.py` for the TRAILED class: Siril feeds astrometry.net its own `findstar` (PSF-fit) star list, which is exactly the detection our dead-end says fails on trailed stars (ours feeds trail-robust PEAK centroids). Mitigation to TEST on x86: `setfindstar -relax=on` accepts non-star-shaped/trailed objects — may let native localasnet solve the trailed class too. See the verification note below. |
-| **ASTAP** (`astap_cli -f file.fits`) | FREE | CLI | ✅ / ✅ / ✅ | **Fastest** local blind solve, but **NOT a trailed-field escape**: ASTAP's own docs say *"star streaks due to tracking errors … will be ignored and solving could fail"* and list *"stars are reasonably round"* as a solving precondition — it shares the roundness limitation. **Wide-field DBs (auto-select): W08 for FOV>20°** (~330–580 kB bright-star cut) **+ G05 for FOV>6°** (D-series usable ≥0.6°); G17/H17/H18 deprecated. `-z` downsample; FOV-blind auto-learn caps at 10° so **pass `-fov` explicitly for ultra-wide**. Use ASTAP for the NON-trailed / moderate-FOV class, not the trailed one. |
+| **ASTAP** (`astap_cli -f file.fits`) | FREE | CLI | ✅ (incl. **official Linux aarch64 builds** — hnsky.org ships Raspberry-Pi-64/aarch64 CLI, the one Tier-2 solver installable on the arm base rig) / ✅ / ✅ | **Fastest** local blind solve, but **NOT a trailed-field escape**: ASTAP's own docs say *"star streaks due to tracking errors … will be ignored and solving could fail"* and list *"stars are reasonably round"* as a solving precondition — it shares the roundness limitation. **Wide-field DBs (auto-select): W08 for FOV>20°** (~330–580 kB bright-star cut) **+ G05 for FOV>6°** (D-series usable ≥0.6°); G17/H17/H18 deprecated. `-z` downsample; FOV-blind auto-learn caps at 10° so **pass `-fov` explicitly for ultra-wide**. Use ASTAP for the NON-trailed / moderate-FOV class, not the trailed one. |
 | **astrometry.net** (`solve-field`, our `solve_field.py`) | FREE | CLI | ✅ / ✅ / ✅ | Our current workaround — blind solve from PEAK centroids, which is what beat the trailed-star problem. Keep as the fallback until native/ASTAP are verified on trailed data. |
 
 **Pick:** native localasnet for round-star data; **keep `solve_field.py` for
@@ -291,8 +293,8 @@ it. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
 |---|---|---|---|---|
 | **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v1.0.0 CLI. **Closes the chroma-noise gap:** AI3 has a *dedicated* chroma control (`denoise_color`, independent of the luminance `denoise` — not one global knob). Exact `rc-astro nxt` flag spelling is unpublished → capture with `rc-astro nxt` no-args on x86 (`docs/rc-astro-cli-linux.md`). Free CLI for holders, offline-after-activation. |
 | **Siril `denoise`** (NL-Bayes; `-da3d`/`-sos`/`-indep`/`-mod`/`-mask`) | FREE | siril-native | ✅ / ✅ / ✅ | **Free, headless, deterministic.** Plain NL-Bayes on stacks; `-da3d` refine, `-sos` background artefacts, `-indep` blocky colour, `-mod` blend, **`-mask` (1.5.0-dev) to confine to a region**. **No native chroma mode** (docs still punt to GIMP — gap confirmed in 1.5.0-dev). Clean default when free+headless matters. |
-| **DeepSNR 1.2.1 (Linux)** (StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. v1.2.1 is the **Linux** build (Win 1.2.2 / mac 1.2.0). CLI `-m/--model {1=RGB-only,2=default}`; docs say *"intended for monochrome cameras."* Architecture is not stated on the primary source (NAFNet is a third-party attribution). Luminance-vs-chroma behaviour is undocumented — not a citable chroma-gap fill. A Class-2 binary. |
-| **GraXpert denoise** (AI, `-strength` + `-batch_size`) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**CPU-slow — ~14.5 min/48MP, >30 min large frames**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. CPU-slow is the real cost. **LEAD (untested): `pip install graxpert[openvino]` claims ~5× CPU speedup on AVX2/VNNI Intel CPUs = the target rig's exact class** — x86 empirical candidate. No luminance/chroma split (single strength knob). |
+| **DeepSNR 1.2.1 (Linux)** (StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. v1.2.1 is the **Linux x64-only** build (Win 1.2.2 / mac ARM64 1.2.0 is CoreML) — environment-blocked on the arm base rig. CLI `-m/--model {1=RGB-only,2=default}`; docs say *"intended for monochrome cameras."* Architecture is not stated on the primary source (NAFNet is a third-party attribution). Luminance-vs-chroma behaviour is undocumented — not a citable chroma-gap fill. A Class-2 binary. |
+| **GraXpert denoise** (AI, `-strength` + `-batch_size`) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**CPU-slow — ~14.5 min/48MP, >30 min large frames**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. CPU-slow is the real cost. **ARM-VERIFIED on the base rig** (probe, installed fork 3.2.0a2 + denoise model 3.0.2, onnxruntime `CPUExecutionProvider`): 1024² tile in **71 s** → ≈13–14 min extrapolated per 12 Mpx frame — the one neural denoiser that RUNS on arm. Fork-CLI quirk (source-verified): the per-command flags (`-strength`/`-batch_size`/`-ai_version`; BGE `-correction`/`-smoothing`/`-bg`) are subparser-registered and HIDDEN from the top-level `--help` — they work when passed alongside `-cmd`. **LEAD (untested): `pip install graxpert[openvino]` claims ~5× CPU speedup on AVX2/VNNI Intel CPUs = the target rig's exact class** — x86 empirical candidate. No luminance/chroma split (single strength knob). |
 | **SyQon Prism** (free "Siril Edition" / paid "Deep") | FREEMIUM | pyscript (**Class-1**) | ✅ via Siril / ✅ (Parallax **Nano** is CPU-only) / **✅ headless** (free tier, `is_cli()`) | 2026 neural (PyTorch NAFNet) denoise; numpy/torch-inside (escape-hatch). Free labels are Zenith/Prism-Siril-Edition/Parallax-**Nano** (not "Mini"). The free "Siril Edition" (`mini` model) branches on `siril.is_cli()` and runs headless — no dialog/license gate (an older community build was GUI-only; verify the free-tier headless run on-rig). |
 | **Cosmic Clarity Denoise** (Seti, v6.5) | FREE (donation) | CLI (folder-batch) | ✅ native Linux / 🐢 (~7 min CPU) / ✅ | Free AI denoise; CPU-slow; Class-2 binary. **A FREE chroma-noise control exists here** (candidate free fill for the chroma gap alongside paid NXT): `--denoise_mode {luminance,full,separate}` + **`--color_denoise_strength`** (+ `--separate_channels`) — chroma vs luminance, headless. gnome-terminal is needed only for Super-Res + Satellite-Removal (Qt, `QT_QPA_PLATFORM=offscreen`/Xvfb); Sharpen/Denoise/Dark-Star are plain CLI subprocesses (Dark Star has a `headless` gate). Source-verified, quality unmeasured — x86 test. |
 | **AstroDenoisePy 0.5.8** | FREE | CLI (`--device CPU`) | ✅ (py) / 🐢 / ✅ | CSBDeep/Noise2Noise; headless CLI; older, below NXT/DeepSNR. |
@@ -315,7 +317,7 @@ Split starless + stars so nebula and stars are processed independently.
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
 | **StarXTerminator** (RC-Astro) | PAID $49.95 | CLI (`rc-astro sxt`) + siril-script | ✅ / AVX2, **CPU tens-of-sec** / ✅🖥 | **Best** separation, fewest artefacts on resolved objects; `rc-astro` v1.0.0 CLI. **AI11.** Free CLI for holders, offline-after-activation. Call the binary directly for headless. |
-| **StarNet2 v2.5.3** (native x86 CLI) | FREE | CLI + siril-native | ✅ / ✅ (self-contained ONNX, no TF/Torch/CUDA) / ✅ | **Free default on x86** — native binary. **`-n/--unscreen <FILENAME>`** writes a star-layer file (not a bare toggle); highlight protection is on by default so the opt-out is **`-d/--disable-highlights-protection`**. Keeps field-star flux; safe on resolved objects. CPU-only on Linux (no documented GPU path). Siril integration is thin ("point Siril at the executable"). Class-2 binary. |
+| **StarNet2 v2.5.3** (native x86 CLI) | FREE | CLI + siril-native | ✅ / ✅ (self-contained ONNX, no TF/Torch/CUDA) / ✅ | **Free default on x86** — native binary. **Linux builds are x86-64 ONLY** (starnetastro.com CLI matrix: "Linux x64"; the sole ARM lane is macOS/CoreML; no source offered) — environment-blocked on the arm base rig, and Siril's `starnet` command is gated on this binary. **`-n/--unscreen <FILENAME>`** writes a star-layer file (not a bare toggle); highlight protection is on by default so the opt-out is **`-d/--disable-highlights-protection`**. Keeps field-star flux; safe on resolved objects. CPU-only on Linux (no documented GPU path). Siril integration is thin ("point Siril at the executable"). Class-2 binary. |
 | **SyQon Zenith / Starless** (AI) | FREE | pyscript | ✅ via Siril / ✅ / **✅ headless** | Headless-capable: `SyQon_Starless.py` branches on `siril.is_cli()` and runs headless with the free `zenith` model (`pyscript SyQon_Starless.py --tile-size 512 --overlap 64`), no dialog/license gate; Prism (`mini`) and Parallax (`nano`) free tiers likewise. Verify the free-tier headless run on-rig. |
 | **Siril `starnet`/`seqstarnet`** integration | FREE | siril-native | ✅ / ✅ / ✅ | Drives StarNet under an invertible MTF pre-stretch (vendor-sanctioned). |
 
@@ -330,12 +332,13 @@ per-line (Tier 10 / Nightlight).
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **Siril `autostretch` / `autoghs` / `linstretch` / `curves`** | FREE | siril-native | ✅ / ✅ / ✅ | **Default.** Linked autostretch (broadband), GHS (generalized hyperbolic, deep-data control), linstretch (black-point + sat), curves. All headless. |
+| **Siril GHS surface: `ght`/`invght`, `autoghs`, `modasinh`, `asinh`, `mtf`, `linstretch` (+ seq variants)** | FREE | siril-native | ✅ / ✅ / ✅ | **Default.** The full GHS toolset is native + scriptable — there is NO command named `ghs` or `curves` in 1.4.4 (the GHS transform is **`ght`**; probed present + scriptable on the arm rig). Doctrine (ghsastro.co.uk + the authors' Siril tutorial): iterative multi-pass GHS beats a one-shot stretch; Siril's own docs call applying autostretch as-is "rarely advisable" for production. TRAP: `autostretch` AND `autoghs` default PER-CHANNEL — pass `-linked` after colour calibration (unlinked "will alter the white balance", Siril docs). `ght -HP`/`autoghs` implicit HP=0.7 is the star-bloat protection; `autoghs` SP = k·σ from the per-channel median, implicit B=13. |
 | **VeraLux HyperMetric Stretch** | FREE | pyscript-GUI | ✅ / ✅ / 🖥 | Well-regarded 2026 photometric hyperbolic stretch (Roger-Clark "true colour" lineage); numpy-inside, needs Xvfb. |
 | **Cosmic Clarity / Seti Statistical Stretch** | FREE | CLI / pyscript | ✅ / ✅ / ✅🖥 | Statistical-median-target stretch; a good automated option. |
 | **Arcsinh + Histogram (classic)** | FREE | siril-native / PI | ✅ / ✅ / ✅ | Arcsinh preserves star colour; the traditional broadband move. |
 
-**Pick:** Siril autostretch/GHS for headless; the pyscript stretches only if
+**Pick:** Siril `ght`/`autoghs` (linked) for headless production; `autostretch
+-linked` stays the DIAGNOSTIC surface. The pyscript stretches only if
 you accept Xvfb + the numpy-inside call.
 
 ## Tier 9 — Star reduction / recomposition (NONLINEAR)
@@ -438,6 +441,30 @@ PyQt6 with no arg vector → NOT headless-drivable even under Xvfb**; only
 dual-mode ones (Statistical_Stretch, SyQon Prism `--no-gpu`) run headless. Prefer
 a compiled tool (Siril-native / RC-Astro / GraXpert / StarNet / DeepSNR / Cosmic
 Clarity — all Class-2 binaries) whenever one provides the mechanism.
+
+## The arm base-rig reality (until the x86 migration)
+
+Verified per-tool from primary sources (starnetastro.com CLI matrix, rc-astro.com
+system requirements, pixinsight.com sysreq, setiastro/cosmicclarity releases,
+Steffenhir/GraXpert releases + CI, hnsky.org) + on-rig probes:
+
+- **Environment-blocked on Linux aarch64** — StarNet2 (Linux x64 builds only, no
+  source), RC-Astro `rc-astro` CLI (requires Intel/AMD x64 + AVX/AVX2/SSE),
+  DeepSNR (Linux x64 only), Cosmic Clarity (release lanes Windows/Linux/
+  AppleIntel/AppleSilicon — no ARM-Linux; MIT Python+torch source is public and
+  torch ships official aarch64 wheels, so a source-run is *possible but
+  undocumented/unofficial* — not a pinned production route), and PixInsight
+  itself (Linux x86_64 + AVX2/FMA3 only), which also blocks every PI-plugin
+  route (RC-Astro-in-PI, DeepSNR-PI).
+- **Runs on the arm rig** (on-rig probe): the full Siril 1.4.4 native render
+  surface (`help` list — stretch/denoise/deconv/star/colour/pm/rgbcomp all
+  "script: YES"); GraXpert BGE (4.5 s/1024² tile) + denoise (71 s/1024² tile,
+  onnxruntime CPU) via the installed fork; darktable-cli 5.4.1; astrometry.net
+  via the venv engine + `sep`; astropy 8.0.1. ASTAP has official aarch64 builds
+  (not installed; roundness-gated for the trailed class anyway).
+- Consequence: on arm, denoise = Siril native or GraXpert; star separation and
+  learned deconvolution have NO arm route — they are the genuinely x86-gated
+  tiers.
 
 ## The no-GPU reality
 

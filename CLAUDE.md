@@ -107,7 +107,9 @@ begins `checkpoint:` (a message prefix, not a tag: find it with
 Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 `recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
 by the stack builders); its RENDER block + `baseline.json` are chain-coupled
-and PENDING the x86 render chain.
+and PENDING the render-tier build (user-gated — the arm-rig plan is
+`docs/render-tier-arm-plan.md`; only the neural/separation tiers are
+environment-blocked on arm, per `TOOLS.md`).
 
 ## Environment
 
@@ -271,7 +273,7 @@ core here now:**
   audits, flat validation, diagnostics, one-off `.ssf` — lives under
   `datasets/<session>/<set>/<tool>_work/` (scratch gitignored, the JSON
   record tracked). Judgment surfaces go to exactly ONE place:
-  `results/<session>/<set>/judge/`, named `<set>_<recipe-tag>_<surface>`
+  `results/<session>/judge/`, named `<set>_<recipe-tag>_<surface>`
   (e.g. `set-01_168sp_spcc-linked.png`) — NEVER "FINAL_*" or adjective
   variants, and never scattered across directories. `datasets/` holds tracked
   RECORDS ONLY — never image data. All bulk derived image DATA is gitignored:
@@ -288,7 +290,8 @@ core here now:**
   it STOPS and asks rather than assume — `scripts/lib/acquisition.py`),
   `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
-  `baseline.json` (written only by the no-regression harness — pending x86),
+  `baseline.json` (written only by the no-regression harness — rides the
+  render-tier build),
   and per-set tool records + scratch (`audit_work/anomaly_audit.json`,
   `qa_work/frame_metrics.json`, …). The raw `<session>/<set>/` frame dir holds
   ONLY raw frames — EVERY per-set record and tool work dir lives under
