@@ -247,6 +247,20 @@ the constraints any such tool must satisfy):
   signal).
 - wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
   min-max ramp → worst frame ~0 weight at any spread).
+- **Never compose PRE-CROPPED per-set stacks to deliver a frame beyond any
+  member's crop** — a per-set `-framing=min` stack has already discarded its
+  outer drift zones, so a compose of such members has holes exactly where only
+  the discarded zones covered (measured: a 5-member compose of per-set full
+  stacks left a zero-coverage staircase across the cov25 frame's right region
+  that the 107-sub-stack compose covers at Min 84–88 ADU). Compose from the
+  UN-cropped sub-stacks. Two mechanisms measured alongside: `register -2pass`'s
+  auto-reference sets the output CANVAS ORIENTATION and (via `-norm=addscale`)
+  the composite's raw channel balance — `setref <n>` AFTER the 2pass re-bases
+  both (a set-02-referenced compose read K_B 0.846 = that set's own balance and
+  a rotated frame map; set-03-family reference restored K_B 0.951 and an exact
+  map); and a crop-coverage guard of `Min > 0` PASSES on lanczos edge-ringing
+  residue (Min 7–26 on a ~90 sky) — require the SIBLING-CLASS SKY FLOOR
+  (Min ≈ 80s here), never mere non-zero.
 - **Never sigma-reject across SUB-STACK composes.** Sub-stacks are clean
   ~group-size means, so their mutual scatter is ~√group below per-frame noise —
   a 3σ gate at that tiny σ fires on the systematic differences sub-pixel

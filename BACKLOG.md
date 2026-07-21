@@ -35,6 +35,7 @@ changes, when the rig changes, and before any item below is worked.
 | 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production: requires the item-7 single-pass-vs-groups A/B (and the in-group rejection ladder) to pass on identical frames first. |
+| 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
 
 ## 1. Derive the config fingerprint from the data
 
@@ -405,16 +406,16 @@ remainder-of-1 guard is now in BOTH undistort builders (item 4). The disk-bound 
 per set is the group composition (`run_undistort_groups.sh`), and
 `run_undistort_compose.sh` combines the per-set sub-stacks into one cross-set stack
 (undistorted sub-stacks compose as homographies — the re-aim is then just more drift).
-Prep state: sets 01, 03, 04 and 05
-are prepped and ratified with complete tracked records (per-set flats built +
-validated, recipes recorded, stacks + renders shipped; the 4-set combine is
-rendered at the cov25 frame — all on the arm rig, re-measure on x86 per the
-migration rule). set-02 is the ONLY missing member: its recipe is RE-RATIFIED (user ruling —
-the aircraft crosses DSC_7573–7575, all THREE culled; the audit had linked
-only 2 of the 3, see the register row's known miss mode; the 7551–5 haze
-cluster stays as a per-pixel minority; DSC_7569 pends the neighbour-quadrant
-check at re-stage), so only its raws need re-staging for the own-flat render
-the 5-set combine requires. Ordered:
+Prep state: **ALL FIVE SETS COMPLETE — the full-session combine is rendered**
+(1575 frames at the cov25 frame; `judge/set-01+02+03+04+05_cov25frame_spcc-linked.png`;
+build + adaptation + measured dead-ends in set-01's ledger). Every set carries
+complete tracked records, its own validated flat, and a ratified recipe
+(set-02's final: quadrant-verified 7569 cull + the user-identified 3-frame
+aircraft; its K_B 0.849 under its OWN flat = atmospheric, absorbed by the
+one-unit SPCC). All on the arm rig — re-measure on x86 per the migration rule;
+the x86 re-compose condition is in the removal register. Remaining here: the
+user's eyes on the finals, and the x86 render tier. Ordered
+(historical plan, retained for the x86 rebuild):
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
    Sets 01/02/03/04 are verified 70 mm / 6 s / ISO1600 (EXIF in each
