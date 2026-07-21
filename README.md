@@ -195,7 +195,7 @@ it, each answering a question it can actually answer:
    canary per change; the **full suite** on a cadence / before a re-baseline or
    release / when a change touches shared code — not every commit. (The harness
    that renders every baselined dataset and diffs the tools' measures rides the
-   render — a GAP pending x86; the no-regression standard is binding now,
+   render-tier build — user-gated; the no-regression standard is binding now,
    enforced by the checklist + declared-delta.)
 3. **Declared delta.** A change that alters a registered render is *expected*,
    not forbidden. It must report the metric deltas and side-by-side panels in
