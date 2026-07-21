@@ -1,4 +1,5 @@
 requires 1.4.0
+setcompress 0
 cd work
 load masters/flat_master
 stat

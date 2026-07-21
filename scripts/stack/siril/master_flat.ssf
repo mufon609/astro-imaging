@@ -1,4 +1,5 @@
 requires 1.4.0
+setcompress 0
 set16bits
 cd flats
 convert flat -out=../work

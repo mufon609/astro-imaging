@@ -248,7 +248,7 @@ fits_meta() { python3 "$REPO/scripts/stack/fitsmeta.py" "$1"; }
 
 # convert+stack a dark-type dir into a master: <srcdir-name> <prefix> <outname>
 _fits_dark_master() {
-  { echo "requires 1.4.0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
     echo "cd $1"; echo "convert $2 -out=../work"
     echo "cd ../work"; echo "stack $2 rej 3 3 -nonorm -out=masters/$3"
     echo "close"; } > "$W/fits_master_$2.gen.ssf"
@@ -256,7 +256,7 @@ _fits_dark_master() {
 }
 # master flat, calibrated by $1 (-dark=masters/darkflat_master | -bias=...)
 _fits_flat_master() {
-  { echo "requires 1.4.0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
     echo "cd flats"; echo "convert fl -out=../work"
     echo "cd ../work"; echo "calibrate fl $1"
     echo "stack pp_fl rej 3 3 -norm=mul -out=masters/flat_master"
@@ -273,7 +273,7 @@ _fits_flat_master() {
 _fits_dualband() {
   local MIDX="$2"
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $1 -cfa
@@ -295,7 +295,7 @@ _fits_dualband() {
 # flags (empty for mono), $2 = flat option (empty when no usable flat).
 _fits_lights() {
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $2 $1
@@ -609,7 +609,7 @@ if [[ "$FLATBIAS" == "synth" ]]; then
     # Siril's own stat measures the dark median (tool-first — no in-house
     # pixel read): a 16-bit load reports ADU directly, a float load reports
     # [0,1] and is rescaled to ADU.
-    printf 'requires 1.2.0\nload work/masters/dark_master\nstat\nclose\n' \
+    printf 'requires 1.4.0\nsetcompress 0\nload work/masters/dark_master\nstat\nclose\n' \
       > "$W/dark_median.gen.ssf"
     MEDADU=$(siril_run "$W/dark_median.gen.ssf" 2>&1 | tr '\r' '\n' \
       | grep -oE 'Median: [0-9.eE+-]+' | head -1 \

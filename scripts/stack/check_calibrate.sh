@@ -23,8 +23,12 @@ done
 # A LIGHT calibrate uses sequence name 'light' or 'c'; flats/darks use other
 # names and legitimately calibrate without -cc. Any hand-written light calibrate
 # outside the shared function (and this guard) is a divergence.
+# Exclusion: build_sky_flat.sh calibrates lights as FLAT SOURCE frames (dark-
+# subtract only, deliberately no -cc — star/speck rejection is the winsorized
+# flat stack's job, and the lights themselves get -cc=dark 3 3 in their own
+# calibration), so its `calibrate c -dark=` is not a light-calibrate bypass.
 hand=$(grep -rnE 'calibrate +(light|c) +-dark=' --include='*.sh' --include='*.tmpl' . \
-       | grep -vE 'calibrate_light\.sh:|check_calibrate\.sh:' || true)
+       | grep -vE 'calibrate_light\.sh:|check_calibrate\.sh:|build_sky_flat\.sh:' || true)
 [ -z "$hand" ] || { echo "FAIL: hand-written light calibrate bypasses calibrate_light_cmd:" >&2
                     echo "$hand" >&2; exit 1; }
 

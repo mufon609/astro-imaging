@@ -167,6 +167,7 @@ def align_members(repo, sdir, set_name, members, reference):
     # aligned, so the reference channel is still never interpolated.
     with open(ssf, "w") as f:
         f.write("requires 1.4.0\n"
+                "setcompress 0\n"
                 f"cd {rel}\n"
                 "convert ch\n"
                 f"setref ch {ref_idx}\n"

@@ -56,7 +56,7 @@ python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
 
 echo "[finish $NAME] 4/4 linked stretch -> PNG"
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
-printf 'requires 1.2.0\nload %s\nautostretch -linked\nsavepng %s\n' "$SPCC" "$JUDGE" > "$W/s.ssf"
+printf 'requires 1.4.0\nsetcompress 0\nload %s\nautostretch -linked\nsavepng %s\n' "$SPCC" "$JUDGE" > "$W/s.ssf"
 flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }
