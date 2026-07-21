@@ -1,0 +1,186 @@
+{
+ "method": "internal ratio (median_signal - median_sky) / bgnoise per channel; Siril crop+stat medians + bgnoise; boxes WCS-anchored (astropy); normalization-invariant across stacks, valid on LIKE (linear) surfaces only",
+ "signal_radec": [
+  314.0,
+  44.6
+ ],
+ "sky_radec": [
+  306.0,
+  50.5
+ ],
+ "box_arcmin": 20.0,
+ "stacks": {
+  "stack_set-01_full_spcc.fit": {
+   "box_px": 71,
+   "regions": {
+    "signal": [
+     {
+      "mean": 110.568736,
+      "median": 109.0
+     },
+     {
+      "mean": 111.016465,
+      "median": 109.0
+     },
+     {
+      "mean": 112.463003,
+      "median": 111.0
+     }
+    ],
+    "sky": [
+     {
+      "mean": 109.97679,
+      "median": 107.0
+     },
+     {
+      "mean": 111.246578,
+      "median": 108.0
+     },
+     {
+      "mean": 111.036699,
+      "median": 108.0
+     }
+    ]
+   },
+   "bgnoise": [
+    1.879,
+    2.186,
+    1.88
+   ],
+   "snr_per_channel": [
+    0.32,
+    -0.11,
+    0.76
+   ]
+  },
+  "stack_set-03_ownflat_spcc.fit": {
+   "box_px": 70,
+   "regions": {
+    "signal": [
+     {
+      "mean": 96.55,
+      "median": 95.0
+     },
+     {
+      "mean": 96.101224,
+      "median": 94.0
+     },
+     {
+      "mean": 96.818163,
+      "median": 95.0
+     }
+    ],
+    "sky": [
+     {
+      "mean": 95.455918,
+      "median": 93.0
+     },
+     {
+      "mean": 95.513878,
+      "median": 93.0
+     },
+     {
+      "mean": 95.446531,
+      "median": 93.0
+     }
+    ]
+   },
+   "bgnoise": [
+    1.812,
+    2.045,
+    1.771
+   ],
+   "snr_per_channel": [
+    0.6,
+    0.29,
+    0.77
+   ]
+  },
+  "stack_set-01+03_cov25.fit": {
+   "box_px": 70,
+   "regions": {
+    "signal": [
+     {
+      "mean": 96.481837,
+      "median": 95.0
+     },
+     {
+      "mean": 96.559184,
+      "median": 95.0
+     },
+     {
+      "mean": 97.684898,
+      "median": 95.0
+     }
+    ],
+    "sky": [
+     {
+      "mean": 95.607551,
+      "median": 93.0
+     },
+     {
+      "mean": 96.361429,
+      "median": 93.0
+     },
+     {
+      "mean": 96.515714,
+      "median": 94.0
+     }
+    ]
+   },
+   "bgnoise": [
+    1.81,
+    2.12,
+    1.79
+   ],
+   "snr_per_channel": [
+    0.48,
+    0.09,
+    0.65
+   ]
+  },
+  "stack_set-01+03+04_cov25frame.fit": {
+   "box_px": 70,
+   "regions": {
+    "signal": [
+     {
+      "mean": 96.50898,
+      "median": 95.0
+     },
+     {
+      "mean": 96.289388,
+      "median": 94.0
+     },
+     {
+      "mean": 97.240612,
+      "median": 95.0
+     }
+    ],
+    "sky": [
+     {
+      "mean": 95.599592,
+      "median": 93.0
+     },
+     {
+      "mean": 95.936531,
+      "median": 93.0
+     },
+     {
+      "mean": 95.61102,
+      "median": 93.0
+     }
+    ]
+   },
+   "bgnoise": [
+    1.883,
+    2.238,
+    1.83
+   ],
+   "snr_per_channel": [
+    0.48,
+    0.16,
+    0.89
+   ]
+  }
+ }
+}

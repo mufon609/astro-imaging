@@ -314,17 +314,34 @@ findings (all x86-portable, since Siril/astrometry/darktable are the identical t
   re-aim-limited: measured **57% (single) → 42% (2-set) → 24% (3-set, 5.9 Mpx)** as
   field rotation over the ~2.5-h span compounds. The centre-offset 66% estimate was
   optimistic — rotation dominates.
-- **DEPTH BENEFIT UNCONFIRMED — MEASUREMENT CONFOUNDED, CAUSE UNDETERMINED.** 1032 vs
-  369 frames should cut background noise to ~0.60×; the numbers I took (whole-frame
-  bgnoise flat 2.48 → 2.34 → 2.49, star density 980 → 893 → 866 /Mpx) do NOT show that —
-  BUT that comparison is INVALID: each stack is independently `-output_norm`'d, so
-  absolute bgnoise is not comparable across them. So the depth benefit is neither
-  confirmed nor refuted. FIRST TASK: a normalization-INVARIANT SNR measure (matched-star
-  SNR, or noise on identically-scaled stacks). Only if a clean measure still shows no
-  gain do the candidate causes (untested) — walking noise (item 11), group-route second
-  interpolation (item 7) — come into play. What IS measured: sharper stars (seqtilt
-  off-axis 0.30 → 0.14). Do not call the combine a win OR a NULL until the depth is
-  measured properly.
+- **DEPTH BENEFIT — FIRST TASK EXECUTED; background σ is measured DEPTH-FLAT (the
+  floor is structure, not shot noise).** The normalization-invariant instrument
+  (`scripts/qa/snr_regions.py`: internal ratio, Siril `stat` means + `bgnoise`,
+  WCS-anchored boxes; record `qa_work/snr_ladder_july14.json`) measured bgnoise
+  1.81–1.88 (R) / 2.05–2.24 (G) / 1.77–1.88 (B) ADU across 369 / 361 / ~730-class /
+  ~1128-class stacks at matched sky scale (~93–95 ADU; set-01's ~107 scales to ~1.65)
+  — √N predicts 0.57× at the deep end and the measured change is ~none. HYPOTHESIS
+  (mechanism, untested): the background estimator is floored by DEPTH-INDEPENDENT
+  static structure — unresolved-star confusion mottle at 17″/px in Cygnus, plus the
+  item-11 sensor-pattern residual — which repeats every frame and cannot average
+  down; the random component is already below that floor at ~360 frames. NEXT
+  INSTRUMENT (discriminates random vs structural, compose-cheap from existing
+  sub-stacks): half-split difference — one registration of a set's sub-stacks, two
+  subset means A/B (`select`/`unselect`), `isub` → `bgnoise` on the difference =
+  √2 × per-half RANDOM σ (all static structure cancels); compare its √N scaling
+  across depths. Matched faint-star photometric SNR is the companion measure. What
+  IS measured as depth gains so far: sharper stars (seqtilt off-axis 0.30 → 0.14 →
+  0.12), stronger rejection.
+  **SPLIT TEST RAN — the depth question CLOSES (scripts/qa/noise_split.sh; records
+  in set-04's and set-01's qa_work):** the RANDOM background component scales √N
+  exactly (per-half σ 0.64/0.76/0.76 → 0.39/0.46/0.49 ADU, ratios 0.60–0.64 vs the
+  predicted 0.594) — the combine IS deeper and the group route injects no excess
+  random noise; the VISIBLE background is floored by a depth-independent static
+  structure (σ≈1.0/1.5/1.2: unresolved-star confusion texture — real sky — plus the
+  item-11 pattern, whose drift-phase component measured 0.34/0.48/0.42 ADU per half
+  on set-04). Consequence: more integration keeps buying faint-source SNR at √N,
+  but background smoothness is structure-limited at these depths — the pattern part
+  is the x86 denoise tier's target; the confusion part is signal.
 - **WASHED-OUT render + rainbow streaks — OPEN FLAW, ROOT CAUSE NOT DETERMINED (do not
   reshoot; INVESTIGATE).** MEASURED SYMPTOMS ONLY: the combines stretch washed-out; the
   3-set combine has a ~4% centre→corner linear gradient vs a single set's ~1%, and the
@@ -488,6 +505,12 @@ matched darks and rebuild; (2) directional/pattern removal aligned to the measur
 174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a
 bandaid, last resort). The go-forward acquisition fix is unsettled — do NOT assume a
 shutter-mode change removes it. OPEN gap, not a dead-end.
+**First direct quantification (noise_split.sh, set-04):** the drift-phase
+structured component — the walking-noise-class power — measures ≈0.34/0.48/0.42
+ADU (R/G/B) per ~199-frame half (timehalf-vs-interleaved split excess), i.e.
+roughly a third of the total static-structure budget (≈1.0/1.5/1.2 ADU, the rest
+being unresolved-star confusion texture) and comparable to the random noise left
+at that depth. The x86 denoise tier now has a measured target size.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

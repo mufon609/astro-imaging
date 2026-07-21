@@ -1,0 +1,24 @@
+{
+ "members": 77,
+ "diff_bgnoise_interleaved": [
+  0.548,
+  0.645,
+  0.688
+ ],
+ "diff_bgnoise_timehalf": [
+  0.576,
+  0.7,
+  0.714
+ ],
+ "random_sigma_per_half_interleaved": [
+  0.3875,
+  0.4561,
+  0.4865
+ ],
+ "halfstack_total_bgnoise": [
+  1.057,
+  1.571,
+  1.26
+ ],
+ "note": "random \u03c3 per half = interleaved diff / sqrt(2); timehalf excess over interleaved = the structured (drift-phase) component; halfstack_total_bgnoise is the same half's whole-image bgnoise (structure INCLUDED) for the floor comparison. 32-bit chain; inputs are 16-bit sub-stacks (quantization \u03c3 0.29/sqrt(members/2) per half, declared)."
+}
