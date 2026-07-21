@@ -1,0 +1,98 @@
+{
+ "input": "/home/neural/Desktop/astrophotography/results/july14/stack_set-01+03+04+05_cov25frame.fit",
+ "domain": "linear (run this on the pre-stretch surface; cross-arm comparisons use the _spcc stack)",
+ "box_px": 400,
+ "corner_margin_px": 200,
+ "image_wh": [
+  3473,
+  3456
+ ],
+ "channels": 3,
+ "regions": {
+  "center": {
+   "ch0": {
+    "mean": 97.205038,
+    "median": 93.0,
+    "sigma": 28.311776
+   },
+   "ch1": {
+    "mean": 97.792994,
+    "median": 94.0,
+    "sigma": 28.04576
+   },
+   "ch2": {
+    "mean": 97.894006,
+    "median": 94.0,
+    "sigma": 31.169727
+   }
+  },
+  "TL": {
+   "ch0": {
+    "mean": 93.803363,
+    "median": 91.0,
+    "sigma": 33.287289
+   },
+   "ch1": {
+    "mean": 94.511813,
+    "median": 92.0,
+    "sigma": 39.840491
+   },
+   "ch2": {
+    "mean": 94.34405,
+    "median": 91.0,
+    "sigma": 50.547575
+   }
+  },
+  "TR": {
+   "ch0": {
+    "mean": 95.449313,
+    "median": 93.0,
+    "sigma": 51.861758
+   },
+   "ch1": {
+    "mean": 95.652637,
+    "median": 92.0,
+    "sigma": 51.897035
+   },
+   "ch2": {
+    "mean": 95.597037,
+    "median": 93.0,
+    "sigma": 53.875842
+   }
+  },
+  "BL": {
+   "ch0": {
+    "mean": 95.986587,
+    "median": 93.0,
+    "sigma": 33.694348
+   },
+   "ch1": {
+    "mean": 96.319344,
+    "median": 93.0,
+    "sigma": 31.486149
+   },
+   "ch2": {
+    "mean": 95.996612,
+    "median": 93.0,
+    "sigma": 31.821543
+   }
+  },
+  "BR": {
+   "ch0": {
+    "mean": 95.300456,
+    "median": 93.0,
+    "sigma": 28.146071
+   },
+   "ch1": {
+    "mean": 95.37495,
+    "median": 92.0,
+    "sigma": 25.381194
+   },
+   "ch2": {
+    "mean": 94.997944,
+    "median": 92.0,
+    "sigma": 23.552437
+   }
+  }
+ }
+}

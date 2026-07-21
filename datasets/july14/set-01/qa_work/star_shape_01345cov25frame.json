@@ -1,0 +1,10 @@
+{
+ "input": "results/july14/stack_set-01+03+04+05_cov25frame.fit",
+ "label": "set-01+03+04+05 cov25frame 1274fr",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 8837,
+ "truncated_mean_fwhm_px": 3.16,
+ "sensor_tilt_fwhm_px": 0.43,
+ "sensor_tilt_pct": 14,
+ "off_axis_aberration_fwhm_px": 0.35
+}

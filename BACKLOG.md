@@ -405,13 +405,15 @@ remainder-of-1 guard is now in BOTH undistort builders (item 4). The disk-bound 
 per set is the group composition (`run_undistort_groups.sh`), and
 `run_undistort_compose.sh` combines the per-set sub-stacks into one cross-set stack
 (undistorted sub-stacks compose as homographies — the re-aim is then just more drift).
-Prep state: sets 01, 03 and 04
+Prep state: sets 01, 03, 04 and 05
 are prepped and ratified with complete tracked records (per-set flats built +
-validated, recipes recorded, stacks + renders shipped — all on the arm rig,
-re-measure on x86 per the migration rule); set-02 carries its QA/audit records
-but needs its raws re-staged for any render; set-05 pends arrival and gets the
-same per-set prep (`run_frame_qa.sh` + the anomaly audit + the cull policy +
-its own flat via `build_sky_flat.sh`) as it stages. Ordered:
+validated, recipes recorded, stacks + renders shipped; the 4-set combine is
+rendered at the cov25 frame — all on the arm rig, re-measure on x86 per the
+migration rule). set-02 is the ONLY missing member: it carries full QA/audit
+records but its ratified recipe contradicts its own cull report (claims "no
+z>3.5 outliers" while the report flags 7, including the DSC_7573 frame-wide
+wreck — re-ratify per the current policy BEFORE any re-render) and its raws
+need re-staging for the own-flat render the 5-set combine requires. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
    Sets 01/02/03/04 are verified 70 mm / 6 s / ISO1600 (EXIF in each
