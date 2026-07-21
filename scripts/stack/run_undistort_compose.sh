@@ -8,7 +8,7 @@
 #
 #   run_undistort_compose.sh --out=<stack.fit> <subdir>... [--framing=min|max]
 #
-# e.g. run_undistort_compose.sh --out=results/july14/stack_set-01+02_full.fit \
+# e.g. run_undistort_compose.sh --out=web/results/july14/stack_set-01+02_full.fit \
 #        july14/work/groups_set-01 july14/work/groups_set-02
 #
 # WHY IT COMPOSES CLEANLY ACROSS SETS: after the lens-distortion warp every

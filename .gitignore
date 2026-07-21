@@ -44,18 +44,22 @@
 **/qa_work/*
 !**/qa_work/*.json
 
-# --- session data dirs ---
-# Each acquisition session is a dir at the repo root, keyed <session>/, holding
-# raw lights + calibration + intermediates. It is NEVER committed. The image
-# patterns above already catch the frames; add the session dir itself here to
-# keep stray files (previews, notes) out too, e.g.:
-#   /2026-08-orion/
+# --- session data dirs (transient staging) ---
+# Every acquisition session lives under sessions/<session>/ (raw lights +
+# calibration + work/ intermediates). NEVER committed — one structural rule
+# covers all sessions, no per-session entry needed.
 #
 # THIRD-PARTY practice corpora especially must never be committed or
 # redistributed — download and PROCESS only, link the source (terms vary: some
-# are CC-BY-NC-SA / no-redistribute). Record each one's source + license in its
-# exclude comment when you add it.
-/july14/
+# are CC-BY-NC-SA / no-redistribute). Record each one's source + license in a
+# comment here when one is staged.
+/sessions/
+
+# --- durable outputs (web-servable, image data — never tracked) ---
+# web/ itself is TRACKED (the front-end code + assets); its results/ data
+# tree is not. The `**/results/` pattern above already ignores web/results/;
+# this line makes the contract explicit.
+/web/results/
 
 # --- tooling / OS cruft ---
 __pycache__/

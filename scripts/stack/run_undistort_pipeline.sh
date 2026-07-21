@@ -53,7 +53,7 @@ esac; done
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 SESSION=$(cd "$SESSION" && pwd)
-OUT=${OUT:-$REPO/results/$(basename "$SESSION")/stack_$SET}
+OUT=${OUT:-$REPO/web/results/$(basename "$SESSION")/stack_$SET}
 OUT=${OUT%.fit}
 mkdir -p "$(dirname "$OUT")" "$SESSION/work"
 # Absolutize: the flatpak Siril sandbox resolves the .ssf's -out= from the

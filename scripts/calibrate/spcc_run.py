@@ -26,7 +26,7 @@ response — the generic sensor-null calibration (measured on the one chip
 with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
 p99, so null is the adequate default; measurement detail in git history).
 
-Defaults: in/out = <repo>/results/<session>/stack_<set>_{wcs,spcc}.fit (the
+Defaults: in/out = <repo>/web/results/<session>/stack_<set>_{wcs,spcc}.fit (the
 project-root results tree). An explicit --in/--out resolves against the CWD or
 an absolute path; override both for non-default stems like stack_<set>_norgbeq_*.
 The generated .ssf lives under work/ — the siril flatpak has its own
@@ -95,12 +95,14 @@ def main():
     sdir = os.path.abspath(session)
     catalog = opts.get("catalog", "localgaia")
     spec, spec_prov = resolve_spec(opts, session, set_name)
-    # Derived stacks live at the PROJECT-ROOT results/<session>/ (not under the
-    # session tree). Default in/out point there; an explicit --in/--out resolves
-    # against the CWD (or an absolute path), never joined onto the session dir —
-    # which double-prefixed a repo-relative path into an unfindable one.
+    # Derived stacks live at the web-servable output root web/results/<session>/
+    # (not under the transient session tree). Default in/out point there; an
+    # explicit --in/--out resolves against the CWD (or an absolute path), never
+    # joined onto the session dir — which double-prefixed a repo-relative path
+    # into an unfindable one.
     repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    results = os.path.join(repo, "results", os.path.basename(os.path.normpath(session)))
+    results = os.path.join(repo, "web", "results",
+                           os.path.basename(os.path.normpath(session)))
     p_in = (os.path.abspath(opts["in"]) if "in" in opts
             else os.path.join(results, f"stack_{set_name}_wcs.fit"))
     p_out = (os.path.abspath(opts["out"]) if "out" in opts

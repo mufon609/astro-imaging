@@ -237,7 +237,7 @@ removal condition.
 - One knob per experiment, values bracketing the control; hypothesis
   pre-registered *before* the run (`docs/dead-ends.md`). Each value is rendered
   as a full-frame lossless final + stage sequence into
-  `results/exp_<param>_<stamp>/`, appended to the tracked per-dataset
+  `web/results/<session>/exp_<param>_<stamp>/`, appended to the tracked per-dataset
   `experiments.jsonl`, and STOPs for user judgment. (The ladder that automates
   this rides the render-tier build — user-gated; the discipline is binding now.)
 - The verdict round-trips: once judged, the ledger entry is closed
@@ -325,7 +325,7 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 - `experiments.jsonl` — the tuning-experiment ledger (append-only): one
   record per ladder (param, values, control, hypothesis, pinned stack,
   verdict), closed by `--verdict`. The durable tracked index of what was
-  tried; heavy per-value finals stay in gitignored `results/exp_*/`.
+  tried; heavy per-value finals stay in gitignored `web/results/<session>/exp_*/`.
 
 The background is NOT a per-set composition fact: sky scope is selected
 STATISTICALLY (dark blocks, foreground excluded — see the review contract),
@@ -342,11 +342,11 @@ mask, never an in-house fit (in-house derivation would read the stack pixels).
 ```bash
 # stack builder (session dir, set name; ~15 min) — the standard class
 #   calibrate -> register -> stack
-scripts/stack/run_pipeline.sh <session> <set>
+scripts/stack/run_pipeline.sh sessions/<session> <set>
 
 # flatless set: build + validate the PER-SET sky flat FIRST (the ratified rule:
 #   a flat calibrates only the exact frames it was built from — dead-ends entry)
-scripts/stack/build_sky_flat.sh <session> <set> --dark=<master> --out=<session>/work/masters/skyflat_<set>.fit
+scripts/stack/build_sky_flat.sh sessions/<session> <set> --dark=<master> --out=sessions/<session>/work/masters/skyflat_<set>.fit
 
 # wide-field UNTRACKED class: calibrate -> UNDISTORT -> register -> stack
 #   (a far-drifting set cannot be registered by one homography; the warp uses
@@ -354,18 +354,18 @@ scripts/stack/build_sky_flat.sh <session> <set> --dark=<master> --out=<session>/
 #   fit_lens_model.sh + install_lens_model.sh where the community entry is
 #   inadequate). Route + traps: docs/wide-field-untracked-registration.md;
 #   auto-routing by data fingerprint is BACKLOG items 1-2.
-scripts/stack/run_undistort_pipeline.sh <session> <set> --dark=<master> --flat=<master> [--frames=N]
+scripts/stack/run_undistort_pipeline.sh sessions/<session> <set> --dark=<master> --flat=<master> [--frames=N]
 # same class at FULL depth on a disk below the ~231 MB/frame single-pass peak:
 #   balanced consecutive groups -> per-group stacks -> register + stack the
 #   sub-stacks. Valid post-undistort ONLY.
-scripts/stack/run_undistort_groups.sh <session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
+scripts/stack/run_undistort_groups.sh sessions/<session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
-python3 scripts/calibrate/solve_field.py results/<session>/stack_<set>.fit \
-    --inject=results/<session>/stack_<set>_wcs.fit
+python3 scripts/calibrate/solve_field.py web/results/<session>/stack_<set>.fit \
+    --inject=web/results/<session>/stack_<set>_wcs.fit
 # NEW FIELD: make sure the local Gaia chunks cover it before SPCC (a southern
 # field needs southern chunks); --fetch downloads any missing ones
-python3 scripts/calibrate/spcc_cone.py results/<session>/stack_<set>_wcs.fit --fetch
+python3 scripts/calibrate/spcc_cone.py web/results/<session>/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
 # final render — UNBUILT, user-gated (arm-rig plan: docs/render-tier-arm-plan.md;
@@ -396,7 +396,7 @@ live in CLAUDE.md "Environment".
 | `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
 | `build_sky_flat.sh` | PER-SET sky-flat builder for flatless sets (the ratified rule: a flat calibrates only the exact frames it was built from — `docs/dead-ends.md` imprint entry): the set's own un-registered lights, dark-subtracted, CFA, `-norm=mul`, `--rej=wins` default (specks measured 101→0 vs median; `median` kept as the attribution arm); validation gates built in (regional `stat`, `findstar` speck count, autostretch preview, tracked qa record). Removal condition: a matching real flat for the set |
 | `run_undistort_compose.sh` | compose already-built undistort SUB-STACKS across sets into one deep stack (register `-2pass` → `-framing=min\|max` → PLAIN MEAN — sigma rejection across sub-stack composes is a measured dead end); valid post-undistort only (homographies compose) |
-| `finish_render.sh` | finish a stack into the judgeable render: blind solve (`--central=` seam guard for union canvases) → SPCC as one unit (`--session/--set` route the recipe spec + record naming) → linked autostretch → full-frame 16-bit PNG in `results/<session>/judge/` |
+| `finish_render.sh` | finish a stack into the judgeable render: blind solve (`--central=` seam guard for union canvases) → SPCC as one unit (`--session/--set` route the recipe spec + record naming) → linked autostretch → full-frame 16-bit PNG in `web/results/<session>/judge/` |
 | `compose.py` | the convergence stage: per-line / per-filter member stacks → ONE composed linear colour stack per the composition record's palette mapping (mono-filters members aligned to the reference member by Siril first). Its channel combine + FITS I/O should move to Siril `rgbcomp` — BACKLOG |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
@@ -460,8 +460,13 @@ binaries — [`TOOLS.md`](TOOLS.md)) and ride
 
 ## Data layout
 
+Three stores, joined by the session name — each a different lifecycle:
+`sessions/` is TRANSIENT staging (raws re-stage from off-rig; freed when a
+set's chain completes), `web/results/` is the DURABLE output tree (servable
+by the local web front end), `datasets/` is the TRACKED record.
+
 ```
-<session>/           one acquisition session (any directory name)
+sessions/<session>/  one acquisition session (transient staging, gitignored)
   biases/ darks/ flats/ darkflats/       calibration (darkflats = the FITS path's
                                          matched darks for the flats)
   calib/                                 OR prebuilt master calibration for
@@ -474,9 +479,15 @@ binaries — [`TOOLS.md`](TOOLS.md)) and ride
                                          dedicated-astrocam FITS (all ignored)
   work/                                  masters, caches, generated scripts
                                          (the session tree is raws + work ONLY)
-results/<session>/                       derived outputs at the PROJECT ROOT (gitignored):
+web/                                     the local front end (code TRACKED)
+  index.html, crop.html, serve.py, …     session browser + the framing/crop UI
+                                         (serve.py binds 127.0.0.1 only)
+  results/<session>/                     DURABLE derived outputs (gitignored):
                                          stacks, renders, exp_*/, inspect_*/,
-                                         <set>/judge/ (judgment surfaces — image data)
+                                         judge/ (judgment surfaces — image data),
+                                         previews/ (tool-made selection
+                                         downscales for the browser — NEVER a
+                                         judgment surface)
 datasets/<session>/<set>/                tracked per-dataset RECORDS ONLY (no image data):
                                          acquisition.json, geometry.json, recipe.json,
                                          baseline.json, composition.json, experiments.jsonl,
@@ -493,14 +504,14 @@ scripts/                                 the pipeline (tracked)
    tool is open — recover the actual recipe/mechanisms first (measured lesson:
    two judgment rounds were burned tuning toward an unstudied reference whose
    maker's recipe was published in the dataset's own repo).
-1. Lay it out as a session dir: `<session>/{darks,flats,biases,darkflats}/`
+1. Lay it out as a session dir: `sessions/<session>/{darks,flats,biases,darkflats}/`
    (calibration, each an internally-uniform group) + one `<session>/<set>/` per
    single-pointing light set. Any siril-readable camera raw works with no
    conversion, as do dedicated-astrocam **FITS** frames (`darkflats/` = darks
    matched to the flat exposure). A master-only corpus stages prebuilt masters
-   as `<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only; the
+   as `sessions/<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only; the
    normalized filename token is the identity — such masters carry no headers).
-2. `scripts/stack/run_pipeline.sh <session> <set>` — forks on the data class
+2. `scripts/stack/run_pipeline.sh sessions/<session> <set>` — forks on the data class
    (camera raw vs FITS) → `stack_<set>.fit` (matched-flat path; a flatless set
    hard-stops — synthetic-flat is a gap, BACKLOG).
    Flats match lights by filter on the FITS path; mono lights never debayer.

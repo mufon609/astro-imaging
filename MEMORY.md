@@ -26,7 +26,7 @@ technical and process knowledge lives in the operating docs, never here:
   intellectual capital (mechanisms, dead-ends), not the scaffolding.
 - **Storage on the working rig is transient by design**: raws stage in for
   processing and are freed once a set's chain is complete (originals live
-  off-rig and re-stage in minutes); final processed images stay in `results/`;
+  off-rig and re-stage in minutes); final processed images stay in `web/results/`;
   superseded intermediates are cleared without ceremony ("clear whatever...
   no longer needed. keep the final processed images in results").
 - Expects killed hypotheses reported as plainly as wins — no

@@ -6,7 +6,7 @@
 # biases+flats optional), or for master-only corpora a calib/ dir of
 # prebuilt {dark,flat}_<filter-token>.fits masters (FITS sets only; matched
 # by the normalized FILENAME token — such masters carry no headers) — plus
-# one or more light-frame sets; each set stacks to <repo>/results/<session>/stack_<set>.fit
+# one or more light-frame sets; each set stacks to <repo>/web/results/<session>/stack_<set>.fit
 # + its previews. A raw-camera set without a usable flat (missing dirs or
 # focal/aperture mismatch) is a DOCUMENTED ACQUISITION GAP: the run stops and
 # asks for a matching flat. The in-house self-flat (a numpy vignette fit +
@@ -27,7 +27,7 @@ SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
 SET="${2:-lights}"
 S="$REPO/$SESSION"
 W="$S/work"
-RESULTS="$REPO/results/$(basename "$S")"   # derived stacks/renders live at the project root, not under the session tree
+RESULTS="$REPO/web/results/$(basename "$S")"   # durable outputs live at the web-servable root, not under the transient session tree
 
 [[ -d "$S/$SET" ]] || { echo "missing $S/$SET" >&2; exit 1; }
 # calibration source: raw darks/ frames, or prebuilt masters in calib/
@@ -115,7 +115,7 @@ INS() {
 # after the run and hard-fails, removing the stack, unless exactly the
 # named file numbers were deselected.
 STACK_WEIGHT="" STACK_EXCLUDE=""
-STACK_RECIPE="$REPO/datasets/$SESSION/$SET/recipe.json"
+STACK_RECIPE="$REPO/datasets/$(basename "$S")/$SET/recipe.json"
 if [[ -f "$STACK_RECIPE" ]]; then
   sp=$(python3 -c '
 import json, sys
@@ -453,7 +453,7 @@ fits_ingest() {
   # set then debayers like broadband: legal, but its lines stay merged —
   # the record is what encodes the data's goal).
   local COMP COMP_KIND=""
-  COMP="$REPO/datasets/$SESSION/$SET/composition.json"
+  COMP="$REPO/datasets/$(basename "$S")/$SET/composition.json"
   if [[ -f "$COMP" ]]; then
     COMP_KIND=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('kind',''))" "$COMP")
     echo "composition: $COMP_KIND ($COMP)"

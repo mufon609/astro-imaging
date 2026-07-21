@@ -4,5 +4,5 @@ cd work
 load masters/flat_master
 stat
 autostretch
-savejpg ../results/flatmaster_check 85
+savejpg flatmaster_check 85
 close

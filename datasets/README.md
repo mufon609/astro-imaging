@@ -57,12 +57,12 @@ Rules (the same contract as README "How a change is accepted"):
   `datasets/<session>/<set>/` (the `*_work/` pattern; only the `.json` records
   are tracked, the scratch is gitignored). **`datasets/` holds RECORDS ONLY —
   never image data.** Judgment surfaces live in exactly one place at the project
-  root: `results/<session>/judge/` (gitignored), named
+  root: `web/results/<session>/judge/` (gitignored), named
   `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never scattered.
   The raw `<session>/<set>/` dir holds raw frames ONLY; bulk derived image DATA
   (FITS intermediates, masters, session-relative masks) stays in the gitignored
   session tree, and stacks/renders/judgment surfaces at the gitignored,
-  project-root `results/<session>/`.
+  web-servable `web/results/<session>/`.
 
 The render-knob schema and the no-regression sweep re-establish with the
 render-tier build (user-gated; the arm-rig plan is

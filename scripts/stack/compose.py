@@ -6,7 +6,7 @@ Usage: compose.py <session> <set-or-target>
 
 Reads datasets/<session>/<name>/composition.json (the BUILD record — see
 datasets/README.md) and writes the composed 3-channel float FITS
-<session>/results/stack_<name>_comp.fit. The composed stack then enters
+<repo>/web/results/<session>/stack_<name>_comp.fit. The composed stack then enters
 the ordinary flow (solve -> SPCC -> render) exactly like any colour stack.
 
 Two kinds:
@@ -47,6 +47,17 @@ import sys
 import numpy as np
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+
+
+def results_dir(sdir):
+    """Durable output root for a session: <repo>/web/results/<session-basename>
+    (the web-servable output tree; the session dir itself is transient
+    staging). Member stacks are read from and the composed stack written to
+    this one place."""
+    repo = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))
+    return os.path.join(repo, "web", "results",
+                        os.path.basename(os.path.normpath(sdir)))
 
 
 def read_fits_raw(path):
@@ -148,7 +159,7 @@ def align_members(repo, sdir, set_name, members, reference):
         shutil.rmtree(work)
     os.makedirs(work)
     for i, n in enumerate(names, 1):
-        src = os.path.join(sdir, "results", f"stack_{members[n]}.fit")
+        src = os.path.join(results_dir(sdir), f"stack_{members[n]}.fit")
         if not os.path.exists(src):
             sys.exit(f"compose: member stack missing: {src} (stack the "
                      f"member set '{members[n]}' first)")
@@ -220,7 +231,7 @@ def main():
         if not lines:
             sys.exit(f"compose: {p_comp} (dualband-osc) needs 'lines'")
         for ln in lines:
-            p = os.path.join(sdir, "results", f"stack_{set_name}_{ln}.fit")
+            p = os.path.join(results_dir(sdir), f"stack_{set_name}_{ln}.fit")
             cards, plane = load_plane(p, f"line {ln}")
             line_data[ln] = plane
             if cards0 is None:
@@ -267,7 +278,7 @@ def main():
         " ".join(f"{c}={channels[c]}" for c in order),
     ] + [f"COMMENT compose.py: {s}" for s in inputs]
     cards_out = cards0 + [c.ljust(80) for c in provenance]
-    p_out = os.path.join(sdir, "results", f"stack_{set_name}_comp.fit")
+    p_out = os.path.join(results_dir(sdir), f"stack_{set_name}_comp.fit")
     write_fits3(p_out, cards_out, planes)
     print(f"[compose] wrote {os.path.relpath(p_out, repo)}")
     # the aligned intermediates are consumed; the composed stack + the

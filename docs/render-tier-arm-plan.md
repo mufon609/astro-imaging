@@ -105,7 +105,7 @@ doctrine-ordered before colour calibration. The control arm re-derives the
 approved look through the same skeleton (crop → SPCC → stretch) so every
 ladder's knob is the ONLY difference. All arms 32-bit from the crop on
 (`set32bits`), `setcompress 0`, judged on full-frame lossless PNG16 in
-`results/july14/judge/`, one arm per experiment, ledger entries in
+`web/results/july14/judge/`, one arm per experiment, ledger entries in
 `datasets/july14/set-01/experiments.jsonl` opened at run time with these
 hypotheses, closed WIN | NULL | needs-eyes; a killed hypothesis goes to
 `docs/dead-ends.md` with its numbers.
@@ -215,7 +215,7 @@ hypotheses, closed WIN | NULL | needs-eyes; a killed hypothesis goes to
 **Sequencing rule:** L1 closes (user verdict) before L2 runs on its winner;
 L2 before L3; a failed arm reverts to the standing control before the next
 knob (revert-on-failure). Each experiment: full-frame PNG16 judgment set
-via the standing surfaces in `results/july14/judge/`, records + verdicts in
+via the standing surfaces in `web/results/july14/judge/`, records + verdicts in
 the ledger; every run re-records its wall-clock.
 
 ## ENV — the verified environment-blocked list (arm)
