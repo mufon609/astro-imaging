@@ -5,7 +5,10 @@ mechanism and the test that would close it, not a narrative.
 
 Where things live: mechanism lessons + the acquisition checklist in
 [`docs/dead-ends.md`](docs/dead-ends.md); the toolkit in [`TOOLS.md`](TOOLS.md);
-per-dataset state under `datasets/<session>/<set>/`; the x86 build order in
+per-dataset state under `datasets/<session>/<set>/`; the user-gated render-tier
+plan for THIS rig in
+[`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md); the x86 build
+order in
 [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). Completed work
 is not carried here — it is in the operating docs and in `git log`.
 
@@ -27,15 +30,37 @@ changes, when the rig changes, and before any item below is worked.
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. |
 | Hand-rolled FITS parsers (5 sites) | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig; retirement is ARM-DOABLE open work (item 6), not x86-gated. 4 of 5 done (git log); only `compose.py` remains, blocked on a multi-channel dataset. |
-| `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. |
+| `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. (Optional second official arm, untested: the `image2xy` binary — shape-blind, but its trail knobs `-a`/`-p`/`-m` are unexposed by solve-field and `-a` can fragment a rippled trail; ASTAP is NOT an arm — roundness-gated by its own docs.) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
-| `skyflat373` (set-01's sky flat) reused for set-02/03 in the multi-set combine | a per-set flat, or a flat rebuilt from ALL the combine's frames, measured to differ materially (gradient QA + dust) | **FIRED for per-set renders** — measured on set-03 (one-knob A/B, `datasets/july14/set-03/experiments.jsonl` flat_source_set03): the SENSOR content transfers (both flats' falloff shapes agree, corner/centre ~0.45–0.63) but the flat's LOW-ORDER term imprints the SOURCE set's sky gradient — set-03 rendered with set-01's flat carries a ±6% L-R linear tilt that its own flat reduces to ~1–2%. **USER-RATIFIED, divergence ENDED**: a flat calibrates ONLY the exact frames it was built from — cross-set reuse AND any shared/union flat on a combine are banned; combines calibrate each member set with its own flat before composing (item 8 step 3). Wrong-flat artifacts removed; set-01's raws are re-staged on this rig (373 NEF back in `july14/set-01/`), set-02's still need re-staging for any set-02 re-render. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
-| 16-bit stack-time intermediates | RAM/disk headroom to carry 32-bit through stacking | **no condition was ever written** — the reduction is documented in `README.md` but nothing says when it ends. The x86 target (32 GB / 1 TB) removes the reason. Write the condition, then fire it there (item 6). |
+| 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **not fired** — arm RAM/disk forced it; the quantization is measured ≈18× below per-frame noise (~+0.3% stack noise) and the shipped july14 stacks are BITPIX=16 under it. |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
-| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production: requires the item-7 single-pass-vs-groups A/B (and the in-group rejection ladder) to pass on identical frames first. |
+| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
+
+## 0. THE RENDER-TIER BUILD — user-gated, starts on THIS rig
+
+The one open product gap. The approved deliverable
+(`july14-all5-cov25frame-approved`) ends at a diagnostic `autostretch
+-linked`; the real render tier is UNBUILT — a POLICY gap (the user gates every
+output-shaping run), not a rig gap: the full Siril native render surface is
+probed present + scriptable on this arm rig, and only the neural/separation
+x86-64 binaries are environment-blocked (per-tool evidence: `TOOLS.md`).
+
+**The pre-registered plan is [`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md)**
+— ladder sequence L1 background-level A/B (item 7's named test) → L2 linear
+denoise (Siril native vs installed GraXpert; objective target = the measured
+drift-phase structured term 0.34–0.48 ADU/half) → L3 GHS stretch ladder
+(replaces the diagnostic autostretch) → L4 thresholded satu; one knob per
+experiment, hypotheses pre-registered, judged on full-frame lossless PNG16,
+STOPPED at the user's gate. Riding on completion: re-seed
+`datasets/GENERIC.json` + recipe `render` blocks, first `baseline.json` via
+the no-regression harness, `finish_render.sh`'s stretch stage swap, and the
+`judgment_package.py` re-wire (its PNG8 pairing predates the 16-bit-only
+judgment policy; its `.metrics.json` producer — the wiped chain's renderer —
+must be replaced by the new chain's stage records). Close condition: an
+approved, re-baselined, tagged render from the new tier.
 
 ## 1. Derive the config fingerprint from the data
 
@@ -117,56 +142,11 @@ RECOMMEND it:
   cannot catch lensfun fuzzy-matching a correct EXIF string to a wrong-but-present
   DB entry — the station measure is the backstop.
 
-## 3. Culling — decided and recorded; no render has consumed it yet
-
-The per-set decision is RATIFIED and recorded in each set's `recipe.json`
-stack block (exclusions with per-frame reasons; assessed keeps recorded the
-same way), and both undistort builders consume `stack.exclude`. Open: the
-first full-depth render that applies it closes this item.
-
-**Per-set culling policy (user-ratified; drivers `scripts/qa/anomaly_audit.py` +
-`scripts/qa/run_frame_qa.sh`):** run the anomaly audit per set and cull
-aircraft-classified frames; cull a set's FIRST and LAST frame when either is
-anomaly-flagged or QA-degraded (session-edge frames carry settle/handling risk);
-cull a QA-flagged frame whose degradation is FRAME-WIDE (verified against a
-neighbour frame in fixed quadrants — the vibration/wind class).
-Everything else goes to the user as a full frames-with-objects list + the cull
-report for an explicit per-set call, recorded in the set's `recipe.json` stack
-block with its reason. Satellites are not culled by default — a moving minority
-trail stacks clean through `rej 3 3` (dead-end registry); they are listed, not
-excluded.
-
-- **Frame selection has been disk-bound, not chosen.** The approved render (168 of
-  373 by even stride, the disk ceiling; `run_undistort_pipeline.sh --frames=`)
-  is quality-blind and **includes DSC_6900** — the frame flagged worst on all three
-  axes — while the 54-frame A/B arms excluded all four by luck. Disk pressure
-  silently became frame selection. A full-depth render must use ALL frames plus an
-  EXPLICIT culling decision.
-- **The likely right answer is still "keep all", but it must be decided and recorded.**
-  The spread is tiny — worst FWHM 3.857 vs median 3.634 (6.1%), background flat to
-  0.35%, 98% of frames within ±2% of median FWHM — and the dead-end registry already
-  holds that dropping a minority subset buys no matching gain and pays the full √N
-  noise penalty, and that wFWHM weighting at low spread is WORSE than none.
-- **Re-assess after the warp, not before.** The distortion correction made 2
-  previously-unmatchable frames register (52/54 → 54/54), so frames that would have
-  been culled as match failures are now usable. Any cull computed on un-warped frames
-  measures the wrong pipeline.
-- Decide + record per set (accept/reject each candidate with its reason) in the
-  per-dataset record, so "keep all" is a ratified choice rather than a default.
-
-## 4. RESOLVED — chunked front ends guard a remainder of 1
-
-**Siril cannot build a sequence from a SINGLE frame** (`convert`/`link` write the .fit
-but no .seq → the next sequence command dies `No sequence 'x' found`). A chunked front
-end whose frame count leaves a remainder of exactly 1 hits this on its last chunk.
-Guarded UP FRONT, before any warping, in BOTH chunked builders:
-`run_undistort_pipeline.sh` asserts `FRAMES % CHUNK != 1`; `run_undistort_groups.sh`
-asserts every group size it will use at plan time (a base-size offender would otherwise
-die only at group REM+1, hours into warping — e.g. 1865 frames at `--group=14 --chunk=12`
-→ base size 13). Verified on Siril 1.4.4 (1-frame `link` → no .seq) and by good/bad
-plan-time cases. Never drop `set -e` to "get past it" — that silently produces a short stack.
-
-The same limitation forces the two-frame duplication in `scripts/qa/star_shape.py`.
+_(Items **3** — per-set culling, ratified + CONSUMED by the approved
+1575-frame render — and **4** — the remainder-of-1 guards, built into both
+chunked builders — are CLOSED; item **8** below likewise. Mechanisms live in
+the builders' docstrings, the per-set recipes and `docs/dead-ends.md`; full
+text in git. Numbering is preserved so cross-references stay valid.)_
 
 ## 5. Sky-flat tightening
 
@@ -177,17 +157,12 @@ double-correction, fixed at the lensfun DB — `qa_work/gradient_qa.json`; this
 flat's own residuals are the smaller figures in `skyflat_qa.json`.) Before the
 flat enters another stack, tighten:
 
-- ~~winsorized/sigma rejection instead of pure median~~ — DONE in
-  `build_sky_flat.sh` (`--rej=wins` default): specks measured 101 (median 373-flat)
-  → 0 (winsorized set-03 flat);
-- ~~dark-subtract the lights before building the flat~~ — pinned in the builder
-  (the 373 production flat already did);
 - smooth the flat to radial-only so division corrects vignetting without flattening the
   low-order sky/IFN gradient (leave that to the first-degree `subsky 1` step) — OPEN,
-  and now in tension with a measured result: in a chain with NO background stage, the
+  and in tension with a measured result: in a chain with NO background stage, the
   own-flat's MATCHED low-order term is precisely what removed set-03's ±6% tilt
-  (flat_source_set03). Settle radial-only TOGETHER with the item-7 background-step A/B,
-  not alone;
+  (flat_source_set03). Settle radial-only TOGETHER with the item-7 background-step
+  A/B (= the render plan's L1, `docs/render-tier-arm-plan.md`), not alone;
 - the deciding test is a with/without comparison on full-frame lossless finals, with
   dust preservation the metric (the user's eyes) — the set-03 pair
   (`judge/set-03_full_spcc-linked.png` vs `judge/set-03_ownflat_spcc-linked.png`)
@@ -197,16 +172,10 @@ Rebuilding it from all ~1865 frames (item 8) directly addresses the star specks 
 frames reject better. GraXpert `-correction Division` stays the vignetting-only
 fallback. A real matching flat retires the whole branch.
 
-**Cross-set flat question — SETTLED: per-set flats, user-ratified.** The per-set A/B
-(`flat_source_set03`) measured the mismatch the old hypothesis missed: a sky flat's
-low-order term imprints its SOURCE set's sky gradient (±6% L-R tilt on set-03 under
-set-01's flat; ~1–2% under its own; sensor content transfers, the sky term does not —
-`docs/dead-ends.md`). **RULE (user-ratified): a flat calibrates ONLY the exact frames
-it was built from** — no cross-set reuse, no single-set or union flat on a combine; a
-multi-set render calibrates each member set with its OWN flat BEFORE composing. Any
-future combine re-render therefore needs each member set's raws (set-01's are
-re-staged on this rig; set-02's are not — re-stage from the originals, or build on
-x86).
+Cross-set flat question — SETTLED (user-ratified per-set-flat rule; mechanism +
+numbers in `docs/dead-ends.md`, ledger `flat_source_set03`). Operational residue
+only: a combine re-render needs each member's raws — set-01's are staged on this
+rig, set-02's are not (re-stage from originals, or build on x86).
 
 ## 6. Retire the reinventions whose replacements are confirmed
 
@@ -233,10 +202,8 @@ x86).
   is testable only on a dual-band / mono-filter set (none staged) — implement + verify
   at first contact, never swap untested. Open: the CLI `-lum` blend colour space is
   undocumented (GUI offers HSL/HSV/Lab).
-- **Write the missing removal condition for the 16-bit stack-time intermediates**, then
-  fire it on x86. The quantization was measured ≈18× below per-frame noise (~+0.3% stack
-  noise) and was forced by the arm rig's RAM/disk; 32 GB / 1 TB removes the reason. Note
-  the shipped july14 stacks are `BITPIX=16` for this reason.
+- The 16-bit stack-time intermediates' removal condition is now WRITTEN in the
+  register above (fire it on x86: drop `set16bits`, re-measure, declared delta).
 
 ## 7. Open questions with a named test
 
@@ -247,46 +214,19 @@ x86).
   route may ship production stacks. Companion ladder: in-group rejection at
   small n (none / percentile / winsorized) — Siril's docs prescribe percentile
   ≤6 and GESD >50 and are silent between.
-- **Background-step LEVEL: per-frame vs on-stack `subsky 1`.** The dead-end
-  registry records "per-frame subsky 1 is the MW-safe background step;
-  stack-level-only leaves a structured residual" (measured on an earlier chain)
-  while README's reference-standard row 2 runs gradient removal ON THE STACK —
-  a standing contradiction. Settle with a one-knob A/B on a trusted stack
-  before the render chain's background stage is built; dust preservation is
-  the deciding metric.
-- ~~Pin the sky-flat build as a script~~ — LANDED: `scripts/stack/build_sky_flat.sh`
-  (recipe verbatim: CFA, dark-subtracted, un-registered, `-norm=mul`; `--rej=wins`
-  default per item 5's tightening, `median` kept as the attribution arm; validation
-  gates built in: regional `stat`, `findstar` speck count, autostretch preview, qa
-  record). First end-to-end run built + validated `skyflat361_set03` (specks 101→0
-  vs the median-built flat). Item 5's remaining ladder (radial-only smoothing)
-  lands on top of it.
-- **`seqapplyreg -framing=min` vs rotation — MEASURED (the named probe ran).**
-  The constant-frame coverage probe (`scripts/qa/coverage_probe.sh`; 50 rotated
-  members, 01+03 compose): the true all-members common area is **15.25 Mpx**, the
-  `-framing=min` canvas kept only **5.50 Mpx (36%)** — min's axis-aligned rectangle
-  discards ~2/3 of genuinely full-depth sky when members are mutually rotated
-  (measured cost: the NAN complex sat at 50/50 coverage and was cut). Corrective:
-  the coverage-thresholded crop (`coverage_threshold_frame_0103`) or the item-12
-  hand-crop; the probe is the standing instrument for any rotated compose. Still
-  open here: whether min's rule is per-member inscribed axis-rects or another
-  heuristic — irrelevant to practice now that the probe measures the truth.
-
+- **Background-step LEVEL: per-frame vs on-stack `subsky 1` — now the render
+  plan's L1** ([`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md)),
+  pre-registered and user-gated. The doctrine fork it settles: Siril's own docs
+  recommend per-frame degree-1 for session-rotated gradients (this dataset's
+  exact geometry) while the general default is once-on-the-stack; the registry
+  holds the same fork from the pre-reset chain. Dust preservation is the
+  deciding metric; the SPCC K delta is the free order-robustness check.
 - **Which mechanism drives the RESIDUAL one-sided term.** Siril `seqtilt` measures it;
   the fitted lens model reduced it 0.51 → 0.31 px (16% → 10%) at full depth — that
   fraction was paraxial model error, not tilt. For the 0.31 px remainder the candidates
   stay differential refraction (asymmetric with hour angle) and lens decentering.
   Discriminator: hour-angle dependence across sets — refraction varies with it,
   decentering does not.
-- **`solve_field` official-extractor swap — DONE via `sep`; `image2xy` stays an
-  optional cross-check.** Measured on the set-01 stack (`qa_work/extractor_ab.json`):
-  SExtractor core (`sep` pip package — the same packaging precedent as the pip
-  astrometry engine) returns trailed sources, solves at higher odds than the peaks
-  arm, and its WCS gives identical SPCC K factors. Default is `--detect=sep`; peaks
-  is the labeled fallback until the x86 day-1 solve passes on sep. Open (optional):
-  the `image2xy` binary variant (`apt install astrometry.net`) as a second official
-  arm — its trail knobs (`-a` fragmentation / `-p` / `-m`) remain the caveats;
-  ASTAP is not the answer (roundness-gated by its own docs).
 - **Synthetic-flat gap → GraXpert `-correction Division`.** The headless-CPU
   multiplicative option; source-confirmed as per-channel `imarray/background*mean`, i.e.
   divide by the low-frequency model. Corrects smooth VIGNETTING only, not dust/PRNU
@@ -303,163 +243,37 @@ x86).
   dormant mechanism reference only — its `OpRGBBalance` balances the brightest-quartile
   stars; the OIII-lift is our inference (`docs/dead-ends.md`).
 
-## 8. Combine all 5 july14 sets into one deep render (~1865 frames)
+## 8. CLOSED — the 5-set combine is rendered and APPROVED
 
-STATUS — set-01+02+03 were rendered and combined on the arm base rig. **The route
-RUNS but its VALUE is UNCONFIRMED; finish and settle it on the x86 target.** Measured
-findings (all x86-portable, since Siril/astrometry/darktable are the identical tools):
+The full-session combine (1575 frames at the cov25 frame) PASSED the user's
+eyes — tag `july14-all5-cov25frame-approved`. Everything durable from this
+item graduated: the compose/rejection/framing dead-ends and the coverage-probe
+instrument to `docs/dead-ends.md` + `TOOLS.md`; the depth question CLOSED by
+the split test (random noise scales exactly √N; the visible floor is static
+structure — item 11 carries the structured part, the render plan's L2 targets
+it); the washout root cause was the shared flat (per-set-flat rule, ratified);
+per-set colour resolved by one-unit SPCC on the combine. Standing residue
+lives where it belongs: the x86 single-registration re-compose + the
+groups-route validation debt in the removal register, framing-by-the-user in
+item 12, the formal `baseline.json` in item 0's harness. Full narrative in git.
 
-- **Re-aim scatter (item 8.2 — `datasets/july14/reaim_scatter.json`).** The re-aims
-  worked (each set's field jumps back on the sky; set-01/03 align to 45 px, set-02 is
-  ~400 px / 0.8° Dec off). But the `-framing=min` FIELD is ROTATION-limited, not
-  re-aim-limited: measured **57% (single) → 42% (2-set) → 24% (3-set, 5.9 Mpx)** as
-  field rotation over the ~2.5-h span compounds. The centre-offset 66% estimate was
-  optimistic — rotation dominates.
-- **DEPTH BENEFIT — FIRST TASK EXECUTED; background σ is measured DEPTH-FLAT (the
-  floor is structure, not shot noise).** The normalization-invariant instrument
-  (`scripts/qa/snr_regions.py`: internal ratio, Siril `stat` means + `bgnoise`,
-  WCS-anchored boxes; record `qa_work/snr_ladder_july14.json`) measured bgnoise
-  1.81–1.88 (R) / 2.05–2.24 (G) / 1.77–1.88 (B) ADU across 369 / 361 / ~730-class /
-  ~1128-class stacks at matched sky scale (~93–95 ADU; set-01's ~107 scales to ~1.65)
-  — √N predicts 0.57× at the deep end and the measured change is ~none. HYPOTHESIS
-  (mechanism, untested): the background estimator is floored by DEPTH-INDEPENDENT
-  static structure — unresolved-star confusion mottle at 17″/px in Cygnus, plus the
-  item-11 sensor-pattern residual — which repeats every frame and cannot average
-  down; the random component is already below that floor at ~360 frames. NEXT
-  INSTRUMENT (discriminates random vs structural, compose-cheap from existing
-  sub-stacks): half-split difference — one registration of a set's sub-stacks, two
-  subset means A/B (`select`/`unselect`), `isub` → `bgnoise` on the difference =
-  √2 × per-half RANDOM σ (all static structure cancels); compare its √N scaling
-  across depths. Matched faint-star photometric SNR is the companion measure. What
-  IS measured as depth gains so far: sharper stars (seqtilt off-axis 0.30 → 0.14 →
-  0.12), stronger rejection.
-  **SPLIT TEST RAN — the depth question CLOSES (scripts/qa/noise_split.sh; records
-  in set-04's and set-01's qa_work):** the RANDOM background component scales √N
-  exactly (per-half σ 0.64/0.76/0.76 → 0.39/0.46/0.49 ADU, ratios 0.60–0.64 vs the
-  predicted 0.594) — the combine IS deeper and the group route injects no excess
-  random noise; the VISIBLE background is floored by a depth-independent static
-  structure (σ≈1.0/1.5/1.2: unresolved-star confusion texture — real sky — plus the
-  item-11 pattern, whose drift-phase component measured 0.34/0.48/0.42 ADU per half
-  on set-04). Consequence: more integration keeps buying faint-source SNR at √N,
-  but background smoothness is structure-limited at these depths — the pattern part
-  is the x86 denoise tier's target; the confusion part is signal.
-- **WASHED-OUT render + rainbow streaks — OPEN FLAW, ROOT CAUSE NOT DETERMINED (do not
-  reshoot; INVESTIGATE).** MEASURED SYMPTOMS ONLY: the combines stretch washed-out; the
-  3-set combine has a ~4% centre→corner linear gradient vs a single set's ~1%, and the
-  auto-stretch places its background ~2× higher (0.00019 → 0.00038). A stack-level
-  `subsky` removed the linear tilt but left/produced bottom-to-top rainbow streaks — that
-  was a MISUSE (a per-frame/early step applied to a final stack), not a diagnosis, and it
-  is reverted. **The cause of the gradient, the washed-out look, and the streaks is NOT
-  established.** Candidate hypotheses, NONE controlled-tested: shared-flat mismatch across
-  sets (flat-A/B row), walking noise (item 11), the cross-set registration / second
-  interpolation (item 7), or simply no per-frame background stage. NEXT: isolate each
-  candidate on the real data (one variable at a time) — e.g. does a per-set (not combined)
-  render show the streaks; do they scale with set count; are they present pre-combine.
-  Carry NO single cause as settled, and a reshoot is one untested hypothesis, not the fix.
-  **First isolation measured (set-03, flat_source_set03):** the shared-flat candidate is
-  REAL for the gradient component — set-01's flat imprints a ±6% L-R tilt on set-03's
-  per-set render that set-03's own flat removes (linear regional medians); and the
-  per-set renders show NO rainbow streaks at fit view or inspected 1:1 zones, so the
-  streaks remain combine-associated (or sub-threshold per-set).
-  **Second isolation (combine_0103_compliant_flats, set-01's ledger): the shared flat
-  was the DOMINANT cause.** A 01+03 compose whose member sets each carry their OWN
-  flat measures per-set-class flat (min arm 92–93 ADU all regions, ~1% vs the old
-  ~4% class), stretches with NO washout, and shows no streaks or join artifacts at
-  inspected zones; its min arm is the project's sharpest stack (seqtilt FWHM 3.02,
-  off-axis 0.12). Still open: the depth-benefit SNR measure (normalization-invariant
-  instrument), the second-interpolation A/B (item 7), walking noise (item 11), and
-  the min-vs-max framing verdict (the user's eyes).
-- **Per-set colour (resolved).** Independent per-set SPCC gives different K/levels
-  (set-01 K_B 0.911, set-02 0.811, set-03 0.899; background 107/97/95) — expected, since
-  each set is a separate calibration. Resolved by SPCC-ing the COMBINE as ONE unit
-  (measured neutral R=G=B); never finish per-set.
-
-Tooling that landed this pass, all x86-portable: `run_undistort_compose.sh` (cross-set
-sub-stack compose, min/max), `finish_render.sh` (solve → SPCC → linked stretch → 16-bit
-PNG), `fingerprint.py` (item 1). The combine stacks/renders and every wrong-flat
-artifact (set-02/03 products calibrated with set-01's flat) were REMOVED under the
-ratified per-set-flat rule — the findings above stand on their recorded numbers.
-Retained: set-01's sub-stacks + stacks (own flat — valid), set-03's own-flat
-sub-stacks/stack/render, and the set-03 A/B control stack + render (preserved
-experiment artifact, `flat_source_set03`).
-
-july14 is 5 sets of the same object, same workflow, the camera re-centred on the target
-every ~45 min. set-01 (373 frames, 43 min) is one such window and is the only set with raws
-on this rig; the others stage per-set as they arrive.
-
-**The re-aims cost nothing — the validated route already covers them.** A manual
-re-centre is a rotation about the optical centre, and pure rotation with all scene
-points at infinity is EXACTLY a homography (Szeliski — the same result that pins the
-root cause). Stars are at infinity, so even a translated tripod head adds no parallax.
-Once undistorted, a re-aim is indistinguishable from drift: same `register -2pass`, no
-new mechanism. Lens distortion is fixed in SENSOR coordinates, so moving the camera does
-not invalidate the lensfun warp either. Expect ~5× integration = **~2.24× SNR** over
-set-01 alone.
-
-This also retires the fixed-tripod drift wall for this data: the field slides off the
-sensor after ~3.0 h at 70 mm (34 px/min measured), so a single 2000-frame untracked
-window would have ZERO common area — but each 45-min set sits at 76% field retained. The
-re-centring solved it in acquisition.
-
-Depends on items 3 (culling) and 5 (the sky flat); chunking is mandatory here and the
-remainder-of-1 guard is now in BOTH undistort builders (item 4). The disk-bound route
-per set is the group composition (`run_undistort_groups.sh`), and
-`run_undistort_compose.sh` combines the per-set sub-stacks into one cross-set stack
-(undistorted sub-stacks compose as homographies — the re-aim is then just more drift).
-Prep state: **ALL FIVE SETS COMPLETE — the full-session combine is rendered**
-(1575 frames at the cov25 frame; `judge/set-01+02+03+04+05_cov25frame_spcc-linked.png`;
-build + adaptation + measured dead-ends in set-01's ledger). Every set carries
-complete tracked records, its own validated flat, and a ratified recipe
-(set-02's final: quadrant-verified 7569 cull + the user-identified 3-frame
-aircraft; its K_B 0.849 under its OWN flat = atmospheric, absorbed by the
-one-unit SPCC). All on the arm rig — re-measure on x86 per the migration rule;
-the x86 re-compose condition is in the removal register. Remaining here: the
-user's eyes on the finals, and the x86 render tier. Ordered
-(historical plan, retained for the x86 rebuild):
-
-1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
-   Sets 01/02/03/04 are verified 70 mm / 6 s / ISO1600 (EXIF in each
-   `acquisition.json`; the builder's preflight re-asserts per run); set-05 is
-   unverified until staged. This is a **hard
-   prerequisite, not a formality**: darktable silently applies NO correction to a lens it
-   cannot match and a wrong model to one it mis-matches, so a single set with a different
-   or unrecognised lens string would stack uncorrected into the combined result with no
-   warning. `lens_preflight.py` (run by the builder) enforces it per set — and the
-   FITTED entry covers focal=70 only, so a set at any other focal needs
-   `fit_lens_model.sh` for that focal first or it silently rides the community entry
-   and reintroduces the centre band.
-2. **Measure the re-aim scatter before committing to one combined stack.** `-framing=min`
-   keeps only what is common to ALL frames: within a set the drift is ~1500 px, across
-   sets it is drift + hand-re-centring error. If scatter is large the common area drops
-   below set-01's 76% — fallback is stack-per-set then combine the 5 stacks (worse: 5
-   discrete residuals rather than one fit).
-3. **Per-set sky flats — the user-ratified rule; no union or shared flat.** Each
-   set builds + validates its OWN flat (`build_sky_flat.sh`) and calibrates with it
-   before any compose (measured imprint mechanism, `docs/dead-ends.md`; same
-   dust-contamination validation gate per flat).
-4. **Storage: ~433 GB peak** (1865 × 232 MB uncompressed) for single-pass — comfortable
-   on the x86 1 TB; on the arm rig only the group-composition route fits, and it is
-   gated on its item-7 quality A/B. No GPU needed — Siril has no GPU path and the AI tier runs
-   once per stack, not per frame.
-
-## 9. Data-capability gaps (x86-gated)
+## 9. Data-capability gaps (gated per item — read each gate)
 
 Real imaging capabilities the pipeline does not yet have; each lands as a measured
-declared delta during the x86 rebuild.
+declared delta when its gate opens.
 
 - **Full-size dual-band** — native Ha + 2× drizzle of OIII instead of downsampling OIII
   to Ha's half size, gated on measured dither coverage (the per-frame
   `dither_phase_frac` record already exists).
-- **FITS I/O → astropy** (retires 5 hand-rolled parsers: `astrometrics`, `compose`,
-  `solve_field`, `spcc_cone`, `fitsmeta`). **astropy
-  8.0.1 is installed on the arm rig** (FITS I/O + WCS/SIP + ICRS→Galactic probed
-  working), so this is ARM-DOABLE now, not x86-gated — astropy is the identical tool on
-  both rigs. Gotchas, primary-verified: write float32 directly so BZERO/BSCALE
-  auto-scaling stays off; numpy `[y,x]` ↔ FITS `NAXIS1` reversed
-  (`.shape == (NAXIS2, NAXIS1)`); SIP needs `to_header(relax=True)` (default
-  `relax=False` OMITS the `-SIP` CTYPE suffix) and `WCS(header, naxis=2)` on an RGB cube.
-  astropy reads Siril's 16-bit RGB FITS directly — the `savetif`+`tifffile` read
-  workaround is retired.
+- **FITS I/O → astropy** — the last parser (`compose.py`) and its gotchas live in
+  item 6 + the removal register (ARM-doable, data-gated on a multi-channel set).
+- **FITS-path `setfindstar` asymmetry** (audit-found): the raw-camera template
+  lowers detection to `-sigma=0.5` (measured: the matcher needs the extra
+  triangles on this class) but the FITS `_fits_lights`/`_fits_dualband` paths
+  register at the default sigma. Mechanism: the two paths were built from
+  different data classes. Named test: on the first FITS-class set, a one-knob
+  registration ladder (default vs `-sigma=0.5`) — adopt per measured
+  match-rate, never by symmetry alone.
 - **Deconvolution** — a measured dead-end on arm64 data (unstable symmetric PSF on
   in-exposure trailing); BlurXTerminator reopens it on x86 (`--correct-only`).
 - **`run_pipeline` auto-routing to a large-sequence path** — largely unnecessary at
@@ -496,6 +310,12 @@ things to plan for when the x86 rig moves.
   Bregman** — correct any doc naming it otherwise.
 
 ## 11. Walking noise in the wide-untracked data — OPEN gap
+
+**The render plan's L2 denoise ladder targets this defect's drift-phase term**
+(`docs/render-tier-arm-plan.md`: objective instrument = the set-04 half-split
+re-run on denoised halves; target 0.34/0.48/0.42 ADU/half). L2 treats the
+SYMPTOM budget; the acquisition-side mechanism work below stays open either
+way (a denoiser must never be this defect's only answer — bandaid rule).
 
 Faint DRIFT-ALIGNED streaks the user sees at native 1:1, below whole-frame statistics
 — a sensor-fixed pattern (electronic-shutter readout FPN + residual hot/warm pixels)
