@@ -1,14 +1,16 @@
 {
  "stack": {
   "weight": null,
-  "exclude": [7574, 7575],
+  "exclude": [7573, 7574, 7575],
   "why": {
-   "7574": "aircraft trail (anomaly_audit object #11, a 2-frame crossing DSC_7574-7575) — aircraft-classified, user-ratified cull; also session-penultimate",
-   "7575": "aircraft trail (same object #11) + session-last frame",
-   "blurry_none": "frame QA flagged no z>3.5 defect-side outliers; FWHM 3.44-3.79 (median 3.63, ~4.8% spread), roundness 0.599-0.662, 304/304 registered — a clean set, nothing bad/blurry to cull",
-   "satellites_kept": "10 satellite objects across 44 frame-detections kept — a moving minority trail stacks clean through rej 3 3 (dead-end registry); user-ratified 'satellites stay'",
-   "session_first_7272_kept": "DSC_7272 (set-02 session-first) carries a satellite but is QA-clean; its only cull trigger is that satellite, which the ratified set-02 policy keeps, so it stays",
-   "weight_null": "wFWHM weighting at this set's ~4.8% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)"
+   "7573": "aircraft — user-identified in the frame (the audit linked the object only from DSC_7574 onward; 7573 is its entry frame). The frame's QA signature IS the aircraft, not a shake: roundness z -16.7 with nstars z +5.87 and FWHM z +6.05 — extremely elongated EXTRA detections (streak fragments / beacon flashes), where a shake would DROP detections.",
+   "7574": "aircraft trail (anomaly_audit object #11, the same crossing DSC_7573-7575) — aircraft cull policy; also session-penultimate.",
+   "7575": "aircraft trail (same object) + session-last frame.",
+   "haze_cluster_kept": "DSC_7551-7555: bg z +3.3..+3.7 with nstars low and shape normal — a thin-haze passage at the window's end, consistent with this set's monotonic bg climb (1129->1140, the only trending set). KEPT: 5/304 is a per-pixel minority (dead-end registry: dropping a minority subset buys no matching gain and pays the sqrt(N) noise penalty).",
+   "7569_pending": "DSC_7569 roundness z 5.75, single-frame shape event — cull decision PENDING the neighbour-quadrant check when the raws re-stage (policy: cull only when the degradation verifies FRAME-WIDE); not assumed either way.",
+   "satellites_kept": "10 satellite objects across 44 frame-detections kept — a moving minority trail stacks clean through in-group rejection; user-ratified 'satellites stay'.",
+   "session_first_7272_kept": "DSC_7272 (set-02 session-first) carries a satellite but is QA-clean; the ratified policy keeps satellites, so it stays.",
+   "weight_null": "wFWHM weighting at this set's ~4.8% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)."
   }
  }
 }

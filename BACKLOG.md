@@ -21,7 +21,7 @@ changes, when the rig changes, and before any item below is worked.
 
 | divergence | condition that retires it | status |
 |---|---|---|
-| `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. |
+| `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. **Known miss mode (user-caught):** the set-02 aircraft's ENTRY frame (DSC_7573) was not linked to the object — 2 of 3 crossing frames classified; the entry frame's own QA z-signature carried the signal (roundness z −16.7 with nstars z +5.9 = elongated EXTRA detections). Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise. |
 | `compose.py` channel combine (`np.stack` + hand-rolled 3-plane FITS write) | a tool composes channels headless | **FIRED** — Siril `rgbcomp` verified on 1.4.4, and `rgbcomp -lum=` additionally closes the LRGB-join gap. Retirement is open work (item 6). |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
@@ -409,11 +409,12 @@ Prep state: sets 01, 03, 04 and 05
 are prepped and ratified with complete tracked records (per-set flats built +
 validated, recipes recorded, stacks + renders shipped; the 4-set combine is
 rendered at the cov25 frame — all on the arm rig, re-measure on x86 per the
-migration rule). set-02 is the ONLY missing member: it carries full QA/audit
-records but its ratified recipe contradicts its own cull report (claims "no
-z>3.5 outliers" while the report flags 7, including the DSC_7573 frame-wide
-wreck — re-ratify per the current policy BEFORE any re-render) and its raws
-need re-staging for the own-flat render the 5-set combine requires. Ordered:
+migration rule). set-02 is the ONLY missing member: its recipe is RE-RATIFIED (user ruling —
+the aircraft crosses DSC_7573–7575, all THREE culled; the audit had linked
+only 2 of the 3, see the register row's known miss mode; the 7551–5 haze
+cluster stays as a per-pixel minority; DSC_7569 pends the neighbour-quadrant
+check at re-stage), so only its raws need re-staging for the own-flat render
+the 5-set combine requires. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
    Sets 01/02/03/04 are verified 70 mm / 6 s / ISO1600 (EXIF in each
