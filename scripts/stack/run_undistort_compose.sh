@@ -34,10 +34,17 @@
 #
 # NOTHING is compressed; the generated .ssf pins setcompress 0. The flatpak
 # sandbox has a private /tmp, so the scratch dir lives beside --out (under $HOME).
+# --weight=nbstack is the STACKS-OF-STACKS weighting (Siril doctrine: nbstack
+# is only for stacks-of-stacks): members of unequal depth are weighted by
+# their stacked-image count, so a mean of per-set FULL stacks approximates the
+# per-frame-equal weighting the all-sub-stacks compose gives natively (counts
+# are proportional to frames within a few % at ~15-frame groups). Default
+# remains the plain unweighted mean for equal-depth sub-stack members.
 set -euo pipefail
-OUT= FRAMING=min; SUBDIRS=()
+OUT= FRAMING=min WEIGHT=; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
+  --weight=nbstack) WEIGHT="-weight=nbstack";;
   --*) echo "unknown arg $a" >&2; exit 1;;
   *) SUBDIRS+=("$a");;
 esac; done
@@ -69,8 +76,8 @@ for d in "${SUBDIRS[@]}"; do
 done
 [ "$n" -ge 2 ] || { echo "ABORT: need >=2 sub-stacks total to register+stack, have $n" >&2; exit 1; }
 
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
-  "$W/in" "$W/seq" "$W/seq" "$FRAMING" "$OUT" > "$W/compose.ssf"
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
+  "$W/in" "$W/seq" "$W/seq" "$FRAMING" "$WEIGHT" "$OUT" > "$W/compose.ssf"
 echo "composing $n sub-stacks (register -2pass -> -framing=$FRAMING -> plain mean)"
 sir "$W/compose.ssf"
 [ -f "$OUT.fit" ] || { echo "COMPOSE FAILED — read $W/compose.log" >&2; exit 1; }
