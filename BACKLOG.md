@@ -405,13 +405,18 @@ remainder-of-1 guard is now in BOTH undistort builders (item 4). The disk-bound 
 per set is the group composition (`run_undistort_groups.sh`), and
 `run_undistort_compose.sh` combines the per-set sub-stacks into one cross-set stack
 (undistorted sub-stacks compose as homographies — the re-aim is then just more drift).
-Prep state: set-01
-is prepped and ratified with complete tracked records; sets 02–05 get the same
-per-set prep (`run_frame_qa.sh` + the anomaly audit + the cull policy + window
-solves) ON THE DESKTOP as they stage. Ordered:
+Prep state: sets 01, 03 and 04
+are prepped and ratified with complete tracked records (per-set flats built +
+validated, recipes recorded, stacks + renders shipped — all on the arm rig,
+re-measure on x86 per the migration rule); set-02 carries its QA/audit records
+but needs its raws re-staged for any render; set-05 pends arrival and gets the
+same per-set prep (`run_frame_qa.sh` + the anomaly audit + the cull policy +
+its own flat via `build_sky_flat.sh`) as it stages. Ordered:
 
 1. **Verify every set's camera+lens+focal, and that ISO/exposure match the darks.**
-   set-01 is 70 mm; the others are unverified. This is a **hard
+   Sets 01/02/03/04 are verified 70 mm / 6 s / ISO1600 (EXIF in each
+   `acquisition.json`; the builder's preflight re-asserts per run); set-05 is
+   unverified until staged. This is a **hard
    prerequisite, not a formality**: darktable silently applies NO correction to a lens it
    cannot match and a wrong model to one it mis-matches, so a single set with a different
    or unrecognised lens string would stack uncorrected into the combined result with no

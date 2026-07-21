@@ -93,7 +93,9 @@ _(add each writeup here, newest first)_
   calibration routes: model-division (GraXpert, vignetting-only, dust-safe) vs a
   sky flat (captures motes/PRNU but contaminates on frame-filling IFN) vs skip-bias
   (CMOS) + synthetic offset; the dust-first route + july14's real-flats-impossible
-  decision.
+  decision. Since adopted + hardened: the sky flat is strictly PER-SET (the
+  ratified exact-frames rule; imprint mechanism in dead-ends), pinned as
+  `scripts/stack/build_sky_flat.sh`.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
   "provisional until x86" flag from all deep-dives collapsed into one ordered,
   bracketed test protocol keyed to the x86 rebuild order (`docs/x86-empirical-test-plan.md`, Phase 0→5).

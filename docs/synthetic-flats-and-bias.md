@@ -190,6 +190,15 @@ Practitioner / forum / reference:
 - http://www.suffolksky.com/2024/04/25/background-extraction-and-noise-reduction-using-ai-for-free/
 
 ## Status
-EMPIRICALLY TESTED (july14 sky flat built + validated CLEAN on the arm rig with
-Siril, the identical tool). The finals comparison (with/without the sky flat,
-dust-preservation the metric) is the remaining gate and re-runs on the x86 chain.
+ADOPTED AND HARDENED INTO A RULE. The sky flat is the production flatless route,
+built per set by `scripts/stack/build_sky_flat.sh` (dark-subtracted, CFA,
+un-registered, winsorized — specks measured 101 → 0 vs the pure median this doc
+proposed). **The rule this research did not yet know (measured, user-ratified): a
+flat calibrates ONLY the exact frames it was built from** — the flat's low-order
+term carries its SOURCE set's residual sky gradient, so cross-set application
+imprints it (±6% L-R tilt measured; sensor content transfers, the sky term does
+not) — mechanism + numbers in [`dead-ends.md`](dead-ends.md), the A/B in
+`datasets/july14/set-03/experiments.jsonl` (flat_source_set03). The with/without
+dust gate rides the standing judgment surfaces (dust measured REVEALED, not
+erased, on every adopted render); Area 2's contamination limit still binds each
+new set's flat, checked by the builder's validation gates.

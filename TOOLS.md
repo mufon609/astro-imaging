@@ -70,7 +70,15 @@ synthetic routes ([`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-
 GraXpert `-correction Division` for dust-safe vignetting (x86 official; Siril's
 native `subsky` is subtraction-only — empirically confirmed on 1.4.4), or a Siril
 sky flat ONLY when the field is not frame-filling faint (else it bakes in and
-attenuates the IFN); **bias** = skip on CMOS (matched darks carry it; dark-scaling
+attenuates the IFN). **The sky flat is strictly PER-SET (user-ratified rule): a
+flat calibrates ONLY the exact frames it was built from** — its low-order term
+carries the source set's own sky gradient, so cross-set application IMPRINTS that
+gradient (measured ±6% L-R tilt on set-03 under set-01's flat vs ~1–2% under its
+own; `docs/dead-ends.md`); a multi-set combine calibrates each member set with its
+own flat before composing. Pinned builder with validation gates:
+`scripts/stack/build_sky_flat.sh` (dark-subtracted, CFA, un-registered, winsorized
+— the winsorized rejection measured star specks 101 → 0 vs a pure median).
+**Bias** = skip on CMOS (matched darks carry it; dark-scaling
 is invalid because CMOS dark current isn't constant across exposure), a synthetic
 constant offset if a flat needs one. A real flat stays primary. PI/APP only as
 reference or for a normalization edge case.
@@ -81,7 +89,13 @@ count:** ≤6 percentile (`p`), ~7–50 winsorized (`rej w 3 3`), >50 GESD (`rej
 — fraction+significance, NOT sigmas), large+gradients linear-fit (`rej l 3 3`).
 Weighting `-weight={wfwhm|noise|nbstars|nbstack}` (unified — the old `-weight_from_*`
 flags are REMOVED and will error migrated scripts). Registration: `-2pass`→`seqapplyreg`,
-homography for wide fields, lanczos4+clamp. **Drizzle is a `register` option, not `stack`**
+homography for wide fields, lanczos4+clamp. **`-framing=min` under-delivers on
+mutually ROTATED members**: its axis-aligned rectangle kept 5.50 of the true
+15.25 Mpx all-members common area (36%) on a 50-member two-window compose —
+measured full-depth sky discarded; for framing decisions on rotated composes,
+probe true per-pixel coverage with `scripts/qa/coverage_probe.sh` (constant
+frames through the stored transforms, `stack sum`) and crop the `max` compose
+to a verified coverage threshold instead. **Drizzle is a `register` option, not `stack`**
 (CFA-drizzle 1×/pixfrac 1.0 for OSC; upscale only if sampling+dither justify —
 [[plate-solving-and-drizzle]]). **Two real gaps vs PixInsight WBPP:** no Local
 Normalization and no PSF-Signal-Weight equivalent (our audit layer can supply a PSFSW
