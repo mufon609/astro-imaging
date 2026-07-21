@@ -334,7 +334,7 @@
      4.32,
      0.574
     ],
-    "record": "star_stations_deepest_lensfun.json"
+    "record": "superseded instrument arm — scratch record not tracked; the measured stations are inline here"
    },
    "prod_on_54fr_lensfun": {
     "centre": [
@@ -347,7 +347,7 @@
      3.62,
      0.679
     ],
-    "record": "star_stations_prod_on.json"
+    "record": "superseded instrument arm — scratch record not tracked; the measured stations are inline here"
    },
    "prod_off_54fr_control": {
     "centre": [
@@ -360,7 +360,7 @@
      4.83,
      0.485
     ],
-    "record": "star_stations_prod_off.json"
+    "record": "superseded instrument arm — scratch record not tracked; the measured stations are inline here"
    },
    "deepest_168fr_FITTED_model": {
     "centre": [

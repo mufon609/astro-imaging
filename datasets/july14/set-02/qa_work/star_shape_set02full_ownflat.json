@@ -1,0 +1,10 @@
+{
+ "input": "results/july14/stack_set-02_full.fit",
+ "label": "set-02_full_ownflat_300fr",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 13232,
+ "truncated_mean_fwhm_px": 3.16,
+ "sensor_tilt_fwhm_px": 0.33,
+ "sensor_tilt_pct": 10,
+ "off_axis_aberration_fwhm_px": 0.36
+}

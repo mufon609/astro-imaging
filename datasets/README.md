@@ -4,12 +4,16 @@ Session data dirs are gitignored (raw frames; several are third-party sets
 that must never be committed), so everything the repo must VERSION about a
 dataset lives here, keyed `datasets/<session>/<set>/`.
 
-Tracked today: **july14** — `set-01` (acquisition + obstruction-audit,
-frame-quality, sky-flat, registration, star-shape, solve/SPCC, extractor-A/B
-and gradient records plus a ratified `recipe.json` stack block), plus
+Tracked today: **july14** — all five light sets `set-01`…`set-05`, each with
+full per-set prep (acquisition + obstruction audit + frame QA + own validated
+sky flat + a ratified `recipe.json` stack block; set-01 additionally carries
+the registration-route, combine, instrument and experiment records), plus
 `july14/darks/qa_work/` — a CALIBRATION group rather than a light set, which
 the `<session>/<set>/` key accommodates but the model below does not otherwise
-describe. Sibling sets get the same per-set prep as they stage. Arm-rig
+describe — and two SESSION-level records at `datasets/july14/`:
+`sensor_defects.json` (the blue-dot hot-pixel registry + its chain
+disposition) and `reaim_scatter.json` (re-aim geometry across sets, its
+framing recommendation superseded — see its `status`). Arm-rig
 measures are each a hypothesis until re-measured on x86 (`CLAUDE.md` binding
 rules).
 
@@ -24,10 +28,11 @@ The per-dataset state MODEL (durable — a new dataset gets these files):
 | `qa_work/registration_qa.json` | the registration route's record for the set: the field solve, the mount verification, the in-exposure floor, the route experiments + their verdicts, and the shipped render | DURABLE — per-set, written by the route's runs |
 | `geometry.json` | per-set composition facts: terrestrial `foreground` (rect \| npz `mask` path, session-relative), `judgment_crops`, optional `starsep` overrides | DURABLE — resolved by `astrometrics.configure()` in every product entry point |
 | `composition.json` | how a multi-line/multi-filter target's composed linear stack is BUILT: `kind: dualband-osc` (CFA line extraction) or `mono-filters` (`members` = channel → sibling per-filter SET, `reference` = the un-interpolated member), plus the `channels` R/G/B palette mapping. Build-side facts only. Absent = ordinary single stack (degrade-loudly) | DURABLE — `run_pipeline.sh` + `compose.py` |
-| `recipe.json` | the per-dataset processing knobs + `spcc` spec (broadband sensor/filter names, or narrowband `rwl`/`gwl`/`bwl` wavelengths) + optional `frame_qa` / `stack` policy blocks | MIXED — the `spcc`/`frame_qa`/`stack` blocks are durable; the **`render` knob block is PENDING the x86 chain's schema** (the old schema died with the wiped chain) |
+| `recipe.json` | the per-dataset processing knobs + optional `spcc` spec (broadband sensor/filter names, or narrowband `rwl`/`gwl`/`bwl` wavelengths) + optional `frame_qa` / `stack` policy blocks. Every block is present only when the set needs it (july14 sets carry `stack` blocks only; SPCC runs on the sensor-null generic default) | MIXED — the `spcc`/`frame_qa`/`stack` blocks are durable; the **`render` knob block is PENDING the render-tier build** (the old schema died with the wiped chain; the rebuild re-seeds it — user-gated, starts on this rig: BACKLOG) |
 | `experiments.jsonl` | the tuning-experiment ledger (append-only: param, values, control, hypothesis, pinned stack, verdict). A killed hypothesis is ALSO written to the dead-end registry (`docs/dead-ends.md`) with its mechanism | DURABLE model — re-wired to the x86 chain's ladder |
-| `baseline.json` | the no-regression record (pinned stack sha, the expected TOOL-reported measures, artifact hashes) | PENDING — written by the re-ported no-regression sweep on x86; chain-coupled, so none exist yet |
-| `../GENERIC.json` | the repo-wide base layer of generic render knobs | STUB — pending the x86 chain re-seeding its knob set |
+| `baseline.json` | the no-regression record (pinned stack sha, the expected TOOL-reported measures, artifact hashes) | PENDING — written only by the no-regression harness, which rides the render-tier build; chain-coupled, so none exist yet |
+| `../GENERIC.json` | the repo-wide base layer of generic render knobs | STUB — re-seeded by the render-tier build's laddered knobs |
+| `fingerprint.json` | the DERIVED config fingerprint (BACKLOG item 1): trail/drift geometry from EXIF + solves + findstar roundness, plus the declared-vs-measured `mount_verdict` (CONFIRM / CONTRADICT / INDETERMINATE — a consumer STOPS on CONTRADICT) and a `route_hint` | DURABLE — written by `scripts/lib/fingerprint.py`; set-01 recorded CONFIRM-fixed |
 
 Rules (the same contract as README "How a change is accepted"):
 
@@ -52,12 +57,14 @@ Rules (the same contract as README "How a change is accepted"):
   `datasets/<session>/<set>/` (the `*_work/` pattern; only the `.json` records
   are tracked, the scratch is gitignored). **`datasets/` holds RECORDS ONLY —
   never image data.** Judgment surfaces live in exactly one place at the project
-  root: `results/<session>/<set>/judge/` (gitignored), named
+  root: `results/<session>/judge/` (gitignored), named
   `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never scattered.
   The raw `<session>/<set>/` dir holds raw frames ONLY; bulk derived image DATA
   (FITS intermediates, masters, session-relative masks) stays in the gitignored
   session tree, and stacks/renders/judgment surfaces at the gitignored,
   project-root `results/<session>/`.
 
-The render-knob schema and the no-regression sweep re-establish with the x86
-render chain — see `docs/x86-empirical-test-plan.md`.
+The render-knob schema and the no-regression sweep re-establish with the
+render-tier build (user-gated; the arm-rig plan is
+`docs/render-tier-arm-plan.md`, the x86 re-measure rides
+`docs/x86-empirical-test-plan.md`).

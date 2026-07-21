@@ -1,5 +1,6 @@
 {
  "purpose": "re-aim scatter + cross-set common area for the july14 multi-set undistort combine (BACKLOG item 8.2)",
+ "status": "MEASUREMENT STANDS, RECOMMENDATION SUPERSEDED — covers sets 01/02/03 only (04/05 staged later); the '-framing=min' recommendation predates the measured min-vs-rotation loss (min kept 36% of the true common area) and the shipped route: framing=max compose + per-pixel coverage probe + the cov25-frame coverage-thresholded crop. The scatter/center numbers remain the record of the re-aim geometry.",
  "method": "astrometry.net solve (solve_field.py, sep) of each set's first+last window frame; the 6 centers reprojected into one common grid (astropy linear WCS, SIP dropped as meaningless off-frame); -framing=min common area = sensor rect minus the center spread. ROTATION IGNORED -> a slight over-estimate; the real compose gives the exact area.",
  "plate_scale_arcsec_px_solved": "18.0-18.2, consistent across all sets",
  "centers_radec_deg": {
