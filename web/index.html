@@ -918,7 +918,7 @@ async function route() {
 function railCounts() {
   const ls = lightSets();
   document.getElementById('n-sets').textContent = String(M.sets.length);
-  document.getElementById('n-surf').textContent = String((M.judge || []).length);
+  document.getElementById('n-surf').textContent = String((M.surfaces || []).length);
   document.getElementById('n-obj').textContent = String(ls.reduce((a, s) =>
     a + (s.anomaly ? Object.values(s.anomaly.counts).reduce((x, y) => x + y, 0) : 0), 0));
   document.getElementById('n-exp').textContent = String((M.sets || []).reduce((a, s) =>

@@ -646,7 +646,7 @@ def _stage_registry():
             "phase": "finish",
             "params": [
                 {"name": "stack", "kind": "path", "req": True, "choices": "stacks"},
-                {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
+                {"name": "name", "kind": "str", "req": False, "hint": "judge surface stem — auto-derived from the stack (product stem, stack_ prefix stripped) when blank; a name that breaks the convention orphans the surface from its card"},
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": False, "hint": "SPCC recipe routing + record naming — auto-derived from the stack name's first member when blank"},
                 {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections"},
@@ -654,7 +654,10 @@ def _stage_registry():
             ],
             "build": lambda a: (lambda stack: ["scripts/stack/finish_render.sh",
                                 stack,
-                                _safe(a["name"], "name"),
+                                _safe(re.sub(r"^stack_", "",
+                                             a.get("name")
+                                             or os.path.basename(stack)[:-len(".fit")]),
+                                      "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
                                 "--set=" + _derive_set(stack, a.get("set"))]
             + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
