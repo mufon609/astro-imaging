@@ -358,6 +358,22 @@ is done, purge the whole test run — session tree,
 the renamed sets cannot be mistaken for the exemplar's records later.
 Close condition: the purge commit.
 
+## 14. The dashboard↔Claude communication architecture — design first, user-gated
+
+Tier 1 (landed) runs the pinned scripts from the site with NO AI in the loop.
+The standing goal the user set: scripts built from official tools keep working
+from the dashboard WITHOUT burning CLI tokens, with Claude alongside for
+troubleshooting and further building at any time. Before any Tier-2/3 build,
+AUDIT the communication surface: what Claude reads when the user drives the
+site (job logs, records, status endpoints — everything queryable on demand,
+nothing pushed into context; long logs summarized at the source, never pasted);
+whether a workspace MCP server should expose the script surface as typed
+compact-output tools (one surface shared by interactive CLI and any headless
+bridge); and where the Agent SDK bridge fits (propose-in-browser with the
+approve gate rendered in the UI). Each new surface is a contract amendment,
+ratified like the framing and mount writes. Close condition: a ratified
+design note + the first implemented tier passing a token-cost review.
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical
@@ -366,11 +382,20 @@ covered by ALL 50 sub-stacks — the NAN sat at 50/50 coverage and was still cut
 `max` is the raw union with single-coverage rims, and the coverage-threshold crop
 (`coverage_threshold_frame_0103`) is instrument-driven but still machine-chosen.
 
-**STATUS — the capture side AND the site shell are BUILT (`web/`); the consume
-side rides item 0.** Landed: `web/serve.py` (127.0.0.1-only static server +
-the framing POST + `GET /api/session/<name>`, the read-only joined session
+**STATUS — capture side, site shell, Tier-1 execution AND the diagnostic-chain
+consume side are BUILT (`web/`); the item-0 render chain inherits the same
+record.** `finish_render --crop-record` applies a VERIFIED framing to the
+LINEAR stack before solve/SPCC/stretch (refuses unverified records and a
+record/stack canvas mismatch) — proven buildable on the fresh-start exemplar;
+the RA/Dec-anchored reproduction after a stack rebuild remains the untested
+half of the close condition. Landed: `web/serve.py` (127.0.0.1-only static
+server + the framing POST + the mount-declaration POST +
+`GET /api/session/<name>`, the read-only joined session
 model: per-set records normalized for display, surfaces with recipe-vs-header
-frame-count confirmation from FITS metadata, approvals from git tags only),
+frame-count confirmation from FITS metadata, approvals from git tags only;
+plus the Tier-1 registry — measure/calibrate/execute/finish/surfaces stages
+with derived defaults, per-stage status, path datalists — and the
+Environment page: rig probes + setup actions kept out of the pipeline view),
 `web/index.html` (the shell: rail-routed pages — per-set Frames
 decision/confirmation, culled rollup, surfaces, sky objects, experiments,
 framing, records viewer; absent artifacts render as designed states),
@@ -401,11 +426,12 @@ Open, in order:
   at 65535 → thresholds ≤65 valid; full-sequence single-pass apply only). A
   compose whose membership exceeds one pass on this rig rides the bigger-rig
   re-compose.
-- **The chain consumes it**: the render chain applies the recorded, VERIFIED
-  crop to the LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on
-  every rebuild — wired into the render-tier build (item 0). Siril 1.5's
-  `eqcrop ra1 dec1 ra2 dec2` (item 10) is the natural consumer of the RA/Dec
-  form when the x86 rig lands on 1.5.
+- **The chain consumes it — the diagnostic chain DOES** (`finish_render
+  --crop-record`: verified-only, canvas-checked, crop on the LINEAR stack —
+  crop-before-stretch); remaining: the item-0 render chain consumes the same
+  record on every rebuild, and the RA/Dec-anchored reproduction after a stack
+  rebuild is exercised. Siril 1.5's `eqcrop ra1 dec1 ra2 dec2` (item 10) is
+  the natural consumer of the RA/Dec form when the x86 rig lands on 1.5.
 - **Close condition** (unchanged): a box drawn on a union surface renders
   through the chain to a final whose framing matches the drawn box, and the
   record reproduces that framing after a stack rebuild (RA/Dec-anchored). The
