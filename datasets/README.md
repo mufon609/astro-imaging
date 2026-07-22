@@ -4,18 +4,13 @@ Session data dirs are gitignored (raw frames; several are third-party sets
 that must never be committed), so everything the repo must VERSION about a
 dataset lives here, keyed `datasets/<session>/<set>/`.
 
-Tracked today: **july14** — all five light sets `set-01`…`set-05`, each with
-full per-set prep (acquisition + obstruction audit + frame QA + own validated
-sky flat + a ratified `recipe.json` stack block; set-01 additionally carries
-the registration-route, combine, instrument and experiment records), plus
-`july14/darks/qa_work/` — a CALIBRATION group rather than a light set, which
-the `<session>/<set>/` key accommodates but the model below does not otherwise
-describe — and two SESSION-level records at `datasets/july14/`:
-`sensor_defects.json` (the blue-dot hot-pixel registry + its chain
-disposition) and `reaim_scatter.json` (re-aim geometry across sets, its
-framing recommendation superseded — see its `status`). Arm-rig
-measures are each a hypothesis until re-measured on x86 (`CLAUDE.md` binding
-rules).
+Tracked today: **none** — the july14 exemplar (five light sets + a darks
+calibration group, full per-set prep through an approved combine render) was
+retired and WIPED from the working tree on user order after validating the
+process end to end; its complete records live in git history (the removal
+commit and the `july14-all5-cov25frame-approved` tag). The next dataset seeds
+fresh per the model below. Arm-rig measures are each a hypothesis until
+re-measured on x86 (`CLAUDE.md` binding rules).
 
 The per-dataset state MODEL (durable — a new dataset gets these files):
 

@@ -22,6 +22,12 @@ re-checked it, and the stale metric went on to invent a false anomaly that a who
 follow-up session was scoped to chase. Re-check this register when a tool version
 changes, when the rig changes, and before any item below is worked.
 
+**Exemplar status:** the july14 dataset — the source of many measures cited
+below — is WIPED from the working tree on user order (raws, derived data,
+finals, tracked records); git history + the approved tag hold the full record.
+The cited mechanisms stand as measured lessons; a row's numbers re-verify only
+when a comparable set arrives.
+
 | divergence | condition that retires it | status |
 |---|---|---|
 | `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. **Known miss mode (user-caught):** the set-02 aircraft's ENTRY frame (DSC_7573) was not linked to the object — 2 of 3 crossing frames classified; the entry frame's own QA z-signature carried the signal (roundness z −16.7 with nstars z +5.9 = elongated EXTRA detections). Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise. |
@@ -164,9 +170,9 @@ flat enters another stack, tighten:
   (flat_source_set03). Settle radial-only TOGETHER with the item-7 background-step
   A/B (= the render plan's L1, `docs/render-tier-arm-plan.md`), not alone;
 - the deciding test is a with/without comparison on full-frame lossless finals, with
-  dust preservation the metric (the user's eyes) — the set-03 pair
-  (`judge/set-03_full_spcc-linked.png` vs `judge/set-03_ownflat_spcc-linked.png`)
-  is staged for exactly this call.
+  dust preservation the metric (the user's eyes) — the exemplar's staged
+  judgment pair was wiped with july14; re-stage the with/without pair on the
+  next flatless set.
 
 Rebuilding it from all ~1865 frames (item 8) directly addresses the star specks — more
 frames reject better. GraXpert `-correction Division` stays the vignetting-only
@@ -375,15 +381,15 @@ conventions (screen top-left AND Siril bottom-left — the measured y-flip trap)
 plus WCS RA/Dec corners so the framing survives re-registration.
 
 Open, in order:
-- **Coverage overlay as ≥N contours in the UI** — the MAP for the 4-set max
-  canvas now EXISTS (`web/results/july14/coverage_01345_max.fit`, 8493×6428 ==
-  the product, STACKCNT 87; rebuilt from the stored probe registration —
-  record + the probe's measured limits:
-  `datasets/july14/set-01/qa_work/coverage_01345.json`; values clip at the
-  65-member ceiling, thresholds ≤65 valid). Remaining: render it to a
-  tool-made ≥N preview PNG for crop.html (Siril `pm` threshold + `savepng`,
-  manifest-recorded); the all-5 map still needs the x86 single-registration
-  re-compose (its members exceed one pass on this rig).
+- **Coverage overlay in the UI — mechanism CLOSED** (proven end-to-end on the
+  retired exemplar; records in git history): `coverage_probe.sh` map →
+  `make_previews.sh` pm veil (white where coverage < N, threshold at
+  N*1000/65535 in pm's [0,1] domain) → manifest `kind: coverage` → crop.html
+  canvas-matched tinted toggle. Per-compose maps regenerate at need; the
+  probe's measured limits are pinned in its docstring (members×1000 saturates
+  at 65535 → thresholds ≤65 valid; full-sequence single-pass apply only). A
+  compose whose membership exceeds one pass on this rig rides the bigger-rig
+  re-compose.
 - **The chain consumes it**: the render chain applies the recorded, VERIFIED
   crop to the LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on
   every rebuild — wired into the render-tier build (item 0). Siril 1.5's

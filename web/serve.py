@@ -84,12 +84,14 @@ def _safe(name, what):
 
 
 def sessions_inventory():
-    """Sessions = union of the results tree and the tracked records tree, so
-    a fresh session is navigable from its first record, before any output."""
+    """Sessions = union of the results tree, the tracked records tree AND the
+    raw staging tree, so a freshly staged session is navigable (and runnable
+    from the Run page) before any record or output exists."""
     root = os.path.join(REPO, "web", "results")
     droot = os.path.join(REPO, "datasets")
+    sroot = os.path.join(REPO, "sessions")
     names = set()
-    for r in (root, droot):
+    for r in (root, droot, sroot):
         if os.path.isdir(r):
             names.update(s for s in os.listdir(r)
                          if os.path.isdir(os.path.join(r, s))
