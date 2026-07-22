@@ -52,6 +52,13 @@ for a in "${@:3}"; do case "$a" in
 esac; done
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
+# Absolutize the masters too: they are embedded into the calibrate .ssf, and
+# the flatpak Siril resolves them from the SCRIPT's CWD (work/undistort_*),
+# so a caller-relative path fails with "…[any_allowed_extension] not found".
+[ -f "$DARK" ] || { echo "no such dark: $DARK" >&2; exit 1; }
+[ -f "$FLAT" ] || { echo "no such flat: $FLAT" >&2; exit 1; }
+DARK="$(cd "$(dirname "$DARK")" && pwd)/$(basename "$DARK")"
+FLAT="$(cd "$(dirname "$FLAT")" && pwd)/$(basename "$FLAT")"
 SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$REPO/web/results/$(basename "$SESSION")/stack_$SET}
 OUT=${OUT%.fit}

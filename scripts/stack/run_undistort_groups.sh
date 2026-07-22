@@ -66,6 +66,12 @@ for a in "${@:3}"; do case "$a" in
 esac; done
 case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
+# Absolutize the masters (embedded into the sub-pipeline's calibrate .ssf,
+# resolved from the flatpak's script CWD — a caller-relative path fails there).
+[ -f "$DARK" ] || { echo "no such dark: $DARK" >&2; exit 1; }
+[ -f "$FLAT" ] || { echo "no such flat: $FLAT" >&2; exit 1; }
+DARK="$(cd "$(dirname "$DARK")" && pwd)/$(basename "$DARK")"
+FLAT="$(cd "$(dirname "$FLAT")" && pwd)/$(basename "$FLAT")"
 SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$REPO/web/results/$(basename "$SESSION")/stack_${SET}_full}
 OUT=${OUT%.fit}
