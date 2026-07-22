@@ -18,6 +18,12 @@ record the render chain consumes. No external service; the server binds
 - **No render consumes an unverified framing.** `verify_framing.py` must
   stamp the record via Siril crop+stat first — the measured y-flip /
   zero-coverage guard (`docs/dead-ends.md`).
+- **The mount declaration is the second sanctioned record write
+  (user-ratified amendment).** `POST /api/mount` captures the human-declared
+  `mount` ("fixed" | "tracked" — the one acquisition fact EXIF cannot record
+  and no consumer may assume) into the set's `acquisition.json`, writing ONLY
+  that field; `exif` stays tool-written by `acquisition.resolve()`, which
+  preserves the declaration and fills the facts around it.
 - **Execution from the site is gated per run (user-ratified amendment).**
   The site may EXECUTE a pipeline stage only from an explicit per-run user
   action — the operating loop's DECIDE step made clickable; never

@@ -41,6 +41,10 @@ API:
   GET  /api/jobs, /api/jobs/<id>, /api/jobs/<id>/log?offset=N
                        -> job list / status / incremental log tail
   POST /api/jobs/<id>/kill -> SIGTERM the job's process group (user action)
+  POST /api/mount      -> {session, set, mount: fixed|tracked, dry_run?} —
+                          the second sanctioned record write: the human
+                          mount declaration into the set's acquisition.json
+                          (mount field only; exif stays tool-written)
   POST /api/framing    -> write the tracked framing record for a product
                           (datasets/<session>/framing_<product>.json).
                           The UI captures a HUMAN decision; this endpoint
@@ -709,6 +713,30 @@ def radec_corners(wcs_path, rect_screen, canvas_h):
     return out
 
 
+MOUNTS = ("fixed", "tracked")
+ACQ_NOTE = ("`mount` is the one acquisition fact EXIF cannot record and a "
+            "consumer must be told; `exif` is auto-derived by "
+            "scripts/lib/acquisition.py — do not hand-edit it.")
+
+
+def build_mount_record(payload):
+    """The second sanctioned record write (web/README amendment): capture the
+    human-declared mount into datasets/<session>/<set>/acquisition.json.
+    Writes ONLY the `mount` field — `exif` stays tool-written; a mount-only
+    pre-declaration is exactly what acquisition.resolve() expects (it
+    preserves the declared mount and fills/refreshes exif around it)."""
+    session = _arg_session(payload["session"])
+    set_name = _safe(payload["set"], "set")
+    mount = str(payload.get("mount", "")).strip().lower()
+    if mount not in MOUNTS:
+        raise ValueError(f"mount must be one of {MOUNTS}")
+    path = os.path.join(REPO, "datasets", session, set_name,
+                        "acquisition.json")
+    record = _read_json(path) or {"_note": ACQ_NOTE}
+    record["mount"] = mount
+    return path, record
+
+
 def build_framing_record(payload):
     session = _safe(payload["session"], "session")
     product = _safe(payload["product"], "product")
@@ -826,6 +854,22 @@ class Handler(SimpleHTTPRequestHandler):
             out = job_kill(m.group(1))
             return self._json(200, out) if out else \
                 self._json(404, {"error": "no such job"})
+        if self.path == "/api/mount":
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                payload = json.loads(self.rfile.read(n))
+                path, record = build_mount_record(payload)
+                if payload.get("dry_run"):
+                    return self._json(200, {"dry_run": True, "path": path,
+                                            "record": record})
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "w") as f:
+                    json.dump(record, f, indent=1)
+                    f.write("\n")
+                return self._json(200, {"written": os.path.relpath(path, REPO),
+                                        "record": record})
+            except (KeyError, ValueError, TypeError) as e:
+                return self._json(400, {"error": str(e)})
         if self.path != "/api/framing":
             return self._json(404, {"error": "unknown endpoint"})
         try:

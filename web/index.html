@@ -260,7 +260,7 @@ function pgSets() {
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, `${s.staged_frames} staged`),
       h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
-      h('td', {}, h('span', { class:'chip warn' }, 'run frame_qa + anomaly_audit')));
+      h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, fmt(fq.total)),
@@ -402,11 +402,42 @@ function pgSet(name) {
     h('h1', {}, name),
     h('div', { class:'sub' },
       s.staged_only
-        ? `${s.staged_frames} raws staged — no records yet; the measure stages (frame_qa, anomaly_audit) run from the Run page, and acquisition seeding will STOP to ask for the declared mount`
+        ? `${s.staged_frames} raws staged — no records yet; declare the mount below, then the measure stages (frame_qa, anomaly_audit) run from the Run page`
         : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
           s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
                         : ' — fingerprint not yet derived')),
-    bar, pane);
+    mountControl(s), bar, pane);
+}
+
+function mountControl(s) {
+  if (s.kind !== 'lights') return null;
+  const cur = (s.acquisition || {}).mount;
+  const fx = h('input', { type:'radio', name:'mnt', value:'fixed' });
+  const tr = h('input', { type:'radio', name:'mnt', value:'tracked' });
+  if (cur === 'fixed') fx.checked = true;
+  if (cur === 'tracked') tr.checked = true;
+  const msg = h('span', { class:'m' });
+  return h('div', { class:'panel', style:'margin:0 0 14px' },
+    h('h3', {}, 'mount — declared, never assumed'),
+    h('div', { class:'when' }, cur
+      ? `declared: ${cur}` + (s.fingerprint
+        ? ` · measured ${s.fingerprint.mount_check.verdict}`
+        : ' · not yet measured against the sky')
+      : 'UNDECLARED — consumers that need fixed-vs-tracked stop until this is set'),
+    h('label', {}, fx, ' fixed (tripod)'), '  ',
+    h('label', {}, tr, ' tracked (driven mount)'), '  ',
+    h('button', { class:'copy', style:'font-size:.8rem;padding:.3rem .8rem',
+      onclick: async () => {
+        const v = fx.checked ? 'fixed' : tr.checked ? 'tracked' : null;
+        if (!v) { msg.textContent = ' pick one'; return; }
+        const r = await fetch('/api/mount', { method:'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ session: SESSION, set: s.set, mount: v }) });
+        const j = await r.json();
+        msg.textContent = r.ok ? ` written → ${j.written}` : ' ERROR: ' + j.error;
+        if (r.ok) setTimeout(() => loadSession(SESSION), 600);
+      } }, 'declare'),
+    msg);
 }
 
 function pgCulled() {
