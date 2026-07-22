@@ -462,6 +462,21 @@ def _arg_framing(v):
     return v
 
 
+def _derive_set(stack_rel, explicit):
+    """The SPCC-routing set: explicit wins; else the stack name's first
+    member (the combine precedent — routing only affects the recipe spec
+    lookup and the K-factor record's name)."""
+    if explicit:
+        return _arg_set(explicit)
+    stem = os.path.basename(stack_rel)
+    if stem.startswith("stack_") and stem.endswith(".fit"):
+        sets, _tag = _parse_product(stem[len("stack_"):-len(".fit")])
+        if sets:
+            return sets[0]
+    raise ValueError("cannot derive the SPCC-routing set from the stack "
+                     "name — pass `set` explicitly")
+
+
 # Each stage: description, loop phase, param specs (served to the UI), and a
 # builder returning the argv (repo-relative cwd). Params marked opt are
 # omitted when blank. Adding a stage = adding a row here; the UI renders it.
@@ -633,18 +648,19 @@ def _stage_registry():
                 {"name": "stack", "kind": "path", "req": True, "choices": "stacks"},
                 {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
                 {"name": "session", "kind": "session", "req": True},
-                {"name": "set", "kind": "set", "req": True, "hint": "routes the SPCC recipe spec + record naming"},
+                {"name": "set", "kind": "set", "req": False, "hint": "SPCC recipe routing + record naming — auto-derived from the stack name's first member when blank"},
                 {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction (union canvases, e.g. 0.35)"},
                 {"name": "crop_record", "kind": "path", "req": False, "choices": "framings", "hint": "VERIFIED framing record — crops the LINEAR stack before solve/SPCC/stretch; refuses unverified"},
             ],
-            "build": lambda a: ["scripts/stack/finish_render.sh",
-                                _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit"),
+            "build": lambda a: (lambda stack: ["scripts/stack/finish_render.sh",
+                                stack,
                                 _safe(a["name"], "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
-                                "--set=" + _arg_set(a["set"])]
+                                "--set=" + _derive_set(stack, a.get("set"))]
             + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central") else [])
             + ([f"--crop-record={_arg_repo_path(a['crop_record'], ['datasets'], ext='.json')}"]
-               if a.get("crop_record") else []),
+               if a.get("crop_record") else []))(
+                _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit")),
         },
         "previews": {
             "desc": "Siril-made navigation previews + manifest (thumbs, selection surfaces, coverage veils)",
