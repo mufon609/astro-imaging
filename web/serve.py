@@ -564,8 +564,8 @@ def _stage_registry():
             "phase": "execute",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
-                {"name": "sets", "kind": "str", "req": True, "hint": "comma-separated, e.g. set-01,set-02 (each needs its groups dir)"},
-                {"name": "framing", "kind": "str", "req": True, "hint": "min | max"},
+                {"name": "sets", "kind": "sets", "req": True, "hint": "sets with group sub-stacks; all pre-checked"},
+                {"name": "framing", "kind": "enum", "options": ["min", "max"], "req": True, "hint": "min = all-members overlap · max = union"},
             ],
             "build": lambda a: (lambda ses, sets, fr:
                                 ["scripts/stack/run_undistort_compose.sh",
@@ -581,8 +581,8 @@ def _stage_registry():
             "phase": "surfaces",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
-                {"name": "sets", "kind": "str", "req": True, "hint": "same dirs and order as the compose it maps"},
-                {"name": "framing", "kind": "str", "req": False, "hint": "min | max (default max)"},
+                {"name": "sets", "kind": "sets", "req": True, "hint": "same sets and order as the compose it maps"},
+                {"name": "framing", "kind": "enum", "options": ["min", "max"], "default": "max", "req": False, "hint": "match the compose (default max)"},
             ],
             "build": lambda a: (lambda ses, sets, fr:
                                 ["scripts/qa/coverage_probe.sh",
@@ -725,6 +725,13 @@ def path_choices(session):
                      for f in ls(os.path.join(REPO, "datasets", session),
                                  lambda f: f.startswith("framing_")
                                  and f.endswith(".json"))],
+        "groupsets": sorted(
+            d[len("groups_"):] for d in
+            (os.listdir(os.path.join(REPO, "sessions", session, "work"))
+             if os.path.isdir(os.path.join(REPO, "sessions", session, "work"))
+             else [])
+            if d.startswith("groups_") and os.path.isdir(
+                os.path.join(REPO, "sessions", session, "work", d))),
     }
 
 
@@ -890,12 +897,12 @@ def stage_status(session):
         nowcs = [su["product"] for su in have_stacks if not su["files"].get("wcs")]
         put("solve", "done" if not nowcs else "todo",
             "every per-set stack carries a WCS variant" if not nowcs
-            else f"unsolved: {', '.join(nowcs)}")
+            else f"unsolved: {', '.join(nowcs)} — runs standalone OR inside finish_render (the one-shot)")
         nospcc = [su["product"] for su in have_stacks
                   if not su["files"].get("spcc")]
         put("spcc", "done" if not nospcc else "todo",
             "every per-set stack has an SPCC variant" if not nospcc
-            else f"uncalibrated: {', '.join(nospcc)}")
+            else f"uncalibrated: {', '.join(nospcc)} — runs standalone OR inside finish_render (the one-shot)")
         nojudge = [su["product"] for su in have_stacks if not su["judge"]]
         put("finish_render", "done" if not nojudge else "todo",
             "judge surface for every per-set stack" if not nojudge

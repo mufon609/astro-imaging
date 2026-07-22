@@ -648,6 +648,35 @@ function paramInput(p, paths) {
     inp.setAttribute('list', 'dl_' + p.name);
     return frag(inp, dl);
   }
+  if (p.kind === 'enum') {
+    const sel = h('select', { id:'p_' + p.name,
+      style:'background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 7px;font:12.5px var(--mono)' },
+      (p.req && !p.default) ? h('option', { value:'' }, '— pick —') : null,
+      (p.options || []).map(o => {
+        const opt = h('option', { value:o }, o);
+        if (p.default === o) opt.selected = true;
+        return opt;
+      }));
+    return sel;
+  }
+  if (p.kind === 'sets') {
+    const hidden = h('input', { id:'p_' + p.name, type:'hidden' });
+    const avail = ((paths || {}).groupsets || []);
+    const boxes = avail.map(n => {
+      const cb = h('input', { type:'checkbox' });
+      cb.checked = true;
+      return { n, cb };
+    });
+    const sync = () => {
+      hidden.value = boxes.filter(b => b.cb.checked).map(b => b.n).join(',');
+    };
+    boxes.forEach(b => b.cb.addEventListener('change', sync));
+    sync();
+    return h('div', {},
+      boxes.length ? boxes.map(b => h('label', { style:'margin-right:1.2em' }, b.cb, ' ', b.n))
+                   : h('span', { class:'m' }, 'no group sub-stacks in this session yet'),
+      hidden);
+  }
   if (p.kind === 'path' && p.choices) {
     const dl = h('datalist', { id: 'dl_' + p.name },
       ((paths || {})[p.choices] || []).map(v => h('option', { value: v })));
