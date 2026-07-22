@@ -460,6 +460,17 @@ def _stage_registry():
             "build": lambda a: ["python3", "scripts/qa/anomaly_audit.py",
                                 P("sessions", _arg_session(a["session"]), _arg_set(a["set"]))],
         },
+        "master_dark": {
+            "desc": "session master dark from raw darks/ (pinned Siril template: rej 3 3 stack, -nonorm) -> work/masters/dark_master.fit",
+            "phase": "calibrate",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "force", "kind": "bool", "req": False, "hint": "rebuild over an existing master"},
+            ],
+            "build": lambda a: ["scripts/stack/build_master_dark.sh",
+                                P("sessions", _arg_session(a["session"]))]
+            + (["--force"] if a.get("force") else []),
+        },
         "sky_flat": {
             "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/",
             "phase": "calibrate",

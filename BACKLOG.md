@@ -347,6 +347,17 @@ roughly a third of the total static-structure budget (≈1.0/1.5/1.2 ADU, the re
 being unresolved-star confusion texture) and comparable to the random noise left
 at that depth. The x86 denoise tier now has a measured target size.
 
+## 13. Purge the front-end test run (july14_fresh-start) when it completes
+
+USER-ORDERED, end-gated: the staged re-run of the retired exemplar's frames
+lives as `set-01`/`set-02` under `sessions/july14_fresh-start/` — a DECLARED
+naming divergence (the ranges are the exemplar's set-04 DSC_7941–8339 and
+set-05 DSC_8341–8487; no flats were shot). Once the front-end pipeline test
+is done, purge the whole test run — session tree,
+`web/results/july14_fresh-start/`, and `datasets/july14_fresh-start/` — so
+the renamed sets cannot be mistaken for the exemplar's records later.
+Close condition: the purge commit.
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical
