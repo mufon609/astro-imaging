@@ -1,0 +1,12 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [],
+  "why": {
+   "keep_all": "ratified keep-all under the cull policy: 147/147 registered; the two z-flags (DSC_8372 nstars 1822, DSC_8485 roundness 0.579) are artifacts of an ultra-tight distribution (FWHM 3.72-3.80, ~2% total spread) — no defect class.",
+   "satellites_kept": "3 satellite objects across 20 frame-detections (audit_work/anomaly_audit.json), no aircraft, no unknowns — moving minority trails stack clean through in-group rejection; user-ratified 'satellites stay'.",
+   "session_edges_kept": "DSC_8341 (first) and DSC_8487 (last) are QA-clean and not anomaly-flagged — no session-edge cull.",
+   "weight_null": "wFWHM weighting at this set's ~2% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)."
+  }
+ }
+}

@@ -1,0 +1,13 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [7944],
+  "why": {
+   "7944": "frame-wide degradation on all three axes (FWHM 3.947 px vs 3.714 median, roundness 0.5755, nstars 1655, background normal) — the vibration/bump class; per-set culling policy.",
+   "cloud_window_kept": "DSC_8067-8092 + DSC_8101: contiguous low-nstars window (~1730-1760 stars vs 1857 median) with NORMAL FWHM/roundness/background — a thin-haze/cloud passage; 27/399 is a per-pixel minority (dropping a minority subset buys no matching gain and pays the sqrt(N) noise penalty).",
+   "satellites_kept": "8 unique satellite objects across 52 frame-detections (audit_work/anomaly_audit.json), no aircraft, no unknowns — moving minority trails stack clean through in-group rejection; user-ratified 'satellites stay'.",
+   "session_edges_kept": "DSC_7941 (first) and DSC_8339 (last) are QA-clean and not anomaly-flagged — no session-edge cull.",
+   "weight_null": "wFWHM weighting at this set's ~4.5% FWHM spread (3.60-3.95, median 3.71) is worse than none (min-max ramp soft-culls the worst frame at any spread)."
+  }
+ }
+}

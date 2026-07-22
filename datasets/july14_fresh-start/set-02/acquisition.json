@@ -1,0 +1,20 @@
+{
+ "mount": "fixed",
+ "exif": {
+  "camera": "NIKON Z6_3",
+  "lens": "NIKKOR Z 24-70mm f/4 S",
+  "focal_length_mm": 70.0,
+  "exposure_s": 6.0,
+  "iso": 1600,
+  "image_wh": [
+   6064,
+   4040
+  ],
+  "fov_deg": 28.6,
+  "pixel_scale_arcsec": 16.979,
+  "cadence_s": 7.0,
+  "frames": 147,
+  "time_span_s": 1022.0
+ },
+ "_note": "`mount` is the one acquisition fact EXIF cannot record and a consumer must be told; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it."
+}
