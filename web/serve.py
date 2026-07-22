@@ -641,6 +641,111 @@ def path_choices(session):
     }
 
 
+def stage_status(session):
+    """Per-stage pipeline state for the Run page chips: done | running |
+    todo | na, each with its evidence. Derived from products on disk (the
+    session model) refined by this server session's job table. Stack-route
+    stages share family evidence (per-set stacks on disk) unless a specific
+    stage's job ran — product files cannot testify WHICH route built them."""
+    m = session_model(session)
+    if m is None:
+        raise ValueError(f"no such session: {session}")
+    lights = [s for s in m["sets"] if s.get("kind") == "lights"]
+    jobs = {}
+    with JOBS_LOCK:
+        for j in JOBS.values():
+            st = _job_refresh(j)
+            prev = jobs.get(st["stage"])
+            if st["status"] == "running" or prev is None:
+                jobs[st["stage"]] = st["status"]
+    masters = path_choices(session)["masters"]
+    have_dark = any(p.endswith("dark_master.fit") for p in masters)
+    darks_staged = any(s["set"] == "darks" for s in m["sets"])
+    flats_staged = any(s["set"] in ("flats", "calib") for s in m["sets"])
+    per_set_stacks = {s["set"]: [su for su in m["surfaces"]
+                                 if su["sets"] == [s["set"]]] for s in lights}
+
+    out = {}
+
+    def put(name, state, why):
+        if jobs.get(name) == "running":
+            state, why = "running", "job running now"
+        elif state == "todo" and jobs.get(name) == "done":
+            state, why = "done", "completed via a run this server session"
+        out[name] = {"state": state, "why": why}
+
+    def missing(pred):
+        return [s["set"] for s in lights if not pred(s)]
+
+    if not lights:
+        for name in STAGES:
+            put(name, "na", "no light sets in this session")
+        return out
+
+    miss = missing(lambda s: s.get("frame_qa"))
+    put("frame_qa", "done" if not miss else "todo",
+        "frame_metrics.json on every light set" if not miss
+        else f"missing for: {', '.join(miss)}")
+    miss = missing(lambda s: s.get("anomaly"))
+    put("anomaly_audit", "done" if not miss else "todo",
+        "anomaly_audit.json on every light set" if not miss
+        else f"missing for: {', '.join(miss)}")
+    if have_dark:
+        put("master_dark", "done", "work/masters/dark_master.fit on disk")
+    elif darks_staged:
+        put("master_dark", "todo", "darks staged, no master yet")
+    else:
+        put("master_dark", "na", "no darks/ staged and no master")
+    if flats_staged:
+        put("sky_flat", "na", "real flats staged — matched-flat path applies")
+    else:
+        miss = [s["set"] for s in lights if not any(
+            p.endswith(f"skyflat_{s['set']}.fit") for p in masters)]
+        put("sky_flat", "done" if not miss else "todo",
+            "per-set sky flat built for every light set" if not miss
+            else f"missing for: {', '.join(miss)}")
+    miss = [n for n, stacks in per_set_stacks.items() if not stacks]
+    fam = ("done" if not miss else "todo",
+           "per-set stacks on disk (family evidence — files cannot testify "
+           "which route built them)" if not miss
+           else f"no stack yet for: {', '.join(miss)}")
+    for name in ("stack_standard", "stack_undistort", "stack_undistort_groups"):
+        put(name, *fam)
+    have_stacks = [su for stacks in per_set_stacks.values() for su in stacks]
+    if not have_stacks:
+        put("solve", "todo", "no stacks to solve yet")
+        put("spcc", "todo", "no stacks yet")
+        put("finish_render", "todo", "no stacks yet")
+    else:
+        nowcs = [su["product"] for su in have_stacks if not su["files"].get("wcs")]
+        put("solve", "done" if not nowcs else "todo",
+            "every per-set stack carries a WCS variant" if not nowcs
+            else f"unsolved: {', '.join(nowcs)}")
+        nospcc = [su["product"] for su in have_stacks
+                  if not su["files"].get("spcc")]
+        put("spcc", "done" if not nospcc else "todo",
+            "every per-set stack has an SPCC variant" if not nospcc
+            else f"uncalibrated: {', '.join(nospcc)}")
+        nojudge = [su["product"] for su in have_stacks if not su["judge"]]
+        put("finish_render", "done" if not nojudge else "todo",
+            "judge surface for every per-set stack" if not nojudge
+            else f"no judge surface: {', '.join(nojudge)}")
+    put("spcc_cone", "na", "coverage check for a new field — run before "
+                           "SPCC when the sky region changes")
+    put("previews", "done" if m.get("previews_manifest") else "todo",
+        "previews manifest on disk" if m.get("previews_manifest")
+        else "no previews manifest yet")
+    fr = m.get("framing") or []
+    if not fr:
+        put("verify_framing", "na", "no framing records drawn yet")
+    else:
+        unv = [f["product"] for f in fr if f.get("status") != "verified"]
+        put("verify_framing", "done" if not unv else "todo",
+            "every framing record verified" if not unv
+            else f"unverified: {', '.join(map(str, unv))}")
+    return out
+
+
 def start_job(stage, args, dry_run=False):
     if stage not in STAGES:
         raise ValueError(f"unknown stage: {stage}")
@@ -862,6 +967,12 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 return self._json(200, path_choices(
                     _safe(self.path[len("/api/paths/"):], "session")))
+            except ValueError as e:
+                return self._json(400, {"error": str(e)})
+        if self.path.startswith("/api/status/"):
+            try:
+                return self._json(200, stage_status(
+                    _safe(self.path[len("/api/status/"):], "session")))
             except ValueError as e:
                 return self._json(400, {"error": str(e)})
         if self.path == "/api/jobs":

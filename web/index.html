@@ -649,7 +649,31 @@ async function fetchPaths(session) {
   catch { return {}; }
 }
 
+async function fetchStatus() {
+  try { return await (await fetch('/api/status/' + encodeURIComponent(SESSION))).json(); }
+  catch { return {}; }
+}
+function applyStageChip(el, st) {
+  const state = (st || {}).state || 'na';
+  el.title = (st || {}).why || '';
+  if (state === 'na') { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.className = state === 'done' ? 'chip ok'
+    : state === 'running' ? 'chip warn' : 'chip cut';
+  el.textContent = state === 'done' ? 'done'
+    : state === 'running' ? 'running' : 'not run';
+}
+async function updateStageChips() {
+  if (!document.getElementById('joblist')) return;   // only on the Run page
+  const st = await fetchStatus();
+  for (const [name, s] of Object.entries(st)) {
+    const el = document.getElementById('stchip_' + name);
+    if (el) applyStageChip(el, s);
+  }
+}
+
 async function refreshJobs(logView) {
+  updateStageChips();
   let jobs = [];
   try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
   const running = jobs.filter(j => j.status === 'running');
@@ -697,6 +721,7 @@ async function watchJob(jid) {
 async function pgRun() {
   let stages = {};
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const status = await fetchStatus();
   const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
   const formHost = h('div', {});
   async function openForm(name, st) {
@@ -717,7 +742,7 @@ async function pgRun() {
         if (!r.ok) { cmdPre.textContent = 'ERROR: ' + (j.error || r.status); return; }
         cmdPre.textContent = `started ${j.id}\n$ ${j.cmd}`;
         refreshJobs(); watchJob(j.id);
-      } }, 'run (this click is the gate)');
+      } }, 'Run');
     const collect = () => {
       const args = {};
       for (const p of st.params) {
@@ -761,9 +786,13 @@ async function pgRun() {
       const names = Object.keys(stages).filter(n => stages[n].phase === ph);
       if (!names.length) return null;
       return frag(h('h2', {}, ph), h('div', { class:'cards' },
-        names.map(n => h('div', { class:'card', style:'cursor:pointer',
-          onclick: () => openForm(n, stages[n]) },
-          h('h3', {}, n), h('p', {}, stages[n].desc)))));
+        names.map(n => {
+          const chip = h('span', { id: 'stchip_' + n });
+          applyStageChip(chip, status[n]);
+          return h('div', { class:'card', style:'cursor:pointer',
+            onclick: () => openForm(n, stages[n]) },
+            h('h3', {}, n, ' ', chip), h('p', {}, stages[n].desc));
+        })));
     }),
     formHost,
     h('h2', {}, 'jobs'),
