@@ -257,11 +257,19 @@ function pgSets() {
     }
     const fq = s.frame_qa || {}, dist = (fq.distribution || {});
     const full = fullSurface(s);
-    if (s.staged_only) return h('tr', {},
-      h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
-      h('td', {}, `${s.staged_frames} staged`),
-      h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
-      h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
+    if (s.staged_only) {
+      if (s.kind === 'calibration') return h('tr', {},
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, `${s.staged_frames} staged`),
+        h('td', { colspan:3, class:'why' },
+          'calibration group — consumed by the master builds; no mount, no frame QA'),
+        h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
+      return h('tr', {},
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, `${s.staged_frames} staged`),
+        h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
+        h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
+    }
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, fmt(fq.total)),
@@ -374,6 +382,12 @@ function objectsTable(sets) {
 function pgSet(name) {
   const s = setByName(name);
   if (!s) return h('p', {}, `no such set: ${name}`);
+  if (s.kind === 'calibration' && !s.dark_qa) {
+    return frag(h('div', { class:'eyebrow' }, h('a', { href:'#sets' }, 'sets'), ' / ', name),
+      h('h1', {}, name),
+      h('div', { class:'sub' },
+        `${fmt(s.staged_frames)} raws staged — calibration group; the master builds consume this dir (no mount declaration, no frame QA); a calibration QA record appears here when one is produced`));
+  }
   if (s.dark_qa) {
     return frag(h('div', { class:'eyebrow' }, h('a', { href:'#sets' }, 'sets'), ' / ', name),
       h('h1', {}, name),
