@@ -5,11 +5,18 @@
 # never judgment surfaces (judgment = the full PNG16 in the user's viewers).
 #
 #   web/make_previews.sh <session> [--maxdim-thumb=1600] [--maxdim-sel=2200]
+#                                  [--cov-min=25]
 #
 # Writes into web/results/<session>/previews/:
 #   thumb_<judge-name>.png   downscaled gallery thumbs of judge/ surfaces
 #   sel_<stack-stem>.png     linked-autostretch selection surface per
 #                            *_max_spcc.fit stack (the crop UI's canvas)
+#   cov_<map-stem>_lt<N>.png coverage VEIL per coverage_*.fit map: white where
+#                            member coverage < N (Siril pm iif threshold at
+#                            N*1000/65535 in pm's [0,1] domain), area-downscaled
+#                            — the crop UI tints it as the insufficient-coverage
+#                            layer. Falls back to covheat_<map-stem>.png (plain
+#                            autostretch heat) if the pm arm fails.
 #   manifest.json            native dims + preview dims + EXACT scale per item,
 #                            plus any matching crop-map reference boxes found
 #                            in datasets/<session>/*/qa_work/*_map.json
@@ -19,9 +26,10 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 SESSION=${1:?usage: make_previews.sh <session> [--maxdim-thumb=] [--maxdim-sel=]}
 shift || true
-TH=1600 SEL=2200
+TH=1600 SEL=2200 COVMIN=25
 for a in "$@"; do case "$a" in
   --maxdim-thumb=*) TH=${a#*=};; --maxdim-sel=*) SEL=${a#*=};;
+  --cov-min=*) COVMIN=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 SBASE=$(basename "$SESSION")
@@ -58,13 +66,40 @@ flatpak run --command=siril-cli org.siril.Siril -d "$WORK" -s "$SSF" \
   > "$WORK/previews_gen.log" 2>&1 \
   || { echo "siril preview run FAILED — $WORK/previews_gen.log" >&2; exit 1; }
 
+# coverage veils: separate ssf per map so a pm failure cannot kill the main
+# previews; fallback = plain autostretch heat of the map (still tool-made)
+THR=$(awk -v n="$COVMIN" 'BEGIN{printf "%.6f", n*1000/65535}')
+for map in "$RES"/coverage_*.fit; do
+  [ -e "$map" ] || continue
+  stem=$(basename "$map" .fit)
+  CSSF=$WORK/previews_cov.ssf
+  { echo "requires 1.4.0"; echo "setcompress 0"
+    echo "cd $RES"
+    echo "pm \"iif(\$$stem\$ < $THR, 1, 0)\""
+    echo "resample -maxdim=$SEL -interp=area"
+    echo "savepng $PREV/cov_${stem}_lt$COVMIN"
+  } > "$CSSF"
+  if ! flatpak run --command=siril-cli org.siril.Siril -d "$WORK" -s "$CSSF" \
+      >> "$WORK/previews_gen.log" 2>&1; then
+    echo "pm veil failed for $stem — falling back to heat (previews_gen.log)"
+    { echo "requires 1.4.0"; echo "setcompress 0"
+      echo "load $map"; echo "autostretch"
+      echo "resample -maxdim=$SEL -interp=area"
+      echo "savepng $PREV/covheat_$stem"
+    } > "$CSSF"
+    flatpak run --command=siril-cli org.siril.Siril -d "$WORK" -s "$CSSF" \
+      >> "$WORK/previews_gen.log" 2>&1 \
+      || echo "coverage heat fallback ALSO failed for $stem" >&2
+  fi
+done
+
 # manifest: native + preview dims and the exact scale, from file headers
 # (astropy header read for FITS; PNG IHDR for previews — metadata only,
 # no pixel analysis). Reference boxes: any *_map.json whose recorded canvas
 # matches a selection surface's native dims is attached to that item.
-python3 - "$REPO" "$SBASE" "$PREV" <<'PY'
+python3 - "$REPO" "$SBASE" "$PREV" "$COVMIN" <<'PY'
 import glob, json, os, struct, sys
-repo, session, prev = sys.argv[1:4]
+repo, session, prev, covmin = sys.argv[1:5]
 res = os.path.join(repo, "web", "results", session)
 
 def png_wh(path):
@@ -118,6 +153,24 @@ for f in sorted(glob.glob(os.path.join(res, "stack_*_max_spcc.fit"))):
                   "reference_boxes": refs,
                   "note": "SELECTION surface (linked autostretch + area "
                           "downscale by Siril) — never a judgment surface"})
+for f in sorted(glob.glob(os.path.join(res, "coverage_*.fit"))):
+    stem = os.path.basename(f)[:-4]
+    veil = os.path.join(prev, f"cov_{stem}_lt{covmin}.png")
+    heat = os.path.join(prev, f"covheat_{stem}.png")
+    p = veil if os.path.exists(veil) else heat if os.path.exists(heat) else None
+    if not p:
+        continue
+    nw, nh = fits_wh(f)
+    pw, ph = png_wh(p)
+    items.append({"kind": "coverage", "map": os.path.basename(f),
+                  "style": "veil-below" if p == veil else "heat",
+                  "threshold_members": int(covmin) if p == veil else None,
+                  "canvas": [nw, nh],
+                  "preview": f"previews/{os.path.basename(p)}",
+                  "preview_wh": [pw, ph], "scale": pw / nw,
+                  "note": "coverage overlay (Siril pm threshold / autostretch "
+                          "of the probe map) — a navigation layer for the "
+                          "crop UI, matched to products by canvas"})
 out = {"session": session, "items": items}
 mf = os.path.join(prev, "manifest.json")
 json.dump(out, open(mf, "w"), indent=1)

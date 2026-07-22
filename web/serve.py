@@ -67,13 +67,22 @@ def _safe(name, what):
 
 
 def sessions_inventory():
+    """Sessions = union of the results tree and the tracked records tree, so
+    a fresh session is navigable from its first record, before any output."""
     root = os.path.join(REPO, "web", "results")
+    droot = os.path.join(REPO, "datasets")
+    names = set()
+    for r in (root, droot):
+        if os.path.isdir(r):
+            names.update(s for s in os.listdir(r)
+                         if os.path.isdir(os.path.join(r, s))
+                         and not s.startswith("."))
     out = []
-    if not os.path.isdir(root):
-        return out
-    for s in sorted(os.listdir(root)):
+    for s in sorted(names):
         sdir = os.path.join(root, s)
-        if not os.path.isdir(sdir) or s.startswith("."):
+        if not os.path.isdir(sdir):
+            out.append({"session": s, "judge": [], "stacks": [],
+                        "previews_manifest": None, "records_only": True})
             continue
         judge = sorted(os.listdir(os.path.join(sdir, "judge"))) \
             if os.path.isdir(os.path.join(sdir, "judge")) else []

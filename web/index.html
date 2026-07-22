@@ -525,7 +525,16 @@ function pgFraming() {
         `${su.naxis ? su.naxis.join('×') : '?'} · ${(((su.selection || {}).reference_boxes) || []).length} reference box(es)`,
         h('br'),
         cov ? h('span', { class:'chip ok' }, `coverage map: ${cov.file}`)
-            : h('span', { class:'chip warn' }, 'no coverage map for this canvas')),
+            : h('span', { class:'chip warn' }, 'no coverage map for this canvas'),
+        (() => {
+          const ov = (((M.previews_manifest || {}).items) || []).find(i =>
+            i.kind === 'coverage' && i.canvas && su.naxis &&
+            i.canvas[0] === su.naxis[0] && i.canvas[1] === su.naxis[1]);
+          return ov ? h('span', { class:'chip ok' },
+            ov.style === 'veil-below'
+              ? `overlay ready (< ${ov.threshold_members} veil)` : 'overlay ready (heat)')
+            : null;
+        })()),
       h('p', { style:'margin:10px 0 2px' },
         h('a', { href:`crop.html?session=${encodeURIComponent(SESSION)}&product=${encodeURIComponent('stack_' + su.product + '_spcc')}` },
           'open crop UI →')));
