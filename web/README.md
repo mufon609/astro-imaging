@@ -35,8 +35,8 @@ python3 web/verify_framing.py <session> <product> \
 
 | file | role |
 |---|---|
-| `serve.py` | static server (repo root, read-only) + `GET /api/sessions` + `POST /api/framing` (writes the tracked record, `dry_run` supported) |
-| `index.html` | session browser: judge-surface gallery (thumbs link the real PNG16) + links into the crop UI |
+| `serve.py` | static server (repo root, read-only) + `GET /api/sessions` + `GET /api/session/<name>` (the joined read-only session model: per-set records normalized across the measured schema drift, surfaces with FITS-header frame counts confirmed against the recipes — metadata reads, never pixels — and approvals from git tags only) + `POST /api/framing` (writes the tracked record, `dry_run` supported; the only write) |
+| `index.html` | the workspace shell: rail menu + hash-routed pages over `/api/session/<name>` — overview (router cards), per-set Frames tab (the cull DECISION with verbatim whys vs the post-stack CONFIRMATION against stack headers), culled rollup, surfaces (git-tag approvals; diagnostic-stretch caveat), sky objects, experiments ledgers, framing, read-only records viewer. Absent artifacts render as designed states naming their producer |
 | `crop.html` | the item-12 framing UI: selection preview + existing crop-map reference boxes + drag/fine-tune a rectangle → POST the record |
 | `make_previews.sh` | tool-driven preview generation (Siril load/autostretch/resample/savepng) + `previews/manifest.json` (native dims, exact scale, matched reference boxes) |
 | `verify_framing.py` | the record verifier: Siril `crop`+`stat` against the coverage map (`Min >= members*1000`) or the product stack's sibling-class sky floor |

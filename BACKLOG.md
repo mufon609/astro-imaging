@@ -349,9 +349,14 @@ covered by ALL 50 sub-stacks — the NAN sat at 50/50 coverage and was still cut
 `max` is the raw union with single-coverage rims, and the coverage-threshold crop
 (`coverage_threshold_frame_0103`) is instrument-driven but still machine-chosen.
 
-**STATUS — the capture side is BUILT (`web/`); the consume side rides item 0.**
-Landed: `web/serve.py` (127.0.0.1-only static server + the framing POST),
-`web/index.html` (session/judge gallery — selection surfaces, never judgment),
+**STATUS — the capture side AND the site shell are BUILT (`web/`); the consume
+side rides item 0.** Landed: `web/serve.py` (127.0.0.1-only static server +
+the framing POST + `GET /api/session/<name>`, the read-only joined session
+model: per-set records normalized for display, surfaces with recipe-vs-header
+frame-count confirmation from FITS metadata, approvals from git tags only),
+`web/index.html` (the shell: rail-routed pages — per-set Frames
+decision/confirmation, culled rollup, surfaces, sky objects, experiments,
+framing, records viewer; absent artifacts render as designed states),
 `web/crop.html` (draws the rectangle over a Siril-made selection preview with
 existing `*_map.json` reference boxes overlaid), `web/make_previews.sh`
 (tool-driven previews + manifest), `web/verify_framing.py` (the mandatory
@@ -362,10 +367,15 @@ conventions (screen top-left AND Siril bottom-left — the measured y-flip trap)
 plus WCS RA/Dec corners so the framing survives re-registration.
 
 Open, in order:
-- **Coverage overlay as ≥N contours in the UI** — the crop page shows recorded
-  reference boxes today; the per-pixel coverage overlay lands when a
-  `coverage_probe.sh` map for the target compose is rendered to a preview PNG
-  (Siril `pm` threshold + `savepng` — tool-made, like every other preview).
+- **Coverage overlay as ≥N contours in the UI** — the MAP for the 4-set max
+  canvas now EXISTS (`web/results/july14/coverage_01345_max.fit`, 8493×6428 ==
+  the product, STACKCNT 87; rebuilt from the stored probe registration —
+  record + the probe's measured limits:
+  `datasets/july14/set-01/qa_work/coverage_01345.json`; values clip at the
+  65-member ceiling, thresholds ≤65 valid). Remaining: render it to a
+  tool-made ≥N preview PNG for crop.html (Siril `pm` threshold + `savepng`,
+  manifest-recorded); the all-5 map still needs the x86 single-registration
+  re-compose (its members exceed one pass on this rig).
 - **The chain consumes it**: the render chain applies the recorded, VERIFIED
   crop to the LINEAR stack (Siril `crop`; crop-before-stretch doctrine) on
   every rebuild — wired into the render-tier build (item 0). Siril 1.5's
