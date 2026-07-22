@@ -2,84 +2,645 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>workspace — sessions</title>
+<!-- The workspace front end shell: rail menu + hash-routed pages rendered
+     from GET /api/session/<name> (read-only records join; serve.py). Every
+     image shown is a Siril-made preview or a link to the real file; judgment
+     happens only on the full-frame lossless PNG16 in the user's own viewers
+     (web/README.md contract). Self-contained: no external assets. -->
 <style>
-  body { font: 14px/1.45 system-ui, sans-serif; margin: 1.2rem; background:#14161a; color:#d8dbe0; }
-  a { color:#7ab7ff; text-decoration:none; } a:hover { text-decoration:underline; }
-  .contract { border:1px solid #5a4d1f; background:#2a2410; color:#e8d48b;
-              padding:.6rem .8rem; border-radius:6px; margin-bottom:1rem; }
-  h1 { font-size:1.3rem; } h2 { font-size:1.05rem; border-bottom:1px solid #333; padding-bottom:.2rem; }
-  .cards { display:flex; flex-wrap:wrap; gap:12px; }
-  .card { background:#1d2026; border:1px solid #2c313a; border-radius:8px;
-          padding:8px; width:270px; }
-  .card img { width:100%; border-radius:4px; display:block; }
-  .name { font-size:.8rem; word-break:break-all; margin:.4rem 0 .2rem; color:#aab0ba; }
-  .sel { border-color:#2e4d33; }
-  .path { font-size:.72rem; color:#78808c; word-break:break-all; }
-  .muted { color:#78808c; }
+  :root {
+    --bg0:#0f1114; --bg1:#15181d; --bg2:#1b1f26; --line:#262b33;
+    --ink:#d6dae1; --muted:#8a93a1; --faint:#5c6470;
+    --data:#7fd0f2; --plate:#e4c76b; --ok:#86c58e; --cut:#d98a76;
+    --mono:ui-monospace,"Cascadia Mono","DejaVu Sans Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,"Segoe UI",Roboto,Cantarell,sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg0); color:var(--ink); font:14px/1.5 var(--sans); }
+  a { color:var(--data); text-decoration:none; } a:hover { text-decoration:underline; }
+  a:focus-visible, button:focus-visible, select:focus-visible {
+    outline:2px solid var(--data); outline-offset:2px; }
+  .plate { border-bottom:1px solid var(--line); background:var(--bg1); }
+  .plate-in { padding:8px 20px; font:11px/1.6 var(--mono); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--plate); display:flex; gap:1.2em; flex-wrap:wrap; }
+  .plate-in span { color:var(--faint); letter-spacing:.1em; }
+  .shell { display:flex; min-height:calc(100vh - 34px); }
+  nav.rail { width:216px; flex:none; border-right:1px solid var(--line);
+    background:var(--bg1); padding:14px 0; position:sticky; top:0;
+    align-self:flex-start; height:calc(100vh - 34px); overflow-y:auto; }
+  .sess { margin:0 14px 14px; }
+  .sess select { width:100%; background:var(--bg2); color:var(--ink);
+    border:1px solid var(--line); border-radius:5px; padding:7px 8px;
+    font:600 13px var(--mono); }
+  .sess .l { display:block; font:10px var(--mono); letter-spacing:.18em;
+    text-transform:uppercase; color:var(--faint); margin-bottom:3px; }
+  nav.rail a.item { display:block; padding:7px 16px 7px 14px; margin:1px 8px;
+    border-left:2px solid transparent; border-radius:0 4px 4px 0;
+    font:12.5px var(--mono); letter-spacing:.06em; color:var(--muted); }
+  nav.rail a.item:hover { color:var(--ink); background:var(--bg2); text-decoration:none; }
+  nav.rail a.item.active { color:var(--ink); border-left-color:var(--data); background:var(--bg2); }
+  nav.rail a.item .n { float:right; color:var(--faint); font-size:11px; }
+  main { flex:1; min-width:0; padding:20px 24px 64px; max-width:1120px; }
+  .eyebrow { font:11px var(--mono); letter-spacing:.22em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:4px; }
+  h1 { margin:0 0 6px; font:600 26px/1.15 var(--mono); letter-spacing:.03em; }
+  .sub { color:var(--muted); font:12.5px var(--mono); margin-bottom:20px; line-height:1.7; }
+  h2 { font:600 12.5px var(--mono); letter-spacing:.2em; text-transform:uppercase;
+    color:var(--muted); margin:30px 0 12px; display:flex; align-items:center; gap:12px; }
+  h2::after { content:""; flex:1; height:1px; background:var(--line); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .card { background:var(--bg1); border:1px solid var(--line); border-radius:6px; padding:12px 14px; }
+  .card.approved { border-color:#2e4d33; }
+  .card h3 { margin:0 0 4px; font:600 13.5px var(--mono); word-break:break-all; }
+  .card h3 .n { color:var(--data); }
+  .card p { margin:4px 0 8px; font:12.5px/1.55 var(--sans); color:var(--muted); }
+  .card .m { font:11px/1.7 var(--mono); color:var(--muted); word-break:break-all; }
+  .card img { width:100%; border-radius:3px; display:block; }
+  .chip { font:10.5px var(--mono); letter-spacing:.1em; border:1px solid var(--line);
+    color:var(--muted); border-radius:3px; padding:2px 7px; white-space:nowrap;
+    display:inline-block; margin:1px 2px 1px 0; }
+  .chip.ok { color:var(--ok); border-color:#2e4d33; }
+  .chip.warn { color:var(--plate); border-color:#4d431f; }
+  .chip.cut { color:var(--cut); border-color:#5a3229; }
+  table.ledger { border-collapse:collapse; width:100%; font:12.5px var(--mono); }
+  .ledger th { text-align:left; font:10.5px var(--mono); letter-spacing:.14em;
+    text-transform:uppercase; color:var(--faint); font-weight:500;
+    padding:4px 14px 4px 0; border-bottom:1px solid var(--line); }
+  .ledger td { padding:6px 14px 6px 0; border-bottom:1px solid #1e232b; vertical-align:top; }
+  .ledger td.why { font:12.5px/1.5 var(--sans); color:var(--muted); }
+  .cutid { color:var(--cut); } .okid { color:var(--ok); }
+  .caveat { font:11.5px/1.5 var(--mono); color:var(--plate); margin:10px 0 0;
+    padding-left:10px; border-left:2px solid #4d431f; }
+  .tabs { display:flex; gap:2px; border-bottom:1px solid var(--line); margin:18px 0 0; }
+  .tabs button { padding:7px 14px; font:12px var(--mono); letter-spacing:.08em;
+    color:var(--muted); background:none; border:1px solid transparent; border-bottom:none;
+    border-radius:5px 5px 0 0; cursor:pointer; }
+  .tabs button.active { color:var(--ink); background:var(--bg1);
+    border-color:var(--line); position:relative; top:1px; }
+  .tabpane { background:var(--bg1); border:1px solid var(--line); border-top:none;
+    border-radius:0 0 6px 6px; padding:16px; }
+  .life { display:flex; flex-wrap:wrap; margin:0 0 18px; }
+  .life .ph { flex:1; min-width:150px; padding:9px 12px; background:var(--bg2);
+    border:1px solid var(--line); border-left:none; }
+  .life .ph:first-child { border-left:1px solid var(--line); border-radius:5px 0 0 5px; }
+  .life .ph:last-child { border-radius:0 5px 5px 0; }
+  .life .t { font:10px var(--mono); letter-spacing:.18em; text-transform:uppercase;
+    color:var(--ok); display:block; }
+  .life .t.pend { color:var(--faint); }
+  .life .v { font:12px var(--mono); color:var(--ink); }
+  .twocol { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:980px){ .twocol { grid-template-columns:1fr; } }
+  .panel { background:var(--bg0); border:1px solid var(--line); border-radius:6px; padding:14px; }
+  .panel h3 { margin:0 0 2px; font:600 13px var(--mono); }
+  .panel .when { font:11px var(--mono); color:var(--faint); margin-bottom:10px; }
+  .slot { border:1px dashed var(--line); border-radius:4px; padding:8px 10px;
+    font:11px/1.6 var(--mono); color:var(--faint); margin-top:10px; }
+  .slot.c { border-color:#5a3229; color:var(--cut); }
+  .slot.b { border-color:#4d431f; color:var(--plate); }
+  .pass { color:var(--ok); font-weight:600; } .fail { color:var(--cut); font-weight:600; }
+  .story { background:var(--bg1); border:1px solid var(--line); border-left:3px solid var(--cut);
+    border-radius:4px; padding:12px 14px; margin-top:12px; font:12.5px/1.6 var(--sans);
+    color:var(--muted); }
+  .cls-satellite { color:var(--data); } .cls-aircraft { color:var(--cut); }
+  .cls-unknown { color:var(--plate); }
   button.copy { font-size:.7rem; background:#262b33; color:#aab0ba; border:1px solid #333;
-                border-radius:4px; cursor:pointer; }
+    border-radius:4px; cursor:pointer; }
+  pre.rec { background:var(--bg0); border:1px solid var(--line); border-radius:6px;
+    padding:12px; font:12px/1.5 var(--mono); white-space:pre-wrap; word-break:break-word;
+    overflow-x:auto; }
+  svg.fp { display:block; margin:2px 0; }
+  svg.fp rect.union { fill:none; stroke:var(--faint); stroke-width:14; }
+  svg.fp rect.cov { fill:none; stroke:var(--data); stroke-width:22; stroke-dasharray:90 60; }
+  .muted { color:var(--muted); }
+  @media (max-width:760px){ nav.rail { display:none; } }
 </style>
 </head>
 <body>
-<h1>workspace sessions</h1>
-<div class="contract"><b>Selection / navigation surface only.</b>
- Aesthetic judgment happens exclusively on the full-frame lossless PNG16
- files opened in your own viewers (README review contract). Thumbnails here
- are Siril-made downscales for finding things, not judging them.</div>
-<div id="root" class="muted">loading /api/sessions…</div>
+<div class="plate"><div class="plate-in">
+  <b>Selection / navigation surface</b>
+  <span>judgment happens only on the full-frame lossless PNG16, opened in your own viewers</span>
+  <span>previews are Siril-made downscales for finding, not judging</span>
+</div></div>
+<div class="shell">
+<nav class="rail">
+  <div class="sess"><span class="l">session</span>
+    <select id="sesspick" aria-label="session"></select></div>
+  <a class="item" href="#overview">Overview</a>
+  <a class="item" href="#sets">Sets <span class="n" id="n-sets"></span></a>
+  <a class="item" href="#surfaces">Surfaces <span class="n" id="n-surf"></span></a>
+  <a class="item" href="#objects">Sky objects <span class="n" id="n-obj"></span></a>
+  <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
+  <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
+  <a class="item" href="#records">Records</a>
+</nav>
+<main id="main" class="muted">loading…</main>
+</div>
+
 <script>
-async function main() {
-  const root = document.getElementById('root');
+'use strict';
+let M = null;            // the session model from /api/session/<name>
+let SESSION = null;
+
+/* ---------- tiny DOM helpers (record text goes through textContent) ---------- */
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;         // fixed chrome only
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return el;
+}
+const frag = (...kids) => { const f = document.createDocumentFragment(); f.append(...kids.flat().filter(Boolean)); return f; };
+const fmt = v => v == null ? '—' : v;
+
+function copyBtn(path) {
+  return h('button', { class:'copy', onclick: () => navigator.clipboard.writeText(path) }, 'copy path');
+}
+function realFileLine(path) {
+  return h('div', { class:'m' }, path, ' ', copyBtn(path));
+}
+
+/* ---------- data access ---------- */
+const lightSets = () => (M.sets || []).filter(s => s.kind === 'lights');
+const setByName = n => (M.sets || []).find(s => s.set === n);
+const culledIds = s => ((s.recipe || {}).exclude) || [];
+const whyOf = (s, id) => ((s.recipe || {}).why || {})[String(id)] || null;
+const flaggedOf = (s, id) => (((s.frame_qa || {}).flagged) || [])
+  .find(f => (f.file || '').includes(String(id)));
+const setSurfaces = name => (M.surfaces || []).filter(su => su.sets.includes(name));
+const fullSurface = s => (M.surfaces || []).find(su =>
+  su.sets.length === 1 && su.sets[0] === s.set && ['full', 'ownflat'].includes(su.recipe_tag));
+const FULL_DEPTH_TAGS = ['full', 'ownflat', 'max', 'min', 'cov25', 'cov25frame'];
+const res = p => `/web/results/${SESSION}/${p}`;
+
+function confirmChip(su) {
+  if (su.confirm === 'ok')
+    return h('span', { class:'chip ok' }, `frames confirmed ${su.stackcnt}`);
+  if (su.confirm === 'differs') {
+    const err = FULL_DEPTH_TAGS.includes(su.recipe_tag);
+    return h('span', { class: err ? 'chip cut' : 'chip warn' },
+      err ? `MISMATCH: header ${su.stackcnt} vs recipe ${su.expected_kept}`
+          : `subset render: ${su.stackcnt} of ${su.expected_kept} kept`);
+  }
+  return h('span', { class:'chip' }, su.stackcnt != null
+    ? `header ${su.stackcnt} frames` : 'frame count unknown');
+}
+function coverageFor(su) {
+  return (M.coverage_maps || []).find(c => c.naxis && su.naxis &&
+    c.naxis[0] === su.naxis[0] && c.naxis[1] === su.naxis[1]);
+}
+
+/* ---------- pages ---------- */
+function pgOverview() {
+  const ls = lightSets();
+  const acq = (ls[0] || {}).acquisition, ex = (acq || {}).exif || {};
+  const fp = (ls.find(s => s.fingerprint) || {}).fingerprint;
+  const totals = {
+    frames: ls.reduce((a, s) => a + (((s.frame_qa || {}).total) || 0), 0),
+    kept: ls.reduce((a, s) => a + (s.kept || 0), 0),
+    culled: ls.reduce((a, s) => a + culledIds(s).length, 0),
+    objects: ls.reduce((a, s) => a + (s.anomaly ? Object.values(s.anomaly.counts).reduce((x, y) => x + y, 0) : 0), 0),
+    exps: (M.sets || []).reduce((a, s) => a + (s.experiments || []).length, 0),
+  };
+  const approvedTag = (M.tags || []).find(t => t.endsWith('-approved'));
+  return frag(
+    h('div', { class:'eyebrow' }, 'session'),
+    h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle' }, 'approved render on file') : null),
+    h('div', { class:'sub' },
+      `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)}`,
+      acq ? ` · mount ${acq.mount}` : '',
+      fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
+    h('h2', {}, 'what is on file — each card opens its home'),
+    h('div', { class:'cards' },
+      h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String(totals.culled)), ' culled frames'),
+        h('p', {}, 'every cull carries its why and its measures; decided before the stack, confirmed after it.'),
+        h('div', {}, h('a', { href:'#culled' }, 'session rollup →'), ' · ',
+          ...lightSets().filter(s => culledIds(s).length).map(s => h('a', { href:`#set/${s.set}`, style:'margin-right:.6em' }, s.set)))),
+      h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String(totals.objects)), ' sky objects'),
+        h('p', {}, 'satellites, aircraft and unknowns from the anomaly audit, linked across frames.'),
+        h('a', { href:'#objects' }, 'sky objects →')),
+      h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String((M.surfaces || []).length)), ' stacks · ',
+        h('span', { class:'n' }, String((M.judge || []).length)), ' judge surfaces'),
+        h('p', {}, 'per-set stacks and combines at their footprints; approval only from the git tag.'),
+        h('a', { href:'#surfaces' }, 'surfaces →')),
+      h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String((M.framing || []).length)), ' framing records'),
+        h('p', {}, 'the product frame is yours to draw; nothing renders from an unverified box.'),
+        h('a', { href:'#framing' }, 'framing →')),
+      h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String(totals.exps)), ' experiment entries'),
+        h('p', {}, 'the tuning ledgers: param · verdict. Render-tier ladders land here when built.'),
+        h('a', { href:'#experiments' }, 'experiments →')),
+      h('div', { class:'card' }, h('h3', {}, `${totals.frames} frames → ${totals.kept} kept`),
+        h('p', {}, 'per-set measurement, your ratified decisions, and the stack-header confirmation.'),
+        h('a', { href:'#sets' }, 'sets →'))));
+}
+
+function pgSets() {
+  const rows = (M.sets || []).map(s => {
+    if (s.dark_qa) {
+      const dq = s.dark_qa;
+      return h('tr', {},
+        h('td', {}, s.set),
+        h('td', {}, String(((dq.frames || {}).count) || '—')),
+        h('td', { colspan:3, class:'why' },
+          `calibration group — pedestal ${(dq.dark_level_pedestal_ADU || {}).verdict || '—'}; light-leak ${((dq.light_leak_check || {}).verdict || '—')}`),
+        h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
+    }
+    const fq = s.frame_qa || {}, dist = (fq.distribution || {});
+    const full = fullSurface(s);
+    return h('tr', {},
+      h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+      h('td', {}, fmt(fq.total)),
+      h('td', { class:'okid' }, fmt(s.kept)),
+      h('td', { class: culledIds(s).length ? 'cutid' : '' }, String(culledIds(s).length)),
+      h('td', {}, dist.fwhm_px ? `${dist.fwhm_px.median} px` : '—'),
+      h('td', {}, full ? confirmChip(full) : h('span', { class:'chip warn' }, 'no full-depth stack')));
+  });
+  const caveat = ((lightSets()[0] || {}).frame_qa || {}).caveats;
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'sets'),
+    h('div', { class:'sub' }, 'one process page per set — Frames · Sky objects · Flat & QA · Records'),
+    h('table', { class:'ledger' },
+      h('tr', {}, ...['set', 'frames', 'kept', 'culled', 'fwhm med', 'stack'].map(t => h('th', {}, t))),
+      rows),
+    caveat ? h('p', { class:'caveat' }, caveat[0]) : null);
+}
+
+function lifecycle(s) {
+  const full = fullSurface(s);
+  const recipe = s.recipe;
+  const fq = s.frame_qa || {};
+  const conf = full && full.confirm === 'ok';
+  return h('div', { class:'life' },
+    h('div', { class:'ph' }, h('span', { class:'t' }, 'measured'),
+      h('span', { class:'v' }, `${fmt(fq.registered)}/${fmt(fq.total)} registered`)),
+    h('div', { class:'ph' }, h('span', { class: recipe ? 't' : 't pend' }, 'decided'),
+      h('span', { class:'v' }, recipe
+        ? `recipe ratified — cull ${culledIds(s).length}, keep ${fmt(s.kept)}`
+        : 'no recipe — generic defaults, loudly')),
+    h('div', { class:'ph' }, h('span', { class: full ? 't' : 't pend' }, 'stacked'),
+      h('span', { class:'v' }, full ? `${full.product} on disk` : 'no full-depth stack')),
+    h('div', { class:'ph' }, h('span', { class: conf ? 't' : 't pend' }, 'confirmed'),
+      full ? confirmChip(full) : h('span', { class:'v' }, '—')));
+}
+
+function framesTab(s) {
+  const excl = culledIds(s);
+  const flagged = ((s.frame_qa || {}).flagged) || [];
+  const measures = f => f ? `FWHM ${f.fwhm} · rnd ${f.round} · ${f.nstars}★${f.bg ? ` · bg ${f.bg}` : ''}` : '—';
+  const culledRows = excl.map(id => {
+    const fl = flaggedOf(s, id);
+    return h('tr', {}, h('td', { class:'cutid' }, `DSC_${id}`),
+      h('td', {}, measures(fl)),
+      h('td', { class:'why' }, whyOf(s, id) || 'no reason recorded — policy gap'));
+  });
+  const keptFlagged = flagged.filter(f => !excl.some(id => (f.file || '').includes(String(id))));
+  const policyNotes = Object.entries(((s.recipe || {}).why) || {})
+    .filter(([k]) => !/^\d+$/.test(k));
+  const surfaces = setSurfaces(s.set);
+  return frag(
+    lifecycle(s),
+    h('div', { class:'twocol' },
+      h('div', { class:'panel' },
+        h('h3', {}, 'Decision — before the stack'),
+        h('div', { class:'when' }, 'QA measures + audit objects → your ratified recipe (the record is the decision)'),
+        excl.length
+          ? h('table', { class:'ledger' },
+              h('tr', {}, ...['culled', 'measured', 'why (recipe, verbatim)'].map(t => h('th', {}, t))), culledRows)
+          : h('p', { class:'m' }, 'ratified keep-all — no frames culled'),
+        keptFlagged.length ? h('table', { class:'ledger', style:'margin-top:12px' },
+          h('tr', {}, ...['flagged, kept', 'measured', 'note'].map(t => h('th', {}, t))),
+          keptFlagged.map(f => h('tr', {},
+            h('td', { class:'okid' }, f.file || '—'),
+            h('td', {}, measures(f), ' [', (f.flags || []).join(','), ']'),
+            h('td', { class:'why' }, f.note || 'kept — see recipe policy notes')))) : null,
+        policyNotes.length ? frag(h('h3', { style:'margin-top:14px' }, 'kept-policy notes'),
+          h('table', { class:'ledger' }, policyNotes.map(([k, v]) =>
+            h('tr', {}, h('td', { style:'white-space:nowrap' }, k), h('td', { class:'why' }, v))))) : null,
+        h('div', { class:'slot c' },
+          'culled-frame thumbnails: needs raws re-staged — when staged, thumbs are Siril-made and manifest-recorded, proposed with command + cost first'),
+        h('div', { class:'slot' },
+          'full per-frame metric table: not retained for this session’s QA runs; future runs keep metrics.jsonl beside the tracked summary')),
+      h('div', { class:'panel' },
+        h('h3', {}, 'Confirmation — after the stack'),
+        h('div', { class:'when' }, 'recipe arithmetic vs each product’s own header (metadata read, no pixels)'),
+        surfaces.length ? h('table', { class:'ledger' },
+          h('tr', {}, ...['product consuming this set', 'recipe says', 'header', ''].map(t => h('th', {}, t))),
+          surfaces.map(su => h('tr', {},
+            h('td', {}, su.product),
+            h('td', {}, fmt(su.expected_kept)),
+            h('td', {}, fmt(su.stackcnt)),
+            h('td', {}, confirmChip(su))))) : h('p', { class:'m' }, 'no stacks consume this set yet'),
+        h('p', { style:'font:12px/1.6 var(--sans);color:var(--muted);margin:10px 0 0' },
+          'A full-depth product differing renders as ', h('span', { class:'fail' }, 'MISMATCH'),
+          ' with both numbers — a process error to chase, never to hide.'))));
+}
+
+function objectsTable(sets) {
+  const rows = [];
+  for (const s of sets) {
+    for (const o of ((s.anomaly || {}).unique) || []) {
+      const ids = (o.files || []).map(f => (f.match(/\d+/) || [''])[0]);
+      const culled = ids.filter(id => culledIds(s).includes(Number(id)));
+      rows.push(h('tr', {},
+        h('td', { class:`cls-${o.cls}` }, o.cls),
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, String(o.n)),
+        h('td', {}, `${(o.first || '').replace('.NEF', '')} – ${(o.last || '').replace('.NEF', '')}`),
+        h('td', {}, o.pa != null ? `${o.pa}°` : '—'),
+        h('td', { class:'why' }, culled.length
+          ? `${culled.length} of its frames culled (${culled.map(i => 'DSC_' + i).join(', ')})`
+          : 'kept — moving minority trail, rejection-clean (ratified policy)')));
+    }
+  }
+  return h('table', { class:'ledger' },
+    h('tr', {}, ...['class', 'set', 'frames', 'span', 'PA', 'disposition'].map(t => h('th', {}, t))), rows);
+}
+
+function pgSet(name) {
+  const s = setByName(name);
+  if (!s) return h('p', {}, `no such set: ${name}`);
+  if (s.dark_qa) {
+    return frag(h('div', { class:'eyebrow' }, h('a', { href:'#sets' }, 'sets'), ' / ', name),
+      h('h1', {}, name),
+      h('div', { class:'sub' }, 'calibration group'),
+      h('pre', { class:'rec' }, JSON.stringify(s.dark_qa, null, 1)));
+  }
+  const ex = ((s.acquisition || {}).exif) || {};
+  const tabs = [
+    ['Frames', () => framesTab(s)],
+    ['Sky objects', () => frag(
+      s.anomaly ? objectsTable([s]) : h('p', { class:'m' }, 'no anomaly audit record'),
+      s.anomaly ? h('p', { class:'m', style:'margin-top:8px' },
+        `${s.anomaly.detections} frame-detections across ${(s.anomaly.unique || []).length} linked objects`) : null)],
+    ['Flat & QA', () => recordList((s.records || []).filter(r => r.includes('qa_work')))],
+    ['Records', () => recordList(s.records || [])],
+  ];
+  const pane = h('div', { class:'tabpane' });
+  const bar = h('div', { class:'tabs' }, tabs.map(([label, render], i) =>
+    h('button', { class: i === 0 ? 'active' : '', onclick: ev => {
+      bar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      ev.target.classList.add('active');
+      pane.replaceChildren(render());
+    } }, label)));
+  pane.append(tabs[0][1]());
+  return frag(
+    h('div', { class:'eyebrow' }, h('a', { href:'#sets' }, 'sets'), ' / ', name),
+    h('h1', {}, name),
+    h('div', { class:'sub' },
+      `${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
+      s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
+                    : ' — fingerprint not yet derived'),
+    bar, pane);
+}
+
+function pgCulled() {
+  const rows = [];
+  for (const s of lightSets()) for (const id of culledIds(s)) {
+    const fl = flaggedOf(s, id);
+    rows.push(h('tr', {},
+      h('td', { class:'cutid' }, `DSC_${id}`),
+      h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+      h('td', {}, fl ? `FWHM ${fl.fwhm} · rnd ${fl.round} · ${fl.nstars}★` : '—'),
+      h('td', { class:'why' }, whyOf(s, id) || '—')));
+  }
+  return frag(
+    h('div', { class:'eyebrow' }, h('a', { href:'#overview' }, 'overview'), ' / culled'),
+    h('h1', {}, 'culled — all sets'),
+    h('div', { class:'sub' }, `${rows.length} frames excluded by ratified recipes; every one with its why`),
+    h('table', { class:'ledger' },
+      h('tr', {}, ...['frame', 'set', 'measured', 'why (verbatim)'].map(t => h('th', {}, t))), rows),
+    h('p', { class:'caveat' }, 'thumbnails for culled frames need raws re-staged (class C) — the record shows now, the pictures when their artifact class exists.'));
+}
+
+function footprintSvg(su) {
+  const boxes = ((su.selection || {}).reference_boxes) || [];
+  if (!su.naxis || !boxes.length) return null;
+  const [W, H] = su.naxis;
+  const kids = [h('rect', { class:'union', x:7, y:7, width:W - 14, height:H - 14 })];
+  for (const b of boxes) {
+    const [x, ys, w, hh] = b.siril_crop_args;
+    kids.push(h('rect', { class:'cov', x, y: H - ys - hh, width: w, height: hh }));
+  }
+  const svg = h('svg', { class:'fp', viewBox:`0 0 ${W} ${H}`, role:'img',
+    'aria-label':'footprint: union canvas with recorded crop frames' });
+  for (const k of kids) {
+    const n = document.createElementNS('http://www.w3.org/2000/svg', k.tagName.toLowerCase());
+    for (const a of k.attributes) n.setAttribute(a.name, a.value);
+    svg.append(n);
+  }
+  return svg;
+}
+
+function pgSurfaces() {
+  const cards = (M.surfaces || []).map(su => {
+    const cov = coverageFor(su);
+    return h('div', { class: su.approved ? 'card approved' : 'card' },
+      su.thumb ? h('a', { href: res(su.judge) },
+        h('img', { src: res(su.thumb), loading:'lazy', alt:`${su.product} navigation thumb` }))
+        : h('div', { class:'slot b' }, su.judge
+          ? 'thumb not generated — run web/make_previews.sh'
+          : 'no judge surface — stack on disk; a finish_render pass is a proposal, not automatic'),
+      h('h3', { style:'margin-top:8px' }, su.product),
+      h('div', { class:'m' },
+        `${su.sets.join(' + ')} · ${su.recipe_tag} · ${su.naxis ? su.naxis.join('×') : '?'}`,
+        h('br'), confirmChip(su), ' ',
+        su.files.spcc ? h('span', { class:'chip ok' }, 'SPCC') : h('span', { class:'chip' }, 'no SPCC'),
+        su.files.wcs ? h('span', { class:'chip ok' }, 'WCS') : null,
+        cov ? h('span', { class:'chip ok' }, 'coverage map on disk') : null),
+      su.approved ? h('div', { class:'m', style:'color:var(--ok)' }, `APPROVED — git: ${su.approved_tag}`) : null,
+      su.judge ? frag(
+        h('div', { class:'m', style:'color:var(--plate)' }, 'surface = diagnostic autostretch; the render tier is unbuilt'),
+        realFileLine(`web/results/${SESSION}/${su.judge}`),
+        h('div', { class:'m' }, h('a', { href: res(su.judge) }, 'expand full PNG16 in browser'), ' (slow; judge in your own viewer)'))
+        : null,
+      footprintSvg(su));
+  });
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'surfaces'),
+    h('div', { class:'sub' }, 'stacks and judge surfaces — footprint · frames confirmed · calibration state · approval from the git tag only'),
+    h('div', { class:'cards' }, cards));
+}
+
+function pgObjects() {
+  const ls = lightSets();
+  const counts = { satellite:0, aircraft:0, unknown:0 };
+  for (const s of ls) if (s.anomaly) for (const [k, v] of Object.entries(s.anomaly.counts)) counts[k] += v;
+  const aircraftWhys = [];
+  for (const s of ls) {
+    for (const o of ((s.anomaly || {}).unique) || []) if (o.cls === 'aircraft') {
+      for (const f of o.files || []) {
+        const id = (f.match(/\d+/) || [''])[0];
+        const w = whyOf(s, id);
+        if (w) aircraftWhys.push([`${s.set} DSC_${id}`, w]);
+      }
+      const entryIds = (culledIds(s) || []).filter(id => !(o.files || []).some(f => f.includes(String(id))));
+      for (const id of entryIds) {
+        const w = whyOf(s, id);
+        if (w && /aircraft/i.test(w)) aircraftWhys.unshift([`${s.set} DSC_${id} (entry frame)`, w]);
+      }
+    }
+  }
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'sky objects'),
+    h('div', { class:'sub' },
+      `${counts.satellite} satellites · ${counts.aircraft} aircraft · ${counts.unknown} unknown — from the per-set anomaly audits`),
+    objectsTable(ls),
+    counts.unknown === 0 ? h('p', { class:'m', style:'margin-top:8px' },
+      'unknown: none — the bucket exists for what the audit cannot classify') : null,
+    aircraftWhys.length ? h('div', { class:'story' },
+      h('b', {}, 'Aircraft record, verbatim from the recipes: '),
+      aircraftWhys.map(([k, v]) => h('p', { style:'margin:.5em 0 0' }, h('b', {}, k + ': '), v))) : null);
+}
+
+function pgExperiments() {
+  const blocks = (M.sets || []).filter(s => (s.experiments || []).length).map(s => frag(
+    h('h2', {}, s.set),
+    h('table', { class:'ledger' },
+      h('tr', {}, ...['param', 'verdict'].map(t => h('th', {}, t))),
+      s.experiments.map(e => h('tr', {},
+        h('td', { style:'max-width:22em' }, e.param || '(build/exp step)'),
+        h('td', { class:'why' }, e.verdict == null ? '—' : String(e.verdict)))))));
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'experiments'),
+    h('div', { class:'sub' }, 'the tuning ledgers — param · verdict; full records under each set’s experiments.jsonl'),
+    blocks.length ? blocks : h('p', { class:'m' }, 'no experiment ledgers in this session'),
+    h('p', { class:'caveat' }, 'render-tier ladders (BACKLOG 0) will append exp_<param>_<stamp>/ finals with stage sequences — the page exists before the artifacts do.'));
+}
+
+function pgFraming() {
+  const products = (M.surfaces || []).filter(su => su.selection);
+  const cards = products.map(su => {
+    const cov = coverageFor(su);
+    return h('div', { class:'card' },
+      h('h3', {}, su.product),
+      h('div', { class:'m' },
+        `${su.naxis ? su.naxis.join('×') : '?'} · ${(((su.selection || {}).reference_boxes) || []).length} reference box(es)`,
+        h('br'),
+        cov ? h('span', { class:'chip ok' }, `coverage map: ${cov.file}`)
+            : h('span', { class:'chip warn' }, 'no coverage map for this canvas')),
+      h('p', { style:'margin:10px 0 2px' },
+        h('a', { href:`crop.html?session=${encodeURIComponent(SESSION)}&product=${encodeURIComponent('stack_' + su.product + '_spcc')}` },
+          'open crop UI →')));
+  });
+  const recs = (M.framing || []).map(f => h('tr', {},
+    h('td', {}, fmt(f.product)),
+    h('td', {}, h('span', { class: f.status === 'verified' ? 'chip ok' : 'chip warn' }, fmt(f.status))),
+    h('td', {}, h('a', { href:'#record/' + f.file }, f.file))));
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'framing'),
+    h('div', { class:'sub' }, 'your hand, recorded — the crop UI, the records it writes, their verification state'),
+    h('div', { class:'cards' }, cards.length ? cards :
+      h('div', { class:'card' }, h('p', {}, 'no selection surfaces — run web/make_previews.sh'))),
+    h('h2', {}, 'framing records'),
+    recs.length ? h('table', { class:'ledger' },
+      h('tr', {}, ...['product', 'status', 'record'].map(t => h('th', {}, t))), recs)
+      : h('p', { class:'m' }, 'none drawn yet — a record starts unverified; web/verify_framing.py stamps it after the Siril crop+stat check; a render must refuse an unverified framing.'));
+}
+
+function recordList(paths) {
+  return h('table', { class:'ledger' }, paths.map(p => h('tr', {},
+    h('td', {}, h('a', { href:'#record/' + p }, p.split('/').pop())),
+    h('td', { class:'m' }, p, ' ', copyBtn(p)))));
+}
+
+function pgRecords() {
+  const sess = (M.session_records || []).map(r => h('tr', {},
+    h('td', {}, h('a', { href:'#record/' + r.path }, r.name)),
+    h('td', { class:'why' }, r.status || ''),
+    h('td', { class:'m' }, r.path)));
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'records'),
+    h('div', { class:'sub' }, 'the tracked JSONs, read-only — the source of truth this site displays'),
+    h('h2', {}, 'session-level'),
+    h('table', { class:'ledger' }, sess),
+    ...(M.sets || []).map(s => frag(h('h2', {}, s.set), recordList(s.records || []))),
+    h('h2', {}, 'contract & references'),
+    h('p', { class:'m' },
+      h('a', { href:'/README.md' }, 'README (process contract)'), ' · ',
+      h('a', { href:'/TOOLS.md' }, 'TOOLS'), ' · ',
+      h('a', { href:'/docs/dead-ends.md' }, 'dead-end registry'), ' · ',
+      h('a', { href:'/BACKLOG.md' }, 'BACKLOG'), ' — served raw'));
+}
+
+async function pgRecord(path) {
+  if (!/^datasets\/[A-Za-z0-9_+.\/-]+\.jsonl?$/.test(path) || path.includes('..'))
+    return h('p', {}, 'record viewer serves tracked dataset records only');
+  let body;
+  try {
+    const r = await fetch('/' + path);
+    const text = await r.text();
+    body = path.endsWith('.jsonl')
+      ? text.trim().split('\n').map(l => { try { return JSON.parse(l); } catch { return l; } })
+      : JSON.parse(text);
+  } catch { return h('p', {}, `cannot read ${path}`); }
+  return frag(
+    h('div', { class:'eyebrow' }, h('a', { href:'#records' }, 'records'), ' / ', path.split('/').pop()),
+    h('h1', { style:'font-size:18px' }, path.split('/').pop()),
+    h('div', { class:'m', style:'margin-bottom:10px' }, path, ' ', copyBtn(path)),
+    h('pre', { class:'rec' }, JSON.stringify(body, null, 1)));
+}
+
+/* ---------- router + boot ---------- */
+async function route() {
+  const main = document.getElementById('main');
+  if (!M) return;
+  const hash = location.hash || '#overview';
+  document.querySelectorAll('nav.rail a.item').forEach(a =>
+    a.classList.toggle('active', hash === a.getAttribute('href') ||
+      (a.getAttribute('href') === '#sets' && hash.startsWith('#set/'))));
+  main.classList.remove('muted');
+  let out;
+  if (hash.startsWith('#set/')) out = pgSet(decodeURIComponent(hash.slice(5)));
+  else if (hash.startsWith('#record/')) out = await pgRecord(hash.slice(8));
+  else out = ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
+                '#surfaces': pgSurfaces, '#objects': pgObjects,
+                '#experiments': pgExperiments, '#framing': pgFraming,
+                '#records': pgRecords }[hash] || pgOverview)();
+  main.replaceChildren(out);
+}
+
+function railCounts() {
+  const ls = lightSets();
+  document.getElementById('n-sets').textContent = String(M.sets.length);
+  document.getElementById('n-surf').textContent = String((M.judge || []).length);
+  document.getElementById('n-obj').textContent = String(ls.reduce((a, s) =>
+    a + (s.anomaly ? Object.values(s.anomaly.counts).reduce((x, y) => x + y, 0) : 0), 0));
+  document.getElementById('n-exp').textContent = String((M.sets || []).reduce((a, s) =>
+    a + (s.experiments || []).length, 0));
+  document.getElementById('n-frame').textContent = String((M.framing || []).length);
+}
+
+async function loadSession(name) {
+  SESSION = name;
+  const main = document.getElementById('main');
+  main.textContent = `loading ${name}…`;
+  try {
+    M = await (await fetch('/api/session/' + encodeURIComponent(name))).json();
+  } catch { main.textContent = 'API unreachable — run: python3 web/serve.py'; return; }
+  railCounts();
+  route();
+}
+
+async function boot() {
   let sessions;
   try { sessions = await (await fetch('/api/sessions')).json(); }
-  catch (e) { root.textContent = 'API unreachable — run: python3 web/serve.py'; return; }
-  if (!sessions.length) { root.textContent = 'no sessions under web/results/'; return; }
-  root.textContent = '';
-  for (const s of sessions) {
-    const h = document.createElement('h2');
-    h.textContent = s.session;
-    root.appendChild(h);
-    const man = s.previews_manifest;
-    if (!man) {
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.textContent = 'no previews yet — run: web/make_previews.sh ' + s.session +
-        '  (' + s.judge.length + ' judge surfaces, ' + s.stacks.length + ' stacks on disk)';
-      root.appendChild(p);
-      continue;
-    }
-    const cards = document.createElement('div');
-    cards.className = 'cards';
-    for (const it of man.items) {
-      const c = document.createElement('div');
-      c.className = 'card' + (it.kind === 'selection' ? ' sel' : '');
-      const base = '/web/results/' + s.session + '/';
-      if (it.kind === 'judge') {
-        c.innerHTML =
-          '<a href="' + base + it.file + '"><img loading="lazy" src="' + base + it.thumb + '"></a>' +
-          '<div class="name">' + it.name + '</div>' +
-          '<div class="path">web/results/' + s.session + '/' + it.file +
-          ' <button class="copy" data-p="web/results/' + s.session + '/' + it.file + '">copy path</button></div>' +
-          '<div class="muted" style="font-size:.72rem">click image = full PNG16 (slow; judge in your own viewer)</div>';
-      } else {
-        c.innerHTML =
-          '<a href="crop.html?session=' + encodeURIComponent(s.session) +
-            '&product=' + encodeURIComponent(it.product) + '">' +
-            '<img loading="lazy" src="' + base + it.preview + '"></a>' +
-          '<div class="name">' + it.product + ' — ' + it.native_wh[0] + '×' + it.native_wh[1] + '</div>' +
-          '<div><a href="crop.html?session=' + encodeURIComponent(s.session) +
-            '&product=' + encodeURIComponent(it.product) + '">open FRAMING / crop UI →</a></div>';
-      }
-      cards.appendChild(c);
-    }
-    root.appendChild(cards);
-  }
-  root.addEventListener('click', e => {
-    if (e.target.matches('button.copy')) navigator.clipboard.writeText(e.target.dataset.p);
-  });
+  catch { document.getElementById('main').textContent = 'API unreachable — run: python3 web/serve.py'; return; }
+  const pick = document.getElementById('sesspick');
+  if (!sessions.length) { document.getElementById('main').textContent = 'no sessions under web/results/'; return; }
+  for (const s of sessions) pick.append(h('option', { value: s.session }, s.session));
+  pick.addEventListener('change', () => loadSession(pick.value));
+  addEventListener('hashchange', route);
+  await loadSession(sessions[0].session);
 }
-main();
+boot();
 </script>
 </body>
 </html>
