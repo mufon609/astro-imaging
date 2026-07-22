@@ -133,6 +133,7 @@
   <a class="item" href="#objects">Sky objects <span class="n" id="n-obj"></span></a>
   <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
   <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
+  <a class="item" href="#run">Run <span class="n" id="n-run"></span></a>
   <a class="item" href="#records">Records</a>
 </nav>
 <main id="main" class="muted">loading…</main>
@@ -579,6 +580,137 @@ function pgRecords() {
       h('a', { href:'/BACKLOG.md' }, 'BACKLOG'), ' — served raw'));
 }
 
+/* ---------- Run page (Tier-1 gated execution; web/README amendment) ---------- */
+const POLL = { t: null };
+
+function paramInput(p) {
+  const base = { id: 'p_' + p.name, name: p.name };
+  if (p.kind === 'bool') return h('input', { ...base, type:'checkbox' });
+  const inp = h('input', { ...base, type: (p.kind === 'int' || p.kind === 'float') ? 'number' : 'text',
+    style:'width:100%;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 7px;font:12.5px var(--mono)' });
+  if (p.kind === 'session') inp.value = SESSION;
+  if (p.kind === 'set' && lightSets().length) {
+    const dl = h('datalist', { id: 'dl_' + p.name },
+      (M.sets || []).map(s => h('option', { value: s.set })));
+    inp.setAttribute('list', 'dl_' + p.name);
+    return frag(inp, dl);
+  }
+  return inp;
+}
+
+async function refreshJobs(logView) {
+  let jobs = [];
+  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
+  const running = jobs.filter(j => j.status === 'running');
+  document.getElementById('n-run').textContent = running.length ? '●' : '';
+  const list = document.getElementById('joblist');
+  if (list) list.replaceChildren(
+    jobs.length ? h('table', { class:'ledger' },
+      h('tr', {}, ...['job', 'stage', 'status', ''].map(t => h('th', {}, t))),
+      jobs.map(j => h('tr', {},
+        h('td', {}, j.id),
+        h('td', {}, j.stage),
+        h('td', {}, h('span', { class: j.status === 'running' ? 'chip warn'
+          : j.status === 'done' ? 'chip ok' : 'chip cut' },
+          j.status + (j.rc != null ? ` rc=${j.rc}` : ''))),
+        h('td', {},
+          h('a', { href:'#', onclick: ev => { ev.preventDefault(); watchJob(j.id); } }, 'log'),
+          j.status === 'running' ? frag(' · ', h('a', { href:'#', onclick: async ev => {
+            ev.preventDefault();
+            await fetch(`/api/jobs/${j.id}/kill`, { method:'POST' });
+            refreshJobs();
+          } }, 'kill')) : null))))
+    : h('p', { class:'m' }, 'no jobs this server session — logs persist under sessions/.webjobs/'));
+}
+
+let WATCH = { id: null, offset: 0 };
+async function watchJob(jid) {
+  WATCH = { id: jid, offset: 0 };
+  const pre = document.getElementById('joblog');
+  if (!pre) return;
+  pre.textContent = '';
+  document.getElementById('joblog-title').textContent = jid;
+  const tick = async () => {
+    if (WATCH.id !== jid) return;
+    let r;
+    try { r = await (await fetch(`/api/jobs/${jid}/log?offset=${WATCH.offset}`)).json(); }
+    catch { return; }
+    if (r.data) { pre.textContent += r.data; WATCH.offset = r.offset; pre.scrollTop = pre.scrollHeight; }
+    if (r.status !== 'running') { clearInterval(POLL.t); POLL.t = null; refreshJobs(); }
+  };
+  if (POLL.t) clearInterval(POLL.t);
+  await tick();
+  POLL.t = setInterval(tick, 1500);
+}
+
+async function pgRun() {
+  let stages = {};
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
+  const formHost = h('div', {});
+  function openForm(name, st) {
+    const rows = st.params.map(p => h('tr', {},
+      h('td', { style:'white-space:nowrap;padding-right:12px' }, p.name + (p.req ? ' *' : '')),
+      h('td', { style:'width:60%' }, paramInput(p)),
+      h('td', { class:'why' }, p.hint || p.kind)));
+    const cmdPre = h('pre', { class:'rec', hidden:'' });
+    const runBtn = h('button', { class:'copy', disabled:'', style:'font-size:.85rem;padding:.4rem 1rem',
+      onclick: async () => {
+        const args = collect();
+        const r = await fetch('/api/run', { method:'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ stage: name, args }) });
+        const j = await r.json();
+        cmdPre.hidden = false;
+        if (!r.ok) { cmdPre.textContent = 'ERROR: ' + (j.error || r.status); return; }
+        cmdPre.textContent = `started ${j.id}\n$ ${j.cmd}`;
+        refreshJobs(); watchJob(j.id);
+      } }, 'run (this click is the gate)');
+    const collect = () => {
+      const args = {};
+      for (const p of st.params) {
+        const el = document.getElementById('p_' + p.name);
+        if (!el) continue;
+        if (p.kind === 'bool') { if (el.checked) args[p.name] = true; }
+        else if (el.value.trim() !== '') args[p.name] = el.value.trim();
+      }
+      return args;
+    };
+    formHost.replaceChildren(h('div', { class:'panel', style:'margin-top:12px' },
+      h('h3', {}, name),
+      h('div', { class:'when' }, st.desc),
+      h('table', { class:'ledger' }, rows),
+      h('p', { style:'margin:10px 0 0' },
+        h('button', { class:'copy', style:'font-size:.85rem;padding:.4rem 1rem', onclick: async () => {
+          const r = await fetch('/api/run', { method:'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify({ stage: name, args: collect(), dry_run: true }) });
+          const j = await r.json();
+          cmdPre.hidden = false;
+          cmdPre.textContent = r.ok ? '$ ' + j.cmd : 'ERROR: ' + (j.error || r.status);
+          runBtn.disabled = !r.ok;
+        } }, 'show command'), ' ', runBtn),
+      cmdPre));
+  }
+  setTimeout(refreshJobs, 0);
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
+    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendment): pick a stage, see the exact command, then the run click is your DECIDE step. One job at a time.'),
+    ...phases.map(ph => {
+      const names = Object.keys(stages).filter(n => stages[n].phase === ph);
+      if (!names.length) return null;
+      return frag(h('h2', {}, ph), h('div', { class:'cards' },
+        names.map(n => h('div', { class:'card', style:'cursor:pointer',
+          onclick: () => openForm(n, stages[n]) },
+          h('h3', {}, n), h('p', {}, stages[n].desc)))));
+    }),
+    formHost,
+    h('h2', {}, 'jobs'),
+    h('div', { id:'joblist' }),
+    h('h2', {}, h('span', { id:'joblog-title' }, 'log')),
+    h('pre', { id:'joblog', class:'rec', style:'max-height:420px;overflow:auto' }));
+}
+
 async function pgRecord(path) {
   if (!/^datasets\/[A-Za-z0-9_+.\/-]+\.jsonl?$/.test(path) || path.includes('..'))
     return h('p', {}, 'record viewer serves tracked dataset records only');
@@ -606,13 +738,15 @@ async function route() {
     a.classList.toggle('active', hash === a.getAttribute('href') ||
       (a.getAttribute('href') === '#sets' && hash.startsWith('#set/'))));
   main.classList.remove('muted');
+  if (POLL.t) { clearInterval(POLL.t); POLL.t = null; }
   let out;
   if (hash.startsWith('#set/')) out = pgSet(decodeURIComponent(hash.slice(5)));
   else if (hash.startsWith('#record/')) out = await pgRecord(hash.slice(8));
-  else out = ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
-                '#surfaces': pgSurfaces, '#objects': pgObjects,
-                '#experiments': pgExperiments, '#framing': pgFraming,
-                '#records': pgRecords }[hash] || pgOverview)();
+  else out = await Promise.resolve(
+    ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
+       '#surfaces': pgSurfaces, '#objects': pgObjects,
+       '#experiments': pgExperiments, '#framing': pgFraming,
+       '#run': pgRun, '#records': pgRecords }[hash] || pgOverview)());
   main.replaceChildren(out);
 }
 
