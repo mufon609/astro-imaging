@@ -649,7 +649,7 @@ def _stage_registry():
                 {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": False, "hint": "SPCC recipe routing + record naming — auto-derived from the stack name's first member when blank"},
-                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction (union canvases, e.g. 0.35)"},
+                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections"},
                 {"name": "crop_record", "kind": "path", "req": False, "choices": "framings", "hint": "VERIFIED framing record — crops the LINEAR stack before solve/SPCC/stretch; refuses unverified"},
             ],
             "build": lambda a: (lambda stack: ["scripts/stack/finish_render.sh",
@@ -657,7 +657,10 @@ def _stage_registry():
                                 _safe(a["name"], "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
                                 "--set=" + _derive_set(stack, a.get("set"))]
-            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central") else [])
+            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
+               else (["--central=0.35"] if _parse_product(
+                   os.path.basename(stack)[len("stack_"):-len(".fit")])[1]
+                   .startswith("max") else []))
             + ([f"--crop-record={_arg_repo_path(a['crop_record'], ['datasets'], ext='.json')}"]
                if a.get("crop_record") else []))(
                 _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit")),
