@@ -589,6 +589,22 @@ def _stage_registry():
             "build": lambda a: ["web/make_previews.sh", _arg_session(a["session"])]
             + ([f"--cov-min={_arg_int(a['cov_min'], 1, 65)}"] if a.get("cov_min") else []),
         },
+        "install_lens_model": {
+            "desc": "install the fitted 24-70/4 distortion entry into the machine-local lensfun user DB and strip vignetting/tca (distortion-only enforcement); idempotent, stops loudly on upstream drift; RE-RUN after every lensfun-update-data",
+            "phase": "setup",
+            "params": [],
+            "build": lambda a: ["scripts/darktable/install_lens_model.sh"],
+        },
+        "install_styles": {
+            "desc": "install the pinned darktable lens styles into a session's work/dtcfg (the undistort driver also self-installs per run — this is manual verification)",
+            "phase": "setup",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+            ],
+            "build": lambda a: ["scripts/darktable/install_styles.sh",
+                                P("sessions", _arg_session(a["session"]),
+                                  "work", "dtcfg")],
+        },
         "verify_framing": {
             "desc": "Siril crop+stat verification of a drawn framing record (map mode or sky-floor mode)",
             "phase": "surfaces",
@@ -639,6 +655,89 @@ def path_choices(session):
                  for f in ls(rdir, lambda f: f.startswith("coverage_")
                              and f.endswith(".fit"))],
     }
+
+
+LENSFUN_DB = os.path.expanduser(
+    "~/.local/share/lensfun/updates/version_1/mil-nikon.xml")
+LENSFUN_FITTED = ('<distortion model="ptlens" focal="70" '
+                  'a="0.00350093" b="0.01453356" c="0.00043983"/>')
+
+
+def env_status():
+    """Rig-environment probes for the Environment page — read-only checks of
+    the machine-local state the pipeline depends on. States: ok | missing |
+    stale | low | info; each with its evidence. The darktable styles need no
+    probe: the undistort driver self-installs them per run."""
+    import importlib.util
+    import shutil
+    home = os.path.expanduser("~")
+    out = {}
+
+    def put(name, state, why):
+        out[name] = {"state": state, "why": why}
+
+    for name in ("exiftool", "darktable-cli", "lensfun-update-data"):
+        w = shutil.which(name)
+        put(name, "ok" if w else "missing", w or "not on PATH")
+    try:
+        r = subprocess.run(["flatpak", "info", "org.siril.Siril"],
+                           capture_output=True, text=True, timeout=15)
+        ver = next((line.split(":", 1)[1].strip()
+                    for line in r.stdout.splitlines()
+                    if line.strip().lower().startswith("version")), "?")
+        put("siril", "ok" if r.returncode == 0 else "missing",
+            f"flatpak org.siril.Siril {ver}" if r.returncode == 0
+            else "flatpak app org.siril.Siril not found")
+    except Exception as e:
+        put("siril", "missing", f"flatpak probe failed: {e}")
+    put("astropy", "ok" if importlib.util.find_spec("astropy") else "missing",
+        "importable by python3" if importlib.util.find_spec("astropy")
+        else "not importable")
+    p = os.path.join(home, ".local/share/astrometry-venv")
+    put("astrometry-venv", "ok" if os.path.isdir(p) else "missing",
+        p if os.path.isdir(p) else f"{p} absent (auto-bootstraps on first solve)")
+    p = os.path.join(home, ".local/share/siril/siril_catalogues")
+    n = len(os.listdir(p)) if os.path.isdir(p) else 0
+    put("gaia-catalogs", "ok" if n else "missing",
+        f"{n} catalog files at {p}" if n else f"none at {p}")
+    p = os.path.join(home, ".local/bin/graxpert")
+    put("graxpert", "ok" if os.path.exists(p) else "missing", p)
+    if not os.path.exists(LENSFUN_DB):
+        put("lensfun-model", "missing",
+            f"{LENSFUN_DB} absent — run lensfun-update-data, then install_lens_model")
+    else:
+        xml = open(LENSFUN_DB).read()
+        m = re.search(r"<lens>(?:(?!</lens>).)*?24-70mm f/4 S"
+                      r"(?:(?!</lens>).)*?</lens>", xml, re.S)
+        if not m:
+            put("lensfun-model", "missing",
+                "24-70mm f/4 S lens block absent from the updates DB")
+        else:
+            blk = m.group(0)
+            fitted = LENSFUN_FITTED in blk
+            stripped = "<vignetting" not in blk and "<tca" not in blk
+            if fitted and stripped:
+                put("lensfun-model", "ok",
+                    "fitted focal=70 entry present; vignetting/tca stripped "
+                    "— distortion-only holds")
+            elif fitted:
+                put("lensfun-model", "stale",
+                    "fitted entry present but vignetting/tca NOT stripped — "
+                    "re-run install_lens_model (lensfun-update-data overwrote the strip)")
+            else:
+                put("lensfun-model", "stale",
+                    "fitted focal=70 entry absent (community or drifted line) "
+                    "— run install_lens_model")
+    du = shutil.disk_usage(REPO)
+    free_gb = du.free / 2 ** 30
+    put("disk", "ok" if free_gb >= 20 else "low",
+        f"{free_gb:.0f}G free of {du.total / 2 ** 30:.0f}G "
+        f"(undistort peaks need ~20G+)")
+    put("darktable-styles", "info",
+        "no probe needed: the undistort driver installs the pinned styles "
+        "into <session>/work/dtcfg on every run; the install_styles button "
+        "is manual verification only")
+    return out
 
 
 def stage_status(session):
@@ -975,6 +1074,8 @@ class Handler(SimpleHTTPRequestHandler):
                     _safe(self.path[len("/api/status/"):], "session")))
             except ValueError as e:
                 return self._json(400, {"error": str(e)})
+        if self.path == "/api/env":
+            return self._json(200, env_status())
         if self.path == "/api/jobs":
             return self._json(200, jobs_list())
         m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)/log(?:\?offset=(\d+))?$",

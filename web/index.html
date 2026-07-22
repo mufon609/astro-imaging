@@ -134,6 +134,7 @@
   <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
   <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
   <a class="item" href="#run">Run <span class="n" id="n-run"></span></a>
+  <a class="item" href="#env">Environment</a>
   <a class="item" href="#records">Records</a>
 </nav>
 <main id="main" class="muted">loading…</main>
@@ -718,13 +719,7 @@ async function watchJob(jid) {
   POLL.t = setInterval(tick, 1500);
 }
 
-async function pgRun() {
-  let stages = {};
-  try { stages = await (await fetch('/api/stages')).json(); } catch {}
-  const status = await fetchStatus();
-  const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
-  const formHost = h('div', {});
-  async function openForm(name, st) {
+async function openStageForm(name, st, formHost) {
     const paths = await fetchPaths(SESSION);
     const rows = st.params.map(p => h('tr', {},
       h('td', { style:'white-space:nowrap;padding-right:12px' }, p.name + (p.req ? ' *' : '')),
@@ -777,7 +772,14 @@ async function pgRun() {
           ...((np[p.choices] || []).map(v => h('option', { value: v }))));
       }
     });
-  }
+}
+
+async function pgRun() {
+  let stages = {};
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const status = await fetchStatus();
+  const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
+  const formHost = h('div', {});
   setTimeout(refreshJobs, 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
@@ -790,7 +792,7 @@ async function pgRun() {
           const chip = h('span', { id: 'stchip_' + n });
           applyStageChip(chip, status[n]);
           return h('div', { class:'card', style:'cursor:pointer',
-            onclick: () => openForm(n, stages[n]) },
+            onclick: () => openStageForm(n, stages[n], formHost) },
             h('h3', {}, n, ' ', chip), h('p', {}, stages[n].desc));
         })));
     }),
@@ -799,6 +801,36 @@ async function pgRun() {
     h('div', { id:'joblist' }),
     h('h2', {}, h('span', { id:'joblog-title' }, 'log')),
     h('pre', { id:'joblog', class:'rec', style:'max-height:420px;overflow:auto' }));
+}
+
+async function pgEnv() {
+  let env = {}, stages = {};
+  try { env = await (await fetch('/api/env')).json(); } catch {}
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const setup = Object.keys(stages).filter(n => stages[n].phase === 'setup');
+  const formHost = h('div', {});
+  const chip = v => v.state === 'ok' ? h('span', { class:'chip ok' }, 'ok')
+    : v.state === 'info' ? h('span', { class:'chip' }, 'info')
+    : h('span', { class:'chip cut' }, v.state);
+  return frag(
+    h('div', { class:'eyebrow' }, 'rig'), h('h1', {}, 'environment'),
+    h('div', { class:'sub' },
+      'machine-local state the pipeline depends on — read-only probes; setup actions run through the same gated mechanism as any stage, kept out of the pipeline Run page'),
+    h('table', { class:'ledger' },
+      h('tr', {}, ...['check', 'state', 'evidence'].map(t => h('th', {}, t))),
+      Object.entries(env).map(([k, v]) => h('tr', {},
+        h('td', { style:'white-space:nowrap' }, k),
+        h('td', {}, chip(v)),
+        h('td', { class:'why' }, v.why)))),
+    h('h2', {}, 'setup actions'),
+    h('div', { class:'cards' }, setup.map(n =>
+      h('div', { class:'card', style:'cursor:pointer',
+        onclick: () => openStageForm(n, stages[n], formHost) },
+        h('h3', {}, n), h('p', {}, stages[n].desc)))),
+    formHost,
+    h('p', { class:'m', style:'margin-top:10px' },
+      'a setup run appears in the ', h('a', { href:'#run' }, 'Run page'),
+      ' job list; its log tails there'));
 }
 
 async function pgRecord(path) {
@@ -836,7 +868,7 @@ async function route() {
     ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
        '#surfaces': pgSurfaces, '#objects': pgObjects,
        '#experiments': pgExperiments, '#framing': pgFraming,
-       '#run': pgRun, '#records': pgRecords }[hash] || pgOverview)());
+       '#run': pgRun, '#env': pgEnv, '#records': pgRecords }[hash] || pgOverview)());
   main.replaceChildren(out);
 }
 
