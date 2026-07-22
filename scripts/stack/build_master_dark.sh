@@ -21,8 +21,10 @@ for a in "${@:2}"; do case "$a" in
 esac; done
 S=$(cd "$S" && pwd)
 [ -d "$S/darks" ] || { echo "no darks/ under $S" >&2; exit 1; }
-n=$(find "$S/darks" -maxdepth 1 -type f | wc -l)
-[ "$n" -ge 8 ] || { echo "only $n files in darks/ — need >=8 for a rejection master" >&2; exit 1; }
+n=$(find "$S/darks" -maxdepth 1 -type f \( -iname '*.nef' -o -iname '*.dng' \
+  -o -iname '*.cr2' -o -iname '*.cr3' -o -iname '*.arw' -o -iname '*.raf' \
+  -o -iname '*.fit' -o -iname '*.fits' \) | wc -l)
+[ "$n" -ge 8 ] || { echo "only $n raw/FITS frames in darks/ — need >=8 for a rejection master" >&2; exit 1; }
 OUT=$S/work/masters/dark_master.fit
 if [ -e "$OUT" ] && [ -z "$FORCE" ]; then
   echo "master exists: $OUT (use --force to rebuild)" >&2; exit 1

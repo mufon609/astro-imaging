@@ -621,7 +621,7 @@ function pgRecords() {
 /* ---------- Run page (Tier-1 gated execution; web/README amendment) ---------- */
 const POLL = { t: null };
 
-function paramInput(p) {
+function paramInput(p, paths) {
   const base = { id: 'p_' + p.name, name: p.name };
   if (p.kind === 'bool') return h('input', { ...base, type:'checkbox' });
   const inp = h('input', { ...base, type: (p.kind === 'int' || p.kind === 'float') ? 'number' : 'text',
@@ -633,7 +633,20 @@ function paramInput(p) {
     inp.setAttribute('list', 'dl_' + p.name);
     return frag(inp, dl);
   }
+  if (p.kind === 'path' && p.choices) {
+    const dl = h('datalist', { id: 'dl_' + p.name },
+      ((paths || {})[p.choices] || []).map(v => h('option', { value: v })));
+    inp.setAttribute('list', 'dl_' + p.name);
+    const one = ((paths || {})[p.choices] || []);
+    if (one.length === 1) inp.value = one[0];   // sole candidate pre-fills
+    return frag(inp, dl);
+  }
   return inp;
+}
+
+async function fetchPaths(session) {
+  try { return await (await fetch('/api/paths/' + encodeURIComponent(session))).json(); }
+  catch { return {}; }
 }
 
 async function refreshJobs(logView) {
@@ -686,10 +699,11 @@ async function pgRun() {
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
   const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
   const formHost = h('div', {});
-  function openForm(name, st) {
+  async function openForm(name, st) {
+    const paths = await fetchPaths(SESSION);
     const rows = st.params.map(p => h('tr', {},
       h('td', { style:'white-space:nowrap;padding-right:12px' }, p.name + (p.req ? ' *' : '')),
-      h('td', { style:'width:60%' }, paramInput(p)),
+      h('td', { style:'width:60%' }, paramInput(p, paths)),
       h('td', { class:'why' }, p.hint || p.kind)));
     const cmdPre = h('pre', { class:'rec', hidden:'' });
     const runBtn = h('button', { class:'copy', disabled:'', style:'font-size:.85rem;padding:.4rem 1rem',
@@ -729,6 +743,15 @@ async function pgRun() {
           runBtn.disabled = !r.ok;
         } }, 'show command'), ' ', runBtn),
       cmdPre));
+    const sessInp = document.getElementById('p_session');
+    if (sessInp) sessInp.addEventListener('change', async () => {
+      const np = await fetchPaths(sessInp.value.trim());
+      for (const p of st.params) if (p.kind === 'path' && p.choices) {
+        const dl = document.getElementById('dl_' + p.name);
+        if (dl) dl.replaceChildren(
+          ...((np[p.choices] || []).map(v => h('option', { value: v }))));
+      }
+    });
   }
   setTimeout(refreshJobs, 0);
   return frag(

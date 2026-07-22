@@ -30,6 +30,10 @@ API:
                           are never rewritten.
   GET  /api/stages     -> the Tier-1 stage registry (fixed allowlist of the
                           repo's pinned scripts + their param specs)
+  GET  /api/paths/<session>
+                       -> candidate repo-relative paths for the Run form's
+                          path params, by class (masters/stacks/wcs/maps) —
+                          directory listings only; POST /api/run revalidates
   POST /api/run        -> {stage, args, dry_run?} — validate and (unless
                           dry_run, which returns the exact command) spawn ONE
                           gated run of a registry stage. USER-RATIFIED
@@ -477,7 +481,7 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "hint": "master dark, repo-relative under sessions/"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters", "hint": "master dark under work/masters/"},
             ],
             "build": lambda a: ["scripts/stack/build_sky_flat.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
@@ -501,8 +505,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True},
-                {"name": "flat", "kind": "path", "req": True},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
                 {"name": "frames", "kind": "int", "req": False, "hint": "even-stride subset preserving the time span"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_pipeline.sh",
@@ -517,8 +521,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True},
-                {"name": "flat", "kind": "path", "req": True},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
                 {"name": "group", "kind": "int", "req": False, "hint": "frames per group (default 15)"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_groups.sh",
@@ -531,7 +535,7 @@ def _stage_registry():
             "desc": "blind astrometric solve (astrometry.net) + WCS inject -> unblocks SPCC",
             "phase": "finish",
             "params": [
-                {"name": "stack", "kind": "path", "req": True, "hint": "stack under web/results/, .fit"},
+                {"name": "stack", "kind": "path", "req": True, "choices": "stacks", "hint": "stack under web/results/"},
             ],
             "build": lambda a: (lambda s: ["python3", "scripts/calibrate/solve_field.py", s,
                                            "--inject=" + s[:-4] + "_wcs.fit"])(
@@ -541,7 +545,7 @@ def _stage_registry():
             "desc": "local Gaia chunk cover check for a solved field (--fetch downloads missing)",
             "phase": "finish",
             "params": [
-                {"name": "wcs", "kind": "path", "req": True, "hint": "solved _wcs.fit under web/results/"},
+                {"name": "wcs", "kind": "path", "req": True, "choices": "wcs", "hint": "solved _wcs.fit under web/results/"},
                 {"name": "fetch", "kind": "bool", "req": False},
             ],
             "build": lambda a: ["python3", "scripts/calibrate/spcc_cone.py",
@@ -564,7 +568,7 @@ def _stage_registry():
             "desc": "stack -> solve -> SPCC -> linked autostretch -> judge/ PNG16 (the diagnostic judge surface)",
             "phase": "finish",
             "params": [
-                {"name": "stack", "kind": "path", "req": True},
+                {"name": "stack", "kind": "path", "req": True, "choices": "stacks"},
                 {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
@@ -591,7 +595,7 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "product", "kind": "str", "req": True},
-                {"name": "map", "kind": "path", "req": False, "hint": "coverage map .fit (map mode)"},
+                {"name": "map", "kind": "path", "req": False, "choices": "maps", "hint": "coverage map .fit (map mode)"},
                 {"name": "map_min", "kind": "int", "req": False, "hint": "required members (map mode)"},
                 {"name": "min_floor", "kind": "int", "req": False, "hint": "sibling-class sky floor ADU (no-map mode)"},
             ],
@@ -611,6 +615,30 @@ STAGES = _stage_registry()
 def stages_public():
     return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"]}
             for name, s in STAGES.items()}
+
+
+def path_choices(session):
+    """Candidate repo-relative paths for the Run form's path params, by class
+    — a directory listing (names only), so path boxes can offer options the
+    way the set box does. The server remains the validator on POST."""
+    _arg_session(session)
+    mdir = os.path.join(REPO, "sessions", session, "work", "masters")
+    rdir = os.path.join(REPO, "web", "results", session)
+    ls = lambda d, pred: sorted(
+        f for f in (os.listdir(d) if os.path.isdir(d) else []) if pred(f))
+    return {
+        "masters": [f"sessions/{session}/work/masters/{f}"
+                    for f in ls(mdir, lambda f: f.endswith(".fit"))],
+        "stacks": [f"web/results/{session}/{f}"
+                   for f in ls(rdir, lambda f: f.startswith("stack_")
+                               and f.endswith(".fit")
+                               and not f.endswith(("_wcs.fit", "_spcc.fit")))],
+        "wcs": [f"web/results/{session}/{f}"
+                for f in ls(rdir, lambda f: f.endswith("_wcs.fit"))],
+        "maps": [f"web/results/{session}/{f}"
+                 for f in ls(rdir, lambda f: f.startswith("coverage_")
+                             and f.endswith(".fit"))],
+    }
 
 
 def start_job(stage, args, dry_run=False):
@@ -830,6 +858,12 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, model)
         if self.path == "/api/stages":
             return self._json(200, stages_public())
+        if self.path.startswith("/api/paths/"):
+            try:
+                return self._json(200, path_choices(
+                    _safe(self.path[len("/api/paths/"):], "session")))
+            except ValueError as e:
+                return self._json(400, {"error": str(e)})
         if self.path == "/api/jobs":
             return self._json(200, jobs_list())
         m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)/log(?:\?offset=(\d+))?$",
