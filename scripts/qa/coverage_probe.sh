@@ -21,6 +21,19 @@
 # as the product crop and require `stat` Min >= threshold*1000 — this same
 # check catches the numpy-vs-Siril crop y-origin flip, docs/dead-ends.md).
 #
+# MEASURED LIMITS (Siril 1.4.4; datasets/july14/set-01/qa_work/coverage_01345.json):
+# - members*1000 saturates at 65535: Siril normalizes 16-bit input to [0,1],
+#   so the sum CLIPS there regardless of a 32-bit stack output — above 65
+#   members the map cannot distinguish coverage depths (thresholds <= 65*1000
+#   stay valid; the script warns). Shrinking the fill constant would lift the
+#   ceiling but silently break the value/1000 contract consumers verify with.
+# - the apply+sum must run over the FULL sequence in ONE pass: the applied
+#   sequence's residual pure-translation regdata is CHUNK-relative (the same
+#   frame lands at different origins under different selections), so chunked
+#   partial sums cannot be composed; without -filter-incl the selection is
+#   ignored entirely. Deselecting the reference frame NULLS the .seq
+#   reference field (restore with `setref`).
+#
 # Nothing is compressed; the .ssf pins setcompress 0. The scratch lives
 # beside --out (under $HOME — the Siril flatpak has a private /tmp).
 set -euo pipefail
@@ -62,7 +75,8 @@ for ((i=1;i<=n;i++)); do
   rm -f "$W/seq/s_$(printf %05d "$i").fit"
   mv "$W/const/c_$(printf %05d "$i").fit" "$W/seq/s_$(printf %05d "$i").fit"
 done
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s/seq\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s sum -out=%s\n' \
+[ "$n" -le 65 ] || echo "WARNING: $n members exceed the 65535/1000 sum ceiling — map values clip at 65535 (65.5 members); coverage thresholds <= 65 remain valid (see docstring)"
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s/seq\nseqapplyreg s -framing=%s -prefix=r_\nset32bits\nstack r_s sum -out=%s\n' \
   "$W" "$FRAMING" "$OUT" > "$W/a.ssf"
 sir "$W/a.ssf"
 [ -f "$OUT.fit" ] || { echo "ABORT: no coverage map — read $W/siril.log" >&2; exit 1; }
