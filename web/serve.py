@@ -14,6 +14,20 @@ Serves the REPO ROOT read-only, so the browser reaches:
 API:
   GET  /api/sessions   -> JSON inventory of web/results/* (sessions, judge
                           surfaces, previews manifest if generated)
+  GET  /api/session/<name>
+                       -> the session's joined READ-ONLY model: per-set records
+                          (acquisition, frame QA normalized across the measured
+                          schema drift, recipe cull policy, anomaly objects,
+                          fingerprint, experiments ledger), surfaces (stacks
+                          joined to wcs/spcc variants, judge surfaces, preview
+                          manifest entries, STACKCNT/dims from the FITS header
+                          — a metadata read, never pixels), recipe-vs-header
+                          kept-count confirmation, framing records, coverage
+                          maps on disk, and git-tag approvals (a surface is
+                          "approved" only when a `<session>-all<N>-<tag>-approved`
+                          tag matches its membership count and recipe tag).
+                          The server joins and normalizes for display; records
+                          are never rewritten.
   POST /api/framing    -> write the tracked framing record for a product
                           (datasets/<session>/framing_<product>.json).
                           The UI captures a HUMAN decision; this endpoint
@@ -75,6 +89,232 @@ def sessions_inventory():
         out.append({"session": s, "judge": judge, "stacks": stacks,
                     "previews_manifest": manifest})
     return out
+
+
+CALIBRATION_DIRS = {"darks", "biases", "flats", "darkflats", "calib"}
+
+
+def _read_json(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _norm_frame_qa(rec):
+    """One display shape over the measured per-set schema drift:
+    set-01 wrote flagged_defect_side_z3p5 + assessment; later sets wrote
+    flagged_defect_side_z + cull_note. Records are never rewritten."""
+    if not rec:
+        return None
+    return {
+        "total": rec.get("frames_total"),
+        "registered": rec.get("registered"),
+        "match_failed": rec.get("match_failed"),
+        "distribution": rec.get("distribution"),
+        "blocks": rec.get("temporal_trend_contiguous_blocks"),
+        "flagged": rec.get("flagged_defect_side_z3p5")
+        or rec.get("flagged_defect_side_z") or [],
+        "caveats": rec.get("caveats"),
+        "method": rec.get("method"),
+        "assessment": rec.get("assessment") or rec.get("cull_note"),
+    }
+
+
+def _anomaly_summary(rec):
+    if not rec:
+        return None
+    uniq = rec.get("unique_objects") or []
+    counts = {"satellite": 0, "aircraft": 0, "unknown": 0}
+    for o in uniq:
+        cls = o.get("cls")
+        counts[cls if cls in counts else "unknown"] += 1
+    detections = sum(len(f.get("objects") or [])
+                     for f in rec.get("frames") or [])
+    return {"counts": counts, "detections": detections,
+            "unique": [{k: o.get(k) for k in
+                        ("cls", "first", "last", "n", "pa", "files")}
+                       for o in uniq]}
+
+
+def _experiments(path):
+    out = []
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    e = json.loads(line)
+                except ValueError:
+                    continue
+                out.append({"param": e.get("param"),
+                            "verdict": e.get("verdict")})
+    except OSError:
+        pass
+    return out
+
+
+def _stack_header(path):
+    """Dims + integrated-frame count from the FITS header — metadata only
+    (the make_previews.sh pattern); never reads pixel data."""
+    try:
+        from astropy.io import fits
+        h = fits.getheader(path)
+        return {"naxis": [int(h.get("NAXIS1", 0)), int(h.get("NAXIS2", 0))],
+                "stackcnt": int(h["STACKCNT"]) if "STACKCNT" in h else None}
+    except Exception:
+        return {"naxis": None, "stackcnt": None}
+
+
+def _parse_product(base):
+    """'set-01+02+03_cov25frame' -> (['set-01','set-02','set-03'], 'cov25frame')."""
+    m = re.match(r"^(set-\d+(?:\+\d+)*)_(.+)$", base)
+    if not m:
+        return [], base
+    toks = m.group(1).split("+")
+    sets = [toks[0]] + [f"set-{t}" for t in toks[1:]]
+    return sets, m.group(2)
+
+
+def _session_tags(session):
+    import subprocess
+    try:
+        r = subprocess.run(["git", "tag", "--list", f"{session}-*"],
+                           capture_output=True, text=True, cwd=REPO, timeout=10)
+        return [t for t in r.stdout.split() if t]
+    except Exception:
+        return []
+
+
+def session_model(session):
+    droot = os.path.join(REPO, "datasets", session)
+    rroot = os.path.join(REPO, "web", "results", session)
+    if not (os.path.isdir(droot) or os.path.isdir(rroot)):
+        return None
+    model = {"session": session, "tags": _session_tags(session),
+             "sets": [], "session_records": [], "surfaces": [],
+             "judge": [], "previews_manifest": None, "framing": [],
+             "coverage_maps": []}
+
+    # --- per-set records ---
+    light_sets = []
+    if os.path.isdir(droot):
+        for name in sorted(os.listdir(droot)):
+            sdir = os.path.join(droot, name)
+            if not os.path.isdir(sdir):
+                if name.startswith("framing_") and name.endswith(".json"):
+                    rec = _read_json(os.path.join(droot, name)) or {}
+                    model["framing"].append(
+                        {"file": f"datasets/{session}/{name}",
+                         "product": rec.get("product"),
+                         "status": rec.get("status")})
+                elif name.endswith(".json"):
+                    rec = _read_json(os.path.join(droot, name)) or {}
+                    model["session_records"].append(
+                        {"name": name, "path": f"datasets/{session}/{name}",
+                         "status": rec.get("status")})
+                continue
+            qa = _read_json(os.path.join(sdir, "qa_work", "frame_metrics.json"))
+            recipe = _read_json(os.path.join(sdir, "recipe.json"))
+            entry = {
+                "set": name,
+                "kind": "calibration" if name in CALIBRATION_DIRS else "lights",
+                "acquisition": _read_json(os.path.join(sdir, "acquisition.json")),
+                "recipe": (recipe or {}).get("stack"),
+                "anomaly": _anomaly_summary(_read_json(
+                    os.path.join(sdir, "audit_work", "anomaly_audit.json"))),
+                "fingerprint": _read_json(os.path.join(sdir, "fingerprint.json")),
+                "experiments": _experiments(os.path.join(sdir, "experiments.jsonl")),
+                "records": sorted(
+                    os.path.relpath(os.path.join(dp, f), REPO)
+                    for dp, _, fs in os.walk(sdir) for f in fs
+                    if f.endswith((".json", ".jsonl"))),
+            }
+            if qa and "dark_level_pedestal_ADU" in qa:
+                entry["dark_qa"] = qa          # calibration-group QA shape
+            else:
+                entry["frame_qa"] = _norm_frame_qa(qa)
+            excl = (entry["recipe"] or {}).get("exclude")
+            total = (entry.get("frame_qa") or {}).get("total") if qa else None
+            entry["kept"] = (total - len(excl)) \
+                if (total is not None and excl is not None) else None
+            if entry["kind"] == "lights":
+                light_sets.append(entry)
+            model["sets"].append(entry)
+    kept_by_set = {s["set"]: s["kept"] for s in light_sets}
+    n_lights = len(light_sets)
+
+    # --- approvals: <session>-all<N>-<tag>-approved ---
+    approved = []
+    for t in model["tags"]:
+        m = re.match(rf"^{re.escape(session)}-all(\d+)-(.+)-approved$", t)
+        if m:
+            approved.append((int(m.group(1)), m.group(2), t))
+
+    # --- surfaces: stacks joined to variants, judge, previews, headers ---
+    if os.path.isdir(rroot):
+        model["judge"] = sorted(os.listdir(os.path.join(rroot, "judge"))) \
+            if os.path.isdir(os.path.join(rroot, "judge")) else []
+        model["previews_manifest"] = _read_json(
+            os.path.join(rroot, "previews", "manifest.json"))
+        model["coverage_maps"] = [
+            {"file": f, **_stack_header(os.path.join(rroot, f))}
+            for f in sorted(os.listdir(rroot))
+            if f.startswith("coverage_") and f.endswith(".fit")]
+        stacks = sorted(f for f in os.listdir(rroot)
+                        if f.startswith("stack_") and f.endswith(".fit"))
+        bases = {}
+        for f in stacks:
+            stem = f[len("stack_"):-len(".fit")]
+            base, variant = stem, "base"
+            for suf in ("_wcs", "_spcc"):
+                if stem.endswith(suf):
+                    base, variant = stem[:-len(suf)], suf[1:]
+            bases.setdefault(base, {})[variant] = f
+        prev = {i.get("product"): i for i in
+                (model["previews_manifest"] or {}).get("items", [])
+                if i.get("kind") == "selection"}
+        for base, variants in sorted(bases.items()):
+            sets, tag = _parse_product(base)
+            hdr = _stack_header(os.path.join(rroot, variants.get("base")
+                                             or sorted(variants.values())[0]))
+            judge_name = f"{base}_spcc-linked.png"
+            kept = [kept_by_set.get(s) for s in sets]
+            expected = sum(kept) if kept and all(k is not None for k in kept) \
+                else None
+            # "differs" is a neutral measurement: a deliberate-subset render
+            # (e.g. a stride tag) differs legitimately; only a full-depth tag
+            # differing is a policy error — the UI phrases severity by tag.
+            confirm = "unknown"
+            if expected is not None and hdr["stackcnt"] is not None:
+                confirm = "ok" if expected == hdr["stackcnt"] else "differs"
+            is_approved = any(n == len(sets) and atag == tag
+                              for n, atag, _ in approved) if sets else False
+            sel = prev.get(f"stack_{base}_spcc")
+            model["surfaces"].append({
+                "product": base, "sets": sets, "recipe_tag": tag,
+                "files": variants, "naxis": hdr["naxis"],
+                "stackcnt": hdr["stackcnt"], "expected_kept": expected,
+                "confirm": confirm,
+                "judge": f"judge/{judge_name}"
+                if judge_name in model["judge"] else None,
+                "thumb": f"previews/thumb_{judge_name}"
+                if os.path.exists(os.path.join(
+                    rroot, "previews", f"thumb_{judge_name}")) else None,
+                "selection": {"preview": sel.get("preview"),
+                              "native_wh": sel.get("native_wh"),
+                              "reference_boxes": sel.get("reference_boxes")}
+                if sel else None,
+                "solve": _read_json(os.path.join(
+                    rroot, f"solve_stack_{base}.json")),
+                "approved": is_approved,
+                "approved_tag": next((t for n, atag, t in approved
+                                      if n == len(sets) and atag == tag), None),
+            })
+    return model
 
 
 def radec_corners(wcs_path, rect_screen, canvas_h):
@@ -172,6 +412,15 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if self.path == "/api/sessions":
             return self._json(200, sessions_inventory())
+        if self.path.startswith("/api/session/"):
+            try:
+                name = _safe(self.path[len("/api/session/"):], "session")
+            except ValueError as e:
+                return self._json(400, {"error": str(e)})
+            model = session_model(name)
+            if model is None:
+                return self._json(404, {"error": f"no such session: {name}"})
+            return self._json(200, model)
         return super().do_GET()
 
     def do_POST(self):
