@@ -434,6 +434,34 @@ def _arg_float(v, lo, hi):
     return f
 
 
+def _sets_list(session, raw):
+    """'set-01,set-02' -> validated set names whose groups dirs exist."""
+    names = [t.strip() for t in str(raw).replace(",", " ").split() if t.strip()]
+    if len(names) < 2:
+        raise ValueError("need at least two sets, comma-separated")
+    out = []
+    for n in names:
+        _safe(n, "set")
+        d = os.path.join(REPO, "sessions", session, "work", f"groups_{n}")
+        if not os.path.isdir(d):
+            raise ValueError(f"no group sub-stacks for {n} "
+                             f"(sessions/{session}/work/groups_{n} absent)")
+        out.append(n)
+    return out
+
+
+def _join_name(sets):
+    """['set-01','set-02'] -> 'set-01+02' (the product naming convention)."""
+    return sets[0] + "".join(
+        "+" + (s[4:] if s.startswith("set-") else s) for s in sets[1:])
+
+
+def _arg_framing(v):
+    if v not in ("min", "max"):
+        raise ValueError("framing must be min or max")
+    return v
+
+
 # Each stage: description, loop phase, param specs (served to the UI), and a
 # builder returning the argv (repo-relative cwd). Params marked opt are
 # omitted when blank. Adding a stage = adding a row here; the UI renders it.
@@ -531,6 +559,40 @@ def _stage_registry():
                                 "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
             + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []),
         },
+        "compose": {
+            "desc": "compose already-built group sub-stacks across sets into one stack (register -2pass -> plain mean; valid post-undistort — homographies compose). framing=min keeps the all-members overlap, max the union",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "sets", "kind": "str", "req": True, "hint": "comma-separated, e.g. set-01,set-02 (each needs its groups dir)"},
+                {"name": "framing", "kind": "str", "req": True, "hint": "min | max"},
+            ],
+            "build": lambda a: (lambda ses, sets, fr:
+                                ["scripts/stack/run_undistort_compose.sh",
+                                 f"--out=web/results/{ses}/stack_{_join_name(sets)}_{fr}.fit",
+                                 f"--framing={fr}"]
+                                + [f"sessions/{ses}/work/groups_{n}" for n in sets])(
+                _arg_session(a["session"]),
+                _sets_list(_arg_session(a["session"]), a["sets"]),
+                _arg_framing(a.get("framing"))),
+        },
+        "coverage_probe": {
+            "desc": "per-pixel coverage map of a compose (constant twins through the stored registration; value/1000 = covering members; members*1000 must stay <= 65535)",
+            "phase": "surfaces",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "sets", "kind": "str", "req": True, "hint": "same dirs and order as the compose it maps"},
+                {"name": "framing", "kind": "str", "req": False, "hint": "min | max (default max)"},
+            ],
+            "build": lambda a: (lambda ses, sets, fr:
+                                ["scripts/qa/coverage_probe.sh",
+                                 f"--out=web/results/{ses}/coverage_{_join_name(sets)}_{fr}.fit",
+                                 f"--framing={fr}"]
+                                + [f"sessions/{ses}/work/groups_{n}" for n in sets])(
+                _arg_session(a["session"]),
+                _sets_list(_arg_session(a["session"]), a["sets"]),
+                _arg_framing(a.get("framing") or "max")),
+        },
         "solve": {
             "desc": "blind astrometric solve (astrometry.net) + WCS inject -> unblocks SPCC",
             "phase": "finish",
@@ -571,13 +633,18 @@ def _stage_registry():
                 {"name": "stack", "kind": "path", "req": True, "choices": "stacks"},
                 {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
                 {"name": "session", "kind": "session", "req": True},
-                {"name": "set", "kind": "set", "req": True},
+                {"name": "set", "kind": "set", "req": True, "hint": "routes the SPCC recipe spec + record naming"},
+                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction (union canvases, e.g. 0.35)"},
+                {"name": "crop_record", "kind": "path", "req": False, "choices": "framings", "hint": "VERIFIED framing record — crops the LINEAR stack before solve/SPCC/stretch; refuses unverified"},
             ],
             "build": lambda a: ["scripts/stack/finish_render.sh",
                                 _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit"),
                                 _safe(a["name"], "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
-                                "--set=" + _arg_set(a["set"])],
+                                "--set=" + _arg_set(a["set"])]
+            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central") else [])
+            + ([f"--crop-record={_arg_repo_path(a['crop_record'], ['datasets'], ext='.json')}"]
+               if a.get("crop_record") else []),
         },
         "previews": {
             "desc": "Siril-made navigation previews + manifest (thumbs, selection surfaces, coverage veils)",
@@ -654,6 +721,10 @@ def path_choices(session):
         "maps": [f"web/results/{session}/{f}"
                  for f in ls(rdir, lambda f: f.startswith("coverage_")
                              and f.endswith(".fit"))],
+        "framings": [f"datasets/{session}/{f}"
+                     for f in ls(os.path.join(REPO, "datasets", session),
+                                 lambda f: f.startswith("framing_")
+                                 and f.endswith(".json"))],
     }
 
 
@@ -831,6 +902,18 @@ def stage_status(session):
             else f"no judge surface: {', '.join(nojudge)}")
     put("spcc_cone", "na", "coverage check for a new field — run before "
                            "SPCC when the sky region changes")
+    multi = [su for su in m["surfaces"] if len(su["sets"]) > 1]
+    put("compose", "done" if multi else
+        ("todo" if not miss else "na"),
+        f"combine(s) on disk: {', '.join(su['product'] for su in multi)}"
+        if multi else ("per-set stacks ready to compose" if not miss
+                       else "waiting on per-set stacks"))
+    put("coverage_probe", "done" if m.get("coverage_maps") else
+        ("todo" if multi else "na"),
+        f"map(s) on disk: {', '.join(c['file'] for c in m['coverage_maps'])}"
+        if m.get("coverage_maps")
+        else ("compose exists — probe its coverage for framing" if multi
+              else "no compose to map yet"))
     put("previews", "done" if m.get("previews_manifest") else "todo",
         "previews manifest on disk" if m.get("previews_manifest")
         else "no previews manifest yet")

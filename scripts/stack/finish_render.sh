@@ -24,15 +24,52 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL=
+RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC=
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
   --central=*) CENTRAL=${a#*=};;
+  --crop-record=*) CROPREC=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 [ -f "$STACK" ] || { echo "no such stack: $STACK" >&2; exit 1; }
 STACK=$(cd "$(dirname "$STACK")" && pwd)/$(basename "$STACK")
+
+# The item-12 CONSUME side: apply a user-drawn, VERIFIED framing to the
+# LINEAR stack before anything else (crop-before-stretch doctrine; the
+# record's siril args target the source product's canvas — checked). An
+# unverified record is refused loudly.
+if [ -n "${CROPREC:-}" ]; then
+  [ -f "$CROPREC" ] || { echo "no such framing record: $CROPREC" >&2; exit 1; }
+  ARGS=$(python3 - "$CROPREC" "$STACK" <<'PY'
+import json, sys
+rec, stack = sys.argv[1], sys.argv[2]
+r = json.load(open(rec))
+if r.get("status") != "verified":
+    sys.exit(f"finish_render: framing record status is '{r.get('status')}' — "
+             "a render must refuse an unverified framing "
+             "(run web/verify_framing.py first)")
+from astropy.io import fits
+h = fits.getheader(stack)
+canvas = [int(h["NAXIS1"]), int(h["NAXIS2"])]
+if list(r.get("canvas_wh") or []) != canvas:
+    sys.exit(f"finish_render: record canvas {r.get('canvas_wh')} does not "
+             f"match stack {canvas} — wrong product for this framing")
+print(*r["rect_siril_crop_args"])
+PY
+) || exit 1
+  read -r CX CY CW CH <<< "$ARGS"
+  CROPPED=$(dirname "$STACK")/stack_${NAME}.fit
+  WC=$(dirname "$STACK")/.crop_$NAME; rm -rf "$WC"; mkdir -p "$WC"
+  printf 'requires 1.4.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nsave %s\n' \
+    "$STACK" "$CX" "$CY" "$CW" "$CH" "${CROPPED%.fit}" > "$WC/c.ssf"
+  flatpak run --command=siril-cli org.siril.Siril -d "$WC" -s "$WC/c.ssf" \
+    > "$WC/log" 2>&1 || { echo "crop failed — $WC/log" >&2; exit 1; }
+  rm -rf "$WC"
+  [ -f "$CROPPED" ] || { echo "crop wrote no stack" >&2; exit 1; }
+  echo "[finish $NAME] 0/4 verified crop applied to the LINEAR stack ($CX $CY $CW $CH) -> $CROPPED"
+  STACK=$CROPPED
+fi
 BASE=${STACK%.fit}
 WCS=${BASE}_wcs.fit; SPCC=${BASE}_spcc.fit
 JUDGE=$REPO/web/results/$(basename "$SESSION")/judge/${NAME}_spcc-linked
