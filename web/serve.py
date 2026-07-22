@@ -28,6 +28,19 @@ API:
                           tag matches its membership count and recipe tag).
                           The server joins and normalizes for display; records
                           are never rewritten.
+  GET  /api/stages     -> the Tier-1 stage registry (fixed allowlist of the
+                          repo's pinned scripts + their param specs)
+  POST /api/run        -> {stage, args, dry_run?} — validate and (unless
+                          dry_run, which returns the exact command) spawn ONE
+                          gated run of a registry stage. USER-RATIFIED
+                          AMENDMENT (web/README.md): fires only from an
+                          explicit per-run user action — the operating loop's
+                          DECIDE step made clickable; never automatic, never
+                          on page load. One job at a time; argv only (no
+                          shell); logs under sessions/.webjobs/.
+  GET  /api/jobs, /api/jobs/<id>, /api/jobs/<id>/log?offset=N
+                       -> job list / status / incremental log tail
+  POST /api/jobs/<id>/kill -> SIGTERM the job's process group (user action)
   POST /api/framing    -> write the tracked framing record for a product
                           (datasets/<session>/framing_<product>.json).
                           The UI captures a HUMAN decision; this endpoint
@@ -52,7 +65,11 @@ in the user's own viewers (web/README.md).
 import json
 import os
 import re
+import shlex
+import signal
+import subprocess
 import sys
+import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -326,6 +343,318 @@ def session_model(session):
     return model
 
 
+# ---------------------------------------------------------------------------
+# Tier-1 job execution (user-ratified contract amendment, web/README.md):
+# the site EXECUTES a pipeline stage only from an explicit per-run user action
+# — the operating loop's DECIDE step made clickable. Never automatic, never on
+# page load. The registry below is a fixed allowlist of the repo's own pinned
+# scripts; args are validated per stage and passed as argv (no shell), one job
+# runs at a time, and every run leaves its log under sessions/.webjobs/.
+# ---------------------------------------------------------------------------
+
+JOBS = {}
+JOBS_LOCK = threading.Lock()
+WEBJOBS_DIR = os.path.join(REPO, "sessions", ".webjobs")
+
+
+def _arg_session(v):
+    _safe(v, "session")
+    if not (os.path.isdir(os.path.join(REPO, "sessions", v))
+            or os.path.isdir(os.path.join(REPO, "datasets", v))):
+        raise ValueError(f"unknown session: {v}")
+    return v
+
+
+def _arg_set(v):
+    return _safe(v, "set")
+
+
+def _arg_repo_path(v, roots, must_exist=True, ext=None):
+    if not isinstance(v, str) or v.startswith("/") or ".." in v:
+        raise ValueError(f"path must be repo-relative without '..': {v!r}")
+    norm = os.path.normpath(v)
+    if not any(norm == r or norm.startswith(r + os.sep) for r in roots):
+        raise ValueError(f"path must live under {roots}: {v}")
+    if ext and not norm.endswith(ext):
+        raise ValueError(f"path must end with {ext}: {v}")
+    if must_exist and not os.path.exists(os.path.join(REPO, norm)):
+        raise ValueError(f"no such file: {v}")
+    return norm
+
+
+def _arg_int(v, lo, hi):
+    i = int(v)
+    if not lo <= i <= hi:
+        raise ValueError(f"out of range [{lo},{hi}]: {v}")
+    return i
+
+
+def _arg_float(v, lo, hi):
+    f = float(v)
+    if not lo <= f <= hi:
+        raise ValueError(f"out of range [{lo},{hi}]: {v}")
+    return f
+
+
+# Each stage: description, loop phase, param specs (served to the UI), and a
+# builder returning the argv (repo-relative cwd). Params marked opt are
+# omitted when blank. Adding a stage = adding a row here; the UI renders it.
+def _stage_registry():
+    P = os.path.join
+    return {
+        "frame_qa": {
+            "desc": "per-frame registration QA (Siril regdata) -> tracked frame_metrics.json + kept per-frame records",
+            "phase": "measure",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "batch", "kind": "int", "req": False, "hint": "frames per disk-bounded batch (default 76)"},
+                {"name": "z", "kind": "float", "req": False, "hint": "defect-side robust-z flag threshold (default 3.5)"},
+            ],
+            "build": lambda a: ["scripts/qa/run_frame_qa.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])]
+            + ([f"--batch={_arg_int(a['batch'], 8, 500)}"] if a.get("batch") else [])
+            + ([f"--z={_arg_float(a['z'], 1.0, 10.0)}"] if a.get("z") else []),
+        },
+        "anomaly_audit": {
+            "desc": "transient-obstruction classifier (aircraft/satellite/unknown) -> audit_work/anomaly_audit.json",
+            "phase": "measure",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+            ],
+            "build": lambda a: ["python3", "scripts/qa/anomaly_audit.py",
+                                P("sessions", _arg_session(a["session"]), _arg_set(a["set"]))],
+        },
+        "sky_flat": {
+            "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/",
+            "phase": "calibrate",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "dark", "kind": "path", "req": True, "hint": "master dark, repo-relative under sessions/"},
+            ],
+            "build": lambda a: ["scripts/stack/build_sky_flat.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
+                                "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
+                                "--out=" + P("sessions", _arg_session(a["session"]), "work",
+                                             "masters", f"skyflat_{_arg_set(a['set'])}.fit")],
+        },
+        "stack_standard": {
+            "desc": "standard class: calibrate -> register -> rejection stack (matched flats; flatless hard-stops)",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+            ],
+            "build": lambda a: ["scripts/stack/run_pipeline.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])],
+        },
+        "stack_undistort": {
+            "desc": "wide-field UNTRACKED class: calibrate -> undistort (darktable/lensfun) -> register -> stack",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "dark", "kind": "path", "req": True},
+                {"name": "flat", "kind": "path", "req": True},
+                {"name": "frames", "kind": "int", "req": False, "hint": "even-stride subset preserving the time span"},
+            ],
+            "build": lambda a: ["scripts/stack/run_undistort_pipeline.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
+                                "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
+                                "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
+            + ([f"--frames={_arg_int(a['frames'], 8, 5000)}"] if a.get("frames") else []),
+        },
+        "stack_undistort_groups": {
+            "desc": "same class at FULL depth on tight disk: balanced groups -> per-group stacks -> compose",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "dark", "kind": "path", "req": True},
+                {"name": "flat", "kind": "path", "req": True},
+                {"name": "group", "kind": "int", "req": False, "hint": "frames per group (default 15)"},
+            ],
+            "build": lambda a: ["scripts/stack/run_undistort_groups.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
+                                "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
+                                "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
+            + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []),
+        },
+        "solve": {
+            "desc": "blind astrometric solve (astrometry.net) + WCS inject -> unblocks SPCC",
+            "phase": "finish",
+            "params": [
+                {"name": "stack", "kind": "path", "req": True, "hint": "stack under web/results/, .fit"},
+            ],
+            "build": lambda a: (lambda s: ["python3", "scripts/calibrate/solve_field.py", s,
+                                           "--inject=" + s[:-4] + "_wcs.fit"])(
+                _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit")),
+        },
+        "spcc_cone": {
+            "desc": "local Gaia chunk cover check for a solved field (--fetch downloads missing)",
+            "phase": "finish",
+            "params": [
+                {"name": "wcs", "kind": "path", "req": True, "hint": "solved _wcs.fit under web/results/"},
+                {"name": "fetch", "kind": "bool", "req": False},
+            ],
+            "build": lambda a: ["python3", "scripts/calibrate/spcc_cone.py",
+                                _arg_repo_path(a["wcs"], [os.path.join("web", "results")], ext=".fit")]
+            + (["--fetch"] if a.get("fetch") else []),
+        },
+        "spcc": {
+            "desc": "Siril SPCC on the solved stack; K factors captured to work/spcc_<set>.json",
+            "phase": "finish",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "tag", "kind": "str", "req": False, "hint": "suffix so an experiment never overwrites the canonical record"},
+            ],
+            "build": lambda a: ["python3", "scripts/calibrate/spcc_run.py",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])]
+            + ([f"--tag={_safe(a['tag'], 'tag')}"] if a.get("tag") else []),
+        },
+        "finish_render": {
+            "desc": "stack -> solve -> SPCC -> linked autostretch -> judge/ PNG16 (the diagnostic judge surface)",
+            "phase": "finish",
+            "params": [
+                {"name": "stack", "kind": "path", "req": True},
+                {"name": "name", "kind": "str", "req": True, "hint": "judge surface stem, e.g. set-01_full"},
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+            ],
+            "build": lambda a: ["scripts/stack/finish_render.sh",
+                                _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit"),
+                                _safe(a["name"], "name"),
+                                "--session=" + P("sessions", _arg_session(a["session"])),
+                                "--set=" + _arg_set(a["set"])],
+        },
+        "previews": {
+            "desc": "Siril-made navigation previews + manifest (thumbs, selection surfaces, coverage veils)",
+            "phase": "surfaces",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "cov_min", "kind": "int", "req": False, "hint": "coverage veil threshold in members (default 25)"},
+            ],
+            "build": lambda a: ["web/make_previews.sh", _arg_session(a["session"])]
+            + ([f"--cov-min={_arg_int(a['cov_min'], 1, 65)}"] if a.get("cov_min") else []),
+        },
+        "verify_framing": {
+            "desc": "Siril crop+stat verification of a drawn framing record (map mode or sky-floor mode)",
+            "phase": "surfaces",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "product", "kind": "str", "req": True},
+                {"name": "map", "kind": "path", "req": False, "hint": "coverage map .fit (map mode)"},
+                {"name": "map_min", "kind": "int", "req": False, "hint": "required members (map mode)"},
+                {"name": "min_floor", "kind": "int", "req": False, "hint": "sibling-class sky floor ADU (no-map mode)"},
+            ],
+            "build": lambda a: ["python3", "web/verify_framing.py",
+                                _arg_session(a["session"]), _safe(a["product"], "product")]
+            + ([f"--map={_arg_repo_path(a['map'], [os.path.join('web', 'results')], ext='.fit')}"]
+               if a.get("map") else [])
+            + ([f"--map-min={_arg_int(a['map_min'], 1, 65)}"] if a.get("map_min") else [])
+            + ([f"--min-floor={_arg_int(a['min_floor'], 0, 65535)}"] if a.get("min_floor") else []),
+        },
+    }
+
+
+STAGES = _stage_registry()
+
+
+def stages_public():
+    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"]}
+            for name, s in STAGES.items()}
+
+
+def start_job(stage, args, dry_run=False):
+    if stage not in STAGES:
+        raise ValueError(f"unknown stage: {stage}")
+    argv = STAGES[stage]["build"](args or {})
+    cmd = " ".join(shlex.quote(c) for c in argv)
+    if dry_run:
+        return {"dry_run": True, "stage": stage, "cmd": cmd}
+    with JOBS_LOCK:
+        running = [j for j in JOBS.values() if j["status"] == "running"]
+        if running:
+            raise RuntimeError(
+                f"a job is already running ({running[0]['id']} — {running[0]['stage']}); "
+                "one gated run at a time")
+        jid = f"j{time.strftime('%Y%m%d-%H%M%S')}-{stage}"
+        os.makedirs(WEBJOBS_DIR, exist_ok=True)
+        log_path = os.path.join(WEBJOBS_DIR, jid + ".log")
+        log_f = open(log_path, "w")
+        log_f.write(f"$ {cmd}\n")
+        log_f.flush()
+        proc = subprocess.Popen(argv, cwd=REPO, stdout=log_f,
+                                stderr=subprocess.STDOUT,
+                                start_new_session=True)
+        JOBS[jid] = {"id": jid, "stage": stage, "cmd": cmd,
+                     "status": "running", "rc": None,
+                     "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                     "ended": None, "log": os.path.relpath(log_path, REPO),
+                     "_proc": proc, "_logf": log_f}
+    return {"id": jid, "stage": stage, "cmd": cmd, "status": "running"}
+
+
+def _job_refresh(j):
+    p = j.get("_proc")
+    if p and j["status"] == "running":
+        rc = p.poll()
+        if rc is not None:
+            j["status"] = "done" if rc == 0 else "failed"
+            j["rc"] = rc
+            j["ended"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            try:
+                j["_logf"].close()
+            except OSError:
+                pass
+    return {k: v for k, v in j.items() if not k.startswith("_")}
+
+
+def jobs_list():
+    with JOBS_LOCK:
+        return [_job_refresh(j) for j in
+                sorted(JOBS.values(), key=lambda x: x["id"], reverse=True)]
+
+
+def job_get(jid):
+    with JOBS_LOCK:
+        j = JOBS.get(jid)
+        return _job_refresh(j) if j else None
+
+
+def job_log(jid, offset):
+    with JOBS_LOCK:
+        j = JOBS.get(jid)
+        if not j:
+            return None
+        state = _job_refresh(j)
+        path = os.path.join(REPO, j["log"])
+    try:
+        with open(path) as f:
+            f.seek(offset)
+            data = f.read()
+    except OSError:
+        data = ""
+    return {"offset": offset + len(data), "data": data,
+            "status": state["status"], "rc": state["rc"]}
+
+
+def job_kill(jid):
+    with JOBS_LOCK:
+        j = JOBS.get(jid)
+        if not j:
+            return None
+        if j["status"] == "running" and j.get("_proc"):
+            try:
+                os.killpg(os.getpgid(j["_proc"].pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        return _job_refresh(j)
+
+
 def radec_corners(wcs_path, rect_screen, canvas_h):
     """RA/Dec of the rect's corners via astropy from the solved header.
     rect_screen is top-left-origin; FITS pixel y counts from the bottom, so
@@ -430,9 +759,43 @@ class Handler(SimpleHTTPRequestHandler):
             if model is None:
                 return self._json(404, {"error": f"no such session: {name}"})
             return self._json(200, model)
+        if self.path == "/api/stages":
+            return self._json(200, stages_public())
+        if self.path == "/api/jobs":
+            return self._json(200, jobs_list())
+        m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)/log(?:\?offset=(\d+))?$",
+                     self.path)
+        if m:
+            out = job_log(m.group(1), int(m.group(2) or 0))
+            return self._json(200, out) if out else \
+                self._json(404, {"error": "no such job"})
+        m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)$", self.path)
+        if m:
+            out = job_get(m.group(1))
+            return self._json(200, out) if out else \
+                self._json(404, {"error": "no such job"})
         return super().do_GET()
 
     def do_POST(self):
+        if self.path == "/api/run":
+            # Tier-1 gate: this endpoint only ever fires from an explicit
+            # user action in the UI (the DECIDE click) — see the amendment
+            # in web/README.md. Stage allowlist + per-stage arg validation.
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                payload = json.loads(self.rfile.read(n))
+                out = start_job(payload.get("stage"), payload.get("args"),
+                                dry_run=bool(payload.get("dry_run")))
+                return self._json(200, out)
+            except (KeyError, ValueError, TypeError) as e:
+                return self._json(400, {"error": str(e)})
+            except RuntimeError as e:
+                return self._json(409, {"error": str(e)})
+        m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)/kill$", self.path)
+        if m:
+            out = job_kill(m.group(1))
+            return self._json(200, out) if out else \
+                self._json(404, {"error": "no such job"})
         if self.path != "/api/framing":
             return self._json(404, {"error": "unknown endpoint"})
         try:

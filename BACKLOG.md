@@ -358,10 +358,18 @@ frame-count confirmation from FITS metadata, approvals from git tags only),
 decision/confirmation, culled rollup, surfaces, sky objects, experiments,
 framing, records viewer; absent artifacts render as designed states),
 `web/crop.html` (draws the rectangle over a Siril-made selection preview with
-existing `*_map.json` reference boxes overlaid), `web/make_previews.sh`
-(tool-driven previews + manifest), `web/verify_framing.py` (the mandatory
+existing `*_map.json` reference boxes overlaid, plus the coverage-veil toggle
+when a map's canvas matches), `web/make_previews.sh`
+(tool-driven previews + manifest, including the coverage-veil class),
+`web/verify_framing.py` (the mandatory
 Siril crop+stat verification — coverage-map `Min >= members*1000` or the
-sibling-class sky-floor mode; a render must refuse an unverified record). The
+sibling-class sky-floor mode; a render must refuse an unverified record),
+and the **Tier-1 execution surface** (user-ratified amendment in
+`web/README.md`): `/api/stages` + `/api/run` — a fixed registry of the
+pinned scripts run one-at-a-time from an explicit per-click DECIDE gate,
+exact command shown before the run, logs under `sessions/.webjobs/`.
+Deliberately NOT in the registry yet: `coverage_probe.sh` (heavy,
+variable-membership args) and any render-tier stage (item 0, user-gated). The
 record (`datasets/<session>/framing_<product>.json`) carries BOTH coordinate
 conventions (screen top-left AND Siril bottom-left — the measured y-flip trap)
 plus WCS RA/Dec corners so the framing survives re-registration.

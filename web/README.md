@@ -18,6 +18,14 @@ record the render chain consumes. No external service; the server binds
 - **No render consumes an unverified framing.** `verify_framing.py` must
   stamp the record via Siril crop+stat first — the measured y-flip /
   zero-coverage guard (`docs/dead-ends.md`).
+- **Execution from the site is gated per run (user-ratified amendment).**
+  The site may EXECUTE a pipeline stage only from an explicit per-run user
+  action — the operating loop's DECIDE step made clickable; never
+  automatically, never on page load. An executed stage is one of a FIXED
+  registry of the repo's pinned scripts (`serve.py` `/api/stages`), runs with
+  the same records, gates and degrade-loudly behavior as a CLI run, shows its
+  exact command before the run click, runs one at a time, and leaves its log
+  under `sessions/.webjobs/`. The server stays 127.0.0.1-only.
 
 ## Running it
 
@@ -35,7 +43,7 @@ python3 web/verify_framing.py <session> <product> \
 
 | file | role |
 |---|---|
-| `serve.py` | static server (repo root, read-only) + `GET /api/sessions` + `GET /api/session/<name>` (the joined read-only session model: per-set records normalized across the measured schema drift, surfaces with FITS-header frame counts confirmed against the recipes — metadata reads, never pixels — and approvals from git tags only) + `POST /api/framing` (writes the tracked record, `dry_run` supported; the only write) |
+| `serve.py` | static server (repo root, read-only) + `GET /api/sessions` + `GET /api/session/<name>` (the joined read-only session model: per-set records normalized across the measured schema drift, surfaces with FITS-header frame counts confirmed against the recipes — metadata reads, never pixels — and approvals from git tags only) + `POST /api/framing` (writes the tracked record, `dry_run` supported; the only RECORD write) + the Tier-1 execution surface (`GET /api/stages`, `POST /api/run` — the gated per-click stage runner over the fixed script registry, `dry_run` returns the exact command — `GET/POST /api/jobs*` status, incremental logs, kill) |
 | `index.html` | the workspace shell: rail menu + hash-routed pages over `/api/session/<name>` — overview (router cards), per-set Frames tab (the cull DECISION with verbatim whys vs the post-stack CONFIRMATION against stack headers), culled rollup, surfaces (git-tag approvals; diagnostic-stretch caveat), sky objects, experiments ledgers, framing, read-only records viewer. Absent artifacts render as designed states naming their producer |
 | `crop.html` | the item-12 framing UI: selection preview + existing crop-map reference boxes + drag/fine-tune a rectangle → POST the record |
 | `make_previews.sh` | tool-driven preview generation (Siril load/autostretch/resample/savepng) + `previews/manifest.json` (native dims, exact scale, matched reference boxes) |
