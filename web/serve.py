@@ -220,7 +220,9 @@ def _session_tags(session):
 def session_model(session):
     droot = os.path.join(REPO, "datasets", session)
     rroot = os.path.join(REPO, "web", "results", session)
-    if not (os.path.isdir(droot) or os.path.isdir(rroot)):
+    stroot = os.path.join(REPO, "sessions", session)
+    if not (os.path.isdir(droot) or os.path.isdir(rroot)
+            or os.path.isdir(stroot)):
         return None
     model = {"session": session, "tags": _session_tags(session),
              "sets": [], "session_records": [], "surfaces": [],
@@ -272,6 +274,32 @@ def session_model(session):
             if entry["kind"] == "lights":
                 light_sets.append(entry)
             model["sets"].append(entry)
+    # staged raw dirs — a fresh session shows its sets (with raw counts, a
+    # directory listing only) before any record exists; kind from the
+    # staging-layout names. Merges into recorded sets when both exist.
+    if os.path.isdir(stroot):
+        known = {s["set"]: s for s in model["sets"]}
+        for name in sorted(os.listdir(stroot)):
+            d = os.path.join(stroot, name)
+            if name == "work" or name.startswith(".") or not os.path.isdir(d):
+                continue
+            n_raw = sum(1 for f in os.listdir(d) if f.lower().endswith(
+                (".nef", ".dng", ".cr2", ".cr3", ".arw", ".raf",
+                 ".fit", ".fits")))
+            if name in known:
+                known[name]["staged_frames"] = n_raw
+                continue
+            entry = {"set": name,
+                     "kind": "calibration" if name in CALIBRATION_DIRS
+                     else "lights",
+                     "staged_only": True, "staged_frames": n_raw,
+                     "acquisition": None, "frame_qa": None, "recipe": None,
+                     "anomaly": None, "fingerprint": None, "experiments": [],
+                     "records": [], "kept": None}
+            model["sets"].append(entry)
+            if entry["kind"] == "lights":
+                light_sets.append(entry)
+
     kept_by_set = {s["set"]: s["kept"] for s in light_sets}
     n_lights = len(light_sets)
 
