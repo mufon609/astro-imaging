@@ -1,0 +1,22 @@
+{
+ "mount": "tracked",
+ "exif": {
+  "camera": "ASI Camera (1)",
+  "lens": "Temma By Takahashi",
+  "focal_length_mm": 1150.0,
+  "exposure_s": 80.0,
+  "iso": null,
+  "gain": 75.0,
+  "binning": 1,
+  "image_wh": [
+   4656,
+   3520
+  ],
+  "fov_deg": 0.88,
+  "pixel_scale_arcsec": 0.682,
+  "cadence_s": 96.0,
+  "frames": 15,
+  "time_span_s": 1384.0
+ },
+ "_note": "`mount` is the one acquisition fact EXIF cannot record and a consumer must be told; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it."
+}

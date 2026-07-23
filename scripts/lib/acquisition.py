@@ -2,9 +2,12 @@
 """Per-dataset acquisition record — the facts a tool needs about HOW a set was
 shot, split by provenance and kept honest:
 
-  exif.*  DERIVED from the frames' EXIF via exiftool: camera, lens, focal
-          length, exposure, ISO, image size, field of view + pixel scale, and
-          the inter-frame cadence / time span from the per-frame timestamps.
+  exif.*  DERIVED from the frames' metadata: photo-EXIF via exiftool for
+          camera raws (camera, lens, focal length, exposure, ISO, image size,
+          field of view + pixel scale, cadence / time span); for
+          dedicated-astrocam FITS frames the SAME facts from the FITS header
+          (INSTRUME/TELESCOP/FOCALLEN/XPIXSZ/GAIN/DATE-OBS — `iso` is null,
+          there is no such concept; `gain` and `binning` are recorded).
   mount   DECLARED by a human — "fixed" (tripod) or "tracked" (driven mount).
           EXIF does not record it, and it is not safely inferable (a short
           enough exposure hides the drift), so a consumer must be TOLD.
@@ -18,8 +21,9 @@ silently assuming a camera model. The record is the tracked per-dataset home
 (datasets/<session>/<set>/acquisition.json), beside geometry.json / recipe.json;
 `exif.*` is tool-written (refreshed when it changes), `mount` is the human field.
 
-Reads only EXIF metadata (never the deliverable's pixels) and writes only this
-record: orchestration + records, not image analysis.
+Reads only metadata — exiftool photo-EXIF for camera raws, astropy FITS
+headers for astrocam frames (never the deliverable's pixels) — and writes only
+this record: orchestration + records, not image analysis.
 """
 import json
 import os
@@ -92,13 +96,80 @@ def _median(xs):
     return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2.0
 
 
+def fits_facts(frames):
+    """FITS sibling of the exiftool derivation — the same facts from the FITS
+    headers (astropy, HEADERS only). Optics from the first frame; cadence /
+    time-span from every frame's DATE-OBS. pixel_scale = 206.265 * XPIXSZ /
+    FOCALLEN; the common writers record XPIXSZ as the effective (binned) pixel
+    size, and `binning` is recorded so a corpus where that convention differs
+    is visible. `iso` stays null (no such concept on an astrocam); GAIN is
+    recorded as `gain`. On failure returns {'_error': ...} so a consumer can
+    still require `mount`."""
+    try:
+        from astropy.io import fits as _fits
+    except ImportError as e:
+        return {"_error": f"astropy unavailable ({e}); mount still required"}
+    try:
+        h0 = _fits.getheader(frames[0])
+    except OSError as e:
+        return {"_error": f"FITS header unreadable ({e}); mount still required"}
+
+    def num(k):
+        try:
+            v = h0.get(k)
+            return float(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    exposure = num("EXPOSURE")
+    if exposure is None:
+        exposure = num("EXPTIME")
+    focal, pixsz = num("FOCALLEN"), num("XPIXSZ")
+    width, height = h0.get("NAXIS1"), h0.get("NAXIS2")
+    scale = (round(206.2648 * pixsz / focal, 3)
+             if pixsz and focal else None)
+    ts = []
+    for f in frames:
+        try:
+            d = _fits.getheader(f).get("DATE-OBS")
+        except OSError:
+            d = None
+        if d:
+            try:
+                ts.append(datetime.fromisoformat(str(d)).timestamp())
+            except ValueError:
+                pass
+    ts.sort()
+    dts = [b - a for a, b in zip(ts, ts[1:]) if b > a]
+    return {
+        "camera": h0.get("INSTRUME"),
+        "lens": h0.get("TELESCOP"),      # the optic identity slot
+        "focal_length_mm": focal,
+        "exposure_s": exposure,
+        "iso": None,
+        "gain": num("GAIN"),
+        "binning": int(num("XBINNING") or 1),
+        "image_wh": [width, height],
+        "fov_deg": (round(scale * width / 3600.0, 2)
+                    if scale and width else None),
+        "pixel_scale_arcsec": scale,
+        "cadence_s": round(_median(dts), 2) if dts else None,
+        "frames": len(frames),
+        "time_span_s": round(ts[-1] - ts[0], 1) if len(ts) > 1 else 0.0,
+    }
+
+
 def exif_facts(frames):
     """Derive the acquisition facts EXIF knows, over all frames (one exiftool
     call). Optics from the first frame; cadence / time-span from the per-frame
     timestamps. pixel_scale (full-res arcsec/px) comes from exiftool's FOV,
     which it computes from its own sensor database (no body hardcode); the green
     plane the audit works on is 2x this. On any exiftool failure returns
-    {'_error': ...} so a consumer can still require `mount`."""
+    {'_error': ...} so a consumer can still require `mount`. FITS frames route
+    to the header sibling `fits_facts` (photo-EXIF tags do not exist there)."""
+    if frames and os.path.splitext(frames[0])[1].lower() in (
+            ".fit", ".fits", ".fts"):
+        return fits_facts(frames)
     tags = ["-json", "-SubSecDateTimeOriginal", "-DateTimeOriginal",
             "-ExposureTime", "-FocalLength", "-ISO", "-Model", "-LensID",
             "-ImageWidth", "-ImageHeight", "-FOV"]

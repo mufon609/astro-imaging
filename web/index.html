@@ -217,7 +217,7 @@ function pgOverview() {
     h('div', { class:'eyebrow' }, 'session'),
     h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle' }, 'approved render on file') : null),
     h('div', { class:'sub' },
-      `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)}`,
+      `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)}`,
       acq ? ` · mount ${acq.mount}` : '',
       fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
     h('h2', {}, 'what is on file — each card opens its home'),
@@ -418,7 +418,7 @@ function pgSet(name) {
     h('div', { class:'sub' },
       s.staged_only
         ? `${s.staged_frames} raws staged — no records yet; declare the mount below, then the measure stages (frame_qa, anomaly_audit) run from the Run page`
-        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
+        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
           s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
                         : ' — fingerprint not yet derived')),
     mountControl(s), bar, pane);
