@@ -31,11 +31,9 @@ likewise purged (item 13, closed).
 | divergence | condition that retires it | status |
 |---|---|---|
 | `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. **Known miss mode (user-caught):** the set-02 aircraft's ENTRY frame (DSC_7573) was not linked to the object — 2 of 3 crossing frames classified; the entry frame's own QA z-signature carried the signal (roundness z −16.7 with nstars z +5.9 = elongated EXTRA detections). Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise. |
-| `compose.py` channel combine (`np.stack` + hand-rolled 3-plane FITS write) | a tool composes channels headless | **FIRED** — Siril `rgbcomp` verified on 1.4.4, and `rgbcomp -lum=` additionally closes the LRGB-join gap. Retirement is open work (item 6). |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. **The camera pivot fires the re-fit clause**: the pinned entry belongs to the retired 24-70/4 S @ 70 — fit the new rig's lens at its first wide-untracked set (the machine DB's retired entry is inert for any other lens: matched only by that lens's EXIF). |
-| Hand-rolled FITS parsers (5 sites) | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig; retirement is ARM-DOABLE open work (item 6), not x86-gated. 4 of 5 done (git log); only `compose.py` remains, blocked on a multi-channel dataset. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. (Optional second official arm, untested: the `image2xy` binary — shape-blind, but its trail knobs `-a`/`-p`/`-m` are unexposed by solve-field and `-a` can fragment a rippled trail; ASTAP is NOT an arm — roundness-gated by its own docs.) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; the vignetting-only fallback for a flatless set (none staged). |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — the validated per-set route for flatless sets (`build_sky_flat.sh` gates); dust-safety validates PER SET before use (dead-ends); tightening is item 5. |
@@ -172,6 +170,10 @@ RECOMMEND it:
 _(CLOSED items carry no blocks here — completed work lives in git. Items
 **3** — per-set culling, ratified + CONSUMED by the approved 1575-frame
 render; **4** — the remainder-of-1 guards, built into both chunked builders;
+**6** — the reinvention retirements: all five hand-rolled FITS-parser sites →
+`astropy`, and the `compose.py` channel combine + write → Siril `rgbcomp`,
+verified pixel-identical on real aligned members before the swap
+(`compose_ab.json`; the 16-bit-intermediates condition stays in the register);
 **8** — the 5-set combine, rendered and APPROVED (tag
 `july14-all5-cov25frame-approved`; residue lives in the removal register +
 items 0/12); **13** — the july14_fresh-start front-end test run, purged
@@ -208,34 +210,6 @@ fallback. A real matching flat retires the whole branch.
 
 Cross-set flat question — SETTLED (user-ratified per-set-flat rule; mechanism +
 numbers in `docs/dead-ends.md`, ledger `flat_source_set03`).
-
-## 6. Retire the reinventions whose replacements are confirmed
-
-- **Retire the last hand-rolled FITS parser (`compose.py`) → `astropy` — BLOCKED on data.**
-  astropy 8.0.1 is installed and probed on the rig; it is the identical tool on both rigs,
-  so the method transfers to x86 unchanged. Done (git log, each verified
-  byte-behaviour-equivalent): `solve_field.py` (same solve + SPCC K),
-  `scripts/lib/astrometrics.py` (byte-identical data + solve), `scripts/calibrate/spcc_cone.py`
-  (field/cone identical), `scripts/stack/fitsmeta.py` (metadata line identical). Only
-  `compose.py` remains — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
-  `astropy.io.fits`, retired jointly with the `rgbcomp` combine swap below. It is verifiable
-  only on a dual-band / mono-filter set (none staged), so retire it at first contact,
-  verified byte-behaviour-equivalent FIRST.
-  Gotchas: write float32 directly (BZERO/BSCALE auto-scale off); numpy `[y,x]` ↔ FITS
-  NAXIS reversed; `WCS(header, naxis=2)` on an RGB cube; astropy reads Siril's 16-bit RGB
-  FITS directly (retires the `savetif`+`tifffile` read workaround). Each swap lands as a
-  declared delta; the removal-register row is FIRED.
-
-- **`compose.py` channel combine → Siril `rgbcomp`.** The member ALIGN is already Siril;
-  only the combine is in-house. `rgbcomp chR chG chB -out=` produces a 3-plane float32
-  RGB FITS, and **`rgbcomp -lum=`** runs the LRGB join headless — which also closes the
-  long-standing LRGB gap `compose` currently REFUSES. `compose` shrinks to: resolve
-  `composition.json` → drive the Siril align → `rgbcomp`. Blocked on real data: the swap
-  is testable only on a dual-band / mono-filter set (none staged) — implement + verify
-  at first contact, never swap untested. Open: the CLI `-lum` blend colour space is
-  undocumented (GUI offers HSL/HSV/Lab).
-- The 16-bit stack-time intermediates' removal condition is now WRITTEN in the
-  register above (fire it on x86: drop `set16bits`, re-measure, declared delta).
 
 ## 7. Open questions with a named test
 
@@ -285,8 +259,11 @@ declared delta when its gate opens.
 - **Full-size dual-band** — native Ha + 2× drizzle of OIII instead of downsampling OIII
   to Ha's half size, gated on measured dither coverage (the per-frame
   `dither_phase_frac` record already exists).
-- **FITS I/O → astropy** — the last parser (`compose.py`) and its gotchas live in
-  item 6 + the removal register (ARM-doable, data-gated on a multi-channel set).
+- **LRGB join** — `compose` REFUSES a `luminance` member (L joins after both
+  parts are stretched — a nonlinear-space step this compose-then-render flow
+  cannot express). `rgbcomp -lum=` is the headless mechanism when an L corpus
+  arrives; open: the CLI `-lum` blend colour space is undocumented (GUI offers
+  HSL/HSV/Lab) — resolve before first use.
 - **FITS-path `setfindstar` asymmetry** (audit-found): the raw-camera template
   lowers detection to `-sigma=0.5` (measured: the matcher needs the extra
   triangles on this class) but the FITS `_fits_lights`/`_fits_dualband` paths
