@@ -258,6 +258,12 @@ function pgSets() {
     const fq = s.frame_qa || {}, dist = (fq.distribution || {});
     const full = fullSurface(s);
     if (s.staged_only) {
+      if (s.kind === 'reference') return h('tr', {},
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, `${s.staged_frames} staged`),
+        h('td', { colspan:3, class:'why' },
+          "the corpus's answer key (maker's masters / stacks / finals) — studied before tuning, never stacked"),
+        h('td', {}, h('span', { class:'chip ok' }, 'reference')));
       if (s.kind === 'calibration') return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
@@ -270,6 +276,12 @@ function pgSets() {
         h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
         h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
     }
+    if (s.kind === 'composed') return h('tr', {},
+      h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+      h('td', {}, '—'),
+      h('td', { colspan:3, class:'why' },
+        'composed virtual target — built by compose from its member per-filter stacks (no lights of its own)'),
+      h('td', {}, h('span', { class:'chip ok' }, 'composed')));
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, fmt(fq.total)),

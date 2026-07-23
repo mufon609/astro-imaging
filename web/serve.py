@@ -155,6 +155,19 @@ def sessions_inventory():
 CALIBRATION_DIRS = {"darks", "biases", "flats", "darkflats", "calib"}
 
 
+def set_kind(name):
+    """Staging-layout classification for a session dir. Fixed calibration
+    names, per-filter flat siblings (flats_<name> — the filter-wheel staging
+    shape the FITS stack path resolves by header identity), and the corpus
+    answer key (reference/ — README "Adding a dataset" step 0) are never
+    LIGHT sets; everything else is."""
+    if name in CALIBRATION_DIRS or name.startswith("flats_"):
+        return "calibration"
+    if name == "reference":
+        return "reference"
+    return "lights"
+
+
 def _read_json(path):
     try:
         with open(path) as f:
@@ -282,9 +295,13 @@ def session_model(session):
                 continue
             qa = _read_json(os.path.join(sdir, "qa_work", "frame_metrics.json"))
             recipe = _read_json(os.path.join(sdir, "recipe.json"))
+            comp = _read_json(os.path.join(sdir, "composition.json"))
             entry = {
                 "set": name,
-                "kind": "calibration" if name in CALIBRATION_DIRS else "lights",
+                # a composition record marks a VIRTUAL composed target — no
+                # lights of its own; compose builds it from member stacks
+                "kind": "composed" if comp else set_kind(name),
+                "composition": comp,
                 "acquisition": _read_json(os.path.join(sdir, "acquisition.json")),
                 "recipe": (recipe or {}).get("stack"),
                 "anomaly": _anomaly_summary(_read_json(
@@ -323,8 +340,7 @@ def session_model(session):
                 known[name]["staged_frames"] = n_raw
                 continue
             entry = {"set": name,
-                     "kind": "calibration" if name in CALIBRATION_DIRS
-                     else "lights",
+                     "kind": set_kind(name),
                      "staged_only": True, "staged_frames": n_raw,
                      "acquisition": None, "frame_qa": None, "recipe": None,
                      "anomaly": None, "fingerprint": None, "experiments": [],
@@ -984,7 +1000,8 @@ def stage_status(session):
     masters = path_choices(session)["masters"]
     have_dark = any(p.endswith("dark_master.fit") for p in masters)
     darks_staged = any(s["set"] == "darks" for s in m["sets"])
-    flats_staged = any(s["set"] in ("flats", "calib") for s in m["sets"])
+    flats_staged = any(s["set"] in ("flats", "calib")
+                       or s["set"].startswith("flats_") for s in m["sets"])
     per_set_stacks = {s["set"]: [su for su in m["surfaces"]
                                  if su["sets"] == [s["set"]]] for s in lights}
 
@@ -1010,9 +1027,17 @@ def stage_status(session):
         "frame_metrics.json on every light set" if not miss
         else f"missing for: {', '.join(miss)}")
     miss = missing(lambda s: s.get("anomaly"))
-    put("anomaly_audit", "done" if not miss else "todo",
-        "anomaly_audit.json on every light set" if not miss
-        else f"missing for: {', '.join(miss)}")
+    all_tracked = bool(lights) and all(
+        ((s.get("acquisition") or {}).get("mount")) == "tracked"
+        for s in lights)
+    if miss and all_tracked:
+        put("anomaly_audit", "na",
+            "cross-frame linking assumes a FIXED mount by design "
+            "(anomaly_audit.py contract); every light set declares tracked")
+    else:
+        put("anomaly_audit", "done" if not miss else "todo",
+            "anomaly_audit.json on every light set" if not miss
+            else f"missing for: {', '.join(miss)}")
     if have_dark:
         put("master_dark", "done", "work/masters/dark_master.fit on disk")
     elif darks_staged:
