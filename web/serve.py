@@ -598,15 +598,20 @@ def _verify_framing_argv(a):
     return argv
 
 
-def _derive_set(stack_rel, explicit):
-    """The SPCC-routing set: explicit wins; else the stack name's first
-    member (the combine precedent — routing only affects the recipe spec
-    lookup and the K-factor record's name)."""
+def _derive_set(stack_rel, explicit, session=None):
+    """The SPCC-routing set: explicit wins; else the stack name resolves
+    against the session's ACTUAL sets (the combine precedent — routing only
+    affects the recipe spec lookup and the K-factor record's name), so a
+    composed product like stack_<target>_comp.fit routes by its target."""
     if explicit:
         return _arg_set(explicit)
     stem = os.path.basename(stack_rel)
     if stem.startswith("stack_") and stem.endswith(".fit"):
-        sets, _tag = _parse_product(stem[len("stack_"):-len(".fit")])
+        known = []
+        if session:
+            m = session_model(session)
+            known = [s["set"] for s in m["sets"]] if m else []
+        sets, _tag = _parse_product(stem[len("stack_"):-len(".fit")], known)
         if sets:
             return sets[0]
     raise ValueError("cannot derive the SPCC-routing set from the stack "
@@ -816,7 +821,9 @@ def _stage_registry():
                                              + ("framed" if a.get("crop_record") else "")),
                                       "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
-                                "--set=" + _derive_set(stack, a.get("set"))]
+                                "--set=" + _derive_set(
+                                    stack, a.get("set"),
+                                    _arg_session(a["session"]))]
             + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
                else (["--central=0.35"] if _parse_product(
                    os.path.basename(stack)[len("stack_"):-len(".fit")])[1]
