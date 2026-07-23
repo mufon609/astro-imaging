@@ -148,9 +148,14 @@ RECOMMEND it:
   cannot catch lensfun fuzzy-matching a correct EXIF string to a wrong-but-present
   DB entry — the station measure is the backstop.
 
-_(Items **3** — per-set culling, ratified + CONSUMED by the approved
-1575-frame render — and **4** — the remainder-of-1 guards, built into both
-chunked builders — are CLOSED; item **8** below likewise. Mechanisms live in
+_(CLOSED items carry no blocks here — completed work lives in git. Items
+**3** — per-set culling, ratified + CONSUMED by the approved 1575-frame
+render; **4** — the remainder-of-1 guards, built into both chunked builders;
+**8** — the 5-set combine, rendered and APPROVED (tag
+`july14-all5-cov25frame-approved`; residue lives in the removal register +
+items 0/12); **14** — dashboard↔Claude communication, resolved no-new-surface (no MCP
+server, no SDK bridge; Claude reads the existing job logs + records,
+deep tool logs grep-first). Mechanisms live in
 the builders' docstrings, the per-set recipes and `docs/dead-ends.md`; full
 text in git. Numbering is preserved so cross-references stay valid.)_
 
@@ -249,20 +254,6 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   dormant mechanism reference only — its `OpRGBBalance` balances the brightest-quartile
   stars; the OIII-lift is our inference (`docs/dead-ends.md`).
 
-## 8. CLOSED — the 5-set combine is rendered and APPROVED
-
-The full-session combine (1575 frames at the cov25 frame) PASSED the user's
-eyes — tag `july14-all5-cov25frame-approved`. Everything durable from this
-item graduated: the compose/rejection/framing dead-ends and the coverage-probe
-instrument to `docs/dead-ends.md` + `TOOLS.md`; the depth question CLOSED by
-the split test (random noise scales exactly √N; the visible floor is static
-structure — item 11 carries the structured part, the render plan's L2 targets
-it); the washout root cause was the shared flat (per-set-flat rule, ratified);
-per-set colour resolved by one-unit SPCC on the combine. Standing residue
-lives where it belongs: the x86 single-registration re-compose + the
-groups-route validation debt in the removal register, framing-by-the-user in
-item 12, the formal `baseline.json` in item 0's harness. Full narrative in git.
-
 ## 9. Data-capability gaps (gated per item — read each gate)
 
 Real imaging capabilities the pipeline does not yet have; each lands as a measured
@@ -357,18 +348,6 @@ is done, purge the whole test run — session tree,
 `web/results/july14_fresh-start/`, and `datasets/july14_fresh-start/` — so
 the renamed sets cannot be mistaken for the exemplar's records later.
 Close condition: the purge commit.
-
-## 14. CLOSED — dashboard↔Claude communication: no new surface
-
-USER-DECIDED: Claude is not integrated into the dashboard. No workspace MCP
-server, no Agent SDK bridge, no new endpoints — the pipeline stays
-zero-AI-token, and Claude reads what the runs already leave behind: the
-summarized `sessions/.webjobs/` job logs, the typed `datasets/` records, and
-the deep tool logs grep-first, never whole. The standing rule for any new
-stage is unchanged: summarize at source, one compact JSON record per result.
-The evaluated-and-rejected alternatives are recorded in
-[`docs/dashboard-claude-communication.md`](docs/dashboard-claude-communication.md)
-so they are not re-proposed.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

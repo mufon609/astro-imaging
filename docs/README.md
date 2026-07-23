@@ -45,10 +45,6 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
-- [dashboard-claude-communication](dashboard-claude-communication.md) —
-  BACKLOG-14 RESOLUTION: no new Claude surface — MCP server + SDK bridge
-  evaluated and REJECTED (user decision); the repo's own logs/records are the
-  interface, deep logs grep-first.
 - [render-tier-arm-plan](render-tier-arm-plan.md) — the PRE-REGISTERED,
   user-gated render-tier build for the ARM base rig: MEASURE → MATCH →
   RECOMMEND ladders (background-level A/B → linear denoise → GHS stretch →
