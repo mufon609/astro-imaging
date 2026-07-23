@@ -107,8 +107,8 @@ begins `checkpoint:` (a message prefix, not a tag: find it with
 Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 `recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
 by the stack builders); its RENDER block + `baseline.json` are chain-coupled
-and PENDING the render-tier build (user-gated — the arm-rig plan is
-`docs/render-tier-arm-plan.md`; only the neural/separation tiers are
+and PENDING the render-tier build (user-gated — the ladder plan is BACKLOG
+item 0, re-anchored per dataset; only the neural/separation tiers are
 environment-blocked on arm, per `TOOLS.md`).
 
 ## Environment

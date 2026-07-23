@@ -23,11 +23,11 @@ The per-dataset state MODEL (durable — a new dataset gets these files):
 | `qa_work/registration_qa.json` | the registration route's record for the set: the field solve, the mount verification, the in-exposure floor, the route experiments + their verdicts, and the shipped render | DURABLE — per-set, written by the route's runs |
 | `geometry.json` | per-set composition facts: terrestrial `foreground` (rect \| npz `mask` path, session-relative), `judgment_crops`, optional `starsep` overrides | DURABLE — resolved by `astrometrics.configure()` in every product entry point |
 | `composition.json` | how a multi-line/multi-filter target's composed linear stack is BUILT: `kind: dualband-osc` (CFA line extraction) or `mono-filters` (`members` = channel → sibling per-filter SET, `reference` = the un-interpolated member), plus the `channels` R/G/B palette mapping. Build-side facts only. Absent = ordinary single stack (degrade-loudly) | DURABLE — `run_pipeline.sh` + `compose.py` |
-| `recipe.json` | the per-dataset processing knobs + optional `spcc` spec (broadband sensor/filter names, or narrowband `rwl`/`gwl`/`bwl` wavelengths) + optional `frame_qa` / `stack` policy blocks. Every block is present only when the set needs it (july14 sets carry `stack` blocks only; SPCC runs on the sensor-null generic default) | MIXED — the `spcc`/`frame_qa`/`stack` blocks are durable; the **`render` knob block is PENDING the render-tier build** (the old schema died with the wiped chain; the rebuild re-seeds it — user-gated, starts on this rig: BACKLOG) |
+| `recipe.json` | the per-dataset processing knobs + optional `spcc` spec (broadband sensor/filter names, or narrowband `rwl`/`gwl`/`bwl` wavelengths; SPCC `-atmos` stays OFF unless site elevation/pressure are declared — they are not derivable) + optional `frame_qa` / `stack` policy blocks. Every block is present only when the set needs it (july14 sets carry `stack` blocks only; SPCC runs on the sensor-null generic default) | MIXED — the `spcc`/`frame_qa`/`stack` blocks are durable; the **`render` knob block is PENDING the render-tier build** (the old schema died with the wiped chain; the rebuild re-seeds it — user-gated, starts on this rig: BACKLOG) |
 | `experiments.jsonl` | the tuning-experiment ledger (append-only: param, values, control, hypothesis, pinned stack, verdict). A killed hypothesis is ALSO written to the dead-end registry (`docs/dead-ends.md`) with its mechanism | DURABLE model — re-wired to the x86 chain's ladder |
 | `baseline.json` | the no-regression record (pinned stack sha, the expected TOOL-reported measures, artifact hashes) | PENDING — written only by the no-regression harness, which rides the render-tier build; chain-coupled, so none exist yet |
 | `../GENERIC.json` | the repo-wide base layer of generic render knobs | STUB — re-seeded by the render-tier build's laddered knobs |
-| `fingerprint.json` | the DERIVED config fingerprint (BACKLOG item 1): trail/drift geometry from EXIF + solves + findstar roundness, plus the declared-vs-measured `mount_verdict` (CONFIRM / CONTRADICT / INDETERMINATE — a consumer STOPS on CONTRADICT) and a `route_hint` | DURABLE — written by `scripts/lib/fingerprint.py`; set-01 recorded CONFIRM-fixed |
+| `fingerprint.json` | the DERIVED config fingerprint (BACKLOG item 1): trail/drift geometry from EXIF + solves + findstar roundness, plus the declared-vs-measured `mount_verdict` (CONFIRM / CONTRADICT / INDETERMINATE — a consumer STOPS on CONTRADICT) and a `route_hint` | DURABLE — written by `scripts/lib/fingerprint.py`; seeds at the next staged set |
 
 Rules (the same contract as README "How a change is accepted"):
 
@@ -60,6 +60,5 @@ Rules (the same contract as README "How a change is accepted"):
   web-servable `web/results/<session>/`.
 
 The render-knob schema and the no-regression sweep re-establish with the
-render-tier build (user-gated; the arm-rig plan is
-`docs/render-tier-arm-plan.md`, the x86 re-measure rides
-`docs/x86-empirical-test-plan.md`).
+render-tier build (user-gated; the ladder plan is BACKLOG item 0, the x86
+re-measure rides `docs/x86-empirical-test-plan.md`).

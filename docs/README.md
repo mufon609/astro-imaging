@@ -45,14 +45,6 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
-- [render-tier-arm-plan](render-tier-arm-plan.md) — the PRE-REGISTERED,
-  user-gated render-tier build for the ARM base rig: MEASURE → MATCH →
-  RECOMMEND ladders (background-level A/B → linear denoise → GHS stretch →
-  no-separation finishing), each with hypothesis, one knob, metrics and
-  wall-clock from on-rig probes; plus the per-tool primary-source evidence for
-  what is genuinely environment-blocked on arm (StarNet2 / RC-Astro / DeepSNR /
-  Cosmic Clarity / PixInsight — x86-64 binaries). Ends at the user's
-  go/no-go gate; the x86 plan's Phase 4 builds on its results.
 - [wide-field-untracked-registration](wide-field-untracked-registration.md) — why a
   global homography smears a wide UNTRACKED set, EMPIRICALLY TESTED and SOLVED:
   field rotation/gnomonic projection are NOT the cause (pure rotation is exactly a

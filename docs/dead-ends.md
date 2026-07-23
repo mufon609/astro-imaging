@@ -54,6 +54,10 @@ the constraints any such tool must satisfy):
   trained light-pollution class and is absorbed. Use a plane/off for
   object-filling fields. BGE does NOT absorb a centred galaxy's halo (it measures
   STRONGER against a lower far-field sky).
+- On a union/max canvas, CROP to the verified coverage frame BEFORE any
+  background step: `subsky`'s sample grid ingests the canvas's zero-coverage
+  rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
+  the fit skews. Crop-before-background is the pinned order.
 
 **Stretch / colour:**
 - Unlinked autostretch on a calibrated stack is the chroma-blotch ("rainbow")
@@ -247,6 +251,15 @@ the constraints any such tool must satisfy):
   signal).
 - wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
   min-max ramp → worst frame ~0 weight at any spread).
+- Rejection and cosmetic correction CANNOT remove walking noise (drift-aligned
+  streaks: sensor-fixed FPN dragged into lines by coherent un-dithered drift).
+  The pattern is sub-sigma STRUCTURED signal, not discrete outlier pixels —
+  measured NULL twice on a ~200-frame/half wide-untracked set: `-cc=dark`
+  cosmetic correction, and GESD-vs-winsorized rejection (no visible or
+  measured change either way). Size there: drift-phase structured term
+  ≈0.34/0.48/0.42 ADU (R/G/B) per ~199-frame half vs ≈1.0/1.5/1.2 total
+  static structure (`noise_split.sh`). Acquisition owns the fix (dither
+  between subs); a denoiser is symptom budget only (BACKLOG item 11).
 - **Never compose PRE-CROPPED per-set stacks to deliver a frame beyond any
   member's crop** — a per-set `-framing=min` stack has already discarded its
   outer drift zones, so a compose of such members has holes exactly where only
@@ -300,6 +313,12 @@ the constraints any such tool must satisfy):
   Siril `stat` regional medians on the LINEAR image, and state the domain with the
   number. (Same trap in reverse: a pedestal-included ADU ratio understates a light-
   domain falloff — a ~1 EV vignetting read "6.3%" with the ~1007 ADU pedestal in.)
+- Never judge a denoiser by whole-frame `bgnoise`: the estimator conflates
+  revealed texture with noise, so a real denoise can RAISE it (measured on one
+  1024² tile: Siril `denoise` 2.05→2.55 while GraXpert denoise read 1.14 on
+  the same input). Judge denoise on a decomposition instrument (the
+  `noise_split.sh` structured term must SHRINK while confusion texture — real
+  sky — stays) + the user's eyes on dust at 1:1.
 - Never hide a rim defect with a darker sky target or a crop — the rim is in the
   data (estimator extrapolation × stretch amplification), fix it there.
 - **Never export a numpy/FITS-row-order pixel box to Siril `crop` unverified** —

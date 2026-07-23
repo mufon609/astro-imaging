@@ -10,12 +10,13 @@
 > too. What is genuinely **environment-blocked on arm are the neural x86-64
 > binaries** — StarNet2, RC-Astro BXT/NXT/SXT (and PixInsight itself, so every
 > PI-plugin route), Cosmic Clarity, DeepSNR (per-tool distribution evidence:
-> [`TOOLS.md`](TOOLS.md)). The arm-rig build plan is
-> [`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md); the x86
+> [`TOOLS.md`](TOOLS.md)). The x86
 > re-measure + the neural/separation tiers ride
 > [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). The
 > process contract, review contract, acceptance model, experiment discipline,
-> per-dataset state, and north star below are all portable and stand.
+> per-dataset state, and north star below are all portable and stand. The
+> render ladder plan is BACKLOG item 0, re-anchored per dataset by the
+> operating loop.
 
 This repo is a **checklist + knowledge workspace** for astrophotography
 processing — official tools do ALL pixel work (processing AND analysis); the
@@ -75,11 +76,11 @@ follows, in order — linear until step 6:
 | 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends.md` paraxial-band entry). The chain is scripted as `run_undistort_pipeline.sh`. It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG item 2 |
 | 1b | — | **flatless sets** — a set without a matching flat loudly STOPS; the validated flatless route is the PER-SET sky flat (`build_sky_flat.sh`: the set's own un-registered, dark-subtracted lights, winsorized, validation gates built in). **A flat calibrates ONLY the exact frames it was built from** — cross-set reuse and any shared/union flat on a multi-set combine are banned (user-ratified; the measured imprint mechanism is in `docs/dead-ends.md`: the flat's low-order term carries its source set's sky gradient) | real flat (primary, shot at the session's optical state) → per-set sky flat (validated route) → GraXpert `-correction Division` (vignetting-only fallback, x86); never an in-house fit |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: `compose.py` palette compose (channel alignment measured, bound 1.0 px) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
-| 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG item 7's A/B, pre-registered in `docs/render-tier-arm-plan.md` — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT stands: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — for the MW-filling class only a first-degree plane (or none) is dust-safe (`docs/dead-ends.md`); BGE on starless ERASES the MW (never reorder) |
+| 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG item 7's A/B, pre-registered as item 0's L1 — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT stands: a full extraction model cannot distinguish frame-filling faint nebulosity from a sky gradient and absorbs it — for the MW-filling class only a first-degree plane (or none) is dust-safe (`docs/dead-ends.md`); BGE on starless ERASES the MW (never reorder) |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Both vendors' doctrine orders BGE before SPCC; the repo's mechanism claim (per-star local-annulus photometry cancels a smooth background, so the K fit is order-robust) is CHECKED, not assumed, when the render build inserts the background step before SPCC — the recorded K delta is the check. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective target (the noise-split structured term, 0.34–0.48 ADU/half) are pre-registered in `docs/render-tier-arm-plan.md` | GAP until laddered + judged. The general CHROMA-noise fill stays environment-blocked on arm (NXT-AI3 `denoise_color` / Cosmic Clarity `--color_denoise_strength` are x86-64 binaries — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
-| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | SPLIT BY BLOCKER CLASS. **Separation is environment-blocked on arm**: StarNet2 / DeepSNR ship Linux x86-64 CLI builds only, RC-Astro requires an Intel/AMD x64 CPU, and PixInsight (every PI-plugin route) is x86-64+AVX2 — per-tool evidence in `TOOLS.md`; `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so separation-dependent star work waits for x86. **The rest is PRESENT on this rig** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered in `docs/render-tier-arm-plan.md`; the separation tier rides `docs/x86-empirical-test-plan.md` | GAP (user-gated build); separation environment-blocked on arm |
+| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective instrument (the noise-split structured term) are pre-registered as item 0's L2 | GAP until laddered + judged. The general CHROMA-noise fill stays environment-blocked on arm (NXT-AI3 `denoise_color` / Cosmic Clarity `--color_denoise_strength` are x86-64 binaries — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | SPLIT BY BLOCKER CLASS. **Separation is environment-blocked on arm**: StarNet2 / DeepSNR ship Linux x86-64 CLI builds only, RC-Astro requires an Intel/AMD x64 CPU, and PixInsight (every PI-plugin route) is x86-64+AVX2 — per-tool evidence in `TOOLS.md`; `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so separation-dependent star work waits for x86. **The rest is PRESENT on this rig** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered as item 0's ladder; the separation tier rides `docs/x86-empirical-test-plan.md` | GAP (user-gated build); separation environment-blocked on arm |
 
 Principles that keep this honest:
 
@@ -273,7 +274,7 @@ per class instead of debugging after.
 `datasets/GENERIC.json` is a
 stub (`"render": {}, "why": {}`) because the render-knob schema was wiped
 with the arm64 chain, and the ladder harness rides that build (user-gated;
-arm plan `docs/render-tier-arm-plan.md`). The knobs the previous chain
+the ladder plan is BACKLOG item 0). The knobs the previous chain
 laddered — background extraction mode
 (the proven signal eater: full AI extraction absorbs frame-filling faint
 nebulosity), starless denoise strength (the proven chroma killer), black
@@ -368,7 +369,7 @@ python3 scripts/calibrate/solve_field.py web/results/<session>/stack_<set>.fit \
 python3 scripts/calibrate/spcc_cone.py web/results/<session>/stack_<set>_wcs.fit --fetch
 # then siril spcc (spcc_run.py) → _spcc.fit
 
-# final render — UNBUILT, user-gated (arm-rig plan: docs/render-tier-arm-plan.md;
+# final render — UNBUILT, user-gated (ladder plan: BACKLOG item 0;
 # the separation/neural tiers are environment-blocked on arm — TOOLS.md; the
 # x86 re-measure order: docs/x86-empirical-test-plan.md). Everything ABOVE
 # (stack → solve → spcc → compose) is the durable core and runs today.
@@ -433,8 +434,8 @@ confirming a transfer landed; nothing in the pipeline invokes it.
 **`render/` — UNBUILT (no directory exists yet), user-gated.** On this rig it
 will be a thin orchestration over the natives verified present by on-rig probe
 (`subsky`, `ght`/`autoghs`/`mtf`, `denoise`, `satu`, `unclipstars`, `pm`,
-`rgbcomp`) plus the installed GraXpert — the pre-registered plan is
-[`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md). The
+`rgbcomp`) plus the installed GraXpert — the pre-registered ladder is
+BACKLOG item 0, re-anchored per dataset by the operating loop. The
 separation/neural tiers (StarXTerminator / StarNet, NoiseXTerminator / Cosmic
 Clarity / DeepSNR, BlurXTerminator) are environment-blocked on arm (x86-64
 binaries — [`TOOLS.md`](TOOLS.md)) and ride
@@ -528,7 +529,7 @@ scripts/                                 the pipeline (tracked)
    audit → the cull policy (BACKLOG item 3) → the ratified `recipe.json` stack
    block the builder consumes.
 3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (UNBUILT,
-   user-gated — `docs/render-tier-arm-plan.md`; the toolkit map is `TOOLS.md`).
+   user-gated — BACKLOG item 0; the toolkit map is `TOOLS.md`).
    A **mono** (single-filter) set skips SPCC and renders luminance-only.
 4. A set with no `datasets/<session>/<set>/` state **degrades loudly**
    (whole-frame gate, no foreground mask, GENERIC knobs, printed as such) —
