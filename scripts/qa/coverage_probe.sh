@@ -21,7 +21,7 @@
 # as the product crop and require `stat` Min >= threshold*1000 — this same
 # check catches the numpy-vs-Siril crop y-origin flip, docs/dead-ends.md).
 #
-# MEASURED LIMITS (Siril 1.4.4; datasets/july14_fresh-start/set-01/qa_work/coverage_01345.json):
+# MEASURED LIMITS (Siril 1.4.4; datasets/july14/set-01/qa_work/coverage_01345.json):
 # - members*1000 saturates at 65535: Siril normalizes 16-bit input to [0,1],
 #   so the sum CLIPS there regardless of a 32-bit stack output — above 65
 #   members the map cannot distinguish coverage depths (thresholds <= 65*1000

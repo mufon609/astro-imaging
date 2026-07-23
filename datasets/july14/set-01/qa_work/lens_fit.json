@@ -27,8 +27,8 @@
  "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual",
  "rig": "x86-64 Kali, hugin-tools 2025.0.1, no GPU",
  "hfov_source": "solved (solve_field.py on a set-01 CFA frame): scale 18.0725 arcsec/px -> 30.4421 deg (nominal EXIF 28.6 deg was NOT used; the optimizer pins hfov)",
- "dark": "sessions/july14_fresh-start/work/masters/dark_master.fit (214 darks)",
- "flat": "sessions/july14_fresh-start/work/masters/skyflat_set-01.fit (373 un-registered lights, wins)",
+ "dark": "sessions/july14/work/masters/dark_master.fit (214 darks)",
+ "flat": "sessions/july14/work/masters/skyflat_set-01.fit (373 un-registered lights, wins)",
  "vs_incumbent": {
   "incumbent_arm_ptlens": {
    "a": 0.00350093,

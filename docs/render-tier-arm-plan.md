@@ -106,7 +106,7 @@ approved look through the same skeleton (crop → SPCC → stretch) so every
 ladder's knob is the ONLY difference. All arms 32-bit from the crop on
 (`set32bits`), `setcompress 0`, judged on full-frame lossless PNG16 in
 `web/results/july14/judge/`, one arm per experiment, ledger entries in
-`datasets/july14_fresh-start/set-01/experiments.jsonl` opened at run time with these
+`datasets/july14/set-01/experiments.jsonl` opened at run time with these
 hypotheses, closed WIN | NULL | needs-eyes; a killed hypothesis goes to
 `docs/dead-ends.md` with its numbers.
 

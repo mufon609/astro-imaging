@@ -22,11 +22,17 @@ re-checked it, and the stale metric went on to invent a false anomaly that a who
 follow-up session was scoped to chase. Re-check this register when a tool version
 changes, when the rig changes, and before any item below is worked.
 
-**Exemplar status:** the july14 dataset — the source of many measures cited
-below — is WIPED from the working tree on user order (raws, derived data,
-finals, tracked records); git history + the approved tag hold the full record.
-The cited mechanisms stand as measured lessons; a row's numbers re-verify only
-when a comparable set arrives.
+**Exemplar status:** the ORIGINAL july14 processing records + finals (the source
+of many measures cited below — `gradient_qa.json`, `registration_qa.json`,
+`flat_source_set03`, etc.) were WIPED from the working tree on user order; git
+history + the approved tag (`july14-all5-cov25frame-approved`) hold the full
+record. july14 has since been REPOPULATED as the live dataset (the full real
+acquisition under correct server naming — set-00…set-05 + darks — at
+`sessions/july14/`, with the x86 set-01 lens work + the realigned set-04/set-05
+records under `datasets/july14/`; the earlier `july14_fresh-start` scaffold name
+is retired). So a cited record path resolves to the current dataset's lineage but
+the specific wiped file is historical: those measured mechanisms stand as lessons,
+and a row's numbers re-verify when that set is re-processed here.
 
 | divergence | condition that retires it | status |
 |---|---|---|
@@ -41,7 +47,7 @@ when a comparable set arrives.
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **not fired** — arm RAM/disk forced it; the quantization is measured ≈18× below per-frame noise (~+0.3% stack noise) and the shipped july14 stacks are BITPIX=16 under it. |
-| lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14_fresh-start/set-01/qa_work/lens_card.json`). |
+| lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
 
@@ -338,13 +344,13 @@ roughly a third of the total static-structure budget (≈1.0/1.5/1.2 ADU, the re
 being unresolved-star confusion texture) and comparable to the random noise left
 at that depth. The x86 denoise tier now has a measured target size.
 
-## 13. july14_fresh-start naming divergence — RESOLVED (records realigned)
+## 13. july14 naming divergence — RESOLVED (records realigned)
 
 The M1 front-end test run mislabeled two sets: what it staged as `set-01`/`set-02`
 are physically the exemplar's **set-04 (DSC_7941–8339, 399 fr)** and **set-05
 (DSC_8341–8487, 147 fr)** — USER-CONFIRMED. Rather than purge (the original plan
 when it was a throwaway test), the location was promoted to the REAL dataset: the
-full acquisition was downloaded to `sessions/july14_fresh-start/` under correct
+full acquisition was downloaded to `sessions/july14/` under correct
 server naming (set-00…set-05 + darks), so the mislabel was fixed at the source.
 The tracked records were realigned to match: the M1 `datasets/.../set-01` records
 → `set-04`, `set-02` → `set-05` (acquisition/recipe/frame_metrics/anomaly_audit +
@@ -354,7 +360,7 @@ correctly holds the REAL set-01 (373 fr) lens work only. No flats were shot for 
 set (sky-flat route). OPEN: real set-01/02/03 have raws but no acquisition/recipe
 records yet — those seed when each set is processed (the deriver's design; a
 missing record is handled gracefully). OPEN (user call): the session dir is still
-named `july14_fresh-start`; rename to `july14` now that it is the real dataset, or
+named `july14`; rename to `july14` now that it is the real dataset, or
 leave it.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame

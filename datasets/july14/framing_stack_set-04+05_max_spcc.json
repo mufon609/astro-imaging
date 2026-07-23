@@ -1,6 +1,6 @@
 {
  "purpose": "user-drawn product framing (BACKLOG item 12) \u2014 the record IS the product; nothing renders from an unrecorded or unverified box",
- "session": "july14_fresh-start",
+ "session": "july14",
  "product": "stack_set-04+05_max_spcc",
  "canvas_wh": [
   8096,
@@ -37,13 +37,13 @@
    38.37384
   ]
  ],
- "radec_source": "web/results/july14_fresh-start/stack_set-04+05_max_wcs.fit",
+ "radec_source": "web/results/july14/stack_set-04+05_max_wcs.fit",
  "status": "verified",
  "verification": "run web/verify_framing.py \u2014 Siril crop+stat on the coverage map (min >= threshold) or the stack's sibling-class sky floor; a render must refuse an unverified framing",
  "drawn_utc": "2026-07-22T23:03:33Z",
  "verified_by": {
-  "method": "coverage map web/results/july14_fresh-start/coverage_set-04+05_max.fit: require stat Min >= 25 members * 1000",
-  "image": "web/results/july14_fresh-start/coverage_set-04+05_max.fit",
+  "method": "coverage map web/results/july14/coverage_set-04+05_max.fit: require stat Min >= 25 members * 1000",
+  "image": "web/results/july14/coverage_set-04+05_max.fit",
   "crop_args": [
    1531,
    1507,

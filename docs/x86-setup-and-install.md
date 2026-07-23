@@ -100,7 +100,7 @@ registration defect.
   **silently ignored** — the export succeeds and nothing is corrected.
 - **Use distortion-only — enforced at the lensfun DB, not the style.** darktable's
   default set includes **vignetting**, which FIGHTS a master/sky flat (the measured
-  set-01 double-correction bowl, `datasets/july14_fresh-start/set-01/qa_work/gradient_qa.json`);
+  set-01 double-correction bowl, `datasets/july14/set-01/qa_work/gradient_qa.json`);
   `install_lens_model.sh` strips this lens's `<vignetting>`/`<tca>` from the user DB
   and re-runs after every `lensfun-update-data`. Verify per rig: a uniform gray card
   through `lensdist` must keep corner medians == centre (Siril `stat`).
