@@ -391,11 +391,21 @@ def session_model(session):
         prev = {i.get("product"): i for i in
                 (model["previews_manifest"] or {}).get("items", [])
                 if i.get("kind") == "selection"}
+        # judge surfaces pair to their stack product by NAME PREFIX — the
+        # surface class varies (_spcc-linked for colour, _lum-autostretch
+        # for mono), so no single class name may be hardcoded; a file pairs
+        # to the LONGEST matching base so a shorter product cannot steal it
+        judge_by_base = {}
+        for j in model["judge"]:
+            cands = [b for b in bases if j.startswith(b + "_")]
+            if cands:
+                judge_by_base.setdefault(max(cands, key=len), []).append(j)
         for base, variants in sorted(bases.items()):
             sets, tag = _parse_product(base, [s["set"] for s in model["sets"]])
             hdr = _stack_header(os.path.join(rroot, variants.get("base")
                                              or sorted(variants.values())[0]))
-            judge_name = f"{base}_spcc-linked.png"
+            jfiles = sorted(judge_by_base.get(base, []))
+            judge_name = jfiles[0] if jfiles else None
             kept = [kept_by_set.get(s) for s in sets]
             expected = sum(kept) if kept and all(k is not None for k in kept) \
                 else None
@@ -413,10 +423,9 @@ def session_model(session):
                 "files": variants, "naxis": hdr["naxis"],
                 "stackcnt": hdr["stackcnt"], "expected_kept": expected,
                 "confirm": confirm,
-                "judge": f"judge/{judge_name}"
-                if judge_name in model["judge"] else None,
+                "judge": f"judge/{judge_name}" if judge_name else None,
                 "thumb": f"previews/thumb_{judge_name}"
-                if os.path.exists(os.path.join(
+                if judge_name and os.path.exists(os.path.join(
                     rroot, "previews", f"thumb_{judge_name}")) else None,
                 "selection": {"preview": sel.get("preview"),
                               "native_wh": sel.get("native_wh"),
