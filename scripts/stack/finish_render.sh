@@ -25,7 +25,7 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC=
+RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC= FIELDW=
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
@@ -57,9 +57,21 @@ if list(r.get("canvas_wh") or []) != canvas:
     sys.exit(f"finish_render: record canvas {r.get('canvas_wh')} does not "
              f"match stack {canvas} — wrong product for this framing")
 print(*r["rect_siril_crop_args"])
+# A Siril-cropped stack carries no FOCALLEN/XPIXSZ, and the solver's
+# wide-field fallback scales grind on a sub-union field — so the crop's
+# true field width comes from the record's own RA/Dec corners (the first
+# horizontal edge pair; astropy does the spherical math).
+c = r.get("radec_corners_deg")
+if c and len(c) == 4:
+    from astropy.coordinates import SkyCoord
+    a = SkyCoord(c[0][0], c[0][1], unit="deg")
+    b = SkyCoord(c[1][0], c[1][1], unit="deg")
+    print(f"{a.separation(b).arcmin:.1f}")
+else:
+    print("")
 PY
 ) || exit 1
-  read -r CX CY CW CH <<< "$ARGS"
+  { read -r CX CY CW CH; read -r FIELDW; } <<< "$ARGS"
   CROPPED=$(dirname "$STACK")/stack_${NAME}.fit
   # The cropped stack is a NEW product: writing it onto the input (a <png-name>
   # equal to the source stem) or onto any existing stack would destroy a built
@@ -92,7 +104,8 @@ echo "[finish $NAME] 1/4 solve"
 # union-canvas (framing=max) case, whose coverage seams false-detect otherwise.
 python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --detect=sep --max-stars=400 \
   --ra="$RA" --dec="$DEC" --radius-deg="$RAD" ${CENTRAL:+--central=$CENTRAL} \
-  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail' || true
+  ${FIELDW:+--field-width-arcmin=$FIELDW} \
+  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn' || true
 [ -f "$WCS" ] || { echo "[finish $NAME] SOLVE FAILED (no WCS injected)" >&2; exit 1; }
 
 echo "[finish $NAME] 2/4 catalog cone"
