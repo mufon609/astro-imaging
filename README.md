@@ -129,8 +129,9 @@ Principles that keep this honest:
    with `judgment_package.py` (orchestration + record: it refuses starless
    layers before linking, embeds the tool-reported candidate-vs-control
    deltas + an objective WIN|NULL|needs-eyes verdict, writes QUESTION.md).
-   Crops/panels (`judgment_crops.py`) are an on-request supplement,
-   never the judgment surface. Objective fixes with tool pass/fail metrics may
+   An on-request zoom crop, if ever needed, is produced tool-sourced (Siril
+   `crop` + 16-bit `savepng`) — never an in-house pixel path, never the
+   judgment surface. Objective fixes with tool pass/fail metrics may
    commit; recipe/aesthetic changes require the user's visual approval
    before they are baked as defaults.
 
@@ -294,9 +295,9 @@ in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
 
 - `geometry.json` — the only per-set **composition fact**: the terrestrial
   **foreground** (`rect` fractions or a derived pixel-`mask` npz, session-
-  relative) plus `judgment_crops` and optional `starsep` overrides. Resolved
+  relative) plus optional `starsep` overrides. Resolved
   by `astrometrics.configure()` in the entry points that need it (inspect_stage,
-  judgment_crops, solve_field, compose). No file: foreground **none** (whole
+  solve_field, compose). No file: foreground **none** (whole
   frame is eligible sky).
   A new set NEVER inherits another set's foreground silently. A configured
   foreground must TOUCH A FRAME BORDER (terrestrial obstructions are
@@ -460,7 +461,6 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `run_frame_qa.sh` | the per-set frame-QA driver: raw → CFA FITS → `register -2pass` (analysis pass only, disk-bounded batches, 1-frame-batch guard) → `inspect_stage` persists Siril's per-frame regdata → flattened records + `cull_report` flags + the tracked `frame_metrics.json`. The cull decision stays the user's, recorded in `recipe.json`'s stack block per the per-set policy (BACKLOG item 3). PROVISIONAL as-written (generalized from the driver that produced set-02's record; first fresh run = the next set's prep) |
 | `star_shape.py` | orchestration + record: runs Siril `seqtilt` and records its report — off-axis aberration (centre vs corners = the RADIAL term) and sensor tilt (best vs worst corner = the ASYMMETRIC term). The tool's own spatial star-shape analysis and the only headless one (`tilt`/`inspector` are GUI-only); it computes nothing. Never re-derive this by binning a `findstar` list by radius — that is circular and fails silently (`docs/dead-ends.md`, trap 3) |
 | `star_stations.py` | orchestration + record: Siril `crop` + `findstar` (open gate) at fixed equal-area stations along/perpendicular to the measured drift axis — the band measure `seqtilt` cannot see (a drift-aligned defect leaves centre-vs-corners clean while the centre station degrades); geometry is fixed and EXTERNAL (geometric centre + the solves' drift axis) so the trap-3 circularity cannot bite; records medians of the tool's own per-star fits, removal-conditioned on a tool shipping a headless local star-shape map |
-| `judgment_crops.py` | fixed defect-zone 1:1 crop panels for user judgment |
 | `coverage_probe.sh` | per-pixel COVERAGE MAP for any sub-stack compose (the framing instrument): register the real members, swap in `fill` constant twins, apply the STORED transforms, `stack sum` → value/1000 = members covering each pixel. Measured: `-framing=min` keeps 36% of the true common area on rotated members; coverage-thresholded crops verify against this map (`stat` Min ≥ threshold — also the numpy-vs-Siril crop y-flip guard, `docs/dead-ends.md`) |
 | `snr_regions.py` | normalization-invariant regional SNR: (signal − sky region mean) / `bgnoise`, computed WITHIN each stack (per-stack `-output_norm` cancels); boxes WCS-anchored so the same sky is measured in every stack. Removal condition: a tool exposing headless regional SNR |
 | `noise_split.sh` | background-noise composition: half-split difference over a compose's sub-stacks (one registration; A−B cancels all static content) — interleaved split reads pure RANDOM σ, timehalf excess reads the drift-phase STRUCTURED component (the walking-noise measure). Measured: random σ scales √N exactly; the visible background is floored by depth-independent structure |
