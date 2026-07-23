@@ -1,0 +1,61 @@
+{
+ "tool": "hugin-tools cpfind --fullscale / cpclean / staged autooptimiser on Siril-autostretched calibrated frames; hfov pinned at the solved value",
+ "hfov_deg_pinned": 30.4421,
+ "frames": 12,
+ "control_points": {
+  "raw": 347,
+  "after_cpclean": 257
+ },
+ "residual_rotation_only": {
+  "mean_px": 0.29,
+  "max_px": 1.56
+ },
+ "residual_with_abc": {
+  "mean_px": 0.02,
+  "max_px": 0.07
+ },
+ "fitted_ptlens": {
+  "a": 0.00336268753505403,
+  "b": 0.0149465184851424,
+  "c": 0.000574417803309514
+ },
+ "centre_shift_informational_px": {
+  "d": -5.70236074339977,
+  "e": 36.2185587440286,
+  "note": "reported only \u2014 carrying it needs lensfun's undocumented <center> element"
+ },
+ "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual",
+ "rig": "x86-64 Kali, hugin-tools 2025.0.1, no GPU",
+ "hfov_source": "solved (solve_field.py on a set-01 CFA frame): scale 18.0725 arcsec/px -> 30.4421 deg (nominal EXIF 28.6 deg was NOT used; the optimizer pins hfov)",
+ "dark": "sessions/july14_fresh-start/work/masters/dark_master.fit (214 darks)",
+ "flat": "sessions/july14_fresh-start/work/masters/skyflat_set-01.fit (373 un-registered lights, wins)",
+ "vs_incumbent": {
+  "incumbent_arm_ptlens": {
+   "a": 0.00350093,
+   "b": 0.01453356,
+   "c": 0.00043983
+  },
+  "coefficient_delta": {
+   "a": -0.00013824,
+   "b": 0.00041296,
+   "c": 0.00013459
+  },
+  "coefficient_rel_pct": {
+   "a": -3.9,
+   "b": 2.8,
+   "c": 30.6
+  },
+  "displacement_field_diff": {
+   "max_px": 0.468,
+   "at_radius_px": 1935,
+   "area_weighted_rms_px": 0.344,
+   "note": "lensfun normalization r=1 at corner (half-diagonal 3643 px); at r=0.9 (~12 px of correction) the two models differ by only 0.2 px"
+  }
+ },
+ "refit_verdict": {
+  "hypothesis": "x86 hugin 2025.0.1 reproduces the arm-era fitted a/b/c so the carried-over model stands",
+  "result": "CONFIRMED \u2014 the two independent fits agree to sub-pixel (a,b within 3-4%; c tiny absolute; max displacement diff 0.47 px mid-field, 0.34 px RMS). Difference is within fit noise (different 12-frame sample + correspondence set + hfov 30.44 vs arm ~30.35).",
+  "decision": "INCUMBENT STANDS \u2014 the new coefficients are a lateral, sub-pixel move, not a measurable improvement; re-installing would change the production-validated deliverable by <=0.47 px with no benefit. The per-rig re-fit obligation (removal register) is now SATISFIED.",
+  "caveat": "A model REPLACEMENT would still require the doc-mandated star_stations + seqtilt A/B on a real stack (never the fit residual) + user gate; not warranted here given sub-pixel equivalence."
+ }
+}
