@@ -199,7 +199,7 @@ scales with the TIME SPAN, not frame count, so subsampling cadence reproduces th
 geometry at a fraction of the disk). Calibrated with the validated master dark +
 sky flat, **debayered before registration**, `-framing=min`, identical stack
 parameters. The only knob is `-disto=`.
-Record: `datasets/july14/set-01/qa_work/registration_qa.json`.
+Record: `datasets/july14_fresh-start/set-01/qa_work/registration_qa.json`.
 
 | | stars | roundness | majFWHM | radial (centre → edge) |
 |---|---|---|---|---|

@@ -136,7 +136,7 @@ as-shot mote/optical state); tool-identity gates build-here to Siril.
     by validation** (the structured IFN is not in the flat). Adopted as the flat
     candidate, GATED on the user's eyes + a with/without comparison on full-frame
     lossless finals (dust the deciding metric). Record:
-    `datasets/july14/set-01/qa_work/skyflat_qa.json`.
+    `datasets/july14_fresh-start/set-01/qa_work/skyflat_qa.json`.
   - *Fallback if the sky flat is rejected on the finals:* vignetting-only GraXpert
     `-correction Division` (dust-safe, x86 official); on the arm rig now, no flat +
     a first-degree `subsky 1` plane (MW-safe background), vignetting a small residual.
@@ -198,7 +198,7 @@ flat calibrates ONLY the exact frames it was built from** — the flat's low-ord
 term carries its SOURCE set's residual sky gradient, so cross-set application
 imprints it (±6% L-R tilt measured; sensor content transfers, the sky term does
 not) — mechanism + numbers in [`dead-ends.md`](dead-ends.md), the A/B in
-`datasets/july14/set-03/experiments.jsonl` (flat_source_set03). The with/without
+`datasets/july14_fresh-start/set-03/experiments.jsonl` (flat_source_set03). The with/without
 dust gate rides the standing judgment surfaces (dust measured REVEALED, not
 erased, on every adopted render); Area 2's contamination limit still binds each
 new set's flat, checked by the builder's validation gates.

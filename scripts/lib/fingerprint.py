@@ -45,7 +45,7 @@ import astrometrics as am  # noqa: E402
 SIDEREAL = 15.041
 
 # Mount classification bands on the measured RA rate as a fraction of sidereal:
-# a fixed mount sits at ~1.0 (measured 0.997 on july14/set-01), a tracked mount
+# a fixed mount sits at ~1.0 (measured 0.997 on july14_fresh-start/set-01), a tracked mount
 # near 0. The gap between is deliberately left UNCLASSIFIED (partial tracking /
 # drift / bad polar alignment) rather than forced into a label.
 _FIXED_BAND = (0.80, 1.20)
@@ -240,7 +240,7 @@ def derive(session_dir, set_name, *, solve_a=None, solve_b=None,
 
 
 def _selftest():
-    """Validate the derived geometry against july14/set-01's independently
+    """Validate the derived geometry against july14_fresh-start/set-01's independently
     recorded numbers (registration_qa.json): trail 3.40 px, drift 34 px/min, RA
     14.99 deg/hr vs sidereal, mount CONFIRM fixed."""
     ok = True

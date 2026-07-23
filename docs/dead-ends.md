@@ -38,7 +38,7 @@ the constraints any such tool must satisfy):
   regional medians on the SPCC'd stacks): set-03 under set-01's flat = ±6% L-R
   tilt (corners 88–101 on a ~94.5 centre); under its own flat = flat to ~1–2%;
   stars +8%/Mpx, off-axis aberration 0.49 → 0.37 px
-  (`datasets/july14/set-03/experiments.jsonl` flat_source_set03). **USER-RATIFIED
+  (`datasets/july14_fresh-start/set-03/experiments.jsonl` flat_source_set03). **USER-RATIFIED
   RULE: a flat calibrates ONLY the exact frames it was built from** — never
   another set, and never a multi-set combine under any single set's (or a
   union) flat: each member set calibrates with its OWN flat before composing.
