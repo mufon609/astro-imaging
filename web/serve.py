@@ -1322,6 +1322,14 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header("Location", "/web/index.html")
             self.end_headers()
             return
+        if self.path == "/favicon.ico":
+            # no icon shipped; 204 answers the browser's automatic probe
+            # without a 404 (and without the error-body write a hung-up
+            # client turns into a BrokenPipe traceback)
+            self.send_response(204)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if self.path == "/api/sessions":
             return self._json(200, sessions_inventory())
         if self.path.startswith("/api/session/"):
@@ -1422,12 +1430,25 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": str(e)})
 
 
+class Server(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        # A client closing its socket mid-response (tab closed, favicon
+        # probe abandoned) surfaces as BrokenPipe/ConnectionReset in the
+        # handler thread — client behavior, not a server fault. Suppress
+        # only those; every other error stays loud.
+        exc = sys.exc_info()[0]
+        if exc is not None and issubclass(exc, (BrokenPipeError,
+                                                ConnectionResetError)):
+            return
+        super().handle_error(request, client_address)
+
+
 def main():
     port = 8321
     for a in sys.argv[1:]:
         if a.startswith("--port="):
             port = int(a.split("=", 1)[1])
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    srv = Server(("127.0.0.1", port), Handler)
     print(f"[serve] http://127.0.0.1:{port}/web/index.html  (root: {REPO})")
     print("[serve] local-only; Ctrl-C to stop")
     try:
