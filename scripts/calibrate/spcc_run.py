@@ -124,6 +124,16 @@ def main():
     if not os.path.exists(p_in):
         sys.exit(f"spcc_run: no input {p_in} (plate-solve first: "
                  "solve_field.py --inject)")
+    # SPCC is BROADBAND-only: a mono stack has no colour to calibrate
+    # (Siril refuses with "command is not for monochrome images") — refuse
+    # up front with the mechanism instead of four commands into a siril run
+    from astropy.io import fits as _fits
+    if int(_fits.getheader(p_in).get("NAXIS3", 1)) < 3:
+        sys.exit(f"spcc_run: {os.path.basename(p_in)} is MONOCHROME — SPCC "
+                 "is broadband-only (no colour to calibrate). A mono/"
+                 "single-filter stack finishes luminance-only "
+                 "(finish_render skips SPCC for it); colour comes from the "
+                 "composed target (compose_channels).")
     work = os.path.join(sdir, "work")
     os.makedirs(work, exist_ok=True)
 

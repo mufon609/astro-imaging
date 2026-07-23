@@ -118,17 +118,39 @@ python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --detect=sep --max-sta
   --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn|hint|attempt' || true
 [ -f "$WCS" ] || { echo "[finish $NAME] SOLVE FAILED (no WCS injected)" >&2; exit 1; }
 
-echo "[finish $NAME] 2/4 catalog cone"
-python3 "$REPO/scripts/calibrate/spcc_cone.py" "$WCS" --fetch 2>&1 | tail -1
+# a MONO stack has no colour to calibrate — SPCC is broadband-only (README:
+# a mono/single-filter set skips SPCC and finishes luminance-only; Siril
+# refuses with "command is not for monochrome images") — so a mono input
+# skips cone+SPCC and stretches the SOLVED stack; the judge surface is
+# named _lum-linked so the chain it rode is legible from the filename
+MONO=$(python3 - "$WCS" <<'PY'
+import sys
+from astropy.io import fits
+print(1 if int(fits.getheader(sys.argv[1]).get("NAXIS3", 1)) < 3 else 0)
+PY
+)
+if [ "$MONO" = 1 ]; then
+  echo "[finish $NAME] MONO stack — SPCC is broadband-only; luminance-only finish (skipping 2/4 cone + 3/4 SPCC)"
+  SRC=$WCS
+  # linked/unlinked has no meaning on one channel — the surface name states
+  # the actual chain: solved luminance, bare autostretch
+  JUDGE=$REPO/web/results/$(basename "$SESSION")/judge/${NAME}_lum-autostretch
+  LINKED=
+else
+  echo "[finish $NAME] 2/4 catalog cone"
+  python3 "$REPO/scripts/calibrate/spcc_cone.py" "$WCS" --fetch 2>&1 | tail -1
 
-echo "[finish $NAME] 3/4 SPCC"
-python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
-  --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
-[ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
+  echo "[finish $NAME] 3/4 SPCC"
+  python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
+    --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
+  [ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
+  SRC=$SPCC
+  LINKED=" -linked"
+fi
 
-echo "[finish $NAME] 4/4 linked stretch -> PNG"
+echo "[finish $NAME] 4/4 ${LINKED:+linked }stretch -> PNG"
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
-printf 'requires 1.4.0\nsetcompress 0\nload %s\nautostretch -linked\nsavepng %s\n' "$SPCC" "$JUDGE" > "$W/s.ssf"
+printf 'requires 1.4.0\nsetcompress 0\nload %s\nautostretch%s\nsavepng %s\n' "$SRC" "$LINKED" "$JUDGE" > "$W/s.ssf"
 flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }
