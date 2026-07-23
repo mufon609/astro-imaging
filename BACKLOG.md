@@ -385,8 +385,8 @@ and the **Tier-1 execution surface** (user-ratified amendment in
 `web/README.md`): `/api/stages` + `/api/run` — a fixed registry of the
 pinned scripts run one-at-a-time from an explicit per-click DECIDE gate,
 exact command shown before the run, logs under `sessions/.webjobs/`.
-Deliberately NOT in the registry yet: `coverage_probe.sh` (heavy,
-variable-membership args) and any render-tier stage (item 0, user-gated). The
+Deliberately NOT in the registry yet: any render-tier stage (item 0,
+user-gated). The
 record (`datasets/<session>/framing_<product>.json`) carries BOTH coordinate
 conventions (screen top-left AND Siril bottom-left — the measured y-flip trap)
 plus WCS RA/Dec corners so the framing survives re-registration.
