@@ -41,7 +41,16 @@ API:
                           explicit per-run user action — the operating loop's
                           DECIDE step made clickable; never automatic, never
                           on page load. One job at a time; argv only (no
-                          shell); logs under sessions/.webjobs/.
+                          shell); logs under sessions/.webjobs/. An
+                          output-shaping run (calibrate/execute/finish
+                          phases) is REFUSED while any set it builds on has
+                          a declared-vs-measured mount CONTRADICT in its
+                          fingerprint (BACKLOG item 1: a consumer never
+                          builds on a mislabel); the gate re-derives each
+                          set's fingerprint first, so the check never waits
+                          to be asked. Measure/surfaces/setup stages stay
+                          runnable — measuring is how a contradiction gets
+                          resolved.
   GET  /api/jobs, /api/jobs/<id>, /api/jobs/<id>/log?offset=N
                        -> job list / status / incremental log tail. Every job
                           also persists a <id>.json record beside its log;
@@ -54,7 +63,13 @@ API:
   POST /api/mount      -> {session, set, mount: fixed|tracked, dry_run?} —
                           the second sanctioned record write: the human
                           mount declaration into the set's acquisition.json
-                          (mount field only; exif stays tool-written)
+                          (mount field only; exif stays tool-written). The
+                          write triggers the set's fingerprint derivation
+                          (scripts/lib/fingerprint.refresh — a tool-sourced
+                          DERIVED record, idempotent, content-compare write)
+                          and the response carries the fresh mount verdict,
+                          so a declaration is cross-checked the moment it
+                          lands.
   POST /api/framing    -> write the tracked framing record for a product
                           (datasets/<session>/framing_<product>.json).
                           The UI captures a HUMAN decision; this endpoint
@@ -1206,6 +1221,69 @@ def stage_status(session):
     return out
 
 
+def _fingerprint_refresh(session, set_name):
+    """Re-derive a set's fingerprint from its tracked records (idempotent —
+    scripts/lib/fingerprint.refresh writes only on content change). The
+    automatic seeding hook (BACKLOG item 1c): the mount declaration and the
+    run gate both call it, so the record exists and stays current without
+    anyone asking. Best-effort: a set with no acquisition record yet, or a
+    failed derivation, returns None and the caller reads whatever record is
+    on disk."""
+    lib = os.path.join(REPO, "scripts", "lib")
+    if lib not in sys.path:
+        sys.path.insert(0, lib)
+    try:
+        import fingerprint as _fp
+        return _fp.refresh(os.path.join(REPO, "sessions", session), set_name)
+    except Exception:
+        return None
+
+
+def _mount_gate_sets(stage, args):
+    """The (session, light-set) pairs an output-shaping run would build on —
+    the CONTRADICT gate's scope. Measure/surfaces/setup stages return [] by
+    design: measurement is how a contradiction gets resolved, so it must stay
+    runnable. Composed targets expand to their composition members (the sets
+    whose frames the member stacks came from)."""
+    if STAGES[stage]["phase"] not in ("calibrate", "execute", "finish"):
+        return []
+    a = args or {}
+    if not a.get("session"):
+        return []
+    session = _arg_session(a["session"])
+    names = []
+    if a.get("set"):
+        names.append(_arg_set(a["set"]))
+    if a.get("sets"):
+        names.extend(_sets_list(session, a["sets"]))
+    if a.get("target"):
+        comp = _read_json(os.path.join(REPO, "datasets", session,
+                                       _arg_set(a["target"]),
+                                       "composition.json")) or {}
+        names.extend(v for v in (comp.get("members") or {}).values()
+                     if isinstance(v, str))
+    return [(session, n) for n in dict.fromkeys(names)]
+
+
+def _mount_contradict_block(stage, args):
+    """Refuse an output-shaping run for a set whose fingerprint measures the
+    sky CONTRADICTING its declared mount (a labelling error — BACKLOG item 1:
+    consumers STOP on CONTRADICT). Refreshes each candidate first so the gate
+    never waits for a derivation to be asked for, then reads the record on
+    disk (refresh is best-effort). Returns the refusal reason, or None."""
+    for session, set_name in _mount_gate_sets(stage, args):
+        _fingerprint_refresh(session, set_name)
+        fp = _read_json(os.path.join(REPO, "datasets", session, set_name,
+                                     "fingerprint.json")) or {}
+        mc = fp.get("mount_check") or {}
+        if mc.get("verdict") == "CONTRADICT":
+            return (f"{session}/{set_name}: declared-vs-measured mount "
+                    f"CONTRADICT — {mc.get('reason', '(no reason recorded)')} "
+                    "Fix the declaration on the set page (or re-measure); "
+                    "output-shaping runs stay blocked until reconciled.")
+    return None
+
+
 def start_job(stage, args, dry_run=False):
     if stage not in STAGES:
         raise ValueError(f"unknown stage: {stage}")
@@ -1213,6 +1291,9 @@ def start_job(stage, args, dry_run=False):
     cmd = " ".join(shlex.quote(c) for c in argv)
     if dry_run:
         return {"dry_run": True, "stage": stage, "cmd": cmd}
+    blocked = _mount_contradict_block(stage, args)
+    if blocked:
+        raise RuntimeError(blocked)
     with JOBS_LOCK:
         running = [j for j in JOBS.values() if j["status"] == "running"]
         if running:
@@ -1532,8 +1613,18 @@ class Handler(SimpleHTTPRequestHandler):
                 with open(path, "w") as f:
                     json.dump(record, f, indent=1)
                     f.write("\n")
+                # the declaration just landed -> derive its cross-check now
+                # (BACKLOG item 1c: the fingerprint never waits to be asked)
+                fp = _fingerprint_refresh(_arg_session(payload["session"]),
+                                          _safe(payload["set"], "set"))
+                mc = (fp or {}).get("mount_check") or {}
                 return self._json(200, {"written": os.path.relpath(path, REPO),
-                                        "record": record})
+                                        "record": record,
+                                        "fingerprint": {
+                                            "label": fp.get("label"),
+                                            "verdict": mc.get("verdict"),
+                                            "reason": mc.get("reason")}
+                                        if fp else None})
             except (KeyError, ValueError, TypeError) as e:
                 return self._json(400, {"error": str(e)})
         if self.path != "/api/framing":

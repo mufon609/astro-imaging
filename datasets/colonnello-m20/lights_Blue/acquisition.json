@@ -8,6 +8,8 @@
   "iso": null,
   "gain": 75.0,
   "binning": 1,
+  "pointing_ra_deg": 270.65371,
+  "pointing_dec_deg": -22.88965,
   "image_wh": [
    4656,
    3520

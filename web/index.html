@@ -461,7 +461,13 @@ function mountControl(s) {
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ session: SESSION, set: s.set, mount: v }) });
         const j = await r.json();
-        msg.textContent = r.ok ? ` written → ${j.written}` : ' ERROR: ' + j.error;
+        const mc = (j.fingerprint || {});
+        msg.textContent = r.ok
+          ? ` written → ${j.written}` + (mc.verdict
+            ? ` · measured ${mc.verdict}` + (mc.verdict === 'CONTRADICT'
+              ? ' — reconcile before building' : '')
+            : '')
+          : ' ERROR: ' + j.error;
         if (r.ok) setTimeout(() => loadSession(SESSION), 600);
       } }, 'declare'),
     msg);

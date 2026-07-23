@@ -9,22 +9,36 @@ like "untracked, wide, drifting 34 px/min" that selects the processing route.
 Every term is tool-measured. This module reads those tool outputs and computes
 only the DERIVED trail/drift geometry NO tool reports; it reads no pixel and
 runs no solver:
-  - EXIF (exposure, focal, nominal scale)     scripts/lib/acquisition.py (exiftool)
-  - field RA/Dec + TRUE plate scale           scripts/calibrate/solve_field.py (astrometry.net)
-  - per-frame roundness                        Siril findstar (frame_metrics.json)
+  - header facts (exposure, scale, pointing)     scripts/lib/acquisition.py
+  - field RA/Dec + TRUE plate scale              scripts/calibrate/solve_field.py (astrometry.net)
+  - per-frame roundness / FWHM / star counts     Siril findstar+register (frame_metrics.json)
 
-`mount` STAYS a declared fact — EXIF cannot record it and a consumer must never
-assume one (acquisition.py stops if it is undeclared). What this module adds is
-a CROSS-CHECK: two astrometric solves separated in time MEASURE the sky motion,
-and a fixed mount advances RA at the sidereal rate with Dec constant while a
-tracked mount holds both. So a measured signature can CONFIRM or CONTRADICT the
-declaration — strictly better than either alone. `mount_verdict` returns
-CONTRADICT when a set declared one way moves the other; the consumer STOPS and
-reconciles. It never silently re-labels: the declaration is the human's, the
-measurement only checks it.
+`mount` STAYS a declared fact — headers cannot be trusted to record it and a
+consumer must never assume one (acquisition.py stops if it is undeclared).
+What this module adds is a CROSS-CHECK by two instruments, each measuring the
+sky against the declaration:
+
+  1. TRAIL-vs-ROUNDNESS (cheap — no solve). A fixed mount smears every sub by
+     15.041"/s x cos(dec) x exposure / scale. When that predicted trail is
+     DECISIVELY beyond the elongation the measured stars could hide (>= 10x,
+     with a real matched star population), the mount must be tracking. The
+     check is one-sided by construction: it can rule OUT fixed, never prove
+     it — elongation has non-mount causes (wind, flexure, guiding), so
+     agreement with the prediction stays consistent-with-fixed, not proof.
+  2. DRIFT SOLVES (precise — two solves separated in time). A fixed mount
+     advances RA at the sidereal rate with Dec constant; a tracked mount
+     holds both. The instrument near the boundary, where roundness cannot
+     decide (e.g. a 3.4 px predicted trail on a 3.5 px PSF).
+
+`mount_verdict` returns CONTRADICT when a set declared one way measures the
+other; the consumer STOPS and reconciles. It never silently re-labels: the
+declaration is the human's, the measurement only checks it.
 
 The fingerprint RECOMMENDS a route (the MATCH step). It does not execute one —
 the operating loop keeps the user as the gate before any output-shaping run.
+`refresh()` is the automatic seeding entry: it derives from whatever tracked
+records exist and rewrites the record only when its content changes, so every
+record-landing moment (mount declaration, frame QA) can call it idempotently.
 
 REMOVAL CONDITION: retire the derived-geometry computation the day an official
 tool reports headless trail/drift geometry with a declared-vs-measured mount
@@ -56,10 +70,17 @@ SIDEREAL = 15.041
 _FIXED_BAND = (0.80, 1.20)
 _TRACKED_MAX = 0.20
 
+# The trail-vs-roundness check calls itself decisive only when the predicted
+# trail exceeds the worst elongation the measured stars could hide by an order
+# of magnitude — "~1600 px vs round" decides; "3.4 px vs a 3.5 px PSF" does
+# not (that is the drift solves' regime).
+DECISIVE_RATIO = 10.0
+
 
 def trail_px(exposure_s, dec_deg, scale_arcsec_px):
-    """In-exposure star elongation (px) — the untracked sharpness FLOOR. No
-    registration removes it; it is set at capture by exposure x sky rate."""
+    """In-exposure star elongation (px) a FIXED mount would put in every sub —
+    the untracked sharpness FLOOR. No registration removes it; it is set at
+    capture by exposure x sky rate."""
     return SIDEREAL * math.cos(math.radians(dec_deg)) * exposure_s / scale_arcsec_px
 
 
@@ -117,30 +138,109 @@ def classify_mount(ra_rate_deg_per_hr):
     return None
 
 
-def mount_verdict(declared, measured, ra_rate=None):
-    """Cross-check the DECLARED mount against the MEASURED signature.
-    CONFIRM / CONTRADICT (consumer STOPS) / INDETERMINATE (report, no stop)."""
+def trail_roundness_check(predicted_px, metrics):
+    """The cheap mount instrument: predicted-if-fixed in-exposure trail vs the
+    elongation Siril's own findstar fits actually measured. One-sided — it can
+    only ever conclude 'tracked' (rule out fixed), and only when DECISIVE:
+
+      implied_trail_max = worst FWHM x sqrt(1/roundness_worst^2 - 1)
+        (Siril roundness = FWHMy/FWHMx, minor/major — the largest in-exposure
+         trail the measured star shapes could be hiding, worst case)
+      decisive          = predicted >= 10x that bound, AND the tool matched a
+                          real star field (median >= 100 stars/frame and at
+                          least half the frames registered — a truly smeared
+                          set cannot produce stable cross-matched star fields,
+                          so this guards against reading roundness off noise)
+
+    Near the boundary it declines (returns signature None) and names the
+    two-window drift solve as the instrument. `metrics` is the tracked
+    frame_metrics.json distribution (see _load_metrics)."""
+    if not predicted_px or not metrics:
+        return None
+    r_med = metrics.get("roundness_median")
+    f_med = metrics.get("fwhm_median_px")
+    if r_med is None or f_med is None:
+        return None
+    r_w = min(max(metrics.get("roundness_min") or r_med, 1e-3), 0.999)
+    f_w = metrics.get("fwhm_max_px") or f_med
+    implied_max = f_w * math.sqrt(1.0 / (r_w * r_w) - 1.0)
+    margin = predicted_px / max(implied_max, 1.0)
+    nstars = metrics.get("nstars_median")
+    reg, tot = metrics.get("registered"), metrics.get("frames_total")
+    population_ok = (nstars is not None and nstars >= 100
+                     and reg is not None and bool(tot) and reg >= tot / 2.0)
+    decisive = margin >= DECISIVE_RATIO and population_ok
+    if decisive:
+        reason = (f"a fixed mount here would smear every sub by ~{predicted_px:.0f} px; "
+                  f"the measured stars could hide at most {implied_max:.1f} px "
+                  f"(findstar roundness {r_med} / FWHM {f_med} px over {tot} frames, "
+                  f"~{nstars:.0f} stars/frame, {reg}/{tot} registered) — "
+                  f"{margin:.0f}x apart: the mount is tracking. No solve needed.")
+    elif not population_ok:
+        reason = ("star population too thin or unmatched for a decisive "
+                  "roundness read — the two-window drift solve is the instrument")
+    else:
+        reason = (f"predicted-if-fixed trail {predicted_px:.1f} px vs up to "
+                  f"{implied_max:.1f} px of measured elongation — within "
+                  f"{DECISIVE_RATIO:.0f}x: not decisive; the two-window drift "
+                  "solve is the instrument near the boundary")
+    return {"predicted_if_fixed_px": round(predicted_px, 1),
+            "implied_trail_max_px": round(implied_max, 2),
+            "margin": round(margin, 1), "population_ok": population_ok,
+            "decisive": decisive,
+            "signature": "tracked" if decisive else None,
+            "reason": reason}
+
+
+def mount_verdict(declared, drift_sig=None, ra_rate=None, trail_check=None):
+    """Cross-check the DECLARED mount against the MEASURED signature(s).
+    CONFIRM / CONTRADICT (consumer STOPS) / INDETERMINATE (report, no stop).
+    Two instruments feed it: the drift solves (precise, either signature) and
+    the trail-vs-roundness check (cheap, 'tracked' only when decisive). When
+    both measure and disagree the verdict is INDETERMINATE with both readings
+    — two instruments in conflict is a measurement problem, not a label."""
+    tc_sig = (trail_check or {}).get("signature")
+    if drift_sig and tc_sig and drift_sig != tc_sig:
+        return {"verdict": "INDETERMINATE", "declared": declared, "measured": None,
+                "method": "drift-solves vs trail-vs-roundness",
+                "reason": (f"instruments disagree: drift solves read {drift_sig} "
+                           f"(RA rate {ra_rate} deg/hr) but trail-vs-roundness "
+                           f"reads {tc_sig} — re-measure before trusting either; "
+                           "declaration stands unchecked")}
+    measured = drift_sig or tc_sig
+    method = ("drift-solves + trail-vs-roundness" if (drift_sig and tc_sig)
+              else "drift-solves" if drift_sig
+              else "trail-vs-roundness" if tc_sig else None)
     if measured is None:
-        return {"verdict": "INDETERMINATE", "declared": declared, "measured": measured,
-                "reason": ("no two-solve drift measured yet, or the RA rate "
-                           f"({ra_rate}) is neither a clean sidereal nor a "
-                           "stationary signature — declaration stands unchecked")}
+        reason = ((trail_check or {}).get("reason")
+                  or ("no two-solve drift measured yet, or the RA rate "
+                      f"({ra_rate}) is neither a clean sidereal nor a "
+                      "stationary signature — declaration stands unchecked"))
+        return {"verdict": "INDETERMINATE", "declared": declared,
+                "measured": None, "method": None, "reason": reason}
+    detail = (trail_check["reason"] if tc_sig
+              else f"RA advances {ra_rate} deg/hr vs sidereal {SIDEREAL}")
     if declared is None:
-        return {"verdict": "INDETERMINATE", "declared": declared, "measured": measured,
-                "reason": f"mount undeclared; the data reads as {measured}"}
+        return {"verdict": "INDETERMINATE", "declared": declared,
+                "measured": measured, "method": method,
+                "reason": f"mount undeclared; the data reads as {measured} ({detail})"}
     if declared == measured:
         return {"verdict": "CONFIRM", "declared": declared, "measured": measured,
-                "reason": f"declared {declared} matches the measured {measured} sky-motion signature"}
+                "method": method,
+                "reason": (f"declared {declared} matches the measured {measured} "
+                           f"signature — {detail}")}
     return {"verdict": "CONTRADICT", "declared": declared, "measured": measured,
-            "reason": (f"declared {declared} but the sky moves like a {measured} mount "
-                       "— a labelling error. STOP and reconcile the declaration "
-                       "with the frames before routing.")}
+            "method": method,
+            "reason": (f"declared {declared} but the data measures {measured} "
+                       f"({detail}) — a labelling error. STOP and reconcile the "
+                       "declaration with the frames before routing.")}
 
 
 def _label(exif, drift, mount):
     """Human-readable fingerprint: mount x field-width x drift."""
     fov = exif.get("fov_deg")
-    width = "wide" if (fov and fov >= 10) else ("normal" if fov else "?")
+    width = ("wide" if fov >= 10 else "narrow" if fov < 2 else "normal") \
+        if fov else "?"
     m = mount or "?mount"
     ppm = (drift or {}).get("drift_px_per_min")
     tail = f", drifting {ppm:.0f} px/min" if ppm else ""
@@ -148,19 +248,24 @@ def _label(exif, drift, mount):
     return f"{kind}, {width}{tail}"
 
 
-def fingerprint(exif, declared_mount, *, solve=None, drift=None, roundness=None):
+def fingerprint(exif, declared_mount, *, solve=None, drift=None, metrics=None):
     """Assemble the fingerprint from tool outputs. Pure: no I/O, no solving.
 
-    exif           acquisition.json `exif` block
+    exif           acquisition.json `exif` block (incl. header pointing when
+                   the capture software recorded it)
     declared_mount acquisition.json `mount` (the human field; may be None)
     solve          {ra_deg, dec_deg, scale_arcsec_px} field solve, or None
     drift          drift_between_solves() output, or None
-    roundness      measured median per-frame roundness (findstar), or None
+    metrics        _load_metrics() output (tracked frame_metrics.json), or None
     """
     dec = (solve or {}).get("dec_deg")
+    dec_src = "solved" if dec is not None else None
+    if dec is None:
+        dec = exif.get("pointing_dec_deg")
+        dec_src = "header-pointing" if dec is not None else None
     scale = (solve or {}).get("scale_arcsec_px")
     scale_src = "solved"
-    if not scale:                       # fall back to the EXIF-nominal scale
+    if not scale:                       # fall back to the header-nominal scale
         scale = exif.get("pixel_scale_arcsec")
         scale_src = "exif-nominal"
     exp = exif.get("exposure_s")
@@ -170,34 +275,49 @@ def fingerprint(exif, declared_mount, *, solve=None, drift=None, roundness=None)
     sid_ppm = (round(sidereal_drift_px_per_min(dec, scale), 2)
                if (dec is not None and scale) else None)
 
-    measured_sig = classify_mount((drift or {}).get("ra_rate_deg_per_hr"))
-    verdict = mount_verdict(declared_mount, measured_sig,
-                            (drift or {}).get("ra_rate_deg_per_hr"))
+    tcheck = trail_roundness_check(trail, metrics)
+    drift_sig = classify_mount((drift or {}).get("ra_rate_deg_per_hr"))
+    verdict = mount_verdict(declared_mount, drift_sig,
+                            (drift or {}).get("ra_rate_deg_per_hr"), tcheck)
+    measured = verdict.get("measured")
     if drift is not None:               # attach the expected value for context
         drift = {**drift, "sidereal_px_per_min_expected": sid_ppm}
 
+    effective = measured or declared_mount
+    fov = exif.get("fov_deg") or 0
+    if effective == "fixed" and fov >= 10:
+        route = ("wide-field-untracked (undistort -> homography) — a wide "
+                 "field on a fixed mount with measurable drift")
+    elif effective == "tracked":
+        route = ("standard (calibrate -> register -> stack) — tracked mount: "
+                 "no inter-frame drift to fight")
+    else:
+        route = "unclassified — measure before routing"
+
     return {
-        "measured_by": ("EXIF (acquisition.py/exiftool) + astrometry.net solve "
-                        "(solve_field.py) + Siril findstar roundness; this module "
-                        "computes only the derived trail/drift geometry and records it"),
+        "measured_by": ("header facts (acquisition.py) + astrometry.net solves "
+                        "(solve_field.py) + Siril findstar/register metrics "
+                        "(frame_metrics.json); this module computes only the "
+                        "derived trail/drift geometry and records it"),
         "declared_mount": declared_mount,
         "plate_scale_arcsec_px": round(scale, 4) if scale else None,
         "plate_scale_source": scale_src,
-        "field_center": ({"ra_deg": solve.get("ra_deg"), "dec_deg": dec}
-                         if solve else None),
+        "field_center": ({"ra_deg": (solve or {}).get("ra_deg",
+                                     exif.get("pointing_ra_deg")),
+                          "dec_deg": dec, "source": dec_src}
+                         if dec is not None else None),
         "in_exposure_trail": {
-            "predicted_px": trail,
-            "measured_roundness": roundness,
-            "note": ("floor set at capture; no registration removes it. predicted "
-                     "= 15.041 * cos(dec) * exposure / plate_scale")},
+            "predicted_if_fixed_px": trail,
+            "measured_roundness": (metrics or {}).get("roundness_median"),
+            "measured_fwhm_px": (metrics or {}).get("fwhm_median_px"),
+            "check": tcheck,
+            "note": ("predicted = 15.041 * cos(dec) * exposure / plate_scale — "
+                     "the smear a FIXED mount would put in every sub; no "
+                     "registration removes it")},
         "inter_frame_drift": drift,
         "mount_check": verdict,
-        "label": _label(exif, drift, measured_sig or declared_mount),
-        "route_hint": ("wide-field-untracked (undistort -> homography) — a wide "
-                       "field on a fixed mount with measurable drift"
-                       if (measured_sig or declared_mount) == "fixed"
-                       and (exif.get("fov_deg") or 0) >= 10
-                       else "unclassified — measure before routing"),
+        "label": _label(exif, drift, effective),
+        "route_hint": route,
     }
 
 
@@ -213,14 +333,38 @@ def load_solve(path, time_s=None):
     return out
 
 
+def _load_metrics(session_dir, set_name):
+    """The tracked frame-QA distribution, reshaped for the roundness check.
+    None when the set has no frame_metrics.json yet (the check just waits)."""
+    p = os.path.join(am.dataset_dir(session_dir, set_name),
+                     "qa_work", "frame_metrics.json")
+    try:
+        rec = json.load(open(p))
+    except (OSError, ValueError):
+        return None
+    dist = rec.get("distribution") or {}
+    r = dist.get("roundness") or {}
+    f = dist.get("fwhm_px") or {}
+    n = dist.get("nstars") or {}
+    if r.get("median") is None:
+        return None
+    return {"roundness_median": r.get("median"), "roundness_min": r.get("min"),
+            "fwhm_median_px": f.get("median"), "fwhm_max_px": f.get("max"),
+            "nstars_median": n.get("median"),
+            "registered": rec.get("registered"),
+            "frames_total": rec.get("frames_total")}
+
+
 def derive(session_dir, set_name, *, solve_a=None, solve_b=None,
-           roundness=None, write=True):
+           metrics=None, write=True):
     """Build (and optionally record) a set's fingerprint from its tracked
-    acquisition record plus optional window solves.
+    records plus optional window solves.
 
     solve_a/solve_b: two solves as {ra_deg, dec_deg, time_s, scale_arcsec_px}
     (start and end of the set) — both present drives the drift + mount check.
-    Writes datasets/<session>/<set>/fingerprint.json when `write`."""
+    metrics: override for the frame-QA stats (auto-loaded from the tracked
+    frame_metrics.json when None). Writes fingerprint.json only when its
+    content changes, so record-landing hooks can call this idempotently."""
     apath = acquisition.record_path(session_dir, set_name)
     if not os.path.exists(apath):
         raise FileNotFoundError(
@@ -230,24 +374,46 @@ def derive(session_dir, set_name, *, solve_a=None, solve_b=None,
     exif = acq.get("exif") or {}
     declared = acq.get("mount")
 
+    if metrics is None:
+        metrics = _load_metrics(session_dir, set_name)
     drift = None
     solve = solve_a
     if solve_a and solve_b and "time_s" in solve_a and "time_s" in solve_b:
         drift = drift_between_solves(solve_a, solve_b)
 
-    fp = fingerprint(exif, declared, solve=solve, drift=drift, roundness=roundness)
+    fp = fingerprint(exif, declared, solve=solve, drift=drift, metrics=metrics)
     if write:
-        out = os.path.join(am.dataset_dir(session_dir, set_name), "fingerprint.json")
-        os.makedirs(os.path.dirname(out), exist_ok=True)
-        json.dump(fp, open(out, "w"), indent=1)
+        out = os.path.join(am.dataset_dir(session_dir, set_name),
+                           "fingerprint.json")
+        try:
+            unchanged = json.load(open(out)) == fp
+        except (OSError, ValueError):
+            unchanged = False
+        if not unchanged:
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            json.dump(fp, open(out, "w"), indent=1)
         fp["_written"] = out
     return fp
 
 
+def refresh(session_dir, set_name):
+    """The automatic seeding entry (record-landing hooks + run gates): derive
+    from whatever tracked records exist, quietly skipping a set that has no
+    acquisition record yet (nothing derivable). Returns the fingerprint dict
+    or None. Never raises on missing inputs — an undeclared mount simply
+    yields an INDETERMINATE verdict for the UI to surface."""
+    if not os.path.exists(acquisition.record_path(session_dir, set_name)):
+        return None
+    return derive(session_dir, set_name, write=True)
+
+
 def _selftest():
-    """Validate the derived geometry against july14/set-01's independently
-    recorded numbers (registration_qa.json): trail 3.40 px, drift 34 px/min, RA
-    14.99 deg/hr vs sidereal, mount CONFIRM fixed."""
+    """Validate the derived geometry against independently recorded numbers:
+    july14/set-01 (registration_qa.json: trail 3.40 px, drift 34 px/min, RA
+    14.99 deg/hr, CONFIRM fixed via drift solves) and colonnello-m20
+    (frame_metrics.json: 80 s @ 1150 mm / 0.682"/px at dec -22.89 predicts
+    ~1625 px if fixed vs 0.896 median roundness -> decisive CONFIRM tracked
+    with no solve)."""
     ok = True
 
     def check(name, got, want, tol):
@@ -255,6 +421,11 @@ def _selftest():
         p = abs(got - want) <= tol
         ok = ok and p
         print(f"  [{'PASS' if p else 'FAIL'}] {name}: {got:.3f} (want {want} +-{tol})")
+
+    def flag(name, cond):
+        nonlocal ok
+        ok = ok and cond
+        print(f"  [{'PASS' if cond else 'FAIL'}] {name}")
 
     check("trail_px(6, 47.04, 18.02)", trail_px(6, 47.044, 18.02), 3.40, 0.05)
     check("sidereal_drift_px_per_min(47.04, 18.02)",
@@ -268,15 +439,44 @@ def _selftest():
     check("drift px/min", d["drift_px_per_min"], 34.0, 0.6)
     check("drift dec arcsec", d["dec_drift_arcsec"], 7.2, 0.5)
     sig = classify_mount(d["ra_rate_deg_per_hr"])
-    v = mount_verdict("fixed", sig)
-    print(f"  [{'PASS' if v['verdict'] == 'CONFIRM' else 'FAIL'}] "
-          f"mount fixed -> {v['verdict']} (measured {sig})")
-    ok = ok and v["verdict"] == "CONFIRM"
-    # a mislabelled set must be caught
-    vt = mount_verdict("tracked", sig)
-    print(f"  [{'PASS' if vt['verdict'] == 'CONTRADICT' else 'FAIL'}] "
-          f"mislabel tracked -> {vt['verdict']}")
-    ok = ok and vt["verdict"] == "CONTRADICT"
+    v = mount_verdict("fixed", drift_sig=sig)
+    flag(f"mount fixed -> {v['verdict']} (measured {sig}, drift solves)",
+         v["verdict"] == "CONFIRM")
+    vt = mount_verdict("tracked", drift_sig=sig)
+    flag(f"mislabel tracked -> {vt['verdict']}", vt["verdict"] == "CONTRADICT")
+
+    # trail-vs-roundness, decisive regime: colonnello-m20 (ASI mono @ 1150 mm,
+    # 80 s, dec -22.89, 0.682"/px; frame_metrics medians)
+    t = trail_px(80, -22.8896, 0.682)
+    check("trail_px(80, -22.89, 0.682)", t, 1625.0, 5.0)
+    m20 = {"roundness_median": 0.8962, "roundness_min": 0.8558,
+           "fwhm_median_px": 3.515, "fwhm_max_px": 3.882,
+           "nstars_median": 1531, "registered": 16, "frames_total": 16}
+    tc = trail_roundness_check(t, m20)
+    flag(f"roundness check decisive (margin {tc['margin']}x)",
+         tc["decisive"] and tc["signature"] == "tracked" and tc["margin"] > 100)
+    vc = mount_verdict("tracked", trail_check=tc)
+    flag(f"declared tracked -> {vc['verdict']} ({vc['method']})",
+         vc["verdict"] == "CONFIRM" and vc["method"] == "trail-vs-roundness")
+    vf = mount_verdict("fixed", trail_check=tc)
+    flag(f"mislabel fixed -> {vf['verdict']}", vf["verdict"] == "CONTRADICT")
+
+    # boundary regime (july14 numbers): a 3.4 px predicted trail on a ~3.5 px
+    # PSF must NOT be decisive — the drift solves decide there
+    jb = {"roundness_median": 0.615, "roundness_min": 0.55,
+          "fwhm_median_px": 3.6, "fwhm_max_px": 3.8,
+          "nstars_median": 3000, "registered": 373, "frames_total": 373}
+    tb = trail_roundness_check(3.40, jb)
+    flag(f"boundary not decisive (margin {tb['margin']}x)",
+         not tb["decisive"] and tb["signature"] is None)
+    vb = mount_verdict("fixed", trail_check=tb)
+    flag(f"boundary declared fixed -> {vb['verdict']} (declaration unchecked)",
+         vb["verdict"] == "INDETERMINATE")
+    # instruments in conflict -> INDETERMINATE, never a coin toss
+    vx = mount_verdict("tracked", drift_sig="fixed", ra_rate=15.0, trail_check=tc)
+    flag(f"conflicting instruments -> {vx['verdict']}",
+         vx["verdict"] == "INDETERMINATE")
+
     print("SELFTEST", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -290,7 +490,6 @@ def main():
     ap.add_argument("--solve-b", help="end-window solve JSON")
     ap.add_argument("--time-a", type=float, help="capture epoch (s) of solve-a's frame")
     ap.add_argument("--time-b", type=float, help="capture epoch (s) of solve-b's frame")
-    ap.add_argument("--roundness", type=float, help="measured median per-frame roundness")
     ap.add_argument("--no-write", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
@@ -301,7 +500,7 @@ def main():
     sa = load_solve(a.solve_a, a.time_a) if a.solve_a else None
     sb = load_solve(a.solve_b, a.time_b) if a.solve_b else None
     fp = derive(a.session, a.set, solve_a=sa, solve_b=sb,
-                roundness=a.roundness, write=not a.no_write)
+                write=not a.no_write)
     print(json.dumps(fp, indent=1))
     if fp.get("mount_check", {}).get("verdict") == "CONTRADICT":
         print(fp["mount_check"]["reason"], file=sys.stderr)

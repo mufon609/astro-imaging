@@ -69,36 +69,32 @@ approved, re-baselined, tagged render from the new tier.
 
 ## 1. Derive the config fingerprint from the data
 
-STATUS (core landed): `scripts/lib/fingerprint.py` derives the fingerprint from tool
-outputs only — EXIF (`acquisition.py`), astrometry.net solves (`solve_field.py`) and
-Siril findstar roundness — computing just the derived trail/drift geometry no tool
-reports, and records `datasets/<session>/<set>/fingerprint.json`. It CROSS-CHECKS the
-declared mount against the measured sky motion (a fixed mount advances RA at the sidereal
-rate, Dec constant; tracked holds both): `mount_verdict` returns CONFIRM / CONTRADICT
-(consumer STOPS on a mislabel) / INDETERMINATE. Self-tested against the retired
-exemplar's measured numbers (trail 3.41 px, drift 34 px/min, RA 14.99°/hr — git). No
-live fingerprint record exists (the exemplar's records are wiped). REMAINS: seed + run
-the two-window solve on the NEXT staged set — the first live MEASURE→MATCH run — and
-wire the fingerprint into the builders' MATCH→RECOMMEND preflight (still user-gated —
-it recommends a route, never auto-executes).
-
-**USER-ORDERED broadening (first FITS corpus, colonnello-m20):** the check must
-generalize past the camera-raw class and surface WITHOUT being asked. The corpus
-declared `tracked`, and the data alone makes that decisive — a fixed mount at
-80 s / 1150 mm / 0.68″/px predicts an in-exposure trail of 15″/s × cos(dec
-−22.9°) × 80 s ÷ 0.68″/px ≈ **1600 px**; the frames show pinpoint stars
-(user-observed; findstar roundness lands with frame QA). Three parts: (a) the
-FITS-header acquisition facts — LANDED (`acquisition.py` FITS branch:
-INSTRUME/TELESCOP/FOCALLEN/XPIXSZ/GAIN/DATE-OBS; `iso` null, `gain` + `binning`
-recorded); (b) the mount check CONFIRMS/CONTRADICTS from the
-trail-prediction-vs-roundness term ALONE where the magnitude is decisive
-(~1600 px vs round is not a judgment call; the two-window solve stays the
-precise instrument near the boundary); (c) the fingerprint seeds AUTOMATICALLY
-at STAGING — derived when a session lands, surfaced in the web session model
-(the UI already renders `fingerprint.mount_check.verdict` and the
-"fingerprint not yet derived" state), consumers STOP on CONTRADICT — never
-waiting to be asked. Derivation + record only: it recommends and checks; the
-user stays the gate on every output-shaping run.
+STATUS (core + broadening landed; live on colonnello-m20): `scripts/lib/fingerprint.py`
+derives the fingerprint from tool outputs only — header facts (`acquisition.py`, incl.
+the FITS pointing RA/Dec the capture software records), astrometry.net solves
+(`solve_field.py`) and Siril findstar/register metrics (`frame_metrics.json`) —
+computing just the derived trail/drift geometry no tool reports, and records
+`datasets/<session>/<set>/fingerprint.json` (content-compare write; `refresh()` is the
+idempotent seeding entry). The declared mount is cross-checked by TWO instruments:
+(1) **trail-vs-roundness** (cheap, no solve, one-sided): decisive only when the
+predicted-if-fixed trail exceeds the worst elongation the measured stars could hide by
+≥10× with a real matched star population — live on all three colonnello-m20 sets
+(predicted 1625 px vs implied ≤3 px, margins 538–713×, CONFIRM tracked); (2) the
+**two-window drift solves** (precise, either signature — the instrument near the
+boundary, e.g. 3.4 px predicted on a 3.5 px PSF; self-tested against the retired
+exemplar's numbers: trail 3.41 px, drift 34 px/min, RA 14.99°/hr). Disagreeing
+instruments yield INDETERMINATE, never a coin toss. SEEDING IS AUTOMATIC (never
+waiting to be asked): the web mount declaration derives on write (verdict returned in
+the response), `run_frame_qa.sh` refreshes when roundness lands (exits loud on
+CONTRADICT), and the web run gate re-derives before every output-shaping run.
+CONSUMERS STOP: `acquisition.resolve()` raises `MountContradicted` on a contradicted
+record (every declare-or-stop consumer inherits the stop), and `/api/run` refuses
+calibrate/execute/finish stages for a CONTRADICT set (measure stages stay runnable —
+measuring is how a contradiction resolves). Derivation + record only: it recommends
+and checks; the user stays the gate on every output-shaping run. REMAINS: run the
+two-window solve live on the next camera-raw (boundary-regime) corpus, and wire the
+fingerprint into the builders' MATCH→RECOMMEND preflight (still user-gated — it
+recommends a route, never auto-executes).
 
 **The pipeline should READ the gathered data and work out what it is**, then organise
 processing around that. The route a dataset needs is selected by a config fingerprint

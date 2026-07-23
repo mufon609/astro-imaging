@@ -176,4 +176,30 @@ print(f"wrote {OUT}  ({len(flagged)} flagged frame(s))")
 PY
 python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" | tee "$P/cull_report.txt" | tail -20
 rm -rf "$P"/b*
+
+# Roundness just landed -> refresh the set's fingerprint so the mount
+# cross-check (trail-vs-roundness) upgrades without being asked (BACKLOG
+# item 1c). Exit 2 = declared-vs-measured CONTRADICT: the QA record above is
+# valid and stays, but the job ends loud so the mislabel is reconciled before
+# anything builds on it. Any other refresh failure (e.g. no acquisition
+# record yet) warns and leaves the QA result standing.
+fprc=0
+python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || fprc=$?
+FPJ=$REPO/datasets/$(basename "$SESSION")/$SET/fingerprint.json
+python3 - "$FPJ" <<'PY' || true
+import json, sys
+try:
+    fp = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    sys.exit(0)
+mc = fp.get("mount_check") or {}
+print(f"fingerprint: {fp.get('label')} | mount {mc.get('verdict')}"
+      f" ({mc.get('method') or 'no instrument yet'})")
+PY
+if [ "$fprc" -eq 2 ]; then
+  echo "run_frame_qa: declared-vs-measured mount CONTRADICT — reconcile the declaration before any build ($FPJ)" >&2
+  exit 2
+elif [ "$fprc" -ne 0 ]; then
+  echo "run_frame_qa: fingerprint not derivable yet (missing acquisition record?) — the QA record stands" >&2
+fi
 echo "=== run_frame_qa DONE (per-frame records kept: $P/{metrics,records}.jsonl) ==="

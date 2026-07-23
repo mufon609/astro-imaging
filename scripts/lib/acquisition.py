@@ -59,6 +59,24 @@ class AcquisitionUndeclared(Exception):
             f"  (EXIF: {e.get('camera', '?')}, {opt})")
 
 
+class MountContradicted(AcquisitionUndeclared):
+    """Raised when the set's derived fingerprint measures the sky moving
+    OPPOSITE to the declared mount (mount_check CONTRADICT) — a labelling
+    error no consumer may build on. Subclasses AcquisitionUndeclared so every
+    declare-or-stop consumer stops just as loudly here, with this message."""
+
+    def __init__(self, path, reason):
+        self.path = path
+        Exception.__init__(
+            self,
+            "acquisition: the declared `mount` CONTRADICTS the measured sky "
+            "motion.\n"
+            f"  {reason}\n"
+            f"  Record: {path}\n"
+            "  Fix the declaration (or re-measure the frames) and re-run — a\n"
+            "  consumer must not build on a mislabelled mount.")
+
+
 def _num(v):
     """Leading number from an exiftool value: '6'->6.0, '70.0 mm'->70.0,
     '28.6 deg (5.11 m)'->28.6, '1/200'->0.005. None if unparseable."""
@@ -96,6 +114,36 @@ def _median(xs):
     return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2.0
 
 
+def _pointing_deg(header, num_key, sexa_key, hours):
+    """Pointing coordinate (deg) from an astrocam header. Two forms exist:
+    the numeric RA/DEC keywords (conventionally decimal DEGREES, but some
+    writers use hours for RA) and the OBJCTRA/OBJCTDEC sexagesimal strings
+    (unit-unambiguous: RA in hours, Dec in degrees, by FITS convention).
+    The numeric form needs a FULL-string float parse — '18 02 36' must not
+    truncate to 18 — and when both forms parse but disagree beyond 0.5 deg
+    the sexagesimal one wins (its units cannot be misread). None when
+    neither parses."""
+    numeric = None
+    v = header.get(num_key)
+    if v is not None:
+        try:
+            numeric = float(v)
+        except (TypeError, ValueError):
+            pass
+    sexa = None
+    s = header.get(sexa_key)
+    if s is not None:
+        m = re.match(r"^\s*([+-]?)(\d+)[ :h]+(\d+)[ :m]+([0-9.]+)", str(s))
+        if m:
+            sign = -1.0 if m.group(1) == "-" else 1.0
+            d = (int(m.group(2)) + int(m.group(3)) / 60.0
+                 + float(m.group(4)) / 3600.0)
+            sexa = sign * d * (15.0 if hours else 1.0)
+    if numeric is not None and sexa is not None:
+        return numeric if abs(numeric - sexa) <= 0.5 else sexa
+    return numeric if numeric is not None else sexa
+
+
 def fits_facts(frames):
     """FITS sibling of the exiftool derivation — the same facts from the FITS
     headers (astropy, HEADERS only). Optics from the first frame; cadence /
@@ -103,8 +151,10 @@ def fits_facts(frames):
     FOCALLEN; the common writers record XPIXSZ as the effective (binned) pixel
     size, and `binning` is recorded so a corpus where that convention differs
     is visible. `iso` stays null (no such concept on an astrocam); GAIN is
-    recorded as `gain`. On failure returns {'_error': ...} so a consumer can
-    still require `mount`."""
+    recorded as `gain`. Pointing RA/Dec (the mount's own record, written by
+    the capture software) is a header fact here — camera-raw EXIF has no
+    equivalent, so on that path it stays None and a solve supplies dec. On
+    failure returns {'_error': ...} so a consumer can still require `mount`."""
     try:
         from astropy.io import fits as _fits
     except ImportError as e:
@@ -141,6 +191,8 @@ def fits_facts(frames):
                 pass
     ts.sort()
     dts = [b - a for a, b in zip(ts, ts[1:]) if b > a]
+    ra = _pointing_deg(h0, "RA", "OBJCTRA", hours=True)
+    dec = _pointing_deg(h0, "DEC", "OBJCTDEC", hours=False)
     return {
         "camera": h0.get("INSTRUME"),
         "lens": h0.get("TELESCOP"),      # the optic identity slot
@@ -149,6 +201,8 @@ def fits_facts(frames):
         "iso": None,
         "gain": num("GAIN"),
         "binning": int(num("XBINNING") or 1),
+        "pointing_ra_deg": round(ra, 5) if ra is not None else None,
+        "pointing_dec_deg": round(dec, 5) if dec is not None else None,
         "image_wh": [width, height],
         "fov_deg": (round(scale * width / 3600.0, 2)
                     if scale and width else None),
@@ -273,4 +327,17 @@ def resolve(session_dir, set_name, frames):
         json.dump(record, open(path, "w"), indent=1)
     if not valid:
         raise AcquisitionUndeclared(path, exif)
+    # The declared mount also has to survive its measured cross-check: a set
+    # whose FINGERPRINT (derived by scripts/lib/fingerprint.py from the tools'
+    # own measures) says the sky moves the OTHER way is mislabelled, and every
+    # consumer of this record would build on that error. Read-only here — the
+    # fingerprint module derives; this just refuses to hand out a contradicted
+    # declaration (BACKLOG item 1: consumers STOP on CONTRADICT).
+    fp_path = os.path.join(os.path.dirname(path), "fingerprint.json")
+    try:
+        mount_check = (json.load(open(fp_path)) or {}).get("mount_check") or {}
+    except (OSError, ValueError):
+        mount_check = {}
+    if mount_check.get("verdict") == "CONTRADICT":
+        raise MountContradicted(fp_path, mount_check.get("reason", ""))
     return record
