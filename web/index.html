@@ -677,7 +677,7 @@ function paramInput(p, paths) {
                    : h('span', { class:'m' }, 'no group sub-stacks in this session yet'),
       hidden);
   }
-  if (p.kind === 'path' && p.choices) {
+  if ((p.kind === 'path' || p.kind === 'str') && p.choices) {
     const dl = h('datalist', { id: 'dl_' + p.name },
       ((paths || {})[p.choices] || []).map(v => h('option', { value: v })));
     inp.setAttribute('list', 'dl_' + p.name);
@@ -809,7 +809,7 @@ async function openStageForm(name, st, formHost) {
     const sessInp = document.getElementById('p_session');
     if (sessInp) sessInp.addEventListener('change', async () => {
       const np = await fetchPaths(sessInp.value.trim());
-      for (const p of st.params) if (p.kind === 'path' && p.choices) {
+      for (const p of st.params) if ((p.kind === 'path' || p.kind === 'str') && p.choices) {
         const dl = document.getElementById('dl_' + p.name);
         if (dl) dl.replaceChildren(
           ...((np[p.choices] || []).map(v => h('option', { value: v }))));

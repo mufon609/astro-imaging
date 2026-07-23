@@ -703,7 +703,7 @@ def _stage_registry():
             "phase": "surfaces",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
-                {"name": "product", "kind": "str", "req": True},
+                {"name": "product", "kind": "str", "req": True, "choices": "framing_products", "hint": "product of a drawn framing record (unverified first)"},
                 {"name": "map", "kind": "path", "req": False, "choices": "maps", "hint": "coverage map .fit (map mode)"},
                 {"name": "map_min", "kind": "int", "req": False, "hint": "required members (map mode)"},
                 {"name": "min_floor", "kind": "int", "req": False, "hint": "sibling-class sky floor ADU (no-map mode)"},
@@ -751,6 +751,15 @@ def path_choices(session):
                      for f in ls(os.path.join(REPO, "datasets", session),
                                  lambda f: f.startswith("framing_")
                                  and f.endswith(".json"))],
+        # bare product names of the drawn framing records, unverified first —
+        # the verify_framing form offers these instead of free-typing
+        "framing_products": [p for _, p in sorted(
+            ((1 if (_read_json(os.path.join(REPO, "datasets", session, f))
+                    or {}).get("status") == "verified" else 0,
+              f[len("framing_"):-len(".json")])
+             for f in ls(os.path.join(REPO, "datasets", session),
+                         lambda f: f.startswith("framing_")
+                         and f.endswith(".json"))))],
         "groupsets": sorted(
             d[len("groups_"):] for d in
             (os.listdir(os.path.join(REPO, "sessions", session, "work"))
