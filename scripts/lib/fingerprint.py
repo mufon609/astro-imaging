@@ -25,6 +25,11 @@ measurement only checks it.
 
 The fingerprint RECOMMENDS a route (the MATCH step). It does not execute one —
 the operating loop keeps the user as the gate before any output-shaping run.
+
+REMOVAL CONDITION: retire the derived-geometry computation the day an official
+tool reports headless trail/drift geometry with a declared-vs-measured mount
+cross-check (e.g. a solver exposing inter-epoch drift rate vs sidereal); the
+record schema and the STOP-on-CONTRADICT contract stay wherever that lands.
 """
 import argparse
 import json
