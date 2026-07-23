@@ -191,7 +191,12 @@ def main():
            "input_size": st.st_size, "input_mtime": int(st.st_mtime),
            "k_factors": ks or None, "b_offsets": bs or None,
            "n_photometry": n_phot, "n_kept": n_kept}
-    p_json = os.path.join(work, f"spcc_{set_name}{tag}.json")
+    # the K record is a per-set TOOL MEASURE — its versioned home is the
+    # tracked datasets qa_work (the siril log stays session-work scratch)
+    qa = os.path.join(repo, "datasets", os.path.basename(
+        os.path.normpath(session)), set_name, "qa_work")
+    os.makedirs(qa, exist_ok=True)
+    p_json = os.path.join(qa, f"spcc_{set_name}{tag}.json")
     with open(p_json, "w") as f:
         json.dump(rec, f, indent=1)
     if not ks:
@@ -202,7 +207,7 @@ def main():
           " ".join(f"{c} {v:.3f}" for c, v in ks.items()) +
           (f" ({rec['n_kept']}/{rec['n_photometry']} stars kept)"
            if rec["n_kept"] else "") +
-          f" -> {os.path.relpath(p_json, sdir)}")
+          f" -> {os.path.relpath(p_json, repo)}")
 
 
 if __name__ == "__main__":

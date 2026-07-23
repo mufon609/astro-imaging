@@ -462,6 +462,19 @@ def main():
     p_rec = os.path.join(wdir, f"solve_{stem}.json")
     json.dump(rec, open(p_rec, "w"), indent=1)
     print(f"[solve_field] record -> {p_rec}")
+    # tracked home: when the caller names the dataset, the record also
+    # lands in datasets/<session>/<set>/qa_work/ (the versioned measure);
+    # the results-side copy stays the UI's product sidecar, regenerated
+    # with every solve
+    if "session" in opts and "set" in opts:
+        repo = os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))))
+        qa = os.path.join(repo, "datasets", os.path.basename(
+            os.path.normpath(opts["session"])), opts["set"], "qa_work")
+        os.makedirs(qa, exist_ok=True)
+        p_qa = os.path.join(qa, f"solve_{stem}.json")
+        json.dump(rec, open(p_qa, "w"), indent=1)
+        print(f"[solve_field] tracked record -> {p_qa}")
 
 
 if __name__ == "__main__":
