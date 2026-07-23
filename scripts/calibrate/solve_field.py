@@ -27,16 +27,26 @@ FOV). The astrometry.net engine with field-size-derived index scales solves
 the same field from 200 peak-detected stars in seconds. SPCC accepts the
 injected TAN-SIP WCS.
 
-Blind is the default (and the right first move — a wrong position guess just
-fails the solve, it cannot mis-solve, so a bad label produces NO SOLUTION,
-not a wrong answer). But a very wide, distorted field can defeat the blind
-match: a fast wide lens warps the outer star quads, and the true field then
-never surfaces above the all-sky false-match noise. Two overrides for that
-case (a wide-field Milky-Way frame at 50 mm/41 deg needed both): --ra/--dec
-[+--radius-deg] gives a position hint so the search is local (the region can
-be read straight off a first no-WCS render), and --central=<frac> restricts
+Position hint: --ra/--dec [+--radius-deg] localizes the search; when absent,
+a header RA/DEC (a driven mount's pointing, standard in astrocam FITS) is
+used AUTOMATICALLY — it is unverified metadata, so a header-hinted attempt
+that fails falls back to BLIND before giving up (a wrong position hint
+cannot mis-solve; it just fails, which makes the fallback safe — a CLI hint
+is explicit intent and never falls back). A very wide, distorted field can
+defeat the blind match: a fast wide lens warps the outer star quads, and
+the true field then never surfaces above the all-sky false-match noise. Two
+overrides for that case (a wide-field Milky-Way frame at 50 mm/41 deg
+needed both): the position hint above, and --central=<frac> restricts
 detection to the low-distortion central fraction of the frame (|dx|,|dy| <
 frac x size) so the quads it forms actually match a TAN projection.
+
+Index scales load CACHED-FIRST: the field-derived set splits into scales
+whose index series are fully cached vs those needing download, and the
+cached tier is attempted first (a narrow field's derived set reaches the
+multi-GB low scales, while the cached mid scales — quads ~10-50% of the
+field — usually carry the solution). Only when every cached attempt fails
+does the run extend to the download tier, saying so. --scales bypasses the
+split (an explicit set, attempted as-is).
 
 Star detection (--detect=sep, the default): SExtractor's own core via the
 `sep` package — official extraction, shape-blind so trailed sources feed
@@ -229,6 +239,23 @@ _SCALE_ARCMIN = {
     18: (1000.0, 1400.0), 19: (1400.0, 2000.0)}
 _SCALE_FALLBACK = {13, 14, 15, 16, 17, 18, 19}
 
+# 4200-series tile counts per scale (astrometry.net's healpix split):
+# scales 0-4 ship 48 tiles (index-42XX-00..47), 5-7 ship 12, 8+ one file.
+# A scale counts as CACHED only when its series is COMPLETE — the solver's
+# index_files() silently completes a partial series, i.e. downloads.
+_SCALE_TILES = {**{s: 48 for s in range(0, 5)},
+                **{s: 12 for s in range(5, 8)},
+                **{s: 1 for s in range(8, 20)}}
+
+
+def scale_cached(s):
+    import glob
+    d = os.path.join(CACHE, "4200")
+    if _SCALE_TILES[s] == 1:
+        return os.path.exists(os.path.join(d, f"index-42{s:02d}.fits"))
+    return len(glob.glob(os.path.join(d, f"index-42{s:02d}-*.fits"))) \
+        >= _SCALE_TILES[s]
+
 
 def scale_set(path, width_arcmin=None):
     """Index scales to load, derived from the field width (arcsec/px x
@@ -259,7 +286,7 @@ def scale_set(path, width_arcmin=None):
     return sel or set(_SCALE_FALLBACK)
 
 
-def solve(stars, hint=None, scales=None, pos=None):
+def solve(stars, hint=None, scales=None, pos=None, required=True):
     import astrometry
     scales = set(scales) if scales else set(_SCALE_FALLBACK)
     solver = astrometry.Solver(
@@ -289,7 +316,9 @@ def solve(stars, hint=None, scales=None, pos=None):
                 astrometry.Action.STOP if max(los) >= 100.0
                 else astrometry.Action.CONTINUE)))
     if not sol.has_match():
-        sys.exit("solve_field: NO SOLUTION")
+        if required:
+            sys.exit("solve_field: NO SOLUTION")
+        return None
     return sol.best_match()
 
 
@@ -324,10 +353,27 @@ def main():
     max_stars = int(opts.get("max-stars", 200))
     width_arcmin = (float(opts["field-width-arcmin"])
                     if "field-width-arcmin" in opts else None)
-    pos = None
+    pos, pos_src = None, "none"
     if "ra" in opts and "dec" in opts:
         pos = (float(opts["ra"]), float(opts["dec"]),
                float(opts.get("radius-deg", 15.0)))
+        pos_src = "cli"
+    else:
+        # a driven mount's pointing rides in astrocam FITS headers — an
+        # UNVERIFIED hint (it cannot mis-solve, only fail), so a
+        # header-hinted failure falls back to blind in the attempt loop
+        try:
+            from astropy.io import fits as _f
+            _h = _f.getheader(src)
+            if "RA" in _h and "DEC" in _h:
+                pos = (float(_h["RA"]), float(_h["DEC"]),
+                       float(opts.get("radius-deg", 15.0)))
+                pos_src = "header"
+                print(f"[solve_field] position hint from header: RA "
+                      f"{pos[0]:.2f} Dec {pos[1]:+.2f} r{pos[2]:g} deg "
+                      "(unverified — falls back to blind on failure)")
+        except (OSError, ValueError, TypeError):
+            pass
     detector = opts.get("detect", "sep")
     if detector not in ("sep", "peaks"):
         sys.exit(f"solve_field: unknown --detect={detector} (sep|peaks)")
@@ -345,7 +391,31 @@ def main():
               "(--scales; field-derived set not used)")
     else:
         scales = scale_set(src, width_arcmin)
-    m = solve(stars, hint=hint, scales=scales, pos=pos)
+    if "scales" in opts:
+        tiers = [("override", scales)]
+    else:
+        cached = {s for s in scales if scale_cached(s)}
+        uncached = sorted(scales - cached)
+        if cached and uncached:
+            tiers = [("cached", cached), (f"download {uncached}", scales)]
+        elif cached:
+            tiers = [("cached", cached)]
+        else:
+            tiers = [(f"download {uncached} (nothing cached)", scales)]
+    attempts = []
+    for tlabel, tset in tiers:
+        attempts.append((tlabel, tset, pos))
+        if pos is not None and pos_src == "header":
+            attempts.append((f"{tlabel} + blind", tset, None))
+    m = winning = None
+    for alabel, aset, apos in attempts:
+        print(f"[solve_field] attempt [{alabel}]")
+        m = solve(stars, hint=hint, scales=aset, pos=apos, required=False)
+        if m is not None:
+            winning = (alabel, sorted(aset), apos)
+            break
+    if m is None:
+        sys.exit("solve_field: NO SOLUTION")
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
           f"Dec {m.center_dec_deg:+.3f} scale "
           f"{m.scale_arcsec_per_pixel:.2f} arcsec/px logodds {m.logodds:.0f}")
@@ -378,10 +448,12 @@ def main():
         wdir = os.path.dirname(src) or "."
     rec = {"input": src, "detector": detector,
            "n_stars_detected": len(stars),
-           "central": central, "position_hint": pos,
+           "central": central,
+           "position_hint": winning[2], "position_hint_source": pos_src,
+           "attempt": winning[0],
            "field_width_arcmin_arg": width_arcmin,
            "scale_hint_arcsec_px": list(hint) if hint else None,
-           "index_scales": sorted(scales),
+           "index_scales": sorted(scales), "scales_solved": winning[1],
            "ra_deg": m.center_ra_deg, "dec_deg": m.center_dec_deg,
            "scale_arcsec_px": m.scale_arcsec_per_pixel,
            "logodds": m.logodds,
