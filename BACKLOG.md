@@ -358,21 +358,17 @@ is done, purge the whole test run — session tree,
 the renamed sets cannot be mistaken for the exemplar's records later.
 Close condition: the purge commit.
 
-## 14. The dashboard↔Claude communication architecture — design first, user-gated
+## 14. CLOSED — dashboard↔Claude communication: no new surface
 
-Tier 1 (landed) runs the pinned scripts from the site with NO AI in the loop.
-The standing goal the user set: scripts built from official tools keep working
-from the dashboard WITHOUT burning CLI tokens, with Claude alongside for
-troubleshooting and further building at any time. Before any Tier-2/3 build,
-AUDIT the communication surface: what Claude reads when the user drives the
-site (job logs, records, status endpoints — everything queryable on demand,
-nothing pushed into context; long logs summarized at the source, never pasted);
-whether a workspace MCP server should expose the script surface as typed
-compact-output tools (one surface shared by interactive CLI and any headless
-bridge); and where the Agent SDK bridge fits (propose-in-browser with the
-approve gate rendered in the UI). Each new surface is a contract amendment,
-ratified like the framing and mount writes. Close condition: a ratified
-design note + the first implemented tier passing a token-cost review.
+USER-DECIDED: Claude is not integrated into the dashboard. No workspace MCP
+server, no Agent SDK bridge, no new endpoints — the pipeline stays
+zero-AI-token, and Claude reads what the runs already leave behind: the
+summarized `sessions/.webjobs/` job logs, the typed `datasets/` records, and
+the deep tool logs grep-first, never whole. The standing rule for any new
+stage is unchanged: summarize at source, one compact JSON record per result.
+The evaluated-and-rejected alternatives are recorded in
+[`docs/dashboard-claude-communication.md`](docs/dashboard-claude-communication.md)
+so they are not re-proposed.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
