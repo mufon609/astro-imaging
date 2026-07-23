@@ -1,6 +1,6 @@
 {
  "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
- "flat": "/home/neural/Desktop/astrophotography/sessions/july14_fresh-start/work/masters/skyflat_set-02.fit",
+ "flat": "/home/neural/Desktop/astrophotography/sessions/july14_fresh-start/work/masters/skyflat_set-05.fit",
  "build": {
   "frames": 147,
   "rejection": "wins",
@@ -40,5 +40,5 @@
  },
  "findstar_speck_count": 0,
  "gate": "smooth falloff (corners < centre), NO structured sky residual (MW band / IFN clumps) on the preview, speck count ~0; the eye check + the with/without finals comparison gate adoption (dead-end registry: a sky flat is dust-safe only when validated)",
- "preview": "/home/neural/Desktop/astrophotography/sessions/july14_fresh-start/work/masters/skyflat_set-02_view.png"
+ "preview": "/home/neural/Desktop/astrophotography/sessions/july14_fresh-start/work/masters/skyflat_set-05_view.png"
 }

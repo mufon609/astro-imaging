@@ -338,16 +338,24 @@ roughly a third of the total static-structure budget (≈1.0/1.5/1.2 ADU, the re
 being unresolved-star confusion texture) and comparable to the random noise left
 at that depth. The x86 denoise tier now has a measured target size.
 
-## 13. Purge the front-end test run (july14_fresh-start) when it completes
+## 13. july14_fresh-start naming divergence — RESOLVED (records realigned)
 
-USER-ORDERED, end-gated: the staged re-run of the retired exemplar's frames
-lives as `set-01`/`set-02` under `sessions/july14_fresh-start/` — a DECLARED
-naming divergence (the ranges are the exemplar's set-04 DSC_7941–8339 and
-set-05 DSC_8341–8487; no flats were shot). Once the front-end pipeline test
-is done, purge the whole test run — session tree,
-`web/results/july14_fresh-start/`, and `datasets/july14_fresh-start/` — so
-the renamed sets cannot be mistaken for the exemplar's records later.
-Close condition: the purge commit.
+The M1 front-end test run mislabeled two sets: what it staged as `set-01`/`set-02`
+are physically the exemplar's **set-04 (DSC_7941–8339, 399 fr)** and **set-05
+(DSC_8341–8487, 147 fr)** — USER-CONFIRMED. Rather than purge (the original plan
+when it was a throwaway test), the location was promoted to the REAL dataset: the
+full acquisition was downloaded to `sessions/july14_fresh-start/` under correct
+server naming (set-00…set-05 + darks), so the mislabel was fixed at the source.
+The tracked records were realigned to match: the M1 `datasets/.../set-01` records
+→ `set-04`, `set-02` → `set-05` (acquisition/recipe/frame_metrics/anomaly_audit +
+`skyflat_set-0{1,2}_qa.json` → `skyflat_set-0{4,5}_qa.json`), and
+`framing_stack_set-01+02_max_spcc.json` → `…set-04+05…`. `datasets/.../set-01` now
+correctly holds the REAL set-01 (373 fr) lens work only. No flats were shot for any
+set (sky-flat route). OPEN: real set-01/02/03 have raws but no acquisition/recipe
+records yet — those seed when each set is processed (the deriver's design; a
+missing record is handled gracefully). OPEN (user call): the session dir is still
+named `july14_fresh-start`; rename to `july14` now that it is the real dataset, or
+leave it.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
