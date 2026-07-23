@@ -270,7 +270,10 @@ declared delta when its gate opens.
   register at the default sigma. Mechanism: the two paths were built from
   different data classes. Named test: on the first FITS-class set, a one-knob
   registration ladder (default vs `-sigma=0.5`) — adopt per measured
-  match-rate, never by symmetry alone.
+  match-rate, never by symmetry alone. MEASURED at first contact (three
+  mono filter sets): default sigma registered 46/46 at ~1500–2000
+  stars/frame — no match-rate to recover; the ladder stays dormant until
+  a FITS set shows matching loss.
 - **Deconvolution** — a measured dead-end on arm64 data (unstable symmetric PSF on
   in-exposure trailing); BlurXTerminator reopens it on x86 (`--correct-only`).
 - **`run_pipeline` auto-routing to a large-sequence path** — largely unnecessary at
