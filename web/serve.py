@@ -613,9 +613,14 @@ def _stage_registry():
             "phase": "finish",
             "params": [
                 {"name": "stack", "kind": "path", "req": True, "choices": "stacks", "hint": "stack under web/results/"},
+                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections"},
             ],
             "build": lambda a: (lambda s: ["python3", "scripts/calibrate/solve_field.py", s,
-                                           "--inject=" + s[:-4] + "_wcs.fit"])(
+                                           "--inject=" + s[:-4] + "_wcs.fit"]
+            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
+               else (["--central=0.35"] if _parse_product(
+                   os.path.basename(s)[len("stack_"):-len(".fit")])[1]
+                   .startswith("max") else [])))(
                 _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit")),
         },
         "spcc_cone": {
