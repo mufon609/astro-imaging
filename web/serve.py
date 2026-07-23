@@ -536,6 +536,43 @@ def _arg_framing(v):
     return v
 
 
+def _veil_threshold(session):
+    """The coverage-veil threshold (members) the previews were generated
+    with — the bound the user SAW while drawing. Read from the manifest;
+    None when no veil preview exists."""
+    man = _read_json(os.path.join(REPO, "web", "results", session,
+                                  "previews", "manifest.json")) or {}
+    for i in man.get("items") or []:
+        if i.get("kind") == "coverage" and i.get("threshold_members"):
+            return i["threshold_members"]
+    return None
+
+
+def _verify_framing_argv(a):
+    """Mode pairing is validated HERE so a bad combination fails in the form
+    (dry-run/Run click), never as a spawned job: map mode needs map_min
+    (blank derives the drawn veil threshold); exactly one mode at a time."""
+    argv = ["python3", "web/verify_framing.py",
+            _arg_session(a["session"]), _safe(a["product"], "product")]
+    has_map, has_floor = bool(a.get("map")), bool(a.get("min_floor"))
+    if has_map and has_floor:
+        raise ValueError("pick ONE mode: map (+ map_min) OR min_floor")
+    if not has_map and not has_floor:
+        raise ValueError("pick a mode: map (+ map_min) or min_floor")
+    if has_map:
+        mm = a.get("map_min") or _veil_threshold(a["session"])
+        if not mm:
+            raise ValueError("map mode needs map_min — no coverage-veil "
+                             "threshold found in the previews manifest to "
+                             "derive it from")
+        argv += ["--map=" + _arg_repo_path(
+                     a["map"], [os.path.join("web", "results")], ext=".fit"),
+                 f"--map-min={_arg_int(mm, 1, 65)}"]
+    else:
+        argv.append(f"--min-floor={_arg_int(a['min_floor'], 0, 65535)}")
+    return argv
+
+
 def _derive_set(stack_rel, explicit):
     """The SPCC-routing set: explicit wins; else the stack name's first
     member (the combine precedent — routing only affects the recipe spec
@@ -784,15 +821,10 @@ def _stage_registry():
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "product", "kind": "str", "req": True, "choices": "framing_products", "hint": "product of a drawn framing record (unverified first)"},
                 {"name": "map", "kind": "path", "req": False, "choices": "maps", "hint": "coverage map .fit (map mode)"},
-                {"name": "map_min", "kind": "int", "req": False, "hint": "required members (map mode)"},
+                {"name": "map_min", "kind": "int", "req": False, "hint": "required members (map mode) — blank derives the veil threshold the previews were drawn against"},
                 {"name": "min_floor", "kind": "int", "req": False, "hint": "sibling-class sky floor ADU (no-map mode)"},
             ],
-            "build": lambda a: ["python3", "web/verify_framing.py",
-                                _arg_session(a["session"]), _safe(a["product"], "product")]
-            + ([f"--map={_arg_repo_path(a['map'], [os.path.join('web', 'results')], ext='.fit')}"]
-               if a.get("map") else [])
-            + ([f"--map-min={_arg_int(a['map_min'], 1, 65)}"] if a.get("map_min") else [])
-            + ([f"--min-floor={_arg_int(a['min_floor'], 0, 65535)}"] if a.get("min_floor") else []),
+            "build": _verify_framing_argv,
         },
     }
 
