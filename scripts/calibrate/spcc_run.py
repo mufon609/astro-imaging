@@ -27,8 +27,10 @@ with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
 p99, so null is the adequate default; measurement detail in git history).
 
 Defaults: in/out = <repo>/web/results/<session>/stack_<set>_{wcs,spcc}.fit (the
-project-root results tree). An explicit --in/--out resolves against the CWD or
-an absolute path; override both for non-default stems like stack_<set>_norgbeq_*.
+project-root results tree); a COMPOSED target whose plain stem is absent
+defaults to its stack_<set>_comp_{wcs,spcc}.fit family. An explicit
+--in/--out resolves against the CWD or an absolute path; override both for
+non-default stems like stack_<set>_norgbeq_*.
 The generated .ssf lives under work/ — the siril flatpak has its own
 private /tmp, so scripts must stay under $HOME.
 
@@ -107,6 +109,18 @@ def main():
             else os.path.join(results, f"stack_{set_name}_wcs.fit"))
     p_out = (os.path.abspath(opts["out"]) if "out" in opts
              else os.path.join(results, f"stack_{set_name}_spcc.fit"))
+    # a COMPOSED virtual target's product carries the _comp stem
+    # (compose.py writes stack_<target>_comp.fit): when the plain stem is
+    # absent and the composed one is solved, default to it — output too,
+    # so the product family stays stack_<target>_comp_{wcs,spcc}.fit
+    if ("in" not in opts and not os.path.exists(p_in)
+            and os.path.exists(os.path.join(
+                results, f"stack_{set_name}_comp_wcs.fit"))):
+        p_in = os.path.join(results, f"stack_{set_name}_comp_wcs.fit")
+        if "out" not in opts:
+            p_out = os.path.join(results,
+                                 f"stack_{set_name}_comp_spcc.fit")
+        print("[spcc_run] composed target — defaulting to the _comp stems")
     if not os.path.exists(p_in):
         sys.exit(f"spcc_run: no input {p_in} (plate-solve first: "
                  "solve_field.py --inject)")
