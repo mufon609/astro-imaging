@@ -43,7 +43,13 @@ API:
                           on page load. One job at a time; argv only (no
                           shell); logs under sessions/.webjobs/.
   GET  /api/jobs, /api/jobs/<id>, /api/jobs/<id>/log?offset=N
-                       -> job list / status / incremental log tail
+                       -> job list / status / incremental log tail. Every job
+                          also persists a <id>.json record beside its log;
+                          on startup, still-running records are re-adopted
+                          (pid-checked) so a server restart cannot orphan a
+                          run or silently reopen the one-job-at-a-time gate.
+                          An adopted job whose process is gone reports status
+                          "unknown" (its exit code is unrecoverable).
   POST /api/jobs/<id>/kill -> SIGTERM the job's process group (user action)
   POST /api/mount      -> {session, set, mount: fixed|tracked, dry_run?} —
                           the second sanctioned record write: the human
@@ -393,6 +399,41 @@ def session_model(session):
 JOBS = {}
 JOBS_LOCK = threading.Lock()
 WEBJOBS_DIR = os.path.join(REPO, "sessions", ".webjobs")
+
+
+def _job_public(j):
+    return {k: v for k, v in j.items() if not k.startswith("_")}
+
+
+def _job_persist(j):
+    """Job state lives on disk (<jid>.json beside <jid>.log), not only in this
+    process — the record is what lets a restarted server re-adopt a run."""
+    try:
+        path = os.path.join(REPO, j["log"])[:-len(".log")] + ".json"
+        with open(path, "w") as f:
+            json.dump(_job_public(j), f, indent=1)
+            f.write("\n")
+    except OSError:
+        pass
+
+
+def _pid_alive(pid, cmd):
+    """Best-effort liveness for an adopted job: the pid must exist AND its
+    /proc cmdline must still contain the job's own command token (guards the
+    common pid-reuse case; an unreadable /proc entry counts as alive)."""
+    if not pid:
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as f:
+            cmdline = f.read().replace(b"\0", b" ").decode(errors="replace")
+    except OSError:
+        return True
+    tok = (cmd or "").split()[0] if cmd else ""
+    return not tok or os.path.basename(tok) in cmdline
 
 
 def _arg_session(v):
@@ -998,10 +1039,11 @@ def start_job(stage, args, dry_run=False):
                                 stderr=subprocess.STDOUT,
                                 start_new_session=True)
         JOBS[jid] = {"id": jid, "stage": stage, "cmd": cmd,
-                     "status": "running", "rc": None,
+                     "status": "running", "rc": None, "pid": proc.pid,
                      "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                      "ended": None, "log": os.path.relpath(log_path, REPO),
                      "_proc": proc, "_logf": log_f}
+        _job_persist(JOBS[jid])
     return {"id": jid, "stage": stage, "cmd": cmd, "status": "running"}
 
 
@@ -1017,7 +1059,15 @@ def _job_refresh(j):
                 j["_logf"].close()
             except OSError:
                 pass
-    return {k: v for k, v in j.items() if not k.startswith("_")}
+            _job_persist(j)
+    elif j.get("_adopted") and j["status"] == "running":
+        # re-adopted from a previous server process: no Popen handle, so
+        # liveness is the pid; if it is gone the exit code is unrecoverable
+        if not _pid_alive(j.get("pid"), j.get("cmd")):
+            j["status"] = "unknown"
+            j["ended"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            _job_persist(j)
+    return _job_public(j)
 
 
 def jobs_list():
@@ -1054,12 +1104,37 @@ def job_kill(jid):
         j = JOBS.get(jid)
         if not j:
             return None
-        if j["status"] == "running" and j.get("_proc"):
+        if j["status"] == "running" and (j.get("_proc") or j.get("pid")):
+            pid = j["_proc"].pid if j.get("_proc") else j["pid"]
             try:
-                os.killpg(os.getpgid(j["_proc"].pid), signal.SIGTERM)
-            except ProcessLookupError:
+                os.killpg(os.getpgid(pid), signal.SIGTERM)
+            except (ProcessLookupError, PermissionError):
                 pass
         return _job_refresh(j)
+
+
+def _load_jobs():
+    """Re-adopt persisted job records on startup: finished ones for the list,
+    still-running ones pid-checked so the one-at-a-time gate keeps holding
+    across a server restart (start_new_session detaches the process group,
+    so the run itself survives the server)."""
+    try:
+        names = sorted(os.listdir(WEBJOBS_DIR))
+    except OSError:
+        return
+    for n in names:
+        if not (n.startswith("j") and n.endswith(".json")):
+            continue
+        rec = _read_json(os.path.join(WEBJOBS_DIR, n))
+        if not rec or not isinstance(rec, dict) or "id" not in rec:
+            continue
+        j = dict(rec)
+        if j.get("status") == "running":
+            j["_adopted"] = True
+        JOBS[j["id"]] = j
+
+
+_load_jobs()
 
 
 def radec_corners(wcs_path, rect_screen, canvas_h):
