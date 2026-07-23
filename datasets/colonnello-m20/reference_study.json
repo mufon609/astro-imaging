@@ -1,0 +1,41 @@
+{
+ "purpose": "README step-0 REFERENCE STUDY — the maker's answer key decoded BEFORE any look is tuned (the measured lesson: never tune toward an unstudied reference). Facts here come from the reference files' own APP-written names/headers/EXIF, our astrometric solve of the reference canvas, and the published tutorial thread; every unconfirmed token is marked, not guessed.",
+ "reference_dir": "sessions/colonnello-m20/reference/",
+ "provenance": {
+  "dataset_author": "Diego Colonnello (shared publicly for APP's multi-channel tutorial; his own earlier finish is 'm 20.JPG', Lightroom 6.12, 2018-04-23)",
+  "reference_maker": "Mabula Haverkamp (Astro Pixel Processor's author) — 'Diego-M20-by-Mabula.jpg'",
+  "tool": "Astro Pixel Processor 1.061 (SOFTWARE/VERSION in every FITS; JPG EXIF Software matches)",
+  "tutorial_thread": "https://www.astropixelprocessor.com/community/tutorials-workflows/fully-automatic-multi-channel-processing-with-trifid-nebula-rgb-data-from-diego-colonnello/",
+  "thread_note": "the thread names the corpus (100 bias / 20 darks / per-filter flats 20-20-9 / BPM) and demos APP's automatic multi-channel feature; Mabula states no post-integration values in text (they live in tutorial screenshots). RawTherapee/Photoshop mentions in the thread are OTHER participants, not Mabula.",
+  "final_is_pure_APP": "the JPG (4671x3539, the full combine canvas) was exported from APP itself 111 s after the combine FITS was written (EXIF Software + timestamps 20:04:10 -> 20:06:01, 2018-05-19) — no external editor in the maker's finish"
+ },
+ "makers_chain_decoded": {
+  "calibration": "MB 100x0.01s bias; MD 20x80s darks; per-filter MF flats (Blue 20x2.91s, Green 20x3.01s, Red 9x7.0s, median); BPM 4656x3520 from flats+darks",
+  "registration": "one common canvas 4671x3539 (grew from the 4656x3520 sensor by registration padding); LZ3 = Lanczos-3 interpolation; x_1.0 = no rescale",
+  "integration_per_filter": "St-med = MEDIAN integration; qua = quality weighting; add-sc = additive+scaling normalization; 1st-degree LNC (Local Normalization Correction: per-frame LOCAL illumination matching) x2 iterations (Green) / x3 (Red, Blue); MBB5 = Multi-Band Blending 5% (stack-edge artifact suppression). Totals: R 1200s(15) G 1200s(15) B 1280s(16) = keep-all 46, matching our ratified keep-all recipes exactly",
+  "synthetic_all_channel_integration": "St-med-3680.0s-...-Red_Green_Blue is NAXIS=2 (MONO) over all 46 subs (FILTNUM=3) — an all-channel synthetic luminance integration APP's multi-channel run produces; whether it entered the final is UNDETERMINED (the combine header says FILTNUM=1 FILTER-1='RGB composite', no L token in the name; one thread participant made LRGB, Mabula's own use is unstated)",
+  "finishing_order": "combine RGB -> lpc (remove light pollution) -> cbg (calibrate background; per-channel CBG values 0.01449 recorded in the combine header) -> csc (calibrate star colors) -> APP stretch/saturation (values unpublished, screenshots only) -> JPG export",
+  "tokens_transcribed_unconfirmed": "LNMSC_1_3.0_none, NS-full, BWMV_nor, AA, RL — verbatim from the St- filenames; semantics not confirmed from a primary source, deliberately not guessed (LNC/MBB/qua/LZ3/add-sc ARE confirmed: APP FAQ + tool docs)"
+ },
+ "astrometric_comparison": {
+  "method": "blind solve of the maker's 3680s all-channel integration (same canvas as the combine/JPG) vs our stack_m20_rgb_comp_wcs.fit; record: datasets/colonnello-m20/reference/solve_work/solve_reference_synthL.json",
+  "reference": {"scale_arcsec_px": 0.685, "parity": "MIRRORED vs sky", "rotation_deg": 76.913, "logodds": 252},
+  "ours": {"scale_arcsec_px": 0.6851, "parity": "MIRRORED vs sky", "rotation_deg": 76.9},
+  "delta": "in-plane rotation +0.01 deg, scale ratio 0.99984, SAME parity — the two canvases are already at like scale AND orientation; comparisons need no transform",
+  "orientation_decision_for_user": "our solve records parity MIRRORED vs sky, and the maker's shipped JPG is MIRRORED the same way. Matching the maker = keep the current orientation; matching the true sky handedness = one flip. USER DECIDES for the render; nothing flips until then."
+ },
+ "comparison_notes_like_scale_and_orientation": {
+  "surfaces": "Diego-M20-by-Mabula.jpg (answer key) vs judge/m20_rgb_comp_spcc-linked.png (our DIAGNOSTIC linked autostretch — not a render; the render tier is unbuilt)",
+  "background": "LARGEST DELTA. Ours sits high and carries a visible large-scale gradient (warmer/brighter left/upper-left, cooler right); the maker's is a uniform dark neutral background with the faint outer blue reflection halo still present. No background stage has run on ours (durable core ends at SPCC + autostretch).",
+  "stretch": "maker's black point is much deeper with the object standing off the sky; ours is the diagnostic autostretch (background high, nebula core washed toward white, less intra-nebula contrast).",
+  "color": "SECOND DELTA. Maker's is strongly saturated: vivid pink emission / blue reflection, and the rich AMBER field-star population (galactic-bulge reddening) is kept, reading as a feature. Ours is SPCC-correct but muted; field stars read white/pale.",
+  "stars": "both keep diffraction spikes (no separation in the 2018 APP chain); maker's stars are tighter with colored cores; ours slightly bloated by the plain autostretch (no highlight protection). Star-level detail provisional at the fit-scale view; the ladder's judgment packages carry the 1:1 notes.",
+  "faint_structure": "upper-left brown dust texture exists in BOTH (real structure, toward the galactic plane) — in ours it blends into the gradient. The field is a resolved nebula in a rich star field, NOT MW-filling: a background model has room to work, but dust/halo preservation is the deciding metric per the standing priority.",
+  "noise": "not judged at fit scale; 15-16 x 80 s per channel is modest depth. The maker's smooth sky is mostly the deep black point + median integration (2018 APP had no AI denoise)."
+ },
+ "match_input_for_item0": "the gap decomposes exactly onto the pre-registered ladder skeleton: L1 background step (biggest visible delta) -> L3 stretch shape at matched background landing (black point + curve, highlight protection) -> L4 saturation (second delta; thresholded satu, protect the amber star field) ; L2 linear denoise is measure-first (noise-split instrument) at this depth. SPCC (csc's analogue) already ran sensor-null: K R 0.880 G 0.881 B 1.000. The maker's process SHAPE (lpc -> cbg -> csc -> stretch -> saturation) maps stage-for-stage onto the Siril-native toolkit; APP itself is GUI/paid and arm-blocked, so the reproduction target is the process shape, then mature ours per the operating loop.",
+ "open_questions": [
+  "was the synthetic all-channel luminance used in Mabula's final (LRGB) or is it a byproduct? (undetermined; does not block the RGB-first ladder)",
+  "unconfirmed St- filename tokens: LNMSC_1_3.0_none / NS-full / BWMV_nor / AA / RL"
+ ]
+}
