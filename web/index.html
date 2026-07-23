@@ -516,7 +516,7 @@ function pgSurfaces() {
           : 'no judge surface — stack on disk; a finish_render pass is a proposal, not automatic'),
       h('h3', { style:'margin-top:8px' }, su.product),
       h('div', { class:'m' },
-        `${su.sets.join(' + ')} · ${su.recipe_tag} · ${su.naxis ? su.naxis.join('×') : '?'}`,
+        `${su.sets.join(' + ')} · ${su.recipe_tag || '—'} · ${su.naxis ? su.naxis.join('×') : '?'}`,
         h('br'), confirmChip(su), ' ',
         su.files.spcc ? h('span', { class:'chip ok' }, 'SPCC') : h('span', { class:'chip' }, 'no SPCC'),
         su.files.wcs ? h('span', { class:'chip ok' }, 'WCS') : null,

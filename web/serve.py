@@ -243,8 +243,17 @@ def _stack_header(path):
         return {"naxis": None, "stackcnt": None}
 
 
-def _parse_product(base):
-    """'set-01+02+03_cov25frame' -> (['set-01','set-02','set-03'], 'cov25frame')."""
+def _parse_product(base, known_sets=()):
+    """Resolve a stack product name against the session's ACTUAL sets:
+    '<set>' -> ([set], None); '<set>_<tag>' -> ([set], tag) on the longest
+    known-set prefix (so 'lights_Blue' is the set, never set 'lights' +
+    tag 'Blue'); the legacy compressed combo 'set-01+02+03_cov25frame' ->
+    (['set-01','set-02','set-03'], 'cov25frame'). Unresolvable -> ([], base)."""
+    for s in sorted(known_sets, key=len, reverse=True):
+        if base == s:
+            return [s], None
+        if base.startswith(s + "_"):
+            return [s], base[len(s) + 1:]
     m = re.match(r"^(set-\d+(?:\+\d+)*)_(.+)$", base)
     if not m:
         return [], base
@@ -383,7 +392,7 @@ def session_model(session):
                 (model["previews_manifest"] or {}).get("items", [])
                 if i.get("kind") == "selection"}
         for base, variants in sorted(bases.items()):
-            sets, tag = _parse_product(base)
+            sets, tag = _parse_product(base, [s["set"] for s in model["sets"]])
             hdr = _stack_header(os.path.join(rroot, variants.get("base")
                                              or sorted(variants.values())[0]))
             judge_name = f"{base}_spcc-linked.png"
@@ -718,6 +727,18 @@ def _stage_registry():
                 _sets_list(_arg_session(a["session"]), a["sets"]),
                 _arg_framing(a.get("framing"))),
         },
+        "compose_channels": {
+            "desc": "multi-channel target: member per-filter/per-line stacks -> ONE composed linear colour stack per its composition.json (mono-filters members are Siril-aligned to the reference member first)",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "target", "kind": "str", "req": True, "choices": "composed",
+                 "hint": "composed target (datasets/<session>/<target>/composition.json)"},
+            ],
+            "build": lambda a: ["python3", "scripts/stack/compose.py",
+                                P("sessions", _arg_session(a["session"])),
+                                _arg_set(a["target"])],
+        },
         "coverage_probe": {
             "desc": "per-pixel coverage map of a compose (constant twins through the stored registration; value/1000 = covering members; members*1000 must stay <= 65535)",
             "phase": "surfaces",
@@ -903,6 +924,14 @@ def path_choices(session):
              else [])
             if d.startswith("groups_") and os.path.isdir(
                 os.path.join(REPO, "sessions", session, "work", d))),
+        # composed virtual targets — set dirs under datasets/ carrying a
+        # composition.json (the channel compose's unit)
+        "composed": sorted(
+            d for d in
+            (os.listdir(os.path.join(REPO, "datasets", session))
+             if os.path.isdir(os.path.join(REPO, "datasets", session)) else [])
+            if os.path.exists(os.path.join(
+                REPO, "datasets", session, d, "composition.json"))),
     }
 
 
@@ -1006,7 +1035,8 @@ def stage_status(session):
             prev = jobs.get(st["stage"])
             if st["status"] == "running" or prev is None:
                 jobs[st["stage"]] = st["status"]
-    masters = path_choices(session)["masters"]
+    choices = path_choices(session)
+    masters = choices["masters"]
     have_dark = any(p.endswith("dark_master.fit") for p in masters)
     darks_staged = any(s["set"] == "darks" for s in m["sets"])
     flats_staged = any(s["set"] in ("flats", "calib")
@@ -1068,11 +1098,24 @@ def stage_status(session):
            else f"no stack yet for: {', '.join(miss)}")
     for name in ("stack_standard", "stack_undistort", "stack_undistort_groups"):
         put(name, *fam)
-    have_stacks = [su for stacks in per_set_stacks.values() for su in stacks]
+    composed = [s for s in m["sets"] if s.get("kind") == "composed"]
+    if composed:
+        # the astrometric/photometric chain applies to the COMPOSED colour
+        # product; mono member stacks skip SPCC (README: a mono set has no
+        # colour to calibrate)
+        have_stacks = [su for su in m["surfaces"]
+                       if any(su["product"] == c["set"]
+                              or su["product"].startswith(f"{c['set']}_")
+                              for c in composed)]
+        none_why = "waiting on the composed stack (mono member stacks skip SPCC)"
+    else:
+        have_stacks = [su for stacks in per_set_stacks.values()
+                       for su in stacks]
+        none_why = "no stacks to solve yet"
     if not have_stacks:
-        put("solve", "todo", "no stacks to solve yet")
-        put("spcc", "todo", "no stacks yet")
-        put("finish_render", "todo", "no stacks yet")
+        put("solve", "todo", none_why)
+        put("spcc", "todo", none_why)
+        put("finish_render", "todo", none_why)
     else:
         nowcs = [su["product"] for su in have_stacks if not su["files"].get("wcs")]
         put("solve", "done" if not nowcs else "todo",
@@ -1090,11 +1133,43 @@ def stage_status(session):
     put("spcc_cone", "na", "coverage check for a new field — run before "
                            "SPCC when the sky region changes")
     multi = [su for su in m["surfaces"] if len(su["sets"]) > 1]
-    put("compose", "done" if multi else
-        ("todo" if not miss else "na"),
-        f"combine(s) on disk: {', '.join(su['product'] for su in multi)}"
-        if multi else ("per-set stacks ready to compose" if not miss
-                       else "waiting on per-set stacks"))
+    if multi:
+        put("compose", "done",
+            f"combine(s) on disk: {', '.join(su['product'] for su in multi)}")
+    elif not choices["groupsets"]:
+        put("compose", "na",
+            "no group sub-stacks — this compose is the undistort-groups "
+            "route's cross-set combine; a multi-filter target composes via "
+            "compose_channels")
+    else:
+        put("compose", "todo" if not miss else "na",
+            "group sub-stacks ready to compose" if not miss
+            else "waiting on per-set stacks")
+
+    comp_built, comp_ready, comp_wait = [], [], []
+    for c in composed:
+        members = list((((c.get("composition") or {}).get("members"))
+                        or {}).values())
+        if os.path.exists(os.path.join(REPO, "web", "results", session,
+                                       f"stack_{c['set']}_comp.fit")):
+            comp_built.append(c["set"])
+        elif members and all(per_set_stacks.get(mn) for mn in members):
+            comp_ready.append(c["set"])
+        else:
+            comp_wait.append(c["set"])
+    if not composed:
+        put("compose_channels", "na",
+            "no composition record — single-stack session")
+    elif comp_ready or comp_wait:
+        put("compose_channels", "todo",
+            (f"member stacks ready — compose: {', '.join(comp_ready)}"
+             if comp_ready else "")
+            + ("; " if comp_ready and comp_wait else "")
+            + (f"waiting on member stacks for: {', '.join(comp_wait)}"
+               if comp_wait else ""))
+    else:
+        put("compose_channels", "done",
+            f"composed stack(s) on disk: {', '.join(comp_built)}")
     put("coverage_probe", "done" if m.get("coverage_maps") else
         ("todo" if multi else "na"),
         f"map(s) on disk: {', '.join(c['file'] for c in m['coverage_maps'])}"
