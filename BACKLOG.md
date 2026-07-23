@@ -84,6 +84,24 @@ the two-window solve on the NEXT staged set — the first live MEASURE→MATCH r
 wire the fingerprint into the builders' MATCH→RECOMMEND preflight (still user-gated —
 it recommends a route, never auto-executes).
 
+**USER-ORDERED broadening (first FITS corpus, colonnello-m20):** the check must
+generalize past the camera-raw class and surface WITHOUT being asked. The corpus
+declared `tracked`, and the data alone makes that decisive — a fixed mount at
+80 s / 1150 mm / 0.68″/px predicts an in-exposure trail of 15″/s × cos(dec
+−22.9°) × 80 s ÷ 0.68″/px ≈ **1600 px**; the frames show pinpoint stars
+(user-observed; findstar roundness lands with frame QA). Three parts: (a) the
+FITS-header acquisition facts — LANDED (`acquisition.py` FITS branch:
+INSTRUME/TELESCOP/FOCALLEN/XPIXSZ/GAIN/DATE-OBS; `iso` null, `gain` + `binning`
+recorded); (b) the mount check CONFIRMS/CONTRADICTS from the
+trail-prediction-vs-roundness term ALONE where the magnitude is decisive
+(~1600 px vs round is not a judgment call; the two-window solve stays the
+precise instrument near the boundary); (c) the fingerprint seeds AUTOMATICALLY
+at STAGING — derived when a session lands, surfaced in the web session model
+(the UI already renders `fingerprint.mount_check.verdict` and the
+"fingerprint not yet derived" state), consumers STOP on CONTRADICT — never
+waiting to be asked. Derivation + record only: it recommends and checks; the
+user stays the gate on every output-shaping run.
+
 **The pipeline should READ the gathered data and work out what it is**, then organise
 processing around that. The route a dataset needs is selected by a config fingerprint
 — today "untracked drift at wide focal" — and that fingerprint is DERIVABLE, not
