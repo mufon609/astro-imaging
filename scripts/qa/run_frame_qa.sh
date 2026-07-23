@@ -52,11 +52,20 @@ Q=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$Q/frameqa
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
 
+# lights class: camera raws, or dedicated-astrocam FITS (registered as-is —
+# a mono FITS set measures true, non-CFA FWHM; an OSC-FITS set re-decides
+# its sampling per the removal-condition register before relying on absolutes)
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+MODE=raw
+if [ ${#SRC[@]} -eq 0 ]; then
+  mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+    \( -iname '*.fit' -o -iname '*.fits' \) | sort)
+  MODE=fits
+fi
 n=${#SRC[@]}
-[ "$n" -ge 8 ] || { echo "run_frame_qa: only $n raw frames under $SESSION/$SET" >&2; exit 1; }
+[ "$n" -ge 8 ] || { echo "run_frame_qa: only $n light frames (raw or FITS) under $SESSION/$SET" >&2; exit 1; }
 if [ $((n % BATCH)) -eq 1 ]; then
   BATCH=$((BATCH - 1))
   echo "run_frame_qa: batch shrunk to $BATCH (a final batch of 1 cannot be sequenced)"
@@ -67,39 +76,43 @@ echo "run_frame_qa: $n frames in $(( (n + BATCH - 1) / BATCH )) batches of $BATC
 i=0; b=0
 while [ $i -lt $n ]; do
   b=$((b+1))
-  W=$P/b$b; mkdir -p "$W/nef"
+  W=$P/b$b; mkdir -p "$W/src"
   batch_files=()
   for ((k=0; k<BATCH && i<n; k++, i++)); do
-    ln -sf "${SRC[$i]}" "$W/nef/$(basename "${SRC[$i]}")"
+    ln -sf "${SRC[$i]}" "$W/src/$(basename "${SRC[$i]}")"
     batch_files+=("$(basename "${SRC[$i]}")")
   done
   printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
   printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
-    "$W/nef" "$W" "$W" > "$W/r.ssf"
+    "$W/src" "$W" "$W" > "$W/r.ssf"
   sir "$W" "$W/r.ssf"
   reg=$(grep -c '^R0' "$W/c_.seq" || true)
   [ "$reg" -gt 0 ] || reg=$(grep -c '^R1' "$W/c_.seq" || true)
   tot=$(ls "$W"/c_*.fit 2>/dev/null | wc -l)
   python3 "$REPO/scripts/qa/inspect_stage.py" reg --dir "$P" --seq "$W/c_.seq" \
     --registered "$reg" --total "$tot" --label "batch$b"
-  rm -f "$W"/c_*.fit "$W"/*.seq; rm -rf "$W/nef"
+  rm -f "$W"/c_*.fit "$W"/*.seq; rm -rf "$W/src"
   echo "batch $b done ($i/$n)  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
 done
 
-python3 - "$P" "$Q/frame_metrics.json" "$Z" <<'PY'
-import glob, json, os, statistics as st, sys
-P, OUT, Z = sys.argv[1], sys.argv[2], float(sys.argv[3])
+python3 - "$P" "$Q/frame_metrics.json" "$Z" "$MODE" <<'PY'
+import json, os, re, statistics as st, sys
+P, OUT, Z, MODE = sys.argv[1], sys.argv[2], float(sys.argv[3]), sys.argv[4]
 
 entries = [json.loads(l) for l in open(f"{P}/metrics.jsonl")]
 flat = []
 for e in entries:
     b = int(e["label"].replace("batch", ""))
-    names = open(f"{P}/b{b}/files.txt").read().split()
+    # one name per LINE (never .split(): filenames may contain spaces)
+    names = [l for l in open(f"{P}/b{b}/files.txt").read().splitlines() if l]
     for r in e["frames"]:
         fname = names[r["n"] - 1]
-        digits = "".join(c for c in os.path.splitext(fname)[0] if c.isdigit())
+        # trailing digit run = the capture index (timeline() convention);
+        # concatenating every digit invents a number on names like
+        # "m20 1x1 Blue 0080-2"
+        runs = re.findall(r"\d+", os.path.splitext(fname)[0])
         flat.append({"n": len(flat) + 1, "file": fname,
-                     "frame_number": int(digits) if digits else None,
+                     "frame_number": int(runs[-1]) if runs else None,
                      "fwhm": r["fwhm_px"], "wfwhm": r["wfwhm_px"], "round": r["round"],
                      "bg": r["bg16"], "nstars": r["nstars"],
                      "registered": bool(r["incl"]), "ref_copy": False,
@@ -133,15 +146,21 @@ for r in flat:
                         **{k: r[k] for k in side}})
 
 scale = entries[0].get("pixel_scale_arcsec")
+method = ("raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
+          "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
+          "caveat: absolute FWHM Bayer-inflated, relative comparison only."
+          if MODE == "raw" else
+          "FITS lights (as-recorded) -> register -2pass in batches; per-frame "
+          "FWHM/roundness/background/#stars pooled (reference-independent). "
+          "Mono frames measure true, non-CFA FWHM.")
 rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; "
                "flagged at defect-side robust z >= %g (scripts/qa/cull_report.py rule)" % Z,
-       "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
-                 "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
-                 "caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+       "method": method,
        "frames_total": len(flat),
        "registered": sum(r["registered"] for r in flat),
        "match_failed": sum(not r["registered"] for r in flat),
-       "pixel_scale_arcsec_cfa": scale,
+       ("pixel_scale_arcsec_cfa" if MODE == "raw"
+        else "pixel_scale_arcsec"): scale,
        "distribution": {
         "fwhm_px": {"median": med("fwhm"), "min": mn("fwhm"), "max": mx("fwhm")},
         "roundness": {"median": med("round"), "min": mn("round"), "max": mx("round")},
