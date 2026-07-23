@@ -5,6 +5,7 @@
 # solve, Siril SPCC, Siril autostretch/savepng) and this only orchestrates them.
 #
 #   finish_render.sh <stack.fit> <png-name> [--session=D --set=S] [--ra=R --dec=D --radius-deg=N]
+#                    [--central=F] [--crop-record=J]
 #
 # Output: web/results/<session>/judge/<png-name>_spcc-linked.png (16-bit, full-frame,
 # colour-calibrated, linked stretch — the surface the user judges). Intermediates
@@ -60,6 +61,17 @@ PY
 ) || exit 1
   read -r CX CY CW CH <<< "$ARGS"
   CROPPED=$(dirname "$STACK")/stack_${NAME}.fit
+  # The cropped stack is a NEW product: writing it onto the input (a <png-name>
+  # equal to the source stem) or onto any existing stack would destroy a built
+  # product in place — refuse loudly instead.
+  if [ "$CROPPED" = "$STACK" ]; then
+    echo "finish_render: crop output $CROPPED IS the input stack — pass a distinct <png-name> (the framed product must not replace its source)" >&2
+    exit 1
+  fi
+  if [ -e "$CROPPED" ]; then
+    echo "finish_render: $CROPPED already exists — refusing to overwrite a built stack (delete it first or pick another <png-name>)" >&2
+    exit 1
+  fi
   WC=$(dirname "$STACK")/.crop_$NAME; rm -rf "$WC"; mkdir -p "$WC"
   printf 'requires 1.4.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nsave %s\n' \
     "$STACK" "$CX" "$CY" "$CW" "$CH" "${CROPPED%.fit}" > "$WC/c.ssf"
