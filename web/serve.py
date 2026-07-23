@@ -91,6 +91,25 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+.-]*$")  # no /, no leading dot
 
 
+def _git_rev():
+    try:
+        r = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                           capture_output=True, text=True, cwd=REPO, timeout=10)
+        rev = r.stdout.strip() or "unknown"
+        d = subprocess.run(["git", "status", "--porcelain"],
+                           capture_output=True, text=True, cwd=REPO, timeout=10)
+        return rev + ("+dirty" if d.stdout.strip() else "")
+    except Exception:
+        return "unknown"
+
+
+# Captured at import: this names the code THIS process is serving. A registry
+# edit after startup is invisible to a running server, so the page shows this
+# rev — when it trails the repo's HEAD, restart before the next run.
+SERVER_REV = _git_rev()
+SERVER_STARTED = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+
 def _safe(name, what):
     if not isinstance(name, str) or not NAME_RE.match(name) or ".." in name:
         raise ValueError(f"unsafe {what}: {name!r}")
@@ -1298,6 +1317,9 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._json(400, {"error": str(e)})
         if self.path == "/api/env":
             return self._json(200, env_status())
+        if self.path == "/api/version":
+            return self._json(200, {"rev": SERVER_REV,
+                                    "started": SERVER_STARTED})
         if self.path == "/api/jobs":
             return self._json(200, jobs_list())
         m = re.match(r"^/api/jobs/([A-Za-z0-9_-]+)/log(?:\?offset=(\d+))?$",
