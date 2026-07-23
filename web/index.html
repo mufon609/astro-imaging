@@ -789,16 +789,24 @@ async function openStageForm(name, st, formHost) {
       h('td', { style:'width:60%' }, paramInput(p, paths)),
       h('td', { class:'why' }, p.hint || p.kind)));
     const cmdPre = h('pre', { class:'rec', hidden:'' });
-    const runBtn = h('button', { class:'copy', disabled:'', style:'font-size:.85rem;padding:.4rem 1rem',
+    const runBtn = h('button', { class:'copy', style:'font-size:.85rem;padding:.4rem 1rem',
       onclick: async () => {
+        // one click = the DECIDE step: validate + show the exact command
+        // (dry_run), then start the same args immediately
         const args = collect();
+        cmdPre.hidden = false;
+        const pre = await fetch('/api/run', { method:'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ stage: name, args, dry_run: true }) });
+        const pj = await pre.json();
+        if (!pre.ok) { cmdPre.textContent = 'ERROR: ' + (pj.error || pre.status); return; }
+        cmdPre.textContent = '$ ' + pj.cmd;
         const r = await fetch('/api/run', { method:'POST',
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ stage: name, args }) });
         const j = await r.json();
-        cmdPre.hidden = false;
-        if (!r.ok) { cmdPre.textContent = 'ERROR: ' + (j.error || r.status); return; }
-        cmdPre.textContent = `started ${j.id}\n$ ${j.cmd}`;
+        if (!r.ok) { cmdPre.textContent = '$ ' + pj.cmd + '\nERROR: ' + (j.error || r.status); return; }
+        cmdPre.textContent = `$ ${j.cmd}\nstarted ${j.id}`;
         refreshJobs(); watchJob(j.id);
       } }, 'Run');
     const collect = () => {
@@ -823,7 +831,6 @@ async function openStageForm(name, st, formHost) {
           const j = await r.json();
           cmdPre.hidden = false;
           cmdPre.textContent = r.ok ? '$ ' + j.cmd : 'ERROR: ' + (j.error || r.status);
-          runBtn.disabled = !r.ok;
         } }, 'show command'), ' ', runBtn),
       cmdPre));
     const sessInp = document.getElementById('p_session');
@@ -846,7 +853,7 @@ async function pgRun() {
   setTimeout(refreshJobs, 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
-    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendment): pick a stage, see the exact command, then the run click is your DECIDE step. One job at a time.'),
+    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendment): the Run click is your DECIDE step — it shows the exact command and starts the job (show command previews without running). One job at a time.'),
     ...phases.map(ph => {
       const names = Object.keys(stages).filter(n => stages[n].phase === ph);
       if (!names.length) return null;

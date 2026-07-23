@@ -651,7 +651,7 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters", "hint": "master dark under work/masters/"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark", "hint": "master dark under work/masters/"},
             ],
             "build": lambda a: ["scripts/stack/build_sky_flat.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
@@ -675,8 +675,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
-                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "frames", "kind": "int", "req": False, "hint": "even-stride subset preserving the time span"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_pipeline.sh",
@@ -691,8 +691,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
-                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "group", "kind": "int", "req": False, "hint": "frames per group (default 15)"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_groups.sh",
@@ -865,6 +865,15 @@ def path_choices(session):
     return {
         "masters": [f"sessions/{session}/work/masters/{f}"
                     for f in ls(mdir, lambda f: f.endswith(".fit"))],
+        # class-split master lists so a --dark box never suggests a flat or
+        # bias master and vice versa (bias_master is internal to the flat
+        # build — no stage takes it, so no list offers it)
+        "masters_dark": [f"sessions/{session}/work/masters/{f}"
+                         for f in ls(mdir, lambda f: f.endswith(".fit")
+                                     and f.startswith("dark"))],
+        "masters_flat": [f"sessions/{session}/work/masters/{f}"
+                         for f in ls(mdir, lambda f: f.endswith(".fit")
+                                     and f.startswith(("flat", "skyflat")))],
         "stacks": [f"web/results/{session}/{f}"
                    for f in ls(rdir, lambda f: f.startswith("stack_")
                                and f.endswith(".fit")

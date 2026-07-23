@@ -30,8 +30,10 @@ record the render chain consumes. No external service; the server binds
   automatically, never on page load. An executed stage is one of a FIXED
   registry of the repo's pinned scripts (`serve.py` `/api/stages`), runs with
   the same records, gates and degrade-loudly behavior as a CLI run, shows its
-  exact command before the run click, runs one at a time, and leaves its log
-  under `sessions/.webjobs/`. The server stays 127.0.0.1-only.
+  exact command with the run (validated and displayed as the job starts, with
+  an on-demand preview that runs nothing — user-ratified one-click amendment),
+  runs one at a time, and leaves its log under `sessions/.webjobs/`. The
+  server stays 127.0.0.1-only.
 
 ## Running it
 
