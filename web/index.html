@@ -655,8 +655,12 @@ function paramInput(p, paths) {
     style:'width:100%;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 7px;font:12.5px var(--mono)' });
   if (p.kind === 'session') inp.value = SESSION;
   if (p.kind === 'set' && lightSets().length) {
+    // operable set targets only: light sets (the stack/QA stages' unit) and
+    // composed virtual targets (finish_render routes SPCC by them) — never
+    // calibration groups or the reference answer key
     const dl = h('datalist', { id: 'dl_' + p.name },
-      (M.sets || []).map(s => h('option', { value: s.set })));
+      (M.sets || []).filter(s => s.kind === 'lights' || s.kind === 'composed')
+        .map(s => h('option', { value: s.set })));
     inp.setAttribute('list', 'dl_' + p.name);
     return frag(inp, dl);
   }
