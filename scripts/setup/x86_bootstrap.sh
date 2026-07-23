@@ -268,11 +268,11 @@ if [[ $DO_DATA -eq 1 ]]; then
   manifest ASTAP CLI-2026.07.16 "$ASTAP_URL" "$ASTAP_SHA" "$ASTAP_BIN" "'$ASTAP_BIN'" "W08+G05 wide DBs (ultra-wide class); d50 for narrow; use astap_cli headless; libssl-dev if TLS errors"
 fi
 
-# Cosmic Clarity — NOT auto-installed yet: the GH release is a rolling tag whose per-asset
-# digests must be enumerated first. Skip loudly rather than mkdir an empty dir + a
-# manifest row that falsely claims it's installed.
-log "Cosmic Clarity: NOT installed — TODO enumerate + sha256 each release asset (binaries + .onnx/.pth) via the GH API, then fetch+unzip. Install by hand meanwhile."
-manifest CosmicClarity PENDING "gh:setiastro/cosmicclarity#$COSMIC_TAG" TODO-per-asset-sha256 "$OPT/cosmicclarity-${COSMIC_DATE}" "SetiAstroCosmicClarity --help" "NOT AUTO-INSTALLED (TODO: asset enumeration); --disable_gpu; gnome-terminal only for GUI launcher"
+# Cosmic Clarity — NOT installed here: the suite is a multi-GB MANUAL download with no
+# stable pinnable URL (the GH "Linux" tag is an a-la-carte updater, and the full-suite
+# bundle comes from the setiastro site). Staged by hand, then placed + verified by the
+# dedicated installer, which records the folder-batch I/O + the satellite/superres gap.
+log "Cosmic Clarity: install manually — download the CosmicClaritySuite_Linux bundle, extract, then run scripts/setup/install_cosmicclarity.sh (USER-OWNED /opt install; folder-batch I/O). satellite+superres are a known GAP (bundle torch runtime broken)."
 
 # Nightlight — go build from the dormant tag (optional; a cross-check tool)
 log "Nightlight: go build $NIGHTLIGHT_VER (Go >=1.20)"
