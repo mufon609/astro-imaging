@@ -417,6 +417,20 @@ def _job_persist(j):
         pass
 
 
+def _log_tail(j, max_bytes=4096, max_lines=25):
+    """Bounded tail of a job's log — attached to the record when a job does
+    not end 'done', so the failure evidence travels with the job instead of
+    requiring a log walk. An excerpt, verbatim; never a judgment."""
+    try:
+        with open(os.path.join(REPO, j["log"]), "rb") as f:
+            f.seek(0, 2)
+            f.seek(max(0, f.tell() - max_bytes))
+            data = f.read().decode(errors="replace")
+    except OSError:
+        return None
+    return "\n".join(data.splitlines()[-max_lines:]) or None
+
+
 def _pid_alive(pid, cmd):
     """Best-effort liveness for an adopted job: the pid must exist AND its
     /proc cmdline must still contain the job's own command token (guards the
@@ -1059,6 +1073,8 @@ def _job_refresh(j):
                 j["_logf"].close()
             except OSError:
                 pass
+            if j["status"] != "done":
+                j["tail"] = _log_tail(j)
             _job_persist(j)
     elif j.get("_adopted") and j["status"] == "running":
         # re-adopted from a previous server process: no Popen handle, so
@@ -1066,6 +1082,7 @@ def _job_refresh(j):
         if not _pid_alive(j.get("pid"), j.get("cmd")):
             j["status"] = "unknown"
             j["ended"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            j["tail"] = _log_tail(j)
             _job_persist(j)
     return _job_public(j)
 

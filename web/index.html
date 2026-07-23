@@ -726,7 +726,7 @@ async function refreshJobs(logView) {
   if (list) list.replaceChildren(
     jobs.length ? h('table', { class:'ledger' },
       h('tr', {}, ...['job', 'stage', 'status', ''].map(t => h('th', {}, t))),
-      jobs.map(j => h('tr', {},
+      jobs.flatMap(j => [h('tr', {},
         h('td', {}, j.id),
         h('td', {}, j.stage),
         h('td', {}, h('span', { class: j.status === 'running' ? 'chip warn'
@@ -738,8 +738,12 @@ async function refreshJobs(logView) {
             ev.preventDefault();
             await fetch(`/api/jobs/${j.id}/kill`, { method:'POST' });
             refreshJobs();
-          } }, 'kill')) : null))))
-    : h('p', { class:'m' }, 'no jobs this server session — logs persist under sessions/.webjobs/'));
+          } }, 'kill')) : null)),
+        (j.status !== 'running' && j.status !== 'done' && j.tail)
+          ? h('tr', {}, h('td', { colspan:'4' },
+              h('pre', { class:'rec', style:'margin:2px 0 10px;max-height:200px;overflow:auto' }, j.tail)))
+          : null].filter(Boolean)))
+    : h('p', { class:'m' }, 'no jobs on record — records + logs persist under sessions/.webjobs/'));
 }
 
 let WATCH = { id: null, offset: 0 };
