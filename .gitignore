@@ -61,6 +61,13 @@
 # this line makes the contract explicit.
 /web/results/
 
+# --- vendor tool payloads staged at the repo root ---
+# Downloaded installer archives + model weights. Multi-GB binaries and image
+# data: never committed, never redistributed (vendor licences vary). The tool
+# itself installs to /opt and is recorded in scripts/setup/manifest.tsv — this
+# dir is only the staging area the archives were fetched into.
+/cosmic/
+
 # --- tooling / OS cruft ---
 __pycache__/
 *.pyc

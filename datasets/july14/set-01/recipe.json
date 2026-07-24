@@ -1,0 +1,15 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [6896, 6897, 6900, 7268],
+  "why": {
+   "6896": "session-first frame + satellite trail (221 px) — session-edge cull policy (BACKLOG item 3)",
+   "6897": "z>3.5 FWHM flag + satellite trail in the same opening pass",
+   "6900": "worst frame on all three QA axes + satellite streak",
+   "7268": "session-last frame + satellite trail (100 px) — session-edge cull policy",
+   "kept_7263_7264": "QA-only transient two-frame dip bracketed by the set's best-focus frame; kept — dropping a minority subset buys no matching gain and pays the sqrt(N) noise penalty",
+   "satellites_kept": "81 detections across ~70 frames (audit_work/anomaly_audit.json), all faint single trails — a moving minority trail stacks clean through rej 3 3; listed, not culled",
+   "weight_null": "wFWHM weighting at this set's 6% FWHM spread is worse than none (min-max ramp soft-culls the worst frame at any spread)"
+  }
+ }
+}

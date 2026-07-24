@@ -1,0 +1,55 @@
+{
+ "camera": "NIKON Z6_3",
+ "lens": "NIKKOR Z 24-70mm f/4 S",
+ "focal_mm": 70.0,
+ "grid_control": {
+  "identical": false,
+  "sigma": [
+   45613.1,
+   45619.6,
+   45617.0
+  ],
+  "max": [
+   54196.0,
+   54034.0,
+   54032.0
+  ]
+ },
+ "uniform_diff": {
+  "identical": true,
+  "sigma": [],
+  "max": []
+ },
+ "region_medians": {
+  "centre": [
+   30000.0,
+   30000.0,
+   30000.0
+  ],
+  "corner_TL": [
+   30000.0,
+   30000.0,
+   30000.0
+  ],
+  "corner_TR": [
+   30000.0,
+   30000.0,
+   30000.0
+  ],
+  "corner_BL": [
+   30000.0,
+   30000.0,
+   30000.0
+  ],
+  "corner_BR": [
+   30000.0,
+   30000.0,
+   30000.0
+  ]
+ },
+ "centre_median": 30000.0,
+ "worst_corner": "corner_TL",
+ "worst_delta_adu": 0.0,
+ "tol_adu": 1.0,
+ "verdict": "PASS"
+}

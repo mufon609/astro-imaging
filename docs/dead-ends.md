@@ -113,6 +113,17 @@ the constraints any such tool must satisfy):
   deprecated). Caveats: `--no-remove-lines --uniformize 0` (or list filters) still thin a
   supplied xylist; and two valid fits' centres can differ by hundreds of arcsec (the SIP
   wobble below), which never reaches SPCC (it re-matches stars from the seed).
+- **Siril SPCC SIGSEGVs (exit 139) in aperture photometry when the sensor DATABASE
+  is missing — not a data/field bug.** MEASURED on a fresh x86 rig: the crash hit
+  at "Applying aperture photometry to N stars" on ANY star count (5305, 106, 291),
+  any field size (full 20° or a 7.5° crop), and single- or multi-thread — because
+  siril's SPCC sensor/filter/white-reference database dir was absent, so it applied
+  a `(null)` sensor response and dereferenced it. The catalog (Gaia chunks) being
+  present is NOT enough; the sensor database is a SEPARATE git repo. The tell is
+  `spcc_list oscsensor` returning EMPTY and a log line "Unable to open directory:
+  .../siril-spcc-database". Fix = clone it (CLAUDE.md Environment, SPCC
+  prerequisites). Do NOT chase the star count, field width, catalog format, or bit
+  depth — all ruled out; the crash prints nothing useful and mimics a data bug.
 - 1-pass sequence-start registration strands drifting tail frames; 2-pass + low
   detection sigma recovers them; on trailed frames a reference sweep beats the
   auto-reference. Keep all frames (dropping a minority sub-focal subset buys no
@@ -201,7 +212,16 @@ the constraints any such tool must satisfy):
   (`install_lens_model.sh`) so distortion is the only correction darktable CAN apply (the
   unwanted vignetting DOUBLE-corrects flat-corrected lights — corner/centre 1.27–1.37× linear,
   2.2–2.6× stretched). Verify after any darktable/lensfun bump with a uniform-card warp: corner
-  medians must equal centre.
+  medians must equal centre — **but the uniform card ALONE is a VACUOUS test.** Warping a uniform
+  field yields the same uniform field, so corner==centre passes whether vignetting was stripped OR
+  the module never fired at all (MEASURED on x86: the uniform card's `lensdist` vs `nodist` renders
+  came back PIXEL-IDENTICAL, Siril `isub` → "all nil", while the module was demonstrably live). It
+  needs a GRID positive control that MUST differ (grid card gave sigma 45613–45620, max ~54000) to
+  prove the module fires; only then does the uniform card's flat corner-vs-centre mean "no
+  photometric correction". `scripts/darktable/verify_lens_card.py` runs both legs and fails if
+  either fails. Do NOT compare the rendered files byte-wise — `cmp` reported those same
+  pixel-identical renders as DIFFERING (TIFF metadata). This checks the correction SET, never its
+  CORRECTNESS: a wrong-but-present distortion model passes both legs.
 - **The trap (same mechanism, other side): a lens the DB cannot match gets NO correction,
   SILENTLY** — an unrecognised `LensModel` gave max |dr| = 0.000 px over 413 stars, exit 0, not
   one word in the log; a wrong-but-present lens is worse (a wrong, weaker model, also silent).

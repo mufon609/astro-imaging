@@ -21,26 +21,32 @@ re-checked it, and the stale metric went on to invent a false anomaly that a who
 follow-up session was scoped to chase. Re-check this register when a tool version
 changes, when the rig changes, and before any item below is worked.
 
-**Exemplar status:** the july14 dataset — the source of many measures cited
-below — is WIPED from the working tree on user order (raws, derived data,
-finals, tracked records); git history + the approved tag hold the full record.
-The cited mechanisms stand as measured lessons; a row's numbers re-verify only
-when a comparable set arrives. The july14_fresh-start front-end test re-run is
-likewise purged (item 13, closed).
+**Exemplar status:** the ORIGINAL july14 processing records + finals (the source
+of many measures cited below — `gradient_qa.json`, `registration_qa.json`,
+`flat_source_set03`, etc.) were WIPED from the working tree on user order; git
+history + the approved tag (`july14-all5-cov25frame-approved`) hold the full
+record. july14 has since been REPOPULATED as the live dataset (the full real
+acquisition under correct server naming — set-00…set-05 + darks — at
+`sessions/july14/`, with the x86 set-01 lens work + the realigned set-04/set-05
+records under `datasets/july14/`; the earlier `july14_fresh-start` scaffold name
+is retired). So a cited record path resolves to the current dataset's lineage but
+the specific wiped file is historical: those measured mechanisms stand as lessons,
+and a row's numbers re-verify when that set is re-processed here.
 
 | divergence | condition that retires it | status |
 |---|---|---|
 | `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. **Known miss mode (user-caught):** the set-02 aircraft's ENTRY frame (DSC_7573) was not linked to the object — 2 of 3 crossing frames classified; the entry frame's own QA z-signature carried the signal (roundness z −16.7 with nstars z +5.9 = elongated EXTRA detections). Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise. |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
-| fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. **The camera pivot fires the re-fit clause**: the pinned entry belongs to the retired 24-70/4 S @ 70 — fit the new rig's lens at its first wide-untracked set (the machine DB's retired entry is inert for any other lens: matched only by that lens's EXIF). |
+| fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. x86: **re-installed** (`install_lens_model.sh` replaced the community focal=70 line and stripped 55 vignetting/tca entries) and PROVEN to correct real frames (`qa_work/lens_preflight.json`, Siril stat max 63446 over 373 frames). The per-rig **RE-FIT is DONE and CONFIRMS the incumbent**: hugin 2025.0.1 on set-01 (solved hfov 30.4421°, dark+sky-flat calibrated, residual 0.29→0.02 px mean with a,b,c) fitted a=0.0033627/b=0.0149465/c=0.0005744 — sub-pixel-equivalent to the carried-over arm fit (a,b within 3-4%; max displacement diff 0.47 px mid-field, 0.34 px area-weighted RMS; 0.2 px at r=0.9). Difference is within fit noise; the arm-era model STANDS (re-installing the lateral new fit would change the production deliverable by ≤0.47 px with no measured benefit). `qa_work/lens_fit.json`. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. (Optional second official arm, untested: the `image2xy` binary — shape-blind, but its trail knobs `-a`/`-p`/`-m` are unexposed by solve-field and `-a` can fragment a rippled trail; ASTAP is NOT an arm — roundness-gated by its own docs.) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; the vignetting-only fallback for a flatless set (none staged). |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — the validated per-set route for flatless sets (`build_sky_flat.sh` gates); dust-safety validates PER SET before use (dead-ends); tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **not fired** — arm RAM/disk forced it; the quantization is measured ≈18× below per-frame noise (~+0.3% stack noise) and the shipped july14 stacks are BITPIX=16 under it. |
-| lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump with the uniform-card test (warp a uniform card through `lensdist`; corner medians must equal centre) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). |
-| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production: the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) runs before any production stack rides this route again. |
+| lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
+| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
+| 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
 
 ## 0. THE RENDER-TIER BUILD — user-gated, the one open product gap
 
@@ -172,9 +178,7 @@ verified pixel-identical on real aligned members before the swap
 (`compose_ab.json`; the 16-bit-intermediates condition stays in the register);
 **8** — the 5-set combine, rendered and APPROVED (tag
 `july14-all5-cov25frame-approved`; residue lives in the removal register +
-items 0/12); **13** — the july14_fresh-start front-end test run, purged
-(session tree, results, tracked records) once the Tier-1 execution surface was
-exercised end-to-end; **14** — dashboard↔Claude communication, resolved no-new-surface (no MCP
+items 0/12); **14** — dashboard↔Claude communication, resolved no-new-surface (no MCP
 server, no SDK bridge; Claude reads the existing job logs + records,
 deep tool logs grep-first). Mechanisms live in
 the builders' docstrings, the per-set recipes and `docs/dead-ends.md`; full
@@ -334,6 +338,25 @@ captures the electronic-shutter pattern — shoot matched shutter-mode darks and
 rebuild; (2) directional/pattern removal aligned to the measured drift axis,
 or an AI denoiser (x86) weighed against dust preservation (a bandaid, last
 resort). Do NOT assume a shutter-mode change removes it — unsettled.
+
+## 13. july14 naming divergence — RESOLVED (records realigned)
+
+The M1 front-end test run mislabeled two sets: what it staged as `set-01`/`set-02`
+are physically the exemplar's **set-04 (DSC_7941–8339, 399 fr)** and **set-05
+(DSC_8341–8487, 147 fr)** — USER-CONFIRMED. Rather than purge (the original plan
+when it was a throwaway test), the location was promoted to the REAL dataset: the
+full acquisition was downloaded to `sessions/july14/` under correct
+server naming (set-00…set-05 + darks), so the mislabel was fixed at the source.
+The tracked records were realigned to match: the M1 `datasets/.../set-01` records
+→ `set-04`, `set-02` → `set-05` (acquisition/recipe/frame_metrics/anomaly_audit +
+`skyflat_set-0{1,2}_qa.json` → `skyflat_set-0{4,5}_qa.json`), and
+`framing_stack_set-01+02_max_spcc.json` → `…set-04+05…`. `datasets/.../set-01` now
+correctly holds the REAL set-01 (373 fr) lens work only. No flats were shot for any
+set (sky-flat route). OPEN: real set-01/02/03 have raws but no acquisition/recipe
+records yet — those seed when each set is processed (the deriver's design; a
+missing record is handled gracefully). OPEN (user call): the session dir is still
+named `july14`; rename to `july14` now that it is the real dataset, or
+leave it.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

@@ -1,0 +1,80 @@
+{
+ "purpose": "user-drawn product framing (BACKLOG item 12) \u2014 the record IS the product; nothing renders from an unrecorded or unverified box",
+ "session": "july14",
+ "product": "stack_set-04+05_max_spcc",
+ "canvas_wh": [
+  8096,
+  5197
+ ],
+ "rect_screen_topleft": {
+  "x": 1531,
+  "y": 1250,
+  "w": 4444,
+  "h": 2440
+ },
+ "rect_siril_crop_args": [
+  1531,
+  1507,
+  4444,
+  2440
+ ],
+ "coordinate_note": "rect_screen is top-left-origin (browser/numpy row order); rect_siril_crop_args is Siril crop's bottom-left origin (y_siril = H - y_screen - h \u2014 the measured y-flip trap). Verification must use the siril args.",
+ "radec_corners_deg": [
+  [
+   294.357965,
+   46.539034
+  ],
+  [
+   325.238075,
+   49.555684
+  ],
+  [
+   298.95758,
+   35.711973
+  ],
+  [
+   324.53856,
+   38.37384
+  ]
+ ],
+ "radec_source": "web/results/july14/stack_set-04+05_max_wcs.fit",
+ "status": "verified",
+ "verification": "run web/verify_framing.py \u2014 Siril crop+stat on the coverage map (min >= threshold) or the stack's sibling-class sky floor; a render must refuse an unverified framing",
+ "drawn_utc": "2026-07-22T23:03:33Z",
+ "verified_by": {
+  "method": "coverage map web/results/july14/coverage_set-04+05_max.fit: require stat Min >= 25 members * 1000",
+  "image": "web/results/july14/coverage_set-04+05_max.fit",
+  "crop_args": [
+   1531,
+   1507,
+   4444,
+   2440
+  ],
+  "floor": 25000.0,
+  "measured": [
+   {
+    "layer": "Red",
+    "mean": 65339.2,
+    "median": 65535.0,
+    "min": 54907.7,
+    "max": 65535.0
+   },
+   {
+    "layer": "Green",
+    "mean": 65339.2,
+    "median": 65535.0,
+    "min": 54907.7,
+    "max": 65535.0
+   },
+   {
+    "layer": "Blue",
+    "mean": 65339.2,
+    "median": 65535.0,
+    "min": 54907.7,
+    "max": 65535.0
+   }
+  ],
+  "worst_min": 54907.7,
+  "verdict": "PASS"
+ }
+}

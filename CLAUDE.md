@@ -164,12 +164,25 @@ core here now:**
   centroids; venv auto-bootstraps at `~/.local/share/astrometry-venv`;
   scale hint from the FITS header; configured foreground excluded).
 - Local Gaia catalogs at `~/.local/share/siril/siril_catalogues/`
-  (astro + SPCC xpsamp chunks; siril settings already point there).
-  SPCC needs the FULL cone of chunks — siril names the first missing
-  one. `scripts/calibrate/spcc_cone.py <solved_wcs.fit> [--fetch]` computes
-  the nside=2 nested cover from the solved WCS and downloads any missing
-  chunk (md5-verified). Re-download source: zenodo 14692304 (astro) +
-  14738271 (chunks).
+  (astro + SPCC xpsamp chunks). SPCC needs the FULL cone of chunks — siril
+  names the first missing one. `scripts/calibrate/spcc_cone.py <solved_wcs.fit>
+  [--fetch]` computes the nside=2 nested cover from the solved WCS and downloads
+  any missing chunk (md5-verified). Re-download source: zenodo 14692304 (astro) +
+  14738271 (chunks; decompressed == the current record 17988559, md5-identical).
+- **SPCC has THREE machine-local prerequisites on a fresh rig (all verified x86,
+  none migrate) — miss the third and siril SEGFAULTS, silently:**
+  (1) the Gaia cone chunks above;
+  (2) siril's config `catalogue_gaia_photo` must point at the chunk dir
+  `~/.local/share/siril/siril_catalogues/spcc` (a fresh flatpak defaults it to a
+  non-existent `gaia_photometric.dat`, so siril range-reads online and 429s);
+  (3) the **SPCC sensor/filter/white-reference DATABASE** —
+  `git clone https://gitlab.com/free-astro/siril-spcc-database` into
+  `~/.var/app/org.siril.Siril/data/siril-spcc-database`. This is a SEPARATE small
+  git repo from the Gaia catalog; without it `spcc_list` is empty, SPCC applies a
+  `(null)` sensor response and SIGSEGVs in aperture photometry (exit 139) on ANY
+  star count — the crash prints nothing useful, so it looks like a data/field bug
+  but is a missing-database bug. `auto_update_spcc` in the config auto-downloads it
+  online but can fail silently; the manual clone is deterministic. (`docs/dead-ends.md`.)
 
 ## Binding rules (the contract in README, distilled for agents)
 
