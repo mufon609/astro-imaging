@@ -398,32 +398,11 @@ preview class. Close condition: after a chain run with auto-culls, the page
 lists every excluded frame of the session under its cause, sky objects
 included, and the old Sky Objects nav entry is gone.
 
-## 17. Run page: "Automated" section first; per-command process disclosure
-
-USER-ORDERED: the chain commands (chain_session, chain_set) get their own
-sub-section at the TOP of the Run page for easy access, above the manual
-stages. PROPOSED design (drafted for ratification, not yet built):
-
-- **Top section "Automated"**: chain_session as the primary card (the
-  session's one click), chain_set beside it. Each card carries (a) a one-line
-  WHAT, (b) a **step-strip** visualizing the chain (preflight → QA → cull →
-  masters → stack → solve/SPCC → judge) with live per-set state derived from
-  the same evidence as the chips (e.g. "set-02: stacking · 2/4 sets at
-  judge"), and (c) **Plan as a first-class button on the card** — the
-  full-disclosure contract surfaced directly, not hidden in the form.
-- **Below: "Pipeline stages" (the manual escape hatch)**, grouped as today by
-  phase in pipeline order (measure → calibrate → execute → finish →
-  surfaces), each card keeping its chip.
-- **Progressive disclosure per card**: the one-line WHAT stays short; an
-  expandable "process" panel states the exact commands run, the gates that
-  can stop it (and who resolves each), and where records/products land — the
-  registry gains a structured `detail` field per stage so the panel is
-  data-driven, not hand-maintained in HTML.
-- Jobs table + live log stay at the bottom (session-scoped).
-
-Close condition: the chains render first with live step-state and one-click
-plan preview; every stage card explains its process from the registry's own
-metadata; the manual stages remain fully reachable.
+_(Item **17** — Run page Automated-first layout — BUILT to the ratified
+design: chains lead with evidence-driven per-set step-strips, an active-run
+banner, and first-class preview-plan/Run; every stage card explains its
+process from the registry's structured docs; manual stages stay reachable
+below. Full text in git.)_
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
