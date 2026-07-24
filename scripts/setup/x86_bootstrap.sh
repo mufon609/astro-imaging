@@ -212,6 +212,51 @@ SIRIL_OSTREE_COMMIT="9fad0dc12d090f6d0d0b4cb925904e4978e0943fb24a8acf703c33ee86f
 manifest Siril 1.4.4 "flathub:$SIRIL_FLATPAK_ID@$SIRIL_OSTREE_COMMIT" ostree-signed flatpak \
   "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v" "sandbox private /tmp: .ssf under \$HOME"
 
+# ---- Layer B2: SPCC runtime prerequisites (machine-local, siril flatpak) --
+# SPCC (scripts/calibrate/spcc_run.py) has THREE machine-local prerequisites; miss the
+# sensor DATABASE and siril SIGSEGVs in aperture photometry (exit 139) with NO useful
+# message — it mimics a data/field bug and cost a long hunt (docs/dead-ends.md; CLAUDE.md
+# Environment). None migrate with the repo, so they are re-created per rig. MEASURED x86.
+log "Layer B2 — SPCC prerequisites (sensor database + Gaia catalog path + config)"
+SPCC_DB_URL="https://gitlab.com/free-astro/siril-spcc-database.git"
+SPCC_DB_DIR="$HOME/.var/app/org.siril.Siril/data/siril-spcc-database"
+SPCC_CAT_DIR="$HOME/.local/share/siril/siril_catalogues/spcc"
+SIRIL_CFG="$HOME/.var/app/org.siril.Siril/config/siril/config.1.4.ini"
+
+# (1) The sensor/filter/white-reference DATABASE — a SEPARATE small git repo from the
+#     Gaia catalog. Without it `spcc_list` is empty, SPCC applies a (null) sensor
+#     response and crashes. siril's own auto-download can fail silently; clone it.
+run "mkdir -p '$(dirname "$SPCC_DB_DIR")'"
+run "[ -d '$SPCC_DB_DIR/.git' ] || git clone --depth 1 '$SPCC_DB_URL' '$SPCC_DB_DIR'"
+
+# (2) Siril's config is created on its first run — trigger it, then point
+#     catalogue_gaia_photo at the local Gaia chunk dir (a fresh flatpak defaults it to a
+#     non-existent gaia_photometric.dat, so siril range-reads ONLINE and 429s), and set
+#     auto_update_spcc=false (catalog + database are both local). Set-or-append, idempotent.
+run "mkdir -p '$SPCC_CAT_DIR'"
+run "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v >/dev/null 2>&1 || true"
+if [[ $DRY -eq 1 ]]; then
+  printf '  (plan) patch %s: catalogue_gaia_photo=%s ; auto_update_spcc=false\n' "$SIRIL_CFG" "$SPCC_CAT_DIR"
+else
+  [ -f "$SIRIL_CFG" ] || { echo "[bootstrap] siril config not created at $SIRIL_CFG — run siril once, then re-run" >&2; exit 1; }
+  for kv in "catalogue_gaia_photo=$SPCC_CAT_DIR" "auto_update_spcc=false"; do
+    k=${kv%%=*}
+    if grep -q "^$k=" "$SIRIL_CFG"; then sed -i "s#^$k=.*#$kv#" "$SIRIL_CFG"
+    else printf '%s\n' "$kv" >> "$SIRIL_CFG"; fi
+  done
+  log "siril SPCC config set (catalogue_gaia_photo -> local chunks; auto_update_spcc=false)"
+fi
+
+# (3) The Gaia xp_sampled cone chunks are FIELD-dependent — NOT pre-installable here;
+#     scripts/calibrate/spcc_cone.py <solved_wcs.fit> --fetch downloads exactly the
+#     field's nside=2 cover per render (md5-verified).
+manifest spcc-database git-HEAD gitlab:free-astro/siril-spcc-database n/a "$SPCC_DB_DIR" \
+  "test -d '$SPCC_DB_DIR/osc_sensors'" "MACHINE-LOCAL sensor/filter/whiteref defs; MISSING => siril SPCC SIGSEGV (exit 139)"
+manifest spcc-config siril-flatpak-config n/a n/a "$SIRIL_CFG" \
+  "grep -q 'catalogue_gaia_photo=$SPCC_CAT_DIR' '$SIRIL_CFG'" "catalogue_gaia_photo -> local chunks; auto_update_spcc=false"
+manifest spcc-gaia-cone per-render scripts/calibrate/spcc_cone.py n/a "$SPCC_CAT_DIR" \
+  "true" "FIELD-dependent: spcc_cone.py <wcs> --fetch per render (zenodo 14738271, md5-verified)"
+
 # ---- Layer C: project venv (PEP 668 safe) ---------------------------------
 # $VENV defaults under /opt (root-owned parent) — create with sudo, then chown to the
 # invoking user so pip and later dep changes need no root and the venv is not a
@@ -321,6 +366,10 @@ if [[ $DRY -eq 0 ]]; then
     if out="$(eval "$@" 2>&1)"; then printf '  OK   %s\n' "$(printf '%s' "$out" | awk 'NF{print;exit}')"
     else echo "  FAILED: $*" >&2; fail=1; fi; }
   check "flatpak run --command=siril-cli $SIRIL_FLATPAK_ID -v"
+  # SPCC prereqs: the sensor DATABASE (its absence is the SIGSEGV) + the config path.
+  # A version string proves nothing here — SPCC crashes silently without the database.
+  check "test -d '$HOME/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors' && echo 'SPCC sensor database present'"
+  check "grep -q 'catalogue_gaia_photo=$HOME/.local/share/siril/siril_catalogues/spcc' '$HOME/.var/app/org.siril.Siril/config/siril/config.1.4.ini' && echo 'SPCC catalog path set'"
   check "darktable-cli --version"
   # The UNDISTORT route's install is only real if the DB update landed AND the
   # styles are in darktable's data.db. Prove both, not just that the binary
