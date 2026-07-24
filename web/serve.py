@@ -1103,6 +1103,11 @@ def stage_status(session):
     with JOBS_LOCK:
         for j in JOBS.values():
             st = _job_refresh(j)
+            # another session's runs must not color THIS session's chips —
+            # only this session's jobs (and rig-level sessionless ones)
+            # overlay; product evidence stays the primary state either way
+            if st.get("session") and st["session"] != session:
+                continue
             prev = jobs.get(st["stage"])
             if st["status"] == "running" or prev is None:
                 jobs[st["stage"]] = st["status"]
@@ -1121,7 +1126,7 @@ def stage_status(session):
         if jobs.get(name) == "running":
             state, why = "running", "job running now"
         elif state == "todo" and jobs.get(name) == "done":
-            state, why = "done", "completed via a run this server session"
+            state, why = "done", "a recorded run of this session completed it"
         out[name] = {"state": state, "why": why}
 
     def missing(pred):
