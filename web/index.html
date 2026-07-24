@@ -740,17 +740,26 @@ async function updateStageChips() {
 
 async function refreshJobs(logView) {
   updateStageChips();
-  let jobs = [];
-  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
-  const running = jobs.filter(j => j.status === 'running');
+  let all = [];
+  try { all = await (await fetch('/api/jobs')).json(); } catch { return; }
+  // the one-job-at-a-time gate is rig-wide, so the running dot reads ALL
+  // jobs; the table shows only THIS session's (plus rig-level setup jobs
+  // that name no session) — other sessions' logs are their pages' business
+  const running = all.filter(j => j.status === 'running');
   document.getElementById('n-run').textContent = running.length ? '●' : '';
+  const jobs = all.filter(j => !M.session || !j.session || j.session === M.session);
+  const elsewhere = running.filter(j => j.session && M.session && j.session !== M.session);
   const list = document.getElementById('joblist');
-  if (list) list.replaceChildren(
+  if (list) list.replaceChildren(...[
+    elsewhere.length
+      ? h('p', { class:'m' }, `one job is running in session ${elsewhere[0].session} `,
+          `(${elsewhere[0].stage}) — the run gate is rig-wide`)
+      : null,
     jobs.length ? h('table', { class:'ledger' },
       h('tr', {}, ...['job', 'stage', 'status', ''].map(t => h('th', {}, t))),
       jobs.flatMap(j => [h('tr', {},
         h('td', {}, j.id),
-        h('td', {}, j.stage),
+        h('td', {}, j.session ? j.stage : frag(j.stage, ' ', h('span', { class:'chip' }, 'rig'))),
         h('td', {}, h('span', { class: j.status === 'running' ? 'chip warn'
           : j.status === 'done' ? 'chip ok' : 'chip cut' },
           j.status + (j.rc != null ? ` rc=${j.rc}` : ''))),
@@ -765,7 +774,8 @@ async function refreshJobs(logView) {
           ? h('tr', {}, h('td', { colspan:'4' },
               h('pre', { class:'rec', style:'margin:2px 0 10px;max-height:200px;overflow:auto' }, j.tail)))
           : null].filter(Boolean)))
-    : h('p', { class:'m' }, 'no jobs on record — records + logs persist under sessions/.webjobs/'));
+    : h('p', { class:'m' }, 'no jobs for this session — records + logs persist under sessions/.webjobs/'),
+  ].filter(Boolean));
 }
 
 let WATCH = { id: null, offset: 0 };
@@ -856,6 +866,10 @@ async function pgRun() {
   const status = await fetchStatus();
   const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
   const formHost = h('div', {});
+  // a page (re)build is a fresh view — never keep polling a log the user
+  // watched under another session's page
+  if (POLL.t) { clearInterval(POLL.t); POLL.t = null; }
+  WATCH = { id: null, offset: 0 };
   setTimeout(refreshJobs, 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),

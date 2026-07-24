@@ -58,7 +58,14 @@ API:
                           (pid-checked) so a server restart cannot orphan a
                           run or silently reopen the one-job-at-a-time gate.
                           An adopted job whose process is gone reports status
-                          "unknown" (its exit code is unrecoverable).
+                          "unknown" (its exit code is unrecoverable). Each job
+                          carries the `session` its command touches (derived
+                          from its own path args at spawn; backfilled from the
+                          cmd for records persisted before the field existed;
+                          null = rig-level setup) — the UI shows a session's
+                          page only that session's jobs plus rig-level ones,
+                          while the running indicator stays rig-wide (the
+                          one-job gate is rig-wide).
   POST /api/jobs/<id>/kill -> SIGTERM the job's process group (user action)
   POST /api/mount      -> {session, set, mount: fixed|tracked, dry_run?} —
                           the second sanctioned record write: the human
@@ -1284,6 +1291,22 @@ def _mount_contradict_block(stage, args):
     return None
 
 
+def _session_from_parts(parts):
+    """The session a command touches, read from its own path arguments —
+    the first sessions/<name>, web/results/<name> or datasets/<name>
+    component. None for a rig-level (setup) command that names no session.
+    Used to stamp jobs at spawn AND to backfill records persisted before
+    jobs carried a session, so per-session job views stay complete."""
+    for p in parts:
+        for pat in (r"(?:^|=)sessions/([^/]+)(?:/|$)",
+                    r"(?:^|=)web/results/([^/]+)(?:/|$)",
+                    r"(?:^|=)datasets/([^/]+)(?:/|$)"):
+            m = re.search(pat, p)
+            if m and m.group(1) not in (".webjobs",):
+                return m.group(1)
+    return None
+
+
 def start_job(stage, args, dry_run=False):
     if stage not in STAGES:
         raise ValueError(f"unknown stage: {stage}")
@@ -1309,7 +1332,12 @@ def start_job(stage, args, dry_run=False):
         proc = subprocess.Popen(argv, cwd=REPO, stdout=log_f,
                                 stderr=subprocess.STDOUT,
                                 start_new_session=True)
+        try:                       # a stage's own session arg is authoritative
+            ses = _safe(str((args or {})["session"]), "session")
+        except (KeyError, ValueError):
+            ses = _session_from_parts(argv)   # else read the command's paths
         JOBS[jid] = {"id": jid, "stage": stage, "cmd": cmd,
+                     "session": ses,
                      "status": "running", "rc": None, "pid": proc.pid,
                      "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                      "ended": None, "log": os.path.relpath(log_path, REPO),
@@ -1396,6 +1424,15 @@ def _load_jobs():
         names = sorted(os.listdir(WEBJOBS_DIR))
     except OSError:
         return
+    known_sessions = set()
+    for root in ("datasets", os.path.join("web", "results"), "sessions"):
+        try:
+            known_sessions.update(
+                d for d in os.listdir(os.path.join(REPO, root))
+                if not d.startswith(".")
+                and os.path.isdir(os.path.join(REPO, root, d)))
+        except OSError:
+            pass
     for n in names:
         if not (n.startswith("j") and n.endswith(".json")):
             continue
@@ -1403,6 +1440,13 @@ def _load_jobs():
         if not rec or not isinstance(rec, dict) or "id" not in rec:
             continue
         j = dict(rec)
+        if "session" not in j:      # records persisted before jobs carried one
+            try:
+                parts = shlex.split(j.get("cmd") or "")
+            except ValueError:
+                parts = []
+            j["session"] = _session_from_parts(parts) \
+                or next((p for p in parts if p in known_sessions), None)
         if j.get("status") == "running":
             j["_adopted"] = True
         JOBS[j["id"]] = j
