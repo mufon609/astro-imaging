@@ -1,0 +1,4 @@
+{
+ "_note": "`mount` is the one acquisition fact EXIF cannot record and a consumer must be told; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it.",
+ "mount": "fixed"
+}

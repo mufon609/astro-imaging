@@ -358,6 +358,22 @@ missing record is handled gracefully). OPEN (user call): the session dir is stil
 named `july14`; rename to `july14` now that it is the real dataset, or
 leave it.
 
+## 15. Run-page job logs repopulate cross-session at job start — OPEN, reported
+
+USER-OBSERVED (first july23 chain run): with the per-session job filter live
+(jobs carry `session`, the Run page filters its table — verified clean on
+page load), STARTING a job made previous sessions' logs/jobs repopulate the
+page. Not yet reproduced or diagnosed — recorded on user order before any
+fix attempt. Suspects, in test order: (1) the job-start client path
+(`openStageForm`'s run handler → `refreshJobs()`/`watchJob`) racing the
+session-model global `M` (an undefined `M.session` makes the filter show-all
+by design); (2) a `/api/jobs` answer from a stale-rev server process whose
+adopted JOBS table predates the session backfill; (3) the log-pane WATCH
+poll's end-of-job `refreshJobs()` re-render. Close condition: on a session
+page with another session's job records present, start a job — the jobs
+table shows only the current session's rows (plus rig-level) at job start,
+during the run, and at completion.
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical

@@ -120,6 +120,11 @@ JUDGE_GLOB=$RESULTS/judge/${NAME}_*.png
 say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
 say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull policy ratified: ${RATIFIED:-no}"
 say "PLAN — route: $ROUTE${REASON:+ — $REASON}"
+if [ -z "$MOUNT" ] && [ "$ROUTE" != stop-undeclared ]; then
+  # measured but not yet declared: the route above came from the MEASURED
+  # signature — state it, and state that the declaration gate still stops
+  say "PLAN — WILL STOP before building: mount measured '$MEASURED' but NOT DECLARED — accept the pre-filled verdict on the set page, then re-click"
+fi
 case "$ROUTE" in
   stop-undeclared) say "PLAN — WILL MEASURE then STOP: mount undeclared — the fingerprint measures it first (roundness if QA exists, else the two-window drift probe: scripts/qa/mount_probe.sh), the verdict pre-fills the set page's mount control, your accept-click writes the declaration, a re-click resumes";;
   stop-unroutable) say "PLAN — WILL STOP: $REASON";;
@@ -154,6 +159,11 @@ say "PLAN — disk free now: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
 if [ "$PLAN" = 1 ]; then say "plan only — nothing executed"; exit 0; fi
 
 # ---- gates fire in order ------------------------------------------------
+# the declaration gate is independent of routability: a MEASURED mount can
+# derive the route for the plan, but nothing builds on an undeclared one —
+# the measure branch below stops with the accept-the-verdict message
+# (immediately when a measurement already exists)
+if [ -z "$MOUNT" ]; then ROUTE=stop-undeclared; fi
 if [ "$ROUTE" = stop-undeclared ]; then
   # measure-then-stop (user-ratified: measure + confirm click). The mount
   # stays a DECLARED fact — the chain measures the signature, records it,

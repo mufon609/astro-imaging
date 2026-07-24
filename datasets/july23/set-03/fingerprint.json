@@ -1,0 +1,24 @@
+{
+ "measured_by": "header facts (acquisition.py) + astrometry.net solves (solve_field.py) + Siril findstar/register metrics (frame_metrics.json); this module computes only the derived trail/drift geometry and records it",
+ "declared_mount": "fixed",
+ "plate_scale_arcsec_px": null,
+ "plate_scale_source": "exif-nominal",
+ "field_center": null,
+ "in_exposure_trail": {
+  "predicted_if_fixed_px": null,
+  "measured_roundness": null,
+  "measured_fwhm_px": null,
+  "check": null,
+  "note": "predicted = 15.041 * cos(dec) * exposure / plate_scale \u2014 the smear a FIXED mount would put in every sub; no registration removes it"
+ },
+ "inter_frame_drift": null,
+ "mount_check": {
+  "verdict": "INDETERMINATE",
+  "declared": "fixed",
+  "measured": null,
+  "method": null,
+  "reason": "no two-solve drift measured yet, or the RA rate (None) is neither a clean sidereal nor a stationary signature \u2014 declaration stands unchecked"
+ },
+ "label": "untracked, ?",
+ "route_hint": "unclassified \u2014 measure before routing"
+}
