@@ -97,6 +97,11 @@ elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
   fi
 elif [ -z "$MOUNT" ]; then
   ROUTE=stop-undeclared
+elif [ -z "$FOV" ]; then
+  # a mount-only pre-declaration (the web declare click on a fresh set):
+  # preflight seeds the header facts, then the route re-derives mid-run
+  ROUTE=derive-after-preflight
+  REASON="mount declared '$MOUNT' but header facts not yet seeded — preflight fills them and the route re-derives (frame QA runs first either way)"
 else
   ROUTE=stop-unroutable
   REASON="fingerprint is neither tracked nor fixed+wide (mount '$MOUNT_EFF', fov '${FOV:-?}') — the drift-solve instrument or the user picks the route"
@@ -130,6 +135,9 @@ fi
 case "$ROUTE" in
   stop-undeclared) say "PLAN — WILL MEASURE then STOP: mount undeclared — the fingerprint measures it first (roundness if QA exists, else the two-window drift probe: scripts/qa/mount_probe.sh), the verdict pre-fills the set page's mount control, your accept-click writes the declaration, a re-click resumes";;
   stop-unroutable) say "PLAN — WILL STOP: $REASON";;
+  derive-after-preflight)
+    if [ -z "$NFLAGS" ]; then say "PLAN — steps: 1. scripts/qa/run_frame_qa.sh $SESSION $SET"; fi
+    say "PLAN — then: route + remaining steps derive after preflight seeds the header facts (masters -> stack -> finish, skipping what exists)";;
   *)
     if [ -n "$NFLAGS" ] && [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
       say "PLAN — auto-cull will exclude the $NFLAGS flagged frame(s) and report (standing policy; a hand-ratified recipe block overrides)"
@@ -267,9 +275,10 @@ PY
   RATIFIED=yes
 fi
 
-# route may have been stop-unroutable only when a fingerprint existed; a
-# fresh derivation above may have settled it — re-read once
-if [ "$ROUTE" = stop-unroutable ]; then
+# the route re-derives once the preflight/QA above have seeded the facts —
+# the mount-only pre-declaration case, and a stop-unroutable that a fresh
+# derivation may have settled
+if [ "$ROUTE" = stop-unroutable ] || [ "$ROUTE" = derive-after-preflight ]; then
   NEWROUTE=$(python3 - "$DSET" <<'PY'
 import json, os, sys
 fp = json.load(open(os.path.join(sys.argv[1], "fingerprint.json")))
@@ -282,10 +291,18 @@ PY
 )
   case "$NEWROUTE" in
     tracked)    ROUTE=standard; STACK=$RESULTS/stack_$SET.fit;;
-    fixed-wide) ROUTE=undistort-groups; STACK=$RESULTS/stack_${SET}_full.fit;;
-    *) say "STOP: $REASON"; exit 5;;
+    fixed-wide)
+      FREE_KB=$(df -k --output=avail "$SESSION" | tail -1 | tr -d ' ')
+      if [ "$FREE_KB" -gt "$SINGLEPASS_KB" ]; then
+        ROUTE=undistort; STACK=$RESULTS/stack_$SET.fit
+      else
+        ROUTE=undistort-groups; STACK=$RESULTS/stack_${SET}_full.fit
+      fi;;
+    *) say "STOP: route still underivable after preflight (mount/fov missing from the seeded facts) — the user picks the route"; exit 5;;
   esac
   NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}
+  JUDGE_GLOB=$RESULTS/judge/${NAME}_*.png
+  say "route (re-derived): $ROUTE"
 fi
 
 # masters (undistort routes bring their own; the standard route's builder
