@@ -746,6 +746,29 @@ def _stage_registry():
                                 "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
             + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []),
         },
+        "chain_set": {
+            "desc": "ONE CLICK, whole durable core for a set (ratified chain amendment): preflight (mount + fingerprint gates) -> frame QA -> route-by-fingerprint stack -> solve -> SPCC -> diagnostic judge surface. Stops wherever a decision is the user's (CONTRADICT, QA flags without a ratified cull, unroutable); built products skip so a re-click resumes. plan=true prints the derived route + exact commands and runs nothing",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "plan", "kind": "bool", "req": False, "hint": "print the derived plan (route, gates, commands) without executing"},
+            ],
+            "build": lambda a: ["scripts/stack/run_set_chain.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])]
+            + (["--plan"] if a.get("plan") else []),
+        },
+        "chain_session": {
+            "desc": "the SESSION button: the set chain over every staged light set in name order, stopping at the first user-decision gate; re-click resumes where it stopped (built products skip)",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "plan", "kind": "bool", "req": False, "hint": "print every set's plan without executing"},
+            ],
+            "build": lambda a: ["scripts/stack/run_session_chain.sh",
+                                P("sessions", _arg_session(a["session"]))]
+            + (["--plan"] if a.get("plan") else []),
+        },
         "compose": {
             "desc": "compose already-built group sub-stacks across sets into one stack (register -2pass -> plain mean; valid post-undistort — homographies compose). framing=min keeps the all-members overlap, max the union",
             "phase": "execute",
@@ -1136,6 +1159,15 @@ def stage_status(session):
            else f"no stack yet for: {', '.join(miss)}")
     for name in ("stack_standard", "stack_undistort", "stack_undistort_groups"):
         put(name, *fam)
+    miss = [s["set"] for s in lights
+            if not any(su.get("judge") for su in per_set_stacks[s["set"]])]
+    chain = ("done" if not miss else "todo",
+             "every light set carries a judge surface" if not miss
+             else ("awaiting: " + ", ".join(miss) + " — one click runs "
+                   "preflight -> QA -> stack -> SPCC -> judge (gates stop "
+                   "for your decisions)"))
+    put("chain_set", *chain)
+    put("chain_session", *chain)
     composed = [s for s in m["sets"] if s.get("kind") == "composed"]
     if composed:
         # the astrometric/photometric chain applies to the COMPOSED colour

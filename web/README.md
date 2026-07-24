@@ -34,6 +34,20 @@ record the render chain consumes. No external service; the server binds
   an on-demand preview that runs nothing — user-ratified one-click amendment),
   runs one at a time, and leaves its log under `sessions/.webjobs/`. The
   server stays 127.0.0.1-only.
+- **One click may authorize one DECLARED multi-stage chain (user-ratified
+  chain amendment).** The chain stages (`chain_set`, `chain_session` →
+  `scripts/stack/run_set_chain.sh` / `run_session_chain.sh`) sequence the
+  SAME pinned scripts through the durable core — preflight → frame QA →
+  route-by-fingerprint stack → solve → SPCC → diagnostic judge surface —
+  under full disclosure: every run prints its derived plan (route + reason,
+  gates, the exact commands) before executing, and `plan=true` prints it
+  running nothing. The chain STOPS wherever a decision is the user's —
+  mount undeclared or CONTRADICT, QA defect flags without a ratified cull
+  policy (the cull stays the user's, BACKLOG item 3), an unroutable
+  fingerprint, an unresolved flat — and it ENDS at the diagnostic judge
+  surface: everything aesthetic beyond it (the render tier) stays per-rung
+  and user-judged. Built products skip, so a re-click after resolving a
+  gate resumes where it stopped.
 
 ## Running it
 
