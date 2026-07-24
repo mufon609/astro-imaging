@@ -1,0 +1,106 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 401,
+ "registered": 401,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.633,
+   "min": 2.613,
+   "max": 2.852
+  },
+  "roundness": {
+   "median": 0.7982,
+   "min": 0.7855,
+   "max": 0.808
+  },
+  "nstars": {
+   "median": 1878,
+   "min": 1670,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1065,
+   "min": 1061,
+   "max": 1069
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.627,
+   "round": 0.7985,
+   "stars": 1877,
+   "bg16": 1068
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.627,
+   "round": 0.798,
+   "stars": 1875,
+   "bg16": 1067
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.633,
+   "round": 0.7977,
+   "stars": 1881,
+   "bg16": 1066
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.635,
+   "round": 0.7976,
+   "stars": 1880,
+   "bg16": 1064
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.638,
+   "round": 0.7987,
+   "stars": 1876,
+   "bg16": 1062
+  },
+  {
+   "block": 6,
+   "frames": 21,
+   "fwhm": 2.635,
+   "round": 0.7996,
+   "stars": 1878,
+   "bg16": 1062
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_8647.NEF",
+   "flags": [
+    "fwhm",
+    "round",
+    "nstars"
+   ],
+   "fwhm": 2.816,
+   "bg": 1069.2,
+   "round": 0.7855,
+   "nstars": 1710
+  },
+  {
+   "file": "DSC_8648.NEF",
+   "flags": [
+    "fwhm",
+    "nstars"
+   ],
+   "fwhm": 2.852,
+   "bg": 1068.0,
+   "round": 0.808,
+   "nstars": 1670
+  }
+ ],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}

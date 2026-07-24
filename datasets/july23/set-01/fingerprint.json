@@ -10,9 +10,17 @@
  },
  "in_exposure_trail": {
   "predicted_if_fixed_px": 0.9,
-  "measured_roundness": null,
-  "measured_fwhm_px": null,
-  "check": null,
+  "measured_roundness": 0.7982,
+  "measured_fwhm_px": 2.633,
+  "check": {
+   "predicted_if_fixed_px": 0.9,
+   "implied_trail_max_px": 2.25,
+   "margin": 0.4,
+   "population_ok": true,
+   "decisive": false,
+   "signature": null,
+   "reason": "predicted-if-fixed trail 0.9 px vs up to 2.2 px of measured elongation \u2014 within 10x: not decisive; the two-window drift solve is the instrument near the boundary"
+  },
   "note": "predicted = 15.041 * cos(dec) * exposure / plate_scale \u2014 the smear a FIXED mount would put in every sub; no registration removes it"
  },
  "inter_frame_drift": {

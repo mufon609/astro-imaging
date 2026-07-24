@@ -50,4 +50,20 @@ for s in "${SETS[@]}"; do
     exit "$rc"
   }
 done
+# the decisions the run made, in one place (standing auto-cull policy:
+# flagged frames excluded; a hand-ratified recipe block always won)
+echo "[session chain] ===== decisions ====="
+for s in "${SETS[@]}"; do
+  python3 - "$REPO/datasets/$(basename "$SESSION")/$s/recipe.json" "$s" <<'PY'
+import json, sys
+try:
+    st = (json.load(open(sys.argv[1])) or {}).get("stack") or {}
+except (OSError, ValueError):
+    st = {}
+e = st.get("exclude") or []
+why = (st.get("why") or "")[:140]
+print(f"[session chain] {sys.argv[2]}: culled {len(e)} frame(s)"
+      + (f" n={e} — {why}" if e else ""))
+PY
+done
 echo "[session chain] DONE — all ${#SETS[@]} set(s) carried to their judge surfaces (or already there)"

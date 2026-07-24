@@ -6,9 +6,11 @@
 # gates between, and it STOPS the moment a decision belongs to the user:
 #
 #   exit 2  mount declared-vs-measured CONTRADICT (fingerprint) — reconcile
-#   exit 3  frame QA raised defect-side flags and no ratified cull policy
-#           exists (recipe.json "stack" block) — the cull decision is the
-#           user's (BACKLOG item 3); ratify, then re-click
+#   exit 3  RETIRED — frame-QA flags no longer stop: the STANDING USER
+#           POLICY auto-culls flagged defect-side frames (they exclude like
+#           any obstruction), writes the recipe stack block with the flags
+#           as the why, and reports the decision inline + in the session
+#           summary; a hand-ratified stack block is never overwritten
 #   exit 4  mount undeclared — declare it on the set page first
 #   exit 5  unroutable fingerprint (neither tracked nor fixed+wide) — the
 #           two-window drift solve / the user decides the route
@@ -118,7 +120,7 @@ JUDGE_GLOB=$RESULTS/judge/${NAME}_*.png
 
 # ---- the PLAN (printed on every run; --plan stops here) -----------------
 say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
-say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull policy ratified: ${RATIFIED:-no}"
+say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull: $([ -n "$RATIFIED" ] && echo "ratified recipe block" || echo "standing auto-cull (flagged frames exclude; reported at the end)")"
 say "PLAN — route: $ROUTE${REASON:+ — $REASON}"
 if [ -z "$MOUNT" ] && [ "$ROUTE" != stop-undeclared ]; then
   # measured but not yet declared: the route above came from the MEASURED
@@ -130,7 +132,7 @@ case "$ROUTE" in
   stop-unroutable) say "PLAN — WILL STOP: $REASON";;
   *)
     if [ -n "$NFLAGS" ] && [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
-      say "PLAN — WILL STOP after QA gate: $NFLAGS flag(s) await your cull ratification"
+      say "PLAN — auto-cull will exclude the $NFLAGS flagged frame(s) and report (standing policy; a hand-ratified recipe block overrides)"
     fi
     say "PLAN — steps (existing products skip):"
     if [ -z "$NFLAGS" ]; then say "  1. scripts/qa/run_frame_qa.sh $SESSION $SET"; fi
@@ -226,10 +228,43 @@ if [ -z "$NFLAGS" ]; then
   NFLAGS=$(python3 -c "import json;print(len(json.load(open('$DSET/qa_work/frame_metrics.json')).get('flagged_defect_side_z') or []))")
 fi
 if [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
-  say "STOP: frame QA flagged $NFLAGS frame(s) and no ratified cull policy exists —"
-  say "      the cull decision is yours: review the Frames view, record recipe.json"
-  say "      {\"stack\": {\"exclude\": [...], ...}} (or an explicit keep-all block), re-click"
-  exit 3
+  # STANDING USER POLICY: flagged defect-side frames exclude like any
+  # obstruction — the chain writes the cull, states it, and proceeds; the
+  # decisions are reported again in the end summary. A hand-ratified
+  # recipe stack block is never overwritten and always wins.
+  say "auto-cull (standing policy): $NFLAGS flagged frame(s) exclude; a hand-ratified recipe block overrides"
+  python3 - "$DSET" <<'PY'
+import json, os, sys
+d = sys.argv[1]
+qa = json.load(open(os.path.join(d, "qa_work", "frame_metrics.json")))
+flagged = qa.get("flagged_defect_side_z") or []
+files = {f["file"] for f in flagged}
+ns = set()
+with open(os.path.join(d, "qa_work", "frameqa", "records.jsonl")) as fh:
+    for line in fh:
+        r = json.loads(line)
+        if r.get("file") in files:
+            ns.add(r["n"])
+ns = sorted(ns)
+rp = os.path.join(d, "recipe.json")
+rec = {}
+if os.path.exists(rp):
+    try:
+        rec = json.load(open(rp))
+    except ValueError:
+        rec = {}
+if isinstance(rec.get("stack"), dict):
+    print("recipe stack block already present — leaving it untouched")
+    sys.exit(0)
+why = ("auto-cull, standing policy: defect-side robust z >= 3.5 flags "
+       "exclude (" + "; ".join(f"{f['file']}: {','.join(f['flags'])}"
+                               for f in flagged)
+       + "). A hand-ratified stack block overrides this write.")
+rec["stack"] = {"weight": None, "exclude": ns, "why": why}
+json.dump(rec, open(rp, "w"), indent=1)
+print(f"culled n={ns}: " + ", ".join(sorted(files)))
+PY
+  RATIFIED=yes
 fi
 
 # route may have been stop-unroutable only when a fingerprint existed; a
@@ -291,4 +326,12 @@ else
   "$REPO/scripts/stack/finish_render.sh" "$STACK" "$NAME" --session="$SESSION" --set="$SET"
 fi
 
-say "DONE — stack: $STACK | judge: $(compgen -G "$JUDGE_GLOB" | head -1 || echo '?') | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
+CULLS=$(python3 -c "
+import json
+try:
+    s = json.load(open('$DSET/recipe.json')).get('stack') or {}
+    e = s.get('exclude') or []
+    print(f'{len(e)} frame(s) n={e}' if e else 'none')
+except (OSError, ValueError):
+    print('none')" 2>/dev/null || echo "none")
+say "DONE — stack: $STACK | judge: $(compgen -G "$JUDGE_GLOB" | head -1 || echo '?') | culled: $CULLS | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"

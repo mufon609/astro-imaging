@@ -42,12 +42,15 @@ record the render chain consumes. No external service; the server binds
   under full disclosure: every run prints its derived plan (route + reason,
   gates, the exact commands) before executing, and `plan=true` prints it
   running nothing. The chain STOPS wherever a decision is the user's —
-  mount undeclared or CONTRADICT, QA defect flags without a ratified cull
-  policy (the cull stays the user's, BACKLOG item 3), an unroutable
-  fingerprint, an unresolved flat — and it ENDS at the diagnostic judge
-  surface: everything aesthetic beyond it (the render tier) stays per-rung
-  and user-judged. Built products skip, so a re-click after resolving a
-  gate resumes where it stopped.
+  mount undeclared or CONTRADICT, an unroutable fingerprint, an unresolved
+  flat — and it ENDS at the diagnostic judge surface: everything aesthetic
+  beyond it (the render tier) stays per-rung and user-judged. QA defect
+  flags do NOT stop it: the STANDING USER POLICY auto-culls flagged
+  defect-side frames (they exclude like any obstruction), writes the
+  recipe stack block with the flags as the why, and reports every cull
+  decision inline and in the session end-summary; a hand-ratified stack
+  block is never overwritten and always wins. Built products skip, so a
+  re-click after resolving a gate resumes where it stopped.
 
 ## Running it
 

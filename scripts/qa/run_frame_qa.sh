@@ -34,10 +34,11 @@
 # record (same stages); the generalized artifact itself has not yet run end to
 # end — its first as-written run is the next set's prep on the x86 rig.
 #
-# The CULL DECISION stays with the user: this reports. The per-set policy
-# (aircraft out, flagged session-edge frames out, frame-wide degradation out,
-# satellites listed not culled) is applied against this record + the anomaly
-# audit, and the ratified list goes to recipe.json's stack block with reasons.
+# This REPORTS; the cull applies per the STANDING USER POLICY: flagged
+# defect-side frames exclude like any obstruction (the chain writes
+# recipe.json's stack block with the flags as the why and reports the
+# decision at the end); a hand-ratified stack block is never overwritten
+# and always wins. cull_report itself stays WARN-only.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
@@ -168,9 +169,10 @@ rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_sta
         "bg16": {"median": int(med("bg")), "min": int(mn("bg")), "max": int(mx("bg"))}},
        "temporal_trend_contiguous_blocks": blocks,
        "flagged_defect_side_z": flagged,
-       "cull_note": "decision is the user's, against this record + the anomaly audit, "
-                    "recorded in recipe.json stack.exclude with reasons (per-set policy: "
-                    "BACKLOG item 3)"}
+       "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames "
+                    "auto-cull in chain runs (recipe.json stack.exclude, written with "
+                    "the flags as the why, reported at the end); a hand-ratified "
+                    "stack block is never overwritten and always wins"}
 json.dump(rec, open(OUT, "w"), indent=1)
 print(f"wrote {OUT}  ({len(flagged)} flagged frame(s))")
 PY

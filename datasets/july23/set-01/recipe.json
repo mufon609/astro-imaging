@@ -1,0 +1,10 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   1,
+   2
+  ],
+  "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_8647.NEF: fwhm,round,nstars; DSC_8648.NEF: fwhm,nstars — the session's first two exposures, start-of-sequence settling: fwhm 2.82/2.85 vs set median 2.63 px, nstars 1710/1670 vs 1878). A hand-ratified stack block overrides this write."
+ }
+}
