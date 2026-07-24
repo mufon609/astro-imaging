@@ -439,18 +439,26 @@ function pgSet(name) {
 function mountControl(s) {
   if (s.kind !== 'lights') return null;
   const cur = (s.acquisition || {}).mount;
+  const mc = ((s.fingerprint || {}).mount_check) || {};
   const fx = h('input', { type:'radio', name:'mnt', value:'fixed' });
   const tr = h('input', { type:'radio', name:'mnt', value:'tracked' });
   if (cur === 'fixed') fx.checked = true;
   if (cur === 'tracked') tr.checked = true;
+  // measure + confirm click (ratified): an undeclared mount with a measured
+  // signature pre-fills the radio — the accept click still writes the
+  // declaration; nothing is assumed
+  if (!cur && mc.measured === 'fixed') fx.checked = true;
+  if (!cur && mc.measured === 'tracked') tr.checked = true;
   const msg = h('span', { class:'m' });
   return h('div', { class:'panel', style:'margin:0 0 14px' },
     h('h3', {}, 'mount — declared, never assumed'),
     h('div', { class:'when' }, cur
       ? `declared: ${cur}` + (s.fingerprint
-        ? ` · measured ${s.fingerprint.mount_check.verdict}`
+        ? ` · measured ${mc.verdict}`
         : ' · not yet measured against the sky')
-      : 'UNDECLARED — consumers that need fixed-vs-tracked stop until this is set'),
+      : (mc.measured
+        ? `UNDECLARED — the data reads as ${mc.measured.toUpperCase()} (${mc.method}); pre-filled below — declaring accepts the measurement`
+        : 'UNDECLARED — consumers that need fixed-vs-tracked stop until this is set')),
     h('label', {}, fx, ' fixed (tripod)'), '  ',
     h('label', {}, tr, ' tracked (driven mount)'), '  ',
     h('button', { class:'copy', style:'font-size:.8rem;padding:.3rem .8rem',

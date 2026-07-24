@@ -121,7 +121,7 @@ say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerpr
 say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull policy ratified: ${RATIFIED:-no}"
 say "PLAN — route: $ROUTE${REASON:+ — $REASON}"
 case "$ROUTE" in
-  stop-undeclared) say "PLAN — WILL STOP: mount undeclared (declare on the set page)";;
+  stop-undeclared) say "PLAN — WILL MEASURE then STOP: mount undeclared — the fingerprint measures it first (roundness if QA exists, else the two-window drift probe: scripts/qa/mount_probe.sh), the verdict pre-fills the set page's mount control, your accept-click writes the declaration, a re-click resumes";;
   stop-unroutable) say "PLAN — WILL STOP: $REASON";;
   *)
     if [ -n "$NFLAGS" ] && [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
@@ -154,7 +154,38 @@ say "PLAN — disk free now: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
 if [ "$PLAN" = 1 ]; then say "plan only — nothing executed"; exit 0; fi
 
 # ---- gates fire in order ------------------------------------------------
-if [ "$ROUTE" = stop-undeclared ]; then say "STOP: mount undeclared — declare it on the set page, then re-click"; exit 4; fi
+if [ "$ROUTE" = stop-undeclared ]; then
+  # measure-then-stop (user-ratified: measure + confirm click). The mount
+  # stays a DECLARED fact — the chain measures the signature, records it,
+  # and stops; the set page pre-fills the verdict and the user's accept
+  # click writes the declaration. Nothing routes until then.
+  say "mount undeclared — measuring the signature before stopping"
+  python3 - "$REPO" "$SESSION" "$SET" <<'PY' || true
+import glob, os, sys
+sys.path.insert(0, os.path.join(sys.argv[1], "scripts", "lib"))
+import acquisition
+frames = sorted(f for pat in ("*.nef", "*.NEF", "*.dng", "*.DNG", "*.cr2",
+                              "*.CR2", "*.arw", "*.ARW", "*.fit", "*.fits")
+                for f in glob.glob(os.path.join(sys.argv[2], sys.argv[3], pat)))
+try:
+    acquisition.resolve(sys.argv[2], sys.argv[3], frames)
+except acquisition.AcquisitionUndeclared:
+    pass          # expected: the record is seeded with the derived facts
+PY
+  python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || true
+  MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
+  if [ -z "$MEASURED" ]; then
+    say "roundness not decisive (or no QA yet) — running the two-window drift probe"
+    "$REPO/scripts/qa/mount_probe.sh" "$SESSION" "$SET" >/dev/null || true
+    MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
+  fi
+  if [ -n "$MEASURED" ]; then
+    say "STOP: the data reads as '$MEASURED' — accept it on the set page (pre-filled), then re-click"
+  else
+    say "STOP: mount undeclared and the instruments could not decide — declare it on the set page, then re-click"
+  fi
+  exit 4
+fi
 
 # preflight: seed/refresh acquisition (raises on undeclared mount AND on a
 # CONTRADICT fingerprint), then re-derive the fingerprint record

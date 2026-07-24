@@ -679,6 +679,16 @@ def _stage_registry():
             "build": lambda a: ["python3", "scripts/qa/anomaly_audit.py",
                                 P("sessions", _arg_session(a["session"]), _arg_set(a["set"]))],
         },
+        "mount_probe": {
+            "desc": "two-window mount drift probe: solve the set's first + last frames (Siril green-extract for camera raws), record qa_work/mount_probe.json, fingerprint derives the drift verdict — the instrument that can decisively measure FIXED; runs inside the chain preflight when roundness cannot decide, or standalone here",
+            "phase": "measure",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+            ],
+            "build": lambda a: ["scripts/qa/mount_probe.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])],
+        },
         "master_dark": {
             "desc": "session master dark from raw darks/ (pinned Siril template: rej 3 3 stack, -nonorm) -> work/masters/dark_master.fit",
             "phase": "calibrate",
@@ -1159,6 +1169,12 @@ def stage_status(session):
            else f"no stack yet for: {', '.join(miss)}")
     for name in ("stack_standard", "stack_undistort", "stack_undistort_groups"):
         put(name, *fam)
+    nodrift = [s["set"] for s in lights
+               if not ((s.get("fingerprint") or {}).get("inter_frame_drift"))]
+    put("mount_probe", "done" if not nodrift else "na",
+        "drift measured on every light set" if not nodrift
+        else ("optional — the chain preflight runs it when roundness cannot "
+              f"decide an undeclared mount (no drift yet: {', '.join(nodrift)})"))
     miss = [s["set"] for s in lights
             if not any(su.get("judge") for su in per_set_stacks[s["set"]])]
     chain = ("done" if not miss else "todo",

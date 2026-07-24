@@ -333,6 +333,24 @@ def load_solve(path, time_s=None):
     return out
 
 
+def _load_probe(session_dir, set_name):
+    """The tracked two-window drift probe (scripts/qa/mount_probe.sh):
+    (solve_a, solve_b) with capture epochs, or (None, None) when the set has
+    no probe record. Auto-loaded by derive() so the drift measurement is
+    durable — a refresh from any call site keeps it."""
+    p = os.path.join(am.dataset_dir(session_dir, set_name),
+                     "qa_work", "mount_probe.json")
+    try:
+        rec = json.load(open(p))
+    except (OSError, ValueError):
+        return None, None
+    a, b = rec.get("solve_a"), rec.get("solve_b")
+    if not (isinstance(a, dict) and isinstance(b, dict)
+            and "time_s" in a and "time_s" in b):
+        return None, None
+    return a, b
+
+
 def _load_metrics(session_dir, set_name):
     """The tracked frame-QA distribution, reshaped for the roundness check.
     None when the set has no frame_metrics.json yet (the check just waits)."""
@@ -376,6 +394,8 @@ def derive(session_dir, set_name, *, solve_a=None, solve_b=None,
 
     if metrics is None:
         metrics = _load_metrics(session_dir, set_name)
+    if solve_a is None and solve_b is None:
+        solve_a, solve_b = _load_probe(session_dir, set_name)
     drift = None
     solve = solve_a
     if solve_a and solve_b and "time_s" in solve_a and "time_s" in solve_b:
