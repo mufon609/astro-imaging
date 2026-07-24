@@ -868,6 +868,108 @@ async function openStageForm(name, st, formHost) {
     });
 }
 
+/* ---- automated chains: step-strip + cards (BACKLOG item 17) ---- */
+const CHAIN_STEPS = ['mount', 'QA', 'cull', 'flats', 'stack', 'SPCC', 'judge'];
+let STRIP = { t: null };
+
+function chainStepState(s, masters, surfaces) {
+  // evidence-only per-set progress: same sources as the chips
+  const su = (surfaces || []).find(x => x.sets && x.sets.length === 1 && x.sets[0] === s.set);
+  const qa = s.frame_qa;
+  return [
+    !!((s.acquisition || {}).mount),
+    !!qa,
+    !!(qa && (s.recipe || ((qa.flagged || []).length === 0))),
+    (masters || []).some(p => p.endsWith(`skyflat_${s.set}.fit`)),
+    !!su,
+    !!(su && su.files && su.files.spcc),
+    !!(su && su.judge),
+  ];
+}
+
+async function renderStrips(host) {
+  if (!host.isConnected && STRIP.t) {   // page switched away — stop polling
+    clearInterval(STRIP.t); STRIP.t = null; return;
+  }
+  let model = M, paths = {}, jobs = [];
+  try { model = await (await fetch('/api/session/' + SESSION)).json(); } catch {}
+  try { paths = await (await fetch('/api/paths/' + SESSION)).json(); } catch {}
+  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
+  const masters = paths.masters || [];
+  const lights = (model.sets || []).filter(s => s.kind === 'lights');
+  if (!lights.length) { host.replaceChildren(); return; }
+  const states = lights.map(s => chainStepState(s, masters, model.surfaces || []));
+  const running = jobs.find(j => j.status === 'running' && (!j.session || j.session === SESSION));
+  const atJudge = states.filter(st => st[6]).length;
+  host.replaceChildren(...[
+    running
+      ? h('p', { class:'m' }, `⏵ run active: ${running.stage} (started ${running.started}) — evidence below refreshes ~20 s; the rig runs one job at a time`)
+      : null,
+    h('table', { class:'ledger' },
+      h('tr', {}, h('th', {}, 'set'), ...CHAIN_STEPS.map(c => h('th', { style:'text-align:center' }, c))),
+      ...lights.map((s, i) => h('tr', {},
+        h('td', {}, s.set),
+        ...states[i].map(d => h('td', { style:'text-align:center' }, d ? '●' : '○'))))),
+    h('p', { class:'m' }, `${atJudge}/${lights.length} set(s) at their judge surface`),
+  ].filter(Boolean));
+  if (running && !STRIP.t) STRIP.t = setInterval(() => renderStrips(host), 20000);
+  if (!running && STRIP.t) { clearInterval(STRIP.t); STRIP.t = null; }
+}
+
+function detailPanel(st) {
+  const d = st.detail;
+  if (!d) return null;
+  const row = (label, xs, sep) => (xs && xs.length)
+    ? h('div', { style:'margin:2px 0' }, h('b', {}, label + ': '), xs.join(sep)) : null;
+  return h('details', { class:'m', style:'margin-top:6px',
+    onclick: ev => ev.stopPropagation() },   // expanding must not open the form
+    h('summary', { style:'cursor:pointer' }, 'process'),
+    row('runs', d.process, ' → '),
+    row('stops for', d.gates, ' · '),
+    row('records', d.records, ' · '));
+}
+
+async function runChainDirect(name, args, out) {
+  // the DECIDE click, card-local: show the exact command (dry_run), start,
+  // and stream the log — same contract as the stage form's Run
+  out.hidden = false;
+  const pre = await fetch('/api/run', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage: name, args, dry_run: true }) });
+  const pj = await pre.json();
+  if (!pre.ok) { out.textContent = 'ERROR: ' + (pj.error || pre.status); return; }
+  const r = await fetch('/api/run', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage: name, args }) });
+  const j = await r.json();
+  out.textContent = r.ok ? `$ ${j.cmd}\nstarted ${j.id}`
+                         : `$ ${pj.cmd}\nERROR: ` + (j.error || r.status);
+  if (r.ok) { refreshJobs(); watchJob(j.id); }
+}
+
+function autoCard(name, st, status, formHost) {
+  const chip = h('span', { id: 'stchip_' + name });
+  applyStageChip(chip, status[name]);
+  const out = h('pre', { class:'rec', hidden:'', style:'margin-top:8px' });
+  const btn = (label, fn, title) => h('button', {
+    class:'copy', style:'font-size:.85rem;padding:.4rem 1rem;margin-right:8px',
+    title: title || '', onclick: fn }, label);
+  const direct = name === 'chain_session';   // no per-set param -> one click
+  const buttons = direct
+    ? [btn('preview plan', () => runChainDirect(name, { session: SESSION, plan: true }, out),
+           'runs the chain in plan mode: prints route + gates + exact commands, executes nothing'),
+       btn('Run', () => runChainDirect(name, { session: SESSION }, out),
+           'the DECIDE click: shows the exact command and starts the chain')]
+    : [btn('open form (choose set)', () => openStageForm(name, st, formHost),
+           'pick the set; the form has the plan checkbox')];
+  return h('div', { class:'card' },
+    h('h3', {}, name, ' ', chip),
+    h('p', {}, st.summary || st.desc),
+    detailPanel(st),
+    h('p', { style:'margin:10px 0 0' }, ...buttons),
+    out);
+}
+
 async function pgRun() {
   let stages = {};
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
@@ -875,23 +977,41 @@ async function pgRun() {
   const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
   const formHost = h('div', {});
   // a page (re)build is a fresh view — never keep polling a log the user
-  // watched under another session's page
+  // watched under another session's page, and never keep a stale strip timer
   if (POLL.t) { clearInterval(POLL.t); POLL.t = null; }
+  if (STRIP.t) { clearInterval(STRIP.t); STRIP.t = null; }
   WATCH = { id: null, offset: 0 };
   setTimeout(refreshJobs, 0);
+  // automated chains first (server marks them; fallback covers a server
+  // process older than the marker)
+  let auto = Object.keys(stages).filter(n => stages[n].automated);
+  if (!auto.length) auto = ['chain_session', 'chain_set'].filter(n => stages[n]);
+  auto.sort((a, b) => (a === 'chain_session' ? -1 : 0) - (b === 'chain_session' ? -1 : 0));
+  const stripHost = h('div', {});
+  if (auto.length) setTimeout(() => renderStrips(stripHost), 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
-    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendment): the Run click is your DECIDE step — it shows the exact command and starts the job (show command previews without running). One job at a time.'),
+    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendments): every click is your DECIDE step — the exact command shows with the run, chains disclose their full plan first, one job at a time.'),
+    auto.length ? frag(
+      h('h2', {}, 'automated'),
+      h('div', { class:'cards' },
+        auto.map(n => autoCard(n, stages[n], status, formHost))),
+      stripHost) : null,
+    h('h2', {}, 'pipeline stages — manual'),
+    h('div', { class:'sub' }, 'the per-stage escape hatch: individual re-runs and diagnostics; the chains above run these same pinned scripts in order.'),
     ...phases.map(ph => {
-      const names = Object.keys(stages).filter(n => stages[n].phase === ph);
+      const names = Object.keys(stages).filter(
+        n => stages[n].phase === ph && !auto.includes(n));
       if (!names.length) return null;
-      return frag(h('h2', {}, ph), h('div', { class:'cards' },
+      return frag(h('h3', {}, ph), h('div', { class:'cards' },
         names.map(n => {
           const chip = h('span', { id: 'stchip_' + n });
           applyStageChip(chip, status[n]);
           return h('div', { class:'card', style:'cursor:pointer',
             onclick: () => openStageForm(n, stages[n], formHost) },
-            h('h3', {}, n, ' ', chip), h('p', {}, stages[n].desc));
+            h('h3', {}, n, ' ', chip),
+            h('p', {}, stages[n].summary || stages[n].desc),
+            detailPanel(stages[n]));
         })));
     }),
     formHost,

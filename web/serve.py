@@ -939,9 +939,195 @@ def _stage_registry():
 
 STAGES = _stage_registry()
 
+# Structured per-stage documentation for the Run page (BACKLOG item 17):
+# `summary` is the card's one-liner; `detail` feeds the expandable process
+# panel (exact commands, the gates that stop and who resolves them, where
+# records land) so the explanation lives beside the command definition and
+# cannot drift into hand-maintained HTML; `automated` marks the chain cards
+# the page surfaces first.
+_STAGE_DOCS = {
+    "chain_session": {
+        "automated": True,
+        "summary": "THE session button: every light set through the whole durable core, one click",
+        "detail": {
+            "process": ["per set, in name order: run_set_chain.sh",
+                        "preflight (acquisition facts + fingerprint cross-check)",
+                        "frame QA (skips if measured)", "auto-cull flagged frames (standing policy)",
+                        "master dark + per-set sky flat (as needed)",
+                        "route-by-fingerprint stack (undistort single-pass vs groups by disk)",
+                        "solve -> SPCC (+ Gaia cone fetch) -> judge PNG16",
+                        "decisions summary at the end"],
+            "gates": ["mount undeclared -> measures first, stops for your accept",
+                      "declared-vs-measured CONTRADICT -> stops",
+                      "unroutable fingerprint -> stops",
+                      "real flats staged on the undistort route -> stops (manual flat)",
+                      "sky-flat validation failure -> stops"],
+            "records": ["datasets/<session>/<set>/ (acquisition, fingerprint, frame_metrics, recipe culls)",
+                        "web/results/<session>/ (stacks, wcs/spcc, judge/)",
+                        "sessions/.webjobs/ (the run log)"],
+        },
+    },
+    "chain_set": {
+        "automated": True,
+        "summary": "the same full chain for ONE set — first runs and re-runs alike (built products skip)",
+        "detail": {
+            "process": ["preflight (facts + fingerprint)", "frame QA if missing",
+                        "auto-cull flagged frames (standing policy)",
+                        "masters as needed", "route-by-fingerprint stack",
+                        "solve -> SPCC -> judge PNG16"],
+            "gates": ["mount undeclared -> measures, stops for your accept",
+                      "CONTRADICT / unroutable / unresolved flat -> stops"],
+            "records": ["datasets/<session>/<set>/", "web/results/<session>/"],
+        },
+    },
+    "frame_qa": {
+        "summary": "measure every frame (Siril register regdata): FWHM, roundness, background, stars",
+        "detail": {
+            "process": ["raw/FITS -> register -2pass in disk-bounded batches",
+                        "per-frame metrics pooled -> frame_metrics.json",
+                        "defect-side z flags reported", "fingerprint refresh"],
+            "gates": ["none — measurement never stops the rig"],
+            "records": ["datasets/<session>/<set>/qa_work/"]},
+    },
+    "mount_probe": {
+        "summary": "two-window drift solve: measures fixed-vs-tracked from the sky itself",
+        "detail": {
+            "process": ["first + last frame (Siril green-extract for raws)",
+                        "two blind solves -> RA rate vs sidereal",
+                        "fingerprint verdict"],
+            "gates": ["exit 2 on declared-vs-measured CONTRADICT"],
+            "records": ["qa_work/mount_probe.json", "fingerprint.json"]},
+    },
+    "anomaly_audit": {
+        "summary": "aircraft / satellite / unknown crossings, classified per frame",
+        "detail": {
+            "process": ["Siril decode + green-extract + subsky + findstar per frame",
+                        "streak geometry + cross-frame linking (the sanctioned gap-filler)"],
+            "gates": ["requires a declared FIXED mount (tracked sets read na)"],
+            "records": ["audit_work/anomaly_audit.json"]},
+    },
+    "master_dark": {
+        "summary": "session master dark from darks/ (rejection stack, -nonorm)",
+        "detail": {
+            "process": ["convert darks -> stack rej 3 3 -nonorm"],
+            "gates": ["existing master stops (re-run with force)"],
+            "records": ["<session>/work/masters/dark_master.fit"]},
+    },
+    "sky_flat": {
+        "summary": "PER-SET sky flat for a flatless set (the ratified per-set-flat rule)",
+        "detail": {
+            "process": ["the set's own un-registered lights, dark-subtracted",
+                        "winsorized flat stack + validation gates"],
+            "gates": ["validation failure stops (regional stat / speck count)"],
+            "records": ["<session>/work/masters/skyflat_<set>.fit + qa record"]},
+    },
+    "stack_standard": {
+        "summary": "tracked class: calibrate -> register -> rejection stack",
+        "detail": {
+            "process": ["run_pipeline.sh (masters resolved internally; recipe culls honored)"],
+            "gates": ["flatless set hard-stops demanding a flat"],
+            "records": ["web/results/<session>/stack_<set>.fit"]},
+    },
+    "stack_undistort": {
+        "summary": "wide-untracked class, single pass: calibrate -> undistort -> register -> stack",
+        "detail": {
+            "process": ["lens preflight proves the model", "calibrate in sensor space",
+                        "darktable lens warp", "register -2pass -> rejection stack"],
+            "gates": ["mixed/unmatched optics stop", "~231 MB/frame disk peak"],
+            "records": ["web/results/<session>/stack_<set>.fit"]},
+    },
+    "stack_undistort_groups": {
+        "summary": "same class on tight disk: balanced groups -> per-group stacks -> compose",
+        "detail": {
+            "process": ["full chain per group, intermediates cleaned",
+                        "sub-stacks register + plain-mean compose"],
+            "gates": ["same as single-pass; groups kept for re-composition"],
+            "records": ["web/results/<session>/stack_<set>_full.fit", "work/groups_<set>/"]},
+    },
+    "compose": {
+        "summary": "compose group sub-stacks across sets into one deep stack",
+        "detail": {
+            "process": ["register -2pass -> plain mean (rejection across sub-stacks is a dead end)"],
+            "gates": ["valid post-undistort only"],
+            "records": ["web/results/<session>/stack_<sets>_<framing>.fit"]},
+    },
+    "compose_channels": {
+        "summary": "multi-filter target: member stacks -> one composed colour stack (rgbcomp)",
+        "detail": {
+            "process": ["members align to the composition's reference", "Siril rgbcomp composes"],
+            "gates": ["header-only guards (float32 / mono / geometry agreement)"],
+            "records": ["web/results/<session>/stack_<target>_comp.fit"]},
+    },
+    "coverage_probe": {
+        "summary": "per-pixel coverage map of a compose (the framing instrument)",
+        "detail": {
+            "process": ["constant twins through the stored transforms -> stack sum"],
+            "gates": ["members*1000 must fit 16 bits (<=65 members)"],
+            "records": ["web/results/<session>/coverage_*.fit"]},
+    },
+    "solve": {
+        "summary": "blind astrometric solve + WCS inject (unblocks SPCC)",
+        "detail": {
+            "process": ["sep extraction -> astrometry.net, cached index tiers first"],
+            "gates": ["union canvases default --central=0.35 (seam guard)"],
+            "records": ["web/results/<session>/stack_*_wcs.fit + solve record"]},
+    },
+    "spcc_cone": {
+        "summary": "local Gaia chunk coverage for a solved field (--fetch downloads)",
+        "detail": {
+            "process": ["nside=2 cover from the WCS -> md5-verified chunk fetch"],
+            "gates": ["none"],
+            "records": ["~/.local/share/siril/siril_catalogues/spcc/"]},
+    },
+    "spcc": {
+        "summary": "Siril SPCC colour calibration; K factors captured",
+        "detail": {
+            "process": ["spcc on the solved stack (recipe spec or sensor-null default)"],
+            "gates": ["mono stacks refuse (no colour to calibrate)"],
+            "records": ["<session>/work/spcc_<set>*.json + stack_*_spcc.fit"]},
+    },
+    "finish_render": {
+        "summary": "stack -> solve -> SPCC -> linked autostretch -> judge PNG16",
+        "detail": {
+            "process": ["solve", "cone fetch", "SPCC (mono skips: luminance finish)",
+                        "linked autostretch -> 16-bit PNG"],
+            "gates": ["refuses unverified framing records and overwriting built stacks"],
+            "records": ["web/results/<session>/judge/"]},
+    },
+    "previews": {
+        "summary": "Siril-made navigation previews + manifest (never judgment surfaces)",
+        "detail": {
+            "process": ["tool-made thumbs, selection surfaces, coverage veils"],
+            "gates": ["none"],
+            "records": ["web/results/<session>/previews/"]},
+    },
+    "install_lens_model": {
+        "summary": "install the fitted lens entry into the machine-local lensfun DB (distortion-only)",
+        "detail": {
+            "process": ["fitted entry replaces the community line; vignetting/tca stripped"],
+            "gates": ["stops loudly on upstream DB drift"],
+            "records": ["machine-local lensfun user DB (re-run per rig + DB update)"]},
+    },
+    "install_styles": {
+        "summary": "install the pinned darktable styles into a config dir (verification)",
+        "detail": {
+            "process": ["headless style install via a real export job"],
+            "gates": ["none"],
+            "records": ["<session>/work/dtcfg"]},
+    },
+    "verify_framing": {
+        "summary": "Siril crop+stat verification of a drawn framing record",
+        "detail": {
+            "process": ["coverage-map mode (Min >= members) or sibling-class sky floor"],
+            "gates": ["a render refuses unverified records — this is the stamp"],
+            "records": ["datasets/<session>/framing_<product>.json (status)"]},
+    },
+}
+
 
 def stages_public():
-    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"]}
+    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"],
+                   **_STAGE_DOCS.get(name, {})}
             for name, s in STAGES.items()}
 
 
