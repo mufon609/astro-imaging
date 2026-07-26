@@ -41,9 +41,15 @@
 # The stack rejection is doctrine-selected by sub count (stack_rejection.sh:
 # percentile / winsorized / GESD — a deep stack gets GESD), with
 # `-norm=addscale -output_norm`.
-# --icc-type SRGB is MATCHED to the sRGB-TRC tag Siril's savetif embeds
-# (verified identity round trip; forcing a linear tag leaves the decode
-# uncancelled and silently destroys photometry).
+# ICC on the FLOAT leg: the TIFF ships UNTAGGED (exiftool strips the profile
+# in the same pass that copies the lens EXIF) and darktable exports
+# --icc-type LIN_REC709 — measured a PERFECT identity round trip (ratio
+# 1.0000 at every level, every channel) with the warp confirmed firing
+# (corner 0.22 vs centre 0.003). The former SRGB/SRGB tag-matching contract
+# (the 16-bit-era rule) carries a TRC toe-segment mismatch that inflates
+# 3s-class sky levels +2..5% below linear ~0.003 (BACKLOG item 20 probe;
+# docs/dead-ends.md ICC entry). NEVER use siril `icc_remove` for the strip —
+# measured applying a global ~1/12.92 scale through the same leg.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
@@ -131,9 +137,9 @@ while [ $n -lt ${#ALL[@]} ]; do
   j=0
   for t in "$P/tif"/*.tif; do
     j=$((j+1))
-    exiftool -q -overwrite_original -TagsFromFile "${SRC[0]}" -Make -Model -LensModel -FocalLength -FNumber "$t" 2>/dev/null || true
+    exiftool -q -overwrite_original -TagsFromFile "${SRC[0]}" -Make -Model -LensModel -FocalLength -FNumber -icc_profile:all= "$t" 2>/dev/null || true
     timeout 900 darktable-cli "$t" "$P/tif/w_$(printf %02d $ci)_$(printf %02d $j).tif" \
-      --style lensdist --style-overwrite --icc-type SRGB --core \
+      --style lensdist --style-overwrite --icc-type LIN_REC709 --core \
       --configdir "$CFG" --library ":memory:" \
       --conf plugins/imageio/format/tiff/bpp=32 \
       --conf plugins/imageio/format/tiff/compress=0 >/dev/null 2>&1 \

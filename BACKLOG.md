@@ -492,21 +492,20 @@ superseded index-style semantics note in old commit messages only; the
 web Culled Frames page (item 16) should read cullspec's convention note
 when built.
 
-## 20. Warp-leg ICC round trip is NOT identity at 3s-class sky levels — measured toe error
+## 20. Warp-leg ICC toe error — FIXED (closed 2026-07-26)
 
-Test B (2026-07-26, `sessions/july23/work/bisect/iccprobe`): the float leg
-(savetif32 → darktable --icc-type SRGB bpp=32 → convert) inflates values by
-+4.7% at 0.0015, +2.2% at 0.0017, identity by 0.003+ — a TRC toe mismatch
-between Siril's embedded sRGB variant and darktable's SRGB output. july14's
-6 s sky (~0.003) sits ABOVE the error band (Test A: neutral end-to-end);
-july23's 3 s sky (~0.0016) sits IN it → ~1-2% global per-channel shift on
-that class (each channel's sky sits at a different level on the error
-curve). Named test: 3-arm one-knob A/B on one chunk — current SRGB/SRGB vs
-LIN_REC709-tagged-both-sides vs a no-ICC arm — judged on the ratio-vs-level
-curve (instrument exists) + star-amplitude linearity; adopt the arm that is
-identity at ALL levels. The dead-ends ICC entry's "verified identity" was
-measured at 16-bit on 6s-class levels — this extends it: verify at the SKY
-level of the exposure class in use, not only on star amplitudes.
+Three-arm probe on the ratio-vs-level instrument: (A) the SRGB/SRGB
+tag-matching contract = +4.7%..+2.2% inflation below linear ~0.003 (the TRC
+toe-segment mismatch; 3s-class sky sits in the band, 6s-class above it);
+(B) **exiftool ICC strip + `--icc-type LIN_REC709` = identity 1.0000 at
+every level and channel, warp confirmed firing — ADOPTED** in
+run_undistort_pipeline (strip rides the existing lens-tag exiftool pass);
+(C) siril `icc_remove` + LIN out = global ~1/12.92 scale — registry trap.
+dead-ends ICC entry rewritten in place with the class lesson: verify ICC
+changes down to the exposure class's SKY level, never star amplitudes
+alone. lens_preflight/verify_lens_card keep SRGB (relative two-arm probes —
+the ICC path cancels between arms). Rebuild of the july23 combine through
+the fixed leg: this session.
 
 ## 18. Flatpak Siril concurrency race — serialize or harden the invokers
 

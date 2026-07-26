@@ -244,21 +244,31 @@ the constraints any such tool must satisfy):
   (it passes the wrong-lens case): assert EXIF camera+lens+focal against the DB AND the set's
   `acquisition.json`, per set, BEFORE the run. Corollary: a mixed-focal/mixed-lens set is a HARD
   STOP, not an interpolation — every frame silently gets its own model.
-- **Round-tripping linear astro data through a raw converter: MATCH the ICC tag, never
-  "force linear".** Siril's `savetif` embeds **`sRGB-elle-V2-srgbtrc.icc`** — an sRGB
-  TONE CURVE — on LINEAR pixels, and **`icc_assign sRGBlinear` does NOT change what
-  `savetif` embeds** (the export profile comes from a save-time preference; `set
-  gui.icc_pedantic_linear=true` does not change it either). So a converter reading that
-  TIFF applies an sRGB→linear DECODE to already-linear data. Exporting with a LINEAR
-  profile (`darktable --icc-type LIN_REC709`) then leaves that decode UNCANCELLED:
-  measured A_out/A_in climbing **0.1008 → 0.2121** across the brightness range
-  (effective gamma ≈1.34) — silently destroying photometry, SPCC and the stretch while
-  looking fine on a preview. **The fix is to MATCH the output profile to the input tag**
-  (`--icc-type SRGB`): the decode and the re-encode cancel exactly — VERIFIED as an
-  identity round trip, A_out/A_in = **0.9996–1.0000**, IQR 0.0003. The tag is
-  "wrong" either way; what matters is that it is wrong *consistently*. Always verify
-  linearity with star AMPLITUDES vs brightness (a constant ratio), never with a mean or
-  a preview: a gamma preserves the median's rank order and hides in a stretch.
+- **Round-tripping linear astro data through a raw converter: the tag and the
+  export profile must CANCEL — and "verified identity" is only as good as the
+  LEVELS it was verified at.** Siril's `savetif` embeds **`sRGB-elle-V2-srgbtrc.icc`**
+  — an sRGB TONE CURVE — on LINEAR pixels, and **`icc_assign sRGBlinear` does NOT
+  change what `savetif` embeds** (the export profile comes from a save-time
+  preference). A converter reading that TIFF applies an sRGB→linear DECODE to
+  already-linear data. Exporting LINEAR against the sRGB-tagged input leaves the
+  decode UNCANCELLED: measured A_out/A_in climbing **0.1008 → 0.2121** (effective
+  gamma ≈1.34) — silently destroying photometry while looking fine on a preview.
+  The 16-bit-era rule — MATCH the output profile to the input tag
+  (`--icc-type SRGB`) — verified as identity **at star amplitudes on 6s-class
+  data** (0.9996–1.0000)… and later measured to carry a **TRC toe-segment
+  mismatch below linear ≈0.003**: +4.7% at 0.0015 → +2.2% at 0.0017 → identity
+  by 0.003 (Siril's elle sRGB toe vs darktable's SRGB toe). A 6 s sky sits above
+  the band; a **3 s sky sits inside it** → ~1–2% per-channel global shift on
+  that whole class, invisible to a star-amplitude check. **The float-leg
+  contract (measured 2026-07-26, adopted): strip the ICC tag (exiftool
+  `-icc_profile:all=`, same pass as the lens-tag copy) and export
+  `--icc-type LIN_REC709` — a PERFECT identity, ratio 1.0000 at EVERY level and
+  channel, warp confirmed firing (corner 0.22 vs centre 0.003).** Two traps
+  beside it: (1) NEVER strip with siril `icc_remove` before `savetif32` — the
+  same leg then applies a global **~1/12.92** scale (the sRGB linear-segment
+  slope) to every pixel; (2) verify any ICC change with a ratio-vs-level curve
+  DOWN TO the exposure class's SKY level (`bisect/iccprobe` method), never with
+  star amplitudes or a mean alone — a toe error hides above the knee.
 - **Three traps that make a registration comparison lie (all hit one set).**
   (1) **Survivorship bias** — a bad registration spreads flux below the detection threshold,
   so the SURVIVING stars' median can *improve* while the image gets worse (the `-disto=` LOSS
