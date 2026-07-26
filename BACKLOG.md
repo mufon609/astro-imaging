@@ -278,6 +278,20 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   both vendors say matched darks need none). A/B on one set, judged on dark-residual /
   walking-noise metrics (ties into item 11's mechanism work). Low priority — our darks
   are same-night, session-end temperature.
+- **With/without-flat probe on the frame-filling-MW class — WHICH nebula contrast is
+  honest?** MEASURED (july23, WCS-anchored NAN-region instrument,
+  `datasets/july23/snr_nan_regions.json`): set-01 carries 2.3× the extended-structure
+  contrast of sets 02/03/04 (Δ≈+10 vs ~+4 ADU R-channel) and a +7 ADU brighter sky
+  (00:40–01:07 window, twilight-adjacent); 02/03/04 are mutually consistent. The only
+  per-set-differing stage is each set's own sky flat (set-01's flat centre 56.3 ADU vs
+  48–49) — the registry's frame-filling-structure bake-in limit, adopted this session
+  on class precedent WITHOUT the per-set with/without validation the flat QA gate
+  names. The test: one set (e.g. set-03), one knob (flat: own sky flat vs none vs
+  GraXpert Division), same downstream chain, judged on the same WCS-anchored contrast
+  boxes + full-frame like-encoded finals. Settles whether ~10 is honest (flats of
+  02/03/04 attenuate) or set-01 is the anomaly (twilight term in its flat), and picks
+  the flat route for this class. Until it runs, the july23 per-set stacks are
+  candidates whose extended-structure transfer differs measurably set-to-set.
 
 ## 9. Data-capability gaps (gated per item — read each gate)
 

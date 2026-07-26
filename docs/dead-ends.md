@@ -335,6 +335,26 @@ the constraints any such tool must satisfy):
   (16-bit PNG only — never an 8-bit/reduced-depth/lossy copy), opened
   independently; one bracketed knob per experiment; nothing
   aesthetic commits before the user's eyes.
+- **A multi-product judgment set rendered by data-dependent `autostretch` is NOT
+  like-encoded — each surface gets its own histogram-derived transfer.** MEASURED
+  (july23, five surfaces from one chain): linear stacks statistically IDENTICAL
+  (NAN-region contrast ~+4 ADU each, same medians ~41, same bgnoise family) rendered
+  as "rich MW field" vs "single-frame-looking flat gray" purely by the per-stack
+  autostretch; the user read it as an inconsistent PROCESS. The mechanism bites the
+  assembler too: a weak fixed-MTF probe compared against an autostretched PNG
+  "refuted" a correct hypothesis until the comparison was re-run like-for-like.
+  Multi-surface judgment sets pin ONE transfer function for every member (the
+  render tier's pinned stretch is the durable home; `autostretch` stays valid for a
+  SINGLE diagnostic surface).
+- **A kept contiguous thin-haze window prints a scattering DISC around a bright
+  star — sub-sigma consistent minorities average in, they do not reject.** MEASURED
+  (july23 set-04): 20/398 haze frames (5%, nstars −13-16%, FWHM/round/bg normal)
+  left a ~500 px circular glow around Deneb (mag 1.25); like-encoded crops: set-02
+  (no haze) clean, set-04 disc; rejection cannot touch it (the disc is consistent
+  and sub-sigma per frame, not an outlier). The minority-keep rule ("dropping a
+  minority buys no matching gain") is calibrated for FAINT distributed signal —
+  for TRANSPARENCY windows with a mag≲2 star in-frame, the window is a cull
+  candidate despite being a minority; decide per set with the disc made visible.
 
 ## Acquisition checklist — the real quality lever
 
