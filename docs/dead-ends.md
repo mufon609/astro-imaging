@@ -54,6 +54,20 @@ the constraints any such tool must satisfy):
   trained light-pollution class and is absorbed. Use a plane/off for
   object-filling fields. BGE does NOT absorb a centred galaxy's halo (it measures
   STRONGER against a lower far-field sky).
+- **GraXpert AI `-correction Division` as a synthetic flat on a frame-filling-MW
+  field absorbs most of the extended structure — measured, even at max smoothing.**
+  Four-arm probe (july23 set-03, 60-frame stacks, same chain, one knob):
+  NAN-region contrast as % of local sky R/G/B — own sky flat 8.5/2.9/5.6; GraXpert
+  Division (smoothing 1.0, AI 1.0.1) **2.4/0.7/2.1** — the division ate ~2/3 of the
+  nebula while flattening corners to ±2% (it flattens the REAL sky structure too;
+  perfectly flat corners on a MW field are themselves a defect signature). The
+  vignetting-only promise holds only where faint structure does not fill the frame
+  — same enabling condition as the sky flat. UNTESTED alternative: GraXpert's
+  classical grid interpolators via `-preferences_file` (RBF/spline, no AI model).
+  Also measured in the same probe: the 16-bit intermediates chain (same flat, same
+  frames) reads only ~55-70% of the 32-bit arm's extended contrast (4.8/2.4/3.9 vs
+  8.5/2.9/5.6) — integer round-tripping through calibrate/warp/register eats faint
+  signal; the arm-era adaptation cost real structure, not just +0.3% noise.
 
 **Stretch / colour:**
 - Unlinked autostretch on a calibrated stack is the chroma-blotch ("rainbow")
