@@ -168,9 +168,25 @@ carries its source sky" mechanism per-channel, on real flats.
 same f-stop, same chain on july14 renders neutral — pure static color
 shading would show both nights. The residual is session-specific.
 
-**LOCALIZED 2026-07-26 (stage-walk, direct reads; user-cleared diagnostic
-tooling): the session-to-session corner-chroma difference is IN THE RAW
-LIGHT DATA.** Two independent raw-level artifacts agree: (1) each session's
+**RESOLVED 2026-07-26 (the warp-leg ICC fix — BACKLOG item 20): the shipped
+corner chroma was CHAIN-INJECTED, level-dependently.** One knob (the float
+TIFF leg: ICC tag stripped + LIN_REC709 export, measured identity 1.0000 at
+all levels) and the rebuilt stacks read corners **R/G 1.008–1.018 —
+july14-class neutral** (pre-fix 1.041–1.072), with the SPCC K family
+collapsing to G 0.662–0.668 across all four products (per-set scatter 0.006
+vs ~0.03 before). The level-dependence resolves the "identical chain,
+different outputs" paradox that misled the earlier localization: the toe
+error lives below linear ≈0.003, so july14's 6 s sky passed above it while
+july23's 3 s sky sat inside it — same scripts, different injection. The
+paragraph below records the earlier localization AS SUPERSEDED: its
+raw-level session delta is real but self-cancels through the flat (as
+division guarantees); its "chain-faithful" conclusion was wrong because the
+chain's defect hid exactly where the two-session comparison could not
+separate it from data. The surviving lesson: a level-dependent chain defect
+DEFEATS same-chain/different-data controls — only the identity round-trip
+instrument at the class's own sky level isolates it.
+
+_Superseded localization (kept for the record):_ Two independent raw-level artifacts agree: (1) each session's
 sky flat IS a dark-subtracted stack of its raw lights — per-CFA-plane
 corner/centre gives july14 raw sky corners R/G **0.96–0.97** (blue-lean)
 vs july23 **1.02–1.03** (red-lean): a ~5–6-point session delta at the RAW

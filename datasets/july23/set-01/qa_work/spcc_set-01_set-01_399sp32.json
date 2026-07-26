@@ -5,18 +5,18 @@
  "sensor_spec_source": null,
  "input": "../../web/results/july23/stack_set-01_wcs.fit",
  "output": "../../web/results/july23/stack_set-01_spcc.fit",
- "input_size": 207339840,
- "input_mtime": 1785052818,
+ "input_size": 207213120,
+ "input_mtime": 1785107176,
  "k_factors": {
   "R": 1.0,
-  "G": 0.738,
-  "B": 0.934
+  "G": 0.666,
+  "B": 0.853
  },
  "b_offsets": {
-  "R": 0.000692408,
-  "G": -0.000171078,
-  "B": -1.74146e-06
+  "R": 0.000583168,
+  "G": 2.52603e-05,
+  "B": 0.000164012
  },
- "n_photometry": 5100,
- "n_kept": 2980
+ "n_photometry": 5109,
+ "n_kept": 2983
 }
