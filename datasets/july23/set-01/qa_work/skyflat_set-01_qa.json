@@ -9,29 +9,29 @@
  },
  "regional_stat_ADU": {
   "center": {
-   "mean": 56.298875,
-   "median": 62.0,
-   "sigma": 13.676798
+   "mean": 55.8,
+   "median": 61.6,
+   "sigma": 13.6
   },
   "TL": {
-   "mean": 29.715412,
-   "median": 31.0,
-   "sigma": 7.54485
+   "mean": 29.3,
+   "median": 30.4,
+   "sigma": 7.6
   },
   "TR": {
-   "mean": 28.076506,
-   "median": 29.0,
-   "sigma": 7.171731
+   "mean": 27.7,
+   "median": 28.6,
+   "sigma": 7.3
   },
   "BL": {
-   "mean": 30.439781,
-   "median": 32.0,
-   "sigma": 7.667729
+   "mean": 30.1,
+   "median": 31.3,
+   "sigma": 7.7
   },
   "BR": {
-   "mean": 31.386825,
-   "median": 33.0,
-   "sigma": 7.914807
+   "mean": 31.0,
+   "median": 32.2,
+   "sigma": 8.0
   }
  },
  "region_geometry_px": {

@@ -357,9 +357,14 @@ the constraints any such tool must satisfy):
   autostretch; the user read it as an inconsistent PROCESS. The mechanism bites the
   assembler too: a weak fixed-MTF probe compared against an autostretched PNG
   "refuted" a correct hypothesis until the comparison was re-run like-for-like.
-  Multi-surface judgment sets pin ONE transfer function for every member (the
-  render tier's pinned stretch is the durable home; `autostretch` stays valid for a
-  SINGLE diagnostic surface).
+  Multi-surface judgment sets pin ONE stretch RULE for every member — and the rule
+  must be SKY-ANCHORED per product, not one raw MTF triplet: separately
+  output-normalized stacks put their sky at different normalized levels, so a
+  single triplet renders honest sky-level differences as gross brightness
+  differences (measured: the brightest-sky set washed out under a combine-derived
+  triplet). With healthy 32-bit statistics, per-product `autostretch -linked` at
+  identical parameters IS the pinned rule (its 16-bit failure was the MAD
+  collapse, not the rule); the render tier's stretch policy is the durable home.
 - **A bright star's glare disc survives to the FINAL stack by exactly the amount
   its set's own sky flat fails to cancel — per-set flats make the residual
   inconsistent set-to-set.** MEASURED (july23, Deneb mag 1.25 in-frame all night):

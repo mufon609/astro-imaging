@@ -181,6 +181,23 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - One infrastructure lesson, measured: two concurrent rapid-fire flatpak
   siril-cli loops die probabilistically in bwrap sandbox setup (instance-dir
   cleanup race) — BACKLOG item 15; the chain reran serialized and clean.
+- **32-bit rebuild epilogue (the doctrine vindicated on data).** The first run
+  used the arm-era 16-bit intermediates; the user's judgment caught the
+  consequences, and the four-arm probe + full rebuild measured them: (1) one
+  channel's integer histogram quantized to MAD=0 and Siril's linked
+  autostretch degenerated (the "unstretched" surface); (2) the 16-bit chain
+  suppressed extended-structure contrast ~30–45% (probe twin) — at full depth
+  the 32-bit rebuild reads NAN contrast 15–37% of sky vs ~10% before, SNR
+  6–13 vs 2.3–3.3; (3) both vendors' 32-bit doctrine (Siril docs' warning, PI
+  float32) is therefore not conservatism but measured signal protection on
+  low-e-flux wide-field data. Also measured en route: a lights-built sky flat
+  on this class both partially erases real broad features (Deneb's glare disc
+  cancelled 0/0/0 in two sets, left +2.5/5.8/10 ADU in another — the
+  inconsistency IS the defect) and transfers extended structure differently
+  per set (set-01, twilight-adjacent window, reads ~2× its siblings); GraXpert
+  AI Division absorbs ~2/3 of the structure outright (dead-ends). Real flats
+  at acquisition close all three; until then the per-set sky flat is the
+  least-bad flatless route and the variance is recorded per set.
 
 ### E. Doctrine deltas → named tests (pre-registered, not run here)
 

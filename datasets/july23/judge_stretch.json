@@ -1,0 +1,12 @@
+{
+ "surfaces": [
+  "set-01_399sp32",
+  "set-02_400sp32",
+  "set-03_400sp32",
+  "set-04_398sp32",
+  "set-01+02+03+04_min32"
+ ],
+ "stretch_rule": "autostretch -linked per product (Siril 1.4.4 defaults: shadows clip -2.8 sigma, target bg 0.25) on 32-bit float SPCC stacks",
+ "why_rule_not_triplet": "like encoding for a multi-product judgment set = the same PINNED RULE per product, sky-anchored. A single raw MTF triplet is NOT like-encoded across separately output-normalized stacks: their sky levels sit at different normalized values, so one triplet renders honest sky-level differences as gross brightness differences (measured: set-01, the brightest-sky set, washed out under the combine-derived triplet). The 16-bit MAD-collapse that broke this rule on set-03 is fixed by 32-bit stacking (float MAD 1.6-1.7, healthy).",
+ "date": "2026-07-26"
+}
