@@ -168,9 +168,24 @@ carries its source sky" mechanism per-channel, on real flats.
 same f-stop, same chain on july14 renders neutral — pure static color
 shading would show both nights. The residual is session-specific.
 
-**REFRAMED BY USER FIELD KNOWLEDGE (2026-07-26): this is the NORMAL
-pre-background-extraction state of a wide-field stack, not a july23-specific
-fault.** The user has seen many stacks — july14-class included — originally
+**LOCALIZED 2026-07-26 (stage-walk, direct reads; user-cleared diagnostic
+tooling): the session-to-session corner-chroma difference is IN THE RAW
+LIGHT DATA.** Two independent raw-level artifacts agree: (1) each session's
+sky flat IS a dark-subtracted stack of its raw lights — per-CFA-plane
+corner/centre gives july14 raw sky corners R/G **0.96–0.97** (blue-lean)
+vs july23 **1.02–1.03** (red-lean): a ~5–6-point session delta at the RAW
+stage, matching the finals' delta (≤1.009 vs 1.044–1.072); (2) the nine
+pedestal-subtracted ministacks show july23's corner R/G **stable all night**
+(~1.00–1.05, bottom corners strongest, no growth) — so the corner-red is
+NOT dew-driven, NOT flat-created, NOT chain-created (the 16-bit-era chain
+rendered july14 neutral and july23 red-cornered in the same two days with
+identical scripts), and the user has ruled out the moon from field
+knowledge. It is a stable spatial-chroma property of that night's raw sky
+light, which the chain carries faithfully to the finals. WHY that night's
+sky read corner-red is deliberately left unattributed — no discriminating
+test exists in this data.
+
+**What remains true and actionable (user field knowledge + doctrine):** The user has seen many stacks — july14-class included — originally
 render with exactly this corner residual and get FIXED downstream. That
 matches industry doctrine precisely: the standard post-stack order (Siril's
 own: crop → BACKGROUND EXTRACTION → photometric colour → stretch; PI: DBE/

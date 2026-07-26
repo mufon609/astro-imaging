@@ -56,6 +56,15 @@ technical and process knowledge lives in the operating docs, never here:
   (with numbers) or HYPOTHESIS (with the test that would settle it). The
   user's field knowledge (e.g. "that's dew") outranks an untested inference.
 
+## Scope clarification (user-ratified 2026-07-26)
+
+- "to judge and examine an issue i do not care if you use official tools;
+  whatever is easiest is fine - the issue to avoid is in house code to solve
+  problems that official tools already solve" — DIAGNOSTIC measurement may
+  use any tool (numpy/PIL direct reads fine); the bright line applies to the
+  PIPELINE: never in-house code where an official tool provides the
+  processing/analysis capability.
+
 ## Reference-driven quality
 
 When a dataset ships a reference finish, that is the bar: reproduce the
