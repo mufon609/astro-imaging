@@ -153,9 +153,34 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - Fixed-mount fingerprint: set-01 sweeps RA 306.56°→313.44° in 27.2 min
   (15.18°/hr RA ≈ sidereal), Dec constant 43.69→43.66; the camera was re-aimed
   ~6.2° back between sets (set-02 starts at RA 307.25°) — four nearly
-  coincident footprints.
-- _Stack-stage numbers (rejection percentages, bgnoise, seqtilt, SPCC K
-  factors) land here as the four stacks + combine complete._
+  coincident footprints (`datasets/july23/set-0N/fingerprint.json`, all four
+  verdicts CONFIRM fixed).
+- Stacks (single-pass undistort chain, ~2 h/set wall-clock serial): 399/400/
+  400/398 of eligible frames registered AND stacked — zero registration loss
+  across 1597 frames. GESD (0.3/0.05) per-channel rejection 0.001–0.5% —
+  outlier tails only, exactly the doctrine intent at this depth. Stack
+  background noise (Siril bgnoise, ADU): set-01 1.45/1.78/1.34 → set-04
+  1.20/1.36/1.15 (R/G/B) — monotonic improvement matching the sky darkening
+  QA saw (bg16 1065→1057).
+- Blind solves on all four stacks + combine: 17.05–17.07″/px, centers RA
+  309.6–310.8, Dec +41.9…+43.8 (the ~1.8° southward re-aim walk across the
+  night); logodds 157–414.
+- SPCC (sensor-null generic spec, local Gaia XP): K factors R 1.000 across
+  the board, G 0.686–0.728, B 0.883–0.967, ~2900–3120 of ~5100–5510
+  photometry stars kept per product — one tight family, and the same ballpark
+  as july14 set-01's tracked record (G 0.708, B 0.945): same sensor, sane.
+- Combine (4-member min-framing compose of the per-set stacks, plain mean +
+  nbstack weights, STACKCNT 1597): 4109×2612 full-depth canvas — the 4-way
+  intersection after per-set drift crops (~1050 px each) and the re-aim
+  scatter; NAN + Pelican + the Cygnus dark lanes comfortably inside.
+  Union/groups framing stays available if the wider drift corridor is wanted.
+- Judge surfaces (diagnostic linked autostretch, 16-bit PNG): clean at
+  inspection scale — no seams, holes, rim artifacts, chroma blotches, or
+  visible walking-noise streaks; uniform airglow tint expected (background
+  extraction is the user-gated render tier, not this chain).
+- One infrastructure lesson, measured: two concurrent rapid-fire flatpak
+  siril-cli loops die probabilistically in bwrap sandbox setup (instance-dir
+  cleanup race) — BACKLOG item 15; the chain reran serialized and clean.
 
 ### E. Doctrine deltas → named tests (pre-registered, not run here)
 

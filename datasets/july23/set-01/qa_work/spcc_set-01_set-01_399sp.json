@@ -1,0 +1,22 @@
+{
+ "set": "set-01",
+ "catalog": "localgaia",
+ "sensor_spec": null,
+ "sensor_spec_source": null,
+ "input": "../../web/results/july23/stack_set-01_wcs.fit",
+ "output": "../../web/results/july23/stack_set-01_spcc.fit",
+ "input_size": 103639680,
+ "input_mtime": 1785040689,
+ "k_factors": {
+  "R": 1.0,
+  "G": 0.728,
+  "B": 0.925
+ },
+ "b_offsets": {
+  "R": 17.0,
+  "G": 1.3908,
+  "B": 2.66094
+ },
+ "n_photometry": 5099,
+ "n_kept": 2984
+}
