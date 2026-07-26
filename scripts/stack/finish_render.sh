@@ -5,7 +5,16 @@
 # solve, Siril SPCC, Siril autostretch/savepng) and this only orchestrates them.
 #
 #   finish_render.sh <stack.fit> <png-name> [--session=D --set=S] [--ra=R --dec=D --radius-deg=N]
-#                    [--central=F] [--crop-record=J]
+#                    [--central=F] [--crop-record=J] [--mtf=lo,mid,hi]
+#
+# --mtf=lo,mid,hi replaces the data-dependent `autostretch -linked` with a
+# PINNED midtone transfer applied identically — REQUIRED whenever more than one
+# surface ships to the same judgment set (a multi-product set rendered by
+# per-stack autostretch is not like-encoded; each surface gets its own
+# histogram-derived transfer — measured, docs/dead-ends.md). The triplet is
+# chosen ONCE per session from the tools' own stat of the reference product and
+# recorded by the caller. Single-surface diagnostic finishes may keep the
+# autostretch default.
 #
 # Output: web/results/<session>/judge/<png-name>_spcc-linked.png (16-bit, full-frame,
 # colour-calibrated, linked stretch — the surface the user judges). Intermediates
@@ -25,14 +34,18 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC= FIELDW=
+RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC= FIELDW= MTF=
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
   --central=*) CENTRAL=${a#*=};;
   --crop-record=*) CROPREC=${a#*=};;
+  --mtf=*) MTF=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+if [ -n "$MTF" ]; then
+  [[ "$MTF" =~ ^[0-9.]+,[0-9.]+,[0-9.]+$ ]] || { echo "--mtf must be lo,mid,hi (e.g. 0,0.0022,1)" >&2; exit 1; }
+fi
 [ -f "$STACK" ] || { echo "no such stack: $STACK" >&2; exit 1; }
 STACK=$(cd "$(dirname "$STACK")" && pwd)/$(basename "$STACK")
 
@@ -116,9 +129,15 @@ python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
   --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
 [ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
 
-echo "[finish $NAME] 4/4 linked stretch -> PNG"
+if [ -n "$MTF" ]; then
+  STRETCH="mtf ${MTF//,/ }"
+  echo "[finish $NAME] 4/4 pinned stretch ($STRETCH) -> PNG"
+else
+  STRETCH="autostretch -linked"
+  echo "[finish $NAME] 4/4 linked stretch -> PNG"
+fi
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
-printf 'requires 1.4.0\nsetcompress 0\nload %s\nautostretch -linked\nsavepng %s\n' "$SPCC" "$JUDGE" > "$W/s.ssf"
+printf 'requires 1.4.0\nsetcompress 0\nload %s\n%s\nsavepng %s\n' "$SPCC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
 flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }

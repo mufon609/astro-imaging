@@ -83,7 +83,7 @@ N=${#SRC[@]}
 [ "$N" -ge 20 ] || { echo "ABORT: only $N raw frames under $SESSION/$SET — a sky flat needs a deep un-registered stack" >&2; exit 1; }
 [ $((N % CHUNK)) -ne 1 ] || { echo "ABORT: $N frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --chunk" >&2; exit 1; }
 # pp_ accumulation ~49 MB/frame (16-bit CFA) + one chunk of c_ transients + slack
-NEED_GB=$(( N * 49 / 1024 + CHUNK * 49 / 1024 + 3 ))
+NEED_GB=$(( N * 98 / 1024 + CHUNK * 98 / 1024 + 3 ))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G needed for $N frames, ${FREE_GB}G free" >&2; exit 1; }
 echo "sky flat: $N un-registered lights, dark-subtracted, CFA, rej=$REJ -> $OUT.fit"
@@ -96,7 +96,7 @@ while [ $n -lt $N ]; do
   for ((k=0; k<CHUNK && n<N; k++, n++)); do
     ln -sf "${SRC[$n]}" "$W/nef/$(basename "${SRC[$n]}")"
   done
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n' \
     "$W/nef" "$W/proc" "$W/proc" "$DARK" > "$W/c.ssf"
   sir "$W/c.ssf"
   rm -f "$W/proc"/c_*.fit
@@ -117,7 +117,7 @@ done
 STACKCMD="stack f rej w 3 3 -norm=mul"
 [ "$REJ" = median ] && STACKCMD="stack f med -norm=mul"
 rm -f "$W/pp"/*.seq
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\n%s -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\n%s -out=%s\n' \
   "$W/pp" "$STACKCMD" "$OUT" > "$W/s.ssf"
 sir "$W/s.ssf"
 [ -f "$OUT.fit" ] || { echo "FLAT STACK FAILED — read $W/siril.log" >&2; exit 1; }

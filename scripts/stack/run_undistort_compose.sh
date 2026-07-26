@@ -76,7 +76,7 @@ for d in "${SUBDIRS[@]}"; do
 done
 [ "$n" -ge 2 ] || { echo "ABORT: need >=2 sub-stacks total to register+stack, have $n" >&2; exit 1; }
 
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
   "$W/in" "$W/seq" "$W/seq" "$FRAMING" "$WEIGHT" "$OUT" > "$W/compose.ssf"
 echo "composing $n sub-stacks (register -2pass -> -framing=$FRAMING -> plain mean)"
 sir "$W/compose.ssf"

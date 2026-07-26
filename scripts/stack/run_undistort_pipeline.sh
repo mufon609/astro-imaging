@@ -25,11 +25,17 @@
 # - chunk remainder: Siril cannot build a sequence from ONE frame, so a frame
 #   count leaving a remainder of exactly 1 aborts HERE, not hours in.
 # - disk: registration keeps the warped input set resident while seqapplyreg
-#   writes the registered set beside it (~231 MB/frame peak — NOTHING in the
-#   pipeline is compressed, the pipeline-wide rule; every .ssf pins
-#   `setcompress 0`). Aborts up front if the selected frame count cannot fit;
-#   --frames=N selects an EVEN STRIDE over the whole set, which preserves the
-#   TIME SPAN (what the registration geometry depends on) and trades only depth.
+#   writes the registered set beside it (~462 MB/frame peak at 32-bit float —
+#   NOTHING in the pipeline is compressed, the pipeline-wide rule; every .ssf
+#   pins `setcompress 0`). Aborts up front if the selected frame count cannot
+#   fit; --frames=N selects an EVEN STRIDE over the whole set, which preserves
+#   the TIME SPAN (what the registration geometry depends on) and trades depth.
+#
+# BIT DEPTH: 32-bit float end-to-end (set32bits + savetif32 + darktable
+# bpp=32). The 16-bit intermediates were an arm-rig RAM/disk adaptation whose
+# removal condition fired on the x86 rig — and 16-bit integer quantization was
+# a MEASURED defect: a stack's ultra-tight channel histogram quantized to
+# MAD=0, degenerating Siril's autostretch statistics (docs/dead-ends.md).
 #
 #
 # The stack rejection is doctrine-selected by sub count (stack_rejection.sh:
@@ -102,7 +108,7 @@ if [ -n "$SELECT" ]; then
 fi
 [ "$FRAMES" -gt 0 ] || FRAMES=${#SRC[@]}
 [ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --frames/--chunk" >&2; exit 1; }
-NEED_GB=$((FRAMES * 231 / 1024 + 2))
+NEED_GB=$((FRAMES * 462 / 1024 + 2))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames, ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span)" >&2; exit 1; }
 
@@ -122,13 +128,13 @@ while [ $n -lt ${#ALL[@]} ]; do
     ln -sf "${ALL[$n]}" "$P/nef/$(basename "${ALL[$n]}")"
   done
   CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
     "$P/nef" "$P/proc" "$P/proc" "$CAL" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
   for f in "$P/proc"/pp_c_*.fit; do
     b=$(basename "$f" .fit)
-    printf 'requires 1.2.0\nset16bits\nsetcompress 0\nload %s\nsavetif %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
+    printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
     sir "$P/e.ssf"; rm -f "$f"
   done
   rm -f "$P/proc"/*.seq
@@ -139,12 +145,12 @@ while [ $n -lt ${#ALL[@]} ]; do
     timeout 900 darktable-cli "$t" "$P/tif/w_$(printf %02d $ci)_$(printf %02d $j).tif" \
       --style lensdist --style-overwrite --icc-type SRGB --core \
       --configdir "$CFG" --library ":memory:" \
-      --conf plugins/imageio/format/tiff/bpp=16 \
+      --conf plugins/imageio/format/tiff/bpp=32 \
       --conf plugins/imageio/format/tiff/compress=0 >/dev/null 2>&1 \
       || { echo "WARP FAILED $b" >&2; exit 1; }
     rm -f "$t"
   done
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
   sir "$P/v.ssf"
   rm -rf "$P/tif" "$P/nef" "$P/proc"
   echo "chunk $ci: $n/${#ALL[@]}  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
@@ -161,7 +167,7 @@ print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
   "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"
