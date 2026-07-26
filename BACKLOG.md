@@ -474,21 +474,23 @@ design: chains lead with evidence-driven per-set step-strips, an active-run
 banner, and first-class preview-plan/Run; every stage card explains its
 process from the registry's structured docs; manual stages stay reachable
 below. Full text in git.)_
-## 19. `stack.exclude` semantics DIVERGE between builders — unify before the next auto-cull on a raw-camera set
+## 19. `stack.exclude` semantics — UNIFIED (closed 2026-07-26)
 
-MERGE-SURFACED (2026-07-26): `run_undistort_pipeline.sh` matches `exclude`
-against the trailing FILENAME digits (DSC_8647 → 8647), while the evolved
-`run_pipeline.sh` documents "exclude numbers = registration inspection frame
-n" (QA sequence index) — and the other rig's standing auto-cull wrote
-INDEX-style excludes (`[1, 2]`) into a NEF set's recipe, where the filename
-convention rules → a silent no-op cull (caught in merge review; that recipe
-was superseded by the hand-ratified one). One recipe schema must mean ONE
-thing: pick the convention (filename digits are stable across re-staging and
-re-batching; indices are not), align both builders + the auto-cull writer +
-`cull_report.py`'s suggestion block, and add a loud guard for out-of-range/
-never-matching excludes so a wrong-convention recipe can never no-op
-silently again. Until then: auto-cull output on raw-camera sets needs a
-hand check against the filenames.
+One repo-wide convention now: exclude numbers are the frame's trailing
+FILENAME digits, resolved by the single-source `scripts/lib/cullspec.py`
+(consumers: both undistort builders in keep-mode; `run_pipeline.sh` in
+positions-mode — cullspec maps digits to the 1-based sequence positions its
+Siril `unselect` machinery needs, over the same sorted list `convert`
+stages; writers: the chain auto-cull + `cull_report.py` suggestions). THE
+GUARD: an exclude matching zero or several staged frames is a hard ABORT —
+a cull can no longer silently no-op (the measured failure that opened this
+item: an index-style recipe under the filename-matching builder excluded
+nothing, exit 0). Tested: real set-01/set-03 recipes resolve (399/303
+eligible), the index-style recipe and an ambiguous exclude both abort loud,
+positions-mode maps a gapped spaced-FITS list correctly. Residue: the
+superseded index-style semantics note in old commit messages only; the
+web Culled Frames page (item 16) should read cullspec's convention note
+when built.
 
 ## 20. Warp-leg ICC round trip is NOT identity at 3s-class sky levels — measured toe error
 

@@ -102,18 +102,20 @@ INS() {
 # spans weights 1.93..0.00, N_eff 11.9/16, +21% sky noise) — soft-culling,
 # not gentle reweighting. Exclusion = unselect on the stacked r_ sequence +
 # -filter-incl at stack; the flag is mandatory (plain stack measured to
-# IGNORE manual selection). Frame numbers in "exclude" are the sequence file
-# numbers the registration inspection records as "n" (the numbers its
-# outlier flags name); a dual-band set's extracted line sequences inherit
-# the lights' numbering, so one exclude list governs both line stacks.
-# CAVEAT the guard below enforces: unselect indexes by 1-based sequential
-# POSITION (measured: on a gapped sequence "unselect 10 10" flips file 11),
-# and position == file number only while the sequence is contiguous from 1
-# — true of every convert-produced input, broken on an r_ sequence that
-# registration reduced (dropped frames keep their numbers: the reduced
-# sequence is GAPPED, measured). verify_exclusion re-reads the stacked .seq
-# after the run and hard-fails, removing the stack, unless exactly the
-# named file numbers were deselected.
+# IGNORE manual selection). "exclude" numbers name frames by their trailing
+# FILENAME digits — the ONE repo-wide convention (scripts/lib/cullspec.py;
+# BACKLOG item 19: index-style excludes measured silently no-opping in the
+# filename-matching builder). cullspec maps them here to 1-based SEQUENCE
+# POSITIONS over the same sorted light list `convert` stages (loud ABORT on
+# a never-matching/ambiguous exclude); a dual-band set's extracted line
+# sequences inherit the lights' order, so one mapping governs both line
+# stacks. CAVEAT the guard below enforces: unselect indexes by 1-based
+# sequential POSITION (measured: on a gapped sequence "unselect 10 10"
+# flips file 11) — true of every convert-produced input, broken on an r_
+# sequence registration reduced (dropped frames keep their numbers: the
+# reduced sequence is GAPPED, measured). verify_exclusion re-reads the
+# stacked .seq after the run and hard-fails, removing the stack, unless
+# exactly the named positions were deselected.
 STACK_WEIGHT="" STACK_EXCLUDE=""
 STACK_RECIPE="$REPO/datasets/$(basename "$S")/$SET/recipe.json"
 if [[ -f "$STACK_RECIPE" ]]; then
@@ -121,20 +123,22 @@ if [[ -f "$STACK_RECIPE" ]]; then
 import json, sys
 s = json.load(open(sys.argv[1])).get("stack") or {}
 w = s.get("weight")
-e = s.get("exclude") or []
 if w not in (None, "wfwhm", "nbstars"):
     sys.exit(f"stack.weight {w!r} not one of wfwhm|nbstars|null")
-if not (isinstance(e, list) and all(isinstance(n, int) and n > 0 for n in e)):
-    sys.exit(f"stack.exclude {e!r} must be a list of positive frame numbers")
-print((w or "") + "\t" + " ".join(str(n) for n in sorted(set(e))))
+print(w or "")
 ' "$STACK_RECIPE") || { echo "ERROR: invalid \"stack\" block in $STACK_RECIPE" >&2; exit 1; }
-  IFS=$'\t' read -r STACK_WEIGHT STACK_EXCLUDE <<<"$sp"
+  STACK_WEIGHT=$sp
+  mapfile -t _CULL_LIGHTS < <(find "$S/$SET" -maxdepth 1 -type f \
+    \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+       -o -iname '*.arw' -o -iname '*.raf' -o -iname '*.fit' -o -iname '*.fits' \) | sort)
+  STACK_EXCLUDE=$(python3 "$REPO/scripts/lib/cullspec.py" positions "$STACK_RECIPE" "${_CULL_LIGHTS[@]}" | tr '\n' ' ')
+  STACK_EXCLUDE=${STACK_EXCLUDE% }
 fi
 STACKPOL=""
 [[ -n "$STACK_EXCLUDE" ]] && STACKPOL="-filter-incl "
 [[ -n "$STACK_WEIGHT" ]] && STACKPOL="${STACKPOL}-weight=${STACK_WEIGHT} "
 if [[ -n "$STACKPOL" ]]; then
-  echo "stack policy: weight=${STACK_WEIGHT:-none} exclude=[${STACK_EXCLUDE:-none}] (recipe \"stack\" block; exclude numbers = registration inspection frame n)"
+  echo "stack policy: weight=${STACK_WEIGHT:-none} exclude-positions=[${STACK_EXCLUDE:-none}] (recipe \"stack\" block; recipe numbers = trailing filename digits, cullspec-mapped to sequence positions)"
 else
   echo "stack policy: unweighted doctrine rejection (percentile/winsorized/GESD by sub count), all registered frames (generic default; no recipe \"stack\" block)"
 fi

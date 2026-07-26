@@ -86,19 +86,11 @@ sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$G/si
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+# cull via the single-source cullspec (filename-digit convention; loud ABORT
+# on a never-matching or ambiguous exclude — BACKLOG item 19)
 RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
-mapfile -t SRC < <(python3 - "$RECIPE" "${SRC[@]}" <<'PY'
-import json, os, re, sys
-recipe, frames = sys.argv[1], sys.argv[2:]
-excl = set()
-if os.path.exists(recipe):
-    excl = {int(n) for n in (json.load(open(recipe)).get("stack") or {}).get("exclude") or []}
-kept = [f for f in frames
-        if not (m := re.search(r"(\d+)\D*$", os.path.basename(f))) or int(m.group(1)) not in excl]
-for f in kept: print(f)
-print(f"cull: recipe excludes {len(frames)-len(kept)} frame(s); {len(kept)} eligible", file=sys.stderr)
-PY
-)
+mapfile -t SRC < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$RECIPE" "${SRC[@]}")
+[ ${#SRC[@]} -ge 1 ] || { echo "ABORT: cull resolution failed or left no frames (see cullspec message above)" >&2; exit 1; }
 N=${#SRC[@]}
 K=$(( (N + GROUP - 1) / GROUP ))
 [ "$K" -ge 2 ] || { echo "only one group at --group=$GROUP for $N frames — use run_undistort_pipeline.sh" >&2; exit 1; }

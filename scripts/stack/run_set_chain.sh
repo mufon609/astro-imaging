@@ -241,19 +241,21 @@ if [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
   # decisions are reported again in the end summary. A hand-ratified
   # recipe stack block is never overwritten and always wins.
   say "auto-cull (standing policy): $NFLAGS flagged frame(s) exclude; a hand-ratified recipe block overrides"
-  python3 - "$DSET" <<'PY'
+  python3 - "$DSET" "$REPO" <<'PY'
 import json, os, sys
-d = sys.argv[1]
+d, repo = sys.argv[1], sys.argv[2]
+sys.path.insert(0, os.path.join(repo, "scripts", "lib"))
+from cullspec import frame_number   # THE exclude convention: filename digits
 qa = json.load(open(os.path.join(d, "qa_work", "frame_metrics.json")))
 flagged = qa.get("flagged_defect_side_z") or []
-files = {f["file"] for f in flagged}
-ns = set()
-with open(os.path.join(d, "qa_work", "frameqa", "records.jsonl")) as fh:
-    for line in fh:
-        r = json.loads(line)
-        if r.get("file") in files:
-            ns.add(r["n"])
-ns = sorted(ns)
+nums, nameless = set(), []
+for f in flagged:
+    n = frame_number(f["file"])
+    (nums.add(n) if n is not None else nameless.append(f["file"]))
+if nameless:
+    sys.exit("auto-cull ABORT: flagged frame(s) without a filename number "
+             "cannot be addressed by stack.exclude: " + ", ".join(nameless))
+nums = sorted(nums)
 rp = os.path.join(d, "recipe.json")
 rec = {}
 if os.path.exists(rp):
@@ -267,10 +269,11 @@ if isinstance(rec.get("stack"), dict):
 why = ("auto-cull, standing policy: defect-side robust z >= 3.5 flags "
        "exclude (" + "; ".join(f"{f['file']}: {','.join(f['flags'])}"
                                for f in flagged)
-       + "). A hand-ratified stack block overrides this write.")
-rec["stack"] = {"weight": None, "exclude": ns, "why": why}
+       + "). Exclude numbers are trailing filename digits (cullspec). "
+       "A hand-ratified stack block overrides this write.")
+rec["stack"] = {"weight": None, "exclude": nums, "why": why}
 json.dump(rec, open(rp, "w"), indent=1)
-print(f"culled n={ns}: " + ", ".join(sorted(files)))
+print(f"culled frames {nums}: " + ", ".join(sorted(f['file'] for f in flagged)))
 PY
   RATIFIED=yes
 fi
