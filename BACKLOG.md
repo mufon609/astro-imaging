@@ -299,6 +299,24 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   (3) regional corner flatness vs the july14 reference. GraXpert `-correction
   Division` is the third arm (vignetting-only model, cannot bake sky or glare —
   the item above documents its build caveats).
+  RESOLVED IN PART 2026-07-26 (probe ran; A32 own-flat won on structure
+  preservation; GraXpert AI Division measured absorbing the MW — dead-ends).
+  STILL OPEN, sharpened by `docs/july23-dew-and-corner-chroma.md`: the corner
+  CHROMA mechanism (H1: additive moonlight/dew glow breaks the sky flat's
+  multiplicative self-cancellation). Two pre-registered one-knob tests:
+  (a) first-100 vs last-100-frame flat on one set — residual moves with the
+  flat's time window ⇒ time-varying additive term implicated; (b) the next
+  moonless dew-free session through the identical chain must read ≤1% corner
+  R/G like july14. Until settled, the flatless route carries a MOONLIT-NIGHT
+  class caveat (recorded in the doc; TOOLS caveat pending that test).
+- **set-04 disposition (dew) — USER-GATED.** The halo timeline
+  (`docs/july23-dew-and-corner-chroma.md` Part A) supports progressive lens
+  dew: whole set affected (halo 7.05→11.95 within set-04; FWHM elevated from
+  its first block), set-03's tail already elevated (10.3 at 02:01). Options
+  quantified in the doc: drop set-04 (1199-frame combine, ×0.87 SNR) / drop
+  set-04 + set-03 tail (~1050) / keep with caveat. Re-compose ~30 min once
+  decided. Acquisition-side dew-control checklist line lands with the
+  research sweep's citations.
 
 ## 9. Data-capability gaps (gated per item — read each gate)
 

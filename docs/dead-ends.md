@@ -365,21 +365,24 @@ the constraints any such tool must satisfy):
   triplet). With healthy 32-bit statistics, per-product `autostretch -linked` at
   identical parameters IS the pinned rule (its 16-bit failure was the MAD
   collapse, not the rule); the render tier's stretch policy is the durable home.
-- **A bright star's glare disc survives to the FINAL stack by exactly the amount
-  its set's own sky flat fails to cancel — per-set flats make the residual
-  inconsistent set-to-set.** MEASURED (july23, Deneb mag 1.25 in-frame all night):
-  the broad glare halo is in EVERY raw frame (+2/+6/+6 ADU RGB over sky in
-  20-frame ministacks) and is NOT time-gated — a kept thin-haze window measured
-  IDENTICAL halo to its pre-window control, killing the first (haze) hypothesis.
-  The sensor-drifting halo bakes into each set's lights-built sky flat; division
-  then cancels the star-anchored halo to a geometry-dependent degree: final-stack
-  Deneb-box excess 0/0/0 (set-01), 0/0/0 (set-02), 0/+1/+1 (set-03), +1/+2/+3
-  (set-04 — the user-visible "circle around Deneb"). Lesson twice over: (1) a
-  star-anchored broad residual in ONE set of a same-optics session is a
-  CALIBRATION-TRANSFER difference, not atmosphere — measure ministack controls
-  before attributing to sky conditions; (2) the per-set sky flat on a field with
-  a mag≲2 star adds a per-set variable glare transfer on top of the known
-  frame-filling-structure bake-in limit.
+- **NEVER measure a faint BROAD halo with region MEDIANS — the median is robust
+  against exactly the wide low tail under test.** MEASURED cost (july23 Deneb
+  disc): a median-based two-point control read the halo "identical before vs
+  inside the haze window" and a session mechanism was mis-attributed on it;
+  the MEAN-based 9-timepoint timeline over the same data shows the halo GROWING
+  all night — G-channel star-box-minus-flanks 6.25 → 7.6 → 7.7 → 8.5 → 10.3 ADU
+  (sets 01–03) and 7.1 → 9.9 → 12.0 WITHIN set-04 (+91% session-wide,
+  accelerating late), alongside a monotonic FWHM rise 2.627 → 2.72 px and the
+  terminal nstars crash (−13–16%, last ~20 min). Two lessons: (1) means (or
+  outer-annulus statistics) for broad-glow photometry, medians only for
+  compact-source-robust background; (2) a two-point control CANNOT test a
+  monotonic-growth hypothesis — sample the full span. The growth pattern +
+  conditions make DEW ON THE LENS the leading attribution (user field call;
+  investigation record `docs/july23-dew-and-corner-chroma.md`); the per-set
+  flat-cancellation variance on the FINAL stacks (Deneb-box excess 0/0/0 →
+  +2.5/+5.8/+10 ADU across sets 01→04) remains measured and stands — a
+  lights-built flat both bakes in and partially cancels a time-varying glow,
+  inconsistently per set.
 
 ## Acquisition checklist — the real quality lever
 

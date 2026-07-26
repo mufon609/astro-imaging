@@ -47,6 +47,14 @@ technical and process knowledge lives in the operating docs, never here:
   defects in the notes instead of hedging with numbers.
 - "the midst of learn-nothing, try-everything" — the named failure mode:
   guess-and-check knob-thrashing with victory language. Never repeat it.
+- "you have been guessing with conviction and need to slow down and research
+  further instead of continue to guess and shoot from the hip confidently" —
+  the second named failure mode: MECHANISM ATTRIBUTION WITHOUT A
+  DISCRIMINATING TEST. A story consistent with the evidence is not a finding;
+  name the competing mechanisms, state the test that separates them, run it,
+  and only then attribute. Every reported claim carries its status: MEASURED
+  (with numbers) or HYPOTHESIS (with the test that would settle it). The
+  user's field knowledge (e.g. "that's dew") outranks an untested inference.
 
 ## Reference-driven quality
 
