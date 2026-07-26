@@ -474,6 +474,38 @@ design: chains lead with evidence-driven per-set step-strips, an active-run
 banner, and first-class preview-plan/Run; every stage card explains its
 process from the registry's structured docs; manual stages stay reachable
 below. Full text in git.)_
+## 19. `stack.exclude` semantics DIVERGE between builders — unify before the next auto-cull on a raw-camera set
+
+MERGE-SURFACED (2026-07-26): `run_undistort_pipeline.sh` matches `exclude`
+against the trailing FILENAME digits (DSC_8647 → 8647), while the evolved
+`run_pipeline.sh` documents "exclude numbers = registration inspection frame
+n" (QA sequence index) — and the other rig's standing auto-cull wrote
+INDEX-style excludes (`[1, 2]`) into a NEF set's recipe, where the filename
+convention rules → a silent no-op cull (caught in merge review; that recipe
+was superseded by the hand-ratified one). One recipe schema must mean ONE
+thing: pick the convention (filename digits are stable across re-staging and
+re-batching; indices are not), align both builders + the auto-cull writer +
+`cull_report.py`'s suggestion block, and add a loud guard for out-of-range/
+never-matching excludes so a wrong-convention recipe can never no-op
+silently again. Until then: auto-cull output on raw-camera sets needs a
+hand check against the filenames.
+
+## 20. Warp-leg ICC round trip is NOT identity at 3s-class sky levels — measured toe error
+
+Test B (2026-07-26, `sessions/july23/work/bisect/iccprobe`): the float leg
+(savetif32 → darktable --icc-type SRGB bpp=32 → convert) inflates values by
++4.7% at 0.0015, +2.2% at 0.0017, identity by 0.003+ — a TRC toe mismatch
+between Siril's embedded sRGB variant and darktable's SRGB output. july14's
+6 s sky (~0.003) sits ABOVE the error band (Test A: neutral end-to-end);
+july23's 3 s sky (~0.0016) sits IN it → ~1-2% global per-channel shift on
+that class (each channel's sky sits at a different level on the error
+curve). Named test: 3-arm one-knob A/B on one chunk — current SRGB/SRGB vs
+LIN_REC709-tagged-both-sides vs a no-ICC arm — judged on the ratio-vs-level
+curve (instrument exists) + star-amplitude linearity; adopt the arm that is
+identity at ALL levels. The dead-ends ICC entry's "verified identity" was
+measured at 16-bit on 6s-class levels — this extends it: verify at the SKY
+level of the exposure class in use, not only on star amplitudes.
+
 ## 18. Flatpak Siril concurrency race — serialize or harden the invokers
 
 MEASURED on x86 (2026-07-25, july23 run): two rapid-fire siril-cli loops running
