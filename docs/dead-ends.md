@@ -404,6 +404,18 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   lights' own sky corner/centre is the cross-check).
 - Darks at the lights' exposure/ISO at night temperatures; biases at the flats'
   shutter (= exact flat-darks) — shoot them, it is 30 seconds.
+- **DEW CONTROL (measured cost: one set + a second set's tail lost, july23).**
+  A clear still humid night radiation-cools the lens below the dew point even
+  in summer; the film NEVER self-clears and faint-star loss precedes the
+  visible film. Run a low-power lens heater band from session START (2–3.4 W
+  suffices for a camera lens; minimum power that prevents dew — excess heat
+  makes convection/soft stars), riding the extended barrel; the 24-70's petal
+  hood is sized for 24 mm and is weak protection at 70 mm; a small fan works
+  where a band is absent. Watch the brightest star's halo live and flashlight
+  the front element when in doubt; if dew is found, warm and continue — never
+  stack through it (a contiguous dewed block is NOT rejectable per-pixel; the
+  cull is by frame, post-hoc identifiable by the halo/FWHM/nstars timeline —
+  `docs/july23-dew-and-corner-chroma.md`).
 - Lock the zoom ring (tape); don't touch the camera mid-set (a focal-length step
   forces a mixed-optics stack). Dither between subs; avoid the moon (star fringes
   on trailed PSFs are dispersion — physical, not removable in processing). Stop a

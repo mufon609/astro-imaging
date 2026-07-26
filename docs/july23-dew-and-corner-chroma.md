@@ -90,14 +90,42 @@ sky); the Deneb disc residual after flat division +2.5/+5.8/+10 ADU
 Per-set stacks stay preserved regardless; only the combine re-composes
 (~30 min).
 
-**For future sessions (acquisition-side, graduates to the checklist when
-ratified):** the signature to watch live is the bright-star halo; a dew
-heater band / USB lens warmer (or at minimum a deep hood + periodic
-flashlight check across the front element) is the fix; late-session sets on
-humid nights are the risk window; if dew is found mid-session, warming and
-continuing beats stacking through it — the affected tail is identifiable
-post-hoc by exactly the timeline above (mean-based halo curve + FWHM +
-nstars), which any future session can rerun from `dewprobe/`.
+**Sourced background (research sweep, 2026-07-26) — the community/optics
+record matches the measured fingerprint:**
+- Signature: "dim stars and galaxies harder to see, and bright stars develop
+  fuzzy halos" (Sky & Telescope, dealing-with-dew); "the faint stuff in
+  images can be affected well before you can actually see dew on the lens"
+  (Lodriguss, astropix.com BGDA ch.2) — faint-star loss precedes the visible
+  halo, exactly our nstars-crash-after-halo-growth ordering.
+- Mechanism/time course: optics radiate to a clear sky and drop below the
+  dew point even with air above it (skyatnightmagazine; blackwaterskies.co.uk
+  — Dp ≈ T − (100−RH)/5); still air + humidity + clear sky are the worst
+  case; NO source describes self-clearing — monotonic growth to session end
+  unless heated. Wiping is futile (re-fogs in minutes; hair-dryer rescue
+  repeats ~every 20 min).
+- Scatter color: water droplets are Mie scatterers — wavelength-neutral
+  (Britannica/NOAA cloud-color refs) — so the halo takes the color of star +
+  ambient sky ("white" halos, Cloudy Nights 358932). Our halo's near-neutral
+  RGB ratios are consistent.
+- Salvage practice: cull the tail BY FRAME (blink + star-count/HFR/
+  background trends; "best-X%" conventions); sigma rejection tolerates only
+  a small fraction of soft frames and CANNOT remove a halo present in a
+  contiguous block — within the block it is not an outlier (CN 517557,
+  869299, 946505). No universal numeric threshold exists anywhere found —
+  the trend curves + eyes are the standard, which is what this repo's
+  timeline instrument now provides reproducibly.
+
+**For future sessions (acquisition-side; checklist line graduated to
+`docs/dead-ends.md`):** watch the bright-star halo live and check the front
+element with a flashlight when in doubt (S&T); a low-power lens heater band
+is the fix — 2–3.4 W is enough for a camera lens (philhart.com; Dew-Not/
+Kendrick 2″), minimum power that prevents dew (excess heat = convection/soft
+stars, CN 643667), on from session START, riding the extended barrel of the
+retractable 24-70; the petal hood is sized for 24 mm and is weak protection
+at 70 mm (1.5×-aperture guideline); moving air (small 12 V fan) is an
+effective alternative (photographingspace.com); if dew is found mid-session,
+warm and continue — do not stack through it. Post-hoc, any future session
+re-runs the timeline instrument from `dewprobe/` as-is.
 
 ## Part B — the radial corner chroma: measured, mechanism OPEN
 
@@ -157,15 +185,43 @@ offsets), pushing the whole spatial colour residual into the corners.
 removes it".** july14's near-neutral pre-BGE state (new moon, weak
 gradient) was the lucky case, not the norm.
 
-Secondary mechanism notes (kept for the record, demoted from "leading"):
-- The additive scattered components (75% moon + the growing dew veil)
-  plausibly explain why july23's PRE-BGE gradient is larger than july14's
-  (flat self-cancellation breaks on additive, time-varying terms; corner
-  chroma tracks the dew curve set-over-set: TR R/G 1.056→1.064→1.072→1.072).
-  Optional cheap test if ever needed: first-100 vs last-100-frame flat A/B.
+Secondary mechanism notes (kept for the record, demoted from "leading";
+research-sweep citations merged):
+- The additive scattered components (moon + the growing dew veil) plausibly
+  explain why july23's PRE-BGE gradient is larger than july14's (flat
+  self-cancellation breaks on additive, time-varying terms; corner chroma
+  tracks the dew curve set-over-set: TR R/G 1.056→1.064→1.072→1.072).
+  Ephemeris correction: the Jul 23/24 moon was a **waxing** gibbous
+  (~70–82%, 9–10 days past new; new moon fell ON Jul 14 — moongiant/
+  astronomy.com), low in the SOUTH and setting ~1 AM local (astronomy.com
+  Jul-24 sky column, 40°N ref) — i.e. it SET during our session, consistent
+  with the measured falling background 1068→1057 and set-01's brighter sky.
+  Patat 2003 (A&A 400,1183): a ~10-day moon brightens B ~3 mag vs I ~1.2 —
+  the moonlit sky is strongly BLUER while the dark sky is airglow-red;
+  a lights-built flat inherits whichever sky built it (MaxIm DL sky-flat
+  doc: the flat replicates "the illumination pattern AND spectrum" of the
+  session). Optional cheap test if ever needed: first-100 vs last-100 flat.
+- Color shading context (why corners amplify): CFA/microlens transmission is
+  incidence-angle-dependent (CRA mismatch → radial pink/magenta casts —
+  commonlands/edge-ai-vision; Z-mount permits ~44° corner rays vs F-mount
+  12° — photographylife) and the 24-70/4 S measures ~2.4 EV corner falloff
+  at 70 mm (OpticalLimits) — corner pixels are multiplied ~5× by ANY flat,
+  so small per-channel flat errors become large corner chroma. No published
+  per-channel curves or corner-cast reports exist for this lens (open).
+  Tooling facts: lensfun models vignetting single-channel only and darktable
+  has no GainMap/color-shading support (darktable FR #8728); Siril
+  `-equalize_cfa` is a global per-channel scalar from a CENTRE region — no
+  spatial per-channel equalization exists in the chain's tools. The standard
+  industry answer to residual spatial colour is exactly the background
+  stage (gradient removal before colour calibration — Siril docs order;
+  PI ecosystem doctrine), which is divergence #1 above.
 - Differential extinction / moon-dome: one-sided contributors only (the TR
-  asymmetry), cannot make the radial term.
+  asymmetry; computed ≈0.07 mag B−V per 0.5 airmass across the field —
+  percent-level), cannot make the radial term.
 - Bit depth: refuted (32-bit carries the same chroma as 16-bit).
+- SPCC (sourced): "The correction is globally uniform across the entire
+  image, not spatially varying" (siril docs, spcc page) — it can neither
+  create nor fix the spatial pattern; structure must pre-exist upstream.
 
 **The conventional fix, measured on this data:** the `subsky 1` probe (the
 registry's MW-safe first-degree plane — the L1 on-stack arm of the
@@ -180,10 +236,38 @@ the like-encoded pair goes to the user's eyes.
   timeline, flat planes, stack chroma; session_timeline_exif.json;
   transparency_curve.json), `datasets/july23/set-0N/qa_work/frame_metrics.json`,
   `datasets/july23/snr_nan_regions_32bit.json`, july14 masters + SPCC stack.
-- Astropy 8.0.1 ephemeris (geocentric moon; location-free approximation).
-- _Sourced background (dew phenomenology, color shading, moonlight sky
-  color, salvage practice) — research sweep in flight; merges here with
-  citations when it lands._
+- Astropy 8.0.1 ephemeris (geocentric moon; location-free approximation) +
+  moongiant.com/astronomy.com phase pages (new moon Jul 14 2026; waxing
+  gibbous ~70–82% Jul 23/24, moonset ~1 AM local at the 40°N reference).
+- Dew: skyandtelescope.org dealing-with-dew · astropix.com BGDA ch.2 ·
+  skyatnightmagazine.com how-stop-dew (+ DIY heater page) ·
+  blackwaterskies.co.uk dew-formation-and-prevention (dew-point formula) ·
+  ayton.id.au Ast_dew · photographingspace.com dew-proofing ·
+  philhart.com dew-heaters (2–3.4 W lens bands) · astrobackyard.com
+  dew-heaters · highpointscientific.com how-to-stop-dew · Cloudy Nights
+  358932 (white halos), 643667 (over-heated band), 517557/869299 (soft-frame
+  fraction under rejection), 946505 (star-count culling), 838843 (trend
+  monitoring) · iceinspace.com.au 122853 (bloat causes) ·
+  opticalmechanics.com seeing-vs-transparency (cirrus halos/photometry) ·
+  nightskypix.com condensation (sensor-window vs lens) · Britannica/NOAA
+  Mie/cloud-color (wavelength-neutral droplet scatter).
+- Colour/gradient: Patat 2003 A&A 400,1183 (astro-ph/0301115 §7 — moonlit B
+  +3 mag vs I +1.2) · Krisciunas & Schaefer 1991 PASP 103,1033 (moonlight
+  model) · clarkvision.com natural night-sky colour (airglow red/green; LP
+  orange; moonlit-blue MW) · MaxIm DL sky-flats doc (flat carries the sky's
+  spectrum) · CN 755356/463798 (twilight-flat colour) · CN 801978 (flat
+  over-correction at corners) · commonlands.com CRA + edge-ai-vision (CFA
+  angle sensitivity) · patents US20070030379A1 (microlens CRA shift) ·
+  photographylife.com Z-vs-F mount (44° vs 12° corner rays) · opticallimits
+  24-70/4 S review (2.4 EV corner falloff @70) · rawpedia Flat-Field +
+  Adobe LR flat-field (per-channel flat correction) · darktable issue #8728
+  (no GainMap/colour-shading support; lensfun single-channel) ·
+  siril.readthedocs spcc ("globally uniform… not spatially varying"),
+  calibration (-equalize_cfa centre-region global scalars), background +
+  siril.org gradient tutorial (BGE before colour; degree-1 per-sub for
+  rotating gradients) · vikdhillon phy217 + UCSB deepspace ch.6 (extinction
+  coefficients) · stirlingastrophoto multiscale-gradient-correction (PI
+  doctrine: colour calibration after gradient correction).
 
 ## Verdict / recommendation
 
