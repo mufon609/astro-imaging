@@ -25,7 +25,7 @@
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core) | same tool numbers as arm on the same inputs | agree within tolerance |
-| Fire the removal conditions the x86 rig unblocks — 32-bit intermediates, debayered `frame_metrics` re-measure (the astropy FITS-parser retirement is ARM-doable now, item 6) | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
+| Fire the removal conditions the x86 rig unblocks — 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
 | sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the "proven on arm" claim on x86 | a trivial pyscript runs headless | runs, no display |
 
 ### Phase 2 — Rebuild the stack builder (`docs/siril-stacking-workflow.md`)
@@ -34,28 +34,28 @@
 | Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
 | `help stack` on the flatpak | bare-`rej` default algorithm — SETTLED on the arm rig's identical 1.4.4 (`help stack`: "If omitted, the default Winsorized is used") | re-confirm at bring-up (same version → formality) | matches the arm answer |
 | 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
-| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | reproduces the fitted-model render's direction and magnitudes: off-axis ~0.25 px; centre station at the perpendicular-station level (~3.4–3.8 px majFWHM, no along-drift band); seqtilt truncated-mean ~3.0–3.1 px |
+| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | class- and lens-gated (needs a wide-untracked set + the NEW rig's fitted entry): the direction must reproduce — edge ≈ centre, no along-drift band; the retired lens's magnitudes (off-axis ~0.25 px, stations 3.4–3.8 px majFWHM, seqtilt truncated-mean ~3.0–3.1 px — git) are references, not targets |
 
 ### Phase 3 — Plate solving, the trailed class (`docs/plate-solving-and-drizzle.md`)
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
-| One real trailed ultra-wide stack solved 3 ways: (a) `solve_field.py` peak-xylist, (b) `astap_cli` + W08/G05 (`-z auto -speed slow`), (c) Siril `platesolve -localasnet -blindpos -blindres -nocrop` + `setfindstar -relax=on -roundness=0.1 -maxR=large` | can native/ASTAP retire `solve_field.py`? | solve success · residual RMS · wall-clock | (a) is the baseline; retire only if (c) matches |
+| One real trailed ultra-wide stack solved 3 ways: (a) `solve_field.py` peak-xylist, (b) `astap_cli` + W08/G05 (`-z auto -speed slow`), (c) Siril `platesolve -localasnet -blindpos -blindres -nocrop` + `setfindstar -relax=on -roundness=0.1 -maxR=large` | can native/ASTAP retire `solve_field.py`? (class-gated: needs a trailed ultra-wide stack from the new corpus) | solve success · residual RMS · wall-clock | (a) is the baseline; retire only if (c) matches |
 | Inspect the trails | uniform vs rotational trailing (affects ASTAP) | centroid consistency across the field | informs the ranking |
 
 ### Phase 4 — The render toolkit, per tier (`TOOLS.md` + the tool deep-dives)
 
-**Phase 4 builds ON the arm-rig render-tier results** — the user-gated
-Siril-native + GraXpert ladders pre-registered in
-[`render-tier-arm-plan.md`](render-tier-arm-plan.md) run FIRST on the base rig
-(the render surface is probed present there; only the neural/separation
-binaries are arm-blocked). Whatever those ladders adopt is a measured PRIOR
-here, re-measured per the migration rule; the rows below then add the
-environment-unlocked tiers (separation, BXT/NXT, Cosmic Clarity, DeepSNR).
+**Phase 4 runs the render-tier ladders** — BACKLOG item 0's pre-registered
+skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), re-anchored to
+the staged corpus by the operating loop (the render surface is probed present
+on the base rig too; only the neural/separation binaries are arm-blocked).
+Any rungs closed before migration arrive as measured PRIORS, re-measured per
+the migration rule; the rows below then add the environment-unlocked tiers
+(separation, BXT/NXT, Cosmic Clarity, DeepSNR).
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | **Workflow order** on a real dataset: linear-first default vs the 2026 nonlinear-stage alternative (ben.land) | strong-default vs a measurable alternative | gate/audit deltas, full-frame lossless finals | declared delta; user's eyes on aesthetics |
 | **Deconv**: BXT `--correct-only` vs GraXpert deconv (RC) vs Siril RL, on trailed stars | which fixes trailing; is GraXpert deconv usable/buggy (#243) | star roundness + ringing (the radial-undershoot metric) | BXT expected best; measure |
-| **Denoise / chroma**: does NXT AI3 expose a chroma-specific control + close the chroma-noise gap? vs DeepSNR / Siril `denoise` / GraXpert | the NXT-AI3 "likely fill" (UNVERIFIED) | chroma-channel MAD on masked background (audit metric); the walking-noise target is now MEASURED — drift-phase structured σ ≈0.34/0.48/0.42 ADU per ~199-frame half vs random ≈0.64/0.76/0.76 (`noise_split.sh` records; BACKLOG item 11) — re-run the split on the denoised surface: the structured term should shrink, the confusion texture (real sky) should NOT | chroma noise down without texture loss; structured term down, star/texture untouched |
+| **Denoise / chroma**: does NXT AI3 expose a chroma-specific control + close the chroma-noise gap? vs DeepSNR / Siril `denoise` / GraXpert | the NXT-AI3 "likely fill" (UNVERIFIED) | chroma-channel MAD on masked background (audit metric); the walking-noise class-measure (retired corpus: drift-phase structured σ ≈0.34/0.48/0.42 ADU per ~199-frame half vs random ≈0.64/0.76/0.76 — git; re-derive per corpus, BACKLOG item 11) — re-run the split on the denoised surface: the structured term should shrink, the confusion texture (real sky) should NOT | chroma noise down without texture loss; structured term down, star/texture untouched |
 | **Star-neutral (narrowband)**: measure mean star colour in the examine layer → apply a diagonal `ccm`; bracket vs SPCC and vs Nightlight (`go build`) | the doctrine-clean ccm+measurement design (untested) | OIII-shell B/R + mean star chroma → neutral | sphere lifts, stars ~neutral |
 | **pyscript headless**: try a Class-1 GUI script (VeraLux) under `xvfb-run`/`QT_QPA_PLATFORM=offscreen`; run a dual-mode one (`Statistical_Stretch`, SyQon Prism `--no-gpu`) via `.ssf` | are Class-1 GUI scripts batch-drivable? (expected: no) | does it run + accept params non-interactively | confirm the escape-hatch boundary |
 

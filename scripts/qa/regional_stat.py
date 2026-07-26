@@ -32,10 +32,9 @@ def main():
         sys.exit(__doc__)
     stack, out_json = os.path.abspath(args[0]), os.path.abspath(args[1])
     box, margin = int(opts.get("box", 400)), int(opts.get("margin", 200))
-    with fits.open(stack) as h:
-        d = h[0].data
-    w, hgt = int(d.shape[-1]), int(d.shape[-2])
-    nchan = int(d.shape[0]) if d.ndim == 3 else 1
+    hdr = fits.getheader(stack)
+    w, hgt = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
+    nchan = int(hdr.get("NAXIS3", 1))
 
     regions = {
         "center": ((w - box) // 2, (hgt - box) // 2),

@@ -27,8 +27,10 @@ with a database curve: grounding moves K <=1.5% and the output <=2.6e-4
 p99, so null is the adequate default; measurement detail in git history).
 
 Defaults: in/out = <repo>/web/results/<session>/stack_<set>_{wcs,spcc}.fit (the
-project-root results tree). An explicit --in/--out resolves against the CWD or
-an absolute path; override both for non-default stems like stack_<set>_norgbeq_*.
+project-root results tree); a COMPOSED target whose plain stem is absent
+defaults to its stack_<set>_comp_{wcs,spcc}.fit family. An explicit
+--in/--out resolves against the CWD or an absolute path; override both for
+non-default stems like stack_<set>_norgbeq_*.
 The generated .ssf lives under work/ — the siril flatpak has its own
 private /tmp, so scripts must stay under $HOME.
 
@@ -107,9 +109,31 @@ def main():
             else os.path.join(results, f"stack_{set_name}_wcs.fit"))
     p_out = (os.path.abspath(opts["out"]) if "out" in opts
              else os.path.join(results, f"stack_{set_name}_spcc.fit"))
+    # a COMPOSED virtual target's product carries the _comp stem
+    # (compose.py writes stack_<target>_comp.fit): when the plain stem is
+    # absent and the composed one is solved, default to it — output too,
+    # so the product family stays stack_<target>_comp_{wcs,spcc}.fit
+    if ("in" not in opts and not os.path.exists(p_in)
+            and os.path.exists(os.path.join(
+                results, f"stack_{set_name}_comp_wcs.fit"))):
+        p_in = os.path.join(results, f"stack_{set_name}_comp_wcs.fit")
+        if "out" not in opts:
+            p_out = os.path.join(results,
+                                 f"stack_{set_name}_comp_spcc.fit")
+        print("[spcc_run] composed target — defaulting to the _comp stems")
     if not os.path.exists(p_in):
         sys.exit(f"spcc_run: no input {p_in} (plate-solve first: "
                  "solve_field.py --inject)")
+    # SPCC is BROADBAND-only: a mono stack has no colour to calibrate
+    # (Siril refuses with "command is not for monochrome images") — refuse
+    # up front with the mechanism instead of four commands into a siril run
+    from astropy.io import fits as _fits
+    if int(_fits.getheader(p_in).get("NAXIS3", 1)) < 3:
+        sys.exit(f"spcc_run: {os.path.basename(p_in)} is MONOCHROME — SPCC "
+                 "is broadband-only (no colour to calibrate). A mono/"
+                 "single-filter stack finishes luminance-only "
+                 "(finish_render skips SPCC for it); colour comes from the "
+                 "composed target (compose_channels).")
     work = os.path.join(sdir, "work")
     os.makedirs(work, exist_ok=True)
 
@@ -167,7 +191,12 @@ def main():
            "input_size": st.st_size, "input_mtime": int(st.st_mtime),
            "k_factors": ks or None, "b_offsets": bs or None,
            "n_photometry": n_phot, "n_kept": n_kept}
-    p_json = os.path.join(work, f"spcc_{set_name}{tag}.json")
+    # the K record is a per-set TOOL MEASURE — its versioned home is the
+    # tracked datasets qa_work (the siril log stays session-work scratch)
+    qa = os.path.join(repo, "datasets", os.path.basename(
+        os.path.normpath(session)), set_name, "qa_work")
+    os.makedirs(qa, exist_ok=True)
+    p_json = os.path.join(qa, f"spcc_{set_name}{tag}.json")
     with open(p_json, "w") as f:
         json.dump(rec, f, indent=1)
     if not ks:
@@ -178,7 +207,7 @@ def main():
           " ".join(f"{c} {v:.3f}" for c, v in ks.items()) +
           (f" ({rec['n_kept']}/{rec['n_photometry']} stars kept)"
            if rec["n_kept"] else "") +
-          f" -> {os.path.relpath(p_json, sdir)}")
+          f" -> {os.path.relpath(p_json, repo)}")
 
 
 if __name__ == "__main__":

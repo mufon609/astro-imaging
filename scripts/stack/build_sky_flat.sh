@@ -128,9 +128,8 @@ rm -rf "$W/pp"
 read -r IW IH < <(python3 - "$OUT.fit" <<'PY'
 import sys
 from astropy.io import fits
-with fits.open(sys.argv[1]) as h:
-    d = h[0].data
-print(d.shape[-1], d.shape[-2])
+hdr = fits.getheader(sys.argv[1])
+print(int(hdr["NAXIS1"]), int(hdr["NAXIS2"]))
 PY
 )
 B=400; M=200

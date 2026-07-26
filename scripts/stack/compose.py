@@ -5,9 +5,10 @@ convergence stage for multi-channel targets.
 Usage: compose.py <session> <set-or-target>
 
 Reads datasets/<session>/<name>/composition.json (the BUILD record — see
-datasets/README.md) and writes the composed 3-channel float FITS
-<repo>/web/results/<session>/stack_<name>_comp.fit. The composed stack then enters
-the ordinary flow (solve -> SPCC -> render) exactly like any colour stack.
+datasets/README.md) and writes the composed 3-channel float32 RGB FITS
+<repo>/web/results/<session>/stack_<name>_comp.fit. The composed stack then
+enters the ordinary flow (solve -> SPCC -> render) exactly like any colour
+stack.
 
 Two kinds:
 - `dualband-osc`: inputs are the ingest's per-line stacks
@@ -22,21 +23,26 @@ Two kinds:
   (one interpolation pass — the reference channel itself gets only the
   identity transform).
 
-Either way the overlay is produced by a tool, never re-measured in-house:
-the dual-band lines share the same frames and reference (aligned by
-construction) and the mono-filter members are aligned by siril (register +
-seqapplyreg) before assembly. Per-frame registration quality is the
-registration inspection's job (inspect_stage reg, from siril's regdata) —
-this stage only assembles the channels into the cube.
+Siril owns EVERY pixel operation AND the output write: the align is
+`register`/`seqapplyreg`, the combine is `rgbcomp` under `set32bits`
+(3-plane float32; verified pixel-identical to the in-house combine it
+replaced before the swap — the A/B record lives in the per-dataset
+qa_work). This module only resolves the record, drives the tool, and
+guards the inputs — and the guards are FITS-HEADER-ONLY (astropy): float32
+contract (BITPIX -32), mono inputs, geometry agreement. No pixel is read
+in-house. rgbcomp sums exposure metadata (LIVETIME/STACKCNT) across the
+channels — the composed product's integration is the members' sum, which
+is the composed product's honest depth.
+
+Provenance: the composition record IS the build's record; the channel
+mapping and per-input identities are printed to the run log, and rgbcomp
+writes its own FITS header.
 
 A composition with a `luminance` member is REFUSED for now: LRGB joins L
 after both parts are stretched (a nonlinear-space operation), which this
-compose-then-render flow cannot express yet — that design lands with the
-LRGB corpus work (BACKLOG).
-
-FITS I/O is a minimal local reader/writer in FILE order (no orientation
-handling — all channels transform identically; the shared-helper dedup in
-BACKLOG sweeps this into the lib later).
+compose-then-render flow cannot express yet. `rgbcomp -lum=` is the
+headless mechanism for it when an L corpus arrives (BACKLOG; its CLI
+blend colour space is undocumented — resolve before first use).
 """
 import json
 import os
@@ -44,7 +50,7 @@ import shutil
 import subprocess
 import sys
 
-import numpy as np
+from astropy.io import fits
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 
@@ -60,87 +66,24 @@ def results_dir(sdir):
                         os.path.basename(os.path.normpath(sdir)))
 
 
-def read_fits_raw(path):
-    """(header_cards, data float32 (C,H,W) in FILE order, hdr dict)."""
-    raw = open(path, "rb").read()
-    cards, off, end = [], 0, False
-    while not end:
-        block = raw[off:off + 2880]
-        for i in range(0, 2880, 80):
-            c = block[i:i + 80].decode("ascii")
-            if c.startswith("END"):
-                end = True
-                break
-            cards.append(c)
-        off += 2880
-        if off > len(raw):
-            sys.exit(f"compose: no END card in {path}")
-    hdr = {c[:8].strip(): c[10:].split("/")[0].strip()
-           for c in cards if "=" in c}
-    bitpix = int(hdr["BITPIX"])
-    if bitpix != -32:
-        sys.exit(f"compose: expected float32 line stack, got BITPIX "
-                 f"{bitpix} in {path}")
-    nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
-    nc = int(hdr.get("NAXIS3", "1")) if int(hdr["NAXIS"]) == 3 else 1
-    data = np.frombuffer(raw, dtype=">f4", count=nc * ny * nx,
-                         offset=off).reshape(nc, ny, nx)
-    return cards, data.astype(np.float32), hdr
-
-
-def write_fits3(path, cards_src, planes):
-    """Write (3,H,W) float32 in FILE order, header = source cards with the
-    NAXIS geometry patched to the cube and provenance comments appended."""
-    over = [c for c in cards_src if len(c) > 80]
-    if over:
-        # a >80-byte card shifts the whole 80-byte card grid: END never
-        # lands on a boundary and every FITS reader rejects the file
-        sys.exit(f"compose: header card exceeds 80 bytes ({len(over[0])}): "
-                 f"{over[0][:60]!r}...")
-    ny, nx = planes.shape[1], planes.shape[2]
-    out = []
-    seen_naxis3 = False
-    for c in cards_src:
-        key = c[:8].strip()
-        if key == "NAXIS":
-            out.append(f"{'NAXIS':<8s}= {3:>20d}".ljust(80))
-        elif key == "NAXIS1":
-            out.append(f"{'NAXIS1':<8s}= {nx:>20d}".ljust(80))
-        elif key == "NAXIS2":
-            out.append(f"{'NAXIS2':<8s}= {ny:>20d}".ljust(80))
-        elif key == "NAXIS3":
-            out.append(f"{'NAXIS3':<8s}= {3:>20d}".ljust(80))
-            seen_naxis3 = True
-        else:
-            out.append(c)
-    if not seen_naxis3:
-        # insert NAXIS3 right after NAXIS2 (FITS requires axis order)
-        for i, c in enumerate(out):
-            if c[:8].strip() == "NAXIS2":
-                out.insert(i + 1, f"{'NAXIS3':<8s}= {3:>20d}".ljust(80))
-                break
-    hdr = "".join(out) + "END".ljust(80)
-    hdr += " " * ((-len(hdr)) % 2880)
-    body = planes.astype(">f4").tobytes()
-    with open(path, "wb") as f:
-        f.write(hdr.encode("ascii"))
-        f.write(body)
-        f.write(b"\x00" * ((-len(body)) % 2880))
-
-
-def load_plane(path, name):
-    """One mono stack -> (cards, 2-D plane). Loud on wrong shape."""
+def check_input(path, name):
+    """Header-only input guard: the file exists, is float32 (BITPIX -32 —
+    the linear-chain contract), and is MONO (a compose input is a single
+    plane by construction). Returns (nx, ny). Loud on any violation."""
     if not os.path.exists(path):
         sys.exit(f"compose: input stack missing: {path}")
-    cards, data, _hdr = read_fits_raw(path)
-    if data.shape[0] != 1:
-        sys.exit(f"compose: {path} has {data.shape[0]} channels — a "
+    h = fits.getheader(path)
+    if int(h["BITPIX"]) != -32:
+        sys.exit(f"compose: expected float32 line stack, got BITPIX "
+                 f"{h['BITPIX']} in {path}")
+    if int(h.get("NAXIS", 2)) == 3 and int(h.get("NAXIS3", 1)) != 1:
+        sys.exit(f"compose: {path} has {h['NAXIS3']} channels — a "
                  "compose input is mono by construction")
+    nx, ny = int(h["NAXIS1"]), int(h["NAXIS2"])
     st = os.stat(path)
-    print(f"[compose] {name}: {os.path.basename(path)} "
-          f"{data.shape[2]}x{data.shape[1]} "
+    print(f"[compose] {name}: {os.path.basename(path)} {nx}x{ny} "
           f"(size {st.st_size}, mtime {int(st.st_mtime)})")
-    return cards, data[0]
+    return nx, ny
 
 
 def align_members(repo, sdir, set_name, members, reference):
@@ -222,67 +165,65 @@ def main():
     if comp.get("luminance"):
         sys.exit("compose: this composition names a `luminance` member — "
                  "LRGB joins L after both parts are stretched, which this "
-                 "flow cannot express yet (BACKLOG); compose the RGB "
-                 "without it or wait for that design")
+                 "flow cannot express yet (`rgbcomp -lum=` is the headless "
+                 "mechanism; its blend colour space is undocumented — "
+                 "BACKLOG); compose the RGB without it or wait for that "
+                 "design")
 
-    line_data, cards0 = {}, None
+    inputs = {}
     if kind == "dualband-osc":
         lines = comp.get("lines")
         if not lines:
             sys.exit(f"compose: {p_comp} (dualband-osc) needs 'lines'")
         for ln in lines:
-            p = os.path.join(results_dir(sdir), f"stack_{set_name}_{ln}.fit")
-            cards, plane = load_plane(p, f"line {ln}")
-            line_data[ln] = plane
-            if cards0 is None:
-                cards0 = cards
+            inputs[ln] = os.path.join(results_dir(sdir),
+                                      f"stack_{set_name}_{ln}.fit")
     elif kind == "mono-filters":
         members = comp.get("members")
         if not members:
             sys.exit(f"compose: {p_comp} (mono-filters) needs 'members' "
                      "(channel name -> sibling set)")
         reference = comp.get("reference", sorted(members)[0])
-        aligned = align_members(repo, sdir, set_name, members, reference)
-        # header source = the REFERENCE member's aligned stack (its
-        # geometry is the composed product's geometry)
-        for n in sorted(members):
-            cards, plane = load_plane(aligned[n], f"member {n}")
-            line_data[n] = plane
-            if n == reference:
-                cards0 = cards
+        inputs = align_members(repo, sdir, set_name, members, reference)
     else:
         sys.exit(f"compose: unknown composition kind '{kind}'")
 
-    dims = {ln: d.shape for ln, d in line_data.items()}
+    dims = {n: check_input(p, f"input {n}") for n, p in sorted(inputs.items())}
     if len(set(dims.values())) != 1:
         sys.exit(f"compose: input stacks disagree on geometry: {dims}")
-    missing = [c for c in "RGB" if channels[c] not in line_data]
+    missing = [c for c in "RGB" if channels[c] not in inputs]
     if missing:
         sys.exit(f"compose: channels map to unknown inputs: "
                  f"{ {c: channels[c] for c in missing} }")
 
     order = ["R", "G", "B"]
-    planes = np.stack([line_data[channels[c]] for c in order])
-    print(f"[compose] channels: " +
+    print("[compose] channels: " +
           " ".join(f"{c}={channels[c]}" for c in order))
 
-    if kind == "dualband-osc":
-        inputs = [f"{ln} = stack_{set_name}_{ln}.fit"
-                  for ln in comp["lines"]]
-    else:
-        inputs = [f"{n} = stack_{comp['members'][n]}.fit (aligned to "
-                  f"'{comp.get('reference', sorted(comp['members'])[0])}')"
-                  for n in sorted(comp["members"])]
-    provenance = [
-        f"COMMENT compose.py [{kind}]: channels " +
-        " ".join(f"{c}={channels[c]}" for c in order),
-    ] + [f"COMMENT compose.py: {s}" for s in inputs]
-    cards_out = cards0 + [c.ljust(80) for c in provenance]
+    # the combine + the write are Siril's: rgbcomp under set32bits
     p_out = os.path.join(results_dir(sdir), f"stack_{set_name}_comp.fit")
-    write_fits3(p_out, cards_out, planes)
-    print(f"[compose] wrote {os.path.relpath(p_out, repo)}")
+    if os.path.exists(p_out):
+        os.remove(p_out)
+    r_, g_, b_ = (inputs[channels[c]] for c in order)
+    ssf = os.path.join(sdir, "work", f"compose_{set_name}.rgb.ssf")
+    with open(ssf, "w") as f:
+        f.write("requires 1.4.0\n"
+                "setcompress 0\n"
+                "set32bits\n"
+                f"rgbcomp {r_} {g_} {b_} -out={p_out}\n")
+    r = subprocess.run(SIRIL + ["-d", sdir, "-s", ssf],
+                       capture_output=True, text=True)
+    log = r.stdout + r.stderr
+    if r.returncode != 0 or not os.path.exists(p_out):
+        sys.exit("compose: rgbcomp failed:\n" + log[-2000:])
+    h = fits.getheader(p_out)
+    if int(h["BITPIX"]) != -32 or int(h.get("NAXIS3", 1)) != 3:
+        sys.exit(f"compose: rgbcomp output is not a float32 3-plane cube "
+                 f"(BITPIX {h['BITPIX']}, NAXIS3 {h.get('NAXIS3')})")
+    print(f"[compose] wrote {os.path.relpath(p_out, repo)} "
+          f"(rgbcomp, float32 {h['NAXIS1']}x{h['NAXIS2']}x3)")
     # the aligned intermediates are consumed; the composed stack + the
-    # printed provenance are the record
+    # composition record + the printed provenance are the record
     walign = os.path.join(sdir, "work", f"compose_{set_name}")
     if os.path.isdir(walign):
         shutil.rmtree(walign)

@@ -1,0 +1,36 @@
+{
+ "measured_by": "header facts (acquisition.py) + astrometry.net solves (solve_field.py) + Siril findstar/register metrics (frame_metrics.json); this module computes only the derived trail/drift geometry and records it",
+ "declared_mount": "tracked",
+ "plate_scale_arcsec_px": 0.682,
+ "plate_scale_source": "exif-nominal",
+ "field_center": {
+  "ra_deg": 270.65371,
+  "dec_deg": -22.88965,
+  "source": "header-pointing"
+ },
+ "in_exposure_trail": {
+  "predicted_if_fixed_px": 1625.41,
+  "measured_roundness": 0.8962,
+  "measured_fwhm_px": 3.515,
+  "check": {
+   "predicted_if_fixed_px": 1625.4,
+   "implied_trail_max_px": 2.35,
+   "margin": 692.7,
+   "population_ok": true,
+   "decisive": true,
+   "signature": "tracked",
+   "reason": "a fixed mount here would smear every sub by ~1625 px; the measured stars could hide at most 2.3 px (findstar roundness 0.8962 / FWHM 3.515 px over 16 frames, ~1531 stars/frame, 16/16 registered) \u2014 693x apart: the mount is tracking. No solve needed."
+  },
+  "note": "predicted = 15.041 * cos(dec) * exposure / plate_scale \u2014 the smear a FIXED mount would put in every sub; no registration removes it"
+ },
+ "inter_frame_drift": null,
+ "mount_check": {
+  "verdict": "CONFIRM",
+  "declared": "tracked",
+  "measured": "tracked",
+  "method": "trail-vs-roundness",
+  "reason": "declared tracked matches the measured tracked signature \u2014 a fixed mount here would smear every sub by ~1625 px; the measured stars could hide at most 2.3 px (findstar roundness 0.8962 / FWHM 3.515 px over 16 frames, ~1531 stars/frame, 16/16 registered) \u2014 693x apart: the mount is tracking. No solve needed."
+ },
+ "label": "tracked, narrow",
+ "route_hint": "standard (calibrate -> register -> stack) \u2014 tracked mount: no inter-frame drift to fight"
+}

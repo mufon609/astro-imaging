@@ -1,0 +1,42 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "FITS lights (as-recorded) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Mono frames measure true, non-CFA FWHM.",
+ "frames_total": 16,
+ "registered": 16,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 0.6816,
+ "distribution": {
+  "fwhm_px": {
+   "median": 3.515,
+   "min": 3.138,
+   "max": 3.882
+  },
+  "roundness": {
+   "median": 0.8962,
+   "min": 0.8558,
+   "max": 0.9195
+  },
+  "nstars": {
+   "median": 1531,
+   "min": 1480,
+   "max": 1556
+  },
+  "bg16": {
+   "median": 1194,
+   "min": 1180,
+   "max": 1215
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 16,
+   "fwhm": 3.515,
+   "round": 0.8962,
+   "stars": 1531,
+   "bg16": 1194
+  }
+ ],
+ "flagged_defect_side_z": [],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}

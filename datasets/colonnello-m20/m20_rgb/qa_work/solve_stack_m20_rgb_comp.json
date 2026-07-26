@@ -1,0 +1,45 @@
+{
+ "input": "web/results/colonnello-m20/stack_m20_rgb_comp.fit",
+ "detector": "sep",
+ "n_stars_detected": 200,
+ "central": null,
+ "position_hint": [
+  270.638710114914,
+  -22.8896251797227,
+  15.0
+ ],
+ "position_hint_source": "header",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  0.4089427826086956,
+  1.022356956521739
+ ],
+ "index_scales": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "scales_solved": [
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9
+ ],
+ "ra_deg": 270.64205430228196,
+ "dec_deg": -22.893474733542114,
+ "scale_arcsec_px": 0.6850647043318018,
+ "logodds": 244.55909729003906,
+ "parity": "MIRRORED vs sky",
+ "cd_det": 3.621247292601999e-08,
+ "injected": "web/results/colonnello-m20/stack_m20_rgb_comp_wcs.fit"
+}

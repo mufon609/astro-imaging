@@ -217,7 +217,7 @@ function pgOverview() {
     h('div', { class:'eyebrow' }, 'session'),
     h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle' }, 'approved render on file') : null),
     h('div', { class:'sub' },
-      `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)}`,
+      `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)}`,
       acq ? ` · mount ${acq.mount}` : '',
       fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
     h('h2', {}, 'what is on file — each card opens its home'),
@@ -258,6 +258,12 @@ function pgSets() {
     const fq = s.frame_qa || {}, dist = (fq.distribution || {});
     const full = fullSurface(s);
     if (s.staged_only) {
+      if (s.kind === 'reference') return h('tr', {},
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, `${s.staged_frames} staged`),
+        h('td', { colspan:3, class:'why' },
+          "the corpus's answer key (maker's masters / stacks / finals) — studied before tuning, never stacked"),
+        h('td', {}, h('span', { class:'chip ok' }, 'reference')));
       if (s.kind === 'calibration') return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
@@ -270,6 +276,12 @@ function pgSets() {
         h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
         h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
     }
+    if (s.kind === 'composed') return h('tr', {},
+      h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+      h('td', {}, '—'),
+      h('td', { colspan:3, class:'why' },
+        'composed virtual target — built by compose from its member per-filter stacks (no lights of its own)'),
+      h('td', {}, h('span', { class:'chip ok' }, 'composed')));
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, fmt(fq.total)),
@@ -418,7 +430,7 @@ function pgSet(name) {
     h('div', { class:'sub' },
       s.staged_only
         ? `${s.staged_frames} raws staged — no records yet; declare the mount below, then the measure stages (frame_qa, anomaly_audit) run from the Run page`
-        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ISO ${fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
+        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
           s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
                         : ' — fingerprint not yet derived')),
     mountControl(s), bar, pane);
@@ -427,18 +439,26 @@ function pgSet(name) {
 function mountControl(s) {
   if (s.kind !== 'lights') return null;
   const cur = (s.acquisition || {}).mount;
+  const mc = ((s.fingerprint || {}).mount_check) || {};
   const fx = h('input', { type:'radio', name:'mnt', value:'fixed' });
   const tr = h('input', { type:'radio', name:'mnt', value:'tracked' });
   if (cur === 'fixed') fx.checked = true;
   if (cur === 'tracked') tr.checked = true;
+  // measure + confirm click (ratified): an undeclared mount with a measured
+  // signature pre-fills the radio — the accept click still writes the
+  // declaration; nothing is assumed
+  if (!cur && mc.measured === 'fixed') fx.checked = true;
+  if (!cur && mc.measured === 'tracked') tr.checked = true;
   const msg = h('span', { class:'m' });
   return h('div', { class:'panel', style:'margin:0 0 14px' },
     h('h3', {}, 'mount — declared, never assumed'),
     h('div', { class:'when' }, cur
       ? `declared: ${cur}` + (s.fingerprint
-        ? ` · measured ${s.fingerprint.mount_check.verdict}`
+        ? ` · measured ${mc.verdict}`
         : ' · not yet measured against the sky')
-      : 'UNDECLARED — consumers that need fixed-vs-tracked stop until this is set'),
+      : (mc.measured
+        ? `UNDECLARED — the data reads as ${mc.measured.toUpperCase()} (${mc.method}); pre-filled below — declaring accepts the measurement`
+        : 'UNDECLARED — consumers that need fixed-vs-tracked stop until this is set')),
     h('label', {}, fx, ' fixed (tripod)'), '  ',
     h('label', {}, tr, ' tracked (driven mount)'), '  ',
     h('button', { class:'copy', style:'font-size:.8rem;padding:.3rem .8rem',
@@ -449,7 +469,13 @@ function mountControl(s) {
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ session: SESSION, set: s.set, mount: v }) });
         const j = await r.json();
-        msg.textContent = r.ok ? ` written → ${j.written}` : ' ERROR: ' + j.error;
+        const mc = (j.fingerprint || {});
+        msg.textContent = r.ok
+          ? ` written → ${j.written}` + (mc.verdict
+            ? ` · measured ${mc.verdict}` + (mc.verdict === 'CONTRADICT'
+              ? ' — reconcile before building' : '')
+            : '')
+          : ' ERROR: ' + j.error;
         if (r.ok) setTimeout(() => loadSession(SESSION), 600);
       } }, 'declare'),
     msg);
@@ -504,7 +530,7 @@ function pgSurfaces() {
           : 'no judge surface — stack on disk; a finish_render pass is a proposal, not automatic'),
       h('h3', { style:'margin-top:8px' }, su.product),
       h('div', { class:'m' },
-        `${su.sets.join(' + ')} · ${su.recipe_tag} · ${su.naxis ? su.naxis.join('×') : '?'}`,
+        `${su.sets.join(' + ')} · ${su.recipe_tag || '—'} · ${su.naxis ? su.naxis.join('×') : '?'}`,
         h('br'), confirmChip(su), ' ',
         su.files.spcc ? h('span', { class:'chip ok' }, 'SPCC') : h('span', { class:'chip' }, 'no SPCC'),
         su.files.wcs ? h('span', { class:'chip ok' }, 'WCS') : null,
@@ -643,8 +669,12 @@ function paramInput(p, paths) {
     style:'width:100%;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 7px;font:12.5px var(--mono)' });
   if (p.kind === 'session') inp.value = SESSION;
   if (p.kind === 'set' && lightSets().length) {
+    // operable set targets only: light sets (the stack/QA stages' unit) and
+    // composed virtual targets (finish_render routes SPCC by them) — never
+    // calibration groups or the reference answer key
     const dl = h('datalist', { id: 'dl_' + p.name },
-      (M.sets || []).map(s => h('option', { value: s.set })));
+      (M.sets || []).filter(s => s.kind === 'lights' || s.kind === 'composed')
+        .map(s => h('option', { value: s.set })));
     inp.setAttribute('list', 'dl_' + p.name);
     return frag(inp, dl);
   }
@@ -718,17 +748,26 @@ async function updateStageChips() {
 
 async function refreshJobs(logView) {
   updateStageChips();
-  let jobs = [];
-  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
-  const running = jobs.filter(j => j.status === 'running');
+  let all = [];
+  try { all = await (await fetch('/api/jobs')).json(); } catch { return; }
+  // the one-job-at-a-time gate is rig-wide, so the running dot reads ALL
+  // jobs; the table shows only THIS session's (plus rig-level setup jobs
+  // that name no session) — other sessions' logs are their pages' business
+  const running = all.filter(j => j.status === 'running');
   document.getElementById('n-run').textContent = running.length ? '●' : '';
+  const jobs = all.filter(j => !M.session || !j.session || j.session === M.session);
+  const elsewhere = running.filter(j => j.session && M.session && j.session !== M.session);
   const list = document.getElementById('joblist');
-  if (list) list.replaceChildren(
+  if (list) list.replaceChildren(...[
+    elsewhere.length
+      ? h('p', { class:'m' }, `one job is running in session ${elsewhere[0].session} `,
+          `(${elsewhere[0].stage}) — the run gate is rig-wide`)
+      : null,
     jobs.length ? h('table', { class:'ledger' },
       h('tr', {}, ...['job', 'stage', 'status', ''].map(t => h('th', {}, t))),
       jobs.flatMap(j => [h('tr', {},
         h('td', {}, j.id),
-        h('td', {}, j.stage),
+        h('td', {}, j.session ? j.stage : frag(j.stage, ' ', h('span', { class:'chip' }, 'rig'))),
         h('td', {}, h('span', { class: j.status === 'running' ? 'chip warn'
           : j.status === 'done' ? 'chip ok' : 'chip cut' },
           j.status + (j.rc != null ? ` rc=${j.rc}` : ''))),
@@ -743,7 +782,8 @@ async function refreshJobs(logView) {
           ? h('tr', {}, h('td', { colspan:'4' },
               h('pre', { class:'rec', style:'margin:2px 0 10px;max-height:200px;overflow:auto' }, j.tail)))
           : null].filter(Boolean)))
-    : h('p', { class:'m' }, 'no jobs on record — records + logs persist under sessions/.webjobs/'));
+    : h('p', { class:'m' }, 'no jobs for this session — records + logs persist under sessions/.webjobs/'),
+  ].filter(Boolean));
 }
 
 let WATCH = { id: null, offset: 0 };
@@ -773,16 +813,24 @@ async function openStageForm(name, st, formHost) {
       h('td', { style:'width:60%' }, paramInput(p, paths)),
       h('td', { class:'why' }, p.hint || p.kind)));
     const cmdPre = h('pre', { class:'rec', hidden:'' });
-    const runBtn = h('button', { class:'copy', disabled:'', style:'font-size:.85rem;padding:.4rem 1rem',
+    const runBtn = h('button', { class:'copy', style:'font-size:.85rem;padding:.4rem 1rem',
       onclick: async () => {
+        // one click = the DECIDE step: validate + show the exact command
+        // (dry_run), then start the same args immediately
         const args = collect();
+        cmdPre.hidden = false;
+        const pre = await fetch('/api/run', { method:'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ stage: name, args, dry_run: true }) });
+        const pj = await pre.json();
+        if (!pre.ok) { cmdPre.textContent = 'ERROR: ' + (pj.error || pre.status); return; }
+        cmdPre.textContent = '$ ' + pj.cmd;
         const r = await fetch('/api/run', { method:'POST',
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ stage: name, args }) });
         const j = await r.json();
-        cmdPre.hidden = false;
-        if (!r.ok) { cmdPre.textContent = 'ERROR: ' + (j.error || r.status); return; }
-        cmdPre.textContent = `started ${j.id}\n$ ${j.cmd}`;
+        if (!r.ok) { cmdPre.textContent = '$ ' + pj.cmd + '\nERROR: ' + (j.error || r.status); return; }
+        cmdPre.textContent = `$ ${j.cmd}\nstarted ${j.id}`;
         refreshJobs(); watchJob(j.id);
       } }, 'Run');
     const collect = () => {
@@ -807,7 +855,6 @@ async function openStageForm(name, st, formHost) {
           const j = await r.json();
           cmdPre.hidden = false;
           cmdPre.textContent = r.ok ? '$ ' + j.cmd : 'ERROR: ' + (j.error || r.status);
-          runBtn.disabled = !r.ok;
         } }, 'show command'), ' ', runBtn),
       cmdPre));
     const sessInp = document.getElementById('p_session');
@@ -821,26 +868,150 @@ async function openStageForm(name, st, formHost) {
     });
 }
 
+/* ---- automated chains: step-strip + cards (BACKLOG item 17) ---- */
+const CHAIN_STEPS = ['mount', 'QA', 'cull', 'flats', 'stack', 'SPCC', 'judge'];
+let STRIP = { t: null };
+
+function chainStepState(s, masters, surfaces) {
+  // evidence-only per-set progress: same sources as the chips
+  const su = (surfaces || []).find(x => x.sets && x.sets.length === 1 && x.sets[0] === s.set);
+  const qa = s.frame_qa;
+  return [
+    !!((s.acquisition || {}).mount),
+    !!qa,
+    !!(qa && (s.recipe || ((qa.flagged || []).length === 0))),
+    (masters || []).some(p => p.endsWith(`skyflat_${s.set}.fit`)),
+    !!su,
+    !!(su && su.files && su.files.spcc),
+    !!(su && su.judge),
+  ];
+}
+
+async function renderStrips(host) {
+  if (!host.isConnected && STRIP.t) {   // page switched away — stop polling
+    clearInterval(STRIP.t); STRIP.t = null; return;
+  }
+  let model = M, paths = {}, jobs = [];
+  try { model = await (await fetch('/api/session/' + SESSION)).json(); } catch {}
+  try { paths = await (await fetch('/api/paths/' + SESSION)).json(); } catch {}
+  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
+  const masters = paths.masters || [];
+  const lights = (model.sets || []).filter(s => s.kind === 'lights');
+  if (!lights.length) { host.replaceChildren(); return; }
+  const states = lights.map(s => chainStepState(s, masters, model.surfaces || []));
+  const running = jobs.find(j => j.status === 'running' && (!j.session || j.session === SESSION));
+  const atJudge = states.filter(st => st[6]).length;
+  host.replaceChildren(...[
+    running
+      ? h('p', { class:'m' }, `⏵ run active: ${running.stage} (started ${running.started}) — evidence below refreshes ~20 s; the rig runs one job at a time`)
+      : null,
+    h('table', { class:'ledger' },
+      h('tr', {}, h('th', {}, 'set'), ...CHAIN_STEPS.map(c => h('th', { style:'text-align:center' }, c))),
+      ...lights.map((s, i) => h('tr', {},
+        h('td', {}, s.set),
+        ...states[i].map(d => h('td', { style:'text-align:center' }, d ? '●' : '○'))))),
+    h('p', { class:'m' }, `${atJudge}/${lights.length} set(s) at their judge surface`),
+  ].filter(Boolean));
+  if (running && !STRIP.t) STRIP.t = setInterval(() => renderStrips(host), 20000);
+  if (!running && STRIP.t) { clearInterval(STRIP.t); STRIP.t = null; }
+}
+
+function detailPanel(st) {
+  const d = st.detail;
+  if (!d) return null;
+  const row = (label, xs, sep) => (xs && xs.length)
+    ? h('div', { style:'margin:2px 0' }, h('b', {}, label + ': '), xs.join(sep)) : null;
+  return h('details', { class:'m', style:'margin-top:6px',
+    onclick: ev => ev.stopPropagation() },   // expanding must not open the form
+    h('summary', { style:'cursor:pointer' }, 'process'),
+    row('runs', d.process, ' → '),
+    row('stops for', d.gates, ' · '),
+    row('records', d.records, ' · '));
+}
+
+async function runChainDirect(name, args, out) {
+  // the DECIDE click, card-local: show the exact command (dry_run), start,
+  // and stream the log — same contract as the stage form's Run
+  out.hidden = false;
+  const pre = await fetch('/api/run', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage: name, args, dry_run: true }) });
+  const pj = await pre.json();
+  if (!pre.ok) { out.textContent = 'ERROR: ' + (pj.error || pre.status); return; }
+  const r = await fetch('/api/run', { method:'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage: name, args }) });
+  const j = await r.json();
+  out.textContent = r.ok ? `$ ${j.cmd}\nstarted ${j.id}`
+                         : `$ ${pj.cmd}\nERROR: ` + (j.error || r.status);
+  if (r.ok) { refreshJobs(); watchJob(j.id); }
+}
+
+function autoCard(name, st, status, formHost) {
+  const chip = h('span', { id: 'stchip_' + name });
+  applyStageChip(chip, status[name]);
+  const out = h('pre', { class:'rec', hidden:'', style:'margin-top:8px' });
+  const btn = (label, fn, title) => h('button', {
+    class:'copy', style:'font-size:.85rem;padding:.4rem 1rem;margin-right:8px',
+    title: title || '', onclick: fn }, label);
+  const direct = name === 'chain_session';   // no per-set param -> one click
+  const buttons = direct
+    ? [btn('preview plan', () => runChainDirect(name, { session: SESSION, plan: true }, out),
+           'runs the chain in plan mode: prints route + gates + exact commands, executes nothing'),
+       btn('Run', () => runChainDirect(name, { session: SESSION }, out),
+           'the DECIDE click: shows the exact command and starts the chain')]
+    : [btn('open form (choose set)', () => openStageForm(name, st, formHost),
+           'pick the set; the form has the plan checkbox')];
+  return h('div', { class:'card' },
+    h('h3', {}, name, ' ', chip),
+    h('p', {}, st.summary || st.desc),
+    detailPanel(st),
+    h('p', { style:'margin:10px 0 0' }, ...buttons),
+    out);
+}
+
 async function pgRun() {
   let stages = {};
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
   const status = await fetchStatus();
   const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
   const formHost = h('div', {});
+  // a page (re)build is a fresh view — never keep polling a log the user
+  // watched under another session's page, and never keep a stale strip timer
+  if (POLL.t) { clearInterval(POLL.t); POLL.t = null; }
+  if (STRIP.t) { clearInterval(STRIP.t); STRIP.t = null; }
+  WATCH = { id: null, offset: 0 };
   setTimeout(refreshJobs, 0);
+  // automated chains first (server marks them; fallback covers a server
+  // process older than the marker)
+  let auto = Object.keys(stages).filter(n => stages[n].automated);
+  if (!auto.length) auto = ['chain_session', 'chain_set'].filter(n => stages[n]);
+  auto.sort((a, b) => (a === 'chain_session' ? -1 : 0) - (b === 'chain_session' ? -1 : 0));
+  const stripHost = h('div', {});
+  if (auto.length) setTimeout(() => renderStrips(stripHost), 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
-    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendment): pick a stage, see the exact command, then the run click is your DECIDE step. One job at a time.'),
+    h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendments): every click is your DECIDE step — the exact command shows with the run, chains disclose their full plan first, one job at a time.'),
+    auto.length ? frag(
+      h('h2', {}, 'automated'),
+      h('div', { class:'cards' },
+        auto.map(n => autoCard(n, stages[n], status, formHost))),
+      stripHost) : null,
+    h('h2', {}, 'pipeline stages — manual'),
+    h('div', { class:'sub' }, 'the per-stage escape hatch: individual re-runs and diagnostics; the chains above run these same pinned scripts in order.'),
     ...phases.map(ph => {
-      const names = Object.keys(stages).filter(n => stages[n].phase === ph);
+      const names = Object.keys(stages).filter(
+        n => stages[n].phase === ph && !auto.includes(n));
       if (!names.length) return null;
-      return frag(h('h2', {}, ph), h('div', { class:'cards' },
+      return frag(h('h3', {}, ph), h('div', { class:'cards' },
         names.map(n => {
           const chip = h('span', { id: 'stchip_' + n });
           applyStageChip(chip, status[n]);
           return h('div', { class:'card', style:'cursor:pointer',
             onclick: () => openStageForm(n, stages[n], formHost) },
-            h('h3', {}, n, ' ', chip), h('p', {}, stages[n].desc));
+            h('h3', {}, n, ' ', chip),
+            h('p', {}, stages[n].summary || stages[n].desc),
+            detailPanel(stages[n]));
         })));
     }),
     formHost,

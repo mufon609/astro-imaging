@@ -81,7 +81,6 @@ class SetContext:
         self.fg_mask_path = None             # npz pixel mask (landscape
         #                                      compositions a rect can't
         #                                      model); wins over rect
-        self.judgment_crops = None           # {name: [x0,y0,x1,y1] px} | None
         self.starsep = {}                    # optional per-set overrides
         self._cache = {}
 
@@ -104,8 +103,8 @@ def dataset_dir(session_dir, set_name):
 def configure(session_dir, set_name, stack=None, quiet=False):
     """Resolve the per-set geometry context (module global CTX) from
     datasets/<session>/<set>/geometry.json: the terrestrial foreground
-    (rect or npz mask), its report/crop boxes, and optional starsep
-    overrides. No geometry file -> foreground None (whole-frame, no mask).
+    (rect or npz mask) and optional starsep overrides. No geometry file ->
+    foreground None (whole-frame, no mask).
     Relative mask paths resolve against the SESSION dir (derived masks are
     data, they live with the data). `stack` is accepted and ignored (kept
     for call-site compatibility). Returns the context."""
@@ -142,9 +141,6 @@ def configure(session_dir, set_name, stack=None, quiet=False):
                 "edge, and the foreground is EXCLUDED from the sky-statistics "
                 "scope, so an interior rect would carve sky out of that "
                 f"scope. Fix {cfgp}.")
-    if cfg.get("judgment_crops"):
-        ctx.judgment_crops = {k: tuple(v)
-                              for k, v in cfg["judgment_crops"].items()}
     ctx.starsep = cfg.get("starsep", {})
     ctx.source = "+".join(src) if src else "none"
     if not quiet:

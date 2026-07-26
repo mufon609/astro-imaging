@@ -34,7 +34,7 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA=310 DEC=47 RAD=40 SESSION=sessions/july14 SET=set-01 CENTRAL= CROPREC= FIELDW= MTF=
+RA= DEC= RAD= SESSION= SET= CENTRAL= CROPREC= FIELDW= MTF=
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
@@ -43,6 +43,15 @@ for a in "$@"; do case "$a" in
   --mtf=*) MTF=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+# no default field: a baked position hint is dataset contamination (a CLI
+# hint is explicit and never falls back — a wrong one grinds forever); with
+# no --ra/--dec the solve self-hints from the stack's header RA/DEC and
+# falls back blind on failure. session/set have no safe default either —
+# SPCC routing + the K record's name must never land on the wrong dataset.
+[ -n "$SESSION" ] && [ -n "$SET" ] || {
+  echo "finish_render: --session= and --set= are required (SPCC spec routing + record naming)" >&2
+  exit 1
+}
 if [ -n "$MTF" ]; then
   [[ "$MTF" =~ ^[0-9.]+,[0-9.]+,[0-9.]+$ ]] || { echo "--mtf must be lo,mid,hi (e.g. 0,0.0022,1)" >&2; exit 1; }
 fi
@@ -116,28 +125,52 @@ echo "[finish $NAME] 1/4 solve"
 # --central=<frac> restricts detection to the frame's central fraction — the
 # union-canvas (framing=max) case, whose coverage seams false-detect otherwise.
 python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --detect=sep --max-stars=400 \
-  --ra="$RA" --dec="$DEC" --radius-deg="$RAD" ${CENTRAL:+--central=$CENTRAL} \
+  --session="$SESSION" --set="$SET" \
+  ${RA:+--ra=$RA} ${DEC:+--dec=$DEC} ${RAD:+--radius-deg=$RAD} \
+  ${CENTRAL:+--central=$CENTRAL} \
   ${FIELDW:+--field-width-arcmin=$FIELDW} \
-  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn' || true
+  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn|hint|attempt' || true
 [ -f "$WCS" ] || { echo "[finish $NAME] SOLVE FAILED (no WCS injected)" >&2; exit 1; }
 
-echo "[finish $NAME] 2/4 catalog cone"
-python3 "$REPO/scripts/calibrate/spcc_cone.py" "$WCS" --fetch 2>&1 | tail -1
+# a MONO stack has no colour to calibrate — SPCC is broadband-only (README:
+# a mono/single-filter set skips SPCC and finishes luminance-only; Siril
+# refuses with "command is not for monochrome images") — so a mono input
+# skips cone+SPCC and stretches the SOLVED stack; the judge surface is
+# named _lum-linked so the chain it rode is legible from the filename
+MONO=$(python3 - "$WCS" <<'PY'
+import sys
+from astropy.io import fits
+print(1 if int(fits.getheader(sys.argv[1]).get("NAXIS3", 1)) < 3 else 0)
+PY
+)
+if [ "$MONO" = 1 ]; then
+  echo "[finish $NAME] MONO stack — SPCC is broadband-only; luminance-only finish (skipping 2/4 cone + 3/4 SPCC)"
+  SRC=$WCS
+  # linked/unlinked has no meaning on one channel — the surface name states
+  # the actual chain: solved luminance, bare autostretch
+  JUDGE=$REPO/web/results/$(basename "$SESSION")/judge/${NAME}_lum-autostretch
+  LINKED=
+else
+  echo "[finish $NAME] 2/4 catalog cone"
+  python3 "$REPO/scripts/calibrate/spcc_cone.py" "$WCS" --fetch 2>&1 | tail -1
 
-echo "[finish $NAME] 3/4 SPCC"
-python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
-  --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
-[ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
+  echo "[finish $NAME] 3/4 SPCC"
+  python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
+    --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
+  [ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
+  SRC=$SPCC
+  LINKED=" -linked"
+fi
 
 if [ -n "$MTF" ]; then
   STRETCH="mtf ${MTF//,/ }"
   echo "[finish $NAME] 4/4 pinned stretch ($STRETCH) -> PNG"
 else
-  STRETCH="autostretch -linked"
-  echo "[finish $NAME] 4/4 linked stretch -> PNG"
+  STRETCH="autostretch$LINKED"
+  echo "[finish $NAME] 4/4 ${LINKED:+linked }stretch -> PNG"
 fi
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
-printf 'requires 1.4.0\nsetcompress 0\nload %s\n%s\nsavepng %s\n' "$SPCC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
+printf 'requires 1.4.0\nsetcompress 0\nload %s\n%s\nsavepng %s\n' "$SRC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
 flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }

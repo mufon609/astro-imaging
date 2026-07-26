@@ -1,0 +1,22 @@
+{
+ "set": "m20_rgb",
+ "catalog": "localgaia",
+ "sensor_spec": null,
+ "sensor_spec_source": null,
+ "input": "../../web/results/colonnello-m20/stack_m20_rgb_comp_wcs.fit",
+ "output": "../../web/results/colonnello-m20/stack_m20_rgb_comp_spcc.fit",
+ "input_size": 195672960,
+ "input_mtime": 1784826973,
+ "k_factors": {
+  "R": 0.88,
+  "G": 0.881,
+  "B": 1.0
+ },
+ "b_offsets": {
+  "R": 0.000569807,
+  "G": 4.99448e-05,
+  "B": 5.97565e-05
+ },
+ "n_photometry": 2075,
+ "n_kept": 917
+}

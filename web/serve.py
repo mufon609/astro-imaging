@@ -41,7 +41,16 @@ API:
                           explicit per-run user action — the operating loop's
                           DECIDE step made clickable; never automatic, never
                           on page load. One job at a time; argv only (no
-                          shell); logs under sessions/.webjobs/.
+                          shell); logs under sessions/.webjobs/. An
+                          output-shaping run (calibrate/execute/finish
+                          phases) is REFUSED while any set it builds on has
+                          a declared-vs-measured mount CONTRADICT in its
+                          fingerprint (BACKLOG item 1: a consumer never
+                          builds on a mislabel); the gate re-derives each
+                          set's fingerprint first, so the check never waits
+                          to be asked. Measure/surfaces/setup stages stay
+                          runnable — measuring is how a contradiction gets
+                          resolved.
   GET  /api/jobs, /api/jobs/<id>, /api/jobs/<id>/log?offset=N
                        -> job list / status / incremental log tail. Every job
                           also persists a <id>.json record beside its log;
@@ -49,12 +58,25 @@ API:
                           (pid-checked) so a server restart cannot orphan a
                           run or silently reopen the one-job-at-a-time gate.
                           An adopted job whose process is gone reports status
-                          "unknown" (its exit code is unrecoverable).
+                          "unknown" (its exit code is unrecoverable). Each job
+                          carries the `session` its command touches (derived
+                          from its own path args at spawn; backfilled from the
+                          cmd for records persisted before the field existed;
+                          null = rig-level setup) — the UI shows a session's
+                          page only that session's jobs plus rig-level ones,
+                          while the running indicator stays rig-wide (the
+                          one-job gate is rig-wide).
   POST /api/jobs/<id>/kill -> SIGTERM the job's process group (user action)
   POST /api/mount      -> {session, set, mount: fixed|tracked, dry_run?} —
                           the second sanctioned record write: the human
                           mount declaration into the set's acquisition.json
-                          (mount field only; exif stays tool-written)
+                          (mount field only; exif stays tool-written). The
+                          write triggers the set's fingerprint derivation
+                          (scripts/lib/fingerprint.refresh — a tool-sourced
+                          DERIVED record, idempotent, content-compare write)
+                          and the response carries the fresh mount verdict,
+                          so a declaration is cross-checked the moment it
+                          lands.
   POST /api/framing    -> write the tracked framing record for a product
                           (datasets/<session>/framing_<product>.json).
                           The UI captures a HUMAN decision; this endpoint
@@ -155,6 +177,19 @@ def sessions_inventory():
 CALIBRATION_DIRS = {"darks", "biases", "flats", "darkflats", "calib"}
 
 
+def set_kind(name):
+    """Staging-layout classification for a session dir. Fixed calibration
+    names, per-filter flat siblings (flats_<name> — the filter-wheel staging
+    shape the FITS stack path resolves by header identity), and the corpus
+    answer key (reference/ — README "Adding a dataset" step 0) are never
+    LIGHT sets; everything else is."""
+    if name in CALIBRATION_DIRS or name.startswith("flats_"):
+        return "calibration"
+    if name == "reference":
+        return "reference"
+    return "lights"
+
+
 def _read_json(path):
     try:
         with open(path) as f:
@@ -230,8 +265,17 @@ def _stack_header(path):
         return {"naxis": None, "stackcnt": None}
 
 
-def _parse_product(base):
-    """'set-01+02+03_cov25frame' -> (['set-01','set-02','set-03'], 'cov25frame')."""
+def _parse_product(base, known_sets=()):
+    """Resolve a stack product name against the session's ACTUAL sets:
+    '<set>' -> ([set], None); '<set>_<tag>' -> ([set], tag) on the longest
+    known-set prefix (so 'lights_Blue' is the set, never set 'lights' +
+    tag 'Blue'); the legacy compressed combo 'set-01+02+03_cov25frame' ->
+    (['set-01','set-02','set-03'], 'cov25frame'). Unresolvable -> ([], base)."""
+    for s in sorted(known_sets, key=len, reverse=True):
+        if base == s:
+            return [s], None
+        if base.startswith(s + "_"):
+            return [s], base[len(s) + 1:]
     m = re.match(r"^(set-\d+(?:\+\d+)*)_(.+)$", base)
     if not m:
         return [], base
@@ -282,9 +326,13 @@ def session_model(session):
                 continue
             qa = _read_json(os.path.join(sdir, "qa_work", "frame_metrics.json"))
             recipe = _read_json(os.path.join(sdir, "recipe.json"))
+            comp = _read_json(os.path.join(sdir, "composition.json"))
             entry = {
                 "set": name,
-                "kind": "calibration" if name in CALIBRATION_DIRS else "lights",
+                # a composition record marks a VIRTUAL composed target — no
+                # lights of its own; compose builds it from member stacks
+                "kind": "composed" if comp else set_kind(name),
+                "composition": comp,
                 "acquisition": _read_json(os.path.join(sdir, "acquisition.json")),
                 "recipe": (recipe or {}).get("stack"),
                 "anomaly": _anomaly_summary(_read_json(
@@ -323,8 +371,7 @@ def session_model(session):
                 known[name]["staged_frames"] = n_raw
                 continue
             entry = {"set": name,
-                     "kind": "calibration" if name in CALIBRATION_DIRS
-                     else "lights",
+                     "kind": set_kind(name),
                      "staged_only": True, "staged_frames": n_raw,
                      "acquisition": None, "frame_qa": None, "recipe": None,
                      "anomaly": None, "fingerprint": None, "experiments": [],
@@ -366,11 +413,21 @@ def session_model(session):
         prev = {i.get("product"): i for i in
                 (model["previews_manifest"] or {}).get("items", [])
                 if i.get("kind") == "selection"}
+        # judge surfaces pair to their stack product by NAME PREFIX — the
+        # surface class varies (_spcc-linked for colour, _lum-autostretch
+        # for mono), so no single class name may be hardcoded; a file pairs
+        # to the LONGEST matching base so a shorter product cannot steal it
+        judge_by_base = {}
+        for j in model["judge"]:
+            cands = [b for b in bases if j.startswith(b + "_")]
+            if cands:
+                judge_by_base.setdefault(max(cands, key=len), []).append(j)
         for base, variants in sorted(bases.items()):
-            sets, tag = _parse_product(base)
+            sets, tag = _parse_product(base, [s["set"] for s in model["sets"]])
             hdr = _stack_header(os.path.join(rroot, variants.get("base")
                                              or sorted(variants.values())[0]))
-            judge_name = f"{base}_spcc-linked.png"
+            jfiles = sorted(judge_by_base.get(base, []))
+            judge_name = jfiles[0] if jfiles else None
             kept = [kept_by_set.get(s) for s in sets]
             expected = sum(kept) if kept and all(k is not None for k in kept) \
                 else None
@@ -388,10 +445,9 @@ def session_model(session):
                 "files": variants, "naxis": hdr["naxis"],
                 "stackcnt": hdr["stackcnt"], "expected_kept": expected,
                 "confirm": confirm,
-                "judge": f"judge/{judge_name}"
-                if judge_name in model["judge"] else None,
+                "judge": f"judge/{judge_name}" if judge_name else None,
                 "thumb": f"previews/thumb_{judge_name}"
-                if os.path.exists(os.path.join(
+                if judge_name and os.path.exists(os.path.join(
                     rroot, "previews", f"thumb_{judge_name}")) else None,
                 "selection": {"preview": sel.get("preview"),
                               "native_wh": sel.get("native_wh"),
@@ -573,15 +629,20 @@ def _verify_framing_argv(a):
     return argv
 
 
-def _derive_set(stack_rel, explicit):
-    """The SPCC-routing set: explicit wins; else the stack name's first
-    member (the combine precedent — routing only affects the recipe spec
-    lookup and the K-factor record's name)."""
+def _derive_set(stack_rel, explicit, session=None):
+    """The SPCC-routing set: explicit wins; else the stack name resolves
+    against the session's ACTUAL sets (the combine precedent — routing only
+    affects the recipe spec lookup and the K-factor record's name), so a
+    composed product like stack_<target>_comp.fit routes by its target."""
     if explicit:
         return _arg_set(explicit)
     stem = os.path.basename(stack_rel)
     if stem.startswith("stack_") and stem.endswith(".fit"):
-        sets, _tag = _parse_product(stem[len("stack_"):-len(".fit")])
+        known = []
+        if session:
+            m = session_model(session)
+            known = [s["set"] for s in m["sets"]] if m else []
+        sets, _tag = _parse_product(stem[len("stack_"):-len(".fit")], known)
         if sets:
             return sets[0]
     raise ValueError("cannot derive the SPCC-routing set from the stack "
@@ -618,6 +679,16 @@ def _stage_registry():
             "build": lambda a: ["python3", "scripts/qa/anomaly_audit.py",
                                 P("sessions", _arg_session(a["session"]), _arg_set(a["set"]))],
         },
+        "mount_probe": {
+            "desc": "two-window mount drift probe: solve the set's first + last frames (Siril green-extract for camera raws), record qa_work/mount_probe.json, fingerprint derives the drift verdict — the instrument that can decisively measure FIXED; runs inside the chain preflight when roundness cannot decide, or standalone here",
+            "phase": "measure",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+            ],
+            "build": lambda a: ["scripts/qa/mount_probe.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])],
+        },
         "master_dark": {
             "desc": "session master dark from raw darks/ (pinned Siril template: rej 3 3 stack, -nonorm) -> work/masters/dark_master.fit",
             "phase": "calibrate",
@@ -635,7 +706,7 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters", "hint": "master dark under work/masters/"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark", "hint": "master dark under work/masters/"},
             ],
             "build": lambda a: ["scripts/stack/build_sky_flat.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
@@ -659,8 +730,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
-                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "frames", "kind": "int", "req": False, "hint": "even-stride subset preserving the time span"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_pipeline.sh",
@@ -675,8 +746,8 @@ def _stage_registry():
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
-                {"name": "dark", "kind": "path", "req": True, "choices": "masters"},
-                {"name": "flat", "kind": "path", "req": True, "choices": "masters"},
+                {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark"},
+                {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "group", "kind": "int", "req": False, "hint": "frames per group (default 15)"},
             ],
             "build": lambda a: ["scripts/stack/run_undistort_groups.sh",
@@ -684,6 +755,29 @@ def _stage_registry():
                                 "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
                                 "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
             + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []),
+        },
+        "chain_set": {
+            "desc": "ONE CLICK, whole durable core for a set (ratified chain amendment): preflight (mount + fingerprint gates) -> frame QA -> route-by-fingerprint stack -> solve -> SPCC -> diagnostic judge surface. Stops wherever a decision is the user's (CONTRADICT, QA flags without a ratified cull, unroutable); built products skip so a re-click resumes. plan=true prints the derived route + exact commands and runs nothing",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "plan", "kind": "bool", "req": False, "hint": "print the derived plan (route, gates, commands) without executing"},
+            ],
+            "build": lambda a: ["scripts/stack/run_set_chain.sh",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"])]
+            + (["--plan"] if a.get("plan") else []),
+        },
+        "chain_session": {
+            "desc": "the SESSION button: the set chain over every staged light set in name order, stopping at the first user-decision gate; re-click resumes where it stopped (built products skip)",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "plan", "kind": "bool", "req": False, "hint": "print every set's plan without executing"},
+            ],
+            "build": lambda a: ["scripts/stack/run_session_chain.sh",
+                                P("sessions", _arg_session(a["session"]))]
+            + (["--plan"] if a.get("plan") else []),
         },
         "compose": {
             "desc": "compose already-built group sub-stacks across sets into one stack (register -2pass -> plain mean; valid post-undistort — homographies compose). framing=min keeps the all-members overlap, max the union",
@@ -701,6 +795,18 @@ def _stage_registry():
                 _arg_session(a["session"]),
                 _sets_list(_arg_session(a["session"]), a["sets"]),
                 _arg_framing(a.get("framing"))),
+        },
+        "compose_channels": {
+            "desc": "multi-channel target: member per-filter/per-line stacks -> ONE composed linear colour stack per its composition.json (mono-filters members are Siril-aligned to the reference member first)",
+            "phase": "execute",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "target", "kind": "str", "req": True, "choices": "composed",
+                 "hint": "composed target (datasets/<session>/<target>/composition.json)"},
+            ],
+            "build": lambda a: ["python3", "scripts/stack/compose.py",
+                                P("sessions", _arg_session(a["session"])),
+                                _arg_set(a["target"])],
         },
         "coverage_probe": {
             "desc": "per-pixel coverage map of a compose (constant twins through the stored registration; value/1000 = covering members; members*1000 must stay <= 65535)",
@@ -779,7 +885,9 @@ def _stage_registry():
                                              + ("framed" if a.get("crop_record") else "")),
                                       "name"),
                                 "--session=" + P("sessions", _arg_session(a["session"])),
-                                "--set=" + _derive_set(stack, a.get("set"))]
+                                "--set=" + _derive_set(
+                                    stack, a.get("set"),
+                                    _arg_session(a["session"]))]
             + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
                else (["--central=0.35"] if _parse_product(
                    os.path.basename(stack)[len("stack_"):-len(".fit")])[1]
@@ -831,9 +939,195 @@ def _stage_registry():
 
 STAGES = _stage_registry()
 
+# Structured per-stage documentation for the Run page (BACKLOG item 17):
+# `summary` is the card's one-liner; `detail` feeds the expandable process
+# panel (exact commands, the gates that stop and who resolves them, where
+# records land) so the explanation lives beside the command definition and
+# cannot drift into hand-maintained HTML; `automated` marks the chain cards
+# the page surfaces first.
+_STAGE_DOCS = {
+    "chain_session": {
+        "automated": True,
+        "summary": "THE session button: every light set through the whole durable core, one click",
+        "detail": {
+            "process": ["per set, in name order: run_set_chain.sh",
+                        "preflight (acquisition facts + fingerprint cross-check)",
+                        "frame QA (skips if measured)", "auto-cull flagged frames (standing policy)",
+                        "master dark + per-set sky flat (as needed)",
+                        "route-by-fingerprint stack (undistort single-pass vs groups by disk)",
+                        "solve -> SPCC (+ Gaia cone fetch) -> judge PNG16",
+                        "decisions summary at the end"],
+            "gates": ["mount undeclared -> measures first, stops for your accept",
+                      "declared-vs-measured CONTRADICT -> stops",
+                      "unroutable fingerprint -> stops",
+                      "real flats staged on the undistort route -> stops (manual flat)",
+                      "sky-flat validation failure -> stops"],
+            "records": ["datasets/<session>/<set>/ (acquisition, fingerprint, frame_metrics, recipe culls)",
+                        "web/results/<session>/ (stacks, wcs/spcc, judge/)",
+                        "sessions/.webjobs/ (the run log)"],
+        },
+    },
+    "chain_set": {
+        "automated": True,
+        "summary": "the same full chain for ONE set — first runs and re-runs alike (built products skip)",
+        "detail": {
+            "process": ["preflight (facts + fingerprint)", "frame QA if missing",
+                        "auto-cull flagged frames (standing policy)",
+                        "masters as needed", "route-by-fingerprint stack",
+                        "solve -> SPCC -> judge PNG16"],
+            "gates": ["mount undeclared -> measures, stops for your accept",
+                      "CONTRADICT / unroutable / unresolved flat -> stops"],
+            "records": ["datasets/<session>/<set>/", "web/results/<session>/"],
+        },
+    },
+    "frame_qa": {
+        "summary": "measure every frame (Siril register regdata): FWHM, roundness, background, stars",
+        "detail": {
+            "process": ["raw/FITS -> register -2pass in disk-bounded batches",
+                        "per-frame metrics pooled -> frame_metrics.json",
+                        "defect-side z flags reported", "fingerprint refresh"],
+            "gates": ["none — measurement never stops the rig"],
+            "records": ["datasets/<session>/<set>/qa_work/"]},
+    },
+    "mount_probe": {
+        "summary": "two-window drift solve: measures fixed-vs-tracked from the sky itself",
+        "detail": {
+            "process": ["first + last frame (Siril green-extract for raws)",
+                        "two blind solves -> RA rate vs sidereal",
+                        "fingerprint verdict"],
+            "gates": ["exit 2 on declared-vs-measured CONTRADICT"],
+            "records": ["qa_work/mount_probe.json", "fingerprint.json"]},
+    },
+    "anomaly_audit": {
+        "summary": "aircraft / satellite / unknown crossings, classified per frame",
+        "detail": {
+            "process": ["Siril decode + green-extract + subsky + findstar per frame",
+                        "streak geometry + cross-frame linking (the sanctioned gap-filler)"],
+            "gates": ["requires a declared FIXED mount (tracked sets read na)"],
+            "records": ["audit_work/anomaly_audit.json"]},
+    },
+    "master_dark": {
+        "summary": "session master dark from darks/ (rejection stack, -nonorm)",
+        "detail": {
+            "process": ["convert darks -> stack rej 3 3 -nonorm"],
+            "gates": ["existing master stops (re-run with force)"],
+            "records": ["<session>/work/masters/dark_master.fit"]},
+    },
+    "sky_flat": {
+        "summary": "PER-SET sky flat for a flatless set (the ratified per-set-flat rule)",
+        "detail": {
+            "process": ["the set's own un-registered lights, dark-subtracted",
+                        "winsorized flat stack + validation gates"],
+            "gates": ["validation failure stops (regional stat / speck count)"],
+            "records": ["<session>/work/masters/skyflat_<set>.fit + qa record"]},
+    },
+    "stack_standard": {
+        "summary": "tracked class: calibrate -> register -> rejection stack",
+        "detail": {
+            "process": ["run_pipeline.sh (masters resolved internally; recipe culls honored)"],
+            "gates": ["flatless set hard-stops demanding a flat"],
+            "records": ["web/results/<session>/stack_<set>.fit"]},
+    },
+    "stack_undistort": {
+        "summary": "wide-untracked class, single pass: calibrate -> undistort -> register -> stack",
+        "detail": {
+            "process": ["lens preflight proves the model", "calibrate in sensor space",
+                        "darktable lens warp", "register -2pass -> rejection stack"],
+            "gates": ["mixed/unmatched optics stop", "~231 MB/frame disk peak"],
+            "records": ["web/results/<session>/stack_<set>.fit"]},
+    },
+    "stack_undistort_groups": {
+        "summary": "same class on tight disk: balanced groups -> per-group stacks -> compose",
+        "detail": {
+            "process": ["full chain per group, intermediates cleaned",
+                        "sub-stacks register + plain-mean compose"],
+            "gates": ["same as single-pass; groups kept for re-composition"],
+            "records": ["web/results/<session>/stack_<set>_full.fit", "work/groups_<set>/"]},
+    },
+    "compose": {
+        "summary": "compose group sub-stacks across sets into one deep stack",
+        "detail": {
+            "process": ["register -2pass -> plain mean (rejection across sub-stacks is a dead end)"],
+            "gates": ["valid post-undistort only"],
+            "records": ["web/results/<session>/stack_<sets>_<framing>.fit"]},
+    },
+    "compose_channels": {
+        "summary": "multi-filter target: member stacks -> one composed colour stack (rgbcomp)",
+        "detail": {
+            "process": ["members align to the composition's reference", "Siril rgbcomp composes"],
+            "gates": ["header-only guards (float32 / mono / geometry agreement)"],
+            "records": ["web/results/<session>/stack_<target>_comp.fit"]},
+    },
+    "coverage_probe": {
+        "summary": "per-pixel coverage map of a compose (the framing instrument)",
+        "detail": {
+            "process": ["constant twins through the stored transforms -> stack sum"],
+            "gates": ["members*1000 must fit 16 bits (<=65 members)"],
+            "records": ["web/results/<session>/coverage_*.fit"]},
+    },
+    "solve": {
+        "summary": "blind astrometric solve + WCS inject (unblocks SPCC)",
+        "detail": {
+            "process": ["sep extraction -> astrometry.net, cached index tiers first"],
+            "gates": ["union canvases default --central=0.35 (seam guard)"],
+            "records": ["web/results/<session>/stack_*_wcs.fit + solve record"]},
+    },
+    "spcc_cone": {
+        "summary": "local Gaia chunk coverage for a solved field (--fetch downloads)",
+        "detail": {
+            "process": ["nside=2 cover from the WCS -> md5-verified chunk fetch"],
+            "gates": ["none"],
+            "records": ["~/.local/share/siril/siril_catalogues/spcc/"]},
+    },
+    "spcc": {
+        "summary": "Siril SPCC colour calibration; K factors captured",
+        "detail": {
+            "process": ["spcc on the solved stack (recipe spec or sensor-null default)"],
+            "gates": ["mono stacks refuse (no colour to calibrate)"],
+            "records": ["<session>/work/spcc_<set>*.json + stack_*_spcc.fit"]},
+    },
+    "finish_render": {
+        "summary": "stack -> solve -> SPCC -> linked autostretch -> judge PNG16",
+        "detail": {
+            "process": ["solve", "cone fetch", "SPCC (mono skips: luminance finish)",
+                        "linked autostretch -> 16-bit PNG"],
+            "gates": ["refuses unverified framing records and overwriting built stacks"],
+            "records": ["web/results/<session>/judge/"]},
+    },
+    "previews": {
+        "summary": "Siril-made navigation previews + manifest (never judgment surfaces)",
+        "detail": {
+            "process": ["tool-made thumbs, selection surfaces, coverage veils"],
+            "gates": ["none"],
+            "records": ["web/results/<session>/previews/"]},
+    },
+    "install_lens_model": {
+        "summary": "install the fitted lens entry into the machine-local lensfun DB (distortion-only)",
+        "detail": {
+            "process": ["fitted entry replaces the community line; vignetting/tca stripped"],
+            "gates": ["stops loudly on upstream DB drift"],
+            "records": ["machine-local lensfun user DB (re-run per rig + DB update)"]},
+    },
+    "install_styles": {
+        "summary": "install the pinned darktable styles into a config dir (verification)",
+        "detail": {
+            "process": ["headless style install via a real export job"],
+            "gates": ["none"],
+            "records": ["<session>/work/dtcfg"]},
+    },
+    "verify_framing": {
+        "summary": "Siril crop+stat verification of a drawn framing record",
+        "detail": {
+            "process": ["coverage-map mode (Min >= members) or sibling-class sky floor"],
+            "gates": ["a render refuses unverified records — this is the stamp"],
+            "records": ["datasets/<session>/framing_<product>.json (status)"]},
+    },
+}
+
 
 def stages_public():
-    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"]}
+    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"],
+                   **_STAGE_DOCS.get(name, {})}
             for name, s in STAGES.items()}
 
 
@@ -849,6 +1143,15 @@ def path_choices(session):
     return {
         "masters": [f"sessions/{session}/work/masters/{f}"
                     for f in ls(mdir, lambda f: f.endswith(".fit"))],
+        # class-split master lists so a --dark box never suggests a flat or
+        # bias master and vice versa (bias_master is internal to the flat
+        # build — no stage takes it, so no list offers it)
+        "masters_dark": [f"sessions/{session}/work/masters/{f}"
+                         for f in ls(mdir, lambda f: f.endswith(".fit")
+                                     and f.startswith("dark"))],
+        "masters_flat": [f"sessions/{session}/work/masters/{f}"
+                         for f in ls(mdir, lambda f: f.endswith(".fit")
+                                     and f.startswith(("flat", "skyflat")))],
         "stacks": [f"web/results/{session}/{f}"
                    for f in ls(rdir, lambda f: f.startswith("stack_")
                                and f.endswith(".fit")
@@ -878,6 +1181,14 @@ def path_choices(session):
              else [])
             if d.startswith("groups_") and os.path.isdir(
                 os.path.join(REPO, "sessions", session, "work", d))),
+        # composed virtual targets — set dirs under datasets/ carrying a
+        # composition.json (the channel compose's unit)
+        "composed": sorted(
+            d for d in
+            (os.listdir(os.path.join(REPO, "datasets", session))
+             if os.path.isdir(os.path.join(REPO, "datasets", session)) else [])
+            if os.path.exists(os.path.join(
+                REPO, "datasets", session, d, "composition.json"))),
     }
 
 
@@ -978,13 +1289,20 @@ def stage_status(session):
     with JOBS_LOCK:
         for j in JOBS.values():
             st = _job_refresh(j)
+            # another session's runs must not color THIS session's chips —
+            # only this session's jobs (and rig-level sessionless ones)
+            # overlay; product evidence stays the primary state either way
+            if st.get("session") and st["session"] != session:
+                continue
             prev = jobs.get(st["stage"])
             if st["status"] == "running" or prev is None:
                 jobs[st["stage"]] = st["status"]
-    masters = path_choices(session)["masters"]
+    choices = path_choices(session)
+    masters = choices["masters"]
     have_dark = any(p.endswith("dark_master.fit") for p in masters)
     darks_staged = any(s["set"] == "darks" for s in m["sets"])
-    flats_staged = any(s["set"] in ("flats", "calib") for s in m["sets"])
+    flats_staged = any(s["set"] in ("flats", "calib")
+                       or s["set"].startswith("flats_") for s in m["sets"])
     per_set_stacks = {s["set"]: [su for su in m["surfaces"]
                                  if su["sets"] == [s["set"]]] for s in lights}
 
@@ -994,7 +1312,7 @@ def stage_status(session):
         if jobs.get(name) == "running":
             state, why = "running", "job running now"
         elif state == "todo" and jobs.get(name) == "done":
-            state, why = "done", "completed via a run this server session"
+            state, why = "done", "a recorded run of this session completed it"
         out[name] = {"state": state, "why": why}
 
     def missing(pred):
@@ -1010,9 +1328,17 @@ def stage_status(session):
         "frame_metrics.json on every light set" if not miss
         else f"missing for: {', '.join(miss)}")
     miss = missing(lambda s: s.get("anomaly"))
-    put("anomaly_audit", "done" if not miss else "todo",
-        "anomaly_audit.json on every light set" if not miss
-        else f"missing for: {', '.join(miss)}")
+    all_tracked = bool(lights) and all(
+        ((s.get("acquisition") or {}).get("mount")) == "tracked"
+        for s in lights)
+    if miss and all_tracked:
+        put("anomaly_audit", "na",
+            "cross-frame linking assumes a FIXED mount by design "
+            "(anomaly_audit.py contract); every light set declares tracked")
+    else:
+        put("anomaly_audit", "done" if not miss else "todo",
+            "anomaly_audit.json on every light set" if not miss
+            else f"missing for: {', '.join(miss)}")
     if have_dark:
         put("master_dark", "done", "work/masters/dark_master.fit on disk")
     elif darks_staged:
@@ -1034,11 +1360,39 @@ def stage_status(session):
            else f"no stack yet for: {', '.join(miss)}")
     for name in ("stack_standard", "stack_undistort", "stack_undistort_groups"):
         put(name, *fam)
-    have_stacks = [su for stacks in per_set_stacks.values() for su in stacks]
+    nodrift = [s["set"] for s in lights
+               if not ((s.get("fingerprint") or {}).get("inter_frame_drift"))]
+    put("mount_probe", "done" if not nodrift else "na",
+        "drift measured on every light set" if not nodrift
+        else ("optional — the chain preflight runs it when roundness cannot "
+              f"decide an undeclared mount (no drift yet: {', '.join(nodrift)})"))
+    miss = [s["set"] for s in lights
+            if not any(su.get("judge") for su in per_set_stacks[s["set"]])]
+    chain = ("done" if not miss else "todo",
+             "every light set carries a judge surface" if not miss
+             else ("awaiting: " + ", ".join(miss) + " — one click runs "
+                   "preflight -> QA -> stack -> SPCC -> judge (gates stop "
+                   "for your decisions)"))
+    put("chain_set", *chain)
+    put("chain_session", *chain)
+    composed = [s for s in m["sets"] if s.get("kind") == "composed"]
+    if composed:
+        # the astrometric/photometric chain applies to the COMPOSED colour
+        # product; mono member stacks skip SPCC (README: a mono set has no
+        # colour to calibrate)
+        have_stacks = [su for su in m["surfaces"]
+                       if any(su["product"] == c["set"]
+                              or su["product"].startswith(f"{c['set']}_")
+                              for c in composed)]
+        none_why = "waiting on the composed stack (mono member stacks skip SPCC)"
+    else:
+        have_stacks = [su for stacks in per_set_stacks.values()
+                       for su in stacks]
+        none_why = "no stacks to solve yet"
     if not have_stacks:
-        put("solve", "todo", "no stacks to solve yet")
-        put("spcc", "todo", "no stacks yet")
-        put("finish_render", "todo", "no stacks yet")
+        put("solve", "todo", none_why)
+        put("spcc", "todo", none_why)
+        put("finish_render", "todo", none_why)
     else:
         nowcs = [su["product"] for su in have_stacks if not su["files"].get("wcs")]
         put("solve", "done" if not nowcs else "todo",
@@ -1056,11 +1410,43 @@ def stage_status(session):
     put("spcc_cone", "na", "coverage check for a new field — run before "
                            "SPCC when the sky region changes")
     multi = [su for su in m["surfaces"] if len(su["sets"]) > 1]
-    put("compose", "done" if multi else
-        ("todo" if not miss else "na"),
-        f"combine(s) on disk: {', '.join(su['product'] for su in multi)}"
-        if multi else ("per-set stacks ready to compose" if not miss
-                       else "waiting on per-set stacks"))
+    if multi:
+        put("compose", "done",
+            f"combine(s) on disk: {', '.join(su['product'] for su in multi)}")
+    elif not choices["groupsets"]:
+        put("compose", "na",
+            "no group sub-stacks — this compose is the undistort-groups "
+            "route's cross-set combine; a multi-filter target composes via "
+            "compose_channels")
+    else:
+        put("compose", "todo" if not miss else "na",
+            "group sub-stacks ready to compose" if not miss
+            else "waiting on per-set stacks")
+
+    comp_built, comp_ready, comp_wait = [], [], []
+    for c in composed:
+        members = list((((c.get("composition") or {}).get("members"))
+                        or {}).values())
+        if os.path.exists(os.path.join(REPO, "web", "results", session,
+                                       f"stack_{c['set']}_comp.fit")):
+            comp_built.append(c["set"])
+        elif members and all(per_set_stacks.get(mn) for mn in members):
+            comp_ready.append(c["set"])
+        else:
+            comp_wait.append(c["set"])
+    if not composed:
+        put("compose_channels", "na",
+            "no composition record — single-stack session")
+    elif comp_ready or comp_wait:
+        put("compose_channels", "todo",
+            (f"member stacks ready — compose: {', '.join(comp_ready)}"
+             if comp_ready else "")
+            + ("; " if comp_ready and comp_wait else "")
+            + (f"waiting on member stacks for: {', '.join(comp_wait)}"
+               if comp_wait else ""))
+    else:
+        put("compose_channels", "done",
+            f"composed stack(s) on disk: {', '.join(comp_built)}")
     put("coverage_probe", "done" if m.get("coverage_maps") else
         ("todo" if multi else "na"),
         f"map(s) on disk: {', '.join(c['file'] for c in m['coverage_maps'])}"
@@ -1081,6 +1467,85 @@ def stage_status(session):
     return out
 
 
+def _fingerprint_refresh(session, set_name):
+    """Re-derive a set's fingerprint from its tracked records (idempotent —
+    scripts/lib/fingerprint.refresh writes only on content change). The
+    automatic seeding hook (BACKLOG item 1c): the mount declaration and the
+    run gate both call it, so the record exists and stays current without
+    anyone asking. Best-effort: a set with no acquisition record yet, or a
+    failed derivation, returns None and the caller reads whatever record is
+    on disk."""
+    lib = os.path.join(REPO, "scripts", "lib")
+    if lib not in sys.path:
+        sys.path.insert(0, lib)
+    try:
+        import fingerprint as _fp
+        return _fp.refresh(os.path.join(REPO, "sessions", session), set_name)
+    except Exception:
+        return None
+
+
+def _mount_gate_sets(stage, args):
+    """The (session, light-set) pairs an output-shaping run would build on —
+    the CONTRADICT gate's scope. Measure/surfaces/setup stages return [] by
+    design: measurement is how a contradiction gets resolved, so it must stay
+    runnable. Composed targets expand to their composition members (the sets
+    whose frames the member stacks came from)."""
+    if STAGES[stage]["phase"] not in ("calibrate", "execute", "finish"):
+        return []
+    a = args or {}
+    if not a.get("session"):
+        return []
+    session = _arg_session(a["session"])
+    names = []
+    if a.get("set"):
+        names.append(_arg_set(a["set"]))
+    if a.get("sets"):
+        names.extend(_sets_list(session, a["sets"]))
+    if a.get("target"):
+        comp = _read_json(os.path.join(REPO, "datasets", session,
+                                       _arg_set(a["target"]),
+                                       "composition.json")) or {}
+        names.extend(v for v in (comp.get("members") or {}).values()
+                     if isinstance(v, str))
+    return [(session, n) for n in dict.fromkeys(names)]
+
+
+def _mount_contradict_block(stage, args):
+    """Refuse an output-shaping run for a set whose fingerprint measures the
+    sky CONTRADICTING its declared mount (a labelling error — BACKLOG item 1:
+    consumers STOP on CONTRADICT). Refreshes each candidate first so the gate
+    never waits for a derivation to be asked for, then reads the record on
+    disk (refresh is best-effort). Returns the refusal reason, or None."""
+    for session, set_name in _mount_gate_sets(stage, args):
+        _fingerprint_refresh(session, set_name)
+        fp = _read_json(os.path.join(REPO, "datasets", session, set_name,
+                                     "fingerprint.json")) or {}
+        mc = fp.get("mount_check") or {}
+        if mc.get("verdict") == "CONTRADICT":
+            return (f"{session}/{set_name}: declared-vs-measured mount "
+                    f"CONTRADICT — {mc.get('reason', '(no reason recorded)')} "
+                    "Fix the declaration on the set page (or re-measure); "
+                    "output-shaping runs stay blocked until reconciled.")
+    return None
+
+
+def _session_from_parts(parts):
+    """The session a command touches, read from its own path arguments —
+    the first sessions/<name>, web/results/<name> or datasets/<name>
+    component. None for a rig-level (setup) command that names no session.
+    Used to stamp jobs at spawn AND to backfill records persisted before
+    jobs carried a session, so per-session job views stay complete."""
+    for p in parts:
+        for pat in (r"(?:^|=)sessions/([^/]+)(?:/|$)",
+                    r"(?:^|=)web/results/([^/]+)(?:/|$)",
+                    r"(?:^|=)datasets/([^/]+)(?:/|$)"):
+            m = re.search(pat, p)
+            if m and m.group(1) not in (".webjobs",):
+                return m.group(1)
+    return None
+
+
 def start_job(stage, args, dry_run=False):
     if stage not in STAGES:
         raise ValueError(f"unknown stage: {stage}")
@@ -1088,6 +1553,9 @@ def start_job(stage, args, dry_run=False):
     cmd = " ".join(shlex.quote(c) for c in argv)
     if dry_run:
         return {"dry_run": True, "stage": stage, "cmd": cmd}
+    blocked = _mount_contradict_block(stage, args)
+    if blocked:
+        raise RuntimeError(blocked)
     with JOBS_LOCK:
         running = [j for j in JOBS.values() if j["status"] == "running"]
         if running:
@@ -1103,7 +1571,12 @@ def start_job(stage, args, dry_run=False):
         proc = subprocess.Popen(argv, cwd=REPO, stdout=log_f,
                                 stderr=subprocess.STDOUT,
                                 start_new_session=True)
+        try:                       # a stage's own session arg is authoritative
+            ses = _safe(str((args or {})["session"]), "session")
+        except (KeyError, ValueError):
+            ses = _session_from_parts(argv)   # else read the command's paths
         JOBS[jid] = {"id": jid, "stage": stage, "cmd": cmd,
+                     "session": ses,
                      "status": "running", "rc": None, "pid": proc.pid,
                      "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                      "ended": None, "log": os.path.relpath(log_path, REPO),
@@ -1190,6 +1663,15 @@ def _load_jobs():
         names = sorted(os.listdir(WEBJOBS_DIR))
     except OSError:
         return
+    known_sessions = set()
+    for root in ("datasets", os.path.join("web", "results"), "sessions"):
+        try:
+            known_sessions.update(
+                d for d in os.listdir(os.path.join(REPO, root))
+                if not d.startswith(".")
+                and os.path.isdir(os.path.join(REPO, root, d)))
+        except OSError:
+            pass
     for n in names:
         if not (n.startswith("j") and n.endswith(".json")):
             continue
@@ -1197,6 +1679,13 @@ def _load_jobs():
         if not rec or not isinstance(rec, dict) or "id" not in rec:
             continue
         j = dict(rec)
+        if "session" not in j:      # records persisted before jobs carried one
+            try:
+                parts = shlex.split(j.get("cmd") or "")
+            except ValueError:
+                parts = []
+            j["session"] = _session_from_parts(parts) \
+                or next((p for p in parts if p in known_sessions), None)
         if j.get("status") == "running":
             j["_adopted"] = True
         JOBS[j["id"]] = j
@@ -1322,6 +1811,14 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header("Location", "/web/index.html")
             self.end_headers()
             return
+        if self.path == "/favicon.ico":
+            # no icon shipped; 204 answers the browser's automatic probe
+            # without a 404 (and without the error-body write a hung-up
+            # client turns into a BrokenPipe traceback)
+            self.send_response(204)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if self.path == "/api/sessions":
             return self._json(200, sessions_inventory())
         if self.path.startswith("/api/session/"):
@@ -1399,8 +1896,18 @@ class Handler(SimpleHTTPRequestHandler):
                 with open(path, "w") as f:
                     json.dump(record, f, indent=1)
                     f.write("\n")
+                # the declaration just landed -> derive its cross-check now
+                # (BACKLOG item 1c: the fingerprint never waits to be asked)
+                fp = _fingerprint_refresh(_arg_session(payload["session"]),
+                                          _safe(payload["set"], "set"))
+                mc = (fp or {}).get("mount_check") or {}
                 return self._json(200, {"written": os.path.relpath(path, REPO),
-                                        "record": record})
+                                        "record": record,
+                                        "fingerprint": {
+                                            "label": fp.get("label"),
+                                            "verdict": mc.get("verdict"),
+                                            "reason": mc.get("reason")}
+                                        if fp else None})
             except (KeyError, ValueError, TypeError) as e:
                 return self._json(400, {"error": str(e)})
         if self.path != "/api/framing":
@@ -1422,12 +1929,25 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": str(e)})
 
 
+class Server(ThreadingHTTPServer):
+    def handle_error(self, request, client_address):
+        # A client closing its socket mid-response (tab closed, favicon
+        # probe abandoned) surfaces as BrokenPipe/ConnectionReset in the
+        # handler thread — client behavior, not a server fault. Suppress
+        # only those; every other error stays loud.
+        exc = sys.exc_info()[0]
+        if exc is not None and issubclass(exc, (BrokenPipeError,
+                                                ConnectionResetError)):
+            return
+        super().handle_error(request, client_address)
+
+
 def main():
     port = 8321
     for a in sys.argv[1:]:
         if a.startswith("--port="):
             port = int(a.split("=", 1)[1])
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    srv = Server(("127.0.0.1", port), Handler)
     print(f"[serve] http://127.0.0.1:{port}/web/index.html  (root: {REPO})")
     print("[serve] local-only; Ctrl-C to stop")
     try:

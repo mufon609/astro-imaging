@@ -34,10 +34,11 @@
 # record (same stages); the generalized artifact itself has not yet run end to
 # end — its first as-written run is the next set's prep on the x86 rig.
 #
-# The CULL DECISION stays with the user: this reports. The per-set policy
-# (aircraft out, flagged session-edge frames out, frame-wide degradation out,
-# satellites listed not culled) is applied against this record + the anomaly
-# audit, and the ratified list goes to recipe.json's stack block with reasons.
+# This REPORTS; the cull applies per the STANDING USER POLICY: flagged
+# defect-side frames exclude like any obstruction (the chain writes
+# recipe.json's stack block with the flags as the why and reports the
+# decision at the end); a hand-ratified stack block is never overwritten
+# and always wins. cull_report itself stays WARN-only.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
@@ -52,11 +53,20 @@ Q=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$Q/frameqa
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
 
+# lights class: camera raws, or dedicated-astrocam FITS (registered as-is —
+# a mono FITS set measures true, non-CFA FWHM; an OSC-FITS set re-decides
+# its sampling per the removal-condition register before relying on absolutes)
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+MODE=raw
+if [ ${#SRC[@]} -eq 0 ]; then
+  mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+    \( -iname '*.fit' -o -iname '*.fits' \) | sort)
+  MODE=fits
+fi
 n=${#SRC[@]}
-[ "$n" -ge 8 ] || { echo "run_frame_qa: only $n raw frames under $SESSION/$SET" >&2; exit 1; }
+[ "$n" -ge 8 ] || { echo "run_frame_qa: only $n light frames (raw or FITS) under $SESSION/$SET" >&2; exit 1; }
 if [ $((n % BATCH)) -eq 1 ]; then
   BATCH=$((BATCH - 1))
   echo "run_frame_qa: batch shrunk to $BATCH (a final batch of 1 cannot be sequenced)"
@@ -67,39 +77,43 @@ echo "run_frame_qa: $n frames in $(( (n + BATCH - 1) / BATCH )) batches of $BATC
 i=0; b=0
 while [ $i -lt $n ]; do
   b=$((b+1))
-  W=$P/b$b; mkdir -p "$W/nef"
+  W=$P/b$b; mkdir -p "$W/src"
   batch_files=()
   for ((k=0; k<BATCH && i<n; k++, i++)); do
-    ln -sf "${SRC[$i]}" "$W/nef/$(basename "${SRC[$i]}")"
+    ln -sf "${SRC[$i]}" "$W/src/$(basename "${SRC[$i]}")"
     batch_files+=("$(basename "${SRC[$i]}")")
   done
   printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
   printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
-    "$W/nef" "$W" "$W" > "$W/r.ssf"
+    "$W/src" "$W" "$W" > "$W/r.ssf"
   sir "$W" "$W/r.ssf"
   reg=$(grep -c '^R0' "$W/c_.seq" || true)
   [ "$reg" -gt 0 ] || reg=$(grep -c '^R1' "$W/c_.seq" || true)
   tot=$(ls "$W"/c_*.fit 2>/dev/null | wc -l)
   python3 "$REPO/scripts/qa/inspect_stage.py" reg --dir "$P" --seq "$W/c_.seq" \
     --registered "$reg" --total "$tot" --label "batch$b"
-  rm -f "$W"/c_*.fit "$W"/*.seq; rm -rf "$W/nef"
+  rm -f "$W"/c_*.fit "$W"/*.seq; rm -rf "$W/src"
   echo "batch $b done ($i/$n)  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
 done
 
-python3 - "$P" "$Q/frame_metrics.json" "$Z" <<'PY'
-import glob, json, os, statistics as st, sys
-P, OUT, Z = sys.argv[1], sys.argv[2], float(sys.argv[3])
+python3 - "$P" "$Q/frame_metrics.json" "$Z" "$MODE" <<'PY'
+import json, os, re, statistics as st, sys
+P, OUT, Z, MODE = sys.argv[1], sys.argv[2], float(sys.argv[3]), sys.argv[4]
 
 entries = [json.loads(l) for l in open(f"{P}/metrics.jsonl")]
 flat = []
 for e in entries:
     b = int(e["label"].replace("batch", ""))
-    names = open(f"{P}/b{b}/files.txt").read().split()
+    # one name per LINE (never .split(): filenames may contain spaces)
+    names = [l for l in open(f"{P}/b{b}/files.txt").read().splitlines() if l]
     for r in e["frames"]:
         fname = names[r["n"] - 1]
-        digits = "".join(c for c in os.path.splitext(fname)[0] if c.isdigit())
+        # trailing digit run = the capture index (timeline() convention);
+        # concatenating every digit invents a number on names like
+        # "m20 1x1 Blue 0080-2"
+        runs = re.findall(r"\d+", os.path.splitext(fname)[0])
         flat.append({"n": len(flat) + 1, "file": fname,
-                     "frame_number": int(digits) if digits else None,
+                     "frame_number": int(runs[-1]) if runs else None,
                      "fwhm": r["fwhm_px"], "wfwhm": r["wfwhm_px"], "round": r["round"],
                      "bg": r["bg16"], "nstars": r["nstars"],
                      "registered": bool(r["incl"]), "ref_copy": False,
@@ -133,15 +147,21 @@ for r in flat:
                         **{k: r[k] for k in side}})
 
 scale = entries[0].get("pixel_scale_arcsec")
+method = ("raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
+          "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
+          "caveat: absolute FWHM Bayer-inflated, relative comparison only."
+          if MODE == "raw" else
+          "FITS lights (as-recorded) -> register -2pass in batches; per-frame "
+          "FWHM/roundness/background/#stars pooled (reference-independent). "
+          "Mono frames measure true, non-CFA FWHM.")
 rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; "
                "flagged at defect-side robust z >= %g (scripts/qa/cull_report.py rule)" % Z,
-       "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
-                 "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
-                 "caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+       "method": method,
        "frames_total": len(flat),
        "registered": sum(r["registered"] for r in flat),
        "match_failed": sum(not r["registered"] for r in flat),
-       "pixel_scale_arcsec_cfa": scale,
+       ("pixel_scale_arcsec_cfa" if MODE == "raw"
+        else "pixel_scale_arcsec"): scale,
        "distribution": {
         "fwhm_px": {"median": med("fwhm"), "min": mn("fwhm"), "max": mx("fwhm")},
         "roundness": {"median": med("round"), "min": mn("round"), "max": mx("round")},
@@ -149,12 +169,39 @@ rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_sta
         "bg16": {"median": int(med("bg")), "min": int(mn("bg")), "max": int(mx("bg"))}},
        "temporal_trend_contiguous_blocks": blocks,
        "flagged_defect_side_z": flagged,
-       "cull_note": "decision is the user's, against this record + the anomaly audit, "
-                    "recorded in recipe.json stack.exclude with reasons (per-set policy: "
-                    "BACKLOG item 3)"}
+       "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames "
+                    "auto-cull in chain runs (recipe.json stack.exclude, written with "
+                    "the flags as the why, reported at the end); a hand-ratified "
+                    "stack block is never overwritten and always wins"}
 json.dump(rec, open(OUT, "w"), indent=1)
 print(f"wrote {OUT}  ({len(flagged)} flagged frame(s))")
 PY
 python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" | tee "$P/cull_report.txt" | tail -20
 rm -rf "$P"/b*
+
+# Roundness just landed -> refresh the set's fingerprint so the mount
+# cross-check (trail-vs-roundness) upgrades without being asked (BACKLOG
+# item 1c). Exit 2 = declared-vs-measured CONTRADICT: the QA record above is
+# valid and stays, but the job ends loud so the mislabel is reconciled before
+# anything builds on it. Any other refresh failure (e.g. no acquisition
+# record yet) warns and leaves the QA result standing.
+fprc=0
+python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || fprc=$?
+FPJ=$REPO/datasets/$(basename "$SESSION")/$SET/fingerprint.json
+python3 - "$FPJ" <<'PY' || true
+import json, sys
+try:
+    fp = json.load(open(sys.argv[1]))
+except (OSError, ValueError):
+    sys.exit(0)
+mc = fp.get("mount_check") or {}
+print(f"fingerprint: {fp.get('label')} | mount {mc.get('verdict')}"
+      f" ({mc.get('method') or 'no instrument yet'})")
+PY
+if [ "$fprc" -eq 2 ]; then
+  echo "run_frame_qa: declared-vs-measured mount CONTRADICT — reconcile the declaration before any build ($FPJ)" >&2
+  exit 2
+elif [ "$fprc" -ne 0 ]; then
+  echo "run_frame_qa: fingerprint not derivable yet (missing acquisition record?) — the QA record stands" >&2
+fi
 echo "=== run_frame_qa DONE (per-frame records kept: $P/{metrics,records}.jsonl) ==="

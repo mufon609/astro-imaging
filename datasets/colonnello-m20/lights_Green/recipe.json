@@ -1,0 +1,10 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [],
+  "why": {
+   "keep_all": "user-ratified keep-all: 15/15 registered, 0 defect-side flags (qa_work/frame_metrics.json) — FWHM median 3.291 px (CV 3.9%, the sharpest filter — the compose reference), roundness 0.859, ~1957 stars/frame, bg span 2.9%; no defect class present.",
+   "weight_null": "wFWHM weighting at low FWHM spread is worse than none (Siril -weight is a min-max ramp — the worst frame soft-culls at any spread; dead-ends)."
+  }
+ }
+}

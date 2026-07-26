@@ -5,9 +5,8 @@ mechanism and the test that would close it, not a narrative.
 
 Where things live: mechanism lessons + the acquisition checklist in
 [`docs/dead-ends.md`](docs/dead-ends.md); the toolkit in [`TOOLS.md`](TOOLS.md);
-per-dataset state under `datasets/<session>/<set>/`; the user-gated render-tier
-plan for THIS rig in
-[`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md); the x86 build
+per-dataset state under `datasets/<session>/<set>/`; the render-tier ladder
+skeleton in item 0 (re-anchored per dataset by the operating loop); the x86 build
 order in
 [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). Completed work
 is not carried here — it is in the operating docs and in `git log`.
@@ -37,36 +36,36 @@ and a row's numbers re-verify when that set is re-processed here.
 | divergence | condition that retires it | status |
 |---|---|---|
 | `anomaly_audit.py` in-house streak kernel | a tool provides streak detection / geometry / classification | **not fired** — no Siril command detects or classifies streaks (`cosme`/`find_hot` are defect correction; the `satellite` hit is the annotation catalogue). ASTAP has no such mechanism either. Keep. **Known miss mode (user-caught):** the set-02 aircraft's ENTRY frame (DSC_7573) was not linked to the object — 2 of 3 crossing frames classified; the entry frame's own QA z-signature carried the signal (roundness z −16.7 with nstars z +5.9 = elongated EXTRA detections). Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise. |
-| `compose.py` channel combine (`np.stack` + hand-rolled 3-plane FITS write) | a tool composes channels headless | **FIRED** — Siril `rgbcomp` verified on 1.4.4, and `rgbcomp -lum=` additionally closes the LRGB-join gap. Retirement is open work (item 6). |
 | `scripts/qa/star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt, or builds a sequence from one frame | **not fired** — `tilt`/`inspector` are both *"Can be used in a script: NO"*, and Siril cannot build a sequence from a single frame (item 4). |
 | `scripts/qa/star_stations.py` fixed-station medians of `findstar` fits | an official tool reports a headless LOCAL star-shape map (region/grid-resolved FWHM/roundness) | **not fired** — `tilt`/`inspector` are GUI-only and whole-frame; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this measure exists for (`docs/dead-ends.md` paraxial-band entry). |
 | fitted lensfun entry for the 24-70/4 S @ 70 (`install_lens_model.sh`, replaces the community line) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain consuming the model another way (`register -disto=` with a trustworthy source) | **not fired** — re-fit (`fit_lens_model.sh`) and re-install per rig, after every `lensfun-update-data`, and on any lens/body/focal change. x86: **re-installed** (`install_lens_model.sh` replaced the community focal=70 line and stripped 55 vignetting/tca entries) and PROVEN to correct real frames (`qa_work/lens_preflight.json`, Siril stat max 63446 over 373 frames). The per-rig **RE-FIT is DONE and CONFIRMS the incumbent**: hugin 2025.0.1 on set-01 (solved hfov 30.4421°, dark+sky-flat calibrated, residual 0.29→0.02 px mean with a,b,c) fitted a=0.0033627/b=0.0149465/c=0.0005744 — sub-pixel-equivalent to the carried-over arm fit (a,b within 3-4%; max displacement diff 0.47 px mid-field, 0.34 px area-weighted RMS; 0.2 px at r=0.9). Difference is within fit noise; the arm-era model STANDS (re-installing the lateral new fit would change the production deliverable by ≤0.47 px with no measured benefit). `qa_work/lens_fit.json`. |
-| Hand-rolled FITS parsers (5 sites) | `astropy` available | **FIRED** — astropy 8.0.1 installed on the arm rig; retirement is ARM-DOABLE open work (item 6), not x86-gated. 4 of 5 done (git log); only `compose.py` remains, blocked on a multi-channel dataset. |
 | `solve_field.detect_stars` peak centroids | a tool's extractor returns trailed sources *and* measures at least as well | **FIRED** — SExtractor core (`sep`) returns trailed sources, solves at higher odds, and gives identical SPCC K end-to-end (`qa_work/extractor_ab.json`). Default is `--detect=sep`; `--detect=peaks` remains the fallback until the x86 day-1 solve passes on sep, then delete it. (Optional second official arm, untested: the `image2xy` binary — shape-blind, but its trail knobs `-a`/`-p`/`-m` are unexposed by solve-field and `-a` can fragment a rippled trail; ASTAP is NOT an arm — roundness-gated by its own docs.) |
-| GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
-| Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
+| GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; the vignetting-only fallback for a flatless set (none staged). |
+| Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — the validated per-set route for flatless sets (`build_sky_flat.sh` gates); dust-safety validates PER SET before use (dead-ends); tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **FIRED 2026-07-25, and now a MEASURED DEFECT, not just doctrine**: july23 set-03's green channel quantized so tightly (bgnoise ~1.5 ADU on integer bins) that its MAD and BWMV read exactly 0 — Siril's linked `autostretch` statistics degenerated and the judge surface rendered near-unstretched ("looks like a single frame", user-caught; every other channel/set landed MAD=1.0 by integer coin-toss). Float32 stacking removes the knife edge entirely. Retire with the flat-route rebuild. |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
 
-## 0. THE RENDER-TIER BUILD — user-gated, starts on THIS rig
+## 0. THE RENDER-TIER BUILD — user-gated, the one open product gap
 
-The one open product gap. The approved deliverable
-(`july14-all5-cov25frame-approved`) ends at a diagnostic `autostretch
--linked`; the real render tier is UNBUILT — a POLICY gap (the user gates every
+The render tier is UNBUILT — a POLICY gap (the user gates every
 output-shaping run), not a rig gap: the full Siril native render surface is
 probed present + scriptable on this arm rig, and only the neural/separation
 x86-64 binaries are environment-blocked (per-tool evidence: `TOOLS.md`).
 
-**The pre-registered plan is [`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md)**
-— ladder sequence L1 background-level A/B (item 7's named test) → L2 linear
-denoise (Siril native vs installed GraXpert; objective target = the measured
-drift-phase structured term 0.34–0.48 ADU/half) → L3 GHS stretch ladder
-(replaces the diagnostic autostretch) → L4 thresholded satu; one knob per
-experiment, hypotheses pre-registered, judged on full-frame lossless PNG16,
-STOPPED at the user's gate. Riding on completion: re-seed
+**The plan is re-derived PER DATASET by the operating loop** (MEASURE the
+staged corpus → MATCH → RECOMMEND → the user's GO); the pre-registered ladder
+skeleton it instantiates: L1 background-step level A/B (item 7's named test;
+on an MW-filling field only a first-degree plane or none is dust-safe) → L2
+linear denoise (objective instrument = the noise-split structured term, never
+whole-frame `bgnoise` — dead-ends) → L3 GHS stretch ladder replacing the
+diagnostic autostretch (arms compared at a MATCHED background landing, so
+curve shape — not brightness — is the knob) → L4 thresholded satu; one knob
+per experiment, hypotheses pre-registered, judged on full-frame lossless
+PNG16, STOPPED at the user's gate. (The retired exemplar's fully-anchored
+instance of this plan is in git history.) Riding on completion: re-seed
 `datasets/GENERIC.json` + recipe `render` blocks, first `baseline.json` via
 the no-regression harness, `finish_render.sh`'s stretch stage swap, and the
 `judgment_package.py` re-wire (its PNG8 pairing predates the 16-bit-only
@@ -76,17 +75,32 @@ approved, re-baselined, tagged render from the new tier.
 
 ## 1. Derive the config fingerprint from the data
 
-STATUS (core landed): `scripts/lib/fingerprint.py` derives the fingerprint from tool
-outputs only — EXIF (`acquisition.py`), astrometry.net solves (`solve_field.py`) and
-Siril findstar roundness — computing just the derived trail/drift geometry no tool
-reports, and records `datasets/<session>/<set>/fingerprint.json`. It CROSS-CHECKS the
-declared mount against the measured sky motion (a fixed mount advances RA at the sidereal
-rate, Dec constant; tracked holds both): `mount_verdict` returns CONFIRM / CONTRADICT
-(consumer STOPS on a mislabel) / INDETERMINATE. Self-tested against set-01's recorded
-numbers (trail 3.41 px, drift 34 px/min, RA 14.99°/hr); set-01 recorded CONFIRM fixed,
-set-02 seeded. REMAINS: run the two-window solve per new set to drive the check live
-(set-02 pending its solves), and wire the fingerprint into the builders' MATCH→RECOMMEND
-preflight (still user-gated — it recommends a route, never auto-executes).
+STATUS (core + broadening landed; live on colonnello-m20): `scripts/lib/fingerprint.py`
+derives the fingerprint from tool outputs only — header facts (`acquisition.py`, incl.
+the FITS pointing RA/Dec the capture software records), astrometry.net solves
+(`solve_field.py`) and Siril findstar/register metrics (`frame_metrics.json`) —
+computing just the derived trail/drift geometry no tool reports, and records
+`datasets/<session>/<set>/fingerprint.json` (content-compare write; `refresh()` is the
+idempotent seeding entry). The declared mount is cross-checked by TWO instruments:
+(1) **trail-vs-roundness** (cheap, no solve, one-sided): decisive only when the
+predicted-if-fixed trail exceeds the worst elongation the measured stars could hide by
+≥10× with a real matched star population — live on all three colonnello-m20 sets
+(predicted 1625 px vs implied ≤3 px, margins 538–713×, CONFIRM tracked); (2) the
+**two-window drift solves** (precise, either signature — the instrument near the
+boundary, e.g. 3.4 px predicted on a 3.5 px PSF; self-tested against the retired
+exemplar's numbers: trail 3.41 px, drift 34 px/min, RA 14.99°/hr). Disagreeing
+instruments yield INDETERMINATE, never a coin toss. SEEDING IS AUTOMATIC (never
+waiting to be asked): the web mount declaration derives on write (verdict returned in
+the response), `run_frame_qa.sh` refreshes when roundness lands (exits loud on
+CONTRADICT), and the web run gate re-derives before every output-shaping run.
+CONSUMERS STOP: `acquisition.resolve()` raises `MountContradicted` on a contradicted
+record (every declare-or-stop consumer inherits the stop), and `/api/run` refuses
+calibrate/execute/finish stages for a CONTRADICT set (measure stages stay runnable —
+measuring is how a contradiction resolves). Derivation + record only: it recommends
+and checks; the user stays the gate on every output-shaping run. REMAINS: run the
+two-window solve live on the next camera-raw (boundary-regime) corpus, and wire the
+fingerprint into the builders' MATCH→RECOMMEND preflight (still user-gated — it
+recommends a route, never auto-executes).
 
 **The pipeline should READ the gathered data and work out what it is**, then organise
 processing around that. The route a dataset needs is selected by a config fingerprint
@@ -132,10 +146,11 @@ RECOMMEND it:
   fingerprint (item 1) → check the lensfun DB → recommend the route with its reason (or
   a plain homography, with its reason) → report → user decides → execute → record the
   choice and its trade-off.
-- lensfun carries CALIBRATED entries at 24/28/35/50/70 for this lens and interpolates
-  between them; confirm interpolated behaviour at an intermediate focal, and that
-  `crop=1.0` holds for the body. The FITTED entry covers focal=70 only — any other
-  focal rides the community entries until fitted (`fit_lens_model.sh` per focal).
+- Per-lens facts re-derive at the next wide-untracked set (the retired 24-70/4 S
+  facts — calibrated focals 24/28/35/50/70, fitted-at-70-only, `crop=1.0` — are in
+  git): confirm the NEW body/lens's lensfun coverage, interpolation behaviour and
+  crop factor before first use. The fitted-entry rule stands: any focal not fitted
+  rides the community entries until fitted (`fit_lens_model.sh` per focal).
 - **The model source is per-rig and per-lens.** A community profile can be right at
   the corner and wrong in the paraxial region (the centre-band mechanism,
   `docs/dead-ends.md`); the route's standard companions are the fit-from-own-frames
@@ -157,6 +172,10 @@ RECOMMEND it:
 _(CLOSED items carry no blocks here — completed work lives in git. Items
 **3** — per-set culling, ratified + CONSUMED by the approved 1575-frame
 render; **4** — the remainder-of-1 guards, built into both chunked builders;
+**6** — the reinvention retirements: all five hand-rolled FITS-parser sites →
+`astropy`, and the `compose.py` channel combine + write → Siril `rgbcomp`,
+verified pixel-identical on real aligned members before the swap
+(`compose_ab.json`; the 16-bit-intermediates condition stays in the register);
 **8** — the 5-set combine, rendered and APPROVED (tag
 `july14-all5-cov25frame-approved`; residue lives in the removal register +
 items 0/12); **14** — dashboard↔Claude communication, resolved no-new-surface (no MCP
@@ -179,48 +198,18 @@ flat enters another stack, tighten:
   and in tension with a measured result: in a chain with NO background stage, the
   own-flat's MATCHED low-order term is precisely what removed set-03's ±6% tilt
   (flat_source_set03). Settle radial-only TOGETHER with the item-7 background-step
-  A/B (= the render plan's L1, `docs/render-tier-arm-plan.md`), not alone;
+  A/B (= item 0's L1), not alone;
 - the deciding test is a with/without comparison on full-frame lossless finals, with
   dust preservation the metric (the user's eyes) — the exemplar's staged
   judgment pair was wiped with july14; re-stage the with/without pair on the
   next flatless set.
 
-Rebuilding it from all ~1865 frames (item 8) directly addresses the star specks — more
+Building it from the set's FULL frame count directly addresses the star specks — more
 frames reject better. GraXpert `-correction Division` stays the vignetting-only
 fallback. A real matching flat retires the whole branch.
 
 Cross-set flat question — SETTLED (user-ratified per-set-flat rule; mechanism +
-numbers in `docs/dead-ends.md`, ledger `flat_source_set03`). Operational residue
-only: a combine re-render needs each member's raws — set-01's are staged on this
-rig, set-02's are not (re-stage from originals, or build on x86).
-
-## 6. Retire the reinventions whose replacements are confirmed
-
-- **Retire the last hand-rolled FITS parser (`compose.py`) → `astropy` — BLOCKED on data.**
-  astropy 8.0.1 is installed and probed on the rig; it is the identical tool on both rigs,
-  so the method transfers to x86 unchanged. Done (git log, each verified
-  byte-behaviour-equivalent): `solve_field.py` (same solve + SPCC K),
-  `scripts/lib/astrometrics.py` (byte-identical data + solve), `scripts/calibrate/spcc_cone.py`
-  (field/cone identical), `scripts/stack/fitsmeta.py` (metadata line identical). Only
-  `compose.py` remains — `read_fits_raw()` + the `np.stack` 3-plane FITS write →
-  `astropy.io.fits`, retired jointly with the `rgbcomp` combine swap below. It is verifiable
-  only on a dual-band / mono-filter set (none staged), so retire it at first contact,
-  verified byte-behaviour-equivalent FIRST.
-  Gotchas: write float32 directly (BZERO/BSCALE auto-scale off); numpy `[y,x]` ↔ FITS
-  NAXIS reversed; `WCS(header, naxis=2)` on an RGB cube; astropy reads Siril's 16-bit RGB
-  FITS directly (retires the `savetif`+`tifffile` read workaround). Each swap lands as a
-  declared delta; the removal-register row is FIRED.
-
-- **`compose.py` channel combine → Siril `rgbcomp`.** The member ALIGN is already Siril;
-  only the combine is in-house. `rgbcomp chR chG chB -out=` produces a 3-plane float32
-  RGB FITS, and **`rgbcomp -lum=`** runs the LRGB join headless — which also closes the
-  long-standing LRGB gap `compose` currently REFUSES. `compose` shrinks to: resolve
-  `composition.json` → drive the Siril align → `rgbcomp`. Blocked on real data: the swap
-  is testable only on a dual-band / mono-filter set (none staged) — implement + verify
-  at first contact, never swap untested. Open: the CLI `-lum` blend colour space is
-  undocumented (GUI offers HSL/HSV/Lab).
-- The 16-bit stack-time intermediates' removal condition is now WRITTEN in the
-  register above (fire it on x86: drop `set16bits`, re-measure, declared delta).
+numbers in `docs/dead-ends.md`, ledger `flat_source_set03`).
 
 ## 7. Open questions with a named test
 
@@ -228,11 +217,12 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   masters, one knob (the architecture): single-pass register+stack vs
   `run_undistort_groups.sh`. Judged on full-frame lossless finals + `seqtilt` +
   drift-axis stations; settles the second-interpolation cost and whether the
-  route may ship production stacks. Companion ladder: in-group rejection at
+  route may ship production stacks. Data-gated: re-arms when the groups route
+  next carries a production stack on this rig's disk; retires with the route
+  on x86 disk (removal register). Companion ladder: in-group rejection at
   small n (none / percentile / winsorized) — Siril's docs prescribe percentile
   ≤6 and GESD >50 and are silent between.
-- **Background-step LEVEL: per-frame vs on-stack `subsky 1` — now the render
-  plan's L1** ([`docs/render-tier-arm-plan.md`](docs/render-tier-arm-plan.md)),
+- **Background-step LEVEL: per-frame vs on-stack `subsky 1` — item 0's L1**,
   pre-registered and user-gated. The doctrine fork it settles: Siril's own docs
   recommend per-frame degree-1 for session-rotated gradients (this dataset's
   exact geometry) while the general default is once-on-the-stack; the registry
@@ -243,7 +233,8 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   fraction was paraxial model error, not tilt. For the 0.31 px remainder the candidates
   stay differential refraction (asymmetric with hour angle) and lens decentering.
   Discriminator: hour-angle dependence across sets — refraction varies with it,
-  decentering does not.
+  decentering does not (data-gated: needs multiple sets of the class from the
+  next corpus).
 - **Synthetic-flat gap → GraXpert `-correction Division`.** The headless-CPU
   multiplicative option; source-confirmed as per-channel `imarray/background*mean`, i.e.
   divide by the low-frequency model. Corrects smooth VIGNETTING only, not dust/PRNU
@@ -339,15 +330,21 @@ declared delta when its gate opens.
 - **Full-size dual-band** — native Ha + 2× drizzle of OIII instead of downsampling OIII
   to Ha's half size, gated on measured dither coverage (the per-frame
   `dither_phase_frac` record already exists).
-- **FITS I/O → astropy** — the last parser (`compose.py`) and its gotchas live in
-  item 6 + the removal register (ARM-doable, data-gated on a multi-channel set).
+- **LRGB join** — `compose` REFUSES a `luminance` member (L joins after both
+  parts are stretched — a nonlinear-space step this compose-then-render flow
+  cannot express). `rgbcomp -lum=` is the headless mechanism when an L corpus
+  arrives; open: the CLI `-lum` blend colour space is undocumented (GUI offers
+  HSL/HSV/Lab) — resolve before first use.
 - **FITS-path `setfindstar` asymmetry** (audit-found): the raw-camera template
   lowers detection to `-sigma=0.5` (measured: the matcher needs the extra
   triangles on this class) but the FITS `_fits_lights`/`_fits_dualband` paths
   register at the default sigma. Mechanism: the two paths were built from
   different data classes. Named test: on the first FITS-class set, a one-knob
   registration ladder (default vs `-sigma=0.5`) — adopt per measured
-  match-rate, never by symmetry alone.
+  match-rate, never by symmetry alone. MEASURED at first contact (three
+  mono filter sets): default sigma registered 46/46 at ~1500–2000
+  stars/frame — no match-rate to recover; the ladder stays dormant until
+  a FITS set shows matching loss.
 - **Deconvolution** — a measured dead-end on arm64 data (unstable symmetric PSF on
   in-exposure trailing); BlurXTerminator reopens it on x86 (`--correct-only`).
 - **`run_pipeline` auto-routing to a large-sequence path** — largely unnecessary at
@@ -383,37 +380,35 @@ things to plan for when the x86 rig moves.
   template calling them must migrate before a 1.5.0 bump. Also: `sb` deconv is **Split
   Bregman** — correct any doc naming it otherwise.
 
-## 11. Walking noise in the wide-untracked data — OPEN gap
+## 11. Walking noise in the wide-untracked data — OPEN gap, class-gated
 
-**The render plan's L2 denoise ladder targets this defect's drift-phase term**
-(`docs/render-tier-arm-plan.md`: objective instrument = the set-04 half-split
-re-run on denoised halves; target 0.34/0.48/0.42 ADU/half). L2 treats the
-SYMPTOM budget; the acquisition-side mechanism work below stays open either
-way (a denoiser must never be this defect's only answer — bandaid rule).
+**Item 0's L2 denoise ladder targets this defect's drift-phase term as its
+objective instrument** (the noise-split structured excess, re-measured per
+corpus). L2 treats the SYMPTOM budget; the acquisition-side mechanism work
+below stays open either way (a denoiser must never be this defect's only
+answer — bandaid rule).
 
-Faint DRIFT-ALIGNED streaks the user sees at native 1:1, below whole-frame statistics
-— a sensor-fixed pattern (electronic-shutter readout FPN + residual hot/warm pixels)
-dragged into lines by the coherent, un-dithered drift. **Measured NULLs
-(`experiments.jsonl`):** `-cc=dark` cosmetic correction (`cc_dark_warped_spcc`) and
-GESD-vs-winsorized rejection (`reject_gesd_vs_winsorized`) — neither removes it,
-because the streaks are a sub-sigma structured pattern, not discrete rejectable
-outliers. **Possible (UNPROVEN) link to the multi-set combine (item 8):** the combine's
-whole-frame bgnoise did not visibly drop across 369 → 1032 frames — but that read is
-confounded (`-output_norm`), and the rainbow streaks seen on a stack-`subsky`'d combine
-could equally be an artifact of that misapplied step. Neither the combine's depth
-shortfall nor the streaks has been TRACED to walking noise by a controlled test; treat
-this as a hypothesis to investigate (item 8), not a finding. **Untried levers, to test on the existing data:** (1) whether the master
-dark captures the electronic-shutter pattern — check the darks' shutter mode / re-shoot
-matched darks and rebuild; (2) directional/pattern removal aligned to the measured
-174.4-deg drift axis, or an AI denoiser (x86) weighed against dust preservation (a
-bandaid, last resort). The go-forward acquisition fix is unsettled — do NOT assume a
-shutter-mode change removes it. OPEN gap, not a dead-end.
-**First direct quantification (noise_split.sh, set-04):** the drift-phase
-structured component — the walking-noise-class power — measures ≈0.34/0.48/0.42
-ADU (R/G/B) per ~199-frame half (timehalf-vs-interleaved split excess), i.e.
-roughly a third of the total static-structure budget (≈1.0/1.5/1.2 ADU, the rest
-being unresolved-star confusion texture) and comparable to the random noise left
-at that depth. The x86 denoise tier now has a measured target size.
+Faint DRIFT-ALIGNED streaks the user sees at native 1:1, below whole-frame
+statistics — a sensor-fixed pattern (electronic-shutter readout FPN + residual
+hot/warm pixels) dragged into lines by the coherent, un-dithered drift.
+Rejection and cosmetic correction measured NULL against it — the streaks are
+sub-sigma STRUCTURED signal, not discrete rejectable outliers (mechanism +
+numbers in `docs/dead-ends.md`). **First direct quantification
+(`noise_split.sh`, on the retired exemplar):** the drift-phase structured
+component ≈0.34/0.48/0.42 ADU (R/G/B) per ~199-frame half
+(timehalf-vs-interleaved split excess) — roughly a third of the total
+static-structure budget (≈1.0/1.5/1.2 ADU, the rest unresolved-star confusion
+texture = real sky) and comparable to the random noise left at that depth: the
+denoise tier's measured target size for this class.
+
+**Gated on the class recurring** (an un-dithered untracked set — the
+acquisition checklist's dither line is the acquisition-side fix; dithered or
+tracked acquisition removes the driver and this goes dormant, not dead).
+First-contact levers on the next comparable set: (1) whether the master dark
+captures the electronic-shutter pattern — shoot matched shutter-mode darks and
+rebuild; (2) directional/pattern removal aligned to the measured drift axis,
+or an AI denoiser (x86) weighed against dust preservation (a bandaid, last
+resort). Do NOT assume a shutter-mode change removes it — unsettled.
 
 ## 13. july14 naming divergence — RESOLVED (records realigned)
 
@@ -434,7 +429,52 @@ missing record is handled gracefully). OPEN (user call): the session dir is stil
 named `july14`; rename to `july14` now that it is the real dataset, or
 leave it.
 
-## 15. Flatpak Siril concurrency race — serialize or harden the invokers
+## 15. Run-page job logs repopulate cross-session at job start — OPEN, reported
+
+USER-OBSERVED (first july23 chain run): with the per-session job filter live
+(jobs carry `session`, the Run page filters its table — verified clean on
+page load), STARTING a job made previous sessions' logs/jobs repopulate the
+page. Not yet reproduced or diagnosed — recorded on user order before any
+fix attempt. Suspects, in test order: (1) the job-start client path
+(`openStageForm`'s run handler → `refreshJobs()`/`watchJob`) racing the
+session-model global `M` (an undefined `M.session` makes the filter show-all
+by design); (2) a `/api/jobs` answer from a stale-rev server process whose
+adopted JOBS table predates the session backfill; (3) the log-pane WATCH
+poll's end-of-job `refreshJobs()` re-render. Close condition: on a session
+page with another session's job records present, start a job — the jobs
+table shows only the current session's rows (plus rig-level) at job start,
+during the run, and at completion.
+
+## 16. "Culled Frames" page — sky objects become one cull class among all
+
+USER-ORDERED rename + restructure: the dashboard's "Sky Objects" section
+becomes **"Culled Frames"** — the one examination surface for EVERY frame the
+pipeline excluded, grouped by CAUSE, with the anomaly audit's sky objects as
+one subset:
+
+- **Sky objects** (anomaly audit: aircraft / satellite / unknown crossings —
+  the current section's content, kept intact as a subset),
+- **Shake / softer** (frame-QA defect-side flags auto-culled under the
+  standing policy — fwhm/round/nstars/bg, with each frame's z values and the
+  set medians beside them),
+- **Hand-ratified** (recipe.json stack.exclude entries whose why is a human
+  decision rather than the auto-cull note).
+
+Each entry shows: frame file + sequence n, set, cause + flags/metrics, and
+the recipe/audit record it traces to. The existing "culled rollup" page and
+this section MERGE (one culled surface, not two). Examination affordances are
+SELECTION surfaces only (tool-made previews per web/README — never a judgment
+surface); a per-frame preview, if added, is Siril-made like every other
+preview class. Close condition: after a chain run with auto-culls, the page
+lists every excluded frame of the session under its cause, sky objects
+included, and the old Sky Objects nav entry is gone.
+
+_(Item **17** — Run page Automated-first layout — BUILT to the ratified
+design: chains lead with evidence-driven per-set step-strips, an active-run
+banner, and first-class preview-plan/Run; every stage card explains its
+process from the registry's structured docs; manual stages stay reachable
+below. Full text in git.)_
+## 18. Flatpak Siril concurrency race — serialize or harden the invokers
 
 MEASURED on x86 (2026-07-25, july23 run): two rapid-fire siril-cli loops running
 concurrently (the anomaly audit's per-frame calls + a stack builder's per-frame
@@ -462,13 +502,15 @@ covered by ALL 50 sub-stacks — the NAN sat at 50/50 coverage and was still cut
 `max` is the raw union with single-coverage rims, and the coverage-threshold crop
 (`coverage_threshold_frame_0103`) is instrument-driven but still machine-chosen.
 
-**STATUS — capture side, site shell, Tier-1 execution AND the diagnostic-chain
-consume side are BUILT (`web/`); the item-0 render chain inherits the same
-record.** `finish_render --crop-record` applies a VERIFIED framing to the
+**STATUS — capture side, site shell, Tier-1 execution AND the render consume
+side are BUILT and EXERCISED END-TO-END (`web/`); the item-0 render chain
+inherits the same record.** On the retired test corpus a user-drawn
+union-stack framing was Siril-VERIFIED (coverage-map mode) and rendered
+through `finish_render --crop-record` → solve → SPCC → linked stretch → judge
+PNG (git). `finish_render --crop-record` applies a VERIFIED framing to the
 LINEAR stack before solve/SPCC/stretch (refuses unverified records and a
-record/stack canvas mismatch) — proven buildable on the fresh-start exemplar;
-the RA/Dec-anchored reproduction after a stack rebuild remains the untested
-half of the close condition. Landed: `web/serve.py` (127.0.0.1-only static
+record/stack canvas mismatch); the RA/Dec-anchored reproduction after a stack
+rebuild is the UNBUILT half of the close condition (below). Landed: `web/serve.py` (127.0.0.1-only static
 server + the framing POST + the mount-declaration POST +
 `GET /api/session/<name>`, the read-only joined session
 model: per-set records normalized for display, surfaces with recipe-vs-header
@@ -509,9 +551,11 @@ Open, in order:
 - **The chain consumes it — the diagnostic chain DOES** (`finish_render
   --crop-record`: verified-only, canvas-checked, crop on the LINEAR stack —
   crop-before-stretch); remaining: the item-0 render chain consumes the same
-  record on every rebuild, and the RA/Dec-anchored reproduction after a stack
-  rebuild is exercised. Siril 1.5's `eqcrop ra1 dec1 ra2 dec2` (item 10) is
-  the natural consumer of the RA/Dec form when the x86 rig lands on 1.5.
+  record on every rebuild, and the RA/Dec-anchored reproduction is UNBUILT —
+  deriving the rect on a REBUILT canvas from the record's WCS corners (today a
+  canvas mismatch is refused, not re-derived). Build + exercise it at the next
+  union stack. Siril 1.5's `eqcrop ra1 dec1 ra2 dec2` (item 10) is the
+  natural consumer of the RA/Dec form when the x86 rig lands on 1.5.
 - **Close condition** (unchanged): a box drawn on a union surface renders
   through the chain to a final whose framing matches the drawn box, and the
   record reproduces that framing after a stack rebuild (RA/Dec-anchored). The

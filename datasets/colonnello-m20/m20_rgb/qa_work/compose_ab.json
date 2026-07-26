@@ -1,0 +1,110 @@
+{
+ "purpose": "BACKLOG item 6 A/B \u2014 channel combine: in-house np.stack vs Siril rgbcomp on identical aligned member planes (align ran once; the combine is the only knob)",
+ "inputs": {
+  "B": {
+   "file": "r_ch_00001.fit",
+   "size": 65226240
+  },
+  "G": {
+   "file": "r_ch_00002.fit",
+   "size": 65226240
+  },
+  "R": {
+   "file": "r_ch_00003.fit",
+   "size": 65226240
+  }
+ },
+ "channels": {
+  "R": "R",
+  "G": "G",
+  "B": "B"
+ },
+ "reference": "G",
+ "arm_a": {
+  "engine": "compose.py np.stack + hand FITS writer",
+  "out": "outA.fit",
+  "size": 195667200
+ },
+ "arm_b": {
+  "engine": "siril 1.4.4 rgbcomp (set32bits)",
+  "cmd": "rgbcomp R G B -out=outB",
+  "out": "outB.fit",
+  "size": 195667200
+ },
+ "file_cmp_identical": false,
+ "stat_per_output": {
+  "arm_a": {
+   "Red": {
+    "mean": 263.4,
+    "median": 174.1,
+    "sigma": 1210.0,
+    "min": 31.3,
+    "max": 75814.7
+   },
+   "Green": {
+    "mean": 280.3,
+    "median": 212.3,
+    "sigma": 1240.6,
+    "min": 11.2,
+    "max": 65535.0
+   },
+   "Blue": {
+    "mean": 260.2,
+    "median": 187.6,
+    "sigma": 1232.0,
+    "min": 30.9,
+    "max": 73851.0
+   }
+  },
+  "arm_b": {
+   "Red": {
+    "mean": 263.4,
+    "median": 174.1,
+    "sigma": 1210.0,
+    "min": 31.3,
+    "max": 75814.7
+   },
+   "Green": {
+    "mean": 280.3,
+    "median": 212.3,
+    "sigma": 1240.6,
+    "min": 11.2,
+    "max": 65535.0
+   },
+   "Blue": {
+    "mean": 260.2,
+    "median": 187.6,
+    "sigma": 1232.0,
+    "min": 30.9,
+    "max": 73851.0
+   }
+  }
+ },
+ "stat_match": true,
+ "pm_diff_stat": {
+  "Red": {
+   "mean": 6553500.0,
+   "median": 6553500.0,
+   "sigma": 0.0,
+   "min": 6553500.0,
+   "max": 6553500.0
+  },
+  "Green": {
+   "mean": 6553500.0,
+   "median": 6553500.0,
+   "sigma": 0.0,
+   "min": 6553500.0,
+   "max": 6553500.0
+  },
+  "Blue": {
+   "mean": 6553500.0,
+   "median": 6553500.0,
+   "sigma": 0.0,
+   "min": 6553500.0,
+   "max": 6553500.0
+  }
+ },
+ "pm_diff_note": "pm A-B+100; stat scale is 16-bit ADU so the constant reads 6553500.0; identity = Sigma 0 and Min=Max=6553500.0 on every channel",
+ "pixel_identical_by_pm": true,
+ "verdict": "PASS \u2014 pixel-identical (pm A-B+100: Sigma 0, Min=Max=const on every channel)"
+}

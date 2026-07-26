@@ -23,6 +23,11 @@ and names the frames its numbers flag.
 `report` assembles index.html + index.md from the recorded entries. No
 per-frame quality THRESHOLDS are applied here: grading an image is the
 tools' job, out of scope of this examine/orchestrate layer.
+
+REMOVAL CONDITION (the derived summaries + robust-z flags only): retire them
+the day a tool reports headless per-frame outlier flagging over its own
+registration metrics (SubframeSelector-class, scriptable); persisting the
+tool's regdata — this file's real job — stays regardless.
 """
 import argparse
 import json

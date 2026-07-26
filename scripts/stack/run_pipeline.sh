@@ -254,10 +254,11 @@ _fits_dark_master() {
     echo "close"; } > "$W/fits_master_$2.gen.ssf"
   siril_run "$W/fits_master_$2.gen.ssf"
 }
-# master flat, calibrated by $1 (-dark=masters/darkflat_master | -bias=...)
+# master flat from flats dir $2, calibrated by $1
+# ($1 = -dark=masters/darkflat_master | -bias=masters/bias_master)
 _fits_flat_master() {
   { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
-    echo "cd flats"; echo "convert fl -out=../work"
+    echo "cd $2"; echo "convert fl -out=../work"
     echo "cd ../work"; echo "calibrate fl $1"
     echo "stack pp_fl rej 3 3 -norm=mul -out=masters/flat_master"
     echo "close"; } > "$W/fits_flat.gen.ssf"
@@ -357,12 +358,34 @@ fits_ingest() {
   local CFAOPT="" FLATOPT="" FLATCAL="" FLATCALOPT=""
   [[ "$lmono" == "1" ]] || CFAOPT="-cfa -debayer"
 
+  # A filter-wheel corpus stages one raw flat group per filter
+  # (flats_<name>/ siblings). The set's flats SOURCE resolves by FILTER
+  # HEADER IDENTITY (fits_meta's normalized token), never by dir name:
+  # exactly one matching flats_*/ wins, several is a staging error, none
+  # falls back to the single flats/ dir (filter-checked below, as before).
+  # work/masters/flat_master restages per SOURCE via its manifest, so
+  # sibling per-filter sets each rebuild it from their own group.
+  local FLATS_SRC="" _fd _fm _fe2 _ff2 _fx
+  for _fd in "$S"/flats_*/; do
+    [[ -d "$_fd" ]] || continue
+    _fm=$(fits_meta "${_fd%/}") || exit 1
+    IFS=$'\t' read -r _fe2 _fx _fx _ff2 _fx <<<"$_fm"
+    if [[ "$_ff2" == "$lfilt" ]]; then
+      if [[ -n "$FLATS_SRC" ]]; then
+        echo "ERROR: two flat groups match filter '${lfilt}': $(basename "$FLATS_SRC") and $(basename "${_fd%/}") — stage one raw flat group per filter" >&2
+        exit 1
+      fi
+      FLATS_SRC="${_fd%/}"
+    fi
+  done
+  [[ -z "$FLATS_SRC" && -d "$S/flats" ]] && FLATS_SRC="$S/flats"
+
   if [[ -n "$CALFLAT" ]]; then
     FLATOPT="-flat=masters/flat_master"
     echo "flats: prebuilt master $(basename "$CALFLAT") (already calibrated — no darkflat/bias step)"
-  elif [[ -d "$S/flats" ]]; then
+  elif [[ -n "$FLATS_SRC" ]]; then
     local fexp ffilt fmono dfexp
-    sm=$(fits_meta "$S/flats") || exit 1
+    sm=$(fits_meta "$FLATS_SRC") || exit 1
     IFS=$'\t' read -r fexp _f _m ffilt fmono <<<"$sm"
     if [[ "$ffilt" != "$lfilt" ]]; then
       echo "WARNING: flats filter '${ffilt}' != $SET filter '${lfilt}' — flats NOT applied (a flat is only valid for its own filter)"
@@ -383,7 +406,7 @@ fits_ingest() {
         echo "WARNING: flats/ present but neither darkflats/ nor biases/ — flats NOT applied"
       fi
       [[ -n "$FLATCAL" ]] && { FLATOPT="-flat=masters/flat_master"
-        echo "flats: ${fexp}s filter=${ffilt}, calibrated with ${FLATCAL}"; }
+        echo "flats: $(basename "$FLATS_SRC") ${fexp}s filter=${ffilt}, calibrated with ${FLATCAL}"; }
     fi
   else
     echo "no flats/ — lights calibrated with dark only"
@@ -430,14 +453,14 @@ fits_ingest() {
       _fits_dark_master "$(basename "$calsrc")" df "${calname}_master"
       manifest_fits "$calsrc" > "$W/masters/${calname}.manifest"; rm -f "$W"/df_*
     fi
-    if fresh_fits "$W/masters/flat_master.fit" "$S/flats" "$W/masters/flat.manifest" \
+    if fresh_fits "$W/masters/flat_master.fit" "$FLATS_SRC" "$W/masters/flat.manifest" \
        && [[ "$W/masters/flat_master.fit" -nt "$W/masters/${calname}_master.fit" ]]; then
       echo "=== master flat up to date, skipping ==="
     else
-      echo "=== master flat (calibrated with ${calname}) ==="
+      echo "=== master flat (calibrated with ${calname}, from $(basename "$FLATS_SRC")) ==="
       rm -f "$W/masters/flat_master.fit"
-      _fits_flat_master "$FLATCALOPT"
-      manifest_fits "$S/flats" > "$W/masters/flat.manifest"; rm -f "$W"/fl_* "$W"/pp_fl_*
+      _fits_flat_master "$FLATCALOPT" "$(basename "$FLATS_SRC")"
+      manifest_fits "$FLATS_SRC" > "$W/masters/flat.manifest"; rm -f "$W"/fl_* "$W"/pp_fl_*
     fi
   fi
   fi

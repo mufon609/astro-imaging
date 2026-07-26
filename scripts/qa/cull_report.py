@@ -20,6 +20,11 @@ frame distance read wfwhm 5.3-6.6 vs 2.6 at the reference).
 
 Registration FAILURES are listed separately: siril already drops them
 from every stack, so they never enter an exclude list.
+
+REMOVAL CONDITION: retire the in-house robust-z flagging the day a tool
+ships headless per-frame outlier flagging over its own registration metrics
+(PixInsight SubframeSelector-class, scriptable); the numbers it reads are
+the tool's either way.
 """
 import argparse
 import json

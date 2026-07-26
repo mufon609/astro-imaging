@@ -107,8 +107,8 @@ begins `checkpoint:` (a message prefix, not a tag: find it with
 Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 `recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
 by the stack builders); its RENDER block + `baseline.json` are chain-coupled
-and PENDING the render-tier build (user-gated — the arm-rig plan is
-`docs/render-tier-arm-plan.md`; only the neural/separation tiers are
+and PENDING the render-tier build (user-gated — the ladder plan is BACKLOG
+item 0, re-anchored per dataset; only the neural/separation tiers are
 environment-blocked on arm, per `TOOLS.md`).
 
 ## Environment
@@ -138,9 +138,9 @@ core here now:**
   `df` at session start). These constraints DIE on x86.
 - Host python3: numpy + scipy + PIL + **astropy 8.0.1** (FITS I/O + WCS/SIP +
   ICRS→Galactic, probed on-rig), no rawpy; `astropy_healpix`/`reproject` not
-  installed. astropy being present RETIRES the arm-era hand-rolled FITS parsers
-  (`solve_field` + `astrometrics` done, 3 remain — an ARM-DOABLE retirement since
-  astropy is the identical tool on both rigs; BACKLOG item 6).
+  installed. The arm-era hand-rolled FITS parsers are fully RETIRED to astropy
+  (the identical tool on both rigs), and the channel combine to Siril
+  `rgbcomp` — in-house code reads FITS headers only.
 - GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise). exiftool/exiv2
   present. Outbound network works.
 - **darktable 5.4.1 (`darktable-cli`, built against Lensfun 0.3.4)** — the
