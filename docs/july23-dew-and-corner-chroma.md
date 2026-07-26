@@ -223,12 +223,24 @@ research-sweep citations merged):
   image, not spatially varying" (siril docs, spcc page) — it can neither
   create nor fix the spatial pattern; structure must pre-exist upstream.
 
-**The conventional fix, measured on this data:** the `subsky 1` probe (the
-registry's MW-safe first-degree plane — the L1 on-stack arm of the
-pre-registered render plan) on the re-composed combine — corner chroma
-before/after + NAN-contrast dust-safety check. Numbers land in the
-experiment record (`datasets/july23/experiments.jsonl`, exp_subsky1) and
-the like-encoded pair goes to the user's eyes.
+**The conventional fix, MEASURED on this data (exp_subsky1, 2026-07-26) —
+it decomposes the residual instead of erasing it:** `subsky 1` (the
+registry's MW-safe first-degree plane) on the re-composed 3-set combine
+removed the ONE-SIDED term — TR 1.070 → 1.057 with all corners converging
+to a uniform ~5.5% — at zero structure cost (NAN contrast identical,
+7.17/6.61/7.57 both arms: dust-safe NULL). What remains is a pure RADIAL
+~5% R/G term a plane structurally cannot touch. So the corner residual =
+(one-sided sky gradient — background-stage-correctable, dust-safe) +
+(radial per-channel calibration residue — NOT correctable by any
+background model this MW-filling class tolerates: the registry's measured
+limits say degree ≥2 erases the MW band and full-model BGE absorbs
+frame-filling nebulosity). The radial term's signature matches the
+per-channel flat-error class amplified ~5× at the 2.4 EV corners; its
+industry-standard fix is UPSTREAM — real per-channel flats at acquisition
+(the checklist's primary path) — and july14's neutrality reads as a
+self-consistent flat on a stable-colour new-moon sky rather than a
+different chain. Ledger: `datasets/july23/experiments.jsonl`; like-encoded
+pair in `web/results/july23/exp_subsky1_20260726/` for the user's eyes.
 
 ## Sources
 

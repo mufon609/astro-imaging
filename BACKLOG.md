@@ -320,10 +320,16 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   it.** The user's field knowledge reframed the issue: every wide-field
   stack renders pre-BGE corners like this; the industry-standard chain
   removes it at the background stage our judgment surfaces skip (they go
-  SPCC → diagnostic autostretch). The subsky-1 probe measures the fix on
-  the july23 combine; adopting it as a real stage IS the item-0 gate. The
-  instrument-heavy commits around this symptom (H1 scaffolding) are
-  superseded by that reframing.
+  SPCC → diagnostic autostretch). PROBE RESULT (exp_subsky1): the dust-safe
+  plane removes the ONE-SIDED half (TR 1.070→1.057, corners uniform ~5.5%,
+  contrast-NULL) and structurally cannot touch the remaining RADIAL ~5%
+  term — the per-channel calibration residue whose in-doctrine fix on the
+  MW-filling class is REAL FLATS at acquisition (higher-order background
+  models are registry-measured MW-eaters). Direction: (1) item-0 L1 adopts
+  the plane as the standard background step (one-sided term, dust-safe);
+  (2) the radial term rides the acquisition checklist (real flats), NOT a
+  processing knob; (3) the user judges the probe pair
+  (web/results/july23/exp_subsky1_20260726/).
 
 ## 9. Data-capability gaps (gated per item — read each gate)
 
