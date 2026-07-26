@@ -48,13 +48,13 @@ field — usually carry the solution). Only when every cached attempt fails
 does the run extend to the download tier, saying so. --scales bypasses the
 split (an explicit set, attempted as-is).
 
-Star detection (--detect=sep, the default): SExtractor's own core via the
-`sep` package — official extraction, shape-blind so trailed sources feed
-the matcher (20 sigma over the SExtractor background model, flux-ranked,
-25 px de-crowding, brightest 200). --detect=peaks is the in-house
-peak-centroid fallback, pending removal (BACKLOG register). Solve runs in
-FITS pixel convention (1-based, bottom-up rows) so the WCS can be written
-straight into the file.
+Star detection: SExtractor's own core via the `sep` package — official
+extraction, shape-blind so trailed sources feed the matcher (20 sigma over
+the SExtractor background model, flux-ranked, 25 px de-crowding, brightest
+200). The in-house peak-centroid fallback is RETIRED (register condition
+fired: sep solved every x86 field at equal-or-higher odds with identical
+SPCC K; extractor_ab.json). Solve runs in FITS pixel convention (1-based,
+bottom-up rows) so the WCS can be written straight into the file.
 
 Runs inside a private venv (~/.local/share/astrometry-venv) holding the
 `astrometry` + `sep` pip packages (bundled astrometry.net engine +
@@ -140,62 +140,6 @@ def detect_stars_sep(path, central=None, max_stars=200):
         taken[cy, cx] = True
         # FITS convention: 1-based, bottom-up rows
         stars.append((x0 + 1.0, h - y0))
-        if len(stars) >= max_stars:
-            break
-    return stars, h, w
-
-
-def detect_stars(path, central=None, max_stars=200):
-    import astrometrics as am
-    import numpy as np
-    from scipy.ndimage import maximum_filter
-
-    data, _ = am.read_fits(path)
-    g = data[min(1, data.shape[0] - 1)].astype(np.float32)
-    h, w = g.shape
-    bs = 128
-    gy, gx = h // bs, w // bs
-    bg = np.median(g[:gy * bs, :gx * bs].reshape(gy, bs, gx, bs), axis=(1, 3))
-    d = g[:gy * bs, :gx * bs] - np.repeat(np.repeat(bg, bs, 0), bs, 1)
-    sig = 1.4826 * np.median(np.abs(d - np.median(d)))
-    mx = maximum_filter(d, size=9)
-    cand = (d == mx) & (d > 20 * sig)
-    # exclude the configured foreground (+ a margin for its glow/smear
-    # halo): treeline tips and glow edges detect as bright "peaks" and
-    # poison the matcher — a treed field solves only with them excluded
-    if am.CTX.foreground is not None:
-        keep = am.branch_mask(h, w)[:gy * bs, :gx * bs]
-        from scipy.ndimage import binary_erosion
-        keep = binary_erosion(keep, np.ones((49, 49)))
-        cand &= keep
-    ys0, xs0 = np.nonzero(cand)
-    vals = d[ys0, xs0]
-    # `central` shrinks the pool a lot (frac^2 of the area), so widen the
-    # candidate cut so the quota still fills from the low-distortion centre
-    order = np.argsort(vals)[::-1][:max(6000 if central else 1200,
-                                        6 * max_stars)]
-    taken = np.zeros((h // 25 + 2, w // 25 + 2), bool)
-    stars = []
-    for k in order:
-        y0, x0 = ys0[k], xs0[k]
-        if central is not None and (abs(x0 - w / 2) > central * w
-                                    or abs(y0 - h / 2) > central * h):
-            continue                          # low-distortion centre only
-        cy, cx = y0 // 25, x0 // 25
-        if taken[max(0, cy - 1):cy + 2, max(0, cx - 1):cx + 2].any():
-            continue
-        taken[cy, cx] = True
-        # clamp the centroid window to the array on BOTH sides: a peak
-        # within 4 px of an edge otherwise clips the data window while
-        # mgrid keeps the full 9x9 — shape-mismatch crash
-        dy0, dy1 = max(0, y0 - 4), min(d.shape[0], y0 + 5)
-        dx0, dx1 = max(0, x0 - 4), min(d.shape[1], x0 + 5)
-        win = d[dy0:dy1, dx0:dx1].clip(0)
-        wy, wx = np.mgrid[dy0:dy1, dx0:dx1]
-        s = win.sum()
-        # FITS convention: 1-based, bottom-up rows
-        stars.append((float((win * wx).sum() / s + 1.0),
-                      float(h - (win * wy).sum() / s)))
         if len(stars) >= max_stars:
             break
     return stars, h, w
@@ -375,9 +319,11 @@ def main():
         except (OSError, ValueError, TypeError):
             pass
     detector = opts.get("detect", "sep")
-    if detector not in ("sep", "peaks"):
-        sys.exit(f"solve_field: unknown --detect={detector} (sep|peaks)")
-    fn = detect_stars_sep if detector == "sep" else detect_stars
+    if detector != "sep":
+        sys.exit(f"solve_field: --detect={detector} is retired — sep "
+                 "(SExtractor core) is the sole extractor (BACKLOG register: "
+                 "condition fired on x86)")
+    fn = detect_stars_sep
     stars, h, w = fn(src, central=central, max_stars=max_stars)
     print(f"[solve_field] {len(stars)} stars via "
           + ("sep (SExtractor core)" if detector == "sep"

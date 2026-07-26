@@ -119,8 +119,9 @@ the constraints any such tool must satisfy):
   first, label after.** Best source is SExtractor's core `sep`: returns trailed sources
   (median elongation ~1.3), blind-solves at HIGHER odds than in-house peak centroids
   (logodds 299 vs 289, scale Δ 1.2e-5), identical SPCC K — `solve_field.py` defaults to it
-  (`extractor_ab.json`). Robustness ranking: (1) asnet + **sep** xylist; (2) in-house peak
-  xylist (fallback, retirement pending); (3) `image2xy` xylist (shape-blind, untested — its
+  (`extractor_ab.json`). Robustness ranking: (1) asnet + **sep** xylist — the sole extractor
+  (the in-house peak-xylist fallback is RETIRED: sep passed every x86 solve
+  at equal-or-higher odds, identical SPCC K); (2) `image2xy` xylist (shape-blind, untested — its
   trail knobs `-a`/`-p`/`-m` aren't exposed by solve-field and `-a` can fragment one trail
   into spurious detections); (4) `-localasnet` and ASTAP LEAST — both PSF-fit/roundness-gated
   (ASTAP docs: *"star streaks … will be ignored"*; wide DBs W08 FOV>20°, G05 FOV>6°, G17/H17/H18

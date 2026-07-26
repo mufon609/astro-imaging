@@ -124,7 +124,7 @@ mkdir -p "$(dirname "$JUDGE")"
 echo "[finish $NAME] 1/4 solve"
 # --central=<frac> restricts detection to the frame's central fraction — the
 # union-canvas (framing=max) case, whose coverage seams false-detect otherwise.
-python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --detect=sep --max-stars=400 \
+python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --max-stars=400 \
   --session="$SESSION" --set="$SET" \
   ${RA:+--ra=$RA} ${DEC:+--dec=$DEC} ${RAD:+--radius-deg=$RAD} \
   ${CENTRAL:+--central=$CENTRAL} \
