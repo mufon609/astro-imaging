@@ -70,7 +70,12 @@ synthetic routes ([`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-
 GraXpert `-correction Division` for dust-safe vignetting (x86 official; Siril's
 native `subsky` is subtraction-only — empirically confirmed on 1.4.4), or a Siril
 sky flat ONLY when the field is not frame-filling faint (else it bakes in and
-attenuates the IFN). **The sky flat is strictly PER-SET (user-ratified rule): a
+attenuates the IFN). **MEASURED LIMIT (2026-07-26): GraXpert's AI Division shares
+the sky flat's enabling condition** — on a frame-filling-MW field it absorbed ~2/3
+of the extended structure even at max smoothing (probe numbers in
+`docs/dead-ends.md`; classical `-preferences_file` grid interpolation untested) —
+so on that class the per-set sky flat remains the least-bad flatless route and
+REAL flats at acquisition are the fix. **The sky flat is strictly PER-SET (user-ratified rule): a
 flat calibrates ONLY the exact frames it was built from** — its low-order term
 carries the source set's own sky gradient, so cross-set application IMPRINTS that
 gradient (measured ±6% L-R tilt on set-03 under set-01's flat vs ~1–2% under its
