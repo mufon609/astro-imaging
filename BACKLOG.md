@@ -43,7 +43,6 @@ and a row's numbers re-verify when that set is re-processed here.
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; the vignetting-only fallback for a flatless set (none staged). |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — the validated per-set route for flatless sets (`build_sky_flat.sh` gates); dust-safety validates PER SET before use (dead-ends); tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
-| 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **FIRED 2026-07-25, and now a MEASURED DEFECT, not just doctrine**: july23 set-03's green channel quantized so tightly (bgnoise ~1.5 ADU on integer bins) that its MAD and BWMV read exactly 0 — Siril's linked `autostretch` statistics degenerated and the judge surface rendered near-unstretched ("looks like a single frame", user-caught; every other channel/set landed MAD=1.0 by integer coin-toss). Float32 stacking removes the knife edge entirely. Retire with the flat-route rebuild. |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
@@ -269,59 +268,6 @@ numbers in `docs/dead-ends.md`, ledger `flat_source_set03`).
   both vendors say matched darks need none). A/B on one set, judged on dark-residual /
   walking-noise metrics (ties into item 11's mechanism work). Low priority — our darks
   are same-night, session-end temperature.
-- **With/without-flat probe on the frame-filling-MW class — WHICH nebula contrast is
-  honest?** MEASURED (july23, WCS-anchored NAN-region instrument,
-  `datasets/july23/snr_nan_regions.json`): set-01 carries 2.3× the extended-structure
-  contrast of sets 02/03/04 (Δ≈+10 vs ~+4 ADU R-channel) and a +7 ADU brighter sky
-  (00:40–01:07 window, twilight-adjacent); 02/03/04 are mutually consistent. The only
-  per-set-differing stage is each set's own sky flat (set-01's flat centre 56.3 ADU vs
-  48–49) — the registry's frame-filling-structure bake-in limit, adopted this session
-  on class precedent WITHOUT the per-set with/without validation the flat QA gate
-  names. The test: one set (e.g. set-03), one knob (flat: own sky flat vs none vs
-  GraXpert Division), same downstream chain, judged on the same WCS-anchored contrast
-  boxes + full-frame like-encoded finals. Settles whether ~10 is honest (flats of
-  02/03/04 attenuate) or set-01 is the anomaly (twilight term in its flat), and picks
-  the flat route for this class. Until it runs, the july23 per-set stacks are
-  candidates whose extended-structure transfer differs measurably set-to-set.
-  THREE judged metrics, all instrumented: (1) the WCS-anchored NAN-contrast boxes;
-  (2) the Deneb-halo residual (Deneb-box minus sky-box — the per-set glare
-  cancellation variance measured 0/0/0 → +1/+2/+3 across sets, the user-visible
-  "circle"; a flat with no baked glare should leave the halo equal in every set);
-  (3) regional corner flatness vs the july14 reference. GraXpert `-correction
-  Division` is the third arm (vignetting-only model, cannot bake sky or glare —
-  the item above documents its build caveats).
-  RESOLVED IN PART 2026-07-26 (probe ran; A32 own-flat won on structure
-  preservation; GraXpert AI Division measured absorbing the MW — dead-ends).
-  STILL OPEN, sharpened by `docs/july23-dew-and-corner-chroma.md`: the corner
-  CHROMA mechanism (H1: additive moonlight/dew glow breaks the sky flat's
-  multiplicative self-cancellation). Two pre-registered one-knob tests:
-  (a) first-100 vs last-100-frame flat on one set — residual moves with the
-  flat's time window ⇒ time-varying additive term implicated; (b) the next
-  moonless dew-free session through the identical chain must read ≤1% corner
-  R/G like july14. Until settled, the flatless route carries a MOONLIT-NIGHT
-  class caveat (recorded in the doc; TOOLS caveat pending that test).
-- **set-04 disposition (dew) — DECIDED 2026-07-26**: user chose drop set-04 +
-  set-03's dew tail (9752–9848, via recipe); re-compose executed
-  (`datasets/july23/combine_decision.json`; per-set products preserved,
-  incl. `stack_set-03_400full`). Remaining residue: the acquisition-side
-  dew-control checklist line lands with the research sweep's citations.
-- **THE DIRECTION FINDING for the corner-chroma class (user-prompted commit
-  audit, 2026-07-26): the conventional fix is the UNBUILT render-tier
-  background-extraction stage — item 0's L1 — and no recent commit advanced
-  it.** The user's field knowledge reframed the issue: every wide-field
-  stack renders pre-BGE corners like this; the industry-standard chain
-  removes it at the background stage our judgment surfaces skip (they go
-  SPCC → diagnostic autostretch). PROBE RESULT (exp_subsky1): the dust-safe
-  plane removes the ONE-SIDED half (TR 1.070→1.057, corners uniform ~5.5%,
-  contrast-NULL) and structurally cannot touch the remaining RADIAL ~5%
-  term — the per-channel calibration residue whose in-doctrine fix on the
-  MW-filling class is REAL FLATS at acquisition (higher-order background
-  models are registry-measured MW-eaters). Direction: (1) item-0 L1 adopts
-  the plane as the standard background step (one-sided term, dust-safe);
-  (2) the radial term rides the acquisition checklist (real flats), NOT a
-  processing knob; (3) the user judges the probe pair
-  (web/results/july23/exp_subsky1_20260726/).
-
 ## 9. Data-capability gaps (gated per item — read each gate)
 
 Real imaging capabilities the pipeline does not yet have; each lands as a measured
@@ -474,39 +420,6 @@ design: chains lead with evidence-driven per-set step-strips, an active-run
 banner, and first-class preview-plan/Run; every stage card explains its
 process from the registry's structured docs; manual stages stay reachable
 below. Full text in git.)_
-## 19. `stack.exclude` semantics — UNIFIED (closed 2026-07-26)
-
-One repo-wide convention now: exclude numbers are the frame's trailing
-FILENAME digits, resolved by the single-source `scripts/lib/cullspec.py`
-(consumers: both undistort builders in keep-mode; `run_pipeline.sh` in
-positions-mode — cullspec maps digits to the 1-based sequence positions its
-Siril `unselect` machinery needs, over the same sorted list `convert`
-stages; writers: the chain auto-cull + `cull_report.py` suggestions). THE
-GUARD: an exclude matching zero or several staged frames is a hard ABORT —
-a cull can no longer silently no-op (the measured failure that opened this
-item: an index-style recipe under the filename-matching builder excluded
-nothing, exit 0). Tested: real set-01/set-03 recipes resolve (399/303
-eligible), the index-style recipe and an ambiguous exclude both abort loud,
-positions-mode maps a gapped spaced-FITS list correctly. Residue: the
-superseded index-style semantics note in old commit messages only; the
-web Culled Frames page (item 16) should read cullspec's convention note
-when built.
-
-## 20. Warp-leg ICC toe error — FIXED (closed 2026-07-26)
-
-Three-arm probe on the ratio-vs-level instrument: (A) the SRGB/SRGB
-tag-matching contract = +4.7%..+2.2% inflation below linear ~0.003 (the TRC
-toe-segment mismatch; 3s-class sky sits in the band, 6s-class above it);
-(B) **exiftool ICC strip + `--icc-type LIN_REC709` = identity 1.0000 at
-every level and channel, warp confirmed firing — ADOPTED** in
-run_undistort_pipeline (strip rides the existing lens-tag exiftool pass);
-(C) siril `icc_remove` + LIN out = global ~1/12.92 scale — registry trap.
-dead-ends ICC entry rewritten in place with the class lesson: verify ICC
-changes down to the exposure class's SKY level, never star amplitudes
-alone. lens_preflight/verify_lens_card keep SRGB (relative two-arm probes —
-the ICC path cancels between arms). Rebuild of the july23 combine through
-the fixed leg: this session.
-
 ## 18. Flatpak Siril concurrency race — serialize or harden the invokers
 
 MEASURED on x86 (2026-07-25, july23 run): two rapid-fire siril-cli loops running

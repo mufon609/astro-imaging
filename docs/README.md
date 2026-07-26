@@ -45,14 +45,13 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
-- [july23-dew-and-corner-chroma](july23-dew-and-corner-chroma.md) — the two
-  user-caught july23 anomalies, measured: (A) the Deneb disc's 9-timepoint
-  halo timeline (+91%, accelerating — DEW the leading attribution, user
-  field call; set-04 options quantified, user-gated) + the median-vs-mean
-  photometry trap that faked the earlier "constant halo"; (B) the 4–7%
-  radial red corner chroma in every july23 product vs july14's ≤0.9% — flats'
-  baked one-sided asymmetry measured per-channel, 75%-moon vs new-moon
-  ephemeris, mechanism OPEN with two pre-registered one-knob tests.
+- [july23-dew-and-corner-chroma](july23-dew-and-corner-chroma.md) — the
+  july23 session's two data-quality findings, current-state: LENS DEW (the
+  known environment issue — measured halo-growth signature, the reusable
+  detection instrument, the sets-01+02-only final combine, prevention
+  checklist) and the RESOLVED warp-leg ICC toe defect (untagged-linear
+  float contract, identity 1.0000 verified; corners restored to
+  reference-class ≤1.018 R/G).
 - [stacking-vs-official-pipelines](stacking-vs-official-pipelines.md) — the
   stacking chain audited stage-by-stage against CURRENT official doctrine
   (Siril 1.4.4 docs/scripts/team statements; PixInsight 1.9.4 + WBPP 2.9.0 as

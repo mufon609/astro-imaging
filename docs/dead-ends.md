@@ -380,12 +380,10 @@ the constraints any such tool must satisfy):
   aesthetic commits before the user's eyes.
 - **A multi-product judgment set rendered by data-dependent `autostretch` is NOT
   like-encoded — each surface gets its own histogram-derived transfer.** MEASURED
-  (july23, five surfaces from one chain): linear stacks statistically IDENTICAL
-  (NAN-region contrast ~+4 ADU each, same medians ~41, same bgnoise family) rendered
+  (five surfaces from one chain): statistically identical linear stacks rendered
   as "rich MW field" vs "single-frame-looking flat gray" purely by the per-stack
-  autostretch; the user read it as an inconsistent PROCESS. The mechanism bites the
-  assembler too: a weak fixed-MTF probe compared against an autostretched PNG
-  "refuted" a correct hypothesis until the comparison was re-run like-for-like.
+  transfer. The trap bites comparisons too: a fixed-MTF probe against an
+  autostretched PNG "refutes" correct hypotheses until re-run like-for-like.
   Multi-surface judgment sets pin ONE stretch RULE for every member — and the rule
   must be SKY-ANCHORED per product, not one raw MTF triplet: separately
   output-normalized stacks put their sky at different normalized levels, so a
@@ -433,7 +431,8 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   lights' own sky corner/centre is the cross-check).
 - Darks at the lights' exposure/ISO at night temperatures; biases at the flats'
   shutter (= exact flat-darks) — shoot them, it is 30 seconds.
-- **DEW CONTROL (measured cost: one set + a second set's tail lost, july23).**
+- **DEW CONTROL (measured cost, july23: two of four sets excluded from the
+  final combine).**
   A clear still humid night radiation-cools the lens below the dew point even
   in summer; the film NEVER self-clears and faint-star loss precedes the
   visible film. Run a low-power lens heater band from session START (2–3.4 W
