@@ -140,44 +140,39 @@ carries its source sky" mechanism per-channel, on real flats.
 same f-stop, same chain on july14 renders neutral — pure static color
 shading would show both nights. The residual is session-specific.
 
-**Candidate mechanisms (hypotheses — each with its discriminating test;
-NONE adopted):**
+**REFRAMED BY USER FIELD KNOWLEDGE (2026-07-26): this is the NORMAL
+pre-background-extraction state of a wide-field stack, not a july23-specific
+fault.** The user has seen many stacks — july14-class included — originally
+render with exactly this corner residual and get FIXED downstream. That
+matches industry doctrine precisely: the standard post-stack order (Siril's
+own: crop → BACKGROUND EXTRACTION → photometric colour → stretch; PI: DBE/
+GradientCorrection before colour work) runs a background/gradient-removal
+stage that our chain DOES NOT HAVE — the render tier (BACKLOG item 0) is
+unbuilt, so every judgment surface ships straight from SPCC to a diagnostic
+stretch with the background gradient still in it. SPCC then amplifies the
+visibility: it neutralizes the CENTRE globally (K factors + global bg
+offsets), pushing the whole spatial colour residual into the corners.
+**The operative question is not "which sky term coloured the corners" but
+"why is the judgment surface rendered without the standard stage that
+removes it".** july14's near-neutral pre-BGE state (new moon, weak
+gradient) was the lucky case, not the norm.
 
-- **H1 — additive scattered components break the sky flat's multiplicative
-  self-cancellation.** A lights-built flat cancels sky×vignetting exactly
-  only while the frame content is multiplicative and stationary. july23 adds
-  two ADDITIVE, TIME-VARYING glows: moonlight scatter (setting moon;
-  gradient drifting) and the growing dew veil (Part A). Division by the
-  median-of-lights then mis-corrects every frame by the difference between
-  its instantaneous additive term and the median's, leaving a radial +
-  one-sided colored residual. Predicts: corner chroma grows with the dew
-  curve set-over-set (measured: TR R/G 1.056 → 1.064 → 1.072 → 1.072,
-  matching until the plateau) and vanishes on a moonless dew-free night.
-  TESTS: (a) next moonless session, identical chain → corners should read
-  ≤1% like july14; (b) one set re-calibrated with a flat built from its
-  FIRST 100 frames vs its LAST 100 — if the residual moves with the flat's
-  time window, the time-varying additive term is implicated; both are
-  one-knob cheap.
-- **H2 — differential extinction / moon-dome gradient (one-sided
-  contributors).** Cannot produce the all-corner radial term; can drive the
-  TR asymmetry. TEST: the TR excess should track the field's orientation to
-  the moon azimuth across the four re-aims; computable once observer
-  location is declared (open input).
-- **H3 — SPCC's spatial blindness (background offsets are global).**
-  Not a cause but an amplifier: SPCC neutralizes the CENTRE (K factors from
-  stars + global bg offsets), so any spatially varying colored residual is
-  pushed entirely into the corners. No test needed — mechanism is
-  documented tool behavior; the fix layer is the render tier's per-channel
-  background extraction (item 0), which is where the corners get equalized
-  in the standard workflow regardless of which upstream mechanism made them.
-- **H4 — bit-depth or chain regression.** Refuted for the radial term: the
-  32-bit rebuild carries the same corner chroma as the 16-bit run; july14's
-  neutral render came through the same finish stage.
+Secondary mechanism notes (kept for the record, demoted from "leading"):
+- The additive scattered components (75% moon + the growing dew veil)
+  plausibly explain why july23's PRE-BGE gradient is larger than july14's
+  (flat self-cancellation breaks on additive, time-varying terms; corner
+  chroma tracks the dew curve set-over-set: TR R/G 1.056→1.064→1.072→1.072).
+  Optional cheap test if ever needed: first-100 vs last-100-frame flat A/B.
+- Differential extinction / moon-dome: one-sided contributors only (the TR
+  asymmetry), cannot make the radial term.
+- Bit depth: refuted (32-bit carries the same chroma as 16-bit).
 
-**Status: Part B mechanism OPEN.** The measured facts are the gradient
-table, the flats' asymmetry, and the moon difference; H1 is the leading
-candidate with two cheap pre-registered tests; no attribution is claimed
-until one runs.
+**The conventional fix, measured on this data:** the `subsky 1` probe (the
+registry's MW-safe first-degree plane — the L1 on-stack arm of the
+pre-registered render plan) on the re-composed combine — corner chroma
+before/after + NAN-contrast dust-safety check. Numbers land in the
+experiment record (`datasets/july23/experiments.jsonl`, exp_subsky1) and
+the like-encoded pair goes to the user's eyes.
 
 ## Sources
 
@@ -192,12 +187,14 @@ until one runs.
 
 ## Verdict / recommendation
 
-Part A: dew (or an equivalent progressive lens fog) is the leading,
-multi-axis-supported attribution for the set-04 disc; the set-04 decision is
-the user's — options quantified above. Part B: the corner chroma is real,
-measured, session-specific, and moon/dew-correlated; adopt nothing until the
-H1 tests run; the render tier's background extraction is the standard
-downstream equalizer either way.
+Part A: dew (or an equivalent progressive lens fog) — multi-axis-supported;
+**USER DECIDED 2026-07-26: set-04 dropped from the combine, set-03's tail
+(9752–9848) culled via recipe; per-set products preserved**
+(`datasets/july23/combine_decision.json`). Part B, per user field knowledge:
+the corner chroma is the normal pre-BGE state; the actionable divergence is
+the chain's missing background-extraction stage (render tier, item 0) — the
+`subsky 1` probe measures the conventional fix on this data; the moon/dew
+terms remain only as notes on why this session's pre-BGE gradient ran large.
 
 ## Status
 

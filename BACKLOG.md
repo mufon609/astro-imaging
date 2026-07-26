@@ -309,14 +309,21 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   moonless dew-free session through the identical chain must read ≤1% corner
   R/G like july14. Until settled, the flatless route carries a MOONLIT-NIGHT
   class caveat (recorded in the doc; TOOLS caveat pending that test).
-- **set-04 disposition (dew) — USER-GATED.** The halo timeline
-  (`docs/july23-dew-and-corner-chroma.md` Part A) supports progressive lens
-  dew: whole set affected (halo 7.05→11.95 within set-04; FWHM elevated from
-  its first block), set-03's tail already elevated (10.3 at 02:01). Options
-  quantified in the doc: drop set-04 (1199-frame combine, ×0.87 SNR) / drop
-  set-04 + set-03 tail (~1050) / keep with caveat. Re-compose ~30 min once
-  decided. Acquisition-side dew-control checklist line lands with the
-  research sweep's citations.
+- **set-04 disposition (dew) — DECIDED 2026-07-26**: user chose drop set-04 +
+  set-03's dew tail (9752–9848, via recipe); re-compose executed
+  (`datasets/july23/combine_decision.json`; per-set products preserved,
+  incl. `stack_set-03_400full`). Remaining residue: the acquisition-side
+  dew-control checklist line lands with the research sweep's citations.
+- **THE DIRECTION FINDING for the corner-chroma class (user-prompted commit
+  audit, 2026-07-26): the conventional fix is the UNBUILT render-tier
+  background-extraction stage — item 0's L1 — and no recent commit advanced
+  it.** The user's field knowledge reframed the issue: every wide-field
+  stack renders pre-BGE corners like this; the industry-standard chain
+  removes it at the background stage our judgment surfaces skip (they go
+  SPCC → diagnostic autostretch). The subsky-1 probe measures the fix on
+  the july23 combine; adopting it as a real stage IS the item-0 gate. The
+  instrument-heavy commits around this symptom (H1 scaffolding) are
+  superseded by that reframing.
 
 ## 9. Data-capability gaps (gated per item — read each gate)
 

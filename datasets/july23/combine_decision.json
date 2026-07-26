@@ -1,0 +1,8 @@
+{
+ "decision": "combine = set-01 + set-02 + set-03(tail-culled); set-04 EXCLUDED",
+ "decided_by": "user",
+ "date": "2026-07-26",
+ "why": "progressive lens dew (docs/july23-dew-and-corner-chroma.md Part A): set-04 affected throughout (Deneb halo G 7.05->9.85->11.95 within the set, R-channel NAN contrast 15.1% of sky vs set-02's 19.4%); set-03's last two blocks already elevated -> tail culled via recipe (9752-9848).",
+ "kept_products": "stack_set-04.fit + set-04 records stay preserved as the per-set product; stack_set-03_400full.fit preserves the pre-cull build; the 4-set combine files remain as comparison surfaces only.",
+ "combine_product": "web/results/july23/stack_set-01+02+03_min.fit"
+}
