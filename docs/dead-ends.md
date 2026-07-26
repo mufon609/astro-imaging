@@ -346,15 +346,21 @@ the constraints any such tool must satisfy):
   Multi-surface judgment sets pin ONE transfer function for every member (the
   render tier's pinned stretch is the durable home; `autostretch` stays valid for a
   SINGLE diagnostic surface).
-- **A kept contiguous thin-haze window prints a scattering DISC around a bright
-  star — sub-sigma consistent minorities average in, they do not reject.** MEASURED
-  (july23 set-04): 20/398 haze frames (5%, nstars −13-16%, FWHM/round/bg normal)
-  left a ~500 px circular glow around Deneb (mag 1.25); like-encoded crops: set-02
-  (no haze) clean, set-04 disc; rejection cannot touch it (the disc is consistent
-  and sub-sigma per frame, not an outlier). The minority-keep rule ("dropping a
-  minority buys no matching gain") is calibrated for FAINT distributed signal —
-  for TRANSPARENCY windows with a mag≲2 star in-frame, the window is a cull
-  candidate despite being a minority; decide per set with the disc made visible.
+- **A bright star's glare disc survives to the FINAL stack by exactly the amount
+  its set's own sky flat fails to cancel — per-set flats make the residual
+  inconsistent set-to-set.** MEASURED (july23, Deneb mag 1.25 in-frame all night):
+  the broad glare halo is in EVERY raw frame (+2/+6/+6 ADU RGB over sky in
+  20-frame ministacks) and is NOT time-gated — a kept thin-haze window measured
+  IDENTICAL halo to its pre-window control, killing the first (haze) hypothesis.
+  The sensor-drifting halo bakes into each set's lights-built sky flat; division
+  then cancels the star-anchored halo to a geometry-dependent degree: final-stack
+  Deneb-box excess 0/0/0 (set-01), 0/0/0 (set-02), 0/+1/+1 (set-03), +1/+2/+3
+  (set-04 — the user-visible "circle around Deneb"). Lesson twice over: (1) a
+  star-anchored broad residual in ONE set of a same-optics session is a
+  CALIBRATION-TRANSFER difference, not atmosphere — measure ministack controls
+  before attributing to sky conditions; (2) the per-set sky flat on a field with
+  a mag≲2 star adds a per-set variable glare transfer on top of the known
+  frame-filling-structure bake-in limit.
 
 ## Acquisition checklist — the real quality lever
 
