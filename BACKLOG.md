@@ -46,7 +46,7 @@ and a row's numbers re-verify when that set is re-processed here.
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists for the set | **not fired** — not yet adopted; july14 is flatless by acquisition. |
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — validated dust-safe for this set; tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
-| 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **not fired** — arm RAM/disk forced it; the quantization is measured ≈18× below per-frame noise (~+0.3% stack noise) and the shipped july14 stacks are BITPIX=16 under it. |
+| 16-bit stack-time intermediates | a rig whose RAM/disk carries 32-bit through stacking end-to-end (the x86 32 GB / 1 TB target): drop `set16bits`, re-measure stack noise vs the 16-bit path, land as a declared delta | **FIRED 2026-07-25** — the x86 rig is live (31 GB / 1.8 TB) and the july23 chain ran on it; retirement is the pre-registered one-knob A/B (drop `set16bits` in the builders, re-measure stack bgnoise vs the 16-bit control, declared delta). Both vendors' doctrine is 32-bit (Siril docs warn "a 16-bit stacking can lose a lot of information"; PI is float32 end-to-end) — `docs/stacking-vs-official-pipelines.md`. Until run, july23 stacks are BITPIX=16 like july14's (comparable is comparable). |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
@@ -259,6 +259,25 @@ rig, set-02's are not (re-stage from originals, or build on x86).
   path). Run the design against a bracket (SPCC, Nightlight) on x86. Nightlight is a
   dormant mechanism reference only — its `OpRGBBalance` balances the brightest-quartile
   stars; the OIII-lift is our inference (`docs/dead-ends.md`).
+- **Siril-native SIP undistort vs the darktable warp** (from the 2026-07 doctrine audit,
+  `docs/stacking-vs-official-pipelines.md`): Siril 1.4's own solver fits SIP (default
+  Cubic) and `register -disto=image|file|master` consumes it — a DIFFERENT SIP source
+  than the astrometry.net index-constrained fit the registry killed. One knob (the
+  distortion mechanism), same set, judged on `seqtilt` off-axis + drift-axis stations +
+  full-frame finals. This is the fitted-lens-model removal-condition test, now with a
+  concrete native route. Precondition: the native solver must first solve this class at
+  all (next item).
+- **Native `platesolve -localasnet` probe on the mildly-trailed class.** The registry's
+  solver dead-end was measured on july14's roundness-0.615 frames; july23 measures
+  0.80 (3 s subs). If Siril's own blind solve handles this class, `solve_field.py`
+  gains a native sibling for it (the external route stays for heavily-trailed data);
+  also the precondition for the SIP test above. One stack, one probe, record the
+  verdict either way.
+- **`-opt` dark optimization vs matched darks on the uncooled body** (Siril FAQ
+  doctrine fork: non-cooled cameras "should" use dark optimisation; base doctrine and
+  both vendors say matched darks need none). A/B on one set, judged on dark-residual /
+  walking-noise metrics (ties into item 11's mechanism work). Low priority — our darks
+  are same-night, session-end temperature.
 
 ## 9. Data-capability gaps (gated per item — read each gate)
 
@@ -362,6 +381,26 @@ records yet — those seed when each set is processed (the deriver's design; a
 missing record is handled gracefully). OPEN (user call): the session dir is still
 named `july14`; rename to `july14` now that it is the real dataset, or
 leave it.
+
+## 15. Flatpak Siril concurrency race — serialize or harden the invokers
+
+MEASURED on x86 (2026-07-25, july23 run): two rapid-fire siril-cli loops running
+concurrently (the anomaly audit's per-frame calls + a stack builder's per-frame
+`savetif` loop) died after ~10 min with `bwrap: Can't get type of source
+/run/user/1000/.flatpak/org.siril.Siril/tmp: No such file or directory` — flatpak
+tears down the per-app instance dir when one short-lived instance exits exactly as
+another is starting its sandbox. One occurrence in ~150 paired invocations;
+probabilistic, kills the caller mid-chain (`set -e`), and the failing script prints
+nothing (the bwrap line lands in the siril log). NOT a data or Siril bug.
+
+- Session practice adopted immediately: ONE siril-loop job at a time, globally —
+  the july23 chain ran serialized after the hit and completed clean.
+- Hardening candidates (pick ONE, as its own change): a repo-shared `sir()` helper
+  with a bounded retry on the bwrap signature; or an flock-serialized invoker all
+  scripts source. Either lives in shared code (calibrate_light.sh precedent: one
+  definition, every builder routes through it).
+- Removal condition: flatpak fixes the instance-dir lifecycle race, or Siril
+  invocations stop being per-frame process spawns (e.g. pyscript batching).
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

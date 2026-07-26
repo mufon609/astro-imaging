@@ -1,0 +1,3310 @@
+{
+ "acquisition": {
+  "mount": "fixed",
+  "exif": {
+   "camera": "NIKON Z6_3",
+   "lens": "NIKKOR Z 24-70mm f/4 S",
+   "focal_length_mm": 70.0,
+   "exposure_s": 3.0,
+   "iso": 1600,
+   "image_wh": [
+    6064,
+    4040
+   ],
+   "fov_deg": 28.6,
+   "pixel_scale_arcsec": 16.979,
+   "cadence_s": 4.0,
+   "frames": 401,
+   "time_span_s": 1617.5
+  }
+ },
+ "capture_runs": [
+  {
+   "run": 1,
+   "first": "DSC_9448.NEF",
+   "last": "DSC_9448.NEF",
+   "n": 1
+  },
+  {
+   "run": 2,
+   "first": "DSC_9449.NEF",
+   "last": "DSC_9848.NEF",
+   "n": 400
+  }
+ ],
+ "frames": [
+  {
+   "file": "DSC_9448.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.6,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9449.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9450.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9451.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9452.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9453.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9454.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9455.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9456.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9457.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9458.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9459.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9460.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9461.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9462.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9463.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9464.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9465.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9466.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9467.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9468.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9469.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9470.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9471.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9472.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9473.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9474.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9475.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9476.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9477.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9478.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9479.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9480.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9481.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9482.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9483.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9484.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9485.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9486.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9487.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9488.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9489.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9490.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9491.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9492.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9493.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9494.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9495.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9496.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9497.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9498.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9499.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9500.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9501.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9502.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9503.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9504.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9505.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9506.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9507.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9508.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9509.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9510.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9511.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9512.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9513.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9514.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9515.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9516.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9517.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9518.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9519.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9520.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9521.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9522.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9523.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9524.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9525.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9526.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9527.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9528.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9529.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9530.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9531.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9532.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9533.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9534.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9535.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9536.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9537.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9538.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9539.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9540.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9541.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9542.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9543.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9544.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9545.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9546.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9547.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9548.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9549.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9550.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9551.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9552.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9553.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9554.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9555.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9556.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9557.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9558.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9559.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9560.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9561.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9562.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9563.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9564.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9565.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9566.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9567.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9568.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9569.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9570.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9571.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9572.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9573.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9574.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9575.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9576.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9577.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9578.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9579.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9580.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9581.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9582.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9583.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9584.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9585.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9586.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9587.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9588.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9589.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9590.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9591.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9592.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9593.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9594.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9595.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9596.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9597.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9598.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9599.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9600.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9601.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9602.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9603.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9604.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9605.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9606.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9607.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9608.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9609.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9610.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9611.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9612.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9613.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9614.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9615.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9616.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9617.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9618.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9619.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9620.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9621.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9622.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9623.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9624.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9625.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9626.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9627.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9628.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9629.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9630.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9631.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9632.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9633.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9634.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9635.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9636.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9637.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9638.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9639.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9640.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9641.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9642.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9643.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9644.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9645.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9646.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9647.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9648.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9649.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9650.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9651.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9652.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9653.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9654.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9655.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9656.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9657.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9658.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9659.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9660.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9661.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9662.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9663.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9664.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9665.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9666.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9667.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9668.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9669.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9670.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9671.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9672.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9673.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9674.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9675.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9676.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9677.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9678.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9679.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9680.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9681.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9682.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9683.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9684.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9685.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9686.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9687.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9688.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9689.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9690.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9691.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9692.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9693.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9694.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9695.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9696.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9697.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9698.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9699.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9700.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9701.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9702.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9703.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9704.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9705.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9706.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9707.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9708.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9709.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9710.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9711.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9712.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9713.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9714.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9715.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9716.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9717.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9718.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9719.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9720.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9721.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9722.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9723.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9724.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9725.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9726.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9727.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9728.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9729.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9730.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9731.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9732.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9733.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9734.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9735.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9736.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9737.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9738.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9739.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9740.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9741.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9742.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9743.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9744.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9745.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9746.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9747.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9748.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9749.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9750.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9751.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9752.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9753.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9754.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9755.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9756.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9757.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9758.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9759.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9760.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9761.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9762.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9763.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.014)",
+     "evidence": {
+      "span_px": 70,
+      "n_fragments": 1,
+      "pa_deg": -87.9,
+      "curvature": 0.014,
+      "bright_cv": 0.23
+     },
+     "streaks": [
+      {
+       "length": 70.06326226372104,
+       "width": 0.6607079378004288,
+       "sagitta": 0.9629209823828005,
+       "elong": 61.432770224288504,
+       "curvature": 0.013743593307978235,
+       "bright_cv": 0.23242609202861786,
+       "pa_deg": -87.85116096383953,
+       "cx": 2518.1514205969834,
+       "cy": 122.77151654921906,
+       "npix": 84
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9764.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.014)",
+     "evidence": {
+      "span_px": 59,
+      "n_fragments": 1,
+      "pa_deg": -88.3,
+      "curvature": 0.014,
+      "bright_cv": 0.14
+     },
+     "streaks": [
+      {
+       "length": 59.033246879588894,
+       "width": 0.6370624265183931,
+       "sagitta": 0.8117108466722146,
+       "elong": 52.94281216409701,
+       "curvature": 0.013750062711744025,
+       "bright_cv": 0.14472880959510803,
+       "pa_deg": -88.32566102428207,
+       "cx": 2514.3821273315416,
+       "cy": 228.43557020417737,
+       "npix": 70
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9765.NEF",
+   "n_trails": 2,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.7,
+     "reason": "2 colinear fragments of one trail, span 119px",
+     "evidence": {
+      "span_px": 119,
+      "n_fragments": 2,
+      "pa_deg": -88.5
+     },
+     "streaks": [
+      {
+       "length": 52.0082097987813,
+       "width": 0.46774945065058815,
+       "sagitta": 0.6954554376862472,
+       "elong": 60.80100363596676,
+       "curvature": 0.013372031846067188,
+       "bright_cv": 0.13091464340686798,
+       "pa_deg": -88.4771910954787,
+       "cx": 2509.381788098257,
+       "cy": 399.68389585540524,
+       "npix": 55
+      },
+      {
+       "length": 66.05481015497871,
+       "width": 0.832184695660362,
+       "sagitta": 1.348953044104019,
+       "elong": 48.19596787426477,
+       "curvature": 0.02042172312567528,
+       "bright_cv": 0.15007658302783966,
+       "pa_deg": -88.54868744446237,
+       "cx": 2507.9691860316243,
+       "cy": 459.67078673321953,
+       "npix": 85
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9766.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9767.NEF",
+   "n_trails": 2,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 2
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.024)",
+     "evidence": {
+      "span_px": 41,
+      "n_fragments": 1,
+      "pa_deg": 89.9,
+      "curvature": 0.024,
+      "bright_cv": 0.18
+     },
+     "streaks": [
+      {
+       "length": 40.99995402309608,
+       "width": 0.22699898878859104,
+       "sagitta": 0.9804313821562147,
+       "elong": 105.38663525188056,
+       "curvature": 0.023912987356130167,
+       "bright_cv": 0.1773403286933899,
+       "pa_deg": 89.91419440567631,
+       "cx": 2503.9865699833294,
+       "cy": 709.0091334907053,
+       "npix": 43
+      }
+     ]
+    },
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.018)",
+     "evidence": {
+      "span_px": 57,
+      "n_fragments": 1,
+      "pa_deg": -89.9,
+      "curvature": 0.018,
+      "bright_cv": 0.15
+     },
+     "streaks": [
+      {
+       "length": 56.99981036743342,
+       "width": 0.418032175122965,
+       "sagitta": 1.008141139279074,
+       "elong": 79.40169669752017,
+       "curvature": 0.017686745495824857,
+       "bright_cv": 0.14731264114379883,
+       "pa_deg": -89.85220600646937,
+       "cx": 2503.0500599844104,
+       "cy": 788.9072868253767,
+       "npix": 63
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9768.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.008)",
+     "evidence": {
+      "span_px": 125,
+      "n_fragments": 1,
+      "pa_deg": -90.0,
+      "curvature": 0.008,
+      "bright_cv": 0.11
+     },
+     "streaks": [
+      {
+       "length": 124.99997360968969,
+       "width": 0.5498564574722385,
+       "sagitta": 0.9709251608074786,
+       "elong": 132.53243933101504,
+       "curvature": 0.007767402926333217,
+       "bright_cv": 0.1058344766497612,
+       "pa_deg": -89.96276898468605,
+       "cx": 2502.916946356033,
+       "cy": 911.9533871004476,
+       "npix": 145
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9769.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.010)",
+     "evidence": {
+      "span_px": 111,
+      "n_fragments": 1,
+      "pa_deg": 89.9,
+      "curvature": 0.01,
+      "bright_cv": 0.25
+     },
+     "streaks": [
+      {
+       "length": 110.99994812917515,
+       "width": 0.5015027332239274,
+       "sagitta": 1.0796044327196952,
+       "elong": 126.85542353894121,
+       "curvature": 0.009726170605623308,
+       "bright_cv": 0.25048312544822693,
+       "pa_deg": 89.94460918759276,
+       "cx": 2503.0059354522446,
+       "cy": 1064.7898031265834,
+       "npix": 121
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9770.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.009)",
+     "evidence": {
+      "span_px": 89,
+      "n_fragments": 1,
+      "pa_deg": 89.2,
+      "curvature": 0.009,
+      "bright_cv": 0.12
+     },
+     "streaks": [
+      {
+       "length": 89.01899355097488,
+       "width": 0.7532448487935899,
+       "sagitta": 0.8405855457702189,
+       "elong": 68.184363731821,
+       "curvature": 0.009442766225938906,
+       "bright_cv": 0.12393085658550262,
+       "pa_deg": 89.21896100019904,
+       "cx": 2504.97744122525,
+       "cy": 1246.9609119507181,
+       "npix": 117
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9771.NEF",
+   "n_trails": 2,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.7,
+     "reason": "2 colinear fragments of one trail, span 85px",
+     "evidence": {
+      "span_px": 85,
+      "n_fragments": 2,
+      "pa_deg": 89.6
+     },
+     "streaks": [
+      {
+       "length": 40.99989187700224,
+       "width": 0.2461447373924517,
+       "sagitta": 0.9541117432016804,
+       "elong": 95.00533167703725,
+       "curvature": 0.023271079496111135,
+       "bright_cv": 0.08826368302106857,
+       "pa_deg": 89.86841546914036,
+       "cx": 2507.017051174783,
+       "cy": 1370.5509579280163,
+       "npix": 43
+      },
+      {
+       "length": 42.99741227210474,
+       "width": 0.5830096934817024,
+       "sagitta": 0.8919275952777999,
+       "elong": 44.61523919850334,
+       "curvature": 0.02074375056883254,
+       "bright_cv": 0.12693525850772858,
+       "pa_deg": 89.37141373933534,
+       "cx": 2507.968195558619,
+       "cy": 1413.2943108955235,
+       "npix": 52
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9772.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.013)",
+     "evidence": {
+      "span_px": 127,
+      "n_fragments": 1,
+      "pa_deg": 88.4,
+      "curvature": 0.013,
+      "bright_cv": 0.21
+     },
+     "streaks": [
+      {
+       "length": 127.03448519078522,
+       "width": 0.7087155814625157,
+       "sagitta": 1.6944567678637201,
+       "elong": 104.73997716619739,
+       "curvature": 0.013338557363529444,
+       "bright_cv": 0.21072573959827423,
+       "pa_deg": 88.42604968392638,
+       "cx": 2511.4464918760855,
+       "cy": 1551.2188582992544,
+       "npix": 156
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9773.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.020)",
+     "evidence": {
+      "span_px": 88,
+      "n_fragments": 1,
+      "pa_deg": 88.2,
+      "curvature": 0.02,
+      "bright_cv": 0.15
+     },
+     "streaks": [
+      {
+       "length": 88.05084111069414,
+       "width": 0.8153371018183483,
+       "sagitta": 1.7885693724963276,
+       "elong": 62.767874029266615,
+       "curvature": 0.02031291637802536,
+       "bright_cv": 0.1525852382183075,
+       "pa_deg": 88.19208899581764,
+       "cx": 2515.8315261497282,
+       "cy": 1690.5002633088625,
+       "npix": 107
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9774.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.036)",
+     "evidence": {
+      "span_px": 50,
+      "n_fragments": 1,
+      "pa_deg": 87.5,
+      "curvature": 0.036,
+      "bright_cv": 0.14
+     },
+     "streaks": [
+      {
+       "length": 50.08276866298892,
+       "width": 0.8570238799507166,
+       "sagitta": 1.7943801088578535,
+       "elong": 34.76325651218007,
+       "curvature": 0.0358282929790161,
+       "bright_cv": 0.1397748589515686,
+       "pa_deg": 87.53450326433877,
+       "cx": 2521.4420770863235,
+       "cy": 1833.7835704114043,
+       "npix": 64
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9775.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9776.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9777.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9778.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9779.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9780.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9781.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9782.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9783.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9784.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9785.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9786.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9787.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9788.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9789.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9790.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9791.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9792.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9793.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9794.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9795.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.4,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.006)",
+     "evidence": {
+      "span_px": 138,
+      "n_fragments": 1,
+      "pa_deg": -87.9,
+      "curvature": 0.006,
+      "bright_cv": 0.12
+     },
+     "streaks": [
+      {
+       "length": 138.0905383518636,
+       "width": 0.7246454986986834,
+       "sagitta": 0.8970329572660013,
+       "elong": 109.26763260632623,
+       "curvature": 0.006495976972588111,
+       "bright_cv": 0.11597105115652084,
+       "pa_deg": -87.90143773080217,
+       "cx": 2717.340407754222,
+       "cy": 1871.015335283938,
+       "npix": 194
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9796.NEF",
+   "n_trails": 1,
+   "stellar_trail_px": 1.5,
+   "counts": {
+    "satellite": 1
+   },
+   "objects": [
+    {
+     "cls": "satellite",
+     "confidence": 0.8,
+     "reason": "single straight trail (curv 0.018)",
+     "evidence": {
+      "span_px": 137,
+      "n_fragments": 1,
+      "pa_deg": -87.4,
+      "curvature": 0.018,
+      "bright_cv": 0.18
+     },
+     "streaks": [
+      {
+       "length": 137.17666297106408,
+       "width": 0.8778169512783862,
+       "sagitta": 2.4030073433461783,
+       "elong": 88.97076586451514,
+       "curvature": 0.01751761043970771,
+       "bright_cv": 0.18224433064460754,
+       "pa_deg": -87.38845507985329,
+       "cx": 2724.2685708349823,
+       "cy": 1702.4796514312436,
+       "npix": 195
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "file": "DSC_9797.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9798.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9799.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9800.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9801.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9802.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9803.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9804.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9805.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9806.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9807.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9808.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9809.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9810.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9811.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9812.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9813.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9814.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9815.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9816.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9817.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9818.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9819.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9820.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9821.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9822.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9823.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9824.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9825.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.4,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9826.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9827.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9828.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9829.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9830.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9831.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9832.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9833.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9834.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9835.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9836.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9837.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9838.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9839.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9840.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9841.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9842.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9843.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9844.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9845.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9846.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9847.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  },
+  {
+   "file": "DSC_9848.NEF",
+   "n_trails": 0,
+   "stellar_trail_px": 1.5,
+   "counts": {},
+   "objects": []
+  }
+ ],
+ "unique_objects": [
+  {
+   "cls": "satellite",
+   "files": [
+    "DSC_9763.NEF",
+    "DSC_9764.NEF",
+    "DSC_9765.NEF",
+    "DSC_9767.NEF",
+    "DSC_9768.NEF",
+    "DSC_9769.NEF",
+    "DSC_9770.NEF",
+    "DSC_9771.NEF",
+    "DSC_9772.NEF",
+    "DSC_9773.NEF",
+    "DSC_9774.NEF"
+   ],
+   "first": "DSC_9763.NEF",
+   "last": "DSC_9774.NEF",
+   "n": 11,
+   "pa": -87.9
+  },
+  {
+   "cls": "satellite",
+   "files": [
+    "DSC_9767.NEF"
+   ],
+   "first": "DSC_9767.NEF",
+   "last": "DSC_9767.NEF",
+   "n": 1,
+   "pa": -89.9
+  },
+  {
+   "cls": "satellite",
+   "files": [
+    "DSC_9795.NEF",
+    "DSC_9796.NEF"
+   ],
+   "first": "DSC_9795.NEF",
+   "last": "DSC_9796.NEF",
+   "n": 2,
+   "pa": -87.9
+  }
+ ]
+}

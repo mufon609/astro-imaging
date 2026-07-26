@@ -1,0 +1,32 @@
+{
+ "measured_by": "EXIF (acquisition.py/exiftool) + astrometry.net solve (solve_field.py) + Siril findstar roundness; this module computes only the derived trail/drift geometry and records it",
+ "declared_mount": "fixed",
+ "plate_scale_arcsec_px": 18.0695,
+ "plate_scale_source": "solved",
+ "field_center": {
+  "ra_deg": 306.7485560848056,
+  "dec_deg": 43.70207204817724
+ },
+ "in_exposure_trail": {
+  "predicted_px": 1.81,
+  "measured_roundness": 0.7982,
+  "note": "floor set at capture; no registration removes it. predicted = 15.041 * cos(dec) * exposure / plate_scale"
+ },
+ "inter_frame_drift": {
+  "span_s": 1630.0,
+  "ra_rate_deg_per_hr": 14.7211,
+  "dec_drift_arcsec": 66.63,
+  "sky_sep_arcsec": 17340.01,
+  "drift_px": 959.6,
+  "drift_px_per_min": 35.32,
+  "sidereal_px_per_min_expected": 36.11
+ },
+ "mount_check": {
+  "verdict": "CONFIRM",
+  "declared": "fixed",
+  "measured": "fixed",
+  "reason": "declared fixed matches the measured fixed sky-motion signature"
+ },
+ "label": "untracked, wide, drifting 35 px/min",
+ "route_hint": "wide-field-untracked (undistort -> homography) \u2014 a wide field on a fixed mount with measurable drift"
+}

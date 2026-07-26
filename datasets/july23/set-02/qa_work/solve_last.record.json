@@ -1,0 +1,29 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/sessions/july23/work/fpsolve/set-02_last/fp_00001.fit",
+ "detector": "sep",
+ "n_stars_detected": 200,
+ "central": null,
+ "position_hint": null,
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "index_scales": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 314.1969653114247,
+ "dec_deg": 43.80032078762007,
+ "scale_arcsec_px": 18.13622126339748,
+ "logodds": 347.9800109863281,
+ "parity": "sky-true",
+ "cd_det": -2.5379824206397446e-05,
+ "injected": null
+}

@@ -1,0 +1,304 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 399,
+ "registered": 399,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.718,
+   "min": 2.673,
+   "max": 2.855
+  },
+  "roundness": {
+   "median": 0.8018,
+   "min": 0.7884,
+   "max": 0.8113
+  },
+  "nstars": {
+   "median": 1860,
+   "min": 1570,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1057,
+   "min": 1056,
+   "max": 1059
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.72,
+   "round": 0.8017,
+   "stars": 1873,
+   "bg16": 1057
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.721,
+   "round": 0.802,
+   "stars": 1842,
+   "bg16": 1057
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.735,
+   "round": 0.8019,
+   "stars": 1857,
+   "bg16": 1057
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.708,
+   "round": 0.8024,
+   "stars": 1852,
+   "bg16": 1059
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.711,
+   "round": 0.8008,
+   "stars": 1858,
+   "bg16": 1058
+  },
+  {
+   "block": 6,
+   "frames": 19,
+   "fwhm": 2.716,
+   "round": 0.802,
+   "stars": 1879,
+   "bg16": 1058
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_0231.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.707,
+   "bg": 1057.2,
+   "round": 0.8056,
+   "nstars": 1609
+  },
+  {
+   "file": "DSC_0232.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.709,
+   "bg": 1057.2,
+   "round": 0.8041,
+   "nstars": 1593
+  },
+  {
+   "file": "DSC_0233.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.713,
+   "bg": 1057.4,
+   "round": 0.799,
+   "nstars": 1602
+  },
+  {
+   "file": "DSC_0234.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.712,
+   "bg": 1057.0,
+   "round": 0.8,
+   "nstars": 1607
+  },
+  {
+   "file": "DSC_0235.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.712,
+   "bg": 1057.4,
+   "round": 0.802,
+   "nstars": 1602
+  },
+  {
+   "file": "DSC_0236.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.707,
+   "bg": 1057.2,
+   "round": 0.8019,
+   "nstars": 1600
+  },
+  {
+   "file": "DSC_0237.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.723,
+   "bg": 1056.9,
+   "round": 0.7975,
+   "nstars": 1613
+  },
+  {
+   "file": "DSC_0238.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.711,
+   "bg": 1057.1,
+   "round": 0.8066,
+   "nstars": 1587
+  },
+  {
+   "file": "DSC_0239.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.719,
+   "bg": 1057.4,
+   "round": 0.7977,
+   "nstars": 1587
+  },
+  {
+   "file": "DSC_0240.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.717,
+   "bg": 1057.4,
+   "round": 0.8033,
+   "nstars": 1601
+  },
+  {
+   "file": "DSC_0241.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.722,
+   "bg": 1057.2,
+   "round": 0.8044,
+   "nstars": 1582
+  },
+  {
+   "file": "DSC_0242.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.728,
+   "bg": 1057.2,
+   "round": 0.8002,
+   "nstars": 1598
+  },
+  {
+   "file": "DSC_0243.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.721,
+   "bg": 1056.9,
+   "round": 0.8008,
+   "nstars": 1591
+  },
+  {
+   "file": "DSC_0244.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.719,
+   "bg": 1056.8,
+   "round": 0.8013,
+   "nstars": 1600
+  },
+  {
+   "file": "DSC_0245.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.718,
+   "bg": 1057.1,
+   "round": 0.8016,
+   "nstars": 1597
+  },
+  {
+   "file": "DSC_0246.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.719,
+   "bg": 1057.1,
+   "round": 0.8026,
+   "nstars": 1589
+  },
+  {
+   "file": "DSC_0247.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.723,
+   "bg": 1057.0,
+   "round": 0.8044,
+   "nstars": 1599
+  },
+  {
+   "file": "DSC_0248.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.717,
+   "bg": 1057.0,
+   "round": 0.8,
+   "nstars": 1611
+  },
+  {
+   "file": "DSC_0249.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.71,
+   "bg": 1057.2,
+   "round": 0.8024,
+   "nstars": 1570
+  },
+  {
+   "file": "DSC_0250.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.704,
+   "bg": 1057.4,
+   "round": 0.8045,
+   "nstars": 1581
+  },
+  {
+   "file": "DSC_9849.NEF",
+   "flags": [
+    "fwhm",
+    "nstars"
+   ],
+   "fwhm": 2.855,
+   "bg": 1059.7,
+   "round": 0.8054,
+   "nstars": 1732
+  },
+  {
+   "file": "DSC_9861.NEF",
+   "flags": [
+    "round"
+   ],
+   "fwhm": 2.741,
+   "bg": 1059.5,
+   "round": 0.7884,
+   "nstars": 1865
+  }
+ ],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}

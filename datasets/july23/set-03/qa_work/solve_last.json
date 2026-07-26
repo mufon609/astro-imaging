@@ -1,0 +1,242 @@
+{
+ "WCSAXES": [
+  2,
+  "Number of coordinate axes"
+ ],
+ "EQUINOX": [
+  2000.0,
+  "Equatorial coordinates definition (yr)"
+ ],
+ "LONPOLE": [
+  180.0,
+  "Native longitude of celestial pole (deg)"
+ ],
+ "LATPOLE": [
+  0.0,
+  "Native latitude of celestial pole (deg)"
+ ],
+ "CRVAL1": [
+  310.0756032015296,
+  "RA of reference point"
+ ],
+ "CRVAL2": [
+  45.44607360367501,
+  "DEC of reference point"
+ ],
+ "CRPIX1": [
+  2697.964180905846,
+  "X reference pixel"
+ ],
+ "CRPIX2": [
+  1552.6403114305106,
+  "Y reference pixel"
+ ],
+ "CUNIT1": [
+  "deg",
+  "X pixel scale units"
+ ],
+ "CUNIT2": [
+  "deg",
+  "Y pixel scale units"
+ ],
+ "CD1_1": [
+  0.00497072345174071,
+  "Transformation matrix"
+ ],
+ "CD1_2": [
+  0.0007389968596809703,
+  "Transformation matrix"
+ ],
+ "CD2_1": [
+  0.0007571635869020911,
+  "Transformation matrix"
+ ],
+ "CD2_2": [
+  -0.004968376699074115,
+  "Transformation matrix"
+ ],
+ "CTYPE1": [
+  "RA---TAN-SIP",
+  "TAN (gnomonic) projection + SIP distortions"
+ ],
+ "CTYPE2": [
+  "DEC--TAN-SIP",
+  "TAN (gnomonic) projection + SIP distortions"
+ ],
+ "A_ORDER": [
+  3,
+  "Polynomial order, axis 1"
+ ],
+ "A_0_0": [
+  0.0,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_0_1": [
+  0.0,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_0_2": [
+  1.5498924196213077e-06,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_0_3": [
+  -7.581337309810126e-11,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_1_0": [
+  0.0,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_1_1": [
+  7.517899468203935e-06,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_1_2": [
+  -4.869503481503544e-09,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_2_0": [
+  6.923433950257821e-06,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_2_1": [
+  5.411738823922858e-13,
+  "Polynomial coefficient, axis 1"
+ ],
+ "A_3_0": [
+  -4.854991009501678e-09,
+  "Polynomial coefficient, axis 1"
+ ],
+ "B_ORDER": [
+  3,
+  "Polynomial order, axis 2"
+ ],
+ "B_0_0": [
+  0.0,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_0_1": [
+  0.0,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_0_2": [
+  9.814261232096198e-06,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_0_3": [
+  -4.986478911125427e-09,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_1_0": [
+  0.0,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_1_1": [
+  5.67440542676711e-06,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_1_2": [
+  -9.949900899756313e-11,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_2_0": [
+  2.0326960938516833e-06,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_2_1": [
+  -4.914181929786713e-09,
+  "Polynomial coefficient, axis 2"
+ ],
+ "B_3_0": [
+  -2.0965209076062152e-11,
+  "Polynomial coefficient, axis 2"
+ ],
+ "AP_ORDER": [
+  3,
+  "Inv polynomial order, axis 1"
+ ],
+ "AP_0_0": [
+  1.4617299862643534,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_0_1": [
+  0.000674130742649303,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_0_2": [
+  -2.0970809544460293e-06,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_0_3": [
+  6.725084760782188e-11,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_1_0": [
+  -0.001698695186356709,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_1_1": [
+  -9.068053234990875e-06,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_1_2": [
+  5.9250952044612e-09,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_2_0": [
+  -8.403901538747046e-06,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_2_1": [
+  -2.3528123425661108e-11,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "AP_3_0": [
+  5.787107551789325e-09,
+  "Inv polynomial coefficient, axis 1"
+ ],
+ "BP_ORDER": [
+  3,
+  "Inv polynomial order, axis 2"
+ ],
+ "BP_0_0": [
+  1.0736601842431246,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_0_1": [
+  -0.0008572876523162004,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_0_2": [
+  -1.12799131532748e-05,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_0_3": [
+  5.702714726047239e-09,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_1_0": [
+  0.0005452882360303936,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_1_1": [
+  -6.740612950727496e-06,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_1_2": [
+  8.771482197778836e-11,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_2_0": [
+  -2.5216325430729983e-06,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_2_1": [
+  5.826628705014195e-09,
+  "Inv polynomial coefficient, axis 2"
+ ],
+ "BP_3_0": [
+  -1.5338066126733597e-12,
+  "Inv polynomial coefficient, axis 2"
+ ]
+}

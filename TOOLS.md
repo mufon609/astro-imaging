@@ -101,7 +101,14 @@ to a verified coverage threshold instead. **Drizzle is a `register` option, not 
 (CFA-drizzle 1×/pixfrac 1.0 for OSC; upscale only if sampling+dither justify —
 [[plate-solving-and-drizzle]]). **Two real gaps vs PixInsight WBPP:** no Local
 Normalization and no PSF-Signal-Weight equivalent (our audit layer can supply a PSFSW
-proxy — [[objective-qa-defect-metrics]]).
+proxy — [[objective-qa-defect-metrics]]). Comparison re-verified 2026-07-25 against
+Siril 1.4.4 (confirmed still current stable) and PixInsight 1.9.4 / WBPP 2.9.0 — both
+gaps still open (WBPP 2.9.0's new Frame Selection step is opt-in metric CULLING, not
+weighting; Conejero: "we consider ESD the best rejection algorithm currently
+available"). Vendor fork recorded: WBPP Auto starts GESD at ≥15 subs vs Siril doctrine
+>50; and PI designates CFA drizzle the recommended OSC colour path while Siril's
+canonical script demosaics at calibrate — full stage-by-stage audit in
+[[stacking-vs-official-pipelines]].
 
 ## Tier 2 — Registration reference / plate solving / astrometry
 

@@ -1,0 +1,94 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 401,
+ "registered": 401,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.675,
+   "min": 2.657,
+   "max": 2.748
+  },
+  "roundness": {
+   "median": 0.8031,
+   "min": 0.7978,
+   "max": 0.8089
+  },
+  "nstars": {
+   "median": 1863,
+   "min": 1730,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1059,
+   "min": 1057,
+   "max": 1062
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.666,
+   "round": 0.803,
+   "stars": 1859,
+   "bg16": 1060
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.671,
+   "round": 0.8028,
+   "stars": 1867,
+   "bg16": 1060
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.674,
+   "round": 0.8034,
+   "stars": 1856,
+   "bg16": 1059
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.678,
+   "round": 0.803,
+   "stars": 1852,
+   "bg16": 1059
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.688,
+   "round": 0.8027,
+   "stars": 1878,
+   "bg16": 1058
+  },
+  {
+   "block": 6,
+   "frames": 21,
+   "fwhm": 2.692,
+   "round": 0.8035,
+   "stars": 1871,
+   "bg16": 1058
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_9448.NEF",
+   "flags": [
+    "fwhm",
+    "nstars"
+   ],
+   "fwhm": 2.748,
+   "bg": 1062.0,
+   "round": 0.7985,
+   "nstars": 1730
+  }
+ ],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}

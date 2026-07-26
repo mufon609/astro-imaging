@@ -1,0 +1,12 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [9448],
+  "why": {
+   "9448": "session-first frame, frame-wide degradation (FWHM z +8.2, nstars z -6.4 vs set medians 2.675 px / 1863) — start-of-burst settle; also its own 1-frame capture run in the audit timeline; session-edge cull policy.",
+   "satellites_kept": "3 satellite objects across 14 frame-detections DSC_9763-9796 (audit_work/anomaly_audit.json; two at near-identical PA are likely one pass), no aircraft — moving minority trails stack clean through per-frame rejection; user-ratified 'satellites stay'.",
+   "session_edges_kept": "DSC_9848 (last) is QA-clean and not anomaly-flagged — no end-edge cull.",
+   "weight_null": "wFWHM weighting at this set's ~0.2% FWHM batch CV (2.652-2.716 px, median 2.675) is worse than none (Siril -weight is a min-max ramp that soft-culls the worst frame at any spread)."
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 400,
+ "registered": 400,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.648,
+   "min": 2.625,
+   "max": 2.672
+  },
+  "roundness": {
+   "median": 0.8027,
+   "min": 0.7962,
+   "max": 0.8084
+  },
+  "nstars": {
+   "median": 1877,
+   "min": 1826,
+   "max": 1900
+  },
+  "bg16": {
+   "median": 1060,
+   "min": 1058,
+   "max": 1062
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.636,
+   "round": 0.8007,
+   "stars": 1876,
+   "bg16": 1061
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.642,
+   "round": 0.8022,
+   "stars": 1874,
+   "bg16": 1060
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.647,
+   "round": 0.8023,
+   "stars": 1880,
+   "bg16": 1060
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.654,
+   "round": 0.8032,
+   "stars": 1882,
+   "bg16": 1060
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.658,
+   "round": 0.8038,
+   "stars": 1862,
+   "bg16": 1059
+  },
+  {
+   "block": 6,
+   "frames": 20,
+   "fwhm": 2.667,
+   "round": 0.8057,
+   "stars": 1885,
+   "bg16": 1059
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_9395.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.665,
+   "bg": 1059.1,
+   "round": 0.803,
+   "nstars": 1834
+  },
+  {
+   "file": "DSC_9399.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.665,
+   "bg": 1059.0,
+   "round": 0.8019,
+   "nstars": 1826
+  },
+  {
+   "file": "DSC_9401.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.649,
+   "bg": 1059.6,
+   "round": 0.8056,
+   "nstars": 1831
+  }
+ ],
+ "cull_note": "decision is the user's, against this record + the anomaly audit, recorded in recipe.json stack.exclude with reasons (per-set policy: BACKLOG item 3)"
+}

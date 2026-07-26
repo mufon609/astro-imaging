@@ -1,0 +1,12 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [],
+  "why": {
+   "no_exclusions": "cleanest set of the session: 400/400 registered, no frame-wide degradation, no session-edge settle (first/last frames QA-clean), no aircraft.",
+   "nstars_dips_kept": "DSC_9395/9399/9401 flagged nstars-only (1826-1834 vs 1877 median, -2.5%) with NORMAL FWHM/roundness/background — isolated single-axis transient dips; 3/400 is a per-pixel minority (dropping a minority subset buys no matching gain and pays the sqrt(N) noise penalty).",
+   "satellites_kept": "1 satellite object across 11 frame-detections DSC_9122-9132 (audit_work/anomaly_audit.json) — a moving minority trail stacks clean through per-frame rejection; user-ratified 'satellites stay'.",
+   "weight_null": "wFWHM weighting at this set's ~0.2% FWHM batch CV (2.625-2.672 px, median 2.648) is worse than none (Siril -weight is a min-max ramp that soft-culls the worst frame at any spread)."
+  }
+ }
+}

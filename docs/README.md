@@ -45,6 +45,19 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [stacking-vs-official-pipelines](stacking-vs-official-pipelines.md) — the
+  stacking chain audited stage-by-stage against CURRENT official doctrine
+  (Siril 1.4.4 docs/scripts/team statements; PixInsight 1.9.4 + WBPP 2.9.0 as
+  the industry reference; DSS/APP cross-checks), with the july23 4-set NAN run
+  as the live test. Verdict: doctrine-compliant at every documented Siril
+  stage; three documented adaptations (per-set sky flat — no vendor sanctions
+  a lights-built flat; external darktable undistort — mechanically PI's own
+  "external distortion model" idea; 16-bit intermediates — removal condition
+  FIRED on x86); the two standing Siril-side gaps vs WBPP (Local
+  Normalization, PSF-Signal-Weight) confirmed still open at 2.9.0; named
+  tests pre-registered (Siril-native SIP `-disto=` vs the warp, native blind
+  solve on the mildly-trailed class, `-opt` dark optimization, Bayer-drizzle
+  colour route).
 - [render-tier-arm-plan](render-tier-arm-plan.md) — the PRE-REGISTERED,
   user-gated render-tier build for the ARM base rig: MEASURE → MATCH →
   RECOMMEND ladders (background-level A/B → linear denoise → GHS stretch →

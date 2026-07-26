@@ -24,6 +24,7 @@ from every stack, so they never enter an exclude list.
 import argparse
 import json
 import os
+import re
 import sys
 
 import numpy as np
@@ -101,11 +102,22 @@ def main():
               + ", ".join(f"{r['n']}({r['file']})" for r in fail))
 
     if flagged:
-        excl = sorted(flagged)
+        # The stack builders match `exclude` against the trailing digit run of
+        # each frame's FILENAME (DSC_8647.NEF -> 8647), not the QA sequence
+        # index — emit that numbering or the suggested cull silently excludes
+        # nothing.
+        excl, unnumbered = [], []
+        for n in sorted(flagged):
+            r, _ = flagged[n]
+            m = re.search(r"(\d+)\D*$", os.path.splitext(r["file"])[0])
+            (excl.append(int(m.group(1))) if m else unnumbered.append(r["file"]))
         print(f"\nsuggested recipe stack block (rung E1 — adopt only on a "
               f"measured with/without ladder):")
-        print(json.dumps({"stack": {"weight": None, "exclude": excl}},
+        print(json.dumps({"stack": {"weight": None, "exclude": sorted(excl)}},
                          indent=2))
+        if unnumbered:
+            print("cannot derive a frame number (no digits in name) — exclude "
+                  "by hand if culled: " + ", ".join(unnumbered))
 
 
 if __name__ == "__main__":
