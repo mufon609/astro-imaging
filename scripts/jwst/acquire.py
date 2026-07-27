@@ -40,7 +40,10 @@ def ensure_venv():
     """Re-exec inside the jwst venv, creating it (astroquery + astropy) on
     first run. Loud, resumable, no side effects beyond the venv dir."""
     vpy = os.path.join(VENV, "bin", "python3")
-    if os.path.realpath(sys.executable) == os.path.realpath(vpy):
+    # NEVER compare interpreter realpaths here: the venv python3 is a SYMLINK
+    # to the system interpreter, so realpath collapses them and the re-exec
+    # gets skipped once the venv exists. sys.prefix is the venv identity.
+    if os.path.abspath(sys.prefix) == os.path.abspath(VENV):
         return
     if not os.path.exists(vpy):
         print(f"[jwst-venv] bootstrapping {VENV} (astroquery)...", flush=True)
