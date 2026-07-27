@@ -47,454 +47,604 @@
    "size_bytes": 525072960
   },
   {
-   "file": "jw01373-o008_t006_nircam_clear-f335m_i2d.fits",
+   "file": "jw01373006001_03102_00001_nrcb1_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F335M",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2069,
-    2076
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 120458880
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373-o009_t006_nircam_clear-f212n_i2d.fits",
+   "file": "jw01373006001_03102_00001_nrcb1_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00001_nrcb2_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    4325,
-    4346
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 526544640
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373-o009_t006_nircam_clear-f335m_i2d.fits",
+   "file": "jw01373006001_03102_00001_nrcb2_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F335M",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00001_nrcb3_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2072,
-    2079
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 120801600
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb1_cal.fits",
+   "file": "jw01373006001_03102_00001_nrcb3_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00001_nrcb4_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb1_uncal.fits",
+   "file": "jw01373006001_03102_00001_nrcb4_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb2_cal.fits",
+   "file": "jw01373006001_03102_00001_nrcblong_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb2_uncal.fits",
+   "file": "jw01373006001_03102_00001_nrcblong_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb3_cal.fits",
+   "file": "jw01373006001_03102_00002_nrcb1_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb3_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcb1_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb4_cal.fits",
+   "file": "jw01373006001_03102_00002_nrcb2_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00001_nrcb4_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcb2_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00001_nrcblong_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcb3_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F335M",
-   "target": "JUPITER",
-   "date_obs": "2022-07-27",
-   "bunit": "DN",
-   "shape": [
-    2048,
-    2048
-   ],
-   "cal_ver": null,
-   "crds_ctx": null,
-   "size_bytes": 42215040
-  },
-  {
-   "file": "jw01373008001_03101_00002_nrcb1_cal.fits",
-   "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb1_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcb3_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb2_cal.fits",
+   "file": "jw01373006001_03102_00002_nrcb4_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb2_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcb4_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb3_cal.fits",
+   "file": "jw01373006001_03102_00002_nrcblong_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb3_uncal.fits",
+   "file": "jw01373006001_03102_00002_nrcblong_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb4_cal.fits",
+   "file": "jw01373006001_03102_00003_nrcb1_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00002_nrcb4_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcb1_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00002_nrcblong_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcb2_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F335M",
-   "target": "JUPITER",
-   "date_obs": "2022-07-27",
-   "bunit": "DN",
-   "shape": [
-    2048,
-    2048
-   ],
-   "cal_ver": null,
-   "crds_ctx": null,
-   "size_bytes": 42215040
-  },
-  {
-   "file": "jw01373008001_03101_00003_nrcb1_cal.fits",
-   "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb1_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcb2_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb2_cal.fits",
+   "file": "jw01373006001_03102_00003_nrcb3_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb2_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcb3_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb3_cal.fits",
+   "file": "jw01373006001_03102_00003_nrcb4_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb3_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcb4_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb4_cal.fits",
+   "file": "jw01373006001_03102_00003_nrcblong_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "MJy/sr",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
-   "size_bytes": 117573120
+   "size_bytes": 11589120
   },
   {
-   "file": "jw01373008001_03101_00003_nrcb4_uncal.fits",
+   "file": "jw01373006001_03102_00003_nrcblong_uncal.fits",
    "instrument": "NIRCAM",
-   "filter": "F212N",
+   "filter": "F360M",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
   },
   {
-   "file": "jw01373008001_03101_00003_nrcblong_uncal.fits",
+   "file": "jw01373006001_03102_00004_nrcb1_cal.fits",
    "instrument": "NIRCAM",
-   "filter": "F335M",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 11589120
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb1_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
    "target": "JUPITER",
    "date_obs": "2022-07-27",
    "bunit": "DN",
    "shape": [
-    2048,
-    2048
+    640,
+    640
    ],
    "cal_ver": null,
    "crds_ctx": null,
-   "size_bytes": 42215040
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb2_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 11589120
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb2_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb3_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 11589120
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb3_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb4_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 11589120
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcb4_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcblong_cal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F360M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 11589120
+  },
+  {
+   "file": "jw01373006001_03102_00004_nrcblong_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F360M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    640,
+    640
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 7632000
   }
  ],
  "failed_verify": [],
