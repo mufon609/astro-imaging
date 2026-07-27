@@ -87,6 +87,10 @@ def main():
                     help="midtone MTF on the F212N disc arm ONLY (colorize-palette form: disc brightness is F212N's job)")
     ap.add_argument("--colorize-a", type=float, default=None, metavar="A",
                     help="palette = documented colorize: c212 = A*(1,0.93,0.90), c335 = 1-c212, additive sum-to-white (supersedes channel isolation + pseudogreen)")
+    ap.add_argument("--hue-purity", type=float, default=0.0, metavar="P",
+                    help="interpolate the c212 hue vector from the measured-neutral (1,0.93,0.90) toward caption-pure orange (1,0.5,0) by P (0..1)")
+    ap.add_argument("--disc-shoulder", default=None, metavar="S,K",
+                    help="soft shoulder on the F212N disc arm above S (L-units), curve strength K; Lmax from the recorded prep frame max — un-blows the limb band")
     ap.add_argument("--field-gray", action="store_true",
                     help="field below the feather = GRAY luminance (Schmidt's documented grayscale-background mechanism); replaces the colorized deep arms")
     ap.add_argument("--field-epochs", type=int, default=1, choices=(1, 2),
@@ -146,7 +150,16 @@ def main():
     ssf.append("save w")
 
     # disc arms (linear placed points, clamped), then the finishing curves
-    ssf.append(f'pm "min(max({sub("$p212f$", ped212)} / {fnum(Wd212 - ped212)}, 0), 1)"')
+    if args.disc_shoulder:
+        s_sh, k_sh = (float(v) for v in args.disc_shoulder.split(","))
+        prep_rec = json.load(open(os.path.join(ds, "j2_prepare.json")))
+        lmax = (prep_rec["frames"]["f212n"]["post_norm_max"] - ped212) / (Wd212 - ped212)
+        Lexpr = f"({sub('$p212f$', ped212)} / {fnum(Wd212 - ped212)})"
+        norm_sh = math.asinh(k_sh * (lmax - s_sh))
+        ssf.append(f'pm "max(min({Lexpr}, {fnum(s_sh)}) + {fnum(1 - s_sh)} * '
+                   f'asinh({fnum(k_sh)} * max({Lexpr} - {fnum(s_sh)}, 0)) / {fnum(norm_sh)}, 0)"')
+    else:
+        ssf.append(f'pm "min(max({sub("$p212f$", ped212)} / {fnum(Wd212 - ped212)}, 0), 1)"')
     ssf.append("save l212d")
     d212 = "l212d"
     if args.m_disc or args.m_disc_212:
@@ -174,7 +187,10 @@ def main():
             ssf.append("load m335m")
             ssf.append(f"gauss {fnum(args.feather_crescent)}")
             ssf.append("save m335g")
-            ssf.append(f'pm "max(${d335}$, min($m335g$, 1) * {fnum(CRESCENT_WHITE)})"')
+            # normalize the blurred mask: a sigma-scale blur on a thin arc dilutes
+            # its peak (measured ~0.4 on ~30px crescents) — rescale so the arc
+            # interior returns to 1.0 while the feathered edge survives
+            ssf.append(f'pm "max(${d335}$, min($m335g$ * 2.5, 1) * {fnum(CRESCENT_WHITE)})"')
         else:
             ssf.append(f'pm "max(${d335}$, {zmask("$jup_f335m_prep$")} * $w$ * {fnum(CRESCENT_WHITE)})"')
         ssf.append("save l335df")
@@ -211,7 +227,10 @@ def main():
         norm = math.asinh(S)
         if args.field_gray:
             a = args.colorize_a or 0.65
-            c212 = (a, 0.93 * a, 0.90 * a)
+            pp = args.hue_purity
+            hue = tuple((1 - pp) * v0 + pp * v1 for v0, v1 in
+                        zip((1.0, 0.93, 0.90), (1.0, 0.5, 0.0)))
+            c212 = tuple(a * v for v in hue)
             c335 = (1 - c212[0], 1 - c212[1], 1 - c212[2])
             ssf.append(f'pm "asinh({fnum(S)} * max({sub("$fldsum$", Bfield)} / {fnum(Wfield - Bfield)}, 0)) / {fnum(norm)}"')
             ssf.append(f"save lfield_{stag}")
@@ -253,7 +272,10 @@ def main():
         ssf.append(f"save l335_{name}")
         if args.colorize_a:
             a = args.colorize_a
-            c212 = (a, 0.93 * a, 0.90 * a)
+            pp = args.hue_purity
+            hue = tuple((1 - pp) * v0 + pp * v1 for v0, v1 in
+                        zip((1.0, 0.93, 0.90), (1.0, 0.5, 0.0)))
+            c212 = tuple(a * v for v in hue)
             c335 = (1 - c212[0], 1 - c212[1], 1 - c212[2])
             chans = []
             for ch, i in (("r", 0), ("g", 1), ("b", 2)):
@@ -313,6 +335,7 @@ def main():
             "feather_crescent_px": args.feather_crescent,
             "w212_disc": args.w212_disc,
             "m335": args.m335, "m_disc": args.m_disc, "m_disc_212": args.m_disc_212,
+            "hue_purity": args.hue_purity, "disc_shoulder": args.disc_shoulder,
             "colorize_a": args.colorize_a, "sky_floor": args.sky_floor,
             "gap_scale": GAP_SCALE, "crescent_white": CRESCENT_WHITE,
         },

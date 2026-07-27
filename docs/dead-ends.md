@@ -90,6 +90,27 @@ the constraints any such tool must satisfy):
   pipeline's own Detector1 `clean_flicker_noise` (ramp-level), and a seam that
   survives it is archive-truth, not a matching knob.
 
+- **Ramp-level 1/f cleaning (jwst `clean_flicker_noise`) on a bright-planet-
+  dominated NIR frame removes real extended glow — even with an explicit
+  sky-only user mask.** MEASURED (jwst 3.0.0, NIRCam SW F212N Jupiter, two
+  configured arms): default-ish config (background model box 256, per-channel
+  fit, n_sigma=2) cut striping row-sigma 1.748 → 0.853 but took −20% of the
+  scattered-light fan (+71.94 → +57.87 MJy/sr) — its own saved mask shows 24%
+  of bright (>5 MJy/sr) pixels INCLUDED in the fits (sigma clipping does not
+  exclude smooth glow); adding a strict sky-only user_mask (finite ∧ rate <
+  1.5 MJy/sr, 15 px dilated; True=background, and note `datamodels.open`
+  requires ImageModel format — a bare FITS raises KeyError: 'data') improved
+  striping to −68% but the fan still lost 15%, and the loss localizes to the
+  CAL level: the identical archive-defined fan-class pixel set (30–100
+  MJy/sr, 544k px) reads 41.94 archive vs 37.16 cleaned = −11.4% before any
+  stage-3 step. The block seams got WORSE under masked cleaning (−0.87 →
+  −1.07 MJy/sr): per-detector independent cleaning shifts inter-detector
+  offsets unpredictably. The step is built for field-dominated frames; do not
+  re-attempt it on planet/glow-dominated frames expecting signal-safe
+  striping repair — the striping and seam residuals of such a corpus are
+  archive-truth, handled at presentation (field-stretch choice), never by
+  eating glow.
+
 **Stretch / colour:**
 - Unlinked autostretch on a calibrated stack is the chroma-blotch ("rainbow")
   engine — after SPCC there is no cast to compensate; use linked. Unlinked
