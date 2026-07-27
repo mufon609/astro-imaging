@@ -439,67 +439,36 @@ nothing (the bwrap line lands in the siril log). NOT a data or Siril bug.
 - Removal condition: flatpak fixes the instance-dir lifecycle race, or Siril
   invocations stop being per-frame process spawns (e.g. pyscript batching).
 
-## 21. Lunar lucky imaging — first corpus (july26, 70 mm) + the class build
+## 21. Lunar lucky imaging — CLASS BUILT; x86 ladder + next capture remain
 
-The NEW data class: short-exposure burst frames → the aligner's own quality
-ranking → best-N% stack → deconvolution/wavelets. No solve/SPCC/BGE (no
-stars, no sky signal — documented skips, recorded per set). Route, toolkit
-audit and capture doctrine: [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md);
-Tier L in [`TOOLS.md`](TOOLS.md). The user's declared selection policy for
-this corpus: PICKY — the best 10/15/20/25 % ladder below.
+**STATE: the first corpus is processed end to end and the chain is codified as
+`scripts/stack/run_lunar_pipeline.sh`** (PROVISIONAL as-written — its first
+fresh run is the next lunar corpus). Both sets' finals are user-ratified:
+sb deconvolution + per-set disc-neutral WB (satu closed-fail; wiener arm
+PAUSED on user order — equal on-disc, frame-edge artifact noted). Session
+raws/intermediates freed (re-stageable); stacks + judge surfaces in
+`web/results/july26/`; every mechanism in `docs/dead-ends.md`.
 
-- **DONE — master dark** (310 × 1/2500 s | ISO 800 | 70 mm | Lossless, one
-  EXIF tuple): winsorized 3/3 `-nonorm` 32-bit master; stat mean=median=
-  1008.1 (the 14-bit pedestal), sigma 0.6 ADU; record
-  `datasets/july26/darks/master_dark.json`; raws deleted on user order
-  (re-stageable).
-- **Lights ingest (blocked on transfer, ~29 GB)**: exiftool uniformity
-  preflight — must match the darks' tuple, loud stop on mismatch;
-  `acquisition.json` seeded + `mount` declared. **Disk plan:** conversion +
-  calibrate run stage-chunked with per-stage deletion (the established
-  chunked pattern) — 1000+-frame 24.5 MP sequences do not fit this rig
-  single-pass; raw NEFs delete post-conversion (re-stageable). If the
-  transfer is VMware drag-and-drop, run `scripts/makeSpace.sh` after it
-  lands (the host cache keeps a full duplicate).
-- **Registration mechanism — RESOLVED (measured)**: Siril GUI Image Pattern
-  Alignment with a **track-covering selection** (the docs' containment
-  precondition), verified on set-01: physical shifts (tail (10,187–190) ≈
-  predicted (10,185)), coherent limb on the 220-frame control. KOMBAT is
-  dead on this class (4 configs, 219/220 null-H) and failed GUI runs leave
-  corrupted .seq selection state — repair `select <seq> 1 <N>` before
-  applying (mechanisms + numbers: `docs/dead-ends.md`).
-- **The quality-ranked ladder is BLOCKED ON THIS RIG** — 1.4.4 planetary
-  registrations write NO per-frame quality even on success (`-filter-quality`
-  consumes nothing; measured). The ladder runs on the x86 rig against a
-  ranking tool (PSS `--stack_percent`; AS!4-Wine as the bracket) with
-  values/control/judgment unchanged; this rig delivers the verified 100%
-  control stacks. PSS is aarch64-blocked (no PyQt5 arm wheels — PyPI
-  verified).
-- **The keep-fraction ladder (pre-registered)**: one knob = keep %, values
-  **10 / 15 / 20 / 25** by the registration's own quality metric
-  (`stack … -filter-quality=N% -32b`), control = 100 % (measures what
-  pickiness buys). Hypothesis: at 107 px disc scale selection rejects
-  transparency/vibration outliers — real but modest sharpness delta,
-  monotonic SNR cost with pickiness. Stacks preserved to tagged names;
-  verdicts to `datasets/july26/<set>/experiments.jsonl`; the user's eyes
-  pick the operating point on full-frame PNG16.
-- **Sharpen ladders (after a stack is chosen)**: `makepsf blind` (bracket
-  manual-Gaussian sizes) → `sb` vs `wiener` (Siril's officially-lunar-
-  recommended pair), then `wavelet 5 2`/`wrecons` coefficient bracket as
-  the alternative arm. One knob per experiment.
-- **Colour**: as-shot WB (sunlit-disc neutral assumption — SPCC impossible,
-  recorded skip); optional mineral-moon `satu` ladder, user-gated.
-- **Pre-registered adoption test — Siril 1.5 stable**: `register_mpp`/
-  `stack_mpp` close the 1.4.4 headless-registration gap AND the multi-point
-  gap natively; retires the GUI step (and any PSS adoption) when it lands.
-- **Long-focal escalation (dormant until such a corpus exists)**: AS!4-
-  under-Wine vs PSS vs 1.5-MPP head-to-head; waveSharp 3.0 (native Linux
-  GUI, frozen) / ImPPG 2.1.0 as judgment-quality finishers; Hugin for
+**Remains open:**
+- **The x86 quality ladder** (best 10/15/20/25% vs the shipped q100 controls,
+  PSS `--stack_percent` or AS!4 — pre-registered in both sets' ledgers).
+  Needs: PSS venv on the x86 rig + re-staged data (NEFs from archive, replay
+  `run_lunar_pipeline.sh` stages, or transfer nothing and re-shoot better).
+- **Next lunar capture at the corrected card** (acquisition checklist lunar
+  block: disc histogram 50–70% — f/4 · 1/320 s · ISO 800 at 70 mm class) —
+  more photons beat every processing knob measured this corpus.
+- **Siril 1.5 MPP adoption test** (unchanged — retires the GUI step when
+  stable lands and it measures quality).
+- Long-focal escalation ladder (unchanged, dormant until such a corpus):
+  AS!4-under-Wine vs PSS vs 1.5-MPP head-to-head; waveSharp 3.0 (native
+  Linux GUI, frozen) / ImPPG 2.1.0 as judgment-quality finishers; Hugin for
   mosaics; RGB-align only where dispersion is measured (≥ ~800 mm).
-- **Graduation condition**: after the first corpus is judged, the §4
-  capture doctrine graduates into `docs/dead-ends.md`'s acquisition
-  checklist as the lunar block, and measured verdicts harden or kill the
-  §6 documented gaps.
+
+Class facts, records and the full mechanism set live in
+[`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md), `docs/dead-ends.md`
+(registration/aliasing/seq-hygiene/quality entries + the acquisition
+checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
+and the builder's own docstring.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

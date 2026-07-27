@@ -226,15 +226,35 @@ is the convergence point where the whole chain goes native-headless.
 
 ## Status
 
-**PROVISIONAL** — tool capabilities are primary-doc-verified (+ the on-rig
-command-surface probe and the darks' EXIF measured); no lunar pixel has been
-processed in this workspace yet. The §5 route and §6 gaps harden or die on
-the first corpus's measured runs.
+**EMPIRICALLY TESTED on the first corpus (two sets, 220 + 809 frames), with
+refinements the run itself measured** — now encoded in the class builder
+`scripts/stack/run_lunar_pipeline.sh` (PROVISIONAL as-written; generalized
+from the runs that produced the records):
+
+- Registration = Image Pattern Alignment with a **track-covering selection**
+  and the **reference pre-set to the sequence middle** (circular DFT
+  correlation wraps beyond ± min(w,h)/2 — the two-disc failure); KOMBAT is a
+  measured dead end on this class; failed GUI runs poison the .seq (delete +
+  rebuild). All mechanisms + numbers: `docs/dead-ends.md`.
+- 1.4.4 planetary regdata carries **no per-frame quality even on success** —
+  the picky ladder needs a ranking tool (PSS/AS!4, x86); the full-stack
+  control ships from this rig and is the ladder's bracket.
+- Finish (user-ratified on this corpus): sb blind-PSF deconvolution (wiener
+  equal on-disc but leaves a frame-edge artifact band) → disc-neutral
+  diagonal `ccm` from inside-disc `stat` medians, gains measured PER SET
+  (same-night sets agreed to 0.2% — the rule verified itself) → NO
+  saturation (mineral satu 0.2/0.4 both failed the user's eyes at this disc
+  scale) → linear PNG16 pairs at one clip-safe integer gain.
+- The quality-selection hypothesis stays open for the x86 ladder; the §4
+  capture card was measured 2.5–3 stops under and corrected (now in the
+  acquisition checklist).
 
 ## Graduation
 
-- `TOOLS.md` — Tier L (lunar/planetary lucky imaging) added from §3.
-- `BACKLOG.md` — item 21 (first-corpus route + ladders + the 1.5 MPP
-  adoption test).
-- `docs/dead-ends.md` acquisition checklist — the §4 lunar block graduates
-  AFTER the first corpus validates it (not yet).
+- `TOOLS.md` — Tier L added, then updated to the verified route + builder.
+- `BACKLOG.md` — item 21 (route resolved; x86 ladder + next-capture remain).
+- `docs/dead-ends.md` — registration/aliasing/seq-hygiene/quality entries
+  with their numbers, and the §4 lunar block GRADUATED into the acquisition
+  checklist with the measured exposure card.
+- `scripts/stack/run_lunar_pipeline.sh` — the class builder (prep → stage →
+  calibrate → register → verify → stack → sharpen → wb → surfaces).

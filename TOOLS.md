@@ -438,13 +438,18 @@ Full audit + first-corpus route: [`docs/lunar-lucky-imaging.md`](docs/lunar-luck
 | **Hugin** (mosaic mode) | FREE | CLI + GUI | ✅ / ✅ / ✅ | The Linux lunar-mosaic route for long-FL panes (crater control points match where star fields fail; Siril mosaics are astrometric-only = impossible on lunar). Already in production here for lens fitting. |
 | **RC-Astro BXT on lunar** | PAID | CLI | ✅ / AVX2 / ✅ | Officially accommodated (manual-PSF mode; AI4 fixed lunar clipping) but community-preferred lunar results remain classical wavelets/deconv — a bracketed x86 experiment at most, never the route. NXT/GraXpert denoise: deep-sky-trained, skip on lunar. |
 
-**Pick:** small-disc corpus (the july26 70 mm set) → the installed-Siril route
-(one GUI registration click, headless everywhere else). Seeing-limited corpus
-(≥~800 mm) → AS!4-under-Wine vs PSS vs Siril-1.5-MPP, one bracketed
-head-to-head on real data before any adoption. Capture doctrine (Z6III:
-Lossless-NEF-only, 20 fps e-shutter bursts, looney-11 at the sharp aperture,
-terminator focus): `docs/lunar-lucky-imaging.md` §4 — graduates to the
-acquisition checklist after the first corpus validates it.
+**Pick (verified on the first corpus):** small-disc regime → the installed-Siril
+route, now encoded as **`scripts/stack/run_lunar_pipeline.sh`** (prep → staged
+disc crop → crop-matched dark calibration → GUI pattern registration with a
+track-covering selection + MID-SEQUENCE reference [the DFT wrap guard] →
+tool-audited verify → stack → sb deconvolution → per-set disc-neutral `ccm` →
+clip-safe linear PNG16 pairs). KOMBAT: measured dead end on this class;
+quality-ranked selection: not possible in 1.4.4 (no quality regdata) — the
+ranking-tool ladder (PSS/AS!4) runs on x86 against the shipped full-stack
+control. Seeing-limited corpus (≥~800 mm) → AS!4-under-Wine vs PSS vs
+Siril-1.5-MPP, one bracketed head-to-head before any adoption. Capture doctrine
+lives in the acquisition checklist (`docs/dead-ends.md`, lunar block — with the
+measured exposure card).
 
 ## Cross-cutting: what's FREE-and-headless vs PAID vs GUI-gated
 

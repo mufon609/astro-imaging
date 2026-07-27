@@ -513,3 +513,23 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   on trailed PSFs are dispersion — physical, not removable in processing). Stop a
   fast lens down ≥1 stop for bright-star fields (wide open adds a red veiling-glare
   halo — an honest optical signature, not a bandaid to remove).
+
+**LUNAR (small-disc lucky imaging) — the class block (first corpus measured):**
+- **Lossless-compressed NEF only** (HE/HE★ are TicoRAW — no libraw/open decode; a
+  set shot HE is unprocessable on this stack). Electronic shutter is safe (9.3 ms
+  readout smears 0.14″ at lunar drift) and shock-free — use it.
+- **EXPOSE THE DISC: histogram peak 50–70%, never clip the highlands.** The
+  measured miss: f/4 · 1/2500 s · ISO 800 at 70 mm put the disc median at ~4% of
+  the 14-bit range (peak ~9%) — 2.5–3 stops under; the corrected card for that
+  optic is **f/4 · 1/320 s · ISO 800**. At undersampled focal lengths EXPOSURE
+  TIME is the free lever (drift 15″/s × 1/320 s ≈ 0.003 px at 17″/px; seeing is
+  sub-pixel — nothing to freeze): raise time, not ISO (gain adds no photons and
+  burns headroom; ISO 800 already sits at the dual-gain stage). From ~800 mm at
+  this pixel pitch seeing becomes resolved, the 1/500–1/1000 s freeze-floor
+  returns, and ISO reluctantly becomes the second lever.
+- Shoot darks at the LIGHTS' exact tuple in the same thermal window (the between-
+  sets slot works); matched short darks ≈ bias + FPN and calibrate cleanly.
+- Frame count buys selection depth: 1000+ frames/target at ~1 fps or bursts; keep
+  fractions are a stack-time knob, never a capture-time one. Focus on the
+  terminator in magnified live view; VR/IBIS off on a rigid tripod; moon > ~40°
+  altitude; terminator phases carry the relief.
