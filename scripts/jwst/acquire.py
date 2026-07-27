@@ -169,6 +169,11 @@ def main():
     d.add_argument("--direct", action="store_true", help="direct download instead of the resumable curl script")
     v = sub.add_parser("verify");   common["session"](v)
     args = ap.parse_args()
+    if getattr(args, "session", None):
+        # the jwst- prefix is the system's on-disk labelling, not the
+        # operator's to type — normalize a bare target slug here too
+        s = args.session.strip().lower()
+        args.session = s if s.startswith("jwst-") else "jwst-" + s
     {"query": obs_query, "list": product_list,
      "download": download, "verify": verify}[args.cmd](args)
 

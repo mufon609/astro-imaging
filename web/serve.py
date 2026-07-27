@@ -653,11 +653,15 @@ def _derive_set(stack_rel, explicit, session=None):
 # builder returning the argv (repo-relative cwd). Params marked opt are
 # omitted when blank. Adding a stage = adding a row here; the UI renders it.
 def _arg_jwst_session(v):
-    # a JWST staging session may not exist yet (acquire creates it) — strict
-    # slug, must start with "jwst-" so archival corpora are self-labelling
-    if not re.fullmatch(r"jwst-[a-z0-9][a-z0-9-]{1,40}", str(v)):
-        raise ValueError("jwst session must match jwst-<slug> (lowercase)")
-    return str(v)
+    # a JWST staging session may not exist yet (acquire creates it). The
+    # "jwst-" prefix keeps archival corpora self-labelling on disk but is the
+    # SYSTEM's bookkeeping: accept a bare target slug and prefix it here.
+    s = str(v).strip().lower()
+    if not s.startswith("jwst-"):
+        s = "jwst-" + s
+    if not re.fullmatch(r"jwst-[a-z0-9][a-z0-9-]{1,40}", s):
+        raise ValueError("session must be a lowercase slug, e.g. jupiter")
+    return s
 
 
 def _arg_proposal(v):
@@ -982,7 +986,7 @@ def _stage_registry():
             "phase": "acquire",
             "params": [
                 {"name": "proposal", "kind": "str", "req": True},
-                {"name": "session", "kind": "str", "req": True, "hint": "jwst-<slug>, e.g. jwst-jupiter"},
+                {"name": "session", "kind": "str", "req": True, "hint": "target slug, e.g. jupiter (stored as jwst-jupiter)"},
                 {"name": "filters", "kind": "str", "req": False},
                 {"name": "go", "kind": "bool", "req": False, "hint": "the explicit decide gate — run list first"},
             ],
@@ -996,7 +1000,7 @@ def _stage_registry():
             "desc": "verify downloaded products (SCI + WCS parse, header reads only) -> tracked acquisition_manifest.json with CAL_VER/CRDS_CTX anchors",
             "phase": "acquire",
             "params": [
-                {"name": "session", "kind": "str", "req": True, "hint": "jwst-<slug>"},
+                {"name": "session", "kind": "str", "req": True, "hint": "target slug, e.g. jupiter"},
             ],
             "build": lambda a: ["python3", "scripts/jwst/acquire.py", "verify",
                                 "--session=" + _arg_jwst_session(a["session"])],
