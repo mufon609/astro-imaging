@@ -1,0 +1,67 @@
+{
+ "session": "jwst-jupiter",
+ "products": [
+  {
+   "file": "jw01373-o006_t006_nircam_clear-f360m-sub640_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F360M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    741,
+    739
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 15531840
+  },
+  {
+   "file": "jw01373-o006_t006_nircam_f150w2-f164n-sub640_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F150W2",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    1631,
+    1641
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 75193920
+  },
+  {
+   "file": "jw01373-o008_t006_nircam_clear-f212n_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F212N",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    4319,
+    4340
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 525072960
+  },
+  {
+   "file": "jw01373-o008_t006_nircam_clear-f335m_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F335M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    2069,
+    2076
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 120458880
+  }
+ ],
+ "failed_verify": [],
+ "why": "acquisition manifest \u2014 the tracked record of what was fetched from MAST; cal_ver/crds_ctx pin the STScI quarterly build that produced each product (reproducibility anchors)"
+}
