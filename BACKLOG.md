@@ -470,6 +470,31 @@ Class facts, records and the full mechanism set live in
 checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
 and the builder's own docstring.
 
+## 22. JWST public-data class — Jupiter first (USER-DECLARED target)
+
+A NEW data class: archival space-telescope products (no photons shot here —
+ACQUISITION means querying/downloading MAST). **First goal, user-declared:
+recreate the famous August 2022 JWST Jupiter releases from their public data
+— the reference-driven pattern (reproduce the makers' documented process
+first, then mature ours).** The processors and filter-to-color mappings of
+those images are publicly documented, so the reference recipe is
+recoverable, not guessed.
+
+- Research IN FLIGHT (three sweeps: MAST acquisition mechanics; community/
+  STScI processing workflows for i2d composites; the Jupiter images'
+  provenance — program, filters, the processor's own published process,
+  moving-target quirks, rotation-between-filters).
+- Lands as: a `docs/` deep-dive (acquisition + processing plan), a TOOLS.md
+  tier for the archival class, the session/records layout for downloaded
+  corpora (the mono-filters composition path is the natural fit — per-filter
+  linear masters -> align -> compose -> render), and the user-gated first
+  download.
+- Constraints to honor: the deliverable pixels come from the OFFICIAL
+  upstream pipeline (STScI-calibrated products) + established tools
+  (astropy/reproject are official tooling; Siril where it fits); no SPCC
+  (palette class, not photometric color); the user gates the target list,
+  the download budget, and every aesthetic step.
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical
