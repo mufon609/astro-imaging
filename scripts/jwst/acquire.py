@@ -76,12 +76,20 @@ def product_list(args):
     chunks = [Observations.get_product_list(obs[i:i + 5])
               for i in range(0, len(obs), 5)]           # STScI bulk guidance
     plist = unique(vstack(chunks), keys="productFilename")
+    # products below level 3 (RATE/CAL/UNCAL) hang off the level-3 observation
+    # records, so the PRODUCT filter level is a separate knob from the
+    # observation query level
+    plevel = args.product_level if getattr(args, "product_level", None) \
+        else args.calib_level
     sel = Observations.filter_products(
         plist, productType="SCIENCE",
-        productSubGroupDescription=args.subgroup, calib_level=args.calib_level)
+        productSubGroupDescription=args.subgroup, calib_level=plevel)
     if args.filters:
-        want = {f.strip().lower() for f in args.filters.split(",")}
-        keep = [any(w in fn.lower() for w in want)
+        # comma = OR between terms; '+' inside a term = AND of its parts
+        # (uncal/cal filenames carry obs+detector tokens, not filter names)
+        terms = [[p.strip().lower() for p in t.split("+")]
+                 for t in args.filters.split(",")]
+        keep = [any(all(p in fn.lower() for p in parts) for parts in terms)
                 for fn in sel["productFilename"]]
         sel = sel[keep]
     total = sum(int(s) for s in sel["size"])
@@ -186,13 +194,17 @@ def main():
                   instrument=lambda p: p.add_argument("--instrument", default="NIRCAM*"),
                   level=lambda p: p.add_argument("--calib-level", type=int, default=3),
                   subgroup=lambda p: p.add_argument("--subgroup", default="I2D"),
+                  plevel=lambda p: p.add_argument(
+                      "--product-level", type=int, default=None,
+                      help="calib level of the PRODUCTS (default: --calib-level); "
+                           "use with --calib-level=3 to list L1/L2 products of L3 obs"),
                   filters=lambda p: p.add_argument(
                       "--filters", help="comma list matched against filenames, e.g. f212n,f335m"),
                   session=lambda p: p.add_argument(
                       "--session", required=True, help="sessions/<session> staging + datasets/<session> records"))
     q = sub.add_parser("query");    [common[k](q) for k in ("proposal", "instrument", "level")]
-    l = sub.add_parser("list");     [common[k](l) for k in ("proposal", "instrument", "level", "subgroup", "filters")]
-    d = sub.add_parser("download"); [common[k](d) for k in ("proposal", "instrument", "level", "subgroup", "filters", "session")]
+    l = sub.add_parser("list");     [common[k](l) for k in ("proposal", "instrument", "level", "subgroup", "plevel", "filters")]
+    d = sub.add_parser("download"); [common[k](d) for k in ("proposal", "instrument", "level", "subgroup", "plevel", "filters", "session")]
     d.add_argument("--go", action="store_true", help="the explicit decide gate")
     d.add_argument("--direct", action="store_true", help="direct download instead of the resumable curl script")
     v = sub.add_parser("verify");   common["session"](v)

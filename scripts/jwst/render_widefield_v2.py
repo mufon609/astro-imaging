@@ -87,6 +87,10 @@ def main():
                     help="midtone MTF on the F212N disc arm ONLY (colorize-palette form: disc brightness is F212N's job)")
     ap.add_argument("--colorize-a", type=float, default=None, metavar="A",
                     help="palette = documented colorize: c212 = A*(1,0.93,0.90), c335 = 1-c212, additive sum-to-white (supersedes channel isolation + pseudogreen)")
+    ap.add_argument("--field-gray", action="store_true",
+                    help="field below the feather = GRAY luminance (Schmidt's documented grayscale-background mechanism); replaces the colorized deep arms")
+    ap.add_argument("--field-epochs", type=int, default=1, choices=(1, 2),
+                    help="1 = epoch-1 field only (default; the sky-frame two-epoch mean ghosts the planet — measured dead end); 2 = the coverage-aware two-epoch mean (evidence arm)")
     ap.add_argument("--sky-floor", type=float, default=None,
                     help="neutral floor lift f: out=(x+f)/(1+f) on all three channels")
     ap.add_argument("--measure", action="store_true",
@@ -176,11 +180,69 @@ def main():
         ssf.append("save l335df")
         d335 = "l335df"
 
+    if args.field_gray:
+        if args.field_epochs == 2:
+            for f in ("jup_f212n_ep2_prep.fits", "jup_f335m_ep2_prep.fits"):
+                if not os.path.exists(os.path.join(work, f)):
+                    sys.exit(f"--field-epochs=2 needs {f} (run prepare_epoch2.py)")
+            # coverage-aware two-epoch mean — EVIDENCE ARM ONLY: registers the
+            # sky, so the ep2 planet ghosts (measured; ledger amendment)
+            ssf.append('pm "min($jup_f212n_ep2_prep$ * $jup_f212n_ep2_prep$ * 1000000000000000000, 1)"')
+            ssf.append("save m2a")
+            ssf.append('pm "$p212f$ + 0.5 * $m2a$ * ($jup_f212n_ep2_prep$ - $p212f$)"')
+            ssf.append("save fld212")
+            ssf.append('pm "min($jup_f335m_ep2_prep$ * $jup_f335m_ep2_prep$ * 1000000000000000000, 1)"')
+            ssf.append("save m2b")
+            ssf.append('pm "$jup_f335m_prep$ + 0.5 * $m2b$ * ($jup_f335m_ep2_prep$ - $jup_f335m_prep$)"')
+            ssf.append("save fld335")
+            ssf.append('pm "($fld212$ + $fld335$) * 0.5"')
+        else:
+            ssf.append('pm "($p212f$ + $jup_f335m_prep$) * 0.5"')
+        ssf.append("save fldsum")
+        ped_mix = 0.5 * (ped212 + ped335)
+        sig_mix = 0.5 * math.sqrt(sig212 ** 2 + sig335 ** 2)
+        Bfield = ped_mix - 2 * sig_mix
+        Wfield = FEATHER_HI
+
     outputs = []
     for S in svals:
         stag = f"s{int(S)}"
         name = f"{args.tag}_{stag}"
         norm = math.asinh(S)
+        if args.field_gray:
+            a = args.colorize_a or 0.65
+            c212 = (a, 0.93 * a, 0.90 * a)
+            c335 = (1 - c212[0], 1 - c212[1], 1 - c212[2])
+            ssf.append(f'pm "asinh({fnum(S)} * max({sub("$fldsum$", Bfield)} / {fnum(Wfield - Bfield)}, 0)) / {fnum(norm)}"')
+            ssf.append(f"save lfield_{stag}")
+            chans = []
+            for ch, i in (("r", 0), ("g", 1), ("b", 2)):
+                ssf.append(f'pm "$w$ * ({fnum(c212[i])} * ${d212}$ + {fnum(c335[i])} * ${d335}$) '
+                           f'+ (1 - $w$) * min($lfield_{stag}$, 1)"')
+                ssf.append(f"save {ch}_{name}")
+                chans.append(f"{ch}_{name}")
+            if args.sky_floor:
+                f = args.sky_floor
+                fl = []
+                for c in chans:
+                    ssf.append(f'pm "(${c}$ + {fnum(f)}) / {fnum(1 + f)}"')
+                    ssf.append(f"save {c}fl")
+                    fl.append(c + "fl")
+                chans = fl
+            ssf.append(f"rgbcomp {chans[0]} {chans[1]} {chans[2]} -out={results_rel}/wf_{name}")
+            ssf.append(f"load {results_rel}/wf_{name}")
+            if args.measure:
+                ssf.append("boxselect 715 916 384 384")
+                ssf.append("stat main")
+                ssf.append("boxselect 1920 2527 128 256")
+                ssf.append("stat main")
+                ssf.append("boxselect 800 2219 200 200")
+                ssf.append("stat main")
+            ssf.append(f"savepng {results_rel}/judge/widefield_{name}")
+            ssf.append("resample -width=800 -interp=area")
+            ssf.append(f"savepng {results_rel}/previews/wf_{name}_small")
+            outputs.append(f"web/results/{args.session}/judge/widefield_{name}.png")
+            continue
         ssf.append(f'pm "asinh({fnum(S)} * max({sub("$p212f$", Bf212)} / {fnum(Wf212 - Bf212)}, 0)) / {fnum(norm)}"')
         ssf.append(f"save l212f_{stag}")
         ssf.append(f'pm "asinh({fnum(S)} * max({sub("$jup_f335m_prep$", Bf335)} / {fnum(Wf335 - Bf335)}, 0)) / {fnum(norm)}"')
