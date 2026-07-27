@@ -97,16 +97,37 @@ def download(args):
         print("REFUSED: download runs only with an explicit --go "
               "(the decide gate; run 'list' first for sizes)", file=sys.stderr)
         sys.exit(2)
+    import glob
+    import shutil
     from astroquery.mast import Observations
     sel = product_list(args)
     dest = os.path.join(REPO, "sessions", args.session, "products")
     os.makedirs(dest, exist_ok=True)
-    manifest = Observations.download_products(
-        sel, download_dir=dest, flat=True, curl_flag=not args.direct)
-    print(manifest)
-    if not args.direct:
-        print(f"\ncurl script written under {dest} — run it with bash "
-              f"(resumable; re-run to resume a partial pull), then 'verify'.")
+    if args.direct:
+        print(Observations.download_products(sel, download_dir=dest, flat=True))
+        return
+    # curl route: the API call only WRITES the resumable script — the --go the
+    # operator gave covers the PULL, so run it here (its output is the
+    # progress; re-running resumes a partial pull)
+    Observations.download_products(sel, download_dir=dest, curl_flag=True)
+    scripts = sorted(glob.glob(os.path.join(dest, "mastDownload_*.sh")))
+    if not scripts:
+        print("DOWNLOAD FAIL: MAST returned no curl script", file=sys.stderr)
+        sys.exit(1)
+    print(f"pulling via {os.path.basename(scripts[-1])} ...", flush=True)
+    subprocess.run(["bash", scripts[-1]], cwd=dest, check=True)
+    # the bundle script writes a MAST_*/ tree — flatten into products/
+    moved = 0
+    for f in glob.glob(os.path.join(dest, "**", "*.fits"), recursive=True):
+        if os.path.dirname(f) != dest:
+            shutil.move(f, os.path.join(dest, os.path.basename(f)))
+            moved += 1
+    for d in sorted(glob.glob(os.path.join(dest, "MAST_*")), reverse=True):
+        shutil.rmtree(d, ignore_errors=True)
+    got = glob.glob(os.path.join(dest, "*.fits"))
+    total = sum(os.path.getsize(f) for f in got)
+    print(f"DOWNLOAD OK: {len(got)} fits ({total/1e9:.2f} GB) in {dest} "
+          f"({moved} flattened) — run 'verify'")
 
 
 def verify(args):
@@ -145,6 +166,10 @@ def verify(args):
                      "(reproducibility anchors)"}
     ds = os.path.join(REPO, "datasets", args.session)
     os.makedirs(ds, exist_ok=True)
+    if not rows and not bad:
+        print(f"VERIFY FAIL: no .fits products under {dest} — the download "
+              f"did not stage anything (nothing recorded)", file=sys.stderr)
+        sys.exit(1)
     out = os.path.join(ds, "acquisition_manifest.json")
     json.dump(record, open(out, "w"), indent=1)
     print(f"{len(rows)} verified, {len(bad)} failed -> {out}")
