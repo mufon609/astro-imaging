@@ -1,0 +1,29 @@
+{
+ "session": "jwst-jupiter",
+ "reference_grid": "f212n (0.0307 arcsec/px)",
+ "reproject": "reproject_interp (bilinear; up-sampling hop LW->SW)",
+ "divisors": {
+  "f212n": 50000.0,
+  "f335m": 4000.0
+ },
+ "frames": {
+  "f212n": {
+   "shape": [
+    4319,
+    4340
+   ],
+   "nan_fraction": 0.09231,
+   "post_norm_max": 0.9828,
+   "post_norm_median": -0.000109
+  },
+  "f335m": {
+   "shape": [
+    4319,
+    4340
+   ],
+   "nan_fraction": 0.0639,
+   "post_norm_max": 0.9015,
+   "post_norm_median": 9.1e-05
+  }
+ }
+}

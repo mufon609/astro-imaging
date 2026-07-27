@@ -14,7 +14,7 @@
   "visual": "f212n: 4-detector SW mosaic with black inter-detector gap cross; disc fills much of one detector, blown in the diagnostic stretch; 1/f striping visible. f335m: full disc with LARGE crescent saturation holes on both limbs (NaN), the ring clearly present, moons + background galaxies + big diffraction spikes + detector seams \u2014 the wide-field recreation is all there"
  },
  "j2_decide_points": [
-  "saturation holes: the release combined short+long exposures; the short-exposure disc lives in the sub400p observations (o011/o033, 19.9-29.8 s) \u2014 adding o033's two small files is the candidate hole-fill; alternative = document the holes",
+  "saturation holes: CORRECTED \u2014 o011/o033 are RING-ANSA subarray pointings (t030/t035, ~12\" field) and cannot fill the 42\" disc; no shorter full-disc F212N exists in 1373 (o010's 128 s vs o008's 161 s is the only marginal variant). Route: build the composite, measure what the holes do under the F335M channel; o010 partial-fill or documented holes are the fallbacks",
   "SW detector-gap cross in f212n: LW f335m covers the gaps at half resolution \u2014 the composite grid choice decides how gaps render"
  ]
 }
