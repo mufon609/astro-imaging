@@ -82,8 +82,8 @@ Provenance (verified from the APT file, NASA/ESA captions, MAST CAOM):
 
 | release image | observations | filters → display colors (caption-verbatim) | epochs |
 |---|---|---|---|
-| Wide-field (rings + Amalthea/Adrastea + trailed "photobombing" galaxies) | **obs 8** (FULL, Module B) | **F212N → orange, F335M → cyan**; "combination of short and long exposures" spans the ~10⁶ disc-to-ring contrast | SW+LW **simultaneous** — 2022-07-27 10:51–11:00 UT |
-| Close-up (two-hemisphere aurora) | **obs 6** (SUB640 4-tile) + **obs 8** | **F360M → red, F212N → yellow-green, F150W2(×F164N) → cyan** (the asset page lists F164N — the pupil-wheel element crossed with F150W2) | obs 6 10:24–10:36 + obs 8 10:51–11:00 → **9–22° of rotation between components** |
+| Wide-field (rings + Amalthea/Adrastea + trailed "photobombing" galaxies) | **obs 8** (FULL, Module B) | **F212N → orange, F335M → cyan**; "A combination of short and long exposures" — the **Berkeley/AURA long-form caption** (not the NASA blog, which says only "two filters"); mechanism behind it per Hueso's Nature Methods: ramp GROUP selection (1/2/3 non-destructive reads) at level 2, not exposed by L3 i2d — the L3-faithful equivalent is separate display transfers composited (the team's Neptune doctrine). Ring is "a million times fainter than the planet" (ESA caption) | SW+LW **simultaneous** — 2022-07-27 10:51–11:00 UT |
+| Close-up (two-hemisphere aurora) | **obs 6** (SUB640 4-tile) + **obs 8** | **F360M → red, F212N → yellow-green, F150W2 → cyan per Schmidt's own Flickr + the NASA blog** (authoritative for HER composite); the later STScI 2023/147 asset and the Hueso repo README say F164N — those are DIFFERENT, later composites (DePasquale's reprocessing / the repo's own 3-color), a recorded discrepancy for J3 | obs 6 10:24–10:36 + obs 8 10:51–11:00 → **9–22° of rotation between components** |
 
 - Processed by **Judy Schmidt** (close-up; wide-field with **Ricardo Hueso**),
   Photoshop, from MAST level-3 products. No full step-by-step was published
@@ -111,21 +111,26 @@ Provenance (verified from the APT file, NASA/ESA captions, MAST CAOM):
 
 ### 4. The recreation plan (phases; each user-gated where output-shaping)
 
-- **J0 — ACQUIRE (the next gate, ~0.75 GB)**: from the JWST tab —
-  `list --proposal=1373 --filters=o006,o008` (the filename filter doubles as
-  an observation selector; sizes on screen) → `download … --go` →
-  `verify` (manifest + anchors). Stage the released PNGs + the team's CC-BY
-  derotated frames into `sessions/jwst-jupiter/reference/` (the answer key —
-  study before tuning, per the standing rule).
+- **J0 — ACQUIRE (DONE)**: products pulled + verified (manifest); the
+  released ORIGINALS are staged in `sessions/jwst-jupiter/reference/` —
+  full-res TIFFs live at `esawebb.org/media/archives/images/original/
+  jupiter-auroras{1,2}.tif` (the `cdn…/original/` path 404s; NASA-side
+  full-res originals of the Aug-2022 deliverables are dead since the blog
+  migration — ESA hosts the only live ones). Answer-key study + measured hue
+  anchors: `datasets/jwst-jupiter/qa_work/j2_reference_study.json`. The
+  team's CC-BY derotated frames (JWSTGiantPlanets repo) stage at J3 need.
 - **J1 — PROBES on the real files** (pre-registered, one knob each): astropy
   SCI/NaN/WCS read; reproject F335M (0.063″) ↔ F212N (0.031″) both
   directions; Siril float-load + NaN behavior; star-centroid cross-check of
   the archive WCS alignment; saturation-hole census on the F212N disc.
 - **J2 — WIDE-FIELD recreation first** (simultaneous filters — no
-  derotation): reproject to the SW grid → per-filter asinh brackets (the
-  10⁶ contrast is the experiment: disc detail vs ring visibility) → 2-filter
-  palette (F212N orange, F335M cyan — an rgbcomp/pm mix, orange ≠ pure R) →
-  composite → judge vs the reference PNG, like-encoded.
+  derotation): v1 (shared asinh, additive RGB) = closed-FAIL ladder control;
+  v2 implements the DOCUMENTED process — per-filter placed-points transfers,
+  the Neptune separate-transfers doctrine for the F212N disc/field split,
+  documented artifact fills (user-gated), Schmidt's channel-isolation +
+  pseudogreen palette — per
+  [`jwst-official-rendering-process.md`](jwst-official-rendering-process.md);
+  measured inputs in `datasets/jwst-jupiter/qa_work/j2_v2_*.json`.
 - **J3 — CLOSE-UP recreation** (the hard one): the derotation gap is the
   class decision — candidates: compose from the team's CC-BY derotated
   frames (official science-team products), WinJUPOS-under-Wine (the amateur
