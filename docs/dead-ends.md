@@ -73,6 +73,23 @@ the constraints any such tool must satisfy):
   rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
   the fit skews. Crop-before-background is the pinned order.
 
+- **Constant-per-image sky matching can NEITHER remove structure-class mosaic
+  seams NOR be trusted near a bright extended source.** MEASURED (jwst 3.0.0
+  calwebb_image3, NIRCam SW 12-input Jupiter mosaic, per-detector `group_id`
+  ungrouping so `skymethod=match` equalized all 12 individually): the
+  detector-block step at the recorded boundary boxes stayed −0.8745 → −0.8737
+  MJy/sr — the seams are per-image background STRUCTURE (1/f banding +
+  residual gradients differing across dither-coverage boundaries), invisible
+  to any constant-per-image fit — while the matcher subtracted the planet's
+  scattered-light GLOW as "sky" (matched values 36–65 MJy/sr; the fan region
+  collapsed +71.9 → +25.5 MJy/sr = −65% of real signal; whole sky shifted
+  −29 MJy/sr). The overlap strips of a bright-planet field are glow-dominated,
+  so the least-squares has no sky to find. Do not re-attempt constant sky
+  matching (grouped or ungrouped) against structure-class seams or on
+  glow-dominated overlaps; the at-source lever for 1/f-class structure is the
+  pipeline's own Detector1 `clean_flicker_noise` (ramp-level), and a seam that
+  survives it is archive-truth, not a matching knob.
+
 **Stretch / colour:**
 - Unlinked autostretch on a calibrated stack is the chroma-blotch ("rainbow")
   engine — after SPCC there is no cast to compensate; use linked. Unlinked
