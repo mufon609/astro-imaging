@@ -1,0 +1,24 @@
+{
+  "set": "set-02",
+  "product": "web/results/july26/stack_set-02_q100.fit",
+  "judge_surface": "web/results/july26/judge/set-02_q100_linear.png (linear PNG16, full processing frame)",
+  "chain": [
+    "staging crop 1024x1536 @ (2548,870) — staging_crop.json",
+    "calibrate: master dark (identical crop), -cfa -debayer -cc=dark, 32-bit",
+    "register: Siril GUI Image Pattern Alignment, track-covering selection (user-run, 18.54 s / 809 frames)",
+    "repair: select pp_moon 1 809 (failed-run selection debris — dead-ends entry)",
+    "seqapplyreg -interp=none (pure integer shifts)",
+    "stack: mean, winsorized 3/3, -nonorm, 32-bit; 809 of 809 frames (q100 = the ladder control)"
+  ],
+  "registration_sanity": {
+    "shift_samples_px": {"frame_2": [0, 1], "frame_405": [1, 379], "frame_809": [-4, -355]},
+    "note": "vertical shift reverses sign late in the set (transit-consistent drift reversal); the 809-frame limb is single-edged and coherent, which an aligned mean requires and any misregistered block would destroy — the stack arbitrates the registration as correct; the staging window held the disc through the reversal",
+    "limb": "coherent single edge (verified visually on a diagnostic stretch)"
+  },
+  "stat_main": {
+    "R": {"mean": 6.7, "median": 0.1, "sigma": 67.1, "max": 1407.8, "bgnoise": 0.1},
+    "G": {"mean": 7.1, "median": 0.1, "sigma": 75.9, "max": 1716.3, "bgnoise": 0.1},
+    "B": {"mean": 3.9, "median": 0.1, "sigma": 38.1, "max": 831.4, "bgnoise": 0.1}
+  },
+  "notes": "slightly brighter than set-01 (later/higher altitude, less extinction — physical); same underexposure lever and documented SPCC skip as set-01; late-set transparency haze is in this stack's frames — the x86 quality ladder's primary target (amended experiments.jsonl)."
+}

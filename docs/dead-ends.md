@@ -139,9 +139,52 @@ the constraints any such tool must satisfy):
   .../siril-spcc-database". Fix = clone it (CLAUDE.md Environment, SPCC
   prerequisites). Do NOT chase the star count, field width, catalog format, or bit
   depth — all ruled out; the crash prints nothing useful and mimics a data bug.
-- 1-pass sequence-start registration strands drifting tail frames; 2-pass + low
-  detection sigma recovers them; on trailed frames a reference sweep beats the
-  auto-reference. Keep all frames (dropping a minority sub-focal subset buys no
+- **Siril planetary registrations (Image Pattern Alignment AND KOMBAT) fail — quietly
+  producing garbage shifts — when the drawn selection does not CONTAIN THE TARGET'S
+  WHOLE MOVEMENT across the sequence.** The official docs state the precondition
+  ("ensure its movement during the sequence is contained within the selection"); a
+  drifting target that exits the box leaves the correlation/template matcher with
+  noise, and nothing fails loudly. MEASURED (july26 lunar, ~110 px disc, 230/665 px
+  untracked drift, selection ~250 px = smaller than the track): tail-frame shifts
+  (41,10)/(50,20) where the physical drift demands ≈(10,185); 809 frames "registered"
+  in 984 ms (~1 ms/frame — no real per-frame work) vs 220 frames in 23.5 s; every
+  regdata quality field −1 → `stack -filter-quality=25%` computed threshold 0.000000
+  and filtered in ZERO frames; the applied-registration control stack rejected the
+  misaligned disc to a faint smudge (winsorized 3/3 — the per-pixel disc minority
+  rejected as outlier). THE RULE: size the selection to the full drift track (a
+  staging crop that already bounds the track makes "nearly the whole frame" the
+  correct selection) — and after registering, verify per-frame quality was actually
+  WRITTEN (regdata ≠ −1) before any quality-filtered stack; the registration docs do
+  not promise quality storage, only the stacking docs imply it.
+  **KOMBAT specifically is DEAD on this rig's 1.4.4 for this corpus** — four
+  configurations measured (tight template + default 25% area; whole-frame selection +
+  100% area; tight template + 100% area — the mechanically correct template-matching
+  pairing — twice): every run left 219/220 frames with a NULL H (no match) and
+  quality −1, failing silently in the GUI. Do not re-attempt KOMBAT on 32-bit float
+  3-channel crops of this class; the surviving in-Siril candidate is Image Pattern
+  Alignment with a track-covering selection, and the cross-tool route is PSS —
+  which is itself ENVIRONMENT-BLOCKED on Linux aarch64 (PyQt5 publishes NO aarch64
+  Linux wheels — manylinux x86_64 abi3 only, verified on PyPI 5.15.11), i.e. PSS
+  runs on the x86 rig only.
+- **Siril 1.4.4 planetary registrations write NO per-frame quality — even on a
+  VERIFIED-successful run — so a `-filter-quality` stack has nothing to consume.**
+  MEASURED end-to-end (july26 set-01): Image Pattern Alignment with a track-covering
+  selection produced physically-correct translations (tail (10,187–190) vs predicted
+  ≈(10,185); limb coherent on the applied-registration control stack) yet every
+  regdata quality field stayed −1 and `stack -filter-quality=25%` still computed
+  threshold 0.000000 / filtered-in 0. The stacking docs' "quality (planetary DFT or
+  Kombat registrations)" filter criterion is a dead letter in 1.4.4. Quality-ranked
+  ("lucky") frame selection therefore needs a RANKING tool (PSS `--stack_percent`,
+  AS!4 — both x86-only), or Siril 1.5's MPP if it measures quality — verify before
+  designing on it.
+- **Failed Siril GUI registration attempts leave the sequence's SELECTION state
+  corrupted — silently.** After repeated failed planetary registrations, the .seq
+  held frames 2–220 deselected with nb_selected = −218 (a counter driven negative),
+  which made a later `seqapplyreg` abort with "registration data is a set of null
+  matrices" even though layer R1 held valid transforms. The GUI shows nothing; the
+  failure surfaces one step downstream, mislabeled. Repair is scriptable: `select
+  <seq> 1 <N>` before applying. After ANY failed GUI registration, inspect the .seq
+  header (S-line nb_selected + I-line flags) before trusting the next step's error. Keep all frames (dropping a minority sub-focal subset buys no
   matching gain and pays the full √N noise penalty).
 - **Wide UNTRACKED edge smear: "field rotation / gnomonic projection" is NOT the
   cause.** For an IDEAL rectilinear lens a pure camera rotation maps EXACTLY to an

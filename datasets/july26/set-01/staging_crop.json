@@ -1,0 +1,17 @@
+{
+  "set": "set-01",
+  "box_xywh": [3498, 1700, 1024, 1024],
+  "coordinate_origin": "top-left (Siril boxselect/seqcrop convention)",
+  "why": "disk adaptation: full-frame processing of 24.5 MP x 1029-frame sequences exceeds this rig's disk; the window carries the whole disc track with margin, so no disc photon is discarded",
+  "evidence": {
+    "previews": "web/results/july26/previews/set-01_DSC_{0709,0818,0928}.png (Siril-made, autostretch selection surfaces)",
+    "disc_track_observed_px": {"x": [3945, 4075], "y": [2060, 2365], "disc_diameter_approx": 110},
+    "margins_px_min": 359
+  },
+  "cfa_phase": "x, y, w, h all even — Bayer alignment preserved; calibration runs AFTER the crop against the master dark cropped with the IDENTICAL box (per-pixel correspondence intact)",
+  "verification": {
+    "cropped_frames": "220 of 220 (chunk log sessions/july26/work/stage_set-01_*.log)",
+    "downstream_guard": "pattern-registration per-frame quality collapses loudly if the disc ever exits the window; the user's eyes are on the sequence at GUI registration"
+  },
+  "removal_condition": "x86 rig disk — process full-frame and this record retires (the box then becomes a framing choice, not a staging need)"
+}

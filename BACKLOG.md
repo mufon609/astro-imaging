@@ -461,11 +461,20 @@ this corpus: PICKY — the best 10/15/20/25 % ladder below.
   single-pass; raw NEFs delete post-conversion (re-stageable). If the
   transfer is VMware drag-and-drop, run `scripts/makeSpace.sh` after it
   lands (the host cache keeps a full duplicate).
-- **Registration mechanism (user gate, one-time)**: (a) Siril GUI
-  image-pattern alignment — installed, documented-proper at a 107 px disc,
-  ONE GUI interaction, quality regdata → headless everything after; vs
-  (b) PSS headless (dormant tool, venv-pinned, removal-conditioned).
-  Recommended: (a) for this corpus.
+- **Registration mechanism — RESOLVED (measured)**: Siril GUI Image Pattern
+  Alignment with a **track-covering selection** (the docs' containment
+  precondition), verified on set-01: physical shifts (tail (10,187–190) ≈
+  predicted (10,185)), coherent limb on the 220-frame control. KOMBAT is
+  dead on this class (4 configs, 219/220 null-H) and failed GUI runs leave
+  corrupted .seq selection state — repair `select <seq> 1 <N>` before
+  applying (mechanisms + numbers: `docs/dead-ends.md`).
+- **The quality-ranked ladder is BLOCKED ON THIS RIG** — 1.4.4 planetary
+  registrations write NO per-frame quality even on success (`-filter-quality`
+  consumes nothing; measured). The ladder runs on the x86 rig against a
+  ranking tool (PSS `--stack_percent`; AS!4-Wine as the bracket) with
+  values/control/judgment unchanged; this rig delivers the verified 100%
+  control stacks. PSS is aarch64-blocked (no PyQt5 arm wheels — PyPI
+  verified).
 - **The keep-fraction ladder (pre-registered)**: one knob = keep %, values
   **10 / 15 / 20 / 25** by the registration's own quality metric
   (`stack … -filter-quality=N% -32b`), control = 100 % (measures what
