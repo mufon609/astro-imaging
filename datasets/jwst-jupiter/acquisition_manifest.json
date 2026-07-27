@@ -60,6 +60,81 @@
    "cal_ver": "2.0.1",
    "crds_ctx": "jwst_1535.pmap",
    "size_bytes": 120458880
+  },
+  {
+   "file": "jw01373-o009_t006_nircam_clear-f212n_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F212N",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    4325,
+    4346
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 526544640
+  },
+  {
+   "file": "jw01373-o009_t006_nircam_clear-f335m_i2d.fits",
+   "instrument": "NIRCAM",
+   "filter": "F335M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "MJy/sr",
+   "shape": [
+    2072,
+    2079
+   ],
+   "cal_ver": "2.0.1",
+   "crds_ctx": "jwst_1535.pmap",
+   "size_bytes": 120801600
+  },
+  {
+   "file": "jw01373008001_03101_00001_nrcblong_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F335M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    2048,
+    2048
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 42215040
+  },
+  {
+   "file": "jw01373008001_03101_00002_nrcblong_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F335M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    2048,
+    2048
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 42215040
+  },
+  {
+   "file": "jw01373008001_03101_00003_nrcblong_uncal.fits",
+   "instrument": "NIRCAM",
+   "filter": "F335M",
+   "target": "JUPITER",
+   "date_obs": "2022-07-27",
+   "bunit": "DN",
+   "shape": [
+    2048,
+    2048
+   ],
+   "cal_ver": null,
+   "crds_ctx": null,
+   "size_bytes": 42215040
   }
  ],
  "failed_verify": [],
