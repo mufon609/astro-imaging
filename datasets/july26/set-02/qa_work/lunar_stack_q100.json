@@ -1,24 +1,30 @@
 {
   "set": "set-02",
   "product": "web/results/july26/stack_set-02_q100.fit",
-  "judge_surface": "web/results/july26/judge/set-02_q100_linear.png (linear PNG16, full processing frame)",
+  "judge_surfaces": [
+    "web/results/july26/judge/set-02_q100_linear.png (linear PNG16)",
+    "web/results/july26/judge/set-02_q100_lin30.png (x30 linear gain — the pinned pair rule with set-01, unclipped)"
+  ],
   "chain": [
     "staging crop 1024x1536 @ (2548,870) — staging_crop.json",
     "calibrate: master dark (identical crop), -cfa -debayer -cc=dark, 32-bit",
-    "register: Siril GUI Image Pattern Alignment, track-covering selection (user-run, 18.54 s / 809 frames)",
-    "repair: select pp_moon 1 809 (failed-run selection debris — dead-ends entry)",
-    "seqapplyreg -interp=none (pure integer shifts)",
-    "stack: mean, winsorized 3/3, -nonorm, 32-bit; 809 of 809 frames (q100 = the ladder control)"
+    "seq rebuilt clean after the failed-run debris (dead-ends protocol), setref frame 400 (mid-track) BEFORE registering — the DFT wrap fix",
+    "register: Siril GUI Image Pattern Alignment, track-covering selection (user-run)",
+    "seqapplyreg -interp=none; stack: mean, winsorized 3/3, -nonorm, 32-bit"
   ],
+  "frames": {
+    "stacked": "808 of 809",
+    "excluded": "frame 396 — unselected by the registration itself (reproducible tool-decided cull; the file is healthy and loads with normal stats); accepted under the standing auto-cull policy and recorded here"
+  },
   "registration_sanity": {
-    "shift_samples_px": {"frame_2": [0, 1], "frame_405": [1, 379], "frame_809": [-4, -355]},
-    "note": "vertical shift reverses sign late in the set (transit-consistent drift reversal); the 809-frame limb is single-edged and coherent, which an aligned mean requires and any misregistered block would destroy — the stack arbitrates the registration as correct; the staging window held the disc through the reversal",
-    "limb": "coherent single edge (verified visually on a diagnostic stretch)"
+    "reference": "frame 400 (mid-track) — max |shift| 374 px < the 512 px DFT half-window; without this the tail's true +670 aliased to −355 (= 670 − 1024) and stacked a second disc (dead-ends aliasing entry)",
+    "shift_signature": "monotonic through zero at the reference: frame 2 (−1,−374) → frame 400 (0,0) → frame 809 (−4,+294); span 668 px ≈ the physical 670 px track",
+    "limb": "single coherent disc at the reference position, whole-frame verified"
   },
   "stat_main": {
-    "R": {"mean": 6.7, "median": 0.1, "sigma": 67.1, "max": 1407.8, "bgnoise": 0.1},
-    "G": {"mean": 7.1, "median": 0.1, "sigma": 75.9, "max": 1716.3, "bgnoise": 0.1},
-    "B": {"mean": 3.9, "median": 0.1, "sigma": 38.1, "max": 831.4, "bgnoise": 0.1}
+    "R": {"mean": 3.8, "median": 0.1, "sigma": 51.8, "max": 1386.9, "bgnoise": 0.1},
+    "G": {"mean": 4.1, "median": 0.1, "sigma": 58.7, "max": 1690.6, "bgnoise": 0.1},
+    "B": {"mean": 2.3, "median": 0.1, "sigma": 29.9, "max": 822.0, "bgnoise": 0.1}
   },
-  "notes": "slightly brighter than set-01 (later/higher altitude, less extinction — physical); same underexposure lever and documented SPCC skip as set-01; late-set transparency haze is in this stack's frames — the x86 quality ladder's primary target (amended experiments.jsonl)."
+  "notes": "late-set transparency haze visible as a glow halo (real sky, the quality ladder's primary target on x86); same underexposure lever (~9% of 14-bit range) and documented SPCC skip as set-01; green-dominant color = unbalanced raw sensor response, colour work is a later gated step."
 }

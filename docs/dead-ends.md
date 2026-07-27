@@ -184,7 +184,27 @@ the constraints any such tool must satisfy):
   matrices" even though layer R1 held valid transforms. The GUI shows nothing; the
   failure surfaces one step downstream, mislabeled. Repair is scriptable: `select
   <seq> 1 <N>` before applying. After ANY failed GUI registration, inspect the .seq
-  header (S-line nb_selected + I-line flags) before trusting the next step's error. Keep all frames (dropping a minority sub-focal subset buys no
+  header (S-line nb_selected + I-line flags) before trusting the next step's error.
+  (After any failed GUI registration the safe reset is still: DELETE the .seq and let
+  the next sequence search rebuild it clean — cheap, and it removes the selection
+  debris above.)
+- **Planetary DFT registration ALIASES shifts beyond ±half its correlation window —
+  and stacks a SECOND coherent disc exactly one window away.** Circular (FFT)
+  correlation resolves translation only within ±window/2; a target whose drift from
+  the REFERENCE frame exceeds that wraps modulo the window, silently. MEASURED
+  (july26 set-02, 1024×1536 crop, 809 frames, reference = frame 1 at one end of a
+  ~670 px monotonic track): frames with true shift ≤ +379 registered exactly; the
+  tail's true +670 was recorded as −355 = 670 − 1024 (the frame's SHORT dimension —
+  the effective window), off by exactly one window; the stack rendered TWO clean
+  discs ~1024 px apart (each wrap-class coherent at its own position), REPRODUCED
+  identically on a clean rebuilt sequence — this is the method's arithmetic, not
+  stale state. Set-01 (max shift 190 px) never hit it. THE RULE: put the REFERENCE
+  near the TRACK MIDDLE (`setref` before registering) so max |shift| < window/2 —
+  halving the reach requirement; verify tail shifts against the physical drift after
+  EVERY planetary registration (predicted-vs-regdata is a 10-second check). And the
+  verification lesson that caught it: a limb/zoom coherence check on ONE region
+  cannot see a second disc — stack verification is WHOLE-FRAME first, zoom second
+  (the registry's trap-1 in new clothing). Keep all frames (dropping a minority sub-focal subset buys no
   matching gain and pays the full √N noise penalty).
 - **Wide UNTRACKED edge smear: "field rotation / gnomonic projection" is NOT the
   cause.** For an IDEAL rectilinear lens a pure camera rotation maps EXACTLY to an
