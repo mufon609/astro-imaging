@@ -439,6 +439,59 @@ nothing (the bwrap line lands in the siril log). NOT a data or Siril bug.
 - Removal condition: flatpak fixes the instance-dir lifecycle race, or Siril
   invocations stop being per-frame process spawns (e.g. pyscript batching).
 
+## 21. Lunar lucky imaging — first corpus (july26, 70 mm) + the class build
+
+The NEW data class: short-exposure burst frames → the aligner's own quality
+ranking → best-N% stack → deconvolution/wavelets. No solve/SPCC/BGE (no
+stars, no sky signal — documented skips, recorded per set). Route, toolkit
+audit and capture doctrine: [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md);
+Tier L in [`TOOLS.md`](TOOLS.md). The user's declared selection policy for
+this corpus: PICKY — the best 10/15/20/25 % ladder below.
+
+- **DONE — master dark** (310 × 1/2500 s | ISO 800 | 70 mm | Lossless, one
+  EXIF tuple): winsorized 3/3 `-nonorm` 32-bit master; stat mean=median=
+  1008.1 (the 14-bit pedestal), sigma 0.6 ADU; record
+  `datasets/july26/darks/master_dark.json`; raws deleted on user order
+  (re-stageable).
+- **Lights ingest (blocked on transfer, ~29 GB)**: exiftool uniformity
+  preflight — must match the darks' tuple, loud stop on mismatch;
+  `acquisition.json` seeded + `mount` declared. **Disk plan:** conversion +
+  calibrate run stage-chunked with per-stage deletion (the established
+  chunked pattern) — 1000+-frame 24.5 MP sequences do not fit this rig
+  single-pass; raw NEFs delete post-conversion (re-stageable). If the
+  transfer is VMware drag-and-drop, run `scripts/makeSpace.sh` after it
+  lands (the host cache keeps a full duplicate).
+- **Registration mechanism (user gate, one-time)**: (a) Siril GUI
+  image-pattern alignment — installed, documented-proper at a 107 px disc,
+  ONE GUI interaction, quality regdata → headless everything after; vs
+  (b) PSS headless (dormant tool, venv-pinned, removal-conditioned).
+  Recommended: (a) for this corpus.
+- **The keep-fraction ladder (pre-registered)**: one knob = keep %, values
+  **10 / 15 / 20 / 25** by the registration's own quality metric
+  (`stack … -filter-quality=N% -32b`), control = 100 % (measures what
+  pickiness buys). Hypothesis: at 107 px disc scale selection rejects
+  transparency/vibration outliers — real but modest sharpness delta,
+  monotonic SNR cost with pickiness. Stacks preserved to tagged names;
+  verdicts to `datasets/july26/<set>/experiments.jsonl`; the user's eyes
+  pick the operating point on full-frame PNG16.
+- **Sharpen ladders (after a stack is chosen)**: `makepsf blind` (bracket
+  manual-Gaussian sizes) → `sb` vs `wiener` (Siril's officially-lunar-
+  recommended pair), then `wavelet 5 2`/`wrecons` coefficient bracket as
+  the alternative arm. One knob per experiment.
+- **Colour**: as-shot WB (sunlit-disc neutral assumption — SPCC impossible,
+  recorded skip); optional mineral-moon `satu` ladder, user-gated.
+- **Pre-registered adoption test — Siril 1.5 stable**: `register_mpp`/
+  `stack_mpp` close the 1.4.4 headless-registration gap AND the multi-point
+  gap natively; retires the GUI step (and any PSS adoption) when it lands.
+- **Long-focal escalation (dormant until such a corpus exists)**: AS!4-
+  under-Wine vs PSS vs 1.5-MPP head-to-head; waveSharp 3.0 (native Linux
+  GUI, frozen) / ImPPG 2.1.0 as judgment-quality finishers; Hugin for
+  mosaics; RGB-align only where dispersion is measured (≥ ~800 mm).
+- **Graduation condition**: after the first corpus is judged, the §4
+  capture doctrine graduates into `docs/dead-ends.md`'s acquisition
+  checklist as the lunar block, and measured verdicts harden or kill the
+  §6 documented gaps.
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical

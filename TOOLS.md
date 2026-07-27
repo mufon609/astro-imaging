@@ -415,6 +415,37 @@ mainstream decouples stars (remove → boost OIII starless → re-add stars). Se
 
 ---
 
+## Tier L — Lunar / planetary lucky imaging (a separate data CLASS, not a render tier)
+
+Capture many short frames → the aligner's own quality ranking → best-N% stack
+→ multiscale sharpen. No solve/SPCC (no stars), no BGE (no sky signal at lunar
+exposures), denoise usually skipped (deep stacks; the AI denoisers are
+deep-sky-trained — off-distribution). The regime is set by pixel scale: at a
+small disc (e.g. 107 px @ 70 mm) seeing is sub-pixel → single-point disc
+alignment is proper and multi-point buys nothing; from ~800 mm (Z6III pitch)
+the class is seeing-limited → multi-point (AS!4/PSS-class) earns its keep.
+Full audit + first-corpus route: [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md).
+
+| Tool | Cost | Runs | Linux/CPU/Headless | When & why |
+|---|---|---|---|---|
+| **Siril 1.4.4 lunar surface** (`convert [-ser]`, planetary registration, `stack -filter-quality=N%`, `sb`/`wiener`/`rl` + `makepsf`, `wavelet`/`wrecons`, `savepng`) | FREE | siril-native | ✅ / ✅ / **✅ except registration** | **The installed-tools route; documented-proper for the small-disc regime.** Siril's own docs recommend Split Bregman/Wiener for stacked lunar images; wavelets are the scriptable RegiStax-class layer mechanism. **The planetary registrations (image-pattern DFT, KOMBAT) are GUI-ONLY in 1.4.4** (command reference full-text-verified + on-rig probe: scriptable `register` is star-based/deep-sky) — one GUI click produces the quality regdata, everything else is headless. NEF ingest is libraw = **Lossless NEF only** (HE/HE★ TicoRAW have no open decoder). |
+| **Siril 1.5-dev `register_mpp`/`stack_mpp`** | FREE | siril-native | ✅ / ✅ / ✅ | Siril's own multi-point planetary registration (piecewise translation — the correct lunar-seeing model). Dev-only today. **The pre-registered adoption test at 1.5 stable**: closes the headless gap AND the multi-point gap in the already-central tool. |
+| **PlanetarySystemStacker 0.9.8.3** | FREE (GPLv3) | CLI (python) | ✅ / ✅ / ✅ | The ONLY headless Linux-native multi-point stacker (Surface/Planet modes, `--stack_percent`, drizzle 3×, own Laplace ranking, run protocol). **Dormant since 2023, pins `numpy<1.23`** → frozen-tool venv adaptation with a removal condition (1.5 MPP stable or PSS revival). Author-claimed AS!3-parity. |
+| **AutoStakkert! 4** (4.0.11 stable / 4.0.13 beta) | FREE (private use) | Win GUI (Wine) | ⚠ Wine x86-64 (author-sanctioned) / ✅ / ❌ (semi-manual batch, no unattended mode) | The community QUALITY REFERENCE for the seeing-limited regime: MAP multi-point + the strongest quality estimator. The escalation bracket on x86 when a long-focal corpus arrives — pointless on a ~100 px disc. |
+| **AstroSurface W5** (2026-05) | FREE | Win GUI | ⚠ Wine UNVERIFIED / ✅ / ❌ | Active all-in-one (stack + wavelets + Wiener/Van-Cittert). No CLI. A manual-judgment alternative, not a pipeline stage. |
+| **waveSharp 3.0** (RegiStax successor) | FREE | **native Linux GUI** | ✅ / ✅ / ❌ | OKLab 3-layer wavelets, chroma denoise, threshold-based star-free COLOUR BALANCE, 16-bit PNG out. **Frozen/archived 2026-03** — use-as-is judgment tool; Siril wavelets are the scriptable fallback. RegiStax 6 itself: dead 2011; only RGB-Align (dispersion, Wine) retains a niche at long FL. |
+| **ImPPG 2.1.0** | FREE (GPL-3) | native Linux GUI | ✅ / ✅ / 🖥 (Lua batch, GUI-launched) | Active Lucy-Richardson + adaptive unsharp with live preview — the solar/lunar community favourite for interactive deconv tuning. **PNG writer is 8-BIT — never the finals writer** (export TIFF16/FITS; Siril `savepng` mints the judgment PNG16). |
+| **Hugin** (mosaic mode) | FREE | CLI + GUI | ✅ / ✅ / ✅ | The Linux lunar-mosaic route for long-FL panes (crater control points match where star fields fail; Siril mosaics are astrometric-only = impossible on lunar). Already in production here for lens fitting. |
+| **RC-Astro BXT on lunar** | PAID | CLI | ✅ / AVX2 / ✅ | Officially accommodated (manual-PSF mode; AI4 fixed lunar clipping) but community-preferred lunar results remain classical wavelets/deconv — a bracketed x86 experiment at most, never the route. NXT/GraXpert denoise: deep-sky-trained, skip on lunar. |
+
+**Pick:** small-disc corpus (the july26 70 mm set) → the installed-Siril route
+(one GUI registration click, headless everywhere else). Seeing-limited corpus
+(≥~800 mm) → AS!4-under-Wine vs PSS vs Siril-1.5-MPP, one bracketed
+head-to-head on real data before any adoption. Capture doctrine (Z6III:
+Lossless-NEF-only, 20 fps e-shutter bursts, looney-11 at the sharp aperture,
+terminator focus): `docs/lunar-lucky-imaging.md` §4 — graduates to the
+acquisition checklist after the first corpus validates it.
+
 ## Cross-cutting: what's FREE-and-headless vs PAID vs GUI-gated
 
 **The fully FREE + headless x86 stack** (no license, no display, runs under

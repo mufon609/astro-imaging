@@ -45,6 +45,15 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [lunar-lucky-imaging](lunar-lucky-imaging.md) — the LUNAR data class:
+  lucky-imaging model mapped onto the repo's stage design (no solve/SPCC/BGE
+  — documented skips), the 2025-26 stacker/finisher audit (Siril 1.4.4
+  headless-except-registration; 1.5-dev `register_mpp` as the adoption test;
+  PSS/AS!4/waveSharp/ImPPG evidence-tagged), Z6III capture doctrine
+  (Lossless-NEF-only, 20 fps e-shutter), sampling regimes (70 mm disc =
+  107 px → single-point alignment is proper; ≥800 mm → multi-point class),
+  and the first-corpus route + pre-registered best-N% ladder. PROVISIONAL —
+  no lunar pixel processed yet.
 - [july23-dew-and-corner-chroma](july23-dew-and-corner-chroma.md) — the
   july23 session's two data-quality findings, current-state: LENS DEW (the
   known environment issue — measured halo-growth signature, the reusable
