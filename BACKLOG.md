@@ -494,6 +494,18 @@ recoverable, not guessed.
   (astropy/reproject are official tooling; Siril where it fits); no SPCC
   (palette class, not photometric color); the user gates the target list,
   the download budget, and every aesthetic step.
+- **USER-DECLARED: a dedicated JWST tab in the web GUI** — its own rail
+  page with three sections: **Acquire** (target/proposal picker → dry-run
+  product list WITH SIZES as the decide surface → gated download, logs),
+  **Process** (a simplified Run surface scoped to the JWST chain only —
+  fixed stage order, per-click gates, status per stage), **Examine**
+  (per-filter tool-made previews, composites, the records viewer scoped to
+  the corpus). Same binding contract as the Run page: fixed pinned-script
+  registry, exact command shown, one job at a time, `.webjobs` logs,
+  127.0.0.1-only. Build order: `scripts/jwst/acquire.py` (the flow is
+  research-verified) → the plan doc's process scripts → registry + page
+  wiring; Process buttons render as designed states until their scripts
+  land.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 

@@ -134,6 +134,7 @@
   <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
   <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
   <a class="item" href="#run">Run <span class="n" id="n-run"></span></a>
+  <a class="item" href="#jwst">JWST</a>
   <a class="item" href="#env">Environment</a>
   <a class="item" href="#records">Records</a>
 </nav>
@@ -1069,6 +1070,48 @@ async function pgRecord(path) {
     h('pre', { class:'rec' }, JSON.stringify(body, null, 1)));
 }
 
+/* ---------- JWST: the archival-class surface (BACKLOG item 22) ----------
+   Acquire (MAST recon -> sized decide surface -> gated download -> verify) /
+   Process (the JWST chain only — cards appear as their pinned scripts land) /
+   Examine (manifest record + composites). Same binding contract as Run:
+   fixed registry, exact command shown, one job at a time, .webjobs logs. */
+async function pgJwst() {
+  let stages = {};
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const jw = Object.entries(stages).filter(([n]) => n.startsWith('jwst_'));
+  const formHost = h('div', {});
+  const acquireCards = jw.length
+    ? h('div', {}, ...jw.map(([name, st]) => h('div', { class:'panel', style:'margin:8px 0' },
+        h('b', {}, name.replace('jwst_', '')), ' — ', h('span', { class:'when' }, st.desc), ' ',
+        h('button', { class:'copy', onclick: () => openStageForm(name, st, formHost) }, 'open'))))
+    : h('p', { class:'m' }, 'acquire stages not in the running registry — restart the server (stale registry is visible in the header rev)');
+  const manifestPath = `datasets/${SESSION}/acquisition_manifest.json`;
+  const isJwst = (SESSION || '').startsWith('jwst-');
+  const examine = isJwst
+    ? frag(
+        h('p', {}, h('a', { href:'#record/' + manifestPath }, 'acquisition manifest'),
+          h('span', { class:'m' }, ` — ${manifestPath} (CAL_VER/CRDS_CTX anchors; written by verify)`)),
+        h('p', {}, h('a', { href:'#surfaces' }, 'composites + judge surfaces'),
+          h('span', { class:'m' }, ' — judgment stays on the PNG16 files in your own viewers')))
+    : h('p', { class:'m' }, 'select a jwst-* session (or run a download to create one) — the examine surfaces scope to it');
+  return frag(
+    h('div', { class:'eyebrow' }, 'JWST — archival class'),
+    h('h1', { style:'font-size:20px' }, 'Acquire / Process / Examine'),
+    h('p', { class:'when' },
+      'No photons shot here: acquiring = querying MAST and pulling the official STScI pipeline’s per-filter i2d mosaics. ',
+      'Order: query → list (the sized DECIDE surface) → download with go → verify. Public data needs no account.'),
+    h('h2', { style:'margin-top:18px' }, '1 · Acquire'),
+    acquireCards, formHost,
+    h('h2', { style:'margin-top:18px' }, '2 · Process'),
+    h('p', { class:'m' },
+      'The JWST chain (extract-SCI → reproject to one grid → per-filter stretch → chromatic-order composite → PNG16) ',
+      'appears here as each pinned script lands from the plan (BACKLOG item 22, docs/ deep-dive). Nothing runs from this section yet — by design, not omission.'),
+    h('h2', { style:'margin-top:18px' }, '3 · Examine'),
+    examine,
+    h('p', { class:'m', style:'margin-top:14px' }, 'jobs + logs: ', h('a', { href:'#run' }, 'Run page job table'),
+      ' (the same one-at-a-time runner executes these stages)'));
+}
+
 /* ---------- router + boot ---------- */
 async function route() {
   const main = document.getElementById('main');
@@ -1086,7 +1129,7 @@ async function route() {
     ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
        '#surfaces': pgSurfaces, '#objects': pgObjects,
        '#experiments': pgExperiments, '#framing': pgFraming,
-       '#run': pgRun, '#env': pgEnv, '#records': pgRecords }[hash] || pgOverview)());
+       '#run': pgRun, '#jwst': pgJwst, '#env': pgEnv, '#records': pgRecords }[hash] || pgOverview)());
   main.replaceChildren(out);
 }
 
