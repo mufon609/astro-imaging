@@ -480,15 +480,20 @@ first, then mature ours).** The processors and filter-to-color mappings of
 those images are publicly documented, so the reference recipe is
 recoverable, not guessed.
 
-- Research IN FLIGHT (three sweeps: MAST acquisition mechanics; community/
-  STScI processing workflows for i2d composites; the Jupiter images'
-  provenance — program, filters, the processor's own published process,
-  moving-target quirks, rotation-between-filters).
-- Lands as: a `docs/` deep-dive (acquisition + processing plan), a TOOLS.md
-  tier for the archival class, the session/records layout for downloaded
-  corpora (the mono-filters composition path is the natural fit — per-filter
-  linear masters -> align -> compose -> render), and the user-gated first
-  download.
+- **Research LANDED → the plan is
+  [`docs/jwst-archival-class.md`](docs/jwst-archival-class.md)** (+ Tier A in
+  TOOLS.md). Provenance pinned: wide-field = obs 8 F212N(orange)+F335M(cyan),
+  SIMULTANEOUS (no derotation — the correct first recreation); close-up =
+  obs 6+8, F360M(red)/F212N(yellow-green)/F150W2×F164N(cyan), 9–22° rotation
+  between components (the derotation decision — team CC-BY derotated frames
+  vs WinJUPOS vs documented ghosting — is the user's at J3).
+- **Phases: J0 ACQUIRE (THE NEXT GATE — user's click in the JWST tab:
+  list --proposal=1373 --filters=o006,o008 → sizes on screen ≈ 0.75 GB →
+  download --go → verify)**; J1 probes on the real files (NaN/Siril/WCS/
+  saturation census — pre-registered in the doc); J2 wide-field recreation;
+  J3 close-up; J4 codify prepare/stretch/compose into the registry + tab.
+  Reference PNGs + the team's CC-BY derotated frames stage into
+  `sessions/jwst-jupiter/reference/` (answer-key rule).
 - Constraints to honor: the deliverable pixels come from the OFFICIAL
   upstream pipeline (STScI-calibrated products) + established tools
   (astropy/reproject are official tooling; Siril where it fits); no SPCC

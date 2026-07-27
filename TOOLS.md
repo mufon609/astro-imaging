@@ -451,6 +451,25 @@ Siril-1.5-MPP, one bracketed head-to-head before any adoption. Capture doctrine
 lives in the acquisition checklist (`docs/dead-ends.md`, lunar block — with the
 measured exposure card).
 
+## Tier A — Archival space-telescope data (JWST/MAST; no photons shot here)
+
+Acquisition = querying MAST and pulling the OFFICIAL STScI pipeline's
+calibrated per-filter `_i2d` mosaics (float32 MJy/sr); processing = reproject
+to one grid → per-filter float stretch → chromatic-order palette → composite →
+one 16-bit export. No SPCC (palette convention, not photometric colour — a
+recorded skip). Full audit + the Jupiter recreation plan:
+[`docs/jwst-archival-class.md`](docs/jwst-archival-class.md).
+
+| Tool | Cost | Runs | Linux/CPU/Headless | When & why |
+|---|---|---|---|---|
+| **astroquery.mast** (`scripts/jwst/acquire.py` — query/list/download/verify) | FREE | CLI (venv) | ✅ / ✅ / ✅ | **The acquisition stage.** No account for public data; proposal-ID queries (never cone-search for moving targets); sized DECIDE surface before any pull; resumable curl route; `verify` records CAL_VER/CRDS_CTX (which quarterly STScI build made each product). RIG-VERIFIED through `query` (live PID 1373). |
+| **astropy + reproject** | FREE | python (venv) | ✅ (reproject aarch64 wheels unverified — x86 sure) / ✅ / ✅ | **The alignment stage** — STScI-notebook-sanctioned; MJy/sr is surface brightness = reproject's exact assumption (no rescaling across pixel scales). `interp`/`adaptive`; **`exact` is documented-wrong below 0.05″/px** (NIRCam SW 0.031″). NaN handling is explicit here (i2d footprint NaN kills GUI tools). |
+| **Siril 1.4.4** (stretch/compose/export) | FREE | siril-native | ✅ / ✅ / ✅ | `asinh`/`autoghs` per-filter stretch, `rgbcomp`/`pm` palette assembly, `savepng` = the single 16-bit quantization. Probes pre-registered before it joins: float-MJy/sr load heuristic, NaN tolerance, archive-WCS registration. Its global star registration is the community-verified alignment fallback. |
+| **FITS Liberator v5** (NOIRLab, 2025-11) | FREE | python GUI + batch | ✅ / ✅ / ✅ (sidecar-param batch) | The asinh tool STScI's own imagers use — the sanctioned GUI/reference stretch route, now scriptable (batch + sidecar params). Adopt only if interactive stretch tuning earns it. |
+| **jwst pipeline** (STScI) | FREE | python | ✅ / ✅ heavy / ✅ | **OVERKILL for aesthetics** (50–100 GB CRDS cache; archive reprocesses quarterly anyway). The one useful middle path: stage-3-only re-run with a shared output grid if archive grids/saturation block. |
+| **Trilogy / astropy make_rgb** | FREE | python | ✅ / ✅ / ✅ | >3-filter composites (interposed-hue mixes) — the N-filter arm when a corpus needs it. |
+| **WinJUPOS** | FREE | Win GUI | ⚠ Wine, unverified | Planet DEROTATION — the amateur standard; a candidate only for the Jupiter close-up's cross-epoch problem (the science team's CC-BY derotated frames are the official-product alternative). |
+
 ## Cross-cutting: what's FREE-and-headless vs PAID vs GUI-gated
 
 **The fully FREE + headless x86 stack** (no license, no display, runs under

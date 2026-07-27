@@ -45,6 +45,15 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [jwst-archival-class](jwst-archival-class.md) — the ARCHIVAL class (no
+  photons shot here): MAST acquisition via astroquery (proposal-ID queries,
+  sized decide surface, CAL_VER/CRDS_CTX anchors — rig-verified through
+  `query`), the consensus i2d→reproject→asinh→chromatic-palette workflow with
+  tool fit (reproject sanctioned; `exact` wrong below 0.05″/px; Siril probes
+  pre-registered; FITS Liberator v5 as the GUI reference), and the Jupiter
+  recreation plan (PID 1373 provenance verbatim; wide-field first — its two
+  filters are simultaneous, no derotation; the close-up's 9–22° rotation gap
+  is the class decision). PROVISIONAL except the verified acquisition route.
 - [lunar-lucky-imaging](lunar-lucky-imaging.md) — the LUNAR data class:
   lucky-imaging model mapped onto the repo's stage design (no solve/SPCC/BGE
   — documented skips), the 2025-26 stacker/finisher audit (Siril 1.4.4
