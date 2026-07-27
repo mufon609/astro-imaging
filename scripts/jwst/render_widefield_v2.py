@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """jwst-jupiter wide-field render: the documented original process expressed
-in the sanctioned toolset (Siril pm/rgbcomp/savepng do every pixel op).
+in the sanctioned toolset (Siril pm/mtf/gauss/rgbcomp/savepng do every pixel op).
 
 Mechanism set (research + measurement records, all tracked):
 - Per-filter PLACED-POINTS transfers (docs/jwst-official-rendering-process.md):
@@ -12,33 +12,34 @@ Mechanism set (research + measurement records, all tracked):
     1.0, the captions' "Great Red Spot ... appears white" anchor.
   * DEEP arm: asinh placed-points pm transfer asinh(S*(x-B)/(W-B))/asinh(S)
     (probe-verified exact: qa_work/j2_v2_stretch_probe.json), black at
-    pedestal - 2*sigma (sky noise straddles the pedestal; a black AT the
-    pedestal would crush half the sky), white at the ring-anchored level:
-    W212 = the feather top; W335 = W212 * (ring335/ring212 medians) so the
-    RING lands equal in both layers — the reference's measured neutral ring.
+    pedestal - 2*sigma (sky noise straddles the pedestal), white at a
+    field-anchored level (decouple it from the feather top via --w212-deep,
+    or the R deep arm saturates across the outer feather = the measured
+    orange-rim mechanism).
 - HDR composite: feathered value-keyed weight on the (gap-filled) F212N prep,
   ramp across the measured ring-max -> disc-min value gap — the headless
   equivalent of the documented Photoshop masked composite. One shared
   geometric weight for both filters (the F212N disc is hole-free).
+- FINISHING (the documented per-layer curves stage, headless): --m335 warms
+  the disc (midtone-only MTF on the F335M disc arm — endpoints fixed so the
+  GRS/EZ white anchor survives), --m-disc lifts both disc arms to the
+  reference disc brightness, --sky-floor applies the neutral
+  slightly-above-black lift (x+f)/(1+f) to all three channels. Knob values
+  are SOLVED from tool-measured anchors (qa_work/j2_v3_anchors.json), not
+  hand-tuned.
 - Palette: channel isolation + pseudogreen (R=F212N, G=half each, B=F335M) —
-  Schmidt's documented JWST mechanism ("half of the red, half of the blue
-  ... channels add up to 100 percent").
-- FILLS (policy toggles, each the documented original mechanism, applied
-  BEFORE transfers per the team's ordering rule):
-  * --gap-fill: F212N SW chip gaps filled from F335M at prep level (team:
-    "fill that in with the closest wavelength filter"; Schmidt: "either
-    filter to complete the other"). Zero-mask arithmetic: NaN->0 regions are
-    the only exact zeros in the prep frames.
-  * --crescent-fill: F335M saturation-NaN limb crescents white-filled at
-    display level inside the disc footprint (DePasquale pixel-clip: black
-    saturated cores "set them to white").
-- ONE bracketed knob: deep-arm asinh strength S (both filters share it);
-  each value renders a full composite (default bracket 5 and 15).
+  Schmidt's documented JWST mechanism.
+- FILLS (policy toggles, documented mechanisms, BEFORE transfers): --gap-fill
+  (F212N chip gaps <- F335M, prep level); --crescent-fill (F335M saturation
+  NaN -> white at display level, in-disc); --feather-crescent blurs the fill
+  mask with Siril gauss so the fill edge is not a zero-mask staircase.
+- --measure: Siril stat on the recorded disc/sky boxes of each composite —
+  the rung verdict numbers.
 
-Constants come from datasets/<session>/qa_work/j2_v2_levels.json (Siril stat
-measurements) — never retyped here. Outputs: per-stage FITS in the session
-work dir, finals + full-frame PNG16 judge surfaces + 800px previews under
-web/results/<session>/. Run record: qa_work/j2_v2_run.json.
+Constants come from datasets/<session>/qa_work/j2_v2_levels.json. Outputs:
+per-stage FITS in the session work dir, finals + full-frame PNG16 judge
+surfaces + 800px previews under web/results/<session>/. Run record:
+qa_work/<tag>_run.json.
 """
 import argparse
 import json
@@ -65,12 +66,31 @@ def sub(tok, v):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--session", default="jwst-jupiter")
+    ap.add_argument("--tag", default="v2", help="output family name (wf_<tag>_sN)")
     ap.add_argument("--s-values", default="5,15",
                     help="deep-arm asinh strength bracket (comma-separated)")
     ap.add_argument("--gap-fill", action="store_true",
                     help="fill F212N chip gaps from F335M (documented team mechanism)")
     ap.add_argument("--crescent-fill", action="store_true",
                     help="white-fill F335M saturation crescents in-disc (pixel-clip equivalent)")
+    ap.add_argument("--feather-crescent", type=float, default=None, metavar="PX",
+                    help="gauss-blur the crescent fill mask by PX (kills the zero-mask staircase)")
+    ap.add_argument("--w212-deep", type=float, default=None,
+                    help="F212N deep-arm white point (default: the feather top — known rim mechanism)")
+    ap.add_argument("--w212-disc", type=float, default=None,
+                    help="F212N disc-arm white point override (EZ-top anchor; default: disc-box max)")
+    ap.add_argument("--m335", type=float, default=None,
+                    help="midtone MTF on the F335M disc arm (warms the disc; endpoints fixed)")
+    ap.add_argument("--m-disc", type=float, default=None,
+                    help="midtone MTF on BOTH disc arms after --m335 (disc brightness to reference)")
+    ap.add_argument("--m-disc-212", type=float, default=None,
+                    help="midtone MTF on the F212N disc arm ONLY (colorize-palette form: disc brightness is F212N's job)")
+    ap.add_argument("--colorize-a", type=float, default=None, metavar="A",
+                    help="palette = documented colorize: c212 = A*(1,0.93,0.90), c335 = 1-c212, additive sum-to-white (supersedes channel isolation + pseudogreen)")
+    ap.add_argument("--sky-floor", type=float, default=None,
+                    help="neutral floor lift f: out=(x+f)/(1+f) on all three channels")
+    ap.add_argument("--measure", action="store_true",
+                    help="Siril stat the recorded disc/sky boxes on each composite")
     ap.add_argument("--dry-run", action="store_true", help="write the .ssf, do not run Siril")
     args = ap.parse_args()
 
@@ -89,14 +109,16 @@ def main():
     sig212 = lv["f212n"]["sky"]["sigma_prep"]
     ped335 = lv["f335m"]["sky"]["median_prep"]
     sig335 = lv["f335m"]["sky"]["sigma_prep"]
-    Wd212 = lv["f212n"]["disc"]["max_prep"]
+    Wd212 = args.w212_disc if args.w212_disc else lv["f212n"]["disc"]["max_prep"]
     Wd335 = lv["f335m"]["disc"]["max_prep"]
     ring212 = lv["f212n"]["ring_ansa"]["median_prep"]
     ring335 = lv["f335m"]["ring_ansa"]["median_prep"]
 
     FEATHER_LO, FEATHER_HI = 0.01, 0.04     # across the measured ring-max..disc-min gap
-    Wf212 = FEATHER_HI                      # deep arm saturates exactly at handover
-    Wf335 = Wf212 * ring335 / ring212       # ring-neutral anchor
+    Wf212 = args.w212_deep if args.w212_deep else FEATHER_HI
+    Wf335 = 0.04 * ring335 / ring212        # v2's anchor, kept for reproducibility (see levels
+    #                                         record: the box was the scatter fan — the ring
+    #                                         itself is a Phase-2 data problem, not a knob here)
     Bf212 = ped212 - 2 * sig212
     Bf335 = ped335 - 2 * sig335
     GAP_SCALE = 4000.0 / 50000.0            # recorded prep divisors f335m/f212n
@@ -111,48 +133,95 @@ def main():
     if args.gap_fill:
         ssf.append(f'pm "$jup_f212n_prep$ + {zmask("$jup_f212n_prep$")} '
                    f'* max($jup_f335m_prep$, 0) * {fnum(GAP_SCALE)}"')
-        ssf.append("save p212f")
     else:
         ssf.append('pm "$jup_f212n_prep$ * 1"')
-        ssf.append("save p212f")
+    ssf.append("save p212f")
 
     # shared geometric weight: disc footprint from the (filled) f212n prep
     ssf.append(f'pm "min(max(($p212f$ - {fnum(FEATHER_LO)}) / {fnum(FEATHER_HI - FEATHER_LO)}, 0), 1)"')
     ssf.append("save w")
 
-    # disc arms (linear placed points, clamped)
+    # disc arms (linear placed points, clamped), then the finishing curves
     ssf.append(f'pm "min(max({sub("$p212f$", ped212)} / {fnum(Wd212 - ped212)}, 0), 1)"')
     ssf.append("save l212d")
+    d212 = "l212d"
+    if args.m_disc or args.m_disc_212:
+        ssf.append("load l212d")
+        ssf.append(f"mtf 0 {fnum(args.m_disc or args.m_disc_212)} 1")
+        ssf.append("save l212dx")
+        d212 = "l212dx"
+
     ssf.append(f'pm "min(max({sub("$jup_f335m_prep$", ped335)} / {fnum(Wd335 - ped335)}, 0), 1)"')
     ssf.append("save l335d")
+    d335 = "l335d"
+    if args.m335 or args.m_disc:
+        ssf.append("load l335d")
+        if args.m335:
+            ssf.append(f"mtf 0 {fnum(args.m335)} 1")
+        if args.m_disc:
+            ssf.append(f"mtf 0 {fnum(args.m_disc)} 1")
+        ssf.append("save l335dx")
+        d335 = "l335dx"
+
     if args.crescent_fill:
-        ssf.append(f'pm "max($l335d$, {zmask("$jup_f335m_prep$")} * $w$ * {fnum(CRESCENT_WHITE)})"')
+        if args.feather_crescent:
+            ssf.append(f'pm "{zmask("$jup_f335m_prep$")} * $w$"')
+            ssf.append("save m335m")
+            ssf.append("load m335m")
+            ssf.append(f"gauss {fnum(args.feather_crescent)}")
+            ssf.append("save m335g")
+            ssf.append(f'pm "max(${d335}$, min($m335g$, 1) * {fnum(CRESCENT_WHITE)})"')
+        else:
+            ssf.append(f'pm "max(${d335}$, {zmask("$jup_f335m_prep$")} * $w$ * {fnum(CRESCENT_WHITE)})"')
         ssf.append("save l335df")
-    disc335 = "l335df" if args.crescent_fill else "l335d"
+        d335 = "l335df"
 
     outputs = []
     for S in svals:
-        tag = f"s{int(S)}"
+        stag = f"s{int(S)}"
+        name = f"{args.tag}_{stag}"
         norm = math.asinh(S)
         ssf.append(f'pm "asinh({fnum(S)} * max({sub("$p212f$", Bf212)} / {fnum(Wf212 - Bf212)}, 0)) / {fnum(norm)}"')
-        ssf.append(f"save l212f_{tag}")
+        ssf.append(f"save l212f_{stag}")
         ssf.append(f'pm "asinh({fnum(S)} * max({sub("$jup_f335m_prep$", Bf335)} / {fnum(Wf335 - Bf335)}, 0)) / {fnum(norm)}"')
-        ssf.append(f"save l335f_{tag}")
-        ssf.append(f'pm "$w$ * $l212d$ + (1 - $w$) * min($l212f_{tag}$, 1)"')
-        ssf.append(f"save l212_{tag}")
-        ssf.append(f'pm "$w$ * ${disc335}$ + (1 - $w$) * min($l335f_{tag}$, 1)"')
-        ssf.append(f"save l335_{tag}")
-        ssf.append(f'pm "0.5 * $l212_{tag}$ + 0.5 * $l335_{tag}$"')
-        ssf.append(f"save g_{tag}")
-        ssf.append(f"rgbcomp l212_{tag} g_{tag} l335_{tag} -out={results_rel}/wf_v2_{tag}")
-        ssf.append(f"load {results_rel}/wf_v2_{tag}")
-        ssf.append(f"savepng {results_rel}/judge/widefield_v2_{tag}")
+        ssf.append(f"save l335f_{stag}")
+        ssf.append(f'pm "$w$ * ${d212}$ + (1 - $w$) * min($l212f_{stag}$, 1)"')
+        ssf.append(f"save l212_{name}")
+        ssf.append(f'pm "$w$ * ${d335}$ + (1 - $w$) * min($l335f_{stag}$, 1)"')
+        ssf.append(f"save l335_{name}")
+        if args.colorize_a:
+            a = args.colorize_a
+            c212 = (a, 0.93 * a, 0.90 * a)
+            c335 = (1 - c212[0], 1 - c212[1], 1 - c212[2])
+            chans = []
+            for ch, i in (("r", 0), ("g", 1), ("b", 2)):
+                ssf.append(f'pm "{fnum(c212[i])} * $l212_{name}$ + {fnum(c335[i])} * $l335_{name}$"')
+                ssf.append(f"save {ch}_{name}")
+                chans.append(f"{ch}_{name}")
+        else:
+            ssf.append(f'pm "0.5 * $l212_{name}$ + 0.5 * $l335_{name}$"')
+            ssf.append(f"save g_{name}")
+            chans = [f"l212_{name}", f"g_{name}", f"l335_{name}"]
+        if args.sky_floor:
+            f = args.sky_floor
+            for c in chans:
+                ssf.append(f'pm "(${c}$ + {fnum(f)}) / {fnum(1 + f)}"')
+                ssf.append(f"save {c}fl")
+            chans = [c + "fl" for c in chans]
+        ssf.append(f"rgbcomp {chans[0]} {chans[1]} {chans[2]} -out={results_rel}/wf_{name}")
+        ssf.append(f"load {results_rel}/wf_{name}")
+        if args.measure:
+            ssf.append("boxselect 715 916 384 384")
+            ssf.append("stat main")
+            ssf.append("boxselect 1920 2527 128 256")
+            ssf.append("stat main")
+        ssf.append(f"savepng {results_rel}/judge/widefield_{name}")
         ssf.append("resample -width=800 -interp=area")
-        ssf.append(f"savepng {results_rel}/previews/wf_v2_{tag}_small")
-        outputs.append(f"web/results/{args.session}/judge/widefield_v2_{tag}.png")
+        ssf.append(f"savepng {results_rel}/previews/wf_{name}_small")
+        outputs.append(f"web/results/{args.session}/judge/widefield_{name}.png")
     ssf.append("close")
 
-    ssf_path = os.path.join(work, "j2_v2_render.ssf")
+    ssf_path = os.path.join(work, f"j2_render_{args.tag}.ssf")
     with open(ssf_path, "w") as f:
         f.write("\n".join(ssf) + "\n")
     print(f"wrote {ssf_path} ({len(ssf)} lines)")
@@ -161,32 +230,35 @@ def main():
 
     r = subprocess.run(SIRIL + ["-d", sess, "-s", ssf_path],
                        capture_output=True, text=True)
-    sys.stdout.write("\n".join(l for l in r.stdout.splitlines()
-                               if "Error" in l or "error" in l or "Running command" in l) + "\n")
+    for l in r.stdout.splitlines():
+        if "layer:" in l or "Current selection" in l or "Error" in l or "error" in l:
+            print(l)
     missing = [o for o in outputs if not os.path.exists(os.path.join(REPO, o))]
     if r.returncode != 0 or missing:
         sys.exit(f"RENDER FAILED rc={r.returncode} missing={missing}\n--- tail ---\n"
                  + "\n".join(r.stdout.splitlines()[-30:]))
 
     rec = {
-        "render": "j2_widefield_v2 — documented-process expression (see the ledger amendment + docs/jwst-official-rendering-process.md)",
+        "render": f"j2 widefield {args.tag} — documented-process expression + finishing stage (ledger: j2_v3_finishing_ladder)",
         "inputs": "work/jup_{f212n,f335m}_prep.fits (recorded divisors 50000/4000)",
         "constants": {
             "disc_arm": {"f212n": {"B": ped212, "W": Wd212}, "f335m": {"B": ped335, "W": Wd335}, "curve": "linear (solar-system doctrine)"},
             "deep_arm": {"f212n": {"B": Bf212, "W": Wf212}, "f335m": {"B": Bf335, "W": Wf335},
-                         "curve": "asinh placed-points, S bracket", "S_values": svals,
-                         "W335_rule": "W212 * ring335/ring212 (ring-neutral anchor)"},
+                         "curve": "asinh placed-points, S bracket", "S_values": svals},
             "feather": [FEATHER_LO, FEATHER_HI],
             "palette": "R=f212n, B=f335m, G=0.5 each (pseudogreen)",
             "gap_fill": args.gap_fill, "crescent_fill": args.crescent_fill,
+            "feather_crescent_px": args.feather_crescent,
+            "w212_disc": args.w212_disc,
+            "m335": args.m335, "m_disc": args.m_disc, "m_disc_212": args.m_disc_212,
+            "colorize_a": args.colorize_a, "sky_floor": args.sky_floor,
             "gap_scale": GAP_SCALE, "crescent_white": CRESCENT_WHITE,
         },
-        "stages": "work/: p212f, w, l212d, l335d[, l335df], l212f_*, l335f_*, l212_*, l335_*, g_*",
         "outputs": outputs,
     }
-    with open(os.path.join(ds, "j2_v2_run.json"), "w") as f:
+    with open(os.path.join(ds, f"{args.tag}_run.json"), "w") as f:
         json.dump(rec, f, indent=1)
-    print("-> j2_v2_run.json; judge surfaces:", ", ".join(outputs))
+    print(f"-> {args.tag}_run.json; judge surfaces:", ", ".join(outputs))
 
 
 if __name__ == "__main__":
