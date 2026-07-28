@@ -96,7 +96,7 @@ while [ $n -lt $N ]; do
   for ((k=0; k<CHUNK && n<N; k++, n++)); do
     ln -sf "${SRC[$n]}" "$W/nef/$(basename "${SRC[$n]}")"
   done
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n' \
     "$W/nef" "$W/proc" "$W/proc" "$DARK" > "$W/c.ssf"
   sir "$W/c.ssf"
   rm -f "$W/proc"/c_*.fit
@@ -117,7 +117,7 @@ done
 STACKCMD="stack f rej w 3 3 -norm=mul"
 [ "$REJ" = median ] && STACKCMD="stack f med -norm=mul"
 rm -f "$W/pp"/*.seq
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\n%s -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\n%s -out=%s\n' \
   "$W/pp" "$STACKCMD" "$OUT" > "$W/s.ssf"
 sir "$W/s.ssf"
 [ -f "$OUT.fit" ] || { echo "FLAT STACK FAILED — read $W/siril.log" >&2; exit 1; }
@@ -141,16 +141,16 @@ RX[BL]=$M;                RY[BL]=$((IH - M - B))
 RX[BR]=$((IW - M - B));   RY[BR]=$((IH - M - B))
 : > "$W/stat.log"
 for r in center TL TR BL BR; do
-  printf 'requires 1.2.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nstat\n' \
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nstat\n' \
     "$OUT.fit" "${RX[$r]}" "${RY[$r]}" "$B" "$B" > "$W/v.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/v.ssf" 2>&1 \
     | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat.log"
 done
-printf 'requires 1.2.0\nsetcompress 0\nload %s\nfindstar -out=%s\n' \
+printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nfindstar -out=%s\n' \
   "$OUT.fit" "$W/specks.lst" > "$W/f.ssf"
 FS_LOG=$(flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/f.ssf" 2>&1 \
   | grep -oE 'Found [0-9]+ star' | grep -oE '[0-9]+' || echo 0)
-printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavepng %s\n' \
+printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"
 sir "$W/p.ssf"
 

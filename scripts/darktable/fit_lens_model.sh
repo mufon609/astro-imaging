@@ -69,13 +69,13 @@ for i in range($FRAMES):
     s = src[round(i*(len(src)-1)/($FRAMES-1))]
     os.symlink(os.path.abspath(s), os.path.join(dst, os.path.basename(s)))
 PY
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
   "$P/nef" "$P/proc" "$P/proc" "$DARK" "$FLAT" > "$P/c.ssf"
 sir "$P/c.ssf"
 i=0
 for f in "$P/proc"/pp_c_*.fit; do
   i=$((i+1))
-  printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavetif8 %s\n' \
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavetif8 %s\n' \
     "$f" "$P/st/st_$(printf %02d $i)" > "$P/e.ssf"
   sir "$P/e.ssf"; rm -f "$f"
 done

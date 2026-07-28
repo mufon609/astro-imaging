@@ -175,6 +175,7 @@ def run_siril(nef, work):
     # mosaic-free.
     with open(ssf, "w") as f:
         f.write("requires 1.4.4\n"           # findstar stdout format tested here
+                "setext fit\n"            # the Green_* intermediate below
                 f"load {os.path.abspath(nef)}\n"
                 "extract_Green\n"            # CFA -> clean single-channel green
                 f"load {green}\n"            # process the GREEN, not the mosaic

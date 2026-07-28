@@ -44,7 +44,7 @@ done
 [ "$n" -ge 4 ] || { echo "need >=4 members to split" >&2; exit 1; }
 echo "noise split: $n members"
 
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\n' \
   "$W" "$W" "$W" > "$W/r.ssf"
 sir "$W/r.ssf"
 [ -f "$W/seq/r_s_00001.fit" ] || { echo "ABORT: no registered frames — read $W/siril.log" >&2; exit 1; }
@@ -60,20 +60,20 @@ for ((i=1;i<=n;i++)); do
 done
 for q in odd even h1 h2; do
   mkdir -p "$W/${q}_seq"
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s/%s\nlink q -out=%s/%s_seq\ncd %s/%s_seq\nstack q mean none -norm=addscale -out=%s/mean_%s\n' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s/%s\nlink q -out=%s/%s_seq\ncd %s/%s_seq\nstack q mean none -norm=addscale -out=%s/mean_%s\n' \
     "$W" "$q" "$W" "$q" "$W" "$q" "$W" "$q" > "$W/s_$q.ssf"
   sir "$W/s_$q.ssf"
   [ -f "$W/mean_$q.fit" ] || { echo "ABORT: subset $q stack missing" >&2; exit 1; }
 done
 
 diffstats(){ # $1=A $2=B $3=tag -> lines "tag bgnoise: ..." + "tag stat: ..."
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nisub %s\nbgnoise\nstat\n' "$1" "$2" > "$W/d.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nisub %s\nbgnoise\nstat\n' "$1" "$2" > "$W/d.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/d.ssf" 2>&1 \
     | grep -E 'Background noise value|Mean:' | sed "s/^log: /$3 /"
 }
 { diffstats "$W/mean_odd.fit"  "$W/mean_even.fit" "interleaved"
   diffstats "$W/mean_h1.fit"   "$W/mean_h2.fit"   "timehalf"
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nbgnoise\n' "$W/mean_odd.fit" > "$W/d.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nbgnoise\n' "$W/mean_odd.fit" > "$W/d.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/d.ssf" 2>&1 \
     | grep -E 'Background noise value' | sed 's/^log: /halfstack /'
 } > "$W/results.txt"

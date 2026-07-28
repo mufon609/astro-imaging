@@ -147,7 +147,7 @@ def main():
         # per-script state — pin it off or the save inherits whatever the
         # last session left and writes .fit.fz where the record expects .fit
         f.write("requires 1.4.0\n"
-                "setcompress 0\n"
+                "setcompress 0\nsetext fit\n"
                 f"load {rel_in[:-4] if rel_in.endswith('.fit') else rel_in}\n"
                 f"spcc {spcc_args}\n"
                 f"save {rel_out[:-4] if rel_out.endswith('.fit') else rel_out}\n"

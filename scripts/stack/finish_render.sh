@@ -107,7 +107,7 @@ PY
     exit 1
   fi
   WC=$(dirname "$STACK")/.crop_$NAME; rm -rf "$WC"; mkdir -p "$WC"
-  printf 'requires 1.4.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nsave %s\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nsave %s\n' \
     "$STACK" "$CX" "$CY" "$CW" "$CH" "${CROPPED%.fit}" > "$WC/c.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$WC" -s "$WC/c.ssf" \
     > "$WC/log" 2>&1 || { echo "crop failed — $WC/log" >&2; exit 1; }
@@ -170,7 +170,7 @@ else
   echo "[finish $NAME] 4/4 ${LINKED:+linked }stretch -> PNG"
 fi
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
-printf 'requires 1.4.0\nsetcompress 0\nload %s\n%s\nsavepng %s\n' "$SRC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
+printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nload %s\n%s\nsavepng %s\n' "$SRC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
 flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }

@@ -73,6 +73,7 @@ def run_seqtilt(image, work):
     ssf = os.path.join(work, "_tilt.ssf")
     with open(ssf, "w") as f:
         f.write("requires 1.4.4\n"          # seqtilt's report format is tested here
+                "setext fit\n"             # the f_*.fit sequence this builds
                 f"cd {seq_in}\n"
                 f"link f -out={seq_out}\n"
                 f"cd {seq_out}\n"

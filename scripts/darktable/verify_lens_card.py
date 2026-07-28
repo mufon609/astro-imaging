@@ -109,7 +109,7 @@ def render(src, style, work):
 def siril(work, lines):
     ssf = os.path.join(work, "_card.ssf")           # MUST be under $HOME:
     with open(ssf, "w") as f:                       # the flatpak has a private /tmp
-        f.write("requires 1.4.4\nsetcompress 0\n" + "\n".join(lines) + "\n")
+        f.write("requires 1.4.4\nsetcompress 0\nsetext fit\n" + "\n".join(lines) + "\n")
     return sh(SIRIL + ["-d", work, "-s", ssf]).stdout
 
 

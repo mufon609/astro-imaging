@@ -80,7 +80,7 @@ stage)
   while (( k < n )); do
     stagedir="$W/stage_cur"; rm -rf "$stagedir"; mkdir -p "$stagedir"
     for f in "${files[@]:k:CHUNK}"; do ln -s "$f" "$stagedir/"; done
-    printf 'requires 1.4.0\nsetcompress 0\nset16bits\ncd %s\nconvert ch -out=.\nseqcrop ch %s -prefix=cropped_\nclose\n' \
+    printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset16bits\ncd %s\nconvert ch -out=.\nseqcrop ch %s -prefix=cropped_\nclose\n' \
       "work/stage_cur" "$BOX" > "$W/stage_cur.gen.ssf"
     siril_run "$S" "$W/stage_cur.gen.ssf" > "$W/stage_${SET}_${k}.log" 2>&1
     cnt=0
@@ -91,7 +91,7 @@ stage)
     rm -rf "$stagedir"; echo "  chunk @$k: $cnt"
     k=$((k+CHUNK))
   done
-  printf 'requires 1.4.0\nsetcompress 0\nset32bits\ncd work/masters\nload dark_master\ncrop %s\nsave dark_master_crop_%s\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd work/masters\nload dark_master\ncrop %s\nsave dark_master_crop_%s\nclose\n' \
     "$BOX" "$SET" > "$W/master_crop_$SET.gen.ssf"
   siril_run "$S" "$W/master_crop_$SET.gen.ssf" > "$W/master_crop_$SET.log" 2>&1
   mkdir -p "$DS"
@@ -101,7 +101,7 @@ stage)
   ;;
 
 calibrate)
-  printf 'requires 1.4.0\nsetcompress 0\nset32bits\ncd work/crop_%s\nlink moon -out=.\ncalibrate moon -dark=../masters/dark_master_crop_%s -cfa -debayer -cc=dark\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd work/crop_%s\nlink moon -out=.\ncalibrate moon -dark=../masters/dark_master_crop_%s -cfa -debayer -cc=dark\nclose\n' \
     "$SET" "$SET" > "$W/calibrate_$SET.gen.ssf"
   siril_run "$S" "$W/calibrate_$SET.gen.ssf" > "$W/calibrate_$SET.log" 2>&1
   echo "CALIBRATE OK: $(ls "$CROP"/pp_moon_*.fit | wc -l) frames"
@@ -159,7 +159,7 @@ verify)
   ;;
 
 stack)
-  printf 'requires 1.4.0\nsetcompress 0\nset32bits\ncd work/crop_%s\nseqapplyreg pp_moon -interp=none\nstack r_pp_moon rej w 3 3 -nonorm -out=%s/stack_%s_q100\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd work/crop_%s\nseqapplyreg pp_moon -interp=none\nstack r_pp_moon rej w 3 3 -nonorm -out=%s/stack_%s_q100\nclose\n' \
     "$SET" "../../../web/results/$SESSION" "$SET" > "$W/stack_$SET.gen.ssf"
   mkdir -p "$RESULTS"
   siril_run "$S" "$W/stack_$SET.gen.ssf" > "$W/stack_$SET.log" 2>&1
@@ -173,7 +173,7 @@ sharpen)
   # sb (Split Bregman) is the ratified default; Siril's docs recommend
   # sb/wiener for stacked lunar images. Blind PSF from the stack itself.
   M="sb"; for a in "$@"; do [[ $a == --method=* ]] && M="${a#--method=}"; done
-  printf 'requires 1.4.0\nsetcompress 0\nset32bits\ncd ../../web/results/%s\nload stack_%s_q100\nmakepsf blind\n%s\nsave stack_%s_q100%s\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd ../../web/results/%s\nload stack_%s_q100\nmakepsf blind\n%s\nsave stack_%s_q100%s\nclose\n' \
     "$SESSION" "$SET" "$M" "$SET" "$M" > "$W/sharpen_$SET.gen.ssf"
   siril_run "$S" "$W/sharpen_$SET.gen.ssf" > "$W/sharpen_$SET.log" 2>&1
   echo "SHARPEN OK -> stack_${SET}_q100${M}.fit (wiener leaves a frame-edge artifact band on this class - inspect before judging)"
@@ -194,7 +194,7 @@ wb)
   eval "$(grep 'layer:' "$W/wbmeasure_$SET.log" | sed -E 's/.*(Red|Green|Blue) layer:.*Median: ([0-9.]+),.*/med_\1=\2/' | tr 'RGB' 'rgb' | sed 's/reen//;s/lue//;s/ed//')"
   kr=$(python3 -c "print(round($med_g/$med_r,4))"); kb=$(python3 -c "print(round($med_g/$med_b,4))")
   echo "disc medians R=$med_r G=$med_g B=$med_b -> kR=$kr kB=$kb (G-anchored)"
-  printf 'requires 1.4.0\nsetcompress 0\nset32bits\ncd ../../web/results/%s\nload stack_%s_%s\nccm %s 0 0 0 1 0 0 0 %s 1\nsave stack_%s_%swb\nstat main\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd ../../web/results/%s\nload stack_%s_%s\nccm %s 0 0 0 1 0 0 0 %s 1\nsave stack_%s_%swb\nstat main\nclose\n' \
     "$SESSION" "$SET" "$SRC" "$kr" "$kb" "$SET" "$SRC" > "$W/wbapply_$SET.gen.ssf"
   siril_run "$S" "$W/wbapply_$SET.gen.ssf" > "$W/wbapply_$SET.log" 2>&1
   grep 'layer:' "$W/wbapply_$SET.log" | sed 's/^log: //'
@@ -218,7 +218,7 @@ surfaces)
   i=0
   for t in "$@"; do
     i=$((i+1)); cp "$RESULTS/stack_${SET}_${t}.fit" "$W/sf$i.fit"
-    printf 'requires 1.4.0\nsetcompress 0\ncd work\npm "$sf%s$*%s"\nsavepng ../../../web/results/%s/judge/%s_%s_lin%s\nclose\n' \
+    printf 'requires 1.4.0\nsetcompress 0\nsetext fit\ncd work\npm "$sf%s$*%s"\nsavepng ../../../web/results/%s/judge/%s_%s_lin%s\nclose\n' \
       "$i" "$k" "$SESSION" "$SET" "$t" "$k" > "$W/surfmint.gen.ssf"
     siril_run "$S" "$W/surfmint.gen.ssf" > /dev/null 2>&1
     rm -f "$W/sf$i.fit"

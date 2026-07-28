@@ -84,7 +84,7 @@ prep(){ # <frame> <tag> -> echoes the solvable FITS path
     *.fit|*.fits|*.fts) echo "$f"; return;;
   esac
   local stem; stem=$(basename "${f%.*}")
-  printf 'requires 1.4.4\nsetcompress 0\nload %s\nextract_Green\nload Green_%s\nsave %s\n' \
+  printf 'requires 1.4.4\nsetcompress 0\nsetext fit\nload %s\nextract_Green\nload Green_%s\nsave %s\n' \
     "$f" "$stem" "$W/${tag}_green" > "$W/${tag}.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/${tag}.ssf" \
     > "$W/${tag}_siril.log" 2>&1 || true

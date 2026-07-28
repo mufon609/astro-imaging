@@ -40,7 +40,7 @@ def run_crop_stat(image, crop_args, workdir):
     ssf = os.path.join(workdir, "verify_framing.gen.ssf")
     x, y, w, h = crop_args
     with open(ssf, "w") as f:
-        f.write("requires 1.4.0\nsetcompress 0\n"
+        f.write("requires 1.4.0\nsetcompress 0\nsetext fit\n"
                 f"load {image}\ncrop {x} {y} {w} {h}\nstat\n")
     r = subprocess.run(SIRIL + ["-d", workdir, "-s", ssf],
                        capture_output=True, text=True)

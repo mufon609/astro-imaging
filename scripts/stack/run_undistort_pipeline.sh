@@ -124,13 +124,13 @@ while [ $n -lt ${#ALL[@]} ]; do
     ln -sf "${ALL[$n]}" "$P/nef/$(basename "${ALL[$n]}")"
   done
   CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
     "$P/nef" "$P/proc" "$P/proc" "$CAL" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
   for f in "$P/proc"/pp_c_*.fit; do
     b=$(basename "$f" .fit)
-    printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
+    printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
     sir "$P/e.ssf"; rm -f "$f"
   done
   rm -f "$P/proc"/*.seq
@@ -146,7 +146,7 @@ while [ $n -lt ${#ALL[@]} ]; do
       || { echo "WARP FAILED $b" >&2; exit 1; }
     rm -f "$t"
   done
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
   sir "$P/v.ssf"
   rm -rf "$P/tif" "$P/nef" "$P/proc"
   echo "chunk $ci: $n/${#ALL[@]}  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
@@ -163,7 +163,7 @@ print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
   "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"

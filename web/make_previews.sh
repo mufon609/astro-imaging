@@ -40,7 +40,7 @@ WORK=$REPO/sessions/$SBASE/work
 mkdir -p "$PREV" "$WORK"
 SSF=$WORK/previews_gen.ssf
 
-{ echo "requires 1.4.0"; echo "setcompress 0"
+{ echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"
   # gallery thumbs: judge PNGs -> downscale (16-bit PNG stays 16-bit)
   if [ -d "$RES/judge" ]; then
     for p in "$RES"/judge/*.png; do
@@ -73,7 +73,7 @@ for map in "$RES"/coverage_*.fit; do
   [ -e "$map" ] || continue
   stem=$(basename "$map" .fit)
   CSSF=$WORK/previews_cov.ssf
-  { echo "requires 1.4.0"; echo "setcompress 0"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"
     echo "cd $RES"
     echo "pm \"iif(\$$stem\$ < $THR, 1, 0)\""
     echo "resample -maxdim=$SEL -interp=area"
@@ -82,7 +82,7 @@ for map in "$RES"/coverage_*.fit; do
   if ! flatpak run --command=siril-cli org.siril.Siril -d "$WORK" -s "$CSSF" \
       >> "$WORK/previews_gen.log" 2>&1; then
     echo "pm veil failed for $stem — falling back to heat (previews_gen.log)"
-    { echo "requires 1.4.0"; echo "setcompress 0"
+    { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"
       echo "load $map"; echo "autostretch"
       echo "resample -maxdim=$SEL -interp=area"
       echo "savepng $PREV/covheat_$stem"

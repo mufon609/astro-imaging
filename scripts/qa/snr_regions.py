@@ -44,7 +44,7 @@ def siril_lines(workdir, script):
 
 def region_medians(stack, x, y, box, workdir):
     lines = siril_lines(workdir,
-                        f"requires 1.2.0\nsetcompress 0\nload {stack}\n"
+                        f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\n"
                         f"crop {x} {y} {box} {box}\nstat\n")
     meds = []
     for line in lines:
@@ -58,7 +58,7 @@ def region_medians(stack, x, y, box, workdir):
 
 def bgnoise(stack, workdir):
     lines = siril_lines(workdir,
-                        f"requires 1.2.0\nsetcompress 0\nload {stack}\nbgnoise\n")
+                        f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\nbgnoise\n")
     vals = []
     for line in lines:
         m = re.search(r"Background noise value \(channel: #\d\): ([0-9.]+)", line)

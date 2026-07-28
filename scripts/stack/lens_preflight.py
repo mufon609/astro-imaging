@@ -201,7 +201,7 @@ def prove_correction(frame, work):
         # setcompress is a PERSISTED siril preference — pin it off so the
         # saved reference is the plain .fit the isub line names
         f.write("requires 1.4.4\n"
-                "setcompress 0\n"
+                "setcompress 0\nsetext fit\n"
                 f"load {outs['nodist']}\n"
                 f"save {ref}\n"
                 f"load {outs['lensdist']}\n"

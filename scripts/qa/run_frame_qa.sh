@@ -84,7 +84,7 @@ while [ $i -lt $n ]; do
     batch_files+=("$(basename "${SRC[$i]}")")
   done
   printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
+  printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
     "$W/src" "$W" "$W" > "$W/r.ssf"
   sir "$W" "$W/r.ssf"
   reg=$(grep -c '^R0' "$W/c_.seq" || true)

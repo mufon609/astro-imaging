@@ -52,7 +52,7 @@ def main():
            "image_wh": [w, hgt], "channels": nchan, "regions": {}}
     for name, (x, y) in regions.items():
         with open(ssf, "w") as f:
-            f.write(f"requires 1.2.0\nsetcompress 0\nload {stack}\n"
+            f.write(f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\n"
                     f"crop {x} {y} {box} {box}\nstat\n")
         r = subprocess.run(SIRIL + ["-d", wdir, "-s", ssf],
                            capture_output=True, text=True)
