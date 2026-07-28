@@ -115,8 +115,8 @@ def main():
     boxes = {"sky": (30, H - 230 - 30, 200, 230),
              "disc": (620, H - 1020, 400, 400),
              "pole": (60, H - 900, 160, 300)}
-    out = run_siril("j3_measure.ssf", sum((
-        [f"cd work", f"load m_{chan}"] +
+    out = run_siril("j3_measure.ssf", ["cd work"] + sum((
+        [f"load m_{chan}"] +
         sum(([f"boxselect {x} {y} {w} {h}", "stat main"] for x, y, w, h in
              (boxes["sky"], boxes["disc"], boxes["pole"])), [])
         for chan in ("f360m", "f212n", "f150w2")), []))
