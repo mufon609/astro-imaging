@@ -33,9 +33,15 @@
 #   no stars; specks are un-rejected sky remnants);
 # - an autostretched preview PNG for the eye check (diagnostic surface only,
 #   never a judgment surface).
-# The record lands in datasets/<session>/<set>/qa_work/<flat-stem>_qa.json;
-# the eye check for baked-in structure (MW band / IFN clumps) is the caller's
-# gate before the flat enters any stack.
+# - CORNER ASYMMETRY (opposite-corner ratio): vignetting is radial, so all four
+#   corners sit at the same radius and a vignetting-only flat reads 1.000. The
+#   excess is a non-radial term the flat will divide into every frame, and it
+#   WARNS above 1.20 (provisional, from the measured corpus).
+# The record lands in datasets/<session>/<set>/qa_work/<flat-stem>_qa.json.
+# This REPORTS and never gates: the chain proceeds on the flat it built, and the
+# flat is judged where it is visible — on the full-frame finals, with the
+# with/without comparison. The numbers above are what make a bad flat findable
+# in the log afterwards rather than a mystery in the render.
 #
 # Builds from ALL raw frames in <session-dir>/<set>/ — the stack-cull policy
 # (recipe.json exclude) does NOT apply here: transients (satellites, aircraft)
@@ -165,6 +171,28 @@ for line in open(statlog):
         regions[m.group(1)] = {"mean": float(m.group(2)),
                                "median": float(m.group(3)),
                                "sigma": float(m.group(4))}
+# Vignetting is a RADIAL property of the lens, so a vignetting-only flat has all
+# four corners at the same radius and therefore the same level: ratio 1.00. Any
+# excess is a NON-radial term — lens decentering / sensor tilt (fixed in sensor
+# coordinates, so it repeats across sessions) or a sky-brightness gradient baked
+# into the stack (moon / horizon glow, which moves with pointing and camera
+# rotation). Dividing by the latter is the wrong operator: sky glow is ADDITIVE
+# and belongs to background extraction, not to a multiplicative flat.
+# The DISCRIMINATOR is orientation across sets: a sensor-fixed term keeps the
+# same darkest corner, a sky term does not.
+corners = {k: v["median"] for k, v in regions.items() if k != "center"}
+asym = None
+if len(corners) == 4 and min(corners.values()) > 0:
+    hi, lo = max(corners, key=corners.get), min(corners, key=corners.get)
+    asym = {"ratio": round(corners[hi] / corners[lo], 3),
+            "brightest": hi, "darkest": lo,
+            "radial_expectation": 1.0,
+            "note": "excess over 1.00 is non-radial: decentering (repeats across "
+                    "sets, same darkest corner) or a baked sky gradient (moves). "
+                    "WARN threshold 1.20 is PROVISIONAL from the measured corpus "
+                    "(july23 1.126/1.159/1.229/1.320, july27 set-01 1.332) — it "
+                    "flags for attention, it does not gate."}
+
 rec = {
  "tool": "Siril 1.4.4 — un-registered lights: CFA convert -> calibrate -dark "
          "-> stack (-norm=mul); Siril stat regional crops + findstar + "
@@ -175,6 +203,7 @@ rec = {
                      "multiplicative norm"},
  "regional_stat_ADU": regions,
  "region_geometry_px": {"box": int(box), "corner_margin": int(margin)},
+ "corner_asymmetry": asym,
  "findstar_speck_count": int(specks),
  "gate": "smooth falloff (corners < centre), NO structured sky residual "
          "(MW band / IFN clumps) on the preview, speck count ~0; the eye "
@@ -186,6 +215,16 @@ json.dump(rec, open(rec_path, "w"), indent=1)
 print(f"regional ADU: " + " ".join(
     f"{k} {v['median']:.0f}" for k, v in regions.items()))
 print(f"speck count: {specks}")
+if asym:
+    print(f"corner asymmetry: {asym['ratio']:.3f} "
+          f"(brightest {asym['brightest']}, darkest {asym['darkest']}; "
+          f"a radially symmetric flat reads 1.000)")
+    if asym["ratio"] >= 1.20:
+        print(f"WARNING: corner asymmetry {asym['ratio']:.3f} is a NON-RADIAL term "
+              f"this flat will divide into every frame — decentering or a sky "
+              f"gradient baked in. Sky glow is additive and must NOT be corrected "
+              f"multiplicatively; check the preview and compare the darkest corner "
+              f"against another set of the same session before trusting it.")
 print(f"record: {rec_path}")
 PY
 echo "=== DONE: $OUT.fit (validate before use: preview ${OUT}_view.png + the qa record) ==="
