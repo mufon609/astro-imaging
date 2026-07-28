@@ -52,9 +52,10 @@
 #
 # NOTHING in the chain is compressed — the pipeline-wide rule; every
 # generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed
-# (~145 MB each), which the disk guard accounts for.
+# (~290 MB each at 32-bit float), which the disk guard accounts for.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan]}
 SET=${2:?missing <set>}
 DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min
@@ -143,6 +144,15 @@ printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out
   "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
+ACQHDR=$SESSION/work/acq_header_$SET.json      # captured by the per-group sub-pipeline
+if [ -f "$ACQHDR" ]; then
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$N")" "$OUT" > "$G/h.ssf"
+  sir "$SESSION" "$G/h.ssf"
+  echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $N x EXPTIME)"
+else
+  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
+fi
 rm -rf "$G/final" "$G/finalseq"
 echo "=== DONE: $OUT.fit (sub-stacks kept in $G for re-composition) ==="
 ls -la "$OUT.fit"

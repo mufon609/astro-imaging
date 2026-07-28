@@ -54,6 +54,7 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
+source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=]}
 SET=${2:?missing <set>}
 DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT=
@@ -81,6 +82,10 @@ mkdir -p "$(dirname "$OUT")" "$SESSION/work"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 P=$SESSION/work/undistort_$SET
 CFG=$SESSION/work/dtcfg
+# Outside $P deliberately: $P is wiped per invocation, and the group driver
+# invokes this script once per group — the capture must outlive that churn so
+# the composing driver can stamp the final from it too.
+ACQHDR=$SESSION/work/acq_header_$SET.json
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile
@@ -128,6 +133,9 @@ while [ $n -lt ${#ALL[@]} ]; do
     "$P/nef" "$P/proc" "$P/proc" "$CAL" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
+  # LAST POINT the acquisition keywords still exist: the warp below is a TIFF
+  # round trip that carries no FITS header (stamp_headers.sh). Capture once.
+  [ -f "$ACQHDR" ] || header_capture "$(ls "$P/proc"/pp_c_*.fit | head -1)" "$ACQHDR"
   for f in "$P/proc"/pp_c_*.fit; do
     b=$(basename "$f" .fit)
     printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
@@ -167,6 +175,16 @@ printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt
   "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"
+[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
+# restore the acquisition keywords the warp dropped (Siril's own update_key)
+if [ -f "$ACQHDR" ]; then
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$OUT" > "$P/h.ssf"
+  sir "$P/h.ssf"
+  echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $FRAMES x EXPTIME)"
+else
+  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
+fi
 echo "=== DONE: $OUT.fit ==="
 ls -la "$OUT.fit"
 df -h "$SESSION" | tail -1
