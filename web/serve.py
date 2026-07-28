@@ -174,7 +174,12 @@ def sessions_inventory():
     return out
 
 
-CALIBRATION_DIRS = {"darks", "biases", "flats", "darkflats", "calib"}
+# Plural is the convention (Siril's own: its bundled scripts use `cd darks`/
+# `flats`/`biases`/`lights`). The singulars are listed so a singular staged dir
+# is never classified LIGHT — it holds real frames and would otherwise be
+# offered as a stackable set.
+CALIBRATION_DIRS = {"darks", "dark", "biases", "bias", "flats", "flat",
+                    "darkflats", "darkflat", "calib"}
 
 
 def set_kind(name):
@@ -1371,8 +1376,11 @@ def stage_status(session):
     choices = path_choices(session)
     masters = choices["masters"]
     have_dark = any(p.endswith("dark_master.fit") for p in masters)
-    darks_staged = any(s["set"] == "darks" for s in m["sets"])
-    flats_staged = any(s["set"] in ("flats", "calib")
+    # accept the singular staging spellings too (CALIBRATION_DIRS), so a
+    # session staged as dark/ still reads as "darks staged, no master yet"
+    # rather than silently as "no darks staged"
+    darks_staged = any(s["set"] in ("darks", "dark") for s in m["sets"])
+    flats_staged = any(s["set"] in ("flats", "flat", "calib")
                        or s["set"].startswith("flats_") for s in m["sets"])
     per_set_stacks = {s["set"]: [su for su in m["surfaces"]
                                  if su["sets"] == [s["set"]]] for s in lights}

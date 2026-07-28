@@ -81,7 +81,10 @@ PY
 
 MOUNT_EFF=${MEASURED:-$MOUNT}
 FREE_KB=$(df -k --output=avail "$SESSION" | tail -1 | tr -d ' ')
-SINGLEPASS_KB=$((NFRAMES * 231 * 1024))
+# 462 MB/frame = run_undistort_pipeline.sh's OWN disk guard (32-bit float,
+# the depth that route runs at). These must not drift apart: a lower value
+# here recommends single-pass on a disk the builder then refuses.
+SINGLEPASS_KB=$((NFRAMES * 462 * 1024))
 ROUTE= REASON=
 if [ "$MOUNT_EFF" = "tracked" ]; then
   ROUTE=standard
@@ -276,6 +279,40 @@ json.dump(rec, open(rp, "w"), indent=1)
 print(f"culled frames {nums}: " + ", ".join(sorted(f['file'] for f in flagged)))
 PY
   RATIFIED=yes
+fi
+
+# EXIF uniformity of the frames that will ACTUALLY be stacked (post-cull).
+# The standard route hard-fails on a mixed set (run_pipeline.sh `uniform()`),
+# but the undistort builders have no equivalent, so a frame shot at a different
+# exposure/ISO enters the stack with a master dark that does not match it —
+# over- or under-subtracted, silently. Frame QA does not catch this: its defect
+# sides are fwhm +1, bg +1, round -1, nstars -1, and a SHORTER exposure moves bg
+# and trailing the safe way, so only the nstars term can fire, by luck.
+# WARN, never stop: the exposure is a fact the user may have chosen, and the
+# cull decision is theirs (a hand-ratified recipe block is how they act on it).
+mapfile -t KEPT < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$DSET/recipe.json" "${FRAMES[@]}" 2>/dev/null || printf '%s\n' "${FRAMES[@]}")
+if [ ${#KEPT[@]} -gt 0 ] && command -v exiftool >/dev/null 2>&1; then
+  # NOT a pipe into python: a `<<'PY'` heredoc IS stdin, so it would replace the
+  # pipe and the exiftool rows would never arrive (silent empty check).
+  EXIFTSV=$(exiftool -q -T -FileName -ExposureTime -ISO "${KEPT[@]}" 2>/dev/null || true)
+  python3 - "$SET" "$EXIFTSV" <<'PY' || true
+import collections, sys
+rows = [l.split("\t") for l in sys.argv[2].splitlines() if l.strip()]
+rows = [r for r in rows if len(r) >= 3]
+if rows:
+    tally = collections.Counter((r[1], r[2]) for r in rows)
+    (exp, iso), n = tally.most_common(1)[0]
+    odd = [r for r in rows if (r[1], r[2]) != (exp, iso)]
+    if odd:
+        s = sys.argv[1]
+        print(f"[chain {s}] WARNING: {len(odd)} of {len(rows)} frames to be stacked "
+              f"do not match the dominant {exp}s ISO{iso} — the master dark matches "
+              f"only the dominant setting, so these are mis-calibrated:")
+        for r in odd:
+            print(f"[chain {s}]     {r[0]}  {r[1]}s ISO{r[2]}")
+        print(f"[chain {s}] WARNING: exclude them via recipe.json stack.exclude "
+              f"if the mismatch is not intended")
+PY
 fi
 
 # the route re-derives once the preflight/QA above have seeded the facts —

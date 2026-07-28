@@ -40,7 +40,7 @@
 #   mean; per-group -framing=min trims only that group's small drift, and the
 #   final -framing=min lands on the same global intersection as single-pass.
 #
-# REMOVAL CONDITION: free disk >= the single-pass peak (~231 MB/frame; the
+# REMOVAL CONDITION: free disk >= the single-pass peak (~462 MB/frame at the
 # x86 1 TB target) — then use run_undistort_pipeline.sh and delete this route.
 #
 # GUARDS: balanced group sizes (never a 1-frame group); every group size is
@@ -106,12 +106,14 @@ GSIZES=("$BASE"); [ "$REM" -eq 0 ] || GSIZES+=("$((BASE + 1))")
 for gsize in "${GSIZES[@]}"; do
   [ $((gsize % CHUNK)) -ne 1 ] || { echo "ABORT: a group of $gsize frame(s) chunked at --chunk=$CHUNK leaves a final chunk of 1 (Siril cannot sequence one frame) — adjust --group or --chunk (plan: $N frames -> $K groups: $REM x $((BASE+1)) + $((K-REM)) x $BASE)" >&2; exit 1; }
 done
-# per-group transient ~290 MB/frame (full-frame warped + near-full registered:
-# a consecutive block drifts only ~60 px, so -framing=min barely crops);
-# sub-stacks accumulate uncompressed at ~145 MB each; the final phase holds
-# them beside their registered copies (~85 MB each)
-NEED_GB=$(( MAXG * 290 / 1024 + (K * 145) / 1024 + 2 ))
-FINAL_GB=$(( K * 230 / 1024 + 2 ))
+# Per-group transient ~580 MB/frame (full-frame warped + near-full registered,
+# 32-bit float: a consecutive block drifts only ~60 px, so -framing=min barely
+# crops). Sub-stacks accumulate uncompressed at ~290 MB each (MEASURED: a
+# 6064x4040x3 float32 sub-stack is 290 MB); the final phase holds them beside
+# their registered copies, which -framing=min trims to ~205 MB each.
+# Every figure here is 32-bit float — the bit depth this route runs at.
+NEED_GB=$(( MAXG * 580 / 1024 + (K * 290) / 1024 + 2 ))
+FINAL_GB=$(( K * 495 / 1024 + 2 ))
 [ "$FINAL_GB" -gt "$NEED_GB" ] && NEED_GB=$FINAL_GB
 echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G"
 [ "$PLAN" -eq 0 ] || exit 0
@@ -124,7 +126,7 @@ for ((g=1; g<=K; g++)); do
     echo "=== group $g/$K: $SUB.fit exists, skipping (resume) ==="; i=$((i + size)); continue
   fi
   FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
-  GNEED=$(( size * 290 / 1024 + 1 ))
+  GNEED=$(( size * 580 / 1024 + 1 ))
   [ "$FREE_GB" -ge "$GNEED" ] || { echo "ABORT before group $g: ~${GNEED}G needed, ${FREE_GB}G free" >&2; exit 1; }
   : > "$G/g$g.list"
   for ((k=0; k<size; k++, i++)); do printf '%s\n' "${SRC[$i]}" >> "$G/g$g.list"; done
