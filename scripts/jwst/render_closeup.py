@@ -33,7 +33,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
 SESS = os.path.join(REPO, "sessions", "jwst-jupiter")
 WORK = os.path.join(SESS, "work")
-DR = os.path.join(WORK, "j3derot")
+DR = None  # resolved from --dr-dir in main()
 DS = os.path.join(REPO, "datasets", "jwst-jupiter", "qa_work")
 RES_REL = "../../../web/results/jwst-jupiter"
 
@@ -78,8 +78,15 @@ def main():
     ap.add_argument("--gains", default="1,1,1", help="post-transfer channel gains r,g,b")
     ap.add_argument("--sky-floor", type=float, default=None)
     ap.add_argument("--skip-combine", action="store_true", help="channel masters already built")
+    ap.add_argument("--dr-dir", default="j3derot", help="derotated-frames dir under work/")
+    ap.add_argument("--w-mode", default="pole", choices=("pole", "disc"),
+                    help="white anchor: max(disc,pole) or disc top (aurora clips = the reference's own move)")
+    ap.add_argument("--target-medians", default=None, metavar="R,G,B",
+                    help="solve a per-channel pm-MTF midtone so each channel's disc median lands at these display targets (measured 2023 reference anchors)")
     args = ap.parse_args()
 
+    global DR
+    DR = os.path.join(WORK, args.dr_dir)
     os.makedirs(os.path.join(REPO, "web", "results", "jwst-jupiter", "judge"), exist_ok=True)
     os.makedirs(os.path.join(REPO, "web", "results", "jwst-jupiter", "previews"), exist_ok=True)
 
@@ -140,15 +147,26 @@ def main():
         for chan, gain in zip(("f360m", "f212n", "f150w2"), gains):
             lv = levels[chan]
             B = lv["sky"]["median"] - 2 * lv["sky"]["sigma"]
-            W = max(lv["disc"]["max"], lv["pole"]["max"])   # disc white incl. aurora tops
+            W = lv["disc"]["max"] if args.w_mode == "disc" \
+                else max(lv["disc"]["max"], lv["pole"]["max"])
             expr = (f'asinh({fnum(S)} * max({sub(f"$m_{chan}$", B)} / {fnum(W - B)}, 0)) '
                     f'/ {fnum(norm)}')
+            mtf_m = None
+            if args.target_medians:
+                tgts = dict(zip(("f360m", "f212n", "f150w2"),
+                                (float(v) for v in args.target_medians.split(","))))
+                x = math.asinh(S * (lv["disc"]["median"] - B) / (W - B)) / norm
+                t = tgts[chan]
+                mtf_m = x * (t - 1) / (2 * t * x - t - x)
+                expr = (f"((({fnum(mtf_m - 1)}) * ({expr})) / "
+                        f"((({fnum(2 * mtf_m - 1)}) * ({expr})) - {fnum(mtf_m)}))")
             if gain != 1.0:
                 expr = f"({expr}) * {fnum(gain)}"
             if args.sky_floor:
                 expr = f"(({expr}) + {fnum(args.sky_floor)}) / {fnum(1 + args.sky_floor)}"
             lines += [f'pm "min({expr}, 1)"', f"save t_{chan}_{tag}"]
-            levels[chan][f"transfer_{tag}"] = {"B": B, "W": W, "S": S, "gain": gain}
+            levels[chan][f"transfer_{tag}"] = {"B": B, "W": W, "S": S, "gain": gain,
+                                               "mtf_m": mtf_m}
         lines += [
             f"rgbcomp t_f360m_{tag} t_f212n_{tag} t_f150w2_{tag} -out={RES_REL}/cu_{tag}",
             f"load {RES_REL}/cu_{tag}",
