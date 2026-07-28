@@ -81,6 +81,8 @@ def main():
     ap.add_argument("--dr-dir", default="j3derot", help="derotated-frames dir under work/")
     ap.add_argument("--w-mode", default="pole", choices=("pole", "disc"),
                     help="white anchor: max(disc,pole) or disc top (aurora clips = the reference's own move)")
+    ap.add_argument("--s-per-channel", default=None, metavar="SR,SG,SB",
+                    help="per-channel asinh strengths (the documented per-channel scaled-peak craft); overrides --s-values")
     ap.add_argument("--target-medians", default=None, metavar="R,G,B",
                     help="solve a per-channel pm-MTF midtone so each channel's disc median lands at these display targets (measured 2023 reference anchors)")
     args = ap.parse_args()
@@ -140,11 +142,13 @@ def main():
     # ---- 3+4. transfers + chromatic composite, one file per S arm ----
     gains = [float(g) for g in args.gains.split(",")]
     outputs = []
+    spc = [float(v) for v in args.s_per_channel.split(",")] if args.s_per_channel else None
     for S in (float(s) for s in args.s_values.split(",")):
-        tag = f"{args.tag}_s{int(S)}"
-        norm = math.asinh(S)
+        tag = f"{args.tag}_s{int(S)}" if not spc else f"{args.tag}_spc"
         lines = ["cd work"]
-        for chan, gain in zip(("f360m", "f212n", "f150w2"), gains):
+        for chan, gain, s_ch in zip(("f360m", "f212n", "f150w2"), gains, spc or [S, S, S]):
+            S = s_ch
+            norm = math.asinh(S)
             lv = levels[chan]
             B = lv["sky"]["median"] - 2 * lv["sky"]["sigma"]
             W = lv["disc"]["max"] if args.w_mode == "disc" \
