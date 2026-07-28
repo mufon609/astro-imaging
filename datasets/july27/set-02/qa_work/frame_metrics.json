@@ -1,0 +1,129 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). CFA caveat: absolute FWHM Bayer-inflated, relative comparison only.",
+ "frames_total": 253,
+ "registered": 253,
+ "match_failed": 0,
+ "pixel_scale_arcsec_cfa": 17.5031,
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.749,
+   "min": 2.707,
+   "max": 3.359
+  },
+  "roundness": {
+   "median": 0.7951,
+   "min": 0.7221,
+   "max": 0.8213
+  },
+  "nstars": {
+   "median": 745,
+   "min": 642,
+   "max": 801
+  },
+  "bg16": {
+   "median": 1224,
+   "min": 1221,
+   "max": 1233
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.744,
+   "round": 0.7956,
+   "stars": 777,
+   "bg16": 1222
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.751,
+   "round": 0.7938,
+   "stars": 754,
+   "bg16": 1223
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.752,
+   "round": 0.7956,
+   "stars": 685,
+   "bg16": 1229
+  },
+  {
+   "block": 4,
+   "frames": 25,
+   "fwhm": 2.755,
+   "round": 0.7942,
+   "stars": 655,
+   "bg16": 1231
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_2786.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 3.118,
+   "bg": 1223.2,
+   "round": 0.7725,
+   "nstars": 789
+  },
+  {
+   "file": "DSC_2787.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 3.359,
+   "bg": 1222.9,
+   "round": 0.7221,
+   "nstars": 767
+  },
+  {
+   "file": "DSC_2788.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.835,
+   "bg": 1223.1,
+   "round": 0.8213,
+   "nstars": 794
+  },
+  {
+   "file": "DSC_2949.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.794,
+   "bg": 1228.7,
+   "round": 0.7877,
+   "nstars": 693
+  },
+  {
+   "file": "DSC_2950.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.798,
+   "bg": 1229.0,
+   "round": 0.7971,
+   "nstars": 690
+  },
+  {
+   "file": "DSC_3029.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.843,
+   "bg": 1230.5,
+   "round": 0.7875,
+   "nstars": 655
+  }
+ ],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

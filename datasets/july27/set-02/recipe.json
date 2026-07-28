@@ -1,0 +1,14 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   2786,
+   2787,
+   2788,
+   2949,
+   2950,
+   3029
+  ],
+  "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_2786.NEF: fwhm,round; DSC_2787.NEF: fwhm,round; DSC_2788.NEF: fwhm; DSC_2949.NEF: fwhm; DSC_2950.NEF: fwhm; DSC_3029.NEF: fwhm). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ }
+}

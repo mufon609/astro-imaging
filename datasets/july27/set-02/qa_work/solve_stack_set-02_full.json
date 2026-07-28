@@ -1,0 +1,43 @@
+{
+ "input": "/home/neural/Desktop/astrophotography/web/results/july27/stack_set-02_full.fit",
+ "detector": "sep",
+ "n_stars_detected": 400,
+ "central": null,
+ "position_hint": null,
+ "position_hint_source": "none",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "index_scales": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "scales_solved": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 311.87797156585793,
+ "dec_deg": 43.78262513725038,
+ "scale_arcsec_px": 16.97800244505059,
+ "logodds": 395.07232666015625,
+ "parity": "sky-true",
+ "cd_det": -2.2241710418529606e-05,
+ "injected": "/home/neural/Desktop/astrophotography/web/results/july27/stack_set-02_full_wcs.fit"
+}
