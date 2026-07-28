@@ -445,6 +445,40 @@ the constraints any such tool must satisfy):
   unstable symmetric PSF on ≈0 background. (A LEARNED deconvolver is NOT classical RL
   and is a live x86 option, not a dead-end — tool choice + CPU costs in `TOOLS.md`.)
 
+**Tool state / plumbing** (a persisted preference and a dropped header are both
+SILENT — pin the state, never inherit it):
+- **Siril's FITS extension is a PERSISTED preference; every generated `.ssf`
+  must pin `setext`.** `extension=` in `config.1.4.ini` decides what `convert`,
+  `save` and `-out=` write, and a script that does not set it inherits whatever
+  ran last — including another project's chain sharing the same rig. Measured
+  against the repo's `.fit` globs with the setting on `.fits`:
+  `build_master_dark.sh` reported *"siril exited clean but wrote no master"* on
+  a master that had built **correctly**, and its `rm -f work/dark_*.fit` cleanup
+  matched nothing, leaking **9.2 GB**; `build_sky_flat.sh` and
+  `run_undistort_pipeline.sh` abort with *"calibrated nothing"*. Siril logs
+  *"Script execution finished successfully"* throughout, so the cause reads as a
+  data or Siril bug. Exactly the class `setcompress 0` is already pinned for.
+  Bash `*.fit` does not match `*.fits` — an extension is not a glob prefix.
+- **The undistort warp is a TIFF round trip and drops every acquisition
+  keyword.** darktable cannot read FITS, so `savetif32` → darktable → `convert`
+  destroys FOCALLEN, XPIXSZ/YPIXSZ, EXPTIME, APERTURE, ISOSPEED, INSTRUME and
+  DATE-OBS; the loss is invisible until something downstream needs them.
+  Measured consequences on the deliverable: `LIVETIME` lands at **0.0** (Siril's
+  stack has no per-frame EXPTIME to accumulate, so a 263 × 3 s = 789 s stack
+  claims zero integration), and `solve_field.py` loses its field-width hint and
+  falls back to blind WIDE-FIELD index scales — which still solved a 23° field
+  (logodds 101) but **cannot solve a narrow field at all**, so on a longer focal
+  the same silent loss is a hard solve failure with a misleading cause. Capture
+  the keys at the last point they exist (the calibrated frame, pre-warp) and
+  restore them with Siril's own `update_key` — `scripts/stack/stamp_headers.sh`.
+- **Calibration dirs are PLURAL — Siril's own convention.** Its bundled scripts
+  use `cd lights` / `flats` / `darks` / `biases` and never a singular. A
+  singular staged dir (`dark/`) is not merely unrecognised: it holds ≥8 raws, so
+  the session chain and the web set-kind rule classified it as a **LIGHT set**
+  and would carry the dark frames to frame QA, mount derivation and a full
+  stack. Both now list the singulars as calibration so they can never be
+  mistaken for lights; the builders still require the plural and stop loudly.
+
 **QA / scope:**
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
