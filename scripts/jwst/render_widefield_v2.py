@@ -133,7 +133,7 @@ def main():
     CRESCENT_WHITE = 0.95
 
     svals = [float(s) for s in args.s_values.split(",")]
-    ssf = ["requires 1.4.0", "setcompress 0", "set32bits", "cd work"]
+    ssf = ["requires 1.4.0", "setcompress 0", "setext fits", "set32bits", "cd work"]
 
     # zero-mask helper: 1 where the prep value is EXACTLY 0 (NaN-fill regions), else 0
     zmask = lambda tok: f"(1 - min({tok} * {tok} * 1000000000000000000, 1))"

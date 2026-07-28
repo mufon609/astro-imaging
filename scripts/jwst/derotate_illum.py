@@ -168,10 +168,16 @@ for chan, pat in CHANNELS.items():
         disc_cov[cy, cx] = (wsamp > 0.99).astype(np.float32)
 
         # off-disc: mt-frame sky reproject at 2x (illumination untouched)
-        sky, _ = reproject_interp((np.where(usable, sdata, np.nan), WCS(shdr)),
+        # fallback layer in the SAME illumination-flat space (flat, not raw),
+        # allowed EVERYWHERE: on-disc pixels lacking surface mapping (e.g. the
+        # rim zone excluded by the frame's own terminator guard) back-fill from
+        # the unrotated reproject — feature error is minimal at the
+        # foreshortened limb and a small own-epoch illumination residual
+        # (declared) beats a zero ring
+        sky, _ = reproject_interp((np.where(usable, flat, np.nan), WCS(shdr)),
                                   tgt_wcs2, shape_out=shape2)
         skyv = np.nan_to_num(sky, nan=0.0).astype(np.float32)
-        skyc = np.isfinite(sky).astype(np.float32) * (~disc_t2).astype(np.float32)
+        skyc = np.isfinite(sky).astype(np.float32)
 
         a = gaussian_filter(disc_cov, 5.0)
         a = np.clip((a - 0.25) / 0.5, 0, 1)

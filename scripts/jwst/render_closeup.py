@@ -54,7 +54,7 @@ def sub(tok, v):
 def run_siril(ssf_name, lines):
     path = os.path.join(WORK, ssf_name)
     with open(path, "w") as f:
-        f.write("requires 1.4.0\nsetcompress 0\nset32bits\n" + "\n".join(lines) + "\nclose\n")
+        f.write("requires 1.4.0\nsetcompress 0\nsetext fits\nset32bits\n" + "\n".join(lines) + "\nclose\n")
     r = subprocess.run(SIRIL + ["-d", SESS, "-s", path], capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit(f"siril failed for {ssf_name}:\n" + "\n".join(r.stdout.splitlines()[-15:]))
