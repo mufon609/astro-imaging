@@ -7,8 +7,13 @@
  "position_hint_source": "none",
  "attempt": "cached",
  "field_width_arcmin_arg": null,
- "scale_hint_arcsec_px": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
  "index_scales": [
+  11,
+  12,
   13,
   14,
   15,
@@ -18,6 +23,8 @@
   19
  ],
  "scales_solved": [
+  11,
+  12,
   13,
   14,
   15,
