@@ -30,7 +30,7 @@
 # finish_render.sh): everything aesthetic beyond it (the render-tier ladder)
 # stays per-rung and user-judged. Route choice comes from the DERIVED
 # fingerprint (tracked -> standard; fixed+wide -> undistort, single-pass vs
-# groups by measured disk headroom vs the ~231 MB/frame single-pass peak);
+# groups by measured disk headroom vs the ~462 MB/frame single-pass peak);
 # the printed reason makes the click a ratification of that recommendation,
 # never a silent auto-route.
 set -euo pipefail
@@ -96,7 +96,7 @@ elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
     REASON="fixed mount + ${FOV} deg field -> undistort class; disk $(($FREE_KB/1024/1024))G covers the single-pass peak $(($SINGLEPASS_KB/1024/1024))G"
   else
     ROUTE=undistort-groups
-    REASON="fixed mount + ${FOV} deg field -> undistort class; disk $(($FREE_KB/1024/1024))G < single-pass peak $(($SINGLEPASS_KB/1024/1024))G (~231 MB/frame x $NFRAMES) -> balanced groups"
+    REASON="fixed mount + ${FOV} deg field -> undistort class; disk $(($FREE_KB/1024/1024))G < single-pass peak $(($SINGLEPASS_KB/1024/1024))G (~462 MB/frame x $NFRAMES) -> balanced groups"
   fi
 elif [ -z "$MOUNT" ]; then
   ROUTE=stop-undeclared
