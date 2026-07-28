@@ -81,6 +81,12 @@ def main():
     ap.add_argument("--dr-dir", default="j3derot", help="derotated-frames dir under work/")
     ap.add_argument("--w-mode", default="pole", choices=("pole", "disc"),
                     help="white anchor: max(disc,pole) or disc top (aurora clips = the reference's own move)")
+    ap.add_argument("--illum", action="store_true",
+                    help="re-apply the common target-epoch illumination (pm-multiply each master by work/illum_target.fits) — pairs with the round-3 illumination-flat frames")
+    ap.add_argument("--grid-scale", type=int, default=1,
+                    help="measure-box coordinate scale (2 for the 2x oversampled grid)")
+    ap.add_argument("--hp", default=None, metavar="SIGMA,AMOUNT",
+                    help="the documented high-pass/unsharp enhancement stage on each channel master (Siril unsharp), e.g. 3,0.6")
     ap.add_argument("--s-per-channel", default=None, metavar="SR,SG,SB",
                     help="per-channel asinh strengths (the documented per-channel scaled-peak craft); overrides --s-values")
     ap.add_argument("--target-medians", default=None, metavar="R,G,B",
@@ -120,12 +126,19 @@ def main():
     # boxes on the o006 F150W2 grid (1631x1641, Siril y-flip): disc center,
     # sky corner, aurora pole (poles lie along the equator-perpendicular; from
     # the component previews the aurora arcs sit at the LEFT/RIGHT limbs)
-    H = 1631
-    boxes = {"sky": (30, H - 230 - 30, 200, 230),
-             "disc": (620, H - 1020, 400, 400),
-             "pole": (60, H - 900, 160, 300)}
+    g = args.grid_scale
+    H = 1631 * g
+    boxes = {"sky": (30 * g, H - 260 * g, 200 * g, 230 * g),
+             "disc": (620 * g, H - 1020 * g, 400 * g, 400 * g),
+             "pole": (60 * g, H - 900 * g, 160 * g, 300 * g)}
+    if args.illum:
+        illum_lines = ["cd work"]
+        for chan in ("f360m", "f212n", "f150w2"):
+            illum_lines += [f'pm "$m_{chan}$ * $illum_target$"', f"save mi_{chan}"]
+        run_siril("j3_illum.ssf", illum_lines)
+    mprefix = "mi_" if args.illum else "m_"
     out = run_siril("j3_measure.ssf", ["cd work"] + sum((
-        [f"load m_{chan}"] +
+        [f"load {mprefix}{chan}"] +
         sum(([f"boxselect {x} {y} {w} {h}", "stat main"] for x, y, w, h in
              (boxes["sky"], boxes["disc"], boxes["pole"])), [])
         for chan in ("f360m", "f212n", "f150w2")), []))
@@ -153,7 +166,7 @@ def main():
             B = lv["sky"]["median"] - 2 * lv["sky"]["sigma"]
             W = lv["disc"]["max"] if args.w_mode == "disc" \
                 else max(lv["disc"]["max"], lv["pole"]["max"])
-            expr = (f'asinh({fnum(S)} * max({sub(f"$m_{chan}$", B)} / {fnum(W - B)}, 0)) '
+            expr = (f'asinh({fnum(S)} * max({sub(f"${mprefix}{chan}$", B)} / {fnum(W - B)}, 0)) '
                     f'/ {fnum(norm)}')
             mtf_m = None
             if args.target_medians:
@@ -169,6 +182,9 @@ def main():
             if args.sky_floor:
                 expr = f"(({expr}) + {fnum(args.sky_floor)}) / {fnum(1 + args.sky_floor)}"
             lines += [f'pm "min({expr}, 1)"', f"save t_{chan}_{tag}"]
+            if args.hp:
+                hs, ha = args.hp.split(",")
+                lines += [f"load t_{chan}_{tag}", f"unsharp {hs} {ha}", f"save t_{chan}_{tag}"]
             levels[chan][f"transfer_{tag}"] = {"B": B, "W": W, "S": S, "gain": gain,
                                                "mtf_m": mtf_m}
         lines += [
