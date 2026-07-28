@@ -50,7 +50,7 @@ CHANNELS = {
     "f212n": "jw01373008001_03101_0000?_nrcb3",
 }
 K_MINNAERT = 1.0
-MU0_MIN = 0.10
+MU0_MIN = 0.03
 OVER = 2
 
 
