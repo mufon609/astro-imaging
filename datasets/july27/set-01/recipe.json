@@ -1,0 +1,27 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   2639,
+   2640,
+   2641,
+   2642,
+   2643,
+   2644,
+   2645,
+   2646,
+   2647,
+   2648,
+   2649,
+   2650,
+   2651,
+   2652,
+   2653,
+   2654,
+   2711,
+   2712,
+   2774
+  ],
+  "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_2639.NEF: bg; DSC_2640.NEF: bg,nstars; DSC_2641.NEF: bg; DSC_2642.NEF: bg; DSC_2643.NEF: bg; DSC_2644.NEF: bg; DSC_2645.NEF: bg; DSC_2646.NEF: bg,nstars; DSC_2647.NEF: bg,nstars; DSC_2648.NEF: bg,nstars; DSC_2649.NEF: bg,nstars; DSC_2650.NEF: bg,nstars; DSC_2651.NEF: bg,nstars; DSC_2652.NEF: nstars; DSC_2653.NEF: bg; DSC_2654.NEF: round,nstars; DSC_2711.NEF: bg; DSC_2712.NEF: bg,nstars; DSC_2774.NEF: fwhm,round,nstars). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ }
+}
