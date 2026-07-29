@@ -464,47 +464,29 @@ Class facts, records and the full mechanism set live in
 checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
 and the builder's own docstring.
 
-## 22. JWST public-data class — Jupiter first (USER-DECLARED target)
+## 22. REMOVE JWST from the pipeline altogether (USER-ORDERED wind-down)
 
-A NEW data class: archival space-telescope products (no photons shot here —
-ACQUISITION means querying/downloading MAST). **First goal, user-declared:
-recreate the famous August 2022 JWST Jupiter releases from their public data
-— the reference-driven pattern (reproduce the makers' documented process
-first, then mature ours).** The processors and filter-to-color mappings of
-those images are publicly documented, so the reference recipe is
-recoverable, not guessed.
+The JWST archival class is CLOSED-FAIL as a deliverable class (user verdict,
+2026-07-28): the mechanical recreation of the documented STScI/Schmidt/Hueso
+process was implemented end to end and measured at every step, and five
+consecutive judgment rounds failed the user's eyes while passing their own
+instruments — the residual is the original finishers' integrative hand-craft
+(micro-contrast, color coherence, seam invisibility), which is not a pipeline
+mechanism. Corpus limits were also proven (saturation-dead crescents, F212N
+ring below L3 noise, archive-truth seams). Session data, kernels, and both
+venvs are already deleted; the tracked records remain as the class study.
 
-- **Research LANDED → the plan is
-  [`docs/jwst-archival-class.md`](docs/jwst-archival-class.md)** (+ Tier A in
-  TOOLS.md). Provenance pinned: wide-field = obs 8 F212N(orange)+F335M(cyan),
-  SIMULTANEOUS (no derotation — the correct first recreation); close-up =
-  obs 6+8, F360M(red)/F212N(yellow-green)/F150W2×F164N(cyan), 9–22° rotation
-  between components (the derotation decision — team CC-BY derotated frames
-  vs WinJUPOS vs documented ghosting — is the user's at J3).
-- **Phases: J0 ACQUIRE (THE NEXT GATE — user's click in the JWST tab:
-  list --proposal=1373 --filters=o006,o008 → sizes on screen ≈ 0.75 GB →
-  download --go → verify)**; J1 probes on the real files (NaN/Siril/WCS/
-  saturation census — pre-registered in the doc); J2 wide-field recreation;
-  J3 close-up; J4 codify prepare/stretch/compose into the registry + tab.
-  Reference PNGs + the team's CC-BY derotated frames stage into
-  `sessions/jwst-jupiter/reference/` (answer-key rule).
-- Constraints to honor: the deliverable pixels come from the OFFICIAL
-  upstream pipeline (STScI-calibrated products) + established tools
-  (astropy/reproject are official tooling; Siril where it fits); no SPCC
-  (palette class, not photometric color); the user gates the target list,
-  the download budget, and every aesthetic step.
-- **USER-DECLARED: a dedicated JWST tab in the web GUI** — its own rail
-  page with three sections: **Acquire** (target/proposal picker → dry-run
-  product list WITH SIZES as the decide surface → gated download, logs),
-  **Process** (a simplified Run surface scoped to the JWST chain only —
-  fixed stage order, per-click gates, status per stage), **Examine**
-  (per-filter tool-made previews, composites, the records viewer scoped to
-  the corpus). Same binding contract as the Run page: fixed pinned-script
-  registry, exact command shown, one job at a time, `.webjobs` logs,
-  127.0.0.1-only. Build order: `scripts/jwst/acquire.py` (the flow is
-  research-verified) → the plan doc's process scripts → registry + page
-  wiring; Process buttons render as designed states until their scripts
-  land.
+**The removal task (deliberate tracked surgery, one pass):**
+- retire `scripts/jwst/` (acquire, probes, prepare, derotate_*, render_*);
+- strip the web JWST tab (`web/serve.py` jwst_* registry entries,
+  `web/index.html` pgJwst);
+- TOOLS.md: collapse Tier A to a two-line archive note pointing at the docs;
+- `docs/jwst-*.md` and `datasets/jwst-jupiter/` records STAY (the measured
+  study + the graduated registry lessons are durable capital: skymatch glow
+  absorption, ramp-level 1/f glow eating, convert output self-pollution, the
+  gradient-energy noise trap, the documented-process step-map discipline).
+Close condition: no jwst-named surface remains in scripts/, web/, or TOOLS
+tiers; the docs/records carry a closed-class banner.
 
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
