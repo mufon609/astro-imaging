@@ -43,7 +43,7 @@ and a row's numbers re-verify when that set is re-processed here.
 | Siril-native sky flat (july14) | a matching real flat exists for the set | **not fired** — the validated per-set route for flatless sets (`build_sky_flat.sh` gates); dust-safety validates PER SET before use (dead-ends); tightening is item 5. |
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
-| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
+| `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-VALIDATED on the band: the item-7 A/B ran on july27 (60 frames even-stride, identical masters/model, one knob) and returned NULL — every one of 9 fixed stations agrees within 0.05 px majFWHM / 0.014 roundness, and the one-sided along-drift band is present in BOTH arms at the same magnitude (1.27x single-pass, 1.24x groups), so the second interpolation does not manufacture it. seqtilt favours single-pass slightly (2.74 vs 2.79 px truncated mean, off-axis 0.67 vs 0.75) but groups fits 6-12% more stars, so that read is population-confounded. Residual debt: a FULL-DEPTH repeat on x86 disk, and the in-group rejection ladder. |
 | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig, but ONLY for participants — `scripts/jwst/*` has not adopted it yet and the guard reports that without failing. |
 | `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains FITS I/O, or the distortion is consumed natively (Siril `register -disto=`, item 7) so the keys are never dropped | **not fired** — darktable 5.4.1 has no FITS reader, so the warp leg is TIFF and the loss is structural. Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback). |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
@@ -217,28 +217,36 @@ numbers in `docs/dead-ends.md`, ledger `flat_source_set03`).
 
 ## 7. Open questions with a named test
 
-- **Group composition vs single-pass — the architecture A/B.** Same frames, same
-  masters, one knob (the architecture): single-pass register+stack vs
-  `run_undistort_groups.sh`. Judged on full-frame lossless finals + `seqtilt` +
-  drift-axis stations; settles the second-interpolation cost and whether the
-  route may ship production stacks. Data-gated: re-arms when the groups route
-  next carries a production stack on this rig's disk; retires with the route
-  on x86 disk (removal register). Companion ladder: in-group rejection at
-  small n (none / percentile / winsorized) — Siril's docs prescribe percentile
-  ≤6 and GESD >50 and are silent between.
 - **Background-step LEVEL: per-frame vs on-stack `subsky 1` — item 0's L1**,
   pre-registered and user-gated. The doctrine fork it settles: Siril's own docs
   recommend per-frame degree-1 for session-rotated gradients (this dataset's
   exact geometry) while the general default is once-on-the-stack; the registry
   holds the same fork from the pre-reset chain. Dust preservation is the
   deciding metric; the SPCC K delta is the free order-robustness check.
-- **Which mechanism drives the RESIDUAL one-sided term.** Siril `seqtilt` measures it;
-  the fitted lens model reduced it 0.51 → 0.31 px (16% → 10%) at full depth — that
-  fraction was paraxial model error, not tilt. For the 0.31 px remainder the candidates
-  stay differential refraction (asymmetric with hour angle) and lens decentering.
-  Discriminator: hour-angle dependence across sets — refraction varies with it,
-  decentering does not (data-gated: needs multiple sets of the class from the
-  next corpus).
+- **Which mechanism drives the RESIDUAL one-sided term** — the corpus arrived and
+  narrowed it from four candidates to two. MEASURED on july27 (3 s subs, so the
+  in-exposure trail is half july14's and no longer masks it): a one-sided
+  along-drift band at the +1300 station only — set-02 majFWHM 3.65 / roundness
+  0.684 against centre 2.56 / 0.901, with the elongation position angle (+4.3°)
+  aligned to the drift axis; the −side and both perpendicular stations sit at the
+  centre's floor. ELIMINATED since:
+  (a) **the optics and the sky** — a single RAW frame (no calibration, warp or
+      stack) is uniform across the field (0.712–0.810, +1300 marginally BETTER
+      than centre), so nothing in-exposure produces it;
+  (b) **the lens correction misfiring** — `verify_lens_card.py` PASSES on this rig
+      (grid control fires, Siril sigma 45644.8; uniform card corner-vs-centre
+      0.000 ADU), and the community entry carries vignetting the fitted one does
+      not, so a zero photometric delta proves the FITTED distortion-only entry is
+      the one matching despite the EXIF string matching the community entry's
+      capitalisation exactly;
+  (c) **the stack architecture** — the A/B returned NULL (register row).
+  REMAINING: distortion-model residual vs differential refraction. The named
+  discriminator is unchanged (hour-angle dependence: refraction varies with it,
+  a model residual does not) and now has two same-night sets 30 min apart at
+  different pointings — set-01 reads a 13% along+1300 FWHM excess, set-02 43% —
+  suggestive of refraction but confounded by the pointing change. Cheapest next
+  cut: a `lensdist` vs `nodist` arm on the same 60-frame A/B input, which
+  separates the model from everything else in one knob.
 - **Synthetic-flat gap → GraXpert `-correction Division`.** The headless-CPU
   multiplicative option; source-confirmed as per-channel `imarray/background*mean`, i.e.
   divide by the low-frequency model. Corrects smooth VIGNETTING only, not dust/PRNU

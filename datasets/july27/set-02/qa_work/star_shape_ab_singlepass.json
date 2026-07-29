@@ -1,0 +1,10 @@
+{
+ "input": "web/results/july27/ab_singlepass.fit",
+ "label": null,
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 7072,
+ "truncated_mean_fwhm_px": 2.74,
+ "sensor_tilt_fwhm_px": 0.36,
+ "sensor_tilt_pct": 13,
+ "off_axis_aberration_fwhm_px": 0.67
+}
