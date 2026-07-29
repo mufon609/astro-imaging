@@ -112,17 +112,26 @@ def main():
             covs = sorted(glob.glob(os.path.join(DR, pat + "_cov.fits")))
             if not frames:
                 sys.exit(f"no derotated frames for {chan} ({pat})")
+            import shutil
             for kind, files in (("img", frames), ("cov", covs)):
                 d = os.path.join(WORK, f"stk_{chan}_{kind}")
-                os.makedirs(d, exist_ok=True)
+                seq = os.path.join(WORK, f"stk_{chan}_{kind}_seq")
+                shutil.rmtree(d, ignore_errors=True)
+                shutil.rmtree(seq, ignore_errors=True)
+                os.makedirs(d)
+                os.makedirs(seq)
                 for f in files:
-                    os.link(f, os.path.join(d, os.path.basename(f))) \
-                        if not os.path.exists(os.path.join(d, os.path.basename(f))) else None
+                    os.link(f, os.path.join(d, os.path.basename(f)))
             print(f"{chan}: {len(frames)} frames", flush=True)
             run_siril(f"j3_stk_{chan}.ssf", [
-                f"cd work/stk_{chan}_img", f"convert {chan}i -out=.", f"stack {chan}i sum -nonorm",
+                # convert outputs live in their own seq dir: convert enumerates
+                # every supported file in its input dir, so in-place -out=.
+                # self-pollutes on any rerun (measured: 'processing 14 files')
+                f"cd work/stk_{chan}_img", f"convert {chan}i -out=../stk_{chan}_img_seq",
+                f"cd ../stk_{chan}_img_seq", f"stack {chan}i sum -nonorm",
                 f"load {chan}i_stacked", f"save ../m_{chan}_sum",
-                f"cd ../stk_{chan}_cov", f"convert {chan}c -out=.", f"stack {chan}c sum -nonorm",
+                f"cd ../stk_{chan}_cov", f"convert {chan}c -out=../stk_{chan}_cov_seq",
+                f"cd ../stk_{chan}_cov_seq", f"stack {chan}c sum -nonorm",
                 f"load {chan}c_stacked", f"save ../m_{chan}_cov",
                 "cd ..",
                 f'pm "$m_{chan}_sum$ / max($m_{chan}_cov$, 0.02)"',
