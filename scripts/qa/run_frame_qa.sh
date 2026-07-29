@@ -41,6 +41,7 @@
 # and always wins. cull_report itself stays WARN-only.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
 SET=${2:?missing <set>}
 BATCH=76 Z=3.5
@@ -51,7 +52,7 @@ esac; done
 SESSION=$(cd "$SESSION" && pwd)
 Q=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$Q/frameqa
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
+sir(){ siril_cli -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
 
 # lights class: camera raws, or dedicated-astrocam FITS (registered as-is —
 # a mono FITS set measures true, non-CFA FWHM; an OSC-FITS set re-decides

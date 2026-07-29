@@ -37,6 +37,8 @@
 # Nothing is compressed; the .ssf pins setcompress 0. The scratch lives
 # beside --out (under $HOME — the Siril flatpak has a private /tmp).
 set -euo pipefail
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 OUT= FRAMING=max; DIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
@@ -50,7 +52,7 @@ mkdir -p "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 W="$(dirname "$OUT")/.covprobe_$(basename "$OUT")"
 rm -rf "$W"; mkdir -p "$W/in" "$W/seq" "$W/const"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 
 n=0
 for d in "${DIRS[@]}"; do

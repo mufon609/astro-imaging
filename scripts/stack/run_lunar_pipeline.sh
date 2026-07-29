@@ -37,6 +37,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 S="${1:?usage: run_lunar_pipeline.sh <session-dir> <set> <stage> [options]}"
 SET="${2:?set name required}"
 STAGE="${3:?stage required: prep|stage|calibrate|register|verify|stack|sharpen|wb|surfaces}"
@@ -50,7 +51,7 @@ RESULTS="$REPO/web/results/$SESSION"
 CHUNK=80
 
 siril_run() {  # one instance at a time, always (flatpak instance-dir race)
-  flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2"
+  siril_cli -d "$1" -s "$2"
 }
 
 case "$STAGE" in

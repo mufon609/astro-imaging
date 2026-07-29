@@ -60,6 +60,7 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median]}
 SET=${2:?missing <set>}
 DARK= OUT= CHUNK=24 REJ=wins
@@ -80,7 +81,7 @@ STEM=$(basename "$OUT")
 W=$SESSION/work/flatbuild_$SET
 QA_DIR=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 mkdir -p "$QA_DIR"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
@@ -149,12 +150,12 @@ RX[BR]=$((IW - M - B));   RY[BR]=$((IH - M - B))
 for r in center TL TR BL BR; do
   printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nstat\n' \
     "$OUT.fit" "${RX[$r]}" "${RY[$r]}" "$B" "$B" > "$W/v.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/v.ssf" 2>&1 \
+  siril_cli -d "$W" -s "$W/v.ssf" 2>&1 \
     | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat.log"
 done
 printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nfindstar -out=%s\n' \
   "$OUT.fit" "$W/specks.lst" > "$W/f.ssf"
-FS_LOG=$(flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/f.ssf" 2>&1 \
+FS_LOG=$(siril_cli -d "$W" -s "$W/f.ssf" 2>&1 \
   | grep -oE 'Found [0-9]+ star' | grep -oE '[0-9]+' || echo 0)
 printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"

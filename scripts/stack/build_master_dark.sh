@@ -13,6 +13,7 @@
 # ~10 GB-class transient at 200+ frames) once the master is written.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 S=${1:?usage: build_master_dark.sh <session-dir> [--force]}
 FORCE=
 for a in "${@:2}"; do case "$a" in
@@ -31,7 +32,7 @@ if [ -e "$OUT" ] && [ -z "$FORCE" ]; then
 fi
 mkdir -p "$S/work/masters"
 echo "master dark: $n frames -> $OUT"
-flatpak run --command=siril-cli org.siril.Siril -d "$S" \
+siril_cli -d "$S" \
   -s "$REPO/scripts/stack/siril/master_dark.ssf" \
   > "$S/work/master_dark.log" 2>&1 \
   || { echo "master dark build FAILED — $S/work/master_dark.log" >&2

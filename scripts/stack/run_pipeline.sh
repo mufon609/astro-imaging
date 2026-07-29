@@ -21,6 +21,7 @@ set -euo pipefail
 
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
@@ -48,7 +49,7 @@ mkdir -p "$W/masters" "$RESULTS"
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" || exit 1
 
 siril_run() { # absolute script path
-  flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$1"
+  siril_cli -d "$S" -s "$1"
 }
 
 # Last sequence-op summary count from a captured siril log ("Total: N

@@ -44,6 +44,7 @@ and a row's numbers re-verify when that set is re-processed here.
 | `frame_metrics.json` CFA-sampled FWHM | re-measure debayered where disk allows | **not fired** — still the arm rig. Absolute FWHM there is inflated by the Bayer mosaic; only relative comparison is valid. |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) — darktable ignores a style's lens op_params, so the DB is the only place distortion-only can be enforced | darktable honors a style's lens op_params (or another headless per-invocation param channel) — re-check per darktable version bump AND per rig with `scripts/darktable/verify_lens_card.py` (grid positive control + uniform card; the uniform card ALONE is vacuous — see `docs/dead-ends.md`) | **not fired** — measured ignored on darktable 5.4.1 (`docs/dead-ends.md`; `datasets/july14/set-01/qa_work/gradient_qa.json`). RE-CHECKED on the x86 rig (darktable 5.4.1, upstream lensfun DB): grid control fires (Siril sigma 45620), uniform card corner-vs-centre delta **0.000 ADU** → distortion-only holds (`datasets/july14/set-01/qa_work/lens_card.json`). |
 | `run_undistort_groups.sh` group-composition stacking (per-group stacks → compose; one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame — the x86 1 TB) → use `run_undistort_pipeline.sh` | **not fired** — arm-rig disk is the reason it exists; valid only post-undistort (homographies compose). QUALITY-UNVALIDATED for production — and the APPROVED full-session render rode this route, so the item-7 single-pass-vs-groups A/B (plus the in-group rejection ladder) is now the standing validation DEBT on the deliverable, payable on x86 disk. |
+| `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig, but ONLY for participants — `scripts/jwst/*` has not adopted it yet and the guard reports that without failing. |
 | `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains FITS I/O, or the distortion is consumed natively (Siril `register -disto=`, item 7) so the keys are never dropped | **not fired** — darktable 5.4.1 has no FITS reader, so the warp leg is TIFF and the loss is structural. Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback). |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needs ~37G transient vs ~24G reclaimable on this rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | **not fired** — declared cost: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry). |
 
@@ -179,7 +180,11 @@ verified pixel-identical on real aligned members before the swap
 `july14-all5-cov25frame-approved`; residue lives in the removal register +
 items 0/12); **14** — dashboard↔Claude communication, resolved no-new-surface (no MCP
 server, no SDK bridge; Claude reads the existing job logs + records,
-deep tool logs grep-first). Mechanisms live in
+deep tool logs grep-first); **18** — the flatpak Siril concurrency race,
+closed by the shared flock invoker `scripts/lib/siril_run.{sh,py}` that every
+shell and python call site now routes through (guard:
+`scripts/stack/check_siril_invoke.sh`; divergence + removal condition in the
+register). Mechanisms live in
 the builders' docstrings, the per-set recipes and `docs/dead-ends.md`; full
 text in git. Numbering is preserved so cross-references stay valid.)_
 
@@ -420,26 +425,6 @@ design: chains lead with evidence-driven per-set step-strips, an active-run
 banner, and first-class preview-plan/Run; every stage card explains its
 process from the registry's structured docs; manual stages stay reachable
 below. Full text in git.)_
-## 18. Flatpak Siril concurrency race — serialize or harden the invokers
-
-MEASURED on x86 (2026-07-25, july23 run): two rapid-fire siril-cli loops running
-concurrently (the anomaly audit's per-frame calls + a stack builder's per-frame
-`savetif` loop) died after ~10 min with `bwrap: Can't get type of source
-/run/user/1000/.flatpak/org.siril.Siril/tmp: No such file or directory` — flatpak
-tears down the per-app instance dir when one short-lived instance exits exactly as
-another is starting its sandbox. One occurrence in ~150 paired invocations;
-probabilistic, kills the caller mid-chain (`set -e`), and the failing script prints
-nothing (the bwrap line lands in the siril log). NOT a data or Siril bug.
-
-- Session practice adopted immediately: ONE siril-loop job at a time, globally —
-  the july23 chain ran serialized after the hit and completed clean.
-- Hardening candidates (pick ONE, as its own change): a repo-shared `sir()` helper
-  with a bounded retry on the bwrap signature; or an flock-serialized invoker all
-  scripts source. Either lives in shared code (calibrate_light.sh precedent: one
-  definition, every builder routes through it).
-- Removal condition: flatpak fixes the instance-dir lifecycle race, or Siril
-  invocations stop being per-frame process spawns (e.g. pyscript batching).
-
 ## 21. Lunar lucky imaging — CLASS BUILT; x86 ladder + next capture remain
 
 **STATE: the first corpus is processed end to end and the chain is codified as

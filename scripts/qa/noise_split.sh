@@ -21,6 +21,8 @@
 # -framing=min keeps the all-members intersection: uniform full depth, no
 # coverage-varying zones in the statistics.
 set -euo pipefail
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 OUT= WORK=; DIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --work=*) WORK=${a#*=};;
@@ -33,7 +35,7 @@ mkdir -p "$(dirname "$OUT")"
 rm -rf "$WORK"; mkdir -p "$WORK/in" "$WORK/seq"
 W="$(cd "$WORK" && pwd)"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 
 n=0
 for d in "${DIRS[@]}"; do
@@ -68,13 +70,13 @@ done
 
 diffstats(){ # $1=A $2=B $3=tag -> lines "tag bgnoise: ..." + "tag stat: ..."
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nisub %s\nbgnoise\nstat\n' "$1" "$2" > "$W/d.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/d.ssf" 2>&1 \
+  siril_cli -d "$W" -s "$W/d.ssf" 2>&1 \
     | grep -E 'Background noise value|Mean:' | sed "s/^log: /$3 /"
 }
 { diffstats "$W/mean_odd.fit"  "$W/mean_even.fit" "interleaved"
   diffstats "$W/mean_h1.fit"   "$W/mean_h2.fit"   "timehalf"
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nbgnoise\n' "$W/mean_odd.fit" > "$W/d.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/d.ssf" 2>&1 \
+  siril_cli -d "$W" -s "$W/d.ssf" 2>&1 \
     | grep -E 'Background noise value' | sed 's/^log: /halfstack /'
 } > "$W/results.txt"
 cat "$W/results.txt"

@@ -52,6 +52,7 @@
 # measured applying a global ~1/12.92 scale through the same leg.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
@@ -86,7 +87,7 @@ CFG=$SESSION/work/dtcfg
 # invokes this script once per group — the capture must outlive that churn so
 # the composing driver can stamp the final from it too.
 ACQHDR=$SESSION/work/acq_header_$SET.json
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
+sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile
 "$REPO/scripts/darktable/install_styles.sh" "$CFG"

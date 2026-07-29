@@ -26,6 +26,7 @@
 # rides the RA rate (deg/hr), which is scale-free.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: mount_probe.sh <session-dir> <set>}
 SET=${2:?missing <set>}
 SESSION=$(cd "$SESSION" && pwd)
@@ -86,7 +87,7 @@ prep(){ # <frame> <tag> -> echoes the solvable FITS path
   local stem; stem=$(basename "${f%.*}")
   printf 'requires 1.4.4\nsetcompress 0\nsetext fit\nload %s\nextract_Green\nload Green_%s\nsave %s\n' \
     "$f" "$stem" "$W/${tag}_green" > "$W/${tag}.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/${tag}.ssf" \
+  siril_cli -d "$W" -s "$W/${tag}.ssf" \
     > "$W/${tag}_siril.log" 2>&1 || true
   rm -f "$W/Green_${stem}".fit*
   [ -f "$W/${tag}_green.fit" ] || { say "siril decode failed — $W/${tag}_siril.log" >&2; exit 1; }

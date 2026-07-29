@@ -43,7 +43,8 @@ import re
 import subprocess
 import sys
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 NAME_KEYS = ("oscsensor", "oscfilter", "whiteref")   # database names (quoted)
 NB_KEYS = ("narrowband", "rwl", "gwl", "bwl",        # narrowband mode: flag +
@@ -156,7 +157,7 @@ def main():
     print("[spcc_run] sensor spec: " + (" ".join(
         f"{k}='{spec[k]}' ({spec_prov[k]})" for k in SPEC_KEYS if k in spec)
         or "sensor-null (generic default)"))
-    r = subprocess.run(SIRIL + ["-d", sdir, "-s", ssf],
+    r = siril_run(["-d", sdir, "-s", ssf],
                        capture_output=True, text=True)
     log = r.stdout + ("\n--- stderr ---\n" + r.stderr if r.stderr else "")
     p_log = os.path.join(work, f"spcc_{set_name}{tag}.log")

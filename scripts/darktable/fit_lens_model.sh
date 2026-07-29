@@ -43,6 +43,7 @@
 # seqtilt A/B against the incumbent model), never by its own residual.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: fit_lens_model.sh <session-dir> <set> --dark= --flat= --hfov= [--frames=12]}
 SET=${2:?missing <set>}
 DARK= FLAT= HFOV= FRAMES=12
@@ -55,7 +56,7 @@ esac; done
 
 W=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$W/lens_fit_work
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
+sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 rm -rf "$P"; mkdir -p "$P/nef" "$P/proc" "$P/st"
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \

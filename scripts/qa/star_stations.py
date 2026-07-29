@@ -52,13 +52,14 @@ import subprocess
 import sys
 import tempfile
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 DIMS = re.compile(r"Reading FITS: file .*?, \d+ layer\(s\), (\d+)x(\d+) pixels")
 
 
 def run_siril(work, ssf):
-    r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
+    r = siril_run(["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     return r.stdout + r.stderr
 

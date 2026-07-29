@@ -139,7 +139,8 @@ while _libdir != os.path.dirname(_libdir):
 import acquisition  # noqa: E402
 import astrometrics as am  # noqa: E402  (dataset_dir: the tracked per-dataset home)
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 
 def read_green(path):
@@ -182,7 +183,7 @@ def run_siril(nef, work):
                 "subsky 4\n"                 # background extraction (a tool)
                 f"savetif {resid}\n"         # 16-bit TIFF -> PIL reads it
                 f"findstar -out={stars}\n")  # stars + its bg level + noise
-    r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
+    r = siril_run(["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     for gf in glob.glob(os.path.join(work, f"{green}.fit*")):
         os.remove(gf)                        # drop the intermediate green file

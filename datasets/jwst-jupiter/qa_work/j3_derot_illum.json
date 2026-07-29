@@ -1,7 +1,7 @@
 {
  "round": 3,
  "k_minnaert": 1.0,
- "mu0_min": 0.1,
+ "mu0_min": 0.03,
  "oversample": 2,
  "dq_strict": true,
  "nav_refinement": "dropped (round-2 null)",

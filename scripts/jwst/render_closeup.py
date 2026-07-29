@@ -52,6 +52,12 @@ def sub(tok, v):
 
 
 def run_siril(ssf_name, lines):
+    # BACKLOG-18 mutex guard: one Siril globally — a concurrent foreign
+    # instance triggers the measured flatpak instance-dir race
+    chk = subprocess.run(["pgrep", "-f", "siril-cli"], capture_output=True, text=True)
+    if chk.stdout.strip():
+        sys.exit(f"REFUSED: another siril-cli is running (pids {chk.stdout.split()}) — "
+                 "coordinate the Siril window first (BACKLOG 18)")
     path = os.path.join(WORK, ssf_name)
     with open(path, "w") as f:
         f.write("requires 1.4.0\nsetcompress 0\nsetext fits\nset32bits\n" + "\n".join(lines) + "\nclose\n")
@@ -81,6 +87,7 @@ def main():
     ap.add_argument("--dr-dir", default="j3derot", help="derotated-frames dir under work/")
     ap.add_argument("--w-mode", default="pole", choices=("pole", "disc"),
                     help="white anchor: max(disc,pole) or disc top (aurora clips = the reference's own move)")
+    ap.add_argument("--rotate", default=None, help="rotate final (deg, e.g. -90 for north-up)")
     ap.add_argument("--illum", action="store_true",
                     help="re-apply the common target-epoch illumination (pm-multiply each master by work/illum_target.fits) — pairs with the round-3 illumination-flat frames")
     ap.add_argument("--grid-scale", type=int, default=1,
@@ -190,6 +197,7 @@ def main():
         lines += [
             f"rgbcomp t_f360m_{tag} t_f212n_{tag} t_f150w2_{tag} -out={RES_REL}/cu_{tag}",
             f"load {RES_REL}/cu_{tag}",
+        ] + ([f"rotate {args.rotate}"] if args.rotate else []) + [
             f"savepng {RES_REL}/judge/closeup_{tag}",
             "resample -width=800 -interp=area",
             f"savepng {RES_REL}/previews/cu_{tag}_small",

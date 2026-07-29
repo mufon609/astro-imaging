@@ -31,6 +31,7 @@
 # calibrated stack is the chroma-blotch engine — docs/dead-ends.md).
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
@@ -109,7 +110,7 @@ PY
   WC=$(dirname "$STACK")/.crop_$NAME; rm -rf "$WC"; mkdir -p "$WC"
   printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nsave %s\n' \
     "$STACK" "$CX" "$CY" "$CW" "$CH" "${CROPPED%.fit}" > "$WC/c.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$WC" -s "$WC/c.ssf" \
+  siril_cli -d "$WC" -s "$WC/c.ssf" \
     > "$WC/log" 2>&1 || { echo "crop failed — $WC/log" >&2; exit 1; }
   rm -rf "$WC"
   [ -f "$CROPPED" ] || { echo "crop wrote no stack" >&2; exit 1; }
@@ -171,7 +172,7 @@ else
 fi
 W=$(dirname "$STACK")/.finish_$NAME; rm -rf "$W"; mkdir -p "$W"
 printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nload %s\n%s\nsavepng %s\n' "$SRC" "$STRETCH" "$JUDGE" > "$W/s.ssf"
-flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
+siril_cli -d "$W" -s "$W/s.ssf" >> "$W/log" 2>&1
 rm -rf "$W"
 [ -f "$JUDGE.png" ] || { echo "[finish $NAME] STRETCH FAILED" >&2; exit 1; }
 echo "[finish $NAME] DONE -> $JUDGE.png"

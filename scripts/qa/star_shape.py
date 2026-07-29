@@ -46,7 +46,8 @@ import subprocess
 import sys
 import tempfile
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 # "Stars: 5095, Truncated mean[FWHM]: 3.20, Sensor tilt[FWHM]: 0.50 (16%),
 #  Off-axis aberration[FWHM]: 0.57"
@@ -78,7 +79,7 @@ def run_seqtilt(image, work):
                 f"link f -out={seq_out}\n"
                 f"cd {seq_out}\n"
                 "seqtilt f\n")
-    r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
+    r = siril_run(["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     m = REPORT.search(r.stdout)
     if not m:

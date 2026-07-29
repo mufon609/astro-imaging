@@ -55,6 +55,7 @@
 # (~290 MB each at 32-bit float), which the disk guard accounts for.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan]}
 SET=${2:?missing <set>}
@@ -82,7 +83,7 @@ mkdir -p "$G" "$(dirname "$OUT")"
 # script's own CWD, so a relative --out lands the final INSIDE the work tree
 # and the existence check fails on a stack that actually built.
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
+sir(){ siril_cli -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
 
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
