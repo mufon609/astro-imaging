@@ -1,6 +1,12 @@
 requires 1.4.0
 setcompress 0
-set16bits
+# 32-bit END TO END, not just at the stack. Running calibrate/register at 16
+# bits was a RAM/disk adaptation whose removal condition fired on this rig, and
+# it was never free: integer round-tripping through calibrate/warp/register was
+# MEASURED to keep only ~55-70% of the 32-bit arm's extended faint contrast
+# (NAN-region contrast 4.8/2.4/3.9 vs 8.5/2.9/5.6 % of local sky, R/G/B) — it
+# costs real structure, not just noise.
+set32bits
 cd @SET@
 convert light -out=../work
 cd ../work
@@ -20,7 +26,6 @@ cd ../work
 setfindstar -sigma=0.5
 register pp_light -2pass
 seqapplyreg pp_light
-set32bits
 # Color is calibrated by SPCC on the stack — no per-channel white balance
 # at stack time (-rgb_equal): a stack-time rescale would only obscure the
 # raw channel balance SPCC measures.

@@ -121,7 +121,22 @@ if compgen -G "$SESSION/flats*" >/dev/null; then HAVE_REAL_FLATS=1; fi
 if [ -d "$SESSION/calib" ]; then HAVE_REAL_FLATS=1; fi
 NAME=
 if [ -n "$STACK" ]; then NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}; fi
-JUDGE_GLOB=$RESULTS/judge/${NAME}_*.png
+# The judge-surface existence test must match the EXACT names finish_render.sh
+# writes (<name>_spcc-linked.png, or <name>_lum-autostretch.png on a mono
+# stack) — never ${NAME}_*.png. That looser glob ALSO matches a preserved
+# RECIPE-TAG VARIANT of the same set (e.g. set-01_263all_spcc-linked.png),
+# which is exactly what the naming convention prescribes when bracketing an
+# A/B. The chain then reports the OLD variant's surface as already-done and
+# silently skips finishing the REBUILT stack, leaving it with no WCS and no
+# SPCC — a rebuilt product that looks complete and is not.
+judge_surface() {   # echoes the existing surface for $1, or returns nonzero
+  local n=$1 p
+  for p in "$RESULTS/judge/${n}_spcc-linked.png" \
+           "$RESULTS/judge/${n}_lum-autostretch.png"; do
+    [ -f "$p" ] && { echo "$p"; return 0; }
+  done
+  return 1
+}
 
 # ---- the PLAN (printed on every run; --plan stops here) -----------------
 say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
@@ -159,8 +174,17 @@ case "$ROUTE" in
       undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT";;
       undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT";;
     esac; fi
-    if compgen -G "$JUDGE_GLOB" >/dev/null; then
-      say "  5. judge surface exists -> skip finish ($(basename $(compgen -G "$JUDGE_GLOB" | head -1)))"
+    if JS=$(judge_surface "$NAME"); then
+      say "  5. judge surface exists -> skip finish ($(basename "$JS"))"
+    elif compgen -G "$RESULTS/judge/${NAME}_*.png" >/dev/null; then
+      # A RECIPE-TAGGED variant exists but not the canonical name. Say so, and
+      # do NOT treat it as done: a tagged surface may have been produced from a
+      # different stack (an A/B arm, or a hand-named finish), so silently
+      # skipping here is what once left a rebuilt stack with no WCS and no SPCC
+      # while reporting success. The finish re-runs and writes the canonical name.
+      say "  5. scripts/stack/finish_render.sh $STACK $NAME --session=$SESSION --set=$SET"
+      say "     (note: no canonical ${NAME}_spcc-linked.png, but recipe-tagged surface(s) exist:"
+      say "      $(cd "$RESULTS/judge" && echo ${NAME}_*.png) — those are not assumed to come from this stack)"
     else
       say "  5. scripts/stack/finish_render.sh $STACK $NAME --session=$SESSION --set=$SET"
     fi;;
@@ -304,7 +328,6 @@ PY
     *) say "STOP: route still underivable after preflight (mount/fov missing from the seeded facts) — the user picks the route"; exit 5;;
   esac
   NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}
-  JUDGE_GLOB=$RESULTS/judge/${NAME}_*.png
   say "route (re-derived): $ROUTE"
 fi
 
@@ -339,8 +362,8 @@ else
 fi
 
 # finish: solve -> cone -> SPCC -> linked autostretch judge PNG16
-if compgen -G "$JUDGE_GLOB" >/dev/null; then
-  say "judge surface exists — skipping finish"
+if judge_surface "$NAME" >/dev/null; then
+  say "judge surface exists — skipping finish ($(basename "$(judge_surface "$NAME")"))"
 else
   say "finish (solve -> SPCC -> judge surface)"
   "$REPO/scripts/stack/finish_render.sh" "$STACK" "$NAME" --session="$SESSION" --set="$SET"
@@ -354,4 +377,4 @@ try:
     print(f'{len(e)} frame(s) n={e}' if e else 'none')
 except (OSError, ValueError):
     print('none')" 2>/dev/null || echo "none")
-say "DONE — stack: $STACK | judge: $(compgen -G "$JUDGE_GLOB" | head -1 || echo '?') | culled: $CULLS | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
+say "DONE — stack: $STACK | judge: $(judge_surface "$NAME" || echo '?') | culled: $CULLS | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"

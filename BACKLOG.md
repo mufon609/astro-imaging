@@ -346,6 +346,21 @@ static-structure budget (≈1.0/1.5/1.2 ADU, the rest unresolved-star confusion
 texture = real sky) and comparable to the random noise left at that depth: the
 denoise tier's measured target size for this class.
 
+**One measured CONTRIBUTOR has since been removed at the source.** The master
+dark was being stored at 16-bit integer, which quantized a many-frame mean into
+a SENSOR-FIXED ±0.5 ADU pattern subtracted identically into every light — i.e.
+manufactured input to exactly this defect. Measured: 0.2889 ADU RMS against a
+0.4213 ADU statistical floor, inflating the master's fixed-pattern residual by
+**21%**; that is 0.69× the floor and the same order as the drift-phase
+structured term quantified above (0.34–0.48 ADU). Fixed chain-wide and enforced
+(`scripts/stack/check_bitdepth.sh`; mechanism + numbers in `docs/dead-ends.md`).
+**Do NOT count this as a measured reduction of the streaks** — the stack-level
+A/B could not resolve it, because the chain's own run-to-run variation
+(2.06% of sky at star edges, 0.073% in flat sky) is ~10× the expected effect.
+The contributor is gone at the source; whether the streaks shrank is untested
+and needs `noise_split.sh` on a group-built pair, since that is the only
+instrument here that sees drift-aligned structure.
+
 **Gated on the class recurring** (an un-dithered untracked set — the
 acquisition checklist's dither line is the acquisition-side fix; dithered or
 tracked acquisition removes the driver and this goes dormant, not dead).

@@ -250,9 +250,47 @@ fresh_fits() { [[ -f "$1" && -f "$3" ]] || return 1
   diff -q <(manifest_fits "$2") "$3" >/dev/null 2>&1; }
 fits_meta() { python3 "$REPO/scripts/stack/fitsmeta.py" "$1"; }
 
+# Disk preflight for the LIGHT path: abort up front rather than fill the disk
+# hours in. Needed because the whole light .ssf runs before the shell cleans up
+# light_*/pp_light_*/r_pp_light_*, so all THREE generations coexist at peak:
+#   OSC  (calibrate -debayer): W*H*4 (CFA) + 2 * W*H*12 (3-channel) = W*H*28
+#   mono (no debayer):         W*H*4       + 2 * W*H*4              = W*H*12
+# At 32-bit float that peak is DOUBLE what the retired 16-bit intermediates
+# needed, which is exactly why this guard exists — the sibling undistort builder
+# has always had one, this path never did.
+#   disk_preflight <nframes> <mono:0|1> <label>
+disk_preflight() {
+  local n=$1 mono=$2 label=$3 wh px need free
+  wh=$(python3 - "$REPO/datasets/$(basename "$S")/$SET/acquisition.json" \
+                "$S/$SET" <<'PY'
+import glob, json, os, sys
+w = h = 0
+try:                                    # camera raws: the derived EXIF record
+    e = (json.load(open(sys.argv[1])).get("exif") or {})
+    if e.get("image_wh"): w, h = e["image_wh"]
+except (OSError, ValueError, KeyError):
+    pass
+if not w:                               # astrocam FITS: read one header
+    for p in sorted(glob.glob(os.path.join(sys.argv[2], "*.fit*"))):
+        try:
+            from astropy.io import fits
+            hd = fits.getheader(p); w, h = hd["NAXIS1"], hd["NAXIS2"]; break
+        except Exception:
+            pass
+print(f"{w} {h}")
+PY
+)
+  px=$(echo "$wh" | awk '{print $1*$2}')
+  [ "${px:-0}" -gt 0 ] || { echo "  [disk] geometry unknown — preflight SKIPPED (no acquisition.json image_wh, no readable FITS header)"; return 0; }
+  need=$(( n * px * ( mono == 1 ? 12 : 28 ) / 1073741824 + 2 ))
+  free=$(df -BG --output=avail "$S" | tail -1 | tr -dc 0-9)
+  echo "  [disk] $label: $n frames x $(echo "$wh" | tr ' ' 'x') $([ "$mono" = 1 ] && echo mono || echo OSC) 32-bit -> ~${need}G peak, ${free}G free"
+  [ "$free" -ge "$need" ] || { echo "ABORT: ~${need}G needed for the 32-bit light intermediates ($n frames), only ${free}G free. Free disk or stage fewer frames." >&2; exit 1; }
+}
+
 # convert+stack a dark-type dir into a master: <srcdir-name> <prefix> <outname>
 _fits_dark_master() {
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
     echo "cd $1"; echo "convert $2 -out=../work"
     echo "cd ../work"; echo "stack $2 rej 3 3 -nonorm -out=masters/$3"
     echo "close"; } > "$W/fits_master_$2.gen.ssf"
@@ -261,7 +299,7 @@ _fits_dark_master() {
 # master flat from flats dir $2, calibrated by $1
 # ($1 = -dark=masters/darkflat_master | -bias=masters/bias_master)
 _fits_flat_master() {
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
     echo "cd $2"; echo "convert fl -out=../work"
     echo "cd ../work"; echo "calibrate fl $1"
     echo "stack pp_fl rej 3 3 -norm=mul -out=masters/flat_master"
@@ -278,7 +316,7 @@ _fits_flat_master() {
 _fits_dualband() {
   local MIDX="$2"
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $1 -cfa
@@ -287,7 +325,6 @@ _fits_dualband() {
     echo "register Ha_pp_light"
     echo "setref OIII_pp_light $MIDX"
     echo "register OIII_pp_light"
-    echo "set32bits"
     unselect_lines r_Ha_pp_light
     echo "stack r_Ha_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_Ha"
     unselect_lines r_OIII_pp_light
@@ -300,12 +337,11 @@ _fits_dualband() {
 # flags (empty for mono), $2 = flat option (empty when no usable flat).
 _fits_lights() {
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set16bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $2 $1
     echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
-    echo "set32bits"
     unselect_lines r_pp_light
     echo "stack r_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"
@@ -514,6 +550,7 @@ fits_ingest() {
           "$W"/r_Ha_pp_light_* "$W"/r_OIII_pp_light_*
   else
     echo "=== lights: calibrate + register + stack $SET ($NF frames) ==="
+    disk_preflight "$NF" "$([[ "$lmono" == "1" ]] && echo 1 || echo 0)" "lights"
     _fits_lights "$CFAOPT" "$FLATOPT"
     verify_exclusion "$W/r_pp_light_.seq" "$RESULTS/stack_$SET.fit"
     local rn
@@ -655,6 +692,8 @@ fi
 
 # --- stage 4: per-set script generated from template -------------------------
 NFRAMES=$(raw_find "$S/$SET" | wc -l)
+# camera raws always go through calibrate -cfa -debayer, so the OSC footprint
+disk_preflight "$NFRAMES" 0 "lights"
 MID=$(( (NFRAMES + 1) / 2 ))
 F1=$(printf '%05d' 1); FM=$(printf '%05d' "$MID"); FN=$(printf '%05d' "$NFRAMES")
 if [[ -n "$FLATOPT" ]]; then

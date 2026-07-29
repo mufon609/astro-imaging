@@ -30,6 +30,36 @@ the constraints any such tool must satisfy):
   clone-stamping (GUI, non-reproducible). So the sky flat is dust-safe ONLY when
   faint structure is a small part of the frame; validate before use
   ([`synthetic-flats-and-bias.md`](synthetic-flats-and-bias.md)).
+- **A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE ALT-AZ FRAME — the
+  drift cannot reject it, because the CAMERA is fixed in alt-az too.** The
+  method's stated enabling condition ("the sky drifts across the sensor, so the
+  moving sky rejects out") is true of STARS and of sky structure fixed on the
+  CELESTIAL sphere. It is FALSE for brightness structure fixed relative to the
+  HORIZON — moonlight, and the airmass/horizon gradient — which sits still on the
+  sensor for the whole set and integrates straight into the flat.
+  MEASURED, two sessions, by isolating each flat's ODD component about centre
+  (which cancels the even/radial vignetting) and fitting a plane: the odd plane
+  runs **4.8-19.4%** of centre level on a moonless night and **16.8-22.6%** on a
+  98%-moonlit one. It is NOT optical decentering: the component normal to the
+  rotation flips SIGN between sessions (-4.4% vs +16.8%) on the same lens, focal
+  and aperture, while the in-plane component walks monotonically through each
+  session as the sky rotates against the sensor. On the moonlit night the odd
+  plane's DIRECTION tracks the moon's bearing in SENSOR coordinates to 23 deg
+  scatter, where a random relation scatters ~104 deg.
+  **Why it is a defect and not free background extraction:** a sky gradient is
+  ADDITIVE and a flat DIVIDES. Lights are (sky+object) x vignetting; the
+  contaminated flat is vignetting x (1+g); dividing yields (sky+object)/(1+g) —
+  the sky's own gradient does come out, but the OBJECT is left modulated by a
+  5-23% multiplicative tilt it never had. Real nebulosity is photometrically
+  tilted across the frame.
+  **It also makes the usual flatness check self-fulfilling**: corner-vs-centre
+  reads flat on the FINAL stack precisely BECAUSE the flat absorbed the gradient
+  and divided it out — so a good flatness number is not evidence the calibration
+  is clean. Judge it on the FLAT's odd component, not the stack's corners.
+  The clean fix is a REAL flat (the sky-flat builder's existing removal
+  condition). Where sky flats must be used, the flat's low-order ODD component
+  has to be removed before use, and the sky gradient handled ADDITIVELY (a
+  background step), never multiplicatively by the flat.
 - A sky flat applied ACROSS SETS imprints the SOURCE set's sky. The flat's
   low-order component carries the residual sky gradient of the lights it was
   built from; the sensor-fixed content (vignetting/motes/PRNU) transfers between
@@ -43,6 +73,31 @@ the constraints any such tool must satisfy):
   another set, and never a multi-set combine under any single set's (or a
   union) flat: each member set calibrates with its OWN flat before composing.
   Per-set builder with validation gates: `scripts/stack/build_sky_flat.sh`.
+
+**Calibration masters:**
+- **NEVER store a calibration master at 16-bit integer.** A master dark/bias/flat
+  is a many-frame MEAN, so its precision is far finer than one integer step;
+  rounding to 16 bits does not lose "a bit of noise", it stores a SENSOR-FIXED
+  quantization pattern that is then subtracted (or divided) identically into
+  every light — the input to walking noise, which no rejection or cosmetic
+  correction removes. MEASURED on a 200-frame master dark: the 16-bit-vs-32-bit
+  difference is exactly uniform ±0.5 ADU (σ 0.2889 vs theory 1/√12 = 0.2887,
+  zero bias), against a split-half-measured statistical floor of 0.4213 ADU —
+  so 16-bit storage inflates the master's fixed-pattern residual
+  0.4213 → 0.5109 ADU, **+21%**. The error is per-pixel RANDOM, not low-order:
+  it vanishes in a flat's 400 px regional medians (L-R 0.9974 both ways), so it
+  cannot cause — or be cured by — any gradient or colour-cast symptom. Enforced
+  by `scripts/stack/check_bitdepth.sh`; if a rig genuinely cannot afford 32-bit
+  that is a new adaptation needing its own written removal condition.
+- **The near-miss that made the above expensive: a fix that lives in a session's
+  scratch dir is not a fix.** The 16-bit retirement reached the light path but
+  missed the master templates. One session hit it, worked around it with a
+  session-local builder pinning `set32bits`, and that builder's own comment
+  claimed it was "identical to" the repo template it directly contradicted — so
+  the repo went on emitting 16-bit masters for every later session while the
+  correct behaviour sat in one session's work dir. Graduate the fix or write a
+  guard; a corrected comment fails silently, a guard fails loudly (this one
+  immediately caught four more unfixed sites its author had already missed).
 
 **Background:**
 - The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases it;
@@ -349,6 +404,35 @@ the constraints any such tool must satisfy):
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
   (a bright object has no fixed band). Hand-picked patches miss defects a
   whole-scope measurement catches (the lesson that created the gate).
+- **A stack-level A/B on this chain cannot resolve anything below its run-to-run
+  floor — and the chain is NOT pixel-reproducible.** MEASURED (identical frames,
+  identical recipe, two runs of the undistort chain, identical output geometry):
+  the two products differ by **2.06% of sky at star edges and 0.073% in flat
+  sky**, the difference tracking local gradient (star-edge/flat-sky ratio
+  **28.4×**) exactly as resampling error does — it is interpolation variance in
+  registration, not the knob under test. Cost of not knowing this: a
+  calibration A/B whose whole-frame difference read "√2 × the per-arm noise",
+  which looks like a large real effect and is entirely the floor. **Bracket a
+  stack-level experiment with a SAME-ARM REPEAT RUN, not just an A/B**, and
+  treat any claimed effect under ~0.07% flat-sky / ~2% star-edge as unmeasured.
+  Corollary: measure a calibration change where it is unambiguous (on the
+  MASTER) rather than where it is swamped (on the finished stack).
+- **The stretched judge surface AMPLIFIES background gradients, by a factor that
+  grows with sky brightness and with stack depth — so a flat image can render as
+  a visibly tinted, vignetted one.** Siril's autostretch puts its black point at
+  ≈ median − 2.8·MAD, so the amplification of a fractional background variation
+  goes as sky/noise ∝ √(sky × N): a BRIGHTER sky or a DEEPER stack pushes the
+  black point proportionally closer to the sky level and steepens the transfer
+  at the floor. MEASURED on one set: linear corner-to-corner spread 0.47% in
+  level and 0.53% in R/G rendering as **7.9% and 9.4%** — a ~17× gain, with the
+  left edge reading a visible 6% green where the linear data is 1.0034. The same
+  chain on a 4×-darker sky amplified 8.7× (predicted ratio √4 = 2.0, measured
+  1.95). Consequences: a corner "going black" on a judge PNG may be ~23% grey
+  and ±0.3% flat in the data; and stacking DEEPER makes the artefact worse, not
+  better, unless the members' residual gradients are uncorrelated enough to
+  cancel (measured: per-set L-R residuals alternating in sign, mean 1.0005 vs
+  individual 0.36%). Judge background uniformity from LINEAR regional numbers,
+  never from the stretched surface.
 - **Never read a LINEAR residual off a STRETCHED surface.** An autostretch places the
   sky low on a steep curve, so it can compress or amplify a background ratio by
   several× depending on where the background lands — the same class of gradient read
@@ -445,6 +529,36 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   stack through it (a contiguous dewed block is NOT rejectable per-pixel; the
   cull is by frame, post-hoc identifiable by the halo/FWHM/nstars timeline —
   `docs/july23-dew-and-corner-chroma.md`).
+- **VERIFY FOCUS ON THE FIRST FEW FRAMES, then leave it alone — and if you must
+  refocus, do it AT A SET BOUNDARY, never mid-set.** MEASURED on one session: the
+  first 149 frames ran 9% soft (registration FWHM 2.944 px vs 2.680 achievable)
+  and the deficit was present in frame ONE at 2.910 — the lens was never focused,
+  not drifting out of focus. A mid-set correction then cost 205 s of pause, three
+  handling-ruined frames, and a 1.2 deg re-aim that split the set into two
+  pointing swaths — forcing a 152-frame block exclusion, a separate flat, and a
+  smaller min-framing intersection for every product that set entered. The same
+  correction 15 min later at the set boundary (where a re-aim pause already
+  happens) would have cost nothing. Post-correction focus then held for 90+ min:
+  the apparent later "drift" (2.672 -> 2.797 -> 2.730 px) REVERSED with nothing
+  touched, so it was seeing, not focus — periodic refocusing was not supported by
+  the data, and the per-set QA FWHM is the self-check that would show a real
+  drift. Cheap check up front: shoot a handful, read the frame-QA FWHM/star
+  counts, fix it then.
+- **DO NOT SHOOT A FAINT BROADBAND TARGET UNDER HEAVY MOONLIGHT — measured, the
+  integration does not buy it back.** A 98%-lit moon 24 deg up, 72 deg off the
+  field, raised the sky **4.2x** against a moonless night at the SAME hour on the
+  same rig (single raw frames, matched to 3 s of clock time: R/G/B 116/219/166 ADU
+  above pedestal vs 27/52/40; the excess is colour-NEUTRAL — R/G 0.53 vs 0.52,
+  B/G 0.75 vs 0.77 — which is what identifies moonlight rather than a light
+  dome). Consequences, all measured: per-frame noise ~2.4x worse against fixed
+  star flux; ~2.7x fewer stars detected per frame (700 vs 1877); and **1030
+  moonlit frames FAILED to improve on 799 moonless frames** — a 7-member
+  cross-session combine came out **29% WORSE** in background-limited SNR than the
+  moonless session alone, and on a smaller frame. Moonlight also worsens the two
+  display/calibration defects above: it doubles the autostretch's gradient
+  amplification (17x vs 8.7x) and roughly doubles the sky gradient the flat bakes
+  in. There is no processing remedy; more integration is not one. Check moon
+  phase and altitude when PLANNING, not after.
 - Lock the zoom ring (tape); don't touch the camera mid-set (a focal-length step
   forces a mixed-optics stack). Dither between subs; avoid the moon (star fringes
   on trailed PSFs are dispersion — physical, not removable in processing). Stop a

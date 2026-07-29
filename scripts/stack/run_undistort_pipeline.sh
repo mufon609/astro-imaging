@@ -23,7 +23,9 @@
 #   set and makes darktable PROVE it corrects this set — darktable applies NO
 #   correction to a lens lensfun cannot match, silently (exit 0, empty log).
 # - chunk remainder: Siril cannot build a sequence from ONE frame, so a frame
-#   count leaving a remainder of exactly 1 aborts HERE, not hours in.
+#   count leaving a remainder of exactly 1 auto-shrinks the chunk by one and
+#   states it (chunk size only bounds working-set residency, so it is free) —
+#   the same recovery run_frame_qa.sh makes for its batches.
 # - disk: registration keeps the warped input set resident while seqapplyreg
 #   writes the registered set beside it (~462 MB/frame peak at 32-bit float —
 #   NOTHING in the pipeline is compressed, the pipeline-wide rule; every .ssf
@@ -103,7 +105,19 @@ if [ -n "$SELECT" ]; then
   FRAMES=${#SRC[@]}
 fi
 [ "$FRAMES" -gt 0 ] || FRAMES=${#SRC[@]}
-[ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --frames/--chunk" >&2; exit 1; }
+# A final chunk of exactly ONE frame cannot be sequenced by Siril. Shrink the
+# chunk by one and say so — the same recovery run_frame_qa.sh already makes for
+# its batches. Aborting here instead was a dead end on the one-click chain,
+# which calls this builder WITHOUT a --chunk and so had no way to satisfy the
+# demand to "adjust --chunk": any set whose frame count is 1 mod 12 simply
+# could not be built from the session button. Chunk size only bounds working-set
+# residency, so shrinking it is free; if shrinking would somehow land on 1 again
+# (only possible at CHUNK=2, FRAMES=3) the loop below still forms a valid final
+# chunk of 2.
+if [ $((FRAMES % CHUNK)) -eq 1 ]; then
+  CHUNK=$((CHUNK - 1))
+  echo "chunk shrunk to $CHUNK ($FRAMES frames would leave a final chunk of 1, which cannot be sequenced)"
+fi
 NEED_GB=$((FRAMES * 462 / 1024 + 2))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames, ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span)" >&2; exit 1; }

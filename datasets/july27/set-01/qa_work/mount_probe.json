@@ -1,0 +1,18 @@
+{
+ "tool": "Siril decode/extract_Green (camera raw) + astrometry.net blind solves (solve_field.py --json WCS, evaluated at the frame-center pixel via astropy); epochs from EXIF/DATE-OBS; consumed by scripts/lib/fingerprint.py (auto-loaded on every refresh \u2014 the drift measurement is durable)",
+ "domain_note": "camera-raw solves run on the extracted GREEN plane (half-res grid): px figures are green-px at the solve's own scale; the mount verdict rides the scale-free RA rate",
+ "solve_a": {
+  "frame": "DSC_2503.NEF",
+  "time_s": 1785206807.99,
+  "ra_deg": 309.848589,
+  "dec_deg": 42.390428,
+  "scale_arcsec_px": 36.1778
+ },
+ "solve_b": {
+  "frame": "DSC_2784.NEF",
+  "time_s": 1785208686.99,
+  "ra_deg": 316.449878,
+  "dec_deg": 42.530808,
+  "scale_arcsec_px": 36.2458
+ }
+}

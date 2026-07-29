@@ -8,7 +8,7 @@
 # orchestrates and records.
 #
 #   build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> \
-#                     [--chunk=24] [--rej=wins|median]
+#                     [--chunk=24] [--rej=wins|median] [--select=<list-file>]
 #
 # Recipe (the validated build, plus the ratified rejection tightening):
 # - lights stay CFA (NO debayer): an OSC flat divides the CFA mosaic before
@@ -42,6 +42,20 @@
 # are per-pixel minorities the rejection removes, and more frames reject
 # better.
 #
+# --select=<list-file> (one raw path per line) overrides that default and
+# builds from exactly those frames. It exists for the case the all-frames
+# default does NOT cover: a set whose frames do not share ONE pointing. The
+# per-pixel rejection removes a moving sky, not a sky that CHANGED — so a set
+# containing a mid-set re-aim averages two different skies into the flat's
+# low-order term, and dividing either block by that blend prints the other
+# block's gradient into it (the same mechanism as the ratified across-sets
+# rule: a flat calibrates ONLY the exact frames it was built from). MEASURED
+# on a set carrying a mid-set re-aim vs a same-night same-optics single-
+# pointing set: left-right corner ratio 1.162 vs 1.032, while the top-bottom
+# (optical) term was identical at 1.143 vs 1.142 — the divergence is sky, and
+# it sits on the drift axis. Transient culling is still NOT a reason to
+# select; only a pointing change is.
+#
 # GUARDS: chunked convert+calibrate (raw + converted copies never resident
 # together beyond one chunk; a full-set c_ + pp_ tree would not fit tight
 # disks); chunk remainder of 1 aborts up front (Siril cannot build a sequence
@@ -54,14 +68,16 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median]}
+SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>]}
 SET=${2:?missing <set>}
-DARK= OUT= CHUNK=24 REJ=wins
+DARK= OUT= CHUNK=24 REJ=wins SELECT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --out=*) OUT=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --rej=*) REJ=${a#*=};;
+  --select=*) SELECT=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+[ -z "$SELECT" ] || [ -f "$SELECT" ] || { echo "no such --select list: $SELECT" >&2; exit 1; }
 [ -n "$DARK" ] && [ -f "$DARK" ] || { echo "need --dark=<existing master dark>" >&2; exit 1; }
 [ -n "$OUT" ] || { echo "need --out=<flat.fit>" >&2; exit 1; }
 case "$REJ" in wins|median) ;; *) echo "--rej must be wins or median" >&2; exit 1;; esac
@@ -76,9 +92,16 @@ QA_DIR=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 mkdir -p "$QA_DIR"
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 
-mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
-  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
-     -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+if [ -n "$SELECT" ]; then
+  mapfile -t SRC < <(grep -v '^[[:space:]]*$' "$SELECT" | sort)
+  for f in "${SRC[@]}"; do
+    [ -f "$f" ] || { echo "ABORT: --select lists a missing frame: $f" >&2; exit 1; }
+  done
+else
+  mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
+    \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+       -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+fi
 N=${#SRC[@]}
 [ "$N" -ge 20 ] || { echo "ABORT: only $N raw frames under $SESSION/$SET — a sky flat needs a deep un-registered stack" >&2; exit 1; }
 [ $((N % CHUNK)) -ne 1 ] || { echo "ABORT: $N frames leave a final chunk of 1 (Siril cannot sequence one frame) — adjust --chunk" >&2; exit 1; }
@@ -86,7 +109,7 @@ N=${#SRC[@]}
 NEED_GB=$(( N * 98 / 1024 + CHUNK * 98 / 1024 + 3 ))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G needed for $N frames, ${FREE_GB}G free" >&2; exit 1; }
-echo "sky flat: $N un-registered lights, dark-subtracted, CFA, rej=$REJ -> $OUT.fit"
+echo "sky flat: $N un-registered lights${SELECT:+ (selected from $SELECT)}, dark-subtracted, CFA, rej=$REJ -> $OUT.fit"
 
 rm -rf "$W"; mkdir -p "$W/pp"
 n=0; ci=0; g=0
@@ -154,9 +177,9 @@ printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"
 sir "$W/p.ssf"
 
-python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" <<'PY'
+python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" "${SELECT:-}" <<'PY'
 import json, re, sys
-flat, statlog, specks, n, rej, dark, rec_path, box, margin = sys.argv[1:10]
+flat, statlog, specks, n, rej, dark, rec_path, box, margin, select = sys.argv[1:11]
 regions = {}
 for line in open(statlog):
     m = re.match(r"(\w+)\b.*?Mean: ([0-9.]+), Median: ([0-9.]+), Sigma: ([0-9.]+)",
@@ -172,7 +195,11 @@ rec = {
  "flat": flat,
  "build": {"frames": int(n), "rejection": rej, "dark": dark,
            "method": "UN-registered, dark-subtracted (pedestal-free), CFA, "
-                     "multiplicative norm"},
+                     "multiplicative norm",
+           "frame_source": ("ALL raw frames in the set dir" if not select else
+                            f"SELECTED subset ({select}) — the set does not "
+                            "share one pointing, so the flat is built from "
+                            "exactly the frames it calibrates")},
  "regional_stat_ADU": regions,
  "region_geometry_px": {"box": int(box), "corner_margin": int(margin)},
  "findstar_speck_count": int(specks),
