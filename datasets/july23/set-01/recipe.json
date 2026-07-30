@@ -15,7 +15,7 @@
  },
  "render": {
   "name": "set-01+02_desky_linked",
-  "status": "RATIFIED by user 2026-07-30 \u2014 knobs AND look. The approved surface is web/results/july23/judge/set-01+02_desky_linked_render.png (record: qa_work/render_set-01+02_desky_linked.json). The name is kept as the one that produced the approved image, so a re-run reproduces it at the same path; renaming an approved artifact is what produced the misattributed record corrected in ../render_desky.json. NOTE: the earlier set-01+02_desky_render.png on disk is the SUPERSEDED render (stretch derived from the star-ful stack: sky 0.063 for a 0.100 target, +5.6% B/G cast) \u2014 its numbers are in qa_work/render_set-01+02_desky.json.",
+  "status": "RATIFIED by user 2026-07-30 \u2014 knobs AND look. The approved surface is web/results/july23/judge/set-01+02_desky_linked_render.png (record: qa_work/render_set-01+02_desky_linked.json). The name is kept as the one that produced the approved image, so a re-run reproduces it at the same path; renaming an approved artifact is what produced the misattributed record corrected in ../render_desky.json. The earlier set-01+02_desky_render.png and its asinh variant were DELETED as superseded (stretch derived from the star-ful stack: sky 0.063 for a 0.100 target, +5.6% B/G cast); their measurements are kept in qa_work/render_set-01+02_desky.json.",
   "stretch": "per-channel black point (background neutralization) at black_k_mad x MAD below each channel's own sky, plus ONE common window width and midtone balance (linked gain and curve)",
   "knobs": {
    "sky_target": 0.1,

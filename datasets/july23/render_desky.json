@@ -95,7 +95,7 @@
   }
  ],
  "residual_defects": [
-  "COLOUR at the bright end: rendered gas R/G 0.990 B/G 0.928 vs linear truth 1.000 / 0.995. INHERENT to nonlinear stretching \u2014 any curve changes channel ratios because channels enter at different points and exit with different local slopes. Structurally worse here because the sky is only ~7% above black. The asinh variant (judge/set-01+02_desky_render_asinh.png) splits the error more evenly (R/G 0.960 B/G 0.951) but costs contrast (gas 69 -> 56) \u2014 neither is free.",
+  "COLOUR at the bright end: rendered gas R/G 0.990 B/G 0.928 vs linear truth 1.000 / 0.995. INHERENT to nonlinear stretching \u2014 any curve changes channel ratios because channels enter at different points and exit with different local slopes. Structurally worse here because the sky is only ~7% above black. The asinh variant (judge/set-01+02_desky_render_asinh.png, DELETED 2026-07-30 as a superseded first-pass variant) split the error more evenly (R/G 0.960 B/G 0.951) but costs contrast (gas 69 -> 56) \u2014 neither is free.",
   "HORIZONTAL BANDING: walking noise, ~2.4x more structure along rows than columns, near-horizontal because the drift axis is ~4 deg from horizontal. Rejection and cosmetic correction measure NULL against it; the fix is acquisition-side dithering.",
   "STAR ELONGATION 1.196:1 \u2014 in-exposure trailing at 3 s, the unremovable floor. No processing touches it."
  ],
