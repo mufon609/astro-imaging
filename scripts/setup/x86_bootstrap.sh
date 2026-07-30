@@ -287,6 +287,26 @@ fetch "$STARNET_URL" "$tmp/starnet.zip" "$STARNET_SHA"
 run "sudo mkdir -p $OPT/starnet2-${STARNET_VER}"
 run "sudo unzip -q -o '$tmp/starnet.zip' -d $OPT/starnet2-${STARNET_VER}"
 manifest StarNet2 "$STARNET_VER" "$STARNET_URL" "$STARNET_SHA" "$STARNET_BIN" "'$STARNET_BIN' --version" "TIFF/PNG only; zip nests a top-level dir"
+# Installing the binary is NOT enough: siril's `starnet`/`seqstarnet` are gated on
+# TWO config keys that a fresh flatpak leaves EMPTY, so the command fails on a rig
+# where the binary is present and verified. Same class of trap as the SPCC sensor
+# database. Siril's integration is the path worth having — it applies an INVERTIBLE
+# MTF pre-stretch (`starnet -stretch`) so a linear stack can be separated and the
+# inverse applied to both the starless and the star mask.
+STARNET_W="$OPT/starnet2-${STARNET_VER}/starnet2_linux_${STARNET_VER}_ORT_x64_cli/StarNet2_weights.onnx"
+if [[ $DRY -eq 1 ]]; then
+  printf '  (plan) patch %s: starnet_exe / starnet_weights\n' "$SIRIL_CFG"
+else
+  for kv in "starnet_exe=$STARNET_BIN" "starnet_weights=$STARNET_W"; do
+    k=${kv%%=*}
+    if grep -q "^$k=" "$SIRIL_CFG"; then sed -i "s#^$k=.*#$kv#" "$SIRIL_CFG"
+    else printf '%s\n' "$kv" >> "$SIRIL_CFG"; fi
+  done
+  log "siril StarNet config set (starnet_exe + starnet_weights -> /opt)"
+fi
+manifest starnet-config siril-flatpak-config n/a n/a "$SIRIL_CFG" \
+  "grep -q 'starnet_exe=$STARNET_BIN' '$SIRIL_CFG'" \
+  "MACHINE-LOCAL: siril starnet_exe + starnet_weights. EMPTY on a fresh flatpak => the siril 'starnet' command FAILS even with the binary installed"
 
 # DeepSNR
 fetch "$DEEPSNR_URL" "$tmp/deepsnr.zip" "$DEEPSNR_SHA"

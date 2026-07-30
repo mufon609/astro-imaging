@@ -1,0 +1,105 @@
+{
+ "product": "web/results/july23/judge/set-01+02_desky_render.png",
+ "date": "2026-07-30",
+ "status": "FIRST PASS \u2014 user-accepted for a first look, not a ratified render tier",
+ "source": "web/results/july23/stack_set-01+02_desky_min_spcc.fit (799 frames, 13.2 Mpx, de-skied flats + per-frame subsky 1)",
+ "chain": [
+  {
+   "step": "star separation",
+   "tool": "Siril 1.4.4 `starnet -stretch` driving StarNet2 2.5.3 (invertible MTF pre-stretch)",
+   "measured": {
+    "stars_removed": "5470 -> 2 on a 1400^2 NAN crop",
+    "screen_recombine_residual": "7.6e-11 = 0.0000% of sigma at full 13.2 Mpx",
+    "tile_seams_at_stride_256": "none (0.48x / 3.04x local median)",
+    "bright_star_residual_by_region_pct": {
+     "centre": {
+      "core": 0.91,
+      "ring": 0.48
+     },
+     "mid": {
+      "core": 0.76,
+      "ring": 0.37
+     },
+     "corners": {
+      "core": 0.37,
+      "ring": 0.37
+     }
+    },
+    "note": "corners came out BEST, not worst \u2014 attributed to the undistort stage keeping the PSF uniform across the field"
+   }
+  },
+  {
+   "step": "denoise (starless only)",
+   "tool": "Cosmic Clarity 6.6 SetiAstroCosmicClarity_denoise",
+   "args": "--disable_gpu --denoise_mode separate --denoise_strength 0.6 --color_denoise_strength 0.85",
+   "measured": {
+    "pixel_noise_pct": {
+     "R": -69.9,
+     "G": -58.7,
+     "B": -70.2
+    },
+    "NAN_gas_contrast_pct": {
+     "before": {
+      "R": 1.93,
+      "G": 2.24,
+      "B": 2.03
+     },
+     "after": {
+      "R": 1.97,
+      "G": 2.29,
+      "B": 2.06
+     }
+    },
+    "structure_selectivity": "blank sky loses MORE than the gas region at every band (3-6px: -59.8% vs -52.9%; 12-24px: -45.4% vs -11.8%) \u2014 the denoiser spares real structure",
+    "walking_noise": "UNMASKED, not created: random pixel noise -58% while the horizontal band amplitude moved +1% (row/col anisotropy 2.40 -> 2.39). Pre-existing, BACKLOG item 11, acquisition-side fix is dithering (declined by user)"
+   }
+  },
+  {
+   "step": "gas stretch",
+   "tool": "Siril `mtf` per channel",
+   "params": "low = 0.9273 x channel median, high = 1.16 x channel median, mid = 0.804 (common)",
+   "values": {
+    "R": [
+     0.000686,
+     0.804,
+     0.000858
+    ],
+    "G": [
+     0.000684,
+     0.804,
+     0.000856
+    ],
+    "B": [
+     0.000688,
+     0.804,
+     0.00086
+    ]
+   },
+   "why": "black/white points PROPORTIONAL to each channel's own level so (sky - low) keeps the linear ratio BY CONSTRUCTION. A COMMON black point amplifies sub-1% linear colour differences into a ~10% render cast, because the sky sits only ~7% above black. Verified: sky-above-black ratios R/G 1.0022 B/G 1.0048 vs linear 1.0024 / 1.0047.",
+   "clipped_at_black_pct": {
+    "R": 0.007,
+    "G": 0.055,
+    "B": 0.013
+   }
+  },
+  {
+   "step": "star stretch",
+   "tool": "Siril `asinh -human 1000 0.00002`",
+   "why": "-human preserves L*a*b* lightness so star colour survives compressing a 25000:1 range"
+  },
+  {
+   "step": "recombine",
+   "tool": "Siril `pm \"1 - (1 - $gas$) * (1 - $stars$)\"`",
+   "why": "screen \u2014 the exact inverse of starnet's unscreen split"
+  }
+ ],
+ "residual_defects": [
+  "COLOUR at the bright end: rendered gas R/G 0.990 B/G 0.928 vs linear truth 1.000 / 0.995. INHERENT to nonlinear stretching \u2014 any curve changes channel ratios because channels enter at different points and exit with different local slopes. Structurally worse here because the sky is only ~7% above black. The asinh variant (judge/set-01+02_desky_render_asinh.png) splits the error more evenly (R/G 0.960 B/G 0.951) but costs contrast (gas 69 -> 56) \u2014 neither is free.",
+  "HORIZONTAL BANDING: walking noise, ~2.4x more structure along rows than columns, near-horizontal because the drift axis is ~4 deg from horizontal. Rejection and cosmetic correction measure NULL against it; the fix is acquisition-side dithering.",
+  "STAR ELONGATION 1.196:1 \u2014 in-exposure trailing at 3 s, the unremovable floor. No processing touches it."
+ ],
+ "not_attempted_and_why": {
+  "deconvolution": "classical RL is a measured dead end on in-exposure trailing; BlurXTerminator not installed; GraXpert deconv is the immature path with an open object-mode artifact bug",
+  "star sharpening": "a symmetric sharpener cannot de-trail an elongated PSF and may make it more obvious"
+ }
+}
