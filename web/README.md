@@ -87,7 +87,7 @@ python3 web/verify_framing.py <session> <product> \
 | file | role |
 |---|---|
 | `serve.py` | static server (repo root, read-only) + `GET /api/sessions` + `GET /api/session/<name>` (the joined read-only session model: per-set records normalized across the measured schema drift, surfaces with FITS-header frame counts confirmed against the recipes — metadata reads, never pixels — and approvals from git tags only) + `POST /api/framing` (writes the tracked record, `dry_run` supported; the only RECORD write) + the Tier-1 execution surface (`GET /api/stages`, `POST /api/run` — the gated per-click stage runner over the fixed script registry, `dry_run` returns the exact command — `GET/POST /api/jobs*` status, incremental logs, kill; job records persist as `sessions/.webjobs/<id>.json` and running jobs are re-adopted pid-checked after a server restart, so the one-at-a-time gate holds; `GET /api/version` reports the git rev + start time the running server was loaded on — the shell shows it, so a stale in-memory registry is visible) |
-| `index.html` | the workspace shell: rail menu + hash-routed pages over `/api/session/<name>` — overview (router cards), per-set Frames tab (the cull DECISION with verbatim whys vs the post-stack CONFIRMATION against stack headers), culled rollup, surfaces (git-tag approvals; diagnostic-stretch caveat), sky objects, experiments ledgers, framing, read-only records viewer. Absent artifacts render as designed states naming their producer |
+| `index.html` | the workspace shell: rail GROUPED work / results / evidence + hash-routed pages over `/api/session/<name>`. The Overview LEADS WITH THE NEXT ACTION — `/api/status/<session>` already returned per-stage `{state, why}` with specific evidence and the UI was showing only the state, on the Run page alone, discarding every why. Renders are their own page (`#renders`), not a section of Stacks. Chips carry hover help from a single `CHIP_HELP` map applied by a DOM pass, so a chip added later is covered. Exit codes read as plain language: a chain STOP (2/4/5/6) and the render tier's proposal (7) are decisions, not crashes, and are styled as such — overview (router cards), per-set Frames tab (the cull DECISION with verbatim whys vs the post-stack CONFIRMATION against stack headers), culled rollup, surfaces (git-tag approvals; diagnostic-stretch caveat), sky objects, experiments ledgers, framing, read-only records viewer. Absent artifacts render as designed states naming their producer |
 | `crop.html` | the item-12 framing UI: selection preview + existing crop-map reference boxes + drag/fine-tune a rectangle → POST the record |
 | `make_previews.sh` | tool-driven preview generation (Siril load/autostretch/resample/savepng) + `previews/manifest.json` (native dims, exact scale, matched reference boxes) |
 | `verify_framing.py` | the record verifier: Siril `crop`+`stat` against the coverage map (`Min >= members*1000`) or the product stack's sibling-class sky floor |
@@ -110,6 +110,26 @@ page for that session went dark on one record's shape, and stayed dark unnoticed
 for a whole branch because nothing exercises the API. The reader now reports each
 record's `shape` and `entries` instead of assuming. Worth a smoke test in CI: the
 three staged sessions must return 200.
+
+**Two things called "approved", named apart.** A *ratified look* is a set recipe's
+`render` block naming a render, which is what makes the render tier execute instead of
+stopping at its proposal — it makes the look reproducible. *git-approved* is a
+`<session>-all<N>-<tag>-approved` tag: the record that you judged the product and
+re-baselined it. A ratified look is NOT an approved render, and the UI now prints the
+exact `git tag` command for any ratified-but-untagged render instead of stating "approval
+only from the git tag" without the mechanism.
+
+**Verdicts, not bare ratios.** `RENDER_RATIO_FLOOR_PCT` in `serve.py` owns this chain's
+measured run-to-run floor (1.34% in the colour ratios, from two runs of ONE pinned
+recipe — the neural stages are not bit-reproducible). A render's colour check returns
+NULL at or below it — *unmeasurable here, explicitly not an improvement* — and
+needs-eyes above. It never returns WIN: there is no control arm, only the render against
+its own input layer.
+
+**Judge surfaces that pair to nothing are reported, never renamed.** A name that misses
+`<product>_<surface>` used to render as "no judge surface", which invites a needless
+finish_render re-run. `unpaired_judge` lists them with the name that would pair. Nothing
+is moved automatically: a judged artifact may be cited by a tracked record or doc.
 
 Coordinate conventions, stated once and stored in every record: the browser
 draws in **screen top-left origin**; Siril `crop`'s y-origin is the **bottom**
