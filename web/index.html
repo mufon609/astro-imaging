@@ -201,7 +201,64 @@ function coverageFor(su) {
 }
 
 /* ---------- pages ---------- */
-function pgOverview() {
+// THE APP ALREADY KNOWS WHAT IS NEXT. /api/status/<session> returns per-stage
+// {state, why} and the why is specific ("missing for: set-00", "no stack yet").
+// It was rendered as three words on the Run page only, and every why was thrown
+// away — the most decision-useful data in the system, invisible on 8 of 9 pages.
+async function nextActionBlock() {
+  let st = {}, stages = {};
+  try { st = await fetchStatus(); } catch {}
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const keys = Object.keys(st);
+  if (!keys.length) return null;
+  // PIPELINE order, so "next" means next. Phase alone is too coarse — sorting
+  // alphabetically inside a phase put anomaly_audit ahead of frame_qa, which is
+  // not the order anyone works in. Declared order first, phase as the fallback
+  // for anything not named here, so a new stage still lands sensibly.
+  const STAGE_ORDER = ['frame_qa', 'mount_probe', 'anomaly_audit',
+    'master_dark', 'sky_flat', 'chain_set', 'chain_session',
+    'stack_standard', 'stack_undistort', 'stack_undistort_groups',
+    'compose', 'compose_channels', 'solve', 'spcc_cone', 'spcc',
+    'finish_render', 'render_tier', 'coverage_probe', 'previews',
+    'verify_framing'];
+  const phases = ['measure', 'calibrate', 'execute', 'finish', 'render', 'surfaces', 'setup'];
+  const rank = n => {
+    const i = STAGE_ORDER.indexOf(n);
+    if (i >= 0) return i;
+    const p = phases.indexOf((stages[n] || {}).phase);
+    return STAGE_ORDER.length + (p < 0 ? phases.length : p);
+  };
+  const ordered = keys.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  const todo = ordered.filter(n => st[n].state === 'todo');
+  const running = ordered.filter(n => st[n].state === 'running');
+  const next = running[0] || todo[0] || null;
+  const done = ordered.filter(n => st[n].state === 'done').length;
+  return frag(
+    h('h2', {}, 'where you left off'),
+    next ? h('div', { class:'card' },
+      h('h3', {}, running.length ? 'running now' : 'next', ' · ', h('code', {}, next)),
+      h('p', {}, st[next].why || 'no evidence recorded'),
+      (stages[next] || {}).desc
+        ? h('details', { class:'m' }, h('summary', {}, 'what this stage does'),
+            h('div', { class:'why' }, stages[next].desc))
+        : null,
+      h('div', {}, h('a', { href:'#run' }, running.length ? 'watch it on the run page →'
+                                                          : 'run it →')))
+      : h('div', { class:'card' }, h('h3', {}, 'nothing outstanding'),
+          h('p', {}, `every stage this session reports as done or not applicable (${done} done). The aesthetic judgement is still yours — open the finals in your own viewer.`)),
+    h('details', { class:'m', style:'margin:10px 0' },
+      h('summary', {}, `all ${ordered.length} stages — state and the evidence behind it`),
+      h('table', { class:'ledger' },
+        h('tr', {}, h('th', {}, 'stage'), h('th', {}, 'state'), h('th', {}, 'why')),
+        ...ordered.map(n => h('tr', {},
+          h('td', {}, h('code', {}, n)),
+          h('td', {}, h('span', { class: st[n].state === 'done' ? 'chip ok'
+            : st[n].state === 'running' ? 'chip warn'
+            : st[n].state === 'na' ? 'chip' : 'chip cut' }, st[n].state)),
+          h('td', { class:'why' }, st[n].why || '—'))))));
+}
+
+async function pgOverview() {
   const ls = lightSets();
   const acq = (ls[0] || {}).acquisition, ex = (acq || {}).exif || {};
   const fp = (ls.find(s => s.fingerprint) || {}).fingerprint;
@@ -213,13 +270,38 @@ function pgOverview() {
     exps: (M.sets || []).reduce((a, s) => a + (s.experiments || []).length, 0),
   };
   const approvedTag = (M.tags || []).find(t => t.endsWith('-approved'));
+  const nextBlock = await nextActionBlock();
+  // ITEM 2: two DIFFERENT states were both called "approved" and neither was
+  // explained — a ratified look (recipe) vs a git-tagged approved render. july23
+  // showed "RATIFIED look" on the render card and NOTHING here, from the same
+  // data. Name both, and give the command that turns one into the other.
+  const ratified = (M.renders || []).filter(r => r.look_ratified);
+  const tagged = (M.renders || []).filter(r => r.git_approved);
+  const approvalBlock = (ratified.length || tagged.length || approvedTag) ? h('div', { class:'card' },
+    h('h3', {}, 'approval — two different things'),
+    h('div', { class:'m' },
+      h('span', { class: ratified.length ? 'chip ok' : 'chip' },
+        `${ratified.length} ratified look${ratified.length === 1 ? '' : 's'}`),
+      ' ',
+      h('span', { class: tagged.length ? 'chip ok' : 'chip' },
+        `${tagged.length} git-approved render${tagged.length === 1 ? '' : 's'}`)),
+    h('p', {}, h('b', {}, 'Ratified look'), ' = a set recipe pins the knobs, so the render tier executes instead of stopping at a proposal. It makes the look reproducible. ',
+      h('b', {}, 'Git-approved'), ' = a tag records that you judged the product and re-baselined it. The tag is the record, not a frozen file. A ratified look is NOT yet an approved render.'),
+    ...ratified.filter(r => !r.git_approved && r.git_tag_command).map(r => frag(
+      h('div', { class:'m' }, `${r.name} — ratified, not yet tagged. To approve it after judging the full-frame PNG16 in your own viewer:`),
+      h('pre', { class:'why', style:'white-space:pre-wrap' }, r.git_tag_command))),
+    tagged.length ? h('div', { class:'m' },
+      'tagged: ', ...tagged.map(r => h('code', { style:'margin-right:.6em' }, r.git_approved_tag))) : null)
+    : null;
   return frag(
     h('div', { class:'eyebrow' }, 'session'),
-    h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle' }, 'approved render on file') : null),
+    h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle', title:'a <session>-all<N>-<tag>-approved git tag exists for a product in this session' }, 'git-approved render on file') : null),
     h('div', { class:'sub' },
       `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)}`,
       acq ? ` · mount ${acq.mount}` : '',
       fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
+    nextBlock,
+    approvalBlock ? frag(h('h2', {}, 'approval state'), h('div', { class:'cards' }, approvalBlock)) : null,
     h('h2', {}, 'what is on file — each card opens its home'),
     h('div', { class:'cards' },
       h('div', { class:'card' }, h('h3', {}, h('span', { class:'n' }, String(totals.culled)), ' culled frames'),
@@ -552,11 +634,14 @@ function pgSurfaces() {
       ? (o[a].median / o[b].median).toFixed(4) : null;
     const sky = measured.rendered_sky_stat_main;
     const lin = measured.stretched_layer_linear_stat_main_x100;
-    return h('div', { class: r.ratified ? 'card approved' : 'card' },
+    return h('div', { class: r.look_ratified ? 'card approved' : 'card' },
       h('h3', {}, r.name),
       h('div', { class:'m' },
-        r.ratified ? h('span', { class:'chip ok' }, 'RATIFIED look')
-                   : h('span', { class:'chip' }, 'not the ratified look'),
+        r.look_ratified ? h('span', { class:'chip ok' }, 'RATIFIED look')
+                        : h('span', { class:'chip' }, 'not the ratified look'),
+        ' ',
+        r.git_approved ? h('span', { class:'chip ok', title:`git tag ${r.git_approved_tag}` }, 'git-approved')
+                       : h('span', { class:'chip', title:'no approval tag yet — a ratified look is not an approved render' }, 'not tagged'),
         ' ',
         r.stages ? h('span', { class:'chip' },
           [r.stages.separated ? 'separated' : 'no separation',
@@ -572,10 +657,29 @@ function pgSurfaces() {
       r.separation ? h('div', { class:'m' },
         `separation measured by Siril findstar: ${r.separation.source} stars → `
         + `${r.separation.starless} in the starless, ${r.separation.mask} in the mask`) : null,
-      (sky && lin) ? h('div', { class:'m' },
-        `rendered sky R/G ${ratio(sky,'R','G')} B/G ${ratio(sky,'B','G')} · `
-        + `same layer LINEAR R/G ${ratio(lin,'R','G')} B/G ${ratio(lin,'B','G')} `
-        + '(same pixels either side of the curve — the difference is the curve\'s)') : null,
+      // A VERDICT, not raw ratios. 1.0043 against 1.0048 is meaningless to read
+      // unless you know this chain's own run-to-run floor (measured 0.85-1.34% in
+      // exactly these ratios, from two runs of ONE pinned recipe). Below the
+      // floor is UNMEASURABLE, not better — the server owns the number.
+      r.colour_check ? h('div', {},
+        h('div', { class:'m' },
+          h('span', { class: r.colour_check.verdict === 'NULL' ? 'chip ok' : 'chip warn',
+                      title: r.colour_check.why }, r.colour_check.verdict),
+          ' colour: the curve moved the sky by at most ',
+          h('b', {}, `${r.colour_check.worst_delta_pct}%`),
+          ` against a run-to-run floor of ${r.colour_check.floor_pct}%`),
+        h('div', { class:'why' }, r.colour_check.why),
+        h('details', { class:'m' }, h('summary', {}, 'the numbers'),
+          h('table', { class:'ledger' },
+            h('tr', {}, h('th', {}, ''), h('th', {}, 'rendered'), h('th', {}, 'same layer, linear'), h('th', {}, 'delta')),
+            ...Object.entries(r.colour_check.ratios).map(([k, v]) => h('tr', {},
+              h('td', {}, k.replace('_over_', '/')),
+              h('td', {}, String(v.rendered)), h('td', {}, String(v.linear)),
+              h('td', {}, `${v.delta_pct > 0 ? '+' : ''}${v.delta_pct}%`)))),
+          h('div', { class:'why' }, r.colour_check.no_win_possible)))
+        : ((sky && lin) ? h('div', { class:'m' },
+            `rendered sky R/G ${ratio(sky,'R','G')} B/G ${ratio(sky,'B','G')} · `
+            + `same layer LINEAR R/G ${ratio(lin,'R','G')} B/G ${ratio(lin,'B','G')}`) : null),
       r.denoise_scales ? h('div', { class:'m' },
         `denoise measured per scale: ${r.denoise_scales.join(', ')}`) : null,
       r.judge ? frag(
@@ -583,14 +687,21 @@ function pgSurfaces() {
         h('div', { class:'m' }, h('a', { href: res(r.judge) }, 'expand full PNG16 in browser'),
           ' (slow; judge in your own viewer)'))
         : h('div', { class:'m' }, 'no judge surface on disk'),
+      (r.look_ratified && !r.git_approved && r.git_tag_command) ? h('details', { class:'m' },
+        h('summary', {}, 'how to approve this render'),
+        h('div', { class:'why' }, 'Judge it full-frame in your own viewer first — the browser is a selection surface, not a judgement one. Then tag it; the tag is the record.'),
+        h('pre', { class:'why', style:'white-space:pre-wrap' }, r.git_tag_command)) : null,
       r.record ? h('div', { class:'m' }, h('code', {}, r.record)) : null);
   });
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'surfaces'),
     h('div', { class:'sub' }, 'stacks and judge surfaces — footprint · frames confirmed · calibration state · approval from the git tag only'),
+    chipLegend(['ok', 'differs', 'unknown', 'SPCC', 'no SPCC', 'WCS',
+                'coverage map on disk', 'no coverage map for this canvas']),
     h('div', { class:'cards' }, cards),
     renders.length ? frag(
       h('h2', {}, 'render tier'),
+      chipLegend(['RATIFIED look', 'not the ratified look', 'NULL', 'needs-eyes']),
       h('div', { class:'sub' }, 'the aesthetic finish past the diagnostic surface — every number here is the tool\'s own, and the look is ratified in the set recipe, not here. Judge in your own viewer.'),
       h('div', { class:'cards' }, renders)) : null);
 }
@@ -792,6 +903,31 @@ async function updateStageChips() {
   }
 }
 
+// A STOP IS NOT A FAILURE. These scripts use exit codes to say "a decision is
+// yours" — run_set_chain documents 2/4/5/6 in its own header, and render_tier's
+// 7 is its proposal gate, the NORMAL first outcome for an unratified look. Shown
+// as a bare "rc=7" every one of them read as a crash.
+const EXIT_MEANING = {
+  'run_set_chain.sh': {
+    2: ['stopped', 'mount declared-vs-measured CONTRADICT — reconcile it on the set page, then re-click'],
+    4: ['stopped', 'mount undeclared and the instruments could not decide — declare it on the set page, then re-click'],
+    5: ['stopped', 'the fingerprint is neither tracked nor fixed+wide, so the route is not derivable — you pick it'],
+    6: ['stopped', 'real flats are staged but the undistort route has no master-flat wiring yet (a known gap) — point the flat by hand'],
+  },
+  'render_tier.sh': {
+    7: ['proposal', 'NOT an error: the knobs were measured and written to the recipe as "render_proposed". Read them, rename the block to "render" to accept, then re-run — the layers are cached, so it costs one stretch'],
+  },
+};
+function jobOutcome(j) {
+  if (j.status === 'running') return { label:'running', cls:'warn', why:'' };
+  if (j.rc == null) return { label:j.status, cls:'', why:'' };
+  if (j.rc === 0) return { label:'completed', cls:'ok', why:'' };
+  const script = (j.cmd || '').split(' ')[0].split('/').pop();
+  const hit = (EXIT_MEANING[script] || {})[j.rc];
+  if (hit) return { label:hit[0], cls:'warn', why:hit[1] };
+  return { label:`failed (rc ${j.rc})`, cls:'cut', why:'read the log — this exit code is not one of the script\'s declared decision stops' };
+}
+
 async function refreshJobs(logView) {
   updateStageChips();
   let all = [];
@@ -814,9 +950,9 @@ async function refreshJobs(logView) {
       jobs.flatMap(j => [h('tr', {},
         h('td', {}, j.id),
         h('td', {}, j.session ? j.stage : frag(j.stage, ' ', h('span', { class:'chip' }, 'rig'))),
-        h('td', {}, h('span', { class: j.status === 'running' ? 'chip warn'
-          : j.status === 'done' ? 'chip ok' : 'chip cut' },
-          j.status + (j.rc != null ? ` rc=${j.rc}` : ''))),
+        h('td', {}, (() => { const o = jobOutcome(j);
+          return frag(h('span', { class:`chip ${o.cls}`, title:o.why }, o.label),
+            o.why ? h('div', { class:'m' }, o.why) : null); })()),
         h('td', {},
           h('a', { href:'#', onclick: ev => { ev.preventDefault(); watchJob(j.id); } }, 'log'),
           j.status === 'running' ? frag(' · ', h('a', { href:'#', onclick: async ev => {
@@ -1141,6 +1277,59 @@ async function route() {
        '#experiments': pgExperiments, '#framing': pgFraming,
        '#run': pgRun, '#env': pgEnv, '#records': pgRecords }[hash] || pgOverview)());
   main.replaceChildren(out);
+  annotateChips(main);
+}
+
+// Every chip carried a verdict with no way to ask what it meant: one title=
+// attribute in the whole file and no legend. These are the explanations the
+// source already had in comments and prose — now reachable from the pixels.
+const CHIP_HELP = {
+  'ok': 'the stack header\'s frame count matches the frames the recipe says were kept',
+  'differs': 'the stack header\'s frame count is NOT the recipe\'s kept count. NEUTRAL by itself — a deliberate subset (a stride tag) differs legitimately. Only a FULL-depth tag differing is a policy error',
+  'unknown': 'no frame count to compare — the stack header or the recipe\'s kept count is missing',
+  'SPCC': 'photometric colour calibration has run on this stack (stack_<name>_spcc.fit on disk)',
+  'no SPCC': 'no SPCC product yet — colour is uncalibrated. finish_render does solve + SPCC in one pass',
+  'WCS': 'plate-solved: a world coordinate system is injected, which is what unblocks SPCC',
+  'RATIFIED look': 'the set recipe\'s "render" block names this render, so the render tier executes it instead of stopping at a proposal. NOT the same as an approved render — see the git tag',
+  'not the ratified look': 'no recipe block names this render, so a re-run STOPS at its proposal (exit 7) rather than executing',
+  'calibration': 'a calibration group (darks/flats/biases) — consumed by the master builds; no mount, no frame QA',
+  'reference': 'the corpus\'s answer key — the maker\'s own masters/stacks/finals. Studied before tuning, never stacked',
+  'composed': 'a virtual target with no lights of its own — compose builds it from member per-filter stacks',
+  'coverage map on disk': 'a per-pixel map of how many members cover each pixel, for this exact canvas',
+  'no coverage map for this canvas': 'a coverage map exists for the session but not at this product\'s dimensions — run coverage_probe with the same sets and framing',
+  'no full-depth stack': 'no stack built from every kept frame of this set',
+  'declare mount · run frame_qa': 'this set is raws only. The mount (fixed | tracked) is the one fact EXIF cannot record and nothing may assume, so it is declared by hand before anything routes',
+  'running': 'a job is executing — one at a time, rig-wide',
+  'done': 'this stage has produced its evidence on disk — the why column says which artifact',
+  'todo': 'not run yet, or its products are missing for the sets named in the why column',
+  'na': 'not applicable to this session — nothing here needs it',
+  'not run': 'no job for this stage in this server session, and no products on disk to infer one',
+  'completed': 'the script exited 0',
+  'stopped': 'the script stopped ON PURPOSE because a decision is yours. Not a failure',
+  'proposal': 'the render tier measured the knobs and wrote them to the recipe for you to accept. Not a failure',
+  'rig': 'a rig-level job, not tied to this session',
+  'info': 'informational — no probe needed or nothing to assert',
+  'NULL': 'a clean null: the effect is at or below this chain\'s own run-to-run floor, so it is UNMEASURABLE here. Not a win — a win needs a control arm to beat',
+  'needs-eyes': 'the effect is above the run-to-run floor, so it is real. Whether it is BETTER is aesthetic, and that is your call on the full-frame PNG16',
+  'git-approved': 'a <session>-all<N>-<tag>-approved git tag exists: you judged this product and re-baselined it',
+  'git-approved render on file': 'at least one product in this session carries a <session>-all<N>-<tag>-approved git tag — you judged it and re-baselined it',
+  'not tagged': 'no approval tag yet. A ratified look is not an approved render — the tag is the record',
+};
+function annotateChips(root) {
+  for (const el of root.querySelectorAll('.chip')) {
+    if (el.title) continue;
+    const help = CHIP_HELP[el.textContent.trim()];
+    if (help) el.title = help;
+  }
+}
+function chipLegend(labels) {
+  const known = labels.filter(l => CHIP_HELP[l]);
+  if (!known.length) return null;
+  return h('details', { class:'m', style:'margin:10px 0' },
+    h('summary', {}, 'what these labels mean'),
+    h('table', { class:'ledger' }, ...known.map(l =>
+      h('tr', {}, h('td', { style:'white-space:nowrap' }, h('span', { class:'chip' }, l)),
+        h('td', { class:'why' }, CHIP_HELP[l])))));
 }
 
 function railCounts() {

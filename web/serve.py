@@ -265,6 +265,57 @@ def _stack_header(path):
         return {"naxis": None, "stackcnt": None}
 
 
+# The render tier's own run-to-run floor in the colour ratios it is judged on,
+# MEASURED from two runs of ONE pinned recipe (StarNet2 + Cosmic Clarity are
+# multi-threaded neural inference and not bit-reproducible): sky R/G moved 1.34%
+# and B/G 0.85%, bright R/G 0.64% and B/G 0.46%. Any ratio difference at or below
+# this is UNMEASURABLE on this chain, not an improvement — the same trap the
+# registry records for stack-level A/Bs. One owner for the number, so the UI
+# never hardcodes it.
+RENDER_RATIO_FLOOR_PCT = 1.34
+
+
+def _render_colour_check(measures):
+    """Verdict on how far the curve moved the sky's colour, against the floor.
+
+    Compares the rendered sky to the SAME layer's linear numbers — same pixels
+    either side of the curve, so the difference is the curve's and nothing else.
+    Deliberately never returns WIN: there is no control arm here, and a delta
+    below the floor is unmeasurable rather than good."""
+    sky = (measures or {}).get("rendered_sky_stat_main") or {}
+    lin = (measures or {}).get("stretched_layer_linear_stat_main_x100") or {}
+    if not (sky and lin) or not all(c in sky and c in lin for c in "RGB"):
+        return None
+    def ratio(d, a, b):
+        try:
+            return d[a]["median"] / d[b]["median"]
+        except (KeyError, TypeError, ZeroDivisionError):
+            return None
+    out = {}
+    for label, a, b in (("R_over_G", "R", "G"), ("B_over_G", "B", "G")):
+        rs, rl = ratio(sky, a, b), ratio(lin, a, b)
+        if rs is None or rl is None or not rl:
+            return None
+        out[label] = {"rendered": round(rs, 4), "linear": round(rl, 4),
+                      "delta_pct": round(100 * (rs / rl - 1), 2)}
+    worst = max(abs(v["delta_pct"]) for v in out.values())
+    return {
+        "ratios": out, "worst_delta_pct": worst,
+        "floor_pct": RENDER_RATIO_FLOOR_PCT,
+        "verdict": "NULL" if worst <= RENDER_RATIO_FLOOR_PCT else "needs-eyes",
+        "why": (f"the curve moved the sky colour by at most {worst:.2f}%, at or "
+                f"below this chain's own run-to-run floor of "
+                f"{RENDER_RATIO_FLOOR_PCT}% — UNMEASURABLE here, not an improvement"
+                if worst <= RENDER_RATIO_FLOOR_PCT else
+                f"the curve moved the sky colour by {worst:.2f}%, ABOVE this "
+                f"chain's run-to-run floor of {RENDER_RATIO_FLOOR_PCT}% — a real "
+                f"shift; judge it on the full-frame PNG16 in your own viewer"),
+        "no_win_possible": ("a WIN needs a control arm to beat; this compares one "
+                            "render against its own input layer, so the only "
+                            "honest verdicts are NULL and needs-eyes"),
+    }
+
+
 def _parse_product(base, known_sets=()):
     """Resolve a stack product name against the session's ACTUAL sets:
     '<set>' -> ([set], None); '<set>_<tag>' -> ([set], tag) on the longest
@@ -509,6 +560,7 @@ def session_model(session):
             src = rec.get("linear_source") or ""
             m = rec.get("measures") or {}
             ratified = (st.get("recipe_render") or {}).get("name") == name
+            rsets, rtag = _parse_product(name, [x["set"] for x in model["sets"]])
             model["renders"].append({
                 "name": name, "set": st["set"],
                 "record": f"datasets/{session}/{st['set']}/qa_work/{rf}",
@@ -529,8 +581,28 @@ def session_model(session):
                 "stages": rec.get("stages"),
                 "stretch_rule": (rec.get("stretch") or {}).get("rule"),
                 "knob_provenance": rec.get("knob_provenance"),
-                "ratified": ratified,
+                # TWO DIFFERENT THINGS, named so they cannot be conflated:
+                #   look_ratified — the set recipe's `render` block names this
+                #     render, so the render tier EXECUTES instead of stopping at
+                #     its proposal. It is what makes the look reproducible.
+                #   git_approved  — a <session>-all<N>-<tag>-approved tag exists,
+                #     the repo-level record that this product was judged and
+                #     re-baselined. The tag IS the record (README: not a frozen
+                #     file). A ratified look is NOT yet an approved render.
+                "look_ratified": ratified,
+                "git_approved": bool(rsets) and any(
+                    n == len(rsets) and atag == rtag for n, atag, _ in approved),
+                "git_approved_tag": next(
+                    (t for n, atag, t in approved
+                     if rsets and n == len(rsets) and atag == rtag), None),
+                # the exact command, so the UI never states the rule without the
+                # mechanism (it did: "approval only from the git tag", twice, and
+                # the tag format appeared nowhere a user would look)
+                "git_tag_command": (f"git tag {session}-all{len(rsets)}-{rtag}-approved"
+                                    if rsets and rtag else None),
+                "sets": rsets, "recipe_tag": rtag,
                 "artifacts_deleted": rec.get("artifacts_deleted"),
+                "colour_check": _render_colour_check(m),
                 "sky_vs_linear": {
                     k: m.get(k) for k in ("rendered_sky_stat_main",
                                           "stretched_layer_linear_stat_main_x100")
