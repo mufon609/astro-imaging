@@ -7,7 +7,18 @@
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                           [--group=15] [--chunk=12] [--out=<stack.fit>] [--plan] \
-#                           [--framing=min|max]
+#                           [--framing=min|max] [--desky]
+#
+# --desky is passed straight through to the per-group sub-pipeline, and it is
+# MANDATORY whenever the --flat was built de-skied (build_sky_flat --desky, the
+# default). The two are halves of one correction and neither substitutes for the
+# other: a de-skied flat stops the calibration from dividing the object by the
+# sky's own profile, and leaves the sky gradient in the frames ADDITIVELY, which
+# is the domain the per-frame background step removes it in. Omitting it here
+# while the flat is de-skied leaves the FULL sky gradient in the product with no
+# background step anywhere in the chain — and the judge stretch amplifies a
+# background gradient 9-17x (docs/dead-ends.md), so it is worse than either
+# consistent choice. run_set_chain.sh passes it by default.
 #
 # --framing applies to the FINAL compose only (per-group registration always
 # uses min — a consecutive block's ~1% trim). min (default) keeps the area
@@ -55,13 +66,14 @@
 # (~145 MB each), which the disk guard accounts for.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan]}
+SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan] [--desky]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min
+DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min DESKYOPT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
   --framing=*) FRAMING=${a#*=};;
+  --desky) DESKYOPT=--desky;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
@@ -113,7 +125,7 @@ done
 NEED_GB=$(( MAXG * 290 / 1024 + (K * 145) / 1024 + 2 ))
 FINAL_GB=$(( K * 230 / 1024 + 2 ))
 [ "$FINAL_GB" -gt "$NEED_GB" ] && NEED_GB=$FINAL_GB
-echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G"
+echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${DESKYOPT:+, per-frame subsky 1 (--desky)}"
 [ "$PLAN" -eq 0 ] || exit 0
 
 i=0
@@ -130,7 +142,8 @@ for ((g=1; g<=K; g++)); do
   for ((k=0; k<size; k++, i++)); do printf '%s\n' "${SRC[$i]}" >> "$G/g$g.list"; done
   echo "=== group $g/$K: $(wc -l < "$G/g$g.list") frames ==="
   "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" \
-    --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit"
+    --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit" \
+    $DESKYOPT
   [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
 done
 

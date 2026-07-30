@@ -81,9 +81,16 @@ esac; done
 # degree >= 2 erases it; per-frame rather than stack-level because stack-level-
 # only leaves a structured residual with visible rings (both in the registry).
 # Runs on DEBAYERED frames here, so no CFA caveat applies.
+# `-nodither` is REQUIRED: `seqsubsky` dithers by DEFAULT (unlike `subsky`, where
+# -dither is opt-IN) and the dither is UNSEEDED, so without it every calibrated
+# light is irreproducible run to run. MEASURED (Siril isub+stat, two frames, four
+# runs): identical calibrated input, yet two default runs differ by sigma 0.4 ADU
+# (+-1.0) where two -nodither runs are bit-identical. The dither breaks
+# quantization terracing, which cannot occur here — the frames' own bgnoise is
+# 17.7 ADU against the 0.5 ADU step, 35x. Rationale + numbers: build_sky_flat.sh.
 DESKYCMD= LPREFIX=pp_
 if [ "$DESKY" = 1 ]; then
-  DESKYCMD='seqsubsky pp_c 1\n'; LPREFIX=bkg_pp_
+  DESKYCMD='seqsubsky pp_c 1 -nodither\n'; LPREFIX=bkg_pp_
 fi
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
@@ -127,17 +134,23 @@ if [ -n "$SELECT" ]; then
 fi
 [ "$FRAMES" -gt 0 ] || FRAMES=${#SRC[@]}
 # A final chunk of exactly ONE frame cannot be sequenced by Siril. Shrink the
-# chunk by one and say so — the same recovery run_frame_qa.sh already makes for
-# its batches. Aborting here instead was a dead end on the one-click chain,
-# which calls this builder WITHOUT a --chunk and so had no way to satisfy the
-# demand to "adjust --chunk": any set whose frame count is 1 mod 12 simply
-# could not be built from the session button. Chunk size only bounds working-set
-# residency, so shrinking it is free; if shrinking would somehow land on 1 again
-# (only possible at CHUNK=2, FRAMES=3) the loop below still forms a valid final
-# chunk of 2.
+# chunk until the remainder is not 1, and say so — aborting here instead was a
+# dead end on the one-click chain, which calls this builder WITHOUT a --chunk and
+# so had no way to satisfy a demand to "adjust --chunk": any set whose frame count
+# was 1 mod 12 simply could not be built from the session button. Chunk size only
+# bounds working-set residency, so shrinking it is free.
+# It must LOOP. A single decrement can land on a remainder of 1 again, because
+# FRAMES = q*CHUNK + 1 gives FRAMES mod (CHUNK-1) = (q+1) mod (CHUNK-1), which is
+# 1 whenever q is a multiple of CHUNK-1 — i.e. at the default CHUNK=12 for every
+# FRAMES = 132k+1: 133, 265, 397. Those are ordinary set sizes here (july23's sets
+# run 399-401), and the single-decrement version failed at the LAST chunk, hours
+# in, after warping every earlier frame — strictly worse than the up-front abort
+# it replaced. Floor of 2 because a chunk of 1 is the thing being avoided.
 if [ $((FRAMES % CHUNK)) -eq 1 ]; then
-  CHUNK=$((CHUNK - 1))
-  echo "chunk shrunk to $CHUNK ($FRAMES frames would leave a final chunk of 1, which cannot be sequenced)"
+  ORIGCHUNK=$CHUNK
+  while [ "$CHUNK" -gt 2 ] && [ $((FRAMES % CHUNK)) -eq 1 ]; do CHUNK=$((CHUNK - 1)); done
+  [ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 at every chunk size down to 2 — pass --frames to change the count" >&2; exit 1; }
+  echo "chunk shrunk $ORIGCHUNK -> $CHUNK ($FRAMES frames leave a final chunk of 1 at $ORIGCHUNK, which cannot be sequenced; remainder is now $((FRAMES % CHUNK)))"
 fi
 NEED_GB=$((FRAMES * 462 / 1024 + 2))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)

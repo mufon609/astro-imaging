@@ -1,19 +1,34 @@
 # Astrophotography processing pipeline
 
-> **⚠ MID-RESET (x86 migration pending).** The durable core — calibrate →
-> [undistort] → register → stack → solve → SPCC → compose — runs today. The
-> final **render tier is UNBUILT — a user-gated policy gap, not a rig gap**:
-> Siril 1.4.4's full native render surface (`subsky`, GHS via `ght`/`autoghs`,
+> **⚠ STATUS.** The rig has MIGRATED to the x86-64 desktop, so the "environment-
+> blocked on arm" qualifiers below are stale wherever they concern the neural
+> tools: StarNet2 and Cosmic Clarity are installed under `/opt`, driven headless,
+> and measured (see `scripts/stack/render_tier.sh`). Re-auditing every stage-table
+> row against the new rig is BACKLOG; the rows are marked where they are known
+> stale, and every arm-era measurement remains a HYPOTHESIS until re-measured
+> there (`docs/x86-empirical-test-plan.md`).
+>
+> The durable core — calibrate →
+> [undistort] → register → stack → solve → SPCC → compose — runs today, and the
+> **first render tier is now BUILT** (`scripts/stack/render_tier.sh`: separate →
+> denoise the starless → stretch → screen-recombine, user-gated by a ratified
+> recipe block, every pixel op and every measurement a tool's). The LADDER around
+> it — one knob per arm into `exp_<param>_<stamp>/`, the no-regression harness,
+> and the `GENERIC.json` knob schema — is still UNBUILT (BACKLOG).
+>
+> Siril 1.4.4's native render surface (`subsky`, GHS via `ght`/`autoghs`,
 > `mtf`/`asinh`, `denoise`, `satu`, `synthstar`/`unclipstars`, `rl`/`sb`/
-> `wiener`, `epf`, `pm`, `rgbcomp`, `ccm`) is PRESENT and scriptable on THIS
-> arm rig (on-rig probe), and the installed GraXpert's BGE + denoise run here
-> too. What is genuinely **environment-blocked on arm are the neural x86-64
-> binaries** — StarNet2, RC-Astro BXT/NXT/SXT (and PixInsight itself, so every
-> PI-plugin route), Cosmic Clarity, DeepSNR (per-tool distribution evidence:
-> [`TOOLS.md`](TOOLS.md)). The x86
-> re-measure + the neural/separation tiers ride
-> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md). The
-> process contract, review contract, acceptance model, experiment discipline,
+> `wiener`, `epf`, `pm`, `rgbcomp`, `ccm`, plus `wavelet`/`wrecons` and
+> `starnet`) is PRESENT and scriptable, as is GraXpert's BGE + denoise. The
+> neural binaries that were environment-blocked on the old arm rig — StarNet2,
+> Cosmic Clarity, DeepSNR — are now installed under `/opt` and in use; RC-Astro
+> BXT/NXT/SXT and PixInsight (so every PI-plugin route) remain UNINSTALLED rather
+> than unavailable, and a **learned deconvolver is therefore an open, unmeasured
+> option** (Cosmic Clarity ships non-stellar sharpen models beside the denoiser
+> the render tier already drives) — the render tier's deconv skip is a HYPOTHESIS,
+> not a measured null (BACKLOG). Per-tool evidence: [`TOOLS.md`](TOOLS.md); the
+> x86 re-measure order: [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
+> The process contract, review contract, acceptance model, experiment discipline,
 > per-dataset state, and north star below are all portable and stand. The
 > render ladder plan is BACKLOG item 0, re-anchored per dataset by the
 > operating loop.
@@ -213,12 +228,22 @@ version that a recorded measure depends on — not the whole product chain.
 path is linear FITS end to end, **UNCOMPRESSED at every stage** (a foundational
 rule: no compression anywhere in the pipeline — every generated `.ssf` pins
 `setcompress 0`, since siril persists that preference across sessions); 32-bit
-float stacks/products, with ONE
-documented precision reduction — 16-bit stack-time intermediates
-(quantization measured ≈18× below per-frame noise, ~+0.3% stack noise).
+float **end to end, with NO precision reduction anywhere**. The 16-bit
+stack-time intermediates that used to be the one documented exception are
+RETIRED: their removal condition fired on this rig, and the "+0.3% stack noise"
+figure that made them look cheap was wrong — re-measured, the 16-bit chain kept
+only **~55–70% of the 32-bit arm's extended faint contrast** (NAN-region contrast
+4.8/2.4/3.9 vs 8.5/2.9/5.6 % of local sky, R/G/B), i.e. it cost real structure,
+and a 16-bit calibration MASTER additionally stores a sensor-fixed ±0.5 ADU
+quantization pattern (0.2889 ADU RMS against a 0.4213 ADU floor, **+21%**) that
+is subtracted identically into every light. Mechanisms + numbers:
+[`docs/dead-ends.md`](docs/dead-ends.md) "Calibration masters".
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
 (never a judgment surface), the q100/4:4:4 final jpg, and judgment panels.
-GUARDS on the surviving core: `compose.py` asserts float32 inputs; a
+GUARDS on the surviving core: `compose.py` asserts float32 inputs;
+**`scripts/stack/check_bitdepth.sh` fails the build if any master template or
+product builder stops pinning `set32bits`/`setcompress 0`** (both are PERSISTED
+siril preferences, so an unpinned script inherits whatever ran last); a
 FITS-only load guard returns with the render rebuild.
 Human judgment uses the LOSSLESS artifact: the 16-bit PNG for the final
 **and the starless layer** (the full-precision layer at 65536 levels; project
@@ -398,6 +423,8 @@ live in CLAUDE.md "Environment".
 | `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
 | `build_sky_flat.sh` | PER-SET sky-flat builder for flatless sets (the ratified rule: a flat calibrates only the exact frames it was built from — `docs/dead-ends.md` imprint entry): the set's own un-registered lights, dark-subtracted, CFA, `-norm=mul`, `--rej=wins` default (specks measured 101→0 vs median; `median` kept as the attribution arm); validation gates built in (regional `stat`, `findstar` speck count, autostretch preview, tracked qa record). Removal condition: a matching real flat for the set |
 | `run_undistort_compose.sh` | compose already-built undistort SUB-STACKS across sets into one deep stack (register `-2pass` → `-framing=min\|max` → PLAIN MEAN — sigma rejection across sub-stack composes is a measured dead end); valid post-undistort only (homographies compose) |
+| `render_tier.sh` | the RENDER TIER past the diagnostic judge surface: Siril `starnet` separation → Cosmic Clarity denoise on the starless → per-channel-black-point / common-gain `mtf` stretch → `asinh -human` stars → `pm` screen recombine → 16-bit PNG. User-gated: with no ratified `render` block for the name it measures, writes `render_proposed`, prints it and STOPS (exit 7). Knobs resolve CLI > recipe > `GENERIC.json` > built-in with the provenance PRINTED; the recipe pins only scale-free FRACTIONS and the absolute mtf triplet is re-derived every run from the layer actually being stretched (measured: deriving it from the star-ful input stack put the sky at 0.063 for a 0.100 target and cast it +5.6% in B/G). Every measurement is Siril's own — `findstar` for the separation gate, `pm`+`isub`+`bgnoise` for the recombine residual, `wavelet`/`wrecons`+`bgnoise` for the per-scale denoise profile, `stat main` for the colour record. Refuses to overwrite an existing product without `--overwrite`, and reuses cached layers so ratifying costs one stretch, not another separation + denoise |
+| `check_bitdepth.sh` | the 32-bit guard, run in CI / before a release: no `set16bits` anywhere under `scripts/` outside three documented instrument exemptions, and every master template + product builder must EMIT `set32bits` and `setcompress 0` (comment lines stripped, since a pin that exists only in prose is the failure mode it is guarding against). Both are PERSISTED siril preferences, so an unpinned script inherits whatever ran last |
 | `finish_render.sh` | finish a stack into the judgeable render: blind solve (`--central=` seam guard for union canvases) → SPCC as one unit (`--session/--set` route the recipe spec + record naming) → linked autostretch → full-frame 16-bit PNG in `web/results/<session>/judge/` |
 | `compose.py` | the convergence stage: resolves the composition record, drives the Siril align (mono-filters members to the reference member) and composes via Siril `rgbcomp` under `set32bits` — the tool owns the combine and the write; in-house guards are FITS-header-only (astropy: float32 contract, mono, geometry agreement) |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
@@ -432,8 +459,12 @@ VM's file-transfer staging cache (`~/.cache/vmware/drag_and_drop`), which keeps 
 full duplicate of every file dragged into the guest. Run it by hand after
 confirming a transfer landed; nothing in the pipeline invokes it.
 
-**`render/` — UNBUILT (no directory exists yet), user-gated.** On this rig it
-will be a thin orchestration over the natives verified present by on-rig probe
+**`render/` — no such directory; the render tier landed as
+`stack/render_tier.sh`** (above), a thin orchestration over the tools. What
+remains unbuilt is the LADDER around it (per-arm `exp_*` trees, the
+no-regression harness, the `GENERIC.json` knob schema) — BACKLOG. The rest of
+this paragraph described the plan and is kept for the tool inventory: it is a
+thin orchestration over the natives verified present by on-rig probe
 (`subsky`, `ght`/`autoghs`/`mtf`, `denoise`, `satu`, `unclipstars`, `pm`,
 `rgbcomp`) plus the installed GraXpert — the pre-registered ladder is
 BACKLOG item 0, re-anchored per dataset by the operating loop. The

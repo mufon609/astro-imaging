@@ -1,5 +1,5 @@
 {
- "product": "web/results/july23/judge/set-01+02_desky_render.png",
+ "product": "web/results/july23/judge/set-01+02_desky_handtuned.png",
  "date": "2026-07-30",
  "status": "FIRST PASS \u2014 user-accepted for a first look, not a ratified render tier",
  "source": "web/results/july23/stack_set-01+02_desky_min_spcc.fit (799 frames, 13.2 Mpx, de-skied flats + per-frame subsky 1)",
@@ -80,7 +80,8 @@
     "R": 0.007,
     "G": 0.055,
     "B": 0.013
-   }
+   },
+   "why_superseded": "The 'keeps the linear ratio BY CONSTRUCTION' claim was verified on (sky - low), the numerator, which the mtf then divides by (high - low). With the width ALSO scaling per channel the median factor cancels and the construction forces the sky to exactly neutral (verified numerically: 1.000036 / 1.000001) rather than preserving the linear ratio. The '~10% cast from a common black point' is a black-point DEPTH effect (-5.71% at f=0.02, -2.00% at f=0.073, -1.31% at f=0.139), compounded here by absolute points measured on the star-ful stack and applied to the starless+denoised layer. Current construction + numbers: scripts/stack/render_tier.sh and qa_work/render_set-01+02_desky_linked.json."
   },
   {
    "step": "star stretch",
@@ -101,5 +102,6 @@
  "not_attempted_and_why": {
   "deconvolution": "classical RL is a measured dead end on in-exposure trailing; BlurXTerminator not installed; GraXpert deconv is the immature path with an open object-mode artifact bug",
   "star sharpening": "a symmetric sharpener cannot de-trail an elongated PSF and may make it more obvious"
- }
+ },
+ "product_correction": "This record originally named set-01+02_desky_render.png. That path was later OVERWRITTEN by render_tier.sh with a DIFFERENT parameter set (black point 0.8609 x median, mid 0.8867 vs the 0.9273 / 0.804 documented here), so the record described a file it no longer matched. The image these numbers actually describe is the preserved set-01+02_desky_handtuned.png. render_tier.sh now refuses to overwrite an existing product without --overwrite."
 }

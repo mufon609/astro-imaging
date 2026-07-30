@@ -454,6 +454,90 @@ nothing (the bwrap line lands in the siril log). NOT a data or Siril bug.
 - Removal condition: flatpak fixes the instance-dir lifecycle race, or Siril
   invocations stop being per-frame process spawns (e.g. pyscript batching).
 
+## 19. Render-tier follow-ups from the branch audit — OPEN, each with its test
+
+All five came out of auditing `fix/calibration-bitdepth-and-flat-gradient`. The
+render tier itself is built and its bright-line violations are fixed; these are
+the pieces that needed more than that change.
+
+- **LEARNED DECONVOLUTION IS UNMEASURED, and the skip is a HYPOTHESIS.**
+  `render_tier.sh` skips deconvolution on three grounds — classical RL is a
+  measured dead end on in-exposure trailing, BlurXTerminator is not installed,
+  GraXpert's is the immature path — and all three hold. The fourth ground was
+  never checked: `/opt/cosmicclarity-6.6` ships `SetiAstroCosmicClarity` with
+  `deep_nonstellar_sharp_cnn_radius_{1,2,4,8}` models, beside the denoise binary
+  the render tier already drives, and the registry explicitly does NOT dead-end a
+  learned deconvolver. The mainstream order runs deconv with stars PRESENT, so it
+  would go before the separation. **Test:** one knob, non-stellar sharpen on the
+  linear SPCC stack vs none, bracketed by a same-arm repeat (the chain's own
+  run-to-run floor is 2.06% at star edges / 0.073% in flat sky), judged on
+  `star_stations.py` majFWHM per station + `seqtilt` + the user's eyes at 1:1.
+  A symmetric sharpener cannot de-trail an elongated PSF, so the hypothesis under
+  test is object detail, NOT star shape. Until it runs, the docstring says
+  hypothesis, not null.
+- **The LADDER + per-arm output tree.** `render_tier.sh` now refuses to overwrite
+  an existing product without `--overwrite`, which stops a ladder arm destroying
+  its own control, but there is still no `web/results/<session>/exp_<param>_<stamp>/`
+  per-arm tree, no automatic `experiments.jsonl` round-trip, and no
+  `<final>_stages/` labeled per-stage sequence (a binding requirement: a
+  final-render defect must localize to the stage that introduced it). The knob
+  resolution and provenance printing it needs are done.
+- **`GENERIC.json` is still the `{"render": {}, "why": {}}` stub.**
+  `render_tier.sh` reads it and prints `GENERIC.json` as a knob's provenance when
+  a value is found there, so the plumbing exists; the file needs seeding with the
+  six current knobs and a per-knob why-note naming the class risk each carries
+  (black point crushes faint extended signal; denoise strength is the proven
+  chroma killer; star_asinh; sky_target; gas_top_frac). Then the new-class triage
+  ladder has something to ladder.
+- **One ratified render block per set.** The `render` block is keyed by `name`,
+  so a set cannot carry two ratified looks at once and testing a second name
+  displaces the first. Fine today, wrong the moment a set wants an A/B kept.
+- **Mono render variant.** `render_tier.sh` STOPS loudly on `NAXIS3 != 3`. A
+  mono/single-filter set renders luminance-only and skips SPCC per the stage
+  table; that path is unbuilt, and the stop is the honest placeholder.
+
+## 20. Guard + instrument gaps found while fixing the branch — OPEN
+
+- **`check_bitdepth.sh` is per-FILE, not per-`.ssf`.** A builder that already
+  emits `set32bits` in one generated script passes even if a newly added emission
+  omits it. Needs the printf/heredoc blocks split (on the `> "$X.ssf"` boundary
+  every builder here uses) and the pin required in any block containing a write
+  verb. Deferred deliberately: a fragile parser is worse than a stated limit, and
+  the limit is now printed in the guard's own OK line. Two holes ARE closed (the
+  search root was one stage dir, so five live `set16bits` pins were invisible; and
+  the product-builder list named 2 of 9, so `spcc_run.py` — which writes the
+  render tier's own input — was unpinned and unchecked).
+- **The sky flat's ODD-COMPONENT instrument has no script.** The measurement that
+  justified making `--desky` the default (flat odd plane 4.84%→1.98% on set-01,
+  7.82%→2.42% on set-02) exists only as numbers in an `experiments.jsonl`
+  sentence. Nothing in `scripts/` computes it, so it cannot be re-run, and
+  `build_sky_flat.sh`'s built-in validation gate is still corner-vs-centre — which
+  the registry entry written by that same branch declares SELF-FULFILLING for
+  exactly this defect ("judge it on the FLAT's odd component, not the stack's
+  corners"). Either the odd-component measure becomes a script whose every pixel
+  op is a tool's (Siril `stat` on quadrant crops gives the odd term about centre
+  without any in-house pixel maths) with a removal condition, or the gate stops
+  claiming to check what it does not. This is the branch's own "a fix that lives
+  in a session's scratch dir is not a fix" lesson, applied to a measurement.
+- **Which calibration arm is CORRECT still rests on estimator arithmetic.** The
+  3.11% differential star-flux plane proves the de-skied and contaminated
+  calibrations DIFFER; only the estimator derivation says de-skied is the right
+  one, and the Gaia check was structurally impossible at 17"/px on trailed stars.
+  **The test that needs no catalogue:** within one set the drift carries every
+  star ~1500 px across the sensor, so stack the FIRST third and the LAST third
+  separately, match the same stars between them (Siril `findstar` + the solved
+  WCS), and fit measured flux ratio against sensor position. The correct
+  calibration is the one that makes a star's flux independent of where it landed.
+  No magnitudes, no resolved stars, no external truth — pure internal
+  consistency, and it discriminates the two arms directly.
+- **SPCC order-robustness is UNTESTED, not verified.** Inserting the background
+  step ahead of SPCC moved K_G by −1.20%/−1.48% and K_B by −0.47%/−0.80% on
+  unchanged star counts — larger than the chain's own recorded K_G scatter
+  (0.006). Confounded, because the de-skied arm also removes a real ~3%
+  multiplicative object tilt. Clean test: SPCC the SAME stack with and without an
+  on-stack background step only. Recorded in `datasets/july23/experiments.jsonl`
+  (`spcc_K_delta_from_background_before_spcc`).
+
 ## 12. Hand-crop framing via web browser — the user draws the final frame
 
 Framing is a COMPOSITION judgment and belongs to the user, not to the mechanical

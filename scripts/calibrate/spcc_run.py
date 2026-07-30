@@ -146,8 +146,16 @@ def main():
         # setcompress is a PERSISTED siril preference (config.ini), not
         # per-script state — pin it off or the save inherits whatever the
         # last session left and writes .fit.fz where the record expects .fit
+        # set32bits for the same reason and with the same force: bit depth is a
+        # PERSISTED preference too, and this `save` writes stack_<set>_spcc.fit —
+        # the linear product the render tier consumes. Unpinned it inherited
+        # whatever ran last, so a 16-bit preference would have quietly written the
+        # deliverable's own input at 16 bits (measured cost of integer
+        # round-tripping on this chain: 30-45% of the faint extended contrast —
+        # docs/dead-ends.md). Enforced by scripts/stack/check_bitdepth.sh.
         f.write("requires 1.4.0\n"
                 "setcompress 0\n"
+                "set32bits\n"
                 f"load {rel_in[:-4] if rel_in.endswith('.fit') else rel_in}\n"
                 f"spcc {spcc_args}\n"
                 f"save {rel_out[:-4] if rel_out.endswith('.fit') else rel_out}\n"

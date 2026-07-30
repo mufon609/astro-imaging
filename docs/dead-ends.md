@@ -104,6 +104,27 @@ the constraints any such tool must satisfy):
   only a first-degree plane or a full BGE is MW-safe.
 - Stack-level-only BGE leaves a STRUCTURED residual (visible rings, loses MW);
   per-frame `subsky 1` is the MW-safe background step.
+- **`seqsubsky` DITHERS BY DEFAULT — the opposite of `subsky`, and the dither is
+  UNSEEDED, so a per-frame background step silently makes every calibrated frame
+  irreproducible.** `subsky` takes an opt-IN `[-dither]`; `seqsubsky` takes an
+  opt-OUT `[-nodither]`, so reasoning from one command's signature to the other
+  inverts the default. MEASURED (two real frames, four independent runs, Siril's
+  own `isub` + `stat`): the calibrated INPUT is bit-identical run to run (`isub`
+  all-nil, so the difference is attributable to `seqsubsky` alone), yet two runs
+  of plain `seqsubsky pp_c 1` differ by **σ 0.4 ADU** (min −1.0, max +1.0) while
+  two `-nodither` runs are bit-identical; default-minus-`-nodither` is a uniform
+  **[0,1] ADU** term (mean +0.5, i.e. NOT zero-mean — normalization absorbs it).
+  Siril states it in the log as `dithering: enabled`/`disabled` — read that line,
+  it is the only warning. The dither exists to break quantization terracing when a
+  smooth model is subtracted from coarsely quantized data; that case needs the
+  step to be comparable to the noise, and here the frames' own **bgnoise is 17.7
+  ADU on a 42.7 ADU sky — 35× the 0.5 ADU step**, so there is no terracing to
+  break. Pin `-nodither` in every generated `.ssf`: it buys nothing on this data
+  and costs the no-unseeded-step requirement, which had already cost `subsky` its
+  `-dither` once. Photometrically it is negligible either way
+  (0.4/√401 = 0.02 ADU = 0.047% of sky, below the chain's own 0.073% flat-sky
+  run-to-run floor) — this is a reproducibility rule, not a photometry one, and
+  flats built before the pin do NOT need rebuilding for that reason.
 - GraXpert AI smoothing is NOT faint-nebulosity protection — smoothing blurs the
   model OUTPUT, not the inference; a frame-filling faint complex reads as the
   trained light-pollution class and is absorbed. Use a plane/off for
@@ -404,6 +425,29 @@ the constraints any such tool must satisfy):
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
   (a bright object has no fixed band). Hand-picked patches miss defects a
   whole-scope measurement catches (the lesson that created the gate).
+- **A LOG-MESSAGE REGEX IS NOT A MEASUREMENT INTERFACE — parse the tool's
+  structured output, and prove the tool RAN.** A validation gate read
+  `grep -oE 'Found [0-9]+ star' … || echo 0` off Siril's `findstar` log; Siril
+  1.4.4 actually prints **"Found N Gaussian profile stars in image"** — the
+  profile word sits between the count and "stars" — so the regex never matched
+  and the fallback supplied a 0 **unconditionally**. A gate that cannot fail,
+  and two flat records plus a ledger entry carried a speck count that was never
+  measured. (Re-measured from the tool's own `-out=` list: 0–1 specks on every
+  july23 flat, de-skied and control alike — the conclusion had been right for
+  three sessions by luck.) Same family as the vacuous uniform-card test above:
+  the check passed whether or not anything was measured. The wording is also
+  version- AND parameter-dependent (the profile word changes with
+  `setfindstar -profile=`), so it was never a stable interface.
+  **Three `findstar` behaviours a replacement must respect** (probed on-rig,
+  1.4.4): (1) with zero stars it writes **NO list file at all** — which is a
+  flat's IDEAL result, so a missing list must read as 0, never as an error;
+  (2) it still exits **0** in that case, so `set -e` on the run is a valid
+  failure check but tells you nothing about the count; (3) its
+  `Candidates for stars: N` line IS printed whether or not any candidate
+  survives the PSF gate, so that line — not the count — is the positive control
+  proving the measurement happened. Unrelated landmine found in the same probe:
+  **`setfindstar -reset` returns exit 1** on success in 1.4.4, so an `.ssf`
+  ending in it fails a `set -e` caller for no reason.
 - **A stack-level A/B on this chain cannot resolve anything below its run-to-run
   floor — and the chain is NOT pixel-reproducible.** MEASURED (identical frames,
   identical recipe, two runs of the undistort chain, identical output geometry):
@@ -433,6 +477,24 @@ the constraints any such tool must satisfy):
   cancel (measured: per-set L-R residuals alternating in sign, mean 1.0005 vs
   individual 0.36%). Judge background uniformity from LINEAR regional numbers,
   never from the stretched surface.
+  **The same 1/f amplification applies to CHANNEL differences, not just spatial
+  ones — so a COMMON black point renders a neutral sky as a tinted one.** Write the
+  black point as f below the sky (autostretch's 2.8·MAD, or an explicit k·MAD);
+  then any per-channel fractional sky difference is magnified by ≈1/f, because the
+  render's sky is (sky_c − lo)/(hi − lo) and lo is close to sky. MEASURED on a
+  starless+denoised layer whose linear sky was B/G **1.0048** (0.48%): a common
+  black point renders B/G **1.1147** at f=0.0527 (19×) and **1.0596** at f=0.1391
+  (7.2×) — an 11% or 6% visible background tint out of half a percent. Setting lo
+  PER CHANNEL at the same fraction below each channel's own sky (i.e. background
+  neutralization, the step the mainstream puts before colour calibration) while
+  keeping ONE common window width and midtone renders **1.0057**, +0.09% from the
+  truth; the "use linked" rule governs the CURVE and is satisfied by the common
+  width/midtone. Scaling the width per channel too forces the sky to exactly
+  1.0000 — which discards the colour SPCC measured rather than rendering it.
+  Corollary for any deep-black-point render: a SHALLOWER black point is not free.
+  It preserves faint signal but raises this amplification as 1/f, so black-point
+  depth trades faint-signal crush against background colour fidelity, and the
+  trade has to be made against the numbers, not by feel.
 - **Never read a LINEAR residual off a STRETCHED surface.** An autostretch places the
   sky low on a steep curve, so it can compress or amplify a background ratio by
   several× depending on where the background lands — the same class of gradient read

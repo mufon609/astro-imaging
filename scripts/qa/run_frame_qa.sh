@@ -67,9 +67,16 @@ if [ ${#SRC[@]} -eq 0 ]; then
 fi
 n=${#SRC[@]}
 [ "$n" -ge 8 ] || { echo "run_frame_qa: only $n light frames (raw or FITS) under $SESSION/$SET" >&2; exit 1; }
+# Shrink until the remainder is not 1, not once: one decrement can land on 1
+# again, because n = q*BATCH + 1 gives n mod (BATCH-1) = (q+1) mod (BATCH-1),
+# which is 1 whenever q is a multiple of BATCH-1. At the default BATCH=76 that
+# needs n=5701 (out of reach here), but the same code at --batch=12 fails on
+# n=133/265/397 — ordinary set sizes — so the loop is the correct form either way.
 if [ $((n % BATCH)) -eq 1 ]; then
-  BATCH=$((BATCH - 1))
-  echo "run_frame_qa: batch shrunk to $BATCH (a final batch of 1 cannot be sequenced)"
+  ORIGBATCH=$BATCH
+  while [ "$BATCH" -gt 2 ] && [ $((n % BATCH)) -eq 1 ]; do BATCH=$((BATCH - 1)); done
+  [ $((n % BATCH)) -ne 1 ] || { echo "run_frame_qa: $n frames leave a final batch of 1 at every batch size down to 2" >&2; exit 1; }
+  echo "run_frame_qa: batch shrunk $ORIGBATCH -> $BATCH (a final batch of 1 cannot be sequenced; remainder is now $((n % BATCH)))"
 fi
 rm -rf "$P"; mkdir -p "$P"
 echo "run_frame_qa: $n frames in $(( (n + BATCH - 1) / BATCH )) batches of $BATCH"

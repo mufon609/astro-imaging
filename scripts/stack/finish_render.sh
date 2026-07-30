@@ -107,7 +107,10 @@ PY
     exit 1
   fi
   WC=$(dirname "$STACK")/.crop_$NAME; rm -rf "$WC"; mkdir -p "$WC"
-  printf 'requires 1.4.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nsave %s\n' \
+  # set32bits: this `save` writes a linear FITS product that SPCC and the render
+  # tier then consume, and bit depth is a PERSISTED siril preference, so unpinned
+  # it inherits whatever ran last (check_bitdepth.sh enforces the pin)
+  printf 'requires 1.4.0\nsetcompress 0\nset32bits\nload %s\ncrop %s %s %s %s\nsave %s\n' \
     "$STACK" "$CX" "$CY" "$CW" "$CH" "${CROPPED%.fit}" > "$WC/c.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$WC" -s "$WC/c.ssf" \
     > "$WC/log" 2>&1 || { echo "crop failed — $WC/log" >&2; exit 1; }

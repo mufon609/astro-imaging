@@ -38,7 +38,8 @@
   "box": 400,
   "corner_margin": 200
  },
- "findstar_speck_count": 0,
+ "findstar_speck_count": 1,
+ "findstar_speck_count_source": "re-measured 2026-07-30 from the row count of Siril findstar's own -out= star list. The value written at BUILD time was 0 for every flat regardless of content: the builder greped 'Found [0-9]+ star' but Siril 1.4.4 prints 'Found N Gaussian profile stars in image', so the shell's || echo 0 fallback supplied it and the gate could not fail. Conclusion unchanged (every july23 flat measures 0-1 specks, de-skied and control alike); the builder now counts the list rows and asserts findstar's 'Candidates for stars' report.",
  "gate": "smooth falloff (corners < centre), NO structured sky residual (MW band / IFN clumps) on the preview, speck count ~0; the eye check + the with/without finals comparison gate adoption (dead-end registry: a sky flat is dust-safe only when validated)",
  "preview": "/home/samsung/Desktop/astro-imaging/sessions/july23/work/masters/skyflat_set-01_view.png"
 }

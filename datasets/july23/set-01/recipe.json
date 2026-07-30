@@ -14,21 +14,9 @@
   }
  },
  "render": {
-  "name": "set-01+02_desky",
-  "status": "RATIFIED by user 2026-07-30 (first-pass render tier)",
-  "derived_from": {
-   "tool": "Siril stat",
-   "median": [
-    0.0007696193,
-    0.0007702754,
-    0.0007693599
-   ],
-   "mad": [
-    2.61997e-05,
-    2.67948e-05,
-    2.47959e-05
-   ]
-  },
+  "name": "set-01+02_desky_linked",
+  "status": "RATIFIED by user 2026-07-30 \u2014 knobs AND look. The approved surface is web/results/july23/judge/set-01+02_desky_linked_render.png (record: qa_work/render_set-01+02_desky_linked.json). The name is kept as the one that produced the approved image, so a re-run reproduces it at the same path; renaming an approved artifact is what produced the misattributed record corrected in ../render_desky.json. NOTE: the earlier set-01+02_desky_render.png on disk is the SUPERSEDED render (stretch derived from the star-ful stack: sky 0.063 for a 0.100 target, +5.6% B/G cast) \u2014 its numbers are in qa_work/render_set-01+02_desky.json.",
+  "stretch": "per-channel black point (background neutralization) at black_k_mad x MAD below each channel's own sky, plus ONE common window width and midtone balance (linked gain and curve)",
   "knobs": {
    "sky_target": 0.1,
    "gas_top_frac": 0.16,
@@ -37,23 +25,11 @@
    "denoise_chroma": 0.85,
    "star_asinh": 1000.0
   },
-  "gas_mtf_per_channel": {
-   "R": [
-    0.00066253,
-    0.8867,
-    0.00089276
-   ],
-   "G": [
-    0.0006631,
-    0.8867,
-    0.00089352
-   ],
-   "B": [
-    0.00066231,
-    0.8867,
-    0.00089246
-   ]
+  "stages": {
+   "separate": true,
+   "denoise": true
   },
-  "why_proportional": "low/high are a fraction of each channel's OWN median so (sky-low) keeps the linear ratio; a common black point casts the render because the sky sits only ~14% above black"
+  "why_no_absolutes_here": "The absolute mtf triplet is deliberately NOT pinned. It is re-derived on every run by Siril `stat main` on the layer immediately before the stretch, so it cannot go stale when a stage changes. The block this replaces pinned absolutes measured on the STAR-FUL input stack and applied them to the starless+denoised layer: measured, that layer's medians run 3.90% lower, its channel balance is 0.60% different, and its MAD/median is ~0.012 vs the stack's ~0.034, so a '4 x MAD' black point came out 2.6x too deep. Only the scale-free fractions above are ratifiable.",
+  "superseded_claim": "The replaced block carried why_proportional: 'low/high are a fraction of each channel's OWN median so (sky-low) keeps the linear ratio'. That was verified on (sky - low) \u2014 the numerator \u2014 which the mtf then divides by (high - low); with the width also scaling per channel the ratio cancels and the construction forces the sky to EXACTLY neutral rather than preserving the linear ratio (verified numerically: 1.000036 / 1.000001). The current construction keeps the width common, which does preserve it: measured rendered sky B/G 1.0043 against the layer's linear 1.0048."
  }
 }
