@@ -56,14 +56,35 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
-SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=]}
+SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--desky]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT=
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= DESKY=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
+  --desky) DESKY=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+# --desky: per-frame `subsky 1` on each CALIBRATED light, in sensor space,
+# before the geometric warp. It is the mandatory COMPANION to a de-skied flat
+# (build_sky_flat --desky), not an independent option:
+#   contaminated flat  ~ S.V   ->  calibration gives (S+O)V / S.V = 1 + O/S
+#                                  i.e. sky flat, but the OBJECT divided by S
+#   de-skied flat      ~ V     ->  calibration gives S + O
+#                                  i.e. object CORRECT, sky gradient retained
+# So the flat fix moves the sky term out of a multiplicative correction, and
+# this removes it additively, which is the domain it actually lives in. Neither
+# half substitutes for the other: a background step alone cannot undo a
+# multiplicative tilt already applied at calibration, and a de-skied flat alone
+# leaves the gradient in the render.
+# Degree 1 because the MW band IS frame-scale curvature at this focal length and
+# degree >= 2 erases it; per-frame rather than stack-level because stack-level-
+# only leaves a structured residual with visible rings (both in the registry).
+# Runs on DEBAYERED frames here, so no CFA caveat applies.
+DESKYCMD= LPREFIX=pp_
+if [ "$DESKY" = 1 ]; then
+  DESKYCMD='seqsubsky pp_c 1\n'; LPREFIX=bkg_pp_
+fi
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 # Absolutize the masters too: they are embedded into the calibrate .ssf, and
@@ -138,11 +159,11 @@ while [ $n -lt ${#ALL[@]} ]; do
     ln -sf "${ALL[$n]}" "$P/nef/$(basename "${ALL[$n]}")"
   done
   CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
-    "$P/nef" "$P/proc" "$P/proc" "$CAL" > "$P/c.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n%b' \
+    "$P/nef" "$P/proc" "$P/proc" "$CAL" "$DESKYCMD" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
-  for f in "$P/proc"/pp_c_*.fit; do
+  for f in "$P/proc"/${LPREFIX}c_*.fit; do
     b=$(basename "$f" .fit)
     printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
     sir "$P/e.ssf"; rm -f "$f"

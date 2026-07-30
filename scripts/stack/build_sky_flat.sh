@@ -8,7 +8,7 @@
 # orchestrates and records.
 #
 #   build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> \
-#                     [--chunk=24] [--rej=wins|median] [--select=<list-file>]
+#                     [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]
 #
 # Recipe (the validated build, plus the ratified rejection tightening):
 # - lights stay CFA (NO debayer): an OSC flat divides the CFA mosaic before
@@ -21,6 +21,38 @@
 #   pure median leaves; each sky pixel is a moving minority the winsorized
 #   sigma gate rejects) | median = pure median, no rejection (the earlier
 #   validated build; kept as the attribution arm for flat-vs-flat A/Bs).
+#
+# --desky RUNS Siril `seqsubsky 1` ON THE SOURCE FRAMES FIRST, and exists because
+# the drift argument below has a HOLE. The drift decorrelates anything fixed on
+# the CELESTIAL sphere (stars, nebulosity). It does NOT decorrelate sky brightness
+# structure fixed relative to the HORIZON — moonlight, and the airmass gradient —
+# because on a FIXED mount the camera is horizon-fixed too, so that gradient sits
+# still on the sensor for the whole set and integrates straight into the flat.
+# (A TRACKED mount is immune: it follows the sky, so an alt-az-fixed gradient
+# sweeps across the sensor and does reject out. This is a fixed-mount defect.)
+# MEASURED contamination, two sessions, isolating each flat's ODD component about
+# centre (which cancels the even/radial vignetting) and fitting a plane: 4.8-19.4%
+# of centre level on a moonless night, 16.8-22.6% on a 98%-moonlit one, and on the
+# moonlit night the odd plane's DIRECTION tracks the moon's bearing in SENSOR
+# coordinates to 23 deg where random would scatter ~104 deg.
+# WHY IT MATTERS: a sky gradient is ADDITIVE and a flat DIVIDES. Lights are
+# (sky+object) x V, the contaminated flat is V x (1+g), so dividing leaves
+# (sky+object)/(1+g) — the sky's gradient does come out, but the OBJECT is left
+# carrying a 5-23% multiplicative tilt it never had. It also makes the usual
+# corner-vs-centre flatness check SELF-FULFILLING: the final stack reads flat
+# precisely BECAUSE the flat absorbed the gradient, so a good flatness number is
+# not evidence the calibration is clean — judge the FLAT's odd component instead.
+# WHY subsky ON THE FRAMES rather than on the assembled flat: the contamination
+# enters ADDITIVELY through the frames, so removing it additively per-frame is the
+# matching domain; dividing it out of the finished flat would be a multiplicative
+# fudge. MEASURED on one calibrated CFA frame (`subsky 1`): odd plane 3.32% ->
+# 0.35% (-89%) while the level is preserved to ratio 1.0000, the radial vignetting
+# is untouched (corner/centre 0.3115 -> 0.3114) and the Bayer phases are identical
+# — i.e. it removes the sky term and nothing the flat exists to capture. Siril
+# reports "computed for CFA image", so it is mosaic-aware; degree 1 is the
+# registry's MW-safe degree (degree >= 2 eats a frame-filling complex).
+# REMOVAL CONDITION: a real flat for the set (which retires this whole builder),
+# or a TRACKED mount, where the mechanism does not apply.
 #
 # ENABLING CONDITION (validate, never assume — dead-end registry): the drift
 # between frames must exceed ~20-100 px AND faint structure must not fill the
@@ -68,15 +100,25 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>]}
+SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]}
 SET=${2:?missing <set>}
-DARK= OUT= CHUNK=24 REJ=wins SELECT=
+DARK= OUT= CHUNK=24 REJ=wins SELECT= DESKY=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --out=*) OUT=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --rej=*) REJ=${a#*=};;
   --select=*) SELECT=${a#*=};;
+  --desky) DESKY=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+# --desky: run Siril `seqsubsky 1` on the dark-subtracted source frames before
+# they are stacked into the flat, so the flat carries only SENSOR-fixed response.
+# Siril does the pixel work; this only sequences it.
+# %b in the chunk printf expands the \n, and collapses to nothing when off — so
+# the generated .ssf is byte-identical to the pre-change one without --desky.
+DESKYCMD= SRCPREFIX=pp_
+if [ "$DESKY" = 1 ]; then
+  DESKYCMD='seqsubsky pp_c 1\n'; SRCPREFIX=bkg_pp_
+fi
 [ -z "$SELECT" ] || [ -f "$SELECT" ] || { echo "no such --select list: $SELECT" >&2; exit 1; }
 [ -n "$DARK" ] && [ -f "$DARK" ] || { echo "need --dark=<existing master dark>" >&2; exit 1; }
 [ -n "$OUT" ] || { echo "need --out=<flat.fit>" >&2; exit 1; }
@@ -119,12 +161,12 @@ while [ $n -lt $N ]; do
   for ((k=0; k<CHUNK && n<N; k++, n++)); do
     ln -sf "${SRC[$n]}" "$W/nef/$(basename "${SRC[$n]}")"
   done
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n' \
-    "$W/nef" "$W/proc" "$W/proc" "$DARK" > "$W/c.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n%b' \
+    "$W/nef" "$W/proc" "$W/proc" "$DARK" "$DESKYCMD" > "$W/c.ssf"
   sir "$W/c.ssf"
   rm -f "$W/proc"/c_*.fit
   ok=0
-  for f in "$W/proc"/pp_c_*.fit; do
+  for f in "$W/proc"/${SRCPREFIX}c_*.fit; do
     [ -f "$f" ] || break
     g=$((g+1)); ok=1
     mv "$f" "$W/pp/f_$(printf %05d "$g").fit"
@@ -177,9 +219,9 @@ printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"
 sir "$W/p.ssf"
 
-python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" "${SELECT:-}" <<'PY'
+python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" "${SELECT:-}" "$DESKY" <<'PY'
 import json, re, sys
-flat, statlog, specks, n, rej, dark, rec_path, box, margin, select = sys.argv[1:11]
+flat, statlog, specks, n, rej, dark, rec_path, box, margin, select, desky = sys.argv[1:12]
 regions = {}
 for line in open(statlog):
     m = re.match(r"(\w+)\b.*?Mean: ([0-9.]+), Median: ([0-9.]+), Sigma: ([0-9.]+)",
@@ -196,6 +238,12 @@ rec = {
  "build": {"frames": int(n), "rejection": rej, "dark": dark,
            "method": "UN-registered, dark-subtracted (pedestal-free), CFA, "
                      "multiplicative norm",
+           "desky": ("Siril seqsubsky 1 on the dark-subtracted source frames "
+                     "before stacking — removes the additive sky plane that is "
+                     "fixed in the sensor frame on a fixed mount (moonlight / "
+                     "airmass) and does NOT reject out of the flat"
+                     if desky == "1" else "off (flat carries any sensor-fixed "
+                     "sky gradient present in the source frames)"),
            "frame_source": ("ALL raw frames in the set dir" if not select else
                             f"SELECTED subset ({select}) — the set does not "
                             "share one pointing, so the flat is built from "
