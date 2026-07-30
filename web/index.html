@@ -42,6 +42,9 @@
   nav.rail a.item:hover { color:var(--ink); background:var(--bg2); text-decoration:none; }
   nav.rail a.item.active { color:var(--ink); border-left-color:var(--data); background:var(--bg2); }
   nav.rail a.item .n { float:right; color:var(--faint); font-size:11px; }
+  nav.rail .grp { font:10px var(--mono); letter-spacing:.18em; text-transform:uppercase;
+    color:var(--faint); margin:16px 16px 5px; }
+  nav.rail .grp:first-of-type { margin-top:2px; }
   main { flex:1; min-width:0; padding:20px 24px 64px; max-width:1120px; }
   .eyebrow { font:11px var(--mono); letter-spacing:.22em; text-transform:uppercase;
     color:var(--muted); margin-bottom:4px; }
@@ -127,15 +130,19 @@
 <nav class="rail">
   <div class="sess"><span class="l">session</span>
     <select id="sesspick" aria-label="session"></select></div>
+  <div class="grp">work</div>
   <a class="item" href="#overview">Overview</a>
   <a class="item" href="#sets">Sets <span class="n" id="n-sets"></span></a>
-  <a class="item" href="#surfaces">Surfaces <span class="n" id="n-surf"></span></a>
-  <a class="item" href="#objects">Sky objects <span class="n" id="n-obj"></span></a>
-  <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
-  <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
   <a class="item" href="#run">Run <span class="n" id="n-run"></span></a>
-  <a class="item" href="#env">Environment</a>
+  <div class="grp">results</div>
+  <a class="item" href="#surfaces">Stacks <span class="n" id="n-surf"></span></a>
+  <a class="item" href="#renders">Renders <span class="n" id="n-rend"></span></a>
+  <a class="item" href="#framing">Framing <span class="n" id="n-frame"></span></a>
+  <div class="grp">evidence</div>
+  <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
+  <a class="item" href="#objects">Sky objects <span class="n" id="n-obj"></span></a>
   <a class="item" href="#records">Records</a>
+  <a class="item" href="#env">Environment</a>
 </nav>
 <main id="main" class="muted">loading…</main>
 </div>
@@ -626,6 +633,39 @@ function pgSurfaces() {
         : null,
       footprintSvg(su));
   });
+  return frag(
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'surfaces'),
+    h('div', { class:'sub' }, 'stacks and judge surfaces — footprint · frames confirmed · calibration state · approval from the git tag only'),
+    chipLegend(['ok', 'differs', 'unknown', 'SPCC', 'no SPCC', 'WCS',
+                'coverage map on disk', 'no coverage map for this canvas']),
+    h('div', { class:'cards' }, cards),
+    (M.renders || []).length ? h('div', { class:'m', style:'margin-top:14px' },
+      `${M.renders.length} render-tier product${M.renders.length === 1 ? '' : 's'} built from these stacks — `,
+      h('a', { href:'#renders' }, 'Renders →')) : null,
+    unpairedBlock());
+}
+
+// A judge surface whose NAME misses the convention pairs to nothing, and the
+// card then reads "no judge surface", which invites a needless finish_render
+// re-run. The server reports the near-misses with the name that would pair.
+// Nothing is renamed: one of them is cited by a tracked doc, and quietly moving
+// a judged artifact is how a record ends up describing a file it no longer
+// matches.
+function unpairedBlock() {
+  const up = M.unpaired_judge || [];
+  if (!up.length) return null;
+  return frag(
+    h('h2', {}, 'judge surfaces that pair to nothing'),
+    h('div', { class:'sub' }, 'these PNGs are ON DISK but their names do not match a product, so they do not appear on a card above. Nothing is missing — the name is.'),
+    h('div', { class:'cards' }, up.map(u => h('div', { class:'card' },
+      h('h3', { style:'font-size:15px' }, u.file.replace('judge/', '')),
+      h('p', {}, u.why),
+      u.would_pair_as ? h('div', { class:'m' }, 'would pair as ', h('code', {}, u.would_pair_as)) : null,
+      realFileLine(`web/results/${SESSION}/${u.file}`),
+      h('div', { class:'m' }, h('a', { href: res(u.file) }, 'expand full PNG16 in browser'))))));
+}
+
+function pgRenders() {
   // RENDER TIER products are their own class: no frame count to confirm, not
   // offered to solve/SPCC, and each one names the stack it was rendered FROM
   const renders = (M.renders || []).map(r => {
@@ -694,16 +734,13 @@ function pgSurfaces() {
       r.record ? h('div', { class:'m' }, h('code', {}, r.record)) : null);
   });
   return frag(
-    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'surfaces'),
-    h('div', { class:'sub' }, 'stacks and judge surfaces — footprint · frames confirmed · calibration state · approval from the git tag only'),
-    chipLegend(['ok', 'differs', 'unknown', 'SPCC', 'no SPCC', 'WCS',
-                'coverage map on disk', 'no coverage map for this canvas']),
-    h('div', { class:'cards' }, cards),
-    renders.length ? frag(
-      h('h2', {}, 'render tier'),
-      chipLegend(['RATIFIED look', 'not the ratified look', 'NULL', 'needs-eyes']),
-      h('div', { class:'sub' }, 'the aesthetic finish past the diagnostic surface — every number here is the tool\'s own, and the look is ratified in the set recipe, not here. Judge in your own viewer.'),
-      h('div', { class:'cards' }, renders)) : null);
+    h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'renders'),
+    h('div', { class:'sub' }, 'the aesthetic finish past the diagnostic surface — every number here is the tool\'s own, and the look is ratified in the set recipe, not here. Judge in your own viewer.'),
+    chipLegend(['RATIFIED look', 'not the ratified look', 'git-approved', 'not tagged', 'NULL', 'needs-eyes']),
+    renders.length ? h('div', { class:'cards' }, renders)
+      : h('div', { class:'card' }, h('h3', {}, 'no renders yet'),
+          h('p', {}, 'the render tier is a per-run stage past the diagnostic judge surface. It STOPS the first time with a proposal for you to accept, so nothing aesthetic runs on a knob you have not read.'),
+          h('a', { href:'#run' }, 'run render_tier →')));
 }
 
 function pgObjects() {
@@ -1147,6 +1184,9 @@ function autoCard(name, st, status, formHost) {
   return h('div', { class:'card' },
     h('h3', {}, name, ' ', chip),
     h('p', {}, st.summary || st.desc),
+    (st.desc && st.desc !== st.summary)
+      ? h('details', { class:'m' }, h('summary', {}, 'in full'),
+          h('div', { class:'why' }, st.desc)) : null,
     detailPanel(st),
     h('p', { style:'margin:10px 0 0' }, ...buttons),
     out);
@@ -1200,6 +1240,12 @@ async function pgRun() {
             onclick: () => openStageForm(n, stages[n], formHost) },
             h('h3', {}, n, ' ', chip),
             h('p', {}, stages[n].summary || stages[n].desc),
+            // the full auditor-grade desc stays reachable, just not shouted: the
+            // Run page printed every one of them at once under a sub-line that
+            // already stated the same contract
+            (stages[n].desc && stages[n].desc !== stages[n].summary)
+              ? h('details', { class:'m' }, h('summary', {}, 'in full'),
+                  h('div', { class:'why' }, stages[n].desc)) : null,
             detailPanel(stages[n]));
         })));
     }),
@@ -1275,7 +1321,8 @@ async function route() {
     ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
        '#surfaces': pgSurfaces, '#objects': pgObjects,
        '#experiments': pgExperiments, '#framing': pgFraming,
-       '#run': pgRun, '#env': pgEnv, '#records': pgRecords }[hash] || pgOverview)());
+       '#run': pgRun, '#env': pgEnv, '#records': pgRecords,
+       '#renders': pgRenders }[hash] || pgOverview)());
   main.replaceChildren(out);
   annotateChips(main);
 }
@@ -1336,6 +1383,7 @@ function railCounts() {
   const ls = lightSets();
   document.getElementById('n-sets').textContent = String(M.sets.length);
   document.getElementById('n-surf').textContent = String((M.surfaces || []).length);
+  document.getElementById('n-rend').textContent = String((M.renders || []).length);
   document.getElementById('n-obj').textContent = String(ls.reduce((a, s) =>
     a + (s.anomaly ? Object.values(s.anomaly.counts).reduce((x, y) => x + y, 0) : 0), 0));
   document.getElementById('n-exp').textContent = String((M.sets || []).reduce((a, s) =>

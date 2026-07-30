@@ -355,7 +355,7 @@ def session_model(session):
     model = {"session": session, "tags": _session_tags(session),
              "sets": [], "session_records": [], "surfaces": [],
              "judge": [], "previews_manifest": None, "framing": [],
-             "coverage_maps": [], "renders": []}
+             "coverage_maps": [], "renders": [], "unpaired_judge": []}
 
     # --- per-set records ---
     light_sets = []
@@ -603,6 +603,8 @@ def session_model(session):
                 "sets": rsets, "recipe_tag": rtag,
                 "artifacts_deleted": rec.get("artifacts_deleted"),
                 "colour_check": _render_colour_check(m),
+                "judge_file": judge if os.path.exists(
+                    os.path.join(rroot, "judge", judge)) else None,
                 "sky_vs_linear": {
                     k: m.get(k) for k in ("rendered_sky_stat_main",
                                           "stretched_layer_linear_stat_main_x100")
@@ -611,6 +613,59 @@ def session_model(session):
                 "denoise_scales": list((m.get("denoise_per_scale_bgnoise")
                                         or {}).get("profile", {})) or None,
             })
+
+    # --- judge surfaces that paired to NOTHING ------------------------------
+    # A surface whose name misses the convention by one character used to render
+    # as "no judge surface — a finish_render pass is a proposal", so the honest
+    # reading of the card was "re-run finish_render" when the surface was already
+    # on disk. MEASURED near-miss in this session: the products are
+    # set-01+02_desky_min and set-01+02_min while their judge PNGs were written
+    # ..._desky_min32_spcc-linked.png and ..._min32_spcc-linked.png — a tag the
+    # products never carried. Renaming the files is NOT the fix here: one of them
+    # is cited by a tracked doc, and silently moving a judged artifact is how a
+    # record ends up describing a file that no longer matches it. So the mismatch
+    # is REPORTED, with the name that would pair, and the pairing rule stays
+    # strict (a relaxed prefix would let "set-01" steal "set-01+02_...").
+    claimed = {os.path.basename(su["judge"]) for su in model["surfaces"] if su["judge"]}
+    claimed |= {r["judge_file"] for r in model["renders"] if r.get("judge_file")}
+    bases = [su["product"] for su in model["surfaces"]]
+    for j in model["judge"]:
+        if j in claimed:
+            continue
+        stem, ext = os.path.splitext(j)
+        # Naming a likely owner is a SUGGESTION and it stays conservative, because
+        # a loose prefix lies: "set-01" prefixes "set-01+02_desky_handtuned" and
+        # claimed it, then proposed the nonsense "set-01_+02_desky_handtuned".
+        # Only the one real near-miss shape is inferred — extra characters GLUED to
+        # the end of the product's own tag ("..._min32_..." for product
+        # "..._min") — and the fix is to DROP them, not to punctuate them. Anything
+        # else reports no owner rather than guessing.
+        owner, would = None, None
+        for b in sorted(bases, key=len, reverse=True):
+            if not stem.startswith(b) or stem == b:
+                continue
+            rest = stem[len(b):]
+            if rest[0].isdigit():                     # glued to the tag
+                tail = rest.lstrip("0123456789")
+                if tail.startswith("_"):
+                    owner, would = b, f"{b}{tail}{ext}"
+                    break
+        model["unpaired_judge"].append({
+            "file": f"judge/{j}",
+            "likely_product": owner,
+            "why": (f"the product is '{owner}' but this surface is named '{stem}' — "
+                    f"the extra characters glued to the tag stop it pairing, and the "
+                    f"convention is <product>_<surface>"
+                    if owner else
+                    "no stack product and no render record matches this name — a "
+                    "hand-named or superseded surface. The record that documents it, "
+                    "if any, is the authority on what it is"),
+            "would_pair_as": would,
+            "rename_is_not_automatic": ("nothing is renamed for you: a judged artifact "
+                                        "may be cited by a tracked record or doc, and "
+                                        "moving it quietly is how a record ends up "
+                                        "describing a file it no longer matches"),
+        })
     return model
 
 
@@ -1138,6 +1193,11 @@ STAGES = _stage_registry()
 # cannot drift into hand-maintained HTML; `automated` marks the chain cards
 # the page surfaces first.
 _STAGE_DOCS = {
+    # an explicit one-liner where the desc has no early sentence boundary to cut
+    # at; the derived summary truncated this one mid-thought
+    "render_tier": {
+        "summary": "the AESTHETIC finish past the diagnostic surface — separate, denoise, stretch, recombine (stops for your accept the first time)",
+    },
     "chain_session": {
         "automated": True,
         "summary": "THE session button: every light set through the whole durable core, one click",
@@ -1317,10 +1377,29 @@ _STAGE_DOCS = {
 }
 
 
+def _stage_summary(desc):
+    """One line for a card. The full desc stays available behind a disclosure.
+
+    These descs are written for an auditor — 60 to 100 words each — and the Run
+    page printed all of them at once under a sub-line that already stated the
+    same contract, so the page read as a wall of prose and the operator had to
+    find the stage in it. Cut at the first sentence boundary or a word boundary
+    near 120 chars, whichever comes first."""
+    first = desc.split(". ")[0]
+    if len(first) <= 120:
+        return first if first.endswith(".") or len(first) == len(desc) else first + "."
+    cut = first[:120].rsplit(" ", 1)[0]
+    return cut + "…"
+
+
 def stages_public():
-    return {name: {"desc": s["desc"], "phase": s["phase"], "params": s["params"],
-                   **_STAGE_DOCS.get(name, {})}
-            for name, s in STAGES.items()}
+    out = {}
+    for name, s in STAGES.items():
+        doc = _STAGE_DOCS.get(name, {})
+        out[name] = {"desc": s["desc"], "phase": s["phase"], "params": s["params"],
+                     **doc}
+        out[name].setdefault("summary", _stage_summary(s["desc"]))
+    return out
 
 
 def path_choices(session):
