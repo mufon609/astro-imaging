@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# Guard: the chain is 32-bit float END TO END — no generated or templated .ssf
-# may pin `set16bits`. Run it in CI / before a release.
+# PRE-RELEASE / CI GUARD, two parts:
+#   1-4. the chain is 32-bit float END TO END — no generated or templated .ssf
+#        may pin `set16bits`, and every product builder must EMIT the pins.
+#   5.   the web session model builds and serializes for every staged session.
+# (The name still says bitdepth because that is where callers already invoke it;
+# part 5 lives here so it actually runs. Split the file if it grows a third job.)
 #
 # WHY THIS GUARD EXISTS. 16-bit intermediates were a RAM/disk adaptation for a
 # tight rig. Its removal condition fired when the chain moved to a machine with
@@ -102,10 +106,62 @@ for b in stack/run_pipeline.sh stack/run_undistort_pipeline.sh \
   emits "$S/$b" 'setcompress 0' || fail "$S/$b does not EMIT setcompress 0"
 done
 
+# 5. WEB SESSION SMOKE TEST. `/api/session/<name>` returned 500 for an entire
+#    branch because one tracked record was a JSON ARRAY and the model called
+#    .get() on it — taking out every page for that session (frames, culled,
+#    surfaces, sky objects, experiments, framing, records). Nothing exercised the
+#    API, so it stayed dark. This builds the model IN-PROCESS for every staged
+#    session and serializes it. In-process on purpose: it needs no port, no sleep
+#    and no running server, so it cannot flake and cannot be quietly skipped, and
+#    it exercises the exact function that broke. json.dumps is part of the
+#    assertion because a non-serializable value fails the endpoint just as hard
+#    as an exception does.
+python3 - <<'PYSMOKE' || fail "the web session model does not build for every staged session"
+import json, os, sys
+sys.path.insert(0, "web")
+import serve
+
+names = [n for n in sorted(os.listdir("datasets"))
+         if os.path.isdir(os.path.join("datasets", n))]
+if not names:
+    sys.exit("no staged sessions under datasets/ — the smoke test asserted nothing")
+
+bad = []
+for n in names:
+    try:
+        m = serve.session_model(n)
+        if m is None:
+            bad.append((n, "session_model returned None")); continue
+        json.dumps(m)
+        print(f"  [web] {n}: model builds + serializes ({len(m['sets'])} sets, "
+              f"{len(m['surfaces'])} surfaces, {len(m['renders'])} renders, "
+              f"{len(m['session_records'])} session records)")
+    except Exception as e:
+        bad.append((n, f"{type(e).__name__}: {e}"))
+
+# the stage registry must load and every entry be well formed — otherwise a
+# broken build lambda is discovered only when a user clicks it
+try:
+    for name, spec in sorted(serve.STAGES.items()):
+        for k in ("desc", "phase", "params", "build"):
+            if k not in spec:
+                bad.append((f"stage:{name}", f"missing {k}"))
+        if not callable(spec.get("build")):
+            bad.append((f"stage:{name}", "build is not callable"))
+    print(f"  [web] stage registry: {len(serve.STAGES)} stages, all well formed")
+except Exception as e:
+    bad.append(("stages", f"{type(e).__name__}: {e}"))
+
+for n, why in bad:
+    print(f"  [web] FAIL {n}: {why}", file=sys.stderr)
+sys.exit(1 if bad else 0)
+PYSMOKE
+
 cat <<EOF
 OK: no set16bits outside the 3 documented instrument exemptions;
     4 master templates pin set32bits + setcompress 0;
     9 product builders pin set32bits + setcompress 0.
     Scope: per-FILE and static — it does not prove every individual generated
     .ssf inside a multi-.ssf builder carries the pin (BACKLOG).
+    Web: every staged session's model builds + serializes; stage registry sane.
 EOF
