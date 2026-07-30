@@ -1,0 +1,18 @@
+{
+ "render": "/home/samsung/Desktop/astro-imaging/web/results/july23/judge/set-01+02_desky_render.png",
+ "stack": "/home/samsung/Desktop/astro-imaging/web/results/july23/stack_set-01+02_desky_render.fit",
+ "separated": true,
+ "denoised": true,
+ "sky_level_of_1": 0.0632,
+ "colour_ratios": {
+  "sky": {
+   "R_over_G": 1.0412,
+   "B_over_G": 1.065
+  },
+  "bright": {
+   "R_over_G": 0.9929,
+   "B_over_G": 0.9964
+  }
+ },
+ "note": "a nonlinear stretch cannot preserve channel ratios exactly; compare these against the LINEAR stack's ratios, and treat any residual as inherent rather than a parameter error"
+}

@@ -1,13 +1,59 @@
 {
  "stack": {
   "weight": null,
-  "exclude": [8647, 8648],
+  "exclude": [
+   8647,
+   8648
+  ],
   "why": {
-   "8647": "session-first frame, frame-wide degradation (FWHM z +24.7, roundness z -5.4, nstars z -18.8 vs set medians 2.633 px / 0.798 / 1878) + a satellite trail in the same frame — session-edge cull policy; also its own 1-frame capture run in the audit timeline (start-of-burst settle).",
-   "8648": "second frame, same opening settle (FWHM z +29.5, nstars z -23.4) — frame-wide degradation class.",
-   "satellites_kept": "5 unique satellite objects across ~55 frame-detections (audit_work/anomaly_audit.json), no aircraft, no unknowns — moving minority trails stack clean through per-frame rejection; user-ratified 'satellites stay'.",
-   "session_edges_kept": "DSC_9047 (last) is QA-clean and not anomaly-flagged — no end-edge cull.",
+   "8647": "session-first frame, frame-wide degradation (FWHM z +24.7, roundness z -5.4, nstars z -18.8 vs set medians 2.633 px / 0.798 / 1878) + a satellite trail in the same frame \u2014 session-edge cull policy; also its own 1-frame capture run in the audit timeline (start-of-burst settle).",
+   "8648": "second frame, same opening settle (FWHM z +29.5, nstars z -23.4) \u2014 frame-wide degradation class.",
+   "satellites_kept": "5 unique satellite objects across ~55 frame-detections (audit_work/anomaly_audit.json), no aircraft, no unknowns \u2014 moving minority trails stack clean through per-frame rejection; user-ratified 'satellites stay'.",
+   "session_edges_kept": "DSC_9047 (last) is QA-clean and not anomaly-flagged \u2014 no end-edge cull.",
    "weight_null": "wFWHM weighting at this set's ~0.2% FWHM batch CV (2.613-2.852 px, median 2.633) is worse than none (Siril -weight is a min-max ramp that soft-culls the worst frame at any spread)."
   }
+ },
+ "render": {
+  "name": "set-01+02_desky",
+  "status": "RATIFIED by user 2026-07-30 (first-pass render tier)",
+  "derived_from": {
+   "tool": "Siril stat",
+   "median": [
+    0.0007696193,
+    0.0007702754,
+    0.0007693599
+   ],
+   "mad": [
+    2.61997e-05,
+    2.67948e-05,
+    2.47959e-05
+   ]
+  },
+  "knobs": {
+   "sky_target": 0.1,
+   "gas_top_frac": 0.16,
+   "black_k_mad": 4.0,
+   "denoise_lum": 0.6,
+   "denoise_chroma": 0.85,
+   "star_asinh": 1000.0
+  },
+  "gas_mtf_per_channel": {
+   "R": [
+    0.00066253,
+    0.8867,
+    0.00089276
+   ],
+   "G": [
+    0.0006631,
+    0.8867,
+    0.00089352
+   ],
+   "B": [
+    0.00066231,
+    0.8867,
+    0.00089246
+   ]
+  },
+  "why_proportional": "low/high are a fraction of each channel's OWN median so (sky-low) keeps the linear ratio; a common black point casts the render because the sky sits only ~14% above black"
  }
 }

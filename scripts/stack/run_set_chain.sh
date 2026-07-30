@@ -37,9 +37,10 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
-PLAN=0
+PLAN=0 DESKYOPT=--desky
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
+  --no-desky) DESKYOPT=;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 SESSION=$(cd "$SESSION" && pwd)
@@ -164,14 +165,14 @@ case "$ROUTE" in
       if [ "$HAVE_REAL_FLATS" = 1 ]; then
         say "  3. WILL STOP: real flats staged — master-flat wiring for the undistort route is manual (gap)"
       elif [ ! -f "$SKYFLAT" ]; then
-        say "  3. scripts/stack/build_sky_flat.sh $SESSION $SET --dark=$DARK --out=$SKYFLAT"
+        say "  3. scripts/stack/build_sky_flat.sh $SESSION $SET --dark=$DARK --out=$SKYFLAT $DESKYOPT"
       fi
     fi
     if [ -f "$STACK" ]; then
       say "  4. stack exists -> skip build ($STACK)"
     else case "$ROUTE" in
       standard)         say "  4. scripts/stack/run_pipeline.sh $SESSION $SET";;
-      undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT";;
+      undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT";;
       undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT";;
     esac; fi
     if JS=$(judge_surface "$NAME"); then
@@ -344,7 +345,21 @@ if [ "$ROUTE" != standard ]; then
   fi
   if [ ! -f "$SKYFLAT" ]; then
     say "per-set sky flat (the ratified per-set-flat rule)"
-    "$REPO/scripts/stack/build_sky_flat.sh" "$SESSION" "$SET" --dark="$DARK" --out="$SKYFLAT"
+# DESKY is ON by default and its scope is EXACTLY this route. A sky flat is
+# contaminated by sky-brightness structure fixed in the ALT-AZ frame (moonlight,
+# airmass) only when the CAMERA is horizon-fixed too — i.e. an untracked mount,
+# which is precisely what selects the undistort route (mount=fixed + wide field).
+# A TRACKED mount follows the sky, so the same gradient sweeps across the sensor
+# and DOES reject out; applying --desky there would be an unnecessary step on a
+# flat that was never contaminated. Real flats retire the sky-flat builder
+# entirely (the chain already stops for them), so "flatless" is the other half
+# of the condition and is implied by reaching this code at all.
+# Measured contamination it removes: flat odd-plane 4.84%%->1.98%% (set-01) and
+# 7.82%%->2.42%% (set-02), while radial vignetting holds to <=0.12%%, PRNU
+# correlation >0.9995 and dust-mote depth changes -2 to -3%%. Proven on the
+# object by differential star photometry: a 3.11%% position-dependent flux plane
+# at 241 sigma. Pass --no-desky to opt out.
+    "$REPO/scripts/stack/build_sky_flat.sh" "$SESSION" "$SET" --dark="$DARK" --out="$SKYFLAT" $DESKYOPT
   fi
 fi
 
@@ -355,7 +370,7 @@ else
   say "stack ($ROUTE)"
   case "$ROUTE" in
     standard)         "$REPO/scripts/stack/run_pipeline.sh" "$SESSION" "$SET";;
-    undistort)        "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT";;
+    undistort)        "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT;;
     undistort-groups) "$REPO/scripts/stack/run_undistort_groups.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT";;
   esac
   [ -f "$STACK" ] || { say "builder finished but $STACK is missing"; exit 1; }
