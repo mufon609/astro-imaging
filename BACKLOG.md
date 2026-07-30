@@ -517,7 +517,15 @@ the pieces that needed more than that change.
   corners"). Either the odd-component measure becomes a script whose every pixel
   op is a tool's (Siril `stat` on quadrant crops gives the odd term about centre
   without any in-house pixel maths) with a removal condition, or the gate stops
-  claiming to check what it does not. This is the branch's own "a fix that lives
+  claiming to check what it does not.
+  **The measured pair's exact invocation, preserved before its scratch was
+  reaped** (the frames are re-derivable from the staged raws; nothing else
+  recorded how): DSC_8647/8648/8649 → `convert c` → `calibrate c
+  -dark=masters/dark_master.fit -prefix=pp_` → `load pp_c_00001` → `save before`
+  → **`subsky 1`** → `save after`, then the odd term read off those two. Note it
+  used plain `subsky` (opt-IN `-dither`, so un-dithered) where the builder uses
+  `seqsubsky` (opt-OUT) — the asymmetry that cost the light path its
+  reproducibility until `-nodither` was pinned. This is the branch's own "a fix that lives
   in a session's scratch dir is not a fix" lesson, applied to a measurement.
 - **Which calibration arm is CORRECT still rests on estimator arithmetic.** The
   3.11% differential star-flux plane proves the de-skied and contaminated

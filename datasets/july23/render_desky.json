@@ -26,7 +26,8 @@
      }
     },
     "note": "corners came out BEST, not worst \u2014 attributed to the undistort stage keeping the PSF uniform across the field"
-   }
+   },
+   "reproduction": "The 1400^2 NAN crop these numbers were measured on: Siril `load stack_set-01+02_desky_min_spcc.fit` \u2192 `boxselect 2110 969 1400 1400` \u2192 `crop` \u2192 `save nan_linear`, then `starnet -stretch` on that crop. Preserved here 2026-07-30 before the probe's scratch (sessions/july23/work/starprobe, 90 MB) was deleted \u2014 the box coordinates were recorded nowhere else, and they are what makes the crop reproducible."
   },
   {
    "step": "denoise (starless only)",
