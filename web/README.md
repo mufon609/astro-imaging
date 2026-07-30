@@ -93,6 +93,15 @@ python3 web/verify_framing.py <session> <product> \
 | `verify_framing.py` | the record verifier: Siril `crop`+`stat` against the coverage map (`Min >= members*1000`) or the product stack's sibling-class sky floor |
 | `results/<session>/` | the durable output tree (gitignored data; see README "Data layout") |
 
+**Renders are their own class, not stacks.** `render_<name>.fit` +
+`judge/<name>_render.png`, modelled from the TRACKED record
+(`qa_work/render_<name>.json`) rather than by parsing filenames — each record
+names its own `linear_source`, so a render is attached to the stack it was
+rendered FROM (longest-match, or a shorter product steals it). They are kept out
+of the `stack_*` namespace deliberately: that namespace is modelled as integrated
+stacks in the surfaces list, the solve/SPCC pickers and the frame-count
+confirmation, none of which mean anything for a render.
+
 **A record is not necessarily a JSON object.** `session_model` reads every
 session-level `*.json`; a timeline record is legitimately an ARRAY
 (`transparency_curve.json`). Calling `.get()` on one raised `AttributeError`

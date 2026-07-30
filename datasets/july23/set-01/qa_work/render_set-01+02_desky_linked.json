@@ -1,6 +1,6 @@
 {
  "render": "/home/samsung/Desktop/astro-imaging/web/results/july23/judge/set-01+02_desky_linked_render.png",
- "stack": "/home/samsung/Desktop/astro-imaging/web/results/july23/stack_set-01+02_desky_linked_render.fit",
+ "product": "/home/samsung/Desktop/astro-imaging/web/results/july23/render_set-01+02_desky_linked.fit",
  "linear_source": "/home/samsung/Desktop/astro-imaging/web/results/july23/stack_set-01+02_desky_min_spcc.fit",
  "stages": {
   "separated": true,

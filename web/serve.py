@@ -304,7 +304,7 @@ def session_model(session):
     model = {"session": session, "tags": _session_tags(session),
              "sets": [], "session_records": [], "surfaces": [],
              "judge": [], "previews_manifest": None, "framing": [],
-             "coverage_maps": []}
+             "coverage_maps": [], "renders": []}
 
     # --- per-set records ---
     light_sets = []
@@ -350,6 +350,10 @@ def session_model(session):
                 "composition": comp,
                 "acquisition": _read_json(os.path.join(sdir, "acquisition.json")),
                 "recipe": (recipe or {}).get("stack"),
+                # the RATIFIED render block, kept separate from the stack policy:
+                # it is what makes a render-tier run execute instead of stopping at
+                # its proposal, so the UI can say which look is accepted
+                "recipe_render": (recipe or {}).get("render"),
                 "anomaly": _anomaly_summary(_read_json(
                     os.path.join(sdir, "audit_work", "anomaly_audit.json"))),
                 "fingerprint": _read_json(os.path.join(sdir, "fingerprint.json")),
@@ -480,6 +484,60 @@ def session_model(session):
                 "approved": is_approved,
                 "approved_tag": next((t for n, atag, t in approved
                                       if n == len(sets) and atag == tag), None),
+            })
+
+    # --- RENDER-TIER products (render_<name>.fit + judge/<name>_render.png) ---
+    # Discovered from their TRACKED RECORDS, not by parsing filenames: each record
+    # names its own linear_source, so a render is attached to the stack it was
+    # rendered FROM instead of being guessed at from a name. A render is not a
+    # stack and is deliberately not in the surfaces list above — it carries no
+    # frame count to confirm against a recipe, and it must not be offered to
+    # solve/SPCC as if it were an integrated stack.
+    for st in model["sets"]:
+        qa = os.path.join(droot, st["set"], "qa_work")
+        if not os.path.isdir(qa):
+            continue
+        for rf in sorted(os.listdir(qa)):
+            if not (rf.startswith("render_") and rf.endswith(".json")):
+                continue
+            rec = _read_json(os.path.join(qa, rf))
+            if not isinstance(rec, dict):
+                continue
+            name = rf[len("render_"):-len(".json")]
+            prod = f"render_{name}.fit"
+            judge = f"{name}_render.png"
+            src = rec.get("linear_source") or ""
+            m = rec.get("measures") or {}
+            ratified = (st.get("recipe_render") or {}).get("name") == name
+            model["renders"].append({
+                "name": name, "set": st["set"],
+                "record": f"datasets/{session}/{st['set']}/qa_work/{rf}",
+                "product": prod if os.path.exists(os.path.join(rroot, prod)) else None,
+                "judge": f"judge/{judge}" if os.path.exists(
+                    os.path.join(rroot, "judge", judge)) else None,
+                "source_stack": os.path.basename(src) if src else None,
+                # the surfaces entry this render came from, so the UI can show it
+                # under its own product rather than as a free-floating file
+                # LONGEST match, not the first: stack_set-01+02_desky_min_spcc.fit
+                # also prefixes "set-01", so a first-match attached this render to
+                # the wrong (shorter) product — the same steal the judge pairing
+                # and _parse_product both already guard against
+                "source_product": (lambda cands: max(cands, key=len) if cands else None)(
+                    [su["product"] for su in model["surfaces"]
+                     if src and os.path.basename(src).startswith(
+                         f"stack_{su['product']}")]),
+                "stages": rec.get("stages"),
+                "stretch_rule": (rec.get("stretch") or {}).get("rule"),
+                "knob_provenance": rec.get("knob_provenance"),
+                "ratified": ratified,
+                "artifacts_deleted": rec.get("artifacts_deleted"),
+                "sky_vs_linear": {
+                    k: m.get(k) for k in ("rendered_sky_stat_main",
+                                          "stretched_layer_linear_stat_main_x100")
+                    if m.get(k)} or None,
+                "separation": (m.get("separation") or {}).get("findstar_stars"),
+                "denoise_scales": list((m.get("denoise_per_scale_bgnoise")
+                                        or {}).get("profile", {})) or None,
             })
     return model
 

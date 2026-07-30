@@ -129,7 +129,15 @@ RES=$REPO/web/results/$SNAME; DSET=$REPO/datasets/$SNAME/$SET
 RECIPE=$DSET/recipe.json; GENERIC=$REPO/datasets/GENERIC.json
 W=$SESSION/work/render_$NAME
 CC=/opt/cosmicclarity-6.6
-PRODUCT=$RES/stack_${NAME}_render
+# render_<name>.fit, NOT stack_<name>_render.fit. A render is not a stack: the
+# stack_ namespace is modelled as integrated stacks everywhere (the web surfaces
+# list, the solve/SPCC pickers, the frame-count confirmation against the recipe),
+# so a render sitting in it was presented as a stack product with a meaningless
+# frame count — and the surface token in stack_<name>_render swallowed the
+# <surface> position the judge-name convention uses, orphaning the judge PNG from
+# its own product. The judge surface keeps the ratified name shape:
+# judge/<set>_<recipe-tag>_<surface>.png = judge/<name>_render.png.
+PRODUCT=$RES/render_${NAME}
 JUDGE=$RES/judge/${NAME}_render
 say(){ echo "[render $NAME] $*"; }
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
@@ -540,7 +548,7 @@ def bgnoise_series(path):
     return [v[i:i + 3] for i in range(0, len(v), 3)]
 
 rec = {
- "render": png, "stack": prod, "linear_source": src,
+ "render": png, "product": prod, "linear_source": src,
  "stages": {"separated": bool(int(sep)), "denoised": bool(int(dn))},
  "knob_provenance": prov,
  "stretch": {"rule": ("per-channel black point (background neutralization) + one "

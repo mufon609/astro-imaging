@@ -523,7 +523,14 @@ web/                                     the local front end (code TRACKED)
   index.html, crop.html, serve.py, …     session browser + the framing/crop UI
                                          (serve.py binds 127.0.0.1 only)
   results/<session>/                     DURABLE derived outputs (gitignored):
-                                         stacks, renders, exp_*/, inspect_*/,
+                                         stack_<set>_<recipe-tag>[_wcs|_spcc].fit
+                                         render_<set>_<recipe-tag>.fit  (RENDER-TIER
+                                           products live in their OWN namespace: a
+                                           render is not a stack, carries no frame
+                                           count to confirm against a recipe, and
+                                           must not be offered to solve/SPCC as if
+                                           it were one)
+                                         exp_*/, inspect_*/,
                                          judge/ (judgment surfaces — image data),
                                          previews/ (tool-made selection
                                          downscales for the browser — NEVER a

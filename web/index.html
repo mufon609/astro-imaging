@@ -537,17 +537,62 @@ function pgSurfaces() {
         cov ? h('span', { class:'chip ok' }, 'coverage map on disk') : null),
       su.approved ? h('div', { class:'m', style:'color:var(--ok)' }, `APPROVED — git: ${su.approved_tag}`) : null,
       su.judge ? frag(
-        h('div', { class:'m', style:'color:var(--plate)' }, su.judge.includes('_render') ? 'surface = RENDER TIER (aesthetic finish, user-ratified knobs)'
-          : 'surface = diagnostic autostretch — not the aesthetic finish; the render tier is a separate stage'),
+        h('div', { class:'m', style:'color:var(--plate)' },
+          'surface = diagnostic autostretch — not the aesthetic finish; the render tier is its own stage and its products are listed below'),
         realFileLine(`web/results/${SESSION}/${su.judge}`),
         h('div', { class:'m' }, h('a', { href: res(su.judge) }, 'expand full PNG16 in browser'), ' (slow; judge in your own viewer)'))
         : null,
       footprintSvg(su));
   });
+  // RENDER TIER products are their own class: no frame count to confirm, not
+  // offered to solve/SPCC, and each one names the stack it was rendered FROM
+  const renders = (M.renders || []).map(r => {
+    const measured = r.sky_vs_linear || {};
+    const ratio = (o, a, b) => (o && o[a] && o[b])
+      ? (o[a].median / o[b].median).toFixed(4) : null;
+    const sky = measured.rendered_sky_stat_main;
+    const lin = measured.stretched_layer_linear_stat_main_x100;
+    return h('div', { class: r.ratified ? 'card approved' : 'card' },
+      h('h3', {}, r.name),
+      h('div', { class:'m' },
+        r.ratified ? h('span', { class:'chip ok' }, 'RATIFIED look')
+                   : h('span', { class:'chip' }, 'not the ratified look'),
+        ' ',
+        r.stages ? h('span', { class:'chip' },
+          [r.stages.separated ? 'separated' : 'no separation',
+           r.stages.denoised ? 'denoised' : 'no denoise'].join(' · ')) : null),
+      r.artifacts_deleted
+        ? h('div', { class:'m', style:'color:var(--plate)' },
+            'SUPERSEDED — artifacts deleted; the measurements are kept as the evidence')
+        : null,
+      r.source_stack ? h('div', { class:'m' },
+        'rendered from ', h('code', {}, r.source_stack),
+        r.source_product ? ` (product ${r.source_product})` : '') : null,
+      r.stretch_rule ? h('div', { class:'m' }, r.stretch_rule) : null,
+      r.separation ? h('div', { class:'m' },
+        `separation measured by Siril findstar: ${r.separation.source} stars → `
+        + `${r.separation.starless} in the starless, ${r.separation.mask} in the mask`) : null,
+      (sky && lin) ? h('div', { class:'m' },
+        `rendered sky R/G ${ratio(sky,'R','G')} B/G ${ratio(sky,'B','G')} · `
+        + `same layer LINEAR R/G ${ratio(lin,'R','G')} B/G ${ratio(lin,'B','G')} `
+        + '(same pixels either side of the curve — the difference is the curve\'s)') : null,
+      r.denoise_scales ? h('div', { class:'m' },
+        `denoise measured per scale: ${r.denoise_scales.join(', ')}`) : null,
+      r.judge ? frag(
+        realFileLine(`web/results/${SESSION}/${r.judge}`),
+        h('div', { class:'m' }, h('a', { href: res(r.judge) }, 'expand full PNG16 in browser'),
+          ' (slow; judge in your own viewer)'))
+        : h('div', { class:'m' }, 'no judge surface on disk'),
+      r.record ? h('div', { class:'m' }, h('code', {}, r.record)) : null);
+  });
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'surfaces'),
     h('div', { class:'sub' }, 'stacks and judge surfaces — footprint · frames confirmed · calibration state · approval from the git tag only'),
-    h('div', { class:'cards' }, cards));
+    h('div', { class:'cards' }, cards),
+    renders.length ? frag(
+      h('h2', {}, 'render tier'),
+      h('div', { class:'sub' }, 'the aesthetic finish past the diagnostic surface — every number here is the tool\'s own, and the look is ratified in the set recipe, not here. Judge in your own viewer.'),
+      h('div', { class:'cards' }, renders)) : null);
 }
 
 function pgObjects() {
