@@ -116,7 +116,15 @@ case "$ROUTE" in
   undistort-groups)  STACK=$RESULTS/stack_${SET}_full.fit;;
 esac
 DARK=$SESSION/work/masters/dark_master.fit
-SKYFLAT=$SESSION/work/masters/skyflat_$SET.fit
+# The flat's NAME must record whether it was de-skied, for the same reason a stack
+# carries a recipe-tag: it is a different chain shape, and the two are not
+# interchangeable. Without it one path held two different products — and because
+# the build is skipped when the file exists, a session that already had a
+# CONTAMINATED skyflat_<set>.fit on disk would silently reuse it and the --desky
+# default would never take effect at all. The de-skied flat also has to pair with
+# the per-frame background step (see the --desky note below), and the light
+# builders derive that pairing from this name.
+SKYFLAT=$SESSION/work/masters/skyflat_$SET${DESKYOPT:+_desky}.fit
 HAVE_REAL_FLATS=0
 if compgen -G "$SESSION/flats*" >/dev/null; then HAVE_REAL_FLATS=1; fi
 if [ -d "$SESSION/calib" ]; then HAVE_REAL_FLATS=1; fi

@@ -51,6 +51,24 @@ record the render chain consumes. No external service; the server binds
   decision inline and in the session end-summary; a hand-ratified stack
   block is never overwritten and always wins. Built products skip, so a
   re-click after resolving a gate resumes where it stopped.
+- **The RENDER TIER is a per-run stage, deliberately not in the chain.** The
+  chain still ends at the diagnostic judge surface; `render_tier` (phase
+  `render`) is the aesthetic finish past it, reachable as its own gated click.
+  It carries its own user gate, of exactly the kind this contract already
+  requires: with no ratified `render` block for the name in the set's recipe it
+  measures, writes `render_proposed`, prints it and STOPS (exit 7). Its KNOBS are
+  not exposed as form fields — a browser checkbox is the wrong place to alter a
+  look, and the recipe is where an accepted look is pinned. It refuses to
+  overwrite an existing product without `overwrite`, so a ladder arm cannot
+  destroy its own control.
+- **A de-skied flat and the per-frame background step are one correction, and
+  the form no longer lets them come apart.** `sky_flat` is de-skied by DEFAULT
+  (matching the chain) and its output NAME records it (`skyflat_<set>_desky.fit`);
+  `stack_undistort` / `stack_undistort_groups` DERIVE `--desky` from the chosen
+  flat's name rather than asking. Half-applying it — a de-skied flat with no
+  background step — leaves the full sky gradient in the product, which the judge
+  stretch then amplifies 9-17x; that combination shipped once because the flag
+  reached one builder and not the other.
 
 ## Running it
 
@@ -74,6 +92,15 @@ python3 web/verify_framing.py <session> <product> \
 | `make_previews.sh` | tool-driven preview generation (Siril load/autostretch/resample/savepng) + `previews/manifest.json` (native dims, exact scale, matched reference boxes) |
 | `verify_framing.py` | the record verifier: Siril `crop`+`stat` against the coverage map (`Min >= members*1000`) or the product stack's sibling-class sky floor |
 | `results/<session>/` | the durable output tree (gitignored data; see README "Data layout") |
+
+**A record is not necessarily a JSON object.** `session_model` reads every
+session-level `*.json`; a timeline record is legitimately an ARRAY
+(`transparency_curve.json`). Calling `.get()` on one raised `AttributeError`
+inside the model and **500'd the entire `/api/session/<name>` endpoint** — every
+page for that session went dark on one record's shape, and stayed dark unnoticed
+for a whole branch because nothing exercises the API. The reader now reports each
+record's `shape` and `entries` instead of assuming. Worth a smoke test in CI: the
+three staged sessions must return 200.
 
 Coordinate conventions, stated once and stored in every record: the browser
 draws in **screen top-left origin**; Siril `crop`'s y-origin is the **bottom**

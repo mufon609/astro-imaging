@@ -537,7 +537,8 @@ function pgSurfaces() {
         cov ? h('span', { class:'chip ok' }, 'coverage map on disk') : null),
       su.approved ? h('div', { class:'m', style:'color:var(--ok)' }, `APPROVED — git: ${su.approved_tag}`) : null,
       su.judge ? frag(
-        h('div', { class:'m', style:'color:var(--plate)' }, 'surface = diagnostic autostretch; the render tier is unbuilt'),
+        h('div', { class:'m', style:'color:var(--plate)' }, su.judge.includes('_render') ? 'surface = RENDER TIER (aesthetic finish, user-ratified knobs)'
+          : 'surface = diagnostic autostretch — not the aesthetic finish; the render tier is a separate stage'),
         realFileLine(`web/results/${SESSION}/${su.judge}`),
         h('div', { class:'m' }, h('a', { href: res(su.judge) }, 'expand full PNG16 in browser'), ' (slow; judge in your own viewer)'))
         : null,
@@ -974,7 +975,14 @@ async function pgRun() {
   let stages = {};
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
   const status = await fetchStatus();
-  const phases = ['measure', 'calibrate', 'execute', 'finish', 'surfaces'];
+  const phases = ['measure', 'calibrate', 'execute', 'finish', 'render', 'surfaces'];
+  // a stage whose phase is NOT in that list used to vanish from this page
+  // with no error — the registry is the authority on what exists, so append
+  // any phase the server reports that this list does not know about
+  for (const n of Object.keys(stages)) {
+    const ph = stages[n].phase;
+    if (ph && ph !== 'setup' && !phases.includes(ph)) phases.push(ph);
+  }
   const formHost = h('div', {});
   // a page (re)build is a fresh view — never keep polling a log the user
   // watched under another session's page, and never keep a stale strip timer

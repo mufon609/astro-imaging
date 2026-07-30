@@ -312,17 +312,32 @@ def session_model(session):
         for name in sorted(os.listdir(droot)):
             sdir = os.path.join(droot, name)
             if not os.path.isdir(sdir):
+                # A tracked record is not necessarily a JSON OBJECT. A timeline
+                # record is legitimately an ARRAY (transparency_curve.json is a
+                # list of timepoints), and `or {}` does not protect against that
+                # — it only catches None. Calling .get() on a list raised
+                # AttributeError inside session_model, which 500s the WHOLE
+                # session endpoint: every page for that session (frames, culled,
+                # surfaces, sky objects, experiments, framing, records) went dark
+                # on one record's shape, and stayed dark unnoticed because
+                # nothing exercises the API. Read the shape, never assume it.
+                def _status_of(obj):
+                    return obj.get("status") if isinstance(obj, dict) else None
                 if name.startswith("framing_") and name.endswith(".json"):
-                    rec = _read_json(os.path.join(droot, name)) or {}
+                    rec = _read_json(os.path.join(droot, name))
                     model["framing"].append(
                         {"file": f"datasets/{session}/{name}",
-                         "product": rec.get("product"),
-                         "status": rec.get("status")})
+                         "product": rec.get("product") if isinstance(rec, dict) else None,
+                         "status": _status_of(rec)})
                 elif name.endswith(".json"):
-                    rec = _read_json(os.path.join(droot, name)) or {}
+                    rec = _read_json(os.path.join(droot, name))
                     model["session_records"].append(
                         {"name": name, "path": f"datasets/{session}/{name}",
-                         "status": rec.get("status")})
+                         "shape": ("object" if isinstance(rec, dict)
+                                   else "array" if isinstance(rec, list)
+                                   else "unreadable" if rec is None else "scalar"),
+                         "entries": len(rec) if isinstance(rec, (dict, list)) else None,
+                         "status": _status_of(rec)})
                 continue
             qa = _read_json(os.path.join(sdir, "qa_work", "frame_metrics.json"))
             recipe = _read_json(os.path.join(sdir, "recipe.json"))
@@ -419,7 +434,14 @@ def session_model(session):
         # to the LONGEST matching base so a shorter product cannot steal it
         judge_by_base = {}
         for j in model["judge"]:
-            cands = [b for b in bases if j.startswith(b + "_")]
+            # compare the STEM: model["judge"] holds full filenames, so a
+            # base-vs-filename test silently never matches a surface whose stem
+            # EQUALS the base. Equality is a real case — a render-tier surface is
+            # named for the product it renders (stack_<n>_render.fit pairs with
+            # judge/<n>_render.png) — and requiring a "_" suffix against a name
+            # still carrying ".png" orphaned the approved render from its own card.
+            jstem = os.path.splitext(j)[0]
+            cands = [b for b in bases if jstem == b or jstem.startswith(b + "_")]
             if cands:
                 judge_by_base.setdefault(max(cands, key=len), []).append(j)
         for base, variants in sorted(bases.items()):
@@ -701,18 +723,21 @@ def _stage_registry():
             + (["--force"] if a.get("force") else []),
         },
         "sky_flat": {
-            "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/",
+            "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/. DE-SKIED BY DEFAULT, matching the chain: Siril `seqsubsky 1 -nodither` on the source frames removes the sky gradient that is fixed in the ALT-AZ frame, which the drift cannot reject out and a flat would otherwise bake in as a multiplicative tilt on the object (measured: flat odd plane 4.84%->1.98% set-01, 7.82%->2.42% set-02, vignetting held to <=0.12%). The output NAME records it — skyflat_<set>_desky.fit — because a de-skied flat is a different CHAIN SHAPE, not a variant: it must be paired with the per-frame background step, and the light builders below derive that pairing from this name. Leaving it unrecorded put two different products on one path",
             "phase": "calibrate",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
                 {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark", "hint": "master dark under work/masters/"},
+                {"name": "no_desky", "kind": "bool", "req": False, "hint": "opt OUT: build the CONTAMINATED shape as skyflat_<set>.fit. Only for a flat-vs-flat attribution arm — it leaves a 5-23% multiplicative tilt on the object"},
             ],
-            "build": lambda a: ["scripts/stack/build_sky_flat.sh",
-                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
+            "build": lambda a: (lambda ses, st, dsk: ["scripts/stack/build_sky_flat.sh",
+                                P("sessions", ses), st,
                                 "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
-                                "--out=" + P("sessions", _arg_session(a["session"]), "work",
-                                             "masters", f"skyflat_{_arg_set(a['set'])}.fit")],
+                                "--out=" + P("sessions", ses, "work", "masters",
+                                             f"skyflat_{st}{'' if dsk else '_desky'}.fit")]
+            + ([] if dsk else ["--desky"]))(
+                _arg_session(a["session"]), _arg_set(a["set"]), bool(a.get("no_desky"))),
         },
         "stack_standard": {
             "desc": "standard class: calibrate -> register -> rejection stack (matched flats; flatless hard-stops)",
@@ -734,11 +759,20 @@ def _stage_registry():
                 {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "frames", "kind": "int", "req": False, "hint": "even-stride subset preserving the time span"},
             ],
-            "build": lambda a: ["scripts/stack/run_undistort_pipeline.sh",
+            # --desky is DERIVED from the flat's name, never asked for: the two are
+            # halves of one correction. A de-skied flat leaves the sky gradient in
+            # the frames additively for the per-frame background step to remove;
+            # pairing a de-skied flat with NO background step leaves the full
+            # gradient in the product, which the judge stretch then amplifies
+            # 9-17x. That combination shipped once because the flag was passed to
+            # one builder and not the other, so it is no longer a free choice here.
+            "build": lambda a: (lambda flat: ["scripts/stack/run_undistort_pipeline.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
                                 "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
-                                "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
-            + ([f"--frames={_arg_int(a['frames'], 8, 5000)}"] if a.get("frames") else []),
+                                "--flat=" + flat]
+            + (["--desky"] if flat.endswith("_desky.fit") else [])
+            + ([f"--frames={_arg_int(a['frames'], 8, 5000)}"] if a.get("frames") else []))(
+                _arg_repo_path(a["flat"], ["sessions"], ext=".fit")),
         },
         "stack_undistort_groups": {
             "desc": "same class at FULL depth on tight disk: balanced groups -> per-group stacks -> compose",
@@ -750,11 +784,14 @@ def _stage_registry():
                 {"name": "flat", "kind": "path", "req": True, "choices": "masters_flat"},
                 {"name": "group", "kind": "int", "req": False, "hint": "frames per group (default 15)"},
             ],
-            "build": lambda a: ["scripts/stack/run_undistort_groups.sh",
+            # --desky derived from the flat's name, as above
+            "build": lambda a: (lambda flat: ["scripts/stack/run_undistort_groups.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
                                 "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
-                                "--flat=" + _arg_repo_path(a["flat"], ["sessions"], ext=".fit")]
-            + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []),
+                                "--flat=" + flat]
+            + (["--desky"] if flat.endswith("_desky.fit") else [])
+            + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []))(
+                _arg_repo_path(a["flat"], ["sessions"], ext=".fit")),
         },
         "chain_set": {
             "desc": "ONE CLICK, whole durable core for a set (ratified chain amendment): preflight (mount + fingerprint gates) -> frame QA -> route-by-fingerprint stack -> solve -> SPCC -> diagnostic judge surface. Stops wherever a decision is the user's (CONTRADICT, QA flags without a ratified cull, unroutable); built products skip so a re-click resumes. plan=true prints the derived route + exact commands and runs nothing",
@@ -895,6 +932,31 @@ def _stage_registry():
             + ([f"--crop-record={_arg_repo_path(a['crop_record'], ['datasets'], ext='.json')}"]
                if a.get("crop_record") else []))(
                 _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit")),
+        },
+        "render_tier": {
+            "desc": "RENDER TIER — the aesthetic finish, PAST the diagnostic judge surface: Siril `starnet` separation -> Cosmic Clarity denoise on the starless -> per-channel-black-point / common-gain `mtf` stretch -> `asinh -human` stars -> `pm` screen recombine -> judge/ PNG16. USER-GATED THE SAME WAY THE CHAIN GATES A MOUNT: with no ratified `render` block for <name> in the set's recipe it does the measurable work, writes `render_proposed`, prints it and STOPS (exit 7) — nothing aesthetic runs on a knob you have not read and accepted, and re-running after you rename the block reuses the cached layers so ratifying costs one stretch, not another separation + denoise. The KNOBS live in the recipe and are deliberately not exposed here: a browser checkbox is the wrong place to alter a look, and the gate exists to stop exactly that. Every measurement it records is the tool's own (findstar across the separation, pm+isub+bgnoise, wavelet/wrecons per scale, stat main). Refuses to overwrite an existing product unless overwrite is set",
+            "phase": "render",
+            "params": [
+                {"name": "stack", "kind": "path", "req": True, "choices": "stacks",
+                 "hint": "the LINEAR SPCC'd stack to render (background extraction and colour calibration both precede this tier)"},
+                {"name": "name", "kind": "str", "req": True,
+                 "hint": "product/recipe-tag stem — must match the ratified `render` block's name, and names the judge surface <name>_render.png"},
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True, "hint": "which set's recipe holds the render block + where the record is written"},
+                {"name": "plan", "kind": "bool", "req": False, "hint": "print the knobs, their provenance and the output paths; writes nothing, measures nothing"},
+                {"name": "no_separate", "kind": "bool", "req": False, "hint": "skip star separation (stretch the stack as one layer)"},
+                {"name": "no_denoise", "kind": "bool", "req": False, "hint": "skip the denoise stage"},
+                {"name": "overwrite", "kind": "bool", "req": False, "hint": "replace an existing product — without this a re-render REFUSES, so a ladder arm cannot destroy its own control"},
+            ],
+            "build": lambda a: ["scripts/stack/render_tier.sh",
+                                _arg_repo_path(a["stack"], [os.path.join("web", "results")], ext=".fit"),
+                                _safe(re.sub(r"^stack_", "", a["name"]), "name"),
+                                "--session=" + P("sessions", _arg_session(a["session"])),
+                                "--set=" + _arg_set(a["set"])]
+            + (["--plan"] if a.get("plan") else [])
+            + (["--no-separate"] if a.get("no_separate") else [])
+            + (["--no-denoise"] if a.get("no_denoise") else [])
+            + (["--overwrite"] if a.get("overwrite") else []),
         },
         "previews": {
             "desc": "Siril-made navigation previews + manifest (thumbs, selection surfaces, coverage veils)",
