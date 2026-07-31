@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Local web front end for the workspace — static file server + the framing
 record endpoint. LOCAL-ONLY by construction (binds 127.0.0.1; no external
-service — BACKLOG item 12's contract).
+service — BACKLOG:`framing-radec`'s contract).
 
     python3 web/serve.py [--port=8321]
 
@@ -45,7 +45,7 @@ API:
                           output-shaping run (calibrate/execute/finish
                           phases) is REFUSED while any set it builds on has
                           a declared-vs-measured mount CONTRADICT in its
-                          fingerprint (BACKLOG item 1: a consumer never
+                          fingerprint (a consumer never
                           builds on a mislabel); the gate re-derives each
                           set's fingerprint first, so the check never waits
                           to be asked. Measure/surfaces/setup stages stay
@@ -1186,7 +1186,7 @@ def _stage_registry():
 
 STAGES = _stage_registry()
 
-# Structured per-stage documentation for the Run page (BACKLOG item 17):
+# Structured per-stage documentation for the Run page (the ratified Run-page design):
 # `summary` is the card's one-liner; `detail` feeds the expandable process
 # panel (exact commands, the gates that stop and who resolves them, where
 # records land) so the explanation lives beside the command definition and
@@ -1814,7 +1814,7 @@ def stage_status(session):
 def _fingerprint_refresh(session, set_name):
     """Re-derive a set's fingerprint from its tracked records (idempotent —
     scripts/lib/fingerprint.refresh writes only on content change). The
-    automatic seeding hook (BACKLOG item 1c): the mount declaration and the
+    automatic seeding hook: the mount declaration and the
     run gate both call it, so the record exists and stays current without
     anyone asking. Best-effort: a set with no acquisition record yet, or a
     failed derivation, returns None and the caller reads whatever record is
@@ -1857,7 +1857,7 @@ def _mount_gate_sets(stage, args):
 
 def _mount_contradict_block(stage, args):
     """Refuse an output-shaping run for a set whose fingerprint measures the
-    sky CONTRADICTING its declared mount (a labelling error — BACKLOG item 1:
+    sky CONTRADICTING its declared mount (a labelling error:
     consumers STOP on CONTRADICT). Refreshes each candidate first so the gate
     never waits for a derivation to be asked for, then reads the record on
     disk (refresh is best-effort). Returns the refusal reason, or None."""
@@ -2109,7 +2109,7 @@ def build_framing_record(payload):
                                 product[:-5] + "_wcs.fit")
     corners = radec_corners(wcs_path, rs, ch)
     record = {
-        "purpose": "user-drawn product framing (BACKLOG item 12) — the "
+        "purpose": "user-drawn product framing (BACKLOG:`framing-radec`) — the "
                    "record IS the product; nothing renders from an "
                    "unrecorded or unverified box",
         "session": session,
@@ -2241,7 +2241,7 @@ class Handler(SimpleHTTPRequestHandler):
                     json.dump(record, f, indent=1)
                     f.write("\n")
                 # the declaration just landed -> derive its cross-check now
-                # (BACKLOG item 1c: the fingerprint never waits to be asked)
+                # (the fingerprint never waits to be asked)
                 fp = _fingerprint_refresh(_arg_session(payload["session"]),
                                           _safe(payload["set"], "set"))
                 mc = (fp or {}).get("mount_check") or {}

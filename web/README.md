@@ -1,6 +1,6 @@
 # web/ — the local front end (selection + framing, never judgment)
 
-A **local-only** browser surface over the workspace (BACKLOG item 12): browse
+A **local-only** browser surface over the workspace (BACKLOG:`framing-radec`): browse
 sessions and judge surfaces, and draw the product FRAMING rectangle whose
 record the render chain consumes. No external service; the server binds
 127.0.0.1 only.

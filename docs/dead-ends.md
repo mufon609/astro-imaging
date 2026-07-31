@@ -380,7 +380,7 @@ the constraints any such tool must satisfy):
   measured change either way). Size there: drift-phase structured term
   ≈0.34/0.48/0.42 ADU (R/G/B) per ~199-frame half vs ≈1.0/1.5/1.2 total
   static structure (`noise_split.sh`). Acquisition owns the fix (dither
-  between subs); a denoiser is symptom budget only (BACKLOG item 11).
+  between subs); a denoiser is symptom budget only (BACKLOG:`walking-noise`).
 - **Never compose PRE-CROPPED per-set stacks to deliver a frame beyond any
   member's crop** — a per-set `-framing=min` stack has already discarded its
   outer drift zones, so a compose of such members has holes exactly where only

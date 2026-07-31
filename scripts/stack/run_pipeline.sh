@@ -43,7 +43,7 @@ mkdir -p "$W/masters" "$RESULTS"
 # average. No-op for a telescope/astrocam set (no camera raws, no lens EXIF).
 # It does NOT pass --require-profile: that proves darktable's lens correction
 # actually fires, and this script has no undistort stage to protect yet (the
-# wide-field-untracked route is driven separately — BACKLOG item 2). Add the
+# wide-field-untracked route is driven separately — BACKLOG:`route-recommendation`). Add the
 # flag here when that stage lands.
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" || exit 1
 
@@ -104,7 +104,7 @@ INS() {
 # -filter-incl at stack; the flag is mandatory (plain stack measured to
 # IGNORE manual selection). "exclude" numbers name frames by their trailing
 # FILENAME digits — the ONE repo-wide convention (scripts/lib/cullspec.py;
-# BACKLOG item 19: index-style excludes measured silently no-opping in the
+# a measured trap: index-style excludes measured silently no-opping in the
 # filename-matching builder). cullspec maps them here to 1-based SEQUENCE
 # POSITIONS over the same sorted light list `convert` stages (loud ABORT on
 # a never-matching/ambiguous exclude); a dual-band set's extracted line

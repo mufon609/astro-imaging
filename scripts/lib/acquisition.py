@@ -332,7 +332,7 @@ def resolve(session_dir, set_name, frames):
     # own measures) says the sky moves the OTHER way is mislabelled, and every
     # consumer of this record would build on that error. Read-only here — the
     # fingerprint module derives; this just refuses to hand out a contradicted
-    # declaration (BACKLOG item 1: consumers STOP on CONTRADICT).
+    # declaration (consumers STOP on CONTRADICT).
     fp_path = os.path.join(os.path.dirname(path), "fingerprint.json")
     try:
         mount_check = (json.load(open(fp_path)) or {}).get("mount_check") or {}

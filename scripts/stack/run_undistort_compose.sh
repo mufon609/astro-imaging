@@ -23,7 +23,7 @@
 #
 # -framing=min keeps the area common to ALL sub-stacks — across sets that is the
 # re-aim OVERLAP, so measure the re-aim scatter first (a large re-aim shrinks it;
-# BACKLOG item 8). -framing=max keeps the union (edges covered by fewer
+# the compose work). -framing=max keeps the union (edges covered by fewer
 # sub-stacks; depth/SNR fall off outward). Re-run with the same dirs to switch
 # framing without recomputing sub-stacks.
 #

@@ -5,7 +5,7 @@ An exclude entry names a frame by the trailing digit run of its file name
 (DSC_8647.NEF -> 8647; "M 20 Blue 16.fits" -> 16). Filename numbers are
 stable across re-staging, re-batching and re-conversion; QA sequence indices
 are not (they shift with the staged file list), and the two conventions
-coexisting produced a measured silent no-op cull (BACKLOG item 19: an
+coexisting produced a measured silent no-op cull (a measured trap: an
 index-style recipe consumed by the filename-matching builder excluded
 nothing, exit 0). Every consumer and writer routes through this module:
 
@@ -95,7 +95,7 @@ def main():
             print(f"cullspec: {p}", file=sys.stderr)
         sys.exit(f"cullspec: ABORT — {len(problems)} exclude(s) cannot apply "
                  f"exactly (recipe {recipe}); a cull must never silently no-op "
-                 "(BACKLOG item 19)")
+                 "(a measured silent-no-op trap)")
     n_ex = len(frames) - len(kept)
     print(f"cull: recipe excludes {n_ex} frame(s); {len(kept)} eligible"
           if n_ex else f"cull: no recipe exclusions; {len(kept)} eligible",

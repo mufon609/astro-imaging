@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Normalization-invariant regional SNR ladder across stacks (the depth
-instrument BACKLOG item 8 names).
+instrument the compose work named).
 
 SNR here = (median of a signal region − median of a sky region) / the
 image's background-noise estimate — computed WITHIN each stack, so the

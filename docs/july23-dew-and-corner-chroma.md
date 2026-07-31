@@ -3,7 +3,7 @@
 - **Question / scope** — The july23 NAN session's two data-quality findings,
   recorded current-state: (A) progressive DEW on the lens — the one
   REMAINING, environment-side issue, which sized the final combine; (B) a
-  warp-leg ICC defect — found, fixed, verified (BACKLOG item 20, closed).
+  warp-leg ICC defect — found, fixed, verified (closed).
 - **Context** — Session 00:40–02:31 EDT 2026-07-24: Z6III + 24-70/4 S @
   70 mm f/4, fixed tripod, 4×~400×3 s ISO 1600, flatless (per-set sky
   flats), 211 matched darks. Chain: 32-bit float durable core
@@ -42,7 +42,7 @@ re-run the halo timeline from `sessions/<session>/work/dewprobe/`
 (mean-based star-minus-flanks ministacks + the frame-QA FWHM/nstars
 trends).
 
-## B. Warp-leg ICC defect — RESOLVED (item 20)
+## B. Warp-leg ICC defect — RESOLVED
 
 **Defect:** the wide-field chain's float TIFF round trip (Siril `savetif32`
 → darktable warp → reconvert) was not an identity at low levels: a TRC
@@ -79,7 +79,7 @@ min-framing, nbstack weights. Judgment surfaces (pinned per-product rule,
 `judge/set-01+02_min32_spcc-linked.png`. Per-set stacks for all four sets
 (and `stack_set-03_400full`) preserved beside them. The remaining
 output-shaping work (background extraction, stretch policy — the render
-tier, BACKLOG item 0) is user-gated as ever; these surfaces are the durable
+tier, BACKLOG:`render-ladder`) is user-gated as ever; these surfaces are the durable
 core's diagnostic finish.
 
 ## Sources
@@ -109,4 +109,4 @@ verification measured on the shipped products.
 
 dead-ends: mean-not-median halo photometry; dew-control checklist line;
 the ICC float-leg contract + icc_remove trap; verify-at-sky-level rule.
-BACKLOG: items 19/20 closed and removed; dew disposition executed.
+BACKLOG: the cull-spec and ICC-toe items are closed and removed; dew disposition executed.

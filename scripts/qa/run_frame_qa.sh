@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Per-frame registration QA for a light set — the MEASURE step of the operating
-# loop, and the input to the per-set culling decision (BACKLOG item 3 policy).
+# loop, and the input to the per-set culling decision (the ratified per-set cull policy).
 #
 #   run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]
 #

@@ -44,7 +44,7 @@
 
 ### Phase 4 — The render toolkit, per tier (`TOOLS.md` + the tool deep-dives)
 
-**Phase 4 runs the render-tier ladders** — BACKLOG item 0's pre-registered
+**Phase 4 runs the render-tier ladders** — BACKLOG:`render-ladder`'s pre-registered
 skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), re-anchored to
 the staged corpus by the operating loop (the render surface is probed present
 on the base rig too; only the neural/separation binaries are arm-blocked).
@@ -55,7 +55,7 @@ the migration rule; the rows below then add the environment-unlocked tiers
 |---|---|---|---|
 | **Workflow order** on a real dataset: linear-first default vs the 2026 nonlinear-stage alternative (ben.land) | strong-default vs a measurable alternative | gate/audit deltas, full-frame lossless finals | declared delta; user's eyes on aesthetics |
 | **Deconv**: BXT `--correct-only` vs GraXpert deconv (RC) vs Siril RL, on trailed stars | which fixes trailing; is GraXpert deconv usable/buggy (#243) | star roundness + ringing (the radial-undershoot metric) | BXT expected best; measure |
-| **Denoise / chroma**: does NXT AI3 expose a chroma-specific control + close the chroma-noise gap? vs DeepSNR / Siril `denoise` / GraXpert | the NXT-AI3 "likely fill" (UNVERIFIED) | chroma-channel MAD on masked background (audit metric); the walking-noise class-measure (retired corpus: drift-phase structured σ ≈0.34/0.48/0.42 ADU per ~199-frame half vs random ≈0.64/0.76/0.76 — git; re-derive per corpus, BACKLOG item 11) — re-run the split on the denoised surface: the structured term should shrink, the confusion texture (real sky) should NOT | chroma noise down without texture loss; structured term down, star/texture untouched |
+| **Denoise / chroma**: does NXT AI3 expose a chroma-specific control + close the chroma-noise gap? vs DeepSNR / Siril `denoise` / GraXpert | the NXT-AI3 "likely fill" (UNVERIFIED) | chroma-channel MAD on masked background (audit metric); the walking-noise class-measure (retired corpus: drift-phase structured σ ≈0.34/0.48/0.42 ADU per ~199-frame half vs random ≈0.64/0.76/0.76 — git; re-derive per corpus, BACKLOG:`walking-noise`) — re-run the split on the denoised surface: the structured term should shrink, the confusion texture (real sky) should NOT | chroma noise down without texture loss; structured term down, star/texture untouched |
 | **Star-neutral (narrowband)**: measure mean star colour in the examine layer → apply a diagonal `ccm`; bracket vs SPCC and vs Nightlight (`go build`) | the doctrine-clean ccm+measurement design (untested) | OIII-shell B/R + mean star chroma → neutral | sphere lifts, stars ~neutral |
 | **pyscript headless**: try a Class-1 GUI script (VeraLux) under `xvfb-run`/`QT_QPA_PLATFORM=offscreen`; run a dual-mode one (`Statistical_Stretch`, SyQon Prism `--no-gpu`) via `.ssf` | are Class-1 GUI scripts batch-drivable? (expected: no) | does it run + accept params non-interactively | confirm the escape-hatch boundary |
 

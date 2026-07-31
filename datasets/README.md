@@ -29,7 +29,7 @@ The per-dataset state MODEL (durable — a new dataset gets these files):
 | `experiments.jsonl` | the tuning-experiment ledger (append-only: param, values, control, hypothesis, pinned stack, verdict). A killed hypothesis is ALSO written to the dead-end registry (`docs/dead-ends.md`) with its mechanism | DURABLE model — re-wired to the x86 chain's ladder |
 | `baseline.json` | the no-regression record (pinned stack sha, the expected TOOL-reported measures, artifact hashes) | PENDING — written only by the no-regression harness, which rides the render-tier build; chain-coupled, so none exist yet |
 | `../GENERIC.json` | the repo-wide base layer of generic render knobs | STUB — re-seeded by the render-tier build's laddered knobs |
-| `fingerprint.json` | the DERIVED config fingerprint (BACKLOG item 1): trail/drift geometry from header facts + solves + findstar metrics, the declared-vs-measured `mount_check` by two instruments (the decisive-only trail-vs-roundness check, needing no solve, and the two-window drift solves near the boundary — CONFIRM / CONTRADICT / INDETERMINATE; a consumer STOPS on CONTRADICT: `acquisition.resolve` raises, the web run gate refuses output-shaping stages) and a `route_hint` | DURABLE — derived by `scripts/lib/fingerprint.py`, seeded automatically (mount declaration, frame QA, run gate — each calls `refresh()`, content-compare write) |
+| `fingerprint.json` | the DERIVED config fingerprint: trail/drift geometry from header facts + solves + findstar metrics, the declared-vs-measured `mount_check` by two instruments (the decisive-only trail-vs-roundness check, needing no solve, and the two-window drift solves near the boundary — CONFIRM / CONTRADICT / INDETERMINATE; a consumer STOPS on CONTRADICT: `acquisition.resolve` raises, the web run gate refuses output-shaping stages) and a `route_hint` | DURABLE — derived by `scripts/lib/fingerprint.py`, seeded automatically (mount declaration, frame QA, run gate — each calls `refresh()`, content-compare write) |
 
 Rules (the same contract as README "How a change is accepted"):
 
@@ -62,5 +62,5 @@ Rules (the same contract as README "How a change is accepted"):
   web-servable `web/results/<session>/`.
 
 The render-knob schema and the no-regression sweep re-establish with the
-render-tier build (user-gated; the ladder plan is BACKLOG item 0, the x86
+render-tier build (user-gated; the ladder is BACKLOG:`render-ladder`, the x86
 re-measure rides `docs/x86-empirical-test-plan.md`).

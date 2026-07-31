@@ -99,7 +99,7 @@ mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort)
 # cull via the single-source cullspec (filename-digit convention; loud ABORT
-# on a never-matching or ambiguous exclude — BACKLOG item 19)
+# on a never-matching or ambiguous exclude)
 RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
 mapfile -t SRC < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$RECIPE" "${SRC[@]}")
 [ ${#SRC[@]} -ge 1 ] || { echo "ABORT: cull resolution failed or left no frames (see cullspec message above)" >&2; exit 1; }

@@ -49,7 +49,7 @@
 # 1.0000 at every level, every channel) with the warp confirmed firing
 # (corner 0.22 vs centre 0.003). The former SRGB/SRGB tag-matching contract
 # (the 16-bit-era rule) carries a TRC toe-segment mismatch that inflates
-# 3s-class sky levels +2..5% below linear ~0.003 (BACKLOG item 20 probe;
+# 3s-class sky levels +2..5% below linear ~0.003 (the ICC-toe probe;
 # docs/dead-ends.md ICC entry). NEVER use siril `icc_remove` for the strip —
 # measured applying a global ~1/12.92 scale through the same leg.
 set -euo pipefail
@@ -123,7 +123,7 @@ mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
 # The ratified per-set cull: recipe.json stack.exclude names frames by their
 # trailing FILENAME digits — resolved by the single-source cullspec (loud
 # ABORT on an exclude that matches zero or several frames; a cull must never
-# silently no-op — BACKLOG item 19).
+# silently no-op — a measured trap).
 RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
 mapfile -t SRC < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$RECIPE" "${SRC[@]}")
 [ ${#SRC[@]} -ge 1 ] || { echo "ABORT: cull resolution failed or left no frames (see cullspec message above)" >&2; exit 1; }
