@@ -988,8 +988,16 @@ async function refreshJobs(logView) {
   // that name no session) — other sessions' logs are their pages' business
   const running = all.filter(j => j.status === 'running');
   document.getElementById('n-run').textContent = running.length ? '●' : '';
-  const jobs = all.filter(j => !M.session || !j.session || j.session === M.session);
-  const elsewhere = running.filter(j => j.session && M.session && j.session !== M.session);
+  // Filter on SESSION, not M.session, and NEVER default to show-all. M is
+  // awaited (loadSession sets SESSION synchronously, then fetches M), so during
+  // a session switch M still holds the PREVIOUS session's model and a falsy
+  // M.session opened the filter completely — which is exactly the reported bug:
+  // starting a job repopulated the table with other sessions' rows. The running
+  // strip below already used SESSION. A sessionless job is rig-level and stays
+  // visible by design; if SESSION were somehow unset, only those show, which is
+  // the safe direction.
+  const jobs = all.filter(j => !j.session || j.session === SESSION);
+  const elsewhere = running.filter(j => j.session && j.session !== SESSION);
   const list = document.getElementById('joblist');
   if (list) list.replaceChildren(...[
     elsewhere.length
