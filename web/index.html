@@ -716,11 +716,10 @@ function pgRenders() {
       // floor is UNMEASURABLE, not better — the server owns the number.
       r.colour_check ? h('div', {},
         h('div', { class:'m' },
-          h('span', { class: r.colour_check.verdict === 'NULL' ? 'chip ok' : 'chip warn',
-                      title: r.colour_check.why }, r.colour_check.verdict),
-          ' colour: the curve moved the sky by at most ',
+          h('span', { class:'chip ok', title: r.colour_check.why }, r.colour_check.verdict),
+          ' colour: the curve moved the sky by ',
           h('b', {}, `${r.colour_check.worst_delta_pct}%`),
-          ` against a run-to-run floor of ${r.colour_check.floor_pct}%`),
+          ' — exact, because every stage is bit-identical run to run'),
         h('div', { class:'why' }, r.colour_check.why),
         h('details', { class:'m' }, h('summary', {}, 'the numbers'),
           h('table', { class:'ledger' },
@@ -729,7 +728,8 @@ function pgRenders() {
               h('td', {}, k.replace('_over_', '/')),
               h('td', {}, String(v.rendered)), h('td', {}, String(v.linear)),
               h('td', {}, `${v.delta_pct > 0 ? '+' : ''}${v.delta_pct}%`)))),
-          h('div', { class:'why' }, r.colour_check.no_win_possible)))
+          h('div', { class:'why' }, r.colour_check.no_verdict_possible),
+          h('div', { class:'why' }, 'reproducibility: ' + r.colour_check.reproducibility)))
         : ((sky && lin) ? h('div', { class:'m' },
             `rendered sky R/G ${ratio(sky,'R','G')} B/G ${ratio(sky,'B','G')} · `
             + `same layer LINEAR R/G ${ratio(lin,'R','G')} B/G ${ratio(lin,'B','G')}`) : null),
@@ -749,7 +749,7 @@ function pgRenders() {
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'renders'),
     h('div', { class:'sub' }, 'the aesthetic finish past the diagnostic surface — every number here is the tool\'s own, and the look is ratified in the set recipe, not here. Judge in your own viewer.'),
-    chipLegend(['RATIFIED look', 'not the ratified look', 'git-approved', 'not tagged', 'NULL', 'needs-eyes']),
+    chipLegend(['RATIFIED look', 'not the ratified look', 'git-approved', 'not tagged', 'exact']),
     renders.length ? h('div', { class:'cards' }, renders)
       : h('div', { class:'card' }, h('h3', {}, 'no renders yet'),
           h('p', {}, 'the render tier is a per-run stage past the diagnostic judge surface. It STOPS the first time with a proposal for you to accept, so nothing aesthetic runs on a knob you have not read.'),
@@ -1378,8 +1378,7 @@ const CHIP_HELP = {
   'proposal': 'the render tier measured the knobs and wrote them to the recipe for you to accept. Not a failure',
   'rig': 'a rig-level job, not tied to this session',
   'info': 'informational — no probe needed or nothing to assert',
-  'NULL': 'a clean null: the effect is at or below this chain\'s own run-to-run floor, so it is UNMEASURABLE here. Not a win — a win needs a control arm to beat',
-  'needs-eyes': 'the effect is above the run-to-run floor, so it is real. Whether it is BETTER is aesthetic, and that is your call on the full-frame PNG16',
+  'exact': 'this number is not an estimate: every stage of the render tier is bit-identical run to run (measured with Siril isub), so a re-render reproduces it and any difference between two ladder arms off the same stack is the knob. Whether the shift MATTERS is aesthetic — your call on the full-frame PNG16',
   'git-approved': 'a <session>-all<N>-<tag>-approved git tag exists: you judged this product and re-baselined it',
   'git-approved render on file': 'at least one product in this session carries a <session>-all<N>-<tag>-approved git tag — you judged it and re-baselined it',
   'not tagged': 'no approval tag yet. A ratified look is not an approved render — the tag is the record',

@@ -182,12 +182,15 @@ it, each answering a question it can actually answer:
 1. **Reproducibility (not byte-identity).** The render is a function of its
    *pinned* inputs — tool versions (the install manifest), every param and seed
    pinned, no unseeded step. It does NOT require a byte-identical re-render, and
-   demanding one is the wrong bar on the tool-first x86 chain: its multi-threaded
-   neural inference (RC-Astro BXT/NXT/SXT, Cosmic Clarity, StarNet) uses ONNX
-   reductions that are often not bit-reproducible, so byte-identity would fail a
-   *correct* render — and it already cost `subsky` its `-dither` (anti-banding
-   sacrificed to the check; the item-7 background A/B's on-stack arm re-enables
-   it). Verify **cheaply** (a fast canary + the
+   demanding one is the wrong bar in general — but do not ASSUME a neural stage
+   cannot give it. MEASURED on this rig, per stage, two identical runs compared with
+   Siril `isub`: StarNet2 (also across thread counts), Cosmic Clarity denoise, and
+   Siril's stretch + `asinh` + `pm` recombine are all **bit-identical**, so the
+   render tier reproduces byte for byte and byte-identity IS the available bar here
+   (`docs/dead-ends.md`). The general caution still stands for tools not yet
+   measured (RC-Astro BXT/NXT/SXT are uninstalled) — and the no-unseeded-step rule
+   already cost `subsky` its `-dither`, which is what made `seqsubsky`'s opt-OUT
+   dither a defect when it shipped. Verify **cheaply** (a fast canary + the
    deterministic orchestration, not a doubled full-res render) to a documented
    **tolerance**: byte-identity where a tool actually gives it (siril native
    single-thread, deterministic float32 temp-FITS round-trips), reproducibility

@@ -265,23 +265,40 @@ def _stack_header(path):
         return {"naxis": None, "stackcnt": None}
 
 
-# The render tier's own run-to-run floor in the colour ratios it is judged on,
-# MEASURED from two runs of ONE pinned recipe (StarNet2 + Cosmic Clarity are
-# multi-threaded neural inference and not bit-reproducible): sky R/G moved 1.34%
-# and B/G 0.85%, bright R/G 0.64% and B/G 0.46%. Any ratio difference at or below
-# this is UNMEASURABLE on this chain, not an improvement — the same trap the
-# registry records for stack-level A/Bs. One owner for the number, so the UI
-# never hardcodes it.
-RENDER_RATIO_FLOOR_PCT = 1.34
+# THE RENDER TIER IS BIT-REPRODUCIBLE. Measured per stage, two identical runs each,
+# compared with Siril isub (all-nil = bit-identical):
+#   StarNet2 separation via siril `starnet -stretch` — identical, and identical
+#     again across thread counts (default 28 vs `setcpu 1`)
+#   Cosmic Clarity denoise (--disable_gpu, separate mode) — identical, and identical
+#     across thread counts too (28 vs OMP_NUM_THREADS=1)
+#   Siril stretch + `asinh -human` + `pm` recombine — identical
+# So a re-render reproduces byte for byte and the colour numbers below are EXACT,
+# not estimates. There is NO run-to-run floor to hide an effect under: between two
+# ladder arms off the SAME source stack, any difference is the knob.
+#
+# THIS REPLACED A FLOOR OF 1.34% THAT WAS A MISATTRIBUTION. That number came from
+# two `render_set-01+02_desky.json` records, one committed and one left uncommitted,
+# read as a same-arm repeat. The old record logged neither its linear source nor its
+# knob provenance, so nothing in it established that the two runs shared inputs and
+# knobs — and with every stage now measured deterministic, two identical runs could
+# not have produced different ratios, so something unrecorded differed. Treating it
+# as a noise floor made the verdict far too permissive: a real 1% colour shift would
+# have been reported as "unmeasurable". The lesson is in docs/dead-ends.md.
+#
+# A DIFFERENT floor does apply to comparisons whose arms were separately STACKED
+# (interpolation variance in registration: 2.06% of sky at star edges, 0.073% in
+# flat sky — docs/dead-ends.md). That is not this comparison.
 
 
 def _render_colour_check(measures):
-    """Verdict on how far the curve moved the sky's colour, against the floor.
+    """How far the CURVE moved the sky's colour — exactly.
 
-    Compares the rendered sky to the SAME layer's linear numbers — same pixels
+    Compares the rendered sky to the SAME layer's linear numbers: same pixels
     either side of the curve, so the difference is the curve's and nothing else.
-    Deliberately never returns WIN: there is no control arm here, and a delta
-    below the floor is unmeasurable rather than good."""
+    Returns no WIN/NULL verdict, because neither is honest here — there is no
+    control arm to beat, and no noise floor to fall under. A nonzero shift is
+    INHERENT (a nonlinear curve cannot preserve ratios); the number's job is to be
+    compared between ladder arms, where it is exact."""
     sky = (measures or {}).get("rendered_sky_stat_main") or {}
     lin = (measures or {}).get("stretched_layer_linear_stat_main_x100") or {}
     if not (sky and lin) or not all(c in sky and c in lin for c in "RGB"):
@@ -301,18 +318,18 @@ def _render_colour_check(measures):
     worst = max(abs(v["delta_pct"]) for v in out.values())
     return {
         "ratios": out, "worst_delta_pct": worst,
-        "floor_pct": RENDER_RATIO_FLOOR_PCT,
-        "verdict": "NULL" if worst <= RENDER_RATIO_FLOOR_PCT else "needs-eyes",
-        "why": (f"the curve moved the sky colour by at most {worst:.2f}%, at or "
-                f"below this chain's own run-to-run floor of "
-                f"{RENDER_RATIO_FLOOR_PCT}% — UNMEASURABLE here, not an improvement"
-                if worst <= RENDER_RATIO_FLOOR_PCT else
-                f"the curve moved the sky colour by {worst:.2f}%, ABOVE this "
-                f"chain's run-to-run floor of {RENDER_RATIO_FLOOR_PCT}% — a real "
-                f"shift; judge it on the full-frame PNG16 in your own viewer"),
-        "no_win_possible": ("a WIN needs a control arm to beat; this compares one "
-                            "render against its own input layer, so the only "
-                            "honest verdicts are NULL and needs-eyes"),
+        "verdict": "exact",
+        "why": (f"the curve moved the sky colour by at most {worst:.2f}%. This is "
+                f"EXACT, not an estimate: every stage of the tier is bit-identical "
+                f"run to run (measured), so a re-render reproduces this number and "
+                f"any difference between two ladder arms off the same stack is the "
+                f"knob. A nonzero shift is inherent — a nonlinear curve cannot "
+                f"preserve channel ratios — so judge it on the full-frame PNG16."),
+        "reproducibility": ("bit-identical per stage: StarNet2 (also across thread "
+                            "counts), Cosmic Clarity denoise, and Siril's stretch + "
+                            "asinh + pm recombine, each verified with isub"),
+        "no_verdict_possible": ("neither WIN nor NULL is honest here: no control arm "
+                               "to beat, and no run-to-run floor to fall under"),
     }
 
 

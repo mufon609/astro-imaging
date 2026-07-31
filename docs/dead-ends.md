@@ -504,6 +504,32 @@ the constraints any such tool must satisfy):
   Siril `stat` regional medians on the LINEAR image, and state the domain with the
   number. (Same trap in reverse: a pedestal-included ADU ratio understates a light-
   domain falloff — a ~1 EV vignetting read "6.3%" with the ~1007 ADU pedestal in.)
+- **Do NOT assume "neural / ONNX / multi-threaded" means non-reproducible — MEASURE
+  it. On this rig the whole render tier is BIT-IDENTICAL run to run.** Two identical
+  runs of each stage, compared with Siril `isub` (all-nil = bit-identical):
+  StarNet2 via siril `starnet -stretch` — identical, and identical AGAIN across
+  thread counts (default 28 vs `setcpu 1`, and cross-compared); Cosmic Clarity
+  denoise (`--disable_gpu`, separate mode) — identical, and identical across thread
+  counts too (28 vs `OMP_NUM_THREADS=1`), so the determinism is not an artifact of one
+  machine state; Siril's stretch +
+  `asinh -human` + `pm` recombine — identical. So byte-identity IS the available
+  bar here and a re-render reproduces exactly. Neither binary even exposes a
+  thread/seed/device flag to pin (StarNet2's CLI is I/O + weights + stride +
+  upsample only), so the reproducibility came free rather than from pinning.
+- **The trap that replaced: a "run-to-run floor" derived from two runs whose inputs
+  were never recorded.** A 1.34% colour floor was taken from two render records —
+  one committed, one left uncommitted — read as a same-arm repeat, and hardcoded
+  into a verdict that then called anything below 1.34% "unmeasurable". The old
+  record logged NEITHER its linear source NOR its knob provenance, so nothing in it
+  established that the two runs shared inputs and knobs; once every stage measured
+  deterministic, two identical runs could not have produced different ratios, so
+  something unrecorded differed. **A floor is a MEASUREMENT, not a subtraction of
+  two numbers you happen to have** — bracket it deliberately with both arms'
+  provenance recorded, or you build a threshold that hides real effects. The cost
+  here was a verdict permissive enough to call a real 1% colour shift noise. (The
+  stack-level floor in this registry — 2.06% at star edges, 0.073% in flat sky — is
+  real, but it measures INTERPOLATION variance between separately REGISTERED
+  stacks; it does not apply to two renders of one stack.)
 - Never judge a denoiser by whole-frame `bgnoise`: the estimator conflates
   revealed texture with noise, so a real denoise can RAISE it (measured on one
   1024² tile: Siril `denoise` 2.05→2.55 while GraXpert denoise read 1.14 on

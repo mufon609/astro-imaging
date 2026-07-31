@@ -36,7 +36,7 @@ item below.
 | per-set sky flat, de-skied (`build_sky_flat.sh --desky`) | a matching REAL flat for the set | **not fired** — the validated flatless route. `--desky` removes the alt-az-fixed sky term the drift cannot reject; it is not optional alongside the per-frame background step |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | **not fired** — not adopted; vignetting-only fallback |
 | 16-bit in three instruments (`coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`) | the leg stops terminating in an integer/8-bit product | **not fired** — each exemption is stated in `check_bitdepth.sh` with the reason its precision is capped downstream anyway |
-| unpinned neural stages (StarNet2, Cosmic Clarity) in the render tier | the tools expose thread/seed pinning, or a deterministic mode | **NOT YET CHECKED** — see `BACKLOG:render-reproducibility`. The contract requires a stage varying above tolerance to be flagged AND pinned if it can be; only the flagging is done |
+| ~~unpinned neural stages in the render tier~~ | — | **RETIRED, not fired: there was no divergence.** MEASURED bit-identical per stage (StarNet2 also across thread counts, Cosmic Clarity denoise, Siril's stretch/asinh/pm), so byte-identity is the available bar and nothing needed pinning. Neither binary exposes a thread/seed flag anyway. Numbers in `docs/dead-ends.md` |
 | `frame_metrics.json` CFA-sampled FWHM (Bayer-inflated, relative-only) | re-measure debayered where disk allows | **FIRED** — the arm rig is gone; 933 G free. Every absolute FWHM in the records is still inflated. Re-measure debayered on the next frame-QA run and drop the caveat |
 | `run_undistort_groups.sh` group composition (one extra interpolation pass) | free disk ≥ the single-pass peak (~231 MB/frame) | **FIRED** — 933 G against ~90 G for 400 frames, so `run_undistort_pipeline.sh` is always reachable and the route is dormant. Keep the script (a bigger corpus can re-arm it) but stop treating it as a live route |
 
@@ -71,20 +71,28 @@ remains is the LADDER around it and the harness it feeds.
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
 
-## `render-reproducibility` — pin the neural stages or record the tolerance
+## `render-reproducibility` — CLOSED: the tier is bit-reproducible
 
-MEASURED from two runs of ONE pinned recipe: the render's colour ratios move
-**0.85–1.34%** (sky R/G 1.34%, B/G 0.85%; bright R/G 0.64%, B/G 0.46%). StarNet2 and
-Cosmic Clarity are multi-threaded ONNX inference and not bit-reproducible. The
-acceptance contract requires such a stage to be flagged **and pinned to deterministic
-settings — single-thread / fixed device — if it can be**; only the flagging is done,
-and `RENDER_RATIO_FLOOR_PCT` in `web/serve.py` currently hardcodes the consequence.
+**Measured, so this is done.** Two identical runs of each stage, compared with Siril
+`isub` (all-nil = bit-identical): StarNet2 via `starnet -stretch` — identical, and
+identical again across thread counts (default 28 vs `setcpu 1`, cross-compared);
+Cosmic Clarity denoise (`--disable_gpu`, separate mode) — identical; Siril's stretch
++ `asinh -human` + `pm` recombine — identical. Nothing needed pinning, and neither
+binary exposes a thread/seed/device flag to pin with.
 
-This gates every future colour comparison: any laddered arm below the floor is
-unmeasurable, so the floor must be as small as the tools allow before the ladder
-runs. **Test:** probe both binaries for thread/seed/device flags; if pinnable, pin and
-re-measure the floor with a same-arm repeat; if not, record it as an irreducible
-tolerance with its number.
+**A number this corrected.** The 1.34% "run-to-run floor" that motivated this item was
+a misattribution: it came from two render records read as a same-arm repeat, where the
+old record logged neither its linear source nor its knob provenance. It is gone from
+`web/serve.py`, and the render colour check now reports an EXACT shift with no
+NULL-below-floor verdict — because with a deterministic chain there is no floor to
+hide an effect under, and between two ladder arms off one stack any difference is the
+knob. Mechanism + the "a floor is a measurement, not a subtraction" lesson:
+`docs/dead-ends.md`.
+
+Thread-count invariance holds for BOTH neural stages: StarNet2 at siril's default 28
+threads vs `setcpu 1`, and Cosmic Clarity at 28 vs `OMP_NUM_THREADS=1` — bit-identical
+each way and cross-compared. So the determinism is not an artifact of one machine
+state, and a rig with a different core count reproduces the same bytes.
 
 ## `learned-deconvolution` — unmeasured, and the tool is installed
 
