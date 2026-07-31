@@ -216,7 +216,9 @@ async function nextActionBlock() {
   let st = {}, stages = {};
   try { st = await fetchStatus(); } catch {}
   try { stages = await (await fetch('/api/stages')).json(); } catch {}
-  const keys = Object.keys(st);
+  const scope = st._scope || null;
+  // keys beginning with _ are payload metadata, not stages
+  const keys = Object.keys(st).filter(k => !k.startsWith('_'));
   if (!keys.length) return null;
   // PIPELINE order, so "next" means next. Phase alone is too coarse — sorting
   // alphabetically inside a phase put anomaly_audit ahead of frame_qa, which is
@@ -253,6 +255,17 @@ async function nextActionBlock() {
                                                           : 'run it →')))
       : h('div', { class:'card' }, h('h3', {}, 'nothing outstanding'),
           h('p', {}, `every stage this session reports as done or not applicable (${done} done). The aesthetic judgement is still yours — open the finals in your own viewer.`)),
+    scope ? h('div', { class:'m', style:'margin:8px 0' },
+      `readiness counts ${scope.counted.length} light set${scope.counted.length === 1 ? '' : 's'}: `,
+      h('code', {}, scope.counted.join(', ') || 'none'),
+      (scope.skipped || []).length ? h('details', {},
+        h('summary', {}, `${scope.skipped.length} set${scope.skipped.length === 1 ? '' : 's'} not counted — why`),
+        h('table', { class:'ledger' }, ...scope.skipped.map(k =>
+          h('tr', {}, h('td', {}, h('code', {}, k.set)),
+            h('td', {}, `${k.frames} frames`),
+            h('td', { class:'why' }, k.why)))),
+        h('div', { class:'why' }, 'These are excluded because the pipeline scripts themselves refuse them, not because the page hid them. Counting them made "next" point at work nobody can do.'))
+        : null) : null,
     h('details', { class:'m', style:'margin:10px 0' },
       h('summary', {}, `all ${ordered.length} stages — state and the evidence behind it`),
       h('table', { class:'ledger' },
@@ -935,6 +948,7 @@ async function updateStageChips() {
   if (!document.getElementById('joblist')) return;   // only on the Run page
   const st = await fetchStatus();
   for (const [name, s] of Object.entries(st)) {
+    if (name.startsWith('_')) continue;               // payload metadata
     const el = document.getElementById('stchip_' + name);
     if (el) applyStageChip(el, s);
   }

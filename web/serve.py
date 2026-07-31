@@ -1546,6 +1546,36 @@ def env_status():
     return out
 
 
+# What the pipeline can actually act on. These minimums are the SCRIPTS' OWN
+# refusals, quoted, not a judgement call made here:
+#   run_set_chain.sh:57 and run_frame_qa.sh:69  -> a set under 8 frames is refused
+#   build_sky_flat.sh:170                       -> a sky flat needs 20 ("a deep
+#                                                  un-registered stack")
+# Readiness that counts sets the scripts would reject reports work nobody can do:
+# july23's next action read "frame_qa missing for: dew_chroma, set-00" where
+# dew_chroma is a records-only investigation directory with NO frame dir at all and
+# set-00 is a 3-frame test burst. Neither can be processed by any stage.
+MIN_SET_FRAMES = 8
+MIN_FLAT_FRAMES = 20
+
+
+def _set_frames(s):
+    """Frames a set actually has — measured count first, staged count otherwise."""
+    return ((s.get("frame_qa") or {}).get("total")
+            or s.get("staged_frames") or s.get("kept") or 0)
+
+
+def _unprocessable(s, minimum=MIN_SET_FRAMES):
+    """Why this set cannot be worked on, or None if it can. Never silent."""
+    n = _set_frames(s)
+    if not n:
+        return "no frames staged — a records-only directory, nothing to process"
+    if n < minimum:
+        return (f"only {n} frame{'' if n == 1 else 's'} staged, under the {minimum} "
+                f"the scripts themselves refuse below")
+    return None
+
+
 def stage_status(session):
     """Per-stage pipeline state for the Run page chips: done | running |
     todo | na, each with its evidence. Derived from products on disk (the
@@ -1555,7 +1585,13 @@ def stage_status(session):
     m = session_model(session)
     if m is None:
         raise ValueError(f"no such session: {session}")
-    lights = [s for s in m["sets"] if s.get("kind") == "lights"]
+    all_lights = [s for s in m["sets"] if s.get("kind") == "lights"]
+    # readiness is scoped to sets the scripts would accept; the excluded ones are
+    # REPORTED below, never dropped quietly
+    lights = [s for s in all_lights if not _unprocessable(s)]
+    skipped = [{"set": s["set"], "frames": _set_frames(s),
+                "why": _unprocessable(s)}
+               for s in all_lights if _unprocessable(s)]
     jobs = {}
     with JOBS_LOCK:
         for j in JOBS.values():
@@ -1590,8 +1626,12 @@ def stage_status(session):
         return [s["set"] for s in lights if not pred(s)]
 
     if not lights:
+        why = ("no light sets in this session" if not all_lights else
+               "no PROCESSABLE light set: " + "; ".join(
+                   f"{k['set']} — {k['why']}" for k in skipped))
         for name in STAGES:
-            put(name, "na", "no light sets in this session")
+            put(name, "na", why)
+        out["_scope"] = {"counted": [], "skipped": skipped}
         return out
 
     miss = missing(lambda s: s.get("frame_qa"))
@@ -1619,11 +1659,23 @@ def stage_status(session):
     if flats_staged:
         put("sky_flat", "na", "real flats staged — matched-flat path applies")
     else:
-        miss = [s["set"] for s in lights if not any(
-            p.endswith(f"skyflat_{s['set']}.fit") for p in masters)]
+        # EITHER shape counts: skyflat_<set>.fit or skyflat_<set>_desky.fit. The
+        # de-skied build is the chain default and its name records that (a
+        # de-skied flat is a different chain shape and must be paired with the
+        # per-frame background step), so a check for the bare name alone reported
+        # "missing" for a set whose flat was on disk.
+        def _has_flat(name):
+            return any(p.endswith(f"skyflat_{name}.fit")
+                       or p.endswith(f"skyflat_{name}_desky.fit") for p in masters)
+        miss = [s["set"] for s in lights if not _has_flat(s["set"])]
+        thin = [s["set"] for s in lights
+                if _has_flat(s["set"]) is False
+                and _set_frames(s) < MIN_FLAT_FRAMES]
         put("sky_flat", "done" if not miss else "todo",
             "per-set sky flat built for every light set" if not miss
-            else f"missing for: {', '.join(miss)}")
+            else (f"missing for: {', '.join(miss)}"
+                  + (f" (of these, too few frames for a sky flat: "
+                     f"{', '.join(thin)})" if thin else "")))
     miss = [n for n, stacks in per_set_stacks.items() if not stacks]
     fam = ("done" if not miss else "todo",
            "per-set stacks on disk (family evidence — files cannot testify "
@@ -1678,8 +1730,29 @@ def stage_status(session):
         put("finish_render", "done" if not nojudge else "todo",
             "judge surface for every per-set stack" if not nojudge
             else f"no judge surface: {', '.join(nojudge)}")
+    # the render tier reports too — it had no entry, so the newest stage was
+    # absent from every readiness view including the Overview's next action
+    rends = m.get("renders") or []
+    built = [r["name"] for r in rends if r.get("product")]
+    ratified = [r["name"] for r in rends if r.get("look_ratified")]
+    spcc_ready = [su["product"] for su in m["surfaces"] if su["files"].get("spcc")]
+    if not spcc_ready:
+        put("render_tier", "na",
+            "waiting on an SPCC'd stack — background extraction and colour "
+            "calibration both precede this tier")
+    elif built:
+        put("render_tier", "done",
+            f"render product(s) on disk: {', '.join(built)}"
+            + (f"; ratified look: {', '.join(ratified)}" if ratified
+               else "; no ratified look yet, so a re-run STOPS at its proposal"))
+    else:
+        put("render_tier", "todo",
+            f"{len(spcc_ready)} SPCC'd stack(s) ready to render. The first run "
+            "MEASURES and STOPS with a proposal for you to accept — nothing "
+            "aesthetic runs on a knob you have not read")
     put("spcc_cone", "na", "coverage check for a new field — run before "
                            "SPCC when the sky region changes")
+    out["_scope"] = {"counted": [s["set"] for s in lights], "skipped": skipped}
     multi = [su for su in m["surfaces"] if len(su["sets"]) > 1]
     if multi:
         put("compose", "done",

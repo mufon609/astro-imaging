@@ -111,6 +111,16 @@ for a whole branch because nothing exercises the API. The reader now reports eac
 record's `shape` and `entries` instead of assuming. Worth a smoke test in CI: the
 three staged sessions must return 200.
 
+**Readiness is scoped to PROCESSABLE light sets, and says what it excluded.**
+`stage_status` counted every set of kind `lights`, so july23's next action read
+"frame_qa missing for: dew_chroma, set-00" — a records-only investigation directory with
+no frame dir at all, and a 3-frame test burst. Neither can be processed by any stage, so
+"next" pointed at work nobody could do. The scope is now the sets the SCRIPTS THEMSELVES
+accept (`run_set_chain.sh`/`run_frame_qa.sh` refuse under 8 frames; `build_sky_flat.sh`
+under 20), and the excluded sets are reported with their frame count and reason under the
+next action — narrowed, never silent. The status payload carries this as `_scope`; keys
+beginning with `_` are metadata, not stages, and both iterators skip them.
+
 **Two things called "approved", named apart.** A *ratified look* is a set recipe's
 `render` block naming a render, which is what makes the render tier execute instead of
 stopping at its proposal — it makes the look reproducible. *git-approved* is a
