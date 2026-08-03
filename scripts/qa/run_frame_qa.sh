@@ -162,7 +162,29 @@ for r in flat:
         flagged.append({"file": r["file"], "flags": flags,
                         **{k: r[k] for k in side}})
 
+# Plate scale for the arcsec column. inspect_stage derives it from the header's
+# FOCALLEN/XPIXSZ (206.265*px/fl), which is a NOMINAL figure: a zoom's marked
+# focal length is approximate and breathes with focus, so it is documented as a
+# solve HINT, not a measurement. When mount_probe has SOLVED this set, prefer
+# the solve — measured 18.003 vs nominal 17.503 on july31/set-01, 2.8% low, and
+# every fwhm_arcsec inherits the error. The solve runs on the EXTRACTED GREEN
+# plane (half the full-res grid) while these frames are debayered at full res,
+# so the recorded green-px scale halves into this domain.
 scale = entries[0].get("pixel_scale_arcsec")
+scale_source = "header FOCALLEN/XPIXSZ (nominal)"
+try:
+    # OUT is datasets/<session>/<set>/qa_work/frame_metrics.json; the
+    # fingerprint is its grandparent's sibling record.
+    with open(os.path.join(os.path.dirname(os.path.dirname(OUT)),
+                           "fingerprint.json")) as fh:
+        fp = json.load(fh)
+    if fp.get("plate_scale_source") == "solved" and fp.get("plate_scale_arcsec_px"):
+        scale = round(fp["plate_scale_arcsec_px"] / (2.0 if MODE == "raw" else 1.0), 4)
+        scale_source = "astrometry.net solve (mount_probe), green-plane scale "\
+                       "halved to the full-res debayered grid" if MODE == "raw" \
+                       else "astrometry.net solve (mount_probe)"
+except (OSError, ValueError, KeyError):
+    pass
 method = ("raw -> DEBAYERED FITS -> register -2pass in batches; per-frame "
           "FWHM/roundness/background/#stars pooled (reference-independent). "
           "Measured on the green layer at full resolution, so absolute FWHM is "
@@ -177,8 +199,8 @@ rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_sta
        "frames_total": len(flat),
        "registered": sum(r["registered"] for r in flat),
        "match_failed": sum(not r["registered"] for r in flat),
-       ("pixel_scale_arcsec_cfa" if MODE == "raw"
-        else "pixel_scale_arcsec"): scale,
+       "pixel_scale_arcsec": scale,
+       "pixel_scale_source": scale_source,
        "distribution": {
         "fwhm_px": {"median": med("fwhm"), "min": mn("fwhm"), "max": mx("fwhm")},
         "roundness": {"median": med("round"), "min": mn("round"), "max": mx("round")},
