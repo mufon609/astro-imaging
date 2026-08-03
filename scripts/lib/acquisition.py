@@ -9,8 +9,15 @@ shot, split by provenance and kept honest:
           (INSTRUME/TELESCOP/FOCALLEN/XPIXSZ/GAIN/DATE-OBS — `iso` is null,
           there is no such concept; `gain` and `binning` are recorded).
   mount   DECLARED by a human — "fixed" (tripod) or "tracked" (driven mount).
-          EXIF does not record it, and it is not safely inferable (a short
+          EXIF does not record it, and no single frame settles it (a short
           enough exposure hides the drift), so a consumer must be TOLD.
+          It IS measurable across frames — scripts/qa/mount_probe.sh solves two
+          windows and fingerprint.py reads the RA rate against sidereal — and
+          when that measurement exists the stop below quotes it, so the human
+          ratifies a number rather than supplying a fact the tools already know.
+          The declaration still stays theirs: declared-and-measured is what makes
+          CONTRADICT detectable, and a lone auto-adopted solve would be believed
+          silently when it is wrong.
 
 WHY THIS EXISTS: cross-frame reasoning — e.g. the anomaly audit chaining one
 satellite across consecutive frames — assumes a FIXED, untracked camera, where
@@ -43,19 +50,32 @@ class AcquisitionUndeclared(Exception):
     """Raised when a set's `mount` is not declared. Carries the seeded record
     path and a ready-to-print ask (derive-what-you-can, ask-what-you-can't)."""
 
-    def __init__(self, path, exif):
+    def __init__(self, path, exif, measured=None, detail=None):
         self.path = path
+        self.measured = measured
         e = exif or {}
         opt = (f"{e.get('focal_length_mm', '?')}mm {e.get('exposure_s', '?')}s "
                f"ISO{e.get('iso', '?')}, cadence {e.get('cadence_s', '?')}s, "
                f"{e.get('frames', '?')} frames")
+        # Derive-what-you-can: when the fingerprint has already MEASURED the sky
+        # motion, the ask is a ratification, not an open question — quote the
+        # measurement so the human confirms a number instead of supplying a fact
+        # the tools already know. The declaration stays theirs either way: the
+        # measurement never self-adopts, because the declared-vs-measured pair is
+        # what makes CONTRADICT detectable at all.
+        says = (f"  MEASURED: the data reads as {measured}"
+                + (f" ({detail})" if detail else "") + ".\n"
+                  f'  If that is right, set  "mount": "{measured}"  to ratify it.\n'
+                if measured else
+                "  No drift measurement yet — scripts/qa/mount_probe.sh <session> "
+                "<set>\n  solves two windows and measures it.\n")
         super().__init__(
             "acquisition: `mount` is not declared for this set.\n"
             "  The cross-frame linking assumes a FIXED (untracked) camera; on a\n"
             "  tracked mount it would mislink, so it will not be assumed.\n"
             f"  EXIF facts were filled into: {path}\n"
-            '  Set  "mount": "fixed"  (tripod)  or  "tracked"  (driven mount),\n'
-            "  then re-run.\n"
+            + says +
+            '  Valid values: "fixed" (tripod) or "tracked" (driven mount).\n'
             f"  (EXIF: {e.get('camera', '?')}, {opt})")
 
 
@@ -325,19 +345,24 @@ def resolve(session_dir, set_name, frames):
             or not os.path.exists(path)):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json.dump(record, open(path, "w"), indent=1)
-    if not valid:
-        raise AcquisitionUndeclared(path, exif)
-    # The declared mount also has to survive its measured cross-check: a set
-    # whose FINGERPRINT (derived by scripts/lib/fingerprint.py from the tools'
-    # own measures) says the sky moves the OTHER way is mislabelled, and every
+    # The declared mount has to survive its measured cross-check: a set whose
+    # FINGERPRINT (derived by scripts/lib/fingerprint.py from the tools' own
+    # measures) says the sky moves the OTHER way is mislabelled, and every
     # consumer of this record would build on that error. Read-only here — the
     # fingerprint module derives; this just refuses to hand out a contradicted
     # declaration (consumers STOP on CONTRADICT).
+    #
+    # Read it BEFORE the undeclared stop, not after: the fingerprint measures
+    # the mount whether or not a human has declared one, so an undeclared set
+    # with a drift measurement can ask for RATIFICATION instead of asking blind.
     fp_path = os.path.join(os.path.dirname(path), "fingerprint.json")
     try:
         mount_check = (json.load(open(fp_path)) or {}).get("mount_check") or {}
     except (OSError, ValueError):
         mount_check = {}
+    if not valid:
+        raise AcquisitionUndeclared(path, exif, mount_check.get("measured"),
+                                    mount_check.get("reason"))
     if mount_check.get("verdict") == "CONTRADICT":
         raise MountContradicted(fp_path, mount_check.get("reason", ""))
     return record

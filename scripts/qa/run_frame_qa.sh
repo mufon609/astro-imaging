@@ -4,7 +4,7 @@
 #
 #   run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]
 #
-# Method: raw frames -> CFA FITS (undebayered) -> `register -2pass` in
+# Method: raw frames -> DEBAYERED FITS -> `register -2pass` in
 # disk-bounded batches (ANALYSIS pass only: regdata lands in the .seq, no
 # transformed frames are written) -> inspect_stage parses Siril's own per-frame
 # regdata (FWHM / roundness / background / star count) -> the records are
@@ -15,9 +15,18 @@
 # The metrics pooled across batches are reference-independent (FWHM/roundness/
 # background/star count come from per-frame PSF fits); wfwhm mixes matching
 # loss with drift distance so it is advisory only — cull_report never culls on
-# it. CFA (undebayered) keeps disk bounded and matches the recorded method:
-# absolute FWHM is Bayer-inflated, only relative comparison is valid
-# (removal-condition register: re-measure debayered where disk allows).
+# it.
+#
+# Camera raws are DEBAYERED at convert, so `register` measures the GREEN layer
+# at full resolution and the absolute FWHM is real. Registering the raw CFA
+# mosaic instead samples a star's profile through alternating colour filters,
+# which reads BROADER and LESS ROUND than the star is: measured on 20 frames of
+# one 2.5s ISO1600 set, CFA 2.564 px / roundness 0.825 against debayered
+# 2.350 px / 0.850 — a 9.1% FWHM inflation. Undebayered sampling was a disk
+# adaptation for a 118 GB rig and is NOT a valid method for absolutes; the
+# 3-layer working set costs ~147 MB/frame, which is why it is affordable now.
+# Historic records made the old way carry the Bayer caveat in their own
+# `method` string.
 #
 # Batch sizing: the driver refuses a final batch of exactly ONE frame (Siril
 # cannot build a sequence from a single frame) — it auto-shrinks the batch by
@@ -91,7 +100,7 @@ while [ $i -lt $n ]; do
     batch_files+=("$(basename "${SRC[$i]}")")
   done
   printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\nregister c -2pass\n' \
+  printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -debayer -out=%s\ncd %s\nregister c -2pass\n' \
     "$W/src" "$W" "$W" > "$W/r.ssf"
   sir "$W" "$W/r.ssf"
   reg=$(grep -c '^R0' "$W/c_.seq" || true)
@@ -154,9 +163,10 @@ for r in flat:
                         **{k: r[k] for k in side}})
 
 scale = entries[0].get("pixel_scale_arcsec")
-method = ("raw -> CFA FITS (undebayered) -> register -2pass in batches; per-frame "
-          "FWHM/roundness/background/#stars pooled (reference-independent). CFA "
-          "caveat: absolute FWHM Bayer-inflated, relative comparison only."
+method = ("raw -> DEBAYERED FITS -> register -2pass in batches; per-frame "
+          "FWHM/roundness/background/#stars pooled (reference-independent). "
+          "Measured on the green layer at full resolution, so absolute FWHM is "
+          "real (no Bayer-mosaic inflation)."
           if MODE == "raw" else
           "FITS lights (as-recorded) -> register -2pass in batches; per-frame "
           "FWHM/roundness/background/#stars pooled (reference-independent). "
