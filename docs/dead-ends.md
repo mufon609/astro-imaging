@@ -158,6 +158,36 @@ the constraints any such tool must satisfy):
   condition). Where sky flats must be used, the flat's low-order ODD component
   has to be removed before use, and the sky gradient handled ADDITIVELY (a
   background step), never multiplicatively by the flat.
+
+- **DEAD END — raising `--desky`'s subsky DEGREE on the flat's source frames to
+  reach the sky's CURVATURE. It removes the vignetting instead. Degree 1 is not a
+  compromise; it is the only degree that works, and the reason is PARITY.**
+  `--desky` at degree 1 removes the sky TILT and measurably leaves the vignetting
+  alone (radial corner/centre 0.3115 -> 0.3114). The obvious next move, when a
+  moonlit night leaves curvature a plane cannot reach, is degree 2 — and on the
+  flat specifically it looks safe, because the frame-filling starlight a higher
+  degree would eat is contamination there, not signal (terminology entry, sense 2).
+  **MEASURED (july31/set-01, 507 frames, one knob, everything else identical):**
+  the flat's corner/centre ratio went **0.513-0.563 at degree 1 to 0.937-1.006 at
+  degree 2** — the vignetting profile the flat exists to carry was gone, and the
+  product failed the builder's own "corners < centre" gate (BL read 1.006).
+  MECHANISM: vignetting is an EVEN, radial function of position. A degree-1 plane
+  is odd-plus-constant and therefore CANNOT touch an even term — that is why the
+  radial profile survives it by construction, not by luck. Degree 2 is the first
+  degree that introduces even terms, and they are the SAME functional form as
+  vignetting, so `subsky` cannot tell them apart: it subtracts the vignetting from
+  every source frame and the stacked flat comes out flat.
+  **CONSEQUENCE, and it is the useful part:** sky CURVATURE cannot be removed from
+  a sky flat at all — the operation that would reach it is the operation that
+  destroys the flat. The residual is IRREDUCIBLE at this stage, which is what the
+  `--desky` commit priced as 2.48% -> 3.10% corner spread. When it is much worse
+  than that the cause is acquisition, not calibration: july31/set-01 measured
+  **12.4%** corner-to-corner under a **93.8%-illuminated moon 54.9 deg off-axis**,
+  with region brightness ANTI-correlated to moon separation (nearest corner
+  darkest) — the moon's own gradient, absorbed by the flat and stamped back
+  inverted. Handle it additively downstream on the stack, where there is no
+  vignetting left to protect, or do not shoot a faint broadband target under a
+  bright moon (acquisition checklist).
 - A sky flat applied ACROSS SETS imprints the SOURCE set's sky. The flat's
   low-order component carries the residual sky gradient of the lights it was
   built from; the sensor-fixed content (vignetting/motes/PRNU) transfers between
