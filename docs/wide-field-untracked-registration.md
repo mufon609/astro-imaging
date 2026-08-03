@@ -13,13 +13,13 @@
   star alignment leaves the centre sharp and smears edge stars into short arcs.
   Why does one global transform fail, what transform class is actually required,
   and which route removes the edge trailing across the FULL frame while
-  PRESERVING the faint cosmic dust?
+  PRESERVING the frame-filling unresolved starlight?
 - **Context** — Nikon Z6III + NIKKOR Z 24–70 mm f/4 S at 70 mm, OSC Bayer,
   6064×4040, **fixed tripod**, 373 × 6 s ISO1600 over 43 min, ~1500 px of sky
-  drift, target = Milky Way + dark-nebula dust. These frames CANNOT be re-shot
-  with tracking, so the fix must be a processing method.
-  **Priority #1: preserve the faint cosmic dust / IFN**
-  ([[preserve-cosmic-dust-is-the-priority]]).
+  drift, target = the Milky Way star field + dark-nebula SILHOUETTE. These frames
+  CANNOT be re-shot with tracking, so the fix must be a processing method.
+  **Priority #1: preserve the frame-filling UNRESOLVED STARLIGHT**
+  (`dead-ends.md` terminology entry, sense 2 — it is stars, not dust).
 
 ## The theory — a homography is EXACT for this geometry
 
@@ -171,7 +171,7 @@ the frame-1/373 solves; records `qa_work/star_stations_*.json`) — cells are
   this term, which is why no mainstream reference reports a "field-centre" residual.
 - **Brightness split.** At detection sigma=3.0 the corrected centre reads 3.89 px —
   bright cores survive; the faint population smears toward/below detection. The
-  band is a faint-star/texture defect: the dust-gate pass and the band coexist on
+  band is a faint-star/texture defect: the starlight-gate pass and the band coexist on
   the same final, and bright-star medians (including the earlier sigma-3.0
   "reversal", which also compared against a shifted-origin control profile —
   `dead-ends.md` trap 3, refined) hide it.
@@ -347,9 +347,9 @@ on-rig, on Siril 1.4.4 (the identical tool the x86 target runs).
   installed, and the reprojection route stays blocked by the per-frame SIP model gap
   regardless (astropy supplies no distortion model).
 - **SWarp** — **`SUBTRACT_BACK = Y` by DEFAULT**: it subtracts a sky background
-  model from every input. For a frame-filling faint IFN target this is the single
-  most dangerous default in the route and **must be turned off**
-  ([[preserve-cosmic-dust-is-the-priority]]). `PROJECTION_TYPE` accepts any WCS
+  model from every input. For a frame-filling faint-starlight target this is the
+  single most dangerous default in the route and **must be turned off**
+  (`dead-ends.md` terminology entry, sense 2). `PROJECTION_TYPE` accepts any WCS
   code (TAN is merely the shipped value); `RESAMPLING_TYPE` ∈ {NEAREST, BILINEAR,
   LANCZOS2/3/4}; `FSCALASTRO_TYPE` has only NONE|FIXED, so SWarp conserves flux
   only with equal-area output projections. **VERIFIED — the projection question is
@@ -455,7 +455,7 @@ pages all omit it, so hand-implementing it would risk a silent factor-of-two err
   edge degradation but writes the paraxial centre band (section above), so the
   fitted entry replaces it at this focal. The chain is "The production chain"
   below, scripted as `scripts/stack/run_undistort_pipeline.sh`. Approved on the
-  user's eyes at full depth: dust preserved, centre at the floor, edges held.
+  user's eyes at full depth: unresolved starlight preserved, centre at the floor, edges held.
 - **Superseded:** route A (full depth, measured edge defect) and route C (short
   window, floor-limited, 1/4 depth, +56% field). The depth-vs-edge trade-off is no
   longer forced. Keep C as the fallback if the route ever fails on a set.
@@ -602,7 +602,7 @@ SHIPPED fitted-model render then measures **3.06 px / 12,976 stars / tilt 0.31
 (10%)** — the band leaving the truncated mean, not the floor moving.
 The chain is productionised ("The production chain"), the style is pinned and its
 warp verified reproducible to 0.000 px, the route is measured focal-general, and the
-dust-preservation gate PASSED on the user's eyes on a full-frame lossless final.
+starlight-preservation gate PASSED on the user's eyes on a full-frame lossless final.
 Stacks built before the lensfun-DB vignetting strip carry a vignetting
 double-correction bowl (the vignetting-confound note; per-dataset gradient
 record) — rebuilds through the stripped DB supersede them.

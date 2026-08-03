@@ -110,9 +110,9 @@ _(add each writeup here, newest first)_
   tool does, the documented-gap list (the tools measure — never an in-house
   reimplementation).
 - [synthetic-flats-and-bias](synthetic-flats-and-bias.md) — flatless/biasless
-  calibration routes: model-division (GraXpert, vignetting-only, dust-safe) vs a
-  sky flat (captures motes/PRNU but contaminates on frame-filling IFN) vs skip-bias
-  (CMOS) + synthetic offset; the dust-first route + july14's real-flats-impossible
+  calibration routes: model-division (GraXpert, vignetting-only, starlight-safe) vs
+  a sky flat (captures motes/PRNU but contaminates on a frame-filling star field) vs
+  skip-bias (CMOS) + synthetic offset; the starlight-first route + july14's real-flats-impossible
   decision. Since adopted + hardened: the sky flat is strictly PER-SET (the
   ratified exact-frames rule; imprint mechanism in dead-ends), pinned as
   `scripts/stack/build_sky_flat.sh`.

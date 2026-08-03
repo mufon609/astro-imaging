@@ -104,7 +104,7 @@
 #   and a hand-picked patch where the doctrine requires a statistical scope — and
 #   aborted the render on an unratified 1-percentage-point threshold. The
 #   registry already names the instruments for this judgement: the noise_split
-#   structured term plus the user's eyes on dust at 1:1. The ratification gate
+#   structured term plus the user's eyes on the star field at 1:1. The gate
 #   above is the gate; these numbers are what the user ratifies against.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
@@ -600,7 +600,8 @@ if int(dn):
         "profile": prof,
         "note": ("whole-frame and per channel, so there is no region geometry to "
                  "derive from the measurement. Structure preservation is judged by "
-                 "the noise_split structured term and the user's eyes on dust at "
+                 "the noise_split structured term and the user's eyes on the "
+                 "unresolved starlight at "
                  "1:1 (docs/dead-ends.md), not by this profile alone.")}
 
 os.makedirs(os.path.dirname(out), exist_ok=True)

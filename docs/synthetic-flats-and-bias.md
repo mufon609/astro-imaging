@@ -10,19 +10,27 @@
 
 - **Question** — When real flats AND bias are MISSING, what are the well-known
   routes for synthetic flats + synthetic/master bias, and is there a route better
-  than a background-model division? Which route does a **dust-first** DSO set pick?
+  than a background-model division? Which route does a **starlight-first** DSO set pick?
 - **Context** — OSC Bayer, uncooled mirrorless + camera lens (Nikon Z6III, 70 mm),
   wide-field, **fixed-tripod** so the sky drifts ~1500 px across the sensor over
   the session (373 lights); **matched darks exist** (214 × 6 s/ISO1600, QA-clean);
   headless Linux — Siril 1.4, GraXpert, ASTAP; PixInsight is reference-only
-  (GUI/paid). **Priority #1: preserve faint cosmic dust / IFN** ([[preserve-cosmic-dust-is-the-priority]]).
+  (GUI/paid). **Priority #1: preserve the frame-filling UNRESOLVED STARLIGHT**
+  (`docs/dead-ends.md` terminology entry, sense 2 — MEASURED against Gaia at
+  R² 0.9631; it is stars below the detection limit, not dust and not nebulosity).
 
-## The two "dusts" (do not conflate — they are opposites)
-- **Sensor dust motes** (dark donuts, dust on sensor/filter) = a DEFECT a flat removes.
-- **Cosmic dust / IFN / faint nebulosity** = the SIGNAL to keep — the science target.
+## The one real dust, and the thing that is NOT dust (opposites)
+- **Optical dust motes** (dark donuts, dust on sensor/filter) = a DEFECT a flat
+  removes. Fixed in SENSOR coordinates. This is the only correct use of "dust" here.
+- **Unresolved starlight** = the SIGNAL to keep. Formerly miscalled "cosmic dust /
+  IFN". There is no Milky Way dust: the term came from 24 mm / 20 s / ISO 200
+  frames where the faint star field was undersampled into a smooth glow, and at
+  70 mm / ISO 1600 the same features resolve into individual stars. Real
+  interstellar dust exists but appears as SILHOUETTE (absence), never as this
+  diffuse emission; nebular emission (Hα/OIII/SII) is a separate, LOCALIZED thing.
 A **flat corrects the multiplicative sensor response and never subtracts sky
-signal**, so a correct flat *preserves* cosmic dust. The threat to cosmic dust is
-the additive **background-extraction** step, not the flat (see Area 4).
+signal**, so a correct flat *preserves* that starlight. The threat to it is the
+additive **background-extraction** step, not the flat (see Area 4).
 
 ## Area 1 — Model-division synthetic flat (vignetting only)
 - **VERIFIED — what it corrects:** dividing a frame by a smooth low-frequency
@@ -48,9 +56,9 @@ the additive **background-extraction** step, not the flat (see Area 4).
   vignetting.) The Division correction otherwise lives in the GUI dialog. So **headless model-division needs GraXpert**
   `-correction Division` — official on x86; the arm build is the geeksville fork
   (audit-only, [[arm-rig-not-a-processing-target]]).
-- **DUST-SAFE:** a smooth-model division scales illumination and never subtracts
-  the IFN, so cosmic dust is preserved. (The dust threat is the *subtraction*
-  background step — Area 4 — not this.)
+- **STARLIGHT-SAFE:** a smooth-model division scales illumination and never
+  subtracts the diffuse field, so the unresolved starlight is preserved. (The threat
+  to it is the *subtraction* background step — Area 4 — not this.)
 
 ## Area 2 — Sky flat / night-sky flat (from the lights)
 - **VERIFIED — the technique:** median/σ-combine many **un-registered** frames; the
@@ -62,12 +70,12 @@ the additive **background-extraction** step, not the flat (see Area 4).
   enough**; frames whose FOV did not move cannot be used (stars stay put). Dither
   OR unintentional/fixed-tripod **drift** satisfies it — july14's ~1500 px drift
   far exceeds the threshold.
-- **VERIFIED — the decisive limit for a dust-first set:** the method works **only
-  when faint structure is a SMALL portion of the frame**; **large-area faint signal
-  (Milky Way filling the frame) contaminates the flat** and must then be removed by
-  **manual clone-stamping** (trappedphotons.com/blog/?p=756; ianmorison; chaoticnebula).
-  A contaminated flat, divided in, would **attenuate the very cosmic dust we must
-  keep**. Secondary limits: poor SNR (few night-sky photons) and moonlight/gradient
+- **VERIFIED — the decisive limit for a starlight-first set:** the method works
+  **only when faint structure is a SMALL portion of the frame**; **large-area faint
+  signal (the Milky Way star field filling the frame) contaminates the flat** and
+  must then be removed by **manual clone-stamping** (trappedphotons.com/blog/?p=756;
+  ianmorison; chaoticnebula). A contaminated flat, divided in, would **attenuate the
+  very unresolved starlight we must keep**. Secondary limits: poor SNR (few night-sky photons) and moonlight/gradient
   contamination (aavso.org/advantage-sky-flats-instead-lightbox-flat;
   cloudynights.com/topic/755356 "are sky flats truly flat").
 - **VERIFIED — OSC caution:** flats apply BEFORE debayering, so a non-white
@@ -100,27 +108,27 @@ the additive **background-extraction** step, not the flat (see Area 4).
   thousands of frames (stack 100+ bias, then SuperBias) — noise-free master bias
   (pixinsight.com/forum SuperBias). GUI/paid → x86; irrelevant when skipping bias.
 
-## Area 4 — The hierarchy, and the background-extraction dust threat
+## Area 4 — The hierarchy, and the background-extraction starlight threat
 Ranked by what each route fixes (VERIFIED across siril calibration docs, lightvortex,
 the sky-flat sources):
 1. **Real flat** — corrects vignetting + **dust motes + PRNU** (all multiplicative
-   effects). Cannot contain sky signal, so it **cannot erase cosmic dust**. Best.
+   effects). Cannot contain sky signal, so it **cannot erase unresolved starlight**. Best.
 2. **Sky flat** — same corrections **only if** the field is not frame-filling faint;
    otherwise contaminates (Area 2).
-3. **Model-division** — vignetting/gradients only; dust-safe; no motes/PRNU.
-- **The cosmic-dust threat is the additive BACKGROUND step, not the flat.**
+3. **Model-division** — vignetting/gradients only; starlight-safe; no motes/PRNU.
+- **The threat to unresolved starlight is the additive BACKGROUND step, not the flat.**
   GraXpert AI BGE / DBE / Siril `subsky` at high degree **model and subtract** a
-  background; a frame-filling faint complex is absorbed and erased (repo dead-end;
-  suffolksky.com AI BGE). Guard: dust-safe background only — **first-degree `subsky
-  1` plane, or off** for object-filling fields.
+  background; a frame-filling faint star field is absorbed and erased (repo dead-end;
+  suffolksky.com AI BGE). Guard: starlight-safe background only — **first-degree
+  `subsky 1` plane, or off** for object-filling fields.
 - **No flat at all?** For a wide-field fixed-tripod set where faint signal is NOT
-  the goal, a dust-safe plane background can suffice; for a **dust-first** target it
+  the goal, a starlight-safe plane background can suffice; for a **starlight-first** target it
   leaves vignetting as a residual and motes/PRNU uncorrected — an honest gap, not a
   full substitute.
 
 ## The july14 decision (the loop's RECOMMEND → RECORD)
 Data: flatless + biasless; 214 clean matched darks; 373 lights; ~1500 px drift;
-70 mm wide (likely frame-filling MW/IFN); **dust #1**. Constraints: **real flats are
+70 mm wide (likely frame-filling unresolved starlight); **starlight #1**. Constraints: **real flats are
 off the table** (the lens was cleaned after the session, so no flat can match the
 as-shot mote/optical state); tool-identity gates build-here to Siril.
 
@@ -131,16 +139,16 @@ as-shot mote/optical state); tool-identity gates build-here to Siril.
   - *Sky flat — TESTED CLEAN, the recommended route:* the 373-frame un-registered
     median (Siril, ~1500 px drift) came out smooth radial vignetting (~6% center-to-
     corner; Siril regional means center 1131 vs corners 1060–1086 ADU) + a mild
-    left-right residual gradient, with **NO IFN structure baked in** — the drift +
-    median rejected the sky. It corrects vignetting + motes + PRNU and is **dust-safe
-    by validation** (the structured IFN is not in the flat). Adopted as the flat
+    left-right residual gradient, with **NO sky structure baked in** — the drift +
+    median rejected the sky. It corrects vignetting + motes + PRNU and is
+    **starlight-safe by validation** (the structured field is not in the flat). Adopted as the flat
     candidate, GATED on the user's eyes + a with/without comparison on full-frame
     lossless finals (dust the deciding metric). Record:
     `datasets/july14/set-01/qa_work/skyflat_qa.json`.
   - *Fallback if the sky flat is rejected on the finals:* vignetting-only GraXpert
-    `-correction Division` (dust-safe, x86 official); on the arm rig now, no flat +
-    a first-degree `subsky 1` plane (MW-safe background), vignetting a small residual.
-- **Darks:** all 214 (QA-clean, flat pedestal — [[preserve-cosmic-dust-is-the-priority]] n/a; darks don't touch sky signal).
+    `-correction Division` (starlight-safe, x86 official); on the arm rig now, no flat +
+    a first-degree `subsky 1` plane (starlight-safe background), vignetting a small residual.
+- **Darks:** all 214 (QA-clean, flat pedestal — starlight preservation n/a; darks don't touch sky signal).
 - **Trade-off (honest):** the validated sky flat corrects vignetting + motes + PRNU
   on the arm rig now — no gap — IF it passes the finals comparison. Residuals to
   tighten: a mild low-order L-R gradient (better left to the first-degree background
@@ -151,7 +159,7 @@ as-shot mote/optical state); tool-identity gates build-here to Siril.
 
 ## What graduates
 - **[`../TOOLS.md`](../TOOLS.md):** the flat/bias route rows — synthetic flat =
-  GraXpert Division (vignetting only, dust-safe, x86 official); Siril `subsky`
+  GraXpert Division (vignetting only, starlight-safe, x86 official); Siril `subsky`
   subtraction-only (no headless division, empirically confirmed); sky flat
   (Siril-native, captures motes/PRNU, contaminates on frame-filling faint); bias =
   skip on CMOS, synthetic constant offset if needed.
@@ -159,7 +167,7 @@ as-shot mote/optical state); tool-identity gates build-here to Siril.
   (frame-filling faint → baked into the flat → clone-stamp is the only fix, non-
   reproducible); CMOS skip-bias + invalid dark-scaling.
 - **[`../BACKLOG.md`](../BACKLOG.md):** x86 GraXpert-Division vignetting correction
-  as the dust-safe flat for flatless dust-first sets; realize the flat/bias route in
+  as the starlight-safe flat for flatless starlight-first sets; realize the flat/bias route in
   the x86 chain's operating loop.
 
 ## Sources

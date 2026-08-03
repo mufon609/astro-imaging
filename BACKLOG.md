@@ -52,7 +52,8 @@ remains is the LADDER around it and the harness it feeds.
 - **L1 background level** — per-frame `subsky 1` is the SHIPPED default (`--desky`),
   adopted on registry grounds (stack-level-only leaves a structured residual). The
   open question is now a CHALLENGE to a default, not a choice between unknowns:
-  on-stack vs per-frame, one knob, dust preservation deciding.
+  on-stack vs per-frame, one knob, preservation of the frame-filling UNRESOLVED
+  STARLIGHT deciding (`docs/dead-ends.md` terminology entry — it is stars, not dust).
 - **L2 denoise strength** — the proven chroma killer. Objective instrument is the
   `noise_split.sh` structured term, never whole-frame `bgnoise`.
 - **L3 stretch ladder** — GHS/`ght` arms against the current `mtf`, compared at a
@@ -135,7 +136,7 @@ hypothesis and the docstring says so.
   against sensor position. The correct calibration makes a star's flux independent of
   where it landed.
 - **A with/without judgement pair on finals** — both flats exist for set-01/02, so
-  this is stageable now. Dust preservation is the metric, the user's eyes decide.
+  this is stageable now. Unresolved-starlight preservation is the metric, the user's eyes decide.
 
 Related and open: **SPCC order-robustness is UNTESTED, not verified.** Inserting the
 background step ahead of SPCC moved K_G −1.20%/−1.48% and K_B −0.47%/−0.80% on
@@ -162,7 +163,7 @@ chain's run-to-run variation is ~10× the effect). Whether the streaks shrank ne
 **Gated on the class recurring** (an un-dithered untracked set; dithering is the
 acquisition-side fix and removes the driver). First-contact levers: matched
 shutter-mode darks; then drift-axis-aligned pattern removal or an AI denoiser weighed
-against dust preservation — a bandaid, last resort.
+against preservation of the unresolved starlight — a bandaid, last resort.
 
 ## `native-solve-and-sip` — two probes, in order
 
@@ -279,6 +280,24 @@ The route is validated, scripted, and the chain already routes by fingerprint
 - **Run the two-window drift solve live on a boundary-regime camera-raw corpus** —
   the fingerprint's precise instrument has been self-tested but not exercised where
   the cheap trail-vs-roundness check cannot decide.
+
+## `aircraft-rejection-retest` — prove the aircraft actually rejected
+
+The "satellites stay" policy was ratified on satellites and july23 recorded **no
+aircraft**. july31/set-03 has one — both audit objects open on `DSC_5151` at
+33.3/37.2 deg PA, the two-parallel-trails signature of a single airframe — crossing
+`DSC_5151..5158`, 8 of 500 frames. The user ratified KEEPING it on the stated
+mechanism: the trail MOVES, so any pixel carries it in ~1 frame of 500, which is the
+minority per-pixel sigma rejection removes. That mechanism is sound but is an
+argument, not a measurement — `check_stack_rejection.sh` guards the rejection CLAUSE,
+not the rejection OUTCOME.
+
+**Closes when** set-03 is stacked twice — the ratified stack, and a control with
+`DSC_5151..5158` excluded — and the two are differenced (Siril `isub` + `stat`) along
+the aircraft's track. Nil residual on the track = rejection did its job and the frames
+are free depth. A visible trail or a level step = the keep was wrong, and it becomes a
+cull with its numbers. Cheap: one extra 492-frame stack, no new tooling. More data is
+always obtainable, so a cull that buys certainty is not a loss.
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 

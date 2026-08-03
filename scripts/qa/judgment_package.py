@@ -36,7 +36,7 @@ superseded — collapse to the single 16-bit surface in the x86 render rebuild.)
   (Siril `savetif` + `tifffile`) when the rebuilt render chain lands.
 
 --inspection is REQUIRED (README pre-handoff contract; measured failure:
-two consecutive packages shipped defects — a faint-dust allocation gap,
+two consecutive packages shipped defects — a faint-starlight allocation gap,
 then 1:1 coring mottle — that native-resolution inspection of the object /
 sky / star regions would have caught before the user's eyes were spent on
 them). It names a notes file recording the assembler's own 1:1 inspection

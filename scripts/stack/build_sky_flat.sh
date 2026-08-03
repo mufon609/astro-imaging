@@ -57,14 +57,14 @@
 # is untouched (corner/centre 0.3115 -> 0.3114) and the Bayer phases are identical
 # — i.e. it removes the sky term and nothing the flat exists to capture. Siril
 # reports "computed for CFA image", so it is mosaic-aware; degree 1 is the
-# registry's MW-safe degree (degree >= 2 eats a frame-filling complex).
+# registry's preserving degree (degree >= 2 eats frame-filling faint structure).
 # REMOVAL CONDITION: a real flat for the set, which retires this whole builder.
 # NOT "a tracked mount" — see above, tracking does not remove the mechanism.
 #
 # ENABLING CONDITION (validate, never assume — dead-end registry): the drift
 # between frames must exceed ~20-100 px AND faint structure must not fill the
 # frame, or the sky bakes into the flat and dividing ATTENUATES the very
-# signal a dust-first set protects. This script therefore VALIDATES its
+# signal a faint-signal-first set protects. This script therefore VALIDATES its
 # product and records the numbers:
 # - Siril `stat` on five fixed regions (centre + 4 corners): the flat must be
 #   a smooth falloff (corners below centre), with no structured residual;
@@ -73,7 +73,7 @@
 # - an autostretched preview PNG for the eye check (diagnostic surface only,
 #   never a judgment surface).
 # The record lands in datasets/<session>/<set>/qa_work/<flat-stem>_qa.json;
-# the eye check for baked-in structure (MW band / IFN clumps) is the caller's
+# the eye check for baked-in structure (the Milky Way star field) is the caller's
 # gate before the flat enters any stack.
 #
 # Builds from ALL raw frames in <session-dir>/<set>/ — the stack-cull policy
@@ -305,9 +305,10 @@ rec = {
  "region_geometry_px": {"box": int(box), "corner_margin": int(margin)},
  "findstar_speck_count": int(specks),
  "gate": "smooth falloff (corners < centre), NO structured sky residual "
-         "(MW band / IFN clumps) on the preview, speck count ~0; the eye "
+         "(the Milky Way star field) on the preview, speck count ~0; the eye "
          "check + the with/without finals comparison gate adoption "
-         "(dead-end registry: a sky flat is dust-safe only when validated)",
+         "(dead-end registry: a sky flat preserves frame-filling faint structure "
+         "only when validated — that structure is UNRESOLVED STARLIGHT, not dust)",
  "preview": flat.replace(".fit", "_view.png"),
 }
 json.dump(rec, open(rec_path, "w"), indent=1)

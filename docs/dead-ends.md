@@ -11,6 +11,95 @@ begins `checkpoint:` — `git log --oneline --grep='^checkpoint:'`).
 
 Data / physics / tool-doctrine mechanism lessons.
 
+**EVIDENCE STATUS — read this before citing any entry as settled.** Entries here
+are not all the same kind of thing, and for three sessions they were formatted as
+if they were. Three classes:
+- **MEASURED** — an actual controlled comparison with numbers and a named
+  instrument. Cite freely, within its stated scope.
+- **MECHANISM** — a physical or tool-behaviour argument, sometimes with a
+  worked example, but no controlled A/B on this data. Reasonable to act on;
+  NOT evidence, and it should not be quoted as a result.
+- **DOCTRINE** — a practice adopted from vendor documentation or the field's
+  consensus. Legitimate, but its authority is the source, not our data.
+An entry with no numbers and no hedge is MECHANISM or DOCTRINE, whatever its
+tone. An audit on 2026-08-03 found 28 such entries reading as established
+results; the load-bearing ones are now flagged in place. **Anything asserting a
+result should carry its n, its instrument and its scope — and if a claim covers
+one dataset, it says so.**
+
+**TERMINOLOGY — the word "dust" is BANNED in this repo, and this entry says why.**
+For three sessions the registry used "cosmic dust", "MW", "IFN" and "dust-safe"
+interchangeably for FOUR physically unrelated things. The term was never defined,
+was never independently identified, and its whole doctrinal chain traced back to a
+citation (`[[preserve-cosmic-dust-is-the-priority]]`) pointing at a machine-local
+memory file that no longer exists. Everything downstream of it — the background
+class limit, the GraXpert-Division rejection, the sky-flat enabling condition, the
+denoise strength limit — rested on a term nobody had measured. Use these four
+instead, and say which one you mean:
+
+**WHERE THE WORD CAME FROM (user, 2026-08-03) — it was an ACQUISITION artefact,
+not a sky object.** The term entered this project from early wide-field frames shot
+at **24 mm, 20+ s, ISO 200**. At that focal length the plate scale is ~3x coarser
+than the 70 mm work, so the star field below the detection limit never resolves and
+reads as a smooth diffuse "dust". The same sky at **70 mm, ISO 1600** resolves those
+same features into individual stars — which is exactly what sense 2 below then
+MEASURED against Gaia. So "Milky Way dust" was never a thing that exists; it was
+undersampled starlight, and the word survived a change of optics that had already
+falsified it. There is no Milky Way dust. There is nebular EMISSION (sense 3), there
+is real interstellar dust seen in SILHOUETTE (sense 4), and there are faint stars
+(sense 2). A term that is an artefact of one focal length must not set doctrine for
+another.
+
+1. **OPTICAL DUST MOTES** — physical dust on the sensor or optics. A flat-field
+   feature, fixed in SENSOR coordinates. Well defined and routinely measured
+   (`findstar` speck counts on the flats). This is the only sense in which
+   "dust" was ever correct, and it has nothing to do with the sky.
+2. **UNRESOLVED STARLIGHT** — the frame-filling faint diffuse field. At this
+   data's 17.0"/px in the galactic plane it is the integrated light of Milky Way
+   stars fainter than the detection limit. **MEASURED (july23 set-01+02, Gaia DR3
+   vs Siril, `qa_work/dust_identification.json`): the star layer's per-cell
+   diffuse floor tracks Gaia's unresolved-starlight prediction at R² 0.9631 over a
+   140-cell external lattice; detection limit G ≈ 11.0 at 50% completeness (one-to-
+   one matched); ~0.2 catalogued sources per PIXEL brighter than G=17.** It is
+   STARS — not dust, and not nebulosity.
+   SCOPE, stated because it is easy to over-read the R²: flux and source-count
+   predictors are 97.7% collinear in this field, so that fit constrains rather than
+   proves "flux specifically" — the clean separation is UNRESOLVED flux (R² 0.963)
+   beating TOTAL flux (R² 0.503), which is not a collinear pair. The integrated
+   starlight figure of 22.74 mag/arcsec² is ONE 0.25° cone at the field centre; no
+   frame-wide value was computed. The absolute photometric scale carries a 20-30%
+   systematic (Gaussian-fit photometry on trailed stars) — every CORRELATION above
+   is scale-free and unaffected, but any ADU prediction derived from it is not.
+   ONE dataset, one field, one pixel scale.
+3. **HII EMISSION** — NGC 7000, IC 1318 and the like. Real diffuse emission,
+   LOCALIZED, Hα-red. Measured on ONE region only: NGC 7000 sits +2.5σ above the
+   starlight relation and reads R/G 1.1918 against a 0.9303 field. **SCOPE — this
+   is 1 of 3 regions tested, and the other two did NOT stand out** (IC 1318 −0.07σ,
+   NGC 6888 −0.72σ), partly because the 1.4° cells are coarse for objects that size
+   and my IC 1318 and "dark lane" test coordinates landed in the SAME cell. So the
+   honest claim is: emission IS separable from starlight by this instrument on a
+   large bright region, and the instrument was not shown sensitive enough for
+   smaller ones. A nebula is not dust and is not "IFN" regardless — that part is
+   definitional, not measured.
+4. **DUST SILHOUETTE** — real interstellar dust, which at this scale appears as
+   ABSENCE, not emission: the Cygnus Rift dark lanes. **NOT PROPERLY MEASURED —
+   treat as a working model, not a result.** What exists: Gaia integrated flux in
+   0.3° cones runs lowest near the plane (1.76e-3 at b=−2 against 1.27e-2 at
+   b=−10), which is CONSISTENT with foreground extinction. But those cones are
+   small enough to be dominated by their few brightest stars — noted as noisy when
+   taken — and no test separated extinction from ordinary structure in the stellar
+   distribution. The physical expectation (dust obscures rather than emits at
+   17"/px) is textbook and is why this sense belongs in the list at all; the
+   NUMBERS above do not establish it. The test that would: per-cell Gaia flux
+   against a reddening map, or Gaia's own extinction estimates, over the same
+   lattice used for sense 2.
+
+**The rendering consequence, and it is not optional.** Sense 2 is stars, so it is
+rendered AS STARS — preserving the brightness hierarchy of the population. It is
+NOT a diffuse glow to be amplified. Treating it as one produced a uniform
+speckle-field with no hierarchy and was rejected on sight (see the `star_asinh`
+entry under "Stretch / colour").
+
 **Gain / flat** (self-calibration — real flats are the primary path; when they
 have issues, synthetic-flat / vignetting correction is a GAP to fill with an
 OFFICIAL tool, never an in-house fit. The entries below are methods that FAIL —
@@ -24,12 +113,21 @@ the constraints any such tool must satisfy):
   only the empirical V2 of the frames ACTUALLY being divided is flat.
 - Never refine the gain from the STACK's residual — the sky's own structure
   (MW/glow/clouds) exceeds the residual, giving opposite-sign results.
-- A SKY FLAT (median of un-registered lights) captures vignetting + dust motes +
-  PRNU, but a frame-filling faint complex (MW/IFN) does NOT reject — it bakes into
-  the flat and division ATTENUATES the cosmic dust. The only fix is manual
-  clone-stamping (GUI, non-reproducible). So the sky flat is dust-safe ONLY when
-  faint structure is a small part of the frame; validate before use
+- A SKY FLAT (median of un-registered lights) captures vignetting + optical dust
+  motes + PRNU, but frame-filling faint structure does NOT reject — it bakes into
+  the flat, and division then ATTENUATES it. The only fix is manual clone-stamping
+  (GUI, non-reproducible). So a sky flat is safe for this class ONLY when faint
+  structure is a small part of the frame; validate before use
   ([`synthetic-flats-and-bias.md`](synthetic-flats-and-bias.md)).
+  **CORRECTED 2026-08-03 — what gets attenuated is UNRESOLVED STARLIGHT, not
+  "cosmic dust".** The original wording asserted a dust complex that was never
+  measured and does not exist in this field (terminology entry above). The
+  MECHANISM stands unchanged — a frame-filling signal cannot reject out of a
+  median of un-registered lights, whatever it is made of — but the thing at risk
+  is the integrated light of stars below the detection limit, which is ~81% of the
+  catalogued starlight here. Naming it correctly matters because the two imply
+  opposite handling: diffuse emission would be protected by smoothing, whereas
+  starlight is protected by keeping stars resolvable.
 - **A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE ALT-AZ FRAME — the
   drift cannot reject it, because the CAMERA is fixed in alt-az too.** The
   method's stated enabling condition ("the sky drifts across the sensor, so the
@@ -100,10 +198,21 @@ the constraints any such tool must satisfy):
   immediately caught four more unfixed sites its author had already missed).
 
 **Background:**
-- The MW band IS frame-scale curvature at wide focal → `seqsubsky 2` erases it;
-  only a first-degree plane or a full BGE is MW-safe.
-- Stack-level-only BGE leaves a STRUCTURED residual (visible rings, loses MW);
-  per-frame `subsky 1` is the MW-safe background step.
+- **MECHANISM, NOT MEASURED** (flagged 2026-08-03): the galactic-plane star field
+  is frame-scale curvature at wide focal, so `seqsubsky 2` is expected to absorb
+  it and only a first-degree plane or a full BGE to preserve it. What would be
+  preserved is UNRESOLVED STARLIGHT (terminology entry above), not a dust complex.
+  **No controlled degree-1-vs-degree-2 comparison on this data is on record** — no
+  numbers, no instrument, no n. This entry has been gating the background policy
+  (and the README class limit) as though it were a result. The test that would
+  settle it: one knob, `seqsubsky 1` vs `2` on the same frames, judged on the same
+  Gaia-vs-cell instrument used for the terminology entry, since that measures the
+  very signal at issue.
+- **MECHANISM, NOT MEASURED** (same flag): stack-level-only BGE is reported to
+  leave a structured residual with visible rings and to eat the same frame-scale
+  starlight, making per-frame `subsky 1` the preferred step. "Visible rings" is an
+  unrecorded eye observation — no image, no metric, no n. Treat the per-frame
+  default as a reasonable prior, not an established result.
 - **`seqsubsky` DITHERS BY DEFAULT — the opposite of `subsky`, and the dither is
   UNSEEDED, so a per-frame background step silently makes every calibrated frame
   irreproducible.** `subsky` takes an opt-IN `[-dither]`; `seqsubsky` takes an
@@ -125,13 +234,15 @@ the constraints any such tool must satisfy):
   (0.4/√401 = 0.02 ADU = 0.047% of sky, below the chain's own 0.073% flat-sky
   run-to-run floor) — this is a reproducibility rule, not a photometry one, and
   flats built before the pin do NOT need rebuilding for that reason.
-- GraXpert AI smoothing is NOT faint-nebulosity protection — smoothing blurs the
-  model OUTPUT, not the inference; a frame-filling faint complex reads as the
+- GraXpert AI smoothing is NOT faint-signal protection — smoothing blurs the
+  model OUTPUT, not the inference; frame-filling faint structure reads as the
   trained light-pollution class and is absorbed. Use a plane/off for
   object-filling fields. BGE does NOT absorb a centred galaxy's halo (it measures
   STRONGER against a lower far-field sky).
-- **GraXpert AI `-correction Division` as a synthetic flat on a frame-filling-MW
-  field absorbs most of the extended structure — measured, even at max smoothing.**
+- **GraXpert AI `-correction Division` as a synthetic flat on a field filled with
+  UNRESOLVED STARLIGHT absorbs most of the extended structure — measured, even at
+  max smoothing.** (Wording corrected 2026-08-03: the measurement below is
+  unchanged and stands; what it ate was integrated starlight, not a dust complex.)
   Four-arm probe (july23 set-03, 60-frame stacks, same chain, one knob):
   NAN-region contrast as % of local sky R/G/B — own sky flat 8.5/2.9/5.6; GraXpert
   Division (smoothing 1.0, AI 1.0.1) **2.4/0.7/2.1** — the division ate ~2/3 of the
@@ -150,6 +261,73 @@ the constraints any such tool must satisfy):
   the fit skews. Crop-before-background is the pinned order.
 
 **Stretch / colour:**
+- **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT HOLDS
+  THE LIGHT — and a single per-channel gain cannot correct a layer with two
+  populations.** MEASURED on the july23 separation (Siril `stat main` under
+  `fmul 1000`; at plain `stat` the star layer's medians print 1.6/1.7/1.5 and its
+  R/G is quantization-limited to ±6%, larger than the effect):
+  linear stack median R/G 0.9992 / B/G 0.9988 (the SPCC truth); starless layer
+  1.0022 / 1.0048 (+0.30% red); star layer 0.8977 / 0.8600 (−10.2%, −13.9%).
+  The split is mass-balanced, so the third line is not a stellar colour — it is
+  the second line's 0.30% error levered by the mask carrying only ~4% of the
+  stack's level: `(0.9992·G − 1.0022·G_less)/(G − G_less) = 0.9306` reproduces the
+  measured value from the other two.
+  **Two traps found trying to correct it, both worth more than the fix.**
+  (1) WRONG STATISTIC: a diagonal `ccm` whose gains came from the layer's MEDIAN
+  (its diffuse floor) was applied to the whole layer including the star cores.
+  Validated on the median alone, it reported a perfect 1.0001/0.9992 while the
+  STARS came out +8.3% R / +11.0% B — visibly neon blue, user-caught. Mirror of the
+  halo-photometry entry below: a median is robust against exactly the population
+  under test. Targeting the star-weighted MEAN instead fixed the stars (0.9991/
+  0.9991) and pushed the FLOOR off (0.9226/0.8986) — the defect moved, it did not
+  go. A single gain cannot serve both populations; REPORT BOTH STATISTICS.
+  (2) WRONG ORDER: the populations' colours AGREE on the raw stack (cores-vs-floor
+  spread −1.1%/+0.0%, so one gain is valid there) and DIVERGE once a stellar
+  sharpen runs before the separation (+8.4%/+11.2%), because concentrating flux
+  into cores changes what the separation assigns to each layer. Sharpen AFTER
+  separating, on the star layer only (measured spread then −3.1%/−3.7%).
+  **Also refuted here:** darkstar's colour-true STARLESS (0.9990/0.9987) does NOT
+  imply a colour-true star layer — its cores-vs-floor spread is −18.2%/−30.7%
+  stretched, far worse than StarNet2. Do not adopt it as the separator on that
+  inference. NOTE the scope: all of this is ONE dataset and one separation; the
+  leverage ARITHMETIC is general, the specific numbers are not.
+- **COSMIC CLARITY'S CLI ARGUMENTS ARE NOT A CONTROL SURFACE — verify every one
+  against output before trusting it.** Three found on one rig: `--sharpening_mode`
+  IGNORED (the Qt dialog's value wins); `--color_denoise_strength` SATURATED above
+  ~0.85 (0.85 and 1.00 byte-identical); and the sharpen binary BLOCKS on a modal
+  dialog so it cannot run unattended at all (`TOOLS.md`). Two of the three fail
+  SILENTLY — the tool reports success and produces output, just not the output you
+  asked for. The saturation was caught only because two band measurements agreed
+  to three decimals across all three channels, which is a no-op signature rather
+  than a null result; md5 + Siril `isub` confirmed it. **Cheap guards, both learned
+  the expensive way: probe a new neural tool with an EMPTY input directory first
+  (a working one reports "no files" in seconds — this one hangs), and check
+  `uptime` before concluding a tool is broken (a first pass at the above was
+  attributed to the binary while the box sat at load average 300 from an unrelated
+  job, costing ~30 min of CPU and a wrong registry entry that had to be retracted).**
+- **RAISING `star_asinh` TO AMPLIFY THE STAR LAYER IS A DEAD END — it destroys the
+  stellar brightness hierarchy and renders a uniform speckle field.** The shipped
+  value is 1000; 20000 was tried on the reasoning that the star layer carries this
+  field's unresolved starlight (true, R² 0.9631) and should therefore be lifted to
+  reveal it (FALSE, and the error). `asinh` is a COMPRESSOR: gain runs 1362× at
+  input 1e-4 but only 7.8× at 0.1, so **two stars differing 100:1 in real measured
+  flux render 2.25:1 — a 44× compression of dynamic range** (17× at the shipped
+  1000). MEASURED consequences, all visible at 1:1 and rejected on sight: no
+  brightness hierarchy, uniform same-size speckle, soft blobs rather than points, and
+  random per-dot colour. The compression ratios are ARITHMETIC from the asinh
+  transform and are exact; the visual consequences were user-judged on full-frame
+  finals. TWO MECHANISMS HERE ARE INFERRED, NOT ISOLATED BY EXPERIMENT: that the
+  wing-lift (~1362× at the faint end vs 7.8× at 0.1) is what cancels an upstream
+  sharpening — no before/after FWHM was measured ON THE RENDER, only on the linear
+  layer; and that the random colour comes from the star layer being amplified with
+  its chroma noise intact — the tier does denoise only the starless layer (a
+  structural fact, readable in the script), but no arm isolated that as the cause.
+  Both are plausible and neither was controlled.
+  The rule this establishes: unresolved starlight is rendered AS STARS, preserving
+  the population's brightness hierarchy — never amplified as a diffuse glow. A
+  "low" `star_asinh` is not timidity; it is what keeps the compressor in a range
+  where stars still look like stars. Do not re-attempt the lift, and do not
+  reach for it when a field looks empty.
 - Unlinked autostretch on a calibrated stack is the chroma-blotch ("rainbow")
   engine — after SPCC there is no cast to compensate; use linked. Unlinked
   sky-anchored stretch as a narrowband line-lift is a NO-OP (BGE+SPCC already
@@ -168,10 +346,13 @@ the constraints any such tool must satisfy):
   x86 (tool options + their chroma-vs-luminance flags: `TOOLS.md`).
 
 **Separation** (informs the x86 tool choice):
-- A mask+inpaint separator DESTROYS resolved-object structure (inpaints HII knots
-  out as stars, screens them back as blobs); a learned separator (StarNet2/StarXT)
-  keeps field-star flux and far less object structure. Use the learned separator
-  on resolved objects.
+- **MECHANISM, NOT MEASURED** (flagged 2026-08-03): a mask+inpaint separator is
+  reported to destroy resolved-object structure (inpainting HII knots out as stars
+  and screening them back as blobs), where a learned separator (StarNet2/StarXT)
+  keeps field-star flux and far less object structure — hence use the learned one
+  on resolved objects. No side-by-side numbers are recorded. The conclusion is
+  consistent with how the two methods work and with the fact that the shipped
+  chain's StarNet2 separation measures cleanly, but it is not a controlled result.
 - A bright-star residual/shell is a per-DATA property (tight PSF vs big trailed
   PSF) — measure per dataset, never carry one set's number to another.
 
@@ -535,7 +716,7 @@ the constraints any such tool must satisfy):
   1024² tile: Siril `denoise` 2.05→2.55 while GraXpert denoise read 1.14 on
   the same input). Judge denoise on a decomposition instrument (the
   `noise_split.sh` structured term must SHRINK while confusion texture — real
-  sky — stays) + the user's eyes on dust at 1:1.
+  sky — stays) + the user's eyes on the unresolved starlight at 1:1.
 - Never hide a rim defect with a darker sky target or a crop — the rim is in the
   data (estimator extrapolation × stretch amplification), fix it there.
 - **Never export a numpy/FITS-row-order pixel box to Siril `crop` unverified** —
