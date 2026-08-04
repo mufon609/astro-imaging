@@ -925,21 +925,21 @@ def _stage_registry():
             + (["--force"] if a.get("force") else []),
         },
         "sky_flat": {
-            "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/. DE-SKIED BY DEFAULT, matching the chain: Siril `seqsubsky 1 -nodither` on the source frames removes the sky gradient that is fixed in the ALT-AZ frame, which the drift cannot reject out and a flat would otherwise bake in as a multiplicative tilt on the object (measured: flat odd plane 4.84%->1.98% set-01, 7.82%->2.42% set-02, vignetting held to <=0.12%). The output NAME records it — skyflat_<set>_desky.fit — because a de-skied flat is a different CHAIN SHAPE, not a variant: it must be paired with the per-frame background step, and the light builders below derive that pairing from this name. Leaving it unrecorded put two different products on one path",
+            "desc": "PER-SET sky flat for a flatless set (validation gates built in) -> work/masters/. NOT de-skied by default, matching the chain. --desky ran `seqsubsky 1` on RAW frames that still carry vignetting, which is outside that operator's domain (the frame is sky x V, not sky) and inverted the flat's edge asymmetry: raw light +0.426, --desky flat -0.550, so dividing by it roughly DOUBLED the error. MEASURED one-knob on july31/set-01: corner spread 12.4% with --desky vs 0.4% without, a 31x regression that shipped 2026-07-29 and was reverted 2026-08-04 (datasets/july31/set-01/qa_work/desky_regression.json). The output name still records the shape — skyflat_<set>_desky.fit when de-skied — because the light builders derive their pairing from it",
             "phase": "calibrate",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
                 {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark", "hint": "master dark under work/masters/"},
-                {"name": "no_desky", "kind": "bool", "req": False, "hint": "opt OUT: build the CONTAMINATED shape as skyflat_<set>.fit. Only for a flat-vs-flat attribution arm — it leaves a 5-23% multiplicative tilt on the object"},
+                {"name": "desky", "kind": "bool", "req": False, "hint": "opt IN to the REGRESSED shape as skyflat_<set>_desky.fit. Only to reproduce the 2026-07-29..08-04 defect for testing — it inverts the flat's edge vignetting and cost 31x in background flatness"},
             ],
             "build": lambda a: (lambda ses, st, dsk: ["scripts/stack/build_sky_flat.sh",
                                 P("sessions", ses), st,
                                 "--dark=" + _arg_repo_path(a["dark"], ["sessions"], ext=".fit"),
                                 "--out=" + P("sessions", ses, "work", "masters",
-                                             f"skyflat_{st}{'' if dsk else '_desky'}.fit")]
-            + ([] if dsk else ["--desky"]))(
-                _arg_session(a["session"]), _arg_set(a["set"]), bool(a.get("no_desky"))),
+                                             f"skyflat_{st}{'_desky' if dsk else ''}.fit")]
+            + (["--desky"] if dsk else []))(
+                _arg_session(a["session"]), _arg_set(a["set"]), bool(a.get("desky"))),
         },
         "stack_standard": {
             "desc": "standard class: calibrate -> register -> rejection stack (matched flats; flatless hard-stops)",

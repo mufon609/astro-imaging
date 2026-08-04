@@ -65,6 +65,19 @@ for a in "${@:3}"; do case "$a" in
   --desky) DESKY=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+# !! REVERTED 2026-08-04 — `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION.
+# It shipped ON 2026-07-29 (f170540) and cost 31x in background flatness: july31/
+# set-01 measured corner spread 12.4% with it against 0.4% without, one knob, 500
+# frames, everything else identical. CAUSE: `seqsubsky` is a BACKGROUND EXTRACTION
+# operator, defined on a FLAT-FIELDED image, and this ran it on RAW frames still
+# carrying vignetting — the frame is sky x V, not sky. The additive plane overshoots
+# where V curves hardest (the frame edge) and INVERTS the asymmetry there: raw light
+# +0.426, --desky flat -0.550, so dividing by it doubles the error. The analysis
+# below is preserved because its PROBLEM STATEMENT is still correct — a sky flat does
+# bake in the horizon-fixed gradient and does tilt the object (3.11% at 241 sigma).
+# Its PROPOSED FIX is not. Full record: docs/dead-ends.md + datasets/july31/set-01/
+# qa_work/desky_regression.json.
+#
 # --desky: per-frame `subsky 1` on each CALIBRATED light, in sensor space,
 # before the geometric warp. It is the mandatory COMPANION to a de-skied flat
 # (build_sky_flat --desky), not an independent option:

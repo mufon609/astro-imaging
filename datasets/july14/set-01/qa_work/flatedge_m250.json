@@ -1,0 +1,48 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/sessions/july14/work/masters/skyflat_set-01_desky.fit",
+ "domain": "linear (run this on the pre-stretch surface; cross-arm comparisons use the _spcc stack)",
+ "box_px": 80,
+ "corner_margin_px": 250,
+ "image_wh": [
+  6064,
+  4040
+ ],
+ "channels": 1,
+ "regions": {
+  "center": {
+   "ch0": {
+    "mean": 124.9,
+    "median": 129.8,
+    "sigma": 28.9
+   }
+  },
+  "TL": {
+   "ch0": {
+    "mean": 55.6,
+    "median": 57.6,
+    "sigma": 13.3
+   }
+  },
+  "TR": {
+   "ch0": {
+    "mean": 51.4,
+    "median": 55.3,
+    "sigma": 13.2
+   }
+  },
+  "BL": {
+   "ch0": {
+    "mean": 56.4,
+    "median": 55.8,
+    "sigma": 13.4
+   }
+  },
+  "BR": {
+   "ch0": {
+    "mean": 55.9,
+    "median": 60.3,
+    "sigma": 13.8
+   }
+  }
+ }
+}

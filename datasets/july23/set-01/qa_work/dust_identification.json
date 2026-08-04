@@ -1,0 +1,418 @@
+{
+ "what": "identification of the frame-filling faint structure this repo calls 'cosmic dust / MW / IFN' and protects under 'dust-safe' doctrine",
+ "dataset": "july23 set-01+02 desky min combine, 799 subs",
+ "field": {
+  "centre_l_deg": 83.17,
+  "centre_b_deg": 0.79,
+  "frame_deg": [
+   20.78,
+   14.19
+  ],
+  "scale_arcsec_px": 16.986,
+  "b_range_deg": [
+   -10.276478053622546,
+   11.814885476654663
+  ]
+ },
+ "instruments": {
+  "pixels": "Siril 1.4.4 stat (load + fmul 100 + boxselect/stat per cell, one invocation per surface); Siril findstar list from the approved render",
+  "external": "Gaia DR3 via ESA TAP (gea.esac.esa.int) \u2014 2,985,425 sources G<17 over the footprint, plus aggregate cone queries",
+  "in_house": "WCS mapping, catalogue binning, least squares over the tools' reported numbers. No in-house pixel analysis.",
+  "lattice": "uniform 14x10 pixel grid, 300 px cells (1.415 deg, 2.004 deg2) \u2014 geometry from the frame only, never from a measured brightness (registry trap 3)",
+  "y_convention": "siril boxselect origin is TOP-left; MEASURED from Siril's own findstar X/Y against the RA/Dec Siril printed for the same stars (median |dy| 3.0 px flipped vs 1501.5 px unflipped)"
+ },
+ "photometry": {
+  "zero_point": "instrumental_mag = G -5.7763",
+  "zero_point_n": 8495,
+  "zero_point_mad_mag": 0.3216782394000009,
+  "zero_point_stat_precision_pct": 0.4,
+  "gaia_flux_to_stack_units": 204.4,
+  "flux_definition_verified": "Siril findstar mag == -2.5*log10(A*FWHMx*FWHMy*2pi/2.3548^2), median residual -0.00017 mag over all 18125 stars \u2014 the unit is normalized [0,1] x px^2",
+  "caveat": "the zero point rests on Gaussian-fit photometry of mildly trailed stars (roundness 0.80). Statistical precision 0.4%; a systematic of order 20-30% is not excluded. Every CORRELATION below is scale-free and unaffected; only the absolute ADU predictions carry it."
+ },
+ "detection_limit": {
+  "method": "one-to-one (mutual nearest, 25\") Gaia match with a 90\" isolation cut \u2014 the first pass matched 23,523 Gaia stars onto 18,125 detections and fitted a slope of 0.39 where physics demands 1.0; clean matching restored slope 0.96-0.97",
+  "completeness_50pct_G": 11.0,
+  "recovered_pct_by_G": {
+   "8.0-8.5": 92.4,
+   "9.0-9.5": 82.4,
+   "10.0-10.5": 65.0,
+   "10.5-11.0": 48.0,
+   "11.0-11.5": 25.1,
+   "11.5-12.0": 4.7,
+   "12.0-12.5": 0.8
+  },
+  "stars_detected": 18125,
+  "gaia_sources_brighter_than_G11_in_footprint": 20521
+ },
+ "confusion_regime": {
+  "gaia_sources_per_pixel_to_G17": 0.205,
+  "gaia_sources_per_deg2_field_centre": 68852,
+  "integrated_starlight_mag_arcsec2_G": 22.74,
+  "note": "about one catalogued source per five pixels brighter than G=17, and ~1.4/px extrapolated to Gaia's limit. This is a confusion-limited image: most Milky Way starlight here CANNOT appear as stars."
+ },
+ "gaia_truncation_check": {
+  "flux_fraction_beyond_G17_pct": [
+   3.15,
+   10.7
+  ],
+  "note": "measured at 11 positions spanning b -10 to +12; a few-percent systematic on the predicted amplitude, not sign-changing"
+ },
+ "predicted_ADU_per_px": {
+  "total_catalogued_starlight": 8.012,
+  "resolved_here": 3.836,
+  "unresolved_here": 4.176,
+  "unresolved_fraction_pct": 52.1,
+  "unresolved_sd_across_frame": 1.362
+ },
+ "results": {
+  "stack_mean_vs_predicted_unresolved": {
+   "slope": 0.93,
+   "R2": 0.3125,
+   "resid_sd_ADU": 1.865
+  },
+  "starmask_mean_vs_predicted_unresolved": {
+   "slope": 1.25,
+   "R2": 0.4457,
+   "resid_sd_ADU": 1.849
+  },
+  "starless_mean_vs_predicted_unresolved": {
+   "slope": -0.319,
+   "R2": 0.5671,
+   "resid_sd_ADU": 0.556
+  },
+  "starmask_median_vs_predicted_unresolved": {
+   "slope": 0.617,
+   "R2": 0.9631,
+   "resid_sd_ADU": 0.171
+  },
+  "starmask_median_vs_resolved": {
+   "slope": 0.0419,
+   "R2": 0.366
+  },
+  "starmask_median_vs_total": {
+   "slope": 0.1106,
+   "R2": 0.5035
+  },
+  "starmask_median_vs_count": {
+   "slope": 0.0087,
+   "R2": 0.8983
+  },
+  "starmask_median_flux_vs_count_horserace": {
+   "R2_both": 0.9684,
+   "note": "flux coefficient +0.843, count coefficient -0.004 \u2014 count adds nothing on top of flux. The two predictors are 97.7% collinear, so this constrains rather than proves; the decisive separation is that UNRESOLVED flux (R2 0.963) beats TOTAL flux (R2 0.503), which is not a collinear pair."
+  },
+  "measured_layer_levels_ADU": {
+   "stack_mean": 55.744,
+   "starmask_mean": 7.336,
+   "starless_mean": 48.414,
+   "starmask_over_predicted_total": 0.916,
+   "starmask_over_predicted_resolved": 1.912,
+   "consistency_starless_plus_starmask_minus_stack_ADU": 0.005
+  },
+  "pre_desky_control": {
+   "slope_stack_median_vs_unresolved_desky": 0.301,
+   "slope_stack_median_vs_unresolved_pre_desky": 0.287,
+   "note": "same frames, same optics, with and without per-frame `seqsubsky 1` + a de-skied flat. The two STACKS agree, so the sign inversion seen on the starless layer is NOT a background-step artifact \u2014 it appears at the SEPARATION stage. (An earlier read compared the desky STARLESS layer against the pre-desky STACK and briefly looked like a two-arm effect; it was a surface mismatch, corrected here.)"
+  }
+ },
+ "colour": {
+  "starless_R_over_G_mean": 1.0022,
+  "starless_R_over_G_sd": 0.0048,
+  "starmask_R_over_G_mean": 0.9303,
+  "starmask_R_over_G_sd": 0.0472
+ },
+ "render_arms": {
+  "purpose": "full products built to TEST the measurement before any doc change. Built through the SHIPPED render_tier.sh with no code change; the ratification gate was honoured per arm and the approved recipe block was restored byte-identical afterwards (verified).",
+  "control": "web/results/july23/judge/set-01+02_desky_linked_render.png (approved 2026-07-30)",
+  "arms": {
+   "nosep": {
+    "file": "web/results/july23/judge/set-01+02_desky_nosep_render.png",
+    "change": "--no-separate --no-denoise; sky_target 0.10 unchanged",
+    "why": "structural fix \u2014 one monotonic curve on the real linear data, so every component keeps its true relative proportion. Denoise off with it because Cosmic Clarity removes 58-72% of per-scale power at 1-8 px, exactly where the unresolved stars live."
+   },
+   "starlift": {
+    "file": "web/results/july23/judge/set-01+02_desky_starlift_render.png",
+    "change": "star_asinh 1000 -> 20000, sky_target 0.10 -> 0.0364",
+    "why": "star_asinh derived by Siril `stat main` on the mask at six stretch values: 20000 puts the star layer's diffuse floor at 6.61% against 0.49% at the shipped 1000. sky_target then falls by the screen identity g = 1 - 0.9/(1-s) so the BACKGROUND LANDING stays 0.10 and curve shape is the knob, not brightness."
+   },
+   "starlift3": {
+    "file": "web/results/july23/judge/set-01+02_desky_starlift3_render.png",
+    "change": "starlift + --star-black=0 + --star-neutral; sky_target 0.0552 for a matched 0.10 background landing (s = 4.74% after the fixes)",
+    "why": "the colour-corrected candidate"
+   }
+  },
+  "measured": {
+   "rendered_sky_R_over_G": {
+    "approved": 1.0002,
+    "nosep": 0.998,
+    "starlift": 1.0002
+   },
+   "rendered_sky_B_over_G": {
+    "approved": 1.0043,
+    "nosep": 0.9961,
+    "starlift": 1.0046
+   },
+   "product_median_G": {
+    "approved": 6966.0,
+    "nosep": 6543.2,
+    "starlift": 4141.0
+   },
+   "product_bgnoise_G": {
+    "approved": 564.9,
+    "nosep": 4536.0,
+    "starlift": 1284.8
+   },
+   "product_median_colour": {
+    "approved": "R/G 0.9980 B/G 0.9961",
+    "starlift": "R/G 0.8830 B/G 0.8471"
+   }
+  },
+  "inspection_notes": [
+   "Inspected whole-frame at fit and at NATIVE 1:1 in three WCS-anchored regions (NGC 7000 object, Cygnus Rift lane, blank sky b=+11), all surfaces Siril-made (resample -interp=area / crop + savepng) and NOT judgment surfaces.",
+   "APPROVED: the user's description is reproduced exactly \u2014 a green-grey washed haze fills the frame, with a mottled coring texture in blank sky and visible horizontal walking-noise streaks through the mid-frame. At 1:1 the NGC 7000 field is mush; Ha reads as a dull pink smudge and the dark Gulf is muddy rather than dark.",
+   "NOSEP: the haze is gone and the Cygnus Rift lanes read as genuine dark silhouette against a dense star field \u2014 the pre-registered silhouette prediction, visible. But it is harsh: bgnoise 4536 against the control's 565 (8x; the estimator is counting revealed star texture, registry caveat), the frame reads salt-and-pepper at fit, and the Ha knots are markedly LESS prominent than in either other arm.",
+   "STARLIFT: best of the three to my eye. Haze gone, background genuinely black in blank sky, no streaks visible, Rift lanes dark and structured, and the Ha knots are the brightest and best-defined of the three arms. At 1:1 the NGC 7000 field resolves into thousands of stars where the control showed mush.",
+   "DEFECT, starlift, measured and visible: the product median moves to R/G 0.8830 / B/G 0.8471 because the star layer now dominates and its own field colour is R/G 0.9303 (measured). At 1:1 the faintest stars carry a green-teal tinge. The rendered SKY is still neutral (R/G 1.0002 / B/G 1.0046) \u2014 this is a star-colour issue, not a background cast, and it is NOT addressed by any knob in this tier.",
+   "DEFECT, both arms: stars remain soft/blobby at 1:1 \u2014 that is the in-exposure trailing floor (registry), unchanged by anything here.",
+   "NOT INSPECTED: I have not viewed the 16-bit PNG16 finals in an independent viewer at full precision; that is the user's judgment surface."
+  ]
+ },
+ "star_colour_fix": {
+  "defect": "lifting the star layer exposed a product colour of R/G 0.8830 / B/G 0.8471 against the linear stack's SPCC-calibrated 0.9992 / 0.9988.",
+  "root_cause": "NOT a stellar colour and NOT caused by the lift. The star layer is a RESIDUAL carrying ~4% of the stack's level, so the starless layer's +0.30% red excess is amplified into a -10.2% deficit: (0.9992*G - 1.0022*G_less)/(G - G_less) = 0.9306 reproduces the measured mask colour from the other two layers. Same 1/f leverage structure the tier already documents for the gas black point. It was invisible at star_asinh=1000 because the star layer contributed 0.49%.",
+  "measurement_trap_hit": "at plain Siril `stat` the mask's medians print as 1.6/1.7/1.5 and its R/G is quantization-limited to about +-6% \u2014 larger than the effect. The first read of the 'linear truth' was wrong for this reason; `fmul 1000` fixed it.",
+  "fixes": {
+   "star_black": "the asinh offset, previously HARDCODED at 0.00002 \u2014 a COMMON black point on channels at different levels, the construction the gas stretch explicitly rejects, on a layer whose median is only ~1.4x the offset. MEASURED error vs the layer's own linear colour: 0.00002 -> R/G -5.10% B/G -6.73%; 0 -> -1.35% / -1.59%.",
+   "star_neutral": "diagonal Siril `ccm` on the linear mask. Gains derived from a CALIBRATION STRETCH, not from the linear medians, because the asinh shifts the ratio by the -1.35%/-1.59% above. Legitimate because the correction is exactly multiplicative through the transform (MEASURED: gains 1.11303/1.16141 moved the STRETCHED colour by 1.1130/1.1612 \u2014 the applied gains to 4 decimals), so one pass lands it with no iteration and no fitting.",
+   "clipmode_ruled_out": "Siril asinh -clipmode= tested at the same time and is NOT the driver: clip / rgbblend / globalrescale identical to 4 decimals; `rescale` returns the input unstretched and is unusable."
+  },
+  "result": {
+   "stretched_star_layer_R_over_G": 0.9992,
+   "stretched_star_layer_B_over_G": 0.9986,
+   "target": "0.9991 / 0.9988 (the linear SPCC stack)",
+   "residual": "+0.01% / -0.02%",
+   "product_median": "R/G 0.9716 B/G 0.9562 (mixed statistic \u2014 the tier's own docstring notes the product median is dragged by stars and is not the sky; the rendered SKY is R/G 1.0002 / B/G 1.0045)"
+  },
+  "reproducibility": "both knobs default to the previous behaviour. VERIFIED: re-rendering the approved knobs through the patched tier and comparing with Siril `isub` gives all-nil on every channel \u2014 the approved render is byte-unchanged.",
+  "remaining": "the real fix is a colour-neutral separator; this corrects the amplified residue of the one we have. Also unchanged: stars stay soft at 1:1 (in-exposure trailing floor)."
+ },
+ "gray_green_bands": {
+  "user_report": "the gray/green bands hide behind the stars, and when the stars are removed they blow out the photo.",
+  "question": "does the SEPARATION create them (fix = the separator) or are they in the data (fix = amplification / acquisition)?",
+  "method": "spread of STRIP medians along each axis \u2014 a horizontal band makes row-strip medians vary while column-strip medians stay flat. 24 strips of 50 px across a 1200 px box, Siril crop+stat under fmul 1000. Region chosen by EXTERNAL coordinate (the frame's highest |galactic b| corner, |b| 9.29 deg), never by brightness.",
+  "row_strip_sd_G_x1000": {
+   "linear_stack": 95.05,
+   "starless_starnet": 77.37,
+   "gas_dn": 72.82
+  },
+  "as_pct_of_level": {
+   "linear_stack": 0.189,
+   "starless_starnet": 0.16,
+   "gas_dn": 0.151
+  },
+  "per_channel_gas_dn_row_sd": {
+   "R": 89.4,
+   "G": 72.82,
+   "B": 122.12
+  },
+  "verdict": "IN THE DATA. The amplitude is already present in the linear SPCC stack and the separation + denoise slightly REDUCE it (0.189% -> 0.160% -> 0.151%). StarNet2 is not creating the bands, so swapping separators will not remove them. Removing the stars removes the competing texture that was masking them \u2014 exactly the user's description. The bands are strongest in BLUE (row sd B 122.1 vs G 72.8), which is why a neutral background reads as alternating cool / green banding.",
+  "why_they_blow_out": "the render's own amplification. The gas layer's black point sits f = 0.0527 below sky, so the registry's 1/f mechanism magnifies a fractional background variation ~19x: 0.19% linear -> ~3.6% visible, and the blue band's 0.25% -> ~4.8%. The band does not grow; the stretch that reveals the nebula reveals it too.",
+  "class": "BACKLOG:`walking-noise` \u2014 drift-aligned sensor-fixed FPN. Rejection and cosmetic correction are both already measured NULL for this class; acquisition (dither between subs) owns the real fix and is not available for existing data.",
+  "levers_under_measurement": [
+   "deepen the black point (less 1/f amplification, costs faint signal) \u2014 quantified by blackpoint.py",
+   "raise chroma denoise (the bands are B-dominated and chroma currently sits at 0.85)"
+  ],
+  "black_point_lever": {
+   "verdict": "NULL \u2014 do not use black_k_mad to suppress the bands.",
+   "method": "re-stretch the SAME denoised gas layer at five black_k values with the tier's own construction; measure the visible band (row-strip median spread, the bands.py instrument) and the rendered faint-nebulosity contrast (IC 1318 minus blank sky) on the same stretches. Siril mtf + stat throughout.",
+   "table": [
+    {
+     "black_k": 4.0,
+     "f": 0.0527,
+     "amplification": 19.0,
+     "band_pct_of_sky": 3.541,
+     "faint_contrast_pct": 26.58,
+     "ratio": 0.133
+    },
+    {
+     "black_k": 6.0,
+     "f": 0.079,
+     "amplification": 12.7,
+     "band_pct_of_sky": 2.608,
+     "faint_contrast_pct": 19.0,
+     "ratio": 0.137
+    },
+    {
+     "black_k": 8.0,
+     "f": 0.1054,
+     "amplification": 9.5,
+     "band_pct_of_sky": 2.153,
+     "faint_contrast_pct": 15.47,
+     "ratio": 0.139
+    },
+    {
+     "black_k": 12.0,
+     "f": 0.158,
+     "amplification": 6.3,
+     "band_pct_of_sky": 1.705,
+     "faint_contrast_pct": 12.09,
+     "ratio": 0.141
+    },
+    {
+     "black_k": 16.0,
+     "f": 0.2107,
+     "amplification": 4.7,
+     "band_pct_of_sky": 1.483,
+     "faint_contrast_pct": 10.45,
+     "ratio": 0.142
+    }
+   ],
+   "mechanism": "the band and the faint nebulosity both live in the BACKGROUND and are amplified by the same ~1/f, so a level-selective knob cannot separate them. The band/contrast ratio is flat (0.133 -> 0.142) and slightly WORSENS with depth: cutting amplification 4x costs 60% of the faint contrast to buy a 58% band reduction. Deepening the black point only turns everything down.",
+   "validation": "the 1/f mechanism itself is confirmed \u2014 predicted ~3.6% visible band at f=0.0527 from a 0.19% linear band, measured 3.541%.",
+   "next_lever": "chroma denoise, which is COLOUR-selective rather than level-selective (the bands are B-dominated: gas_dn row sd B 122.1 vs G 72.8), so unlike the black point it can change the ratio rather than the overall level.",
+   "metric_retracted": "a 'dark depth' column comparing the Cygnus Rift lane against a blank field at b=+11 was computed and is NOT quoted: those are different galactic latitudes with very different unresolved-starlight levels, so it read negative (lane brighter than the high-latitude blank). A lane must be measured against its own local flanks. Badly-posed metric, not a finding."
+  },
+  "chroma_lever": {
+   "verdict": "NULL \u2014 the chroma knob does nothing for the bands across its FULL range (R +2.1%, G -0.9%, B +0.1% from 0.00 to saturated, luminance held at 0.6).",
+   "denoise_as_a_whole": "off -> full (lum 0.6 + saturated chroma): R +0.2%, G -6.2%, B -1.1%. The bands survive the entire denoise stage essentially untouched.",
+   "tool_finding": "--color_denoise_strength SATURATES at or below the shipped 0.85: runs at 0.85 and 1.00 are BYTE-IDENTICAL (same md5), while 0.00 differs. Caught because two band measurements agreed to three decimals in all three channels \u2014 that is a no-op signature, not a NULL, and md5 + Siril isub confirmed it. --denoise_strength by contrast DOES work across its range (0.0 output is byte-identical to the input; 1.0 differs by sigma 0.7-1.0 ADU). Consequence for BACKLOG:`render-ladder` L2: the CHROMA half of the denoise knob is effectively binary (0 vs on) and has NO headroom above the shipped 0.85."
+  },
+  "ASK_A_CLOSED": {
+   "conclusion": "NO LEVER IN THIS RENDER TIER REMOVES THE BANDS. Three measured and killed: black point (NULL \u2014 band and nebula share a level and fall together, ratio flat 0.133 -> 0.142), darkstar separator (WORSE \u2014 B 0.330% vs 0.254%), chroma denoise (NULL across its full range, and saturated at the shipped value).",
+   "why": "the bands are already present in the LINEAR stack at 0.189% of level and the separation + denoise slightly REDUCE them (0.189 -> 0.160 -> 0.151%). Nothing downstream creates them, so nothing downstream can remove them. They become VISIBLE because the render's 1/f amplification (f = 0.0527) magnifies 0.19% into ~3.5% \u2014 the stretch that reveals the nebula reveals them too.",
+   "the_actual_fix": "BACKLOG:`walking-noise` \u2014 drift-aligned sensor FPN. Acquisition owns it (dither between subs). Not available retroactively for this data. Rejection and cosmetic correction were already measured NULL for this class; this adds black point, chroma denoise and an alternative separator to that list."
+  }
+ },
+ "tool_finding_cosmic_clarity": {
+  "status": "CONFIRMED (supersedes the earlier retraction \u2014 the retraction was correct at the time; the evidence below is what the original claim was missing).",
+  "finding": "SetiAstroCosmicClarity (the SHARPEN binary) opens a Qt MODAL DIALOG on startup and blocks on it indefinitely. It cannot run unattended.",
+  "evidence": [
+   "IDLE machine (load 1.33, 28 cores), EMPTY input dir: blocked the full 115 s using 3% CPU / 3.20 s user time \u2014 waiting, not computing. This is what eliminates the load-average confound that forced the earlier retraction.",
+   "DISPLAY unset: 'qt.qpa.xcb: could not connect to display' then abort (exit 134). It is a Qt app \u2014 the earlier GTK attribution was WRONG; the GTK lines in the log are incidental.",
+   "USER-OBSERVED: the dialog appeared on their desktop reading 'GPU Acceleration: No, Sharpening Mode: Both, Auto...'. After they clicked OK the tool ran immediately."
+  ],
+  "second_and_worse_finding": "--sharpening_mode IS IGNORED. 'Stellar Only' was passed on the command line; the dialog showed 'Both', and the run did a stellar pass AND a non-stellar pass. The dialog's state is the authority and the CLI is decoration, so this tool cannot be driven REPRODUCIBLY from a script at all \u2014 a harder constraint than 'needs a click'. Same trap class as the registry's darktable-style entry: the tool ignores what you pass and uses its own state.",
+  "third_finding": "the NON-STELLAR pass crashes on this data: 'ValueError: zero-size array to reduction operation maximum which has no identity' at sharpen_image -> numpy _amax, at chunk 5/36, AFTER 'Stellar sharpening complete. Shape: (1056,1056)'. Nothing is written, because the save happens after both passes.",
+  "what_does_NOT_fix_it": [
+   "QT_QPA_PLATFORM=offscreen \u2014 dialog still created, still unclickable, still blocks",
+   "xvfb-run + xdotool blind-driving Return/space/click \u2014 never reached the widget",
+   "no config file exists under ~ or /opt for it",
+   "no hidden CLI flag in the binary's strings",
+   "the AlternateBuild tarball in cosmic/ ships IDENTICAL models, so extracting 3.4 GB for a different wrapper is a poor trade against one click"
+  ],
+  "consequence_for_backlog": "BACKLOG:`learned-deconvolution` names this binary. The deconvolution route is not blocked \u2014 it is ATTENDED (needs a human click per run) and currently NOT REPRODUCIBLE (CLI args ignored), which fails the acceptance contract's reproducibility check for anything shipped. The denoise and darkstar binaries of the same suite are unaffected and run headless.",
+  "cheap_guard_learned": "probe any neural tool with an EMPTY input directory first \u2014 a working one reports 'no files' in seconds. And check `uptime` before concluding a tool is broken: the first pass at this cost ~30 min of CPU and a wrong record entry because the box was under load average 300 from an unrelated job."
+ },
+ "darkstar_separator_arm": {
+  "tool": "setiastrocosmicclarity_darkstar v2.2c, --star_removal_mode additive --show_extracted_stars --disable_gpu (runs headless; the SHARPEN binary of the same suite does not \u2014 see tool_finding_cosmic_clarity)",
+  "why_tried": "the shipped chain separates with StarNet2 and derives the star layer by Siril UNSCREEN, which levered a 0.30% starless colour error into 10-14% in the star layer. `additive` is the physically correct decomposition for light.",
+  "measured": {
+   "starless_colour": "median R/G 0.9990  B/G 0.9987 \u2014 essentially the linear stack's own 0.9992 / 0.9988, i.e. NO colour offset to lever. StarNet2's starless was 1.0022 / 1.0048.",
+   "stars_only_colour": "median R/G 2.0766 B/G 2.3096 \u2014 NOT quoted as a result: the star layer is mostly zeros so its median ratio is meaningless. Mean R/G 1.1372.",
+   "additivity": "source - starless - stars leaves medians -1.30 / -0.30 / -1.00 ADU on a ~50 ADU sky (2-3%), so 'additive' is not exact.",
+   "star_removal": "starless retains 958 detections (5.3% of the source's 18125) and the star layer carries 8564. StarNet2: starless 0, mask 18553.",
+   "banding_row_sd_pct_of_level": {
+    "darkstar_R": 0.294,
+    "darkstar_G": 0.167,
+    "darkstar_B": 0.33,
+    "starnet_R": 0.184,
+    "starnet_G": 0.16,
+    "starnet_B": 0.254
+   }
+  },
+  "verdict": "MIXED, not a drop-in replacement. WINS: the starless layer is colour-true so the levered star-colour artifact cannot arise at all (a root-cause fix where --star-neutral is a correction), and it leaves ~958 stars, which is what the user asked a starless render to look like. LOSSES: it is WORSE for the bands (R 0.294% vs 0.184%, B 0.330% vs 0.254%) because it removes less and therefore retains more of everything; and it would FAIL the tier's existing separation gates (starless <=1% of source: 5.3%; mask >=50%: 47%), which were calibrated on StarNet2.",
+  "open": "whether the darkstar star layer still tracks Gaia's unresolved starlight as StarNet2's did (R2 0.9631) \u2014 NOT yet measured, and it is the test that decides whether this separator preserves the Milky Way finding."
+ },
+ "star_tightening": {
+  "tool": "Cosmic Clarity SetiAstroCosmicClarity, sharpening mode STELLAR ONLY set IN THE DIALOG (the CLI flag is ignored \u2014 see tool_finding_cosmic_clarity), GPU off, all other settings default. 1024 px tile of the linear SPCC stack.",
+  "why_stellar_only_matters": "with the dialog's default mode 'Both' the run CRASHES in the non-stellar pass (numpy zero-size array) after the stellar pass completes, and nothing is written because the save happens after both. Selecting Stellar Only in the dialog is what makes it complete.",
+  "measured": {
+   "n_before": 1441,
+   "n_after": 1413,
+   "count_change_pct": -1.9,
+   "median_geomean_FWHM_before_px": 2.567,
+   "median_geomean_FWHM_after_px": 2.063,
+   "FWHM_change_pct": -19.6,
+   "median_amplitude_before": 0.00163,
+   "median_amplitude_after": 0.00192,
+   "linear_R_over_G": [
+    0.9936,
+    1.0003
+   ],
+   "linear_B_over_G": [
+    0.9954,
+    0.9999
+   ],
+   "level_before": 50459.3,
+   "level_after": 50450.1
+  },
+  "verdict": "WIN on the objective metric. -19.6% median FWHM at -1.9% star count, so it passes the survivorship guard (registry trap 1: a sharpener that pushes faint stars under the detection threshold improves the surviving median while making the image worse \u2014 that would show as a large count DROP, and the count barely moved). Amplitude +18% is the same flux in a tighter core. No photometric damage: level unchanged and the channel ratios moved TOWARD the SPCC truth (0.9936/0.9954 -> 1.0003/0.9999), not away.",
+  "serves": "ask B (tighten the stars) directly, and ask C (stars should not sit on top of the nebula) by the same mechanism \u2014 smaller point sources cover less nebula without turning down the star layer that carries the unresolved Milky Way.",
+  "blocker_for_adoption": "NOT SHIPPABLE in the chain as-is: one human click per run and the CLI arguments are ignored, so it fails the acceptance contract's reproducibility check. Usable as an attended one-off. Headless alternative if this cannot be resolved: a Siril wavelet/wrecons scale split of the star layer.",
+  "judged_on": "objective metric only so far \u2014 the user's eyes on full-frame PNG16 finals is still the aesthetic gate.",
+  "full_frame": {
+   "n_before": 18125,
+   "n_after": 19989,
+   "count_change_pct": 10.3,
+   "median_FWHM_before_px": 2.77,
+   "median_FWHM_after_px": 2.165,
+   "FWHM_change_pct": -21.9,
+   "median_amp": [
+    0.00156,
+    0.00199
+   ],
+   "R_over_G": [
+    0.9992,
+    1.0001
+   ],
+   "B_over_G": [
+    0.9988,
+    0.9999
+   ],
+   "level": [
+    50479.8,
+    50489.5
+   ],
+   "channels": "combined (NOT --sharpen_channels_separately)",
+   "verdict": "WIN, and the survivorship guard INVERTS rather than merely passing: the star count rose 10.3% (+1864). A sharpener cannot both improve the surviving median FWHM and reveal more stars by pushing faint ones under the threshold \u2014 tightening the PSF lifted them ABOVE it. Photometry untouched (level +0.02%) and the channel ratios landed on the SPCC truth (1.0001 / 0.9999).",
+   "note": "the log reports an internal padded working shape (3040, 4436) but the SAVED file is 4404x3008 with WCS intact \u2014 it crops back on save, so it drops straight into the chain."
+  }
+ },
+ "user_ratified_policy_2026_08_01": {
+  "verbatim": "if the pipeline needs a user step - changing GUI settings, that's fine from my perspective - we will make the prompts clear for dummies and it'll be a quick manual step. i rather the user deal with annoying gui prompts related to official programs vs we comeup with an overall worse inhouse process with inhouse code.",
+  "consequences": [
+   "the Cosmic Clarity STELLAR SHARPEN is ADOPTABLE as a documented ATTENDED step. Its GUI dialog is a cost of using an official tool, not a disqualification \u2014 same principle as the repo's bright line.",
+   "the Siril wavelet/wrecons scale-split of the star layer, proposed as the headless fallback, is now the WORSE option: it is in-house scale manipulation replacing a validated official model. Dropped unless the official tool fails.",
+   "the acceptance contract's reproducibility check needs an honest entry for this class: the step is ATTENDED and its CLI arguments are IGNORED, so the settings must be RECORDED FROM THE DIALOG per run rather than pinned in code. A run is reproducible only in the sense that the same dialog settings reproduce it.",
+   "the operator prompt must state the exact dialog settings, because the default mode 'Both' CRASHES on this data and only 'Stellar Only' completes."
+  ],
+  "operator_step_for_this_tool": {
+   "tool": "/opt/cosmicclarity-6.6/SetiAstroCosmicClarity",
+   "set_in_dialog": {
+    "Sharpening Mode": "Stellar Only",
+    "GPU Acceleration": "No",
+    "everything else": "default"
+   },
+   "why_each": {
+    "Stellar Only": "the default 'Both' runs a non-stellar pass that crashes with a numpy zero-size array AFTER the stellar pass completes, and nothing is saved because the write happens after both",
+    "GPU off": "no GPU on this rig"
+   }
+  }
+ },
+ "star_colour_audit_2026_08_01": {
+  "trigger": "USER-OBSERVED: 'why are the stars all neon blue' in set-01+02_desky_sharpstar_render.png. The assembler's own inspection had described the stars as 'blue, white, orange' from a DOWNSCALE and had not measured them \u2014 the defect was visible and was missed.",
+  "measured": {
+   "sharpstar_stars_mean": "R/G 1.0824  B/G 1.1108  (+8.3% / +11.0% off target)",
+   "sharpstar_floor_median": "R/G 1.0001  B/G 0.9992  (on target \u2014 which is why it hid)",
+   "sharpstar2_stars_mean": "R/G 0.9991  B/G 0.9991  (fixed)",
+   "sharpstar2_floor_median": "R/G 0.9226  B/G 0.8986  (now OFF \u2014 the Milky Way renders green)"
+  },
+  "error_1_wrong_statistic": "--star-neutral derived its gains from the layer's MEDIAN (the diffuse floor) and applied them to the whole layer including the star cores. Validated on the median alone. Mirror of the registry's halo-photometry trap: a median is robust against exactly the population under test. FIXED: gains now come from the star-weighted MEAN and BOTH statistics are printed every run.",
+  "error_2_overclaimed": "the earlier report 'star colour fixed to +0.01%/-0.02% of the SPCC truth' was true of the FLOOR, not the stars. On the unsharpened stack the stars did land fine (0.9885/0.9985) but that was not what had been verified.",
+  "error_3_the_real_one_ORDERING": "the star-weighted fix moved the defect rather than removing it (stars right, floor green), because a single diagonal gain cannot serve two populations with different colours. MEASURED cores-vs-floor spread, all stretched identically with no ccm: StarNet2 on the RAW stack -1.1%/+0.0% (they AGREE, so one gain works \u2014 this is why starlift3 is clean); StarNet2 on the SHARPENED stack +8.4%/+11.2% (they diverge). The stellar sharpen, applied BEFORE separation, concentrates flux into cores and changes what the separation assigns to each layer. The ordering is the root cause; the statistic and the separator were downstream symptoms.",
+  "darkstar_hypothesis_REFUTED": "darkstar's colour-true STARLESS (0.9990/0.9987) did NOT imply a colour-true star layer. Measured cores-vs-floor spread -18.2%/-30.7% stretched and -45.2%/-45.5% linear, with absolute ratios of 1.6-2.4 against a ~1.0 target \u2014 far worse than either StarNet2 case. Do not adopt it as the separator on this evidence; the cheap check saved a render arm built on a wrong inference.",
+  "fix_to_test": "REORDER: separate on the RAW stack (populations agree there), then apply the stellar sharpen to the STAR LAYER ONLY, then stretch. The original justification for sharpening first \u2014 'the mainstream deconvolves with stars present' \u2014 is about deconvolving an IMAGE; here the goal is tightening STARS, which are already isolated after separation.",
+  "status_of_arms": "starlift3 is currently the best colour-correct arm. sharpstar and sharpstar2 both carry the ordering defect and neither should be adopted."
+ }
+}

@@ -154,55 +154,68 @@ the constraints any such tool must satisfy):
   reads flat on the FINAL stack precisely BECAUSE the flat absorbed the gradient
   and divided it out — so a good flatness number is not evidence the calibration
   is clean. Judge it on the FLAT's odd component, not the stack's corners.
-  The clean fix is a REAL flat (the sky-flat builder's existing removal
-  condition). Where sky flats must be used, the flat's low-order ODD component
-  has to be removed before use, and the sky gradient handled ADDITIVELY (a
-  background step), never multiplicatively by the flat.
+  **SCOPE CORRECTION 2026-08-04 — the odd-plane percentages above are a MIXTURE,
+  not a sky measurement.** They come from a WHOLE-FRAME plane fit, which cannot
+  separate the sky term from a repeatable instrumental one. Measured since: the
+  flat's edge dipole is **-0.44 (july14) and -0.55 (july31)** — same sign and
+  similar magnitude across 17 days and a 0.9%-vs-93.7% moon, so most of what a
+  whole-frame fit reports as "odd plane" is not sky. The MECHANISM above (a
+  horizon-fixed gradient cannot drift out, and a flat that absorbs it tilts the
+  object) stands and is independently proven by the 3916-star differential
+  photometry at 241 sigma. Only the magnitudes are overstated as sky.
+  **What must NOT be inferred from this entry: that removing the sky from the
+  flat's SOURCE FRAMES is the fix.** That was tried (`--desky`, 2026-07-29) and
+  was a 31x regression — see the next entry. No corrective is currently shipped;
+  the object tilt is a known, open defect.
 
-- **DEAD END — raising `--desky`'s subsky DEGREE on the flat's source frames to
-  reach the sky's CURVATURE. It removes the vignetting instead. Degree 1 is not a
-  compromise; it is the only degree that works, and the reason is PARITY.**
-  `--desky` at degree 1 removes the sky TILT and measurably leaves the vignetting
-  alone (radial corner/centre 0.3115 -> 0.3114). The obvious next move, when a
-  moonlit night leaves curvature a plane cannot reach, is degree 2 — and on the
-  flat specifically it looks safe, because the frame-filling starlight a higher
-  degree would eat is contamination there, not signal (terminology entry, sense 2).
-  **MEASURED (july31/set-01, 507 frames, one knob, everything else identical):**
-  the flat's corner/centre ratio went **0.513-0.563 at degree 1 to 0.937-1.006 at
-  degree 2** — the vignetting profile the flat exists to carry was gone, and the
-  product failed the builder's own "corners < centre" gate (BL read 1.006).
-  MECHANISM: vignetting is an EVEN, radial function of position. A degree-1 plane
-  is odd-plus-constant and therefore CANNOT touch an even term — that is why the
-  radial profile survives it by construction, not by luck. Degree 2 is the first
-  degree that introduces even terms, and they are the SAME functional form as
-  vignetting, so `subsky` cannot tell them apart: it subtracts the vignetting from
-  every source frame and the stacked flat comes out flat.
-  **CONSEQUENCE, and it is the useful part:** sky CURVATURE cannot be removed from
-  a sky flat at all — the operation that would reach it is the operation that
-  destroys the flat. The residual is IRREDUCIBLE at this stage, which is what the
-  `--desky` commit priced as 2.48% -> 3.10% corner spread. When it is much worse
-  than that the cause is acquisition, not calibration: july31/set-01 measured
-  **12.4%** corner-to-corner under a **93.8%-illuminated moon 54.9 deg off-axis**,
-  with region brightness ANTI-correlated to moon separation (nearest corner
-  darkest) — the moon's own gradient, absorbed by the flat and stamped back
-  inverted. Handle it additively downstream on the stack, where there is no
-  vignetting left to protect, or do not shoot a faint broadband target under a
-  bright moon (acquisition checklist).
-- A sky flat applied ACROSS SETS imprints the SOURCE set's sky. The flat's
-  low-order component carries the residual sky gradient of the lights it was
-  built from; the sensor-fixed content (vignetting/motes/PRNU) transfers between
-  same-session sets but the sky term does NOT — dividing another pointing's
-  lights by it prints that gradient into them. Measured (one knob, linear
-  regional medians on the SPCC'd stacks): set-03 under set-01's flat = ±6% L-R
-  tilt (corners 88–101 on a ~94.5 centre); under its own flat = flat to ~1–2%;
-  stars +8%/Mpx, off-axis aberration 0.49 → 0.37 px
-  (`datasets/july14/set-03/experiments.jsonl` flat_source_set03). **USER-RATIFIED
-  RULE: a flat calibrates ONLY the exact frames it was built from** — never
-  another set, and never a multi-set combine under any single set's (or a
-  union) flat: each member set calibrates with its OWN flat before composing.
-  Per-set builder with validation gates: `scripts/stack/build_sky_flat.sh`.
+- **DEAD END — `--desky`: running `seqsubsky` on the sky flat's RAW source frames.
+  SHIPPED 2026-07-29 (f170540), REVERTED 2026-08-04. A 31x regression in
+  background flatness, and the most expensive mistake in this repo's history.**
+  MEASURED, july31/set-01, 500 frames, one knob, everything else identical
+  (Siril `stat`, medians, box 400 / margin 200):
 
-**Calibration masters:**
+  | arm | corner spread | edge dipole-X |
+  |---|---|---|
+  | `--desky` ON (as shipped) | **12.4%** | +0.148 |
+  | `--desky` OFF (prior pipeline) | **0.4%** | +0.004 |
+
+  All four july31 sets land 0.4-1.0% with it off. 0.4% reproduces the 0.3-0.7%
+  the route delivered before it landed.
+  **MECHANISM — a domain error, not a tuning error.** `seqsubsky` is a BACKGROUND
+  EXTRACTION operator and is defined on a FLAT-FIELDED image. The flat builder ran
+  it on raw frames that still carry vignetting: the frame is `sky x V`, not `sky`.
+  Fitting an additive plane to that product and subtracting it overshoots where V
+  curves hardest — the frame edge — and drives the local left-right asymmetry
+  through zero. The raw dark-subtracted light measures **+0.426** there and the
+  `--desky` flat **-0.550**: sign INVERTED, in every session tested, while the
+  master dark measures +0.000. Dividing by that flat roughly DOUBLES the error
+  instead of removing it. The pre-`--desky` flat measured **+0.365** — same sign
+  as the light, ~85% of its magnitude — i.e. it was correcting the asymmetry.
+  **A COROLLARY worth keeping: degree 2 is not the fix either, on PARITY grounds.**
+  Vignetting is an EVEN radial function; a degree-1 plane is odd-plus-constant and
+  cannot touch an even term by construction. Degree 2 is the first degree with even
+  terms and they are the same functional form as vignetting, so `subsky` cannot
+  separate them. MEASURED: at degree 2 the flat's corner/centre went 0.513-0.563 to
+  **0.937-1.006** — the vignetting profile gone entirely, failing the builder's own
+  "corners < centre" gate. No degree of `subsky` on un-flat-fielded frames is safe.
+  **WHY NO GUARD CAUGHT IT — read this before adding a validation suite.** f170540
+  validated with a whole-frame odd-PLANE fit, a centre-vs-corner RADIAL ratio, PRNU
+  correlation and mote depth. None can see a left-right sign flip localised at the
+  edge: the radial ratio averages all four corners, PRNU and motes are
+  high-frequency. Worse, **the cited proof of success is what the defect produces** —
+  a partial sign inversion makes a whole-frame plane fit cancel, so "odd plane -59%
+  and -69%" is the regression's own signature read as a win. The commit also
+  measured a degradation (level spread 2.48% -> 3.10%) and shipped it as an accepted
+  trade; the real figure was 12.4% vs 0.4%. And `baseline.json` — the no-regression
+  harness that compares PRODUCTS — has never been built, so nothing downstream
+  checked. Every guard that exists (`check_bitdepth`, `check_calibrate`,
+  `check_stack_rejection`) verifies WIRING, not output.
+  **STILL OPEN, and do not confuse it with this entry:** a sky flat converges to
+  `sky x V`, so calibration leaves the object carrying the sky's spatial profile
+  (3.11% at 241 sigma). That defect is REAL and currently UNCORRECTED. `--desky` was
+  not a valid fix for it. Numbers:
+  `datasets/july31/set-01/qa_work/desky_regression.json`.
+
 - **NEVER store a calibration master at 16-bit integer.** A master dark/bias/flat
   is a many-frame MEAN, so its precision is far finer than one integer step;
   rounding to 16 bits does not lose "a bit of noise", it stores a SENSOR-FIXED

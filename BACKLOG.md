@@ -33,7 +33,7 @@ item below.
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | **not fired** — `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
 | fitted lensfun entry for the 24-70/4 S @ 70 | an upstream entry measured for THIS unit, or a chain consuming the model another way | **not fired** — re-fit per rig/lens/focal and after every `lensfun-update-data`. x86 re-fit CONFIRMS the incumbent (≤0.47 px difference, within fit noise); numbers in `qa_work/lens_fit.json` |
 | lensfun user-DB strip of this lens's `<vignetting>`/`<tca>` | darktable honours a style's lens `op_params` | **not fired** — measured ignored on 5.4.1; re-verify per darktable bump with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
-| per-set sky flat, de-skied (`build_sky_flat.sh --desky`) | a matching REAL flat for the set | **not fired** — the validated flatless route. `--desky` removes the alt-az-fixed sky term the drift cannot reject; it is not optional alongside the per-frame background step |
+| per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | **not fired** — the flatless route, and it works: all four july31 sets measure 0.4-1.0% corner spread. `--desky` was ON 2026-07-29..08-04 and was a **31x regression** (12.4% vs 0.4%); it is now OFF by default and opt-in only, see `docs/dead-ends.md`. The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | **not fired** — not adopted; vignetting-only fallback |
 | 16-bit in three instruments (`coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`) | the leg stops terminating in an integer/8-bit product | **not fired** — each exemption is stated in `check_bitdepth.sh` with the reason its precision is capped downstream anyway |
 | ~~unpinned neural stages in the render tier~~ | — | **RETIRED, not fired: there was no divergence.** MEASURED bit-identical per stage (StarNet2 also across thread counts, Cosmic Clarity denoise, Siril's stretch/asinh/pm), so byte-identity is the available bar and nothing needed pinning. Neither binary exposes a thread/seed flag anyway. Numbers in `docs/dead-ends.md` |
@@ -46,11 +46,16 @@ item below.
 
 The first tier is BUILT (`scripts/stack/render_tier.sh`: separate → denoise the
 starless → stretch → screen-recombine, every pixel op and every measurement a
-tool's, gated by a ratified `render` block) and one render is user-approved. What
-remains is the LADDER around it and the harness it feeds.
+tool's, gated by a ratified `render` block) and one render is user-approved —
+**but that approval (july23 `set-01+02_desky_linked`, 2026-07-30) sits on a stack
+built by the REGRESSED `--desky` pipeline, reverted 2026-08-04. Not revoked, but
+not a trustworthy reference either; see the caveat in that set's `recipe.json`.**
+What remains is the LADDER around it and the harness it feeds.
 
-- **L1 background level** — per-frame `subsky 1` is the SHIPPED default (`--desky`),
-  adopted on registry grounds (stack-level-only leaves a structured residual). The
+- **L1 background level** — there is NO shipped background step as of 2026-08-04:
+  `--desky` was reverted (31x regression, `docs/dead-ends.md`) and it took the
+  per-frame `subsky 1` on the lights with it, since the chain passed one flag to
+  both halves. So this is now an OPEN choice, not a challenge to a default. The
   open question is now a CHALLENGE to a default, not a choice between unknowns:
   on-stack vs per-frame, one knob, preservation of the frame-filling UNRESOLVED
   STARLIGHT deciding (`docs/dead-ends.md` terminology entry — it is stars, not dust).
@@ -113,9 +118,15 @@ hypothesis and the docstring says so.
 
 ## `calibration-evidence` — the de-sky work's unfinished evidence
 
-`--desky` shipped as the chain default on measured grounds (flat odd plane
-4.84%→1.98% set-01, 7.82%→2.42% set-02; vignetting held ≤0.12%; PRNU correlation
-0.999951). Three pieces of evidence are still missing, in priority order:
+**REVERTED 2026-08-04 — `--desky` is off by default; it was a 31x regression
+(`docs/dead-ends.md`). The grounds it shipped on (flat odd plane 4.84%→1.98%
+set-01, 7.82%→2.42% set-02; vignetting held ≤0.12%; PRNU correlation 0.999951)
+were all measured with instruments blind to the failure: the odd plane is a
+whole-frame fit that CANCELS under a partial sign inversion, and "vignetting held"
+was a centre-vs-corner radial ratio that averages the two sides together.**
+The underlying problem the work was aimed at is still real and still uncorrected —
+a sky flat converges to `sky x V` and tilts the object 3.11% at 241 sigma. These
+evidence gaps therefore remain open for whatever the eventual fix is:
 
 - **The odd-component instrument has no script.** The measurement that justified the
   default exists only as numbers in an `experiments.jsonl` sentence, so it cannot be

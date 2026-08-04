@@ -37,9 +37,10 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
-PLAN=0 DESKYOPT=--desky
+PLAN=0 DESKYOPT=
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
+  --desky) DESKYOPT=--desky;;
   --no-desky) DESKYOPT=;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
@@ -353,19 +354,29 @@ if [ "$ROUTE" != standard ]; then
   fi
   if [ ! -f "$SKYFLAT" ]; then
     say "per-set sky flat (the ratified per-set-flat rule)"
-# DESKY is ON by default, and it is passed to BOTH halves of the correction —
-# the flat builder here and the light builder below. They are not independent
-# options: a de-skied flat stops calibration dividing the object by the sky's own
-# profile and leaves the gradient in ADDITIVELY, which is the domain the
-# per-frame background step removes it in. Half-applying it is worse than either
-# consistent choice (the judge stretch amplifies a background gradient 9-17x).
-# WHY IT IS ON HERE: reaching this code means the set is FLATLESS (real flats
-# stop above and retire the builder) on the undistort route, and both measured
-# sets are that class. Measured contamination it removes: flat odd-plane
-# 4.84%%->1.98%% (set-01) and 7.82%%->2.42%% (set-02), while radial vignetting
-# holds to <=0.12%%, PRNU correlation >0.9995 and dust-mote depth changes -2 to
-# -3%%. Proven on the object by differential star photometry: a 3.11%%
-# position-dependent flux plane at 241 sigma. Pass --no-desky to opt out.
+# DESKY IS OFF BY DEFAULT — it was ON from 2026-07-29 to 2026-08-04 and that was
+# a 31x REGRESSION in background flatness. Measured on july31/set-01, 500 frames,
+# one knob, everything else identical (Siril stat, medians, box 400/margin 200):
+#
+#   --desky ON  (shipped 07-29..08-04)   corner spread 12.4%   edge dipole +0.148
+#   --desky OFF (the prior pipeline)     corner spread  0.4%   edge dipole +0.004
+#
+# 0.4% reproduces the 0.3-0.7% the route delivered before --desky landed. The
+# mechanism: `seqsubsky` is a BACKGROUND EXTRACTION operator, defined on a
+# flat-fielded image. The flat builder was running it on RAW frames that still
+# carry vignetting — the frame is sky x V, not sky. Fitting an additive plane to
+# that product and subtracting it overshoots hardest where V curves hardest, at
+# the frame edge, and drives the local asymmetry through zero: the raw light
+# measures +0.426 there, the --desky flat -0.550, sign INVERTED, in every session
+# tested. Dividing by that flat roughly doubles the error instead of removing it.
+# Numbers + the three-arm comparison: datasets/july31/experiments.jsonl.
+#
+# The concern that motivated --desky is REAL and remains open: a sky flat is a
+# median of the set's own lights, so it converges to sky x V and calibration
+# leaves the object carrying the sky's spatial profile (measured at 3.11% / 241
+# sigma by differential star photometry). That is a genuine defect. --desky is
+# simply not a valid fix for it, and its cure measured 31x worse than the
+# disease. Pass --desky to reproduce the regressed configuration for testing.
 # NOT scoped by mount, and the earlier claim that it was is WRONG: a tracked
 # mount is not immune. The driver is whether the SENSOR is fixed relative to the
 # HORIZON. An untracked tripod and an alt-az mount without a derotator both hold

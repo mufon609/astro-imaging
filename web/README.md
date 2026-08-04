@@ -62,13 +62,14 @@ record the render chain consumes. No external service; the server binds
   overwrite an existing product without `overwrite`, so a ladder arm cannot
   destroy its own control.
 - **A de-skied flat and the per-frame background step are one correction, and
-  the form no longer lets them come apart.** `sky_flat` is de-skied by DEFAULT
-  (matching the chain) and its output NAME records it (`skyflat_<set>_desky.fit`);
+  the form does not let them come apart** — but as of 2026-08-04 `sky_flat` is
+  **NOT de-skied by default**, matching the chain. `--desky` was a 31x regression
+  (12.4% vs 0.4% corner spread; `docs/dead-ends.md`) and is now opt-IN, for
+  reproducing the defect only. The pairing logic is unchanged and still correct:
+  the output NAME records the shape (`skyflat_<set>_desky.fit` when de-skied) and
   `stack_undistort` / `stack_undistort_groups` DERIVE `--desky` from the chosen
-  flat's name rather than asking. Half-applying it — a de-skied flat with no
-  background step — leaves the full sky gradient in the product, which the judge
-  stretch then amplifies 9-17x; that combination shipped once because the flag
-  reached one builder and not the other.
+  flat's name rather than asking, so the two halves cannot come apart in either
+  direction.
 
 ## Running it
 

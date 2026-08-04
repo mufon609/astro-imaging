@@ -1,0 +1,222 @@
+{
+ "render": "/home/samsung/Desktop/astro-imaging/web/results/july23/judge/set-01+02_desky_sharpstar2_render.png",
+ "product": "/home/samsung/Desktop/astro-imaging/web/results/july23/render_set-01+02_desky_sharpstar2.fit",
+ "linear_source": "/home/samsung/Desktop/astro-imaging/sessions/july23/work/dustprobe/sharp_full.fit",
+ "stages": {
+  "separated": true,
+  "denoised": true
+ },
+ "knob_provenance": "sky_target=0.0552[recipe(ratified)]  gas_top_frac=0.16[recipe(ratified)]  black_k_mad=4[recipe(ratified)]  denoise_lum=0.6[recipe(ratified)]  denoise_chroma=0.85[recipe(ratified)]  star_asinh=20000[recipe(ratified)]  star_black=0[CLI]",
+ "stretch": {
+  "rule": "per-channel black point (background neutralization) + one common window width and midtone balance (linked gain/curve)",
+  "mtf_lo_per_channel": [
+   0.0007279394,
+   0.0007284199,
+   0.0007290752
+  ],
+  "mtf_hi_per_channel": [
+   0.000884927,
+   0.0008854075,
+   0.0008860628
+  ],
+  "mtf_mid_common": 0.8301,
+  "black_point_fraction_of_sky": 0.045661,
+  "note": "derived at run time from Siril `stat main` on the layer actually stretched, not from the star-ful input stack"
+ },
+ "measures": {
+  "tool": "Siril \u2014 findstar / pm+isub+bgnoise / wavelet+wrecons+bgnoise / stat main",
+  "linear_source_stat_main_x100": {
+   "R": {
+    "mean": 5378.8,
+    "median": 5049.2,
+    "sigma": 7315.2,
+    "min": 1.5,
+    "max": 5501638.1,
+    "bgnoise": 172.3
+   },
+   "G": {
+    "mean": 5408.8,
+    "median": 5048.9,
+    "sigma": 6315.9,
+    "min": 3791.2,
+    "max": 3787649.0,
+    "bgnoise": 174.0
+   },
+   "B": {
+    "mean": 5370.3,
+    "median": 5048.6,
+    "sigma": 6937.8,
+    "min": 1039.4,
+    "max": 4551796.0,
+    "bgnoise": 146.9
+   }
+  },
+  "stretched_layer_linear_stat_main_x100": {
+   "R": {
+    "mean": 4997.4,
+    "median": 4998.8,
+    "sigma": 97.0,
+    "min": 4517.9,
+    "max": 12163.6,
+    "bgnoise": 19.9
+   },
+   "G": {
+    "mean": 5001.3,
+    "median": 5002.1,
+    "sigma": 99.0,
+    "min": 4454.8,
+    "max": 10865.6,
+    "bgnoise": 18.3
+   },
+   "B": {
+    "mean": 5001.9,
+    "median": 5006.6,
+    "sigma": 93.8,
+    "min": 4523.3,
+    "max": 10135.9,
+    "bgnoise": 17.2
+   }
+  },
+  "rendered_sky_stat_main": {
+   "R": {
+    "mean": 3830.5,
+    "median": 3637.3,
+    "sigma": 2256.8,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 403.8
+   },
+   "G": {
+    "mean": 3863.0,
+    "median": 3648.5,
+    "sigma": 2065.8,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 372.1
+   },
+   "B": {
+    "mean": 3766.9,
+    "median": 3648.9,
+    "sigma": 2067.5,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 345.2
+   }
+  },
+  "rendered_product_stat_main": {
+   "R": {
+    "mean": 6428.5,
+    "median": 4737.2,
+    "sigma": 5353.4,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 1504.4
+   },
+   "G": {
+    "mean": 6484.5,
+    "median": 4879.7,
+    "sigma": 5059.5,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 1321.3
+   },
+   "B": {
+    "mean": 6398.4,
+    "median": 4703.7,
+    "sigma": 5607.2,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 1322.9
+   }
+  },
+  "separation": {
+   "findstar_stars": {
+    "source": 19989,
+    "starless": 1,
+    "mask": 20389
+   },
+   "starless_pct_of_source": 0.005,
+   "screen_recombine_residual_bgnoise": [
+    3.742e-10,
+    3.651e-10,
+    3.811e-10
+   ],
+   "residual_note": "near-vacuous by construction \u2014 Siril derives the mask by unscreening source against starless, so the recombine reproduces the source algebraically whatever the separation did. Recorded because it catches clipping or a mismatched pair; the findstar collapse is the evidence of separation."
+  },
+  "denoise_per_scale_bgnoise": {
+   "atrous": "Siril `wavelet 4 2` + `wrecons` per layer, then `bgnoise`",
+   "profile": {
+    "1 (~1-2 px)": {
+     "before": [
+      7.493e-06,
+      5.124e-06,
+      6.63e-06
+     ],
+     "after": [
+      2.351e-06,
+      2.149e-06,
+      2.026e-06
+     ],
+     "change_pct": [
+      -68.6,
+      -58.1,
+      -69.4
+     ]
+    },
+    "2 (~2-4 px)": {
+     "before": [
+      2.645e-06,
+      1.993e-06,
+      2.359e-06
+     ],
+     "after": [
+      8.834e-07,
+      8.133e-07,
+      7.682e-07
+     ],
+     "change_pct": [
+      -66.6,
+      -59.2,
+      -67.4
+     ]
+    },
+    "3 (~4-8 px)": {
+     "before": [
+      9.419e-07,
+      6.573e-07,
+      8.34e-07
+     ],
+     "after": [
+      3.39e-07,
+      3.174e-07,
+      2.999e-07
+     ],
+     "change_pct": [
+      -64.0,
+      -51.7,
+      -64.0
+     ]
+    },
+    "4 (~8-16 px)": {
+     "before": [
+      4.195e-07,
+      3.403e-07,
+      3.925e-07
+     ],
+     "after": [
+      2.867e-07,
+      2.748e-07,
+      2.585e-07
+     ],
+     "change_pct": [
+      -31.7,
+      -19.2,
+      -34.1
+     ]
+    }
+   },
+   "note": "whole-frame and per channel, so there is no region geometry to derive from the measurement. Structure preservation is judged by the noise_split structured term and the user's eyes on dust at 1:1 (docs/dead-ends.md), not by this profile alone."
+  }
+ },
+ "note": "A nonlinear stretch cannot preserve channel ratios exactly. Compare rendered_sky_stat_main against stretched_layer_linear_stat_main_x100 \u2014 those are the SAME pixels before and after the curve, so the difference is the curve's. linear_source_stat_main_x100 is the star-ful input and differs from the layer by ~0.6% in channel balance, so it is the wrong control for the sky (levels differ by the x100 fmul, ratios do not); a residual at the bright end is inherent to the curve, not a parameter error. Both sets of numbers are Siril's own."
+}
