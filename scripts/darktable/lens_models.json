@@ -29,13 +29,14 @@
      "b": 0.0149465,
      "c": 0.0005744
     },
-    "record": "datasets/july14/set-01/qa_work/lens_fit.json",
+    "record": "datasets/july14/set-01/qa_work/lens_fit.json @ 50dfd20^ (git show 50dfd20^:datasets/july14/set-01/qa_work/lens_fit.json \u2014 the working-tree copy was removed by the july14 session reset)",
     "rig": "x86-64 Kali, hugin-tools 2025.0.1",
     "status": "CANDIDATE, not shipped \u2014 but MEASURED EQUIVALENT to the incumbent on a real stack (2026-08-05)",
     "differs_from_shipped": "0.468 px max / 0.344 px area-weighted RMS displacement, 0.2 px at r=0.9 where the correction is ~12 px",
     "note": "Interchangeable with the shipped model on this data, so the choice is free and is made on REPRODUCIBILITY. The incumbent stays shipped because every existing product used it and swapping buys nothing measurable. The value of this result is the other direction: a rig that cannot install the pinned incumbent can re-derive an equivalent model from its own frames and lose nothing measurable.",
-    "ab_result": "54-frame A/B on july14/set-01, one knob, everything else identical: all 9 drift-axis stations within |0.02| px majFWHM, roundness within 0.007, seqtilt truncated-mean 3.03 vs 3.03, off-axis 0.21 vs 0.20 px. NEITHER arm shows the paraxial band (centre sits at the perpendicular-station level in both). The 0.468 px coefficient difference does not reach the product. Ledger: datasets/july14/experiments.jsonl lens_model_incumbent_vs_x86refit; stations in datasets/july14/set-01/qa_work/star_stations_ab{A,B}_*.json"
+    "ab_result": "54-frame A/B on july14/set-01, one knob, everything else identical: all 9 drift-axis stations within |0.02| px majFWHM, roundness within 0.007, seqtilt truncated-mean 3.03 vs 3.03, off-axis 0.21 vs 0.20 px. NEITHER arm shows the paraxial band (centre sits at the perpendicular-station level in both). The 0.468 px coefficient difference does not reach the product. Ledger: datasets/july14/experiments.jsonl @ 50dfd20^ (entry lens_model_incumbent_vs_x86refit); stations in datasets/july14/set-01/qa_work/star_stations_ab{A,B}_*.json @ 50dfd20^"
    }
   }
- }
+ },
+ "_provenance_citations": "Citations here name a COMMIT, not a working-tree path. Per-dataset records under datasets/<session>/ are deliberately transient \u2014 scripts/session_archive.sh --reset removes them to test the pipeline from raws \u2014 so a bare path in a long-lived authority file goes dangling the first time a session is reset. That happened to this file: it was written citing four july14 paths and they were all removed two commits later, leaving the provenance of the shipped optical model pointing at files a contributor cannot open. Recover any cited record with: git show <commit>:<path>"
 }
