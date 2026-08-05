@@ -1,0 +1,24 @@
+{
+ "set": "set-03",
+ "catalog": "localgaia",
+ "sensor_spec": null,
+ "sensor_spec_source": null,
+ "sensor_match": "NO MATCHING SENSOR \u2014 siril's generic/default response was applied",
+ "sensor_match_note": "The K factors below calibrate against a DEFAULT response curve, not this sensor's. Resolve a name from `spcc_list oscsensor` into recipe.json's `spcc` block when one exists for this chip; if none exists, that is a documented database GAP, not a tuning choice \u2014 contributing the curve to the siril-spcc-database is the fix.",
+ "input": "../../web/results/july31/stack_set-03_full_wcs.fit",
+ "output": "../../web/results/july31/stack_set-03_full_spcc.fit",
+ "input_size": 212086080,
+ "input_mtime": 1785967466,
+ "k_factors": {
+  "R": 1.0,
+  "G": 0.686,
+  "B": 0.876
+ },
+ "b_offsets": {
+  "R": 0.00151985,
+  "G": -0.000112557,
+  "B": -2.08495e-05
+ },
+ "n_photometry": 5016,
+ "n_kept": 2983
+}
