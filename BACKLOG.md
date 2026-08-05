@@ -235,9 +235,21 @@ rig (already x86).
 it is absent, on the grounds that EXIF cannot record it. True — but the DATA can:
 `fingerprint.py` already measures the mount two ways (trail-vs-roundness, and a
 two-window drift solve giving px/min against the sidereal rate) and reports
-CONFIRM / CONTRADICT / INDETERMINATE against the declaration. On july31 it measured
-17.2 px/min against a sidereal expectation of 17.2 — that is not an ambiguous
-answer needing a human.
+CONFIRM / CONTRADICT / INDETERMINATE against the declaration. MEASURED on july31,
+all four sets, two-window drift solves — RA rate against a sidereal 15.041 deg/hr:
+set-01 15.0493, set-02 14.9909, set-03 14.9544, set-04 15.0649 (worst deviation
+0.6%), and on-sensor drift 18.78/18.27/18.17/18.28 px/min against 18.77/18.33/
+18.27/18.25 expected. Four independent CONFIRMs. That is not an ambiguous answer
+needing a human.
+
+(An earlier draft of this item cited "17.2 px/min against a sidereal 17.2" as
+july31's figure. It is july14/set-01's, and it is the green-plane half of that
+set's 34.1 full-res rate — internally consistent, attached to the wrong dataset.)
+
+The four-set table also prices the current design: `mount` is modelled PER SET, so
+a fixed tripod on one night paid a ~9-minute two-window probe four times to answer
+the same question about the same tripod. It is a session-level fact, and the
+derivation below should record it as one.
 
 So the gate asks a human a question the instrument has already answered, on every
 new session. It should only stop when the measurement is INDETERMINATE (near the

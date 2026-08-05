@@ -199,8 +199,9 @@ def main():
     ap.add_argument("--focal", type=float)
     ap.add_argument("--size", help="card size WxH; default = the set's frame size")
     ap.add_argument("--work", help="scratch dir; MUST be under $HOME (Siril "
-                                   "flatpak has a private /tmp). Default: "
-                                   "./lenscard_work")
+                                   "flatpak has a private /tmp). Default: the "
+                                   "set's qa_work/lenscard_work, else "
+                                   "~/.cache/astro-imaging/lenscard_work")
     ap.add_argument("--json", help="write the record here")
     ap.add_argument("--tol", type=float, default=1.0,
                     help="max |corner-centre| median difference to PASS (ADU)")
@@ -233,7 +234,21 @@ def main():
         sys.exit(f"verify_lens_card: {W}x{H} is too small for {BOX}px boxes inset "
                  f"{INSET}px — the corner regions would overlap the centre.")
 
-    work = os.path.abspath(a.work or "lenscard_work")
+    # Scratch belongs in the per-set tool dir, never the repo root. The old
+    # default was a bare relative "lenscard_work", which resolves against the
+    # CALLER's cwd — run from the repo (the normal case) that drops ~383 MB of
+    # fixture TIFFs into the project root, untracked and un-gitignored, against
+    # the workspace rule in CLAUDE.md. It still satisfied the $HOME guard below,
+    # so nothing caught it. `**/qa_work/*` is gitignored except *.json, so the
+    # per-set dir is the one place this can write freely.
+    if a.work:
+        work = os.path.abspath(a.work)
+    elif a.session and a.set:
+        work = os.path.join(REPO, "datasets",
+                            os.path.basename(os.path.abspath(a.session)),
+                            a.set, "qa_work", "lenscard_work")
+    else:
+        work = os.path.expanduser("~/.cache/astro-imaging/lenscard_work")
     if not work.startswith(os.path.expanduser("~")):
         sys.exit(f"verify_lens_card: --work must be under $HOME (Siril's flatpak "
                  f"cannot see {work})")
