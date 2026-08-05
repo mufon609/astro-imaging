@@ -175,6 +175,11 @@ def run_siril(nef, work):
     # mosaic-free.
     with open(ssf, "w") as f:
         f.write("requires 1.4.4\n"           # findstar stdout format tested here
+                "setcompress 0\n"            # `extract_Green` WRITES a FITS, and
+                                             # setcompress is a PERSISTED siril
+                                             # preference: unpinned, this leg
+                                             # emits Green_*.fit.fz whenever a
+                                             # previous run left compression on
                 f"load {os.path.abspath(nef)}\n"
                 "extract_Green\n"            # CFA -> clean single-channel green
                 f"load {green}\n"            # process the GREEN, not the mosaic

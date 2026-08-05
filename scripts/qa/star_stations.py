@@ -67,7 +67,7 @@ def image_dims(image, work):
     """Ask Siril for the image dimensions (its load log reports them)."""
     ssf = os.path.join(work, "_dims.ssf")
     with open(ssf, "w") as f:
-        f.write(f"requires 1.4.4\nload {image}\n")
+        f.write(f"requires 1.4.4\nsetcompress 0\nload {image}\n")
     out = run_siril(work, ssf)
     m = DIMS.search(out)
     if not m:
@@ -120,6 +120,8 @@ def measure(image, work, sts):
     ssf = os.path.join(work, "_stations.ssf")
     with open(ssf, "w") as f:
         f.write("requires 1.4.4\n"
+                "setcompress 0\n"   # PERSISTED siril preference: pin it or the
+                                    # run inherits whatever the last one left
                 "setfindstar reset -roundness=0.05 -sigma=0.5 -relax=on\n")
         for s in sts:
             x, y, w, h = s["box"]

@@ -2,6 +2,8 @@
 # PRE-RELEASE / CI GUARD, two parts:
 #   1-4. the chain is 32-bit float END TO END — no generated or templated .ssf
 #        may pin `set16bits`, and every product builder must EMIT the pins.
+#   4b-c. NOTHING is compressed and nothing is lossy — EVERY .ssf emitter pins
+#        `setcompress 0` (discovered, not listed), and no script writes a JPEG.
 #   5.   the web session model builds and serializes for every staged session.
 # (The name still says bitdepth because that is where callers already invoke it;
 # part 5 lives here so it actually runs. Split the file if it grows a third job.)
@@ -106,6 +108,47 @@ for b in stack/run_pipeline.sh stack/run_undistort_pipeline.sh \
   emits "$S/$b" 'setcompress 0' || fail "$S/$b does not EMIT setcompress 0"
 done
 
+# 4b. EVERY .ssf emitter must pin setcompress 0 — not just the product builders
+#    of 3+4. The hand-maintained list above is scoped to scripts that write an
+#    image PRODUCT, which left the QA instruments unchecked, and four of them
+#    were emitting unpinned .ssf: star_stations.py (x2), star_shape.py and
+#    anomaly_audit.py. The last one matters most — `extract_Green` WRITES a FITS,
+#    so with compression left on by a previous run that leg emits Green_*.fit.fz.
+#    Its cleanup already globbed `.fit*` to sweep up the .fz, i.e. the code was
+#    working around the symptom rather than pinning the cause. `setcompress` is a
+#    PERSISTED siril preference (config.1.4.ini `[compression] enabled=`), so an
+#    unpinned script is not merely untidy: it inherits whatever ran last, and
+#    "no compression anywhere in the pipeline" is a foundational rule (CLAUDE.md).
+#    DISCOVERY, not a curated list: every file with `.ssf` on a non-comment line
+#    must emit the pin, so a NEW instrument is covered the day it is written.
+#    Three files name an .ssf without generating one — each exemption is a claim
+#    about that file, so re-check it if the file changes:
+#    - stack/build_master_dark.sh: RUNS the pinned template siril/master_dark.ssf
+#      (asserted by check 2 above) and generates nothing itself.
+#    - qa/baseline_guard.py: delegates every siril call to qa/regional_stat.py,
+#      which pins; the word appears only in its docstring.
+#    - setup/x86_bootstrap.sh: prose + a probe label, no .ssf generated.
+SSF_NOT_EMITTERS='stack/build_master_dark\.sh|qa/baseline_guard\.py|setup/x86_bootstrap\.sh'
+for f in $(grep -rl '\.ssf' --include='*.sh' --include='*.py' --include='*.ssf' \
+             --include='*.tmpl' "$S" web | sort); do
+  case "$f" in *check_bitdepth.sh) continue;; esac
+  echo "$f" | grep -qE "$SSF_NOT_EMITTERS" && continue
+  awk '!/^[[:space:]]*#/ && index($0, ".ssf")' "$f" | grep -q . || continue
+  emits "$f" 'setcompress 0' \
+    || fail "$f generates an .ssf but never EMITS setcompress 0 — siril PERSISTS the setting, so this run inherits whatever ran last"
+done
+
+# 4c. NOTHING in the pipeline writes a lossy image. Project policy is 16-bit PNG
+#    only — no JPEG, no PNG8 (CLAUDE.md, README review contract). qa/diag_flat.ssf
+#    shipped `savejpg flatmaster_check 85`: a q85 JPEG of a calibration master,
+#    written by a diagnostic nobody re-read. `savetif8` is NOT banned here — the
+#    one use (darktable/fit_lens_model.sh) feeds Hugin's feature matcher, whose
+#    leg is 8-bit-capped downstream anyway and is exempted in check 1 for the
+#    same reason.
+hits=$(grep -rn 'savejpg' --include='*.ssf' --include='*.tmpl' --include='*.sh' \
+        --include='*.py' "$S" web | grep -v "check_bitdepth\.sh:" || true)
+[ -z "$hits" ] || { echo "$hits" >&2; fail "savejpg writes a LOSSY image (project policy: 16-bit PNG only)"; }
+
 # 5. WEB SESSION SMOKE TEST. `/api/session/<name>` returned 500 for an entire
 #    branch because one tracked record was a JSON ARRAY and the model called
 #    .get() on it — taking out every page for that session (frames, culled,
@@ -160,7 +203,8 @@ PYSMOKE
 cat <<EOF
 OK: no set16bits outside the 3 documented instrument exemptions;
     4 master templates pin set32bits + setcompress 0;
-    9 product builders pin set32bits + setcompress 0.
+    9 product builders pin set32bits + setcompress 0;
+    every discovered .ssf emitter pins setcompress 0; no savejpg anywhere.
     Scope: per-FILE and static — it does not prove every individual generated
     .ssf inside a multi-.ssf builder carries the pin (BACKLOG).
     Web: every staged session's model builds + serializes; stage registry sane.
