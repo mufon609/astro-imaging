@@ -187,8 +187,18 @@ it, each answering a question it can actually answer:
    within a tolerance negligible vs the metrics we judge on where it can't (a
    stage that varies above that tolerance is flagged and pinned to deterministic
    settings — single-thread / fixed device — if it can be). This extends the
-   existing **STACK exemption** (its register sweep is already non-deterministic →
-   verified by gate + inspection, not bytes) to the neural render tools. The
+   existing **STACK exemption** (its register sweep is assumed non-deterministic →
+   verified by gate + inspection, not bytes) to the neural render tools — but that
+   assumption now has a COUNTER-MEASUREMENT and is narrower than it reads. The
+   groups route's COMPOSE stage (`register s -2pass` → `seqapplyreg` → `stack mean`
+   over the sub-stacks) recomposes **BIT-IDENTICALLY**: measured on july31 set-01
+   and set-02, each recomposed from its own unchanged sub-stacks and differenced
+   against the original with Siril `isub` — all three channels nil, both sets.
+   SCOPE, because it is easy to over-read: n=2, same-arm, one rig, siril 1.4.4, and
+   the COMPOSE register sweep only — 5 members, not the per-frame `register -2pass`
+   over 500 warped raws, which is a different problem size and stays unmeasured.
+   So the exemption holds where it was written (the per-frame sweep) and does NOT
+   hold for the compose, where byte-identity is available and should be used. The
    intent survives: a candidate-vs-control delta reflects the CHANGE, because the
    tolerance sits far below the deltas we judge on. (An unrealistic byte-identity
    check on a slow, non-deterministic chain doesn't add rigor — it gets skipped or

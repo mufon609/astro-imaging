@@ -149,11 +149,50 @@ N=${#SRC[@]}
 #
 # So: target ~100 frames per group, keep at least 2 groups (one group is the
 # single-pass route), and say so when the arithmetic cannot reach the GESD band.
+# THE DWELL FLOOR. The band rule above is arithmetic; "any transient a clear
+# minority" was an ASSERTION until this block — nothing read a dwell length, so the
+# size was right on july31 by arithmetic accident. GESD's FIRST parameter is its
+# maximum outlier FRACTION (`rej g 0.3 0.05`), so a transient dwelling n frames
+# inside a group of G occupies n/G and is only eligible for rejection while
+# n/G < that fraction. Binding constraint: G >= ceil(max_dwell / fraction).
+# MEASURED on july31/set-03: a 27-frame satellite against a derived group of 100 is
+# 0.270 of 0.30 — clears by ten frames. A 31-frame dweller would have exceeded the
+# cap outright and GESD would have stopped treating it as an outlier AT ALL, with no
+# symptom except the trail surviving into the product.
+# The fraction is read from stack_rejection.sh, not written again here — a fourth
+# copy of a constant is exactly what disk_budget.sh exists to prevent.
+GESD_FRAC=$(grep -oE 'rej g ([0-9.]+)' "$REPO/scripts/stack/stack_rejection.sh" | head -1 | awk '{print $3}')
+GESD_FRAC=${GESD_FRAC:-0.3}
+AUDIT=$REPO/datasets/$(basename "$SESSION")/$SET/audit_work/anomaly_audit.json
+MAXDWELL=$(python3 - "$AUDIT" <<'PYD' 2>/dev/null || echo ""
+import json,sys
+try: objs=json.load(open(sys.argv[1])).get("unique_objects") or []
+except (OSError,ValueError): sys.exit(1)
+print(max((o.get("n") or 0) for o in objs) if objs else 0)
+PYD
+)
+DWELL_FLOOR=""
+if [ -n "$MAXDWELL" ]; then
+  DWELL_FLOOR=$(python3 -c "import math;print(math.ceil($MAXDWELL/$GESD_FRAC))")
+fi
 if [ -z "$GROUP" ]; then
   K_TARGET=$(( N / 100 )); [ "$K_TARGET" -lt 2 ] && K_TARGET=2
   GROUP=$(( (N + K_TARGET - 1) / K_TARGET ))
-  echo "group size DERIVED: $GROUP ($N frames -> ~$K_TARGET groups; target ~100/group to keep every group in the GESD rejection band and any transient a clear minority)"
+  WHY="target ~100/group to keep every group in the GESD rejection band"
+  if [ -n "$DWELL_FLOOR" ] && [ "$DWELL_FLOOR" -gt "$GROUP" ]; then
+    GROUP=$DWELL_FLOOR
+    WHY="RAISED to the dwell floor: the set's longest transient is $MAXDWELL frames and GESD's outlier fraction is $GESD_FRAC, so a group must exceed $MAXDWELL/$GESD_FRAC = $DWELL_FLOOR or the transient is not even eligible for rejection"
+  fi
+  echo "group size DERIVED: $GROUP ($N frames; $WHY)"
   [ "$GROUP" -gt 50 ] || echo "  NOTE: $N frames cannot give 2 groups above the GESD threshold of 50 — groups of $GROUP use winsorized rejection. Stated, not silently accepted."
+fi
+if [ -n "$DWELL_FLOOR" ]; then
+  echo "  dwell floor: longest transient $MAXDWELL frames / GESD fraction $GESD_FRAC -> group must be >= $DWELL_FLOOR; using $GROUP ($(python3 -c "print(f'{100*(1-$DWELL_FLOOR/$GROUP):.0f}')")% headroom)"
+  [ "$GROUP" -ge "$DWELL_FLOOR" ] || { echo "ABORT: --group=$GROUP is below the dwell floor $DWELL_FLOOR — the set's $MAXDWELL-frame transient would occupy $(python3 -c "print(f'{$MAXDWELL/$GROUP:.2f}')") of a group, at or past GESD's $GESD_FRAC outlier-fraction cap, so it would NOT be rejected. Raise --group." >&2; exit 1; }
+else
+  echo "  dwell floor: NOT CHECKED — no anomaly_audit.json for this set, so the "\
+"'transient is a clear minority' half of the group-size rationale is UNVERIFIED. "\
+"Run scripts/qa/anomaly_audit.py to close it."
 fi
 K=$(( (N + GROUP - 1) / GROUP ))   # AFTER the derivation above: GROUP must exist first
 [ "$K" -ge 2 ] || { echo "only one group at --group=$GROUP for $N frames — use run_undistort_pipeline.sh" >&2; exit 1; }
@@ -177,14 +216,73 @@ NEED_GB=$(undistort_groups_peak_gib "$SESSION" "$SET" "$MAXG" "$K") \
   || { echo "ABORT: cannot size the disk budget for $SET — see above" >&2; exit 1; }
 SPPEAK_MIB=$(undistort_singlepass_peak_mib "$SESSION" "$SET")
 echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${DESKYOPT:+, per-frame subsky 1 (--desky)}"
-[ "$PLAN" -eq 0 ] || exit 0
+
+# --plan MUST EXERCISE THE GUARDS THAT CAN REFUSE THE RUN, not just print the
+# arithmetic. Both the dwell floor (above) and the resume check (below) are pure
+# decisions over state that already exists, so they cost nothing to evaluate — and
+# an operator about to commit hours wants to know a guard will stop them BEFORE
+# they commit, not after.
+# WHY THIS IS HERE AT ALL: the resume guard was previously reachable only by a REAL
+# invocation, because --plan exited before the group loop. Testing it therefore
+# meant running the builder, which skipped the groups and then re-ran the final
+# compose — overwriting a built product to exercise a guard. The tooling forced the
+# error. A dry-run surface that stops short of the guards is the wrong half of a
+# dry run.
+plan_resume_check() {
+  local g size sub prior bad=0
+  for ((g=1; g<=K; g++)); do
+    size=$BASE; [ "$g" -le "$REM" ] && size=$((BASE + 1))
+    sub=$G/sub_$(printf %02d "$g").fit
+    [ -f "$sub" ] || continue
+    prior=$(python3 -c "
+from astropy.io import fits;import sys
+try: print(int(fits.getheader(sys.argv[1]).get('GRPSIZE') or 0))
+except Exception: print(0)" "$sub")
+    if [ "$prior" = "$size" ]; then
+      echo "  resume: $(basename "$sub") exists at group size $size — will be REUSED"
+    else
+      local was="group size $prior"
+      [ "$prior" = 0 ] && was="an UNRECORDED group size (built before GRPSIZE was stamped)"
+      echo "  resume: $(basename "$sub") carries $was but this run wants $size — WILL REFUSE" >&2
+      bad=1
+    fi
+  done
+  [ "$bad" = 0 ] || { echo "  => a real run would ABORT here: resuming across a group-size change composes mixed depths AND mixed rejection algorithms. Delete $G or re-run with the original --group." >&2; return 1; }
+  return 0
+}
+if [ "$PLAN" -eq 1 ]; then
+  plan_resume_check || exit 1
+  exit 0
+fi
+plan_resume_check >/dev/null || plan_resume_check   # re-run to surface the message
 
 i=0
 for ((g=1; g<=K; g++)); do
   size=$BASE; [ "$g" -le "$REM" ] && size=$((BASE + 1))
   SUB=$G/sub_$(printf %02d "$g")
   if [ -f "$SUB.fit" ]; then
-    echo "=== group $g/$K: $SUB.fit exists, skipping (resume) ==="; i=$((i + size)); continue
+    # A RESUME MUST NOT MIX GROUP SIZES. The sub-stack name encodes only the INDEX,
+    # so a run interrupted at one --group and resumed at another would skip the old
+    # sub-stacks, build the rest at the new size, and compose a final from mixed
+    # depths — and, since the size selects the rejection algorithm, from mixed
+    # rejection algorithms too. Silent: every wire intact, product present. july31
+    # hit the precondition twice (an abort at group 6/34 under the old default, and
+    # stale empty groups_set-0{3,4} dirs); only an empty payload prevented it.
+    PRIOR=$(python3 -c "
+from astropy.io import fits;import sys
+try: print(int(fits.getheader(sys.argv[1]).get('GRPSIZE') or 0))
+except Exception: print(0)" "$SUB.fit")
+    if [ "$PRIOR" != "$size" ]; then
+      WAS="group size $PRIOR"
+      [ "$PRIOR" = 0 ] && WAS="an UNRECORDED group size (built before GRPSIZE was stamped)"
+      echo "ABORT: $SUB.fit carries $WAS but this run wants $size." >&2
+      echo "       Resuming across a group-size change would compose mixed depths AND mixed" >&2
+      echo "       rejection algorithms into one product. Delete $G and rebuild, or re-run" >&2
+      echo "       with the original --group." >&2
+      exit 1
+    fi
+    echo "=== group $g/$K: $SUB.fit exists at the same group size ($size), skipping (resume) ==="
+    i=$((i + size)); continue
   fi
   FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
   GNEED=$(( size * SPPEAK_MIB / 1024 + 1 ))   # one group = one single-pass run
@@ -196,6 +294,14 @@ for ((g=1; g<=K; g++)); do
     --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit" \
     $DESKYOPT
   [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
+  # Stamp the INTENDED group size beside the tool's own STACKCNT. Intended, not
+  # STACKCNT itself: registration may legitimately drop a frame, so STACKCNT can be
+  # < size without the group being a different size. A header survives a rename;
+  # the filename does not.
+  python3 -c "
+from astropy.io import fits;import sys
+fits.setval(sys.argv[1],'GRPSIZE',value=int(sys.argv[2]),
+            comment='frames intended in this group')" "$SUB.fit" "$size"
 done
 
 echo "=== final: register + stack $K sub-stacks ==="

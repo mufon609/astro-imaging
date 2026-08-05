@@ -829,6 +829,24 @@ the constraints any such tool must satisfy):
   Siril `stat` regional medians on the LINEAR image, and state the domain with the
   number. (Same trap in reverse: a pedestal-included ADU ratio understates a light-
   domain falloff — a ~1 EV vignetting read "6.3%" with the ~1007 ADU pedestal in.)
+- **THE STACK ROUTE'S COMPOSE STAGE IS BIT-REPRODUCIBLE — the "register sweep is
+  non-deterministic" exemption does not cover it.** MEASURED, two sets: july31
+  set-01 and set-02 each recomposed from their own UNCHANGED sub-stacks
+  (`register s -2pass` → `seqapplyreg -framing=min` → `stack mean none`) and
+  differenced against the original with Siril `isub` — **all three channels nil,
+  both times**. SCOPE: n=2, same-arm, one rig, siril 1.4.4, and the COMPOSE sweep
+  only (5 members). The per-frame `register -2pass` over 500 warped raws is a
+  different problem size and remains unmeasured, so the README exemption still
+  holds where it was written. What changes is that a compose-level A/B may be
+  judged on BYTES, and a same-arm compose repeat is a real zero rather than a
+  tolerance — which is what turned an accidental rebuild into the repeat floor a
+  route comparison needed (`datasets/july31/experiments.jsonl`).
+  **How it was found is the lesson.** Not by a designed test: by re-running a
+  builder to exercise a guard `--plan` could not reach, which silently recomposed
+  a built product. The tooling forced a real invocation to test a dry decision;
+  `--plan` now exercises the resume guard and the dwell floor and exits. **A
+  dry-run surface that stops short of the guards that can refuse the run is the
+  wrong half of a dry run.**
 - **Do NOT assume "neural / ONNX / multi-threaded" means non-reproducible — MEASURE
   it. On this rig the whole render tier is BIT-IDENTICAL run to run.** Two identical
   runs of each stage, compared with Siril `isub` (all-nil = bit-identical):

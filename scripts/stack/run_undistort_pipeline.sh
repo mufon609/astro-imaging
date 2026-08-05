@@ -131,7 +131,9 @@ P=$SESSION/work/undistort_$SET
 CFG=$SESSION/work/dtcfg
 sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
-python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile
+LPJ=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work/lens_preflight.json
+mkdir -p "$(dirname "$LPJ")"
+python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile --json="$LPJ"
 "$REPO/scripts/darktable/install_styles.sh" "$CFG"
 
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \

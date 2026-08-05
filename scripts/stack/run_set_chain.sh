@@ -429,7 +429,9 @@ fi
 # substitute.
 if [ "$ROUTE" != standard ]; then
   say "optics preflight (before the masters — a wrong-optics stop must not cost a flat build)"
-  python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile || exit 1
+  mkdir -p "$DSET/qa_work"
+  python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile \
+    --json="$DSET/qa_work/lens_preflight.json" || exit 1
 fi
 
 # masters (undistort routes bring their own; the standard route's builder
