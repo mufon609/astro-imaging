@@ -668,6 +668,24 @@ the constraints any such tool must satisfy):
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
   (a bright object has no fixed band). Hand-picked patches miss defects a
   whole-scope measurement catches (the lesson that created the gate).
+- **A RATIFIED DECISION WHOSE JUSTIFICATION CITES A FRAME COUNT IS CONDITIONAL ON
+  THE ROUTE THAT PRODUCES THAT COUNT — record the route with the ratification, or
+  the decision silently means something else on another route.** A user decision
+  is ratified against a MECHANISM, and a mechanism stated as a fraction ("a
+  minority per-pixel sigma rejection removes", "1 frame in 500") carries a
+  denominator that belongs to the pipeline, not to the sky. MEASURED instance:
+  `BACKLOG:aircraft-rejection-retest` ratified KEEPING an 8-frame aircraft
+  crossing on "any pixel carries it in ~1 frame of 500". True single-pass. The
+  groups route stacks CONSECUTIVE BLOCKS, so the same 8 frames land whole inside
+  one group — 53% of a group of 15, a per-pixel MAJORITY, which this registry
+  says survives — and the compose is a plain mean with no rejection. The identical
+  ratified decision rejects the transient on one route and ships it on another,
+  and nothing in the record connected the two.
+  The class is wider than rejection: any acceptance argument of the form "X is a
+  small fraction of N" is invalidated by any change that alters N — group size,
+  a cull, a sub-stack compose, a frame-count-derived algorithm switch. When
+  ratifying, write the ROUTE and the count the argument assumes; when changing a
+  route, grep the ratified decisions for fractions before assuming they carry.
 - **THE REPO'S MOST PERSISTENT DEFECT: A CHECK THAT CANNOT FAIL — AND THE THING
   MEANT TO PROVE IT COULD FAIL IS USUALLY DEFECTIVE TOO. VERIFY BY EXECUTING:
   break the mechanism, watch the assertion go RED, restore.** Reasoning about a

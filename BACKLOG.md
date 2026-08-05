@@ -366,6 +366,17 @@ minority per-pixel sigma rejection removes. That mechanism is sound but is an
 argument, not a measurement — `check_stack_rejection.sh` guards the rejection CLAUSE,
 not the rejection OUTCOME.
 
+**THE RATIFIED KEEP IS ROUTE-DEPENDENT, and nothing recorded that.** "1 frame in
+500" is the SINGLE-PASS denominator. The groups route stacks CONSECUTIVE BLOCKS, and
+the crossing is 8 consecutive frames, so it lands whole inside one group: at the old
+`--group=15` default that is **8/15 = 53% — a per-pixel MAJORITY**, which
+`docs/dead-ends.md` says SURVIVES rejection, and the final compose is a plain mean
+with no rejection at all. The same ratified decision therefore rejects the aircraft
+on one route and ships it on another. Group size is now DERIVED to keep every group
+in the GESD band (~100/group → 8%), which restores the argument — but the retest
+below must state its ROUTE and its group size, because the answer is not a property
+of the data alone.
+
 **Closes when** set-03 is stacked twice — the ratified stack, and a control with
 `DSC_5151..5158` excluded — and the two are differenced (Siril `isub` + `stat`) along
 the aircraft's track. Nil residual on the track = rejection did its job and the frames
