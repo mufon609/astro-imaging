@@ -1,0 +1,10 @@
+{
+ "input": "web/results/july14/stack_set-01_abB_x86refit.fit",
+ "label": null,
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 14252,
+ "truncated_mean_fwhm_px": 3.03,
+ "sensor_tilt_fwhm_px": 0.34,
+ "sensor_tilt_pct": 11,
+ "off_axis_aberration_fwhm_px": 0.2
+}

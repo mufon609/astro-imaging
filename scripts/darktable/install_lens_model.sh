@@ -66,12 +66,13 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 DBDIR="$HOME/.local/share/lensfun/updates/version_1"
 
-LENS= FOCAL= SESSION= SET= FROMFIT=0 ABC=()
+LENS= FOCAL= SESSION= SET= FROMFIT=0 REPLACE=0 ABC=()
 if [ "${1:-}" = "--lens" ] || [ "${1:-}" = "--focal" ]; then
   while [ $# -gt 0 ]; do case "$1" in
     --lens) LENS=$2; shift 2;;
     --focal) FOCAL=$2; shift 2;;
     --from-fit) FROMFIT=1; shift;;
+    --replace) REPLACE=1; shift;;
     *) ABC+=("$1"); shift;;
   esac; done
 else
@@ -80,6 +81,7 @@ else
   shift 2
   while [ $# -gt 0 ]; do case "$1" in
     --from-fit) FROMFIT=1; shift;;
+    --replace) REPLACE=1; shift;;
     *) ABC+=("$1"); shift;;
   esac; done
 fi
@@ -87,13 +89,13 @@ fi
   echo "install_lens_model: pass all three of a b c, or none (then the fit record supplies them)" >&2; exit 1; }
 [ -d "$DBDIR" ] || { echo "install_lens_model: $DBDIR missing — run lensfun-update-data first" >&2; exit 1; }
 
-python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "${ABC[@]}" <<'PY'
+python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "$REPLACE" "${ABC[@]}" <<'PY'
 import glob, json, os, re, sys
 from datetime import date
 
-repo, dbdir, session, sset, lens, focal, fromfit = sys.argv[1:8]
-abc = sys.argv[8:]
-fromfit = fromfit == "1"
+repo, dbdir, session, sset, lens, focal, fromfit, replace = sys.argv[1:9]
+abc = sys.argv[9:]
+fromfit, replace = fromfit == "1", replace == "1"
 PINNED = os.path.join(repo, "scripts", "darktable", "lens_models.json")
 
 # ---- identity + coefficients from the SET'S OWN RECORDS ------------------
@@ -193,11 +195,14 @@ if new_line in block and prior:
     print(f"install_lens_model: already installed for {db_model} @ {focal_s}mm "
           f"({os.path.basename(path)})")
     sys.exit(0)
-if prior and new_line not in block:
+if prior and new_line not in block and not replace:
     sys.exit(f"install_lens_model: {db_model} @ {focal_s}mm already carries a "
-             f"DIFFERENT fitted entry ({prior.group(1).strip()}). A re-fit is an "
-             "explicit act: remove that line (or re-run lensfun-update-data to "
-             "reset the DB) before installing another.")
+             f"DIFFERENT fitted entry ({prior.group(1).strip()}).\n"
+             "  Swapping the installed model is an explicit act — pass --replace.\n"
+             "  That is the A/B workflow (install a candidate with --from-fit "
+             "--replace, measure it, then restore the pinned model with a plain "
+             "install), and it is how a promotion is done too. Without the flag "
+             "nothing is overwritten.")
 
 existing = re.search(rf'<distortion[^>]*focal="{re.escape(focal_s)}"[^>]*/>', block)
 if existing:
@@ -220,6 +225,9 @@ if "<distortion" not in new_block:
 marker = (f'<!-- {MARK} focal={focal_s} {what}; '
           f'{"from " + os.path.basename(os.path.abspath(session)) + "/" + sset + "; " if session else ""}'
           f'vignetting+tca stripped ({n_strip}); {date.today().isoformat()} -->')
+if prior:            # swapping this focal: replace its marker, do not stack another
+    new_block = re.sub(rf"\s*<!--\s*{MARK}\s*focal={re.escape(focal_s)}\s.*?-->",
+                       "", new_block, flags=re.S)
 new_block = new_block.replace("<calibration>", marker + "\n        <calibration>", 1)
 
 open(path, "w", encoding="utf-8").write(xml.replace(block, new_block))
