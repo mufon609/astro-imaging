@@ -373,9 +373,63 @@ PY
   say "route (re-derived): $ROUTE"
 fi
 
+# OPTICS GATE FIRST — before any master is built. run_undistort_pipeline.sh runs
+# this itself, but it runs it AFTER this chain has already spent a master dark and
+# a whole-set sky flat. Both are throwaway work if the optics are wrong, and the
+# gate's failure modes are exactly the silent-wrong ones (a lens lensfun cannot
+# match warps NOTHING and says nothing; an installed model that is not the PINNED
+# one warps with different optics than every product it will be compared against).
+# Cost here is one darktable render pair, ~10 s; cost of discovering it after the
+# flat is the flat. The builder keeps its own call — defence in depth, not a
+# substitute.
+if [ "$ROUTE" != standard ]; then
+  say "optics preflight (before the masters — a wrong-optics stop must not cost a flat build)"
+  python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile || exit 1
+fi
+
 # masters (undistort routes bring their own; the standard route's builder
 # resolves masters internally and hard-stops flatless itself)
 if [ "$ROUTE" != standard ]; then
+  # DARKS vs LIGHTS. The standard route checks this (run_pipeline.sh preflight)
+  # and WARNs on a mismatch; the undistort route checked NOTHING — neither this
+  # chain, nor build_master_dark.sh, nor run_undistort_pipeline.sh, which simply
+  # consumes whatever --dark= it is handed. july31's 347 darks do match the lights
+  # at 2.5 s / ISO1600, but nothing in the pipeline established that. Same
+  # semantics as the standard route: a mismatch is DEGRADED, not fatal (the dark
+  # still carries the bias level and the hot-pixel map that -cc=dark needs), so it
+  # WARNs loudly rather than stopping — changing that to a stop is a gate change
+  # and belongs in its own bracket.
+  if [ -d "$SESSION/darks" ]; then
+    python3 - "$SESSION" "$SET" <<'PY' || true
+import glob, os, re, subprocess, sys
+sess, sset = sys.argv[1], sys.argv[2]
+RAW = ("*.nef", "*.dng", "*.cr2", "*.cr3", "*.arw", "*.raf")
+def facts(d):
+    fs = [f for p in RAW for f in glob.glob(os.path.join(d, p))
+          + glob.glob(os.path.join(d, p.upper()))]
+    if not fs:
+        return None, 0
+    r = subprocess.run(["exiftool", "-q", "-T", "-ExposureTime", "-ISO", *fs],
+                       capture_output=True, text=True)
+    vals = sorted({l.strip() for l in r.stdout.splitlines() if l.strip()})
+    return vals, len(fs)
+dv, dn = facts(os.path.join(sess, "darks"))
+lv, ln = facts(os.path.join(sess, sset))
+if not dv or not lv:
+    sys.exit(0)                      # not a camera-raw corpus; nothing to compare
+if len(dv) > 1:
+    print(f"[chain {sset}] WARNING: darks/ is MIXED ({dn} frames): {dv}")
+if len(lv) > 1:
+    print(f"[chain {sset}] WARNING: {sset} is MIXED ({ln} frames): {lv}")
+if dv[:1] != lv[:1]:
+    print(f"[chain {sset}] WARNING: darks {dv} != {sset} {lv} — the master dark "
+          "then works as a bias + hot-pixel map only, NOT as a dark-current "
+          "subtraction. Degraded, not fatal; shoot matched darks.")
+else:
+    print(f"[chain {sset}] darks match the lights ({dn} darks, {ln} lights, "
+          f"exposure/ISO {lv[0].replace(chr(9), ' / ')})")
+PY
+  fi
   if [ ! -f "$DARK" ]; then
     say "master dark"
     "$REPO/scripts/stack/build_master_dark.sh" "$SESSION"
