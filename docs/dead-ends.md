@@ -686,6 +686,12 @@ the constraints any such tool must satisfy):
   a cull, a sub-stack compose, a frame-count-derived algorithm switch. When
   ratifying, write the ROUTE and the count the argument assumes; when changing a
   route, grep the ratified decisions for fractions before assuming they carry.
+  **And grep the REVERTS, not just the keeps.** A revert is a ratified decision
+  too, and this registry's most expensive one states itself as a fraction: the
+  `--desky` entry's headline — corner spread 12.4% vs 0.4% — is qualified "500
+  frames, one knob", i.e. measured on the single-pass denominator. Nothing says
+  what it measures on a 5x100 groups build. The rule is symmetric: a decision to
+  STOP doing something inherits its route just as a decision to keep does.
 - **THE REPO'S MOST PERSISTENT DEFECT: A CHECK THAT CANNOT FAIL — AND THE THING
   MEANT TO PROVE IT COULD FAIL IS USUALLY DEFECTIVE TOO. VERIFY BY EXECUTING:
   break the mechanism, watch the assertion go RED, restore.** Reasoning about a
