@@ -23,7 +23,7 @@
 #           is a decision only the user can close: find the cause, or
 #           re-seed the baseline with a note if the change is deliberate
 #
-#   run_set_chain.sh <session-dir> <set> [--plan]
+#   run_set_chain.sh <session-dir> <set> [--plan] [--route=auto|single|groups]
 #
 # --plan prints the derived plan (route + reason, gates, disk math, the exact
 # commands, what will be skipped as already-built) and executes NOTHING; the
@@ -38,7 +38,9 @@
 # fingerprint (tracked -> standard; fixed+wide -> undistort, single-pass vs
 # groups by measured disk headroom against the single-pass peak, which
 # scripts/stack/disk_budget.sh DERIVES from the set's own frame geometry and
-# which the single-pass builder enforces from the same function);
+# which the single-pass builder enforces from the same function; --route=
+# overrides that last step only — see force_route() for why the single-pass
+# vs groups call is the operator's and not the disk's);
 # the printed reason makes the click a ratification of that recommendation,
 # never a silent auto-route.
 set -euo pipefail
@@ -49,13 +51,43 @@ source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
                                               # a set to a builder that then refused it.
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
-PLAN=0 DESKYOPT=
+PLAN=0 DESKYOPT= FORCE_ROUTE=
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
   --desky) DESKYOPT=--desky;;
   --no-desky) DESKYOPT=;;
+  --route=*) FORCE_ROUTE=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+case "${FORCE_ROUTE:-auto}" in
+  auto|single|groups) ;;
+  *) echo "--route must be auto|single|groups (got '$FORCE_ROUTE')" >&2; exit 1;;
+esac
+
+# --route= OVERRIDES the disk-derived choice WITHIN the undistort class. It does
+# not change the class — that stays derived from the fingerprint, which is the
+# part the data decides.
+#
+# WHY IT EXISTS. The single-pass vs groups choice was made ONLY by free disk:
+# single-pass whenever the disk covers the peak. That silently optimises for one
+# set in isolation and forecloses the cross-set combine, because single-pass
+# DELETES every warped and registered frame and keeps only a -framing=min final,
+# while run_undistort_compose.sh composes SUB-STACKS. Composing per-set finals
+# instead is a registered dead end (each has already discarded its outer drift
+# zones, so the combine has holes exactly where only those zones covered). So on
+# a big disk the router always picked the option that cannot be built on later,
+# and the operator had no way to say otherwise. Groups keeps ~34 sub-stacks per
+# 500-frame set (~9.5 G) for a declared cost of one extra interpolation pass.
+# Which of those matters is a JUDGEMENT about the session's future, not a fact
+# about the data — so it belongs to the user, and the plan prints that it was
+# forced rather than derived.
+force_route() {   # <derived-route> -> the route to use, reason on stderr
+  case "$FORCE_ROUTE" in
+    groups) [ "$1" = undistort ] && { echo "undistort-groups"; return; };;
+    single) [ "$1" = undistort-groups ] && { echo "undistort"; return; };;
+  esac
+  echo "$1"
+}
 SESSION=$(cd "$SESSION" && pwd)
 SNAME=$(basename "$SESSION")
 DSET=$REPO/datasets/$SNAME/$SET
@@ -123,6 +155,11 @@ elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
   else
     ROUTE=undistort-groups
     REASON="fixed mount + ${FOV} deg field -> undistort class; disk ${FREE_GB}G < single-pass peak ${SINGLEPASS_GB}G ($(undistort_singlepass_peak_mib "$SESSION" "$SET") MiB/frame x $NFRAMES, from this set's own frame geometry) -> balanced groups"
+  fi
+  FORCED=$(force_route "$ROUTE")
+  if [ "$FORCED" != "$ROUTE" ]; then
+    REASON="OPERATOR-FORCED --route=$FORCE_ROUTE (derived was '$ROUTE'): $REASON"
+    ROUTE=$FORCED
   fi
 elif [ -z "$MOUNT" ]; then
   ROUTE=stop-undeclared
@@ -363,10 +400,17 @@ PY
       SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>&1) || {
         say "STOP: cannot size the single-pass disk budget for $SET — $SINGLEPASS_GB"; exit 5; }
       if [ "$FREE_GB" -ge "$SINGLEPASS_GB" ]; then
-        ROUTE=undistort; STACK=$RESULTS/stack_$SET.fit
+        ROUTE=undistort
       else
-        ROUTE=undistort-groups; STACK=$RESULTS/stack_${SET}_full.fit
-      fi;;
+        ROUTE=undistort-groups
+      fi
+      FORCED=$(force_route "$ROUTE")
+      [ "$FORCED" = "$ROUTE" ] || say "route FORCED by --route=$FORCE_ROUTE (derived was '$ROUTE')"
+      ROUTE=$FORCED
+      case "$ROUTE" in
+        undistort)        STACK=$RESULTS/stack_$SET.fit;;
+        undistort-groups) STACK=$RESULTS/stack_${SET}_full.fit;;
+      esac;;
     *) say "STOP: route still underivable after preflight (mount/fov missing from the seeded facts) — the user picks the route"; exit 5;;
   esac
   NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}
