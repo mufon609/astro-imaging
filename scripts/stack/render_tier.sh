@@ -11,7 +11,7 @@
 #
 #   render_tier.sh <linear-spcc-stack.fit> <name> --session=<dir> --set=<set>
 #                  [--sky=] [--gas-top=] [--black-k=] [--lum=] [--chroma=]
-#                  [--stars=] [--no-separate] [--no-denoise]
+#                  [--stars=] [--star-black=] [--no-separate] [--no-denoise]
 #                  [--fresh] [--overwrite] [--plan]
 #
 # THE GATE (the chain's own pattern: derive -> propose -> user ratifies -> run).
@@ -111,12 +111,13 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 STACK=${1:?usage: render_tier.sh <stack.fit> <name> --session= --set= [opts]}
 NAME=${2:?missing <name>}
 SESSION= SET= SEPARATE=1 DENOISE=1 PLAN=0 FRESH=0 OVERWRITE=0
-CLI_sky= CLI_gas_top= CLI_black_k= CLI_lum= CLI_chroma= CLI_stars=
+CLI_sky= CLI_gas_top= CLI_black_k= CLI_lum= CLI_chroma= CLI_stars= CLI_star_black=
 for a in "${@:3}"; do case "$a" in
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
   --sky=*) CLI_sky=${a#*=};; --gas-top=*) CLI_gas_top=${a#*=};;
   --black-k=*) CLI_black_k=${a#*=};; --lum=*) CLI_lum=${a#*=};;
   --chroma=*) CLI_chroma=${a#*=};; --stars=*) CLI_stars=${a#*=};;
+  --star-black=*) CLI_star_black=${a#*=};;
   --no-separate) SEPARATE=0;; --no-denoise) DENOISE=0;;
   --fresh) FRESH=1;; --overwrite) OVERWRITE=1;; --plan) PLAN=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
@@ -169,13 +170,21 @@ exit 1; }
 # ---- 1. resolve the knobs: CLI > recipe > GENERIC > built-in ----------------
 KNOBS=$(python3 - "$RECIPE" "$GENERIC" "$NAME" \
         "${CLI_sky}" "${CLI_gas_top}" "${CLI_black_k}" \
-        "${CLI_lum}" "${CLI_chroma}" "${CLI_stars}" <<'PY'
+        "${CLI_lum}" "${CLI_chroma}" "${CLI_stars}" "${CLI_star_black}" <<'PY'
 import json, sys
 rec_p, gen_p, name = sys.argv[1:4]
 cli = dict(zip(["sky_target", "gas_top_frac", "black_k_mad",
-                "denoise_lum", "denoise_chroma", "star_asinh"], sys.argv[4:10]))
+                "denoise_lum", "denoise_chroma", "star_asinh",
+                "star_black"], sys.argv[4:11]))
+# star_black is the `asinh` OFFSET applied to the star layer. It was an
+# unresolved literal (0.00002) written straight into the stretch line: not
+# CLI-overridable, absent from the proposal block and absent from the render
+# record, so a ratified recipe did NOT pin every parameter of the stretch —
+# which is exactly what datasets/README.md says an APPROVED recipe means.
+# Same class as every other absolute in here: it is a knob or it is a bug.
 DEFAULT = {"sky_target": 0.10, "gas_top_frac": 0.16, "black_k_mad": 4.0,
-           "denoise_lum": 0.6, "denoise_chroma": 0.85, "star_asinh": 1000.0}
+           "denoise_lum": 0.6, "denoise_chroma": 0.85, "star_asinh": 1000.0,
+           "star_black": 0.00002}
 def load(p):
     try:
         return json.load(open(p))
@@ -444,10 +453,10 @@ if [ "$RATIFIED" != 1 ]; then
   python3 - "$RECIPE" "$NAME" "$LOS" "$MID" "$HIS" "$BPFRAC" "$MEDIANS" "$MADS" \
            "${K_sky_target}" "${K_gas_top_frac}" "${K_black_k_mad}" \
            "${K_denoise_lum}" "${K_denoise_chroma}" "${K_star_asinh}" \
-           "$SEPARATE" "$DENOISE" <<'PY'
+           "${K_star_black}" "$SEPARATE" "$DENOISE" <<'PY'
 import json, os, sys, tempfile
 (rec_p, name, lo, mid, hi, bp, meds, mads, sky, gastop, bk,
- lum, chroma, stars, sep, dn) = sys.argv[1:17]
+ lum, chroma, stars, starblack, sep, dn) = sys.argv[1:18]
 block = {
  "name": name,
  "status": 'PROPOSED — not ratified; rename this block to "render" to accept',
@@ -455,7 +464,8 @@ block = {
              "window width and midtone balance (linked gain and curve)"),
  "knobs": {"sky_target": float(sky), "gas_top_frac": float(gastop),
            "black_k_mad": float(bk), "denoise_lum": float(lum),
-           "denoise_chroma": float(chroma), "star_asinh": float(stars)},
+           "denoise_chroma": float(chroma), "star_asinh": float(stars),
+           "star_black": float(starblack)},
  "stages": {"separate": bool(int(sep)), "denoise": bool(int(dn))},
  "derived_at_run_time_do_not_pin": {
      "tool": "Siril stat main on the layer being stretched",
@@ -492,13 +502,13 @@ PY
 fi
 
 # ---- 7. stretch (linked) and recombine ------------------------------------
-say "stretching (per-channel lo, common gain | stars asinh -human ${K_star_asinh}) and recombining"
+say "stretching (per-channel lo, common gain | stars asinh -human ${K_star_asinh} ${K_star_black}) and recombining"
 { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"; echo "cd $W"
   echo "load $GAS"
   echo "mtf $MTF_R R"; echo "mtf $MTF_G G"; echo "mtf $MTF_B B"
   echo "save gas_stretched"
   if [ "$SEPARATE" = 1 ]; then
-    echo "load $MASK"; echo "asinh -human ${K_star_asinh} 0.00002"; echo "save stars_stretched"
+    echo "load $MASK"; echo "asinh -human ${K_star_asinh} ${K_star_black}"; echo "save stars_stretched"
     echo 'pm "1 - (1 - $gas_stretched$) * (1 - $stars_stretched$)"'
   else
     echo "load gas_stretched"
@@ -521,10 +531,11 @@ mir "$W/m_sky.ssf" "$W/m_sky.log"
 
 python3 - "$DSET/qa_work/render_${NAME}.json" "$JUDGE.png" "$PRODUCT.fit" "$STACK" \
          "$SEPARATE" "$DENOISE" "$W" "$LOS" "$MID" "$HIS" "$BPFRAC" \
-         "${N_SRC:-0}" "${N_LESS:-0}" "${N_MASK:-0}" "$PROVENANCE" <<'PY'
+         "${N_SRC:-0}" "${N_LESS:-0}" "${N_MASK:-0}" "$PROVENANCE" \
+         "${K_star_black}" <<'PY'
 import json, os, re, sys, tempfile
 (out, png, prod, src, sep, dn, W, lo, mid, hi, bp,
- nsrc, nless, nmask, prov) = sys.argv[1:16]
+ nsrc, nless, nmask, prov, starblack) = sys.argv[1:17]
 
 def stat_main(path):
     """per-channel numbers from a Siril `stat main` log — the tool measures."""
@@ -556,6 +567,7 @@ rec = {
              "mtf_lo_per_channel": [float(v) for v in lo.split()],
              "mtf_hi_per_channel": [float(v) for v in hi.split()],
              "mtf_mid_common": float(mid),
+             "star_layer_asinh_black_point": float(starblack),
              "black_point_fraction_of_sky": float(bp),
              "note": ("derived at run time from Siril `stat main` on the layer "
                       "actually stretched, not from the star-ful input stack")},
