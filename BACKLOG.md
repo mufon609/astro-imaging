@@ -384,6 +384,32 @@ are free depth. A visible trail or a level step = the keep was wrong, and it bec
 cull with its numbers. Cheap: one extra 492-frame stack, no new tooling. More data is
 always obtainable, so a cull that buys certainty is not a loss.
 
+## `groups-resume-size-blind` — a resume across a group-size change composes mixed depths
+
+`run_undistort_groups.sh` skips a group when its `sub_NN.fit` already exists, and the
+sub-stack name encodes only the INDEX, not the group size. So a run interrupted at
+`--group=15` and resumed at `--group=100` finds `sub_01..sub_06`, skips them, builds the
+rest at 100, and composes a final from mixed-depth sub-stacks — silently, because every
+wire is intact and the product exists. Same family as the recipe-tagged judge surface
+that once let a rebuilt stack report success with no WCS.
+
+Not hypothetical: july31 was interrupted at group 6/34 under the old `--group=15`
+default and restarted at the derived 100. Nothing bit only because the abort left
+`groups_set-01` empty and it was cleared by hand before the relaunch.
+
+It also breaks the rejection reasoning that the group size now carries: a 15-frame
+sub-stack used winsorized rejection and a 100-frame one uses GESD, so a mixed compose
+mixes rejection algorithms as well as depths.
+
+**Closes when** a resume across a changed group size either reuses nothing or refuses
+loudly. Cheapest fix is to record the group size in the sub-stack (a FITS header key
+beside `STACKCNT`, which already records the member count) and compare it before
+skipping; the name could carry it instead, but a header survives a rename.
+
+**Do it BEFORE the next resume, not after** — and note it cannot be applied while a
+groups build is in flight, because bash reads a running script by byte offset
+(`docs/dead-ends.md`).
+
 ## `capability-gaps` — real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.
