@@ -10,7 +10,7 @@
 # the per-set chain, so a re-click after resolving a gate resumes where it
 # stopped.
 #
-#   run_session_chain.sh <session-dir> [--plan]
+#   run_session_chain.sh <session-dir> [--plan] [--route=…] [--group=N]
 #
 # --plan prints every set's derived plan (route + reason + exact commands)
 # and executes nothing — the same full-disclosure contract as the per-set
@@ -19,8 +19,14 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 SESSION=${1:?usage: run_session_chain.sh <session-dir> [--plan]}
 PLAN=
+EXTRA=()
 for a in "${@:2}"; do case "$a" in
   --plan) PLAN=--plan;;
+  # Route and group size are per-RUN operator decisions (see run_set_chain.sh
+  # force_route() and run_undistort_groups.sh's derived group size). They pass
+  # straight through so a session-wide choice is made once, and every set's
+  # printed plan still states it as OPERATOR-FORCED rather than derived.
+  --route=*|--group=*|--desky|--no-desky) EXTRA+=("$a");;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 SESSION=$(cd "$SESSION" && pwd)
@@ -44,7 +50,7 @@ done
 echo "[session chain] $(basename "$SESSION"): ${#SETS[@]} light set(s): ${SETS[*]}"
 for s in "${SETS[@]}"; do
   echo "[session chain] ===== $s ====="
-  "$REPO/scripts/stack/run_set_chain.sh" "$SESSION" "$s" $PLAN || {
+  "$REPO/scripts/stack/run_set_chain.sh" "$SESSION" "$s" $PLAN ${EXTRA[@]+"${EXTRA[@]}"} || {
     rc=$?
     echo "[session chain] STOPPED at $s (exit $rc) — resolve the gate above, then re-click to resume from here" >&2
     exit "$rc"
