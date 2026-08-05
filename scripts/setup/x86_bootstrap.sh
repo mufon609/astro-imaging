@@ -2,7 +2,7 @@
 # x86_bootstrap.sh — reproducible tool install for the x86-64 Kali production rig.
 #
 # STATUS: DRAFT, UNTESTED. It targets a rig that does not exist yet (the current
-# base rig is arm64). Every step is primary-sourced (see docs/x86-setup-and-install.md)
+# was written before this rig existed). Every step is primary-sourced (see docs/x86-setup-and-install.md)
 # but NONE has been run. Treat as a plan-in-code, not a proven installer.
 #
 # WHAT IT DOES: installs the toolkit in four isolation layers (apt / flatpak / venv /
@@ -16,7 +16,7 @@
 # unverified install.
 #
 # SAFETY: refuses to run unless `uname -m` == x86_64 AND `--go` is passed. Default is
-# a dry-run that prints the plan. So it cannot execute on the arm box or touch anything.
+# a dry-run that prints the plan, so a stray invocation cannot touch anything.
 #
 # USAGE:
 #   ./x86_bootstrap.sh                    # dry-run: print the plan + missing pins

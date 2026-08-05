@@ -8,7 +8,7 @@
   verifies → emits a manifest. This is the environment-founding step of the rebuild.
 - **Context** — Target: x86-64 Kali (rolling, glibc 2.42), i7-14gen,
   32 GB, 1 TB NVMe, **no GPU**, headless. Overlapping facts were verified first-hand
-  on the arm box (Siril flatpak, GraXpert pipx, apt availability) where arch-agnostic;
+  on the retired box (Siril flatpak, GraXpert pipx, apt availability) where arch-agnostic;
   x86-only specifics are primary-sourced. Builds on all seven tool deep-dives.
 
 ## Findings — a four-layer install, each layer chosen for isolation
@@ -131,7 +131,7 @@ registration defect.
 - **GraXpert channels: official GitHub only.** Stable base = the official `3.0.2` zip
   (BGE+denoise); deconv only from the official `3.1.0-RC` GitHub pre-release (bug
   #243 open). **PyPI `3.2.0a2` is the third-party `geeksville` fork, NOT upstream —
-  do not install it** (the arm rig has it, which is one reason arm GraXpert results
+  do not install it** (the retired box had it, which is one reason its GraXpert results
   are audit-only). `-gpu false`
   for CPU; models auto-download (~tens of MB) to the GraXpert user-data dir — pin
   `-ai_version` + pre-cache online for offline runs. CLI flag semantics (`-cli` vs
@@ -156,7 +156,7 @@ registration defect.
   sub-packages are `astrometry-data-tycho2-10-19` (60′–2000′). `solve_field.py`
   bootstraps its own venv but uses these apt-installed indexes + `solve-field`.
 - **PEP 668** (Kali externally-managed): venv/pipx only. **Go** is absent by default
-  (`apt install golang` or pin a tarball). astropy is **present on arm (8.0.1) and x86**
+  (`apt install golang` or pin a tarball). astropy is **present (8.0.1)**
   (venv `astropy==8.0.1`, or `apt python3-astropy`).
 
 ### The manifest + verification pass (the durable RECORD)
@@ -174,7 +174,7 @@ encodes the matrix above: pinned versions/URLs/sha256 as top-of-file variables, 
 four layers as idempotent steps, sha256-verified downloads, the license-gated rc-astro
 step as printed manual instructions, then the manifest + verification pass. It **defaults
 to a dry-run plan** and **refuses to run unless `uname -m` is `x86_64`** and `--go` is
-passed — so it cannot execute on the arm box (or interfere with anything). It is
+passed — so a stray invocation cannot execute or interfere with anything. It is
 **UNTESTED** until run on the real x86 rig.
 
 ## Sources
@@ -203,7 +203,7 @@ passed — so it cannot execute on the arm box (or interfere with anything). It 
 ## Status
 **PROVISIONAL.** The install methods, URLs, and the two published checksums are
 PRIMARY-VERIFIED; overlapping facts (Siril flatpak 1.4.4 vs apt 1.4.2, GraXpert pipx,
-apt availability of ASTAP/astrometry.net) were verified first-hand on the arm box. The
+apt availability of ASTAP/astrometry.net) were verified first-hand on the retired box. The
 **bootstrap script is UNTESTED** — it targets a rig that doesn't exist yet. Acceptance
 test = run it on the x86 rig, confirm every verification-pass command exits 0, resolve
 the flagged unknowns (rc-astro `/opt` path + Kali-glibc smoke test; GraXpert Linux

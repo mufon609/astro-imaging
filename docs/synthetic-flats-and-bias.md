@@ -54,7 +54,7 @@ additive **background-extraction** step, not the flat (see Area 4).
   test resolved against the docs**; RETEST on the x86 Siril version: if `-mode=divide`
   is live there it is a NATIVE headless division-flat and GraXpert isn't needed for
   vignetting.) The Division correction otherwise lives in the GUI dialog. So **headless model-division needs GraXpert**
-  `-correction Division` — official on x86; the arm build is the geeksville fork
+  `-correction Division` — the official build; the retired box ran the geeksville fork
   (audit-only, [[arm-rig-not-a-processing-target]]).
 - **STARLIGHT-SAFE:** a smooth-model division scales illumination and never
   subtracts the diffuse field, so the unresolved starlight is preserved. (The threat
@@ -146,11 +146,11 @@ as-shot mote/optical state); tool-identity gates build-here to Siril.
     lossless finals (dust the deciding metric). Record:
     `datasets/july14/set-01/qa_work/skyflat_qa.json`.
   - *Fallback if the sky flat is rejected on the finals:* vignetting-only GraXpert
-    `-correction Division` (starlight-safe, x86 official); on the arm rig now, no flat +
+    `-correction Division` (starlight-safe, official build); or no flat +
     a first-degree `subsky 1` plane (starlight-safe background), vignetting a small residual.
 - **Darks:** all 214 (QA-clean, flat pedestal — starlight preservation n/a; darks don't touch sky signal).
 - **Trade-off (honest):** the validated sky flat corrects vignetting + motes + PRNU
-  on the arm rig now — no gap — IF it passes the finals comparison. Residuals to
+  available now — no gap — IF it passes the finals comparison. Residuals to
   tighten: a mild low-order L-R gradient (better left to the first-degree background
   step; smooth the flat to radial-only) and faint un-rejected star specks (a
   winsorized/sigma rejection removes them). If the finals reject the sky flat, the

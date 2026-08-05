@@ -26,15 +26,15 @@
 |---|---|---|---|
 | Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core) | same tool numbers as arm on the same inputs | agree within tolerance |
 | Fire the removal conditions the x86 rig unblocks — 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
-| sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the "proven on arm" claim on x86 | a trivial pyscript runs headless | runs, no display |
+| sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the inherited "proven headless" claim | a trivial pyscript runs headless | runs, no display |
 
 ### Phase 2 — Rebuild the stack builder (`docs/siril-stacking-workflow.md`)
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
-| `help stack` on the flatpak | bare-`rej` default algorithm — SETTLED on the arm rig's identical 1.4.4 (`help stack`: "If omitted, the default Winsorized is used") | re-confirm at bring-up (same version → formality) | matches the arm answer |
+| `help stack` on the flatpak | bare-`rej` default algorithm — SETTLED on the identical 1.4.4 (`help stack`: "If omitted, the default Winsorized is used") | re-confirm at bring-up (same version → formality) | matches the arm answer |
 | 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
-| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the arm-era WIN re-measured on x86 (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | class- and lens-gated (needs a wide-untracked set + the NEW rig's fitted entry): the direction must reproduce — edge ≈ centre, no along-drift band; the retired lens's magnitudes (off-axis ~0.25 px, stations 3.4–3.8 px majFWHM, seqtilt truncated-mean ~3.0–3.1 px — git) are references, not targets |
+| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the inherited WIN re-measured here (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | class- and lens-gated (needs a wide-untracked set + the NEW rig's fitted entry): the direction must reproduce — edge ≈ centre, no along-drift band; the retired lens's magnitudes (off-axis ~0.25 px, stations 3.4–3.8 px majFWHM, seqtilt truncated-mean ~3.0–3.1 px — git) are references, not targets |
 
 ### Phase 3 — Plate solving, the trailed class (`docs/plate-solving-and-drizzle.md`)
 | Test | Settles | Bracket / metric | Pass |

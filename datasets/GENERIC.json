@@ -1,5 +1,5 @@
 {
-  "_readme": "The repo-wide base layer of generic render knobs every dataset inherits (resolution order: CLI > datasets/<session>/<set>/recipe.json > this file). PENDING the x86 render chain: the previous render-knob schema was WIPED with the arm64 chain (see REDESIGN.md); the new tool-first chain re-seeds this file with its own knob set + per-knob why-notes when it is built. Kept as the placeholder base layer so the per-dataset state model stays intact.",
-  "render": {},
-  "why": {}
+ "_readme": "The repo-wide base layer of generic render knobs every dataset inherits (resolution order: CLI > datasets/<session>/<set>/recipe.json > this file). PENDING: the previous render-knob schema was wiped with the chain that produced it, and the tool-first render tier re-seeds this file with its own knob set + per-knob why-notes when its LADDER is built (BACKLOG:`render-ladder`). Kept as the placeholder base layer so the per-dataset state model stays intact.",
+ "render": {},
+ "why": {}
 }

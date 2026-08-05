@@ -108,69 +108,82 @@ Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 `recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
 by the stack builders); its RENDER block + `baseline.json` are chain-coupled
 and PENDING the render-tier build (user-gated — the ladder plan is BACKLOG
-item 0, re-anchored per dataset; only the neural/separation tiers are
-environment-blocked on arm, per `TOOLS.md`).
+item 0, re-anchored per dataset). Every tier the pipeline needs is INSTALLED on
+this rig; what is missing is a deliberate gap (RC-Astro, PixInsight), never a
+platform block — per `TOOLS.md`.
 
 ## Environment
 
-**Target (go-forward): x86-64 Kali** — Intel i7 14th-gen, 32 GB RAM, 1 TB
-NVMe, **no GPU**. The full tool inventory + the reasons the arm64
-workarounds die are in [`TOOLS.md`](TOOLS.md). In one line: x86 unlocks native
-StarNet/StarXTerminator, NoiseXTerminator/Cosmic Clarity (the denoise gap),
-BlurXTerminator (deconv), and astropy; 32 GB/1 TB relax the RAM/disk
-adaptations (32-bit intermediates, no partitioned stacking); no GPU means
-CPU-only AI inference (measure wall-clock). Tool paths are set during x86
-setup.
+**ONE rig, ONE setup — and it must be rebuildable from this repo.** Everything
+below is the environment a contributor gets by cloning and running
+`scripts/setup/x86_bootstrap.sh`; the installed inventory with versions, sources
+and checksums is `scripts/setup/manifest.tsv`. If a fact here is not reproducible
+from tracked files, that is the bug — a machine-local value nobody can rebuild has
+already cost this repo a shipped optical model that existed in no record
+(BACKLOG `removal-conditions`, the fitted-lens row). The arm64 box this project
+started on is RETIRED; nothing targets it.
 
-**Current BASE rig (arm64, until migration) — the facts to run the durable
-core here now:**
-- Siril 1.4.4 as a **user flatpak**, not on PATH:
+**The rig** (measured, 2026-08-05): **x86-64 Kali GNU/Linux Rolling**, Intel
+i7-14700K, **28 logical cores, 31 GB RAM, 1.8 TB NVMe**, **no NVIDIA GPU** — every
+AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
+(`TOOLS.md`, "The no-GPU reality").
+
+- **Siril 1.4.4 as a SYSTEM flatpak**, not on PATH:
   `flatpak run --command=siril-cli org.siril.Siril -d <workdir> -s <script>`
   The sandbox has home/host access but **its own private /tmp**: `.ssf`
   scripts MUST live under $HOME — repo `scripts/`, the session-level
   `<session>/work/` (stacking pipeline), or a per-set tool dir under
   `datasets/<session>/<set>/` (the `audit_work/`/`qa_work/` pattern); NEVER
   inside the raw `<session>/<set>/` frame dir, never /tmp or a scratchpad.
-  Siril also has an integrated Python API
-  (`pyscript` + bundled `sirilpy`) that runs headless via an `.ssf` wrapper
-  (`requires 1.4.0` + `pyscript foo.py`) — proven on this rig.
-- Kali linux arm64, 4 cores, 7.7 GB RAM, tight ~118 GB shared disk (check
-  `df` at session start). These constraints DIE on x86.
-- Host python3: numpy + scipy + PIL + **astropy 8.0.1** (FITS I/O + WCS/SIP +
-  ICRS→Galactic, probed on-rig), no rawpy; `astropy_healpix`/`reproject` not
-  installed. The arm-era hand-rolled FITS parsers are fully RETIRED to astropy
-  (the identical tool on both rigs), and the channel combine to Siril
-  `rgbcomp` — in-house code reads FITS headers only.
-- GraXpert 3.2 at `~/.local/bin/graxpert` (BGE + denoise). exiftool/exiv2
-  present. Outbound network works.
-- **darktable 5.4.1 (`darktable-cli`, built against Lensfun 0.3.4)** — the
-  UNDISTORT stage for the wide-field-untracked class, and load-bearing on this
-  rig today. Styles are pinned in-repo: `scripts/darktable/{lensdist,nodist}.dtstyle`,
-  installed headlessly with `scripts/darktable/install_styles.sh <configdir>`
-  (darktable has no CLI style import; only a real export job creates its
-  `data.db`). **Never re-create them by hand in the GUI.** The styles carry
-  ONLY the module's enabled bit (darktable ignores a style's lens op_params);
-  distortion-only is enforced by `install_lens_model.sh`, which installs the
-  FITTED lens entry AND strips the lens's vignetting/tca from the lensfun user
-  DB — re-run it after every `lensfun-update-data` (Debian's 0.3.4 lacks the
-  Z6III; fit a new lens/focal with `fit_lens_model.sh`), and verify with a
-  uniform-card warp (`docs/dead-ends.md`). `--style-overwrite` is REQUIRED or
-  the style is silently ignored; `--icc-type SRGB` (match Siril's tag —
-  forcing linear destroys photometry, `docs/dead-ends.md`). Route + traps:
-  [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
-- Plate solving: siril's internal solver cannot match ultra-wide
-  trailed-star fields (a DATA issue, not arch) — use
-  `scripts/calibrate/solve_field.py` (blind astrometry.net from peak
-  centroids; venv auto-bootstraps at `~/.local/share/astrometry-venv`;
-  scale hint from the FITS header; configured foreground excluded).
+  Siril also has an integrated Python API (`pyscript` + bundled `sirilpy`) that
+  runs headless via an `.ssf` wrapper (`requires 1.4.0` + `pyscript foo.py`).
+  `help` lists a command whether or not it is scriptable: `tilt` and `inspector`
+  are listed and REFUSE at runtime, so probe before believing a capability exists.
+- **Host python3 3.13** (`/usr/bin/python3`): numpy 2.3.5, scipy 1.17.1, PIL,
+  **astropy 8.0.1** (FITS I/O + WCS/SIP + ICRS→Galactic). NOT installed: `rawpy`,
+  `astropy_healpix`, `reproject`. In-house code reads FITS **headers** only —
+  every pixel op and every standard measurement is a tool's.
+- **Neural + solver toolchain under `/opt`** (all x86-64, all CPU-only here):
+  `starnet2-2.5.3-0208` (siril's `starnet_exe` points at it),
+  `cosmicclarity-6.6` (denoise + non-stellar sharpen), `deepsnr-1.2.1-0112`,
+  `graxpert-3.0.2/GraXpert-linux/GraXpert` (BGE + denoise), `astap`,
+  `nightlight-0.2.6`, and the `astro-venv`. RC-Astro (BXT/NXT/SXT) and
+  PixInsight are UNINSTALLED — a deliberate gap, not a platform block.
+- **darktable 5.4.1** (`darktable-cli`, built against **lensfun 0.3.4**) — the
+  UNDISTORT stage for the wide-field-untracked class. Styles are pinned in-repo:
+  `scripts/darktable/{lensdist,nodist}.dtstyle`, installed headlessly with
+  `scripts/darktable/install_styles.sh <configdir>` (darktable has no CLI style
+  import; only a real export job creates its `data.db`). **Never re-create them by
+  hand in the GUI.** The styles carry ONLY the module's enabled bit (darktable
+  ignores a style's lens op_params); distortion-only is enforced by
+  `install_lens_model.sh <session> <set>`, which installs the model FITTED from
+  that set's own frames AND strips that lens's vignetting/tca from the lensfun
+  user DB. Re-run after every `lensfun-update-data`, which wipes both; verify with
+  `verify_lens_card.py` (grid control + uniform card — the card ALONE is vacuous).
+  `--style-overwrite` is REQUIRED or the style is silently ignored.
+- **ICC, and the two legs differ — do not cross them.** The 32-bit FLOAT leg
+  (`run_undistort_pipeline.sh`) ships the TIFF **untagged** (exiftool strips the
+  profile in the same pass that copies the lens EXIF) and exports
+  `--icc-type LIN_REC709`: a measured PERFECT identity, ratio 1.0000 at every
+  level and channel. `--icc-type SRGB` is correct ONLY on the 8/16-bit probe legs
+  (`lens_preflight.py`, `verify_lens_card.py`), where it matches Siril's own
+  `savetif` tag; using it on the float leg carries a TRC toe error that inflates a
+  3 s-class sky. NEVER strip with siril `icc_remove` before `savetif32` — measured
+  applying a global ~1/12.92 scale to every pixel (`docs/dead-ends.md`).
+- **Plate solving**: siril's internal solver cannot match ultra-wide trailed-star
+  fields (a DATA issue, not arch) — use `scripts/calibrate/solve_field.py`, which
+  extracts with **SExtractor's core (`sep` 1.4.1)**, the sole extractor (the
+  in-house peak-centroid fallback is RETIRED). The venv auto-bootstraps at
+  `~/.local/share/astrometry-venv` and carries `sep` + the astrometry.net engine;
+  scale hint from the FITS header; configured foreground excluded.
 - Local Gaia catalogs at `~/.local/share/siril/siril_catalogues/`
   (astro + SPCC xpsamp chunks). SPCC needs the FULL cone of chunks — siril
   names the first missing one. `scripts/calibrate/spcc_cone.py <solved_wcs.fit>
   [--fetch]` computes the nside=2 nested cover from the solved WCS and downloads
   any missing chunk (md5-verified). Re-download source: zenodo 14692304 (astro) +
   14738271 (chunks; decompressed == the current record 17988559, md5-identical).
-- **SPCC has THREE machine-local prerequisites on a fresh rig (all verified x86,
-  none migrate) — miss the third and siril SEGFAULTS, silently:**
+- **SPCC has THREE machine-local prerequisites on a fresh rig — miss the third and
+  siril SEGFAULTS, silently:**
   (1) the Gaia cone chunks above;
   (2) siril's config `catalogue_gaia_photo` must point at the chunk dir
   `~/.local/share/siril/siril_catalogues/spcc` (a fresh flatpak defaults it to a
@@ -197,8 +210,10 @@ core here now:**
   test that would settle it. (Live example: native Siril solve was
   *mechanism-verified* not to replace `solve_field.py` for trailed fields —
   TOOLS.md — but that is provisional until the x86 empirical test runs.)
-  Especially across the rig migration: every arm-era finding is a
-  hypothesis on the desktop until re-measured there.
+  This has teeth for INHERITED numbers: a measurement taken on the retired
+  arm64 box is a hypothesis on this rig until re-measured here. Several have
+  been re-measured and stand; anything that has not been carries that caveat
+  where it is cited, and `docs/x86-empirical-test-plan.md` is the order.
 - **Official tools do ALL pixel work — processing AND analysis** (the bright
   line in "What this repo IS"). In-house code never reads, transforms, or
   analyzes the deliverable's pixels, never auto-gates the final product, and

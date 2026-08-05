@@ -13,13 +13,13 @@
 ## Findings — Part 1: GraXpert 3.x (a material correction)
 
 ### Version & development status — stable frozen at 3.0.2; a 3.2.0 ALPHA lives on PyPI
-- **Two distribution channels diverge** (verified first-hand on the arm rig +
+- **Two distribution channels diverge** (verified first-hand on the retired box +
   PyPI/GitHub APIs, 2026-07): **GitHub releases** peak at **`3.1.0rc2` (2025-01-01,
   pre-release)** over stable **`3.0.2` (2024-05-03)** with `main` frozen; but
   **PyPI** carries a **`3.2.0a2`** — but this is a **third-party fork**
   (`geeksville/GraXpert`, a self-disclaimed "test branch/pip build" — its changes
   are the still-open upstream PR #242), NOT official GraXpert; the official project
-  has no 3.2.0 at all. The arm rig runs this fork build, so the "GraXpert 3.2"
+  has no 3.2.0 at all. The retired box ran that fork build, so the "GraXpert 3.2"
   label is misleading — pin the official 3.0.2 / 3.1.0-RC for a reproducible chain.
   **Net: latest official stable = 3.0.2 (BGE+denoise only); everything with
   deconvolution is pre-release** (the 3.1.0-RC line, plus the fork's alpha).

@@ -1,37 +1,27 @@
 # Astrophotography processing pipeline
 
-> **⚠ STATUS.** The rig has MIGRATED to the x86-64 desktop, so the "environment-
-> blocked on arm" qualifiers below are stale wherever they concern the neural
-> tools: StarNet2 and Cosmic Clarity are installed under `/opt`, driven headless,
-> and measured (see `scripts/stack/render_tier.sh`). Re-auditing every stage-table
-> row against the new rig is BACKLOG; the rows are marked where they are known
-> stale, and every arm-era measurement remains a HYPOTHESIS until re-measured
-> there (`docs/x86-empirical-test-plan.md`).
->
-> The durable core — calibrate →
-> [undistort] → register → stack → solve → SPCC → compose — runs today, and the
-> **first render tier is now BUILT** (`scripts/stack/render_tier.sh`: separate →
-> denoise the starless → stretch → screen-recombine, user-gated by a ratified
-> recipe block, every pixel op and every measurement a tool's). The LADDER around
-> it — one knob per arm into `exp_<param>_<stamp>/`, the no-regression harness,
-> and the `GENERIC.json` knob schema — is still UNBUILT (BACKLOG).
+> **STATUS.** The durable core — calibrate → [undistort] → register → stack →
+> solve → SPCC → compose — runs today, and the **first render tier is BUILT**
+> (`scripts/stack/render_tier.sh`: separate → denoise the starless → stretch →
+> screen-recombine, user-gated by a ratified recipe block, every pixel op and
+> every measurement a tool's). The LADDER around it — one knob per arm into
+> `exp_<param>_<stamp>/`, the no-regression harness, and the `GENERIC.json` knob
+> schema — is still UNBUILT (BACKLOG:`render-ladder`).
 >
 > Siril 1.4.4's native render surface (`subsky`, GHS via `ght`/`autoghs`,
 > `mtf`/`asinh`, `denoise`, `satu`, `synthstar`/`unclipstars`, `rl`/`sb`/
 > `wiener`, `epf`, `pm`, `rgbcomp`, `ccm`, plus `wavelet`/`wrecons` and
-> `starnet`) is PRESENT and scriptable, as is GraXpert's BGE + denoise. The
-> neural binaries that were environment-blocked on the old arm rig — StarNet2,
-> Cosmic Clarity, DeepSNR — are now installed under `/opt` and in use; RC-Astro
-> BXT/NXT/SXT and PixInsight (so every PI-plugin route) remain UNINSTALLED rather
-> than unavailable, and a **learned deconvolver is therefore an open, unmeasured
-> option** (Cosmic Clarity ships non-stellar sharpen models beside the denoiser
-> the render tier already drives) — the render tier's deconv skip is a HYPOTHESIS,
-> not a measured null (BACKLOG). Per-tool evidence: [`TOOLS.md`](TOOLS.md); the
-> x86 re-measure order: [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
-> The process contract, review contract, acceptance model, experiment discipline,
-> per-dataset state, and north star below are all portable and stand. The
-> render ladder is BACKLOG:`render-ladder`, re-anchored per dataset by the
-> operating loop.
+> `starnet`) is present and scriptable, as are StarNet2, Cosmic Clarity, DeepSNR
+> and GraXpert under `/opt`. RC-Astro BXT/NXT/SXT and PixInsight are UNINSTALLED
+> by choice (both are paid and both run on this hardware) — a deliberate gap, not
+> a platform block, so a **learned deconvolver is an open, unmeasured option**
+> (Cosmic Clarity ships non-stellar sharpen models beside the denoiser the render
+> tier already drives; BACKLOG:`learned-deconvolution`). Per-tool evidence:
+> [`TOOLS.md`](TOOLS.md).
+>
+> **Numbers inherited from the retired arm64 box are HYPOTHESES until
+> re-measured here** — the order is
+> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
 This repo is a **checklist + knowledge workspace** for astrophotography
 processing — official tools do ALL pixel work (processing AND analysis); the
@@ -94,8 +84,8 @@ follows, in order — linear until step 6:
 | 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG:`render-ladder` L1 — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT (MECHANISM, not a controlled result — see the evidence-status note in `docs/dead-ends.md`): a full extraction model is not expected to distinguish frame-filling faint structure from a sky gradient and to absorb it — for a field filled with UNRESOLVED STARLIGHT only a first-degree plane (or none) preserves it (`docs/dead-ends.md` terminology entry: at 17"/px the diffuse field is the integrated light of stars below the detection limit, MEASURED at R2 0.9631 against Gaia — it is stars, not dust and not nebulosity); BGE on the starless layer ERASES it (never reorder) |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to `work/spcc_<set>.{json,log}`) → `stack_<set>_spcc.fit` | COMPLIANT — SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Both vendors' doctrine orders BGE before SPCC; the repo's mechanism claim (per-star local-annulus photometry cancels a smooth background, so the K fit is order-robust) is CHECKED, not assumed, when the render build inserts the background step before SPCC — the recorded K delta is the check. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective instrument (the noise-split structured term) are pre-registered as item 0's L2 | GAP until laddered + judged. The general CHROMA-noise fill stays environment-blocked on arm (NXT-AI3 `denoise_color` / Cosmic Clarity `--color_denoise_strength` are x86-64 binaries — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
-| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | SPLIT BY BLOCKER CLASS. **Separation is environment-blocked on arm**: StarNet2 / DeepSNR ship Linux x86-64 CLI builds only, RC-Astro requires an Intel/AMD x64 CPU, and PixInsight (every PI-plugin route) is x86-64+AVX2 — per-tool evidence in `TOOLS.md`; `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so separation-dependent star work waits for x86. **The rest is PRESENT on this rig** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered as item 0's ladder; the separation tier rides `docs/x86-empirical-test-plan.md` | GAP (user-gated build); separation environment-blocked on arm |
+| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective instrument (the noise-split structured term) are pre-registered as item 0's L2 | GAP until laddered + judged. The general CHROMA-noise fill is INSTALLED and unmeasured: Cosmic Clarity's `--color_denoise_strength` runs here (NXT-AI3 is the paid alternative, uninstalled by choice — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
+| 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **Separation is BUILT and shipping**: StarNet2 is installed and driven by `render_tier.sh` via siril's `starnet`. `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so it is not a substitute. **The rest is present** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered as item 0's ladder; the ladder rides BACKLOG:`render-ladder` | GAP (user-gated LADDER; the tier itself is built) |
 
 Principles that keep this honest:
 
@@ -302,7 +292,7 @@ per class instead of debugging after.
 **Both halves of that are PENDING the render-tier build today:**
 `datasets/GENERIC.json` is a
 stub (`"render": {}, "why": {}`) because the render-knob schema was wiped
-with the arm64 chain, and the ladder harness rides that build (user-gated;
+with the retired chain, and the ladder harness rides that build (user-gated;
 the ladder is BACKLOG:`render-ladder`). The knobs the previous chain
 laddered — background extraction mode
 (the proven signal eater: full AI extraction absorbs the frame-filling
@@ -403,8 +393,8 @@ python3 scripts/calibrate/spcc_cone.py web/results/<session>/stack_<set>_wcs.fit
 # then siril spcc (spcc_run.py) → _spcc.fit
 
 # final render — UNBUILT, user-gated (ladder: BACKLOG:`render-ladder`;
-# the separation/neural tiers are environment-blocked on arm — TOOLS.md; the
-# x86 re-measure order: docs/x86-empirical-test-plan.md). Everything ABOVE
+# the neural tiers are installed and driven; what is unbuilt is the LADDER —
+# TOOLS.md, BACKLOG:`render-ladder`). Everything ABOVE
 # (stack → solve → spcc → compose) is the durable core and runs today.
 ```
 
@@ -475,10 +465,9 @@ thin orchestration over the natives verified present by on-rig probe
 (`subsky`, `ght`/`autoghs`/`mtf`, `denoise`, `satu`, `unclipstars`, `pm`,
 `rgbcomp`) plus the installed GraXpert — the pre-registered ladder is
 BACKLOG:`render-ladder`, re-anchored per dataset by the operating loop. The
-separation/neural tiers (StarXTerminator / StarNet, NoiseXTerminator / Cosmic
-Clarity / DeepSNR, BlurXTerminator) are environment-blocked on arm (x86-64
-binaries — [`TOOLS.md`](TOOLS.md)) and ride
-[`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
+separation/neural tiers are INSTALLED (StarNet2, Cosmic Clarity, DeepSNR,
+GraXpert under `/opt`); RC-Astro and PixInsight are uninstalled by choice
+([`TOOLS.md`](TOOLS.md)).
 
 **`web/`** (top-level, beside `scripts/`) — the local front end: `serve.py`
 (127.0.0.1-only static server over the repo + the framing-record POST),
