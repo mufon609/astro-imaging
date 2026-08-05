@@ -6,7 +6,7 @@
 # group sub-stacks are registered and rejection-stacked into the final.
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
-#                           [--group=15] [--chunk=12] [--out=<stack.fit>] [--plan] \
+#                           [--group=<derived>] [--chunk=12] [--out=<stack.fit>] [--plan] \
 #                           [--framing=min|max] [--desky]
 #
 # !! REVERTED 2026-08-04 — `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION.
@@ -87,9 +87,9 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
                                               # the single-pass builder and the router
-SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan] [--desky]}
+SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--desky]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min DESKYOPT=
+DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min DESKYOPT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
@@ -125,7 +125,37 @@ RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
 mapfile -t SRC < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$RECIPE" "${SRC[@]}")
 [ ${#SRC[@]} -ge 1 ] || { echo "ABORT: cull resolution failed or left no frames (see cullspec message above)" >&2; exit 1; }
 N=${#SRC[@]}
-K=$(( (N + GROUP - 1) / GROUP ))
+# GROUP SIZE IS DERIVED, and it is a REJECTION decision, not a disk one. It used
+# to be a bare `GROUP=15` with no rationale written anywhere, and 15 is actively
+# harmful on two counts that only show up in the final product:
+#
+#  1. ALGORITHM. Each group runs the full single-pass chain, so the group size
+#     picks the rejection through stack_rejection_for(): <=50 gets winsorized
+#     `rej w 3 3`, >50 gets GESD. At 15 EVERY group sits in the shallow band,
+#     when the doctrine for a deep stack is GESD.
+#  2. TRANSIENTS. Groups are CONSECUTIVE blocks, so a crossing lands whole inside
+#     one. july31/set-03's aircraft crosses 8 consecutive frames: that is 53% of
+#     a group of 15 — a per-pixel MAJORITY, which docs/dead-ends.md says SURVIVES
+#     rejection ("a DWELLING band becomes the per-pixel majority and survives").
+#     The final compose is a PLAIN MEAN with no rejection (sigma-rejection across
+#     sub-stacks is a measured dead end), so it would go straight into the
+#     product — while the single-pass arm rejects the same 8 frames out of 500
+#     with GESD. At 100 the same crossing is 8% of a group: a clear minority.
+#
+# The cost of a bigger group is only the -framing=min trim per sub-stack, because
+# a longer group spans more drift: at july31's 18.8 px/min that is 188 px (3.1%
+# of frame width) at 100 against 28 px at 15. Cheap. The extra interpolation pass
+# this route declares is a property of the ROUTE and does not change with size.
+#
+# So: target ~100 frames per group, keep at least 2 groups (one group is the
+# single-pass route), and say so when the arithmetic cannot reach the GESD band.
+if [ -z "$GROUP" ]; then
+  K_TARGET=$(( N / 100 )); [ "$K_TARGET" -lt 2 ] && K_TARGET=2
+  GROUP=$(( (N + K_TARGET - 1) / K_TARGET ))
+  echo "group size DERIVED: $GROUP ($N frames -> ~$K_TARGET groups; target ~100/group to keep every group in the GESD rejection band and any transient a clear minority)"
+  [ "$GROUP" -gt 50 ] || echo "  NOTE: $N frames cannot give 2 groups above the GESD threshold of 50 — groups of $GROUP use winsorized rejection. Stated, not silently accepted."
+fi
+K=$(( (N + GROUP - 1) / GROUP ))   # AFTER the derivation above: GROUP must exist first
 [ "$K" -ge 2 ] || { echo "only one group at --group=$GROUP for $N frames — use run_undistort_pipeline.sh" >&2; exit 1; }
 BASE=$((N / K)); REM=$((N % K))     # REM groups of BASE+1, K-REM of BASE
 [ "$BASE" -ge 2 ] || { echo "ABORT: groups of $BASE frame(s) — raise --group" >&2; exit 1; }

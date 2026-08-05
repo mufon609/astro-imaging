@@ -23,7 +23,7 @@
 #           is a decision only the user can close: find the cause, or
 #           re-seed the baseline with a note if the change is deliberate
 #
-#   run_set_chain.sh <session-dir> <set> [--plan] [--route=auto|single|groups]
+#   run_set_chain.sh <session-dir> <set> [--plan] [--route=auto|single|groups] [--group=N]
 #
 # --plan prints the derived plan (route + reason, gates, disk math, the exact
 # commands, what will be skipped as already-built) and executes NOTHING; the
@@ -51,12 +51,13 @@ source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
                                               # a set to a builder that then refused it.
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
-PLAN=0 DESKYOPT= FORCE_ROUTE=
+PLAN=0 DESKYOPT= FORCE_ROUTE= GROUPOPT=
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
   --desky) DESKYOPT=--desky;;
   --no-desky) DESKYOPT=;;
   --route=*) FORCE_ROUTE=${a#*=};;
+  --group=*) GROUPOPT=--group=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 case "${FORCE_ROUTE:-auto}" in
@@ -246,7 +247,7 @@ case "$ROUTE" in
     else case "$ROUTE" in
       standard)         say "  4. scripts/stack/run_pipeline.sh $SESSION $SET";;
       undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT";;
-      undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT";;
+      undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT $GROUPOPT";;
     esac; fi
     if JS=$(judge_surface "$NAME"); then
       say "  5. judge surface exists -> skip finish ($(basename "$JS"))"
@@ -530,7 +531,7 @@ else
   case "$ROUTE" in
     standard)         "$REPO/scripts/stack/run_pipeline.sh" "$SESSION" "$SET";;
     undistort)        "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT;;
-    undistort-groups) "$REPO/scripts/stack/run_undistort_groups.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT;;
+    undistort-groups) "$REPO/scripts/stack/run_undistort_groups.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT $GROUPOPT;;
   esac
   [ -f "$STACK" ] || { say "builder finished but $STACK is missing"; exit 1; }
 fi
