@@ -93,7 +93,7 @@ autooptimiser -n -o fit_abc.pto s2.pto > /dev/null 2>&1
 pto_var --opt y,p,r,a0,b0,c0,d0,e0 -o s3.pto fit_abc.pto > /dev/null
 autooptimiser -n -o fit_abcde.pto s3.pto > /dev/null 2>&1
 
-python3 - "$P" "$HFOV" "$FRAMES" "$W/lens_fit.json" <<'PY'
+python3 - "$P" "$HFOV" "$FRAMES" "$W/lens_fit.json" "$SESSION" "$SET" <<'PY'
 import json, re, subprocess, sys
 P, hfov, frames, out = sys.argv[1], float(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
 
@@ -123,6 +123,7 @@ rec = {"tool": "hugin-tools cpfind --fullscale / cpclean / staged autooptimiser 
 json.dump(rec, open(out, "w"), indent=1)
 print(json.dumps(rec["fitted_ptlens"]))
 print(f"record: {out}")
-print(f"install: scripts/darktable/install_lens_model.sh {abc['a']:.8g} {abc['b']:.8g} {abc['c']:.8g}")
+print(f"install: scripts/darktable/install_lens_model.sh {sys.argv[5]} {sys.argv[6]}")
+print("  (it reads the lens, the focal and these coefficients from the set's own records)")
 PY
 rm -rf "$P"

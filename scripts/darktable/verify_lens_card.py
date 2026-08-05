@@ -2,8 +2,15 @@
 """Prove darktable's lens correction is DISTORTION-ONLY on this rig.
 
 Usage:
-  verify_lens_card.py --from-frame <raw>  [--work DIR] [--json OUT]
-  verify_lens_card.py --camera M --lens L --focal F [--work DIR] [--json OUT]
+  verify_lens_card.py --session <dir> --set <name>  [--work DIR] [--json OUT]
+  verify_lens_card.py --from-frame <raw>            [--work DIR] [--json OUT]
+  verify_lens_card.py --camera M --lens L --focal F --size WxH [--work DIR]
+
+The optics AND the card geometry come from the set's own record (or a real
+frame); nothing about a particular body is compiled in. The card must match the
+sensor under test — lensfun's distortion is a function of NORMALIZED radius, so
+a card at another sensor's geometry exercises a different part of the model and
+silently answers a question you did not ask.
 
 WHY THIS EXISTS. darktable applies its DEFAULT correction set (distortion + TCA +
 vignetting) and a style cannot choose otherwise — only the module's enabled bit
@@ -54,9 +61,9 @@ import subprocess
 import sys
 
 SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
-W, H = 6064, 4040          # Z6III full-frame sensor; any size works
 BOX = 400                  # region side for the median comparison
 INSET = 300                # keep corner boxes off the warp's edge
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def sh(cmd, **kw):
@@ -64,34 +71,70 @@ def sh(cmd, **kw):
 
 
 def optics_from_frame(path):
-    r = sh(["exiftool", "-json", "-Model", "-LensModel", "-FocalLength", path])
+    """Everything the fixture needs, from one exiftool call on a real frame."""
+    r = sh(["exiftool", "-json", "-Make", "-Model", "-LensModel", "-FocalLength",
+            "-ImageWidth", "-ImageHeight", path])
     d = json.loads(r.stdout)[0]
     focal = re.match(r"([0-9.]+)", str(d.get("FocalLength", "")))
-    return (d.get("Model"), d.get("LensModel"),
-            float(focal.group(1)) if focal else None)
+    return {"make": d.get("Make"), "camera": d.get("Model"),
+            "lens": d.get("LensModel"),
+            "focal": float(focal.group(1)) if focal else None,
+            "wh": (d.get("ImageWidth"), d.get("ImageHeight"))}
 
 
-def make_fixtures(work):
-    """Two synthetic cards at sensor size. Fixtures, not deliverables."""
+def optics_from_set(session, sset):
+    """The set's own tracked identity. Card size comes from exif.image_wh, so the
+    fixture is the shape of the frames this lens actually produces — a card at
+    another sensor's geometry warps through a different normalized radius and is
+    not the test you meant to run. `Make` is not in the record's schema, so it is
+    read from a staged frame when one is present; when it is not, the fixture
+    ships without it and the GRID CONTROL fails loudly if darktable can no longer
+    identify the camera. That is the intended degradation — never a guess."""
+    import glob
+    d = os.path.join(REPO, "datasets", os.path.basename(os.path.abspath(session)), sset)
+    p = os.path.join(d, "acquisition.json")
+    try:
+        ex = (json.load(open(p)).get("exif") or {})
+    except (OSError, ValueError) as e:
+        sys.exit(f"verify_lens_card: no usable acquisition record at {p} ({e}) — "
+                 "the fixture's optics come from the set's record, so this STOPS "
+                 "rather than fabricate a camera.")
+    wh = ex.get("image_wh") or (None, None)
+    o = {"make": None, "camera": ex.get("camera"), "lens": ex.get("lens"),
+         "focal": ex.get("focal_length_mm"), "wh": tuple(wh)}
+    frames = sorted(f for pat in ("*.nef", "*.NEF", "*.dng", "*.DNG", "*.cr2",
+                                  "*.CR2", "*.cr3", "*.CR3", "*.arw", "*.ARW",
+                                  "*.raf", "*.RAF")
+                    for f in glob.glob(os.path.join(session, sset, pat)))
+    if frames:
+        o["make"] = optics_from_frame(frames[0])["make"]
+    return o
+
+
+def make_fixtures(work, w, h):
+    """Two synthetic cards at the SET's frame size. Fixtures, not deliverables."""
     from PIL import Image, ImageDraw
     uni = os.path.join(work, "card_uniform.tif")
-    Image.new("I;16", (W, H), 30000).save(uni, compression=None)
+    Image.new("I;16", (w, h), 30000).save(uni, compression=None)
     grid = os.path.join(work, "card_grid.tif")
-    im = Image.new("I;16", (W, H), 8000)
+    im = Image.new("I;16", (w, h), 8000)
     d = ImageDraw.Draw(im)
-    for x in range(0, W, 200):
-        d.line([(x, 0), (x, H)], fill=60000, width=5)
-    for y in range(0, H, 200):
-        d.line([(0, y), (W, y)], fill=60000, width=5)
+    step = max(50, min(w, h) // 20)      # ~20 lines across the short side, any sensor
+    for x in range(0, w, step):
+        d.line([(x, 0), (x, h)], fill=60000, width=5)
+    for y in range(0, h, step):
+        d.line([(0, y), (w, y)], fill=60000, width=5)
     im.save(grid, compression=None)
     return uni, grid
 
 
-def stamp_exif(path, camera, lens, focal):
+def stamp_exif(path, o):
     """lensfun matches on EXIF; a fixture has none until we write it."""
-    sh(["exiftool", "-overwrite_original", "-q",
-        "-Make=NIKON CORPORATION", f"-Model={camera}",
-        f"-LensModel={lens}", f"-FocalLength={focal}", "-FNumber=4", path])
+    tags = [f"-Model={o['camera']}", f"-LensModel={o['lens']}",
+            f"-FocalLength={o['focal']}", "-FNumber=4"]
+    if o.get("make"):
+        tags.insert(0, f"-Make={o['make']}")
+    sh(["exiftool", "-overwrite_original", "-q", *tags, path])
 
 
 def render(src, style, work):
@@ -127,12 +170,12 @@ def difference(work, a, b, tag):
     return {"identical": False, "sigma": sig, "max": mx}
 
 
-def region_medians(work, img):
-    boxes = [("centre", (W - BOX) // 2, (H - BOX) // 2),
+def region_medians(work, img, w, h):
+    boxes = [("centre", (w - BOX) // 2, (h - BOX) // 2),
              ("corner_TL", INSET, INSET),
-             ("corner_TR", W - INSET - BOX, INSET),
-             ("corner_BL", INSET, H - INSET - BOX),
-             ("corner_BR", W - INSET - BOX, H - INSET - BOX)]
+             ("corner_TR", w - INSET - BOX, INSET),
+             ("corner_BL", INSET, h - INSET - BOX),
+             ("corner_BR", w - INSET - BOX, h - INSET - BOX)]
     lines = [f"load {img}"]
     for _, x, y in boxes:
         lines += [f"boxselect {x} {y} {BOX} {BOX}", "stat"]
@@ -147,10 +190,14 @@ def region_medians(work, img):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--session", help="session dir; with --set, take the optics "
+                                      "and the card size from the set's record")
+    ap.add_argument("--set")
     ap.add_argument("--from-frame", help="read camera/lens/focal from this raw's EXIF")
     ap.add_argument("--camera")
     ap.add_argument("--lens")
     ap.add_argument("--focal", type=float)
+    ap.add_argument("--size", help="card size WxH; default = the set's frame size")
     ap.add_argument("--work", help="scratch dir; MUST be under $HOME (Siril "
                                    "flatpak has a private /tmp). Default: "
                                    "./lenscard_work")
@@ -159,13 +206,32 @@ def main():
                     help="max |corner-centre| median difference to PASS (ADU)")
     a = ap.parse_args()
 
-    if a.from_frame:
-        camera, lens, focal = optics_from_frame(a.from_frame)
+    if a.session and a.set:
+        o = optics_from_set(a.session, a.set)
+    elif a.from_frame:
+        o = optics_from_frame(a.from_frame)
     else:
-        camera, lens, focal = a.camera, a.lens, a.focal
+        o = {"make": None, "camera": a.camera, "lens": a.lens,
+             "focal": a.focal, "wh": (None, None)}
+    if a.camera: o["camera"] = a.camera
+    if a.lens:   o["lens"] = a.lens
+    if a.focal:  o["focal"] = a.focal
+    if a.size:
+        o["wh"] = tuple(int(v) for v in a.size.lower().split("x"))
+    camera, lens, focal = o["camera"], o["lens"], o["focal"]
     if not (camera and lens and focal):
-        sys.exit("verify_lens_card: need --from-frame or all of "
+        sys.exit("verify_lens_card: need --session/--set, --from-frame, or all of "
                  "--camera/--lens/--focal")
+    W, H = o["wh"]
+    if not (W and H):
+        sys.exit("verify_lens_card: no frame size for the card — pass --size WxH, "
+                 "or use --session/--set (exif.image_wh) / --from-frame. The card "
+                 "must match the sensor under test: lensfun's distortion is a "
+                 "function of NORMALIZED radius, so a card at another geometry "
+                 "exercises a different part of the model.")
+    if W < 2 * INSET + BOX or H < 2 * INSET + BOX:
+        sys.exit(f"verify_lens_card: {W}x{H} is too small for {BOX}px boxes inset "
+                 f"{INSET}px — the corner regions would overlap the centre.")
 
     work = os.path.abspath(a.work or "lenscard_work")
     if not work.startswith(os.path.expanduser("~")):
@@ -173,10 +239,13 @@ def main():
                  f"cannot see {work})")
     os.makedirs(work, exist_ok=True)
 
-    print(f"verify_lens_card: {camera!r} + {lens!r} @ {focal}mm")
-    uni, grid = make_fixtures(work)
+    print(f"verify_lens_card: {camera!r} + {lens!r} @ {focal}mm "
+          f"on a {W}x{H} card" + ("" if o.get("make") else
+          "  [no Make on record — the grid control will catch it if darktable "
+          "can no longer identify the camera]"))
+    uni, grid = make_fixtures(work, W, H)
     for f in (uni, grid):
-        stamp_exif(f, camera, lens, focal)
+        stamp_exif(f, o)
 
     # 1. POSITIVE CONTROL — the module must fire on a non-uniform field.
     g = difference(work, render(grid, "lensdist", work),
@@ -192,7 +261,7 @@ def main():
     # 2. UNIFORM — with the control passing, a null here means no vignetting.
     u_l = render(uni, "lensdist", work)
     u = difference(work, u_l, render(uni, "nodist", work), "uni")
-    med = region_medians(work, u_l)
+    med = region_medians(work, u_l, W, H)
     centre = max(med["centre"])
     # max() over the corners, not a `>` accumulator seeded at 0.0: a perfect PASS
     # has every delta == 0.0, which never beats the seed and would report no corner.
@@ -207,6 +276,7 @@ def main():
           f"{'pixel-identical' if u['identical'] else 'differs'}")
 
     rec = {"camera": camera, "lens": lens, "focal_mm": focal,
+           "make": o.get("make"), "card_wh": [W, H],
            "grid_control": g, "uniform_diff": u, "region_medians": med,
            "centre_median": centre, "worst_corner": worst,
            "worst_delta_adu": worst_d, "tol_adu": a.tol,

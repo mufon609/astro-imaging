@@ -194,10 +194,16 @@ else
   esac
 fi
 run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_styles.sh' \"\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable\""
-run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_lens_model.sh'"
+# The distortion model is per LENS and per FOCAL, fitted from a set's own
+# frames, so there is nothing to install until a set exists: bootstrapping a
+# rig cannot know which glass it will meet. Run it when the first
+# wide-untracked set lands:
+#   scripts/darktable/fit_lens_model.sh <session> <set> ...   (fit)
+#   scripts/darktable/install_lens_model.sh <session> <set>   (install + strip)
+log "lens model: skipped at bootstrap — per lens/focal, install it per set (see manifest note)"
 manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d $HOME/.local/share/lensfun/updates/version_1" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
 manifest dt-lens-styles repo scripts/darktable n/a "\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable/data.db" "true" "lensdist/nodist; op_params is the pinned artifact; no GUI step"
-manifest dt-lens-model repo scripts/darktable n/a "$HOME/.local/share/lensfun/updates/version_1/mil-nikon.xml" "true" "RETIRED-BODY PIN (24-70/4 S @ 70) — re-fit for the new rig's lens FIRST (fit_lens_model.sh); re-install after every lensfun-update-data; skip when the wide-untracked class is not in play"
+manifest dt-lens-model repo scripts/darktable n/a "$HOME/.local/share/lensfun/updates/version_1" "true" "PER LENS+FOCAL, fitted from a set's own frames (fit_lens_model.sh) and installed with install_lens_model.sh <session> <set> — which finds the vendor DB file by searching for the lens. Nothing to install at bootstrap; re-install after every lensfun-update-data; skip when the wide-untracked class is not in play"
 
 # ---- Layer B: flatpak Siril ----------------------------------------------
 log "Layer B — Siril (flatpak $SIRIL_FLATPAK_ID, 1.4.4)"

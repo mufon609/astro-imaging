@@ -1171,10 +1171,15 @@ def _stage_registry():
             + ([f"--cov-min={_arg_int(a['cov_min'], 1, 65)}"] if a.get("cov_min") else []),
         },
         "install_lens_model": {
-            "desc": "install the fitted 24-70/4 distortion entry into the machine-local lensfun user DB and strip vignetting/tca (distortion-only enforcement); idempotent, stops loudly on upstream drift; RE-RUN after every lensfun-update-data",
+            "desc": "install the distortion model FITTED FROM THIS SET'S OWN FRAMES into the machine-local lensfun user DB, and strip that lens's vignetting/tca (distortion-only enforcement). Lens, focal and coefficients all come from the set's records (acquisition.json + qa_work/lens_fit.json) — nothing about a body is compiled in. Idempotent; refuses to overwrite a different fitted entry; RE-RUN after every lensfun-update-data, which wipes the patch",
             "phase": "setup",
-            "params": [],
-            "build": lambda a: ["scripts/darktable/install_lens_model.sh"],
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True, "hint": "the set whose fitted model to install (needs qa_work/lens_fit.json)"},
+            ],
+            "build": lambda a: ["scripts/darktable/install_lens_model.sh",
+                                P("sessions", _arg_session(a["session"])),
+                                _arg_set(a["set"])],
         },
         "install_styles": {
             "desc": "install the pinned darktable lens styles into a session's work/dtcfg (the undistort driver also self-installs per run — this is manual verification)",
@@ -1482,10 +1487,13 @@ def path_choices(session):
     }
 
 
-LENSFUN_DB = os.path.expanduser(
-    "~/.local/share/lensfun/updates/version_1/mil-nikon.xml")
-LENSFUN_FITTED = ('<distortion model="ptlens" focal="70" '
-                  'a="0.00350093" b="0.01453356" c="0.00043983"/>')
+# The lensfun USER-DB DIRECTORY, not one vendor file: which file carries a lens
+# is lensfun's business (mil-nikon.xml, slr-canon.xml, compact-*.xml …), and this
+# check must answer for whatever optics the rig actually shoots. install_lens_model.sh
+# writes a provenance marker into every block it patches, which is the only
+# lens-agnostic way to tell a FITTED distortion line from an upstream one.
+LENSFUN_DBDIR = os.path.expanduser("~/.local/share/lensfun/updates/version_1")
+LENSFUN_MARK = "astro-imaging fitted:"
 
 
 def env_status():
@@ -1494,6 +1502,7 @@ def env_status():
     stale | low | info; each with its evidence. The darktable styles need no
     probe: the undistort driver self-installs them per run."""
     import importlib.util
+    import glob
     import shutil
     home = os.path.expanduser("~")
     out = {}
@@ -1527,32 +1536,68 @@ def env_status():
         f"{n} catalog files at {p}" if n else f"none at {p}")
     p = os.path.join(home, ".local/bin/graxpert")
     put("graxpert", "ok" if os.path.exists(p) else "missing", p)
-    if not os.path.exists(LENSFUN_DB):
+    # Only the lenses this repo actually shoots. Scanning the whole lensfun DB
+    # answered the wrong question — most upstream blocks simply carry no
+    # vignetting calibration, so "no <vignetting>" there is not evidence of our
+    # strip. The set of lenses that matters is the one the tracked acquisition
+    # records name.
+    lenses = {}
+    for acq in glob.glob(os.path.join(REPO, "datasets", "*", "*", "acquisition.json")):
+        try:
+            ex = (json.load(open(acq)).get("exif") or {})
+        except (OSError, ValueError):
+            continue
+        # A dedicated-astrocam set has no photographic lens: acquisition.py's
+        # FITS path puts TELESCOP in the `lens` slot, so "Temma By Takahashi" is
+        # a scope, not glass lensfun could ever carry. Those sets do not take the
+        # undistort route (lens_preflight.py says so explicitly), and flagging
+        # them as an uncorrected lens is a false alarm. `binning` is written only
+        # by the FITS derivation, so it is the discriminator.
+        if ex.get("lens") and "binning" not in ex:
+            lenses.setdefault(ex["lens"], set()).add(ex.get("focal_length_mm"))
+    if not os.path.isdir(LENSFUN_DBDIR):
         put("lensfun-model", "missing",
-            f"{LENSFUN_DB} absent — run lensfun-update-data, then install_lens_model")
+            f"{LENSFUN_DBDIR} absent — run lensfun-update-data, then "
+            "install_lens_model for each lens/focal you shoot")
+    elif not lenses:
+        put("lensfun-model", "na",
+            "no tracked set records a lens (telescope/astrocam corpora have no "
+            "lens EXIF by construction and do not take the undistort route)")
     else:
-        xml = open(LENSFUN_DB).read()
-        m = re.search(r"<lens>(?:(?!</lens>).)*?24-70mm f/4 S"
-                      r"(?:(?!</lens>).)*?</lens>", xml, re.S)
-        if not m:
-            put("lensfun-model", "missing",
-                "24-70mm f/4 S lens block absent from the updates DB")
-        else:
-            blk = m.group(0)
-            fitted = LENSFUN_FITTED in blk
-            stripped = "<vignetting" not in blk and "<tca" not in blk
-            if fitted and stripped:
-                put("lensfun-model", "ok",
-                    "fitted focal=70 entry present; vignetting/tca stripped "
-                    "— distortion-only holds")
-            elif fitted:
-                put("lensfun-model", "stale",
-                    "fitted entry present but vignetting/tca NOT stripped — "
-                    "re-run install_lens_model (lensfun-update-data overwrote the strip)")
+        def norm(x):
+            return re.sub(r"[^a-z0-9]", "", x.lower())
+        blocks = {}
+        for path in sorted(glob.glob(os.path.join(LENSFUN_DBDIR, "*.xml"))):
+            try:
+                xml = open(path, encoding="utf-8", errors="replace").read()
+            except OSError:
+                continue
+            for blk in re.findall(r"<lens>(?:(?!</lens>).)*?</lens>", xml, re.S):
+                mm = re.search(r"<model>(.*?)</model>", blk, re.S)
+                if mm:
+                    blocks[norm(mm.group(1))] = blk
+        ok, issues = [], []
+        for lens, focals in sorted(lenses.items()):
+            fl = ",".join(str(int(f)) for f in sorted(x for x in focals if x)) or "?"
+            blk = blocks.get(norm(lens))
+            if blk is None:
+                issues.append(f"{lens} @ {fl}mm: NO lensfun block — darktable "
+                              "would apply no correction, silently")
+            elif "<vignetting" in blk or "<tca" in blk:
+                issues.append(f"{lens}: vignetting/tca present — re-run "
+                              "install_lens_model (an update overwrote the strip)")
+            elif LENSFUN_MARK not in blk:
+                issues.append(f"{lens} @ {fl}mm: distortion-only holds, but no "
+                              "install marker — the line's provenance is unknown "
+                              "(patched before markers, or by hand)")
             else:
-                put("lensfun-model", "stale",
-                    "fitted focal=70 entry absent (community or drifted line) "
-                    "— run install_lens_model")
+                got = ",".join(re.findall(LENSFUN_MARK + r" focal=(\S+)", blk))
+                ok.append(f"{lens} @ {got}mm fitted (shot at {fl}mm)")
+        if issues:
+            put("lensfun-model", "stale", "; ".join(issues)
+                + ("; OK: " + "; ".join(ok) if ok else ""))
+        else:
+            put("lensfun-model", "ok", "; ".join(ok))
     du = shutil.disk_usage(REPO)
     free_gb = du.free / 2 ** 30
     put("disk", "ok" if free_gb >= 20 else "low",
