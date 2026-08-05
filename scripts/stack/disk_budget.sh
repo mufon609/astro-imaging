@@ -69,8 +69,19 @@ _DISK_BUDGET_REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 # derived from the set's own recorded geometry. This is the BASE quantity; every
 # budget below is a multiple of it, so no route carries its own per-frame number.
 # Prints the value; exits nonzero with a reason if the geometry is not on record.
+# An optional third argument OVERRIDES the derived channel count. It exists for
+# the one resident form that is not the route's debayered frame: build_sky_flat.sh
+# keeps its working set as CFA (`calibrate` with no `-debayer`, because an OSC flat
+# must divide the mosaic before any interpolation), so its per-frame residency is
+# W x H x 1 x 4, a third of the undistort route's. Passing the channel count keeps
+# ONE derivation of W and H rather than giving the flat builder a private formula —
+# which is how it ended up carrying `98` (this sensor's 32-bit CFA frame, under a
+# comment claiming 49 MB and 16-bit) while this file existed to prevent exactly
+# that. 98 is right for a 6064x4040 body and wrong for every other one: it
+# understates a 61 MP frame 2.5x, which fails mid-run, and overstates a small mono
+# astrocam.
 undistort_frame_mib() {
-  python3 - "$_DISK_BUDGET_REPO" "$1" "$2" <<'PY'
+  python3 - "$_DISK_BUDGET_REPO" "$1" "$2" "${3:-}" <<'PY'
 import glob, json, os, sys
 
 repo, session, sset = sys.argv[1], os.path.abspath(sys.argv[2]), sys.argv[3]
@@ -115,6 +126,10 @@ else:
                  f"({e}) — channel count is part of the budget, so this STOPS.")
     why = f"FITS NAXIS3={channels}" + (" (mono)" if channels == 1 else "")
 
+override = sys.argv[4] if len(sys.argv) > 4 else ""
+if override:
+    channels, why = int(override), f"caller override, {override} channel(s)"
+
 BYTES_PER_SAMPLE = 4     # 32-bit float, enforced by check_bitdepth.sh
 print(int(w * h * channels * BYTES_PER_SAMPLE / 1048576))
 # the geometry this resolved to, for debugging a budget that looks wrong. OFF by
@@ -125,6 +140,10 @@ if os.environ.get("DISK_BUDGET_VERBOSE") == "1":
     print(f"disk_budget: {w}x{h}x{channels} f32 ({why})", file=sys.stderr)
 PY
 }
+
+# sky_flat_frame_mib <session-dir> <set> — ONE resident CFA frame for
+# build_sky_flat.sh, MiB. Same geometry derivation, one channel (no debayer).
+sky_flat_frame_mib() { undistort_frame_mib "$1" "$2" 1; }
 
 # undistort_singlepass_peak_mib <session-dir> <set> — the single-pass route's
 # high-water mark: TWO frames, because `seqapplyreg` writes the registered set
