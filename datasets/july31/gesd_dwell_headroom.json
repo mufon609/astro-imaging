@@ -1,0 +1,76 @@
+{
+ "record": "GESD outlier-fraction headroom vs transient dwell, per set",
+ "status": "PROVISIONAL \u2014 dwell figures RECOVERED from archived audits at 01dd19c^, NOT from a fresh run. The chain does not call anomaly_audit.py (README-vs-chain contradiction), so no current-cull audit exists for any july31 set. Re-derive before relying on the margins.",
+ "mechanism": {
+  "claim": "`rej g 0.3 0.05` caps GESD's outlier FRACTION at 0.30, so a transient dwelling n frames inside a group of G occupies n/G and is only eligible for rejection while n/G < 0.30",
+  "constraint": "G >= ceil(max_dwell / 0.30)",
+  "status": "MECHANISM from the tool's documented parameter, not measured"
+ },
+ "sets": {
+  "set-01": {
+   "objects": 1,
+   "dwell_frames": [
+    4
+   ],
+   "worst_dwell": 4,
+   "group_running": 100,
+   "fraction_of_group": 0.04,
+   "pct_of_030_cap": 13,
+   "min_viable_group": 14,
+   "clears": true
+  },
+  "set-02": {
+   "objects": 3,
+   "dwell_frames": [
+    1,
+    1,
+    2
+   ],
+   "worst_dwell": 2,
+   "group_running": 100,
+   "fraction_of_group": 0.02,
+   "pct_of_030_cap": 7,
+   "min_viable_group": 7,
+   "clears": true
+  },
+  "set-03": {
+   "objects": 10,
+   "dwell_frames": [
+    1,
+    1,
+    3,
+    4,
+    8,
+    9,
+    11,
+    17,
+    20,
+    27
+   ],
+   "worst_dwell": 27,
+   "group_running": 100,
+   "fraction_of_group": 0.27,
+   "pct_of_030_cap": 90,
+   "min_viable_group": 90,
+   "clears": true
+  },
+  "set-04": {
+   "objects": 4,
+   "dwell_frames": [
+    1,
+    4,
+    9,
+    27
+   ],
+   "worst_dwell": 27,
+   "group_running": 130,
+   "fraction_of_group": 0.2077,
+   "pct_of_030_cap": 69,
+   "min_viable_group": 90,
+   "clears": true
+  }
+ },
+ "verdict": "ALL FOUR CLEAR at the running group sizes \u2014 nothing stops. But set-03 sits at 90% of the cap (27/100 = 0.270 against 0.30) with a floor of 90 against a running 100. A 31-frame dweller would have exceeded the cap outright and GESD would have stopped treating it as an outlier at all.",
+ "the_defect": "run_undistort_groups.sh's derivation targets ~100/group to keep every group in the GESD BAND (>50) and 'any transient a clear minority'. The first half is enforced by arithmetic. The SECOND HALF IS ASSERTED, NOT COMPUTED \u2014 nothing reads a dwell length. So the parameter is right on this session by arithmetic accident, which is the third time a constant has been right by luck rather than derivation (after 98 MiB/frame and the empty groups_set-0{3,4} dirs).",
+ "fix": "read max(dwell) from the set's anomaly_audit.json when one exists, enforce GROUP >= ceil(max_dwell/0.30), and PRINT the binding constraint. With no audit, say so rather than assume a clear minority \u2014 which is the state of every july31 set today. Closes the dwell blindness and the README-vs-chain contradiction in one change."
+}
