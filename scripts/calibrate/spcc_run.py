@@ -192,9 +192,29 @@ def main():
               - len(re.findall(r"photometry failed", log))
               if n_phot else None)
     st = os.stat(p_in)
+    named = {k: spec[k] for k in SPEC_KEYS if k in spec} or None
+    # SENSOR MATCH STATUS rides with every product. SPCC's premise is convolving
+    # Gaia spectra with THIS sensor's response curve; with no spec resolved it
+    # applies siril's default instead, and the K factors are then a calibration
+    # against a generic response, not against this chip. That is a legitimate
+    # documented fallback (grounding it moved K <=1.5% on the one chip with a
+    # database curve) but it is NOT the industry step the README's stage table
+    # calls COMPLIANT, and the caveat used to live only in this script's
+    # docstring — so every downstream consumer of the K factors, including the
+    # render tier's colour record, inherited it silently. Stated per product now.
+    matched = bool(named and named.get("oscsensor"))
     rec = {"set": set_name, "catalog": catalog,
-           "sensor_spec": {k: spec[k] for k in SPEC_KEYS if k in spec} or None,
+           "sensor_spec": named,
            "sensor_spec_source": spec_prov or None,
+           "sensor_match": ("named: " + str(named.get("oscsensor")) if matched
+                            else "NO MATCHING SENSOR — siril's generic/default "
+                                 "response was applied"),
+           "sensor_match_note": (None if matched else
+               "The K factors below calibrate against a DEFAULT response curve, "
+               "not this sensor's. Resolve a name from `spcc_list oscsensor` into "
+               "recipe.json's `spcc` block when one exists for this chip; if none "
+               "exists, that is a documented database GAP, not a tuning choice — "
+               "contributing the curve to the siril-spcc-database is the fix."),
            "input": rel_in, "output": rel_out,
            "input_size": st.st_size, "input_mtime": int(st.st_mtime),
            "k_factors": ks or None, "b_offsets": bs or None,
@@ -216,6 +236,12 @@ def main():
           (f" ({rec['n_kept']}/{rec['n_photometry']} stars kept)"
            if rec["n_kept"] else "") +
           f" -> {os.path.relpath(p_json, repo)}")
+    # say it on the run, not just in the record: a caveat nobody sees is a
+    # caveat that gets inherited
+    if not matched:
+        print("[spcc_run] SENSOR: no matching sensor named — siril's generic "
+              "response was applied, so these K factors calibrate against a "
+              "DEFAULT curve, not this chip's. Documented gap, stated per run.")
 
 
 if __name__ == "__main__":
