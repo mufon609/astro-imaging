@@ -1,0 +1,23 @@
+{
+ "record": "which lens model built each july31 product \u2014 reconstructed, and why that was necessary",
+ "the_gap": "NO lens_preflight.json exists for ANY july31 set. Both call sites (run_set_chain.sh:432, run_undistort_pipeline.sh:134) invoke the guard WITHOUT --json, so it verifies the optics and records NOTHING. The pipeline cannot answer 'which model built this product?' \u2014 it has to be reconstructed from file mtimes, which is exactly the archaeology tracked records exist to prevent.",
+ "reconstruction": {
+  "pinned_incumbent_restored_to_live_DB": "2026-08-05 12:48:59",
+  "products": {
+   "stack_set-01.fit (single-pass)": "13:31:10",
+   "stack_set-02.fit (single-pass)": "14:50:35",
+   "stack_set-01_full.fit (groups)": "16:09:38",
+   "stack_set-02_full.fit (groups)": "17:21:39"
+  },
+  "verdict": "EVERY product on disk was built AFTER the restore, so every one was warped with the PINNED incumbent a=0.00350093 b=0.01453356 c=0.00043983. The blind-assertion window closed at 12:48:59 and the first warped product appeared 42 minutes later. Nothing on disk carries the candidate model.",
+  "corrects": "the parallel session's reading that set-01's single-pass control was warped during the blind window \u2014 it was not; the window had already closed. Their conclusion (do not restart) is right, and this makes it stronger, not weaker.",
+  "caveat": "this is RECONSTRUCTION from mtimes plus the marker, not a record the pipeline wrote. It is exactly as good as my bookkeeping, which is the defect above."
+ },
+ "eliminated_hypothesis": {
+  "hypothesis": "set-01's unexplained seqtilt off-axis move (0.42 -> 0.18) was an optics artefact rather than a route effect",
+  "eliminated_by": "the incumbent-vs-x86-refit A/B \u2014 two genuinely DIFFERENT optical models on the same frames \u2014 measured seqtilt off-axis 0.21 vs 0.20 px and all stations within 0.02 px. A model swap cannot produce a 0.24 px move in this term.",
+  "status": "ELIMINATED. Recorded so it is not re-suspected later. set-01's anomaly stays genuinely unexplained rather than quietly attributed to optics."
+ },
+ "fix_queued": "pass --json at both call sites so every set records the model it was cleared against, including the coefficients the assertion compared. Belongs with the resume-hazard and dwell-floor changes \u2014 all three are provenance of what was actually done, not of what the code intends.",
+ "restart_verdict": "NO. Nothing on disk needs rebuilding. Every product used the pinned model; the changes made since only affect gate ordering, disk budgets, records, docs and the render tier, none of which touches the pixels of anything already built. Confidence that fixes are in force comes from running the guards, not from a rebuild \u2014 BACKLOG:`guards-and-ci` is the item, and it is cheap next to four hours."
+}
