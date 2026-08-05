@@ -1,0 +1,67 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 260,
+ "registered": 260,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 18.0318,
+ "pixel_scale_source": "astrometry.net solve (mount_probe), green-plane scale halved to the full-res debayered grid",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.576,
+   "min": 2.546,
+   "max": 2.602
+  },
+  "roundness": {
+   "median": 0.7965,
+   "min": 0.7868,
+   "max": 0.8114
+  },
+  "nstars": {
+   "median": 1256,
+   "min": 995,
+   "max": 1341
+  },
+  "bg16": {
+   "median": 1117,
+   "min": 1114,
+   "max": 1130
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.575,
+   "round": 0.7961,
+   "stars": 1308,
+   "bg16": 1115
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.579,
+   "round": 0.7954,
+   "stars": 1288,
+   "bg16": 1116
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.575,
+   "round": 0.7974,
+   "stars": 1102,
+   "bg16": 1125
+  },
+  {
+   "block": 4,
+   "frames": 32,
+   "fwhm": 2.567,
+   "round": 0.7964,
+   "stars": 1028,
+   "bg16": 1129
+  }
+ ],
+ "flagged_defect_side_z": [],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}
