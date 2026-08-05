@@ -1,0 +1,20 @@
+{
+ "question": "Is darktable's undistort warp LOAD-DEPENDENT? If it were, the reproducibility contract would be broken for the whole undistort route and every stack built while other work ran would be suspect.",
+ "why_asked": "verify_lens_card.py's grid control read Siril sigma 14666 while 500 concurrent warps were running, and 45398.0 on three idle runs. Load was the only recorded difference, so the warp itself had to be cleared.",
+ "tool": "darktable-cli (the EXACT production invocation from run_undistort_pipeline.sh, incl. the exiftool tag-copy + ICC strip) on one real calibrated frame captured live from the chain's own work tree; difference measured by Siril isub + stat",
+ "input": "pp_c_00012.tif (calibrated, debayered, 32-bit float, 6064x4040)",
+ "invocation": "--style lensdist --style-overwrite --icc-type LIN_REC709 --core --configdir <private> --library :memory: --conf .../tiff/bpp=32 --conf .../tiff/compress=0",
+ "arms": {
+  "A": "production load (chain warping set-02), 1-min loadavg 25.06, 5 s wall",
+  "B": "production load + 28 busy loops, 1-min loadavg 28.22, 4 s wall",
+  "C": "production load, repeat of A (same-arm bracket), loadavg 26.12, 2 s wall"
+ },
+ "result": {
+  "A_vs_B": "Siril stat: all nil on R, G and B",
+  "A_vs_C": "Siril stat: all nil on R, G and B",
+  "reading": "Siril REFUSES to compute statistics over an all-zero difference and says so ('Statistics computation failed ... all nil?'). That refusal IS the zero result, the same convention lens_preflight.prove_correction and verify_lens_card.difference already read."
+ },
+ "verdict": "MEASURED: the production warp is BIT-IDENTICAL across a 3x load range and across a same-arm repeat. The undistort route's geometric stage is deterministic and july31/set-01's stack is NOT suspect.",
+ "scope_limit": "This clears the PRODUCTION leg (32-bit float, LIN_REC709, real calibrated frame). It does NOT explain the 14666 grid-control reading, which came from a DIFFERENT leg: verify_lens_card.py renders a synthetic 16-bit card with --icc-type SRGB. The anomaly is confined to that fixture's own path; it does not reach the deliverable. Still open, and the test that would settle it is the same load bracket on the card leg.",
+ "byte_compare_note": "cmp reports all three arms as DIFFERING files. That is the TIFF-metadata trap docs/dead-ends.md already records - never gate this route on a file hash. PIL cannot decode darktable's 32-bit float TIFF at all (UnidentifiedImageError) and tifffile is not installed, so Siril isub is the only available reader as well as the sanctioned one."
+}
