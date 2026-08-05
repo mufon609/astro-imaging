@@ -154,15 +154,34 @@ the constraints any such tool must satisfy):
   reads flat on the FINAL stack precisely BECAUSE the flat absorbed the gradient
   and divided it out — so a good flatness number is not evidence the calibration
   is clean. Judge it on the FLAT's odd component, not the stack's corners.
-  **SCOPE CORRECTION 2026-08-04 — the odd-plane percentages above are a MIXTURE,
-  not a sky measurement.** They come from a WHOLE-FRAME plane fit, which cannot
-  separate the sky term from a repeatable instrumental one. Measured since: the
-  flat's edge dipole is **-0.44 (july14) and -0.55 (july31)** — same sign and
-  similar magnitude across 17 days and a 0.9%-vs-93.7% moon, so most of what a
-  whole-frame fit reports as "odd plane" is not sky. The MECHANISM above (a
+  **SCOPE CORRECTION — the odd-plane percentages above are a MIXTURE, not a sky
+  measurement.** They come from a WHOLE-FRAME plane fit, which cannot separate
+  the sky term from a repeatable instrumental one. The MECHANISM above (a
   horizon-fixed gradient cannot drift out, and a flat that absorbs it tilts the
   object) stands and is independently proven by the 3916-star differential
   photometry at 241 sigma. Only the magnitudes are overstated as sky.
+  **EVIDENCE REPLACED — the cross-session pair this scope correction originally
+  cited (-0.44 july14, -0.55 july31, read as "same sign across 17 days, so most
+  of the odd plane is instrumental") was measured on `--desky` FLATS, i.e. on the
+  operator the next entry records as a 31x regression whose defining signature is
+  a SIGN INVERSION of exactly this term.** Two negatives agreeing is what the
+  regression produces, so that pair could not support the conclusion drawn from
+  it. Re-measured on a flat built by the shipped (non-de-skied) builder —
+  july31/set-01, 507 frames, Siril `stat` corner medians, `edge_dipole_x` =
+  `((TR+BR)-(TL+BL))/2` over the four-corner mean (`baseline_guard.py`):
+  **+0.4312 at box 42 / margin 2 and +0.4360 at box 80 / margin 2** (the two
+  geometries agree to 1.1%, so the registry's 42 px figures and
+  `baseline_guard`'s 80 px convention ARE comparable — a box-size difference is
+  not a reason to withhold a comparison, a box-vs-EDGE difference is). That is
+  the SAME SIGN as the raw dark-subtracted light (+0.426) and as the pre-`--desky`
+  flat (+0.365), and it is 3.6x the same flat's top-bottom dipole (+0.1211).
+  **That ratio is the load-bearing number, and it needs no threshold**: vignetting
+  is an EVEN RADIAL function and contributes equally to x and y, so an excess in x
+  is non-radial BY CONSTRUCTION and cannot be vignetting. july14's -0.44 is NOT
+  re-measured (that session is staged raws-only and its records are wiped) and
+  should be treated as `--desky`-era until it is. `build_sky_flat.sh` now measures
+  both dipoles at the edge geometry and records them in the flat's own qa record —
+  reported, never gated, because the `sky x V` defect is open and unfixed.
   **What must NOT be inferred from this entry: that removing the sky from the
   flat's SOURCE FRAMES is the fix.** That was tried (`--desky`, 2026-07-29) and
   was a 31x regression — see the next entry. No corrective is currently shipped;
@@ -649,6 +668,44 @@ the constraints any such tool must satisfy):
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
   (a bright object has no fixed band). Hand-picked patches miss defects a
   whole-scope measurement catches (the lesson that created the gate).
+- **THE REPO'S MOST PERSISTENT DEFECT: A CHECK THAT CANNOT FAIL — AND THE THING
+  MEANT TO PROVE IT COULD FAIL IS USUALLY DEFECTIVE TOO. VERIFY BY EXECUTING:
+  break the mechanism, watch the assertion go RED, restore.** Reasoning about a
+  fixture's construction is not verification; it has now failed three times in a
+  row, each time for a different reason, each time looking green:
+  1. `grep -oE 'Found [0-9]+ star' … || echo 0` — the regex never matched Siril
+     1.4.4's actual wording, so the fallback supplied 0 unconditionally. Two flat
+     records and a ledger entry carried a count that was never measured.
+  2. The uniform lens card — warping a uniform field yields a uniform field, so
+     corner==centre passes whether vignetting was stripped OR the module never
+     fired. Needed a GRID positive control that MUST differ.
+  3. `lens_preflight.check_pinned_model`'s mutation test, TWICE. The first
+     mutation rewrote the coefficient string with `str.replace` and no count, so
+     it moved the live element AND the marker's decoy together — and a mutation
+     that changes every copy of a thing cannot distinguish "reads the right copy"
+     from "reads any copy". The replacement fixed that and was still vacuous: its
+     decoy was written `focal=70` where the scanner requires `focal="70"`, so the
+     fixture contained no decoy at all and passed with masking disabled.
+  The common shape is not "bad metric". It is that **the falsification step was
+  argued rather than run**. The executable form, now shipped in
+  `lens_preflight.py --selftest`: neutralise the mechanism in-process (which is
+  why `live()` is module-level and not a closure), assert the incident
+  REPRODUCES, restore, assert it is caught again. A test that cannot be made to
+  fail on demand is decoration. Corollary for a fixture with a decoy: assert the
+  decoy MATCHES the scanner's own pattern before trusting any result built on it
+  (measured: 2 pattern matches in the raw block, 1 after masking).
+- **A RUNNING BASH SCRIPT IS A LIVE FILE, NOT A SNAPSHOT — never edit one that
+  has an invocation in flight.** bash reads a script lazily and remembers a BYTE
+  OFFSET, so inserting lines ABOVE the current execution point makes it resume
+  mid-token and execute garbage. Hit 2026-08-05: `run_set_chain.sh` was edited
+  (~60 lines inserted) while a session chain was running set-02 through it.
+  Recovery that worked, and the shape to reuse: kill the shells whose offsets are
+  invalidated, LEAVE any child builder running (a separate process with its own
+  unmodified file), and re-enter the chain from a clean read once it lands —
+  built products skip, so the cost is zero. What saved the run was luck rather
+  than design: `run_undistort_pipeline.sh` happened to be untouched and
+  `disk_budget.sh` had already been sourced by the live process. Check
+  `pgrep -f <script>` before editing anything the chain drives.
 - **A LOG-MESSAGE REGEX IS NOT A MEASUREMENT INTERFACE — parse the tool's
   structured output, and prove the tool RAN.** A validation gate read
   `grep -oE 'Found [0-9]+ star' … || echo 0` off Siril's `findstar` log; Siril
@@ -672,6 +729,26 @@ the constraints any such tool must satisfy):
   proving the measurement happened. Unrelated landmine found in the same probe:
   **`setfindstar -reset` returns exit 1** on success in 1.4.4, so an `.ssf`
   ending in it fails a `set -e` caller for no reason.
+- **A NUMBER READ OFF A LOADED BOX IS NOT A MEASUREMENT — record the load with
+  the reading, for EVERY tool, not just the slow neural ones.** MEASURED
+  2026-08-05: `verify_lens_card.py`'s grid positive control read Siril sigma
+  **14666** while 500 concurrent darktable warps were running, and **45398.0** on
+  three independent idle runs — a 3x error on identical inputs, identical optics
+  and an identical pinned model. The reading was reported as a measurement before
+  the load was noticed. This generalizes a lesson that already existed but was
+  FILED WHERE ONLY ONE TOOL'S READER WOULD SEE IT (inside the Cosmic Clarity CLI
+  entry, where an unrelated job at load 300 cost ~30 min and a registry entry that
+  had to be retracted): it is not a Cosmic Clarity fact, it is an instrument fact.
+  Check `uptime` before quoting any number, and put the load in the record.
+  **SCOPE, because the obvious inference is wrong:** this does NOT mean the
+  pipeline's own output moves with load. The production undistort warp was
+  bracketed deliberately — the exact `run_undistort_pipeline.sh` invocation on one
+  real calibrated frame, three arms at 1-min loadavg 25.06 / 28.22 / 26.12,
+  compared with Siril `isub`+`stat` — and every pair is **all nil, bit-identical**
+  (`datasets/july31/set-01/qa_work/warp_load_determinism.json`). The deliverable is
+  deterministic; it is the FIXTURE reading that moved. Distinguish the two before
+  concluding a route is unreproducible, and note that the anomaly's own leg (a
+  synthetic 16-bit card at `--icc-type SRGB`) is still unexplained.
 - **A stack-level A/B on this chain cannot resolve anything below its run-to-run
   floor — and the chain is NOT pixel-reproducible.** MEASURED (identical frames,
   identical recipe, two runs of the undistort chain, identical output geometry):
