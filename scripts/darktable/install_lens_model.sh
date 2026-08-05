@@ -2,15 +2,28 @@
 # Install a MEASURED distortion model into the live lensfun user DB (the one
 # darktable reads), for the lens and focal a given SET was actually shot with.
 #
-#   install_lens_model.sh <session-dir> <set> [a b c]
-#   install_lens_model.sh --lens "<lensfun model>" --focal <mm> [a b c]
+#   install_lens_model.sh <session-dir> <set>            install the PINNED model
+#   install_lens_model.sh --lens "<model>" --focal <mm>   same, named explicitly
+#   install_lens_model.sh <session-dir> <set> --from-fit  install that set's FRESH fit
+#   install_lens_model.sh --lens M --focal F a b c        explicit coefficients
 #
-# The lens, the focal and the fitted coefficients all come from the set's own
-# tracked records — `acquisition.json` (`exif.lens`, `exif.focal_length_mm`,
-# written by exiftool for raws / the FITS header for astrocam frames) and
-# `qa_work/lens_fit.json` (written by fit_lens_model.sh). Nothing about a
-# particular body or lens is hardcoded here; the second form exists for a lens
-# whose fit was produced outside a session dir.
+# THE AUTHORITY IS `scripts/darktable/lens_models.json`, not a dataset. A fitted
+# model is a property of the LENS AND FOCAL, and it is a measured CONSTANT: you
+# reproduce it by installing the stored coefficients, not by re-fitting (measured
+# 2026-07-23 — the same procedure on the same frames under a different Hugin
+# build returns coefficients 3.9%/30.6% apart, so a re-fit is a NEW model, never
+# a reproduction of an old one).
+#
+# The lens and focal are read from the set's own `acquisition.json`
+# (`exif.lens`, `exif.focal_length_mm` — exiftool for raws, FITS headers for
+# astrocam frames), then the model is looked up in the pinned file. Nothing about
+# a particular body is hardcoded here.
+#
+# `--from-fit` installs a set's `qa_work/lens_fit.json` instead, and says loudly
+# that it is NOT the pinned model. That distinction matters: reading the fit
+# record by default meant `install_lens_model.sh <session> <set>` silently
+# installed whichever fit had last run for that set, so the same command could
+# mean two different optical models on two different days.
 #
 # Why a fitted entry replaces the community one: on this rig's 24-70/4 S the
 # community ptlens profile agreed at the field corner (0.06 px at r=2664) but
@@ -53,28 +66,35 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 DBDIR="$HOME/.local/share/lensfun/updates/version_1"
 
-LENS= FOCAL= SESSION= SET= ABC=()
+LENS= FOCAL= SESSION= SET= FROMFIT=0 ABC=()
 if [ "${1:-}" = "--lens" ] || [ "${1:-}" = "--focal" ]; then
   while [ $# -gt 0 ]; do case "$1" in
     --lens) LENS=$2; shift 2;;
     --focal) FOCAL=$2; shift 2;;
+    --from-fit) FROMFIT=1; shift;;
     *) ABC+=("$1"); shift;;
   esac; done
 else
-  SESSION=${1:?usage: install_lens_model.sh <session-dir> <set> [a b c]  |  --lens M --focal F [a b c]}
+  SESSION=${1:?usage: install_lens_model.sh <session-dir> <set> [--from-fit]  |  --lens M --focal F [a b c]}
   SET=${2:?missing <set>}
-  shift 2; ABC=("$@")
+  shift 2
+  while [ $# -gt 0 ]; do case "$1" in
+    --from-fit) FROMFIT=1; shift;;
+    *) ABC+=("$1"); shift;;
+  esac; done
 fi
 [ ${#ABC[@]} -eq 0 ] || [ ${#ABC[@]} -eq 3 ] || {
   echo "install_lens_model: pass all three of a b c, or none (then the fit record supplies them)" >&2; exit 1; }
 [ -d "$DBDIR" ] || { echo "install_lens_model: $DBDIR missing — run lensfun-update-data first" >&2; exit 1; }
 
-python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "${ABC[@]}" <<'PY'
+python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "${ABC[@]}" <<'PY'
 import glob, json, os, re, sys
 from datetime import date
 
-repo, dbdir, session, sset, lens, focal = sys.argv[1:7]
-abc = sys.argv[7:]
+repo, dbdir, session, sset, lens, focal, fromfit = sys.argv[1:8]
+abc = sys.argv[8:]
+fromfit = fromfit == "1"
+PINNED = os.path.join(repo, "scripts", "darktable", "lens_models.json")
 
 # ---- identity + coefficients from the SET'S OWN RECORDS ------------------
 if session:
@@ -93,29 +113,54 @@ if session:
         sys.exit(f"install_lens_model: {acq_p} records no exif.lens. A telescope/"
                  "astrocam set has no lens EXIF by construction and does not take "
                  "the lens-correction route at all.")
-    if not abc:
+    if fromfit and not abc:
         fit_p = os.path.join(d, "qa_work", "lens_fit.json")
         try:
             fit = json.load(open(fit_p))["fitted_ptlens"]
         except (OSError, ValueError, KeyError) as e:
             sys.exit(f"install_lens_model: no fitted model at {fit_p} ({e}) — run "
-                     "scripts/darktable/fit_lens_model.sh for this set first, or "
-                     "pass a b c explicitly.")
+                     "scripts/darktable/fit_lens_model.sh for this set first.")
         abc = [repr(float(fit[k])) for k in ("a", "b", "c")]
+        source = f"FRESH FIT from {fit_p} — NOT the pinned model"
 if not lens or focal in ("", None):
     sys.exit("install_lens_model: need a lens and a focal (from the set's record, "
              "or --lens/--focal).")
-if not abc:
-    sys.exit("install_lens_model: no coefficients — pass a b c, or use the "
-             "<session> <set> form so lens_fit.json supplies them.")
-f = float(focal)
-focal_s = str(int(f)) if f == int(f) else str(f)     # lensfun writes focal="70"
-a, b, c = abc
 
-# ---- find the lens block, by CONTENT not by file name ---------------------
+# ---- the PINNED model is the authority when nothing else was named --------
 def norm(s):
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
+f0 = float(focal)
+focal_key = str(int(f0)) if f0 == int(f0) else str(f0)
+key = f"{lens}@{focal_key}"
+if not abc:
+    try:
+        pinned = json.load(open(PINNED))
+    except (OSError, ValueError) as e:
+        sys.exit(f"install_lens_model: cannot read {PINNED} ({e}) — it is the "
+                 "authority for what ships, so this STOPS.")
+    # match the pinned key the SAME way the DB block is matched: the EXIF string
+    # ("NIKKOR Z 24-70mm f/4 S") and lensfun's spelling ("Nikkor Z 24-70mm f/4 S")
+    # differ in case, and a model must not be missed over capitalisation.
+    entry = next((v for k, v in pinned.items()
+                  if not k.startswith("_") and norm(k) == norm(key)), None)
+    if entry is None:
+        have = [k for k in pinned if not k.startswith("_")]
+        sys.exit(f"install_lens_model: no PINNED model for {key!r}.\n"
+                 f"  pinned: {have or '(none)'}\n"
+                 "  Fit one (scripts/darktable/fit_lens_model.sh <session> <set> ...),\n"
+                 "  then add it to scripts/darktable/lens_models.json with its\n"
+                 "  provenance. A fresh fit is a CANDIDATE until it is pinned —\n"
+                 "  --from-fit installs one without pinning, for an A/B only.")
+    pt = entry["ptlens"]
+    abc = [repr(float(pt[k])) for k in ("a", "b", "c")]
+    source = f"PINNED {key} ({entry.get('status', 'no status recorded')[:60]})"
+elif "source" not in dir():
+    source = "explicit coefficients on the command line"
+focal_s = str(int(f0)) if f0 == int(f0) else str(f0)   # lensfun writes focal="70"
+a, b, c = abc
+
+# ---- find the lens block, by CONTENT not by file name ---------------------
 target = norm(lens)
 hits = []
 for path in sorted(glob.glob(os.path.join(dbdir, "*.xml"))):
@@ -179,6 +224,7 @@ new_block = new_block.replace("<calibration>", marker + "\n        <calibration>
 
 open(path, "w", encoding="utf-8").write(xml.replace(block, new_block))
 print(f"install_lens_model: {db_model} @ {focal_s}mm — {what}")
+print(f"  source: {source}")
 print(f"  a={a} b={b} c={c}")
 print(f"  stripped {n_strip} vignetting/tca entries — distortion-only holds")
 print(f"  {path}")

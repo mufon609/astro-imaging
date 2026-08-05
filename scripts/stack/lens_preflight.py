@@ -229,6 +229,80 @@ def prove_correction(frame, work):
                "inconclusive and the set is not cleared:\n" + r.stdout[-600:])
 
 
+
+PINNED_MODELS = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "scripts", "darktable", "lens_models.json")
+
+
+def check_pinned_model(optics):
+    """Assert the live lensfun DB still carries the PINNED coefficients for these
+    optics.
+
+    `prove_correction` answers "did darktable warp this frame at all", which
+    catches a MISSING profile. It cannot catch the case that actually bit this
+    repo: a profile that is present but is not the model the products were built
+    with. `lensfun-update-data` OVERWRITES the user DB on every run, silently
+    reverting the fitted entry to the community one — a wrong-but-present model
+    that warps, so the existing proof passes and the set stacks with different
+    optics than every product it will be compared against.
+
+    Reads our own pinned record and the DB text; asks lensfun nothing (Debian
+    ships no query CLI, which is why the warp proof exists at all).
+    """
+    o = optics[0]
+    lens, focal = o.get("lens"), o.get("focal_mm")
+    # exiftool reports FocalLength as text ("70.0 mm"), not a number — take the
+    # leading value rather than assuming a float, the same way the fixture
+    # builder in verify_lens_card.py does.
+    fm = re.match(r"\s*([0-9.]+)", str(focal)) if focal is not None else None
+    if not lens or not fm:
+        return {"state": "na", "why": f"no usable lens/focal ({lens!r}, {focal!r})"}
+    focal = fm.group(1)
+    try:
+        pinned = json.load(open(PINNED_MODELS))
+    except (OSError, ValueError) as e:
+        return {"state": "na", "why": f"no pinned model file ({e})"}
+
+    def norm(x):
+        return re.sub(r"[^a-z0-9]", "", str(x).lower())
+
+    f = float(focal)
+    key = f"{lens}@{str(int(f)) if f == int(f) else f}"
+    entry = next((v for k, v in pinned.items()
+                  if not k.startswith("_") and norm(k) == norm(key)), None)
+    if entry is None:
+        return {"state": "unpinned", "key": key,
+                "why": "no pinned model for these optics — the warp will use "
+                       "whatever the DB happens to carry, which is not tracked"}
+    pt = entry["ptlens"]
+    dbdir = os.path.expanduser("~/.local/share/lensfun/updates/version_1")
+    want = {k: float(pt[k]) for k in ("a", "b", "c")}
+    for path in sorted(glob.glob(os.path.join(dbdir, "*.xml"))):
+        try:
+            xml = open(path, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for blk in re.findall(r"<lens>(?:(?!</lens>).)*?</lens>", xml, re.S):
+            mm = re.search(r"<model>(.*?)</model>", blk, re.S)
+            if not mm or norm(mm.group(1)) != norm(lens):
+                continue
+            fs = str(int(f)) if f == int(f) else str(f)
+            dm = re.search(rf'<distortion[^>]*focal="{re.escape(fs)}"[^>]*/>', blk)
+            if not dm:
+                return {"state": "MISMATCH", "key": key, "pinned": want,
+                        "why": f"the DB block for {mm.group(1)!r} has no "
+                               f"focal={fs} distortion line at all"}
+            got = {k: float(v) for k, v in
+                   re.findall(r'\b([abc])="([-0-9.eE+]+)"', dm.group(0))}
+            if all(abs(got.get(k, 1e9) - want[k]) <= 1e-9 for k in want):
+                return {"state": "ok", "key": key, "coefficients": got}
+            return {"state": "MISMATCH", "key": key, "pinned": want,
+                    "installed": got, "db": os.path.basename(path)}
+    return {"state": "MISMATCH", "key": key, "pinned": want,
+            "why": f"no <lens> block matching {lens!r} in {dbdir}"}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("session")
@@ -268,6 +342,25 @@ def main():
             finally:
                 shutil.rmtree(work, ignore_errors=True)
             result["profile_proof"] = proof
+            pin = check_pinned_model(optics)
+            result["pinned_model"] = pin
+            if pin["state"] == "MISMATCH":
+                raise Stop(
+                    "lens_preflight: the installed lens model is NOT the pinned "
+                    f"one for {pin['key']}.\n"
+                    f"    pinned    {pin.get('pinned')}\n"
+                    f"    installed {pin.get('installed', pin.get('why'))}\n"
+                    "    darktable WILL warp — with different optics than every "
+                    "product this set would be compared against, and the "
+                    "warp-happened proof cannot see that. `lensfun-update-data` "
+                    "overwrites the user DB on every run, which is the usual "
+                    "cause.\n"
+                    "    Fix: scripts/darktable/install_lens_model.sh "
+                    f"{a.session} {a.set}")
+            if pin["state"] == "ok":
+                print(f"  pinned model OK: {pin['key']} matches the live DB")
+            elif pin["state"] == "unpinned":
+                print(f"  WARN: {pin['why']}")
             if not proof["corrected"]:
                 evidence = proof.get("siril_verdict") or (
                     f"max {proof['siril_stat_max']}, sigma "

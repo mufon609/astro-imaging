@@ -1,0 +1,37 @@
+{
+ "_readme": "PINNED lens distortion models — the AUTHORITY for what the undistort stage warps with. install_lens_model.sh installs from here; lens_preflight.py --require-profile asserts the live lensfun DB still matches. Keyed '<lensfun model>@<focal mm>' because a model is a property of the LENS AND FOCAL, not of a dataset.",
+ "_why_this_file_exists": "A fitted model is a MEASURED CONSTANT, not a step to re-run. Re-fitting is how you MAKE one; it is not how you reproduce one — measured 2026-07-23 (887eb00), the identical procedure on the identical frames under a different Hugin build returned coefficients 3.9% apart in a and 30.6% apart in c. So the coefficients themselves are the durable artifact and must be tracked. Before this file the shipped model lived ONLY as a hardcoded literal in install_lens_model.sh and as bytes in a machine-local lensfun DB that `lensfun-update-data` overwrites — nothing a clone could reconstruct, so no contributor could rebuild the optics every product in web/results was warped with.",
+ "_how_to_add_one": "Fit it (scripts/darktable/fit_lens_model.sh <session> <set> ...), read qa_work/lens_fit.json, then add an entry here with its provenance and install it. A fresh fit is a CANDIDATE; it becomes the shipped model only by being pinned here, and swapping a shipped model is a declared delta judged on star_stations + seqtilt (never on the fit's own residual).",
+
+ "Nikkor Z 24-70mm f/4 S@70": {
+  "lensfun_model": "Nikkor Z 24-70mm f/4 S",
+  "focal_mm": 70,
+  "ptlens": {
+   "a": 0.00350093,
+   "b": 0.01453356,
+   "c": 0.00043983
+  },
+  "status": "SHIPPED — every product currently under web/results/ was warped with this model, including the git-tagged july14-all5-cov25frame-approved render",
+  "fitted": {
+   "when": "2026-07-17",
+   "commit": "0c967a9",
+   "from": "july14/set-01's own frames, between-frame star correspondences",
+   "method": "Siril calibrate/stretch -> Hugin cpfind/cpclean/staged autooptimiser, hfov pinned at the solved value",
+   "rig": "the RETIRED arm64 box — hugin version NOT RECORDED, which is the gap that made this unregenerable",
+   "record": "none — the fit wrote no lens_fit.json; this entry is reconstructed from the coefficients that were hardcoded in install_lens_model.sh at 0c967a9 and installed in the live DB"
+  },
+  "regenerable": false,
+  "why_not_regenerable": "Re-running the documented fit on the same frames with this rig's hugin-tools 2025.0.1 returns a=0.0033627 b=0.0149465 c=0.0005744 (887eb00) — a=-3.9%, c=+30.6%. The fit is toolchain-sensitive and the toolchain that produced these numbers is gone. It does not need to be regenerable: it is pinned here as data and installed from here, which is how a measured constant is reproduced.",
+  "accepted_by": "full-depth A/B vs the lensfun community profile: centre station 5.30 -> 3.67 px, all-station spread 1.70 -> 0.52 px, seqtilt truncated-mean FWHM 3.27 -> 3.06 px (0c967a9, 4b77ce1)",
+  "alternatives": {
+   "x86_refit_2026-07-23": {
+    "ptlens": {"a": 0.0033627, "b": 0.0149465, "c": 0.0005744},
+    "record": "datasets/july14/set-01/qa_work/lens_fit.json",
+    "rig": "x86-64 Kali, hugin-tools 2025.0.1",
+    "status": "CANDIDATE, not shipped, UNTESTED against the incumbent at product level",
+    "differs_from_shipped": "0.468 px max / 0.344 px area-weighted RMS displacement, 0.2 px at r=0.9 where the correction is ~12 px",
+    "note": "regenerable on this rig, and its own fit record is complete — but no measured benefit has ever been claimed for it (887eb00 called it a lateral sub-pixel move). Promoting it means editing this file, re-installing, and judging the A/B on star_stations + seqtilt, then re-baselining every product it alters."
+   }
+  }
+ }
+}
