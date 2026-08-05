@@ -10,7 +10,7 @@
    "b": 0.01453356,
    "c": 0.00043983
   },
-  "status": "SHIPPED \u2014 every product currently under web/results/ was warped with this model, including the git-tagged july14-all5-cov25frame-approved render",
+  "status": "SHIPPED \u2014 the model every july14/july23/july31 product built to date was warped with. (An earlier draft of this field called that render 'git-tagged july14-all5-cov25frame-approved'. It is not: `git tag --list` is EMPTY \u2014 the repo has never created an approval tag, though README, datasets/README and serve.py all treat one as the approval record.)",
   "fitted": {
    "when": "2026-07-17",
    "commit": "0c967a9",

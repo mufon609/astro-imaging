@@ -229,6 +229,40 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
+## `derive-mount-from-data` — stop asking what the data already answers
+
+`mount` (fixed | tracked) is declared by a human and the chain STOPS (exit 4) when
+it is absent, on the grounds that EXIF cannot record it. True — but the DATA can:
+`fingerprint.py` already measures the mount two ways (trail-vs-roundness, and a
+two-window drift solve giving px/min against the sidereal rate) and reports
+CONFIRM / CONTRADICT / INDETERMINATE against the declaration. On july31 it measured
+17.2 px/min against a sidereal expectation of 17.2 — that is not an ambiguous
+answer needing a human.
+
+So the gate asks a human a question the instrument has already answered, on every
+new session. It should only stop when the measurement is INDETERMINATE (near the
+trail/roundness boundary, or a solve that fails), which is the case the two-window
+probe exists for.
+
+**Closes when** a set whose drift measures decisively routes without a human
+declaration, the declaration survives as an OVERRIDE that still raises CONTRADICT,
+and an INDETERMINATE measurement still stops. Do not remove the human field — the
+failure mode to avoid is a confident auto-declaration on data that cannot support
+it, which is the same class as every other "measured it, so it must be right"
+error in `docs/dead-ends.md`.
+
+## `approval-tag-never-used` — the approval mechanism is fiction
+
+`README.md`, `datasets/README.md`, `web/README.md` and `serve.py` all treat a
+`<session>-all<N>-<tag>-approved` git tag as THE record that a render was judged
+and re-baselined. `git tag --list` is EMPTY and always has been — no approval tag
+has ever been created, so `serve.py`'s tag query returns nothing for every session
+and the "two things called approved" distinction in `web/README.md` has only ever
+had one half in existence. Either the tag becomes a real step at the point a
+render is accepted (and something creates it), or the docs stop describing it as
+the record. **Closes when** an approved render either carries a tag or the
+mechanism is retired from all four sites.
+
 ## `guards-and-ci` — nothing runs the guards
 
 `check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the

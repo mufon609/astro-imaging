@@ -17,11 +17,16 @@ records, no stacks, no judge surfaces, and no `datasets/july31/` at all. Every
 prior artifact for this session was deliberately removed so the pipeline has to
 derive everything itself.
 
-`july14` and `july23` still have their records. Read them for METHOD if useful,
-but do not copy their july31-specific conclusions — this session must be measured,
-not inherited. There is an archive of july31's previous run outside the repo; you
-are not to look for it or use it. If you find yourself reaching for a remembered
-number instead of measuring one, stop and measure.
+**Every other session has been reset the same way.** `july14` and `july23` are also
+raw-frames-only — no records, no masters, no stacks, no judge surfaces. There is
+nothing in this repo to inherit a per-dataset answer from, by design. The only
+per-dataset records left are `colonnello-m20`'s, which are a MONO / TRACKED /
+per-filter set with no frames staged — useful to read as a contrast class, useless
+as a source of answers for this one.
+
+Archives of all three sessions exist outside the repo. You are not to look for
+them or use them. If you catch yourself reaching for a remembered number instead
+of measuring one, stop and measure.
 
 ## What to do
 
@@ -30,11 +35,22 @@ user decides → execute → record.** You are the gate-respecting operator, not
 autopilot: anything output-shaping stops for a human decision, and the docs tell
 you which stops exist.
 
-Two stops are EXPECTED and are the contract working correctly, not failures:
+**The mount for july31 is `fixed` — an untracked tripod.** That is the operator's
+declaration; take it as given and do not stop to ask. The chain will still want it
+written into `acquisition.json`, so declare it and carry on.
 
-- **exit 4 — mount undeclared.** `mount` is the one acquisition fact EXIF cannot
-  record. The chain will measure the signature, pre-fill a verdict and stop for a
-  human to accept it. Report what it measured and what you would declare, and why.
+Do NOT take it on faith, though: the fingerprint measures the mount independently
+from trail-vs-roundness and a two-window drift solve. If the measurement
+CONTRADICTS `fixed`, that is a real finding — stop and report it rather than
+overriding the instrument with this instruction.
+
+That gate is a known wart, and it is on the list to automate: the pipeline should
+only ask a human when the answer is genuinely absent from the data, and here it
+is not — the drift rate against sidereal settles it. Note in your report what it
+would take to derive `mount` automatically and where that logic belongs.
+
+One stop IS expected and is the contract working correctly, not a failure:
+
 - **exit 7 — render tier proposal.** With no ratified `render` block the tier
   measures, writes `render_proposed`, prints it and stops. Read the proposed knobs
   and say whether you would accept them, with reasons.

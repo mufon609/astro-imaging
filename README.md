@@ -451,6 +451,19 @@ live in CLAUDE.md "Environment".
 | `x86_bootstrap.sh` | fail-closed integrity-checked install of the x86 toolchain into `/opt` + a venv; PROVISIONAL (targets a rig that does not exist yet) — [`docs/x86-setup-and-install.md`](docs/x86-setup-and-install.md) |
 | `requirements.txt` | pinned python deps for that venv |
 
+**`session_archive.sh`** (directly in `scripts/`) — archive a session's DERIVED
+state (`datasets/<session>/`, `web/results/<session>/`, `sessions/<session>/work/`)
+and optionally `--reset` the session to raw frames only. Never touches a raw frame
+dir, and asserts the raw count is unchanged afterwards. The archive is a HOLDING
+AREA for comparing a re-run against what preceded it — not a backup of record:
+raws live off-rig, tracked records live in git, and an archive should be deleted
+once its comparison is done. Root is `$ASTRO_ARCHIVE_ROOT` (default
+`~/astro-archive/`), one timestamped dir per run, never overwritten. It exists
+because resetting a session by hand was a cp/rm/git-rm sequence that kept leaving
+gitignored scratch behind — `git rm` removes only what git tracks, so a "clean"
+session still carried `qa_work/frameqa/*.seq` and `audit_work/_stars.lst` for a
+fresh run to inherit.
+
 **`makeSpace.sh`** (directly in `scripts/`) — MANUAL-RUN disk reclaim: clears the
 VM's file-transfer staging cache (`~/.cache/vmware/drag_and_drop`), which keeps a
 full duplicate of every file dragged into the guest. Run it by hand after

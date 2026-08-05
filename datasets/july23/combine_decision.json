@@ -1,8 +1,0 @@
-{
- "decision": "FINAL combine = set-01 + set-02 (799 frames) \u2014 the dew-clean sets",
- "decided_by": "user",
- "date": "2026-07-26",
- "why": "progressive lens dew (docs/july23-dew-and-corner-chroma.md Part A): set-04 affected throughout; set-03 shows the veil's contrast loss around stars. Dew is consistent within contiguous blocks \u2014 per-pixel rejection cannot remove it; exclusion is by set.",
- "kept_products": "per-set stacks preserved for all four sets (stack_set-0{1..4}.fit + stack_set-03_400full*); superseded 3-set/4-set combines and their surfaces removed (regenerable from the preserved per-set stacks)",
- "combine_product": "web/results/july23/stack_set-01+02_min.fit"
-}
