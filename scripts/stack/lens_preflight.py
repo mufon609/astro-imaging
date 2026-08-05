@@ -230,6 +230,29 @@ def prove_correction(frame, work):
 
 
 
+def live(s):
+    """Blank XML-comment CONTENT, preserving length so match offsets still index
+    `s`. Mandatory before scanning a <lens> block for a distortion line: the
+    marker install_lens_model.sh used to write embedded a VERBATIM
+    `<distortion .../>` element naming the coefficients it REPLACED, so a raw
+    scan finds the superseded model first and this check then compares the
+    pinned file against its own footprint. MEASURED on this rig 2026-08-05 — it
+    returned state=ok while lensfun was applying a different model, i.e. the one
+    assertion that exists to catch a wrong-but-present profile could not fail
+    once the block had ever been patched. install_lens_model.sh no longer writes
+    the decoy, but blocks patched by older versions are still in service on real
+    rigs, so this stays. lensfun ignores comments; so must we.
+
+    MODULE-LEVEL DELIBERATELY: _selftest() neutralises it to prove the fixture's
+    decoy is real and that the masking is load-bearing. A closure could not be
+    neutralised, and then the only evidence that the guard CAN fail would be an
+    argument about the fixture's construction rather than an executed result —
+    which is exactly how the two previous versions of this test came to pass
+    while proving nothing.
+    """
+    return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), s, flags=re.S)
+
+
 PINNED_MODELS = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "scripts", "darktable", "lens_models.json")
@@ -288,7 +311,8 @@ def check_pinned_model(optics):
             if not mm or norm(mm.group(1)) != norm(lens):
                 continue
             fs = str(int(f)) if f == int(f) else str(f)
-            dm = re.search(rf'<distortion[^>]*focal="{re.escape(fs)}"[^>]*/>', blk)
+            dm = re.search(rf'<distortion[^>]*focal="{re.escape(fs)}"[^>]*/>',
+                           live(blk))
             if not dm:
                 return {"state": "MISMATCH", "key": key, "pinned": want,
                         "why": f"the DB block for {mm.group(1)!r} has no "
@@ -303,16 +327,147 @@ def check_pinned_model(optics):
             "why": f"no <lens> block matching {lens!r} in {dbdir}"}
 
 
+def _selftest():
+    """ASYMMETRIC mutation test for check_pinned_model's block scan.
+
+    Why asymmetric, and why this test exists at all: the scan was blind — it
+    read the `<distortion .../>` element embedded in install_lens_model.sh's
+    marker comment instead of the live one — and the mutation test written to
+    prove it could fail DID NOT CATCH IT. That mutation rewrote the coefficient
+    string with `str.replace` and no count, so it flipped the live element AND
+    the marker's copy together; whichever copy the scan read, both had moved, so
+    the check still reported MISMATCH and the guard looked green while being
+    blind. A mutation that changes EVERY copy of a thing cannot distinguish
+    "reads the right copy" from "reads any copy". The mutation has to change
+    exactly one occurrence and leave the other intact. Same species as the
+    `Found [0-9]+ star` regex and the vacuous uniform card: the check could not
+    fail, and the thing meant to prove it could fail was itself defective.
+
+    Four blocks, all with a pinned/candidate pair and a legacy-style marker
+    carrying a verbatim element, so the test also covers markers written before
+    the coefficients-only change.
+    """
+    ok = True
+
+    def flag(name, cond):
+        nonlocal ok
+        ok = ok and cond
+        print(f"  [{'PASS' if cond else 'FAIL'}] {name}")
+
+    # Identity + reference coefficients come from the PINNED file itself, so the
+    # fixture cannot drift out of the authority and cannot silently become
+    # "unpinned" (which would make every case pass vacuously).
+    pinned = json.load(open(PINNED_MODELS))
+    key, entry = next((k, v) for k, v in pinned.items() if not k.startswith("_"))
+    lens_name, focal_key = key.rsplit("@", 1)
+    pt = entry["ptlens"]
+    PIN = " ".join(f'{k}="{pt[k]!r}"'.replace("'", "") for k in "abc")
+    CAND = PIN.replace(f'a="{pt["a"]!r}"', f'a="{float(pt["a"]) * 1.05!r}"', 1)
+    assert CAND != PIN, "selftest fixture failed to perturb the live element"
+
+    def blk(marker_coeffs, live_coeffs):
+        return (f'<lens><maker>M</maker><model>{lens_name}</model>\n'
+                f'  <!-- astro-imaging fitted: focal=70 replaced '
+                f'<distortion model="ptlens" focal="{focal_key}" {marker_coeffs}/>; '
+                f'2026-08-05 -->\n'
+                f'  <calibration>\n'
+                f'    <distortion model="ptlens" focal="24" a="0.03" b="-0.1" c="0.07"/>\n'
+                f'    <distortion model="ptlens" focal="{focal_key}" {live_coeffs}/>\n'
+                f'  </calibration></lens>')
+
+    def state(block):
+        """check_pinned_model's inner scan, on a supplied block."""
+        import tempfile as _tf
+        d = _tf.mkdtemp(prefix=".lenspre_selftest_")
+        try:
+            with open(os.path.join(d, "test.xml"), "w") as f:
+                f.write("<lensdatabase>" + block + "</lensdatabase>")
+            real = os.path.expanduser
+            os.path.expanduser = lambda p: d if "lensfun" in p else real(p)
+            try:
+                return check_pinned_model([{"lens": lens_name,
+                                            "focal_mm": f"{focal_key}.0 mm"}])
+            finally:
+                os.path.expanduser = real
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    # The pinned file must carry the key this fixture names, or every case
+    # returns "unpinned" and the test is itself vacuous — assert that first.
+    probe = state(blk(CAND, PIN))
+    flag("fixture resolves against a PINNED entry (not vacuous)",
+         probe.get("state") != "unpinned")
+
+    # CASE 2 IS THE INCIDENT, not one of five permutations. Mutating the LIVE
+    # element only, leaving the marker on the pinned value, is EXACTLY the state
+    # this rig was in on 2026-08-05: lensfun applying the x86 re-fit while this
+    # function reported `pinned model OK`, because the scan matched the marker's
+    # embedded copy. It is the regression test. Do not simplify the fixture down
+    # to the symmetric cases — they pass on a blind scan (see case 5).
+    r = state(blk(PIN, CAND))
+    flag(f"live=candidate, marker=pinned -> {r['state']} (want MISMATCH)",
+         r["state"] == "MISMATCH")
+
+    # MUTATE THE MARKER ONLY -> must still be ok. A scan that reads the marker
+    # fails HERE, which is the other half of the asymmetry.
+    r = state(blk(CAND, PIN))
+    flag(f"live=pinned, marker=candidate -> {r['state']} (want ok)",
+         r["state"] == "ok")
+
+    # Cases 4 and 5 are the SYMMETRIC mutation — both copies moved together.
+    # Case 5 is preserved as a SPECIMEN: it is the mutation test that was
+    # actually written for this guard, and it PASSED on the blind scan, because
+    # when every copy of the coefficients moves it does not matter which one is
+    # read. A mutation that changes every copy of a thing cannot distinguish
+    # "reads the right copy" from "reads any copy". Neither case proves anything
+    # on its own; they are here so nobody mistakes them for coverage.
+    flag("both pinned -> ok (symmetric, weak)",
+         state(blk(PIN, PIN))["state"] == "ok")
+    flag("both candidate -> MISMATCH (symmetric — PASSES ON A BLIND SCAN, weak)",
+         state(blk(CAND, CAND))["state"] == "MISMATCH")
+
+    # ---- PROVE THE TEST CAN FAIL, by executing it -------------------------
+    # THE RULE THIS ENCODES: verifying that a guard can fail is an ACT, not an
+    # argument. Break the mechanism, watch the assertion go red, restore. Two
+    # earlier versions of this very test passed while proving nothing — the
+    # first because its mutation moved every copy of the coefficients at once,
+    # the second because its decoy was written `focal=70` where the scanner
+    # requires `focal="70"`, so the fixture had no decoy at all. Both were
+    # reasoned about from construction and neither was executed against a
+    # disabled mechanism. So the disabled-mechanism run happens HERE, every run.
+    global live
+    _real, live = live, (lambda t: t)          # neutralise the masking
+    try:
+        blind = state(blk(PIN, CAND))["state"]
+    finally:
+        live = _real
+    flag(f"with masking DISABLED, case 2 reads {blind} (want ok = the incident "
+         f"reproduces, so the fixture's decoy is real and masking is what "
+         f"catches it)", blind == "ok")
+    # and the mechanism must be back
+    flag("masking restored", state(blk(PIN, CAND))["state"] == "MISMATCH")
+
+    print("SELFTEST", "PASS" if ok else "FAIL")
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("session")
-    ap.add_argument("set")
+    ap.add_argument("session", nargs="?")
+    ap.add_argument("set", nargs="?")
+    ap.add_argument("--selftest", action="store_true",
+                    help="asymmetric mutation test of the pinned-model scan")
     ap.add_argument("--require-profile", action="store_true",
                     help="also PROVE darktable corrects this set (renders one "
                          "frame twice); STOP if the correction is a no-op. Pass "
                          "this whenever the lens-correction route will run.")
     ap.add_argument("--json")
     a = ap.parse_args()
+
+    if a.selftest:
+        return _selftest()
+    if not (a.session and a.set):
+        ap.error("session and set are required (or --selftest)")
 
     frames = frames_of(a.session, a.set)
     if not frames:

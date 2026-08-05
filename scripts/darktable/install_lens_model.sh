@@ -48,11 +48,23 @@
 # compact-*.xml …) are lensfun's business, not ours. `lensfun-update-data`
 # OVERWRITES this patch: re-run after any DB update.
 #
-# SAFETY: the edit records what it replaced in an XML comment inside the block,
-# so the patch is self-describing and reversible, and a block already carrying a
-# marker with DIFFERENT coefficients STOPS rather than being silently
+# SAFETY: the edit records the COEFFICIENTS it replaced in an XML comment inside
+# the block, so the patch is self-describing and reversible, and a block already
+# carrying a marker with DIFFERENT coefficients STOPS rather than being silently
 # overwritten — a re-fit is an explicit act. (Comments inside <lens> are known
 # safe: upstream ships them, e.g. "<!-- Taken with Nikon Z6 -->".)
+# The marker records `replaced a=… b=… c=…` and NOT the verbatim
+# `<distortion .../>` element it used to embed. That element was a DECOY: it put
+# a second parseable copy of a distortion line inside the same <lens> block, and
+# every raw-text scanner — the idempotence test and the replace target here, and
+# lens_preflight.py's installed-vs-pinned assertion — matched the comment's copy
+# before the live one. MEASURED 2026-08-05: the assertion reported the pinned
+# model installed while lensfun was applying a different one, and this script
+# reported "already installed" (with --replace too), so the DB could not be
+# restored by any documented invocation. Recording coefficients keeps the
+# provenance and removes the second copy, which is cheaper than masking and
+# cannot regress; live() below still masks comments so a block written by an
+# older version of this script is handled too.
 #
 # Verify after any darktable/lensfun version change with verify_lens_card.py
 # (grid positive control + uniform card; the card ALONE is vacuous).
@@ -92,6 +104,23 @@ fi
 python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "$REPLACE" "${ABC[@]}" <<'PY'
 import glob, json, os, re, sys
 from datetime import date
+
+
+def live(s):
+    """Blank the CONTENT of XML comments, preserving length so match offsets
+    still index the original string. EVERY scan for a live element must go
+    through this, because the marker this script writes embeds a VERBATIM
+    `<distortion .../>` element (it records what it replaced) — so a raw
+    substring or regex scan finds the marker's copy before the real line.
+    MEASURED cost of not doing it, on this rig 2026-08-05: the idempotence
+    test `new_line in block` matched the pinned coefficients inside the
+    marker while the live line carried a different (candidate) model, so the
+    installer reported "already installed" and exited 0 — with --replace too,
+    since that branch is downstream. The DB could not be restored to the
+    pinned model by any documented invocation, and lens_preflight.py's
+    installed-vs-pinned assertion (same blind scan) reported OK on the wrong
+    optics. lensfun ignores comments; the guards must too."""
+    return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), s, flags=re.S)
 
 repo, dbdir, session, sset, lens, focal, fromfit, replace = sys.argv[1:9]
 abc = sys.argv[9:]
@@ -191,11 +220,13 @@ new_line = (f'<distortion model="ptlens" focal="{focal_s}" '
             f'a="{a}" b="{b}" c="{c}"/>')
 
 prior = re.search(rf"<!--\s*{MARK}\s*focal={focal_s}\s+(.*?)-->", block, re.S)
-if new_line in block and prior:
+# `prior` reads the MARKER, so it scans the raw block; every test below asks
+# what lensfun will actually apply, so it scans live(block) — see live().
+if new_line in live(block) and prior:
     print(f"install_lens_model: already installed for {db_model} @ {focal_s}mm "
           f"({os.path.basename(path)})")
     sys.exit(0)
-if prior and new_line not in block and not replace:
+if prior and new_line not in live(block) and not replace:
     sys.exit(f"install_lens_model: {db_model} @ {focal_s}mm already carries a "
              f"DIFFERENT fitted entry ({prior.group(1).strip()}).\n"
              "  Swapping the installed model is an explicit act — pass --replace.\n"
@@ -204,10 +235,24 @@ if prior and new_line not in block and not replace:
              "install), and it is how a promotion is done too. Without the flag "
              "nothing is overwritten.")
 
-existing = re.search(rf'<distortion[^>]*focal="{re.escape(focal_s)}"[^>]*/>', block)
+existing = re.search(rf'<distortion[^>]*focal="{re.escape(focal_s)}"[^>]*/>',
+                     live(block))
 if existing:
-    new_block = block.replace(existing.group(0), new_line)
-    what = f"replaced {existing.group(0)}"
+    # splice by OFFSET, not str.replace: replace() is global, so with the
+    # marker's verbatim copy in the block it would rewrite the marker's text
+    # (and, when the two happened to agree, both) instead of the one live line.
+    new_block = block[:existing.start()] + new_line + block[existing.end():]
+    # Record the replaced COEFFICIENTS, never the verbatim element. The marker
+    # used to embed the whole `<distortion .../>` tag for self-description, and
+    # that decoy is what defeated every scanner in this file and in
+    # lens_preflight.py. Provenance is preserved; the second parseable copy is
+    # not created in the first place, so a future scanner cannot be fooled by it
+    # even if it forgets to mask comments. live() stays as defence for blocks
+    # already carrying an old-style marker.
+    old = dict(re.findall(r'\b([abc])="([-0-9.eE+]+)"',
+                          block[existing.start():existing.end()]))
+    what = ("replaced " + " ".join(f"{k}={old[k]}" for k in "abc" if k in old)
+            if old else "replaced (unparseable prior line)")
 else:                                   # a focal the DB never carried
     if "<calibration>" not in block:
         sys.exit(f"install_lens_model: {db_model} has no <calibration> block to "
@@ -219,7 +264,7 @@ else:                                   # a focal the DB never carried
 # distortion-only enforcement: strip this lens's vignetting/tca
 n_strip = len(re.findall(r"<(?:vignetting|tca)\b", new_block))
 new_block = re.sub(r"\s*<(?:vignetting|tca)\b[^>]*/>", "", new_block)
-if "<distortion" not in new_block:
+if "<distortion" not in live(new_block):
     sys.exit("install_lens_model: the edit would leave no distortion model — refusing.")
 
 marker = (f'<!-- {MARK} focal={focal_s} {what}; '
