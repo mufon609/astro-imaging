@@ -120,6 +120,7 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set geometry derivation
 SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]}
 SET=${2:?missing <set>}
 DARK= OUT= CHUNK=24 REJ=wins SELECT= DESKY=0
@@ -193,10 +194,19 @@ if [ $((N % CHUNK)) -eq 1 ]; then
   [ $((N % CHUNK)) -ne 1 ] || { echo "ABORT: $N frames leave a final chunk of 1 at every chunk size down to 2" >&2; exit 1; }
   echo "chunk shrunk $ORIGCHUNK -> $CHUNK ($N frames leave a final chunk of 1 at $ORIGCHUNK, which Siril cannot sequence; remainder is now $((N % CHUNK)))"
 fi
-# pp_ accumulation ~49 MB/frame (16-bit CFA) + one chunk of c_ transients + slack
-NEED_GB=$(( N * 98 / 1024 + CHUNK * 98 / 1024 + 3 ))
+# Residency: the accumulated pp_ set + one chunk of c_ transients + slack. The
+# per-frame figure is DERIVED from this set's own geometry (W x H x 1 x 4 bytes,
+# CFA because nothing is debayered here) via the shared disk_budget.sh, NOT a
+# constant. It was `98` — correct only for a 6064x4040 body, under a comment that
+# said 49 MB and 16-bit, i.e. stale in both directions at once. A private
+# per-frame constant in a builder is the exact defect disk_budget.sh was created
+# to remove after the router and the undistort builder diverged by 2x.
+FRAME_MIB=$(sky_flat_frame_mib "$SESSION" "$SET") || {
+  echo "ABORT: cannot size the sky-flat disk budget for $SET — $FRAME_MIB" >&2; exit 1; }
+NEED_GB=$(( (N + CHUNK) * FRAME_MIB / 1024 + 3 ))
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G needed for $N frames, ${FREE_GB}G free" >&2; exit 1; }
+echo "sky flat budget: ${FRAME_MIB} MiB/frame (derived from this set's geometry) x $((N + CHUNK)) resident -> ~${NEED_GB}G, ${FREE_GB}G free"
 echo "sky flat: $N un-registered lights${SELECT:+ (selected from $SELECT)}, dark-subtracted, CFA, rej=$REJ -> $OUT.fit"
 
 rm -rf "$W"; mkdir -p "$W/pp"
@@ -257,6 +267,38 @@ for r in center TL TR BL BR; do
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/v.ssf" 2>&1 \
     | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat.log"
 done
+# ---- the EDGE geometry, for edge_dipole_x --------------------------------
+# The corner-vs-centre gate above is the one docs/dead-ends.md calls
+# SELF-FULFILLING for a sky-contaminated flat: "judge it on the FLAT's odd
+# component, not the stack's corners." BACKLOG:`calibration-evidence` records
+# that the odd-component instrument "has no script", so the measurement that
+# justified a shipped default could not be re-run. This is that script — the
+# same Siril `stat` regional crops, at the EDGE geometry the repo already uses
+# for the term (box 80 / margin 2, baseline_guard.py's edge_dipole_x).
+#
+# WHY BOTH AXES, and why this needs NO threshold: vignetting is an EVEN RADIAL
+# function, so it contributes EQUALLY to the left-right and top-bottom dipoles.
+# Any excess of |x| over |y| is therefore non-radial BY CONSTRUCTION and cannot
+# be vignetting — which is the whole question a flat's odd component is asked.
+# The numbers are REPORTED, not gated: the `sky x V` contamination they measure
+# is a known-OPEN defect with no shipped corrective, so a hard fail here would
+# block every flat this route builds rather than inform. Setting a pass/fail
+# line on this term is a user ratification, not this script's to invent
+# (CLAUDE.md: acceptance measures do not change without explicit ratification).
+EB=80; EM=2
+declare -A EX EY
+EX[center]=$(( (IW - EB) / 2 )); EY[center]=$(( (IH - EB) / 2 ))
+EX[TL]=$EM;                 EY[TL]=$EM
+EX[TR]=$((IW - EM - EB));   EY[TR]=$EM
+EX[BL]=$EM;                 EY[BL]=$((IH - EM - EB))
+EX[BR]=$((IW - EM - EB));   EY[BR]=$((IH - EM - EB))
+: > "$W/stat_edge.log"
+for r in center TL TR BL BR; do
+  printf 'requires 1.2.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nstat\n' \
+    "$OUT.fit" "${EX[$r]}" "${EY[$r]}" "$EB" "$EB" > "$W/ve.ssf"
+  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/ve.ssf" 2>&1 \
+    | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat_edge.log"
+done
 # Speck count comes from the STAR LIST the tool writes, not from a log message.
 # The log-regex this replaced (`Found [0-9]+ star`) NEVER matched Siril 1.4.4,
 # which prints "Found N Gaussian profile stars in image" — the profile word sits
@@ -285,17 +327,42 @@ printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"
 sir "$W/p.ssf"
 
-python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" "${SELECT:-}" "$DESKY" <<'PY'
+python3 - "$OUT.fit" "$W/stat.log" "$FS_LOG" "$N" "$REJ" "$DARK" "$QA_DIR/${STEM}_qa.json" "$B" "$M" "${SELECT:-}" "$DESKY" "$W/stat_edge.log" "$EB" "$EM" <<'PY'
 import json, re, sys
-flat, statlog, specks, n, rej, dark, rec_path, box, margin, select, desky = sys.argv[1:12]
-regions = {}
-for line in open(statlog):
-    m = re.match(r"(\w+)\b.*?Mean: ([0-9.]+), Median: ([0-9.]+), Sigma: ([0-9.]+)",
-                 line)
-    if m and m.group(1) not in regions:
-        regions[m.group(1)] = {"mean": float(m.group(2)),
+(flat, statlog, specks, n, rej, dark, rec_path, box, margin, select, desky,
+ edgelog, ebox, emargin) = sys.argv[1:15]
+
+
+def parse(path):
+    out = {}
+    for line in open(path):
+        m = re.match(r"(\w+)\b.*?Mean: ([0-9.]+), Median: ([0-9.]+), Sigma: ([0-9.]+)",
+                     line)
+        if m and m.group(1) not in out:
+            out[m.group(1)] = {"mean": float(m.group(2)),
                                "median": float(m.group(3)),
                                "sigma": float(m.group(4))}
+    return out
+
+
+def dipoles(reg):
+    """((TR+BR)-(TL+BL))/2 and ((TL+TR)-(BL+BR))/2 on corner medians, each
+    normalised to the four corners' own mean — baseline_guard.py's
+    edge_dipole_x convention, plus its top-bottom sibling."""
+    try:
+        c = {k: reg[k]["median"] for k in ("TL", "TR", "BL", "BR")}
+    except KeyError:
+        return None
+    m4 = sum(c.values()) / 4.0
+    if not m4:
+        return None
+    return {"edge_dipole_x": round(((c["TR"] + c["BR"]) - (c["TL"] + c["BL"])) / 2 / m4, 4),
+            "edge_dipole_y": round(((c["TL"] + c["TR"]) - (c["BL"] + c["BR"])) / 2 / m4, 4)}
+
+
+regions = parse(statlog)
+edge_regions = parse(edgelog)
+dip = dipoles(edge_regions)
 rec = {
  "tool": "Siril 1.4.4 — un-registered lights: CFA convert -> calibrate -dark "
          "-> stack (-norm=mul); Siril stat regional crops + findstar + "
@@ -316,6 +383,32 @@ rec = {
                             "exactly the frames it calibrates")},
  "regional_stat_ADU": regions,
  "region_geometry_px": {"box": int(box), "corner_margin": int(margin)},
+ "edge_regional_stat_ADU": edge_regions,
+ "edge_region_geometry_px": {"box": int(ebox), "corner_margin": int(emargin),
+                             "note": "baseline_guard.py's edge_dipole_x geometry"},
+ "odd_component": (None if dip is None else {
+     **dip,
+     "instrument": ("Siril `stat` medians on 4 corner crops at the edge geometry; "
+                    "((TR+BR)-(TL+BL))/2 normalised to the 4-corner mean "
+                    "(baseline_guard.py convention), and its top-bottom sibling"),
+     "how_to_read": (
+         "Vignetting is an EVEN RADIAL function, so it contributes EQUALLY to x "
+         "and y. |edge_dipole_x| materially above |edge_dipole_y| is NON-RADIAL "
+         "by construction and cannot be vignetting — on a sky flat that is the "
+         "horizon-fixed sky gradient integrating into the flat, which then "
+         "leaves the OBJECT carrying a multiplicative tilt it never had "
+         "(docs/dead-ends.md, the sky-flat entry). The corner-vs-centre gate "
+         "above CANNOT see this: it averages the two sides together, which is "
+         "why the registry calls that gate self-fulfilling for this defect."),
+     "not_a_pass_fail": (
+         "REPORTED, not gated. The `sky x V` contamination this measures is a "
+         "known-OPEN defect with no shipped corrective (`--desky` was a 31x "
+         "regression), so failing on it would block every flat this route "
+         "builds. A pass/fail line on this term is a user ratification "
+         "(BACKLOG:`calibration-evidence`), not this script's to invent."),
+     "reference_values_july31_docs_dead_ends": {
+         "raw_dark_subtracted_light": 0.426, "pre_desky_flat": 0.365,
+         "desky_flat": -0.550, "master_dark": 0.0}}),
  "findstar_speck_count": int(specks),
  "gate": "smooth falloff (corners < centre), NO structured sky residual "
          "(the Milky Way star field) on the preview, speck count ~0; the eye "
@@ -327,6 +420,16 @@ rec = {
 json.dump(rec, open(rec_path, "w"), indent=1)
 print(f"regional ADU: " + " ".join(
     f"{k} {v['median']:.0f}" for k, v in regions.items()))
+if dip:
+    x, y = dip["edge_dipole_x"], dip["edge_dipole_y"]
+    print(f"odd component (box {ebox}/margin {emargin}): "
+          f"edge_dipole_x {x:+.4f}  edge_dipole_y {y:+.4f}")
+    if abs(y) > 1e-9 and abs(x) > abs(y):
+        print(f"  NOTE: |x| is {abs(x)/abs(y):.1f}x |y|. Vignetting is radial and "
+              "contributes equally to both, so the excess is NON-RADIAL — the "
+              "sky gradient this flat absorbed. It divides a multiplicative tilt "
+              "into the object (docs/dead-ends.md). Reported, not gated: the "
+              "defect is open and has no shipped corrective.")
 print(f"speck count: {specks}")
 print(f"record: {rec_path}")
 PY
