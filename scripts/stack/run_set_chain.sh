@@ -30,11 +30,17 @@
 # finish_render.sh): everything aesthetic beyond it (the render-tier ladder)
 # stays per-rung and user-judged. Route choice comes from the DERIVED
 # fingerprint (tracked -> standard; fixed+wide -> undistort, single-pass vs
-# groups by measured disk headroom vs the ~231 MB/frame single-pass peak);
+# groups by measured disk headroom against the single-pass peak, which
+# scripts/stack/disk_budget.sh DERIVES from the set's own frame geometry and
+# which the single-pass builder enforces from the same function);
 # the printed reason makes the click a ratification of that recommendation,
 # never a silent auto-route.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
+                                              # run_undistort_pipeline.sh enforces. Routing
+                                              # on a private copy is what let this chain send
+                                              # a set to a builder that then refused it.
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
 PLAN=0 DESKYOPT=
@@ -82,20 +88,35 @@ PY
   read -r RATIFIED; read -r FPLABEL; } <<< "$FACTS" || true
 
 MOUNT_EFF=${MEASURED:-$MOUNT}
-FREE_KB=$(df -k --output=avail "$SESSION" | tail -1 | tr -d ' ')
-SINGLEPASS_KB=$((NFRAMES * 231 * 1024))
+# df flags, comparison and slack all match run_undistort_pipeline.sh's own
+# preflight EXACTLY (via undistort_peak_gib), so the route this chain picks and
+# the budget that builder enforces cannot disagree at any frame count. The peak
+# is DERIVED from this set's own frame geometry, so a bigger sensor or a mono
+# corpus is budgeted for what it actually is. It can legitimately be underivable
+# here — on a fresh set the plan is printed BEFORE preflight seeds the
+# acquisition record — so an empty value is not an error yet; the route
+# re-derives after preflight, and the builder enforces the same budget itself.
+FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
+SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>/dev/null || echo "")
 ROUTE= REASON=
 if [ "$MOUNT_EFF" = "tracked" ]; then
   ROUTE=standard
   REASON="tracked mount: no inter-frame drift to fight -> calibrate/register/stack (run_pipeline)"
 elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
      python3 -c "import sys; sys.exit(0 if float('$FOV') >= 10 else 1)"; then
-  if [ "$FREE_KB" -gt "$SINGLEPASS_KB" ]; then
+  if [ -z "$SINGLEPASS_GB" ]; then
+    # the field is on record but the frame geometry is not, so the budget cannot
+    # be sized yet. Defer to the existing mechanism rather than guess a frame
+    # size — preflight re-runs the acquisition derivation, which is what fills
+    # exif.image_wh, and the route re-derives below.
+    ROUTE=derive-after-preflight
+    REASON="fixed mount + ${FOV} deg field -> undistort class, but this set's frame geometry (exif.image_wh) is not on record, so the disk budget cannot be sized — preflight re-derives the acquisition facts and the route settles after it"
+  elif [ "$FREE_GB" -ge "$SINGLEPASS_GB" ]; then
     ROUTE=undistort
-    REASON="fixed mount + ${FOV} deg field -> undistort class; disk $(($FREE_KB/1024/1024))G covers the single-pass peak $(($SINGLEPASS_KB/1024/1024))G"
+    REASON="fixed mount + ${FOV} deg field -> undistort class; disk ${FREE_GB}G covers the single-pass peak ${SINGLEPASS_GB}G ($(undistort_singlepass_peak_mib "$SESSION" "$SET") MiB/frame x $NFRAMES, from this set's own frame geometry)"
   else
     ROUTE=undistort-groups
-    REASON="fixed mount + ${FOV} deg field -> undistort class; disk $(($FREE_KB/1024/1024))G < single-pass peak $(($SINGLEPASS_KB/1024/1024))G (~231 MB/frame x $NFRAMES) -> balanced groups"
+    REASON="fixed mount + ${FOV} deg field -> undistort class; disk ${FREE_GB}G < single-pass peak ${SINGLEPASS_GB}G ($(undistort_singlepass_peak_mib "$SESSION" "$SET") MiB/frame x $NFRAMES, from this set's own frame geometry) -> balanced groups"
   fi
 elif [ -z "$MOUNT" ]; then
   ROUTE=stop-undeclared
@@ -329,8 +350,13 @@ PY
   case "$NEWROUTE" in
     tracked)    ROUTE=standard; STACK=$RESULTS/stack_$SET.fit;;
     fixed-wide)
-      FREE_KB=$(df -k --output=avail "$SESSION" | tail -1 | tr -d ' ')
-      if [ "$FREE_KB" -gt "$SINGLEPASS_KB" ]; then
+      FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
+      # preflight has now re-derived the acquisition facts, so the budget must be
+      # sizeable. If it still is not, the geometry genuinely cannot be read for
+      # this data class — a documented gap, not a number to invent.
+      SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>&1) || {
+        say "STOP: cannot size the single-pass disk budget for $SET — $SINGLEPASS_GB"; exit 5; }
+      if [ "$FREE_GB" -ge "$SINGLEPASS_GB" ]; then
         ROUTE=undistort; STACK=$RESULTS/stack_$SET.fit
       else
         ROUTE=undistort-groups; STACK=$RESULTS/stack_${SET}_full.fit

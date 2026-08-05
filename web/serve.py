@@ -1302,7 +1302,9 @@ _STAGE_DOCS = {
         "detail": {
             "process": ["lens preflight proves the model", "calibrate in sensor space",
                         "darktable lens warp", "register -2pass -> rejection stack"],
-            "gates": ["mixed/unmatched optics stop", "~231 MB/frame disk peak"],
+            "gates": ["mixed/unmatched optics stop",
+                      "disk peak derived from the set's own frame geometry "
+                      "(disk_budget.sh)"],
             "records": ["web/results/<session>/stack_<set>.fit"]},
     },
     "stack_undistort_groups": {

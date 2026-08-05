@@ -64,8 +64,13 @@
 #   mean; per-group -framing=min trims only that group's small drift, and the
 #   final -framing=min lands on the same global intersection as single-pass.
 #
-# REMOVAL CONDITION: free disk >= the single-pass peak (~231 MB/frame; the
-# x86 1 TB target) — then use run_undistort_pipeline.sh and delete this route.
+# REMOVAL CONDITION: free disk >= the single-pass peak — `undistort_peak_gib` in
+# scripts/stack/disk_budget.sh, which DERIVES it from the set's own frame
+# geometry (the ~231 MB/frame this line used to quote was the retired 16-bit
+# figure, and any fixed per-frame number is really one sensor's). It is therefore
+# a PER-DATASET condition: a disk that retires this route for 24 Mpx OSC frames
+# may not retire it for a 61 MP body or a much deeper set. Then use
+# run_undistort_pipeline.sh for that dataset.
 #
 # GUARDS: balanced group sizes (never a 1-frame group); every group size is
 # checked UP FRONT against --chunk for the 1-frame final chunk Siril cannot
@@ -75,10 +80,13 @@
 # the single-pass builder.
 #
 # NOTHING in the chain is compressed — the pipeline-wide rule; every
-# generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed
-# (~145 MB each), which the disk guard accounts for.
+# generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed, which
+# the disk guard accounts for by DERIVING every figure from the set's own frame
+# geometry (disk_budget.sh) rather than carrying this rig's sensor as a constant.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
+                                              # the single-pass builder and the router
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=15] [--chunk=12] [--out=] [--plan] [--desky]}
 SET=${2:?missing <set>}
 DARK= FLAT= GROUP=15 CHUNK=12 OUT= PLAN=0 FRAMING=min DESKYOPT=
@@ -131,13 +139,13 @@ GSIZES=("$BASE"); [ "$REM" -eq 0 ] || GSIZES+=("$((BASE + 1))")
 for gsize in "${GSIZES[@]}"; do
   [ $((gsize % CHUNK)) -ne 1 ] || { echo "ABORT: a group of $gsize frame(s) chunked at --chunk=$CHUNK leaves a final chunk of 1 (Siril cannot sequence one frame) — adjust --group or --chunk (plan: $N frames -> $K groups: $REM x $((BASE+1)) + $((K-REM)) x $BASE)" >&2; exit 1; }
 done
-# per-group transient ~290 MB/frame (full-frame warped + near-full registered:
-# a consecutive block drifts only ~60 px, so -framing=min barely crops);
-# sub-stacks accumulate uncompressed at ~145 MB each; the final phase holds
-# them beside their registered copies (~85 MB each)
-NEED_GB=$(( MAXG * 290 / 1024 + (K * 145) / 1024 + 2 ))
-FINAL_GB=$(( K * 230 / 1024 + 2 ))
-[ "$FINAL_GB" -gt "$NEED_GB" ] && NEED_GB=$FINAL_GB
+# Budget DERIVED from this set's own frame geometry (disk_budget.sh), never a
+# per-camera constant: the per-group phase runs the full single-pass chain over
+# one group (max_group x 2 frames) while the finished sub-stacks accumulate, and
+# the final phase holds all K sub-stacks beside their registered copies.
+NEED_GB=$(undistort_groups_peak_gib "$SESSION" "$SET" "$MAXG" "$K") \
+  || { echo "ABORT: cannot size the disk budget for $SET — see above" >&2; exit 1; }
+SPPEAK_MIB=$(undistort_singlepass_peak_mib "$SESSION" "$SET")
 echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${DESKYOPT:+, per-frame subsky 1 (--desky)}"
 [ "$PLAN" -eq 0 ] || exit 0
 
@@ -149,7 +157,7 @@ for ((g=1; g<=K; g++)); do
     echo "=== group $g/$K: $SUB.fit exists, skipping (resume) ==="; i=$((i + size)); continue
   fi
   FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
-  GNEED=$(( size * 290 / 1024 + 1 ))
+  GNEED=$(( size * SPPEAK_MIB / 1024 + 1 ))   # one group = one single-pass run
   [ "$FREE_GB" -ge "$GNEED" ] || { echo "ABORT before group $g: ~${GNEED}G needed, ${FREE_GB}G free" >&2; exit 1; }
   : > "$G/g$g.list"
   for ((k=0; k<size; k++, i++)); do printf '%s\n' "${SRC[$i]}" >> "$G/g$g.list"; done

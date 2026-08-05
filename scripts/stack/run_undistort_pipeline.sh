@@ -27,11 +27,15 @@
 #   states it (chunk size only bounds working-set residency, so it is free) —
 #   the same recovery run_frame_qa.sh makes for its batches.
 # - disk: registration keeps the warped input set resident while seqapplyreg
-#   writes the registered set beside it (~462 MB/frame peak at 32-bit float —
-#   NOTHING in the pipeline is compressed, the pipeline-wide rule; every .ssf
-#   pins `setcompress 0`). Aborts up front if the selected frame count cannot
-#   fit; --frames=N selects an EVEN STRIDE over the whole set, which preserves
-#   the TIME SPAN (what the registration geometry depends on) and trades depth.
+#   writes the registered set beside it, so the peak is the SUM of two frames.
+#   `undistort_peak_gib` (scripts/stack/disk_budget.sh) DERIVES it from this
+#   set's own frame geometry — W x H x channels x 4 bytes x 2 — rather than a
+#   per-camera constant, and is SHARED with run_set_chain.sh's routing decision
+#   (the two were separate constants once and diverged by 2x). NOTHING in the pipeline is
+#   compressed, the pipeline-wide rule; every .ssf pins `setcompress 0`. Aborts
+#   up front if the selected frame count cannot fit; --frames=N selects an EVEN
+#   STRIDE over the whole set, which preserves the TIME SPAN (what the
+#   registration geometry depends on) and trades depth.
 #
 # BIT DEPTH: 32-bit float end-to-end (set32bits + savetif32 + darktable
 # bpp=32). The 16-bit intermediates were an arm-rig RAM/disk adaptation whose
@@ -56,6 +60,7 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
+source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared with the ROUTER, or they drift
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--desky]}
 SET=${2:?missing <set>}
 DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= DESKY=0
@@ -165,9 +170,11 @@ if [ $((FRAMES % CHUNK)) -eq 1 ]; then
   [ $((FRAMES % CHUNK)) -ne 1 ] || { echo "ABORT: $FRAMES frames leave a final chunk of 1 at every chunk size down to 2 — pass --frames to change the count" >&2; exit 1; }
   echo "chunk shrunk $ORIGCHUNK -> $CHUNK ($FRAMES frames leave a final chunk of 1 at $ORIGCHUNK, which cannot be sequenced; remainder is now $((FRAMES % CHUNK)))"
 fi
-NEED_GB=$((FRAMES * 462 / 1024 + 2))
+PEAK_MIB=$(undistort_singlepass_peak_mib "$SESSION" "$SET") \
+  || { echo "ABORT: cannot size the disk budget for $SET — see above" >&2; exit 1; }
+NEED_GB=$(undistort_peak_gib "$SESSION" "$SET" "$FRAMES")
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
-[ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames, ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span)" >&2; exit 1; }
+[ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames (${PEAK_MIB} MiB/frame, derived from this set's own frame geometry — disk_budget.sh), ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span), or use run_undistort_groups.sh for full depth" >&2; exit 1; }
 
 rm -rf "$P"; mkdir -p "$P/out"
 mapfile -t ALL < <(python3 -c "

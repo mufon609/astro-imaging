@@ -488,7 +488,13 @@ Scripted as **`scripts/stack/run_undistort_pipeline.sh`** — it runs
 `lens_preflight.py --require-profile` first (darktable silently applies NO
 correction to a lens lensfun cannot match), refuses a frame count whose final
 chunk would be a single frame (Siril cannot sequence one frame), and checks the
-~231 MB/frame uncompressed disk peak before any work. The model the warp applies
+uncompressed disk peak before any work. That peak is DERIVED per set rather than
+fixed per camera — registration holds the warped set and the registered set
+resident together, so it is `W x H x channels x 4 bytes x 2`, with the geometry
+read from the set's own tracked acquisition record (`scripts/stack/disk_budget.sh`,
+shared with the chain's routing decision). On this rig's 24.5 Mpx OSC frames that
+is ~561 MiB/frame, validated against the measured warped frame (280.37 MiB); a
+mono astrocam set derives a third of it and a 61 MP body ~2.5x it. The model the warp applies
 is the lensfun DB entry for the EXIF-matched lens; for this rig's 24-70/4 S at
 70 mm that is the entry **fitted from the set's own frames**
 (`scripts/darktable/fit_lens_model.sh`, installed by `install_lens_model.sh`) —
