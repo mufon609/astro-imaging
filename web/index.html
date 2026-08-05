@@ -964,6 +964,7 @@ const EXIT_MEANING = {
     4: ['stopped', 'mount undeclared and the instruments could not decide — declare it on the set page, then re-click'],
     5: ['stopped', 'the fingerprint is neither tracked nor fixed+wide, so the route is not derivable — you pick it'],
     6: ['stopped', 'real flats are staged but the undistort route has no master-flat wiring yet (a known gap) — point the flat by hand'],
+      8: ['regressed', 'NOT a crash, and nothing was blocked: the stack and judge surface are built. The finished product no longer measures like the baseline you accepted for this set (corner spread / edge dipole / centre level) — read the table in the log and find the cause, or if the change is deliberate and you judged it better, re-seed with baseline_guard.py --reseed --note'],
   },
   'render_tier.sh': {
     7: ['proposal', 'NOT an error: the knobs were measured and written to the recipe as "render_proposed". Read them, rename the block to "render" to accept, then re-run — the layers are cached, so it costs one stretch'],

@@ -16,6 +16,12 @@
 #           two-window drift solve / the user decides the route
 #   exit 6  real flats staged but no master-flat wiring for the undistort
 #           route — resolve the flat manually (documented gap)
+#   exit 8  the finished PRODUCT regressed against this set's accepted
+#           baseline (scripts/qa/baseline_guard.py). Nothing is blocked or
+#           rewritten — the stack and judge surface are built — but the
+#           product no longer measures like the one a human accepted, which
+#           is a decision only the user can close: find the cause, or
+#           re-seed the baseline with a note if the change is deliberate
 #
 #   run_set_chain.sh <session-dir> <set> [--plan]
 #
@@ -439,6 +445,32 @@ else
   "$REPO/scripts/stack/finish_render.sh" "$STACK" "$NAME" --session="$SESSION" --set="$SET"
 fi
 
+# ---- no-regression check against the set's own accepted baseline ---------
+# LAST, because it compares the finished PRODUCT. This is the check the repo did
+# not have when a 31x background regression shipped and stayed in for six days:
+# every other guard here verifies WIRING (that the code is plumbed the way
+# doctrine says), and `--desky` left every wire intact while corrupting the data.
+#
+# It is a no-regression RECORD, not a quality gate, so it never blocks or rewrites
+# anything — the product is already built and every aesthetic step past this point
+# is user-gated anyway. But a regression IS a decision that belongs to the user,
+# so it exits 8 the way the mount and route gates exit 2/4/5/6: loud, named, and
+# still flagging on the next re-click until the human either finds the cause or
+# re-seeds the baseline with a note. A DELIBERATE improvement fails it too, and
+# that is correct.
+BASEPROD=$RESULTS/stack_${NAME}_spcc.fit
+[ -f "$BASEPROD" ] || BASEPROD=$STACK          # mono sets skip SPCC entirely
+GUARD_RC=0
+if [ ! -f "$DSET/baseline.json" ]; then
+  say "no-regression: no baseline for this set yet — nothing to compare against."
+  say "  Seed one ONCE YOU HAVE ACCEPTED this product (it becomes the reference"
+  say "  every later run is measured against):"
+  say "    python3 scripts/qa/baseline_guard.py $SESSION $SET $BASEPROD --seed --note='why'"
+else
+  say "no-regression: comparing the product against this set's accepted baseline"
+  python3 "$REPO/scripts/qa/baseline_guard.py" "$SESSION" "$SET" "$BASEPROD" || GUARD_RC=$?
+fi
+
 CULLS=$(python3 -c "
 import json
 try:
@@ -448,3 +480,12 @@ try:
 except (OSError, ValueError):
     print('none')" 2>/dev/null || echo "none")
 say "DONE — stack: $STACK | judge: $(judge_surface "$NAME" || echo '?') | culled: $CULLS | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
+
+if [ "$GUARD_RC" != 0 ]; then
+  say "STOP: the product REGRESSED against this set's accepted baseline (above)."
+  say "  Nothing was blocked or rewritten — the stack and judge surface are built."
+  say "  Find the cause, or if the change is deliberate and you have judged it"
+  say "  better, re-seed with --reseed and a note. Re-running keeps flagging until"
+  say "  one of those happens."
+  exit 8
+fi

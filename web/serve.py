@@ -810,6 +810,21 @@ def _join_name(sets):
         "+" + (s[4:] if s.startswith("set-") else s) for s in sets[1:])
 
 
+def _arg_note(v):
+    """Free-text provenance note (baseline_guard --note). Jobs exec an argv LIST
+    with no shell, so spaces and punctuation are safe here; this only bounds the
+    length and refuses control characters so a note cannot corrupt the record it
+    is written into."""
+    if not isinstance(v, str):
+        raise ValueError(f"note must be text: {v!r}")
+    v = v.strip()
+    if not v or len(v) > 500:
+        raise ValueError("note must be 1-500 characters")
+    if any(ord(c) < 32 or ord(c) == 127 for c in v):
+        raise ValueError("note contains control characters")
+    return v
+
+
 def _arg_framing(v):
     if v not in ("min", "max"):
         raise ValueError("framing must be min or max")
@@ -994,6 +1009,24 @@ def _stage_registry():
             + (["--desky"] if flat.endswith("_desky.fit") else [])
             + ([f"--group={_arg_int(a['group'], 5, 200)}"] if a.get("group") else []))(
                 _arg_repo_path(a["flat"], ["sessions"], ext=".fit")),
+        },
+        "baseline_guard": {
+            "desc": "PRODUCT-level no-regression check: Siril `stat` on the finished linear stack (corner spread, edge dipole, centre level per channel) compared against the baseline a human accepted for this set. The chain runs this automatically at the end and exits 8 on a regression; run it here to SEED the first baseline once you have accepted a product, or to RE-SEED after a deliberate improvement. It is a no-regression RECORD, never a quality gate — it has no opinion about whether a render is good, only whether it still measures like the one you accepted. Blind spot worth knowing: both measures are stack CORNERS, which docs/dead-ends.md calls self-fulfilling for flat contamination, so a PASS is not evidence the calibration is clean",
+            "phase": "measure",
+            "params": [
+                {"name": "session", "kind": "session", "req": True},
+                {"name": "set", "kind": "set", "req": True},
+                {"name": "stack", "kind": "path", "req": True, "choices": "stacks", "hint": "the LINEAR stack to measure — the _spcc surface for a colour set"},
+                {"name": "seed", "kind": "bool", "req": False, "hint": "record THIS product as the set's baseline (first time only)"},
+                {"name": "reseed", "kind": "bool", "req": False, "hint": "replace an existing baseline — only after a human judged the change better"},
+                {"name": "note", "kind": "str", "req": False, "hint": "why this product is the reference (required in spirit when seeding)"},
+            ],
+            "build": lambda a: ["python3", "scripts/qa/baseline_guard.py",
+                                P("sessions", _arg_session(a["session"])), _arg_set(a["set"]),
+                                _arg_repo_path(a["stack"], ["web", "results"], ext=".fit")]
+            + (["--seed"] if a.get("seed") else [])
+            + (["--reseed"] if a.get("reseed") else [])
+            + ([f"--note={_arg_note(a['note'])}"] if a.get("note") else []),
         },
         "chain_set": {
             "desc": "ONE CLICK, whole durable core for a set (ratified chain amendment): preflight (mount + fingerprint gates) -> frame QA -> route-by-fingerprint stack -> solve -> SPCC -> diagnostic judge surface. Stops wherever a decision is the user's (CONTRADICT, QA flags without a ratified cull, unroutable); built products skip so a re-click resumes. plan=true prints the derived route + exact commands and runs nothing",
