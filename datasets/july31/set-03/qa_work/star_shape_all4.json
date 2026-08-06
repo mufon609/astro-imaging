@@ -1,0 +1,10 @@
+{
+ "input": "web/results/july31/stack_all4_full.fit",
+ "label": "all4",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 12907,
+ "truncated_mean_fwhm_px": 2.66,
+ "sensor_tilt_fwhm_px": 0.38,
+ "sensor_tilt_pct": 14,
+ "off_axis_aberration_fwhm_px": 0.38
+}
