@@ -381,6 +381,52 @@ Class facts, records and the full mechanism set live in
 checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
 and the builder's own docstring.
 
+## `readiness-report` — ONE traffic-light gate, not N scattered stops
+
+**USER-ORDERED 2026-08-06, and it is the structural fix for the doctrine bug
+`CLAUDE.md` now records.** The chain currently interrupts at each gate in turn, so
+a run can stop three hours in for something knowable in the first ten seconds, and
+each stop asks the human to re-answer a call they already ratified the criteria
+for. Replace that with one surface: evaluate EVERY ratified criterion up front,
+report them together with a status colour, take ONE approval, then run unattended.
+
+**The colour contract (user-stated):**
+- **GREEN — go.** The criterion is met from the data. State the value and the
+  instrument, not just the tick.
+- **YELLOW — wait / look at this.** Met, but with something the user should SEE
+  before it runs. It does not block; it is the reason the report exists rather
+  than an auto-run.
+- **RED — bad or missing.** Blocks. This is the only thing that stops the run, and
+  it stops HERE rather than mid-build.
+
+**Criteria the report must cover** (every existing gate, plus what is currently
+only discoverable by reading logs):
+
+| criterion | GREEN | YELLOW | RED |
+|---|---|---|---|
+| mount | derived or declared, instruments CONFIRM | derived (not human-declared) — say so | instruments disagree, or CONTRADICT |
+| route | fingerprint decisive | forced with `--route=` | unroutable |
+| frame QA + cull | ran, cull ratified in recipe | standing auto-cull will apply N frames | not run |
+| obstruction audit | ran, dwell floor cleared with headroom | cleared under ~20% headroom, or any UNKNOWN object | floor exceeds the group size |
+| optics | installed == pinned, warp proven | community entry, not the fitted one | mixed optics, or lensfun cannot match the lens |
+| masters | dark + flat present | flat is a sky flat (flatless route) | missing, or a real-flat set on the undistort route |
+| flat quality | corner asymmetry under the WARN | above it — the open `sky x V` defect | builder gate failed |
+| disk | covers the peak with margin | covers it without margin | below the derived peak |
+| SPCC | Gaia cone complete, sensor matched | sensor-null generic curve | chunks missing |
+| baseline | present, product will be compared | none yet — nothing to regress against | product regressed (exit 8) |
+
+**Then:** print it, ask once, run. `--yes` skips the ask for an unattended re-run;
+`--plan` keeps its current meaning (show and exit).
+
+**The website gets the same data, same colours** — the set page shows the rail as
+green/yellow/red so the state is readable without a terminal, and the run button is
+the same single approval. One evaluator feeds both; the report is a record, written
+beside the other per-set records so what was approved is auditable afterwards.
+
+**Closes when** a set goes from raw frames to a finished product with exactly one
+human interaction — reviewing the report and approving it — and any genuinely
+undecidable criterion is RED in that report rather than a stop discovered later.
+
 ## `scope-own-photons-only` — JWST is CUT, and the boundary it establishes
 
 **DONE 2026-08-06: every JWST surface is removed from this repo** — `scripts/jwst/`

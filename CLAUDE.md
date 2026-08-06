@@ -34,6 +34,23 @@ trade-off, so every honest compromise is legible and improvable later. The data
 selects the route; priorities steer it; the user decides; the record keeps us
 honest.
 
+**WHAT "THE USER IS THE GATE" MEANS — and the misreading that has cost this repo
+real time (user-ratified clarification, 2026-08-06).** The gate is on the
+CRITERIA, not on every instance of applying them. Once the user has ratified HOW
+a call is made, the pipeline MAKES that call from the data, shows its work, and
+proceeds. It does not stop to have the human retype an answer the instruments
+already produced. The failure mode, measured: `mount` was ratified as a
+fixed-vs-tracked decision, the fingerprint measured it four independent times
+within 0.6% of sidereal, the chain printed the answer — and then exited 4 asking
+a human to confirm it. Three separate records asked for that to be fixed and none
+was, because each session read "the user is the gate" as "ask every time".
+**The correct shape is ONE report, not N stops:** evaluate every ratified
+criterion, present them together with their status, take one approval, then run
+unattended. A criterion the instruments cannot decide is the ONLY thing that
+stops — and it stops in that same report, not as a surprise three hours in.
+Aesthetics remain the exception with no automation: those are the user's eyes on
+the finals, always.
+
 **The bright line — what in-house code may and may not do:**
 - **FORBIDDEN** if it does ANY of: (1) reads or analyzes the deliverable's
   pixels; (2) makes an automated judgment / threshold call that gates, shapes,
