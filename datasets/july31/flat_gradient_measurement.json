@@ -1,0 +1,27 @@
+{
+ "finding": "Each per-set sky flat carries a DIFFERENT sky gradient, and the difference grows monotonically through the night. Dividing lights by a flat that contains sky stamps the inverse of that sky onto the OBJECT.",
+ "instrument": "Siril only \u2014 `idiv` of one flat by another (which CANCELS the optical response exactly: same lens, focal, aperture, focus, night), then `crop` + `stat` medians. No in-house pixel maths; this record only reports what Siril printed.",
+ "why_division_is_the_right_operator": "A flat is V x (1+g): optical response times whatever sky was baked in. flat_i / flat_j = (1+g_i)/(1+g_j) \u2014 V divides out identically, so the ratio isolates the sky term with no model, no fit and no assumption.",
+ "measured_corner_spread_of_the_ratio_pct": {
+  "flat01_over_flat02": 7.11,
+  "flat02_over_flat03": 10.56,
+  "flat03_over_flat04": 12.07,
+  "flat01_over_flat03": 18.55,
+  "flat01_over_flat04": 31.68
+ },
+ "additivity": "adjacent gaps sum to the wide gaps: 7.11+10.56=17.67 vs 18.55 measured; 7.11+10.56+12.07=29.74 vs 31.68 measured. A monotonically evolving term, not a fixed optical one.",
+ "spatial_form": "smooth monotonic diagonal tilt, 5x5 grid on flat01/flat03: -8.05% at one corner to +9.70% at the opposite, 19.31% peak-to-peak, no structure beyond the tilt at this sampling.",
+ "ruled_out": {
+  "vignetting_or_any_optical_term": "CANCELS by construction in a ratio of two flats from the same lens/focal/aperture/night. This is why the ratio was used instead of comparing flats to a model.",
+  "frame_count": "flat02/flat03 is 500 vs 500 frames \u2014 IDENTICAL counts \u2014 and still shows 10.56%. Counts cannot produce it.",
+  "dew": "dew's recorded signature (docs/dead-ends.md, july23) is a growing star halo with rising FWHM AND a terminal nstars CRASH of 13-16%. Here nstars RISES across the night (1166 -> 1256, +8%) while FWHM creeps 2.334 -> 2.576 px. Rising star count is the opposite of dew.",
+  "sky_getting_brighter": "background level is FLAT across all four sets (bg16 median 1117 / 1115 / 1117 / 1117). The sky did not brighten; its GRADIENT changed direction and magnitude. That is a geometry change, not a brightness change.",
+  "the_lens_distortion_model": "identical pinned model for all four sets, asserted per set by lens_preflight against scripts/darktable/lens_models.json."
+ },
+ "NOT_ruled_out_and_is_the_likely_source": "MOONLIGHT and airmass. july31 was shot under a 93.7% moon. A horizon-fixed gradient is exactly what a bright moon plus airmass produces, and it sits STILL on the sensor of a fixed mount while the sky drifts past \u2014 so it cannot reject out of a median of un-registered lights. That is the documented mechanism in docs/dead-ends.md. IMPORTANT: the moon is the SOURCE of the gradient, not the defect. The defect is that a flat built from those same lights absorbs it and division then stamps its inverse onto the object. No processing removes moonlight; a flat that does not contain it would not tilt the object.",
+ "predicted_consequence_UNTESTED": "Each set's object is modulated by 1/(1+g_i) with a DIFFERENT g_i. Registered to sky and combined, the four different multiplicative tilts do not cancel \u2014 they leave a residual that is neither sky nor object. This is the hypothesis for both the linear corner-spread trend (0.40/0.50/1.03/1.17% for sets 01-04 in capture order) and any local dullness in the combined frame. STATED AS A HYPOTHESIS. The controlled test is in AUDIT_FLAT_GRADIENT_PROMPT.md.",
+ "artifacts": [
+  "web/results/july31/flat_gradient/flatratio_set-01_over_set-03.{fit,png}",
+  "web/results/july31/flat_gradient/flatratio_set-01_over_set-04.{fit,png}"
+ ]
+}
