@@ -178,7 +178,18 @@ NEED_GB=$(undistort_peak_gib "$SESSION" "$SET" "$FRAMES")
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 [ "$FREE_GB" -ge "$NEED_GB" ] || { echo "ABORT: ~${NEED_GB}G peak needed for $FRAMES frames (${PEAK_MIB} MiB/frame, derived from this set's own frame geometry — disk_budget.sh), ${FREE_GB}G free — pass a smaller --frames (even stride keeps the full time span), or use run_undistort_groups.sh for full depth" >&2; exit 1; }
 
-rm -rf "$P"; mkdir -p "$P/out"
+# ONE BUILDER PER session+set. $P is derived from SESSION and SET alone, so a
+# second invocation would `rm -rf` the first's work dir MID-FLIGHT — the first then
+# fails somewhere arbitrary with its inputs gone, which reads as a tool failure
+# rather than a collision. Refuse instead. (Measured 2026-08-06: a rebuild died at
+# "WARP FAILED" with its whole work tree missing while other work was in flight;
+# the cause was unrecoverable because darktable's stderr was discarded — now kept.)
+if [ -e "$P/.lock" ] && kill -0 "$(cat "$P/.lock" 2>/dev/null)" 2>/dev/null; then
+  echo "ABORT: another build is already running for $SET (pid $(cat "$P/.lock")) and shares this work dir ($P). Wait for it, or use a different set." >&2
+  exit 1
+fi
+rm -rf "$P"; mkdir -p "$P/out"; echo $$ > "$P/.lock"
+trap 'rm -f "$P/.lock"' EXIT
 mapfile -t ALL < <(python3 -c "
 import sys
 src = sys.argv[1:]; n = $FRAMES
@@ -212,8 +223,10 @@ while [ $n -lt ${#ALL[@]} ]; do
       --style lensdist --style-overwrite --icc-type LIN_REC709 --core \
       --configdir "$CFG" --library ":memory:" \
       --conf plugins/imageio/format/tiff/bpp=32 \
-      --conf plugins/imageio/format/tiff/compress=0 >/dev/null 2>&1 \
-      || { echo "WARP FAILED $b" >&2; exit 1; }
+      --conf plugins/imageio/format/tiff/compress=0 > "$P/dt_last.log" 2>&1 \
+      || { echo "WARP FAILED $b — darktable said:" >&2; tail -12 "$P/dt_last.log" >&2
+           echo "  (input: $t, exists=$([ -f "$t" ] && echo yes || echo NO), configdir $CFG)" >&2
+           exit 1; }
     rm -f "$t"
   done
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
