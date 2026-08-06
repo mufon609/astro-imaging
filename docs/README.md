@@ -45,10 +45,6 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
-- [jwst-official-rendering-process](jwst-official-rendering-process.md) — what
-  the JWST imaging team (DePasquale/Pagan) + Schmidt/Hueso DOCUMENTED about
-  rendering, evidence-classed: FITS Liberator asinh placed-points semantics
-  (scaled-peak = the strength knob; v5 = amd64-only `fl5` CLI, arm-blocked),
   per-filter stretch → colorize → screen/channel-isolation with pseudogreen,
   saturation-null + chip-gap fills as the documented artifact pass, the
   Neptune separate-transfers doctrine (= the wide-field caption's short+long
@@ -56,9 +52,6 @@ _(add each writeup here, newest first)_
   WinJUPOS methods + CC-BY derotated products; Siril 1.4.4 SOURCE-verified to
   express the placed-points transfer via `pm` (probe-confirmed on-rig).
   Drives j2_widefield_v2.
-- [jwst-archival-class](jwst-archival-class.md) — the ARCHIVAL class (no
-  photons shot here): MAST acquisition via astroquery (proposal-ID queries,
-  sized decide surface, CAL_VER/CRDS_CTX anchors — rig-verified through
   `query`), the consensus i2d→reproject→asinh→chromatic-palette workflow with
   tool fit (reproject sanctioned; `exact` wrong below 0.05″/px; Siril probes
   pre-registered; FITS Liberator v5 as the GUI reference), and the Jupiter

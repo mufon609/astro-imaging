@@ -404,49 +404,11 @@ the constraints any such tool must satisfy):
   Also measured in the same probe: the 16-bit intermediates chain (same flat, same
   frames) reads only ~55-70% of the 32-bit arm's extended contrast (4.8/2.4/3.9 vs
   8.5/2.9/5.6) — integer round-tripping through calibrate/warp/register eats faint
-  signal; the arm-era adaptation cost real structure, not just +0.3% noise.
+  signal; the 16-bit-era adaptation cost real structure, not just +0.3% noise.
 - On a union/max canvas, CROP to the verified coverage frame BEFORE any
   background step: `subsky`'s sample grid ingests the canvas's zero-coverage
   rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
   the fit skews. Crop-before-background is the pinned order.
-
-- **Constant-per-image sky matching can NEITHER remove structure-class mosaic
-  seams NOR be trusted near a bright extended source.** MEASURED (jwst 3.0.0
-  calwebb_image3, NIRCam SW 12-input Jupiter mosaic, per-detector `group_id`
-  ungrouping so `skymethod=match` equalized all 12 individually): the
-  detector-block step at the recorded boundary boxes stayed −0.8745 → −0.8737
-  MJy/sr — the seams are per-image background STRUCTURE (1/f banding +
-  residual gradients differing across dither-coverage boundaries), invisible
-  to any constant-per-image fit — while the matcher subtracted the planet's
-  scattered-light GLOW as "sky" (matched values 36–65 MJy/sr; the fan region
-  collapsed +71.9 → +25.5 MJy/sr = −65% of real signal; whole sky shifted
-  −29 MJy/sr). The overlap strips of a bright-planet field are glow-dominated,
-  so the least-squares has no sky to find. Do not re-attempt constant sky
-  matching (grouped or ungrouped) against structure-class seams or on
-  glow-dominated overlaps; the at-source lever for 1/f-class structure is the
-  pipeline's own Detector1 `clean_flicker_noise` (ramp-level), and a seam that
-  survives it is archive-truth, not a matching knob.
-
-- **Ramp-level 1/f cleaning (jwst `clean_flicker_noise`) on a bright-planet-
-  dominated NIR frame removes real extended glow — even with an explicit
-  sky-only user mask.** MEASURED (jwst 3.0.0, NIRCam SW F212N Jupiter, two
-  configured arms): default-ish config (background model box 256, per-channel
-  fit, n_sigma=2) cut striping row-sigma 1.748 → 0.853 but took −20% of the
-  scattered-light fan (+71.94 → +57.87 MJy/sr) — its own saved mask shows 24%
-  of bright (>5 MJy/sr) pixels INCLUDED in the fits (sigma clipping does not
-  exclude smooth glow); adding a strict sky-only user_mask (finite ∧ rate <
-  1.5 MJy/sr, 15 px dilated; True=background, and note `datamodels.open`
-  requires ImageModel format — a bare FITS raises KeyError: 'data') improved
-  striping to −68% but the fan still lost 15%, and the loss localizes to the
-  CAL level: the identical archive-defined fan-class pixel set (30–100
-  MJy/sr, 544k px) reads 41.94 archive vs 37.16 cleaned = −11.4% before any
-  stage-3 step. The block seams got WORSE under masked cleaning (−0.87 →
-  −1.07 MJy/sr): per-detector independent cleaning shifts inter-detector
-  offsets unpredictably. The step is built for field-dominated frames; do not
-  re-attempt it on planet/glow-dominated frames expecting signal-safe
-  striping repair — the striping and seam residuals of such a corpus are
-  archive-truth, handled at presentation (field-stretch choice), never by
-  eating glow.
 
 **Stretch / colour:**
 - **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT HOLDS
@@ -607,10 +569,7 @@ the constraints any such tool must satisfy):
   pairing — twice): every run left 219/220 frames with a NULL H (no match) and
   quality −1, failing silently in the GUI. Do not re-attempt KOMBAT on 32-bit float
   3-channel crops of this class; the surviving in-Siril candidate is Image Pattern
-  Alignment with a track-covering selection, and the cross-tool route is PSS —
-  which is itself ENVIRONMENT-BLOCKED on Linux aarch64 (PyQt5 publishes NO aarch64
-  Linux wheels — manylinux x86_64 abi3 only, verified on PyPI 5.15.11), i.e. PSS
-  runs on the x86 rig only.
+  Alignment with a track-covering selection, and the cross-tool route is PSS.
 - **Siril 1.4.4 planetary registrations write NO per-frame quality — even on a
   VERIFIED-successful run — so a `-filter-quality` stack has nothing to consume.**
   MEASURED end-to-end (july26 set-01): Image Pattern Alignment with a track-covering

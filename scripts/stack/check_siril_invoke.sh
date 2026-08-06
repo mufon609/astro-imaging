@@ -27,19 +27,13 @@ raw=$(grep -rn 'flatpak run --command=siril-cli' --include='*.sh' . \
 [ -z "$raw" ] || { echo "FAIL: shell scripts spawn siril-cli directly, bypassing siril_cli():" >&2
                    echo "$raw" >&2; exit 1; }
 
-# scripts/jwst/* is the archival-class chain, maintained in parallel; it has not
-# adopted the invoker yet, so it is reported but not failed. Any OTHER python
-# building its own SIRIL argv is a bypass.
+# Any python building its own SIRIL argv is a bypass. There is no exemption:
+# the one that existed (scripts/jwst/*, an archival chain maintained in parallel
+# that had never adopted the invoker) is gone with that class, so the check is
+# now unconditional and every hit is a real failure.
 py=$(grep -rn 'SIRIL *+' --include='*.py' . \
-     | grep -vE 'scripts/lib/siril_run\.py:|scripts/jwst/' || true)
+     | grep -vE 'scripts/lib/siril_run\.py:' || true)
 [ -z "$py" ] || { echo "FAIL: python builds its own siril-cli argv, bypassing siril_run.run():" >&2
                   echo "$py" >&2; exit 1; }
-
-unadopted=$(grep -rln 'SIRIL *+' --include='*.py' scripts/jwst 2>/dev/null || true)
-if [ -n "$unadopted" ]; then
-  echo "NOTE: not yet routed through the shared invoker (cross-session protection"
-  echo "      needs both sides to take the lock):"
-  echo "$unadopted" | sed 's/^/        /'
-fi
 
 echo "OK: every pipeline Siril invocation is serialized through scripts/lib/siril_run.{sh,py}"
