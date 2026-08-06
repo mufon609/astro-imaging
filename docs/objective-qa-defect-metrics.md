@@ -1,5 +1,23 @@
 # Objective image-quality & processing-defect metrics — deep dive
 
+> **STALE RECOMMENDATION — read this before acting on the Verdict section
+> (checked 2026-08-06).** Priority **#1, "Radial-profile undershoot ringing
+> detector — reuses the existing radial profiles ... Cheapest high-value win",
+> IS VOID.** There are no existing radial profiles: `scripts/qa/star_shape_profile.py`
+> was DELETED in `e3864e8` ("retire the in-house radial profile") and its
+> replacement is Siril's own `seqtilt` (`scripts/qa/star_shape.py`). It was not
+> retired for tidiness — it is **trap 3 in `docs/dead-ends.md`**: a radial profile
+> binned about the `findstar` bounding-box centre has an ORIGIN THAT MOVES WITH THE
+> DEFECT (537 px measured from a detection-sigma change alone), so it read roundness
+> *improving* outward on a stack whose right third had no detections, and it
+> invented an anomaly a whole session was scoped to chase. Anything in this file
+> that proposes reusing or extending that code is building on a discredited
+> instrument. The registry's rule stands: **never key a metric to a geometry derived
+> from the measurement itself** — use a FIXED external origin
+> (`scripts/qa/star_stations.py`) or the tool's own measure (`seqtilt`).
+> Items 2–6 of the Verdict are unaffected; item 1 needs a new mechanism, not a
+> revival.
+
 > **Read this as a map of WHAT TO PULL FROM THE TOOLS, not what to build.** The repo
 > never computes image metrics in numpy — the tools measure (Siril
 > `stat`/`register`/SubframeSelector, ASTAP, SPCC) and the checklist records their

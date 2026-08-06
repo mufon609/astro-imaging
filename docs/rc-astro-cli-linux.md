@@ -1,5 +1,13 @@
 # RC-Astro BXT / NXT / SXT standalone CLI on Linux — deep verify
 
+> **STATUS (checked 2026-08-06): RC-Astro is NOT INSTALLED, by choice — a deliberate
+> gap, not a platform block.** Nothing below is contradicted: the CLI is real, it
+> runs on this hardware (Linux x86-64 + AVX2), and this file remains the reference
+> for how to drive it if it is ever bought. What has changed is that the repo
+> decided to stay on free tools so any contributor can reproduce a result, so the
+> install steps here are a PLAN, not a description of the rig. Current tool status
+> lives in `TOOLS.md` ("What is installed, and what is a deliberate gap").
+
 - **Question / scope** — The mission's flagged "deep verify": does RC-Astro
   (BlurXTerminator / NoiseXTerminator / StarXTerminator) ship a *real* standalone
   Linux CLI, and what are the exact invocation, CPU-only wall-clock (no GPU),
