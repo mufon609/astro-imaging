@@ -1,0 +1,23 @@
+{
+ "decision": "ACCEPTED \u2014 all four groups-route judge surfaces PASS (user, 2026-08-05)",
+ "surfaces": [
+  "web/results/july31/judge/set-01_full_spcc-linked.png",
+  "web/results/july31/judge/set-02_full_spcc-linked.png",
+  "web/results/july31/judge/set-03_full_spcc-linked.png",
+  "web/results/july31/judge/set-04_full_spcc-linked.png"
+ ],
+ "judged_on": "full-frame 16-bit PNG, autostretch -linked per product, opened independently \u2014 the review contract's surface",
+ "user_note": "set-04's corners read odd; attributed by the user to the stretch, on the grounds that it stacks fewer frames (260 vs 500).",
+ "verified_after_the_fact": {
+  "instrument": "scripts/qa/regional_stat.py \u2014 Siril stat, LINEAR stack, box 400 / margin 200, ch1",
+  "linear_corner_spread_pct": {
+   "set-01": 0.4,
+   "set-02": 0.5,
+   "set-03": 1.03,
+   "set-04": 1.17
+  },
+  "reading": "The user's attribution holds. set-04 is the worst at 1.17% LINEAR, and docs/dead-ends.md records the judge autostretch amplifying a background gradient 9-17x \u2014 so ~1% in the data is what renders as a visibly odd corner. It is a display-domain impression of a small real gradient, not a defect introduced by the shallower stack.",
+  "BUT_worth_auditing": "the linear spread roughly DOUBLES across the night: 0.40 / 0.50 / 1.03 / 1.17 for sets 01-04 in capture order. That trend is the signature the open `sky x V` defect predicts \u2014 a sky flat bakes in the horizon-fixed gradient present while its own lights were shot, and that gradient changes through a session. Frame count does not explain a monotonic trend in capture order. NOT measured as such; stated as the hypothesis a per-set flat-vs-sky comparison would test."
+ },
+ "note_on_recording": "The repo documents a `<session>-all<N>-<tag>-approved` git tag as THE approval record (README, datasets/README, web/README, serve.py). No such tag has ever existed (BACKLOG:approval-tag-never-used). This record is therefore written as a tracked JSON instead, and the tag question stays open for the user."
+}

@@ -1,0 +1,98 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/web/results/july31/stack_set-04_full_spcc.fit",
+ "domain": "linear (run this on the pre-stretch surface; cross-arm comparisons use the _spcc stack)",
+ "box_px": 400,
+ "corner_margin_px": 200,
+ "image_wh": [
+  5459,
+  3858
+ ],
+ "channels": 3,
+ "regions": {
+  "center": {
+   "ch0": {
+    "mean": 131.0,
+    "median": 129.1,
+    "sigma": 24.2
+   },
+   "ch1": {
+    "mean": 131.1,
+    "median": 129.2,
+    "sigma": 23.9
+   },
+   "ch2": {
+    "mean": 130.7,
+    "median": 128.8,
+    "sigma": 26.8
+   }
+  },
+  "TL": {
+   "ch0": {
+    "mean": 131.6,
+    "median": 127.4,
+    "sigma": 174.0
+   },
+   "ch1": {
+    "mean": 132.3,
+    "median": 127.9,
+    "sigma": 158.3
+   },
+   "ch2": {
+    "mean": 132.2,
+    "median": 128.0,
+    "sigma": 146.6
+   }
+  },
+  "TR": {
+   "ch0": {
+    "mean": 130.7,
+    "median": 129.5,
+    "sigma": 25.6
+   },
+   "ch1": {
+    "mean": 130.6,
+    "median": 129.4,
+    "sigma": 18.5
+   },
+   "ch2": {
+    "mean": 130.2,
+    "median": 129.3,
+    "sigma": 14.5
+   }
+  },
+  "BL": {
+   "ch0": {
+    "mean": 130.4,
+    "median": 128.5,
+    "sigma": 36.3
+   },
+   "ch1": {
+    "mean": 131.1,
+    "median": 129.0,
+    "sigma": 33.4
+   },
+   "ch2": {
+    "mean": 130.5,
+    "median": 128.7,
+    "sigma": 30.8
+   }
+  },
+  "BR": {
+   "ch0": {
+    "mean": 131.4,
+    "median": 128.3,
+    "sigma": 121.9
+   },
+   "ch1": {
+    "mean": 132.2,
+    "median": 128.7,
+    "sigma": 129.0
+   },
+   "ch2": {
+    "mean": 131.9,
+    "median": 128.4,
+    "sigma": 153.7
+   }
+  }
+ }
+}
