@@ -9,7 +9,7 @@
   stars, no sky background to model) — this class needs its own route through
   the toolkit, under the same contract (tools do all pixel work + measurement;
   one knob per experiment; the user gates every output-shaping run).
-- **Context** — 2026-07. Rigs: arm64 base rig (Siril 1.4.4 flatpak, GraXpert,
+- **Context** — 2026-07. Rigs: the previous base rig (Siril 1.4.4 flatpak, GraXpert,
   darktable, Hugin, astrometry.net venv) + the x86-64 target (same toolset +
   the neural x86 binaries). Camera: Nikon Z6III — 5.94 µm pitch (35.9 mm /
   6048 px), 14-bit NEF in ALL drive modes, e-shutter readout 9.3 ms in

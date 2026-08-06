@@ -896,30 +896,6 @@ def _derive_set(stack_rel, explicit, session=None):
 # Each stage: description, loop phase, param specs (served to the UI), and a
 # builder returning the argv (repo-relative cwd). Params marked opt are
 # omitted when blank. Adding a stage = adding a row here; the UI renders it.
-def _arg_jwst_session(v):
-    # a JWST staging session may not exist yet (acquire creates it). The
-    # "jwst-" prefix keeps archival corpora self-labelling on disk but is the
-    # SYSTEM's bookkeeping: accept a bare target slug and prefix it here.
-    s = str(v).strip().lower()
-    if not s.startswith("jwst-"):
-        s = "jwst-" + s
-    if not re.fullmatch(r"jwst-[a-z0-9][a-z0-9-]{1,40}", s):
-        raise ValueError("session must be a lowercase slug, e.g. jupiter")
-    return s
-
-
-def _arg_proposal(v):
-    if not re.fullmatch(r"\d{3,5}", str(v)):
-        raise ValueError("proposal id is 3-5 digits")
-    return str(v)
-
-
-def _arg_filterlist(v):
-    if not re.fullmatch(r"[a-z0-9,]{2,120}", str(v)):
-        raise ValueError("filters is a lowercase comma list, e.g. f212n,f335m")
-    return str(v)
-
-
 def _stage_registry():
     P = os.path.join
     return {
@@ -1264,53 +1240,6 @@ def _stage_registry():
                 {"name": "min_floor", "kind": "int", "req": False, "hint": "sibling-class sky floor ADU (no-map mode)"},
             ],
             "build": _verify_framing_argv,
-        },
-        "jwst_query": {
-            "desc": "MAST reconnaissance: list a proposal's JWST imaging observations (read-only; no download)",
-            "phase": "acquire",
-            "params": [
-                {"name": "proposal", "kind": "str", "req": True, "hint": "program id from the release page, e.g. 1373"},
-                {"name": "instrument", "kind": "str", "req": False, "hint": "default NIRCAM* (wildcard)"},
-            ],
-            "build": lambda a: ["python3", "scripts/jwst/acquire.py", "query",
-                                "--proposal=" + _arg_proposal(a["proposal"])]
-            + (["--instrument=" + re.fullmatch(r"[A-Za-z*\/]{3,20}", a["instrument"]).string]
-               if a.get("instrument") else []),
-        },
-        "jwst_list": {
-            "desc": "the DECIDE surface: every candidate stage-3 i2d file WITH SIZES + total GB — run before any download",
-            "phase": "acquire",
-            "params": [
-                {"name": "proposal", "kind": "str", "req": True},
-                {"name": "filters", "kind": "str", "req": False, "hint": "comma list matched in filenames, e.g. f212n,f335m"},
-            ],
-            "build": lambda a: ["python3", "scripts/jwst/acquire.py", "list",
-                                "--proposal=" + _arg_proposal(a["proposal"])]
-            + (["--filters=" + _arg_filterlist(a["filters"])] if a.get("filters") else []),
-        },
-        "jwst_download": {
-            "desc": "gated MAST pull into sessions/<jwst-session>/products (resumable curl route); REFUSES without go",
-            "phase": "acquire",
-            "params": [
-                {"name": "proposal", "kind": "str", "req": True},
-                {"name": "session", "kind": "str", "req": True, "hint": "target slug, e.g. jupiter (stored as jwst-jupiter)"},
-                {"name": "filters", "kind": "str", "req": False},
-                {"name": "go", "kind": "bool", "req": False, "hint": "the explicit decide gate — run list first"},
-            ],
-            "build": lambda a: ["python3", "scripts/jwst/acquire.py", "download",
-                                "--proposal=" + _arg_proposal(a["proposal"]),
-                                "--session=" + _arg_jwst_session(a["session"])]
-            + (["--filters=" + _arg_filterlist(a["filters"])] if a.get("filters") else [])
-            + (["--go"] if a.get("go") else []),
-        },
-        "jwst_verify": {
-            "desc": "verify downloaded products (SCI + WCS parse, header reads only) -> tracked acquisition_manifest.json with CAL_VER/CRDS_CTX anchors",
-            "phase": "acquire",
-            "params": [
-                {"name": "session", "kind": "str", "req": True, "hint": "target slug, e.g. jupiter"},
-            ],
-            "build": lambda a: ["python3", "scripts/jwst/acquire.py", "verify",
-                                "--session=" + _arg_jwst_session(a["session"])],
         },
     }
 

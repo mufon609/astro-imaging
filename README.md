@@ -19,8 +19,8 @@
 > tier already drives; BACKLOG:`learned-deconvolution`). Per-tool evidence:
 > [`TOOLS.md`](TOOLS.md).
 >
-> **Numbers inherited from the retired arm64 box are HYPOTHESES until
-> re-measured here** — the order is
+> **Numbers inherited from a previous rig are HYPOTHESES until re-measured
+> here** — the order is
 > [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
 
 This repo is a **checklist + knowledge workspace** for astrophotography

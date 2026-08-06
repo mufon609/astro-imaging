@@ -235,6 +235,94 @@ the constraints any such tool must satisfy):
   not a valid fix for it. Numbers:
   `datasets/july31/set-01/qa_work/desky_regression.json`.
 
+- **A SKY FLAT'S LOW-ORDER TERM CHANGES MATERIALLY WITHIN ONE 25-MINUTE BURST — so
+  a set-mean flat is the wrong flat for the ENDS of the burst — but the change is
+  NOT driven by elapsed time. The obvious time-dose hypothesis is DEAD.**
+  Instrument: a ratio of two flats built from the SAME set, same dark, same
+  `rej w 3 3`, same `-norm=mul`, same builder — which cancels vignetting EXACTLY
+  (same lens/focal/aperture/night), with no model and no fit. Measured with Siril
+  `stat` medians only, corner spread at box 400 / margin 200 and a 63-box grid
+  (200 px boxes, 550 px pitch) for the ramp slope.
+  **The floor first, because without it the effect is unreadable:** split the same
+  set INTERLEAVED (even frames vs odd) instead of contiguously and both halves span
+  the whole burst, so any time-evolving term cancels and only the build floor
+  remains. Measured **0.035%** (set-03, 250+250) and **0.046%** (set-04, 130+130)
+  corner spread, grid range 0.092/0.128%. That is the flat-build floor for this
+  builder and it did not exist before.
+  **The effect:** contiguous first-half/second-half corner spread **3.481%**
+  (july31 set-03, 750 s between half-midpoints) and **4.177%** (set-04, 390 s) —
+  **100.0x and 90.6x the floor**. So dividing the first frames of a burst by a
+  flat built from all of them leaves a corner-to-corner error of order half that,
+  ~1.7%, with opposite sign at the other end — against the +0.70% across-frame
+  calibration residual the 500-frame stack actually carries.
+  **WHAT IS KILLED: "the gradient evolves with time."** A dose-response on burst
+  duration falsified it on its own pre-registered falsifier. set-04 ran 777 s
+  against set-03's 1497 s, so a time-driven term predicted 0.52x; it measured
+  **1.200x** — the SHORTER burst produced MORE half-to-half change. Do not
+  re-attempt burst duration as the explanatory variable, and do not size a
+  flat-window policy from elapsed time. What is specific to a set is unattributed;
+  note that a re-aim happens between sets, so duration is not the only difference.
+  **A second discriminator worth keeping: it is the WRONG AXIS to be the stack's
+  residual.** The within-set term is predominantly TOP-BOTTOM (y-slope +0.8178 vs
+  x-slope +0.0705 %/1000px on set-03, an 11.6x excess), whereas the sensor-fixed
+  calibration residual the stack carries is LEFT-RIGHT (+0.171 %/1000px). Two
+  different axes are two different terms; a within-burst flat policy is not
+  automatically a fix for the stack's ramp.
+  Numbers: `datasets/july31/experiments.jsonl`, `flat_window_within_set_set03` and
+  `flat_window_dose_set04`.
+
+- **A FOUR-CORNER BOX METRIC IS NOT A GRADIENT MEASURE ON A STRUCTURED FIELD.**
+  Corner-vs-corner spread is used across this repo as the background-flatness
+  number (`judge_acceptance.json`'s `linear_corner_spread_pct`,
+  `build_sky_flat.sh`'s 1.20 corner-asymmetry WARN, `baseline_guard.py`'s edge
+  dipoles). On a Milky-Way field it measures **which bit of sky landed in four
+  boxes**, because real nebulosity at that scale is the same size as the
+  calibration residual it is supposed to detect.
+  MEASURED on the matched pair july31 set-02 vs set-03 — 500 frames each, 1497 s
+  each, drift 912 vs 906 px, canvases within 10 px — whose corner spreads read
+  **0.49% vs 1.09%**, a factor of two. 63-box background maps (Siril `stat`
+  medians, green, linear `_spcc`, 200 px boxes on a 550 px pitch) decompose that
+  into two comparable terms:
+  **(1) a smooth left-right ramp that is SENSOR-FIXED**, slope +0.160 vs
+  +0.171 %/1000 px — the two independent builds agree to 7% — i.e. ~0.70% across
+  the frame. That is the calibration residual.
+  **(2) a patchy term, sd 0.43-0.52%**, which correlates BETTER in SKY
+  coordinates (r +0.579, n=50) than in SENSOR coordinates (r +0.366, n=63) and
+  sits 15-20x above measurement noise. That is real sky structure — SIGNAL.
+  **The discriminator is the re-aim.** A between-set re-point decouples the two
+  frames, so a sensor-fixed term correlates in canvas coordinates and a sky-fixed
+  term correlates in sky coordinates. Without a re-aim the two are degenerate and
+  no corner metric can separate them.
+  **The corners of different sets do not even see the same sky.** Mapping one
+  set's four corner boxes through both solved WCS puts THREE of four outside the
+  other set's canvas; the one that survives shifts 0.27% from the sky offset
+  alone, which is as large as the effect being measured.
+  What to use instead: the **ramp slope fitted over a grid** — reproducible to 7%
+  between independent builds, immune to which sky lands in any one box, and it is
+  the term a background-extraction stage actually targets. Changing an acceptance
+  measure needs user ratification, so this is recorded as the candidate, not as a
+  swap. Numbers: `datasets/july31/experiments.jsonl`,
+  `background_residual_decomposition_set02_vs_set03`.
+
+- **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a metric
+  taken at a margin relative to each canvas's own edge is not like-for-like
+  across sets.** The intersection keeps only what every frame covers, so the trim
+  is how far the sky swept, which at a fixed cadence is the burst duration.
+  MEASURED, july31: set-04 ran 777 s and lost 605 px of x; sets 01-03 ran
+  1497-1624 s and lost 1153-1163 px, leaving set-04 with the LARGEST canvas
+  (5459x3858) and the FEWEST frames (260). Those are the same fact stated twice.
+  Consequence: `regional_stat.py` at margin 200 puts set-04's boxes 279 px
+  further out in x than set-01's. Re-measuring all four at a common physical
+  extent moved the numbers 0.40/0.49/1.03/1.17 -> 0.48/0.49/1.09/1.33 — set-04
+  got WORSE, so the geometry is not the explanation, but the corrected shape is a
+  STEP between set-02 and set-03 rather than the monotonic doubling the earlier
+  framing asserted.
+  Second-order but unmodelled: the total trim runs **1.16-1.29x the pure
+  translation** in every set. The excess is field rotation — a non-tracking
+  alt-az head rotates the field as well as drifting it — plus the warp border and
+  the groups route's two-stage framing. `fingerprint.py` computes translation
+  only, so every disk and framing figure derived from `drift_px` under-counts.
+
 - **NEVER store a calibration master at 16-bit integer.** A master dark/bias/flat
   is a many-frame MEAN, so its precision is far finer than one integer step;
   rounding to 16 bits does not lose "a bit of noise", it stores a SENSOR-FIXED
@@ -316,49 +404,11 @@ the constraints any such tool must satisfy):
   Also measured in the same probe: the 16-bit intermediates chain (same flat, same
   frames) reads only ~55-70% of the 32-bit arm's extended contrast (4.8/2.4/3.9 vs
   8.5/2.9/5.6) — integer round-tripping through calibrate/warp/register eats faint
-  signal; the arm-era adaptation cost real structure, not just +0.3% noise.
+  signal; the 16-bit-era adaptation cost real structure, not just +0.3% noise.
 - On a union/max canvas, CROP to the verified coverage frame BEFORE any
   background step: `subsky`'s sample grid ingests the canvas's zero-coverage
   rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
   the fit skews. Crop-before-background is the pinned order.
-
-- **Constant-per-image sky matching can NEITHER remove structure-class mosaic
-  seams NOR be trusted near a bright extended source.** MEASURED (jwst 3.0.0
-  calwebb_image3, NIRCam SW 12-input Jupiter mosaic, per-detector `group_id`
-  ungrouping so `skymethod=match` equalized all 12 individually): the
-  detector-block step at the recorded boundary boxes stayed −0.8745 → −0.8737
-  MJy/sr — the seams are per-image background STRUCTURE (1/f banding +
-  residual gradients differing across dither-coverage boundaries), invisible
-  to any constant-per-image fit — while the matcher subtracted the planet's
-  scattered-light GLOW as "sky" (matched values 36–65 MJy/sr; the fan region
-  collapsed +71.9 → +25.5 MJy/sr = −65% of real signal; whole sky shifted
-  −29 MJy/sr). The overlap strips of a bright-planet field are glow-dominated,
-  so the least-squares has no sky to find. Do not re-attempt constant sky
-  matching (grouped or ungrouped) against structure-class seams or on
-  glow-dominated overlaps; the at-source lever for 1/f-class structure is the
-  pipeline's own Detector1 `clean_flicker_noise` (ramp-level), and a seam that
-  survives it is archive-truth, not a matching knob.
-
-- **Ramp-level 1/f cleaning (jwst `clean_flicker_noise`) on a bright-planet-
-  dominated NIR frame removes real extended glow — even with an explicit
-  sky-only user mask.** MEASURED (jwst 3.0.0, NIRCam SW F212N Jupiter, two
-  configured arms): default-ish config (background model box 256, per-channel
-  fit, n_sigma=2) cut striping row-sigma 1.748 → 0.853 but took −20% of the
-  scattered-light fan (+71.94 → +57.87 MJy/sr) — its own saved mask shows 24%
-  of bright (>5 MJy/sr) pixels INCLUDED in the fits (sigma clipping does not
-  exclude smooth glow); adding a strict sky-only user_mask (finite ∧ rate <
-  1.5 MJy/sr, 15 px dilated; True=background, and note `datamodels.open`
-  requires ImageModel format — a bare FITS raises KeyError: 'data') improved
-  striping to −68% but the fan still lost 15%, and the loss localizes to the
-  CAL level: the identical archive-defined fan-class pixel set (30–100
-  MJy/sr, 544k px) reads 41.94 archive vs 37.16 cleaned = −11.4% before any
-  stage-3 step. The block seams got WORSE under masked cleaning (−0.87 →
-  −1.07 MJy/sr): per-detector independent cleaning shifts inter-detector
-  offsets unpredictably. The step is built for field-dominated frames; do not
-  re-attempt it on planet/glow-dominated frames expecting signal-safe
-  striping repair — the striping and seam residuals of such a corpus are
-  archive-truth, handled at presentation (field-stretch choice), never by
-  eating glow.
 
 **Stretch / colour:**
 - **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT HOLDS
@@ -519,10 +569,7 @@ the constraints any such tool must satisfy):
   pairing — twice): every run left 219/220 frames with a NULL H (no match) and
   quality −1, failing silently in the GUI. Do not re-attempt KOMBAT on 32-bit float
   3-channel crops of this class; the surviving in-Siril candidate is Image Pattern
-  Alignment with a track-covering selection, and the cross-tool route is PSS —
-  which is itself ENVIRONMENT-BLOCKED on Linux aarch64 (PyQt5 publishes NO aarch64
-  Linux wheels — manylinux x86_64 abi3 only, verified on PyPI 5.15.11), i.e. PSS
-  runs on the x86 rig only.
+  Alignment with a track-covering selection, and the cross-tool route is PSS.
 - **Siril 1.4.4 planetary registrations write NO per-frame quality — even on a
   VERIFIED-successful run — so a `-filter-quality` stack has nothing to consume.**
   MEASURED end-to-end (july26 set-01): Image Pattern Alignment with a track-covering
@@ -766,6 +813,38 @@ the constraints any such tool must satisfy):
 
 **Tool state / plumbing** (a persisted preference and a dropped header are both
 SILENT — pin the state, never inherit it):
+- **Siril `idiv` CLIPS AT 1.0, SILENTLY — so a ratio of two comparable images (the
+  standard flat-vs-flat instrument) loses its whole upper tail with no warning.**
+  The tell is a whole-frame `stat` printing **Max exactly 65535.0**. MEASURED on a
+  ratio of two 250-frame sky flats: `idiv` reported Max 65535.0 and mean 63073.6,
+  while the SAME division via `fdiv <B> 0.5` and `fdiv <B> 0.25` agreed exactly
+  with each other after rescaling — true max **112156** (ratio 1.711 on the 65535
+  scale) and mean 63115.4. So idiv truncated everything above 1.0 and dragged the
+  mean 0.066% with it. **Use `fdiv <B> <scalar>` with a scalar that keeps the
+  result inside range** (0.5 suffices when the two images are comparable); the
+  scalar is global and cancels out of any ratio-of-medians statistic.
+  **What saves you, and what does not — and it depends entirely on WHERE the ratio
+  sits.** When the bulk of the frame is below 1.0, regional MEDIANS survive a
+  truncated tail (a within-set flat ratio at median 0.963 reduced to corner spread
+  3.4817 clipped vs 3.4814 unclipped, identical +0.0705 %/1000px slope). When the
+  ratio straddles or exceeds 1.0 the medians go too, catastrophically. MEASURED on
+  the five july31 between-set flat ratios, corner spread at box 400 / margin 200,
+  `idiv` against an unclipped `fdiv` leg: **−2.4, −0.7, −5.7, −3.3 and −9.1
+  percentage points** (flat01/flat04 reading 18.715 against a true 27.843 — **33%
+  understated**), and flat03/flat04's `idiv` leg has a whole-frame MEDIAN of exactly
+  65535.0, i.e. over half the frame pinned at the clip. Never reason about whether
+  the medians are safe — rebuild with `fdiv` and compare. Two scalars that agree
+  after rescaling (0.25 vs 0.5) is the positive control that no truncation is
+  moving them; a Max still at 65535.0 at BOTH scalars is a genuine
+  divide-by-near-zero spike, not bulk clipping.
+  **The corollary that cost nothing here only by luck: RECORD THE SCALAR.**
+  `datasets/july31/flat_gradient_measurement.json` states its instrument as
+  "`idiv` of one flat by another"; its two surviving artifacts are reproduced
+  exactly by `fdiv <B> 0.5` and are exactly 0.5000x a plain `idiv` of the same
+  flats. An undocumented scalar is what kept that record's numbers off the clip,
+  and anyone reproducing it AS WRITTEN would have understated every figure by up to
+  9.1 points. The measurement was right and the method line was wrong, which is the
+  harder failure to catch.
 - **Siril's FITS extension is a PERSISTED preference; every generated `.ssf`
   must pin `setext`.** `extension=` in `config.1.4.ini` decides what `convert`,
   `save` and `-out=` write, and a script that does not set it inherits whatever
@@ -970,12 +1049,34 @@ SILENT — pin the state, never inherit it):
   (`register s -2pass` → `seqapplyreg -framing=min` → `stack mean none`) and
   differenced against the original with Siril `isub` — **all three channels nil,
   both times**. SCOPE: n=2, same-arm, one rig, siril 1.4.4, and the COMPOSE sweep
-  only (5 members). The per-frame `register -2pass` over 500 warped raws is a
-  different problem size and remains unmeasured, so the README exemption still
-  holds where it was written. What changes is that a compose-level A/B may be
+  only (5 members). What changes is that a compose-level A/B may be
   judged on BYTES, and a same-arm compose repeat is a real zero rather than a
   tolerance — which is what turned an accidental rebuild into the repeat floor a
   route comparison needed (`datasets/july31/experiments.jsonl`).
+  **EXTENDED 2026-08-06 — the WHOLE GROUPS ROUTE is bit-reproducible, not just the
+  compose, so a full rebuild has a repeat floor of ZERO.** july31/set-01 rebuilt
+  TWICE from the same 500 culled raws through the entire chain (calibrate → darktable
+  warp → per-group `register -2pass` → GESD stack → compose) at `--group=100`, and
+  both differenced against the ARCHIVED product built the day before: **all six
+  pairwise directions all-nil, all three channels**. So the rebuild-repeat floor
+  the route claims were gated on is 0.00 px, and the three commits that landed
+  between the archived build and the rebuilds are MEASURED pixel-neutral rather
+  than assumed so.
+  **Two controls that make this a result instead of a check that cannot fail**, both
+  required because Siril reports an all-zero difference as a FAILURE string
+  (*"Statistics computation failed for channel N (all nil?)"*): (1) the guard was
+  BROKEN on purpose — `(x1.01) − x` prints Red/Green/Blue mean 0.3/2.1/1.5, so the
+  nil is a measured zero; (2) every pair was differenced in BOTH directions, since a
+  one-way nil would only prove A ≤ B if `isub` clipped — and a `(x0.99) − x` probe
+  showed it does NOT clip (means −0.3/−2.1/−1.5, minima −589.3/−655.3/−567.2).
+  **SCOPE, and it is narrower than "the chain is deterministic":** the groups route
+  never runs a 500-frame sweep. It runs five INDEPENDENT 100-frame `register -2pass`
+  sweeps plus the 5-member compose. So per-frame registration is now measured
+  deterministic at **n=100** (×5 groups, ×2 arms) and the compose at n=5; the
+  SINGLE-PASS 500-frame sweep is still a different problem size and still
+  unmeasured, so the README exemption survives exactly where it was written and
+  nowhere wider. Numbers: `datasets/july31/experiments.jsonl`,
+  `rebuild_repeat_floor_set01`.
   **How it was found is the lesson.** Not by a designed test: by re-running a
   builder to exercise a guard `--plan` could not reach, which silently recomposed
   a built product. The tooling forced a real invocation to test a dry decision;

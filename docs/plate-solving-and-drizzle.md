@@ -1,5 +1,18 @@
 # Plate-solving the trailed/ultra-wide class + drizzle sampling — deep dive
 
+> **SUPERSEDED IN ONE PLACE (checked 2026-08-06): the in-house PEAK-CENTROID
+> extractor this file treats as the production detector is RETIRED.** `solve_field.py`
+> now extracts with **SExtractor's core (`sep` 1.4.1)** as its SOLE extractor; the
+> hand-rolled peak-centroid fallback is gone. The empirical A/B this file called for
+> was RUN and settled it: `sep` returns trailed sources (median elongation ~1.3) and
+> blind-solves at HIGHER odds than the in-house peak centroids (logodds 299 vs 289,
+> scale delta 1.2e-5) with an identical SPCC K (`extractor_ab.json`). So the
+> ranking below is right in ORDER and wrong in its top entry's identity — read
+> "peak centroids" as "`sep`" throughout. Everything about WHY shape-blind
+> extraction beats PSF-fit detection on trailed fields still stands, and is the
+> reason `sep` won. Current state: `TOOLS.md` Tier 2 + the `docs/dead-ends.md`
+> solver entries.
+
 - **Question / scope** — Deep-verify Tier 2 for the TRAILED ultra-wide class: ASTAP vs
   astrometry.net vs Siril native — which detection method survives trailing, and is
   feeding astrometry.net peak centroids (our `solve_field.py`) the right move? Plus:

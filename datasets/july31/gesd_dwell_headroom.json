@@ -1,6 +1,6 @@
 {
  "record": "GESD outlier-fraction headroom vs transient dwell, per set",
- "status": "PROVISIONAL \u2014 dwell figures RECOVERED from archived audits at 01dd19c^, NOT from a fresh run. The chain does not call anomaly_audit.py (README-vs-chain contradiction), so no current-cull audit exists for any july31 set. Re-derive before relying on the margins.",
+ "status": "CURRENT as of 2026-08-06 \u2014 dwell figures RE-DERIVED FRESH on this rig against the current cull (scripts/qa/anomaly_audit.py on all four sets, records at datasets/july31/set-0N/audit_work/anomaly_audit.json). All four reproduced the archived 01dd19c^ figures EXACTLY, including every set-03 object's class, position angle and frame span. The margins below can be relied on.",
  "mechanism": {
   "claim": "`rej g 0.3 0.05` caps GESD's outlier FRACTION at 0.30, so a transient dwelling n frames inside a group of G occupies n/G and is only eligible for rejection while n/G < 0.30",
   "constraint": "G >= ceil(max_dwell / 0.30)",
@@ -71,6 +71,54 @@
   }
  },
  "verdict": "ALL FOUR CLEAR at the running group sizes \u2014 nothing stops. But set-03 sits at 90% of the cap (27/100 = 0.270 against 0.30) with a floor of 90 against a running 100. A 31-frame dweller would have exceeded the cap outright and GESD would have stopped treating it as an outlier at all.",
- "the_defect": "run_undistort_groups.sh's derivation targets ~100/group to keep every group in the GESD BAND (>50) and 'any transient a clear minority'. The first half is enforced by arithmetic. The SECOND HALF IS ASSERTED, NOT COMPUTED \u2014 nothing reads a dwell length. So the parameter is right on this session by arithmetic accident, which is the third time a constant has been right by luck rather than derivation (after 98 MiB/frame and the empty groups_set-0{3,4} dirs).",
- "fix": "read max(dwell) from the set's anomaly_audit.json when one exists, enforce GROUP >= ceil(max_dwell/0.30), and PRINT the binding constraint. With no audit, say so rather than assume a clear minority \u2014 which is the state of every july31 set today. Closes the dwell blindness and the README-vs-chain contradiction in one change."
+ "the_defect": "run_undistort_groups.sh's derivation targets ~100/group to keep every group in the GESD BAND (>50) and 'any transient a clear minority'. The first half is enforced by arithmetic. The SECOND HALF IS ASSERTED, NOT COMPUTED \u2014 nothing reads a dwell length. So the parameter is right on this session by arithmetic accident, which is the third time a constant has been right by luck rather than derivation (after 98 MiB/frame and the empty groups_set-0{3,4} dirs).  [CLOSED 2026-08-06 \u2014 see fix_STATUS.]",
+ "fix": "read max(dwell) from the set's anomaly_audit.json when one exists, enforce GROUP >= ceil(max_dwell/0.30), and PRINT the binding constraint. With no audit, say so rather than assume a clear minority \u2014 which is the state of every july31 set today. Closes the dwell blindness and the README-vs-chain contradiction in one change.",
+ "re_derivation_2026_08_06": {
+  "method": "anomaly_audit.py run per set, serial, set-01 LAST (the groups builder derives its floor from the record, so writing one earlier could have blocked or altered the concurrent rebuild-repeat experiment at --group=100)",
+  "reproduced_exactly": {
+   "set-01": [
+    4
+   ],
+   "set-02": [
+    1,
+    1,
+    2
+   ],
+   "set-03": [
+    1,
+    1,
+    3,
+    4,
+    8,
+    9,
+    11,
+    17,
+    20,
+    27
+   ],
+   "set-04": [
+    1,
+    4,
+    9,
+    27
+   ]
+  },
+  "UNKNOWN_objects_across_all_four_sets": 0,
+  "verdict_unchanged": "all four shipped products satisfy their dwell floor; set-03 still clears at 90% of the cap (floor 90 against a running 100, a 4-frame margin of dwell)",
+  "full_record": "datasets/july31/anomaly_audit_fresh_all_sets.json"
+ },
+ "fix_STATUS": {
+  "state": "IMPLEMENTED 2026-08-06 in scripts/stack/run_set_chain.sh.",
+  "what_changed": "the chain now runs the obstruction audit as a per-set prep step, after frame QA and before the cull \u2014 the order README already documented and no code performed. It runs on EVERY route (the dwell floor is the groups-specific consumer, but the inventory and the UNKNOWN surface are per-set QA any route wants, and a route-conditional QA step is one that silently does not run). Skips when a record exists, discloses itself in --plan with a measured ~1 s/frame cost estimate, prints the object count / longest dwell / derived floor, and reports any UNKNOWN loudly in both the step output and the end summary.",
+  "no_builder_change_was_needed": "run_undistort_groups.sh already computed the floor, RAISED a derived group to it, and ABORTED an explicit --group below it. It read the floor from a record nothing produced. Only the producing half was missing.",
+  "verified_by_BREAKING_it_not_by_reading_it": {
+   "plan_disclosure": "hiding set-03's record flips the plan line from 'done, 10 object(s), longest dwell 27 frame(s)' to 'not yet run \u2014 will run (~9 min)'; restoring flips it back",
+   "enforcement_WITH_a_record": "run_undistort_groups.sh --group=50 on set-03 ABORTS, exit 1: 'the set's 27-frame transient would occupy 0.54 of a group, at or past GESD's 0.3 outlier-fraction cap, so it would NOT be rejected'",
+   "the_defect_itself_reproduced": "with the record hidden \u2014 the state EVERY july31 product was built in \u2014 the same --group=50 prints 'dwell floor: NOT CHECKED' and plans 10 groups of 50, silently accepting a configuration in which that satellite is 54% of its group and cannot be rejected",
+   "enforcement_at_the_shipped_size": "--group=100 passes, printing '10% headroom'",
+   "UNKNOWN_branch": "exercised against a synthetic record carrying a non-callout object \u2014 the branch fires and its 41-frame dweller derives a floor of 137, i.e. the derivation would raise the group above 100. Real july31 data has zero UNKNOWNs, so without this the report path could not be shown to work at all.",
+   "FACTS_field_alignment": "the chain's fact block gained a line; confirmed the later fields did not shift (the fingerprint label still reads as the label, not as the audit string)"
+  },
+  "what_this_does_NOT_do": "it does not gate on the audit. The audit is report-only and the chain does not stop on an UNKNOWN or on any inventory; the only gate is the builder's pre-existing floor check. Classifying an UNKNOWN, and deciding what to do about one, stays the user's."
+ }
 }

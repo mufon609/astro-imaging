@@ -1,0 +1,116 @@
+{
+ "measurement": "flat_corner_asymmetry_remeasure",
+ "status": "MEASURED, closed",
+ "date": "2026-08-06",
+ "subject": "the four ACCEPTED july31 sky flats, sessions/july31/work/masters/skyflat_set-0{1..4}.fit (6064x4040, BITPIX -32, CFA/un-debayered, STACKCNT 507/500/500/260). Read-only: nothing was rebuilt, re-seeded or overwritten.",
+
+ "why_this_was_run": {
+  "claim_under_test": "the per-set qa records report NO corner asymmetry for any july31 flat. That is a RECORD-INTEGRITY defect, not a measurement that found nothing: the code that computes the term was absent from the builder version that produced these flats.",
+  "record_state_AS_FOUND_and_a_correction_to_the_framing": "the prompt that commissioned this said `corner_asymmetry` is `null` in all four records and that set-01 lacks the key. MEASURED against the files: the key is ABSENT FROM ALL FOUR (`grep -c corner_asymmetry` returns 0 on each of the four `skyflat_set-0N_qa.json`). No record carries it as `null`. The distinction matters in the direction that makes the defect worse: a `null` is at least a slot a reader can see and question, whereas an absent key is invisible to anything that does not already know to look for it.",
+  "set01_is_a_SECOND_generation_behind": "set-01's record also lacks `odd_component`, `edge_regional_stat_ADU` and `edge_region_geometry_px`, which sets 02/03/04 all carry. So set-01's flat was built by a builder older than BOTH features, and sets 02/03/04 by one carrying the edge-dipole work but not the asymmetry work.",
+  "provenance_of_the_gap": "`5f04dfb` (2026-07-28) added `corner_asymmetry`; `4b235d4` added `odd_component`. The two lived on different lines of development and were only reunited by the 2026-08-06 merge `7fb028f`. Every july31 flat predates that merge.",
+  "consequence_now": "today's `build_sky_flat.sh` computes the term and prints `WARNING: corner asymmetry ...` at >= 1.20 (its own provisional threshold). Every one of these four flats is above that line, so the shipped builder WOULD fire on all four. It never did, because the code was not there when they were built."
+ },
+
+ "instrument": {
+  "tool": "Siril 1.4.4 (system flatpak) — `load` -> `crop` -> `stat` only. No in-house pixel operation; the driver emits .ssf and parses Siril's own stat line.",
+  "invocation_per_region": "requires 1.2.0 / setcompress 0 / setext fit / load <flat.fit> / crop <x> <y> <box> <box> / stat",
+  "driver": "sessions/july31/work/flatremeasure/measure_flat.sh (ad-hoc, session work tree; not a repo script)",
+  "geometries": {
+   "corners": {"box": 400, "margin": 200, "note": "build_sky_flat.sh's corner-vs-centre gate geometry"},
+   "edges": {"box": 80, "margin": 2, "note": "baseline_guard.py's edge_dipole_x geometry, as build_sky_flat.sh uses it"},
+   "region_formulas": "TL=(M,M); TR=(IW-M-B,M); BL=(M,IH-M-B); BR=(IW-M-B,IH-M-B); center=((IW-B)/2,(IH-B)/2) — identical to the builder's",
+   "resolved_px_at_6064x4040": {
+    "corners_b400_m200": {"center": [2832, 1820], "TL": [200, 200], "TR": [5464, 200], "BL": [200, 3440], "BR": [5464, 3440]},
+    "edges_b80_m2": {"center": [2992, 1980], "TL": [2, 2], "TR": [5982, 2], "BL": [2, 3958], "BR": [5982, 3958]}
+   }
+  },
+  "derived_quantities": {
+   "corner_asymmetry": "max(corner medians)/min(corner medians) at box 400 / margin 200",
+   "edge_dipole_x": "((TR+BR)-(TL+BL))/2 / mean4, on the four EDGE-geometry medians (baseline_guard.py convention)",
+   "edge_dipole_y": "((TL+TR)-(BL+BR))/2 / mean4, same medians — the top-bottom sibling"
+  },
+  "load_during_the_run": "1-min loadavg 0.79 -> 3.89, the rise being this driver's own serial siril-cli spawns. Recorded per the registry's instrument-load rule. Load-independence is DEMONSTRATED rather than assumed here — see positive_controls."
+ },
+
+ "positive_controls": {
+  "control_1_set01_against_the_prior_session": {
+   "expected": {"corner_asymmetry": 1.776, "brightest": "TR", "darkest": "BL", "edge_dipole_x": 0.4360, "edge_dipole_y": 0.1211},
+   "measured": {"corner_asymmetry": 1.776, "brightest": "TR", "darkest": "BL", "edge_dipole_x": 0.4360, "edge_dipole_y": 0.1211},
+   "verdict": "all three reproduce exactly. Geometry confirmed."
+  },
+  "control_2_sets_02_03_04_against_their_OWN_records": {
+   "method": "the recorded `odd_component` in each set's `skyflat_set-0N_qa.json` was written by the builder at flat-build time. Re-deriving it from a fresh Siril read is an independent repeat.",
+   "set-02": {"recorded": [0.3795, 0.1402], "remeasured": [0.3795, 0.1402], "match": true},
+   "set-03": {"recorded": [0.3260, 0.1851], "remeasured": [0.3260, 0.1851], "match": true},
+   "set-04": {"recorded": [0.2208, 0.1779], "remeasured": [0.2208, 0.1779], "match": true},
+   "verdict": "exact to all four recorded decimals on three independent flats, measured on a different day at a different machine load than the originals. This is the load-independence check for this instrument, not an assumption."
+  }
+ },
+
+ "measured": {
+  "set-01": {
+   "corner_medians_ADU_b400_m200": {"TL": 45.6, "TR": 74.6, "BL": 42.0, "BR": 63.5, "center": 110.2},
+   "corner_asymmetry": {"ratio": 1.776, "brightest": "TR", "darkest": "BL"},
+   "edge_medians_ADU_b80_m2": {"TL": 23.2, "TR": 38.1, "BL": 22.0, "BR": 32.3, "center": 105.1},
+   "edge_dipole_x": 0.4360,
+   "edge_dipole_y": 0.1211,
+   "abs_x_over_abs_y": 3.60
+  },
+  "set-02": {
+   "corner_medians_ADU_b400_m200": {"TL": 47.9, "TR": 74.5, "BL": 43.4, "BR": 62.1, "center": 111.0},
+   "corner_asymmetry": {"ratio": 1.717, "brightest": "TR", "darkest": "BL"},
+   "edge_medians_ADU_b80_m2": {"TL": 24.6, "TR": 38.0, "BL": 22.8, "BR": 31.6, "center": 108.7},
+   "edge_dipole_x": 0.3795,
+   "edge_dipole_y": 0.1402,
+   "abs_x_over_abs_y": 2.71
+  },
+  "set-03": {
+   "corner_medians_ADU_b400_m200": {"TL": 52.9, "TR": 77.4, "BL": 45.9, "BR": 61.9, "center": 116.6},
+   "corner_asymmetry": {"ratio": 1.686, "brightest": "TR", "darkest": "BL"},
+   "edge_medians_ADU_b80_m2": {"TL": 27.1, "TR": 39.6, "BL": 24.0, "BR": 31.4, "center": 115.0},
+   "edge_dipole_x": 0.3260,
+   "edge_dipole_y": 0.1851,
+   "abs_x_over_abs_y": 1.76
+  },
+  "set-04": {
+   "corner_medians_ADU_b400_m200": {"TL": 55.7, "TR": 73.8, "BL": 48.4, "BR": 58.1, "center": 115.4},
+   "corner_asymmetry": {"ratio": 1.525, "brightest": "TR", "darkest": "BL"},
+   "edge_medians_ADU_b80_m2": {"TL": 28.5, "TR": 37.6, "BL": 25.5, "BR": 29.8, "center": 113.0},
+   "edge_dipole_x": 0.2208,
+   "edge_dipole_y": 0.1779,
+   "abs_x_over_abs_y": 1.24
+  },
+  "secondary_dipoles_at_the_CORNER_geometry_b400_m200": {
+   "why_reported": "the registry states a box-size difference is not a reason to withhold a comparison (a box-vs-EDGE difference is). These agree with the edge-geometry values to 2-7%, so the term is not a function of box size.",
+   "set-01": {"x": 0.4475, "y": 0.1303},
+   "set-02": {"x": 0.3975, "y": 0.1483},
+   "set-03": {"x": 0.3402, "y": 0.1890},
+   "set-04": {"x": 0.2356, "y": 0.1949}
+  }
+ },
+
+ "readings": [
+  "ALL FOUR flats exceed the builder's own provisional 1.20 corner-asymmetry WARN: 1.776 / 1.717 / 1.686 / 1.525. The shipped builder would have flagged every one of them. None was flagged, because the check did not exist at build time.",
+  "The ORIENTATION is identical in all four: brightest TR, darkest BL, every set. That is the discriminator build_sky_flat.sh's own note names for a SENSOR-FIXED term ('a sensor-fixed term keeps the same darkest corner, a sky term does not'). It is satisfied here on all four.",
+  "|edge_dipole_x| exceeds |edge_dipole_y| in all four. Vignetting is an EVEN RADIAL function and contributes equally to x and y, so any x-excess is non-radial BY CONSTRUCTION and cannot be vignetting. This needs no threshold; it is a parity argument.",
+  "The x-excess DECLINES MONOTONICALLY across the night: |x|/|y| = 3.60 / 2.71 / 1.76 / 1.24 for sets 01 -> 04, and edge_dipole_x itself falls 0.4360 -> 0.3795 -> 0.3260 -> 0.2208 while edge_dipole_y RISES 0.1211 -> 0.1402 -> 0.1851 -> 0.1779. The two components move in opposite directions.",
+  "The corner asymmetry falls monotonically over the same sequence (1.776 -> 1.717 -> 1.686 -> 1.525), which is the same fact stated on the other geometry."
+ ],
+
+ "what_this_does_NOT_establish": [
+  "It does NOT attribute the non-radial term. Same-darkest-corner across four sets is CONSISTENT with a sensor-fixed term, but these four sets are four different pointings on one alt-az tripod (RA -8.33 / -4.26 / -9.93 deg of re-aim between them) on one night, so a horizon-fixed sky gradient would ALSO hold a roughly constant sensor orientation. The registry's cross-SESSION sign-flip evidence is what separates those, and it is not re-run here.",
+  "It does NOT explain the monotonic decline of the x-term. A time-ordered trend across four sets is an observation with n=4, no control, and burst duration, pointing and sky altitude all changing together. No mechanism is proposed and none should be read in.",
+  "It does NOT re-open or re-validate the 1.20 WARN threshold, which the builder's own note calls PROVISIONAL. Nothing here ratifies or loosens it.",
+  "It measures the FLATS, not the products. The consequence a contaminated flat has for the deliverable (the object carrying a multiplicative tilt) is a separate, already-open defect and is not measured here.",
+  "The absolute ADU levels are per-flat normalisation-dependent (`-norm=mul`); only the within-flat ratios above are meaningful across sets."
+ ],
+
+ "record_integrity_finding_REPORTED_NOT_FIXED": {
+  "finding": "the four tracked `skyflat_set-0N_qa.json` records omit `corner_asymmetry` entirely, and set-01's additionally omits the whole edge/odd-component block. A reader of those records cannot distinguish 'measured and passed' from 'never measured'.",
+  "not_done_here": "the existing per-set qa records were NOT edited. This is a separate session-level record, per the instruction that a defect is reported and not fixed.",
+  "scope_note": "any later re-run of `build_sky_flat.sh` on these sets would populate the key — but that rebuilds an accepted baseline master, which is out of bounds for this session."
+ },
+
+ "products_touched": "none. Read-only measurement; no flat, stack, render or baseline was written, overwritten or re-seeded."
+}
