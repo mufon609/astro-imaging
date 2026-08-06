@@ -29,6 +29,17 @@ technical and process knowledge lives in the operating docs, never here:
   off-rig and re-stage in minutes); final processed images stay in `web/results/`;
   superseded intermediates are cleared without ceremony ("clear whatever...
   no longer needed. keep the final processed images in results").
+- **Transient is NOT constrained — space must never shape a processing choice.**
+  "i do not want to restrict the processing due to space… i expect 500-600 G to be
+  the min present at anytime. if there is less space than that, clutter must exist
+  and be found and remove - just lmk." So report the clutter and ask; never pick
+  the cheaper route to save disk. This has already cost once: the single-pass vs
+  groups route was decided by free disk alone, which on a big disk always picks the
+  option that cannot be built on later.
+- **Re-running is cheap; being wrong is not.** "i don't mind having to rerun any
+  part of the process. slow and steady is the way to build for this project."
+  Prefer the correct rebuild over the clever reuse, and do not present a rebuild
+  as a cost the user needs protecting from.
 - Expects killed hypotheses reported as plainly as wins — no
   "fixed/final/matched/close" language, ever; nothing is called fixed before
   it is tested on data.
