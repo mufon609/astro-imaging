@@ -34,8 +34,9 @@ sky against the declaration:
 other; the consumer STOPS and reconciles. It never silently re-labels: the
 declaration is the human's, the measurement only checks it.
 
-The fingerprint RECOMMENDS a route (the MATCH step). It does not execute one —
-the operating loop keeps the user as the gate before any output-shaping run.
+The fingerprint DERIVES the route (the MATCH step) and the chain acts on it —
+routing measured facts to the right tool is the pipeline's job, not a question
+for a human. What stops is a measurement the instruments cannot settle.
 `refresh()` is the automatic seeding entry: it derives from whatever tracked
 records exist and rewrites the record only when its content changes, so every
 record-landing moment (mount declaration, frame QA) can call it idempotently.

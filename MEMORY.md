@@ -20,8 +20,11 @@ technical and process knowledge lives in the operating docs, never here:
 - **Decisive and autonomy-favoring** within the rules — has said "stop
   asking"; prefers action once intent is clear, and extends corrections
   class-generally ("audit the rest of the pipeline for the same mistake").
-- **The user is the gate**: nothing output-shaping proceeds without their
-  decision; aesthetics are judged only by their eyes.
+- **The user is the gate for what the DATA CANNOT SETTLE** — not for every
+  decision. Routing measured facts through the right tool is the pipeline's job
+  and the point of the project; aesthetics are judged only by their eyes. Asking
+  a human to confirm what the instruments already measured is the failure mode,
+  not the discipline (`CLAUDE.md`, "Where the gate actually is").
 - Scraps throwaway platforms rather than bandaiding them; keeps the
   intellectual capital (mechanisms, dead-ends), not the scaffolding.
 - **Storage on the working rig is transient by design**: raws stage in for

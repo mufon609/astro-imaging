@@ -59,8 +59,11 @@ user decide before it runs. For each dataset:
    the alternatives.
 4. **REPORT** — a summary of what the data showed + the recommended pipeline is
    presented to the user.
-5. **DECIDE** — the user **accepts / adjusts / reroutes / clarifies**. The user
-   is the gate before execution; nothing output-shaping auto-proceeds.
+5. **DECIDE** — the user **accepts / adjusts / reroutes / clarifies**. The gate
+   is on what the DATA CANNOT SETTLE: anything an instrument answers decisively
+   (route, mount, group size, cull) the pipeline decides and records; aesthetics
+   and unmeasurable trade-offs are always the user's; an undecidable measurement
+   is the only unplanned stop (`CLAUDE.md`, "Where the gate actually is").
 6. **EXECUTE + RECORD** — run the chosen route, then record the choice AND its
    trade-off in the per-dataset state, so every honest compromise is legible and
    improvable later.
