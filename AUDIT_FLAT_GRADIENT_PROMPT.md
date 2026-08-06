@@ -94,10 +94,15 @@ Two observations consistent with this, neither yet tested as such:
    linear `_spcc` stacks). Frame count does not explain a monotonic trend in
    capture order.
 2. **The user reports the combined frame looking duller than expected toward the
-   top-right of the North America Nebula.** NGC 7000 sits at pixel (2339, 612) in
-   `stack_all4_full_wcs.fit`'s FITS convention. This has NOT been measured — treat
-   it as the user's visual report and establish it with an instrument before
-   building anything on it.
+   top-right of the North America Nebula.** NGC 7000 sits at pixel (2339, 612),
+   FITS convention, on the combine's 4033×2614 canvas — use
+   `stack_all4_full.fit` or `stack_all4_full_spcc.fit`, which share that canvas
+   exactly. (The coordinate was originally taken against `stack_all4_full_wcs.fit`,
+   which has since been removed; NEITHER survivor carries WCS keywords, so if you
+   need sky coordinates rather than pixels, re-inject with
+   `scripts/calibrate/solve_field.py --inject=`. The pixel position is unaffected.)
+   This has NOT been measured — treat it as the user's visual report and establish
+   it with an instrument before building anything on it.
 
 There is also a **second, distinct mechanism from the same root** that you must
 separate from the tilt: a sky flat is a median of un-registered lights, so any

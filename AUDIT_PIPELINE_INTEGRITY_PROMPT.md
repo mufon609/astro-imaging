@@ -13,6 +13,42 @@ Paste everything below the line.
 
 ---
 
+# STATE OF THE DATA — read this before planning anything
+
+**Most derived data has been deleted. That is deliberate, and it is fine.** The
+raws are all present, so anything removed is regenerable — but it costs a rebuild,
+and several tasks below assume you will pay that rather than go looking.
+
+**On disk:**
+
+| | |
+|---|---|
+| `sessions/july31/{darks,set-01..04}/` | **2114 raw NEF** — the whole session, untouched |
+| `sessions/july31/work/masters/` | master dark + the four per-set sky flats |
+| `web/results/july31/stack_set-0{1..4}_full{,_spcc}.fit` | the four accepted per-set stacks |
+| `web/results/july31/stack_all4_full{,_spcc}.fit` | the accepted 1760-frame combine |
+| `web/results/july31/judge/*.png` | the five accepted judge surfaces |
+| `web/results/july31/flat_gradient/` | the flat-ratio diagnostics |
+| `datasets/july31/` | every tracked record, incl. `experiments.jsonl` |
+
+**Gone, and NOT to be hunted for:**
+
+- **All sub-stacks** (`work/groups_set-*`). The combine cannot be re-composed; it
+  would need a full re-warp from raws.
+- **Both single-pass control stacks** (`stack_set-01.fit`, `stack_set-02.fit`) and
+  the **`--group=250` arm**. The route A/B and the dose-response cannot be re-read
+  off disk — **their numbers survive only in `datasets/july31/experiments.jsonl`**,
+  which is why that file is the authority for §1 and §3 below.
+- **Every `_wcs.fit`.** No surviving stack carries WCS keywords. Re-inject with
+  `scripts/calibrate/solve_field.py --inject=` if you need sky coordinates.
+- **All work trees** (`work/undistort_*`, `work/flatbuild_*`, `work/render_*`).
+
+**So: any comparison against a previous product means rebuilding that product from
+raws.** A 500-frame set is ~90 minutes. This is expected and endorsed — "i don't
+mind having to rerun any part of the process. slow and steady is the way to build
+for this project." Do not design around avoiding a rebuild, and do not treat a
+missing intermediate as a fault.
+
 # What this is
 
 july31 was run end to end from raw frames only — 1767 NEFs, four sets, no prior
@@ -65,9 +101,11 @@ withdrawn**, including the one written up as a "narrow replicated win". Bit-
 identical → the whole chain is deterministic and README's per-frame-sweep
 exemption is wrong too.
 
-**Caveat you must respect:** the sub-stacks were deleted in a cleanup, so this
-starts from raws. It is ~90 minutes for a 500-frame set. It is still the cheapest
-thing here, because it decides whether three other results mean anything.
+**This starts from raws** — see STATE OF THE DATA above; no sub-stack or control
+survives. ~90 minutes for a 500-frame set, and still the cheapest thing here,
+because it decides whether three other results mean anything. Note you are
+building BOTH arms fresh: the original is gone too, so this is a clean same-arm
+repeat rather than a comparison against an aging product.
 
 ## 2. A BUILD FAILED AND WAS NEVER DIAGNOSED
 
