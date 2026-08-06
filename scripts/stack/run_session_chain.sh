@@ -36,8 +36,15 @@ SESSION=$(cd "$SESSION" && pwd)
 SETS=()
 for d in "$SESSION"/*/; do
   name=$(basename "$d")
+  # The SINGULAR forms are calibration too. The pipeline's own convention is
+  # Siril's — plural (its bundled scripts use `cd darks`/`flats`/`biases`/
+  # `lights` and never a singular) — but a singular staged dir must not fall
+  # through to the LIGHT branch: it holds >=8 raws, so it would be enumerated
+  # as a light set and carried to frame QA, mount derivation and a full stack.
+  # build_master_dark.sh still requires the plural (it stops loudly on the
+  # singular); this list only refuses to mistake one for lights.
   case "$name" in
-    darks|biases|flats|flats_*|darkflats|calib|work|reference|.*) continue;;
+    darks|dark|biases|bias|flats|flat|flats_*|darkflats|darkflat|calib|work|reference|.*) continue;;
   esac
   n=$(find "$d" -maxdepth 1 -type f \
     \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \

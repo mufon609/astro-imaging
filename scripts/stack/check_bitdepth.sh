@@ -52,7 +52,7 @@ cd "$(dirname "$0")/../.."          # repo root: the whole tree, not one stage d
 fail() { echo "FAIL: $*" >&2; exit 1; }
 S=scripts
 
-# 1. no script may pin set16bits, except these THREE, each for a stated reason
+# 1. no script may pin set16bits, except these FOUR, each for a stated reason
 #    that makes 32-bit buy nothing. Anything else is a FAIL. An exemption is a
 #    claim about where the leg TERMINATES, so re-check it if that changes.
 #    - qa/coverage_probe.sh: the coverage MAP instrument. Its members are
@@ -67,7 +67,12 @@ S=scripts
 #      downstream regardless. (The FITTED model does shape products, but through
 #      star CORRESPONDENCE geometry, whose precision is SNR-limited, not
 #      quantization-limited.)
-EXEMPT='qa/coverage_probe\.sh|qa/run_frame_qa\.sh|darktable/fit_lens_model\.sh'
+#    - stack/run_lunar_pipeline.sh: ONLY its stage step — convert + seqcrop of
+#      14-bit integer NEFs, no arithmetic, which 16 bits holds exactly (the same
+#      file's master-dark crop pins set32bits, because a master is a MEAN and
+#      carries sub-integer precision). Re-check if the stage step ever gains an
+#      arithmetic op before the crop.
+EXEMPT='qa/coverage_probe\.sh|qa/run_frame_qa\.sh|darktable/fit_lens_model\.sh|stack/run_lunar_pipeline\.sh'
 hits=$(grep -rn 'set16bits' --include='*.ssf' --include='*.tmpl' --include='*.sh' \
         --include='*.py' "$S" | grep -vE "check_bitdepth\.sh:|$EXEMPT" || true)
 [ -z "$hits" ] || { echo "$hits" >&2; fail "set16bits is pinned above (not an exempt instrument)"; }
@@ -201,7 +206,7 @@ sys.exit(1 if bad else 0)
 PYSMOKE
 
 cat <<EOF
-OK: no set16bits outside the 3 documented instrument exemptions;
+OK: no set16bits outside the 4 documented instrument exemptions;
     4 master templates pin set32bits + setcompress 0;
     9 product builders pin set32bits + setcompress 0;
     every discovered .ssf emitter pins setcompress 0; no savejpg anywhere.

@@ -85,9 +85,24 @@
 #   no stars; specks are un-rejected sky remnants);
 # - an autostretched preview PNG for the eye check (diagnostic surface only,
 #   never a judgment surface).
+# - CORNER ASYMMETRY (opposite-corner ratio): vignetting is radial, so all four
+#   corners sit at the same radius and a vignetting-only flat reads 1.000. The
+#   excess is a non-radial term the flat will divide into every frame, and it
+#   WARNS above 1.20 (provisional, from the measured corpus). A diagonal
+#   decentering / tilt term shows here that the edge dipoles can miss;
+# - EDGE DIPOLES (edge_dipole_x/_y, baseline_guard.py's box-80/margin-2
+#   geometry): vignetting is even and radial, so it contributes EQUALLY to both
+#   axes; |x| in excess of |y| is non-radial BY CONSTRUCTION — the horizon-fixed
+#   sky gradient a sky flat absorbs, i.e. the flat's odd component. The two
+#   instruments answer the same question through different nulls, so both are
+#   recorded.
 # The record lands in datasets/<session>/<set>/qa_work/<flat-stem>_qa.json;
 # the eye check for baked-in structure (the Milky Way star field) is the caller's
 # gate before the flat enters any stack.
+# This REPORTS and never gates: the chain proceeds on the flat it built, and the
+# flat is judged where it is visible — on the full-frame finals, with the
+# with/without comparison. The numbers above are what make a bad flat findable
+# in the log afterwards rather than a mystery in the render.
 #
 # Builds from ALL raw frames in <session-dir>/<set>/ — the stack-cull policy
 # (recipe.json exclude) does NOT apply here: transients (satellites, aircraft)
@@ -120,6 +135,7 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set geometry derivation
 SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]}
 SET=${2:?missing <set>}
@@ -168,7 +184,7 @@ STEM=$(basename "$OUT")
 W=$SESSION/work/flatbuild_$SET
 QA_DIR=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 mkdir -p "$QA_DIR"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 
 if [ -n "$SELECT" ]; then
   mapfile -t SRC < <(grep -v '^[[:space:]]*$' "$SELECT" | sort)
@@ -217,7 +233,7 @@ while [ $n -lt $N ]; do
   for ((k=0; k<CHUNK && n<N; k++, n++)); do
     ln -sf "${SRC[$n]}" "$W/nef/$(basename "${SRC[$n]}")"
   done
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n%b' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -prefix=pp_\n%b' \
     "$W/nef" "$W/proc" "$W/proc" "$DARK" "$DESKYCMD" > "$W/c.ssf"
   sir "$W/c.ssf"
   rm -f "$W/proc"/c_*.fit
@@ -238,7 +254,7 @@ done
 STACKCMD="stack f rej w 3 3 -norm=mul"
 [ "$REJ" = median ] && STACKCMD="stack f med -norm=mul"
 rm -f "$W/pp"/*.seq
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\n%s -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\n%s -out=%s\n' \
   "$W/pp" "$STACKCMD" "$OUT" > "$W/s.ssf"
 sir "$W/s.ssf"
 [ -f "$OUT.fit" ] || { echo "FLAT STACK FAILED — read $W/siril.log" >&2; exit 1; }
@@ -262,9 +278,9 @@ RX[BL]=$M;                RY[BL]=$((IH - M - B))
 RX[BR]=$((IW - M - B));   RY[BR]=$((IH - M - B))
 : > "$W/stat.log"
 for r in center TL TR BL BR; do
-  printf 'requires 1.2.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nstat\n' \
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nstat\n' \
     "$OUT.fit" "${RX[$r]}" "${RY[$r]}" "$B" "$B" > "$W/v.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/v.ssf" 2>&1 \
+  siril_cli -d "$W" -s "$W/v.ssf" 2>&1 \
     | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat.log"
 done
 # ---- the EDGE geometry, for edge_dipole_x --------------------------------
@@ -294,9 +310,9 @@ EX[BL]=$EM;                 EY[BL]=$((IH - EM - EB))
 EX[BR]=$((IW - EM - EB));   EY[BR]=$((IH - EM - EB))
 : > "$W/stat_edge.log"
 for r in center TL TR BL BR; do
-  printf 'requires 1.2.0\nsetcompress 0\nload %s\ncrop %s %s %s %s\nstat\n' \
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\ncrop %s %s %s %s\nstat\n' \
     "$OUT.fit" "${EX[$r]}" "${EY[$r]}" "$EB" "$EB" > "$W/ve.ssf"
-  flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/ve.ssf" 2>&1 \
+  siril_cli -d "$W" -s "$W/ve.ssf" 2>&1 \
     | sed -n "s/^log: \(.*Mean:.*\)/$r \1/p" >> "$W/stat_edge.log"
 done
 # Speck count comes from the STAR LIST the tool writes, not from a log message.
@@ -315,15 +331,15 @@ done
 # What a silent no-op would look like is a missing "Candidates for stars:" line,
 # and that IS asserted: it is findstar's own report of having run, printed
 # whether or not any candidate survives the PSF gate.
-printf 'requires 1.2.0\nsetcompress 0\nload %s\nfindstar -out=%s\n' \
+printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nfindstar -out=%s\n' \
   "$OUT.fit" "$W/specks.lst" > "$W/f.ssf"
 rm -f "$W/specks.lst"
-flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/f.ssf" > "$W/findstar.log" 2>&1
+siril_cli -d "$W" -s "$W/f.ssf" > "$W/findstar.log" 2>&1
 grep -q 'Candidates for stars:' "$W/findstar.log" || {
   echo "ABORT: findstar did not run on $OUT.fit (no 'Candidates for stars' report) — read $W/findstar.log" >&2; exit 1; }
 FS_LOG=0
 if [ -f "$W/specks.lst" ]; then FS_LOG=$(grep -vc '^#' "$W/specks.lst" || true); fi
-printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavepng %s\n' \
+printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavepng %s\n' \
   "$OUT.fit" "${OUT}_view" > "$W/p.ssf"
 sir "$W/p.ssf"
 
@@ -363,6 +379,31 @@ def dipoles(reg):
 regions = parse(statlog)
 edge_regions = parse(edgelog)
 dip = dipoles(edge_regions)
+
+# Vignetting is a RADIAL property of the lens, so a vignetting-only flat has all
+# four corners at the same radius and therefore the same level: ratio 1.00. Any
+# excess is a NON-radial term — lens decentering / sensor tilt (fixed in sensor
+# coordinates, so it repeats across sessions) or a sky-brightness gradient baked
+# into the stack (moon / horizon glow, which moves with pointing and camera
+# rotation). Dividing by the latter is the wrong operator: sky glow is ADDITIVE
+# and belongs to background extraction, not to a multiplicative flat.
+# The DISCRIMINATOR is orientation across sets: a sensor-fixed term keeps the
+# same darkest corner, a sky term does not. The edge dipoles below ask the same
+# question through a different null (x-vs-y symmetry instead of the opposite-
+# corner ratio), so a diagonal term and an axis-aligned one are both covered.
+corners = {k: v["median"] for k, v in regions.items() if k != "center"}
+asym = None
+if len(corners) == 4 and min(corners.values()) > 0:
+    hi, lo = max(corners, key=corners.get), min(corners, key=corners.get)
+    asym = {"ratio": round(corners[hi] / corners[lo], 3),
+            "brightest": hi, "darkest": lo,
+            "radial_expectation": 1.0,
+            "note": "excess over 1.00 is non-radial: decentering (repeats across "
+                    "sets, same darkest corner) or a baked sky gradient (moves). "
+                    "WARN threshold 1.20 is PROVISIONAL from the measured corpus "
+                    "(july23 1.126/1.159/1.229/1.320, july27 set-01 1.332) — it "
+                    "flags for attention, it does not gate."}
+
 rec = {
  "tool": "Siril 1.4.4 — un-registered lights: CFA convert -> calibrate -dark "
          "-> stack (-norm=mul); Siril stat regional crops + findstar + "
@@ -383,6 +424,7 @@ rec = {
                             "exactly the frames it calibrates")},
  "regional_stat_ADU": regions,
  "region_geometry_px": {"box": int(box), "corner_margin": int(margin)},
+ "corner_asymmetry": asym,
  "edge_regional_stat_ADU": edge_regions,
  "edge_region_geometry_px": {"box": int(ebox), "corner_margin": int(emargin),
                              "note": "baseline_guard.py's edge_dipole_x geometry"},
@@ -431,6 +473,16 @@ if dip:
               "into the object (docs/dead-ends.md). Reported, not gated: the "
               "defect is open and has no shipped corrective.")
 print(f"speck count: {specks}")
+if asym:
+    print(f"corner asymmetry: {asym['ratio']:.3f} "
+          f"(brightest {asym['brightest']}, darkest {asym['darkest']}; "
+          f"a radially symmetric flat reads 1.000)")
+    if asym["ratio"] >= 1.20:
+        print(f"WARNING: corner asymmetry {asym['ratio']:.3f} is a NON-RADIAL term "
+              f"this flat will divide into every frame — decentering or a sky "
+              f"gradient baked in. Sky glow is additive and must NOT be corrected "
+              f"multiplicatively; check the preview and compare the darkest corner "
+              f"against another set of the same session before trusting it.")
 print(f"record: {rec_path}")
 PY
 echo "=== DONE: $OUT.fit (validate before use: preview ${OUT}_view.png + the qa record) ==="

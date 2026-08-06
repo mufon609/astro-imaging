@@ -1,0 +1,29 @@
+{
+ "session": "jwst-jupiter",
+ "reference_grid": "o008 f212n (identical to the epoch-1 prep)",
+ "reproject": "reproject_interp",
+ "divisors": {
+  "f212n": 50000.0,
+  "f335m": 4000.0
+ },
+ "frames": {
+  "f212n": {
+   "source": "jw01373-o009_t006_nircam_clear-f212n_i2d.fits",
+   "shape": [
+    4319,
+    4340
+   ],
+   "nan_fraction": 0.18168,
+   "post_norm_max": 0.9646
+  },
+  "f335m": {
+   "source": "jw01373-o009_t006_nircam_clear-f335m_i2d.fits",
+   "shape": [
+    4319,
+    4340
+   ],
+   "nan_fraction": 0.1433,
+   "post_norm_max": 0.9419
+  }
+ }
+}

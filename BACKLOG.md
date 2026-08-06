@@ -43,7 +43,7 @@ dataset, and says so.
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
-| fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the RETIRED arm box, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction. It does not need to be — it is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level |
+| fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the RETIRED arm box, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction — yet displacement-EQUIVALENT at product level (max diff 0.47 px mid-field, 0.34 px area-weighted RMS, 0.2 px at r=0.9; `qa_work/lens_fit.json`), so the incumbent stands on measurement as well as provenance: re-installing the lateral new fit would change the deliverable by ≤0.47 px with no measured benefit. It is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-05 | **not fired** — live block verified: vignetting and tca absent, exactly one focal=70 ptlens line. darktable still 5.4.1 / lensfun 0.3.4, so no bump has triggered a re-verify. Re-verify with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
 | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-05 | **not fired** — the flatless route, and it works: july31 sets measure 0.42/0.42/0.90/0.95% corner spread. The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
@@ -53,7 +53,10 @@ dataset, and says so.
 | `inspect_stage.py` + `cull_report.py` robust-z per-frame flagging | a tool ships headless per-frame outlier flagging over its own registration metrics (SubframeSelector-class, scriptable) | 2026-08-05 | **not fired** — siril has `seqstat` (per-frame statistics to a file) and `select`/`unselect`, but no outlier GRADING over its own regdata. Persisting the tool's regdata is not a divergence and stays regardless. *(Was missing from this register until 2026-08-05.)* |
 | prebuilt-master ingest (`run_pipeline.sh` `<session>/calib/`) | never — this is a supported INPUT class, not a divergence | 2026-08-05 | **CONDITION WRITTEN 2026-08-05, previously absent.** The code calls it "the adaptation for master-only data", which made it look like an unconditioned divergence. It is not one: a corpus that ships masters instead of raw calibration is a data class the repo accepts. What IS a stated limit: such masters carry no exposure/gain/filter headers, so the filename token is the whole identity and the exposure match is unverifiable — printed per run. Raw calibration dirs take precedence |
 | 16-bit in three instruments (`coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`) | the leg stops terminating in an integer/8-bit product | 2026-08-05 | **not fired** — each re-verified: `coverage_probe` switches to `set32bits` before its sum stack, `run_frame_qa` saves no product at all (analysis-only register), `fit_lens_model` terminates in `savetif8` for Hugin. Exemptions are enforced by name in `check_bitdepth.sh` |
-| `run_undistort_groups.sh` group composition (one extra interpolation pass) | free disk ≥ the single-pass peak, DERIVED per set (`disk_budget.sh`) | 2026-08-05 | **FIRED for the current corpus — but DATA-DEPENDENT, so re-check per dataset.** Peak is `W × H × channels × 4 × 2`: 560 MiB/frame on this rig's 6064×4040 OSC frames → ~279 G for 507 frames against 950 G free. NOT a constant — a mono astrocam derives 8 MiB/frame, a 61 MP body 1378, so the same disk would NOT cover a deep 61 MP set. The route stays built for exactly that case |
+| `run_undistort_groups.sh` group composition (one extra interpolation pass) | free disk ≥ the single-pass peak, DERIVED per set (`disk_budget.sh`) | 2026-08-06 | **FIRED for the current corpus — but DATA-DEPENDENT, so re-check per dataset.** Peak is `W × H × channels × 4 × 2`: 560 MiB/frame on this rig's 6064×4040 OSC frames → ~279 G for 507 frames against 950 G free. NOT a constant — a mono astrocam derives 8 MiB/frame, a 61 MP body 1378, so the same disk would NOT cover a deep 61 MP set. The route stays built for that case AND for composability, which is why it was chosen. Quality, two consistent accounts: the july27 item-scoped A/B (60 frames even-stride, one knob) is **NULL — the route does not cause the one-sided band** (9/9 stations within 0.05 px majFWHM / 0.014 roundness; the band sits in BOTH arms at 1.27x/1.24x); the july31 full-depth ledger records a small along+1300 improvement under groups (0.12–0.18 px, direction replicates across two sets and two group sizes) whose proposed baseline mechanism was FALSIFIED (g250 landed outside the interval) and whose magnitude is UNESTABLISHED until the pre-registered `rebuild_repeat_floor_set01` runs (`datasets/july31/experiments.jsonl`). Neither account changes the route decision |
+| `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | 2026-07-28 | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig, but ONLY for participants — `scripts/jwst/*` has not adopted it yet and the guard (`check_siril_invoke.sh`) reports that without failing |
+| `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains FITS I/O, or the distortion is consumed natively (Siril `register -disto=`, BACKLOG:`native-solve-and-sip`) so the keys are never dropped | 2026-07-28 | **not fired** — darktable 5.4.1 has no FITS reader, so the warp leg is TIFF and the loss is structural. Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback) |
+| 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needed ~37G transient vs ~24G reclaimable on the retired arm rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | 2026-08-06 | **condition MET on this rig (950 G free, per the groups-row measurement) — the re-compose has NOT been run**, so the divergence stands in every shipped product until it is. Declared cost while it stands: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry) |
 | ~~unpinned neural stages in the render tier~~ | — | 2026-08-04 | **RETIRED, not fired: there was no divergence.** MEASURED bit-identical per stage (StarNet2 also across thread counts, Cosmic Clarity denoise, Siril's stretch/asinh/pm). Numbers in `docs/dead-ends.md` |
 | ~~`frame_metrics.json` CFA-sampled FWHM~~ | — | 2026-08-04 | **RETIRED, condition fired and honoured.** `run_frame_qa.sh` debayers at convert (+9.1% FWHM inflation measured on the CFA arm). Records written the old way keep the caveat in their own `method` string |
 
@@ -193,6 +196,14 @@ acquisition-side fix and removes the driver). First-contact levers: matched
 shutter-mode darks; then drift-axis-aligned pattern removal or an AI denoiser weighed
 against preservation of the unresolved starlight — a bandaid, last resort.
 
+## `dark-optimization-fork` — `-opt` vs matched darks on the uncooled body
+
+Siril-FAQ doctrine fork: non-cooled cameras "should" use dark optimisation, while
+base doctrine and both vendors say matched darks need none. A/B on one set, one
+knob, judged on dark-residual / walking-noise metrics (feeds the
+BACKLOG:`walking-noise` mechanism work). Low priority — our darks are same-night,
+session-end temperature.
+
 ## `native-solve-and-sip` — two probes, in order
 
 - **`platesolve -localasnet` on the mildly-trailed class.** The solver dead-end was
@@ -204,6 +215,36 @@ against preservation of the unresolved starlight — a bandaid, last resort.
   fit the registry killed. This is the fitted-lens-model removal-condition test with
   a concrete native route. One knob, judged on `seqtilt` off-axis + drift-axis
   stations + full-frame finals. Precondition: the probe above must solve this class.
+
+## `one-sided-band` — two mechanisms left on the residual drift-axis term
+
+MEASURED on july27 (3 s subs, so the in-exposure trail is half july14's and no
+longer masks it): a one-sided along-drift band at the +1300 station only — set-02
+majFWHM 3.65 / roundness 0.684 against centre 2.56 / 0.901, elongation position
+angle (+4.3°) aligned to the drift axis; the −side and both perpendicular stations
+sit at the centre's floor. ELIMINATED:
+- **the optics and the sky** — a single RAW frame (no calibration, warp or stack)
+  is uniform across the field (0.712–0.810, +1300 marginally BETTER than centre),
+  so nothing in-exposure produces it;
+- **the lens correction misfiring** — `verify_lens_card.py` PASSES on this rig
+  (grid control fires, Siril sigma 45644.8; uniform card corner-vs-centre
+  0.000 ADU), and the community entry carries vignetting the fitted one does not,
+  so a zero photometric delta proves the FITTED distortion-only entry is the one
+  matching despite the EXIF string matching the community entry's capitalisation;
+- **the stack architecture** — the july27 route A/B returned NULL: the band sits
+  in BOTH arms at the same magnitude (register, groups row). The july31
+  full-depth ledger adds a small groups-side improvement at the same station
+  (0.12–0.18 px), mechanism unattributed and magnitude gated on the unmeasured
+  rebuild floor (`datasets/july31/experiments.jsonl`) — a modifier of the band,
+  not its driver.
+
+REMAINING: distortion-model residual vs differential refraction. The named
+discriminator is unchanged (hour-angle dependence: refraction varies with it, a
+model residual does not) and has two same-night sets 30 min apart at different
+pointings — set-01 reads a 13% along+1300 FWHM excess, set-02 43% — suggestive of
+refraction but confounded by the pointing change. Cheapest next cut: a `lensdist`
+vs `nodist` arm on the same 60-frame A/B input, which separates the model from
+everything else in one knob.
 
 ## `star-neutral-colour` — the narrowband gap
 
@@ -285,20 +326,72 @@ printf/heredoc blocks split on the `> "$X.ssf"` boundary every builder here uses
 Deferred deliberately: a fragile parser is worse than a stated limit, and the limit is
 printed in the guard's own OK line.
 
-## `flatpak-race` — serialize or harden the Siril invokers
+## `flatpak-race` — CLOSED: one flock-serialized invoker
 
-MEASURED on x86: two rapid-fire `siril-cli` loops running concurrently died after
-~10 min with `bwrap: Can't get type of source /run/user/1000/.flatpak/…/tmp` —
-flatpak tears down the per-app instance dir when one short-lived instance exits as
-another starts its sandbox. One occurrence in ~150 paired invocations; probabilistic,
-kills the caller mid-chain under `set -e`, and the failing script prints nothing.
-Not a data or Siril bug.
+CLOSED — the hardening fork this item posed (bounded retry vs flock) is decided
+and built: every shell and python call site sources
+`scripts/lib/siril_run.{sh,py}`, one per-user flock serializing every siril-cli
+spawn, with `scripts/stack/check_siril_invoke.sh` failing any bypass. Retry lost
+because it recovers after the fact and needs a log the invoker cannot see. The
+bwrap mechanism, measured serialization numbers, and the removal condition live
+in the invoker's own docstring and the register row above; `scripts/jwst/*` has
+not adopted it (reported, not failed — moot if BACKLOG:`jwst-removal` lands
+first).
 
-Practice adopted: ONE siril-loop job at a time, globally. Hardening (pick one, as its
-own change): a shared `sir()` with a bounded retry on the bwrap signature, or an
-flock-serialized invoker every script sources — shared code either way
-(`calibrate_light.sh` is the precedent). Retires when flatpak fixes the instance-dir
-lifecycle, or Siril invocations stop being per-frame process spawns.
+## `lunar-ladder` — lunar lucky imaging: x86 ladder + next capture remain
+
+**STATE: the first corpus is processed end to end and the chain is codified as
+`scripts/stack/run_lunar_pipeline.sh`** (PROVISIONAL as-written — its first
+fresh run is the next lunar corpus). Both sets' finals are user-ratified:
+sb deconvolution + per-set disc-neutral WB (satu closed-fail; wiener arm
+PAUSED on user order — equal on-disc, frame-edge artifact noted). Session
+raws/intermediates freed (re-stageable); stacks + judge surfaces in
+`web/results/july26/`; every mechanism in `docs/dead-ends.md`.
+
+**Remains open:**
+- **The x86 quality ladder** (best 10/15/20/25% vs the shipped q100 controls,
+  PSS `--stack_percent` or AS!4 — pre-registered in both sets' ledgers).
+  Needs: PSS venv on the x86 rig + re-staged data (NEFs from archive, replay
+  `run_lunar_pipeline.sh` stages, or transfer nothing and re-shoot better).
+- **Next lunar capture at the corrected card** (acquisition checklist lunar
+  block: disc histogram 50–70% — f/4 · 1/320 s · ISO 800 at 70 mm class) —
+  more photons beat every processing knob measured this corpus.
+- **Siril 1.5 MPP adoption test** (unchanged — retires the GUI step when
+  stable lands and it measures quality).
+- Long-focal escalation ladder (unchanged, dormant until such a corpus):
+  AS!4-under-Wine vs PSS vs 1.5-MPP head-to-head; waveSharp 3.0 (native
+  Linux GUI, frozen) / ImPPG 2.1.0 as judgment-quality finishers; Hugin for
+  mosaics; RGB-align only where dispersion is measured (≥ ~800 mm).
+
+Class facts, records and the full mechanism set live in
+[`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md), `docs/dead-ends.md`
+(registration/aliasing/seq-hygiene/quality entries + the acquisition
+checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
+and the builder's own docstring.
+
+## `jwst-removal` — remove JWST from the pipeline (USER-ORDERED wind-down)
+
+The JWST archival class is CLOSED-FAIL as a deliverable class (user verdict,
+2026-07-28): the mechanical recreation of the documented STScI/Schmidt/Hueso
+process was implemented end to end and measured at every step, and five
+consecutive judgment rounds failed the user's eyes while passing their own
+instruments — the residual is the original finishers' integrative hand-craft
+(micro-contrast, color coherence, seam invisibility), which is not a pipeline
+mechanism. Corpus limits were also proven (saturation-dead crescents, F212N
+ring below L3 noise, archive-truth seams). Session data, kernels, and both
+venvs are already deleted; the tracked records remain as the class study.
+
+**The removal task (deliberate tracked surgery, one pass):**
+- retire `scripts/jwst/` (acquire, probes, prepare, derotate_*, render_*);
+- strip the web JWST tab (`web/serve.py` jwst_* registry entries,
+  `web/index.html` pgJwst);
+- TOOLS.md: collapse Tier A to a two-line archive note pointing at the docs;
+- `docs/jwst-*.md` and `datasets/jwst-jupiter/` records STAY (the measured
+  study + the graduated registry lessons are durable capital: skymatch glow
+  absorption, ramp-level 1/f glow eating, convert output self-pollution, the
+  gradient-energy noise trap, the documented-process step-map discipline).
+Close condition: no jwst-named surface remains in scripts/, web/, or TOOLS
+tiers; the docs/records carry a closed-class banner.
 
 ## `web-jobs-filter` — DIAGNOSED, one-line fix
 

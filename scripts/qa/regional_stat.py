@@ -21,7 +21,8 @@ import sys
 
 from astropy.io import fits
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 
 def main():
@@ -52,9 +53,9 @@ def main():
            "image_wh": [w, hgt], "channels": nchan, "regions": {}}
     for name, (x, y) in regions.items():
         with open(ssf, "w") as f:
-            f.write(f"requires 1.2.0\nsetcompress 0\nload {stack}\n"
+            f.write(f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\n"
                     f"crop {x} {y} {box} {box}\nstat\n")
-        r = subprocess.run(SIRIL + ["-d", wdir, "-s", ssf],
+        r = siril_run(["-d", wdir, "-s", ssf],
                            capture_output=True, text=True)
         chans = {}
         for line in (r.stdout + r.stderr).splitlines():

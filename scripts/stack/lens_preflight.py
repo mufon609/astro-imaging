@@ -69,7 +69,8 @@ while _libdir != os.path.dirname(_libdir):
     _libdir = os.path.dirname(_libdir)
 import astrometrics as am  # noqa: E402  (dataset_dir: the tracked per-dataset home)
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 RAW_EXT = (".nef", ".dng", ".cr2", ".cr3", ".arw", ".raf", ".orf", ".rw2")
 STYLE_DIR = os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "darktable")
@@ -201,13 +202,13 @@ def prove_correction(frame, work):
         # setcompress is a PERSISTED siril preference — pin it off so the
         # saved reference is the plain .fit the isub line names
         f.write("requires 1.4.4\n"
-                "setcompress 0\n"
+                "setcompress 0\nsetext fit\n"
                 f"load {outs['nodist']}\n"
                 f"save {ref}\n"
                 f"load {outs['lensdist']}\n"
                 f"isub {ref}\n"
                 "stat\n")
-    r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
+    r = siril_run(["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     # Siril `stat` prints per layer: "... Sigma: S, ... Max: M, ...".
     sig = [float(x) for x in re.findall(r"Sigma:\s*([0-9.eE+-]+)", r.stdout)]

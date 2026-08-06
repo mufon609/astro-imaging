@@ -1,5 +1,6 @@
 requires 1.4.0
 setcompress 0
+setext fit
 # 32-bit for the same reason as the master dark: a many-frame mean carries
 # sub-integer precision, and rounding it to 16 bits stores a sensor-fixed
 # quantization pattern (0.2889 ADU RMS measured on a 200-frame master) that

@@ -45,6 +45,35 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [jwst-official-rendering-process](jwst-official-rendering-process.md) — what
+  the JWST imaging team (DePasquale/Pagan) + Schmidt/Hueso DOCUMENTED about
+  rendering, evidence-classed: FITS Liberator asinh placed-points semantics
+  (scaled-peak = the strength knob; v5 = amd64-only `fl5` CLI, arm-blocked),
+  per-filter stretch → colorize → screen/channel-isolation with pseudogreen,
+  saturation-null + chip-gap fills as the documented artifact pass, the
+  Neptune separate-transfers doctrine (= the wide-field caption's short+long
+  equivalent at L3), Schmidt's toolchain + "three congruent images", Hueso's
+  WinJUPOS methods + CC-BY derotated products; Siril 1.4.4 SOURCE-verified to
+  express the placed-points transfer via `pm` (probe-confirmed on-rig).
+  Drives j2_widefield_v2.
+- [jwst-archival-class](jwst-archival-class.md) — the ARCHIVAL class (no
+  photons shot here): MAST acquisition via astroquery (proposal-ID queries,
+  sized decide surface, CAL_VER/CRDS_CTX anchors — rig-verified through
+  `query`), the consensus i2d→reproject→asinh→chromatic-palette workflow with
+  tool fit (reproject sanctioned; `exact` wrong below 0.05″/px; Siril probes
+  pre-registered; FITS Liberator v5 as the GUI reference), and the Jupiter
+  recreation plan (PID 1373 provenance verbatim; wide-field first — its two
+  filters are simultaneous, no derotation; the close-up's 9–22° rotation gap
+  is the class decision). PROVISIONAL except the verified acquisition route.
+- [lunar-lucky-imaging](lunar-lucky-imaging.md) — the LUNAR data class:
+  lucky-imaging model mapped onto the repo's stage design (no solve/SPCC/BGE
+  — documented skips), the 2025-26 stacker/finisher audit (Siril 1.4.4
+  headless-except-registration; 1.5-dev `register_mpp` as the adoption test;
+  PSS/AS!4/waveSharp/ImPPG evidence-tagged), Z6III capture doctrine
+  (Lossless-NEF-only, 20 fps e-shutter), sampling regimes (70 mm disc =
+  107 px → single-point alignment is proper; ≥800 mm → multi-point class),
+  and the first-corpus route + pre-registered best-N% ladder. PROVISIONAL —
+  no lunar pixel processed yet.
 - [july23-dew-and-corner-chroma](july23-dew-and-corner-chroma.md) — the
   july23 session's two data-quality findings, current-state: LENS DEW (the
   known environment issue — measured halo-growth signature, the reusable

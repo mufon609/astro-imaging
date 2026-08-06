@@ -1,0 +1,149 @@
+{
+ "purpose": "measured levels for the j2_widefield_v2 placed-points transfers (black = background pedestal, white = disc level) \u2014 Siril stat main on box selections of the prepared frames; box placement was diagnostic (coarse block-median map), the recorded values are the tool's",
+ "surface": "sessions/jwst-jupiter/work/jup_{f212n,f335m}_prep.fits (post-divisor [0,1] domain; f212n /50000, f335m /4000; NaN->0)",
+ "units": "prep = Siril stat value / 65535 (Siril prints 32f stats in the 16-bit convention); native MJy/sr = prep * divisor",
+ "boxes_siril_xywh": {
+  "sky": [
+   1920,
+   2527,
+   128,
+   256
+  ],
+  "disc": [
+   715,
+   916,
+   384,
+   384
+  ],
+  "ring_ansa": [
+   1792,
+   991,
+   128,
+   128
+  ],
+  "ring_ansa_true": [
+   800,
+   2219,
+   200,
+   200
+  ]
+ },
+ "boxes_numpy_row_col": {
+  "sky": [
+   [
+    1536,
+    1792
+   ],
+   [
+    1920,
+    2048
+   ]
+  ],
+  "disc": [
+   [
+    3019,
+    3403
+   ],
+   [
+    715,
+    1099
+   ]
+  ],
+  "ring_ansa": [
+   [
+    3200,
+    3328
+   ],
+   [
+    1792,
+    1920
+   ]
+  ],
+  "ring_ansa_true": [
+   [
+    1900,
+    2100
+   ],
+   [
+    800,
+    1000
+   ]
+  ]
+ },
+ "notes": [
+  "boxes are shared across filters (same reprojected grid); disc box is zero-free in both filters (avoids the f335m saturation crescents: 0.00%/0.01% zeros)",
+  "f335m ring box Max 0.171 is a compact source in the ansa box (moon or star); the ring level is the Median",
+  "sky pedestal is slightly NEGATIVE in f212n (background-matched mosaic) \u2014 a placed black point must tolerate that",
+  "native-domain disc ratio f212n/f335m ~= 7.9x, but the recorded prep divisors (50000/4000 = 12.5x) invert it to 0.63x \u2014 the measured mechanism behind v1's cyan-heavy balance",
+  "GEOMETRY (v2 inspection finding): disc center ~(row 3212, col 908); equator ~vertical; upper ansa at ~1.75 R_J = rows ~1900-2100 col ~908 (lower ansa off-frame bottom); the original 'ring_ansa' box (same row as center, +900 cols) lies along the polar axis = scatter fan"
+ ],
+ "f212n": {
+  "sky": {
+   "median_prep": -1.5e-05,
+   "sigma_prep": 5.8e-05,
+   "median_native_MJy_sr": -0.76,
+   "sigma_native_MJy_sr": 2.9
+  },
+  "disc": {
+   "median_prep": 0.1027,
+   "mean_prep": 0.1353,
+   "max_prep": 0.4129,
+   "min_prep": 0.0387,
+   "median_native_MJy_sr": 5135.0,
+   "max_native_MJy_sr": 20647.0
+  },
+  "ring_ansa": {
+   "median_prep": 0.001366,
+   "max_prep": 0.00813,
+   "median_native_MJy_sr": 68.3,
+   "MISNAMED": "this box sits along the ROTATION-AXIS direction (bands run ~vertical in the detector frame, so the equator/ring plane is ~vertical too) \u2014 it measured the aurora-driven polar SCATTER FAN, not the ring; the true ring is in ring_ansa_true"
+  },
+  "ring_ansa_true": {
+   "median_prep": -8.9e-05,
+   "sigma_prep": 6.3e-05,
+   "max_prep": 0.000232,
+   "note": "NO F212N ring signal above noise at L3 depth (median is at/below sky) \u2014 a neutral bright ring cannot come from these two L3 products; the reference's ring likely rode the original's deeper F212N group selection (L2) or finishing desaturation"
+  }
+ },
+ "f335m": {
+  "sky": {
+   "median_prep": 6.1e-06,
+   "sigma_prep": 2.1e-05,
+   "median_native_MJy_sr": 0.024,
+   "sigma_native_MJy_sr": 0.086
+  },
+  "disc": {
+   "median_prep": 0.1623,
+   "mean_prep": 0.1704,
+   "max_prep": 0.3029,
+   "min_prep": 0.0,
+   "median_native_MJy_sr": 649.3,
+   "max_native_MJy_sr": 1211.7
+  },
+  "ring_ansa": {
+   "median_prep": 0.01534,
+   "max_prep": 0.1712,
+   "median_native_MJy_sr": 61.3,
+   "MISNAMED": "this box sits along the ROTATION-AXIS direction (bands run ~vertical in the detector frame, so the equator/ring plane is ~vertical too) \u2014 it measured the aurora-driven polar SCATTER FAN, not the ring; the true ring is in ring_ansa_true"
+  },
+  "ring_ansa_true": {
+   "median_prep": 0.000356,
+   "sigma_prep": 0.000134,
+   "max_prep": 0.001138,
+   "median_native_MJy_sr": 1.42,
+   "note": "~60x the f335m sky \u2014 real but 43x FAINTER than the polar fan the v2 W335 anchor was mistakenly computed from"
+  }
+ },
+ "raw_siril_stat_main_x65535": {
+  "f212n": {
+   "sky": "Mean -1.0 Median -1.0 Sigma 3.8 Min -19.4 Max 23.7 bgnoise 2.4 MAD 2.5",
+   "disc": "Mean 8869.5 Median 6731.6 Sigma 6184.3 Min 2535.5 Max 27060.3 MAD 2156.8",
+   "ring_ansa": "Mean 140.6 Median 89.5 Sigma 111.0 Min 35.9 Max 533.0 MAD 29.9"
+  },
+  "f335m": {
+   "sky": "Mean 0.4 Median 0.4 Sigma 1.4 Min -7.5 Max 86.7 bgnoise 0.3 MAD 0.6",
+   "disc": "Mean 11165.2 Median 10638.1 Sigma 2475.4 Min 0.0 Max 19854.0 MAD 1315.1",
+   "ring_ansa": "Mean 1638.9 Median 1005.2 Sigma 1690.1 Min 286.7 Max 11222.1 MAD 576.1"
+  }
+ }
+}

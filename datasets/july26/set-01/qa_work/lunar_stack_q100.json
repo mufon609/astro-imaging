@@ -1,0 +1,49 @@
+{
+ "set": "set-01",
+ "product": "web/results/july26/stack_set-01_q100.fit",
+ "judge_surface": "web/results/july26/judge/set-01_q100_linear.png (linear PNG16, full processing frame)",
+ "chain": [
+  "staging crop 1024x1024 @ (3498,1700) \u2014 staging_crop.json",
+  "calibrate: master dark (identical crop), -cfa -debayer -cc=dark, 32-bit",
+  "register: Siril GUI Image Pattern Alignment, track-covering selection (user-run)",
+  "repair: select pp_moon 1 220 (failed-run selection debris \u2014 dead-ends entry)",
+  "seqapplyreg -interp=none (pure integer shifts)",
+  "stack: mean, winsorized 3/3, -nonorm, 32-bit; 220 of 220 frames (q100 = the ladder control)"
+ ],
+ "registration_sanity": {
+  "shift_tail_px": [
+   9,
+   190
+  ],
+  "predicted_from_drift_px": [
+   10,
+   185
+  ],
+  "limb": "coherent single edge on the 220-frame control (verified visually on a diagnostic stretch); maria structure present in linear"
+ },
+ "stat_main": {
+  "R": {
+   "mean": 5.7,
+   "median": 0.2,
+   "sigma": 59.5,
+   "max": 1250.0,
+   "bgnoise": 0.1
+  },
+  "G": {
+   "mean": 6.1,
+   "median": 0.2,
+   "sigma": 67.2,
+   "max": 1522.6,
+   "bgnoise": 0.1
+  },
+  "B": {
+   "mean": 3.5,
+   "median": 0.2,
+   "sigma": 34.4,
+   "max": 735.9,
+   "bgnoise": 0.1
+  }
+ },
+ "notes": "disc peaks ~9% of the 14-bit range (2.5-3 stops under the capture recipe's 50-70% target) \u2014 an acquisition lever for the next session, not a processing defect; raw channel ratios unbalanced (no WB applied, no SPCC possible \u2014 documented skip). The quality-ranked rungs (q10/15/20/25) are BLOCKED on this rig (no per-frame quality in 1.4.4 planetary regdata \u2014 dead-ends) and run on the x86 rig with a ranking tool per the amended experiments.jsonl.",
+ "user_verdict": "APPROVED (2026-07-27) \u2014 q100 control stacks judged good on the lin30 pair; stands as the ladder baseline"
+}

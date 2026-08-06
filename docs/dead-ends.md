@@ -322,6 +322,44 @@ the constraints any such tool must satisfy):
   rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
   the fit skews. Crop-before-background is the pinned order.
 
+- **Constant-per-image sky matching can NEITHER remove structure-class mosaic
+  seams NOR be trusted near a bright extended source.** MEASURED (jwst 3.0.0
+  calwebb_image3, NIRCam SW 12-input Jupiter mosaic, per-detector `group_id`
+  ungrouping so `skymethod=match` equalized all 12 individually): the
+  detector-block step at the recorded boundary boxes stayed −0.8745 → −0.8737
+  MJy/sr — the seams are per-image background STRUCTURE (1/f banding +
+  residual gradients differing across dither-coverage boundaries), invisible
+  to any constant-per-image fit — while the matcher subtracted the planet's
+  scattered-light GLOW as "sky" (matched values 36–65 MJy/sr; the fan region
+  collapsed +71.9 → +25.5 MJy/sr = −65% of real signal; whole sky shifted
+  −29 MJy/sr). The overlap strips of a bright-planet field are glow-dominated,
+  so the least-squares has no sky to find. Do not re-attempt constant sky
+  matching (grouped or ungrouped) against structure-class seams or on
+  glow-dominated overlaps; the at-source lever for 1/f-class structure is the
+  pipeline's own Detector1 `clean_flicker_noise` (ramp-level), and a seam that
+  survives it is archive-truth, not a matching knob.
+
+- **Ramp-level 1/f cleaning (jwst `clean_flicker_noise`) on a bright-planet-
+  dominated NIR frame removes real extended glow — even with an explicit
+  sky-only user mask.** MEASURED (jwst 3.0.0, NIRCam SW F212N Jupiter, two
+  configured arms): default-ish config (background model box 256, per-channel
+  fit, n_sigma=2) cut striping row-sigma 1.748 → 0.853 but took −20% of the
+  scattered-light fan (+71.94 → +57.87 MJy/sr) — its own saved mask shows 24%
+  of bright (>5 MJy/sr) pixels INCLUDED in the fits (sigma clipping does not
+  exclude smooth glow); adding a strict sky-only user_mask (finite ∧ rate <
+  1.5 MJy/sr, 15 px dilated; True=background, and note `datamodels.open`
+  requires ImageModel format — a bare FITS raises KeyError: 'data') improved
+  striping to −68% but the fan still lost 15%, and the loss localizes to the
+  CAL level: the identical archive-defined fan-class pixel set (30–100
+  MJy/sr, 544k px) reads 41.94 archive vs 37.16 cleaned = −11.4% before any
+  stage-3 step. The block seams got WORSE under masked cleaning (−0.87 →
+  −1.07 MJy/sr): per-detector independent cleaning shifts inter-detector
+  offsets unpredictably. The step is built for field-dominated frames; do not
+  re-attempt it on planet/glow-dominated frames expecting signal-safe
+  striping repair — the striping and seam residuals of such a corpus are
+  archive-truth, handled at presentation (field-stretch choice), never by
+  eating glow.
+
 **Stretch / colour:**
 - **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT HOLDS
   THE LIGHT — and a single per-channel gain cannot correct a layer with two
@@ -458,9 +496,72 @@ the constraints any such tool must satisfy):
   .../siril-spcc-database". Fix = clone it (CLAUDE.md Environment, SPCC
   prerequisites). Do NOT chase the star count, field width, catalog format, or bit
   depth — all ruled out; the crash prints nothing useful and mimics a data bug.
-- 1-pass sequence-start registration strands drifting tail frames; 2-pass + low
-  detection sigma recovers them; on trailed frames a reference sweep beats the
-  auto-reference. Keep all frames (dropping a minority sub-focal subset buys no
+- **Siril planetary registrations (Image Pattern Alignment AND KOMBAT) fail — quietly
+  producing garbage shifts — when the drawn selection does not CONTAIN THE TARGET'S
+  WHOLE MOVEMENT across the sequence.** The official docs state the precondition
+  ("ensure its movement during the sequence is contained within the selection"); a
+  drifting target that exits the box leaves the correlation/template matcher with
+  noise, and nothing fails loudly. MEASURED (july26 lunar, ~110 px disc, 230/665 px
+  untracked drift, selection ~250 px = smaller than the track): tail-frame shifts
+  (41,10)/(50,20) where the physical drift demands ≈(10,185); 809 frames "registered"
+  in 984 ms (~1 ms/frame — no real per-frame work) vs 220 frames in 23.5 s; every
+  regdata quality field −1 → `stack -filter-quality=25%` computed threshold 0.000000
+  and filtered in ZERO frames; the applied-registration control stack rejected the
+  misaligned disc to a faint smudge (winsorized 3/3 — the per-pixel disc minority
+  rejected as outlier). THE RULE: size the selection to the full drift track (a
+  staging crop that already bounds the track makes "nearly the whole frame" the
+  correct selection) — and after registering, verify per-frame quality was actually
+  WRITTEN (regdata ≠ −1) before any quality-filtered stack; the registration docs do
+  not promise quality storage, only the stacking docs imply it.
+  **KOMBAT specifically is DEAD on this rig's 1.4.4 for this corpus** — four
+  configurations measured (tight template + default 25% area; whole-frame selection +
+  100% area; tight template + 100% area — the mechanically correct template-matching
+  pairing — twice): every run left 219/220 frames with a NULL H (no match) and
+  quality −1, failing silently in the GUI. Do not re-attempt KOMBAT on 32-bit float
+  3-channel crops of this class; the surviving in-Siril candidate is Image Pattern
+  Alignment with a track-covering selection, and the cross-tool route is PSS —
+  which is itself ENVIRONMENT-BLOCKED on Linux aarch64 (PyQt5 publishes NO aarch64
+  Linux wheels — manylinux x86_64 abi3 only, verified on PyPI 5.15.11), i.e. PSS
+  runs on the x86 rig only.
+- **Siril 1.4.4 planetary registrations write NO per-frame quality — even on a
+  VERIFIED-successful run — so a `-filter-quality` stack has nothing to consume.**
+  MEASURED end-to-end (july26 set-01): Image Pattern Alignment with a track-covering
+  selection produced physically-correct translations (tail (10,187–190) vs predicted
+  ≈(10,185); limb coherent on the applied-registration control stack) yet every
+  regdata quality field stayed −1 and `stack -filter-quality=25%` still computed
+  threshold 0.000000 / filtered-in 0. The stacking docs' "quality (planetary DFT or
+  Kombat registrations)" filter criterion is a dead letter in 1.4.4. Quality-ranked
+  ("lucky") frame selection therefore needs a RANKING tool (PSS `--stack_percent`,
+  AS!4 — both x86-only), or Siril 1.5's MPP if it measures quality — verify before
+  designing on it.
+- **Failed Siril GUI registration attempts leave the sequence's SELECTION state
+  corrupted — silently.** After repeated failed planetary registrations, the .seq
+  held frames 2–220 deselected with nb_selected = −218 (a counter driven negative),
+  which made a later `seqapplyreg` abort with "registration data is a set of null
+  matrices" even though layer R1 held valid transforms. The GUI shows nothing; the
+  failure surfaces one step downstream, mislabeled. Repair is scriptable: `select
+  <seq> 1 <N>` before applying. After ANY failed GUI registration, inspect the .seq
+  header (S-line nb_selected + I-line flags) before trusting the next step's error.
+  (After any failed GUI registration the safe reset is still: DELETE the .seq and let
+  the next sequence search rebuild it clean — cheap, and it removes the selection
+  debris above.)
+- **Planetary DFT registration ALIASES shifts beyond ±half its correlation window —
+  and stacks a SECOND coherent disc exactly one window away.** Circular (FFT)
+  correlation resolves translation only within ±window/2; a target whose drift from
+  the REFERENCE frame exceeds that wraps modulo the window, silently. MEASURED
+  (july26 set-02, 1024×1536 crop, 809 frames, reference = frame 1 at one end of a
+  ~670 px monotonic track): frames with true shift ≤ +379 registered exactly; the
+  tail's true +670 was recorded as −355 = 670 − 1024 (the frame's SHORT dimension —
+  the effective window), off by exactly one window; the stack rendered TWO clean
+  discs ~1024 px apart (each wrap-class coherent at its own position), REPRODUCED
+  identically on a clean rebuilt sequence — this is the method's arithmetic, not
+  stale state. Set-01 (max shift 190 px) never hit it. THE RULE: put the REFERENCE
+  near the TRACK MIDDLE (`setref` before registering) so max |shift| < window/2 —
+  halving the reach requirement; verify tail shifts against the physical drift after
+  EVERY planetary registration (predicted-vs-regdata is a 10-second check). And the
+  verification lesson that caught it: a limb/zoom coherence check on ONE region
+  cannot see a second disc — stack verification is WHOLE-FRAME first, zoom second
+  (the registry's trap-1 in new clothing). Keep all frames (dropping a minority sub-focal subset buys no
   matching gain and pays the full √N noise penalty).
 - **Wide UNTRACKED edge smear: "field rotation / gnomonic projection" is NOT the
   cause.** For an IDEAL rectilinear lens a pure camera rotation maps EXACTLY to an
@@ -662,6 +763,40 @@ the constraints any such tool must satisfy):
 - CLASSICAL deconvolution (makepsf + RL) where trailing is in-exposure fails —
   unstable symmetric PSF on ≈0 background. (A LEARNED deconvolver is NOT classical RL
   and is a live x86 option, not a dead-end — tool choice + CPU costs in `TOOLS.md`.)
+
+**Tool state / plumbing** (a persisted preference and a dropped header are both
+SILENT — pin the state, never inherit it):
+- **Siril's FITS extension is a PERSISTED preference; every generated `.ssf`
+  must pin `setext`.** `extension=` in `config.1.4.ini` decides what `convert`,
+  `save` and `-out=` write, and a script that does not set it inherits whatever
+  ran last — including another project's chain sharing the same rig. Measured
+  against the repo's `.fit` globs with the setting on `.fits`:
+  `build_master_dark.sh` reported *"siril exited clean but wrote no master"* on
+  a master that had built **correctly**, and its `rm -f work/dark_*.fit` cleanup
+  matched nothing, leaking **9.2 GB**; `build_sky_flat.sh` and
+  `run_undistort_pipeline.sh` abort with *"calibrated nothing"*. Siril logs
+  *"Script execution finished successfully"* throughout, so the cause reads as a
+  data or Siril bug. Exactly the class `setcompress 0` is already pinned for.
+  Bash `*.fit` does not match `*.fits` — an extension is not a glob prefix.
+- **The undistort warp is a TIFF round trip and drops every acquisition
+  keyword.** darktable cannot read FITS, so `savetif32` → darktable → `convert`
+  destroys FOCALLEN, XPIXSZ/YPIXSZ, EXPTIME, APERTURE, ISOSPEED, INSTRUME and
+  DATE-OBS; the loss is invisible until something downstream needs them.
+  Measured consequences on the deliverable: `LIVETIME` lands at **0.0** (Siril's
+  stack has no per-frame EXPTIME to accumulate, so a 263 × 3 s = 789 s stack
+  claims zero integration), and `solve_field.py` loses its field-width hint and
+  falls back to blind WIDE-FIELD index scales — which still solved a 23° field
+  (logodds 101) but **cannot solve a narrow field at all**, so on a longer focal
+  the same silent loss is a hard solve failure with a misleading cause. Capture
+  the keys at the last point they exist (the calibrated frame, pre-warp) and
+  restore them with Siril's own `update_key` — `scripts/stack/stamp_headers.sh`.
+- **Calibration dirs are PLURAL — Siril's own convention.** Its bundled scripts
+  use `cd lights` / `flats` / `darks` / `biases` and never a singular. A
+  singular staged dir (`dark/`) is not merely unrecognised: it holds ≥8 raws, so
+  the session chain and the web set-kind rule classified it as a **LIGHT set**
+  and would carry the dark frames to frame QA, mount derivation and a full
+  stack. Both now list the singulars as calibration so they can never be
+  mistaken for lights; the builders still require the plural and stop loudly.
 
 **QA / scope:**
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame
@@ -995,3 +1130,23 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   on trailed PSFs are dispersion — physical, not removable in processing). Stop a
   fast lens down ≥1 stop for bright-star fields (wide open adds a red veiling-glare
   halo — an honest optical signature, not a bandaid to remove).
+
+**LUNAR (small-disc lucky imaging) — the class block (first corpus measured):**
+- **Lossless-compressed NEF only** (HE/HE★ are TicoRAW — no libraw/open decode; a
+  set shot HE is unprocessable on this stack). Electronic shutter is safe (9.3 ms
+  readout smears 0.14″ at lunar drift) and shock-free — use it.
+- **EXPOSE THE DISC: histogram peak 50–70%, never clip the highlands.** The
+  measured miss: f/4 · 1/2500 s · ISO 800 at 70 mm put the disc median at ~4% of
+  the 14-bit range (peak ~9%) — 2.5–3 stops under; the corrected card for that
+  optic is **f/4 · 1/320 s · ISO 800**. At undersampled focal lengths EXPOSURE
+  TIME is the free lever (drift 15″/s × 1/320 s ≈ 0.003 px at 17″/px; seeing is
+  sub-pixel — nothing to freeze): raise time, not ISO (gain adds no photons and
+  burns headroom; ISO 800 already sits at the dual-gain stage). From ~800 mm at
+  this pixel pitch seeing becomes resolved, the 1/500–1/1000 s freeze-floor
+  returns, and ISO reluctantly becomes the second lever.
+- Shoot darks at the LIGHTS' exact tuple in the same thermal window (the between-
+  sets slot works); matched short darks ≈ bias + FPN and calibrate cleanly.
+- Frame count buys selection depth: 1000+ frames/target at ~1 fps or bursts; keep
+  fractions are a stack-time knob, never a capture-time one. Focus on the
+  terminator in magnified live view; VR/IBIS off on a rigid tripod; moon > ~40°
+  altitude; terminator phases carry the relief.

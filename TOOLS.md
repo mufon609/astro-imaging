@@ -417,6 +417,61 @@ mainstream decouples stars (remove → boost OIII starless → re-add stars). Se
 
 ---
 
+## Tier L — Lunar / planetary lucky imaging (a separate data CLASS, not a render tier)
+
+Capture many short frames → the aligner's own quality ranking → best-N% stack
+→ multiscale sharpen. No solve/SPCC (no stars), no BGE (no sky signal at lunar
+exposures), denoise usually skipped (deep stacks; the AI denoisers are
+deep-sky-trained — off-distribution). The regime is set by pixel scale: at a
+small disc (e.g. 107 px @ 70 mm) seeing is sub-pixel → single-point disc
+alignment is proper and multi-point buys nothing; from ~800 mm (Z6III pitch)
+the class is seeing-limited → multi-point (AS!4/PSS-class) earns its keep.
+Full audit + first-corpus route: [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md).
+
+| Tool | Cost | Runs | Linux/CPU/Headless | When & why |
+|---|---|---|---|---|
+| **Siril 1.4.4 lunar surface** (`convert [-ser]`, planetary registration, `sb`/`wiener`/`rl` + `makepsf`, `wavelet`/`wrecons`, `savepng`) | FREE | siril-native | ✅ / ✅ / **✅ except registration** | **The installed-tools route for ALIGN + STACK + SHARPEN — but NOT for quality-ranked selection.** Siril's own docs recommend Split Bregman/Wiener for stacked lunar images; wavelets are the scriptable RegiStax-class layer mechanism. **The planetary registrations (image-pattern DFT, KOMBAT) are GUI-ONLY in 1.4.4** (command reference full-text-verified + on-rig probe) — Image Pattern Alignment with a **track-covering selection** is the verified working configuration (KOMBAT measured dead on this class; both traps + numbers in `docs/dead-ends.md`). **MEASURED KILL: planetary registrations write NO per-frame quality even on success** — `stack -filter-quality=N%` consumes nothing in 1.4.4, so lucky-selection needs a ranking tool (PSS/AS!4, x86-only; PSS is aarch64-blocked — no PyQt5 arm wheels). NEF ingest is libraw = **Lossless NEF only** (HE/HE★ TicoRAW have no open decoder). |
+| **Siril 1.5-dev `register_mpp`/`stack_mpp`** | FREE | siril-native | ✅ / ✅ / ✅ | Siril's own multi-point planetary registration (piecewise translation — the correct lunar-seeing model). Dev-only today. **The pre-registered adoption test at 1.5 stable**: closes the headless gap AND the multi-point gap in the already-central tool. |
+| **PlanetarySystemStacker 0.9.8.3** | FREE (GPLv3) | CLI (python) | ✅ / ✅ / ✅ | The ONLY headless Linux-native multi-point stacker (Surface/Planet modes, `--stack_percent`, drizzle 3×, own Laplace ranking, run protocol). **Dormant since 2023, pins `numpy<1.23`** → frozen-tool venv adaptation with a removal condition (1.5 MPP stable or PSS revival). Author-claimed AS!3-parity. |
+| **AutoStakkert! 4** (4.0.11 stable / 4.0.13 beta) | FREE (private use) | Win GUI (Wine) | ⚠ Wine x86-64 (author-sanctioned) / ✅ / ❌ (semi-manual batch, no unattended mode) | The community QUALITY REFERENCE for the seeing-limited regime: MAP multi-point + the strongest quality estimator. The escalation bracket on x86 when a long-focal corpus arrives — pointless on a ~100 px disc. |
+| **AstroSurface W5** (2026-05) | FREE | Win GUI | ⚠ Wine UNVERIFIED / ✅ / ❌ | Active all-in-one (stack + wavelets + Wiener/Van-Cittert). No CLI. A manual-judgment alternative, not a pipeline stage. |
+| **waveSharp 3.0** (RegiStax successor) | FREE | **native Linux GUI** | ✅ / ✅ / ❌ | OKLab 3-layer wavelets, chroma denoise, threshold-based star-free COLOUR BALANCE, 16-bit PNG out. **Frozen/archived 2026-03** — use-as-is judgment tool; Siril wavelets are the scriptable fallback. RegiStax 6 itself: dead 2011; only RGB-Align (dispersion, Wine) retains a niche at long FL. |
+| **ImPPG 2.1.0** | FREE (GPL-3) | native Linux GUI | ✅ / ✅ / 🖥 (Lua batch, GUI-launched) | Active Lucy-Richardson + adaptive unsharp with live preview — the solar/lunar community favourite for interactive deconv tuning. **PNG writer is 8-BIT — never the finals writer** (export TIFF16/FITS; Siril `savepng` mints the judgment PNG16). |
+| **Hugin** (mosaic mode) | FREE | CLI + GUI | ✅ / ✅ / ✅ | The Linux lunar-mosaic route for long-FL panes (crater control points match where star fields fail; Siril mosaics are astrometric-only = impossible on lunar). Already in production here for lens fitting. |
+| **RC-Astro BXT on lunar** | PAID | CLI | ✅ / AVX2 / ✅ | Officially accommodated (manual-PSF mode; AI4 fixed lunar clipping) but community-preferred lunar results remain classical wavelets/deconv — a bracketed x86 experiment at most, never the route. NXT/GraXpert denoise: deep-sky-trained, skip on lunar. |
+
+**Pick (verified on the first corpus):** small-disc regime → the installed-Siril
+route, now encoded as **`scripts/stack/run_lunar_pipeline.sh`** (prep → staged
+disc crop → crop-matched dark calibration → GUI pattern registration with a
+track-covering selection + MID-SEQUENCE reference [the DFT wrap guard] →
+tool-audited verify → stack → sb deconvolution → per-set disc-neutral `ccm` →
+clip-safe linear PNG16 pairs). KOMBAT: measured dead end on this class;
+quality-ranked selection: not possible in 1.4.4 (no quality regdata) — the
+ranking-tool ladder (PSS/AS!4) runs on x86 against the shipped full-stack
+control. Seeing-limited corpus (≥~800 mm) → AS!4-under-Wine vs PSS vs
+Siril-1.5-MPP, one bracketed head-to-head before any adoption. Capture doctrine
+lives in the acquisition checklist (`docs/dead-ends.md`, lunar block — with the
+measured exposure card).
+
+## Tier A — Archival space-telescope data (JWST/MAST; no photons shot here)
+
+Acquisition = querying MAST and pulling the OFFICIAL STScI pipeline's
+calibrated per-filter `_i2d` mosaics (float32 MJy/sr); processing = reproject
+to one grid → per-filter float stretch → chromatic-order palette → composite →
+one 16-bit export. No SPCC (palette convention, not photometric colour — a
+recorded skip). Full audit + the Jupiter recreation plan:
+[`docs/jwst-archival-class.md`](docs/jwst-archival-class.md).
+
+| Tool | Cost | Runs | Linux/CPU/Headless | When & why |
+|---|---|---|---|---|
+| **astroquery.mast** (`scripts/jwst/acquire.py` — query/list/download/verify) | FREE | CLI (venv) | ✅ / ✅ / ✅ | **The acquisition stage.** No account for public data; proposal-ID queries (never cone-search for moving targets); sized DECIDE surface before any pull; resumable curl route; `verify` records CAL_VER/CRDS_CTX (which quarterly STScI build made each product). RIG-VERIFIED through `query` (live PID 1373). |
+| **astropy + reproject** | FREE | python (venv) | ✅ (reproject aarch64 wheels unverified — x86 sure) / ✅ / ✅ | **The alignment stage** — STScI-notebook-sanctioned; MJy/sr is surface brightness = reproject's exact assumption (no rescaling across pixel scales). `interp`/`adaptive`; **`exact` is documented-wrong below 0.05″/px** (NIRCam SW 0.031″). NaN handling is explicit here (i2d footprint NaN kills GUI tools). |
+| **Siril 1.4.4** (stretch/compose/export) | FREE | siril-native | ✅ / ✅ / ✅ | **Expresses the documented placed-points asinh transfer natively** (SOURCE-verified + ramp-probed, `datasets/jwst-jupiter/qa_work/j2_v2_stretch_probe.json`): `pm` in 32f does NOT clip and evaluates `asinh()`/`max()`/`iif()`, so `asinh(S*(x-B)/(W-B))/asinh(S)` is one pm line (B=measured pedestal, W=measured structure level); `asinh S O` alone places only black (white pinned at 1.0); `mtf B 0.5 W` degenerates to a pure [B,W]→[0,1] rescale; `rgbcomp` copies channels verbatim (no hidden normalization); `savepng` is the single clamping 16-bit hop (FITS `save` preserves out-of-range). J1 probes PASSED on the real corpus: MJy/sr float loads verbatim, NaN tolerated. |
+| **FITS Liberator v5.0** (NOIRLab, 2025-11 — User's Guide techdoc113) | FREE | **binary-only** (PySide6; deb/rpm/AppImage) | ❌ **arm (amd64-only Linux builds, no pip/source; macOS-ARM exists, Linux-ARM does not)** / ✅ / ✅ CLI (headless UNPROBED) | The makers' own placed-points stretch tool, now with a real batch CLI: `fl5 -i <fits> -o <dir> -f asinh\|linear -b <background> -p <peak> [--bit-depth 8\|16\|32]` + GUI-saved `.stretch` sidecars (band-aware dispatch recognizes JWST filter tokens; sidecar schema undocumented — dump one to learn it). Stretch set = linear + asinh only; "Scaled Peak Level" is the strength knob (default 10); TIFF output only. **Pre-registered x86 cross-check** of the Siril pm transfer (probe `QT_QPA_PLATFORM=offscreen` headless first); the v2 adoption condition ("Siril cannot express placed points") did NOT fire. |
+| **jwst pipeline** (STScI) | FREE | python | ✅ / ✅ heavy / ✅ | **OVERKILL for aesthetics** (50–100 GB CRDS cache; archive reprocesses quarterly anyway). The one useful middle path: stage-3-only re-run with a shared output grid if archive grids/saturation block. |
+| **Trilogy / astropy make_rgb** | FREE | python | ✅ / ✅ / ✅ | >3-filter composites (interposed-hue mixes) — the N-filter arm when a corpus needs it. |
+| **WinJUPOS** | FREE | Win GUI | ⚠ Wine, unverified | Planet DEROTATION — the amateur standard; a candidate only for the Jupiter close-up's cross-epoch problem (the science team's CC-BY derotated frames are the official-product alternative). |
+
 ## Cross-cutting: what's FREE-and-headless vs PAID vs GUI-gated
 
 **The fully FREE + headless x86 stack** (no license, no display, runs under

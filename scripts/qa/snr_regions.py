@@ -29,14 +29,15 @@ import numpy as np
 from astropy.io import fits
 from astropy.wcs import WCS
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 
 def siril_lines(workdir, script):
     ssf = os.path.join(workdir, "_snr.ssf")
     with open(ssf, "w") as f:
         f.write(script)
-    r = subprocess.run(SIRIL + ["-d", workdir, "-s", ssf],
+    r = siril_run(["-d", workdir, "-s", ssf],
                        capture_output=True, text=True)
     os.remove(ssf)
     return (r.stdout + r.stderr).splitlines()
@@ -44,7 +45,7 @@ def siril_lines(workdir, script):
 
 def region_medians(stack, x, y, box, workdir):
     lines = siril_lines(workdir,
-                        f"requires 1.2.0\nsetcompress 0\nload {stack}\n"
+                        f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\n"
                         f"crop {x} {y} {box} {box}\nstat\n")
     meds = []
     for line in lines:
@@ -58,7 +59,7 @@ def region_medians(stack, x, y, box, workdir):
 
 def bgnoise(stack, workdir):
     lines = siril_lines(workdir,
-                        f"requires 1.2.0\nsetcompress 0\nload {stack}\nbgnoise\n")
+                        f"requires 1.2.0\nsetcompress 0\nsetext fit\nload {stack}\nbgnoise\n")
     vals = []
     for line in lines:
         m = re.search(r"Background noise value \(channel: #\d\): ([0-9.]+)", line)

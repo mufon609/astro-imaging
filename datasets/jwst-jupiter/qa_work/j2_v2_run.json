@@ -1,0 +1,47 @@
+{
+ "render": "j2_widefield_v2 \u2014 documented-process expression (see the ledger amendment + docs/jwst-official-rendering-process.md)",
+ "inputs": "work/jup_{f212n,f335m}_prep.fits (recorded divisors 50000/4000)",
+ "constants": {
+  "disc_arm": {
+   "f212n": {
+    "B": -1.5e-05,
+    "W": 0.4129
+   },
+   "f335m": {
+    "B": 6.1e-06,
+    "W": 0.3029
+   },
+   "curve": "linear (solar-system doctrine)"
+  },
+  "deep_arm": {
+   "f212n": {
+    "B": -0.000131,
+    "W": 0.04
+   },
+   "f335m": {
+    "B": -3.59e-05,
+    "W": 0.44919472913616393
+   },
+   "curve": "asinh placed-points, S bracket",
+   "S_values": [
+    5.0,
+    15.0
+   ],
+   "W335_rule": "W212 * ring335/ring212 (ring-neutral anchor)"
+  },
+  "feather": [
+   0.01,
+   0.04
+  ],
+  "palette": "R=f212n, B=f335m, G=0.5 each (pseudogreen)",
+  "gap_fill": true,
+  "crescent_fill": true,
+  "gap_scale": 0.08,
+  "crescent_white": 0.95
+ },
+ "stages": "work/: p212f, w, l212d, l335d[, l335df], l212f_*, l335f_*, l212_*, l335_*, g_*",
+ "outputs": [
+  "web/results/jwst-jupiter/judge/widefield_v2_s5.png",
+  "web/results/jwst-jupiter/judge/widefield_v2_s15.png"
+ ]
+}

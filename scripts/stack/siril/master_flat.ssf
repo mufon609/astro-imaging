@@ -1,5 +1,6 @@
 requires 1.4.0
 setcompress 0
+setext fit
 # 32-bit: the flat DIVIDES every light, so its quantization error propagates
 # multiplicatively into all of them; a many-frame master resolves far finer
 # than one integer step (see master_dark.ssf for the measured numbers).

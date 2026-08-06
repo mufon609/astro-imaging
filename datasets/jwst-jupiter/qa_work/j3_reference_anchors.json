@@ -1,0 +1,44 @@
+{
+ "purpose": "J3 close-up reference anchors (Siril stat, top-origin TIFF boxes) \u2014 the staged 2022 original (jupiter-auroras1); the user's judgment target is the 2023 reprocessing family (pasted), so these seed gains and the eyes decide",
+ "boxes_top_origin_xywh": {
+  "disc": [
+   623,
+   580,
+   400,
+   400
+  ],
+  "sky": [
+   20,
+   20,
+   120,
+   120
+  ],
+  "polar_cap_N": [
+   700,
+   140,
+   300,
+   140
+  ]
+ },
+ "anchors_0_255": {
+  "disc_median": {
+   "R": 118,
+   "G": 126,
+   "B": 146,
+   "note": "2022 disc is blue-leaning (B/R 1.24)"
+  },
+  "sky_median": {
+   "R": 5,
+   "G": 6,
+   "B": 6,
+   "note": "floor ~0.022 \u2014 darker than the wide-field reference"
+  },
+  "polar_cap_median": {
+   "R": 58,
+   "G": 102,
+   "B": 102,
+   "note": "teal cap (box caught the green-cyan cap, not the compact red ovals)"
+  }
+ },
+ "date": "2026-07-27"
+}

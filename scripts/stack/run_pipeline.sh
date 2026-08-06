@@ -21,6 +21,7 @@ set -euo pipefail
 
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"
@@ -48,7 +49,7 @@ mkdir -p "$W/masters" "$RESULTS"
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" || exit 1
 
 siril_run() { # absolute script path
-  flatpak run --command=siril-cli org.siril.Siril -d "$S" -s "$1"
+  siril_cli -d "$S" -s "$1"
 }
 
 # Last sequence-op summary count from a captured siril log ("Total: N
@@ -290,7 +291,7 @@ PY
 
 # convert+stack a dark-type dir into a master: <srcdir-name> <prefix> <outname>
 _fits_dark_master() {
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"; echo "set32bits"
     echo "cd $1"; echo "convert $2 -out=../work"
     echo "cd ../work"; echo "stack $2 rej 3 3 -nonorm -out=masters/$3"
     echo "close"; } > "$W/fits_master_$2.gen.ssf"
@@ -299,7 +300,7 @@ _fits_dark_master() {
 # master flat from flats dir $2, calibrated by $1
 # ($1 = -dark=masters/darkflat_master | -bias=masters/bias_master)
 _fits_flat_master() {
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"; echo "set32bits"
     echo "cd $2"; echo "convert fl -out=../work"
     echo "cd ../work"; echo "calibrate fl $1"
     echo "stack pp_fl rej 3 3 -norm=mul -out=masters/flat_master"
@@ -316,7 +317,7 @@ _fits_flat_master() {
 _fits_dualband() {
   local MIDX="$2"
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"; echo "set32bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $1 -cfa
@@ -337,7 +338,7 @@ _fits_dualband() {
 # flags (empty for mono), $2 = flat option (empty when no usable flat).
 _fits_lights() {
   local N=$(fits_glob "$S/$SET" | wc -l)
-  { echo "requires 1.4.0"; echo "setcompress 0"; echo "set32bits"
+  { echo "requires 1.4.0"; echo "setcompress 0"; echo "setext fit"; echo "set32bits"
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $2 $1
@@ -673,7 +674,7 @@ if [[ "$FLATBIAS" == "synth" ]]; then
     # Siril's own stat measures the dark median (tool-first — no in-house
     # pixel read): a 16-bit load reports ADU directly, a float load reports
     # [0,1] and is rescaled to ADU.
-    printf 'requires 1.4.0\nsetcompress 0\nload work/masters/dark_master\nstat\nclose\n' \
+    printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nload work/masters/dark_master\nstat\nclose\n' \
       > "$W/dark_median.gen.ssf"
     MEDADU=$(siril_run "$W/dark_median.gen.ssf" 2>&1 | tr '\r' '\n' \
       | grep -oE 'Median: [0-9.eE+-]+' | head -1 \

@@ -69,6 +69,8 @@
 #   shows the SAME field, so the texture term is common and largely cancels in
 #   the relative weights. On members of different fields, do not trust it.
 set -euo pipefail
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 OUT= FRAMING=min WEIGHT= REF=; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
@@ -87,7 +89,7 @@ mkdir -p "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 W="$(dirname "$OUT")/.compose_$(basename "$OUT")"
 rm -rf "$W"; mkdir -p "$W/in" "$W/seq"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/compose.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/compose.log" 2>&1; }
 
 # Gather every sub-stack into one dir as uniquely-named symlinks (siril `link`
 # takes ALL images in the CWD, so the dir must hold ONLY the members; the
@@ -133,7 +135,7 @@ fi
 
 # %b (not %s) for the setref line: it carries its own trailing newline as an
 # escape, and collapses to nothing when the reference is left AUTO
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\n%bseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\n%bseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
   "$W/in" "$W/seq" "$W/seq" "$SETREF" "$FRAMING" "$WEIGHT" "$OUT" > "$W/compose.ssf"
 # State the weighting explicitly: "plain mean" printed unconditionally would be
 # a WRONG RECORD whenever --weight=nbstack was passed, and this log is the

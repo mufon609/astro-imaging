@@ -108,6 +108,7 @@
 #   above is the gate; these numbers are what the user ratifies against.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 STACK=${1:?usage: render_tier.sh <stack.fit> <name> --session= --set= [opts]}
 NAME=${2:?missing <name>}
 SESSION= SET= SEPARATE=1 DENOISE=1 PLAN=0 FRESH=0 OVERWRITE=0
@@ -141,10 +142,10 @@ CC=/opt/cosmicclarity-6.6
 PRODUCT=$RES/render_${NAME}
 JUDGE=$RES/judge/${NAME}_render
 say(){ echo "[render $NAME] $*"; }
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
 # a measurement invocation: its own log, so a parse can never pick up an earlier
 # stage's numbers
-mir(){ flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$1" > "$2" 2>&1; }
+mir(){ siril_cli -d "$W" -s "$1" > "$2" 2>&1; }
 
 mkdir -p "$W" "$RES/judge" "$DSET/qa_work"
 : > "$W/siril.log"

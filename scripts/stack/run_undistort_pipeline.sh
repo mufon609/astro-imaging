@@ -58,9 +58,11 @@
 # measured applying a global ~1/12.92 scale through the same leg.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared with the ROUTER, or they drift
+source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--desky]}
 SET=${2:?missing <set>}
 DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= DESKY=0
@@ -129,7 +131,11 @@ mkdir -p "$(dirname "$OUT")" "$SESSION/work"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 P=$SESSION/work/undistort_$SET
 CFG=$SESSION/work/dtcfg
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
+# Outside $P deliberately: $P is wiped per invocation, and the group driver
+# invokes this script once per group — the capture must outlive that churn so
+# the composing driver can stamp the final from it too.
+ACQHDR=$SESSION/work/acq_header_$SET.json
+sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 LPJ=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work/lens_preflight.json
 mkdir -p "$(dirname "$LPJ")"
@@ -205,13 +211,17 @@ while [ $n -lt ${#ALL[@]} ]; do
     ln -sf "${ALL[$n]}" "$P/nef/$(basename "${ALL[$n]}")"
   done
   CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\n%s\n%b' \
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\n%s\n%b' \
     "$P/nef" "$P/proc" "$P/proc" "$CAL" "$DESKYCMD" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
+  # LAST POINT the acquisition keywords still exist: the warp below is a TIFF
+  # round trip that carries no FITS header (stamp_headers.sh). Capture once —
+  # from the pp_ files, which exist on every route (desky adds bkg_pp_ on top).
+  [ -f "$ACQHDR" ] || header_capture "$(ls "$P/proc"/pp_c_*.fit | head -1)" "$ACQHDR"
   for f in "$P/proc"/${LPREFIX}c_*.fit; do
     b=$(basename "$f" .fit)
-    printf 'requires 1.2.0\nset32bits\nsetcompress 0\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
+    printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\nsavetif32 %s\n' "$f" "$P/tif/$b" > "$P/e.ssf"
     sir "$P/e.ssf"; rm -f "$f"
   done
   rm -f "$P/proc"/*.seq
@@ -229,7 +239,7 @@ while [ $n -lt ${#ALL[@]} ]; do
            exit 1; }
     rm -f "$t"
   done
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert k%02d -out=%s\n' "$P/tif" "$ci" "$P/out" > "$P/v.ssf"
   sir "$P/v.ssf"
   rm -rf "$P/tif" "$P/nef" "$P/proc"
   echo "chunk $ci: $n/${#ALL[@]}  $(df -h "$SESSION" | tail -1 | awk '{print $4" free"}')"
@@ -246,10 +256,20 @@ print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
   "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"
+[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
+# restore the acquisition keywords the warp dropped (Siril's own update_key)
+if [ -f "$ACQHDR" ]; then
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$OUT" > "$P/h.ssf"
+  sir "$P/h.ssf"
+  echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $FRAMES x EXPTIME)"
+else
+  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
+fi
 echo "=== DONE: $OUT.fit ==="
 ls -la "$OUT.fit"
 df -h "$SESSION" | tail -1

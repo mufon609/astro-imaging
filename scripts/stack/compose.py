@@ -52,7 +52,8 @@ import sys
 
 from astropy.io import fits
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 
 def results_dir(sdir):
@@ -121,7 +122,7 @@ def align_members(repo, sdir, set_name, members, reference):
     # aligned, so the reference channel is still never interpolated.
     with open(ssf, "w") as f:
         f.write("requires 1.4.0\n"
-                "setcompress 0\n"
+                "setcompress 0\nsetext fit\n"
                 f"cd {rel}\n"
                 "convert ch\n"
                 f"setref ch {ref_idx}\n"
@@ -131,7 +132,7 @@ def align_members(repo, sdir, set_name, members, reference):
                 "close\n")
     print(f"[compose] aligning {len(names)} member stacks to "
           f"'{reference}' (ref index {ref_idx})")
-    r = subprocess.run(SIRIL + ["-d", sdir, "-s", ssf],
+    r = siril_run(["-d", sdir, "-s", ssf],
                        capture_output=True, text=True)
     log = r.stdout + r.stderr
     aligned = {n: os.path.join(work, f"r_ch_{i:05d}.fit")
@@ -208,10 +209,10 @@ def main():
     ssf = os.path.join(sdir, "work", f"compose_{set_name}.rgb.ssf")
     with open(ssf, "w") as f:
         f.write("requires 1.4.0\n"
-                "setcompress 0\n"
+                "setcompress 0\nsetext fit\n"
                 "set32bits\n"
                 f"rgbcomp {r_} {g_} {b_} -out={p_out}\n")
-    r = subprocess.run(SIRIL + ["-d", sdir, "-s", ssf],
+    r = siril_run(["-d", sdir, "-s", ssf],
                        capture_output=True, text=True)
     log = r.stdout + r.stderr
     if r.returncode != 0 or not os.path.exists(p_out):

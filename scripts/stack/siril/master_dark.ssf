@@ -1,5 +1,6 @@
 requires 1.4.0
 setcompress 0
+setext fit
 # 32-bit: a master dark is the MEAN of many frames, so its precision is far
 # finer than one integer step, and 16-bit storage throws that away as a
 # SENSOR-FIXED pattern subtracted identically into every light — the input to

@@ -1,0 +1,55 @@
+{
+  "group": "darks",
+  "session": "july26",
+  "frames": {
+    "count": 310,
+    "pattern": "DSC_*.NEF",
+    "exif": {
+      "camera": "NIKON Z6_3",
+      "lens": "NIKKOR Z 24-70mm f/4 S",
+      "focal_mm": 70.0,
+      "exposure": "1/2500",
+      "iso": 800,
+      "raw": "14-bit Lossless-compressed NEF",
+      "image_size": "6064x4040"
+    },
+    "time_span": ["2026-07-26T22:45:45", "2026-07-26T22:50:54"],
+    "uniformity": "one EXIF tuple across all 310 frames (exiftool sweep of exposure|iso|model|lens|focal|size|compression)"
+  },
+  "process": {
+    "tool": "Siril 1.4.4 (flatpak siril-cli, aarch64)",
+    "script": "sessions/july26/work/master_dark.gen.ssf",
+    "commands": [
+      "setcompress 0",
+      "set32bits",
+      "convert dark",
+      "stack dark rej 3 3 -nonorm -32b -out=masters/dark_master"
+    ],
+    "rejection": "winsorized sigma clipping low=3 high=3 (pinned master doctrine)",
+    "bitdepth_why": "32-bit float output: the 310-frame mean carries sub-ADU structure (stat sigma 0.6, MAD 0.3 ADU) that a 16-bit integer master would quantize away",
+    "wall_clock": "2 min 21 s"
+  },
+  "output": {
+    "path": "sessions/july26/work/masters/dark_master.fit",
+    "format": "32-bit float CFA FITS, uncompressed",
+    "stacked": "310 of 310",
+    "pixel_rejection_pct_ch0": [0.242, 0.307],
+    "stat_main": {
+      "mean": 1008.1,
+      "median": 1008.1,
+      "sigma": 0.6,
+      "min": 999.2,
+      "max": 1030.7,
+      "bgnoise": 0.6,
+      "avgDev": 0.4,
+      "MAD": 0.3,
+      "sqrt_BWMV": 0.5
+    },
+    "sanity": "mean == median == the Nikon 14-bit pedestal (~1008 ADU); uniform, tight FPN spread; rejection touched only outlier pixels"
+  },
+  "provenance": {
+    "raw_darks": "deleted after the build on user order; re-stageable from the user's archive",
+    "build_log": "sessions/july26/work/master_dark_build.log",
+    "match_check_pending": "lights must match 1/2500 | ISO 800 | 70 mm | Lossless NEF; verify with an exiftool sweep at lights arrival BEFORE calibrate"
+  }
+}

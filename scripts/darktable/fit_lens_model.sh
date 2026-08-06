@@ -43,6 +43,7 @@
 # seqtilt A/B against the incumbent model), never by its own residual.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: fit_lens_model.sh <session-dir> <set> --dark= --flat= --hfov= [--frames=12]}
 SET=${2:?missing <set>}
 DARK= FLAT= HFOV= FRAMES=12
@@ -55,7 +56,7 @@ esac; done
 
 W=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$W/lens_fit_work
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
+sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 rm -rf "$P"; mkdir -p "$P/nef" "$P/proc" "$P/st"
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
@@ -69,13 +70,13 @@ for i in range($FRAMES):
     s = src[round(i*(len(src)-1)/($FRAMES-1))]
     os.symlink(os.path.abspath(s), os.path.join(dst, os.path.basename(s)))
 PY
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
   "$P/nef" "$P/proc" "$P/proc" "$DARK" "$FLAT" > "$P/c.ssf"
 sir "$P/c.ssf"
 i=0
 for f in "$P/proc"/pp_c_*.fit; do
   i=$((i+1))
-  printf 'requires 1.2.0\nsetcompress 0\nload %s\nautostretch\nsavetif8 %s\n' \
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavetif8 %s\n' \
     "$f" "$P/st/st_$(printf %02d $i)" > "$P/e.ssf"
   sir "$P/e.ssf"; rm -f "$f"
 done

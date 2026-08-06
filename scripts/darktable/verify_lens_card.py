@@ -60,7 +60,8 @@ import re
 import subprocess
 import sys
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 BOX = 400                  # region side for the median comparison
 INSET = 300                # keep corner boxes off the warp's edge
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -152,8 +153,8 @@ def render(src, style, work):
 def siril(work, lines):
     ssf = os.path.join(work, "_card.ssf")           # MUST be under $HOME:
     with open(ssf, "w") as f:                       # the flatpak has a private /tmp
-        f.write("requires 1.4.4\nsetcompress 0\n" + "\n".join(lines) + "\n")
-    return sh(SIRIL + ["-d", work, "-s", ssf]).stdout
+        f.write("requires 1.4.4\nsetcompress 0\nsetext fit\n" + "\n".join(lines) + "\n")
+    return siril_run(["-d", work, "-s", ssf], capture_output=True, text=True).stdout
 
 
 def difference(work, a, b, tag):

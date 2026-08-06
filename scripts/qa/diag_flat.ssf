@@ -1,5 +1,6 @@
 requires 1.4.0
 setcompress 0
+setext fit
 cd work
 load masters/flat_master
 stat

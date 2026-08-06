@@ -85,6 +85,8 @@
 # geometry (disk_budget.sh) rather than carrying this rig's sensor as a constant.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
                                               # the single-pass builder and the router
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--desky]}
@@ -114,7 +116,7 @@ mkdir -p "$G" "$(dirname "$OUT")"
 # script's own CWD, so a relative --out lands the final INSIDE the work tree
 # and the existence check fails on a stack that actually built.
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
-sir(){ flatpak run --command=siril-cli org.siril.Siril -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
+sir(){ siril_cli -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
 
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
@@ -307,10 +309,19 @@ done
 echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
 for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
   "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
+ACQHDR=$SESSION/work/acq_header_$SET.json      # captured by the per-group sub-pipeline
+if [ -f "$ACQHDR" ]; then
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$N")" "$OUT" > "$G/h.ssf"
+  sir "$SESSION" "$G/h.ssf"
+  echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $N x EXPTIME)"
+else
+  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
+fi
 rm -rf "$G/final" "$G/finalseq"
 echo "=== DONE: $OUT.fit (sub-stacks kept in $G for re-composition) ==="
 ls -la "$OUT.fit"

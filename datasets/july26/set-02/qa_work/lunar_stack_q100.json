@@ -1,0 +1,49 @@
+{
+ "set": "set-02",
+ "product": "web/results/july26/stack_set-02_q100.fit",
+ "judge_surfaces": [
+  "web/results/july26/judge/set-02_q100_linear.png (linear PNG16)",
+  "web/results/july26/judge/set-02_q100_lin30.png (x30 linear gain \u2014 the pinned pair rule with set-01, unclipped)"
+ ],
+ "chain": [
+  "staging crop 1024x1536 @ (2548,870) \u2014 staging_crop.json",
+  "calibrate: master dark (identical crop), -cfa -debayer -cc=dark, 32-bit",
+  "seq rebuilt clean after the failed-run debris (dead-ends protocol), setref frame 400 (mid-track) BEFORE registering \u2014 the DFT wrap fix",
+  "register: Siril GUI Image Pattern Alignment, track-covering selection (user-run)",
+  "seqapplyreg -interp=none; stack: mean, winsorized 3/3, -nonorm, 32-bit"
+ ],
+ "frames": {
+  "stacked": "808 of 809",
+  "excluded": "frame 396 \u2014 unselected by the registration itself (reproducible tool-decided cull; the file is healthy and loads with normal stats); accepted under the standing auto-cull policy and recorded here"
+ },
+ "registration_sanity": {
+  "reference": "frame 400 (mid-track) \u2014 max |shift| 374 px < the 512 px DFT half-window; without this the tail's true +670 aliased to \u2212355 (= 670 \u2212 1024) and stacked a second disc (dead-ends aliasing entry)",
+  "shift_signature": "monotonic through zero at the reference: frame 2 (\u22121,\u2212374) \u2192 frame 400 (0,0) \u2192 frame 809 (\u22124,+294); span 668 px \u2248 the physical 670 px track",
+  "limb": "single coherent disc at the reference position, whole-frame verified"
+ },
+ "stat_main": {
+  "R": {
+   "mean": 3.8,
+   "median": 0.1,
+   "sigma": 51.8,
+   "max": 1386.9,
+   "bgnoise": 0.1
+  },
+  "G": {
+   "mean": 4.1,
+   "median": 0.1,
+   "sigma": 58.7,
+   "max": 1690.6,
+   "bgnoise": 0.1
+  },
+  "B": {
+   "mean": 2.3,
+   "median": 0.1,
+   "sigma": 29.9,
+   "max": 822.0,
+   "bgnoise": 0.1
+  }
+ },
+ "notes": "late-set transparency haze visible as a glow halo (real sky, the quality ladder's primary target on x86); same underexposure lever (~9% of 14-bit range) and documented SPCC skip as set-01; green-dominant color = unbalanced raw sensor response, colour work is a later gated step.",
+ "user_verdict": "APPROVED (2026-07-27) \u2014 q100 control stacks judged good on the lin30 pair; stands as the ladder baseline"
+}

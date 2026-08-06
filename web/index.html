@@ -141,6 +141,7 @@
   <div class="grp">evidence</div>
   <a class="item" href="#experiments">Experiments <span class="n" id="n-exp"></span></a>
   <a class="item" href="#objects">Sky objects <span class="n" id="n-obj"></span></a>
+  <a class="item" href="#jwst">JWST</a>
   <a class="item" href="#records">Records</a>
   <a class="item" href="#env">Environment</a>
 </nav>
@@ -1327,6 +1328,150 @@ async function pgRecord(path) {
     h('pre', { class:'rec' }, JSON.stringify(body, null, 1)));
 }
 
+/* ---------- JWST: the archival-class surface (BACKLOG item 22) ----------
+   Acquire (MAST recon -> sized decide surface -> gated download -> verify) /
+   Process (the JWST chain only — cards appear as their pinned scripts land) /
+   Examine (manifest record + composites). Same binding contract as Run:
+   fixed registry, exact command shown, one job at a time, .webjobs logs. */
+/* One FLOW, typed once: target -> recon (sized decide surface) -> the user's
+   single confirmed "download + verify" chain (declared on the button, per the
+   chain amendment) -> session auto-switches to the corpus. State lives in JW
+   so re-renders/session switches resume the inline tail. */
+let JW = { phase:'idle', args:{ proposal:'1373', filters:'o006,o008', target:'jupiter' },
+           job:null, cmds:[], log:'', timer:null, summary:null, error:null };
+
+function jwLogPane() {
+  const pre = document.getElementById('jwlog');
+  if (pre) { pre.textContent = JW.log; pre.scrollTop = pre.scrollHeight; }
+}
+async function jwRun(stage, args) {
+  const dry = await fetch('/api/run', { method:'POST', headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage, args, dry_run:true }) });
+  const dj = await dry.json();
+  if (!dry.ok) throw new Error(dj.error || dry.status);
+  const r = await fetch('/api/run', { method:'POST', headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ stage, args }) });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.status);
+  JW.cmds.push(dj.cmd); JW.log += `\n$ ${dj.cmd}\n`; JW.job = { id:j.id, offset:0 };
+  jwLogPane();
+  return j.id;
+}
+function jwTail(onDone) {
+  if (JW.timer) clearInterval(JW.timer);
+  const tick = async () => {
+    if (!JW.job) return;
+    let r;
+    try { r = await (await fetch(`/api/jobs/${JW.job.id}/log?offset=${JW.job.offset}`)).json(); }
+    catch { return; }
+    if (r.data) { JW.log += r.data; JW.job.offset = r.offset; jwLogPane(); }
+    if (r.status !== 'running') {
+      clearInterval(JW.timer); JW.timer = null;
+      const done = r.status === 'done';
+      JW.job = null; onDone(done, r.status);
+    }
+  };
+  JW.timer = setInterval(tick, 1500); tick();
+}
+async function jwSwitchSession(name) {
+  const pick = document.getElementById('sesspick');
+  if (pick && ![...pick.options].some(o => o.value === name))
+    pick.append(h('option', { value:name }, name));
+  if (pick) pick.value = name;
+  SESSION = name;
+  try { M = await (await fetch('/api/session/' + encodeURIComponent(name))).json(); railCounts(); } catch {}
+}
+function jwSessionName() { return 'jwst-' + JW.args.target.trim().toLowerCase().replace(/^jwst-/, ''); }
+function jwRender() { if ((location.hash || '') === '#jwst') route(); }
+
+async function jwRecon() {
+  JW.phase = 'recon'; JW.error = null; JW.summary = null; JW.log = ''; JW.cmds = []; jwRender();
+  try { await jwRun('jwst_list', { proposal: JW.args.proposal, ...(JW.args.filters ? { filters: JW.args.filters } : {}) }); }
+  catch (e) { JW.phase = 'error'; JW.error = String(e.message || e); return jwRender(); }
+  jwTail((ok) => {
+    const files = (JW.log.match(/(\d+) file\(s\), TOTAL/) || [])[1];
+    const gb = (JW.log.match(/TOTAL ([0-9.]+) GB/) || [])[1];
+    JW.summary = { ok: ok && !!files && files !== '0', files: files || '0', gb: gb || '?' };
+    JW.phase = 'decide'; jwRender();
+  });
+}
+async function jwAcquire() {
+  JW.phase = 'download'; jwRender();
+  const sess = jwSessionName();
+  try { await jwRun('jwst_download', { proposal: JW.args.proposal, session: JW.args.target,
+    ...(JW.args.filters ? { filters: JW.args.filters } : {}), go: true }); }
+  catch (e) { JW.phase = 'error'; JW.error = String(e.message || e); return jwRender(); }
+  jwTail(async (ok) => {
+    if (!ok) { JW.phase = 'error'; JW.error = 'download job did not finish clean — log above'; return jwRender(); }
+    await jwSwitchSession(sess);                    // the corpus exists now
+    JW.phase = 'verify'; jwRender();
+    try { await jwRun('jwst_verify', { session: JW.args.target }); }
+    catch (e) { JW.phase = 'error'; JW.error = String(e.message || e); return jwRender(); }
+    jwTail((vok) => { JW.phase = vok ? 'done' : 'error';
+      if (!vok) JW.error = 'verify failed — a product did not pass the header checks (log above)';
+      jwRender(); });
+  });
+}
+
+async function pgJwst() {
+  let stages = {};
+  try { stages = await (await fetch('/api/stages')).json(); } catch {}
+  const jwStages = Object.entries(stages).filter(([n]) => n.startsWith('jwst_'));
+  const busy = ['recon', 'download', 'verify'].includes(JW.phase);
+  const inp = (k, w, hint) => h('label', { style:'margin-right:14px' }, k + ' ',
+    h('input', { id:'jw_' + k, value: JW.args[k], style:`width:${w}px`, title: hint || '',
+      onchange: e => { JW.args[k] = e.target.value.trim(); } }));
+  const flow = h('div', { class:'panel', style:'margin:8px 0;border-left:3px solid var(--data)' },
+    h('b', {}, 'acquire a corpus'), h('span', { class:'when' }, ' — typed once; the flow carries it through'), h('br'),
+    h('div', { style:'margin:8px 0' },
+      inp('target', 110, 'session slug — stored as jwst-<target>'),
+      inp('proposal', 70, 'program id from the release page'),
+      inp('filters', 150, 'filename substrings, e.g. o006,o008 (observation selector)')),
+    h('div', {},
+      h('button', { class:'copy', ...(busy ? { disabled:'' } : {}), onclick: jwRecon }, '1 · recon (sizes, no download)'),
+      ' ',
+      JW.phase === 'decide' && JW.summary
+        ? (JW.summary.ok
+          ? h('button', { class:'copy', style:'border-color:var(--data)', onclick: jwAcquire },
+              `2 · download + verify (${JW.summary.files} files, ~${JW.summary.gb} GB) — the decide gate`)
+          : h('span', { class:'m', style:'color:#c66' }, `recon found ${JW.summary.files} file(s) — check proposal/filters or the log below`))
+        : null,
+      busy ? h('span', { class:'m' }, ` ⏳ ${JW.phase} running — log below (rig runs one job at a time)`) : null,
+      JW.phase === 'done' ? h('span', { class:'m', style:'color:var(--data)' },
+        ` ✓ acquired + verified — session switched to ${jwSessionName()}; manifest in Examine`) : null,
+      JW.phase === 'error' ? h('span', { class:'m', style:'color:#c66' }, ` ✗ ${JW.error}`) : null),
+    h('pre', { id:'jwlog', class:'rec', style:'max-height:260px;overflow:auto;margin-top:8px' + (JW.log ? '' : ';display:none') }, JW.log));
+  if (JW.timer) setTimeout(jwLogPane, 0);           // re-attach tail output after a re-render
+  const formHost = h('div', {});
+  const manifestPath = `datasets/${jwSessionName()}/acquisition_manifest.json`;
+  return frag(
+    h('div', { class:'eyebrow' }, 'JWST — archival class'),
+    h('h1', { style:'font-size:20px' }, 'Acquire / Process / Examine'),
+    h('p', { class:'when' },
+      'No photons shot here: acquiring = querying MAST for the official STScI pipeline’s per-filter i2d mosaics. Public data needs no account. ',
+      'First goal (BACKLOG 22, J0): proposal 1373, filters o006,o008 — the two famous Jupiter images’ observations, ≈0.75 GB.'),
+    h('h2', { style:'margin-top:18px' }, '1 · Acquire'),
+    flow,
+    h('details', { style:'margin:8px 0' },
+      h('summary', { class:'m' }, 'advanced: individual registry stages'),
+      ...jwStages.map(([name, st]) => h('div', { class:'panel', style:'margin:8px 0' },
+        h('b', {}, name.replace('jwst_', '')), ' — ', h('span', { class:'when' }, st.desc), ' ',
+        h('button', { class:'copy', onclick: () => openStageForm(name, st, formHost) }, 'open'))),
+      formHost),
+    h('h2', { style:'margin-top:18px' }, '2 · Process'),
+    h('p', { class:'m' },
+      'The JWST chain (extract-SCI → reproject to one grid → per-filter stretch → chromatic-order composite → PNG16) ',
+      'appears here as each pinned script lands from the plan (docs/jwst-archival-class.md). Nothing runs here yet — by design, not omission.'),
+    h('h2', { style:'margin-top:18px' }, '3 · Examine'),
+    h('p', {}, h('a', { href:'#record/' + manifestPath }, 'acquisition manifest'),
+      h('span', { class:'m' }, ` — ${manifestPath} (CAL_VER/CRDS_CTX anchors; written by verify)`)),
+    h('p', {}, h('a', { href:'#surfaces' }, 'composites + judge surfaces'),
+      h('span', { class:'m' }, ' — judgment stays on the PNG16 files in your own viewers')),
+    h('p', { class:'m', style:'margin-top:14px' },
+      'this tab is self-contained: its jobs tail here; the ', h('a', { href:'#run' }, 'Run page'),
+      ' remains the rig-wide job table (same one-at-a-time runner underneath)'));
+}
+
 /* ---------- router + boot ---------- */
 async function route() {
   const main = document.getElementById('main');
@@ -1344,7 +1489,7 @@ async function route() {
     ({ '#overview': pgOverview, '#sets': pgSets, '#culled': pgCulled,
        '#surfaces': pgSurfaces, '#objects': pgObjects,
        '#experiments': pgExperiments, '#framing': pgFraming,
-       '#run': pgRun, '#env': pgEnv, '#records': pgRecords,
+       '#run': pgRun, '#jwst': pgJwst, '#env': pgEnv, '#records': pgRecords,
        '#renders': pgRenders }[hash] || pgOverview)());
   main.replaceChildren(out);
   annotateChips(main);

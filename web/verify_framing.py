@@ -32,7 +32,8 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 
 def run_crop_stat(image, crop_args, workdir):
@@ -40,9 +41,9 @@ def run_crop_stat(image, crop_args, workdir):
     ssf = os.path.join(workdir, "verify_framing.gen.ssf")
     x, y, w, h = crop_args
     with open(ssf, "w") as f:
-        f.write("requires 1.4.0\nsetcompress 0\n"
+        f.write("requires 1.4.0\nsetcompress 0\nsetext fit\n"
                 f"load {image}\ncrop {x} {y} {w} {h}\nstat\n")
-    r = subprocess.run(SIRIL + ["-d", workdir, "-s", ssf],
+    r = siril_run(["-d", workdir, "-s", ssf],
                        capture_output=True, text=True)
     log = r.stdout + r.stderr
     stats = []

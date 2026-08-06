@@ -52,13 +52,14 @@ import subprocess
 import sys
 import tempfile
 
-SIRIL = ["flatpak", "run", "--command=siril-cli", "org.siril.Siril"]
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
 
 DIMS = re.compile(r"Reading FITS: file .*?, \d+ layer\(s\), (\d+)x(\d+) pixels")
 
 
 def run_siril(work, ssf):
-    r = subprocess.run(SIRIL + ["-d", work, "-s", ssf],
+    r = siril_run(["-d", work, "-s", ssf],
                        capture_output=True, text=True)
     return r.stdout + r.stderr
 
@@ -67,7 +68,7 @@ def image_dims(image, work):
     """Ask Siril for the image dimensions (its load log reports them)."""
     ssf = os.path.join(work, "_dims.ssf")
     with open(ssf, "w") as f:
-        f.write(f"requires 1.4.4\nsetcompress 0\nload {image}\n")
+        f.write(f"requires 1.4.4\nsetcompress 0\nsetext fit\nload {image}\n")
     out = run_siril(work, ssf)
     m = DIMS.search(out)
     if not m:
@@ -122,6 +123,7 @@ def measure(image, work, sts):
         f.write("requires 1.4.4\n"
                 "setcompress 0\n"   # PERSISTED siril preference: pin it or the
                                     # run inherits whatever the last one left
+                "setext fit\n"
                 "setfindstar reset -roundness=0.05 -sigma=0.5 -relax=on\n")
         for s in sts:
             x, y, w, h = s["box"]
