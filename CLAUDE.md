@@ -313,8 +313,9 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   aesthetics, judged — say "candidate" / "awaiting verdict".
 - **New datasets get tracked per-dataset state** in
   `datasets/<session>/<set>/` — `acquisition.json` (EXIF facts auto-derived +
-  the declared `mount` fixed/tracked that EXIF can't record; a consumer needing
-  it STOPS and asks rather than assume — `scripts/lib/acquisition.py`),
+  the `mount` fixed/tracked that EXIF can't record — DERIVED from the measured
+  drift signature when the instruments decide, asked only when they cannot;
+  never silently defaulted — `scripts/lib/acquisition.py`),
   `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
   `baseline.json` (written only by the no-regression harness — rides the

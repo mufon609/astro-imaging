@@ -312,12 +312,35 @@ PY
     "$REPO/scripts/qa/mount_probe.sh" "$SESSION" "$SET" >/dev/null || true
     MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
   fi
-  if [ -n "$MEASURED" ]; then
-    say "STOP: the data reads as '$MEASURED' — accept it on the set page (pre-filled), then re-click"
+  # DERIVE-THEN-ASK. The measurement above is the answer; re-resolve so a
+  # decisive signature self-adopts (acquisition.resolve writes mount_source
+  # "derived") and the chain CONTINUES. It stops only when the instruments
+  # genuinely could not decide, which is the case a human is actually for.
+  DERIVED=$(python3 - "$REPO" "$SESSION" "$SET" <<'PY' 2>/dev/null || true
+import glob, os, sys
+sys.path.insert(0, os.path.join(sys.argv[1], "scripts", "lib"))
+import acquisition
+frames = sorted(f for pat in ("*.nef", "*.NEF", "*.dng", "*.DNG", "*.cr2",
+                              "*.CR2", "*.arw", "*.ARW", "*.fit", "*.fits")
+                for f in glob.glob(os.path.join(sys.argv[2], sys.argv[3], pat)))
+try:
+    print(acquisition.resolve(sys.argv[2], sys.argv[3], frames).get("derived_now") or "")
+except acquisition.AcquisitionUndeclared:
+    pass
+PY
+)
+  if [ -n "$DERIVED" ]; then
+    say "mount DERIVED from the data: '$DERIVED' (recorded as mount_source=derived, not a human declaration)"
+    say "  the two-instrument cross-check still runs every re-derive; a later measurement that"
+    say "  disagrees with this one STOPS as CONTRADICT. Override by setting \"mount\" on the set page."
+    MOUNT=$DERIVED; MOUNT_EFF=$DERIVED
+  elif [ -n "$MEASURED" ]; then
+    say "STOP: the instruments disagree (raw reading '$MEASURED') — declare it on the set page, then re-click"
+    exit 4
   else
     say "STOP: mount undeclared and the instruments could not decide — declare it on the set page, then re-click"
+    exit 4
   fi
-  exit 4
 fi
 
 # preflight: seed/refresh acquisition (raises on undeclared mount AND on a

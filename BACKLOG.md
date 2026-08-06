@@ -277,39 +277,41 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
-## `derive-mount-from-data` — stop asking what the data already answers
+## `derive-mount-from-data` — CLOSED: the data answers, and the pipeline listens
 
-`mount` (fixed | tracked) is declared by a human and the chain STOPS (exit 4) when
-it is absent, on the grounds that EXIF cannot record it. True — but the DATA can:
-`fingerprint.py` already measures the mount two ways (trail-vs-roundness, and a
-two-window drift solve giving px/min against the sidereal rate) and reports
-CONFIRM / CONTRADICT / INDETERMINATE against the declaration. MEASURED on july31,
-all four sets, two-window drift solves — RA rate against a sidereal 15.041 deg/hr:
-set-01 15.0493, set-02 14.9909, set-03 14.9544, set-04 15.0649 (worst deviation
-0.6%), and on-sensor drift 18.78/18.27/18.17/18.28 px/min against 18.77/18.33/
-18.27/18.25 expected. Four independent CONFIRMs. That is not an ambiguous answer
-needing a human.
+**DONE 2026-08-06.** `acquisition.resolve()` now ADOPTS a decisive measured mount
+signature from `fingerprint.json` instead of stopping for a human to retype it,
+and `run_set_chain.sh` continues instead of exiting 4. It stops only when the
+instruments genuinely could not decide.
 
-(An earlier draft of this item cited "17.2 px/min against a sidereal 17.2" as
-july31's figure. It is july14/set-01's, and it is the green-plane half of that
-set's 34.1 full-res rate — internally consistent, attached to the wrong dataset.)
+This item had been written down three times — here, and in two audit prompts — and
+built zero times. The measurement machinery was all present and running: the chain
+measured the signature, recorded it, printed it, and then asked anyway.
 
-The four-set table also prices the current design: `mount` is modelled PER SET, so
-a fixed tripod on one night paid a ~9-minute two-window probe four times to answer
-the same question about the same tripod. It is a session-level fact, and the
-derivation below should record it as one.
+**The argument it had to answer, because it was a real one.** `acquisition.py` held
+that "the measurement never self-adopts, because the declared-vs-measured pair is
+what makes CONTRADICT detectable at all" — auto-adoption makes declared == measured
+by construction, so the cross-check can never fire. Half true. CONTRADICT catches a
+human MISLABEL, and a set nobody labelled has no mislabel to catch. What must
+survive is the ability to tell the cases apart, so the record now carries
+`mount_source`:
+- `declared` — a human value; the full human-vs-data cross-check, CONTRADICT stops.
+- `derived` — adopted from the instruments; a LATER measurement that disagrees
+  still stops, which is no longer a mislabel but an unstable instrument, and is
+  worth stopping on too.
 
-So the gate asks a human a question the instrument has already answered, on every
-new session. It should only stop when the measurement is INDETERMINATE (near the
-trail/roundness boundary, or a solve that fails), which is the case the two-window
-probe exists for.
+**Verified by execution, six cases from clean state:** no measurement -> STOP;
+decisive signature -> derive and proceed (`mount_source=derived`); instruments
+disagree (`measured` nulled by `mount_verdict`) -> STOP; derived then contradicted
+by a later measurement -> STOP CONTRADICT; human declaration -> proceeds as
+`declared`; human mislabel -> STOP CONTRADICT.
 
-**Closes when** a set whose drift measures decisively routes without a human
-declaration, the declaration survives as an OVERRIDE that still raises CONTRADICT,
-and an INDETERMINATE measurement still stops. Do not remove the human field — the
-failure mode to avoid is a confident auto-declaration on data that cannot support
-it, which is the same class as every other "measured it, so it must be right"
-error in `docs/dead-ends.md`.
+The verdict vocabulary is UNCHANGED (CONFIRM / CONTRADICT / INDETERMINATE) — the
+web UI, `serve.py` and `fingerprint.py --selftest` all consume those strings, and
+the selftest still passes. What changed is who acts on `measured`.
+
+Still open, and deliberately not done here: `mount` is modelled PER SET, so one
+tripod on one night still pays for up to four probes. It is a session-level fact.
 
 ## `approval-tag-never-used` — the approval mechanism is fiction
 

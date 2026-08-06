@@ -57,12 +57,11 @@ class AcquisitionUndeclared(Exception):
         opt = (f"{e.get('focal_length_mm', '?')}mm {e.get('exposure_s', '?')}s "
                f"ISO{e.get('iso', '?')}, cadence {e.get('cadence_s', '?')}s, "
                f"{e.get('frames', '?')} frames")
-        # Derive-what-you-can: when the fingerprint has already MEASURED the sky
-        # motion, the ask is a ratification, not an open question — quote the
-        # measurement so the human confirms a number instead of supplying a fact
-        # the tools already know. The declaration stays theirs either way: the
-        # measurement never self-adopts, because the declared-vs-measured pair is
-        # what makes CONTRADICT detectable at all.
+        # Reaching this exception now means the instruments did NOT decide — a
+        # decisive signature self-adopts in resolve() (mount_source "derived").
+        # So `measured` is populated here only in the disagreement case, where
+        # mount_verdict nulls the signature but the raw reading is still worth
+        # quoting so the human ratifies a number rather than an open question.
         says = (f"  MEASURED: the data reads as {measured}"
                 + (f" ({detail})" if detail else "") + ".\n"
                   f'  If that is right, set  "mount": "{measured}"  to ratify it.\n'
@@ -339,30 +338,55 @@ def resolve(session_dir, set_name, frames):
     raw = existing.get("mount")
     mount = raw.strip().lower() if isinstance(raw, str) else None
     valid = mount in MOUNTS
+    source = (existing.get("mount_source") or "declared") if valid else None
     exif = exif_facts(frames)
-    record = {"mount": mount if valid else None, "exif": exif, "_note": _NOTE}
-    if (existing.get("exif") != exif or existing.get("mount") != record["mount"]
-            or not os.path.exists(path)):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        json.dump(record, open(path, "w"), indent=1)
     # The declared mount has to survive its measured cross-check: a set whose
     # FINGERPRINT (derived by scripts/lib/fingerprint.py from the tools' own
     # measures) says the sky moves the OTHER way is mislabelled, and every
     # consumer of this record would build on that error. Read-only here — the
     # fingerprint module derives; this just refuses to hand out a contradicted
     # declaration (consumers STOP on CONTRADICT).
-    #
-    # Read it BEFORE the undeclared stop, not after: the fingerprint measures
-    # the mount whether or not a human has declared one, so an undeclared set
-    # with a drift measurement can ask for RATIFICATION instead of asking blind.
     fp_path = os.path.join(os.path.dirname(path), "fingerprint.json")
     try:
         mount_check = (json.load(open(fp_path)) or {}).get("mount_check") or {}
     except (OSError, ValueError):
         mount_check = {}
+    # DERIVE-THEN-ASK: an undeclared set whose instruments have DECIDED adopts
+    # the measurement instead of stopping for a human to retype it. `measured`
+    # is only ever set when a signature was decisive — mount_verdict nulls it
+    # when the two instruments disagree — so the INDETERMINATE case still falls
+    # through to the stop below, which is the one case a human is needed for.
+    #
+    # WHY THIS IS SAFE, against the argument it replaces. This function used to
+    # say "the measurement never self-adopts, because the declared-vs-measured
+    # pair is what makes CONTRADICT detectable at all." That is half true and it
+    # cost every new set a human round-trip to answer a question the tools had
+    # already answered four times over. CONTRADICT exists to catch a HUMAN
+    # MISLABEL — declared tracked, measures fixed. A set nobody labelled has no
+    # mislabel to catch, so nothing is lost by deriving it. What must not be lost
+    # is the ability to TELL THE TWO APART afterwards, which is why the source is
+    # recorded: `declared` keeps the full human-vs-data cross-check with its
+    # CONTRADICT stop, and `derived` still stops if a later, better measurement
+    # disagrees with the one adopted — that is no longer a mislabel but an
+    # unstable instrument, and it is worth stopping on too.
+    derived = None
+    if not valid:
+        m = mount_check.get("measured")
+        m = m.strip().lower() if isinstance(m, str) else None
+        if m in MOUNTS:
+            derived, mount, valid, source = m, m, True, "derived"
+    record = {"mount": mount if valid else None,
+              "mount_source": source, "exif": exif, "_note": _NOTE}
+    if (existing.get("exif") != exif or existing.get("mount") != record["mount"]
+            or existing.get("mount_source") != source
+            or not os.path.exists(path)):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        json.dump(record, open(path, "w"), indent=1)
     if not valid:
         raise AcquisitionUndeclared(path, exif, mount_check.get("measured"),
                                     mount_check.get("reason"))
     if mount_check.get("verdict") == "CONTRADICT":
         raise MountContradicted(fp_path, mount_check.get("reason", ""))
+    if derived:
+        record["derived_now"] = derived    # the caller announces it; not persisted
     return record

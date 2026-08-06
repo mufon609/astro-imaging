@@ -33,10 +33,19 @@ The per-dataset state MODEL (durable — a new dataset gets these files):
 
 Rules (the same contract as README "How a change is accepted"):
 
-- `acquisition.json`'s `mount` has **no safe default** (unlike a recipe, which
-  falls back to GENERIC): a consumer that needs fixed-vs-tracked STOPS and asks
-  rather than assume it. `exif` is tool-written and refreshed; `mount` is the
-  human field.
+- `acquisition.json`'s `mount` is **DERIVED when the instruments decide, asked
+  only when they cannot.** `resolve()` adopts a decisive measured signature from
+  `fingerprint.json` and records `mount_source: "derived"`; a human value is kept
+  as an override and records `"declared"`. It still STOPS when no signature was
+  decisive (the instruments disagreed, or nothing measured yet) — that is the one
+  case a human is actually for. There is still no silent DEFAULT: an underived,
+  undeclared mount stops. `exif` is tool-written and refreshed.
+- **Why the source is recorded:** CONTRADICT exists to catch a human MISLABEL, and
+  a set nobody labelled has none to catch. Keeping `declared` and `derived`
+  distinguishable preserves the full human-vs-data cross-check where it means
+  something, and turns the derived case into a different tripwire — a later
+  measurement that disagrees with the adopted one is an unstable instrument, and
+  still stops.
 - A dataset with **no recipe** processes with the GENERIC defaults and says
   so loudly — generic is honest, not approved. It never inherits another
   dataset's look.
