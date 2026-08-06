@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ONE-CLICK durable-core chain for a light set (user-ratified amendment,
-# web/README.md): preflight -> frame QA -> route-by-fingerprint stack ->
-# solve -> SPCC -> diagnostic judge surface. Every pixel op stays an official
+# web/README.md): preflight -> frame QA -> obstruction audit -> cull ->
+# route-by-fingerprint stack -> solve -> SPCC -> diagnostic judge surface.
+# Every pixel op stays an official
 # tool inside the existing pinned scripts; this only sequences them with hard
 # gates between, and it STOPS the moment a decision belongs to the user:
 #
@@ -112,6 +113,7 @@ acq = rd("acquisition.json") or {}
 fp = rd("fingerprint.json") or {}
 qa = rd("qa_work/frame_metrics.json")
 recipe = rd("recipe.json") or {}
+aud = rd("audit_work/anomaly_audit.json")
 mc = fp.get("mount_check") or {}
 exif = acq.get("exif") or {}
 print(acq.get("mount") or "")
@@ -120,11 +122,19 @@ print(mc.get("measured") or "")
 print(exif.get("fov_deg") if exif.get("fov_deg") is not None else "")
 print("" if qa is None else len(qa.get("flagged_defect_side_z") or []))
 print("yes" if isinstance(recipe.get("stack"), dict) else "")
+# obstruction audit: objects|longest dwell|UNKNOWN count, or empty if never run.
+# The dwell is what run_undistort_groups.sh turns into its group-size floor.
+if aud is None:
+    print("")
+else:
+    objs = aud.get("unique_objects") or []
+    print("%d|%d|%d" % (len(objs), max((o.get("n") or 0) for o in objs) if objs else 0,
+                        sum(1 for o in objs if o.get("cls") not in ("aircraft", "satellite"))))
 print(fp.get("label") or "not yet derived")   # last line stays non-empty:
 PY
 )                                             # $() strips trailing newlines
 { read -r MOUNT; read -r VERDICT; read -r MEASURED; read -r FOV; read -r NFLAGS; \
-  read -r RATIFIED; read -r FPLABEL; } <<< "$FACTS" || true
+  read -r RATIFIED; read -r AUDITSUM; read -r FPLABEL; } <<< "$FACTS" || true
 
 MOUNT_EFF=${MEASURED:-$MOUNT}
 # df flags, comparison and slack all match run_undistort_pipeline.sh's own
@@ -216,6 +226,10 @@ judge_surface() {   # echoes the existing surface for $1, or returns nonzero
 # ---- the PLAN (printed on every run; --plan stops here) -----------------
 say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
 say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull: $([ -n "$RATIFIED" ] && echo "ratified recipe block" || echo "standing auto-cull (flagged frames exclude; reported at the end)")"
+# ~1 s/frame measured on this rig (july31: 500 frames in 8 min, 260 in 4)
+say "PLAN — obstruction audit: $([ -n "$AUDITSUM" ] \
+  && echo "done, ${AUDITSUM%%|*} object(s), longest dwell $(x=${AUDITSUM#*|}; echo "${x%%|*}") frame(s)" \
+  || echo "not yet run — will run (~$((NFRAMES / 60 + 1)) min); it is what gives the groups builder its dwell floor")"
 say "PLAN — route: $ROUTE${REASON:+ — $REASON}"
 if [ -z "$MOUNT" ] && [ "$ROUTE" != stop-undeclared ]; then
   # measured but not yet declared: the route above came from the MEASURED
@@ -334,6 +348,52 @@ if [ -z "$NFLAGS" ]; then
   "$REPO/scripts/qa/run_frame_qa.sh" "$SESSION" "$SET"
   NFLAGS=$(python3 -c "import json;print(len(json.load(open('$DSET/qa_work/frame_metrics.json')).get('flagged_defect_side_z') or []))")
 fi
+# OBSTRUCTION AUDIT — the step README lists as per-set prep and this chain did
+# not call, which is why every july31 product was built with the groups builder
+# printing "dwell floor: NOT CHECKED — UNVERIFIED".
+#
+# WHY IT BELONGS IN THE CHAIN AND NOT BESIDE IT. run_undistort_groups.sh derives
+# its group size to keep every group inside the GESD rejection band, and the other
+# half of that rationale — "any transient is a clear minority" — is satisfied only
+# if a group exceeds max_dwell / the GESD outlier fraction. The builder already
+# computes that floor, raises the derived group to it, and ABORTS an explicit
+# --group below it. It reads the floor from THIS record, so with no record the
+# constraint is not enforced, merely asserted. Measured on july31: all four sets
+# cleared, but set-03 cleared at 90% of the cap (a 27-frame satellite, floor 90
+# against a running group of 100) — by arithmetic accident, since nothing in the
+# derivation had ever read a dwell length.
+#
+# It runs on EVERY route, not just the groups one. The dwell floor is the
+# groups-specific consumer, but the inventory and the UNKNOWN surface are per-set
+# QA that any route wants, and a route-conditional QA step is one that silently
+# does not run. Report-only: it never moves, deletes or rewrites a frame, and it
+# gates nothing here — the builder's own floor check is the gate.
+if [ -z "$AUDITSUM" ]; then
+  say "obstruction audit (~$((NFRAMES / 60 + 1)) min at ~1 s/frame)"
+  python3 "$REPO/scripts/qa/anomaly_audit.py" "$SESSION/$SET"
+  AUDITSUM=$(python3 - "$DSET/audit_work/anomaly_audit.json" <<'PY'
+import json, sys
+objs = json.load(open(sys.argv[1])).get("unique_objects") or []
+print("%d|%d|%d" % (len(objs), max((o.get("n") or 0) for o in objs) if objs else 0,
+                    sum(1 for o in objs if o.get("cls") not in ("aircraft", "satellite"))))
+PY
+)
+else
+  say "obstruction audit exists — skipping ($DSET/audit_work/anomaly_audit.json)"
+fi
+AUD_OBJ=${AUDITSUM%%|*}; AUD_REST=${AUDITSUM#*|}
+AUD_DWELL=${AUD_REST%%|*}; AUD_UNKNOWN=${AUD_REST##*|}
+# The floor the groups builder will apply, restated here so the number is visible
+# at the step that produced it rather than only inside the builder.
+AUD_FLOOR=$(python3 -c "import math;print(math.ceil($AUD_DWELL / 0.30))")
+say "  $AUD_OBJ unique object(s); longest dwell $AUD_DWELL frame(s) -> groups dwell floor >= $AUD_FLOOR"
+if [ "$AUD_UNKNOWN" != 0 ]; then
+  # UNKNOWN is the audit's honest anomaly surface: an obstruction matching no
+  # known signature. Reported loudly, never gated — classifying it is the user's.
+  say "  ANOMALY: $AUD_UNKNOWN object(s) classified UNKNOWN — matched no callout signature."
+  say "    These deserve human eyes: $DSET/audit_work/anomaly_audit.json"
+fi
+
 if [ "$NFLAGS" != 0 ] && [ -z "$RATIFIED" ]; then
   # STANDING USER POLICY: flagged defect-side frames exclude like any
   # obstruction — the chain writes the cull, states it, and proceeds; the
@@ -614,7 +674,10 @@ try:
     print(f'{len(e)} frame(s) n={e}' if e else 'none')
 except (OSError, ValueError):
     print('none')" 2>/dev/null || echo "none")
-say "DONE — stack: $STACK | judge: $(judge_surface "$NAME" || echo '?') | culled: $CULLS | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
+say "DONE — stack: $STACK | judge: $(judge_surface "$NAME" || echo '?') | culled: $CULLS | obstructions: ${AUD_OBJ:-?} (longest dwell ${AUD_DWELL:-?}) | free: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
+if [ "${AUD_UNKNOWN:-0}" != 0 ]; then
+  say "  ANOMALY UNRESOLVED: $AUD_UNKNOWN obstruction(s) classified UNKNOWN — see $DSET/audit_work/anomaly_audit.json"
+fi
 
 if [ "$GUARD_RC" != 0 ]; then
   say "STOP: the product REGRESSED against this set's accepted baseline (above)."
