@@ -148,6 +148,13 @@ The underlying problem the work was aimed at is still real and still uncorrected
 a sky flat converges to `sky x V` and tilts the object 3.11% at 241 sigma. These
 evidence gaps therefore remain open for whatever the eventual fix is:
 
+- **The 3.11% / 241-sigma figure itself has NO TRACKED RECORD.** It is cited across
+  six code and doc sites as the justification for a whole class of decisions, and
+  it entered the repo as PROSE — no `datasets/` record holds the measurement, its
+  instrument, or its n. Either re-measure it into a record or mark it unverified at
+  every citation; a number that cannot be traced to a measurement is the same class
+  as the run-to-run floor that was "a subtraction of two numbers you happen to
+  have".
 - **The odd-component instrument has no script.** The measurement that justified the
   default exists only as numbers in an `experiments.jsonl` sentence, so it cannot be
   re-run — and `build_sky_flat.sh`'s built-in gate is still corner-vs-centre, which
@@ -319,7 +326,11 @@ mechanism is retired from all four sites.
 ## `guards-and-ci` — nothing runs the guards
 
 `check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the
-web session smoke test added to it inherits that. Also open: the bit-depth check is
+web session smoke test added to it inherits that. **And one guard cannot be run at
+all: `scripts/stack/check_stack_rejection.sh` is mode 664**, so `./scripts/…` is
+permission-denied and only `bash scripts/…` works — a guard that fails to execute
+is indistinguishable from a guard that passed, which is this repo's most persistent
+defect shape. Also open: the bit-depth check is
 per-FILE, so a builder that already emits `set32bits` in one generated `.ssf` passes
 even if a newly added emission omits it — per-block granularity needs the
 printf/heredoc blocks split on the `> "$X.ssf"` boundary every builder here uses.
@@ -502,6 +513,82 @@ skipping; the name could carry it instead, but a header survives a rename.
 **Do it BEFORE the next resume, not after** — and note it cannot be applied while a
 groups build is in flight, because bash reads a running script by byte offset
 (`docs/dead-ends.md`).
+
+## `routing-generality` — the router encodes ONE rig's assumptions, at four sites
+
+The pipeline is supposed to pinpoint exact facts in the data and still make the
+right call for a different rig — the same code right for OSC raws on an untracked
+tripod AND for a mono, tracked, long-exposure set with real flats. Three confirmed
+places where it is keyed to this rig instead:
+
+- **`fov >= 10` is the route key, written at FOUR sites, single-sourced nowhere**
+  (`grep -rniE "fov[^0-9]*>= *10" scripts/` — two in `fingerprint.py`, `_label`
+  and the route branch of `fingerprint()`; two in `run_set_chain.sh`, the initial
+  decision and the post-preflight re-derivation). This is the exact defect
+  `disk_budget.sh` was created to kill. The physically correct key is measured
+  `drift_px`, which the fingerprint ALREADY computes: a fixed tripod at 200 mm has
+  a small field and large drift, and today exits 5 as unroutable despite being the
+  same class with *more* drift.
+- **A real-flat set on the undistort route exits 6 and refuses.** Doing
+  acquisition right stops the one-click chain while the flatless path runs.
+- **A fixed + wide + FITS set** routes to undistort, which globs camera raws only,
+  and dies with "no raw frames" — the right stop with the wrong diagnosis.
+
+**Closes when** the route key is single-sourced on a measured quantity and the two
+refusals either handle their class or name it accurately.
+
+## `master-rejection-bypasses-doctrine` — the masters do not use the shared helper
+
+`scripts/stack/siril/master_dark.ssf` hardcodes `stack dark rej 3 3` (winsorized).
+The repo's own doctrine in `scripts/stack/stack_rejection.sh` selects GESD
+(`rej g 0.3 0.05`) above 50 subs. july31's master dark is 347 frames, so it was
+winsorized where the doctrine the repo enforces everywhere else says GESD. Lights
+route through the shared helper; masters do not, so the two can drift apart
+silently — the same shape as the per-builder disk constant `disk_budget.sh` exists
+to prevent. **Closes when** the master templates resolve their rejection from
+`stack_rejection.sh` or the divergence is recorded with its reason.
+
+## `unpinned-registration-defaults` — a Siril update can change every stack silently
+
+No generated `.ssf` in the stacking path pins `-transf=` or `-interp=`, so both
+come from Siril's defaults. `TOOLS.md` names homography + lanczos4-with-clamp as
+the doctrine for this class. Same family as the `setext` / `setcompress 0` /
+`set32bits` pins already enforced by `check_bitdepth.sh`: a persisted or
+version-supplied default that nothing asserts is a silent input to every product.
+**Closes when** both are pinned in the generated scripts and the guard checks for
+them.
+
+## `cross-set-record-home` — a multi-set product has nowhere to write
+
+`finish_render.sh` hard-requires `--set` (it exits with "--session= and --set= are
+required"), so the 1760-frame four-set combine's SPCC record landed under set-03 —
+a session-level product filed as a per-set one. `datasets/README.md` already
+reserves session-level records for exactly this case (`../render_<tag>.json`
+beside `experiments.jsonl`) and the finish stage cannot write one. **Closes when**
+a cross-set product writes a session-level record without borrowing a member set's
+directory.
+
+## `frame-qa-order-dependent-scale` — the same data measures differently by run order
+
+`qa_work/frame_metrics.json` prefers the solved plate scale only if the fingerprint
+already carries one, so running frame QA BEFORE the mount probe makes every
+`fwhm_arcsec` inherit the nominal scale instead of the solved one — a 2.8% error
+(17.5031 nominal vs 18.003 solved). It is self-documented via `pixel_scale_source`
+and never re-derived once written. A measurement whose value depends on which step
+ran first is not reproducible from the data alone. **Closes when** the scale is
+re-derived (or the record refreshed) once a solve exists.
+
+## `spcc-sensor-null-unstated` — COMPLIANT in the docs, generic curve in the run
+
+SPCC's premise is convolving Gaia spectra with THIS sensor's response. The
+installed database carries no Z-series entry, so every K factor on this corpus was
+computed against the sensor-null generic default. `spcc_run.py` handles this
+honestly — it prints `sensor-null (generic default)` and rides `sensor_spec` /
+`sensor_spec_source` / `matched` with every product record — but `README.md`'s
+reference-standard table still calls step 3 COMPLIANT with no caveat, so the
+limitation is visible in the records and invisible in the contract. **Closes when**
+the README row states the sensor-match limitation, or a measured Z-series response
+is contributed to the database.
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 
