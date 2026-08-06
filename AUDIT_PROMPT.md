@@ -92,7 +92,11 @@ tracked, long-exposure set with real flats and no lens distortion.
 Known-open in that direction:
 
 - **Routing is keyed on `fov >= 10`, written at FOUR sites** with nothing
-  single-sourcing it (`fingerprint.py:242,288`, `run_set_chain.sh:145,425` — grep `fov >= 10` rather than trusting these numbers, they have drifted once already) —
+  single-sourcing it. Find every site with
+  `grep -rniE "fov[^0-9]*>= *10" scripts/` — four hits, two in `fingerprint.py`
+  (`_label` and the route branch of `fingerprint()`) and two in
+  `run_set_chain.sh` (the initial route decision and the post-preflight
+  re-derivation). It is
   the exact defect `disk_budget.sh` was created to kill. The physically correct
   key is measured `drift_px`, which the fingerprint already computes: a fixed
   tripod at 200 mm has a small field and large drift, and today exits 5 as
