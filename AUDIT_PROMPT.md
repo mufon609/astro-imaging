@@ -15,8 +15,18 @@ already-closed.
 
 july31 ran from raw frames to judge surfaces, four sets, on the groups route.
 **All four surfaces were judged PASS by the user** (`datasets/july31/judge_acceptance.json`).
-Two single-pass stacks are kept as controls, and 17 sub-stacks are kept so a
-cross-set deep combine does not require re-warping 1767 frames.
+**CORRECTED 2026-08-06 — this paragraph originally said two single-pass control
+stacks and 17 sub-stacks were kept. They were deleted in a later cleanup and are
+NOT on disk.** What survives: the four accepted `stack_set-0{1..4}_full{,_spcc}.fit`,
+the accepted 1760-frame combine `stack_all4_full{,_spcc}.fit`, five judge
+surfaces, the master dark and four sky flats, 2114 raw NEF, and every tracked
+record. Gone: all sub-stacks, both single-pass controls, the `--group=250` arm,
+every `_wcs.fit`, and all work trees. Consequences you must plan around — the
+combine cannot be re-composed without a full re-warp from raws; the route A/B and
+the dose-response cannot be re-read off disk and survive ONLY as numbers in
+`datasets/july31/experiments.jsonl`. Rebuilding from raws is expected and endorsed
+("i don't mind having to rerun any part of the process"), so treat a missing
+intermediate as a cost, never as a fault.
 
 Everything below is open. The order is mine; challenge it if the code says
 otherwise.
@@ -82,7 +92,7 @@ tracked, long-exposure set with real flats and no lens distortion.
 Known-open in that direction:
 
 - **Routing is keyed on `fov >= 10`, written at FOUR sites** with nothing
-  single-sourcing it (`fingerprint.py:242,288`, `run_set_chain.sh:112,353`) —
+  single-sourcing it (`fingerprint.py:242,288`, `run_set_chain.sh:145,425` — grep `fov >= 10` rather than trusting these numbers, they have drifted once already) —
   the exact defect `disk_budget.sh` was created to kill. The physically correct
   key is measured `drift_px`, which the fingerprint already computes: a fixed
   tripod at 200 mm has a small field and large drift, and today exits 5 as

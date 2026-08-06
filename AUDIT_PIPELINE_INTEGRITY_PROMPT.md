@@ -1,9 +1,15 @@
 # Prompt for a fresh session — pipeline integrity. Companion to `AUDIT_FLAT_GRADIENT_PROMPT.md`
 
-Two prompts came out of the july31 end-to-end run. The other one is about the
+THREE prompts sit at the repo root. `AUDIT_FLAT_GRADIENT_PROMPT.md` is about the
 DATA — a 31% disagreement between the four sky flats, and whether it reaches the
-deliverable. **This one is about the PIPELINE**: what it measured wrongly, what it
-cannot measure yet, and one failure that was never diagnosed.
+deliverable. `AUDIT_PROMPT.md` is a general audit of what the run left unresolved,
+and it OVERLAPS this one substantially: both lead with the rebuild-repeat floor,
+and both cover the unrun guards, the missing `anomaly_audit` call and the
+unexplained set-01 `seqtilt` result. Read them together rather than as separate
+tasks. **This one is about the PIPELINE**: what it measured wrongly, what it
+cannot measure yet, and one failure that was never diagnosed. Where it and
+`AUDIT_PROMPT.md` disagree about what is on disk, the STATE OF THE DATA block
+below is the one that was verified against the filesystem.
 
 Read them in either order; they touch different files and can be worked
 independently. If you only have appetite for one, **do the flat gradient first** —
@@ -186,7 +192,7 @@ was checked, which is exactly the condition under which people stop re-checking.
 set-03 carries ten transients with a dwell spectrum [1,1,3,4,8,9,11,17,20,27]; the
 27-frame satellite sits at **90% of the cap** at group=100.
 
-`README.md:576` documents the audit as part of the per-set prep. The chain omits
+`README.md:586` (the "Adding a dataset" step-2 line) documents the audit as part of the per-set prep. The chain omits
 it. That is now a *functional* coupling, not a documentation gap.
 
 ## 6. THE PATTERN THAT PRODUCED MOST OF THE ERRORS
@@ -230,7 +236,7 @@ Each confirmed against the code, none of them urgent:
   CONTRADICT, and still stopping on INDETERMINATE. Also: `mount` is modelled
   per-set, so one tripod on one night pays for four probes.
 - **The master dark's rejection is hardcoded** `rej 3 3` in
-  `siril/master_dark.ssf:14` — 347 darks get winsorized where the repo's own
+  `siril/master_dark.ssf:15` — 347 darks get winsorized where the repo's own
   doctrine (`stack_rejection.sh`) says GESD above 50. Lights route through the
   shared helper; masters do not.
 - **Registration transform and interpolation are not pinned.** No `-transf=` or
