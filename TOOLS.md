@@ -555,8 +555,9 @@ treat that as a measurable alternative, not a violation. What everyone still
 agrees on: **colour-calibrate on linear, minimally-processed data**, and **no
 heavy NR before deconvolution**.
 
-Sources: the per-topic primary citations live in **`docs/`** (one cited `.md`
-per deep-dive — see `docs/README.md`). In brief: siril.org (1.4.0–1.4.4
+Sources: the per-topic primary citations live in the research deep-dives — the
+surviving ones in **`docs/`** (see `docs/README.md`), the retired
+fully-graduated ones in git history. In brief: siril.org (1.4.0–1.4.4
 releases; RC-Astro-in-Siril 2026-06; Zenith 2026-01; Parallax 2026-06),
 siril.readthedocs `/latest` (1.5.0-dev commands / denoising / SPCC / platesolving /
 Python-API / scripts), rc-astro.com (`rc-astro` v1.0.0 standalone CLI, FAQ,

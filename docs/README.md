@@ -25,6 +25,12 @@ session** (the repo drives industry tools; it never processes pixels itself —
   right operating doc — a `TOOLS.md` tier entry, a `docs/dead-ends.md` dead-end, a
   `MEMORY.md` note — and record that graduation in the writeup. Don't let
   docs/ and the operating docs drift.
+- **Retire fully-graduated deep-dives.** A writeup earns deletion when every
+  durable finding is enforced in code or documented in an operating doc with
+  its mechanism and numbers — git history keeps the full text (and the
+  retirements name where each fact landed). What stays here must be
+  load-bearing: the live deep record for an open thread, or the route + traps
+  reference the code cites.
 
 ## Template (each deep-dive `.md`)
 
@@ -43,8 +49,15 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 ## Index
 
-_(add each writeup here, newest first)_
+_(add each writeup here, newest first; retired writeups live in git history)_
 
+- [ui-position-and-zero-state-report](ui-position-and-zero-state-report.md) —
+  the dashboard investigation report (per-set pipeline POSITION + zero-state
+  pending-vs-RED): current-state map re-verified against the running code,
+  the server-computed position design (products/records as the only `done`
+  evidence, jobs table as the only `running` source), the step-to-evidence
+  and edge-case tables, and the PENDING evaluator status. The ratified design
+  is SHIPPED; `web/serve.py` cites this file as the position/scope contract.
 - [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
   step-by-step process document for the validated class (camera raws, fixed
   mount, wide field): every stage from staging to seeded baseline with the
@@ -52,29 +65,16 @@ _(add each writeup here, newest first)_
   it is done that way (mount bands, dwell floor, desky regression, plain-mean
   compose, ICC legs, SPCC traps, stretch regimes, the complete stop list).
   EMPIRICALLY TESTED — validated end to end by the july31 blackbox rebuild.
-
-  per-filter stretch → colorize → screen/channel-isolation with pseudogreen,
-  saturation-null + chip-gap fills as the documented artifact pass, the
-  Neptune separate-transfers doctrine (= the wide-field caption's short+long
-  equivalent at L3), Schmidt's toolchain + "three congruent images", Hueso's
-  WinJUPOS methods + CC-BY derotated products; Siril 1.4.4 SOURCE-verified to
-  express the placed-points transfer via `pm` (probe-confirmed on-rig).
-  Drives j2_widefield_v2.
-  `query`), the consensus i2d→reproject→asinh→chromatic-palette workflow with
-  tool fit (reproject sanctioned; `exact` wrong below 0.05″/px; Siril probes
-  pre-registered; FITS Liberator v5 as the GUI reference), and the Jupiter
-  recreation plan (PID 1373 provenance verbatim; wide-field first — its two
-  filters are simultaneous, no derotation; the close-up's 9–22° rotation gap
-  is the class decision). PROVISIONAL except the verified acquisition route.
 - [lunar-lucky-imaging](lunar-lucky-imaging.md) — the LUNAR data class:
   lucky-imaging model mapped onto the repo's stage design (no solve/SPCC/BGE
   — documented skips), the 2025-26 stacker/finisher audit (Siril 1.4.4
   headless-except-registration; 1.5-dev `register_mpp` as the adoption test;
   PSS/AS!4/waveSharp/ImPPG evidence-tagged), Z6III capture doctrine
   (Lossless-NEF-only, 20 fps e-shutter), sampling regimes (70 mm disc =
-  107 px → single-point alignment is proper; ≥800 mm → multi-point class),
-  and the first-corpus route + pre-registered best-N% ladder. PROVISIONAL —
-  no lunar pixel processed yet.
+  107 px → single-point alignment is proper; ≥800 mm → multi-point class).
+  EMPIRICALLY TESTED on the first corpus (two sets), refinements measured in
+  place; the class builder is `scripts/stack/run_lunar_pipeline.sh` and the
+  open ladder is BACKLOG:`lunar-ladder`.
 - [stacking-vs-official-pipelines](stacking-vs-official-pipelines.md) — the
   stacking chain audited stage-by-stage against CURRENT official doctrine
   (Siril 1.4.4 docs/scripts/team statements; PixInsight 1.9.4 + WBPP 2.9.0 as
@@ -98,8 +98,9 @@ _(add each writeup here, newest first)_
   own frames** (Hugin between-frame fit → lensfun entry → darktable warp), measured
   by the drift-axis station tool `seqtilt` cannot replace. Production:
   `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
-
-**Research pass — mid-2026 tool/technique landscape**:
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
-  "provisional until x86" flag from all deep-dives collapsed into one ordered,
-  bracketed test protocol keyed to the x86 rebuild order (`docs/x86-empirical-test-plan.md`, Phase 0→5).
+  "provisional until x86" flag collapsed into one ordered, bracketed protocol.
+  Now half record, half protocol: the executed phases state their outcome and
+  the operating doc holding it; the open phases key to BACKLOG slugs
+  (`native-solve-and-sip`, `render-ladder`) plus the audit-layer candidate
+  detectors (Phase 5, none validated).
