@@ -149,7 +149,10 @@ contract + standing audits, per-set geometry, experiment discipline, north
 star). The DURABLE stage design (calibrate → [undistort] → register → stack →
 solve → SPCC → compose) lives in the kept scripts' own docstrings; the
 **undistort** stage is the wide-field-untracked route and is documented in
-[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md).
+[`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md);
+the WHOLE chain for that class — every stage with its tool, its record, and its
+measured why — is
+[`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md).
 `docs/` holds research deep-dives (one cited `.md` per major investigation — see
 `docs/README.md`), whose durable findings graduate into TOOLS /
 `docs/dead-ends.md` / MEMORY. (4) `BACKLOG.md` — the ordered open queue + the

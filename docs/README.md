@@ -45,6 +45,14 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first)_
 
+- [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
+  step-by-step process document for the validated class (camera raws, fixed
+  mount, wide field): every stage from staging to seeded baseline with the
+  tool that touches the pixels, the record it writes, and the measured reason
+  it is done that way (mount bands, dwell floor, desky regression, plain-mean
+  compose, ICC legs, SPCC traps, stretch regimes, the complete stop list).
+  EMPIRICALLY TESTED — validated end to end by the july31 blackbox rebuild.
+
   per-filter stretch → colorize → screen/channel-isolation with pseudogreen,
   saturation-null + chip-gap fills as the documented artifact pass, the
   Neptune separate-transfers doctrine (= the wide-field caption's short+long

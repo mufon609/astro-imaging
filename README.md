@@ -388,8 +388,10 @@ scripts/stack/build_sky_flat.sh sessions/<session> <set> --dark=<master> --out=s
 #   (a far-drifting set cannot be registered by one homography; the warp uses
 #   the lensfun model — fitted per rig/lens via scripts/darktable/
 #   fit_lens_model.sh + install_lens_model.sh where the community entry is
-#   inadequate). Route + traps: docs/wide-field-untracked-registration.md;
-#   auto-routing by data fingerprint is BACKLOG:`route-recommendation`.
+#   inadequate). The whole chain, step by step with its measured basis:
+#   docs/pipeline-wide-field-untracked.md; registration route + traps:
+#   docs/wide-field-untracked-registration.md. Auto-routing by fingerprint is
+#   BUILT (run_set_chain.sh); remaining wiring: BACKLOG:`route-recommendation`.
 scripts/stack/run_undistort_pipeline.sh sessions/<session> <set> --dark=<master> --flat=<master> [--frames=N]
 # the STANDING stack route for the class: balanced consecutive groups ->
 #   per-group GESD stacks -> register + stack the sub-stacks, which STAY on

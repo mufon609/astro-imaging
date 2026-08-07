@@ -518,9 +518,11 @@ The route is validated, scripted, and the chain already routes by fingerprint
   fitted rides the community entry until fitted (`fit_lens_model.sh` per focal). A
   community profile can be right at the corner and wrong paraxially — the drift-axis
   station measure is the backstop `seqtilt` cannot provide.
-- **Run the two-window drift solve live on a boundary-regime camera-raw corpus** —
-  the fingerprint's precise instrument has been self-tested but not exercised where
-  the cheap trail-vs-roundness check cannot decide.
+- ~~Run the two-window drift solve live on a boundary-regime camera-raw corpus~~
+  **DONE** — exercised exactly there on july31: the roundness check correctly
+  declined (predicted trail 1.56 px inside a ~2.3 px PSF) and four independent
+  probes decided the mount at 15.0493/14.9909/14.9544/15.0649 deg/hr vs
+  sidereal 15.041 (`datasets/july31/*/qa_work/mount_probe.json`).
 
 ## `aircraft-rejection-retest` — prove the aircraft actually rejected
 
