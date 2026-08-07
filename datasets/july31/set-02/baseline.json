@@ -1,0 +1,22 @@
+{
+ "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
+ "measures": {
+  "corner_spread_pct": 0.495,
+  "edge_dipole_x": 0.0074,
+  "centre_median_per_channel": {
+   "ch0": 101.4,
+   "ch1": 101.4,
+   "ch2": 101.0
+  },
+  "stack": "web/results/july31/stack_set-02_full_spcc.fit",
+  "stack_id": "e583ec62d79d6e4aa3372b5d593da50a"
+ },
+ "tolerances": {
+  "corner_spread_pct_max_abs": 3.0,
+  "corner_spread_pct_max_over_baseline": 1.0,
+  "edge_dipole_x_max_abs": 0.05,
+  "centre_median_max_frac_change": 0.25
+ },
+ "note": "user accepted the july31 five-surface judgment set (linear diagnostic products: four per-set stacks + the 1760-frame combine), 2026-08-07",
+ "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
+}
