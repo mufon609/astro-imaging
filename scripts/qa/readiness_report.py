@@ -318,32 +318,45 @@ def evaluate(session, set_name, route=None, forced_route=None):
                          "stated not hidden" if status == YELLOW else ""))
 
     # -- disk ----------------------------------------------------------------
-    free_gb = shutil.disk_usage(session).free // 2**30
-    peak = _singlepass_peak_gib(session, set_name, len(frames)) if frames else None
-    if peak is None:
-        rows.append(_row("disk", YELLOW,
-                         f"{free_gb}G free; peak underivable (fresh geometry)",
-                         "df + disk_budget.sh",
-                         "the builders derive and enforce their own budgets"))
+    if not os.path.isdir(session):
+        # records-only session (raws freed / not yet staged): every other row
+        # still reads the tracked records, but nothing can RUN
+        rows.append(_row("disk", RED,
+                         "session dir absent — raws not staged",
+                         "filesystem",
+                         "re-stage the session tree to run; the tracked "
+                         "records remain the durable state"))
     else:
-        grp = _derived_group(n_stack) or n_stack or 1
-        groups_est = max(1, math.ceil(peak * grp / max(1, len(frames))))
-        if free_gb >= peak:
-            rows.append(_row("disk", GREEN,
-                             f"{free_gb}G free covers even the {peak}G "
-                             "single-pass peak",
-                             "df + disk_budget.sh (undistort_peak_gib)", ""))
-        elif free_gb >= groups_est:
+        free_gb = shutil.disk_usage(session).free // 2**30
+        peak = (_singlepass_peak_gib(session, set_name, len(frames))
+                if frames else None)
+        if peak is None:
             rows.append(_row("disk", YELLOW,
-                             f"{free_gb}G free < single-pass {peak}G but "
-                             f"covers the ~{groups_est}G groups working set",
-                             "df + disk_budget.sh", "groups is the standing "
-                             "route; the builder re-checks before every group"))
+                             f"{free_gb}G free; peak underivable (fresh "
+                             "geometry)", "df + disk_budget.sh",
+                             "the builders derive and enforce their own "
+                             "budgets"))
         else:
-            rows.append(_row("disk", RED,
-                             f"{free_gb}G free is below even the ~{groups_est}G "
-                             "groups working set",
-                             "df + disk_budget.sh", "free disk or stage less"))
+            grp = _derived_group(n_stack) or n_stack or 1
+            groups_est = max(1, math.ceil(peak * grp / max(1, len(frames))))
+            if free_gb >= peak:
+                rows.append(_row("disk", GREEN,
+                                 f"{free_gb}G free covers even the {peak}G "
+                                 "single-pass peak",
+                                 "df + disk_budget.sh (undistort_peak_gib)", ""))
+            elif free_gb >= groups_est:
+                rows.append(_row("disk", YELLOW,
+                                 f"{free_gb}G free < single-pass {peak}G but "
+                                 f"covers the ~{groups_est}G groups working set",
+                                 "df + disk_budget.sh", "groups is the standing "
+                                 "route; the builder re-checks before every "
+                                 "group"))
+            else:
+                rows.append(_row("disk", RED,
+                                 f"{free_gb}G free is below even the "
+                                 f"~{groups_est}G groups working set",
+                                 "df + disk_budget.sh",
+                                 "free disk or stage less"))
 
     # -- SPCC ----------------------------------------------------------------
     db_ok, chunks_ok, cfg_ok = _spcc_env()
