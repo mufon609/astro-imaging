@@ -195,7 +195,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
   0.0015) that injected a radial corner chroma on 3 s-class data while
   leaving 6 s-class untouched; the fixed contract (untagged float TIFF +
   LIN_REC709 export) measures identity 1.0000 at every level. Registry ICC
-  entry; `docs/july23-dew-and-corner-chroma.md`.
+  entry (mechanism + numbers).
 
 ### E. Doctrine deltas → named tests (pre-registered, not run here)
 

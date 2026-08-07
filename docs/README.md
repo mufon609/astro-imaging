@@ -75,13 +75,6 @@ _(add each writeup here, newest first)_
   107 px → single-point alignment is proper; ≥800 mm → multi-point class),
   and the first-corpus route + pre-registered best-N% ladder. PROVISIONAL —
   no lunar pixel processed yet.
-- [july23-dew-and-corner-chroma](july23-dew-and-corner-chroma.md) — the
-  july23 session's two data-quality findings, current-state: LENS DEW (the
-  known environment issue — measured halo-growth signature, the reusable
-  detection instrument, the sets-01+02-only final combine, prevention
-  checklist) and the RESOLVED warp-leg ICC toe defect (untagged-linear
-  float contract, identity 1.0000 verified; corners restored to
-  reference-class ≤1.018 R/G).
 - [stacking-vs-official-pipelines](stacking-vs-official-pipelines.md) — the
   stacking chain audited stage-by-stage against CURRENT official doctrine
   (Siril 1.4.4 docs/scripts/team statements; PixInsight 1.9.4 + WBPP 2.9.0 as
@@ -107,16 +100,6 @@ _(add each writeup here, newest first)_
   `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
 
 **Research pass — mid-2026 tool/technique landscape**:
-- [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
-  on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
-  `/opt`), checksums, gotchas + a drafted **untested** `scripts/setup/x86_bootstrap.sh`.
-- [synthetic-flats-and-bias](synthetic-flats-and-bias.md) — flatless/biasless
-  calibration routes: model-division (GraXpert, vignetting-only, starlight-safe) vs
-  a sky flat (captures motes/PRNU but contaminates on a frame-filling star field) vs
-  skip-bias (CMOS) + synthetic offset; the starlight-first route + july14's real-flats-impossible
-  decision. Since adopted + hardened: the sky flat is strictly PER-SET (the
-  ratified exact-frames rule; imprint mechanism in dead-ends), pinned as
-  `scripts/stack/build_sky_flat.sh`.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
   "provisional until x86" flag from all deep-dives collapsed into one ordered,
   bracketed test protocol keyed to the x86 rebuild order (`docs/x86-empirical-test-plan.md`, Phase 0→5).

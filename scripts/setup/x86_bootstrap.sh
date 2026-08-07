@@ -2,7 +2,8 @@
 # x86_bootstrap.sh — reproducible tool install for the x86-64 Kali production rig.
 #
 # STATUS: DRAFT, UNTESTED. It targets a rig that does not exist yet (the current
-# was written before this rig existed). Every step is primary-sourced (see docs/x86-setup-and-install.md)
+# was written before this rig existed). Every step is primary-sourced (per-tool
+# sources in the manifest rows + git history)
 # but NONE has been run. Treat as a plan-in-code, not a proven installer.
 #
 # WHAT IT DOES: installs the toolkit in four isolation layers (apt / flatpak / venv /

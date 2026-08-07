@@ -466,7 +466,7 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `x86_bootstrap.sh` | fail-closed integrity-checked install of the x86 toolchain into `/opt` + a venv; PROVISIONAL (targets a rig that does not exist yet) — [`docs/x86-setup-and-install.md`](docs/x86-setup-and-install.md) |
+| `x86_bootstrap.sh` | fail-closed integrity-checked install of the x86 toolchain into `/opt` + a venv; the emitted inventory (versions, sources, checksums) is [`scripts/setup/manifest.tsv`](scripts/setup/manifest.tsv) |
 | `requirements.txt` | pinned python deps for that venv |
 
 **`session_archive.sh`** (directly in `scripts/`) — archive a session's DERIVED

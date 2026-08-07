@@ -1,7 +1,7 @@
 # UI investigation report — per-set pipeline position + zero-state
 
-Deliverable of the read-only investigation ordered by
-[`ui-position-and-zero-state-brief.md`](ui-position-and-zero-state-brief.md).
+Deliverable of the read-only investigation ordered by the position/zero-state
+brief (a consumed work order, retired — git history).
 Everything below was re-verified against the code and, where marked
 **measured**, by execution: `web/serve.py` was run and its APIs curled for
 july31 (built), july23/july14 (staged raws only), and colonnello-m20

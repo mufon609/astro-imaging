@@ -120,7 +120,7 @@ the constraints any such tool must satisfy):
   starlight is protected by keeping stars resolvable). The only fix is manual
   clone-stamping (GUI, non-reproducible). So a sky flat is safe for this class
   ONLY when faint structure is a small part of the frame; validate before use
-  ([`synthetic-flats-and-bias.md`](synthetic-flats-and-bias.md)).
+  (the builder's own gates: `scripts/stack/build_sky_flat.sh`; routes: `TOOLS.md` Tier 1).
 - **A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE ALT-AZ FRAME — the
   drift cannot reject it, because the CAMERA is fixed in alt-az too.** The
   method's stated enabling condition ("the sky drifts across the sensor, so the
@@ -1076,7 +1076,8 @@ SILENT — pin the state, never inherit it):
   compact-source-robust background; (2) a two-point control CANNOT test a
   monotonic-growth hypothesis — sample the full span. The growth pattern +
   conditions make DEW ON THE LENS the leading attribution (user field call;
-  investigation record `docs/july23-dew-and-corner-chroma.md`); the per-set
+  the full investigation record is in git history — the july23 session is
+  archived); the per-set
   flat-cancellation variance on the FINAL stacks (Deneb-box excess 0/0/0 →
   +2.5/+5.8/+10 ADU across sets 01→04) remains measured and stands — a
   lights-built flat both bakes in and partially cancels a time-varying glow,
@@ -1114,7 +1115,8 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   the front element when in doubt; if dew is found, warm and continue — never
   stack through it (a contiguous dewed block is NOT rejectable per-pixel; the
   cull is by frame, post-hoc identifiable by the halo/FWHM/nstars timeline —
-  `docs/july23-dew-and-corner-chroma.md`).
+  mean-based star-box-minus-flanks ministacks + the frame-QA trends, numbers in
+  the halo-photometry entry above).
 - **VERIFY FOCUS ON THE FIRST FEW FRAMES, then leave it alone — and if you must
   refocus, do it AT A SET BOUNDARY, never mid-set.** MEASURED on one session: the
   first 149 frames ran 9% soft (registration FWHM 2.944 px vs 2.680 achievable)

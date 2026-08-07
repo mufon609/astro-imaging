@@ -68,7 +68,7 @@ Bias/dark/flat calibrate → register → integrate → one linear master.
 | **DeepSkyStacker** | FREE | GUI-app | ❌ (Win) | Legacy/simple; no reason over Siril here. |
 
 **Pick:** Siril for the headless pipeline. **Flatless sets** → the researched
-synthetic routes ([`docs/synthetic-flats-and-bias.md`](docs/synthetic-flats-and-bias.md)):
+synthetic routes:
 GraXpert `-correction Division` for vignetting-only correction (x86 official; Siril's
 native `subsky` is subtraction-only — empirically confirmed on 1.4.4), or a Siril
 sky flat ONLY when the field is not frame-filling faint (else it bakes in and
