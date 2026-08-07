@@ -142,8 +142,9 @@ the measured run-to-run floor — *unmeasurable here, explicitly not an
 improvement* — and needs-eyes above. It never returns WIN: there is no control
 arm, only the render against its own input layer. (The old serve.py
 `RENDER_RATIO_FLOOR_PCT` constant is gone: the render tier measured
-bit-reproducible on this rig — BACKLOG `render-reproducibility` — so the floor
-rides the tier's own record, not a hardcoded percentage.)
+bit-identical per stage, thread-count invariant — numbers in the removal
+register and `docs/dead-ends.md` — so there is no floor to hide an effect
+under; any difference between two arms off one stack is the knob.)
 
 **Judge surfaces that pair to nothing are reported, never renamed.** A name that misses
 `<product>_<surface>` used to render as "no judge surface", which invites a needless

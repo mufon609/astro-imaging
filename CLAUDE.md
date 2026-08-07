@@ -52,7 +52,8 @@ line. The line is EVIDENCE:
 
 **Shape: ONE report, not N stops.** Evaluate every criterion, present them
 together with a status, take one approval, run unattended
-(BACKLOG:`readiness-report`). Anything undecidable is RED in that report rather
+(shipped: `scripts/qa/readiness_report.py` — one evaluator behind the chain,
+the CLI and the web rail). Anything undecidable is RED in that report rather
 than a surprise three hours into a build.
 
 **The measured cost of getting this wrong:** `mount` is a decision the data
@@ -339,8 +340,10 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
 - **A change is accepted by three checks, never by byte-identity with one
   dataset** (README "How a change is accepted"): the render is REPRODUCIBLE
   (pinned tool versions/params/seeds, no unseeded step; verified cheaply to a
-  documented tolerance — NOT a byte-identical double-render, since the neural
-  tools' multi-threaded inference isn't bit-reproducible); the affected data
+  documented tolerance — byte-identity is not REQUIRED, though the current
+  render tier measured bit-reproducible on this rig; the tolerance form stays
+  because it survives a stage or rig where determinism is unverified); the
+  affected data
   class(es) + a canary still PASS the tool-sourced acceptance checklist (its
   measures never loosen; the full-suite sweep is a cadence / pre-release run,
   not every commit); and any render the change alters is a **declared delta** —

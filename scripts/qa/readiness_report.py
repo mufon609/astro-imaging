@@ -33,8 +33,8 @@ auditable afterwards.
 Decision logic over tool outputs and tracked records ONLY — no pixel is read,
 no measurement is made here; every number below is quoted from the record the
 named instrument wrote. The single-pass-vs-groups fork is NOT a question here:
-groups is the standing route and rides the route criterion (BACKLOG,
-`readiness-report`).
+groups is the standing route and rides the route criterion (force_route() in
+run_set_chain.sh; the run_undistort_groups.sh removal-register row).
 """
 import argparse
 import glob

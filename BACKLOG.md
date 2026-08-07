@@ -97,29 +97,6 @@ What remains is the LADDER around it and the harness it feeds.
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
 
-## `render-reproducibility` — CLOSED: the tier is bit-reproducible
-
-**Measured, so this is done.** Two identical runs of each stage, compared with Siril
-`isub` (all-nil = bit-identical): StarNet2 via `starnet -stretch` — identical, and
-identical again across thread counts (default 28 vs `setcpu 1`, cross-compared);
-Cosmic Clarity denoise (`--disable_gpu`, separate mode) — identical; Siril's stretch
-+ `asinh -human` + `pm` recombine — identical. Nothing needed pinning, and neither
-binary exposes a thread/seed/device flag to pin with.
-
-**A number this corrected.** The 1.34% "run-to-run floor" that motivated this item was
-a misattribution: it came from two render records read as a same-arm repeat, where the
-old record logged neither its linear source nor its knob provenance. It is gone from
-`web/serve.py`, and the render colour check now reports an EXACT shift with no
-NULL-below-floor verdict — because with a deterministic chain there is no floor to
-hide an effect under, and between two ladder arms off one stack any difference is the
-knob. Mechanism + the "a floor is a measurement, not a subtraction" lesson:
-`docs/dead-ends.md`.
-
-Thread-count invariance holds for BOTH neural stages: StarNet2 at siril's default 28
-threads vs `setcpu 1`, and Cosmic Clarity at 28 vs `OMP_NUM_THREADS=1` — bit-identical
-each way and cross-compared. So the determinism is not an artifact of one machine
-state, and a rig with a different core count reproduces the same bytes.
-
 ## `learned-deconvolution` — unmeasured, and the tool is installed
 
 `render_tier.sh` skips deconvolution on three grounds that all hold — classical RL is
@@ -277,60 +254,12 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
-## `derive-mount-from-data` — CLOSED: the data answers, and the pipeline listens
+## `session-level-mount` — one tripod pays for up to four probes
 
-**DONE 2026-08-06.** `acquisition.resolve()` now ADOPTS a decisive measured mount
-signature from `fingerprint.json` instead of stopping for a human to retype it,
-and `run_set_chain.sh` continues instead of exiting 4. It stops only when the
-instruments genuinely could not decide.
-
-This item had been written down three times — here, and in two audit prompts — and
-built zero times. The measurement machinery was all present and running: the chain
-measured the signature, recorded it, printed it, and then asked anyway.
-
-**The argument it had to answer, because it was a real one.** `acquisition.py` held
-that "the measurement never self-adopts, because the declared-vs-measured pair is
-what makes CONTRADICT detectable at all" — auto-adoption makes declared == measured
-by construction, so the cross-check can never fire. Half true. CONTRADICT catches a
-human MISLABEL, and a set nobody labelled has no mislabel to catch. What must
-survive is the ability to tell the cases apart, so the record now carries
-`mount_source`:
-- `declared` — a human value; the full human-vs-data cross-check, CONTRADICT stops.
-- `derived` — adopted from the instruments; a LATER measurement that disagrees
-  still stops, which is no longer a mislabel but an unstable instrument, and is
-  worth stopping on too.
-
-**Verified by execution, six cases from clean state:** no measurement -> STOP;
-decisive signature -> derive and proceed (`mount_source=derived`); instruments
-disagree (`measured` nulled by `mount_verdict`) -> STOP; derived then contradicted
-by a later measurement -> STOP CONTRADICT; human declaration -> proceeds as
-`declared`; human mislabel -> STOP CONTRADICT.
-
-The verdict vocabulary is UNCHANGED (CONFIRM / CONTRADICT / INDETERMINATE) — the
-web UI, `serve.py` and `fingerprint.py --selftest` all consume those strings, and
-the selftest still passes. What changed is who acts on `measured`.
-
-Two wiring constraints in `run_set_chain.sh`: capture the adopted mount from the
-resolve() call that adopts it (`derived_now` appears only on that call — a
-throwaway seed call swallows the adoption and mis-reads as instrument
-disagreement, exit 4 with the answer already on the record), and re-derive ROUTE
-after an adopt (handed to the post-preflight re-derivation; left unrouted, no
-builder arm matches and the run dies after spending the masters).
-
-Still open, and deliberately not done here: `mount` is modelled PER SET, so one
-tripod on one night still pays for up to four probes. It is a session-level fact.
-
-## `approval-tag-never-used` — the approval mechanism is fiction
-
-`README.md`, `datasets/README.md`, `web/README.md` and `serve.py` all treat a
-`<session>-all<N>-<tag>-approved` git tag as THE record that a render was judged
-and re-baselined. `git tag --list` is EMPTY and always has been — no approval tag
-has ever been created, so `serve.py`'s tag query returns nothing for every session
-and the "two things called approved" distinction in `web/README.md` has only ever
-had one half in existence. Either the tag becomes a real step at the point a
-render is accepted (and something creates it), or the docs stop describing it as
-the record. **Closes when** an approved render either carries a tag or the
-mechanism is retired from all four sites.
+`mount` is modelled PER SET while it is a session-level fact: one tripod on one
+night still pays for a drift probe per set. **Closes when** a decisive
+session-level measurement seeds every sibling set's record (provenance kept per
+set — a re-aimed set still cross-checks).
 
 ## `guards-and-ci` — nothing runs the guards
 
@@ -345,17 +274,6 @@ even if a newly added emission omits it — per-block granularity needs the
 printf/heredoc blocks split on the `> "$X.ssf"` boundary every builder here uses.
 Deferred deliberately: a fragile parser is worse than a stated limit, and the limit is
 printed in the guard's own OK line.
-
-## `flatpak-race` — CLOSED: one flock-serialized invoker
-
-CLOSED — the hardening fork this item posed (bounded retry vs flock) is decided
-and built: every shell and python call site sources
-`scripts/lib/siril_run.{sh,py}`, one per-user flock serializing every siril-cli
-spawn, with `scripts/stack/check_siril_invoke.sh` failing any bypass. Retry lost
-because it recovers after the fact and needs a log the invoker cannot see. The
-bwrap mechanism, measured serialization numbers, and the removal condition live
-in the invoker's own docstring and the register row above. The one unadopted
-caller went with the JWST cut, so the guard is now unconditional.
 
 ## `lunar-ladder` — lunar lucky imaging: x86 ladder + next capture remain
 
@@ -387,100 +305,6 @@ Class facts, records and the full mechanism set live in
 (registration/aliasing/seq-hygiene/quality entries + the acquisition
 checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
 and the builder's own docstring.
-
-## `readiness-report` — CLOSED: one traffic-light surface, one approval, shipped
-
-**Shipped as `scripts/qa/readiness_report.py`** — ONE evaluator (decision logic
-over tool outputs and tracked records; no pixel read, no measurement made) that
-feeds three surfaces: the CLI, `run_set_chain.sh` (which runs it after the
-measure phase — acquisition, fingerprint, frame QA, audit, cull, optics — and
-takes the single approval: `--yes` up front, an interactive ask otherwise, and
-a report-only exit 0 when neither exists), and the web set page
-(`GET /api/readiness/<session>/<set>` + the readiness rail; the run button
-passes `--yes`, so the click IS the approval). RED exits 7 before anything
-builds; the report is a tracked record
-(`datasets/<session>/<set>/readiness.json`) so what was approved is auditable.
-The colour contract and criteria table below are the evaluator's spec of
-record.
-
-**The colour contract (user-stated; PENDING added by ratified amendment — the
-UI investigation's D1):**
-- **GREEN — go.** The criterion is met from the data. State the value and the
-  instrument, not just the tick.
-- **YELLOW — wait / look at this.** Met, but with something the user should SEE
-  before it runs. It does not block; it is the reason the report exists rather
-  than an auto-run.
-- **RED — bad or missing.** Blocks. This is the only thing that stops the run, and
-  it stops HERE rather than mid-build.
-- **PENDING — not yet measured, and the run itself produces it.** Pre-run
-  surfaces only: derived from record absence, never asserted by a caller; the
-  chain passes `--post-measure` so its own post-measure invocation can never
-  see it (absence there stays RED). Never blocks; exit stays 0.
-
-**Criteria the report must cover** (every existing gate, plus what is currently
-only discoverable by reading logs):
-
-| criterion | GREEN | YELLOW | RED |
-|---|---|---|---|
-| mount | derived or declared, instruments CONFIRM | derived (not human-declared) — say so | instruments disagree, or CONTRADICT |
-| route | fingerprint decisive | forced with `--route=` | unroutable |
-| frame QA + cull | ran, cull ratified in recipe | standing auto-cull will apply N frames | not run |
-| obstruction audit | ran, dwell floor cleared with headroom | cleared under ~20% headroom, or any UNKNOWN object | floor exceeds the group size |
-| optics | installed == pinned, warp proven | community entry, not the fitted one | mixed optics, or lensfun cannot match the lens |
-| masters | dark + flat present | flat is a sky flat (flatless route) | missing, or a real-flat set on the undistort route |
-| flat quality | corner asymmetry under the WARN | above it — the open `sky x V` defect | builder gate failed |
-| disk | covers the peak with margin | covers it without margin | below the derived peak |
-| SPCC | Gaia cone complete, sensor matched | sensor-null generic curve | chunks missing |
-| baseline | present, product will be compared | none yet — nothing to regress against | product regressed (exit 8) |
-
-The single-pass vs groups fork inside the undistort class is NOT one of the
-report's questions — groups is the standing route (`force_route`; the
-`run_undistort_groups.sh` register row above) and rides the route criterion:
-GREEN derived, YELLOW only when `--route=` forces it.
-
-**Closing condition met:** a set goes from raw frames to a finished product with
-exactly one human interaction — the report prints, the approval (`--yes` /
-terminal ask / web run click) is given once, and the build runs unattended;
-YELLOWs are visible up front and never block; anything undecidable is RED in
-the report (exit 7) rather than a stop discovered mid-build. Verified on the
-validated corpus: the no-approval invocation stops at the report (exit 0,
-record written), the `--yes` invocation runs to DONE.
-
-## `scope-own-photons-only` — JWST is CUT, and the boundary it establishes
-
-**DONE 2026-08-06: every JWST surface is removed from this repo** — `scripts/jwst/`
-(13 files), the web tab (`serve.py` stage registry + `index.html` pgJwst, 144 lines
-of UI), `TOOLS.md` Tier A, `docs/jwst-*.md`, the `datasets/jwst-jupiter/` records,
-and the two JWST-pipeline entries in `docs/dead-ends.md`. The invoker guard
-(`check_siril_invoke.sh`) lost its only exemption with it and is now unconditional.
-
-**The decision this records, which outlives the deletion.** The archival
-space-telescope class was CLOSED-FAIL by user verdict (2026-07-28) after five
-judgment rounds failed the user's eyes while passing their own instruments. But
-the reason it is CUT rather than merely closed is scope, not failure: this repo
-processes photons WE shot — raws off a camera on a mount, calibrated and stacked
-by tools we drive. Reprojecting somebody else's calibrated space-telescope mosaics
-is a different craft with different inputs, different tools and a different notion
-of "correct", and carrying it forced a parallel chain that shared almost nothing
-with the real pipeline while diluting every operating doc that had to describe both.
-
-**The standing rule:** a data class earns a place here only if it starts at raw
-frames from a camera and ends at a judged render through the pipeline in
-`README.md`. An archival, pre-calibrated or vendor-finished corpus is out of scope
-— do not re-add one, and do not reason about this pipeline's behaviour from one.
-
-Its removed lessons were tool-specific to the STScI pipeline (`skymethod=match`
-absorbing planetary glow, ramp-level `clean_flicker_noise` eating extended
-emission) and do not transfer to any tool this repo drives, which is why they went
-with it rather than staying in the registry. Full text is in git.
-
-## `web-jobs-filter` — CLOSED: shipped, verified in the code
-
-`refreshJobs` filters on `SESSION` (never `M.session`) and never defaults to
-show-all — a sessionless job is rig-level and stays visible by design; the
-mechanism comment in `web/index.html` records the lag bug it replaces. The
-closing condition ("only this session's rows, at start, during, and at
-completion") is the shipped behavior.
 
 ## `web-culled-frames` — one surface for every excluded frame
 
@@ -523,11 +347,6 @@ The route is validated, scripted, and the chain already routes by fingerprint
   fitted rides the community entry until fitted (`fit_lens_model.sh` per focal). A
   community profile can be right at the corner and wrong paraxially — the drift-axis
   station measure is the backstop `seqtilt` cannot provide.
-- ~~Run the two-window drift solve live on a boundary-regime camera-raw corpus~~
-  **DONE** — exercised exactly there on july31: the roundness check correctly
-  declined (predicted trail 1.56 px inside a ~2.3 px PSF) and four independent
-  probes decided the mount at 15.0493/14.9909/14.9544/15.0649 deg/hr vs
-  sidereal 15.041 (`datasets/july31/*/qa_work/mount_probe.json`).
 
 ## `aircraft-rejection-retest` — prove the aircraft actually rejected
 
@@ -558,32 +377,20 @@ are free depth. A visible trail or a level step = the keep was wrong, and it bec
 cull with its numbers. Cheap: one extra 492-frame stack, no new tooling. More data is
 always obtainable, so a cull that buys certainty is not a loss.
 
-## `groups-resume-size-blind` — CLOSED: the builder stamps GRPSIZE and refuses a mixed resume
-
-The closing condition ("a resume across a changed group size either reuses
-nothing or refuses loudly") is shipped in `run_undistort_groups.sh`: every
-sub-stack is stamped `GRPSIZE` (the INTENDED group size, not `STACKCNT` —
-registration may legitimately drop a frame); the build loop refuses to skip an
-existing `sub_NN.fit` whose `GRPSIZE` mismatches the run (exit 1, both sizes
-named); an unstamped legacy sub-stack reads 0 and fails closed as an UNRECORDED
-size; and `--plan` runs the same check dry (`plan_resume_check`), so the refusal
-is reachable without touching a product. Verified on a 17-sub-stack session:
-stamps {100: 15, 130: 2} match the derived sizes exactly. The mixed-rejection
-hazard closes with it — group size selects the rejection algorithm, and no
-mismatched size composes.
-
-## `routing-generality` — the router encodes ONE rig's assumptions, at four sites
+## `routing-generality` — the router encodes ONE rig's assumptions, at six sites
 
 The pipeline is supposed to pinpoint exact facts in the data and still make the
 right call for a different rig — the same code right for OSC raws on an untracked
 tripod AND for a mono, tracked, long-exposure set with real flats. Three confirmed
 places where it is keyed to this rig instead:
 
-- **`fov >= 10` is the route key, written at FOUR sites, single-sourced nowhere**
-  (`grep -rniE "fov[^0-9]*>= *10" scripts/` — two in `fingerprint.py`, `_label`
-  and the route branch of `fingerprint()`; two in `run_set_chain.sh`, the initial
-  decision and the post-preflight re-derivation). This is the exact defect
-  `disk_budget.sh` was created to kill. The physically correct key is measured
+- **`fov >= 10` is the route key, written at SIX sites, single-sourced nowhere**
+  (`grep -rniE "fov[^0-9]*>= *10" scripts/ web/` — two in `fingerprint.py`,
+  `_label` and the route branch of `fingerprint()`; two in `run_set_chain.sh`,
+  the initial decision and the post-preflight re-derivation; and two grew with
+  the readiness/position work: `readiness_report.py` `evaluate()` and
+  `serve.py` `_set_position()`). This is the exact defect
+  `disk_budget.sh` was created to kill, and it is spreading. The physically correct key is measured
   `drift_px`, which the fingerprint ALREADY computes: a fixed tripod at 200 mm has
   a small field and large drift, and today exits 5 as unroutable despite being the
   same class with *more* drift.
@@ -635,18 +442,6 @@ already carries one, so running frame QA BEFORE the mount probe makes every
 and never re-derived once written. A measurement whose value depends on which step
 ran first is not reproducible from the data alone. **Closes when** the scale is
 re-derived (or the record refreshed) once a solve exists.
-
-## `spcc-sensor-null-unstated` — COMPLIANT in the docs, generic curve in the run
-
-SPCC's premise is convolving Gaia spectra with THIS sensor's response. The
-installed database carries no Z-series entry, so every K factor on this corpus was
-computed against the sensor-null generic default. `spcc_run.py` handles this
-honestly — it prints `sensor-null (generic default)` and rides `sensor_spec` /
-`sensor_spec_source` / `matched` with every product record — but `README.md`'s
-reference-standard table still calls step 3 COMPLIANT with no caveat, so the
-limitation is visible in the records and invisible in the contract. **Closes when**
-the README row states the sensor-match limitation, or a measured Z-series response
-is contributed to the database.
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 

@@ -180,7 +180,9 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
   extraction is the user-gated render tier, not this chain).
 - One infrastructure lesson, measured: two concurrent rapid-fire flatpak
   siril-cli loops die probabilistically in bwrap sandbox setup (instance-dir
-  cleanup race) — BACKLOG:`flatpak-race`; the chain reran serialized and clean.
+  cleanup race) — closed by the flock-serialized invoker
+  (`scripts/lib/siril_run.sh`, removal-register row); the chain reran
+  serialized and clean.
 - **32-bit doctrine, vindicated on data:** 16-bit integer intermediates
   (1) quantized one channel's histogram to MAD=0, degenerating Siril's
   linked-autostretch statistics, and (2) suppressed extended-structure
