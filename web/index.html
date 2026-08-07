@@ -212,6 +212,20 @@ function coverageFor(su) {
 // {state, why} and the why is specific ("missing for: set-00", "no stack yet").
 // It was rendered as three words on the Run page only, and every why was thrown
 // away — the most decision-useful data in the system, invisible on 8 of 9 pages.
+/* ---------- readiness rail (shared) ----------
+   ONE evaluator (scripts/qa/readiness_report.py) feeds the chain, the CLI and
+   these chips — same colours, same values; /api/readiness serves it. */
+const rrClass = st => st === 'GREEN' ? 'chip ok' : st === 'YELLOW' ? 'chip warn' : 'chip cut';
+const rrShort = n => n.replace('obstruction_audit', 'audit').replace('frame_qa', 'qa').replace('flat_quality', 'flat');
+function readinessRow(r) {
+  return frag(
+    h('span', { class: rrClass(r.overall), style: 'margin-right:.8em', title: `overall — route: ${r.route}` }, r.overall),
+    ...r.criteria.map(c => h('span', {
+      class: rrClass(c.status), style: 'margin-right:.35em',
+      title: `${c.criterion}: ${c.value}\n[${c.instrument}]` + (c.detail ? `\n${c.detail}` : '')
+    }, rrShort(c.criterion))));
+}
+
 async function nextActionBlock() {
   let st = {}, stages = {};
   try { st = await fetchStatus(); } catch {}
@@ -280,8 +294,21 @@ async function nextActionBlock() {
 
 async function pgOverview() {
   const ls = lightSets();
-  const acq = (ls[0] || {}).acquisition, ex = (acq || {}).exif || {};
-  const fp = (ls.find(s => s.fingerprint) || {}).fingerprint;
+  const ex = (((ls[0] || {}).acquisition) || {}).exif || {};
+  // mount, session-honest: aggregate EVERY light set's record — presenting the
+  // first measured set's value as the session's misstated provenance
+  const mstates = ls.map(s => {
+    const a = s.acquisition || {};
+    const v = ((s.fingerprint || {}).mount_check || {}).verdict;
+    return a.mount ? `${a.mount} (${a.mount_source || 'declared'}${v ? ', ' + v : ''})` : null;
+  });
+  const mknown = mstates.filter(Boolean);
+  const muniq = [...new Set(mknown)];
+  const mountLine = !mknown.length ? '' :
+    muniq.length === 1
+      ? ` · mount ${muniq[0]} — ${mknown.length === ls.length ? `all ${ls.length}` : `${mknown.length}/${ls.length}`} sets`
+      : ` · mount MIXED across sets: ${muniq.join(' | ')}`;
+  const fplabels = [...new Set(ls.filter(s => s.fingerprint).map(s => s.fingerprint.label))];
   const totals = {
     frames: ls.reduce((a, s) => a + (((s.frame_qa || {}).total) || 0), 0),
     kept: ls.reduce((a, s) => a + (s.kept || 0), 0),
@@ -298,8 +325,6 @@ async function pgOverview() {
     try { const r = await fetch(`/api/readiness/${M.session}/${s.set}`); return [s.set, await r.json()]; }
     catch (e) { return [s.set, null]; }
   }));
-  const rrClass = st => st === 'GREEN' ? 'chip ok' : st === 'YELLOW' ? 'chip warn' : 'chip cut';
-  const rrShort = n => n.replace('obstruction_audit', 'audit').replace('frame_qa', 'qa').replace('flat_quality', 'flat');
   const readinessBlock = readiness.length ? h('div', { class: 'card' },
     h('h3', {}, 'readiness — every criterion up front; the run button is the one approval'),
     h('p', {}, 'GREEN = met from the data (hover for the value and the instrument). YELLOW = met, but look — it never blocks. RED = blocks here, not mid-build.'),
@@ -307,11 +332,7 @@ async function pgOverview() {
       ? h('div', { class: 'm' }, `${name}: readiness evaluator unavailable`)
       : h('div', { class: 'm' },
           h('a', { href: `#set/${name}`, style: 'margin-right:.6em' }, name),
-          h('span', { class: rrClass(r.overall), style: 'margin-right:.8em', title: `overall — route: ${r.route}` }, r.overall),
-          ...r.criteria.map(c => h('span', {
-            class: rrClass(c.status), style: 'margin-right:.35em',
-            title: `${c.criterion}: ${c.value}\n[${c.instrument}]` + (c.detail ? `\n${c.detail}` : '')
-          }, rrShort(c.criterion))))))
+          readinessRow(r))))
     : null;
   // ITEM 2: two DIFFERENT states were both called "approved" and neither was
   // explained — a ratified look (recipe) vs a git-tagged approved render. july23
@@ -340,8 +361,8 @@ async function pgOverview() {
     h('h1', {}, M.session, approvedTag ? h('span', { class:'chip ok', style:'margin-left:12px;vertical-align:middle', title:'a <session>-all<N>-<tag>-approved git tag exists for a product in this session' }, 'git-approved render on file') : null),
     h('div', { class:'sub' },
       `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)}`,
-      acq ? ` · mount ${acq.mount}` : '',
-      fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
+      mountLine,
+      fplabels.length ? ` — ${fplabels.join(' | ')}` : ''),
     nextBlock,
     readinessBlock ? frag(h('h2', {}, 'readiness'), h('div', { class:'cards' }, readinessBlock)) : null,
     approvalBlock ? frag(h('h2', {}, 'approval state'), h('div', { class:'cards' }, approvalBlock)) : null,
@@ -378,6 +399,7 @@ function pgSets() {
         h('td', {}, String(((dq.frames || {}).count) || '—')),
         h('td', { colspan:3, class:'why' },
           `calibration group — pedestal ${(dq.dark_level_pedestal_ADU || {}).verdict || '—'}; light-leak ${((dq.light_leak_check || {}).verdict || '—')}`),
+        h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
     }
     const fq = s.frame_qa || {}, dist = (fq.distribution || {});
@@ -388,24 +410,28 @@ function pgSets() {
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' },
           "the corpus's answer key (maker's masters / stacks / finals) — studied before tuning, never stacked"),
+        h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'reference')));
       if (s.kind === 'calibration') return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' },
           'calibration group — consumed by the master builds; no mount, no frame QA'),
+        h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
       return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
-        h('td', {}, h('span', { class:'chip warn' }, 'declare mount · run frame_qa')));
+        h('td', {}, h('span', { id:`rrov_${s.set}`, class:'chip' }, '…')),
+        h('td', {}, h('span', { class:'chip warn' }, 'not yet measured')));
     }
     if (s.kind === 'composed') return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
       h('td', {}, '—'),
       h('td', { colspan:3, class:'why' },
         'composed virtual target — built by compose from its member per-filter stacks (no lights of its own)'),
+      h('td', {}, '—'),
       h('td', {}, h('span', { class:'chip ok' }, 'composed')));
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
@@ -413,14 +439,29 @@ function pgSets() {
       h('td', { class:'okid' }, fmt(s.kept)),
       h('td', { class: culledIds(s).length ? 'cutid' : '' }, String(culledIds(s).length)),
       h('td', {}, dist.fwhm_px ? `${dist.fwhm_px.median} px` : '—'),
+      h('td', {}, h('span', { id:`rrov_${s.set}`, class:'chip' }, '…')),
       h('td', {}, full ? confirmChip(full) : h('span', { class:'chip warn' }, 'no full-depth stack')));
   });
+  // overall readiness per light set — the same evaluator as the chain; the
+  // full per-criterion rail lives on Overview and each set page
+  setTimeout(async () => {
+    for (const s of (M.sets || [])) {
+      const el = document.getElementById(`rrov_${s.set}`);
+      if (!el) continue;
+      try {
+        const r = await (await fetch(`/api/readiness/${encodeURIComponent(SESSION)}/${encodeURIComponent(s.set)}`)).json();
+        el.className = rrClass(r.overall);
+        el.textContent = r.overall;
+        el.title = `route: ${r.route} — full rail on Overview and the set page`;
+      } catch { el.textContent = '?'; }
+    }
+  }, 0);
   const caveat = ((lightSets()[0] || {}).frame_qa || {}).caveats;
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'sets'),
     h('div', { class:'sub' }, 'one process page per set — Frames · Sky objects · Flat & QA · Records'),
     h('table', { class:'ledger' },
-      h('tr', {}, ...['set', 'frames', 'kept', 'culled', 'fwhm med', 'stack'].map(t => h('th', {}, t))),
+      h('tr', {}, ...['set', 'frames', 'kept', 'culled', 'fwhm med', 'readiness', 'stack'].map(t => h('th', {}, t))),
       rows),
     caveat ? h('p', { class:'caveat' }, caveat[0]) : null);
 }
@@ -532,6 +573,14 @@ function pgSet(name) {
       h('pre', { class:'rec' }, JSON.stringify(s.dark_qa, null, 1)));
   }
   const ex = ((s.acquisition || {}).exif) || {};
+  // the same readiness rail as Overview, for THIS set (async fill — pgSet is
+  // synchronous and the router does not await it)
+  const rrHost = h('div', { class: 'm' }, 'readiness: …');
+  fetch(`/api/readiness/${encodeURIComponent(SESSION)}/${encodeURIComponent(name)}`)
+    .then(x => x.json())
+    .then(r => rrHost.replaceChildren('readiness: ',
+      (r && !r.error) ? readinessRow(r) : 'evaluator unavailable'))
+    .catch(() => rrHost.replaceChildren('readiness: evaluator unavailable'));
   const tabs = [
     ['Frames', () => framesTab(s)],
     ['Sky objects', () => frag(
@@ -554,10 +603,11 @@ function pgSet(name) {
     h('h1', {}, name),
     h('div', { class:'sub' },
       s.staged_only
-        ? `${s.staged_frames} raws staged — no records yet; declare the mount below, then the measure stages (frame_qa, anomaly_audit) run from the Run page`
-        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}`,
+        ? `${s.staged_frames} raws staged — no records yet. The set chain's measure phase derives the mount from the data and runs frame QA + the obstruction audit; declaring the mount below is the OVERRIDE, not a prerequisite`
+        : frag(`${fmt(ex.frames)} frames · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)} · mount ${fmt((s.acquisition || {}).mount)}${(s.acquisition || {}).mount_source ? ` (${s.acquisition.mount_source})` : ''}`,
           s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
                         : ' — fingerprint not yet derived')),
+    rrHost,
     mountControl(s), bar, pane);
 }
 
@@ -1391,7 +1441,7 @@ const CHIP_HELP = {
   'coverage map on disk': 'a per-pixel map of how many members cover each pixel, for this exact canvas',
   'no coverage map for this canvas': 'a coverage map exists for the session but not at this product\'s dimensions — run coverage_probe with the same sets and framing',
   'no full-depth stack': 'no stack built from every kept frame of this set',
-  'declare mount · run frame_qa': 'this set is raws only. The mount (fixed | tracked) is the one fact EXIF cannot record and nothing may assume, so it is declared by hand before anything routes',
+  'not yet measured': 'this set is raws only. The set chain\'s measure phase derives the mount from the data (a decisive drift signature is adopted as mount_source=derived, announced, never assumed) and runs frame QA + the obstruction audit; a hand declaration is the override, not a prerequisite',
   'running': 'a job is executing — one at a time, rig-wide',
   'done': 'this stage has produced its evidence on disk — the why column says which artifact',
   'todo': 'not run yet, or its products are missing for the sets named in the why column',
