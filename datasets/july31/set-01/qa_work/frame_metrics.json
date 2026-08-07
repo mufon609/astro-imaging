@@ -1,0 +1,167 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 507,
+ "registered": 507,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 18.0031,
+ "pixel_scale_source": "astrometry.net solve (mount_probe), green-plane scale halved to the full-res debayered grid",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.334,
+   "min": 2.31,
+   "max": 3.446
+  },
+  "roundness": {
+   "median": 0.8486,
+   "min": 0.7345,
+   "max": 0.8575
+  },
+  "nstars": {
+   "median": 1166,
+   "min": 1054,
+   "max": 1455
+  },
+  "bg16": {
+   "median": 1117,
+   "min": 1110,
+   "max": 1120
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.343,
+   "round": 0.851,
+   "stars": 1286,
+   "bg16": 1112
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.341,
+   "round": 0.8523,
+   "stars": 1246,
+   "bg16": 1115
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.336,
+   "round": 0.8508,
+   "stars": 1180,
+   "bg16": 1118
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.331,
+   "round": 0.8493,
+   "stars": 1160,
+   "bg16": 1118
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.329,
+   "round": 0.8464,
+   "stars": 1160,
+   "bg16": 1117
+  },
+  {
+   "block": 6,
+   "frames": 76,
+   "fwhm": 2.328,
+   "round": 0.8436,
+   "stars": 1127,
+   "bg16": 1118
+  },
+  {
+   "block": 7,
+   "frames": 51,
+   "fwhm": 2.326,
+   "round": 0.8411,
+   "stars": 1088,
+   "bg16": 1119
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_3782.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.407,
+   "bg": 1113.2,
+   "round": 0.8513,
+   "nstars": 1213
+  },
+  {
+   "file": "DSC_3783.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 2.587,
+   "bg": 1110.1,
+   "round": 0.8066,
+   "nstars": 1373
+  },
+  {
+   "file": "DSC_3784.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 2.41,
+   "bg": 1111.4,
+   "round": 0.8157,
+   "nstars": 1249
+  },
+  {
+   "file": "DSC_3785.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 2.39,
+   "bg": 1111.6,
+   "round": 0.8167,
+   "nstars": 1253
+  },
+  {
+   "file": "DSC_3786.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 2.401,
+   "bg": 1110.8,
+   "round": 0.8214,
+   "nstars": 1253
+  },
+  {
+   "file": "DSC_3787.NEF",
+   "flags": [
+    "fwhm"
+   ],
+   "fwhm": 2.388,
+   "bg": 1111.1,
+   "round": 0.8412,
+   "nstars": 1313
+  },
+  {
+   "file": "DSC_3788.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 3.446,
+   "bg": 1110.0,
+   "round": 0.7345,
+   "nstars": 1455
+  }
+ ],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

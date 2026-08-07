@@ -1,0 +1,7 @@
+requires 1.4.0
+setcompress 0
+setext fit
+set32bits
+load ../../../web/results/july31/stack_set-01+02+03+04_full
+stat
+close

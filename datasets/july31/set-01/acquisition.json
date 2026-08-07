@@ -1,0 +1,21 @@
+{
+ "mount": "fixed",
+ "mount_source": "derived",
+ "exif": {
+  "camera": "NIKON Z6_3",
+  "lens": "NIKKOR Z 24-70mm f/4 S",
+  "focal_length_mm": 70.0,
+  "exposure_s": 2.5,
+  "iso": 1600,
+  "image_wh": [
+   6064,
+   4040
+  ],
+  "fov_deg": 28.6,
+  "pixel_scale_arcsec": 16.979,
+  "cadence_s": 3.0,
+  "frames": 507,
+  "time_span_s": 1837.9
+ },
+ "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it."
+}
