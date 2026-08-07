@@ -56,7 +56,7 @@ GRAXPERT_SHA="0a7364c3304ba19f12231d533c80b294054d6558d54ecd81668e4dec49092588"
 
 # ASTAP CLI (no-GTK) + star DB(s). For the ULTRA-WIDE/trailed class use the WIDE DBs
 # W08 (276 kB, 20-80 deg) + G05 (101 MB, 3-20 deg) — the D-series caps at 6 deg and
-# G17/H17 are deprecated (docs/plate-solving-and-drizzle.md). For NARROW fields swap in
+# G17/H17 are deprecated (docs/dead-ends.md, trailed-solve entry). For NARROW fields swap in
 # d50_star_database.deb (~850 MB) instead.
 ASTAP_URL="https://sourceforge.net/projects/astap-program/files/linux_installer/astap_command-line_version_Linux_amd64.zip/download"
 # NOTE: upstream RENAMED this file (w08_star_database.deb -> w08_star_database_mag08_astap.deb);
@@ -376,7 +376,7 @@ cat <<'RCASTRO'
        rc-astro nxt --benchmark-all   # measure + pin the fastest device (CPU here; no vendor figures exist)
   6) Capture the REAL per-tool flags with a no-arg run — esp. `rc-astro nxt` (the exact
      chroma flag spelling, e.g. denoise_color, that closes the chroma-noise gap) — and
-     reconcile TOOLS.md / docs/rc-astro-cli-linux.md to what is actually there.
+     reconcile TOOLS.md to what is actually there.
   7) sha256 the installer yourself and add a manifest row.
 RCASTRO
 

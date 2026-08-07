@@ -105,9 +105,10 @@ probe true per-pixel coverage with `scripts/qa/coverage_probe.sh` (constant
 frames through the stored transforms, `stack sum`) and crop the `max` compose
 to a verified coverage threshold instead. **Drizzle is a `register` option, not `stack`**
 (CFA-drizzle 1×/pixfrac 1.0 for OSC; upscale only if sampling+dither justify —
-[[plate-solving-and-drizzle]]). **Two real gaps vs PixInsight WBPP:** no Local
+`docs/dead-ends.md`, drizzle entry). **Two real gaps vs PixInsight WBPP:** no Local
 Normalization and no PSF-Signal-Weight equivalent (our audit layer can supply a PSFSW
-proxy — [[objective-qa-defect-metrics]]). Comparison re-verified 2026-07-25 against
+proxy — rank `(Σflux·Σmean_flux)/(σ_noise·M*)` within a dataset; it reproduces PSFSW
+to R²≈95–99% from SNR², SNR and star count — PixInsight ImageWeighting doc). Comparison re-verified 2026-07-25 against
 Siril 1.4.4 (confirmed still current stable) and PixInsight 1.9.4 / WBPP 2.9.0 — both
 gaps still open (WBPP 2.9.0's new Frame Selection step is opt-in metric CULLING, not
 weighting; Conejero: "we consider ESD the best rejection algorithm currently
@@ -146,8 +147,8 @@ return trailed sources. But it is NOT a clean win: the trail-relevant knobs
 `solve-field`'s CLI (need the standalone binary), a symmetric Gaussian match
 kernel (`-w`) is SNR-mismatched to elongated PSFs, and `-a` saddle can FRAGMENT
 one rippled trail into spurious detections. It's a **testable A/B, not a
-retirement** (BACKLOG). **Trailed-class robustness ranking (mechanism —
-`docs/plate-solving-and-drizzle.md`):** (1) astrometry.net fed our own
+retirement** (BACKLOG). **Trailed-class robustness ranking (mechanism + numbers:
+`docs/dead-ends.md`, trailed-solve entries):** (1) astrometry.net fed our own
 peak-centroid xylist — MOST robust, and confirmed the *intended* shape-blind
 override (solve-field with an xylist runs no pixel extraction; the matcher is
 geometry-only — but ADD `--no-remove-lines --uniformize 0` or two list-level
@@ -284,7 +285,7 @@ that were the base rig's core data problem.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **BlurXTerminator** (RC-Astro, `--correct-only` + sharpen) | PAID $99.95 | CLI (`rc-astro bxt`) + siril-script | ✅ (**Ubuntu 22.04+ "or equivalent"; Kali not vendor-certified — verify**) / **AVX2 (i7-14700 ok); no vendor CPU figures → `--benchmark-all`** / ✅ | **Best-in-class**; standalone **`rc-astro` v1.0.0 CLI** + Siril script, no PixInsight host. `--correct-only` corrects PSF aberration without sharpening → fixes star elongation/trailing. Perpetual license, **CLI free for holders, offline after activation**. Linux GPU = **NVIDIA-CUDA only** → no-GPU rig runs the supported CPU fallback. Call `rc-astro bxt` directly (Class-2). See `docs/rc-astro-cli-linux.md`. |
+| **BlurXTerminator** (RC-Astro, `--correct-only` + sharpen) | PAID $99.95 | CLI (`rc-astro bxt`) + siril-script | ✅ (**Ubuntu 22.04+ "or equivalent"; Kali not vendor-certified — verify**) / **AVX2 (i7-14700 ok); no vendor CPU figures → `--benchmark-all`** / ✅ | **Best-in-class**; standalone **`rc-astro` v1.0.0 CLI** + Siril script, no PixInsight host. `--correct-only` corrects PSF aberration without sharpening → fixes star elongation/trailing. Perpetual license, **CLI free for holders, offline after activation**. Linux GPU = **NVIDIA-CUDA only** → no-GPU rig runs the supported CPU fallback. Call `rc-astro bxt` directly (Class-2); activation + model-cache + flag-capture steps print from `scripts/setup/x86_bootstrap.sh`. |
 | **GraXpert deconvolution** (`deconv-obj` / `deconv-stellar` AI) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (minutes CPU) / ✅ | **PRE-RELEASE only — NOT a shipped stable feature.** Official stable is **3.0.2 (BGE+denoise only)**; deconv exists only in the 3.1.0-RC line and the installed **`3.2.0a2` third-party fork** (`geeksville`, not upstream — pin the official build). Real but undocumented CLI (`-cmd {deconv-obj,deconv-stellar}`, flags in BACKLOG); object-mode artifact bug **#243 open and unaddressed**. BXT is the mature path. |
 | **AstroSharp** (DeepSkyDetail) | FREE | Win .exe / R-Shiny | ❌ **dead end for us** / — / ❌ | **NOT viable**: TIFF-only with a **<600 KB file cap** (unusable full-frame), **no native Linux**, **no CLI**, C++ (no Python), multi-platform issue open+unresolved since 2023. Drop from consideration. |
 | **Cosmic Clarity — Sharpen** (Seti) | FREE (donation) | CLI (folder-batch) | ✅ native Linux / 🐢 (CPU) / ✅ | Free stellar/non-stellar sharpen; leading free BXT alternative, a notch below; CPU-brutal without a GPU. A Class-2 binary driver. **INSTALLED on x86** `/opt/cosmicclarity-6.6` (bin `SetiAstroCosmicClarity`, reports **Sharpen V6.5 AI3.5s**), verified CPU-only `--disable_gpu` (~45s on a 1200px test frame — full-frame is far longer, unmeasured). **Folder-batch I/O, NO --input/--output flags: reads `input/` writes `output/` NEXT TO THE BINARY, ignores cwd** — hence the install is USER-OWNED, and orchestration stages each frame into `input/` (single-run; the shared dir has no concurrency). **CORRECTED 2026-08-03 — IT IS A Qt TOOL AND IT BLOCKS.** The earlier "no gnome-terminal needed" was wrong. It opens a Qt MODAL DIALOG on startup and waits for a click; unattended it hangs forever. MEASURED on an IDLE box (load 1.33) with an EMPTY input dir: blocked the full 115 s at 3% CPU / 3.2 s user time — waiting, not computing. With DISPLAY unset: `qt.qpa.xcb: could not connect to display`, exit 134. `QT_QPA_PLATFORM=offscreen` does NOT help (dialog still created, still unclickable); xvfb-run + xdotool blind-driving Return/space/click did not reach the widget. **Its CLI ARGUMENTS ARE ALSO IGNORED**: `--sharpening_mode "Stellar Only"` was passed and the dialog showed `Both`, and the run did both passes. The dialog's state is the authority. **The non-stellar pass CRASHES on real data** (`ValueError: zero-size array to reduction operation maximum` at chunk 5/36, AFTER the stellar pass completes — and nothing is saved, because the write happens after both). **Operator step that works:** launch with a display, set Sharpening Mode = `Stellar Only`, GPU off, click OK. So this tool is ATTENDED and NOT scriptable; it cannot satisfy the acceptance contract's reproducibility check unless the settings are recorded from the dialog per run. |
@@ -305,7 +306,7 @@ it. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v1.0.0 CLI. **Closes the chroma-noise gap:** AI3 has a *dedicated* chroma control (`denoise_color`, independent of the luminance `denoise` — not one global knob). Exact `rc-astro nxt` flag spelling is unpublished → capture with `rc-astro nxt` no-args on x86 (`docs/rc-astro-cli-linux.md`). Free CLI for holders, offline-after-activation. |
+| **NoiseXTerminator** (RC-Astro) | PAID $59.95 | CLI (`rc-astro nxt`) + siril-script | ✅ / AVX2, **CPU-light (lighter than BXT; indic.)** / ✅🖥 | **Best + fastest** AI denoise; `rc-astro` v1.0.0 CLI. **Closes the chroma-noise gap:** AI3 has a *dedicated* chroma control (`denoise_color`, independent of the luminance `denoise` — not one global knob). Exact `rc-astro nxt` flag spelling is unpublished → capture with `rc-astro nxt` no-args on x86 (the bootstrap prints the step). Free CLI for holders, offline-after-activation. |
 | **Siril `denoise`** (NL-Bayes; `-da3d`/`-sos`/`-indep`/`-mod`/`-mask`) | FREE | siril-native | ✅ / ✅ / ✅ | **Free, headless, deterministic.** Plain NL-Bayes on stacks; `-da3d` refine, `-sos` background artefacts, `-indep` blocky colour, `-mod` blend, **`-mask` (1.5.0-dev) to confine to a region**. **No native chroma mode** (docs still punt to GIMP — gap confirmed in 1.5.0-dev). Clean default when free+headless matters. |
 | **DeepSNR 1.2.1 (Linux)** (StarNet author) | FREE | **native Linux CLI** | ✅ / ✅ (self-contained ONNX, **CPU fallback**) / ✅ | **Cleanest free headless denoiser fit** — trained on astro data, bundled ONNX Runtime (no CUDA/TF), built for automation/Siril. v1.2.1 is the **Linux x64-only** build; INSTALLED here at `/opt/deepsnr-1.2.1-0112`. CLI `-m/--model {1=RGB-only,2=default}`; docs say *"intended for monochrome cameras."* Architecture is not stated on the primary source (NAFNet is a third-party attribution). Luminance-vs-chroma behaviour is undocumented — not a citable chroma-gap fill. A Class-2 binary. |
 | **GraXpert denoise** (AI, `-strength` + `-batch_size`) | FREE | CLI + siril-native | ✅ / ✅ 🐢 (**CPU-slow — ~14.5 min/48MP, >30 min large frames**) / ✅ | Free AI denoise, in Siril 1.4; `-batch_size 1–32` trades RAM for speed. CPU-slow is the real cost. Timing probe (onnxruntime `CPUExecutionProvider`): 1024² tile in **71 s** → ≈13–14 min extrapolated per 12 Mpx frame. INSTALLED here as 3.0.2 at `/opt/graxpert-3.0.2/GraXpert-linux/GraXpert` — that figure came from a fork build on the retired box, so re-time it before budgeting a run. Fork-CLI quirk (source-verified): the per-command flags (`-strength`/`-batch_size`/`-ai_version`; BGE `-correction`/`-smoothing`/`-bg`) are subparser-registered and HIDDEN from the top-level `--help` — they work when passed alongside `-cmd`. **LEAD (untested): `pip install graxpert[openvino]` claims ~5× CPU speedup on AVX2/VNNI Intel CPUs = the target rig's exact class** — x86 empirical candidate. No luminance/chroma split (single strength knob). |
@@ -381,8 +382,8 @@ Siril's own docs say it gives "real intensities"/"a huge green cast" and
 **recommend Manual Color Calibration for SHO**. The star-neutral balance that
 recovers the sphere has a **clean headless resolution now**: measure the mean
 star colour in the examine layer, apply a diagonal `ccm` (the *measurement* is
-the only missing native piece, and it belongs in our audit layer anyway —
-[[objective-qa-defect-metrics]]). Nightlight (dormant) does a brightest-quartile
+the only missing native piece, and it belongs in our audit layer anyway).
+Nightlight (dormant) does a brightest-quartile
 two-point RGB balance — a mechanism reference, but the OIII-lift is OUR inference,
 not its documented purpose (see the Nightlight row).
 Two mechanisms, don't conflate: **star-anchored** neutral balance (ccm+measure /

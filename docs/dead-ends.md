@@ -750,7 +750,7 @@ the constraints any such tool must satisfy):
   where *trailing/bloat* spreads the star; drizzle is pointless there because
   trailing breaks the dither/registration preconditions AND drizzle can't de-trail
   (it renders a sharper *smeared* star). CFA-drizzle 1×/pixfrac 1.0 is a separate
-  OSC-only win (cleaner colour noise). `docs/plate-solving-and-drizzle.md`.
+  OSC-only win (cleaner colour noise).
 - CLASSICAL deconvolution (makepsf + RL) where trailing is in-exposure fails —
   unstable symmetric PSF on ≈0 background. (A LEARNED deconvolver is NOT classical RL
   and is a live x86 option, not a dead-end — tool choice + CPU costs in `TOOLS.md`.)

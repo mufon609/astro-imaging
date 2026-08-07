@@ -384,7 +384,7 @@ on-rig, on Siril 1.4.4 (the identical tool the x86 target runs).
   smear into a few discrete ghosts. So short windows buy edge sharpness by paying
   integration time; they are not a way to keep both.
 - **Drizzle does NOT fix alignment-model error** — it is a sampling method, needs
-  real sub-pixel dither, and cannot de-trail ([[plate-solving-and-drizzle]]).
+  real sub-pixel dither, and cannot de-trail (`dead-ends.md`, drizzle entry).
 - **VERIFIED — the OSC order, and its one exception.** Debayer BEFORE registration:
   interpolating an undebayered CFA mosaic through a geometric transform mixes
   neighbouring R/G/B photosites. Siril forces the choice explicitly — **drizzle
