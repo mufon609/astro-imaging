@@ -1,100 +1,86 @@
-# x86 empirical-test plan — turning the provisional research into experiments — deep dive
+# x86 empirical-test plan — the provisional flags, as ordered experiments — deep dive
 
-- **Question / scope** — Every finding in this research pass is marked PROVISIONAL
-  until run on the x86 rig (the contract: "nothing is final until empirically tested").
-  This consolidates all those flags into ONE ordered, bracketed protocol, keyed to
-  the x86 rebuild order — an executable checklist so the rebuild settles each
-  hypothesis with a control and a pass/fail metric, not by assertion.
-- **Context** — Written from the ten deep-dives in `docs/`. Rig: x86-64
-  Kali, i7-14gen, 32 GB, **no GPU**, headless. Each test names what it SETTLES, the
-  BRACKET/control, the METRIC, and the source deep-dive. Run them in phase order; a
-  phase's result can change later phases.
+- **Question / scope** — Every research finding was PROVISIONAL until run on the
+  x86 rig (the contract: "nothing is final until empirically tested"). This file
+  collapsed all those flags into ONE ordered, bracketed protocol keyed to the
+  rebuild order. It is now two things: the record of what the rebuild EXECUTED,
+  with where each result lives; and the live protocol for the phases still open,
+  keyed to their BACKLOG slugs. Inherited numbers re-measure in this order.
+- **Context** — Rig: x86-64 Kali, i7-14700K, 28 threads, 31 GB, **no GPU**,
+  headless. Each open row names what it SETTLES, the BRACKET/control, and the
+  METRIC; a phase's result can change later phases.
 
-## The protocol
+## Executed — where each result lives
 
-### Phase 0 — Found the environment (`docs/x86-setup-and-install.md`)
+| phase | outcome | record |
+|---|---|---|
+| 0 — environment | bootstrap ran; the installed inventory with versions/sources/checksums is `scripts/setup/manifest.tsv`; free neural tools installed + driven CPU-only (Cosmic Clarity sharpen is the exception: Qt-modal, ATTENDED-only) | `CLAUDE.md` Environment; `TOOLS.md` per-tier rows + "What is installed" |
+| 0 — rc-astro rows | MOOT — RC-Astro (and PixInsight) are NOT INSTALLED **by choice**, a deliberate gap, not a platform block; the `ldd`/`--benchmark-all` steps print from the bootstrap if ever bought | `TOOLS.md` "What is installed, and what is a deliberate gap" |
+| 1 — orchestration port | tool-sourced measures re-run on this rig; every divergence/gap-filler sits in the removal-condition register with per-row status; `frame_metrics` CFA condition FIRED and honoured (debayer at convert; +9.1% FWHM inflation measured on the CFA arm); sirilpy headless via `.ssf`→`pyscript` probe-confirmed | `BACKLOG.md` `removal-conditions`; `CLAUDE.md` Environment |
+| 2 — stack builder | chain reconciled to 1.4.4 and run; bare-`rej` default SETTLED (Winsorized, `help stack` on-rig); 16-bit intermediates condition FIRED with its cost measured (+21% master fixed-pattern; ~30–45% extended-structure contrast loss); undistort stage ran as written; the whole class chain validated end to end by the july31 blackbox rebuild | `TOOLS.md` Tier 1; `docs/dead-ends.md` (16-bit entries); `docs/pipeline-wide-field-untracked.md` |
+| 3 — extractor half | RUN and settled: SExtractor's core `sep` is the SOLE extractor (returns trailed sources, median elongation ~1.3; blind-solves at logodds 299 vs the in-house peak centroids' 289, identical SPCC K); the in-house fallback is RETIRED | `docs/dead-ends.md`, trailed-solve entry; `solve_field.py` docstring |
+
+## Open — the live protocol
+
+### Phase 3 remainder — native solve + SIP (BACKLOG:`native-solve-and-sip`)
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
-| Run `scripts/setup/x86_bootstrap.sh --go` (fill TODO sha256 first) | the whole install plan | the verification pass (every tool `--version`/`--help`) | all exit 0 |
-| `ldd <rc-astro>` + `rc-astro --version` (a LIBRARY check, not a desktop one) | the real dep = glibc ≥2.35 / GLIBCXX ≥3.4.30 / AVX2 floor (Kali has 2.42 / 3.4.35 — verified) | no "not found" libs; runs | runs; a missing lib → `apt install <it>`, not a DE/distro change |
-| `rc-astro <t> --benchmark-all` + timed run (BXT/NXT/SXT) on a real frame, `--device cpu` | true CPU wall-clock (all quoted numbers are other CPUs) | seconds/frame at 24–60 MP | record; sanity ≈ tens-of-sec BXT |
-| GraXpert `-cmd denoising`/`deconv-obj` `-gpu false` timed (flag spelling is build-specific — resolve on the pinned build) | GraXpert CPU cost + which version installed | wall-clock; version print | record; OFFICIAL 3.0.2 (or 3.1.0-RC for deconv) only — PyPI 3.2.0a2 is the geeksville fork, do not install |
-| StarNet2 / DeepSNR / Cosmic Clarity headless run + timed | do the free binaries run CPU-only + wall-clock | seconds/min per frame | run headless, no display |
+| One real trailed ultra-wide stack solved 3 ways: (a) `solve_field.py` sep-xylist, (b) `astap_cli` + W08/G05 (`-z auto -speed slow`), (c) Siril `platesolve -localasnet -blindpos -blindres` + `setfindstar -relax=on -roundness=0.1 -maxR=large` | can native/ASTAP retire `solve_field.py`? (class-gated: the mildly-trailed class first — the dead-end was measured at roundness 0.615, july23-class data reads 0.80) | solve success · residual RMS · wall-clock | (a) is the baseline; retire only if (c) matches |
+| Then Siril-native SIP (`register -disto=`) vs the darktable warp | the fitted lens model's removal condition, on a DIFFERENT SIP source than the index-constrained fit the registry killed | `seqtilt` off-axis + drift-axis stations + full-frame finals | precondition: the probe above solves this class |
 
-### Phase 1 — Port the orchestration + record layer
+### Phase 4 — render toolkit, per tier (BACKLOG:`render-ladder`)
+The ladder skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), riders,
+and limits live in BACKLOG:`render-ladder`; the learned-deconvolution bracket is
+BACKLOG:`learned-deconvolution`; the chroma budget instrument is `noise_split.sh`
+(BACKLOG:`walking-noise`); the narrowband star-neutral bracket is
+BACKLOG:`star-neutral-colour`. One doctrine row stays here because it brackets the
+ladder itself: **workflow order** — linear-first default vs the nonlinear-stage
+alternative (`TOOLS.md`, "The one process rule": the 2026 AI tools loosen
+linear-only) — one knob, gate/audit deltas, full-frame lossless finals, the
+user's eyes on aesthetics.
+
+### Phase 5 — extend the audit layer (open; candidates, not validated metrics)
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
-| Re-run the tool-sourced measures on a known stack — Siril `stat`/`seqstat`, `register` regdata via `inspect_stage.py`, `seqtilt` via `star_shape.py` | the orchestration ports (the TOOLS do the measuring; there is no in-house measurement core) | same tool numbers as arm on the same inputs | agree within tolerance |
-| Fire the removal conditions the x86 rig unblocks — 32-bit intermediates, debayered `frame_metrics` re-measure | the register in `BACKLOG.md`; each is gated on this rig, not on research | each retirement lands as a declared delta | condition fired + register updated |
-| sirilpy headless via `.ssf`→`pyscript` under the x86 flatpak | the inherited "proven headless" claim | a trivial pyscript runs headless | runs, no display |
+| Implement each candidate defect detector, run on DELIBERATELY degraded renders (over-sharpened / over-smoothed / over-flattened) + known-good | do the derived detectors actually fire? (they are constructions, not validated published astro metrics) | detector value on bad vs good | fires on bad, quiet on good, BEFORE it may gate |
+| PSFSW proxy vs a PixInsight SubframeSelector export (if available) | the `(Σflux·Σmean_flux)/(σ_noise·M*)` proxy | rank correlation | high correlation = usable weight |
 
-### Phase 2 — Rebuild the stack builder (`docs/siril-stacking-workflow.md`)
-| Test | Settles | Bracket / metric | Pass |
-|---|---|---|---|
-| Reconcile `run_pipeline.sh`/`.ssf` to 1.4.4 syntax, then run calibrate→register→stack | migrated-script breakage (unified `-weight=`, `-2pass`, no `-noout`/`-cc=bothpasses`) | clean run on a known set; compare masters/stack | no syntax errors; stack sane |
-| `help stack` on the flatpak | bare-`rej` default algorithm — SETTLED on the identical 1.4.4 (`help stack`: "If omitted, the default Winsorized is used") | re-confirm at bring-up (same version → formality) | matches the arm answer |
-| 32-bit end-to-end on a full sequence (drop `set16bits`) | the 7.7 GB→32 GB RAM relaxation, and the 16-bit stack-time intermediates' removal condition | holds full sequence in RAM; stack noise vs the 16-bit path | completes without the workaround |
-| Run the UNDISTORT stage end to end (`install_styles.sh` + `install_lens_model.sh` → `run_undistort_pipeline.sh`, its first as-written run) | the inherited WIN re-measured here (every arm finding is a hypothesis here) | Siril `seqtilt` + `scripts/qa/star_stations.py`, control vs corrected | class- and lens-gated (needs a wide-untracked set + the NEW rig's fitted entry): the direction must reproduce — edge ≈ centre, no along-drift band; the retired lens's magnitudes (off-axis ~0.25 px, stations 3.4–3.8 px majFWHM, seqtilt truncated-mean ~3.0–3.1 px — git) are references, not targets |
-
-### Phase 3 — Plate solving, the trailed class (`docs/plate-solving-and-drizzle.md`)
-| Test | Settles | Bracket / metric | Pass |
-|---|---|---|---|
-| One real trailed ultra-wide stack solved 3 ways: (a) `solve_field.py` peak-xylist, (b) `astap_cli` + W08/G05 (`-z auto -speed slow`), (c) Siril `platesolve -localasnet -blindpos -blindres -nocrop` + `setfindstar -relax=on -roundness=0.1 -maxR=large` | can native/ASTAP retire `solve_field.py`? (class-gated: needs a trailed ultra-wide stack from the new corpus) | solve success · residual RMS · wall-clock | (a) is the baseline; retire only if (c) matches |
-| Inspect the trails | uniform vs rotational trailing (affects ASTAP) | centroid consistency across the field | informs the ranking |
-
-### Phase 4 — The render toolkit, per tier (`TOOLS.md` + the tool deep-dives)
-
-**Phase 4 runs the render-tier ladders** — BACKLOG:`render-ladder`'s pre-registered
-skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), re-anchored to
-the staged corpus by the operating loop (the render surface is probed present
-on the base rig too; only the neural/separation binaries are arm-blocked).
-Any rungs closed before migration arrive as measured PRIORS, re-measured per
-the migration rule; the rows below then add the environment-unlocked tiers
-(separation, BXT/NXT, Cosmic Clarity, DeepSNR).
-| Test | Settles | Bracket / metric | Pass |
-|---|---|---|---|
-| **Workflow order** on a real dataset: linear-first default vs the 2026 nonlinear-stage alternative (ben.land) | strong-default vs a measurable alternative | gate/audit deltas, full-frame lossless finals | declared delta; user's eyes on aesthetics |
-| **Deconv**: BXT `--correct-only` vs GraXpert deconv (RC) vs Siril RL, on trailed stars | which fixes trailing; is GraXpert deconv usable/buggy (#243) | star roundness + ringing (the radial-undershoot metric) | BXT expected best; measure |
-| **Denoise / chroma**: does NXT AI3 expose a chroma-specific control + close the chroma-noise gap? vs DeepSNR / Siril `denoise` / GraXpert | the NXT-AI3 "likely fill" (UNVERIFIED) | chroma-channel MAD on masked background (audit metric); the walking-noise class-measure (retired corpus: drift-phase structured σ ≈0.34/0.48/0.42 ADU per ~199-frame half vs random ≈0.64/0.76/0.76 — git; re-derive per corpus, BACKLOG:`walking-noise`) — re-run the split on the denoised surface: the structured term should shrink, the confusion texture (real sky) should NOT | chroma noise down without texture loss; structured term down, star/texture untouched |
-| **Star-neutral (narrowband)**: measure mean star colour in the examine layer → apply a diagonal `ccm`; bracket vs SPCC and vs Nightlight (`go build`) | the doctrine-clean ccm+measurement design (untested) | OIII-shell B/R + mean star chroma → neutral | sphere lifts, stars ~neutral |
-| **pyscript headless**: try a Class-1 GUI script (VeraLux) under `xvfb-run`/`QT_QPA_PLATFORM=offscreen`; run a dual-mode one (`Statistical_Stretch`, SyQon Prism `--no-gpu`) via `.ssf` | are Class-1 GUI scripts batch-drivable? (expected: no) | does it run + accept params non-interactively | confirm the escape-hatch boundary |
-
-### Phase 5 — Extend the audit layer (`docs/objective-qa-defect-metrics.md`)
-| Test | Settles | Bracket / metric | Pass |
-|---|---|---|---|
-| Implement each candidate metric, then run on DELIBERATELY degraded renders (over-sharpened / over-smoothed / over-flattened) + known-good | do the derived detectors actually fire? (they are constructions, not validated) | detector value on bad vs good | fires on bad, quiet on good, before it may gate |
-| PSFSW proxy vs a PixInsight SubframeSelector export (if available) | the `(Σflux·Σmeanflux)/(noise·M*)` proxy | rank correlation | high correlation = usable weight |
+Surviving candidates (the deep-dive that derived them is retired; full
+derivations + sources in git history): **residual-autocorrelation whiteness** +
+**fine-scale-energy vs the noise floor** (denoise over-smoothing, the "plastic"
+test); **removed-background-model spectral / negative-bowl** (BGE
+over-flattening); **clip fractions, star-colour loss, chroma-channel MAD**
+(clipping / colour); **gradient-decay sharpness** (arXiv 2410.10488). VOID:
+the radial-profile undershoot detector's "reuses the existing radial profiles"
+premise — that instrument was retired as circular (`docs/dead-ends.md`, trap 3);
+a ringing detector needs a NEW mechanism, not a revival. Every estimator these
+validate against comes from the tools (Siril `stat`/`register`/`seqtilt`,
+SubframeSelector); a detector is a candidate *standalone ALLOWED detector* on
+the `anomaly_audit.py` pattern ONLY where no tool measures the defect — never a
+numpy gate.
 
 ## Cross-cutting acceptance (the contract)
-Every render-altering result is judged by the three-check acceptance in `README.md`
-("How a change is accepted"): **reproducible** — NOT a byte-identical double-render,
-which is the wrong bar on this chain (the neural tools' multi-threaded inference is not
-bit-reproducible, and even darktable's TIFF differs by a metadata byte per run while its
-warp reproduces exactly) — verified cheaply to a documented tolerance; **no-regression**
-across data classes, judged on the TOOLS' recorded measures against each dataset's
-baseline, criteria never loosening; and **declared delta** (metric deltas + like-encoding
-panels; objective-better-or-equal may commit, anything aesthetic needs the user's eyes on
-full-frame lossless finals). One bracketed knob per experiment; a killed hypothesis
-becomes a `docs/dead-ends.md` entry **with its numbers**.
+Every render-altering result is judged by the three-check acceptance in
+`README.md` ("How a change is accepted"): **reproducible** — verified cheaply to
+a documented tolerance; byte-identity is not REQUIRED, though the current render
+tier and the groups route both measured bit-reproducible on this rig
+(`docs/dead-ends.md`) — the tolerance form stays because it survives a stage or
+rig where determinism is unverified; **no-regression** across data classes on
+the TOOLS' recorded measures, criteria never loosening; **declared delta**
+(metric deltas + like-encoding panels; objective-better-or-equal may commit,
+anything aesthetic needs the user's eyes on full-frame lossless finals). One
+bracketed knob per experiment; a killed hypothesis becomes a `docs/dead-ends.md`
+entry WITH its numbers.
 
 ## Sources
-Internal synthesis of the ten `docs/` deep-dives (each carries its own primary
-citations + Status/Graduation). No new external sources.
-
-## Verdict / recommendation
-Run the phases in order on the x86 rig. Phase 0–2 are prerequisites (environment +
-ported core + stack builder); Phase 3 settles the solve doctrine; Phase 4 is the
-per-tier toolkit selection (each a measured declared delta); Phase 5 grows the product
-(the audit layer). This document is the executable x86 rebuild order — it
-is where "provisional" becomes "verified."
+Internal synthesis of the research deep-dives (surviving ones in `docs/`,
+retired ones in git history — each carried its own primary citations).
 
 ## Status
-**PROVISIONAL by construction** — it is the list of what is NOT yet tested. It settles
-nothing itself; it makes the settling reproducible. Every row is a hypothesis with a
-named control + metric.
+The executed table is MEASURED (each row's record named in place). The open
+phases are hypotheses with named controls + metrics — they settle nothing until
+run.
 
 ## Graduation
-- **This plan IS the x86 rebuild order** — each rebuild step runs from this plan, so the
-  order is executed as bracketed experiments, not asserted.
-- No TOOLS.md change (this is a test protocol, not a tool).
-- Applied in this deep-dive's commit.
+- Executed results live in the operating docs named per row; open work is keyed
+  to BACKLOG slugs so this file and the queue cannot drift apart.
