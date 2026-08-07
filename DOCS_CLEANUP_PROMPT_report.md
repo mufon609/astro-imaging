@@ -36,7 +36,7 @@ files' own Graduation sections.
 | ui-position-and-zero-state-report.md | 393 | **KEPT** | Live design record of the SHIPPED position/PENDING work; cited from `web/serve.py` (×2, as the position/scope contract) and `docs/pipeline-wide-field-untracked.md`. One repoint: its line-4 link to the retired brief |
 | lunar-lucky-imaging.md | 260 | **KEPT** | The live class record for an open thread (BACKLOG `lunar-ladder`); cited from `run_lunar_pipeline.sh`, `TOOLS.md` Tier L, `BACKLOG.md` |
 | stacking-vs-official-pipelines.md | 289 | **KEPT** | The standing doctrine audit README's review contract requires; cited from `TOOLS.md` Tier 1; current (Siril 1.4.4 / WBPP 2.9.0); its named tests E1–E4 live as BACKLOG slugs. Two repoints (retired sources line, retired july23 pointer) |
-| wide-field-untracked-registration.md | 622 | **KEPT** | The "route + traps" reference the code cites (`run_undistort_pipeline.sh`, `lens_preflight.py`, plus `CLAUDE.md`/`README.md`/`TOOLS.md` Tier 2b/dead-ends); holds the open one-sided-term and disk-bound-frame-selection threads. One repoint (drizzle citation) |
+| wide-field-untracked-registration.md | 622 | **KEPT** at the pass; then **AUDITED + CONDENSED → 385** on user order (`1f5fc6c`, §5.2) | The "route + traps" reference the code cites (`run_undistort_pipeline.sh`, `lens_preflight.py`, plus `CLAUDE.md`/`README.md`/`TOOLS.md` Tier 2b/dead-ends). The audit found a fifth drift instance (16-bit-era ICC rule stated as the production contract — corrected against the shipped code); measured tables kept, duplicated route/trap prose deduplicated to TOOLS Tier 2b / dead-ends / the script docstring; stale open items superseded in place (one-sided term → BACKLOG:`one-sided-band`) |
 | docs/README.md | 151 → 106 | **INDEX REWRITTEN** (incrementally + `0e4cdcb`) | Matches the surviving set exactly (verified, §6); orphan fragment removed; report entry added; lunar entry's stale PROVISIONAL corrected to the file's own EMPIRICALLY TESTED; retirement rule added to "The rules"; example filenames now name survivors |
 
 Not touched (out of scope, no pointer breakage): `docs/dead-ends.md` and
@@ -120,35 +120,50 @@ docs/" → survivors in docs/, retired ones in git history.
 - Operating-doc deltas from graduations/repoints: `TOOLS.md` 563 → 570;
   `README.md` (root) one row rewritten; `scripts` touched: `x86_bootstrap.sh`
   (3 comment lines), `render_tier.sh` (1 comment line).
+- **After the §5 resolutions** (`20b3850`, `1f5fc6c`): docs/ **2,978 lines**
+  (wide-field 622 → 385; stacking-vs +1 annotation line) — 5,593 → 2,978
+  overall, −47%; in-scope deep-dives 3,986 → 1,414, −65%.
 
-## 5. Not settled — decisions for the user
+## 5. Open decisions — all three RESOLVED by the user (follow-up commits)
 
-1. **`scripts/setup/x86_bootstrap.sh` still declares "STATUS: DRAFT, UNTESTED.
-   It targets a rig that does not exist yet"** while `CLAUDE.md` presents the
-   bootstrap as the reproduction path and `scripts/setup/manifest.tsv` as its
-   emitted inventory — two operating surfaces contradict each other. Script
-   content is outside this pass's scope; I removed the same stale claim from
-   the root `README.md` setup row because the retirement forced that row's
-   pointer to be rewritten anyway (flagging that edit here for the audit).
-   Options: (a) update the bootstrap header to the measured state ("ran on
-   this rig, emitted manifest.tsv; fresh-rig end-to-end unverified"); (b)
-   verify with a dry-run/scratch run, then update; (c) leave and accept the
-   contradiction.
-2. **`wide-field-untracked-registration.md` kept at full length (622).** Its
-   route + traps are (by design) also distilled into `TOOLS.md` Tier 2b and
-   dead-ends; a further condense (~300 lines: drop the superseded
-   community-model narrative arcs and route-audit details TOOLS carries) is
-   possible. Kept whole because the prompt's own KEEP example names it, two
-   scripts cite it, and it holds the open one-sided-term thread. Options:
-   (a) leave KEPT (recommended); (b) order a condense pass with the same
-   citation discipline.
-3. **KEEP files cite archived session records** (`stacking-vs` §D cites
-   `datasets/july23/*`; `wide-field` cites july14 `qa_work/` paths). Those
-   sessions were reset to raws (`50dfd20`); the records live in the archive +
-   git history. This is the record lifecycle working as designed, not doc
-   drift — noted so the auditor does not read the paths as dangling. Options:
-   (a) leave as-is (recommended — the paths name where records live when
-   staged); (b) annotate each with "(archived)".
+1. **Bootstrap header — RESOLVED (`20b3850`).** User: arm64 is retired, only
+   the x86 rig exists — clean it up entirely. The header's "DRAFT, UNTESTED,
+   targets a rig that does not exist yet" was replaced with the measured
+   state: steps verified PIECEWISE during this rig's bring-up (every tool
+   installed + driven; `manifest.tsv` the tracked inventory those installs
+   recorded), with the one-shot from-scratch pass on a fresh machine named as
+   the standing acceptance test (a step failing there is a bug in the script,
+   per CLAUDE.md's rebuildable-from-tracked-files rule). The "draft" refusal
+   message at the `uname -m` guard was fixed in the same commit. During the
+   pass itself, the root `README.md` setup-table row had already dropped the
+   same stale claim when its retirement-forced pointer rewrite landed
+   (`2dd133a`) — flagged then, consistent now.
+2. **wide-field-untracked-registration.md — AUDITED, condense WARRANTED,
+   DONE (`1f5fc6c`): 622 → 385.** User: condense if the audit says so, don't
+   invent problems, don't stop short. The audit found a real problem — a
+   FIFTH drift instance this campaign surfaced: the file asserted
+   "`--icc-type SRGB`, never `LIN_REC709`" and a 16-bit `savetif` chain
+   diagram, while the shipped `run_undistort_pipeline.sh` strips the ICC tag
+   and exports `LIN_REC709` on a `savetif32` float leg (verified in the
+   script before editing). Corrected to the two-leg contract. Condense kept
+   every measured table (seqtilt A/B + full depth, drift-axis stations, the
+   A/B/C experiment, the SIP 65/128 px kill) and the theory; route-audit and
+   production-trap prose deduplicated to one-line verdicts pointing at
+   `TOOLS.md` Tier 2b / dead-ends / the script docstring, which carry them
+   verbatim. Stale Status items superseded in place: the one-sided term →
+   BACKLOG:`one-sided-band` (holds the newer july27/july31 state); the july14
+   disk-bound frame-selection debt died with the session archive + the
+   chain's cull machinery. All citing anchors (`CLAUDE.md`, `README.md` ×2,
+   `TOOLS.md` Tier 2b, `lens_preflight.py`, `run_undistort_pipeline.sh`,
+   dead-ends) still resolve; the index entry still describes the file.
+3. **Archived-record paths in KEEP files — user delegated; DECIDED: paths
+   stay** (`1f5fc6c`). They name the instrument records; records re-stage
+   with a session and live in the archive + git history meanwhile — per-path
+   "(archived)" annotations would rot the other way on re-stage. One
+   clarifying annotation added at the single place a reader could mistake
+   them for on-disk state: `stacking-vs-official-pipelines.md` §Sources
+   (`datasets/july23/*` — session since archived). The condensed wide-field
+   file annotates its own july14 record pointer inline.
 
 ## 6. Verification evidence (re-runnable)
 
