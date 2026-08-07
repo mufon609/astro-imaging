@@ -42,7 +42,9 @@ record the render chain consumes. No external service; the server binds
   under full disclosure: every run prints its derived plan (route + reason,
   gates, the exact commands) before executing, and `plan=true` prints it
   running nothing. The chain STOPS wherever a decision is the user's —
-  mount undeclared or CONTRADICT, an unroutable fingerprint, an unresolved
+  mount underivable (the instruments disagree or nothing measures; a
+  decisive signature is adopted as mount_source=derived and announced,
+  never stopped on) or CONTRADICT, an unroutable fingerprint, an unresolved
   flat — and it ENDS at the diagnostic judge surface: everything aesthetic
   beyond it (the render tier) stays per-rung and user-judged. QA defect
   flags do NOT stop it: the STANDING USER POLICY auto-culls flagged

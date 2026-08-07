@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """Transient-obstruction classifier + anomaly surface: for each frame, decide
-what each in-frame obstruction is — AIRCRAFT, SATELLITE, or UNKNOWN. REPORT-ONLY
-— it never moves, deletes, or rewrites any input frame, and it does not gate or
-feed the final-product pipeline; it emits a per-frame classification with the
-measured evidence. UNKNOWN is the honest anomaly surface: an obstruction that
-matches no known signature and deserves human eyes.
+what each in-frame obstruction is — AIRCRAFT, SATELLITE, or UNKNOWN. It never
+moves, deletes, or rewrites any input frame, and it CULLS NOTHING — transients
+are deliberately KEPT and left to the stack's own sigma rejection. It emits a
+per-frame classification with the measured evidence. UNKNOWN is the honest
+anomaly surface: an obstruction that matches no known signature and deserves
+human eyes.
+
+THE RECORD FEEDS THE PRODUCT. `run_undistort_groups.sh` reads it, derives the
+DWELL FLOOR from the longest transient (`ceil(max_dwell / the GESD outlier
+fraction)`), raises the derived group size to clear it, and aborts a build whose
+explicit --group sits below it. Group size in turn selects the rejection
+algorithm. This is a load-bearing input to the deliverable, not a side report.
 
   Usage: anomaly_audit.py <frame.NEF | dir | glob> [--work=<dir>]
                           [--curv=<f>] [--json=<out>] [--keep-resid]

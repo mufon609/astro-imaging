@@ -8,25 +8,29 @@ shot, split by provenance and kept honest:
           dedicated-astrocam FITS frames the SAME facts from the FITS header
           (INSTRUME/TELESCOP/FOCALLEN/XPIXSZ/GAIN/DATE-OBS — `iso` is null,
           there is no such concept; `gain` and `binning` are recorded).
-  mount   DECLARED by a human — "fixed" (tripod) or "tracked" (driven mount).
-          EXIF does not record it, and no single frame settles it (a short
-          enough exposure hides the drift), so a consumer must be TOLD.
-          It IS measurable across frames — scripts/qa/mount_probe.sh solves two
-          windows and fingerprint.py reads the RA rate against sidereal — and
-          when that measurement exists the stop below quotes it, so the human
-          ratifies a number rather than supplying a fact the tools already know.
-          The declaration still stays theirs: declared-and-measured is what makes
-          CONTRADICT detectable, and a lone auto-adopted solve would be believed
-          silently when it is wrong.
+  mount   how the camera moved — "fixed" (tripod) or "tracked" (driven mount).
+          EXIF does not record it and no single frame settles it (a short
+          enough exposure hides the drift), but the SET measures it:
+          scripts/qa/mount_probe.sh solves two windows and fingerprint.py reads
+          the RA rate against sidereal. resolve() ADOPTS a decisive signature
+          (mount_source "derived") and the run continues — the data settled it,
+          so the pipeline decides (CLAUDE.md, "WHERE THE GATE ACTUALLY IS").
+          A human declaration (mount_source "declared") is the override, and
+          declared-vs-measured keeps its CONTRADICT stop: a mislabel is caught,
+          and a derived value contradicted by a later measurement stops too
+          (that is an unstable instrument). Only when the instruments disagree,
+          or nothing measured, does resolve() stop and ask — the one mount case
+          a human is actually needed for.
 
 WHY THIS EXISTS: cross-frame reasoning — e.g. the anomaly audit chaining one
 satellite across consecutive frames — assumes a FIXED, untracked camera, where
 each crossing traces a straight sensor-plane line. That must be GROUND TRUTH,
 not a buried default; on a tracked mount it is wrong. So `resolve()` seeds this
-record with everything EXIF knows and STOPS if `mount` is undeclared, instead of
-silently assuming a camera model. The record is the tracked per-dataset home
-(datasets/<session>/<set>/acquisition.json), beside geometry.json / recipe.json;
-`exif.*` is tool-written (refreshed when it changes), `mount` is the human field.
+record with everything EXIF knows and STOPS when `mount` is neither declared nor
+decisively measured, instead of silently assuming a camera model. The record is
+the tracked per-dataset home (datasets/<session>/<set>/acquisition.json), beside
+geometry.json / recipe.json; `exif.*` is tool-written (refreshed when it
+changes), `mount` carries its provenance in `mount_source`.
 
 Reads only metadata — exiftool photo-EXIF for camera raws, astropy FITS
 headers for astrocam frames (never the deliverable's pixels) — and writes only
@@ -41,8 +45,9 @@ from datetime import datetime
 import astrometrics as am   # dataset_dir(): the tracked per-dataset home
 
 MOUNTS = ("fixed", "tracked")
-_NOTE = ("`mount` is the one acquisition fact EXIF cannot record and a consumer "
-         "must be told; `exif` is auto-derived by scripts/lib/acquisition.py — "
+_NOTE = ("`mount` is the one acquisition fact EXIF cannot record: declared by "
+         "a human or derived from the measured drift signature — `mount_source` "
+         "says which; `exif` is auto-derived by scripts/lib/acquisition.py — "
          "do not hand-edit it.")
 
 
@@ -57,11 +62,11 @@ class AcquisitionUndeclared(Exception):
         opt = (f"{e.get('focal_length_mm', '?')}mm {e.get('exposure_s', '?')}s "
                f"ISO{e.get('iso', '?')}, cadence {e.get('cadence_s', '?')}s, "
                f"{e.get('frames', '?')} frames")
-        # Reaching this exception now means the instruments did NOT decide — a
-        # decisive signature self-adopts in resolve() (mount_source "derived").
-        # So `measured` is populated here only in the disagreement case, where
-        # mount_verdict nulls the signature but the raw reading is still worth
-        # quoting so the human ratifies a number rather than an open question.
+        # Reaching this exception means the instruments did NOT decide: a
+        # decisive signature self-adopts in resolve() (mount_source "derived"),
+        # and mount_verdict NULLS mount_check.measured when the instruments
+        # disagree — so by construction `measured` arrives here as None. The
+        # quote branch below is defensive, for a caller passing a raw reading.
         says = (f"  MEASURED: the data reads as {measured}"
                 + (f" ({detail})" if detail else "") + ".\n"
                   f'  If that is right, set  "mount": "{measured}"  to ratify it.\n'

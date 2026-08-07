@@ -12,7 +12,9 @@
 #           any obstruction), writes the recipe stack block with the flags
 #           as the why, and reports the decision inline + in the session
 #           summary; a hand-ratified stack block is never overwritten
-#   exit 4  mount undeclared — declare it on the set page first
+#   exit 4  mount undeclared AND underivable — the instruments disagreed or
+#           nothing measured. A decisive signature self-derives and does NOT
+#           stop (acquisition.resolve, mount_source=derived)
 #   exit 5  unroutable fingerprint (neither tracked nor fixed+wide) — the
 #           two-window drift solve / the user decides the route
 #   exit 6  real flats staged but no master-flat wiring for the undistort
@@ -36,14 +38,11 @@
 # The chain ends at the DIAGNOSTIC judge surface (linked autostretch PNG16 —
 # finish_render.sh): everything aesthetic beyond it (the render-tier ladder)
 # stays per-rung and user-judged. Route choice comes from the DERIVED
-# fingerprint (tracked -> standard; fixed+wide -> undistort, single-pass vs
-# groups by measured disk headroom against the single-pass peak, which
-# scripts/stack/disk_budget.sh DERIVES from the set's own frame geometry and
-# which the single-pass builder enforces from the same function; --route=
-# overrides that last step only — see force_route() for why the single-pass
-# vs groups call is the operator's and not the disk's);
-# the printed reason makes the click a ratification of that recommendation,
-# never a silent auto-route.
+# fingerprint (tracked -> standard; fixed+wide -> undistort GROUPS, the
+# STANDING route: retained sub-stacks keep the cross-set combine buildable
+# at a measured-NULL quality cost; --route=single is the operator override,
+# printed as FORCED — see force_route() for the ratified why + numbers);
+# the printed reason keeps every derived route fully disclosed.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
@@ -66,23 +65,24 @@ case "${FORCE_ROUTE:-auto}" in
   *) echo "--route must be auto|single|groups (got '$FORCE_ROUTE')" >&2; exit 1;;
 esac
 
-# --route= OVERRIDES the disk-derived choice WITHIN the undistort class. It does
-# not change the class — that stays derived from the fingerprint, which is the
-# part the data decides.
+# --route= OVERRIDES the standing route WITHIN the undistort class. It does not
+# change the class — that stays derived from the fingerprint.
 #
-# WHY IT EXISTS. The single-pass vs groups choice was made ONLY by free disk:
-# single-pass whenever the disk covers the peak. That silently optimises for one
-# set in isolation and forecloses the cross-set combine, because single-pass
-# DELETES every warped and registered frame and keeps only a -framing=min final,
-# while run_undistort_compose.sh composes SUB-STACKS. Composing per-set finals
-# instead is a registered dead end (each has already discarded its outer drift
-# zones, so the combine has holes exactly where only those zones covered). So on
-# a big disk the router always picked the option that cannot be built on later,
-# and the operator had no way to say otherwise. Groups keeps ~34 sub-stacks per
-# 500-frame set (~9.5 G) for a declared cost of one extra interpolation pass.
-# Which of those matters is a JUDGEMENT about the session's future, not a fact
-# about the data — so it belongs to the user, and the plan prints that it was
-# forced rather than derived.
+# GROUPS IS THE STANDING ROUTE (user-ratified: this fork is never a question).
+# Single-pass DELETES every warped and registered frame and keeps only a
+# -framing=min final, while run_undistort_compose.sh composes SUB-STACKS;
+# composing per-set finals instead is a registered dead end (each final has
+# already discarded its outer drift zones, so the combine has holes exactly
+# where only those zones covered) — so single-pass permanently forecloses the
+# cross-set combine. What it buys back is one fewer interpolation pass, and
+# that delta MEASURED NULL (one-knob A/B, 60 frames even-stride: 9/9
+# drift-axis stations within 0.05 px majFWHM / 0.014 roundness; the full-depth
+# ledger's small unresolved 0.12-0.18 px delta runs in groups' favor), plus
+# the retained sub-stacks (one full-frame float FITS per group, ~285 MiB at
+# 6064x4040 OSC). Nothing measured favors single-pass, so the data settles the
+# fork and the router never asks. --route=single stays for the operator — an
+# A/B arm, a deliberate no-combine build — and the plan prints it as
+# OPERATOR-FORCED rather than derived.
 force_route() {   # <derived-route> -> the route to use, reason on stderr
   case "$FORCE_ROUTE" in
     groups) [ "$1" = undistort ] && { echo "undistort-groups"; return; };;
@@ -117,6 +117,7 @@ aud = rd("audit_work/anomaly_audit.json")
 mc = fp.get("mount_check") or {}
 exif = acq.get("exif") or {}
 print(acq.get("mount") or "")
+print(acq.get("mount_source") or "")
 print(mc.get("verdict") or "")
 print(mc.get("measured") or "")
 print(exif.get("fov_deg") if exif.get("fov_deg") is not None else "")
@@ -133,18 +134,18 @@ else:
 print(fp.get("label") or "not yet derived")   # last line stays non-empty:
 PY
 )                                             # $() strips trailing newlines
-{ read -r MOUNT; read -r VERDICT; read -r MEASURED; read -r FOV; read -r NFLAGS; \
+{ read -r MOUNT; read -r MSRC; read -r VERDICT; read -r MEASURED; read -r FOV; read -r NFLAGS; \
   read -r RATIFIED; read -r AUDITSUM; read -r FPLABEL; } <<< "$FACTS" || true
 
 MOUNT_EFF=${MEASURED:-$MOUNT}
-# df flags, comparison and slack all match run_undistort_pipeline.sh's own
-# preflight EXACTLY (via undistort_peak_gib), so the route this chain picks and
-# the budget that builder enforces cannot disagree at any frame count. The peak
-# is DERIVED from this set's own frame geometry, so a bigger sensor or a mono
-# corpus is budgeted for what it actually is. It can legitimately be underivable
-# here — on a fresh set the plan is printed BEFORE preflight seeds the
-# acquisition record — so an empty value is not an error yet; the route
-# re-derives after preflight, and the builder enforces the same budget itself.
+# The single-pass peak is NOT a routing input (groups is the standing route) —
+# it is derived for the PLAN's disk line and for a forced --route=single, via
+# the same undistort_peak_gib that builder's preflight enforces, so a forced
+# route and its builder cannot disagree. DERIVED from this set's own frame
+# geometry, so a bigger sensor or a mono corpus is budgeted for what it is;
+# legitimately underivable on a fresh set (the plan prints before preflight
+# seeds the record) — an empty value is not an error, and the builders
+# enforce their own budgets either way.
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>/dev/null || echo "")
 ROUTE= REASON=
@@ -153,20 +154,10 @@ if [ "$MOUNT_EFF" = "tracked" ]; then
   REASON="tracked mount: no inter-frame drift to fight -> calibrate/register/stack (run_pipeline)"
 elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
      python3 -c "import sys; sys.exit(0 if float('$FOV') >= 10 else 1)"; then
-  if [ -z "$SINGLEPASS_GB" ]; then
-    # the field is on record but the frame geometry is not, so the budget cannot
-    # be sized yet. Defer to the existing mechanism rather than guess a frame
-    # size — preflight re-runs the acquisition derivation, which is what fills
-    # exif.image_wh, and the route re-derives below.
-    ROUTE=derive-after-preflight
-    REASON="fixed mount + ${FOV} deg field -> undistort class, but this set's frame geometry (exif.image_wh) is not on record, so the disk budget cannot be sized — preflight re-derives the acquisition facts and the route settles after it"
-  elif [ "$FREE_GB" -ge "$SINGLEPASS_GB" ]; then
-    ROUTE=undistort
-    REASON="fixed mount + ${FOV} deg field -> undistort class; disk ${FREE_GB}G covers the single-pass peak ${SINGLEPASS_GB}G ($(undistort_singlepass_peak_mib "$SESSION" "$SET") MiB/frame x $NFRAMES, from this set's own frame geometry)"
-  else
-    ROUTE=undistort-groups
-    REASON="fixed mount + ${FOV} deg field -> undistort class; disk ${FREE_GB}G < single-pass peak ${SINGLEPASS_GB}G ($(undistort_singlepass_peak_mib "$SESSION" "$SET") MiB/frame x $NFRAMES, from this set's own frame geometry) -> balanced groups"
-  fi
+  # GROUPS is the standing route for the whole class — no disk fork, no
+  # question; force_route() carries the ratified why + numbers
+  ROUTE=undistort-groups
+  REASON="fixed mount + ${FOV} deg field -> undistort class; groups is the STANDING route (sub-stacks keep the cross-set combine buildable; quality delta vs single-pass measured NULL)${SINGLEPASS_GB:+ — disk ${FREE_GB}G free, single-pass peak would be ${SINGLEPASS_GB}G (--route=single overrides)}"
   FORCED=$(force_route "$ROUTE")
   if [ "$FORCED" != "$ROUTE" ]; then
     REASON="OPERATOR-FORCED --route=$FORCE_ROUTE (derived was '$ROUTE'): $REASON"
@@ -224,7 +215,7 @@ judge_surface() {   # echoes the existing surface for $1, or returns nonzero
 }
 
 # ---- the PLAN (printed on every run; --plan stops here) -----------------
-say "PLAN — $NFRAMES frames | mount declared '${MOUNT:-UNDECLARED}' | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
+say "PLAN — $NFRAMES frames | mount '${MOUNT:-UNDECLARED}'${MSRC:+ ($MSRC)} | fingerprint: $FPLABEL${VERDICT:+ ($VERDICT)}"
 say "PLAN — frame QA: $([ -n "$NFLAGS" ] && echo "done, $NFLAGS defect-side flag(s)" || echo "not yet run — will run") | cull: $([ -n "$RATIFIED" ] && echo "ratified recipe block" || echo "standing auto-cull (flagged frames exclude; reported at the end)")"
 # ~1 s/frame measured on this rig (july31: 500 frames in 8 min, 260 in 4)
 say "PLAN — obstruction audit: $([ -n "$AUDITSUM" ] \
@@ -233,11 +224,11 @@ say "PLAN — obstruction audit: $([ -n "$AUDITSUM" ] \
 say "PLAN — route: $ROUTE${REASON:+ — $REASON}"
 if [ -z "$MOUNT" ] && [ "$ROUTE" != stop-undeclared ]; then
   # measured but not yet declared: the route above came from the MEASURED
-  # signature — state it, and state that the declaration gate still stops
-  say "PLAN — WILL STOP before building: mount measured '$MEASURED' but NOT DECLARED — accept the pre-filled verdict on the set page, then re-click"
+  # signature, which the run ADOPTS (mount_source=derived) and continues on
+  say "PLAN — mount measured '$MEASURED', not declared: the run adopts it (mount_source=derived) and continues — declaring on the set page is the override, not a required step"
 fi
 case "$ROUTE" in
-  stop-undeclared) say "PLAN — WILL MEASURE then STOP: mount undeclared — the fingerprint measures it first (roundness if QA exists, else the two-window drift probe: scripts/qa/mount_probe.sh), the verdict pre-fills the set page's mount control, your accept-click writes the declaration, a re-click resumes";;
+  stop-undeclared) say "PLAN — WILL MEASURE then derive: mount undeclared — the fingerprint measures it (roundness if QA exists, else the two-window drift probe: scripts/qa/mount_probe.sh); a decisive verdict is ADOPTED (mount_source=derived) and the run continues; it STOPS (exit 4) only if the instruments disagree or nothing measures";;
   stop-unroutable) say "PLAN — WILL STOP: $REASON";;
   derive-after-preflight)
     if [ -z "$NFLAGS" ]; then say "PLAN — steps: 1. scripts/qa/run_frame_qa.sh $SESSION $SET"; fi
@@ -282,41 +273,15 @@ say "PLAN — disk free now: $(df -h "$SESSION" | tail -1 | awk '{print $4}')"
 if [ "$PLAN" = 1 ]; then say "plan only — nothing executed"; exit 0; fi
 
 # ---- gates fire in order ------------------------------------------------
-# the declaration gate is independent of routability: a MEASURED mount can
-# derive the route for the plan, but nothing builds on an undeclared one —
-# the measure branch below stops with the accept-the-verdict message
-# (immediately when a measurement already exists)
-if [ -z "$MOUNT" ]; then ROUTE=stop-undeclared; fi
-if [ "$ROUTE" = stop-undeclared ]; then
-  # measure-then-stop (user-ratified: measure + confirm click). The mount
-  # stays a DECLARED fact — the chain measures the signature, records it,
-  # and stops; the set page pre-fills the verdict and the user's accept
-  # click writes the declaration. Nothing routes until then.
-  say "mount undeclared — measuring the signature before stopping"
-  python3 - "$REPO" "$SESSION" "$SET" <<'PY' || true
-import glob, os, sys
-sys.path.insert(0, os.path.join(sys.argv[1], "scripts", "lib"))
-import acquisition
-frames = sorted(f for pat in ("*.nef", "*.NEF", "*.dng", "*.DNG", "*.cr2",
-                              "*.CR2", "*.arw", "*.ARW", "*.fit", "*.fits")
-                for f in glob.glob(os.path.join(sys.argv[2], sys.argv[3], pat)))
-try:
-    acquisition.resolve(sys.argv[2], sys.argv[3], frames)
-except acquisition.AcquisitionUndeclared:
-    pass          # expected: the record is seeded with the derived facts
-PY
-  python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || true
-  MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
-  if [ -z "$MEASURED" ]; then
-    say "roundness not decisive (or no QA yet) — running the two-window drift probe"
-    "$REPO/scripts/qa/mount_probe.sh" "$SESSION" "$SET" >/dev/null || true
-    MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
-  fi
-  # DERIVE-THEN-ASK. The measurement above is the answer; re-resolve so a
-  # decisive signature self-adopts (acquisition.resolve writes mount_source
-  # "derived") and the chain CONTINUES. It stops only when the instruments
-  # genuinely could not decide, which is the case a human is actually for.
-  DERIVED=$(python3 - "$REPO" "$SESSION" "$SET" <<'PY' 2>/dev/null || true
+# MOUNT, by the evidence gate (CLAUDE.md "WHERE THE GATE ACTUALLY IS"): the
+# instruments measure the signature and a DECISIVE one is adopted on the
+# record (acquisition.resolve, mount_source=derived), announced, and the run
+# CONTINUES — the data settled it. It stops (exit 4) only when the
+# instruments disagree or nothing measures, the one mount call a human is
+# actually needed for. A set-page declaration remains the override, and
+# every later re-derive still cross-checks it (CONTRADICT stops, exit 2).
+derive_mount() {  # resolve: seed/refresh the record; print a just-adopted mount, or ""
+  python3 - "$REPO" "$SESSION" "$SET" <<'PY' 2>/dev/null || true
 import glob, os, sys
 sys.path.insert(0, os.path.join(sys.argv[1], "scripts", "lib"))
 import acquisition
@@ -326,19 +291,44 @@ frames = sorted(f for pat in ("*.nef", "*.NEF", "*.dng", "*.DNG", "*.cr2",
 try:
     print(acquisition.resolve(sys.argv[2], sys.argv[3], frames).get("derived_now") or "")
 except acquisition.AcquisitionUndeclared:
-    pass
+    pass          # underivable so far — the record is still seeded with the facts
 PY
-)
+}
+if [ -z "$MOUNT" ]; then ROUTE=stop-undeclared; fi
+if [ "$ROUTE" = stop-undeclared ]; then
+  say "mount undeclared — measuring the signature"
+  # ONE resolve call both seeds the EXIF facts and adopts a signature already
+  # decisive on record. Capture the value HERE: resolve() reports derived_now
+  # only on the adopting call, so a throwaway seed call swallows the adoption
+  # and "nothing derived" mis-reads as instrument disagreement — exit 4 with
+  # the answer already on the record.
+  DERIVED=$(derive_mount)
+  if [ -z "$DERIVED" ]; then
+    python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || true
+    MEASURED=$(python3 -c "import json;print((json.load(open('$DSET/fingerprint.json')).get('mount_check') or {}).get('measured') or '')" 2>/dev/null || true)
+    if [ -z "$MEASURED" ]; then
+      say "roundness not decisive (or no QA yet) — running the two-window drift probe"
+      "$REPO/scripts/qa/mount_probe.sh" "$SESSION" "$SET" >/dev/null || true
+    fi
+    DERIVED=$(derive_mount)   # adopt what the probe/fingerprint just settled
+  fi
   if [ -n "$DERIVED" ]; then
     say "mount DERIVED from the data: '$DERIVED' (recorded as mount_source=derived, not a human declaration)"
     say "  the two-instrument cross-check still runs every re-derive; a later measurement that"
     say "  disagrees with this one STOPS as CONTRADICT. Override by setting \"mount\" on the set page."
     MOUNT=$DERIVED; MOUNT_EFF=$DERIVED
-  elif [ -n "$MEASURED" ]; then
-    say "STOP: the instruments disagree (raw reading '$MEASURED') — declare it on the set page, then re-click"
-    exit 4
+    # The plan-phase ROUTE is stale (forced to stop-undeclared; on a fresh
+    # set the facts landed only in the resolve above). Hand it to the
+    # existing post-preflight re-derivation, which also rebuilds STACK/NAME
+    # and the disk budget — left unrouted, the builder case matches no arm
+    # and the run dies at "builder finished but stack missing" after the
+    # masters.
+    ROUTE=derive-after-preflight
   else
-    say "STOP: mount undeclared and the instruments could not decide — declare it on the set page, then re-click"
+    R4=$(python3 -c "import json;print(((json.load(open('$DSET/fingerprint.json')) or {}).get('mount_check') or {}).get('reason') or 'no measurement produced')" 2>/dev/null || echo "no measurement produced")
+    say "STOP: mount underivable — $R4"
+    say "  the instruments could not settle it, which is the one mount call that is yours:"
+    say "  declare \"mount\" on the set page (fixed | tracked), then re-click"
     exit 4
   fi
 fi
@@ -511,17 +501,9 @@ PY
   case "$NEWROUTE" in
     tracked)    ROUTE=standard; STACK=$RESULTS/stack_$SET.fit;;
     fixed-wide)
-      FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
-      # preflight has now re-derived the acquisition facts, so the budget must be
-      # sizeable. If it still is not, the geometry genuinely cannot be read for
-      # this data class — a documented gap, not a number to invent.
-      SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>&1) || {
-        say "STOP: cannot size the single-pass disk budget for $SET — $SINGLEPASS_GB"; exit 5; }
-      if [ "$FREE_GB" -ge "$SINGLEPASS_GB" ]; then
-        ROUTE=undistort
-      else
-        ROUTE=undistort-groups
-      fi
+      # groups is the STANDING route (force_route has the why); the builders
+      # derive and enforce their own disk budgets
+      ROUTE=undistort-groups
       FORCED=$(force_route "$ROUTE")
       [ "$FORCED" = "$ROUTE" ] || say "route FORCED by --route=$FORCE_ROUTE (derived was '$ROUTE')"
       ROUTE=$FORCED

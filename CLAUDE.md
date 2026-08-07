@@ -63,20 +63,47 @@ because each session read the old clause as "ask every time".
 
 **The bright line — what in-house code may and may not do:**
 - **FORBIDDEN** if it does ANY of: (1) reads or analyzes the deliverable's
-  pixels; (2) makes an automated judgment / threshold call that gates, shapes,
-  or tunes the final product; (3) reimplements an analysis an official tool
-  already provides.
+  pixels; (2) gates, shapes, or tunes the final product from a number that is
+  NOT a tool's measurement (an in-house metric standing in for one), or decides
+  a call the data cannot settle — aesthetics, priorities, trade-offs — without
+  the user; (3) reimplements an analysis an official tool already provides.
+- **What (2) does NOT forbid — the misreading that has repeatedly made sessions
+  refuse ratified work:** deciding FROM the tools' own numbers. Thresholding,
+  classifying, and routing tool measurements (classify_mount's sidereal bands,
+  the auto-cull z-flags, the dwell-floor group sizing, the disk-derived route)
+  IS the pipeline deciding what the data settled — the EXECUTE step of the
+  operating loop, governed by "WHERE THE GATE ACTUALLY IS" above: announce it,
+  record the number and the instrument, continue. Reading (2) as "no automated
+  decisions" re-creates the self-contradiction that section replaced — it
+  forbids the product itself. The test is the PROVENANCE of the numbers and the
+  SETTLEABILITY of the question, never the existence of a decision.
+- **NOT COVERED AT ALL: diagnostics** (user-ratified — *"to judge and examine an
+  issue i do not care if you use official tools; whatever is easiest is fine —
+  the issue to avoid is in house code to solve problems that official tools
+  already solve"*). Reading pixels with numpy/PIL/astropy to INVESTIGATE — to
+  answer a question, chase a defect, check a hypothesis — is fine and always was.
+  The bright line governs the PIPELINE: what builds, gates, or tunes the
+  deliverable. Do not refuse a one-off measurement on the strength of a rule that
+  was never about measurement.
 - **ALLOWED** only if ALL hold: (1) it is *outside* the final-product pipeline
   (a checklist / record / orchestrator / standalone detector — never a gate or
   processor on the deliverable); (2) every pixel and every standard measurement
   it uses comes from an official tool; (3) it computes only a *derived* result
-  no tool provides; (4) it examines and reports only — rewrites no deliverable,
-  never auto-decides the final product; (5) it carries a removal condition.
+  no tool provides; (4) it rewrites no deliverable, and any decision it takes
+  is one the evidence gate assigns to the pipeline — a data-settled call,
+  announced and recorded with its instrument; what the data cannot settle it
+  reports and stops on; (5) it carries a removal condition.
 
-`scripts/qa/anomaly_audit.py` is the reference **ALLOWED** example (Siril does
+`scripts/qa/anomaly_audit.py` is the reference **ALLOWED** detector (Siril does
 every pixel op + measurement; the in-house kernel does only the streak geometry
-no tool provides; report-only; removal-conditioned). An in-house **gate or audit
-that reads the render and blocks it** would be the reference **FORBIDDEN** case;
+no tool provides; culls nothing; removal-conditioned — and its record is
+load-bearing: the groups builder derives its dwell floor from it).
+`scripts/lib/fingerprint.py` is the reference **ALLOWED** router: every input
+is a tool's (astrometry.net solves, Siril findstar metrics, header facts), the
+in-house part is only the derived trail/drift geometry no tool reports, and the
+chain routes on its verdict — announced, recorded, user-overridable, stopping
+only where the instruments cannot decide. An in-house **gate or audit that
+reads the render and blocks it** would be the reference **FORBIDDEN** case;
 the tools' own analysis + the checklist do that job.
 
 **Why this rule exists (measured, repeatedly, not doctrine for its own sake):**
@@ -298,11 +325,14 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   checklist (README review-contract); loosening one needs explicit user ratification.
 - **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
   finals** — the 16-bit PNG ONLY, the full-precision surface, opened
-  independently in the user's own viewers, before any bake. **Project policy:
-  never produce or judge an 8-bit / reduced-depth / lossy copy** (no PNG8, no
-  JPEG), and never crops or composited panels; objective fixes with pass/fail
-  metrics may commit. Compare
-  renders in LIKE encodings.
+  independently in the user's own viewers, before any bake. **Project policy —
+  and it scopes the JUDGMENT SURFACE, not the repo's output:** what is judged is
+  the 16-bit PNG only — never an 8-bit / reduced-depth / lossy copy, never a crop,
+  never a composited panel. DELIVERY surfaces are a different thing and are
+  allowed: a shareable q100 final, a downscaled preview for the browser, an
+  on-request tool-made zoom crop. The test is what the user's verdict is taken
+  ON, not what the repo may write. Objective fixes with pass/fail metrics may
+  commit. Compare renders in LIKE encodings.
 - **A change is accepted by three checks, never by byte-identity with one
   dataset** (README "How a change is accepted"): the render is REPRODUCIBLE
   (pinned tool versions/params/seeds, no unseeded step; verified cheaply to a
@@ -315,9 +345,11 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   commit, anything aesthetic needs the user's eyes, then re-baseline and tag.
   Freezing one imperfect render as "correct" only breeds bandaids to preserve
   it.
-- **No session/stream/ladder tags in script comments** — plain,
-  standalone descriptions with their measured numbers; provenance
-  narrative lives in git only.
+- **No session/stream/ladder tags, dates, or chronological narrative in
+  comments or record entries** (scripts, BACKLOG, docs alike) — state the
+  constraint and its measured numbers, get to the point; when and in what
+  order lives in git only. (Doctrine ratification stamps are the one
+  exception — they order which rule supersedes which.)
 - **Maintain the dead-end registry (`docs/dead-ends.md`) IN PLACE**: add/refine
   the mechanism entries (data/physics/tool-doctrine); never append chronological
   session narrative. The durable stage-design "why" lives in each kept

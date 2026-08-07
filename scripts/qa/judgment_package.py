@@ -6,7 +6,7 @@ DORMANT PENDING THE X86 RENDER REBUILD: the objective-delta path reads a
 will is a gap pending x86), so the delta table cannot populate yet; the
 package/verify machinery itself is chain-independent and stands.
 
-Usage: judgment_package.py <outdir> <label>=<final.png> [...]
+Usage: judgment_package.py <outdir> <label>=<final_16bit.png> [...]
            --question="what the judge is deciding"
            --inspection=<notes.md>
            [--control=<label>] [--reference=<label>=<path.jpg>] [--note=... ]
@@ -21,19 +21,15 @@ no --control the first candidate is the baseline.
 
 The review contract (README): a judgment set is a folder of WHOLE-FRAME
 16-bit LOSSLESS PNGs with clean names and a QUESTION.md — nothing else.
-**Project policy: the 16-bit PNG is the ONLY judgment surface — no 8-bit /
-reduced-depth or lossy copy is produced or judged.** Hand-assembly has a
-measured failure mode (a package shipped the STARLESS-layer PNG16 mislinked as
-the final for 3 of 4 candidates), so this tool refuses starless layers before
-linking. (The PNG8+PNG16 pair-verification below predates this policy and is
-superseded — collapse to the single 16-bit surface in the x86 render rebuild.)
-
-- the path must be a .png and must not name a _starless layer (the gate
-  input is never a judgment surface),
-- both files of the pair must exist,
-- the pair's geometry and bit depths must agree (PNG header check); the
-  pixel-level identity check runs on the tool-readable lossless surface
-  (Siril `savetif` + `tifffile`) when the rebuilt render chain lands.
+**Project policy scopes the JUDGMENT SURFACE: the 16-bit PNG is the ONLY
+surface a verdict is taken on — no 8-bit / reduced-depth / lossy copy, no
+crop, no composited panel is ever judged.** Delivery surfaces are a separate
+thing and never enter a package. Each candidate is verified from its PNG
+header to BE that surface (16-bit, RGB or grayscale), and a _starless layer
+is refused before linking — hand-assembly measurably shipped a starless
+layer mislinked as the final for 3 of 4 candidates, so the refusal is
+structural. Pixel-level verification stays a tool's job (Siril `savetif` +
+`tifffile`) when the rebuilt render chain lands.
 
 --inspection is REQUIRED (README pre-handoff contract; measured failure:
 two consecutive packages shipped defects — a faint-starlight allocation gap,
@@ -44,8 +40,8 @@ of every candidate (+ the like-scale reference comparison when the dataset
 has an answer key); it is copied into the package as INSPECTION.md and
 linked from QUESTION.md.
 
-Candidates are hardlinked (copy fallback) as NN_<label>.png +
-NN_<label>_16bit.png in argument order. --reference adds ONE third-party
+Candidates are hardlinked (copy fallback) as NN_<label>.png in argument
+order. --reference adds ONE third-party
 comparison image, named with LOSSY in the filename (an author's finish is
 whatever encoding they published; it is comparison-only, never a judgment
 surface). QUESTION.md gets the question, the file list, and the --note
@@ -74,10 +70,10 @@ CMP = [
 ]
 
 
-def load_metrics_sidecar(png8):
+def load_metrics_sidecar(png):
     """The <final>.metrics.json starcomb writes beside every --lossless
     final; None if absent (an externally-produced PNG has no sidecar)."""
-    p = png8[:-4] + ".metrics.json"
+    p = png[:-4] + ".metrics.json"
     if not os.path.exists(p):
         return None
     try:
@@ -147,24 +143,17 @@ def png_ihdr(path):
     return w, h, depth, ct
 
 
-def verify_pair(png8, png16, step=16):
-    """The final pair must be the SAME render. Geometry + bit-depth are
-    verified from the PNG headers; the pixel-level identity check runs on
-    the tool-readable lossless surface (Siril `savetif` + `tifffile`) when
-    the rebuilt render chain lands — this tool is dormant until then (its
-    metrics sidecar producer is also pending)."""
-    w8, h8, d8, ct8 = png_ihdr(png8)
-    w16, h16, d16, ct16 = png_ihdr(png16)
-    if (w8, h8) != (w16, h16):
-        sys.exit(f"judgment_package: {os.path.basename(png8)} and its "
-                 f"_16bit sibling differ in geometry {(w8, h8)} vs "
-                 f"{(w16, h16)}")
-    if d16 != 16 or ct16 != 2:
-        sys.exit(f"judgment_package: {png16} is not a 16-bit RGB PNG "
-                 f"(depth {d16}, color type {ct16})")
-    if d8 != 8:
-        sys.exit(f"judgment_package: {png8} is not the 8-bit sibling "
-                 f"(depth {d8})")
+def verify_surface(png):
+    """The candidate must BE the judgment surface: a 16-bit PNG, RGB or
+    grayscale, verified from the IHDR. Pixel-level verification stays a
+    tool's job (Siril `savetif` + `tifffile`) when the rebuilt render
+    chain lands — this tool is dormant until then (its metrics sidecar
+    producer is also pending)."""
+    w, h, depth, ct = png_ihdr(png)
+    if depth != 16 or ct not in (0, 2):
+        sys.exit(f"judgment_package: {png} is not a 16-bit judgment "
+                 f"surface (depth {depth}, color type {ct}) — the 16-bit "
+                 "PNG is the ONLY surface a verdict is taken on")
 
 
 def place(src, dst):
@@ -208,34 +197,28 @@ def main():
 
     lines = [f"# Judgment: {question}", "",
              "Open each file independently, full frame, your own viewers.",
-             "_16bit.png = the float render at 65536 levels; .png = 8-bit",
-             "lossless. All pipeline candidates are whole-frame lossless",
-             "finals (verified pairs).", ""]
+             "Every candidate is a whole-frame 16-bit lossless PNG — the",
+             "judgment surface, header-verified.", ""]
     metas, order = {}, []
     for i, spec in enumerate(cands, 1):
         if "=" not in spec:
             sys.exit(f"judgment_package: candidate {spec!r} is not "
-                     "label=<final.png>")
-        label, png8 = spec.split("=", 1)
-        if not png8.endswith(".png") or png8.endswith("_16bit.png"):
-            sys.exit(f"judgment_package: {png8} — pass the 8-bit lossless "
-                     ".png final (the path starcomb prints); the _16bit "
-                     "sibling is derived")
-        if "_starless" in os.path.basename(png8):
-            sys.exit(f"judgment_package: {png8} is a STARLESS layer — the "
+                     "label=<final_16bit.png>")
+        label, png = spec.split("=", 1)
+        if not png.endswith(".png"):
+            sys.exit(f"judgment_package: {png} — pass the 16-bit lossless "
+                     ".png final")
+        if "_starless" in os.path.basename(png):
+            sys.exit(f"judgment_package: {png} is a STARLESS layer — the "
                      "gate input is never a judgment surface; pass the "
                      "combined final")
-        png16 = png8[:-4] + "_16bit.png"
-        for p in (png8, png16):
-            if not os.path.exists(p):
-                sys.exit(f"judgment_package: missing {p}")
-        verify_pair(png8, png16)
-        d8 = os.path.join(outdir, f"{i:02d}_{label}.png")
-        d16 = os.path.join(outdir, f"{i:02d}_{label}_16bit.png")
-        place(png8, d8)
-        place(png16, d16)
-        metas[label], order = load_metrics_sidecar(png8), order + [label]
-        print(f"[judgment_package] {i:02d}_{label}: verified pair linked"
+        if not os.path.exists(png):
+            sys.exit(f"judgment_package: missing {png}")
+        verify_surface(png)
+        place(png, os.path.join(outdir, f"{i:02d}_{label}.png"))
+        metas[label], order = load_metrics_sidecar(png), order + [label]
+        print(f"[judgment_package] {i:02d}_{label}: 16-bit surface "
+              "verified + linked"
               + ("" if metas[label] else " (no metrics sidecar)"))
         lines.append(f"- {i:02d}_{label}: FILL IN (knobs / what changed)")
 

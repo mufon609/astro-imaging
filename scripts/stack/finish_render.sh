@@ -8,13 +8,21 @@
 #                    [--central=F] [--crop-record=J] [--mtf=lo,mid,hi]
 #
 # --mtf=lo,mid,hi replaces the data-dependent `autostretch -linked` with a
-# PINNED midtone transfer applied identically — REQUIRED whenever more than one
-# surface ships to the same judgment set (a multi-product set rendered by
-# per-stack autostretch is not like-encoded; each surface gets its own
-# histogram-derived transfer — measured, docs/dead-ends.md). The triplet is
-# chosen ONCE per session from the tools' own stat of the reference product and
-# recorded by the caller. Single-surface diagnostic finishes may keep the
-# autostretch default.
+# PINNED midtone transfer applied identically. A multi-surface judgment set
+# pins ONE stretch RULE for every member; which rule depends on whether the
+# surfaces share an absolute brightness scale:
+# - SHARED LINEAR ORIGIN (a one-knob ladder off the same stack): pass the
+#   pinned triplet, chosen once from the tools' own stat of the reference
+#   product and recorded by the caller — per-product autostretch there
+#   renders statistically identical skies at different brightnesses
+#   (measured, docs/dead-ends.md).
+# - INDEPENDENT PRODUCTS (separately output-normalized stacks with honestly
+#   different sky levels — per-set stacks beside their combine): keep the
+#   per-product `autostretch -linked` default, the sky-anchored pinned rule.
+#   One raw triplet there renders honest sky-level differences as gross
+#   brightness differences (measured washed-out/crushed at a 45% sky-median
+#   spread — docs/dead-ends.md).
+# Either way, QUESTION.md states which encoding the set carries.
 #
 # Output: web/results/<session>/judge/<png-name>_spcc-linked.png (16-bit, full-frame,
 # colour-calibrated, linked stretch — the surface the user judges). Intermediates

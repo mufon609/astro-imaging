@@ -45,7 +45,7 @@ dataset, and says so.
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
 | fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the previous rig, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction — yet displacement-EQUIVALENT at product level (max diff 0.47 px mid-field, 0.34 px area-weighted RMS, 0.2 px at r=0.9; `qa_work/lens_fit.json`), so the incumbent stands on measurement as well as provenance: re-installing the lateral new fit would change the deliverable by ≤0.47 px with no measured benefit. It is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-05 | **not fired** — live block verified: vignetting and tca absent, exactly one focal=70 ptlens line. darktable still 5.4.1 / lensfun 0.3.4, so no bump has triggered a re-verify. Re-verify with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
-| per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-05 | **not fired** — the flatless route, and it works: july31 sets measure 0.42/0.42/0.90/0.95% corner spread. The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
+| per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-07 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
 | `baseline_guard.py` derived summaries (corner spread, edge dipole) over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-05 | **not fired** — nothing does. WIRED into `run_set_chain.sh` as the last step: it measures the finished product, and a regression exits **8** (a user decision, like the mount/route stops) without blocking or rewriting anything. Also a web stage for seeding/re-seeding. It is a no-regression RECORD, never a quality gate — a deliberate improvement fails it and the human re-seeds with a note. Blind spot to state when reading a PASS: both measures are STACK corners, which `docs/dead-ends.md` calls self-fulfilling for flat contamination, so it cannot see the open `sky x V` object tilt |
 | `snr_regions.py` in-house SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | 2026-08-05 | **not fired** — `stat` and `bgnoise` are whole-image/selection; no regional-SNR command in 1.4.4. Every input number is the tool's; only the ratio is in-house. *(Was missing from this register until 2026-08-05.)* |
@@ -53,7 +53,7 @@ dataset, and says so.
 | `inspect_stage.py` + `cull_report.py` robust-z per-frame flagging | a tool ships headless per-frame outlier flagging over its own registration metrics (SubframeSelector-class, scriptable) | 2026-08-05 | **not fired** — siril has `seqstat` (per-frame statistics to a file) and `select`/`unselect`, but no outlier GRADING over its own regdata. Persisting the tool's regdata is not a divergence and stays regardless. *(Was missing from this register until 2026-08-05.)* |
 | prebuilt-master ingest (`run_pipeline.sh` `<session>/calib/`) | never — this is a supported INPUT class, not a divergence | 2026-08-05 | **CONDITION WRITTEN 2026-08-05, previously absent.** The code calls it "the adaptation for master-only data", which made it look like an unconditioned divergence. It is not one: a corpus that ships masters instead of raw calibration is a data class the repo accepts. What IS a stated limit: such masters carry no exposure/gain/filter headers, so the filename token is the whole identity and the exposure match is unverifiable — printed per run. Raw calibration dirs take precedence |
 | 16-bit in three instruments (`coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`) | the leg stops terminating in an integer/8-bit product | 2026-08-05 | **not fired** — each re-verified: `coverage_probe` switches to `set32bits` before its sum stack, `run_frame_qa` saves no product at all (analysis-only register), `fit_lens_model` terminates in `savetif8` for Hugin. Exemptions are enforced by name in `check_bitdepth.sh` |
-| `run_undistort_groups.sh` group composition (one extra interpolation pass) | free disk ≥ the single-pass peak, DERIVED per set (`disk_budget.sh`) | 2026-08-06 | **FIRED for the current corpus — but DATA-DEPENDENT, so re-check per dataset.** Peak is `W × H × channels × 4 × 2`: 560 MiB/frame on this rig's 6064×4040 OSC frames → ~279 G for 507 frames against 950 G free. NOT a constant — a mono astrocam derives 8 MiB/frame, a 61 MP body 1378, so the same disk would NOT cover a deep 61 MP set. The route stays built for that case AND for composability, which is why it was chosen. Quality, two consistent accounts: the july27 item-scoped A/B (60 frames even-stride, one knob) is **NULL — the route does not cause the one-sided band** (9/9 stations within 0.05 px majFWHM / 0.014 roundness; the band sits in BOTH arms at 1.27x/1.24x); the july31 full-depth ledger records a small along+1300 improvement under groups (0.12–0.18 px, direction replicates across two sets and two group sizes) whose proposed baseline mechanism was FALSIFIED (g250 landed outside the interval) and whose magnitude is UNESTABLISHED until the pre-registered `rebuild_repeat_floor_set01` runs (`datasets/july31/experiments.jsonl`). Neither account changes the route decision |
+| `run_undistort_groups.sh` group composition (one extra interpolation pass) | a measured quality cost of the extra pass at established magnitude (the along+1300 ledger resolving AGAINST groups), or cross-set composition leaving the project's goals | 2026-08-06 | **CONDITION REWRITTEN — the old trigger (free disk ≥ the single-pass peak) fired and was judged the WRONG condition: disk cannot retire groups.** Single-pass deletes the sub-stacks the cross-set combine composes and crops to `-framing=min` (composing per-set finals is a registered dead end), so a big disk buys nothing back; groups is the STANDING route (`force_route`), single-pass operator-only (`--route=single`, printed FORCED). Quality, two consistent accounts: the item-scoped one-knob A/B (60 frames even-stride) is **NULL — the route does not cause the one-sided band** (9/9 stations within 0.05 px majFWHM / 0.014 roundness; the band sits in BOTH arms at 1.27x/1.24x); the full-depth ledger records a small along+1300 improvement UNDER groups (0.12–0.18 px, direction replicates across two sets and two group sizes) whose proposed baseline mechanism was FALSIFIED (g250 landed outside the interval) and whose magnitude is UNESTABLISHED until the pre-registered `rebuild_repeat_floor_set01` runs (`datasets/july31/experiments.jsonl`). Peak math stays data-dependent, `W × H × channels × 4 × 2`: 560 MiB/frame at 6064×4040 OSC, 8 MiB mono astrocam, 1378 MiB at 61 MP |
 | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | 2026-07-28 | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig. Every participant is now adopted: the one hold-out (`scripts/jwst/*`) went with the JWST cut, so `check_siril_invoke.sh` carries no exemption and any bypass FAILS rather than being reported |
 | `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains FITS I/O, or the distortion is consumed natively (Siril `register -disto=`, BACKLOG:`native-solve-and-sip`) so the keys are never dropped | 2026-07-28 | **not fired** — darktable 5.4.1 has no FITS reader, so the warp leg is TIFF and the loss is structural. Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback) |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needed ~37G transient vs ~24G reclaimable on the previous rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | 2026-08-06 | **condition MET on this rig (950 G free, per the groups-row measurement) — the re-compose has NOT been run**, so the divergence stands in every shipped product until it is. Declared cost while it stands: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry) |
@@ -310,6 +310,13 @@ The verdict vocabulary is UNCHANGED (CONFIRM / CONTRADICT / INDETERMINATE) — t
 web UI, `serve.py` and `fingerprint.py --selftest` all consume those strings, and
 the selftest still passes. What changed is who acts on `measured`.
 
+Two wiring constraints in `run_set_chain.sh`: capture the adopted mount from the
+resolve() call that adopts it (`derived_now` appears only on that call — a
+throwaway seed call swallows the adoption and mis-reads as instrument
+disagreement, exit 4 with the answer already on the record), and re-derive ROUTE
+after an adopt (handed to the post-preflight re-derivation; left unrouted, no
+builder arm matches and the run dies after spending the masters).
+
 Still open, and deliberately not done here: `mount` is modelled PER SET, so one
 tripod on one night still pays for up to four probes. It is a session-level fact.
 
@@ -414,6 +421,11 @@ only discoverable by reading logs):
 | disk | covers the peak with margin | covers it without margin | below the derived peak |
 | SPCC | Gaia cone complete, sensor matched | sensor-null generic curve | chunks missing |
 | baseline | present, product will be compared | none yet — nothing to regress against | product regressed (exit 8) |
+
+The single-pass vs groups fork inside the undistort class is NOT one of the
+report's questions — groups is the standing route (`force_route`; the
+`run_undistort_groups.sh` register row above) and rides the route criterion:
+GREEN derived, YELLOW only when `--route=` forces it.
 
 **Then:** print it, ask once, run. `--yes` skips the ask for an unattended re-run;
 `--plan` keeps its current meaning (show and exit).
@@ -539,31 +551,19 @@ are free depth. A visible trail or a level step = the keep was wrong, and it bec
 cull with its numbers. Cheap: one extra 492-frame stack, no new tooling. More data is
 always obtainable, so a cull that buys certainty is not a loss.
 
-## `groups-resume-size-blind` — a resume across a group-size change composes mixed depths
+## `groups-resume-size-blind` — CLOSED: the builder stamps GRPSIZE and refuses a mixed resume
 
-`run_undistort_groups.sh` skips a group when its `sub_NN.fit` already exists, and the
-sub-stack name encodes only the INDEX, not the group size. So a run interrupted at
-`--group=15` and resumed at `--group=100` finds `sub_01..sub_06`, skips them, builds the
-rest at 100, and composes a final from mixed-depth sub-stacks — silently, because every
-wire is intact and the product exists. Same family as the recipe-tagged judge surface
-that once let a rebuilt stack report success with no WCS.
-
-Not hypothetical: july31 was interrupted at group 6/34 under the old `--group=15`
-default and restarted at the derived 100. Nothing bit only because the abort left
-`groups_set-01` empty and it was cleared by hand before the relaunch.
-
-It also breaks the rejection reasoning that the group size now carries: a 15-frame
-sub-stack used winsorized rejection and a 100-frame one uses GESD, so a mixed compose
-mixes rejection algorithms as well as depths.
-
-**Closes when** a resume across a changed group size either reuses nothing or refuses
-loudly. Cheapest fix is to record the group size in the sub-stack (a FITS header key
-beside `STACKCNT`, which already records the member count) and compare it before
-skipping; the name could carry it instead, but a header survives a rename.
-
-**Do it BEFORE the next resume, not after** — and note it cannot be applied while a
-groups build is in flight, because bash reads a running script by byte offset
-(`docs/dead-ends.md`).
+The closing condition ("a resume across a changed group size either reuses
+nothing or refuses loudly") is shipped in `run_undistort_groups.sh`: every
+sub-stack is stamped `GRPSIZE` (the INTENDED group size, not `STACKCNT` —
+registration may legitimately drop a frame); the build loop refuses to skip an
+existing `sub_NN.fit` whose `GRPSIZE` mismatches the run (exit 1, both sizes
+named); an unstamped legacy sub-stack reads 0 and fails closed as an UNRECORDED
+size; and `--plan` runs the same check dry (`plan_resume_check`), so the refusal
+is reachable without touching a product. Verified on a 17-sub-stack session:
+stamps {100: 15, 130: 2} match the derived sizes exactly. The mixed-rejection
+hazard closes with it — group size selects the rejection algorithm, and no
+mismatched size composes.
 
 ## `routing-generality` — the router encodes ONE rig's assumptions, at four sites
 

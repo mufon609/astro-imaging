@@ -131,8 +131,11 @@ Principles that keep this honest:
    LOSSLESS FINALS, opened independently.** A judgment set is a folder of
    whole-frame 16-bit lossless PNGs with clean names and a
    QUESTION.md, nothing else. **Project policy: the judgment surface is the
-   16-bit PNG ONLY — no 8-bit/reduced-depth or lossy copy is ever produced or
-   judged** (no PNG8, no JPEG), no crops, no composited panels — the judge pulls
+   16-bit PNG ONLY — no 8-bit/reduced-depth or lossy copy, no crop and no
+   composited panel is ever JUDGED** (no PNG8, no JPEG). It scopes what the
+   verdict is taken on, not what the repo may write: delivery surfaces (a
+   shareable q100 final, browser previews, an on-request tool-made zoom crop)
+   are allowed and are listed under "Data integrity" below — the judge pulls
    each full-precision file into their own viewers and environments. Assemble it
    with `judgment_package.py` (orchestration + record: it refuses starless
    layers before linking, embeds the tool-reported candidate-vs-control
@@ -388,14 +391,14 @@ scripts/stack/build_sky_flat.sh sessions/<session> <set> --dark=<master> --out=s
 #   inadequate). Route + traps: docs/wide-field-untracked-registration.md;
 #   auto-routing by data fingerprint is BACKLOG:`route-recommendation`.
 scripts/stack/run_undistort_pipeline.sh sessions/<session> <set> --dark=<master> --flat=<master> [--frames=N]
-# same class at FULL depth on a disk below the single-pass peak. That peak is
-#   DERIVED per set from its own frame geometry (W x H x channels x 4 bytes x the
-#   2 frame-sets registration holds resident) — scripts/stack/disk_budget.sh, read
-#   by BOTH the builder's preflight and the chain's routing, so a 61 MP body, an
-#   OSC raw and a mono astrocam are each budgeted for what they actually are:
-#   balanced consecutive groups -> per-group stacks -> register + stack the
-#   sub-stacks. Valid post-undistort ONLY.
-scripts/stack/run_undistort_groups.sh sessions/<session> <set> --dark=<master> --flat=<master> [--group=15] [--plan]
+# the STANDING stack route for the class: balanced consecutive groups ->
+#   per-group GESD stacks -> register + stack the sub-stacks, which STAY on
+#   disk so the cross-set combine (run_undistort_compose.sh) remains buildable
+#   — single-pass forecloses it (composing per-set finals is a registered dead
+#   end) for a quality delta measured NULL. Group size derives from frame count
+#   and the obstruction audit's dwell floor; disk peak is per-group, derived
+#   from the set's own frame geometry (disk_budget.sh). Valid post-undistort ONLY.
+scripts/stack/run_undistort_groups.sh sessions/<session> <set> --dark=<master> --flat=<master> [--group=N] [--plan]
 
 # color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
 python3 scripts/calibrate/solve_field.py web/results/<session>/stack_<set>.fit \
@@ -429,8 +432,8 @@ live in CLAUDE.md "Environment".
 |---|---|
 | `lens_preflight.py` | optics guard, run first by `run_pipeline.sh`: reads EVERY frame's camera/lens/focal via exiftool and STOPS on a MIXED-optics set (`acquisition.json` derives optics from the FIRST FRAME ONLY, so it structurally cannot see a zoom bump mid-set) or on a set whose frames contradict the tracked record. With `--require-profile` it also makes darktable PROVE it corrects the set — rendering one frame through the pinned `lensdist`/`nodist` pair and asking Siril for the difference — because darktable silently applies NO correction to a lens lensfun cannot match and never says so | Also asserts the installed distortion coefficients equal the PINNED model: `lensfun-update-data` reverts the user DB to the community profile, which still warps — so the warp-happened proof passes while the set stacks with different optics than every product it will be compared against.
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (2-pass/sweep) → rejection stack; forks camera-raw vs dedicated-astrocam FITS, loudly STOPS a flatless set demanding a matching flat (synthetic-flat is a documented gap — BACKLOG), and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
-| `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only via the stripped lensfun DB, incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the uncompressed disk peak — registration holds the warped set and the registered set at once, so the budget is `W x H x channels x 4 bytes x 2`, DERIVED per set from the tracked `acquisition.json` geometry (exiftool for raws, FITS `NAXIS` for astrocam frames) rather than a per-camera constant, and it STOPS if the geometry is not on record instead of assuming a frame size. The derivation AND the arithmetic live in `scripts/stack/disk_budget.sh`, shared with `run_set_chain.sh`'s routing so the two cannot disagree; `--frames=N` selects an even stride that preserves the full time span; `--select=<list>` processes an exact frame block (the groups driver's hook) |
-| `run_undistort_groups.sh` | full-depth variant for a disk too small for single-pass registration: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final. Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass. Removal condition: free disk ≥ the single-pass peak (x86) |
+| `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only via the stripped lensfun DB, incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the uncompressed disk peak — registration holds the warped set and the registered set at once, so the budget is `W x H x channels x 4 bytes x 2`, DERIVED per set from the tracked `acquisition.json` geometry (exiftool for raws, FITS `NAXIS` for astrocam frames) rather than a per-camera constant, and it STOPS if the geometry is not on record instead of assuming a frame size. The derivation AND the arithmetic live in `scripts/stack/disk_budget.sh`, shared with `run_set_chain.sh` (plan disclosure + a forced `--route=single`) so a forced route and the builder cannot disagree; `--frames=N` selects an even stride that preserves the full time span; `--select=<list>` processes an exact frame block (the groups driver's hook — whole-set single-pass runs only as the `--route=single` operator override) |
+| `run_undistort_groups.sh` | the STANDING stack route for the undistort class: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final — and stay on disk, keeping the cross-set combine buildable (single-pass deletes them and crops to `-framing=min`; composing per-set finals is a registered dead end). Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass, measured NULL (9/9 drift-axis stations within 0.05 px). Removal condition: a measured quality cost of the extra pass at established magnitude, or cross-set composition leaving the project's goals |
 | `build_sky_flat.sh` | PER-SET sky-flat builder for flatless sets (the ratified rule: a flat calibrates only the exact frames it was built from — `docs/dead-ends.md` imprint entry): the set's own un-registered lights, dark-subtracted, CFA, `-norm=mul`, `--rej=wins` default (specks measured 101→0 vs median; `median` kept as the attribution arm); validation gates built in (regional `stat`, `findstar` speck count, autostretch preview, tracked qa record). Removal condition: a matching real flat for the set |
 | `run_undistort_compose.sh` | compose already-built undistort SUB-STACKS across sets into one deep stack (register `-2pass` → `-framing=min\|max` → PLAIN MEAN — sigma rejection across sub-stack composes is a measured dead end); valid post-undistort only (homographies compose) |
 | `render_tier.sh` | the RENDER TIER past the diagnostic judge surface: Siril `starnet` separation → Cosmic Clarity denoise on the starless → per-channel-black-point / common-gain `mtf` stretch → `asinh -human` stars → `pm` screen recombine → 16-bit PNG. User-gated: with no ratified `render` block for the name it measures, writes `render_proposed`, prints it and STOPS (exit 7). Knobs resolve CLI > recipe > `GENERIC.json` > built-in with the provenance PRINTED; the recipe pins only scale-free FRACTIONS and the absolute mtf triplet is re-derived every run from the layer actually being stretched (measured: deriving it from the star-ful input stack put the sky at 0.063 for a 0.100 target and cast it +5.6% in B/G). Every measurement is Siril's own — `findstar` for the separation gate, `pm`+`isub`+`bgnoise` for the recombine residual, `wavelet`/`wrecons`+`bgnoise` for the per-scale denoise profile, `stat main` for the colour record. Refuses to overwrite an existing product without `--overwrite`, and reuses cached layers so ratifying costs one stretch, not another separation + denoise |

@@ -13,10 +13,11 @@ runs no solver:
   - field RA/Dec + TRUE plate scale              scripts/calibrate/solve_field.py (astrometry.net)
   - per-frame roundness / FWHM / star counts     Siril findstar+register (frame_metrics.json)
 
-`mount` STAYS a declared fact — headers cannot be trusted to record it and a
-consumer must never assume one (acquisition.py stops if it is undeclared).
-What this module adds is a CROSS-CHECK by two instruments, each measuring the
-sky against the declaration:
+`mount` is never ASSUMED — headers cannot be trusted to record it. It is either
+declared by a human or DERIVED: acquisition.resolve() adopts a decisive
+signature from this module's verdict (mount_source "derived") and stops only
+when the instruments cannot decide. What this module adds is the MEASUREMENT,
+by two instruments, each reading the sky independently of any declaration:
 
   1. TRAIL-vs-ROUNDNESS (cheap — no solve). A fixed mount smears every sub by
      15.041"/s x cos(dec) x exposure / scale. When that predicted trail is
@@ -31,8 +32,9 @@ sky against the declaration:
      decide (e.g. a 3.4 px predicted trail on a 3.5 px PSF).
 
 `mount_verdict` returns CONTRADICT when a set declared one way measures the
-other; the consumer STOPS and reconciles. It never silently re-labels: the
-declaration is the human's, the measurement only checks it.
+other; the consumer STOPS and reconciles. It never silently re-labels a human
+declaration — adopting an UNDECLARED set's decisive signature is
+acquisition.resolve()'s job, on the record, as mount_source "derived".
 
 The fingerprint DERIVES the route (the MATCH step) and the chain acts on it —
 routing measured facts to the right tool is the pipeline's job, not a question

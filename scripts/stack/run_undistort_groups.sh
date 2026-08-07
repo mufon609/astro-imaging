@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Full-depth stack builder for the wide-field UNTRACKED class on a disk too
-# small for single-pass registration: consecutive GROUPS of frames are each
+# Full-depth stack builder for the wide-field UNTRACKED class — the STANDING
+# route (the chain derives it; whole-set single-pass runs only as the
+# --route=single operator override): consecutive GROUPS of frames are each
 # run through the full undistort chain (calibrate -> warp -> register -> rej
 # stack) with their intermediates deleted before the next group, then the
-# group sub-stacks are registered and rejection-stacked into the final.
+# group sub-stacks are registered and stacked into the final — and KEPT, which
+# is the point: the cross-set combine composes sub-stacks, and single-pass
+# deletes them (composing per-set finals is a registered dead end).
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                           [--group=<derived>] [--chunk=12] [--out=<stack.fit>] [--plan] \
@@ -64,20 +67,23 @@
 #   mean; per-group -framing=min trims only that group's small drift, and the
 #   final -framing=min lands on the same global intersection as single-pass.
 #
-# REMOVAL CONDITION: free disk >= the single-pass peak — `undistort_peak_gib` in
-# scripts/stack/disk_budget.sh, which DERIVES it from the set's own frame
-# geometry (the ~231 MB/frame this line used to quote was the retired 16-bit
-# figure, and any fixed per-frame number is really one sensor's). It is therefore
-# a PER-DATASET condition: a disk that retires this route for 24 Mpx OSC frames
-# may not retire it for a 61 MP body or a much deeper set. Then use
-# run_undistort_pipeline.sh for that dataset.
+# REMOVAL CONDITION (register: BACKLOG.md): a measured quality cost of the
+# extra interpolation pass at established magnitude, or cross-set composition
+# leaving the project's goals. Free disk is NOT the condition — it fired and
+# was judged the wrong trigger: single-pass deletes the sub-stacks the combine
+# composes, so a big disk buys nothing back. The disk peak stays derived per
+# set (`undistort_peak_gib`, disk_budget.sh) for the plan line and the forced
+# single-pass route.
 #
 # GUARDS: balanced group sizes (never a 1-frame group); every group size is
 # checked UP FRONT against --chunk for the 1-frame final chunk Siril cannot
 # sequence (deferring it to the per-group sub-pipeline would let a base-size
 # offender abort only at group REM+1, hours into warping); disk re-checked
 # before EVERY group (sub-stacks accumulate); >=2 groups or it tells you to use
-# the single-pass builder.
+# the single-pass builder; every existing sub_NN.fit must carry a GRPSIZE stamp
+# matching this run's group size or the resume REFUSES (a mixed resume composes
+# mixed depths AND mixed rejection algorithms; unstamped reads 0 and fails
+# closed; --plan runs the same check dry).
 #
 # NOTHING in the chain is compressed — the pipeline-wide rule; every
 # generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed, which
