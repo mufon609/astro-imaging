@@ -291,6 +291,28 @@ async function pgOverview() {
   };
   const approvedTag = (M.tags || []).find(t => t.endsWith('-approved'));
   const nextBlock = await nextActionBlock();
+  // READINESS RAIL — the same evaluator the chain runs (one source: CLI,
+  // chain, web). Every ratified criterion per set, GREEN/YELLOW/RED; the run
+  // button is the single approval (it passes --yes).
+  const readiness = await Promise.all(lightSets().map(async s => {
+    try { const r = await fetch(`/api/readiness/${M.session}/${s.set}`); return [s.set, await r.json()]; }
+    catch (e) { return [s.set, null]; }
+  }));
+  const rrClass = st => st === 'GREEN' ? 'chip ok' : st === 'YELLOW' ? 'chip warn' : 'chip cut';
+  const rrShort = n => n.replace('obstruction_audit', 'audit').replace('frame_qa', 'qa').replace('flat_quality', 'flat');
+  const readinessBlock = readiness.length ? h('div', { class: 'card' },
+    h('h3', {}, 'readiness — every criterion up front; the run button is the one approval'),
+    h('p', {}, 'GREEN = met from the data (hover for the value and the instrument). YELLOW = met, but look — it never blocks. RED = blocks here, not mid-build.'),
+    ...readiness.map(([name, r]) => (!r || r.error)
+      ? h('div', { class: 'm' }, `${name}: readiness evaluator unavailable`)
+      : h('div', { class: 'm' },
+          h('a', { href: `#set/${name}`, style: 'margin-right:.6em' }, name),
+          h('span', { class: rrClass(r.overall), style: 'margin-right:.8em', title: `overall — route: ${r.route}` }, r.overall),
+          ...r.criteria.map(c => h('span', {
+            class: rrClass(c.status), style: 'margin-right:.35em',
+            title: `${c.criterion}: ${c.value}\n[${c.instrument}]` + (c.detail ? `\n${c.detail}` : '')
+          }, rrShort(c.criterion))))))
+    : null;
   // ITEM 2: two DIFFERENT states were both called "approved" and neither was
   // explained — a ratified look (recipe) vs a git-tagged approved render. july23
   // showed "RATIFIED look" on the render card and NOTHING here, from the same
@@ -321,6 +343,7 @@ async function pgOverview() {
       acq ? ` · mount ${acq.mount}` : '',
       fp ? ` — ${fp.label} (mount ${fp.mount_check.verdict})` : ''),
     nextBlock,
+    readinessBlock ? frag(h('h2', {}, 'readiness'), h('div', { class:'cards' }, readinessBlock)) : null,
     approvalBlock ? frag(h('h2', {}, 'approval state'), h('div', { class:'cards' }, approvalBlock)) : null,
     h('h2', {}, 'what is on file — each card opens its home'),
     h('div', { class:'cards' },

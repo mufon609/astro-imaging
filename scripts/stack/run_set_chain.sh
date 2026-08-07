@@ -19,6 +19,8 @@
 #           two-window drift solve / the user decides the route
 #   exit 6  real flats staged but no master-flat wiring for the undistort
 #           route — resolve the flat manually (documented gap)
+#   exit 7  readiness RED — the one-surface report (readiness_report.py)
+#           names the blocker up front; nothing was built
 #   exit 8  the finished PRODUCT regressed against this set's accepted
 #           baseline (scripts/qa/baseline_guard.py). Nothing is blocked or
 #           rewritten — the stack and judge surface are built — but the
@@ -26,7 +28,14 @@
 #           is a decision only the user can close: find the cause, or
 #           re-seed the baseline with a note if the change is deliberate
 #
-#   run_set_chain.sh <session-dir> <set> [--plan] [--route=auto|single|groups] [--group=N]
+#   run_set_chain.sh <session-dir> <set> [--plan] [--yes] [--route=auto|single|groups] [--group=N]
+#
+# --yes is the ONE approval, given up front: after the measure phase prints
+# the readiness report (every criterion GREEN/YELLOW/RED on one surface), the
+# build runs unattended. The web run button passes it — the click IS the
+# approval. Without it an interactive terminal asks once after the report; a
+# non-interactive run stops there (exit 0, report recorded) so nothing builds
+# on an approval nobody gave.
 #
 # --plan prints the derived plan (route + reason, gates, disk math, the exact
 # commands, what will be skipped as already-built) and executes NOTHING; the
@@ -51,9 +60,10 @@ source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
                                               # a set to a builder that then refused it.
 SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
 SET=${2:?missing <set>}
-PLAN=0 DESKYOPT= FORCE_ROUTE= GROUPOPT=
+PLAN=0 DESKYOPT= FORCE_ROUTE= GROUPOPT= YES=0
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
+  --yes) YES=1;;
   --desky) DESKYOPT=--desky;;
   --no-desky) DESKYOPT=;;
   --route=*) FORCE_ROUTE=${a#*=};;
@@ -531,6 +541,34 @@ if [ "$ROUTE" != standard ]; then
   mkdir -p "$DSET/qa_work"
   python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile \
     --json="$DSET/qa_work/lens_preflight.json" || exit 1
+fi
+
+# ---- READINESS: every criterion on ONE surface, then ONE approval ---------
+# The measure phase above (acquisition, fingerprint, frame QA, audit, cull,
+# optics) has produced every record the evaluator quotes; from here the build
+# runs unattended. RED stops HERE (exit 7) — never hours into a build. The
+# report is a tracked record, so what was approved is auditable afterwards.
+say "readiness report"
+RRC=0
+python3 "$REPO/scripts/qa/readiness_report.py" "$SESSION" "$SET" \
+  --route="$ROUTE" ${FORCE_ROUTE:+--forced-route=$FORCE_ROUTE} || RRC=$?
+if [ "$RRC" = 3 ]; then
+  say "STOP: readiness RED — the report above names the blocker; nothing was built"
+  exit 7
+elif [ "$RRC" != 0 ]; then
+  say "readiness evaluator failed (rc=$RRC)"; exit "$RRC"
+fi
+if [ "$YES" != 1 ]; then
+  if [ -t 0 ]; then
+    read -r -p "[chain $SET] proceed with the build? [y/N] " ANS
+    case "$ANS" in
+      y|Y|yes|YES) ;;
+      *) say "not approved — nothing built (report recorded: $DSET/readiness.json)"; exit 0;;
+    esac
+  else
+    say "report only — no --yes and no terminal to ask. Re-run with --yes to build (the web run button passes it)."
+    exit 0
+  fi
 fi
 
 # masters (undistort routes bring their own; the standard route's builder

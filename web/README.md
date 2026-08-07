@@ -45,7 +45,12 @@ record the render chain consumes. No external service; the server binds
   mount underivable (the instruments disagree or nothing measures; a
   decisive signature is adopted as mount_source=derived and announced,
   never stopped on) or CONTRADICT, an unroutable fingerprint, an unresolved
-  flat — and it ENDS at the diagnostic judge surface: everything aesthetic
+  flat. The measure phase ends at the READINESS REPORT — every ratified
+  criterion GREEN/YELLOW/RED on ONE surface (readiness_report.py; the same
+  evaluator behind /api/readiness and the set-page rail), RED exits 7 before
+  anything builds — and the run click is that report's single approval (the
+  stage passes --yes). The chain ENDS at the diagnostic judge surface:
+  everything aesthetic
   beyond it (the render tier) stays per-rung and user-judged. QA defect
   flags do NOT stop it: the STANDING USER POLICY auto-culls flagged
   defect-side frames (they exclude like any obstruction), writes the

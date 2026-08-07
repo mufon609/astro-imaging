@@ -247,7 +247,12 @@ and every stage's records landed identically (`datasets/july31/`).
 
 ## 10. The human moments — the complete list
 
-Everything not listed here runs unattended, announced and recorded.
+The chain's measure phase ends at the **readiness report**
+(`scripts/qa/readiness_report.py`): every criterion below §2–§9 on ONE
+surface, GREEN (met — value + instrument stated) / YELLOW (met, but look —
+never blocks) / RED (blocks HERE, exit 7). One approval — `--yes`, a terminal
+ask, or the web run click — then the build runs unattended. The report is a
+tracked record (`readiness.json`), so what was approved is auditable.
 
 | stop | meaning |
 |---|---|
@@ -255,8 +260,9 @@ Everything not listed here runs unattended, announced and recorded.
 | exit 4 | mount underivable — instruments disagree or nothing measures |
 | exit 5 | unroutable fingerprint — neither tracked nor fixed+wide |
 | exit 6 | real flats staged on the undistort route (wiring gap) |
+| exit 7 | readiness RED — the report names the blocker before anything builds |
 | exit 8 | product regressed vs the accepted baseline (informative, post-build) |
-| always | aesthetics — the user's eyes on full-frame lossless finals |
+| always | the ONE approval after the report; aesthetics on full-frame lossless finals |
 
 ## 11. Open defects and watch-list (with their records)
 
@@ -271,5 +277,3 @@ Everything not listed here runs unattended, announced and recorded.
 - SPCC sensor-null — no Z6III database entry; K factors ride the generic curve.
 - `mount` is modelled per set but is a session-level fact (one tripod pays for
   up to four probes) — BACKLOG.
-- The one-surface readiness report (BACKLOG:`readiness-report`) — all criteria
-  GREEN/YELLOW/RED up front, one approval, run unattended.

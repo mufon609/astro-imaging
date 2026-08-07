@@ -388,14 +388,20 @@ Class facts, records and the full mechanism set live in
 checklist's lunar block), `datasets/july26/` (ledgers with every verdict),
 and the builder's own docstring.
 
-## `readiness-report` — ONE traffic-light gate, not N scattered stops
+## `readiness-report` — CLOSED: one traffic-light surface, one approval, shipped
 
-**USER-ORDERED 2026-08-06, and it is the structural fix for the doctrine bug
-`CLAUDE.md` now records.** The chain currently interrupts at each gate in turn, so
-a run can stop three hours in for something knowable in the first ten seconds, and
-each stop asks the human to re-answer a call they already ratified the criteria
-for. Replace that with one surface: evaluate EVERY ratified criterion up front,
-report them together with a status colour, take ONE approval, then run unattended.
+**Shipped as `scripts/qa/readiness_report.py`** — ONE evaluator (decision logic
+over tool outputs and tracked records; no pixel read, no measurement made) that
+feeds three surfaces: the CLI, `run_set_chain.sh` (which runs it after the
+measure phase — acquisition, fingerprint, frame QA, audit, cull, optics — and
+takes the single approval: `--yes` up front, an interactive ask otherwise, and
+a report-only exit 0 when neither exists), and the web set page
+(`GET /api/readiness/<session>/<set>` + the readiness rail; the run button
+passes `--yes`, so the click IS the approval). RED exits 7 before anything
+builds; the report is a tracked record
+(`datasets/<session>/<set>/readiness.json`) so what was approved is auditable.
+The colour contract and criteria table below are the evaluator's spec of
+record.
 
 **The colour contract (user-stated):**
 - **GREEN — go.** The criterion is met from the data. State the value and the
@@ -427,17 +433,13 @@ report's questions — groups is the standing route (`force_route`; the
 `run_undistort_groups.sh` register row above) and rides the route criterion:
 GREEN derived, YELLOW only when `--route=` forces it.
 
-**Then:** print it, ask once, run. `--yes` skips the ask for an unattended re-run;
-`--plan` keeps its current meaning (show and exit).
-
-**The website gets the same data, same colours** — the set page shows the rail as
-green/yellow/red so the state is readable without a terminal, and the run button is
-the same single approval. One evaluator feeds both; the report is a record, written
-beside the other per-set records so what was approved is auditable afterwards.
-
-**Closes when** a set goes from raw frames to a finished product with exactly one
-human interaction — reviewing the report and approving it — and any genuinely
-undecidable criterion is RED in that report rather than a stop discovered later.
+**Closing condition met:** a set goes from raw frames to a finished product with
+exactly one human interaction — the report prints, the approval (`--yes` /
+terminal ask / web run click) is given once, and the build runs unattended;
+YELLOWs are visible up front and never block; anything undecidable is RED in
+the report (exit 7) rather than a stop discovered mid-build. Verified on the
+validated corpus: the no-approval invocation stops at the report (exit 0,
+record written), the `--yes` invocation runs to DONE.
 
 ## `scope-own-photons-only` — JWST is CUT, and the boundary it establishes
 

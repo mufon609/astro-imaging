@@ -26,7 +26,10 @@ for a in "${@:2}"; do case "$a" in
   # force_route() and run_undistort_groups.sh's derived group size). They pass
   # straight through so a session-wide choice is made once, and every set's
   # printed plan still states it as OPERATOR-FORCED rather than derived.
-  --route=*|--group=*|--desky|--no-desky) EXTRA+=("$a");;
+  # --yes is the chain amendment's ONE approval, session-wide: each set still
+  # prints its readiness report, and the build proceeds unattended past
+  # YELLOWs (RED still stops with exit 7).
+  --route=*|--group=*|--desky|--no-desky|--yes) EXTRA+=("$a");;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 SESSION=$(cd "$SESSION" && pwd)

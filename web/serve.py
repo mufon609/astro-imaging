@@ -1041,9 +1041,12 @@ def _stage_registry():
                 {"name": "set", "kind": "set", "req": True},
                 {"name": "plan", "kind": "bool", "req": False, "hint": "print the derived plan (route, gates, commands) without executing"},
             ],
+            # a real run passes --yes: the user's run click IS the chain's one
+            # approval (the readiness report still prints into the job log,
+            # and RED still stops with exit 7)
             "build": lambda a: ["scripts/stack/run_set_chain.sh",
                                 P("sessions", _arg_session(a["session"])), _arg_set(a["set"])]
-            + (["--plan"] if a.get("plan") else []),
+            + (["--plan"] if a.get("plan") else ["--yes"]),
         },
         "chain_session": {
             "desc": "the SESSION button: the set chain over every staged light set in name order, stopping at the first user-decision gate; re-click resumes where it stopped (built products skip)",
@@ -1054,7 +1057,7 @@ def _stage_registry():
             ],
             "build": lambda a: ["scripts/stack/run_session_chain.sh",
                                 P("sessions", _arg_session(a["session"]))]
-            + (["--plan"] if a.get("plan") else []),
+            + (["--plan"] if a.get("plan") else ["--yes"]),
         },
         "compose": {
             "desc": "compose already-built group sub-stacks across sets into one stack (register -2pass -> plain mean; valid post-undistort — homographies compose). framing=min keeps the all-members overlap, max the union",
@@ -1269,7 +1272,8 @@ _STAGE_DOCS = {
                         "route-by-fingerprint stack (undistort -> groups, the standing route)",
                         "solve -> SPCC (+ Gaia cone fetch) -> judge PNG16",
                         "decisions summary at the end"],
-            "gates": ["mount undeclared -> measured; a decisive verdict is adopted (mount_source=derived, announced) and the run continues; stops only if the instruments cannot decide",
+            "gates": ["readiness report after the measure phase: every criterion GREEN/YELLOW/RED on one surface; RED stops (exit 7) before anything builds; the run click is the single approval (--yes)",
+                      "mount undeclared -> measured; a decisive verdict is adopted (mount_source=derived, announced) and the run continues; stops only if the instruments cannot decide",
                       "declared-vs-measured CONTRADICT -> stops",
                       "unroutable fingerprint -> stops",
                       "real flats staged on the undistort route -> stops (manual flat)",
@@ -1287,7 +1291,8 @@ _STAGE_DOCS = {
                         "auto-cull flagged frames (standing policy)",
                         "masters as needed", "route-by-fingerprint stack",
                         "solve -> SPCC -> judge PNG16"],
-            "gates": ["mount undeclared -> measured; decisive verdicts adopt (mount_source=derived); undecidable stops",
+            "gates": ["readiness report -> ONE approval (the run click passes --yes); RED exits 7 up front",
+                      "mount undeclared -> measured; decisive verdicts adopt (mount_source=derived); undecidable stops",
                       "CONTRADICT / unroutable / unresolved flat -> stops"],
             "records": ["datasets/<session>/<set>/", "web/results/<session>/"],
         },
@@ -2293,6 +2298,31 @@ class Handler(SimpleHTTPRequestHandler):
                     _safe(self.path[len("/api/status/"):], "session")))
             except ValueError as e:
                 return self._json(400, {"error": str(e)})
+        if self.path.startswith("/api/readiness/"):
+            # the SAME evaluator the chain runs — one source for CLI, chain
+            # and this rail (BACKLOG readiness-report). --no-write: a page
+            # load must not churn the tracked record; the chain's own run
+            # writes it at approval time.
+            parts = self.path[len("/api/readiness/"):].split("/")
+            if len(parts) != 2:
+                return self._json(400,
+                                  {"error": "use /api/readiness/<session>/<set>"})
+            try:
+                sess = _safe(parts[0], "session")
+                st = _safe(parts[1], "set")
+            except ValueError as e:
+                return self._json(400, {"error": str(e)})
+            r = subprocess.run(
+                [sys.executable,
+                 os.path.join(REPO, "scripts", "qa", "readiness_report.py"),
+                 os.path.join(REPO, "sessions", sess), st,
+                 "--json-only", "--no-write"],
+                capture_output=True, text=True)
+            try:
+                return self._json(200, json.loads(r.stdout))
+            except ValueError:
+                return self._json(500, {"error": "readiness evaluator failed",
+                                        "detail": (r.stderr or r.stdout)[-2000:]})
         if self.path == "/api/env":
             return self._json(200, env_status())
         if self.path == "/api/version":
