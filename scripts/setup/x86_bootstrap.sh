@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # x86_bootstrap.sh — reproducible tool install for the x86-64 Kali production rig.
 #
-# STATUS: DRAFT, UNTESTED. It targets a rig that does not exist yet (the current
-# was written before this rig existed). Every step is primary-sourced (per-tool
-# sources in the manifest rows + git history)
-# but NONE has been run. Treat as a plan-in-code, not a proven installer.
+# STATUS: the production install script for the repo's ONE rig class (x86-64
+# Kali — arm64 is retired; CLAUDE.md "Environment"). Its steps are verified
+# PIECEWISE on this rig: every tool below is installed and driven here, and
+# scripts/setup/manifest.tsv is the tracked inventory (versions, sources,
+# checksums) those installs recorded. NOT yet run as ONE from-scratch pass on a
+# fresh machine — that single-run rebuild is the acceptance test for any new or
+# reimaged rig, and a step failing there is a bug in this script, not the rig
+# (CLAUDE.md: the environment must be rebuildable from tracked files).
 #
 # WHAT IT DOES: installs the toolkit in four isolation layers (apt / flatpak / venv /
 # pinned /opt binaries), sha256-verifies every download, prints the license-gated
@@ -118,7 +122,7 @@ fetch(){ local url="$1" dest="$2" sha="${3:-}"
 }
 
 # ---- guards + preflight ---------------------------------------------------
-[[ "$(uname -m)" == "x86_64" ]] || { echo "REFUSING: not x86_64 (this is a draft for the x86 rig)."; exit 1; }
+[[ "$(uname -m)" == "x86_64" ]] || { echo "REFUSING: not x86_64 (this installer targets the x86 rig only)."; exit 1; }
 if [[ $DRY -eq 0 ]]; then
   for t in curl sha256sum sudo; do
     command -v "$t" >/dev/null || { echo "[bootstrap] MISSING prerequisite: $t — apt install it first."; exit 1; }
