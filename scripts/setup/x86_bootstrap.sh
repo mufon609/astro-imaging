@@ -2,7 +2,7 @@
 # x86_bootstrap.sh — reproducible tool install for the x86-64 Kali production rig.
 #
 # STATUS: the production install script for the repo's ONE rig class (x86-64
-# Kali — arm64 is retired; CLAUDE.md "Environment"). Its steps are verified
+# Kali; CLAUDE.md "Environment"). Its steps are verified
 # PIECEWISE on this rig: every tool below is installed and driven here, and
 # scripts/setup/manifest.tsv is the tracked inventory (versions, sources,
 # checksums) those installs recorded. NOT yet run as ONE from-scratch pass on a
