@@ -438,7 +438,7 @@ the constraints any such tool must satisfy):
   intensities"/"a huge green cast" and recommend Manual Color Calibration for
   SHO — i.e. for a narrowband SHO target, SPCC is the *cause* of the lost sphere,
   not the fix. (The star-colour-neutral fix is a candidate DESIGN, UNTESTED —
-  `docs/narrowband-star-neutral-options.md`; not settled, do not cite as a method.)
+  BACKLOG:`star-neutral-colour` + `TOOLS.md` Tier 10; not settled, do not cite as a method.)
 - `rmgreen`/SCNR on a sky that is not green-dominant prints a global magenta cast.
 - Siril has NO native GENERAL chrominance-noise tool (its own docs punt to GIMP,
   byte-identical disclaimer in 1.4.4 AND 1.5.0-dev). `rmgreen` IS a native

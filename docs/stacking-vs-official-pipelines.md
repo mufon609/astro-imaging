@@ -246,8 +246,8 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
   deepskystacker/DSS · astropixelprocessor.com (features, Mabula mosaic
   tutorial part 2, downloads)
 - Repo records: `datasets/july23/*` (QA/audit/solves), `docs/dead-ends.md`
-  (SIP/solver/weighting mechanisms), `docs/siril-stacking-workflow.md` (1.4.4
-  syntax audit this doc builds on)
+  (SIP/solver/weighting mechanisms); the 1.4.4 syntax audit this doc builds on
+  is graduated into `TOOLS.md` Tier 1 (deep-dive retired — git history)
 
 ## Verdict / recommendation
 

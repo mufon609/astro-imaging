@@ -110,24 +110,6 @@ _(add each writeup here, newest first)_
 - [x86-setup-and-install](x86-setup-and-install.md) — reproducible per-tool install
   on x86-64 Kali (headless, no GPU): the four-layer method (apt/flatpak/venv/pinned
   `/opt`), checksums, gotchas + a drafted **untested** `scripts/setup/x86_bootstrap.sh`.
-- [siril-stacking-workflow](siril-stacking-workflow.md) — 2026 headless calibrate/
-  register/integrate: rejection-by-sub-count, the unified `-weight=` that breaks
-  migrated scripts, drizzle-on-register, and the WBPP gaps (no Local Norm / PSF-Signal-Weight).
-- [siril-natives-and-trailed-solve](siril-natives-and-trailed-solve.md) — Siril
-  1.4.4/1.5.0-dev native surface; the chroma-noise / AI-deconv / star-neutral gaps
-  all still non-native; sharpened trailed-field `-localasnet` verification.
-- [siril-pyscript-headless](siril-pyscript-headless.md) — resolves the "numpy-inside
-  pyscript = tool or hand-roll?" question (mechanism-location split: Class-2 drivers
-  vs Class-1 numpy-inside) + headless viability on Linux.
-- [graxpert-3x-and-workflow-order](graxpert-3x-and-workflow-order.md) — GraXpert
-  deconv is RC-only/stalled/buggy (correction); the linear-first workflow order is a
-  strong default, not absolute (2026 AI-driven loosening).
-- [free-ai-tool-wave-2026](free-ai-tool-wave.md) — free AI tools filtered for
-  headless-Linux-CPU (StarNet2.5.3, DeepSNR, GraXpert, AstroDenoisePy, Cosmic
-  Clarity); AstroSharp dead-end; SyQon GUI-gated.
-- [narrowband-star-neutral-options](narrowband-star-neutral-options.md) — VeraLux
-  Alchemy + DBXtract are the free OIII-unmix mechanism, but GUI-only Class-1; the
-  headless narrowband-colour gap stays open.
 - [synthetic-flats-and-bias](synthetic-flats-and-bias.md) — flatless/biasless
   calibration routes: model-division (GraXpert, vignetting-only, starlight-safe) vs
   a sky flat (captures motes/PRNU but contaminates on a frame-filling star field) vs

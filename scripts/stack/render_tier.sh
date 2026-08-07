@@ -73,8 +73,8 @@
 # lightness) splits that error more evenly but costs contrast. Both are
 # legitimate; the choice is aesthetic and therefore the user's.
 #
-# ORDER follows the researched mainstream (docs/graxpert-3x-and-workflow-order.md
-# part 2c): background extraction -> colour calibration -> [deconvolution] ->
+# ORDER follows the researched mainstream (TOOLS.md, "The one process rule that
+# changed everything"): background extraction -> colour calibration -> [deconvolution] ->
 # star removal -> noise reduction on the starless -> stretch -> recomposition.
 # The background step is per-frame `subsky 1` in the light builder and SPCC runs
 # on the stack, so both precede this script. DECONVOLUTION IS SKIPPED AND THAT IS

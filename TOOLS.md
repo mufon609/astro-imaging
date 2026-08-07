@@ -20,7 +20,8 @@ fits our headless, orchestrate-not-hand-roll model:
    ASTAP, Cosmic Clarity CLI. Headless-clean (own command line), some paid.
    Driven as a subprocess or a Siril script.
 3. **Siril `pyscript` ecosystem** — splits by **where the pixel mechanism
-   lives** (the resolved tool-vs-hand-roll test — see `docs/siril-pyscript-headless.md`):
+   lives** (the resolved tool-vs-hand-roll test: mechanism LOCATION, not
+   provenance or author reputation):
    **Class-2 drivers** (`RC-Astro/*`, `CosmicClarity_*`, `GraXpert-AI`,
    `StarNet`) `subprocess` a real compiled binary → genuine tools, headless-clean,
    same category as our `solve_field.py`. **Class-1 numpy-inside** (VeraLux suite,
@@ -89,7 +90,7 @@ is invalid because CMOS dark current isn't constant across exposure), a syntheti
 constant offset if a flat needs one. A real flat stays primary. PI/APP only as
 reference or for a normalization edge case.
 
-**Workflow specifics (headless, 1.4.4 — `docs/siril-stacking-workflow.md`):** masters
+**Workflow specifics (headless, verified against the Siril 1.4.4 tag source):** masters
 bias/dark `-nonorm`, flats `-norm=mul`; lights `-norm=addscale`. **Rejection by sub
 count:** ≤6 percentile (`p`), ~7–50 winsorized (`rej w 3 3`), >50 GESD (`rej g 0.3 0.05`
 — fraction+significance, NOT sigmas), large+gradients linear-fit (`rej l 3 3`).
@@ -389,8 +390,8 @@ not its documented purpose (see the Nightlight row).
 Two mechanisms, don't conflate: **star-anchored** neutral balance (ccm+measure /
 Nightlight) vs **nebula/QE-anchored** unmix (Alchemy/DBXtract, OSC dual-band).
 Star-neutral is a valid mechanism but NOT a mainstream-named technique — the
-mainstream decouples stars (remove → boost OIII starless → re-add stars). See
-`docs/narrowband-star-neutral-options.md`.
+mainstream decouples stars (remove → boost OIII starless → re-add stars).
+Design + bracket: BACKLOG:`star-neutral-colour`.
 
 ## Tier 11 — Detail / local contrast (NONLINEAR)
 
@@ -467,7 +468,9 @@ tiers (Zenith/Prism/Parallax — headless via `is_cli()`) + **DeepSNR 1.2.1**
 chroma control / dark-star, native Linux, CPU-slow) + **ASTAP** (fast solve,
 non-trailed class). A complete, competitive pipeline — and the chroma-noise gap
 has a FREE fill here (Cosmic Clarity). (`AstroSharp` is OUT — no Linux/CLI,
-600 KB TIFF cap.)
+600 KB TIFF cap.) Watch-list, platform/free/headless UNVERIFIED — check before
+any adoption: **AIDT/AIST** (mdci.ro, ONNX mono NR + Siril plugin) and
+**AstroForge** (astroforge.de).
 
 **PAID, real Linux CLI** (worth it if budget allows): **RC-Astro
 BXT $99.95 / NXT $59.95 / SXT $49.95** (bundle $189.85) via the standalone
@@ -483,7 +486,7 @@ Call the binary directly (Class-2). **PixInsight** €300 — reference (WBPP,
 DBE/MARS), X11-only.
 
 **FREE but GUI-gated / numpy-inside** (escape-hatch, per the resolved
-philosophy question — `docs/siril-pyscript-headless.md`): the **VeraLux** suite
+philosophy question — the class-3 mechanism-location test above): the **VeraLux** suite
 (Silentium / HyperMetric / Nox / Vectra / Alchemy / …), **SyQon** free tiers
 (Zenith / Prism / Parallax-Nano), **SCUNet**, **DBXtract** — these do the pixel
 math in their own numpy/scipy/pywt/torch (mechanism = numpy → sanctioned
@@ -540,7 +543,8 @@ The 2026 consensus order, as a **strong DEFAULT (not an absolute rule)**:
 two the old arm pipeline got wrong or couldn't do: **deconvolution comes early
 and BEFORE (heavy) denoise** (now possible + can fix trailed stars), and
 **noise reduction is a real tool step, not a hand-rolled coring**. Three
-refinements from the multi-source validation (`docs/graxpert-3x-and-workflow-order.md`):
+refinements from the multi-source validation (RC-Astro/Croman + Siril's own docs
++ ben.land/Cuiv/AstroBackyard — primary citations in git history):
 (1) *light* NR before deconvolution is fine — Siril itself recommends a ~50–60%
 VST to steady the RL — the rule is "no HEAVY NR first"; (2) **star-removal
 placement is genuinely variable** (RC-Astro: linear/early; AstroBackyard:
