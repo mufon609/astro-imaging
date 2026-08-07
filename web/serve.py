@@ -98,6 +98,7 @@ Judgment contract: everything served here is a NAVIGATION/SELECTION surface.
 Aesthetic judgment happens ONLY on the full-frame lossless PNG16 files opened
 in the user's own viewers (web/README.md).
 """
+import glob
 import json
 import os
 import re
@@ -688,6 +689,17 @@ def session_model(session):
                                         "moving it quietly is how a record ends up "
                                         "describing a file it no longer matches"),
         })
+    # per-set POSITION + scope (docs/ui-position-and-zero-state-report.md):
+    # readiness/position surfaces iterate ONLY processable light sets — the
+    # measured qa_work_compose / set-00 mis-row fix rides on `unprocessable`
+    for s in model["sets"]:
+        if s.get("kind") == "composed":
+            s["position"] = _compose_position(session, s)
+        elif s.get("kind") == "lights":
+            s["unprocessable"] = _unprocessable(s)
+            if not s["unprocessable"]:
+                s["position"] = _set_position(session, s)
+    _overlay_running(model, session)
     return model
 
 
@@ -1666,6 +1678,248 @@ MIN_SET_FRAMES = 8
 MIN_FLAT_FRAMES = 20
 
 
+# --- per-set pipeline POSITION (user-ratified design, docs/
+# ui-position-and-zero-state-report.md) --------------------------------------
+# Each step's done-test is copied from run_set_chain.sh's own skip-if-exists
+# checks, so the stepper can never disagree with what a re-click would
+# actually do. Products and records prove DONE; job records only ever prove
+# RUNNING (measured: a persisted job record outlived its reset product).
+
+_STAGE_STEP = {"frame_qa": "measured", "mount_probe": "measured",
+               "anomaly_audit": "audited", "master_dark": "masters",
+               "sky_flat": "masters", "stack_standard": "stacked",
+               "stack_undistort": "stacked", "stack_undistort_groups": "stacked",
+               "solve": "solved_spcc", "spcc": "solved_spcc",
+               "spcc_cone": "solved_spcc", "finish_render": "judged"}
+
+
+def _set_position(session, s):
+    name = s["set"]
+    droot = os.path.join(REPO, "datasets", session, name)
+    rroot = os.path.join(REPO, "web", "results", session)
+    sroot = os.path.join(REPO, "sessions", session)
+
+    def rec(*p):
+        return os.path.exists(os.path.join(droot, *p))
+
+    def prod(f):
+        return os.path.exists(os.path.join(rroot, f))
+
+    acq = s.get("acquisition") or {}
+    exif = acq.get("exif") or {}
+    fov = exif.get("fov_deg") or 0
+    mount = acq.get("mount")
+    route = ("standard" if mount == "tracked"
+             else "undistort-groups" if (mount == "fixed" and fov >= 10)
+             else None)
+    fq = s.get("frame_qa") or {}
+    steps = []
+
+    def step(nm, state, ev):
+        steps.append({"step": nm, "state": state, "evidence": ev})
+
+    if rec("acquisition.json") and rec("qa_work", "frame_metrics.json"):
+        step("measured", "done", "frame_metrics.json — "
+             f"{fq.get('registered')}/{fq.get('total')} registered")
+    else:
+        step("measured", "pending", "acquisition + frame QA records absent — "
+             "the run's measure phase writes them")
+
+    anom = s.get("anomaly")
+    if anom:
+        n_obj = len(anom.get("unique") or [])
+        step("audited", "done",
+             f"anomaly_audit.json — {n_obj} object(s), "
+             f"{anom.get('detections')} frame-detections")
+    else:
+        step("audited", "pending", "anomaly_audit.json absent — the run's "
+             "measure phase writes it (the groups dwell floor reads it)")
+
+    if route:
+        fp = s.get("fingerprint") or {}
+        step("routed", "done", f"{route} — mount {mount} "
+             f"({acq.get('mount_source') or 'declared'})"
+             + (f"; {fp.get('label')}" if fp.get("label") else ""))
+    elif mount:
+        step("routed", "blocked", f"unroutable: mount '{mount}', fov '{fov}' "
+             "— neither tracked nor fixed+wide; the user picks (chain exit 5)")
+    else:
+        step("routed", "pending", "derives once the mount is measured")
+
+    if s.get("recipe") is not None:
+        excl = (s.get("recipe") or {}).get("exclude") or []
+        step("decided", "done", f"recipe stack block — {len(excl)} excluded")
+    elif rec("qa_work", "frame_metrics.json") and not (fq.get("flagged") or []):
+        step("decided", "done", "zero defect flags — the measurement decided "
+             "keep-all; no recipe block is written for that")
+    else:
+        step("decided", "pending", "follows frame QA (standing auto-cull "
+             "writes the block when flags exist)")
+
+    if route == "standard":
+        step("masters", "na", "standard route — run_pipeline resolves masters "
+             "internally")
+    elif route is None:
+        step("masters", "pending", "awaits the route")
+    else:
+        real_flats = (glob.glob(os.path.join(sroot, "flats*"))
+                      or os.path.isdir(os.path.join(sroot, "calib")))
+        dark = os.path.exists(os.path.join(sroot, "work", "masters",
+                                           "dark_master.fit"))
+        flat = any(os.path.exists(os.path.join(
+            sroot, "work", "masters", f"skyflat_{name}{sfx}.fit"))
+            for sfx in ("", "_desky"))
+        if real_flats:
+            step("masters", "blocked", "real flats staged — the undistort "
+                 "route has no master-flat wiring (chain exit 6)")
+        elif dark and flat:
+            step("masters", "done", f"dark_master.fit + skyflat_{name}.fit "
+                 "on disk")
+        else:
+            missing = [n for n, ok in
+                       (("master dark", dark), ("sky flat", flat)) if not ok]
+            step("masters", "pending", "to build: " + ", ".join(missing))
+
+    stack_name = None
+    if prod(f"stack_{name}_full.fit"):
+        stack_name = f"{name}_full"
+        step("stacked", "done", f"stack_{name}_full.fit on disk (groups)")
+    elif prod(f"stack_{name}.fit"):
+        stack_name = name
+        step("stacked", "done", f"stack_{name}.fit on disk "
+             "(standard or operator-forced single-pass)")
+    else:
+        subs = sorted(glob.glob(os.path.join(
+            sroot, "work", f"groups_{name}", "sub_*.fit")))
+        if subs:
+            ev = f"{len(subs)} sub-stack(s) on disk"
+            try:
+                from astropy.io import fits as _f
+                g = int(_f.getheader(subs[0]).get("GRPSIZE") or 0)
+                if g:
+                    ev += f" (group size {g})"
+            except Exception:
+                pass
+            step("stacked", "pending", ev)
+        else:
+            step("stacked", "pending", "no stack yet")
+
+    nm = stack_name or (f"{name}_full" if route == "undistort-groups" else name)
+    wcs, spcc = prod(f"stack_{nm}_wcs.fit"), prod(f"stack_{nm}_spcc.fit")
+    lum = os.path.exists(os.path.join(rroot, "judge",
+                                      f"{nm}_lum-autostretch.png"))
+    if spcc:
+        step("solved_spcc", "done", f"stack_{nm}_wcs/_spcc.fit on disk")
+    elif lum:
+        step("solved_spcc", "na", "mono product — SPCC skipped by design")
+    elif wcs:
+        step("solved_spcc", "pending", "solved (WCS on disk); SPCC pending")
+    else:
+        step("solved_spcc", "pending", "no solve yet")
+
+    judge = next((j for j in (f"{nm}_spcc-linked.png",
+                              f"{nm}_lum-autostretch.png")
+                  if os.path.exists(os.path.join(rroot, "judge", j))), None)
+    if judge:
+        step("judged", "done", f"judge/{judge} — the full-frame 16-bit "
+             "diagnostic surface")
+    else:
+        step("judged", "pending", "no judge surface yet (finish_render)")
+
+    if rec("baseline.json"):
+        step("baselined", "done", "baseline.json — seeded from a "
+             "human-accepted product; every run re-compares (exit 8)")
+    else:
+        step("baselined", "pending", "seeds when a human accepts a product "
+             "(baseline_guard.py --seed)")
+    return {"route": route, "steps": steps}
+
+
+def _compose_position(session, s):
+    """Short position for a composed/virtual target (user decision D3):
+    member stacks -> composed stack -> solve/SPCC -> judge."""
+    comp = s.get("composition") or {}
+    members = comp.get("members")
+    member_sets = sorted(members.values()) if isinstance(members, dict) else []
+    rroot = os.path.join(REPO, "web", "results", session)
+
+    def prod(f):
+        return os.path.exists(os.path.join(rroot, f))
+
+    steps = []
+    if member_sets:
+        done = [m for m in member_sets if prod(f"stack_{m}.fit")]
+        steps.append({"step": "member_stacks",
+                      "state": "done" if len(done) == len(member_sets)
+                      else "pending",
+                      "evidence": f"{len(done)}/{len(member_sets)} member "
+                      "stacks on disk"})
+    nm = f"{s['set']}_comp"
+    steps.append({"step": "stacked",
+                  "state": "done" if prod(f"stack_{nm}.fit") else "pending",
+                  "evidence": f"stack_{nm}.fit"
+                  + ("" if prod(f"stack_{nm}.fit") else " not yet composed")})
+    spcc = prod(f"stack_{nm}_spcc.fit")
+    steps.append({"step": "solved_spcc",
+                  "state": "done" if spcc else "pending",
+                  "evidence": f"stack_{nm}_wcs/_spcc.fit"
+                  + ("" if spcc else " pending")})
+    judge = os.path.exists(os.path.join(rroot, "judge",
+                                        f"{nm}_spcc-linked.png"))
+    lum = os.path.exists(os.path.join(rroot, "judge",
+                                      f"{nm}_lum-autostretch.png"))
+    steps.append({"step": "judged",
+                  "state": "done" if (judge or lum) else "pending",
+                  "evidence": "judge surface on disk" if (judge or lum)
+                  else "no judge surface yet"})
+    return {"route": "compose", "steps": steps}
+
+
+def _overlay_running(model, session):
+    """Mark the live ▶ from the jobs table — the ONLY thing job records are
+    trusted for. chain_set targets its args.set; chain_session marks the
+    first (name-order) set with an incomplete chain — the set the chain is
+    actually on; a manual stage maps through _STAGE_STEP."""
+    with JOBS_LOCK:
+        running = [dict(stage=j["stage"], args=j.get("args") or {})
+                   for j in JOBS.values()
+                   if _job_refresh(j)["status"] == "running"
+                   and (not j.get("session") or j["session"] == session)]
+    if not running:
+        return
+    positioned = [s for s in model["sets"] if s.get("position")]
+
+    def mark_first_incomplete(s):
+        for st in s["position"]["steps"]:
+            if st["state"] in ("pending",):
+                st["state"] = "running"
+                st["evidence"] = "job running now — " + st["evidence"]
+                return
+
+    for j in running:
+        stage, args = j["stage"], j["args"]
+        if stage == "chain_set" and args.get("set"):
+            for s in positioned:
+                if s["set"] == args["set"]:
+                    mark_first_incomplete(s)
+        elif stage == "chain_session":
+            for s in positioned:
+                if any(st["state"] == "pending"
+                       for st in s["position"]["steps"]):
+                    mark_first_incomplete(s)
+                    break
+        elif stage in _STAGE_STEP:
+            for s in positioned:
+                if args.get("set") and s["set"] != args["set"]:
+                    continue
+                for st in s["position"]["steps"]:
+                    if (st["step"] == _STAGE_STEP[stage]
+                            and st["state"] == "pending"):
+                        st["state"] = "running"
+                        st["evidence"] = ("job running now — "
+                                          + st["evidence"])
+
+
 def _set_frames(s):
     """Frames a set actually has — measured count first, staged count otherwise."""
     return ((s.get("frame_qa") or {}).get("total")
@@ -2030,6 +2284,9 @@ def start_job(stage, args, dry_run=False):
         except (KeyError, ValueError):
             ses = _session_from_parts(argv)   # else read the command's paths
         JOBS[jid] = {"id": jid, "stage": stage, "cmd": cmd,
+                     # validated args, persisted so the position overlay can
+                     # target the running set (never used to mark done)
+                     "args": {k: str(v) for k, v in (args or {}).items()},
                      "session": ses,
                      "status": "running", "rc": None, "pid": proc.pid,
                      "started": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

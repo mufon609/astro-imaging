@@ -137,12 +137,13 @@ re-baselined it. A ratified look is NOT an approved render, and the UI now print
 exact `git tag` command for any ratified-but-untagged render instead of stating "approval
 only from the git tag" without the mechanism.
 
-**Verdicts, not bare ratios.** `RENDER_RATIO_FLOOR_PCT` in `serve.py` owns this chain's
-measured run-to-run floor (1.34% in the colour ratios, from two runs of ONE pinned
-recipe — the neural stages are not bit-reproducible). A render's colour check returns
-NULL at or below it — *unmeasurable here, explicitly not an improvement* — and
-needs-eyes above. It never returns WIN: there is no control arm, only the render against
-its own input layer.
+**Verdicts, not bare ratios.** A render's colour check returns NULL at or below
+the measured run-to-run floor — *unmeasurable here, explicitly not an
+improvement* — and needs-eyes above. It never returns WIN: there is no control
+arm, only the render against its own input layer. (The old serve.py
+`RENDER_RATIO_FLOOR_PCT` constant is gone: the render tier measured
+bit-reproducible on this rig — BACKLOG `render-reproducibility` — so the floor
+rides the tier's own record, not a hardcoded percentage.)
 
 **Judge surfaces that pair to nothing are reported, never renamed.** A name that misses
 `<product>_<surface>` used to render as "no judge surface", which invites a needless

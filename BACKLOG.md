@@ -403,7 +403,8 @@ builds; the report is a tracked record
 The colour contract and criteria table below are the evaluator's spec of
 record.
 
-**The colour contract (user-stated):**
+**The colour contract (user-stated; PENDING added by ratified amendment — the
+UI investigation's D1):**
 - **GREEN — go.** The criterion is met from the data. State the value and the
   instrument, not just the tick.
 - **YELLOW — wait / look at this.** Met, but with something the user should SEE
@@ -411,6 +412,10 @@ record.
   than an auto-run.
 - **RED — bad or missing.** Blocks. This is the only thing that stops the run, and
   it stops HERE rather than mid-build.
+- **PENDING — not yet measured, and the run itself produces it.** Pre-run
+  surfaces only: derived from record absence, never asserted by a caller; the
+  chain passes `--post-measure` so its own post-measure invocation can never
+  see it (absence there stays RED). Never blocks; exit stays 0.
 
 **Criteria the report must cover** (every existing gate, plus what is currently
 only discoverable by reading logs):
@@ -469,15 +474,13 @@ absorbing planetary glow, ramp-level `clean_flicker_noise` eating extended
 emission) and do not transfer to any tool this repo drives, which is why they went
 with it rather than staying in the registry. Full text is in git.
 
-## `web-jobs-filter` — DIAGNOSED, one-line fix
+## `web-jobs-filter` — CLOSED: shipped, verified in the code
 
-USER-OBSERVED: starting a job made other sessions' jobs repopulate the Run page. The
-mechanism is in the code: `web/index.html` filters on `M.session`, which LAGS a fetch
-(`loadSession` sets `SESSION` synchronously, then awaits `M`) and falsy-defaults to
-SHOW ALL; the running-strip a few lines below already uses `SESSION`. Use `SESSION` in
-both and never default to show-all. **Closes when** starting a job on a session page
-with another session's records present leaves the table showing only this session's
-rows, at start, during, and at completion.
+`refreshJobs` filters on `SESSION` (never `M.session`) and never defaults to
+show-all — a sessionless job is rig-level and stays visible by design; the
+mechanism comment in `web/index.html` records the lag bug it replaces. The
+closing condition ("only this session's rows, at start, during, and at
+completion") is the shipped behavior.
 
 ## `web-culled-frames` — one surface for every excluded frame
 

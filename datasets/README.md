@@ -4,13 +4,14 @@ Session data dirs are gitignored (raw frames; several are third-party sets
 that must never be committed), so everything the repo must VERSION about a
 dataset lives here, keyed `datasets/<session>/<set>/`.
 
-Tracked today: **none** — the july14 exemplar (five light sets + a darks
-calibration group, full per-set prep through an approved combine render) was
-retired and WIPED from the working tree on user order after validating the
-process end to end; its complete records live in git history (the removal
-commit and the `july14-all5-cov25frame-approved` tag). The next dataset seeds
-fresh per the model below. Arm-rig measures are each a hypothesis until
-re-measured on x86 (`CLAUDE.md` binding rules).
+Tracked today: **july31** (the validated wide-field-untracked corpus — four
+sets, full records from acquisition through seeded baselines,
+`docs/pipeline-wide-field-untracked.md`), **colonnello-m20** (mono-filter
+compose model records), **july26** and **july27** (experiment/QA records).
+The retired july14 exemplar's complete records live in git history (the
+removal commit and the `july14-all5-cov25frame-approved` tag). Arm-rig
+measures are each a hypothesis until re-measured on x86 (`CLAUDE.md` binding
+rules).
 
 The per-dataset state MODEL (durable — a new dataset gets these files):
 

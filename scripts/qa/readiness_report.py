@@ -8,13 +8,20 @@ Usage:
   readiness_report.py <session-dir> <set> [--route=R] [--forced-route=F]
                       [--json-only] [--no-write]
 
-The colour contract (user-ratified):
-  GREEN  — go. The criterion is met FROM THE DATA; the value and the
-           instrument are stated, not just the tick.
-  YELLOW — met, but the user should SEE it (a derived mount, a thin dwell
-           headroom, the sky-flat route's open defect). Never blocks.
-  RED    — bad or missing. The only thing that stops a run, and it stops
-           HERE. Exit 3.
+The colour contract (user-ratified; PENDING added by ratified amendment):
+  GREEN   — go. The criterion is met FROM THE DATA; the value and the
+            instrument are stated, not just the tick.
+  YELLOW  — met, but the user should SEE it (a derived mount, a thin dwell
+            headroom, the sky-flat route's open defect). Never blocks.
+  RED     — bad or missing. The only thing that stops a run, and it stops
+            HERE. Exit 3.
+  PENDING — not yet measured, and the RUN ITSELF produces it: the measure
+            phase writes exactly these records before the chain ever calls
+            this evaluator, so a pre-run absence is not a blocker and must
+            not read as one. Derived from record absence, never asserted by
+            the caller. The chain passes --post-measure (absence after the
+            measure phase IS wrong and stays RED), so its own invocation can
+            never see PENDING. Exit stays 0.
 
 One evaluator feeds three surfaces: this CLI, run_set_chain.sh (which runs it
 after the measure phase and takes the single approval), and the web set page
@@ -42,8 +49,10 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RAW_EXT = (".nef", ".dng", ".cr2", ".cr3", ".arw", ".raf", ".fit", ".fits")
 
-GREEN, YELLOW, RED = "GREEN", "YELLOW", "RED"
-_RANK = {GREEN: 0, YELLOW: 1, RED: 2}
+GREEN, YELLOW, RED, PENDING = "GREEN", "YELLOW", "RED", "PENDING"
+# overall = worst row; PENDING outranks YELLOW (an unmeasured set's headline
+# is "the run measures this", not a met-but-look), RED outranks everything
+_RANK = {GREEN: 0, YELLOW: 1, PENDING: 2, RED: 3}
 
 
 def _read(path):
@@ -116,7 +125,8 @@ def _row(name, status, value, instrument, detail=""):
             "instrument": instrument, "detail": detail}
 
 
-def evaluate(session, set_name, route=None, forced_route=None):
+def evaluate(session, set_name, route=None, forced_route=None,
+             post_measure=False):
     session = os.path.abspath(session)
     sname = os.path.basename(os.path.normpath(session))
     droot = os.path.join(REPO, "datasets", sname, set_name)
@@ -133,6 +143,10 @@ def evaluate(session, set_name, route=None, forced_route=None):
     excl = (recipe.get("stack") or {}).get("exclude") or []
     n_stack = max(0, len(frames) - len(excl))
     rows = []
+    # what an absent measure-phase record means depends on WHEN we are asked:
+    # after the measure phase (the chain) absence is genuinely wrong — RED;
+    # before any run (web rail, ad-hoc CLI) the run itself produces it — PENDING
+    miss = RED if post_measure else PENDING
 
     # -- mount ---------------------------------------------------------------
     mount, msrc = acq.get("mount"), acq.get("mount_source")
@@ -149,10 +163,16 @@ def evaluate(session, set_name, route=None, forced_route=None):
         rows.append(_row("mount", YELLOW, f"{mount} ({msrc}) — unchecked",
                          method or "no decisive instrument yet",
                          mc.get("reason", "")))
+    elif mc.get("method"):
+        # the instruments RAN and produced a cross-check that could not decide
+        # (disagreement nulls `measured`) — that genuinely stops, exit 4
+        rows.append(_row("mount", RED, "instruments could not decide",
+                         mc.get("method"), mc.get("reason", "")))
     else:
-        rows.append(_row("mount", RED, "underivable and undeclared",
-                         "fingerprint", mc.get("reason",
-                         "no measurement; the chain's measure phase derives it")))
+        rows.append(_row("mount", miss, "not measured yet",
+                         "fingerprint (drift probe / trail-vs-roundness)",
+                         "the run's measure phase derives it — a decisive "
+                         "signature adopts as mount_source=derived"))
 
     # -- route ---------------------------------------------------------------
     fov = (acq.get("exif") or {}).get("fov_deg") or 0
@@ -162,7 +182,11 @@ def evaluate(session, set_name, route=None, forced_route=None):
         derived = ("standard" if mount == "tracked" else
                    "undistort-groups" if (mount == "fixed" and fov >= 10)
                    else None)
-    if derived is None:
+    mount_pending = not mount and not mc.get("method")
+    if derived is None and mount_pending and not post_measure:
+        rows.append(_row("route", PENDING, "derives once the mount is measured",
+                         "fingerprint (mount x field width)", ""))
+    elif derived is None:
         rows.append(_row("route", RED, "unroutable",
                          "fingerprint (mount x field width)",
                          f"mount '{mount}', fov '{fov}' — neither tracked nor "
@@ -180,9 +204,9 @@ def evaluate(session, set_name, route=None, forced_route=None):
 
     # -- frame QA + cull -----------------------------------------------------
     if qa is None:
-        rows.append(_row("frame_qa", RED, "not run",
+        rows.append(_row("frame_qa", miss, "not measured yet",
                          "Siril register regdata (run_frame_qa.sh)",
-                         "the chain's measure phase runs it before this report"))
+                         "the run's measure phase runs it before the report"))
     else:
         flags = qa.get("flagged_defect_side_z") or []
         block = recipe.get("stack")
@@ -205,9 +229,9 @@ def evaluate(session, set_name, route=None, forced_route=None):
 
     # -- obstruction audit + dwell floor -------------------------------------
     if aud is None:
-        rows.append(_row("obstruction_audit", RED, "not run",
+        rows.append(_row("obstruction_audit", miss, "not measured yet",
                          "anomaly_audit.py (Siril-measured)",
-                         "the chain's measure phase runs it before this report"))
+                         "the run's measure phase runs it before the report"))
     else:
         objs = aud.get("unique_objects") or []
         unknown = sum(1 for o in objs
@@ -244,10 +268,14 @@ def evaluate(session, set_name, route=None, forced_route=None):
     if derived == "standard":
         rows.append(_row("optics", GREEN, "n/a — standard route (no lens warp)",
                          "route", ""))
-    elif lp is None:
-        rows.append(_row("optics", RED, "preflight not run",
+    elif derived is None and not post_measure:
+        rows.append(_row("optics", PENDING, "awaits the route",
                          "lens_preflight.py --require-profile",
-                         "the chain runs it before this report"))
+                         "runs in the measure phase once the route is known"))
+    elif lp is None:
+        rows.append(_row("optics", miss, "preflight not run",
+                         "lens_preflight.py --require-profile",
+                         "the run's measure phase runs it before the report"))
     else:
         spread = lp.get("spread") or {}
         mixed = any(len(v) > 1 for v in spread.values())
@@ -409,11 +437,12 @@ def evaluate(session, set_name, route=None, forced_route=None):
 def _print_report(rep, color=None):
     if color is None:
         color = sys.stdout.isatty()
-    paint = {GREEN: "\033[32m", YELLOW: "\033[33m", RED: "\033[31m"}
+    paint = {GREEN: "\033[32m", YELLOW: "\033[33m", RED: "\033[31m",
+             PENDING: "\033[2m"}
     reset = "\033[0m"
 
     def c(s):
-        return f"{paint[s]}{s:<6}{reset}" if color else f"{s:<6}"
+        return f"{paint[s]}{s:<7}{reset}" if color else f"{s:<7}"
     print(f"READINESS {rep['session']}/{rep['set']} — route: {rep['route']}"
           f" — overall: {c(rep['overall']).strip()}")
     for r in rep["criteria"]:
@@ -429,11 +458,14 @@ def main():
     ap.add_argument("--route", default=None,
                     help="route context from the chain (else derived here)")
     ap.add_argument("--forced-route", default=None)
+    ap.add_argument("--post-measure", action="store_true",
+                    help="the caller has run the measure phase: an absent "
+                         "measure record is RED, never PENDING (the chain)")
     ap.add_argument("--json-only", action="store_true")
     ap.add_argument("--no-write", action="store_true")
     a = ap.parse_args()
     rep = evaluate(a.session, a.set, route=a.route,
-                   forced_route=a.forced_route)
+                   forced_route=a.forced_route, post_measure=a.post_measure)
     if not a.no_write:
         droot = os.path.join(REPO, "datasets",
                              os.path.basename(os.path.normpath(a.session)),

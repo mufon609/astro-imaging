@@ -250,9 +250,14 @@ and every stage's records landed identically (`datasets/july31/`).
 The chain's measure phase ends at the **readiness report**
 (`scripts/qa/readiness_report.py`): every criterion below §2–§9 on ONE
 surface, GREEN (met — value + instrument stated) / YELLOW (met, but look —
-never blocks) / RED (blocks HERE, exit 7). One approval — `--yes`, a terminal
-ask, or the web run click — then the build runs unattended. The report is a
-tracked record (`readiness.json`), so what was approved is auditable.
+never blocks) / RED (blocks HERE, exit 7) / PENDING (pre-run surfaces only:
+not yet measured and the run itself produces it — the chain passes
+`--post-measure`, so after the measure phase absence stays RED). One
+approval — `--yes`, a terminal ask, or the web run click — then the build
+runs unattended. The report is a tracked record (`readiness.json`), so what
+was approved is auditable. The web renders the same evaluation as a per-set
+rail, beside a per-set POSITION stepper whose step evidence is the chain's
+own skip-if-exists tests (`docs/ui-position-and-zero-state-report.md`).
 
 | stop | meaning |
 |---|---|

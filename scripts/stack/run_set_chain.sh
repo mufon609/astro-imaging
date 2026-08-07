@@ -551,7 +551,7 @@ fi
 say "readiness report"
 RRC=0
 python3 "$REPO/scripts/qa/readiness_report.py" "$SESSION" "$SET" \
-  --route="$ROUTE" ${FORCE_ROUTE:+--forced-route=$FORCE_ROUTE} || RRC=$?
+  --route="$ROUTE" --post-measure ${FORCE_ROUTE:+--forced-route=$FORCE_ROUTE} || RRC=$?
 if [ "$RRC" = 3 ]; then
   say "STOP: readiness RED — the report above names the blocker; nothing was built"
   exit 7

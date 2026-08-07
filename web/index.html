@@ -84,15 +84,6 @@
     border-color:var(--line); position:relative; top:1px; }
   .tabpane { background:var(--bg1); border:1px solid var(--line); border-top:none;
     border-radius:0 0 6px 6px; padding:16px; }
-  .life { display:flex; flex-wrap:wrap; margin:0 0 18px; }
-  .life .ph { flex:1; min-width:150px; padding:9px 12px; background:var(--bg2);
-    border:1px solid var(--line); border-left:none; }
-  .life .ph:first-child { border-left:1px solid var(--line); border-radius:5px 0 0 5px; }
-  .life .ph:last-child { border-radius:0 5px 5px 0; }
-  .life .t { font:10px var(--mono); letter-spacing:.18em; text-transform:uppercase;
-    color:var(--ok); display:block; }
-  .life .t.pend { color:var(--faint); }
-  .life .v { font:12px var(--mono); color:var(--ink); }
   .twocol { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   @media (max-width:980px){ .twocol { grid-template-columns:1fr; } }
   .panel { background:var(--bg0); border:1px solid var(--line); border-radius:6px; padding:14px; }
@@ -215,7 +206,8 @@ function coverageFor(su) {
 /* ---------- readiness rail (shared) ----------
    ONE evaluator (scripts/qa/readiness_report.py) feeds the chain, the CLI and
    these chips — same colours, same values; /api/readiness serves it. */
-const rrClass = st => st === 'GREEN' ? 'chip ok' : st === 'YELLOW' ? 'chip warn' : 'chip cut';
+const rrClass = st => st === 'GREEN' ? 'chip ok' : st === 'YELLOW' ? 'chip warn'
+  : st === 'PENDING' ? 'chip' : 'chip cut';
 const rrShort = n => n.replace('obstruction_audit', 'audit').replace('frame_qa', 'qa').replace('flat_quality', 'flat');
 function readinessRow(r) {
   return frag(
@@ -224,6 +216,25 @@ function readinessRow(r) {
       class: rrClass(c.status), style: 'margin-right:.35em',
       title: `${c.criterion}: ${c.value}\n[${c.instrument}]` + (c.detail ? `\n${c.detail}` : '')
     }, rrShort(c.criterion))));
+}
+
+/* per-set pipeline POSITION — server-computed in session_model from the
+   chain's own skip-if-exists evidence (docs/ui-position-and-zero-state-
+   report.md); this is the ONE stepper component, everywhere */
+const P_SHORT = { measured:'meas', audited:'audit', routed:'route',
+  decided:'cull', masters:'masters', stacked:'stack', solved_spcc:'spcc',
+  judged:'judge', baselined:'base', member_stacks:'members' };
+const P_SYM = { done:'✓', running:'▶', blocked:'✕',
+  na:'–', pending:'·' };
+function positionRow(p, compact) {
+  if (!p) return h('span', { class:'m' }, '—');
+  return frag(...(p.steps || []).map(st => h('span', {
+    class: st.state === 'done' ? 'chip ok' : st.state === 'running' ? 'chip warn'
+      : st.state === 'blocked' ? 'chip cut' : 'chip',
+    style: 'margin-right:.3em',
+    title: `${st.step}: ${st.state}\n${st.evidence}`
+  }, compact ? (P_SYM[st.state] || '·')
+             : `${P_SYM[st.state] || '·'} ${P_SHORT[st.step] || st.step}`)));
 }
 
 async function nextActionBlock() {
@@ -321,10 +332,11 @@ async function pgOverview() {
   // READINESS RAIL — the same evaluator the chain runs (one source: CLI,
   // chain, web). Every ratified criterion per set, GREEN/YELLOW/RED; the run
   // button is the single approval (it passes --yes).
-  const readiness = await Promise.all(lightSets().map(async s => {
-    try { const r = await fetch(`/api/readiness/${M.session}/${s.set}`); return [s.set, await r.json()]; }
-    catch (e) { return [s.set, null]; }
-  }));
+  const readiness = await Promise.all(
+    lightSets().filter(s => !s.unprocessable).map(async s => {
+      try { const r = await fetch(`/api/readiness/${encodeURIComponent(SESSION)}/${encodeURIComponent(s.set)}`); return [s.set, await r.json()]; }
+      catch (e) { return [s.set, null]; }
+    }));
   const readinessBlock = readiness.length ? h('div', { class: 'card' },
     h('h3', {}, 'readiness — every criterion up front; the run button is the one approval'),
     h('p', {}, 'GREEN = met from the data (hover for the value and the instrument). YELLOW = met, but look — it never blocks. RED = blocks here, not mid-build.'),
@@ -332,8 +344,33 @@ async function pgOverview() {
       ? h('div', { class: 'm' }, `${name}: readiness evaluator unavailable`)
       : h('div', { class: 'm' },
           h('a', { href: `#set/${name}`, style: 'margin-right:.6em' }, name),
-          readinessRow(r))))
+          readinessRow(r),
+          h('div', { style: 'margin:3px 0 8px 0' },
+            positionRow(((M.sets || []).find(x => x.set === name) || {}).position)))))
     : null;
+  // ZERO-STATE (user decision D6a): a start-here card whenever counted light
+  // sets are unmeasured; on a fully-fresh session it LEADS and the
+  // next-action block is omitted (its "next" names a manual stage)
+  const counted = ls.filter(s => !s.unprocessable);
+  const unmeasured = counted.filter(s => !s.frame_qa);
+  const allFresh = counted.length > 0 && unmeasured.length === counted.length;
+  const zout = h('pre', { class:'rec', hidden:'', style:'margin-top:8px' });
+  const zbtn = (label, fn, title) => h('button', { class:'copy', title: title || '',
+    style:'font-size:.85rem;padding:.4rem 1rem;margin-right:8px', onclick: fn }, label);
+  const darksStaged = (M.sets || []).some(s => ['darks', 'dark'].includes(s.set));
+  const zeroCard = unmeasured.length ? h('div', { class:'card' },
+    h('h3', {}, allFresh ? 'start here — raws staged, nothing measured yet'
+                         : 'newly staged — unmeasured set(s)'),
+    h('p', {}, `${unmeasured.length} of ${counted.length} light set(s) unmeasured: `
+      + unmeasured.map(s => `${s.set} (${s.staged_frames ?? '?'} frames)`).join(', ')
+      + `. Darks staged: ${darksStaged ? 'yes' : 'NO — stage matched darks (same exposure/ISO) before running'}.`),
+    h('p', {}, 'One click runs the whole chain per set: measure (acquisition facts, mount DERIVED from the data, frame QA, obstruction audit) → ONE readiness report → build → solve/SPCC → judge surface. The click is the approval; it stops only where a decision is genuinely yours.'),
+    h('div', {},
+      zbtn('preview plan', async () => { await runChainDirect('chain_session', { session: SESSION, plan: true }, zout); location.hash = '#run'; },
+        'prints every set\'s derived plan into a job log — executes nothing'),
+      zbtn('Start', async () => { await runChainDirect('chain_session', { session: SESSION }, zout); location.hash = '#run'; },
+        'the one approval: the whole session chain, unattended past the readiness report')),
+    zout) : null;
   // ITEM 2: two DIFFERENT states were both called "approved" and neither was
   // explained — a ratified look (recipe) vs a git-tagged approved render. july23
   // showed "RATIFIED look" on the render card and NOTHING here, from the same
@@ -363,8 +400,10 @@ async function pgOverview() {
       `${fmt(ex.camera)} · ${fmt(ex.lens)} @ ${fmt(ex.focal_length_mm)} mm · ${fmt(ex.exposure_s)} s · ${ex.gain != null && ex.iso == null ? 'gain ' + fmt(ex.gain) : 'ISO ' + fmt(ex.iso)}`,
       mountLine,
       fplabels.length ? ` — ${fplabels.join(' | ')}` : ''),
-    nextBlock,
-    readinessBlock ? frag(h('h2', {}, 'readiness'), h('div', { class:'cards' }, readinessBlock)) : null,
+    zeroCard ? frag(h('h2', {}, allFresh ? 'start here' : 'unmeasured'),
+      h('div', { class:'cards' }, zeroCard)) : null,
+    allFresh ? null : nextBlock,
+    readinessBlock ? frag(h('h2', {}, 'readiness + position'), h('div', { class:'cards' }, readinessBlock)) : null,
     approvalBlock ? frag(h('h2', {}, 'approval state'), h('div', { class:'cards' }, approvalBlock)) : null,
     h('h2', {}, 'what is on file — each card opens its home'),
     h('div', { class:'cards' },
@@ -399,7 +438,7 @@ function pgSets() {
         h('td', {}, String(((dq.frames || {}).count) || '—')),
         h('td', { colspan:3, class:'why' },
           `calibration group — pedestal ${(dq.dark_level_pedestal_ADU || {}).verdict || '—'}; light-leak ${((dq.light_leak_check || {}).verdict || '—')}`),
-        h('td', {}, '—'),
+        h('td', {}, '—'), h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
     }
     const fq = s.frame_qa || {}, dist = (fq.distribution || {});
@@ -410,20 +449,21 @@ function pgSets() {
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' },
           "the corpus's answer key (maker's masters / stacks / finals) — studied before tuning, never stacked"),
-        h('td', {}, '—'),
+        h('td', {}, '—'), h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'reference')));
       if (s.kind === 'calibration') return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' },
           'calibration group — consumed by the master builds; no mount, no frame QA'),
-        h('td', {}, '—'),
+        h('td', {}, '—'), h('td', {}, '—'),
         h('td', {}, h('span', { class:'chip ok' }, 'calibration')));
       return h('tr', {},
         h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
         h('td', {}, `${s.staged_frames} staged`),
         h('td', { colspan:3, class:'why' }, 'raws staged — not yet measured'),
         h('td', {}, h('span', { id:`rrov_${s.set}`, class:'chip' }, '…')),
+        h('td', {}, positionRow(s.position, true)),
         h('td', {}, h('span', { class:'chip warn' }, 'not yet measured')));
     }
     if (s.kind === 'composed') return h('tr', {},
@@ -432,6 +472,7 @@ function pgSets() {
       h('td', { colspan:3, class:'why' },
         'composed virtual target — built by compose from its member per-filter stacks (no lights of its own)'),
       h('td', {}, '—'),
+      h('td', {}, positionRow(s.position, true)),
       h('td', {}, h('span', { class:'chip ok' }, 'composed')));
     return h('tr', {},
       h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
@@ -440,6 +481,7 @@ function pgSets() {
       h('td', { class: culledIds(s).length ? 'cutid' : '' }, String(culledIds(s).length)),
       h('td', {}, dist.fwhm_px ? `${dist.fwhm_px.median} px` : '—'),
       h('td', {}, h('span', { id:`rrov_${s.set}`, class:'chip' }, '…')),
+      h('td', {}, positionRow(s.position, true)),
       h('td', {}, full ? confirmChip(full) : h('span', { class:'chip warn' }, 'no full-depth stack')));
   });
   // overall readiness per light set — the same evaluator as the chain; the
@@ -448,6 +490,11 @@ function pgSets() {
     for (const s of (M.sets || [])) {
       const el = document.getElementById(`rrov_${s.set}`);
       if (!el) continue;
+      if (s.unprocessable) {   // same scope as stage_status — never a RED
+        el.textContent = '—';  // chip for a dir the scripts refuse anyway
+        el.title = s.unprocessable;
+        continue;
+      }
       try {
         const r = await (await fetch(`/api/readiness/${encodeURIComponent(SESSION)}/${encodeURIComponent(s.set)}`)).json();
         el.className = rrClass(r.overall);
@@ -461,27 +508,9 @@ function pgSets() {
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'sets'),
     h('div', { class:'sub' }, 'one process page per set — Frames · Sky objects · Flat & QA · Records'),
     h('table', { class:'ledger' },
-      h('tr', {}, ...['set', 'frames', 'kept', 'culled', 'fwhm med', 'readiness', 'stack'].map(t => h('th', {}, t))),
+      h('tr', {}, ...['set', 'frames', 'kept', 'culled', 'fwhm med', 'readiness', 'position', 'stack'].map(t => h('th', {}, t))),
       rows),
     caveat ? h('p', { class:'caveat' }, caveat[0]) : null);
-}
-
-function lifecycle(s) {
-  const full = fullSurface(s);
-  const recipe = s.recipe;
-  const fq = s.frame_qa || {};
-  const conf = full && full.confirm === 'ok';
-  return h('div', { class:'life' },
-    h('div', { class:'ph' }, h('span', { class:'t' }, 'measured'),
-      h('span', { class:'v' }, `${fmt(fq.registered)}/${fmt(fq.total)} registered`)),
-    h('div', { class:'ph' }, h('span', { class: recipe ? 't' : 't pend' }, 'decided'),
-      h('span', { class:'v' }, recipe
-        ? `recipe ratified — cull ${culledIds(s).length}, keep ${fmt(s.kept)}`
-        : 'no recipe — generic defaults, loudly')),
-    h('div', { class:'ph' }, h('span', { class: full ? 't' : 't pend' }, 'stacked'),
-      h('span', { class:'v' }, full ? `${full.product} on disk` : 'no full-depth stack')),
-    h('div', { class:'ph' }, h('span', { class: conf ? 't' : 't pend' }, 'confirmed'),
-      full ? confirmChip(full) : h('span', { class:'v' }, '—')));
 }
 
 function framesTab(s) {
@@ -499,7 +528,6 @@ function framesTab(s) {
     .filter(([k]) => !/^\d+$/.test(k));
   const surfaces = setSurfaces(s.set);
   return frag(
-    lifecycle(s),
     h('div', { class:'twocol' },
       h('div', { class:'panel' },
         h('h3', {}, 'Decision — before the stack'),
@@ -608,6 +636,7 @@ function pgSet(name) {
           s.fingerprint ? ` — ${s.fingerprint.label} (mount ${s.fingerprint.mount_check.verdict})`
                         : ' — fingerprint not yet derived')),
     rrHost,
+    h('div', { class:'m' }, 'position: ', positionRow(s.position)),
     mountControl(s), bar, pane);
 }
 
@@ -1184,51 +1213,34 @@ async function openStageForm(name, st, formHost) {
     });
 }
 
-/* ---- automated chains: step-strip + cards (BACKLOG item 17) ---- */
-const CHAIN_STEPS = ['mount', 'QA', 'cull', 'flats', 'stack', 'SPCC', 'judge'];
+/* ---- automated chains: per-set position + cards ----
+   ONE position convention (user decision D4): the server computes it in
+   session_model from the chain's own skip-if-exists evidence; this table and
+   every other surface render the same block via positionRow(). */
 let STRIP = { t: null };
 
-function chainStepState(s, masters, surfaces) {
-  // evidence-only per-set progress: same sources as the chips
-  const su = (surfaces || []).find(x => x.sets && x.sets.length === 1 && x.sets[0] === s.set);
-  const qa = s.frame_qa;
-  return [
-    !!((s.acquisition || {}).mount),
-    !!qa,
-    !!(qa && (s.recipe || ((qa.flagged || []).length === 0))),
-    (masters || []).some(p => p.endsWith(`skyflat_${s.set}.fit`)),
-    !!su,
-    !!(su && su.files && su.files.spcc),
-    !!(su && su.judge),
-  ];
-}
-
-async function renderStrips(host) {
+async function renderPositions(host) {
   if (!host.isConnected && STRIP.t) {   // page switched away — stop polling
     clearInterval(STRIP.t); STRIP.t = null; return;
   }
-  let model = M, paths = {}, jobs = [];
-  try { model = await (await fetch('/api/session/' + SESSION)).json(); } catch {}
-  try { paths = await (await fetch('/api/paths/' + SESSION)).json(); } catch {}
-  try { jobs = await (await fetch('/api/jobs')).json(); } catch { return; }
-  const masters = paths.masters || [];
-  const lights = (model.sets || []).filter(s => s.kind === 'lights');
+  let model = M;
+  try { model = await (await fetch('/api/session/' + SESSION)).json(); } catch { return; }
+  const lights = (model.sets || []).filter(s => s.position);
   if (!lights.length) { host.replaceChildren(); return; }
-  const states = lights.map(s => chainStepState(s, masters, model.surfaces || []));
-  const running = jobs.find(j => j.status === 'running' && (!j.session || j.session === SESSION));
-  const atJudge = states.filter(st => st[6]).length;
-  host.replaceChildren(...[
-    running
-      ? h('p', { class:'m' }, `⏵ run active: ${running.stage} (started ${running.started}) — evidence below refreshes ~20 s; the rig runs one job at a time`)
-      : null,
+  const running = lights.some(s =>
+    (s.position.steps || []).some(st => st.state === 'running'));
+  const atJudge = lights.filter(s => (s.position.steps || [])
+    .some(st => st.step === 'judged' && st.state === 'done')).length;
+  host.replaceChildren(
+    running ? h('p', { class:'m' },
+      '⏵ run active — evidence refreshes ~20 s; the rig runs one job at a time') : null,
     h('table', { class:'ledger' },
-      h('tr', {}, h('th', {}, 'set'), ...CHAIN_STEPS.map(c => h('th', { style:'text-align:center' }, c))),
-      ...lights.map((s, i) => h('tr', {},
-        h('td', {}, s.set),
-        ...states[i].map(d => h('td', { style:'text-align:center' }, d ? '●' : '○'))))),
-    h('p', { class:'m' }, `${atJudge}/${lights.length} set(s) at their judge surface`),
-  ].filter(Boolean));
-  if (running && !STRIP.t) STRIP.t = setInterval(() => renderStrips(host), 20000);
+      h('tr', {}, h('th', {}, 'set'), h('th', {}, 'position (hover a step for its evidence)')),
+      ...lights.map(s => h('tr', {},
+        h('td', {}, h('a', { href:`#set/${s.set}` }, s.set)),
+        h('td', {}, positionRow(s.position))))),
+    h('p', { class:'m' }, `${atJudge}/${lights.length} set(s) at their judge surface`));
+  if (running && !STRIP.t) STRIP.t = setInterval(() => renderPositions(host), 20000);
   if (!running && STRIP.t) { clearInterval(STRIP.t); STRIP.t = null; }
 }
 
@@ -1314,7 +1326,7 @@ async function pgRun() {
   if (!auto.length) auto = ['chain_session', 'chain_set'].filter(n => stages[n]);
   auto.sort((a, b) => (a === 'chain_session' ? -1 : 0) - (b === 'chain_session' ? -1 : 0));
   const stripHost = h('div', {});
-  if (auto.length) setTimeout(() => renderStrips(stripHost), 0);
+  if (auto.length) setTimeout(() => renderPositions(stripHost), 0);
   return frag(
     h('div', { class:'eyebrow' }, M.session), h('h1', {}, 'run'),
     h('div', { class:'sub' }, 'gated execution of the pinned scripts (user-ratified amendments): every click is your DECIDE step — the exact command shows with the run, chains disclose their full plan first, one job at a time.'),
