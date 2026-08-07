@@ -257,7 +257,9 @@ approval — `--yes`, a terminal ask, or the web run click — then the build
 runs unattended. The report is a tracked record (`readiness.json`), so what
 was approved is auditable. The web renders the same evaluation as a per-set
 rail, beside a per-set POSITION stepper whose step evidence is the chain's
-own skip-if-exists tests (`docs/ui-position-and-zero-state-report.md`).
+own skip-if-exists tests (computed server-side in `web/serve.py`
+`_set_position`; products and records prove done, the jobs table proves
+running).
 
 | stop | meaning |
 |---|---|

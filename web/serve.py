@@ -689,9 +689,9 @@ def session_model(session):
                                         "moving it quietly is how a record ends up "
                                         "describing a file it no longer matches"),
         })
-    # per-set POSITION + scope (docs/ui-position-and-zero-state-report.md):
-    # readiness/position surfaces iterate ONLY processable light sets — the
-    # measured qa_work_compose / set-00 mis-row fix rides on `unprocessable`
+    # per-set POSITION + scope: readiness/position surfaces iterate ONLY
+    # processable light sets — a records-only dir or an under-8-frame set must
+    # never render a rail row the scripts themselves would refuse
     for s in model["sets"]:
         if s.get("kind") == "composed":
             s["position"] = _compose_position(session, s)
@@ -1678,8 +1678,7 @@ MIN_SET_FRAMES = 8
 MIN_FLAT_FRAMES = 20
 
 
-# --- per-set pipeline POSITION (user-ratified design, docs/
-# ui-position-and-zero-state-report.md) --------------------------------------
+# --- per-set pipeline POSITION (user-ratified design) -----------------------
 # Each step's done-test is copied from run_set_chain.sh's own skip-if-exists
 # checks, so the stepper can never disagree with what a re-click would
 # actually do. Products and records prove DONE; job records only ever prove

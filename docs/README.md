@@ -51,13 +51,6 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first; retired writeups live in git history)_
 
-- [ui-position-and-zero-state-report](ui-position-and-zero-state-report.md) —
-  the dashboard investigation report (per-set pipeline POSITION + zero-state
-  pending-vs-RED): current-state map re-verified against the running code,
-  the server-computed position design (products/records as the only `done`
-  evidence, jobs table as the only `running` source), the step-to-evidence
-  and edge-case tables, and the PENDING evaluator status. The ratified design
-  is SHIPPED; `web/serve.py` cites this file as the position/scope contract.
 - [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
   step-by-step process document for the validated class (camera raws, fixed
   mount, wide field): every stage from staging to seeded baseline with the
