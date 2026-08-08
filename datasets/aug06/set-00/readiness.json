@@ -28,14 +28,14 @@
   {
    "criterion": "obstruction_audit",
    "status": "GREEN",
-   "value": "3 object(s), longest dwell 23 frame(s); all classified",
-   "instrument": "anomaly_audit.py (Siril-measured)",
-   "detail": ""
+   "value": "floor 77 vs single-pass set 134 (43% headroom)",
+   "instrument": "anomaly_audit + GESD fraction 0.3 (stack_rejection.sh)",
+   "detail": "3 object(s), longest dwell 23 frame(s)"
   },
   {
    "criterion": "optics",
-   "status": "GREEN",
-   "value": "uniform; installed == pinned (NIKKOR Z 24-70mm f/4 S@70); warp proven",
+   "status": "YELLOW",
+   "value": "uniform; installed == this set's OWN fitted model (candidate A/B state, not the pinned incumbent); warp proven",
    "instrument": "lens_preflight.py (exiftool + darktable render diff via Siril stat)",
    "detail": ""
   },
@@ -48,15 +48,15 @@
   },
   {
    "criterion": "flat_quality",
-   "status": "GREEN",
-   "value": "builds this run \u2014 builder validation gates enforce (regional stat, speck count, preview)",
-   "instrument": "build_sky_flat.sh gates",
-   "detail": ""
+   "status": "YELLOW",
+   "value": "built; corner asymmetry ratio 1.227 (WARN over 1.20)",
+   "instrument": "build_sky_flat.sh (Siril stat + findstar)",
+   "detail": "above-WARN asymmetry is the open sky x V defect, stated not hidden"
   },
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "954G free covers even the 78G single-pass peak",
+   "value": "926G free covers even the 78G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },

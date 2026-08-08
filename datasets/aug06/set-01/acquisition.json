@@ -14,8 +14,8 @@
   "fov_deg": 28.6,
   "pixel_scale_arcsec": 16.979,
   "cadence_s": 3.0,
-  "frames": 502,
-  "time_span_s": 1546.3
+  "frames": 500,
+  "time_span_s": 1497.0
  },
  "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it."
 }

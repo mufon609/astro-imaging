@@ -34,8 +34,8 @@
   },
   {
    "criterion": "optics",
-   "status": "GREEN",
-   "value": "uniform; installed == pinned (NIKKOR Z 24-70mm f/4 S@70); warp proven",
+   "status": "YELLOW",
+   "value": "uniform; installed == this set's OWN fitted model (candidate A/B state, not the pinned incumbent); warp proven",
    "instrument": "lens_preflight.py (exiftool + darktable render diff via Siril stat)",
    "detail": ""
   },
@@ -49,14 +49,14 @@
   {
    "criterion": "flat_quality",
    "status": "GREEN",
-   "value": "builds this run \u2014 builder validation gates enforce (regional stat, speck count, preview)",
-   "instrument": "build_sky_flat.sh gates",
+   "value": "built; corner asymmetry ratio 1.154 (WARN over 1.20)",
+   "instrument": "build_sky_flat.sh (Siril stat + findstar)",
    "detail": ""
   },
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "941G free covers even the 276G single-pass peak",
+   "value": "926G free covers even the 275G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },
