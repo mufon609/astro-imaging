@@ -1,0 +1,103 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 140,
+ "registered": 140,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 17.6377,
+ "pixel_scale_source": "astrometry.net solve (mount_probe), green-plane scale halved to the full-res debayered grid",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.765,
+   "min": 2.462,
+   "max": 3.215
+  },
+  "roundness": {
+   "median": 0.7669,
+   "min": 0.7272,
+   "max": 0.8291
+  },
+  "nstars": {
+   "median": 1921,
+   "min": 1839,
+   "max": 1975
+  },
+  "bg16": {
+   "median": 1055,
+   "min": 1054,
+   "max": 1059
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.752,
+   "round": 0.7678,
+   "stars": 1917,
+   "bg16": 1055
+  },
+  {
+   "block": 2,
+   "frames": 64,
+   "fwhm": 2.789,
+   "round": 0.7665,
+   "stars": 1924,
+   "bg16": 1055
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_5903.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.731,
+   "bg": 1056.6,
+   "round": 0.7715,
+   "nstars": 1857
+  },
+  {
+   "file": "DSC_5905.NEF",
+   "flags": [
+    "nstars"
+   ],
+   "fwhm": 2.735,
+   "bg": 1056.2,
+   "round": 0.767,
+   "nstars": 1839
+  },
+  {
+   "file": "DSC_5963.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.763,
+   "bg": 1059.2,
+   "round": 0.7685,
+   "nstars": 1868
+  },
+  {
+   "file": "DSC_5998.NEF",
+   "flags": [
+    "round"
+   ],
+   "fwhm": 2.789,
+   "bg": 1055.5,
+   "round": 0.7585,
+   "nstars": 1917
+  },
+  {
+   "file": "DSC_6038.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 3.215,
+   "bg": 1054.6,
+   "round": 0.7272,
+   "nstars": 1975
+  }
+ ],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

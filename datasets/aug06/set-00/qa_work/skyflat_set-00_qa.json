@@ -1,0 +1,98 @@
+{
+ "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
+ "flat": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/masters/skyflat_set-00.fit",
+ "build": {
+  "frames": 140,
+  "rejection": "wins",
+  "dark": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/masters/dark_master.fit",
+  "method": "UN-registered, dark-subtracted (pedestal-free), CFA, multiplicative norm",
+  "desky": "off (flat carries any sensor-fixed sky gradient present in the source frames)",
+  "frame_source": "ALL raw frames in the set dir"
+ },
+ "regional_stat_ADU": {
+  "center": {
+   "mean": 44.3,
+   "median": 48.9,
+   "sigma": 10.3
+  },
+  "TL": {
+   "mean": 21.5,
+   "median": 22.0,
+   "sigma": 5.6
+  },
+  "TR": {
+   "mean": 25.1,
+   "median": 25.6,
+   "sigma": 6.5
+  },
+  "BL": {
+   "mean": 21.7,
+   "median": 22.3,
+   "sigma": 5.6
+  },
+  "BR": {
+   "mean": 26.4,
+   "median": 27.0,
+   "sigma": 6.8
+  }
+ },
+ "region_geometry_px": {
+  "box": 400,
+  "corner_margin": 200
+ },
+ "corner_asymmetry": {
+  "ratio": 1.227,
+  "brightest": "BR",
+  "darkest": "TL",
+  "radial_expectation": 1.0,
+  "note": "excess over 1.00 is non-radial: decentering (repeats across sets, same darkest corner) or a baked sky gradient (moves). WARN threshold 1.20 is PROVISIONAL from the measured corpus (july23 1.126/1.159/1.229/1.320, july27 set-01 1.332) \u2014 it flags for attention, it does not gate."
+ },
+ "edge_regional_stat_ADU": {
+  "center": {
+   "mean": 44.4,
+   "median": 47.7,
+   "sigma": 10.3
+  },
+  "TL": {
+   "mean": 11.0,
+   "median": 11.4,
+   "sigma": 3.1
+  },
+  "TR": {
+   "mean": 12.9,
+   "median": 13.4,
+   "sigma": 3.4
+  },
+  "BL": {
+   "mean": 11.4,
+   "median": 12.0,
+   "sigma": 3.2
+  },
+  "BR": {
+   "mean": 14.2,
+   "median": 14.9,
+   "sigma": 3.7
+  }
+ },
+ "edge_region_geometry_px": {
+  "box": 80,
+  "corner_margin": 2,
+  "note": "baseline_guard.py's edge_dipole_x geometry"
+ },
+ "odd_component": {
+  "edge_dipole_x": 0.1896,
+  "edge_dipole_y": -0.0812,
+  "instrument": "Siril `stat` medians on 4 corner crops at the edge geometry; ((TR+BR)-(TL+BL))/2 normalised to the 4-corner mean (baseline_guard.py convention), and its top-bottom sibling",
+  "how_to_read": "Vignetting is an EVEN RADIAL function, so it contributes EQUALLY to x and y. |edge_dipole_x| materially above |edge_dipole_y| is NON-RADIAL by construction and cannot be vignetting \u2014 on a sky flat that is the horizon-fixed sky gradient integrating into the flat, which then leaves the OBJECT carrying a multiplicative tilt it never had (docs/dead-ends.md, the sky-flat entry). The corner-vs-centre gate above CANNOT see this: it averages the two sides together, which is why the registry calls that gate self-fulfilling for this defect.",
+  "not_a_pass_fail": "REPORTED, not gated. The `sky x V` contamination this measures is a known-OPEN defect with no shipped corrective (`--desky` was a 31x regression), so failing on it would block every flat this route builds. A pass/fail line on this term is a user ratification (BACKLOG:`calibration-evidence`), not this script's to invent.",
+  "reference_values_july31_docs_dead_ends": {
+   "raw_dark_subtracted_light": 0.426,
+   "pre_desky_flat": 0.365,
+   "desky_flat": -0.55,
+   "master_dark": 0.0
+  }
+ },
+ "findstar_speck_count": 1,
+ "gate": "smooth falloff (corners < centre), NO structured sky residual (the Milky Way star field) on the preview, speck count ~0; the eye check + the with/without finals comparison gate adoption (dead-end registry: a sky flat preserves frame-filling faint structure only when validated \u2014 that structure is UNRESOLVED STARLIGHT, not dust)",
+ "preview": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/masters/skyflat_set-00_view.png"
+}

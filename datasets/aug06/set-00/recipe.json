@@ -1,0 +1,14 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   5899,
+   5903,
+   5905,
+   5963,
+   5998,
+   6038
+  ],
+  "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_5903.NEF: bg; DSC_5905.NEF: nstars; DSC_5963.NEF: bg; DSC_5998.NEF: round; DSC_6038.NEF: fwhm,round). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write. | 5899 hand-excluded: pre-burst aim frame \u2014 661 s before the contiguous 139-frame burst with a re-aim between (solved field centre 0.373 deg RA west of the burst's start = 981 arcsec sky-projected); its footprint extends the -framing=min trim by ~58 px of width against 1/140 of depth (0.35% SNR), and the min-canvas is sized by TIME SPAN, not frame count (dead-ends framing entry). Window facts: qa_work/mount_probe.json."
+ }
+}
