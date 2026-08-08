@@ -53,6 +53,14 @@ for a in "${@:3}"; do case "$a" in
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 [ -n "$DARK" ] && [ -n "$FLAT" ] && [ -n "$HFOV" ] || { echo "need --dark= --flat= --hfov=" >&2; exit 1; }
+# Absolutize the masters — they are embedded into a generated .ssf that `cd`s
+# into the work tree, where a caller-relative path resolves to nothing (the
+# same trap run_undistort_groups.sh guards; measured here: calibrate died
+# "invalid arguments" on the relative path, this script's first as-written run)
+[ -f "$DARK" ] || { echo "no such dark: $DARK" >&2; exit 1; }
+[ -f "$FLAT" ] || { echo "no such flat: $FLAT" >&2; exit 1; }
+DARK="$(cd "$(dirname "$DARK")" && pwd)/$(basename "$DARK")"
+FLAT="$(cd "$(dirname "$FLAT")" && pwd)/$(basename "$FLAT")"
 
 W=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$W/lens_fit_work
@@ -76,7 +84,11 @@ sir "$P/c.ssf"
 i=0
 for f in "$P/proc"/pp_c_*.fit; do
   i=$((i+1))
-  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\nsavetif8 %s\n' \
+  # gauss 3 on the DETECTION COPIES only (never the data): short-sub star
+  # points (~2-3 px at 2.5 s) sit below cpfind's blob scale — measured 0
+  # matches at --fullscale on a 3-frame probe, 15 CPs with gauss 3 (10 at
+  # 1.5); longer subs' fatter stars never needed it
+  printf 'requires 1.2.0\nsetcompress 0\nsetext fit\nload %s\nautostretch\ngauss 3\nsavetif8 %s\n' \
     "$f" "$P/st/st_$(printf %02d $i)" > "$P/e.ssf"
   sir "$P/e.ssf"; rm -f "$f"
 done
@@ -127,4 +139,7 @@ print(f"record: {out}")
 print(f"install: scripts/darktable/install_lens_model.sh {sys.argv[5]} {sys.argv[6]}")
 print("  (it reads the lens, the focal and these coefficients from the set's own records)")
 PY
-rm -rf "$P"
+# keep the ptos/logs (tiny, gitignored qa_work scratch — the fit's audit
+# trail; blanket cleanup ate the diagnostics of three failed runs); drop only
+# the bulky detection TIFFs
+rm -f "$P"/st/*.tif

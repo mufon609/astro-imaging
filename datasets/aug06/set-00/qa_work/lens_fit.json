@@ -1,0 +1,28 @@
+{
+ "tool": "hugin-tools cpfind --fullscale / cpclean / staged autooptimiser on Siril-autostretched calibrated frames; hfov pinned at the solved value",
+ "hfov_deg_pinned": 28.69,
+ "frames": 12,
+ "control_points": {
+  "raw": 397,
+  "after_cpclean": 317
+ },
+ "residual_rotation_only": {
+  "mean_px": 0.15,
+  "max_px": 0.69
+ },
+ "residual_with_abc": {
+  "mean_px": 0.02,
+  "max_px": 0.1
+ },
+ "fitted_ptlens": {
+  "a": 0.00493263092699596,
+  "b": 0.0125447075852702,
+  "c": 0.00297176913257466
+ },
+ "centre_shift_informational_px": {
+  "d": 1.77647033035442,
+  "e": 24.0427195363038,
+  "note": "reported only \u2014 carrying it needs lensfun's undocumented <center> element"
+ },
+ "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual"
+}
