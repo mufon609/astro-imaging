@@ -1,0 +1,26 @@
+{
+ "tool": "patched fit_lens_model.sh detection stage (Siril autostretch + gauss 3 on detection copies) over a 12-frame mid-burst subset (DSC_7350..7493 step 13, window chosen clear of every audited satellite crossing); hugin cpfind --fullscale; STRICT cpclean -n 1 x2 applied after the default prune left 4.19 px max CP contamination; staged autooptimiser (ypr -> +abc)",
+ "hfov_deg_pinned": 28.69,
+ "frames": 12,
+ "control_points": {
+  "raw": 306,
+  "after_default_cpclean": 268,
+  "after_strict_prune": 150
+ },
+ "fitted_ptlens": {
+  "a": 0.00428141725248721,
+  "b": 0.0119442691335761,
+  "c": 0.00157443438620187
+ },
+ "centre_shift_informational_px": {
+  "d": null,
+  "e": null,
+  "note": "reported only \u2014 carrying it needs lensfun's undocumented <center> element; not re-derived after the strict prune"
+ },
+ "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual",
+ "residual_strict_abc": {
+  "mean_px": 0.02,
+  "max_px": 0.07
+ },
+ "supersedes": "the default-prune fit in this same run \u2014 a=0.0112 b=-0.0081 c=0.0218 with 4.19 px max residual (contaminated), discarded"
+}
