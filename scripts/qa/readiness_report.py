@@ -304,11 +304,20 @@ def evaluate(session, set_name, route=None, forced_route=None,
         mixed = any(len(v) > 1 for v in spread.values())
         proof = (lp.get("profile_proof") or {}).get("corrected")
         pinned = (lp.get("pinned_model") or {}).get("state")
-        if mixed or proof is False or pinned not in (None, "ok"):
+        if mixed or proof is False or pinned not in (None, "ok", "candidate"):
             rows.append(_row("optics", RED,
                              ("MIXED optics" if mixed else
                               "warp not proven" if proof is False else
                               f"pinned model: {pinned}"),
+                             "lens_preflight.py (exiftool + darktable render "
+                             "diff via Siril stat)", ""))
+        elif pinned == "candidate":
+            # the --from-fit A/B state: installed == the set's OWN recorded
+            # fit, deliberately not the pinned incumbent — met, but SEE it
+            rows.append(_row("optics", YELLOW,
+                             "uniform; installed == this set's OWN fitted "
+                             "model (candidate A/B state, not the pinned "
+                             "incumbent); warp proven",
                              "lens_preflight.py (exiftool + darktable render "
                              "diff via Siril stat)", ""))
         elif pinned is None:

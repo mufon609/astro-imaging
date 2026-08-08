@@ -500,6 +500,27 @@ def main():
             result["profile_proof"] = proof
             pin = check_pinned_model(optics)
             result["pinned_model"] = pin
+            if pin["state"] == "MISMATCH" and pin.get("installed"):
+                # The ONE sanctioned divergence: installed == this SET'S OWN
+                # recorded fit — the --from-fit A/B state
+                # (install_lens_model.sh), which this assert predated and
+                # blocked. Announced as CANDIDATE, never silent; any OTHER
+                # installed model (community revert via lensfun-update-data,
+                # another set's state left behind) still STOPS below — exactly
+                # the silent-wrong cases the assert exists for. Per-set optical
+                # states: BACKLOG:`optical-state-models`; its closing condition
+                # is the standing per-state wiring this bridges.
+                try:
+                    fit = json.load(open(os.path.join(
+                        am.dataset_dir(a.session, a.set),
+                        "qa_work", "lens_fit.json")))["fitted_ptlens"]
+                    if all(abs(float(fit[k]) - pin["installed"].get(k, 1e9))
+                           <= 1e-9 for k in ("a", "b", "c")):
+                        pin = {**pin, "state": "candidate",
+                               "fit_record": "qa_work/lens_fit.json"}
+                        result["pinned_model"] = pin
+                except (OSError, ValueError, KeyError):
+                    pass
             if pin["state"] == "MISMATCH":
                 raise Stop(
                     "lens_preflight: the installed lens model is NOT the pinned "
@@ -515,6 +536,11 @@ def main():
                     f"{a.session} {a.set}")
             if pin["state"] == "ok":
                 print(f"  pinned model OK: {pin['key']} matches the live DB")
+            elif pin["state"] == "candidate":
+                print(f"  CANDIDATE model live: installed == this set's OWN "
+                      f"fitted model (qa_work/lens_fit.json), NOT the pinned "
+                      f"incumbent for {pin['key']} — the --from-fit A/B state; "
+                      f"the build carries the set's optical state")
             elif pin["state"] == "unpinned":
                 print(f"  WARN: {pin['why']}")
             if not proof["corrected"]:
