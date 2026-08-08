@@ -1,0 +1,7 @@
+{
+ "id": "july31_refit_diagnosis",
+ "verdict": "UNTRUSTWORTHY FIT \u2014 july31 stays under the pinned incumbent. The patched procedure (gauss 3, satellite-free mid-burst window DSC_3893..4036 step 13) removes the old starvation (217 raw CPs vs the ledger's 66) but converges to a sign-alternating order-of-magnitude curve (a=-0.0311 b=+0.0986 c=-0.0660 after strict prune, 104 CPs, checkpto 0.02/0.06) that contradicts product-level evidence: july31's products under the PINNED model are the family floor (off-axis 0.16-0.47 px), impossible if the true state were this curve.",
+ "mechanism": "MEASURED, CP spatial coverage (min-half-dim r over both endpoints of every strict-prune CP): july31 bins (0/.25/.5/.75/1.0/1.25+) = [0,45,5,143,15,0], x span 540-5254, y 465-3919 \u2014 a 5-CP hole across r 0.5-0.75 and ZERO corner support; aug06 s02/s03 same procedure = [3,46,65,45,54,36] and [2,104,84,41,56,13], full spans. A radial polynomial over two narrow bands with a hole oscillates through the unconstrained field. Banding is night-level (98%-moonlit sky gradient compresses usable star contrast into a sensor region; all four july31 flats carry the moon signature), so another window faces the same coverage.",
+ "instrument": "hugin cpfind/cpclean CP lists (pto), checkpto residuals; coverage arithmetic over the tool's own CP coordinates",
+ "consequence": "six-member combine carries model heterogeneity: july31 members warped under the pinned incumbent, aug06 members under per-set fits \u2014 stated in the combine record per OPTICS_STATE_AUDIT_PROMPT step 4."
+}
