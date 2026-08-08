@@ -6,8 +6,11 @@ order to read everything else in — including
 runs. That is the whole briefing; the repo carries the rest.
 
 `sessions/aug06/` holds raw frames only: four light sets + a darks group
-(expected from the source inventory: set-00 141, set-01 502, set-02 500,
-set-03 500 lights + 328 darks — VERIFY the staged counts yourself). Same
+(source inventory, verified against the tracked
+`datasets/aug06/source_manifest.md5`: set-00 140, set-01 502, set-02 500,
+set-03 500 lights + 328 darks = 1,970 NEFs — VERIFY the staged counts and
+checksums yourself: `cd sessions/aug06 && md5sum -c
+../../datasets/aug06/source_manifest.md5 --quiet`). Same
 target, camera and settings as the validated july31 corpus (Z6III,
 24-70 @ 70 mm, 2.5 s, ISO 1600) per the acquisition plan — the solves verify
 the field; report if it does not overlap july31's instead of assuming.
@@ -31,7 +34,7 @@ the field; report if it does not overlap july31's instead of assuming.
 3. **The framing question is PRE-REGISTERED, not assumed.** Hypothesis: a
    combine restricted to full-depth (~500-frame) sets may keep a larger
    fully-covered canvas — "the full scope of the frame" — than one including
-   the short sets (aug06/set-00 at ~141, july31/set-04 at 260), because a
+   the short sets (aug06/set-00 at 140, july31/set-04 at 260), because a
    member's drift span sets what it can cover. TEST it with the framing
    instrument: `scripts/qa/coverage_probe.sh` per-pixel coverage on at least
    two candidate member lists — [all sub-stacks] vs [500-frame sets only] —
