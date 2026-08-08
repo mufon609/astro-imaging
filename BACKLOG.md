@@ -265,11 +265,14 @@ BETTER than family (2.99 px) with both field terms ~2x elevated (off-axis
 signature of a state change, not seeing and not centre focus.
 
 Pre-registered discriminators, in order:
-1. **Displacement vs blur** — `findstar` corner-vs-centre FWHM on SINGLE
-   mid-burst raws (july31/set-01, aug06/set-00, aug06/set-01). Soft corners
-   on singles = field-curvature BLUR: no warp fixes blur, the lever is the
-   acquisition-side focus procedure. Uniform singles + degraded stack =
-   registration-residual DISPLACEMENT: a refit fixes it.
+1. **Displacement vs blur — MEASURED: DISPLACEMENT.** Singles corner/centre
+   ratios agree across corpora (1.220 / 1.226 / 1.174 — aug06/set-01's
+   singles the MOST uniform) while its stack off-axis is 2x elevated; the
+   blur condition (>= +0.35 px corner excess on singles) is unmet with
+   negative sign (−0.17 px). The elevation enters at registration — the
+   july-fitted model on aug06's focus state. Record:
+   `datasets/aug06/experiments.jsonl` + per-set
+   `qa_work/singles_field_check.json`.
 2. **Granularity** — Hugin fits from each corpus's own frames
    (`fit_lens_model.sh`, already scripted) compared pairwise on the
    register's displacement-equivalence test (≤0.47 px = same model): decides
@@ -484,9 +487,14 @@ directory.
 already carries one, so running frame QA BEFORE the mount probe makes every
 `fwhm_arcsec` inherit the nominal scale instead of the solved one — a 2.8% error
 (17.5031 nominal vs 18.003 solved). It is self-documented via `pixel_scale_source`
-and never re-derived once written. A measurement whose value depends on which step
-ran first is not reproducible from the data alone. **Closes when** the scale is
-re-derived (or the record refreshed) once a solve exists.
+and never re-derived once written. **AMENDED (measured during the optics-state
+audit): the 18.003 "solved" figure is itself an artifact** — all nine stack
+solves across three sessions read 16.98–17.08 ″/px, so the probe pipeline's
+green-plane scale arithmetic inflates by ~5.6% and every `fwhm_arcsec` in the
+corpus rides it (px figures unaffected; `datasets/aug06/experiments.jsonl`,
+`solved_scale_artifact_18_vs_17`). **Closes when** the scale is re-derived from
+a direct full-frame solve (or the record refreshed against the stack solve)
+and the probe-pipeline arithmetic's error is root-caused.
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 

@@ -1,0 +1,125 @@
+{
+ "label": "july31/set-01",
+ "frames": [
+  "DSC_3990.NEF",
+  "DSC_4040.NEF",
+  "DSC_4090.NEF"
+ ],
+ "dark": "sessions/july31/work/masters/dark_master.fit",
+ "measured_by": "Siril convert/calibrate(-cc=dark,-cfa,-equalize_cfa,-debayer)/crop/findstar (open gate -roundness=0.05 -sigma=0.5 -relax=on); medians of the tool's fits; 700px fixed boxes, corners inset 150 (corner LABELS subject to the y-convention; pooled corner stats are convention-free)",
+ "regions": {
+  "centre": {
+   "n_pooled": 289,
+   "maj_fwhm_px": 2.21,
+   "roundness": 0.915,
+   "per_frame": [
+    {
+     "frame": "DSC_3990.NEF",
+     "n": 98,
+     "maj_fwhm_px": 2.24
+    },
+    {
+     "frame": "DSC_4040.NEF",
+     "n": 89,
+     "maj_fwhm_px": 2.2
+    },
+    {
+     "frame": "DSC_4090.NEF",
+     "n": 102,
+     "maj_fwhm_px": 2.2
+    }
+   ]
+  },
+  "c_TL": {
+   "n_pooled": 338,
+   "maj_fwhm_px": 2.63,
+   "roundness": 0.874,
+   "per_frame": [
+    {
+     "frame": "DSC_3990.NEF",
+     "n": 108,
+     "maj_fwhm_px": 2.61
+    },
+    {
+     "frame": "DSC_4040.NEF",
+     "n": 119,
+     "maj_fwhm_px": 2.66
+    },
+    {
+     "frame": "DSC_4090.NEF",
+     "n": 111,
+     "maj_fwhm_px": 2.64
+    }
+   ]
+  },
+  "c_TR": {
+   "n_pooled": 202,
+   "maj_fwhm_px": 3.005,
+   "roundness": 0.791,
+   "per_frame": [
+    {
+     "frame": "DSC_3990.NEF",
+     "n": 67,
+     "maj_fwhm_px": 3.77
+    },
+    {
+     "frame": "DSC_4040.NEF",
+     "n": 77,
+     "maj_fwhm_px": 2.96
+    },
+    {
+     "frame": "DSC_4090.NEF",
+     "n": 58,
+     "maj_fwhm_px": 2.8
+    }
+   ]
+  },
+  "c_BL": {
+   "n_pooled": 247,
+   "maj_fwhm_px": 2.67,
+   "roundness": 0.897,
+   "per_frame": [
+    {
+     "frame": "DSC_3990.NEF",
+     "n": 86,
+     "maj_fwhm_px": 2.71
+    },
+    {
+     "frame": "DSC_4040.NEF",
+     "n": 75,
+     "maj_fwhm_px": 2.68
+    },
+    {
+     "frame": "DSC_4090.NEF",
+     "n": 86,
+     "maj_fwhm_px": 2.62
+    }
+   ]
+  },
+  "c_BR": {
+   "n_pooled": 249,
+   "maj_fwhm_px": 2.48,
+   "roundness": 0.913,
+   "per_frame": [
+    {
+     "frame": "DSC_3990.NEF",
+     "n": 80,
+     "maj_fwhm_px": 2.48
+    },
+    {
+     "frame": "DSC_4040.NEF",
+     "n": 87,
+     "maj_fwhm_px": 2.53
+    },
+    {
+     "frame": "DSC_4090.NEF",
+     "n": 82,
+     "maj_fwhm_px": 2.44
+    }
+   ]
+  }
+ },
+ "centre_maj_fwhm_px": 2.21,
+ "corner_mean_maj_fwhm_px": 2.696,
+ "corner_over_centre": 1.22
+}
