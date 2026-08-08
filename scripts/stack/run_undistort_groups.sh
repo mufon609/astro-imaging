@@ -10,99 +10,38 @@
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                           [--group=<derived>] [--chunk=12] [--out=<stack.fit>] [--plan] \
-#                           [--framing=min|max] [--desky]
+#                           [--framing=min|max] [--subsky-lights]
 #
-# !! REVERTED 2026-08-04 — `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION.
-# It shipped ON 2026-07-29 (f170540) and cost 31x in background flatness: july31/
-# set-01 measured corner spread 12.4% with it against 0.4% without, one knob, 500
-# frames, everything else identical. CAUSE: `seqsubsky` is a BACKGROUND EXTRACTION
-# operator, defined on a FLAT-FIELDED image, and this ran it on RAW frames still
-# carrying vignetting — the frame is sky x V, not sky. The additive plane overshoots
-# where V curves hardest (the frame edge) and INVERTS the asymmetry there: raw light
-# +0.426, --desky flat -0.550, so dividing by it doubles the error. The analysis
-# below is preserved because its PROBLEM STATEMENT is still correct — a sky flat does
-# bake in the horizon-fixed gradient and does tilt the object (3.11% at 241 sigma).
-# Its PROPOSED FIX is not. Full record: docs/dead-ends.md + datasets/july31/set-01/
-# qa_work/desky_regression.json.
+# !! The flat-side `--desky` (seqsubsky on the sky flat's RAW source frames) is
+# a REGISTERED 31x REGRESSION — a domain error, background extraction on
+# un-flat-fielded data — and is NOT selectable from this builder;
+# build_sky_flat.sh keeps it only to reproduce the regressed configuration
+# (docs/dead-ends.md + datasets/july31/set-01/qa_work/desky_regression.json).
+# The problem it aimed at is real and open: a sky flat converges to sky x V and
+# tilts the object (3.11% at 241 sigma).
 #
-# --desky is passed straight through to the per-group sub-pipeline, and it is
-# MANDATORY whenever the --flat was built de-skied (build_sky_flat --desky, the
-# default). The two are halves of one correction and neither substitutes for the
-# other: a de-skied flat stops the calibration from dividing the object by the
-# sky's own profile, and leaves the sky gradient in the frames ADDITIVELY, which
-# is the domain the per-frame background step removes it in. Omitting it here
-# while the flat is de-skied leaves the FULL sky gradient in the product with no
-# background step anywhere in the chain — and the judge stretch amplifies a
-# background gradient 9-17x (docs/dead-ends.md), so it is worse than either
-# consistent choice. run_set_chain.sh passes it by default.
-#
-# --framing applies to the FINAL compose only (per-group registration always
-# uses min — a consecutive block's ~1% trim). min (default) keeps the area
-# common to every sub-stack: full depth at every pixel, uniform SNR. max keeps
-# the union: a canvas larger than the sensor frame whose edges are covered by
-# fewer sub-stacks — depth, rejection strength and SNR fall off toward the
-# union boundary. Re-invoking with all sub-stacks present re-runs just the
-# compose, so both framings can be produced from one set of groups.
-#
-# WHY THIS IS VALID (and when it was not): after the lens-distortion warp,
-# every frame-to-frame map is a pure homography and homographies COMPOSE — a
-# sub-stack registered to the final reference carries no model error. Before
-# the undistort stage this exact composition was a measured dead end (the
-# residual distortion error re-entered at the group-to-group registration and
-# turned a smooth smear into discrete ghosts). Do NOT use this builder on
-# un-warped frames.
-#
-# DECLARED COSTS vs the single-pass builder (run_undistort_pipeline.sh):
-# - one extra interpolation pass (each pixel is resampled twice: frame->group
-#   reference, group->final reference) — a small softening, judged on finals;
-# - rejection runs ONLY within groups (satellites reject there, at full
-#   strength). The final compose is a PLAIN MEAN — sub-stacks are clean
-#   ~group-size means whose mutual scatter is ~sqrt(group) below per-frame
-#   noise, so a sigma gate across them clips real structure instead of
-#   outliers (measured: rej 3 3 across 25 sub-stacks rewrote pixels by up to
-#   ~3800 ADU on a ~140 ADU sky, carving star cores and dark streaks along
-#   steep gradients — docs/dead-ends.md);
-# - groups are CONSECUTIVE blocks, sized as equally as possible, so each
-#   sub-stack is an equal-weight mean and the final mean equals the global
-#   mean; per-group -framing=min trims only that group's small drift, and the
-#   final -framing=min lands on the same global intersection as single-pass.
-#
-# REMOVAL CONDITION (register: BACKLOG.md): a measured quality cost of the
-# extra interpolation pass at established magnitude, or cross-set composition
-# leaving the project's goals. Free disk is NOT the condition — it fired and
-# was judged the wrong trigger: single-pass deletes the sub-stacks the combine
-# composes, so a big disk buys nothing back. The disk peak stays derived per
-# set (`undistort_peak_gib`, disk_budget.sh) for the plan line and the forced
-# single-pass route.
-#
-# GUARDS: balanced group sizes (never a 1-frame group); every group size is
-# checked UP FRONT against --chunk for the 1-frame final chunk Siril cannot
-# sequence (deferring it to the per-group sub-pipeline would let a base-size
-# offender abort only at group REM+1, hours into warping); disk re-checked
-# before EVERY group (sub-stacks accumulate); >=2 groups or it tells you to use
-# the single-pass builder; every existing sub_NN.fit must carry a GRPSIZE stamp
-# matching this run's group size or the resume REFUSES (a mixed resume composes
-# mixed depths AND mixed rejection algorithms; unstamped reads 0 and fails
-# closed; --plan runs the same check dry).
-#
-# NOTHING in the chain is compressed — the pipeline-wide rule; every
-# generated .ssf pins `setcompress 0`. Sub-stacks accumulate uncompressed, which
-# the disk guard accounts for by DERIVING every figure from the set's own frame
-# geometry (disk_budget.sh) rather than carrying this rig's sensor as a constant.
+# --subsky-lights is the SEPARATE lights-side step, passed straight through to
+# the per-group sub-pipeline: per-frame `subsky 1 -nodither` on the calibrated,
+# debayered lights — the operator's correct domain, and the member
+# background-matching step whose absence the combine-corner audit measured as a
+# ~+1% full-coverage-corner term on the framing=max compose (absent from the
+# min-framed control). Rationale, limits and the -nodither pin:
+# run_undistort_pipeline.sh. Default OFF pending the BACKLOG:`render-ladder` L1
+# arm verdict.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
                                               # the single-pass builder and the router
-SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--desky]}
+SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min DESKYOPT=
+DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min SUBSKYOPT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
   --framing=*) FRAMING=${a#*=};;
-  --desky) DESKYOPT=--desky;;
+  --subsky-lights) SUBSKYOPT=--subsky-lights;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
 case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
@@ -231,7 +170,7 @@ done
 NEED_GB=$(undistort_groups_peak_gib "$SESSION" "$SET" "$MAXG" "$K") \
   || { echo "ABORT: cannot size the disk budget for $SET — see above" >&2; exit 1; }
 SPPEAK_MIB=$(undistort_singlepass_peak_mib "$SESSION" "$SET")
-echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${DESKYOPT:+, per-frame subsky 1 (--desky)}"
+echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${SUBSKYOPT:+, per-frame subsky 1 -nodither (--subsky-lights)}"
 
 # --plan MUST EXERCISE THE GUARDS THAT CAN REFUSE THE RUN, not just print the
 # arithmetic. Both the dwell floor (above) and the resume check (below) are pure
@@ -308,7 +247,7 @@ except Exception: print(0)" "$SUB.fit")
   echo "=== group $g/$K: $(wc -l < "$G/g$g.list") frames ==="
   "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" \
     --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit" \
-    $DESKYOPT
+    $SUBSKYOPT
   [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
   # Stamp the INTENDED group size beside the tool's own STACKCNT. Intended, not
   # STACKCNT itself: registration may legitimately drop a frame, so STACKCNT can be

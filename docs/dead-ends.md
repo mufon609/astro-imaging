@@ -229,6 +229,21 @@ the constraints any such tool must satisfy):
   profile (3.11% at 241 sigma). That defect is REAL and currently UNCORRECTED;
   `--desky` was not a valid fix for it. Numbers:
   `datasets/july31/set-01/qa_work/desky_regression.json`.
+  **THE REVERT REMOVED TWO COUPLED HALVES — ONLY THE FLAT-SIDE ONE IS THIS DEAD
+  END.** The `--desky` flag gated (1) the flat-side `seqsubsky` on RAW source
+  frames — the domain error and the 31x regression above, dead — and (2)
+  per-frame `subsky 1 -nodither` on the CALIBRATED, debayered lights: the
+  operator's correct domain (flat-fielded data), Siril's own per-frame degree-1
+  doctrine for sequence-varying gradients, removed only by the flag coupling
+  and never measured on its own. The combine-corner audit measured the cost of
+  losing (2): a ~+1% combine-introduced term at the framing=max compose's
+  full-coverage corners — where 8-12 member footprint edges converge — absent
+  (<=0.2%) from the min-framed control built by the same chain
+  (`datasets/aug06/set-03/qa_work/audit_combine_corners_measurements.json`).
+  (2) is restored UNCOUPLED as `--subsky-lights` (run_undistort_pipeline.sh;
+  default OFF pending the pre-registered `subsky_lights_restoration` arm).
+  Do not re-couple the halves, and do not cite this entry against the
+  lights-side step.
 
 - **A SKY FLAT'S LOW-ORDER TERM CHANGES MATERIALLY WITHIN ONE 25-MINUTE BURST —
   so a set-mean flat is the wrong flat for the ENDS of the burst — but the

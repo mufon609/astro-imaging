@@ -72,13 +72,26 @@ built by the REGRESSED `--desky` pipeline, reverted 2026-08-04. Not revoked, but
 not a trustworthy reference either; see the caveat in that set's `recipe.json`.**
 What remains is the LADDER around it and the harness it feeds.
 
-- **L1 background level** — there is NO shipped background step as of 2026-08-04:
-  `--desky` was reverted (31x regression, `docs/dead-ends.md`) and it took the
-  per-frame `subsky 1` on the lights with it, since the chain passed one flag to
-  both halves. So this is now an OPEN choice, not a challenge to a default. The
-  open question is now a CHALLENGE to a default, not a choice between unknowns:
-  on-stack vs per-frame, one knob, preservation of the frame-filling UNRESOLVED
-  STARLIGHT deciding (`docs/dead-ends.md` terminology entry — it is stars, not dust).
+- **L1 background level — the FOCUS item (user-ratified), and no longer a
+  choice between unknowns.** The desky revert removed two coupled halves; the
+  lights-side half — per-frame `subsky 1 -nodither` on calibrated, debayered
+  lights, the operator's correct domain and Siril's own per-frame degree-1
+  doctrine — is restored UNCOUPLED as `--subsky-lights` (default OFF; the
+  registry's desky entry carries the split). The combine-corner audit measured
+  the cost of its absence: a ~+1% combine-introduced term at the framing=max
+  compose's full-coverage corners, absent (<=0.2%) from the min-framed control
+  on the same chain. The arm is pre-registered
+  (`datasets/aug06/experiments.jsonl`, `subsky_lights_restoration`): one knob,
+  members rebuilt, same flats/models/culls/compose args; judged on the
+  same-sky linear corner probe AND the user's eyes on a like-encoded
+  framing=max union pair — user-ratified requirement: the max union is the
+  deliverable (manual crop later), no yield excuses. The composite-level arm
+  is DEMOTED for this defect (a composite plane structurally cannot fit a
+  corner-local term — measured, july23 subsky-on-combine probe); on-stack
+  background remains the render-stage question for the sky's own gradient.
+  Adoption still gates on preservation of the frame-filling UNRESOLVED
+  STARLIGHT (degree 1 only; `docs/dead-ends.md` terminology entry — it is
+  stars, not dust).
 - **L2 denoise strength** — the proven chroma killer. Objective instrument is the
   `noise_split.sh` structured term, never whole-frame `bgnoise`.
 - **L3 stretch ladder** — GHS/`ght` arms against the current `mtf`, compared at a

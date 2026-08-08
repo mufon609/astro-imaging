@@ -63,54 +63,50 @@ source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration com
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared with the ROUTER, or they drift
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
-SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--desky]}
+SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= DESKY=0
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
-  --desky) DESKY=1;;
+  --subsky-lights) SUBSKYL=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
-# !! REVERTED 2026-08-04 — `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION.
-# It shipped ON 2026-07-29 (f170540) and cost 31x in background flatness: july31/
-# set-01 measured corner spread 12.4% with it against 0.4% without, one knob, 500
-# frames, everything else identical. CAUSE: `seqsubsky` is a BACKGROUND EXTRACTION
-# operator, defined on a FLAT-FIELDED image, and this ran it on RAW frames still
-# carrying vignetting — the frame is sky x V, not sky. The additive plane overshoots
-# where V curves hardest (the frame edge) and INVERTS the asymmetry there: raw light
-# +0.426, --desky flat -0.550, so dividing by it doubles the error. The analysis
-# below is preserved because its PROBLEM STATEMENT is still correct — a sky flat does
-# bake in the horizon-fixed gradient and does tilt the object (3.11% at 241 sigma).
-# Its PROPOSED FIX is not. Full record: docs/dead-ends.md + datasets/july31/set-01/
-# qa_work/desky_regression.json.
+# --subsky-lights: per-frame `subsky 1 -nodither` on each CALIBRATED,
+# DEBAYERED light, before the geometric warp — the member background-matching
+# step (Siril doctrine: a single frame's gradient is ~degree-1; remove it per
+# frame when it varies across the sequence). Default OFF pending the
+# BACKLOG:`render-ladder` L1 arm verdict (pre-registered:
+# datasets/aug06/experiments.jsonl, `subsky_lights_restoration`).
 #
-# --desky: per-frame `subsky 1` on each CALIBRATED light, in sensor space,
-# before the geometric warp. It is the mandatory COMPANION to a de-skied flat
-# (build_sky_flat --desky), not an independent option:
-#   contaminated flat  ~ S.V   ->  calibration gives (S+O)V / S.V = 1 + O/S
-#                                  i.e. sky flat, but the OBJECT divided by S
-#   de-skied flat      ~ V     ->  calibration gives S + O
-#                                  i.e. object CORRECT, sky gradient retained
-# So the flat fix moves the sky term out of a multiplicative correction, and
-# this removes it additively, which is the domain it actually lives in. Neither
-# half substitutes for the other: a background step alone cannot undo a
-# multiplicative tilt already applied at calibration, and a de-skied flat alone
-# leaves the gradient in the render.
-# Degree 1 because the MW band IS frame-scale curvature at this focal length and
-# degree >= 2 erases it; per-frame rather than stack-level because stack-level-
-# only leaves a structured residual with visible rings (both in the registry).
-# Runs on DEBAYERED frames here, so no CFA caveat applies.
-# `-nodither` is REQUIRED: `seqsubsky` dithers by DEFAULT (unlike `subsky`, where
-# -dither is opt-IN) and the dither is UNSEEDED, so without it every calibrated
-# light is irreproducible run to run. MEASURED (Siril isub+stat, two frames, four
-# runs): identical calibrated input, yet two default runs differ by sigma 0.4 ADU
-# (+-1.0) where two -nodither runs are bit-identical. The dither breaks
-# quantization terracing, which cannot occur here — the frames' own bgnoise is
-# 17.7 ADU against the 0.5 ADU step, 35x. Rationale + numbers: build_sky_flat.sh.
-DESKYCMD= LPREFIX=pp_
-if [ "$DESKY" = 1 ]; then
-  DESKYCMD='seqsubsky pp_c 1 -nodither\n'; LPREFIX=bkg_pp_
+# THE SPLIT IS LOAD-BEARING — this is the UNCOUPLED GOOD HALF of the reverted
+# `--desky`, and the two halves must never share a flag again:
+# - flat-side half (build_sky_flat --desky, seqsubsky on RAW source frames):
+#   a DOMAIN ERROR — background extraction is defined on flat-fielded data —
+#   and a measured 31x corner-spread regression. DEAD (docs/dead-ends.md);
+#   build_sky_flat.sh keeps it only to reproduce the regressed configuration.
+# - lights-side half (THIS flag): the operator's correct domain. A normal sky
+#   flat converges to S_mean x V, so calibration leaves each light at about
+#   (S_t + O)/S_mean — the per-frame ADDITIVE deviation (S_t - S_mean)/S_mean
+#   is what this removes: the member-to-member residual a cross-set compose
+#   otherwise carries into its full-coverage corners (measured ~+1%, absent
+#   from the min-framed control — the combine-corner audit record). What it
+#   does NOT fix: the multiplicative sky x V object tilt (open defect) and
+#   real sky structure (which must stay).
+# Degree 1 because the MW band IS frame-scale curvature at this focal length
+# and degree >= 2 erases it; per-frame rather than composite-level because a
+# composite-level plane structurally cannot fit a corner-local term (measured,
+# the july23 subsky-on-combine probe) and stack-level-only is reported to
+# leave ringing (registry). Runs on DEBAYERED frames, so no CFA caveat.
+# `-nodither` is REQUIRED: `seqsubsky` dithers by DEFAULT (unlike `subsky`,
+# where -dither is opt-IN) and the dither is UNSEEDED. MEASURED (Siril
+# isub+stat, two frames, four runs): identical calibrated input, two default
+# runs differ by sigma 0.4 ADU (+-1.0) where two -nodither runs are
+# bit-identical; the dither's purpose (quantization terracing) cannot occur
+# here — the frames' own bgnoise is 17.7 ADU against the 0.5 ADU step, 35x.
+SUBSKYCMD= LPREFIX=pp_
+if [ "$SUBSKYL" = 1 ]; then
+  SUBSKYCMD='seqsubsky pp_c 1 -nodither\n'; LPREFIX=bkg_pp_
 fi
 [ -z "$SELECT" ] || [ "$FRAMES" -eq 0 ] || { echo "--select and --frames are mutually exclusive" >&2; exit 1; }
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
@@ -212,12 +208,13 @@ while [ $n -lt ${#ALL[@]} ]; do
   done
   CAL=$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -equalize_cfa -cfa -debayer -prefix=pp_)
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\n%s\n%b' \
-    "$P/nef" "$P/proc" "$P/proc" "$CAL" "$DESKYCMD" > "$P/c.ssf"
+    "$P/nef" "$P/proc" "$P/proc" "$CAL" "$SUBSKYCMD" > "$P/c.ssf"
   sir "$P/c.ssf"
   rm -f "$P/proc"/c_*.fit "$P/proc"/c_.seq
   # LAST POINT the acquisition keywords still exist: the warp below is a TIFF
   # round trip that carries no FITS header (stamp_headers.sh). Capture once —
-  # from the pp_ files, which exist on every route (desky adds bkg_pp_ on top).
+  # from the pp_ files, which exist on every route (--subsky-lights adds
+  # bkg_pp_ on top of them).
   [ -f "$ACQHDR" ] || header_capture "$(ls "$P/proc"/pp_c_*.fit | head -1)" "$ACQHDR"
   for f in "$P/proc"/${LPREFIX}c_*.fit; do
     b=$(basename "$f" .fit)

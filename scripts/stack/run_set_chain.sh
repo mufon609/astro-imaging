@@ -58,14 +58,13 @@ source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set disk derivation
                                               # run_undistort_pipeline.sh enforces. Routing
                                               # on a private copy is what let this chain send
                                               # a set to a builder that then refused it.
-SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan]}
+SESSION=${1:?usage: run_set_chain.sh <session-dir> <set> [--plan] [--subsky-lights]}
 SET=${2:?missing <set>}
-PLAN=0 DESKYOPT= FORCE_ROUTE= GROUPOPT= YES=0
+PLAN=0 SUBSKYOPT= FORCE_ROUTE= GROUPOPT= YES=0
 for a in "${@:3}"; do case "$a" in
   --plan) PLAN=1;;
   --yes) YES=1;;
-  --desky) DESKYOPT=--desky;;
-  --no-desky) DESKYOPT=;;
+  --subsky-lights) SUBSKYOPT=--subsky-lights;;
   --route=*) FORCE_ROUTE=${a#*=};;
   --group=*) GROUPOPT=--group=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
@@ -193,15 +192,12 @@ case "$ROUTE" in
   undistort-groups)  STACK=$RESULTS/stack_${SET}_full.fit;;
 esac
 DARK=$SESSION/work/masters/dark_master.fit
-# The flat's NAME must record whether it was de-skied, for the same reason a stack
-# carries a recipe-tag: it is a different chain shape, and the two are not
-# interchangeable. Without it one path held two different products — and because
-# the build is skipped when the file exists, a session that already had a
-# CONTAMINATED skyflat_<set>.fit on disk would silently reuse it and the --desky
-# default would never take effect at all. The de-skied flat also has to pair with
-# the per-frame background step (see the --desky note below), and the light
-# builders derive that pairing from this name.
-SKYFLAT=$SESSION/work/masters/skyflat_$SET${DESKYOPT:+_desky}.fit
+# The flat is always the normal per-set sky flat. The flat-side de-sky is a
+# registered dead end and is NOT plumbed from the chain (build_sky_flat.sh
+# keeps its --desky only to reproduce the regressed configuration); the
+# lights-side background step is the separate --subsky-lights pass-through
+# below and pairs with THIS flat (see the registry note above the flat build).
+SKYFLAT=$SESSION/work/masters/skyflat_$SET.fit
 HAVE_REAL_FLATS=0
 if compgen -G "$SESSION/flats*" >/dev/null; then HAVE_REAL_FLATS=1; fi
 if [ -d "$SESSION/calib" ]; then HAVE_REAL_FLATS=1; fi
@@ -254,15 +250,15 @@ case "$ROUTE" in
       if [ "$HAVE_REAL_FLATS" = 1 ]; then
         say "  3. WILL STOP: real flats staged — master-flat wiring for the undistort route is manual (gap)"
       elif [ ! -f "$SKYFLAT" ]; then
-        say "  3. scripts/stack/build_sky_flat.sh $SESSION $SET --dark=$DARK --out=$SKYFLAT $DESKYOPT"
+        say "  3. scripts/stack/build_sky_flat.sh $SESSION $SET --dark=$DARK --out=$SKYFLAT"
       fi
     fi
     if [ -f "$STACK" ]; then
       say "  4. stack exists -> skip build ($STACK)"
     else case "$ROUTE" in
       standard)         say "  4. scripts/stack/run_pipeline.sh $SESSION $SET";;
-      undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT";;
-      undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $DESKYOPT $GROUPOPT";;
+      undistort)        say "  4. scripts/stack/run_undistort_pipeline.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $SUBSKYOPT";;
+      undistort-groups) say "  4. scripts/stack/run_undistort_groups.sh $SESSION $SET --dark=$DARK --flat=$SKYFLAT $SUBSKYOPT $GROUPOPT";;
     esac; fi
     if JS=$(judge_surface "$NAME"); then
       say "  5. judge surface exists -> skip finish ($(basename "$JS"))"
@@ -632,7 +628,8 @@ PY
   fi
   if [ ! -f "$SKYFLAT" ]; then
     say "per-set sky flat (the ratified per-set-flat rule)"
-# DESKY IS OFF BY DEFAULT — it was ON from 2026-07-29 to 2026-08-04 and that was
+# THE FLAT-SIDE DESKY IS DEAD (this block is about the FLAT builder's --desky,
+# NOT the separate lights-side --subsky-lights) — it was ON 07-29..08-04 and was
 # a 31x REGRESSION in background flatness. Measured on july31/set-01, 500 frames,
 # one knob, everything else identical (Siril stat, medians, box 400/margin 200):
 #
@@ -654,7 +651,10 @@ PY
 # leaves the object carrying the sky's spatial profile (measured at 3.11% / 241
 # sigma by differential star photometry). That is a genuine defect. --desky is
 # simply not a valid fix for it, and its cure measured 31x worse than the
-# disease. Pass --desky to reproduce the regressed configuration for testing.
+# disease. Reproducing the regressed flat is build_sky_flat.sh --desky,
+# standalone only — the chain no longer plumbs it. The lights-side per-frame
+# step is a SEPARATE, correctly-domained option (--subsky-lights, uncoupled
+# by the combine-corner audit; run_undistort_pipeline.sh has the rationale).
 # NOT scoped by mount, and the earlier claim that it was is WRONG: a tracked
 # mount is not immune. The driver is whether the SENSOR is fixed relative to the
 # HORIZON. An untracked tripod and an alt-az mount without a derotator both hold
@@ -666,7 +666,7 @@ PY
 # too; its SIZE there is simply unmeasured, since both measured sets are fixed
 # mount. `mount` in acquisition.json cannot even distinguish equatorial from
 # alt-az, so it is not a safe key for this decision.
-    "$REPO/scripts/stack/build_sky_flat.sh" "$SESSION" "$SET" --dark="$DARK" --out="$SKYFLAT" $DESKYOPT
+    "$REPO/scripts/stack/build_sky_flat.sh" "$SESSION" "$SET" --dark="$DARK" --out="$SKYFLAT"
   fi
 fi
 
@@ -677,8 +677,8 @@ else
   say "stack ($ROUTE)"
   case "$ROUTE" in
     standard)         "$REPO/scripts/stack/run_pipeline.sh" "$SESSION" "$SET";;
-    undistort)        "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT;;
-    undistort-groups) "$REPO/scripts/stack/run_undistort_groups.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $DESKYOPT $GROUPOPT;;
+    undistort)        "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $SUBSKYOPT;;
+    undistort-groups) "$REPO/scripts/stack/run_undistort_groups.sh" "$SESSION" "$SET" --dark="$DARK" --flat="$SKYFLAT" $SUBSKYOPT $GROUPOPT;;
   esac
   [ -f "$STACK" ] || { say "builder finished but $STACK is missing"; exit 1; }
 fi
