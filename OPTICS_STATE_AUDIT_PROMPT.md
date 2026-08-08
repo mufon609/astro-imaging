@@ -1,77 +1,63 @@
-# Fresh-session prompt — optics-state audit: attribute the aug06 field terms, adopt per the verdict
+# Fresh-session prompt — optics-state ADOPTION: rebuild under per-set models, then the combine
 
 Read `CLAUDE.md` first — it is the briefing and the read order. The
-pre-registered plan you are executing is BACKLOG:`optical-state-models`; read
-it in full, and the register row for the fitted lensfun entry it amends. Do
-not re-derive the plan — run it.
+investigation phase is COMPLETE and its verdicts are on record — do not redo
+it: BACKLOG:`optical-state-models` (discriminators 1–2 carry their measured
+verdicts), `datasets/aug06/experiments.jsonl` (the ledger entries
+`optical_state_d1_displacement_vs_blur`, `fit_instrument_cp_starvation`,
+`optical_state_d2_granularity_matrix`), and the fitted models at
+`datasets/aug06/set-00/qa_work/lens_fit.json` (317 CPs) and
+`datasets/aug06/set-01/qa_work/lens_fit.json` (114 CPs, strict-pruned).
+Verdicts: the aug06 field-term elevation is DISPLACEMENT (the raws are
+clean); the optical state is PER-SET. This prompt is the execution of
+adoption step 3.
 
-## The question
+## The work, in order
 
-aug06 products measure a field-dependent degradation under the july-fitted
-pinned lens model: centre FWHM BETTER than the july31 family (set-01: 2.99 px)
-with both spatial terms ~2x elevated (off-axis 0.82 vs 0.16–0.47 px; tilt
-0.53 vs 0.21–0.25 px). The user states focus is recalibrated every session
-(sometimes mid-night), so the model describes ONE optical state. Attribute
-the elevation: DISPLACEMENT (july's model mis-mapping august's glass —
-a refit fixes it) vs BLUR (august's focus state carries more field
-curvature — acquisition's lever; no warp fixes blur). Then adopt per the
-pre-registered rules. HOLD the cross-session combine until this closes.
-
-## The investigation (the BACKLOG item's discriminators, in order)
-
-1. **Displacement vs blur.** Corner-vs-centre star sharpness on SINGLE
-   mid-burst frames — calibrated and debayered, never a stack — from
-   july31/set-01, aug06/set-00, aug06/set-01. Instruments: the tool's own
-   measures only, fixed external geometry (the `star_stations.py` pattern /
-   Siril `findstar` on fixed crops — trap 3 forbids any geometry derived
-   from the detections). Several singles per corpus, not one — state n.
-   - Soft corners ON SINGLES in the aug06 corpora but not july31 → BLUR:
-     record it as the acquisition signature, no processing change follows.
-   - Uniform singles + degraded stacks → DISPLACEMENT: proceed to step 2.
-   - Mixed → report both magnitudes separately; only a genuinely
-     unmeasurable weighting goes to the user.
-2. **Granularity (displacement branch).** Fit models from each corpus's own
-   frames with `fit_lens_model.sh` (scripted; feed it per its own traps) —
-   july31, aug06/set-00, aug06/set-01 — and compare pairwise on the
-   register's displacement-equivalence test (≤0.47 px max mid-field
-   displacement = same model). Verdict: per-session state vs per-set state.
-3. **Adoption (pre-registered, execute without re-asking):**
-   - BLUR: record the verdict + numbers in the BACKLOG item and the session
-     records; build sets 02/03 under the pinned model as-is; the checklist's
-     acquisition note is the standing fix.
-   - DISPLACEMENT, states equivalent across aug06: fit ONE aug06 model, pin
-     it as data beside the july entry (the `lens_models.json` pattern —
-     keyed by session/state, installed from the record), rebuild set-00 and
-     set-01 only if their model differs from july's beyond equivalence
-     (re-running is cheap and correct), build 02/03 under the aug06 model.
-   - DISPLACEMENT, per-set states: fit per set, same pinning pattern, same
-     rebuild rule, and say so loudly — that granularity changes the standing
-     preflight design (note it in the BACKLOG item for the wiring step).
-   - Either displacement branch: verify each adopted model the pinned way
-     (`lens_preflight` difference proof; `verify_lens_card.py` if the DB is
-     touched), and re-measure the rebuilt products' spatial terms — the
-     before/after IS the experiment record, one knob, control bracketed.
-4. **Then the combine gate lifts**: with every member correctly rectified
-   under its own state's model, goal 2 of `RUN_AUG06_PROMPT.md` proceeds
-   (six ~500-frame members; membership already ratified).
+1. **Fit set-02 and set-03 from their own frames** with the PATCHED
+   `fit_lens_model.sh` (it now fattens detection copies with gauss 3 and
+   preserves its ptos/logs). Use the working geometry: a 12-frame mid-burst
+   subset staged as its own dir (the ledger records why spread-12 over 500
+   starves). If default cpclean leaves multi-px residuals, apply the strict
+   prune the set-01 record documents (cpclean -n 1 x2, staged re-optimize)
+   and record CP counts + rms in the set's `lens_fit.json`.
+2. **Rebuild every aug06 set warp-onward under its OWN model** —
+   `install_lens_model.sh` per set from the set's record, then the chain
+   (masters, QA, audit, culls, flats all survive; only warp -> register ->
+   stack -> solve -> SPCC -> judge re-run). PRESERVE the current
+   pinned-model products first under tagged names (`cp` — the binding
+   preserve-per-experiment rule): they are the A/B control arms.
+3. **Accept per set by the A/B, never the fit's residual**: `seqtilt` +
+   `star_stations.py` (drift axis from the solves) rebuilt-vs-control, then
+   the user's eyes on both judge surfaces side by side. Expected direction:
+   set-01 off-axis 0.82 -> toward the 0.16–0.47 family; a rebuild that does
+   not measurably improve does NOT adopt — report it and stop for the user.
+4. **Diagnose the july31 fit failure** (66 CPs / 152 px residuals on its
+   12-frame subset — ledger; cause OPEN). Its preserved procedure is the
+   same as aug06's; find what differs (frame content? moon gradient? the
+   subset window?). If a trustworthy july31 fit lands: fit + rebuild july31
+   set-01/02/03 the same way (the pinned incumbent was fitted from JULY14
+   frames, a different night). If it cannot be made trustworthy: july31
+   stays under the pinned model — its products are the family floor — and
+   you state the heterogeneity in the combine's record.
+5. **Baselines**: accepted rebuilds fail their seeded baselines BY DESIGN —
+   re-seed with a note only after the user accepts each product.
+6. **The combine** (RUN_AUG06_PROMPT.md goal 2, membership ratified: six
+   ~500-frame members, full sets only): compose the rebuilt own-model
+   members' sub-stacks; coverage record per the prompt; the cross-set
+   record-home gap (BACKLOG:`cross-set-record-home`) still applies — degrade
+   loudly on record placement.
+7. **Close the loop**: update BACKLOG:`optical-state-models` step 3 with the
+   A/B numbers; the standing-preflight wiring ("does the pinned model fit
+   THIS session's frames") remains the item's closing condition — note what
+   its design should be from what this run teaches.
 
 ## Constraints
 
-- One knob per experiment; hypothesis before run; MEASURED vs HYPOTHESIS
-  labels on every claim; numbers with instruments; no narrative in records.
-- Every fitted model is PINNED AS DATA in the tracked record before any
-  product depends on it — a model that exists only in a machine-local DB is
-  the exact failure the register row documents.
-- The judge surfaces already awaiting the user's eyes stay untouched;
-  rebuilds produce new candidates beside them, never overwrites.
-- Commit as you go, evidence-bearing messages, tree clean at the end.
-
-## Deliverable
-
-`OPTICS_STATE_AUDIT_PROMPT_report.md` at the repo root, committed: the
-verdict with its discriminating numbers (per corpus, per instrument, n
-stated), the granularity matrix if reached, every adopted/pinned model with
-its verification, what was rebuilt and its before/after spatial terms, the
-explicit go/no-go state of sets 02/03 and the combine, and anything only the
-user can decide, stated as options. The report will be audited against your
-commits.
+One knob per experiment; MEASURED vs HYPOTHESIS labels; numbers with
+instruments; nothing overwritten — controls preserved, rebuilds beside them;
+judge surfaces for the user's eyes at full frame; commit as you go,
+evidence-bearing messages, tree clean at the end. Report to
+`OPTICS_STATE_AUDIT_PROMPT_report.md` at the root, committed: per-set fits
+(CPs, rms), A/B tables, adoption verdicts, the july31 diagnosis outcome,
+combine state, and anything only the user can decide, stated as options.
