@@ -257,6 +257,29 @@ def evaluate(session, set_name, route=None, forced_route=None,
                                  f"({headroom:.0f}% headroom){note}",
                                  "anomaly_audit + GESD fraction "
                                  f"{frac} (stack_rejection.sh)", detail))
+        elif derived in ("undistort", "standard") and n_stack > 50 and floor:
+            # single-pass GESD regime (>50 subs, stack_rejection.sh): the whole
+            # set is one group, so the same fraction cap binds — a dweller at or
+            # past frac of n_stack is not eligible for rejection AT ALL. Without
+            # this branch a forced --route=single silently skipped the check the
+            # groups branch enforces (23/135 = 17% passed here by luck).
+            if floor > n_stack:
+                rows.append(_row("obstruction_audit", RED,
+                                 f"dwell floor {floor} exceeds the whole set "
+                                 f"({n_stack} frames): the {dwell}-frame "
+                                 "transient is past the GESD outlier-fraction "
+                                 "cap and cannot reject — cull its frames",
+                                 "anomaly_audit + GESD fraction "
+                                 f"{frac} (stack_rejection.sh)", detail))
+            else:
+                headroom = 100 * (1 - floor / n_stack)
+                status = (YELLOW if (unknown or headroom < 20) else GREEN)
+                note = (f"; {unknown} UNKNOWN — human eyes" if unknown else "")
+                rows.append(_row("obstruction_audit", status,
+                                 f"floor {floor} vs single-pass set {n_stack} "
+                                 f"({headroom:.0f}% headroom){note}",
+                                 "anomaly_audit + GESD fraction "
+                                 f"{frac} (stack_rejection.sh)", detail))
         else:
             rows.append(_row("obstruction_audit",
                              YELLOW if unknown else GREEN,

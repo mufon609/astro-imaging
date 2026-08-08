@@ -213,6 +213,14 @@ MAXG=$BASE; [ "$REM" -eq 0 ] || MAXG=$((BASE + 1))
 # offender only at group REM+1, hours into warping. Assert every group size that
 # will actually be used, here, before any frame is touched.
 GSIZES=("$BASE"); [ "$REM" -eq 0 ] || GSIZES+=("$((BASE + 1))")
+# The floor must hold for the ACTUAL balanced sizes, not the requested GROUP:
+# K = ceil(N/GROUP) then BASE = N/K can land BELOW the floor (135 frames at
+# floor 77 -> K=2 -> groups of 67/68, dweller 23/67 = 34% > the 0.3 GESD cap,
+# unrejectable) while the GROUP-level check above still passes.
+if [ -n "$DWELL_FLOOR" ] && [ "$BASE" -lt "$DWELL_FLOOR" ]; then
+  echo "ABORT: balanced groups of $BASE frame(s) fall below the dwell floor $DWELL_FLOOR ($N frames cannot split into >=2 groups meeting it) — the $MAXDWELL-frame transient would exceed GESD's $GESD_FRAC outlier-fraction cap inside a group and would NOT be rejected. Use run_undistort_pipeline.sh (single-pass rejects it at $MAXDWELL/$N of the full set) or cull the transient's frames." >&2
+  exit 1
+fi
 for gsize in "${GSIZES[@]}"; do
   [ $((gsize % CHUNK)) -ne 1 ] || { echo "ABORT: a group of $gsize frame(s) chunked at --chunk=$CHUNK leaves a final chunk of 1 (Siril cannot sequence one frame) — adjust --group or --chunk (plan: $N frames -> $K groups: $REM x $((BASE+1)) + $((K-REM)) x $BASE)" >&2; exit 1; }
 done

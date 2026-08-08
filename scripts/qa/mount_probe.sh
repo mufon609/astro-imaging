@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 # TWO-WINDOW mount drift probe — the precise instrument of the fingerprint's
-# mount cross-check (scripts/lib/fingerprint.py): solve the set's FIRST and
-# LAST frames, record both solves + capture epochs, and let the fingerprint
+# mount cross-check (scripts/lib/fingerprint.py): solve two time-separated
+# frames, record both solves + capture epochs, and let the fingerprint
 # derive the drift signature (a fixed mount advances RA at the sidereal rate
 # with Dec constant; tracked holds both). This is the instrument that can
 # decisively measure FIXED — the trail-vs-roundness check is one-sided (round
 # stars rule fixed OUT) — and the boundary-regime instrument where roundness
 # cannot decide.
+#
+# WINDOW RULE: both windows are confined to the LONGEST contiguous CAPTURE RUN
+# (acquisition.timeline + the audit's segment_runs — the same boundary law the
+# audit links under: a re-aim can only occur ACROSS a run boundary). A naive
+# first/last-of-dir window mixes sky drift with any mid-dir re-aim and reads a
+# rate that is neither signature: measured on a 140-frame dir whose first frame
+# preceded the contiguous 139-frame burst by 661 s with a re-aim between —
+# first/last RA rate 6.9751 deg/hr (0.46x sidereal, an exit-4 stop on a rigid
+# tripod), while the run-confined window on the same frames reads 14.8724
+# deg/hr = 0.99x sidereal — a clean fixed signature. A dir with no readable
+# epochs/frame numbers segments to ONE run = first/last of dir, the prior
+# behavior.
 #
 #   mount_probe.sh <session-dir> <set>
 #
@@ -42,8 +54,43 @@ mapfile -t FRAMES < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   | sort)
 N=${#FRAMES[@]}
 [ "$N" -ge 2 ] || { say "need >=2 frames, found $N"; exit 1; }
-FA=${FRAMES[0]}; FB=${FRAMES[$((N-1))]}
-say "windows: $(basename "$FA")  ->  $(basename "$FB")  ($N frames spanned)"
+
+# window selection: longest contiguous capture run (see WINDOW RULE above).
+# segment_runs is the audit's own boundary law — imported, not re-derived.
+WSEL=$(python3 - "$REPO" "$W" "${FRAMES[@]}" <<'PY'
+import json, os, sys
+repo, w, frames = sys.argv[1], sys.argv[2], sys.argv[3:]
+sys.path.insert(0, os.path.join(repo, "scripts", "lib"))
+sys.path.insert(0, os.path.join(repo, "scripts", "qa"))
+import acquisition
+from anomaly_audit import segment_runs
+tl = acquisition.timeline(frames)
+runs = segment_runs(tl)
+by_run = {}
+for row in tl:
+    by_run.setdefault(runs[row["file"]], []).append(row)
+def span(rows):
+    ep = [r["epoch"] for r in rows if r["epoch"] is not None]
+    return (max(ep) - min(ep)) if len(ep) >= 2 else 0.0
+best = max(by_run.values(), key=lambda rows: (len(rows), span(rows)))
+path = {os.path.basename(f): f for f in frames}
+rec = {"rule": ("longest contiguous capture run (acquisition.timeline + "
+                "anomaly_audit.segment_runs); a re-aim can only occur "
+                "across a run boundary, so a cross-run window would mix "
+                "drift with re-aim"),
+       "dir_frames": len(frames), "n_runs": len(by_run),
+       "run_frames": len(best), "run_span_s": round(span(best), 1),
+       "first": best[0]["file"], "last": best[-1]["file"]}
+json.dump(rec, open(os.path.join(w, "window.json"), "w"), indent=1)
+print(path[best[0]["file"]]); print(path[best[-1]["file"]])
+print(len(by_run)); print(len(best))
+PY
+)
+{ read -r FA; read -r FB; read -r NRUNS; read -r NRUN; } <<< "$WSEL"
+[ -n "$FA" ] && [ -n "$FB" ] && [ "$FA" != "$FB" ] \
+  || { say "window selection failed (longest run has <2 frames)"; exit 1; }
+say "windows: $(basename "$FA")  ->  $(basename "$FB")  ($NRUN of $N frames; $NRUNS capture run(s))"
+[ "$NRUNS" = 1 ] || say "  dir spans $NRUNS capture runs — windows confined to the longest (a re-aim can only occur across a boundary)"
 
 # capture epochs + field width (arcmin) from the set's own metadata
 META=$(python3 - "$REPO" "$SESSION" "$SET" "$FA" "$FB" <<'PY'
@@ -137,6 +184,10 @@ rec = {"tool": ("Siril decode/extract_Green (camera raw) + astrometry.net "
                        "solve's own scale; the mount verdict rides the "
                        "scale-free RA rate"),
        **out}
+try:
+    rec["window"] = json.load(open(os.path.join(w, "window.json")))
+except (OSError, ValueError):
+    pass
 p = os.path.join(repo, "datasets", sname, sset, "qa_work", "mount_probe.json")
 json.dump(rec, open(p, "w"), indent=1)
 print(f"[mount_probe {sset}] record -> {p}")
