@@ -1,0 +1,18 @@
+{
+ "tool": "patched fit_lens_model.sh detection stage (Siril autostretch + gauss 3 on detection copies) over a 12-frame mid-burst subset (DSC_6350..6504 step 14); hugin cpfind --fullscale; STRICT cpclean -n 1 x2 applied after the default prune left 4.6 px CP contamination; staged autooptimiser (ypr -> +abc)",
+ "hfov_deg_pinned": 28.69,
+ "frames": 12,
+ "control_points": {
+  "raw": 224,
+  "after_default_cpclean": 194,
+  "after_strict_prune": 114
+ },
+ "residual_rms_units": 0.0274,
+ "fitted_ptlens": {
+  "a": 0.00808615198829015,
+  "b": 0.00191793356594816,
+  "c": 0.012386006221812
+ },
+ "supersedes": "an 8-CP fit (detection starvation, pre-gauss) \u2014 under-constrained, discarded",
+ "accepted_by": "star_stations + seqtilt A/B on a real rebuilt stack, never this fit's own residual"
+}
