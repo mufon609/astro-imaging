@@ -1,0 +1,416 @@
+{
+ "purpose": "Independent audit measurements for COMBINE_CORNERS_AUDIT_report.md \u2014 re-derivation of the combine-corner investigation's claims on the preserved products. Diagnostic instrument (sanctioned): astropy memmap box medians, green channel, values x65535 to match Siril stat scale.",
+ "validation": {
+  "method": "reader cross-validated against the session's own Siril stat record (regional_stat_cov13.json): all 5 regions x 3 channels reproduced to <=0.1; box coords are Siril-crop coords (y from the canvas's high-row edge), the mapping the registry's y-flip guard covers",
+  "max_abs_diff_vs_siril": 0.1,
+  "load_average_during_reads": 0.89
+ },
+ "corner_marches_G_pct_vs_midfield": {
+  "method": "100 px box medians stepping diagonally inward from each crop/canvas corner (corner labels = Siril-coord convention, c00 = siril(0,0) = the records' 'TL'); percent vs the median of six 200 px mid-field boxes",
+  "cov13": {
+   "c00_TL": [
+    2.77,
+    2.31,
+    2.52,
+    0.53,
+    -0.56,
+    1.0,
+    1.81,
+    0.27
+   ],
+   "c10_TR": [
+    -0.45,
+    -0.01,
+    -0.2,
+    0.12,
+    -0.74,
+    -1.15,
+    -1.45,
+    -0.65
+   ],
+   "c01_BL": [
+    -0.03,
+    -0.24,
+    -0.36,
+    -0.33,
+    0.03,
+    -0.25,
+    -0.52,
+    -0.85
+   ],
+   "c11_BR": [
+    -0.78,
+    -1.11,
+    -1.73,
+    -0.98,
+    -1.74,
+    0.93,
+    3.25,
+    2.77
+   ]
+  },
+  "cov28": {
+   "c00_TL": [
+    -1.55,
+    0.17,
+    5.59,
+    1.47,
+    2.05,
+    0.66,
+    0.25,
+    1.71
+   ],
+   "c10_TR": [
+    0.78,
+    0.92,
+    0.81,
+    0.49,
+    0.59,
+    -0.67,
+    0.33,
+    0.63
+   ],
+   "c01_BL": [
+    0.91,
+    0.25,
+    0.22,
+    -0.13,
+    -0.47,
+    -0.74,
+    -0.13,
+    0.06
+   ],
+   "c11_BR": [
+    1.33,
+    -2.13,
+    -2.46,
+    1.38,
+    1.13,
+    2.75,
+    4.3,
+    -1.55
+   ]
+  },
+  "set01": {
+   "c00_TL": [
+    -0.71,
+    0.0,
+    -0.7,
+    -0.34,
+    -0.59,
+    -0.18,
+    -1.02,
+    -0.37
+   ],
+   "c10_TR": [
+    0.3,
+    0.68,
+    0.0,
+    -0.36,
+    0.06,
+    -0.16,
+    -0.13,
+    -0.12
+   ],
+   "c01_BL": [
+    0.68,
+    0.33,
+    -0.03,
+    0.03,
+    0.01,
+    0.01,
+    0.07,
+    0.06
+   ],
+   "c11_BR": [
+    0.22,
+    -0.04,
+    2.3,
+    1.41,
+    -2.06,
+    -4.37,
+    -1.14,
+    -0.27
+   ]
+  },
+  "set02": {
+   "c00_TL": [
+    0.39,
+    1.66,
+    2.61,
+    0.99,
+    -0.15,
+    1.38,
+    1.36,
+    1.49
+   ],
+   "c10_TR": [
+    1.1,
+    0.97,
+    0.24,
+    0.11,
+    0.22,
+    0.09,
+    -0.13,
+    -0.88
+   ],
+   "c01_BL": [
+    0.9,
+    0.69,
+    0.54,
+    0.34,
+    0.37,
+    -0.06,
+    0.56,
+    1.14
+   ],
+   "c11_BR": [
+    0.69,
+    -1.42,
+    -1.01,
+    0.34,
+    2.41,
+    1.14,
+    4.14,
+    -0.43
+   ]
+  },
+  "set03": {
+   "c00_TL": [
+    0.37,
+    -0.67,
+    0.27,
+    -0.22,
+    0.78,
+    1.0,
+    0.08,
+    -0.59
+   ],
+   "c10_TR": [
+    -0.16,
+    0.24,
+    0.18,
+    0.06,
+    -0.16,
+    -0.2,
+    -0.41,
+    0.22
+   ],
+   "c01_BL": [
+    1.33,
+    1.31,
+    1.18,
+    0.73,
+    0.76,
+    0.71,
+    0.04,
+    0.57
+   ],
+   "c11_BR": [
+    2.59,
+    1.37,
+    0.45,
+    -0.59,
+    -1.18,
+    -1.88,
+    -0.33,
+    -0.63
+   ]
+  }
+ },
+ "coverage_boundary_geometry": {
+  "method": "coverage read along the outward diagonal from each full-coverage crop corner on the covmaps; distance (px) at which coverage first falls to <= m members. Map contract measured on disk: values are k/n_members normalized to 1.0 at full coverage (13 discrete steps of 1/13 on covmap_aug06x3) \u2014 NOT the value/1000 the coverage_probe.sh docstring states",
+  "mapcrop_verification": "both Siril-cropped map crops (sessions/aug06/work/covcrop/mapcrop_*.fit) read min == max == 1.0 across the full crop: full coverage everywhere, session guard re-verified",
+  "cov13_steps_px": {
+   "c00_TL": {
+    "12": 5,
+    "10": 20,
+    "8": 40,
+    "5": 85,
+    "1": 300
+   },
+   "c10_TR": {
+    "12": 5,
+    "11": 200,
+    "8": 250,
+    "4": 400,
+    "1": 610
+   },
+   "c01_BL": {
+    "12": 5,
+    "11": 225,
+    "8": 390,
+    "4": 530,
+    "1": 825
+   },
+   "c11_BR": {
+    "12": 5,
+    "11": 30,
+    "9": 150,
+    "7": 240,
+    "1": 455
+   }
+  },
+  "cov28_steps_px": {
+   "c00_TL": {
+    "27": 5,
+    "25": 15,
+    "21": 55,
+    "16": 110
+   },
+   "c10_TR": {
+    "27": 5,
+    "26": 205,
+    "21": 320,
+    "16": 415
+   },
+   "c01_BL": {
+    "27": 5,
+    "26": 130,
+    "21": 440,
+    "16": 585
+   },
+   "c11_BR": {
+    "27": 5,
+    "26": 60,
+    "21": 200,
+    "16": 320
+   }
+  },
+  "reading": "the anomalous corners (cov13 c00: 8 member edges within 40 px; cov28 c00: 12 within 110 px) are exactly where the linear excess concentrates; quiet corners (one member edge at the corner, next 130-225 px out) show <1% anomalies \u2014 n=8 corners, consistent direction"
+ },
+ "same_sky_cross_arm_excess_pct": {
+  "method": "200 px box medians at probe points defined on the combine crop, mapped to every other arm through each product's solved TAN-SIP WCS (the *_wcs.fit surfaces; astropy WCS naxis=2); excess = box/mean(3 same-sky flanks) - 1, computed within each arm; flank-choice systematic ~+/-0.3-0.5% (real structure), largely common-mode across arms at identical sky",
+  "probeA_cov13_c00_corner": {
+   "boxes_diag_px": [
+    0,
+    100,
+    200,
+    300,
+    500
+   ],
+   "cov13": [
+    3.02,
+    2.92,
+    2.12,
+    0.07,
+    1.56
+   ],
+   "set01": [
+    null,
+    1.63,
+    0.89,
+    -0.88,
+    1.13
+   ],
+   "set02": [
+    null,
+    2.79,
+    1.8,
+    -0.53,
+    1.69
+   ],
+   "set03": [
+    1.77,
+    1.85,
+    0.97,
+    -1.11,
+    1.0
+   ],
+   "note": "at (0,0) the corner sky maps OUTSIDE set-01/set-02's per-set canvases (their -framing=min composes discard it) \u2014 the sub-stacks cover it, the per-set finals do not",
+   "combine_specific_increment": "cov13 minus per-set mean at identical sky: +1.2, +0.8, +0.9, +0.9, +0.3 \u2014 a ~+1% combine-introduced term over the first ~300 px, decaying by 500 px, on top of +1-2% real sky structure"
+  },
+  "probeB_cov28_c00_patch": {
+   "boxes_diag_px": [
+    0,
+    150,
+    250,
+    350,
+    500,
+    800
+   ],
+   "cov28": [
+    0.17,
+    2.69,
+    2.37,
+    2.17,
+    0.55,
+    1.17
+   ],
+   "cov13": [
+    -0.33,
+    2.25,
+    2.05,
+    1.9,
+    0.47,
+    1.3
+   ],
+   "set01": [
+    -1.01,
+    1.38,
+    1.41,
+    1.53,
+    0.24,
+    1.18
+   ],
+   "set02": [
+    -0.77,
+    2.08,
+    1.93,
+    1.97,
+    0.4,
+    1.36
+   ],
+   "set03": [
+    -1.49,
+    1.4,
+    1.44,
+    1.56,
+    0.23,
+    1.37
+   ],
+   "reading": "the 150-350 px patch is +1.4-2.1% in EVERY per-set control at identical sky = predominantly REAL structure; six-member-specific increment vs cov13 is +0.3-0.4% (vs the prior session's +0.94% at n=1, position not exactly reconstructible \u2014 i450 products deleted, solve record carries no full WCS); at the corner itself the combine-specific term is again ~+1% (cov28 +0.17 where per-set truth reads -0.8 to -1.5)"
+  }
+ },
+ "member_sky_levels_G": {
+  "method": "central 400 px box median, green, raw sub-stacks on disk (pre-normalization; centers sample slightly different sky per member \u2014 level differences dominate); exposure identical 2.5 s both nights (LIVETIME/STACKCNT)",
+  "aug06_members": [
+   121.67,
+   156.28,
+   171.22,
+   207.67,
+   123.84,
+   138.74,
+   124.45,
+   115.04,
+   128.99,
+   116.78,
+   105.18,
+   123.28,
+   105.72
+  ],
+  "july31_members": [
+   183.88,
+   197.29,
+   245.84,
+   238.17,
+   238.26,
+   193.69,
+   164.64,
+   191.58,
+   208.49,
+   196.6,
+   171.43,
+   202.2,
+   187.12,
+   249.66,
+   279.99
+  ],
+  "reading": "night medians ~124 vs ~197: the two nights' per-frame sky differs ~60%, not the '~6%' recorded as the nbstack justification; aug06 set-01's own members span 122-208 within one set"
+ },
+ "display_amplification_inputs": {
+  "law": "registered measured mechanism (docs/dead-ends.md): autostretch amplification of a fractional background residual scales ~sqrt(sky x N)",
+  "inputs_verified": "sky medians from the validated reads (cov13 75.1, cov28 63.7, set03 49.0 on the _spcc surfaces the stretch consumes); N from STACKCNT headers (1454, 2954, 456-500 per set)",
+  "arithmetic": "combines render 2.1-2.2x and 2.8-2.9x a set-03-class surface's amplification; per-set surfaces sit at 1.0-1.2x on the same reference"
+ }
+}
