@@ -273,15 +273,26 @@ Pre-registered discriminators, in order:
    july-fitted model on aug06's focus state. Record:
    `datasets/aug06/experiments.jsonl` + per-set
    `qa_work/singles_field_check.json`.
-2. **Granularity** — Hugin fits from each corpus's own frames
-   (`fit_lens_model.sh`, already scripted) compared pairwise on the
-   register's displacement-equivalence test (≤0.47 px = same model): decides
-   per-SESSION vs per-SET state.
-3. **Adopt per the verdict** — each set warps with the model its optical
-   state selects. Members each warped under their OWN correct model remain
+2. **Granularity — MEASURED: PER-SET.** Pairwise displacement between fitted
+   states, data-supported field r≤1.0: pinned-vs-s00 1.05 px, pinned-vs-s01
+   0.83, s00-vs-s01 0.74 — every pair beyond the 0.47 bound (ledger,
+   `optical_state_d2_granularity_matrix`). Getting trustworthy fits required
+   three instrument fixes to `fit_lens_model.sh` (path absolutize, gauss-3
+   detection fattening for short-sub star scale, diagnostics preservation) —
+   all measured, in the ledger. OPEN, stated: the in-field mismatch ordering
+   inverts the product-elevation ordering (crop geometries differ), so
+   curve-to-FWHM mapping is unsettled and adoption rides the product A/B;
+   the july31 refit is broken (66 CPs / 152 px residuals, cause open — july
+   products stand under the pinned incumbent regardless).
+3. **Adopt per the verdict — the remaining execution.** Each aug06 set warps
+   with its OWN fitted model: rebuild set-00 and set-01 under their recorded
+   models as the acceptance A/B (`star_stations` + `seqtilt` vs the current
+   products — the fit is never accepted on its own residual); fit set-02/03
+   from their own frames and rebuild theirs after the current pinned-model
+   builds land. Members each warped under their OWN correct model remain
    composable: the compose requires correct rectification per member, not a
    shared model (a WRONG model, not a different one, is what re-enters the
-   group-registration dead-end).
+   group-registration dead-end). The combine waits for the rebuilt members.
 
 **Closes when** the chain fits/validates the model per optical state as a
 standing step — the optics preflight gains "does the pinned model fit THIS
