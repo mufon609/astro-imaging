@@ -154,6 +154,13 @@ homography, and homographies COMPOSE (the fact §6 rests on).
 - `lens_preflight.py --require-profile` runs FIRST and makes darktable PROVE it
   corrects the set (a lens lensfun cannot match warps nothing and says
   nothing), and asserts installed == pinned coefficients.
+- **The model is per OPTICAL STATE, not per lens** — focus is recalibrated
+  every session (user-stated operating fact) and the profile moves with it,
+  so a fitted model describes the night it was fitted from. The per-state
+  fitting strategy and its discriminators (displacement vs blur; session vs
+  set granularity) are BACKLOG:`optical-state-models`. Members each warped
+  under their own correct model remain composable — the compose requires
+  correct rectification per member, not a shared model.
 - **ICC discipline:** the 32-bit float leg ships the TIFF untagged and exports
   `--icc-type LIN_REC709` — a measured perfect identity (ratio 1.0000 every
   level/channel). `SRGB` belongs only on the 8/16-bit probe legs. Never

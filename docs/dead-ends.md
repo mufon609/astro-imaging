@@ -1167,6 +1167,12 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   amplification (17x vs 8.7x) and roughly doubles the sky gradient the flat bakes
   in. There is no processing remedy; more integration is not one. Check moon
   phase and altitude when PLANNING, not after.
+- Focus recalibration each session is STANDING PRACTICE, and the lens's
+  distortion/field-curvature profile moves with it — so the processing-side
+  model is per optical state (BACKLOG:`optical-state-models`), and the
+  BLUR half is acquisition's alone: if SINGLE frames measure corner-vs-centre
+  FWHM elevation, that is field curvature no warp can fix — the refocus
+  procedure is the lever, not processing.
 - Lock the zoom ring (tape); don't touch the camera mid-set (a focal-length step
   forces a mixed-optics stack). Dither between subs; avoid the moon (star fringes
   on trailed PSFs are dispersion — physical, not removable in processing). Stop a

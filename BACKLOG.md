@@ -43,7 +43,7 @@ dataset, and says so.
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
-| fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the previous rig, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction — yet displacement-EQUIVALENT at product level (max diff 0.47 px mid-field, 0.34 px area-weighted RMS, 0.2 px at r=0.9; `qa_work/lens_fit.json`), so the incumbent stands on measurement as well as provenance: re-installing the lateral new fit would change the deliverable by ≤0.47 px with no measured benefit. It is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level |
+| fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the previous rig, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction — yet displacement-EQUIVALENT at product level (max diff 0.47 px mid-field, 0.34 px area-weighted RMS, 0.2 px at r=0.9; `qa_work/lens_fit.json`), so the incumbent stands on measurement as well as provenance: re-installing the lateral new fit would change the deliverable by ≤0.47 px with no measured benefit. It is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level. **SCOPE AMENDED (user-stated fact): focus recalibrates every session, so the state this model fits is per-FOCUS-EVENT, not per-lens/focal — aug06 measures off-axis 0.82 px vs the july31 family's 0.16–0.47 under it; displacement-vs-blur and session-vs-set granularity are the pre-registered discriminators in BACKLOG:`optical-state-models`** |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-05 | **not fired** — live block verified: vignetting and tca absent, exactly one focal=70 ptlens line. darktable still 5.4.1 / lensfun 0.3.4, so no bump has triggered a re-verify. Re-verify with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
 | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-07 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
@@ -253,6 +253,37 @@ rig (already x86).
   image — what `spcc_cone.py` hand-rolls; needs a check that its list maps to the
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
+
+## `optical-state-models` — focus recalibrates every session; the lens model keys on the OPTICAL STATE
+
+USER-STATED operating fact: focus is recalibrated each session (sometimes
+mid-night between sets), and a 24-70 zoom's distortion / field-curvature
+profile moves with it — so a fitted model describes ONE optical state, never
+the lens. The july-fitted pinned model measured against aug06: centre FWHM
+BETTER than family (2.99 px) with both field terms ~2x elevated (off-axis
+0.82 vs 0.16–0.47 px; tilt 0.53 vs 0.21–0.25 px) — the field-dependent
+signature of a state change, not seeing and not centre focus.
+
+Pre-registered discriminators, in order:
+1. **Displacement vs blur** — `findstar` corner-vs-centre FWHM on SINGLE
+   mid-burst raws (july31/set-01, aug06/set-00, aug06/set-01). Soft corners
+   on singles = field-curvature BLUR: no warp fixes blur, the lever is the
+   acquisition-side focus procedure. Uniform singles + degraded stack =
+   registration-residual DISPLACEMENT: a refit fixes it.
+2. **Granularity** — Hugin fits from each corpus's own frames
+   (`fit_lens_model.sh`, already scripted) compared pairwise on the
+   register's displacement-equivalence test (≤0.47 px = same model): decides
+   per-SESSION vs per-SET state.
+3. **Adopt per the verdict** — each set warps with the model its optical
+   state selects. Members each warped under their OWN correct model remain
+   composable: the compose requires correct rectification per member, not a
+   shared model (a WRONG model, not a different one, is what re-enters the
+   group-registration dead-end).
+
+**Closes when** the chain fits/validates the model per optical state as a
+standing step — the optics preflight gains "does the pinned model fit THIS
+session's frames" beside "installed == pinned" — and the aug06 verdict is
+recorded with its numbers.
 
 ## `final-best-percent-pass` — one target, many sessions, stack the best N%
 
