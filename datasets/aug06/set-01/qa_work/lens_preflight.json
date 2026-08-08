@@ -1,20 +1,20 @@
 {
- "frames": 502,
+ "frames": 500,
  "optics": {
-  "file": "DSC_6237.NEF",
+  "file": "DSC_6239.NEF",
   "camera": "NIKON Z6_3",
   "lens": "NIKKOR Z 24-70mm f/4 S",
   "focal_mm": "70.0 mm"
  },
  "spread": {
   "camera": {
-   "NIKON Z6_3": 502
+   "NIKON Z6_3": 500
   },
   "lens": {
-   "NIKKOR Z 24-70mm f/4 S": 502
+   "NIKKOR Z 24-70mm f/4 S": 500
   },
   "focal_mm": {
-   "70.0 mm": 502
+   "70.0 mm": 500
   }
  },
  "record": {
@@ -23,24 +23,31 @@
  },
  "profile_proof": {
   "siril_stat_sigma": [
-   1707.9,
-   1184.0,
-   1219.3
+   1700.2,
+   1185.1,
+   1214.3
   ],
   "siril_stat_max": [
    65535.0,
-   64284.0,
-   64608.0
+   64699.0,
+   65476.0
   ],
   "corrected": true
  },
  "pinned_model": {
-  "state": "ok",
+  "state": "candidate",
   "key": "NIKKOR Z 24-70mm f/4 S@70",
-  "coefficients": {
+  "pinned": {
    "a": 0.00350093,
    "b": 0.01453356,
    "c": 0.00043983
-  }
+  },
+  "installed": {
+   "a": 0.00808615198829015,
+   "b": 0.00191793356594816,
+   "c": 0.012386006221812
+  },
+  "db": "mil-nikon.xml",
+  "fit_record": "qa_work/lens_fit.json"
  }
 }
