@@ -1,0 +1,10 @@
+{
+ "input": "web/results/aug06/stack_set-01_full_spcc.fit",
+ "label": null,
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 22342,
+ "truncated_mean_fwhm_px": 2.81,
+ "sensor_tilt_fwhm_px": 0.24,
+ "sensor_tilt_pct": 9,
+ "off_axis_aberration_fwhm_px": 0.48
+}

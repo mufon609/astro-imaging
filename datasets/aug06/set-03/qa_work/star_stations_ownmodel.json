@@ -1,0 +1,149 @@
+{
+ "input": "web/results/aug06/stack_set-03_full_spcc.fit",
+ "label": "set-03_ownmodel",
+ "measured_by": "Siril findstar PSF fits per station (open gate -roundness=0.05 -sigma=0.5 -relax=on); Siril crop does the cropping; this script records medians of the tool's numbers",
+ "drift_axis_deg_image": 2.644,
+ "image_wh": [
+  4899,
+  3719
+ ],
+ "station_radius_px": 350,
+ "reading_guide": "equal-area stations: n comparable across stations and arms; the band signature = centre/along stations worse than perp stations (majFWHM up, roundness and n down)",
+ "stations": [
+  {
+   "name": "centre",
+   "dx_px": 0.0,
+   "dy_px": 0.0,
+   "box": [
+    2100,
+    1510,
+    700,
+    700
+   ],
+   "n": 1149,
+   "maj_fwhm_px": 2.87,
+   "roundness": 0.859,
+   "angle_deg_median": -8.4
+  },
+  {
+   "name": "along+700",
+   "dx_px": 699.3,
+   "dy_px": 32.3,
+   "box": [
+    2799,
+    1542,
+    700,
+    700
+   ],
+   "n": 998,
+   "maj_fwhm_px": 2.94,
+   "roundness": 0.861,
+   "angle_deg_median": -5.9
+  },
+  {
+   "name": "along-700",
+   "dx_px": -699.3,
+   "dy_px": -32.3,
+   "box": [
+    1400,
+    1477,
+    700,
+    700
+   ],
+   "n": 1185,
+   "maj_fwhm_px": 3.03,
+   "roundness": 0.826,
+   "angle_deg_median": -8.3
+  },
+  {
+   "name": "perp+700",
+   "dx_px": -32.3,
+   "dy_px": 699.3,
+   "box": [
+    2067,
+    2209,
+    700,
+    700
+   ],
+   "n": 1203,
+   "maj_fwhm_px": 2.87,
+   "roundness": 0.853,
+   "angle_deg_median": -10.5
+  },
+  {
+   "name": "perp-700",
+   "dx_px": 32.3,
+   "dy_px": -699.3,
+   "box": [
+    2132,
+    810,
+    700,
+    700
+   ],
+   "n": 1092,
+   "maj_fwhm_px": 2.88,
+   "roundness": 0.871,
+   "angle_deg_median": -3.3
+  },
+  {
+   "name": "along+1300",
+   "dx_px": 1298.6,
+   "dy_px": 60.0,
+   "box": [
+    3398,
+    1569,
+    700,
+    700
+   ],
+   "n": 958,
+   "maj_fwhm_px": 3.33,
+   "roundness": 0.795,
+   "angle_deg_median": -1.4
+  },
+  {
+   "name": "along-1300",
+   "dx_px": -1298.6,
+   "dy_px": -60.0,
+   "box": [
+    801,
+    1450,
+    700,
+    700
+   ],
+   "n": 1199,
+   "maj_fwhm_px": 3.45,
+   "roundness": 0.799,
+   "angle_deg_median": -6.3
+  },
+  {
+   "name": "perp+1300",
+   "dx_px": -60.0,
+   "dy_px": 1298.6,
+   "box": [
+    2040,
+    2808,
+    700,
+    700
+   ],
+   "n": 1160,
+   "maj_fwhm_px": 3.21,
+   "roundness": 0.792,
+   "angle_deg_median": -9.5
+  },
+  {
+   "name": "perp-1300",
+   "dx_px": 60.0,
+   "dy_px": -1298.6,
+   "box": [
+    2159,
+    211,
+    700,
+    700
+   ],
+   "n": 1083,
+   "maj_fwhm_px": 3.39,
+   "roundness": 0.829,
+   "angle_deg_median": -5.9
+  }
+ ]
+}
