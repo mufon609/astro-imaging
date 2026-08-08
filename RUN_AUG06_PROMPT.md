@@ -31,17 +31,18 @@ the field; report if it does not overlap july31's instead of assuming.
    records must not be filed under a member set; degrade loudly and report
    rather than inventing a location silently.
 
-3. **The framing question is PRE-REGISTERED, not assumed.** Hypothesis: a
-   combine restricted to full-depth (~500-frame) sets may keep a larger
-   fully-covered canvas — "the full scope of the frame" — than one including
-   the short sets (aug06/set-00 at 140, july31/set-04 at 260), because a
-   member's drift span sets what it can cover. TEST it with the framing
-   instrument: `scripts/qa/coverage_probe.sh` per-pixel coverage on at least
-   two candidate member lists — [all sub-stacks] vs [500-frame sets only] —
-   and report the measured canvas-vs-depth trade-off (fully-covered area,
-   member count, effective frames) side by side. The CHOICE between area and
-   depth is the user's; your job is the measured options in front of them,
-   per the evidence gate.
+3. **Combine membership is RATIFIED (user): FULL sets only — the largest
+   fully-covered crop wins.** A short member's drift span cuts the common
+   canvas, so sets under ~500 frames are OUT of the combine:
+   aug06/set-00 (140 — single-pass by user order, a standalone test set,
+   never a combine member) and, by the same criterion, july31/set-04 (260 —
+   confirm that reading with the user before composing). Members: the
+   ~500-frame sets of both sessions. STILL MEASURE it: run
+   `scripts/qa/coverage_probe.sh` on the ratified member list — and cheaply
+   on the all-members counterfactual — so the combine's record carries the
+   measured canvas-vs-depth numbers BEHIND the decision (fully-covered
+   area, member count, effective frames). That is a record of a decided
+   question, not a re-opened one.
 
 Work the way the contract says: the tools measure, the chain routes what the
 data settles, you stop only where a decision is genuinely the user's, and
