@@ -254,6 +254,20 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
+## `final-best-percent-pass` — one target, many sessions, stack the best N%
+
+The standing multi-session practice's endgame (user-ratified; walkthrough §6):
+after many ~500-frame sets accumulate on one target, a FINAL pass analyzes
+ALL sessions' raws and stacks only the best percentile. Unbuilt mechanics: a
+cross-session frame-quality surface (per-set `frame_metrics.json` exists;
+nothing ranks across sessions), a global best-N% selection the builders can
+consume (`cullspec` excludes are per-set), and the ladder itself — N% arms,
+one knob per arm, judged on full-frame lossless finals; README's
+reference-standard row 1 soft-culling caution applies (selection adopted
+through a measured ladder, never a default). Gated on the corpus existing.
+**Closes when** a final-pass product ships from a measured best-N% ladder
+across at least two sessions' raws with its per-set selection recorded.
+
 ## `session-level-mount` — one tripod pays for up to four probes
 
 `mount` is modelled PER SET while it is a session-level fact: one tripod on one

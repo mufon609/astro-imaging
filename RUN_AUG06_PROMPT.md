@@ -35,9 +35,9 @@ the field; report if it does not overlap july31's instead of assuming.
    fully-covered crop wins.** A short member's drift span cuts the common
    canvas, so sets under ~500 frames are OUT of the combine:
    aug06/set-00 (140 — single-pass by user order, a standalone test set,
-   never a combine member) and, by the same criterion, july31/set-04 (260 —
-   confirm that reading with the user before composing). Members: the
-   ~500-frame sets of both sessions. STILL MEASURE it: run
+   never a combine member) and july31/set-04 (260 — exclusion CONFIRMED by
+   the user; it keeps its own per-set stack). Members: the ~500-frame sets
+   of both sessions — six, roughly 3,000 frames. STILL MEASURE it: run
    `scripts/qa/coverage_probe.sh` on the ratified member list — and cheaply
    on the all-members counterfactual — so the combine's record carries the
    measured canvas-vs-depth numbers BEHIND the decision (fully-covered

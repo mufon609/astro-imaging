@@ -191,6 +191,21 @@ homography, and homographies COMPOSE (the fact §6 rests on).
   reference chosen central in pointing and time, `--weight=nbstack` when member
   depths differ. This is the product the standing route keeps buildable.
 
+**Multi-session accumulation — the standing practice for ONE target shot
+across sessions (user-ratified).** Sessions accumulate FULL (~500-frame)
+sets; short sets are stacked standalone (test/preview products) and are never
+combine members — a short member's drift span cuts the common canvas, and the
+combine takes the largest fully-covered crop, full sets only. Interim
+combines compose the full sets' retained sub-stacks as above and re-run as
+new sessions land. Once many full sets are gathered, the FINAL pass
+re-selects from ALL sessions' raw frames: per-frame quality from the tools'
+own registration metrics across every session, stacked at only the best
+N% — the percentile is a quality LADDER decided during that final process
+(one knob per arm, judged on full-frame lossless finals), never fixed in
+advance. Interim products are working surfaces; the final-pass product is the
+target's deliverable (BACKLOG:`final-best-percent-pass` holds the unbuilt
+mechanics).
+
 ## 7. SOLVE → SPCC — astrometry and colour, with the three traps
 
 - **Plate solve:** `scripts/calibrate/solve_field.py` — SExtractor core (`sep`)
