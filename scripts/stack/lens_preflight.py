@@ -254,14 +254,16 @@ def live(s):
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), s, flags=re.S)
 
 
-PINNED_MODELS = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "scripts", "darktable", "lens_models.json")
-
-
-def check_pinned_model(optics):
-    """Assert the live lensfun DB still carries the PINNED coefficients for these
-    optics.
+def check_state_model(optics, want, source):
+    """Assert the live lensfun DB carries the EXPECTED optical-state
+    coefficients for these optics — `want` = the SET'S OWN record
+    (qa_work/lens_fit.json: fitted from the set's frames, or explicitly
+    INHERITED with provenance). The model is a property of the OPTICAL STATE,
+    per set (focus recalibrates every session, sometimes mid-night —
+    BACKLOG:`optical-state-models`; measured: five fitted states, all 10
+    pairs beyond the 0.47 px displacement-equivalence bound, and the set-01
+    own-model rebuild removed a 2x field-term elevation the shared model
+    caused). A repo-global pinned model was the prior method and is REMOVED.
 
     `prove_correction` answers "did darktable warp this frame at all", which
     catches a MISSING profile. It cannot catch the case that actually bit this
@@ -271,7 +273,7 @@ def check_pinned_model(optics):
     that warps, so the existing proof passes and the set stacks with different
     optics than every product it will be compared against.
 
-    Reads our own pinned record and the DB text; asks lensfun nothing (Debian
+    Reads the set's record and the DB text; asks lensfun nothing (Debian
     ships no query CLI, which is why the warp proof exists at all).
     """
     o = optics[0]
@@ -283,25 +285,14 @@ def check_pinned_model(optics):
     if not lens or not fm:
         return {"state": "na", "why": f"no usable lens/focal ({lens!r}, {focal!r})"}
     focal = fm.group(1)
-    try:
-        pinned = json.load(open(PINNED_MODELS))
-    except (OSError, ValueError) as e:
-        return {"state": "na", "why": f"no pinned model file ({e})"}
 
     def norm(x):
         return re.sub(r"[^a-z0-9]", "", str(x).lower())
 
     f = float(focal)
     key = f"{lens}@{str(int(f)) if f == int(f) else f}"
-    entry = next((v for k, v in pinned.items()
-                  if not k.startswith("_") and norm(k) == norm(key)), None)
-    if entry is None:
-        return {"state": "unpinned", "key": key,
-                "why": "no pinned model for these optics — the warp will use "
-                       "whatever the DB happens to carry, which is not tracked"}
-    pt = entry["ptlens"]
     dbdir = os.path.expanduser("~/.local/share/lensfun/updates/version_1")
-    want = {k: float(pt[k]) for k in ("a", "b", "c")}
+    want = {k: float(want[k]) for k in ("a", "b", "c")}
     for path in sorted(glob.glob(os.path.join(dbdir, "*.xml"))):
         try:
             xml = open(path, encoding="utf-8", errors="replace").read()
@@ -315,21 +306,24 @@ def check_pinned_model(optics):
             dm = re.search(rf'<distortion[^>]*focal="{re.escape(fs)}"[^>]*/>',
                            live(blk))
             if not dm:
-                return {"state": "MISMATCH", "key": key, "pinned": want,
+                return {"state": "MISMATCH", "key": key, "expected": want,
+                        "source": source,
                         "why": f"the DB block for {mm.group(1)!r} has no "
                                f"focal={fs} distortion line at all"}
             got = {k: float(v) for k, v in
                    re.findall(r'\b([abc])="([-0-9.eE+]+)"', dm.group(0))}
             if all(abs(got.get(k, 1e9) - want[k]) <= 1e-9 for k in want):
-                return {"state": "ok", "key": key, "coefficients": got}
-            return {"state": "MISMATCH", "key": key, "pinned": want,
-                    "installed": got, "db": os.path.basename(path)}
-    return {"state": "MISMATCH", "key": key, "pinned": want,
+                return {"state": "ok", "key": key, "coefficients": got,
+                        "source": source}
+            return {"state": "MISMATCH", "key": key, "expected": want,
+                    "source": source, "installed": got,
+                    "db": os.path.basename(path)}
+    return {"state": "MISMATCH", "key": key, "expected": want, "source": source,
             "why": f"no <lens> block matching {lens!r} in {dbdir}"}
 
 
 def _selftest():
-    """ASYMMETRIC mutation test for check_pinned_model's block scan.
+    """ASYMMETRIC mutation test for check_state_model's block scan.
 
     Why asymmetric, and why this test exists at all: the scan was blind — it
     read the `<distortion .../>` element embedded in install_lens_model.sh's
@@ -355,13 +349,11 @@ def _selftest():
         ok = ok and cond
         print(f"  [{'PASS' if cond else 'FAIL'}] {name}")
 
-    # Identity + reference coefficients come from the PINNED file itself, so the
-    # fixture cannot drift out of the authority and cannot silently become
-    # "unpinned" (which would make every case pass vacuously).
-    pinned = json.load(open(PINNED_MODELS))
-    key, entry = next((k, v) for k, v in pinned.items() if not k.startswith("_"))
-    lens_name, focal_key = key.rsplit("@", 1)
-    pt = entry["ptlens"]
+    # Synthetic identity + reference coefficients: the fixture no longer
+    # depends on any repo file (the repo-global pinned model is REMOVED —
+    # models are per-set records), so it cannot drift with data.
+    lens_name, focal_key = "Selftest 24-70mm f/4", "70"
+    pt = {"a": 0.00350093, "b": 0.01453356, "c": 0.00043983}
     PIN = " ".join(f'{k}="{pt[k]!r}"'.replace("'", "") for k in "abc")
     CAND = PIN.replace(f'a="{pt["a"]!r}"', f'a="{float(pt["a"]) * 1.05!r}"', 1)
     assert CAND != PIN, "selftest fixture failed to perturb the live element"
@@ -377,7 +369,7 @@ def _selftest():
                 f'  </calibration></lens>')
 
     def state(block):
-        """check_pinned_model's inner scan, on a supplied block."""
+        """check_state_model's inner scan, on a supplied block."""
         import tempfile as _tf
         d = _tf.mkdtemp(prefix=".lenspre_selftest_")
         try:
@@ -386,18 +378,19 @@ def _selftest():
             real = os.path.expanduser
             os.path.expanduser = lambda p: d if "lensfun" in p else real(p)
             try:
-                return check_pinned_model([{"lens": lens_name,
-                                            "focal_mm": f"{focal_key}.0 mm"}])
+                return check_state_model([{"lens": lens_name,
+                                           "focal_mm": f"{focal_key}.0 mm"}],
+                                          {k: float(pt[k]) for k in "abc"},
+                                          "selftest")
             finally:
                 os.path.expanduser = real
         finally:
             shutil.rmtree(d, ignore_errors=True)
 
-    # The pinned file must carry the key this fixture names, or every case
-    # returns "unpinned" and the test is itself vacuous — assert that first.
+    # The fixture must resolve to a real scan verdict, not "na" — assert first.
     probe = state(blk(CAND, PIN))
-    flag("fixture resolves against a PINNED entry (not vacuous)",
-         probe.get("state") != "unpinned")
+    flag("fixture resolves to a scan verdict (not vacuous)",
+         probe.get("state") in ("ok", "MISMATCH"))
 
     # CASE 2 IS THE INCIDENT, not one of five permutations. Mutating the LIVE
     # element only, leaving the marker on the pinned value, is EXACTLY the state
@@ -457,7 +450,7 @@ def main():
     ap.add_argument("session", nargs="?")
     ap.add_argument("set", nargs="?")
     ap.add_argument("--selftest", action="store_true",
-                    help="asymmetric mutation test of the pinned-model scan")
+                    help="asymmetric mutation test of the state-model scan")
     ap.add_argument("--require-profile", action="store_true",
                     help="also PROVE darktable corrects this set (renders one "
                          "frame twice); STOP if the correction is a no-op. Pass "
@@ -498,51 +491,52 @@ def main():
             finally:
                 shutil.rmtree(work, ignore_errors=True)
             result["profile_proof"] = proof
-            pin = check_pinned_model(optics)
-            result["pinned_model"] = pin
-            if pin["state"] == "MISMATCH" and pin.get("installed"):
-                # The ONE sanctioned divergence: installed == this SET'S OWN
-                # recorded fit — the --from-fit A/B state
-                # (install_lens_model.sh), which this assert predated and
-                # blocked. Announced as CANDIDATE, never silent; any OTHER
-                # installed model (community revert via lensfun-update-data,
-                # another set's state left behind) still STOPS below — exactly
-                # the silent-wrong cases the assert exists for. Per-set optical
-                # states: BACKLOG:`optical-state-models`; its closing condition
-                # is the standing per-state wiring this bridges.
-                try:
-                    fit = json.load(open(os.path.join(
-                        am.dataset_dir(a.session, a.set),
-                        "qa_work", "lens_fit.json")))["fitted_ptlens"]
-                    if all(abs(float(fit[k]) - pin["installed"].get(k, 1e9))
-                           <= 1e-9 for k in ("a", "b", "c")):
-                        pin = {**pin, "state": "candidate",
-                               "fit_record": "qa_work/lens_fit.json"}
-                        result["pinned_model"] = pin
-                except (OSError, ValueError, KeyError):
-                    pass
+            # THE MODEL AUTHORITY IS THE SET'S OWN RECORD (per-set optical
+            # state — focus recalibrates, so a model describes ONE state,
+            # never the lens; BACKLOG:`optical-state-models`, measured). A set
+            # with no record does not warp on whatever the DB carries — it
+            # stops here, loudly: fit one, or write an INHERITED record with
+            # provenance (never inherit silently).
+            fit_p = os.path.join(am.dataset_dir(a.session, a.set),
+                                 "qa_work", "lens_fit.json")
+            try:
+                fit_rec = json.load(open(fit_p))
+                want = {k: float(fit_rec["fitted_ptlens"][k]) for k in "abc"}
+                source = ("inherited: " + fit_rec["inherited_from"]
+                          if fit_rec.get("inherited_from")
+                          else "fitted from this set's own frames")
+            except (OSError, ValueError, KeyError) as e:
+                raise Stop(
+                    "lens_preflight: no optical-state model record for this "
+                    f"set ({fit_p}: {e}).\n"
+                    "    The model keys on the OPTICAL STATE, per set — fit it "
+                    "from the set's own frames:\n"
+                    "      scripts/darktable/fit_lens_model.sh "
+                    f"{a.session} {a.set} --dark=... --flat=... --hfov=...\n"
+                    "    or, when the set's own fit is untrustworthy (banded "
+                    "CP coverage — see july31's\n"
+                    "    lens_fit_DIAGNOSTIC.json), write a lens_fit.json "
+                    "carrying `inherited_from` provenance\n"
+                    "    naming the source state. A set never warps on "
+                    "whatever the DB happens to hold.")
+            pin = check_state_model(optics, want, source)
+            result["state_model"] = pin
             if pin["state"] == "MISMATCH":
                 raise Stop(
-                    "lens_preflight: the installed lens model is NOT the pinned "
-                    f"one for {pin['key']}.\n"
-                    f"    pinned    {pin.get('pinned')}\n"
+                    "lens_preflight: the installed lens model is NOT this "
+                    f"set's own recorded state for {pin['key']}.\n"
+                    f"    expected  {pin.get('expected')}  ({source})\n"
                     f"    installed {pin.get('installed', pin.get('why'))}\n"
-                    "    darktable WILL warp — with different optics than every "
-                    "product this set would be compared against, and the "
-                    "warp-happened proof cannot see that. `lensfun-update-data` "
-                    "overwrites the user DB on every run, which is the usual "
-                    "cause.\n"
+                    "    darktable WILL warp — with different optics than the "
+                    "state this set's record names, and the warp-happened "
+                    "proof cannot see that. `lensfun-update-data` reverting "
+                    "the DB, or another set's model left installed, are the "
+                    "usual causes.\n"
                     "    Fix: scripts/darktable/install_lens_model.sh "
-                    f"{a.session} {a.set}")
+                    f"{a.session} {a.set} --replace")
             if pin["state"] == "ok":
-                print(f"  pinned model OK: {pin['key']} matches the live DB")
-            elif pin["state"] == "candidate":
-                print(f"  CANDIDATE model live: installed == this set's OWN "
-                      f"fitted model (qa_work/lens_fit.json), NOT the pinned "
-                      f"incumbent for {pin['key']} — the --from-fit A/B state; "
-                      f"the build carries the set's optical state")
-            elif pin["state"] == "unpinned":
-                print(f"  WARN: {pin['why']}")
+                print(f"  state model OK: installed == this set's own record "
+                      f"({source})")
             if not proof["corrected"]:
                 evidence = proof.get("siril_verdict") or (
                     f"max {proof['siril_stat_max']}, sigma "

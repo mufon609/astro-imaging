@@ -43,7 +43,7 @@ dataset, and says so.
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
-| fitted lensfun entry, per lens/focal (`install_lens_model.sh` from the PINNED `scripts/darktable/lens_models.json`) | an upstream entry measured for THIS unit, or a chain consuming the model another way | 2026-08-05 | **not fired.** The shipped model is `a=0.00350093 b=0.01453356 c=0.00043983` — fitted 2026-07-17 on the previous rig, and every product under `web/results/` was warped with it. It is NOT regenerable: the same procedure on the same frames under this rig's Hugin returns coefficients 3.9%/30.6% apart (887eb00), so a re-fit is a NEW model, never a reproduction — yet displacement-EQUIVALENT at product level (max diff 0.47 px mid-field, 0.34 px area-weighted RMS, 0.2 px at r=0.9; `qa_work/lens_fit.json`), so the incumbent stands on measurement as well as provenance: re-installing the lateral new fit would change the deliverable by ≤0.47 px with no measured benefit. It is now PINNED as data and installed from the record, which is how a measured constant is reproduced. Until 2026-08-05 it existed only as a script literal and bytes in a machine-local DB, so no clone could rebuild the optics its own products were built with; this register watched the removal condition and never noticed the thing it guarded was unrecorded. `lens_preflight.py --require-profile` now asserts installed == pinned, which catches the `lensfun-update-data` wipe the warp-happened proof is blind to. The x86 re-fit stays a CANDIDATE (recorded in the pinned file), untested at product level. **SCOPE AMENDED (user-stated fact): focus recalibrates every session, so the state this model fits is per-FOCUS-EVENT, not per-lens/focal — aug06 measures off-axis 0.82 px vs the july31 family's 0.16–0.47 under it; displacement-vs-blur and session-vs-set granularity are the pre-registered discriminators in BACKLOG:`optical-state-models`** |
+| ~~fitted lensfun entry, per lens/focal (the PINNED `lens_models.json`)~~ | — | 2026-08-08 | **RETIRED — the condition fired: the chain consumes the model ANOTHER WAY (per-set optical-state records).** Granularity measured PER-SET (five fitted states, all 10 pairs beyond the 0.47 px displacement bound; set-01's own model removed the 2x field-term elevation the shared model caused), so one pinned model per lens@focal was wrong by design — right for at most one optical state per night. Every undistort set now carries `qa_work/lens_fit.json` (fitted from its own frames, or explicit `inherited_from` provenance — july31's four sets inherit the july14-fitted state, own-fit untrustworthy per the banded-CP diagnosis) and the chain installs it per run before the preflight verifies it; `lens_models.json` REMOVED (its provenance lives in git history). User-ratified: the pinned method was never the correct way — removed, with all documentation pointing at the per-set method |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-05 | **not fired** — live block verified: vignetting and tca absent, exactly one focal=70 ptlens line. darktable still 5.4.1 / lensfun 0.3.4, so no bump has triggered a re-verify. Re-verify with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
 | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-07 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
@@ -302,14 +302,23 @@ Pre-registered discriminators, in order:
    procedure converges sign-alternating 10x too large, contradicting july31's
    own family-floor products) — july31 stays pinned;
    `datasets/july31/set-01/qa_work/lens_fit_DIAGNOSTIC.json`.
-   The preflight bridge shipped: a `--from-fit` install whose coefficients
-   equal the set's own `lens_fit.json` passes as loud CANDIDATE (readiness
-   YELLOW); everything else still MISMATCH-stops.
+   (The interim CANDIDATE bridge is superseded: record-first authority is
+   now the standing method, states plain `ok`.)
 
-**Closes when** the chain fits/validates the model per optical state as a
-standing step — the optics preflight gains "does the pinned model fit THIS
-session's frames" beside "installed == pinned" — and the aug06 verdict is
-recorded with its numbers. **What this run teaches for that design:** the
+**IMPLEMENTED (user-ratified — the per-set method is THE method, the pinned
+incumbent removed):** the model authority is the set's own
+`qa_work/lens_fit.json` (fitted or explicitly inherited); the chain installs
+it per run (`run_set_chain.sh` → `install_lens_model.sh <session> <set>
+--replace`) and `lens_preflight.py --require-profile` verifies installed ==
+the record, stopping loudly on a record-less set. july31's four sets carry
+inherited records naming the july14-fitted state and its diagnosis.
+
+**Closes when** the remaining standing wiring lands: the chain FITS the model
+as a measure-phase step for a record-less set (placement: after the sky flat
+— the fit calibrates with it), gated by the measured trustworthiness
+predictor (CP radial coverage: all quarter-bins populated + corner support —
+checkpto residuals passed 0.02/0.06 on a banded set that was wrong), and the
+aug06 verdict is recorded with its numbers. **What this run teaches for that design:** the
 per-state check needs (1) the CANDIDATE state generalized: expected
 coefficients resolve set-record-first, pinned-file-second, so a per-set
 install is first-class rather than a sanctioned mismatch; (2) a fit-quality

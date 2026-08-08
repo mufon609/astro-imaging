@@ -303,31 +303,26 @@ def evaluate(session, set_name, route=None, forced_route=None,
         spread = lp.get("spread") or {}
         mixed = any(len(v) > 1 for v in spread.values())
         proof = (lp.get("profile_proof") or {}).get("corrected")
-        pinned = (lp.get("pinned_model") or {}).get("state")
-        if mixed or proof is False or pinned not in (None, "ok", "candidate"):
+        # the model authority is the SET'S OWN record (per-set optical state);
+        # legacy preflight records carry it under "pinned_model"
+        sm = lp.get("state_model") or lp.get("pinned_model") or {}
+        state = sm.get("state")
+        if mixed or proof is False or state not in (None, "ok", "candidate"):
             rows.append(_row("optics", RED,
                              ("MIXED optics" if mixed else
                               "warp not proven" if proof is False else
-                              f"pinned model: {pinned}"),
+                              f"state model: {state}"),
                              "lens_preflight.py (exiftool + darktable render "
                              "diff via Siril stat)", ""))
-        elif pinned == "candidate":
-            # the --from-fit A/B state: installed == the set's OWN recorded
-            # fit, deliberately not the pinned incumbent — met, but SEE it
+        elif state is None:
             rows.append(_row("optics", YELLOW,
-                             "uniform; installed == this set's OWN fitted "
-                             "model (candidate A/B state, not the pinned "
-                             "incumbent); warp proven",
-                             "lens_preflight.py (exiftool + darktable render "
-                             "diff via Siril stat)", ""))
-        elif pinned is None:
-            rows.append(_row("optics", YELLOW,
-                             "warp proven; pinned-model state not recorded "
-                             "(community entry?)", "lens_preflight.py", ""))
+                             "warp proven; state-model check not recorded "
+                             "(pre-preflight record?)", "lens_preflight.py", ""))
         else:
-            key = (lp.get("pinned_model") or {}).get("key", "")
+            src = sm.get("source") or "set record"
             rows.append(_row("optics", GREEN,
-                             f"uniform; installed == pinned ({key}); warp proven",
+                             f"uniform; installed == this set's own model "
+                             f"({src}); warp proven",
                              "lens_preflight.py (exiftool + darktable render "
                              "diff via Siril stat)", ""))
 

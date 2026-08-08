@@ -152,9 +152,11 @@ records `qa_work/star_stations_*.json`) — cells are [n, majFWHM px, roundness]
   community: centre station **5.30 → 3.67 px** (roundness 0.480 → 0.629),
   all-station spread 1.70 → **0.52 px**, truncated-mean **3.27 → 3.06 px**,
   stars +10%, sensor tilt 0.51 → 0.31. Approved on the user's eyes, full-frame
-  lossless. The model is since PINNED as data and installed from the record
-  (`scripts/darktable/lens_models.json`; BACKLOG `removal-conditions`, the
-  fitted-lens row).
+  lossless. Models are since PER-SET records — each set's optical state,
+  fitted from its own frames or explicitly inherited, carried in
+  `qa_work/lens_fit.json` and installed per run by the chain
+  (BACKLOG:`optical-state-models`; the repo-global pinned file was removed
+  when granularity measured per-set).
 
 ## The experiment — one knob, on the real frames
 
@@ -272,8 +274,8 @@ route C (short window, floor-limited, 1/4 depth, +56% field — kept as the
 fallback if the route ever fails on a set). Not proposed: cropping to the good
 field (hides a defect that is in the data). The honest floor stands: ~3.4–3.6 px
 in-exposure trailing in every frame. Trade-off recorded: the fix depends on a
-lensfun DB update the distro does not provide, and on a fitted entry now pinned
-as repo data; the session's records are archived (git history).
+lensfun DB update the distro does not provide, and on per-set fitted-state
+records installed per run; the session's records are archived (git history).
 
 ## The production chain (what runs, and the traps in it)
 
@@ -332,8 +334,9 @@ Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
   entry; the darktable-style inertness entry; the ICC contract.
 - **`BACKLOG.md`** — `one-sided-band` (the open residual term),
   `native-solve-and-sip` (the Siril-native SIP comparator, the fitted model's
-  removal-condition test), `route-recommendation`, and the pinned-model row in
-  `removal-conditions`.
+  removal-condition test), `route-recommendation`, and
+  `optical-state-models` (the per-set model doctrine; the retired pinned-model
+  register row records why the old method died).
 
 ## Sources
 

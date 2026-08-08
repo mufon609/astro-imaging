@@ -1,0 +1,11 @@
+{
+ "fitted_ptlens": {
+  "a": 0.00350093,
+  "b": 0.01453356,
+  "c": 0.00043983
+ },
+ "inherited_from": "the july14-fitted optical state (fitted 2026-07-17 from july14/set-01's own frames, prior rig; provenance incl. the x86 refit equivalence measurement lives in git history of scripts/darktable/lens_models.json, removed when models became per-set records)",
+ "why_inherited": "this session's own fit is UNTRUSTWORTHY for a measured mechanism \u2014 CP coverage radially BANDED under the moonlit gradient (set-01/qa_work/lens_fit_DIAGNOSTIC.json); every july31 product was built under these coefficients and measures the off-axis family floor (0.16-0.47 px), which is the product-level evidence the inheritance stands on",
+ "hfov_deg_pinned": 28.69,
+ "accepted_by": "the july31 products themselves (star_shape records, 0.16-0.47 px off-axis)"
+}

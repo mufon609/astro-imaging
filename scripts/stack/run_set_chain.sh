@@ -537,6 +537,14 @@ fi
 # flat is the flat. The builder keeps its own call — defence in depth, not a
 # substitute.
 if [ "$ROUTE" != standard ]; then
+  # PER-SET MODEL INSTALL, the standing method (BACKLOG:`optical-state-models`):
+  # the lensfun user DB is GLOBAL machine state and the model keys on the
+  # set's own optical state, so every undistort run installs THIS set's
+  # recorded model before verifying it. A record-less set stops loudly inside
+  # the installer with the fit-or-inherit instruction; --replace because
+  # swapping out another set's state is the routine, not the exception.
+  say "optics: install this set's own model (per-set optical state)"
+  "$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET" --replace
   say "optics preflight (before the masters — a wrong-optics stop must not cost a flat build)"
   mkdir -p "$DSET/qa_work"
   python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile \
