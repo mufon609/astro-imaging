@@ -412,5 +412,104 @@
   "law": "registered measured mechanism (docs/dead-ends.md): autostretch amplification of a fractional background residual scales ~sqrt(sky x N)",
   "inputs_verified": "sky medians from the validated reads (cov13 75.1, cov28 63.7, set03 49.0 on the _spcc surfaces the stretch consumes); N from STACKCNT headers (1454, 2954, 456-500 per set)",
   "arithmetic": "combines render 2.1-2.2x and 2.8-2.9x a set-03-class surface's amplification; per-set surfaces sit at 1.0-1.2x on the same reference"
+ },
+ "july31_4set_control": {
+  "method": "same instrument + mapping as the aug06 probes, on web/results/july31/stack_set-01+02+03+04_full (17 sub-stacks, 1760 frames, -framing=min, built on the identical post-revert chain and byte-identical compose algorithm; members + sky flats all post-revert rebuilds); all four canvas corners probed vs the four per-set stacks at identical sky",
+  "combine_specific_increment_pct": "0.0-0.2 at every corner (combine minus per-set controls at identical sky) - CLEAN, vs the aug06 twins' +0.8-1.3",
+  "corner_excess_all4": {
+   "c00": [
+    0.54,
+    0.52,
+    0.02,
+    -0.06,
+    -0.51
+   ],
+   "c10": [
+    0.3,
+    0.26,
+    0.12,
+    0.21,
+    -0.05
+   ],
+   "c01": [
+    0.24,
+    0.26,
+    0.08,
+    -0.15,
+    -0.09
+   ],
+   "c11": [
+    -0.05,
+    0.01,
+    0.21,
+    0.12,
+    0.08
+   ]
+  },
+  "per_set_controls_note": "per-set arms agree with the combine to ~0.1-0.2 at every point; member families still differ ~1% at the same sky (s04 vs s01-03 at c00) - dispersion exists, the min-framed product does not reach it",
+  "regional_spcc_G": {
+   "center": 126.94,
+   "TL": 125.97,
+   "TR": 126.97,
+   "BL": 126.21,
+   "BR": 126.74
+  }
+ },
+ "corner_position_geometry": {
+  "method": "combine corner positions mapped through the WCS into each member set's per-set canvas; minimum distance (px) to that canvas's edge, negative = outside it",
+  "aug06_cov13_max_covcrop": {
+   "c00": {
+    "s1": -113,
+    "s2": -105,
+    "s3": 184
+   },
+   "c10": {
+    "s1": -15,
+    "s2": 266,
+    "s3": 181
+   },
+   "c01": {
+    "s1": 300,
+    "s2": -129,
+    "s3": 261
+   },
+   "c11": {
+    "s1": -13,
+    "s2": 171,
+    "s3": 260
+   }
+  },
+  "july31_all4_min": {
+   "c00": {
+    "s1": 458,
+    "s2": 483,
+    "s3": 133,
+    "s4": 727
+   },
+   "c10": {
+    "s1": 391,
+    "s2": 148,
+    "s3": 241,
+    "s4": 200
+   },
+   "c01": {
+    "s1": 246,
+    "s2": 497,
+    "s3": 180,
+    "s4": 302
+   },
+   "c11": {
+    "s1": 37,
+    "s2": 205,
+    "s3": 350,
+    "s4": 224
+   }
+  },
+  "reading": "three of four max+covcrop corners lie OUTSIDE at least one per-set canvas (the member-edge drift band); every min-framing corner lies inside all per-set canvases - the zone the corner term lives in is shipped by the max+covcrop route and never by min"
+ },
+ "desky_arc_verification": {
+  "f170540_added": "per-frame `seqsubsky pp_c 1` on each CALIBRATED light (correct domain), one flag with the flat-side desky (incorrect domain, the measured 31x regression)",
+  "895f268_removed": "both halves - the lights-side member-gradient matching left the chain as collateral; BACKLOG:render-ladder L1 records the gap",
+  "compose_code_between_builds": "diff d17e777..295aa26 on run_undistort_compose.sh: serialized invoker + setext pin only - the compose algorithm is byte-identical between the clean july31 4-set and the failed twins"
  }
 }
