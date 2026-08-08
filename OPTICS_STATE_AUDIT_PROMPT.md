@@ -10,7 +10,8 @@ verdicts), `datasets/aug06/experiments.jsonl` (the ledger entries
 `datasets/aug06/set-01/qa_work/lens_fit.json` (114 CPs, strict-pruned).
 Verdicts: the aug06 field-term elevation is DISPLACEMENT (the raws are
 clean); the optical state is PER-SET. This prompt is the execution of
-adoption step 3.
+adoption step 3. **Trigger: start when the in-flight set-03 build completes**
+— that product is a control arm, not waste.
 
 ## The work, in order
 
@@ -42,15 +43,32 @@ adoption step 3.
    you state the heterogeneity in the combine's record.
 5. **Baselines**: accepted rebuilds fail their seeded baselines BY DESIGN —
    re-seed with a note only after the user accepts each product.
-6. **The combine** (RUN_AUG06_PROMPT.md goal 2, membership ratified: six
-   ~500-frame members, full sets only): compose the rebuilt own-model
-   members' sub-stacks; coverage record per the prompt; the cross-set
-   record-home gap (BACKLOG:`cross-set-record-home`) still applies — degrade
-   loudly on record placement.
+6. **TWIN combines, both built (user-ordered A/B)** — from the rebuilt
+   own-model members' sub-stacks, compose BOTH: (a) aug06-only (its three
+   ~500-frame sets) and (b) the six-member both-sessions combine
+   (membership ratified: full sets only). Like-encoded judge surfaces side
+   by side + a coverage record for EACH arm. Carry the measured context in
+   the record: july31 sky is only ~6% brighter per frame (bg 1115–1117 vs
+   1050–1055 — light-pollution-dominated site, so no SNR penalty and the
+   six-member arm gains ~1.4x depth), the two nights' gradient orientations
+   are FLIPPED (partial cancellation, magnitude measurable only in the
+   build), and the pointing spans cost canvas: aug06-only 1.89 x 0.19 deg
+   vs six-member 5.21 x 1.58 deg (~an extra ~700 x 300 px off the
+   fully-covered area). WHICH arm carries forward is the user's eyes on the
+   paired surfaces — never decided here. The cross-set record-home gap
+   (BACKLOG:`cross-set-record-home`) still applies — degrade loudly on
+   record placement.
 7. **Close the loop**: update BACKLOG:`optical-state-models` step 3 with the
    A/B numbers; the standing-preflight wiring ("does the pinned model fit
    THIS session's frames") remains the item's closing condition — note what
    its design should be from what this run teaches.
+
+## Not in this run (scope fence)
+
+The render-ladder L1 background step (the lever for july31's moonlit
+gradient — user-gated, its own bracket), the final best-N% pass (needs more
+sessions), and any change to combine MEMBERSHIP (ratified: full sets only;
+set-00 and set-04 stay standalone).
 
 ## Constraints
 
