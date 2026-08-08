@@ -1,10 +1,7 @@
 {
  "stack": {
   "weight": null,
-  "exclude": [
-   6237,
-   6238
-  ],
-  "why": "hand-excluded pre-burst frames: shot 49 s before the contiguous 500-frame burst across a 43 s timer pause; solved re-aim residual +3.0/-1.6 px \u2014 the tripod did not move, so the cost is pure drift span: their footprints sit 35 px west of the burst start (597 arcsec sky), extending every product's -framing=min trim by ~35 px of width against 2/502 = 0.4% of depth (the min-canvas is sized by TIME SPAN, not frame count \u2014 dead-ends framing entry). Both frames also carry audit object #1 (satellite, 2-frame dwell). Solve record: qa_work/mount_probe/solve_aim_green.json."
+  "exclude": [],
+  "why": "pre-burst frames DSC_6237/6238 DELETED from staging at user order (originals off-rig; re-stageable) \u2014 previously hand-excluded on the measured basis: 49 s pre-burst across a 43 s timer pause, re-aim residual +3.0/-1.6 px (tripod never moved), footprints 35 px west of the burst start = pure drift-span cost vs 2/502 depth. The shipped stack (500 frames, 5x100 groups) is unchanged; solve record: qa_work/mount_probe/solve_aim_green.json. Exclude list emptied because cullspec hard-aborts on excludes matching no staged frame."
  }
 }

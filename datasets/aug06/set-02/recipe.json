@@ -1,0 +1,10 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   6746,
+   6775
+  ],
+  "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_6746.NEF: bg; DSC_6775.NEF: bg). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "frames": 500,
+ "optics": {
+  "file": "DSC_7239.NEF",
+  "camera": "NIKON Z6_3",
+  "lens": "NIKKOR Z 24-70mm f/4 S",
+  "focal_mm": "70.0 mm"
+ },
+ "spread": {
+  "camera": {
+   "NIKON Z6_3": 500
+  },
+  "lens": {
+   "NIKKOR Z 24-70mm f/4 S": 500
+  },
+  "focal_mm": {
+   "70.0 mm": 500
+  }
+ },
+ "record": {
+  "record": "/home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/acquisition.json",
+  "agrees": true
+ },
+ "profile_proof": {
+  "siril_stat_sigma": [
+   1723.5,
+   1187.2,
+   1219.0
+  ],
+  "siril_stat_max": [
+   65535.0,
+   64120.0,
+   64668.0
+  ],
+  "corrected": true
+ },
+ "pinned_model": {
+  "state": "ok",
+  "key": "NIKKOR Z 24-70mm f/4 S@70",
+  "coefficients": {
+   "a": 0.00350093,
+   "b": 0.01453356,
+   "c": 0.00043983
+  }
+ }
+}
