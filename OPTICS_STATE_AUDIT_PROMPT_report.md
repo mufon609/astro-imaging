@@ -203,3 +203,14 @@ BACKLOG:`cross-set-record-home`, still open; no new location was invented.
   runs after item 3 closes (one at a time, per the user; provisionally
   unrelated: background-level vs PSF-width observables, combine-local vs
   night-wide scopes).
+
+## Revocation (appended)
+
+The i450 inset recrop is **REVOKED by the user, correctly, as a bandaid** —
+the registered dead-end class ("never hide a rim defect with a crop"). It
+discarded ~45% of each canvas to hide a defect that remains in the data. The
+i450 products and their records are removed; the twin combines stand in
+their FAILED state as the audit's evidence, and the corner problem is
+**PAUSED for an independent process audit**
+(`COMBINE_CORNERS_AUDIT_PROMPT.md`). This session's mechanism claims for the
+corners are inputs to that audit, not settled findings.
