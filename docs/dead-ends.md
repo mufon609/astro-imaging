@@ -241,9 +241,34 @@ the constraints any such tool must satisfy):
   (<=0.2%) from the min-framed control built by the same chain
   (`datasets/aug06/set-03/qa_work/audit_combine_corners_measurements.json`).
   (2) is restored UNCOUPLED as `--subsky-lights` (run_undistort_pipeline.sh;
-  default OFF pending the pre-registered `subsky_lights_restoration` arm).
-  Do not re-couple the halves, and do not cite this entry against the
-  lights-side step.
+  default OFF). Do not re-couple the halves, and do not cite this entry
+  against the lights-side step.
+
+- **PER-FRAME DEGREE-1 SUBSKY ON CALIBRATED LIGHTS DOES NOT REMOVE THE
+  COMBINE'S FULL-COVERAGE-CORNER TERM — the term is not additive-planar
+  member drift; do not re-attempt additive/global background matching as the
+  corner fix.** MEASURED (`subsky_lights_restoration` ledger arm, one knob,
+  aug06 3-set framing=max union, members rebuilt with `--subsky-lights`,
+  controls preserved): the stage ran (union sky 107.5 → 40.4 ADU, MAD
+  unchanged 2.67 → 2.46), yet the combine-specific increment (union minus its
+  own member family at identical sky, ADU) held — c00 1.35→0.55 at the corner
+  but 0.98→0.94 at 300 px; c11 0.99→1.37 — and the like-encoded judge
+  surfaces are corner-EQUIVALENT (16-bit DN corner-minus-flank: +2823 vs
+  +2941 at c00; −1526 vs −1653 at c11). Two mechanism consequences:
+  (1) equal ADU structure at equal MAD renders equally whatever the sky
+  level — the autostretch re-anchors, so lowering the sky buys no corner
+  visibility; (2) surviving ADDITIVE matching discriminates the driver as
+  the MULTIPLICATIVE member-corner class (the open `sky × V` object tilt /
+  vignetting residual at member sensor corners), unreachable by ANY
+  background subtraction — the fix class is calibration-side (real flats at
+  acquisition, the july23 corner investigation's own verdict), the
+  min-vs-max framing trade, or a spatially-varying matching mechanism no
+  free-headless tool in this toolkit provides (a full per-member BGE is
+  class-blocked on MW-filled fields — the GraXpert-Division entry).
+  SECONDARY, same run (scope: these regions, one dataset): degree-1
+  preserved the real local structure (total c00 excess 3.26 → 3.16 ADU) and
+  the noise — the render-stage background question (L1) is untouched by
+  this kill and stays open.
 
 - **A SKY FLAT'S LOW-ORDER TERM CHANGES MATERIALLY WITHIN ONE 25-MINUTE BURST —
   so a set-mean flat is the wrong flat for the ENDS of the burst — but the

@@ -374,3 +374,46 @@ ever approved was built in the one window when the stage existed. The fix
 direction is upstream — restore the matching step and settle the framing
 trade — decided by the user, executed as rebuilds; the defective
 composites themselves are evidence and stay untouched.
+
+---
+
+## 8. Addendum — the restoration arm's measured verdict
+
+The §6-item-1 experiment ran (`subsky_lights_restoration`, pre-registered):
+members rebuilt with `--subsky-lights`, controls preserved, identical compose
+(framing=max, nbstack, pinned reference), like-encoded judge pair finished.
+
+**REFUTED as the corner fix; NULL on the rendered surface.** The stage
+demonstrably fired (union sky 107.5 → 40.4 ADU, MAD unchanged 2.67 → 2.46),
+but the combine-specific corner increment did not collapse — ADU: c00
+1.35→0.55 at the corner yet 0.98→0.94 at 300 px, c11 0.99→1.37 — and the two
+judge PNGs are corner-equivalent (DN corner-minus-flank +2823 vs +2941 at
+c00, −1526 vs −1653 at c11): equal ADU structure at equal noise renders
+equally, whatever the sky level, because the autostretch re-anchors.
+
+**What the refutation buys — the mechanism narrows.** The corner term
+survives per-frame ADDITIVE degree-1 matching, so it is predominantly NOT
+additive-planar member sky drift. That leaves the MULTIPLICATIVE
+member-corner class — the open `sky × V` object tilt and vignetting-residual
+at member sensor corners — which no background subtraction can remove by
+construction. This is where the july23 corner investigation landed too:
+**upstream — real flats at acquisition.** Registry entry recorded.
+
+**The recommended path, re-ranked by this measurement (user decides):**
+1. **Real flats at the session's optical state** — the acquisition-side fix
+   the checklist already prescribes and the only lever that touches the
+   multiplicative class at its source. Until a session carries them, the
+   corner term is a property of the sky-flat route's members.
+2. **The framing trade is the process-side lever**: min framing never ships
+   the member-corner band (measured clean); the ratified max+crop route
+   ships it and now carries a measured, mechanism-attributed ~1 ADU corner
+   term that no in-doctrine processing step removes. The max picture shows
+   it, honestly, until (1).
+3. Spatially-varying member matching (LN/NSG/LNC-class) is the mainstream
+   tool for exactly this — and no free-headless tool in this toolkit
+   provides it (Siril has none; per-member full BGE is class-blocked on
+   MW-filled fields per the registry). A documented gap, not a build item.
+4. `--subsky-lights` stays available, default OFF; its original render-stage
+   question (L1 background level) is untouched by this kill and remains the
+   open, user-gated ladder — with one new measured fact in its favor:
+   degree-1 preserved local structure and noise in these regions.

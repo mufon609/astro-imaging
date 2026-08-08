@@ -511,5 +511,87 @@
   "f170540_added": "per-frame `seqsubsky pp_c 1` on each CALIBRATED light (correct domain), one flag with the flat-side desky (incorrect domain, the measured 31x regression)",
   "895f268_removed": "both halves - the lights-side member-gradient matching left the chain as collateral; BACKLOG:render-ladder L1 records the gap",
   "compose_code_between_builds": "diff d17e777..295aa26 on run_undistort_compose.sh: serialized invoker + setext pin only - the compose algorithm is byte-identical between the clean july31 4-set and the failed twins"
+ },
+ "subsky_lights_arm": {
+  "build": "aug06 set-01/02/03 members rebuilt with --subsky-lights (one knob; controls preserved at canonical paths as groups_set-0X + arm dirs groups_set-0X_subsky1); framing=max union composed with identical args (nbstack, ref=arm set-03 sub_02)",
+  "stage_fired": {
+   "union_sky_ADU": [
+    107.53,
+    40.44
+   ],
+   "union_MAD_ADU": [
+    2.67,
+    2.46
+   ],
+   "note": "ctrl vs arm at the c00 flank geometry \u2014 additive sky removed, noise unchanged"
+  },
+  "linear_increment_union_minus_own_members_ADU": {
+   "c00_boxes_0_100_200_300_500px": {
+    "ctrl": [
+     1.35,
+     0.89,
+     0.97,
+     0.98,
+     0.31
+    ],
+    "arm": [
+     0.55,
+     0.5,
+     0.66,
+     0.94,
+     0.14
+    ]
+   },
+   "c11_boxes": {
+    "ctrl": [
+     0.99,
+     1.02,
+     0.57,
+     0.51,
+     0.27
+    ],
+    "arm": [
+     1.37,
+     1.15,
+     0.71,
+     0.69,
+     0.28
+    ]
+   },
+   "fractional_note": "in each product's own fractional terms the arm reads 1.2-3.4% (its sky denominator is 2.66x smaller) \u2014 the pre-registered <=0.2%/>=0.5% criterion is REFUTED in that form"
+  },
+  "rendered_judge_PNG_DN_corner_minus_flank": {
+   "c00": {
+    "ctrl": [
+     2823,
+     2728,
+     2013,
+     99
+    ],
+    "arm": [
+     2941,
+     2791,
+     2069,
+     174
+    ]
+   },
+   "c11": {
+    "ctrl": [
+     222,
+     30,
+     -929,
+     -1526
+    ],
+    "arm": [
+     110,
+     -143,
+     -1049,
+     -1653
+    ]
+   },
+   "reading": "corner-equivalent to the eye; equal ADU structure at equal MAD renders equally regardless of sky level \u2014 the autostretch re-anchors"
+  },
+  "mechanism_discrimination": "the corner term survives per-frame additive degree-1 matching => predominantly NOT additive-planar member sky drift; consistent with the multiplicative member-corner class (sky x V object tilt / vignetting residual), unreachable by any background subtraction",
+  "structure_safety_secondary": "total real c00 corner excess 3.26 -> 3.16 ADU (preserved); MAD unchanged \u2014 degree-1 did not eat local structure in these regions (n=this field)"
  }
 }
