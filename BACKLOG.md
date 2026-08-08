@@ -284,20 +284,41 @@ Pre-registered discriminators, in order:
    curve-to-FWHM mapping is unsettled and adoption rides the product A/B;
    the july31 refit is broken (66 CPs / 152 px residuals, cause open — july
    products stand under the pinned incumbent regardless).
-3. **Adopt per the verdict — the remaining execution.** Each aug06 set warps
-   with its OWN fitted model: rebuild set-00 and set-01 under their recorded
-   models as the acceptance A/B (`star_stations` + `seqtilt` vs the current
-   products — the fit is never accepted on its own residual); fit set-02/03
-   from their own frames and rebuild theirs after the current pinned-model
-   builds land. Members each warped under their OWN correct model remain
-   composable: the compose requires correct rectification per member, not a
-   shared model (a WRONG model, not a different one, is what re-enters the
-   group-registration dead-end). The combine waits for the rebuilt members.
+3. **Adopt per the verdict — EXECUTED, A/B measured (products awaiting the
+   user's eyes).** All four aug06 sets rebuilt warp-onward under their OWN
+   fitted models (set-02 125 CPs 0.02/0.08 px, set-03 150 CPs 0.02/0.07 px —
+   both needed the set-01 strict prune; controls preserved as
+   `*-pinned` products + `groups_*_pinned` dirs). seqtilt pinned->own:
+   **set-01 0.82 -> 0.48 px off-axis, tilt 0.53/18% -> 0.24/9%, FWHM 2.99 ->
+   2.81 — the decisive WIN**, stations agreeing (along-1300 3.98 -> 3.49,
+   along-700 3.34 -> 3.08: the along-drift band removed); set-00 0.48 ->
+   0.46, set-02 0.57 -> 0.60, set-03 0.60 -> 0.62 with all stations within
+   ±0.07 px — **NULL, measurement-equivalent arms**. OPEN, two things:
+   (a) sets 00/02/03's residual +0.1–0.15 px over july31's 0.16–0.47 family
+   survives their own models — NOT state displacement, unattributed;
+   (b) the july31 refit is UNTRUSTWORTHY for a measured mechanism (CP
+   coverage radially BANDED under the moonlit gradient — bins
+   [0,45,5,143,15,0], zero corner support — vs aug06's full-field; the
+   procedure converges sign-alternating 10x too large, contradicting july31's
+   own family-floor products) — july31 stays pinned;
+   `datasets/july31/set-01/qa_work/lens_fit_DIAGNOSTIC.json`.
+   The preflight bridge shipped: a `--from-fit` install whose coefficients
+   equal the set's own `lens_fit.json` passes as loud CANDIDATE (readiness
+   YELLOW); everything else still MISMATCH-stops.
 
 **Closes when** the chain fits/validates the model per optical state as a
 standing step — the optics preflight gains "does the pinned model fit THIS
 session's frames" beside "installed == pinned" — and the aug06 verdict is
-recorded with its numbers.
+recorded with its numbers. **What this run teaches for that design:** the
+per-state check needs (1) the CANDIDATE state generalized: expected
+coefficients resolve set-record-first, pinned-file-second, so a per-set
+install is first-class rather than a sanctioned mismatch; (2) a fit-quality
+gate BEFORE any rebuild — CP radial coverage (all quarter-bins populated +
+corner support) predicts trustworthiness better than checkpto residuals
+(july31 read 0.02/0.06 clean on a banded set and was still wrong); (3) the
+last-installed model is global machine state — after a per-set campaign the
+DB holds the LAST set's model, and only the preflight's loud states make
+that safe.
 
 ## `final-best-percent-pass` — one target, many sessions, stack the best N%
 

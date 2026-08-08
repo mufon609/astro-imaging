@@ -7,6 +7,13 @@
 # the map is a PROBE instrument, never the deliverable.
 #
 #   coverage_probe.sh --out=<map.fit> <substack-dir>... [--framing=max]
+#                     [--ref=<1-based index in link order>]
+#
+# --ref pins the registration REFERENCE (setref after the -2pass, the same
+# re-basing the compose script uses) so the map's canvas matches a compose
+# pinned to the SAME member — without it both auto-pick and the doc's
+# dimensions-check is the only guard. Link order = argument order, so the
+# index is computable from the member counts.
 #
 # Same member interface + order as run_undistort_compose.sh (dirs of
 # sub_*.fit, linked in argument order), so the map reproduces the compose's
@@ -39,9 +46,10 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
-OUT= FRAMING=max; DIRS=()
+OUT= FRAMING=max REF=; DIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
+  --ref=*) REF=${a#*=};;
   --*) echo "unknown arg $a" >&2; exit 1;;
   *) DIRS+=("$a");;
 esac; done
@@ -78,8 +86,13 @@ for ((i=1;i<=n;i++)); do
   mv "$W/const/c_$(printf %05d "$i").fit" "$W/seq/s_$(printf %05d "$i").fit"
 done
 [ "$n" -le 65 ] || echo "WARNING: $n members exceed the 65535/1000 sum ceiling — map values clip at 65535 (65.5 members); coverage thresholds <= 65 remain valid (see docstring)"
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/seq\nseqapplyreg s -framing=%s -prefix=r_\nset32bits\nstack r_s sum -out=%s\n' \
-  "$W" "$FRAMING" "$OUT" > "$W/a.ssf"
+if [ -n "$REF" ]; then
+  { [ "$REF" -ge 1 ] && [ "$REF" -le "$n" ]; } 2>/dev/null \
+    || { echo "ABORT: --ref=$REF is not a 1..$n link index" >&2; exit 1; }
+  echo "reference pinned: member $REF of $n (setref after -2pass, the compose's own re-basing)"
+fi
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/seq\n%sseqapplyreg s -framing=%s -prefix=r_\nset32bits\nstack r_s sum -out=%s\n' \
+  "$W" "${REF:+setref s $REF$'\n'}" "$FRAMING" "$OUT" > "$W/a.ssf"
 sir "$W/a.ssf"
 [ -f "$OUT.fit" ] || { echo "ABORT: no coverage map — read $W/siril.log" >&2; exit 1; }
 rm -rf "$W"
