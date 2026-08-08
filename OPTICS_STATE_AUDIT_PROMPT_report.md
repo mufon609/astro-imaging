@@ -172,3 +172,34 @@ BACKLOG:`cross-set-record-home`, still open; no new location was invented.
   item's closing condition.
 - Sub-stacks for BOTH arms of every aug06 set and july31's three full sets
   remain on disk; every alternative compose is one command away.
+
+## Verdicts and follow-through (appended after the user's judgment)
+
+- **Decisions 1+2 APPROVED** — the own-model products ship for all four sets;
+  baselines seeded per set (`baseline_guard.py --seed`, guard-geometry corner
+  spreads 0.315/0.597/0.215/1.022%). **The per-set method is ratified as THE
+  method and the pinned-incumbent architecture is REMOVED**: the model
+  authority is each set's own `qa_work/lens_fit.json` (fitted, or explicit
+  `inherited_from` — july31's four sets carry inherited records naming the
+  july14-fitted state and its banded-CP diagnosis); the chain installs the
+  set's model per run and the preflight verifies installed == record,
+  stopping loudly on a record-less set; `lens_models.json` deleted (git
+  history carries its provenance); every doc pointer swept. The interim
+  CANDIDATE bridge is superseded by record-first authority.
+- **Decision 3: both combine surfaces FAILED on corners (user's eyes).**
+  Investigation so far, measured: the corners are worse in the LINEAR data
+  (grid corner boxes −1.3%..+2.7% vs a per-set reference's ≤+1.0%), on top of
+  the depth-dependent stretch amplification (~2.1×/2.8× a 500-frame
+  surface's). cov13's excess is boundary-local (decays to field level by
+  ~420 px of the coverage boundary — member sensor-corners converge there and
+  their flats' non-radial residuals add instead of averaging); a 450 px
+  mask-erosion recrop was built and finished (`*_cov13i450`/`*_cov28i450`
+  products + judge surfaces). But a ~2% patch ~1,000 px deep persists near
+  cov28's corner with NO boundary decay — next discriminator: the same SKY
+  position compared across both arms' WCS (real structure appears in both at
+  amplitude; a july31-member flat residual appears only in cov28).
+  Ledger: `combine_corner_fail_investigation`.
+- **Decision 4 approved** — `aug06_family_elevation_chase` pre-registered;
+  runs after item 3 closes (one at a time, per the user; provisionally
+  unrelated: background-level vs PSF-width observables, combine-local vs
+  night-wide scopes).

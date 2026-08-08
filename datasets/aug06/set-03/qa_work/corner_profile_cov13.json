@@ -1,0 +1,56 @@
+{
+ "image": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_cov13_spcc.fit",
+ "box_px": 100,
+ "corner": "siril (0,0) = the +2.53% grid corner",
+ "instrument": "Siril stat medians (green), 100px boxes stepping inward",
+ "profiles": {
+  "diag": [
+   77.6,
+   77.1,
+   76.9,
+   75.3,
+   75.4,
+   76.2,
+   76.1,
+   75.2,
+   76.4,
+   76.2,
+   75.6,
+   75.4,
+   75.3,
+   75.9
+  ],
+  "xedge": [
+   77.6,
+   77.1,
+   76.2,
+   75.0,
+   73.9,
+   73.4,
+   74.3,
+   74.4,
+   74.5,
+   75.9,
+   76.2,
+   76.1,
+   74.2,
+   75.1
+  ],
+  "yedge": [
+   77.6,
+   76.4,
+   76.2,
+   76.1,
+   75.1,
+   74.7,
+   74.8,
+   74.9,
+   75.3,
+   74.8,
+   75.0,
+   75.1,
+   74.9,
+   74.9
+  ]
+ }
+}

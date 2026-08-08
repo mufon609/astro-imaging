@@ -1,0 +1,22 @@
+{
+ "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
+ "measures": {
+  "corner_spread_pct": 0.597,
+  "edge_dipole_x": 0.0015,
+  "centre_median_per_channel": {
+   "ch0": 67.4,
+   "ch1": 67.6,
+   "ch2": 67.2
+  },
+  "stack": "web/results/aug06/stack_set-01_full_spcc.fit",
+  "stack_id": "eede6b199630fa36777013f4d2f4359c"
+ },
+ "tolerances": {
+  "corner_spread_pct_max_abs": 3.0,
+  "corner_spread_pct_max_over_baseline": 1.0,
+  "edge_dipole_x_max_abs": 0.05,
+  "centre_median_max_frac_change": 0.25
+ },
+ "note": "user-accepted own-model adoption (per-set optical state); pinned-model control preserved as *-pinned",
+ "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
+}

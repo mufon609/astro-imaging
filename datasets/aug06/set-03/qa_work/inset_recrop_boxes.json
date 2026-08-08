@@ -1,0 +1,16 @@
+{
+ "cov13i450": {
+  "x": 2149,
+  "y": 1165,
+  "w": 3259,
+  "h": 2372
+ },
+ "cov28i450": {
+  "x": 2980,
+  "y": 1747,
+  "w": 2439,
+  "h": 2168
+ },
+ "inset_px": 450,
+ "why": "full-coverage mask eroded 450 px before the largest-rectangle derivation: corner profiles on the un-inset cov13 crop decay to field level by ~420 px of the coverage boundary (corner_profile_cov13.json) \u2014 the boundary rim is where member sensor-corners converge and their flats' non-radial residuals add instead of averaging"
+}
