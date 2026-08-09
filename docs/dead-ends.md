@@ -1235,6 +1235,14 @@ SILENT — pin the state, never inherit it):
   against shipped values ~0.001–0.02), confirming the documented degenerate
   basin. A corner-true fit needs corner CORRESPONDENCES that are actually good.
 
+- **`member_separation.py` cannot score a WIDE MULTI-NIGHT max-framed union at
+  all.** MEASURED on the 28-member two-night union: 378/378 pairs returned n/a —
+  at `-framing=max` each member occupies a fraction of a huge canvas, so no pair
+  shares a canvas zone with ≥100 matched stars. It correctly reported UNMEASURED
+  rather than passing what it could not see, but the gate is blind for this
+  product class until zones are defined per MEMBER FOOTPRINT rather than per
+  canvas — the same fix the cross-night binning needs.
+
 - **`member_separation.py`'s zones are CANVAS-radial, so no ABSOLUTE cross-night
   number from it is trustworthy.** Canvas radius equals field radius only when
   the members are near co-pointed — true for every cell it was validated on
