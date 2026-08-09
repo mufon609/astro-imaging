@@ -448,3 +448,26 @@ but F1 removes the visible defect and this does not. The test is in §3c.
 - No fix executed; the failed products stand untouched as evidence; nothing
   ships.
 - The owner decides F1's model choice; F2–F4 are cheap and independent of it.
+
+---
+
+## 9. Review addendum — F1's scope, measured (the owner's multi-night question)
+
+The owner asked whether F1 (one model per combine family) extends to
+multi-night combining — the project's core use. MEASURED (X1 cell, this
+report's own instrument, whole-frame match n=12,658): a july31 member and an
+aug06 member warped under the IDENTICAL pinned model — so the shared model
+cancels and only the true between-night state difference remains — disagree
+by **0.33 / 0.99 / 1.87 / 4.07 px** (centre/mid/outer/corner). 4.07 px
+exceeds the 2.99 px own-models failure: **a shared family model does not
+extend across nights.** F1 is same-night-scoped (0.35–0.93 px measured
+within-night).
+
+Revised ranking, for the owner's decision: **F2 is the multi-night
+requirement** (corner-true per-set fits — corner-support gate + control
+points reaching toward ρ=1.8, e.g. cross-pointing frame pairs that place the
+same star at corner-vs-midfield radii); the per-set model doctrine STANDS;
+F1 demotes to a same-night fallback where a trustworthy fit is missing; F3's
+compose assertion generalizes to model-COMPATIBILITY (identical or
+measured-agreeing members); F4's member-separation measure is the combine
+acceptance instrument; F5 folds into F2.

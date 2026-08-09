@@ -97,6 +97,18 @@
    ],
    "offset_px": 98,
    "rot_deg": 9.28
+  },
+  "cross_night_j31s01_a06s01pinned_ONE_model": {
+   "n": 12658,
+   "v": [
+    0.33,
+    0.99,
+    1.87,
+    4.07
+   ],
+   "offset_deg": 6.1,
+   "rot_deg": 8.3,
+   "note": "X1 cell (sessions/aug06/work/smear_arm/X1): july31 s01 sub_01 + aug06 s01-PINNED sub_01, both warped under the identical pinned model, so the separation is the pure between-night optical-state difference (the shared model cancels: (D_A-M)-(D_B-M)=D_A-D_B). Whole-frame match (not regional crops), same zones/tol as the A-cells. CONSEQUENCE: a shared family model does NOT extend across nights - 4.07 px corner exceeds the 2.99 own-models failure; F1-as-shared-model is same-night-scoped, and multi-night composition requires corner-true PER-STATE fits (F2)."
   }
  },
  "member_residual_distortion_sip": {
