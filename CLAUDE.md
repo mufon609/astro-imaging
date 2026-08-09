@@ -312,12 +312,8 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   states the industry-standard way FIRST (with its source), adopts it unless a
   measured constraint forces deviation, and records the deviation with its
   reason. An internal doctrine never overrides an industry default outside its
-  own scope (measured cost: "the repo versions process, not image data" — a
-  rule about GIT — was transplanted into the archival contract and inverted
-  the FITS self-description standard; combining would have required repo
-  access years later. The industry answer, self-describing files, was basic,
-  known, and unasked-for). The bright line's anti-drift test already forces
-  this question for pixel operations; this rule forces it for design.
+  own scope. The bright line's anti-drift test forces this question for pixel
+  operations; this rule forces it for design.
 - **No bandaids.** Never compress, darken, crop, or otherwise HIDE a
   symptom instead of fixing its cause. A blown star means the
   stretch/balance upstream is wrong; a rim artifact is in the data — fix
