@@ -28,8 +28,9 @@ field radius, and a global homography cannot absorb a radial field — so the me
 of them doubles the stars. The disagreement is structural rather than a bad fit:
 **lensfun normalises the ptlens radius by half the SHORT side (MEASURED)**, which
 puts the frame corner at ρ = 1.80 while hugin's control points constrain the fit
-only to ρ ≤ 1.0. The cubic extrapolates 80% beyond its support exactly at the
-corners, so fits that are interchangeable inside the field diverge by 6–8 px
+only to ρ ≈ 1.5 (MEASURED census, §3e: median CP support ρ 0.62–0.86, p99
+1.43–1.48, max 1.47–1.51 across every preserved fit). The cubic extrapolates
+beyond its support exactly at the corners, so fits that are interchangeable inside the field diverge by 6–8 px
 outside it. A second, smaller term rides on top: aug06's members are less well
 rectified than july31's under **both** model eras. july31 composes clean at
 larger offsets and rotations because all four of its sets share ONE model (its
@@ -214,8 +215,8 @@ rescaling happens or is needed.**
 
 **ARITHMETIC consequence, and it is the whole story of why this defect is
 corner-only:** the frame corner is at ρ = 3643/2020 = **1.80**, while `cpfind`'s
-control points constrain the fit only to ρ ≲ 1.0. The ptlens cubic
-**extrapolates 80% past its support precisely where the defect appears.** Two
+control points reach only ρ ≈ 1.5 and are sparse past 1.2 (§3e). The ptlens cubic
+**extrapolates past its support precisely where the defect appears.** Two
 fits that agree inside the supported field are free to disagree outside it — and
 a fit's own reported residual (0.02–0.10 px on these fits) is computed only
 where control points exist and says nothing at all about the corners.
@@ -290,6 +291,29 @@ costs nothing.
 
 ---
 
+### 3e. Corner support of every fit — census, MEASURED
+
+Computed from hugin's own control-point coordinates in the `.pto` artifacts
+`fit_lens_model.sh` preserves, as normalised radius ρ = r / 2020 (the measured
+half-short-side normalisation). The frame corner is ρ = **1.80**.
+
+| fit | CPs | ρ p50 | p90 | p99 | max | beyond 1.2 | beyond 1.5 |
+|---|---|---|---|---|---|---|---|
+| aug06 set-00 (`clean`) | 317 | 0.86 | 1.38 | 1.47 | 1.51 | 28.1% | 0.2% |
+| aug06 set-02 (`strict2`) | 125 | 0.82 | 1.28 | 1.48 | 1.50 | 22.4% | 0.4% |
+| aug06 set-03 (`strict2`) | 150 | 0.62 | 1.12 | 1.43 | 1.47 | 4.7% | 0.0% |
+| july31 set-01 — the REJECTED fit (`strict2`) | 104 | 0.81 | 0.89 | 1.22 | 1.24 | 1.9% | 0.0% |
+
+**MEASURED: no fit in this repo constrains the corner.** Support is real but
+sparse out to ρ ≈ 1.5 and absent beyond it; the corner at 1.80 is extrapolation
+in every model that has ever shipped here. The strict CP pruning the aug06 fits
+required cut support hardest exactly there (set-03 keeps 4.7% of its CPs past
+ρ 1.2). The fit rejected on banded coverage tops out at 1.24, so the census and
+that diagnosis agree. aug06/set-01's `lens_fit_work` was not preserved — the one
+fit whose coverage is unmeasured. Ledger: `fit_corner_support_census`.
+
+---
+
 ## 4. Root-cause statement
 
 **MEASURED — dominant.** The aug06 cross-set unions were built from sub-stacks
@@ -300,7 +324,8 @@ variable — same frames, same pointings, same code — drops corner disagreemen
 from 2.99 px to 0.93 px and restores round stars to the eye.
 
 **MEASURED — structural enabler.** lensfun normalises ptlens by half the short
-side, so the corner sits at ρ = 1.80 against a fit supported only to ρ ≈ 1.0.
+side, so the corner sits at ρ = 1.80 against fits whose control points stop at
+ρ 1.47–1.51 (§3e).
 Any two independently fitted models are unconstrained there. This is why the
 defect is corner-only and why it does not show up in the fits' own residuals or
 in any per-set product.
@@ -403,7 +428,7 @@ that ship independently.
 
 ### F2 — Constrain the fit where the product is judged (fixes the enabler)
 
-The fits are unconstrained beyond ρ ≈ 1.0 and the defect lives at ρ = 1.80.
+The fits are unconstrained beyond ρ ≈ 1.5 and the defect lives at ρ = 1.80.
 
 - Record CP radial coverage in `lens_fit.json` and refuse a fit whose support
   does not reach the corners (the "corner-support trustworthiness predictor"

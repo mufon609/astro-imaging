@@ -214,5 +214,44 @@
    "july31_set01": 1.22
   },
   "reading": "the raws are comparable and aug06's are marginally MORE field-uniform \u2014 the aug06 member corner degradation is introduced by the chain, not inherited from the optics"
+ },
+ "fit_corner_support_census": {
+  "corner_rho": 1.8,
+  "per_fit": {
+   "aug06_set00 (clean.pto, 317 CP)": {
+    "p50": 0.86,
+    "p90": 1.38,
+    "p99": 1.47,
+    "max": 1.51,
+    "frac_beyond_1.2_pct": 28.1,
+    "frac_beyond_1.5_pct": 0.2
+   },
+   "aug06_set02 (strict2.pto, 125 CP)": {
+    "p50": 0.82,
+    "p90": 1.28,
+    "p99": 1.48,
+    "max": 1.5,
+    "frac_beyond_1.2_pct": 22.4,
+    "frac_beyond_1.5_pct": 0.4
+   },
+   "aug06_set03 (strict2.pto, 150 CP)": {
+    "p50": 0.62,
+    "p90": 1.12,
+    "p99": 1.43,
+    "max": 1.47,
+    "frac_beyond_1.2_pct": 4.7,
+    "frac_beyond_1.5_pct": 0.0
+   },
+   "july31_set01 REJECTED fit (strict2.pto, 104 CP)": {
+    "p50": 0.81,
+    "p90": 0.89,
+    "p99": 1.22,
+    "max": 1.24,
+    "frac_beyond_1.2_pct": 1.9,
+    "frac_beyond_1.5_pct": 0.0
+   }
+  },
+  "note": "aug06/set-01's lens_fit_work was not preserved (the only fit whose pto artifacts are missing) \u2014 its coverage is unmeasured.",
+  "instrument": "the hugin .pto artifacts fit_lens_model.sh already preserves (qa_work/lens_fit_work/st/*.pto) \u2014 hugin's OWN control-point image coordinates, both endpoints of every `c ` line, converted to normalised radius rho = r/1010... (rho = r / (min(W,H)/2) = r/2020 at 6064x4040)"
  }
 }
