@@ -1177,6 +1177,29 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **Siril `register -disto=` IS NOT PER-IMAGE REPROJECTION — it cancels only
+  when every member shares the solution.** Applying each member's OWN SIP as a
+  standalone warp and then composing measured WORSE than the shipped route:
+  3.99 / 6.42 / 6.19 px (centre/mid/outer) against 0.29 / 0.63 / 2.10 / 2.99 px,
+  and worst at the CENTRE, which no distortion story explains. Isolated: warping
+  ONE member by its own solution and composing it against its own unwarped self
+  gives **8.50 / 9.45 / 6.76 px** — the polynomial is not identity-preserving
+  alone. It is designed for a sequence sharing one plate solution, where the
+  absolute warp is common and cancels. **Siril's own design therefore assumes
+  one optical state per sequence.** The industry operation this is mistaken for
+  — resampling each exposure onto a COMMON output WCS using its own full
+  solution (CD matrix *and* distortion) — is SWarp's model; Siril has no such
+  command and SWarp is not installed here.
+
+- **Siril's internal plate solver DOES handle this class on STACKED members.**
+  The standing belief ("cannot match ultra-wide trailed-star fields") was
+  measured on single TRAILED frames and had silently widened past its evidence.
+  MEASURED on aug06 member sub-stacks: `seqplatesolve -order=3` solved 2/2 with
+  388 and 371 matched stars, residual sigx/sigy ~0.9 px, centres agreeing with
+  astrometry.net to 0.001°. Stacked members have round stars; single 2.5 s
+  ultra-wide frames do not. Keep `solve_field.py` for frames; Siril is usable
+  for members.
+
 - **A FITTED ptlens MODEL IS NOT REPRODUCIBLE TO BETTER THAN ~3 px IN THE OUTER
   FIELD, so a coefficient comparison cannot tell an optical STATE from a FIT.**
   MEASURED on four independent fits of ONE set (aug06/set-01, same night, same

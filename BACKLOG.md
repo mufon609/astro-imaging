@@ -209,11 +209,27 @@ session-end temperature.
   measured on roundness-0.615 frames; july23 measures 0.80. If Siril's own blind
   solve handles this class, `solve_field.py` gains a native sibling (the external
   route stays for heavily-trailed data). One stack, one probe, record either verdict.
-- **Then Siril-native SIP undistort vs the darktable warp.** Siril 1.4 fits SIP and
-  `register -disto=` consumes it — a DIFFERENT SIP source than the index-constrained
-  fit the registry killed. This is the fitted-lens-model removal-condition test with
-  a concrete native route. One knob, judged on `seqtilt` off-axis + drift-axis
-  stations + full-frame finals. Precondition: the probe above must solve this class.
+- ~~**Then Siril-native SIP undistort vs the darktable warp.**~~ **RUN 2026-08-09 —
+  REFUTED AS INVOKED, and two beliefs corrected on the way.**
+  (a) The precondition is MET for MEMBERS: `seqplatesolve -order=3` solved both
+  aug06 members natively, 388/371 matched stars, residual sigx/sigy ~0.9 px,
+  centres agreeing with astrometry.net to 0.001 deg. The "Siril cannot solve this
+  class" belief was measured on single ULTRA-WIDE TRAILED frames and had widened
+  past its evidence — stacked members have round stars.
+  (b) But `register -disto=` is a SHARED-solution facility, not per-image
+  reprojection: each member undistorted by its OWN SIP then composed measured
+  3.99/6.42/6.19 px against the shipped route's 0.29/0.63/2.10/2.99, and ONE
+  member warped by its own solution disagrees with its own unwarped self by
+  8.50/9.45/6.76 px. The polynomial cancels only when every member shares it —
+  so Siril's own design assumes ONE optical state per sequence.
+  (c) The stated acceptance measures here (`seqtilt` off-axis + drift-axis
+  stations) are both MEASURED BLIND to the star-doubling defect
+  (`docs/dead-ends.md`); the re-run used `member_separation.py`.
+  SUCCESSOR, unmeasured candidate: the industry operation is resampling each
+  exposure onto a COMMON output WCS using its own full solution (CD matrix AND
+  distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage. Nothing
+  installed does it; SWarp is packaged for this distro at 2.41.5-3, python
+  `reproject` is absent. See `COMBINE_HISTORY_AND_STANDARDS.md` R3.
 
 ## `one-sided-band` — two mechanisms left on the residual drift-axis term
 
