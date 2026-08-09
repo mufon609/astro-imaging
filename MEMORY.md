@@ -61,6 +61,13 @@ technical and process knowledge lives in the operating docs, never here:
   defects in the notes instead of hedging with numbers.
 - "the midst of learn-nothing, try-everything" — the named failure mode:
   guess-and-check knob-thrashing with victory language. Never repeat it.
+- "THE POINT OF THE PROJECT IS TO BE ABLE TO DO SYNTHETIC FLATS. SO STOP
+  ASKING FOR REAL FLATS." — the repo has never had real flats and that is the
+  mission, not a gap. A defect traced to flat-residual mechanics gets its fix
+  INSIDE the flatless route (better sky-flat construction, geometry/route
+  policy, a correcting tool) — recommending real flats abandons the project's
+  core problem and can never explain a NEW defect, since the flats route is
+  the constant across every product, passing and failing alike.
 - "you have been guessing with conviction and need to slow down and research
   further instead of continue to guess and shoot from the hip confidently" —
   the second named failure mode: MECHANISM ATTRIBUTION WITHOUT A

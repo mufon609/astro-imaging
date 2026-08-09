@@ -396,19 +396,31 @@ survives per-frame ADDITIVE degree-1 matching, so it is predominantly NOT
 additive-planar member sky drift. That leaves the MULTIPLICATIVE
 member-corner class — the open `sky × V` object tilt and vignetting-residual
 at member sensor corners — which no background subtraction can remove by
-construction. This is where the july23 corner investigation landed too:
-**upstream — real flats at acquisition.** Registry entry recorded.
+construction. Registry entry recorded.
 
-**The recommended path, re-ranked by this measurement (user decides):**
-1. **Real flats at the session's optical state** — the acquisition-side fix
-   the checklist already prescribes and the only lever that touches the
-   multiplicative class at its source. Until a session carries them, the
-   corner term is a property of the sky-flat route's members.
-2. **The framing trade is the process-side lever**: min framing never ships
-   the member-corner band (measured clean); the ratified max+crop route
-   ships it and now carries a measured, mechanism-attributed ~1 ADU corner
-   term that no in-doctrine processing step removes. The max picture shows
-   it, honestly, until (1).
+**Scope correction (user-ratified, supersedes this addendum's first
+wording): the fix search stays INSIDE the flatless route — synthetic flats
+are the project's point, and "shoot real flats" is never a recommendation.**
+The residual class is CONSTANT across every product this repo ever shipped
+(all sky-flat calibrated, passing and failing alike), which is exactly why
+it cannot explain a NEW defect: the onset is the ROUTE change (§3), not the
+calibration. The levers, all in-scope, all user-gated:
+
+1. **Geometry — which member zones the compose ships.** Min framing keeps
+   corners in member interiors (measured clean; the user-confirmed passing
+   july31 product is this class). For a max-canvas deliverable, the
+   mainstream mechanism is a **per-member edge shrink at compose input**
+   (PixInsight GradientMergeMosaic "Shrink Radius": partial-value member
+   borders "cannot successfully merge … you will continue to see seams") —
+   each sub-stack contributes only its interior; the union stays max-class,
+   marginally smaller; input-zone exclusion like a frame cull, not a crop of
+   the shipped result.
+2. **Better synthetic-flat construction.** The measured member-to-member
+   differencer WITHIN a set is the within-burst flat term (±1.7%-class at
+   corners, 90–100× the build floor — registry flat-window entries);
+   per-group sky flats are the untested in-route candidate that targets it.
+   The across-set half (per-set `sky × V` tilts differing) is the standing
+   `calibration-evidence` work.
 3. Spatially-varying member matching (LN/NSG/LNC-class) is the mainstream
    tool for exactly this — and no free-headless tool in this toolkit
    provides it (Siril has none; per-member full BGE is class-blocked on
@@ -417,3 +429,53 @@ construction. This is where the july23 corner investigation landed too:
    question (L1 background level) is untouched by this kill and remains the
    open, user-gated ladder — with one new measured fact in its favor:
    degree-1 preserved local structure and noise in these regions.
+
+---
+
+## 9. Addendum 2 — the defect re-identified: corner star SMEAR, and the compose creates it
+
+Eyes on 1:1 corner crops (extracted from the judge surfaces) show the failed
+corners as **smeared stars** — coherent diagonal dashes, brushed fabric,
+faint stars suppressed — where the passing july31 corner is round pinpoint
+stars. Every instrument in this investigation up to here, both sessions',
+measured background box statistics and was structurally blind to the actual
+observable. Star instrument (Siril `findstar`, open gate, 800 px boxes):
+
+| surface | corner FWHM px | center FWHM px | corner/center |
+|---|---|---|---|
+| aug06 union, max+covcrop (own models) | 4.95 | 3.32 | **+49%** — FAILED |
+| aug06 union, min (own models) | 4.83 | 3.38 | **+43%** — same smear |
+| aug06 union, max (single pinned model) | 5.29 | 3.30 | **+60%** — same smear |
+| july31 union, min (single model) | 3.44 | 2.74 | +26% — PASSES |
+| aug06 per-set products (own model each) | 3.87–4.18 | 3.17–3.30 | +22–29% — PASS |
+| aug06/july31 sub-stacks (members) | 3.55 / 3.28 | 3.19 / 2.89 | +11/+13% |
+
+**Eliminated as drivers, each by direct measurement**: framing (min smears
+equally), model heterogeneity (single-model union smears equally), member
+background matching (subsky arm renders corner-equivalent), re-aim geometry
+(july31 spans BIGGER offsets, 6.2° vs 3.2°, and rotations, 16.3° vs 8.5°,
+and passes), member corner content (sub-stacks enter at ~3.5 px), and
+member-edge-zone shipping (the min union's corners sit inside the per-set
+canvases and still smear). **The smear is created at the cross-set compose:
+members enter ~3.5 px and exit 4.9–5.3 px at like zones — on aug06's
+members only.**
+
+**Leading hypothesis (labeled):** residual distortion in the aug06 members
+under BOTH model eras — the pinned model is state-mismatched to aug06
+(measured 2× field-term elevation in the optics ledger) and the own-model
+fits sit above july31's family floor (+0.1–0.15 px, unattributed) — breaks
+cross-pointing homography registration at large radii. july31's union
+composes clean because its members' optical state matches the model that
+warped them. This is the route's founding mechanism (unmodelled radial
+distortion is the one residual a global registration cannot absorb),
+resurfacing one level up. The earlier ~1% corner median excess re-reads, in
+part, as smeared-star flux raised into the diffuse floor (HYPOTHESIS).
+
+**Discriminating next test (user-gated, from preserved sub-stacks, no
+reprocessing):** pairwise two-member composes — co-pointed s01+s03 (0.0°
+offset, 8.5° rotation) vs s01+s02 (3.2°, 1.0°) vs s02+s03 (3.2°, 7.6°) —
+corner `findstar` + `seqtilt` per pair separates offset-driven from
+rotation-driven mismatch and ranks which member family carries the
+residual. The min-framed and subsky unions built this session are
+discriminator surfaces, not candidates — the min union fails the same
+smear.

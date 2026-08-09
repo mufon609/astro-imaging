@@ -260,11 +260,17 @@ the constraints any such tool must satisfy):
   visibility; (2) surviving ADDITIVE matching discriminates the driver as
   the MULTIPLICATIVE member-corner class (the open `sky × V` object tilt /
   vignetting residual at member sensor corners), unreachable by ANY
-  background subtraction — the fix class is calibration-side (real flats at
-  acquisition, the july23 corner investigation's own verdict), the
-  min-vs-max framing trade, or a spatially-varying matching mechanism no
-  free-headless tool in this toolkit provides (a full per-member BGE is
-  class-blocked on MW-filled fields — the GraXpert-Division entry).
+  background subtraction. The fix search stays INSIDE the flatless route
+  (synthetic flats are the project's point — user-ratified, MEMORY.md):
+  the residual class is CONSTANT across all products, so the shipped-product
+  lever is GEOMETRY — which member zones the compose ships (min framing, or
+  a per-member edge shrink at compose input: the mainstream GMM-shrink
+  mechanism) — and the calibration-side lever is better sky-flat
+  construction (the within-burst flat term is the measured member-to-member
+  differencer within a set; per-group flats are the untested candidate).
+  A spatially-varying matching mechanism remains a toolkit gap (no
+  free-headless tool; a full per-member BGE is class-blocked on MW-filled
+  fields — the GraXpert-Division entry).
   SECONDARY, same run (scope: these regions, one dataset): degree-1
   preserved the real local structure (total c00 excess 3.26 → 3.16 ADU) and
   the noise — the render-stage background question (L1) is untouched by
