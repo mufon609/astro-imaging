@@ -178,6 +178,12 @@ import numpy as np
 from astropy.io import fits             # header READ only
 
 W, members = sys.argv[1], sys.argv[2:]
+# Exactly what THIS compose consumes, and nothing aspirational: the optics the
+# gate reasons on, the depth `-weight=nbstack` reads, the identity the record
+# needs, the acquisition keys the product carries forward to the solve.
+REQUIRED = ("DISTMODL", "DISTA", "DISTB", "DISTC", "DISTNORM", "DISTPROV",
+            "DISTSRC", "CALSET", "BKGLIGHT", "STACKCNT", "EXPTIME", "LIVETIME",
+            "FOCALLEN", "XPIXSZ", "DATE-OBS", "INSTRUME")
 rows = []
 for m in members:
     try:
@@ -187,12 +193,52 @@ for m in members:
     rows.append({"file": os.path.basename(m),
                  "set": h.get("CALSET"), "src": h.get("DISTSRC"),
                  "abc": tuple(h.get(k) for k in ("DISTA", "DISTB", "DISTC")),
-                 "norm": h.get("DISTNORM"), "rho": h.get("DISTRHO")})
+                 "norm": h.get("DISTNORM"), "rho": h.get("DISTRHO"),
+                 "prov": h.get("DISTPROV"), "bkg": h.get("BKGLIGHT"),
+                 "missing": [k for k in REQUIRED if h.get(k) is None]})
+
+# THE DEPENDENCY RULE, checked rather than asserted: combining must need ONLY the
+# stamped files. Every input this compose consumes comes from a member's own
+# header or its own pixels — T0/T1 from DIST*, `-weight=nbstack` from STACKCNT,
+# `-norm=addscale` and `register`/`seqapplyreg` from pixels, T2 from pixels. No
+# record, no machine state, no repo. REQUIRED is that consumption list; a member
+# missing any of it is OUTSIDE THE CONTRACT and is named as such.
+# DISTRHO is deliberately NOT required: "unmeasured" is a legitimate value for an
+# inherited state whose fit artifacts do not exist, and a required key with a
+# legitimate empty value teaches readers to ignore the check.
+outside = [r for r in rows if r["missing"]]
+print(f"compose gate T0: {len(rows) - len(outside)}/{len(rows)} members are "
+      "self-describing (contract-complete)")
+for r in outside:
+    print(f"  OUTSIDE THE CONTRACT: {r['file']} missing {','.join(r['missing'])} — "
+          "run scripts/stack/backfill_substack_provenance.sh. T2 still measures it; "
+          "a header describes, only the measurement decides.")
+prov = sorted({r["prov"] or "unstamped" for r in rows})
+if prov != ["stamped"]:
+    print(f"  provenance class: {', '.join(prov)} — `backfill` values were "
+          "reconstructed from committed records, not stamped from the model "
+          "verified live at warp time")
+# Background state is a PROCESSING state exactly like optical state: members
+# carrying different sky baselines are being averaged together. Surfaced the same
+# way, and NOT auto-blocked — the one measured arm (subsky_lights_restoration)
+# came out judge-equivalent on the corners, so there is no measurement that
+# supports blocking, and inventing a threshold here would be the guessing this
+# repo forbids. Named loudly so the operator decides with it in view.
+bkg = sorted({r["bkg"] or "unstamped" for r in rows})
+if len(bkg) > 1:
+    print(f"  !! MIXED BACKGROUND TREATMENT across members: {', '.join(bkg)}")
+    for b in bkg:
+        who = ", ".join(r["set"] or r["file"] for r in rows if (r["bkg"] or "unstamped") == b)
+        print(f"       {b}: {who}")
+    print("     These members do not share a sky baseline. Not blocked (no "
+          "measurement supports a threshold), but a level step in the union is "
+          "the expected consequence — judge the surface at 1:1.")
+elif bkg:
+    print(f"  background treatment: {bkg[0]} (uniform)")
 known = [r for r in rows if None not in r["abc"] and r["norm"]]
 unknown = [r for r in rows if r not in known]
-print(f"compose gate T0: {len(known)}/{len(rows)} members carry optics provenance")
 for r in unknown:
-    print(f"  UNKNOWN optics: {r['file']} — no DIST* keys (built before the stamp). "
+    print(f"  UNKNOWN optics: {r['file']} — no usable DIST* keys. "
           "Treated as UNKNOWN, never as compatible; T2 still measures it.")
 states = sorted({(r["abc"], r["norm"]) for r in known})
 if len(states) == 1 and not unknown:
@@ -223,6 +269,9 @@ if len(states) > 1:
     print(f"  T1 (screen only, over-predicts): peak predicted model divergence "
           f"{t1:.2f} px out to the corner (rho=1.80)")
 json.dump({"members": rows, "distinct_models": len(states),
+           "required_keys": list(REQUIRED),
+           "outside_contract": [r["file"] for r in outside],
+           "provenance_classes": prov, "background_states": bkg,
            "unknown_optics": [r["file"] for r in unknown],
            "t1_predicted_peak_px": t1},
           open(os.path.join(W, "gate_t0t1.json"), "w"), indent=1)

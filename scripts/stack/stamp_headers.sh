@@ -98,7 +98,7 @@ print("\n".join(out))
 PY
 }
 
-# header_provenance_lines <repo> <session-dir> <set>  -> `update_key` lines
+# header_provenance_lines <repo> <session-dir> <set> [<bkglight>]  -> update_key lines
 #
 # The optics + calibration identity, read from the SET'S OWN TRACKED RECORDS and
 # handed to Siril's own update_key. Emits nothing and returns 0 when a record is
@@ -120,11 +120,24 @@ PY
 #                               or EXTRAPOLATED
 #   DISTSRC                     which set's fit, and whether it was inherited
 #   CALSET / CALDARK / CALFLAT  the set, and the masters' identity + depth
+#   BKGLIGHT                    the LIGHTS-SIDE BACKGROUND TREATMENT: `none`, or
+#                               `subsky1-nodither` when --subsky-lights ran a
+#                               per-frame degree-1 subtraction before the warp.
+#                               A member's background state is a processing state
+#                               exactly like its optical state, and a combine that
+#                               mixes them is mixing two different sky baselines —
+#                               so it has to be VISIBLE to the gate, not inferable
+#                               only from which work dir the file came out of.
+#   DISTPROV                    `stamped` (written at warp time, from the model
+#                               verified live in the DB) or `backfill` (reconstructed
+#                               later from the committed records). Machine-readable,
+#                               because a prefix buried in a free-text field is not
+#                               something a gate can be relied on to parse.
 #   PIPEREV                     the repo commit the build ran under
-header_provenance_lines() {  # <repo> <session-dir> <set>
-  python3 - "$1" "$2" "$3" <<'PY'
+header_provenance_lines() {  # <repo> <session-dir> <set> [<bkglight>]
+  python3 - "$1" "$2" "$3" "${4:-none}" <<'PY'
 import json, os, subprocess, sys
-repo, session, sset = sys.argv[1:4]
+repo, session, sset, bkglight = sys.argv[1:5]
 ses = os.path.basename(os.path.abspath(session))
 d = os.path.join(repo, "datasets", ses, sset)
 out = []
@@ -164,6 +177,8 @@ if fit:
     key("DISTSRC", (f"inherited:{ses}/{sset}" if inh else f"{ses}/{sset}")[:68])
 
 key("CALSET", f"{ses}/{sset}")
+key("BKGLIGHT", bkglight)
+key("DISTPROV", "stamped")
 flat = load(os.path.join(d, "qa_work", f"skyflat_{sset}_qa.json"))
 b = flat.get("build") or {}
 if b.get("dark"):

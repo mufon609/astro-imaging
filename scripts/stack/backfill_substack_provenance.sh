@@ -46,9 +46,9 @@ ROWS=(
 "sessions/aug06/work/groups_set-01:0.00808615198829015:0.00191793356594816:0.012386006221812:aug06/set-01:own@295aa26"
 "sessions/aug06/work/groups_set-02:0.00191581277686593:0.0199376108933101:-0.000710974017555417:aug06/set-02:own@295aa26"
 "sessions/aug06/work/groups_set-03:0.00428141725248721:0.0119442691335761:0.00157443438620187:aug06/set-03:own@295aa26"
-"sessions/aug06/work/groups_set-01_subsky1:0.00808615198829015:0.00191793356594816:0.012386006221812:aug06/set-01:own@295aa26"
-"sessions/aug06/work/groups_set-02_subsky1:0.00191581277686593:0.0199376108933101:-0.000710974017555417:aug06/set-02:own@295aa26"
-"sessions/aug06/work/groups_set-03_subsky1:0.00428141725248721:0.0119442691335761:0.00157443438620187:aug06/set-03:own@295aa26"
+"BK=subsky1-nodither|sessions/aug06/work/groups_set-01_subsky1:0.00808615198829015:0.00191793356594816:0.012386006221812:aug06/set-01:own@295aa26"
+"BK=subsky1-nodither|sessions/aug06/work/groups_set-02_subsky1:0.00191581277686593:0.0199376108933101:-0.000710974017555417:aug06/set-02:own@295aa26"
+"BK=subsky1-nodither|sessions/aug06/work/groups_set-03_subsky1:0.00428141725248721:0.0119442691335761:0.00157443438620187:aug06/set-03:own@295aa26"
 "sessions/aug06/work/groups_set-01_pinned:0.00350093:0.01453356:0.00043983:aug06/set-01:pinned@4771780"
 "sessions/aug06/work/groups_set-02_pinned:0.00350093:0.01453356:0.00043983:aug06/set-02:pinned@b5f9a36"
 "sessions/aug06/work/groups_set-03_pinned:0.00350093:0.01453356:0.00043983:aug06/set-03:pinned@b5f9a36"
@@ -59,13 +59,15 @@ ROWS=(
 )
 
 for row in "${ROWS[@]}"; do
+  BK=none
+  case "$row" in BK=*) BK=${row%%|*}; BK=${BK#BK=}; row=${row#*|};; esac
   IFS=: read -r dir a b c setid prov <<<"$row"
   [ -d "$REPO/$dir" ] || { echo "skip (absent): $dir"; continue; }
-  python3 - "$REPO" "$REPO/$dir" "$a" "$b" "$c" "$setid" "$prov" "$DRY" <<'PY'
-import glob, json, os, sys
+  python3 - "$REPO" "$REPO/$dir" "$a" "$b" "$c" "$setid" "$prov" "$DRY" "$BK" <<'PY'
+import glob, json, os, subprocess, sys
 from astropy.io import fits            # HEADERS ONLY — no pixel access
 
-repo, d, a, b, c, setid, prov, dry = sys.argv[1:9]
+repo, d, a, b, c, setid, prov, dry, bkglight = sys.argv[1:10]
 ses, sset = setid.split("/")
 ds = os.path.join(repo, "datasets", ses, sset)
 
@@ -83,14 +85,27 @@ norm = min(int(wh[0]), int(wh[1])) / 2.0 if len(wh) == 2 else None
 flat = load(os.path.join(ds, "qa_work", f"skyflat_{sset}_qa.json"))
 fb = flat.get("build") or {}
 fit = load(os.path.join(ds, "qa_work", "lens_fit.json"))
-rho = (fit.get("control_point_coverage") or {}).get("rho_p99")
+# DISTRHO must describe the model that ACTUALLY WARPED this member, not the
+# set's own fit. The pinned and inherited arms were warped by the july14 state,
+# whose hugin artifacts do not exist on this rig — so their corner support is
+# UNMEASURED and the key is omitted. Stamping the set's own fit's coverage there
+# would make a header describe a different model than the DISTA/B/C beside it,
+# which is exactly the class of error this stamp exists to prevent.
+own = not (prov.startswith("pinned") or prov.startswith("inherited"))
+rho = (fit.get("control_point_coverage") or {}).get("rho_p99") if own else None
 
 subs = sorted(glob.glob(os.path.join(d, "sub_*.fit")))
 if not subs:
     print(f"skip (no sub_*.fit): {os.path.basename(d)}")
     sys.exit(0)
 keys = {"DISTMODL": "ptlens", "DISTA": float(a), "DISTB": float(b), "DISTC": float(c),
-        "CALSET": setid, "DISTSRC": f"backfill:{prov}"}
+        "CALSET": setid, "DISTSRC": f"backfill:{prov}",
+        # MACHINE-READABLE, deliberately a key of its own: a `backfill:` prefix
+        # inside a free-text field is not something a gate can be relied on to
+        # parse, and the whole point is that a reconstructed value must never be
+        # mistaken for one stamped from the model verified live at warp time.
+        "DISTPROV": "backfill",
+        "BKGLIGHT": bkglight}
 if norm:
     keys["DISTNORM"] = norm
 if rho is not None:
@@ -99,6 +114,13 @@ if fb.get("dark"):
     keys["CALDARK"] = os.path.basename(fb["dark"])[:68]
 if flat.get("flat"):
     keys["CALFLAT"] = f"{os.path.basename(flat['flat'])}:{fb.get('frames','?')}"[:68]
+try:
+    keys["PIPEREV"] = subprocess.run(["git", "-C", repo, "rev-parse", "--short", "HEAD"],
+                                     capture_output=True, text=True).stdout.strip() or None
+    if not keys["PIPEREV"]:
+        del keys["PIPEREV"]
+except OSError:
+    pass
 if dry == "1":
     print(f"{os.path.basename(d)}: would stamp {len(subs)} sub-stack(s) with "
           + " ".join(f"{k}={v}" for k, v in keys.items()))

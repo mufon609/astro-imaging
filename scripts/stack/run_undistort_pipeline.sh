@@ -274,7 +274,7 @@ rm -rf "$P/out"
 # is unconditional: it does not depend on the pre-warp capture, and a sub-stack
 # that cannot say what warped it cannot be composed safely months later
 # (stamp_headers.sh; the compose gate reads exactly these keys).
-PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET")
+PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] && echo subsky1-nodither || echo none)")
 if [ -f "$ACQHDR" ]; then
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\n%s\nsave %s\n' \
     "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$PROV" "$OUT" > "$P/h.ssf"

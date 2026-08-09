@@ -9,12 +9,20 @@ has happened twice (both measured, both in this file).
 
 ## 0. The two measured facts everything here rests on
 
-1. **The chain is reproducible from raws + tracked records.** MEASURED, both
+1. **The chain is reproducible from raws + tracked records** — MEASURED, both
    halves (ledger `combine_contract_reproducibility`): all **30 group
    memberships across 7 sets** regenerate IDENTICALLY from tracked records alone,
    and a **sub-stack rebuilt from raws + records is PIXEL-IDENTICAL** to the
    preserved one (Siril's own `all nil` refusal on the difference image).
-   Therefore **image data is a cache and records are the asset.**
+
+   **What that buys, and what it does not.** It makes the REBUILD path exact and
+   it makes process integrity auditable — but it is *not* what makes a combine
+   possible. Reproducibility says a member can be RECREATED from raws + this
+   repo; the combine path must not need either. A future night must be able to
+   stack against an archived member with nothing but that member's own file, on a
+   machine that has never seen this repo. So: **records are the asset for the
+   rebuild path and for process integrity; the stamped member file is the asset
+   for the combine path.** (§4 checks that rule rather than asserting it.)
 2. **A distortion model describes ONE optical state, and states differ per set
    and per night.** MEASURED: under one *shared* model a july31 member and an
    aug06 member disagree by **4.07 px** at the corner
@@ -51,18 +59,43 @@ Losing any of these loses the night.
 11. `readiness.json` — the approval the build ran under.
 12. The repo commit + `scripts/setup/manifest.tsv` (pinned tool versions).
 
-## 2. REGENERATES — cache, delete freely
+13. **The stamped sub-stacks — an off-rig archival tier of their own.** They are
+    PRODUCTS, not cache: they are what a future night actually combines against
+    (§5), and the combine must not depend on this repo existing. "Cache"
+    describes only their ON-RIG WORKING COPIES, which are freely deleted and
+    rebuilt.
+    Cost, MEASURED on this rig — one arm per set, not every experiment's members:
+    **7.2% of raw volume for aug06 (3.6 GB against 49.6 GB) and 8.6% for july31
+    (4.7 GB against 54.5 GB)**. Counting all three aug06 experimental arms it is
+    21.6%, which is the reason the tier is *one arm per set*: the arms are
+    evidence, and evidence lives with the investigation, not in the archive.
+    An UN-STAMPED archived sub-stack is **outside this contract** until
+    `backfill_substack_provenance.sh` brings it in (§4, §5).
+
+## 2. REGENERATES — on-rig working copies, delete freely
 
 Master dark; sky flat; calibrated/debayered frames; warped TIFFs; the group
-`g*.list` files; sub-stacks (`sub_NN.fit`); per-set stacks; unions; judge
-surfaces.
+`g*.list` files; per-set stacks; unions; judge surfaces — **and the working
+copies of the sub-stacks**, whose archival copies are KEEP (§1.13).
 
 This is a MEASURED status, not an assumption — see §0.1. Storage on the working
 rig is transient by design; nothing in §2 is worth protecting.
 
+### 2.1 Degradation tiers — what each surviving thing still buys you
+
+| what survives | what you can do | cost |
+|---|---|---|
+| **stamped sub-stacks alone** | **COMBINE.** Everything the compose consumes is in the member's own header or its own pixels (§4). No repo, no records, no machine state. | none — this is the design point |
+| **raws + this repo** | REBUILD the members bit-identically (§0.1), then combine | one full chain run per set (~40 min/set on this rig) |
+| **raws alone** | REPROCESS under whatever pipeline exists then | a different product; the cull, the flat recipe, the optical state and the group derivation are all gone, so it is a new dataset that happens to share photons |
+
+The tiers degrade in that order and only that order. Losing the repo costs
+reprocessing, not the archive; losing the stamped members costs a rebuild;
+losing the raws is terminal.
+
 ## 3. Every sub-stack is SELF-DESCRIBING
 
-A cached sub-stack is only useful later if it can say what made it, with **no
+An archived sub-stack is only useful later if it can say what made it, with **no
 external lookup, no machine state, and no memory of the session that built it** —
 because the lensfun user DB is global, unscoped, single-valued machine state that
 nothing reverts, so "the model this set's record names" is only true while that
@@ -74,8 +107,10 @@ Stamped at warp time by `stamp_headers.sh` (`header_provenance_lines`):
 |---|---|
 | `DISTMODL` `DISTA` `DISTB` `DISTC` | the distortion model **verified live in the DB at build time** (from `lens_preflight.json`, never from the fit record's intent) |
 | `DISTNORM` | the normalisation radius in px, `min(W,H)/2` — MEASURED: lensfun normalises ptlens by **half the short side**, which puts the frame corner at ρ = 1.80 |
-| `DISTRHO` | the fit's control-point support ceiling (p99 ρ) — whether the corner was **fitted or extrapolated** |
-| `DISTSRC` | which set's fit, and whether inherited or backfilled |
+| `DISTRHO` | the fit's control-point support ceiling (p99 ρ) — whether the corner was **fitted or extrapolated**. Describes **the model that warped this member**, so it is absent on pinned/inherited arms whose state has no local fit artifacts |
+| `DISTSRC` | which set's fit, and whether inherited |
+| `DISTPROV` | `stamped` (written at warp time from the model verified live) or `backfill` (reconstructed later from committed records) — a key of its own, machine-readable |
+| `BKGLIGHT` | the lights-side background treatment: `none`, or `subsky1-nodither` |
 | `CALSET` `CALDARK` `CALFLAT` | the set, and the masters' identity + depth |
 | `PIPEREV` | the repo commit the build ran under |
 
@@ -84,7 +119,49 @@ alongside the acquisition keys (`FOCALLEN`, `XPIXSZ/YPIXSZ`, `EXPTIME`,
 
 A member with no `DIST*` keys is **UNKNOWN**, never "compatible".
 
-## 4. Every combine is GATED on measured model compatibility
+## 4. THE DEPENDENCY RULE — combining requires only the stamped files
+
+**Every input the compose consumes must come from a member's own header or its
+own pixels. No record lookup, no machine state, no repo.** This is checked at
+every compose (`run_undistort_compose.sh` T0), not asserted:
+
+| consumer | what it needs | where it comes from |
+|---|---|---|
+| gate T0 / T1 | `DISTMODL DISTA DISTB DISTC DISTNORM` | member header |
+| gate T2 | star positions | member pixels |
+| `--weight=nbstack` | member depth | `STACKCNT` header |
+| `--weight=noise` | member noise | member pixels (Siril) |
+| `-norm=addscale -output_norm` | level + scale | member pixels (Siril) |
+| `register -2pass` / `seqapplyreg` | geometry | member pixels (Siril) |
+| `--ref` choice | which member is deepest/most central | `STACKCNT` header |
+| the product's onward solve | plate scale | `FOCALLEN XPIXSZ` header |
+| the record | identity, night, depth, processing state | `CALSET DISTSRC DISTPROV BKGLIGHT DATE-OBS EXPTIME LIVETIME INSTRUME` header |
+
+Those 16 keys are the REQUIRED set. A member missing any is reported
+**OUTSIDE THE CONTRACT** by name, with the backfill command. It is not
+auto-blocked: T2 measures the real disagreement from pixels regardless, and a
+header describes where only a measurement decides.
+
+`DISTRHO` is deliberately **advisory, not required** — "unmeasured" is a
+legitimate value for an inherited state whose fit artifacts do not exist, and a
+required key with a legitimate empty value teaches readers to ignore the check.
+It must describe **the model that actually warped the member**: the pinned and
+inherited arms carry no `DISTRHO`, because stamping their set's *own* fit's
+coverage there would make a header describe a different model than the
+`DISTA/B/C` beside it.
+
+**Background treatment is a processing state exactly like optical state.**
+`BKGLIGHT` records it (`none`, or `subsky1-nodither` for the per-frame degree-1
+lights-side subtraction), and a mixed-state compose is named loudly with which
+members sit on which baseline. It is **not** auto-blocked: the one measured arm
+came out judge-equivalent on the corners, so no measurement supports a threshold,
+and inventing one here would be the guessing this repo forbids. (Measured aside:
+a subsky'd and a non-subsky'd member of the same set separate by **0.00 px** —
+the step is purely additive and moves no star.)
+
+Audit status on this rig: **56/56 archived sub-stacks contract-complete.**
+
+## 5. Every combine is GATED on measured model compatibility
 
 Compatibility, not identity: identical models are only the cheap safe case, and
 identical-across-nights is precisely the 4.07 px failure. `run_undistort_compose.sh`
@@ -114,7 +191,7 @@ blind to it (`docs/dead-ends.md`): corner FWHM ranked the failing union *better*
 than the clean control; `seqtilt` read 0.34 px off-axis for the FAILING union
 against 0.40 for the PASSING one.
 
-## 5. What a future night needs to JOIN an old archive
+## 6. What a future night needs to JOIN an old archive
 
 1. **Its own corner-true optical-state model.** Not the old night's: states
    differ (§0.2).
@@ -122,7 +199,14 @@ against 0.40 for the PASSING one.
    must carry §3's headers (an old archive predating the stamp is brought inside
    the contract by `backfill_substack_provenance.sh`, which marks reconstructed
    values `backfill:<provenance>` so they never read as stamped-at-build).
-3. **A §4 compatibility measurement** before anything composes.
+3. **A §5 compatibility measurement** before anything composes.
+
+An archive that predates the stamp is outside the contract until backfilled, and
+the backfill is therefore not optional housekeeping — it is what makes an old
+night combinable at all. Reconstructed values carry `DISTPROV = backfill` (a key
+of its own, machine-readable — a prefix buried in a free-text field is not
+something a gate can be relied on to parse) so they are never mistaken for values
+stamped from the model verified live at warp time.
 
 **The load-bearing hypothesis, labelled as one.** Cross-night combining should
 not require a shared model — it should require each night's model to be CORRECT,
@@ -132,10 +216,10 @@ model, i.e. one necessarily wrong for one of the two nights, so it measures what
 a wrong model failed to remove, not an inherent barrier. **This is untested:** no
 corner-true fit existed when it was written (every fit ever shipped here stops at
 ρ 1.47–1.51 against a corner at 1.80). The settling test is pre-registered — fit
-two nights to corner support, compose one member from each, read §4's measure:
+two nights to corner support, compose one member from each, read §5's measure:
 ≤ 0.5 px confirms the route, ≥ 2.0 px refutes it.
 
-## 6. The failure shape this contract exists to prevent
+## 7. The failure shape this contract exists to prevent
 
 Twice, a change that was right for the per-set product silently broke the
 combine:
