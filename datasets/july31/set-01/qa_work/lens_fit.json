@@ -34,5 +34,7 @@
   ],
   "source_pto": "strict2.pto",
   "_note": "backfilled from the preserved hugin artifacts; the fit itself is unchanged"
- }
+ },
+ "status": "Records the INHERITED july14 optical state. Under the restored pinned authority this is descriptive, not the install source: the chain installs from scripts/darktable/lens_models.json.",
+ "shipped": false
 }

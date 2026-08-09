@@ -144,7 +144,7 @@ warp removes distortion so that every frame-to-frame map becomes a pure
 homography, and homographies COMPOSE (the fact §6 rests on).
 
 - `darktable-cli` (lensfun) applies the **distortion-only** model: the
-  coefficients of THE SET'S OWN OPTICAL STATE — fitted from its frames
+  coefficients of the PINNED model for this lens@focal — fitted once from real frames
   (`fit_lens_model.sh`) or explicitly inherited — carried in the set's
   `qa_work/lens_fit.json` and installed per run by the chain
   (`install_lens_model.sh`), with the lens's vignetting/TCA stripped from the
@@ -158,7 +158,7 @@ homography, and homographies COMPOSE (the fact §6 rests on).
 - `lens_preflight.py --require-profile` runs FIRST and makes darktable PROVE it
   corrects the set (a lens lensfun cannot match warps nothing and says
   nothing), and asserts installed == the set's own recorded coefficients.
-- **The model is per OPTICAL STATE, not per lens** — focus is recalibrated
+- **The model is per LENS@FOCAL and its optical state, NOT per set** — focus is recalibrated
   every session (user-stated operating fact) and the profile moves with it,
   so a fitted model describes the night it was fitted from. The per-state
   fitting strategy and its discriminators (displacement vs blur; session vs

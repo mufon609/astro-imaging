@@ -45,7 +45,7 @@ dataset, and says so.
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
-| ~~fitted lensfun entry, per lens/focal (the PINNED `lens_models.json`)~~ | — | 2026-08-08 | **RETIRED — the condition fired: the chain consumes the model ANOTHER WAY (per-set optical-state records).** Granularity measured PER-SET (five fitted states, all 10 pairs beyond the 0.47 px displacement bound; set-01's own model removed the 2x field-term elevation the shared model caused), so one pinned model per lens@focal was wrong by design — right for at most one optical state per night. Every undistort set now carries `qa_work/lens_fit.json` (fitted from its own frames, or explicit `inherited_from` provenance — july31's four sets inherit the july14-fitted state, own-fit untrustworthy per the banded-CP diagnosis) and the chain installs it per run before the preflight verifies it; `lens_models.json` REMOVED (its provenance lives in git history). User-ratified: the pinned method was never the correct way — removed, with all documentation pointing at the per-set method |
+| fitted lensfun entry, PINNED per lens/focal (`lens_models.json`) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain that consumes the model another way (Siril `register -disto=` with a trustworthy source — probed 2026-08-09, it is a SHARED-solution facility, not per-image reprojection, so it does not retire this) | 2026-08-09 | **not fired — and RE-INSTATED.** The 2026-08-08 retirement ("condition fired: the chain consumes the model another way — per-set optical-state records") is REVOKED: the per-set method was refuted at its root (`docs/dead-ends.md`) and reverted. Its founding number, aug06/set-01's 0.82 px off-axis, is a COMPOSE artifact — set-01's own groups read 0.40-0.45 px under that same pinned model. Per-set models broke the combine (2.99 px within a night, 5.34 px across nights) where one shared model composes clean and is what every accepted combine here ever used |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-05 | **not fired** — live block verified: vignetting and tca absent, exactly one focal=70 ptlens line. darktable still 5.4.1 / lensfun 0.3.4, so no bump has triggered a re-verify. Re-verify with `verify_lens_card.py` (grid control + uniform card; the card ALONE is vacuous) |
 | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-07 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
@@ -285,80 +285,62 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
-## `optical-state-models` — focus recalibrates every session; the lens model keys on the OPTICAL STATE
+## `optical-state-models` — CLOSED, REFUTED AND REVERTED
 
-USER-STATED operating fact: focus is recalibrated each session (sometimes
-mid-night between sets), and a 24-70 zoom's distortion / field-curvature
-profile moves with it — so a fitted model describes ONE optical state, never
-the lens. The july-fitted pinned model measured against aug06: centre FWHM
-BETTER than family (2.99 px) with both field terms ~2x elevated (off-axis
-0.82 vs 0.16–0.47 px; tilt 0.53 vs 0.21–0.25 px) — the field-dependent
-signature of a state change, not seeing and not centre focus.
+**The doctrine this item carried ("focus recalibrates every session; the lens
+model keys on the OPTICAL STATE, per set") is dead.** Kept as a closed item
+because the reasoning is instructive and the measurements are real.
 
-Pre-registered discriminators, in order:
-1. **Displacement vs blur — MEASURED: DISPLACEMENT.** Singles corner/centre
-   ratios agree across corpora (1.220 / 1.226 / 1.174 — aug06/set-01's
-   singles the MOST uniform) while its stack off-axis is 2x elevated; the
-   blur condition (>= +0.35 px corner excess on singles) is unmet with
-   negative sign (−0.17 px). The elevation enters at registration — the
-   july-fitted model on aug06's focus state. Record:
-   `datasets/aug06/experiments.jsonl` + per-set
-   `qa_work/singles_field_check.json`.
-2. **Granularity — MEASURED: PER-SET.** Pairwise displacement between fitted
-   states, data-supported field r≤1.0: pinned-vs-s00 1.05 px, pinned-vs-s01
-   0.83, s00-vs-s01 0.74 — every pair beyond the 0.47 bound (ledger,
-   `optical_state_d2_granularity_matrix`). Getting trustworthy fits required
-   three instrument fixes to `fit_lens_model.sh` (path absolutize, gauss-3
-   detection fattening for short-sub star scale, diagnostics preservation) —
-   all measured, in the ledger. OPEN, stated: the in-field mismatch ordering
-   inverts the product-elevation ordering (crop geometries differ), so
-   curve-to-FWHM mapping is unsettled and adoption rides the product A/B;
-   the july31 refit is broken (66 CPs / 152 px residuals, cause open — july
-   products stand under the pinned incumbent regardless).
-3. **Adopt per the verdict — EXECUTED, A/B measured (products awaiting the
-   user's eyes).** All four aug06 sets rebuilt warp-onward under their OWN
-   fitted models (set-02 125 CPs 0.02/0.08 px, set-03 150 CPs 0.02/0.07 px —
-   both needed the set-01 strict prune; controls preserved as
-   `*-pinned` products + `groups_*_pinned` dirs). seqtilt pinned->own:
-   **set-01 0.82 -> 0.48 px off-axis, tilt 0.53/18% -> 0.24/9%, FWHM 2.99 ->
-   2.81 — the decisive WIN**, stations agreeing (along-1300 3.98 -> 3.49,
-   along-700 3.34 -> 3.08: the along-drift band removed); set-00 0.48 ->
-   0.46, set-02 0.57 -> 0.60, set-03 0.60 -> 0.62 with all stations within
-   ±0.07 px — **NULL, measurement-equivalent arms**. OPEN, two things:
-   (a) sets 00/02/03's residual +0.1–0.15 px over july31's 0.16–0.47 family
-   survives their own models — NOT state displacement, unattributed;
-   (b) the july31 refit is UNTRUSTWORTHY for a measured mechanism (CP
-   coverage radially BANDED under the moonlit gradient — bins
-   [0,45,5,143,15,0], zero corner support — vs aug06's full-field; the
-   procedure converges sign-alternating 10x too large, contradicting july31's
-   own family-floor products) — july31 stays pinned;
-   `datasets/july31/set-01/qa_work/lens_fit_DIAGNOSTIC.json`.
-   (The interim CANDIDATE bridge is superseded: record-first authority is
-   now the standing method, states plain `ok`.)
+**Its founding evidence was a compose artifact.** The item opened with "the
+july-fitted pinned model measured against aug06: off-axis 0.82 vs 0.16–0.47 px —
+the field-dependent signature of a state change". MEASURED on the preserved
+sub-stacks: every one of aug06/set-01's five 100-frame groups reads **0.40 /
+0.42 / 0.44 / 0.43 / 0.45 px** under that same pinned model — indistinguishable
+from set-02's groups (0.45–0.46) and better on FWHM (2.74–2.79 vs 2.82–2.84).
+The 0.82 exists only in the 500-frame product; set-02 is the depth control
+(+0.11 over the same 100→500 increase, against set-01's +0.39). The chronology
+said it first: 0.48 → **0.82** → 0.57 → 0.60 across strictly sequential,
+frame-contiguous sets, and a focus change is a step, not a spike that returns.
 
-**IMPLEMENTED (user-ratified — the per-set method is THE method, the pinned
-incumbent removed):** the model authority is the set's own
-`qa_work/lens_fit.json` (fitted or explicitly inherited); the chain installs
-it per run (`run_set_chain.sh` → `install_lens_model.sh <session> <set>
---replace`) and `lens_preflight.py --require-profile` verifies installed ==
-the record, stopping loudly on a record-less set. july31's four sets carry
-inherited records naming the july14-fitted state and its diagnosis.
+**Its discriminators do not discriminate.** "All five fitted states differ beyond
+the 0.47 px bound" was never evidence of distinct optical states: four independent
+fits of ONE set span **0.36–6.30 px** (median 3.22) against a between-set spread
+of 4.01–10.99 px (median 7.04) — the distributions overlap, and the bound is
+exceeded 7–23× by refits of a single set. A refit of set-01 lands 0.83 px from
+set-02's model and 3.26 px from set-01's own.
 
-**Closes when** the remaining standing wiring lands: the chain FITS the model
-as a measure-phase step for a record-less set (placement: after the sky flat
-— the fit calibrates with it), gated by the measured trustworthiness
-predictor (CP radial coverage: all quarter-bins populated + corner support —
-checkpto residuals passed 0.02/0.06 on a banded set that was wrong), and the
-aug06 verdict is recorded with its numbers. **What this run teaches for that design:** the
-per-state check needs (1) the CANDIDATE state generalized: expected
-coefficients resolve set-record-first, pinned-file-second, so a per-set
-install is first-class rather than a sanctioned mismatch; (2) a fit-quality
-gate BEFORE any rebuild — CP radial coverage (all quarter-bins populated +
-corner support) predicts trustworthiness better than checkpto residuals
-(july31 read 0.02/0.06 clean on a banded set and was still wrong); (3) the
-last-installed model is global machine state — after a per-set campaign the
-DB holds the LAST set's model, and only the preflight's loud states make
-that safe.
+**Its adoption cost the project its core capability.** Adopted on 1 WIN / 3 NULL,
+it gave new models to three sets that measured no benefit. Members warped under
+different models disagree **2.99 px** at the composed corner within a night and
+**5.34 px** across nights — visible star doubling, failed by eye — against
+0.93 px / 0.71 px for the same pairs under one model and 0.14–0.35 px same-night.
+One shared model is what every combine ever accepted here used, and the six-set
+cross-night union rebuilt under one model was accepted by the owner as the most
+detailed product to date.
+
+**What survives, and where it went:** fitting a model from real frames (that is
+how the shipped july14 model was made, and it beat the community profile at full
+depth — centre station 5.30 → 3.67 px, on the owner's eyes); the corner-support
+census (`cp_coverage.py` — no fit here constrains the corner, support stops at
+ρ 1.47–1.51 against a corner at 1.80); and the instrument-fix and
+architecture questions now carried by `docs/consistency-tiers.md` and
+`docs/combine-contract.md`.
+
+**Open, inherited from this item, NOT closed by the revert:**
+- **Which single model.** For set-01 the pinned and own models produce
+  indistinguishable MEMBERS (group medians 0.430 vs 0.420 px) and differ only in
+  how those members compose (+0.39 vs +0.06). The july14 fit is the default on
+  history and provenance; a per-set fit is a legitimate CANDIDATE. The comparison
+  that settles it is at the COMBINE, one knob — never on a per-set product.
+- **The within-set compose amplification residue**: +0.39 px where every other
+  cell adds +0.06–0.12. Same defect family one scale down; the revert does not
+  explain it. Discriminating test in the ledger
+  (`within_set_compose_amplification_residue`).
+- **A state-CHANGE detector.** The concern the doctrine was reaching for is real:
+  a genuine refocus mid-campaign would need a new model. Replace "per-set by
+  default" with "one model per instrument state, plus a measured trigger" — the
+  compose gate is the trigger, since members that disagree beyond its threshold
+  are what a state change looks like.
 
 ## `final-best-percent-pass` — one target, many sessions, stack the best N%
 

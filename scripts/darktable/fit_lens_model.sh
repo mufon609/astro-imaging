@@ -46,11 +46,10 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
 SESSION=${1:?usage: fit_lens_model.sh <session-dir> <set> --dark= --flat= --hfov= [--frames=12]}
 SET=${2:?missing <set>}
-DARK= FLAT= HFOV= FRAMES=12 PRUNE=model-first OUTJSON=
+DARK= FLAT= HFOV= FRAMES=12 OUTJSON=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};;
   --hfov=*) HFOV=${a#*=};; --frames=*) FRAMES=${a#*=};;
-  --prune=default|--prune=model-first) PRUNE=${a#*=};;
   --out=*) OUTJSON=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
@@ -101,66 +100,32 @@ echo "fit_lens_model: $i stretched frames for correspondence detection"
 cd "$P/st"
 pto_gen -p 0 -f "$HFOV" -o gen.pto st_*.tif > /dev/null
 cpfind --fullscale -o cps.pto gen.pto > "$P/cpfind.log" 2>&1
-# THE PRE-FIT PRUNE IS PAIRWISE-ONLY, and that is load-bearing (see the prune
-# block below). cpclean step 1 optimises image PAIRS; step 2 optimises the WHOLE
-# panorama and removes points by whole-project residual — with a,b,c not yet
-# fitted, that residual IS the unmodelled radial distortion, which grows with
-# radius, so step 2 deletes the corner. MEASURED on this set's own raw CP set,
-# one knob per variant: step 1 alone removes ONE point of 225 and keeps corner
-# support (rho_max 1.77, 5.6% beyond rho 1.50); step 2 alone reproduces the
-# shipped result exactly (180 points, rho_max 1.61, 1.9%). Step 2 runs LATER,
-# once the model can account for the distortion it is judging.
-if [ "$PRUNE" = model-first ]; then
-  cpclean -p -o clean.pto cps.pto > "$P/cpclean.log" 2>&1
-else
-  cpclean -o clean.pto cps.pto > "$P/cpclean.log" 2>&1
-fi
+# The pre-fit prune is the standard `cpclean` (both steps). A pairwise-only
+# variant keeps the corner points but the fit on them is DEGENERATE — measured,
+# registry. See the CP PRUNING note below.
+cpclean -o clean.pto cps.pto > "$P/cpclean.log" 2>&1
 pto_var --opt y,p,r -o s1.pto clean.pto > /dev/null
 autooptimiser -n -o pos.pto s1.pto > /dev/null 2>&1
 pto_var --opt y,p,r,a0,b0,c0 -o s2.pto pos.pto > /dev/null
 autooptimiser -n -o fit_abc.pto s2.pto > /dev/null 2>&1
-# PRUNE ORDER IS LOAD-BEARING — this is where corner support is won or lost.
-# `cpclean` prunes on residuals against the CURRENT model. Pruning before a,b,c
-# exist judges every point against a model with NO distortion terms, and an
-# unmodelled radial distortion's residual GROWS WITH RADIUS — so the prune
-# deletes the largest-radius control points systematically, i.e. exactly the ones
-# that would constrain the corner, BECAUSE the corner is not yet modelled.
-# MEASURED on the preserved artifacts of three fits (ledger
-# `cp_prune_deletes_corner_support`): cpfind's RAW points do reach the corner
-# (rho_max 1.60-1.78 against a corner at 1.80; july31/set-01 put 9.9% of them
-# beyond rho 1.50), and the strict prune then left 0.0-0.4% there, with rho_max
-# collapsing 1.76->1.24 / 1.78->1.50 / 1.60->1.47. Every model this repo ever
-# shipped is therefore EXTRAPOLATING at the corners, which is the measured cause
-# of the cross-set compose's corner star doubling.
-# So: prune AFTER a,b,c are fitted, then re-optimise on what survives. Corner
-# points are then judged against a model that can represent them.
-# `--prune=default` reproduces the old order for a control arm; it is not the
-# route's method.
-case "$PRUNE" in
-  model-first)
-    # preserve the control IN THE SAME RUN: fit_abc_prefit.pto is exactly what
-    # the default order would have shipped, from the same frames and the same
-    # detections, so the arm carries its own matched control
-    cp fit_abc.pto fit_abc_prefit.pto
-    # step 2 NOW — the whole-panorama check, against a model that carries a,b,c
-    cpclean -w -o clean2.pto fit_abc.pto > "$P/cpclean2.log" 2>&1
-    pto_var --opt y,p,r,a0,b0,c0 -o s2b.pto clean2.pto > /dev/null
-    autooptimiser -n -o fit_abc.pto s2b.pto > /dev/null 2>&1
-    echo "prune: model-first — pairwise before the fit, whole-pano AFTER it, then abc re-optimised"
-    ;;
-  default)
-    echo "prune: default (control arm — prunes on the ROTATION-ONLY model; deletes corner support)"
-    ;;
-esac
+# CP PRUNING. `cpclean` removes correspondences whose residual is an outlier.
+# MEASURED and registered (docs/dead-ends.md): its step 2 (whole-panorama) is
+# what strips the corner control points — rho_max collapses 1.76->1.24 on
+# july31/set-01 — but reordering or relaxing it does NOT recover them. Pruning
+# against a model that ALREADY carries a,b,c removes the same population
+# (219->183, rho_max 1.77->1.65), the -n threshold saturates (n=3..8 identical),
+# and keeping them produces a DEGENERATE fit (a=-1.02 b=3.03 c=-2.37). Those
+# points are bad SIFT matches on aberrated corner stars. Corner support is a
+# MATCHING problem; a `--prune=model-first` arm was tried and refuted.
 pto_var --opt y,p,r,a0,b0,c0,d0,e0 -o s3.pto fit_abc.pto > /dev/null
 autooptimiser -n -o fit_abcde.pto s3.pto > /dev/null 2>&1
 
 WH=$(python3 -c "
 import json;print('x'.join(str(v) for v in json.load(open('$REPO/datasets/'+'$(basename "$SESSION")'+'/$SET/acquisition.json'))['exif']['image_wh']))")
-python3 - "$P" "$HFOV" "$FRAMES" "${OUTJSON:-$W/lens_fit.json}" "$SESSION" "$SET" "$PRUNE" "$WH" "$REPO" <<'PY'
+python3 - "$P" "$HFOV" "$FRAMES" "${OUTJSON:-$W/lens_fit.json}" "$SESSION" "$SET" "$WH" "$REPO" <<'PY'
 import json, os, re, subprocess, sys
 P, hfov, frames, out = sys.argv[1], float(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
-prune, wh, repo = sys.argv[7], sys.argv[8], sys.argv[9]
+wh, repo = sys.argv[7], sys.argv[8]
 sys.path.insert(0, os.path.join(repo, "scripts", "darktable"))
 from cp_coverage import coverage
 w, h = (int(x) for x in wh.lower().split("x"))
@@ -187,15 +152,20 @@ rec = {"tool": "hugin-tools cpfind --fullscale / cpclean / staged autooptimiser 
        "fitted_ptlens": {"a": abc["a"], "b": abc["b"], "c": abc["c"]},
        "centre_shift_informational_px": {"d": de.get("d"), "e": de.get("e"),
            "note": "reported only — carrying it needs lensfun's undocumented <center> element"},
-       "prune_order": prune,
        # The number that says whether the CORNER was fitted or extrapolated. A
        # fit's own residual cannot say: it is computed only where the control
        # points are, and 0.02-0.10 px residuals accompanied 2.99 px of corner
        # disagreement in the product (ledger `fit_corner_support_census`).
        "control_point_coverage": coverage(f"{P}/st/fit_abc.pto", w, h),
-       "accepted_by": "the corner-support criterion (cp_coverage.py) THEN member "
-                      "separation on a real cross-set compose "
-                      "(scripts/qa/member_separation.py) — never this fit's own residual"}
+       "status": "CANDIDATE — a fresh fit is not a shipped model. The AUTHORITY is "
+                 "scripts/darktable/lens_models.json, keyed <lens>@<focal>, because a "
+                 "model is a property of the LENS AND OPTICAL STATE, not of a dataset. "
+                 "Promoting a candidate is an explicit act, judged at the COMBINE "
+                 "(scripts/qa/member_separation.py on a real cross-set compose) and on "
+                 "the owner's eyes — never on this fit's own residual, and never on a "
+                 "per-set product, where a compose artifact masquerades as optics "
+                 "(docs/dead-ends.md).",
+       "accepted_by": null}
 json.dump(rec, open(out, "w"), indent=1)
 cov = rec["control_point_coverage"] or {}
 print(json.dumps(rec["fitted_ptlens"]))

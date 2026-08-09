@@ -533,14 +533,23 @@ fi
 # flat is the flat. The builder keeps its own call — defence in depth, not a
 # substitute.
 if [ "$ROUTE" != standard ]; then
-  # PER-SET MODEL INSTALL, the standing method (BACKLOG:`optical-state-models`):
-  # the lensfun user DB is GLOBAL machine state and the model keys on the
-  # set's own optical state, so every undistort run installs THIS set's
-  # recorded model before verifying it. A record-less set stops loudly inside
-  # the installer with the fit-or-inherit instruction; --replace because
-  # swapping out another set's state is the routine, not the exception.
-  say "optics: install this set's own model (per-set optical state)"
-  "$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET" --replace
+  # INSTALL THE PINNED MODEL, then verify it. The lensfun user DB is GLOBAL,
+  # unscoped machine state that nothing reverts, so the install is not optional
+  # even when the pinned model is already the one shipped — a previous run, a
+  # `lensfun-update-data`, or any non-chain darktable invocation can have left
+  # something else there.
+  #
+  # PINNED, not per-set. The per-set variant was tried and is REFUTED at its
+  # root (docs/dead-ends.md): its founding evidence — aug06/set-01's "2x field
+  # term elevation" — is a COMPOSE artifact, absent from every one of set-01's
+  # own groups (0.40-0.45 px, indistinguishable from set-02's) and present only
+  # in the 500-frame product. It was adopted on 1 WIN / 3 NULL, gave new models
+  # to three sets that measured no benefit, and that heterogeneity is what broke
+  # the combine: 2.99 px corner disagreement within a night, 5.34 px across
+  # nights, star doubling the owner failed by eye. One shared model composes
+  # clean at both scales and is what every accepted combine here ever used.
+  say "optics: install the pinned model for this lens@focal (lens_models.json)"
+  "$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET"
   say "optics preflight (before the masters — a wrong-optics stop must not cost a flat build)"
   mkdir -p "$DSET/qa_work"
   python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile \

@@ -23,25 +23,24 @@
  },
  "profile_proof": {
   "siril_stat_sigma": [
-   1700.2,
-   1185.1,
-   1214.3
+   1699.8,
+   1184.6,
+   1214.5
   ],
   "siril_stat_max": [
    65535.0,
-   64699.0,
-   65476.0
+   64135.0,
+   64730.0
   ],
   "corrected": true
  },
- "state_model": {
+ "pinned_model": {
   "state": "ok",
   "key": "NIKKOR Z 24-70mm f/4 S@70",
   "coefficients": {
-   "a": 0.00808615198829015,
-   "b": 0.00191793356594816,
-   "c": 0.012386006221812
-  },
-  "source": "fitted from this set's own frames"
+   "a": 0.00350093,
+   "b": 0.01453356,
+   "c": 0.00043983
+  }
  }
 }

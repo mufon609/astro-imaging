@@ -152,7 +152,7 @@ records `qa_work/star_stations_*.json`) — cells are [n, majFWHM px, roundness]
   community: centre station **5.30 → 3.67 px** (roundness 0.480 → 0.629),
   all-station spread 1.70 → **0.52 px**, truncated-mean **3.27 → 3.06 px**,
   stars +10%, sensor tilt 0.51 → 0.31. Approved on the user's eyes, full-frame
-  lossless. Models are since PER-SET records — each set's optical state,
+  lossless. The model is the PINNED registry entry for this lens@focal,
   fitted from its own frames or explicitly inherited, carried in
   `qa_work/lens_fit.json` and installed per run by the chain
   (BACKLOG:`optical-state-models`; the repo-global pinned file was removed

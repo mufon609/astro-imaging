@@ -118,7 +118,11 @@ PY
 #                               at 1.47-1.51 against a corner at 1.80, so this is
 #                               the number that says whether the corner was FITTED
 #                               or EXTRAPOLATED
-#   DISTSRC                     which set's fit, and whether it was inherited
+#   DISTSRC / DISTFIT           where the MODEL came from — the pinned registry key
+#                               and the frames+commit it was fitted from. NOT the
+#                               set that used it: the model is a property of the
+#                               lens and optical state, and a per-set lens_fit.json
+#                               is a CANDIDATE until promoted into the registry
 #   CALSET / CALDARK / CALFLAT  the set, and the masters' identity + depth
 #   BKGLIGHT                    the LIGHTS-SIDE BACKGROUND TREATMENT: `none`, or
 #                               `subsky1-nodither` when --subsky-lights ran a
@@ -169,12 +173,22 @@ wh = (acq.get("exif") or {}).get("image_wh") or []
 if len(wh) == 2:
     key("DISTNORM", min(int(wh[0]), int(wh[1])) / 2.0)
 
-fit = load(os.path.join(d, "qa_work", "lens_fit.json"))
-cov = fit.get("control_point_coverage") or {}
+# DISTSRC names where the MODEL came from, never which set happened to use it —
+# the model is a property of the lens and optical state, and the authority is the
+# repo-global pinned registry. A per-set lens_fit.json is a CANDIDATE fit and is
+# not stamped as the source unless it was promoted into the registry.
+models = load(os.path.join(repo, "scripts", "darktable", "lens_models.json"))
+mkey = next((k for k in models if k != "_readme" and not k.startswith("_")
+             and str(sm.get("key", "")).lower() == k.lower()), None)
+if mkey is None:
+    mkey = next((k for k in models if not k.startswith("_")), None)
+ent = models.get(mkey) or {}
+fitted = ent.get("fitted") or {}
+if mkey:
+    key("DISTSRC", f"pinned:{mkey}"[:68])
+    key("DISTFIT", f"{fitted.get('from','?')}@{fitted.get('commit','?')}"[:68])
+cov = (ent.get("control_point_coverage") or {})
 key("DISTRHO", cov.get("rho_p99"))
-if fit:
-    inh = fit.get("inherited_from")
-    key("DISTSRC", (f"inherited:{ses}/{sset}" if inh else f"{ses}/{sset}")[:68])
 
 key("CALSET", f"{ses}/{sset}")
 key("BKGLIGHT", bkglight)

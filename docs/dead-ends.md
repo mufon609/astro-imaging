@@ -1149,6 +1149,40 @@ SILENT — pin the state, never inherit it):
   lights-built flat both bakes in and partially cancels a time-varying glow,
   inconsistently per set.
 
+- **PER-SET LENS-DISTORTION MODELS — REFUTED AT THE ROOT, REVERTED.** The
+  doctrine ("the lens model keys on the OPTICAL STATE, per set; focus
+  recalibrates every session") was generalised from ONE number: aug06/set-01
+  measuring 0.82 px off-axis under the pinned model against a 0.16–0.62 px
+  family, read as "the field-dependent signature of a state change". **It is not
+  a state change.** MEASURED on the preserved sub-stacks: every one of set-01's
+  five 100-frame groups reads **0.40 / 0.42 / 0.44 / 0.43 / 0.45** px under that
+  same pinned model — indistinguishable from set-02's groups (0.45–0.46) and
+  *better* on truncated-mean FWHM (2.74–2.79 vs 2.82–2.84). The 0.82 exists only
+  in the 500-frame product, i.e. it is created at the group→set compose. Set-02
+  is the built-in depth control: same 100→500 increase, +0.11 where set-01 gets
+  +0.39. The chronology said so first — 0.48 → **0.82** → 0.57 → 0.60 across
+  strictly sequential, frame-contiguous sets, and a focus change is a STEP, not a
+  spike that returns.
+  The adoption A/B then read **1 WIN / 3 NULL** (set-00 0.48→0.46, set-02
+  0.57→0.60, set-03 0.60→0.62) and gave all four sets their own model, including
+  the three that measured no benefit. That heterogeneity is what broke the
+  combine: 2.99 px corner disagreement within a night, 5.34 px across nights,
+  visible star doubling the owner failed by eye — against 0.93 px / 0.71 px for
+  the same member pairs under one model, and 0.14–0.35 px for same-night members.
+  Compounding it: a fitted model is not reproducible to better than ~3 px in the
+  outer field (four fits of ONE set span 0.36–6.30 px against a 4.01–10.99 px
+  between-set spread — the distributions OVERLAP), so the coefficient differences
+  never discriminated a state from a fit, and the 0.47 px equivalence bound used
+  to adopt per-set granularity is exceeded 7–23× by refits of a single set.
+  **What is NOT dead: fitting a model from a set's own frames.** That is how the
+  shipped july14 model was made, and it beat the community profile at full depth
+  (centre station 5.30 → 3.67 px, all-station spread 1.70 → 0.52) on the owner's
+  eyes. What died is treating each SET as its own optical state by default, and
+  making a per-set record the install authority. The authority is
+  `scripts/darktable/lens_models.json`, keyed `<lens>@<focal>`; a fresh fit is a
+  CANDIDATE promoted by an explicit act, judged at the COMBINE — never on a
+  per-set product, where a compose artifact masquerades as optics.
+
 - **NEVER compose sub-stacks that were warped under DIFFERENT distortion
   models.** A lens model is a per-set property only until the members meet;
   from the compose's point of view the model is a property of the COMBINE, and

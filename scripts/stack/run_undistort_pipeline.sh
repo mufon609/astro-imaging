@@ -136,16 +136,16 @@ sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 LPJ=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work/lens_preflight.json
 mkdir -p "$(dirname "$LPJ")"
 # BOUND THE LENSFUN-DB LIFECYCLE. The user DB is GLOBAL, unscoped, single-valued
-# machine state that nothing reverts — it holds whichever set's model was
-# installed last, indefinitely. run_set_chain.sh installs before calling here,
-# but this builder is also invoked DIRECTLY (and by run_undistort_groups.sh),
-# and it used to only VERIFY: a direct call would warp on whatever the machine
-# happened to be carrying, and the preflight would stop it — correct, but only
-# after the operator had already committed to the run.
-# So install first. The set's own record is the authority either way (the
-# preflight hard-stops on MISMATCH against it), so there is no A/B this can
-# undo; --replace because swapping out another set's state IS the routine here.
-"$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET" --replace
+# machine state that nothing reverts — it holds whichever model was installed
+# last, indefinitely. run_set_chain.sh installs before calling here, but this
+# builder is also invoked DIRECTLY (and by run_undistort_groups.sh), and it used
+# to only VERIFY: a direct call would warp on whatever the machine happened to be
+# carrying, and the preflight would stop it — correct, but only after the
+# operator had already committed to the run.
+# So install the PINNED model first. No --replace: a DIFFERENT fitted entry in
+# the DB is an A/B someone staged deliberately, and this builder must not undo it
+# silently — the preflight stops on the mismatch and says so.
+"$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET"
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile --json="$LPJ"
 "$REPO/scripts/darktable/install_styles.sh" "$CFG"
 

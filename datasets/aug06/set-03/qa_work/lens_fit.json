@@ -49,5 +49,7 @@
   ],
   "source_pto": "strict2.pto",
   "_note": "backfilled from the preserved hugin artifacts; the fit itself is unchanged"
- }
+ },
+ "status": "CANDIDATE, not shipped. The AUTHORITY is scripts/darktable/lens_models.json (keyed <lens>@<focal>) \u2014 restored after the per-set optical-state method was REFUTED at its root: its founding evidence, this session's set-01 '2x field-term elevation', is a COMPOSE artifact absent from every one of set-01's own groups (0.40-0.45 px, indistinguishable from set-02's) and present only in the 500-frame product. Adopted on 1 WIN / 3 NULL, it gave new models to three sets that measured no benefit, and that heterogeneity broke the combine (2.99 px within a night, 5.34 px across nights, star doubling the owner failed by eye). This fit remains a legitimate candidate; promotion is an explicit act judged at the COMBINE, never on a per-set product. See docs/dead-ends.md and COMPOSE_SMEAR_INVESTIGATION_report.md.",
+ "shipped": false
 }
