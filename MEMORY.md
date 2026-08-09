@@ -61,6 +61,15 @@ technical and process knowledge lives in the operating docs, never here:
   defects in the notes instead of hedging with numbers.
 - "the midst of learn-nothing, try-everything" — the named failure mode:
   guess-and-check knob-thrashing with victory language. Never repeat it.
+- "the entire point of astrophotography is to take pictures on different
+  nights, under different conditions and to be able to stack them
+  altogether... we cannot overlook basic functionality like stacking from
+  night to night" — multi-night accumulation is the CORE purpose; the
+  lens-not-telescope divergences never lower that bar. Evaluate every
+  calibration/model/route change against the COMBINE unit, not just per-set
+  products (measured twice: per-set models smeared the cross-set unions;
+  a shared family model fails across nights at 4.07 px corner state
+  difference).
 - "THE POINT OF THE PROJECT IS TO BE ABLE TO DO SYNTHETIC FLATS. SO STOP
   ASKING FOR REAL FLATS." — the repo has never had real flats and that is the
   mission, not a gap. A defect traced to flat-residual mechanics gets its fix
