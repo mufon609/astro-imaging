@@ -1235,6 +1235,21 @@ SILENT — pin the state, never inherit it):
   against shipped values ~0.001–0.02), confirming the documented degenerate
   basin. A corner-true fit needs corner CORRESPONDENCES that are actually good.
 
+- **`member_separation.py`'s zones are CANVAS-radial, so no ABSOLUTE cross-night
+  number from it is trustworthy.** Canvas radius equals field radius only when
+  the members are near co-pointed — true for every cell it was validated on
+  (98–500 px offsets), false across a re-aim, where the canvas centre lies
+  between two optical axes and a canvas corner sits at a different field radius
+  in each member. MEASURED symptoms on a cross-night pair: the profile goes
+  non-monotonic (outer 2.07 worse than corner 0.71), the corner median swings
+  **0.71 → 3.38** on a 0.10 change of the zone bound, the distribution is
+  heavy-tailed (median 0.71, p75 5.21, p90 5.92) and the bootstrap band is
+  0.55–3.89. Same-night cells and ONE-KNOB comparisons on a fixed pair stay
+  sound — the geometry is common to both arms and cancels. The recorded
+  "cross-night state difference 4.07 px" is downgraded to unmeasured on this
+  basis, not refuted. Fix before trusting any cross-night absolute: bin by each
+  member's OWN field radius via its own WCS.
+
 - **A PSF FITTER IS THE WRONG INSTRUMENT FOR STAR DOUBLING** — it fits one
   component, not the blend, so a doubled corner can read BETTER than a merely
   soft one. MEASURED: corner `findstar` FWHM ranked the failing own-model union
