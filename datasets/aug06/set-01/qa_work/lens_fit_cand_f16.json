@@ -1,0 +1,54 @@
+{
+ "tool": "hugin-tools cpfind --fullscale / cpclean / staged autooptimiser on Siril-autostretched calibrated frames; hfov pinned at the solved value",
+ "hfov_deg_pinned": 28.69,
+ "frames": 16,
+ "control_points": {
+  "raw": 427,
+  "after_cpclean": 359
+ },
+ "residual_rotation_only": {
+  "mean_px": 0.37,
+  "max_px": 2.0
+ },
+ "residual_with_abc": {
+  "mean_px": 0.03,
+  "max_px": 0.61
+ },
+ "fitted_ptlens": {
+  "a": 0.0102028957210457,
+  "b": -0.00278428669904592,
+  "c": 0.0175503131206129
+ },
+ "centre_shift_informational_px": {
+  "d": 6.89450992677209,
+  "e": 5.80126426765042,
+  "note": "reported only \u2014 carrying it needs lensfun's undocumented <center> element"
+ },
+ "prune_order": "default",
+ "control_point_coverage": {
+  "n": 359,
+  "n_endpoints": 718,
+  "normalisation_px": 2020.0,
+  "corner_rho": 1.804,
+  "rho_p50": 0.92,
+  "rho_p90": 1.326,
+  "rho_p99": 1.518,
+  "rho_max": 1.605,
+  "frac_beyond_1_20": 0.2423,
+  "frac_beyond_1_50": 0.0139,
+  "frac_beyond_1_75": 0.0,
+  "criterion": {
+   "rho_max_min": 1.75,
+   "rho_p99_min": 1.6,
+   "frac_beyond_1_50_min": 0.05,
+   "n_min": 100
+  },
+  "corner_support": "partial",
+  "criterion_fails": [
+   "rho_max 1.605 < 1.75",
+   "rho_p99 1.518 < 1.6",
+   "frac>1.50 0.0139 < 0.05"
+  ]
+ },
+ "accepted_by": "the corner-support criterion (cp_coverage.py) THEN member separation on a real cross-set compose (scripts/qa/member_separation.py) \u2014 never this fit's own residual"
+}

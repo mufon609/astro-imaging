@@ -7,5 +7,32 @@
  "inherited_from": "the july14-fitted optical state (fitted 2026-07-17 from july14/set-01's own frames, prior rig; provenance incl. the x86 refit equivalence measurement lives in git history of scripts/darktable/lens_models.json, removed when models became per-set records)",
  "why_inherited": "this session's own fit is UNTRUSTWORTHY for a measured mechanism \u2014 CP coverage radially BANDED under the moonlit gradient (set-01/qa_work/lens_fit_DIAGNOSTIC.json); every july31 product was built under these coefficients and measures the off-axis family floor (0.16-0.47 px), which is the product-level evidence the inheritance stands on",
  "hfov_deg_pinned": 28.69,
- "accepted_by": "the july31 products themselves (star_shape records, 0.16-0.47 px off-axis)"
+ "accepted_by": "the july31 products themselves (star_shape records, 0.16-0.47 px off-axis)",
+ "control_point_coverage": {
+  "n": 104,
+  "n_endpoints": 208,
+  "normalisation_px": 2020.0,
+  "corner_rho": 1.804,
+  "rho_p50": 0.807,
+  "rho_p90": 0.889,
+  "rho_p99": 1.22,
+  "rho_max": 1.244,
+  "frac_beyond_1_20": 0.0192,
+  "frac_beyond_1_50": 0.0,
+  "frac_beyond_1_75": 0.0,
+  "criterion": {
+   "rho_max_min": 1.75,
+   "rho_p99_min": 1.6,
+   "frac_beyond_1_50_min": 0.05,
+   "n_min": 100
+  },
+  "corner_support": "none",
+  "criterion_fails": [
+   "rho_max 1.244 < 1.75",
+   "rho_p99 1.22 < 1.6",
+   "frac>1.50 0.0 < 0.05"
+  ],
+  "source_pto": "strict2.pto",
+  "_note": "backfilled from the preserved hugin artifacts; the fit itself is unchanged"
+ }
 }

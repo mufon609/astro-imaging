@@ -7,5 +7,9 @@
  "inherited_from": "the july14-fitted optical state (fitted 2026-07-17 from july14/set-01's own frames, prior rig; provenance incl. the x86 refit equivalence measurement lives in git history of scripts/darktable/lens_models.json, removed when models became per-set records)",
  "why_inherited": "this session's own fit is UNTRUSTWORTHY for a measured mechanism \u2014 CP coverage radially BANDED under the moonlit gradient (set-01/qa_work/lens_fit_DIAGNOSTIC.json); every july31 product was built under these coefficients and measures the off-axis family floor (0.16-0.47 px), which is the product-level evidence the inheritance stands on",
  "hfov_deg_pinned": 28.69,
- "accepted_by": "the july31 products themselves (star_shape records, 0.16-0.47 px off-axis)"
+ "accepted_by": "the july31 products themselves (star_shape records, 0.16-0.47 px off-axis)",
+ "control_point_coverage": {
+  "_inherited": "the july14-fitted state; this set has no fit of its own. The july31/set-01 REFIT's coverage is recorded there and was REJECTED on banded coverage; the july14 fit's own pto artifacts do not exist on this rig, so the state's corner support is UNMEASURED.",
+  "corner_support": "unmeasured"
+ }
 }

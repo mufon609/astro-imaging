@@ -1177,6 +1177,41 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **A FITTED ptlens MODEL IS NOT REPRODUCIBLE TO BETTER THAN ~3 px IN THE OUTER
+  FIELD, so a coefficient comparison cannot tell an optical STATE from a FIT.**
+  MEASURED on four independent fits of ONE set (aug06/set-01, same night, same
+  frame pool; varying only the frame subset and the prune): pairwise peak
+  displacement difference over the control-point-supported field is **0.36–6.30
+  px, median 3.22**, where the three *between-set* models differ by 4.01–10.99
+  px, median 7.04. The distributions overlap, and both exceed the 0.47 px
+  register-equivalence bound the per-set doctrine was adopted against by 7–23×.
+  "All pairs exceed the bound" was therefore never evidence of distinct states —
+  any two fits exceed it, including two fits of the same set. Sharpest form: a
+  refit of set-01 lands 0.83 px from set-02's shipped model and 3.26 px from
+  set-01's own. Per-set granularity is not refuted (between-set is systematically
+  larger), but **fit reproducibility is a PREREQUISITE for any per-state model
+  work, because ±3 px of procedural uncertainty is the same size as the 2.99 px
+  member disagreement it must fix.** A fit's own residual (0.02–0.10 px) says
+  nothing about this: it is computed only where the control points are.
+
+- **CORNER CONTROL POINTS CANNOT BE RECOVERED BY REORDERING OR RELAXING
+  `cpclean`** — the corner-support deficit is a MATCHING problem, not a pruning
+  one. `cpfind`'s raw points do reach the corner (ρ_max 1.60–1.78 against a
+  corner at ρ 1.80) and `cpclean` removes essentially all of them (9.9% → 0.0%
+  beyond ρ 1.50 on july31/set-01). Decomposed, MEASURED: step 1 (pairwise)
+  removes ONE point of 225 and keeps corner support; **step 2 (whole-panorama) is
+  the whole effect**. But the tempting mechanism — "step 2 judges points against
+  a model with no a,b,c, and unmodelled distortion's residual grows with radius"
+  — is REFUTED: seeding step 2 with a project that already carries a fitted
+  a,b,c (`pto_template` + `cpclean -w -s`) removes the same population
+  (219 → 183, ρ_max 1.77 → 1.65). The `-n` threshold is exhausted too: n = 3, 4,
+  5, 6, 8 all return the identical 178 points. Those corner points have large
+  residuals under *any* model — they are predominantly bad SIFT matches on
+  aberrated, low-SNR corner stars. Keeping them anyway is a measured dead end:
+  the fit on the pairwise-only set is DEGENERATE (a = −1.02, b = 3.03, c = −2.37
+  against shipped values ~0.001–0.02), confirming the documented degenerate
+  basin. A corner-true fit needs corner CORRESPONDENCES that are actually good.
+
 - **A PSF FITTER IS THE WRONG INSTRUMENT FOR STAR DOUBLING** — it fits one
   component, not the blend, so a doubled corner can read BETTER than a merely
   soft one. MEASURED: corner `findstar` FWHM ranked the failing own-model union

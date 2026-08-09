@@ -406,7 +406,27 @@ T-2 (BLOCK at 1.00 px) and authorised the sequence. Progress:
 - **F3 lifecycle — BOUND**: the builder now INSTALLS the set's model rather than
   only verifying it, and announces what optical state the machine is left
   carrying.
-- **F2 — next** (census wiring, then the corner-true pilot).
+- **F2 census — BUILT and BACKFILLED**: `scripts/darktable/cp_coverage.py`, wired
+  into `fit_lens_model.sh` and written into every `lens_fit.json` whose hugin
+  artifacts survive. The corner-true criterion is committed IN CODE and was fixed
+  before the first fit aimed at it.
+- **F2 corner-true pilot — FAILED its criterion. STOP POINT.** Three prune
+  variants on aug06/set-01 reach ρ_max 1.65 / 2.7–2.8% beyond ρ 1.50 against a
+  criterion of 1.75 / 5%; the only variant that keeps corner support produces a
+  DEGENERATE fit (a = −1.02, b = 3.03, c = −2.37). Two findings behind it, both
+  measured, both in `docs/dead-ends.md`:
+  (a) corner support is a MATCHING problem, not a pruning one — pruning against a
+  model that already carries a,b,c removes the same corner points, and the
+  `-n` threshold is exhausted (n = 3…8 identical), so those points are bad SIFT
+  matches on aberrated corner stars;
+  (b) **a fitted model is not reproducible to better than ~3 px in the outer
+  field** — four independent fits of ONE set span 0.36–6.30 px (median 3.22)
+  against between-set differences of 4.01–10.99 px (median 7.04), both dwarfing
+  the 0.47 px bound the per-set doctrine was adopted against. The model's own
+  reproducibility is the size of the 2.99 px defect it must fix.
+- **Sequence steps 3–5 NOT started** — the july31 refit, the cross-night
+  acceptance run and the rebuild are all downstream of a corner-true fit that
+  does not exist. Reported rather than worked around.
 
 ---
 

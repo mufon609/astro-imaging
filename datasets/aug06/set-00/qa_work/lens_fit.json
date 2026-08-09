@@ -24,5 +24,32 @@
   "e": 24.0427195363038,
   "note": "reported only \u2014 carrying it needs lensfun's undocumented <center> element"
  },
- "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual"
+ "accepted_by": "star_stations + seqtilt A/B on a real stack, never this fit's own residual",
+ "control_point_coverage": {
+  "n": 317,
+  "n_endpoints": 634,
+  "normalisation_px": 2020.0,
+  "corner_rho": 1.804,
+  "rho_p50": 0.858,
+  "rho_p90": 1.385,
+  "rho_p99": 1.468,
+  "rho_max": 1.508,
+  "frac_beyond_1_20": 0.2808,
+  "frac_beyond_1_50": 0.0016,
+  "frac_beyond_1_75": 0.0,
+  "criterion": {
+   "rho_max_min": 1.75,
+   "rho_p99_min": 1.6,
+   "frac_beyond_1_50_min": 0.05,
+   "n_min": 100
+  },
+  "corner_support": "partial",
+  "criterion_fails": [
+   "rho_max 1.508 < 1.75",
+   "rho_p99 1.468 < 1.6",
+   "frac>1.50 0.0016 < 0.05"
+  ],
+  "source_pto": "clean.pto",
+  "_note": "backfilled from the preserved hugin artifacts; the fit itself is unchanged"
+ }
 }

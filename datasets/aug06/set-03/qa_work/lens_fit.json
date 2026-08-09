@@ -22,5 +22,32 @@
   "mean_px": 0.02,
   "max_px": 0.07
  },
- "supersedes": "the default-prune fit in this same run \u2014 a=0.0112 b=-0.0081 c=0.0218 with 4.19 px max residual (contaminated), discarded"
+ "supersedes": "the default-prune fit in this same run \u2014 a=0.0112 b=-0.0081 c=0.0218 with 4.19 px max residual (contaminated), discarded",
+ "control_point_coverage": {
+  "n": 150,
+  "n_endpoints": 300,
+  "normalisation_px": 2020.0,
+  "corner_rho": 1.804,
+  "rho_p50": 0.619,
+  "rho_p90": 1.121,
+  "rho_p99": 1.43,
+  "rho_max": 1.466,
+  "frac_beyond_1_20": 0.0467,
+  "frac_beyond_1_50": 0.0,
+  "frac_beyond_1_75": 0.0,
+  "criterion": {
+   "rho_max_min": 1.75,
+   "rho_p99_min": 1.6,
+   "frac_beyond_1_50_min": 0.05,
+   "n_min": 100
+  },
+  "corner_support": "partial",
+  "criterion_fails": [
+   "rho_max 1.466 < 1.75",
+   "rho_p99 1.43 < 1.6",
+   "frac>1.50 0.0 < 0.05"
+  ],
+  "source_pto": "strict2.pto",
+  "_note": "backfilled from the preserved hugin artifacts; the fit itself is unchanged"
+ }
 }
