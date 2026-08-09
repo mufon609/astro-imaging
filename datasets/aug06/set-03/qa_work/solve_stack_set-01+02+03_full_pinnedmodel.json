@@ -1,0 +1,41 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_pinnedmodel.fit",
+ "detector": "sep",
+ "n_stars_detected": 400,
+ "central": 0.6,
+ "position_hint": null,
+ "position_hint_source": "none",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "index_scales": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "scales_solved": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 306.9981577601734,
+ "dec_deg": 42.54067399557711,
+ "scale_arcsec_px": 17.0634189392071,
+ "logodds": 192.7562713623047,
+ "parity": "sky-true",
+ "cd_det": -2.246606989929719e-05,
+ "injected": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_pinnedmodel_wcs.fit"
+}

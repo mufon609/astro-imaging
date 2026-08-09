@@ -34,20 +34,14 @@
   ],
   "corrected": true
  },
- "pinned_model": {
-  "state": "candidate",
+ "state_model": {
+  "state": "ok",
   "key": "NIKKOR Z 24-70mm f/4 S@70",
-  "pinned": {
-   "a": 0.00350093,
-   "b": 0.01453356,
-   "c": 0.00043983
-  },
-  "installed": {
+  "coefficients": {
    "a": 0.00808615198829015,
    "b": 0.00191793356594816,
    "c": 0.012386006221812
   },
-  "db": "mil-nikon.xml",
-  "fit_record": "qa_work/lens_fit.json"
+  "source": "fitted from this set's own frames"
  }
 }

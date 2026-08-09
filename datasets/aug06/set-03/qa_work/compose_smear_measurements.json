@@ -1,0 +1,206 @@
+{
+ "purpose": "Root-cause measurements for the aug06 cross-set compose corner star smear (COMPOSE_SMEAR_INVESTIGATION_report.md). Every number here is a tool's: darktable-cli (the production warp), Siril findstar/seqtilt, astrometry.net (solve_field.py, sip_order=3), run_undistort_compose.sh (the production compose).",
+ "normalisation_probe": {
+  "instrument": "seeded synthetic star-field fixture at sensor geometry 6064x4040 (150 gaussian dots, 400 px pitch -> matching unambiguous to 200 px); darktable-cli --style lensdist vs --style nodist (styles differ ONLY in the module's enabled bit); Siril findstar per quadrant crop",
+  "identity_control_nodist": {
+   "median_abs_tangential_px": 0.5,
+   "max_abs_radial_px": 0.71
+  },
+  "fit_rms_px_by_assumed_normalisation": {
+   "half_short_side_2020": 4.47,
+   "half_long_side_3032": 18.27,
+   "half_diagonal_3643": 22.22,
+   "free_solution_px": 2000
+  },
+  "verdict": "HALF THE SHORT SIDE (2020 px). Frame corner therefore at rho = 1.80 while cpfind control points constrain the fit only to rho <= 1.0 \u2014 80% extrapolation at the corners.",
+  "model_pair_peak_radial_divergence_px": {
+   "s02_vs_s03": 8.19,
+   "s02_vs_pinned": 6.27,
+   "s01_vs_s03": 6.24,
+   "s01_vs_pinned": 4.91,
+   "s01_vs_s02": 2.8,
+   "s03_vs_pinned": 1.91
+  },
+  "warp_magnitude_peak_px": 94
+ },
+ "member_disagreement_px": {
+  "instrument": "register s -2pass + setref + seqapplyreg -framing=min, then Siril findstar on EACH registered member separately, mutual-nearest match (tol 12 px); median separation of the SAME star as the two members place it, by canvas zone (fractions of half-diagonal)",
+  "zones": [
+   "centre 0-0.25",
+   "mid 0.25-0.55",
+   "outer 0.55-0.80",
+   "corner 0.80-1.0"
+  ],
+  "aug06_same_set_s01g1_g2": {
+   "n": 1964,
+   "v": [
+    0.14,
+    0.06,
+    0.09,
+    0.14
+   ],
+   "offset_px": 225,
+   "rot_deg": 0.27
+  },
+  "july31_same_set_s01g1_g2": {
+   "n": 1970,
+   "v": [
+    0.13,
+    0.04,
+    0.08,
+    0.19
+   ],
+   "offset_px": 198,
+   "rot_deg": 0.85
+  },
+  "aug06_cross_own_models_s01_s02": {
+   "n": 1924,
+   "v": [
+    0.29,
+    0.63,
+    2.1,
+    2.99
+   ],
+   "offset_px": 500,
+   "rot_deg": 2.08
+  },
+  "aug06_cross_ONE_model_s01_s02": {
+   "n": 1944,
+   "v": [
+    0.15,
+    0.17,
+    0.44,
+    0.93
+   ],
+   "offset_px": 500,
+   "rot_deg": 2.08,
+   "note": "byte-identical group membership to the row above (all 13 g*.list diff IDENTICAL); ONE KNOB = the installed model"
+  },
+  "july31_cross_ONE_model_s01_s02": {
+   "n": 1957,
+   "v": [
+    0.25,
+    0.11,
+    0.18,
+    0.35
+   ],
+   "offset_px": 411,
+   "rot_deg": 4.73
+  },
+  "aug06_cross_own_models_s01_s03": {
+   "n": 1949,
+   "v": [
+    1.03,
+    0.84,
+    0.63,
+    2.11
+   ],
+   "offset_px": 98,
+   "rot_deg": 9.28
+  }
+ },
+ "member_residual_distortion_sip": {
+  "instrument": "astrometry.net via scripts/calibrate/solve_field.py (sip_order=3); displacement of the injected TAN-SIP polynomial over a 25x25 grid",
+  "outer_field_mean_px": {
+   "aug06_s01g1": 29.94,
+   "aug06_s02g1": 28.87,
+   "aug06_s03g1": 26.08,
+   "aug06_s01g2": 26.08,
+   "july31_s01g1": 12.83,
+   "july31_s02g1": 20.92,
+   "july31_s01g2": 14.73
+  },
+  "max_px": {
+   "aug06_s01g1": 44.49,
+   "aug06_s02g1": 49.04,
+   "aug06_s03g1": 57.98,
+   "aug06_s01g2": 40.89,
+   "july31_s01g1": 31.07,
+   "july31_s02g1": 39.69,
+   "july31_s01g2": 37.52
+  }
+ },
+ "star_shape_fwhm_px": {
+  "instrument": "Siril findstar, open gate (-roundness=0.10 -relax=on -maxR=1.0), 800 px boxes, (FWHMx+FWHMy)/2 median, green layer",
+  "note": "RECORDED BUT NOT VERDICT-BEARING for this defect \u2014 a PSF fitter fits one component of a doubled star, not the blend (docs/dead-ends.md). Kept for continuity with the prior audit.",
+  "members": {
+   "aug06_s01g1_own": {
+    "ctr": 2.53,
+    "corner_mean": 2.92
+   },
+   "aug06_s02g1_own": {
+    "ctr": 2.51,
+    "corner_mean": 2.98
+   },
+   "aug06_s01g1_pinned": {
+    "ctr": 2.52,
+    "corner_mean": 2.92
+   },
+   "july31_s01g1": {
+    "ctr": 2.54,
+    "corner_mean": 2.67
+   },
+   "july31_s02g1": {
+    "ctr": 2.44,
+    "corner_mean": 2.64
+   }
+  },
+  "pairs": {
+   "aug06_same_set": {
+    "ctr": 2.56,
+    "corner_mean": 3.02
+   },
+   "july31_same_set": {
+    "ctr": 2.55,
+    "corner_mean": 2.65
+   },
+   "aug06_cross_own": {
+    "ctr": 2.56,
+    "corner_mean": 3.15
+   },
+   "aug06_cross_pinned": {
+    "ctr": 2.54,
+    "corner_mean": 3.2
+   },
+   "aug06_cross_own_copointed": {
+    "ctr": 2.68,
+    "corner_mean": 3.48
+   },
+   "july31_cross": {
+    "ctr": 2.55,
+    "corner_mean": 2.68
+   }
+  },
+  "full_unions_matched_boxes_6pct_94pct": {
+   "aug06_own": {
+    "ctr": 2.73,
+    "c00": 3.51,
+    "c11": 3.92
+   },
+   "aug06_pinned": {
+    "ctr": 2.61,
+    "c00": 3.33,
+    "c11": 3.31
+   }
+  }
+ },
+ "seqtilt": {
+  "instrument": "scripts/qa/star_shape.py (Siril seqtilt)",
+  "note": "MEASURED BLIND to this defect: off-axis aberration 0.34 px for the FAILING union vs 0.40 px for the PASSING july31 union.",
+  "off_axis_aberration_px": {
+   "aug06_set01": 0.52,
+   "aug06_set02": 0.64,
+   "aug06_union_own": 0.34,
+   "aug06_union_pinned": 0.43,
+   "july31_union": 0.4
+  }
+ },
+ "singles_control": {
+  "source": "qa_work/singles_field_check.json (pre-existing records)",
+  "corner_over_centre_ratio": {
+   "aug06_set01": 1.174,
+   "july31_set01": 1.22
+  },
+  "reading": "the raws are comparable and aug06's are marginally MORE field-uniform \u2014 the aug06 member corner degradation is introduced by the chain, not inherited from the optics"
+ }
+}

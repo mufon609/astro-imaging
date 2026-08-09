@@ -42,10 +42,22 @@ gate, 800 px corner/center boxes, green):
 Members enter at ~3.5 px and exit the union at 4.9–5.3 px at like zones —
 the smear appears between sub-stack and union, only for aug06's members.
 
+**CORRECTION (superseding measurement — `COMPOSE_SMEAR_INVESTIGATION_report.md`):
+the "per-set model heterogeneity eliminated" row below is REFUTED.** It rested
+on the corner FWHM column of the table above, and that instrument is a PSF
+fitter, which on a doubled star fits one component rather than the blend — so it
+ranked the failing own-model union (4.95) as better than the visually CLEAN
+single-model control (5.29). Measured directly instead, as the px separation of
+the same star as two registered members place it: **2.99 px at the composed
+corner under the sets' own models vs 0.93 px for the SAME member pair under one
+model**, and at 1:1 the single-model union's corner shows round single stars
+where the own-model union's shows multi-component dashes. Heterogeneity is the
+DOMINANT driver. Every other elimination below stands.
+
 **Eliminated as drivers, each by direct measurement:**
 - framing — the min-framed union smears equally (4.83);
-- per-set model HETEROGENEITY — a single-model (pinned) union smears equally
-  (5.29);
+- ~~per-set model HETEROGENEITY — a single-model (pinned) union smears equally
+  (5.29)~~ — **REFUTED, see the correction above**;
 - member background matching — the `--subsky-lights` arm renders
   corner-equivalent judge surfaces (registry dead-end entry);
 - re-aim geometry — july31 spans BIGGER offsets (6.18° vs 3.20°) and
@@ -54,7 +66,15 @@ the smear appears between sub-stack and union, only for aug06's members.
 - member-edge-zone shipping — the min union's corners sit +96..+486 px
   INSIDE the per-set canvases (one −99) and still smear.
 
-**Leading HYPOTHESIS (open — the active investigation):** the aug06 members
+**CLOSED — see `COMPOSE_SMEAR_INVESTIGATION_report.md`.** The hypothesis below
+was half right: the aug06 members ARE less well rectified than july31's
+(astrometry.net SIP outer-field residual 26–30 px vs 13–21 px), and that is the
+SECONDARY term (0.93 vs 0.35 px member disagreement under matched single-model
+conditions). But the DOMINANT term is the one this section eliminated in error —
+composing members warped under three different per-set models. Kept below as
+written, for the record.
+
+**Leading HYPOTHESIS (superseded — was the active investigation):** the aug06 members
 are insufficiently rectified at large field radii under BOTH available
 optical models — the pinned (july-fitted) model is state-mismatched to aug06
 (optics ledger: 2× field-term elevation, the very problem the per-set

@@ -1149,6 +1149,47 @@ SILENT — pin the state, never inherit it):
   lights-built flat both bakes in and partially cancels a time-varying glow,
   inconsistently per set.
 
+- **NEVER compose sub-stacks that were warped under DIFFERENT distortion
+  models.** A lens model is a per-set property only until the members meet;
+  from the compose's point of view the model is a property of the COMBINE, and
+  members rectified by different models cannot be brought into agreement by the
+  registration, because a global homography cannot absorb a radial field.
+  MEASURED (aug06, one knob, byte-identical group membership — the 13 `g*.list`
+  files diff IDENTICAL between the two arms — and the same two pointings, only
+  the installed model differing): the px separation of the SAME star as two
+  registered members place it, at the composed canvas corner, is **2.99 px
+  under the sets' own per-set models and 0.93 px under one shared model**.
+  Same-set pairs sit at 0.1–0.2 px, so neither the compose code nor Siril's
+  registration is implicated. By eye at 1:1 the own-model union's corner shows
+  stars drawn into multi-component dashes over brushed fabric; the single-model
+  union's SAME corner, same framing, same members, shows round single stars.
+  The cause is structural, not a bad fit: **lensfun normalises the ptlens radius
+  by HALF THE SHORT SIDE** — MEASURED by probe (seeded star-field fixture at
+  sensor geometry through the production warp; fitting all four installed models
+  at once gives RMS 4.47 px for half-short-side, 18.3 px for half-long-side,
+  22.2 px for half-diagonal; a free normalisation lands at 2000 px against
+  2020) — so the frame CORNER sits at ρ = 1.80 while hugin's control points
+  constrain the fit only to ρ ≤ 1.0. The cubic extrapolates 80% past its
+  support exactly at the corners, and fits that are interchangeable inside the
+  supported field diverge freely outside it: measured model-pair divergence
+  through the production warp reaches **8.2 px** (s02-vs-s03), 6.2 px
+  (s01-vs-s03), 6.3 px (s02-vs-pinned).
+  Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
+  computed only where control points exist and says NOTHING about the corners.
+
+- **A PSF FITTER IS THE WRONG INSTRUMENT FOR STAR DOUBLING** — it fits one
+  component, not the blend, so a doubled corner can read BETTER than a merely
+  soft one. MEASURED: corner `findstar` FWHM ranked the failing own-model union
+  (4.95 px) as better than the visually-clean single-model control (5.29 px) —
+  the ordering the eye reverses; re-measured at matched canvas boxes the two
+  read 3.92 vs 3.31 px at c11, a gap far smaller than the visual one. Siril
+  `seqtilt` is weaker still: off-axis aberration 0.34 px for the FAILING union
+  against 0.40 px for the PASSING one. For member-to-member disagreement use the
+  mechanism directly — register the members, `findstar` EACH one separately, and
+  mutually match the star lists; the separation of the same star as two members
+  place it is the defect, in px, with no fitter in the way. (Box medians are
+  blind to it too — that cost this investigation two prior sessions.)
+
 ## Acquisition checklist — the real quality lever
 
 Acquisition quality outranks processing; never bandaid what photons must fix.
