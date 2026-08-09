@@ -77,6 +77,15 @@ technical and process knowledge lives in the operating docs, never here:
   policy, a correcting tool) — recommending real flats abandons the project's
   core problem and can never explain a NEW defect, since the flats route is
   the constant across every product, passing and failing alike.
+- "my eyes can miss things so if i approved something that is clearly wrong
+  thats fine just let me know why you think that... some things may be hidden
+  until a later phase so i could have missed it then and caught it now" — an
+  approval records what was visible AT APPROVAL TIME, never a constraint
+  against fixing what is measured later. When evidence shows an approved
+  artifact carries an issue, or a fix requires changing one: state it plainly
+  with the evidence and proceed on the fix's merits — never rank a fix down
+  or design around an accepted product to avoid touching it. The owner is
+  told why, decides, and re-approves the new artifact.
 - "you have been guessing with conviction and need to slow down and research
   further instead of continue to guess and shoot from the hip confidently" —
   the second named failure mode: MECHANISM ATTRIBUTION WITHOUT A
