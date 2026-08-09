@@ -77,6 +77,14 @@ technical and process knowledge lives in the operating docs, never here:
   policy, a correcting tool) — recommending real flats abandons the project's
   core problem and can never explain a NEW defect, since the flats route is
   the constant across every product, passing and failing alike.
+- "the goal needs to be focused on trying to mimic industry standards. the
+  foundation of the project is to avoid inhouse code. why would we ignore
+  such a basic option if it's the solution to our issue and an industry
+  standard" — standards-first applies to ARCHITECTURE, not just pixel
+  operations: every contract/schema/provenance design states the
+  industry-standard way first (with source) and deviates only on a measured
+  constraint, recorded. Binding rule in CLAUDE.md; measured cost was the
+  combine contract inverting FITS self-description (git in the combine path).
 - "my eyes can miss things so if i approved something that is clearly wrong
   thats fine just let me know why you think that... some things may be hidden
   until a later phase so i could have missed it then and caught it now" — an
