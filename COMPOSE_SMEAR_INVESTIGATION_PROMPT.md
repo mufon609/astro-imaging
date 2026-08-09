@@ -71,6 +71,31 @@ The owner's questions, which the report must answer explicitly:
   1:1 inspection crops and findstar lists under
   `sessions/aug06/work/subsky_arm/`).
 
+## Hypothesis state going in — rank it against your own evidence
+
+Two candidate roots survive the prior sessions' eliminations, and the order
+of work matters:
+
+- **Verify execution/provenance FIRST (owner's questions 1–2) — it is cheap
+  and it gates everything else.** If any build consumed a different model
+  than its record claims (the lensfun DB is global machine state; the
+  preflight guards it, but this repo's registry documents three consecutive
+  guards that could not fail), the fit investigation below is moot until
+  corrected. Prove what each build actually used; do not accept the guard's
+  design as the proof.
+- **The LEAD hypothesis, once execution is cleared: the aug06 fits' corner
+  quality.** Measured bracketing: the pinned model smears aug06 (it is
+  state-mismatched, measured), aug06's OWN fits also smear (so they too
+  leave corner residual), and july31's matched fit composes clean at larger
+  offsets/rotations (exonerating the per-set method and the compose code).
+  Supporting records: the fit instrument was modified mid-campaign for the
+  2.5 s subs (`fit_instrument_cp_starvation`); every aug06 fit needed strict
+  CP pruning; the corner-support trustworthiness predictor was recorded but
+  never applied as a gate; and the own-model products' +0.1–0.15 px
+  elevation over july31's floor sits in the optics ledger as "unattributed"
+  — a corner-concentrated error averages down to exactly that kind of
+  whole-frame signal. Both points are claims to verify, not conclusions.
+
 ## The prior sessions' work is AUDIT MATERIAL, not findings you inherit
 
 Everything in that trail — the re-identification of the defect as corner
