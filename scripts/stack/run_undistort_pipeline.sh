@@ -135,6 +135,17 @@ sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
 
 LPJ=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work/lens_preflight.json
 mkdir -p "$(dirname "$LPJ")"
+# BOUND THE LENSFUN-DB LIFECYCLE. The user DB is GLOBAL, unscoped, single-valued
+# machine state that nothing reverts — it holds whichever set's model was
+# installed last, indefinitely. run_set_chain.sh installs before calling here,
+# but this builder is also invoked DIRECTLY (and by run_undistort_groups.sh),
+# and it used to only VERIFY: a direct call would warp on whatever the machine
+# happened to be carrying, and the preflight would stop it — correct, but only
+# after the operator had already committed to the run.
+# So install first. The set's own record is the authority either way (the
+# preflight hard-stops on MISMATCH against it), so there is no A/B this can
+# undo; --replace because swapping out another set's state IS the routine here.
+"$REPO/scripts/darktable/install_lens_model.sh" "$SESSION" "$SET" --replace
 python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-profile --json="$LPJ"
 "$REPO/scripts/darktable/install_styles.sh" "$CFG"
 
@@ -258,15 +269,29 @@ printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt
 sir "$P/s.ssf"
 rm -rf "$P/out"
 [ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
-# restore the acquisition keywords the warp dropped (Siril's own update_key)
+# restore the acquisition keywords the warp dropped (Siril's own update_key),
+# and stamp the OPTICS + CALIBRATION provenance beside them. The provenance half
+# is unconditional: it does not depend on the pre-warp capture, and a sub-stack
+# that cannot say what warped it cannot be composed safely months later
+# (stamp_headers.sh; the compose gate reads exactly these keys).
+PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET")
 if [ -f "$ACQHDR" ]; then
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
-    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$OUT" > "$P/h.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$PROV" "$OUT" > "$P/h.ssf"
   sir "$P/h.ssf"
   echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $FRAMES x EXPTIME)"
 else
   echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$PROV" "$OUT" > "$P/h.ssf"
+  sir "$P/h.ssf"
 fi
+[ -n "$PROV" ] && echo "stamped optics/calibration provenance ($(printf '%s\n' "$PROV" | grep -c update_key) keys — DISTA/B/C from the VERIFIED live model, not the record's intent)" \
+  || echo "WARNING: no optics provenance stamped — this sub-stack cannot state what warped it, and the compose gate will treat it as UNKNOWN, never as compatible" >&2
 echo "=== DONE: $OUT.fit ==="
 ls -la "$OUT.fit"
+# State what optical state the MACHINE is left carrying. The DB is global and
+# nothing reverts it, so the next non-chain darktable render on this rig gets
+# this model, for any session. Announced, never silent.
+echo "lensfun DB now holds: $(grep -ho 'astro-imaging fitted:[^>]*' "$HOME/.local/share/lensfun/updates/version_1"/*.xml 2>/dev/null | sed 's/ *-*$//' | tail -1)"
 df -h "$SESSION" | tail -1

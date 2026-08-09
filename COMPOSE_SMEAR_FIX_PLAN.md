@@ -92,14 +92,17 @@ Master dark; sky flat; calibrated/debayered frames; warped TIFFs; the group
 `g*.list` files; sub-stacks (`sub_NN.fit`); per-set stacks; unions; judge
 surfaces. Delete freely.
 
-**Group membership regenerates deterministically** — consecutive blocks over the
-sorted, culled frame list, with the group size derived from N and the dwell floor
-in the tracked `anomaly_audit.json` (`run_undistort_groups.sh`). This is stated
-as a **HYPOTHESIS with a cheap test**: re-derive the groups for aug06/set-01 from
-the tracked records alone and diff against the preserved `g*.list`. Until that
-passes, treat `g*.list` as KEEP, not cache. *(This is the one place the
-"records are enough" claim is currently unverified, and it is a one-command
-check.)*
+**Group membership regenerates deterministically — MEASURED, both halves**
+(ledger `combine_contract_reproducibility`). All **30 groups across 7 sets**
+(aug06 set-01/02/03, july31 set-01..04) regenerate IDENTICALLY from tracked
+records alone — raws + `recipe.json`'s cull through `cullspec` + the dwell floor
+in `anomaly_audit.json` + `stack_rejection.sh`'s GESD fraction — including
+set-02's 2-frame and set-03's 44-frame culls and july31/set-03's
+dwell-floor-raised sizing. And **a sub-stack rebuilt from raws + records is
+PIXEL-IDENTICAL** to the preserved one (aug06/set-01 g1, 100 frames; Siril `stat`
+on the difference: *"Statistics computation failed ... (all nil?)"*, the tool's
+own refusal on an all-zero image; the 2880-byte file-size delta is one FITS block
+of backfilled header cards). Sub-stacks and `g*.list` are therefore **CACHE**.
 
 ### 2.4 What a future night needs to JOIN an old archive
 
@@ -378,7 +381,36 @@ becomes explicit and returns to you.
 
 ---
 
-## 8. What this plan does NOT do
+## 8. Execution status
+
+Owner directives resolved T-1 (no interim combine — corner-true fits only),
+T-2 (BLOCK at 1.00 px) and authorised the sequence. Progress:
+
+- **§2.3 reproducibility test — PASS**, both halves (above). Sub-stacks promoted
+  to cache; the contract's claim is measured, not asserted.
+- **F4 instrument — BUILT and VALIDATED**: `scripts/qa/member_separation.py`.
+  Reproduces all six pre-measured cells exactly and matches every eye verdict
+  (0.14/0.19/0.35 PASS, 0.93 WARN, 2.11/2.99 BLOCK). `--min-n` set to 100 from a
+  bootstrap rather than by eye; thresholds decided at the 2 dp the numbers are
+  cited at, so the PASS anchor (0.352 px) falls inside its own threshold.
+- **F3 headers — BUILT**: `header_provenance_lines` in `stamp_headers.sh`, wired
+  into `run_undistort_pipeline.sh`; coefficients come from `lens_preflight.json`
+  (VERIFIED live), never from the fit record's intent.
+- **F3 backfill — DONE**: 51 existing sub-stacks across aug06 and july31 stamped,
+  `DISTSRC` carrying `backfill:<provenance-commit>` so a reconstructed value is
+  never mistaken for one stamped at warp time.
+- **F3 compose gate — BUILT and VALIDATED end-to-end**: T0/T1/T2 in
+  `run_undistort_compose.sh`, registration split from stacking so a BLOCK stops
+  before anything is written. The aug06 cross-set pair BLOCKS at 2.99 px with no
+  stack produced; T0 names both models from the members' own headers.
+- **F3 lifecycle — BOUND**: the builder now INSTALLS the set's model rather than
+  only verifying it, and announces what optical state the machine is left
+  carrying.
+- **F2 — next** (census wiring, then the corner-true pilot).
+
+---
+
+## 9. What this plan does NOT do
 
 - No fix executed, no product replaced, no model reinstalled.
 - Does not touch the flatless route — no step here reads or needs a real flat.

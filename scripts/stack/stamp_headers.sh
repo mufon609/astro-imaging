@@ -43,6 +43,26 @@
 # -disto=`, BACKLOG item 7), so the keywords are never dropped and there is
 # nothing to restore.
 
+# PROVENANCE STAMP (the second half of this file). A sub-stack that will be
+# composed months from now must answer "what warped you, what calibrated you"
+# with NO external lookup, no machine state, and no memory of the session that
+# made it — because the lensfun user DB is global, unscoped, single-valued
+# machine state that nothing reverts, so "the model this set's record names" is
+# only true while that record is the one installed.
+#
+# MEASURED cost of not having this: three aug06 sets were warped under three
+# different distortion models and composed into one union. The models diverge by
+# up to 8.19 px through the production warp; after registration the members
+# disagree by 2.99 px at the composed corner (0.93 px for the SAME member pair
+# under one model), which the mean renders as doubled stars. Nothing in the
+# product, the sub-stacks, or the compose could see it — the sub-stacks carried
+# no optics provenance at all, so the compose had nothing to assert on.
+#
+# The coefficients come from `lens_preflight.json`, i.e. what was VERIFIED LIVE
+# in the DB at build time — never from `lens_fit.json`, which is what the set
+# INTENDED. Stamping the intention would re-create the class of bug this stamp
+# exists to close.
+#
 # Keys copied verbatim from the calibrated frame. Order is the write order.
 _STAMP_KEYS="FOCALLEN XPIXSZ YPIXSZ EXPTIME APERTURE ISOSPEED INSTRUME DATE-OBS"
 
@@ -74,6 +94,88 @@ for k in keys:
         out.append(f'update_key {k} "{v}"' if isinstance(v, str) else f"update_key {k} {v}")
 if "EXPTIME" in rec:                      # the integration the stack represents
     out.append(f"update_key LIVETIME {round(n * float(rec['EXPTIME']), 3)}")
+print("\n".join(out))
+PY
+}
+
+# header_provenance_lines <repo> <session-dir> <set>  -> `update_key` lines
+#
+# The optics + calibration identity, read from the SET'S OWN TRACKED RECORDS and
+# handed to Siril's own update_key. Emits nothing and returns 0 when a record is
+# missing a field — a partial stamp is better than none, and every consumer
+# treats an absent key as "unknown", never as "compatible".
+#
+#   DISTMODL/DISTA/DISTB/DISTC  the distortion model VERIFIED LIVE in the lensfun
+#                               DB at build time (lens_preflight.json)
+#   DISTNORM                    the normalisation radius in px, min(W,H)/2 —
+#                               MEASURED: lensfun normalises ptlens by HALF THE
+#                               SHORT SIDE (probe RMS 4.47 px against 18.3 for
+#                               half-long-side and 22.2 for half-diagonal), so the
+#                               frame corner sits at rho = 1.80 and a reader does
+#                               not have to re-derive the convention to know it
+#   DISTRHO                     the fit's control-point support ceiling (p99 rho).
+#                               MEASURED census: every fit ever shipped here stops
+#                               at 1.47-1.51 against a corner at 1.80, so this is
+#                               the number that says whether the corner was FITTED
+#                               or EXTRAPOLATED
+#   DISTSRC                     which set's fit, and whether it was inherited
+#   CALSET / CALDARK / CALFLAT  the set, and the masters' identity + depth
+#   PIPEREV                     the repo commit the build ran under
+header_provenance_lines() {  # <repo> <session-dir> <set>
+  python3 - "$1" "$2" "$3" <<'PY'
+import json, os, subprocess, sys
+repo, session, sset = sys.argv[1:4]
+ses = os.path.basename(os.path.abspath(session))
+d = os.path.join(repo, "datasets", ses, sset)
+out = []
+
+
+def load(p):
+    try:
+        return json.load(open(p))
+    except (OSError, ValueError):
+        return {}
+
+
+def key(k, v):
+    if v is None or v == "":
+        return
+    out.append(f'update_key {k} "{v}"' if isinstance(v, str)
+               else f"update_key {k} {v}")
+
+
+pre = load(os.path.join(d, "qa_work", "lens_preflight.json"))
+sm = pre.get("state_model") or pre.get("pinned_model") or {}
+co = sm.get("coefficients") or sm.get("installed") or {}
+if co:
+    key("DISTMODL", "ptlens")
+    for k in "abc":
+        key("DIST" + k.upper(), float(co[k]))
+acq = load(os.path.join(d, "acquisition.json"))
+wh = (acq.get("exif") or {}).get("image_wh") or []
+if len(wh) == 2:
+    key("DISTNORM", min(int(wh[0]), int(wh[1])) / 2.0)
+
+fit = load(os.path.join(d, "qa_work", "lens_fit.json"))
+cov = fit.get("control_point_coverage") or {}
+key("DISTRHO", cov.get("rho_p99"))
+if fit:
+    inh = fit.get("inherited_from")
+    key("DISTSRC", (f"inherited:{ses}/{sset}" if inh else f"{ses}/{sset}")[:68])
+
+key("CALSET", f"{ses}/{sset}")
+flat = load(os.path.join(d, "qa_work", f"skyflat_{sset}_qa.json"))
+b = flat.get("build") or {}
+if b.get("dark"):
+    key("CALDARK", os.path.basename(b["dark"])[:68])
+if flat.get("flat"):
+    key("CALFLAT", f"{os.path.basename(flat['flat'])}:{b.get('frames', '?')}"[:68])
+try:
+    rev = subprocess.run(["git", "-C", repo, "rev-parse", "--short", "HEAD"],
+                         capture_output=True, text=True).stdout.strip()
+    key("PIPEREV", rev)
+except OSError:
+    pass
 print("\n".join(out))
 PY
 }

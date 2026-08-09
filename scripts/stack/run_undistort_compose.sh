@@ -12,14 +12,47 @@
 # e.g. run_undistort_compose.sh --out=web/results/july14/stack_set-01+02_full.fit \
 #        july14/work/groups_set-01 july14/work/groups_set-02
 #
-# WHY IT COMPOSES CLEANLY ACROSS SETS: after the lens-distortion warp every
-# frame-to-frame map is a pure homography, and homographies COMPOSE — so a
-# sub-stack from ANY set registers to the common reference with no model error,
-# and a manual re-aim between sets is indistinguishable from within-set drift
-# (same register -2pass). This is the SAME validity that lets the group builder
-# compose within a set; it does NOT hold on un-warped frames (the residual
-# distortion re-enters at the sub-stack join — a measured dead end,
-# docs/dead-ends.md).
+# WHEN IT COMPOSES CLEANLY ACROSS SETS, AND WHEN IT DOES NOT. This block used to
+# assert, without qualification, that "after the lens-distortion warp every
+# frame-to-frame map is a pure homography, and homographies COMPOSE". That is
+# true only while every member was warped by the SAME, CORRECT map. The premise
+# stopped holding the moment the optical model became per-set, and nothing
+# noticed: three aug06 sets were warped under three different models and composed
+# into a union whose corner stars are visibly doubled.
+#
+# MEASURED (docs/dead-ends.md; COMPOSE_SMEAR_INVESTIGATION_report.md) — the px
+# separation of the SAME star as two registered members place it, at the composed
+# canvas corner:
+#   same set, same model, same state ............ 0.14 / 0.19 px   (the floor)
+#   cross-set, ONE model, state matched ......... 0.35 px          (user PASSED)
+#   cross-set, ONE model, state mismatched ...... 0.93 px          (round at 1:1)
+#   cross-set, DIFFERENT models ................. 2.99 / 2.11 px   (user FAILED)
+#   cross-NIGHT, one shared model ............... 4.07 px          (worse still)
+# The residual a global homography cannot absorb is the radial one, and two
+# different distortion models differ by exactly that (up to 8.19 px through the
+# production warp) — so the mean of the members doubles the stars.
+#
+# The compose therefore GATES on model COMPATIBILITY (not identity: identical is
+# only the cheap safe case, and identical-across-nights is the 4.07 px failure).
+# See "THE COMPOSE GATE" below. Un-warped frames remain a separate, registered
+# dead end (the residual distortion re-enters at the sub-stack join).
+#
+# THE COMPOSE GATE, three tiers, only the third decides:
+#   T0 identity   — every member's DISTA/B/C + DISTNORM equal. Free, recorded,
+#                   and it does NOT skip T2, because a shared model across nights
+#                   is precisely the measured 4.07 px failure.
+#   T1 prediction — the ptlens displacement difference between each member's
+#                   model and the reference's, out to rho = 1.80 (the frame
+#                   corner under the MEASURED half-short-side normalisation).
+#                   A SCREEN ONLY: the homography absorbs part of any smooth
+#                   field, so T1 over-predicts (8.19 predicted vs 2.99 realised).
+#                   Its job is to name the offending pair before an hour of
+#                   registration, never to pass one.
+#   T2 measure    — scripts/qa/member_separation.py on the REGISTERED members,
+#                   which this script has already produced and used to throw
+#                   away. THE ACCEPTANCE GATE. BLOCK stops before `stack`.
+# A member with no DIST* keys (built before the stamp existed) is UNKNOWN, never
+# compatible: T0/T1 report it as such and T2 still measures it.
 #
 # -framing=min keeps the area common to ALL sub-stacks — across sets that is the
 # re-aim OVERLAP, so measure the re-aim scatter first (a large re-aim shrinks it;
@@ -71,11 +104,13 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
-OUT= FRAMING=min WEIGHT= REF=; SUBDIRS=()
+OUT= FRAMING=min WEIGHT= REF= ACCEPT= GATEJSON=; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
   --weight=nbstack|--weight=noise) WEIGHT="-weight=${a#*=}";;
   --ref=*) REF=${a#*=};;
+  --accept-separation=*) ACCEPT=${a#*=};;   # explicit override; RECORDS the number it overrode
+  --gate-json=*) GATEJSON=${a#*=};;
   --*) echo "unknown arg $a" >&2; exit 1;;
   *) SUBDIRS+=("$a");;
 esac; done
@@ -133,10 +168,75 @@ else
   echo "  composite's raw channel balance"
 fi
 
+# ---- T0/T1: the members' own optics provenance, from THEIR OWN HEADERS -------
+# No external lookup and no machine state: that is what makes an archived
+# sub-stack composable months later (stamp_headers.sh, header_provenance_lines).
+GATEJSON=${GATEJSON:-$(dirname "$OUT")/compose_gate_$(basename "$OUT").json}
+python3 - "$W" "${MEMBERS[@]}" <<'PY' || exit 1
+import json, os, sys
+import numpy as np
+from astropy.io import fits             # header READ only
+
+W, members = sys.argv[1], sys.argv[2:]
+rows = []
+for m in members:
+    try:
+        h = fits.getheader(m)
+    except OSError:
+        h = {}
+    rows.append({"file": os.path.basename(m),
+                 "set": h.get("CALSET"), "src": h.get("DISTSRC"),
+                 "abc": tuple(h.get(k) for k in ("DISTA", "DISTB", "DISTC")),
+                 "norm": h.get("DISTNORM"), "rho": h.get("DISTRHO")})
+known = [r for r in rows if None not in r["abc"] and r["norm"]]
+unknown = [r for r in rows if r not in known]
+print(f"compose gate T0: {len(known)}/{len(rows)} members carry optics provenance")
+for r in unknown:
+    print(f"  UNKNOWN optics: {r['file']} — no DIST* keys (built before the stamp). "
+          "Treated as UNKNOWN, never as compatible; T2 still measures it.")
+states = sorted({(r["abc"], r["norm"]) for r in known})
+if len(states) == 1 and not unknown:
+    print("  T0: IDENTICAL model across every member (the cheap safe case)")
+elif known:
+    print(f"  T0: {len(states)} DISTINCT models across the members:")
+    for s in states:
+        who = ", ".join(r["set"] or r["file"] for r in known if (r["abc"], r["norm"]) == s)
+        print(f"       a={s[0][0]:.8g} b={s[0][1]:.8g} c={s[0][2]:.8g}  <- {who}")
+
+# T1 — SCREEN ONLY. Predicted radial displacement difference between each
+# model and the first, out to rho = 1.80 (the frame corner under the MEASURED
+# half-short-side normalisation). Over-predicts by construction, because the
+# compose's homography absorbs part of any smooth field: 8.19 px predicted
+# against 2.99 px realised on the aug06 union. Never passes anything.
+t1 = None
+if len(states) > 1:
+    def disp_px(abc, norm):
+        """ptlens displacement in PX at physical radius r, evaluated on the grid
+        r = 0 .. 1.80 x norm (the frame corner). Each model uses its own norm."""
+        a, b, c = (float(x) for x in abc)
+        d = 1 - a - b - c
+        r = np.linspace(0, 1.80 * float(norm), 181)
+        rho = r / float(norm)
+        return r * (1 - (a*rho**3 + b*rho**2 + c*rho + d))
+    ref = disp_px(*states[0])
+    t1 = max(float(np.max(np.abs(disp_px(*s) - ref))) for s in states[1:])
+    print(f"  T1 (screen only, over-predicts): peak predicted model divergence "
+          f"{t1:.2f} px out to the corner (rho=1.80)")
+json.dump({"members": rows, "distinct_models": len(states),
+           "unknown_optics": [r["file"] for r in unknown],
+           "t1_predicted_peak_px": t1},
+          open(os.path.join(W, "gate_t0t1.json"), "w"), indent=1)
+PY
+
 # %b (not %s) for the setref line: it carries its own trailing newline as an
-# escape, and collapses to nothing when the reference is left AUTO
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\n%bseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
-  "$W/in" "$W/seq" "$W/seq" "$SETREF" "$FRAMING" "$WEIGHT" "$OUT" > "$W/compose.ssf"
+# escape, and collapses to nothing when the reference is left AUTO.
+# SPLIT IN TWO: the registration must finish and be MEASURED (T2) before
+# anything is stacked, because a smearing compose has to be impossible to build,
+# not merely detectable afterwards.
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\n%bseqapplyreg s -framing=%s -prefix=r_\n' \
+  "$W/in" "$W/seq" "$W/seq" "$SETREF" "$FRAMING" > "$W/compose.ssf"
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
+  "$W/seq" "$WEIGHT" "$OUT" > "$W/stack.ssf"
 # State the weighting explicitly: "plain mean" printed unconditionally would be
 # a WRONG RECORD whenever --weight=nbstack was passed, and this log is the
 # build's provenance.
@@ -147,7 +247,62 @@ case "$WEIGHT" in
 esac
 echo "composing $n sub-stacks (register -2pass -> ${SETREF:+setref $RIDX -> }-framing=$FRAMING -> mean, no rejection, $WDESC)"
 sir "$W/compose.ssf"
-[ -f "$OUT.fit" ] || { echo "COMPOSE FAILED — read $W/compose.log" >&2; exit 1; }
+ls "$W/seq"/r_s_*.fit >/dev/null 2>&1 || { echo "REGISTRATION FAILED — read $W/compose.log" >&2; exit 1; }
+
+# ---- T2: THE ACCEPTANCE GATE, on the registered members, before `stack` ------
+GRC=0
+python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" --prefix=r_ \
+  --json="$GATEJSON" --label="$(basename "$OUT")" || GRC=$?
+if [ "$GRC" != 0 ]; then
+  if [ -n "$ACCEPT" ]; then
+    WORST=$(python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print((d.get('worst') or {}).get('max_px'))" "$GATEJSON")
+    python3 - "$GATEJSON" "$ACCEPT" "$WORST" <<'PY'
+import json, sys
+p, acc, worst = sys.argv[1], sys.argv[2], sys.argv[3]
+d = json.load(open(p))
+d["override"] = {"accepted_separation_px": float(acc), "overrode_measured_px": worst,
+                 "note": "operator override — the compose gate BLOCKED and was "
+                         "explicitly accepted; this product carries a measured "
+                         "member disagreement above the 1.00 px block threshold"}
+d["verdict"] = "BLOCK-OVERRIDDEN"
+json.dump(d, open(p, "w"), indent=1)
+PY
+    echo "compose gate BLOCKED at ${WORST} px and was OVERRIDDEN by --accept-separation=$ACCEPT — recorded in $GATEJSON" >&2
+  else
+    echo "" >&2
+    echo "ABORT: the compose gate BLOCKED — nothing was stacked." >&2
+    echo "  The members disagree about where the stars are by more than the 1.00 px" >&2
+    echo "  threshold; composing them would mean the corner star doubling that was" >&2
+    echo "  MEASURED at 2.11-2.99 px and FAILED by eye (docs/dead-ends.md)." >&2
+    echo "  The per-member optics are printed above and recorded in $GATEJSON." >&2
+    echo "  Fix the CAUSE (members warped by models that disagree at large field" >&2
+    echo "  radius — see COMPOSE_SMEAR_FIX_PLAN.md), or accept it explicitly with" >&2
+    echo "  --accept-separation=<px>, which records the number it overrode." >&2
+    exit 6
+  fi
+fi
+
+sir "$W/stack.ssf"
+[ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
+# the gate's worst measured separation rides ON the product, not only beside it
+python3 - "$OUT.fit" "$GATEJSON" <<'PY'
+import json, sys
+from astropy.io import fits
+try:
+    d = json.load(open(sys.argv[2]))
+except (OSError, ValueError):
+    sys.exit(0)
+w = (d.get("worst") or {}).get("max_px")
+if w is not None:
+    fits.setval(sys.argv[1], "MAXMSEP", value=float(w),
+                comment="worst member separation px (compose gate)")
+models = {tuple(v.get(k) for k in ("DISTA", "DISTB", "DISTC"))
+          for v in (d.get("optics") or {}).values()}
+fits.setval(sys.argv[1], "NDISTMOD", value=len(models),
+            comment="distinct distortion models composed")
+fits.setval(sys.argv[1], "MSEPVERD", value=str(d.get("verdict", ""))[:20],
+            comment="compose gate verdict")
+PY
 rm -rf "$W"
 echo "=== DONE: $OUT.fit ($n sub-stacks, framing=$FRAMING) ==="
 ls -la "$OUT.fit"
