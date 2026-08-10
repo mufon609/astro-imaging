@@ -108,12 +108,36 @@ Ordered work — nothing here is executed on an accepted product:
 5. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
    cause. Last resort, and it must be called what it is.
 
-**Open and unexplained:** why set-01 and not set-03 (0.582 vs 0.910, same sky, same
-night, same model, same code), and why the low-RA side of the swept field — member
-field radius does not predict it (ρ spread 0.21 vs 0.22 in both). Item 1 is the
-instrument that answers it. **Closes when** a compose measures its members' realised
-disagreement by member-own field radius and a route ships that holds
-x = 15–30% at the clean band's roundness on the owner's eyes.
+**What the defect IS, measured.** The softness tracks SENSOR POSITION, not time
+(R² 0.90 against sensor x, **0.05 against elapsed time**), and it sits on the side
+stars drift OUT of — Siril's own homographies give −3.87 px/frame across the sensor,
+and it is the exit edge that smears. At matched distance from the sensor centre that
+side reads **2.86 px / roundness 0.821** against the other's **2.59 / 0.853**.
+Acquisition is clean (identical exposure/ISO/aperture/focal across 500 frames, 3.00 s
+interval, no gap) and refraction is ruled out (72–77° altitude, differential
+refraction across the field changes 0.09 px over the run, in the wrong direction).
+
+**Two hypotheses, not yet separated** (ledger
+`exit_edge_registration_vs_fixed_lens_residual`) — both predict the measured
+sensor-position collapse, and they differ only in DRIFT-SPAN dependence:
+1. an uncorrected asymmetric (decentring) distortion term fixed in sensor
+   coordinates — lensfun's `ptlens` is purely radial and has no tangential terms, so
+   it cannot remove a left-right asymmetry by construction;
+2. a registration failure at the exit edge — stars there are transient, so the
+   global homography is least constrained on that side.
+
+**The discriminator:** stack the same sensor region from sub-blocks of decreasing
+drift span (50 / 25 / 12 consecutive frames) and measure blur at MATCHED sensor x.
+Flat ⇒ fixed residual. Falling with span ⇒ registration. Stacking only the low-drift
+half of a set would be a BANDAID as a fix, but is the cheap end of this arm as a test.
+
+**Blocked on standards research first** (`RESEARCH_UNTRACKED_STACKING_PROMPT.md`,
+fresh-eyes session): what Siril and PixInsight actually recommend for untracked
+camera-lens wide-field, and which free headless tool can fit or apply a distortion
+model WITH decentring terms. Designing a fix before that is guessing.
+
+**Closes when** a route ships that holds the exit-edge sensor region at the clean
+side's star shape on the owner's eyes.
 
 ## `intake-culling` — one measured intake pass, one visible formula
 
