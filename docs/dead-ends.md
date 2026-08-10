@@ -1355,6 +1355,48 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **NO INSTALLED TOOL CAN CORRECT A FIELD-VARIABLE ANISOTROPIC PSF — and a GLOBAL
+  PSF cannot close a field gradient at all.** Three arms on one raw frame, every
+  arm measured with identical Siril `findstar` settings (baseline whole-frame
+  FWHM major 2.340 px, roundness 0.807, 7083 detections; roundness gradient
+  across x −0.099).
+  **Cosmic Clarity** (Stellar Only, Auto Detect PSF ON, amount 0.50, 704 chunks):
+  2.310 / 0.802 / 6913, gradient **−0.093**. NULL, and ARCHITECTURAL rather than
+  tuning — its own help says `--auto_detect_psf` measures the PSF per chunk and
+  chooses "the two nearest **radius** models", and its models are named
+  `radius_1/2/4/8`. Radius is a scalar; there is no ratio or angle in its
+  interface, so an oriented elongation has no representation. The field-variable
+  path was exercised and still could not express the defect.
+  **Siril `rl` global** (`-mul -iters=10`): a genuine 10% FWHM gain rank-matched
+  on the brightest 1500 (2.260 → 2.035) — but gradient **−0.091**, roundness
+  slightly WORSE, and 77% of detections destroyed. Not tuning: one PSF over the
+  whole frame sharpens everywhere by the same factor and leaves a field
+  variation where it was.
+  **`makepsf stars` is the POSITIVE result**: per 1500 px band its kernel ratio
+  reads 0.863 / 0.851 / 0.816 / 0.804 / 0.758 against findstar's 0.832 / 0.836 /
+  0.805 / 0.790 / 0.733 — gradient −0.105 against −0.099, FWHM tracking band for
+  band. Siril CAN measure the anisotropy; it just applies one PSF per image.
+  What remains with installed tools is Siril's PSF per REGION — tiling and
+  reassembly, i.e. pixel surgery on the deliverable. The prior blocker is SNR,
+  not seams: `-tv`/`-fh` regularisation with `-alpha=` is unbracketed, and if
+  regularised RL still eats the faint population, per-region RL will too.
+
+- **`findstar` SETTINGS ARE DUAL-PURPOSE AND THE TWO PURPOSES WANT OPPOSITE
+  VALUES.** MEASURING a shape distribution needs the roundness floor DROPPED —
+  the default 0.50 truncates exactly the elongated tail under study and biases
+  the bad side rounder. BUILDING a PSF for deconvolution needs the DEFAULTS —
+  relaxed settings let junk into the average. Measured on the same frame with
+  the same `makepsf stars` call: relaxed detection returned kernels of 6.7 px
+  major / 0.42 ratio, uncorrelated with anything and not monotone across the
+  field; default detection returned 2.0–2.7 px / 0.76–0.86, tracking findstar
+  band for band. The garbage was caught only by RENDERING the kernel and seeing
+  it was not credible — a fitted number alone would have shipped it.
+  Two smaller tool facts from the same probe: **`rl` with no arguments is a
+  NO-OP** on this data (default gradient descent, step 0.0005, 10 iterations —
+  FWHM, roundness and detection count unchanged to 3 decimals; use `-mul`), and
+  **`seqfindstar` writes no star lists headless on 1.4.4** (reports "Sequence
+  processing succeeded" in ~1.5 ms; use per-image `findstar -out=`).
+
 - **THE ONE-SIDED STAR-SHAPE GRADIENT IS A RADIAL FIELD ABERRATION IN THE OPTICS —
   stop looking for it in the chain.** Measured on single Siril-debayered RAWs (no
   dark, flat, warp, registration or stack), 3 frames x 6 sets x 2 nights, 136k
