@@ -717,11 +717,29 @@ the constraints any such tool must satisfy):
   3.14 px** — a smaller separation giving 9× the disagreement); it is not the
   registration reference (1|4 reads **2.95 / 2.98 / 3.02 px** with the reference
   set to member 1, 3 and 5 in turn, every other pair moving <2%); and the
-  residual displacement field is **RADIAL about each member's own optical axis**
-  where the healthy pairs' is tangential — median radial/tangential 0.39/0.24 px
-  for 3|4 and 0.32/0.17 for 4|5, against 0.03/0.06 for 1|2. A homography absorbs
-  translation, rotation and scale exactly, so a radial residual growing with own
-  radius is a change in the RADIAL DISTORTION, not a mis-fit.
+  disagreement NORMALISED BY AXIS SEPARATION — the quantity a single shared
+  optical state holds constant — is flat at **0.21 / 0.23 / 0.32 px per degree**
+  for groups 1,2,3 and reads **3.07 and 3.58 px/deg** for 3|4 and 4|5, with 4|5
+  reaching 1.97 px at the SMALLEST adjacent separation of the five (0.55°).
+  Acquisition is exonerated as a cause of any interruption: all 500 frames are
+  2.5 s / ISO 1600 / f/4 / 70 mm at a 3.00 s interval (min 2.99, max 3.01) with
+  **no gap anywhere**, including at that boundary.
+  **A TRAP WORTH KEEPING: the residual's cos(θ) DIPOLE is NOT evidence of a
+  decentring.** Two members sit at different pointings, so differencing ONE
+  radial field about two displaced centres gives a dipole by construction, with
+  amplitude proportional to their axis separation — the null expectation, not a
+  mechanism. Reading it as "the optical axis moved" was an error made and
+  retracted here; only the separation-normalised ratio discriminates, and it says
+  the optics changed without saying what kind of change it was.
+  **The leading SOFTWARE alternative is not yet excluded**: a member's effective
+  geometry is that of its own group's AUTO-PICKED registration reference frame,
+  and the lens residual is fixed in SENSOR coordinates, so where that reference
+  landed inside its 100-frame block changes what the stack averages. Nothing on
+  record says where any group's reference landed. Settling test: rebuild the
+  members with the reference pinned to the same relative position in every group
+  (or register all 500 frames in one pass and stack five blocks from it) and
+  re-measure — 3|4 falling to the 0.2 px family is software, surviving is
+  physical.
   **What that does and does not license.** It does NOT revive per-set models — a
   per-set model would be wrong for part of its own set. It establishes that the
   OPTICAL-STATE tier can be finer than the SET tier and that a state boundary is
