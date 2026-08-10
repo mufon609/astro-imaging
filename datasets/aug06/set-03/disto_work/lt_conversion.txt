@@ -1,1 +1,0 @@
-'/home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/disto_work/DSC_7488.NEF' -> './lt_00001.fit'

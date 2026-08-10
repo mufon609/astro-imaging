@@ -121,3 +121,22 @@ they existed; those citations resolve the same way. Citing a COMMIT rather than 
 working-tree path is the standing convention here — a bare path in a long-lived
 record goes dangling the first time a session is reset.
 
+
+## `untracked-widefield-standards.md` — how the field actually stacks untracked
+## camera-lens wide-field (fresh-eyes standards reading)
+
+An unanchored reading of Siril's own docs, PixInsight's, the FITS distortion
+conventions (SIP / TPV / TNX), the survey lineage (SCAMP+SWarp, Pan-STARRS, DES,
+HST) and the forums, written before the repo was opened and with the repo
+comparison quarantined in its own final section. 45 cited sources. Its durable
+findings have graduated into `docs/dead-ends.md` (the lensfun `acm` version
+boundary and the `<center>` kill), `TOOLS.md` (the hugin and darktable+lensfun
+rows) and BACKLOG `one-sided-band`; the deep-dive keeps the citations and the
+reasoning behind them.
+
+The aug06 member-edge chase and this arc's prompts were retired the same way the
+compose-smear arc's were — findings graduated, recovery by commit:
+
+    git show 53edcc2:AUG06_MEMBER_EDGE_report.md
+    git show 53edcc2:CHASE_AUG06_MEMBER_EDGE_PROMPT.md
+    git show 53edcc2:RESEARCH_UNTRACKED_STACKING_PROMPT.md

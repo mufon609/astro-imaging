@@ -131,10 +131,29 @@ drift span (50 / 25 / 12 consecutive frames) and measure blur at MATCHED sensor 
 Flat ⇒ fixed residual. Falling with span ⇒ registration. Stacking only the low-drift
 half of a set would be a BANDAID as a fix, but is the cheap end of this arm as a test.
 
-**Blocked on standards research first** (`RESEARCH_UNTRACKED_STACKING_PROMPT.md`,
-fresh-eyes session): what Siril and PixInsight actually recommend for untracked
-camera-lens wide-field, and which free headless tool can fit or apply a distortion
-model WITH decentring terms. Designing a fix before that is guessing.
+**UNBLOCKED — the standards research is done** (`docs/untracked-widefield-standards.md`,
+fresh-eyes session, 45 cited sources). What it settles:
+- **No astronomical standard fits a radial model.** SIP, TPV and TNX are all general
+  bivariate polynomials; PixInsight uses thin-plate splines; HST needs a residual
+  LOOKUP TABLE on top of its polynomial. A radial-only profile is nobody's answer.
+- **The tool question is answered, and both lensfun routes are now measured, not
+  guessed** (`docs/dead-ends.md`): `acm` (the only lensfun model with Brown's
+  tangential k4,k5) is ABSENT from 0.3.4 and appears only in v0.3.95; `<center>`
+  DOES exist and work in 0.3.4, and installing it without refitting a,b,c about it
+  is a LOSS at every sign (2.589 → 4.235–7.610 px).
+- **The decentring is real and reproducible.** On raw frames a centred radial model
+  of any degree leaves 8.35 / 6.71 / 8.54 px RMS (aug06/set-01, aug06/set-03,
+  july31/set-01); Brown's two terms halve it; a free centre reaches the same
+  residual at a shift of (159,237) / (181,210) / (209,213) px — two nights, three
+  pointings. The residual a centred radial model leaves is EVEN in x, which no
+  radial basis error can produce.
+
+**The remaining route:** a JOINT refit of a,b,c about a free centre in the ptlens
+parameterisation, fitted against an absolute catalogue (which also reaches the
+corner, ρ ≈ 1.8, where hugin's control points stop at ρ ≈ 1.0–1.5). Judged where
+every model is judged — star_stations + seqtilt at the COMBINE, then the owner's
+eyes — never on its own residual. Above that tier a general 2-D model reaches
+0.47–1.03 px where radial-plus-decentring stops at 3.0–4.8.
 
 **Closes when** a route ships that holds the exit-edge sensor region at the clean
 side's star shape on the owner's eyes.

@@ -26,10 +26,22 @@
 #   holds it PINNED. A free hfov collapses degenerate (v -> 0.93 deg, a = 98).
 # - The optimize is STAGED: rotations only, then +a,b,c. A joint start from
 #   zero with everything free lands in the same degenerate basin.
-# - d,e (distortion-centre shift) is fitted LAST and only REPORTED: carrying
-#   it needs lensfun's `<center>` element, which is undocumented (absent from
-#   the shipped DTD/XSD) with an unverified sign convention — a
-#   separately-bracketed knob that has not been needed.
+# - d,e (distortion-centre shift) is fitted LAST and only REPORTED, and the
+#   MEASURED reason is now stronger than "not needed": THE STAGE IS DEGENERATE.
+#   Every preserved fit that reached it diverged — aug06/set-02 d=6.3e6
+#   e=-4.5e7 (with a=282 b=1120 c=4733), july31/set-01 d=5.6e6 e=-1.4e7,
+#   aug06/set-01 d=-177 e=+378, aug06/set-03 d=-122 e=-524; only aug06/set-00
+#   stayed bounded (d=+1.8 e=+24.0) and it disagrees with an absolute-catalogue
+#   measurement of the same lens by an order of magnitude. Mechanism: d,e is
+#   fitted jointly with per-image y,p,r on BETWEEN-FRAME correspondences, and a
+#   centre shift is nearly degenerate with per-image yaw/pitch there. A fit
+#   against an absolute catalogue has ONE global affine instead and identifies
+#   the centre cleanly (docs/untracked-widefield-standards.md).
+#   The destination exists: lensfun's `<center>` element is undocumented
+#   (absent from the shipped DTD/XSD) but IS parsed and applied in 0.3.4, and
+#   `install_lens_model.sh --center X,Y` writes it. Installing a centre WITHOUT
+#   refitting a,b,c about it is a measured LOSS at every sign
+#   (docs/dead-ends.md) — the coefficients and the centre are one fit.
 #
 # PROVISIONAL AS-WRITTEN: the procedure this script encodes was proven step by step
 # on real frames (the fitted entry now in production came from it), but the

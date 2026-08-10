@@ -381,6 +381,22 @@ approved on the user's eyes). The fitted model is since PINNED as data and
 installed from the record (BACKLOG `removal-conditions`, fitted-lens row); the
 chain is productionised; the style's warp verified reproducible to 0.000 px.
 
+**The one-sided term is now MEASURED IN THE GEOMETRY, on single raw frames.**
+Against an absolute catalogue (sep + astrometry.net, displacement taken against
+the LINEAR part of the frame's own solution), a centred radial model of ANY
+degree leaves 8.35 / 6.71 / 8.54 px RMS on aug06/set-01, aug06/set-03 and
+july31/set-01; two Brown tangential terms halve it, and a free distortion centre
+reaches the same residual at a shift of (159,237) / (181,210) / (209,213) px —
+two nights, three pointings, one answer. The residual a centred radial model
+cannot fit is EVEN in x (3.87 / 2.07 / 4.64 px RMS against an ODD part of
+0.36 / 1.96 / 1.66), and a radial field has du = u·f(r), ODD in u, so no wrong
+radial f can produce it. The lens is decentred; `ptlens` cannot say so.
+Neither cheap route reaches it: hugin's d,e stage is degenerate and lensfun's
+`<center>` installed on coefficients fitted for centre=0 is a LOSS at every sign
+(`docs/dead-ends.md`; the standards reading is
+[`untracked-widefield-standards.md`](untracked-widefield-standards.md)). What
+remains is a joint refit of a,b,c about a free centre.
+
 **Open:** the residual one-sided along-drift term — current measurements,
 eliminations and the hour-angle discriminator live in BACKLOG:`one-sided-band`
 (this file's earlier open items — the one-sided mechanism question and the

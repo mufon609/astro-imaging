@@ -3,9 +3,10 @@
 Two questions answered here: **what this camera's data has actually been corrected
 with, across the whole history in `git`**, and **what we now know about the defect**
 that history was chasing. The open question — how the rest of the field handles this
-on non-dedicated cameras — is deliberately NOT answered here; it is out with a
-fresh-eyes session (`RESEARCH_UNTRACKED_STACKING_PROMPT.md`) so the answer is not
-shaped by anything in this repo.
+on non-dedicated cameras — was deliberately NOT answered here; it went out to a
+fresh-eyes session so the answer would not be shaped by anything in this repo.
+**That answer has since landed:
+[`docs/untracked-widefield-standards.md`](docs/untracked-widefield-standards.md).**
 
 ---
 
@@ -214,8 +215,12 @@ Three things follow, in order:
 2. **Size the exit-edge term.** Same sensor region, sub-blocks of 50/25/12 frames,
    blur at matched sensor x. Flat means a fixed residual; falling with span means
    registration. Uses frames already on disk.
-3. **Answer the model-form question from outside this repo** —
-   `RESEARCH_UNTRACKED_STACKING_PROMPT.md`. Specifically whether a radial-only profile
-   is considered adequate for this work, what PixInsight and the survey pipelines
-   model that it does not, and which free headless tool can fit or apply a distortion
-   model WITH decentring terms. Designing a fix before that answer is guessing.
+3. ~~**Answer the model-form question from outside this repo.**~~ **DONE —
+   [`docs/untracked-widefield-standards.md`](docs/untracked-widefield-standards.md).**
+   No astronomical standard fits a radial model (SIP, TPV and TNX are all general
+   bivariate polynomials; PixInsight uses thin-plate splines; HST adds a residual
+   lookup table on top of its polynomial). The tool answer is measured, not read:
+   lensfun's `acm` — the only model carrying Brown's tangential terms — is absent
+   from the installed 0.3.4, and its `<center>` element works but is a LOSS on
+   coefficients fitted for centre=0 (`docs/dead-ends.md`). The decentring itself is
+   confirmed on single raw frames and reproduces across two nights.

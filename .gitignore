@@ -84,3 +84,11 @@ __pycache__/
 /*.png
 /*.jpg
 /*.jpeg
+
+# disto_work/ (under datasets/<session>/<set>/) holds the displacement-field
+# probe's transient files (converted FITS, warped TIFFs, darktable/siril logs,
+# the .ssf). Only the JSON record and the two reproducers are versioned.
+**/disto_work/*
+!**/disto_work/*.json
+!**/disto_work/displacement_field_probe.py
+!**/disto_work/warp_ab.sh

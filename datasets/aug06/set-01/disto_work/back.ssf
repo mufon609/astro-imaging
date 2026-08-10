@@ -1,7 +1,0 @@
-requires 1.2.0
-set32bits
-setcompress 0
-setext fit
-cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/disto_work/tif
-load w_cnx_py.tif
-save wf_cnx_py

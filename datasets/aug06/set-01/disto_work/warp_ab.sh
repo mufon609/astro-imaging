@@ -10,9 +10,13 @@ CFG=$W/dtcfg
 SRC=$REPO/sessions/aug06/set-01/DSC_6488.NEF
 
 mkdir -p "$W/tif"
-# 1. raw -> FITS (Siril convert -debayer), same as the shape-gradient probe
+# 1. raw -> FITS (Siril convert -debayer), same as the shape-gradient probe.
+# The .ssf is generated here, not tracked: Siril's flatpak has a private /tmp so
+# it must live under $HOME, and it is scratch like every other generated .ssf.
 if [ ! -f "$W/lt_00001.fit" ]; then
   cp "$SRC" "$W/" 2>/dev/null || true
+  printf 'requires 1.4.0\nsetcompress 0\ncd %s\nconvert lt -debayer -out=.\n' "$W" \
+    > "$W/convert.ssf"
   flatpak run --command=siril-cli org.siril.Siril -d "$W" -s "$W/convert.ssf" >/dev/null 2>&1
 fi
 # 2. FITS -> 32-bit float TIFF
