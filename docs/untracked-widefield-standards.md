@@ -182,12 +182,18 @@ the plate solution of each frame**, not by fitting a 2-D transform to star pairs
 therefore carries each frame's *own* geometry, including whatever asymmetric terms
 that frame's SIP fit absorbed.
 
-**INFERRED (needs a 5-minute headless probe):** the docs never name a
-`register -astrometric` flag, and the string "astrometric" does not occur in the
-1.4.4 command reference at all. The headless route appears to be
-`seqplatesolve <seq> -order=N` (which "will update registration data") followed by
-`seqapplyreg <seq> -framing=…`. I could not confirm this from documentation and I am
-not going to assert it as fact.
+**DOCUMENTED — the probe has since been run and it confirms the route.** The docs
+never name a `register -astrometric` flag and the string "astrometric" does not
+occur in the 1.4.4 command reference, but the headless route is
+`seqplatesolve <seq>` followed by `seqapplyreg <seq> -framing=…`. Measured on four
+already-solved, variable-size per-set stacks: `seqplatesolve` skipped solving and
+logged **"Astrometric registration computed."** in 3.0 s, writing a genuine
+per-image homography (non-zero projective terms) derived from each image's own
+WCS; `seqapplyreg` logged **"Distortion data was found in the sequence file,
+undistortion will be applied"** and produced outputs sharing a common CRVAL with
+**no SIP left** — each image's own distortion consumed by the resample. That is
+undistort-then-project, per image, and it is installed and headless.
+Ledger: `astrometric_registration_is_available_headless`.
 
 ### A.5 Framing and the reference frame
 

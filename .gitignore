@@ -97,3 +97,9 @@ __pycache__/
 # probe's Siril star lists and its .ssf. The .lst files ARE the record.
 **/psf_work/*
 !**/psf_work/*.lst
+
+# astroreg_work/ — the astrometric-registration probe's sequence files. Only the
+# .seq (the registration data it produced) and the .ssf are worth keeping.
+**/astroreg_work/*
+!**/astroreg_work/*.seq
+!**/astroreg_work/*.ssf

@@ -1,0 +1,5 @@
+requires 1.4.0
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/july31/set-01/astroreg_work
+seqplatesolve m_

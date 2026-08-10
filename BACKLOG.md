@@ -176,6 +176,38 @@ the owner's eyes, never on its own residual.
 **Closes when** a route ships that holds the exit-edge sensor region at the clean
 side's star shape on the owner's eyes.
 
+## `astrometric-compose` — the compose discards astrometry it already has
+
+**The largest measured term in the deliverable.** At the same sky position, set-01's
+five members read roundness 0.924 / 0.924 / 0.937 / 0.941 / 0.942 and their own
+5-member compose reads **0.582**; the marched union columns read 0.448–0.613 across
+a fifth of the frame against 0.947–0.968 in the clean band. The mechanism is
+measured: the members' own astrometric solutions place the same stars within
+**0.10 px median / 0.26 px p90** at exactly the sky where the compose loses 1.06 px
+of FWHM and 0.34 of roundness — *the information needed to align them exists and the
+homography is what discards it* (ledger `within_set_compose_is_the_visible_smear`).
+Members within one set sit 4.28° apart in pointing, because a group is a consecutive
+time block of a sweeping burst.
+
+**The route is installed, headless, and takes seconds** — and the chain has never
+used it. `seqplatesolve <seq>` on WCS-carrying images computes registration from
+each image's OWN solution; `seqapplyreg` applies that image's OWN SIP undistortion
+before projecting, and the outputs land on a common tangent point with the
+distortion consumed (ledger `astrometric_registration_is_available_headless`).
+The shipped compose instead uses `register -2pass` star-pair homographies — a bare
+projective fit with no per-image undistortion.
+
+**Closes when** an A/B of the within-set 5-member compose — shipped route against
+the astrometric route, one knob — is measured at the same-sky ladder where the
+defect lives (RA 294.86, where the compose reads 3.48/0.582 against members at
+2.42–2.54/0.924–0.942), and the winner is judged on the owner's eyes.
+
+**Cautions carried in:** it is still one homography per image, though now preceded
+by per-image undistortion; the registry holds a related NEGATIVE (each member's own
+SIP as a STANDALONE warp then composed measured WORSE); and `-framing=max` on a
+variable-size sequence gives each output its own origin, which has already broken
+one instrument.
+
 ## `intake-culling` — one measured intake pass, one visible formula
 
 USER-DIRECTED. More photons are always obtainable; a bad frame stacked is permanent.
