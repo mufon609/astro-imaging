@@ -1353,8 +1353,40 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **FITTING A LENS MODEL AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE
+  MANUFACTURES A DECENTRING SIGNAL. Use a HOMOGRAPHY.** The linear WCS is a
+  gnomonic (TAN) projection about ITS tangent point and rotation; the ideal
+  camera frame a lens model lives in is a gnomonic projection about the optical
+  axis. Two gnomonic projections of the same sky differ by a plane projective
+  transform EXACTLY — the same Szeliski result this repo already records for
+  registration. Over ±14° the projective part reaches ~180 px, so an affine
+  nuisance cannot absorb it, and what it leaves behind is **quadratic and EVEN
+  in x** — indistinguishable by eye from decentring, and partly absorbable by
+  Brown's tangential pair (`p2(r²+2u²)` is the same even quadratic).
+  MEASURED, same 970 catalogue-matched pairs across 6 frames, 2 nights, 6
+  pointings, one knob — the nuisance transform:
+  | nuisance | ptlens RMS | median | free centre it "finds" | Brown peak |
+  |---|---|---|---|---|
+  | affine (6 DOF) | 14.24 px | 7.63 px | **(+210, −164) px** | ~59 px |
+  | homography (8 DOF) | 3.19 px | **0.27 px** | **(−6, +14) px** | **2.89 px** |
+  The median improves **28×** and the "decentring" collapses by a factor of ~20
+  to consistent with zero. Adding a free centre to the homography fit changes
+  the median 0.272 → 0.212 px and the RMS not at all; adding Brown's p1,p2 gives
+  0.217 px. **A centred ptlens model already describes this lens to a 0.27 px
+  median.** RETRACTS the earlier reading of this same data (8.35/6.71/8.54 px
+  "irreducible" residual, a reproducible ~180–240 px centre offset, an even-in-x
+  term "no radial model can produce") — every one of those was the unabsorbed
+  projective term, and it reproduced across frames precisely because every
+  frame's linear WCS has a similar tangent-point offset. Reproducibility across
+  frames does NOT distinguish a lens property from a projection artefact.
+  Do not re-derive a lens model against a plate solution without a projective
+  nuisance, and do not read an even-in-x residual as decentring until one is in
+  the fit. Instrument: `scripts/qa/fit_ptlens_joint.py`.
+
 - **lensfun's `<center>` element EXISTS and WORKS in 0.3.4 — and installing it
   on top of coefficients fitted for centre=0 is a LOSS in every direction.**
+  (The tool facts below stand; the decentring they were chasing does not — see
+  the entry above.)
   The element is absent from lensfun's shipped DTD/XSD but is parsed
   (`database.cpp`, context `lens`) and applied (`mod-coord.cpp`
   `ApplyGeometryDistortion` subtracts the centre before the radial callbacks and
@@ -1371,19 +1403,14 @@ SILENT — pin the state, never inherit it):
   (+0.0906,−0.1089) **6.24**, (+0.0906,+0.1089) **7.61**, (−0.0906,−0.1089)
   **6.52**, (−0.0906,+0.1089) **4.24**. All four worse; the solve degrades too
   (logodds 221 → 115–220, matched stars 73 → 42–75).
-  MECHANISM, and it is structural, not a sign error: **a,b,c are fitted ABOUT a
-  centre.** Moving the centre under coefficients fitted for centre=0 is a
-  different model, not a refinement of the same one. Arithmetic closes it: a
-  ~285 px centre shift perturbs the correction by ~20 px somewhere on the frame
-  while the residual it would have to remove is 2.6 px RMS, so a centre small
-  enough not to hurt (< ~35 px) is far too small to represent the measured
-  decentring (~180–210 px in x, ~210–240 px in y across three frames, two
-  nights). Do NOT re-attempt the centre as a standalone knob at any sign.
-  The only route that could use it is a JOINT refit of a,b,c about the shifted
-  centre, in the ptlens parameterisation — which is a new fit, not this one.
-  The capability stays in `install_lens_model.sh --center X,Y` (opt-in,
-  `--center 0,0` removes it) because that joint refit is the one thing it is
-  for.
+  MECHANISM: **a,b,c are fitted ABOUT a centre.** Moving the centre under
+  coefficients fitted for centre=0 is a different model, not a refinement of the
+  same one, so the standalone knob cannot help at any sign. The joint refit that
+  would have used it has since been RUN (entry above) and puts the centre at
+  (−6,+14) px — zero. So the element has no live use on this lens, and the two
+  facts worth keeping are the tool facts: it exists and is honoured in 0.3.4,
+  and `install_lens_model.sh --center X,Y` writes it (`--center 0,0` removes
+  it) if a future lens ever needs one.
 
 - **Siril `register -disto=` IS NOT PER-IMAGE REPROJECTION — it cancels only
   when every member shares the solution.** Applying each member's OWN SIP as a

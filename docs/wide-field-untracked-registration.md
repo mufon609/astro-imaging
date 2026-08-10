@@ -381,21 +381,25 @@ approved on the user's eyes). The fitted model is since PINNED as data and
 installed from the record (BACKLOG `removal-conditions`, fitted-lens row); the
 chain is productionised; the style's warp verified reproducible to 0.000 px.
 
-**The one-sided term is now MEASURED IN THE GEOMETRY, on single raw frames.**
-Against an absolute catalogue (sep + astrometry.net, displacement taken against
-the LINEAR part of the frame's own solution), a centred radial model of ANY
-degree leaves 8.35 / 6.71 / 8.54 px RMS on aug06/set-01, aug06/set-03 and
-july31/set-01; two Brown tangential terms halve it, and a free distortion centre
-reaches the same residual at a shift of (159,237) / (181,210) / (209,213) px —
-two nights, three pointings, one answer. The residual a centred radial model
-cannot fit is EVEN in x (3.87 / 2.07 / 4.64 px RMS against an ODD part of
-0.36 / 1.96 / 1.66), and a radial field has du = u·f(r), ODD in u, so no wrong
-radial f can produce it. The lens is decentred; `ptlens` cannot say so.
-Neither cheap route reaches it: hugin's d,e stage is degenerate and lensfun's
-`<center>` installed on coefficients fitted for centre=0 is a LOSS at every sign
-(`docs/dead-ends.md`; the standards reading is
-[`untracked-widefield-standards.md`](untracked-widefield-standards.md)). What
-remains is a joint refit of a,b,c about a free centre.
+**THE GEOMETRY IS NOT THE OPEN TERM — a centred radial model already fits it.**
+Measured against an absolute catalogue (`scripts/qa/fit_ptlens_joint.py`: sep
+centroids, astrometry.net solve + catalogue, 970 matched pairs over 6 frames, 2
+nights, 6 pointings), a **centred** ptlens model with a per-frame homography
+nuisance reaches a **0.27 px median** residual. A free distortion centre lands
+at (−6, +14) px and buys 0.05 px of median; Brown's tangential pair contributes
+a 2.89 px peak and the same nothing. The lens is not measurably decentred.
+This RETRACTS an earlier reading of the same data (8.35/6.71/8.54 px
+"irreducible" residual, a ~180–240 px centre offset reproducing across nights),
+which used an AFFINE nuisance where the geometry requires a HOMOGRAPHY — the
+Szeliski result at the top of this file applies to the FIT as much as to the
+registration, and the unabsorbed projective term is quadratic and even in x,
+which is what decentring looks like. Same data, one knob: affine 14.24 px RMS /
+7.63 median against homography 3.19 / 0.27. The trap is registered in
+[`dead-ends.md`](dead-ends.md); the standards reading behind the chase is
+[`untracked-widefield-standards.md`](untracked-widefield-standards.md).
+CONSEQUENCE for the one-sided term: it is not an uncorrected distortion, so no
+distortion model of any expressiveness removes it — the remaining candidates are
+aberration and sensor tilt, which are optics, not geometry.
 
 **Open:** the residual one-sided along-drift term — current measurements,
 eliminations and the hour-angle discriminator live in BACKLOG:`one-sided-band`
