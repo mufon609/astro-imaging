@@ -40,7 +40,7 @@ dataset, and says so.
 
 | divergence | retires when | last checked | status |
 |---|---|---|---|
-| `member_separation.py` cross-match + zone medians | an official tool reports headless member-to-member POST-REGISTRATION positional residuals across a sequence (a scriptable Siril registration-residual map, or a PixInsight equivalent) | 2026-08-10 | **not fired, and MEASURED INADEQUATE as written** — it returned UNMEASURED on the accepted 28-member union (378/378 pairs, no zone with ≥100 matched stars) and was overridden, so that product shipped ungated while carrying a 0.924→0.582 roundness loss its canvas-radial zones cannot localise (BACKLOG:`compose-homography-smear`). Re-zoning by member-own field radius is item 1 there. Original grounds unchanged: Siril `register` prints WITHIN-sequence residuals only; nothing reports where two registered members each place the same star. Built because the two instruments used before it are MEASURED BLIND: corner `findstar` FWHM ranked a FAILING union (4.95 px) above the visually clean control (5.29 px), `seqtilt` read 0.34 px off-axis for the FAILING union against 0.40 for the PASSING one. Validated on six cells whose values and eye-verdicts were measured first: 0.14/0.19 PASS (floors), 0.35 PASS (the user-PASSED product's pair), 0.93 WARN, 2.11/2.99 BLOCK (both user-FAILED) |
+| `member_separation.py` cross-match + zone medians | an official tool reports headless member-to-member POST-REGISTRATION positional residuals across a sequence (a scriptable Siril registration-residual map, or a PixInsight equivalent) | 2026-08-10 | **not fired — REBUILT, and the rebuild found the instrument had been measuring nothing.** It cross-matched the REGISTERED copies, and `seqapplyreg -framing=max` on a variable-size sequence gives each output its OWN origin (MEASURED 611.9 px apart on the 28-member union; two members of ONE set shared 67 of 2000 stars within 12 px, 1721 once re-based). It now reads the members plus the homographies `register -2pass` wrote into the `.seq`, and bins by MEMBER-OWN field radius: 0/378 pairs unmeasured on that union against 378/378 before, in 12 s, with a monotone profile (0.22/0.48/1.30/2.43 px median). `--selftest` executes the falsification. Anchors re-measured on the fixed instrument: 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against 0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — **thresholds NOT re-anchored, a user decision.** Original grounds unchanged: Siril `register` prints WITHIN-sequence residuals only; nothing reports where two members each place the same star. Built because the two prior instruments are MEASURED BLIND: corner `findstar` FWHM ranked a FAILING union (4.95 px) above the visually clean control (5.29 px), `seqtilt` read 0.34 px off-axis for the FAILING union against 0.40 for the PASSING one |
 | optics/calibration FITS stamp (`header_provenance_lines`) + `backfill_substack_provenance.sh` | the warp stops being a TIFF round trip, so the model rides through natively (darktable gains FITS I/O, or Siril `register -disto=` — BACKLOG item 7); the BACKFILL retires once no un-stamped sub-stack remains on any rig | 2026-08-09 | **not fired** — the warp is still Siril `savetif32` -> darktable -> Siril `convert`, which carries no FITS header. Load-bearing: the lensfun user DB is global, unscoped, single-valued machine state that nothing reverts, so a sub-stack that cannot state its own optics cannot be composed safely later — 13 aug06 members under 3 different models composed into a doubled union and nothing in the product could see it |
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
@@ -82,12 +82,21 @@ band x = 45–70%. That is the smear the owner named.
 
 Ordered work — nothing here is executed on an accepted product:
 
-1. **Fix the gate first.** `member_separation.py`'s zones are CANVAS-radial; on this
-   union it returned **UNMEASURED** (378/378 pairs) and was overridden with
-   `--accept-separation=99`, so the product shipped with no working geometry gate.
-   Re-zone by each member's OWN field radius via its own WCS
-   ([`docs/consistency-tiers.md`](docs/consistency-tiers.md) §5). Contained to one
-   script, and it is the prerequisite for judging anything below.
+1. ~~**Fix the gate first.**~~ **DONE.** `member_separation.py` now bins by
+   member-own field radius — and the rebuild found it had been cross-matching the
+   REGISTERED copies, which `seqapplyreg -framing=max` writes with per-member
+   origins (611.9 px apart, measured), so every number it produced was a chance
+   nearest-neighbour distance. On this union: 0/378 pairs unmeasured against
+   378/378, worst zone **7.53 px**, and the profile is monotone in member-own
+   radius (0.22 / 0.48 / 1.30 / 2.43 px median). It confirms the pre-registered
+   prediction — aug06/set-01's five members read **4.91 px** at the corner against
+   set-03's **0.95** — and it shows the disagreement is NOT a function of night or
+   set (same-night 2.44, cross-night 2.39, same-SET 2.21 px median).
+   **Left open for the owner: the thresholds.** They were anchored to the broken
+   instrument; re-measured anchors are 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28.
+   Nothing was re-anchored — an acceptance measure does not loosen without
+   ratification — so the gate is currently strict enough to BLOCK a rebuild of
+   the accepted union.
 2. **Trial SWarp** (packaged 2.41.5-3, not installed) — resample each member onto one
    output WCS by its own solution. MEASURED support, not argument: the members' own
    astrometric solutions place the same stars within **0.10 px median / 0.26 px p90**

@@ -99,33 +99,60 @@ Three layers, each at its own tier, none of them guessing a boundary:
    state moved and a refit is due. That is a measurement, where the per-set
    default was a guess.
 
-## 5. What has to be fixed before any of this can be judged
+## 5. The instrument — FIXED, and what it found on the way
 
-**The member-separation instrument is not valid for large re-aim geometry.** Its
-zones are CANVAS-radial, which equals field-radial only when members are near
-co-pointed — true for every cell it was validated on (98–500 px offsets), false
-across a re-aim, where the canvas centre lies between two optical axes. Measured
-symptoms: non-monotonic profiles (outer worse than corner), a corner median
-swinging 0.71→3.38 on a 0.10 change of zone bound, bootstrap band 0.55–3.89.
+**Done.** `member_separation.py` now bins by each member's OWN field radius, and
+fixing it exposed a larger fault than the zoning: it had been cross-matching the
+REGISTERED copies, which do not share a coordinate frame. `seqapplyreg
+-framing=max` on a variable-size sequence gives every output its own origin —
+MEASURED 611.9 px apart in x on the 28-member union, constant to 0.4 px across
+the field, i.e. a pure translation. Two consecutive members of ONE set shared
+zero stars within 1 px and 67 of 2000 within 12. Every number the old instrument
+produced was a chance nearest-neighbour distance between two offset frames; it
+ranked its calibration cells correctly by luck of a monotone confound and
+starved to UNMEASURED exactly where the offsets were largest.
 
-**Consequence: no absolute cross-night number currently on record is
-trustworthy**, including the 4.07 px that drove this arc. Same-night numbers and
-one-knob comparisons on a fixed pair remain sound — those are what §2 rests on.
+The fix needed no extra solves: `register -2pass` already writes one homography
+per member into the `.seq`, so each member's own `findstar` positions push
+through `H_ref⁻¹·H_m` into the reference member's frame by construction. Full
+numbers, the executed falsification and the re-measured threshold anchors:
+`docs/dead-ends.md` and the ledger entry
+`compose_gate_rezoned_by_member_field_radius`.
 
-Fix: bin by each member's OWN field radius, using its own WCS to map canvas
-position back into member pixel coordinates. Then re-run the cross-night cells.
-Until then, cross-night is measured only in relative terms.
+**What it measures now**, on the accepted 28-member union — 0/378 pairs
+unmeasured against 378/378 before, in 12 s:
+
+| zone (member-own field radius) | median | p90 | max |
+|---|---|---|---|
+| centre 0.00–0.25 | 0.22 px | 0.39 | 0.80 |
+| mid 0.25–0.55 | 0.48 px | 0.89 | 1.56 |
+| outer 0.55–0.80 | 1.30 px | 2.49 | 4.97 |
+| corner 0.80–1.01 | 2.43 px | 4.94 | 7.53 |
+
+**And it answers §2's open question directly: the disagreement is not a function
+of night, or of set.** Same-night pairs median 2.44 px, cross-night 2.39,
+same-SET 2.21. It is a function of member-own field radius and nothing else the
+membership distinguishes. Cross-night combining is exonerated as a source; the
+within-set compose is implicated — independently of the star-shape ladder that
+found the same thing (`AUG06_MEMBER_EDGE_report.md`).
+
+The 4.07 px "cross-night state difference" stays UNMEASURED: it was taken with
+the canvas zoning *and* the broken frame.
 
 ## 6. Order of work this implies
 
-1. **Fix the instrument** (§5). Everything cross-night is unreadable until then,
-   and it is a contained change to one script.
-2. **Re-measure the state boundary** with the fixed instrument: is aug06 one
-   state or three? Is aug06's state the same as july31's? These are answerable
-   from members that already exist.
-3. **Then decide the model tier** on that evidence — not before.
-4. **Trial SWarp** on the two members that currently disagree, as the
-   standardization candidate (§4.2). Cheap, and it is the only route with a
-   documented multi-night answer.
+1. ~~**Fix the instrument** (§5).~~ **DONE** — and it found the frame bug above.
+2. **Re-anchor the thresholds — a USER decision.** The 0.35/1.00 px bands belong
+   to the broken instrument. Re-measured on the fixed one the six anchors read
+   0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28: the ordering holds and the floors
+   barely move, but the user-PASSED product's pair crosses PASS→WARN and the
+   never-accepted cell WARN→BLOCK. Nothing was re-anchored, because loosening an
+   acceptance measure needs ratification.
+3. **Re-measure the state boundary** with the fixed instrument: is aug06 one
+   state or three? Answerable from members that already exist — and §5's
+   night/set nulls already constrain it.
+4. **Trial SWarp** as the standardization candidate (§4.2). The case for it is
+   now measured rather than argued: the members' own astrometric solutions agree
+   to 0.10 px median where the homography compose loses 1.06 px of FWHM.
 5. **Only then** revisit corner-true fitting — under §4 it may not be needed at
    all, since astrometric resampling does not care how good the lens model was.

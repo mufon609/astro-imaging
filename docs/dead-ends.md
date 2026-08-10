@@ -1350,28 +1350,63 @@ SILENT — pin the state, never inherit it):
   against shipped values ~0.001–0.02), confirming the documented degenerate
   basin. A corner-true fit needs corner CORRESPONDENCES that are actually good.
 
-- **`member_separation.py` cannot score a WIDE MULTI-NIGHT max-framed union at
-  all.** MEASURED on the 28-member two-night union: 378/378 pairs returned n/a —
-  at `-framing=max` each member occupies a fraction of a huge canvas, so no pair
-  shares a canvas zone with ≥100 matched stars. It correctly reported UNMEASURED
-  rather than passing what it could not see, but the gate is blind for this
-  product class until zones are defined per MEMBER FOOTPRINT rather than per
-  canvas — the same fix the cross-night binning needs.
+- **`seqapplyreg -framing=max` ON A VARIABLE-SIZE SEQUENCE GIVES EVERY OUTPUT ITS
+  OWN ORIGIN — so registered copies are NOT in a common coordinate frame, and
+  anything that cross-matches their pixel coordinates is measuring nothing.**
+  Every compose here is variable-size: each member is its own group's
+  `-framing=min` product, and those differ by tens of px. MEASURED two ways on
+  the 28-member union. (1) Solving three registered members: the same sky lands
+  **611.9 px apart in x and 416.0 px in y** between `r_s_00001` and `r_s_00026`,
+  and the offset is CONSTANT to 0.4 px across three widely separated sky points
+  — a pure translation, so scale and rotation ARE common and only the origin is
+  not. (2) Matching two consecutive members of ONE set: **zero** pairs within
+  1 px, 1 within 2, 12 within 5, 67 of 2000 within 12, 459 within 30 — growth
+  smooth in tolerance, the signature of chance nearest neighbours in a dense
+  field rather than of correspondences.
+  **What this cost: `member_separation.py` — the compose ACCEPTANCE GATE — read
+  those copies, so every number it produced was a chance distance between two
+  offset frames.** It ranked its six calibration cells correctly by luck of a
+  monotone confound (a bigger optical disagreement also means a bigger framing
+  offset), and it starved to UNMEASURED (378/378 pairs) precisely where the
+  offsets were largest — the wide multi-night union it exists for. The fix is
+  not to solve every member: `register -2pass` already wrote one homography per
+  member into the `.seq`, so pushing each member's OWN `findstar` positions
+  through `H_ref⁻¹·H_m` puts everything in the reference member's frame by
+  construction. MEASURED on a real cell: **67 matches before, 1721 after** (25×),
+  and 0/378 pairs unmeasured on the union, in 12 s.
+  **The general rule: never assume a tool's batch output shares a frame — verify
+  it, cheaply, with the tool's own coordinates.** Two solves, or one known
+  displacement pushed through the pipeline, settles it in a minute; this went
+  unverified through a build, a validation exercise and a shipped product.
 
-- **`member_separation.py`'s zones are CANVAS-radial, so no ABSOLUTE cross-night
-  number from it is trustworthy.** Canvas radius equals field radius only when
-  the members are near co-pointed — true for every cell it was validated on
-  (98–500 px offsets), false across a re-aim, where the canvas centre lies
-  between two optical axes and a canvas corner sits at a different field radius
-  in each member. MEASURED symptoms on a cross-night pair: the profile goes
-  non-monotonic (outer 2.07 worse than corner 0.71), the corner median swings
-  **0.71 → 3.38** on a 0.10 change of the zone bound, the distribution is
-  heavy-tailed (median 0.71, p75 5.21, p90 5.92) and the bootstrap band is
-  0.55–3.89. Same-night cells and ONE-KNOB comparisons on a fixed pair stay
-  sound — the geometry is common to both arms and cancels. The recorded
-  "cross-night state difference 4.07 px" is downgraded to unmeasured on this
-  basis, not refuted. Fix before trusting any cross-night absolute: bin by each
-  member's OWN field radius via its own WCS.
+- **`member_separation.py`'s zones WERE CANVAS-radial, which is the wrong
+  variable: a member's residual distortion is a function of ITS OWN field
+  radius.** Canvas radius equals field radius only when the members are near
+  co-pointed — true for every cell it was validated on (98–500 px offsets),
+  false across a re-aim, where the canvas centre lies between two optical axes.
+  MEASURED symptoms on a cross-night pair: the profile went non-monotonic (outer
+  2.07 worse than corner 0.71), the corner median swung **0.71 → 3.38** on a
+  0.10 change of the zone bound, and the bootstrap band was 0.55–3.89. Now binned
+  by `max(ρ_a, ρ_b)` — each star's radius in its own member, worse of the two —
+  and the profile is monotone and tight: on the 28-member union the medians run
+  **0.22 / 0.48 / 1.30 / 2.43 px** across centre/mid/outer/corner, at 142–783
+  matched stars per zone, and the worst cell reads identically at `--tol` 8, 12,
+  20 and 30.
+  **Two results the fixed binning delivers immediately.** The disagreement is
+  NOT a function of night or of set — same-night pairs median **2.44 px**,
+  cross-night **2.39**, same-SET **2.21** — so cross-night combining is
+  exonerated as a source and the within-set compose is implicated, independently
+  of the star-shape ladder that found it. And the recorded "cross-night state
+  difference 4.07 px", downgraded to unmeasured on the old instrument, stays
+  unmeasured: it was taken with the canvas zoning AND the broken frame.
+  **THRESHOLDS DO NOT SURVIVE AN INSTRUMENT CHANGE.** The 0.35/1.00 px bands are
+  anchored to six cells measured on the broken instrument. Re-measured on the
+  fixed one they read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against
+  0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — the ordering holds and the
+  floors barely move, but the user-PASSED product's pair crosses from PASS to
+  WARN and the never-accepted cell from WARN to BLOCK. Re-anchoring is a USER
+  decision (an acceptance measure never loosens without ratification), so the
+  bands are left as written and the gate is currently strict.
 
 - **A PSF FITTER IS THE WRONG INSTRUMENT FOR STAR DOUBLING** — it fits one
   component, not the blend, so a doubled corner can read BETTER than a merely

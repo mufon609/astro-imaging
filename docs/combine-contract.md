@@ -172,19 +172,36 @@ runs three tiers and **only the third decides**:
   model and the reference's, out to ρ = 1.80. A **screen only**: it
   over-predicts by construction (4.01 px predicted against 2.99 px realised),
   because the compose's homography absorbs part of any smooth field.
-- **T2 measure** — `scripts/qa/member_separation.py` on the registered members:
-  the px separation of the same star as two members place it, by field zone.
-  **This is the acceptance measure**, and a BLOCK stops before anything is stacked.
+- **T2 measure** — `scripts/qa/member_separation.py` on the members' own frames:
+  every member's `findstar` positions pushed through the homography
+  `register -2pass` computed for it, so the same star has one position per
+  member in one frame; the reported number is their px separation, **binned by
+  each member's OWN field radius**. **This is the acceptance measure**, and a
+  BLOCK stops before anything is stacked.
+  It does NOT read the registered (`r_`) copies: `seqapplyreg -framing=max` on a
+  variable-size sequence — which every compose here is — gives each output its
+  own origin, MEASURED 611.9 px apart on the 28-member union, so their pixel
+  coordinates are not comparable (`docs/dead-ends.md`).
 
-Thresholds, each traced to a product the owner judged:
+Thresholds, each traced to a product the owner judged — **and each anchor
+re-measured on the current instrument, because a threshold does not survive an
+instrument change** (ledger `compose_gate_rezoned_by_member_field_radius`):
 
-| verdict | band | anchor |
+| verdict | band | anchor (re-measured / as originally measured) |
 |---|---|---|
-| PASS | ≤ 0.35 px | the july31 cross-set pair, from the union the owner PASSED (**provisional — n=1 exemplar; re-anchor as corner-true fits produce more passed products**) |
-| WARN | 0.35 – 1.00 px | 0.93 px = aug06 under one shared model: round at 1:1, never accepted → build proceeds, **surface must get eyes at 1:1 before it ships** |
-| BLOCK | > 1.00 px | 2.11 and 2.99 px are the two products the owner FAILED, both visibly doubled at 1:1 |
+| PASS | ≤ 0.35 px | the july31 cross-set pair, from the union the owner PASSED: **0.38** / 0.352 |
+| WARN | 0.35 – 1.00 px | aug06 under one shared model, round at 1:1 and never accepted: **1.23** / 0.934 |
+| BLOCK | > 1.00 px | the two products the owner FAILED, both visibly doubled at 1:1: **3.04** / 2.991 and **3.28** / 2.112 |
 
-Floor for scale: 0.14 / 0.19 px, same set, same state, same model.
+Floor for scale, same set, same state, same model: **0.14 / 0.21 px** (0.144 / 0.194 as originally measured).
+
+**THE BANDS ARE CURRENTLY MISMATCHED TO THEIR ANCHORS AND THAT IS A USER
+DECISION.** The re-measured values keep the ordering and barely move the floors,
+but they push the user-PASSED pair from PASS to WARN and the never-accepted cell
+from WARN to BLOCK; a rebuild of the accepted cross-night union reads 7.53 px.
+Loosening an acceptance measure needs explicit ratification (`CLAUDE.md`), so
+nothing was re-anchored — the gate is strict, and `--accept-separation` remains
+the explicit, recorded override.
 
 **Do not gate this defect class on corner FWHM or `seqtilt`** — both are MEASURED
 blind to it (`docs/dead-ends.md`): corner FWHM ranked the failing union *better*

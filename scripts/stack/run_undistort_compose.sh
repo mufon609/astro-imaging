@@ -48,9 +48,20 @@
 #                   field, so T1 over-predicts (8.19 predicted vs 2.99 realised).
 #                   Its job is to name the offending pair before an hour of
 #                   registration, never to pass one.
-#   T2 measure    — scripts/qa/member_separation.py on the REGISTERED members,
-#                   which this script has already produced and used to throw
-#                   away. THE ACCEPTANCE GATE. BLOCK stops before `stack`.
+#   T2 measure    — scripts/qa/member_separation.py on the UNREGISTERED members
+#                   plus the homographies `register -2pass` wrote into s_.seq,
+#                   binned by each member's OWN field radius. THE ACCEPTANCE
+#                   GATE. BLOCK stops before `stack`.
+#                   It reads the members, NOT the r_ copies: `seqapplyreg
+#                   -framing=max` on a variable-size sequence gives each output
+#                   its own origin (MEASURED 611.9 px apart on the 28-member
+#                   union), so their pixel coordinates are not comparable and
+#                   cross-matching them returned chance neighbours — 67 of 2000
+#                   within 12 px between two members of ONE set, against 1721
+#                   once the homographies re-base them (docs/dead-ends.md).
+#                   Everything it needs exists straight after `register -2pass`,
+#                   so this gate could run before seqapplyreg writes n full-size
+#                   copies; it is left here so this change reorders nothing.
 # A member with no DIST* keys (built before the stamp existed) is UNKNOWN, never
 # compatible: T0/T1 report it as such and T2 still measures it.
 #
@@ -298,9 +309,11 @@ echo "composing $n sub-stacks (register -2pass -> ${SETREF:+setref $RIDX -> }-fr
 sir "$W/compose.ssf"
 ls "$W/seq"/r_s_*.fit >/dev/null 2>&1 || { echo "REGISTRATION FAILED — read $W/compose.log" >&2; exit 1; }
 
-# ---- T2: THE ACCEPTANCE GATE, on the registered members, before `stack` ------
+# ---- T2: THE ACCEPTANCE GATE, on the members' own frames, before `stack` -----
+# --prefix defaults to s_ (the members + the .seq holding register -2pass's own
+# homographies). It is NOT r_: those copies do not share an origin.
 GRC=0
-python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" --prefix=r_ \
+python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" \
   --json="$GATEJSON" --label="$(basename "$OUT")" || GRC=$?
 if [ "$GRC" != 0 ]; then
   if [ -n "$ACCEPT" ]; then
