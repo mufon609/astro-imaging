@@ -153,10 +153,21 @@ fresh-eyes session, 45 cited sources). What it settles:
   data, one knob: affine 14.24 px RMS / 7.63 median against homography 3.19 /
   **0.27**. `docs/dead-ends.md` carries the trap.
 
-**What this leaves the item.** The GEOMETRY is not the open term: a centred radial
-model already fits it. So the one-sided STAR-SHAPE gradient in the raws
-(`6a5465d`) is not an uncorrected distortion — it is aberration or tilt, which no
-distortion model of any expressiveness removes. The candidate a,b,c from this fit
+**What this leaves the item — now MEASURED, not inferred.** The GEOMETRY is not the
+open term (a centred radial model fits it to a 0.27 px median), and the star-shape
+gradient has since been characterised directly on single raw frames (Siril
+`findstar`, 3 frames x 6 sets x 2 nights, 136k stars, roundness floor dropped to
+0.05 because the default 0.50 truncates the tail under study):
+- **It is REAL, not a detection artefact** — it survives inside amplitude quartiles
+  in 6/6 sets, though median star brightness varies 2–10x across x.
+- **It is ANISOTROPIC, not defocus** — the MINOR axis is symmetric left-vs-right
+  (2.08 vs 2.00 px) while the MAJOR axis is not (2.46 vs 2.63). Sensor tilt as a
+  tilted focal plane would inflate both.
+- **It is RADIAL, not residual motion** — the major-axis angle tracks the field
+  azimuth in 7 of 8 zones in every set (resultant 0.45–0.85 at the edges), where
+  in-exposure trailing would hold one fixed sensor direction.
+So it is a field aberration of the coma family with an asymmetric amplitude — in
+the optics. No distortion model and no re-registration removes it. The candidate a,b,c from this fit
 (a=0.005185 b=0.010655 c=0.004969) differ from the shipped model and are the
 first ones with CORNER support (catalogue pairs reach ρ ≈ 1.8; cpfind stops at
 ρ ≈ 1.0–1.5) — a CANDIDATE, judged at the COMBINE on star_stations + seqtilt and

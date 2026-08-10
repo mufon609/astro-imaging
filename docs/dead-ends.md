@@ -1353,6 +1353,29 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **THE ONE-SIDED STAR-SHAPE GRADIENT IS A RADIAL FIELD ABERRATION IN THE OPTICS —
+  stop looking for it in the chain.** Measured on single Siril-debayered RAWs (no
+  dark, flat, warp, registration or stack), 3 frames x 6 sets x 2 nights, 136k
+  stars from Siril `findstar`. Four candidates ELIMINATED, each by measurement:
+  a DETECTION/BRIGHTNESS artefact (the gradient survives inside amplitude
+  quartiles in 6/6 sets although median brightness varies 2–10x across x); PURE
+  DEFOCUS / tilted focal plane (that inflates BOTH axes on the soft side — the
+  MINOR axis measures symmetric left-vs-right, 2.08 against 2.00 px, while the
+  major does not, 2.46 against 2.63); RESIDUAL MOTION (in-exposure trailing holds
+  ONE fixed sensor direction — the major-axis angle instead tracks the field
+  azimuth in 7 of 8 zones in every set, resultant 0.45–0.85 at the edges);
+  RESIDUAL DISTORTION (the geometry fits a centred ptlens model to a 0.27 px
+  median — entry below). What is left is radial elongation growing with field
+  radius at an asymmetric amplitude: coma with a decentred aberration field.
+  **Consistent with the centred distortion** — distortion and coma respond
+  differently to a decentred or tilted element, so well-centred distortion and an
+  off-centre aberration field coexist without contradiction.
+  TRAP for anyone re-measuring this: `setfindstar`'s DEFAULT roundness floor is
+  **0.50**, which truncates exactly the elongated tail being measured and biases
+  the bad side rounder. Drop it to 0.05. Second trap: `seqfindstar` reports
+  "Sequence processing succeeded" in ~1.5 ms and writes NO star lists headless on
+  1.4.4 — use per-image `findstar -out=`.
+
 - **FITTING A LENS MODEL AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE
   MANUFACTURES A DECENTRING SIGNAL. Use a HOMOGRAPHY.** The linear WCS is a
   gnomonic (TAN) projection about ITS tangent point and rotation; the ideal

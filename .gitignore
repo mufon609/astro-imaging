@@ -92,3 +92,8 @@ __pycache__/
 !**/disto_work/*.json
 !**/disto_work/displacement_field_probe.py
 !**/disto_work/warp_ab.sh
+
+# psf_work/ (under datasets/<session>/<set>/) holds the raw-frame PSF-field
+# probe's Siril star lists and its .ssf. The .lst files ARE the record.
+**/psf_work/*
+!**/psf_work/*.lst
