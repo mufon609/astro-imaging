@@ -1,5 +1,15 @@
 # Implementation plan — F2 / F3 / F4, under the ratified combine fundamentals
 
+> **STATUS — SUPERSEDED, kept for its measurements. Do not plan from it.**
+> F1/F2 (shared family model as a same-night fallback; corner-true per-STATE
+> fits) are DEAD: the per-set optical-state doctrine was refuted at its root and
+> reverted (`docs/dead-ends.md`; BACKLOG `optical-state-models`). F3/F4 SHIPPED —
+> the compose gate, `scripts/qa/member_separation.py`, the FITS provenance stamp
+> and backfill. The combine contract graduated to `docs/combine-contract.md`;
+> the scope analysis to `docs/consistency-tiers.md`. The gate thresholds cited
+> from code live in the contract now.
+
+
 Scope: the plan only. Nothing here is wired. Sources for every number:
 `COMPOSE_SMEAR_INVESTIGATION_report.md`, `datasets/aug06/experiments.jsonl`
 (`pairwise_member_compose_discriminator`, `cross_night_state_difference`,

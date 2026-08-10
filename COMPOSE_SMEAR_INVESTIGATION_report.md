@@ -1,5 +1,14 @@
 # Compose-smear root-cause investigation — report
 
+> **STATUS — the root cause stands; the fix ranking in §7 and the scope note in
+> §9 do NOT.** Members warped under different models is confirmed and was fixed
+> by REVERTING to one pinned model per lens@focal, not by the F-ranking here.
+> §9's 4.07 px cross-night figure is downgraded to instrument-limited
+> (`docs/dead-ends.md`: canvas-radial zoning is invalid across a re-aim).
+> Current state: `docs/combine-contract.md`, `docs/consistency-tiers.md`,
+> BACKLOG `optical-state-models`.
+
+
 Scope: the corner star smear in the aug06 cross-set combines, run as an
 independent audit per `COMPOSE_SMEAR_INVESTIGATION_PROMPT.md`. Everything the
 two prior sessions produced was treated as claims to re-derive, not findings to

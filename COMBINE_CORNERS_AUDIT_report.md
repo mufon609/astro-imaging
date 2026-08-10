@@ -1,5 +1,11 @@
 # Combine-corner audit — report (maintained current-state)
 
+> **STATUS — superseded. Its §1 elimination of model heterogeneity is REFUTED
+> (correction inline below); the root cause is in
+> `COMPOSE_SMEAR_INVESTIGATION_report.md` and the resolution in
+> `docs/dead-ends.md` + BACKLOG `optical-state-models`.**
+
+
 Scope: the failed aug06 twin combines and the process that produced them —
 executed per `COMBINE_CORNERS_AUDIT_PROMPT.md`, then extended by the user's
 follow-ups (what changed vs past combines; the restoration experiment; the

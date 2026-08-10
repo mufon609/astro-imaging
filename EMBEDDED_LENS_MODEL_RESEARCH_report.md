@@ -1,5 +1,14 @@
 # RESEARCH — the manufacturer's embedded lens-distortion model as the optical-state source
 
+> **STATUS — findings stand, framing has moved.** Its measurement (the Nikon
+> embedded model is STATIC — 7,355 light frames across 4 nights share one
+> coefficient triple) is unaffected. But it killed the route for being
+> "a shared model by construction", and a SHARED MODEL IS NOW THE ADOPTED METHOD:
+> the per-set doctrine was refuted and reverted (`docs/dead-ends.md`). Re-read
+> its verdict in that light. The 4.07 px figure it cites is separately downgraded
+> to instrument-limited.
+
+
 Claim labels used throughout: **MEASURED** (on-rig probe, this report) · **DOC**
 (primary source, cited) · **COMMUNITY** (forum/tracker, cited) · **HYPOTHESIS**
 (stated with the test that would settle it).
