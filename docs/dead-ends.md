@@ -694,11 +694,13 @@ the constraints any such tool must satisfy):
   the measured case for per-image astrometric resampling
   (BACKLOG:`compose-homography-smear`, SWarp) rather than a better
   shared lens model.
-  **Blind to it:** every per-member measure (each member is clean), and the compose
-  gate itself — `member_separation.py`'s zones are CANVAS-radial, and on this union
-  it returned **UNMEASURED** (378/378 pairs, no zone with ≥100 matched stars) and
-  was overridden with `--accept-separation=99`. The accepted product therefore
-  shipped with no working geometry gate.
+  **Blind to it:** every per-member measure (each member is clean), and — as the
+  accepted product shipped — the compose's own geometry measurement, whose zones
+  were then CANVAS-radial and which returned **UNMEASURED** on this union
+  (378/378 pairs, no zone with ≥100 matched stars). `member_separation.py` has
+  since been rebuilt (member-own field radius, 0/378 unmeasured) and its
+  threshold layer removed by user ratification — it measures, it does not gate
+  (`docs/combine-contract.md` §5).
   **The disagreement is TWO terms, both measured, neither yet sized against the
   other.**
   *(a) The compose makes part of it.* The same members disagree more when
@@ -1506,9 +1508,9 @@ SILENT — pin the state, never inherit it):
   1 px, 1 within 2, 12 within 5, 67 of 2000 within 12, 459 within 30 — growth
   smooth in tolerance, the signature of chance nearest neighbours in a dense
   field rather than of correspondences.
-  **What this cost: `member_separation.py` — the compose ACCEPTANCE GATE — read
-  those copies, so every number it produced was a chance distance between two
-  offset frames.** It ranked its six calibration cells correctly by luck of a
+  **What this cost: `member_separation.py` — then the compose's ACCEPTANCE GATE,
+  now report-only — read those copies, so every number it produced was a chance
+  distance between two offset frames.** It ranked its six calibration cells correctly by luck of a
   monotone confound (a bigger optical disagreement also means a bigger framing
   offset), and it starved to UNMEASURED (378/378 pairs) precisely where the
   offsets were largest — the wide multi-night union it exists for. The fix is
@@ -1542,14 +1544,27 @@ SILENT — pin the state, never inherit it):
   of the star-shape ladder that found it. And the recorded "cross-night state
   difference 4.07 px", downgraded to unmeasured on the old instrument, stays
   unmeasured: it was taken with the canvas zoning AND the broken frame.
-  **THRESHOLDS DO NOT SURVIVE AN INSTRUMENT CHANGE.** The 0.35/1.00 px bands are
-  anchored to six cells measured on the broken instrument. Re-measured on the
-  fixed one they read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against
+  **THRESHOLDS DO NOT SURVIVE AN INSTRUMENT CHANGE — AND A THRESHOLD ON AN
+  UNATTRIBUTED QUANTITY IS NOT WORTH WRITING AT ALL.** The 0.35/1.00 px bands
+  were anchored to six cells measured on the broken instrument; re-measured on
+  the fixed one they read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against
   0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — the ordering holds and the
-  floors barely move, but the user-PASSED product's pair crosses from PASS to
-  WARN and the never-accepted cell from WARN to BLOCK. Re-anchoring is a USER
-  decision (an acceptance measure never loosens without ratification), so the
-  bands are left as written and the gate is currently strict.
+  floors barely move, but the user-PASSED product's own pair crosses out of PASS.
+  **RESOLVED, user-ratified: the whole threshold layer is REMOVED rather than
+  re-anchored** (no PASS/WARN/BLOCK, no `--accept-separation`, no abort; the
+  number is measured, printed and stamped on the product). Re-anchoring was the
+  wrong question, on two measured grounds beyond the instrument change: the
+  quantity is a SUM OF TWO TERMS and the compose itself creates one of them
+  (1.12 / 0.95 px composed among themselves against 3.02 / 3.38 px inside a 41°
+  28-member sequence — 2.5–4.7×, from sequence size alone), and any band that
+  separated the accepted products would fire on every real compose, which trains
+  the operator to bypass it. **The general rule: a band belongs to a quantity
+  whose good-vs-bad is established. Until the driver is attributed there is no
+  such boundary, so measure and record — inventing a number to gate on is the
+  guessing this repo forbids, and re-raising the decision is re-doing settled
+  work** (`docs/combine-contract.md` §5 carries the current state; the
+  discriminator that needs no constant is the RELATIVE break-away, 2.5–3× the
+  member cluster's own scatter in five sets and ~15× in the sixth).
 
 - **A PSF FITTER IS THE WRONG INSTRUMENT FOR STAR DOUBLING** — it fits one
   component, not the blend, so a doubled corner can read BETTER than a merely

@@ -119,3 +119,33 @@ maker's actual process with THEIR tool on our data first, learn the mechanism
 ours lacks, then mature our pipeline; separate reproducible process from the
 maker's manual artistry; compare at like scale/orientation (verify parity
 numerically). Study the reference and its published recipe BEFORE tuning.
+
+## The data is a given — fixes live in the CHAIN (user-ratified 2026-08-10)
+
+NEVER recommend an acquisition or equipment change as the route to a defect —
+stopping the lens down, a faster/better lens, a tracker, real flats. This
+project exists to carry whatever the data IS to its best honest outcome **in
+code**, driven by the official tools. The owner's words: *"do not ask for
+external changes — figure it out in code, that's why I'm building this project
+in the first place"*, and *"people shoot with much faster lenses all the time
+without issue"*.
+
+This is the same rule as "synthetic flats are the point, never recommend real
+flats" — one shape, one reason. Generalise from it.
+
+An acquisition ask is also usually UNMEASURED: the f/5.6 recommendation that
+triggered this ratification compared no apertures on this data and was asserted
+from general optics.
+
+The north star's *"acquisition quality outranks processing"* governs what must
+not be BANDAIDED — never process away photons that were never collected. It is
+not a licence to hand the defect back to the operator.
+
+**Corollary, and it is where the discipline bites:** a stage that addresses a
+defect goes where the defect is WELL-DEFINED, not where it is convenient to
+bolt on. A pass over a finished product is a bandaid by construction. The
+worked example: the star-shape defect is fixed in SENSOR coordinates and the
+sky drifts ~1000 px across the sensor, so after registration each output
+position holds a blend of many sensor-position PSFs and there is no PSF left to
+correct — any PSF stage therefore belongs per frame, in sensor space, after
+debayer and before the undistort warp and register.

@@ -161,11 +161,12 @@ the step is purely additive and moves no star.)
 
 Audit status on this rig: **56/56 archived sub-stacks contract-complete.**
 
-## 5. Every combine is GATED on measured model compatibility
+## 5. Every combine MEASURES model compatibility — and nothing gates on it
 
 Compatibility, not identity: identical models are only the cheap safe case, and
 identical-across-nights is precisely the 4.07 px failure. `run_undistort_compose.sh`
-runs three tiers and **only the third decides**:
+runs three tiers; the third is the one that measures the real quantity, and it
+**reports** it:
 
 - **T0 identity** — do the members' `DISTA/B/C` + `DISTNORM` match? Free, recorded.
 - **T1 prediction** — the ptlens displacement difference between each member's
@@ -176,35 +177,52 @@ runs three tiers and **only the third decides**:
   every member's `findstar` positions pushed through the homography
   `register -2pass` computed for it, so the same star has one position per
   member in one frame; the reported number is their px separation, **binned by
-  each member's OWN field radius**. **This is the acceptance measure**, and a
-  BLOCK stops before anything is stacked.
+  each member's OWN field radius**. **REPORT-ONLY: it measures, prints and
+  stamps the number on the product, and always exits 0.**
   It does NOT read the registered (`r_`) copies: `seqapplyreg -framing=max` on a
   variable-size sequence — which every compose here is — gives each output its
   own origin, MEASURED 611.9 px apart on the 28-member union, so their pixel
   coordinates are not comparable (`docs/dead-ends.md`).
 
-Thresholds, each traced to a product the owner judged — **and each anchor
-re-measured on the current instrument, because a threshold does not survive an
-instrument change** (ledger `compose_gate_rezoned_by_member_field_radius`):
+**THERE ARE NO THRESHOLDS, AND NONE ARE TO BE WRITTEN UNTIL THE QUANTITY IS
+ATTRIBUTED — USER-RATIFIED.** T2 carried PASS/WARN/BLOCK bands at 0.35 and
+1.00 px, and `run_undistort_compose.sh` carried an `--accept-separation`
+override and an exit-6 abort. All of it is removed: no verdict, no bands, no
+override flag, always exits 0. Three measured grounds, none of them
+convenience:
 
-| verdict | band | anchor (re-measured / as originally measured) |
-|---|---|---|
-| PASS | ≤ 0.35 px | the july31 cross-set pair, from the union the owner PASSED: **0.38** / 0.352 |
-| WARN | 0.35 – 1.00 px | aug06 under one shared model, round at 1:1 and never accepted: **1.23** / 0.934 |
-| BLOCK | > 1.00 px | the two products the owner FAILED, both visibly doubled at 1:1: **3.04** / 2.991 and **3.28** / 2.112 |
+1. **The quantity is a SUM OF TWO TERMS and the compose creates one of them.**
+   Two internally healthy sets read 1.12 px (july31/set-01) and 0.95 px
+   (aug06/set-03) composed among themselves, and **3.02 and 3.38 px** when the
+   same members are registered inside a 41° 28-member sequence — 2.5–4.7×, from
+   nothing but sequence size. No band separates that from a real optical
+   disagreement.
+2. **The bands were anchored on the broken instrument** (the frame bug above),
+   and a threshold does not survive an instrument change. Re-measured on the
+   fixed one the six anchor cells read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 /
+   3.28 px against 0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — the ordering
+   holds, but the user-PASSED product's own pair crosses out of PASS and a
+   rebuild of the accepted cross-night union reads 7.53 px.
+3. **A band would fire on every real compose**, so it would be overridden every
+   time — and a check that ALWAYS fires trains the operator to bypass it, the
+   same disease as a check that cannot fail (`docs/dead-ends.md`).
 
-Floor for scale, same set, same state, same model: **0.14 / 0.21 px** (0.144 / 0.194 as originally measured).
+**Do not read the six anchors as latent bands.** They are scale references for
+the measured range, and their floor is same-set/same-state/same-model at
+**0.14 / 0.21 px**. A threshold is worth setting only once the disagreement is
+attributed between its two measured sources — the compose's own global
+registration and the members' optical state (BACKLOG:`compose-homography-smear`)
+— and writing one before that bakes the confusion into an acceptance measure
+that then cannot be loosened without ratification.
 
-**THE BANDS ARE FROZEN AND CURRENTLY MISMATCHED TO THEIR ANCHORS. Do not tune
-them.** The re-measured values keep the ordering and barely move the floors, but
-they push the user-PASSED pair from PASS to WARN and the never-accepted cell from
-WARN to BLOCK; a rebuild of the accepted cross-night union reads 7.53 px. A
-threshold is only worth setting once the quantity it gates is understood, and the
-disagreement is not yet attributed between its two measured sources — the
-compose's own global registration and the members' optical state
-(BACKLOG:`compose-homography-smear`). Re-anchoring before that would bake the
-confusion in. Until it is closed the gate reports the measured number and
-`--accept-separation` records any override; the bands are not evidence.
+**What discriminates without any ratified constant, and is where a future
+detector should key:** every set measured here shows a tight cluster of members
+plus one or two that break away at an end of the burst, and the break-away sits
+at 2.5–3× the cluster's own scatter in five sets and ~15× in the sixth
+(aug06/set-01, 4.91 px against siblings agreeing to 0.21–0.34). That is
+RELATIVE, so it survives an instrument change. It is deliberately not
+implemented: the cause of the break-away is open, and a detector designed before
+its mechanism is understood is how the last one went wrong.
 
 **Do not gate this defect class on corner FWHM or `seqtilt`** — both are MEASURED
 blind to it (`docs/dead-ends.md`): corner FWHM ranked the failing union *better*
