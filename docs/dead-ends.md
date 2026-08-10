@@ -692,20 +692,43 @@ the constraints any such tool must satisfy):
   at exactly the sky where the homography compose loses 1.06 px of FWHM and 0.34 of
   roundness. The alignment information exists; the homography discards it. That is
   the measured case for per-image astrometric resampling
-  ([`consistency-tiers.md`](consistency-tiers.md) §4.2, SWarp) rather than a better
+  (BACKLOG:`compose-homography-smear`, SWarp) rather than a better
   shared lens model.
   **Blind to it:** every per-member measure (each member is clean), and the compose
   gate itself — `member_separation.py`'s zones are CANVAS-radial, and on this union
   it returned **UNMEASURED** (378/378 pairs, no zone with ≥100 matched stars) and
   was overridden with `--accept-separation=99`. The accepted product therefore
   shipped with no working geometry gate.
-  **NOT explained, labelled as such:** why set-01 and not set-03 (0.582 vs 0.910 at
-  the same sky, same night, same model, same code), and why the low-RA side of the
-  swept field and not the high-RA side — member field radius does not predict it
-  (compose 0.582 at member-ρ 0.41–0.62 against 0.949 at ρ 0.27–0.49, ρ *spread*
-  0.21 and 0.22 in both). Settling test: `member_separation.py` re-zoned by each
-  member's OWN field radius, run on set-01's five members; predict ≥2 px at
-  RA 294.86 and ≤0.35 px at RA 314.72.
+  **The disagreement is TWO terms, both measured, neither yet sized against the
+  other.**
+  *(a) The compose makes part of it.* The same members disagree more when
+  registered inside a big sequence than when composed among themselves:
+  july31/set-01 **1.12 → 3.02 px**, aug06/set-03 **0.95 → 3.38 px** going from
+  their own 4–5-member compose to the 41°, 28-member union. `register -2pass`
+  fits ONE homography per member against a common reference, so a member
+  overlapping that reference over a limited region gets a compromise fit that
+  extrapolates badly elsewhere — and two members compromised over *different*
+  regions disagree with each other.
+  *(b) One set carries a genuine OPTICAL-STATE CHANGE MID-BURST.* aug06/set-01's
+  groups 1,2,3 agree to **0.21–0.34 px** and groups 4,5 sit **2.95–4.91 px**
+  away, across a boundary that is 100 consecutive frames into a 1497 s burst.
+  Three things rule out the alternatives: it is not pointing spread (members 1
+  and 3 are **2.16° apart at 0.34 px**, members 3 and 4 are **1.38° apart at
+  3.14 px** — a smaller separation giving 9× the disagreement); it is not the
+  registration reference (1|4 reads **2.95 / 2.98 / 3.02 px** with the reference
+  set to member 1, 3 and 5 in turn, every other pair moving <2%); and the
+  residual displacement field is **RADIAL about each member's own optical axis**
+  where the healthy pairs' is tangential — median radial/tangential 0.39/0.24 px
+  for 3|4 and 0.32/0.17 for 4|5, against 0.03/0.06 for 1|2. A homography absorbs
+  translation, rotation and scale exactly, so a radial residual growing with own
+  radius is a change in the RADIAL DISTORTION, not a mis-fit.
+  **What that does and does not license.** It does NOT revive per-set models — a
+  per-set model would be wrong for part of its own set. It establishes that the
+  OPTICAL-STATE tier can be finer than the SET tier and that a state boundary is
+  something to DETECT, which is what this measure now is. Still open: what
+  physically changed at that boundary (focus/temperature drift and a mechanical
+  shift both predict a radial term), and the split of the union's 2.43 px corner
+  median between (a) and (b).
 - **DEAD END — "the aug06 member EDGE deficit is introduced by the within-group
   registration/stack." It is not: the session difference is FLAT across the whole
   chain once the star population is flux-matched.** MEASURED, one instrument at

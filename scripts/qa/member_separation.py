@@ -76,12 +76,16 @@ picked for looking reasonable (docs/combine-contract.md 5):
   BLOCK  > 1.00 px  2.11 px and 2.99 px are the two products the owner FAILED,
                     both visibly doubled at 1:1.
 
-**Those six anchors were measured with the pre-fix instrument and are RE-MEASURED
-on this one** — the six 2-member cells are preserved (`smear_arm/A{1..6}`), the
-re-measured values and the eye verdicts they must reproduce are in
-`datasets/aug06/experiments.jsonl`, `compose_gate_rezoned_by_member_field_radius`.
-A threshold inherited across an instrument change without re-measurement is the
-class of error this file exists to stop.
+**Those six anchors were measured with the pre-fix instrument. Re-measured on this
+one they read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 — the ordering holds, the
+floors barely move, but the user-PASSED pair crosses PASS->WARN and the
+never-accepted cell WARN->BLOCK. THE BANDS ARE FROZEN AT THE VALUES ABOVE AND MUST
+NOT BE TUNED YET**: the disagreement they gate is not attributed between the
+compose's own global registration and the members' optical state
+(BACKLOG:`compose-homography-smear`), and a threshold set before the quantity is
+understood bakes the confusion in. The six cells are preserved (`smear_arm/A{1..6}`)
+and the re-measured values are in `datasets/aug06/experiments.jsonl`,
+`compose_gate_rezoned_by_member_field_radius`.
 
 A zone with fewer than --min-n matched stars reports n/a and is NOT passed;
 silence is not evidence of agreement.

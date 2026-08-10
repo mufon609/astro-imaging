@@ -212,15 +212,41 @@ sky where the homography compose loses 1.06 px. The information needed to align 
 exists in each member's own WCS. That is a measured case for per-image astrometric
 resampling, not an argument for it.
 
-### 3.3 What is NOT explained, labelled as such
+### 3.3 Why set-01 and not set-03 — answered, and it is two things
 
-Why **set-01 and not set-03** (0.582 against 0.910, same sky, same night, same model,
-same code), and why the **low-RA side** of the swept field and not the high-RA side.
-Member field radius does not predict it: compose 0.582 where members sit at ρ
-0.41–0.62 and 0.949 where they sit at ρ 0.27–0.49, with a ρ *spread* of 0.21 and 0.22
-respectively. **Settling test**, and it is the first queued item: `member_separation.py`
-re-zoned by each member's own field radius, run on set-01's five members — predict
-≥2 px at RA 294.86 and ≤0.35 px at RA 314.72.
+The re-zoned gate was run and its pre-registered prediction held (set-01's members
+**4.91 px** at the corner against set-03's **0.95**). It resolves the disagreement
+into two measured terms, neither yet sized against the other:
+
+**(a) The compose makes part of it.** The same members disagree more when registered
+inside a big sequence than when composed among themselves — july31/set-01
+**1.12 → 3.02 px**, aug06/set-03 **0.95 → 3.38 px**, going from their own 4–5-member
+compose to the 41°, 28-member union. One homography per member against a distant
+reference is a region-weighted compromise, and members compromised over different
+regions disagree with each other.
+
+**(b) aug06/set-01 carries an optical-state change mid-burst.** Its groups 1,2,3 agree
+to **0.21–0.34 px**; groups 4,5 sit **2.95–4.91 px** away. Three checks rule out the
+alternatives:
+
+| check | result |
+|---|---|
+| pointing spread? | members 1–3 are **2.16° apart at 0.34 px**; members 3–4 are **1.38° apart at 3.14 px** — smaller separation, 9× the disagreement |
+| registration reference? | 1\|4 reads **2.95 / 2.98 / 3.02 px** with the reference at member 1, 3, 5; every pair moves <2% |
+| what kind of residual? | **radial** about each member's own axis (median radial/tangential 0.39/0.24 for 3\|4, 0.32/0.17 for 4\|5) against **tangential** for the healthy pairs (0.03/0.06 for 1\|2) |
+
+A homography absorbs translation, rotation and scale exactly, so a radial residual
+growing with own field radius is a change in the **radial distortion** — the optical
+state — not a mis-fit. All five groups are exactly 100 consecutive frames of one
+1497 s burst, so the boundary is a time boundary.
+
+This does **not** revive per-set models: a per-set model would be wrong for part of
+its own set. It establishes that the optical-state tier can be finer than the set
+tier, and that a state boundary is something to detect rather than assume.
+
+**Still open:** what physically changed at that boundary (focus/temperature drift and
+a mechanical shift both predict a radial term), and how the union's 2.43 px corner
+median splits between (a) and (b).
 
 ### 3.4 The gate could not see any of this
 
@@ -256,7 +282,7 @@ touches acquisition or asks for real flats.
 1. **Fix the instrument first — re-zone `member_separation.py` by each member's own
    field radius.** Contained to one script, no new tooling, and it is the prerequisite
    for judging every option below. It also closes a live hole: the accepted union
-   shipped ungated. *(`docs/consistency-tiers.md` §5; BACKLOG:`compose-homography-smear` item 1.)*
+   shipped ungated. *(BACKLOG:`compose-homography-smear` item 1.)*
 2. **Trial SWarp** (packaged for this distro at 2.41.5-3, not installed) — resample
    each member onto one output WCS by its **own** solution instead of by a shared
    homography. This is the industry operation for exactly this problem, per-member

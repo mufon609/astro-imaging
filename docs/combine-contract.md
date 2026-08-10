@@ -195,13 +195,16 @@ instrument change** (ledger `compose_gate_rezoned_by_member_field_radius`):
 
 Floor for scale, same set, same state, same model: **0.14 / 0.21 px** (0.144 / 0.194 as originally measured).
 
-**THE BANDS ARE CURRENTLY MISMATCHED TO THEIR ANCHORS AND THAT IS A USER
-DECISION.** The re-measured values keep the ordering and barely move the floors,
-but they push the user-PASSED pair from PASS to WARN and the never-accepted cell
-from WARN to BLOCK; a rebuild of the accepted cross-night union reads 7.53 px.
-Loosening an acceptance measure needs explicit ratification (`CLAUDE.md`), so
-nothing was re-anchored — the gate is strict, and `--accept-separation` remains
-the explicit, recorded override.
+**THE BANDS ARE FROZEN AND CURRENTLY MISMATCHED TO THEIR ANCHORS. Do not tune
+them.** The re-measured values keep the ordering and barely move the floors, but
+they push the user-PASSED pair from PASS to WARN and the never-accepted cell from
+WARN to BLOCK; a rebuild of the accepted cross-night union reads 7.53 px. A
+threshold is only worth setting once the quantity it gates is understood, and the
+disagreement is not yet attributed between its two measured sources — the
+compose's own global registration and the members' optical state
+(BACKLOG:`compose-homography-smear`). Re-anchoring before that would bake the
+confusion in. Until it is closed the gate reports the measured number and
+`--accept-separation` records any override; the bands are not evidence.
 
 **Do not gate this defect class on corner FWHM or `seqtilt`** — both are MEASURED
 blind to it (`docs/dead-ends.md`): corner FWHM ranked the failing union *better*
@@ -273,3 +276,40 @@ combine:
 So: **evaluate every calibration, model and route change against the COMBINE
 unit, not only against the per-set product.** A change measured only per-set is
 unfinished work.
+
+## 9. Scope — what is constant at which tier
+
+Every calibration input has a scope over which it is valid, and the pipeline is
+correct only when each is derived at its own scope and no finer. Getting it wrong
+in either direction breaks something, and both failures have been measured here.
+
+| tier | what is constant | derived at this scope | if derived FINER | if derived COARSER |
+|---|---|---|---|---|
+| **INSTRUMENT** — camera + lens + focal | optical design, sensor geometry, pixel scale, the distortion *family* | lens identity, the sensor geometry that sets ρ, the route | — | a different lens/focal warps on the wrong profile (the preflight stops this) |
+| **OPTICAL STATE** — a focus setting | the distortion *coefficients* | the distortion model | **members stop agreeing** — 2.99 px corner disagreement, visible doubling, a product failed by eye | a state-mismatched model leaves residual — the whole of §8 |
+| **NIGHT** | thermal regime, transparency family, dark current | the **master dark** | more darks than the regime justifies; no benefit | darks from another night mis-subtract |
+| **SET** — one pointing, one run | the sky gradient seen, the pointing, the drift geometry | the **synthetic sky flat**, the cull, the group derivation | — | a flat from another pointing carries the wrong sky |
+| **PRODUCT** | nothing; this is where the tiers must MEET | membership, framing, reference, weighting | — | — |
+
+**The OPTICAL-STATE tier is not the SET tier, in either direction.** A state
+changes when focus changes, which can span several nights or part of one set.
+Assigning the model per SET was a guess about the boundary, and it was wrong both
+ways: too fine across a night (it broke the combine, §8) and too coarse within
+one, since aug06/set-01's optical state is MEASURED to change between its third
+and fourth group (`docs/dead-ends.md`). A state boundary is something to DETECT,
+never to assume — and the compose gate (§5) is the detector.
+
+**What the industry does, stated first per the standards-first rule:**
+
+| tier | industry practice | source |
+|---|---|---|
+| optical distortion | **derived per exposure from the sky**, carried in that exposure's own WCS (TPV/SIP); no shared instrument model at all | SWarp/SCAMP (Astromatic); the SDSS/CFHTLS/DES/Pan-STARRS lineage; PixInsight ImageSolver + StarAlignment with distortion; APP |
+| coaddition | **resample every input onto one output WCS** using its own solution, then combine | SWarp |
+| dark | per thermal regime, reused across nights when it matches | universal |
+| flat | per optical configuration — **this repo deviates deliberately: synthetic per-set sky flats, which is the project's point** | universal |
+| background matching | per input, before coaddition | SWarp `SUBTRACT_BACK`; PixInsight LocalNormalization/NSG; APP LNC |
+
+The distortion row is the one that matters: **the industry does not have this
+problem, because it does not have a shared instrument model whose scope could be
+got wrong.** Distortion is a property of each exposure's own astrometric
+solution. That route is BACKLOG:`compose-homography-smear`.

@@ -103,8 +103,8 @@ _(add each writeup here, newest first; retired writeups live in git history)_
 The combine-corner / compose-smear arc produced five root-level reports. Their
 durable findings have all graduated into the operating docs — `docs/dead-ends.md`
 (the mechanisms and the blind instruments), `docs/combine-contract.md` (the
-contract, the gate thresholds, the history), `docs/consistency-tiers.md` (the
-scope model and the standards comparison), `TOOLS.md` (the hugin, darktable and
+contract, the gate thresholds, the scope tiers, the standards comparison, the
+history), `TOOLS.md` (the hugin, darktable and
 embedded-model rows) and BACKLOG `optical-state-models` — so the reports were
 retired rather than left to contradict them.
 

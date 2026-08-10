@@ -40,7 +40,7 @@ dataset, and says so.
 
 | divergence | retires when | last checked | status |
 |---|---|---|---|
-| `member_separation.py` cross-match + zone medians | an official tool reports headless member-to-member POST-REGISTRATION positional residuals across a sequence (a scriptable Siril registration-residual map, or a PixInsight equivalent) | 2026-08-10 | **not fired — REBUILT, and the rebuild found the instrument had been measuring nothing.** It cross-matched the REGISTERED copies, and `seqapplyreg -framing=max` on a variable-size sequence gives each output its OWN origin (MEASURED 611.9 px apart on the 28-member union; two members of ONE set shared 67 of 2000 stars within 12 px, 1721 once re-based). It now reads the members plus the homographies `register -2pass` wrote into the `.seq`, and bins by MEMBER-OWN field radius: 0/378 pairs unmeasured on that union against 378/378 before, in 12 s, with a monotone profile (0.22/0.48/1.30/2.43 px median). `--selftest` executes the falsification. Anchors re-measured on the fixed instrument: 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against 0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — **thresholds NOT re-anchored, a user decision.** Original grounds unchanged: Siril `register` prints WITHIN-sequence residuals only; nothing reports where two members each place the same star. Built because the two prior instruments are MEASURED BLIND: corner `findstar` FWHM ranked a FAILING union (4.95 px) above the visually clean control (5.29 px), `seqtilt` read 0.34 px off-axis for the FAILING union against 0.40 for the PASSING one |
+| `member_separation.py` cross-match + zone medians | an official tool reports headless member-to-member POST-REGISTRATION positional residuals across a sequence (a scriptable Siril registration-residual map, or a PixInsight equivalent) | 2026-08-10 | **not fired — REBUILT, and the rebuild found the instrument had been measuring nothing.** It cross-matched the REGISTERED copies, and `seqapplyreg -framing=max` on a variable-size sequence gives each output its OWN origin (MEASURED 611.9 px apart on the 28-member union; two members of ONE set shared 67 of 2000 stars within 12 px, 1721 once re-based). It now reads the members plus the homographies `register -2pass` wrote into the `.seq`, and bins by MEMBER-OWN field radius: 0/378 pairs unmeasured on that union against 378/378 before, in 12 s, with a monotone profile (0.22/0.48/1.30/2.43 px median). `--selftest` executes the falsification. Anchors re-measured on the fixed instrument: 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against 0.144 / 0.194 / 0.352 / 0.934 / 2.991 / 2.112 — **thresholds FROZEN, not to be tuned until the disagreement is attributed between the compose's global registration and the members' optical state (BACKLOG:`compose-homography-smear`).** Original grounds unchanged: Siril `register` prints WITHIN-sequence residuals only; nothing reports where two members each place the same star. Built because the two prior instruments are MEASURED BLIND: corner `findstar` FWHM ranked a FAILING union (4.95 px) above the visually clean control (5.29 px), `seqtilt` read 0.34 px off-axis for the FAILING union against 0.40 for the PASSING one |
 | optics/calibration FITS stamp (`header_provenance_lines`) + `backfill_substack_provenance.sh` | the warp stops being a TIFF round trip, so the model rides through natively (darktable gains FITS I/O, or Siril `register -disto=` — BACKLOG item 7); the BACKFILL retires once no un-stamped sub-stack remains on any rig | 2026-08-09 | **not fired** — the warp is still Siril `savetif32` -> darktable -> Siril `convert`, which carries no FITS header. Load-bearing: the lensfun user DB is global, unscoped, single-valued machine state that nothing reverts, so a sub-stack that cannot state its own optics cannot be composed safely later — 13 aug06 members under 3 different models composed into a doubled union and nothing in the product could see it |
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
@@ -82,21 +82,13 @@ band x = 45–70%. That is the smear the owner named.
 
 Ordered work — nothing here is executed on an accepted product:
 
-1. ~~**Fix the gate first.**~~ **DONE.** `member_separation.py` now bins by
-   member-own field radius — and the rebuild found it had been cross-matching the
-   REGISTERED copies, which `seqapplyreg -framing=max` writes with per-member
-   origins (611.9 px apart, measured), so every number it produced was a chance
-   nearest-neighbour distance. On this union: 0/378 pairs unmeasured against
-   378/378, worst zone **7.53 px**, and the profile is monotone in member-own
-   radius (0.22 / 0.48 / 1.30 / 2.43 px median). It confirms the pre-registered
-   prediction — aug06/set-01's five members read **4.91 px** at the corner against
-   set-03's **0.95** — and it shows the disagreement is NOT a function of night or
-   set (same-night 2.44, cross-night 2.39, same-SET 2.21 px median).
-   **Left open for the owner: the thresholds.** They were anchored to the broken
-   instrument; re-measured anchors are 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28.
-   Nothing was re-anchored — an acceptance measure does not loosen without
-   ratification — so the gate is currently strict enough to BLOCK a rebuild of
-   the accepted union.
+1. **Attribute the disagreement between its two measured sources.** The compose's
+   global registration is one: same-set members read 2.5-4.7x worse inside the
+   28-member sequence than composed among themselves (july31/set-01 max 1.12 -> 3.02,
+   aug06/set-03 0.95 -> 3.38). The optical state is the other: aug06/set-01's groups
+   4 and 5 sit 2.95-4.91 px from groups 1-3, which agree to 0.34. Until the split is
+   known, no fix can be sized. Cheapest cut: compose each set alone, then measure the
+   same members inside progressively larger sequences.
 2. **Trial SWarp** (packaged 2.41.5-3, not installed) — resample each member onto one
    output WCS by its own solution. MEASURED support, not argument: the members' own
    astrometric solutions place the same stars within **0.10 px median / 0.26 px p90**
@@ -284,7 +276,7 @@ session-end temperature.
   exposure onto a COMMON output WCS using its own full solution (CD matrix AND
   distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage. Nothing
   installed does it; SWarp is packaged for this distro at 2.41.5-3, python
-  `reproject` is absent. See `docs/consistency-tiers.md` 4.2.
+  `reproject` is absent. The route is BACKLOG:`compose-homography-smear`.
 
 ## `one-sided-band` — two mechanisms left on the residual drift-axis term
 
@@ -378,8 +370,8 @@ how the shipped july14 model was made, and it beat the community profile at full
 depth — centre station 5.30 → 3.67 px, on the owner's eyes); the corner-support
 census (`cp_coverage.py` — no fit here constrains the corner, support stops at
 ρ 1.47–1.51 against a corner at 1.80); and the instrument-fix and
-architecture questions now carried by `docs/consistency-tiers.md` and
-`docs/combine-contract.md`.
+architecture questions now carried by `docs/combine-contract.md` (§5 the gate,
+§9 the scope tiers) and BACKLOG:`compose-homography-smear`.
 
 **Open, inherited from this item, NOT closed by the revert:**
 - **Which single model.** For set-01 the pinned and own models produce
@@ -387,12 +379,11 @@ architecture questions now carried by `docs/consistency-tiers.md` and
   how those members compose (+0.39 vs +0.06). The july14 fit is the default on
   history and provenance; a per-set fit is a legitimate CANDIDATE. The comparison
   that settles it is at the COMBINE, one knob — never on a per-set product.
-- ~~**The within-set compose amplification residue**~~ — **LOCALISED, and promoted to
-  its own item: BACKLOG:`compose-homography-smear`.** It is not a residue and not the
-  same family as the model question: the within-set 5-member compose turns members
-  measuring roundness 0.924–0.942 into 0.582 at one sky and costs nothing at another,
-  because a single homography cannot align members pointed 4.28° apart while any
-  lens-model residual survives.
+- **The within-set compose "amplification residue" is neither a residue nor a model
+  question — it is BACKLOG:`compose-homography-smear`.** A set's 5-member compose
+  turns members measuring roundness 0.924–0.942 into 0.582 at one sky and costs
+  nothing at another, because a single homography cannot align members pointed
+  4.28° apart while any lens-model residual survives.
 - **A state-CHANGE detector.** The concern the doctrine was reaching for is real:
   a genuine refocus mid-campaign would need a new model. Replace "per-set by
   default" with "one model per instrument state, plus a measured trigger" — the
