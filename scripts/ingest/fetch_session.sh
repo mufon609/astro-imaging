@@ -324,15 +324,23 @@ for unit in ${UNITS//,/ }; do
   echo
 done
 
+# Rebuilt from EVERY unit recorded under REC_ROOT, not just this run's --units:
+# running disjoint units as concurrent processes is the normal way to use a
+# saturated uplink, and a run that emitted only its own units would truncate the
+# session manifest to whichever process happened to finish last.
 mkdir -p "$(dirname "$MANIFEST_OF_RECORD")"
-: > "$MANIFEST_OF_RECORD"
-for unit in ${UNITS//,/ }; do
-  w=$REC_ROOT/$unit/ingest_work; [ -n "$DEST" ] && w=$REC_ROOT/$unit
-  for m in "$w/$unit.sha256" "$w/$unit.local.sha256"; do
-    [ -f "$m" ] && { awk -v u="$unit" '{print $1"  "u"/"$2}' "$m" >> "$MANIFEST_OF_RECORD"; break; }
+tmp_mor=$MANIFEST_OF_RECORD.$$
+: > "$tmp_mor"
+while read -r w; do
+  [ -n "$w" ] || continue
+  u=$(basename "$(dirname "$w")")
+  [ "$(basename "$w")" = ingest_work ] || u=$(basename "$w")
+  for m in "$w/$u.sha256" "$w/$u.local.sha256"; do
+    [ -f "$m" ] && { awk -v u="$u" '{print $1"  "u"/"$2}' "$m" >> "$tmp_mor"; break; }
   done
-done
-sort -k2 -o "$MANIFEST_OF_RECORD" "$MANIFEST_OF_RECORD"
+done < <(find "$REC_ROOT" -maxdepth 2 -type d \( -name ingest_work -o -name 'set-*' -o -name 'dark*' \) 2>/dev/null | sort -u)
+sort -u -k2 -o "$tmp_mor" "$tmp_mor"
+mv -f "$tmp_mor" "$MANIFEST_OF_RECORD"
 
 echo "fetch_session: frames verified=$GRAND_OK  bad=$GRAND_BAD  moved=$(awk -v b=$GRAND_BYTES 'BEGIN{printf "%.1f", b/1073741824}') GiB"
 echo "  manifest of record: $MANIFEST_OF_RECORD ($(wc -l < "$MANIFEST_OF_RECORD") frames)"
