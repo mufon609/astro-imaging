@@ -1,0 +1,4 @@
+requires 1.4.0
+setcompress 0
+cd /home/samsung/Desktop/astro-imaging/datasets/july31/set-01/disto_work
+convert lt -debayer -out=.

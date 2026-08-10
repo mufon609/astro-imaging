@@ -1353,6 +1353,38 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **lensfun's `<center>` element EXISTS and WORKS in 0.3.4 — and installing it
+  on top of coefficients fitted for centre=0 is a LOSS in every direction.**
+  The element is absent from lensfun's shipped DTD/XSD but is parsed
+  (`database.cpp`, context `lens`) and applied (`mod-coord.cpp`
+  `ApplyGeometryDistortion` subtracts the centre before the radial callbacks and
+  adds it back after); the installed `liblensfun.so.0.3.4` carries the `center`
+  string, and darktable honours it — the production warp's output md5 changes.
+  Unit confirmed twice: `modifier.cpp` puts the distortion origin at
+  `Width/2 + CenterX·(size/2)` with `size` = image height, i.e. 2020 px here —
+  the same 2020 px the radius-normalisation probe measured independently
+  (entry above). Axes are darktable's image convention (x right, y DOWN).
+  MEASURED on one frame through the production invocation, residual
+  displacement field against the frame's own linear WCS (sep + astrometry.net;
+  `datasets/aug06/set-01/disto_work/`), centred-radial model at radial degree 8:
+  no centre **2.59 px RMS** (total displacement median 2.3, max 9.3) against
+  (+0.0906,−0.1089) **6.24**, (+0.0906,+0.1089) **7.61**, (−0.0906,−0.1089)
+  **6.52**, (−0.0906,+0.1089) **4.24**. All four worse; the solve degrades too
+  (logodds 221 → 115–220, matched stars 73 → 42–75).
+  MECHANISM, and it is structural, not a sign error: **a,b,c are fitted ABOUT a
+  centre.** Moving the centre under coefficients fitted for centre=0 is a
+  different model, not a refinement of the same one. Arithmetic closes it: a
+  ~285 px centre shift perturbs the correction by ~20 px somewhere on the frame
+  while the residual it would have to remove is 2.6 px RMS, so a centre small
+  enough not to hurt (< ~35 px) is far too small to represent the measured
+  decentring (~180–210 px in x, ~210–240 px in y across three frames, two
+  nights). Do NOT re-attempt the centre as a standalone knob at any sign.
+  The only route that could use it is a JOINT refit of a,b,c about the shifted
+  centre, in the ptlens parameterisation — which is a new fit, not this one.
+  The capability stays in `install_lens_model.sh --center X,Y` (opt-in,
+  `--center 0,0` removes it) because that joint refit is the one thing it is
+  for.
+
 - **Siril `register -disto=` IS NOT PER-IMAGE REPROJECTION — it cancels only
   when every member shares the solution.** Applying each member's OWN SIP as a
   standalone warp and then composing measured WORSE than the shipped route:

@@ -1,0 +1,6 @@
+requires 1.2.0
+set32bits
+setcompress 0
+setext fit
+load /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/disto_work/lt_00001.fit
+savetif32 /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/disto_work/tif/in

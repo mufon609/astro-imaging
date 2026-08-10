@@ -858,3 +858,192 @@ number that is out by ~2×; the second measures the sensor-fixed PSF field that 
 of the four candidate mechanisms depend on. Neither requires a stack.
 
 ---
+
+## H. Where this agrees with the repo, and where it differs
+
+Written after reading `docs/wide-field-untracked-registration.md`,
+`docs/dead-ends.md`, `TOOLS.md`, `BACKLOG.md`, `datasets/aug06/experiments.jsonl`
+and `git log`. Sections A–G above were fixed before any of it was opened.
+
+### H.1 Independently reached the same conclusions
+
+- **The homography is exact for pure camera rotation** — the repo records this
+  VERIFIED from the same Szeliski source, with the same consequence ("the assumed
+  cause … is FALSE as a mechanism, and this matters because it points at the wrong
+  fix"). It goes further than I did: `distort ∘ H ∘ distort⁻¹` is not a homography
+  (Kukelova et al., CVPR 2015), which is the precise statement of what I argued
+  informally in §A.2/§F.1.
+- **The in-exposure floor**, and "success is the EDGE matching the CENTRE, never
+  round stars" — same conclusion, and the repo has it measured three ways
+  (physics, solve, `findstar`) agreeing within 6%.
+- **`-transf=` tops out at homography and nothing above it is needed** — same.
+- **discuss.pixls.us #20991** is already in the repo's source list. The repo also
+  found a source I did not: Sequator's own manual names this symptom, with an
+  author-stated envelope of ~5 min of drift against this project's 25–43.
+- **Reference-frame choice matters** (§A.5) — the repo measured it as worth **6.5×**
+  and its newest ledger makes the per-group reference pick the *dominant* term, at up
+  to 3.12 px of member-to-member disagreement.
+
+### H.2 Where the repo has already run the tests I proposed — two of my calls are dead
+
+**(a) My §G route is measured and killed.** `docs/wide-field-untracked-registration.md`
+records a one-knob A/B on real frames: `-disto=` with astrometry.net SIP gave
+majFWHM **4.74 → 6.02 px** and halved detections; its apparently-better edge was
+survivorship bias (541 vs 1259 stars/Mpx). The mechanism is recorded and it is not
+one I anticipated: **two solves of a fixed tripod 43 min apart disagree by 65.3 px
+median (worst 127.9) at the same sensor positions**, because the SIP tweak is
+constrained by matched *index* stars and the index at this field's scales is
+Tycho-2-sparse. More stars fix the position, not the distortion. Siril's own solver
+cannot solve the field at all. I proposed the route from the standards side without
+the model-source failure mode in view; on this data it is refuted.
+
+**(b) My trail-length-gradient mechanism (§F.2a) is eliminated, by exactly the
+discriminator I proposed.** I predicted the `cos δ` trail gradient runs along the
+declination direction, perpendicular to the drift, and said the field orientation
+settles it. Commit `6a5465d` ran that check: the sensor x axis runs mostly along RA,
+the measured declination span across x is **+42.60° to +40.38°**, which predicts a
+roundness gradient of **0.011** against **0.122–0.165** measured. My §F.2a arithmetic
+assumed the worst case (long axis along the dec gradient) and flagged it as needing
+the orientation check; the check has been run and the answer is no. The same commit
+shows a monotone left-right roundness gradient in the **RAWs** of six of six sets
+across both nights, which also settles §F.3 in the repo's favour: the gradient is in
+the frames before any registration or stacking, so PSF-track averaging is not needed
+to explain it.
+
+**(c) The prompt's two hypotheses are no longer competing.** Commit `2e7dcb6`
+measures both as real and **on opposite sides**: the lens asymmetry on the right
+(single-frame roundness 0.912 at −2048 vs 0.831 at +2048), the stacking/exit-edge
+penalty on the left (~+0.08 px and 0.03 roundness of *extra* penalty). My §F.5
+ranking, which put registration under-constraint last on the grounds that a global
+RANSAC homography has no local DOF to lose, is right about the *size* — the ledger
+sizes it at 0.08 px against a reference-pick term more than an order of magnitude
+larger — and wrong to imply it is not there.
+
+### H.3 What this document adds that the repo does not have
+
+**(1) The direct answer to `BACKLOG:one-sided-band`'s stated blocker.** That item
+says: *"which free headless tool can fit or apply a distortion model WITH decentring
+terms. Designing a fix before that is guessing."* The answer, verified against the
+installed rig (§D.2):
+
+- lensfun **does** have such a model — `acm`, the Adobe Camera Model, whose `k4`,`k5`
+  are Brown's decentring pair.
+- It **does not exist in lensfun 0.3.4**. Zero occurrences of `ACM` in the v0.3.2 and
+  v0.3.4 sources; none in the installed `liblensfun.so.0.3.4` (which does carry
+  `poly3`, `poly5`, `ptlens`); nine in v0.3.95.
+- In master it is implemented **only in the correcting direction** — `Reverse` emits
+  `"acm" distortion model is not yet implemented for reverse correction` and applies
+  nothing. Correcting is the direction darktable needs, so this is not a blocker.
+- Coordinates are "measured in units of the focal length of the lens", unlike every
+  other lensfun model — a normalisation trap for any hand-authored entry.
+
+So `H_fixed_residual`'s premise — "lensfun's `ptlens` … cannot correct a left-right
+asymmetry by construction" — is true of the model *and of this version of the
+library*, and the path out is specific: **lensfun ≥ 0.3.95 plus an `acm` DB entry
+carrying k1..k5.** That is a version boundary and a file edit, not an open research
+question. It is also, per the standing rule that adaptations carry removal
+conditions, a candidate removal condition for the whole radial-model adaptation.
+
+**(2) The repo already measures a decentring proxy and then discards it.**
+`scripts/darktable/fit_lens_model.sh` runs a third `autooptimiser` stage on
+`d0,e0` and the header records that d,e "is fitted LAST and only REPORTED".
+Hugin's `d,e` is the distortion-centre shift — the first-order equivalent of
+decentring, and the reason it can only be *reported* is structural: lensfun's
+`poly3`/`ptlens` XML has no distortion-centre parameter to carry it into. `acm`'s
+k4/k5 is the only slot lensfun offers. **The magnitude of the term is therefore
+already sitting in `qa_work/lens_fit.json` for every set**, unused, and is a free
+prior on how large the asymmetry is before any new fitting is commissioned.
+
+**(3) The killed SIP route was killed in the architecture the standards avoid.**
+What failed was a **per-frame, high-order** distortion fit from a sparse index.
+Both SCAMP and Pan-STARRS deliberately do the opposite (§C.2): a **high-order term
+shared across a stability context**, plus a **low-order per-exposure term**. Bertin's
+words for it: the high-order pattern "is stable within a given observing run, while
+the linear part varies globally over the field of view from exposure to exposure",
+adopted because it "allows much more robust solutions to be computed, especially when
+crowded or empty images are involved" — i.e. exactly the sparse-constraint failure the
+repo measured. astrometry.net's `--tweak-order` per-frame tweak is the architecture
+the surveys rejected. Siril supports the shared form directly:
+`-disto=file <one solved frame>` applies one static model to every frame. **The ledger
+records the per-frame variant as killed; the shared variant does not appear to have
+been tried**, and it is both the standards-conformant one and the one whose failure
+mode (index sparsity per frame) does not apply.
+
+**(4) SCAMP's astrometric contexts are the shipped version of the "state-CHANGE
+detector" the repo just designed.** `compose_disagreement_has_two_sources` measures an
+optical-state change *within* one 25-minute set (groups 1–3 agree to 0.21–0.34 px,
+groups 4–5 sit 2.95–4.91 px away, residual radial about each member's own axis) and
+concludes it "makes the case for a state-CHANGE DETECTOR". SCAMP's `STABILITY_TYPE`
+plus its splitting of exposures into contexts "where the instrument focal plane is in
+a fixed and (mostly) stable position" is that design, validated on survey data. The
+architecture is importable even though the tool is not in the chain.
+
+**(5) The compose's measured failure is the problem SCAMP+SWarp exists to solve.**
+The ledger's finding that "one homography per member against a distant reference is a
+region-weighted compromise, and members compromised over different regions disagree
+with each other" (2.5–4.7× worse inside the 28-member sequence) is the structural
+weakness of pairwise-to-one-reference fitting. The survey answer is a **global,
+simultaneous** astrometric solution over all exposures followed by resampling through
+each frame's own WCS. The repo names this direction already; §C.2 gives it the
+primary citations.
+
+**(6) PSF homogenisation before coaddition is absent from the repo entirely.**
+DES and Pan-STARRS both convolve inputs to a common target PSF before stacking,
+because objects land at different focal-plane positions in different exposures and
+naive coaddition "results in discontinuities in the PSF variation as a function of
+position within the coadd" (§C.4). That is the professional treatment of precisely
+the exit-edge stacking penalty the repo measured at +0.08 px. No amateur tool in
+`TOOLS.md` implements it; it is worth knowing it is the standard, and that the
+standard exists because the effect is real.
+
+**(7) Smaller items:** PixInsight's distortion-model **CSV format** (`ThinPlate,2`
+then `x,y,dx,dy` nodes — an arbitrary vector field with no symmetry assumption) is the
+natural representation for a measured asymmetric residual, and its documented
+approximating-vs-interpolating spline lesson is a live caution for any fitted model
+(§B). **OpenCV** carries an explicit **tilted-sensor** model (τx, τy) and thin-prism
+terms beyond p1/p2 (§D.2) — relevant because the repo's own reading of the gradient is
+"a decentring/tilt signature" and `seqtilt` already reports a sensor-tilt number.
+**ASTAP** states the tracked-case assumption this data violates, in its own docs, and
+is the cleanest citable framing of why this class is special (§D.2). And §E is a
+**clean negative**: no forum report anywhere describes one-sided asymmetry in an
+untracked stack, so the repo is not missing a known remedy.
+
+### H.4 One arithmetic disagreement with a number the repo is reasoning from
+
+`BACKLOG.md` and `exit_edge_registration_vs_fixed_lens_residual` both state
+**−3.87 px/frame** in x from Siril's homographies. §F.4 shows this exceeds physics:
+at 17.06 ″/px and a 2.994 s cadence, the sidereal ceiling is **2.64 px/frame at δ=0**
+and the prediction at this target is **1.98 px/frame**.
+
+The repo's own records contain the cross-check. `within_set_compose_is_the_visible_smear`
+notes that the five 100-frame groups are one 1497 s burst through which "the sky sweeps
+6.25 deg of RA". 6.25° of **RA** is 6.25° × cos δ of arc: at δ ≈ +41.5° that is 4.68°
+= 16 850 ″ = **988 px over 500 frames = 1.98 px/frame**. The two records disagree by a
+factor of **1.97**, and it is the homography-derived one that is physically impossible.
+
+Likely candidates: a displacement differenced over a two-frame or block baseline and
+divided by the wrong count; or a canvas-space rather than sensor-space figure. It
+matters because the drift span sets how wide the transient strip at the exit edge is —
+halving it halves the premise of hypothesis 2 and shortens every track in the
+PSF-averaging picture. Worth ten minutes with the `.seq` registration data before the
+discriminator in `BACKLOG:one-sided-band` is run, since that discriminator is defined
+in units of drift span.
+
+### H.5 What I would do differently, given the repo's measurements
+
+The §G recommendation is withdrawn as written. What replaces it, in order:
+
+1. **Re-derive the drift rate** (§H.4). Ten minutes; it is an input to everything else.
+2. **Read `d,e` out of the existing `lens_fit.json` records** (§H.3.2). Free; it sizes
+   the asymmetric term from data already on disk, before any new fit is commissioned.
+3. **Run the `lensdist` vs `nodist` arm** already named in `BACKLOG:one-sided-band` —
+   it separates the model from everything else in one knob, and the raw-frame gradient
+   measured in `6a5465d` means the answer is now predictable enough to be a real test
+   rather than a fishing trip.
+4. **Then, and only if 2–3 say the asymmetric term is worth chasing:** lensfun ≥0.3.95
+   with a hand-authored `acm` entry (§H.3.1), which is the first route on this rig that
+   can represent the term at all. Its removal condition writes itself: it is removed if
+   an official DB entry, or a Siril-native shared distortion model, ever carries the
+   asymmetry.
+5. **The shared-model `-disto=file` variant** (§H.3.3) remains untried and is cheap
+   next to a per-frame solve of 500 frames.

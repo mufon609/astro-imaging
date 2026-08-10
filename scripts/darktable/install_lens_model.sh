@@ -6,6 +6,8 @@
 #   install_lens_model.sh --lens "<model>" --focal <mm>   same, named explicitly
 #   install_lens_model.sh <session-dir> <set> --from-fit  install that set's FRESH fit
 #   install_lens_model.sh --lens M --focal F a b c        explicit coefficients
+#   … --center X,Y     ALSO write lensfun's <center> (a DECENTRING knob, opt-in,
+#                      per-LENS not per-focal; --center 0,0 removes it)
 #
 # THE AUTHORITY IS `scripts/darktable/lens_models.json`, not a dataset. A fitted
 # model is a property of the LENS AND FOCAL, and it is a measured CONSTANT: you
@@ -78,13 +80,14 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 DBDIR="$HOME/.local/share/lensfun/updates/version_1"
 
-LENS= FOCAL= SESSION= SET= FROMFIT=0 REPLACE=0 ABC=()
+LENS= FOCAL= SESSION= SET= FROMFIT=0 REPLACE=0 CENTER= ABC=()
 if [ "${1:-}" = "--lens" ] || [ "${1:-}" = "--focal" ]; then
   while [ $# -gt 0 ]; do case "$1" in
     --lens) LENS=$2; shift 2;;
     --focal) FOCAL=$2; shift 2;;
     --from-fit) FROMFIT=1; shift;;
     --replace) REPLACE=1; shift;;
+    --center) CENTER=$2; shift 2;;
     *) ABC+=("$1"); shift;;
   esac; done
 else
@@ -94,6 +97,7 @@ else
   while [ $# -gt 0 ]; do case "$1" in
     --from-fit) FROMFIT=1; shift;;
     --replace) REPLACE=1; shift;;
+    --center) CENTER=$2; shift 2;;
     *) ABC+=("$1"); shift;;
   esac; done
 fi
@@ -101,7 +105,7 @@ fi
   echo "install_lens_model: pass all three of a b c, or none (then the fit record supplies them)" >&2; exit 1; }
 [ -d "$DBDIR" ] || { echo "install_lens_model: $DBDIR missing — run lensfun-update-data first" >&2; exit 1; }
 
-python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "$REPLACE" "${ABC[@]}" <<'PY'
+python3 - "$REPO" "$DBDIR" "${SESSION:-}" "${SET:-}" "$LENS" "$FOCAL" "$FROMFIT" "$REPLACE" "$CENTER" "${ABC[@]}" <<'PY'
 import glob, json, os, re, sys
 from datetime import date
 
@@ -122,9 +126,16 @@ def live(s):
     optics. lensfun ignores comments; the guards must too."""
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), s, flags=re.S)
 
-repo, dbdir, session, sset, lens, focal, fromfit, replace = sys.argv[1:9]
-abc = sys.argv[9:]
+repo, dbdir, session, sset, lens, focal, fromfit, replace, center = sys.argv[1:10]
+abc = sys.argv[10:]
 fromfit, replace = fromfit == "1", replace == "1"
+if center:
+    try:
+        cx, cy = (float(v) for v in center.split(","))
+    except ValueError:
+        sys.exit("install_lens_model: --center takes X,Y in lensfun's normalised "
+                 "units (see the <center> note in the header).")
+    center = (cx, cy)
 PINNED = os.path.join(repo, "scripts", "darktable", "lens_models.json")
 
 # ---- identity + coefficients from the SET'S OWN RECORDS ------------------
@@ -222,7 +233,7 @@ new_line = (f'<distortion model="ptlens" focal="{focal_s}" '
 prior = re.search(rf"<!--\s*{MARK}\s*focal={focal_s}\s+(.*?)-->", block, re.S)
 # `prior` reads the MARKER, so it scans the raw block; every test below asks
 # what lensfun will actually apply, so it scans live(block) — see live().
-if new_line in live(block) and prior:
+if new_line in live(block) and prior and not center:
     print(f"install_lens_model: already installed for {db_model} @ {focal_s}mm "
           f"({os.path.basename(path)})")
     sys.exit(0)
@@ -261,13 +272,50 @@ else:                                   # a focal the DB never carried
                               "<calibration>\n            " + new_line, 1)
     what = f"added (no focal={focal_s} line upstream)"
 
+# ---- optional DISTORTION CENTRE ------------------------------------------
+# lensfun's <center x= y=/> is a child of <lens> (database.cpp requires the
+# "lens" context), so it is PER-LENS, not per-focal: one centre applies to
+# every focal in the block. UNITS, from modifier.cpp: the distortion origin is
+# Width/2 + CenterX*(size/2) with size = the image HEIGHT, so one unit is half
+# the image height (2020 px on this 6064x4040 body), axes in darktable's image
+# convention (x right, y DOWN).
+# It is absent from lensfun's shipped DTD/XSD but IS parsed (database.cpp) and
+# applied (mod-coord.cpp ApplyGeometryDistortion, which subtracts the centre
+# before the radial callbacks and adds it back after) in 0.3.4 — verified in
+# the installed liblensfun.so.0.3.4, which carries the "center" string.
+# WHY OPT-IN: a,b,c are fitted ABOUT a centre. Moving the centre under
+# coefficients fitted for centre=0 is a DIFFERENT model, not a refinement of
+# the same one, so it is a separately bracketed knob and only a measurement on
+# a real product says whether it is better.
+center_note = ""
+if center:
+    cel = f'<center x="{center[0]:g}" y="{center[1]:g}"/>'
+    live_c = re.search(r"<center\b[^>]*/>", live(new_block))
+    if center == (0.0, 0.0):
+        if live_c:
+            new_block = new_block[:live_c.start()] + new_block[live_c.end():]
+            center_note = "; centre element REMOVED"
+    elif live_c and live_c.group(0) == cel:
+        center_note = f"; centre {cel} (unchanged)"
+    elif live_c:
+        if not replace:
+            sys.exit(f"install_lens_model: {lens} already carries a DIFFERENT "
+                     f"{live_c.group(0)} — pass --replace to swap it, or "
+                     "--center 0,0 to remove it.")
+        new_block = new_block[:live_c.start()] + cel + new_block[live_c.end():]
+        center_note = f"; centre {cel}"
+    else:
+        new_block = new_block.replace(
+            "<calibration>", "    " + cel + "\n        <calibration>", 1)
+        center_note = f"; centre {cel}"
+
 # distortion-only enforcement: strip this lens's vignetting/tca
 n_strip = len(re.findall(r"<(?:vignetting|tca)\b", new_block))
 new_block = re.sub(r"\s*<(?:vignetting|tca)\b[^>]*/>", "", new_block)
 if "<distortion" not in live(new_block):
     sys.exit("install_lens_model: the edit would leave no distortion model — refusing.")
 
-marker = (f'<!-- {MARK} focal={focal_s} {what}; '
+marker = (f'<!-- {MARK} focal={focal_s} {what}{center_note}; '
           f'{"from " + os.path.basename(os.path.abspath(session)) + "/" + sset + "; " if session else ""}'
           f'vignetting+tca stripped ({n_strip}); {date.today().isoformat()} -->')
 if prior:            # swapping this focal: replace its marker, do not stack another
@@ -279,6 +327,9 @@ open(path, "w", encoding="utf-8").write(xml.replace(block, new_block))
 print(f"install_lens_model: {db_model} @ {focal_s}mm — {what}")
 print(f"  source: {source}")
 print(f"  a={a} b={b} c={c}")
+if center_note:
+    print(f" {center_note.lstrip(';')} — PER-LENS (all focals), units = half the "
+          "image height")
 print(f"  stripped {n_strip} vignetting/tca entries — distortion-only holds")
 print(f"  {path}")
 PY
