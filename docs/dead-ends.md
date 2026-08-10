@@ -731,15 +731,35 @@ the constraints any such tool must satisfy):
   mechanism. Reading it as "the optical axis moved" was an error made and
   retracted here; only the separation-normalised ratio discriminates, and it says
   the optics changed without saying what kind of change it was.
-  **The leading SOFTWARE alternative is not yet excluded**: a member's effective
-  geometry is that of its own group's AUTO-PICKED registration reference frame,
-  and the lens residual is fixed in SENSOR coordinates, so where that reference
-  landed inside its 100-frame block changes what the stack averages. Nothing on
-  record says where any group's reference landed. Settling test: rebuild the
-  members with the reference pinned to the same relative position in every group
-  (or register all 500 frames in one pass and stack five blocks from it) and
-  re-measure — 3|4 falling to the 0.2 px family is software, surviving is
-  physical.
+  **RESOLVED — it is BOTH, and they are separable. MEASURED, one knob, 250 frames
+  warped once and shared by every arm.**
+  *(i) The per-group AUTO-PICKED registration reference is worth 6.5x on its own.*
+  The picks wander badly — read straight out of the `.seq` at frames
+  **6, 26, 15, 3, 26 of 50** — and the break always lands on whichever member's
+  reference sits LATEST. Five independent per-block registrations give a worst
+  pair of **3.12 px**; ONE global reference over the same frames gives **0.48 px**.
+  The split position moves with the picks (3|4 in the shipped 100-frame build,
+  4|5 here), which is the tell.
+  *(ii) But one reference only MOVES the error, it does not remove it* — from
+  between-member DOUBLING into within-member BLUR, 0.25-0.27 px against 3.12 px.
+  *(iii) The underlying change is PHYSICAL, TIME-PROGRESSIVE and ONE-SIDED.*
+  A first single-reference arm is USELESS for this question if the reference
+  auto-lands at an end (it did: frame 6 of 250), because then "late" and "far
+  from the reference" are the same thing. Pinning it to the MIDDLE (frame 125)
+  separates them: at MATCHED drift distance the late block beats its early twin
+  by **+0.25 px / -0.064 roundness** (99f vs 101f) and **+0.27 px / -0.104**
+  (49f vs 51f) — on the LEFT field only, while the right field is flat across all
+  five blocks (2.49-2.59 px, roundness 0.850-0.874). The ordering is TIME, not
+  distance: block 3 sits ONE frame from the reference and reads 2.67 px on the
+  left where block 1, 99 frames away, reads 2.54.
+  **Mechanism undetermined; two candidates, one discriminator.** Differential
+  atmospheric REFRACTION is horizon-fixed and therefore sensor-fixed on a fixed
+  tripod, progressive as altitude changes, and non-homographic by construction —
+  the same open question as BACKLOG:`one-sided-band`. Mechanical SAG of an
+  extended zoom barrel is also progressive and one-sided. Refraction scales with
+  zenith distance and reverses sense between a rising and a setting field; sag
+  does not. The test needs the observing SITE (this corpus's EXIF carries no GPS)
+  or the same middle-pinned build on sets shot at different altitudes.
   **What that does and does not license.** It does NOT revive per-set models — a
   per-set model would be wrong for part of its own set. It establishes that the
   OPTICAL-STATE tier can be finer than the SET tier and that a state boundary is

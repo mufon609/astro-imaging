@@ -82,13 +82,17 @@ band x = 45–70%. That is the smear the owner named.
 
 Ordered work — nothing here is executed on an accepted product:
 
-1. **Attribute the disagreement between its two measured sources.** The compose's
-   global registration is one: same-set members read 2.5-4.7x worse inside the
-   28-member sequence than composed among themselves (july31/set-01 max 1.12 -> 3.02,
-   aug06/set-03 0.95 -> 3.38). The optical state is the other: aug06/set-01's groups
-   4 and 5 sit 2.95-4.91 px from groups 1-3, which agree to 0.34. Until the split is
-   known, no fix can be sized. Cheapest cut: compose each set alone, then measure the
-   same members inside progressively larger sequences.
+1. **PIN THE REGISTRATION REFERENCE — measured 6.5x, free, and unrelated to the
+   cause.** The groups route runs one `register -2pass` per group and Siril's
+   auto-pick wanders (measured at frames 6, 26, 15, 3, 26 of 50); the member that
+   breaks away is always the one whose reference sits latest. One knob on identical
+   frames: per-group references give a worst pair of **3.12 px**, a single global
+   reference **0.48 px**. It converts between-member doubling into within-member
+   blur (0.25-0.27 px), which is the far cheaper error. Costs field of view at
+   `-framing=min` (4906x3603 against 5832x3961 here), so trial `-framing=max` too.
+   Also still open: the compose's own global registration inflates same-set
+   disagreement 2.5-4.7x with sequence size (july31/set-01 1.12 -> 3.02 px inside
+   28 members, aug06/set-03 0.95 -> 3.38).
 2. **Trial SWarp** (packaged 2.41.5-3, not installed) — resample each member onto one
    output WCS by its own solution. MEASURED support, not argument: the members' own
    astrometric solutions place the same stars within **0.10 px median / 0.26 px p90**
@@ -110,6 +114,43 @@ field radius does not predict it (ρ spread 0.21 vs 0.22 in both). Item 1 is the
 instrument that answers it. **Closes when** a compose measures its members' realised
 disagreement by member-own field radius and a route ships that holds
 x = 15–30% at the clean band's roundness on the owner's eyes.
+
+## `intake-culling` — one measured intake pass, one visible formula
+
+USER-DIRECTED. More photons are always obtainable; a bad frame stacked is permanent.
+Every recurring defect has a signature that is measurable per frame at intake, and
+they should be measured ONCE, scored by a formula whose constants are visible and
+adjustable, and reported per frame with its reason.
+
+| signature | what measures it | status |
+|---|---|---|
+| aircraft / satellite / bug | streak geometry | BUILT — `anomaly_audit.py` |
+| shake / wind gust | per-frame FWHM + roundness spike; elongation angle off the trail axis | metrics exist, the ANGLE is unused, no test |
+| cloud | background level and its rate of change — star COUNT is measured blind on rich fields (detection saturates at the cap) | per-frame background is NOT recorded |
+| light pollution / moon | background gradient magnitude + bearing (the odd-plane term tracks the moon's bearing to 23 deg) | measured once ad hoc, no script |
+| file inconsistency | per-frame mean/median step, EXIF constancy, truncation | not built |
+| optical-state change mid-set | geometry residual step (BACKLOG:`compose-homography-smear`) | member-level only; no per-frame form |
+
+Design constraints, each from a measured failure here:
+
+- **Measure once.** One per-frame table, every column a tool's number, written at
+  intake and never re-derived — so a different cull replays without re-measuring.
+- **One visible constants file**, per-dataset override in `recipe.json`. The
+  aggressive-vs-conservative dial is the user's; the pipeline applies what is set
+  and records it.
+- **Every signature ships with a POSITIVE CONTROL** — data on which it MUST fire.
+  Three checks have shipped green while broken (`docs/dead-ends.md`); a signature
+  that cannot be made to fail on demand is decoration.
+- **A cull is not the answer to every defect.** A mid-set optical-state change is
+  not a bad-frame problem: the set wants SPLITTING at the boundary, not thinning.
+  The report proposes the action, not just the exclusion.
+- Reuse rather than rebuild: `run_frame_qa.sh` / `frame_metrics.json`,
+  `anomaly_audit.py`, `cull_report.py`, `inspect_stage.py`, `cullspec.py` (which
+  already aborts loudly on an exclude matching zero frames).
+
+**Closes when** one intake pass writes every signature for a set, a tracked formula
+turns them into a proposed action per frame with its reason, and each signature has
+a control that demonstrates it firing.
 
 ## `render-ladder` — the render tier's remaining tiers, user-gated
 
