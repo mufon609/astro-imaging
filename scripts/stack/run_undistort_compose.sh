@@ -20,7 +20,7 @@
 # noticed: three aug06 sets were warped under three different models and composed
 # into a union whose corner stars are visibly doubled.
 #
-# MEASURED (docs/dead-ends.md; COMPOSE_SMEAR_INVESTIGATION_report.md) — the px
+# MEASURED (docs/dead-ends.md; docs/combine-contract.md) — the px
 # separation of the SAME star as two registered members place it, at the composed
 # canvas corner:
 #   same set, same model, same state ............ 0.14 / 0.19 px   (the floor)
@@ -325,7 +325,7 @@ PY
     echo "  MEASURED at 2.11-2.99 px and FAILED by eye (docs/dead-ends.md)." >&2
     echo "  The per-member optics are printed above and recorded in $GATEJSON." >&2
     echo "  Fix the CAUSE (members warped by models that disagree at large field" >&2
-    echo "  radius — see COMPOSE_SMEAR_FIX_PLAN.md), or accept it explicitly with" >&2
+    echo "  radius — see docs/dead-ends.md), or accept it explicitly with" >&2
     echo "  --accept-separation=<px>, which records the number it overrode." >&2
     exit 6
   fi

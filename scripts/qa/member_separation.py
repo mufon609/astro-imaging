@@ -38,7 +38,7 @@ member-to-member POST-REGISTRATION positional residuals across a sequence
 Registered in BACKLOG.md `removal-conditions`.
 
 THRESHOLDS — each traced to a product the owner judged, never to a round number
-picked for looking reasonable (COMPOSE_SMEAR_FIX_PLAN.md 4.2):
+picked for looking reasonable (docs/combine-contract.md 5):
 
   PASS  <= 0.35 px  the july31 cross-set pair, from the union the owner PASSED.
                     PROVISIONAL: n=1 exemplar — re-anchor as corner-true fits

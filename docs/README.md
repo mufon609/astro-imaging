@@ -97,3 +97,27 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   the operating doc holding it; the open phases key to BACKLOG slugs
   (`native-solve-and-sip`, `render-ladder`) plus the audit-layer candidate
   detectors (Phase 5, none validated).
+
+## Retired root reports — recover by commit, not by path
+
+The combine-corner / compose-smear arc produced five root-level reports. Their
+durable findings have all graduated into the operating docs — `docs/dead-ends.md`
+(the mechanisms and the blind instruments), `docs/combine-contract.md` (the
+contract, the gate thresholds, the history), `docs/consistency-tiers.md` (the
+scope model and the standards comparison), `TOOLS.md` (the hugin, darktable and
+embedded-model rows) and BACKLOG `optical-state-models` — so the reports were
+retired rather than left to contradict them.
+
+Recover any of them at the commit before their removal:
+
+    git show f64603d:COMPOSE_SMEAR_INVESTIGATION_report.md
+    git show f64603d:COMPOSE_SMEAR_FIX_PLAN.md
+    git show f64603d:COMBINE_CORNERS_AUDIT_report.md
+    git show f64603d:COMBINE_HISTORY_AND_STANDARDS.md
+    git show f64603d:EMBEDDED_LENS_MODEL_RESEARCH_report.md
+
+`datasets/aug06/experiments.jsonl` cites them by name in entries written while
+they existed; those citations resolve the same way. Citing a COMMIT rather than a
+working-tree path is the standing convention here — a bare path in a long-lived
+record goes dangling the first time a session is reset.
+

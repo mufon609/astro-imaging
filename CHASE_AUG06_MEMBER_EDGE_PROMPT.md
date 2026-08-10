@@ -94,7 +94,9 @@ px outer-field, july31 12.8–20.9 px**.
   **introduced between single frame and member**, i.e. inside the within-group
   registration/stack, and only for aug06.
 - **Not framing, background level, member content, or re-aim geometry** — all
-  eliminated during the earlier arc (`COMPOSE_SMEAR_INVESTIGATION_report.md` §1).
+  eliminated by measurement during the earlier arc; the mechanisms and their
+  numbers are in `docs/dead-ends.md`, and the retired report that first recorded
+  them is recoverable per `docs/README.md`.
 
 ### 3.3 The sibling observation — probably the same mechanism
 

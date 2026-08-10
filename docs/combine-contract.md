@@ -219,7 +219,28 @@ corner-true fit existed when it was written (every fit ever shipped here stops a
 two nights to corner support, compose one member from each, read §5's measure:
 ≤ 0.5 px confirms the route, ≥ 2.0 px refutes it.
 
-## 7. The failure shape this contract exists to prevent
+## 7. The history this contract is built on
+
+Recovered from git, not from the current tree:
+
+- **Cross-night combining had been attempted exactly ONCE before this contract,
+  and it failed.** Every path that has ever existed in this repo yields one
+  cross-session product and its revoked recrop (`j31-3+a06-3_cov28`, built
+  2026-08-08). Everything else — july14's 2/3/5-set, july23's 2-set, july31's
+  4-set — is WITHIN one night. Multi-session accumulation was ratified as
+  doctrine ~10 hours BEFORE that first attempt: an intent, never a report of an
+  exercised capability.
+- **Every combine ever accepted used ONE distortion model.** july14 under the
+  july14 fit; july31 under it inherited (the union the owner passed); aug06 under
+  three per-set fits, failing. The one constant of every passing combine is model
+  homogeneity — and the tools agree: Siril's `register -disto=` applies one
+  solution per sequence, so its own design assumes one optical state per compose.
+- **The combine's value was flagged UNCONFIRMED in the very commit that created
+  the compose tool** (rotation-limited field, depth not materialising,
+  washed-out renders). The first cross-night combine the owner accepted is the
+  six-set one-model union built under this contract.
+
+## 8. The failure shape this contract exists to prevent
 
 Twice, a change that was right for the per-set product silently broke the
 combine:

@@ -229,7 +229,7 @@ session-end temperature.
   exposure onto a COMMON output WCS using its own full solution (CD matrix AND
   distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage. Nothing
   installed does it; SWarp is packaged for this distro at 2.41.5-3, python
-  `reproject` is absent. See `COMBINE_HISTORY_AND_STANDARDS.md` R3.
+  `reproject` is absent. See `docs/consistency-tiers.md` 4.2.
 
 ## `one-sided-band` — two mechanisms left on the residual drift-axis term
 
