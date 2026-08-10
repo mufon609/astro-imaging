@@ -233,12 +233,18 @@ alternatives:
 |---|---|
 | pointing spread? | members 1–3 are **2.16° apart at 0.34 px**; members 3–4 are **1.38° apart at 3.14 px** — smaller separation, 9× the disagreement |
 | registration reference? | 1\|4 reads **2.95 / 2.98 / 3.02 px** with the reference at member 1, 3, 5; every pair moves <2% |
-| what kind of residual? | **radial** about each member's own axis (median radial/tangential 0.39/0.24 for 3\|4, 0.32/0.17 for 4\|5) against **tangential** for the healthy pairs (0.03/0.06 for 1\|2) |
+| one shared optical state? | normalised by axis separation — the ratio one state makes constant — groups 1,2,3 read **0.21–0.32 px/deg** and 3\|4, 4\|5 read **3.07 and 3.58 px/deg**; 4\|5 does it at the *smallest* adjacent separation of the five (0.55°) |
 
-A homography absorbs translation, rotation and scale exactly, so a radial residual
-growing with own field radius is a change in the **radial distortion** — the optical
-state — not a mis-fit. All five groups are exactly 100 consecutive frames of one
-1497 s burst, so the boundary is a time boundary.
+All five groups are exactly 100 consecutive frames of one 1497 s burst at a 3.00 s
+interval with no gap anywhere, and exposure, ISO, aperture and focal length are
+identical across all 500 — so the boundary is a time boundary inside an
+uninterrupted run, not a stop/start or an operator action.
+
+**A retraction worth keeping:** the residual's cos(θ) dipole was first read as
+evidence of a lateral axis shift. It is not. Two members sit at different pointings,
+so differencing one radial field about two displaced centres produces a dipole by
+construction. Only the separation-normalised ratio above discriminates, and it says
+the optics changed — not what kind of change it was.
 
 This does **not** revive per-set models: a per-set model would be wrong for part of
 its own set. It establishes that the optical-state tier can be finer than the set

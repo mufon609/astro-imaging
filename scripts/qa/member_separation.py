@@ -3,8 +3,7 @@
 
 Usage:
   member_separation.py <seq-dir> [--prefix=s_] [--json=OUT] [--label=NAME]
-                       [--tol=12] [--min-n=100] [--pass=0.35] [--block=1.00]
-                       [--selftest]
+                       [--tol=12] [--min-n=100] [--selftest]
 
 This is the ACCEPTANCE MEASURE for any multi-member compose, and it exists
 because the two instruments that were used before it are MEASURED BLIND to the
@@ -66,26 +65,32 @@ member-to-member POST-REGISTRATION positional residuals across a sequence
 (a scriptable Siril registration-residual map, or a PixInsight equivalent).
 Registered in BACKLOG.md `removal-conditions`.
 
-THRESHOLDS — each traced to a product the owner judged, never to a round number
-picked for looking reasonable (docs/combine-contract.md 5):
+NO THRESHOLDS, NO VERDICT — this MEASURES, it does not gate (user-ratified).
+It carried PASS/WARN/BLOCK bands anchored to six products the owner had judged.
+They were removed for three measured reasons, not for convenience:
 
-  PASS  <= 0.35 px  the july31 cross-set pair, from the union the owner PASSED.
-  WARN  <= 1.00 px  0.93 px is aug06 under one shared model: round at 1:1 when
-                    looked at, but 2.7x the passed level and never accepted, so
-                    the build proceeds and the surface must get eyes at 1:1.
-  BLOCK  > 1.00 px  2.11 px and 2.99 px are the two products the owner FAILED,
-                    both visibly doubled at 1:1.
+1. **The quantity is a sum of two terms and the compose creates one of them.**
+   Two internally healthy sets read 1.12 px (july31/set-01) and 0.95 px
+   (aug06/set-03) composed among themselves, and 3.02 and 3.38 px when the same
+   members are registered inside a 41-degree 28-member sequence — 2.5-4.7x, from
+   nothing but the size of the sequence. A band cannot separate that from a real
+   optical disagreement.
+2. **The bands were anchored on a broken instrument.** The six cells were
+   measured before the frame bug above was found; re-measured they read
+   0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 against 0.144 / 0.194 / 0.352 /
+   0.934 / 2.991 / 2.112, which moves the user-PASSED pair out of PASS.
+3. **A band would have fired on every real compose**, so it would have been
+   overridden every time — and a check that ALWAYS fires trains the operator to
+   bypass it, the same disease as a check that cannot fail (docs/dead-ends.md).
 
-**Those six anchors were measured with the pre-fix instrument. Re-measured on this
-one they read 0.14 / 0.21 / 0.38 / 1.23 / 3.04 / 3.28 — the ordering holds, the
-floors barely move, but the user-PASSED pair crosses PASS->WARN and the
-never-accepted cell WARN->BLOCK. THE BANDS ARE FROZEN AT THE VALUES ABOVE AND MUST
-NOT BE TUNED YET**: the disagreement they gate is not attributed between the
-compose's own global registration and the members' optical state
-(BACKLOG:`compose-homography-smear`), and a threshold set before the quantity is
-understood bakes the confusion in. The six cells are preserved (`smear_arm/A{1..6}`)
-and the re-measured values are in `datasets/aug06/experiments.jsonl`,
-`compose_gate_rezoned_by_member_field_radius`.
+What actually discriminates is RELATIVE, and it needs no ratified constant:
+every set measured here shows a tight cluster of members plus one or two that
+break away at an end of the burst, and the break-away sits at 2.5-3x the
+cluster's own scatter in five sets and at ~15x in the sixth (aug06/set-01, 4.91
+px against siblings agreeing to 0.21-0.34). That is the shape a future detector
+should key on. It is deliberately NOT implemented yet: the physical cause of the
+break-away is still open (BACKLOG:`compose-homography-smear`), and a detector
+designed before the mechanism is understood is how the last one went wrong.
 
 A zone with fewer than --min-n matched stars reports n/a and is NOT passed;
 silence is not evidence of agreement.
@@ -239,8 +244,6 @@ def main():
     ap.add_argument("--label", default="")
     ap.add_argument("--tol", type=float, default=12.0)
     ap.add_argument("--min-n", type=int, default=100)
-    ap.add_argument("--pass", dest="pass_px", type=float, default=0.35)
-    ap.add_argument("--block", type=float, default=1.00)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("-h", "--help", action="store_true")
     a = ap.parse_args()
@@ -318,23 +321,6 @@ def main():
 
     # every zone of every pair must be measurable or it is not evidence
     unmeasured = [f"{p['a']}|{p['b']}" for p in pairs if p["max_px"] is None]
-    if worst is None:
-        verdict, why = "UNMEASURED", ("no pair produced a zone with >= "
-                                      f"{a.min_n} matched stars")
-    # Decide at the precision the numbers are REPORTED and cited at (2 dp). The
-    # PASS anchor is itself a measured product — the july31 cross-set pair — and a
-    # raw float comparison against the 0.35 px it is quoted as would put the
-    # anchor outside its own threshold.
-    elif round(worst["max_px"], 2) <= a.pass_px:
-        verdict, why = "PASS", f"worst zone {worst['max_px']:.2f} px <= {a.pass_px} px"
-    elif round(worst["max_px"], 2) <= a.block:
-        verdict, why = "WARN", (f"worst zone {worst['max_px']:.2f} px is above the "
-                                f"{a.pass_px} px passed level — build may proceed, "
-                                "the surface needs eyes at 1:1 before it ships")
-    else:
-        verdict, why = "BLOCK", (f"worst zone {worst['max_px']:.2f} px exceeds "
-                                 f"{a.block} px — this composes a visibly doubled "
-                                 "product (2.11/2.99 px were user-FAILED)")
 
     rec = {"label": a.label or os.path.basename(os.path.dirname(a.seqdir)),
            "instrument": "Siril register -2pass (its own per-member homographies, "
@@ -348,13 +334,14 @@ def main():
            "zone_basis": "max(rho_a, rho_b), each star's radius in its OWN member "
                          "normalised by that member's half-diagonal",
            "tol_px": a.tol, "min_n": a.min_n,
-           "thresholds_px": {"pass": a.pass_px, "block": a.block,
-                             "anchors": "re-measured on THIS instrument — ledger "
-                                        "compose_gate_rezoned_by_member_field_radius"},
+           "reports_only": "MEASUREMENT, not a gate — no threshold, no verdict. "
+                           "The quantity mixes a real member disagreement with one "
+                           "the compose's own global registration creates (measured "
+                           "2.5-4.7x from sequence size alone), so a band on it "
+                           "would not mean what it appears to mean.",
            "optics": {t: optics(f) for t, f in zip(tags, files)},
            "pairs": pairs, "worst": worst,
-           "unmeasured_pairs": unmeasured,
-           "verdict": verdict, "why": why}
+           "unmeasured_pairs": unmeasured}
 
     print(f"member separation ({len(files)} members, reference {tags[ref]}, "
           "binned by MEMBER-OWN field radius):")
@@ -367,7 +354,12 @@ def main():
         print(f"  {p['a']}|{p['b']:<12}" + cells + mx)
     if len(pairs) > 40:
         print(f"  … {len(pairs) - 40} further pairs in the record")
-    print(f"  VERDICT: {verdict} — {why}")
+    if worst is not None:
+        print(f"  worst zone {worst['max_px']:.2f} px  ({worst['a']}|{worst['b']}) "
+              "— MEASURED, not gated: no threshold is applied here")
+    else:
+        print("  UNMEASURED — no pair produced a zone with "
+              f">= {a.min_n} matched stars")
     if unmeasured:
         print(f"  {len(unmeasured)} pair(s) had no zone with >= {a.min_n} matches "
               "(reported n/a, never passed)")
@@ -375,7 +367,7 @@ def main():
         os.makedirs(os.path.dirname(os.path.abspath(a.json)), exist_ok=True)
         json.dump(rec, open(a.json, "w"), indent=1)
         print(f"  record: {a.json}")
-    return {"PASS": 0, "WARN": 0}.get(verdict, 3 if verdict == "BLOCK" else 4)
+    return 0
 
 
 if __name__ == "__main__":

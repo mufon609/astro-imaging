@@ -50,8 +50,10 @@
 #                   registration, never to pass one.
 #   T2 measure    — scripts/qa/member_separation.py on the UNREGISTERED members
 #                   plus the homographies `register -2pass` wrote into s_.seq,
-#                   binned by each member's OWN field radius. THE ACCEPTANCE
-#                   GATE. BLOCK stops before `stack`.
+#                   binned by each member's OWN field radius. REPORT-ONLY: it
+#                   measures, prints and stamps the disagreement; it does not
+#                   gate. The thresholds it used to carry were retired because
+#                   the quantity mixes a real defect with one the compose makes.
 #                   It reads the members, NOT the r_ copies: `seqapplyreg
 #                   -framing=max` on a variable-size sequence gives each output
 #                   its own origin (MEASURED 611.9 px apart on the 28-member
@@ -115,12 +117,11 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
-OUT= FRAMING=min WEIGHT= REF= ACCEPT= GATEJSON=; SUBDIRS=()
+OUT= FRAMING=min WEIGHT= REF= GATEJSON=; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
   --weight=nbstack|--weight=noise) WEIGHT="-weight=${a#*=}";;
   --ref=*) REF=${a#*=};;
-  --accept-separation=*) ACCEPT=${a#*=};;   # explicit override; RECORDS the number it overrode
   --gate-json=*) GATEJSON=${a#*=};;
   --*) echo "unknown arg $a" >&2; exit 1;;
   *) SUBDIRS+=("$a");;
@@ -309,40 +310,20 @@ echo "composing $n sub-stacks (register -2pass -> ${SETREF:+setref $RIDX -> }-fr
 sir "$W/compose.ssf"
 ls "$W/seq"/r_s_*.fit >/dev/null 2>&1 || { echo "REGISTRATION FAILED — read $W/compose.log" >&2; exit 1; }
 
-# ---- T2: THE ACCEPTANCE GATE, on the members' own frames, before `stack` -----
+# ---- T2: the member-disagreement MEASUREMENT, recorded before `stack` -------
 # --prefix defaults to s_ (the members + the .seq holding register -2pass's own
 # homographies). It is NOT r_: those copies do not share an origin.
-GRC=0
+# REPORT-ONLY, deliberately. It carried PASS/WARN/BLOCK bands anchored to six
+# products the owner judged, and they were retired (user-ratified) because the
+# number they gated is a SUM OF TWO TERMS and one of them the compose itself
+# creates: two internally healthy sets read 1.12 and 0.95 px composed among
+# themselves and 3.02 and 3.38 px registered inside a 41-degree 28-member
+# sequence. A band on that would have fired on every real compose, and a check
+# that always fires trains the operator to bypass it — the same disease as a
+# check that cannot fail (docs/dead-ends.md). The number is measured, printed
+# and stamped on the product; what it means is not decided here.
 python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" \
-  --json="$GATEJSON" --label="$(basename "$OUT")" || GRC=$?
-if [ "$GRC" != 0 ]; then
-  if [ -n "$ACCEPT" ]; then
-    WORST=$(python3 -c "import json,sys;d=json.load(open(sys.argv[1]));print((d.get('worst') or {}).get('max_px'))" "$GATEJSON")
-    python3 - "$GATEJSON" "$ACCEPT" "$WORST" <<'PY'
-import json, sys
-p, acc, worst = sys.argv[1], sys.argv[2], sys.argv[3]
-d = json.load(open(p))
-d["override"] = {"accepted_separation_px": float(acc), "overrode_measured_px": worst,
-                 "note": "operator override — the compose gate BLOCKED and was "
-                         "explicitly accepted; this product carries a measured "
-                         "member disagreement above the 1.00 px block threshold"}
-d["verdict"] = "BLOCK-OVERRIDDEN"
-json.dump(d, open(p, "w"), indent=1)
-PY
-    echo "compose gate BLOCKED at ${WORST} px and was OVERRIDDEN by --accept-separation=$ACCEPT — recorded in $GATEJSON" >&2
-  else
-    echo "" >&2
-    echo "ABORT: the compose gate BLOCKED — nothing was stacked." >&2
-    echo "  The members disagree about where the stars are by more than the 1.00 px" >&2
-    echo "  threshold; composing them would mean the corner star doubling that was" >&2
-    echo "  MEASURED at 2.11-2.99 px and FAILED by eye (docs/dead-ends.md)." >&2
-    echo "  The per-member optics are printed above and recorded in $GATEJSON." >&2
-    echo "  Fix the CAUSE (members warped by models that disagree at large field" >&2
-    echo "  radius — see docs/dead-ends.md), or accept it explicitly with" >&2
-    echo "  --accept-separation=<px>, which records the number it overrode." >&2
-    exit 6
-  fi
-fi
+  --json="$GATEJSON" --label="$(basename "$OUT")"
 
 sir "$W/stack.ssf"
 [ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
