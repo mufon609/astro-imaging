@@ -1,3 +1,12 @@
+> **ANSWERED — see [`AUG06_MEMBER_EDGE_report.md`](AUG06_MEMBER_EDGE_report.md).**
+> §4's question is closed: the member edge deficit enters at the FRAME, not in the
+> chain (+0.174 / +0.130 / +0.175 px across single → warped single → member, flux-matched),
+> and the §5 within-group candidates are the wrong tree. Two premises in this prompt are
+> superseded by that measurement — §3.1's magnitude is inflated by a detection-depth
+> mismatch between a moonless and a moonlit night, and §3.2's "aug06's raw singles are the
+> more field-uniform" was an inference across two instruments. The defect the owner sees is
+> a different and larger one: the WITHIN-SET compose (BACKLOG:`compose-homography-smear`).
+
 # Fresh-session prompt — chase the aug06 member EDGE defect
 
 Read `CLAUDE.md` first; it is the briefing and the read order (`docs/dead-ends.md`,

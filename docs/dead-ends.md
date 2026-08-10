@@ -668,6 +668,65 @@ the constraints any such tool must satisfy):
   3.20 → 3.28 → 3.27 px — the in-exposure floor is untouched), and the one-sided component
   is NOT corrected (sensor tilt 0.50/16% → 0.42/13% → 0.51/16%) — a radial model cannot fix
   a one-sided term. It buys star COUNT and radial UNIFORMITY, not FWHM.
+- **THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK — and a single HOMOGRAPHY cannot
+  align members whose optical axes are degrees apart while any lens-model residual
+  survives. This is the largest star-shape defect measured in this repo's products,
+  and it is invisible to every per-member measurement.** A group is a CONSECUTIVE
+  time block, so within one 1497 s burst the sky sweeps 6.25° of RA and the five
+  members of one set solve to centres **4.28° apart** (aug06/set-01: RA 303.87 /
+  304.78 / 306.03 / 307.41 / 308.16). Composing them is stitching different
+  pointings, and the registry's own Szeliski result then applies one level up: the
+  true member-to-member map is `distort ∘ H ∘ distort⁻¹`, and `register -2pass`
+  fits `H` alone.
+  MEASURED (Siril `findstar`, open gate, 800 px boxes placed by each product's own
+  solved WCS and VERIFIED by Siril's own per-star RA/Dec; FWHM/roundness = medians
+  of the 30 brightest fits, so products of very different depth are rank-matched):
+  at **RA 294.86 / Dec +44.99** all five set-01 members read **2.42–2.54 px /
+  roundness 0.924–0.942** at own-field radius 0.41–0.62 — mid-field, not an edge —
+  and their own 5-member compose reads **3.48 / 0.582**. The 13-member 3-set union
+  adds 0.530, the 28-member cross-night union 0.458: **the within-set step is most
+  of it.** Control, same instrument, same members, RA 314.72: members 2.23–2.38 /
+  0.903–0.958, compose **2.43 / 0.949** — the compose costs nothing there.
+  **The discriminator that names the fix:** the members' OWN astrometric solutions
+  place the same stars within **0.10 px median / 0.26 px p90** (10 pairs, n=1151)
+  at exactly the sky where the homography compose loses 1.06 px of FWHM and 0.34 of
+  roundness. The alignment information exists; the homography discards it. That is
+  the measured case for per-image astrometric resampling
+  ([`consistency-tiers.md`](consistency-tiers.md) §4.2, SWarp) rather than a better
+  shared lens model.
+  **Blind to it:** every per-member measure (each member is clean), and the compose
+  gate itself — `member_separation.py`'s zones are CANVAS-radial, and on this union
+  it returned **UNMEASURED** (378/378 pairs, no zone with ≥100 matched stars) and
+  was overridden with `--accept-separation=99`. The accepted product therefore
+  shipped with no working geometry gate.
+  **NOT explained, labelled as such:** why set-01 and not set-03 (0.582 vs 0.910 at
+  the same sky, same night, same model, same code), and why the low-RA side of the
+  swept field and not the high-RA side — member field radius does not predict it
+  (compose 0.582 at member-ρ 0.41–0.62 against 0.949 at ρ 0.27–0.49, ρ *spread*
+  0.21 and 0.22 in both). Settling test: `member_separation.py` re-zoned by each
+  member's OWN field radius, run on set-01's five members; predict ≥2 px at
+  RA 294.86 and ≤0.35 px at RA 314.72.
+- **DEAD END — "the aug06 member EDGE deficit is introduced by the within-group
+  registration/stack." It is not: the session difference is FLAT across the whole
+  chain once the star population is flux-matched.** MEASURED, one instrument at
+  three levels (the *same* 800 px march that produced the finding — calibrated
+  single, the same single after the darktable warp, and the 100-frame member those
+  frames built), edge-minus-centre FWHM, aug06 minus july31, pooled over two sets
+  and both edges: **+0.174 px (single) → +0.130 (warped single) → +0.175 (member)**
+  at a common fitted-amplitude cut. The FULL-population reading that suggested
+  amplification (+0.176 → +0.162 → **+0.456**) is a DETECTION-DEPTH artefact — see
+  the depth-mismatch entry under "QA / scope". Also killed in the same run:
+  **drift span within a group** as the differentiator — one knob, 10 frames per
+  arm, consecutive (21 px span) vs full-span (235 px): edge excess moves +0.053 px
+  for aug06 and +0.042 for july31, i.e. an 11× span increase costs ~0.05 px
+  *equally in both sessions*. The `framing=min` trim at matched group size is
+  itself equal (aug06 234×80 px vs july31 232×88). What survives is small and
+  frame-level: at the field edges the two sessions' FWHM is nearly equal
+  (2.08–2.18 vs 2.10–2.16 px) and aug06's CENTRE is sharper (1.76 vs 1.83–2.06) —
+  a centre advantage plus a right-edge roundness deficit (0.756/0.725 vs
+  0.829/0.809). EXIF records no difference (f/4, 70 mm, 2.5 s, ISO 1600, manual
+  focus, same body and lens), so the residual candidate is focus/field state,
+  which no processing knob reaches.
 - **In-exposure trailing is the unremovable FLOOR** — no registration method touches
   it. On a fixed tripod at 6 s / dec +47 / 18″px it is ~3.4 px predicted and ~3.6 px
   measured (per-frame roundness 0.615, uniform across the set). Stars are elongated
@@ -875,6 +934,28 @@ SILENT — pin the state, never inherit it):
   builders still require the plural and stop loudly.
 
 **QA / scope:**
+- **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A DETECTION-DEPTH
+  COMPARISON, NOT A QUALITY ONE — flux-match the population or the deeper image loses
+  every time.** `findstar` goes as faint as the image allows, and marginal fits are
+  inflated, so a deeper stack (or a darker sky at equal depth) drags its own median up.
+  This is the MIRROR of the survivorship trap under "Detection / solve / registration"
+  (there a *worse* image measured better because the smear suppressed detections; here a
+  *deeper* image measures worse because it admits fits the shallow one never saw), and
+  the two together mean **a raw `findstar` median is not comparable across levels of a
+  chain at all**. MEASURED chasing the aug06 member edge deficit: at one 800 px box the
+  aug06-vs-july31 member difference reads **+0.055 px on the 30 brightest, +0.081 at 60,
+  +0.119 at 120, +0.180 at 250, +0.308 at 400 and +0.518 on the full detected
+  population** — a factor of 9 across the same two files, driven by aug06 (moonless)
+  detecting to fitted amplitude A≥0.00031 where july31 (moonlit) stops at A≥0.00060.
+  The corresponding session difference in edge-minus-centre FWHM went from a flat
+  +0.174/+0.130/+0.175 px across single → warped single → member (flux-matched) to a
+  spurious +0.176/+0.162/+0.456 (full population), i.e. the artefact manufactured an
+  apparent 2.6× amplification by the stacking stage that does not exist.
+  **The fix, and it costs nothing:** apply ONE common fitted-amplitude threshold across
+  every box and every arm being compared (pick it as the level at which the thinnest box
+  still keeps ≥60 stars), or rank-match on the N brightest; report **n and the faintest
+  admitted amplitude with every number**. Rank-matching across levels is legitimate
+  because the same sky box holds the same physical stars in every image of it.
 - The GATE must be a composition-agnostic STATISTICAL sky scope — whole-frame
   reads real MW/object signal as a defect, and a geometric sky mask can't fix it
   (a bright object has no fixed band). Hand-picked patches miss defects a
