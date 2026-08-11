@@ -268,10 +268,25 @@ sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
 ACQHDR=$SESSION/work/acq_header_$SET.json      # captured by the per-group sub-pipeline
 if [ -f "$ACQHDR" ]; then
+  # The per-set stack is SINGLE-set, so the plain per-set provenance is the
+  # correct identity for it — but it was never applied here, so a finished
+  # per-set stack carried the acquisition keys and NOT the optics that warped it
+  # (measured: stack_set-01_full.fit had no DIST*/CAL* keys at all while its own
+  # members did). It also records what registered it: this compose is star-pair,
+  # and that is now stated on the product rather than inferable from the script.
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
     "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$N")" "$OUT" > "$G/h.ssf"
   sir "$SESSION" "$G/h.ssf"
   echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $N x EXPTIME)"
+fi
+# The optics identity goes on unconditionally and through a FITS library, not
+# siril: CALSET is `<session>/<set>` and siril's update_key cuts a string value
+# at the first `/`. This per-set stack is single-set, so the plain per-set
+# provenance IS its identity; it also records that this compose is star-pair.
+if true; then
+  header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" none)
+$(header_registration_lines starpair F)"
+  echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
 else
   echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
 fi

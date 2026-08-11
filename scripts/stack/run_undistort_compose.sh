@@ -117,6 +117,7 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/stack/stamp_headers.sh"   # composite provenance + registration-model stamp
 OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
@@ -373,6 +374,25 @@ python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" \
   --json="$GATEJSON" --label="$(basename "$OUT")"
 
 sir "$W/stack.ssf"
+[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $W/stack.log" >&2; exit 1; }
+
+# ---- STAMP THE COMPOSITE'S OWN IDENTITY -------------------------------------
+# siril's `stack` propagates the REFERENCE member's header, so without this a
+# 28-member cross-night union ships claiming `CALSET = july31/set-01` and that
+# set's flat — one set's identity asserted for a composite of six sets across two
+# nights. Worse than an absent stamp: a gate reading it is told a confident
+# falsehood. This replaces the inherited keys with the composite's own — the
+# common value where members agree, MIXED(n) where they do not — and records
+# what registered it, which no header has ever carried.
+if [ "$STARPAIR" = 1 ]; then REGM=starpair; else REGM=astrometric; fi
+REGU=F
+grep -qi "undistortion will be applied" "$W/compose.log" 2>/dev/null && REGU=T
+# Applied with a FITS library, not siril `update_key`: CALSET/CALSETS are
+# `<session>/<set>` and siril cuts a string value at the first `/` (it begins the
+# FITS comment field). See header_apply_keys.
+header_apply_keys "$OUT.fit" "$(header_composite_provenance_lines "${MEMBERS[@]}")
+$(header_registration_lines "$REGM" "$REGU")"
+echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members)"
 [ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
 # the gate's worst measured separation rides ON the product, not only beside it
 python3 - "$OUT.fit" "$GATEJSON" <<'PY'

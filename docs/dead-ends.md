@@ -1355,6 +1355,29 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **SIRIL `update_key` SILENTLY TRUNCATES A STRING VALUE AT THE FIRST `/` — it
+  begins the FITS comment field.** Probed directly on a 16x16 test FITS through
+  siril 1.4.4:
+  | written | stored |
+  |---|---|
+  | `update_key K1 "aug06/set-01"` | `'aug06'` |
+  | `update_key K3 "aug06/set-01,july31/set-01"` | `'aug06'` |
+  | `update_key K2 "a,b"` | `'a,b'` (commas are fine) |
+  | `update_key K4 "aug06_set-01+july31_set-01"` | intact |
+  | `update_key K5 T` | `True` (a FITS boolean, not the string) |
+  No error, no warning, exit 0. **CALSET is `<session>/<set>` by construction**,
+  so every provenance stamp routed through siril loses the set and claims the
+  whole session — and the stamp is the thing a compose gate reads to decide
+  whether members are compatible. The existing corpus escaped only by accident:
+  `backfill_substack_provenance.sh` wrote its keys with astropy `fits.setval`,
+  which is why the backfilled `CALSET = july31/set-01` values kept their slash
+  while a live build would not have. It would have corrupted the first rebuild.
+  FIX, and it follows the repo's own precedent: provenance keys are applied with
+  a FITS library (`header_apply_keys`, headers only, no pixel access) while the
+  acquisition keys stay on siril's `update_key`, which is siril's own data and
+  slash-free. Anything with a path, a date-with-slashes or a ratio in it must not
+  go through `update_key`.
+
 - **A JUDGMENT SURFACE IS NOT `load` + `autostretch` + `savepng` — IT IS
   `finish_render.sh`, AND SKIPPING SPCC DOES NOT "REMOVE A VARIABLE", IT BREAKS
   THE RENDER.** Measured: two union surfaces rendered with `autostretch -linked

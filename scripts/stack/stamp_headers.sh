@@ -208,3 +208,134 @@ except OSError:
 print("\n".join(out))
 PY
 }
+
+# header_registration_lines <astrometric|starpair> <T|F>  -> update_key lines
+#
+# WHAT REGISTERED IT, recorded ON the product. Nothing in a FITS header said
+# whether a composite was aligned by star-pair homography or by each member's own
+# plate solution, and the difference is the largest defect this project has
+# shipped: MEASURED on the 28-member union at RA 294.86, `register -2pass` reads
+# roundness 0.458 where `seqplatesolve` reads 0.974. Working out which a product
+# used cost a day of dating files and reading build logs. It is one key.
+#
+#   REGMODEL  `astrometric` (per-member, from each member's own WCS) or
+#             `starpair` (one homography per member fitted to matched stars)
+#   REGUNDIS  T when siril reported applying per-member SIP undistortion, F when
+#             it did not. Sourced from the tool's OWN log, never assumed: the
+#             route silently degrades to a linear map when a member lacks SIP.
+header_registration_lines() {  # <model> <undistorted T|F>
+  printf 'update_key REGMODEL "%s"\nupdate_key REGUNDIS "%s"\n' "$1" "$2"
+}
+
+# header_composite_provenance_lines <member.fit>...  -> update_key lines
+#
+# THE COMPOSITE'S OWN IDENTITY, not the reference member's. siril's `stack`
+# propagates the header of the reference image, so a 28-member cross-night union
+# INHERITED `CALSET = july31/set-01` and `CALFLAT = skyflat_set-01.fit:507` —
+# asserting one set's calibration identity for a composite of six sets across two
+# nights. That is worse than an absent stamp: a gate reading it is told a
+# confident falsehood. (STACKCNT/LIVETIME are summed correctly by siril and are
+# left alone.)
+#
+# Emits the value where every member AGREES, and `MIXED(<n>)` where they do not,
+# so a mixed composite is visible rather than inferable. Adds:
+#   NMEMBER   how many members went in
+#   CALSETS   the distinct sets, comma-joined, truncated to the 68-char FITS
+#             string limit with a trailing "+N" when it does not fit
+#   PROVMIX   T when any provenance key differs across members
+header_composite_provenance_lines() {  # <member.fit>...
+  python3 - "$@" <<'PY2'
+import os, sys
+try:
+    from astropy.io import fits
+except ImportError:
+    sys.exit(0)
+KEYS = ("DISTMODL", "DISTA", "DISTB", "DISTC", "DISTNORM", "DISTRHO",
+        "DISTSRC", "DISTFIT", "CALDARK", "CALFLAT", "BKGLIGHT", "DISTPROV")
+members = sys.argv[1:]
+vals = {k: [] for k in KEYS}
+sets = []
+for m in members:
+    try:
+        h = fits.getheader(m)
+    except Exception:
+        continue
+    for k in KEYS:
+        if k in h:
+            vals[k].append(h[k])
+    if "CALSET" in h:
+        sets.append(str(h["CALSET"]))
+out = ["update_key NMEMBER %d" % len(members)]
+mixed = False
+for k in KEYS:
+    v = vals[k]
+    if not v:
+        continue
+    uniq = list(dict.fromkeys(v))
+    if len(uniq) == 1:
+        x = uniq[0]
+        out.append('update_key %s "%s"' % (k, x) if isinstance(x, str)
+                   else "update_key %s %s" % (k, x))
+    else:
+        mixed = True
+        out.append('update_key %s "MIXED(%d)"' % (k, len(uniq)))
+uniq_sets = list(dict.fromkeys(sets))
+if uniq_sets:
+    joined, dropped = "", 0
+    for i, x in enumerate(uniq_sets):
+        cand = (joined + "," + x) if joined else x
+        if len(cand) <= 62:
+            joined = cand
+        else:
+            dropped = len(uniq_sets) - i
+            break
+    if dropped:
+        joined += "+%d" % dropped
+    out.append('update_key CALSETS "%s"' % joined)
+    if len(uniq_sets) > 1:
+        mixed = True
+out.append('update_key PROVMIX "%s"' % ("T" if mixed else "F"))
+print("\n".join(out))
+PY2
+}
+
+# header_apply_keys <file.fit> <update_key-lines>
+#
+# WHY THIS EXISTS — a MEASURED silent truncation that would have corrupted every
+# provenance stamp in a rebuild. Siril's `update_key` builds the FITS card as
+# text, and `/` BEGINS THE COMMENT FIELD in a FITS card, so a string value
+# containing a slash is cut at the slash with no error:
+#
+#     update_key K1 "aug06/set-01"          -> stored as 'aug06'
+#     update_key K3 "a/b,c/d"               -> stored as 'a'
+#     update_key K4 "aug06_set-01+july31"   -> intact (no slash)
+#
+# CALSET is `<session>/<set>` by construction, so every stamp written through
+# siril loses the set and claims the whole session. The existing corpus escaped
+# only because `backfill_substack_provenance.sh` wrote its keys with astropy
+# `fits.setval` instead — the same header-only mechanism used here, and the
+# repo's own precedent for writing provenance (headers only, no pixel access).
+#
+# Takes the emitters' `update_key K V` lines unchanged so call sites keep one
+# vocabulary, and applies them with a FITS library that quotes properly.
+header_apply_keys() {  # <file.fit> <lines>
+  python3 - "$1" "$2" <<'PY2'
+import shlex, sys
+from astropy.io import fits                 # HEADERS ONLY — no pixel access
+path, block = sys.argv[1], sys.argv[2]
+with fits.open(path, mode="update") as hd:
+    h = hd[0].header
+    for line in block.splitlines():
+        parts = shlex.split(line.strip())
+        if len(parts) < 3 or parts[0] != "update_key":
+            continue
+        k, v = parts[1], " ".join(parts[2:])
+        if v in ("T", "F"):
+            h[k] = (v == "T")
+            continue
+        try:
+            h[k] = int(v) if v.lstrip("+-").isdigit() else float(v)
+        except ValueError:
+            h[k] = v[:68]
+PY2
+}
