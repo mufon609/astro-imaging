@@ -49,12 +49,12 @@ def region_medians(stack, x, y, box, workdir):
                         f"crop {x} {y} {box} {box}\nstat\n")
     meds = []
     for line in lines:
-        m = re.search(r"Mean: ([0-9.]+), Median: ([0-9.]+), Sigma:", line)
+        m = re.search(r"Mean: (-?[0-9.]+(?:e[+-]?[0-9]+)?), Median: (-?[0-9.]+(?:e[+-]?[0-9]+)?), Sigma:", line)
         if m:
             # mean carries sub-ADU resolution the integer-quantized median
             # lacks (16-bit stacks); record both, SNR uses the mean
             meds.append({"mean": float(m.group(1)), "median": float(m.group(2))})
-    return meds
+    return meds, lines
 
 
 def bgnoise(stack, workdir):
@@ -78,8 +78,14 @@ def main():
     sig_rd = [float(v) for v in opts["signal"].split(",")]
     sky_rd = [float(v) for v in opts["sky"].split(",")]
     box_am = float(opts.get("box-arcmin", 20))
-    workdir = os.path.dirname(out_json)
+    # records go wherever the caller asked; the .ssf NEVER derives from
+    # that path — the flatpak siril sandbox has a PRIVATE /tmp, so a caller
+    # writing its record to scratch would silently strand the script where
+    # siril cannot see it (measured: every stat "parse failed" with no run)
+    workdir = os.path.join(os.path.expanduser("~/.cache/astro-imaging"),
+                           "snr_regions")
     os.makedirs(workdir, exist_ok=True)
+    os.makedirs(os.path.dirname(out_json) or ".", exist_ok=True)
 
     rec = {"method": "internal ratio (median_signal - median_sky) / bgnoise per "
                      "channel; Siril crop+stat medians + bgnoise; boxes "
@@ -88,7 +94,11 @@ def main():
            "signal_radec": sig_rd, "sky_radec": sky_rd,
            "box_arcmin": box_am, "stacks": {}}
     for stack in stacks:
-        name = os.path.basename(stack)
+        # (session, basename) — a bare basename collides across sessions
+        # (two nights both ship stack_set-01_full_spcc.fit) and the later
+        # entry silently replaces the earlier one in this dict
+        name = os.path.join(os.path.basename(os.path.dirname(stack)),
+                            os.path.basename(stack))
         hdr = fits.getheader(stack)
         w, hgt = hdr["NAXIS1"], hdr["NAXIS2"]
         try:
@@ -111,9 +121,14 @@ def main():
             # Siril crop's y-origin is the OPPOSITE end from FITS row order
             # (measured; docs/dead-ends.md) — flip for the tool call.
             y_sir = hgt - y_np - box_px
-            meds = region_medians(stack, x_np, y_sir, box_px, workdir)
+            meds, lines = region_medians(stack, x_np, y_sir, box_px, workdir)
             if not meds:
                 entry["regions"][label] = "stat parse failed"
+                print(f"  [snr_regions] stat parse failed for {label} — "
+                      "siril's wording changed, values unexpected, or the run "
+                      "never happened; raw lines:", file=sys.stderr)
+                for ln in lines[-6:]:
+                    print(f"    {ln}", file=sys.stderr)
                 ok = False
                 continue
             entry["regions"][label] = meds
