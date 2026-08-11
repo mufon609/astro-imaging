@@ -241,11 +241,19 @@ Per-image astrometric resampling does not discard it.
 at the COMBINE and the owner's eyes on the 16-bit PNG — and adopted into the
 compose stage. **This is the change the rebuild should bake in.**
 
-**Open before adoption:** B's canvas is 8313×5117 against A's 8659×6009, 18%
-smaller in area. All four measured positions are inside both, but whether B sheds
-real sky or only empty margin is NOT established and must be measured first.
-Also: the route makes a member SOLVE a hard prerequisite of the compose stage.
-Ledger: `union_ab_astrometric_vs_starpair`.
+**The canvas question is CLOSED and it went the right way.** B's smaller canvas is
+margin, not a crop: measured on the products' own coverage masks, B covers
+**800.1 sq.deg against A's 773.5** — *more* sky (+3.4%) in a canvas 18% smaller in
+pixels, because the astrometric framing bounds the actual projected footprints
+(85.1% fill) instead of a conservative box (69.9% fill). The footprints are
+97–98% mutually contained; only **0.14%** of A's covered sky falls outside B's
+canvas at all; and the defect region is densely covered in B (1047 detections
+against A's 1070 in the same box). Stable across thresholds 0 → 1e-4. Ledger:
+`union_astrometric_canvas_is_not_a_crop`.
+
+**Still open before adoption:** the owner's eyes on the full-frame 16-bit PNG,
+and the fact that the route makes a member SOLVE a hard prerequisite of the
+compose stage. Ledger: `union_ab_astrometric_vs_starpair`.
 
 **Cautions carried in:** it is still one homography per image, though now preceded
 by per-image undistortion; the registry holds a related NEGATIVE (each member's own
