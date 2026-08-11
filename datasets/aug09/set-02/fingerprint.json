@@ -1,0 +1,36 @@
+{
+ "measured_by": "header facts (acquisition.py) + astrometry.net solves (solve_field.py) + Siril findstar/register metrics (frame_metrics.json); this module computes only the derived trail/drift geometry and records it",
+ "declared_mount": null,
+ "plate_scale_arcsec_px": 35.9219,
+ "plate_scale_source": "solved",
+ "field_center": {
+  "ra_deg": 309.749184,
+  "dec_deg": 41.586041,
+  "source": "solved"
+ },
+ "in_exposure_trail": {
+  "predicted_if_fixed_px": 0.78,
+  "measured_roundness": null,
+  "measured_fwhm_px": null,
+  "check": null,
+  "note": "predicted = 15.041 * cos(dec) * exposure / plate_scale \u2014 the smear a FIXED mount would put in every sub; no registration removes it"
+ },
+ "inter_frame_drift": {
+  "span_s": 789.0,
+  "ra_rate_deg_per_hr": 14.8838,
+  "dec_drift_arcsec": -90.36,
+  "sky_sep_arcsec": 8785.16,
+  "drift_px": 244.6,
+  "drift_px_per_min": 18.6,
+  "sidereal_px_per_min_expected": 18.79
+ },
+ "mount_check": {
+  "verdict": "INDETERMINATE",
+  "declared": null,
+  "measured": "fixed",
+  "method": "drift-solves",
+  "reason": "mount undeclared; the data reads as fixed (RA advances 14.8838 deg/hr vs sidereal 15.041)"
+ },
+ "label": "untracked, wide, drifting 19 px/min",
+ "route_hint": "wide-field-untracked (undistort -> homography) \u2014 a wide field on a fixed mount with measurable drift"
+}

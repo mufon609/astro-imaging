@@ -1,0 +1,20 @@
+{
+ "session": "aug09",
+ "unit": "dark",
+ "source": "http://100.71.69.25:8000/dark",
+ "integrity": "transfer-verified",
+ "remote_entries": 400,
+ "downloaded": 370,
+ "already_present": 30,
+ "download_failed": 0,
+ "in_flight_skipped": 0,
+ "verified_ok": 400,
+ "verified_bad": 0,
+ "verify_exit": 0,
+ "bytes_transferred": 9041477802,
+ "seconds": 3992,
+ "mib_per_s": 2.16,
+ "remote_quiesced": true,
+ "complete": true,
+ "_note": "source-verified: hashes computed at the source by remote_publish.sh and checked here with sha256sum -c. transfer-verified: no publisher was running, so completeness was proven from Content-Length plus an unchanged Last-Modified across the transfer, and the sha256 in <unit>.local.sha256 is a DESTINATION hash \u2014 re-run against a running publisher to upgrade it to source-verified."
+}

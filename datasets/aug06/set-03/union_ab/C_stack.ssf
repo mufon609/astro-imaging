@@ -1,6 +1,0 @@
-requires 1.4.0
-set32bits
-setcompress 0
-setext fit
-cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/C_ownmodel/seq
-stack r_s_ mean none -norm=addscale -output_norm -weight=nbstack -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/UNION_C_ownmodel

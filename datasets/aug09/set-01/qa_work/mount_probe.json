@@ -1,0 +1,27 @@
+{
+ "tool": "Siril decode/extract_Green (camera raw) + astrometry.net blind solves (solve_field.py --json WCS, evaluated at the frame-center pixel via astropy); epochs from EXIF/DATE-OBS; consumed by scripts/lib/fingerprint.py (auto-loaded on every refresh \u2014 the drift measurement is durable)",
+ "domain_note": "camera-raw solves run on the extracted GREEN plane (half-res grid): px figures are green-px at the solve's own scale; the mount verdict rides the scale-free RA rate",
+ "solve_a": {
+  "frame": "DSC_9308.NEF",
+  "time_s": 1786333770.99,
+  "ra_deg": 306.72664,
+  "dec_deg": 42.316757,
+  "scale_arcsec_px": 36.1621
+ },
+ "solve_b": {
+  "frame": "DSC_9807.NEF",
+  "time_s": 1786335267.99,
+  "ra_deg": 312.952471,
+  "dec_deg": 42.298066,
+  "scale_arcsec_px": 36.0154
+ },
+ "window": {
+  "rule": "longest contiguous capture run (acquisition.timeline + anomaly_audit.segment_runs); a re-aim can only occur across a run boundary, so a cross-run window would mix drift with re-aim",
+  "dir_frames": 500,
+  "n_runs": 1,
+  "run_frames": 500,
+  "run_span_s": 1497.0,
+  "first": "DSC_9308.NEF",
+  "last": "DSC_9807.NEF"
+ }
+}

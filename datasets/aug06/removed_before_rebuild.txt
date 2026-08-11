@@ -1,0 +1,255 @@
+# products and work trees removed before the 3-night rebuild
+# kept: stack_j31-3+a06-3_full_onemodel{,_wcs,_spcc}.fit + judge/j31-3+a06-3_{starpair,astrometric}_spcc-linked.png
+ 128721600  web/results/july31/stack_set-01+02+03+04_full_wcs.fit
+ 252734400  web/results/july31/stack_set-04_full.fit
+ 212086080  web/results/july31/stack_set-03_full_wcs.fit
+ 210176640  web/results/july31/stack_set-01_full_wcs.fit
+  97557841  web/results/july31/judge/set-02_full_spcc-linked.png
+  96843799  web/results/july31/judge/set-01_full_spcc-linked.png
+ 116757056  web/results/july31/judge/set-04_full_spcc-linked.png
+  58586292  web/results/july31/judge/set-01+02+03+04_full_spcc-linked.png
+  97547626  web/results/july31/judge/set-03_full_spcc-linked.png
+ 128715840  web/results/july31/stack_set-01+02+03+04_full.fit
+ 252740160  web/results/july31/stack_set-04_full_spcc.fit
+ 128721600  web/results/july31/stack_set-01+02+03+04_full_spcc.fit
+ 211930560  web/results/july31/stack_set-02_full_spcc.fit
+ 210176640  web/results/july31/stack_set-01_full_spcc.fit
+ 212080320  web/results/july31/stack_set-03_full.fit
+ 212086080  web/results/july31/stack_set-03_full_spcc.fit
+ 252740160  web/results/july31/stack_set-04_full_wcs.fit
+ 211924800  web/results/july31/stack_set-02_full.fit
+ 211930560  web/results/july31/stack_set-02_full_wcs.fit
+ 210170880  web/results/july31/stack_set-01_full.fit
+ 269953920  web/results/aug06/stack_set-00_pinned_wcs.fit
+ 217051200  web/results/aug06/stack_set-02_full_subsky1.fit
+ 219476160  web/results/aug06/stack_set-01_full_subsky1_wcs.fit
+ 218638080  web/results/aug06/stack_set-03_full_subsky1.fit
+ 218681280  web/results/aug06/stack_set-03_full-pinned.fit
+ 269930880  web/results/aug06/stack_set-00_spcc.fit
+ 218643840  web/results/aug06/stack_set-03_full_wcs.fit
+ 220357440  web/results/aug06/stack_set-02_full-pinned_wcs.fit
+ 219470400  web/results/aug06/stack_set-01_full_subsky1.fit
+ 218687040  web/results/aug06/stack_set-03_full-pinned_wcs.fit
+ 276304320  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00004.fit
+ 276583680  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00002.fit
+ 277260480  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00009.fit
+ 277493760  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00007.fit
+ 276698880  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00019.fit
+ 272862720  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00023.fit
+ 276592320  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00025.fit
+ 277493760  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00006.fit
+ 277444800  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00011.fit
+ 275008320  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00022.fit
+ 273245760  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00021.fit
+ 276465600  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00014.fit
+ 277047360  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00016.fit
+ 395876160  web/results/aug06/.covprobe_covmap_onemodel/seq/r_s_00012.fit
+ 266832000  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00028.fit
+ 276514560  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00005.fit
+ 277585920  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00010.fit
+ 277237440  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00012.fit
+ 274115520  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00027.fit
+ 329837760  web/results/aug06/.covprobe_covmap_onemodel/seq/r_s_00016.fit
+ 274507200  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00026.fit
+ 275909760  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00003.fit
+ 273300480  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00024.fit
+ 277424640  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00013.fit
+ 276488640  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00017.fit
+ 278121600  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00018.fit
+ 276583680  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00001.fit
+ 338477760  web/results/aug06/.covprobe_covmap_onemodel/seq/r_s_00008.fit
+ 276583680  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00008.fit
+ 278259840  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00020.fit
+ 278285760  web/results/aug06/.covprobe_covmap_onemodel/seq/s_00015.fit
+ 219476160  web/results/aug06/stack_set-01_full_wcs.fit
+ 269925120  web/results/aug06/stack_set-00.fit
+ 141523200  web/results/aug06/stack_set-01+02+03_min_spcc.fit
+ 220351680  web/results/aug06/stack_set-02_full-pinned.fit
+ 122938560  web/results/aug06/stack_j31-3+a06-3_cov28_wcs.fit
+ 211933440  web/results/aug06/stack_set-01_full-pinned_wcs.fit
+  96696516  web/results/aug06/judge/set-01_full-pinned_spcc-linked.png
+  99828422  web/results/aug06/judge/set-03_full-pinned_spcc-linked.png
+  63612675  web/results/aug06/judge/set-01+02+03_min_spcc-linked.png
+  55058914  web/results/aug06/judge/j31-3+a06-3_cov28_spcc-linked.png
+  99008098  web/results/aug06/judge/set-02_full_spcc-linked.png
+ 162696323  web/results/aug06/judge/set-01+02+03_full_pinnedmodel_spcc-linked.png
+ 100290618  web/results/aug06/judge/set-01_full_spcc-linked.png
+ 162049356  web/results/aug06/judge/set-01+02+03_full_subsky1_spcc-linked.png
+ 124685688  web/results/aug06/judge/set-00_spcc-linked.png
+  99772683  web/results/aug06/judge/set-03_full_spcc-linked.png
+ 162169962  web/results/aug06/judge/set-01+02+03_full_spcc-linked.png
+  73342092  web/results/aug06/judge/set-01+02+03_cov13_spcc-linked.png
+ 124696816  web/results/aug06/judge/set-00_pinned_spcc-linked.png
+ 100504619  web/results/aug06/judge/set-02_full-pinned_spcc-linked.png
+ 163304640  web/results/aug06/stack_set-01+02+03_cov13.fit
+ 217056960  web/results/aug06/stack_set-02_full_subsky1_wcs.fit
+ 141523200  web/results/aug06/stack_set-01+02+03_min_wcs.fit
+ 122932800  web/results/aug06/stack_j31-3+a06-3_cov28.fit
+ 211933440  web/results/aug06/stack_set-01_full-pinned_spcc.fit
+ 557245440  web/results/aug06/stack_j31-3+a06-3_full.fit
+ 310089600  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00023.fit
+ 358502400  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00009.fit
+ 302293440  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00015.fit
+ 372041280  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00017.fit
+ 274507200  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00026.fit
+ 328763520  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00021.fit
+ 375621120  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00007.fit
+ 423538560  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00002.fit
+ 303416640  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00014.fit
+ 346294080  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00020.fit
+ 410472000  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00004.fit
+ 356705280  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00010.fit
+ 317108160  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00012.fit
+ 287110080  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00028.fit
+ 382075200  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00006.fit
+ 429312960  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00001.fit
+ 324570240  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00011.fit
+ 281456640  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00025.fit
+ 410889600  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00003.fit
+ 283852800  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00027.fit
+ 380511360  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00016.fit
+ 300674880  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00024.fit
+ 363536640  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00018.fit
+ 310121280  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00013.fit
+ 371165760  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00008.fit
+ 316480320  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00022.fit
+ 406379520  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00005.fit
+ 356117760  web/results/aug06/.compose_stack_j31-3+a06-3_full_pinnedmodel/seq/r_s_00019.fit
+ 444530880  web/results/aug06/stack_set-01+02+03_full_pinnedmodel_spcc.fit
+ 439943040  web/results/aug06/stack_set-01+02+03_full_spcc.fit
+ 444525120  web/results/aug06/stack_set-01+02+03_full_pinnedmodel.fit
+ 218687040  web/results/aug06/stack_set-03_full-pinned_spcc.fit
+ 217056960  web/results/aug06/stack_set-02_full_spcc.fit
+ 219476160  web/results/aug06/stack_set-01_full_spcc.fit
+ 269953920  web/results/aug06/stack_set-00_pinned_spcc.fit
+ 218638080  web/results/aug06/stack_set-03_full.fit
+ 439943040  web/results/aug06/stack_set-01+02+03_full_wcs.fit
+ 218643840  web/results/aug06/stack_set-03_full_spcc.fit
+ 557245440  web/results/aug06/covmap_j31x3+a06x3.fit
+ 439937280  web/results/aug06/covmap_aug06x3.fit
+ 439853760  web/results/aug06/stack_set-01+02+03_full_subsky1_spcc.fit
+ 122938560  web/results/aug06/stack_j31-3+a06-3_cov28_spcc.fit
+ 163310400  web/results/aug06/stack_set-01+02+03_cov13_wcs.fit
+ 439848000  web/results/aug06/stack_set-01+02+03_full_subsky1.fit
+ 141517440  web/results/aug06/stack_set-01+02+03_min.fit
+ 211927680  web/results/aug06/stack_set-01_full-pinned.fit
+ 217051200  web/results/aug06/stack_set-02_full.fit
+ 217056960  web/results/aug06/stack_set-02_full_wcs.fit
+ 163310400  web/results/aug06/stack_set-01+02+03_cov13_spcc.fit
+ 269930880  web/results/aug06/stack_set-00_wcs.fit
+ 218643840  web/results/aug06/stack_set-03_full_subsky1_wcs.fit
+ 444530880  web/results/aug06/stack_set-01+02+03_full_pinnedmodel_wcs.fit
+ 219470400  web/results/aug06/stack_set-01_full.fit
+ 439853760  web/results/aug06/stack_set-01+02+03_full_subsky1_wcs.fit
+ 269948160  web/results/aug06/stack_set-00_pinned.fit
+ 220357440  web/results/aug06/stack_set-02_full-pinned_spcc.fit
+ 439937280  web/results/aug06/stack_set-01+02+03_full.fit
+DIR       sessions/aug06/work/flatbuild_set-01
+DIR       sessions/aug06/work/smear_probe
+DIR       sessions/aug06/work/groups_set-03_pinned
+DIR       sessions/aug06/work/xn_j2
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_cov13.gen.ssf
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_cov13.log
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_cov13i450.log
+DIR       sessions/aug06/work/finish_onemodel.log
+DIR       sessions/aug06/work/groups_set-00
+DIR       sessions/aug06/work/onemodel_build.log
+DIR       sessions/aug06/work/groups_set-01_subsky1
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_starpair.gen.ssf
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full.gen.ssf
+DIR       sessions/aug06/work/acq_header_set-03.json
+DIR       sessions/aug06/work/subsky_arm
+DIR       sessions/aug06/work/dark_conversion.txt
+DIR       sessions/aug06/work/covmap_onemodel.log
+DIR       sessions/aug06/work/flatbuild_set-00
+DIR       sessions/aug06/work/setwise
+DIR       sessions/aug06/work/acq_header_set-00.json
+DIR       sessions/aug06/work/groups_set-02_subsky1
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_cov13i450.gen.ssf
+DIR       sessions/aug06/work/UNION_B_astro_wcs.fit
+DIR       sessions/aug06/work/spcc_set-00_set-00.log
+DIR       sessions/aug06/work/xn_one3
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_cov28i450.log
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full_pinnedmodel.gen.ssf
+DIR       sessions/aug06/work/repro
+DIR       sessions/aug06/work/xn_one
+DIR       sessions/aug06/work/spcc_set-01_set-01_full.gen.ssf
+DIR       sessions/aug06/work/onemodel_insp
+DIR       sessions/aug06/work/covcrop
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_astrometric.gen.ssf
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_astrometric.log
+DIR       sessions/aug06/work/disto_probe
+DIR       sessions/aug06/work/flatbuild_set-03
+DIR       sessions/aug06/work/masters
+DIR       sessions/aug06/work/acq_header_set-01.json
+DIR       sessions/aug06/work/xnight
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_cov28i450.gen.ssf
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full_subsky1.log
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_starpair.log
+DIR       sessions/aug06/work/onemodel_build.sh
+DIR       sessions/aug06/work/spcc_set-01_set-01_full.log
+DIR       sessions/aug06/work/groups_set-03
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_full_onemodel.gen.ssf
+DIR       sessions/aug06/work/undistort_set-00
+DIR       sessions/aug06/work/acq_header_set-02.json
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full.log
+DIR       sessions/aug06/work/undistort_set-03
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_cov28.gen.ssf
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full_subsky1.gen.ssf
+DIR       sessions/aug06/work/groups_set-02
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_cov28.log
+DIR       sessions/aug06/work/groups_set-01
+DIR       sessions/aug06/work/qa_onemodel
+DIR       sessions/aug06/work/spcc_set-02_set-02_full.gen.ssf
+DIR       sessions/aug06/work/undistort_set-01
+DIR       sessions/aug06/work/undistort_set-02
+DIR       sessions/aug06/work/spcc_set-03_set-03_full.log
+DIR       sessions/aug06/work/lr
+DIR       sessions/aug06/work/flatbuild_set-02
+DIR       sessions/aug06/work/spcc_set-02_set-02_full.log
+DIR       sessions/aug06/work/groups_set-01_pinned
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_min.log
+DIR       sessions/aug06/work/groups_set-03_subsky1
+DIR       sessions/aug06/work/UNION_B_astro_spcc.fit
+DIR       sessions/aug06/work/xn_two
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_min.gen.ssf
+DIR       sessions/aug06/work/dtcfg
+DIR       sessions/aug06/work/spcc_set-03_set-03_full.gen.ssf
+DIR       sessions/aug06/work/spcc_set-00_set-00.gen.ssf
+DIR       sessions/aug06/work/smear_arm
+DIR       sessions/aug06/work/spcc_set-03_set-01+02+03_full_pinnedmodel.log
+DIR       sessions/aug06/work/spcc_set-03_j31-3+a06-3_full_onemodel.log
+DIR       sessions/aug06/work/master_dark.log
+DIR       sessions/aug06/work/solve_UNION_B_astro.json
+DIR       sessions/aug06/work/groups_set-02_pinned
+DIR       sessions/aug06/work/edgechase
+DIR       sessions/july31/work/flatbuild_set-01
+DIR       sessions/july31/work/spcc_set-02_set-01+02+03+04_full.log
+DIR       sessions/july31/work/acq_header_set-03.json
+DIR       sessions/july31/work/dark_conversion.txt
+DIR       sessions/july31/work/undistort_set-04
+DIR       sessions/july31/work/spcc_set-04_set-04_full.gen.ssf
+DIR       sessions/july31/work/flatbuild_set-04
+DIR       sessions/july31/work/spcc_set-02_set-01+02+03+04_full.gen.ssf
+DIR       sessions/july31/work/spcc_set-04_set-04_full.log
+DIR       sessions/july31/work/spcc_set-01_set-01_full.gen.ssf
+DIR       sessions/july31/work/flatbuild_set-03
+DIR       sessions/july31/work/masters
+DIR       sessions/july31/work/acq_header_set-01.json
+DIR       sessions/july31/work/spcc_set-01_set-01_full.log
+DIR       sessions/july31/work/groups_set-03
+DIR       sessions/july31/work/acq_header_set-02.json
+DIR       sessions/july31/work/undistort_set-03
+DIR       sessions/july31/work/groups_set-02
+DIR       sessions/july31/work/groups_set-01
+DIR       sessions/july31/work/spcc_set-02_set-02_full.gen.ssf
+DIR       sessions/july31/work/undistort_set-01
+DIR       sessions/july31/work/undistort_set-02
+DIR       sessions/july31/work/spcc_set-03_set-03_full.log
+DIR       sessions/july31/work/flatbuild_set-02
+DIR       sessions/july31/work/spcc_set-02_set-02_full.log
+DIR       sessions/july31/work/dtcfg
+DIR       sessions/july31/work/spcc_set-03_set-03_full.gen.ssf
+DIR       sessions/july31/work/groups_set-04
+DIR       sessions/july31/work/acq_header_set-04.json
+DIR       sessions/july31/work/master_dark.log

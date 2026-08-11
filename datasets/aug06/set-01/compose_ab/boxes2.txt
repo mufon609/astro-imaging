@@ -1,6 +1,0 @@
-SHIPPED_full defect_RA294.86 295 1933 web/results/aug06/stack_set-01_full_wcs.fit
-SHIPPED_full control_RA314.72 3386 1591 web/results/aug06/stack_set-01_full_wcs.fit
-SHIPPED_pinned defect_RA294.86 223 1799 web/results/aug06/stack_set-01_full-pinned_wcs.fit
-SHIPPED_pinned control_RA314.72 3319 1549 web/results/aug06/stack_set-01_full-pinned_wcs.fit
-SHIPPED_subsky defect_RA294.86 295 1933 web/results/aug06/stack_set-01_full_subsky1_wcs.fit
-SHIPPED_subsky control_RA314.72 3386 1591 web/results/aug06/stack_set-01_full_subsky1_wcs.fit
