@@ -61,8 +61,6 @@ dataset, and says so.
 | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | 2026-07-28 | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig. Every participant is now adopted: the one hold-out (`scripts/jwst/*`) went with the JWST cut, so `check_siril_invoke.sh` carries no exemption and any bypass FAILS rather than being reported |
 | `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains FITS I/O, or the distortion is consumed natively (Siril `register -disto=`, BACKLOG:`native-solve-and-sip`) so the keys are never dropped | 2026-07-28 | **not fired** — darktable 5.4.1 has no FITS reader, so the warp leg is TIFF and the loss is structural. Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback) |
 | 5-set combine via TWO interleaved-half composes + a 2-member `-weight=nbstack` join (the 107-sub single-registration max compose needed ~37G transient vs ~24G reclaimable on the previous rig) | x86 disk → re-compose all 107 sub-stacks in ONE registration (every `groups_*` dir is kept for exactly this) | 2026-08-06 | **condition MET on this rig (950 G free, per the groups-row measurement) — the re-compose has NOT been run**, so the divergence stands in every shipped product until it is. Declared cost while it stands: the non-reference half carries one extra interpolation; halves span all five sets (interleaved), STACKCNT propagates exact frame weights (794+781=1575); the join landed natively in the cov25 orientation family. The 5-member per-set-stack shortcut is a measured dead-end (pre-cropped members — registry) |
-| ~~unpinned neural stages in the render tier~~ | — | 2026-08-04 | **RETIRED, not fired: there was no divergence.** MEASURED bit-identical per stage (StarNet2 also across thread counts, Cosmic Clarity denoise, Siril's stretch/asinh/pm). Numbers in `docs/dead-ends.md` |
-| ~~`frame_metrics.json` CFA-sampled FWHM~~ | — | 2026-08-04 | **RETIRED, condition fired and honoured.** `run_frame_qa.sh` debayers at convert (+9.1% FWHM inflation measured on the CFA arm). Records written the old way keep the caveat in their own `method` string |
 
 ---
 
@@ -109,6 +107,16 @@ Ordered work — nothing here is executed on an accepted product:
    is registered; a candidate is judged at the COMBINE, never per-set.
 5. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
    cause. Last resort, and it must be called what it is.
+6. **Which single model** — the pinned july14 fit is the default on history and
+   provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
+   COMBINE, one knob, never on a per-set product (a compose artifact
+   masquerades as optics there — the registry's per-set-model entries).
+7. **A state-CHANGE detector** — a genuine mid-campaign refocus needs a new
+   model; the trigger reads from the member-separation MEASUREMENT and must be
+   RELATIVE (members cluster and one or two break away at 2.5–3× the cluster's
+   own scatter in five sets, ~15× in the sixth) — a shape that survives an
+   instrument change where a constant does not. No threshold is invented until
+   the quantity is attributed (`docs/combine-contract.md` §5).
 
 **What the defect IS, measured.** The softness tracks SENSOR POSITION, not time
 (R² 0.90 against sensor x, **0.05 against elapsed time**), and it sits on the side
@@ -520,68 +528,6 @@ rig (already x86).
   image — what `spcc_cone.py` hand-rolls; needs a check that its list maps to the
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
-
-## `optical-state-models` — CLOSED, REFUTED AND REVERTED
-
-**The doctrine this item carried ("focus recalibrates every session; the lens
-model keys on the OPTICAL STATE, per set") is dead.** Kept as a closed item
-because the reasoning is instructive and the measurements are real.
-
-**Its founding evidence was a compose artifact.** The item opened with "the
-july-fitted pinned model measured against aug06: off-axis 0.82 vs 0.16–0.47 px —
-the field-dependent signature of a state change". MEASURED on the preserved
-sub-stacks: every one of aug06/set-01's five 100-frame groups reads **0.40 /
-0.42 / 0.44 / 0.43 / 0.45 px** under that same pinned model — indistinguishable
-from set-02's groups (0.45–0.46) and better on FWHM (2.74–2.79 vs 2.82–2.84).
-The 0.82 exists only in the 500-frame product; set-02 is the depth control
-(+0.11 over the same 100→500 increase, against set-01's +0.39). The chronology
-said it first: 0.48 → **0.82** → 0.57 → 0.60 across strictly sequential,
-frame-contiguous sets, and a focus change is a step, not a spike that returns.
-
-**Its discriminators do not discriminate.** "All five fitted states differ beyond
-the 0.47 px bound" was never evidence of distinct optical states: four independent
-fits of ONE set span **0.36–6.30 px** (median 3.22) against a between-set spread
-of 4.01–10.99 px (median 7.04) — the distributions overlap, and the bound is
-exceeded 7–23× by refits of a single set. A refit of set-01 lands 0.83 px from
-set-02's model and 3.26 px from set-01's own.
-
-**Its adoption cost the project its core capability.** Adopted on 1 WIN / 3 NULL,
-it gave new models to three sets that measured no benefit. Members warped under
-different models disagree **2.99 px** at the composed corner within a night and
-**5.34 px** across nights — visible star doubling, failed by eye — against
-0.93 px / 0.71 px for the same pairs under one model and 0.14–0.35 px same-night.
-One shared model is what every combine ever accepted here used, and the six-set
-cross-night union rebuilt under one model was accepted by the owner as the most
-detailed product to date.
-
-**What survives, and where it went:** fitting a model from real frames (that is
-how the shipped july14 model was made, and it beat the community profile at full
-depth — centre station 5.30 → 3.67 px, on the owner's eyes); the corner-support
-census (`cp_coverage.py` — no fit here constrains the corner, support stops at
-ρ 1.47–1.51 against a corner at 1.80); and the instrument-fix and
-architecture questions now carried by `docs/combine-contract.md` (§5 the gate,
-§9 the scope tiers) and BACKLOG:`compose-homography-smear`.
-
-**Open, inherited from this item, NOT closed by the revert:**
-- **Which single model.** For set-01 the pinned and own models produce
-  indistinguishable MEMBERS (group medians 0.430 vs 0.420 px) and differ only in
-  how those members compose (+0.39 vs +0.06). The july14 fit is the default on
-  history and provenance; a per-set fit is a legitimate CANDIDATE. The comparison
-  that settles it is at the COMBINE, one knob — never on a per-set product.
-- **The within-set compose "amplification residue" is neither a residue nor a model
-  question — it is BACKLOG:`compose-homography-smear`.** A set's 5-member compose
-  turns members measuring roundness 0.924–0.942 into 0.582 at one sky and costs
-  nothing at another, because a single homography cannot align members pointed
-  4.28° apart while any lens-model residual survives.
-- **A state-CHANGE detector.** The concern the doctrine was reaching for is real:
-  a genuine refocus mid-campaign would need a new model. Replace "per-set by
-  default" with "one model per instrument state, plus a measured trigger" — the
-  compose's member-separation MEASUREMENT is where the trigger reads from, but it
-  carries no threshold and none is to be invented here (`docs/combine-contract.md`
-  §5). The trigger has to be RELATIVE: a set's members cluster and one or two
-  break away at an end of the burst, at 2.5–3× the cluster's own scatter in five
-  sets and ~15× in the sixth. That shape survives an instrument change where a
-  constant does not.
 
 ## `final-best-percent-pass` — one target, many sessions, stack the best N%
 
