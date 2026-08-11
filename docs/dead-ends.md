@@ -1355,6 +1355,38 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **THE FRAME COUNTER WRAPS AT 9999 -> 0001, AND FILENAME SORT IS THEN THE WRONG
+  ORDER — groups are consecutive TIME blocks.** Measured on aug09/set-02: 456
+  frames, ONE continuous 22.8-minute run at a uniform 3.00 s cadence (epoch
+  deltas min 3.0, max 3.0 — no gap anywhere), wrapping DSC_9999 -> DSC_0001.
+  | order | sequence |
+  |---|---|
+  | by NAME | DSC_0001 … DSC_0264 , DSC_9808 … DSC_9999 |
+  | by TIME | DSC_9808 … DSC_9999 , DSC_0001 … DSC_0264 |
+  **0 of 456 frames occupy the same position under the two orderings.** The
+  groups builder sliced `find | sort`, so the first group would have been the
+  LAST 100 frames shot and one group would have straddled the wrap — joining
+  frames ~20 minutes and ~6 deg of sky apart into a single sub-stack whose
+  pointing is the average of two ends of the drift. Nothing downstream could see
+  it: the member simply registers and stacks worse, with the cause invisible in
+  the product.
+  IT IS NOT A RE-AIM, and it is worth saying because the symptom looks like one:
+  `segment_runs` reports such a set as TWO capture runs, because it treats a
+  frame-number discontinuity as a boundary. That is what made `mount_probe.sh`
+  confine its windows to 264 of 456 frames here. The probe still read a decisive
+  fixed signature (15.076 deg/hr against sidereal 15.041), so that is a NARROWED
+  BASELINE rather than a wrong answer — but a set whose two runs are really one
+  should not be split, and any future consumer of `segment_runs` needs to know
+  a wrap looks like a boundary to it.
+  FIX: `scripts/lib/frame_order.py` orders by EXIF epoch and is wired into
+  `run_undistort_groups.sh`; it reads paths from STDIN rather than argv, because
+  a 500-path list through `xargs` can be split at ARG_MAX into chunks that would
+  each be ordered independently — reintroducing the bug in a subtler form. It
+  warns loudly whenever capture order and filename order differ, and falls back
+  to the given order with a warning when epochs are unreadable.
+  BLAST RADIUS, measured across the corpus: 12 of 13 sets have name order ==
+  time order exactly. Only aug09/set-02 differs, and it differs completely.
+
 - **SIRIL `update_key` SILENTLY TRUNCATES A STRING VALUE AT THE FIRST `/` — it
   begins the FITS comment field.** Probed directly on a 16x16 test FITS through
   siril 1.4.4:

@@ -63,9 +63,15 @@ mkdir -p "$G" "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 sir(){ siril_cli -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
 
+# CAPTURE ORDER, not filename order. Groups are consecutive TIME blocks, and the
+# camera's frame counter wraps at 9999 -> 0001: on aug09/set-02 (456 frames, one
+# continuous 22.8-min run) filename order puts 0/456 frames in their true
+# position, so a group would straddle the wrap and join frames ~20 minutes and
+# ~6 deg of sky apart into one sub-stack. See scripts/lib/frame_order.py.
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
-  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
-     -o -iname '*.arw' -o -iname '*.raf' \) | sort)
+     \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+     -o -iname '*.arw' -o -iname '*.raf' \) | sort \
+     | python3 "$REPO/scripts/lib/frame_order.py")
 # cull via the single-source cullspec (filename-digit convention; loud ABORT
 # on a never-matching or ambiguous exclude)
 RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
