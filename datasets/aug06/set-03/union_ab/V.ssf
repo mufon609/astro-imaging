@@ -1,0 +1,30 @@
+requires 1.4.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab
+setfindstar reset -roundness=0.10 -relax=on -maxR=1.0
+load z_A_starpair
+crop 1504 2605 800 800
+findstar -out=v_A_starpair_defect_RA294.86.lst
+load z_A_starpair
+crop 4621 2605 800 800
+findstar -out=v_A_starpair_control_RA314.72.lst
+load z_A_starpair
+crop 2564 2471 800 800
+findstar -out=v_A_starpair_mid_RA301.58.lst
+load z_A_starpair
+crop 3582 2565 800 800
+findstar -out=v_A_starpair_mid_RA308.20.lst
+load z_B_astrometric
+crop 6038 1330 800 800
+findstar -out=v_B_astrometric_defect_RA294.86.lst
+load z_B_astrometric
+crop 3010 2046 800 800
+findstar -out=v_B_astrometric_control_RA314.72.lst
+load z_B_astrometric
+crop 5038 1704 800 800
+findstar -out=v_B_astrometric_mid_RA301.58.lst
+load z_B_astrometric
+crop 4028 1847 800 800
+findstar -out=v_B_astrometric_mid_RA308.20.lst

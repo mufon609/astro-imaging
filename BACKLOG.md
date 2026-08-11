@@ -213,11 +213,39 @@ is **not** true of the current chain.
 RA 294.86 — an exact match to the ledger — against **2.448 / 0.968** at the
 control. The smear enters at the CROSS-SET / CROSS-NIGHT union.
 
-**Closes when** the same one-knob A/B is run on the 28-member union — the level
-where members are furthest apart in pointing and epoch, where one homography per
-member is weakest and per-image astrometric resampling should win most — and the
-winner is judged on the owner's eyes. Ledger:
-`compose_ab_astrometric_vs_starpair`.
+**THE UNION A/B HAS RUN AND IT IS A WIN.** One knob — `seqplatesolve s` in place
+of `register s -2pass` — on the same 28 members, same pinned reference, same
+`-framing=max`, same stack. Arm A is the shipped product, which a faithful
+rebuild reproduced exactly.
+
+| position | A star-pair | B astrometric | Δ roundness |
+|---|---|---|---|
+| **defect RA 294.86** | 4.383 / **0.458** | 2.678 / **0.974** | **+0.516** |
+| mid RA 301.58 | 3.060 / 0.725 | 2.595 / 0.917 | +0.192 |
+| mid RA 308.20 | 2.498 / 0.931 | 2.453 / 0.946 | +0.015 |
+| control RA 314.72 | 2.448 / 0.968 | 2.435 / 0.961 | −0.006 |
+
+The defect zone is not improved, it is **gone** — 0.974 sits at the clean band's
+own level — with FWHM down 1.705 px, no regression in the clean band, and star
+counts within 1–2% at every position (so it is not survivorship). All 28 members
+solved in 2–5 s each (logodds 103–574), and the build logged *"Distortion data
+was found in the sequence file, undistortion will be applied"*.
+
+**Mechanism, predicted before the test:** the shipped compose fits ONE star-pair
+homography per member against a common reference while the members' optical axes
+span 13° of RA across two nights. The members' own solutions already place the
+same stars within 0.10 px median — *"the homography is what discards it"*.
+Per-image astrometric resampling does not discard it.
+
+**Closes when** it is judged where models are judged — `star_stations` + `seqtilt`
+at the COMBINE and the owner's eyes on the 16-bit PNG — and adopted into the
+compose stage. **This is the change the rebuild should bake in.**
+
+**Open before adoption:** B's canvas is 8313×5117 against A's 8659×6009, 18%
+smaller in area. All four measured positions are inside both, but whether B sheds
+real sky or only empty margin is NOT established and must be measured first.
+Also: the route makes a member SOLVE a hard prerequisite of the compose stage.
+Ledger: `union_ab_astrometric_vs_starpair`.
 
 **Cautions carried in:** it is still one homography per image, though now preceded
 by per-image undistortion; the registry holds a related NEGATIVE (each member's own
