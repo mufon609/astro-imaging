@@ -263,6 +263,25 @@ except Exception: print(0)" "$SUB.fit")
 from astropy.io import fits;import sys
 fits.setval(sys.argv[1],'GRPSIZE',value=int(sys.argv[2]),
             comment='frames intended in this group')" "$SUB.fit" "$size"
+  # SOLVE THE MEMBER NOW, while it is the only thing in flight. Every combine
+  # above this level registers ASTROMETRICALLY — from each member's own plate
+  # solution, applying that member's own SIP undistortion — and
+  # compose_preflight.py REFUSES a combine whose members are unsolved. Measured
+  # cost of the star-pair fallback it prevents: roundness 0.458 against 0.974 on
+  # the 28-member union. A member born solved makes every combine above it
+  # possible; solving 28 of them later, by hand, is how it gets skipped.
+  # 2-5 s per member against the minutes the member itself took to build.
+  if [ ! -f "$SUB.solved" ]; then
+    if python3 "$REPO/scripts/calibrate/solve_field.py" "$SUB.fit" \
+         --inject="$SUB.solved.fit" --max-stars=1500 >> "$G/solve.log" 2>&1 \
+       && [ -f "$SUB.solved.fit" ]; then
+      mv -f "$SUB.solved.fit" "$SUB.fit"; : > "$SUB.solved"
+      echo "  solved sub_$(printf %02d "$g") — astrometric combine available"
+    else
+      echo "  WARNING: sub_$(printf %02d "$g") did NOT solve — every combine above" >&2
+      echo "  this set will be REFUSED by compose_preflight until it does (see $G/solve.log)" >&2
+    fi
+  fi
 done
 
 echo "=== final: register + stack $K sub-stacks ==="

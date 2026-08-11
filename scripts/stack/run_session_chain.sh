@@ -82,4 +82,36 @@ print(f"[session chain] {sys.argv[2]}: culled {len(e)} frame(s)"
       + (f" n={e} — {why}" if e else ""))
 PY
 done
-echo "[session chain] DONE — all ${#SETS[@]} set(s) carried to their judge surfaces (or already there)"
+# ---- THE NIGHT COMBINE ------------------------------------------------------
+# Until now this chain LOOPED the per-set chain and stopped, so a session ended
+# as N separate per-set stacks and no combined night. The night is a deliverable
+# in its own right, and it is also the level where the astrometric compose earns
+# its keep: members within one night sit ~13 deg apart in RA and one star-pair
+# homography per member cannot carry that (measured 0.458 roundness against
+# 0.974). It composes the MEMBERS, never the per-set finals — a per-set final has
+# already discarded its outer drift zones, so a combine of finals has holes
+# exactly where only those zones covered (registered dead end).
+if [ -n "$PLAN" ]; then
+  echo "[session chain] PLAN — then the NIGHT combine across ${#SETS[@]} set(s) -> one stack + render"
+  exit 0
+fi
+GROUPDIRS=(); NAME=
+for s in "${SETS[@]}"; do
+  gd=$SESSION/work/groups_$s
+  [ -d "$gd" ] || { echo "[session chain] no members for $s ($gd) — skipping it in the night combine" >&2; continue; }
+  GROUPDIRS+=("$gd")
+  NAME="${NAME:+$NAME+}${NAME:+${s#set-}}"; [ -n "$NAME" ] || NAME=$s
+done
+if [ ${#GROUPDIRS[@]} -lt 2 ]; then
+  echo "[session chain] only ${#GROUPDIRS[@]} set(s) with members — no night combine to build"
+else
+  SES=$(basename "$SESSION")
+  NIGHT=$REPO/web/results/$SES/stack_${NAME}_full.fit
+  echo "[session chain] ===== night combine: ${#GROUPDIRS[@]} sets -> $(basename "$NIGHT") ====="
+  "$REPO/scripts/stack/run_undistort_compose.sh" --out="$NIGHT" --framing=max \
+    --weight=nbstack "${GROUPDIRS[@]}"
+  "$REPO/scripts/stack/finish_render.sh" "$NIGHT" "${NAME}_full" \
+    --session="$SESSION" --set="${SETS[-1]}"
+  echo "[session chain] night render -> web/results/$SES/judge/${NAME}_full_spcc-linked.png"
+fi
+echo "[session chain] DONE — ${#SETS[@]} set(s) + the night combine, each at its judge surface"

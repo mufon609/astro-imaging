@@ -1386,6 +1386,18 @@ SILENT — pin the state, never inherit it):
   to the given order with a warning when epochs are unreadable.
   BLAST RADIUS, measured across the corpus: 12 of 13 sets have name order ==
   time order exactly. Only aug09/set-02 differs, and it differs completely.
+  **THE SECOND EDGE — FILENAMES ARE REUSED AFTER THE WRAP.** The counter cycles
+  every 10,000 frames and this corpus is already **6,938 frames into that
+  cycle** (6,938 distinct basenames across 6,938 frames — zero collisions
+  TODAY). The next wrap reuses names this corpus already holds: aug09/set-02
+  owns DSC_0001–DSC_0264, and a future night crossing 9999 will produce those
+  names again. So **a frame's identity is (session, set, basename); the basename
+  alone is not a key** and must never be used as one across units. Checked
+  today: `cullspec.py` matches filename digits WITHIN one set (unique there, and
+  it already ABORTs loudly on an ambiguous exclude), `frame_order.py` maps names
+  per-set, and the ingest manifests are per-unit — nothing currently pools raw
+  frames across units by name. This is recorded because it is guaranteed to
+  arrive, not because it has bitten yet.
 
 - **SIRIL `update_key` SILENTLY TRUNCATES A STRING VALUE AT THE FIRST `/` — it
   begins the FITS comment field.** Probed directly on a 16x16 test FITS through
