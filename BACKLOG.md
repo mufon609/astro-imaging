@@ -197,10 +197,27 @@ distortion consumed (ledger `astrometric_registration_is_available_headless`).
 The shipped compose instead uses `register -2pass` star-pair homographies — a bare
 projective fit with no per-image undistortion.
 
-**Closes when** an A/B of the within-set 5-member compose — shipped route against
-the astrometric route, one knob — is measured at the same-sky ladder where the
-defect lives (RA 294.86, where the compose reads 3.48/0.582 against members at
-2.42–2.54/0.924–0.942), and the winner is judged on the owner's eyes.
+**THE WITHIN-SET A/B HAS RUN, AND IT RELOCATED THE DEFECT.** Same five members,
+same framing, same stack — one knob. Astrometric buys **+0.019 roundness** at the
+defect position and **+0.006** at the control, for +0.033–0.035 px of FWHM: real,
+consistent in sign, and small. Small because **there is nothing broken at that
+level any more**: `stack_set-01_full-pinned` (built 2026-08-07 23:00) reproduces
+the recorded 3.48/0.582 exactly, but the two later builds read **0.933** and
+**0.932** at the same sky position, and a rebuild from the current members
+reproduces the later build to three decimals (2.627/0.930 against 2.625/0.933).
+`within_set_compose_is_the_visible_smear` was true of the pinned-era product and
+is **not** true of the current chain.
+
+**The defect is one level up and it is LIVE.** The newest cross-night union
+(`stack_j31-3+a06-3_full_onemodel`, 2026-08-09 17:31) reads **4.383 / 0.458** at
+RA 294.86 — an exact match to the ledger — against **2.448 / 0.968** at the
+control. The smear enters at the CROSS-SET / CROSS-NIGHT union.
+
+**Closes when** the same one-knob A/B is run on the 28-member union — the level
+where members are furthest apart in pointing and epoch, where one homography per
+member is weakest and per-image astrometric resampling should win most — and the
+winner is judged on the owner's eyes. Ledger:
+`compose_ab_astrometric_vs_starpair`.
 
 **Cautions carried in:** it is still one homography per image, though now preceded
 by per-image undistortion; the registry holds a related NEGATIVE (each member's own

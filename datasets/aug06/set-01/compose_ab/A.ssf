@@ -1,0 +1,10 @@
+requires 1.4.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/compose_ab/armA/src
+link s -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/compose_ab/armA/seq
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/compose_ab/armA/seq
+register s -2pass
+seqapplyreg s -framing=min -prefix=r_
+stack r_s mean none -norm=addscale -output_norm -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/compose_ab/A_shipped

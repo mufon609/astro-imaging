@@ -103,3 +103,10 @@ __pycache__/
 **/astroreg_work/*
 !**/astroreg_work/*.seq
 !**/astroreg_work/*.ssf
+
+# compose_ab/ — the astrometric-vs-star-pair compose A/B. Only the star lists,
+# the box coordinates and the .ssf are the record; the stacks are regenerable.
+**/compose_ab/*
+!**/compose_ab/*.lst
+!**/compose_ab/*.ssf
+!**/compose_ab/*.txt
