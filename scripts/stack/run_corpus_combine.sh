@@ -46,7 +46,9 @@ for S in "${SESSIONS[@]}"; do
   n=0
   for gd in "$S"/work/groups_set-*; do
     [ -d "$gd" ] || continue
-    case "$gd" in *_pinned|*_subsky1) continue;; esac   # arm variants are not the corpus
+    # arm variants are not the corpus; set-00 is the SPARE-FRAMES bucket, never
+    # a light set (owner convention: real sets start at 01)
+    case "$gd" in *_pinned|*_subsky1|*/groups_set-00) continue;; esac
     ls "$gd"/sub_*.fit >/dev/null 2>&1 || continue
     GROUPDIRS+=("$gd"); n=$((n + $(ls "$gd"/sub_*.fit | wc -l)))
   done
