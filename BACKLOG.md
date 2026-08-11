@@ -82,36 +82,27 @@ band x = 45–70%. That is the smear the owner named.
 
 Ordered work — nothing here is executed on an accepted product:
 
-1. **PIN THE REGISTRATION REFERENCE — measured 6.5x, free, and unrelated to the
-   cause.** The groups route runs one `register -2pass` per group and Siril's
-   auto-pick wanders (measured at frames 6, 26, 15, 3, 26 of 50); the member that
-   breaks away is always the one whose reference sits latest. One knob on identical
-   frames: per-group references give a worst pair of **3.12 px**, a single global
-   reference **0.48 px**. It converts between-member doubling into within-member
-   blur (0.25-0.27 px), which is the far cheaper error. Costs field of view at
-   `-framing=min` (4906x3603 against 5832x3961 here), so trial `-framing=max` too.
-   Also still open: the compose's own global registration inflates same-set
-   disagreement 2.5-4.7x with sequence size (july31/set-01 1.12 -> 3.02 px inside
-   28 members, aug06/set-03 0.95 -> 3.38).
-2. **Trial SWarp** (packaged 2.41.5-3, not installed) — resample each member onto one
-   output WCS by its own solution. MEASURED support, not argument: the members' own
-   astrometric solutions place the same stars within **0.10 px median / 0.26 px p90**
-   at exactly the sky where the homography compose loses 1.06 px of FWHM. Per-member
-   solving is measured working (8/8, logodds 113–201).
-3. **Interleaved rather than consecutive groups** — one knob, cheap, collapses the
+1. ~~Reference pinning~~ and ~~the SWarp trial~~ are RESOLVED: the compose
+   registers all members in one sweep with the reference setref-pinned
+   (deterministic level anchor), and per-image astrometric resampling is the
+   ADOPTED route (`seqplatesolve` + `seqapplyreg`, each member's own solution
+   and SIP — the SWarp-class operation natively; corpus defect position
+   measures 0.980 roundness, clean-band level). The remaining work below is
+   the OPTICS term, which no registration reaches.
+2. **Interleaved rather than consecutive groups** — one knob, cheap, collapses the
    within-set pointing spread to ~0. Trades the swept-field mosaic for consistency
    (co-pointed members compose to one member's area) and changes the dwell-floor and
    transient-rejection denominators, so it is a real trade, not a free win.
-4. **A corner-true shared model** — reduces the residual the homography must absorb.
+3. **A corner-true shared model** — reduces the residual the homography must absorb.
    No fit here constrains past ρ 1.47–1.51 against a corner at 1.80. The per-set trap
    is registered; a candidate is judged at the COMBINE, never per-set.
-5. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
+4. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
    cause. Last resort, and it must be called what it is.
-6. **Which single model** — the pinned july14 fit is the default on history and
+5. **Which single model** — the pinned july14 fit is the default on history and
    provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
    COMBINE, one knob, never on a per-set product (a compose artifact
    masquerades as optics there — the registry's per-set-model entries).
-7. **A state-CHANGE detector** — a genuine mid-campaign refocus needs a new
+6. **A state-CHANGE detector** — a genuine mid-campaign refocus needs a new
    model; the trigger reads from the member-separation MEASUREMENT and must be
    RELATIVE (members cluster and one or two break away at 2.5–3× the cluster's
    own scatter in five sets, ~15× in the sixth) — a shape that survives an
@@ -185,91 +176,6 @@ the owner's eyes, never on its own residual.
 
 **Closes when** a route ships that holds the exit-edge sensor region at the clean
 side's star shape on the owner's eyes.
-
-## `astrometric-compose` — the compose discards astrometry it already has
-
-**The largest measured term in the deliverable.** At the same sky position, set-01's
-five members read roundness 0.924 / 0.924 / 0.937 / 0.941 / 0.942 and their own
-5-member compose reads **0.582**; the marched union columns read 0.448–0.613 across
-a fifth of the frame against 0.947–0.968 in the clean band. The mechanism is
-measured: the members' own astrometric solutions place the same stars within
-**0.10 px median / 0.26 px p90** at exactly the sky where the compose loses 1.06 px
-of FWHM and 0.34 of roundness — *the information needed to align them exists and the
-homography is what discards it* (ledger `within_set_compose_is_the_visible_smear`).
-Members within one set sit 4.28° apart in pointing, because a group is a consecutive
-time block of a sweeping burst.
-
-**The route is installed, headless, and takes seconds** — and the chain has never
-used it. `seqplatesolve <seq>` on WCS-carrying images computes registration from
-each image's OWN solution; `seqapplyreg` applies that image's OWN SIP undistortion
-before projecting, and the outputs land on a common tangent point with the
-distortion consumed (ledger `astrometric_registration_is_available_headless`).
-The shipped compose instead uses `register -2pass` star-pair homographies — a bare
-projective fit with no per-image undistortion.
-
-**THE WITHIN-SET A/B HAS RUN, AND IT RELOCATED THE DEFECT.** Same five members,
-same framing, same stack — one knob. Astrometric buys **+0.019 roundness** at the
-defect position and **+0.006** at the control, for +0.033–0.035 px of FWHM: real,
-consistent in sign, and small. Small because **there is nothing broken at that
-level any more**: `stack_set-01_full-pinned` (built 2026-08-07 23:00) reproduces
-the recorded 3.48/0.582 exactly, but the two later builds read **0.933** and
-**0.932** at the same sky position, and a rebuild from the current members
-reproduces the later build to three decimals (2.627/0.930 against 2.625/0.933).
-`within_set_compose_is_the_visible_smear` was true of the pinned-era product and
-is **not** true of the current chain.
-
-**The defect is one level up and it is LIVE.** The newest cross-night union
-(`stack_j31-3+a06-3_full_onemodel`, 2026-08-09 17:31) reads **4.383 / 0.458** at
-RA 294.86 — an exact match to the ledger — against **2.448 / 0.968** at the
-control. The smear enters at the CROSS-SET / CROSS-NIGHT union.
-
-**THE UNION A/B HAS RUN AND IT IS A WIN.** One knob — `seqplatesolve s` in place
-of `register s -2pass` — on the same 28 members, same pinned reference, same
-`-framing=max`, same stack. Arm A is the shipped product, which a faithful
-rebuild reproduced exactly.
-
-| position | A star-pair | B astrometric | Δ roundness |
-|---|---|---|---|
-| **defect RA 294.86** | 4.383 / **0.458** | 2.678 / **0.974** | **+0.516** |
-| mid RA 301.58 | 3.060 / 0.725 | 2.595 / 0.917 | +0.192 |
-| mid RA 308.20 | 2.498 / 0.931 | 2.453 / 0.946 | +0.015 |
-| control RA 314.72 | 2.448 / 0.968 | 2.435 / 0.961 | −0.006 |
-
-The defect zone is not improved, it is **gone** — 0.974 sits at the clean band's
-own level — with FWHM down 1.705 px, no regression in the clean band, and star
-counts within 1–2% at every position (so it is not survivorship). All 28 members
-solved in 2–5 s each (logodds 103–574), and the build logged *"Distortion data
-was found in the sequence file, undistortion will be applied"*.
-
-**Mechanism, predicted before the test:** the shipped compose fits ONE star-pair
-homography per member against a common reference while the members' optical axes
-span 13° of RA across two nights. The members' own solutions already place the
-same stars within 0.10 px median — *"the homography is what discards it"*.
-Per-image astrometric resampling does not discard it.
-
-**Closes when** it is judged where models are judged — `star_stations` + `seqtilt`
-at the COMBINE and the owner's eyes on the 16-bit PNG — and adopted into the
-compose stage. **This is the change the rebuild should bake in.**
-
-**The canvas question is CLOSED and it went the right way.** B's smaller canvas is
-margin, not a crop: measured on the products' own coverage masks, B covers
-**800.1 sq.deg against A's 773.5** — *more* sky (+3.4%) in a canvas 18% smaller in
-pixels, because the astrometric framing bounds the actual projected footprints
-(85.1% fill) instead of a conservative box (69.9% fill). The footprints are
-97–98% mutually contained; only **0.14%** of A's covered sky falls outside B's
-canvas at all; and the defect region is densely covered in B (1047 detections
-against A's 1070 in the same box). Stable across thresholds 0 → 1e-4. Ledger:
-`union_astrometric_canvas_is_not_a_crop`.
-
-**Still open before adoption:** the owner's eyes on the full-frame 16-bit PNG,
-and the fact that the route makes a member SOLVE a hard prerequisite of the
-compose stage. Ledger: `union_ab_astrometric_vs_starpair`.
-
-**Cautions carried in:** it is still one homography per image, though now preceded
-by per-image undistortion; the registry holds a related NEGATIVE (each member's own
-SIP as a STANDALONE warp then composed measured WORSE); and `-framing=max` on a
-variable-size sequence gives each output its own origin, which has already broken
-one instrument.
 
 ## `intake-culling` — one measured intake pass, one visible formula
 

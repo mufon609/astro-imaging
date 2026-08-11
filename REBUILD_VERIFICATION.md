@@ -51,8 +51,8 @@ derivatives too), full `CALSETS` identity, `NDISTMOD=1`.
 positions: round point stars, no directional smear, no doubling; the faint
 drift-aligned background weave is the registered walking-noise class (open,
 acquisition-side), not the compose defect. Owner's eyes: july31 night PASSED
-("sharp from corner to corner"); the corpus PNG awaits the owner's verdict —
-`BACKLOG:astrometric-compose` closes on that PASS, not before.
+("sharp from corner to corner"); the corpus render PASSED ("the final render
+passes") — `BACKLOG:astrometric-compose` is closed and removed.
 
 ## The corpus solve incident (the one fight of the endgame)
 
