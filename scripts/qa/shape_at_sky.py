@@ -95,10 +95,13 @@ def measure(image, positions, box, top, y_top_origin):
                 y_fits = int(round(y0 - box / 2))
                 y = (H - y_fits - box) if y_top_origin else y_fits
                 if x < 0 or y < 0 or x + box > W or y + box > H:
-                    raise SystemExit(
-                        f"ERROR: box for {label} (RA {ra} Dec {dec}) at pixel "
-                        f"({x0:.0f},{y0:.0f}) does not fit the {W}x{H} canvas — "
-                        "a shrunk box breaks the equal-area comparison")
+                    # never a smaller box (equal-area discipline) — the position
+                    # is reported OUT-OF-CANVAS and excluded from statistics, so
+                    # a product that does not cover a target says so plainly
+                    out.append({"label": label, "ra": ra, "dec": dec,
+                                "pixel_xy": [round(x0, 1), round(y0, 1)],
+                                "out_of_canvas": True})
+                    continue
                 lst = os.path.join(work, f"p{i}.lst")
                 f.write(f"load {image}\ncrop {x} {y} {box} {box}\n"
                         f"findstar -out={lst}\n")
@@ -107,6 +110,8 @@ def measure(image, positions, box, top, y_top_origin):
                             "crop": [x, y, box, box], "lst": lst})
         r = siril_run.run(["-d", work, "-s", ssf], capture_output=True, text=True)
         for row in out:
+            if row.get("out_of_canvas"):
+                continue
             if not os.path.exists(row["lst"]):
                 raise SystemExit(f"findstar wrote no list for {row['label']} — "
                                  f"siril said:\n{(r.stdout or '')[-800:]}")
@@ -161,7 +166,11 @@ def main():
     rows, convention = None, None
     for y_top in (False, True):
         got = measure(image, positions, a.box, a.top, y_top)
-        offs = [r.get("box_center_offset_deg") for r in got]
+        offs = [r.get("box_center_offset_deg") for r in got
+                if not r.get("out_of_canvas")]
+        if not offs:
+            rows, convention = got, "n/a (every position out of canvas)"
+            break
         if any(o is None for o in offs):
             # no solved star positions to verify with — cannot resolve the flip
             raise SystemExit("ERROR: findstar emitted no per-star RA/Dec (image "
@@ -184,6 +193,9 @@ def main():
                           f"over the {a.top} brightest fits"),
            "positions": rows}
     for r in rows:
+        if r.get("out_of_canvas"):
+            print(f"  {r['label']:<14} OUT OF CANVAS (pixel {r['pixel_xy']})")
+            continue
         print(f"  {r['label']:<14} n={r['n']:5d}  "
               f"FWHM={r.get('fwhm_px', float('nan')):6.3f} px  "
               f"roundness={r.get('roundness', float('nan')):5.3f}  "
