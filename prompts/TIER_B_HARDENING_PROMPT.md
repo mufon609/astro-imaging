@@ -100,6 +100,15 @@ The finish stage proceeded on the bogus WCS until killed by hand
 (`scratchpad` corpus.log carries the sequence; the remedy that worked was
 `--central=0.5`).
 
+Two aggravators, both measured in the same incident: (a) siril SPCC ran to
+completion on the bogus WCS and produced plausible-looking K factors
+(R 1.000 G 0.592 B 0.817, "1790/5153 stars kept") instead of failing — a
+confident falsehood one step downstream, so the solve is the ONLY place this
+can be stopped; (b) `--central` is a HALF-WIDTH fraction (`|x−w/2| >
+central·w`), so `--central=0.5` excludes NOTHING — a no-op that masqueraded
+as a recovery attempt. Fix the semantics or refuse values ≥ 0.5, and align
+the docstrings (`solve_field.py`, `finish_render.sh`) with whichever ships.
+
 Design the gate in `solve_field.py`: when header/CLI hints exist and the
 accepted solution contradicts them (position beyond ~2× the hint radius, or
 scale outside a stated band around the header-derived value), REFUSE loudly,
