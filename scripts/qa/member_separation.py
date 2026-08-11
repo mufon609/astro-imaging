@@ -242,11 +242,25 @@ def main():
     ap.add_argument("--prefix", default="s_")
     ap.add_argument("--json")
     ap.add_argument("--label", default="")
+    # the caller states what registered the compose: under ASTROMETRIC
+    # registration these separations are computed through the LINEAR
+    # homographies only and so INCLUDE each member's SIP field (~8-10 px at
+    # the corner) — the very term seqapplyreg consumes at resample. The
+    # number is then an upper bound on nothing; it is NOT the star-pair-era
+    # quantity and must not be compared against those profiles.
+    ap.add_argument("--regmodel", default="", choices=["", "starpair", "astrometric"])
     ap.add_argument("--tol", type=float, default=12.0)
     ap.add_argument("--min-n", type=int, default=100)
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("-h", "--help", action="store_true")
     a = ap.parse_args()
+    if a.selftest and not a.seqdir:
+        # the falsification runs against REAL members (it needs detections and
+        # the .seq homographies), so a bare --selftest cannot run it — and
+        # exiting into the generic docstring here read as a pass twice
+        sys.exit("member_separation --selftest requires a <seq-dir> holding "
+                 "members + their .seq (it falsifies against real data): "
+                 "member_separation.py <seq-dir> --selftest")
     if a.help or not a.seqdir:
         sys.exit(__doc__)
     if a.prefix.startswith("r_"):
@@ -334,6 +348,12 @@ def main():
            "zone_basis": "max(rho_a, rho_b), each star's radius in its OWN member "
                          "normalised by that member's half-diagonal",
            "tol_px": a.tol, "min_n": a.min_n,
+           **({"regmodel_caveat":
+               "ASTROMETRIC compose: separations are computed through the "
+               "LINEAR homographies only and INCLUDE each member's SIP field "
+               "(~8-10 px at the corner), which seqapplyreg consumes at "
+               "resample — NOT comparable to star-pair-era profiles"}
+              if a.regmodel == "astrometric" else {}),
            "reports_only": "MEASUREMENT, not a gate — no threshold, no verdict. "
                            "The quantity mixes a real member disagreement with one "
                            "the compose's own global registration creates (measured "

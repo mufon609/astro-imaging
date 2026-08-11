@@ -371,7 +371,8 @@ fi
 # check that cannot fail (docs/dead-ends.md). The number is measured, printed
 # and stamped on the product; what it means is not decided here.
 python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" \
-  --json="$GATEJSON" --label="$(basename "$OUT")"
+  --json="$GATEJSON" --label="$(basename "$OUT")" \
+  --regmodel="$([ "$STARPAIR" = 1 ] && echo starpair || echo astrometric)"
 
 sir "$W/stack.ssf"
 [ -f "$OUT.fit" ] || { echo "STACK MISSING — read $W/stack.log" >&2; exit 1; }
@@ -405,7 +406,7 @@ except (OSError, ValueError):
 w = (d.get("worst") or {}).get("max_px")
 if w is not None:
     fits.setval(sys.argv[1], "MAXMSEP", value=float(w),
-                comment="worst member separation px (compose gate)")
+                comment="worst member sep px (H-only; incl member SIP if astrometric)")
 models = {tuple(v.get(k) for k in ("DISTA", "DISTB", "DISTC"))
           for v in (d.get("optics") or {}).values()}
 fits.setval(sys.argv[1], "NDISTMOD", value=len(models),

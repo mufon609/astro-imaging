@@ -46,8 +46,11 @@ for d in "$SESSION"/*/; do
   # as a light set and carried to frame QA, mount derivation and a full stack.
   # build_master_dark.sh still requires the plural (it stops loudly on the
   # singular); this list only refuses to mistake one for lights.
+  # set-00 is the SPARE-FRAMES bucket, never a light set (owner convention:
+  # real sets start at 01). Enumerating it as lights RED-stopped a whole
+  # session on a dwell-floor collision for data never meant to stack.
   case "$name" in
-    darks|dark|biases|bias|flats|flat|flats_*|darkflats|darkflat|calib|work|reference|.*) continue;;
+    darks|dark|biases|bias|flats|flat|flats_*|darkflats|darkflat|calib|work|reference|set-00|.*) continue;;
   esac
   n=$(find "$d" -maxdepth 1 -type f \
     \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \

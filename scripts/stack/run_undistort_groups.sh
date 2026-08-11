@@ -287,7 +287,14 @@ done
 echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
 for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
+# setref 1 (time order) AFTER the 2pass: -norm=addscale matches every member's
+# background TO THE REFERENCE and -output_norm re-zeroes at the darkest pixel,
+# so the reference IS the product's level anchor — and 2pass's auto-pick made
+# that a lottery across rebuilds (member skies span up to 1.7x within a set;
+# measured 67-vs-43 ADU on two builds of one set, a false baseline regression).
+# Member 1 changes nothing else: registration quality is per-member, and the
+# canvas orientation re-bases with setref (registry, pre-cropped-stacks entry).
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\nsetref s 1\nseqapplyreg s -framing=%s -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
   "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
