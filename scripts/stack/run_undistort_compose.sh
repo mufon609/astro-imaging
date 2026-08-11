@@ -117,12 +117,13 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
-OUT= FRAMING=min WEIGHT= REF= GATEJSON=; SUBDIRS=()
+OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
   --weight=nbstack|--weight=noise) WEIGHT="-weight=${a#*=}";;
   --ref=*) REF=${a#*=};;
   --gate-json=*) GATEJSON=${a#*=};;
+  --starpair) STARPAIR=1;;
   --*) echo "unknown arg $a" >&2; exit 1;;
   *) SUBDIRS+=("$a");;
 esac; done
@@ -294,8 +295,42 @@ PY
 # SPLIT IN TWO: the registration must finish and be MEASURED (T2) before
 # anything is stacked, because a smearing compose has to be impossible to build,
 # not merely detectable afterwards.
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass\n%bseqapplyreg s -framing=%s -prefix=r_\n' \
-  "$W/in" "$W/seq" "$W/seq" "$SETREF" "$FRAMING" > "$W/compose.ssf"
+# ---- REGISTRATION MODEL, and the guard that makes skipping it impossible ----
+# `register -2pass` fits ONE star-pair homography per member against a common
+# reference. Across sets/nights the members' optical axes span ~13 deg of RA and
+# a single projective fit cannot carry that: MEASURED on the 28-member union at
+# RA 294.86, star-pair reads FWHM 4.383 / roundness 0.458 where astrometric
+# reads 2.678 / 0.974 — the clean band of the same union is 0.961-0.968, so the
+# defect is REMOVED, not reduced, with no regression in the clean band, star
+# counts within 1-2%, MORE sky covered (800.1 vs 773.5 sq.deg) and a north-up
+# framing instead of the pinned member's arbitrary one.
+# `seqplatesolve` derives registration from each member's OWN solution and
+# `seqapplyreg` applies that member's OWN SIP undistortion before projecting —
+# which requires every member to carry TAN+SIP. Siril does NOT complain when
+# they do not; it registers what it can and exports a finished-looking product.
+# So the chain asserts, twice: compose_preflight.py before, and the tool's own
+# log lines after.
+if [ "$STARPAIR" = 1 ]; then
+  echo "" >&2
+  echo "  *** STAR-PAIR REGRESSION ARM — register -2pass, NOT the shipped route ***" >&2
+  echo "  *** measured at roundness 0.458 against astrometric's 0.974 on the    ***" >&2
+  echo "  *** 28-member union. This is for A/B work only; it must never build   ***" >&2
+  echo "  *** a product anyone judges or ships.                                 ***" >&2
+  echo "" >&2
+  REGCMD='register s -2pass'
+  REGDESC='register -2pass [STAR-PAIR REGRESSION ARM]'
+else
+  "$REPO/scripts/stack/compose_preflight.py" "$W"/in/m_*.fit \
+    --json="$W/compose_preflight.json" || {
+      echo "" >&2
+      echo "  compose_preflight REFUSED the members (above). Solve them, or pass" >&2
+      echo "  --starpair to build the measured-worse regression arm deliberately." >&2
+      exit 3; }
+  REGCMD='seqplatesolve s'
+  REGDESC='seqplatesolve (per-member astrometric, own SIP undistortion)'
+fi
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\n%s\n%bseqapplyreg s -framing=%s -prefix=r_\n' \
+  "$W/in" "$W/seq" "$W/seq" "$REGCMD" "$SETREF" "$FRAMING" > "$W/compose.ssf"
 printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
   "$W/seq" "$WEIGHT" "$OUT" > "$W/stack.ssf"
 # State the weighting explicitly: "plain mean" printed unconditionally would be
@@ -306,9 +341,21 @@ case "$WEIGHT" in
   -weight=noise)   WDESC="weighted by member noise, inverse-variance (noise)";;
   *)               WDESC="unweighted";;
 esac
-echo "composing $n sub-stacks (register -2pass -> ${SETREF:+setref $RIDX -> }-framing=$FRAMING -> mean, no rejection, $WDESC)"
+echo "composing $n sub-stacks ($REGDESC -> ${SETREF:+setref $RIDX -> }-framing=$FRAMING -> mean, no rejection, $WDESC)"
 sir "$W/compose.ssf"
 ls "$W/seq"/r_s_*.fit >/dev/null 2>&1 || { echo "REGISTRATION FAILED — read $W/compose.log" >&2; exit 1; }
+# POST-ASSERT: the preflight proves the members COULD carry it; only siril's own
+# log proves it DID. Without this, a future siril that quietly falls back to a
+# linear solution would regress the product with nothing to show for it.
+if [ "$STARPAIR" != 1 ]; then
+  grep -q "Astrometric registration computed" "$W/compose.log" || {
+    echo "ABORT: siril did not report 'Astrometric registration computed' — the" >&2
+    echo "  compose did NOT use per-member astrometric registration. Read $W/compose.log" >&2; exit 4; }
+  grep -qi "undistortion will be applied" "$W/compose.log" || {
+    echo "ABORT: siril did not report applying undistortion — the members' own SIP" >&2
+    echo "  was DISCARDED, which is the whole point of this route. Read $W/compose.log" >&2; exit 4; }
+  echo "compose: astrometric registration + per-member undistortion CONFIRMED in siril's log"
+fi
 
 # ---- T2: the member-disagreement MEASUREMENT, recorded before `stack` -------
 # --prefix defaults to s_ (the members + the .seq holding register -2pass's own
