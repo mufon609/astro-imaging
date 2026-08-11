@@ -1,0 +1,10 @@
+requires 1.4.0
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab
+load /home/samsung/Desktop/astro-imaging/web/results/aug06/stack_j31-3+a06-3_full_onemodel_wcs.fit
+autostretch -linked -2.8 0.25
+savepng /home/samsung/Desktop/astro-imaging/web/results/aug06/judge/j31-3+a06-3_starpair_linked
+load /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/UNION_B_astro_wcs.fit
+autostretch -linked -2.8 0.25
+savepng /home/samsung/Desktop/astro-imaging/web/results/aug06/judge/j31-3+a06-3_astrometric_linked
