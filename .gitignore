@@ -110,3 +110,10 @@ __pycache__/
 !**/compose_ab/*.lst
 !**/compose_ab/*.ssf
 !**/compose_ab/*.txt
+
+# union_ab/ — the 28-member union A/B. Star lists, scripts and box coordinates
+# are the record; the unions and registered copies are regenerable.
+**/union_ab/*
+!**/union_ab/*.lst
+!**/union_ab/*.ssf
+!**/union_ab/*.txt

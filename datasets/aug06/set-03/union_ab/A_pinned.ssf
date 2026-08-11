@@ -1,0 +1,11 @@
+requires 1.4.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/A_pinned/in
+link s -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/A_pinned/seq
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/A_pinned/seq
+register s -2pass
+setref s 1
+seqapplyreg s -framing=max -prefix=r_
+stack r_s mean none -norm=addscale -output_norm -weight=nbstack -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab/UNION_A_pinned

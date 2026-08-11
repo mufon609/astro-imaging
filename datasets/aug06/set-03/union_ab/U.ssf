@@ -1,0 +1,24 @@
+requires 1.4.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-03/union_ab
+setfindstar reset -roundness=0.10 -relax=on -maxR=1.0
+load t_UNION_A_pinned
+crop 1504 2605 800 800
+findstar -out=u_UNION_A_pinned_defect_RA294.86.lst
+load t_UNION_A_pinned
+crop 4621 2605 800 800
+findstar -out=u_UNION_A_pinned_control_RA314.72.lst
+load t_UNION_C_ownmodel
+crop 1509 2605 800 800
+findstar -out=u_UNION_C_ownmodel_defect_RA294.86.lst
+load t_UNION_C_ownmodel
+crop 4626 2605 800 800
+findstar -out=u_UNION_C_ownmodel_control_RA314.72.lst
+load t_SHIPPED_union
+crop 1504 2605 800 800
+findstar -out=u_SHIPPED_union_defect_RA294.86.lst
+load t_SHIPPED_union
+crop 4621 2605 800 800
+findstar -out=u_SHIPPED_union_control_RA314.72.lst
