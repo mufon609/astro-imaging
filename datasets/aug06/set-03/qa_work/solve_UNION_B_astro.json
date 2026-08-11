@@ -1,5 +1,5 @@
 {
- "input": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_j31-3+a06-3_full_onemodel.fit",
+ "input": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/UNION_B_astro.fit",
  "detector": "sep",
  "n_stars_detected": 400,
  "central": null,
@@ -16,6 +16,7 @@
   26.254588110055245
  ],
  "index_scales": [
+  12,
   13,
   14,
   15,
@@ -25,6 +26,7 @@
   19
  ],
  "scales_solved": [
+  12,
   13,
   14,
   15,
@@ -33,11 +35,11 @@
   18,
   19
  ],
- "ra_deg": 310.355106339283,
- "dec_deg": 43.10910545359076,
- "scale_arcsec_px": 17.057419287803356,
- "logodds": 59.4808464050293,
+ "ra_deg": 309.76583194368055,
+ "dec_deg": 41.92892279463186,
+ "scale_arcsec_px": 17.007765704347683,
+ "logodds": 508.34222412109375,
  "parity": "sky-true",
- "cd_det": -2.2450274132710333e-05,
- "injected": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_j31-3+a06-3_full_onemodel_wcs.fit"
+ "cd_det": -2.23197603591038e-05,
+ "injected": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/UNION_B_astro_wcs.fit"
 }

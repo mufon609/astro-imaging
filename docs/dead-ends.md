@@ -1355,6 +1355,25 @@ SILENT — pin the state, never inherit it):
   Corollary for the fitting instrument: a fit's own residual (0.02–0.10 px) is
   computed only where control points exist and says NOTHING about the corners.
 
+- **A JUDGMENT SURFACE IS NOT `load` + `autostretch` + `savepng` — IT IS
+  `finish_render.sh`, AND SKIPPING SPCC DOES NOT "REMOVE A VARIABLE", IT BREAKS
+  THE RENDER.** Measured: two union surfaces rendered with `autostretch -linked
+  -2.8 0.25` on the raw stacks came out with channel medians **R 0, G 193,
+  B 127** over covered pixels — the shadow clip on uncalibrated OSC data crushed
+  the RED CHANNEL TO ZERO. Not a green cast: a dead channel. Through
+  `scripts/stack/finish_render.sh` (solve → SPCC → linked stretch → full-frame
+  16-bit PNG) the same two stacks read **R 70 / G 70 / B 69** and **69 / 69 /
+  68**, K factors R 1.000 G 0.688 B 0.881 and R 1.000 G 0.666 B 0.859.
+  The reasoning that produced the broken pair — "SPCC adds a variable to an A/B,
+  so leave it out" — is backwards: in a comparison the variable is controlled by
+  applying the SAME finish to both arms, never by deleting a stage from both.
+  Every surface in `web/results/<session>/judge/` is `*_spcc-linked.png` for this
+  reason, and the naming is the tell.
+  SECOND HALF OF THE TRAP, and it is the one that let it reach the user: bit
+  depth and dimensions were verified and the images were never OPENED. `file`
+  said "16-bit/color RGB, 8659 x 6009" and that was taken as the check. Look at
+  the pixels before calling anything a judgment surface.
+
 - **NO INSTALLED TOOL CAN CORRECT A FIELD-VARIABLE ANISOTROPIC PSF — and a GLOBAL
   PSF cannot close a field gradient at all.** Three arms on one raw frame, every
   arm measured with identical Siril `findstar` settings (baseline whole-frame
