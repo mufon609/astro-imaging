@@ -12,5 +12,9 @@ set32bits
 cd darks
 convert dark -out=../work
 cd ../work
+# Winsorized 3/3, deliberately NOT stack_rejection.sh's count ladder: that
+# ladder is the repo's LIGHTS-integration doctrine. For calibration masters
+# the standard is the vendor's own — every Siril bundled preprocessing script
+# (10/10 in 1.4.4) stacks the master dark with exactly this command.
 stack dark rej 3 3 -nonorm -out=masters/dark_master
 close

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the session's MASTER DARK from raw darks/ — drives the pinned Siril
 # template (scripts/stack/siril/master_dark.ssf: convert -> `stack rej 3 3
-# -nonorm`, 16-bit intermediates policy) headless, for the Tier-1 registry
+# -nonorm`, set32bits pinned) headless, for the Tier-1 registry
 # and standalone prep. The sky-flat builder and the undistort calibrate both
 # consume the product at work/masters/dark_master.fit.
 #

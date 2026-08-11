@@ -745,17 +745,6 @@ places where it is keyed to this rig instead:
 **Closes when** the route key is single-sourced on a measured quantity and the two
 refusals either handle their class or name it accurately.
 
-## `master-rejection-bypasses-doctrine` — the masters do not use the shared helper
-
-`scripts/stack/siril/master_dark.ssf` hardcodes `stack dark rej 3 3` (winsorized).
-The repo's own doctrine in `scripts/stack/stack_rejection.sh` selects GESD
-(`rej g 0.3 0.05`) above 50 subs. july31's master dark is 347 frames, so it was
-winsorized where the doctrine the repo enforces everywhere else says GESD. Lights
-route through the shared helper; masters do not, so the two can drift apart
-silently — the same shape as the per-builder disk constant `disk_budget.sh` exists
-to prevent. **Closes when** the master templates resolve their rejection from
-`stack_rejection.sh` or the divergence is recorded with its reason.
-
 ## `unpinned-registration-defaults` — a Siril update can change every stack silently
 
 No generated `.ssf` in the stacking path pins `-transf=` or `-interp=`, so both
