@@ -276,18 +276,26 @@ rm -rf "$P/out"
 # (stamp_headers.sh; the compose gate reads exactly these keys).
 PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] && echo subsky1-nodither || echo none)")
 if [ -f "$ACQHDR" ]; then
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\n%s\nsave %s\n' \
-    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$PROV" "$OUT" > "$P/h.ssf"
+  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
+    "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$OUT" > "$P/h.ssf"
   sir "$P/h.ssf"
   echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $FRAMES x EXPTIME)"
 else
   echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
-    "$OUT.fit" "$PROV" "$OUT" > "$P/h.ssf"
-  sir "$P/h.ssf"
 fi
-[ -n "$PROV" ] && echo "stamped optics/calibration provenance ($(printf '%s\n' "$PROV" | grep -c update_key) keys — DISTA/B/C from the VERIFIED live model, not the record's intent)" \
-  || echo "WARNING: no optics provenance stamped — this sub-stack cannot state what warped it, and the compose gate will treat it as UNKNOWN, never as compatible" >&2
+# The provenance half goes through a FITS library, NEVER siril: CALSET is
+# `<session>/<set>` and siril `update_key` cuts a string value at the first `/`
+# (it begins the FITS comment field) — the registered silent truncation.
+# MEASURED here: members stamped through the .ssf shipped CALSET='july31', the
+# set identity gone, and every composite CALSETS above them inherited the loss.
+# Acquisition keys stay on update_key: siril's own data, slash-free by
+# construction.
+if [ -n "$PROV" ]; then
+  header_apply_keys "$OUT.fit" "$PROV"
+  echo "stamped optics/calibration provenance ($(printf '%s\n' "$PROV" | grep -c update_key) keys — DISTA/B/C from the VERIFIED live model, not the record's intent)"
+else
+  echo "WARNING: no optics provenance stamped — this sub-stack cannot state what warped it, and the compose gate will treat it as UNKNOWN, never as compatible" >&2
+fi
 echo "=== DONE: $OUT.fit ==="
 ls -la "$OUT.fit"
 # State what optical state the MACHINE is left carrying. The DB is global and
