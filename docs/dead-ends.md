@@ -888,6 +888,25 @@ the constraints any such tool must satisfy):
   drift-aligned band; `tilt`/`inspector` are script-NO). Star count per radial bin is not a
   quality measure either — it is sky density × detection efficiency, which peaks where the sky
   is poorest.
+- **A PRODUCT-LEVEL A/B cannot audit a transient's rejection — the dilution is
+  the instrument's blind spot.** Differencing a full-depth stack against a
+  control with the transient's frames excluded is the obvious test and it is
+  UNDER-POWERED by construction: the groups route divides the transient's
+  per-frame amplitude by the group size and then again by the compose's member
+  count. MEASURED on july31/set-03's aircraft: a trail pixel carries ~766 ADU
+  above a ~1140 ADU sky per frame, which after a 100-frame group mean and a
+  5-member plain-mean compose is 1.5-4.1 ADU per trail pixel — 0.02-0.06 ADU
+  once spread over a 400 px box, against that difference's own 0.2 ADU
+  box-to-box spread. So a FLAT product difference is equally consistent with
+  rejection and with no rejection, and reading it as a pass is the same error
+  as any other blind instrument here. Audit rejection where it HAPPENS: Siril
+  `stack ... -rejmaps` writes the per-pixel record of which samples were
+  discarded, and differencing the map of the group WITH the transient against
+  the same group WITHOUT it leaves the transient's own track and nothing else
+  (its median equals the arithmetic scale step between the two frame counts,
+  which calibrates the map for free). The on-track residual is then measured at
+  GROUP level, where the signal is 5x larger and a 60 px box sees an unrejected
+  trail at ~0.9 ADU against a +-0.2 ADU spread.
 - Cloud culling is by per-pixel MAJORITY risk, not visibility: a moving minority
   band stacks clean through `rej 3 3`; a DWELLING band becomes the per-pixel
   majority and survives. `nstars` is a blind cloud discriminant on rich fields
