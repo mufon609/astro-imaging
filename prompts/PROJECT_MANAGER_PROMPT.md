@@ -175,6 +175,19 @@ novel. What remains after this arc's pruning:
   evidence yourself; report PASS per criterion with what you ran; a
   deviation from the brief that is BETTER instrumentation (it has happened
   twice) is a pass with credit, not a violation.
+- **Look first at the claims that FLATTER the claimant — errors are not
+  distributed evenly, and this is where they land.** Three in one arc, across
+  both sessions, every one wrong in the direction that made its author's own
+  finding cleaner: a brief argued per-group flats were "the more doctrinally
+  correct object", which was the strongest case for the change it was
+  proposing; an audit asserted >99% cancellation from a sensor-frame mean,
+  which made its own prediction look sharper than the delivered 75-94%; and a
+  session ruled the imprint rule "about optical-state matching", which made its
+  own refutation cleaner — while the builder's own justification recorded a
+  re-aim measuring L-R 1.162 vs 1.032 against an IDENTICAL optical term, 1.143
+  vs 1.142. All three were caught by the other session, none by the author.
+  Apply it to your OWN briefs hardest: the argument you find most persuasive
+  for the work you are commissioning is the one to go verify in the source.
 - The owner is the gate for what data cannot settle — aesthetics on the
   16-bit PNG, trade-offs, ratifications. Everything an instrument settles,
   decide, record, and state the number and the instrument.
