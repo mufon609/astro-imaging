@@ -1,0 +1,92 @@
+{
+ "measurement": "FLAT DIFFERENTIAL — does the flat's dose difference reach the delivered object?",
+ "question": "Two flats of the same optical state but different sky dose, applied to the SAME lights through the SAME chain: how much of the flats' difference survives to the delivered stack?",
+ "committed_before": "the 125-frame arms. Written and committed BEFORE any arm of the real run is built.",
+ "uptime": "13:49:32 up 37 days, 21:59,  2 users,  load average: 1.07, 0.90, 1.80",
+
+ "full_disclosure_a_pilot_ran_first": {
+  "why": "The brief asserted 'both arms run identical frames through identical registration, so the two stacks are pixel-aligned'. That assertion is FALSE as the shipped builder stands, so a 12-frame pilot was run to test it BEFORE any prediction could be written. The pilot is disclosed in full here rather than hidden, because a pre-registration that conceals what was already seen is worth nothing.",
+  "what_it_falsified": "register -2pass re-chooses the reference frame from image quality, and the CALIBRATION changes that choice. Measured, 12 frames of aug09/set-05, one knob (the flat): skyflat_set-05 -> reference image 1, canvas 4896x3616; skyflat_set-01 -> reference image 2, canvas 4887x3641. Two arms with different canvases are not pixel-comparable, and the reference choice is a SECOND knob.",
+  "the_fix_this_forced": "run_undistort_pipeline.sh --regdata=<lt_.seq>: the first arm writes Siril's own registration data (per-image homographies + reference index), every later arm is handed that file and does not re-register. Transforms bit-identical across arms; the only difference in the products is the calibration.",
+  "pilot_numbers_already_seen": {
+   "arms": "12 frames, even stride, -nonorm, registration pinned",
+   "delivered_ratio_B_over_A_green_edge_dipole_x": -0.2352,
+   "delivered_ratio_B_over_A_green_LR": 1.2244,
+   "arm_A_own_stack_edge_dipole_x": 0.0008,
+   "note": "arm A's own stack reads FLAT (+0.0008) while the ratio against arm B reads -0.2352 — the registry's 'self-fulfilling flatness' in one line: the stack looks clean BECAUSE the flat absorbed the gradient."
+  },
+  "determinism_measured_here_not_assumed": "two unpinned rebuilds of the same 12-frame arm are BIT-IDENTICAL in pixels (0 differing pixels of 3x3616x4896; the md5 differs only in the header). So the identity control's floor is expected to be a TRUE ZERO, not a small number."
+ },
+
+ "design": {
+  "lights": "aug09/set-05, 125 frames by EVEN STRIDE over the full 1497 s span (498 after the recipe cull). Even stride, never a contiguous block: the drift span is what smears the imprint and it is the quantity under test.",
+  "one_knob": "the flat. Same raws, same master dark, same lens model, same warp, same registration data, same rejection, same stack normalization within a comparison.",
+  "arms": [
+   {"tag": "A",  "flat": "skyflat_set-05", "norm": "-nonorm", "role": "production calibration — the reference arm; writes the registration data"},
+   {"tag": "B",  "flat": "skyflat_set-01", "norm": "-nonorm", "role": "counterfactual dose — the banned cross-set manoeuvre, DIAGNOSTIC only"},
+   {"tag": "A2", "flat": "skyflat_set-05", "norm": "-nonorm", "role": "CONTROL 1a IDENTITY — same flat as A; the floor"},
+   {"tag": "U",  "flat": "skyflat_set-05 / uniform 1.05", "norm": "-nonorm", "role": "CONTROL 1b UNIFORM — every pixel differs by 5%, the GRADIENT does not; the instrument must not respond"},
+   {"tag": "P",  "flat": "skyflat_set-05 / ramp k=0.20", "norm": "-nonorm", "role": "CONTROL 2 PLANTED — known edge ratio, opposite sign to the real signal"},
+   {"tag": "An", "flat": "skyflat_set-05", "norm": "-norm=addscale -output_norm", "role": "production normalization"},
+   {"tag": "Bn", "flat": "skyflat_set-01", "norm": "-norm=addscale -output_norm", "role": "production normalization — An/Bn measures what the shipped chain absorbs"}
+  ],
+  "why_this_flat_pair": "aug09 set-01 vs set-05 is the corpus maximum WITHIN a night (delta edge dipole 0.2827 against july31's 0.2152 and aug06's 0.1342). Within-night is REQUIRED, not convenient: focus recalibrates per session, so a cross-night pair differs in optical state as well as sky dose.",
+  "exemption_claimed": "README step 1b bans cross-set flat reuse for DELIVERABLES. Arm B is that manoeuvre as a DIAGNOSTIC: tagged DIAGARM/CALXSET on the product itself, never delivered, never composed, never a verdict on a render."
+ },
+
+ "inputs_measured_before_the_arms": {
+  "instrument": "scripts/qa/flat_odd_component.py — Siril fdiv + Siril stat regional medians, edge geometry box 80 / margin 2. No model, no fit.",
+  "flat_set-05_edge_dipole_x": -0.3853,
+  "flat_set-01_edge_dipole_x": -0.1026,
+  "flat_ratio_05_over_01": {
+   "edge_dipole_x": -0.2851,
+   "edge_dipole_y": -0.0233,
+   "LR": 1.2955,
+   "corner_ratio": 1.312,
+   "corner_over_center": 1.0108,
+   "record": "datasets/aug09/set-05/flatdiff_work/flatpair_05_over_01.json",
+   "cross_check": "LR 1.2955 reproduces the registry's directly-measured 1.2955 for this pair (four consecutive within-night increments multiply to 1.2944)."
+  },
+  "field_shape": "corner_over_center 1.0108 says the ratio field is a near-LINEAR x-ramp with ~1% curvature; |dipole_x| is 12x |dipole_y|."
+ },
+
+ "prediction": {
+  "1_direction": "arm B / arm A carries the SAME SIGN as the flats' ratio: edge_dipole_x NEGATIVE (left brighter), |dipole_x| >> |dipole_y|, dipole_y small and negative.",
+  "2_shape": "a near-linear x-ramp; corner_over_center within 1.5% of 1.0; TB within 2% of 1.0.",
+  "3_upper_bound": "|delivered| <= |flat ratio| = 0.2851. The delivered field is the flats' ratio SMEARED by the drift, and a smear cannot amplify.",
+  "4_smear_factor_stated_before_measuring": {
+   "mechanism": "each canvas point is the flux-weighted average of the ratio field over the sensor positions that sky point visited. For a LINEAR field the average equals the value at the MEAN sensor position, so the amplitude per pixel is unsmeared — what shrinks is the BASELINE, because -framing=min crops the canvas to the intersection of all frames' footprints.",
+   "formula": "factor = (W_canvas - 84) / (W_frame - 84), the separation of the edge boxes' centres (box 80, margin 2) on the canvas over the same separation on the 6064 px frame",
+   "predicted_factor_at_the_pilot_canvas_4896": 0.8047,
+   "predicted_delivered_edge_dipole_x": -0.2295,
+   "predicted_delivered_edge_dipole_y": -0.0208,
+   "recompute_rule": "the factor is recomputed from the 125-frame arm's OWN measured canvas before comparison. The canvas is measured independently of the ratio, so this is not a free parameter.",
+   "caveat": "for a field with curvature the canvas maps to an off-centre sensor window when the mean drift is non-zero, so a departure of a few percent is expected and is not a failure of the model."
+  },
+  "5_two_instruments_must_agree": "the matched-star flux differential (Siril psf aperture photometry at the same pixel in both arms) must return the same delivered edge-to-edge ratio as the pixel-ratio field, within the measured floor. Disagreement is the finding and gets attributed, never averaged.",
+  "6_controls": {
+   "identity_A2_vs_A": "ratio field EXACTLY 1.000 everywhere; every dipole exactly 0.0000; pixels bit-identical. Determinism is measured, not assumed — if it is not zero, something non-deterministic is in the arm and no number may be read until it is found.",
+   "uniform_U_vs_A": "level moves +5%, every dipole stays 0.0000. The instrument must respond to GRADIENT and not to LEVEL.",
+   "planted_P_vs_A": "the card is R(x) = 1 + 0.20*(x/W - 0.5), edge ratio 1.2222, whose own edge-geometry dipole is +0.1972 — POSITIVE, i.e. opposite in sign to the real signal, so a sign-blind artefact cannot fake it. Predicted delivered dipole_x = +0.1972 * factor = +0.1587 at the pilot canvas.",
+   "discrimination_ratio": "planted movement against the measured floor, the form the standard asks for (the iterative-flat NULL met 48-62x; the object-tilt instrument managed 0.20x and was unusable). With a floor of exactly zero the ratio is unbounded; the honest statement is then the floor's exact value and the count of quantities at which it is exactly zero.",
+   "degeneracy_immunity": "on object_tilt.py --selftest step 4a's PURE-TRANSLATION panel — where the absolute instrument returns -0.046 +- 0.0001 for a planted +0.100 and the lever collapses to 0.00 px — the DIFFERENTIAL fit must recover a planted flat difference correctly, because the per-star and per-block nuisances cancel identically in the difference and nothing is left free to absorb a linear mode.",
+   "aperture_invariance": "the photometric arm reports r = 10 and 16 px; a real throughput difference does not move with aperture, a PSF-fit artefact does."
+  },
+  "7_normalization_absorption": {
+   "confounder": "-norm=addscale -output_norm computes per-frame coefficients from the frames' OWN statistics, which differ between arms because the flats differ.",
+   "reasoning_stated_before_measuring": "in the registered domain each frame's window slides across the sensor by its drift, so the frame-mean of the ratio field varies with j and addscale removes that per-frame SCALAR. To first order in the ratio's amplitude, removing a per-frame constant leaves the canvas GRADIENT intact — the absorption should therefore be second-order, not the leading term.",
+   "predicted_absorption": "|dipole_x(Bn/An)| within 10% of |dipole_x(B/A)|, same sign.",
+   "why_it_is_worth_a_number_either_way": "it says how much of a calibration difference the shipped chain silently swallows."
+  }
+ },
+
+ "what_would_falsify_the_conclusion_that_the_dose_reaches_the_object": [
+  "the delivered ratio field's dipole_x is within the identity floor of zero (i.e. the flats' 0.2851 of contrast arrives as nothing)",
+  "the delivered dipole EXCEEDS the flats' own 0.2851 — that is physically impossible for a smear and would mean the arms differ by something other than the flat",
+  "the planted card is not recovered at the same smear factor as the real signal",
+  "the uniform card moves any dipole",
+  "the two instruments disagree by more than the floor and the disagreement cannot be attributed"
+ ],
+
+ "scope_stated_before_the_result": "This measures the DIFFERENCE of two imprints. A null BOUNDS the absolute object tilt (the object's sensitivity to a delta-dipole of 0.2851 would sit below the floor); it does not EQUAL the absolute tilt and cannot resurrect the 3.11% / 241-sigma figure, which stays UNVERIFIED. A positive result gives the delivered sensitivity to a KNOWN dose difference, which is the number a corrective needs. Neither outcome licenses a statement about the flat's share of the TOTAL defect; that stays UNTESTED per the registry."
+}

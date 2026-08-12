@@ -9,10 +9,43 @@
 #
 #   run_undistort_pipeline.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                             [--frames=N | --select=<list-file>] [--chunk=12] [--out=<stack.fit>]
+#                             [--regdata=<lt_.seq>] [--nonorm]
 #
 # --select=<file> (one raw path per line) processes exactly those frames in
 # order — the group-composition driver (run_undistort_groups.sh) uses it to
 # feed consecutive blocks; mutually exclusive with --frames.
+#
+# THE TWO A/B FLAGS (diagnostic; the default path is untouched by both). A
+# controlled A/B on this route moves ONE knob — the calibration — and everything
+# downstream of it must then be held fixed by construction, not by hope:
+#
+# --regdata=<file>  PIN THE REGISTRATION. Absent, each arm runs its own
+#     `register -2pass`, whose FIRST pass re-chooses the reference frame from
+#     image quality — and the calibration changes that choice. MEASURED here,
+#     12 frames of aug09/set-05, one knob (the flat): with `skyflat_set-05` the
+#     2pass chose image 1 and delivered a 4896x3616 canvas; with
+#     `skyflat_set-01` it chose image 2 and delivered 4887x3641. Two arms whose
+#     canvases differ are not pixel-comparable at all, and the difference is a
+#     SECOND knob nobody asked for. With this flag the first arm writes its
+#     `lt_.seq` (Siril's own registration data: the per-image homographies and
+#     the reference index) to <file>, and every later arm is handed that same
+#     file and does not re-register. The transforms are then bit-identical
+#     across arms, so the ONLY difference in the products is the calibration.
+#     Both arms estimate the SAME geometric truth — the frames, the lens model
+#     and the warp are identical — so sharing one estimate removes a nuisance
+#     difference rather than introducing one.
+#     (run_undistort_groups.sh:`setref s 1` pins the same lottery a weaker way,
+#     for the same measured reason. This route's default is still unpinned;
+#     BACKLOG:`single-pass-reference-lottery`.)
+# --nonorm  stack with `-nonorm` instead of `-norm=addscale -output_norm`.
+#     DIAGNOSTIC ONLY, never a deliverable: the per-frame normalization
+#     coefficients are computed from the frames' OWN statistics, so on a
+#     calibration A/B they are computed from data that differs BETWEEN the arms
+#     and partially absorb the very difference under test. Run the arms at
+#     `-nonorm` to see the unabsorbed difference, and the same pair at the
+#     production clause to MEASURE the absorption. The flag stamps
+#     STACKNRM='nonorm' on the product so a diagnostic stack cannot be mistaken
+#     for a shipped one later.
 #
 # Ordering is load-bearing: darks/flats are sensor-grid properties, so
 # calibration finishes in SENSOR space, debayer follows (a CFA mosaic cannot be
@@ -65,10 +98,11 @@ source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0 REGDATA= NONORM=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
+  --regdata=*) REGDATA=${a#*=};; --nonorm) NONORM=1;;
   --subsky-lights) SUBSKYL=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
@@ -278,9 +312,27 @@ print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt -2pass -transf=homography\nseqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
-  "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
+# The A/B knobs. Both default to the production clause, so an ordinary build
+# emits exactly the command it always did.
+NORMCLAUSE='-norm=addscale -output_norm'
+[ "$NONORM" = 0 ] || { NORMCLAUSE='-nonorm'
+  echo "STACK NORMALIZATION DISABLED (-nonorm) — DIAGNOSTIC arm, not a deliverable"; }
+REGCMD='register lt -2pass -transf=homography\n'
+if [ -n "$REGDATA" ] && [ -f "$REGDATA" ]; then
+  # Siril reads the registration data from <seq>.seq beside the images; the file
+  # names (lt_NNNNN.fit) and the count are identical across arms by construction,
+  # so the donor's homographies and reference index apply verbatim.
+  cp "$REGDATA" "$P/out/lt_.seq"; REGCMD=
+  echo "registration PINNED from $REGDATA — this arm does not re-register (ref frame + every transform are the donor's)"
+fi
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\n%bseqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4\nstack r_lt %s %s -out=%s\n' \
+  "$P/out" "$REGCMD" "$REJ" "$NORMCLAUSE" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
+if [ -n "$REGDATA" ] && [ ! -f "$REGDATA" ]; then
+  mkdir -p "$(dirname "$REGDATA")"
+  cp "$P/out/lt_.seq" "$REGDATA"
+  echo "registration data SAVED to $REGDATA — hand it to every other arm of this A/B"
+fi
 rm -rf "$P/out"
 [ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
 # restore the acquisition keywords the warp dropped (Siril's own update_key),
@@ -289,6 +341,29 @@ rm -rf "$P/out"
 # that cannot say what warped it cannot be composed safely months later
 # (stamp_headers.sh; the compose gate reads exactly these keys).
 PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] && echo subsky1-nodither || echo none)")
+# The A/B keys go on ONLY when an A/B flag was passed, so an ordinary product's
+# header is unchanged. A diagnostic arm has to be able to say what it is without
+# anyone remembering which work dir it came out of — the same argument BKGLIGHT
+# and DISTPROV are on the product rather than in a build log.
+[ "$NONORM" = 0 ] || PROV="$PROV
+update_key STACKNRM \"nonorm\"
+update_key DIAGARM T"
+[ -z "$REGDATA" ] || PROV="$PROV
+update_key REGPIN \"$(basename "$REGDATA")\""
+# CALFLAT must name the flat that RAN. header_provenance_lines reads the SET's
+# own flat record, which is right for every ordinary build and WRONG the moment
+# --flat names another set's master: the product then claims a calibration it
+# never got. MEASURED on the first pinned A/B pilot — the arm built with
+# skyflat_set-01 shipped CALFLAT='skyflat_set-05.fit:500'. CALXSET makes the
+# cross-set calibration README step 1b bans MACHINE-READABLE on the product,
+# rather than something a reader infers from a filename.
+FLATB=$(basename "$FLAT")
+if [[ "$PROV" == *'update_key CALFLAT'* ]] && [[ "$PROV" != *"update_key CALFLAT \"$FLATB"* ]]; then
+  PROV="$PROV
+update_key CALFLAT \"$FLATB\"
+update_key CALXSET T"
+  echo "NOTE: --flat=$FLATB is not the flat this set's record names — stamped CALFLAT=$FLATB CALXSET=T (cross-set calibration: banned for deliverables, README step 1b; DIAGNOSTIC arms only)"
+fi
 if [ -f "$ACQHDR" ]; then
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
     "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$FRAMES")" "$OUT" > "$P/h.ssf"
