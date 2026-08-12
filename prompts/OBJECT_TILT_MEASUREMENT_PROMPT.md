@@ -11,9 +11,9 @@ self-fulfilling for exactly this defect — and star shapes are untouched. The
 harm is photometric and nothing in the chain currently sees it.
 
 The figure the repo quotes for it, **3.11% at 241σ, has no tracked record.**
-Verified live: it is cited in `BACKLOG.md` (three sites), in
-`ROUTE_KEY_GENERALITY.md`, and in the `readiness.json` prose of at least five
-sets, and no `datasets/` record holds the measurement, its instrument or its n.
+Verified live: it is cited in `BACKLOG.md` (three sites) and in the
+`readiness.json` prose of at least five sets, and no `datasets/` record holds
+the measurement, its instrument or its n.
 It entered as prose. Your result replaces it or marks it unverified at every
 citation.
 
@@ -297,8 +297,8 @@ Read `docs/dead-ends.md` in full first. These are closed with mechanisms:
    its aperture radius, its background-subtraction form, and the box's `uptime`.
 7. **A tracked record exists** under `datasets/`, and the untracked 3.11%/241σ
    figure is either replaced by it or marked unverified at all of its citation
-   sites — `BACKLOG.md` (three), `ROUTE_KEY_GENERALITY.md`, and the
-   `readiness.json` prose of at least five sets.
+   sites — `BACKLOG.md` (three) and the `readiness.json` prose of at least
+   five sets. Re-grep before you start; the citation set moves.
 8. The tool search is recorded — what you searched, what each returned, and why
    anything in-house was necessary. Anything in-house that ships gets its
    removal-conditions row in the same commit.

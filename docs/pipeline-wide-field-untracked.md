@@ -120,7 +120,7 @@ whatever the focal length, so a *narrow* field crosses more of itself per
 minute than a wide one. It is an angle over an angle, never pixels — the probe
 solves camera raws on the half-res green plane, so its px figures read
 2.078–2.137× the sensor's scale and would mean two different things on two rigs
-([`ROUTE_KEY_GENERALITY.md`](../ROUTE_KEY_GENERALITY.md)).
+(`scripts/lib/route.py`, with its `--selftest`).
 
 Groups is standing because the fork is settled by measurement, not preference:
 its retained sub-stacks are what keep the cross-set combine buildable

@@ -88,9 +88,9 @@ the prompt briefs.
 
 ## Landed during the Tier-B hardening session
 
-`8d370dd` `-transf=`/`-interp=` pinned at all 20 emissions + `check_registration_pins.sh` (per COMMAND, `--selftest`), proven no-behaviour-change by an all-nil recompose · `3072fd0` `verify_lens_card.py` wired into `lens_preflight --require-profile` unconditionally (11.1 s), fire-tested — and `install_lens_model.sh`'s idempotence test fixed, since it reported "already installed" on a DB whose vignetting was back · `4d70455` the solve refuses a solution contradicting its own hints (exit 9), `--central` corrected to fraction-of-frame at three sites; falsification fires, 0/69 false · `e7cb2be` the aircraft rejection CONFIRMED via Siril `-rejmaps` (the product-level A/B the item specified is under-powered by the group+compose dilution — recorded in `docs/dead-ends.md`) · `7d4946e` `TIER_B_HARDENING.md` + prompt retired.
+`8d370dd` `-transf=`/`-interp=` pinned at all 20 emissions + `check_registration_pins.sh` (per COMMAND, `--selftest`), proven no-behaviour-change by an all-nil recompose · `3072fd0` `verify_lens_card.py` wired into `lens_preflight --require-profile` unconditionally (11.1 s), fire-tested — and `install_lens_model.sh`'s idempotence test fixed, since it reported "already installed" on a DB whose vignetting was back · `4d70455` the solve refuses a solution contradicting its own hints (exit 9), `--central` corrected to fraction-of-frame at three sites; falsification fires, 0/69 false · `e7cb2be` the aircraft rejection CONFIRMED via Siril `-rejmaps` (the product-level A/B the item specified is under-powered by the group+compose dilution — recorded in `docs/dead-ends.md`) · `7d4946e` the Tier-B report + its prompt retired.
 
-**Full transcripts: [`../TIER_B_HARDENING.md`](../TIER_B_HARDENING.md).**
+**Numbers: BACKLOG's removal-conditions rows for the solve gate and the lens-card wiring; the aircraft entry in `docs/dead-ends.md`.**
 
 ## Landed during the iterative-flat session
 
@@ -120,7 +120,7 @@ corrupt data — `offset` clips at 0 in 32-bit against its own documentation, an
 `stat` excludes zeros, which compound into damage that reads back as clean
 numbers.
 
-**Full transcript: [`../ITERATIVE_FLAT_VERDICT.md`](../ITERATIVE_FLAT_VERDICT.md).**
+**Numbers: `docs/dead-ends.md` (the iterative-flat entry) + `datasets/aug09/experiments.jsonl`.**
 
 ## Landed during the routing-generality session
 
@@ -137,7 +137,7 @@ real sets route identically; the fire test moves five consumers together; the
 200 mm and mono/tracked fixtures route through the live chain; both refusals name
 their class with the resolving step. `routing-generality` removed from BACKLOG.
 
-**Full transcripts: [`../ROUTE_KEY_GENERALITY.md`](../ROUTE_KEY_GENERALITY.md).**
+**Numbers: `scripts/lib/route.py` (+ its `--selftest`) and BACKLOG's removal-conditions row for the floor.**
 
 ## Landed during the comment-hygiene session
 
@@ -162,7 +162,7 @@ Shipped: [`COMMENT_SWEEP_PROMPT.md`](COMMENT_SWEEP_PROMPT.md) (non-retiring),
 the `CLAUDE.md` rule revision, `COMMENT_HYGIENE_PROMPT.md` retired. No sweep was
 run — that is the standing prompt's job, on the owner's schedule.
 
-**Full transcript: [`../COMMENT_HYGIENE.md`](../COMMENT_HYGIENE.md).**
+**The taxonomy, detectors and policy live in [`COMMENT_SWEEP_PROMPT.md`](COMMENT_SWEEP_PROMPT.md).**
 
 ## The standing sweep's first run — AUDITED PASS
 
@@ -176,10 +176,10 @@ run — that is the standing prompt's job, on the owner's schedule.
   justifies the run.
 - **Category 6 CONFIRMED.** `grep -cE '^## \`?[0-9]' BACKLOG.md` returns **0**,
   so all 30 numbered refs did point at nothing. Three survive tree-wide, all of
-  them the taxonomy's own teaching examples in `COMMENT_HYGIENE.md` and the
-  sweep prompt — sanctioned, not misses.
+  them the taxonomy's own teaching examples in the sweep prompt — sanctioned,
+  not misses.
 - **Category 7**: the surviving `file:NNN` cites are six in
-  `ROUTE_KEY_GENERALITY.md`, a session transcript rather than a live contract.
+  the route-key session's transcript rather than a live contract (retired since).
 - **Regression check**: all five guards and all three selftests PASS after the
   edits, and `run_session_chain.sh sessions/aug09 --plan` walks five sets clean.
 

@@ -319,8 +319,7 @@ the constraints any such tool must satisfy):
   **WHAT THIS DOES NOT KILL.** The `sky x V` defect itself is untouched and still
   uncorrected. Per-frame degree-1 `subsky` on the CALIBRATED LIGHTS
   (`--subsky-lights`) is a different step in a different place and this entry
-  must not be cited against it. Numbers: `datasets/aug09/experiments.jsonl`,
-  `ITERATIVE_FLAT_VERDICT.md`.
+  must not be cited against it. Numbers: `datasets/aug09/experiments.jsonl`.
 
 - **SIRIL `offset` CLIPS AT ZERO IN 32-BIT FLOAT — its own help says it does not
   — and `stat` EXCLUDES zero pixels, so the two COMPOUND into a corruption that
@@ -666,6 +665,31 @@ the constraints any such tool must satisfy):
   .../siril-spcc-database". Fix = clone it (CLAUDE.md Environment, SPCC
   prerequisites). Do NOT chase the star count, field width, catalog format, or bit
   depth — all ruled out; the crash prints nothing useful and mimics a data bug.
+
+- **A BIG UNION CANVAS DEFEATS THE SOLVE, AND THE ROUTE THAT WORKS IS TO SOLVE A
+  CENTRAL CROP LIKE A MEMBER AND SHIFT `CRPIX` BACK BY THE CROP OFFSET —
+  header-only, pixels untouched.** MEASURED on the 52-member corpus union
+  (8510×5475, 46 Mpx, 52 member footprints): the hinted attempt failed on
+  seam-contaminated detection and the blind fallback SHIPPED a false solution —
+  RA 6.0 Dec −65.1 at 12.96″/px, logodds 22 against a healthy family of 100–570 —
+  which siril SPCC then consumed to completion, producing plausible-looking K
+  factors (G 0.592 against a 0.649–0.682 family) instead of failing. The
+  recovery: crop the central region to scratch, solve it as if it were a member
+  (logodds 130, 17.06″/px), then shift `CRPIX` by the exact crop offset. Validated
+  by `shape_at_sky.py`'s own per-star RA/Dec verification at four positions
+  INCLUDING ones far outside the solved crop, and SPCC on the corrected WCS
+  returned K_G 0.669, in family.
+  **Two traps measured on the way, both of which waste a session.**
+  (1) `--central` is a fraction of the FRAME, i.e. a half-width per axis, so
+  `--central=0.5` keeps the central half of each axis and `=1.0` restricts
+  nothing — the semantics are pinned in `solve_field.py`'s docstring.
+  (2) **`--max-stars=1500` explodes the quad search on a canvas this size: 64 min
+  of CPU and NO result.** The default 200 is ample to MATCH; raise it only when
+  the SIP distortion terms are the product being consumed, and not on a union
+  canvas. The blind-fallback half of this incident is now gated — `solve_field.py`
+  refuses a solution contradicting its own hints at exit 9, and this union is its
+  recorded falsification case.
+
 - **A TWO-WINDOW DRIFT INSTRUMENT MUST CONFINE BOTH WINDOWS TO ONE CONTIGUOUS
   CAPTURE RUN — dir-endpoint windows measure re-aim + drift, a rate that is
   neither mount signature.** A re-aim can only occur ACROSS a capture-run

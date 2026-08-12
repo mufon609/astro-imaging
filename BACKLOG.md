@@ -340,8 +340,7 @@ flat-fielded domain, restore the level, multiply back by `F0`, restack) is DEAD:
 it reconstructs whichever flat it is handed, because dividing by `F0` is what
 removes the gradient from the sky and multiplying back restores it. Measured
 NULL against positive controls that move the same code 81.7% (fixture) and 93.4%
-(real data) where the scheme moves it 1.7% / 1.2% (`docs/dead-ends.md`;
-`ITERATIVE_FLAT_VERDICT.md`). It repaired `--desky`'s domain error and still
+(real data) where the scheme moves it 1.7% / 1.2% (`docs/dead-ends.md`). It repaired `--desky`'s domain error and still
 could not work, so "run the operator in the right domain" is exhausted as an
 angle. No builder flag was added and no removal-conditions row created — there
 is no divergence to retire.

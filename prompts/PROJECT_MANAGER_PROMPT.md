@@ -25,10 +25,11 @@ Verify everything in this document against the repo before relying on it.
    present (owner precedence ruling, in memory).
 5. `prompts/REPORT.md` — the working register: prompts ready, queue with
    acceptance criteria, done-ledger with commits. You own this file.
-6. The root reports, newest first: `ITERATIVE_FLAT_VERDICT.md`,
-   `ROUTE_KEY_GENERALITY.md`, `TIER_B_HARDENING.md`,
-   `REBUILD_VERIFICATION.md` — then `git log` from `8e06c5d` forward: the
-   whole arc is ~45 commits and every one is a record.
+6. `git log` from `8e06c5d` forward — the whole arc, every commit a record.
+   Session reports are NOT kept at the repo root: a session's durable findings
+   graduate into `docs/dead-ends.md` / `TOOLS.md` / the BACKLOG register, and
+   the transcript is then deleted, because a second home for a claim is a
+   second place for it to drift. The commit messages are the transcript.
 
 **Then audit the pipeline hands-on before any assessment** — the previous
 manager's practice, keep it: run every guard and selftest
