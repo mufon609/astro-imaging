@@ -4,94 +4,94 @@
  "box_px": 400,
  "corner_margin_px": 200,
  "image_wh": [
-  4899,
+  4900,
   3719
  ],
  "channels": 3,
  "regions": {
   "center": {
    "ch0": {
-    "mean": 52.4,
-    "median": 49.2,
-    "sigma": 42.8
+    "mean": 56.8,
+    "median": 53.5,
+    "sigma": 42.9
    },
    "ch1": {
-    "mean": 52.6,
-    "median": 49.3,
-    "sigma": 37.3
+    "mean": 57.0,
+    "median": 53.6,
+    "sigma": 37.7
    },
    "ch2": {
-    "mean": 52.1,
-    "median": 49.0,
-    "sigma": 39.5
+    "mean": 56.4,
+    "median": 53.4,
+    "sigma": 39.9
    }
   },
   "TL": {
    "ch0": {
-    "mean": 53.2,
-    "median": 49.2,
-    "sigma": 56.2
+    "mean": 57.6,
+    "median": 53.5,
+    "sigma": 57.2
    },
    "ch1": {
-    "mean": 53.3,
-    "median": 49.3,
-    "sigma": 52.7
+    "mean": 57.7,
+    "median": 53.7,
+    "sigma": 53.7
    },
    "ch2": {
-    "mean": 53.3,
-    "median": 49.4,
-    "sigma": 56.1
+    "mean": 57.7,
+    "median": 53.8,
+    "sigma": 57.3
    }
   },
   "TR": {
    "ch0": {
-    "mean": 52.8,
-    "median": 48.8,
-    "sigma": 135.5
+    "mean": 57.1,
+    "median": 53.2,
+    "sigma": 133.3
    },
    "ch1": {
-    "mean": 53.0,
-    "median": 48.9,
-    "sigma": 135.4
+    "mean": 57.3,
+    "median": 53.3,
+    "sigma": 134.6
    },
    "ch2": {
-    "mean": 53.4,
-    "median": 49.0,
-    "sigma": 165.7
+    "mean": 57.8,
+    "median": 53.4,
+    "sigma": 164.8
    }
   },
   "BL": {
    "ch0": {
-    "mean": 51.5,
-    "median": 49.5,
-    "sigma": 23.0
+    "mean": 55.8,
+    "median": 53.9,
+    "sigma": 22.8
    },
    "ch1": {
-    "mean": 51.4,
-    "median": 49.4,
-    "sigma": 22.7
+    "mean": 55.7,
+    "median": 53.7,
+    "sigma": 22.6
    },
    "ch2": {
-    "mean": 51.3,
-    "median": 49.4,
-    "sigma": 24.4
+    "mean": 55.6,
+    "median": 53.7,
+    "sigma": 24.3
    }
   },
   "BR": {
    "ch0": {
-    "mean": 53.2,
-    "median": 49.0,
-    "sigma": 82.1
+    "mean": 57.6,
+    "median": 53.4,
+    "sigma": 82.3
    },
    "ch1": {
-    "mean": 53.2,
-    "median": 48.9,
-    "sigma": 79.8
+    "mean": 57.6,
+    "median": 53.3,
+    "sigma": 79.6
    },
    "ch2": {
-    "mean": 53.4,
-    "median": 48.9,
-    "sigma": 89.6
+    "mean": 57.7,
+    "median": 53.2,
+    "sigma": 89.1
    }
   }
  }

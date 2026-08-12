@@ -2,7 +2,7 @@
  "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
  "flat": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/masters/skyflat_set-01.fit",
  "build": {
-  "frames": 502,
+  "frames": 500,
   "rejection": "wins",
   "dark": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/masters/dark_master.fit",
   "method": "UN-registered, dark-subtracted (pedestal-free), CFA, multiplicative norm",
@@ -11,29 +11,29 @@
  },
  "regional_stat_ADU": {
   "center": {
-   "mean": 42.6,
-   "median": 44.1,
-   "sigma": 9.9
+   "mean": 41.9,
+   "median": 43.5,
+   "sigma": 9.7
   },
   "TL": {
-   "mean": 21.6,
-   "median": 22.1,
-   "sigma": 5.6
+   "mean": 21.2,
+   "median": 21.7,
+   "sigma": 5.5
   },
   "TR": {
-   "mean": 23.6,
-   "median": 24.1,
-   "sigma": 6.1
+   "mean": 23.2,
+   "median": 23.7,
+   "sigma": 6.0
   },
   "BL": {
-   "mean": 21.7,
-   "median": 22.3,
-   "sigma": 5.6
+   "mean": 21.3,
+   "median": 21.9,
+   "sigma": 5.5
   },
   "BR": {
-   "mean": 24.8,
-   "median": 25.5,
-   "sigma": 6.3
+   "mean": 24.4,
+   "median": 25.0,
+   "sigma": 6.2
   }
  },
  "region_geometry_px": {
@@ -41,7 +41,7 @@
   "corner_margin": 200
  },
  "corner_asymmetry": {
-  "ratio": 1.154,
+  "ratio": 1.152,
   "brightest": "BR",
   "darkest": "TL",
   "radial_expectation": 1.0,
@@ -49,28 +49,28 @@
  },
  "edge_regional_stat_ADU": {
   "center": {
-   "mean": 42.7,
-   "median": 45.6,
-   "sigma": 9.9
+   "mean": 42.0,
+   "median": 44.9,
+   "sigma": 9.7
   },
   "TL": {
-   "mean": 11.2,
-   "median": 11.7,
-   "sigma": 3.0
+   "mean": 11.0,
+   "median": 11.5,
+   "sigma": 2.9
   },
   "TR": {
-   "mean": 12.2,
-   "median": 12.7,
+   "mean": 12.0,
+   "median": 12.5,
    "sigma": 3.1
   },
   "BL": {
-   "mean": 11.5,
-   "median": 12.2,
-   "sigma": 3.1
+   "mean": 11.4,
+   "median": 12.0,
+   "sigma": 3.0
   },
   "BR": {
-   "mean": 13.3,
-   "median": 14.0,
+   "mean": 13.1,
+   "median": 13.7,
    "sigma": 3.3
   }
  },
@@ -80,8 +80,8 @@
   "note": "baseline_guard.py's edge_dipole_x geometry"
  },
  "odd_component": {
-  "edge_dipole_x": 0.1107,
-  "edge_dipole_y": -0.0711,
+  "edge_dipole_x": 0.1087,
+  "edge_dipole_y": -0.0684,
   "instrument": "Siril `stat` medians on 4 corner crops at the edge geometry; ((TR+BR)-(TL+BL))/2 normalised to the 4-corner mean (baseline_guard.py convention), and its top-bottom sibling",
   "how_to_read": "Vignetting is an EVEN RADIAL function, so it contributes EQUALLY to x and y. |edge_dipole_x| materially above |edge_dipole_y| is NON-RADIAL by construction and cannot be vignetting \u2014 on a sky flat that is the horizon-fixed sky gradient integrating into the flat, which then leaves the OBJECT carrying a multiplicative tilt it never had (docs/dead-ends.md, the sky-flat entry). The corner-vs-centre gate above CANNOT see this: it averages the two sides together, which is why the registry calls that gate self-fulfilling for this defect.",
   "not_a_pass_fail": "REPORTED, not gated. The `sky x V` contamination this measures is a known-OPEN defect with no shipped corrective (`--desky` was a 31x regression), so failing on it would block every flat this route builds. A pass/fail line on this term is a user ratification (BACKLOG:`calibration-evidence`), not this script's to invent.",

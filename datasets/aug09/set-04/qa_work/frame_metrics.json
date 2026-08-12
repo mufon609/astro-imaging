@@ -1,0 +1,91 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 500,
+ "registered": 500,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 18.1,
+ "pixel_scale_source": "astrometry.net solve (mount_probe), green-plane scale halved to the full-res debayered grid",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.6575,
+   "min": 2.587,
+   "max": 2.705
+  },
+  "roundness": {
+   "median": 0.791,
+   "min": 0.7794,
+   "max": 0.8032
+  },
+  "nstars": {
+   "median": 1515,
+   "min": 1449,
+   "max": 1573
+  },
+  "bg16": {
+   "median": 1062,
+   "min": 1061,
+   "max": 1064
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.609,
+   "round": 0.7943,
+   "stars": 1525,
+   "bg16": 1062
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.627,
+   "round": 0.7926,
+   "stars": 1529,
+   "bg16": 1062
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.646,
+   "round": 0.7927,
+   "stars": 1519,
+   "bg16": 1062
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.662,
+   "round": 0.7895,
+   "stars": 1516,
+   "bg16": 1062
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.671,
+   "round": 0.7883,
+   "stars": 1514,
+   "bg16": 1062
+  },
+  {
+   "block": 6,
+   "frames": 76,
+   "fwhm": 2.683,
+   "round": 0.7886,
+   "stars": 1505,
+   "bg16": 1062
+  },
+  {
+   "block": 7,
+   "frames": 44,
+   "fwhm": 2.681,
+   "round": 0.7889,
+   "stars": 1481,
+   "bg16": 1063
+  }
+ ],
+ "flagged_defect_side_z": [],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

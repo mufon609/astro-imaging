@@ -1,15 +1,15 @@
 {
  "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
  "measures": {
-  "corner_spread_pct": 0.597,
-  "edge_dipole_x": 0.0015,
+  "corner_spread_pct": 0.699,
+  "edge_dipole_x": 0.0046,
   "centre_median_per_channel": {
-   "ch0": 67.4,
-   "ch1": 67.6,
-   "ch2": 67.2
+   "ch0": 43.0,
+   "ch1": 43.3,
+   "ch2": 42.9
   },
   "stack": "web/results/aug06/stack_set-01_full_spcc.fit",
-  "stack_id": "eede6b199630fa36777013f4d2f4359c"
+  "stack_id": "dd0bf1cedbd9261c390358e60fe0df49"
  },
  "tolerances": {
   "corner_spread_pct_max_abs": 3.0,
@@ -17,6 +17,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "user-accepted own-model adoption (per-set optical state); pinned-model control preserved as *-pinned",
+ "note": "rebuilt-from-raws product, current chain. Prior baseline recorded the refuted per-set-model-era product (deleted; its level 67 was out of family with sibling baselines 46/49). Level anchor MEASURED (one-knob probe, same members): -norm=addscale lands the compose at the reference members own sky (G 129.3 vs member-1 129.5); -output_norm then re-zeroes at the builds darkest pixel (G 129.3 -> 71.8, offset ~58 ADU equal on all channels, R min 58.8 -> 0.0) \u2014 a linear offset, differences preserved. Structure matched the old baseline (corner spread 0.70 vs 0.60, dipole +0.005 vs +0.002). Deterministic setref pin for the compose reference queued.",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

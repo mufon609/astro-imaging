@@ -1,0 +1,95 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 456,
+ "registered": 456,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 17.961,
+ "pixel_scale_source": "astrometry.net solve (mount_probe), green-plane scale halved to the full-res debayered grid",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.396,
+   "min": 2.358,
+   "max": 4.06
+  },
+  "roundness": {
+   "median": 0.8308,
+   "min": 0.7512,
+   "max": 0.8455
+  },
+  "nstars": {
+   "median": 1478,
+   "min": 1430,
+   "max": 1546
+  },
+  "bg16": {
+   "median": 1059,
+   "min": 1050,
+   "max": 1060
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.395,
+   "round": 0.8296,
+   "stars": 1473,
+   "bg16": 1059
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.408,
+   "round": 0.8289,
+   "stars": 1482,
+   "bg16": 1059
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.422,
+   "round": 0.8261,
+   "stars": 1487,
+   "bg16": 1058
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.388,
+   "round": 0.8327,
+   "stars": 1485,
+   "bg16": 1059
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.38,
+   "round": 0.8374,
+   "stars": 1470,
+   "bg16": 1059
+  },
+  {
+   "block": 6,
+   "frames": 76,
+   "fwhm": 2.386,
+   "round": 0.8332,
+   "stars": 1466,
+   "bg16": 1059
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_0264.NEF",
+   "flags": [
+    "fwhm",
+    "round"
+   ],
+   "fwhm": 4.06,
+   "bg": 1050.5,
+   "round": 0.7512,
+   "nstars": 1546
+  }
+ ],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

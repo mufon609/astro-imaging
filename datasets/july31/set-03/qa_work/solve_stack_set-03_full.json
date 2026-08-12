@@ -3,8 +3,12 @@
  "detector": "sep",
  "n_stars_detected": 400,
  "central": null,
- "position_hint": null,
- "position_hint_source": "none",
+ "position_hint": [
+  313.704668434673,
+  42.7637151522581,
+  15.0
+ ],
+ "position_hint_source": "header",
  "attempt": "cached",
  "field_width_arcmin_arg": null,
  "scale_hint_arcsec_px": [

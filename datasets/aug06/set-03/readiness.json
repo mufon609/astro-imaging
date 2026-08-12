@@ -34,8 +34,8 @@
   },
   {
    "criterion": "optics",
-   "status": "YELLOW",
-   "value": "uniform; installed == this set's OWN fitted model (candidate A/B state, not the pinned incumbent); warp proven",
+   "status": "GREEN",
+   "value": "uniform; installed == pinned (NIKKOR Z 24-70mm f/4 S@70); warp proven",
    "instrument": "lens_preflight.py (exiftool + darktable render diff via Siril stat)",
    "detail": ""
   },
@@ -56,7 +56,7 @@
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "922G free covers even the 275G single-pass peak",
+   "value": "920G free covers even the 275G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },
@@ -69,8 +69,8 @@
   },
   {
    "criterion": "baseline",
-   "status": "YELLOW",
-   "value": "none yet \u2014 nothing to regress against; the first accepted product seeds it",
+   "status": "GREEN",
+   "value": "present \u2014 the product is compared after the build (exit 8 on mismatch)",
    "instrument": "baseline_guard.py (Siril stat)",
    "detail": ""
   }

@@ -42,21 +42,21 @@
   {
    "criterion": "masters",
    "status": "YELLOW",
-   "value": "darks staged \u2014 master builds this run; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
+   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
    "instrument": "session staging + build_sky_flat.sh",
    "detail": ""
   },
   {
    "criterion": "flat_quality",
    "status": "GREEN",
-   "value": "builds this run \u2014 builder validation gates enforce (regional stat, speck count, preview)",
-   "instrument": "build_sky_flat.sh gates",
+   "value": "built; corner asymmetry ratio 1.127 (WARN over 1.20)",
+   "instrument": "build_sky_flat.sh (Siril stat + findstar)",
    "detail": ""
   },
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "958G free covers even the 275G single-pass peak",
+   "value": "949G free covers even the 275G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },

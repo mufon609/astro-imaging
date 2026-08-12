@@ -1,8 +1,8 @@
 {
  "session": "aug06",
  "set": "set-00",
- "route": "undistort",
- "overall": "YELLOW",
+ "route": "undistort-groups",
+ "overall": "RED",
  "criteria": [
   {
    "criterion": "mount",
@@ -13,10 +13,10 @@
   },
   {
    "criterion": "route",
-   "status": "YELLOW",
-   "value": "undistort (OPERATOR-FORCED --route=single)",
-   "instrument": "operator override",
-   "detail": "the derived route is stated in the chain plan"
+   "status": "GREEN",
+   "value": "undistort-groups",
+   "instrument": "fingerprint (mount x field width)",
+   "detail": "fixed + 28.6 deg field; groups is the standing route (sub-stacks keep the cross-set combine buildable)"
   },
   {
    "criterion": "frame_qa",
@@ -27,22 +27,22 @@
   },
   {
    "criterion": "obstruction_audit",
-   "status": "GREEN",
-   "value": "floor 77 vs single-pass set 134 (43% headroom)",
+   "status": "RED",
+   "value": "dwell floor 77 exceeds any 2-group split of 134 frames",
    "instrument": "anomaly_audit + GESD fraction 0.3 (stack_rejection.sh)",
    "detail": "3 object(s), longest dwell 23 frame(s)"
   },
   {
    "criterion": "optics",
-   "status": "YELLOW",
-   "value": "uniform; installed == this set's OWN fitted model (candidate A/B state, not the pinned incumbent); warp proven",
+   "status": "GREEN",
+   "value": "uniform; installed == pinned (NIKKOR Z 24-70mm f/4 S@70); warp proven",
    "instrument": "lens_preflight.py (exiftool + darktable render diff via Siril stat)",
    "detail": ""
   },
   {
    "criterion": "masters",
    "status": "YELLOW",
-   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
+   "value": "darks staged \u2014 master builds this run; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
    "instrument": "session staging + build_sky_flat.sh",
    "detail": ""
   },
@@ -56,7 +56,7 @@
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "926G free covers even the 78G single-pass peak",
+   "value": "949G free covers even the 78G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },
@@ -69,8 +69,8 @@
   },
   {
    "criterion": "baseline",
-   "status": "YELLOW",
-   "value": "none yet \u2014 nothing to regress against; the first accepted product seeds it",
+   "status": "GREEN",
+   "value": "present \u2014 the product is compared after the build (exit 8 on mismatch)",
    "instrument": "baseline_guard.py (Siril stat)",
    "detail": ""
   }
