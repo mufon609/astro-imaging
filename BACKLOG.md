@@ -562,6 +562,22 @@ night still pays for a drift probe per set. **Closes when** a decisive
 session-level measurement seeds every sibling set's record (provenance kept per
 set — a re-aimed set still cross-checks).
 
+## `calxset-names-the-wrong-axis` — a provenance flag that overclaims
+
+`run_undistort_pipeline.sh` stamps `CALXSET=T` whenever `--flat` is not the flat
+the set's record names. The trigger is right; the NAME is not. It reads
+"cross-SET calibration", and the per-group flat arms are cross-WINDOW **within
+one set** — a later reader would take those members for another set's
+calibration. Nothing is lost today: `CALFLAT` records which flat actually ran and
+is authoritative for which case it is.
+
+**Do NOT rename the key** — products already carry it and a rename strands every
+one of them. **Closes when** the definition site states the real trigger
+("`CALFLAT` is not this set's recorded flat", covering cross-set and
+cross-window alike) and names `CALFLAT` as the datum that says which. Found by
+header inspection during the per-group flat arms; the fix is held off the build
+path while an experiment is in flight.
+
 ## `guards-and-ci` — nothing runs the guards
 
 `check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the
