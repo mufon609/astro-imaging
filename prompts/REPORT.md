@@ -9,10 +9,14 @@ block is the priority.
 
 | prompt | items | acceptance shape |
 |---|---|---|
+| `ITERATIVE_FLAT_PROMPT.md` | the domain-corrected iterative sky flat — the open sky×V defect, testable against aug09's five-flat dose curve (1.127→1.468) | synthetic fixture proves the algebra (and fails on demand); dose curve collapses toward the ~1.13 base; the correct-correction odd component survives SAME-SIGN; one downstream one-knob delta for the owner's eyes |
 | `COMMENT_HYGIENE_PROMPT.md` | mine git history for the comment-removal taxonomy; emit the standing `COMMENT_SWEEP_PROMPT.md`; audit the policy text | categories derived with counts + verbatim examples; sweep prompt carries detectors + the revise-never-drop safety rule; policy left short, single-homed, uncontradictory |
 
 ## Queued — needs prompts (medium; one session can take several)
 
+- **Real-flats HANDLED path** — wire master-flat builds into the undistort
+  route so staged real flats are USED, not just accurately refused (routing
+  session shipped "named"; owner precedence: real flats WIN when present).
 - **`cross-set-record-home`** — night/corpus SPCC records and baselines file
   under a borrowed member set (bitten twice this rebuild). Multi-set products
   write session-level records; combine products get a baseline home.
