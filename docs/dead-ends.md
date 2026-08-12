@@ -217,6 +217,50 @@ the constraints any such tool must satisfy):
   `datasets/aug09/flat_ratio_decomposition.json`,
   `datasets/aug09/corpus_flat_odd_component.json`,
   `datasets/aug09/experiments.jsonl`.
+  **AND THE FLAT'S SHAPE DIFFERENCE REACHES THE DELIVERED OBJECT ESSENTIALLY 1:1 —
+  MEASURED, so the mechanism above is no longer only an argument.** The
+  DIFFERENTIAL that survives both blockers of the dead entry below: two flats of
+  the same optical state and different sky dose (aug09 set-01 vs set-05, Δedge
+  dipole 0.2827, the corpus maximum WITHIN a night) applied to the SAME 125
+  set-05 lights through the SAME chain, one knob. `M_i` cancels identically —
+  the same star in the same photons — so nothing per-star is fitted and the lever
+  is the spread of star POSITIONS: **1603 px against the absolute measurement's
+  29.1 px median**. Identical frames also carry identical extinction and skyglow
+  at every sensor position, so blocker 2's term cancels in the subtraction.
+  **Delivered: −22.477 ± 0.077% (r = 10 px, 914 stars, Siril `psf` against its own
+  local annulus) and −22.450 ± 0.082% (r = 16), against a pixel-ratio field
+  (Siril `fdiv` + `stat`) of edge dipole_x −0.2356 green.** The apples-to-apples
+  form is not a model: the flats' OWN ratio field cropped to the delivered canvas
+  measures −0.2383 (edge) and −0.2010 (corner) against the delivered −0.2356 and
+  −0.2021 — **98.9% and 100.6%**, tracking point-by-point along 9 midline boxes to
+  ≤0.008. A planted ramp of known dipole +0.1583 over that same window recovers at
+  97.7%, so correcting the real number by the control's own systematic gives
+  **101.2%: no measurable attenuation.**
+  **The floor is EXACTLY ZERO**, on both instruments and all three channels — an
+  identity rebuild is bit-identical, and the non-vacuous version (a uniform 1.05
+  card, which changes 74.10% of the pixels) still moves every dipole by exactly
+  0.0000. That control also measured why: **Siril `calibrate` normalizes the flat
+  by its own level, so a flat's absolute LEVEL cannot reach the product — only
+  its SHAPE can.** Discrimination is therefore unbounded (planted movement 0.1547
+  against 0.0000), where the object-tilt instrument managed 0.20x.
+  **The shipped normalization does NOT swallow it: 0.3%** on the object
+  (−22.477% at `-nonorm` vs −22.550% at `-norm=addscale -output_norm`). The same
+  pair moves the BACKGROUND dipole +48.6% and splits the channels — a pedestal
+  artefact, not imprint, since psf's local annulus removes an additive term and
+  regional medians cannot (measured: `An/A` is a uniform 2.02x while `Bn/B` runs
+  1.859 left to 1.667 right). **Take the pixel field on `-nonorm` arms only.**
+  SCOPE — read this before citing the 22.5%: it is the DIFFERENCE of two imprints,
+  so it gives the delivered sensitivity to a KNOWN dose difference and NOT the
+  absolute object tilt, which needs the flats' COMMON sky content and is still
+  unmeasured. It does not resurrect the 3.11% / 241 sigma figure (UNVERIFIED), and
+  the T/B attribution caveat above is untouched. What it does establish is the
+  TRANSFER FUNCTION: any future measurement of a flat's absolute sky content
+  converts to an object tilt essentially 1:1, and a corrective that changes a
+  flat's shape by X changes the delivered object by X. Instrument:
+  `scripts/qa/flat_differential.py` (+ `flat_differential_arms.sh`,
+  `flat_differential_report.py`); numbers:
+  `datasets/aug09/flatdiff_prediction.json` (committed before the arms) and
+  `datasets/aug09/set-05/flatdiff_work/flat_differential.json`.
 
 - **DEAD END — MEASURING THE OBJECT TILT BY DIFFERENTIAL STAR PHOTOGRAPHY ACROSS
   THE DRIFT. Two independent blockers, either one fatal; and the `3.11% at 241
@@ -324,7 +368,14 @@ the constraints any such tool must satisfy):
   **Consequence for the roadmap: better sky-flat construction is NOT retired by
   this result.** It stays the calibration-side lever inside the flatless route
   (per-group flats remain the untested candidate), because nothing here measured
-  it down.
+  it down. **And the differential form of the question IS answerable — it is
+  measured, in the entry above.** Two flats of the same optical state and
+  different sky dose on the SAME lights kills both blockers structurally (`M_i`
+  cancels identically, so the lever goes from a 29.1 px median to 1603 px; the
+  sensor-fixed atmosphere cancels in the subtraction), and it returns
+  −22.5% delivered for a Δedge-dipole of 0.2851, with a floor of EXACTLY zero.
+  What stays dead is the ABSOLUTE measurement, and what stays unmeasured is the
+  flats' COMMON sky content — not the transfer from flat shape to object.
 
   **WHAT NOT TO RE-ATTEMPT.** More blocks (rotation is a property of the set, not
   the block count); more depth (the blocker is systematic, not statistical — 2545

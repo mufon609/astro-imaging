@@ -1,0 +1,555 @@
+{
+ "what": "FLAT DIFFERENTIAL \u2014 how much of two flats' dose difference reaches the delivered object",
+ "uptime": "15:33:05 up 37 days, 23:43,  2 users,  load average: 0.51, 2.34, 4.68",
+ "prediction_record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/flatdiff_prediction.json",
+ "canvas": [
+  4884,
+  3644
+ ],
+ "frame_width_px": 6064.0,
+ "smear_factor_geometric": 0.8027,
+ "smear_factor_formula": "(W_canvas - 84) / (W_frame - 84) \u2014 the edge boxes' centre separation on the canvas over the same separation on the frame",
+ "flat_ratio_input": {
+  "edge_dipole_x": -0.2851,
+  "edge_dipole_y": -0.0233,
+  "LR": 1.3325,
+  "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/flatpair_05_over_01.json"
+ },
+ "arms": {
+  "measurement": {
+   "label": "measurement_B_over_A_nonorm",
+   "ref": "arm_A.fit",
+   "alt": "arm_B.fit",
+   "ref_flat": "skyflat_set-05.fit:500",
+   "alt_flat": "skyflat_set-01.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "canvas": [
+    4884,
+    3644
+   ],
+   "pixel_ratio_edge_dipole_x": {
+    "R": -0.245,
+    "G": -0.2356,
+    "B": -0.2065
+   },
+   "pixel_ratio_edge_dipole_y": {
+    "R": -0.0151,
+    "G": -0.0115,
+    "B": -0.012
+   },
+   "pixel_ratio_LR": {
+    "R": 1.2791,
+    "G": 1.2671,
+    "B": 1.2303
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star_differential": {
+    "10": {
+     "ax_mag": 0.2764242988309755,
+     "ax_err": 0.0010771541470852995,
+     "delivered_frac_x": -0.2247705182161368,
+     "delivered_frac_x_err": 0.0007687203981493473,
+     "equivalent_edge_dipole_x": -0.24892002281654882,
+     "right_over_left": 0.7786315028626041,
+     "n_stars": 914,
+     "sigma_x": 256.6246433520769,
+     "lever_px_x": 1603.1386428051828,
+     "chi2_per_dof": 0.8352257143588051,
+     "resid_rms_mag": 0.008745937526705407,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.06999999999993634,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "ax_mag": 0.2760427998984033,
+     "ax_err": 0.001154187276522746,
+     "delivered_frac_x": -0.22449807525641186,
+     "delivered_frac_x_err": 0.0008239560093141751,
+     "equivalent_edge_dipole_x": -0.2485800345573004,
+     "right_over_left": 0.7789004342856395,
+     "n_stars": 898,
+     "sigma_x": 239.16638617785284,
+     "lever_px_x": 1670.189697506522,
+     "chi2_per_dof": 0.8386311593667783,
+     "resid_rms_mag": 0.009286587090533012,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.06999999999993634,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/pair_measurement.json"
+  },
+  "floor_identity": {
+   "label": "floor_identity_A2_over_A",
+   "ref": "arm_A.fit",
+   "alt": "arm_A2.fit",
+   "ref_flat": "skyflat_set-05.fit:500",
+   "alt_flat": "skyflat_set-05.fit:500",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "canvas": [
+    4884,
+    3644
+   ],
+   "pixel_ratio_edge_dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_ratio_edge_dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_ratio_LR": {
+    "R": 1.0,
+    "G": 1.0,
+    "B": 1.0
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star_differential": {
+    "10": {
+     "ax_mag": 0.0,
+     "ax_err": 0.0,
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "right_over_left": 1.0,
+     "n_stars": 920,
+     "sigma_x": null,
+     "lever_px_x": 1603.8044486394144,
+     "chi2_per_dof": 0.0,
+     "resid_rms_mag": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "ax_mag": 0.0,
+     "ax_err": 0.0,
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "right_over_left": 1.0,
+     "n_stars": 920,
+     "sigma_x": null,
+     "lever_px_x": 1672.6604019167958,
+     "chi2_per_dof": 0.0,
+     "resid_rms_mag": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/pair_floor_identity.json"
+  },
+  "floor_uniform": {
+   "label": "floor_uniform_U_over_A",
+   "ref": "arm_A.fit",
+   "alt": "arm_U.fit",
+   "ref_flat": "skyflat_set-05.fit:500",
+   "alt_flat": "flat_U.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "canvas": [
+    4884,
+    3644
+   ],
+   "pixel_ratio_edge_dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_ratio_edge_dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_ratio_LR": {
+    "R": 1.0,
+    "G": 1.0,
+    "B": 1.0
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star_differential": {
+    "10": {
+     "ax_mag": 0.0,
+     "ax_err": 0.0,
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "right_over_left": 1.0,
+     "n_stars": 911,
+     "sigma_x": null,
+     "lever_px_x": 1604.1161842745953,
+     "chi2_per_dof": 0.0,
+     "resid_rms_mag": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "ax_mag": 0.0,
+     "ax_err": 0.0,
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "right_over_left": 1.0,
+     "n_stars": 900,
+     "sigma_x": null,
+     "lever_px_x": 1672.7854109294528,
+     "chi2_per_dof": 0.0,
+     "resid_rms_mag": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/pair_floor_uniform.json"
+  },
+  "planted": {
+   "label": "planted_P_over_A",
+   "ref": "arm_A.fit",
+   "alt": "arm_P.fit",
+   "ref_flat": "skyflat_set-05.fit:500",
+   "alt_flat": "flat_P.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "canvas": [
+    4884,
+    3644
+   ],
+   "pixel_ratio_edge_dipole_x": {
+    "R": 0.1545,
+    "G": 0.1547,
+    "B": 0.1546
+   },
+   "pixel_ratio_edge_dipole_y": {
+    "R": -0.001,
+    "G": -0.001,
+    "B": -0.0011
+   },
+   "pixel_ratio_LR": {
+    "R": 0.8565,
+    "G": 0.8564,
+    "B": 0.8565
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star_differential": {
+    "10": {
+     "ax_mag": -0.1676150530841737,
+     "ax_err": 0.00013050715598722179,
+     "delivered_frac_x": 0.16693326786819895,
+     "delivered_frac_x_err": 0.00014025873760226126,
+     "equivalent_edge_dipole_x": 0.1514336081421665,
+     "right_over_left": 1.1638389714420523,
+     "n_stars": 918,
+     "sigma_x": 1284.3361102787746,
+     "lever_px_x": 1605.6328410517199,
+     "chi2_per_dof": 0.012284076736012244,
+     "resid_rms_mag": 0.001063444220850171,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.19000000000005457,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "ax_mag": -0.1676940989764424,
+     "ax_err": 0.00014266155091029864,
+     "delivered_frac_x": 0.1670182283206727,
+     "delivered_frac_x_err": 0.00015333162158581715,
+     "equivalent_edge_dipole_x": 0.15150474954125584,
+     "right_over_left": 1.1639222491955623,
+     "n_stars": 910,
+     "sigma_x": 1175.4680774631665,
+     "lever_px_x": 1670.3561509648391,
+     "chi2_per_dof": 0.012823512841018292,
+     "resid_rms_mag": 0.0011556787569934892,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.19000000000005457,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/pair_planted.json"
+  },
+  "prodnorm": {
+   "label": "prodnorm_Bn_over_An",
+   "ref": "arm_An.fit",
+   "alt": "arm_Bn.fit",
+   "ref_flat": "skyflat_set-05.fit:500",
+   "alt_flat": "skyflat_set-01.fit",
+   "stack_norm": [
+    "addscale+output_norm",
+    "addscale+output_norm"
+   ],
+   "canvas": [
+    4884,
+    3644
+   ],
+   "pixel_ratio_edge_dipole_x": {
+    "R": -0.5025,
+    "G": -0.3501,
+    "B": -0.3663
+   },
+   "pixel_ratio_edge_dipole_y": {
+    "R": -0.0296,
+    "G": -0.0166,
+    "B": -0.0207
+   },
+   "pixel_ratio_LR": {
+    "R": 1.6712,
+    "G": 1.4244,
+    "B": 1.4485
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star_differential": {
+    "10": {
+     "ax_mag": 0.2774400236183972,
+     "ax_err": 0.0006482933772191034,
+     "delivered_frac_x": -0.22549541952238816,
+     "delivered_frac_x_err": 0.00046231885232450587,
+     "equivalent_edge_dipole_x": -0.2498251558947404,
+     "right_over_left": 0.7779159369427651,
+     "n_stars": 2902,
+     "sigma_x": 427.95443138489895,
+     "lever_px_x": 1814.4935423804234,
+     "chi2_per_dof": 1.0177070224020317,
+     "resid_rms_mag": 0.009128401528959586,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 29.659999999999968,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "ax_mag": 0.27740754009310625,
+     "ax_err": 0.0007085917439781709,
+     "delivered_frac_x": -0.22547224721278392,
+     "delivered_frac_x_err": 0.000505320644379692,
+     "equivalent_edge_dipole_x": -0.24979621076975475,
+     "right_over_left": 0.7779388110140977,
+     "n_stars": 2709,
+     "sigma_x": 391.4913523204303,
+     "lever_px_x": 1943.451863433173,
+     "chi2_per_dof": 0.8827472620823712,
+     "resid_rms_mag": 0.009478099804135658,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 29.659999999999968,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/pair_prodnorm.json"
+  }
+ },
+ "derived": {
+  "floor": {
+   "per_control": {
+    "floor_identity": {
+     "pixel_max_abs_dipole_x": 0.0,
+     "pixel_max_abs_dipole_y": 0.0,
+     "star_max_abs_delivered_frac_x": 0.0
+    },
+    "floor_uniform": {
+     "pixel_max_abs_dipole_x": 0.0,
+     "pixel_max_abs_dipole_y": 0.0,
+     "star_max_abs_delivered_frac_x": 0.0
+    }
+   },
+   "pixel_floor_abs_dipole_x": 0.0,
+   "reading": "the largest |edge dipole x| any control reports where the truth is exactly zero. A floor of 0.0000 is a TRUE zero, not a small number \u2014 this chain is bit-reproducible."
+  },
+  "delivered_vs_flats": {
+   "flat_ratio_edge_dipole_x": -0.2851,
+   "delivered_edge_dipole_x_green": -0.2356,
+   "fraction_of_the_flats_dose_delivered": 0.8264,
+   "predicted_by_geometry": 0.8027,
+   "departure_from_prediction_pct": 2.95,
+   "upper_bound_respected": true,
+   "reading": "the delivered field is the flats' ratio smeared by the drift, so the fraction cannot exceed 1 and should sit at the geometric factor if the field is linear."
+  },
+  "delivered_vs_flats_same_window": {
+   "flat_ratio_cropped_to_the_canvas": {
+    "edge_dipole_x": -0.2383,
+    "corner_dipole_x": -0.201,
+    "edge_LR": 1.2705,
+    "corner_LR": 1.2235,
+    "record": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/flatratio_canvaswindow.json"
+   },
+   "delivered_green": {
+    "edge_dipole_x": -0.2356,
+    "corner_dipole_x": -0.2021,
+    "edge_LR": 1.2671,
+    "corner_LR": 1.2248
+   },
+   "delivered_over_window_edge": 0.9887,
+   "delivered_over_window_corner": 1.0055,
+   "caveat": "the crop is CENTRED on the frame and the flats' ratio is un-warped, while the delivered field has been through the lens-distortion warp and sits at the drift-averaged window. Both effects are percent-level and BOTH apply to the planted card too, which is why the card's recovery is the systematic to read this against.",
+   "planted_recovery_same_window": 0.9773,
+   "delivered_fraction_corrected_by_the_control": 1.0117
+  },
+  "planted": {
+   "card_edge_dipole_x": 0.197229558312012,
+   "card_edge_ratio": 1.2221856117248535,
+   "predicted_delivered": 0.1583,
+   "measured_delivered_green": 0.1547,
+   "recovery": 0.9772,
+   "sign_opposite_to_the_real_signal": true,
+   "discrimination_against_floor": null,
+   "discrimination_reading": "the floor is EXACTLY zero, so the ratio is unbounded \u2014 the planted card moves the answer by 0.1547 against a floor of 0.0000. Compare: the iterative-flat NULL met 48-62x, the object-tilt instrument 0.20x."
+  },
+  "uniform_card": {
+   "region_medians_of_the_ratio_field": {
+    "center": 32767.5,
+    "TL": 32767.5,
+    "TR": 32767.5,
+    "BL": 32767.5,
+    "BR": 32767.5
+   },
+   "max_abs_dipole_x": 0.0,
+   "reading": "every pixel differs by the card's scalar and no dipole may move. This is what makes the identity floor non-vacuous: the card path itself is exercised."
+  },
+  "normalization_absorption": {
+   "the_question": "how much of a calibration difference does the shipped -norm=addscale -output_norm swallow before it reaches the deliverable?",
+   "ON_THE_OBJECT_star_flux": {
+    "10": {
+     "nonorm": -0.2247705182161368,
+     "prodnorm": -0.22549541952238816,
+     "absorbed_fraction": -0.0032
+    },
+    "16": {
+     "nonorm": -0.22449807525641186,
+     "prodnorm": -0.22547224721278392,
+     "absorbed_fraction": -0.0043
+    }
+   },
+   "ON_THE_BACKGROUND_pixel_field": {
+    "nonorm_edge_dipole_x_green": -0.2356,
+    "production_norm_edge_dipole_x_green": -0.3501,
+    "change_fraction": 0.486,
+    "per_channel": {
+     "R": {
+      "nonorm": -0.245,
+      "prodnorm": -0.5025
+     },
+     "G": {
+      "nonorm": -0.2356,
+      "prodnorm": -0.3501
+     },
+     "B": {
+      "nonorm": -0.2065,
+      "prodnorm": -0.3663
+     }
+    }
+   },
+   "reading": "THE TWO ANSWERS DIFFER AND THE DIFFERENCE IS THE FINDING. The star flux is measured against psf's LOCAL annulus, so it is immune to an additive pedestal; the regional medians are not. -norm=addscale gives every frame its own additive AND multiplicative coefficient computed from that frame's own statistics \u2014 and in the counterfactual arm those statistics shift with the drift, because the frame's own window slides across the imprint. So the background field acquires a position-dependent pedestal that is NOT imprint, while the object's flux ratio barely moves. Read the object number as the absorption; read the background number as a pedestal artefact and take the pixel field on -nonorm arms only."
+  },
+  "instrument_agreement": {
+   "compared_on": "the edge-to-edge RATIO right/left at the pixel instrument's own box centres \u2014 the only currency both instruments measure directly (1/LR for the pixel field). Dipole-to-dipole would compare a flux-linear number with a magnitude-linear one and manufacture a disagreement.",
+   "per_aperture": {
+    "10": {
+     "star_right_over_left": 0.77863,
+     "pixel_right_over_left_green": 0.7892,
+     "difference_pct_of_pixel": -1.34,
+     "star_equivalent_edge_dipole_x": -0.2489,
+     "pixel_edge_dipole_x_green": -0.2356
+    },
+    "16": {
+     "star_right_over_left": 0.7789,
+     "pixel_right_over_left_green": 0.7892,
+     "difference_pct_of_pixel": -1.306,
+     "star_equivalent_edge_dipole_x": -0.2486,
+     "pixel_edge_dipole_x_green": -0.2356
+    }
+   },
+   "reading": "the two instruments measure the same delivered field by independent routes \u2014 Siril's regional medians on the SKY background, and Siril's aperture photometry on the STARS' own flux against a local annulus. A disagreement is the finding and is attributed, never averaged.",
+   "aperture_invariance": {
+    "r10_minus_r16_frac_x": -0.00027
+   }
+  }
+ },
+ "prediction_committed_before_the_arms": {
+  "1_direction": "arm B / arm A carries the SAME SIGN as the flats' ratio: edge_dipole_x NEGATIVE (left brighter), |dipole_x| >> |dipole_y|, dipole_y small and negative.",
+  "2_shape": "a near-linear x-ramp; corner_over_center within 1.5% of 1.0; TB within 2% of 1.0.",
+  "3_upper_bound": "|delivered| <= |flat ratio| = 0.2851. The delivered field is the flats' ratio SMEARED by the drift, and a smear cannot amplify.",
+  "4_smear_factor_stated_before_measuring": {
+   "mechanism": "each canvas point is the flux-weighted average of the ratio field over the sensor positions that sky point visited. For a LINEAR field the average equals the value at the MEAN sensor position, so the amplitude per pixel is unsmeared \u2014 what shrinks is the BASELINE, because -framing=min crops the canvas to the intersection of all frames' footprints.",
+   "formula": "factor = (W_canvas - 84) / (W_frame - 84), the separation of the edge boxes' centres (box 80, margin 2) on the canvas over the same separation on the 6064 px frame",
+   "predicted_factor_at_the_pilot_canvas_4896": 0.8047,
+   "predicted_delivered_edge_dipole_x": -0.2295,
+   "predicted_delivered_edge_dipole_y": -0.0208,
+   "recompute_rule": "the factor is recomputed from the 125-frame arm's OWN measured canvas before comparison. The canvas is measured independently of the ratio, so this is not a free parameter.",
+   "caveat": "for a field with curvature the canvas maps to an off-centre sensor window when the mean drift is non-zero, so a departure of a few percent is expected and is not a failure of the model."
+  },
+  "5_two_instruments_must_agree": "the matched-star flux differential (Siril psf aperture photometry at the same pixel in both arms) must return the same delivered edge-to-edge ratio as the pixel-ratio field, within the measured floor. Disagreement is the finding and gets attributed, never averaged.",
+  "6_controls": {
+   "identity_A2_vs_A": "ratio field EXACTLY 1.000 everywhere; every dipole exactly 0.0000; pixels bit-identical. Determinism is measured, not assumed \u2014 if it is not zero, something non-deterministic is in the arm and no number may be read until it is found.",
+   "uniform_U_vs_A": "level moves +5%, every dipole stays 0.0000. The instrument must respond to GRADIENT and not to LEVEL.",
+   "planted_P_vs_A": "the card is R(x) = 1 + 0.20*(x/W - 0.5), edge ratio 1.2222, whose own edge-geometry dipole is +0.1972 \u2014 POSITIVE, i.e. opposite in sign to the real signal, so a sign-blind artefact cannot fake it. Predicted delivered dipole_x = +0.1972 * factor = +0.1587 at the pilot canvas.",
+   "discrimination_ratio": "planted movement against the measured floor, the form the standard asks for (the iterative-flat NULL met 48-62x; the object-tilt instrument managed 0.20x and was unusable). With a floor of exactly zero the ratio is unbounded; the honest statement is then the floor's exact value and the count of quantities at which it is exactly zero.",
+   "degeneracy_immunity": "on object_tilt.py --selftest step 4a's PURE-TRANSLATION panel \u2014 where the absolute instrument returns -0.046 +- 0.0001 for a planted +0.100 and the lever collapses to 0.00 px \u2014 the DIFFERENTIAL fit must recover a planted flat difference correctly, because the per-star and per-block nuisances cancel identically in the difference and nothing is left free to absorb a linear mode.",
+   "aperture_invariance": "the photometric arm reports r = 10 and 16 px; a real throughput difference does not move with aperture, a PSF-fit artefact does."
+  },
+  "7_normalization_absorption": {
+   "confounder": "-norm=addscale -output_norm computes per-frame coefficients from the frames' OWN statistics, which differ between arms because the flats differ.",
+   "reasoning_stated_before_measuring": "in the registered domain each frame's window slides across the sensor by its drift, so the frame-mean of the ratio field varies with j and addscale removes that per-frame SCALAR. To first order in the ratio's amplitude, removing a per-frame constant leaves the canvas GRADIENT intact \u2014 the absorption should therefore be second-order, not the leading term.",
+   "predicted_absorption": "|dipole_x(Bn/An)| within 10% of |dipole_x(B/A)|, same sign.",
+   "why_it_is_worth_a_number_either_way": "it says how much of a calibration difference the shipped chain silently swallows."
+  }
+ }
+}

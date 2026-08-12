@@ -53,6 +53,7 @@ dataset, and says so.
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-11 | **not fired — and no longer re-checked by hand.** `lens_preflight.py --require-profile` now runs `verify_lens_card.py` EVERY set (11.1 s of a 25.5 s preflight on 6064x4040 frames, so unconditional), because the strip is machine-local state `lensfun-update-data` reverts and the two cheaper checks are blind to it: reinstating the focal=70 aperture=4 `<vignetting>` pair by hand left the warp-happened proof and the pinned-coefficient assert both GREEN while the card read a 4219 ADU corner-vs-centre step on a 30000 ADU field (tol 1.0). Fire-tested both ways on aug06/set-01 (refuse -> re-strip -> 0.000 ADU). That test also found the restore path itself broken — the installer's idempotence test asked only about the distortion line, so it reported "already installed" and exited 0 on a block whose vignetting was back; it now re-strips and says so |
 | per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-12 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile — the MECHANISM is REAL and open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`). **Its MAGNITUDE is UNMEASURED**: the long-quoted 3.11% / 241 sigma has no tracked record, and the catalogue-free re-measurement is now a registered DEAD END — the linear mode is degenerate under translational drift and the atmosphere is sensor-fixed for a fixed camera, so the pre-registered flat prediction failed 4 of 5 across 12 sets (`datasets/aug09/corpus_object_tilt.json`) |
 | `object_tilt.py` cross-match + weighted LS of magnitude against sensor position (+ `object_tilt_control.py`, `object_tilt_null.sh`, `object_tilt_corpus.py`) | an official tool reports a headless POSITION-DEPENDENT photometric solution across overlapping exposures with no external catalogue — SCAMP's photometric mode is the candidate, or a PixInsight equivalent | 2026-08-12 | **not fired — and the divergence it fills is now known to be UNFILLABLE ON THIS DATA, which is why the code stays only as the record of that.** Probed: `scamp` has no apt candidate on this distro (`source-extractor` 2.28.2 and `swarp` do, and source-extractor runs on these sub-stacks — 47,971 objects in 3.1 s with `FLUX_APER` at two radii and `BACKPHOTO_TYPE LOCAL`); Siril's `seqpsf -wcs=` converts the sky coordinate to pixels ONCE and measures that same pixel area in every image (MEASURED: m = -2.104 in the reference block against +3.55/+5.05/+3.63 in the other three, and `-followstar` does not repair it without registration data), so no tool cross-matches a star across a drifting sequence headless. Every pixel op and every flux is Siril's (`findstar` + `psf` aperture photometry, forced radius, local annulus); the in-house part is the cross-match and the fit. It MEASURES and gates nothing — no thresholds, no verdict, always exits 0. `--selftest` falsifies its own mechanism in process (a pure-translation panel must NOT recover a planted +0.100 mag: it returns -0.046 +- 0.0001 and the lever collapses to 0.00 px; restore the rotation and the same code catches it again), and `object_tilt_null.sh` executes it on REAL data — interleaved halves, predicted tilt exactly zero, measured +49.1 +- 5.0% at 11.8 sigma |
+| `flat_differential.py` subtraction + straight-line fit (+ `flat_differential_arms.sh`, `flat_differential_report.py`) and the two A/B flags on `run_undistort_pipeline.sh` (`--regdata=`, `--nonorm`) | an official tool reports, headless, the position-dependent photometric RATIO FIELD between two ALIGNED exposures — i.e. the subtraction and the fit, not merely two flux lists. `source-extractor` dual-image mode gives the two lists and is installed; it does not close this | 2026-08-12 | **not fired.** Probed: no Siril command compares two images photometrically by position (`fdiv`+`stat` gives the pixel field and IS adopted as the primary instrument, via the shipped `flat_odd_component.py`; `seqpsf -at=` is applicable on an aligned pair, unlike the drifting case, but measures one star per invocation from a selection — the same per-star call as `psf`, with an unvalidated parser). Every pixel op and every flux is Siril's (`split`, `findstar`, `psf` at a forced radius against its own local annulus); in-house is the subtraction of two tool measurements and a weighted straight line. MEASURES and gates nothing. `--selftest` falsifies the mechanism in process on the SAME pure-translation panel that killed the absolute measurement: the absolute fit returns **-0.046 ± 0.0001 with the lever collapsed to 0.00 px** where the differential returns **+0.0999 ± 0.0001 with a 1548 px lever**, and blinding the position axis turns step 1's own acceptance check RED, restoring it turns it GREEN. **The builder flags are NOT cosmetic**: `register -2pass` re-chooses the reference frame from image quality and the CALIBRATION changes that choice (MEASURED, one knob: skyflat_set-05 → reference image 1, canvas 4896x3616; skyflat_set-01 → image 2, canvas 4887x3641), so without `--regdata` an A/B has two knobs and the arms are not pixel-comparable. Default path unchanged by both flags; `--nonorm` stamps STACKNRM/DIAGARM on the product |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
 | `baseline_guard.py` derived summaries (corner spread, edge dipole) over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-05 | **not fired** — nothing does. WIRED into `run_set_chain.sh` as the last step: it measures the finished product, and a regression exits **8** (a user decision, like the mount/route stops) without blocking or rewriting anything. Also a web stage for seeding/re-seeding. It is a no-regression RECORD, never a quality gate — a deliberate improvement fails it and the human re-seeds with a note. Blind spot to state when reading a PASS: both measures are STACK corners, which `docs/dead-ends.md` calls self-fulfilling for flat contamination, so it cannot see the open `sky x V` object tilt |
 | `snr_regions.py` in-house SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | 2026-08-05 | **not fired** — `stat` and `bgnoise` are whole-image/selection; no regional-SNR command in 1.4.4. Every input number is the tool's; only the ratio is in-house. *(Was missing from this register until 2026-08-05.)* |
@@ -364,13 +365,33 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   sensor-fixed for a fixed camera so nothing in the sensor frame can apportion the
   measured field between flat and sky. Do not re-propose it (`docs/dead-ends.md`;
   `datasets/aug09/corpus_object_tilt.json`).
-  **What is still available to settle it, in order of strength:** (a) the FLAT
-  DIFFERENTIAL — two flats of the same optical state but different sky dose
-  applied to the SAME lights, which needs no absolute number because it is
-  DIFFERENTIAL and cancels every sensor-fixed term the two arms share, including
-  both blockers that killed the absolute measurement (brief:
-  `prompts/FLAT_DIFFERENTIAL_PROMPT.md`); (b) `flat_odd_component.py --ratio`,
-  which already measures what DIFFERS between two flats with no model and no fit.
+  ~~**What is still available to settle it:** (a) the FLAT DIFFERENTIAL…~~
+  **(a) IS DONE — WIN with controls, and it changes what a corrective may assume.**
+  Two flats of the same optical state and different sky dose (aug09 set-01 vs
+  set-05, Δedge dipole 0.2827) on the SAME 125 set-05 lights, one knob.
+  **Delivered: −22.477 ± 0.077% object-flux tilt (r = 10 px, 914 stars, Siril
+  `psf`) and edge dipole_x −0.2356 on the pixel-ratio field (Siril `fdiv` +
+  `stat`).** The apples-to-apples form needs no model — the flats' OWN ratio
+  cropped to the delivered canvas measures −0.2383 (edge) / −0.2010 (corner)
+  against the delivered −0.2356 / −0.2021, i.e. **98.9% and 100.6%**, and 101.2%
+  after correcting by the planted card's own 97.7% recovery through the same
+  comparison. **The transfer from flat SHAPE to delivered object is ~1:1 with no
+  measurable attenuation.** Floor EXACTLY 0.0000 on both instruments (the
+  non-vacuous uniform-card version changes 74.10% of the pixels and still moves
+  no dipole), so discrimination is unbounded where the object-tilt instrument
+  managed 0.20x. Both blockers die structurally: `M_i` cancels identically, so the
+  lever is 1603 px against the absolute measurement's 29.1 px median, and the
+  sensor-fixed atmosphere cancels in the subtraction — demonstrated on the SAME
+  pure-translation panel that killed the absolute design.
+  **The shipped normalization absorbs 0.3% of it**, so nothing is hiding the
+  defect; the same pair moves the BACKGROUND dipole +48.6% as a pedestal artefact,
+  which is why the pixel field is read on `-nonorm` arms only.
+  **SCOPE — it does NOT close "which arm is correct".** A ratio cancels what the
+  two flats share, so the absolute tilt still needs the flats' COMMON sky content,
+  which is unmeasured; this gives the transfer function, not the level.
+  Numbers: `datasets/aug09/flatdiff_prediction.json` (committed before the arms),
+  `datasets/aug09/set-05/flatdiff_work/flat_differential.json`, `docs/dead-ends.md`.
+  (b) `flat_odd_component.py --ratio` is what the primary instrument invokes.
 - **A with/without judgement pair on finals** — the metric is unresolved-starlight
   preservation and the user's eyes decide. **NOT stageable as originally written:
   the de-skied flats it named for set-01/02 no longer exist on disk** (verified),
@@ -378,7 +399,18 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   IS stageable is two shipped-builder flats of different sky dose — within-night,
   so the optical state is fixed; aug09 set-01 vs set-05 is the corpus maximum at
   Δdipole 0.2827. Blocked on the render gate: `render_tier.sh` exits 7 without a
-  ratified `render` block (BACKLOG:`render-ladder`).
+  ratified `render` block (BACKLOG:`render-ladder`) — re-verified.
+  **THE ARMS NOW EXIST AND ARE PRESERVED, so only the gate is left.** The flat
+  differential built both, 125 frames each, registration pinned so the ONE knob is
+  the flat: `sessions/aug09/work/flatdiff/arm_A.fit` (skyflat_set-05) and
+  `arm_B.fit` (skyflat_set-01), linear, plus the production-normalization pair
+  `arm_An.fit` / `arm_Bn.fit` — which is the pair to judge, since the eyes pass
+  must see the SHIPPED normalization. Each carries its own tag on the FITS
+  (`DIAGARM`, `CALXSET`, `STACKNRM`, `REGPIN`), so a diagnostic arm cannot be
+  mistaken for a deliverable months from now. What the eyes are for: the delivered
+  difference is MEASURED at −22.5% of object flux across the frame, so this pass
+  is no longer "is there a difference" but "which arm preserves unresolved
+  starlight", which no instrument here decides.
 
 **ROUTES NOW CLOSED — do not re-derive them.** The DOMAIN-CORRECTED ITERATIVE
 SKY FLAT (calibrate the flat's source frames with `F0`, `seqsubsky` in that
@@ -650,6 +682,30 @@ corpus rides it (px figures unaffected; `datasets/aug06/experiments.jsonl`,
 `solved_scale_artifact_18_vs_17`). **Closes when** the scale is re-derived from
 a direct full-frame solve (or the record refreshed against the stack solve)
 and the probe-pipeline arithmetic's error is root-caused.
+
+## `single-pass-reference-lottery` — the groups route pins it, the single-pass route does not
+
+`run_undistort_groups.sh` pins `setref s 1` after its `register -2pass` because
+"2pass's auto-pick made that a lottery across rebuilds" — with `-norm=addscale
+-output_norm` the reference IS the product's level anchor, and two builds of one
+set measured 67 vs 43 ADU. `run_undistort_pipeline.sh` runs the same unpinned
+`register lt -2pass` and has no such pin.
+
+**MEASURED that it moves the product, not just the level** (12 frames of
+aug09/set-05, one knob — the flat): `skyflat_set-05` → reference image 1 and a
+**4896x3616** canvas; `skyflat_set-01` → reference image 2 and **4887x3641**. So
+the reference choice is sensitive to the calibration, and it changes the delivered
+CANVAS, not only its anchor. Two rebuilds of the identical arm are otherwise
+bit-identical in pixels (0 differing pixels of 3x3616x4896), so this is the one
+non-deterministic-looking input on the route — and it is not noise, it is a real
+dependence on the data.
+
+**Closes when** the single-pass route either pins its reference the way the groups
+route does, or records why it must not. Do not pin it as a side effect of a
+diagnostic: the A/B path already has `--regdata=` (removal-conditions register),
+which pins registration WITHOUT touching what a default build emits. Changing the
+default changes every single-pass product's canvas, so it is a declared-delta
+change needing its own before/after.
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 

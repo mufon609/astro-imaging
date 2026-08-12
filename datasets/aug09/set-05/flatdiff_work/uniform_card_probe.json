@@ -1,0 +1,37 @@
+{
+ "probe": "does a flat's LEVEL reach the product? \u2014 the uniform-card arm, and what it exposed",
+ "setup": "arm U = the same 125 lights calibrated with skyflat_set-05 divided by a uniform card of 1.05 (Siril fdiv). Verified on the masters: mean(flat_05)/mean(flat_U) = 1.050001, so the card really is in the flat.",
+ "measured": {
+  "delivered_ratio_field_regional_medians_green_edge": "1.0000 in all five regions",
+  "delivered_edge_dipole_x": {
+   "R": 0.0,
+   "G": 0.0,
+   "B": 0.0
+  },
+  "delivered_edge_dipole_y": {
+   "R": 0.0,
+   "G": 0.0,
+   "B": 0.0
+  },
+  "star_differential_delivered_frac_x": {
+   "r10": 0.0,
+   "r16": 0.0
+  },
+  "arm_U_vs_arm_A_pixels": {
+   "identical": false,
+   "differing_pixels": "39,565,733 of 53,391,888 (74.10%)",
+   "ratio_u_over_a": {
+    "median": 1.0,
+    "mean": 1.000000015,
+    "p1": 0.9999994,
+    "p99": 1.0000006
+   },
+   "max_abs_diff": 1.726e-05,
+   "median_level": 0.00063
+  }
+ },
+ "mechanism": "Siril `calibrate` NORMALIZES the flat by its own level before dividing, so a uniform scale on a flat cannot reach the product. The 5% is gone; what survives is float rounding at the 1e-7 relative level, spread over 74% of the pixels.",
+ "why_this_makes_the_floor_NON_VACUOUS": "the identity control's floor is exactly zero because the two arms are bit-identical, which a sceptic can call a tautology. This arm is NOT bit-identical \u2014 three quarters of its pixels differ, through a genuinely different arithmetic path \u2014 and every delivered dipole still reads EXACTLY 0.0000 on both instruments. A change that touches 74% of the pixels moves no dipole.",
+ "what_it_adds_to_the_main_result": "a flat's absolute LEVEL is removed by the tool itself, so what reaches the object is precisely the flats' relative SHAPE difference \u2014 which is what the measurement quantifies.",
+ "uptime": "14:57:02 up 37 days, 23:07,  2 users,  load average: 10.19, 7.87, 6.42"
+}

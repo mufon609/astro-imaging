@@ -1,0 +1,41 @@
+{
+ "box_px": 80,
+ "y_row": 1782,
+ "x_box_centres": [
+  42.0,
+  642.0,
+  1242.0,
+  1842.0,
+  2442.0,
+  3042.0,
+  3642.0,
+  4242.0,
+  4842.0
+ ],
+ "median_ratio": [
+  40678.8,
+  39323.3,
+  37448.3,
+  36144.4,
+  34906.6,
+  34100.1,
+  32902.2,
+  31951.0,
+  31087.3
+ ],
+ "departure_from_the_end_to_end_straight_line": [
+  0.0,
+  -0.004363132453902329,
+  -0.023203852515324086,
+  -0.026128980117353498,
+  -0.027212012356809253,
+  -0.01627544202624928,
+  -0.01624652865350091,
+  -0.009342502936623259,
+  0.0
+ ],
+ "max_abs_departure": 0.027212012356809253,
+ "reading": "a positive departure in the middle means the delivered field is CONVEX there, so a star-weighted straight-line fit reads a different slope than the corner-anchored dipole. This is the attribution for any disagreement between the two instruments.",
+ "image": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/flatdiff_work/window/flatratio_canvaswindow.fit",
+ "uptime": "15:07:36 up 37 days, 23:17,  2 users,  load average: 5.17, 7.90, 7.12"
+}

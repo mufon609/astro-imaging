@@ -7,21 +7,6 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`FLAT_DIFFERENTIAL_PROMPT.md`](FLAT_DIFFERENTIAL_PROMPT.md)** — the
-  measurement that survives both blockers that killed the absolute tilt. Two
-  flats of the same optical state and different sky dose (aug09 set-01 vs set-05,
-  Δdipole 0.2827 — the corpus maximum within a night) applied to the SAME set-05
-  lights through the SAME chain. Both nuisances cancel identically because it is
-  the same star in the same frames, so the translational degeneracy is
-  structurally absent, and identical frames carry identical sensor-fixed
-  atmosphere. Primary instrument needs NO in-house code — the arms are
-  pixel-aligned, so Siril `fdiv` gives the delivered imprint-ratio field directly;
-  the matched-star flux ratio confirms it independently. The selftest must show
-  immunity on the same pure-translation panel that broke `object_tilt.py`. Live
-  confounder fenced: `-norm=addscale` absorbs part of the difference under test,
-  so the arms run `-nonorm` and the absorption is measured. Scope stated: it
-  BOUNDS the absolute tilt, it does not equal it.
-
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
@@ -73,6 +58,79 @@ does not retire, and it is run on demand rather than scheduled here.
   medians stable to the third decimal) — an instrument fact to carry, not fix.
 - aug09 ingest is local-hash verified only; no source-side hashes exist for
   that night. A fact about the record, not fixable after the fact.
+
+## Landed during the flat-differential session — WIN with controls
+
+**The flat's dose difference reaches the delivered object essentially 1:1.** Two
+flats of the same optical state and different sky dose (aug09 set-01 vs set-05,
+Δedge dipole 0.2827 — the corpus maximum within a night) applied to the SAME 125
+set-05 lights, one knob. **Delivered: −22.477 ± 0.077% object-flux tilt (r = 10 px,
+914 stars, Siril `psf` against its own local annulus; −22.450 ± 0.082% at r = 16)
+and edge dipole_x −0.2356 on the pixel-ratio field (Siril `fdiv` + `stat`).**
+
+**The apples-to-apples comparison needs no model.** The flats' OWN ratio field,
+cropped to the delivered canvas and measured with the same shipped instrument,
+reads −0.2383 (edge) and −0.2010 (corner) against the delivered −0.2356 and
+−0.2021 — **98.9% and 100.6%**, tracking point-by-point along nine midline boxes
+to ≤0.008. A planted ramp of known dipole +0.1583 over that same window recovers
+at **97.7%**, so the real number corrected by the control's own systematic is
+**101.2%: no measurable attenuation.**
+
+**Both blockers that killed the absolute tilt die structurally, and the selftest
+proves it on the SAME fixture.** `M_i` cancels identically (the same star in the
+same photons), so nothing per-star is fitted and the lever becomes the spread of
+star positions: **1603 px against the absolute measurement's 29.1 px median**;
+identical frames carry identical extinction and skyglow, so the sensor-fixed
+atmosphere cancels in the subtraction. On `object_tilt --selftest` 4a's
+pure-translation panel, one screen: **absolute −0.0464 ± 0.0001 with the lever at
+0.00 px, differential +0.0999 ± 0.0001 with a 1548 px lever.**
+
+**The floor is EXACTLY ZERO** — both instruments, all three channels, both
+apertures. The identity rebuild is bit-identical; the non-vacuous version (a
+uniform 1.05 card) changes **74.10% of the pixels** and still moves every dipole
+by 0.0000. That control also measured the mechanism: **Siril `calibrate`
+normalizes the flat by its own level, so a flat's LEVEL cannot reach the product
+— only its SHAPE can.** Discrimination is unbounded (planted movement 0.1547
+against 0.0000), where the object-tilt instrument managed 0.20×.
+
+**The shipped normalization absorbs 0.3%** of the object's difference (−22.477%
+at `-nonorm` vs −22.550% at `-norm=addscale -output_norm`), so nothing is hiding
+the defect. The same pair moves the BACKGROUND dipole **+48.6%** and splits the
+channels — a pedestal artefact, not imprint (psf's local annulus removes an
+additive term, regional medians cannot; measured: `An/A` is a uniform 2.02× while
+`Bn/B` runs 1.859 left to 1.667 right). **Read the pixel field on `-nonorm` arms
+only.**
+
+**The two instruments differ by 1.34% and it is attributed, not averaged**: the
+delivered field's x-slope varies with y (max departure from the end-to-end line
+0.0204 along the midline), so a corner-anchored dipole, a plane fit over stars and
+a midline profile are three summaries of one field — on the exactly-linear planted
+card the same two instruments agree to 0.32%.
+
+**The brief's own load-bearing premise was false and had to be fixed first.** It
+asserted the arms are pixel-aligned because they share a chain; `register -2pass`
+re-chooses its reference from image quality and the CALIBRATION changes that
+choice — measured, one knob: reference image 1 / canvas 4896×3616 against image 2
+/ 4887×3641. `run_undistort_pipeline.sh` gained `--regdata=` (every arm is handed
+the first arm's registration data) and `--nonorm`, both default-off; `CALFLAT`
+also stamped the set's RECORDED flat rather than the one that RAN, now corrected
+with `CALXSET` marking a cross-set calibration on the product itself.
+
+**SCOPE, stated before the result and unchanged by it:** this is the DIFFERENCE
+of two imprints. It gives the delivered sensitivity to a KNOWN dose difference —
+the number a corrective needs — and NOT the absolute tilt, which needs the flats'
+COMMON sky content and is still unmeasured. It does not resurrect the 3.11%/241σ
+figure (UNVERIFIED), and the T/B attribution caveat stands.
+
+**Deferred, gate-blocked not forgotten:** the with/without pair on FINALS.
+`render_tier.sh` exits 7 without a ratified `render` block and aug09/set-05 has
+none (`BACKLOG:render-ladder`) — re-verified. Both arms' linear stacks are
+preserved and tagged (`DIAGARM`/`CALXSET`/`STACKNRM`/`REGPIN` on the FITS),
+including the production-normalization pair, which is the one to judge.
+
+**Numbers:** `datasets/aug09/flatdiff_prediction.json` (committed before the
+arms), `datasets/aug09/set-05/flatdiff_work/flat_differential.json` + the five
+pair records, `docs/dead-ends.md`, `datasets/aug09/experiments.jsonl`.
 
 ## Landed during the object-tilt session — NULL with controls
 

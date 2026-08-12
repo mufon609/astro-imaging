@@ -1,0 +1,26 @@
+{
+ "probe": "Siril seqpsf on an ALIGNED arm pair \u2014 the tool-search claim, executed",
+ "why": "seqpsf is a REGISTERED refusal for the absolute measurement: it converts a position ONCE and measures that same pixel area in every image, which cannot follow a star across a drifting sequence (m = -2.104 in the reference block against +3.55/+5.05/+3.63 in the others). That disqualifying behaviour is CORRECT for a differential pair, where the arms are pixel-aligned and the star does not move \u2014 so the claim had to be re-probed here rather than inherited.",
+ "how": "arm_A.fit and arm_B.fit symlinked as a 2-image sequence pr_, setphot -inner=20 -outer=30 -aperture=10 -dyn_ratio=0.5, seqpsf pr 1 -at=2204,2808",
+ "result": {
+  "seqpsf": {
+   "image_0_armA_mag": -2.055611,
+   "image_0_err": 0.001089,
+   "image_1_armB_mag": -2.071396,
+   "image_1_err": 0.001081,
+   "delta_mag": -0.015785
+  },
+  "psf_per_image_the_adopted_path": {
+   "armA_mag": -2.0556,
+   "armB_mag": -2.0714,
+   "delta_mag": -0.0158
+  },
+  "agreement_mag": {
+   "armA": 1.1e-05,
+   "armB": 4e-06,
+   "note": "the psf log prints 4 decimals, so this IS the rounding"
+  }
+ },
+ "verdict": "seqpsf WORKS here and returns the same magnitudes as the adopted per-image psf path to 1e-5 mag. Not adopted because it measures one star per invocation from a selection \u2014 the same per-star, per-image call as psf \u2014 with a parser that is not the one already validated in this repo. Recorded as a POSITIVE cross-validation of the photometry, not as a gap.",
+ "uptime": "14:39:40 up 37 days, 22:50,  2 users,  load average: 3.77, 5.78, 5.11"
+}

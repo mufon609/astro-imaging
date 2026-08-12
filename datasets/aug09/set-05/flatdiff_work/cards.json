@@ -1,0 +1,18 @@
+{
+ "geometry": [
+  6064,
+  4040
+ ],
+ "ramp": {
+  "k": 0.2,
+  "form": "R(x) = 1 + k*(x/W - 0.5)",
+  "edge_ratio_full_frame": 1.2221856117248535,
+  "edge_dipole_x_at_box80_margin2": 0.197229558312012
+ },
+ "uniform": {
+  "scalar": 1.05,
+  "edge_dipole_x_at_box80_margin2": 0.0,
+  "why": "level moves, gradient does not \u2014 the instrument must respond to gradient and not to level"
+ },
+ "role": "synthetic FIXTURES: divided into the flat by Siril, never delivered, never a calibration frame outside these control arms"
+}
