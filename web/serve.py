@@ -7,7 +7,7 @@ service — BACKLOG:`framing-radec`'s contract).
 
 Serves the REPO ROOT read-only, so the browser reaches:
   /web/index.html                  the session/judge gallery
-  /web/crop.html?...               the framing/crop UI (item 12)
+  /web/crop.html?...               the framing/crop UI (BACKLOG:framing-radec)
   /web/results/<session>/...       durable outputs (previews, judge surfaces)
   /datasets/<session>/...          tracked records (read-only)
 
@@ -638,10 +638,10 @@ def session_model(session):
             })
 
     # --- judge surfaces that paired to NOTHING ------------------------------
-    # A surface whose name misses the convention by one character used to render
+    # A surface whose name misses the convention by one character would render
     # as "no judge surface — a finish_render pass is a proposal", so the honest
-    # reading of the card was "re-run finish_render" when the surface was already
-    # on disk. MEASURED near-miss in this session: the products are
+    # reading of the card becomes "re-run finish_render" when the surface is
+    # already on disk. MEASURED near-miss: the products are
     # set-01+02_desky_min and set-01+02_min while their judge PNGs were written
     # ..._desky_min32_spcc-linked.png and ..._min32_spcc-linked.png — a tag the
     # products never carried. Renaming the files is NOT the fix here: one of them
@@ -963,7 +963,7 @@ def _stage_registry():
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": True},
                 {"name": "dark", "kind": "path", "req": True, "choices": "masters_dark", "hint": "master dark under work/masters/"},
-                {"name": "desky", "kind": "bool", "req": False, "hint": "opt IN to the REGRESSED shape as skyflat_<set>_desky.fit. Only to reproduce the 2026-07-29..08-04 defect for testing — it inverts the flat's edge vignetting and cost 31x in background flatness"},
+                {"name": "desky", "kind": "bool", "req": False, "hint": "opt IN to the REGRESSED shape as skyflat_<set>_desky.fit. Only to reproduce the `--desky` defect for testing — it inverts the flat's edge vignetting and cost 31x in background flatness"},
             ],
             "build": lambda a: (lambda ses, st, dsk: ["scripts/stack/build_sky_flat.sh",
                                 P("sessions", ses), st,
@@ -1667,9 +1667,12 @@ def env_status():
 
 # What the pipeline can actually act on. These minimums are the SCRIPTS' OWN
 # refusals, quoted, not a judgement call made here:
-#   run_set_chain.sh:57 and run_frame_qa.sh:69  -> a set under 8 frames is refused
-#   build_sky_flat.sh:170                       -> a sky flat needs 20 ("a deep
-#                                                  un-registered stack")
+#   run_set_chain.sh + run_frame_qa.sh, `-ge 8`  -> a set under 8 frames is
+#                                                   refused
+#   build_sky_flat.sh, `-ge 20`                  -> a sky flat needs 20 ("a deep
+#                                                   un-registered stack")
+# Grep the predicate, never a line number: all three citations here were line
+# numbers once and all three had drifted by the next sweep.
 # Readiness that counts sets the scripts would reject reports work nobody can do:
 # july23's next action read "frame_qa missing for: dew_chroma, set-00" where
 # dew_chroma is a records-only investigation directory with NO frame dir at all and

@@ -212,7 +212,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
    gains a native sibling (solve_field.py stays for the trailed class).
 3. **`-opt` dark optimization vs matched darks (uncooled body)** — FAQ
    doctrine fork; A/B on one set, judged on dark-residual metrics (ties into
-   the walking-noise item 11 mechanism work).
+   the BACKLOG:`walking-noise` mechanism work).
 4. **Bayer-drizzle colour route for OSC** (SPCC page recommendation) —
    structurally incompatible with the darktable warp (drizzle needs CFA input;
    the warp needs demosaiced frames), so it becomes live only if test 1 moves

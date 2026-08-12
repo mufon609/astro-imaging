@@ -13,7 +13,7 @@
 # ~10 GB-class transient at 200+ frames) once the master is written.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 S=${1:?usage: build_master_dark.sh <session-dir> [--force]}
 FORCE=
 for a in "${@:2}"; do case "$a" in

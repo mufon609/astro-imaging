@@ -58,7 +58,7 @@
 # measured applying a global ~1/12.92 scale through the same leg.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared with the ROUTER, or they drift
@@ -138,10 +138,10 @@ mkdir -p "$(dirname "$LPJ")"
 # BOUND THE LENSFUN-DB LIFECYCLE. The user DB is GLOBAL, unscoped, single-valued
 # machine state that nothing reverts — it holds whichever model was installed
 # last, indefinitely. run_set_chain.sh installs before calling here, but this
-# builder is also invoked DIRECTLY (and by run_undistort_groups.sh), and it used
-# to only VERIFY: a direct call would warp on whatever the machine happened to be
-# carrying, and the preflight would stop it — correct, but only after the
-# operator had already committed to the run.
+# builder is also invoked DIRECTLY (and by run_undistort_groups.sh), so
+# VERIFYING alone is not enough: a direct call warps on whatever the machine
+# happens to be carrying, and the preflight stops it — correct, but only after
+# the operator has already committed to the run.
 # So install the PINNED model first. No --replace: a DIFFERENT fitted entry in
 # the DB is an A/B someone staged deliberately, and this builder must not undo it
 # silently — the preflight stops on the mismatch and says so.

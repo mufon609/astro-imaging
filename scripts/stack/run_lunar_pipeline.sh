@@ -37,7 +37,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 S="${1:?usage: run_lunar_pipeline.sh <session-dir> <set> <stage> [options]}"
 SET="${2:?set name required}"
 STAGE="${3:?stage required: prep|stage|calibrate|register|verify|stack|sharpen|wb|surfaces}"

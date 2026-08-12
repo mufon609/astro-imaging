@@ -24,7 +24,7 @@
 # CLAUDE.md environment rule) and pins setcompress 0.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 SESSION=${1:?usage: make_previews.sh <session> [--maxdim-thumb=] [--maxdim-sel=]}
 shift || true
 TH=1600 SEL=2200 COVMIN=25

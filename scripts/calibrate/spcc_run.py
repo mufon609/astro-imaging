@@ -44,7 +44,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
 
 NAME_KEYS = ("oscsensor", "oscfilter", "whiteref")   # database names (quoted)
 NB_KEYS = ("narrowband", "rwl", "gwl", "bwl",        # narrowband mode: flag +

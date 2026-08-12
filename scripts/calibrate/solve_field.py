@@ -49,11 +49,11 @@ central half of each axis, i.e. |dx| <= frac*w/2, |dy| <= frac*h/2 — so the
 quads it forms come from the low-distortion middle and actually match a TAN
 projection. It also excludes the coverage SEAMS of a framing=max union canvas,
 which false-detect. The retained box is printed in pixels every run, and frac
-outside (0,1) is refused: the flag used to be a HALF-WIDTH fraction, under
-which --central=0.5 kept |dx| <= 0.5w — the WHOLE frame — so the one
-invocation reached for during a failed union solve excluded nothing while
-reading like a recovery attempt. Fraction-of-frame is what both this file and
-finish_render.sh always described.
+outside (0,1) is refused. Reading the flag as a HALF-WIDTH fraction makes
+--central=0.5 keep |dx| <= 0.5w — the WHOLE frame — so an invocation reached
+for during a failed union solve excludes nothing while reading like a recovery
+attempt. Fraction-of-frame is what both this file and finish_render.sh
+describe.
 
 Index scales load CACHED-FIRST: the field-derived set splits into scales
 whose index series are fully cached vs those needing download, and the

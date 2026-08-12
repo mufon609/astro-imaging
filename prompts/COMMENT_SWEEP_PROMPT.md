@@ -37,6 +37,13 @@ that will be false after the next tool bump is not.
 Counts are removed lines over 638 commits (in-place edits only, whole-file
 retirements excluded), from the history mining that produced this file.
 
+**Every grep below is line-based and this repo wraps its comments, so a phrase
+split across two `#` lines is INVISIBLE to it.** Run each pattern a second time
+over joined comment blocks — concatenate each run of consecutive comment lines,
+strip the `#`, then match. That second pass is not optional: it found 7 hits the
+line-based greps missed in one run, including `run_undistort_groups.sh`'s *"It
+used / to be a bare `GROUP=15`"* and four dangling `BACKLOG item N` citations.
+
 ### 1. Drift — the prose asserts what the code contradicts (HIGHEST COST)
 
 Not mechanically greppable; the only category that has recurred as *the same
@@ -47,6 +54,18 @@ mislead a future session into rebuilding something discredited.
 *Detector — semantic, run per claim:* for every comment or doc line that states
 a tool flag, a default, a file path, or a pipeline contract, grep the shipped
 script for that flag/path and confirm it still says so.
+
+**Run the repo's own guards first — they are the authoritative drift detectors
+for anything they cover**, and they print the true counts to compare prose
+against:
+
+    bash scripts/stack/check_bitdepth.sh
+    bash scripts/stack/check_registration_pins.sh [--selftest]
+
+That is how the exemption-count drift was caught: `check_bitdepth.sh` exempts
+and reports **four** instruments while `README.md` and `BACKLOG.md`'s register
+row both said *three*, the row omitting `run_lunar_pipeline.sh` entirely — a
+number a reader would have trusted over the guard.
 
 Examples:
 - `1f5fc6c` — `docs/wide-field-untracked-registration.md` asserted
@@ -161,6 +180,12 @@ once."*
 
 **Rule:** REVISE to a greppable anchor — a function name, a section heading, or
 the predicate itself. A bare `file.py:NNN` is a citation with a decay clock.
+
+**Measured rot rate: 3 of 3.** The only line-number citations left in the tree
+(`web/serve.py`, quoting the frame-count refusals) had ALL drifted by the next
+sweep — `run_set_chain.sh:57` pointed at a routing comment, `run_frame_qa.sh:69`
+at a `find`, `build_sky_flat.sh:170` at a variable assignment. Treat any
+surviving `file:NNN` as wrong until checked.
 
 ### NOT a sweep category: victory / status language
 

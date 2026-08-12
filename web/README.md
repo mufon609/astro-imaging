@@ -69,7 +69,7 @@ record the render chain consumes. No external service; the server binds
   overwrite an existing product without `overwrite`, so a ladder arm cannot
   destroy its own control.
 - **A de-skied flat and the per-frame background step are one correction, and
-  the form does not let them come apart** — but as of 2026-08-04 `sky_flat` is
+  the form does not let them come apart** — but `sky_flat` is
   **NOT de-skied by default**, matching the chain. `--desky` was a 31x regression
   (12.4% vs 0.4% corner spread; `docs/dead-ends.md`) and is now opt-IN, for
   reproducing the defect only. The pairing logic is unchanged and still correct:
@@ -147,7 +147,7 @@ register and `docs/dead-ends.md` — so there is no floor to hide an effect
 under; any difference between two arms off one stack is the knob.)
 
 **Judge surfaces that pair to nothing are reported, never renamed.** A name that misses
-`<product>_<surface>` used to render as "no judge surface", which invites a needless
+`<product>_<surface>` would otherwise render as "no judge surface", which invites a needless
 finish_render re-run. `unpaired_judge` lists them with the name that would pair. Nothing
 is moved automatically: a judged artifact may be cited by a tracked record or doc.
 

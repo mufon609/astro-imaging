@@ -33,7 +33,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
 
 
 def run_crop_stat(image, crop_args, workdir):

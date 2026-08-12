@@ -39,7 +39,7 @@ def run(args, **kw):
             fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError:
             print("[siril_run] another Siril job holds the lock — waiting "
-                  "(BACKLOG item 18)", file=sys.stderr)
+                  "(BACKLOG:removal-conditions)", file=sys.stderr)
             fcntl.flock(fh, fcntl.LOCK_EX)
         return subprocess.run(SIRIL + list(args), **kw)
         # the with-block closes fh on exit, which releases the lock

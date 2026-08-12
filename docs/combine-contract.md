@@ -263,8 +263,8 @@ Recovered from git, not from the current tree:
 
 - **Cross-night combining had been attempted exactly ONCE before this contract,
   and it failed.** Every path that has ever existed in this repo yields one
-  cross-session product and its revoked recrop (`j31-3+a06-3_cov28`, built
-  2026-08-08). Everything else — july14's 2/3/5-set, july23's 2-set, july31's
+  cross-session product and its revoked recrop (`j31-3+a06-3_cov28`).
+  Everything else — july14's 2/3/5-set, july23's 2-set, july31's
   4-set — is WITHIN one night. Multi-session accumulation was ratified as
   doctrine ~10 hours BEFORE that first attempt: an intent, never a report of an
   exercised capability.

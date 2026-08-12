@@ -252,7 +252,7 @@ from the runs that produced the records):
 ## Graduation
 
 - `TOOLS.md` — Tier L added, then updated to the verified route + builder.
-- `BACKLOG.md` — item 21 (route resolved; x86 ladder + next-capture remain).
+- `BACKLOG.md` — BACKLOG:`lunar-ladder` (route resolved; x86 ladder + next-capture remain).
 - `docs/dead-ends.md` — registration/aliasing/seq-hygiene/quality entries
   with their numbers, and the §4 lunar block GRADUATED into the acquisition
   checklist with the measured exposure card.

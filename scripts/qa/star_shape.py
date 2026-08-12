@@ -47,7 +47,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
 
 # "Stars: 5095, Truncated mean[FWHM]: 3.20, Sensor tilt[FWHM]: 0.50 (16%),
 #  Off-axis aberration[FWHM]: 0.57"

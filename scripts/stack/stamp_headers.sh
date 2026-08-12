@@ -40,7 +40,8 @@
 #
 # REMOVAL CONDITION: the warp stage stops being a TIFF round trip (darktable
 # gains FITS I/O, or the distortion is consumed natively — Siril `register
-# -disto=`, BACKLOG item 7), so the keywords are never dropped and there is
+# -disto=`, BACKLOG:`native-solve-and-sip`), so the keywords are never dropped
+# and there is
 # nothing to restore.
 
 # PROVENANCE STAMP (the second half of this file). A sub-stack that will be

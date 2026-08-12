@@ -22,12 +22,12 @@
 #   sigma gate rejects) | median = pure median, no rejection (the earlier
 #   validated build; kept as the attribution arm for flat-vs-flat A/Bs).
 #
-# !! REVERTED 2026-08-04 — `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION.
-# It shipped ON 2026-07-29 (f170540) and cost 31x in background flatness: july31/
-# set-01 measured corner spread 12.4% with it against 0.4% without, one knob, 500
-# frames, everything else identical. CAUSE: `seqsubsky` is a BACKGROUND EXTRACTION
-# operator, defined on a FLAT-FIELDED image, and this ran it on RAW frames still
-# carrying vignetting — the frame is sky x V, not sky. The additive plane overshoots
+# !! `--desky` IS OFF BY DEFAULT AND IS A KNOWN REGRESSION — 31x in background
+# flatness: july31/set-01 measured corner spread 12.4% with it against 0.4%
+# without, one knob, 500 frames, everything else identical. CAUSE: `seqsubsky`
+# is a BACKGROUND EXTRACTION operator, defined on a FLAT-FIELDED image, and this
+# runs it on RAW frames still carrying vignetting — the frame is sky x V, not
+# sky. The additive plane overshoots
 # where V curves hardest (the frame edge) and INVERTS the asymmetry there: raw light
 # +0.426, --desky flat -0.550, so dividing by it doubles the error. The analysis
 # below is preserved because its PROBLEM STATEMENT is still correct — a sky flat does
@@ -135,7 +135,7 @@
 # Nothing is compressed; every generated .ssf pins `setcompress 0`.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/disk_budget.sh"   # the SAME per-set geometry derivation
 SESSION=${1:?usage: build_sky_flat.sh <session-dir> <set> --dark=<master.fit> --out=<flat.fit> [--chunk=24] [--rej=wins|median] [--select=<list-file>] [--desky]}
 SET=${2:?missing <set>}

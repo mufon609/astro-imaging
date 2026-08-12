@@ -30,7 +30,7 @@
 # arm verdict.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
                                               # the single-pass builder and the router
@@ -93,9 +93,9 @@ RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json
 mapfile -t SRC < <(python3 "$REPO/scripts/lib/cullspec.py" keep "$RECIPE" "${SRC[@]}")
 [ ${#SRC[@]} -ge 1 ] || { echo "ABORT: cull resolution failed or left no frames (see cullspec message above)" >&2; exit 1; }
 N=${#SRC[@]}
-# GROUP SIZE IS DERIVED, and it is a REJECTION decision, not a disk one. It used
-# to be a bare `GROUP=15` with no rationale written anywhere, and 15 is actively
-# harmful on two counts that only show up in the final product:
+# GROUP SIZE IS DERIVED, and it is a REJECTION decision, not a disk one. A bare
+# `GROUP=15` is actively harmful on two counts that only show up in the final
+# product:
 #
 #  1. ALGORITHM. Each group runs the full single-pass chain, so the group size
 #     picks the rejection through stack_rejection_for(): <=50 gets winsorized
@@ -198,12 +198,11 @@ echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), pe
 # decisions over state that already exists, so they cost nothing to evaluate — and
 # an operator about to commit hours wants to know a guard will stop them BEFORE
 # they commit, not after.
-# WHY THIS IS HERE AT ALL: the resume guard was previously reachable only by a REAL
-# invocation, because --plan exited before the group loop. Testing it therefore
-# meant running the builder, which skipped the groups and then re-ran the final
-# compose — overwriting a built product to exercise a guard. The tooling forced the
-# error. A dry-run surface that stops short of the guards is the wrong half of a
-# dry run.
+# WHY THIS IS HERE AT ALL: a --plan that exits before the group loop leaves the
+# resume guard reachable only by a REAL invocation, so testing it means running
+# the builder, which skips the groups and then re-runs the final compose —
+# overwriting a built product to exercise a guard. A dry-run surface that stops
+# short of the guards is the wrong half of a dry run.
 plan_resume_check() {
   local g size sub prior bad=0
   for ((g=1; g<=K; g++)); do

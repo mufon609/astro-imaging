@@ -61,7 +61,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG item 18)
+from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
 BOX = 400                  # region side for the median comparison
 INSET = 300                # keep corner boxes off the warp's edge
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -5,13 +5,12 @@
 #
 # WHY THIS FILE EXISTS. The single-pass peak was written twice — once in the
 # builder that ENFORCES it (run_undistort_pipeline.sh) and once in the router that
-# DECIDES on it (run_set_chain.sh) — and the two silently diverged for nine days.
-# 231 MB/frame was the 16-bit-intermediates figure; when 16-bit was retired
-# (2026-07-26) the builder doubled to 462 and the router kept 231, so between
-# those two figures the chain routed a set to the single-pass builder that then
-# aborted its own preflight. The router had been written two days EARLIER, which
-# is the repo's root-cause rule firing: when a cause is fixed, every knob derived
-# while it was present is stale.
+# DECIDES on it (run_set_chain.sh) — and the two silently diverged. 231 MB/frame
+# was the 16-bit-intermediates figure; when 16-bit was retired the builder doubled
+# to 462 and the router kept 231, so between those two figures the chain routed a
+# set to the single-pass builder that then aborted its own preflight. The router
+# predated the retirement, which is the repo's root-cause rule firing: when a
+# cause is fixed, every knob derived while it was present is stale.
 #
 # WHY IT IS DERIVED AND NOT A CONSTANT. Any fixed MiB/frame number is really a
 # statement about one sensor. 561 MiB/frame — the figure this file briefly
@@ -160,9 +159,9 @@ undistort_singlepass_peak_mib() {
 #   final      all K sub-stacks resident, then registered copies written beside
 #              them -> K x 2 frames.
 # Both phases are bounded by the FULL frame because `-framing=min` only ever
-# crops. The route's own numbers used to be three hardcoded figures (290 / 145 /
-# 85 MB) that described this rig's sensor and, in the per-group case, named two
-# resident frames while budgeting for one.
+# crops. Hardcoded figures (290 / 145 / 85 MB) describe this rig's sensor only
+# and, in the per-group case, name two resident frames while budgeting for one —
+# which is why the route derives its numbers here instead.
 undistort_groups_peak_gib() {
   local f; f=$(undistort_frame_mib "$1" "$2") || return 1
   local per_group=$(( ($3 * 2 * f + $4 * f) / 1024 + 2 ))

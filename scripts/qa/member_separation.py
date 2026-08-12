@@ -112,7 +112,7 @@ import numpy as np
 from astropy.io import fits            # header READ only — no pixel access here
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
-from siril_run import run as siril_run   # serialized invoker (BACKLOG item 18)
+from siril_run import run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
 
 ZONES = (("centre", 0.00, 0.25), ("mid", 0.25, 0.55),
          ("outer", 0.55, 0.80), ("corner", 0.80, 1.01))

@@ -13,9 +13,9 @@ Usage:
 
 WHY THIS EXISTS. Every guard the repo had before this one — check_bitdepth,
 check_calibrate, check_stack_rejection — verifies WIRING: that the code is
-plumbed the way doctrine says. None of them look at the product. `--desky`
-(2026-07-29, reverted 2026-08-04) left every wire intact and corrupted the data:
-corner spread went 0.4% -> 12.4% and no guard fired. Worse, the change's own
+plumbed the way doctrine says. None of them look at the product. `--desky` left
+every wire intact and corrupted the data: corner spread went 0.4% -> 12.4% and
+no guard fired. Worse, the change's own
 validation suite could not see it, because a whole-frame plane fit CANCELS under
 a partial sign inversion, so the defect's signature was read as proof of success.
 The lesson is not "choose better metrics" — it is that a metric chosen by the

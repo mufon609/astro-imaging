@@ -21,7 +21,7 @@ set -euo pipefail
 
 # repo root is two up: this script is scripts/stack/run_pipeline.sh
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration command (mandatory -cc=dark)
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 SESSION="${1:?usage: run_pipeline.sh <session-dir> [lights-set]}"

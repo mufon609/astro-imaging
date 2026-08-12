@@ -52,8 +52,8 @@
 #                   plus the homographies `register -2pass` wrote into s_.seq,
 #                   binned by each member's OWN field radius. REPORT-ONLY: it
 #                   measures, prints and stamps the disagreement; it does not
-#                   gate. The thresholds it used to carry were retired because
-#                   the quantity mixes a real defect with one the compose makes.
+#                   gate. It carries NO thresholds: the quantity mixes a real
+#                   defect with one the compose itself makes.
 #                   It reads the members, NOT the r_ copies: `seqapplyreg
 #                   -framing=max` on a variable-size sequence gives each output
 #                   its own origin (MEASURED 611.9 px apart on the 28-member
@@ -116,7 +116,7 @@
 #   the relative weights. On members of different fields, do not trust it.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/stamp_headers.sh"   # composite provenance + registration-model stamp
 OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0; SUBDIRS=()
 for a in "$@"; do case "$a" in
@@ -361,10 +361,10 @@ fi
 # ---- T2: the member-disagreement MEASUREMENT, recorded before `stack` -------
 # --prefix defaults to s_ (the members + the .seq holding register -2pass's own
 # homographies). It is NOT r_: those copies do not share an origin.
-# REPORT-ONLY, deliberately. It carried PASS/WARN/BLOCK bands anchored to six
-# products the owner judged, and they were retired (user-ratified) because the
-# number they gated is a SUM OF TWO TERMS and one of them the compose itself
-# creates: two internally healthy sets read 1.12 and 0.95 px composed among
+# REPORT-ONLY, deliberately. It carries NO PASS/WARN/BLOCK bands (user-ratified):
+# the number such a band would gate is a SUM OF TWO TERMS and one of them the
+# compose itself creates — two internally healthy sets read 1.12 and 0.95 px
+# composed among
 # themselves and 3.02 and 3.38 px registered inside a 41-degree 28-member
 # sequence. A band on that would have fired on every real compose, and a check
 # that always fires trains the operator to bypass it — the same disease as a

@@ -55,11 +55,11 @@
 # carrying a marker with DIFFERENT coefficients STOPS rather than being silently
 # overwritten — a re-fit is an explicit act. (Comments inside <lens> are known
 # safe: upstream ships them, e.g. "<!-- Taken with Nikon Z6 -->".)
-# The marker records `replaced a=… b=… c=…` and NOT the verbatim
-# `<distortion .../>` element it used to embed. That element was a DECOY: it put
-# a second parseable copy of a distortion line inside the same <lens> block, and
-# every raw-text scanner — the idempotence test and the replace target here, and
-# lens_preflight.py's installed-vs-pinned assertion — matched the comment's copy
+# The marker records `replaced a=… b=… c=…` and NEVER the verbatim
+# `<distortion .../>` element: a second parseable copy of a distortion line
+# inside the same <lens> block is a DECOY, and every raw-text scanner — the
+# idempotence test and the replace target here, and lens_preflight.py's
+# installed-vs-pinned assertion — matches the comment's copy
 # before the live one. MEASURED 2026-08-05: the assertion reported the pinned
 # model installed while lensfun was applying a different one, and this script
 # reported "already installed" (with --replace too), so the DB could not be
@@ -234,9 +234,9 @@ prior = re.search(rf"<!--\s*{MARK}\s*focal={focal_s}\s+(.*?)-->", block, re.S)
 # `prior` reads the MARKER, so it scans the raw block; every test below asks
 # what lensfun will actually apply, so it scans live(block) — see live().
 # The idempotence test must cover BOTH halves of what this script installs — the
-# distortion line AND the distortion-ONLY enforcement. It used to ask only about
-# the line, so a block whose <vignetting> had come back while the coefficients
-# stayed right reported "already installed" and exited 0, leaving the DB
+# distortion line AND the distortion-ONLY enforcement. Asking only about the
+# line reports "already installed" and exits 0 on a block whose <vignetting> has
+# come back while the coefficients stayed right, leaving the DB
 # double-correcting: MEASURED by reinstating the fitted lens's focal=70
 # aperture=4 vignetting pair by hand — verify_lens_card read a 4219 ADU
 # corner-vs-centre step on a 30000 ADU uniform card (tol 1.0) while this script
@@ -269,9 +269,9 @@ if existing:
     # marker's verbatim copy in the block it would rewrite the marker's text
     # (and, when the two happened to agree, both) instead of the one live line.
     new_block = block[:existing.start()] + new_line + block[existing.end():]
-    # Record the replaced COEFFICIENTS, never the verbatim element. The marker
-    # used to embed the whole `<distortion .../>` tag for self-description, and
-    # that decoy is what defeated every scanner in this file and in
+    # Record the replaced COEFFICIENTS, never the verbatim element. Embedding
+    # the whole `<distortion .../>` tag for self-description creates the decoy
+    # that defeats every scanner in this file and in
     # lens_preflight.py. Provenance is preserved; the second parseable copy is
     # not created in the first place, so a future scanner cannot be fooled by it
     # even if it forgets to mask comments. live() stays as defence for blocks

@@ -50,7 +50,7 @@
 # and always wins. cull_report itself stays WARN-only.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 SESSION=${1:?usage: run_frame_qa.sh <session-dir> <set> [--batch=76] [--z=3.5]}
 SET=${2:?missing <set>}
 BATCH=76 Z=3.5
@@ -224,8 +224,8 @@ python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" | tee "$P/
 rm -rf "$P"/b*
 
 # Roundness just landed -> refresh the set's fingerprint so the mount
-# cross-check (trail-vs-roundness) upgrades without being asked (BACKLOG
-# item 1c). Exit 2 = declared-vs-measured CONTRADICT: the QA record above is
+# cross-check (trail-vs-roundness) upgrades without being asked.
+# Exit 2 = declared-vs-measured CONTRADICT: the QA record above is
 # valid and stays, but the job ends loud so the mislabel is reconciled before
 # anything builds on it. Any other refresh failure (e.g. no acquisition
 # record yet) warns and leaves the QA result standing.

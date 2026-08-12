@@ -108,7 +108,7 @@
 #   above is the gate; these numbers are what the user ratifies against.
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG item 18)
+source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 STACK=${1:?usage: render_tier.sh <stack.fit> <name> --session= --set= [opts]}
 NAME=${2:?missing <name>}
 SESSION= SET= SEPARATE=1 DENOISE=1 PLAN=0 FRESH=0 OVERWRITE=0
