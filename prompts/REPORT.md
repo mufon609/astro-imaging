@@ -79,11 +79,18 @@ controls run.
 **The doctrinal argument does not transfer, and this is the finding.** A ratio of
 two flats from one night, lens, focal and aperture cancels vignetting EXACTLY, so
 what differs between a group flat and the set flat **is the sky term** — the
-optical state does not change inside a 25-minute burst. "A flat calibrates ONLY
-the frames it was built from" is about OPTICAL-state matching. What the narrower
-window tracks better is the SKY, which is the sky flat's defect rather than its
-purpose: it does not reduce the contamination, it changes **which** sky is
-imprinted on the object and makes that imprint **differ between members**.
+optical state does not change inside a 25-minute burst. **The discriminator is
+what the flat DESCRIBES**, not whether the rule is "about optics" (an earlier
+framing said that and it was wrong — the rule's own justification is a *sky*
+divergence: a mid-set re-aim measured L-R 1.162 vs 1.032 while the top-bottom
+optical term was identical at 1.143 vs 1.142). The rule fires when a flat
+averages frames that saw **different** skies, so it describes a blend **no frame
+saw**. Under one continuous pointing there is no blend — the set flat **is** the
+mean of the sky its own frames saw, which is what the rule asks for. So the rule
+is already satisfied at the set level, **both arms imprint a sky, neither is less
+contaminated**, and only the **uniformity** of that imprint across members
+changes. That is why the composed difference is zero **by construction** rather
+than by luck.
 
 **The product does not move, and that was recorded before it was measured.** The
 per-set flat IS the groups' average — the mean of the five departures is **0.82%
