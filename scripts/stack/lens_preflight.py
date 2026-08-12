@@ -26,6 +26,13 @@ Why this exists — two silent-wrong failures this guards, both MEASURED:
    off-axis aberration in the final: exactly the defect the route removes,
    reintroduced with no warning.
 
+3. **The correction SET widening back to darktable's default, which includes
+   VIGNETTING** — a double-correction over lights the flat already corrected,
+   measured at 1.27-1.37x corner/centre while it was live. `--require-profile`
+   delegates this to `verify_lens_card.py` (grid positive control + uniform
+   card; the card ALONE is vacuous). It is a separate failure from 2 because a
+   vignetting-corrected frame IS warped, so the no-op proof passes on it.
+
 **Why this asks darktable rather than lensfun.** The question is not "does the
 lensfun DB contain this lens" — it is "will darktable correct THIS set". Those
 are adjacent, not identical: darktable normalizes the EXIF strings itself before
@@ -229,6 +236,50 @@ def prove_correction(frame, work):
                "its output format may have drifted, so the proof is "
                "inconclusive and the set is not cleared:\n" + r.stdout[-600:])
 
+
+
+def prove_vignetting_off(frame, work):
+    """Prove darktable's correction SET is distortion-only for these optics —
+    delegated whole to scripts/darktable/verify_lens_card.py.
+
+    `prove_correction` above answers "did darktable warp at all" and
+    `check_pinned_model` answers "is the DB carrying our coefficients". Neither
+    can see the third failure: the correction SET widening back to darktable's
+    default, which includes VIGNETTING. That double-corrects lights already
+    flat-corrected upstream — MEASURED at 1.27-1.37x corner/centre on a
+    full-depth stack while it was live. The set is not chosen by the style
+    (darktable ignores a style's lens op_params); it is enforced in the lensfun
+    user DB, which `lensfun-update-data` OVERWRITES on every run. So the strip is
+    machine-local state a routine tool update silently reverts, and until this
+    call the only thing that would notice was a human remembering to run the
+    check by hand.
+
+    UNCONDITIONAL under --require-profile: MEASURED at 11.1 s on this rig's
+    6064x4040 frames against a run that already renders one raw twice, so there
+    is no cost argument for making it optional.
+
+    --from-frame, not --session/--set: the fixture then takes its optics AND its
+    card geometry from the frame this preflight has already proven uniform
+    across the set, so it works before acquisition.json is seeded (a new set has
+    no record yet) and cannot disagree with the frames.
+    """
+    tool = os.path.join(STYLE_DIR, "verify_lens_card.py")
+    rec = os.path.join(work, "lens_card.json")
+    r = subprocess.run([sys.executable, tool, "--from-frame", frame,
+                        "--work", work, "--json", rec],
+                       capture_output=True, text=True)
+    if r.returncode != 0 or not os.path.exists(rec):
+        raise Stop(
+            "lens_preflight: the distortion-only proof FAILED — darktable's lens "
+            "correction is not the set this chain is built on:\n"
+            + (r.stdout + r.stderr).strip()[-1200:] +
+            "\n    Both fixtures matter: the GRID is the positive control (the "
+            "module must fire at all) and the UNIFORM CARD is the measurement "
+            "(a photometric corner-vs-centre step means VIGNETTING is back in "
+            "the path, double-correcting lights the flat already corrected).\n"
+            "    Fix: scripts/darktable/install_lens_model.sh <session> <set> "
+            "re-strips <vignetting>/<tca> from the lensfun user DB.")
+    return json.load(open(rec))
 
 
 def live(s):
@@ -564,6 +615,21 @@ def main():
             print(f"  darktable PROVES it corrects this set "
                   f"(lensdist vs nodist: Siril stat max "
                   f"{max(proof['siril_stat_max']):.0f}, not a no-op)")
+            # LAST of the three, because it is the only one that costs a render
+            # pair of its own: the two cheaper checks above catch the same
+            # lensfun-update-data event and stop before this one is paid for.
+            card_work = tempfile.mkdtemp(prefix=".lenscard_", dir=ddir)
+            try:
+                card = prove_vignetting_off(os.path.abspath(frames[0]),
+                                            card_work)
+            finally:
+                shutil.rmtree(card_work, ignore_errors=True)
+            result["vignetting_off"] = card
+            print(f"  distortion-only VERIFIED: grid control fires "
+                  f"(Siril sigma {max(card['grid_control']['sigma']):.1f}), "
+                  f"uniform card worst corner {card['worst_corner']} "
+                  f"{card['worst_delta_adu']:.3f} ADU from centre "
+                  f"(tol {card['tol_adu']}) — no vignetting in the path")
     except Stop as e:
         print(str(e), file=sys.stderr)
         return 1

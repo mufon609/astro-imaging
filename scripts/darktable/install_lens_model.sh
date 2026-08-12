@@ -233,10 +233,26 @@ new_line = (f'<distortion model="ptlens" focal="{focal_s}" '
 prior = re.search(rf"<!--\s*{MARK}\s*focal={focal_s}\s+(.*?)-->", block, re.S)
 # `prior` reads the MARKER, so it scans the raw block; every test below asks
 # what lensfun will actually apply, so it scans live(block) — see live().
-if new_line in live(block) and prior and not center:
+# The idempotence test must cover BOTH halves of what this script installs — the
+# distortion line AND the distortion-ONLY enforcement. It used to ask only about
+# the line, so a block whose <vignetting> had come back while the coefficients
+# stayed right reported "already installed" and exited 0, leaving the DB
+# double-correcting: MEASURED by reinstating the fitted lens's focal=70
+# aperture=4 vignetting pair by hand — verify_lens_card read a 4219 ADU
+# corner-vs-centre step on a 30000 ADU uniform card (tol 1.0) while this script
+# said there was nothing to do. That matters more now that lens_preflight
+# --require-profile runs the card check every set and names THIS command as the
+# fix: advice that no-ops in the state the guard reports is worse than no advice.
+n_live = len(re.findall(r"<(?:vignetting|tca)\b", live(block)))
+if new_line in live(block) and prior and not center and n_live == 0:
     print(f"install_lens_model: already installed for {db_model} @ {focal_s}mm "
           f"({os.path.basename(path)})")
     sys.exit(0)
+if n_live and new_line in live(block) and prior:
+    print(f"install_lens_model: coefficients already pinned, but {n_live} live "
+          f"<vignetting>/<tca> entr{'y' if n_live == 1 else 'ies'} are back in "
+          f"{db_model} — re-stripping (darktable applies its DEFAULT correction "
+          f"set, and only this DB chooses otherwise)")
 if prior and new_line not in live(block) and not replace:
     sys.exit(f"install_lens_model: {db_model} @ {focal_s}mm already carries a "
              f"DIFFERENT fitted entry ({prior.group(1).strip()}).\n"
