@@ -1,0 +1,270 @@
+{
+ "instrument": "Siril 1.4.4 \u2014 convert / calibrate / seqsubsky 1 -nodither / offset / imul / fmul / stack (rej w 3 3 -norm=mul); Siril `stat` medians on regional crops. One knob: the round-trip flat.",
+ "frames": 100,
+ "set": "aug09/set-05",
+ "geometry_px": {
+  "corner": {
+   "box": 400,
+   "margin": 200
+  },
+  "edge": {
+   "box": 80,
+   "margin": 2
+  }
+ },
+ "uptime": "10:26:17 up 37 days, 18:36,  2 users,  load average: 1.72, 3.13, 3.04",
+ "arms": {
+  "F0_100": {
+   "corner": {
+    "medians": {
+     "center": 55.6,
+     "TL": 31.9,
+     "TR": 22.2,
+     "BL": 32.5,
+     "BR": 24.0
+    },
+    "LR": 1.393939393939394,
+    "TB": 0.9575221238938052,
+    "corner_ratio": 1.463963963963964,
+    "corner_over_center": 0.49730215827338126,
+    "edge_dipole_x": -0.329113924050633,
+    "edge_dipole_y": -0.0433996383363473
+   },
+   "edge": {
+    "medians": {
+     "center": 50.4,
+     "TL": 17.5,
+     "TR": 11.3,
+     "BL": 18.2,
+     "BR": 12.7
+    },
+    "LR": 1.4875,
+    "TB": 0.9320388349514563,
+    "corner_ratio": 1.6106194690265485,
+    "corner_over_center": 0.2961309523809524,
+    "edge_dipole_x": -0.39195979899497496,
+    "edge_dipole_y": -0.07035175879396978
+   }
+  },
+  "shipped_set-01": {
+   "corner": {
+    "medians": {
+     "center": 53.4,
+     "TL": 26.3,
+     "TR": 23.7,
+     "BL": 26.7,
+     "BR": 25.7
+    },
+    "LR": 1.0728744939271255,
+    "TB": 0.9541984732824428,
+    "corner_ratio": 1.1265822784810127,
+    "corner_over_center": 0.4794007490636705,
+    "edge_dipole_x": -0.07031250000000003,
+    "edge_dipole_y": -0.04687499999999997
+   },
+   "edge": {
+    "medians": {
+     "center": 48.8,
+     "TL": 14.2,
+     "TR": 12.2,
+     "BL": 14.5,
+     "BR": 13.7
+    },
+    "LR": 1.1081081081081081,
+    "TB": 0.9361702127659575,
+    "corner_ratio": 1.1885245901639345,
+    "corner_over_center": 0.2797131147540983,
+    "edge_dipole_x": -0.1025641025641026,
+    "edge_dipole_y": -0.06593406593406596
+   }
+  },
+  "shipped_set-05": {
+   "corner": {
+    "medians": {
+     "center": 56.0,
+     "TL": 31.6,
+     "TR": 22.2,
+     "BL": 32.6,
+     "BR": 24.3
+    },
+    "LR": 1.3806451612903226,
+    "TB": 0.9455184534270649,
+    "corner_ratio": 1.4684684684684686,
+    "corner_over_center": 0.4941964285714286,
+    "edge_dipole_x": -0.31978319783197834,
+    "edge_dipole_y": -0.056007226738934206
+   },
+   "edge": {
+    "medians": {
+     "center": 48.6,
+     "TL": 17.3,
+     "TR": 11.3,
+     "BL": 18.3,
+     "BR": 12.8
+    },
+    "LR": 1.4771784232365146,
+    "TB": 0.9196141479099679,
+    "corner_ratio": 1.6194690265486724,
+    "corner_over_center": 0.3070987654320988,
+    "edge_dipole_x": -0.38525963149078724,
+    "edge_dipole_y": -0.08375209380234505
+   }
+  },
+  "A_own_F0": {
+   "corner": {
+    "medians": {
+     "center": 68.2,
+     "TL": 39.1,
+     "TR": 27.3,
+     "BL": 39.8,
+     "BR": 29.5
+    },
+    "LR": 1.3890845070422537,
+    "TB": 0.9581529581529583,
+    "corner_ratio": 1.4578754578754578,
+    "corner_over_center": 0.49743401759530786,
+    "edge_dipole_x": -0.3257184966838616,
+    "edge_dipole_y": -0.042741341193809755
+   },
+   "edge": {
+    "medians": {
+     "center": 61.8,
+     "TL": 21.4,
+     "TR": 13.9,
+     "BL": 22.3,
+     "BR": 15.6
+    },
+    "LR": 1.48135593220339,
+    "TB": 0.9313984168865435,
+    "corner_ratio": 1.60431654676259,
+    "corner_over_center": 0.29611650485436897,
+    "edge_dipole_x": -0.3879781420765028,
+    "edge_dipole_y": -0.07103825136612026
+   },
+   "round_trip_flat": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/iterprobe/F0_100.fit",
+   "pre_median_ADU_first3": [
+    49.1,
+    48.8,
+    48.8
+   ],
+   "post_median_ADU_first3": [
+    2784.1,
+    2783.8,
+    2783.8
+   ],
+   "imul_rescale": 1618.148148148148,
+   "calibrated_min_ADU": -2635.4,
+   "pedestal_ADU": 2735.0,
+   "ratio_to_its_round_trip_flat": {
+    "corner": {
+     "medians": {
+      "center": 40184.4,
+      "TL": 40110.0,
+      "TR": 40257.6,
+      "BL": 40110.3,
+      "BR": 40225.7
+     },
+     "LR": 0.9967322413469628,
+     "TB": 1.0003933479386578,
+     "corner_ratio": 1.003679880329095,
+     "corner_over_center": 0.9997884751296523,
+     "edge_dipole_x": 0.0032731065141040454,
+     "edge_dipole_y": 0.00039327059256924945
+    },
+    "edge": {
+     "medians": {
+      "center": 40184.0,
+      "TL": 40093.8,
+      "TR": 40268.6,
+      "BL": 40044.4,
+      "BR": 40227.5
+     },
+     "LR": 0.9955538218621772,
+     "TB": 1.0011274181874354,
+     "corner_ratio": 1.0055987853482633,
+     "corner_over_center": 0.9993672854867608,
+     "edge_dipole_x": 0.004456084410365584,
+     "edge_dipole_y": 0.0011267830096062922
+    }
+   }
+  },
+  "B_control_set01_flat": {
+   "corner": {
+    "medians": {
+     "center": 68.2,
+     "TL": 35.1,
+     "TR": 31.1,
+     "BL": 35.9,
+     "BR": 33.8
+    },
+    "LR": 1.0939907550077042,
+    "TB": 0.9497847919655669,
+    "corner_ratio": 1.1543408360128617,
+    "corner_over_center": 0.49816715542521994,
+    "edge_dipole_x": -0.08977189109639432,
+    "edge_dipole_y": -0.05150846210448838
+   },
+   "edge": {
+    "medians": {
+     "center": 62.5,
+     "TL": 18.8,
+     "TR": 16.1,
+     "BL": 19.7,
+     "BR": 18.2
+    },
+    "LR": 1.1224489795918369,
+    "TB": 0.9208443271767812,
+    "corner_ratio": 1.2236024844720494,
+    "corner_over_center": 0.2912,
+    "edge_dipole_x": -0.11538461538461546,
+    "edge_dipole_y": -0.08241758241758222
+   },
+   "round_trip_flat": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/masters/skyflat_set-01.fit",
+   "pre_median_ADU_first3": [
+    49.2,
+    49.0,
+    49.0
+   ],
+   "post_median_ADU_first3": [
+    2369.5,
+    2369.2,
+    2369.2
+   ],
+   "imul_rescale": 1747.6,
+   "calibrated_min_ADU": -2222.8,
+   "pedestal_ADU": 2322.0,
+   "ratio_to_its_round_trip_flat": {
+    "corner": {
+     "medians": {
+      "center": 43017.2,
+      "TL": 43582.8,
+      "TR": 43084.9,
+      "BL": 44013.4,
+      "BR": 43249.2
+     },
+     "LR": 1.0146187890995564,
+     "TB": 0.9931826464029264,
+     "corner_ratio": 1.0215504735997996,
+     "corner_over_center": 1.0108183470797727,
+     "edge_dipole_x": -0.014512709976352664,
+     "edge_dipole_y": -0.0068406712343967
+    },
+    "edge": {
+     "medians": {
+      "center": 43024.6,
+      "TL": 43471.4,
+      "TR": 42918.0,
+      "BL": 44259.2,
+      "BR": 43635.8
+     },
+     "LR": 1.013596167932546,
+     "TB": 0.9828704704476932,
+     "corner_ratio": 1.0312502912530872,
+     "corner_over_center": 1.0127020355796452,
+     "edge_dipole_x": -0.013504364131270532,
+     "edge_dipole_y": -0.01727750733858
+    }
+   }
+  }
+ }
+}

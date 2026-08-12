@@ -1,0 +1,190 @@
+{
+ "fixture": {
+  "npix": 512,
+  "frames": 40,
+  "sky_ADU": 45.0,
+  "noise_ADU": 17.0,
+  "gradient": 0.3,
+  "vignetting": 0.55,
+  "seed": 20260812
+ },
+ "truth": {
+  "V": {
+   "medians": {
+    "center": 65096.0,
+    "TL": 46010.4,
+    "TR": 46010.4,
+    "BL": 46010.4,
+    "BR": 46010.4
+   },
+   "LR": 1.0,
+   "TB": 1.0,
+   "corner_over_center": 0.7068084060464545,
+   "corner_ratio": 1.0
+  }
+ },
+ "arms": {
+  "F0": {
+   "medians": {
+    "center": 45.7,
+    "TL": 35.9,
+    "TR": 28.8,
+    "BL": 35.4,
+    "BR": 28.8
+   },
+   "LR": 1.237847222222222,
+   "TB": 1.0077881619937694,
+   "corner_over_center": 0.7051422319474836,
+   "corner_ratio": 1.2465277777777777
+  },
+  "A_scheme": {
+   "medians": {
+    "center": 54.9,
+    "TL": 43.1,
+    "TR": 34.6,
+    "BL": 42.4,
+    "BR": 34.7
+   },
+   "LR": 1.2337662337662336,
+   "TB": 1.0077821011673154,
+   "corner_over_center": 0.7049180327868854,
+   "corner_ratio": 1.245664739884393,
+   "pre_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "post_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "round_trip_flat": "F0.fit",
+   "ratio_to_F0": {
+    "medians": {
+     "center": 39377.2,
+     "TL": 39281.5,
+     "TR": 39483.5,
+     "BL": 39271.1,
+     "BR": 39473.8
+    },
+    "LR": 0.9948744447948449,
+    "TB": 1.000255254626014,
+    "corner_over_center": 1.0000069837367818,
+    "corner_ratio": 1.0054085574379124
+   }
+  },
+  "B_positive_control": {
+   "medians": {
+    "center": 54.8,
+    "TL": 39.8,
+    "TR": 37.8,
+    "BL": 39.2,
+    "BR": 37.9
+   },
+   "LR": 1.0435931307793924,
+   "TB": 1.006485084306096,
+   "corner_over_center": 0.7057481751824818,
+   "corner_ratio": 1.052910052910053,
+   "pre_median_ADU": [
+    46.1,
+    46.3,
+    46.6
+   ],
+   "post_median_ADU": [
+    45.2,
+    45.4,
+    45.5
+   ],
+   "round_trip_flat": "V.fit",
+   "ratio_to_F0": {
+    "medians": {
+     "center": 39310.9,
+     "TL": 36277.3,
+     "TR": 43032.2,
+     "BL": 36295.7,
+     "BR": 43119.0
+    },
+    "LR": 0.8423910520108833,
+    "TB": 0.9986753082237924,
+    "corner_over_center": 1.0094159635113926,
+    "corner_ratio": 1.188594520540393
+   }
+  },
+  "C_break_no_restore": {
+   "medians": {
+    "center": 54.9,
+    "TL": 43.1,
+    "TR": 34.6,
+    "BL": 42.4,
+    "BR": 34.7
+   },
+   "LR": 1.2337662337662336,
+   "TB": 1.0077821011673154,
+   "corner_over_center": 0.7049180327868854,
+   "corner_ratio": 1.245664739884393,
+   "pre_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "post_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "round_trip_flat": "F0.fit",
+   "ratio_to_F0": {
+    "medians": {
+     "center": 39377.3,
+     "TL": 39281.7,
+     "TR": 39483.7,
+     "BL": 39271.2,
+     "BR": 39473.9
+    },
+    "LR": 0.9948744642694305,
+    "TB": 1.000257793818282,
+    "corner_over_center": 1.0000082534861454,
+    "corner_ratio": 1.0054110900609097
+   }
+  },
+  "D_break_degree2": {
+   "medians": {
+    "center": 54.7,
+    "TL": 43.2,
+    "TR": 34.7,
+    "BL": 42.5,
+    "BR": 34.8
+   },
+   "LR": 1.2330935251798563,
+   "TB": 1.0077619663648125,
+   "corner_over_center": 0.7093235831809871,
+   "corner_ratio": 1.244956772334294,
+   "pre_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "post_median_ADU": [
+    46.3,
+    46.4,
+    46.7
+   ],
+   "round_trip_flat": "F0.fit",
+   "ratio_to_F0": {
+    "medians": {
+     "center": 39235.9,
+     "TL": 39388.5,
+     "TR": 39583.3,
+     "BL": 39382.1,
+     "BR": 39601.1
+    },
+    "LR": 0.9947742232055811,
+    "TB": 0.9998556655086146,
+    "corner_over_center": 1.006444353258113,
+    "corner_ratio": 1.005560902034173
+   }
+  }
+ },
+ "uptime": "10:18:48 up 37 days, 18:29,  2 users,  load average: 2.70, 3.00, 2.58"
+}

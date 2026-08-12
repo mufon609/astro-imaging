@@ -9,7 +9,6 @@ block is the priority.
 
 | prompt | items | acceptance shape |
 |---|---|---|
-| `ITERATIVE_FLAT_PROMPT.md` | the domain-corrected iterative sky flat — the open sky×V defect, testable against aug09's five-flat dose curve (1.127→1.468) | synthetic fixture proves the algebra (and fails on demand); dose curve collapses toward the ~1.13 base; the correct-correction odd component survives SAME-SIGN; one downstream one-knob delta for the owner's eyes |
 | `COMMENT_HYGIENE_PROMPT.md` | mine git history for the comment-removal taxonomy; emit the standing `COMMENT_SWEEP_PROMPT.md`; audit the policy text | categories derived with counts + verbatim examples; sweep prompt carries detectors + the revise-never-drop safety rule; policy left short, single-homed, uncontradictory |
 
 ## Queued — needs prompts (medium; one session can take several)
@@ -80,6 +79,36 @@ the prompt briefs.
 `8d370dd` `-transf=`/`-interp=` pinned at all 20 emissions + `check_registration_pins.sh` (per COMMAND, `--selftest`), proven no-behaviour-change by an all-nil recompose · `3072fd0` `verify_lens_card.py` wired into `lens_preflight --require-profile` unconditionally (11.1 s), fire-tested — and `install_lens_model.sh`'s idempotence test fixed, since it reported "already installed" on a DB whose vignetting was back · `4d70455` the solve refuses a solution contradicting its own hints (exit 9), `--central` corrected to fraction-of-frame at three sites; falsification fires, 0/69 false · `e7cb2be` the aircraft rejection CONFIRMED via Siril `-rejmaps` (the product-level A/B the item specified is under-powered by the group+compose dilution — recorded in `docs/dead-ends.md`) · `7d4946e` `TIER_B_HARDENING.md` + prompt retired.
 
 **Full transcripts: [`../TIER_B_HARDENING.md`](../TIER_B_HARDENING.md).**
+
+## Landed during the iterative-flat session
+
+The domain-corrected iterative sky flat is **NULL, structurally**: the iteration
+reconstructs whichever flat it is handed (`F1 = F_roundtrip`), because dividing
+by `F0` is what removes the gradient from the sky and multiplying back restores
+it. It repaired `--desky`'s domain error and still could not work, so "run the
+operator in the correct domain" is exhausted as an angle. Positive controls move
+the same code 81.7% (fixture, round-trip flat = the known true `V`) and 93.4%
+(real data, handed another set's flat — it returned THAT set's flat from set-05's
+frames) where the scheme moves it 1.7% / 1.2%; a 48–62× discrimination, so the
+null is a measurement and not a check that cannot fail. No builder flag was
+added and no removal-conditions row created — a flag selecting an inert
+mechanism is dead code and there is no divergence to retire; `build_sky_flat.sh`
+is byte-unchanged.
+
+What the session leaves behind is worth more than the arm: `flat_odd_component.py`
+— the odd-component instrument `BACKLOG:calibration-evidence` recorded as MISSING
+— and the decomposition it produced. The left-right term is SKY (monotonic within
+all three nights; edge dipole sweeping +0.436 → 0 → −0.385 across the corpus,
+impossible for a sensor-fixed term), but the brief's premise that the stable base
+is "a real instrumental odd component" is **refuted**: T/B sits above 1 on july31
+and drifts +6.7% through that night while sitting below 1 on aug06/aug09, so
+neither axis isolates the instrument and the constant-within-a-night part stays
+unattributed. Four Siril behaviours pinned by probe, two of which silently
+corrupt data — `offset` clips at 0 in 32-bit against its own documentation, and
+`stat` excludes zeros, which compound into damage that reads back as clean
+numbers.
+
+**Full transcript: [`../ITERATIVE_FLAT_VERDICT.md`](../ITERATIVE_FLAT_VERDICT.md).**
 
 ## Landed during the routing-generality session
 

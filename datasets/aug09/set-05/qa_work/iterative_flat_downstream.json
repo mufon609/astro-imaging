@@ -1,0 +1,65 @@
+{
+ "question": "does calibrating with F1 differ from calibrating with F0?",
+ "instrument": "Siril 1.4.4 calibrate -flat= on the same 4 dark-subtracted lights, differenced with Siril isub + stat, both directions, with a deliberately broken guard arm",
+ "uptime": "10:31:09 up 37 days, 18:41,  2 users,  load average: 2.94, 5.48, 4.33",
+ "pairs": {
+  "F1_vs_F0": {
+   "all_nil": false,
+   "channel_means_ADU": [
+    -0.0
+   ]
+  },
+  "F0_vs_F1": {
+   "all_nil": false,
+   "channel_means_ADU": [
+    0.0
+   ]
+  },
+  "BROKEN_vs_F0": {
+   "all_nil": false,
+   "channel_means_ADU": [
+    0.2
+   ]
+  },
+  "F0_vs_BROKEN": {
+   "all_nil": false,
+   "channel_means_ADU": [
+    -0.2
+   ]
+  }
+ },
+ "calibrated_light_tilt": {
+  "F0": {
+   "corner_medians_ADU": {
+    "TL": 49.0,
+    "TR": 49.3,
+    "BL": 48.8,
+    "BR": 49.1
+   },
+   "LR": 0.9939024390243901
+  },
+  "F1": {
+   "corner_medians_ADU": {
+    "TL": 49.1,
+    "TR": 49.2,
+    "BL": 48.9,
+    "BR": 49.0
+   },
+   "LR": 0.9979633401221996
+  },
+  "BROKEN": {
+   "corner_medians_ADU": {
+    "TL": 55.8,
+    "TR": 43.1,
+    "BL": 55.8,
+    "BR": 42.8
+   },
+   "LR": 1.29918509895227
+  }
+ },
+ "verdict": {
+  "F1_equals_F0_downstream": false,
+  "broken_guard_fires": true,
+  "reading": "see the per-pair numbers"
+ }
+}

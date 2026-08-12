@@ -1,0 +1,1474 @@
+{
+ "instrument": "Siril 1.4.4 `fdiv <B> <scalar>` ratio of two sky flats built by the same builder from the same night/lens/focal/aperture (vignetting and the instrumental base cancel exactly), then Siril `stat` medians on regional crops. NEVER idiv \u2014 it clips at 1.0 silently.",
+ "scalar": 0.5,
+ "no_clip_control": "the same pair re-run at 0.25; corner medians must rescale by exactly 2",
+ "geometry_px": {
+  "corner": {
+   "box": 400,
+   "margin": 200
+  },
+  "edge": {
+   "box": 80,
+   "margin": 2
+  }
+ },
+ "uptime": "09:51:17 up 37 days, 18:01,  2 users,  load average: 1.43, 1.45, 1.35",
+ "singles": {
+  "01": {
+   "regions": {
+    "whole": {
+     "mean": 37.5,
+     "median": 36.5,
+     "sigma": 11.1,
+     "min": 0.0,
+     "max": 395.9,
+     "bgnoise": 11.3
+    },
+    "corner.center": {
+     "mean": 47.8,
+     "median": 53.4,
+     "sigma": 11.4,
+     "min": 17.7,
+     "max": 94.1,
+     "bgnoise": 15.6
+    },
+    "corner.TL": {
+     "mean": 26.5,
+     "median": 26.3,
+     "sigma": 6.8,
+     "min": 0.0,
+     "max": 50.9,
+     "bgnoise": 8.4
+    },
+    "corner.TR": {
+     "mean": 23.8,
+     "median": 23.7,
+     "sigma": 6.2,
+     "min": 5.2,
+     "max": 47.6,
+     "bgnoise": 7.6
+    },
+    "corner.BL": {
+     "mean": 26.7,
+     "median": 26.7,
+     "sigma": 6.8,
+     "min": 8.7,
+     "max": 50.0,
+     "bgnoise": 8.5
+    },
+    "corner.BR": {
+     "mean": 25.8,
+     "median": 25.7,
+     "sigma": 6.6,
+     "min": 0.9,
+     "max": 55.5,
+     "bgnoise": 8.2
+    },
+    "edge.center": {
+     "mean": 47.9,
+     "median": 48.8,
+     "sigma": 11.3,
+     "min": 29.3,
+     "max": 88.5,
+     "bgnoise": 16.0
+    },
+    "edge.TL": {
+     "mean": 13.9,
+     "median": 14.2,
+     "sigma": 3.5,
+     "min": 5.6,
+     "max": 36.2,
+     "bgnoise": 4.6
+    },
+    "edge.TR": {
+     "mean": 12.0,
+     "median": 12.2,
+     "sigma": 3.2,
+     "min": 4.1,
+     "max": 38.8,
+     "bgnoise": 4.1
+    },
+    "edge.BL": {
+     "mean": 14.3,
+     "median": 14.5,
+     "sigma": 3.6,
+     "min": 5.8,
+     "max": 35.5,
+     "bgnoise": 5.0
+    },
+    "edge.BR": {
+     "mean": 13.4,
+     "median": 13.7,
+     "sigma": 3.4,
+     "min": 2.0,
+     "max": 35.6,
+     "bgnoise": 4.4
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.07031250000000003,
+    "edge_dipole_y": -0.04687499999999997,
+    "corner_ratio": 1.1265822784810127,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.0728744939271255,
+    "TB": 0.9541984732824428
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.1025641025641026,
+    "edge_dipole_y": -0.06593406593406596,
+    "corner_ratio": 1.1885245901639345,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.1081081081081081,
+    "TB": 0.9361702127659575
+   }
+  },
+  "02": {
+   "regions": {
+    "whole": {
+     "mean": 37.5,
+     "median": 36.4,
+     "sigma": 11.2,
+     "min": 0.0,
+     "max": 422.7,
+     "bgnoise": 11.4
+    },
+    "corner.center": {
+     "mean": 47.7,
+     "median": 53.1,
+     "sigma": 11.4,
+     "min": 20.4,
+     "max": 94.8,
+     "bgnoise": 15.7
+    },
+    "corner.TL": {
+     "mean": 27.1,
+     "median": 26.9,
+     "sigma": 6.9,
+     "min": 0.0,
+     "max": 49.3,
+     "bgnoise": 8.6
+    },
+    "corner.TR": {
+     "mean": 23.0,
+     "median": 22.8,
+     "sigma": 6.0,
+     "min": 0.0,
+     "max": 46.5,
+     "bgnoise": 7.3
+    },
+    "corner.BL": {
+     "mean": 27.7,
+     "median": 27.6,
+     "sigma": 7.1,
+     "min": 7.9,
+     "max": 53.4,
+     "bgnoise": 8.9
+    },
+    "corner.BR": {
+     "mean": 24.9,
+     "median": 24.8,
+     "sigma": 6.4,
+     "min": 3.8,
+     "max": 59.7,
+     "bgnoise": 7.9
+    },
+    "edge.center": {
+     "mean": 47.7,
+     "median": 48.5,
+     "sigma": 11.3,
+     "min": 29.1,
+     "max": 86.8,
+     "bgnoise": 16.0
+    },
+    "edge.TL": {
+     "mean": 14.2,
+     "median": 14.4,
+     "sigma": 3.5,
+     "min": 5.4,
+     "max": 37.1,
+     "bgnoise": 4.7
+    },
+    "edge.TR": {
+     "mean": 11.6,
+     "median": 11.8,
+     "sigma": 3.1,
+     "min": 4.3,
+     "max": 37.5,
+     "bgnoise": 4.0
+    },
+    "edge.BL": {
+     "mean": 14.9,
+     "median": 15.1,
+     "sigma": 3.7,
+     "min": 6.2,
+     "max": 36.5,
+     "bgnoise": 5.0
+    },
+    "edge.BR": {
+     "mean": 13.0,
+     "median": 13.2,
+     "sigma": 3.4,
+     "min": 3.1,
+     "max": 36.1,
+     "bgnoise": 4.3
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.13516160626836432,
+    "edge_dipole_y": -0.05288932419196872,
+    "corner_ratio": 1.2105263157894737,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.1449579831932772,
+    "TB": 0.9484732824427481
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.1651376146788991,
+    "edge_dipole_y": -0.07706422018348603,
+    "corner_ratio": 1.2796610169491525,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.18,
+    "TB": 0.9257950530035337
+   }
+  },
+  "03": {
+   "regions": {
+    "whole": {
+     "mean": 38.5,
+     "median": 37.1,
+     "sigma": 11.7,
+     "min": 0.0,
+     "max": 429.7,
+     "bgnoise": 11.7
+    },
+    "corner.center": {
+     "mean": 49.0,
+     "median": 54.4,
+     "sigma": 11.7,
+     "min": 15.9,
+     "max": 97.5,
+     "bgnoise": 16.2
+    },
+    "corner.TL": {
+     "mean": 29.5,
+     "median": 29.2,
+     "sigma": 7.6,
+     "min": 0.0,
+     "max": 52.7,
+     "bgnoise": 9.5
+    },
+    "corner.TR": {
+     "mean": 22.5,
+     "median": 22.4,
+     "sigma": 5.9,
+     "min": 0.0,
+     "max": 46.5,
+     "bgnoise": 7.2
+    },
+    "corner.BL": {
+     "mean": 29.6,
+     "median": 29.5,
+     "sigma": 7.6,
+     "min": 9.9,
+     "max": 51.7,
+     "bgnoise": 9.5
+    },
+    "corner.BR": {
+     "mean": 24.5,
+     "median": 24.4,
+     "sigma": 6.3,
+     "min": 0.0,
+     "max": 54.7,
+     "bgnoise": 7.7
+    },
+    "edge.center": {
+     "mean": 49.1,
+     "median": 48.0,
+     "sigma": 11.7,
+     "min": 30.2,
+     "max": 92.7,
+     "bgnoise": 16.5
+    },
+    "edge.TL": {
+     "mean": 15.6,
+     "median": 15.8,
+     "sigma": 3.8,
+     "min": 6.8,
+     "max": 39.3,
+     "bgnoise": 5.0
+    },
+    "edge.TR": {
+     "mean": 11.3,
+     "median": 11.5,
+     "sigma": 3.1,
+     "min": 4.3,
+     "max": 36.6,
+     "bgnoise": 3.9
+    },
+    "edge.BL": {
+     "mean": 16.1,
+     "median": 16.3,
+     "sigma": 3.9,
+     "min": 6.4,
+     "max": 38.5,
+     "bgnoise": 5.3
+    },
+    "edge.BR": {
+     "mean": 12.6,
+     "median": 12.8,
+     "sigma": 3.3,
+     "min": 3.3,
+     "max": 35.8,
+     "bgnoise": 4.2
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.22559241706161148,
+    "edge_dipole_y": -0.04360189573459724,
+    "corner_ratio": 1.3169642857142858,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.2542735042735045,
+    "TB": 0.9573283858998144
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.2765957446808511,
+    "edge_dipole_y": -0.06382978723404258,
+    "corner_ratio": 1.4173913043478261,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.3209876543209877,
+    "TB": 0.9381443298969072
+   }
+  },
+  "04": {
+   "regions": {
+    "whole": {
+     "mean": 39.3,
+     "median": 37.6,
+     "sigma": 12.2,
+     "min": 0.0,
+     "max": 330.9,
+     "bgnoise": 12.1
+    },
+    "corner.center": {
+     "mean": 50.0,
+     "median": 55.4,
+     "sigma": 12.1,
+     "min": 17.5,
+     "max": 100.4,
+     "bgnoise": 16.8
+    },
+    "corner.TL": {
+     "mean": 30.9,
+     "median": 30.6,
+     "sigma": 7.9,
+     "min": 0.0,
+     "max": 54.6,
+     "bgnoise": 9.9
+    },
+    "corner.TR": {
+     "mean": 22.2,
+     "median": 22.1,
+     "sigma": 5.9,
+     "min": 0.0,
+     "max": 46.5,
+     "bgnoise": 7.1
+    },
+    "corner.BL": {
+     "mean": 31.1,
+     "median": 31.0,
+     "sigma": 8.0,
+     "min": 11.1,
+     "max": 53.8,
+     "bgnoise": 10.1
+    },
+    "corner.BR": {
+     "mean": 23.9,
+     "median": 23.9,
+     "sigma": 6.2,
+     "min": 2.8,
+     "max": 50.4,
+     "bgnoise": 7.6
+    },
+    "edge.center": {
+     "mean": 50.0,
+     "median": 49.1,
+     "sigma": 12.1,
+     "min": 30.6,
+     "max": 96.3,
+     "bgnoise": 17.3
+    },
+    "edge.TL": {
+     "mean": 16.4,
+     "median": 16.7,
+     "sigma": 4.0,
+     "min": 6.6,
+     "max": 37.7,
+     "bgnoise": 5.2
+    },
+    "edge.TR": {
+     "mean": 11.0,
+     "median": 11.2,
+     "sigma": 3.0,
+     "min": 3.7,
+     "max": 36.7,
+     "bgnoise": 3.9
+    },
+    "edge.BL": {
+     "mean": 16.9,
+     "median": 17.3,
+     "sigma": 4.1,
+     "min": 7.5,
+     "max": 37.2,
+     "bgnoise": 5.6
+    },
+    "edge.BR": {
+     "mean": 12.2,
+     "median": 12.4,
+     "sigma": 3.3,
+     "min": 2.8,
+     "max": 34.4,
+     "bgnoise": 4.2
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.28996282527881045,
+    "edge_dipole_y": -0.04089219330855011,
+    "corner_ratio": 1.4027149321266967,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.3391304347826087,
+    "TB": 0.9599271402550091
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.36111111111111105,
+    "edge_dipole_y": -0.06250000000000015,
+    "corner_ratio": 1.5446428571428572,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.4406779661016949,
+    "TB": 0.9393939393939392
+   }
+  },
+  "05": {
+   "regions": {
+    "whole": {
+     "mean": 40.4,
+     "median": 38.6,
+     "sigma": 12.7,
+     "min": 0.0,
+     "max": 198.0,
+     "bgnoise": 12.6
+    },
+    "corner.center": {
+     "mean": 51.1,
+     "median": 56.0,
+     "sigma": 12.5,
+     "min": 18.8,
+     "max": 101.2,
+     "bgnoise": 17.4
+    },
+    "corner.TL": {
+     "mean": 32.0,
+     "median": 31.6,
+     "sigma": 8.2,
+     "min": 0.0,
+     "max": 56.3,
+     "bgnoise": 10.4
+    },
+    "corner.TR": {
+     "mean": 22.3,
+     "median": 22.2,
+     "sigma": 5.9,
+     "min": 0.0,
+     "max": 45.1,
+     "bgnoise": 7.1
+    },
+    "corner.BL": {
+     "mean": 32.8,
+     "median": 32.6,
+     "sigma": 8.4,
+     "min": 11.5,
+     "max": 56.6,
+     "bgnoise": 10.7
+    },
+    "corner.BR": {
+     "mean": 24.4,
+     "median": 24.3,
+     "sigma": 6.3,
+     "min": 0.0,
+     "max": 54.8,
+     "bgnoise": 7.7
+    },
+    "edge.center": {
+     "mean": 51.1,
+     "median": 48.6,
+     "sigma": 12.5,
+     "min": 30.8,
+     "max": 96.9,
+     "bgnoise": 17.6
+    },
+    "edge.TL": {
+     "mean": 17.0,
+     "median": 17.3,
+     "sigma": 4.1,
+     "min": 7.6,
+     "max": 37.5,
+     "bgnoise": 5.4
+    },
+    "edge.TR": {
+     "mean": 11.1,
+     "median": 11.3,
+     "sigma": 3.1,
+     "min": 4.0,
+     "max": 35.6,
+     "bgnoise": 3.9
+    },
+    "edge.BL": {
+     "mean": 17.9,
+     "median": 18.3,
+     "sigma": 4.3,
+     "min": 8.2,
+     "max": 39.1,
+     "bgnoise": 5.8
+    },
+    "edge.BR": {
+     "mean": 12.6,
+     "median": 12.8,
+     "sigma": 3.3,
+     "min": 2.2,
+     "max": 33.9,
+     "bgnoise": 4.3
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.31978319783197834,
+    "edge_dipole_y": -0.056007226738934206,
+    "corner_ratio": 1.4684684684684686,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.3806451612903226,
+    "TB": 0.9455184534270649
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.38525963149078724,
+    "edge_dipole_y": -0.08375209380234505,
+    "corner_ratio": 1.6194690265486724,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.4771784232365146,
+    "TB": 0.9196141479099679
+   }
+  }
+ },
+ "ratios": {
+  "ratio_05_01_s0p5": {
+   "numerator": "05",
+   "denominator": "01",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 35252.1,
+     "median": 35026.3,
+     "sigma": 3349.2,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 972.2
+    },
+    "corner.center": {
+     "mean": 34989.9,
+     "median": 35022.2,
+     "sigma": 795.7,
+     "min": 30027.3,
+     "max": 42149.9,
+     "bgnoise": 814.6
+    },
+    "corner.TL": {
+     "mean": 39629.9,
+     "median": 39600.2,
+     "sigma": 1406.2,
+     "min": 0.0,
+     "max": 56661.5,
+     "bgnoise": 1362.7
+    },
+    "corner.TR": {
+     "mean": 30704.5,
+     "median": 30723.5,
+     "sigma": 966.3,
+     "min": 0.0,
+     "max": 41582.7,
+     "bgnoise": 938.1
+    },
+    "corner.BL": {
+     "mean": 40317.3,
+     "median": 40312.0,
+     "sigma": 1387.7,
+     "min": 25058.2,
+     "max": 59318.4,
+     "bgnoise": 1376.9
+    },
+    "corner.BR": {
+     "mean": 30950.8,
+     "median": 30962.3,
+     "sigma": 915.5,
+     "min": 0.0,
+     "max": 38708.7,
+     "bgnoise": 891.9
+    },
+    "edge.center": {
+     "mean": 34874.6,
+     "median": 34906.6,
+     "sigma": 759.0,
+     "min": 31941.1,
+     "max": 37501.1,
+     "bgnoise": 796.0
+    },
+    "edge.TL": {
+     "mean": 40033.5,
+     "median": 39944.7,
+     "sigma": 1956.6,
+     "min": 32934.6,
+     "max": 52855.4,
+     "bgnoise": 1943.0
+    },
+    "edge.TR": {
+     "mean": 30083.9,
+     "median": 30163.1,
+     "sigma": 1651.9,
+     "min": 22796.0,
+     "max": 38398.2,
+     "bgnoise": 1633.3
+    },
+    "edge.BL": {
+     "mean": 41177.9,
+     "median": 41101.3,
+     "sigma": 2043.8,
+     "min": 33573.8,
+     "max": 51975.2,
+     "bgnoise": 2070.2
+    },
+    "edge.BR": {
+     "mean": 30593.3,
+     "median": 30658.0,
+     "sigma": 1490.9,
+     "min": 22197.2,
+     "max": 36641.8,
+     "bgnoise": 1418.1
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.257438664387915,
+    "edge_dipole_y": -0.013426743315583635,
+    "corner_ratio": 1.3120900939020619,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.2954715672002308,
+    "TB": 0.9866627943031359
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.2851245990085087,
+    "edge_dipole_y": -0.023282353695818332,
+    "corner_ratio": 1.362635140287305,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.3325309802025942,
+    "TB": 0.9769855614533585
+   }
+  },
+  "ratio_05_01_s0p25": {
+   "numerator": "05",
+   "denominator": "01",
+   "scalar": 0.25,
+   "regions": {
+    "whole": {
+     "mean": 17626.1,
+     "median": 17513.2,
+     "sigma": 1674.7,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 486.1
+    },
+    "corner.center": {
+     "mean": 17495.0,
+     "median": 17511.1,
+     "sigma": 397.9,
+     "min": 15013.6,
+     "max": 21075.0,
+     "bgnoise": 407.3
+    },
+    "corner.TL": {
+     "mean": 19814.9,
+     "median": 19800.1,
+     "sigma": 703.1,
+     "min": 0.0,
+     "max": 28330.8,
+     "bgnoise": 681.3
+    },
+    "corner.TR": {
+     "mean": 15352.3,
+     "median": 15361.7,
+     "sigma": 483.1,
+     "min": 0.0,
+     "max": 20791.4,
+     "bgnoise": 469.0
+    },
+    "corner.BL": {
+     "mean": 20158.6,
+     "median": 20156.0,
+     "sigma": 693.8,
+     "min": 12529.1,
+     "max": 29659.2,
+     "bgnoise": 688.5
+    },
+    "corner.BR": {
+     "mean": 15475.4,
+     "median": 15481.2,
+     "sigma": 457.8,
+     "min": 0.0,
+     "max": 19354.3,
+     "bgnoise": 446.0
+    },
+    "edge.center": {
+     "mean": 17437.3,
+     "median": 17453.3,
+     "sigma": 379.5,
+     "min": 15970.5,
+     "max": 18750.5,
+     "bgnoise": 398.0
+    },
+    "edge.TL": {
+     "mean": 20016.7,
+     "median": 19972.4,
+     "sigma": 978.3,
+     "min": 16467.3,
+     "max": 26427.7,
+     "bgnoise": 971.5
+    },
+    "edge.TR": {
+     "mean": 15042.0,
+     "median": 15081.5,
+     "sigma": 826.0,
+     "min": 11398.0,
+     "max": 19199.1,
+     "bgnoise": 816.7
+    },
+    "edge.BL": {
+     "mean": 20588.9,
+     "median": 20550.7,
+     "sigma": 1021.9,
+     "min": 16786.9,
+     "max": 25987.6,
+     "bgnoise": 1035.1
+    },
+    "edge.BR": {
+     "mean": 15296.7,
+     "median": 15329.0,
+     "sigma": 745.4,
+     "min": 11098.6,
+     "max": 18320.9,
+     "bgnoise": 709.0
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.257438664387915,
+    "edge_dipole_y": -0.01342956821424015,
+    "corner_ratio": 1.3120943645560061,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.2954715672002308,
+    "TB": 0.9866600069590206
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.2851286273359876,
+    "edge_dipole_y": -0.023283747053582382,
+    "corner_ratio": 1.3626429731790606,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.332536459446573,
+    "TB": 0.9769841999793757
+   }
+  },
+  "ratio_04_01_s0p5": {
+   "numerator": "04",
+   "denominator": "01",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 34255.9,
+     "median": 34081.1,
+     "sigma": 2824.8,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 867.3
+    },
+    "corner.center": {
+     "mean": 34195.7,
+     "median": 34212.8,
+     "sigma": 727.7,
+     "min": 28495.8,
+     "max": 45440.5,
+     "bgnoise": 712.5
+    },
+    "corner.TL": {
+     "mean": 38257.0,
+     "median": 38233.8,
+     "sigma": 1218.1,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 1204.3
+    },
+    "corner.TR": {
+     "mean": 30517.5,
+     "median": 30527.3,
+     "sigma": 974.5,
+     "min": 0.0,
+     "max": 41741.5,
+     "bgnoise": 946.5
+    },
+    "corner.BL": {
+     "mean": 38176.1,
+     "median": 38152.0,
+     "sigma": 1183.2,
+     "min": 30618.6,
+     "max": 48014.6,
+     "bgnoise": 1172.7
+    },
+    "corner.BR": {
+     "mean": 30400.7,
+     "median": 30398.2,
+     "sigma": 928.7,
+     "min": 15568.0,
+     "max": 65535.0,
+     "bgnoise": 906.9
+    },
+    "edge.center": {
+     "mean": 34143.9,
+     "median": 34165.3,
+     "sigma": 698.3,
+     "min": 30644.9,
+     "max": 37125.0,
+     "bgnoise": 704.9
+    },
+    "edge.TL": {
+     "mean": 38781.2,
+     "median": 38680.1,
+     "sigma": 1795.3,
+     "min": 31360.5,
+     "max": 49846.4,
+     "bgnoise": 1759.2
+    },
+    "edge.TR": {
+     "mean": 29899.7,
+     "median": 29926.6,
+     "sigma": 1599.6,
+     "min": 22331.7,
+     "max": 38380.0,
+     "bgnoise": 1549.3
+    },
+    "edge.BL": {
+     "mean": 38925.5,
+     "median": 38850.4,
+     "sigma": 1789.2,
+     "min": 32561.4,
+     "max": 49444.3,
+     "bgnoise": 1765.4
+    },
+    "edge.BR": {
+     "mean": 29607.6,
+     "median": 29636.3,
+     "sigma": 1483.1,
+     "min": 22719.2,
+     "max": 45389.5,
+     "bgnoise": 1444.5
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.22518612816279512,
+    "edge_dipole_y": 0.0030718520617022595,
+    "corner_ratio": 1.2577652624168536,
+    "brightest": "TL",
+    "darkest": "BR",
+    "LR": 1.2537574578788848,
+    "TB": 1.0030765774571047
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.2621220277562597,
+    "edge_dipole_y": 0.0017506313214202872,
+    "corner_ratio": 1.3109058823132442,
+    "brightest": "BL",
+    "darkest": "BR",
+    "LR": 1.3016575754370592,
+    "TB": 1.0017521650189014
+   }
+  },
+  "ratio_03_01_s0p5": {
+   "numerator": "03",
+   "denominator": "01",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 33625.2,
+     "median": 33500.1,
+     "sigma": 1996.2,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 787.2
+    },
+    "corner.center": {
+     "mean": 33570.4,
+     "median": 33568.5,
+     "sigma": 683.6,
+     "min": 26478.4,
+     "max": 38882.2,
+     "bgnoise": 653.7
+    },
+    "corner.TL": {
+     "mean": 36539.5,
+     "median": 36511.4,
+     "sigma": 1096.4,
+     "min": 0.0,
+     "max": 50930.2,
+     "bgnoise": 1076.3
+    },
+    "corner.TR": {
+     "mean": 30961.7,
+     "median": 30960.5,
+     "sigma": 974.8,
+     "min": 0.0,
+     "max": 38158.2,
+     "bgnoise": 962.7
+    },
+    "corner.BL": {
+     "mean": 36309.3,
+     "median": 36286.7,
+     "sigma": 1047.3,
+     "min": 29743.9,
+     "max": 46640.1,
+     "bgnoise": 1037.1
+    },
+    "corner.BR": {
+     "mean": 31161.8,
+     "median": 31150.3,
+     "sigma": 929.8,
+     "min": 0.0,
+     "max": 38798.4,
+     "bgnoise": 917.3
+    },
+    "edge.center": {
+     "mean": 33585.7,
+     "median": 33583.7,
+     "sigma": 657.9,
+     "min": 30863.2,
+     "max": 36977.7,
+     "bgnoise": 632.9
+    },
+    "edge.TL": {
+     "mean": 36765.9,
+     "median": 36680.2,
+     "sigma": 1693.5,
+     "min": 30180.1,
+     "max": 47219.9,
+     "bgnoise": 1620.3
+    },
+    "edge.TR": {
+     "mean": 30595.7,
+     "median": 30632.5,
+     "sigma": 1631.6,
+     "min": 21478.8,
+     "max": 37538.3,
+     "bgnoise": 1606.4
+    },
+    "edge.BL": {
+     "mean": 36875.5,
+     "median": 36795.4,
+     "sigma": 1628.8,
+     "min": 30734.5,
+     "max": 45616.9,
+     "bgnoise": 1587.9
+    },
+    "edge.BR": {
+     "mean": 30601.9,
+     "median": 30629.5,
+     "sigma": 1507.2,
+     "min": 24498.4,
+     "max": 53605.2,
+     "bgnoise": 1440.6
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.1584372861983161,
+    "edge_dipole_y": 0.0005173861768940994,
+    "corner_ratio": 1.1792897401527753,
+    "brightest": "TL",
+    "darkest": "TR",
+    "LR": 1.1720683037410564,
+    "TB": 1.0005175200557557
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.18129460521784574,
+    "edge_dipole_y": -0.0016654593817909341,
+    "corner_ratio": 1.2013059305571427,
+    "brightest": "BL",
+    "darkest": "BR",
+    "LR": 1.199366654696223,
+    "TB": 0.9983359263417522
+   }
+  },
+  "ratio_02_01_s0p5": {
+   "numerator": "02",
+   "denominator": "01",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 32750.5,
+     "median": 32705.0,
+     "sigma": 1109.7,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 763.1
+    },
+    "corner.center": {
+     "mean": 32670.3,
+     "median": 32666.0,
+     "sigma": 664.6,
+     "min": 28337.4,
+     "max": 38841.8,
+     "bgnoise": 643.3
+    },
+    "corner.TL": {
+     "mean": 33608.6,
+     "median": 33584.7,
+     "sigma": 991.1,
+     "min": 0.0,
+     "max": 40679.6,
+     "bgnoise": 951.5
+    },
+    "corner.TR": {
+     "mean": 31571.0,
+     "median": 31562.6,
+     "sigma": 971.9,
+     "min": 0.0,
+     "max": 38684.3,
+     "bgnoise": 967.3
+    },
+    "corner.BL": {
+     "mean": 33938.9,
+     "median": 33918.8,
+     "sigma": 946.4,
+     "min": 26063.6,
+     "max": 40372.4,
+     "bgnoise": 942.6
+    },
+    "corner.BR": {
+     "mean": 31720.6,
+     "median": 31703.9,
+     "sigma": 952.8,
+     "min": 19904.5,
+     "max": 65535.0,
+     "bgnoise": 915.6
+    },
+    "edge.center": {
+     "mean": 32645.5,
+     "median": 32641.7,
+     "sigma": 655.5,
+     "min": 29644.3,
+     "max": 36889.8,
+     "bgnoise": 628.4
+    },
+    "edge.TL": {
+     "mean": 33513.2,
+     "median": 33428.8,
+     "sigma": 1530.6,
+     "min": 22095.8,
+     "max": 42538.9,
+     "bgnoise": 1479.5
+    },
+    "edge.TR": {
+     "mean": 31433.7,
+     "median": 31417.6,
+     "sigma": 1652.2,
+     "min": 24070.7,
+     "max": 41665.3,
+     "bgnoise": 1650.5
+    },
+    "edge.BL": {
+     "mean": 34175.2,
+     "median": 34117.3,
+     "sigma": 1492.0,
+     "min": 28231.7,
+     "max": 42926.1,
+     "bgnoise": 1452.7
+    },
+    "edge.BR": {
+     "mean": 31713.8,
+     "median": 31674.4,
+     "sigma": 1537.3,
+     "min": 25437.4,
+     "max": 50323.1,
+     "bgnoise": 1469.7
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.06480079528943948,
+    "edge_dipole_y": -0.00727078076011342,
+    "corner_ratio": 1.0746516446680567,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.066970671682486,
+    "TB": 0.9927555556232825
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.06818990784464878,
+    "edge_dipole_y": -0.014472041464167194,
+    "corner_ratio": 1.0859295426767164,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.07059690610537,
+    "TB": 0.9856319262156167
+   }
+  },
+  "ratio_03_02_s0p5": {
+   "numerator": "03",
+   "denominator": "02",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 33629.7,
+     "median": 33608.8,
+     "sigma": 1342.9,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 777.6
+    },
+    "corner.center": {
+     "mean": 33677.1,
+     "median": 33672.4,
+     "sigma": 682.9,
+     "min": 25587.4,
+     "max": 37731.9,
+     "bgnoise": 661.8
+    },
+    "corner.TL": {
+     "mean": 35638.9,
+     "median": 35620.7,
+     "sigma": 1013.6,
+     "min": 0.0,
+     "max": 47783.2,
+     "bgnoise": 991.5
+    },
+    "corner.TR": {
+     "mean": 32150.7,
+     "median": 32143.2,
+     "sigma": 1024.0,
+     "min": 0.0,
+     "max": 39581.3,
+     "bgnoise": 1012.9
+    },
+    "corner.BL": {
+     "mean": 35068.2,
+     "median": 35047.3,
+     "sigma": 955.8,
+     "min": 28686.8,
+     "max": 44282.9,
+     "bgnoise": 937.5
+    },
+    "corner.BR": {
+     "mean": 32205.8,
+     "median": 32200.1,
+     "sigma": 989.3,
+     "min": 0.0,
+     "max": 40266.3,
+     "bgnoise": 958.7
+    },
+    "edge.center": {
+     "mean": 33718.3,
+     "median": 33708.4,
+     "sigma": 674.0,
+     "min": 31269.9,
+     "max": 37174.9,
+     "bgnoise": 651.4
+    },
+    "edge.TL": {
+     "mean": 35981.4,
+     "median": 35925.7,
+     "sigma": 1573.1,
+     "min": 30618.2,
+     "max": 54292.3,
+     "bgnoise": 1534.4
+    },
+    "edge.TR": {
+     "mean": 31940.1,
+     "median": 31958.6,
+     "sigma": 1743.1,
+     "min": 23751.5,
+     "max": 42164.0,
+     "bgnoise": 1684.2
+    },
+    "edge.BL": {
+     "mean": 35386.7,
+     "median": 35318.6,
+     "sigma": 1481.2,
+     "min": 29099.9,
+     "max": 42181.3,
+     "bgnoise": 1404.8
+    },
+    "edge.BR": {
+     "mean": 31657.2,
+     "median": 31644.2,
+     "sigma": 1585.5,
+     "min": 25872.0,
+     "max": 38482.6,
+     "bgnoise": 1559.7
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.09369141694065604,
+    "edge_dipole_y": 0.0076512114171184194,
+    "corner_ratio": 1.1081877348863833,
+    "brightest": "TL",
+    "darkest": "TR",
+    "LR": 1.0982961706968712,
+    "TB": 1.007680594342681
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.11333577066173443,
+    "edge_dipole_y": 0.013667331370121945,
+    "corner_ratio": 1.1353012558383526,
+    "brightest": "TL",
+    "darkest": "BR",
+    "LR": 1.1201440817070945,
+    "TB": 1.0137613719856395
+   }
+  },
+  "ratio_04_03_s0p5": {
+   "numerator": "04",
+   "denominator": "03",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 33347.4,
+     "median": 33376.0,
+     "sigma": 1153.9,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 755.8
+    },
+    "corner.center": {
+     "mean": 33383.9,
+     "median": 33398.8,
+     "sigma": 668.4,
+     "min": 29490.1,
+     "max": 56233.4,
+     "bgnoise": 655.5
+    },
+    "corner.TL": {
+     "mean": 34317.7,
+     "median": 34312.2,
+     "sigma": 906.6,
+     "min": 0.0,
+     "max": 46618.3,
+     "bgnoise": 888.0
+    },
+    "corner.TR": {
+     "mean": 32312.7,
+     "median": 32308.1,
+     "sigma": 1012.0,
+     "min": 0.0,
+     "max": 41328.8,
+     "bgnoise": 992.8
+    },
+    "corner.BL": {
+     "mean": 34461.3,
+     "median": 34448.6,
+     "sigma": 884.0,
+     "min": 29508.7,
+     "max": 44012.3,
+     "bgnoise": 873.9
+    },
+    "corner.BR": {
+     "mean": 31981.1,
+     "median": 31979.1,
+     "sigma": 971.6,
+     "min": 0.0,
+     "max": 39551.2,
+     "bgnoise": 932.1
+    },
+    "edge.center": {
+     "mean": 33318.0,
+     "median": 33338.3,
+     "sigma": 662.2,
+     "min": 30281.4,
+     "max": 36208.3,
+     "bgnoise": 655.6
+    },
+    "edge.TL": {
+     "mean": 34591.0,
+     "median": 34566.5,
+     "sigma": 1388.6,
+     "min": 27784.5,
+     "max": 41132.3,
+     "bgnoise": 1365.2
+    },
+    "edge.TR": {
+     "mean": 32070.2,
+     "median": 32062.0,
+     "sigma": 1760.8,
+     "min": 25139.0,
+     "max": 40346.8,
+     "bgnoise": 1693.4
+    },
+    "edge.BL": {
+     "mean": 34612.9,
+     "median": 34578.8,
+     "sigma": 1355.4,
+     "min": 28628.0,
+     "max": 41123.0,
+     "bgnoise": 1331.7
+    },
+    "edge.BR": {
+     "mean": 31740.5,
+     "median": 31751.2,
+     "sigma": 1578.2,
+     "min": 24030.5,
+     "max": 39068.0,
+     "bgnoise": 1534.3
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.06724791052853092,
+    "edge_dipole_y": 0.0028951957188381827,
+    "corner_ratio": 1.0772223108217556,
+    "brightest": "BL",
+    "darkest": "BR",
+    "LR": 1.0695877250836867,
+    "TB": 1.002899392873756
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.08020698187780406,
+    "edge_dipole_y": 0.004490122857884227,
+    "corner_ratio": 1.0890549018619768,
+    "brightest": "BL",
+    "darkest": "BR",
+    "LR": 1.083557947258561,
+    "TB": 1.0045002261420173
+   }
+  },
+  "ratio_05_04_s0p5": {
+   "numerator": "05",
+   "denominator": "04",
+   "scalar": 0.5,
+   "regions": {
+    "whole": {
+     "mean": 33698.0,
+     "median": 33683.9,
+     "sigma": 972.4,
+     "min": 0.0,
+     "max": 65535.0,
+     "bgnoise": 752.8
+    },
+    "corner.center": {
+     "mean": 33533.8,
+     "median": 33542.6,
+     "sigma": 651.4,
+     "min": 26858.5,
+     "max": 38451.8,
+     "bgnoise": 642.9
+    },
+    "corner.TL": {
+     "mean": 33950.7,
+     "median": 33932.7,
+     "sigma": 883.8,
+     "min": 0.0,
+     "max": 40424.6,
+     "bgnoise": 851.9
+    },
+    "corner.TR": {
+     "mean": 32984.7,
+     "median": 32976.9,
+     "sigma": 1021.7,
+     "min": 0.0,
+     "max": 44026.7,
+     "bgnoise": 1002.4
+    },
+    "corner.BL": {
+     "mean": 34612.2,
+     "median": 34599.9,
+     "sigma": 862.8,
+     "min": 21004.9,
+     "max": 45047.7,
+     "bgnoise": 853.1
+    },
+    "corner.BR": {
+     "mean": 33376.3,
+     "median": 33372.8,
+     "sigma": 993.7,
+     "min": 0.0,
+     "max": 54082.6,
+     "bgnoise": 973.5
+    },
+    "edge.center": {
+     "mean": 33474.1,
+     "median": 33478.6,
+     "sigma": 644.2,
+     "min": 30758.7,
+     "max": 36825.3,
+     "bgnoise": 631.4
+    },
+    "edge.TL": {
+     "mean": 33846.1,
+     "median": 33810.1,
+     "sigma": 1295.3,
+     "min": 28275.7,
+     "max": 42574.1,
+     "bgnoise": 1288.7
+    },
+    "edge.TR": {
+     "mean": 33015.4,
+     "median": 33016.9,
+     "sigma": 1794.5,
+     "min": 24955.5,
+     "max": 43914.9,
+     "bgnoise": 1702.4
+    },
+    "edge.BL": {
+     "mean": 34681.5,
+     "median": 34668.4,
+     "sigma": 1292.8,
+     "min": 29780.6,
+     "max": 43018.7,
+     "bgnoise": 1275.6
+    },
+    "edge.BR": {
+     "mean": 33902.6,
+     "median": 33854.7,
+     "sigma": 1693.6,
+     "min": 25090.3,
+     "max": 43227.6,
+     "bgnoise": 1624.4
+    }
+   },
+   "corner_geom": {
+    "edge_dipole_x": -0.032367478905682874,
+    "edge_dipole_y": -0.01576337295553243,
+    "corner_ratio": 1.0492162695705176,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.0328999226823934,
+    "TB": 0.9843598974294091
+   },
+   "edge_geom": {
+    "edge_dipole_x": -0.02374434891440781,
+    "edge_dipole_y": -0.025062412218387807,
+    "corner_ratio": 1.0500198383252213,
+    "brightest": "BL",
+    "darkest": "TR",
+    "LR": 1.0240296329084393,
+    "TB": 0.9752477631630793
+   }
+  }
+ }
+}

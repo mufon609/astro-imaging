@@ -1,0 +1,438 @@
+{
+ "instrument": "Siril 1.4.4 `stat` medians on regional crops of each session's own sky flat; box 400/margin 200 (corner) and box 80/margin 2 (edge, baseline_guard geometry)",
+ "uptime": "10:30:16 up 37 days, 18:40,  2 users,  load average: 5.86, 6.34, 4.53",
+ "flats": {
+  "july31/set-01": {
+   "corner": {
+    "medians": {
+     "center": 110.2,
+     "TL": 45.6,
+     "TR": 74.6,
+     "BL": 42.0,
+     "BR": 63.5
+    },
+    "LR": 0.6343229543808834,
+    "TB": 1.1393364928909953,
+    "corner_ratio": 1.776190476190476,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.5120235934664247,
+    "edge_dipole_x": 0.4474966770048737,
+    "edge_dipole_y": 0.13026140894993343
+   },
+   "edge": {
+    "medians": {
+     "center": 105.1,
+     "TL": 23.2,
+     "TR": 38.1,
+     "BL": 22.0,
+     "BR": 32.3
+    },
+    "LR": 0.6420454545454546,
+    "TB": 1.128913443830571,
+    "corner_ratio": 1.731818181818182,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.27497621313035203,
+    "edge_dipole_x": 0.43598615916955025,
+    "edge_dipole_y": 0.12110726643598617
+   }
+  },
+  "july31/set-02": {
+   "corner": {
+    "medians": {
+     "center": 111.0,
+     "TL": 47.9,
+     "TR": 74.5,
+     "BL": 43.4,
+     "BR": 62.1
+    },
+    "LR": 0.6683748169838946,
+    "TB": 1.1601895734597156,
+    "corner_ratio": 1.7165898617511521,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.5132882882882883,
+    "edge_dipole_x": 0.3975427819218955,
+    "edge_dipole_y": 0.14831066257130324
+   },
+   "edge": {
+    "medians": {
+     "center": 108.7,
+     "TL": 24.6,
+     "TR": 38.0,
+     "BL": 22.8,
+     "BR": 31.6
+    },
+    "LR": 0.6810344827586208,
+    "TB": 1.150735294117647,
+    "corner_ratio": 1.6666666666666665,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.2690892364305428,
+    "edge_dipole_x": 0.3794871794871793,
+    "edge_dipole_y": 0.1401709401709401
+   }
+  },
+  "july31/set-03": {
+   "corner": {
+    "medians": {
+     "center": 116.6,
+     "TL": 52.9,
+     "TR": 77.4,
+     "BL": 45.9,
+     "BR": 61.9
+    },
+    "LR": 0.7092605886575735,
+    "TB": 1.2087198515769946,
+    "corner_ratio": 1.6862745098039218,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.5105060034305318,
+    "edge_dipole_x": 0.3401931961360774,
+    "edge_dipole_y": 0.1889962200755986
+   },
+   "edge": {
+    "medians": {
+     "center": 115.0,
+     "TL": 27.1,
+     "TR": 39.6,
+     "BL": 24.0,
+     "BR": 31.4
+    },
+    "LR": 0.719718309859155,
+    "TB": 1.203971119133574,
+    "corner_ratio": 1.6500000000000001,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.26543478260869563,
+    "edge_dipole_x": 0.32596232596232594,
+    "edge_dipole_y": 0.18509418509418518
+   }
+  },
+  "july31/set-04": {
+   "corner": {
+    "medians": {
+     "center": 115.4,
+     "TL": 55.7,
+     "TR": 73.8,
+     "BL": 48.4,
+     "BR": 58.1
+    },
+    "LR": 0.7892342683851402,
+    "TB": 1.215962441314554,
+    "corner_ratio": 1.524793388429752,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.511265164644714,
+    "edge_dipole_x": 0.23559322033898314,
+    "edge_dipole_y": 0.19491525423728814
+   },
+   "edge": {
+    "medians": {
+     "center": 113.0,
+     "TL": 28.5,
+     "TR": 37.6,
+     "BL": 25.5,
+     "BR": 29.8
+    },
+    "LR": 0.801186943620178,
+    "TB": 1.1952983725135624,
+    "corner_ratio": 1.4745098039215687,
+    "brightest": "TR",
+    "darkest": "BL",
+    "corner_over_center": 0.2685840707964602,
+    "edge_dipole_x": 0.22075782537067554,
+    "edge_dipole_y": 0.1779242174629324
+   }
+  },
+  "aug06/set-01": {
+   "corner": {
+    "medians": {
+     "center": 43.5,
+     "TL": 21.7,
+     "TR": 23.7,
+     "BL": 21.9,
+     "BR": 25.0
+    },
+    "LR": 0.895277207392197,
+    "TB": 0.9680170575692963,
+    "corner_ratio": 1.1520737327188941,
+    "brightest": "BR",
+    "darkest": "TL",
+    "corner_over_center": 0.5304597701149425,
+    "edge_dipole_x": 0.11050920910075858,
+    "edge_dipole_y": -0.032502708559046585
+   },
+   "edge": {
+    "medians": {
+     "center": 44.9,
+     "TL": 11.5,
+     "TR": 12.5,
+     "BL": 12.0,
+     "BR": 13.7
+    },
+    "LR": 0.8969465648854962,
+    "TB": 0.933852140077821,
+    "corner_ratio": 1.191304347826087,
+    "brightest": "BR",
+    "darkest": "TL",
+    "corner_over_center": 0.2767260579064588,
+    "edge_dipole_x": 0.10865191146881284,
+    "edge_dipole_y": -0.06841046277665992
+   }
+  },
+  "aug06/set-02": {
+   "corner": {
+    "medians": {
+     "center": 42.6,
+     "TL": 22.1,
+     "TR": 22.7,
+     "BL": 22.0,
+     "BR": 24.3
+    },
+    "LR": 0.9382978723404256,
+    "TB": 0.9676025917926566,
+    "corner_ratio": 1.1045454545454545,
+    "brightest": "BR",
+    "darkest": "BL",
+    "corner_over_center": 0.5346244131455399,
+    "edge_dipole_x": 0.06366630076838636,
+    "edge_dipole_y": -0.03293084522502744
+   },
+   "edge": {
+    "medians": {
+     "center": 43.9,
+     "TL": 11.7,
+     "TR": 12.1,
+     "BL": 12.0,
+     "BR": 13.3
+    },
+    "LR": 0.9330708661417323,
+    "TB": 0.9407114624505928,
+    "corner_ratio": 1.136752136752137,
+    "brightest": "BR",
+    "darkest": "TL",
+    "corner_over_center": 0.27961275626423693,
+    "edge_dipole_x": 0.06924643584521382,
+    "edge_dipole_y": -0.061099796334012364
+   }
+  },
+  "aug06/set-03": {
+   "corner": {
+    "medians": {
+     "center": 40.7,
+     "TL": 22.0,
+     "TR": 21.0,
+     "BL": 21.8,
+     "BR": 22.6
+    },
+    "LR": 1.0045871559633026,
+    "TB": 0.9684684684684683,
+    "corner_ratio": 1.0761904761904764,
+    "brightest": "BR",
+    "darkest": "TR",
+    "corner_over_center": 0.5368550368550369,
+    "edge_dipole_x": -0.004576659038901504,
+    "edge_dipole_y": -0.03203661327231134
+   },
+   "edge": {
+    "medians": {
+     "center": 41.5,
+     "TL": 11.8,
+     "TR": 11.0,
+     "BL": 12.0,
+     "BR": 12.2
+    },
+    "LR": 1.0258620689655173,
+    "TB": 0.9421487603305786,
+    "corner_ratio": 1.1090909090909091,
+    "brightest": "BR",
+    "darkest": "TR",
+    "corner_over_center": 0.28313253012048195,
+    "edge_dipole_x": -0.025531914893617082,
+    "edge_dipole_y": -0.05957446808510632
+   }
+  },
+  "aug09/set-01": {
+   "corner": {
+    "medians": {
+     "center": 53.4,
+     "TL": 26.3,
+     "TR": 23.7,
+     "BL": 26.7,
+     "BR": 25.7
+    },
+    "LR": 1.0728744939271255,
+    "TB": 0.9541984732824428,
+    "corner_ratio": 1.1265822784810127,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.4794007490636705,
+    "edge_dipole_x": -0.07031250000000003,
+    "edge_dipole_y": -0.04687499999999997
+   },
+   "edge": {
+    "medians": {
+     "center": 48.8,
+     "TL": 14.2,
+     "TR": 12.2,
+     "BL": 14.5,
+     "BR": 13.7
+    },
+    "LR": 1.1081081081081081,
+    "TB": 0.9361702127659575,
+    "corner_ratio": 1.1885245901639345,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.2797131147540983,
+    "edge_dipole_x": -0.1025641025641026,
+    "edge_dipole_y": -0.06593406593406596
+   }
+  },
+  "aug09/set-02": {
+   "corner": {
+    "medians": {
+     "center": 53.1,
+     "TL": 26.9,
+     "TR": 22.8,
+     "BL": 27.6,
+     "BR": 24.8
+    },
+    "LR": 1.1449579831932772,
+    "TB": 0.9484732824427481,
+    "corner_ratio": 1.2105263157894737,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.48069679849340863,
+    "edge_dipole_x": -0.13516160626836432,
+    "edge_dipole_y": -0.05288932419196872
+   },
+   "edge": {
+    "medians": {
+     "center": 48.5,
+     "TL": 14.4,
+     "TR": 11.8,
+     "BL": 15.1,
+     "BR": 13.2
+    },
+    "LR": 1.18,
+    "TB": 0.9257950530035337,
+    "corner_ratio": 1.2796610169491525,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.2809278350515464,
+    "edge_dipole_x": -0.1651376146788991,
+    "edge_dipole_y": -0.07706422018348603
+   }
+  },
+  "aug09/set-03": {
+   "corner": {
+    "medians": {
+     "center": 54.4,
+     "TL": 29.2,
+     "TR": 22.4,
+     "BL": 29.5,
+     "BR": 24.4
+    },
+    "LR": 1.2542735042735045,
+    "TB": 0.9573283858998144,
+    "corner_ratio": 1.3169642857142858,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.48483455882352944,
+    "edge_dipole_x": -0.22559241706161148,
+    "edge_dipole_y": -0.04360189573459724
+   },
+   "edge": {
+    "medians": {
+     "center": 48.0,
+     "TL": 15.8,
+     "TR": 11.5,
+     "BL": 16.3,
+     "BR": 12.8
+    },
+    "LR": 1.3209876543209877,
+    "TB": 0.9381443298969072,
+    "corner_ratio": 1.4173913043478261,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.29375,
+    "edge_dipole_x": -0.2765957446808511,
+    "edge_dipole_y": -0.06382978723404258
+   }
+  },
+  "aug09/set-04": {
+   "corner": {
+    "medians": {
+     "center": 55.4,
+     "TL": 30.6,
+     "TR": 22.1,
+     "BL": 31.0,
+     "BR": 23.9
+    },
+    "LR": 1.3391304347826087,
+    "TB": 0.9599271402550091,
+    "corner_ratio": 1.4027149321266967,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.48555956678700357,
+    "edge_dipole_x": -0.28996282527881045,
+    "edge_dipole_y": -0.04089219330855011
+   },
+   "edge": {
+    "medians": {
+     "center": 49.1,
+     "TL": 16.7,
+     "TR": 11.2,
+     "BL": 17.3,
+     "BR": 12.4
+    },
+    "LR": 1.4406779661016949,
+    "TB": 0.9393939393939392,
+    "corner_ratio": 1.5446428571428572,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.29327902240325865,
+    "edge_dipole_x": -0.36111111111111105,
+    "edge_dipole_y": -0.06250000000000015
+   }
+  },
+  "aug09/set-05": {
+   "corner": {
+    "medians": {
+     "center": 56.0,
+     "TL": 31.6,
+     "TR": 22.2,
+     "BL": 32.6,
+     "BR": 24.3
+    },
+    "LR": 1.3806451612903226,
+    "TB": 0.9455184534270649,
+    "corner_ratio": 1.4684684684684686,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.4941964285714286,
+    "edge_dipole_x": -0.31978319783197834,
+    "edge_dipole_y": -0.056007226738934206
+   },
+   "edge": {
+    "medians": {
+     "center": 48.6,
+     "TL": 17.3,
+     "TR": 11.3,
+     "BL": 18.3,
+     "BR": 12.8
+    },
+    "LR": 1.4771784232365146,
+    "TB": 0.9196141479099679,
+    "corner_ratio": 1.6194690265486724,
+    "brightest": "BL",
+    "darkest": "TR",
+    "corner_over_center": 0.3070987654320988,
+    "edge_dipole_x": -0.38525963149078724,
+    "edge_dipole_y": -0.08375209380234505
+   }
+  }
+ }
+}

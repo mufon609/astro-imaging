@@ -299,16 +299,27 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   every citation; a number that cannot be traced to a measurement is the same class
   as the run-to-run floor that was "a subtraction of two numbers you happen to
   have".
-- **The odd-component instrument has no script.** The measurement that justified the
-  default exists only as numbers in an `experiments.jsonl` sentence, so it cannot be
-  re-run — and `build_sky_flat.sh`'s built-in gate is still corner-vs-centre, which
-  the registry entry written alongside it calls SELF-FULFILLING for exactly this
-  defect ("judge it on the FLAT's odd component, not the stack's corners"). Either
-  the odd term becomes a script whose every pixel op is a tool's (Siril `stat` on
-  quadrant crops gives it without in-house pixel maths), or the gate stops claiming
-  to check what it does not. The probe's own invocation is preserved: DSC_8647/8/9 →
-  `convert` → `calibrate -dark` → `load pp_c_00001` → `save before` → `subsky 1` →
-  `save after`.
+- ~~**The odd-component instrument has no script.**~~ **CLOSED** —
+  `scripts/qa/flat_odd_component.py`. Siril does every pixel op (load/crop/fdiv)
+  and every measurement (stat); it reports LR / TB / corner ratio / both edge
+  dipoles at the two geometries already in use, and `--ratio B [--control]` does
+  the flat-vs-flat division that cancels vignetting and the instrumental base
+  exactly (`fdiv` only — `idiv` clips at 1.0 silently; the two-scalar control is
+  built in). It REPORTS and gates nothing, per the note below.
+  **What it found, which changes what a fix may assume:** the LEFT-RIGHT odd
+  component is SKY (monotonic within all three nights, edge dipole sweeping
+  +0.436 → 0 → −0.385 across the corpus, impossible for a sensor-fixed term) —
+  but the TOP-BOTTOM term is **not** demonstrably instrumental either, since it
+  sits above 1 on july31 (drifting +6.7% through that night) and below 1 on
+  aug06/aug09. Neither axis isolates the instrument, and the
+  constant-within-a-night part stays unattributed between optics and static sky.
+  Numbers: `datasets/aug09/corpus_flat_odd_component.json`,
+  `datasets/aug09/experiments.jsonl`.
+  Still open from this bullet: `build_sky_flat.sh`'s built-in gate remains
+  corner-vs-centre, which the registry calls SELF-FULFILLING for this defect.
+  The builder does now record both edge dipoles alongside it, so the honest
+  statement is that the gate under-claims rather than lies — but it should stop
+  claiming to check what it does not.
 - **Which arm is CORRECT still rests on estimator arithmetic.** The 3.11%
   differential star-flux plane proves the two calibrations DIFFER; only the
   derivation says de-skied is right, and the Gaia check was structurally impossible
@@ -319,6 +330,18 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   where it landed.
 - **A with/without judgement pair on finals** — both flats exist for set-01/02, so
   this is stageable now. Unresolved-starlight preservation is the metric, the user's eyes decide.
+
+**ROUTES NOW CLOSED — do not re-derive them.** The DOMAIN-CORRECTED ITERATIVE
+SKY FLAT (calibrate the flat's source frames with `F0`, `seqsubsky` in that
+flat-fielded domain, restore the level, multiply back by `F0`, restack) is DEAD:
+it reconstructs whichever flat it is handed, because dividing by `F0` is what
+removes the gradient from the sky and multiplying back restores it. Measured
+NULL against positive controls that move the same code 81.7% (fixture) and 93.4%
+(real data) where the scheme moves it 1.7% / 1.2% (`docs/dead-ends.md`;
+`ITERATIVE_FLAT_VERDICT.md`). It repaired `--desky`'s domain error and still
+could not work, so "run the operator in the right domain" is exhausted as an
+angle. No builder flag was added and no removal-conditions row created — there
+is no divergence to retire.
 
 Related and open: **SPCC order-robustness is UNTESTED, not verified.** Inserting the
 background step ahead of SPCC moved K_G −1.20%/−1.48% and K_B −0.47%/−0.80% on

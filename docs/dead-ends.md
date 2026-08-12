@@ -179,6 +179,39 @@ the constraints any such tool must satisfy):
   flat's SOURCE FRAMES is the fix.** That was tried (`--desky`, 2026-07-29) and
   was a 31x regression — see the next entry. No corrective is currently shipped;
   the object tilt is a known, open defect.
+  **THE ODD COMPONENT IS NOW DECOMPOSED, AND THE OBVIOUS AXIS SPLIT IS WRONG.**
+  Instrument (`scripts/qa/flat_odd_component.py` — the script
+  `BACKLOG:calibration-evidence` recorded as MISSING): Siril `fdiv` ratios of
+  flats built by the same builder from the same night/lens/focal/aperture, which
+  cancels vignetting and the instrumental base EXACTLY with no model and no fit,
+  plus Siril `stat` regional medians. NEVER `idiv`; two scalars agreeing after
+  rescale is the no-clip control (measured identical at 0.5 and 0.25).
+  *The left-right term is SKY, decisively.* It rises monotonically WITHIN all
+  three nights (july31 L/R 0.634 -> 0.789, aug06 0.895 -> 1.005, aug09
+  1.073 -> 1.381) — focus is untouched inside a night, so a within-night change
+  on fixed optics can only be sky — and its edge dipole sweeps continuously
+  across the corpus from **+0.436 (july31/set-01) through zero (aug06/set-03,
+  -0.0255) to -0.385 (aug09/set-05)**, which a sensor-fixed term cannot do on one
+  body, lens and focal. Within aug09 the dose composes multiplicatively to 0.08%
+  (four consecutive increments multiply to 1.2944 against a directly measured
+  1.2955).
+  *But the top-bottom term is NOT demonstrably the instrument, and assuming it is
+  would be a design error.* T/B cancels to 1.000 in every aug09 ratio
+  (0.984-1.008), which invites exactly that reading. Across the corpus it fails:
+  july31 runs **1.139 -> 1.216**, above 1 and drifting +6.7% monotonically
+  through that night, while aug06 and aug09 sit BELOW 1 (0.968, 0.946-0.960). So
+  T/B flips sides between nights and drifts within one — it carries sky too, and
+  **neither axis isolates the instrument.**
+  SCOPE, and it is the load-bearing caveat: a ratio cancels what is COMMON, so it
+  measures the CHANGE in sky, not the total. A static sky term cancels into the
+  constant part. The within-night-constant term therefore stays UNATTRIBUTED
+  between optics and static sky, and per-session focus recalibration (standing
+  practice) is a live alternative explanation for a per-session-constant term.
+  Do not design a corrective that preserves the T-B term on the grounds that it
+  is optics — that is not established. Numbers:
+  `datasets/aug09/flat_ratio_decomposition.json`,
+  `datasets/aug09/corpus_flat_odd_component.json`,
+  `datasets/aug09/experiments.jsonl`.
 
 - **DEAD END — `--desky`: running `seqsubsky` on the sky flat's RAW source
   frames. Shipped, then reverted: a 31x regression in background flatness.**
@@ -243,6 +276,94 @@ the constraints any such tool must satisfy):
   (2) is restored UNCOUPLED as `--subsky-lights` (run_undistort_pipeline.sh;
   default OFF). Do not re-couple the halves, and do not cite this entry
   against the lights-side step.
+
+- **DEAD END — THE DOMAIN-CORRECTED ITERATIVE SKY FLAT (calibrate the flat's own
+  source frames WITH `F0`, run `seqsubsky` in that flat-fielded domain, restore
+  each frame's sky level, multiply back by `F0`, restack). It is a NO-OP: the
+  iteration RECONSTRUCTS WHICHEVER FLAT IT IS HANDED, so handing it `F0` returns
+  `F0`.** Proposed as the fix for the `sky x V` object tilt that `--desky` failed
+  to fix, and it does genuinely repair `--desky`'s domain error — `seqsubsky`
+  runs on flat-fielded data, which is where the operator is defined. It still
+  cannot work, for a structural reason no parameter reaches.
+  **MECHANISM, exact.** Dividing by `F0` is WHAT REMOVES the gradient from the
+  sky — that is what a flat does — so in the flat-fielded domain the sky is
+  already flat, the degree-1 plane is a CONSTANT, and `imul F0` restores
+  precisely what the division took out. With `P_t` the fitted plane and `m_t` the
+  frame's pre-`subsky` median, the five steps compose to
+  `F1 = k*F0 - <P_t - m_t>*F0`, and the correction term is zero TWICE OVER:
+  `P_t - m_t = 0` because the sky in that domain is flat, and `<P_t - m_t> = 0`
+  over the set because `F0` IS the time-average the per-frame deviations are
+  measured against. **`F1 = k*F0`.** A second pass cannot help — the fixed point
+  is reached on the first.
+  **MEASURED, one knob throughout (the round-trip flat), with POSITIVE CONTROLS
+  that make the null a measurement rather than a check that cannot fail.**
+  *Synthetic fixture, truth known* — frames `(sky x (1+g) + moving stars) x V`,
+  `V` even-radial so its L/R is 1.0000 by construction; `F0` bakes the gradient
+  in at L/R 1.2378. The scheme returns **1.2338 (1.7% of the defect removed)**;
+  the same code with the round-trip flat set to the true `V` returns **1.0436
+  (81.7% removed)**. The intermediates show why: in the scheme's arm `seqsubsky`
+  moves the frame median by **0.0 ADU** (46.3 -> 46.3) because there is nothing
+  to remove, against -0.9 ADU in the control.
+  *Real data, live path* (aug09/set-05, 100 frames, control `F0_100` built from
+  the SAME frames, L/R 1.3939): the scheme returns **1.3891 (1.2% removed)** and
+  `F1/F0` is flat to 0.33% in L/R and 0.04% in T/B. Handed a DIFFERENT set's flat
+  instead (set-01, L/R 1.0729) the same code on the same set-05 frames returns
+  **1.0940** — set-01's value, closing 93.4% of the distance — and its edge
+  dipole comes back at -0.1154 against set-01's -0.1026, not set-05's -0.3920.
+  **The output is a function of the flat handed in, not of the frames' own sky
+  dose.** Discrimination 62x (L/R moved 0.2999 against 0.0048).
+  *Downstream*: the same lights calibrated with `F0` vs `F1` differ by <0.1 ADU
+  on a 49 ADU sky (`isub`, both directions), against 0.2 ADU for a
+  deliberately-broken guard arm whose own arithmetic checks out (its calibrated
+  light reads L/R 1.29919 = exactly 1.3939/1.0729, the two flats' dose ratio).
+  **WHAT THIS DOES NOT KILL.** The `sky x V` defect itself is untouched and still
+  uncorrected. Per-frame degree-1 `subsky` on the CALIBRATED LIGHTS
+  (`--subsky-lights`) is a different step in a different place and this entry
+  must not be cited against it. Numbers: `datasets/aug09/experiments.jsonl`,
+  `ITERATIVE_FLAT_VERDICT.md`.
+
+- **SIRIL `offset` CLIPS AT ZERO IN 32-BIT FLOAT — its own help says it does not
+  — and `stat` EXCLUDES zero pixels, so the two COMPOUND into a corruption that
+  reads back as clean numbers.** `help offset` states *"In 32-bit mode, no
+  clipping occurs"*. MEASURED by writing a uniform 300 ADU card, applying
+  `offset -500`, and reading the SAVED FILE with an independent reader: it
+  contains **all zeros**, not -200. Separately, a card that is half 0 and half
+  400 ADU statts as **Mean 400.0, Median 400.0, Sigma 0.0, Min 0.0** where the
+  truth is 200/200/200 — zeros are dropped from every estimator while `Min`
+  still shows 0.0, and an all-zero region reports *"Statistics computation
+  failed for channel N (all nil?)"*.
+  **Why this bites here specifically:** a pedestal-free dark-subtracted sky sits
+  ~1.5 sigma above zero, so every real light has a negative minority by
+  construction (0.24% measured on aug09 lights, far more after flat division).
+  An `offset` anywhere in a chain silently zeroes it and `stat` then reports the
+  survivors as healthy. This corrupted a whole real-data run of the
+  iterative-flat experiment — a -56443 ADU `offset` drove a flat's corners to
+  zero, which read back as "all nil" — and it was caught only by reading saved
+  pixels with a non-siril reader.
+  **The clip-free equivalents, all probed:** `isub` of a constant card preserves
+  negatives exactly (300 - 500 = -200.0), `imul` and `fmul` do not clip in either
+  direction (`fmul` reached 90000, i.e. >65535 survives in 32-bit). To subtract a
+  large constant from signed data, use `isub`, never `offset`; if an `offset` is
+  unavoidable, order it so the operand is POSITIVE. Two further behaviours from
+  the same probe: **`stack` writes no negative values** (frames 99.99% negative
+  produced a 100%-zero stack), and **`subsky` leaves a constant pedestal rather
+  than zeroing the level** (a 500->800 ADU ramp comes back uniform at 627.00).
+  **Corollary for verification:** siril's own `stat` cannot be used to check
+  whether a siril operation damaged an image, because the damage is invisible to
+  it. Read the saved pixels with an independent reader.
+
+- **`seqsubsky` REFUSES A FRAME CARRYING NEGATIVE PIXELS** — *"Failed to generate
+  background samples for image 0: removing the gradient on negative images is
+  not supported"*. Pedestal-free dark-subtracted lights always carry them and
+  flat division amplifies them (calibrated aug09/set-05 frames measure a minimum
+  of **-2635 ADU**, from division by the flat's near-zero pixels), so any
+  background operator run on flat-fielded pedestal-free data needs a constant
+  pedestal added first. The pedestal **cancels exactly** out of the operator —
+  the plane fitted to `C+P` is `(plane of C)+P`, so `subsky` returns
+  `C - P_t + c_t` either way — and costs nothing numerically (a 30% gradient
+  still resolves to ~2250 float32 levels at a 56k pedestal). Verify positivity
+  with a guard that can fail, and remove the pedestal with `isub`, not `offset`
+  (entry above).
 
 - **PER-FRAME DEGREE-1 SUBSKY ON CALIBRATED LIGHTS DOES NOT REMOVE THE
   COMBINE'S FULL-COVERAGE-CORNER TERM — the term is not additive-planar
