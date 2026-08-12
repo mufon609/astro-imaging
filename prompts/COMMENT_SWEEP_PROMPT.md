@@ -224,6 +224,13 @@ strings in tracked `datasets/**/*.json` records.
 - **This file and `COMMENT_HYGIENE.md`** — both quote the bad shapes verbatim
   in order to teach them, so every detector hits its own examples here. Expected,
   not clutter.
+- **The root session reports** (`ITERATIVE_FLAT_VERDICT.md`,
+  `ROUTE_KEY_GENERALITY.md`, `TIER_B_HARDENING.md`, `REBUILD_VERIFICATION.md`
+  and their successors) — transcripts of one completed session, stating what was
+  true at the measurement. Their detector hits are real (six `file:NNN` cites in
+  `ROUTE_KEY_GENERALITY.md` alone, pointing at sites that session then removed)
+  and revising them would rewrite a record rather than a contract. Category 1
+  still applies where a report is CITED by live prose as current guidance.
 - Anything under `.git/`, and gitignored derived data.
 
 ## Acceptance shape for a run

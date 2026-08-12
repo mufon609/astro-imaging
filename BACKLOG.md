@@ -324,10 +324,13 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   differential star-flux plane proves the two calibrations DIFFER; only the
   derivation says de-skied is right, and the Gaia check was structurally impossible
   (trailed stars at 17″/px). **The test that needs no catalogue:** within one set the
-  drift carries every star ~1500 px across the sensor, so stack the FIRST third and
-  the LAST third separately, match the same stars between them, and fit measured flux
-  against sensor position. The correct calibration makes a star's flux independent of
-  where it landed.
+  drift carries every star **503–1220 px** across the sensor (sky excursion
+  2.37–5.75° at the stacks' 16.98″/px; the earlier ~1500 px figure was high), so
+  measure the same stars in consecutive time blocks and fit measured flux against
+  sensor position. The correct calibration makes a star's flux independent of where
+  it landed. The blocks already exist: the groups route's 52 sub-stacks are
+  consecutive-time blocks, each independently solved, so the measurement needs no
+  rebuild — brief in `prompts/OBJECT_TILT_MEASUREMENT_PROMPT.md`.
 - **A with/without judgement pair on finals** — both flats exist for set-01/02, so
   this is stageable now. Unresolved-starlight preservation is the metric, the user's eyes decide.
 

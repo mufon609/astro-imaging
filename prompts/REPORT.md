@@ -7,7 +7,18 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-None — the queue below needs prompts written.
+- **[`OBJECT_TILT_MEASUREMENT_PROMPT.md`](OBJECT_TILT_MEASUREMENT_PROMPT.md)** —
+  measure the `sky × V` object tilt catalogue-free, and retire the untracked
+  3.11%/241σ figure. Runs on the 52 already-solved groups sub-stacks (4–5
+  consecutive-time blocks per set, scale 17.008–17.028″/px), so no rebuild:
+  match the same stars across blocks by each product's own WCS and fit flux
+  against sensor position. Three required controls — interleaved halves for the
+  floor (predicted tilt zero: mean sensor positions differ ~2 px against a
+  ~774 px baseline), a planted ramp for discrimination, and the 12-set corpus
+  prediction that the tilt tracks the flats' L/R dose **through a sign change**,
+  with aug06/set-03 (dipole −0.0255) as the built-in null. Decision rule per the
+  owner's ratification: small → route floor; significant → the fix's foundation,
+  its own brief; too noisy → report the floor with numbers.
 
 `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it does
 not retire, and it is run on demand rather than scheduled here.
@@ -152,3 +163,28 @@ the `CLAUDE.md` rule revision, `COMMENT_HYGIENE_PROMPT.md` retired. No sweep was
 run — that is the standing prompt's job, on the owner's schedule.
 
 **Full transcript: [`../COMMENT_HYGIENE.md`](../COMMENT_HYGIENE.md).**
+
+## The standing sweep's first run — AUDITED PASS
+
+`bd1c675`, audited by re-execution rather than on the report's assertion.
+
+- **Category 1 (drift) CONFIRMED live.** `check_bitdepth.sh` names four
+  exemptions and prints "the 4 documented instrument exemptions"; `README.md`
+  said three and `BACKLOG.md`'s register row said three while omitting
+  `run_lunar_pipeline.sh` entirely — prose contradicting the guard that enforces
+  it. Both corrected, and the guard still exits 0. This is the finding that
+  justifies the run.
+- **Category 6 CONFIRMED.** `grep -cE '^## \`?[0-9]' BACKLOG.md` returns **0**,
+  so all 30 numbered refs did point at nothing. Three survive tree-wide, all of
+  them the taxonomy's own teaching examples in `COMMENT_HYGIENE.md` and the
+  sweep prompt — sanctioned, not misses.
+- **Category 7**: the surviving `file:NNN` cites are six in
+  `ROUTE_KEY_GENERALITY.md`, a session transcript rather than a live contract.
+- **Regression check**: all five guards and all three selftests PASS after the
+  edits, and `run_session_chain.sh sessions/aug09 --plan` walks five sets clean.
+
+**One gap found in the standing prompt, fixed here.** Its `Scope` named the root
+session reports neither IN nor OUT while its own detectors return live hits
+there. They are now explicitly OUT as transcripts, with category 1 still
+applying where a report is cited as current guidance — the sweep is non-retiring,
+so an ambiguity in it recurs every run.
