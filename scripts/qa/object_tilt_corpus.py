@@ -154,6 +154,8 @@ def main(argv):
                 "and the confounder below is driven by the same thing.",
             ],
             "measurement_status": "NOT A MEASUREMENT AT THE PER-SET LEVEL",
+            "measured_floor_frac": 0.4908,
+            "measured_floor_record": "datasets/aug09/set-01/tilt_work/object_tilt_null.json",
             "why": [
                 "GEOMETRY. A linear sensor-fixed mode is EXACTLY degenerate with "
                 "the per-star and per-block nuisance terms under a pure "
@@ -175,6 +177,13 @@ def main(argv):
                 "INTERNAL FALSIFICATION: one sensor-fixed field must give one "
                 "answer from every block pair. The median within-set pair spread "
                 "is 529 percentage points.",
+                "THE MEASURED FLOOR IS 49 PERCENTAGE POINTS. aug09/set-01 rebuilt "
+                "as interleaved halves (249 even frames against 249 odd) has a "
+                "predicted tilt of EXACTLY ZERO — both products average a star "
+                "over the same sensor positions — and reads +49.08 +- 4.97% at "
+                "r=10 px and +50.82 +- 5.65% at r=16 px over 3086 stars, i.e. "
+                "11.8 sigma on a quantity that is zero by construction "
+                "(datasets/aug09/set-01/tilt_work/object_tilt_null.json).",
             ],
             "confounder_that_blocks_attribution_even_at_perfect_leverage": (
                 "For a FIXED camera every sensor position maps to a FIXED "

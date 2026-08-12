@@ -1,6 +1,6 @@
 {
  "instrument": "scripts/qa/object_tilt.py (Siril findstar + Siril psf aperture photometry, radius 10 px, annulus 20-30 px), aggregated by scripts/qa/object_tilt_corpus.py",
- "uptime": "13:01:45 up 37 days, 21:12,  2 users,  load average: 1.93, 7.18, 6.23",
+ "uptime": "13:20:16 up 37 days, 21:30,  2 users,  load average: 1.93, 7.46, 6.75",
  "prediction_record": "datasets/aug09/tilt_corpus_prediction.json",
  "aperture_radius_px": 10.0,
  "n_sets": 12,
@@ -412,11 +412,14 @@
    "P4's rho = +0.68 (p = 0.015) is a real positive ordering, but it cannot be read as confirmation while the magnitudes miss by 1.4-86x: the flat's own L/R sweeps because the NIGHT'S SKY STATE sweeps, and the confounder below is driven by the same thing."
   ],
   "measurement_status": "NOT A MEASUREMENT AT THE PER-SET LEVEL",
+  "measured_floor_frac": 0.4908,
+  "measured_floor_record": "datasets/aug09/set-01/tilt_work/object_tilt_null.json",
   "why": [
    "GEOMETRY. A linear sensor-fixed mode is EXACTLY degenerate with the per-star and per-block nuisance terms under a pure translation, so the ~780 px drift carries no information about it. The only lever is the field rotation (1-3.4 deg per set), which leaves a median effective lever of 29.1 px \u2014 0.5% of the frame width, i.e. a ~200x extrapolation.",
    "A TIME-VARYING SENSOR-FIXED GRADIENT EXISTS AND IS MEASURED: letting each block carry its own gradient gives a within-set drift with median 0.149 mag across the frame, MONOTONE in block order in 10 of 12 sets. A gradient drift `delta` enters a shared-gradient fit at about `delta/theta`, and every set's leak capacity (0.74-13.45 mag) exceeds its own measured shared gradient.",
    "The instrument is NOT at fault: the planted-ramp control recovers a Siril-applied 22.2% sensor-fixed ramp at 1.24x overall and 0.95x on the best-levered block pair, and a uniform card moves every number by exactly 0.00.",
-   "INTERNAL FALSIFICATION: one sensor-fixed field must give one answer from every block pair. The median within-set pair spread is 529 percentage points."
+   "INTERNAL FALSIFICATION: one sensor-fixed field must give one answer from every block pair. The median within-set pair spread is 529 percentage points.",
+   "THE MEASURED FLOOR IS 49 PERCENTAGE POINTS. aug09/set-01 rebuilt as interleaved halves (249 even frames against 249 odd) has a predicted tilt of EXACTLY ZERO \u2014 both products average a star over the same sensor positions \u2014 and reads +49.08 +- 4.97% at r=10 px and +50.82 +- 5.65% at r=16 px over 3086 stars, i.e. 11.8 sigma on a quantity that is zero by construction (datasets/aug09/set-01/tilt_work/object_tilt_null.json)."
   ],
   "confounder_that_blocks_attribution_even_at_perfect_leverage": "For a FIXED camera every sensor position maps to a FIXED altitude, so atmospheric extinction and the skyglow gradient across this 27-degree field are sensor-fixed TOO \u2014 and both are functions of airmass, i.e. nearly the same spatial shape as the sky gradient the flat baked in. A star-photometry fit in the sensor frame sees their SUM and cannot apportion it without an external anchor (a catalogue, structurally impossible here at 17\"/px on trailed stars, or a real flat, which is the fix itself). This is a separate blocker from the leverage one and survives any improvement to it."
  }

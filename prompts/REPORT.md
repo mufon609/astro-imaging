@@ -78,7 +78,10 @@ structurally impossible at 17″/px on trailed stars, a real flat IS the fix).
 
 **The instrument is sound and the controls prove it**: a Siril `imul` ramp of
 edge ratio 1.2222 recovers at **1.24×** (0.95× on the best-levered block pair)
-and a uniform card moves every number by **exactly 0.00**. `--selftest`
+and a uniform card moves every number by **exactly 0.00**. **The floor is 49
+percentage points** — aug09/set-01 rebuilt as interleaved halves has a predicted
+tilt of exactly zero and measures **+49.08 ± 4.97% (r = 10 px) / +50.82 ± 5.65%
+(r = 16 px), 3086 stars, 11.8σ**. `--selftest`
 falsifies the mechanism in process — a pure-translation panel returns a planted
 +0.100 mag as **−0.046 ± 0.0001** with the lever at 0.00 px, so a degenerate fit
 reads confidently WRONG; read the lever, never the sigma.

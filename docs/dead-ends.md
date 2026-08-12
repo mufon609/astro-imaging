@@ -266,6 +266,21 @@ the constraints any such tool must satisfy):
   every number by **exactly 0.00**. Recovery tracks the lever: the same set's
   pairs recover 0.14x-5.2x as their rotation runs 0.66-2.37 deg.
 
+  **THE NULL CONTROL IS THE SHARPEST NUMBER HERE — THE FLOOR IS 49 PERCENTAGE
+  POINTS.** aug09/set-01 was rebuilt as interleaved halves (249 even frames
+  against 249 odd, same undistort chain, each solved). The halves span the same
+  drift, so every star's flux is the average of the SAME sensor positions in both
+  and the predicted tilt is EXACTLY ZERO. Measured **+49.08 ± 4.97% at r = 10 px
+  and +50.82 ± 5.65% at r = 16 px**, 3086 stars, residual 0.0085 mag, chi2/dof
+  3.74 — an **11.8-sigma reading of a quantity that is zero by construction**, and
+  the aperture agreement rules out a PSF-fit artefact. It is not a degenerate
+  configuration either: Siril picked a different reference frame for each half, so
+  the two canvases sit **2.37 deg and 103 px apart** and the lever is 27.9 px,
+  comparable to the live runs. Ten of the 12 corpus sets read above this floor and
+  two below it, which is the point — the floor is the same size as the measurement.
+  Record: `datasets/aug09/set-01/tilt_work/object_tilt_null.json`; reproducer:
+  `scripts/qa/object_tilt_null.sh`.
+
   **THE INTERNAL FALSIFICATION THAT KILLS THE PER-SET NUMBER.** One sensor-fixed
   field must give ONE answer from every pair of blocks. Median within-set pair
   spread across the corpus: **529 percentage points** (aug09/set-01: +57, -20,

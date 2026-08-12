@@ -1,0 +1,213 @@
+{
+ "night": "aug09",
+ "set": "tiltnull_set-01",
+ "groups_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/tiltnull_set-01",
+ "work_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/tiltnull_set-01/tilt_work",
+ "uptime": "13:17:12 up 37 days, 21:27,  2 users,  load average: 21.34, 13.05, 8.04",
+ "tool_search": {
+  "siril psf + setphot": "ADOPTED \u2014 aperture photometry at a forced radius (-dyn_ratio outside [1.0,5.0]) against its own local annulus, headless, on the 3-layer float cube, ~2.4 ms/star.",
+  "siril seqpsf -wcs=": "REFUSED THE JOB \u2014 converts the sky coordinate to pixels ONCE and measures that same pixel area in every image. Measured on one real star across aug09/set-01's four blocks: m = -2.104 in the reference block against +3.55 / +5.05 / +3.63. -followstar needs registration data and does not repair it (+3.55 / +3.87 / +2.86).",
+  "siril light_curve": "WRONG AXIS \u2014 differential photometry of one target against averaged comparison stars, over time, not over position.",
+  "siril findstar `mag`": "REJECTED \u2014 it is the Gaussian-fit magnitude, which moves with the PSF, and the PSF varies across this field. That is the signal under test.",
+  "source-extractor 2.28.2 (/usr/bin, SExtractor)": "AVAILABLE, VIABLE, NOT ADOPTED \u2014 runs on these sub-stacks (47,971 objects in 3.1 s, FLUX_APER at two radii, BACKPHOTO_TYPE LOCAL, ALPHA/DELTA_J2000). It reads plane 1 of the cube, not the green layer the rest of the chain uses, and it is another per-image photometer \u2014 it does not close the cross-image gap. Needs a default.conv in CWD or it aborts.",
+  "SCAMP (astromatic)": "NOT PACKAGED on this distro \u2014 apt-cache policy scamp has no candidate (source-extractor and swarp do). It is the removal condition for this script. Note its photometric solution is per-exposure zero points against overlaps, i.e. the nuisance term here, not the focal-plane field.",
+  "conclusion": "no installed tool cross-matches a star across a drifting sequence headless, so the cross-match and the fit are the in-house part."
+ },
+ "instrument": "Siril 1.4.4 findstar (detection + position + RA/Dec through each sub-stack's own astrometry.net solve) + Siril psf (aperture photometry, forced radius, local background annulus via setphot); in-house: sky cross-match + weighted LS fit of magnitude against sensor position with per-star and per-block nuisance terms",
+ "n_blocks": 2,
+ "blocks": [
+  {
+   "file": "sub_01.fit",
+   "naxis": [
+    4891,
+    3700
+   ],
+   "stackcnt": 249,
+   "livetime": 622.5
+  },
+  {
+   "file": "sub_02.fit",
+   "naxis": [
+    4895,
+    3689
+   ],
+   "stackcnt": 249,
+   "livetime": 622.5
+  }
+ ],
+ "frame_norm": {
+  "width_px": 4893.0,
+  "height_px": 3694.5
+ },
+ "detection": {
+  "roundness_floor": 0.05,
+  "layer": 1,
+  "per_block_found": [
+   20811,
+   21019
+  ],
+  "match_tol_arcsec": 34.0,
+  "match_stats": [
+   {
+    "within_tol": 19058,
+    "unique": 19057
+   }
+  ],
+  "matched_all_blocks": 19057,
+  "amplitude_floor": 0.005,
+  "faintest_admitted_amplitude": 0.005,
+  "edge_margin_px": 40,
+  "common_population": 3409
+ },
+ "geometry": {
+  "vs_block_0": [
+   {
+    "block": 1,
+    "rotation_deg": -2.368134009370318,
+    "scale": 1.0001634202365288,
+    "dx_mean_px": -102.87933516224203,
+    "dx_spread_px": 157.76043323869862,
+    "dy_mean_px": -85.75245286587055,
+    "dy_spread_px": 214.52362156573028
+   }
+  ],
+  "note": "dx_spread is the lever: a pure translation (spread 0) makes the linear tilt formally unidentifiable"
+ },
+ "apertures": {
+  "10": {
+   "ax": -0.43353288911044885,
+   "ay": -0.9912111878665705,
+   "ax_err": 0.036808044977678304,
+   "ay_err": 0.02185066525119251,
+   "ax_err_formal": 0.019030471552256525,
+   "ay_err_formal": 0.01129721678271346,
+   "n_stars": 3086,
+   "n_obs": 6172,
+   "dof": 3083,
+   "n_stars_clipped": 278,
+   "clip_sigma": 4.0,
+   "chi2_per_dof": 3.7409887523847716,
+   "resid_rms_mag": 0.008495506067905341,
+   "zero_points": [
+    0.0,
+    0.03271411607805356
+   ],
+   "lever_frac_x": 0.005693234883166752,
+   "lever_frac_y": 0.00959034961859966,
+   "design_condition_number": 120.72567500025181,
+   "aperture_radius_px": 10,
+   "annulus_px": [
+    20,
+    30
+   ],
+   "background": "Siril psf local annulus (setphot -inner/-outer)",
+   "tilt_frac_x": 0.49077861983374915,
+   "tilt_frac_x_err": 0.04969249181572577,
+   "tilt_frac_y": 1.4916353004374163,
+   "tilt_frac_y_err": 0.04964345681143412,
+   "sigma_x": 11.778210154148596,
+   "valid_fraction": 0.99222645937225,
+   "lever_px_x": 27.856998283334917,
+   "lever_px_y": 35.43154666591645,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 0.49077861983374915,
+     "tilt_frac_x_err": 0.04969249181572577,
+     "lever_px_x": 27.856998283334917,
+     "n_stars": 3086,
+     "rotation_deg": -2.368134009370318
+    }
+   ],
+   "per_block_gradient": {
+    "delta_ax_by_block_mag": [
+     0.0,
+     -0.19905459443094964
+    ],
+    "delta_ay_by_block_mag": [
+     0.0,
+     -0.09861817134848172
+    ],
+    "delta_ax_spread_mag": 0.19905459443094964,
+    "delta_ax_spread_frac": -0.167511654588695,
+    "monotone_in_block_order": true,
+    "chi2_shared": 364631.41828506533,
+    "chi2_free": 362785.76358965633,
+    "n_stars": 3364
+   },
+   "drift_amplification": 24.19448362566152,
+   "drift_leaked_as_shared_mag": 4.816023125572306
+  },
+  "16": {
+   "ax": -0.4461603630501261,
+   "ay": -0.9658817736121846,
+   "ax_err": 0.041463847337558105,
+   "ay_err": 0.025005111065627045,
+   "ax_err_formal": 0.02134918573504074,
+   "ay_err_formal": 0.012874800452534012,
+   "n_stars": 3006,
+   "n_obs": 6012,
+   "dof": 3003,
+   "n_stars_clipped": 358,
+   "clip_sigma": 4.0,
+   "chi2_per_dof": 3.7720423719796563,
+   "resid_rms_mag": 0.009424456155572873,
+   "zero_points": [
+    0.0,
+    0.03197814752738396
+   ],
+   "lever_frac_x": 0.006107461141381304,
+   "lever_frac_y": 0.01012742022046178,
+   "design_condition_number": 120.83195607060723,
+   "aperture_radius_px": 16,
+   "annulus_px": [
+    20,
+    30
+   ],
+   "background": "Siril psf local annulus (setphot -inner/-outer)",
+   "tilt_frac_x": 0.5082180889030561,
+   "tilt_frac_x_err": 0.05651230790086914,
+   "tilt_frac_y": 1.4341801101047955,
+   "tilt_frac_y_err": 0.055419901957828976,
+   "sigma_x": 10.760225876241648,
+   "valid_fraction": 0.99222645937225,
+   "lever_px_x": 29.883807364778722,
+   "lever_px_y": 37.41575400449605,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 0.5082180889030561,
+     "tilt_frac_x_err": 0.05651230790086914,
+     "lever_px_x": 29.883807364778722,
+     "n_stars": 3006,
+     "rotation_deg": -2.368134009370318
+    }
+   ],
+   "per_block_gradient": {
+    "delta_ax_by_block_mag": [
+     0.0,
+     -0.13659155436478
+    ],
+    "delta_ay_by_block_mag": [
+     0.0,
+     -0.08533959419550019
+    ],
+    "delta_ax_spread_mag": 0.13659155436478,
+    "delta_ax_spread_frac": -0.11821363667177032,
+    "monotone_in_block_order": true,
+    "chi2_shared": 289202.1027299916,
+    "chi2_free": 288369.618196449,
+    "n_stars": 3364
+   },
+   "drift_amplification": 24.19448362566152,
+   "drift_leaked_as_shared_mag": 3.3047621254823247
+  }
+ },
+ "label": "interleaved-halves NULL, predicted tilt zero"
+}
