@@ -9,7 +9,6 @@ block is the priority.
 
 | prompt | items | acceptance shape |
 |---|---|---|
-| `TIER_B_HARDENING_PROMPT.md` | pin `-transf=`/`-interp=` in every generated `.ssf` + guard; wire `verify_lens_card.py` into the preflight; the aircraft-keep retest; the blind-solve sanity gate | every guard proven by BREAKING it once; the pin proven no-behavior-change by an all-nil recompose; the retest judged on-track with its route stated; the solve gate must refuse the recorded RA 6/−65 false solve and fire zero times on this rebuild's ~60 healthy solves |
 | `ROUTING_GENERALITY_PROMPT.md` | single-source the route key on measured `drift_px` (six `fov >= 10` sites today); the two refusals name their class | one grep-clean source; all 12 existing sets route IDENTICALLY via `--plan`; a 200 mm fixture routes instead of exiting 5; fire test shows all consumers move together |
 | `COMMENT_HYGIENE_PROMPT.md` | mine git history for the comment-removal taxonomy; emit the standing `COMMENT_SWEEP_PROMPT.md`; audit the policy text | categories derived with counts + verbatim examples; sweep prompt carries detectors + the revise-never-drop safety rule; policy left short, single-homed, uncontradictory |
 
@@ -18,8 +17,8 @@ block is the priority.
 - **`cross-set-record-home`** — night/corpus SPCC records and baselines file
   under a borrowed member set (bitten twice this rebuild). Multi-set products
   write session-level records; combine products get a baseline home.
-- **Guards runner** (`guards-and-ci`) — one command executes the four guards +
-  four selftests; RED on a deliberately broken mechanism; named in README as
+- **Guards runner** (`guards-and-ci`) — one command executes the five guards +
+  their selftests (`check_registration_pins.sh` joined the family); RED on a deliberately broken mechanism; named in README as
   the pre-release step. (The unexecutable-guard half is already fixed.)
 - **`frame-qa-order-dependent-scale`** — every `fwhm_arcsec` rides a ~5.6%
   scale artifact; re-derive against the stack-solve family (16.98–17.08″/px)
@@ -72,3 +71,9 @@ Tier A: set-00 skipped by the session chain, per-set compose reference pinned
 (verified bit-identical), astrometric caveat on separation records, bare
 `--selftest` refuses instead of masquerading as help · `fa40ef1`/`28b91cf`
 the prompt briefs.
+
+## Landed during the Tier-B hardening session
+
+`8d370dd` `-transf=`/`-interp=` pinned at all 20 emissions + `check_registration_pins.sh` (per COMMAND, `--selftest`), proven no-behaviour-change by an all-nil recompose · `3072fd0` `verify_lens_card.py` wired into `lens_preflight --require-profile` unconditionally (11.1 s), fire-tested — and `install_lens_model.sh`'s idempotence test fixed, since it reported "already installed" on a DB whose vignetting was back · `4d70455` the solve refuses a solution contradicting its own hints (exit 9), `--central` corrected to fraction-of-frame at three sites; falsification fires, 0/69 false · `e7cb2be` the aircraft rejection CONFIRMED via Siril `-rejmaps` (the product-level A/B the item specified is under-powered by the group+compose dilution — recorded in `docs/dead-ends.md`) · `7d4946e` `TIER_B_HARDENING.md` + prompt retired.
+
+**Full transcripts: [`../TIER_B_HARDENING.md`](../TIER_B_HARDENING.md).**
