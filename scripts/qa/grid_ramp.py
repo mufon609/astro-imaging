@@ -98,12 +98,13 @@ import numpy as np
 from astropy.io import fits
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "lib"))
 import siril_run
-
-STAT = re.compile(r"Mean: ([0-9.eE+-]+), Median: ([0-9.eE+-]+), "
-                  r"Sigma: ([0-9.eEn+-]*[0-9n]), Min: ([0-9.eE+-]+), "
-                  r"Max: ([0-9.eE+-]+)")
+# ONE definition of how a Siril `stat` line is read, imported rather than copied.
+# The copy this replaced could not parse `Sigma: -nan` (a zero-variance crop), and
+# a second copy is exactly how one instrument keeps a defect the other has fixed.
+from flat_odd_component import STAT
 
 
 def _run(wdir, lines, tag, expect=None):

@@ -681,6 +681,29 @@ the constraints any such tool must satisfy):
   computes translation only, so every disk and framing figure derived from
   `drift_px` under-counts.
 
+- **A BARE md5 OF FITS PIXEL DATA IS ONLY COMPARABLE WITHIN ONE BYTE-ORDER
+  CONVENTION — quote a pixel-difference COUNT, never a digest, when the question
+  is "did this product change?"** FITS stores pixels BIG-ENDIAN on disk, so
+  `astropy` hands back a `>f4` array; hashing it AS READ and hashing it after any
+  native-order cast (`<f4`, or an implicit `.astype`) give DIFFERENT digests for
+  BIT-IDENTICAL pixels. MEASURED on one file, both ways, by two sessions
+  independently: `armA` reads `7ea062fb217e6254` as-read and `91237e3e98fe7477`
+  native; `armB` reads `15c99af99b5e0c6b` and `3a23c8725ec6d972`. Both sessions
+  were right and the products were identical. **The failure mode is a
+  false POSITIVE**: two readers comparing digests across that boundary conclude a
+  product changed when nothing did — the expensive direction, because it sends a
+  session chasing a corruption that does not exist. A difference COUNT
+  (`(a != b).sum()` with `max|diff|`) is convention-free and is what the verdict
+  should quote; if a digest is recorded at all, the convention is recorded beside
+  it. Related trap, same family: **a whole-file `cmp` is the wrong test for "are
+  these pixels the same"** — siril stamps its own creation `DATE` and the chain
+  stamps `PIPEREV` (`git rev-parse --short HEAD`; what that couples across
+  parallel sessions is a BINDING RULE in `CLAUDE.md`, not restated here), so two
+  pixel-identical products always differ as FILES. The identity control here read "NOT byte-identical"
+  while measuring 0 differing pixels of 69,359,745, max\|diff\| exactly 0. A check
+  that fires spuriously trains the operator to bypass it, which is how a real
+  failure gets waved through later.
+
 - **NEVER store a calibration master at 16-bit integer.** A master
   dark/bias/flat is a many-frame MEAN, so its precision is far finer than one
   integer step; rounding to 16 bits stores a SENSOR-FIXED quantization pattern

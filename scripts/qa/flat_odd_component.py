@@ -68,8 +68,20 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 import siril_run
 
 GEOM = {"corner": (400, 200), "edge": (80, 2)}
+# Siril prints `Sigma: -nan` for a region of ZERO variance — a perfectly uniform
+# crop. The previous class `[0-9.eEn+-]*[0-9n]` carried an `n` (so it was MEANT
+# to admit nan) but no `a`, so it matched neither `nan` nor `-nan`: the block
+# simply did not parse, the caller's count assertion fired, and the run aborted.
+# MEASURED cost: the UNIFORM-CARD control — the one arm whose entire purpose is a
+# field with no gradient, i.e. the case that produces uniform crops — could not be
+# measured at all. 2 of 9 midline boxes read `-nan` and the differential exited
+# "parsed 7 stat blocks, expected 9". The failure is LOUD, never a wrong number,
+# because every caller asserts the count.
+# Sigma is captured and DISCARDED — every caller reads the MEDIAN (group 2) only —
+# so widening this group cannot move any number this instrument has ever
+# reported; it only lets a uniform region be measured instead of aborting.
 STAT = re.compile(r"Mean: ([0-9.eE+-]+), Median: ([0-9.eE+-]+), "
-                  r"Sigma: ([0-9.eEn+-]*[0-9n]), Min: ([0-9.eE+-]+), "
+                  r"Sigma: (-?nan|-?inf|[0-9.eE+-]+), Min: ([0-9.eE+-]+), "
                   r"Max: ([0-9.eE+-]+)")
 
 

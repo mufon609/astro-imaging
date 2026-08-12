@@ -1,0 +1,67 @@
+{
+ "control": "IDENTITY (control 2) and its POSITIVE control, measured on pixels",
+ "member": "july31/set-03 group 1, the three arms' sub-stacks",
+ "instrument": "astropy.io.fits read + numpy difference — an INDEPENDENT reader, deliberately not Siril: a tool's own statistic cannot check whether that tool's operation damaged an image. Diagnostic only; reads no deliverable and gates nothing.",
+ "geometry": {"shape": [3, 3965, 5831], "pixels": 69359745, "dtype": ">f4"},
+
+ "IDENTITY_A_vs_I": {
+  "what": "the per-set flat run a second time through arm B's slot",
+  "all_five_groups": {
+   "g1": {"differing_pixels": 0, "max_abs_diff": 0.0},
+   "g2": {"differing_pixels": 0, "max_abs_diff": 0.0},
+   "g3": {"differing_pixels": 0, "max_abs_diff": 0.0},
+   "g4": {"differing_pixels": 0, "max_abs_diff": 0.0},
+   "g5": {"differing_pixels": 0, "max_abs_diff": 0.0}
+  },
+  "composed": {"differing_pixels": 0, "max_abs_diff": 0.0, "of_pixels": 53286156,
+               "canvas": "4908x3619"},
+  "verdict": "TRUE ZERO at every group and at the composed level — the arm-B "
+             "machinery introduces nothing, and the compose registration is "
+             "pinned across arms as well as the per-group registration"
+ },
+ "POSITIVE_CONTROL_A_vs_B": {
+  "what": "the SAME comparison, same code path, on the one-knob pair",
+  "all_five_groups": {
+   "g1": {"differing_pixels": 69359601, "differing_pct": 99.9998, "max_abs_diff": 0.022811},
+   "g2": {"differing_pixels": 69307026, "differing_pct": 99.9997, "max_abs_diff": 0.0083663},
+   "g3": {"differing_pixels": 69353883, "differing_pct": 99.9996, "max_abs_diff": 0.0075284},
+   "g4": {"differing_pixels": 69114524, "differing_pct": 99.9995, "max_abs_diff": 0.0057788},
+   "g5": {"differing_pixels": 69569466, "differing_pct": 99.9997, "max_abs_diff": 0.0078703}
+  },
+  "composed": {"differing_pixels": 53285795, "differing_pct": 99.9993,
+               "max_abs_diff": 0.00765835},
+  "verdict": "DIFFERS everywhere — so the zeros above are RESULTS, not a check "
+             "that cannot fail",
+  "note_worth_carrying": "the composed max|diff| 0.00766 is a THIRD of g1's "
+             "member-level 0.0228, which is the compose-level cancellation "
+             "showing up in the crudest possible statistic"
+ },
+ "why_both_lines_belong_together": "An identity control returning 0 differing pixels is the exact shape this repo's most persistent defect takes: a check that cannot fail (the `Found [0-9]+ star` regex that never matched, so a validation gate read 0 unconditionally). The registry requires the falsification be EXECUTED, not argued. The A-vs-B pair supplies it on the same code path and fires at 99.9998% of pixels, so the identity zero is discriminating rather than vacuous. Raised by a peer session's audit; re-measured here rather than accepted.",
+
+ "the_whole-file_cmp_is_the_WRONG_test_and_fired_a_FALSE_ALARM": {
+  "what_happened": "`cmp -s` on the two products reports NOT byte-identical while the pixels are bit-identical.",
+  "cause": "Siril stamps its own creation DATE on every product and the chain stamps PIPEREV (the repo revision). Those two keys are the ONLY header differences; HISTORY is identical at 3 entries and no key is present in one file and absent in the other.",
+  "why_this_is_more_than_a_tidy_up": "a check that fires spuriously trains the operator to bypass it, which is how a real failure gets waved through later. The byte test is replaced by a pixel test rather than silently ignored.",
+  "bonus_result_from_the_variance_that_did_occur": "arm A g1 was built at PIPEREV ed9b026 and arm I g1 at 906381c, so the records-only commits made between them are MEASURED PIXEL-NEUTRAL for this route (0 differing pixels across both). Commits are held for the remaining arms so PIPEREV stays uniform."
+ },
+
+ "md5_values_are_CONVENTION_DEPENDENT_and_two_sessions_disagreed_on_them": {
+  "armA_and_armI": {"native_order_<f4": "91237e3e98fe7477",
+                    "as_read_big_endian_>f4": "7ea062fb217e6254"},
+  "armB": {"native_order_<f4": "3a23c8725ec6d972",
+           "as_read_big_endian_>f4": "15c99af99b5e0c6b"},
+  "resolution": "FITS data is big-endian, so a hash taken on the array AS READ differs from one taken after a native-order cast — the same pixels, two digests. Two sessions reported different digests for the same file and both were right. Quote a pixel-difference COUNT, which is convention-free; a bare md5 is only comparable within one convention, so the convention is recorded beside every digest here.",
+  "what_both_sessions_agreed_on_independently": "A vs I = 0 differing pixels, max|diff| exactly 0."
+ },
+
+ "one_knob_verified_by_HEADER_not_asserted": {
+  "canvas": "5831x3965 on all three arms",
+  "STACKCNT": 100,
+  "REGPIN": "armreg_g1.seq — registration data pinned across arms, so the homographies and the reference index are the donor's",
+  "STACKNRM": "nonorm on all three",
+  "CALFLAT": {"armA": "skyflat_set-03.fit:500", "armI": "skyflat_set-03.fit:500",
+              "armB": "skyflat_set-03_g1.fit"},
+  "CALXSET": {"armB": true,
+              "note": "the builder stamps CALXSET when --flat is not the flat the set's record names. Here that is a cross-WINDOW calibration within one set, not the cross-SET reuse README step 1b bans; the key conflates the two. Correct as a flag that the product was not built with the recorded flat, imprecise as a name."}
+ }
+}
