@@ -7,21 +7,8 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`OBJECT_TILT_MEASUREMENT_PROMPT.md`](OBJECT_TILT_MEASUREMENT_PROMPT.md)** —
-  measure the `sky × V` object tilt catalogue-free, and retire the untracked
-  3.11%/241σ figure. Runs on the 52 already-solved groups sub-stacks (4–5
-  consecutive-time blocks per set, scale 17.008–17.028″/px), so no rebuild:
-  match the same stars across blocks by each product's own WCS and fit flux
-  against sensor position. Three required controls — interleaved halves for the
-  floor (predicted tilt zero: mean sensor positions differ ~2 px against a
-  ~774 px baseline), a planted ramp for discrimination, and the 12-set corpus
-  prediction that the tilt tracks the flats' L/R dose **through a sign change**,
-  with aug06/set-03 (dipole −0.0255) as the built-in null. Decision rule per the
-  owner's ratification: small → route floor; significant → the fix's foundation,
-  its own brief; too noisy → report the floor with numbers.
-
-`COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it does
-not retire, and it is run on demand rather than scheduled here.
+None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
+does not retire, and it is run on demand rather than scheduled here.
 
 ## Queued — needs prompts (medium; one session can take several)
 
@@ -71,6 +58,48 @@ not retire, and it is run on demand rather than scheduled here.
   medians stable to the third decimal) — an instrument fact to carry, not fix.
 - aug09 ingest is local-hash verified only; no source-side hashes exist for
   that night. A fact about the record, not fixable after the fact.
+
+## Landed during the object-tilt session — NULL with controls
+
+The catalogue-free `sky × V` object-tilt measurement was BUILT, run over all 12
+sets, and is now a registered **DEAD END**; the untracked 3.11%/241σ figure is
+retired as **UNVERIFIED** at all 13 code and doc sites and in the 13
+`readiness.json` records (via their generator, which was the real site).
+
+**Two independent blockers, either fatal.** (1) A linear sensor-fixed mode is
+EXACTLY absorbed by the per-star and per-block nuisances under a pure
+translation, so the 503–1220 px of drift carries none of it; the lever is the
+FIELD ROTATION, 0.69–3.76°/set, leaving a **29.1 px median lever on a 5769 px
+frame — a ~200× extrapolation**. (2) For a FIXED camera every sensor position
+maps to a fixed altitude, so atmospheric extinction and skyglow across this
+27° field are sensor-fixed too and airmass-shaped like the flat's own sky term;
+the fit sees their SUM, and both external anchors are closed (a catalogue is
+structurally impossible at 17″/px on trailed stars, a real flat IS the fix).
+
+**The instrument is sound and the controls prove it**: a Siril `imul` ramp of
+edge ratio 1.2222 recovers at **1.24×** (0.95× on the best-levered block pair)
+and a uniform card moves every number by **exactly 0.00**. `--selftest`
+falsifies the mechanism in process — a pure-translation panel returns a planted
++0.100 mag as **−0.046 ± 0.0001** with the lever at 0.00 px, so a degenerate fit
+reads confidently WRONG; read the lever, never the sigma.
+
+**The pre-registered corpus prediction failed 4 of 5**: every set exceeds its
+own flat's dose by **1.4–86× (median 8.1×)**, and aug06/set-03 — pre-registered
+as the built-in null — measures **+223 ± 28%** against a predicted +2.6%.
+ρ = +0.68 (p 0.015) is a real ordering but cannot confirm at those magnitudes,
+since the flat's L/R sweeps with the night's sky state and so does the
+confounder. Median within-set block-pair spread **529 points**, where one
+sensor-fixed field must give one answer.
+
+**By-product worth its own item:** the per-block fit measures a real within-set
+sensor-fixed gradient DRIFT of **0.040–0.425 mag (median 0.149), monotone in
+block order in 10 of 12 sets** — a transparency-drift measure
+`BACKLOG:intake-culling` does not have.
+
+**Numbers:** `datasets/aug09/corpus_object_tilt.json`,
+`datasets/aug09/tilt_corpus_prediction.json` (committed before the corpus ran),
+the 12 per-set `tilt_work/object_tilt.json`, `docs/dead-ends.md`, and the three
+nights' `experiments.jsonl`.
 
 ## Landed during the verification session (audit's done-ledger)
 

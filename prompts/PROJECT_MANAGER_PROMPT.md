@@ -73,8 +73,10 @@ claim you have executed is yours; one you have read is a hypothesis.
 **The sky×V object tilt: the flatless route's remaining photometric defect.**
 A sky flat converges to `(mean sky) × V`; horizon-fixed sky structure cannot
 drift out, bakes in, and division tilts the OBJECT by a multiplicative
-gradient (~few %; the 3.11%/241σ figure still has NO tracked record —
-`BACKLOG:calibration-evidence`). Backgrounds look flat BY CONSTRUCTION (the
+gradient of UNMEASURED size. The 3.11%/241σ figure the repo quoted is retired
+as UNVERIFIED — no tracked record, and the catalogue-free re-measurement that
+was supposed to replace it is now a registered DEAD END (`docs/dead-ends.md`;
+`datasets/aug09/corpus_object_tilt.json`). Backgrounds look flat BY CONSTRUCTION (the
 self-fulfilling check), star shapes are untouched — the harm is photometric.
 Measured this arc: aug09's five flats form a monotonic dose curve
 (1.127 → 1.468) tracking that night's independently measured haze; the term
@@ -84,31 +86,32 @@ composes multiplicatively to 0.08%.
 light source). The mission forecloses that, so the territory is genuinely
 novel. What remains after this arc's pruning:
 
-1. **IMMEDIATE NEXT ACTION — write and dispatch
-   `prompts/OBJECT_TILT_MEASUREMENT_PROMPT.md`.** The catalogue-free design
-   already written in `BACKLOG:calibration-evidence`: within one set the
-   drift carries the same stars ~1000+ px across the sensor — stack the
-   first third vs the last third, match the same stars, fit flux against
-   SENSOR POSITION; correct calibration makes flux independent of where a
-   star landed. The measurement IS the separability principle (sensor-fixed
-   vs sky-fixed, split by the drift) used diagnostically. Carry into the
-   brief: the trailed-photometry caveat (a prior use carried a 20–30%
-   systematic; means for broad terms, the mean-vs-median discipline), the
-   tracked-record requirement (retire the untracked 3.11% figure), per-night
-   numbers across the corpus (three nights = three gradient regimes:
-   moonlit, clear, hazy), and the DECISION RULE the owner ratified:
-   - tilt SMALL → record it, carry it as the route's floor, file the
-     research as a documented opening;
-   - tilt SIGNIFICANT → the constructive half becomes the fix's foundation:
-     fit the sensor-fixed field from matched-star flux ratios (externally
-     referenced — the stars themselves — so it dodges the self-cancellation
-     dead end). Standards-first line for that brief: this is the survey
-     lineage of **photometric self-calibration / star flats (SDSS übercal,
-     Pan-STARRS forward calibration)** — untracked drift is free dithering;
-     research whether any available tool does it headless before designing
-     anything;
-   - measurement too NOISY → the separability research is needed to find
-     another form; report the noise floor with numbers.
+1. **CLOSED — the catalogue-free measurement was built, run over all 12 sets,
+   and is a DEAD END.** `scripts/qa/object_tilt.py` (+ its ramp/uniform
+   controls, its interleaved-halves null and its corpus scorer) matched the
+   same stars across each set's solved sub-stacks and fitted Siril aperture
+   photometry against sensor position. Two independent blockers, either fatal:
+   the LINEAR mode is exactly absorbed by the per-star and per-block nuisances
+   under a pure translation, so the drift is not the lever and the 0.69–3.76°
+   of field rotation leaves only a 29 px median lever on a 5769 px frame; and
+   for a FIXED camera the ATMOSPHERE is sensor-fixed too and airmass-shaped
+   like the flat's own sky term, so no sensor-frame fit can apportion them. The
+   instrument is sound — a planted Siril ramp recovers at 1.24× and a uniform
+   card moves nothing — and the pre-registered flat prediction failed 4 of 5.
+   **Do not re-propose it, in any variant** (more blocks, more depth, free
+   per-block gradients, interleaved halves): each is closed with its number in
+   the registry.
+   **What is still live for this defect, in order of strength:** the WITH/
+   WITHOUT judgement pair on finals (both flats exist for set-01/02) — it is
+   DIFFERENTIAL, so every sensor-fixed term the two arms share cancels, which
+   is exactly what defeated the absolute measurement; and
+   `flat_odd_component.py --ratio`, which already measures what DIFFERS between
+   two flats with no model and no fit. The decision rule the owner ratified
+   resolved to its third branch: the floor is reported with its numbers.
+   **A by-product worth its own item:** the per-block fit measures a real
+   within-set sensor-fixed gradient DRIFT of 0.040–0.425 mag (median 0.149),
+   monotone in block order in 10 of 12 sets — a transparency-drift measure the
+   intake-culling surface does not have.
 2. The additive lane (`--subsky-lights` / render-ladder L1 — the owner's
    declared focus item) handles frame-to-frame additive deviations, NOT the
    multiplicative tilt; its scope gets decided inside L1, now with the
