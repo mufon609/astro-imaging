@@ -37,3 +37,20 @@ Two things in here are load-bearing and easy to lose in a re-run:
   `light / flat`, so the delivered ratio armB/armA is `flat_A / flat_B`. Building
   the window the other way pairs the right magnitude with the wrong sign and
   reads as a total failure of transfer.
+
+## Which grid record is which — a naming trap, measured
+
+`measure_flats.sh` writes TWO grid records per pair and the names invite the
+wrong pairing (an auditor mis-paired them twice on the first read-through):
+
+- `grid_<pair>.json`     — the **9x7 = 63-box** geometry, passed EXPLICITLY as
+  `--nx=9 --ny=7`. Non-default. This is the registry's own geometry, used
+  wherever a number is compared against a registry number.
+- `gridfull_<pair>.json` — the **11x7 = 77-box** frame-filling geometry, which is
+  `grid_ramp.py`'s DEFAULT (it fits as many boxes as the frame takes, spanning
+  5700 of 6064 px against 63-box's 4600). Better lever, not comparable with the
+  inherited figures.
+
+So the plainly-named file is the non-default one. Every record is
+self-describing — `measured.geometry_px` carries `nx`/`ny` — so read that rather
+than the filename when it matters.

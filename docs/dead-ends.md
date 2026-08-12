@@ -635,14 +635,25 @@ the constraints any such tool must satisfy):
   ONLY the frames it was built from" RULE IS NOT GROUNDS FOR IT.** The upstream
   fix the entry above SPECIFIED was built and measured on july31/set-03, one
   knob, registration pinned at BOTH levels, all four controls run.
-  **WHY THE DOCTRINAL ARGUMENT DOES NOT TRANSFER — the load-bearing point.** A
-  ratio of two flats from one night, lens, focal and aperture cancels vignetting
-  EXACTLY, so what differs between a group flat and the set flat IS THE SKY TERM;
-  the OPTICAL state (V, dust, focus) does not change inside a 25-minute burst.
-  The ratified rule is about optical-state matching. What a narrower window
-  tracks better is the SKY — which is the sky flat's DEFECT, not its purpose — so
-  narrowing does not reduce the contamination, it changes WHICH sky is imprinted
-  on the object and makes that imprint DIFFER between members.
+  **WHY THE DOCTRINAL ARGUMENT DOES NOT TRANSFER — the load-bearing point, and
+  NOT because the rule is about optics.** A ratio of two flats from one night,
+  lens, focal and aperture cancels vignetting EXACTLY, so what differs between a
+  group flat and the set flat IS THE SKY TERM; the optical state (V, dust, focus)
+  does not change inside a 25-minute burst. That much is measured — but "so the
+  rule is about optical-state matching" is WRONG, and was corrected by audit: the
+  rule's OWN justification is a sky divergence (`build_sky_flat.sh`: a mid-set
+  re-aim measured L-R corner ratio 1.162 against 1.032 while the top-bottom
+  optical term was identical at 1.143 vs 1.142 — "the divergence is sky").
+  **The real discriminator is what the flat DESCRIBES.** The rule fires when a
+  flat averages frames that saw DIFFERENT skies, so it describes a blend NO frame
+  saw and dividing either block by it prints the other block's gradient in. Under
+  ONE continuous pointing there is no such blend: the set flat IS the mean of the
+  sky its own frames saw, which is exactly what the rule asks for, and the groups
+  deviate symmetrically about that mean. So BOTH arms imprint a sky and NEITHER is
+  less contaminated — only the UNIFORMITY of the imprint across members changes.
+  That is why the composed difference is zero BY CONSTRUCTION rather than by
+  luck, and it is the reason a narrower window has nothing left to fix at the
+  composed level.
   **THE PER-SET PRODUCT DOES NOT MOVE, AND THAT WAS PREDICTED BEFORE IT WAS
   MEASURED.** The per-set flat IS the groups' average: the mean of the five
   per-group departures is 0.82% (x) and 0.76% (y) of a typical departure, so a
