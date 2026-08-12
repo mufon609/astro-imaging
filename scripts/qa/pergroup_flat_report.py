@@ -116,6 +116,61 @@ def main(argv):
             "no_clip_control_agrees": o["ratio"]["no_clip_control"]["agrees"],
         }
 
+    # ---- 1b. the compose-level cancellation, ON THE FLATS ALONE ----------
+    # Stated BEFORE any composed stack is measured, because a composed null must
+    # not be read as a null for the method: the per-set flat IS the groups'
+    # average, so the departures cancel in a plain mean by construction. The
+    # floor-independent form is the one to quote — the mean against the MEAN
+    # ABSOLUTE departure — since it does not rest on the build floor at all.
+    sx = [rec["flat_to_flat"][f"g{k}_over_set"]["grid_slope_x_pct_per_1000px"]
+          for k in range(1, K + 1) if f"g{k}_over_set" in rec["flat_to_flat"]]
+    sy = [rec["flat_to_flat"][f"g{k}_over_set"]["grid_slope_y_pct_per_1000px"]
+          for k in range(1, K + 1) if f"g{k}_over_set" in rec["flat_to_flat"]]
+    if len(sx) == K:
+        fl = rec["flat_to_flat"]["floor_group_depth"]
+        canc = {}
+        for nm, v, f in (("slope_x", sx, fl["grid_slope_x_pct_per_1000px"]),
+                         ("slope_y", sy, fl["grid_slope_y_pct_per_1000px"])):
+            mean = sum(v) / K
+            mabs = sum(abs(x) for x in v) / K
+            canc[nm] = {
+                "per_group": v, "mean": mean, "mean_abs": mabs,
+                "swing_max_minus_min": max(v) - min(v),
+                "mean_over_mean_abs": (mean / mabs) if mabs else None,
+                "abs_mean_over_floor": abs(mean) / abs(f) if f else None,
+                "swing_over_floor": (max(v) - min(v)) / abs(f) if f else None,
+            }
+        rec["flat_to_flat"]["compose_level_cancellation"] = {
+            "measured_on_the_flats_before_any_stack": canc,
+            "reading": "the mean of the five per-group departures is under 1% of "
+                       "the typical departure on BOTH axes, so a plain-mean "
+                       "compose of five members cancels over 99% of the "
+                       "correction to first order. This is the per-set flat "
+                       "being the groups' own average, confirmed by measurement. "
+                       "A null at the COMPOSED level is therefore a PREDICTED "
+                       "result and is NOT a null for per-group flats — the gain, "
+                       "if there is one, is a per-MEMBER gain, and the member is "
+                       "the cross-night combine unit.",
+            "corollary_on_the_object_tilt_axis": "the L/R slope — the axis the "
+                       "object tilt lives on — swings across the groups while "
+                       "its mean vanishes, so a per-member L/R calibration error "
+                       "is invisible in the composed mean precisely because it "
+                       "cancels. Sizes against the stack's own +0.171 %/1000px "
+                       "sensor-fixed L/R residual are reported in the experiment "
+                       "record; the comparison is licensed by the differential's "
+                       "measured ~1:1 transfer, not assumed.",
+        }
+    rec["flat_to_flat"]["SCOPE_of_the_linear_window_model"] = (
+        "The model takes the sweep MAGNITUDE as measured input (the inherited "
+        "half-to-half term) and predicts only the within-set SHAPE — where each "
+        "window's mean sits in the burst. It does NOT predict magnitude from "
+        "duration, and it must never be cited as though it did: that is the "
+        "REGISTERED DEAD time-dose hypothesis, falsified on its own pre-registered "
+        "falsifier (set-04 ran 777 s against set-03's 1497 s, so a time-driven "
+        "term predicted 0.52x; it measured 1.200x). A close agreement here is "
+        "evidence the SHAPE is smooth and the anchor reproduces, and nothing "
+        "whatever about predicting a flat term from a burst's length.")
+
     # ---- 2. the delivered difference, per member -------------------------
     def pair_block(p, win=None):
         if not p:

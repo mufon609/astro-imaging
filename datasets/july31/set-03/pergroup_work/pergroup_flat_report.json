@@ -1,0 +1,143 @@
+{
+ "what": "PER-GROUP FLATS \u2014 does narrowing the flat window from 500 frames to 100 pay, and where?",
+ "uptime": "16:27:45 up 38 days, 38 min,  2 users,  load average: 16.15, 9.63, 6.92",
+ "prediction_record": "datasets/july31/pergroup_flat_prediction.json",
+ "records_dir": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work",
+ "sign_convention": "delivered armB/armA = flat_A/flat_B = set/g_k, the INVERSE of the flat-to-flat ratio g_k/set. The comparison windows are built in the delivered orientation.",
+ "flat_to_flat": {
+  "floor_group_depth": {
+   "pair": "two flats from INTERLEAVED halves of ONE group (50 + 50)",
+   "why": "both halves span the same sub-burst, so any time-evolving term cancels and only the build floor remains",
+   "corner_spread_pct": 0.0546,
+   "grid_slope_x_pct_per_1000px": 0.0008713574354445409,
+   "grid_slope_y_pct_per_1000px": 0.007925832026639008,
+   "grid_range_pct": 0.12686964260402983
+  },
+  "g1_over_set": {
+   "corner_spread_pct": 3.0597,
+   "edge_dipole_x": -0.002,
+   "edge_dipole_y": -0.0299,
+   "grid_slope_x_pct_per_1000px": -0.0787553190933826,
+   "grid_slope_y_pct_per_1000px": 0.854417954268042,
+   "axis_ratio_y_over_x": 10.849019013622843,
+   "dominant_axis": "T/B",
+   "grid_range_pct": 4.016397961675079,
+   "no_clip_control_agrees": true
+  },
+  "g2_over_set": {
+   "corner_spread_pct": 1.4036,
+   "edge_dipole_x": 0.0068,
+   "edge_dipole_y": -0.0091,
+   "grid_slope_x_pct_per_1000px": 0.028615595175704788,
+   "grid_slope_y_pct_per_1000px": 0.30514868157073677,
+   "axis_ratio_y_over_x": 10.663719545131604,
+   "dominant_axis": "T/B",
+   "grid_range_pct": 2.0035923656741095,
+   "no_clip_control_agrees": true
+  },
+  "g3_over_set": {
+   "corner_spread_pct": 2.7643,
+   "edge_dipole_x": 0.0154,
+   "edge_dipole_y": 0.0164,
+   "grid_slope_x_pct_per_1000px": 0.27857064708582346,
+   "grid_slope_y_pct_per_1000px": -0.34257412220445593,
+   "axis_ratio_y_over_x": 1.2297567090724888,
+   "dominant_axis": "T/B",
+   "grid_range_pct": 2.561683314116199,
+   "no_clip_control_agrees": true
+  },
+  "g4_over_set": {
+   "corner_spread_pct": 1.0801,
+   "edge_dipole_x": -0.0002,
+   "edge_dipole_y": 0.0124,
+   "grid_slope_x_pct_per_1000px": 0.08287884153088894,
+   "grid_slope_y_pct_per_1000px": -0.3480208715409671,
+   "axis_ratio_y_over_x": 4.199152221634996,
+   "dominant_axis": "T/B",
+   "grid_range_pct": 2.1801344822492204,
+   "no_clip_control_agrees": true
+  },
+  "g5_over_set": {
+   "corner_spread_pct": 3.3815,
+   "edge_dipole_x": -0.0212,
+   "edge_dipole_y": 0.0097,
+   "grid_slope_x_pct_per_1000px": -0.30496070706696754,
+   "grid_slope_y_pct_per_1000px": -0.45148334226944786,
+   "axis_ratio_y_over_x": 1.480463980463899,
+   "dominant_axis": "T/B",
+   "grid_range_pct": 3.599400066525421,
+   "no_clip_control_agrees": true
+  },
+  "compose_level_cancellation": {
+   "measured_on_the_flats_before_any_stack": {
+    "slope_x": {
+     "per_group": [
+      -0.0787553190933826,
+      0.028615595175704788,
+      0.27857064708582346,
+      0.08287884153088894,
+      -0.30496070706696754
+     ],
+     "mean": 0.0012698115264134107,
+     "mean_abs": 0.15475622199055344,
+     "swing_max_minus_min": 0.583531354152791,
+     "mean_over_mean_abs": 0.008205237308590551,
+     "abs_mean_over_floor": 1.4572797278829557,
+     "swing_over_floor": 669.6808111301541
+    },
+    "slope_y": {
+     "per_group": [
+      0.854417954268042,
+      0.30514868157073677,
+      -0.34257412220445593,
+      -0.3480208715409671,
+      -0.45148334226944786
+     ],
+     "mean": 0.0034976599647815743,
+     "mean_abs": 0.46032899437072994,
+     "swing_max_minus_min": 1.3059012965374899,
+     "mean_over_mean_abs": 0.0075981743656249115,
+     "abs_mean_over_floor": 0.44129877507191834,
+     "swing_over_floor": 164.76519968481648
+    }
+   },
+   "reading": "the mean of the five per-group departures is under 1% of the typical departure on BOTH axes, so a plain-mean compose of five members cancels over 99% of the correction to first order. This is the per-set flat being the groups' own average, confirmed by measurement. A null at the COMPOSED level is therefore a PREDICTED result and is NOT a null for per-group flats \u2014 the gain, if there is one, is a per-MEMBER gain, and the member is the cross-night combine unit.",
+   "corollary_on_the_object_tilt_axis": "the L/R slope \u2014 the axis the object tilt lives on \u2014 swings across the groups while its mean vanishes, so a per-member L/R calibration error is invisible in the composed mean precisely because it cancels. Sizes against the stack's own +0.171 %/1000px sensor-fixed L/R residual are reported in the experiment record; the comparison is licensed by the differential's measured ~1:1 transfer, not assumed."
+  },
+  "SCOPE_of_the_linear_window_model": "The model takes the sweep MAGNITUDE as measured input (the inherited half-to-half term) and predicts only the within-set SHAPE \u2014 where each window's mean sits in the burst. It does NOT predict magnitude from duration, and it must never be cited as though it did: that is the REGISTERED DEAD time-dose hypothesis, falsified on its own pre-registered falsifier (set-04 ran 777 s against set-03's 1497 s, so a time-driven term predicted 0.52x; it measured 1.200x). A close agreement here is evidence the SHAPE is smooth and the anchor reproduces, and nothing whatever about predicting a flat term from a burst's length."
+ },
+ "members": {},
+ "controls": {
+  "card_definitions": {
+   "geometry": [
+    6064,
+    4040
+   ],
+   "ramp": {
+    "k": 0.2,
+    "form": "R(x) = 1 + k*(x/W - 0.5)",
+    "edge_ratio_full_frame": 1.2221856117248535,
+    "edge_dipole_x_at_box80_margin2": 0.197229558312012
+   },
+   "uniform": {
+    "scalar": 1.05,
+    "edge_dipole_x_at_box80_margin2": 0.0,
+    "why": "level moves, gradient does not"
+   },
+   "role": "synthetic FIXTURES divided into the per-set flat by Siril; never delivered, never a calibration frame outside these control arms"
+  }
+ },
+ "composed": {},
+ "derived": {},
+ "prediction_committed_before_the_arms": {
+  "1_SHAPE_AND_SIGN": "flat_gk / flat_set departs with OPPOSITE SIGN at k=1 and k=5 and is smallest in magnitude at k=3. FALSIFIER: the same sign at both ends, or |k=3| not the smallest of the five.",
+  "2_MAGNITUDE": "under a linear-in-window-position model calibrated on the inherited half-to-half 3.481% (window midpoints at 10/30/50/70/90% of the burst against the halves' 25/75%): |g1 vs set| = |g5 vs set| = 2.78% corner spread, |g2| = |g4| = 1.39%, |g3| ~ 0, and |g1 vs g5| = 5.57% = 1.6x the half-to-half term. Accepted within a factor 1.5 either way. FALSIFIER: |g1 vs set| < 1.0%, which would mean the group windows are not materially different from the set mean and the item is moot.",
+  "3_MONOTONICITY": "the signed statistic is monotone in group order across all five, if a smooth within-burst evolution is the driver. FALSIFIER: a non-monotone excursion exceeding 3x the measured floor.",
+  "4_AXIS": "T/B dominant: |y-slope| / |x-slope| > 3 on the group-to-set ratios (11.6x on the half-split). IF IT COMES OUT L/R DOMINANT THE ATTRIBUTION IS WRONG AND THAT IS THE FINDING. Either way this does not speak to the object's L/R tilt, which stays UNTESTED.",
+  "5_FLOOR": "the 50+50 interleaved floor scales as sqrt(250/50) = 2.24x the inherited 250+250 figure -> ~0.078% corner spread, and in any case below 0.35%, leaving the smallest group effect >= 10x above it. FALSIFIER: the floor exceeds one third of the smallest group-vs-set effect.",
+  "6_DELIVERED_TRANSFER": "~1:1 at member level, per the flat differential's measured 0.9887 raw / 1.0117 corrected by the planted control against a floor of exactly zero: the delivered edge dipole of arm B member k over arm A member k equals the two flats' own ratio measured over the delivered canvas, within 0.99-1.01 after the planted correction. FALSIFIER: below 0.5x or above 1.5x.",
+  "7_COMPOSED_LEVEL_CANCELLATION": "THE SHARPEST NEW PREDICTION, and it is a warning about where the payoff is NOT. The compose is a plain mean of five members, so the composed arms differ by the MEAN of the five per-group corrections \u2014 which prediction 1's antisymmetry drives to approximately zero. Predicted: |composed difference| < 1/3 of the mean |member-level| difference. If it holds, per-group flats fix MEMBERS and barely move the per-set composed product; the member is the cross-night combine unit, so the payoff would live at the combine, not at this stack. FALSIFIER: the composed difference is comparable to the member-level difference.",
+  "8_MEMBER_TO_MEMBER_RISK": "the brief names the risk that per-group flats reduce every member's own residual while making members differ MORE from each other. Two mechanisms compete: (a) each member gets the flat matched to its own window, so the low-order calibration residual per member shrinks and members should agree MORE; (b) a 100-frame flat averages 90.9 px of celestial motion against the set flat's 453.3 px, so it bakes in MORE sky-fixed structure, and a different one per group. Predicted: (a) dominates the low-order term the differential measures \u2014 arm B's member-to-member low-order spread is at or below arm A's. FALSIFIER: arm B's spread exceeds arm A's.",
+  "9_ENABLING_CONDITION": "build_sky_flat.sh's stated enabling condition is drift exceeding ~20-100 px across the frames a flat is built from. The set flat gets 453.3 px; a 100-frame group gets 90.9 px \u2014 INSIDE the stated band but at its boundary. Predicted: the group flats show a higher findstar speck count than the set flat's 1 (the builder's own residual-sky check). FALSIFIER: speck counts unchanged, which would mean the narrower window costs nothing in baked-in structure."
+ }
+}
