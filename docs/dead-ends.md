@@ -302,11 +302,29 @@ the constraints any such tool must satisfy):
   rho is **+0.68 (p 0.015)** — a real positive ordering, but it cannot be read as
   confirmation while the magnitudes miss by up to 86x, because the flat's L/R
   sweeps as the NIGHT'S SKY STATE sweeps and blocker 2 is driven by the same
-  thing. **So: the flat attribution is FALSIFIED as the DOMINANT term. The
-  MECHANISM in the entry above is untouched** — a horizon-fixed gradient cannot
-  drift out of a median of un-registered lights, and dividing by a flat that
-  absorbed it does tilt the object. What is refuted is that this measurement can
-  size it.
+  thing.
+
+  **WHAT THE PREDICTION'S FAILURE DOES AND DOES NOT ESTABLISH — read this before
+  citing it.** It establishes that the READINGS are not the flat's dose. It does
+  NOT establish that the flat is a minor term of the real defect, and this entry
+  must not be cited for that. The excess argument ("the flat cannot produce more
+  tilt than it carries") treats each reading as an estimate of a physical tilt,
+  and the same controls above say it is not one: the floor is +49 points where
+  truth is zero, discrimination against that floor is 0.20x, the median
+  within-set block-pair spread is 529 points, and the corpus mean reads **+299%**
+  with a range to **+1605%** — magnitudes no throughput tilt can have. A reading
+  dominated by degeneracy leak plus the sensor-fixed atmosphere exceeds the
+  flat's dose whatever the flat is doing, so the comparison has no power to
+  apportion. **The flat attribution is therefore UNTESTED by this measurement,
+  not falsified** — and rho +0.68 is, if anything, weak evidence FOR a flat
+  contribution, confounded exactly as stated above. The MECHANISM in the entry
+  above is likewise untouched: a horizon-fixed gradient cannot drift out of a
+  median of un-registered lights, and dividing by a flat that absorbed it does
+  tilt the object. What is refuted is that this measurement can size it.
+  **Consequence for the roadmap: better sky-flat construction is NOT retired by
+  this result.** It stays the calibration-side lever inside the flatless route
+  (per-group flats remain the untested candidate), because nothing here measured
+  it down.
 
   **WHAT NOT TO RE-ATTEMPT.** More blocks (rotation is a property of the set, not
   the block count); more depth (the blocker is systematic, not statistical — 2545
