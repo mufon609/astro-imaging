@@ -77,28 +77,25 @@ it is CLEAN — no file asserts the stale form and the write-up carries *"descri
 a blend no frame saw"*. RED on the case it was written for, GREEN now.
 **AND RUNNING IT EXPOSED A FLOOR READING IT COULD NOT — the naive form attacks
 the records that prove it works.** A corrected claim's exact words necessarily
-SURVIVE wherever the correction is properly documented: the registry entry, the
-ledger field, this falsification note. At HEAD the phrase returns FOUR hits and
-all four are RECORDINGS, none a defect. A sweep "fixing" them would delete the
-correction's own evidence — the exact thing REVISE-NEVER-DELETE exists to stop.
+SURVIVE wherever the correction is properly documented: the registry entry naming
+what was wrong, the ledger's `CORRECTED BY AUDIT` field, this falsification note
+quoting the stale phrase as the thing it fires on. At HEAD the phrase returns
+FOUR hits and **all four are RECORDINGS, none a defect** — so the naive detector
+has a false-positive floor equal to the number of places the correction is
+properly recorded, and a sweep "fixing" them would delete the correction's own
+evidence, the exact thing REVISE-NEVER-DELETE exists to stop.
 So classify every hit before touching it: is the file **CLAIMING** the stale
-form, or **RECORDING that it was wrong**? Only the first is a defect.
-**Cut the manual reads with the joined-block pass this file already mandates**
-— MEASURED on these four: line-only classification misreads 2 of 4, a joined
-+-3-line window misreads 1, and +-5 resolves all four (the surviving case is a
-paragraph-scale recording whose "wrong in the direction" marker sits 5 lines
-above the hit). The window shrinks the work; it does not replace the read,
-because a recording can always be framed further away than any window you pick.
-*Distinguish ASSERTION from QUOTATION, or this detector reports its own evidence
-as a defect.* A corrected claim's exact words necessarily SURVIVE in the records
-that document the correction — the registry entry naming what was wrong, the
-ledger's `CORRECTED BY AUDIT` field, and the falsification note above, which
-quotes the stale phrase as the thing it fires on. Grepping the phrase alone
-returns all three as hits. MEASURED while replaying this very check: a filter
+form, or **RECORDING that it was wrong**? Only the first is a defect. Keyword
+filtering does not do it — MEASURED while replaying this check, a filter
 excluding `WRONG|CORRECTED` still returned line 74 of this file, because the
-quotation there is introduced by *asserts*. Read each hit and ask whether the
-file is CLAIMING the stale form or RECORDING that it was wrong; only the first is
-a defect, and a sweep that "fixes" the second destroys the correction's evidence.
+quotation there is introduced by *asserts*.
+**Cut the manual reads with the joined-block pass this file already mandates** —
+MEASURED on these four: line-only classification misreads 2 of 4, a joined
+±3-line window misreads 1, and ±5 resolves all four (the surviving case is a
+paragraph-scale recording whose *"wrong in the direction"* marker sits 5 lines
+above the hit). The window shrinks the work; it does not replace the read,
+because a recording can always be framed further from its marker than any window
+you pick.
 
 **Run the repo's own guards first — they are the authoritative drift detectors
 for anything they cover**, and they print the true counts to compare prose
