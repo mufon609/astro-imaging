@@ -199,10 +199,16 @@ def main(argv):
                 "delivered_frac_x": f["delivered_frac_x"],
                 "delivered_frac_x_err": f["delivered_frac_x_err"],
                 "delivered_frac_y": f["delivered_frac_y"],
+                # star_edge is AXIS-AGNOSTIC — it converts a magnitude slope over
+                # a canvas dimension into the pixel instrument's box geometry —
+                # but it names its output key `..._x` whichever axis it was
+                # handed. Passing the HEIGHT gives the y answer under the x key.
+                # Read here, not renamed there: that key is shipped and
+                # flat_differential_report.py reads it.
                 "equivalent_edge_dipole_x":
                     star_edge(f["ax"], cw)["equivalent_edge_dipole_x"],
                 "equivalent_edge_dipole_y":
-                    star_edge(f["ay"], chh)["equivalent_edge_dipole_y"],
+                    star_edge(f["ay"], chh)["equivalent_edge_dipole_x"],
                 "n_stars": f["n_stars"], "sigma_x": f["sigma_x"],
                 "lever_px_x": f["lever_px_x"], "lever_px_y": f["lever_px_y"],
                 "chi2_per_dof": f["chi2_per_dof"],
@@ -234,7 +240,11 @@ def main(argv):
                      ("uniform", "control_uniform"),
                      ("planted", "control_planted"),
                      ("prodnorm", "control_prodnorm")):
-        blk = pair_block(load(f"{REC}/delivered_{fn}.json"))
+        # The PLANTED arm's flat is set/card_ramp, so set/flat_P IS the ramp card
+        # itself: its expectation over the delivered canvas is the card cropped to
+        # that canvas, measured by the same instrument as every other window.
+        win = load(f"{REC}/flatratio_window_planted.json") if role == "planted" else None
+        blk = pair_block(load(f"{REC}/delivered_{fn}.json"), win)
         if blk:
             rec["controls"][role] = blk
     card = load(f"{REC}/cards.json")
@@ -337,9 +347,9 @@ def main(argv):
             "nonorm_dipole_x": a, "prodnorm_dipole_x": b,
             "ratio_prodnorm_over_nonorm": (b / a) if a else None,
             "star_nonorm_delivered_frac_x":
-                rec["members"]["g1"]["star"].get("10.0", {}).get("delivered_frac_x"),
+                rec["members"]["g1"]["star"].get("10", {}).get("delivered_frac_x"),
             "star_prodnorm_delivered_frac_x":
-                pn["star"].get("10.0", {}).get("delivered_frac_x"),
+                pn["star"].get("10", {}).get("delivered_frac_x"),
             "reading": "the shipped clause is measured to absorb 0.3-0.4% of a "
                        "calibration difference on the OBJECT while moving the "
                        "BACKGROUND pixel field ~48.6% (a pedestal artefact — "
@@ -379,7 +389,7 @@ def main(argv):
         if not b:
             continue
         e = b.get("expected_from_flats_over_the_delivered_canvas", {})
-        s = b["star"].get("10.0", {})
+        s = b["star"].get("10", {})
         tx = b.get("transfer_x_pixel")
         ty = b.get("transfer_y_pixel")
         print(f"  g{k}       {b['pixel_edge_dipole_x']['G']:+8.4f} "
@@ -407,7 +417,7 @@ def main(argv):
         b = rec["controls"].get(role)
         if not b:
             continue
-        s = b["star"].get("10.0", {})
+        s = b["star"].get("10", {})
         print(f"  {role:<9} dip_x {b['pixel_edge_dipole_x']['G']:+.4f}  "
               f"dip_y {b['pixel_edge_dipole_y']['G']:+.4f}  "
               f"star dx {100*s.get('delivered_frac_x', float('nan')):+.3f}%  "

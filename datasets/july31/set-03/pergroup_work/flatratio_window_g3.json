@@ -1,0 +1,55 @@
+{
+ "tool": "Siril 1.4.4 \u2014 load/crop/stat regional medians (and fdiv for --ratio); every pixel op and every measurement is Siril's",
+ "flat": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work/window/ratio_win_g3.fit",
+ "uptime": "19:03:40 up 38 days,  3:14,  1 user,  load average: 1.93, 2.36, 4.34",
+ "how_to_read": "Vignetting is EVEN and RADIAL, so it contributes equally to LR and TB and puts all four corners at one radius (corner_ratio 1.000). An excess on ONE axis is non-radial BY CONSTRUCTION and cannot be vignetting; on this corpus the L-R term is the horizon-fixed sky gradient the flat absorbs, which then divides a multiplicative tilt into the object (docs/dead-ends.md). REPORTED, never gated: the defect is open with no shipped corrective, so a pass/fail line here is a user ratification, not this script's to invent.",
+ "self": {
+  "image_wh": [
+   5832,
+   3964
+  ],
+  "corner": {
+   "geometry_px": {
+    "box": 400,
+    "corner_margin": 200
+   },
+   "median_ADU": {
+    "center": 32227.0,
+    "TL": 32151.5,
+    "TR": 31583.9,
+    "BL": 32443.9,
+    "BR": 31971.3
+   },
+   "corner_ratio": 1.0272,
+   "brightest": "BL",
+   "darkest": "TR",
+   "LR": 1.0164,
+   "TB": 0.9894,
+   "corner_over_center": 0.9941,
+   "edge_dipole_x": -0.0162,
+   "edge_dipole_y": -0.0106
+  },
+  "edge": {
+   "geometry_px": {
+    "box": 80,
+    "corner_margin": 2
+   },
+   "median_ADU": {
+    "center": 32232.5,
+    "TL": 32119.6,
+    "TR": 31436.9,
+    "BL": 32403.0,
+    "BR": 31811.3
+   },
+   "corner_ratio": 1.0307,
+   "brightest": "BL",
+   "darkest": "TR",
+   "LR": 1.0201,
+   "TB": 0.9898,
+   "corner_over_center": 0.991,
+   "edge_dipole_x": -0.0199,
+   "edge_dipole_y": -0.0103
+  }
+ },
+ "label": "flat_ratio_SET_over_g3_cropped_to_delivered_canvas_5832x3964_the_orientation_the_delivered_field_is_measured_in"
+}

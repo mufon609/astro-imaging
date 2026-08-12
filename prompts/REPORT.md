@@ -7,22 +7,6 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`PER_GROUP_FLAT_PROMPT.md`](PER_GROUP_FLAT_PROMPT.md)** — narrow the flat
-  window from per-set to per-group, on july31/set-03 (5 groups x 100 frames,
-  `g1..g5.list` on disk). Motivated by a measured error the shipped route eats:
-  contiguous half-to-half flat difference **3.481%** against a **0.035%** build
-  floor, 100x. Now worth paying for because the differential measured the
-  transfer — a flat's shape reaches the object ~1:1, so the improvement is
-  predictable before the run. **No new builder code**: `build_sky_flat.sh`
-  already takes `--select=<list-file>` and each `gN.list` is exactly that.
-  Registration pinned across arms via `--regdata=` (calibration changes
-  `register -2pass`'s reference choice — a second knob otherwise).
-  **The complication leads the brief:** the within-set term is T/B dominant
-  (y/x slope 11.6x) while the object tilt is L/R, so this is not automatically
-  the tilt fix and must not be written up as one. Fenced hardest: the time-dose
-  hypothesis is dead (777 s produced 1.200x of what 1497 s did, against a
-  predicted 0.52x), and stack corner spread is not an admissible judge here.
-
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
@@ -74,6 +58,78 @@ does not retire, and it is run on demand rather than scheduled here.
   medians stable to the third decimal) — an instrument fact to carry, not fix.
 - aug09 ingest is local-hash verified only; no source-side hashes exist for
   that night. A fact about the record, not fixable after the fact.
+
+## Landed during the per-group flat session — NULL at the product, a measured TRADE at the member
+
+**Narrowing the flat window from 500 frames to 100 does not improve the per-set
+product, and the rule the brief leaned on is not grounds for it.** july31/set-03,
+one knob, 19 arms of 100 frames, registration pinned at BOTH levels, all four
+controls run.
+
+**The doctrinal argument does not transfer, and this is the finding.** A ratio of
+two flats from one night, lens, focal and aperture cancels vignetting EXACTLY, so
+what differs between a group flat and the set flat **is the sky term** — the
+optical state does not change inside a 25-minute burst. "A flat calibrates ONLY
+the frames it was built from" is about OPTICAL-state matching. What the narrower
+window tracks better is the SKY, which is the sky flat's defect rather than its
+purpose: it does not reduce the contamination, it changes **which** sky is
+imprinted on the object and makes that imprint **differ between members**.
+
+**The product does not move, and that was recorded before it was measured.** The
+per-set flat IS the groups' average — the mean of the five departures is **0.82%
+(x) and 0.76% (y) of a typical departure** — so a plain-mean compose cancels
+them. Delivered: the composed object L/R tilt moves **+0.055% ± 0.083%, 0.7σ**
+(Siril `psf`, 1217 stars), the composed pixel field 7–25% of the mean member
+magnitude. Cancellation is 75–94%, not the >99% the sensor-frame arithmetic
+gives, because the compose is a SKY-frame mean of patterns that drifted ~453 px.
+
+**At member level the correction is real and 1:1** — planted-corrected transfer
+**1.007 (x) / 1.077 (y)** — moving each member's object tilt **0.36–2.13% in x
+(4.3–21.3σ)** and up to **3.42% in y**. It **buys** member backgrounds **28–40×**
+more consistent (the registry's SELF-FULFILLING direction — the mechanism's size,
+not evidence of better calibration) and **costs 3.271% (x) / 4.335% (y) of
+member-to-member object-imprint disagreement where the shipped route has exactly
+zero**. No instrument here can say which side is closer to truth, so by the
+evidence gate it is a trade the DATA CANNOT SETTLE — **the owner decides**.
+
+**Controls.** FLOOR at the group's own depth, built not inherited: **0.0546%**
+corner spread, every effect **20–62×** it. IDENTITY: **0 differing pixels** on all
+five groups and the compose, with the same comparison firing at **99.9995–
+99.9998%** on the one-knob pair, so the zero is discriminating rather than
+vacuous. PLANTED: **0.9926** recovery against the card over the delivered canvas.
+UNIFORM: every dipole **+0.0000** and star differential **+0.000%** — level cannot
+reach the product, only shape.
+
+**Predictions: 5 held, 2 split, 2 falsified.** The inherited anchor **reproduces
+to 0.02%** on post-reset flats (|g1 vs g5| predicted 1.3085 %/1000px, measured
++1.3088). Falsified: the "smallest departure at the middle group" clause (the
+zero-crossing sits between g2 and g3, 4.7 floors apart), and the enabling-condition
+worry — every group flat measures **ZERO** findstar specks against the set flat's
+**ONE**, despite averaging 90.9 px of celestial motion against 453.3 px.
+
+**Open, and it is the right next question:** the member is the cross-night COMBINE
+unit, so a combine-level A/B is where the member-level trade could pay or cost.
+Not run here.
+
+**Deferred, gate-blocked not forgotten:** the owner's eyes on full-frame finals.
+`render_tier.sh` exits 7 without a ratified `render` block and july31/set-03 has
+none (`BACKLOG:render-ladder`). Both arms' linear stacks and all three composes
+are preserved and tagged on the FITS (`DIAGARM`/`CALXSET`/`STACKNRM`/`REGPIN`) in
+`sessions/july31/work/pergroup/`, deliberately NOT in `web/results/`.
+
+**Two shipped fixes fell out of it.** `grid_ramp.py` — the registry's named
+candidate gradient measure, which had no script, so the measurement behind a
+registered finding could not be re-run; tool search PROBED, reports without
+gating, selftest falsifies its own mechanism. And Siril prints `Sigma: -nan` on a
+zero-variance crop while the shipped STAT regex carried an `n` but no `a`, so the
+UNIFORM control — the one arm that produces uniform crops — could not be measured
+at all; fixed, provably neutral (sigma is parsed and discarded), second copy
+removed.
+
+**Numbers:** `datasets/july31/pergroup_flat_prediction.json` (committed before the
+first flat), `datasets/july31/experiments.jsonl`
+(`pergroup_flat_window_july31_set03`), the 50 records in
+`datasets/july31/set-03/pergroup_work/`, `docs/dead-ends.md`.
 
 ## Landed during the flat-differential session — WIN with controls
 

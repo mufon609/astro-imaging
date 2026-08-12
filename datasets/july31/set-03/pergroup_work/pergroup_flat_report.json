@@ -1,6 +1,6 @@
 {
  "what": "PER-GROUP FLATS \u2014 does narrowing the flat window from 500 frames to 100 pay, and where?",
- "uptime": "16:27:45 up 38 days, 38 min,  2 users,  load average: 16.15, 9.63, 6.92",
+ "uptime": "19:08:01 up 38 days,  3:18,  1 user,  load average: 0.67, 1.48, 3.49",
  "prediction_record": "datasets/july31/pergroup_flat_prediction.json",
  "records_dir": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work",
  "sign_convention": "delivered armB/armA = flat_A/flat_B = set/g_k, the INVERSE of the flat-to-flat ratio g_k/set. The comparison windows are built in the delivered orientation.",
@@ -106,8 +106,663 @@
   },
   "SCOPE_of_the_linear_window_model": "The model takes the sweep MAGNITUDE as measured input (the inherited half-to-half term) and predicts only the within-set SHAPE \u2014 where each window's mean sits in the burst. It does NOT predict magnitude from duration, and it must never be cited as though it did: that is the REGISTERED DEAD time-dose hypothesis, falsified on its own pre-registered falsifier (set-04 ran 777 s against set-03's 1497 s, so a time-driven term predicted 0.52x; it measured 1.200x). A close agreement here is evidence the SHAPE is smooth and the anchor reproduces, and nothing whatever about predicting a flat term from a burst's length."
  },
- "members": {},
+ "members": {
+  "g1": {
+   "ref": "sub_01.fit",
+   "alt": "sub_01.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g1.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    5831,
+    3965
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0061,
+    "G": 0.0076,
+    "B": 0.0061
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0338,
+    "G": 0.0322,
+    "B": 0.028
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.007299967045820033,
+     "delivered_frac_x_err": 0.0008248058873829844,
+     "delivered_frac_y": -0.03417921624347764,
+     "equivalent_edge_dipole_x": 0.007168640941688659,
+     "equivalent_edge_dipole_y": -0.034036936065764856,
+     "n_stars": 1692,
+     "sigma_x": 8.879116062796115,
+     "lever_px_x": 1851.7267941772084,
+     "lever_px_y": 1406.1983637112078,
+     "chi2_per_dof": 0.7839770120603289,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 26.210000000000036,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.0073079079236566535,
+     "delivered_frac_x_err": 0.0009790961314684044,
+     "delivered_frac_y": -0.035182846384790634,
+     "equivalent_edge_dipole_x": 0.0071764105755483375,
+     "equivalent_edge_dipole_y": -0.03505429392694351,
+     "n_stars": 1592,
+     "sigma_x": 7.487498413799448,
+     "lever_px_x": 1944.084805110522,
+     "lever_px_y": 1489.075896391493,
+     "chi2_per_dof": 0.8800481752385105,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 26.210000000000036,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": 0.0058,
+    "edge_dipole_y": 0.0329,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 1.310344827586207,
+   "transfer_y_pixel": 0.9787234042553191
+  },
+  "g2": {
+   "ref": "sub_02.fit",
+   "alt": "sub_02.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g2.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g2.seq",
+   "canvas": [
+    5831,
+    3962
+   ],
+   "pixel_edge_dipole_x": {
+    "R": -0.0034,
+    "G": -0.0028,
+    "B": -0.0023
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0059,
+    "G": 0.0059,
+    "B": 0.0051
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.00481300379423133,
+     "delivered_frac_x_err": 0.0007637755451024297,
+     "delivered_frac_y": -0.01948902871516678,
+     "equivalent_edge_dipole_x": 0.004732280823498052,
+     "equivalent_edge_dipole_y": -0.019263573763528108,
+     "n_stars": 1665,
+     "sigma_x": 6.314334020892627,
+     "lever_px_x": 1860.222406003304,
+     "lever_px_y": 1409.3435335003037,
+     "chi2_per_dof": 0.6793666969425745,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 28.089999999999918,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.005549422138266813,
+     "delivered_frac_x_err": 0.0009160696047094685,
+     "delivered_frac_y": -0.020730619496904468,
+     "equivalent_edge_dipole_x": 0.005454344650818902,
+     "equivalent_edge_dipole_y": -0.020503658968289106,
+     "n_stars": 1566,
+     "sigma_x": 6.07187113446086,
+     "lever_px_x": 1951.8243935620833,
+     "lever_px_y": 1488.1625292774054,
+     "chi2_per_dof": 0.7777956970108582,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 28.089999999999918,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": -0.0028,
+    "edge_dipole_y": 0.0031,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 1.0,
+   "transfer_y_pixel": 1.903225806451613
+  },
+  "g3": {
+   "ref": "sub_03.fit",
+   "alt": "sub_03.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g3.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g3.seq",
+   "canvas": [
+    5832,
+    3964
+   ],
+   "pixel_edge_dipole_x": {
+    "R": -0.0228,
+    "G": -0.0209,
+    "B": -0.017
+   },
+   "pixel_edge_dipole_y": {
+    "R": -0.0135,
+    "G": -0.0126,
+    "B": -0.0094
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": -0.011362727879743684,
+     "delivered_frac_x_err": 0.0008068239163679936,
+     "delivered_frac_y": 0.007667990512741474,
+     "equivalent_edge_dipole_x": -0.01126306021984673,
+     "equivalent_edge_dipole_y": 0.007476835677880631,
+     "n_stars": 1630,
+     "sigma_x": 13.997249239123631,
+     "lever_px_x": 1774.4061839600606,
+     "lever_px_y": 1329.504970188222,
+     "chi2_per_dof": 0.643950975820364,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.21000000000003638,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": -0.011532076045887685,
+     "delivered_frac_x_err": 0.0010225632089015946,
+     "delivered_frac_y": 0.006712171612607953,
+     "equivalent_edge_dipole_x": -0.011431896579840927,
+     "equivalent_edge_dipole_y": 0.00654796139433521,
+     "n_stars": 1544,
+     "sigma_x": 11.206537693279799,
+     "lever_px_x": 1843.0923315229916,
+     "lever_px_y": 1398.5429084737202,
+     "chi2_per_dof": 0.7979786386314195,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.21000000000003638,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": -0.0199,
+    "edge_dipole_y": -0.0103,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 1.0502512562814068,
+   "transfer_y_pixel": 1.2233009708737863
+  },
+  "g4": {
+   "ref": "sub_04.fit",
+   "alt": "sub_04.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g4.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g4.seq",
+   "canvas": [
+    5831,
+    3951
+   ],
+   "pixel_edge_dipole_x": {
+    "R": -0.0038,
+    "G": -0.0038,
+    "B": -0.0021
+   },
+   "pixel_edge_dipole_y": {
+    "R": -0.0146,
+    "G": -0.0134,
+    "B": -0.0121
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": -0.00361540366021873,
+     "delivered_frac_x_err": 0.0008464721832154298,
+     "delivered_frac_y": 0.007890945310849995,
+     "equivalent_edge_dipole_x": -0.003569774213257662,
+     "equivalent_edge_dipole_y": 0.007692830160058956,
+     "n_stars": 1570,
+     "sigma_x": 4.261601397175836,
+     "lever_px_x": 1804.1315571640632,
+     "lever_px_y": 1338.035302388698,
+     "chi2_per_dof": 0.6759232573861382,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.599999999999909,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": -0.003792567245765932,
+     "delivered_frac_x_err": 0.0010526307944557223,
+     "delivered_frac_y": 0.007986659024512566,
+     "equivalent_edge_dipole_x": -0.0037450341991618857,
+     "equivalent_edge_dipole_y": 0.0077857697264753145,
+     "n_stars": 1491,
+     "sigma_x": 3.5942004925413826,
+     "lever_px_x": 1884.435378500189,
+     "lever_px_y": 1410.1629853476552,
+     "chi2_per_dof": 0.8121742638128953,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.599999999999909,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": -0.0018,
+    "edge_dipole_y": -0.0131,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 2.111111111111111,
+   "transfer_y_pixel": 1.0229007633587786
+  },
+  "g5": {
+   "ref": "sub_05.fit",
+   "alt": "sub_05.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g5.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g5.seq",
+   "canvas": [
+    5831,
+    3977
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0243,
+    "G": 0.0189,
+    "B": 0.015
+   },
+   "pixel_edge_dipole_y": {
+    "R": -0.01,
+    "G": -0.012,
+    "B": -0.0113
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.021344108893340152,
+     "delivered_frac_x_err": 0.0010143479162956215,
+     "delivered_frac_y": 0.009174852597150673,
+     "equivalent_edge_dipole_x": 0.020814519414466038,
+     "equivalent_edge_dipole_y": 0.00894005717793604,
+     "n_stars": 1560,
+     "sigma_x": 21.254618310858408,
+     "lever_px_x": 1844.55203223288,
+     "lever_px_y": 1334.7228406625625,
+     "chi2_per_dof": 0.933860662470678,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 27.360000000000014,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.02238047941244936,
+     "delivered_frac_x_err": 0.0012114684435009515,
+     "delivered_frac_y": 0.009239266862096196,
+     "equivalent_edge_dipole_x": 0.021813993486817198,
+     "equivalent_edge_dipole_y": 0.009002534419923821,
+     "n_stars": 1486,
+     "sigma_x": 18.66797682890595,
+     "lever_px_x": 1937.1122524571392,
+     "lever_px_y": 1407.6650019817298,
+     "chi2_per_dof": 1.0287282413459784,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 27.360000000000014,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": 0.0199,
+    "edge_dipole_y": -0.0114,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 0.949748743718593,
+   "transfer_y_pixel": 1.0526315789473684
+  }
+ },
  "controls": {
+  "identity": {
+   "ref": "sub_01.fit",
+   "alt": "sub_01.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03.fit:500",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    5831,
+    3965
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1781,
+     "sigma_x": null,
+     "lever_px_x": 1859.9840504861897,
+     "lever_px_y": 1411.0757703204993,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1781,
+     "sigma_x": null,
+     "lever_px_x": 1963.7837251255974,
+     "lever_px_y": 1502.4419326315842,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   }
+  },
+  "uniform": {
+   "ref": "sub_01.fit",
+   "alt": "U_01.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "flat_U.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    5831,
+    3965
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1748,
+     "sigma_x": null,
+     "lever_px_x": 1861.7171184347528,
+     "lever_px_y": 1411.02259706895,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1709,
+     "sigma_x": null,
+     "lever_px_x": 1966.5609051177507,
+     "lever_px_y": 1504.41227782222,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   }
+  },
+  "planted": {
+   "ref": "sub_01.fit",
+   "alt": "P_01.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "flat_P.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    5831,
+    3965
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.1881,
+    "G": 0.1882,
+    "B": 0.1881
+   },
+   "pixel_edge_dipole_y": {
+    "R": -0.0007,
+    "G": -0.0007,
+    "B": -0.0007
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.20591844454153385,
+     "delivered_frac_x_err": 0.0001735622063294695,
+     "delivered_frac_y": -6.7344456031182e-05,
+     "equivalent_edge_dipole_x": 0.18402214834117053,
+     "equivalent_edge_dipole_y": -6.591995835053371e-05,
+     "n_stars": 1770,
+     "sigma_x": 1300.869003335487,
+     "lever_px_x": 1860.875546264746,
+     "lever_px_y": 1407.4346054931632,
+     "chi2_per_dof": 0.02458440474006978,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.15999999999985448,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.20588509312334136,
+     "delivered_frac_x_err": 0.0001820276261816911,
+     "delivered_frac_y": -0.00014402099609711616,
+     "equivalent_edge_dipole_x": 0.1839951206673845,
+     "equivalent_edge_dipole_y": -0.00014098000976916445,
+     "n_stars": 1738,
+     "sigma_x": 1240.1486154244717,
+     "lever_px_x": 1959.8300398767522,
+     "lever_px_y": 1496.2413049350132,
+     "chi2_per_dof": 0.021671889617423026,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.15999999999985448,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   },
+   "expected_from_flats_over_the_delivered_canvas": {
+    "edge_dipole_x": 0.1896,
+    "edge_dipole_y": 0.0,
+    "source": "the two flats' own ratio (set / group), Siril fdiv, cropped to this member's delivered canvas and measured with the SAME instrument"
+   },
+   "transfer_x_pixel": 0.9926160337552743,
+   "transfer_y_pixel": null
+  },
+  "prodnorm": {
+   "ref": "An_01.fit",
+   "alt": "Bn_01.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g1.fit",
+   "stack_norm": [
+    "addscale+output_norm",
+    "addscale+output_norm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    5831,
+    3965
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0089,
+    "G": 0.0094,
+    "B": 0.0078
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0469,
+    "G": 0.0395,
+    "B": 0.0353
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.007322227852332386,
+     "delivered_frac_x_err": 0.0006258699962671255,
+     "delivered_frac_y": -0.03449572724458749,
+     "equivalent_edge_dipole_x": 0.007190421541497215,
+     "equivalent_edge_dipole_y": -0.03435766407881402,
+     "n_stars": 3079,
+     "sigma_x": 11.738359316171794,
+     "lever_px_x": 2035.5716905957806,
+     "lever_px_y": 1539.5038707188403,
+     "chi2_per_dof": 0.9387888408065959,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 29.710000000000036,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.007674235308891664,
+     "delivered_frac_x_err": 0.0007312759064543872,
+     "delivered_frac_y": -0.035552155473650204,
+     "equivalent_edge_dipole_x": 0.0075347713487118875,
+     "equivalent_edge_dipole_y": -0.035428916286899835,
+     "n_stars": 2813,
+     "sigma_x": 10.530651327469533,
+     "lever_px_x": 2178.479741691477,
+     "lever_px_y": 1663.249126851753,
+     "chi2_per_dof": 0.9332707068325627,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 29.710000000000036,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   }
+  },
   "card_definitions": {
    "geometry": [
     6064,
@@ -127,8 +782,282 @@
    "role": "synthetic FIXTURES divided into the per-set flat by Siril; never delivered, never a calibration frame outside these control arms"
   }
  },
- "composed": {},
- "derived": {},
+ "composed": {
+  "measured": {
+   "ref": "compose_armA.fit",
+   "alt": "compose_armB.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03_g1.fit",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    4908,
+    3619
+   ],
+   "pixel_edge_dipole_x": {
+    "R": -0.0059,
+    "G": -0.0027,
+    "B": -0.0028
+   },
+   "pixel_edge_dipole_y": {
+    "R": -0.001,
+    "G": -0.0011,
+    "B": -0.0015
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.0005489432251302162,
+     "delivered_frac_x_err": 0.0008338779093528537,
+     "delivered_frac_y": -0.004953642966778138,
+     "equivalent_edge_dipole_x": 0.0005394000592632881,
+     "equivalent_edge_dipole_y": -0.004850679516950936,
+     "n_stars": 1217,
+     "sigma_x": 0.6582078934224722,
+     "lever_px_x": 1498.212524617744,
+     "lever_px_y": 1201.4791294645252,
+     "chi2_per_dof": 0.6424848470012232,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 18.970000000000027,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.0007192834103451062,
+     "delivered_frac_x_err": 0.001111784674698968,
+     "delivered_frac_y": -0.0047879158971378954,
+     "equivalent_edge_dipole_x": 0.0007067187718189552,
+     "equivalent_edge_dipole_y": -0.004688007692131014,
+     "n_stars": 1183,
+     "sigma_x": 0.6468359157730353,
+     "lever_px_x": 1534.8199792740284,
+     "lever_px_y": 1229.0621057029998,
+     "chi2_per_dof": 1.0286666876615829,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 18.970000000000027,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   }
+  },
+  "identity": {
+   "ref": "compose_armA.fit",
+   "alt": "compose_armI.fit",
+   "ref_flat": "skyflat_set-03.fit:500",
+   "alt_flat": "skyflat_set-03.fit:500",
+   "stack_norm": [
+    "nonorm",
+    "nonorm"
+   ],
+   "regpin": "armreg_g1.seq",
+   "canvas": [
+    4908,
+    3619
+   ],
+   "pixel_edge_dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "pixel_edge_dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "no_clip_control_agrees": {
+    "R": true,
+    "G": true,
+    "B": true
+   },
+   "star": {
+    "10": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1254,
+     "sigma_x": null,
+     "lever_px_x": 1499.10314264154,
+     "lever_px_y": 1202.8937650601645,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    },
+    "16": {
+     "delivered_frac_x": 0.0,
+     "delivered_frac_x_err": 0.0,
+     "delivered_frac_y": 0.0,
+     "equivalent_edge_dipole_x": 0.0,
+     "equivalent_edge_dipole_y": 0.0,
+     "n_stars": 1254,
+     "sigma_x": null,
+     "lever_px_x": 1535.7859641387536,
+     "lever_px_y": 1232.558778411762,
+     "chi2_per_dof": 0.0,
+     "centroid_agreement_px": {
+      "median_abs_dx": 0.0,
+      "median_abs_dy": 0.0,
+      "max_abs_dx": 0.0,
+      "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+     }
+    }
+   }
+  }
+ },
+ "derived": {
+  "member_delivered_dipole_x": {
+   "per_group": [
+    0.0076,
+    -0.0028,
+    -0.0209,
+    -0.0038,
+    0.0189
+   ],
+   "mean": -0.00019999999999999966,
+   "mean_abs": 0.0108,
+   "spread_max_minus_min": 0.0398,
+   "reading": "the MEAN is what a plain-mean compose can carry; the SPREAD is the member-to-member disagreement per-group flats introduce, which arm A does not have at all (one flat for every member)."
+  },
+  "composed_vs_member_x": {
+   "composed_measured": -0.0027,
+   "predicted_from_the_mean_of_the_five": -0.00019999999999999966,
+   "mean_abs_member": 0.0108,
+   "composed_over_mean_abs_member": -0.25
+  },
+  "member_delivered_dipole_y": {
+   "per_group": [
+    0.0322,
+    0.0059,
+    -0.0126,
+    -0.0134,
+    -0.012
+   ],
+   "mean": 1.9999999999999707e-05,
+   "mean_abs": 0.015220000000000001,
+   "spread_max_minus_min": 0.0456,
+   "reading": "the MEAN is what a plain-mean compose can carry; the SPREAD is the member-to-member disagreement per-group flats introduce, which arm A does not have at all (one flat for every member)."
+  },
+  "composed_vs_member_y": {
+   "composed_measured": -0.0011,
+   "predicted_from_the_mean_of_the_five": 1.9999999999999707e-05,
+   "mean_abs_member": 0.015220000000000001,
+   "composed_over_mean_abs_member": -0.07227332457293036
+  },
+  "discrimination": {
+   "identity_floor_max_abs_dipole_x": 0.0,
+   "identity_floor_max_abs_dipole_y": 0.0,
+   "planted_moved_dipole_x": 0.1882,
+   "ratio": null,
+   "reading": "a floor of EXACTLY zero makes the ratio unbounded, so the honest statement is then the floor's exact value and how many measured quantities sit at it.",
+   "planted_recovery": 0.9926160337552743
+  },
+  "uniform_card_control": {
+   "dipole_x": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "dipole_y": {
+    "R": 0.0,
+    "G": 0.0,
+    "B": 0.0
+   },
+   "reading": "every pixel differs by 5%, the GRADIENT does not: every dipole must stay at the identity floor. This is what makes the identity floor non-vacuous."
+  },
+  "production_normalization_absorption": {
+   "nonorm_dipole_x": 0.0076,
+   "prodnorm_dipole_x": 0.0094,
+   "ratio_prodnorm_over_nonorm": 1.236842105263158,
+   "star_nonorm_delivered_frac_x": 0.007299967045820033,
+   "star_prodnorm_delivered_frac_x": 0.007322227852332386,
+   "reading": "the shipped clause is measured to absorb 0.3-0.4% of a calibration difference on the OBJECT while moving the BACKGROUND pixel field ~48.6% (a pedestal artefact \u2014 psf's local annulus is immune, regional medians are not). The pixel field is valid on -nonorm arms only."
+  }
+ },
+ "member_background_ramp_green": {
+  "by_arm": {
+   "armA": {
+    "g1": {
+     "slope_x_pct_per_1000px": 0.01677453349527191,
+     "slope_y_pct_per_1000px": 0.8352730943389406,
+     "range_pct": 4.262408961153149
+    },
+    "g2": {
+     "slope_x_pct_per_1000px": 0.12069430371550519,
+     "slope_y_pct_per_1000px": 0.2564753953954909,
+     "range_pct": 2.14349190034154
+    },
+    "g3": {
+     "slope_x_pct_per_1000px": 0.3281944081525686,
+     "slope_y_pct_per_1000px": -0.3548946480747327,
+     "range_pct": 3.621635746015155
+    },
+    "g4": {
+     "slope_x_pct_per_1000px": 0.10282154413763384,
+     "slope_y_pct_per_1000px": -0.3560264696745619,
+     "range_pct": 2.561466114252878
+    },
+    "g5": {
+     "slope_x_pct_per_1000px": -0.31035487032633363,
+     "slope_y_pct_per_1000px": -0.4242358119945943,
+     "range_pct": 3.436715828729555
+    }
+   },
+   "armB": {
+    "g1": {
+     "slope_x_pct_per_1000px": 0.040804603393106924,
+     "slope_y_pct_per_1000px": 0.0143608434271427,
+     "range_pct": 0.8388713367469223
+    },
+    "g2": {
+     "slope_x_pct_per_1000px": 0.04607687614397071,
+     "slope_y_pct_per_1000px": -0.012690665039690444,
+     "range_pct": 0.6614765100671117
+    },
+    "g3": {
+     "slope_x_pct_per_1000px": 0.05695151311977237,
+     "slope_y_pct_per_1000px": -0.00952366440134869,
+     "range_pct": 0.8066543747904795
+    },
+    "g4": {
+     "slope_x_pct_per_1000px": 0.05459073381628939,
+     "slope_y_pct_per_1000px": -0.01917065903252389,
+     "range_pct": 0.6958949228791598
+    },
+    "g5": {
+     "slope_x_pct_per_1000px": 0.0492936223911076,
+     "slope_y_pct_per_1000px": -0.030472421114559455,
+     "range_pct": 0.6072974278587708
+    }
+   }
+  },
+  "READ_THIS_FIRST": "the registry calls stack background flatness SELF-FULFILLING for flat contamination \u2014 a stack reads flat precisely BECAUSE the flat absorbed the gradient. Recorded as the size of the mechanism, NEVER as evidence of a better calibration.",
+  "summary": {
+   "armA_slope_x_mean": 0.05162598383492918,
+   "armA_slope_x_spread": 0.6385492784789022,
+   "armA_slope_y_mean": -0.008681688001891485,
+   "armA_slope_y_spread": 1.259508906333535,
+   "armB_slope_x_mean": 0.0495434697728494,
+   "armB_slope_x_spread": 0.016146909726665444,
+   "armB_slope_y_mean": -0.011499313232195956,
+   "armB_slope_y_spread": 0.04483326454170215
+  }
+ },
  "prediction_committed_before_the_arms": {
   "1_SHAPE_AND_SIGN": "flat_gk / flat_set departs with OPPOSITE SIGN at k=1 and k=5 and is smallest in magnitude at k=3. FALSIFIER: the same sign at both ends, or |k=3| not the smallest of the five.",
   "2_MAGNITUDE": "under a linear-in-window-position model calibrated on the inherited half-to-half 3.481% (window midpoints at 10/30/50/70/90% of the burst against the halves' 25/75%): |g1 vs set| = |g5 vs set| = 2.78% corner spread, |g2| = |g4| = 1.39%, |g3| ~ 0, and |g1 vs g5| = 5.57% = 1.6x the half-to-half term. Accepted within a factor 1.5 either way. FALSIFIER: |g1 vs set| < 1.0%, which would mean the group windows are not materially different from the set mean and the item is moot.",

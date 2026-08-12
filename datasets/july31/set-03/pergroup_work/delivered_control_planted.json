@@ -1,0 +1,280 @@
+{
+ "label": "control_planted",
+ "arm_ref": {
+  "file": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/pergroup/armA/sub_01.fit",
+  "CALFLAT": "skyflat_set-03.fit:500",
+  "STACKNRM": "nonorm",
+  "REGPIN": "armreg_g1.seq",
+  "DIAGARM": true,
+  "STACKCNT": 100,
+  "LIVETIME": 250.0,
+  "canvas": [
+   5831,
+   3965
+  ]
+ },
+ "arm_alt": {
+  "file": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/pergroup/armX/P_01.fit",
+  "CALFLAT": "flat_P.fit",
+  "STACKNRM": "nonorm",
+  "REGPIN": "armreg_g1.seq",
+  "DIAGARM": true,
+  "CALXSET": true,
+  "STACKCNT": 100,
+  "LIVETIME": 250.0,
+  "canvas": [
+   5831,
+   3965
+  ]
+ },
+ "uptime": "19:01:42 up 38 days,  3:12,  1 user,  load average: 1.19, 2.52, 4.66",
+ "tool_search": {
+  "siril fdiv + stat (via flat_odd_component.py)": "ADOPTED as the PRIMARY instrument \u2014 the delivered imprint-ratio field needs no fit and no cross-match at all once the arms are pixel-aligned: Siril divides the two stacks and Siril's own regional medians measure the result. The shipped CLI is invoked, not reimplemented.",
+  "siril psf + setphot": "ADOPTED as the CONFIRMING instrument \u2014 aperture photometry at a forced radius against its own local annulus, headless, on the layer the rest of the chain uses.",
+  "siril seqpsf -at=": "APPLICABLE HERE, unlike the absolute measurement, and PROBED rather than reasoned about. Its disqualifying behaviour there \u2014 it converts a position ONCE and measures that same pixel area in every image \u2014 is CORRECT for an aligned pair, where the star does not move. Run on the two arms as a 2-image sequence it returns m = -2.055611 +- 0.001089 (arm A) and -2.071396 +- 0.001081 (arm B), against -2.0556 / -2.0714 from the adopted per-image `psf` path \u2014 agreement 1.1e-5 mag, which is the psf log's own printing precision. NOT ADOPTED (it measures one star per invocation from a selection, i.e. the same per-star, per-image call as `psf`, with a parser that is not the one already validated here) but recorded as a POSITIVE cross-validation of the photometry: datasets/<night>/<set>/flatdiff_work/seqpsf_crosscheck.json.",
+  "source-extractor 2.28.2 dual-image mode": "AVAILABLE and VIABLE, NOT ADOPTED. Documented to detect on one image and measure FLUX_APER at those positions in a second \u2014 the two flux lists this needs. Not probed, because nothing here depends on it working: it would still leave the SUBTRACTION and the FIT in-house, it reads plane 1 of the cube rather than the green layer the chain uses, and Siril's psf is already validated for aperture invariance in this repo.",
+  "conclusion": "no installed tool reports the position-dependent photometric RATIO FIELD between two aligned exposures, so the subtraction and the straight-line fit are the in-house part."
+ },
+ "instrument": "PRIMARY: Siril fdiv + Siril stat regional medians via the shipped flat_odd_component.py, per channel (Siril split). CONFIRMING: Siril findstar (detection + position) + Siril psf aperture photometry at a forced radius against its own local annulus (setphot), the same star at the same pixel in both arms; in-house: the subtraction of the two tool measurements and a weighted straight-line fit against position.",
+ "primary_pixel_ratio_field": {
+  "R": {
+   "edge": {
+    "edge_dipole_x": 0.1881,
+    "edge_dipole_y": -0.0007,
+    "LR": 0.8281,
+    "TB": 0.9993,
+    "corner_ratio": 1.2084,
+    "corner_over_center": 0.9999,
+    "median_ADU": {
+     "center": 32763.8,
+     "TL": 29670.0,
+     "TR": 35831.6,
+     "BL": 29692.1,
+     "BR": 35852.6
+    }
+   },
+   "corner": {
+    "edge_dipole_x": 0.162,
+    "edge_dipole_y": -0.0005,
+    "LR": 0.8501,
+    "TB": 0.9995,
+    "corner_ratio": 1.1769,
+    "corner_over_center": 1.0,
+    "median_ADU": {
+     "center": 32763.7,
+     "TL": 30099.5,
+     "TR": 35407.7,
+     "BL": 30116.4,
+     "BR": 35425.0
+    }
+   },
+   "no_clip_control_agrees": true,
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work/work_control_planted/ratio_R.json"
+  },
+  "G": {
+   "edge": {
+    "edge_dipole_x": 0.1882,
+    "edge_dipole_y": -0.0007,
+    "LR": 0.828,
+    "TB": 0.9993,
+    "corner_ratio": 1.2085,
+    "corner_over_center": 0.9999,
+    "median_ADU": {
+     "center": 32769.1,
+     "TL": 29672.8,
+     "TR": 35838.5,
+     "BL": 29694.5,
+     "BR": 35859.6
+    }
+   },
+   "corner": {
+    "edge_dipole_x": 0.1621,
+    "edge_dipole_y": -0.0005,
+    "LR": 0.8501,
+    "TB": 0.9995,
+    "corner_ratio": 1.177,
+    "corner_over_center": 1.0,
+    "median_ADU": {
+     "center": 32769.0,
+     "TL": 30103.6,
+     "TR": 35415.0,
+     "BL": 30119.9,
+     "BR": 35431.7
+    }
+   },
+   "no_clip_control_agrees": true,
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work/work_control_planted/ratio_G.json",
+   "profile_x": {
+    "box_px": 80,
+    "y_row": 1942,
+    "x_box_centres": [
+     42.0,
+     760.0,
+     1479.0,
+     2197.0,
+     2916.0,
+     3634.0,
+     4352.0,
+     5071.0,
+     5789.0
+    ],
+    "median_ratio": [
+     29740.3,
+     30535.6,
+     31297.8,
+     32038.2,
+     32770.2,
+     33500.5,
+     34239.8,
+     34999.6,
+     35793.0
+    ],
+    "departure_from_the_end_to_end_straight_line": [
+     0.0,
+     0.0011935137514466703,
+     0.0013447118261231106,
+     0.0008627415106909824,
+     9.227075440654137e-05,
+     -0.0006979397991946453,
+     -0.0012134808336353442,
+     -0.0011355279640684116,
+     0.0
+    ],
+    "max_abs_departure": 0.0013447118261231106,
+    "reading": "a positive departure in the middle means the delivered field is CONVEX there, so a star-weighted straight-line fit reads a different slope than the corner-anchored dipole. This is the attribution for any disagreement between the two instruments."
+   }
+  },
+  "B": {
+   "edge": {
+    "edge_dipole_x": 0.1881,
+    "edge_dipole_y": -0.0007,
+    "LR": 0.8281,
+    "TB": 0.9993,
+    "corner_ratio": 1.2084,
+    "corner_over_center": 0.9999,
+    "median_ADU": {
+     "center": 32771.6,
+     "TL": 29676.7,
+     "TR": 35839.7,
+     "BL": 29698.8,
+     "BR": 35861.1
+    }
+   },
+   "corner": {
+    "edge_dipole_x": 0.162,
+    "edge_dipole_y": -0.0005,
+    "LR": 0.8501,
+    "TB": 0.9995,
+    "corner_ratio": 1.1769,
+    "corner_over_center": 1.0,
+    "median_ADU": {
+     "center": 32771.4,
+     "TL": 30106.6,
+     "TR": 35416.7,
+     "BL": 30123.2,
+     "BR": 35433.6
+    }
+   },
+   "no_clip_control_agrees": true,
+   "record": "/home/samsung/Desktop/astro-imaging/datasets/july31/set-03/pergroup_work/work_control_planted/ratio_B.json"
+  }
+ },
+ "confirming_star_differential": {
+  "n_detected": 17910,
+  "n_admitted": 1791,
+  "detection": {
+   "roundness_floor": 0.05,
+   "layer": 1,
+   "amplitude_floor": 0.005,
+   "edge_margin_px": 40,
+   "detected_on": "sub_01.fit"
+  },
+  "canvas_wh": [
+   5831.0,
+   3965.0
+  ],
+  "apertures": {
+   "10": {
+    "ax": -0.20329484437923986,
+    "ay": 7.312077626983604e-05,
+    "ax_err": 0.00015627618450280752,
+    "ay_err": 0.0001407478499700693,
+    "ax_err_formal": 0.0009966965402485313,
+    "zero_points": [
+     0.0012219433672529816
+    ],
+    "n_stars": 1770,
+    "n_obs": 1770,
+    "dof": 1767,
+    "n_stars_clipped": 11,
+    "clip_sigma": 4.0,
+    "chi2_per_dof": 0.02458440474006978,
+    "resid_rms_mag": 0.00166076542161072,
+    "lever_frac_x": 0.31913489045871135,
+    "lever_frac_y": 0.35496459154934756,
+    "design_condition_number": 4.040472579005167,
+    "aperture_radius_px": 10,
+    "annulus_px": [
+     20,
+     30
+    ],
+    "background": "Siril psf local annulus (setphot -inner/-outer)",
+    "delivered_ratio_alt_over_ref_edge_to_edge": 1.2059184445415339,
+    "delivered_frac_x": 0.20591844454153385,
+    "delivered_frac_x_err": 0.0001735622063294695,
+    "delivered_frac_y": -6.7344456031182e-05,
+    "sigma_x": 1300.869003335487,
+    "lever_px_x": 1860.875546264746,
+    "lever_px_y": 1407.4346054931632,
+    "valid_fraction": 0.9944165270798436,
+    "centroid_agreement_px": {
+     "median_abs_dx": 0.0,
+     "median_abs_dy": 0.0,
+     "max_abs_dx": 0.15999999999985448,
+     "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+    }
+   },
+   "16": {
+    "ax": -0.20326481635942106,
+    "ay": 0.00015638007098503492,
+    "ax_err": 0.0001639035949653894,
+    "ay_err": 0.00014625768941204964,
+    "ax_err_formal": 0.0011133714721897501,
+    "zero_points": [
+     0.0012186150223491411
+    ],
+    "n_stars": 1738,
+    "n_obs": 1738,
+    "dof": 1735,
+    "n_stars_clipped": 43,
+    "clip_sigma": 4.0,
+    "chi2_per_dof": 0.021671889617423026,
+    "resid_rms_mag": 0.0017116257737373737,
+    "lever_frac_x": 0.33610530610131234,
+    "lever_frac_y": 0.37736224588524925,
+    "design_condition_number": 4.049055734772339,
+    "aperture_radius_px": 16,
+    "annulus_px": [
+     20,
+     30
+    ],
+    "background": "Siril psf local annulus (setphot -inner/-outer)",
+    "delivered_ratio_alt_over_ref_edge_to_edge": 1.2058850931233414,
+    "delivered_frac_x": 0.20588509312334136,
+    "delivered_frac_x_err": 0.0001820276261816911,
+    "delivered_frac_y": -0.00014402099609711616,
+    "sigma_x": 1240.1486154244717,
+    "lever_px_x": 1959.8300398767522,
+    "lever_px_y": 1496.2413049350132,
+    "valid_fraction": 0.9944165270798436,
+    "centroid_agreement_px": {
+     "median_abs_dx": 0.0,
+     "median_abs_dy": 0.0,
+     "max_abs_dx": 0.15999999999985448,
+     "reading": "the same star measured in both arms. A pair that is not pixel-aligned separates here before it lies in the fit."
+    }
+   }
+  }
+ },
+ "how_to_read": "edge_dipole_x is ((TR+BR)-(TL+BL))/2 over the four-corner mean of the RATIO alt/ref, i.e. the delivered imprint difference. Compare it with the two flats' own ratio measured by the same instrument: the delivered field is that ratio SMEARED by the drift, so |delivered| <= |flat ratio|, and the shortfall is the -framing=min canvas baseline against the frame's. The star differential answers the same question on the OBJECT'S OWN FLUX and is independent of it. REPORTED, never gated."
+}

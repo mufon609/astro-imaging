@@ -630,6 +630,50 @@ the constraints any such tool must satisfy):
   carries them as INHERITED (the standing rule for a measurement not re-made in
   its current context).
 
+- **NARROWING THE FLAT WINDOW (one flat per 100-frame GROUP instead of one per
+  500-frame set) DOES NOT IMPROVE THE PER-SET PRODUCT, AND THE "a flat calibrates
+  ONLY the frames it was built from" RULE IS NOT GROUNDS FOR IT.** The upstream
+  fix the entry above SPECIFIED was built and measured on july31/set-03, one
+  knob, registration pinned at BOTH levels, all four controls run.
+  **WHY THE DOCTRINAL ARGUMENT DOES NOT TRANSFER — the load-bearing point.** A
+  ratio of two flats from one night, lens, focal and aperture cancels vignetting
+  EXACTLY, so what differs between a group flat and the set flat IS THE SKY TERM;
+  the OPTICAL state (V, dust, focus) does not change inside a 25-minute burst.
+  The ratified rule is about optical-state matching. What a narrower window
+  tracks better is the SKY — which is the sky flat's DEFECT, not its purpose — so
+  narrowing does not reduce the contamination, it changes WHICH sky is imprinted
+  on the object and makes that imprint DIFFER between members.
+  **THE PER-SET PRODUCT DOES NOT MOVE, AND THAT WAS PREDICTED BEFORE IT WAS
+  MEASURED.** The per-set flat IS the groups' average: the mean of the five
+  per-group departures is 0.82% (x) and 0.76% (y) of a typical departure, so a
+  plain-mean compose cancels them. Delivered, the composed object L/R tilt moves
+  **+0.055% ± 0.083%, 0.7σ — indistinguishable from zero** (Siril `psf`, 1217
+  stars), and the composed pixel field is 7-25% of the mean member magnitude.
+  Cancellation is 75-94% rather than the >99% the sensor-frame arithmetic gives,
+  because the compose is a SKY-frame mean of sensor-fixed patterns that drifted
+  ~453 px across the set. **Do not read that null as a null for the method** —
+  it is arithmetic, and it was recorded before the composed stack existed.
+  **AT MEMBER LEVEL THE CORRECTION IS REAL, LARGE, AND A TRADE RATHER THAN A
+  GAIN.** It reaches the member at **1:1** (planted-corrected transfer 1.007 in
+  x, 1.077 in y), moving each member's object tilt 0.36-2.13% in x (4.3-21.3σ)
+  and up to 3.42% in y. It BUYS member backgrounds 28-40x more consistent
+  member-to-member — but that is the SELF-FULFILLING direction this registry
+  already warns about, so it is the mechanism's size and NOT evidence of a better
+  calibration. It COSTS **3.271% (x) / 4.335% (y) of member-to-member OBJECT-
+  imprint disagreement, where the shipped per-set flat has EXACTLY ZERO** by
+  construction, since one flat serves every member. No instrument here can say
+  which side is closer to truth — the absolute residual is the dead end above —
+  so this is a trade-off the DATA CANNOT SETTLE and the owner decides.
+  **What is NOT killed:** the input error is real and 20-62x its own build floor,
+  the group flats cost nothing in baked-in structure (ZERO findstar specks on
+  every one, against ONE on the set flat, despite averaging 90.9 px of celestial
+  motion against 453.3 px), and the member is the cross-night COMBINE unit — so a
+  combine-level A/B is the open question, not a re-run of this one.
+  Numbers: `datasets/july31/experiments.jsonl`,
+  `pergroup_flat_window_july31_set03`; pre-registration
+  `datasets/july31/pergroup_flat_prediction.json`, committed before the first
+  flat was built.
+
 - **A FOUR-CORNER BOX METRIC IS NOT A GRADIENT MEASURE ON A STRUCTURED FIELD.**
   Corner-vs-corner spread is the repo's background-flatness number
   (`judge_acceptance.json`'s `linear_corner_spread_pct`, `build_sky_flat.sh`'s
