@@ -25,9 +25,14 @@ Re-executed on this rig before this brief was written (load average 1.2–1.5,
 - **All five guards PASS** (`check_bitdepth`, `check_calibrate`,
   `check_siril_invoke`, `check_stack_rejection`, `check_registration_pins`) and
   all three selftests PASS (`compose_preflight`, `lens_preflight`, `route.py`).
-- **The corpus is fully staged**: 12 real light sets over 3 nights, 5457 light
-  frames, plus darks; `run_session_chain.sh sessions/aug09 --plan` walks all
-  five sets clean end to end.
+- **The corpus is fully staged**: 12 real light sets over 3 nights — **5,723
+  staged** raws (`.nef` count per set dir, `set-00` excluded as the spare-frames
+  bucket) and **5,665 stacked** (sum of `STACKCNT` over all 52 sub-stacks), so
+  **58 culled**. The cull is not uniform: aug06/set-03 alone accounts for 44 of
+  it, which is the cloud block `BACKLOG:intake-culling` names as a positive
+  control — a set whose members you should expect to behave differently.
+  `run_session_chain.sh sessions/aug09 --plan` walks all five sets clean end to
+  end.
 - **The inputs you need already exist and are solved.** Every set has its
   groups-route sub-stacks under `sessions/<night>/work/groups_set-NN/` — 4–5
   consecutive-time blocks per set, 52 across the corpus, each independently
@@ -154,13 +159,28 @@ These are not hypotheticals; every one is a registered mechanism in this repo.
    the group's `g*.list` member lists, not the stack header.
 6. **The zero point differs between blocks** (extinction and transparency drift
    through a set; the corpus carries a measured 18–24% cross-night noise gap and
-   +0.16 mag of extinction on the hazy night). That is a constant multiplier —
-   it is the fit's INTERCEPT, not its slope. Normalise it out explicitly and say
-   you did; do not let it leak into the tilt.
-7. **A number read off a loaded box is not a measurement.** A fixture reading
+   +0.16 mag of extinction on the hazy night). The multiplicative part of that is
+   a constant factor — the fit's INTERCEPT, not its slope. Normalise it out
+   explicitly and say you did; do not let it leak into the tilt.
+7. **The members are not offset-free, and an offset does not cancel the way a
+   scale does.** Every light stack pins **`-norm=addscale -output_norm`**
+   (`run_undistort_groups.sh`, `run_undistort_pipeline.sh`,
+   `run_undistort_compose.sh`, `lights.ssf.tmpl`), which matches each member's
+   background TO THE REFERENCE and then re-zeroes at the darkest pixel. So each
+   block carries its own ADDITIVE pedestal as well as its own scale. A scale
+   divides out of a flux ratio; **a pedestal does not** — and because the
+   pedestal is per block, and blocks are what define the position axis, it leaks
+   straight into the quantity under test and can manufacture a tilt outright.
+   **Control: the flux measure must be locally background-subtracted, and say
+   which one you used.** Both tool-sourced options exist — `sep`'s local-annulus
+   forms (`sum_circle(..., bkgann=…)`, `sum_circann`), or `findstar`'s fitted
+   amplitude `A`, which the star list already reports above its own fitted local
+   background `B`. A raw aperture sum over an un-subtracted background is not an
+   admissible measure here.
+8. **A number read off a loaded box is not a measurement.** A fixture reading
    moved 3× (14666 vs 45398) between loaded and idle on identical inputs. Check
    `uptime` before quoting anything and put the load in the record.
-8. **Siril's own `stat` cannot verify Siril's own damage** — it excludes zero
+9. **Siril's own `stat` cannot verify Siril's own damage** — it excludes zero
    pixels, and `offset` clips at 0 in 32-bit against its own help. If any step
    subtracts, use `isub`, and read saved pixels with an independent reader.
    `idiv` clips at 1.0 silently; ratios use `fdiv`.
@@ -274,7 +294,7 @@ Read `docs/dead-ends.md` in full first. These are closed with mechanisms:
 5. Per-night numbers across all three regimes; no single corpus figure standing
    alone.
 6. Every number carries its instrument, its n, its faintest admitted amplitude,
-   its aperture radius, and the box's `uptime`.
+   its aperture radius, its background-subtraction form, and the box's `uptime`.
 7. **A tracked record exists** under `datasets/`, and the untracked 3.11%/241σ
    figure is either replaced by it or marked unverified at all of its citation
    sites — `BACKLOG.md` (three), `ROUTE_KEY_GENERALITY.md`, and the
