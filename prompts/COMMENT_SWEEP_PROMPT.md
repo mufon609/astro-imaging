@@ -55,6 +55,20 @@ mislead a future session into rebuilding something discredited.
 a tool flag, a default, a file path, or a pipeline contract, grep the shipped
 script for that flag/path and confirm it still says so.
 
+*Second detector, prose against RECORD rather than against code:* the one above
+greps the shipped SCRIPT, so it is blind to a write-up that contradicts a
+**record** — a registry entry or a ledger verdict that has since been corrected.
+Run it the other way: for every finding whose registry or `experiments.jsonl`
+entry says CORRECTED, REFUTED or FALSIFIED, grep every OTHER file that states
+that finding and confirm each one carries the corrected form. MEASURED, and it
+survived a commit: `f2ca8e7` corrected a doctrinal claim in `docs/dead-ends.md`
+and in the ledger, while `prompts/REPORT.md` went on asserting the wrong version
+until `20766e4`. The mechanism to expect — the correcting session fixes the
+finding where it is THINKING about it (registry, ledger) and not where it WROTE
+IT UP FOR READERS, because editing the write-up feels like touching prose rather
+than fixing a record. The write-up is the copy people actually read, so it is the
+copy worth checking first.
+
 **Run the repo's own guards first — they are the authoritative drift detectors
 for anything they cover**, and they print the true counts to compare prose
 against:
