@@ -134,14 +134,18 @@ JUDGE=$REPO/web/results/$(basename "$SESSION")/judge/${NAME}_spcc-linked
 mkdir -p "$(dirname "$JUDGE")"
 
 echo "[finish $NAME] 1/4 solve"
-# --central=<frac> restricts detection to the frame's central fraction — the
-# union-canvas (framing=max) case, whose coverage seams false-detect otherwise.
+# --central=<frac> keeps the central FRACTION OF THE FRAME (0.5 = the middle
+# half of each axis) — the union-canvas (framing=max) case, whose coverage seams
+# false-detect otherwise. solve_field REFUSES a solution that contradicts the
+# header's own pointing/scale (exit 9), and that refusal writes no WCS, so the
+# `[ -f "$WCS" ]` check below stops this stage; CONTRADICT/REFUS are in the grep
+# so the operator sees WHY rather than a bare "SOLVE FAILED".
 python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --max-stars=400 \
   --session="$SESSION" --set="$SET" \
   ${RA:+--ra=$RA} ${DEC:+--dec=$DEC} ${RAD:+--radius-deg=$RAD} \
   ${CENTRAL:+--central=$CENTRAL} \
   ${FIELDW:+--field-width-arcmin=$FIELDW} \
-  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn|hint|attempt' || true
+  --inject="$WCS" 2>&1 | grep -iE 'SOLVED|fail|warn|hint|attempt|CONTRADICT|REFUS|POSITION:|SCALE:' || true
 [ -f "$WCS" ] || { echo "[finish $NAME] SOLVE FAILED (no WCS injected)" >&2; exit 1; }
 
 # a MONO stack has no colour to calibrate — SPCC is broadband-only (README:

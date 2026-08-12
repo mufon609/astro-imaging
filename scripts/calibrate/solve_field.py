@@ -4,7 +4,13 @@
 Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
                      [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
                      [--field-width-arcmin=<N>] [--scales=<lo>-<hi>]
-                     [--max-stars=<N>]
+                     [--max-stars=<N>] [--accept-contradiction]
+
+EXIT 9 = the accepted solution CONTRADICTS the hints this file carries; nothing
+is injected and no record is written. It is a user decision, in the chain's gate
+family (run_set_chain 2/4/5/6/7/8): re-solve with a correct hint, restrict
+detection with --central, or take the solution deliberately with
+--accept-contradiction. Exit 1 stays "no solution at all".
 
 --max-stars sets how many detected stars are handed to the solver (default
 200). 200 is ample to MATCH a field — the matcher needs only a handful of
@@ -36,9 +42,18 @@ is explicit intent and never falls back). A very wide, distorted field can
 defeat the blind match: a fast wide lens warps the outer star quads, and
 the true field then never surfaces above the all-sky false-match noise. Two
 overrides for that case (a wide-field Milky-Way frame at 50 mm/41 deg
-needed both): the position hint above, and --central=<frac> restricts
-detection to the low-distortion central fraction of the frame (|dx|,|dy| <
-frac x size) so the quads it forms actually match a TAN projection.
+needed both): the position hint above, and --central=<frac>.
+
+--central=<frac> keeps the central FRACTION OF THE FRAME — frac=0.5 is the
+central half of each axis, i.e. |dx| <= frac*w/2, |dy| <= frac*h/2 — so the
+quads it forms come from the low-distortion middle and actually match a TAN
+projection. It also excludes the coverage SEAMS of a framing=max union canvas,
+which false-detect. The retained box is printed in pixels every run, and frac
+outside (0,1) is refused: the flag used to be a HALF-WIDTH fraction, under
+which --central=0.5 kept |dx| <= 0.5w — the WHOLE frame — so the one
+invocation reached for during a failed union solve excluded nothing while
+reading like a recovery attempt. Fraction-of-frame is what both this file and
+finish_render.sh always described.
 
 Index scales load CACHED-FIRST: the field-derived set splits into scales
 whose index series are fully cached vs those needing download, and the
@@ -128,8 +143,11 @@ def detect_stars_sep(path, central=None, max_stars=200):
     stars = []
     for o in obj:
         x0, y0 = float(o["x"]), float(o["y"])
-        if central is not None and (abs(x0 - w / 2) > central * w
-                                    or abs(y0 - h / 2) > central * h):
+        # FRACTION OF THE FRAME, not a half-width: frac=0.5 keeps the central
+        # half of each axis. See the module docstring — the half-width reading
+        # made --central=0.5 a silent no-op.
+        if central is not None and (abs(x0 - w / 2) > central * w / 2
+                                    or abs(y0 - h / 2) > central * h / 2):
             continue
         if keep_mask is not None and not keep_mask[
                 min(h - 1, max(0, int(y0))), min(w - 1, max(0, int(x0)))]:
@@ -145,24 +163,33 @@ def detect_stars_sep(path, central=None, max_stars=200):
     return stars, h, w
 
 
-def scale_hint(path, width_arcmin=None):
-    """Pixel-scale hint (arcsec/px) from the FITS header (siril propagates
+def header_scale(path, width_arcmin=None):
+    """NOMINAL pixel scale (arcsec/px) from the FITS header (siril propagates
     FOCALLEN + XPIXSZ from EXIF), or from an explicit --field-width-arcmin.
-    A hard-coded scale range fits only one rig/focal — 26-40"/px missed a
-    24mm field (~44-51"/px), which could never solve. Returns (lo, hi) or
-    None (blind)."""
+    None when the header carries neither. ONE source: both the solver's size
+    hint and the contradiction gate read this, so they cannot drift apart."""
     from astropy.io import fits
     try:
         hdr = fits.getheader(path)
         if width_arcmin is not None:
-            s = width_arcmin * 60.0 / float(hdr["NAXIS1"])
-        else:
-            # center scale, arcsec/px
-            s = 206.265 * float(hdr["XPIXSZ"]) / float(hdr["FOCALLEN"])
-        # wide envelope: wide-angle projection + integer-mm EXIF wobble
-        return (0.6 * s, 1.5 * s)
+            return width_arcmin * 60.0 / float(hdr["NAXIS1"])
+        return 206.265 * float(hdr["XPIXSZ"]) / float(hdr["FOCALLEN"])
     except (KeyError, ValueError, OSError):
         return None
+
+
+def scale_hint(path, width_arcmin=None):
+    """Size hint handed to the solver: a deliberately WIDE envelope around the
+    header nominal, so a wrong header narrows the search without ever excluding
+    the true field. A hard-coded scale range fits only one rig/focal — 26-40"/px
+    missed a 24mm field (~44-51"/px), which could never solve. Returns (lo, hi)
+    or None (blind). The gate below is TIGHTER on purpose: this bounds where to
+    LOOK, the gate judges whether the ANSWER contradicts the header."""
+    s = header_scale(path, width_arcmin)
+    if s is None:
+        return None
+    # wide envelope: wide-angle projection + integer-mm EXIF wobble
+    return (0.6 * s, 1.5 * s)
 
 
 # astrometry.net 42xx index scale -> (lo, hi) skymark/quad diameter, arcmin.
@@ -266,6 +293,87 @@ def solve(stars, hint=None, scales=None, pos=None, required=True):
     return sol.best_match()
 
 
+# ---- the contradiction gate ------------------------------------------------
+# WHY IT EXISTS, measured on the corpus union: the hinted attempt failed on a
+# seam-contaminated framing=max canvas and the BLIND fallback then shipped
+# RA 6.03 Dec -65.10 at 12.96"/px, logodds 22.3 — against a header hint of
+# RA 309.77 Dec +41.70 r15 and a 17"/px family. Nothing downstream could catch
+# it: siril SPCC ran to COMPLETION on that WCS and produced plausible-looking K
+# factors (R 1.000 G 0.592 B 0.817, "1790/5153 stars kept") rather than failing,
+# so a confident falsehood is one step from the deliverable and the solve is the
+# only place it can be stopped. The finish stage proceeded on it until it was
+# killed by hand.
+#
+# The blind fallback stays — it is what solves a field whose header pointing is
+# absent or wrong, and a hint that FAILS is not evidence the hint was wrong. What
+# changes is that its answer must now survive the hints rather than replace them.
+
+# The hint radius is the declared position uncertainty. Twice it is already
+# generous — every hinted solve in this corpus lands within 0.27 deg of a 15 deg
+# hint (68 records replayed) — while the measured false solve sat ~110 deg out,
+# 7x the radius. So this separates by two orders of magnitude and is not a
+# tuned number.
+POSITION_RADIUS_FACTOR = 2.0
+# Scale tolerance around the header nominal. Budgeted from MECHANISM, not fitted:
+# integer-mm EXIF focal (70 +-0.5 mm = +-0.7%), XPIXSZ rounding, a real lens's
+# infinity focal differing from its marked value by a few %, and the TAN
+# projection's own centre-to-corner scale ratio across a 28.6 deg field
+# (1/cos^2(14.3 deg) = 1.066). Those sum to well under 10%; 20% doubles it. The
+# corpus then VERIFIES the headroom rather than setting the number: 67 real
+# solves span 0.969-0.976 of nominal (a -2.4 to -3.1% systematic, 8x inside the
+# band) and the false one sat at 0.740.
+SCALE_TOLERANCE = 0.20
+# A WARNING, never a refusal: nothing contradicts a solve that had no hint to
+# contradict, and a genuinely hard field may legitimately land below this. 100 is
+# this file's own confident-match threshold (the logodds_callback stops there);
+# all 67 real solves in the corpus cleared it at 103-574, and the false one sat
+# at 22.3 — just above astrometry.net's ~20.7 default acceptance floor, which is
+# why the engine returned it at all.
+LOGODDS_FLOOR = 100.0
+
+
+def angular_sep_deg(ra1, dec1, ra2, dec2):
+    import math
+    r = math.radians
+    c = (math.sin(r(dec1)) * math.sin(r(dec2))
+         + math.cos(r(dec1)) * math.cos(r(dec2)) * math.cos(r(ra1 - ra2)))
+    return math.degrees(math.acos(max(-1.0, min(1.0, c))))
+
+
+def contradictions(match, pos, pos_src, nominal):
+    """Every way the accepted solution disagrees with what this file already
+    knew, as printable lines. Empty list = no contradiction.
+
+    `pos` is the hint that EXISTED (CLI or header), NOT the winning attempt's —
+    those differ exactly in the case this gate is for. In the measured incident
+    the record shows `position_hint: null` with `position_hint_source: header`,
+    because the hinted attempt failed and the blind fallback won; judging the
+    result against the winning attempt's (absent) hint would see nothing wrong.
+    """
+    out = []
+    if pos is not None:
+        sep = angular_sep_deg(pos[0], pos[1],
+                              match.center_ra_deg, match.center_dec_deg)
+        lim = POSITION_RADIUS_FACTOR * pos[2]
+        if sep > lim:
+            out.append(
+                f"POSITION: solved centre RA {match.center_ra_deg:.3f} Dec "
+                f"{match.center_dec_deg:+.3f} is {sep:.1f} deg from the "
+                f"{pos_src} hint RA {pos[0]:.3f} Dec {pos[1]:+.3f} "
+                f"(radius {pos[2]:g} deg) — past {POSITION_RADIUS_FACTOR:g}x "
+                f"that radius ({lim:g} deg)")
+    if nominal:
+        ratio = match.scale_arcsec_per_pixel / nominal
+        if abs(ratio - 1.0) > SCALE_TOLERANCE:
+            out.append(
+                f"SCALE: solved {match.scale_arcsec_per_pixel:.3f} arcsec/px is "
+                f"{ratio:.3f}x the header-derived {nominal:.3f} arcsec/px — past "
+                f"the +-{SCALE_TOLERANCE:.0%} band "
+                f"({(1 - SCALE_TOLERANCE) * nominal:.3f}-"
+                f"{(1 + SCALE_TOLERANCE) * nominal:.3f})")
+    return out
+
+
 def inject(src, dst, wcs, logodds):
     """Write a WCS-injected copy via astropy: the solver's WCS cards replace any
     existing ones; every other header card and the exact pixel data are preserved
@@ -286,7 +394,10 @@ def inject(src, dst, wcs, logodds):
 def main():
     bootstrap()
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--"))
+    # `+ [""]` so a BARE flag (--accept-contradiction) parses as an empty value
+    # instead of raising on the 1-element split
+    opts = dict((a[2:].split("=", 1) + [""])[:2]
+                for a in sys.argv[1:] if a.startswith("--"))
     if not args:
         sys.exit(__doc__)
     src = args[0]
@@ -294,6 +405,12 @@ def main():
         import astrometrics as am
         am.configure(opts["session"], opts["set"], quiet=True)
     central = float(opts["central"]) if "central" in opts else None
+    if central is not None and not (0.0 < central < 1.0):
+        sys.exit(f"solve_field: --central={central:g} is not a fraction of the "
+                 "frame in (0,1). 1.0 keeps everything, so it is a no-op that "
+                 "reads like a restriction — pass no --central instead. "
+                 "(--central=0.5 = the central HALF of each axis.)")
+    accept_contradiction = "accept-contradiction" in opts
     max_stars = int(opts.get("max-stars", 200))
     width_arcmin = (float(opts["field-width-arcmin"])
                     if "field-width-arcmin" in opts else None)
@@ -325,11 +442,16 @@ def main():
                  "condition fired on x86)")
     fn = detect_stars_sep
     stars, h, w = fn(src, central=central, max_stars=max_stars)
+    # Print the RETAINED BOX in pixels, not just the fraction: a restriction
+    # that restricts nothing is then impossible to mistake for one that does.
     print(f"[solve_field] {len(stars)} stars via "
           + ("sep (SExtractor core)" if detector == "sep"
              else "in-house peak centroids (fallback)")
-          + (f" (central {central:g} of frame)" if central else ""))
+          + (f" (central {central:g} of frame = the middle "
+             f"{int(central * w)}x{int(central * h)} px of {w}x{h})"
+             if central else ""))
     hint = scale_hint(src, width_arcmin)
+    nominal = header_scale(src, width_arcmin)
     if "scales" in opts:
         lo, hi = (int(v) for v in opts["scales"].split("-", 1))
         scales = set(range(lo, hi + 1))
@@ -377,6 +499,43 @@ def main():
     par = "sky-true" if det < 0 else "MIRRORED vs sky"
     print(f"[solve_field] parity: det(CD) {det:+.2e} -> displayed image "
           f"is {par}")
+
+    # ---- the gate: does the accepted solution contradict its own hints? -----
+    # BEFORE inject/json/record, so a refused solve leaves NOTHING behind for a
+    # later stage to pick up. The measured incident is exactly that: an injected
+    # _wcs.fit that SPCC then consumed to completion.
+    if m.logodds < LOGODDS_FLOOR:
+        print(f"[solve_field] WARNING: logodds {m.logodds:.1f} is below the "
+              f"confident-match floor of {LOGODDS_FLOOR:.0f} — this match is "
+              "FLOOR-CLASS. Every real solve in this corpus posts 103-574; the "
+              "one measured FALSE solve posted 22.3. Treat the position and "
+              "scale below as unconfirmed.")
+    bad = contradictions(m, pos, pos_src, nominal)
+    if bad:
+        print("", file=sys.stderr)
+        print("solve_field: REFUSING this solution — it CONTRADICTS the hints "
+              "this file already carried:", file=sys.stderr)
+        for b in bad:
+            print(f"    {b}", file=sys.stderr)
+        print(f"    accepted attempt [{winning[0]}], logodds {m.logodds:.1f}, "
+              f"{len(stars)} stars"
+              + (f", central {central:g}" if central else ", no --central"),
+              file=sys.stderr)
+        if accept_contradiction:
+            print("    --accept-contradiction given: PROCEEDING anyway, on the "
+                  "operator's explicit say-so.", file=sys.stderr)
+        else:
+            print("    Nothing injected, no record written. A blind fallback "
+                  "can ship a confident falsehood — SPCC ran to completion on "
+                  "one and produced plausible K factors — so this stops here.",
+                  file=sys.stderr)
+            print("    Options: give the right hint (--ra/--dec "
+                  "[--radius-deg]); restrict detection to the clean middle "
+                  "(--central=<frac of the frame>, which also excludes a "
+                  "framing=max union's coverage seams); or take it deliberately "
+                  "with --accept-contradiction.", file=sys.stderr)
+            sys.exit(9)
+
     wcs = {k: [v[0] if not isinstance(v[0], bytes) else v[0].decode(), v[1]]
            for k, v in m.wcs_fields.items()}
     if "json" in opts:
@@ -399,6 +558,12 @@ def main():
            "attempt": winning[0],
            "field_width_arcmin_arg": width_arcmin,
            "scale_hint_arcsec_px": list(hint) if hint else None,
+           # The gate's own evidence, so a later audit replays it from the
+           # record instead of re-deriving the nominal from the hint's 0.6x end.
+           "header_scale_arcsec_px": nominal,
+           "hint_available": list(pos) if pos else None,
+           "contradictions": bad,
+           "contradiction_accepted": bool(bad) and accept_contradiction,
            "index_scales": sorted(scales), "scales_solved": winning[1],
            "ra_deg": m.center_ra_deg, "dec_deg": m.center_dec_deg,
            "scale_arcsec_px": m.scale_arcsec_per_pixel,

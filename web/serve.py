@@ -1122,11 +1122,11 @@ def _stage_registry():
             "phase": "finish",
             "params": [
                 {"name": "stack", "kind": "path", "req": True, "choices": "stacks", "hint": "stack under web/results/"},
-                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections"},
+                {"name": "central", "kind": "float", "req": False, "hint": "keep only the central FRACTION OF THE FRAME for detection (0.5 = the middle half of each axis) — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections. 1.0 would restrict nothing and is refused"},
             ],
             "build": lambda a: (lambda s: ["python3", "scripts/calibrate/solve_field.py", s,
                                            "--inject=" + s[:-4] + "_wcs.fit"]
-            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
+            + ([f"--central={_arg_float(a['central'], 0.1, 0.95)}"] if a.get("central")
                else (["--central=0.35"] if _parse_product(
                    os.path.basename(s)[len("stack_"):-len(".fit")])[1]
                    .startswith("max") else [])))(
@@ -1163,7 +1163,7 @@ def _stage_registry():
                 {"name": "name", "kind": "str", "req": False, "hint": "judge surface stem — auto-derived from the stack (product stem, stack_ prefix stripped) when blank; crop-record runs append 'framed' so the framed product never lands on its source; a name that breaks the convention orphans the surface from its card"},
                 {"name": "session", "kind": "session", "req": True},
                 {"name": "set", "kind": "set", "req": False, "hint": "SPCC recipe routing + record naming — auto-derived from the stack name's first member when blank"},
-                {"name": "central", "kind": "float", "req": False, "hint": "restrict solve detection to the central fraction — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections"},
+                {"name": "central", "kind": "float", "req": False, "hint": "keep only the central FRACTION OF THE FRAME for detection (0.5 = the middle half of each axis) — defaults to 0.35 for max-tag (union) stacks, none otherwise; measured: a union solve without it starves on seam false-detections. 1.0 would restrict nothing and is refused"},
                 {"name": "crop_record", "kind": "path", "req": False, "choices": "framings", "hint": "VERIFIED framing record — crops the LINEAR stack before solve/SPCC/stretch; refuses unverified"},
             ],
             "build": lambda a: (lambda stack: ["scripts/stack/finish_render.sh",
@@ -1180,7 +1180,7 @@ def _stage_registry():
                                 "--set=" + _derive_set(
                                     stack, a.get("set"),
                                     _arg_session(a["session"]))]
-            + ([f"--central={_arg_float(a['central'], 0.1, 1.0)}"] if a.get("central")
+            + ([f"--central={_arg_float(a['central'], 0.1, 0.95)}"] if a.get("central")
                else (["--central=0.35"] if _parse_product(
                    os.path.basename(stack)[len("stack_"):-len(".fit")])[1]
                    .startswith("max") else []))
