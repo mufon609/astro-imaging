@@ -320,7 +320,9 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   shared gradient in every set.
   **The instrument is sound and the controls say so**: a Siril `imul` ramp of edge
   ratio 1.2222 recovers at 1.24x (0.95x on the best-levered pair) and a uniform
-  card moves every number by exactly 0.00. What fails is the DATA'S GEOMETRY.
+  card moves every number by exactly 0.00. What fails is the DATA'S GEOMETRY, and
+  the discrimination number says so: the planted ramp moves the answer 9.85 points
+  against a floor of 49.08 — **0.20x**, where the iterative-flat NULL met 48-62x.
   **The floor is 49 PERCENTAGE POINTS**: aug09/set-01 rebuilt as interleaved
   halves (249 even frames against 249 odd) has a predicted tilt of EXACTLY ZERO —
   both products average a star over the same sensor positions — and measures

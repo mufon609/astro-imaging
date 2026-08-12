@@ -78,7 +78,9 @@ structurally impossible at 17″/px on trailed stars, a real flat IS the fix).
 
 **The instrument is sound and the controls prove it**: a Siril `imul` ramp of
 edge ratio 1.2222 recovers at **1.24×** (0.95× on the best-levered block pair)
-and a uniform card moves every number by **exactly 0.00**. **The floor is 49
+and a uniform card moves every number by **exactly 0.00** — but its
+**discrimination against the floor is 0.20×** (planted 9.85 points against a
+49.08-point floor), where the iterative-flat NULL met 48–62×. **The floor is 49
 percentage points** — aug09/set-01 rebuilt as interleaved halves has a predicted
 tilt of exactly zero and measures **+49.08 ± 4.97% (r = 10 px) / +50.82 ± 5.65%
 (r = 16 px), 3086 stars, 11.8σ**. `--selftest`

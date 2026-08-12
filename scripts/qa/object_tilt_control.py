@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """POSITIVE + IDENTITY controls for scripts/qa/object_tilt.py.
 
-  object_tilt_control.py <groups-dir> [--ramp=0.20,0.0] [--json=OUT] [--keep]
+  object_tilt_control.py <groups-dir> [--ramp=0.20,0.0] [--floor=F]
+                         [--json=OUT] [--keep]
 
 An instrument that cannot recover a PLANTED tilt cannot be trusted to report a
 real one, and this repo's most persistent defect is a check that cannot fail.
@@ -21,6 +22,14 @@ The card is a synthetic FIXTURE, never a deliverable and never a calibration
 frame: it is generated, multiplied in by Siril, measured, and deleted. Siril
 does the pixel operation and every measurement, as in the flat-side work's
 discrimination pattern.
+
+DISCRIMINATION is reported two ways, because they answer different questions.
+Against the INERT arm it asks "does the instrument respond only to a real
+sensor-fixed field" — the uniform card must move nothing. Against the measured
+FLOOR (`--floor=`, from `object_tilt_null.sh`) it asks the question that decides
+whether the instrument is usable at all: is the planted signal bigger than what
+the instrument reports when the truth is zero? That is the form the iterative-flat
+NULL reported (48-62x there), and it is the number to quote.
 
 `imul` + `save` PRESERVE the astrometric solution — measured on this rig: Siril
 rewrites CD into CDELT+PC and keeps every SIP term, and the two headers agree
@@ -61,9 +70,12 @@ def main(argv):
     ks = [0.20, 0.0]
     outp = None
     keep = False
+    floor = None
     for a in argv[1:]:
         if a.startswith("--ramp="):
             ks = [float(x) for x in a.split("=", 1)[1].split(",")]
+        elif a.startswith("--floor="):
+            floor = float(a.split("=", 1)[1])
         elif a.startswith("--json="):
             outp = a.split("=", 1)[1]
         elif a == "--keep":
@@ -143,6 +155,27 @@ def main(argv):
         if not keep:
             shutil.rmtree(ctl, ignore_errors=True)
 
+    live = [a for a in res["arms"] if a["k"] != 0.0]
+    inert = [a for a in res["arms"] if a["k"] == 0.0]
+    if live:
+        res["discrimination"] = {
+            "planted_response_points": 100 * live[0]["moved_by"],
+            "inert_response_points": (100 * inert[0]["moved_by"]) if inert else None,
+            "vs_inert": ("the uniform card moves the answer by exactly 0.00 points, "
+                         "so the response is to the planted field and not to the "
+                         "card path" if inert and inert[0]["moved_by"] == 0.0
+                         else "inert arm NOT run — discrimination unproven"),
+            "floor_points": (100 * floor) if floor is not None else None,
+            "signal_over_floor": ((live[0]["moved_by"] / floor) if floor else None),
+            "note": ("signal_over_floor is the number that decides usability: "
+                     "below 1 the planted signal is smaller than what the "
+                     "instrument reports when the truth is zero."),
+        }
+        if floor:
+            print(f"  discrimination: planted {100*live[0]['moved_by']:+.2f} points "
+                  f"vs floor {100*floor:.2f} points = "
+                  f"{live[0]['moved_by']/floor:.2f}x  (inert arm moved "
+                  f"{100*inert[0]['moved_by'] if inert else float('nan'):+.2f})")
     txt = json.dumps(res, indent=1)
     if outp:
         os.makedirs(os.path.dirname(os.path.abspath(outp)), exist_ok=True)

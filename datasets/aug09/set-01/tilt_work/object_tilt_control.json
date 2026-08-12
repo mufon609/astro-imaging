@@ -1,5 +1,5 @@
 {
- "uptime": "12:23:42 up 37 days, 20:34,  2 users,  load average: 2.48, 1.63, 1.24",
+ "uptime": "13:22:09 up 37 days, 21:32,  2 users,  load average: 1.54, 5.54, 6.13",
  "groups_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01",
  "instrument": "scripts/qa/object_tilt.py under a Siril-applied card",
  "baseline": {
@@ -126,5 +126,13 @@
     }
    ]
   }
- ]
+ ],
+ "discrimination": {
+  "planted_response_points": 9.853660977009204,
+  "inert_response_points": 0.0,
+  "vs_inert": "the uniform card moves the answer by exactly 0.00 points, so the response is to the planted field and not to the card path",
+  "floor_points": 49.08,
+  "signal_over_floor": 0.20076733856986967,
+  "note": "signal_over_floor is the number that decides usability: below 1 the planted signal is smaller than what the instrument reports when the truth is zero."
+ }
 }

@@ -260,11 +260,16 @@ the constraints any such tool must satisfy):
   `delta/theta`, so every set's leak capacity (**0.74-13.45 mag**) exceeds its own
   measured shared gradient.
 
-  **THE INSTRUMENT IS NOT AT FAULT — the controls say so.** A Siril `imul` ramp
-  card of known edge ratio 1.2222 is recovered at **1.24x** overall and **0.95x**
-  on the best-levered block pair (rotation 2.37 deg), while a UNIFORM card moves
-  every number by **exactly 0.00**. Recovery tracks the lever: the same set's
-  pairs recover 0.14x-5.2x as their rotation runs 0.66-2.37 deg.
+  **THE INSTRUMENT IS NOT AT FAULT — the controls say so, and they also say it is
+  UNUSABLE.** A Siril `imul` ramp card of known edge ratio 1.2222 is recovered at
+  **1.24x** overall and **0.95x** on the best-levered block pair (rotation
+  2.37 deg), while a UNIFORM card moves every number by **exactly 0.00**. Recovery
+  tracks the lever: the same set's pairs recover 0.14x-5.2x as their rotation runs
+  0.66-2.37 deg. **DISCRIMINATION AGAINST THE FLOOR IS 0.20x** — the planted ramp
+  moves the answer 9.85 points against a measured floor of 49.08, i.e. the signal
+  is five times SMALLER than what the instrument reports when the truth is zero.
+  The iterative-flat NULL met 48-62x on the same standard. Re-running the controls
+  reproduced -54.40% / +9.85 points / recovery 1.2408 to every digit.
 
   **THE NULL CONTROL IS THE SHARPEST NUMBER HERE — THE FLOOR IS 49 PERCENTAGE
   POINTS.** aug09/set-01 was rebuilt as interleaved halves (249 even frames
