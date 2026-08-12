@@ -1,0 +1,29 @@
+{
+ "what": "PRE-REGISTERED prediction for the 12-set object-tilt corpus run, written and committed BEFORE any set beyond aug09/set-01 and aug06/set-01 was measured",
+ "instrument": "scripts/qa/object_tilt.py, aperture radius 10 px, annulus 20-30 px, amplitude floor 0.005",
+ "reference_table": "datasets/aug09/corpus_flat_odd_component.json, edge geometry (box 80, margin 2)",
+ "derivation": [
+  "A sky flat converges to (mean sky) x V. Calibration divides the light by it, so the calibrated object carries g = T/sky where T is the transmission; the flat's vignetting V cancels.",
+  "Vignetting is an EVEN radial function, so it contributes equally to both sides and cancels from the flat's L/R ODD component. The flat's L/R ratio is therefore sky_L/sky_R.",
+  "g(right)/g(left) = sky_L/sky_R = the flat's own L/R. The measured tilt_frac_x = g(right)/g(left) - 1 should therefore equal (flat L/R) - 1."
+ ],
+ "predictions": {
+  "P1_sign": "tilt_frac_x < 0 for every set whose flat L/R < 1 (july31/set-01..04, aug06/set-01, aug06/set-02) and tilt_frac_x > 0 for every set whose flat L/R > 1 (aug09/set-01..05). The corpus sweep is monotone through zero, so the SIGN CHANGE is the sharp test.",
+  "P2_null_set": "aug06/set-03 (flat L/R 1.0259, edge dipole -0.0255) carries essentially no L/R sky dose and must show essentially no tilt — the built-in null control.",
+  "P3_extremes": "july31/set-01 (L/R 0.6420) and aug09/set-05 (L/R 1.4772) are the two extremes and must have OPPOSITE sign.",
+  "P4_ordering": "tilt_frac_x is positively and monotonically correlated with (flat L/R - 1) across all 12 sets; Spearman rho > 0.7.",
+  "P5_magnitude": "|tilt_frac_x| <= |flat L/R - 1| for each set. The flat ratio is measured between extreme corner boxes, which bounds the field-average linear gradient from above."
+ },
+ "competing_hypothesis": {
+  "name": "sensor-fixed atmospheric term",
+  "statement": "For a FIXED camera the sensor position maps to a FIXED altitude and azimuth, so atmospheric extinction and the skyglow gradient across this 27-degree field are ALSO sensor-fixed and enter the fit identically to the flat residual. This hypothesis predicts the measured tilt tracks the POINTING and the night's transparency rather than the flat's L/R, does NOT change sign with the flat, and is similar for sets sharing a pointing even when their flats differ.",
+  "discriminator": "july31/set-01 and aug09/set-01 point at nearly the same field (CRVAL 310.62/43.24) but their flats have OPPOSITE L/R (0.6420 vs 1.1081). Flat attribution predicts opposite-sign tilts; the atmospheric hypothesis predicts similar tilts."
+ },
+ "falsification": "A tilt that does not track the flat ordering falsifies the FLAT ATTRIBUTION even if the tilt itself is real, and that is a finding worth as much as a confirmation.",
+ "flat_LR_edge_geometry": {
+  "july31/set-01": 0.6420, "july31/set-02": 0.6810, "july31/set-03": 0.7197,
+  "july31/set-04": 0.8012, "aug06/set-01": 0.8969, "aug06/set-02": 0.9331,
+  "aug06/set-03": 1.0259, "aug09/set-01": 1.1081, "aug09/set-02": 1.1800,
+  "aug09/set-03": 1.3210, "aug09/set-04": 1.4407, "aug09/set-05": 1.4772
+ }
+}
