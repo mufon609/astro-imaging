@@ -143,6 +143,26 @@ novel. What remains after this arc's pruning:
   siril invocation serializes on a per-user flock; `pgrep` chain scripts
   before editing any of them (live-file trap, measured cost); `set-00` is
   the owner's spare-frames bucket, never a light set.
+- **When a session is RUNNING in this tree, you share it — three hazards you
+  will not meet working alone.** You can reach a peer directly (`ListAgents`,
+  then `SendMessage` to its `name [ref]`), and mid-flight is often the only
+  useful time to send an audit finding.
+  (1) **Stage explicit paths, NEVER `git add -A`.** A peer's uncommitted work
+  sits in the same `git status`, and `-A` publishes their draft under your
+  message and your authorship. **The loser of the race cannot tell**: their
+  change simply leaves the modified list, which reads as "I imagined that edit",
+  not "someone committed it for me". Both sessions were using `-A` when this was
+  caught; five clean commits proved nothing, only that nobody happened to be
+  mid-edit.
+  (2) **Your commits land in their products.** `PIPEREV` is
+  `git rev-parse --short HEAD` (`stamp_headers.sh`), so any commit you make
+  stamps every artifact built after it. Records-only is fine — measured
+  pixel-neutral across a `PIPEREV` split, 0 differing pixels — but hold anything
+  on the BUILD PATH until their chain lands, since that is a second knob inside
+  a running experiment.
+  (3) **Do not edit the document a peer is running from**, exactly as you expect
+  of them; hand them the wording instead. `CLAUDE.md` is the owner's, never a
+  peer's to change and never yours on a peer's say-so.
 
 ## How to run the role
 
