@@ -7,9 +7,10 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-| prompt | items | acceptance shape |
-|---|---|---|
-| `COMMENT_HYGIENE_PROMPT.md` | mine git history for the comment-removal taxonomy; emit the standing `COMMENT_SWEEP_PROMPT.md`; audit the policy text | categories derived with counts + verbatim examples; sweep prompt carries detectors + the revise-never-drop safety rule; policy left short, single-homed, uncontradictory |
+None — the queue below needs prompts written.
+
+`COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it does
+not retire, and it is run on demand rather than scheduled here.
 
 ## Queued — needs prompts (medium; one session can take several)
 
@@ -126,3 +127,28 @@ real sets route identically; the fire test moves five consumers together; the
 their class with the resolving step. `routing-generality` removed from BACKLOG.
 
 **Full transcripts: [`../ROUTE_KEY_GENERALITY.md`](../ROUTE_KEY_GENERALITY.md).**
+
+## Landed during the comment-hygiene session
+
+The removal taxonomy is derived from all 638 commits, not assumed: seven
+categories over 1,403 removed comment lines and 15,397 removed record lines
+(in-place edits only — 52 wholesale `.md` retirements excluded as a different
+mechanism). The costly category is **drift**, prose asserting what the code
+contradicts, and it is the only one that recurred — six instances of the ICC
+leg rule alone, one of which pointed a future session at `docs/dead-ends.md`
+trap 3 as "the cheapest available win". One anticipated category is **refuted**:
+victory language has never once been removed, and its obvious detector matches
+only domain vocabulary (*fixed mount*, *matched-flat*).
+
+The policy audit found the date rule **false as written**. "Doctrine
+ratification stamps are the one exception" would have a literal sweep delete
+`BACKLOG.md`'s entire re-verify column, `CLAUDE.md`'s own rig stamp, and the
+dated Context line `docs/README.md` requires of every deep-dive. The rule now
+states the principle that covers all three: a date is allowed where the date IS
+the information — what supersedes what, or how stale a claim is.
+
+Shipped: [`COMMENT_SWEEP_PROMPT.md`](COMMENT_SWEEP_PROMPT.md) (non-retiring),
+the `CLAUDE.md` rule revision, `COMMENT_HYGIENE_PROMPT.md` retired. No sweep was
+run — that is the standing prompt's job, on the owner's schedule.
+
+**Full transcript: [`../COMMENT_HYGIENE.md`](../COMMENT_HYGIENE.md).**

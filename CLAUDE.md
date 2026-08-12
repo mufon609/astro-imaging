@@ -358,11 +358,13 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   commit, anything aesthetic needs the user's eyes, then re-baseline and tag.
   Freezing one imperfect render as "correct" only breeds bandaids to preserve
   it.
-- **No session/stream/ladder tags, dates, or chronological narrative in
+- **No session/stream/ladder tags, chronological narrative, or bare dates in
   comments or record entries** (scripts, BACKLOG, docs alike) — state the
   constraint and its measured numbers, get to the point; when and in what
-  order lives in git only. (Doctrine ratification stamps are the one
-  exception — they order which rule supersedes which.)
+  order lives in git only. A date is allowed only where the date IS the
+  information: a doctrine ratification stamp (which rule supersedes which), or
+  a last-checked stamp on a claim that goes stale (rig inventory, tool version,
+  measured-on-this-rig). Both are register data, not narrative.
 - **Maintain the dead-end registry (`docs/dead-ends.md`) IN PLACE**: add/refine
   the mechanism entries (data/physics/tool-doctrine); never append chronological
   session narrative. The durable stage-design "why" lives in each kept
