@@ -1,0 +1,451 @@
+{
+ "tool": "Siril 1.4.4 \u2014 load / crop / stat regional medians (and fdiv for --ratio); every pixel op and every measurement is Siril's. In-house: the least-squares plane over the tool's own medians.",
+ "image": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/pergroup/skyflat_set-03_g3.fit",
+ "uptime": "16:04:37 up 38 days, 15 min,  2 users,  load average: 5.16, 5.75, 4.23",
+ "how_to_read": "Vignetting is EVEN and RADIAL, so it contributes EQUALLY to the x and y slopes. An excess on one axis is NON-RADIAL by construction and cannot be vignetting. Slopes are %/1000 px normalised to the grid mean; range_pct is the model-free peak-to-trough over the same medians. REPORTED, never gated \u2014 this is the registry's CANDIDATE gradient measure, and swapping an acceptance measure is a user ratification.",
+ "label": "g3_over_set_framefilling",
+ "ratio": {
+  "numerator": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/pergroup/skyflat_set-03_g3.fit",
+  "denominator": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/skyflat_set-03.fit",
+  "scalar": 0.5,
+  "never_idiv": "idiv clips at 1.0 silently and a ratio of two comparable images straddles 1.0 by construction (docs/dead-ends.md). fdiv only, scalar recorded.",
+  "why": "a ratio of two flats from the same night/lens/focal/aperture cancels vignetting and the instrumental base EXACTLY \u2014 no model, no fit. What survives is what DIFFERS."
+ },
+ "measured": {
+  "image_wh": [
+   6064,
+   4040
+  ],
+  "geometry_px": {
+   "box": 200,
+   "pitch": 550,
+   "nx": 11,
+   "ny": 7,
+   "origin_forced_even": true,
+   "note": "200/550 about frame centre is the geometry the registry's background-residual decomposition used (63 boxes on a 6064x4040 frame)"
+  },
+  "box_median_ADU": [
+   33516.7,
+   33356.3,
+   33556.0,
+   33516.5,
+   33536.5,
+   33688.9,
+   33796.7,
+   33804.1,
+   33938.1,
+   33965.3,
+   34051.0,
+   33322.7,
+   33452.4,
+   33524.8,
+   33364.0,
+   33497.3,
+   33626.8,
+   33675.8,
+   33712.3,
+   33776.6,
+   33857.5,
+   33937.3,
+   33270.3,
+   33437.2,
+   33327.4,
+   33494.5,
+   33361.2,
+   33470.0,
+   33528.3,
+   33629.0,
+   33687.9,
+   33753.7,
+   33885.0,
+   33269.5,
+   33391.2,
+   33240.1,
+   33380.2,
+   33291.7,
+   33341.5,
+   33517.1,
+   33526.1,
+   33586.7,
+   33624.7,
+   33764.0,
+   33312.6,
+   33227.6,
+   33293.1,
+   33257.8,
+   33287.6,
+   33420.8,
+   33520.4,
+   33432.8,
+   33530.8,
+   33593.3,
+   33708.5,
+   33092.6,
+   33178.4,
+   33188.3,
+   33263.2,
+   33195.3,
+   33171.2,
+   33264.4,
+   33539.4,
+   33444.0,
+   33540.6,
+   33632.2,
+   33112.5,
+   33107.9,
+   33247.4,
+   33256.1,
+   33252.2,
+   33240.4,
+   33409.3,
+   33550.1,
+   33470.6,
+   33503.9,
+   33585.3
+  ],
+  "box_centres_xy": [
+   [
+    282.0,
+    370.0
+   ],
+   [
+    832.0,
+    370.0
+   ],
+   [
+    1382.0,
+    370.0
+   ],
+   [
+    1932.0,
+    370.0
+   ],
+   [
+    2482.0,
+    370.0
+   ],
+   [
+    3032.0,
+    370.0
+   ],
+   [
+    3582.0,
+    370.0
+   ],
+   [
+    4132.0,
+    370.0
+   ],
+   [
+    4682.0,
+    370.0
+   ],
+   [
+    5232.0,
+    370.0
+   ],
+   [
+    5782.0,
+    370.0
+   ],
+   [
+    282.0,
+    920.0
+   ],
+   [
+    832.0,
+    920.0
+   ],
+   [
+    1382.0,
+    920.0
+   ],
+   [
+    1932.0,
+    920.0
+   ],
+   [
+    2482.0,
+    920.0
+   ],
+   [
+    3032.0,
+    920.0
+   ],
+   [
+    3582.0,
+    920.0
+   ],
+   [
+    4132.0,
+    920.0
+   ],
+   [
+    4682.0,
+    920.0
+   ],
+   [
+    5232.0,
+    920.0
+   ],
+   [
+    5782.0,
+    920.0
+   ],
+   [
+    282.0,
+    1470.0
+   ],
+   [
+    832.0,
+    1470.0
+   ],
+   [
+    1382.0,
+    1470.0
+   ],
+   [
+    1932.0,
+    1470.0
+   ],
+   [
+    2482.0,
+    1470.0
+   ],
+   [
+    3032.0,
+    1470.0
+   ],
+   [
+    3582.0,
+    1470.0
+   ],
+   [
+    4132.0,
+    1470.0
+   ],
+   [
+    4682.0,
+    1470.0
+   ],
+   [
+    5232.0,
+    1470.0
+   ],
+   [
+    5782.0,
+    1470.0
+   ],
+   [
+    282.0,
+    2020.0
+   ],
+   [
+    832.0,
+    2020.0
+   ],
+   [
+    1382.0,
+    2020.0
+   ],
+   [
+    1932.0,
+    2020.0
+   ],
+   [
+    2482.0,
+    2020.0
+   ],
+   [
+    3032.0,
+    2020.0
+   ],
+   [
+    3582.0,
+    2020.0
+   ],
+   [
+    4132.0,
+    2020.0
+   ],
+   [
+    4682.0,
+    2020.0
+   ],
+   [
+    5232.0,
+    2020.0
+   ],
+   [
+    5782.0,
+    2020.0
+   ],
+   [
+    282.0,
+    2570.0
+   ],
+   [
+    832.0,
+    2570.0
+   ],
+   [
+    1382.0,
+    2570.0
+   ],
+   [
+    1932.0,
+    2570.0
+   ],
+   [
+    2482.0,
+    2570.0
+   ],
+   [
+    3032.0,
+    2570.0
+   ],
+   [
+    3582.0,
+    2570.0
+   ],
+   [
+    4132.0,
+    2570.0
+   ],
+   [
+    4682.0,
+    2570.0
+   ],
+   [
+    5232.0,
+    2570.0
+   ],
+   [
+    5782.0,
+    2570.0
+   ],
+   [
+    282.0,
+    3120.0
+   ],
+   [
+    832.0,
+    3120.0
+   ],
+   [
+    1382.0,
+    3120.0
+   ],
+   [
+    1932.0,
+    3120.0
+   ],
+   [
+    2482.0,
+    3120.0
+   ],
+   [
+    3032.0,
+    3120.0
+   ],
+   [
+    3582.0,
+    3120.0
+   ],
+   [
+    4132.0,
+    3120.0
+   ],
+   [
+    4682.0,
+    3120.0
+   ],
+   [
+    5232.0,
+    3120.0
+   ],
+   [
+    5782.0,
+    3120.0
+   ],
+   [
+    282.0,
+    3670.0
+   ],
+   [
+    832.0,
+    3670.0
+   ],
+   [
+    1382.0,
+    3670.0
+   ],
+   [
+    1932.0,
+    3670.0
+   ],
+   [
+    2482.0,
+    3670.0
+   ],
+   [
+    3032.0,
+    3670.0
+   ],
+   [
+    3582.0,
+    3670.0
+   ],
+   [
+    4132.0,
+    3670.0
+   ],
+   [
+    4682.0,
+    3670.0
+   ],
+   [
+    5232.0,
+    3670.0
+   ],
+   [
+    5782.0,
+    3670.0
+   ]
+  ],
+  "fit": {
+   "slope_x_pct_per_1000px": 0.2811816038046346,
+   "slope_y_pct_per_1000px": -0.3474429972971857,
+   "intercept_ADU": 33431.11858323499,
+   "grid_mean_ADU": 33481.57792207792,
+   "range_pct": 2.862469631002748,
+   "resid_rms_pct": 0.2211307965336061,
+   "n_boxes": 77,
+   "slope_x_1d_pct_per_1000px": 0.2811816038046461,
+   "slope_y_1d_pct_per_1000px": -0.3474429972971668,
+   "plane_vs_1d_agree": true,
+   "axis_ratio_y_over_x": 1.235653373463897,
+   "dominant_axis": "T/B"
+  },
+  "ordering_control": {
+   "first": {
+    "box_xy": [
+     182,
+     270
+    ],
+    "batched": 33516.7,
+    "standalone": 33516.7,
+    "agrees": true
+   },
+   "last": {
+    "box_xy": [
+     5682,
+     3570
+    ],
+    "batched": 33585.3,
+    "standalone": 33585.3,
+    "agrees": true
+   }
+  }
+ }
+}

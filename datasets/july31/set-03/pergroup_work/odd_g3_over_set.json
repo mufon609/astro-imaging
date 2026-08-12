@@ -1,0 +1,163 @@
+{
+ "tool": "Siril 1.4.4 \u2014 load/crop/stat regional medians (and fdiv for --ratio); every pixel op and every measurement is Siril's",
+ "flat": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/pergroup/skyflat_set-03_g3.fit",
+ "uptime": "16:04:26 up 38 days, 14 min,  2 users,  load average: 2.83, 5.32, 4.07",
+ "how_to_read": "Vignetting is EVEN and RADIAL, so it contributes equally to LR and TB and puts all four corners at one radius (corner_ratio 1.000). An excess on ONE axis is non-radial BY CONSTRUCTION and cannot be vignetting; on this corpus the L-R term is the horizon-fixed sky gradient the flat absorbs, which then divides a multiplicative tilt into the object (docs/dead-ends.md). REPORTED, never gated: the defect is open with no shipped corrective, so a pass/fail line here is a user ratification, not this script's to invent.",
+ "self": {
+  "image_wh": [
+   6064,
+   4040
+  ],
+  "corner": {
+   "geometry_px": {
+    "box": 400,
+    "corner_margin": 200
+   },
+   "median_ADU": {
+    "center": 117.3,
+    "TL": 53.9,
+    "TR": 80.3,
+    "BL": 46.4,
+    "BR": 63.4
+   },
+   "corner_ratio": 1.7306,
+   "brightest": "TR",
+   "darkest": "BL",
+   "LR": 0.698,
+   "TB": 1.2222,
+   "corner_over_center": 0.52,
+   "edge_dipole_x": 0.3557,
+   "edge_dipole_y": 0.2
+  },
+  "edge": {
+   "geometry_px": {
+    "box": 80,
+    "corner_margin": 2
+   },
+   "median_ADU": {
+    "center": 115.7,
+    "TL": 27.8,
+    "TR": 41.2,
+    "BL": 24.2,
+    "BR": 32.3
+   },
+   "corner_ratio": 1.7025,
+   "brightest": "TR",
+   "darkest": "BL",
+   "LR": 0.7075,
+   "TB": 1.2212,
+   "corner_over_center": 0.2712,
+   "edge_dipole_x": 0.3426,
+   "edge_dipole_y": 0.1992
+  }
+ },
+ "ratio": {
+  "denominator": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/skyflat_set-03.fit",
+  "scalar": 0.5,
+  "why": "A ratio of two flats from the same night/lens/focal/aperture cancels vignetting and the instrumental base EXACTLY \u2014 no model, no fit. What survives is what DIFFERS.",
+  "scope": "Cancels what is COMMON, so it measures the CHANGE in sky, not the total: a static sky term cancels into the stable part. LOWER BOUND on sky contamination.",
+  "never_idiv": "idiv clips at 1.0 silently and understates a between-flat corner spread by up to 9.1 points (docs/dead-ends.md). fdiv only, scalar recorded.",
+  "measured": {
+   "image_wh": [
+    6064,
+    4040
+   ],
+   "corner": {
+    "geometry_px": {
+     "box": 400,
+     "corner_margin": 200
+    },
+    "median_ADU": {
+     "center": 33317.0,
+     "TL": 33410.8,
+     "TR": 34025.7,
+     "BL": 33098.8,
+     "BR": 33590.1
+    },
+    "corner_ratio": 1.028,
+    "brightest": "TR",
+    "darkest": "BL",
+    "LR": 0.9836,
+    "TB": 1.0112,
+    "corner_over_center": 1.0064,
+    "edge_dipole_x": 0.0165,
+    "edge_dipole_y": 0.0111
+   },
+   "edge": {
+    "geometry_px": {
+     "box": 80,
+     "corner_margin": 2
+    },
+    "median_ADU": {
+     "center": 33311.2,
+     "TL": 33696.5,
+     "TR": 34170.2,
+     "BL": 33097.0,
+     "BR": 33662.7
+    },
+    "corner_ratio": 1.0324,
+    "brightest": "TR",
+    "darkest": "BL",
+    "LR": 0.9847,
+    "TB": 1.0166,
+    "corner_over_center": 1.0104,
+    "edge_dipole_x": 0.0154,
+    "edge_dipole_y": 0.0164
+   }
+  },
+  "no_clip_control": {
+   "scalar": 0.25,
+   "measured": {
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "corner": {
+     "geometry_px": {
+      "box": 400,
+      "corner_margin": 200
+     },
+     "median_ADU": {
+      "center": 16658.5,
+      "TL": 16705.4,
+      "TR": 17012.9,
+      "BL": 16549.4,
+      "BR": 16795.1
+     },
+     "corner_ratio": 1.028,
+     "brightest": "TR",
+     "darkest": "BL",
+     "LR": 0.9836,
+     "TB": 1.0112,
+     "corner_over_center": 1.0064,
+     "edge_dipole_x": 0.0165,
+     "edge_dipole_y": 0.0111
+    },
+    "edge": {
+     "geometry_px": {
+      "box": 80,
+      "corner_margin": 2
+     },
+     "median_ADU": {
+      "center": 16655.6,
+      "TL": 16848.2,
+      "TR": 17085.1,
+      "BL": 16548.5,
+      "BR": 16831.3
+     },
+     "corner_ratio": 1.0324,
+     "brightest": "TR",
+     "darkest": "BL",
+     "LR": 0.9847,
+     "TB": 1.0166,
+     "corner_over_center": 1.0104,
+     "edge_dipole_x": 0.0154,
+     "edge_dipole_y": 0.0164
+    }
+   },
+   "agrees": true,
+   "reading": "Two scalars agreeing after rescale is the positive control that no truncation is moving the medians. A whole-frame Max of 65535.0 at BOTH scalars is a genuine divide-by-near-zero spike, not bulk clipping."
+  }
+ },
+ "label": "g3_over_set"
+}

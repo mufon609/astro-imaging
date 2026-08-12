@@ -1,0 +1,98 @@
+{
+ "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
+ "flat": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/pergroup/skyflat_set-03_g2.fit",
+ "build": {
+  "frames": 100,
+  "rejection": "wins",
+  "dark": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/dark_master.fit",
+  "method": "UN-registered, dark-subtracted (pedestal-free), CFA, multiplicative norm",
+  "desky": "off (flat carries any sensor-fixed sky gradient present in the source frames)",
+  "frame_source": "SELECTED subset (/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/g2.list) \u2014 the set does not share one pointing, so the flat is built from exactly the frames it calibrates"
+ },
+ "regional_stat_ADU": {
+  "center": {
+   "mean": 103.4,
+   "median": 114.7,
+   "sigma": 25.9
+  },
+  "TL": {
+   "mean": 49.5,
+   "median": 52.5,
+   "sigma": 14.4
+  },
+  "TR": {
+   "mean": 71.9,
+   "median": 77.8,
+   "sigma": 20.3
+  },
+  "BL": {
+   "mean": 43.1,
+   "median": 46.0,
+   "sigma": 12.4
+  },
+  "BR": {
+   "mean": 58.0,
+   "median": 62.1,
+   "sigma": 16.8
+  }
+ },
+ "region_geometry_px": {
+  "box": 400,
+  "corner_margin": 200
+ },
+ "corner_asymmetry": {
+  "ratio": 1.691,
+  "brightest": "TR",
+  "darkest": "BL",
+  "radial_expectation": 1.0,
+  "note": "excess over 1.00 is non-radial: decentering (repeats across sets, same darkest corner) or a baked sky gradient (moves). WARN threshold 1.20 is PROVISIONAL from the measured corpus (july23 1.126/1.159/1.229/1.320, july27 set-01 1.332) \u2014 it flags for attention, it does not gate."
+ },
+ "edge_regional_stat_ADU": {
+  "center": {
+   "mean": 103.4,
+   "median": 115.2,
+   "sigma": 25.9
+  },
+  "TL": {
+   "mean": 24.4,
+   "median": 26.8,
+   "sigma": 6.3
+  },
+  "TR": {
+   "mean": 36.1,
+   "median": 39.8,
+   "sigma": 9.4
+  },
+  "BL": {
+   "mean": 21.9,
+   "median": 24.1,
+   "sigma": 5.7
+  },
+  "BR": {
+   "mean": 28.7,
+   "median": 31.6,
+   "sigma": 7.4
+  }
+ },
+ "edge_region_geometry_px": {
+  "box": 80,
+  "corner_margin": 2,
+  "note": "baseline_guard.py's edge_dipole_x geometry"
+ },
+ "odd_component": {
+  "edge_dipole_x": 0.3352,
+  "edge_dipole_y": 0.1783,
+  "instrument": "Siril `stat` medians on 4 corner crops at the edge geometry; ((TR+BR)-(TL+BL))/2 normalised to the 4-corner mean (baseline_guard.py convention), and its top-bottom sibling",
+  "how_to_read": "Vignetting is an EVEN RADIAL function, so it contributes EQUALLY to x and y. |edge_dipole_x| materially above |edge_dipole_y| is NON-RADIAL by construction and cannot be vignetting \u2014 on a sky flat that is the horizon-fixed sky gradient integrating into the flat, which then leaves the OBJECT carrying a multiplicative tilt it never had (docs/dead-ends.md, the sky-flat entry). The corner-vs-centre gate above CANNOT see this: it averages the two sides together, which is why the registry calls that gate self-fulfilling for this defect.",
+  "not_a_pass_fail": "REPORTED, not gated. The `sky x V` contamination this measures is a known-OPEN defect with no shipped corrective (`--desky` was a 31x regression), so failing on it would block every flat this route builds. A pass/fail line on this term is a user ratification (BACKLOG:`calibration-evidence`), not this script's to invent.",
+  "reference_values_july31_docs_dead_ends": {
+   "raw_dark_subtracted_light": 0.426,
+   "pre_desky_flat": 0.365,
+   "desky_flat": -0.55,
+   "master_dark": 0.0
+  }
+ },
+ "findstar_speck_count": 0,
+ "gate": "smooth falloff (corners < centre), NO structured sky residual (the Milky Way star field) on the preview, speck count ~0; the eye check + the with/without finals comparison gate adoption (dead-end registry: a sky flat preserves frame-filling faint structure only when validated \u2014 that structure is UNRESOLVED STARLIGHT, not dust)",
+ "preview": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/masters/pergroup/skyflat_set-03_g2_view.png"
+}
