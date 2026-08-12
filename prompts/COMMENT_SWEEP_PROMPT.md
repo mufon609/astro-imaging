@@ -75,6 +75,16 @@ pre-fix tree, the detector FIRES: at `20766e4~1`, `prompts/REPORT.md:83` asserts
 correction, so both of the detector's conditions are met on real history. At HEAD
 it is CLEAN — no file asserts the stale form and the write-up carries *"describes
 a blend no frame saw"*. RED on the case it was written for, GREEN now.
+*Distinguish ASSERTION from QUOTATION, or this detector reports its own evidence
+as a defect.* A corrected claim's exact words necessarily SURVIVE in the records
+that document the correction — the registry entry naming what was wrong, the
+ledger's `CORRECTED BY AUDIT` field, and the falsification note above, which
+quotes the stale phrase as the thing it fires on. Grepping the phrase alone
+returns all three as hits. MEASURED while replaying this very check: a filter
+excluding `WRONG|CORRECTED` still returned line 74 of this file, because the
+quotation there is introduced by *asserts*. Read each hit and ask whether the
+file is CLAIMING the stale form or RECORDING that it was wrong; only the first is
+a defect, and a sweep that "fixes" the second destroys the correction's evidence.
 
 **Run the repo's own guards first — they are the authoritative drift detectors
 for anything they cover**, and they print the true counts to compare prose
