@@ -43,7 +43,7 @@ block-to-block mapping were a PURE TRANSLATION, u_ij = u_i + c_j, then
 and the two halves are absorbed EXACTLY by M_i and z_j: the linear mode of the
 flat is then formally unidentifiable, whatever the drift's size. This is the
 known low-order degeneracy of self-calibration under translational dithers, and
-it means the ~774 px of drift is NOT the lever. The lever is the drift's
+it means the 503-1220 px of drift is NOT the lever. The lever is the drift's
 DEPARTURE from a pure translation, which here is the FIELD ROTATION an
 untracked camera gets for free: measured 2.4 deg over aug09/set-01 and 3.4 deg
 over july31/set-01, which spreads the same-star displacement by 182 and 269 px
@@ -87,9 +87,10 @@ INSTRUMENT FACTS, all pinned by probe on 1.4.4 (re-probe on a version change):
   - `boxselect` REFUSES a box crossing the frame edge and ABORTS the script, so
     stars within `--margin` of any edge are dropped (they would also carry a
     truncated background annulus).
-  - `psf`'s aperture magnitude is stable to 1e-4 mag for any box from 40 to 160
-    px while the FITTED background B moves 35% over the same range: the annulus
-    is read from the IMAGE, not from the selection. A 30 px box fails.
+  - `psf`'s aperture magnitude is stable across box sizes where the FITTED
+    background is not: over boxes 40-160 px, m moves 5e-4 mag (and is identical
+    to 1e-4 from 50 px up) while B moves 18%. So the annulus is read from the
+    IMAGE, not from the selection. A 30 px box fails outright.
   - a failed measurement is returned as `m=<value>+/-9.9990`; 9.999 is the
     tool's own invalid sentinel and is rejected here, never averaged.
   - `psf` on empty sky returns a result or nothing, and does not abort.
@@ -333,6 +334,77 @@ def fit_tilt(m, sm, u, v, clip=4.0):
     }
 
 
+def fit_per_block_gradient(m, sm, u, v):
+    """Let every block carry its OWN gradient, and report the deltas.
+
+    THE CONFOUNDER THIS EXISTS TO MEASURE, and it is the one that decides
+    whether the shared-gradient number above means anything. For a FIXED camera
+    a sensor position maps to a FIXED altitude and azimuth, so atmospheric
+    extinction and the skyglow gradient across a 27-degree field are sensor-fixed
+    too — and unlike the flat's residual they DRIFT with transparency. Write the
+    per-block gradient as `a + delta_j`; then for a block pair related by a
+    rotation `theta` the measured magnitude difference carries
+
+        delta_j * u          at FULL frame lever
+        a * theta * (J u)    at the rotation lever only
+
+    so a shared-gradient fit converts a gradient DRIFT of `delta` into a
+    spurious constant of about `delta / theta`. With theta ~ 1 deg that is a
+    ~60x amplification of the contaminant against the signal.
+
+    `a` itself is NOT identifiable once the deltas are free — a constant added
+    to every delta is exactly `a` — so this reports the DELTAS and their time
+    ordering, never a corrected `a`. A monotone ordering in block index is the
+    drift's signature.
+    """
+    J, N = m.shape
+    good = np.isfinite(m) & np.isfinite(sm) & (sm < BAD_SMAG) & (sm > 0)
+    keep = good.all(axis=0)
+    if keep.sum() < 20:
+        return None
+    m, sm, u, v = m[:, keep], sm[:, keep], u[:, keep], v[:, keep]
+    N = m.shape[1]
+    w = 1.0 / sm ** 2
+
+    def within(a):
+        ws = w.sum(axis=0)
+        if a.ndim == 3:
+            return a - (w[..., None] * a).sum(axis=0)[None] / ws[None, :, None]
+        return a - (w * a).sum(axis=0)[None] / ws[None]
+
+    def solve(cols):
+        X = np.stack(cols, axis=-1)
+        Xt, mt = within(X), within(m)
+        A = (Xt * np.sqrt(w)[..., None]).reshape(-1, X.shape[-1])
+        b = (mt * np.sqrt(w)).reshape(-1)
+        beta, *_ = np.linalg.lstsq(A, b, rcond=None)
+        r = mt - (Xt * beta).sum(axis=-1)
+        return beta, float((w * r ** 2).sum())
+
+    dum = [np.zeros((J, N)) for _ in range(J - 1)]
+    for j in range(1, J):
+        dum[j - 1][j, :] = 1.0
+    _, chi_shared = solve(dum + [u, v])
+    gx = [np.zeros((J, N)) for _ in range(J - 1)]
+    gy = [np.zeros((J, N)) for _ in range(J - 1)]
+    for j in range(1, J):
+        gx[j - 1][j, :] = u[j]
+        gy[j - 1][j, :] = v[j]
+    beta, chi_free = solve(dum + [u, v] + gx + gy)
+    dax = [0.0] + [float(beta[J + 1 + j - 1]) for j in range(1, J)]
+    day = [0.0] + [float(beta[J + 1 + (J - 1) + j - 1]) for j in range(1, J)]
+    return {
+        "delta_ax_by_block_mag": dax,
+        "delta_ay_by_block_mag": day,
+        "delta_ax_spread_mag": float(np.ptp(dax)),
+        "delta_ax_spread_frac": float(10 ** (-0.4 * np.ptp(dax)) - 1.0),
+        "monotone_in_block_order": bool(
+            np.all(np.diff(dax) > 0) or np.all(np.diff(dax) < 0)),
+        "chi2_shared": chi_shared, "chi2_free": chi_free,
+        "n_stars": int(N),
+    }
+
+
 def as_fraction(ax):
     """ax is magnitudes across the full frame width; return g(right)/g(left)-1."""
     return 10 ** (-0.4 * ax) - 1.0
@@ -386,7 +458,7 @@ def run_set(gdir, args, work=None):
         raise SystemExit(f"{night}/{setname}: only {len(sel)} common stars")
 
     out = {
-        "night": night, "set": setname, "groups_dir": gdir,
+        "night": night, "set": setname, "groups_dir": gdir, "work_dir": work,
         "uptime": uptime(),
         "instrument": (
             "Siril 1.4.4 findstar (detection + position + RA/Dec through each "
@@ -465,6 +537,14 @@ def run_set(gdir, args, work=None):
                         - (rot[a - 1]["rotation_deg"] if a > 0 else 0.0)),
                 })
         fit["block_pairs"] = pairs
+        fit["per_block_gradient"] = fit_per_block_gradient(m, sm, u, v)
+        rots = [0.0] + [g["rotation_deg"] for g in out["geometry"]["vs_block_0"]]
+        theta = math.radians(max(rots) - min(rots))
+        pbg = fit["per_block_gradient"]
+        if pbg and theta > 0:
+            # what a gradient DRIFT of this size costs a shared-gradient fit
+            fit["drift_amplification"] = 1.0 / theta
+            fit["drift_leaked_as_shared_mag"] = pbg["delta_ax_spread_mag"] / theta
         if len(pairs) > 1:
             vals = np.array([p["tilt_frac_x"] for p in pairs])
             fit["block_pair_spread_frac"] = float(np.ptp(vals))
@@ -477,6 +557,75 @@ def run_set(gdir, args, work=None):
         for f in glob.glob(os.path.join(work, "psf_*.log")):
             os.remove(f)
     return out
+
+
+def refit(jsonpath):
+    """Recompute every fit from the photometry this run already saved.
+
+    The per-(block, star) magnitude matrix is written to `phot_ap<r>.npz` beside
+    the star lists, so a change to the FIT never needs Siril re-run — which also
+    means a corpus stays internally consistent when the analysis is extended.
+    """
+    res = json.load(open(jsonpath))
+    repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    work = res.setdefault("work_dir", os.path.join(
+        repo, "datasets", res["night"], res["set"], "tilt_work"))
+    W, H = res["frame_norm"]["width_px"], res["frame_norm"]["height_px"]
+    rots = [0.0] + [g["rotation_deg"] for g in res["geometry"]["vs_block_0"]]
+    theta = math.radians(max(rots) - min(rots))
+    for ap, old in list(res["apertures"].items()):
+        npz = os.path.join(work, f"phot_ap{ap}.npz")
+        if not os.path.exists(npz):
+            npz = os.path.join(work, f"phot_ap{float(ap):g}.npz")
+        if not os.path.exists(npz):
+            print(f"  no photometry dump for r={ap} — skipped")
+            continue
+        d = np.load(npz)
+        m, sm, px, py = d["m"], d["sm"], d["px"], d["py"]
+        u, v = px / W - 0.5, py / H - 0.5
+        fit = fit_tilt(m, sm, u, v)
+        if fit is None:
+            continue
+        for k in ("aperture_radius_px", "annulus_px", "background"):
+            if k in old:
+                fit[k] = old[k]
+        fit["tilt_frac_x"] = as_fraction(fit["ax"])
+        fit["tilt_frac_x_err"] = abs(as_fraction(fit["ax"] + fit["ax_err"])
+                                     - as_fraction(fit["ax"]))
+        fit["tilt_frac_y"] = as_fraction(fit["ay"])
+        fit["tilt_frac_y_err"] = abs(as_fraction(fit["ay"] + fit["ay_err"])
+                                     - as_fraction(fit["ay"]))
+        fit["sigma_x"] = abs(fit["ax"] / fit["ax_err"]) if fit["ax_err"] else None
+        fit["lever_px_x"] = fit["lever_frac_x"] * W
+        fit["lever_px_y"] = fit["lever_frac_y"] * H
+        pairs = []
+        for a in range(m.shape[0]):
+            for b in range(a + 1, m.shape[0]):
+                pf = fit_tilt(m[[a, b]], sm[[a, b]], u[[a, b]], v[[a, b]])
+                if pf is None:
+                    continue
+                pairs.append({
+                    "blocks": [a, b],
+                    "tilt_frac_x": as_fraction(pf["ax"]),
+                    "tilt_frac_x_err": abs(as_fraction(pf["ax"] + pf["ax_err"])
+                                           - as_fraction(pf["ax"])),
+                    "lever_px_x": pf["lever_frac_x"] * W,
+                    "n_stars": pf["n_stars"],
+                    "rotation_deg": rots[b] - rots[a],
+                })
+        fit["block_pairs"] = pairs
+        if len(pairs) > 1:
+            vals = np.array([p["tilt_frac_x"] for p in pairs])
+            fit["block_pair_spread_frac"] = float(np.ptp(vals))
+            fit["block_pair_std_frac"] = float(np.std(vals))
+        pbg = fit_per_block_gradient(m, sm, u, v)
+        fit["per_block_gradient"] = pbg
+        if pbg and theta > 0:
+            fit["drift_amplification"] = 1.0 / theta
+            fit["drift_leaked_as_shared_mag"] = pbg["delta_ax_spread_mag"] / theta
+        res["apertures"][ap] = fit
+    open(jsonpath, "w").write(json.dumps(res, indent=1) + "\n")
+    return res
 
 
 def block_geometry(subs, heads):
@@ -620,6 +769,16 @@ def selftest():
 def main(argv):
     if "--selftest" in argv:
         return selftest()
+    if argv and argv[0] == "--refit":
+        for p in argv[1:]:
+            r = refit(p)
+            f = r["apertures"].get("10", {})
+            print(f"{r['night']}/{r['set']:12s} tilt {100*f.get('tilt_frac_x', 0):+8.2f}% "
+                  f"pair-spread {100*f.get('block_pair_spread_frac', 0):8.1f}  "
+                  f"drift-delta {f.get('per_block_gradient', {}).get('delta_ax_spread_mag', 0):.4f} mag "
+                  f"x{f.get('drift_amplification', 0):.0f} = "
+                  f"{f.get('drift_leaked_as_shared_mag', 0):+.2f} mag leaked")
+        return 0
     if not argv or argv[0].startswith("--"):
         print(__doc__)
         return 2

@@ -18,7 +18,9 @@
 # build_sky_flat.sh keeps it only to reproduce the regressed configuration
 # (docs/dead-ends.md + datasets/july31/set-01/qa_work/desky_regression.json).
 # The problem it aimed at is real and open: a sky flat converges to sky x V and
-# tilts the object (3.11% at 241 sigma).
+# tilts the object. The tilt's MAGNITUDE is UNMEASURED — the long-quoted
+# 3.11%/241 sigma has no tracked record and the catalogue-free re-measurement is a
+# dead end (docs/dead-ends.md; datasets/aug09/corpus_object_tilt.json).
 #
 # --subsky-lights is the SEPARATE lights-side step, passed straight through to
 # the per-group sub-pipeline: per-frame `subsky 1 -nodither` on the calibrated,

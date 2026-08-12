@@ -42,7 +42,7 @@
   {
    "criterion": "masters",
    "status": "YELLOW",
-   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
+   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt \u2014 mechanism real, magnitude UNMEASURED; real flats fix it)",
    "instrument": "session staging + build_sky_flat.sh",
    "detail": ""
   },
@@ -56,7 +56,7 @@
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "925G free covers even the 251G single-pass peak",
+   "value": "904G free covers even the 251G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },

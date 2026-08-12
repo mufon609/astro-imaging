@@ -151,8 +151,11 @@ measured:
   one knob, everything else identical.
 
 **Carried open defect, stated honestly:** a sky flat converges to `sky × V`, so
-calibration leaves the object carrying the sky's spatial profile (measured
-3.11% at 241σ by differential star photometry). No processing step fixes this;
+calibration leaves the object carrying the sky's spatial profile. The
+MECHANISM is established; the MAGNITUDE is UNMEASURED — the long-quoted
+"3.11% at 241σ by differential star photometry" has no tracked record, and the
+catalogue-free re-measurement of it is a registered dead end
+(`docs/dead-ends.md`; `datasets/aug09/corpus_object_tilt.json`). No processing step fixes this;
 real flats at the session's optical state do. Acquisition outranks processing.
 
 ## 5. UNDISTORT — the stage that makes registration possible
@@ -319,8 +322,10 @@ running).
 
 ## 11. Open defects and watch-list (with their records)
 
-- `sky × V` object tilt, 3.11% at 241σ — real, uncorrected, needs real flats
-  (§4; register row in BACKLOG).
+- `sky × V` object tilt — mechanism real, uncorrected, MAGNITUDE UNMEASURED
+  (the 3.11%/241σ figure is untracked and unreproduced; sizing it by
+  differential star photometry across the drift is a dead end). Needs real
+  flats (§4; register row in BACKLOG).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets
   (BACKLOG:`one-sided-band`).

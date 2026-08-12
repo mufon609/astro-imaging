@@ -151,8 +151,13 @@ the constraints any such tool must satisfy):
   measurement.** They come from a WHOLE-FRAME plane fit, which cannot separate
   the sky term from a repeatable instrumental one. The MECHANISM above (a
   horizon-fixed gradient cannot drift out, and a flat that absorbs it tilts the
-  object) stands and is independently proven by the 3916-star differential
-  photometry at 241 sigma. Only the magnitudes are overstated as sky.
+  object) stands on its own physics and on the L/R decomposition below. **It is
+  NOT supported by the "3916-star differential photometry at 241 sigma" this
+  paragraph used to cite: that measurement has no tracked record, and the
+  rebuilt catalogue-free version of it is a registered DEAD END below — the
+  linear mode is degenerate under translational drift, and the atmosphere is
+  sensor-fixed for a fixed camera, so no such fit can size this defect.** Only
+  the magnitudes are overstated as sky.
   **EVIDENCE REPLACED — the cross-session pair this scope correction originally
   cited (-0.44 july14, -0.55 july31, read as "same sign across 17 days, so most
   of the odd plane is instrumental") was measured on `--desky` FLATS, i.e. on the
@@ -213,6 +218,102 @@ the constraints any such tool must satisfy):
   `datasets/aug09/corpus_flat_odd_component.json`,
   `datasets/aug09/experiments.jsonl`.
 
+- **DEAD END — MEASURING THE OBJECT TILT BY DIFFERENTIAL STAR PHOTOGRAPHY ACROSS
+  THE DRIFT. Two independent blockers, either one fatal; and the `3.11% at 241
+  sigma` figure this repo has quoted for the defect is UNVERIFIED — it has no
+  tracked record and this measurement does not reproduce it.** The design is the
+  survey lineage's photometric self-calibration / star flat (SDSS ubercal,
+  Padmanabhan et al. 2008; PS1 forward global calibration, Schlafly et al. 2012;
+  SNLS/DES star flats, Regnault et al. 2009) with the dither supplied free by not
+  tracking: measure the same stars in consecutive time blocks and fit measured
+  flux against sensor position, since correct calibration makes a star's flux
+  independent of where it landed. Instrument, controls and 12-set corpus:
+  `scripts/qa/object_tilt.py`, `datasets/aug09/corpus_object_tilt.json`.
+
+  **BLOCKER 1 — GEOMETRIC: a pure translation carries NO information about the
+  linear mode, so the 503-1220 px of drift is not the lever.** Write the model
+  `m_ij = M_i + z_j + a*u_ij`. Under a translation `u_ij = u_i + c_j`, the term
+  splits as `a*u_i` + `a*c_j`, which the per-star and per-block nuisances absorb
+  EXACTLY — `a` is formally unidentifiable at any drift size. This is the known
+  low-order degeneracy of self-calibration under translational dithers, and the
+  surveys break it with camera ROTATION. Here the rotation is what an untracked
+  camera gets free: **0.69-3.76 deg per set**, which leaves a median effective
+  lever of **29.1 px against a 5769 px frame — 0.5%, a ~200x extrapolation**
+  (range 9.2-34.3 px). `object_tilt.py --selftest` executes this: on a
+  pure-translation panel a planted +0.100 mag comes back as **-0.046 +- 0.0001**,
+  and the lever collapses to 0.00 px while the sigma does NOT. **Read the lever,
+  never the sigma** — `numpy.linalg.pinv` reports variance ZERO along a null
+  direction, so a degenerate fit returns confidently wrong rather than loudly
+  unidentified.
+
+  **BLOCKER 2 — PHYSICAL, and it survives any improvement to blocker 1: for a
+  FIXED camera the atmosphere is sensor-fixed too.** Every sensor position maps
+  to a fixed altitude and azimuth, so extinction and the skyglow gradient across
+  this 27-degree field are sensor-fixed exactly like the flat's residual — and
+  both are functions of AIRMASS, i.e. nearly the same spatial shape. The fit sees
+  their SUM and cannot apportion it without an external anchor, and both anchors
+  are closed: a catalogue is structurally impossible here (trailed stars at
+  17"/px) and a real flat IS the fix. **The time-varying half is measured, not
+  argued:** letting every block carry its own gradient gives a within-set drift of
+  **0.040-0.425 mag across the frame (median 0.149), MONOTONE in block order in 10
+  of 12 sets**. A gradient drift `delta` enters a shared-gradient fit at about
+  `delta/theta`, so every set's leak capacity (**0.74-13.45 mag**) exceeds its own
+  measured shared gradient.
+
+  **THE INSTRUMENT IS NOT AT FAULT — the controls say so.** A Siril `imul` ramp
+  card of known edge ratio 1.2222 is recovered at **1.24x** overall and **0.95x**
+  on the best-levered block pair (rotation 2.37 deg), while a UNIFORM card moves
+  every number by **exactly 0.00**. Recovery tracks the lever: the same set's
+  pairs recover 0.14x-5.2x as their rotation runs 0.66-2.37 deg.
+
+  **THE INTERNAL FALSIFICATION THAT KILLS THE PER-SET NUMBER.** One sensor-fixed
+  field must give ONE answer from every pair of blocks. Median within-set pair
+  spread across the corpus: **529 percentage points** (aug09/set-01: +57, -20,
+  -65, -80, -88, -93%).
+
+  **THE PRE-REGISTERED CORPUS PREDICTION FAILED 4 OF 5**
+  (`datasets/aug09/tilt_corpus_prediction.json`, committed before the corpus ran).
+  If the tilt were the flat's baked-in sky gradient, `g(right)/g(left)` would
+  equal the flat's own L/R. Measured across 12 sets, three nights: **every set
+  exceeds its flat's dose, by 1.4x to 86x (median 8.1x)** — the flat cannot
+  produce more tilt than it carries. **aug06/set-03, pre-registered as the
+  built-in null (L/R 1.0259, predicted +2.6%), measures +223 +- 28%.** The
+  measured range is **-77%..+1605%** against a predicted -35.8%..+47.7%. Spearman
+  rho is **+0.68 (p 0.015)** — a real positive ordering, but it cannot be read as
+  confirmation while the magnitudes miss by up to 86x, because the flat's L/R
+  sweeps as the NIGHT'S SKY STATE sweeps and blocker 2 is driven by the same
+  thing. **So: the flat attribution is FALSIFIED as the DOMINANT term. The
+  MECHANISM in the entry above is untouched** — a horizon-fixed gradient cannot
+  drift out of a median of un-registered lights, and dividing by a flat that
+  absorbed it does tilt the object. What is refuted is that this measurement can
+  size it.
+
+  **WHAT NOT TO RE-ATTEMPT.** More blocks (rotation is a property of the set, not
+  the block count); more depth (the blocker is systematic, not statistical — 2545
+  to 3823 stars per set already); freeing the per-block gradients (a constant
+  added to every delta IS the quantity wanted, so `a` becomes unidentified rather
+  than clean); interleaved halves (they share their rotation as well as their
+  drift, so the lever goes to zero). A HIGHER-ORDER mode of `g` is not degenerate
+  under translation and would be well-posed geometrically — but blocker 2 applies
+  to it unchanged, so it measures the atmosphere-plus-flat sum too.
+
+  **TOOL SEARCH, recorded because it had to fail first.** Siril `seqpsf -wcs=`
+  looks like the answer and is not: it converts the sky coordinate to pixels ONCE
+  and measures that same pixel area in every image. MEASURED on one real star
+  across aug09/set-01's four blocks: **m = -2.104 in the reference block against
+  +3.55 / +5.05 / +3.63** in the others, and `-followstar` does not repair it
+  without registration data (+3.55 / +3.87 / +2.86). `light_curve` is
+  differential against comparison stars, not position-dependent throughput.
+  **SCAMP** — the standards answer for a photometric solution across overlapping
+  exposures — is NOT packaged on this distro (`apt-cache policy scamp`: no
+  candidate; `source-extractor` and `swarp` ARE). `source-extractor` 2.28.2 IS
+  installed and runs on these sub-stacks (47,971 objects in 3.1 s, `FLUX_APER` at
+  two radii with `BACKPHOTO_TYPE LOCAL` and `ALPHA/DELTA_J2000`) — a viable
+  alternative per-image photometer, not adopted because Siril `psf` gives the same
+  measurement natively on the 3-layer float cube and on the green layer the rest
+  of the chain uses, and because neither closes the actual gap, which is the
+  cross-image SOLUTION.
+
 - **DEAD END — `--desky`: running `seqsubsky` on the sky flat's RAW source
   frames. Shipped, then reverted: a 31x regression in background flatness.**
   MEASURED, july31/set-01, 500 frames, one knob, everything else identical
@@ -259,7 +360,9 @@ the constraints any such tool must satisfy):
   `check_calibrate`, `check_stack_rejection`) verifies WIRING, not output.
   **STILL OPEN, and do not confuse it with this entry:** a sky flat converges
   to `sky x V`, so calibration leaves the object carrying the sky's spatial
-  profile (3.11% at 241 sigma). That defect is REAL and currently UNCORRECTED;
+  profile. The defect's MECHANISM is REAL and currently UNCORRECTED; its
+  MAGNITUDE is UNMEASURED — the long-quoted "3.11% at 241 sigma" has no tracked
+  record and the catalogue-free re-measurement is a dead end (the entry above).
   `--desky` was not a valid fix for it. Numbers:
   `datasets/july31/set-01/qa_work/desky_regression.json`.
   **THE REVERT REMOVED TWO COUPLED HALVES — ONLY THE FLAT-SIDE ONE IS THIS DEAD

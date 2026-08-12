@@ -1,0 +1,373 @@
+{
+ "night": "aug09",
+ "set": "set-01",
+ "groups_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01",
+ "uptime": "12:30:33 up 37 days, 20:40,  2 users,  load average: 2.37, 2.48, 1.77",
+ "instrument": "Siril 1.4.4 findstar (detection + position + RA/Dec through each sub-stack's own astrometry.net solve) + Siril psf (aperture photometry, forced radius, local background annulus via setphot); in-house: sky cross-match + weighted LS fit of magnitude against sensor position with per-star and per-block nuisance terms",
+ "n_blocks": 4,
+ "blocks": [
+  {
+   "file": "sub_01.fit",
+   "naxis": [
+    5769,
+    3950
+   ],
+   "stackcnt": 125,
+   "livetime": 312.5
+  },
+  {
+   "file": "sub_02.fit",
+   "naxis": [
+    5769,
+    3959
+   ],
+   "stackcnt": 125,
+   "livetime": 312.5
+  },
+  {
+   "file": "sub_03.fit",
+   "naxis": [
+    5772,
+    3962
+   ],
+   "stackcnt": 124,
+   "livetime": 310.0
+  },
+  {
+   "file": "sub_04.fit",
+   "naxis": [
+    5771,
+    3935
+   ],
+   "stackcnt": 124,
+   "livetime": 310.0
+  }
+ ],
+ "frame_norm": {
+  "width_px": 5770.0,
+  "height_px": 3954.5
+ },
+ "detection": {
+  "roundness_floor": 0.05,
+  "layer": 1,
+  "per_block_found": [
+   22044,
+   22046,
+   22043,
+   21828
+  ],
+  "match_tol_arcsec": 34.0,
+  "match_stats": [
+   {
+    "within_tol": 19724,
+    "unique": 19724
+   },
+   {
+    "within_tol": 18810,
+    "unique": 18810
+   },
+   {
+    "within_tol": 17756,
+    "unique": 17756
+   }
+  ],
+  "matched_all_blocks": 16774,
+  "amplitude_floor": 0.005,
+  "faintest_admitted_amplitude": 0.005001,
+  "edge_margin_px": 40,
+  "common_population": 3546
+ },
+ "geometry": {
+  "vs_block_0": [
+   {
+    "block": 1,
+    "rotation_deg": 0.9749460102045377,
+    "scale": 1.0004313703752281,
+    "dx_mean_px": -252.79315538278212,
+    "dx_spread_px": 73.24160341013697,
+    "dy_mean_px": -19.165207289416383,
+    "dy_spread_px": 106.95134096685337
+   },
+   {
+    "block": 2,
+    "rotation_deg": 1.6364152483071461,
+    "scale": 1.0010521353103126,
+    "dx_mean_px": -515.9734884552131,
+    "dx_spread_px": 124.16060303113272,
+    "dy_mean_px": -58.25023729457704,
+    "dy_spread_px": 179.56921703952315
+   },
+   {
+    "block": 3,
+    "rotation_deg": 2.3661947209492578,
+    "scale": 1.0020626387103173,
+    "dx_mean_px": -779.1543784367536,
+    "dx_spread_px": 181.60866617475278,
+    "dy_mean_px": -105.46172741355447,
+    "dy_spread_px": 260.0485934324982
+   }
+  ],
+  "note": "dx_spread is the lever: a pure translation (spread 0) makes the linear tilt formally unidentifiable"
+ },
+ "apertures": {
+  "10": {
+   "ax": 1.117039844414928,
+   "ay": -0.3460397839289852,
+   "ax_err": 0.06950185449478927,
+   "ay_err": 0.03760997606504803,
+   "ax_err_formal": 0.021961140289666125,
+   "ay_err_formal": 0.011883970099206909,
+   "n_stars": 2969,
+   "n_obs": 11876,
+   "dof": 8902,
+   "n_stars_clipped": 517,
+   "clip_sigma": 4.0,
+   "chi2_per_dof": 10.015739334227101,
+   "resid_rms_mag": 0.017545392956418885,
+   "zero_points": [
+    0.0,
+    0.04279684282164409,
+    0.10316914993995183,
+    0.22344467479822439
+   ],
+   "lever_frac_x": 0.003731982217308223,
+   "lever_frac_y": 0.006896576896527195,
+   "design_condition_number": 191.5277455815258,
+   "aperture_radius_px": 10,
+   "annulus_px": [
+    20,
+    30
+   ],
+   "background": "Siril psf local annulus (setphot -inner/-outer)",
+   "tilt_frac_x": -0.6425757107550512,
+   "tilt_frac_x_err": 0.022163069724802753,
+   "tilt_frac_y": 0.3753584928691669,
+   "tilt_frac_y_err": 0.04682678795621986,
+   "sigma_x": 16.07208688940344,
+   "lever_px_x": 21.533537393868446,
+   "lever_px_y": 27.27251333731679,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 0.569099097457981,
+     "tilt_frac_x_err": 0.17718959213803487,
+     "lever_px_x": 12.215446880439085,
+     "n_stars": 3211,
+     "rotation_deg": 0.9749460102045377
+    },
+    {
+     "blocks": [
+      0,
+      2
+     ],
+     "tilt_frac_x": -0.1949345110114611,
+     "tilt_frac_x_err": 0.07843010215331048,
+     "lever_px_x": 20.511347392738863,
+     "n_stars": 3236,
+     "rotation_deg": 1.6364152483071461
+    },
+    {
+     "blocks": [
+      0,
+      3
+     ],
+     "tilt_frac_x": -0.6480946899650804,
+     "tilt_frac_x_err": 0.029521285300623923,
+     "lever_px_x": 29.555724283010328,
+     "n_stars": 3236,
+     "rotation_deg": 2.3661947209492578
+    },
+    {
+     "blocks": [
+      1,
+      2
+     ],
+     "tilt_frac_x": -0.803290120256231,
+     "tilt_frac_x_err": 0.03452551932510417,
+     "lever_px_x": 8.319220809352235,
+     "n_stars": 3260,
+     "rotation_deg": 0.6614692381026084
+    },
+    {
+     "blocks": [
+      1,
+      3
+     ],
+     "tilt_frac_x": -0.8800763639986875,
+     "tilt_frac_x_err": 0.01403948951949574,
+     "lever_px_x": 17.36688206534097,
+     "n_stars": 3248,
+     "rotation_deg": 1.39124871074472
+    },
+    {
+     "blocks": [
+      2,
+      3
+     ],
+     "tilt_frac_x": -0.925045723451759,
+     "tilt_frac_x_err": 0.011921329293256178,
+     "lever_px_x": 9.157235527029,
+     "n_stars": 3220,
+     "rotation_deg": 0.7297794726421116
+    }
+   ],
+   "block_pair_spread_frac": 1.49414482090974,
+   "block_pair_std_frac": 0.5280103304763765,
+   "per_block_gradient": {
+    "delta_ax_by_block_mag": [
+     0.0,
+     0.061608782359119055,
+     0.10822347755556776,
+     0.15622346104794135
+    ],
+    "delta_ay_by_block_mag": [
+     0.0,
+     -0.07481931653138342,
+     -0.10844941550369241,
+     -0.1294738301961058
+    ],
+    "delta_ax_spread_mag": 0.15622346104794135,
+    "delta_ax_spread_frac": -0.13401450937440662,
+    "monotone_in_block_order": true,
+    "chi2_shared": 509497.770431248,
+    "chi2_free": 504831.3338313218,
+    "n_stars": 3486
+   },
+   "drift_amplification": 24.214312966642364,
+   "drift_leaked_as_shared_mag": 3.7828437785469147
+  },
+  "16": {
+   "ax": 1.1190959864313041,
+   "ay": -0.30437563534151424,
+   "ax_err": 0.07894446520349545,
+   "ay_err": 0.04326676240739813,
+   "ax_err_formal": 0.025459359891444006,
+   "ay_err_formal": 0.013953404746337756,
+   "n_stars": 2639,
+   "n_obs": 10556,
+   "dof": 7912,
+   "n_stars_clipped": 847,
+   "clip_sigma": 4.0,
+   "chi2_per_dof": 9.614980626936292,
+   "resid_rms_mag": 0.01868531972971282,
+   "zero_points": [
+    0.0,
+    0.043020801481915394,
+    0.10465575282959894,
+    0.22508104115966446
+   ],
+   "lever_frac_x": 0.003957911153521049,
+   "lever_frac_y": 0.007221602741016007,
+   "design_condition_number": 192.05293467742692,
+   "aperture_radius_px": 16,
+   "annulus_px": [
+    20,
+    30
+   ],
+   "background": "Siril psf local annulus (setphot -inner/-outer)",
+   "tilt_frac_x": -0.6432519520483515,
+   "tilt_frac_x_err": 0.025018757835815975,
+   "tilt_frac_y": 0.3235801768266664,
+   "tilt_frac_y_err": 0.051707759063772896,
+   "sigma_x": 14.175737127949454,
+   "lever_px_x": 22.83714735581645,
+   "lever_px_y": 28.5578280393478,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 0.3772086183989256,
+     "tilt_frac_x_err": 0.1706646901890203,
+     "lever_px_x": 13.10347682411878,
+     "n_stars": 3012,
+     "rotation_deg": 0.9749460102045377
+    },
+    {
+     "blocks": [
+      0,
+      2
+     ],
+     "tilt_frac_x": -0.2786654327443867,
+     "tilt_frac_x_err": 0.07488381843267844,
+     "lever_px_x": 22.03849128031097,
+     "n_stars": 3062,
+     "rotation_deg": 1.6364152483071461
+    },
+    {
+     "blocks": [
+      0,
+      3
+     ],
+     "tilt_frac_x": -0.665199612232223,
+     "tilt_frac_x_err": 0.030111220481929046,
+     "lever_px_x": 31.743170831433122,
+     "n_stars": 3096,
+     "rotation_deg": 2.3661947209492578
+    },
+    {
+     "blocks": [
+      1,
+      2
+     ],
+     "tilt_frac_x": -0.7136994373138301,
+     "tilt_frac_x_err": 0.05840837786045294,
+     "lever_px_x": 8.93815112820755,
+     "n_stars": 3090,
+     "rotation_deg": 0.6614692381026084
+    },
+    {
+     "blocks": [
+      1,
+      3
+     ],
+     "tilt_frac_x": -0.8804098281961266,
+     "tilt_frac_x_err": 0.014862454048148677,
+     "lever_px_x": 18.65603071093102,
+     "n_stars": 3114,
+     "rotation_deg": 1.39124871074472
+    },
+    {
+     "blocks": [
+      2,
+      3
+     ],
+     "tilt_frac_x": -0.9344673894444254,
+     "tilt_frac_x_err": 0.011435155169831512,
+     "lever_px_x": 9.847059995157013,
+     "n_stars": 3085,
+     "rotation_deg": 0.7297794726421116
+    }
+   ],
+   "block_pair_spread_frac": 1.3116760078433511,
+   "block_pair_std_frac": 0.45155367076498926,
+   "per_block_gradient": {
+    "delta_ax_by_block_mag": [
+     0.0,
+     0.047598482795898414,
+     0.07901264614464625,
+     0.11234284097111578
+    ],
+    "delta_ay_by_block_mag": [
+     0.0,
+     -0.06153439707074088,
+     -0.08667729910388172,
+     -0.09878395086207489
+    ],
+    "delta_ax_spread_mag": 0.11234284097111578,
+    "delta_ax_spread_frac": -0.09829835159495304,
+    "monotone_in_block_order": true,
+    "chi2_shared": 363152.82580529526,
+    "chi2_free": 360767.52722347964,
+    "n_stars": 3486
+   },
+   "drift_amplification": 24.214312966642364,
+   "drift_leaked_as_shared_mag": 2.72030471083633
+  }
+ },
+ "work_dir": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-01/tilt_work"
+}

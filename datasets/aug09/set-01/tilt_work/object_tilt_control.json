@@ -1,0 +1,130 @@
+{
+ "uptime": "12:23:42 up 37 days, 20:34,  2 users,  load average: 2.48, 1.63, 1.24",
+ "groups_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01",
+ "instrument": "scripts/qa/object_tilt.py under a Siril-applied card",
+ "baseline": {
+  "tilt_frac_x": -0.6425757107550512,
+  "tilt_frac_x_err": 0.022163069724802753,
+  "n_stars": 2969,
+  "lever_px_x": 21.533537393868446,
+  "block_pair_spread_frac": 1.49414482090974
+ },
+ "arms": [
+  {
+   "k": 0.2,
+   "planted_edge_ratio": 1.2221837043762207,
+   "planted_tilt_frac": 0.2221837043762207,
+   "measured_tilt_frac_x": -0.5440391009849591,
+   "measured_tilt_frac_x_err": 0.028128069159197744,
+   "expected_tilt_frac_x": -0.5631618581365707,
+   "moved_by": 0.09853660977009204,
+   "should_have_moved_by": 0.07941385261848044,
+   "recovery_fraction": 1.2407987589203238,
+   "n_stars": 2958,
+   "lever_px_x": 21.536084042687243,
+   "block_pair_spread_frac": 2.1855562853999895,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 1.2628834653384229
+    },
+    {
+     "blocks": [
+      0,
+      2
+     ],
+     "tilt_frac_x": 0.3634359685649171
+    },
+    {
+     "blocks": [
+      0,
+      3
+     ],
+     "tilt_frac_x": -0.5737649033939178
+    },
+    {
+     "blocks": [
+      1,
+      2
+     ],
+     "tilt_frac_x": -0.5769546132702355
+    },
+    {
+     "blocks": [
+      1,
+      3
+     ],
+     "tilt_frac_x": -0.8540514959977864
+    },
+    {
+     "blocks": [
+      2,
+      3
+     ],
+     "tilt_frac_x": -0.9226728200615665
+    }
+   ]
+  },
+  {
+   "k": 0.0,
+   "planted_edge_ratio": 1.0,
+   "planted_tilt_frac": 0.0,
+   "measured_tilt_frac_x": -0.6425757107550512,
+   "measured_tilt_frac_x_err": 0.022163069724802753,
+   "expected_tilt_frac_x": -0.6425757107550512,
+   "moved_by": 0.0,
+   "should_have_moved_by": 0.0,
+   "recovery_fraction": null,
+   "n_stars": 2969,
+   "lever_px_x": 21.533537393868446,
+   "block_pair_spread_frac": 1.49414482090974,
+   "block_pairs": [
+    {
+     "blocks": [
+      0,
+      1
+     ],
+     "tilt_frac_x": 0.569099097457981
+    },
+    {
+     "blocks": [
+      0,
+      2
+     ],
+     "tilt_frac_x": -0.1949345110114611
+    },
+    {
+     "blocks": [
+      0,
+      3
+     ],
+     "tilt_frac_x": -0.6480946899650804
+    },
+    {
+     "blocks": [
+      1,
+      2
+     ],
+     "tilt_frac_x": -0.803290120256231
+    },
+    {
+     "blocks": [
+      1,
+      3
+     ],
+     "tilt_frac_x": -0.8800763639986875
+    },
+    {
+     "blocks": [
+      2,
+      3
+     ],
+     "tilt_frac_x": -0.925045723451759
+    }
+   ]
+  }
+ ]
+}

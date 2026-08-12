@@ -31,7 +31,9 @@
 # where V curves hardest (the frame edge) and INVERTS the asymmetry there: raw light
 # +0.426, --desky flat -0.550, so dividing by it doubles the error. The analysis
 # below is preserved because its PROBLEM STATEMENT is still correct — a sky flat does
-# bake in the horizon-fixed gradient and does tilt the object (3.11% at 241 sigma).
+# bake in the horizon-fixed gradient and does tilt the object. The tilt's MAGNITUDE
+# is UNMEASURED: the long-quoted 3.11%/241 sigma has no tracked record and sizing it
+# by differential star photometry across the drift is a dead end (docs/dead-ends.md).
 # Its PROPOSED FIX is not. Full record: docs/dead-ends.md + datasets/july31/set-01/
 # qa_work/desky_regression.json.
 #

@@ -265,6 +265,28 @@ headless LOCAL star-shape map.
 **Note:** SPCC is the WRONG step for the narrowband O3 sphere (it equalizes
 O3=Ha — dead-end registry). Narrowband colour is Tier 10, not here.
 
+**Tier 3b — POSITION-DEPENDENT photometry (star flats / photometric
+self-calibration), audited on-rig.** The question is not "measure a star" — three
+tools do that — it is "solve for throughput as a function of FOCAL-PLANE position
+across overlapping exposures". Nothing installed here does the second.
+
+| Tool | Cost | Runs | Linux/CPU/Headless | What it actually gives |
+|---|---|---|---|---|
+| **Siril `psf`** (+ `setphot`) | FREE | siril-native | ✅ / ✅ / ✅ | **The measurement this repo uses.** APERTURE photometry at a FORCED radius (`setphot -aperture=R -dyn_ratio=` outside [1.0,5.0]) against its own LOCAL annulus, one star per `boxselect`, on the 3-layer float cube directly. ~2.4 ms/star. Probed: over boxes 40–160 px the magnitude moves 5e-4 mag (identical to 1e-4 from 50 px up) while the FITTED background B moves 18%, so **the annulus is read from the IMAGE, not the selection**; a 30 px box fails; a failed measure returns `±9.9990`, the tool's own invalid sentinel. |
+| **Siril `seqpsf -wcs=`** | FREE | siril-native | ✅ / ✅ / ✅ | **LOOKS like the cross-image answer and is NOT.** It converts the sky coordinate to pixels ONCE and measures that same pixel AREA in every image of the sequence. MEASURED on aug09/set-01's four blocks, one real star: **m = -2.104 in the reference block against +3.55 / +5.05 / +3.63** in the others. `-followstar` needs registration data and does not repair it (+3.55 / +3.87 / +2.86). Unusable on a drifting sequence. |
+| **Siril `light_curve`** | FREE | siril-native | ✅ / ✅ / ✅ | Differential photometry of ONE target against averaged comparison stars, over time. Wrong axis — it is a time series, not a position solution. |
+| **`source-extractor` 2.28.2** (`/usr/bin`, Debian's name for SExtractor) | FREE | CLI | ✅ / ✅ / ✅ | Installed and WORKS on these sub-stacks: **47,971 objects in 3.1 s**, `FLUX_APER`/`FLUXERR_APER` at several radii in one pass, `BACKPHOTO_TYPE LOCAL`, `ALPHA/DELTA_J2000` from the header WCS. A viable alternative per-image photometer; not adopted because `psf` gives the same measurement on the green layer the rest of the chain uses without a channel-extraction hop (SExtractor reads plane 1 of the cube), and because it does not close the actual gap either. Needs a `default.conv` in CWD or it aborts. |
+| **SCAMP** (astromatic) | FREE | CLI | ✅ / ✅ / ✅ | **The standards answer — and NOT PACKAGED on this distro** (`apt-cache policy scamp`: no candidate; the `scamper` hit is an unrelated network tool). It is the removal condition for `object_tilt.py`. Note what it would and would not buy: its photometric solution is per-exposure zero points against overlaps, which is the nuisance term here, not the focal-plane field. |
+
+**And the gap does not matter on THIS data**, which is the load-bearing finding:
+a catalogue-free star-flat solution needs the dither to break the low-order
+degeneracy, and a translational drift cannot — only the 0.69–3.76°/set of field
+rotation does, leaving a 29 px median lever on a 5769 px frame. Compounding it,
+a FIXED camera makes the ATMOSPHERE sensor-fixed too, so no sensor-frame fit can
+apportion the measured field between flat and sky. Both blockers, the controls
+that prove the instrument itself is sound, and the 12-set corpus:
+`docs/dead-ends.md` + `datasets/aug09/corpus_object_tilt.json`.
+
 ## Tier 4 — Gradient / background extraction (LINEAR, star-ful, early)
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |

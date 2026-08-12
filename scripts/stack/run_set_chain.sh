@@ -740,8 +740,10 @@ PY
 #
 # The concern that motivated --desky is REAL and remains open: a sky flat is a
 # median of the set's own lights, so it converges to sky x V and calibration
-# leaves the object carrying the sky's spatial profile (measured at 3.11% / 241
-# sigma by differential star photometry). That is a genuine defect. --desky is
+# leaves the object carrying the sky's spatial profile. The MECHANISM is a genuine
+# defect; its MAGNITUDE is UNMEASURED — the long-quoted 3.11% / 241 sigma has no
+# tracked record, and measuring it by differential star photometry across the drift
+# is a registered dead end (docs/dead-ends.md). --desky is
 # simply not a valid fix for it, and its cure measured 31x worse than the
 # disease. Reproducing the regressed flat is build_sky_flat.sh --desky,
 # standalone only — the chain no longer plumbs it. The lights-side per-frame

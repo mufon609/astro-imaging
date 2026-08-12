@@ -51,7 +51,8 @@ dataset, and says so.
 | `shape_at_sky.py` sky-addressed `findstar` medians (the combined-product acceptance instrument) | an official tool reports headless star-shape statistics for a WCS-addressed subregion of a solved image | 2026-08-10 | **not fired** — same gap family as `star_stations.py`, at SKY positions instead of sensor stations: the compose-registration defect class lives at fixed sky on a combined canvas and no tool measures there headless. Every fit is Siril `findstar` (open gate), placement is header-only WCS, summarisation is medians of the tool's own numbers; box placement is VERIFIED per run by the tool's own per-star RA/Dec (the crop y-flip trap fired on first use and was caught by exactly that check). Calibrated against the recorded union A/B: reproduces 4.383/0.458 (defect) and 2.448/0.968 (control) to the third decimal on the kept reference |
 | fitted lensfun entry, PINNED per lens/focal (`lens_models.json`) | an upstream lensfun entry measured for THIS unit at infinity focus, or a chain that consumes the model another way (Siril `register -disto=` with a trustworthy source — probed 2026-08-09, it is a SHARED-solution facility, not per-image reprojection, so it does not retire this) | 2026-08-09 | **not fired — and RE-INSTATED.** The 2026-08-08 retirement ("condition fired: the chain consumes the model another way — per-set optical-state records") is REVOKED: the per-set method was refuted at its root (`docs/dead-ends.md`) and reverted. Its founding number, aug06/set-01's 0.82 px off-axis, is a COMPOSE artifact — set-01's own groups read 0.40-0.45 px under that same pinned model. Per-set models broke the combine (2.99 px within a night, 5.34 px across nights) where one shared model composes clean and is what every accepted combine here ever used |
 | lensfun user-DB strip of the fitted lens's `<vignetting>`/`<tca>` (`install_lens_model.sh`) | darktable honours a style's lens `op_params` | 2026-08-11 | **not fired — and no longer re-checked by hand.** `lens_preflight.py --require-profile` now runs `verify_lens_card.py` EVERY set (11.1 s of a 25.5 s preflight on 6064x4040 frames, so unconditional), because the strip is machine-local state `lensfun-update-data` reverts and the two cheaper checks are blind to it: reinstating the focal=70 aperture=4 `<vignetting>` pair by hand left the warp-happened proof and the pinned-coefficient assert both GREEN while the card read a 4219 ADU corner-vs-centre step on a 30000 ADU field (tol 1.0). Fire-tested both ways on aug06/set-01 (refuse -> re-strip -> 0.000 ADU). That test also found the restore path itself broken — the installer's idempotence test asked only about the distortion line, so it reported "already installed" and exited 0 on a block whose vignetting was back; it now re-strips and says so |
-| per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-07 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile (3.11% at 241 sigma) — REAL, open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`) |
+| per-set sky flat (`build_sky_flat.sh`, NOT de-skied) | a matching REAL flat for the set | 2026-08-12 | **not fired** — the flatless route, and it works: july31 sets measure 0.40/0.49/1.03/1.17% corner spread (a scratch rebuild from raws reproduced the experiments-ledger figures to the digit). The flat still converges to `sky x V`, so the object carries the sky's spatial profile — the MECHANISM is REAL and open, and NOT fixed by de-skying the source frames (`--desky` was a 31x regression; `docs/dead-ends.md`). **Its MAGNITUDE is UNMEASURED**: the long-quoted 3.11% / 241 sigma has no tracked record, and the catalogue-free re-measurement is now a registered DEAD END — the linear mode is degenerate under translational drift and the atmosphere is sensor-fixed for a fixed camera, so the pre-registered flat prediction failed 4 of 5 across 12 sets (`datasets/aug09/corpus_object_tilt.json`) |
+| `object_tilt.py` cross-match + weighted LS of magnitude against sensor position (+ `object_tilt_control.py`, `object_tilt_null.sh`, `object_tilt_corpus.py`) | an official tool reports a headless POSITION-DEPENDENT photometric solution across overlapping exposures with no external catalogue — SCAMP's photometric mode is the candidate, or a PixInsight equivalent | 2026-08-12 | **not fired — and the divergence it fills is now known to be UNFILLABLE ON THIS DATA, which is why the code stays only as the record of that.** Probed: `scamp` has no apt candidate on this distro (`source-extractor` 2.28.2 and `swarp` do, and source-extractor runs on these sub-stacks — 47,971 objects in 3.1 s with `FLUX_APER` at two radii and `BACKPHOTO_TYPE LOCAL`); Siril's `seqpsf -wcs=` converts the sky coordinate to pixels ONCE and measures that same pixel area in every image (MEASURED: m = -2.104 in the reference block against +3.55/+5.05/+3.63 in the other three, and `-followstar` does not repair it without registration data), so no tool cross-matches a star across a drifting sequence headless. Every pixel op and every flux is Siril's (`findstar` + `psf` aperture photometry, forced radius, local annulus); the in-house part is the cross-match and the fit. It MEASURES and gates nothing — no thresholds, no verdict, always exits 0. `--selftest` falsifies its own mechanism in process (a pure-translation panel must NOT recover a planted +0.100 mag: it returns -0.046 +- 0.0001 and the lever collapses to 0.00 px; restore the rotation and the same code catches it again) |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
 | `baseline_guard.py` derived summaries (corner spread, edge dipole) over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-05 | **not fired** — nothing does. WIRED into `run_set_chain.sh` as the last step: it measures the finished product, and a regression exits **8** (a user decision, like the mount/route stops) without blocking or rewriting anything. Also a web stage for seeding/re-seeding. It is a no-regression RECORD, never a quality gate — a deliberate improvement fails it and the human re-seeds with a note. Blind spot to state when reading a PASS: both measures are STACK corners, which `docs/dead-ends.md` calls self-fulfilling for flat contamination, so it cannot see the open `sky x V` object tilt |
 | `snr_regions.py` in-house SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | 2026-08-05 | **not fired** — `stat` and `bgnoise` are whole-image/selection; no regional-SNR command in 1.4.4. Every input number is the tool's; only the ratio is in-house. *(Was missing from this register until 2026-08-05.)* |
@@ -289,16 +290,41 @@ were all measured with instruments blind to the failure: the odd plane is a
 whole-frame fit that CANCELS under a partial sign inversion, and "vignetting held"
 was a centre-vs-corner radial ratio that averages the two sides together.**
 The underlying problem the work was aimed at is still real and still uncorrected —
-a sky flat converges to `sky x V` and tilts the object 3.11% at 241 sigma. These
+a sky flat converges to `sky x V` and tilts the object. These
 evidence gaps therefore remain open for whatever the eventual fix is:
 
-- **The 3.11% / 241-sigma figure itself has NO TRACKED RECORD.** It is cited across
-  six code and doc sites as the justification for a whole class of decisions, and
-  it entered the repo as PROSE — no `datasets/` record holds the measurement, its
-  instrument, or its n. Either re-measure it into a record or mark it unverified at
-  every citation; a number that cannot be traced to a measurement is the same class
-  as the run-to-run floor that was "a subtraction of two numbers you happen to
-  have".
+- ~~**The 3.11% / 241-sigma figure itself has NO TRACKED RECORD.**~~ **CLOSED, as
+  UNVERIFIED — and the re-measurement is a DEAD END.** The figure is now marked
+  unverified at all 13 code and doc sites plus the 13 `readiness.json` records
+  (the generator, `readiness_report.py`, was the real site — the JSONs regenerate
+  from it). The catalogue-free re-measurement the brief specified was BUILT
+  (`scripts/qa/object_tilt.py`, Siril `findstar` + Siril `psf` aperture photometry
+  at a forced radius against its own local annulus) and does not reproduce it, for
+  two independent reasons either of which is fatal:
+  **(1) GEOMETRIC.** A linear sensor-fixed mode is EXACTLY absorbed by the
+  per-star and per-block nuisances under a pure translation, so the 503-1220 px of
+  drift is not the lever — the FIELD ROTATION is, and it is only 0.69-3.76 deg per
+  set, leaving a median effective lever of **29.1 px on a 5769 px frame (0.5%, a
+  ~200x extrapolation)**. `--selftest` executes the falsification: a planted
+  +0.100 mag returns as **-0.046 +- 0.0001** on a pure-translation panel, so a
+  degenerate fit reads confidently WRONG rather than unidentified. Read the lever,
+  never the sigma.
+  **(2) PHYSICAL, and it survives any fix to (1).** For a FIXED camera every
+  sensor position maps to a fixed altitude, so atmospheric extinction and skyglow
+  across this 27-degree field are sensor-fixed TOO, and both are airmass-shaped —
+  nearly the same spatial shape as the flat's baked-in sky term. The fit measures
+  their SUM. The time-varying half is MEASURED: a within-set gradient drift of
+  **0.040-0.425 mag (median 0.149), monotone in block order in 10 of 12 sets**,
+  whose leak into a shared-gradient fit (0.74-13.45 mag) exceeds the measured
+  shared gradient in every set.
+  **The instrument is sound and the controls say so**: a Siril `imul` ramp of edge
+  ratio 1.2222 recovers at 1.24x (0.95x on the best-levered pair) and a uniform
+  card moves every number by exactly 0.00. What fails is the DATA'S GEOMETRY.
+  **The pre-registered corpus prediction failed 4 of 5** — every set exceeds its
+  flat's own dose by 1.4-86x, and aug06/set-03, the pre-registered built-in null,
+  measures +223 +- 28% against a predicted +2.6%. Numbers:
+  `datasets/aug09/corpus_object_tilt.json`,
+  `datasets/aug09/tilt_corpus_prediction.json`, `docs/dead-ends.md`.
 - ~~**The odd-component instrument has no script.**~~ **CLOSED** —
   `scripts/qa/flat_odd_component.py`. Siril does every pixel op (load/crop/fdiv)
   and every measurement (stat); it reports LR / TB / corner ratio / both edge
@@ -320,17 +346,20 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   The builder does now record both edge dipoles alongside it, so the honest
   statement is that the gate under-claims rather than lies — but it should stop
   claiming to check what it does not.
-- **Which arm is CORRECT still rests on estimator arithmetic.** The 3.11%
-  differential star-flux plane proves the two calibrations DIFFER; only the
-  derivation says de-skied is right, and the Gaia check was structurally impossible
-  (trailed stars at 17″/px). **The test that needs no catalogue:** within one set the
-  drift carries every star **503–1220 px** across the sensor (sky excursion
-  2.37–5.75° at the stacks' 16.98″/px; the earlier ~1500 px figure was high), so
-  measure the same stars in consecutive time blocks and fit measured flux against
-  sensor position. The correct calibration makes a star's flux independent of where
-  it landed. The blocks already exist: the groups route's 52 sub-stacks are
-  consecutive-time blocks, each independently solved, so the measurement needs no
-  rebuild — brief in `prompts/OBJECT_TILT_MEASUREMENT_PROMPT.md`.
+- **Which arm is CORRECT rests on estimator arithmetic, and the catalogue-free
+  test that was supposed to settle it is now a DEAD END.** The Gaia check is
+  structurally impossible (trailed stars at 17″/px), and "measure the same stars in
+  consecutive time blocks and fit flux against sensor position" was BUILT and RUN
+  over all 12 sets: the linear mode is degenerate under the drift's translation, the
+  1–3.8° of field rotation leaves only a 29 px median lever, and the atmosphere is
+  sensor-fixed for a fixed camera so nothing in the sensor frame can apportion the
+  measured field between flat and sky. Do not re-propose it (`docs/dead-ends.md`;
+  `datasets/aug09/corpus_object_tilt.json`).
+  **What is still available to settle it, in order of strength:** (a) a
+  WITH/WITHOUT judgement pair on finals — both flats exist for set-01/02, the next
+  bullet, and it needs no absolute number because it is DIFFERENTIAL and cancels
+  every sensor-fixed term the two arms share; (b) `flat_odd_component.py --ratio`,
+  which already measures what DIFFERS between two flats with no model and no fit.
 - **A with/without judgement pair on finals** — both flats exist for set-01/02, so
   this is stageable now. Unresolved-starlight preservation is the metric, the user's eyes decide.
 

@@ -102,7 +102,11 @@ def main(argv):
             planted = build_card(card, h["NAXIS1"], h["NAXIS2"], k)
             lines += [f"load {s}", f"imul {card}",
                       f"save {os.path.join(ctl, f'sub_{j:02d}')}"]
-        rc = object_tilt.run_ssf(ctl, ["set32bits"] + lines,
+        # `setcompress 0` is re-pinned here even though run_ssf already emits it:
+        # siril PERSISTS the setting between runs, and check_bitdepth.sh reads
+        # each emitter TEXTUALLY, so an emitter that pins it only through a
+        # helper is indistinguishable from one that forgot.
+        rc = object_tilt.run_ssf(ctl, ["set32bits", "setcompress 0"] + lines,
                                  os.path.join(ctl, "apply.ssf"),
                                  os.path.join(ctl, "apply.log"))
         if rc != 0:

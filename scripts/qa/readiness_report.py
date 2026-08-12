@@ -376,7 +376,8 @@ def evaluate(session, set_name, route=None, forced_route=None,
              else "darks staged — master builds this run")
         f = ("real flats staged" if real_flats else
              "flatless: per-set sky flat route (carries the open sky x V "
-             "object tilt, 3.11% at 241 sigma — real flats fix it)")
+             "object tilt — mechanism real, magnitude UNMEASURED; real flats "
+             "fix it)")
         rows.append(_row("masters", GREEN if real_flats else YELLOW,
                          f"{d}; {f}", "session staging + build_sky_flat.sh", ""))
 
