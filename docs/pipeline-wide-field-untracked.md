@@ -155,8 +155,14 @@ calibration leaves the object carrying the sky's spatial profile. The
 MECHANISM is established; the MAGNITUDE is UNMEASURED — the long-quoted
 "3.11% at 241σ by differential star photometry" has no tracked record, and the
 catalogue-free re-measurement of it is a registered dead end
-(`docs/dead-ends.md`; `datasets/aug09/corpus_object_tilt.json`). No processing step fixes this;
-real flats at the session's optical state do. Acquisition outranks processing.
+(`docs/dead-ends.md`; `datasets/aug09/corpus_object_tilt.json`). What IS measured
+is the route's SENSITIVITY to it: the flat differential shows a flat's shape
+reaching the delivered object at ~1:1 over the same window (delivered/flat
+0.989, 1.012 corrected by the planted control; floor exactly 0.0000), so a
+better sky flat moves the object by the amount it improves the flat. The fix
+therefore lives INSIDE the flatless route — that is the mission, user-ratified —
+and a real flat at the session's optical state is the removal CONDITION on the
+divergence, not the route to take.
 
 ## 5. UNDISTORT — the stage that makes registration possible
 
@@ -324,8 +330,10 @@ running).
 
 - `sky × V` object tilt — mechanism real, uncorrected, MAGNITUDE UNMEASURED
   (the 3.11%/241σ figure is untracked and unreproduced; sizing it by
-  differential star photometry across the drift is a dead end). Needs real
-  flats (§4; register row in BACKLOG).
+  differential star photometry across the drift is a dead end). The lever is
+  INSIDE the flatless route and is now quantified: a flat's shape reaches the
+  delivered object ~1:1, so better sky-flat construction buys object improvement
+  one-for-one (§4; register row in BACKLOG).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets
   (BACKLOG:`one-sided-band`).
