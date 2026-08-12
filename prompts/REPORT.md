@@ -7,6 +7,22 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
+- **[`PER_GROUP_FLAT_PROMPT.md`](PER_GROUP_FLAT_PROMPT.md)** — narrow the flat
+  window from per-set to per-group, on july31/set-03 (5 groups x 100 frames,
+  `g1..g5.list` on disk). Motivated by a measured error the shipped route eats:
+  contiguous half-to-half flat difference **3.481%** against a **0.035%** build
+  floor, 100x. Now worth paying for because the differential measured the
+  transfer — a flat's shape reaches the object ~1:1, so the improvement is
+  predictable before the run. **No new builder code**: `build_sky_flat.sh`
+  already takes `--select=<list-file>` and each `gN.list` is exactly that.
+  Registration pinned across arms via `--regdata=` (calibration changes
+  `register -2pass`'s reference choice — a second knob otherwise).
+  **The complication leads the brief:** the within-set term is T/B dominant
+  (y/x slope 11.6x) while the object tilt is L/R, so this is not automatically
+  the tilt fix and must not be written up as one. Fenced hardest: the time-dose
+  hypothesis is dead (777 s produced 1.200x of what 1497 s did, against a
+  predicted 0.52x), and stack corner spread is not an admissible judge here.
+
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
