@@ -72,6 +72,21 @@ mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
      \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort \
      | python3 "$REPO/scripts/lib/frame_order.py")
+# A FITS set arrives here with SRC empty and would fall through to cullspec's
+# "cull resolution failed" — the wrong diagnosis for the right stop. This route
+# undistorts with darktable, which reads camera raws, not FITS.
+[ ${#SRC[@]} -ge 2 ] || {
+  nf=$(find "$SESSION/$SET" -maxdepth 1 -type f \( -iname '*.fit' -o -iname '*.fits' \) | wc -l)
+  if [ "$nf" -gt 0 ]; then
+    echo "ABORT: $SESSION/$SET holds $nf FITS frames and no camera raws. This route" >&2
+    echo "  undistorts with darktable, which reads raws — a FITS (dedicated-astrocam)" >&2
+    echo "  set cannot take it. Nothing is staged wrong; the route does not accept" >&2
+    echo "  this frame format. Use scripts/stack/run_pipeline.sh for the standard" >&2
+    echo "  route, or add a FITS path around the darktable stage (a BUILDER change)." >&2
+  else
+    echo "ABORT: no camera raws (*.nef/dng/cr2/cr3/arw/raf) and no FITS under $SESSION/$SET" >&2
+  fi
+  exit 1; }
 # cull via the single-source cullspec (filename-digit convention; loud ABORT
 # on a never-matching or ambiguous exclude)
 RECIPE=$REPO/datasets/$(basename "$SESSION")/$SET/recipe.json

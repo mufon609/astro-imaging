@@ -14,9 +14,9 @@
   {
    "criterion": "route",
    "status": "GREEN",
-   "value": "undistort-groups",
-   "instrument": "fingerprint (mount x field width)",
-   "detail": "fixed + 28.6 deg field; groups is the standing route (sub-stacks keep the cross-set combine buildable)"
+   "value": "undistort-groups \u2014 drift_frac 0.2012 vs floor 0.05",
+   "instrument": "fingerprint: drift_frac (sky excursion / field), floor 0.05",
+   "detail": "fixed mount: the sky sweeps 0.201 of the field over the set (5.75 deg at 0.188 deg/min across a 28.6 deg field), at or above the 0.05 floor the distortion term is measured at \u2014 the frame-to-frame map is distort o H o distort^-1, so the route undistorts before the homography; groups is the STANDING shape"
   },
   {
    "criterion": "frame_qa",
@@ -42,7 +42,7 @@
   {
    "criterion": "masters",
    "status": "YELLOW",
-   "value": "darks staged \u2014 master builds this run; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
+   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt, 3.11% at 241 sigma \u2014 real flats fix it)",
    "instrument": "session staging + build_sky_flat.sh",
    "detail": ""
   },
@@ -56,7 +56,7 @@
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "958G free covers even the 279G single-pass peak",
+   "value": "925G free covers even the 279G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },

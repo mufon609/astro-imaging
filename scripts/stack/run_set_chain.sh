@@ -15,10 +15,18 @@
 #   exit 4  mount undeclared AND underivable — the instruments disagreed or
 #           nothing measured. A decisive signature self-derives and does NOT
 #           stop (acquisition.resolve, mount_source=derived)
-#   exit 5  unroutable fingerprint (neither tracked nor fixed+wide) — the
-#           two-window drift solve / the user decides the route
-#   exit 6  real flats staged but no master-flat wiring for the undistort
-#           route — resolve the flat manually (documented gap)
+#   exit 5  unroutable fingerprint — the mount signature is neither fixed nor
+#           tracked, or the route key's own inputs never measured. The probe
+#           runs first (a measurable excursion is not a question for a human);
+#           this stops only where the instruments cannot settle it
+#   exit 6  real flats staged and the route is undistort — the dispatch carries
+#           one flat source (the per-set sky flat) and will not silently prefer
+#           it over flats that were shot. The BUILDER takes any master via
+#           --flat=; the stop prints the exact two commands that resolve it
+#   exit 9  FITS lights on the undistort route — the frames and the route are
+#           both right; the builders glob camera raws because the route's first
+#           stage is darktable's lens correction. The stop names that, not a
+#           staging mistake, and prints the standard-route alternative
 #   exit 7  readiness RED — the one-surface report (readiness_report.py)
 #           names the blocker up front; nothing was built
 #   exit 8  the finished PRODUCT regressed against this set's accepted
@@ -47,7 +55,9 @@
 # The chain ends at the DIAGNOSTIC judge surface (linked autostretch PNG16 —
 # finish_render.sh): everything aesthetic beyond it (the render-tier ladder)
 # stays per-rung and user-judged. Route choice comes from the DERIVED
-# fingerprint (tracked -> standard; fixed+wide -> undistort GROUPS, the
+# fingerprint through the key's single source (scripts/lib/route.py — the sky
+# excursion as a fraction of the field; tracked -> standard, fixed above the
+# measured floor -> undistort GROUPS, the
 # STANDING route: retained sub-stacks keep the cross-set combine buildable
 # at a measured-NULL quality cost; --route=single is the operator override,
 # printed as FORCED — see force_route() for the ratified why + numbers);
@@ -112,9 +122,11 @@ NFRAMES=$(find "$SESSION/$SET" -maxdepth 1 -type f \
   2>/dev/null | wc -l)
 [ "$NFRAMES" -ge 8 ] || { say "only $NFRAMES frames staged under $SESSION/$SET"; exit 1; }
 
-FACTS=$(python3 - "$DSET" <<'PY'
+FACTS=$(python3 - "$DSET" "$REPO" <<'PY'
 import json, os, sys
 d = sys.argv[1]
+sys.path.insert(0, os.path.join(sys.argv[2], "scripts", "lib"))
+import route          # the route key's ONE definition — never restated here
 def rd(p):
     try: return json.load(open(os.path.join(d, p)))
     except (OSError, ValueError): return None
@@ -140,11 +152,18 @@ else:
     objs = aud.get("unique_objects") or []
     print("%d|%d|%d" % (len(objs), max((o.get("n") or 0) for o in objs) if objs else 0,
                         sum(1 for o in objs if o.get("cls") not in ("aircraft", "satellite"))))
+# the DERIVED route, from the single source — route, the key's measured value
+# (empty when an instrument has not reported), and the reason
+rb = route.from_records(acq, fp)
+print(rb["route"] or "")
+print("" if rb["value"] is None else rb["value"])
+print(rb["reason"])
 print(fp.get("label") or "not yet derived")   # last line stays non-empty:
 PY
 )                                             # $() strips trailing newlines
 { read -r MOUNT; read -r MSRC; read -r VERDICT; read -r MEASURED; read -r FOV; read -r NFLAGS; \
-  read -r RATIFIED; read -r AUDITSUM; read -r FPLABEL; } <<< "$FACTS" || true
+  read -r RATIFIED; read -r AUDITSUM; read -r DROUTE; read -r DVALUE; read -r DREASON; \
+  read -r FPLABEL; } <<< "$FACTS" || true
 
 MOUNT_EFF=${MEASURED:-$MOUNT}
 # The single-pass peak is NOT a routing input (groups is the standing route) —
@@ -158,19 +177,16 @@ MOUNT_EFF=${MEASURED:-$MOUNT}
 FREE_GB=$(df -BG --output=avail "$SESSION" | tail -1 | tr -dc 0-9)
 SINGLEPASS_GB=$(undistort_peak_gib "$SESSION" "$SET" "$NFRAMES" 2>/dev/null || echo "")
 ROUTE= REASON=
-if [ "$MOUNT_EFF" = "tracked" ]; then
-  ROUTE=standard
-  REASON="tracked mount: no inter-frame drift to fight -> calibrate/register/stack (run_pipeline)"
-elif [ "$MOUNT_EFF" = "fixed" ] && [ -n "$FOV" ] && \
-     python3 -c "import sys; sys.exit(0 if float('$FOV') >= 10 else 1)"; then
-  # GROUPS is the standing route for the whole class — no disk fork, no
-  # question; force_route() carries the ratified why + numbers
-  ROUTE=undistort-groups
-  REASON="fixed mount + ${FOV} deg field -> undistort class; groups is the STANDING route (sub-stacks keep the cross-set combine buildable; quality delta vs single-pass measured NULL)${SINGLEPASS_GB:+ — disk ${FREE_GB}G free, single-pass peak would be ${SINGLEPASS_GB}G (--route=single overrides)}"
-  FORCED=$(force_route "$ROUTE")
-  if [ "$FORCED" != "$ROUTE" ]; then
-    REASON="OPERATOR-FORCED --route=$FORCE_ROUTE (derived was '$ROUTE'): $REASON"
-    ROUTE=$FORCED
+if [ -n "$DROUTE" ]; then
+  ROUTE=$DROUTE
+  REASON=$DREASON
+  if [ "$ROUTE" != standard ]; then
+    REASON="$REASON${SINGLEPASS_GB:+ — disk ${FREE_GB}G free, single-pass peak would be ${SINGLEPASS_GB}G (--route=single overrides)}"
+    FORCED=$(force_route "$ROUTE")
+    if [ "$FORCED" != "$ROUTE" ]; then
+      REASON="OPERATOR-FORCED --route=$FORCE_ROUTE (derived was '$ROUTE'): $REASON"
+      ROUTE=$FORCED
+    fi
   fi
 elif [ -z "$MOUNT" ]; then
   ROUTE=stop-undeclared
@@ -179,9 +195,15 @@ elif [ -z "$FOV" ]; then
   # preflight seeds the header facts, then the route re-derives mid-run
   ROUTE=derive-after-preflight
   REASON="mount declared '$MOUNT' but header facts not yet seeded — preflight fills them and the route re-derives (frame QA runs first either way)"
+elif [ "$MOUNT_EFF" = "fixed" ] && [ -z "$DVALUE" ]; then
+  # the key's own instrument has not run. The excursion is MEASURABLE — a
+  # measure step, not a decision — so the run takes it rather than stopping:
+  # the two-window drift probe runs in the re-derivation below.
+  ROUTE=derive-after-preflight
+  REASON="fixed mount, route key not measured yet — the two-window drift probe (scripts/qa/mount_probe.sh) runs in the measure phase and the route derives from it"
 else
   ROUTE=stop-unroutable
-  REASON="fingerprint is neither tracked nor fixed+wide (mount '$MOUNT_EFF', fov '${FOV:-?}') — the drift-solve instrument or the user picks the route"
+  REASON=$DREASON
 fi
 
 # products that already exist decide the skips
@@ -198,9 +220,19 @@ DARK=$SESSION/work/masters/dark_master.fit
 # lights-side background step is the separate --subsky-lights pass-through
 # below and pairs with THIS flat (see the registry note above the flat build).
 SKYFLAT=$SESSION/work/masters/skyflat_$SET.fit
-HAVE_REAL_FLATS=0
-if compgen -G "$SESSION/flats*" >/dev/null; then HAVE_REAL_FLATS=1; fi
-if [ -d "$SESSION/calib" ]; then HAVE_REAL_FLATS=1; fi
+HAVE_REAL_FLATS=0 REAL_FLAT_DIRS=
+for d in "$SESSION"/flats* "$SESSION/calib"; do
+  [ -d "$d" ] || continue
+  HAVE_REAL_FLATS=1; REAL_FLAT_DIRS="${REAL_FLAT_DIRS:+$REAL_FLAT_DIRS, }$(basename "$d") ($(find "$d" -maxdepth 1 -type f | wc -l) files)"
+done
+# What the LIGHTS are, for the class a refusal has to name. The undistort
+# builders glob camera raws only; a dedicated-astrocam set stages FITS, so it
+# reaches those builders and finds nothing to work on.
+LIGHTS_KIND=$(find "$SESSION/$SET" -maxdepth 1 -type f \
+  \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
+     -o -iname '*.arw' -o -iname '*.raf' \) -printf 'raw\n' -quit 2>/dev/null)
+[ -n "$LIGHTS_KIND" ] || LIGHTS_KIND=$(find "$SESSION/$SET" -maxdepth 1 -type f \
+  \( -iname '*.fit' -o -iname '*.fits' \) -printf 'fits\n' -quit 2>/dev/null)
 NAME=
 if [ -n "$STACK" ]; then NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}; fi
 # The judge-surface existence test must match the EXACT names finish_render.sh
@@ -245,10 +277,13 @@ case "$ROUTE" in
     fi
     say "PLAN — steps (existing products skip):"
     if [ -z "$NFLAGS" ]; then say "  1. scripts/qa/run_frame_qa.sh $SESSION $SET"; fi
+    if [ "$ROUTE" != standard ] && [ "$LIGHTS_KIND" = fits ]; then
+      say "  !! WILL STOP (exit 9) BEFORE step 2: this set's lights are FITS and the undistort builders take camera raws (darktable's lens stage reads raws). The steps below are what would run if they did."
+    fi
     if [ "$ROUTE" != standard ]; then
       if [ ! -f "$DARK" ]; then say "  2. scripts/stack/build_master_dark.sh $SESSION"; fi
       if [ "$HAVE_REAL_FLATS" = 1 ]; then
-        say "  3. WILL STOP: real flats staged — master-flat wiring for the undistort route is manual (gap)"
+        say "  3. WILL STOP (exit 6): real flats staged ($REAL_FLAT_DIRS) — the undistort dispatch has one flat source (the per-set sky flat) and will not silently prefer it"
       elif [ ! -f "$SKYFLAT" ]; then
         say "  3. scripts/stack/build_sky_flat.sh $SESSION $SET --dark=$DARK --out=$SKYFLAT"
       fi
@@ -494,19 +529,20 @@ fi
 # the mount-only pre-declaration case, and a stop-unroutable that a fresh
 # derivation may have settled
 if [ "$ROUTE" = stop-unroutable ] || [ "$ROUTE" = derive-after-preflight ]; then
-  NEWROUTE=$(python3 - "$DSET" <<'PY'
-import json, os, sys
-fp = json.load(open(os.path.join(sys.argv[1], "fingerprint.json")))
-acq = json.load(open(os.path.join(sys.argv[1], "acquisition.json")))
-mc = fp.get("mount_check") or {}
-m = mc.get("measured") or acq.get("mount")
-fov = (acq.get("exif") or {}).get("fov_deg") or 0
-print("tracked" if m == "tracked" else "fixed-wide" if (m == "fixed" and fov >= 10) else "no")
-PY
-)
+  # the route key's own instrument, if it has not reported. Running it is a
+  # MEASURE step (two blind solves), not a decision — the excursion is a fact
+  # the data settles, so the run takes it instead of stopping to ask.
+  ROUTEKEY=$(python3 "$REPO/scripts/lib/route.py" "$SESSION" "$SET" --json \
+             | python3 -c "import json,sys; print(json.load(sys.stdin)['value'] or '')" 2>/dev/null || echo "")
+  if [ -z "$ROUTEKEY" ] && [ "${MEASURED:-$MOUNT}" = fixed ]; then
+    say "route key not measured — running the two-window drift probe (scripts/qa/mount_probe.sh)"
+    "$REPO/scripts/qa/mount_probe.sh" "$SESSION" "$SET" >/dev/null || true
+    python3 "$REPO/scripts/lib/fingerprint.py" "$SESSION" "$SET" >/dev/null || true
+  fi
+  { read -r NEWROUTE; read -r NEWREASON; } < <(python3 "$REPO/scripts/lib/route.py" "$SESSION" "$SET")
   case "$NEWROUTE" in
-    tracked)    ROUTE=standard; STACK=$RESULTS/stack_$SET.fit;;
-    fixed-wide)
+    standard)   ROUTE=standard; STACK=$RESULTS/stack_$SET.fit;;
+    undistort-groups)
       # groups is the STANDING route (force_route has the why); the builders
       # derive and enforce their own disk budgets
       ROUTE=undistort-groups
@@ -517,10 +553,33 @@ PY
         undistort)        STACK=$RESULTS/stack_$SET.fit;;
         undistort-groups) STACK=$RESULTS/stack_${SET}_full.fit;;
       esac;;
-    *) say "STOP: route still underivable after preflight (mount/fov missing from the seeded facts) — the user picks the route"; exit 5;;
+    *) say "STOP: route still underivable after preflight — $NEWREASON"; exit 5;;
   esac
   NAME=$(basename "$STACK" .fit); NAME=${NAME#stack_}
-  say "route (re-derived): $ROUTE"
+  say "route (re-derived): $ROUTE — $NEWREASON"
+fi
+
+# FRAME FORMAT vs ROUTE — the right stop needs the right diagnosis. The
+# undistort builders glob camera raws (*.nef/dng/cr2/cr3/arw/raf) because the
+# route's first stage is darktable's lens correction on a raw; a
+# dedicated-astrocam set stages FITS, routes here on its measured drift like
+# any other fixed set, and reaches a builder that finds nothing. Left to the
+# builder that reads "no raw frames under <dir>" — true, and it points at a
+# staging mistake that did not happen. Named here, before a master is spent.
+if [ "$ROUTE" != standard ] && [ "$LIGHTS_KIND" = fits ]; then
+  say "STOP: this set's lights are FITS ($(find "$SESSION/$SET" -maxdepth 1 -type f \( -iname '*.fit' -o -iname '*.fits' \) | wc -l) frames), and the derived route is '$ROUTE'"
+  say "  The frames and the route are BOTH right — the gap is between them: the"
+  say "  undistort builders (run_undistort_groups.sh / run_undistort_pipeline.sh)"
+  say "  glob camera raws only, because the route's first stage is darktable's"
+  say "  lens correction and darktable reads raws, not FITS. Nothing is staged wrong."
+  say "  Next step, either:"
+  say "    1. run the standard route on this set — scripts/stack/run_pipeline.sh $SESSION $SET"
+  say "       (registration without the undistort stage; the drift-distortion term"
+  say "       stays in, which is what the route existed to remove), or"
+  say "    2. leave it until the undistort route accepts FITS lights — that is a"
+  say "       BUILDER change (a FITS path around the darktable stage), not a routing"
+  say "       one, and it is the open capability, not a defect in this set."
+  exit 9
 fi
 
 # OPTICS GATE FIRST — before any master is built. run_undistort_pipeline.sh runs
@@ -632,7 +691,31 @@ PY
     "$REPO/scripts/stack/build_master_dark.sh" "$SESSION"
   fi
   if [ "$HAVE_REAL_FLATS" = 1 ]; then
-    say "STOP: real flats staged — build/point the master flat manually (undistort-route wiring gap)"
+    # Reached only when readiness did not run or did not gate: readiness_report
+    # carries the same criterion and goes RED (exit 7) first on the one-click
+    # path. Kept as the defence-in-depth stop for a direct invocation, and it
+    # is where the exact commands are printed.
+    # Doing acquisition RIGHT stops the one-click chain, so the stop has to say
+    # exactly why and exactly what closes it. The chain's undistort dispatch
+    # passes ONE flat, the per-set sky flat; a set with real flats has a better
+    # one, and silently using the sky flat would throw away the frames that were
+    # shot to avoid it. The BUILDER already takes any master via --flat=, so
+    # nothing here is missing from the route — only the chain's wiring to build
+    # a master from a staged flats dir.
+    say "STOP: real flats are staged for this session ($REAL_FLAT_DIRS), and the derived route is '$ROUTE'"
+    say "  Not a defect in the data — the opposite. The chain's undistort dispatch"
+    say "  carries one flat source, the per-set SKY flat (a median of the set's own"
+    say "  lights), and it will not silently prefer that over flats you shot."
+    say "  The builder itself has no gap: it takes any master via --flat=."
+    say "  Next step — build the master flat, then run the builder directly:"
+    say "    1. master flat from $SESSION/flats* (Siril: convert -> calibrate with"
+    say "       the matched dark-flat/bias -> stack rej 3 3 -norm=mul), writing e.g."
+    say "       $SESSION/work/masters/flat_master.fit"
+    say "    2. scripts/stack/run_undistort_groups.sh $SESSION $SET \\"
+    say "         --dark=$DARK --flat=$SESSION/work/masters/flat_master.fit"
+    say "    3. scripts/stack/finish_render.sh $STACK $NAME --session=$SESSION --set=$SET"
+    say "  Closing this stop for good is chain wiring (a master-flat build for the"
+    say "  undistort route), not a builder change — BACKLOG:route-recommendation."
     exit 6
   fi
   if [ ! -f "$SKYFLAT" ]; then

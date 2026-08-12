@@ -39,6 +39,21 @@
   "method": "drift-solves",
   "reason": "declared fixed matches the measured fixed signature \u2014 RA advances 14.996 deg/hr vs sidereal 15.041"
  },
- "label": "untracked, wide, drifting 18 px/min",
- "route_hint": "wide-field-untracked (undistort -> homography) \u2014 a wide field on a fixed mount with measurable drift"
+ "label": "untracked, 28.6 deg field, sky sweeps 0.179 of it",
+ "route": {
+  "route": "undistort-groups",
+  "key": "drift_frac",
+  "value": 0.1788,
+  "threshold": 0.05,
+  "terms": {
+   "sky_sep_deg": 5.1137,
+   "drift_deg_per_min": 0.1807,
+   "probe_span_s": 1697.7,
+   "set_span_s": 1697.7,
+   "fov_deg": 28.6,
+   "span_extrapolated": false
+  },
+  "provenance": "drift_frac = sky excursion / field width, from astrometry.net two-window solves (scripts/qa/mount_probe.sh) + header facts (scripts/lib/acquisition.py); threshold and derivation in scripts/lib/route.py",
+  "reason": "fixed mount: the sky sweeps 0.179 of the field over the set (5.11 deg at 0.181 deg/min across a 28.6 deg field), at or above the 0.05 floor the distortion term is measured at \u2014 the frame-to-frame map is distort o H o distort^-1, so the route undistorts before the homography; groups is the STANDING shape"
+ }
 }

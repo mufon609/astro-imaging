@@ -9,7 +9,6 @@ block is the priority.
 
 | prompt | items | acceptance shape |
 |---|---|---|
-| `ROUTING_GENERALITY_PROMPT.md` | single-source the route key on measured `drift_px` (six `fov >= 10` sites today); the two refusals name their class | one grep-clean source; all 12 existing sets route IDENTICALLY via `--plan`; a 200 mm fixture routes instead of exiting 5; fire test shows all consumers move together |
 | `COMMENT_HYGIENE_PROMPT.md` | mine git history for the comment-removal taxonomy; emit the standing `COMMENT_SWEEP_PROMPT.md`; audit the policy text | categories derived with counts + verbatim examples; sweep prompt carries detectors + the revise-never-drop safety rule; policy left short, single-homed, uncontradictory |
 
 ## Queued — needs prompts (medium; one session can take several)
@@ -77,3 +76,20 @@ the prompt briefs.
 `8d370dd` `-transf=`/`-interp=` pinned at all 20 emissions + `check_registration_pins.sh` (per COMMAND, `--selftest`), proven no-behaviour-change by an all-nil recompose · `3072fd0` `verify_lens_card.py` wired into `lens_preflight --require-profile` unconditionally (11.1 s), fire-tested — and `install_lens_model.sh`'s idempotence test fixed, since it reported "already installed" on a DB whose vignetting was back · `4d70455` the solve refuses a solution contradicting its own hints (exit 9), `--central` corrected to fraction-of-frame at three sites; falsification fires, 0/69 false · `e7cb2be` the aircraft rejection CONFIRMED via Siril `-rejmaps` (the product-level A/B the item specified is under-powered by the group+compose dilution — recorded in `docs/dead-ends.md`) · `7d4946e` `TIER_B_HARDENING.md` + prompt retired.
 
 **Full transcripts: [`../TIER_B_HARDENING.md`](../TIER_B_HARDENING.md).**
+
+## Landed during the routing-generality session
+
+The route key is one derivation (`scripts/lib/route.py`) on the sky excursion as
+a fraction of the field, replacing six private copies of a `fov`-width test that
+also inverted the physics — a fixed mount sweeps 0.2507 × cos(dec) °/min at any
+focal length, so a narrow field crosses more of itself per minute than a wide
+one, and the width floor excluded exactly the sets with the most drift. Keyed on
+an ANGLE, not `drift_px`: camera raws solve on the half-res green plane, so the
+recorded px figures read 2.078–2.137× the sensor's scale and would mean two
+different things on two rigs. Floor 0.05 is EVIDENCE (the smallest excursion the
+term is measured present at), not a knee — none has ever been measured. All 12
+real sets route identically; the fire test moves five consumers together; the
+200 mm and mono/tracked fixtures route through the live chain; both refusals name
+their class with the resolving step. `routing-generality` removed from BACKLOG.
+
+**Full transcripts: [`../ROUTE_KEY_GENERALITY.md`](../ROUTE_KEY_GENERALITY.md).**

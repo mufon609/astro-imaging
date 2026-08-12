@@ -4,7 +4,9 @@
 The fingerprint is what a dataset IS, worked out from tool measurements rather
 than declared: {exposure, focal, plate scale, predicted in-exposure trail,
 measured per-frame roundness, inter-frame drift rate vs sidereal} -> a label
-like "untracked, wide, drifting 34 px/min" that selects the processing route.
+like "untracked, 28.6 deg field, sky sweeps 0.201 of it" plus the derived
+route. The route KEY — the quantity and its threshold — is defined once in
+scripts/lib/route.py and imported, never restated here.
 
 Every term is tool-measured. This module reads those tool outputs and computes
 only the DERIVED trail/drift geometry NO tool reports; it reads no pixel and
@@ -36,9 +38,11 @@ other; the consumer STOPS and reconciles. It never silently re-labels a human
 declaration — adopting an UNDECLARED set's decisive signature is
 acquisition.resolve()'s job, on the record, as mount_source "derived".
 
-The fingerprint DERIVES the route (the MATCH step) and the chain acts on it —
-routing measured facts to the right tool is the pipeline's job, not a question
-for a human. What stops is a measurement the instruments cannot settle.
+The fingerprint DERIVES the route (the MATCH step, through route.derive) and
+the chain acts on it — routing measured facts to the right tool is the
+pipeline's job, not a question for a human. The decision is RECORDED with its
+key, value, threshold and instruments, so it is auditable rather than implied.
+What stops is a measurement the instruments cannot settle.
 `refresh()` is the automatic seeding entry: it derives from whatever tracked
 records exist and rewrites the record only when its content changes, so every
 record-landing moment (mount declaration, frame QA) can call it idempotently.
@@ -59,6 +63,7 @@ if _here not in sys.path:
     sys.path.insert(0, _here)
 import acquisition  # noqa: E402
 import astrometrics as am  # noqa: E402
+import route  # noqa: E402  — the route key's ONE definition
 
 # Sidereal rate. A star's RA coordinate advances at 15.041 arcsec per second of
 # time; numerically the same constant is 15.041 deg/hr (1 deg = 3600 arcsec, 1
@@ -240,15 +245,19 @@ def mount_verdict(declared, drift_sig=None, ra_rate=None, trail_check=None):
 
 
 def _label(exif, drift, mount):
-    """Human-readable fingerprint: mount x field-width x drift."""
+    """Human-readable fingerprint: mount x field x the ROUTE KEY's own value.
+
+    The drift term is the sky excursion as a fraction of the field
+    (scripts/lib/route.py), not a px rate: the probe solves camera raws on the
+    extracted GREEN plane, so its px figures sit on a half-res grid and read
+    2.078-2.137x the sensor's scale across this corpus — a number that means
+    two different things on two rigs does not belong in a label either."""
     fov = exif.get("fov_deg")
-    width = ("wide" if fov >= 10 else "narrow" if fov < 2 else "normal") \
-        if fov else "?"
-    m = mount or "?mount"
-    ppm = (drift or {}).get("drift_px_per_min")
-    tail = f", drifting {ppm:.0f} px/min" if ppm else ""
-    kind = {"fixed": "untracked", "tracked": "tracked"}.get(m, m)
-    return f"{kind}, {width}{tail}"
+    kind = {"fixed": "untracked", "tracked": "tracked"}.get(mount or "",
+                                                            mount or "?mount")
+    head = f"{kind}, {fov} deg field" if fov else kind
+    frac, _ = route.drift_fraction(exif, drift)
+    return head + (f", sky sweeps {frac:.3f} of it" if frac else "")
 
 
 def fingerprint(exif, declared_mount, *, solve=None, drift=None, metrics=None):
@@ -287,15 +296,10 @@ def fingerprint(exif, declared_mount, *, solve=None, drift=None, metrics=None):
         drift = {**drift, "sidereal_px_per_min_expected": sid_ppm}
 
     effective = measured or declared_mount
-    fov = exif.get("fov_deg") or 0
-    if effective == "fixed" and fov >= 10:
-        route = ("wide-field-untracked (undistort -> homography) — a wide "
-                 "field on a fixed mount with measurable drift")
-    elif effective == "tracked":
-        route = ("standard (calibrate -> register -> stack) — tracked mount: "
-                 "no inter-frame drift to fight")
-    else:
-        route = "unclassified — measure before routing"
+    # The route key is derived in ONE place (scripts/lib/route.py) and RECORDED
+    # here with its value, threshold and instruments, so a routing decision is
+    # auditable from the record instead of re-derived per consumer.
+    route_block = route.derive(exif, effective, drift)
 
     return {
         "measured_by": ("header facts (acquisition.py) + astrometry.net solves "
@@ -320,7 +324,7 @@ def fingerprint(exif, declared_mount, *, solve=None, drift=None, metrics=None):
         "inter_frame_drift": drift,
         "mount_check": verdict,
         "label": _label(exif, drift, effective),
-        "route_hint": route,
+        "route": route_block,
     }
 
 

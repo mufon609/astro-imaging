@@ -31,6 +31,16 @@
   "method": "trail-vs-roundness",
   "reason": "declared tracked matches the measured tracked signature \u2014 a fixed mount here would smear every sub by ~1625 px; the measured stars could hide at most 2.3 px (findstar roundness 0.8585 / FWHM 3.291 px over 15 frames, ~1957 stars/frame, 15/15 registered) \u2014 713x apart: the mount is tracking. No solve needed."
  },
- "label": "tracked, narrow",
- "route_hint": "standard (calibrate -> register -> stack) \u2014 tracked mount: no inter-frame drift to fight"
+ "label": "tracked, 0.88 deg field",
+ "route": {
+  "route": "standard",
+  "key": "drift_frac",
+  "value": null,
+  "threshold": 0.05,
+  "terms": {
+   "why": "no two-solve drift on record \u2014 the excursion is measured by scripts/qa/mount_probe.sh and lands in fingerprint.json inter_frame_drift"
+  },
+  "provenance": "drift_frac = sky excursion / field width, from astrometry.net two-window solves (scripts/qa/mount_probe.sh) + header facts (scripts/lib/acquisition.py); threshold and derivation in scripts/lib/route.py",
+  "reason": "tracked mount: no inter-frame drift to fight -> calibrate / register / stack"
+ }
 }

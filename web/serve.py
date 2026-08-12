@@ -1692,6 +1692,25 @@ _STAGE_STEP = {"frame_qa": "measured", "mount_probe": "measured",
                "spcc_cone": "solved_spcc", "finish_render": "judged"}
 
 
+def _route_block(acq, fp):
+    """The derived route, from the key's ONE definition (scripts/lib/route.py).
+    Imported rather than restated: this rail's private copy of the retired
+    `fov`-width test was one of six, two of which grew after the defect was
+    registered. A failed
+    import degrades to an unroutable block rather than to a private guess."""
+    lib = os.path.join(REPO, "scripts", "lib")
+    if lib not in sys.path:
+        sys.path.insert(0, lib)
+    try:
+        import route as _route
+        return _route.from_records(acq, fp)
+    except Exception as e:
+        return {"route": None, "key": "drift_frac", "value": None,
+                "threshold": None, "terms": {}, "provenance": "",
+                "reason": f"route key unavailable ({e}) — scripts/lib/route.py "
+                          "is the single source and could not be read"}
+
+
 def _set_position(session, s):
     name = s["set"]
     droot = os.path.join(REPO, "datasets", session, name)
@@ -1705,12 +1724,11 @@ def _set_position(session, s):
         return os.path.exists(os.path.join(rroot, f))
 
     acq = s.get("acquisition") or {}
-    exif = acq.get("exif") or {}
-    fov = exif.get("fov_deg") or 0
     mount = acq.get("mount")
-    route = ("standard" if mount == "tracked"
-             else "undistort-groups" if (mount == "fixed" and fov >= 10)
-             else None)
+    # the route key is IMPORTED from its one definition (scripts/lib/route.py),
+    # never restated here — this rail carried a private copy of the old one
+    rb = _route_block(acq, s.get("fingerprint"))
+    route = rb["route"]
     fq = s.get("frame_qa") or {}
     steps = []
 
@@ -1738,10 +1756,16 @@ def _set_position(session, s):
         fp = s.get("fingerprint") or {}
         step("routed", "done", f"{route} — mount {mount} "
              f"({acq.get('mount_source') or 'declared'})"
+             + (f"; drift_frac {rb['value']} vs floor {rb['threshold']}"
+                if rb["value"] is not None else "")
              + (f"; {fp.get('label')}" if fp.get("label") else ""))
+    elif mount == "fixed" and rb["value"] is None:
+        # the key's instrument is a measure step the run itself takes
+        step("routed", "pending", "derives once the two-window drift probe "
+             f"runs — {rb['reason']}")
     elif mount:
-        step("routed", "blocked", f"unroutable: mount '{mount}', fov '{fov}' "
-             "— neither tracked nor fixed+wide; the user picks (chain exit 5)")
+        step("routed", "blocked",
+             f"unroutable: {rb['reason']} (chain exit 5)")
     else:
         step("routed", "pending", "derives once the mount is measured")
 

@@ -14,9 +14,9 @@
   {
    "criterion": "route",
    "status": "GREEN",
-   "value": "undistort-groups",
-   "instrument": "fingerprint (mount x field width)",
-   "detail": "fixed + 28.6 deg field; groups is the standing route (sub-stacks keep the cross-set combine buildable)"
+   "value": "undistort-groups \u2014 drift_frac 0.1641 vs floor 0.05",
+   "instrument": "fingerprint: drift_frac (sky excursion / field), floor 0.05",
+   "detail": "fixed mount: the sky sweeps 0.164 of the field over the set (4.69 deg at 0.188 deg/min across a 28.6 deg field), at or above the 0.05 floor the distortion term is measured at \u2014 the frame-to-frame map is distort o H o distort^-1, so the route undistorts before the homography; groups is the STANDING shape"
   },
   {
    "criterion": "frame_qa",
@@ -48,15 +48,15 @@
   },
   {
    "criterion": "flat_quality",
-   "status": "GREEN",
-   "value": "builds this run \u2014 builder validation gates enforce (regional stat, speck count, preview)",
-   "instrument": "build_sky_flat.sh gates",
-   "detail": ""
+   "status": "YELLOW",
+   "value": "built; corner asymmetry ratio 1.468 (WARN over 1.20)",
+   "instrument": "build_sky_flat.sh (Siril stat + findstar)",
+   "detail": "above-WARN asymmetry is the open sky x V defect, stated not hidden"
   },
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "933G free covers even the 275G single-pass peak",
+   "value": "925G free covers even the 275G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },
@@ -69,8 +69,8 @@
   },
   {
    "criterion": "baseline",
-   "status": "YELLOW",
-   "value": "none yet \u2014 nothing to regress against; the first accepted product seeds it",
+   "status": "GREEN",
+   "value": "present \u2014 the product is compared after the build (exit 8 on mismatch)",
    "instrument": "baseline_guard.py (Siril stat)",
    "detail": ""
   }

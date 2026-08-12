@@ -152,7 +152,21 @@ python3 "$REPO/scripts/stack/lens_preflight.py" "$SESSION" "$SET" --require-prof
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \
   \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \
      -o -iname '*.arw' -o -iname '*.raf' \) | sort)
-[ ${#SRC[@]} -ge 2 ] || { echo "no raw frames under $SESSION/$SET" >&2; exit 1; }
+# A FITS set reaches here with SRC empty. "no raw frames" is true and points at
+# a staging mistake that did not happen — this route's first stage is
+# darktable's lens correction, and darktable reads camera raws, not FITS.
+[ ${#SRC[@]} -ge 2 ] || {
+  nf=$(find "$SESSION/$SET" -maxdepth 1 -type f \( -iname '*.fit' -o -iname '*.fits' \) | wc -l)
+  if [ "$nf" -gt 0 ]; then
+    echo "ABORT: $SESSION/$SET holds $nf FITS frames and no camera raws. This route" >&2
+    echo "  undistorts with darktable, which reads raws — a FITS (dedicated-astrocam)" >&2
+    echo "  set cannot take it. Nothing is staged wrong; the route does not accept" >&2
+    echo "  this frame format. Use scripts/stack/run_pipeline.sh for the standard" >&2
+    echo "  route, or add a FITS path around the darktable stage (a BUILDER change)." >&2
+  else
+    echo "ABORT: no camera raws (*.nef/dng/cr2/cr3/arw/raf) and no FITS under $SESSION/$SET" >&2
+  fi
+  exit 1; }
 # The ratified per-set cull: recipe.json stack.exclude names frames by their
 # trailing FILENAME digits — resolved by the single-source cullspec (loud
 # ABORT on an exclude that matches zero or several frames; a cull must never

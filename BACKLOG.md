@@ -44,6 +44,7 @@ dataset, and says so.
 | optics/calibration FITS stamp (`header_provenance_lines`) + `backfill_substack_provenance.sh` | the warp stops being a TIFF round trip, so the model rides through natively (darktable gains FITS I/O, or Siril `register -disto=` — BACKLOG item 7); the BACKFILL retires once no un-stamped sub-stack remains on any rig | 2026-08-09 | **not fired** — the warp is still Siril `savetif32` -> darktable -> Siril `convert`, which carries no FITS header. Load-bearing: the lensfun user DB is global, unscoped, single-valued machine state that nothing reverts, so a sub-stack that cannot state its own optics cannot be composed safely later — 13 aug06 members under 3 different models composed into a doubled union and nothing in the product could see it |
 | `compose_preflight.py` + the compose's astrometric post-assert (`run_undistort_compose.sh`) | siril itself refuses to register a sequence whose members carry no usable solution, or the chain has no star-pair path left to fall back to | 2026-08-10 | **not fired — and it fires on today's corpus.** The union's own members (`groups_set-0*_pinned/sub_*.fit`) carry NO WCS, so the guard refuses them at exit 3. Grounds: `seqplatesolve` needs every member solved with SIP order >= 2 and siril reports NOTHING when they are not — it registers what it can and exports a finished-looking product. Measured cost of the silent fallback: roundness 0.458 against 0.974 on the 28-member union. Both halves are live-tested — refusal (exit 3) on unsolved members, acceptance plus "astrometric registration + per-member undistortion CONFIRMED" on solved ones, and `--selftest` falsifies the header checks |
 | `solve_field.py` hint-contradiction gate (position > 2x the hint radius, scale outside +-20% of the header nominal; exit 9) | the solver itself refuses a solution that contradicts a supplied position/size hint — today the `astrometry` engine takes hints as search guidance only, and the blind fallback discards them entirely, so a hinted attempt that fails is followed by an unconstrained one whose answer nothing compares back | 2026-08-11 | **not fired, and it FIRES on the one measured false solve.** MEASURED: the corpus union's hinted attempt failed on a seam-contaminated framing=max canvas and the blind fallback shipped RA 6.03 Dec -65.10 at 12.96"/px, logodds 22.3 — against the product's own header pointing RA 309.77 Dec +41.70 (siril's WCS field centre, inherited from the already-solved members, so independent of this solve) and a 17"/px family. Nothing downstream could catch it: siril SPCC ran to COMPLETION on that WCS and produced plausible K factors (R 1.000 G 0.592 B 0.817, 1790/5153 stars kept). Thresholds are budgeted from mechanism, not fitted — integer-mm EXIF focal, XPIXSZ rounding, infinity-vs-marked focal and the TAN centre-to-corner ratio (1.066 at 28.6 deg) sum under 10%, doubled to 20%. Replayed over all 69 recorded solves: 1 refusal (the known-false one, on BOTH legs — 115.4 deg out and 0.740x) and 68 clean, real solves spanning 0.969-0.976 of nominal at logodds 103-574. SCOPE LIMIT: 53 of the 68 are per-member sub-stacks whose headers carry FOCALLEN/XPIXSZ but no RA/DEC, so only the scale leg and the logodds warning are live there |
+| `route.py` `DRIFT_FRAC_MIN = 0.05` — the route key's floor | a MEASURED knee exists: an undistort-vs-homography A/B on this mechanism at two drift fractions below 0.25, closing where the removable term drops under the route's own irreducible residual (0.25 px off-axis aberration at full depth). The key itself (sky excursion / field) is mechanism-derived and does not retire with the floor | 2026-08-12 | **not fired — and the floor is EVIDENCE, not a knee.** No knee has ever been measured; the residual is monotonic in drift ("scales with TIME SPAN, not frame count"). 0.05 is the smallest excursion at which the term is measured present — the 9-min/~310 px window arm, `drift_frac` 0.051, whole-frame majFWHM 3.87 px against the full span's 4.74 px at 0.247. The corpus's 12 real sets measure 0.083–0.201, nearest 1.66x the floor, so nothing sits near it. The key UNDER-COUNTS twice (the `-framing=min` trim runs 1.16–1.29x the pure translation; a probe windowed inside the longest continuous run drops the re-aim excursion), which is why the floor sits at the bottom of the measured range rather than inside it. Fire-tested: flipping the constant moves all five consumers together and back (a same-length edit needs `__pycache__` cleared or importers read stale bytecode and the test reports a false "did not move") |
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
@@ -532,39 +533,27 @@ record reproduces that framing after a stack rebuild.
 
 ## `route-recommendation` — the last wiring on the distortion route
 
-The route is validated, scripted, and the chain already routes by fingerprint
-(`run_set_chain.sh`: tracked → standard, fixed+wide → undistort). Remaining:
+The route is validated, scripted, and the chain routes on the measured key
+(`scripts/lib/route.py`: tracked → standard; fixed with `drift_frac` ≥ 0.05 →
+undistort groups; below the floor → standard). Remaining:
 
 - **Per-lens facts re-derive at the next new lens/body/focal:** confirm lensfun
   coverage, interpolation behaviour and crop factor before first use. Any focal not
   fitted rides the community entry until fitted (`fit_lens_model.sh` per focal). A
   community profile can be right at the corner and wrong paraxially — the drift-axis
   station measure is the backstop `seqtilt` cannot provide.
-
-## `routing-generality` — the router encodes ONE rig's assumptions, at six sites
-
-The pipeline is supposed to pinpoint exact facts in the data and still make the
-right call for a different rig — the same code right for OSC raws on an untracked
-tripod AND for a mono, tracked, long-exposure set with real flats. Three confirmed
-places where it is keyed to this rig instead:
-
-- **`fov >= 10` is the route key, written at SIX sites, single-sourced nowhere**
-  (`grep -rniE "fov[^0-9]*>= *10" scripts/ web/` — two in `fingerprint.py`,
-  `_label` and the route branch of `fingerprint()`; two in `run_set_chain.sh`,
-  the initial decision and the post-preflight re-derivation; and two grew with
-  the readiness/position work: `readiness_report.py` `evaluate()` and
-  `serve.py` `_set_position()`). This is the exact defect
-  `disk_budget.sh` was created to kill, and it is spreading. The physically correct key is measured
-  `drift_px`, which the fingerprint ALREADY computes: a fixed tripod at 200 mm has
-  a small field and large drift, and today exits 5 as unroutable despite being the
-  same class with *more* drift.
-- **A real-flat set on the undistort route exits 6 and refuses.** Doing
-  acquisition right stops the one-click chain while the flatless path runs.
-- **A fixed + wide + FITS set** routes to undistort, which globs camera raws only,
-  and dies with "no raw frames" — the right stop with the wrong diagnosis.
-
-**Closes when** the route key is single-sourced on a measured quantity and the two
-refusals either handle their class or name it accurately.
+- **The undistort route's FLAT source is the per-set sky flat only.** A session
+  with real flats staged is refused (`run_set_chain.sh` exit 6; readiness goes
+  RED first on the one-click path) with the two commands that resolve it by
+  hand. Closes when the chain builds a master flat from a staged `flats*`/`calib`
+  dir and passes it as `--flat=` — the builder already takes any master, so this
+  is chain wiring, not a builder change.
+- **The undistort builders take camera raws only** (the route's first stage is
+  darktable's lens correction, and darktable reads raws). A FITS
+  dedicated-astrocam set now routes here on its measured drift and is refused by
+  name (`exit 9`), pointing at the standard route. Closes when a FITS path
+  around the darktable stage exists — a BUILDER change, and a real capability
+  gap rather than a routing defect.
 
 ## `cross-set-record-home` — a multi-set product has nowhere to write
 

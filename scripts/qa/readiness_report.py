@@ -49,6 +49,9 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RAW_EXT = (".nef", ".dng", ".cr2", ".cr3", ".arw", ".raf", ".fit", ".fits")
 
+sys.path.insert(0, os.path.join(REPO, "scripts", "lib"))
+import route as _route  # noqa: E402  — the route key's ONE definition
+
 GREEN, YELLOW, RED, PENDING = "GREEN", "YELLOW", "RED", "PENDING"
 # overall = worst row; PENDING outranks YELLOW (an unmeasured set's headline
 # is "the run measures this", not a met-but-look), RED outranks everything
@@ -175,32 +178,34 @@ def evaluate(session, set_name, route=None, forced_route=None,
                          "signature adopts as mount_source=derived"))
 
     # -- route ---------------------------------------------------------------
-    fov = (acq.get("exif") or {}).get("fov_deg") or 0
-    derived = route
-    if derived in (None, "", "stop-undeclared", "derive-after-preflight",
-                   "stop-unroutable"):
-        derived = ("standard" if mount == "tracked" else
-                   "undistort-groups" if (mount == "fixed" and fov >= 10)
-                   else None)
+    # the key is IMPORTED, never restated: scripts/lib/route.py defines the
+    # quantity, the threshold and its provenance for every consumer
+    rb = _route.from_records(acq, fp)
+    instrument = ("fingerprint: drift_frac (sky excursion / field), floor "
+                  f"{rb['threshold']}")
+    derived = route if route not in (
+        None, "", "stop-undeclared", "derive-after-preflight",
+        "stop-unroutable") else rb["route"]
+    measured = "" if rb["value"] is None else f"{rb['value']} vs floor {rb['threshold']}"
     mount_pending = not mount and not mc.get("method")
     if derived is None and mount_pending and not post_measure:
         rows.append(_row("route", PENDING, "derives once the mount is measured",
-                         "fingerprint (mount x field width)", ""))
+                         instrument, rb["reason"]))
+    elif derived is None and not post_measure and mount == "fixed" \
+            and rb["value"] is None:
+        # the key's instrument is a MEASURE step the run itself takes
+        rows.append(_row("route", PENDING, "derives once the drift probe runs",
+                         instrument, rb["reason"]))
     elif derived is None:
-        rows.append(_row("route", RED, "unroutable",
-                         "fingerprint (mount x field width)",
-                         f"mount '{mount}', fov '{fov}' — neither tracked nor "
-                         "fixed+wide; the user picks"))
+        rows.append(_row("route", RED, "unroutable", instrument, rb["reason"]))
     elif forced_route:
         rows.append(_row("route", YELLOW, f"{derived} (OPERATOR-FORCED "
                          f"--route={forced_route})", "operator override",
                          "the derived route is stated in the chain plan"))
     else:
-        why = ("tracked: no inter-frame drift" if derived == "standard" else
-               f"fixed + {fov} deg field; groups is the standing route "
-               "(sub-stacks keep the cross-set combine buildable)")
-        rows.append(_row("route", GREEN, derived,
-                         "fingerprint (mount x field width)", why))
+        rows.append(_row("route", GREEN,
+                         f"{derived}{f' — drift_frac {measured}' if measured else ''}",
+                         instrument, rb["reason"]))
 
     # -- frame QA + cull -----------------------------------------------------
     if qa is None:
@@ -338,11 +343,31 @@ def evaluate(session, set_name, route=None, forced_route=None,
     real_flats = (bool(glob.glob(os.path.join(session, "flats*")))
                   or os.path.isdir(os.path.join(session, "calib")))
     if real_flats and derived != "standard":
+        # This is the surface the refusal actually reaches the user on: it is
+        # RED here (exit 7) before run_set_chain.sh's own exit 6 can fire, so
+        # the class and the resolving step have to be named HERE too.
+        staged = ", ".join(sorted(
+            os.path.basename(d) for d in
+            glob.glob(os.path.join(session, "flats*"))
+            + ([os.path.join(session, "calib")]
+               if os.path.isdir(os.path.join(session, "calib")) else [])))
         rows.append(_row("masters", RED,
-                         "real flats staged on the undistort route",
+                         f"real flats staged ({staged}) and the route is "
+                         f"{derived}",
                          "session staging",
-                         "master-flat wiring for this route is a documented "
-                         "gap — resolve the flat manually (chain exit 6)"))
+                         "Not a data defect — the opposite. The chain's "
+                         "undistort dispatch carries one flat source, the "
+                         "per-set SKY flat (a median of the set's own lights), "
+                         "and will not silently prefer it over flats that were "
+                         "shot. The BUILDER has no gap: it takes any master via "
+                         "--flat=. Resolve by building the master flat from the "
+                         "staged dir (Siril: convert -> calibrate with the "
+                         "matched dark-flat/bias -> stack rej 3 3 -norm=mul), "
+                         "then run scripts/stack/run_undistort_groups.sh "
+                         "--dark= --flat=<that master> directly; the chain "
+                         "prints the exact two commands at its own exit 6. "
+                         "Closing it for good is chain wiring, not a builder "
+                         "change — BACKLOG:route-recommendation"))
     elif not (os.path.exists(dark) or darks_staged):
         rows.append(_row("masters", RED, "no darks staged and no master dark",
                          "session staging", "shoot/stage matched darks"))

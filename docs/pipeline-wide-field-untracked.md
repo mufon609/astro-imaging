@@ -1,7 +1,8 @@
 # The wide-field-untracked chain, step by step
 
 The complete raw-frames-to-judged-product process for the validated data class:
-**camera raws, fixed (untracked) mount, wide field (≥ 10°)**. Every stage below
+**camera raws, fixed (untracked) mount, 28.6° field, sky excursion 0.083–0.201
+of the field** (the route key is the excursion, not the width — §3). Every stage below
 names what runs, which official tool touches the pixels, where the record lands,
 and the measured reason the step is done this way rather than another. None of
 it is a guessed knob: each choice traces to an instrument reading, and the
@@ -25,8 +26,11 @@ is §10; everything else runs unattended.
 `sessions/<session>/<set>/` holds raw frames ONLY; `sessions/<session>/darks/`
 holds darks shot at the identical exposure/ISO in the same thermal window (the
 acquisition checklist, `docs/dead-ends.md`). No flats staged means the flatless
-route (§4); real flats present currently stop the undistort route (a documented
-wiring gap, chain exit 6). All derived state lands elsewhere: records in
+route (§4); real flats present stop the undistort route by name — the dispatch
+carries one flat source and will not silently prefer the sky flat over flats
+that were shot, so it prints the two commands that build and pass a master
+instead (chain exit 6; readiness RED first, exit 7). All derived state lands
+elsewhere: records in
 `datasets/<session>/<set>/`, bulk intermediates in `sessions/<session>/work/`,
 products in `web/results/<session>/`.
 
@@ -98,10 +102,25 @@ solves, frame metrics) and the chain routes on it:
 
 - **tracked** → standard route (`run_pipeline.sh`: calibrate → register →
   stack); no inter-frame drift to fight.
-- **fixed + fov ≥ 10°** → wide-field-untracked route, **groups builder, the
-  STANDING route** (§6). Single-pass runs only as the recorded operator
-  override `--route=single`.
+- **fixed + `drift_frac` ≥ 0.05** → wide-field-untracked route, **groups
+  builder, the STANDING route** (§6). Single-pass runs only as the recorded
+  operator override `--route=single`.
+- **fixed + `drift_frac` < 0.05** → standard route: below the smallest
+  excursion the distortion term has been measured at there is no drift
+  differential to fight, and undistorting would cost a second interpolation pass.
 - anything else → unroutable, exit 5 — the user picks.
+
+`drift_frac` is the sky excursion over the set's span as a fraction of the
+field — the quantity the mechanism is actually about (a star samples a
+different local distortion as it drifts), keyed and thresholded in ONE place,
+[`scripts/lib/route.py`](../scripts/lib/route.py), which carries the
+derivation, the numbers and the removal condition. Field width was the previous
+key and inverted the physics: a fixed mount sweeps 0.2507 × cos(dec) °/min
+whatever the focal length, so a *narrow* field crosses more of itself per
+minute than a wide one. It is an angle over an angle, never pixels — the probe
+solves camera raws on the half-res green plane, so its px figures read
+2.078–2.137× the sensor's scale and would mean two different things on two rigs
+([`ROUTE_KEY_GENERALITY.md`](../ROUTE_KEY_GENERALITY.md)).
 
 Groups is standing because the fork is settled by measurement, not preference:
 its retained sub-stacks are what keep the cross-set combine buildable
@@ -291,10 +310,11 @@ running).
 |---|---|
 | exit 2 | declared-vs-measured mount CONTRADICT — reconcile the label |
 | exit 4 | mount underivable — instruments disagree or nothing measures |
-| exit 5 | unroutable fingerprint — neither tracked nor fixed+wide |
-| exit 6 | real flats staged on the undistort route (wiring gap) |
+| exit 5 | unroutable fingerprint — the mount signature is neither fixed nor tracked, or the route key's inputs never measured (the drift probe runs first) |
+| exit 6 | real flats staged on the undistort route — names the class and prints the two commands that resolve it (readiness goes RED first on the one-click path, exit 7) |
 | exit 7 | readiness RED — the report names the blocker before anything builds |
 | exit 8 | product regressed vs the accepted baseline (informative, post-build) |
+| exit 9 | FITS lights on the undistort route — the builders glob camera raws because darktable's lens stage reads raws; frames and route both right |
 | always | the ONE approval after the report; aesthetics on full-frame lossless finals |
 
 ## 11. Open defects and watch-list (with their records)
