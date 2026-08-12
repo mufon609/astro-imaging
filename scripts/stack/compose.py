@@ -126,9 +126,9 @@ def align_members(repo, sdir, set_name, members, reference):
                 f"cd {rel}\n"
                 "convert ch\n"
                 f"setref ch {ref_idx}\n"
-                "register ch -2pass\n"
+                "register ch -2pass -transf=homography\n"
                 f"setref ch {ref_idx}\n"
-                "seqapplyreg ch -framing=min\n"
+                "seqapplyreg ch -framing=min -interp=lanczos4\n"
                 "close\n")
     print(f"[compose] aligning {len(names)} member stacks to "
           f"'{reference}' (ref index {ref_idx})")

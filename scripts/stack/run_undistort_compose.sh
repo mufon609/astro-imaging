@@ -318,8 +318,8 @@ if [ "$STARPAIR" = 1 ]; then
   echo "  *** 28-member union. This is for A/B work only; it must never build   ***" >&2
   echo "  *** a product anyone judges or ships.                                 ***" >&2
   echo "" >&2
-  REGCMD='register s -2pass'
-  REGDESC='register -2pass [STAR-PAIR REGRESSION ARM]'
+  REGCMD='register s -2pass -transf=homography'
+  REGDESC='register -2pass -transf=homography [STAR-PAIR REGRESSION ARM]'
 else
   "$REPO/scripts/stack/compose_preflight.py" "$W"/in/m_*.fit \
     --json="$W/compose_preflight.json" || {
@@ -330,7 +330,7 @@ else
   REGCMD='seqplatesolve s'
   REGDESC='seqplatesolve (per-member astrometric, own SIP undistortion)'
 fi
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\n%s\n%bseqapplyreg s -framing=%s -prefix=r_\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\n%s\n%bseqapplyreg s -framing=%s -prefix=r_ -interp=lanczos4\n' \
   "$W/in" "$W/seq" "$W/seq" "$REGCMD" "$SETREF" "$FRAMING" > "$W/compose.ssf"
 printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
   "$W/seq" "$WEIGHT" "$OUT" > "$W/stack.ssf"

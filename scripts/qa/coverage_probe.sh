@@ -78,7 +78,7 @@ echo "coverage probe: $n members, framing=$FRAMING"
   done; } > "$W/f.ssf"
 sir "$W/f.ssf"
 [ "$(ls "$W/const" | wc -l)" -eq "$n" ] || { echo "ABORT: const twins incomplete — read $W/siril.log" >&2; exit 1; }
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass\n' "$W" "$W" "$W" > "$W/r.ssf"
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass -transf=homography\n' "$W" "$W" "$W" > "$W/r.ssf"
 sir "$W/r.ssf"
 [ -f "$W/seq/s_.seq" ] || { echo "ABORT: registration wrote no .seq — read $W/siril.log" >&2; exit 1; }
 for ((i=1;i<=n;i++)); do
@@ -91,7 +91,11 @@ if [ -n "$REF" ]; then
     || { echo "ABORT: --ref=$REF is not a 1..$n link index" >&2; exit 1; }
   echo "reference pinned: member $REF of $n (setref after -2pass, the compose's own re-basing)"
 fi
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/seq\n%sseqapplyreg s -framing=%s -prefix=r_\nset32bits\nstack r_s sum -out=%s\n' \
+# The map must be read at the SAME interpolation the composed product carries:
+# lanczos4 rings at a member's edge, so a coverage threshold calibrated under a
+# different kernel does not transfer (the Min > 0 crop guard already passes on
+# that ringing — docs/dead-ends.md).
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/seq\n%sseqapplyreg s -framing=%s -prefix=r_ -interp=lanczos4\nset32bits\nstack r_s sum -out=%s\n' \
   "$W" "${REF:+setref s $REF$'\n'}" "$FRAMING" "$OUT" > "$W/a.ssf"
 sir "$W/a.ssf"
 [ -f "$OUT.fit" ] || { echo "ABORT: no coverage map — read $W/siril.log" >&2; exit 1; }

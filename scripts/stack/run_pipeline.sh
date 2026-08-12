@@ -322,10 +322,11 @@ _fits_dualband() {
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $1 -cfa
     echo "seqextract_HaOIII pp_light -resample=oiii"
+    # One-pass register: it BOTH fits and resamples, so it carries both pins.
     echo "setref Ha_pp_light $MIDX"
-    echo "register Ha_pp_light"
+    echo "register Ha_pp_light -transf=homography -interp=lanczos4"
     echo "setref OIII_pp_light $MIDX"
-    echo "register OIII_pp_light"
+    echo "register OIII_pp_light -transf=homography -interp=lanczos4"
     unselect_lines r_Ha_pp_light
     echo "stack r_Ha_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_${SET}_Ha"
     unselect_lines r_OIII_pp_light
@@ -342,7 +343,7 @@ _fits_lights() {
     echo "cd $SET"; echo "convert light -out=../work"
     echo "cd ../work"
     calibrate_light_cmd light masters/dark_master $2 $1
-    echo "register pp_light -2pass"; echo "seqapplyreg pp_light"
+    echo "register pp_light -2pass -transf=homography"; echo "seqapplyreg pp_light -interp=lanczos4"
     unselect_lines r_pp_light
     echo "stack r_pp_light $(stack_rejection_for "$N") ${STACKPOL}-norm=addscale -output_norm -out=$RESULTS/stack_$SET"
     echo "close"; } > "$W/fits_lights.gen.ssf"

@@ -101,7 +101,11 @@ while [ $i -lt $n ]; do
     batch_files+=("$(basename "${SRC[$i]}")")
   done
   printf '%s\n' "${batch_files[@]}" > "$W/files.txt"
-  printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -debayer -out=%s\ncd %s\nregister c -2pass\n' \
+  # -transf= is pinned even though this pass writes no product: it decides which
+  # frames find enough pairs to register, and the registered/total ratio is a
+  # RECORDED metric. No -interp= — `-2pass` resamples nothing, so pinning one
+  # here would assert a knob this leg does not turn.
+  printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -debayer -out=%s\ncd %s\nregister c -2pass -transf=homography\n' \
     "$W/src" "$W" "$W" > "$W/r.ssf"
   sir "$W" "$W/r.ssf"
   reg=$(grep -c '^R0' "$W/c_.seq" || true)

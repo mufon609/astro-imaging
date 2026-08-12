@@ -133,7 +133,10 @@ done
 #    - qa/baseline_guard.py: delegates every siril call to qa/regional_stat.py,
 #      which pins; the word appears only in its docstring.
 #    - setup/x86_bootstrap.sh: prose + a probe label, no .ssf generated.
-SSF_NOT_EMITTERS='stack/build_master_dark\.sh|qa/baseline_guard\.py|setup/x86_bootstrap\.sh'
+#    - stack/check_registration_pins.sh: a sibling GUARD. It READS every .ssf
+#      and .ssf emitter to check the registration pins and generates none, so
+#      the word appears only in its search patterns.
+SSF_NOT_EMITTERS='stack/build_master_dark\.sh|qa/baseline_guard\.py|setup/x86_bootstrap\.sh|stack/check_registration_pins\.sh'
 for f in $(grep -rl '\.ssf' --include='*.sh' --include='*.py' --include='*.ssf' \
              --include='*.tmpl' "$S" web | sort); do
   case "$f" in *check_bitdepth.sh) continue;; esac

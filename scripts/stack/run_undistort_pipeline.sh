@@ -264,7 +264,7 @@ print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt -2pass\nseqapplyreg lt -framing=min -prefix=r_\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nregister lt -2pass -transf=homography\nseqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4\nstack r_lt %s -norm=addscale -output_norm -out=%s\n' \
   "$P/out" "$REJ" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
 rm -rf "$P/out"

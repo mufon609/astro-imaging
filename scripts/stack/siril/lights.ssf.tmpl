@@ -25,8 +25,12 @@ cd ../work
 # Lower detection threshold: default sigma 1.0 finds ~370 stars/frame and the
 # matcher still fails on 2 frames; fainter stars give it more triangles.
 setfindstar -sigma=0.5
-register pp_light -2pass
-seqapplyreg pp_light
+# -transf= on the fit, -interp= on the resample: both are Siril DEFAULTS, which
+# means a version bump can change every stack here with nothing to show for it.
+# Pinned to the doctrine (TOOLS.md: homography for wide fields, lanczos4+clamp);
+# clamping is preserved by NOT passing -noclamp. check_registration_pins.sh.
+register pp_light -2pass -transf=homography
+seqapplyreg pp_light -interp=lanczos4
 # Color is calibrated by SPCC on the stack — no per-channel white balance
 # at stack time (-rgb_equal): a stack-time rescale would only obscure the
 # raw channel balance SPCC measures.

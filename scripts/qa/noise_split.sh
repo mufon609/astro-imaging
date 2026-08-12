@@ -46,7 +46,7 @@ done
 [ "$n" -ge 4 ] || { echo "need >=4 members to split" >&2; exit 1; }
 echo "noise split: $n members"
 
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\n' \
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s/in\nlink s -out=%s/seq\ncd %s/seq\nregister s -2pass -transf=homography\nseqapplyreg s -framing=min -prefix=r_ -interp=lanczos4\n' \
   "$W" "$W" "$W" > "$W/r.ssf"
 sir "$W/r.ssf"
 [ -f "$W/seq/r_s_00001.fit" ] || { echo "ABORT: no registered frames — read $W/siril.log" >&2; exit 1; }
