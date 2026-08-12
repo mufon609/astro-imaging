@@ -75,6 +75,20 @@ pre-fix tree, the detector FIRES: at `20766e4~1`, `prompts/REPORT.md:83` asserts
 correction, so both of the detector's conditions are met on real history. At HEAD
 it is CLEAN — no file asserts the stale form and the write-up carries *"describes
 a blend no frame saw"*. RED on the case it was written for, GREEN now.
+**AND RUNNING IT EXPOSED A FLOOR READING IT COULD NOT — the naive form attacks
+the records that prove it works.** A corrected claim's exact words necessarily
+SURVIVE wherever the correction is properly documented: the registry entry, the
+ledger field, this falsification note. At HEAD the phrase returns FOUR hits and
+all four are RECORDINGS, none a defect. A sweep "fixing" them would delete the
+correction's own evidence — the exact thing REVISE-NEVER-DELETE exists to stop.
+So classify every hit before touching it: is the file **CLAIMING** the stale
+form, or **RECORDING that it was wrong**? Only the first is a defect.
+**Cut the manual reads with the joined-block pass this file already mandates**
+— MEASURED on these four: line-only classification misreads 2 of 4, a joined
++-3-line window misreads 1, and +-5 resolves all four (the surviving case is a
+paragraph-scale recording whose "wrong in the direction" marker sits 5 lines
+above the hit). The window shrinks the work; it does not replace the read,
+because a recording can always be framed further away than any window you pick.
 *Distinguish ASSERTION from QUOTATION, or this detector reports its own evidence
 as a defect.* A corrected claim's exact words necessarily SURVIVE in the records
 that document the correction — the registry entry naming what was wrong, the
