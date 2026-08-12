@@ -364,13 +364,21 @@ evidence gaps therefore remain open for whatever the eventual fix is:
   sensor-fixed for a fixed camera so nothing in the sensor frame can apportion the
   measured field between flat and sky. Do not re-propose it (`docs/dead-ends.md`;
   `datasets/aug09/corpus_object_tilt.json`).
-  **What is still available to settle it, in order of strength:** (a) a
-  WITH/WITHOUT judgement pair on finals — both flats exist for set-01/02, the next
-  bullet, and it needs no absolute number because it is DIFFERENTIAL and cancels
-  every sensor-fixed term the two arms share; (b) `flat_odd_component.py --ratio`,
+  **What is still available to settle it, in order of strength:** (a) the FLAT
+  DIFFERENTIAL — two flats of the same optical state but different sky dose
+  applied to the SAME lights, which needs no absolute number because it is
+  DIFFERENTIAL and cancels every sensor-fixed term the two arms share, including
+  both blockers that killed the absolute measurement (brief:
+  `prompts/FLAT_DIFFERENTIAL_PROMPT.md`); (b) `flat_odd_component.py --ratio`,
   which already measures what DIFFERS between two flats with no model and no fit.
-- **A with/without judgement pair on finals** — both flats exist for set-01/02, so
-  this is stageable now. Unresolved-starlight preservation is the metric, the user's eyes decide.
+- **A with/without judgement pair on finals** — the metric is unresolved-starlight
+  preservation and the user's eyes decide. **NOT stageable as originally written:
+  the de-skied flats it named for set-01/02 no longer exist on disk** (verified),
+  and the de-skied arm is a registered 31x regression regardless. The pairing that
+  IS stageable is two shipped-builder flats of different sky dose — within-night,
+  so the optical state is fixed; aug09 set-01 vs set-05 is the corpus maximum at
+  Δdipole 0.2827. Blocked on the render gate: `render_tier.sh` exits 7 without a
+  ratified `render` block (BACKLOG:`render-ladder`).
 
 **ROUTES NOW CLOSED — do not re-derive them.** The DOMAIN-CORRECTED ITERATIVE
 SKY FLAT (calibrate the flat's source frames with `F0`, `seqsubsky` in that

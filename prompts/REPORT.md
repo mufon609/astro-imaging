@@ -7,6 +7,21 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
+- **[`FLAT_DIFFERENTIAL_PROMPT.md`](FLAT_DIFFERENTIAL_PROMPT.md)** — the
+  measurement that survives both blockers that killed the absolute tilt. Two
+  flats of the same optical state and different sky dose (aug09 set-01 vs set-05,
+  Δdipole 0.2827 — the corpus maximum within a night) applied to the SAME set-05
+  lights through the SAME chain. Both nuisances cancel identically because it is
+  the same star in the same frames, so the translational degeneracy is
+  structurally absent, and identical frames carry identical sensor-fixed
+  atmosphere. Primary instrument needs NO in-house code — the arms are
+  pixel-aligned, so Siril `fdiv` gives the delivered imprint-ratio field directly;
+  the matched-star flux ratio confirms it independently. The selftest must show
+  immunity on the same pure-translation panel that broke `object_tilt.py`. Live
+  confounder fenced: `-norm=addscale` absorbs part of the difference under test,
+  so the arms run `-nonorm` and the absorption is measured. Scope stated: it
+  BOUNDS the absolute tilt, it does not equal it.
+
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
