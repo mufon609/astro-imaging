@@ -621,8 +621,14 @@ the constraints any such tool must satisfy):
   sensor-fixed calibration residual the stack carries is LEFT-RIGHT
   (+0.171 %/1000px). Two different axes are two different terms; a within-burst
   flat policy is not automatically a fix for the stack's ramp. Numbers:
-  `datasets/july31/experiments.jsonl`, `flat_window_within_set_set03` and
-  `flat_window_dose_set04`.
+  `flat_window_within_set_set03` and `flat_window_dose_set04` in
+  `git show c7db472:datasets/july31/experiments.jsonl` — the records are NOT in
+  the live ledger, because the deliberate july31 raw-frames-only reset removed
+  all 93 tracked july31 records and the blackbox re-run re-created only what it
+  re-measured. They are not re-imported: a pre-reset measurement must not enter
+  a post-reset ledger unmarked. Anything relying on these numbers therefore
+  carries them as INHERITED (the standing rule for a measurement not re-made in
+  its current context).
 
 - **A FOUR-CORNER BOX METRIC IS NOT A GRADIENT MEASURE ON A STRUCTURED FIELD.**
   Corner-vs-corner spread is the repo's background-flatness number
