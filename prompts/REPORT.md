@@ -12,6 +12,16 @@ does not retire, and it is run on demand rather than scheduled here.
 
 ## Queued — needs prompts (medium; one session can take several)
 
+- **`per-group-flat-at-the-combine`** — FIRST, because MEMORY makes it binding:
+  a calibration change is evaluated against the COMBINE unit, and the member IS
+  the cross-night combine unit. The per-set question is closed (composed tilt
+  +0.055% ± 0.083%, 0.7σ — zero by construction, the set flat already being the
+  mean of the group flats). What is open is the trade the change makes at the
+  member: backgrounds 28–40× more consistent against 3.271%/4.335%
+  member-to-member object-imprint disagreement where the shipped route has zero.
+  The sign can invert at the combine — imprints that cancel within one set have
+  no reason to cancel across nights whose skies differ. One knob, members from
+  both arms; the half no instrument can settle goes to the owner.
 - **Real-flats HANDLED path** — wire master-flat builds into the undistort
   route so staged real flats are USED, not just accurately refused (routing
   session shipped "named"; owner precedence: real flats WIN when present).
