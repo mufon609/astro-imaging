@@ -68,6 +68,13 @@ finding where it is THINKING about it (registry, ledger) and not where it WROTE
 IT UP FOR READERS, because editing the write-up feels like touching prose rather
 than fixing a record. The write-up is the copy people actually read, so it is the
 copy worth checking first.
+**FALSIFICATION EXECUTED, not argued** — this repo's most persistent defect is a
+check whose fire test was reasoned about rather than run. Replayed against the
+pre-fix tree, the detector FIRES: at `20766e4~1`, `prompts/REPORT.md:83` asserts
+*"is about OPTICAL-state matching"* while `docs/dead-ends.md` already carries the
+correction, so both of the detector's conditions are met on real history. At HEAD
+it is CLEAN — no file asserts the stale form and the write-up carries *"describes
+a blend no frame saw"*. RED on the case it was written for, GREEN now.
 
 **Run the repo's own guards first — they are the authoritative drift detectors
 for anything they cover**, and they print the true counts to compare prose
