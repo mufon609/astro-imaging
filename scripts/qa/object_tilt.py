@@ -129,20 +129,45 @@ LST_COLS = {"B": 2, "A": 3, "X": 5, "Y": 6, "FWHMx": 7, "FWHMy": 8,
             "mag": 13, "Sat": 14, "RA": 16, "Dec": 17}
 BOX = 60                      # >= the 40 px stability plateau, with margin
 BAD_SMAG = 9.9                # Siril's invalid-photometry sentinel is 9.9990
-RE_SEL = re.compile(r"Current selection \[x, y, w, h\]: (-?\d+) (-?\d+) (\d+) (\d+)")
 RE_X0 = re.compile(r"x0=([0-9.]+)px")
 RE_Y0 = re.compile(r"y0=([0-9.]+)px")
 RE_MAG = re.compile(r"m=(-?[0-9.]+)\xb1([0-9.]+)")
-RE_B = re.compile(r"B=(-?[0-9.eE+-]+)")
-RE_A = re.compile(r"^\s+A=(-?[0-9.eE+-]+)", re.M)
+
+# Recorded in every run because "every number came from a tool" does not make an
+# in-house analysis in-bounds — what makes it in-bounds is that no tool does it,
+# and that claim goes stale. Re-probe on a Siril version change or a new install.
+TOOL_SEARCH = {
+    "siril psf + setphot": "ADOPTED — aperture photometry at a forced radius "
+        "(-dyn_ratio outside [1.0,5.0]) against its own local annulus, headless, "
+        "on the 3-layer float cube, ~2.4 ms/star.",
+    "siril seqpsf -wcs=": "REFUSED THE JOB — converts the sky coordinate to "
+        "pixels ONCE and measures that same pixel area in every image. Measured "
+        "on one real star across aug09/set-01's four blocks: m = -2.104 in the "
+        "reference block against +3.55 / +5.05 / +3.63. -followstar needs "
+        "registration data and does not repair it (+3.55 / +3.87 / +2.86).",
+    "siril light_curve": "WRONG AXIS — differential photometry of one target "
+        "against averaged comparison stars, over time, not over position.",
+    "siril findstar `mag`": "REJECTED — it is the Gaussian-fit magnitude, which "
+        "moves with the PSF, and the PSF varies across this field. That is the "
+        "signal under test.",
+    "source-extractor 2.28.2 (/usr/bin, SExtractor)": "AVAILABLE, VIABLE, NOT "
+        "ADOPTED — runs on these sub-stacks (47,971 objects in 3.1 s, FLUX_APER "
+        "at two radii, BACKPHOTO_TYPE LOCAL, ALPHA/DELTA_J2000). It reads plane 1 "
+        "of the cube, not the green layer the rest of the chain uses, and it is "
+        "another per-image photometer — it does not close the cross-image gap. "
+        "Needs a default.conv in CWD or it aborts.",
+    "SCAMP (astromatic)": "NOT PACKAGED on this distro — apt-cache policy scamp "
+        "has no candidate (source-extractor and swarp do). It is the removal "
+        "condition for this script. Note its photometric solution is per-exposure "
+        "zero points against overlaps, i.e. the nuisance term here, not the "
+        "focal-plane field.",
+    "conclusion": "no installed tool cross-matches a star across a drifting "
+        "sequence headless, so the cross-match and the fit are the in-house part.",
+}
 
 
 def uptime():
     return subprocess.run(["uptime"], capture_output=True, text=True).stdout.strip()
-
-
-def sh(cmd):
-    return subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout.strip()
 
 
 def run_ssf(wdir, lines, ssf_path, logpath):
@@ -459,7 +484,7 @@ def run_set(gdir, args, work=None):
 
     out = {
         "night": night, "set": setname, "groups_dir": gdir, "work_dir": work,
-        "uptime": uptime(),
+        "uptime": uptime(), "tool_search": TOOL_SEARCH,
         "instrument": (
             "Siril 1.4.4 findstar (detection + position + RA/Dec through each "
             "sub-stack's own astrometry.net solve) + Siril psf (aperture "
@@ -570,6 +595,7 @@ def refit(jsonpath):
     repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     work = res.setdefault("work_dir", os.path.join(
         repo, "datasets", res["night"], res["set"], "tilt_work"))
+    res["tool_search"] = TOOL_SEARCH
     W, H = res["frame_norm"]["width_px"], res["frame_norm"]["height_px"]
     rots = [0.0] + [g["rotation_deg"] for g in res["geometry"]["vs_block_0"]]
     theta = math.radians(max(rots) - min(rots))

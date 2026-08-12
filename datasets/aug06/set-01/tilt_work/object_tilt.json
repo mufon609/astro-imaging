@@ -486,5 +486,14 @@
    "drift_leaked_as_shared_mag": 5.7434573563233755
   }
  },
- "work_dir": "/home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/tilt_work"
+ "work_dir": "/home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/tilt_work",
+ "tool_search": {
+  "siril psf + setphot": "ADOPTED \u2014 aperture photometry at a forced radius (-dyn_ratio outside [1.0,5.0]) against its own local annulus, headless, on the 3-layer float cube, ~2.4 ms/star.",
+  "siril seqpsf -wcs=": "REFUSED THE JOB \u2014 converts the sky coordinate to pixels ONCE and measures that same pixel area in every image. Measured on one real star across aug09/set-01's four blocks: m = -2.104 in the reference block against +3.55 / +5.05 / +3.63. -followstar needs registration data and does not repair it (+3.55 / +3.87 / +2.86).",
+  "siril light_curve": "WRONG AXIS \u2014 differential photometry of one target against averaged comparison stars, over time, not over position.",
+  "siril findstar `mag`": "REJECTED \u2014 it is the Gaussian-fit magnitude, which moves with the PSF, and the PSF varies across this field. That is the signal under test.",
+  "source-extractor 2.28.2 (/usr/bin, SExtractor)": "AVAILABLE, VIABLE, NOT ADOPTED \u2014 runs on these sub-stacks (47,971 objects in 3.1 s, FLUX_APER at two radii, BACKPHOTO_TYPE LOCAL, ALPHA/DELTA_J2000). It reads plane 1 of the cube, not the green layer the rest of the chain uses, and it is another per-image photometer \u2014 it does not close the cross-image gap. Needs a default.conv in CWD or it aborts.",
+  "SCAMP (astromatic)": "NOT PACKAGED on this distro \u2014 apt-cache policy scamp has no candidate (source-extractor and swarp do). It is the removal condition for this script. Note its photometric solution is per-exposure zero points against overlaps, i.e. the nuisance term here, not the focal-plane field.",
+  "conclusion": "no installed tool cross-matches a star across a drifting sequence headless, so the cross-match and the fit are the in-house part."
+ }
 }

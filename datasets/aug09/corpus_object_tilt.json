@@ -1,6 +1,6 @@
 {
  "instrument": "scripts/qa/object_tilt.py (Siril findstar + Siril psf aperture photometry, radius 10 px, annulus 20-30 px), aggregated by scripts/qa/object_tilt_corpus.py",
- "uptime": "12:43:47 up 37 days, 20:54,  2 users,  load average: 3.55, 3.01, 2.45",
+ "uptime": "13:01:45 up 37 days, 21:12,  2 users,  load average: 1.93, 7.18, 6.23",
  "prediction_record": "datasets/aug09/tilt_corpus_prediction.json",
  "aperture_radius_px": 10.0,
  "n_sets": 12,
