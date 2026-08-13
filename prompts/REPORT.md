@@ -7,6 +7,18 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
+- **[`L1_RESEARCH_PROMPT.md`](L1_RESEARCH_PROMPT.md)** — the design session that
+  must precede the L1 rebuild. Owner has authorised the full member rebuild and
+  BOTH arms (per-frame `--subsky-lights` and on-stack), time not a constraint —
+  this session exists so that build cannot be wasted. **The blocking gap,
+  verified: L1's adoption gate is unresolved-starlight preservation and NOTHING
+  IN THE TREE MEASURES IT** (`dust_identification.json` went with the archived
+  july23 session; no script computes a per-cell diffuse floor). Also settles two
+  beliefs currently gating policy without evidence — degree 1 vs 2 on calibrated
+  lights, and the unrecorded "visible rings" claim against stack-level BGE — and
+  refreshes the stale `subsky_lights_restoration` pre-registration, whose verdict
+  still reads "arm building" though no arm was ever built. No arms, no rebuild.
+
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
