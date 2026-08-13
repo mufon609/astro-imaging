@@ -793,6 +793,17 @@ the constraints any such tool must satisfy):
   field, this lattice; the bound is an upper one (it assumes the fitted surface
   is the best-fit surface to the starlight itself), and it must be recomputed
   per field — the instrument prints it on every run.
+  **AND IT DOES NOT REST ON THE INHERITED G-SPLIT — audited by recomputing the
+  bound directly from the retained per-magnitude bins.** The split (G = 11.0 at
+  50% completeness) is INHERITED from the july23 identification record and is a
+  hypothesis on this corpus until re-measured, so the obvious worry is that the
+  bound moves with it. It does not: swept G = 9 to 14, five magnitudes and far
+  wider than any plausible error in the inherited value, the plane term runs
+  **0.090-0.118**, the quadratic **0.360-0.380** and the cubic **0.430-0.453**
+  against the recorded 0.0997 / 0.3624 / 0.4349. "Degree 2 costs at most a
+  third" therefore holds wherever the split actually sits, and re-measuring the
+  split is NOT a prerequisite for the L1 build. Reproduce with the tracked
+  `gaia_cells_cache.json`, which keeps every magnitude bin for exactly this.
 - **THE IMAGE-SIDE VERSION OF THE SAME TEST CANNOT SETTLE IT ON TODAY'S
   PRODUCTS, and the reason is a second measurement worth keeping: the
   frame-scale floor is mostly NOT starlight.** One knob, on-stack `subsky 1` vs
