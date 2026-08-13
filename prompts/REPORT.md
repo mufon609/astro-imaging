@@ -46,11 +46,15 @@ separations from raw `delta_slope`, bypassing `retained` entirely —
   on the union's arm B surface (0.022/0.000/0.036) and on both powered per-set
   controls (0.000–0.043). So both halves are load-bearing, for different halves
   of the claim.
-- **The separation is driven by arm B moving, not arm A.** The paired deltas'
-  own significance on the union: arm A **0.66/0.31/0.63 SE — consistent with
-  zero** — against arm B 2.22/2.96/2.69 SE. `retained_A < retained_B` holds, but
-  its content is "arm B reveals what arm A does not", which is **not** the same
-  claim as "arm A destroys starlight".
+- **The separation is driven by arm B moving, not arm A** — and the SIGNS
+  decide what it recommends. Union paired deltas: arm A −1.3851/−0.8292/−0.7158
+  at **0.66/0.31/0.63 SE — consistent with zero**; arm B +6.3361/+12.9340/+6.3711
+  at 2.22/2.96/2.69 SE. `retained_A < retained_B` holds, but the honest sentence
+  is **the on-stack plane REVEALS the starlight relation while the per-frame step
+  leaves it where it was** — not that per-frame costs starlight. Those two
+  readings are close in words and **opposite in what they recommend**: the first
+  leaves the preservation criterion neutral on per-frame, the second would count
+  against it. Nothing here counts against per-frame on preservation grounds.
 
 **One loose end closed rather than left open:** "the effect grows with sky span"
 is REFUTED as the explanation of the supplement split — the two powered sets'

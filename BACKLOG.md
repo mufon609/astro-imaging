@@ -836,6 +836,35 @@ three worked instances are registered in `docs/dead-ends.md` (QA / scope) either
 this proposal is only about whether the LIMIT is stated where the practice is
 authorised. **Closes when** the owner accepts, rejects or rewrites it.
 
+## `l1-set02-nonreplication` — two powered surfaces, same night, opposite answers
+
+**OPEN QUESTION, not a scheduled item, and it touches a PAUSED line — see the fence.**
+
+The L1 per-frame-vs-on-stack supplement SPLIT between two surfaces that the
+pre-committed power criterion both rates as POWERED, with comparable errors:
+set-01 separates at **2.59/2.09/1.47 SE**, set-02 does not at **0.85/0.03/0.48**.
+Resolved in the verdict by rule (a split is reported, never majority-voted)
+because no mechanism was in hand.
+
+**One candidate is already refuted, at the cost of one lookup.** "The effect grows
+with sky span" cannot explain it: the two sets' inter-frame excursions are
+`sky_sep_arcsec` 16497.76 and 16549.39 — **4.5827° vs 4.5971°, 0.31% apart**.
+
+**The successor hypothesis, stated so it can be tested rather than re-derived.**
+The union's paired deltas say the on-stack arm REVEALS the starlight relation
+(+6.34/+12.93/+6.37, 2.22–2.96 SE) while the per-frame arm leaves it unmoved
+(−1.39/−0.83/−0.72, 0.31–0.66 SE). If what an on-stack plane reveals is the
+anti-correlated `sky × V` residual, then the size of the arm difference should
+track **the magnitude of that confound on each surface**, which is a property of
+the flat rather than of the geometry. Prediction: the split follows set-02's
+FLAT, not set-02's sky. It also explains union-vs-per-set without sky span — the
+union is where the most confound accumulates, not where the most sky is.
+
+**FENCED.** Testing that reaches into the flat-residual line, which the owner has
+PAUSED pending real flats. Nothing here reopens it, and this item is recorded so
+the question survives the session rather than to schedule work. **Closes when**
+the owner either rules it out of scope or unpauses the line it depends on.
+
 ## `capability-gaps` — real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.
