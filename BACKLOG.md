@@ -703,10 +703,37 @@ noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
   decentred radial field plus a constant does not describe this field. The
   phantom-decentring entry in `docs/dead-ends.md` is why this restraint is
   mandatory here.
-- **The "fixed" term is NOT fixed** — its direction moves with radius WITHIN a
-  set (−7.6° → +23.5° monotonically outward, july31/set-01), which a genuine
-  in-exposure trail direction cannot do; resultant 0.8894 over 21 frames, and
-  theta0 rises first-frame-to-last in 6 of 6 sets (sign test p = 0.0156).
+- **The "fixed" term is a NEAR-CANCELLATION OF TWO LARGE VECTORS, and reading it
+  as one term was the error** (`datasets/aug06/corner_work/`, commit `39da44e`;
+  PM-audited, the decomposition closes to five decimals). Its measured amplitude
+  0.05038 at +9.45° is the RESULTANT of the in-exposure trail at **0.14492,
+  +4.70°** and a second field-constant term at **0.09559, −87.79°** — 92.49°
+  apart in θ, i.e. **185° in 2θ, anti-parallel in spin-2**. The trail is present
+  at FULL predicted strength: a pure L = 1.66 px trail pushed through the same
+  `findstar` call returns mean e1 **+0.15550** against a +0.14492 prediction, 7%,
+  and the fixture's base PSF is ~5% wider than the real one so that is an
+  UNDER-estimate.
+  **Consequence: "the fixed-direction term is NOT the in-exposure trail" (19.4 SE
+  misaligned) must be read as NOT THE TRAIL ALONE.** The 7.85° offset is the
+  resultant's direction, not a misalignment of the trail. It also dissolves two
+  things filed as puzzles: θ₀'s hypersensitivity to population (+7.7° vs +23.6°)
+  and its drift across a set — a small difference of two large vectors moves a lot
+  when anything shifts their ratio. **Unaffected:** the drift bearing IS stationary
+  (1.027° over 1497 s), the ground-frame flow retraction stands, and the
+  first-frame anomaly is still in the exposure (θ₀ departs 19.75° while the
+  bearing departs 0.150°).
+  **THE OPEN QUESTION IS NOW THE OPPOSING TERM, AND TWO HYPOTHESES ARE DEGENERATE
+  ON THIS CORPUS.** A field-constant spin-2 term of amplitude ~0.096 rules out the
+  radial/coma family by construction. It sits **2.21° from the sensor Y axis** and
+  **2.49° from trail-perpendicular** — the measurement cannot separate them,
+  because this corpus's drift bearing (+4.70°) happens to lie near the sensor X
+  axis. (a) SENSOR-FIXED and axis-aligned — demosaic, readout, an AA filter — would
+  sit at exactly ±90° regardless of pointing. (b) DRIFT-PERPENDICULAR would follow
+  the drift. **The discriminator is a set whose drift bearing in SENSOR
+  coordinates differs materially**, which breaks the alignment; if none exists in
+  this corpus the question needs a camera-roll change and the data is a given.
+  Note (b) would be suspicious on its face — the drift direction is a property of
+  the sky and the mount, not of the lens — so an optical reading requires (a).
 
 **THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
 (`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
