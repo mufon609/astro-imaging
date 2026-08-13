@@ -530,13 +530,69 @@ sit at the centre's floor. ELIMINATED:
   rebuild floor (`datasets/july31/experiments.jsonl`) — a modifier of the band,
   not its driver.
 
-REMAINING: distortion-model residual vs differential refraction. The named
-discriminator is unchanged (hour-angle dependence: refraction varies with it, a
-model residual does not) and has two same-night sets 30 min apart at different
-pointings — set-01 reads a 13% along+1300 FWHM excess, set-02 43% — suggestive of
-refraction but confounded by the pointing change. Cheapest next cut: a `lensdist`
-vs `nodist` arm on the same 60-frame A/B input, which separates the model from
-everything else in one knob.
+REMAINING: distortion-model residual vs differential refraction. Two same-night
+sets 30 min apart at different pointings read a 13% and a 43% along+1300 FWHM
+excess — suggestive of refraction but confounded by the pointing change. Cheapest
+next cut: a `lensdist` vs `nodist` arm on the same 60-frame A/B input, which
+separates the model from everything else in one knob.
+
+**THE NAMED DISCRIMINATOR — "hour-angle dependence, and it is BLOCKED on missing
+site coordinates" — IS SUPERSEDED ON BOTH HALVES. Do not re-propose it as
+written.**
+- **The refraction branch closes on ARITHMETIC, not on a measurement. MECHANISM,
+  re-derived independently here.** Differential refraction as a per-star SHAPE
+  effect is atmospheric dispersion across the passband, and we measure on the
+  DEBAYERED GREEN plane (~480–610 nm), far narrower than the 400–650 nm span
+  CTIO's 1.40″-at-z=45 figure describes. Conservatively ≤0.6″ at z=45 and ≤1.7″
+  at z=70, which at this header's **16.979 ″/px** is **≤0.035 px and ≤0.10 px**.
+  Entering as a top-hat in second moments on a 2.01 px minor axis that moves FWHM
+  by ~1e-4 to ~1e-3 px, against measured effects of **+0.5 px** centre-to-corner
+  on size and **0.11–0.14** one-sided — **two to three orders of magnitude below
+  the thing being attributed.** Geometric differential refraction is not a
+  within-exposure shape effect at all (~5.6e-4 anisotropic plate-scale change at
+  z=45, ~0.001 px on a 2.4 px star).
+- **"No site coordinates" was a RECORDS gap, not a DATA gap — and the record is
+  now filled.** It was recoverable from the corpus regardless (field rotation
+  between two solved frames constrains cos(φ)·cos(A)·sec(alt), so latitude and
+  LST are solvable from solved RA/Dec plus `DATE-OBS` across pointings), which
+  means the word BLOCKED was wrong and asking a human for it was asking for what
+  the data settles. **The owner has since supplied it as ground truth:
+  REDACTED_SITE_DMS_LAT REDACTED_SITE_DMS_LON = SITELAT +REDACTED_SITELAT, SITELONG −REDACTED_SITELONG.** That
+  is better than the derived route because it gives the derivation a POSITIVE
+  CONTROL it did not have. **The chain does not record it yet** —
+  `scripts/lib/acquisition.py` writes no `site` block, and standards-first says
+  `SITELAT`/`SITELONG`/`SITEELEV` (Siril's own keys — verified present in the
+  1.4.4 binary) with `OBSGEO-X/Y/Z` as the FITS-standard form.
+- **The replacement discriminator needs no site at all. MECHANISM, UNTESTED.**
+  Cross-match stars between consecutive frames and compare the drift BEARING to
+  the shape-fit's own direction θ₀. If the shape-derived direction tracks the
+  position-derived drift bearing, the fixed-direction term IS trailing —
+  conclusive, no site and no altitude assumption.
+
+**AND THE ASTROMETRIC HALF IS NOW CLOSED TOO, BY THE OWNER'S OWN SITE.** The open
+worry was that geometric differential refraction — a real astrometric field
+distortion at this field size — could be the unattributed within-set
+"optical-state change" of **2.95–4.91 px** that
+BACKLOG:`compose-homography-smear` currently attributes to the optics. It cannot.
+Computed from the supplied site plus each product's own `DATE-OBS` and solved
+centre (astropy, set start):
+
+| set | UTC | altitude | z | sec²z | hour angle |
+|---|---|---|---|---|---|
+| aug06/set-01 | 2026-08-07T02:46:42 | **73.8°** | 16.2° | 1.08 | −1.41 h |
+| aug09/set-01 | 2026-08-10T03:49:33 | **85.3°** | 4.7° | 1.01 | −0.35 h |
+| july31/set-01 | 2026-08-01T02:51:17 | **66.8°** | 23.2° | 1.18 | −2.04 h |
+
+**Every night was shot high and near the meridian** (alt 66.8–85.3°, |HA| ≤ 2.04 h,
+sec²z 1.01–1.18) — the flat end of the curve, and the regime where the effect
+vanishes. Across half a 28.6° field the geometric term runs ~0.9–1.1 px TOTAL at
+these zenith distances, and its CHANGE across a 25-minute set is a small fraction
+of that, against a 2.95–4.91 px disagreement. Refraction is not the driver, and
+that term goes back to optics/mechanical, unattributed.
+**A side result worth keeping: the registry's "72–77° altitude" figure is now
+INDEPENDENTLY CONFIRMED** (aug06 measures 73.8° from the owner's site, where the
+inherited figure was derived without one and was therefore not independent
+evidence of anything).
 
 **ON aug06 THE DISTORTION-MODEL BRANCH IS CLOSED, and by the cheapest possible
 measurement.** Siril `findstar` on THREE SINGLE RAWS of set-01 — debayered,
