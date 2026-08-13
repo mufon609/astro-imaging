@@ -638,15 +638,70 @@ in the same raws** (rho 30.4 SE, x 0.1 SE, F = 0.0). Numbers:
 `datasets/aug06/corner_work/mechanism_and_specs.json`,
 `datasets/aug06/set-01/psf_work/f{1,2,3}.lst`.
 
-**One inherited claim is in TENSION with that measurement and neither is settled.**
-BACKLOG:`compose-homography-smear` records, from 136k stars over 3 frames x 6
-sets x 2 nights, that "the major-axis angle tracks the field azimuth in 7 of 8
-zones in every set" — it is ANISOTROPIC, not defocus, and RADIAL there. On
-these three set-01 frames the median PA is near-CONSTANT across 8 azimuth sectors
-(**spread 15.8 deg**, where a radial term predicts a sweep of order the azimuths
-themselves) — the trailing signature, not a rotating one. Sample, channel (those
-raws solve on the half-res green plane) and angle convention are all live
-explanations. Do not quote either as settled until one measurement covers both.
+**RESOLVED — the two records were measuring DIFFERENT QUANTITIES and neither was
+wrong** (`datasets/aug06/corner_work/pa_convention.json`, commit `57c8305`;
+PM-audited by re-execution). BACKLOG:`compose-homography-smear` read the
+major-axis angle as tracking field azimuth (radial/optical); corner_work read it
+as near-constant (trailing). **Both a fixed-direction term and a radial term are
+present in BOTH samples at once**, measured with one instrument, one convention
+and a design condition of 1.08–1.27 so neither can absorb the other:
+
+| sample | n | fixed | radial |
+|---|---|---|---|
+| corner_work's own 3 frames | 8 074 | 0.0464 (30.4 SE) | +0.0524 (31.1 SE) |
+| the registry's own 18 frames | 135 989 | 0.0581 (69.6 SE) | +0.0395 (51.0 SE) |
+
+So each record's EXCLUSIVE claim is refuted by its own data. Three differences,
+none of them the one this paragraph used to name:
+- **STATISTIC** — the registry used the elongation-weighted circular mean of the
+  DOUBLED angle (correct for an axial variable); corner_work used a linear
+  `median(theta)` of a mod-180 angle, unweighted.
+- **POPULATION, the largest single factor and it was in the registry's own
+  `_method` string all along** — its `rho>1200 px / bright half / roundness<0.85`
+  cuts TRIPLE the radial amplitude (0.0395 → 0.1261) while barely moving the
+  fixed one (0.0581 → 0.0805), because they select the outer field. **Each record
+  chose, without intending to, the population that showed its own term.**
+- **DEPTH** — tested (sigma 0.50 vs 1.00) and NOT the cause; the same frame's
+  stars cross-match at 0.0000 px and 0.0000°, so sigma changes which stars are
+  admitted, never a star's fitted angle.
+- **CHANNEL is retired as a difference**: every `.lst` in both samples carries
+  `layer=1`. The "half-res green plane" line was wrong here.
+
+**The reading that dies, and it dies on the null it never had.** "15.8° spread =
+near-constant = trailing" was intuition: permuting theta across stars with
+positions held (200 permutations) puts no-information at **1.8 ± 0.5°**, so 15.8°
+is ~28 null-SDs of STRUCTURE. A planted fixture makes it a demonstration rather
+than an argument — the naive linear median MISREADS a known-RADIAL field once PA
+noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
+
+**Two consequences for this item, and both weaken a single clean mechanism:**
+- **The field is DECENTRED** (free centre beats centred at F 169–999, offsets
+  443–531 px) — but **no optical centre is quoted**, deliberately: three
+  populations disagree by ~300 px in x while quoting 10–31 px formal errors, i.e.
+  mutually inconsistent by 10–20 of their own sigmas. That inconsistency IS the
+  result — the formal error is the error of a misspecified model, and one
+  decentred radial field plus a constant does not describe this field. The
+  phantom-decentring entry in `docs/dead-ends.md` is why this restraint is
+  mandatory here.
+- **The "fixed" term is NOT fixed** — its direction moves with radius WITHIN a
+  set (−7.6° → +23.5° monotonically outward, july31/set-01), which a genuine
+  in-exposure trail direction cannot do; resultant 0.8894 over 21 frames, and
+  theta0 rises first-frame-to-last in 6 of 6 sets (sign test p = 0.0156).
+
+**THE ABERRATION FAMILY IS UNRESOLVED, AND A RETIREMENT OF THE COMA READING WAS
+PROPOSED AND WITHDRAWN — the withdrawal is the durable lesson.** A first pass
+measured radial exponents of 2.09–3.80 and read them against Seidel's blur
+exponents (coma 1, astigmatism 2), concluding "not coma". That compared two
+different quantities: **ellipticity is not a blur size.** Blurs convolve, so
+variances add — `a² = w² + κℓ²` gives `a² − b² = κℓ²` and
+`e = (a²−b²)/(a²+b²) ≈ κℓ²/2w²`, i.e. ellipticity goes as **ℓ²**. The reference
+exponents against field radius are therefore **2 for coma and 4 for astigmatism**.
+Converted properly the measurements are blur exponents of **0.56–1.90, clustering
+near 1** — consistent with coma and never reaching astigmatism. The
+radial↔tangential sign flip that would establish astigmatism is ABSENT (the four
+negative R values are inner annuli at 0.1–1.5 SE). So the coma reading stands as
+UNRESOLVED-but-consistent, not retired. **Standing rule from this: state which
+quantity's exponent you are quoting, every time.**
 
 ## `star-neutral-colour` — the narrowband gap
 
