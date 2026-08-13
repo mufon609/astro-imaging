@@ -1,0 +1,26 @@
+{
+ "_what": "SOURCE-SIDE ingest verification for july27 \u2014 the first night in this corpus where the source hashes exist, so the first whose ingest can be verified against anything other than itself.",
+ "why_it_matters": "the registry records aug09's ingest as 'local-hash verified only; no source-side hashes exist for that night \u2014 a fact about the record, not fixable after the fact'. A local re-hash proves only that a file has not changed since it was copied; it cannot detect a corruption that happened DURING the copy. july27 closes that gap for one night, so the corpus's ingest provenance is no longer uniformly caveated.",
+ "manifest": "datasets/july27/source_manifest.sha256",
+ "manifest_sha256": "d292f557f945e5092ec40400bf39b416a096d650cdb9dfe20d0b94073ba8e99a",
+ "manifest_entries": 735,
+ "method": "sha256sum -c run from sessions/july27/ against the source-side manifest, every entry, no sampling",
+ "result": {
+  "OK": 735,
+  "FAILED": 0,
+  "MISSING": 0
+ },
+ "per_directory_OK": {
+  "darks": 200,
+  "set-01": 282,
+  "set-02": 253
+ },
+ "verdict": "735 of 735 VERIFIED against source-side hashes. Zero failures, zero missing. The staged copy is bit-identical to the source.",
+ "corroborating_facts_checked_at_the_same_time": {
+  "frame_counts_match_the_acquisition_records": "darks 200, set-01 282, set-02 253 \u2014 set counts equal exif.frames in each set's acquisition.json",
+  "the_darks_MATCH_the_lights_and_are_not_borrowed": "first dark reads 3.0 s / ISO 1600 / f4.0 / 70 mm, identical to both light sets. A dark library from another night at another exposure is the common failure and it is excluded here by measurement.",
+  "exposure_is_the_point_of_this_night": "3.0 s against the rest of the corpus's 2.5 s \u2014 the exposure lever that makes the trail amplitude pinnable.",
+  "cadence_differs_and_must_be_carried_into_the_geometry": "6.0 s against aug06's 3.0 s, so the sky sweeps twice as far between frames. This does NOT touch the in-exposure trail, which is what the scaling test reads, but it changes drift-per-frame and the framing intersection."
+ },
+ "what_this_does_NOT_establish": "that the SOURCE was itself uncorrupted. A source-side manifest verifies the transfer, not the origin. That is the strongest claim available and it is stronger than any other night in this corpus has."
+}
