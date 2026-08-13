@@ -1,0 +1,418 @@
+{
+ "what": "PSFEx 3.21.1 field model against the in-house spin-2 fit, on the SAME three single RAWs the corner work used (aug06/set-01 DSC_6239, DSC_6339, DSC_6439)",
+ "scope": "MEASUREMENT, not adoption. No homogenisation, nothing touching a deliverable.",
+ "chain": "Siril debayer + green-plane split -> source-extractor 2.28.2 with VIGNET(35,35) -> PSFEx 3.21.1 -> in-house reconstruction of PSFEx's own model, adaptive second moments, and the same fits used on Siril's measurements",
+ "psfex_provenance": "official Debian bookworm binary, sha256 749bd883d8a122a14d06e47f138cb36eae862e4090126154d1e2de3b8a96ab78, verified against the archive Packages index; extracted into a scratchpad with its deps, nothing installed system-wide",
+ "degrees": {
+  "deg2": {
+   "g_00001": {
+    "psfex_chi2_dof": 1.49072546,
+    "psfex_accepted": 2053,
+    "psf_samp": 0.48760322,
+    "n_compared": 3536,
+    "psfex_median_fwhm_px": 2.122157216428614,
+    "siril_median_fwhm_px": 2.52,
+    "corr_e1_psfex_vs_siril": 0.036687186598672324,
+    "corr_e2_psfex_vs_siril": 0.11076810326906089,
+    "psfex_field_fit": {
+     "label": "g_00001 deg2",
+     "n": 3536,
+     "fixed_amplitude": 0.025401158961045604,
+     "fixed_amplitude_SE_units": 47.05532480056285,
+     "fixed_direction_deg": -37.31184984701401,
+     "radial_R_flat": 0.0022941987401619846,
+     "radial_flat_SE_units": 4.852861774143152,
+     "radial_R_rho": 0.00010668418763152762,
+     "radial_rho_SE_units": 0.08334844462646177,
+     "free_centre_offset_px": [
+      9799.0374282707,
+      3380.9934073919358
+     ],
+     "free_centre_offset_magnitude_px": 10365.917756835512,
+     "free_centre_1sigma_px": [
+      175.2851485983595,
+      70.65789216427244
+     ],
+     "F_free_centre_over_centred": 4251.088705717368
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00001 siril",
+     "n": 3536,
+     "fixed_amplitude": 0.05618964641088123,
+     "fixed_amplitude_SE_units": 15.024109041879996,
+     "fixed_direction_deg": -29.575265393661297,
+     "radial_R_flat": 0.03232832464744687,
+     "radial_flat_SE_units": 8.256139061592357,
+     "radial_R_rho": 0.0782692852546262,
+     "radial_rho_SE_units": 10.185225955688622,
+     "free_centre_offset_px": [
+      423.04885916007834,
+      -559.686881385051
+     ],
+     "free_centre_offset_magnitude_px": 701.5837387163189,
+     "free_centre_1sigma_px": [
+      87.76239794363711,
+      115.68404559828764
+     ],
+     "F_free_centre_over_centred": 23.865129570220347
+    }
+   },
+   "g_00005": {
+    "psfex_chi2_dof": 1.44444619,
+    "psfex_accepted": 2165,
+    "psf_samp": 0.51084346,
+    "n_compared": 3405,
+    "psfex_median_fwhm_px": 2.1775404036398185,
+    "siril_median_fwhm_px": 2.55,
+    "corr_e1_psfex_vs_siril": -0.03009532635703662,
+    "corr_e2_psfex_vs_siril": 0.09533260206111888,
+    "psfex_field_fit": {
+     "label": "g_00005 deg2",
+     "n": 3405,
+     "fixed_amplitude": 0.05764122605088089,
+     "fixed_amplitude_SE_units": 165.01497304405336,
+     "fixed_direction_deg": 23.579462711664817,
+     "radial_R_flat": -0.009691565370981287,
+     "radial_flat_SE_units": 20.237480013946996,
+     "radial_R_rho": -0.03220505047645856,
+     "radial_rho_SE_units": 27.87157429123451,
+     "free_centre_offset_px": [
+      -847.5877722636105,
+      1362.265793178904
+     ],
+     "free_centre_offset_magnitude_px": 1604.4229875429169,
+     "free_centre_1sigma_px": [
+      29.441243026094856,
+      54.76632273560765
+     ],
+     "F_free_centre_over_centred": 1050.1042812369471
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00005 siril",
+     "n": 3405,
+     "fixed_amplitude": 0.07391214629885023,
+     "fixed_amplitude_SE_units": 22.4245423389748,
+     "fixed_direction_deg": 11.935723035565585,
+     "radial_R_flat": 0.04026510277965649,
+     "radial_flat_SE_units": 10.750820986368751,
+     "radial_R_rho": 0.10332626699473704,
+     "radial_rho_SE_units": 13.946364746139668,
+     "free_centre_offset_px": [
+      316.05953085554347,
+      -442.13708098055145
+     ],
+     "free_centre_offset_magnitude_px": 543.4876497425024,
+     "free_centre_1sigma_px": [
+      72.25775855103156,
+      78.70078197342767
+     ],
+     "F_free_centre_over_centred": 31.02001496496478
+    }
+   },
+   "g_00009": {
+    "psfex_chi2_dof": 1.37031289,
+    "psfex_accepted": 2175,
+    "psf_samp": 0.52958804,
+    "n_compared": 3616,
+    "psfex_median_fwhm_px": 2.241447758111593,
+    "siril_median_fwhm_px": 2.56,
+    "corr_e1_psfex_vs_siril": -0.03431660091984833,
+    "corr_e2_psfex_vs_siril": -0.01613134656141324,
+    "psfex_field_fit": {
+     "label": "g_00009 deg2",
+     "n": 3616,
+     "fixed_amplitude": 0.06333514705612638,
+     "fixed_amplitude_SE_units": 115.2597952321876,
+     "fixed_direction_deg": 25.396088835178205,
+     "radial_R_flat": -0.019907837747794012,
+     "radial_flat_SE_units": 32.8292315678385,
+     "radial_R_rho": -0.06172376180792376,
+     "radial_rho_SE_units": 39.076925153345535,
+     "free_centre_offset_px": [
+      -534.7246525224487,
+      742.2898558176048
+     ],
+     "free_centre_offset_magnitude_px": 914.8358782125754,
+     "free_centre_1sigma_px": [
+      18.451446393832644,
+      28.18272776769726
+     ],
+     "F_free_centre_over_centred": 839.9863520045653
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00009 siril",
+     "n": 3616,
+     "fixed_amplitude": 0.0780103798765407,
+     "fixed_amplitude_SE_units": 22.490007218776213,
+     "fixed_direction_deg": 11.57479846260421,
+     "radial_R_flat": 0.03993247583957003,
+     "radial_flat_SE_units": 11.119696889067963,
+     "radial_R_rho": 0.10503345819641988,
+     "radial_rho_SE_units": 14.594947342880518,
+     "free_centre_offset_px": [
+      282.3224246810055,
+      -454.5954417467642
+     ],
+     "free_centre_offset_magnitude_px": 535.1289257129516,
+     "free_centre_1sigma_px": [
+      72.8903776742657,
+      65.38934275661903
+     ],
+     "F_free_centre_over_centred": 25.966171908867796
+    }
+   },
+   "POOLED": {
+    "n": 10557,
+    "corr_e1": 0.02933985012603831,
+    "corr_e2": 0.15604787937695414,
+    "psfex_field_fit": {
+     "label": "pooled psfex deg2",
+     "n": 10557,
+     "fixed_amplitude": 0.036198543894849146,
+     "fixed_amplitude_SE_units": 90.4442725086919,
+     "fixed_direction_deg": 18.822039801057542,
+     "radial_R_flat": -0.00889981584008924,
+     "radial_flat_SE_units": 21.303994914893405,
+     "radial_R_rho": -0.031188021625409373,
+     "radial_rho_SE_units": 31.461071923226584,
+     "free_centre_offset_px": [
+      4159.224394488086,
+      530.901636184783
+     ],
+     "free_centre_offset_magnitude_px": 4192.970797776734,
+     "free_centre_1sigma_px": [
+      102.46818364258,
+      39.3457846756826
+     ],
+     "F_free_centre_over_centred": 1376.9598373547988
+    },
+    "siril_field_fit": {
+     "label": "pooled siril",
+     "n": 10557,
+     "fixed_amplitude": 0.05612107219792756,
+     "fixed_amplitude_SE_units": 28.830024855874345,
+     "fixed_direction_deg": 2.053730056333835,
+     "radial_R_flat": 0.03776824645979943,
+     "radial_flat_SE_units": 17.563168842977912,
+     "radial_R_rho": 0.09616657210195051,
+     "radial_rho_SE_units": 21.385456234597385,
+     "free_centre_offset_px": [
+      335.31207006186423,
+      -477.7751126329665
+     ],
+     "free_centre_offset_magnitude_px": 583.6979035259733,
+     "free_centre_1sigma_px": [
+      45.16153805670891,
+      44.76354604978531
+     ],
+     "F_free_centre_over_centred": 79.15467972263248
+    }
+   }
+  },
+  "deg3": {
+   "g_00001": {
+    "psfex_chi2_dof": 1.4801881,
+    "psfex_accepted": 2065,
+    "psf_samp": 0.48760322,
+    "n_compared": 3536,
+    "psfex_median_fwhm_px": 2.124756854940525,
+    "siril_median_fwhm_px": 2.52,
+    "corr_e1_psfex_vs_siril": 0.10761205836666145,
+    "corr_e2_psfex_vs_siril": 0.1554875234480846,
+    "psfex_field_fit": {
+     "label": "g_00001 deg3",
+     "n": 3536,
+     "fixed_amplitude": 0.025448379881767645,
+     "fixed_amplitude_SE_units": 33.95564070220514,
+     "fixed_direction_deg": -35.170860181074836,
+     "radial_R_flat": 0.004454933906860543,
+     "radial_flat_SE_units": 6.594019742191676,
+     "radial_R_rho": 0.005403821641201605,
+     "radial_rho_SE_units": 3.37290784235278,
+     "free_centre_offset_px": [
+      2568.432971258013,
+      116.84330039030283
+     ],
+     "free_centre_offset_magnitude_px": 2571.089318691858,
+     "free_centre_1sigma_px": [
+      62.88985716319497,
+      40.362352448603346
+     ],
+     "F_free_centre_over_centred": 1115.668716202136
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00001 siril",
+     "n": 3536,
+     "fixed_amplitude": 0.05618964641088123,
+     "fixed_amplitude_SE_units": 15.024109041879996,
+     "fixed_direction_deg": -29.575265393661297,
+     "radial_R_flat": 0.03232832464744687,
+     "radial_flat_SE_units": 8.256139061592357,
+     "radial_R_rho": 0.0782692852546262,
+     "radial_rho_SE_units": 10.185225955688622,
+     "free_centre_offset_px": [
+      423.04885916007834,
+      -559.686881385051
+     ],
+     "free_centre_offset_magnitude_px": 701.5837387163189,
+     "free_centre_1sigma_px": [
+      87.76239794363711,
+      115.68404559828764
+     ],
+     "F_free_centre_over_centred": 23.865129570220347
+    }
+   },
+   "g_00005": {
+    "psfex_chi2_dof": 1.42935016,
+    "psfex_accepted": 2170,
+    "psf_samp": 0.51084346,
+    "n_compared": 3405,
+    "psfex_median_fwhm_px": 2.1858229553208917,
+    "siril_median_fwhm_px": 2.55,
+    "corr_e1_psfex_vs_siril": 0.05881949254466263,
+    "corr_e2_psfex_vs_siril": 0.10918579854347858,
+    "psfex_field_fit": {
+     "label": "g_00005 deg3",
+     "n": 3405,
+     "fixed_amplitude": 0.057274764297725655,
+     "fixed_amplitude_SE_units": 114.17648625631016,
+     "fixed_direction_deg": 24.26626686787828,
+     "radial_R_flat": -0.008866323594660469,
+     "radial_flat_SE_units": 13.607646490687529,
+     "radial_R_rho": -0.03180519067351918,
+     "radial_rho_SE_units": 20.358991310362587,
+     "free_centre_offset_px": [
+      -911.3267368540237,
+      944.270700837842
+     ],
+     "free_centre_offset_magnitude_px": 1312.3123019181799,
+     "free_centre_1sigma_px": [
+      32.815416942106005,
+      55.86377661401074
+     ],
+     "F_free_centre_over_centred": 766.4959903459369
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00005 siril",
+     "n": 3405,
+     "fixed_amplitude": 0.07391214629885023,
+     "fixed_amplitude_SE_units": 22.4245423389748,
+     "fixed_direction_deg": 11.935723035565585,
+     "radial_R_flat": 0.04026510277965649,
+     "radial_flat_SE_units": 10.750820986368751,
+     "radial_R_rho": 0.10332626699473704,
+     "radial_rho_SE_units": 13.946364746139668,
+     "free_centre_offset_px": [
+      316.05953085554347,
+      -442.13708098055145
+     ],
+     "free_centre_offset_magnitude_px": 543.4876497425024,
+     "free_centre_1sigma_px": [
+      72.25775855103156,
+      78.70078197342767
+     ],
+     "F_free_centre_over_centred": 31.02001496496478
+    }
+   },
+   "g_00009": {
+    "psfex_chi2_dof": 1.36388717,
+    "psfex_accepted": 2200,
+    "psf_samp": 0.52958804,
+    "n_compared": 3616,
+    "psfex_median_fwhm_px": 2.235821452603215,
+    "siril_median_fwhm_px": 2.56,
+    "corr_e1_psfex_vs_siril": 0.027955216383678653,
+    "corr_e2_psfex_vs_siril": 0.0030452571990821327,
+    "psfex_field_fit": {
+     "label": "g_00009 deg3",
+     "n": 3616,
+     "fixed_amplitude": 0.060334103337463175,
+     "fixed_amplitude_SE_units": 98.2419567649748,
+     "fixed_direction_deg": 26.788296073878396,
+     "radial_R_flat": -0.019285950461232965,
+     "radial_flat_SE_units": 31.263823620616513,
+     "radial_R_rho": -0.06036236985975241,
+     "radial_rho_SE_units": 41.17765706965327,
+     "free_centre_offset_px": [
+      -730.9012014756904,
+      474.4252511790528
+     ],
+     "free_centre_offset_magnitude_px": 871.3758576383185,
+     "free_centre_1sigma_px": [
+      19.53826366062283,
+      23.906376665109004
+     ],
+     "F_free_centre_over_centred": 945.8141223896981
+    },
+    "siril_same_stars_fit": {
+     "label": "g_00009 siril",
+     "n": 3616,
+     "fixed_amplitude": 0.0780103798765407,
+     "fixed_amplitude_SE_units": 22.490007218776213,
+     "fixed_direction_deg": 11.57479846260421,
+     "radial_R_flat": 0.03993247583957003,
+     "radial_flat_SE_units": 11.119696889067963,
+     "radial_R_rho": 0.10503345819641988,
+     "radial_rho_SE_units": 14.594947342880518,
+     "free_centre_offset_px": [
+      282.3224246810055,
+      -454.5954417467642
+     ],
+     "free_centre_offset_magnitude_px": 535.1289257129516,
+     "free_centre_1sigma_px": [
+      72.8903776742657,
+      65.38934275661903
+     ],
+     "F_free_centre_over_centred": 25.966171908867796
+    }
+   },
+   "POOLED": {
+    "n": 10557,
+    "corr_e1": 0.09102904014608829,
+    "corr_e2": 0.16952512180657542,
+    "psfex_field_fit": {
+     "label": "pooled psfex deg3",
+     "n": 10557,
+     "fixed_amplitude": 0.03535252097278858,
+     "fixed_amplitude_SE_units": 79.23383545560645,
+     "fixed_direction_deg": 19.560056699604136,
+     "radial_R_flat": -0.007684073821943829,
+     "radial_flat_SE_units": 16.67523150152701,
+     "radial_R_rho": -0.02884192344223863,
+     "radial_rho_SE_units": 27.318992115893835,
+     "free_centre_offset_px": [
+      -1023.9492799153898,
+      575.837991785937
+     ],
+     "free_centre_offset_magnitude_px": 1174.7601970714304,
+     "free_centre_1sigma_px": [
+      25.21934292196697,
+      42.614566633764646
+     ],
+     "F_free_centre_over_centred": 1221.5138207351783
+    },
+    "siril_field_fit": {
+     "label": "pooled siril",
+     "n": 10557,
+     "fixed_amplitude": 0.05612107219792756,
+     "fixed_amplitude_SE_units": 28.830024855874345,
+     "fixed_direction_deg": 2.053730056333835,
+     "radial_R_flat": 0.03776824645979943,
+     "radial_flat_SE_units": 17.563168842977912,
+     "radial_R_rho": 0.09616657210195051,
+     "radial_rho_SE_units": 21.385456234597385,
+     "free_centre_offset_px": [
+      335.31207006186423,
+      -477.7751126329665
+     ],
+     "free_centre_offset_magnitude_px": 583.6979035259733,
+     "free_centre_1sigma_px": [
+      45.16153805670891,
+      44.76354604978531
+     ],
+     "F_free_centre_over_centred": 79.15467972263248
+    }
+   }
+  }
+ }
+}

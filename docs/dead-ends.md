@@ -2305,19 +2305,29 @@ SILENT — pin the state, never inherit it):
   the first exposure after setup looks like, and it reproduces across detection
   depth and across both nights.
 
-- **SIRIL REPORTS X, Y AND `angle` ALL IN THE FITS BOTTOM-UP FRAME, CONSISTENTLY —
-  MEASURED, NOT INFERRED.** Synthetic trailed stars planted at a known position
-  angle of **+20.0°** in array coordinates come back from `findstar` at
-  **−20.0° at every L ≥ 0.4 px** (−19.89 to −20.11 across the sweep), an exact
-  sign flip. The reported Y is flipped with it: of 400 planted stars, **400 match
-  under y → H − y and 0 match as planted**. So the flip is in the frame, not in
-  the angle alone, and any quantity built from Siril's own X, Y and `angle`
-  TOGETHER — field azimuth, θ − φ, the radial/fixed decomposition — is unaffected.
-  What IS inverted is handedness and anything compared against a SKY-derived
-  direction (a drift bearing, a parallactic angle, an RA axis): convert through
-  the same flip or the sign of the answer is wrong. Note the reported Y is
-  `H − y_0based`, i.e. FITS 1-based indexing, so there is a 1 px offset on top of
-  the flip.
+- **SIRIL REPORTS X, Y AND `angle` IN A TOP-DOWN FRAME — THE MIRROR OF THE FITS
+  BOTTOM-UP CONVENTION — AND ALL THREE ARE MUTUALLY CONSISTENT.** Two independent
+  measurements, which is why the label can be trusted:
+  (1) synthetic stars planted at a known **+20.0°** come back from `findstar` at
+  **−20.0° at every L ≥ 0.4 px** (−19.89 to −20.11 across an L sweep), and the
+  reported Y flips with the angle — of 400 planted stars, **400 match under
+  y → H − y and 0 match as planted** (`psf_calib.py`);
+  (2) `source-extractor` 2.28.2, whose `Y_IMAGE` is standard FITS bottom-up, run
+  on the same frame: **300 of Siril's 300 brightest match under y → H − y**, and
+  only 2 of 300 match as reported (`psfex_work/`).
+  Since a FITS file's first data row IS the bottom row, FITS y increases with the
+  array row index while Siril's y decreases with it. **So Siril is the mirror of
+  FITS, not an instance of it** — an earlier version of this entry labelled it
+  "the FITS bottom-up frame", which is exactly backwards and would hand the wrong
+  sign to anyone bringing in a WCS.
+  **What is load-bearing is the mutual consistency, and that is unchanged:** any
+  quantity built from Siril's own X, Y and `angle` TOGETHER — field azimuth,
+  θ − φ, the radial/fixed decomposition, a drift bearing cross-matched from
+  findstar lists — is unaffected by the frame entirely. What inverts is handedness
+  and any comparison against something measured in FITS coordinates: a WCS/CD
+  matrix, a `source-extractor` catalogue, a parallactic angle. Convert through the
+  mirror or the sign of the answer is wrong. There is also a 1 px offset from FITS
+  1-based indexing on top of the mirror.
   NOT EVIDENCE OF ABSENCE.** `mechanism_and_specs.json`'s own model-free sided
   bands on the MAJOR axis sign-flip across |x| (−0.12, −0.17, −0.08, **+0.14,
   +0.11**) while its linear-in-x regression on the same stars reads 0.13 SE and

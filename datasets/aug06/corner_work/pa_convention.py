@@ -359,7 +359,13 @@ def fit_free_centre(x, y, e1, e2, W, H, grid=25):
     rss_free, beta_free = _rss_at_centre(x, y, e1, e2, x0b, y0b, norm)
 
     n = len(x)
-    F = ((rss_centred - rss_free) / 2.0) / (rss_free / (2 * n - 5))
+    # a NOISELESS field fits exactly, so rss_free can be 0 and the F ratio is
+    # undefined rather than infinite. Only a fixture reaches this, but a fit that
+    # crashes on perfect data is a fit that cannot be tested on perfect data.
+    if rss_free <= 0:
+        F = float("inf") if rss_centred > 0 else 0.0
+    else:
+        F = ((rss_centred - rss_free) / 2.0) / (rss_free / (2 * n - 5))
     # curvature of the profiled RSS at the optimum, in px — the LEVER. A flat
     # direction here means the centre is not identified, whatever the optimiser
     # reported.
@@ -371,7 +377,9 @@ def fit_free_centre(x, y, e1, e2, W, H, grid=25):
            - 2 * rss_free
            + _rss_at_centre(x, y, e1, e2, x0b, y0b - h, norm)[0]) / h ** 2
     sig2 = rss_free / (2 * n - 5)
-    # 1-sigma half-width where the profiled RSS rises by sig2
+    # 1-sigma half-width where the profiled RSS rises by sig2. A noiseless field
+    # has sig2 = 0 and therefore a zero-width interval, which is correct: the
+    # centre is exactly determined.
     sx_px = float(np.sqrt(2 * sig2 / d2x)) if d2x > 0 else float("inf")
     sy_px = float(np.sqrt(2 * sig2 / d2y)) if d2y > 0 else float("inf")
 

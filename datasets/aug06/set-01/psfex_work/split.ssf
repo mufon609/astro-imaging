@@ -1,0 +1,8 @@
+requires 1.4.4
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/drift_work
+load d_00001
+split /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00001_r /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/g_00001 /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00001_b
+load d_00005
+split /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00005_r /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/g_00005 /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00005_b
+load d_00009
+split /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00009_r /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/g_00009 /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/psfex_work/x_00009_b
