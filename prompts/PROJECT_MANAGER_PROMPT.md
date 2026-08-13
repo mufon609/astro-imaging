@@ -164,6 +164,46 @@ novel. What remains after this arc's pruning:
   of them; hand them the wording instead. `CLAUDE.md` is the owner's, never a
   peer's to change and never yours on a peer's say-so.
 
+## The four-session team — AVAILABLE, never the default (owner-specified, NOT YET BUILT)
+
+**Do not reach for this because it exists.** Most work is one session, or the
+two-session pattern `CLAUDE.md` already authorises. This is the shape to use when
+a question is big enough that the blind region matters — and the owner was
+explicit that no PM session should be steered into it by default.
+
+Roles, and the point of each:
+
+- **PM (you)** — longest-lived. Writes briefs, audits by re-execution, holds the
+  queue and the owner's decisions.
+- **WORKER** — temporary, one item. Runs the experiment: builds, measures, may
+  research independently.
+- **ADVERSARY** — temporary. Its job is the blind region: attack the PREMISES the
+  worker and PM took for granted, not the findings they argued over. Reviews
+  inherit the frame; this role exists to refuse it. **This is (c) and it is the
+  point of the whole structure.**
+- **ORACLE** — lives as long as its context stays focused on present and future
+  work; retire it when it is mostly holding the past. **Researches, analyzes,
+  and NEVER runs tests** — it reads results others produce. It is the standing
+  source of truth across perspectives. **This is (d).**
+
+Topology, which is the load-bearing part:
+
+- Worker ↔ Oracle and Adversary ↔ Oracle talk **freely**; that is where research
+  happens.
+- Oracle → PM only for **major summaries**, or whenever the PM pings it. PM → Oracle
+  likewise. Keep the PM out of the research traffic.
+- **The Oracle pings proactively.** When it sees two sessions holding conflicting
+  assumptions, it researches the point and messages BOTH with the answer — it is
+  not a passive lookup, and this is what makes it more than a shared notebook.
+- Worker and Adversary may each run their own tests; the Oracle may not. That
+  separation keeps the analyst independent of what it analyses — the same reason
+  an instrument must be independent of what it measures.
+
+**Build order (owner-set): (d) before (c).** The Oracle comes first, because an
+adversary without a research source argues from priors, which is the failure the
+adversary exists to fix. Neither is built yet; `CLAUDE.md`'s tripwire is the
+interim mechanism — premises get logged UNCHECKED and wait for one of these.
+
 ## How to run the role
 
 - Briefs follow the house pattern: attackable claims verified live before
