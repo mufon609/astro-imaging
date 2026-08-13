@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# prepare-commit-msg — stamp the STAGED numstat into every commit message.
+#
+# WHY THIS EXISTS. CLAUDE.md requires counting the diff before committing a file,
+# because a peer session's uncommitted work sits in the same tree and a commit
+# that names one explicit path can still publish 16 lines that are not yours.
+# The rule also said to record the number so a later reader can verify the check
+# ran. That recording step required a human to move a number from a terminal into
+# a commit message, and it failed FIVE times in one session, by the session that
+# wrote the rule, while actively watching for it:
+#
+#   - three times by TYPING a remembered number (16/3 for 15/0, 43/0 for 40/0,
+#     7/2 for 6/1) — transcription across a gap, which has a nonzero error rate;
+#   - twice by SHELL QUOTING eating the variable — commit messages here contain
+#     backticks and `$`, so they are written with a quoted heredoc (<<'EOF')
+#     which by design does not expand `$NUM`, and the literal text landed in the
+#     message. The fix for the first failure mode was structurally incompatible
+#     with how the messages are written.
+#
+# A number git computes and writes itself passes through neither hands nor a
+# heredoc, so both modes become impossible rather than less likely.
+#
+# IT ALSO READS WHAT IS ACTUALLY STAGED, not what the author believes is staged,
+# which is the case that matters. The commit that swept a peer's register rows
+# looked correct to its author; the count did not.
+#
+# Two outputs, deliberately:
+#   1. appended to the message      -> the record is true without anyone typing it
+#   2. printed to stderr            -> visible in terminal output even for
+#                                      `git commit -F`, where the author never
+#                                      sees the final message. This is the half
+#                                      that can PREVENT rather than document:
+#                                      "17 insertions" for a one-line edit has to
+#                                      be ignored on purpose.
+#
+# Install: scripts/setup/install_hooks.sh   (machine-local git state is not
+# tracked by git, so the source lives here and is installed — same pattern as the
+# darktable styles and the fitted lens model.)
+
+set -euo pipefail
+
+MSG=$1
+SRC=${2:-}
+
+# merges and squashes get their message from git; nothing to stamp
+case "$SRC" in merge|squash) exit 0 ;; esac
+
+# Drop any block a previous run left, so --amend re-stamps rather than going
+# stale. The marker line, then the indented "<add>\t<del>\t<path>" rows.
+sed -i '/^Staged numstat (git, not typed)/d' "$MSG"
+sed -i '/^  [0-9-]\{1,\}\t[0-9-]\{1,\}\t/d' "$MSG"
+
+STAT=$(git diff --cached --numstat 2>/dev/null || true)
+[ -n "$STAT" ] || exit 0
+
+{
+  printf '\nStaged numstat (git, not typed):\n'
+  printf '%s\n' "$STAT" | sed 's/^/  /'
+} >> "$MSG"
+
+# the preventive half — goes to the terminal, not the message
+{
+  printf '\n[prepare-commit-msg] staging %s file(s):\n' "$(printf '%s\n' "$STAT" | wc -l | tr -d ' ')"
+  printf '%s\n' "$STAT" | awk -F'\t' '{printf "    +%-7s -%-7s %s\n", $1, $2, $3}'
+} >&2
