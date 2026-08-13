@@ -1,0 +1,31 @@
+{
+ "_what": "The OBSERVING SITE for this rig, in the industry-standard keys. Every acquisition record derives its `site` block from this file, so the fact is rebuildable from a tracked file rather than living in a chat message or a machine-local config (CLAUDE.md, Environment: a machine-local value nobody can rebuild has already cost this repo a shipped optical model).",
+ "_standard": "SITELAT / SITELONG / SITEELEV are SIRIL's own header keys, verified present in the installed 1.4.4 binary, so a value written here round-trips through the tool that consumes it. OBSGEO-X/Y/Z is the FITS-standard geocentric form (WCS Paper III; FITS 4.0 sec 8.4) and is DERIVED from the three above, never entered by hand. Both are emitted: the Siril keys because the toolchain reads them, the OBSGEO triple because it is the standard other software expects.",
+ "_override": "A session shot somewhere else overrides this with datasets/<session>/site.json in the same schema. There is no silent default: a session with neither file gets a null site block that says so, and nothing downstream may assume a location.",
+
+ "sitelat_deg": REDACTED_SITELAT,
+ "sitelong_deg": REDACTED_SITELONG,
+ "siteelev_m": null,
+
+ "sitelat_sexagesimal": "REDACTED_SITE_DMS_LAT",
+ "sitelong_sexagesimal": "REDACTED_SITE_DMS_LON",
+
+ "sign_convention": "SITELONG is POSITIVE EAST of Greenwich, which is the FITS and Siril convention and the OPPOSITE of the one some planetarium software uses. This site is in New Jersey, USA, so the value is NEGATIVE. A sign error here is silent and inverts every hour angle derived from it.",
+
+ "provenance": {
+  "source": "owner-supplied ground truth",
+  "chain": "owner -> chat -> peer-session transcription -> BACKLOG.md (commit 4686cec) -> this file",
+  "status": "TRANSCRIBED, UNVERIFIED",
+  "why_that_matters": "no step in that chain has an independent check, and a coordinate typo would be silent and load-bearing — it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the check below passes.",
+  "the_check_that_closes_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN — it needs PER-FRAME plate solves, which do not exist yet, so it is a real build rather than a fold-in. Until it runs, `verified` stays false.",
+  "verified": false,
+  "bounding_check_that_HAS_run": {
+   "script": "scripts/setup/verify_site.py — re-runnable; record at scripts/setup/site_verification.json",
+   "what_it_is": "a FALSIFICATION against 20 solved products carrying DATE-OBS and a plate-solved centre, not a derivation. It asks whether the supplied coordinates put the photographed targets where a deliberate observing plan would.",
+   "result": "every target lands 63.4-86.2 deg above the horizon within 2.37 h of the meridian, and 2 of 5 plausible transcription errors are REFUTED outright by putting a photographed target BELOW the horizon (longitude sign flipped, -5.7 deg; lat/long transposed, -52.3 deg). A shifted decimal shows up as a 35.6 deg altitude shift.",
+   "THE_LIMIT_read_this_before_quoting_the_result": "it has NO power against sub-degree digit errors. MEASURED: transposing a digit in the latitude (REDACTED_SITELAT -> REDACTED_SITELAT_PLUS, a 0.63 deg error) moves every altitude by only 0.53 deg, and the same in the longitude by 0.07 deg. So this bounds the transcription at roughly the DEGREE level and no better, which is why it does not set `verified`."
+  }
+ },
+
+ "siteelev_note": "The owner supplied LATITUDE and LONGITUDE only. Elevation is NOT known and is NOT invented — it stays null, and the derived OBSGEO triple is computed at h = 0 m with that assumption flagged in the record. The resulting geocentric error is at most the true elevation in metres (order 1e-5 of Earth's radius), which is negligible for altitude, hour angle and field rotation, and would NOT be negligible for anything needing true topocentric parallax."
+}

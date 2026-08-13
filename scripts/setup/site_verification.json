@@ -1,0 +1,72 @@
+{
+ "supplied": {
+  "sitelat_deg": REDACTED_SITELAT,
+  "sitelong_deg": REDACTED_SITELONG
+ },
+ "n_solved_products": 23,
+ "altitude_range_deg": [
+  63.406095704929506,
+  86.21185091715014
+ ],
+ "max_abs_hour_angle_h": 2.3709983380945037,
+ "all_above_horizon": true,
+ "perturbations": [
+  {
+   "label": "longitude SIGN flipped",
+   "lat": REDACTED_SITELAT,
+   "lon": REDACTED_SITELONG,
+   "altitude_range_deg": [
+    -5.678192596849868,
+    14.44589678985774
+   ],
+   "max_altitude_shift_deg": 88.99134415579012,
+   "refuted_target_below_horizon": true
+  },
+  {
+   "label": "lat/long TRANSPOSED",
+   "lat": REDACTED_SITELONG,
+   "lon": REDACTED_SITELAT,
+   "altitude_range_deg": [
+    -52.26952149283824,
+    -38.37931856572817
+   ],
+   "max_altitude_shift_deg": 134.1658251811421,
+   "refuted_target_below_horizon": true
+  },
+  {
+   "label": "latitude decimal shifted",
+   "lat": REDACTED_SITELAT_DIV10,
+   "lon": REDACTED_SITELONG,
+   "altitude_range_deg": [
+    37.95963891850977,
+    51.286343045564344
+   ],
+   "max_altitude_shift_deg": 35.610158557411616,
+   "refuted_target_below_horizon": false
+  },
+  {
+   "label": "latitude digit transposed",
+   "lat": REDACTED_SITELAT_PLUS,
+   "lon": REDACTED_SITELONG,
+   "altitude_range_deg": [
+    63.65762061303024,
+    86.74376198020475
+   ],
+   "max_altitude_shift_deg": 0.5319110630546078,
+   "refuted_target_below_horizon": false
+  },
+  {
+   "label": "longitude digit transposed",
+   "lat": REDACTED_SITELAT,
+   "lon": REDACTED_SITELONG_PLUS,
+   "altitude_range_deg": [
+    63.468953130882866,
+    86.2455834517596
+   ],
+   "max_altitude_shift_deg": 0.0683247747261646,
+   "refuted_target_below_horizon": false
+  }
+ ],
+ "verdict": "The supplied coordinates put every photographed target 63.4-86.2 deg above the horizon within 2.37 h of the meridian, which is consistent with a deliberate observing plan. 2 of 5 plausible transcription errors are REFUTED outright (target below the horizon). 2 are NOT detectable here, shifting every altitude by under 1 deg \u2014 so this bounds the transcription at roughly the DEGREE level and no better. It is not a derivation and does not set verified=true.",
+ "what_would_close_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 until it is, this record's `verified` stays false."
+}

@@ -17,5 +17,23 @@
   "frames": 507,
   "time_span_s": 1837.9
  },
- "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it."
+ "site": {
+  "SITELAT": REDACTED_SITELAT,
+  "SITELONG": REDACTED_SITELONG,
+  "SITEELEV": null,
+  "OBSGEO_XYZ_m": [
+   1302228.0107519538,
+   -4710388.467487734,
+   REDACTED_OBSGEO_Z
+  ],
+  "siteelev_assumed_zero_for_obsgeo": true,
+  "sitelong_sign": "positive EAST (FITS/Siril convention)",
+  "resolved_from": "rig default (scripts/setup/site.json)",
+  "source": "owner-supplied ground truth",
+  "status": "TRANSCRIBED, UNVERIFIED",
+  "verified": false,
+  "_unverified": "no step in that chain has an independent check, and a coordinate typo would be silent and load-bearing \u2014 it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the check below passes.",
+  "_check_that_closes_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 until it is, this record's `verified` stays false."
+ },
+ "_note": "`mount` is the one acquisition fact EXIF cannot record: declared by a human or derived from the measured drift signature \u2014 `mount_source` says which; `exif` is auto-derived by scripts/lib/acquisition.py \u2014 do not hand-edit it. `site` is resolved from scripts/setup/site.json (or a per-session datasets/<session>/site.json override) and carries its own provenance \u2014 hand-edit the SOURCE file, never this copy."
 }

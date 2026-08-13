@@ -21,6 +21,16 @@ shot, split by provenance and kept honest:
           (that is an unstable instrument). Only when the instruments disagree,
           or nothing measured, does resolve() stop and ask — the one mount case
           a human is actually needed for.
+  site    WHERE it was shot, in the industry-standard keys — SITELAT / SITELONG
+          / SITEELEV (Siril's own, so a value round-trips through the tool that
+          reads it) plus the DERIVED FITS-standard OBSGEO-X/Y/Z triple. Resolved
+          from the tracked `scripts/setup/site.json`, overridable per session by
+          `datasets/<session>/site.json`, and NEVER defaulted: a session with
+          neither gets a null block that says so. Carries its own provenance,
+          including whether the coordinates have been independently verified —
+          an owner-supplied coordinate transcribed by hand has no check in its
+          chain, and a typo in it is silent and propagates into every altitude,
+          hour angle and parallactic angle derived from it.
 
 WHY THIS EXISTS: cross-frame reasoning — e.g. the anomaly audit chaining one
 satellite across consecutive frames — assumes a FIXED, untracked camera, where
@@ -48,7 +58,9 @@ MOUNTS = ("fixed", "tracked")
 _NOTE = ("`mount` is the one acquisition fact EXIF cannot record: declared by "
          "a human or derived from the measured drift signature — `mount_source` "
          "says which; `exif` is auto-derived by scripts/lib/acquisition.py — "
-         "do not hand-edit it.")
+         "do not hand-edit it. `site` is resolved from scripts/setup/site.json "
+         "(or a per-session datasets/<session>/site.json override) and carries "
+         "its own provenance — hand-edit the SOURCE file, never this copy.")
 
 
 class AcquisitionUndeclared(Exception):
@@ -320,6 +332,86 @@ def timeline(frames):
     return rows
 
 
+SITE_KEYS = ("sitelat_deg", "sitelong_deg", "siteelev_m")
+_WGS84_A = 6378137.0                       # semi-major axis, metres
+_WGS84_F = 1.0 / 298.257223563             # flattening
+
+
+def _obsgeo(lat_deg, lon_deg, elev_m):
+    """Geodetic -> geocentric OBSGEO-X/Y/Z in metres (WGS84).
+
+    The FITS-standard form (WCS Paper III; FITS 4.0 sec 8.4) of the same fact
+    SITELAT/SITELONG/SITEELEV carry. Derived here rather than entered, so the two
+    forms cannot drift apart. Done in closed form instead of via astropy because
+    this module must not acquire a hard dependency it does not already have —
+    `fits_facts` imports astropy lazily and degrades if it is missing.
+    """
+    import math
+    lat, lon = math.radians(lat_deg), math.radians(lon_deg)
+    e2 = 2 * _WGS84_F - _WGS84_F ** 2
+    n = _WGS84_A / math.sqrt(1 - e2 * math.sin(lat) ** 2)
+    h = 0.0 if elev_m is None else float(elev_m)
+    return [(n + h) * math.cos(lat) * math.cos(lon),
+            (n + h) * math.cos(lat) * math.sin(lon),
+            (n * (1 - e2) + h) * math.sin(lat)]
+
+
+def site_facts(session_dir):
+    """The observing site for a session, in the standard keys, with provenance.
+
+    Resolution order, and there is no silent default at the end of it: a
+    per-session `datasets/<session>/site.json` overrides the rig's own
+    `scripts/setup/site.json`, and a session with neither gets a null block that
+    SAYS it is null. Nothing downstream may assume a location — the same
+    discipline `mount` carries, for the same reason: a buried default that is
+    wrong is worse than an absent value that stops you.
+
+    Emits SITELAT/SITELONG/SITEELEV (Siril's own keys, so the value round-trips
+    through the tool that consumes it) and the DERIVED OBSGEO-X/Y/Z triple (the
+    FITS standard form). Carries the source file's provenance verbatim, including
+    whether the coordinates have been independently verified — an owner-supplied
+    coordinate transcribed by hand has no check in its chain, and a typo in it is
+    silent and propagates into every hour angle downstream.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        (os.path.join(session_dir, "site.json"), "session override"),
+        (os.path.normpath(os.path.join(here, "..", "setup", "site.json")),
+         "rig default (scripts/setup/site.json)"),
+    ]
+    for path, which in candidates:
+        try:
+            cfg = json.load(open(path))
+        except (OSError, ValueError):
+            continue
+        lat, lon, elev = (cfg.get(k) for k in SITE_KEYS)
+        if not isinstance(lat, (int, float)) or not isinstance(lon, (int, float)):
+            continue
+        prov = cfg.get("provenance") or {}
+        block = {
+            "SITELAT": float(lat), "SITELONG": float(lon),
+            "SITEELEV": None if elev is None else float(elev),
+            "OBSGEO_XYZ_m": _obsgeo(lat, lon, elev),
+            "siteelev_assumed_zero_for_obsgeo": elev is None,
+            "sitelong_sign": "positive EAST (FITS/Siril convention)",
+            "resolved_from": which,
+            "source": prov.get("source"),
+            "status": prov.get("status"),
+            "verified": bool(prov.get("verified")),
+        }
+        if not block["verified"]:
+            block["_unverified"] = (
+                prov.get("why_that_matters")
+                or "coordinates not independently checked; treat as provisional")
+            block["_check_that_closes_it"] = prov.get("the_check_that_closes_it")
+        return block
+    return {"SITELAT": None, "SITELONG": None, "SITEELEV": None,
+            "resolved_from": None,
+            "_absent": "no scripts/setup/site.json and no per-session "
+                       "site.json — the observing site is UNKNOWN for this "
+                       "session. Nothing downstream may assume one."}
+
+
 def record_path(session_dir, set_name):
     return os.path.join(am.dataset_dir(session_dir, set_name),
                         "acquisition.json")
@@ -380,10 +472,13 @@ def resolve(session_dir, set_name, frames):
         m = m.strip().lower() if isinstance(m, str) else None
         if m in MOUNTS:
             derived, mount, valid, source = m, m, True, "derived"
+    site = site_facts(session_dir)
     record = {"mount": mount if valid else None,
-              "mount_source": source, "exif": exif, "_note": _NOTE}
+              "mount_source": source, "exif": exif, "site": site,
+              "_note": _NOTE}
     if (existing.get("exif") != exif or existing.get("mount") != record["mount"]
             or existing.get("mount_source") != source
+            or existing.get("site") != site
             or not os.path.exists(path)):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json.dump(record, open(path, "w"), indent=1)
