@@ -126,6 +126,12 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/drift_work/*.lst
 !**/drift_work/*.ssf
 
+# resample_work/ — the resample-cost probe. Synthetic frames, registered copies
+# and siril logs are regenerable; the .lst star lists and the .ssf ARE the record.
+**/resample_work/*
+!**/resample_work/*.lst
+!**/resample_work/*.ssf
+
 # bearing_work/ — the per-set drift-bearing probe. Staged raws, debayered frames
 # and siril logs are regenerable; the .lst star lists and the .ssf ARE the record.
 **/bearing_work/*

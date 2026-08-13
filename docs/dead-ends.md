@@ -2247,6 +2247,27 @@ SILENT — pin the state, never inherit it):
   direction +30.10 → −30.10). Handedness IS flipped, so re-test before comparing
   any of this against a sky-derived direction.
 
+- **THE STAGED CORPUS IS NOT THE CORPUS. CHECK `datasets/` BEFORE DECLARING A
+  CORPUS LIMIT — the reflex is to check `sessions/`, and the reflex has now been
+  wrong twice.** `sessions/` holds the nights whose raws are on the rig — three of
+  them. `datasets/` holds the tracked per-set records for every night ever
+  ingested — **six**. A capability that exists only in the recorded corpus is
+  invisible to anyone who checks the staged one, and both times the error
+  produced a confident *negative*:
+  - a BACKLOG kill-note read "all 12 staged sets are one target at 2.5 s and
+    70 mm, so there is no exposure lever either" — true of the staged corpus,
+    false of the recorded one;
+  - and then a STOP: "a set at a materially different exposure … is an
+    acquisition change", when **july27/set-01 and set-02 are already recorded at
+    3.0 s** (282 and 253 frames, same 70 mm, same ISO 1600, same target).
+  That 3.0 s against 2.5 s is a **1.44× lever in L²**, and it is the discriminator
+  that breaks the trail-amplitude degeneracy the drift work could not break at one
+  exposure — because a trail-amplitude error scales with L² while an optical term
+  does not scale with exposure at all. **The cost of the reflex is not a wasted
+  search; it is a "cannot be done" written into a record about work that can.**
+  Re-staging existing data is cheap by the owner's own standing statement and is
+  not an acquisition ask.
+
 - **A WRONG-BASIS ARTEFACT SCALES DIFFERENTLY FROM A PHYSICAL EFFECT — RUN THE
   TEST AT TWO PLANTED AMPLITUDES AND THE ARTEFACT ANNOUNCES ITSELF.** "Projecting
   a spin-2 field onto a scalar" has now cost **five** corrections in this tree,

@@ -1,0 +1,15 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/seq
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+seqapplyreg r_ -interp=lanczos4 -noclamp -prefix=U_
+load U_r_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/out_noclamp.lst
+seqapplyreg r_ -interp=cubic -prefix=C_
+load C_r_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/out_cubic.lst
+seqapplyreg r_ -interp=nearest -prefix=Z_
+load Z_r_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/out_nearest.lst

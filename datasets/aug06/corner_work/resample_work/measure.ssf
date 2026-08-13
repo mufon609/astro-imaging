@@ -1,0 +1,12 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/seq
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+load r_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/in_lanczos.lst
+register r -2pass -transf=homography
+seqapplyreg r -interp=lanczos4 -prefix=L_
+load L_r_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/resample_work/out_lanczos.lst
