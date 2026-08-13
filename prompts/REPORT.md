@@ -7,19 +7,6 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`CORNER_QUALITY_PROMPT.md`](CORNER_QUALITY_PROMPT.md)** — measure WHY the
-  far corners degrade, on TWO axes, before any crop line exists. Coverage depth
-  lives in union-canvas coordinates; registration residual and optical aberration
-  live in member-own field radius — different coordinate systems, so measuring
-  both separates the candidates. **The brief opens with the misattribution
-  history**, because the left-side softness was chased as a lens problem and was
-  the compose (members 0.924–0.942 roundness, their compose 0.582), and because
-  the manager repeated that error while scoping it. Status corrected: coverage is
-  established, the 0.22/0.48/1.30/2.43 px residual profile predates the compose
-  fix and is effectively unquantified today, and the optical term is real but
-  ~7%. Output is a number or the finding that no crop is justified; the shrink is
-  NOT implemented in that session.
-
 - **[`COMBINE_FLAT_WINDOW_PROMPT.md`](COMBINE_FLAT_WINDOW_PROMPT.md)** — STAGED,
   not cleared: it is a multi-set member rebuild and needs the owner's word that
   the machine is free. Arm A exists in full (the whole 12-set corpus is per-set
@@ -42,6 +29,123 @@ per engagement, not items — the four-session team is OPTIONAL and specified in
 3. **The load-bearing unchecked premise**: that starlight preservation is the
    right adoption gate for the L1 level choice at all. No instrument can settle
    it.
+4. **The per-member trim** — measured, predicted, not built. A +x edge trim
+   keeping 80% of each member is predicted to lift delivered corner roundness
+   0.921 → 0.972 and costs 4 of 20 measured union boxes their last contributing
+   member. Whether that trade is worth taking is the owner's; the two owner
+   statements it sits between are now recorded side by side in `BACKLOG.md`
+   (the ratified framing=max deliverable, and *"more worried about stacking bad
+   sections than about not stacking enough"*). If the owner wants it, the next
+   step is the one-knob A/B, not the adoption.
+
+## Landed during the corner-quality session — the axis is settled, and the crop line the brief asked for is REFUSED by the numbers
+
+**The corners degrade on MEMBER-OWN FIELD RADIUS. Coverage depth contributes
+nothing measurable to star shape.** Two axes on the same post-fix product (the
+13-member astrometric union, `stack_set-01+02+03_full_wcs.fit`, 1454 frames),
+20 boxes of 800 px placed by its own solved WCS, weighted by bootstrap SE:
+
+| | rho coefficient | depth coefficient |
+|---|---|---|
+| major axis | **+0.53 px per unit rho, 3.6 SE** → +0.38 px over rho 0.13–0.85 | −0.0016 px per member, **0.2 SE** → −0.02 px over depth 2.3–13.0 |
+| minor axis | +0.43, 9.4 SE → +0.31 px | +0.0076, 2.0 SE → +0.08 px |
+| roundness | −0.057, 1.7 SE → −0.041 | +0.0026, 1.1 SE → +0.028 |
+
+The axes are correlated (r = −0.78) but **not collinear**, which is what makes
+this separable: 48.8% of the union canvas carries all 13 members while
+member-own radius there still sweeps 0.08–0.80, and a rho band of 0.70–0.86
+carries depths from 2 to 13. Both transects were measured.
+
+**The verdict survives the depth-matching rule rather than depending on it** —
+six rules over the same Siril fits (top 10/30/100 and three common amplitude
+floors): the rho coefficient on major axis stays **+0.51 to +0.59 at 3.6–5.2
+SE**, the depth coefficient stays **0.0–1.0 SE**. The trap is live and was
+caught firing: on a 200 px series where top-30 reaches each box's own faintest
+detection, corr(depth, major) reads **−0.425** and corr(depth, roundness)
+**+0.367** — under one common amplitude floor the same boxes read **−0.003** and
+**−0.060**. An unmatched median manufactures exactly the corner defect under
+investigation.
+
+**Attribution, by a discriminating test: it is the MEMBER's own field, not the
+compose.** Four members from three sets, measured at their own field radius,
+read major **2.305 → 2.781 px** and roundness **0.951 → 0.863** across rho
+0.10 → 0.80 — a +0.476 px rise against the union's own +0.505 px over the same
+span. The compose adds a roughly radius-independent **+0.04 to +0.28 px** of
+major axis (median +0.13) and no radial trend. So candidate 3 (optics) owns the
+radial term; the compose's contribution is a small offset. What that offset
+decomposes into — per-member solve error, lanczos4 resampling, residual
+registration — is **UNATTRIBUTED**; the test is pairwise cross-matching of the
+members' own findstar RA/Dec (each member's own solution) binned by member-own
+radius, which is the astrometric analogue of what `member_separation.py`
+measures through `register -2pass` homographies.
+
+**AND THE DEFECT IS NOT RADIALLY SYMMETRIC, which is what refuses the brief's
+requested form.** Over 148 member stations the two quantities behave
+differently: **star SIZE is radial** (major corr with rho +0.697, with x_frac
++0.079) while **star ROUNDNESS is ONE-SIDED IN SENSOR x** (roundness corr with
+x_frac −0.472, with rho −0.325; in a joint fit the signed x term is 7.1 SE and
+rho only 1.6 SE). By member-frame x band, roundness reads **0.945 at −x, 0.943
+at centre, 0.880 at +x**. At rho 0.65 the +x half reads 0.836–0.897 against the
+−x half's 0.940–0.976; the −x−y corner holds **0.975–0.988 out to rho 0.88**
+while the +x+y corner falls to **0.823–0.868**. It is sensor-fixed, not sky:
+two members looking at sky **1.76–3.01° apart** give azimuth profiles correlated
+at **r = +0.889** (roundness) and **+0.916** (major). That is
+BACKLOG:`compose-homography-smear`'s exit-edge finding, now measured at MEMBER
+level with a matched-radius control.
+
+**So: no radial crop line is justified, and this is the deliverable.** A radial
+shrink is the wrong shape for the term the eye sees, and it barely helps the
+term it does address — the members' own major-axis profile plateaus above
+rho ≈ 0.5 (2.77 at 0.5, 2.68 at 0.6, 2.73 at 0.7, 2.78 at 0.8), so cutting at
+rho 0.80 is PREDICTED to move the delivered corners 2.887 → 2.877 px while
+costing 36% of every member's area. The efficient lever is one-sided: a **+x
+edge trim keeping x_frac ≤ 0.60 (80% of each member)** is predicted to lift
+delivered roundness at the four crop corners **0.921 → 0.972** and the worst
+measured box **0.869 → 0.922**. **That is a PREDICTION, labelled as one** — it
+is built from the members' own measured profiles plus which members reach each
+sky position, and only the one-knob A/B settles it. Its cost is stated with it:
+at that trim, 4 of the 20 measured union boxes lose every contributing member.
+
+**The depth axis could not be measured in the background, and saying so is the
+result.** A 100-frame member and the 1454-frame union measure the **same**
+relative background sigma at the same nine sky positions (median ratios 1.079
+and 0.957 for two different members; sqrt-n predicts 3.81), and the
+position-to-position pattern is shared (r = +0.89 union-vs-member, +0.98
+member-vs-member). Siril `bgnoise` on this field is reading the sky's own
+structure, not a random term that averages down, so no depth cost is claimed
+from it. What would settle it is a difference image between two equal-depth
+halves at the same sky, which isolates the random part.
+
+**Two findings nobody was looking for.** (1) **Every per-set stack in
+`web/results/aug06` — and its judge PNG — is `REGMODEL=starpair REGUNDIS=False`,
+the pre-fix route**; only the `set-01+02+03` unions are astrometric. This
+session nearly used them as a constant-depth control. set-01's carries the
+registered defect plainly: roundness **0.746/0.672/0.629/0.569** at RA
+300.0/298.1/296.6/294.2 against 0.960 at RA 315.0 — a sky-fixed band at the
+sky position the registry already names (RA 294.86), not a radial profile.
+(2) The header-derived depth map is verified by the tool, not asserted: of 3636
+boxes the geometry calls covered, Siril calls **0** entirely uncovered.
+
+**The delivered numbers, for the eye that started this.** The crop the owner
+judges spans major **2.480 px / roundness 0.951 at centre** to **2.705–3.065 px
+/ 0.843–0.981 at its four corners**. That is a residue, not the defect the owner
+remembers: the compose fix took the large one (0.92 → 0.58 roundness), and what
+is left is +21% on star size and −0.11 on roundness at worst.
+
+**Premises this rests on and did NOT test:** that member-own radius measured
+from each member's own canvas centre is the right optical origin (the group's
+own drift smears a sky point over ~250 px of a 5769 px frame, ~4%); that a
+member's own star shape is the optics rather than optics-plus-within-group
+registration (the four members agree tightly and the registry's 136k-star raw
+measurement agrees, but no single-RAW arm was run here); and that the +x
+asymmetry is one mechanism rather than two superposed.
+
+**Numbers:** `datasets/aug06/corner_work/corner_quality.json` (every box with
+its instrument, n, and faintest admitted amplitude),
+`shrink_prediction.json`, the 15 `shape_*.json` / `regional_noise_*.json`
+records, and the two reproducers `two_axes.py` / `shrink_prediction.py` beside
+them. `member_separation --selftest` re-run on the live sequence first, both
+numbers reproducing to the digit; its register row updated.
 
 ## Landed during the L1 build session — the arms separate on the primary surface, and the supplement splits
 

@@ -1,0 +1,259 @@
+{
+ "image": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+ "label": "union_uniform_depth",
+ "instrument": "Siril findstar (setfindstar reset -roundness=0.10 -relax=on -maxR=1.0), 200 px boxes placed by the product's own WCS (y-origin top, verified by the tool's own per-star RA/Dec); FWHM = median (FWHMx+FWHMy)/2, roundness = median min/max, over the 30 brightest fits",
+ "positions": [
+  {
+   "label": "U01_rho0.80",
+   "ra": 327.1823,
+   "dec": 37.7259,
+   "pixel_xy": [
+    262.0,
+    1822.0
+   ],
+   "crop": [
+    162,
+    2668,
+    200,
+    200
+   ],
+   "n": 28,
+   "box_center_offset_deg": 0.205,
+   "top_n": 28,
+   "fwhm_px": 3.08,
+   "roundness": 0.842,
+   "faintest_admitted_A": 0.000388
+  },
+  {
+   "label": "U02_rho0.80",
+   "ra": 286.1529,
+   "dec": 42.638,
+   "pixel_xy": [
+    7022.0,
+    2502.0
+   ],
+   "crop": [
+    6922,
+    1988,
+    200,
+    200
+   ],
+   "n": 35,
+   "box_center_offset_deg": 0.107,
+   "top_n": 30,
+   "fwhm_px": 2.902,
+   "roundness": 0.903,
+   "faintest_admitted_A": 0.000446
+  },
+  {
+   "label": "U03_rho0.80",
+   "ra": 287.821,
+   "dec": 38.586,
+   "pixel_xy": [
+    6902.0,
+    1582.0
+   ],
+   "crop": [
+    6802,
+    2908,
+    200,
+    200
+   ],
+   "n": 54,
+   "box_center_offset_deg": 0.124,
+   "top_n": 30,
+   "fwhm_px": 3.022,
+   "roundness": 0.888,
+   "faintest_admitted_A": 0.000326
+  },
+  {
+   "label": "U04_rho0.77",
+   "ra": 287.4041,
+   "dec": 43.5568,
+   "pixel_xy": [
+    6782.0,
+    2662.0
+   ],
+   "crop": [
+    6682,
+    1828,
+    200,
+    200
+   ],
+   "n": 60,
+   "box_center_offset_deg": 0.09,
+   "top_n": 30,
+   "fwhm_px": 3.162,
+   "roundness": 0.891,
+   "faintest_admitted_A": 0.000229
+  },
+  {
+   "label": "U05_rho0.76",
+   "ra": 288.7251,
+   "dec": 39.8055,
+   "pixel_xy": [
+    6702.0,
+    1822.0
+   ],
+   "crop": [
+    6602,
+    2668,
+    200,
+    200
+   ],
+   "n": 56,
+   "box_center_offset_deg": 0.062,
+   "top_n": 30,
+   "fwhm_px": 3.128,
+   "roundness": 0.902,
+   "faintest_admitted_A": 0.000237
+  },
+  {
+   "label": "U07_rho0.80",
+   "ra": 290.473,
+   "dec": 36.6538,
+   "pixel_xy": [
+    6502.0,
+    1102.0
+   ],
+   "crop": [
+    6402,
+    3388,
+    200,
+    200
+   ],
+   "n": 56,
+   "box_center_offset_deg": 0.12,
+   "top_n": 30,
+   "fwhm_px": 2.987,
+   "roundness": 0.9,
+   "faintest_admitted_A": 0.000299
+  },
+  {
+   "label": "U08_rho0.74",
+   "ra": 324.9262,
+   "dec": 43.3828,
+   "pixel_xy": [
+    982.0,
+    2902.0
+   ],
+   "crop": [
+    882,
+    1588,
+    200,
+    200
+   ],
+   "n": 43,
+   "box_center_offset_deg": 0.106,
+   "top_n": 30,
+   "fwhm_px": 3.005,
+   "roundness": 0.863,
+   "faintest_admitted_A": 0.000203
+  },
+  {
+   "label": "U09_rho0.80",
+   "ra": 321.7138,
+   "dec": 35.0501,
+   "pixel_xy": [
+    1062.0,
+    1022.0
+   ],
+   "crop": [
+    962,
+    3468,
+    200,
+    200
+   ],
+   "n": 56,
+   "box_center_offset_deg": 0.062,
+   "top_n": 30,
+   "fwhm_px": 3.13,
+   "roundness": 0.82,
+   "faintest_admitted_A": 0.000238
+  },
+  {
+   "label": "U10_rho0.80",
+   "ra": 292.2513,
+   "dec": 35.3312,
+   "pixel_xy": [
+    6222.0,
+    782.0
+   ],
+   "crop": [
+    6122,
+    3708,
+    200,
+    200
+   ],
+   "n": 68,
+   "box_center_offset_deg": 0.077,
+   "top_n": 30,
+   "fwhm_px": 3.002,
+   "roundness": 0.896,
+   "faintest_admitted_A": 0.000276
+  },
+  {
+   "label": "U11_rho0.80",
+   "ra": 289.9265,
+   "dec": 48.5313,
+   "pixel_xy": [
+    6222.0,
+    3662.0
+   ],
+   "crop": [
+    6122,
+    828,
+    200,
+    200
+   ],
+   "n": 62,
+   "box_center_offset_deg": 0.044,
+   "top_n": 30,
+   "fwhm_px": 3.01,
+   "roundness": 0.921,
+   "faintest_admitted_A": 0.000216
+  },
+  {
+   "label": "U12_rho0.80",
+   "ra": 324.266,
+   "dec": 47.9254,
+   "pixel_xy": [
+    1342.0,
+    3822.0
+   ],
+   "crop": [
+    1242,
+    668,
+    200,
+    200
+   ],
+   "n": 65,
+   "box_center_offset_deg": 0.046,
+   "top_n": 30,
+   "fwhm_px": 3.042,
+   "roundness": 0.915,
+   "faintest_admitted_A": 0.000259
+  },
+  {
+   "label": "U13_rho0.77",
+   "ra": 323.0241,
+   "dec": 48.3523,
+   "pixel_xy": [
+    1542.0,
+    3862.0
+   ],
+   "crop": [
+    1442,
+    628,
+    200,
+    200
+   ],
+   "n": 59,
+   "box_center_offset_deg": 0.115,
+   "top_n": 30,
+   "fwhm_px": 2.76,
+   "roundness": 0.926,
+   "faintest_admitted_A": 0.000341
+  }
+ ]
+}

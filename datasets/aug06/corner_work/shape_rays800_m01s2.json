@@ -1,0 +1,511 @@
+{
+ "image": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01.fit",
+ "label": "rays800_m01s2",
+ "instrument": "Siril findstar (setfindstar reset -roundness=0.10 -relax=on -maxR=1.0), 800 px boxes placed by the product's own WCS (y-origin top, verified by the tool's own per-star RA/Dec); FWHM = median (FWHMx+FWHMy)/2, roundness = median min/max, over the 30 brightest fits",
+ "positions": [
+  {
+   "label": "Rp_r20",
+   "ra": 311.3428,
+   "dec": 42.4115,
+   "pixel_xy": [
+    3581.2,
+    1974.0
+   ],
+   "crop": [
+    3181,
+    1575,
+    800,
+    800
+   ],
+   "n": 817,
+   "box_center_offset_deg": 0.098,
+   "top_n": 30,
+   "fwhm_px": 2.24,
+   "roundness": 0.95,
+   "faintest_admitted_A": 0.000312
+  },
+  {
+   "label": "Rp_r35",
+   "ra": 314.6461,
+   "dec": 42.0984,
+   "pixel_xy": [
+    4105.3,
+    1974.0
+   ],
+   "crop": [
+    3705,
+    1575,
+    800,
+    800
+   ],
+   "n": 753,
+   "box_center_offset_deg": 0.125,
+   "top_n": 30,
+   "fwhm_px": 2.275,
+   "roundness": 0.935,
+   "faintest_admitted_A": 0.000242
+  },
+  {
+   "label": "Rp_r50",
+   "ra": 317.8787,
+   "dec": 41.6964,
+   "pixel_xy": [
+    4629.3,
+    1974.0
+   ],
+   "crop": [
+    4229,
+    1575,
+    800,
+    800
+   ],
+   "n": 773,
+   "box_center_offset_deg": 0.087,
+   "top_n": 30,
+   "fwhm_px": 2.545,
+   "roundness": 0.855,
+   "faintest_admitted_A": 0.000213
+  },
+  {
+   "label": "Rp_r65",
+   "ra": 321.0218,
+   "dec": 41.2128,
+   "pixel_xy": [
+    5153.4,
+    1974.0
+   ],
+   "crop": [
+    4753,
+    1575,
+    800,
+    800
+   ],
+   "n": 717,
+   "box_center_offset_deg": 0.079,
+   "top_n": 30,
+   "fwhm_px": 2.638,
+   "roundness": 0.813,
+   "faintest_admitted_A": 7.8e-05
+  },
+  {
+   "label": "Rm_r20",
+   "ra": 302.3576,
+   "dec": 42.7761,
+   "pixel_xy": [
+    2183.8,
+    1974.0
+   ],
+   "crop": [
+    1784,
+    1575,
+    800,
+    800
+   ],
+   "n": 1008,
+   "box_center_offset_deg": 0.102,
+   "top_n": 30,
+   "fwhm_px": 2.363,
+   "roundness": 0.928,
+   "faintest_admitted_A": 0.000223
+  },
+  {
+   "label": "Rm_r35",
+   "ra": 298.9909,
+   "dec": 42.7317,
+   "pixel_xy": [
+    1659.7,
+    1974.0
+   ],
+   "crop": [
+    1260,
+    1575,
+    800,
+    800
+   ],
+   "n": 950,
+   "box_center_offset_deg": 0.205,
+   "top_n": 30,
+   "fwhm_px": 2.462,
+   "roundness": 0.928,
+   "faintest_admitted_A": 0.00019
+  },
+  {
+   "label": "Rm_r50",
+   "ra": 295.6634,
+   "dec": 42.5908,
+   "pixel_xy": [
+    1135.7,
+    1974.0
+   ],
+   "crop": [
+    736,
+    1575,
+    800,
+    800
+   ],
+   "n": 832,
+   "box_center_offset_deg": 0.089,
+   "top_n": 30,
+   "fwhm_px": 2.592,
+   "roundness": 0.927,
+   "faintest_admitted_A": 0.000186
+  },
+  {
+   "label": "Rm_r65",
+   "ra": 292.3976,
+   "dec": 42.358,
+   "pixel_xy": [
+    611.6,
+    1974.0
+   ],
+   "crop": [
+    212,
+    1575,
+    800,
+    800
+   ],
+   "n": 720,
+   "box_center_offset_deg": 0.205,
+   "top_n": 30,
+   "fwhm_px": 2.615,
+   "roundness": 0.946,
+   "faintest_admitted_A": 0.000287
+  },
+  {
+   "label": "C1_r20",
+   "ra": 310.321,
+   "dec": 40.6112,
+   "pixel_xy": [
+    3459.0,
+    2368.8
+   ],
+   "crop": [
+    3059,
+    1180,
+    800,
+    800
+   ],
+   "n": 920,
+   "box_center_offset_deg": 0.096,
+   "top_n": 30,
+   "fwhm_px": 2.265,
+   "roundness": 0.941,
+   "faintest_admitted_A": 0.000366
+  },
+  {
+   "label": "C1_r35",
+   "ra": 312.7551,
+   "dec": 39.0058,
+   "pixel_xy": [
+    3891.4,
+    2664.9
+   ],
+   "crop": [
+    3491,
+    884,
+    800,
+    800
+   ],
+   "n": 935,
+   "box_center_offset_deg": 0.073,
+   "top_n": 30,
+   "fwhm_px": 2.335,
+   "roundness": 0.94,
+   "faintest_admitted_A": -0.000524
+  },
+  {
+   "label": "C1_r50",
+   "ra": 315.0558,
+   "dec": 37.3696,
+   "pixel_xy": [
+    4323.7,
+    2961.0
+   ],
+   "crop": [
+    3924,
+    588,
+    800,
+    800
+   ],
+   "n": 914,
+   "box_center_offset_deg": 0.032,
+   "top_n": 30,
+   "fwhm_px": 2.592,
+   "roundness": 0.919,
+   "faintest_admitted_A": -0.000603
+  },
+  {
+   "label": "C1_r65",
+   "ra": 317.226,
+   "dec": 35.715,
+   "pixel_xy": [
+    4756.1,
+    3257.1
+   ],
+   "crop": [
+    4356,
+    292,
+    800,
+    800
+   ],
+   "n": 796,
+   "box_center_offset_deg": 0.083,
+   "top_n": 30,
+   "fwhm_px": 2.728,
+   "roundness": 0.882,
+   "faintest_admitted_A": 0.000267
+  },
+  {
+   "label": "C2_r20",
+   "ra": 303.1192,
+   "dec": 40.9019,
+   "pixel_xy": [
+    2306.0,
+    2368.8
+   ],
+   "crop": [
+    1906,
+    1180,
+    800,
+    800
+   ],
+   "n": 1042,
+   "box_center_offset_deg": 0.138,
+   "top_n": 30,
+   "fwhm_px": 2.377,
+   "roundness": 0.928,
+   "faintest_admitted_A": 0.000305
+  },
+  {
+   "label": "C2_r35",
+   "ra": 300.4564,
+   "dec": 39.4992,
+   "pixel_xy": [
+    1873.6,
+    2664.9
+   ],
+   "crop": [
+    1474,
+    884,
+    800,
+    800
+   ],
+   "n": 1025,
+   "box_center_offset_deg": 0.094,
+   "top_n": 30,
+   "fwhm_px": 2.518,
+   "roundness": 0.915,
+   "faintest_admitted_A": 0.000306
+  },
+  {
+   "label": "C2_r50",
+   "ra": 297.9236,
+   "dec": 38.0518,
+   "pixel_xy": [
+    1441.2,
+    2961.0
+   ],
+   "crop": [
+    1041,
+    588,
+    800,
+    800
+   ],
+   "n": 927,
+   "box_center_offset_deg": 0.335,
+   "top_n": 30,
+   "fwhm_px": 2.685,
+   "roundness": 0.912,
+   "faintest_admitted_A": 0.000185
+  },
+  {
+   "label": "C2_r65",
+   "ra": 295.5215,
+   "dec": 36.572,
+   "pixel_xy": [
+    1008.9,
+    3257.1
+   ],
+   "crop": [
+    609,
+    292,
+    800,
+    800
+   ],
+   "n": 850,
+   "box_center_offset_deg": 0.149,
+   "top_n": 30,
+   "fwhm_px": 2.703,
+   "roundness": 0.944,
+   "faintest_admitted_A": -0.001518
+  },
+  {
+   "label": "C3_r20",
+   "ra": 303.1745,
+   "dec": 44.6433,
+   "pixel_xy": [
+    2306.0,
+    1579.2
+   ],
+   "crop": [
+    1906,
+    1970,
+    800,
+    800
+   ],
+   "n": 1011,
+   "box_center_offset_deg": 0.059,
+   "top_n": 30,
+   "fwhm_px": 2.305,
+   "roundness": 0.928,
+   "faintest_admitted_A": 0.000163
+  },
+  {
+   "label": "C3_r35",
+   "ra": 300.2574,
+   "dec": 46.026,
+   "pixel_xy": [
+    1873.6,
+    1283.1
+   ],
+   "crop": [
+    1474,
+    2266,
+    800,
+    800
+   ],
+   "n": 933,
+   "box_center_offset_deg": 0.132,
+   "top_n": 30,
+   "fwhm_px": 2.368,
+   "roundness": 0.929,
+   "faintest_admitted_A": 0.000286
+  },
+  {
+   "label": "C3_r50",
+   "ra": 297.222,
+   "dec": 47.3201,
+   "pixel_xy": [
+    1441.2,
+    987.0
+   ],
+   "crop": [
+    1041,
+    2562,
+    800,
+    800
+   ],
+   "n": 829,
+   "box_center_offset_deg": 0.158,
+   "top_n": 30,
+   "fwhm_px": 2.45,
+   "roundness": 0.948,
+   "faintest_admitted_A": -0.002237
+  },
+  {
+   "label": "C3_r65",
+   "ra": 294.0805,
+   "dec": 48.5157,
+   "pixel_xy": [
+    1008.9,
+    690.9
+   ],
+   "crop": [
+    609,
+    2858,
+    800,
+    800
+   ],
+   "n": 706,
+   "box_center_offset_deg": 0.052,
+   "top_n": 30,
+   "fwhm_px": 2.48,
+   "roundness": 0.975,
+   "faintest_admitted_A": 0.000255
+  },
+  {
+   "label": "C4_r20",
+   "ra": 310.8226,
+   "dec": 44.3311,
+   "pixel_xy": [
+    3459.0,
+    1579.2
+   ],
+   "crop": [
+    3059,
+    1970,
+    800,
+    800
+   ],
+   "n": 881,
+   "box_center_offset_deg": 0.127,
+   "top_n": 30,
+   "fwhm_px": 2.24,
+   "roundness": 0.969,
+   "faintest_admitted_A": 0.000305
+  },
+  {
+   "label": "C4_r35",
+   "ra": 313.9132,
+   "dec": 45.4679,
+   "pixel_xy": [
+    3891.4,
+    1283.1
+   ],
+   "crop": [
+    3491,
+    2266,
+    800,
+    800
+   ],
+   "n": 994,
+   "box_center_offset_deg": 0.301,
+   "top_n": 30,
+   "fwhm_px": 2.29,
+   "roundness": 0.974,
+   "faintest_admitted_A": 0.000135
+  },
+  {
+   "label": "C4_r50",
+   "ra": 317.0937,
+   "dec": 46.5084,
+   "pixel_xy": [
+    4323.8,
+    987.0
+   ],
+   "crop": [
+    3924,
+    2562,
+    800,
+    800
+   ],
+   "n": 974,
+   "box_center_offset_deg": 0.178,
+   "top_n": 30,
+   "fwhm_px": 2.455,
+   "roundness": 0.916,
+   "faintest_admitted_A": -0.000648
+  },
+  {
+   "label": "C4_r65",
+   "ra": 320.3464,
+   "dec": 47.4452,
+   "pixel_xy": [
+    4756.1,
+    690.9
+   ],
+   "crop": [
+    4356,
+    2858,
+    800,
+    800
+   ],
+   "n": 828,
+   "box_center_offset_deg": 0.214,
+   "top_n": 30,
+   "fwhm_px": 2.595,
+   "roundness": 0.876,
+   "faintest_admitted_A": 0.000187
+  }
+ ]
+}

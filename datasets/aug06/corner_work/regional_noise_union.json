@@ -1,0 +1,608 @@
+{
+ "stack": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+ "shape_record": "/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/shape_union_full.json",
+ "instrument": "Siril load + crop + bgnoise + stat, in boxes whose placement shape_at_sky.py verified against the tool's own per-star RA/Dec",
+ "reports_only": "no threshold, no verdict",
+ "positions": [
+  {
+   "label": "A0_d13_rho0.12",
+   "ra": 307.1312,
+   "dec": 42.565,
+   "crop": [
+    3302,
+    1920,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.13,
+    "1": 1.658,
+    "2": 1.076
+   },
+   "level": {
+    "Red": {
+     "mean": 43.7,
+     "median": 40.3
+    },
+    "Green": {
+     "mean": 100.3,
+     "median": 94.9
+    },
+    "Blue": {
+     "mean": 70.8,
+     "median": 67.1
+    }
+   }
+  },
+  {
+   "label": "A1_d13_rho0.20",
+   "ra": 303.6422,
+   "dec": 43.8476,
+   "crop": [
+    3849,
+    1670,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.187,
+    "1": 1.693,
+    "2": 1.125
+   },
+   "level": {
+    "Red": {
+     "mean": 43.7,
+     "median": 40.5
+    },
+    "Green": {
+     "mean": 100.2,
+     "median": 94.9
+    },
+    "Blue": {
+     "mean": 70.8,
+     "median": 67.2
+    }
+   }
+  },
+  {
+   "label": "A2_d13_rho0.27",
+   "ra": 303.2353,
+   "dec": 39.6001,
+   "crop": [
+    3899,
+    2569,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.512,
+    "1": 2.227,
+    "2": 1.443
+   },
+   "level": {
+    "Red": {
+     "mean": 46.4,
+     "median": 40.6
+    },
+    "Green": {
+     "mean": 103.8,
+     "median": 94.9
+    },
+    "Blue": {
+     "mean": 74.0,
+     "median": 67.2
+    }
+   }
+  },
+  {
+   "label": "A3_d13_rho0.35",
+   "ra": 313.7011,
+   "dec": 39.9446,
+   "crop": [
+    2209,
+    2369,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.075,
+    "1": 1.43,
+    "2": 1.014
+   },
+   "level": {
+    "Red": {
+     "mean": 43.6,
+     "median": 40.6
+    },
+    "Green": {
+     "mean": 99.8,
+     "median": 95.0
+    },
+    "Blue": {
+     "mean": 71.0,
+     "median": 67.3
+    }
+   }
+  },
+  {
+   "label": "A4_d13_rho0.42",
+   "ra": 298.3631,
+   "dec": 45.2039,
+   "crop": [
+    4644,
+    1371,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.23,
+    "1": 1.598,
+    "2": 1.109
+   },
+   "level": {
+    "Red": {
+     "mean": 44.2,
+     "median": 40.5
+    },
+    "Green": {
+     "mean": 100.7,
+     "median": 94.8
+    },
+    "Blue": {
+     "mean": 72.0,
+     "median": 67.4
+    }
+   }
+  },
+  {
+   "label": "A5_d13_rho0.50",
+   "ra": 296.8259,
+   "dec": 40.2074,
+   "crop": [
+    4942,
+    2419,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.453,
+    "1": 1.885,
+    "2": 1.327
+   },
+   "level": {
+    "Red": {
+     "mean": 44.2,
+     "median": 40.2
+    },
+    "Green": {
+     "mean": 100.8,
+     "median": 94.4
+    },
+    "Blue": {
+     "mean": 72.0,
+     "median": 67.2
+    }
+   }
+  },
+  {
+   "label": "A6_d13_rho0.57",
+   "ra": 319.0935,
+   "dec": 46.4111,
+   "crop": [
+    1613,
+    872,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.304,
+    "1": 1.71,
+    "2": 1.187
+   },
+   "level": {
+    "Red": {
+     "mean": 43.7,
+     "median": 40.3
+    },
+    "Green": {
+     "mean": 99.9,
+     "median": 94.5
+    },
+    "Blue": {
+     "mean": 71.0,
+     "median": 67.2
+    }
+   }
+  },
+  {
+   "label": "A7_d13_rho0.65",
+   "ra": 320.4288,
+   "dec": 47.3943,
+   "crop": [
+    1464,
+    623,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.223,
+    "1": 1.594,
+    "2": 1.157
+   },
+   "level": {
+    "Red": {
+     "mean": 43.7,
+     "median": 40.3
+    },
+    "Green": {
+     "mean": 99.8,
+     "median": 94.4
+    },
+    "Blue": {
+     "mean": 71.2,
+     "median": 67.2
+    }
+   }
+  },
+  {
+   "label": "B0_d2.2_rho0.86",
+   "ra": 329.7886,
+   "dec": 46.1746,
+   "crop": [
+    22,
+    473,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.926,
+    "1": 2.259,
+    "2": 2.018
+   },
+   "level": {
+    "Red": {
+     "mean": 42.7,
+     "median": 40.6
+    },
+    "Green": {
+     "mean": 98.5,
+     "median": 95.1
+    },
+    "Blue": {
+     "mean": 70.0,
+     "median": 67.6
+    }
+   }
+  },
+  {
+   "label": "B1_d3.9_rho0.84",
+   "ra": 288.6769,
+   "dec": 36.3376,
+   "crop": [
+    6433,
+    3117,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.937,
+    "1": 2.193,
+    "2": 1.951
+   },
+   "level": {
+    "Red": {
+     "mean": 42.8,
+     "median": 40.0
+    },
+    "Green": {
+     "mean": 98.7,
+     "median": 94.2
+    },
+    "Blue": {
+     "mean": 70.3,
+     "median": 66.9
+    }
+   }
+  },
+  {
+   "label": "B2_d5.7_rho0.78",
+   "ra": 324.3204,
+   "dec": 37.1527,
+   "crop": [
+    321,
+    2618,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.305,
+    "1": 1.496,
+    "2": 1.311
+   },
+   "level": {
+    "Red": {
+     "mean": 42.5,
+     "median": 40.4
+    },
+    "Green": {
+     "mean": 97.8,
+     "median": 94.7
+    },
+    "Blue": {
+     "mean": 69.6,
+     "median": 67.4
+    }
+   }
+  },
+  {
+   "label": "B3_d7.4_rho0.80",
+   "ra": 317.7871,
+   "dec": 32.8718,
+   "crop": [
+    1265,
+    3766,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.356,
+    "1": 1.633,
+    "2": 1.345
+   },
+   "level": {
+    "Red": {
+     "mean": 42.7,
+     "median": 40.7
+    },
+    "Green": {
+     "mean": 98.4,
+     "median": 95.1
+    },
+    "Blue": {
+     "mean": 69.9,
+     "median": 67.7
+    }
+   }
+  },
+  {
+   "label": "B4_d9.2_rho0.76",
+   "ra": 292.5927,
+   "dec": 50.4409,
+   "crop": [
+    5390,
+    174,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.264,
+    "1": 1.521,
+    "2": 1.251
+   },
+   "level": {
+    "Red": {
+     "mean": 43.9,
+     "median": 40.7
+    },
+    "Green": {
+     "mean": 100.3,
+     "median": 95.2
+    },
+    "Blue": {
+     "mean": 71.6,
+     "median": 67.6
+    }
+   }
+  },
+  {
+   "label": "B5_d10.9_rho0.73",
+   "ra": 292.7495,
+   "dec": 37.1704,
+   "crop": [
+    5688,
+    3018,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.506,
+    "1": 1.849,
+    "2": 1.446
+   },
+   "level": {
+    "Red": {
+     "mean": 43.1,
+     "median": 40.0
+    },
+    "Green": {
+     "mean": 99.1,
+     "median": 94.1
+    },
+    "Blue": {
+     "mean": 70.8,
+     "median": 67.0
+    }
+   }
+  },
+  {
+   "label": "B6_d12.7_rho0.70",
+   "ra": 322.0625,
+   "dec": 47.1197,
+   "crop": [
+    1215,
+    623,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.258,
+    "1": 1.649,
+    "2": 1.212
+   },
+   "level": {
+    "Red": {
+     "mean": 44.3,
+     "median": 40.4
+    },
+    "Green": {
+     "mean": 100.7,
+     "median": 94.6
+    },
+    "Blue": {
+     "mean": 71.8,
+     "median": 67.3
+    }
+   }
+  },
+  {
+   "label": "cropBL",
+   "ra": 323.137,
+   "dec": 34.331,
+   "crop": [
+    370,
+    3267,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.333,
+    "1": 1.561,
+    "2": 1.38
+   },
+   "level": {
+    "Red": {
+     "mean": 42.2,
+     "median": 40.4
+    },
+    "Green": {
+     "mean": 97.7,
+     "median": 94.9
+    },
+    "Blue": {
+     "mean": 69.3,
+     "median": 67.4
+    }
+   }
+  },
+  {
+   "label": "cropBR",
+   "ra": 290.159,
+   "dec": 35.801,
+   "crop": [
+    6185,
+    3267,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.672,
+    "1": 2.012,
+    "2": 1.657
+   },
+   "level": {
+    "Red": {
+     "mean": 42.5,
+     "median": 39.8
+    },
+    "Green": {
+     "mean": 98.4,
+     "median": 93.8
+    },
+    "Blue": {
+     "mean": 70.1,
+     "median": 66.6
+    }
+   }
+  },
+  {
+   "label": "cropTL",
+   "ra": 327.684,
+   "dec": 46.689,
+   "crop": [
+    370,
+    473,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.512,
+    "1": 1.826,
+    "2": 1.551
+   },
+   "level": {
+    "Red": {
+     "mean": 42.4,
+     "median": 40.3
+    },
+    "Green": {
+     "mean": 97.9,
+     "median": 94.7
+    },
+    "Blue": {
+     "mean": 69.5,
+     "median": 67.3
+    }
+   }
+  },
+  {
+   "label": "cropTR",
+   "ra": 287.45,
+   "dec": 48.48,
+   "crop": [
+    6185,
+    473,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.394,
+    "1": 1.649,
+    "2": 1.42
+   },
+   "level": {
+    "Red": {
+     "mean": 43.1,
+     "median": 40.8
+    },
+    "Green": {
+     "mean": 99.2,
+     "median": 95.4
+    },
+    "Blue": {
+     "mean": 70.3,
+     "median": 67.6
+    }
+   }
+  },
+  {
+   "label": "cropC",
+   "ra": 307.15,
+   "dec": 42.801,
+   "crop": [
+    3302,
+    1870,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 1.104,
+    "1": 1.621,
+    "2": 1.05
+   },
+   "level": {
+    "Red": {
+     "mean": 43.6,
+     "median": 40.4
+    },
+    "Green": {
+     "mean": 100.2,
+     "median": 94.9
+    },
+    "Blue": {
+     "mean": 70.7,
+     "median": 67.1
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,164 @@
+{
+ "what_this_is": "a PREDICTION of what a per-member shrink delivers, built from the members' own measured profiles. Only a one-knob A/B settles it.",
+ "member_stations_used": 148,
+ "profiles_from_the_tool": {
+  "roundness_by_member_frame_x": {
+   "x_frac": [
+    -0.905,
+    -0.7,
+    -0.5,
+    -0.30000000000000004,
+    -0.1,
+    0.1,
+    0.30000000000000004,
+    0.5,
+    0.7,
+    0.905
+   ],
+   "median": [
+    0.9754098360655739,
+    0.9435230838189153,
+    0.9206044346131428,
+    0.9216828079902704,
+    0.9247787047299523,
+    0.9499277427439567,
+    0.9606429406399902,
+    0.9318927165354332,
+    0.8816449289010264,
+    0.8681800655484866
+   ]
+  },
+  "major_px_by_member_own_radius": {
+   "rho": [
+    0.075,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6000000000000001,
+    0.7,
+    0.8,
+    0.9299999999999999
+   ],
+   "median": [
+    2.3125,
+    2.33,
+    2.4275,
+    2.5975,
+    2.6075,
+    2.74,
+    2.7175000000000002,
+    2.7225,
+    2.745
+   ]
+  }
+ },
+ "prediction_vs_measured_today": {
+  "roundness_corr": 0.7602052229117287,
+  "roundness_median_offset": 0.0008600721787154209,
+  "major_corr": 0.807482084913418,
+  "major_median_offset": 0.1559865398989575,
+  "caveat": "same measurements on both sides \u2014 a consistency check on the construction, not independent evidence"
+ },
+ "one_sided_plus_x_trim": [
+  {
+   "cut": 1.01,
+   "member_area_kept": 1.0,
+   "predicted_mean": 0.9216371274535963,
+   "predicted_at_the_4_crop_corners": 0.9212374444510252,
+   "predicted_worst_box": 0.869320451898749,
+   "boxes_losing_every_member": 0
+  },
+  {
+   "cut": 0.9,
+   "member_area_kept": 0.95,
+   "predicted_mean": 0.9220362288409355,
+   "predicted_at_the_4_crop_corners": 0.9223447334272206,
+   "predicted_worst_box": 0.8707220227564837,
+   "boxes_losing_every_member": 0
+  },
+  {
+   "cut": 0.8,
+   "member_area_kept": 0.9,
+   "predicted_mean": 0.9263644037225568,
+   "predicted_at_the_4_crop_corners": 0.9249513951479658,
+   "predicted_worst_box": 0.8762618011365867,
+   "boxes_losing_every_member": 1
+  },
+  {
+   "cut": 0.7,
+   "member_area_kept": 0.85,
+   "predicted_mean": 0.9376531708082948,
+   "predicted_at_the_4_crop_corners": 0.9719469885756196,
+   "predicted_worst_box": 0.9008046244512653,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "cut": 0.6,
+   "member_area_kept": 0.8,
+   "predicted_mean": 0.9417615327264603,
+   "predicted_at_the_4_crop_corners": 0.9719469885756196,
+   "predicted_worst_box": 0.9220803787315481,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "cut": 0.5,
+   "member_area_kept": 0.75,
+   "predicted_mean": 0.9459717187538514,
+   "predicted_at_the_4_crop_corners": 0.9719469885756196,
+   "predicted_worst_box": 0.9254668393058997,
+   "boxes_losing_every_member": 5
+  }
+ ],
+ "radial_shrink_on_star_size": [
+  {
+   "cut": 1.01,
+   "member_area_kept": 1.0,
+   "predicted_mean": 2.781282038709761,
+   "predicted_at_the_4_crop_corners": 2.8873269521520144,
+   "predicted_worst_box": 2.8903192402034104,
+   "boxes_losing_every_member": 0
+  },
+  {
+   "cut": 0.9,
+   "member_area_kept": 0.81,
+   "predicted_mean": 2.780893778061008,
+   "predicted_at_the_4_crop_corners": 2.8858627151562555,
+   "predicted_worst_box": 2.8884109752113702,
+   "boxes_losing_every_member": 0
+  },
+  {
+   "cut": 0.85,
+   "member_area_kept": 0.7224999999999999,
+   "predicted_mean": 2.779309850690385,
+   "predicted_at_the_4_crop_corners": 2.8817469268085896,
+   "predicted_worst_box": 2.8831644339074005,
+   "boxes_losing_every_member": 0
+  },
+  {
+   "cut": 0.8,
+   "member_area_kept": 0.6400000000000001,
+   "predicted_mean": 2.772528494782548,
+   "predicted_at_the_4_crop_corners": 2.876739389504971,
+   "predicted_worst_box": 2.8799385614844684,
+   "boxes_losing_every_member": 1
+  },
+  {
+   "cut": 0.75,
+   "member_area_kept": 0.5625,
+   "predicted_mean": 2.744420741388817,
+   "predicted_at_the_4_crop_corners": 2.8758773099338244,
+   "predicted_worst_box": 2.881299121334829,
+   "boxes_losing_every_member": 5
+  },
+  {
+   "cut": 0.7,
+   "member_area_kept": 0.48999999999999994,
+   "predicted_mean": 2.735317831238359,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 2.8859535421396783,
+   "boxes_losing_every_member": 6
+  }
+ ],
+ "reports_only": "no threshold, no verdict, nothing built. Exits 0."
+}

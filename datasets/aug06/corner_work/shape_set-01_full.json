@@ -1,0 +1,175 @@
+{
+ "image": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01_full_wcs.fit",
+ "label": "set-01_full",
+ "instrument": "Siril findstar (setfindstar reset -roundness=0.10 -relax=on -maxR=1.0), 800 px boxes placed by the product's own WCS (y-origin top, verified by the tool's own per-star RA/Dec); FWHM = median (FWHMx+FWHMy)/2, roundness = median min/max, over the 30 brightest fits",
+ "positions": [
+  {
+   "label": "P0_rho0.07",
+   "ra": 305.9867,
+   "dec": 42.495,
+   "pixel_xy": [
+    2351.3,
+    1821.5
+   ],
+   "crop": [
+    1951,
+    1377,
+    800,
+    800
+   ],
+   "n": 1199,
+   "box_center_offset_deg": 0.03,
+   "top_n": 30,
+   "fwhm_px": 2.405,
+   "roundness": 0.939,
+   "faintest_admitted_A": 0.000253
+  },
+  {
+   "label": "P1_rho0.21",
+   "ra": 303.7468,
+   "dec": 39.6854,
+   "pixel_xy": [
+    2065.0,
+    2451.1
+   ],
+   "crop": [
+    1665,
+    747,
+    800,
+    800
+   ],
+   "n": 1166,
+   "box_center_offset_deg": 0.06,
+   "top_n": 30,
+   "fwhm_px": 2.545,
+   "roundness": 0.899,
+   "faintest_admitted_A": 0.000256
+  },
+  {
+   "label": "P2_rho0.29",
+   "ra": 300.0408,
+   "dec": 40.7658,
+   "pixel_xy": [
+    1451.7,
+    2271.2
+   ],
+   "crop": [
+    1052,
+    927,
+    800,
+    800
+   ],
+   "n": 1210,
+   "box_center_offset_deg": 0.135,
+   "top_n": 30,
+   "fwhm_px": 2.877,
+   "roundness": 0.746,
+   "faintest_admitted_A": 0.000188
+  },
+  {
+   "label": "P3_rho0.36",
+   "ra": 298.1251,
+   "dec": 43.6041,
+   "pixel_xy": [
+    1124.5,
+    1686.6
+   ],
+   "crop": [
+    725,
+    1511,
+    800,
+    800
+   ],
+   "n": 1118,
+   "box_center_offset_deg": 0.18,
+   "top_n": 30,
+   "fwhm_px": 3.078,
+   "roundness": 0.672,
+   "faintest_admitted_A": 0.000123
+  },
+  {
+   "label": "P4_rho0.41",
+   "ra": 314.9822,
+   "dec": 44.9563,
+   "pixel_xy": [
+    3618.9,
+    1056.9
+   ],
+   "crop": [
+    3219,
+    2141,
+    800,
+    800
+   ],
+   "n": 1096,
+   "box_center_offset_deg": 0.329,
+   "top_n": 30,
+   "fwhm_px": 2.433,
+   "roundness": 0.96,
+   "faintest_admitted_A": -0.000244
+  },
+  {
+   "label": "P5_rho0.48",
+   "ra": 296.5946,
+   "dec": 46.603,
+   "pixel_xy": [
+    879.2,
+    1056.9
+   ],
+   "crop": [
+    479,
+    2141,
+    800,
+    800
+   ],
+   "n": 1063,
+   "box_center_offset_deg": 0.089,
+   "top_n": 30,
+   "fwhm_px": 3.182,
+   "roundness": 0.629,
+   "faintest_admitted_A": 9.8e-05
+  },
+  {
+   "label": "P6_rho0.55",
+   "ra": 294.1929,
+   "dec": 40.6669,
+   "pixel_xy": [
+    511.1,
+    2316.2
+   ],
+   "crop": [
+    111,
+    882,
+    800,
+    800
+   ],
+   "n": 1025,
+   "box_center_offset_deg": 0.135,
+   "top_n": 30,
+   "fwhm_px": 3.615,
+   "roundness": 0.569,
+   "faintest_admitted_A": -0.000739
+  },
+  {
+   "label": "P7_rho0.71",
+   "ra": 321.4894,
+   "dec": 46.6525,
+   "pixel_xy": [
+    4477.6,
+    427.3
+   ],
+   "crop": [
+    4078,
+    2771,
+    800,
+    800
+   ],
+   "n": 978,
+   "box_center_offset_deg": 0.277,
+   "top_n": 30,
+   "fwhm_px": 2.708,
+   "roundness": 0.912,
+   "faintest_admitted_A": -0.000276
+  }
+ ]
+}

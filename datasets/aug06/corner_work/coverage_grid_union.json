@@ -1,0 +1,40 @@
+{
+ "source": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+ "canvas_wh": [
+  7355,
+  4590
+ ],
+ "grid": [
+  80,
+  50
+ ],
+ "box_px": [
+  91,
+  91
+ ],
+ "channel": "Green",
+ "floor": null,
+ "instrument": "Siril load + boxselect + stat (every per-box number is Siril's); in-house is the grid bookkeeping and the largest-all-covered-rectangle search",
+ "criterion": "a box is COVERED when Siril Min on the Green layer is >= floor \u2014 the sibling-class sky floor, never mere non-zero, and never the worst channel (the low channel clips to zero on fully covered sky in this class)",
+ "min_quantiles": {
+  "p0": 0.0,
+  "p5": 0.0,
+  "p10": 0.0,
+  "p25": 86.7,
+  "p50": 88.9,
+  "p75": 89.8,
+  "p100": 93.3
+ },
+ "zero_boxes": 494,
+ "no_stat_boxes": 234,
+ "edge_band_boxes": 0,
+ "cells_omitted": "4000 per-box records dropped deliberately, following the precedent of datasets/aug06/l1_work/coverage_frame_union.json: the grid is a local Siril run and scripts/qa/coverage_frame.py is shipped, so the evidence regenerates on demand \u2014 `python3 scripts/qa/coverage_frame.py web/results/aug06/stack_set-01+02+03_full_wcs.fit datasets/aug06/corner_work/coverage_grid_union.json --grid=80x50 --channel=Green`. What the cells were USED for is kept: the header-derived depth map's verification against them, in corner_quality.json (depth_map_verified_by_the_tool).",
+ "header_depth_cross_check": {
+  "why": "the header-derived member-footprint depth map is the DEPTH axis of the corner-quality measurement, so it is checked against this grid rather than asserted",
+  "geometry_covered_boxes": 3636,
+  "of_those_siril_calls_entirely_uncovered": 0,
+  "geometry_empty_boxes": 364,
+  "of_those_siril_still_measures_signal": 130,
+  "reading": "0 disagreements on the covered side. The 130 are the footprint-edge band, where a 91 px box straddles a member boundary so its centre is outside while part of the box is covered."
+ }
+}

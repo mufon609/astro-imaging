@@ -1,0 +1,278 @@
+{
+ "stack": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_05.fit",
+ "shape_record": "/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/shape_member_m05s1_atunionsky.json",
+ "instrument": "Siril load + crop + bgnoise + stat, in boxes whose placement shape_at_sky.py verified against the tool's own per-star RA/Dec",
+ "reports_only": "no threshold, no verdict",
+ "positions": [
+  {
+   "label": "A0_d13_rho0.12",
+   "ra": 307.1312,
+   "dec": 42.565,
+   "crop": [
+    2294,
+    1589,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.036,
+    "1": 2.405,
+    "2": 2.061
+   },
+   "level": {
+    "Red": {
+     "mean": 92.4,
+     "median": 89.5
+    },
+    "Green": {
+     "mean": 150.3,
+     "median": 145.5
+    },
+    "Blue": {
+     "mean": 119.0,
+     "median": 115.8
+    }
+   }
+  },
+  {
+   "label": "cropC",
+   "ra": 307.15,
+   "dec": 42.801,
+   "crop": [
+    2293,
+    1639,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.02,
+    "1": 2.382,
+    "2": 2.045
+   },
+   "level": {
+    "Red": {
+     "mean": 92.5,
+     "median": 89.6
+    },
+    "Green": {
+     "mean": 150.3,
+     "median": 145.7
+    },
+    "Blue": {
+     "mean": 119.0,
+     "median": 115.9
+    }
+   }
+  },
+  {
+   "label": "A1_d13_rho0.20",
+   "ra": 303.6422,
+   "dec": 43.8476,
+   "crop": [
+    1743,
+    1830,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.145,
+    "1": 2.463,
+    "2": 2.137
+   },
+   "level": {
+    "Red": {
+     "mean": 93.1,
+     "median": 90.4
+    },
+    "Green": {
+     "mean": 150.8,
+     "median": 146.1
+    },
+    "Blue": {
+     "mean": 119.5,
+     "median": 116.4
+    }
+   }
+  },
+  {
+   "label": "A2_d13_rho0.27",
+   "ra": 303.2353,
+   "dec": 39.6001,
+   "crop": [
+    1707,
+    930,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.341,
+    "1": 2.85,
+    "2": 2.355
+   },
+   "level": {
+    "Red": {
+     "mean": 95.2,
+     "median": 90.0
+    },
+    "Green": {
+     "mean": 153.6,
+     "median": 145.4
+    },
+    "Blue": {
+     "mean": 122.1,
+     "median": 116.0
+    }
+   }
+  },
+  {
+   "label": "A3_d13_rho0.35",
+   "ra": 313.7011,
+   "dec": 39.9446,
+   "crop": [
+    3393,
+    1158,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.096,
+    "1": 2.388,
+    "2": 2.094
+   },
+   "level": {
+    "Red": {
+     "mean": 93.3,
+     "median": 90.9
+    },
+    "Green": {
+     "mean": 151.3,
+     "median": 147.2
+    },
+    "Blue": {
+     "mean": 119.9,
+     "median": 117.0
+    }
+   }
+  },
+  {
+   "label": "A4_d13_rho0.42",
+   "ra": 298.3631,
+   "dec": 45.2039,
+   "crop": [
+    941,
+    2117,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.317,
+    "1": 2.508,
+    "2": 2.257
+   },
+   "level": {
+    "Red": {
+     "mean": 94.4,
+     "median": 91.0
+    },
+    "Green": {
+     "mean": 152.3,
+     "median": 146.9
+    },
+    "Blue": {
+     "mean": 121.6,
+     "median": 117.2
+    }
+   }
+  },
+  {
+   "label": "A5_d13_rho0.50",
+   "ra": 296.8259,
+   "dec": 40.2074,
+   "crop": [
+    656,
+    1062,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.509,
+    "1": 2.742,
+    "2": 2.446
+   },
+   "level": {
+    "Red": {
+     "mean": 94.8,
+     "median": 91.3
+    },
+    "Green": {
+     "mean": 153.2,
+     "median": 147.4
+    },
+    "Blue": {
+     "mean": 121.9,
+     "median": 117.6
+    }
+   }
+  },
+  {
+   "label": "A6_d13_rho0.57",
+   "ra": 319.0935,
+   "dec": 46.4111,
+   "crop": [
+    3964,
+    2661,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.254,
+    "1": 2.554,
+    "2": 2.199
+   },
+   "level": {
+    "Red": {
+     "mean": 92.2,
+     "median": 89.7
+    },
+    "Green": {
+     "mean": 149.7,
+     "median": 145.3
+    },
+    "Blue": {
+     "mean": 119.0,
+     "median": 116.0
+    }
+   }
+  },
+  {
+   "label": "A7_d13_rho0.65",
+   "ra": 320.4288,
+   "dec": 47.3943,
+   "crop": [
+    4108,
+    2912,
+    800,
+    800
+   ],
+   "bgnoise": {
+    "0": 2.257,
+    "1": 2.497,
+    "2": 2.224
+   },
+   "level": {
+    "Red": {
+     "mean": 92.8,
+     "median": 89.9
+    },
+    "Green": {
+     "mean": 150.4,
+     "median": 145.5
+    },
+    "Blue": {
+     "mean": 119.7,
+     "median": 116.2
+    }
+   }
+  }
+ ]
+}

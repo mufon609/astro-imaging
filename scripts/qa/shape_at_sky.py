@@ -4,6 +4,7 @@ product's own solved WCS — the acceptance instrument for combined products.
 
 Usage: shape_at_sky.py <solved.fit> --pos RA,DEC[,label] [--pos ...]
                        [--box=800] [--top=30] [--json=<out>] [--label=<name>]
+                       [--lst-dir=<dir>]
 
 Why this exists: the compose-registration defect class is invisible to every
 per-member measure and to whole-frame statistics — it lives at specific SKY
@@ -43,6 +44,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 import statistics
 import sys
 import tempfile
@@ -76,8 +78,15 @@ def ang_sep_deg(ra1, dec1, ra2, dec2):
     return math.degrees(math.acos(max(-1.0, min(1.0, x))))
 
 
-def measure(image, positions, box, top, y_top_origin):
-    """One siril pass: crop every position's box, findstar each. Returns rows."""
+def measure(image, positions, box, top, y_top_origin, lst_dir=None):
+    """One siril pass: crop every position's box, findstar each. Returns rows.
+
+    With `lst_dir`, the tool's own per-position star lists are copied out before
+    the scratch dir dies, so a caller can re-summarise the SAME fits under a
+    different depth-matching rule (a common amplitude floor rather than top-N)
+    without a second Siril pass. Only the accepted y-convention's lists survive,
+    because the rejected pass overwrites nothing it did not also verify.
+    """
     from astropy.io import fits
     from astropy.wcs import WCS
     hdr = fits.getheader(image)
@@ -115,7 +124,11 @@ def measure(image, positions, box, top, y_top_origin):
             if not os.path.exists(row["lst"]):
                 raise SystemExit(f"findstar wrote no list for {row['label']} — "
                                  f"siril said:\n{(r.stdout or '')[-800:]}")
-            rows = read_lst(row.pop("lst"))
+            lst = row.pop("lst")
+            if lst_dir:
+                os.makedirs(lst_dir, exist_ok=True)
+                shutil.copy(lst, os.path.join(lst_dir, f"{row['label']}.lst"))
+            rows = read_lst(lst)
             row["n"] = len(rows)
             if not rows:
                 continue
@@ -145,6 +158,8 @@ def main():
     ap.add_argument("--top", type=int, default=30)
     ap.add_argument("--json")
     ap.add_argument("--label", default="")
+    ap.add_argument("--lst-dir", dest="lst_dir",
+                    help="keep the tool's own per-position star lists here")
     a = ap.parse_args()
     image = os.path.abspath(a.image)
     positions = []
@@ -165,7 +180,7 @@ def main():
 
     rows, convention = None, None
     for y_top in (False, True):
-        got = measure(image, positions, a.box, a.top, y_top)
+        got = measure(image, positions, a.box, a.top, y_top, a.lst_dir)
         offs = [r.get("box_center_offset_deg") for r in got
                 if not r.get("out_of_canvas")]
         if not offs:
