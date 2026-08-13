@@ -5,6 +5,56 @@ slots is the template's and is not rewritten per engagement.
 
 ---
 
+## How to start — do this before anything else
+
+You are the ORACLE, launched as **your own session in your own terminal**, in
+this repo (`/home/samsung/Desktop/astro-imaging`). This file is your
+instructions. Peers reach you through `ListAgents` / `SendMessage`; the PM is the
+session that wrote this brief and is who you report to.
+
+**Read, in this order, before answering anything:**
+
+1. `CLAUDE.md` — the contract. Note the bright line and the evidence gate, and
+   note that **standards-first is a BINDING RULE for architecture**, which is the
+   rule your primary audit tests.
+2. `docs/dead-ends.md` — the registry, and your playbook's home. It is long; read
+   **Tool state / plumbing**, **Detection / solve / registration** and **QA /
+   scope** in full.
+3. `TOOLS.md` — the toolkit audit you are here to fact-check.
+4. `BACKLOG.md` — the `removal-conditions` register, plus `one-sided-band` and
+   `compose-homography-smear`.
+5. `docs/untracked-widefield-standards.md` — an existing 45-source standards
+   review. **Check whether its findings were absorbed or merely filed.**
+6. `datasets/aug06/corner_work/sky_rate_gradient.json` and
+   `mechanism_and_specs.json` — for the secondary questions.
+
+**Then send the PM your SYNC REPLY before issuing findings to anyone.** Do not
+skip the sync to look responsive: an Oracle that answers before it understands
+the tree fact-checks the wrong things confidently. Structure it as:
+
+- **Per stage of the primary audit:** what the field does per primary sources,
+  what we do, and the classification — adopted / deviated-with-recorded-reason /
+  **deviated without noticing**.
+- **What you believe the PM has WRONG in this brief.** You are explicitly asked
+  for this; it is not optional politeness.
+- **Anything this repo under- or mis-represents about an external tool** (your
+  standing job).
+- **Anything you could NOT settle from documentation**, with the exact probe you
+  would specify for a worker to run.
+
+**Rank every finding by COST-IF-TRUE.** Be dense; no preamble, no summary of what
+you read.
+
+**Probing is your job; experimenting is not.** Installed on this rig: siril via
+`flatpak run --command=siril-cli org.siril.Siril`, `solve-field`, `astap`,
+`exiftool`, `darktable-cli`, GraXpert and the neural stack under `/opt`. Probe
+their help, command lists, version strings and config freely, and use web search
+for vendor documentation freely. **Never produce a number about this repo's image
+data, and never run an experiment on it** — where a data probe is needed, specify
+it and hand it to a worker.
+
+---
+
 ## RE-SCOPED BY THE OWNER — read this before anything below it
 
 The corner questions (Q1–Q4) are now **SECONDARY**. They stay live and still get
