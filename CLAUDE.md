@@ -461,8 +461,10 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
     premises its work rested on and did not test** — especially any a peer also
     accepted. Convergence on such a premise is logged **UNCHECKED**, never
     CONFIRMED, and goes to a different KIND of check: the owner, a tool
-    measurement, or an adversarial pass. Two sessions agreeing is the trigger for
-    that list, not a discharge from it.
+    measurement, or an adversarial pass (an OPTIONAL role, defined with the rest of
+    the four-session team in `prompts/PROJECT_MANAGER_PROMPT.md` — never a
+    default, and nothing here requires one). Two sessions agreeing is the trigger
+    for that list, not a discharge from it.
   - **Two writers on one SECTION duplicate silently — git merges adjacent lines
     with no conflict marker, and neither author sees it because each is reading
     their own edit.** MEASURED: both sessions independently recorded the same
