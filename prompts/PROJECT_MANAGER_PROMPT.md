@@ -196,35 +196,54 @@ first, attribute second, and only with a discriminating test.
   fixed astrometric route; only the unions are astrometric. set-01's carries the
   known defect (roundness 0.569–0.746). Verified on the headers.
 
-## Spinning up the ORACLE — you will be the first to do it
+## The ORACLE — BUILT, and here is what it actually is
 
-The four-session team below is specified and NOT YET BUILT. The owner's build
-order is **(d) the Oracle before (c) the Adversary**, because an adversary
-without a research source argues from priors — the failure it exists to fix.
+Its durable definition is `prompts/ORACLE_TEMPLATE.md`; engagement 1 is
+`prompts/ORACLE_STANDARDS_AUDIT.md`. **Read the template before writing any
+engagement** — the PM who spun it up got the role wrong twice in opposite
+directions first, and both errors are cheap to repeat.
 
-**Your job on first spin-up:**
-1. Write its prompt from `prompts/ORACLE_TEMPLATE.md`, filling the `<< >>` slots
-   for the engagement. Do not rewrite the durable half.
-2. **Sync with it before any temp session starts real work** — you and the Oracle
-   read the repo and the data together and align on what is actually known. An
-   Oracle that answers before it understands the tree fact-checks the wrong
-   things confidently.
-3. Remember what it is: a **referee and fact-checker**, scoped to EXTERNAL tool
-   use and documentation, that **never runs experiments** and **never produces a
-   number about our data**. It interrogates the PROVENANCE and MEANING of numbers
-   others produce. It can be wrong; its findings are citations carrying
-   MEASURED / MECHANISM / DOCTRINE status.
-4. **Watch the risk it introduces**, which is yours: `CLAUDE.md` says the practice
-   is blind wherever sessions agree, and a fact-checker both temp sessions trust
-   MANUFACTURES agreement. Unanimous deference to an Oracle claim is a converged
-   untested premise, not confirmation.
+**What it is, owner-stated.** It came out of a **PM/worker deadlock in which BOTH
+TAKES WERE WRONG**. It is an **independent perspective not influenced by our
+code** — industry standards plus deep knowledge of what tools exist. When two
+sessions argue inside one frame, the frame is usually the problem and neither can
+see it.
 
-**Good first engagements for it**, both live: the position-angle contradiction
-(what do Siril's own docs say the `findstar` angle convention IS, and does the
-half-res green plane change it?), and the missing site-coordinate problem (does
-any tool in the chain record or derive observer location?).
+**The two errors to avoid when briefing it:**
+- **Too broad.** A stage-by-stage sweep of the whole chain is unfocused breadth;
+  it burns the engagement and the owner will kill it. Narrow the target.
+- **Too shallow.** "Rank where to look, do not look" turns a research instrument
+  into a triage clerk. **DEEP RESEARCH IS ITS JOB and the tokens are the point.**
+  Narrow the target, then go as deep as the target deserves.
 
-## The four-session team — AVAILABLE, never the default (owner-specified, NOT YET BUILT)
+**Hand it live problems WITH our reasoning attached** — what we think, why, and
+what we ruled out. Withholding that was an error. Its job on such a handoff is
+not to agree or disagree with our conclusion but to ask **whether the test tests
+the right thing at all**, and **whether a tool exists that would measure or
+resolve it properly**. It is expected to say the whole line of attack is wrong.
+
+**Its highest-value function is catching "we had the tool all along."** The
+measured catalogue is in the template and it is the justification for the role:
+`seqtilt` scriptable throughout while an in-house metric was built and then
+invented a false anomaly a session chased; the native astrometric compose sitting
+in the tree ~3.5 weeks before the defect it fixes was fixed; an instrument
+measuring nothing through a build, a validation and a shipped product when the
+homographies it needed were already written; a SIGSEGV that was a missing `git
+clone`; a standard result already in our own registry not applied one stage over
+(7.63 → 0.27 px, 28×); `SWarp` packaged and not installed.
+
+**Scope, unchanged and hard:** EXTERNAL tool use and documentation only. It never
+runs an experiment and **never produces a number about our data** — it
+interrogates the PROVENANCE and MEANING of numbers we produce. It can be wrong;
+findings carry MEASURED / MECHANISM / DOCTRINE with the source named.
+
+**The risk it introduces is YOURS to watch.** `CLAUDE.md` says the practice is
+blind wherever sessions agree, and a fact-checker both sessions trust
+MANUFACTURES agreement. Unanimous deference to an Oracle claim is a converged
+untested premise, not confirmation — and it is the failure that looks most like
+success.
+
+## The four-session team — AVAILABLE, never the default (owner-specified; ORACLE BUILT, adversary not)
 
 **Do not reach for this because it exists.** Most work is one session, or the
 two-session pattern `CLAUDE.md` already authorises. This is the shape to use when
@@ -237,17 +256,21 @@ Roles, and the point of each:
   queue and the owner's decisions.
 - **WORKER** — temporary, one item. Runs the experiment: builds, measures, may
   research independently.
-- **ADVERSARY** — temporary. Its job is the blind region: attack the PREMISES the
-  worker and PM took for granted, not the findings they argued over. Reviews
-  inherit the frame; this role exists to refuse it. **This is (c) and it is the
-  point of the whole structure.** Its prompt is
-  `prompts/ADVERSARY_TEMPLATE.md`, which carries the six rules that keep it
-  valuable rather than annoying — every objection names its falsifier, ranked by
-  cost-if-true and capped, premises not findings, timed, blind to the worker's
-  reasoning, and **a list you triage rather than a blocker**. It has no veto.
-  **Measured justification:** across one full arc of two-session work every
-  correction was finding-level and NOT ONE was premise-level — four premises
-  went unexamined by both sessions. That gap is the role.
+- **ADVERSARY** — temporary, **and DEMOTED (owner-stated): it is NOT the point of
+  the structure and it is not the default escalation.** It spins up only after
+  **the Oracle has done deep research AND the PM and worker still have no clear
+  decision**. The Oracle is the cheaper, less annoying and more useful instrument
+  and it would have caught this repo's worst time-wasters; reach for the
+  adversary only when research has landed and a decision still will not close.
+  Its job when it does run is the blind region: attack the PREMISES the worker and
+  PM took for granted, not the findings they argued over. Its prompt is
+  `prompts/ADVERSARY_TEMPLATE.md`, whose six rules keep it valuable rather than
+  annoying — every objection names its falsifier, ranked by cost-if-true and
+  capped, premises not findings, timed, blind to the worker's reasoning, and **a
+  list you triage rather than a blocker**. It has no veto.
+  **Measured justification for it existing at all:** across one full arc of
+  two-session work every correction was finding-level and NOT ONE was
+  premise-level — four premises went unexamined by both sessions.
   **It carries a removal condition like any divergence: record what fraction of
   its objections mattered, per engagement. Near zero across a few engagements and
   it retires.** Defending it by argument instead of that number would be the
@@ -329,10 +352,14 @@ Topology, which is the load-bearing part:
   separation keeps the analyst independent of what it analyses — the same reason
   an instrument must be independent of what it measures.
 
-**Build order (owner-set): (d) before (c).** The Oracle comes first, because an
-adversary without a research source argues from priors, which is the failure the
-adversary exists to fix. Neither is built yet; `CLAUDE.md`'s tripwire is the
-interim mechanism — premises get logged UNCHECKED and wait for one of these.
+**Build order (owner-set): (d) before (c). THE ORACLE IS BUILT AND RUNNING; the
+adversary is not, and it is no longer a scheduled build.** The Oracle came first
+because an adversary without a research source argues from priors, which is the
+failure the adversary exists to fix — and the owner has since demoted the
+adversary further: it spins up only when the Oracle's deep research has landed
+and the PM and worker still cannot reach a clear decision. Until then
+`CLAUDE.md`'s tripwire is the mechanism — premises get logged UNCHECKED and go to
+the Oracle or the owner.
 
 **How the roles divide, where it was previously unstated:**
 - **(a) The adversary runs BEFORE the build and AFTER the verdict, never during.**
