@@ -7,6 +7,19 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
+- **[`CORNER_QUALITY_PROMPT.md`](CORNER_QUALITY_PROMPT.md)** — measure WHY the
+  far corners degrade, on TWO axes, before any crop line exists. Coverage depth
+  lives in union-canvas coordinates; registration residual and optical aberration
+  live in member-own field radius — different coordinate systems, so measuring
+  both separates the candidates. **The brief opens with the misattribution
+  history**, because the left-side softness was chased as a lens problem and was
+  the compose (members 0.924–0.942 roundness, their compose 0.582), and because
+  the manager repeated that error while scoping it. Status corrected: coverage is
+  established, the 0.22/0.48/1.30/2.43 px residual profile predates the compose
+  fix and is effectively unquantified today, and the optical term is real but
+  ~7%. Output is a number or the finding that no crop is justified; the shrink is
+  NOT implemented in that session.
+
 - **[`COMBINE_FLAT_WINDOW_PROMPT.md`](COMBINE_FLAT_WINDOW_PROMPT.md)** — STAGED,
   not cleared: it is a multi-set member rebuild and needs the owner's word that
   the machine is free. Arm A exists in full (the whole 12-set corpus is per-set
