@@ -1,0 +1,20 @@
+{
+ "id": "l1_from_raws_reproducibility",
+ "why_it_is_here": "not a side result. Arm A is pinned to a DONOR arm's per-group registration, and the claim that this pins arm A to THE CONTROL'S registration rests entirely on the donor arm reproducing the control. This measures that rather than assuming it — and it doubles as the README acceptance check 'the render is REPRODUCIBLE', which had a documented tolerance form but no current measurement on this corpus.",
+ "design": "the control's own configuration re-run from raws through run_undistort_groups.sh under TODAY's tree (--tag=l1ctrl, so the canonical work/groups_set-01 is never written), then compared member for member against the control's members built at PIPEREV a1dc91b.",
+ "measured_set01": {
+  "sub_01": {"canvas": [5830, 3958], "differing_pixels": 0, "of": 69225420},
+  "sub_02": {"canvas": [5830, 3952], "differing_pixels": 0, "of": 69120480},
+  "sub_03": {"canvas": [5829, 3976], "differing_pixels": 0, "of": 69528312},
+  "sub_04": {"canvas": [5830, 3955], "differing_pixels": 0, "of": 69172950},
+  "sub_05": {"canvas": [5829, 3978], "differing_pixels": 0, "of": 69563286},
+  "total_differing": 0,
+  "total_pixels": 346610448
+ },
+ "result": "BIT-REPRODUCIBLE ACROSS A PIPEREV CHANGE. Every member reproduces its control counterpart exactly — 0 differing of 346,610,448 pixels — at identical canvases, with the tree moved from a1dc91b to 1f261e7. The only header differences are DATE, PIPEREV and the REGPIN filename. The intervening build-path commits (notably 8d370dd, which pinned `-transf=homography` and `-interp=lanczos4` explicitly on the grounds that they are Siril's own defaults) are therefore confirmed pixel-neutral on this route by re-execution, not by their commit message.",
+ "what_it_licenses": "the per-group `.seq` donors harvested from this arm ARE the control's registration data — the reference index and every homography — so pinning arm A to them makes arm A differ from the control by the background step alone. Without this, the donor would only be a same-configuration stand-in.",
+ "the_reference_indices_the_pin_freezes": "set-01 groups 1-5 chose reference image 8, 1, 28, 4 and 50 of 100. Scattered across the whole group, and each is a deterministic function of that group's own frames — which is why an unpinned arm re-rolls all five and why the pin matters at every group rather than on average.",
+ "instrument": "astropy pixel comparison of two tool-built products (a DIAGNOSTIC read, CLAUDE.md: reading pixels to investigate is not the pipeline gate the bright line governs); every pixel in both products was written by Siril and darktable.",
+ "scope": "aug06/set-01, 5 members, 500 frames, this rig, Siril 1.4.4 flatpak, darktable 5.4.1. Sets 02 and 03 are rebuilt under the same driver in the same run; their members are not compared pixel-for-pixel here because the donor claim only needs the registration, and set-01's five groups already establish the mechanism.",
+ "box_uptime": "22:36 up 38 days, 6:47"
+}

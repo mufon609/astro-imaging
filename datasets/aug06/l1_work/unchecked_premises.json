@@ -1,0 +1,55 @@
+{
+ "id": "l1_unchecked_premises",
+ "why": "CLAUDE.md (parallel sessions): a session's report NAMES the premises its work rested on and did not test, especially any a peer also accepted. Convergence on such a premise is logged UNCHECKED, never CONFIRMED, and goes to a different KIND of check. This is that list. It is written from inside the session that holds the premises, which is the weakest possible position to write it from \u2014 the list is itself a candidate for the blind region it describes.",
+ "the_category_is_not_hypothetical_here": "one premise on this list was carried UNCHECKED for the whole design phase, was accepted by both sessions, and turned out FALSE: 'the control's per-set stacks are what today's chain produces from today's members'. It was caught only when a canvas mismatch made it impossible to keep \u2014 see persset_baseline_correction.json. Nothing about the way it was held marked it as riskier than the others below.",
+ "unchecked_and_load_bearing": [
+  {
+   "premise": "starlight preservation is the RIGHT adoption gate for the L1 level choice",
+   "status": "UNCHECKED \u2014 inherited from the pre-registration and accepted by both sessions without either raising it",
+   "why_it_matters": "if preservation is not what should decide per-frame vs on-stack, the whole experiment answers a question nobody needed answered. Every number here is conditional on it.",
+   "what_would_check_it": "the owner. It is a judgement about what matters, not a measurement, and no instrument can settle it."
+  },
+  {
+   "premise": "`--gsplit=11` (G = 11.0 at 50% completeness) is the right detection limit on THIS corpus",
+   "status": "UNCHECKED for the retained readings, PARTIALLY checked for the bound",
+   "why_it_matters": "it defines which Gaia sources count as unresolved, i.e. the predictor itself. It is INHERITED from the archived july23 identification record and is a hypothesis on aug06.",
+   "what_would_check_it": "the research pass swept G = 9 to 14 and showed the catalogue BOUND is insensitive to it; nobody has swept the paired RETAINED readings. Every magnitude bin is kept in every record, so the sweep is offline and cheap."
+  },
+  {
+   "premise": "the 14x10 lattice is an appropriate scale, and the readings are not an artefact of it",
+   "status": "UNCHECKED \u2014 inherited from the research pass and never varied by either session",
+   "why_it_matters": "cell size ranges 350x359 px on a per-set surface to 525x459 on the union, so the four surfaces are not even read at one angular scale. A scale-dependent result would look exactly like a surface-dependent one.",
+   "what_would_check_it": "re-run one surface at 10x7 and 20x14 and compare retained. Cheap \u2014 the cached Gaia cells make only the new lattice's cells a fresh query."
+  },
+  {
+   "premise": "`-nodither` per-frame and `subsky` on-stack are two spellings of ONE setting, so dithering is held fixed across the arms",
+   "status": "UNCHECKED \u2014 asserted in the pre-registration, not probed in this session",
+   "why_it_matters": "if they differ, the arms differ by a second knob and the whole comparison is contaminated. The asymmetry is real (`seqsubsky` dithers unless told not to; `subsky` does not unless asked), which is why the pre-registration names it.",
+   "what_would_check_it": "the probe that established the per-frame half \u2014 two runs of the on-stack operator, differenced. It was run for `seqsubsky` (sigma 0.4 ADU between default runs, bit-identical with -nodither) and never for `subsky`."
+  },
+  {
+   "premise": "Gaia DR3 incompleteness in the galactic plane does not act DIFFERENTIALLY between the arms",
+   "status": "UNCHECKED \u2014 scope limit 4 of the instrument, accepted by both sessions",
+   "why_it_matters": "the predictor is a proxy that tracks the true faint-star flux rather than equalling it. Both arms are read on the same cells with the same catalogue, so a common bias cancels in the paired difference; a bias that interacts with the arms would not.",
+   "what_would_check_it": "no external anchor exists on this rig. It is a documented gap, not a deferred task."
+  },
+  {
+   "premise": "`retained` is the right summary statistic for the question",
+   "status": "UNCHECKED \u2014 inherited, and the session then spent most of its analysis effort on how to READ it rather than on whether to use it",
+   "why_it_matters": "it is a ratio whose denominator is a poorly-determined measured slope on two of four surfaces (58-67% SE). The session added the bound, the non-resolution phrasing and the denominator analysis around it, all of which take the statistic as given."
+  }
+ ],
+ "checked_during_the_run_and_recorded_as_such": [
+  "the donor's registration IS the control's \u2014 13 members reproduce at 0 differing of 893,212,122 px (reproducibility.json)",
+  "the reference moves on the knob and is deterministic under identical input (reference_stability_pilot.json)",
+  "no build-path script changed during the run \u2014 `git diff --stat 1f261e7..HEAD -- scripts/` is empty, so the PIPEREV moves are records-only",
+  "the control's per-set stacks are NOT today's product \u2014 FALSIFIED and corrected mid-flight (persset_baseline_correction.json)",
+  "the background step did NOT degrade arm A's plate solutions \u2014 13 members, solve logodds donor vs arm A: set-01 203/203/222/127/137 both ways, set-02 223/134/145/156 vs 222/134/145/156, set-03 194/194/103/128 both ways; 0 solve failures in either arm. One member moved by 1 logodds. So the astrometric compose is not differing for a reason that is not the knob",
+  "the pin held on ALL 13 members, not just the first \u2014 13/13 arm A canvases identical to their donor's, 13/13 builder 'registration PINNED' lines, every product stamped REGPIN=gNN.seq and BKGLIGHT=subsky1-nodither"
+ ],
+ "still_to_check_before_the_verdict": [
+  "the compose reference is member 1 in BOTH arm unions \u2014 verifiable from each arm's own compose-gate record (the control's reads reference_member s_00001)",
+  "the control is untouched \u2014 md5 of the 21 fingerprinted artifacts, taken before any arm build"
+ ],
+ "box_uptime": "00:01 up 38 days, 8:11"
+}

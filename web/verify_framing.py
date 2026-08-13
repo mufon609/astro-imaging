@@ -20,6 +20,20 @@ script parses and records, it computes nothing from pixels):
                        FLOOR rule (dead-ends: mere non-zero PASSES on
                        lanczos edge-ringing residue; the floor must be the
                        sibling stacks' sky level, e.g. ~80 ADU on july14).
+  --channel=<layer>    apply the floor to ONE named layer (Red|Green|Blue)
+                       instead of the worst of all three. Every layer is still
+                       measured and recorded; only the BAR moves.
+                       WHY IT EXISTS, measured on the aug06 undistort class:
+                       the low channel CLIPS TO ZERO on fully-covered sky, so
+                       the worst-channel bar cannot pass at any positive floor
+                       and calls covered sky uncovered. The three min-framed
+                       per-set siblings — fully covered by construction —
+                       read Red Min 0.0 at Red medians 14.6/32.1/28.3, while
+                       Green reads Min 60.4/72.4/67.7 at medians
+                       71.8/83.8/79.3. Same convention as
+                       starlight_preservation.py's coverage guard, which
+                       counts a cell uncovered only when EVERY channel is
+                       zero. Default (unset) is unchanged: worst of all.
 
 PASS stamps the record status "verified" with the measured stats + method;
 FAIL leaves it "unverified" and records the failure. The render chain must
@@ -96,10 +110,21 @@ def main():
         sys.exit(f"verify_framing: no such image {image}")
 
     stats = run_crop_stat(image, crop, workdir)
-    worst_min = min(s["min"] for s in stats)
+    chan = opts.get("channel")
+    if chan:
+        named = [s for s in stats if s["layer"] == chan]
+        if not named:
+            sys.exit(f"verify_framing: --channel={chan} but siril reported "
+                     f"layers {[s['layer'] for s in stats]}")
+        worst_min = min(s["min"] for s in named)
+        method += (f"; floor applied to the {chan} layer only (the low channel "
+                   "clips to zero on fully-covered sky in this class — all "
+                   "layers are still measured below)")
+    else:
+        worst_min = min(s["min"] for s in stats)
     ok = worst_min >= floor
     result = {"method": method, "image": os.path.relpath(image, REPO),
-              "crop_args": crop, "floor": floor,
+              "crop_args": crop, "floor": floor, "floor_channel": chan or "worst",
               "measured": stats, "worst_min": worst_min,
               "verdict": "PASS" if ok else "FAIL"}
     if ok:

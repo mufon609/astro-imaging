@@ -1,0 +1,117 @@
+{
+ "product": "stack_set-01+02+03_full_wcs",
+ "canvas_wh": [
+  7355,
+  4590
+ ],
+ "rect_fits": [
+  364,
+  546,
+  6643,
+  3549
+ ],
+ "rect_siril_crop_args": [
+  364,
+  495,
+  6643,
+  3549
+ ],
+ "radec_corners_deg": [
+  [
+   330.9445974804505,
+   47.69225415802475
+  ],
+  [
+   284.1737487472915,
+   49.73770245445272
+  ],
+  [
+   288.2189132995889,
+   33.88872770545816
+  ],
+  [
+   324.7101298064072,
+   32.2816441602814
+  ]
+ ],
+ "scale_deg_per_px": 0.004743147754733372,
+ "field_width_deg": 31.5087,
+ "source": "DERIVED, not drawn: scripts-side coverage-frame search over Siril `stat` on an 80x50 grid of 91x91 px boxes (datasets/aug06/l1_work/coverage_frame_union.json) \u2014 the largest axis-aligned rectangle every one of whose boxes clears the sibling-class sky floor on the reference channel",
+ "why": "the pinned crop-to-verified-coverage that must precede any on-stack background step: `subsky`'s sample grid ingests a max-canvas's zero-coverage rims and its -tolerance excludes only BRIGHT outliers, not empty sky (docs/dead-ends.md). Crop-before-background is the pinned order.",
+ "floor_derivation": "level-corrected SIBLING-CLASS SKY FLOOR. The three min-framed per-set siblings are fully covered by construction and read Siril Green Min/Median 60.4/71.8, 72.4/83.8, 67.7/79.3 -> ratios 0.841/0.864/0.854, mean 0.8530; the union's own Green median is 94.8, so the floor is 0.8530 x 94.8 = 80.9 ADU. It is corroborated by the data's own gap: of 3766 boxes carrying a Green stat, 260 read Min 0.0 and only 31 fall in (0, 80), against a clean population starting at 82.3 (p10).",
+ "status": "verified",
+ "last_verification_failure": {
+  "method": "product stack sky floor: require stat Min >= 80.9 ADU (sibling-class floor rule \u2014 never mere non-zero)",
+  "image": "web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+  "crop_args": [
+   364,
+   495,
+   6643,
+   3549
+  ],
+  "floor": 80.9,
+  "floor_channel": "worst",
+  "measured": [
+   {
+    "layer": "Red",
+    "mean": 43.7,
+    "median": 40.5,
+    "min": 14.1,
+    "max": 50608.9
+   },
+   {
+    "layer": "Green",
+    "mean": 100.0,
+    "median": 94.8,
+    "min": 81.6,
+    "max": 64897.3
+   },
+   {
+    "layer": "Blue",
+    "mean": 71.2,
+    "median": 67.4,
+    "min": 52.5,
+    "max": 59964.2
+   }
+  ],
+  "worst_min": 14.1,
+  "verdict": "FAIL"
+ },
+ "verified_by": {
+  "method": "product stack sky floor: require stat Min >= 80.9 ADU (sibling-class floor rule \u2014 never mere non-zero); floor applied to the Green layer only (the low channel clips to zero on fully-covered sky in this class \u2014 all layers are still measured below)",
+  "image": "web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+  "crop_args": [
+   364,
+   495,
+   6643,
+   3549
+  ],
+  "floor": 80.9,
+  "floor_channel": "Green",
+  "measured": [
+   {
+    "layer": "Red",
+    "mean": 43.7,
+    "median": 40.5,
+    "min": 14.1,
+    "max": 50608.9
+   },
+   {
+    "layer": "Green",
+    "mean": 100.0,
+    "median": 94.8,
+    "min": 81.6,
+    "max": 64897.3
+   },
+   {
+    "layer": "Blue",
+    "mean": 71.2,
+    "median": 67.4,
+    "min": 52.5,
+    "max": 59964.2
+   }
+  ],
+  "worst_min": 81.6,
+  "verdict": "PASS"
+ }
+}

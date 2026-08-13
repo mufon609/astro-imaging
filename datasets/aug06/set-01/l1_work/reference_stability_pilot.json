@@ -1,0 +1,19 @@
+{
+ "id": "l1_reference_stability_pilot",
+ "for": "l1_background_level_perframe_vs_onstack — the one held-fixed item the pre-registration does not pin: the per-group `register -2pass` reference INSIDE each member build",
+ "question": "does `--subsky-lights` move the reference frame `register -2pass` picks, and is that pick stable under identical input?",
+ "why_it_matters": "the 2pass chooses its reference from image QUALITY, and subtracting a plane per frame changes every frame's statistics. A different reference gives a different -framing=min member canvas, which covers different sky, which lands different lattice cells `used` — and the PAIRED retained fraction (5-16% resolving power) is computed over the cells both arms share. Losing the pairing costs the experiment its sensitivity, dropping it toward the 43-55% an absolute slope resolves.",
+ "design": "ONE KNOB (--subsky-lights) through the production builder run_undistort_pipeline.sh, 12 CONSECUTIVE frames (the first 12 of the control's own sessions/aug06/work/groups_set-01/g1.list, so the geometry is a real member's, not an even stride), --chunk=12, same master dark and per-set sky flat, same pinned optical model, --regdata= pointed at a NON-EXISTENT path so each arm SAVES its registration data instead of pinning it. Plus a REPEAT of the unflagged arm, identical in every argument, as the determinism control.",
+ "instrument": "Siril's own registration data (the `.seq` it writes: reference_image is field 6 of the S line, the per-image homographies are the R rows) and the delivered stack's NAXIS1/NAXIS2. No in-house measurement.",
+ "measured": {
+  "arm_nosub": {"reference_image": 8, "canvas": [6038, 4033], "seq": "regdata_nosub.seq"},
+  "arm_subsky_lights": {"reference_image": 11, "canvas": [6037, 4030], "seq": "regdata_sub.seq"},
+  "arm_nosub_repeat": {"reference_image": 8, "canvas": [6038, 4033], "seq": "regdata_nosub2.seq"}
+ },
+ "result": "THE REFERENCE MOVES ON THE KNOB: index 8 -> 11, and the canvas 6038x4033 -> 6037x4030 (1 px in x, 3 px in y at 12 frames' drift; the production member spans 100 frames). AND THE PICK IS DETERMINISTIC: the repeat's .seq is BYTE-IDENTICAL to the first arm's (same reference, same homographies) and its stack is PIXEL-IDENTICAL — 0 differing of 73,053,762, the only header differences being DATE and the REGPIN filename. So the movement is caused by the calibration change, not by run-to-run jitter, and `register -2pass` is a deterministic function of its input on this rig.",
+ "decision": "PIN. Step 2 of the brief applies, and determinism makes it exactly executable: because the registration is a deterministic function of the frames, re-running the UNFLAGGED arm reproduces the control's own registration, so the donor is not a stand-in for the control's registration data — it IS it, verifiable by the rebuilt members reproducing the control's members pixel-for-pixel. `--regdata-dir=` plumbed through run_undistort_groups.sh (one gNN.seq per group; first arm writes, later arms read); arm A pinned to a donor arm rebuilt from the control's own configuration.",
+ "cost_of_not_pinning": "arm A would differ from the control by TWO knobs — the background step and a re-chosen registration reference per member — inside an experiment whose whole design is one knob.",
+ "scope": "aug06/set-01, 12 consecutive frames, Siril 1.4.4 flatpak on this rig. The direction (a calibration change re-ranks the reference) replicates the flat-differential session's measurement of the same mechanism on aug09/set-05 with the FLAT as the knob (image 1 / 4896x3616 against image 2 / 4887x3641).",
+ "surfaces": "sessions/aug06/work/l1_pilot/ (stacks + siril logs, gitignored); the .seq donors and this record under datasets/aug06/set-01/l1_work/",
+ "box_uptime": "38 days, 5:42 (load 0.82 0.94 1.05) at the pilot's start"
+}

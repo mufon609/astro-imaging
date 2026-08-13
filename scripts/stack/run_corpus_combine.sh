@@ -47,8 +47,19 @@ for S in "${SESSIONS[@]}"; do
   for gd in "$S"/work/groups_set-*; do
     [ -d "$gd" ] || continue
     # arm variants are not the corpus; set-00 is the SPARE-FRAMES bucket, never
-    # a light set (owner convention: real sets start at 01)
-    case "$gd" in *_pinned|*_subsky1|*/groups_set-00) continue;; esac
+    # a light set (owner convention: real sets start at 01).
+    # ALLOW-LIST, not a deny-list of the arm suffixes that happen to exist today.
+    # The deny-list named `_pinned` and `_subsky1` because those were the arms in
+    # the tree when it was written, so every arm dir created AFTER it — this
+    # experiment's `_l1ctrl`/`_l1arm` among them — would have been composed into
+    # the corpus silently, mixing a diagnostic arm's members into the
+    # deliverable with nothing to show for it. A canonical member dir is
+    # `groups_set-NN` and nothing else.
+    case "$(basename "$gd")" in
+      groups_set-00) continue;;
+      groups_set-[0-9][0-9]) ;;
+      *) echo "[corpus]   skipping $(basename "$gd") — not a canonical groups_set-NN member dir (arm variants are not the corpus)"; continue;;
+    esac
     ls "$gd"/sub_*.fit >/dev/null 2>&1 || continue
     GROUPDIRS+=("$gd"); n=$((n + $(ls "$gd"/sub_*.fit | wc -l)))
   done

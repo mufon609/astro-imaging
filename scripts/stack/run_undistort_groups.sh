@@ -10,7 +10,34 @@
 #
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                           [--group=<derived>] [--chunk=12] [--out=<stack.fit>] [--plan] \
-#                           [--framing=min|max] [--subsky-lights]
+#                           [--framing=min|max] [--subsky-lights] [--regdata-dir=<dir>]
+#                           [--tag=<arm>]
+#
+# --tag=<arm>  build into `work/groups_<set>_<arm>` instead of the canonical
+#     `work/groups_<set>`. REQUIRED for any A/B arm: the work dir is derived
+#     from session+set alone, so an arm run without it lands on the CONTROL's
+#     members — and, because a present sub_NN.fit at the same GRPSIZE is a
+#     legitimate RESUME, it would silently skip every group and compose the
+#     control's members under the arm's name. The arm would look built and be
+#     the control. Arm dirs are excluded from the corpus by name
+#     (run_corpus_combine.sh takes `groups_set-NN` and nothing else).
+#
+# --regdata-dir=<dir>  PIN THE PER-GROUP REGISTRATION across the arms of an A/B,
+#     the group-route counterpart of run_undistort_pipeline.sh's --regdata= (that
+#     block carries the mechanism). One `<dir>/gNN.seq` per group: absent, the
+#     group registers normally and WRITES its data there; present, the group is
+#     handed it and does not re-register, so its reference frame and every
+#     homography are the donor arm's. First arm writes, every later arm reads.
+#     MEASURED here that this route needs it, one knob (--subsky-lights) over 12
+#     consecutive aug06/set-01 frames: `register -2pass` chose reference index 8
+#     unflagged and 11 flagged, delivering a 6038x4033 canvas against 6037x4030.
+#     Subtracting a plane per frame changes each frame's statistics and therefore
+#     the QUALITY ranking the 2pass picks its reference from — a second knob
+#     inside a one-knob experiment, and on a WCS-addressed instrument it is the
+#     PAIRING it costs: a different member canvas covers different sky, so the
+#     arms are compared over non-identical cell sets.
+#     DIAGNOSTIC, like the flags it mirrors: the default path is untouched and
+#     the one-click chain does not plumb it.
 #
 # !! The flat-side `--desky` (seqsubsky on the sky flat's RAW source frames) is
 # a REGISTERED 31x REGRESSION — a domain error, background extraction on
@@ -38,14 +65,26 @@ source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared 
                                               # the single-pass builder and the router
 SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min SUBSKYOPT=
+DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min SUBSKYOPT= RDDIR= TAG=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
   --framing=*) FRAMING=${a#*=};;
   --subsky-lights) SUBSKYOPT=--subsky-lights;;
+  --regdata-dir=*) RDDIR=${a#*=};;
+  --tag=*) TAG=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
+# The tag names a DIRECTORY, so anything that could climb out of the work tree
+# or collide with the canonical name is refused rather than sanitised.
+case "$TAG" in
+  "" ) ;;
+  *[!a-zA-Z0-9_-]* ) echo "--tag must be [A-Za-z0-9_-]+ (it names a work dir)" >&2; exit 1;;
+esac
+if [ -n "$RDDIR" ]; then
+  mkdir -p "$RDDIR"
+  RDDIR="$(cd "$RDDIR" && pwd)"   # the sub-pipeline resolves --regdata from ITS cwd
+fi
 case "$FRAMING" in min|max) ;; *) echo "--framing must be min or max" >&2; exit 1;; esac
 [ -n "$DARK" ] && [ -n "$FLAT" ] || { echo "need --dark= --flat= (matched masters)" >&2; exit 1; }
 # Absolutize the masters (embedded into the sub-pipeline's calibrate .ssf,
@@ -57,8 +96,9 @@ FLAT="$(cd "$(dirname "$FLAT")" && pwd)/$(basename "$FLAT")"
 SESSION=$(cd "$SESSION" && pwd)
 OUT=${OUT:-$REPO/web/results/$(basename "$SESSION")/stack_${SET}_full}
 OUT=${OUT%.fit}
-G=$SESSION/work/groups_$SET
+G=$SESSION/work/groups_$SET${TAG:+_$TAG}
 mkdir -p "$G" "$(dirname "$OUT")"
+[ -z "$TAG" ] || echo "ARM BUILD: members -> $G (the canonical work/groups_$SET is untouched)"
 # Absolutize: the flatpak Siril sandbox resolves the .ssf's -out= from the
 # script's own CWD, so a relative --out lands the final INSIDE the work tree
 # and the existence check fails on a stack that actually built.
@@ -194,6 +234,13 @@ NEED_GB=$(undistort_groups_peak_gib "$SESSION" "$SET" "$MAXG" "$K") \
   || { echo "ABORT: cannot size the disk budget for $SET — see above" >&2; exit 1; }
 SPPEAK_MIB=$(undistort_singlepass_peak_mib "$SESSION" "$SET")
 echo "plan: $N frames -> $K groups ($REM x $((BASE+1)) + $((K-REM)) x $BASE), peak ~${NEED_GB}G${SUBSKYOPT:+, per-frame subsky 1 -nodither (--subsky-lights)}"
+if [ -n "$RDDIR" ]; then
+  # State per group which way the pin runs BEFORE the run, so an arm that is
+  # silently writing donors when it meant to read them is visible up front.
+  HAVE=0; for ((g=1; g<=K; g++)); do
+    [ -f "$RDDIR/g$(printf %02d "$g").seq" ] && HAVE=$((HAVE + 1)); done
+  echo "  registration: --regdata-dir=$RDDIR — $HAVE of $K group(s) PINNED from an existing gNN.seq, $((K - HAVE)) will register and WRITE their donor"
+fi
 
 # --plan MUST EXERCISE THE GUARDS THAT CAN REFUSE THE RUN, not just print the
 # arithmetic. Both the dwell floor (above) and the resume check (below) are pure
@@ -267,9 +314,10 @@ except Exception: print(0)" "$SUB.fit")
   : > "$G/g$g.list"
   for ((k=0; k<size; k++, i++)); do printf '%s\n' "${SRC[$i]}" >> "$G/g$g.list"; done
   echo "=== group $g/$K: $(wc -l < "$G/g$g.list") frames ==="
+  RDOPT=; [ -z "$RDDIR" ] || RDOPT=--regdata=$RDDIR/g$(printf %02d "$g").seq
   "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" \
     --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit" \
-    $SUBSKYOPT
+    $SUBSKYOPT $RDOPT
   [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
   # Stamp the INTENDED group size beside the tool's own STACKCNT. Intended, not
   # STACKCNT itself: registration may legitimately drop a frame, so STACKCNT can be
@@ -331,8 +379,15 @@ fi
 # siril: CALSET is `<session>/<set>` and siril's update_key cuts a string value
 # at the first `/`. This per-set stack is single-set, so the plain per-set
 # provenance IS its identity; it also records that this compose is star-pair.
+# BKGLIGHT must name the treatment that RAN. It was hardcoded `none` here, so a
+# --subsky-lights per-set stack shipped claiming the members' own BKGLIGHT was
+# never applied — every member under it reads `subsky1-nodither` while their
+# composite denies it, and the compose gate's MIXED-BACKGROUND warning reads that
+# key. A composite that misdescribes its own processing state is worse than an
+# unstamped one: the gate is told a confident falsehood.
 if true; then
-  header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" none)
+  header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" \
+      "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)")
 $(header_registration_lines starpair F)"
   echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
 else

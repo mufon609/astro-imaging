@@ -1,0 +1,21 @@
+# control fingerprint, taken before any L1 arm build
+4f1f2e74b39277d3855f1fd8306d6ca0  sessions/aug06/work/groups_set-01/sub_01.fit
+c32a940b43461903bec95e9364162c74  sessions/aug06/work/groups_set-01/sub_02.fit
+06a24babd7db5dd1850dcaaf32595ac4  sessions/aug06/work/groups_set-01/sub_03.fit
+10ed9d22802a2a4d094e983ee5c78931  sessions/aug06/work/groups_set-01/sub_04.fit
+b1ff3c5800a2d8a9256450a1d20d6713  sessions/aug06/work/groups_set-01/sub_05.fit
+6ae24e4a648bdc6ca842686e91340479  sessions/aug06/work/groups_set-02/sub_01.fit
+3112dfea41e64104fd985a5c920d6c66  sessions/aug06/work/groups_set-02/sub_02.fit
+267db555aa26429a11eb267c414bef87  sessions/aug06/work/groups_set-02/sub_03.fit
+8dc3b14f191a271a6118e5a048a061c3  sessions/aug06/work/groups_set-02/sub_04.fit
+1aaefe24a357cbc24779c81ec8028f2a  sessions/aug06/work/groups_set-03/sub_01.fit
+458a4d773a92b42a1473bf6a7381067e  sessions/aug06/work/groups_set-03/sub_02.fit
+75692a4ab8e5bd1fd5b93fe2001c43f3  sessions/aug06/work/groups_set-03/sub_03.fit
+aca4e13cf106172279f3117b1190ec56  sessions/aug06/work/groups_set-03/sub_04.fit
+0389f255b11dfb187f6880e93ff08c43  web/results/aug06/stack_set-01_full.fit
+eccab2baa31ebd42f95683d6e60db9d5  web/results/aug06/stack_set-02_full.fit
+cf88a16f7d098fbad7fe83d6d2f75244  web/results/aug06/stack_set-03_full.fit
+1343644664cacc08e73dc5d9e113e1cf  web/results/aug06/stack_set-01+02+03_full.fit
+37e71c3d4e514ea1a1dbf2bd64be75b7  web/results/aug06/stack_set-01+02+03_full_wcs.fit
+54273419b9c9250db902b2a6a73276e3  web/results/aug06/stack_set-01+02+03_full_spcc.fit
+6d1f6f820e72a09a3c9167ba4e3ea392  web/results/aug06/judge/set-01+02+03_full_spcc-linked.png

@@ -1,0 +1,42 @@
+{
+ "source": "/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+ "canvas_wh": [
+  7355,
+  4590
+ ],
+ "grid": [
+  80,
+  50
+ ],
+ "box_px": [
+  91,
+  91
+ ],
+ "instrument": "Siril load + boxselect + stat (every number Siril's); in-house part is the grid bookkeeping and the largest-all-covered-rectangle search",
+ "criterion": "a box is COVERED when Siril Min >= floor in EVERY channel \u2014 the sibling-class sky floor, never mere non-zero (docs/dead-ends.md: lanczos edge-ringing residue passes a Min>0 guard at Min 7-26 on a ~90 sky)",
+ "min_quantiles": {
+  "p0": 0.0,
+  "p5": 0.0,
+  "p10": 0.0,
+  "p25": 33.2,
+  "p50": 35.7,
+  "p75": 36.5,
+  "p100": 39.2
+ },
+ "zero_min_boxes": 495,
+ "floor": 80.9,
+ "covered_boxes": 3451,
+ "rect_fits": [
+  364,
+  546,
+  6643,
+  3549
+ ],
+ "rect_siril_crop_args": [
+  364,
+  495,
+  6643,
+  3549
+ ],
+ "cells_omitted": "4000 per-box records dropped from this file deliberately. The grid is a 2-second LOCAL Siril run and scripts/qa/coverage_frame.py is shipped, so the evidence regenerates on demand \u2014 unlike the starlight records, whose cells are kept because re-querying the Gaia archive is network-dependent and slow. The decision's evidence (the Min quantiles, the zero/edge-band counts, the floor and the rectangle) is retained above."
+}

@@ -124,6 +124,44 @@ SCOPE LIMITS, stated because they bound every number this prints:
     tracks the true faint-star flux rather than equalling it. Every number here
     is a RELATIVE comparison between arms read on one lattice, which that
     proxy supports; an absolute surface brightness is not claimed.
+ 5a. WHY `retained` DEPARTS FROM THE CATALOGUE BOUND, stated once here because it
+    has been re-derived from scratch in two sessions and got a different answer
+    each time. The bound and the ratio are the same arithmetic seen from
+    opposite ends, and the difference between them is the DENOMINATOR.
+    For an image that is starlight alone, floor = a*x, subtracting the best-fit
+    plane leaves a*x_perp and regressing on x returns a*(1 - R2_plane(x)) — so
+    the expected retained is EXACTLY 1 - the catalogue's plane bound, which is
+    where the 0.90 falsifier line comes from (aug06/set-01's bound is 10.0%).
+    Falsifier A is therefore not a threshold beside the directional hypothesis;
+    it IS the hypothesis: did the per-frame step remove more than any one
+    sky-plane could have?
+    That exactness survives ONLY while the floor is starlight alone. `retained`
+    is (ctrl_slope + delta_slope)/ctrl_slope, so it divides by the CONTROL'S
+    MEASURED slope — and any confound correlated with the predictor moves that
+    denominator. PLANARITY IS IRRELEVANT, which is the counter-intuitive part
+    and the one both sessions got wrong: a plane fit removes a purely planar
+    confound entirely, so the NUMERATOR is untouched by it at any amplitude,
+    and precisely because it is untouched the ratio moves the most. MEASURED on
+    a seeded 140-cell fixture, 1 - R2_plane(x) = 0.6201, true a = 3.0:
+        confound                 numerator  denominator  retained
+        none                        1.8604       3.0000    0.6201
+        purely planar, small        1.8604       2.7791    0.6694
+        purely planar, huge         1.8604      -7.2081   -0.2581
+        quadratic                   1.8579       3.0188    0.6154
+        on x's own non-plane part   0.9302       2.0698    0.4494
+    A ratio taken against the TRUE starlight slope stays 0.6201 through every
+    planar row — but nothing can measure that slope, which is the point.
+    So the bound is an upper bound on the STARLIGHT-REMOVAL COMPONENT, never a
+    prediction of the number printed below, and the gap between them is the
+    confound in scope limit 5.
+    HOW BOTH SESSIONS GOT IT WRONG, because the trap is reusable: each built a
+    fixture that divided by the seeded coefficient `a`. A fixture KNOWS its
+    ground truth and the instrument never can, so it will happily validate a
+    quantity the instrument does not compute — and it looks like a clean sweep
+    while doing it. Same family as `docs/dead-ends.md` trap 3, where a metric's
+    origin was inferred from the very detections it measured. RULE: a fixture
+    for a RATIO must divide by what the code divides by, not by what the
+    fixture happens to know.
  5. THE IMAGE-SIDE SLOPE IS NOT A CLEAN PRESERVATION MEASURE ON A SURFACE THAT
     STILL CARRIES A LOW-ORDER INSTRUMENTAL TERM, and on these products it does.
     MEASURED, aug06/set-01: removing a plane RAISES the Gaia slope 23-27% and
@@ -152,6 +190,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 import numpy as np
 from astropy.io import fits
@@ -164,9 +203,9 @@ TAP = "https://gea.esac.esa.int/tap-server/tap/sync"
 CHANNELS = ("Red", "Green", "Blue")
 STAT_RE = re.compile(
     r"(Red|Green|Blue|B&W) layer: Mean: (?P<mean>[-+0-9.eE]+), "
-    r"Median: (?P<median>[-+0-9.eE]+), Sigma: (?P<sigma>[-+0-9.eE]+), "
+    r"Median: (?P<median>[-+0-9.eE]+), Sigma: (?P<sigma>[-+0-9.eEanN]+), "
     r"Min: (?P<min>[-+0-9.eE]+), Max: (?P<max>[-+0-9.eE]+), "
-    r"bgnoise: (?P<bgnoise>[-+0-9.eE]+)")
+    r"bgnoise: (?P<bgnoise>[-+0-9.eEanN]+)")
 SEL_RE = re.compile(r"Current selection \[x, y, w, h\]: "
                     r"(-?\d+) (-?\d+) (-?\d+) (-?\d+)")
 
@@ -304,7 +343,19 @@ def gaia_magnitude_bins(ra, dec, radius_deg):
             for r in tap_query(adql)[1:]}
 
 
-def gaia_for_cells(cells, cache_path, offline):
+def gaia_for_cells(cells, cache_path, offline, tries=4):
+    """Fill every cell's catalogue bins, from cache where possible.
+
+    RETRIES PER CELL, AND FLUSHES THE CACHE AS IT GOES. A lattice is ~140
+    sequential round trips to a public archive, so the odds of a clean run are
+    the per-query success rate to the 140th power — a service that answers
+    99.5% of queries fails a full lattice about half the time. Without a retry
+    one blip discarded the whole run AND every cell fetched before it, because
+    the cache was written only at the end. MEASURED here: three consecutive
+    attempts at one lattice died partway and each re-queried all 140 from
+    scratch, while a single hand query to the same service succeeded
+    immediately — the archive was up the whole time. Retrying one failed cell
+    costs one query; not retrying costs 140 and can livelock on a flaky link."""
     cache = {}
     if os.path.exists(cache_path):
         with open(cache_path) as fh:
@@ -316,11 +367,29 @@ def gaia_for_cells(cells, cache_path, offline):
             if offline:
                 sys.exit(f"starlight_preservation: --offline and cell "
                          f"{c['id']} is not in {cache_path}")
-            cache[key] = {str(k): v for k, v
-                          in gaia_magnitude_bins(c["ra"], c["dec"],
-                                                 c["radius_deg"]).items()}
+            for attempt in range(1, tries + 1):
+                try:
+                    bins = gaia_magnitude_bins(c["ra"], c["dec"],
+                                               c["radius_deg"])
+                    break
+                except Exception as exc:              # noqa: BLE001 — reported
+                    if attempt == tries:
+                        with open(cache_path, "w") as fh:
+                            json.dump(cache, fh)      # keep what IS in hand
+                        sys.exit(
+                            f"starlight_preservation: cell {c['id']} failed "
+                            f"{tries} archive queries ({type(exc).__name__}: "
+                            f"{str(exc)[:160]}). {fetched} newly fetched cells "
+                            f"were saved to {cache_path} — re-run to resume "
+                            f"rather than restart.")
+                    print(f"  gaia: cell {c['id']} attempt {attempt} failed "
+                          f"({type(exc).__name__}), retrying", flush=True)
+                    time.sleep(3 * attempt)
+            cache[key] = {str(k): v for k, v in bins.items()}
             fetched += 1
             if fetched % 20 == 0:
+                with open(cache_path, "w") as fh:     # incremental flush
+                    json.dump(cache, fh)
                 print(f"  gaia: {fetched} cells fetched", flush=True)
         c["gaia_bins"] = {int(k): v for k, v in cache[key].items()}
     if fetched:

@@ -1,0 +1,54 @@
+{
+ "input": "web/results/aug06/stack_set-02_l1ctrl.fit",
+ "detector": "sep",
+ "n_stars_detected": 400,
+ "central": null,
+ "position_hint": [
+  309.658212867003,
+  42.6764772976096,
+  15.0
+ ],
+ "position_hint_source": "header",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "header_scale_arcsec_px": 17.50305874003683,
+ "hint_available": [
+  309.658212867003,
+  42.6764772976096,
+  15.0
+ ],
+ "contradictions": [],
+ "contradiction_accepted": false,
+ "index_scales": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "scales_solved": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 309.62094207720105,
+ "dec_deg": 42.68602454752545,
+ "scale_arcsec_px": 17.042216276433955,
+ "logodds": 126.44735717773438,
+ "parity": "sky-true",
+ "cd_det": -2.241027280962581e-05,
+ "injected": "web/results/aug06/stack_set-02_l1ctrl_wcs.fit"
+}

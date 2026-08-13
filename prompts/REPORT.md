@@ -7,21 +7,78 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`L1_BUILD_PROMPT.md`](L1_BUILD_PROMPT.md)** — run both arms of the L1
-  background-level experiment. The pre-registration
-  (`datasets/aug06/experiments.jsonl`, `l1_background_level_perframe_vs_onstack`)
-  IS the contract and the brief deliberately does not restate it; the brief adds
-  the one thing it does not pin — the per-group `register -2pass` reference,
-  which arm A can move by changing the calibrated lights, and which costs the
-  experiment its PAIRING (different canvas → different `used` cells → the 5–16%
-  paired resolving power collapses toward the 43–55% absolute). `--regdata` is
-  verified ABSENT from the groups driver, so a 12-frame reference-stability pilot
-  runs first and the pinning decision follows its numbers. Arm B before arm A:
-  it is cheap, and its falsifier is a stop condition that would otherwise fire
-  after the 13-member rebuild. A NULL is a live pre-registered outcome.
-
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
+
+## Landed during the L1 build session — the arms separate on the primary surface, and the supplement splits
+
+**Both arms built, neither falsifier fired, and the pre-registered DIRECTION holds
+on the surface the pre-registration named.** Union (13 members, 1454 frames, one
+knob), paired retained on the inherited lattice:
+
+| channel | arm A per-frame | arm B on-stack | separation |
+|---|---|---|---|
+| Red | 0.8609 ± 0.2118 | 1.6364 ± 0.2871 | 2.17 SE |
+| Green | 0.9399 ± 0.1955 | 1.9367 ± 0.3162 | 2.68 SE |
+| Blue | 0.9473 ± 0.0838 | 1.4688 ± 0.1745 | 2.69 SE |
+
+`falsifier_arm_A` NOT REFUTED — the lowest reading anywhere is union Red 0.8609,
+**0.18 SE** below the 0.90 line against a 2 SE requirement. `falsifier_arm_B` NOT
+REFUTED — 2.56/3.28/3.26 SE *above* the line. CONFIRMED-AS-EQUIVALENT does not
+fire: the arms separate in all three channels. **retained_A < retained_B in 11 of
+12 channel-surface cells**, which is the mechanism's own prediction.
+
+**The supplement SPLITS and that is reported, not resolved.** set-01 separates at
+2.59/2.09/1.47 SE; set-02 does not, at 0.85/0.03/0.48 SE. The heterogeneity gate
+passes (1.38/1.61/1.44 SE) so inverse-variance combining is permitted:
+**−0.1079 ± 0.0457 (2.36 SE), −0.0644 ± 0.0483 (1.33 SE), −0.0247 ± 0.0441
+(0.56 SE)** — direction in all three, significance only in Red.
+
+**The least comfortable sentence: by this session's own pre-committed criterion
+the PRE-REGISTERED PRIMARY SURFACE IS UNDER-POWERED** (control shift-null p
+0.266/0.252/0.230). It separated anyway, because a difference's significance is
+independent of the shared baseline that sets the ratio's scale. The powered
+surfaces show a much smaller effect (0.00–0.18) than the union (0.52–1.00). Both
+are true; the verdict picks between them only by rule, not by preference.
+
+**A NULL CONTROL CAUGHT A WRONG METHOD BEFORE IT SHIPPED.** The control rebuilt
+from raws composes to a union **pixel-identical to the shipped one (0 of
+101,278,350)**, so its paired reading had to be exactly 1.000 — it read 1.069,
+because crops derived from each surface's own plate solve differ by 60–114 px on
+a 31.5° field. Siril's own detections settled it: **33,465 of 33,465 stars at
+dx +0.000 / dy +0.000**. Re-cropped on the shared pixel grid the control reads
+**1.0000 ± 0.0000**.
+
+**Reproducibility, measured rather than assumed:** all 13 members rebuild
+**bit-identical (0 of 893,212,122 px)** across a PIPEREV change, which is what
+makes the pinned donor *the control's own registration* rather than a stand-in.
+`--regdata-dir` verified at production geometry — canvas frozen (5830×3958 both)
+while **100.00% of pixels move**, because a pin that worked by disabling the
+treatment would also freeze the canvas.
+
+**Four defects found by executing the route:** `run_undistort_groups.sh`
+hardcoded `BKGLIGHT=none` (an arm's product denying its members' treatment);
+`run_corpus_combine.sh` used a deny-list, so this experiment's arm dirs would
+have been composed into the deliverable corpus; the starlight instrument had no
+retry across ~140 sequential archive queries and discarded a whole lattice on one
+blip; and its stat regex could not parse `Sigma: -nan`, silently dropping any
+zero-variance region.
+
+**`member_separation --selftest` now runs** on the sequence arm A produced: known
+displacement 3.086 px measured back as 3.086 px, and the incident reproduces at
+**89 matches without re-basing against 1905 with it**.
+
+**Judge triple** (like-encoded, one shared crop, per-product linked autostretch):
+`web/results/aug06/judge/set-01+02+03_{l1crop,l1bkgframe,l1bkgstack}_spcc-linked.png`.
+**The owner's eyes decide anything aesthetic; the instrument gated nothing.**
+
+**Premises this rests on and did NOT test** are named in
+`datasets/aug06/l1_work/unchecked_premises.json` — the load-bearing one being
+that starlight preservation is the right gate for this decision at all.
+
+**Numbers:** `datasets/aug06/experiments.jsonl`
+(`l1_background_level_perframe_vs_onstack`), `datasets/aug06/l1_work/*.json`,
+each set's `starlight_work/starlight_l1{base,onstack,arm}.json`.
 
 ## Queued — needs prompts (medium; one session can take several)
 

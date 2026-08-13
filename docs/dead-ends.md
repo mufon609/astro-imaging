@@ -876,6 +876,36 @@ the constraints any such tool must satisfy):
   background step: `subsky`'s sample grid ingests the canvas's zero-coverage
   rims — its `-tolerance` excludes only BRIGHT outliers, not empty sky — and
   the fit skews. Crop-before-background is the pinned order.
+  **FINDING THAT FRAME: the coverage test must name ONE reference channel, and
+  it must not be the low one.** The registry rule above it — require the
+  SIBLING-CLASS SKY FLOOR, never mere non-zero — is right, but applying it to
+  the WORST channel is unusable on this class: the LOW channel clips to zero on
+  sky that is fully covered. MEASURED on the three aug06 per-set stacks, which
+  are `-framing=min` products and therefore fully covered by construction —
+  Siril `stat` reads **Red Min 0.0** on all three (Red medians 14.6 / 32.1 /
+  28.3) while Green reads **Min 60.4 / 72.4 / 67.7** at medians 71.8 / 83.8 /
+  79.3. A worst-channel bar therefore cannot pass at ANY positive floor and
+  calls covered sky uncovered; `web/verify_framing.py --channel=` names the
+  reference layer and every layer is still measured. Same convention as
+  `starlight_preservation.py`'s own coverage guard, which counts a cell
+  uncovered only when EVERY channel reads zero.
+  **The floor is DERIVED, not picked**, from the same sibling stacks: their
+  Green Min/Median ratios are 0.841 / 0.864 / 0.854 (mean 0.8530), and the
+  aug06 3-set union's own Green median is 94.8, so the floor is 80.9 ADU. The
+  data corroborates it independently — over an 80x50 grid of 91x91 px boxes,
+  260 boxes read Green Min 0.0 and only **31 fall in (0, 80)** against a clean
+  population starting at **82.3**, so the derived floor lands inside the
+  measured gap rather than inside either population. Delivered frame: 6643x3549
+  of 7355x4590 (69.8%), whose whole-crop Siril Min is **81.6 Green / 52.5 Blue
+  / 14.1 Red** — no zero-coverage pixel in any channel.
+- **Siril `stat` says "no data" by SAYING NOTHING, and a parser that does not
+  expect the silence mis-pairs every later box.** `stat` excludes zero pixels
+  from every estimator, so a selection that is ENTIRELY zero-coverage echoes
+  its `Current selection` line and then emits no layer line at all. Anchoring
+  the parse on the SELECTION echo (not on the layer lines) makes that box carry
+  zero channels instead of silently stealing the next box's numbers — the same
+  defence `starlight_preservation.py` uses. MEASURED: 234 of 4000 grid boxes on
+  the aug06 union returned a selection with no stat behind it.
 
 **Stretch / colour:**
 - **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT
@@ -1421,6 +1451,20 @@ the constraints any such tool must satisfy):
   map); and a crop-coverage guard of `Min > 0` PASSES on lanczos edge-ringing
   residue (Min 7–26 on a ~90 sky) — require the SIBLING-CLASS SKY FLOOR
   (Min ≈ 80s here), never mere non-zero.
+  **THE SAME PIN ALSO MOVES THE CANVAS SIZE, AND A ONE-SET VERIFICATION OF IT
+  CAN BE FOOLED BY COINCIDENCE.** MEASURED on aug06, identical members proven
+  bit-identical first (0 differing of 893,212,122 px across 13 members): the
+  same three sets composed WITHOUT `setref s 1` and WITH it deliver
+  set-01 4907×3598 / 4907×3598, set-02 4894×3752 / **4902×3633**, set-03
+  4900×3719 / **4903×3675**. Set-01 is unchanged only because its unpinned
+  auto-pick already landed on member 1 — the very member the pin selects. So a
+  product built before the pin and one built after are NOT interchangeable as
+  each other's baseline, and checking agreement on one set can report
+  "bit-identical" for a change that moves two others. Check every set, or check
+  the set whose auto-pick differs. **Consequence for A/B work: a baseline must
+  be built by the SAME code as its arm, not merely from the same frames** — the
+  cheap tell is that both routes leave their generated `.ssf` on disk, so
+  diffing those two files names the difference without running anything.
 - **Never sigma-reject across SUB-STACK composes.** Sub-stacks are clean
   ~group-size means, so their mutual scatter is ~√group below per-frame noise —
   a 3σ gate at that tiny σ fires on the systematic differences sub-pixel
@@ -1448,6 +1492,23 @@ the constraints any such tool must satisfy):
 
 **Tool state / plumbing** (a persisted preference and a dropped header are both
 SILENT — pin the state, never inherit it):
+- **Siril `stat` prints `Sigma: -nan` on a ZERO-VARIANCE selection, and a
+  numeric-only regex then fails to match the WHOLE line — so a uniform region
+  reads back as "no data" rather than as a measurement.** The failure is silent
+  in both directions: an instrument that anchors its parse on the selection echo
+  drops that box (it calls flat sky UNCOVERED); one that anchors on the layer
+  lines shifts every later box's numbers up by one and mis-attributes the entire
+  grid. Accept `nan` in the `Sigma` and `bgnoise` classes — `[-+0-9.eEanN]+`.
+  The affected regions are exactly the ones a coverage or flatness test lands
+  on: a saturated patch, a synthetic uniform card, a clipped rim. FOUND TWICE
+  now, in two instruments, from one copied regex — the first time by the UNIFORM
+  control of the per-group flat work (the one arm that produces uniform crops
+  could not be measured at all), the second by `coverage_frame.py --selftest`,
+  whose uniform planted ringing band reproduced it on the fixture's first run
+  and whose non-zero falsification step therefore passed for the wrong reason.
+  `starlight_preservation.py` carried the same latent copy and is fixed; the fix
+  is provably neutral there (every paired block and every fit identical before
+  and after, since no 235,000-px sky cell is zero-variance).
 - **Siril `idiv` CLIPS AT 1.0, SILENTLY — so a ratio of two comparable images (the
   standard flat-vs-flat instrument) loses its whole upper tail with no warning.**
   The tell is a whole-frame `stat` printing **Max exactly 65535.0**. MEASURED on a
@@ -1500,6 +1561,86 @@ SILENT — pin the state, never inherit it):
   builders still require the plural and stop loudly.
 
 **QA / scope:**
+- **DERIVE A COMPARISON CROP FROM THE SHARED PIXEL GRID, NEVER FROM EACH
+  SURFACE'S OWN PLATE SOLVE.** Cropping two surfaces to "the same sky" by
+  mapping a sky box through each one's own WCS looks obviously right and is
+  wrong: two independent solves of the same field disagree by more than the
+  tolerance a per-cell comparison needs. MEASURED on the aug06 3-set union
+  (31.5° wide, 17.07″/px): solves of the same pixels landed 60–114 px apart, so
+  the derived boxes differed and a paired instrument read a surface against a
+  shifted copy of itself. **The tell was a NULL CONTROL that had to read
+  exactly 1.000 and read 1.069** — the reproduction arm was pixel-identical to
+  its control (0 differing of 101,278,350) and could not honestly return
+  anything else. **The cheap general check is the tool's own detections:** Siril
+  `findstar` on both surfaces, cross-matched — **33,465 of 33,465 stars at
+  median dx +0.000 / dy +0.000, zero spread**, which proves the grid is shared
+  and therefore that the crop must be the SAME PIXEL BOX. Re-cropped that way
+  the null control reads 1.0000 ± 0.0000. Applies to any paired measurement on
+  separately-solved products, and the star-match test costs one Siril call.
+- **A CHECK THAT ONLY VERIFIES THE FROZEN HALF CANNOT FAIL IN THE DIRECTION THAT
+  MATTERS.** Pinning registration across an A/B is verified by the arm's canvas
+  matching the donor's — and a pin that worked by accidentally DISABLING the
+  treatment produces an identical canvas too. So the geometry check alone passes
+  on the one outcome that would void the experiment. The whole verification is
+  **frozen AND the knob still acted**: MEASURED on the aug06 L1 arm, donor vs
+  pinned arm member, canvas 5830×3958 both ways while **69,225,418 of
+  69,225,420 px (100.00%) differ**. Generalises past registration to every
+  "held fixed by construction" claim — assert what must NOT move and, in the
+  same breath, what MUST. The second assertion is the one that feels redundant
+  while writing it, which is exactly how the class survives.
+- **A WATCHER LOOP WHOSE OWN COMMAND LINE CONTAINS ITS `pgrep` PATTERN WAITS
+  FOR ITSELF, FOREVER.** `until ! pgrep -f 'scratchpad/foo.sh'; do sleep; done`
+  has that string in its own argv, so `pgrep` matches the watching shell and
+  the condition never clears — and any *other* loop waiting on that pattern
+  deadlocks behind it. MEASURED: **seven hours of idle wall-clock** across two
+  separate stages of one chain, with the real work finished and nothing running.
+  It is silent — `pgrep` reports the stage "alive", so a status check confirms
+  health while nothing computes. Tells: a stage "running" with a zero-byte
+  output file, and `ps` showing no tool process. Fix at the source — a pidfile,
+  `pgrep -f pat | grep -v $$`, or splitting the literal (`'foo''.sh'`) so argv
+  never holds the pattern.
+  **AND IT WAS NOT IN THE BRIEF.** Checked rather than assumed: the L1 brief's
+  acceptance item 9 says only *"`pgrep -f` any chain script before editing
+  it"* — about not editing a live script, a different hazard — and the words
+  watcher, self-match and immortal shell appear nowhere in it. So this is NOT
+  an instance of a named warning failing; it is a trap that the person writing
+  the acceptance criteria did not see coming while writing a criterion about
+  `pgrep`. That is the more useful lesson and the weaker claim: proximity to a
+  hazard in prose is not coverage of it.
+- **PREFER A CHECK WHOSE EVIDENCE IS READ FROM AN ARTIFACT OVER ONE A HUMAN
+  TRANSCRIBES.** The registry already carries the negative — a check whose
+  output is paraphrased is a check that did not run — and this is its
+  constructive half. MEASURED in one session that was actively watching for it:
+  a rule requiring a measured `git diff --numstat` to be pasted into a commit
+  message was violated **four times by its own author**, three caught before
+  push and one after, while the two checks that caught real defects the same
+  day were both STRUCTURAL — a canvas comparison whose numbers came out of the
+  FITS headers, and a diff of two generated `.ssf` files that already existed on
+  disk. A transcriptive check fails at whatever rate humans copy numbers, and
+  that rate is not zero even under attention. When a check must be
+  transcriptive, that is a hook or a script waiting to be written, not a
+  discipline problem.
+- **A SECOND SESSION CATCHES ERRORS NOT BY HAVING DIFFERENT EVIDENCE BUT BY
+  APPLYING DIFFERENT PRIORS TO THE SAME TREE — and the maker's prior is the one
+  that produced the error.** The weaker mechanism is the useful one: it means
+  the practice works on an IDENTICAL checkout, with no separate data on either
+  side. THREE WORKED INSTANCES, all from one L1 build/audit pair, and each
+  correction ran AGAINST the more interesting answer for whoever made it:
+  (1) a per-frame background step was argued to be the combine-corner fix from
+  its optical-state reading — refutable from `build_sky_flat.sh`'s own
+  justification, which the maker had already read; (2) the union's coarse
+  resolving power was attributed to framing=max mosaic heterogeneity — killed
+  by a single homogeneous per-set stack (aug06/set-03) measuring COARSER than
+  the union, 0.334 against 0.287 in Red; (3) a flat "no pooling" doctrine was
+  invented in place of the meta-analysis default — refutable from the
+  standards-first rule in `CLAUDE.md`, which the maker reads at session start.
+  Two of the three were available in principle to their maker; only (2) needed
+  evidence that did not yet exist.
+  **AND THE LIMIT, which matters more than the mechanism:** it fails on anything
+  where both sessions share the prior, which is most of what any two sessions
+  agree about. Across that whole exchange, NOT ONE correction on either side
+  came from shared ground. Two sessions agreeing is therefore not evidence —
+  it is the region where the practice is blind, and it is the larger region.
 - **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A DETECTION-DEPTH
   COMPARISON, NOT A QUALITY ONE — flux-match the population or the deeper image loses
   every time.** `findstar` goes as faint as the image allows, and marginal fits are
