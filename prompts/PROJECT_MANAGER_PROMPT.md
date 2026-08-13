@@ -111,20 +111,38 @@ unregistered, unstacked, 8074 stars) where the term is already at full size.
    It is also NOT the largest term on the correct response: R² alone is 0.164
    for cos²δ against 0.199 radial and 0.212 one-sided; all three together 0.519,
    each at 6.1–7.3 SE. Three comparable terms, one attributed.
-2. **A RADIAL term** — 4.70 SE with sky-rate in the model. Unattributed;
+2. **A RADIAL term** — 7.35 SE with sky-rate in the model. Unattributed;
    candidate is optical coma.
-3. **A ONE-SIDED sensor-x term** — 6.79 SE with both others in. Unattributed and
+3. **A ONE-SIDED sensor-x term** — 6.92 SE with both others in. Unattributed and
    NOT explained by sky-rate.
 
-All three together reach R² 0.460. **CAVEAT the next session must carry:** the
+All three together reach R² 0.519. **CAVEAT the next session must carry:** the
 sky-rate predictor is 99% collinear with sensor y, so what was tested is its
 MAGNITUDE, not its direction.
 
-**THE NEXT MEASUREMENT, and it needs no new data.** The corpus has 12 sets at
-different pointings, so different δ ranges. The sky-rate model predicts the
-effect scales with each field's OWN cos(δ) span, and no set-specific tuning is
-possible because the prediction is fixed by the pointing. A set with a narrower
-δ range must show a proportionally smaller y-gradient. That is decisive and cheap.
+**THE SCALING FOLLOW-UP IS DEAD — DO NOT PROPOSE IT.** "Does the effect scale
+with each field's own δ range" needs fields whose δ ranges DIFFER, and they do
+not: re-measured here over all 15 recorded sets at a fixed 18.02° field extent,
+the cos²δ SPAN runs **0.3060 to 0.3090 — 1.0% of its mean**, against a
+**within-frame** sweep of **0.307** that is the lever already used. The
+between-set lever is one percent of the one already spent. That is the
+object-tilt lesson exactly: read the lever, not the sigma
+(`BACKLOG:one-sided-band`, `prompts/REPORT.md`).
+
+**THE LEVER THAT DOES EXIST IS EXPOSURE, AND THE RECORDS UNDERSTATE IT.** Both
+kill-notes say "all 12 staged sets are one target at 2.5 s and 70 mm, so there is
+no exposure lever either" — true of the STAGED corpus and not of the RECORDED
+one. **july27 holds two sets at 3.0 s** (set-01 282 frames, set-02 253) on the
+same target (dec 42.39 / 43.68) at the same plate scale (36.18 / 35.81 ″/px
+against aug06's 35.58), i.e. the same focal. Since `L ∝ t_exp`, 3.0 s predicts
+**1.44× the anisotropy** of 2.5 s — against a 1.0% declination lever, and against
+a term the fit already resolves at ~6 SE. Raws are off-rig (records only here);
+MEMORY says re-staging is minutes and "re-running is cheap."
+**State the confound before running it:** a different night means a different
+optical state, and two of the three terms ARE optical — so ρ and x must be held
+in the fit as the shipped instrument already holds them, and a night-to-night
+change in the optics themselves is NOT held by anything. That makes this a
+CANDIDATE with a named confound, not a decisive test.
 
 **Do NOT adopt a crop.** Best measured trim is roundness 0.911 → 0.938 at the
 crop corners for 15% of every member and 4 of 20 union boxes losing every
@@ -141,7 +159,10 @@ first, attribute second, and only with a discriminating test.
 
 ## Live threads you inherit
 
-- **The corpus-wide sky-rate test above.** Highest value, no new data, decisive.
+- **NOT the corpus-wide sky-rate scaling test** — it is dead for want of a lever
+  (above), and this line previously named it the highest-value next move. The
+  live successor is the EXPOSURE lever (july27 at 3.0 s), with its confound
+  stated; it needs re-staging and it is a candidate, not a decisive test.
 - **A position-angle contradiction, logged and deliberately unresolved.** The
   registry (136k stars, 3 frames × 6 sets × 2 nights) records the major-axis
   angle tracking field azimuth in 7 of 8 zones — the OPTICAL signature. The
