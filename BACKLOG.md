@@ -252,11 +252,13 @@ What remains is the LADDER around it and the harness it feeds.
   stacking enough"*, which governs what goes INTO the combine — a different act,
   and the two collide only if a per-member trim is adopted, since that trades
   area BEFORE the compose rather than cropping the picture after it. Measured
-  cost of the collision, so the choice is made against numbers: a one-sided +x
-  member trim keeping 80% of each member leaves 4 of 20 measured union boxes
-  with no contributing member at all; a radial cut to rho 0.80 costs 3.3% of the
+  cost of the collision, so the choice is made against numbers: a +x member trim
+  keeping 80% of each member leaves 4 of 20 measured union boxes with no
+  contributing member at all; a radial cut to rho 0.80 costs 3.3% of the
   delivered crop's area and 9.4% of the member-contributions inside it
-  (`datasets/aug06/corner_work/`). The composite-level arm
+  (`datasets/aug06/corner_work/`). **Not recommended on today's evidence** — the
+  predicted gain is corner roundness 0.911 -> 0.938 and the cause is measured
+  in-exposure but unidentified. The composite-level arm
   is DEMOTED for this defect (a composite plane structurally cannot fit a
   corner-local term — measured, july23 subsky-on-combine probe); on-stack
   background remains the render-stage question for the sky's own gradient.
@@ -529,6 +531,36 @@ pointings — set-01 reads a 13% along+1300 FWHM excess, set-02 43% — suggesti
 refraction but confounded by the pointing change. Cheapest next cut: a `lensdist`
 vs `nodist` arm on the same 60-frame A/B input, which separates the model from
 everything else in one knob.
+
+**ON aug06 THE DISTORTION-MODEL BRANCH IS CLOSED, and by the cheapest possible
+measurement.** Siril `findstar` on THREE SINGLE RAWS of set-01 — debayered,
+uncalibrated, unwarped, unregistered, unstacked, 8074 stars — already carries the
+one-sided term at full size: roundness **-x 0.861 / +x 0.791** at |x_frac|
+0.6-0.8 and **0.846 / 0.782** at 0.8-1.0, x at **13.8 SE** and **F = 191.8** on
+top of a radial model, surviving a brightest-quartile control (-0.076 / -0.035).
+An uncorrected frame cannot carry the RESIDUAL of a correction that has not been
+applied, so on this corpus the term is not the lensfun model's; the same
+measurement rules out within-member registration and the compose. What it does
+NOT do is name the cause — an optical asymmetry, differential refraction and the
+across-field gradient of the projected sky rate are all in the photons of one
+exposure, and none is reachable by a better distortion model. Hour angle stays
+the discriminator, with an obstacle to design around: the headers carry DATE-OBS
+and no site coordinates, so hour angle is not directly derivable and must be
+recovered from the corpus (12 sets, one target, three nights, the same sky at
+different hour angles). **Star SIZE is a separate quantity and is purely radial
+in the same raws** (rho 30.4 SE, x 0.1 SE, F = 0.0). Numbers:
+`datasets/aug06/corner_work/mechanism_and_specs.json`,
+`datasets/aug06/set-01/psf_work/f{1,2,3}.lst`.
+
+**One inherited claim is in TENSION with that measurement and neither is settled.**
+BACKLOG:`compose-homography-smear` records, from 136k stars over 3 frames x 6
+sets x 2 nights, that "the major-axis angle tracks the field azimuth in 7 of 8
+zones in every set" — it is ANISOTROPIC, not defocus, and RADIAL there. On
+these three set-01 frames the median PA is near-CONSTANT across 8 azimuth sectors
+(**spread 15.8 deg**, where a radial term predicts a sweep of order the azimuths
+themselves) — the trailing signature, not a rotating one. Sample, channel (those
+raws solve on the half-res green plane) and angle convention are all live
+explanations. Do not quote either as settled until one measurement covers both.
 
 ## `star-neutral-colour` — the narrowband gap
 

@@ -60,54 +60,203 @@
   "major_median_offset": 0.1559865398989575,
   "caveat": "same measurements on both sides \u2014 a consistency check on the construction, not independent evidence"
  },
- "one_sided_plus_x_trim": [
+ "one_sided_plus_x_trim_SUPERSEDED": {
+  "why": "kept for traceability. It sweeps an x-only empirical profile, so it credits the whole roundness gain to the one-sided cut. The joint family below is the supported one.",
+  "rows": [
+   {
+    "cut": 1.01,
+    "member_area_kept": 1.0,
+    "predicted_mean": 0.9216371274535963,
+    "predicted_at_the_4_crop_corners": 0.9212374444510252,
+    "predicted_worst_box": 0.869320451898749,
+    "boxes_losing_every_member": 0
+   },
+   {
+    "cut": 0.9,
+    "member_area_kept": 0.95,
+    "predicted_mean": 0.9220362288409355,
+    "predicted_at_the_4_crop_corners": 0.9223447334272206,
+    "predicted_worst_box": 0.8707220227564837,
+    "boxes_losing_every_member": 0
+   },
+   {
+    "cut": 0.8,
+    "member_area_kept": 0.9,
+    "predicted_mean": 0.9263644037225568,
+    "predicted_at_the_4_crop_corners": 0.9249513951479658,
+    "predicted_worst_box": 0.8762618011365867,
+    "boxes_losing_every_member": 1
+   },
+   {
+    "cut": 0.7,
+    "member_area_kept": 0.85,
+    "predicted_mean": 0.9376531708082948,
+    "predicted_at_the_4_crop_corners": 0.9719469885756196,
+    "predicted_worst_box": 0.9008046244512653,
+    "boxes_losing_every_member": 4
+   },
+   {
+    "cut": 0.6,
+    "member_area_kept": 0.8,
+    "predicted_mean": 0.9417615327264603,
+    "predicted_at_the_4_crop_corners": 0.9719469885756196,
+    "predicted_worst_box": 0.9220803787315481,
+    "boxes_losing_every_member": 4
+   },
+   {
+    "cut": 0.5,
+    "member_area_kept": 0.75,
+    "predicted_mean": 0.9459717187538514,
+    "predicted_at_the_4_crop_corners": 0.9719469885756196,
+    "predicted_worst_box": 0.9254668393058997,
+    "boxes_losing_every_member": 5
+   }
+  ]
+ },
+ "joint_trim_family": [
   {
-   "cut": 1.01,
+   "x_cut": 1.01,
+   "rho_cut": 1.01,
    "member_area_kept": 1.0,
-   "predicted_mean": 0.9216371274535963,
-   "predicted_at_the_4_crop_corners": 0.9212374444510252,
-   "predicted_worst_box": 0.869320451898749,
+   "predicted_roundness_mean": 0.9233713731064453,
+   "predicted_at_the_4_crop_corners": 0.9106273554681557,
+   "predicted_worst_box": 0.8817753788465574,
    "boxes_losing_every_member": 0
   },
   {
-   "cut": 0.9,
-   "member_area_kept": 0.95,
-   "predicted_mean": 0.9220362288409355,
-   "predicted_at_the_4_crop_corners": 0.9223447334272206,
-   "predicted_worst_box": 0.8707220227564837,
+   "x_cut": 1.01,
+   "rho_cut": 0.85,
+   "member_area_kept": 0.7224999999999999,
+   "predicted_roundness_mean": 0.9241574210860793,
+   "predicted_at_the_4_crop_corners": 0.9127541221268225,
+   "predicted_worst_box": 0.8869854907629418,
    "boxes_losing_every_member": 0
   },
   {
-   "cut": 0.8,
+   "x_cut": 1.01,
+   "rho_cut": 0.75,
+   "member_area_kept": 0.5625,
+   "predicted_roundness_mean": 0.9279318839677477,
+   "predicted_at_the_4_crop_corners": 0.8930324301711328,
+   "predicted_worst_box": 0.8930324301711328,
+   "boxes_losing_every_member": 5
+  },
+  {
+   "x_cut": 1.01,
+   "rho_cut": 0.65,
+   "member_area_kept": 0.42250000000000004,
+   "predicted_roundness_mean": 0.9348641750674077,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.9069492916064756,
+   "boxes_losing_every_member": 7
+  },
+  {
+   "x_cut": 0.8,
+   "rho_cut": 1.01,
    "member_area_kept": 0.9,
-   "predicted_mean": 0.9263644037225568,
-   "predicted_at_the_4_crop_corners": 0.9249513951479658,
-   "predicted_worst_box": 0.8762618011365867,
+   "predicted_roundness_mean": 0.9275261654355972,
+   "predicted_at_the_4_crop_corners": 0.9155144183626813,
+   "predicted_worst_box": 0.8930324301711328,
    "boxes_losing_every_member": 1
   },
   {
-   "cut": 0.7,
-   "member_area_kept": 0.85,
-   "predicted_mean": 0.9376531708082948,
-   "predicted_at_the_4_crop_corners": 0.9719469885756196,
-   "predicted_worst_box": 0.9008046244512653,
-   "boxes_losing_every_member": 4
+   "x_cut": 0.8,
+   "rho_cut": 0.85,
+   "member_area_kept": 0.65025,
+   "predicted_roundness_mean": 0.9276644866436712,
+   "predicted_at_the_4_crop_corners": 0.9159652055230252,
+   "predicted_worst_box": 0.8930324301711328,
+   "boxes_losing_every_member": 1
   },
   {
-   "cut": 0.6,
-   "member_area_kept": 0.8,
-   "predicted_mean": 0.9417615327264603,
-   "predicted_at_the_4_crop_corners": 0.9719469885756196,
-   "predicted_worst_box": 0.9220803787315481,
-   "boxes_losing_every_member": 4
-  },
-  {
-   "cut": 0.5,
-   "member_area_kept": 0.75,
-   "predicted_mean": 0.9459717187538514,
-   "predicted_at_the_4_crop_corners": 0.9719469885756196,
-   "predicted_worst_box": 0.9254668393058997,
+   "x_cut": 0.8,
+   "rho_cut": 0.75,
+   "member_area_kept": 0.50625,
+   "predicted_roundness_mean": 0.9281224419323588,
+   "predicted_at_the_4_crop_corners": 0.8930324301711328,
+   "predicted_worst_box": 0.8930324301711328,
    "boxes_losing_every_member": 5
+  },
+  {
+   "x_cut": 0.8,
+   "rho_cut": 0.65,
+   "member_area_kept": 0.38025000000000003,
+   "predicted_roundness_mean": 0.9348641750674077,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.9069492916064756,
+   "boxes_losing_every_member": 7
+  },
+  {
+   "x_cut": 0.7,
+   "rho_cut": 1.01,
+   "member_area_kept": 0.85,
+   "predicted_roundness_mean": 0.9344880874533961,
+   "predicted_at_the_4_crop_corners": 0.9375627542141433,
+   "predicted_worst_box": 0.903396480189967,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "x_cut": 0.7,
+   "rho_cut": 0.85,
+   "member_area_kept": 0.6141249999999999,
+   "predicted_roundness_mean": 0.9346523438879841,
+   "predicted_at_the_4_crop_corners": 0.9384643285348312,
+   "predicted_worst_box": 0.903396480189967,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "x_cut": 0.7,
+   "rho_cut": 0.75,
+   "member_area_kept": 0.47812499999999997,
+   "predicted_roundness_mean": 0.9337870645389474,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.903396480189967,
+   "boxes_losing_every_member": 7
+  },
+  {
+   "x_cut": 0.7,
+   "rho_cut": 0.65,
+   "member_area_kept": 0.359125,
+   "predicted_roundness_mean": 0.9348641750674077,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.9069492916064756,
+   "boxes_losing_every_member": 7
+  },
+  {
+   "x_cut": 0.6,
+   "rho_cut": 1.01,
+   "member_area_kept": 0.8,
+   "predicted_roundness_mean": 0.93566016296171,
+   "predicted_at_the_4_crop_corners": 0.9375627542141433,
+   "predicted_worst_box": 0.9071866328319063,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "x_cut": 0.6,
+   "rho_cut": 0.85,
+   "member_area_kept": 0.578,
+   "predicted_roundness_mean": 0.9358244193962978,
+   "predicted_at_the_4_crop_corners": 0.9384643285348312,
+   "predicted_worst_box": 0.9071866328319063,
+   "boxes_losing_every_member": 4
+  },
+  {
+   "x_cut": 0.6,
+   "rho_cut": 0.75,
+   "member_area_kept": 0.45,
+   "predicted_roundness_mean": 0.9352296190107183,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.9071866328319063,
+   "boxes_losing_every_member": 7
+  },
+  {
+   "x_cut": 0.6,
+   "rho_cut": 0.65,
+   "member_area_kept": 0.3380000000000001,
+   "predicted_roundness_mean": 0.9356420490583474,
+   "predicted_at_the_4_crop_corners": null,
+   "predicted_worst_box": 0.9111257081663868,
+   "boxes_losing_every_member": 7
   }
  ],
  "radial_shrink_on_star_size": [

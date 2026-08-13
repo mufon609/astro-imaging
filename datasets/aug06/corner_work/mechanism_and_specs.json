@@ -1,0 +1,349 @@
+{
+ "correction_1_specification_robustness": {
+  "stations": 148,
+  "tau_between_station": 0.03004696238065097,
+  "median_measurement_se": 0.006606453905010971,
+  "tau_over_median_se": 4.548122610506744,
+  "which_weight_is_principled": "the random-effects one. Real between-station variation exceeds measurement error by the ratio above, so 1/se^2 over-weights a few low-SE stations; 1/(se^2+tau^2) is the correct precision weight and it lands on the unweighted answer.",
+  "specifications": {
+   "unweighted": {
+    "x_coef": -0.02965036204945274,
+    "x_SE_units": 6.677358710782575,
+    "rho_coef": -0.05704774865571917,
+    "rho_SE_units": 4.435725942921189
+   },
+   "weight_n_stars": {
+    "x_coef": -0.02310966635332594,
+    "x_SE_units": 5.195062485885542,
+    "rho_coef": -0.06506061683532216,
+    "rho_SE_units": 5.459950553141359
+   },
+   "weight_inverse_se2": {
+    "x_coef": -0.021188563240955572,
+    "x_SE_units": 4.217467358084334,
+    "rho_coef": -0.023324712042222154,
+    "rho_SE_units": 1.8259608520957267
+   },
+   "random_effects_inverse_se2_plus_tau2": {
+    "x_coef": -0.02909189397979004,
+    "x_SE_units": 6.5180543636702755,
+    "rho_coef": -0.05397830513082793,
+    "rho_SE_units": 4.19829258227636
+   },
+   "published_form_x_absx_rho": {
+    "x_coef": -0.030329111142437346,
+    "x_SE_units": 7.084124289928152,
+    "absx_coef": -0.1038394657362076,
+    "absx_SE_units": 3.5071836965807623,
+    "rho_coef": 0.05405022256941767,
+    "rho_SE_units": 1.5890974802565256,
+    "why_it_misleads": "corr(|x_frac|, rho) = +0.931, so |x_frac| carries the symmetric term and rho is left with a collinear remainder of the wrong sign"
+   }
+  },
+  "nested_model_tests_unweighted": {
+   "roundness": {
+    "rho_only_R2": 0.10565598934882225,
+    "x_only_R2": 0.22317141125177664,
+    "both_R2": 0.315987911059869,
+    "F_adding_x_to_radial": 44.587119352463915,
+    "F_adding_rho_to_one_sided": 19.675664640703975,
+    "both_rho_SE_units": 4.435725942921181,
+    "both_x_SE_units": 6.677358710782563
+   },
+   "major_px": {
+    "rho_only_R2": 0.48604419474479277,
+    "x_only_R2": 0.006286006251059129,
+    "both_R2": 0.4884265729986108,
+    "F_adding_x_to_radial": 0.6752595591769665,
+    "F_adding_rho_to_one_sided": 136.65757150088476,
+    "both_rho_SE_units": 11.690062938277375,
+    "both_x_SE_units": 0.8217417837598826
+   }
+  },
+  "verdict": "BOTH terms carry real signal in roundness \u2014 neither model is adequate alone. Star SIZE is a different story and is purely radial.",
+  "model_free_sided_bands_member_stations": [
+   {
+    "abs_x_band": [
+     0.0,
+     0.2
+    ],
+    "n_minus": 8,
+    "n_plus": 16,
+    "minus_x": 0.9247787047299523,
+    "plus_x": 0.9499277427439567,
+    "difference": 0.025149038014004477
+   },
+   {
+    "abs_x_band": [
+     0.2,
+     0.4
+    ],
+    "n_minus": 10,
+    "n_plus": 10,
+    "minus_x": 0.9216828079902704,
+    "plus_x": 0.9606429406399902,
+    "difference": 0.03896013264971987
+   },
+   {
+    "abs_x_band": [
+     0.4,
+     0.6
+    ],
+    "n_minus": 18,
+    "n_plus": 14,
+    "minus_x": 0.9206044346131428,
+    "plus_x": 0.9318927165354332,
+    "difference": 0.011288281922290366
+   },
+   {
+    "abs_x_band": [
+     0.6,
+     0.8
+    ],
+    "n_minus": 29,
+    "n_plus": 29,
+    "minus_x": 0.9435230838189153,
+    "plus_x": 0.8816449289010264,
+    "difference": -0.06187815491788884
+   },
+   {
+    "abs_x_band": [
+     0.8,
+     1.01
+    ],
+    "n_minus": 5,
+    "n_plus": 9,
+    "minus_x": 0.9754098360655739,
+    "plus_x": 0.8681800655484866,
+    "difference": -0.10722977051708726
+   }
+  ]
+ },
+ "correction_2_where_the_one_sided_term_lives": {
+  "frames": 3,
+  "stars": 8074,
+  "canvas": [
+   6064,
+   4040
+  ],
+  "exptime_s": 2.5,
+  "state": "debayered, UNcalibrated, UNwarped, UNregistered, UNstacked \u2014 one exposure",
+  "whole_frame": {
+   "major": 2.38,
+   "minor": 2.01,
+   "roundness": 0.8325991189427312
+  },
+  "model_free_sided_bands_roundness": [
+   {
+    "abs_x_band": [
+     0.0,
+     0.2
+    ],
+    "n_minus": 1357,
+    "n_plus": 1290,
+    "minus_x": 0.8395061728395061,
+    "plus_x": 0.8251984126984128,
+    "difference": -0.014307760141093362
+   },
+   {
+    "abs_x_band": [
+     0.2,
+     0.4
+    ],
+    "n_minus": 1046,
+    "n_plus": 883,
+    "minus_x": 0.8571428571428572,
+    "plus_x": 0.8297872340425532,
+    "difference": -0.02735562310030404
+   },
+   {
+    "abs_x_band": [
+     0.4,
+     0.6
+    ],
+    "n_minus": 826,
+    "n_plus": 909,
+    "minus_x": 0.8477366255144032,
+    "plus_x": 0.8160000000000001,
+    "difference": -0.03173662551440315
+   },
+   {
+    "abs_x_band": [
+     0.6,
+     0.8
+    ],
+    "n_minus": 516,
+    "n_plus": 669,
+    "minus_x": 0.861057486057486,
+    "plus_x": 0.7912087912087913,
+    "difference": -0.06984869484869471
+   },
+   {
+    "abs_x_band": [
+     0.8,
+     1.01
+    ],
+    "n_minus": 270,
+    "n_plus": 308,
+    "minus_x": 0.8460426739541729,
+    "plus_x": 0.7817066446098705,
+    "difference": -0.06433602934430238
+   }
+  ],
+  "model_free_sided_bands_major": [
+   {
+    "abs_x_band": [
+     0.0,
+     0.2
+    ],
+    "n_minus": 1357,
+    "n_plus": 1290,
+    "minus_x": 2.3,
+    "plus_x": 2.18,
+    "difference": -0.11999999999999966
+   },
+   {
+    "abs_x_band": [
+     0.2,
+     0.4
+    ],
+    "n_minus": 1046,
+    "n_plus": 883,
+    "minus_x": 2.4,
+    "plus_x": 2.23,
+    "difference": -0.16999999999999993
+   },
+   {
+    "abs_x_band": [
+     0.4,
+     0.6
+    ],
+    "n_minus": 826,
+    "n_plus": 909,
+    "minus_x": 2.49,
+    "plus_x": 2.41,
+    "difference": -0.08000000000000007
+   },
+   {
+    "abs_x_band": [
+     0.6,
+     0.8
+    ],
+    "n_minus": 516,
+    "n_plus": 669,
+    "minus_x": 2.47,
+    "plus_x": 2.61,
+    "difference": 0.13999999999999968
+   },
+   {
+    "abs_x_band": [
+     0.8,
+     1.01
+    ],
+    "n_minus": 270,
+    "n_plus": 308,
+    "minus_x": 2.48,
+    "plus_x": 2.59,
+    "difference": 0.10999999999999988
+   }
+  ],
+  "brightest_quartile_control_roundness": [
+   {
+    "abs_x_band": [
+     0.6,
+     0.8
+    ],
+    "n_minus": 125,
+    "n_plus": 123,
+    "minus_x": 0.8648648648648648,
+    "plus_x": 0.7886792452830188,
+    "difference": -0.076185619581846
+   },
+   {
+    "abs_x_band": [
+     0.8,
+     1.01
+    ],
+    "n_minus": 89,
+    "n_plus": 81,
+    "minus_x": 0.8171641791044776,
+    "plus_x": 0.7821011673151751,
+    "difference": -0.03506301178930249
+   }
+  ],
+  "fits": {
+   "roundness": {
+    "rho_SE_units": 2.791644229998354,
+    "x_SE_units": 13.849560253492978,
+    "F_adding_x_to_radial": 191.81031921513394
+   },
+   "major_px": {
+    "rho_SE_units": 30.300573406334774,
+    "x_SE_units": 0.1299291999274467,
+    "F_adding_x_to_radial": 0.016881596996163765
+   }
+  },
+  "elongation_direction_by_field_azimuth": {
+   "sectors": [
+    {
+     "azimuth_centre_deg": -157.5,
+     "n": 1199,
+     "median_PA_deg": 1.58,
+     "roundness": 0.8565737051792829
+    },
+    {
+     "azimuth_centre_deg": -112.5,
+     "n": 1270,
+     "median_PA_deg": 26.41,
+     "roundness": 0.8634421134421135
+    },
+    {
+     "azimuth_centre_deg": -67.5,
+     "n": 1041,
+     "median_PA_deg": -2.45,
+     "roundness": 0.8371040723981901
+    },
+    {
+     "azimuth_centre_deg": -22.5,
+     "n": 1091,
+     "median_PA_deg": 5.95,
+     "roundness": 0.7966804979253111
+    },
+    {
+     "azimuth_centre_deg": 22.5,
+     "n": 1247,
+     "median_PA_deg": 27.3,
+     "roundness": 0.8018433179723502
+    },
+    {
+     "azimuth_centre_deg": 67.5,
+     "n": 680,
+     "median_PA_deg": 6.3149999999999995,
+     "roundness": 0.8356344045487386
+    },
+    {
+     "azimuth_centre_deg": 112.5,
+     "n": 659,
+     "median_PA_deg": -18.81,
+     "roundness": 0.8232558139534885
+    },
+    {
+     "azimuth_centre_deg": 157.5,
+     "n": 887,
+     "median_PA_deg": -15.39,
+     "roundness": 0.8304347826086956
+    }
+   ],
+   "PA_spread_deg": 15.802836165048824,
+   "reading": "a fixed sensor direction predicts ~0 spread; a radial optical term predicts the PA sweeping with azimuth"
+  },
+  "what_this_rules_OUT": [
+   "within-member registration \u2014 the frame has not been registered",
+   "the compose \u2014 the frame has not been composed",
+   "a residual of the lensfun distortion model \u2014 the frame carries no correction, so there is no residual of one in it"
+  ],
+  "what_remains_UNSEPARATED": "the in-exposure family: an optical asymmetry, differential refraction, and the across-field gradient of the projected sky rate. All three are in the photons of a single exposure and none is removed by a better distortion model. The named discriminator (BACKLOG:one-sided-band) is hour-angle dependence, and the headers carry DATE-OBS but no site coordinates, so it needs designing.",
+  "tension_with_an_inherited_claim": "BACKLOG:compose-homography-smear records, from 136k stars over 3 frames x 6 sets x 2 nights, that 'the major-axis angle tracks the field azimuth in 7 of 8 zones in every set'. On these 3 frames of aug06/set-01 the median PA is near-CONSTANT across 8 azimuth sectors (spread in the record above), which is the trailing signature, not a rotating radial one. One of the two is measuring something the other is not \u2014 sample, channel (the raws solve on the half-res green plane) or convention. NOT resolved here; flagged so neither is quoted as settled."
+ },
+ "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0."
+}

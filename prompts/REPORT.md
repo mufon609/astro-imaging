@@ -29,14 +29,16 @@ per engagement, not items — the four-session team is OPTIONAL and specified in
 3. **The load-bearing unchecked premise**: that starlight preservation is the
    right adoption gate for the L1 level choice at all. No instrument can settle
    it.
-4. **The per-member trim** — measured, predicted, not built. A +x edge trim
-   keeping 80% of each member is predicted to lift delivered corner roundness
-   0.921 → 0.972 and costs 4 of 20 measured union boxes their last contributing
-   member. Whether that trade is worth taking is the owner's; the two owner
-   statements it sits between are now recorded side by side in `BACKLOG.md`
-   (the ratified framing=max deliverable, and *"more worried about stacking bad
-   sections than about not stacking enough"*). If the owner wants it, the next
-   step is the one-knob A/B, not the adoption.
+4. **The per-member trim — and the recommendation is to WAIT.** A joint trim
+   keeping x_frac ≤ 0.70 is predicted to lift delivered corner roundness
+   0.911 → 0.938 for 15% of every member and 4 of 20 measured union boxes losing
+   their last contributing member. Two reasons not to take it yet: the gain is
+   modest against that cost, and the defect's cause is unidentified — measured
+   as in-exposure, but not separated between an optical asymmetry, differential
+   refraction and the projected-rate gradient. A trim works regardless of cause,
+   which is what makes it seductive. The two owner statements it sits between
+   are recorded side by side in `BACKLOG.md`. If the owner wants it anyway, the
+   next step is the one-knob A/B, not adoption.
 
 ## Landed during the corner-quality session — the axis is settled, and the crop line the brief asked for is REFUSED by the numbers
 
@@ -71,40 +73,66 @@ compose.** Four members from three sets, measured at their own field radius,
 read major **2.305 → 2.781 px** and roundness **0.951 → 0.863** across rho
 0.10 → 0.80 — a +0.476 px rise against the union's own +0.505 px over the same
 span. The compose adds a roughly radius-independent **+0.04 to +0.28 px** of
-major axis (median +0.13) and no radial trend. So candidate 3 (optics) owns the
-radial term; the compose's contribution is a small offset. What that offset
-decomposes into — per-member solve error, lanczos4 resampling, residual
-registration — is **UNATTRIBUTED**; the test is pairwise cross-matching of the
-members' own findstar RA/Dec (each member's own solution) binned by member-own
-radius, which is the astrometric analogue of what `member_separation.py`
-measures through `register -2pass` homographies.
+major axis (median +0.13) and no radial trend. So the term is **MEMBER-LEVEL**,
+and the compose's contribution is a small offset whose decomposition —
+per-member solve error, lanczos4 resampling, residual registration — is
+**UNATTRIBUTED**; the test is pairwise cross-matching of the members' own
+findstar RA/Dec binned by member-own radius, the astrometric analogue of what
+`member_separation.py` measures through `register -2pass` homographies.
 
-**AND THE DEFECT IS NOT RADIALLY SYMMETRIC, which is what refuses the brief's
-requested form.** Over 148 member stations the two quantities behave
-differently: **star SIZE is radial** (major corr with rho +0.697, with x_frac
-+0.079) while **star ROUNDNESS is ONE-SIDED IN SENSOR x** (roundness corr with
-x_frac −0.472, with rho −0.325; in a joint fit the signed x term is 7.1 SE and
-rho only 1.6 SE). By member-frame x band, roundness reads **0.945 at −x, 0.943
-at centre, 0.880 at +x**. At rho 0.65 the +x half reads 0.836–0.897 against the
-−x half's 0.940–0.976; the −x−y corner holds **0.975–0.988 out to rho 0.88**
-while the +x+y corner falls to **0.823–0.868**. It is sensor-fixed, not sky:
-two members looking at sky **1.76–3.01° apart** give azimuth profiles correlated
-at **r = +0.889** (roundness) and **+0.916** (major). That is
+**THE DEFECT HAS TWO COMPONENTS AND EARLIER WORDING HERE CLAIMED ONE.** Over 148
+member stations, **star SIZE is purely radial**: adding a one-sided term to a
+radial model gives **F = 0.7**, x-only R² 0.006 against rho-only 0.486. **Star
+ROUNDNESS needs BOTH**: F = **44.6** adding x to a radial model and **19.7**
+adding rho to a one-sided one, R² 0.223 x-only, 0.106 rho-only, **0.316
+together**. The first pass published "7.1 SE on x against 1.6 SE on rho" from a
+fit carrying x + |x_frac| + rho, and `corr(|x_frac|, rho) = +0.93` — the
+symmetric term sat in the |x_frac| coefficient and rho was left a collinear
+remainder of the wrong sign. Six specifications now, not one: x runs 4.2–7.1
+SE and rho 1.6–5.5 SE, and the spread across weightings is decided by the data
+— between-station scatter is **tau = 0.0300 against a median measurement SE of
+0.0066 (4.5×)**, so weighting by 1/se² over-weights a few low-SE stations while
+the random-effects weight 1/(se²+tau²) is correct and lands on the unweighted
+answer (x 6.52 SE, rho 4.20 SE).
+
+**The ASYMMETRY itself is model-free and stands.** At matched |x_frac| the two
+sides differ: roundness **−x 0.944 / +x 0.882** at |x| 0.6–0.8 and **0.975 /
+0.868** at 0.8–1.0, with the sign inverting near the centre. It is sensor-fixed,
+not sky: two members looking at sky **1.76–3.01° apart** give azimuth profiles
+correlated at **r = +0.889** (roundness) and **+0.916** (major). That is
 BACKLOG:`compose-homography-smear`'s exit-edge finding, now measured at MEMBER
 level with a matched-radius control.
 
-**So: no radial crop line is justified, and this is the deliverable.** A radial
-shrink is the wrong shape for the term the eye sees, and it barely helps the
-term it does address — the members' own major-axis profile plateaus above
-rho ≈ 0.5 (2.77 at 0.5, 2.68 at 0.6, 2.73 at 0.7, 2.78 at 0.8), so cutting at
-rho 0.80 is PREDICTED to move the delivered corners 2.887 → 2.877 px while
-costing 36% of every member's area. The efficient lever is one-sided: a **+x
-edge trim keeping x_frac ≤ 0.60 (80% of each member)** is predicted to lift
-delivered roundness at the four crop corners **0.921 → 0.972** and the worst
-measured box **0.869 → 0.922**. **That is a PREDICTION, labelled as one** — it
-is built from the members' own measured profiles plus which members reach each
-sky position, and only the one-knob A/B settles it. Its cost is stated with it:
-at that trim, 4 of the 20 measured union boxes lose every contributing member.
+**AND IT IS ALREADY IN A SINGLE EXPOSURE.** Siril `findstar` on three raws —
+debayered, uncalibrated, unwarped, unregistered, unstacked, 8074 stars — reads
+the same one-sided term at the same size: roundness **−x 0.861 / +x 0.791** at
+|x| 0.6–0.8 and **0.846 / 0.782** at 0.8–1.0, x at **13.8 SE** and **F = 191.8**
+on a radial model, holding in a brightest-quartile control (−0.076, −0.035).
+Star size is purely radial there too (rho 30.4 SE, x 0.1 SE, F = 0.0). This
+rules OUT three mechanisms — within-member registration, the compose, and a
+residual of the lensfun distortion model (an uncorrected frame carries no
+residual of a correction). **It does NOT identify the cause**: an optical
+asymmetry, differential refraction and the across-field gradient of the
+projected sky rate are all in the photons of one exposure, and none is removed
+by a better distortion model. The named discriminator
+(BACKLOG:`one-sided-band`, hour-angle dependence) has never run, and the headers
+carry DATE-OBS but no site coordinates, so it needs designing. **One inherited
+claim is in tension and is flagged rather than resolved**: the registry records
+the major-axis angle tracking field azimuth in 7 of 8 zones; on these three
+frames the median PA is near-constant across 8 azimuth sectors (**spread
+15.8°**), which is the trailing signature.
+
+**So: no crop line is handed over, and the corrected prediction is why.** Under
+the two-term model the best joint trim measured — keep x_frac ≤ 0.70, no radial
+cut — is predicted to move delivered roundness at the four crop corners
+**0.911 → 0.938** and the worst box **0.882 → 0.903**, for **15% of every
+member's area** and **4 of 20 measured union boxes losing every contributing
+member**. A radial cut alone moves star size **2.887 → 2.877 px** at rho 0.80
+for 36% of each member, because the members' own major-axis profile plateaus
+above rho ≈ 0.5. **These are PREDICTIONS**, from the members' own profiles plus
+which members reach each position; only the one-knob A/B settles them. On these
+numbers the case for trimming is weak, and the root cause is unidentified —
+which is the order CLAUDE.md puts them in.
 
 **The depth axis could not be measured in the background, and saying so is the
 result.** A 100-frame member and the 1454-frame union measure the **same**

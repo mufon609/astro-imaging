@@ -9,9 +9,14 @@ contribute at each sky position. So the delivered shape under a shrink is
 predictable from two things this session already measured with Siril: each
 member's own shape profile across its own frame, and (from the members' WCS)
 which members reach each union position and at what own-frame coordinate. This
-computes that, for a RADIAL cut and for a ONE-SIDED +x cut, because the two
-quantities the corners lose behave differently — star SIZE is radial, star
-ROUNDNESS is one-sided.
+computes that over a JOINT trim family, because the two quantities the corners
+lose behave differently and roundness needs BOTH terms: star SIZE is purely
+radial (adding a one-sided term to a radial model gives F = 0.7) while
+ROUNDNESS needs the one-sided term AND the radial one (F = 44.6 adding x to a
+radial model, F = 19.7 adding rho to a one-sided model; R2 0.223 x-only, 0.106
+rho-only, 0.316 together — `mechanism_and_specs.json`). An earlier revision of
+this file swept a one-sided cut against an x-only empirical profile, which
+inherited the overstatement it was built on.
 
 IT IS A PREDICTION AND IS LABELLED ONE. The only thing that settles it is the
 one-knob A/B (build the union with and without the trim, same members, same
@@ -155,6 +160,38 @@ def main():
                          "boxes_losing_every_member": int(len(boxes) - len(allv))})
         return rows
 
+    # the SUPPORTED roundness model: both terms, fitted on the same stations.
+    # Unweighted and the random-effects weight agree (6.68/4.44 against
+    # 6.52/4.20 SE), so no weighting choice is doing work here.
+    Xs = np.column_stack([np.ones(len(xf)), xf, rho])
+    beta, *_ = np.linalg.lstsq(Xs, rnd, rcond=None)
+    pj = np.array([float((beta[0] + beta[1] * b["xf"] + beta[2] * b["rho"]).mean())
+                   for b in boxes])
+    off_j = float(np.median(mr - pj))
+    joint = []
+    for xcut in (1.01, 0.8, 0.7, 0.6):
+        for rcut in (1.01, 0.85, 0.75, 0.65):
+            allv, corners, lost = [], [], 0
+            for b in boxes:
+                keep = (b["xf"] <= xcut) & (b["rho"] <= rcut)
+                if not keep.any():
+                    lost += 1
+                    continue
+                v = float((beta[0] + beta[1] * b["xf"][keep]
+                           + beta[2] * b["rho"][keep]).mean() + off_j)
+                allv.append(v)
+                if b["label"].startswith("crop") and b["label"] != "cropC":
+                    corners.append(v)
+            # member area kept: the x cut takes (1-xcut)/2 of the width, the rho
+            # cut is an equal fractional trim on both axes (area rcut^2)
+            area = min(1.0, (min(xcut, 1.0) + 1) / 2) * min(1.0, rcut) ** 2
+            joint.append({"x_cut": xcut, "rho_cut": rcut,
+                          "member_area_kept": area,
+                          "predicted_roundness_mean": float(np.mean(allv)),
+                          "predicted_at_the_4_crop_corners": float(np.mean(corners)) if corners else None,
+                          "predicted_worst_box": float(np.min(allv)),
+                          "boxes_losing_every_member": lost})
+
     rec_out = {
         "what_this_is": "a PREDICTION of what a per-member shrink delivers, "
                         "built from the members' own measured profiles. Only a "
@@ -170,8 +207,12 @@ def main():
             "major_median_offset": off_m,
             "caveat": "same measurements on both sides — a consistency check on "
                       "the construction, not independent evidence"},
-        "one_sided_plus_x_trim": sweep("roundness", "xf", [1.01, .9, .8, .7, .6, .5],
-                                       xc, xr, off_r),
+        "one_sided_plus_x_trim_SUPERSEDED": {
+            "why": "kept for traceability. It sweeps an x-only empirical "
+                   "profile, so it credits the whole roundness gain to the "
+                   "one-sided cut. The joint family below is the supported one.",
+            "rows": sweep("roundness", "xf", [1.01, .9, .8, .7, .6, .5], xc, xr, off_r)},
+        "joint_trim_family": joint,
         "radial_shrink_on_star_size": sweep("major", "rho", [1.01, .9, .85, .8, .75, .7],
                                             rc_, rm, off_m),
         "reports_only": "no threshold, no verdict, nothing built. Exits 0."}
@@ -179,8 +220,16 @@ def main():
     print(f"  record -> {out_json}")
     print(f"  roundness prediction vs today's union: r={rec_out['prediction_vs_measured_today']['roundness_corr']:+.3f}, "
           f"offset {off_r:+.4f}")
-    for nm, key in (("+x trim keep x_frac<=", "one_sided_plus_x_trim"),
-                    ("radial  keep rho<=   ", "radial_shrink_on_star_size")):
+    print("  joint family (both terms), predicted delivered roundness:")
+    for r in joint:
+        c = r["predicted_at_the_4_crop_corners"]
+        print(f"    x<={r['x_cut']:.2f} rho<={r['rho_cut']:.2f}  area {100*r['member_area_kept']:5.1f}%  "
+              f"mean {r['predicted_roundness_mean']:.3f}  corners "
+              + (f"{c:.3f}" if c is not None else "  n/a")
+              + f"  worst {r['predicted_worst_box']:.3f}"
+              + (f"  ({r['boxes_losing_every_member']} boxes lose every member)"
+                 if r["boxes_losing_every_member"] else ""))
+    for nm, key in (("radial  keep rho<=   ", "radial_shrink_on_star_size"),):
         for r in rec_out[key]:
             c = r["predicted_at_the_4_crop_corners"]
             print(f"  {nm}{r['cut']:.2f}  member area {100*r['member_area_kept']:5.1f}%  "
