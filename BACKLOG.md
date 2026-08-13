@@ -571,10 +571,18 @@ written.**
   derivation `acquisition.py` gains is its own verification and gets a positive
   control from this value at the same time. That
   is better than the derived route because it gives the derivation a POSITIVE
-  CONTROL it did not have. **The chain does not record it yet** —
-  `scripts/lib/acquisition.py` writes no `site` block, and standards-first says
+  CONTROL it did not have. **The chain now RECORDS it** —
+  `scripts/lib/acquisition.py` resolves a `site` block from the tracked
+  `scripts/setup/site.json` (per-session override, no silent default) and writes
   `SITELAT`/`SITELONG`/`SITEELEV` (Siril's own keys — verified present in the
-  1.4.4 binary) with `OBSGEO-X/Y/Z` as the FITS-standard form.
+  1.4.4 binary) plus a DERIVED `OBSGEO-X/Y/Z` (WCS Paper III; FITS 4.0 §8.4,
+  cross-checked against astropy at 0.000000 m) into every acquisition record —
+  13 populated at `6b41875`, corrected to the `f49b7cc` coordinates at `ebf8209`.
+  Status stays OWNER-SUPPLIED, TRANSCRIBED, UNVERIFIED;
+  `scripts/setup/verify_site.py` bounds the transcription at the DEGREE level
+  only (it refutes a flipped longitude sign at −7.78° and a lat/long transposition
+  at −50.18°, but a sub-degree digit error moves altitude by just 0.29°/0.07° and
+  is undetectable), and the derivation that would close it is not built.
 - **The replacement discriminator needs no site at all. MECHANISM, UNTESTED.**
   Cross-match stars between consecutive frames and compare the drift BEARING to
   the shape-fit's own direction θ₀. If the shape-derived direction tracks the
@@ -714,6 +722,50 @@ radial↔tangential sign flip that would establish astigmatism is ABSENT (the fo
 negative R values are inner annuli at 0.1–1.5 SE). So the coma reading stands as
 UNRESOLVED-but-consistent, not retired. **Standing rule from this: state which
 quantity's exponent you are quoting, every time.**
+
+## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
+
+Two independent traps, both MEASURED, both of which have already misled a session
+each. Neither corrupts a shipped product — nothing on the build path consumes
+either quantity as a pointing — but both are silent and both invite the same
+mistake.
+
+**1. `fingerprint.field_center` is the FIRST FRAME's solve, not the set's
+pointing.** MEASURED: it equals `mount_probe.json`'s `solve_a` to machine
+precision in all three sets checked, and the probe's window is the FIRST frame of
+the longest contiguous capture run. A fixed mount sweeps RA through the set, so
+the field's RA at the set MIDPOINT is higher — and the record is therefore
+systematically LOW by about half a set span:
+
+| set | first (`field_center`) | midpoint | authoritative (`OBJCTRA`) | first − auth | mid − auth |
+|---|---|---|---|---|---|
+| aug06/set-01 | 302.945 | 306.054 | 306.653 | **−3.708** | −0.599 |
+| aug09/set-01 | 306.727 | 309.840 | 309.703 | **−2.977** | +0.136 |
+| july31/set-01 | 308.558 | 312.399 | 312.856 | **−4.298** | −0.457 |
+
+Always negative, never positive, and about half the 6.22 / 6.23 / 7.68° RA span
+each set sweeps. The NAME is what causes the error — "field_center" reads as the
+field's centre. **Consumers: none on the build path** (grep finds only
+`fingerprint.py` itself and `verify_site.py`), so this is a naming/semantics
+defect rather than a corrupted product. It has nonetheless misled two readers in
+one session, including this manager.
+
+**2. `CRVAL1/2` is the WCS TANGENT POINT and on these solves it is nowhere near
+the pointing.** MEASURED across 13 products: **CRPIX sits 40–960 px from the
+image centre**, and **CRVAL REPEATS across different sets and different nights** —
+five discrete values serve all 13 products (306.62/42.00 covers july31/set-02,
+aug06/set-03 and aug09/set-03; 310.62/43.24 covers aug06/set-02, aug09/set-01,
+aug09/set-05 and july31/set-04). A quantity that repeats across unrelated
+pointings is not a pointing. Reading it as one costs up to **3°**.
+
+**What IS authoritative: the full solution evaluated at the central pixel**, which
+is the pointing by construction — and `OBJCTRA`/`OBJCTDEC` reproduces it to
+0.000–0.031° on 7 of 9 products (0.13–0.18° on the other two). Use `OBJCTRA`, or
+evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
+
+**Closes when** `field_center` is either renamed to what it is
+(`first_frame_center`) or computed as the set's actual pointing, and the two
+`docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
 
 ## `star-neutral-colour` — the narrowband gap
 
