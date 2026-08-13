@@ -825,6 +825,65 @@ evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
 (`first_frame_center`) or computed as the set's actual pointing, and the two
 `docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
 
+## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
+
+**MEASURED, and it is a cost of OUR OWN PIN rather than of Lanczos4.** Six
+synthetic frames, 700 stars each, planted FWHM 2.10 px matching the corpus,
+sub-pixel shifts so interpolation has real work, through the shipped operation
+verbatim (`register -2pass -transf=homography` then `seqapplyreg -interp=`):
+
+| arm | w | cost |
+|---|---|---|
+| input | 2.2050 | — |
+| nearest (control) | 2.2050 | **0.00%** |
+| cubic | 2.3238 | 5.39% |
+| lanczos4 **`-noclamp`** | 2.2150 | **0.45%** |
+| lanczos4 **CLAMPED — the shipped path** | 2.3431 | **6.26%** |
+
+**The clamping costs 13.8× what the Lanczos4 kernel does.** The kernel is nearly
+free on this PSF; the clamp is essentially the entire cost. The nearest control
+reading exactly 0.00% is what makes 6.26% credible as interpolation blur rather
+than a fixture artefact.
+
+**This is a doctrine number.** `check_registration_pins.sh` pins lanczos4 WITH
+clamping — pinning it means asserting `-noclamp` is absent — and the guard's own
+comment states the reason: *"clamping is the DEFAULT this repo keeps (lanczos4
+rings on stars)"*. So ~6% of PSF width per resampling pass is what that pin
+costs. **It is a TRADE, not a defect**, and the ringing it suppresses is real and
+recorded elsewhere in this registry; **no call has been made and none should be
+made without the owner's eyes**, since ringing is judged and blur is measured.
+
+**THE COUPLING, and it changes how every product-level shape number is read.**
+Since `e ≈ κℓ²/2w²`, a 6.26% rise in w is an **11.4% FALL in measured
+ellipticity** at fixed aberration (`1/1.0626² = 0.8856`). So corner ellipticity
+measured on a PRODUCT understates the raws' by that much **per pass**, and the
+undistort route runs two. Single-RAW measurements are unaffected, which is most
+of the corner thread's evidence — but any product-vs-member comparison inherits it.
+
+**THE DARKTABLE HALF IS NOT MEASURED**, so 6.26% is a LOWER BOUND on the shipped
+total. That is the open half of this item.
+
+**Two tool facts found by failing, both now sourced from Siril itself:**
+- **`seqapplyreg -interp=none` FAILS on a homography-registered sequence.** The
+  help says `none` forces the transform to a shift, and a homography cannot be
+  reduced to one, so it errors rather than degrading silently. Use
+  `-interp=nearest` for a no-blur control.
+- **Bayer drizzle and the lensfun undistort stage are MUTUALLY EXCLUSIVE as
+  currently built**, verbatim from Siril's help: *"when using -drizzle on images
+  taken with a color camera, the input images must not be debayered. In that
+  case, star detection will always occur on the green pixels."* The undistort
+  route runs darktable on debayered data. So "just try drizzle" is not a one-knob
+  experiment on this route.
+
+**Why drizzle is still live** (Oracle shortlist item 2, never opened): FWHM
+2.0–2.4 px debayered is ~1.4–1.7 px on the green CFA lattice — undersampled — and
+the untracked drift supplies ideal sub-pixel dither across 500 frames, the
+textbook case. `docs/dead-ends.md` rules drizzle out on TRAILING grounds, but the
+trail here is 1.4–1.9 px, comparable to the PSF rather than a long streak.
+**Re-open with the number, not the category.** **Closes when** the darktable half
+is measured and the shipped total is known, and the drizzle question is decided
+against that number rather than against the category.
+
 ## `star-neutral-colour` — the narrowband gap
 
 SPCC-narrowband equalises O3=Ha and erases the O3 sphere; Siril has no single command
