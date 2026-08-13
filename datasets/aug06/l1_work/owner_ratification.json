@@ -1,0 +1,18 @@
+{
+ "id": "l1_level_choice_owner_ratification",
+ "date": "2026-08-13",
+ "what_was_approved": "the L1 background-level PROCESS and its finding \u2014 the on-stack degree-1 step (arm B). Not a final render; no render block is ratified by this and the render tier still has not run.",
+ "the_owner_s_stated_reason_verbatim_in_substance": "approved NOT because the difference is easily visible but because it is NOT. Most improvements on this project have been obvious to the eye; this one is not, and catching it anyway is what the honest-checks system was built for. Recorded as the reason because it is the reason.",
+ "what_the_instruments_said": {
+  "background_ramp_grid_ramp": "arm B removes 85-92% of the union's dominant y-ramp: across-frame 1.25/0.82/0.84% -> 0.19/0.26/0.07% (R/G/B)",
+  "nebula_contrast_snr_regions": "NGC 7000 pillars vs the adjacent dark region, 30 arcmin boxes: contrast changed -0.116/-0.006/+0.049% \u2014 the flattening is NOT paid for in nebula structure",
+  "starlight_preservation": "arm B REVEALS the starlight relation (shift-null p 0.022/0.000/0.036 detected where the control's is not) rather than removing it; neither falsifier fired",
+  "arm_A_for_contrast": "per-frame changes the union ramp by ~0.01% on Blue \u2014 it does not act at this level, which the registry already predicted (per-frame subsky does not remove combine-level structure)"
+ },
+ "what_this_does_NOT_ratify": [
+  "any render block \u2014 render_tier.sh has still never run on this corpus",
+  "the 30% of the framing=max deliverable outside the shared crop, which remains unjudged",
+  "arm A as useless \u2014 it addresses frame-to-frame gradient variation, a different job, untested here"
+ ],
+ "open_and_unexplained": "set-02's non-replication (both surfaces powered, comparable SEs, they disagree). Sky span refuted as the explanation at 0.31%. The successor hypothesis \u2014 the effect tracks the magnitude of the confound per surface, a property of the flat \u2014 is recorded and fenced behind the paused flat line."
+}
