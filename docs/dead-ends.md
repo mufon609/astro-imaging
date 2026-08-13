@@ -2286,8 +2286,15 @@ SILENT — pin the state, never inherit it):
   **What it enables:** the drift bearing is a direct, site-free measurement of the
   trail direction on a ~30 s baseline against a 2.5 s trail, so it is ~12× better
   determined than the trail it tests. Against it, the fixed-direction term in the
-  star shapes is **misaligned by 7.85° ± 1.21, i.e. 28.4σ** — so that term is not
-  the in-exposure trail. Confounds not separated and recorded with it: the field
+  star shapes is **misaligned by 7.85° ± 0.40, i.e. 19.4σ** — so that term is not
+  the in-exposure trail. (± is the SE of the mean over nine blocks; the
+  between-block SD is 1.21°. **Name the denominator when quoting a σ**: the fit's
+  own internal SE would read 33.1σ, and it is the wrong one because the
+  between-block scatter *exceeds* it, so real dispersion would be assumed away.
+  Even 19.4σ is optimistic — the nine blocks share one optical field and are not
+  nine independent draws. The claim does not rest on the σ: every block has the
+  same sign, the range is +6.27 to +10.04°, and the smallest offset is 8.8× the
+  per-block fit SE.) Confounds not separated and recorded with it: the field
   drifts 953 px over a set so the star population changes, and θ₀ is known to be
   population-sensitive; and the fit's constant term absorbs part of the decentred
   radial field.

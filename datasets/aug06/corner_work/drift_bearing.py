@@ -298,6 +298,7 @@ def main():
             "elapsed_s": b * BLOCK_STRIDE * CADENCE_S,
             "n_stars_pooled": f["n_stars"],
             "theta0_deg": t0,
+            "theta0_direction_se_deg": f["fixed_direction_se_deg"],
             "theta0_amplitude": f["fixed_amplitude"],
             "theta0_amplitude_SE_units": f["fixed_amplitude_SE_units"],
             "radial_R": f["radial_R"],
@@ -323,6 +324,35 @@ def main():
         th = [b["theta0_deg"] for b in blocks]
         out["offset_mean_deg"] = float(np.mean(off))
         out["offset_sd_deg"] = float(np.std(off, ddof=1))
+        # THE DENOMINATOR IS NAMED, because a quoted pair that does not divide to
+        # the quoted sigma is either tripped over or silently propagated. Two are
+        # defensible and they differ, so both are reported with what each assumes.
+        ob = off[1:]                       # blocks 2-10; block 1 is the outlier
+        sd = float(np.std(ob, ddof=1))
+        sem = sd / np.sqrt(len(ob))
+        internal = float(np.mean([b["theta0_direction_se_deg"]
+                                  for b in blocks[1:]]))
+        out["offset_significance_blocks_2_to_10"] = {
+            "n_blocks": len(ob),
+            "mean_deg": float(np.mean(ob)),
+            "sd_between_blocks_deg": sd,
+            "se_of_the_mean_deg": sem,
+            "sigma_using_se_of_the_mean": float(abs(np.mean(ob)) / sem),
+            "mean_internal_fit_se_deg": internal,
+            "sigma_using_internal_fit_se": float(
+                abs(np.mean(ob)) / (internal / np.sqrt(len(ob)))),
+            "WHICH_ONE_TO_QUOTE": "the SE OF THE MEAN. The block-to-block SD "
+                "exceeds the fit's own internal SE, so there is real dispersion "
+                "beyond fit noise and the internal SE would assume it away. The "
+                "internal-SE figure is reported only so the difference is "
+                "visible rather than hidden in a choice.",
+            "AND_EVEN_THAT_IS_OPTIMISTIC": "the nine blocks share one optical "
+                "field and one camera, so they are not nine independent draws "
+                "and the effective count is lower than 9. The claim does not "
+                "rest on the sigma: every block has the SAME SIGN, the range is "
+                "+6.272 to +10.043, and the SMALLEST offset is %.1fx the "
+                "per-block fit SE." % (min(ob) / internal),
+        }
         out["bearing_total_rotation_deg"] = float(
             wrap180(bear[-1] - bear[0]))
         out["theta0_total_rotation_deg"] = float(wrap180(th[-1] - th[0]))
@@ -347,8 +377,14 @@ def main():
         print("bearing rotates %+.3f deg over the set; theta0 rotates %+.3f deg"
               % (out["bearing_total_rotation_deg"],
                  out["theta0_total_rotation_deg"]))
-        print("offset (theta0 - bearing): mean %+.3f deg, SD %.3f deg"
-              % (out["offset_mean_deg"], out["offset_sd_deg"]))
+        s9 = out["offset_significance_blocks_2_to_10"]
+        print("offset (theta0 - bearing), blocks 2-10: %+.3f +- %.3f deg "
+              "(SE of the mean, n=%d) = %.1f sigma   [between-block SD %.3f; "
+              "internal fit SE %.3f would give %.1f sigma]"
+              % (s9["mean_deg"], s9["se_of_the_mean_deg"], s9["n_blocks"],
+                 s9["sigma_using_se_of_the_mean"], s9["sd_between_blocks_deg"],
+                 s9["mean_internal_fit_se_deg"],
+                 s9["sigma_using_internal_fit_se"]))
         s = out["slope"]
         if s:
             print("slope of theta0 against bearing: %+.3f +- %.3f  "
