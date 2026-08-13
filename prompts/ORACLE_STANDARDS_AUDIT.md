@@ -31,9 +31,18 @@ who you report to.
 (`flatpak run --command=siril-cli org.siril.Siril`), `solve-field`,
 `source-extractor` 2.28.2, `astap`, `exiftool`, `darktable-cli`, GraXpert and the
 neural stack under `/opt`. Probe help, command lists, version strings and config
-freely; use web search for vendor and primary literature freely. **Never produce
-a number about this repo's image data and never run an experiment on it** — where
-a data probe is needed, specify it precisely and hand it to a worker.
+freely; use web search for vendor and primary literature freely.
+
+**Your boundary is READ/ALTER, not READ/DON'T-READ — see the template's "Your
+scope" and "The knowledge base" sections.** Read everything: the registry, the
+BACKLOG, `TOOLS.md`, the instrument and test code under `scripts/`, the
+per-dataset records, and the git history. **Read the instruments' SOURCE** — what
+a measurement actually computes is often not what its name or its record claims,
+and that is the crux of TARGET 1 below. Alter nothing; call things out for review.
+**Never produce a number about this repo's image data and never run an experiment
+on it** — where a data probe is needed, specify it precisely and hand it to a
+worker. `TOOLS.md` § "Research queue" is your standing intake: feed it by report,
+do not edit it.
 
 ---
 

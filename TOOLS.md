@@ -548,6 +548,31 @@ Steffenhir/GraXpert releases + CI, hnsky.org) + on-rig probes:
   StarNet2; learned deconvolution = Cosmic Clarity's non-stellar sharpen, which
   is UNMEASURED here (BACKLOG:`learned-deconvolution`).
 
+## Research queue — candidates to investigate, and the question each would answer
+
+**This is the ORACLE's standing intake.** It is not a shopping list and nothing
+here is a recommendation: each row is a tool that plausibly bears on an open
+problem, with the QUESTION that would settle whether it belongs. The Oracle feeds
+this queue by review — it reads and reports, the owning session lands the row.
+Availability below is probed on this rig, not assumed; re-probe on a distro bump.
+
+| candidate | availability (probed) | the question it would answer |
+|---|---|---|
+| **SWarp** 2.41.5-3 | **PACKAGED, NOT INSTALLED** (`apt-cache policy swarp`) | The documented industry compose is per-image resampling onto a COMMON output WCS using each exposure's full solution — CD matrix *and* distortion (SDSS / CFHTLS / DES / Pan-STARRS lineage). It is the named route for BACKLOG:`compose-homography-smear`. Does it consume our per-member SIP solutions, and does it beat the adopted `seqplatesolve` + `seqapplyreg` route? **One `apt install` away and never tried** — the strongest single row here. |
+| **PSFEx** | NOT packaged (`apt-cache policy psfex`: no candidate) | Bertin's spatially-varying PSF modeller, same lineage as `source-extractor` (INSTALLED here). The survey-standard instrument for exactly the quantity the corner defect is about — a PSF that VARIES ACROSS THE FIELD, which our box-median stations only sample. Is it the right instrument, and can it be built from source? **PM lead, UNVERIFIED — do not cite as a method until checked.** |
+| **SCAMP** | NOT packaged (probed twice) | Photometric + astrometric solution across overlapping exposures — the removal condition on `object_tilt.py`'s divergence. Confirms the registry's earlier probe; the row exists so nobody re-probes it a third time. |
+| python **`reproject`** | not installed | The astropy-native alternative to SWarp for WCS-based resampling. Same question as SWarp, different implementation; also blocked historically by per-frame SIP being unreproducible (`docs/dead-ends.md`). |
+| python **`astropy_healpix`** | not installed | `spcc_cone.py` hand-rolls the nside=2 nested cover. Siril 1.5's own `healpix` command is the other candidate. Does either retire the hand-rolled cover? |
+| **Siril 1.5.0-dev** | not installed; 1.4.4 is current stable | ADOPT: the native `mask_*` subsystem plus `-mask` on `denoise`/`rmgreen`/`epf`/`rl`/`sb`/`wiener` — the first native path to region-confined ops. **LOAD-BEARING RISK: `starnet`/`seqstarnet` are REMOVED in 1.5.0-dev**, consolidated behind `pyscript StarNet.py`, and `render_tier.sh` calls `starnet` — a bump breaks the shipped render tier. Migrate before bumping (BACKLOG:`siril-1.5`). |
+| **GraXpert classical interpolators** (RBF / spline via `-preferences_file`, no AI model) | GraXpert 3.0.2 INSTALLED; this path UNTESTED | The AI path absorbs ~2/3 of extended structure on a starlight-filled field (measured). Do the classical grid interpolators avoid that, making GraXpert usable on this class? |
+| **RC-Astro BlurXTerminator** (+ NXT / SXT), and **PixInsight** as its host | PAID, deliberate gap; both run on this hardware | BXT is the mainstream claim to correct a FIELD-VARIABLE PSF, which is precisely the registry's "no installed tool can do this" ceiling. Does its documentation actually claim field-variable correction, and on what evidence? **Answering this from documentation costs nothing and bounds the corner thread.** |
+| **PSS** / **AutoStakkert!4** | not installed (x86 available) | Quality-ranked lucky-imaging frame selection — Siril 1.4.4 writes NO per-frame quality, so `-filter-quality` has nothing to consume. Gated on BACKLOG:`lunar-ladder`. |
+| **waveSharp 3.0** / **ImPPG 2.1.0** | not installed (native Linux) | Judgment-quality lunar finishers, dormant until a long-focal corpus exists. |
+
+**Rows retire by being answered, not by being installed.** A row whose question
+is settled moves its finding into the relevant tier above or into
+`docs/dead-ends.md`, and the row is deleted.
+
 ## The no-GPU reality
 
 Every AI tool here runs CPU-only on the i7-14700 (AVX2), but slower — and the

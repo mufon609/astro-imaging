@@ -285,13 +285,21 @@ Roles, and the point of each:
     claim to settled by quoting it. The tripwire applies to the Oracle too: if
     the worker and the adversary both accept an Oracle claim without testing it,
     that is a converged untested premise and it is logged UNCHECKED.
-  - **SCOPE, and this is what makes it usable by both sides: EXTERNAL tool use
-    and documentation ONLY. Never the repo's internal metrics.** It reads vendor
-    docs, tool help and self-description, forums and primary sources; it reads
-    results others produce. It does not measure this repo's images, does not
-    produce numbers about our data, and therefore has no stake in how our
-    measurements are interpreted — which is the whole reason both the worker and
-    the adversary can lean on it without either owning it.
+  - **SCOPE — and the boundary is READ/ALTER, never READ/DON'T-READ.** An earlier
+    wording said "external tool use and documentation ONLY, never the repo's
+    internal metrics", which reads as a ban on LOOKING and is wrong.
+    **It READS EVERYTHING** — `docs/dead-ends.md`, `BACKLOG.md`, `TOOLS.md`, the
+    instrument and test code under `scripts/`, the per-dataset records, and the
+    git history. It has to: it cannot tell whether we are attacking the right
+    issue without seeing what we did and why.
+    **It ALTERS NOTHING** — no commits, no edits to code or records. It calls
+    things out FOR REVIEW and the owning session lands them.
+    **It produces NO MEASUREMENT of our image data** — never a rival number about
+    pixels. That is the independence rule, and it is what lets both the worker
+    and the adversary lean on it without either owning it.
+    **Its AUTHORITY is external**: vendor docs, tool help and self-description,
+    primary literature, the field's standard practice. That is what its findings
+    cite; reading our tree is context for aiming, not the basis of its claims.
   - **It does not run experiments.** Probing a tool's own self-description — help
     output, command lists, version strings, a vendor's documented behaviour — IS
     documentation research and is its job. When a capability question needs a
