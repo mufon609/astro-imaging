@@ -34,6 +34,29 @@ passes (1.38/1.61/1.44 SE) so inverse-variance combining is permitted:
 **−0.1079 ± 0.0457 (2.36 SE), −0.0644 ± 0.0483 (1.33 SE), −0.0247 ± 0.0441
 (0.56 SE)** — direction in all three, significance only in Red.
 
+**AUDITED, and the audit changed what the result LICENSES.** The four-surface
+audit passed on all four pre-agreed questions, and independently re-derived the
+separations from raw `delta_slope`, bypassing `retained` entirely —
+2.1739/2.6812/2.6941, identical to nine decimals. Two corrections landed:
+
+- **The union answers the STATISTICAL question; the supplement licenses the word
+  STARLIGHT.** The power criterion had two clauses and the SE argument answers
+  only one. The shift-null asks whether the predictor registers with the image at
+  all, and on the union CONTROL it does not (p 0.266/0.252/0.230). It IS detected
+  on the union's arm B surface (0.022/0.000/0.036) and on both powered per-set
+  controls (0.000–0.043). So both halves are load-bearing, for different halves
+  of the claim.
+- **The separation is driven by arm B moving, not arm A.** The paired deltas'
+  own significance on the union: arm A **0.66/0.31/0.63 SE — consistent with
+  zero** — against arm B 2.22/2.96/2.69 SE. `retained_A < retained_B` holds, but
+  its content is "arm B reveals what arm A does not", which is **not** the same
+  claim as "arm A destroys starlight".
+
+**One loose end closed rather than left open:** "the effect grows with sky span"
+is REFUTED as the explanation of the supplement split — the two powered sets'
+excursions are 4.5827° and 4.5971°, **0.31% apart**, against separations of 2.59
+and 0.85 SE. It may still apply to union-versus-per-set, which is untested.
+
 **The least comfortable sentence: by this session's own pre-committed criterion
 the PRE-REGISTERED PRIMARY SURFACE IS UNDER-POWERED** (control shift-null p
 0.266/0.252/0.230). It separated anyway, because a difference's significance is
