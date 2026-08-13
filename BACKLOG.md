@@ -564,6 +564,13 @@ set — a re-aimed set still cross-checks).
 
 ## `per-group-flat-at-the-combine` — the trade is only decidable at the combine unit
 
+**PAUSED BY THE OWNER pending real flats** — the flat-residual research line is
+on hold until real flats exist to compare actual frames against the current
+synthetic masters. This is an owner decision about sequencing, NOT a
+recommendation from this repo to acquire them: the synthetic-flat route stays
+the mission and "a real flat" remains the divergence's removal CONDITION.
+Do not pick this item up before that comparison exists.
+
 The per-group flat measurement is CLOSED at the per-set deliverable: composed
 object tilt **+0.055% ± 0.083%, 0.7σ over 1217 stars** — indistinguishable from
 zero, because the set flat already IS the mean of the group flats, so a
