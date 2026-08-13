@@ -858,9 +858,81 @@ CLAMP pin is 6.26%** (`resample-cost-and-drizzle`). That is a root cause, it is
 INSIDE the chain, it is ours, and it was reachable. A treatment that adds blur at
 the centre was proposed for a chain already softening the centre by ~12%.
 
+**AND THE LITERATURE AGREES WITH THE OWNER, FORMALLY — this is not an aesthetic
+preference, it is a measured information loss with a strictly better documented
+alternative.** Zackay & Ofek 2017, *"How to coadd images?"* I and II
+(arXiv:1512.06872, 1512.06879): the optimal coadd applies a matched filter to
+each image USING ITS OWN PSF and only then sums, and — verbatim — **"methods that
+either match filter after coaddition, or perform PSF homogenization prior to
+coaddition, will result in loss of sensitivity."** The proper coadd "preserves all
+the information from the original individual images on all spatial frequencies".
+So homogenisation is the OLDER standard (the DES/Pan-STARRS lineage it was
+proposed from) and the modern result supersedes it. *"An accepted failure mode"*
+is the correct technical characterisation. Implementation lead, availability
+UNVERIFIED here: `properimage` (quatrope/ProperImage) is the reference
+implementation and is pip-installable — a COADDITION route, orthogonal to the
+deconvolution question.
+
 **Closes when** nothing — this is a standing doctrine entry, not open work. It is
 recorded so the proposal is not re-made, and so the general form (uniformity
 bought by degrading the good region) is refused on sight.
+
+## `corner-fix-landscape` — every candidate, classified against the bandaid test
+
+**The rule, adopted after a list of four "responses" turned out to contain three
+non-fixes: every candidate is classified FIX / TRADE / BANDAID before it is
+listed, and a trade or a concealment never appears in the same list as a fix.**
+If the honest answer is "no fix is available on this rig", that is the finding.
+
+- **FIX — single-PSF deconvolution of the FIELD-CONSTANT component. Installed,
+  headless, no bright-line problem, and it is the one the aberration label
+  actually buys.** Under Nodal Aberration Theory a misaligned element produces
+  **field-constant coma** — a component UNIFORM across the whole field — and a
+  uniform PSF component is removable by an ordinary single-PSF deconvolution.
+  **VERIFIED ON THIS RIG by probe:** `rl [-loadpsf=] [-alpha=] [-iters=] [-stop=]
+  [-gdstep=] [-tv] [-fh] [-mul]` is scriptable, and its own help says *"a PSF may
+  be loaded using -loadpsf=<filename> (created with MAKEPSF)"*; `makepsf
+  load/save/blind/stars/manual` is scriptable too. No tiling, no new tool, no
+  in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
+  constant across the six sets the misalignment is fixed, |C| is the amplitude of
+  the globally-correctable component and its direction is the PSF to build.
+- **FIX, PARTIAL — Cosmic Clarity per-chunk sharpening covers the SIZE half and
+  cannot touch the ROUNDNESS half.** **VERIFIED by probe, and it resolves a
+  contradiction this repo carried in two places at once:** `--auto_detect_psf`
+  reads *"Automatically measure PSF per chunk and choose the two nearest radius
+  models"* — so it IS spatially varying — while the model space is
+  `deep_nonstellar_sharp_cnn_radius_{1,2,4,8}`, a scalar RADIUS, so it is
+  ISOTROPIC. Both records were half-right: `TOOLS.md`'s "its interface is a scalar
+  radius" is true of the model space, `experiments.jsonl`'s "measures PSF per
+  chunk, field behaviour unprobed" is true of the spatial handling. It addresses
+  +21% on size and nothing of −0.11 on roundness. `--disable_gpu` gives CPU.
+  UNPROBED on a trailed star, which is neither Gaussian nor Moffat.
+- **FIX, root-cause, architecturally blocked — Bayer drizzle for the
+  undersampling** (`resample-cost-and-drizzle`).
+- **FIX, not procured — anisotropic spatially-varying deconvolution.** Farrens et
+  al. 2017, A&A 601 A66 (arXiv:1703.02305), python, built for a KNOWN spatially
+  varying PSF, i.e. exactly what PSFEx produces; its backend `modopt` is
+  pip-installable but the deconvolution code is a source integration. StarTools
+  SVDecon is GPU+GUI; BXT is PixInsight-hosted and uninstalled by choice.
+  **There is no packaged headless CPU Linux tool for the anisotropic half** — a
+  procurement-and-integration boundary, not a physics ceiling.
+- **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Deconvolving each
+  tile with its local PSF and mosaicking back is the classical overlap-add answer
+  and Siril has every pixel operation for it, but the tiler and blender would be
+  in-house code READING AND REWRITING the deliverable's pixels. FORBIDDEN by the
+  bright line. Do not propose it.
+- **TRADE — `-noclamp`.** The clamp costs 6.26% of PSF width per pass against a
+  0.45% kernel, at the frame centre where there is no aberration gradient at all.
+  **By this repo's own contract the clamp is itself a bandaid — ringing is a
+  symptom of UNDERSAMPLING and the clamp suppresses the artefact instead of
+  fixing the cause** — but removing it trades an artefact for sharpness rather
+  than fixing anything, and nobody has measured the ringing it prevents on THIS
+  data. Owner's call, and it is not to be taken as a free win.
+- **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
+  down-weighting, cropping.
+
+**Closes when** the C/A test settles whether a field-constant component exists,
+and the FIX path above either delivers or is measured not to.
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
