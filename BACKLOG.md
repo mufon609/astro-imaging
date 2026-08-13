@@ -557,7 +557,19 @@ written.**
   LST are solvable from solved RA/Dec plus `DATE-OBS` across pointings), which
   means the word BLOCKED was wrong and asking a human for it was asking for what
   the data settles. **The owner has since supplied it as ground truth:
-  REDACTED_SITE_DMS_LAT REDACTED_SITE_DMS_LON = SITELAT +REDACTED_SITELAT, SITELONG −REDACTED_SITELONG.** That
+  SITELAT +REDACTED_SITELAT, SITELONG −REDACTED_SITELONG** (owner-supplied; the authoritative
+  form is the decimal pair carried by their Google Maps place link,
+  `!3dREDACTED_SITELAT!4dREDACTED_SITELONG`). **A first transcription of the DMS read
+  REDACTED_SITE_DMS_LON and was wrong by 0.17" — 3.9 m of longitude**; corrected here.
+  It changes nothing measured (aug06/set-01 altitude 73.83371° → 73.83374°) and
+  is recorded because a coordinate typo is silent and this one was caught only by
+  a second source. **Trap in that URL form, for anyone re-deriving it: the `@lat,lon`
+  segment is the map VIEWPORT centre, not the place — here the two differ by
+  ~200 m in longitude. Read the `!3d`/`!4d` pair.** SITEELEV is still unrecorded.
+  Status: OWNER-SUPPLIED, TRANSCRIBED, and independently checkable — the corpus
+  can recover latitude and LST from field rotation across solved frames, so the
+  derivation `acquisition.py` gains is its own verification and gets a positive
+  control from this value at the same time. That
   is better than the derived route because it gives the derivation a POSITIVE
   CONTROL it did not have. **The chain does not record it yet** —
   `scripts/lib/acquisition.py` writes no `site` block, and standards-first says
