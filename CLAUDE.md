@@ -422,8 +422,14 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
     every hunk.** The count test needs no judgement and catches the real case —
     17 insertions for a one-line edit is decisive on sight; the hunk read
     catches what a matching count cannot. `git add -p` your own hunks if a
-    peer's work is in the file, or hand over the wording. **`git add -A` is
-    never correct here, but naming one explicit path is NOT protection**: it was
+    peer's work is in the file, or hand over the wording. **PASTE the measured
+    numstat into the commit — never a description of it.** Measured cost: the
+    committer who wrote this rule then wrote a PREDICTED count into two
+    consecutive commits (16/3 where the tool said 15/0, 43/0 where it said 40/0),
+    which makes the check unverifiable by any later reader and shows it was not
+    actually read either time. A check whose output is paraphrased is a check
+    that did not run. **`git add -A` is never correct here, but naming one
+    explicit path is NOT protection**: it was
     a single named path that published 16 lines of a peer's uncommitted register
     rows under the wrong authorship, while the committer believed the rule was
     being followed. **The loser of the race cannot tell** — their change simply
