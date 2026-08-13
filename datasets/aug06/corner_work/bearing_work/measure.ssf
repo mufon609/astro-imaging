@@ -1,0 +1,32 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/raw
+convert b -debayer -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+load b_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00001.lst
+load b_00002
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00002.lst
+load b_00003
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00003.lst
+load b_00004
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00004.lst
+load b_00005
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00005.lst
+load b_00006
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00006.lst
+load b_00007
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00007.lst
+load b_00008
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00008.lst
+load b_00009
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00009.lst
+load b_00010
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00010.lst
+load b_00011
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00011.lst
+load b_00012
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/bearing_work/s_00012.lst

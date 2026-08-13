@@ -126,6 +126,12 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/drift_work/*.lst
 !**/drift_work/*.ssf
 
+# bearing_work/ — the per-set drift-bearing probe. Staged raws, debayered frames
+# and siril logs are regenerable; the .lst star lists and the .ssf ARE the record.
+**/bearing_work/*
+!**/bearing_work/*.lst
+!**/bearing_work/*.ssf
+
 # astroreg_work/ — the astrometric-registration probe's sequence files. Only the
 # .seq (the registration data it produced) and the .ssf are worth keeping.
 **/astroreg_work/*

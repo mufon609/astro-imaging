@@ -2247,6 +2247,26 @@ SILENT — pin the state, never inherit it):
   direction +30.10 → −30.10). Handedness IS flipped, so re-test before comparing
   any of this against a sky-derived direction.
 
+- **A WRONG-BASIS ARTEFACT SCALES DIFFERENTLY FROM A PHYSICAL EFFECT — RUN THE
+  TEST AT TWO PLANTED AMPLITUDES AND THE ARTEFACT ANNOUNCES ITSELF.** "Projecting
+  a spin-2 field onto a scalar" has now cost **five** corrections in this tree,
+  and the fifth was committed *in the act of testing for the first*: a check of
+  whether star anisotropy is additive through a Gaussian fit compared the SCALAR
+  a²−b² and returned ratios of **0.469 and 0.628**, which read as a large
+  additivity failure. It was not one. The two planted terms sat at 70° and 5° —
+  nearly perpendicular — so they **cancel in spin-2 by construction**, and a
+  scalar cannot represent their sum at all. Redone in COMPONENTS, the same data
+  gives absolute errors of **−0.0146 and −0.0161** and additivity holds.
+  **THE TELL, which is the reusable part:** a real physical effect gives a roughly
+  CONSTANT RATIO across planted amplitudes; a wrong-basis artefact does not,
+  because the cancellation depends on the amplitudes themselves. Here the ratio
+  moved 0.469 → 0.628 across two amplitudes while the absolute error stayed at
+  ~0.015 — *constant in the right basis, varying in the wrong one*. So run any
+  such test at **two or more planted amplitudes** and ask whether the discrepancy
+  is constant in ABSOLUTE or in RELATIVE terms; whichever it is constant in is the
+  basis the quantity actually lives in. A single-amplitude test cannot tell them
+  apart and will read a basis error as physics.
+
 - **AN ELLIPTICITY EXPONENT IS NOT A BLUR EXPONENT — THEY DIFFER BY A FACTOR OF
   TWO, AND CONFUSING THEM RETIRES THE WRONG ABERRATION.** Seidel gives the BLUR
   SIZE: transverse coma grows LINEARLY with field height, astigmatism
