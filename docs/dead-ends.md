@@ -2287,7 +2287,23 @@ SILENT — pin the state, never inherit it):
   trail direction on a ~30 s baseline against a 2.5 s trail, so it is ~12× better
   determined than the trail it tests. Against it, the fixed-direction term in the
   star shapes is **misaligned by 7.85° ± 0.40, i.e. 19.4σ** — so that term is not
-  the in-exposure trail. (± is the SE of the mean over nine blocks; the
+  the in-exposure trail **ALONE**. **CORRECTED, and the correction changes what
+  the 19.4σ means:** the trail is present at full predicted strength, and the
+  measured field-constant term is the RESULTANT of two comparable, nearly
+  ANTI-PARALLEL spin-2 terms. MEASURED — a pure trail of L = 1.66 px pushed
+  through `findstar` contributes **mean e1 = +0.1555** (per-star prediction on the
+  real data: +0.1449), while the real field-constant term measures only
+  **+0.0477**. The difference is a field-constant component of **≈0.096 at
+  −87.8°** against a trail at +4.7°: 92.5° apart in θ, which in spin-2 is
+  ANTI-PARALLEL. So the 7.85° offset is the signature of a small resultant of two
+  large near-cancelling vectors, not of the trail being absent — and it explains
+  two things previously recorded as puzzles, namely why θ₀ is hypersensitive to
+  population (+7.7° on all stars against +23.6° on outer-field cuts) and why it
+  drifts across a set. A small difference of two large terms is hypersensitive to
+  anything that moves their ratio. **The arithmetic route was eliminated before
+  this was concluded:** ellipticity COMPONENTS are additive through a Gaussian fit
+  to ~0.015 absolute in e1, verified on two independent planted optical amplitudes,
+  so the shortfall is not a failure of additivity. (± is the SE of the mean over nine blocks; the
   between-block SD is 1.21°. **Name the denominator when quoting a σ**: the fit's
   own internal SE would read 33.1σ, and it is the wrong one because the
   between-block scatter *exceeds* it, so real dispersion would be assumed away.
