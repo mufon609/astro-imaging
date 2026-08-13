@@ -7,18 +7,6 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-- **[`L1_RESEARCH_PROMPT.md`](L1_RESEARCH_PROMPT.md)** — the design session that
-  must precede the L1 rebuild. Owner has authorised the full member rebuild and
-  BOTH arms (per-frame `--subsky-lights` and on-stack), time not a constraint —
-  this session exists so that build cannot be wasted. **The blocking gap,
-  verified: L1's adoption gate is unresolved-starlight preservation and NOTHING
-  IN THE TREE MEASURES IT** (`dust_identification.json` went with the archived
-  july23 session; no script computes a per-cell diffuse floor). Also settles two
-  beliefs currently gating policy without evidence — degree 1 vs 2 on calibrated
-  lights, and the unrecorded "visible rings" claim against stack-level BGE — and
-  refreshes the stale `subsky_lights_restoration` pre-registration, whose verdict
-  still reads "arm building" though no arm was ever built. No arms, no rebuild.
-
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
@@ -396,3 +384,94 @@ session reports neither IN nor OUT while its own detectors return live hits
 there. They are now explicitly OUT as transcripts, with category 1 still
 applying where a report is cited as current guidance — the sweep is non-retiring,
 so an ambiguity in it recurs every run.
+
+## Landed during the L1 research session — the gate now exists, and two beliefs resolved against themselves
+
+The brief's premise held: L1's adoption gate was unresolved-starlight
+preservation and nothing in the tree measured it. It does now, and building it
+changed what the build session should expect.
+
+**The instrument** — `scripts/qa/starlight_preservation.py`, an ALLOWED
+gap-filler: Siril `boxselect`+`stat` measures every per-cell floor, the ESA Gaia
+archive's TAP service aggregates the catalogue server-side, and in-house code
+holds only the lattice, the WCS projection and the fits. It gates nothing and
+always exits 0. The tool search behind the removal condition was run rather than
+reasoned — Siril `stat`/`bg`/`bgnoise` measure the image only and `conesearch`
+is not even usable at this field size (20.6° radius at G≤17 against TAPVizieR,
+killed at 600 s with no output); `source-extractor -CHECKIMAGE_TYPE BACKGROUND`
+writes a background map in 1.7 s but compares it to nothing; GraXpert `-bg`
+writes a model image; ASTAP reports HFD and star rows. Two probes replaced
+assumptions: `boxselect`+`stat` is identical to `crop`+`stat` to every printed
+digit in ONE load, and `jsonmetadata -stats_from_loaded` silently ignores a
+selection.
+
+**The selftest earned its place on its first run.** `boxselect` counts y from the
+TOP; the mirrored lattice still recovered 54% of a planted relation at R² 0.30 —
+a half-right number a fixture-free instrument would have shipped. Fixed, the
+positive control reads 299.14 against 300.00 planted at R² 0.99993, an orthogonal
+predictor returns R² 0.00017, Siril `subsky 2` collapses the planted relation to
+26.9% and the pristine copy re-reads 299.14 to 1e-6.
+
+**Degree 1 vs 2 is MEASURED, and the answer needed no image.** `subsky d` removes
+a degree-d surface, so the most it can take is the fraction of the Gaia
+predictor's own spatial variance a degree-d surface can represent: over
+aug06/set-01, **plane 10.0%, quadratic 36.2%, cubic 43.5%** (140-cell external
+lattice, predictor spanning 174% of its mean). Degree 2 costs a third at worst,
+not erasure — the registry's "seqsubsky 2 erases it" was mechanism, and the
+bound is smaller than it implied. No confound can move this number.
+
+**The image-side version of that test cannot settle it on today's products, and
+why is a second result.** One knob, on-stack `subsky 1` vs `2`, paired on the
+same cells: the Gaia slope RISES — retained 1.232/1.274/1.237 at degree 1 and
+1.517/1.846/1.604 at degree 2 (SE 0.056–0.155). The open `sky × V` residual is
+anti-correlated with the starlight and biases the raw slope low, so
+confound-removed and starlight-removed land in one statistic with opposite signs.
+Sizes fall out: predicted starlight spans 0.71–0.86 ADU across the frame against
+a measured floor span of 2.50–4.00 ADU, so **roughly a fifth to a third of the
+frame-scale floor variation is starlight and the rest is not.** A clean
+structural check comes free — residualise both arms by a quadratic and the
+degree-2 arm retains 1.000/1.010/1.018, i.e. `subsky` moves only its own
+polynomial subspace.
+
+**"Visible rings" is not an eye observation.** It entered as *"fails the rings
+gate"* and commit `870bf7d` rewrote it to *"visible rings"* in the same diff that
+deleted the gate — `bg_qa.ring_amp`, the detrended peak-to-valley of a 40-bin
+RADIAL profile of the render. That is the reference FORBIDDEN class and the same
+radial-binning family as trap 3. Stack-level BGE is UNJUDGED; if the on-stack arm
+loses, that is discovered, not predicted.
+
+**Standards-first: our default already matches the vendors.** Siril's own docs
+recommend per-frame degree 1 (*"in a single image, the background gradient is
+much simpler and generally follows a simple linear (degree 1) function"*), and
+both Siril and PixInsight put background extraction before colour calibration —
+the order this chain runs. What is NOT vendor doctrine anywhere is the
+starlight-preservation argument for degree 1; Siril's stated reason is gradient
+complexity.
+
+**Numbers: `docs/dead-ends.md` (Background), the register row in `BACKLOG.md`,
+and `datasets/aug06/set-01/starlight_work/*.json`.**
+
+### What the build session inherits — the unknowns, stated
+
+1. **The two arms may not be separable on this criterion.** An on-stack plane is
+   bounded at 10.0% by the catalogue, and the paired instrument resolves 5–16%.
+   The arms can only differ materially if the per-frame step reaches structure a
+   single sky-plane cannot — which is exactly the pre-registered directional
+   prediction (a sum of planes fitted in SENSOR coordinates to frames drifting
+   across the sky is not one sky-plane). If that mechanism is weak, expect a
+   NULL, and the level choice will have to be made on other grounds.
+2. **Degree 2 is NOT a third arm.** Two arms, degree held at 1, dither held off.
+   The degree question is answered by the bound above and does not need a build.
+3. **`--gsplit` is inherited, not measured here.** G = 11.0 at 50% completeness
+   comes from the archived july23 record. Every magnitude bin is kept, so a
+   re-measured limit re-splits the record offline without re-querying.
+4. **Expect `retained > 1` and do not read it as starlight being added** — see
+   the confound above. The catalogue bound is the number no confound touches.
+5. **`member_separation.py --selftest` cannot run on today's tree** — no complete
+   registered `s_*.fit` sequence survived the from-raws rebuild. One
+   `register -2pass` on any groups dir restores it. Pre-existing, unrelated to
+   this session's changes, and now stated in its register row.
+
+The pre-registration covering both arms is
+`datasets/aug06/experiments.jsonl`, `l1_background_level_perframe_vs_onstack`,
+with a falsifier for each arm and every path re-verified against disk.

@@ -775,20 +775,72 @@ the constraints any such tool must satisfy):
   that is a new adaptation needing its own written removal condition.
 
 **Background:**
-- **MECHANISM, NOT MEASURED:** the galactic-plane star field is frame-scale
-  curvature at wide focal, so `seqsubsky 2` is expected to absorb it and only a
-  first-degree plane or a full BGE to preserve it — what would be preserved is
-  UNRESOLVED STARLIGHT (terminology entry above), not a dust complex. **No
-  controlled degree-1-vs-degree-2 comparison on this data is on record** — no
-  numbers, no instrument, no n — yet this has been gating the background policy
-  (and the README class limit) as though it were a result. The test that would
-  settle it: one knob, `seqsubsky 1` vs `2` on the same frames, judged on the
-  same Gaia-vs-cell instrument used for the terminology entry, since that
-  measures the very signal at issue. Same flag: stack-level-only BGE is
-  reported to leave a structured residual with visible rings and to eat the
-  same frame-scale starlight, making per-frame `subsky 1` the preferred step —
-  "visible rings" is an unrecorded eye observation (no image, no metric, no n);
-  treat the per-frame default as a reasonable prior, not an established result.
+- **DEGREE 2 DOES NOT ERASE THIS FIELD'S STARLIGHT — MEASURED, and the belief
+  it replaces was mechanism only.** The claim was that the galactic-plane star
+  field is frame-scale curvature at wide focal, so `seqsubsky 2` absorbs it and
+  only degree 1 or a full BGE preserves it. The quantity that settles it needs
+  no image and no arm: `subsky d` removes a degree-d surface, so the MOST it can
+  take from the starlight is the fraction of the Gaia unresolved-starlight
+  predictor's OWN spatial variance a degree-d surface can represent over the
+  field. MEASURED (`scripts/qa/starlight_preservation.py`, aug06/set-01,
+  23.3 x 17.1 deg, 140-cell external lattice, Gaia DR3 per-cell aggregate):
+  the predictor spans **174% of its mean** across the field, and a **plane
+  represents 10.0%** of its spatial variance, a **quadratic 36.2%**, a
+  **cubic 43.5%**. So degree 1 can remove at most a tenth of the frame-scale
+  starlight structure and degree 2 at most a third — a real difference between
+  the two degrees, and nothing like erasure. Because it is a property of the
+  catalogue over the lattice, no instrumental term can move it. SCOPE: this
+  field, this lattice; the bound is an upper one (it assumes the fitted surface
+  is the best-fit surface to the starlight itself), and it must be recomputed
+  per field — the instrument prints it on every run.
+- **THE IMAGE-SIDE VERSION OF THE SAME TEST CANNOT SETTLE IT ON TODAY'S
+  PRODUCTS, and the reason is a second measurement worth keeping: the
+  frame-scale floor is mostly NOT starlight.** One knob, on-stack `subsky 1` vs
+  `subsky 2` against the untouched stack, same 140 cells, paired: the Gaia slope
+  RISES — retained **1.232 / 1.274 / 1.237** (R/G/B) at degree 1 and **1.517 /
+  1.846 / 1.604** at degree 2, standard errors 0.056-0.155. Removing a surface
+  IMPROVES the starlight relation because the open `sky x V` residual is
+  anti-correlated with it and biases the raw slope LOW; confound-removed and
+  starlight-removed land in the same statistic with opposite signs. Sizes:
+  predicted starlight spans **0.71-0.86 ADU** across the frame against a
+  measured floor span of **2.50-4.00 ADU**, so about a fifth to a third of the
+  frame-scale floor variation is starlight. A clean structural check falls out
+  of the same run — after residualising both arms by a quadratic the degree-2
+  arm retains **1.000 / 1.010 / 1.018**, i.e. `subsky` moves ONLY its own
+  polynomial subspace and nothing above it.
+- **"VISIBLE RINGS" IS NOT AN EYE OBSERVATION — it is a deleted IN-HOUSE
+  METRIC's verdict, and the provenance was lost in a rewrite.** The sentence
+  entered as *"Stack-level-only BGE leaves a STRUCTURED residual (fails the
+  rings gate, loses MW)"*. Commit `870bf7d`, which deleted the in-house
+  measurement layer, rewrote it to *"(visible rings, loses MW)"* in the same
+  diff that removed the gate — turning a metric's verdict into what reads as a
+  human seeing rings. The gate was `bg_qa.ring_amp`: the detrended
+  peak-to-valley of a 40-bin RADIAL profile of the render. That is the
+  reference FORBIDDEN class (an in-house gate reading the deliverable), and the
+  same radial-binning family as trap 3 below, whose profile flattened as the
+  defect it was keyed to got worse. Treat stack-level BGE as UNJUDGED: there is
+  no image, no number and no n behind the ring claim, and the metric that
+  produced it is not one this repo would accept today. The independent
+  mechanism that IS documented for rings — too high a polynomial degree used to
+  fit vignetting (Shelley, *Diagnosing Baked-In Concentric Rings*) — is a
+  statement about DEGREE, not about where in the chain the step runs, and this
+  repo has its own measured instance of it (a polynomial radial V(r) oscillates
+  into rings, "Gain / flat" above).
+- **VENDOR DOCTRINE, and our default already matches it — this is a
+  standards-first alignment, not a deviation.** Siril's own documentation
+  recommends background extraction on the SEQUENCE at degree 1: *"in a single
+  image, the background gradient is much simpler and generally follows a simple
+  linear (degree 1) function"*, against a stack whose gradient is *"the sum of
+  all the gradients contained in each image"*; *"a too high degree can give
+  strange results like overcorrection"*, maximum 4, beyond which *"the model is
+  generally unstable"* (siril.readthedocs.io, Background Extraction;
+  siril.org/tutorials/gradient). PixInsight's doctrine places DBE/ABE early, on
+  LINEAR data, before colour calibration. Both vendors put background
+  extraction before colour calibration, which is the order this chain already
+  runs. What is NOT vendor doctrine anywhere is the starlight-preservation
+  argument for degree 1 — Siril's stated reason is gradient complexity, and the
+  faint-signal concern appears only as the sampling design ("a smoothed
+  function to avoid removing nebulae with it").
 - GraXpert AI smoothing is NOT faint-signal protection — smoothing blurs the
   model OUTPUT, not the inference; frame-filling faint structure reads as the
   trained light-pollution class and is absorbed. Use a plane/off for
