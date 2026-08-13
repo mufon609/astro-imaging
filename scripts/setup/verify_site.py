@@ -54,8 +54,34 @@ PERTURBATIONS = [
 
 
 def solved_products():
-    """Every solved stack that carries both a timestamp and a solved centre."""
+    """Every solved stack with a timestamp, and its FIELD CENTRE — evaluated.
+
+    WHICH POINTING, and it matters: three different "centres" live in this tree
+    and they disagree by up to 3.2 deg, which is larger than the bound this whole
+    script claims to establish.
+
+      CRVAL1/2            the WCS TANGENT POINT, not the pointing. CRPIX is NOT
+                          at the image centre on these solves — MEASURED offsets
+                          of 40 to 906 px — and CRVAL values repeat across
+                          different sets and nights, so the solver is placing the
+                          tangent point somewhere discrete. A first version of
+                          this script used CRVAL and was WRONG by up to 3 deg.
+      fingerprint         `field_center` in datasets/<session>/<set>/
+                          fingerprint.json sits 0.7-3.2 deg from the true centre,
+                          almost all of it in RA and always LOWER. A set sweeps
+                          6.24 deg of RA in its 1497 s, and these offsets are
+                          about half of that, which is what you get if one
+                          quantity is the FIRST member and the other the set
+                          mean. CANDIDATE mechanism, not confirmed here.
+      WCS at image centre what this uses. Evaluating the full solution (SIP and
+                          all) at the central pixel is the pointing by
+                          construction, and it agrees with the header's own
+                          OBJCTRA/OBJCTDEC to 0.000-0.031 deg on 7 of 9 products
+                          and 0.13-0.18 deg on the other two.
+    """
+    import warnings
     from astropy.io import fits
+    from astropy.wcs import WCS
     out = []
     pat = os.path.join(REPO, "web", "results", "*", "stack_set-*_wcs.fit")
     for p in sorted(glob.glob(pat)):
@@ -63,11 +89,17 @@ def solved_products():
             h = fits.getheader(p)
         except OSError:
             continue
-        if h.get("DATE-OBS") and h.get("CRVAL1") is not None:
-            out.append({"product": os.path.relpath(p, REPO),
-                        "date_obs": h["DATE-OBS"],
-                        "ra_deg": float(h["CRVAL1"]),
-                        "dec_deg": float(h["CRVAL2"])})
+        if not (h.get("DATE-OBS") and h.get("CRVAL1") is not None):
+            continue
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            w = WCS(h, naxis=2)
+            c = w.pixel_to_world((h["NAXIS1"] - 1) / 2.0,
+                                 (h["NAXIS2"] - 1) / 2.0)
+        out.append({"product": os.path.relpath(p, REPO),
+                    "date_obs": h["DATE-OBS"],
+                    "ra_deg": float(c.ra.deg), "dec_deg": float(c.dec.deg),
+                    "pointing_source": "WCS evaluated at the central pixel"})
     return out
 
 
@@ -153,6 +185,23 @@ def main():
            len(result["perturbations"]), len(missed)))
     result["what_would_close_it"] = site.get("provenance", {}).get(
         "the_check_that_closes_it")
+    result["which_pointing_this_consumed_and_why_it_matters"] = (
+        "the WCS evaluated at the central pixel — the pointing by construction, "
+        "and it agrees with the header's own OBJCTRA/OBJCTDEC to 0.000-0.031 deg "
+        "on 7 of 9 products. THE TREE CARRIES THREE DIFFERENT 'CENTRES' AND THEY "
+        "DISAGREE BY UP TO 3.2 deg, which is LARGER than the degree-level bound "
+        "this script establishes — so the bound is only as good as the pointing "
+        "fed in, and naming it is part of the result. CRVAL is the WCS tangent "
+        "point and is NOT the pointing (CRPIX sits 40-906 px off the image "
+        "centre, and CRVAL values repeat across different nights); a first "
+        "version of this script used it and was wrong by up to 3 deg. "
+        "fingerprint.json's field_center sits 0.7-3.2 deg away, almost all in RA "
+        "and always lower, which is about half the 6.24 deg of RA a 1497 s set "
+        "sweeps — consistent with one being the first member and the other the "
+        "set mean, though that mechanism is a CANDIDATE and is not confirmed "
+        "here. NONE OF THIS TOUCHES THE CONCLUSION: every pointing from every "
+        "source puts every target 63-86 deg up within ~2.4 h of the meridian, so "
+        "the refraction regime is closed regardless of which is chosen.")
 
     out = os.path.join(HERE, "site_verification.json")
     json.dump(result, open(out, "w"), indent=1)

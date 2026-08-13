@@ -12,11 +12,14 @@
 
  "sign_convention": "SITELONG is POSITIVE EAST of Greenwich, which is the FITS and Siril convention and the OPPOSITE of the one some planetarium software uses. This site is in New Jersey, USA, so the value is NEGATIVE. A sign error here is silent and inverts every hour angle derived from it.",
 
+ "TRAP_if_you_ever_re_derive_this_from_a_map_url": "In a Google Maps URL the `@lat,lon` segment is the map VIEWPORT CENTRE, not the place, and it is the segment that LOOKS like the coordinates so it is the one people reach for. MEASURED here: the viewport pair (REDACTED_SITELONG_VIEWPORT) and the place pair (REDACTED_SITELONG) differ by 219 m in longitude. The authoritative pair is `!3d<lat>!4d<lon>`.",
+
  "provenance": {
-  "source": "owner-supplied ground truth",
-  "chain": "owner -> chat -> peer-session transcription -> BACKLOG.md (commit 4686cec) -> this file",
+  "source": "owner-supplied ground truth, from two of their own sources that agree to 4 m",
+  "chain": "owner -> chat -> peer-session transcription -> BACKLOG.md (corrected at commit f49b7cc, first landed at 4686cec) -> this file",
   "status": "TRANSCRIBED, UNVERIFIED",
-  "why_that_matters": "no step in that chain has an independent check, and a coordinate typo would be silent and load-bearing — it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the check below passes.",
+  "why_that_matters": "the chain still ends in a human typing a number, and no step in it has an independent check. A coordinate typo is silent and load-bearing — it propagates into every altitude, hour angle and parallactic angle derived downstream. Treat the value as provisional until the derivation below runs.",
+  "a_transcription_error_ALREADY_HAPPENED_HERE_and_this_is_its_size": "the first landed value was SITELAT +REDACTED_SITELAT, SITELONG REDACTED_SITELONG, read off the owner's DMS as REDACTED_SITE_DMS_LON. The authoritative decimal pair reads 45.70\", so the longitude was out by 0.17 arcsec = 3.918 m, and the latitude by 0.111 m. It changes nothing measured — aug06/set-01 altitude moves by 0.00003 deg — and it is recorded because of HOW it was caught: re-reading the same transcription did not find it, a second independent source did. That is the argument for the derivation, not for more careful reading.",
   "the_check_that_closes_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN — it needs PER-FRAME plate solves, which do not exist yet, so it is a real build rather than a fold-in. Until it runs, `verified` stays false.",
   "verified": false,
   "bounding_check_that_HAS_run": {
@@ -27,5 +30,7 @@
   }
  },
 
- "siteelev_note": "The owner supplied LATITUDE and LONGITUDE only. Elevation is NOT known and is NOT invented — it stays null, and the derived OBSGEO triple is computed at h = 0 m with that assumption flagged in the record. The resulting geocentric error is at most the true elevation in metres (order 1e-5 of Earth's radius), which is negligible for altitude, hour angle and field rotation, and would NOT be negligible for anything needing true topocentric parallax."
+ "siteelev_note": "UNRECORDED, and deliberately left so rather than silently defaulted — a quietly assumed value is the machine-local-value problem in a different costume. What it is FOR, so a future reader can judge whether to chase it: elevation enters refraction and airmass, both weakly, and this corpus's refraction branch is already closed on the regime (every night shot 63-86 deg above the horizon, within 2.4 h of the meridian, where the curve is flat). So a nominal figure WITH ITS SOURCE STATED would be sufficient for anything currently on the board; nothing here needs a surveyed one. Until one is recorded, `siteelev_m` stays null and the derived OBSGEO triple is computed at h = 0 m with `siteelev_assumed_zero_for_obsgeo` set true in every record. The resulting geocentric error is at most the true elevation in metres (order 1e-5 of Earth's radius) — negligible for altitude, hour angle and field rotation, and NOT negligible for anything needing true topocentric parallax.",
+
+ "_what_is_deliberately_not_here": "The owner also supplied a street address. It is not recorded, here or anywhere in the tree: nothing in the chain consumes it, and a tracked file carries what the measurement needs and no more."
 }

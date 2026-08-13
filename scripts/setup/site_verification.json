@@ -5,10 +5,10 @@
  },
  "n_solved_products": 23,
  "altitude_range_deg": [
-  63.406095704929506,
-  86.21185091715014
+  63.44330294653549,
+  87.65314521077997
  ],
- "max_abs_hour_angle_h": 2.3709983380945037,
+ "max_abs_hour_angle_h": 2.3497255934053634,
  "all_above_horizon": true,
  "perturbations": [
   {
@@ -16,10 +16,10 @@
    "lat": REDACTED_SITELAT,
    "lon": REDACTED_SITELONG,
    "altitude_range_deg": [
-    -5.678192596849868,
-    14.44589678985774
+    -7.780379221487285,
+    12.241602525304991
    ],
-   "max_altitude_shift_deg": 88.99134415579012,
+   "max_altitude_shift_deg": 91.40335842636003,
    "refuted_target_below_horizon": true
   },
   {
@@ -27,10 +27,10 @@
    "lat": REDACTED_SITELONG,
    "lon": REDACTED_SITELAT,
    "altitude_range_deg": [
-    -52.26952149283824,
-    -38.37931856572817
+    -50.178672558378814,
+    -36.949376091321454
    ],
-   "max_altitude_shift_deg": 134.1658251811421,
+   "max_altitude_shift_deg": 133.0651765704935,
    "refuted_target_below_horizon": true
   },
   {
@@ -38,10 +38,10 @@
    "lat": REDACTED_SITELAT_DIV10,
    "lon": REDACTED_SITELONG,
    "altitude_range_deg": [
-    37.95963891850977,
-    51.286343045564344
+    40.083615570493365,
+    52.85277937256487
    ],
-   "max_altitude_shift_deg": 35.610158557411616,
+   "max_altitude_shift_deg": 35.09483059481686,
    "refuted_target_below_horizon": false
   },
   {
@@ -49,10 +49,10 @@
    "lat": REDACTED_SITELAT_PLUS,
    "lon": REDACTED_SITELONG,
    "altitude_range_deg": [
-    63.65762061303024,
-    86.74376198020475
+    63.62627211136052,
+    87.94288014733624
    ],
-   "max_altitude_shift_deg": 0.5319110630546078,
+   "max_altitude_shift_deg": 0.2897349365562718,
    "refuted_target_below_horizon": false
   },
   {
@@ -60,13 +60,14 @@
    "lat": REDACTED_SITELAT,
    "lon": REDACTED_SITELONG_PLUS,
    "altitude_range_deg": [
-    63.468953130882866,
-    86.2455834517596
+    63.508987404344396,
+    87.70962159848501
    ],
-   "max_altitude_shift_deg": 0.0683247747261646,
+   "max_altitude_shift_deg": 0.06815366524176625,
    "refuted_target_below_horizon": false
   }
  ],
- "verdict": "The supplied coordinates put every photographed target 63.4-86.2 deg above the horizon within 2.37 h of the meridian, which is consistent with a deliberate observing plan. 2 of 5 plausible transcription errors are REFUTED outright (target below the horizon). 2 are NOT detectable here, shifting every altitude by under 1 deg \u2014 so this bounds the transcription at roughly the DEGREE level and no better. It is not a derivation and does not set verified=true.",
- "what_would_close_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 until it is, this record's `verified` stays false."
+ "verdict": "The supplied coordinates put every photographed target 63.4-87.7 deg above the horizon within 2.35 h of the meridian, which is consistent with a deliberate observing plan. 2 of 5 plausible transcription errors are REFUTED outright (target below the horizon). 2 are NOT detectable here, shifting every altitude by under 1 deg \u2014 so this bounds the transcription at roughly the DEGREE level and no better. It is not a derivation and does not set verified=true.",
+ "what_would_close_it": "the corpus can RECOVER the latitude without any of this: field rotation between two solved frames constrains cos(lat)*cos(azimuth)*sec(altitude), so latitude and LST are solvable from solved RA/Dec plus DATE-OBS across several pointings on two nights. A derived-vs-supplied comparison verifies the transcription AND gives the derivation a positive control at the same time. NOT YET RUN \u2014 it needs PER-FRAME plate solves, which do not exist yet, so it is a real build rather than a fold-in. Until it runs, `verified` stays false.",
+ "which_pointing_this_consumed_and_why_it_matters": "the WCS evaluated at the central pixel \u2014 the pointing by construction, and it agrees with the header's own OBJCTRA/OBJCTDEC to 0.000-0.031 deg on 7 of 9 products. THE TREE CARRIES THREE DIFFERENT 'CENTRES' AND THEY DISAGREE BY UP TO 3.2 deg, which is LARGER than the degree-level bound this script establishes \u2014 so the bound is only as good as the pointing fed in, and naming it is part of the result. CRVAL is the WCS tangent point and is NOT the pointing (CRPIX sits 40-906 px off the image centre, and CRVAL values repeat across different nights); a first version of this script used it and was wrong by up to 3 deg. fingerprint.json's field_center sits 0.7-3.2 deg away, almost all in RA and always lower, which is about half the 6.24 deg of RA a 1497 s set sweeps \u2014 consistent with one being the first member and the other the set mean, though that mechanism is a CANDIDATE and is not confirmed here. NONE OF THIS TOUCHES THE CONCLUSION: every pointing from every source puts every target 63-86 deg up within ~2.4 h of the meridian, so the refraction regime is closed regardless of which is chosen."
 }
