@@ -7,6 +7,19 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
+- **[`L1_BUILD_PROMPT.md`](L1_BUILD_PROMPT.md)** — run both arms of the L1
+  background-level experiment. The pre-registration
+  (`datasets/aug06/experiments.jsonl`, `l1_background_level_perframe_vs_onstack`)
+  IS the contract and the brief deliberately does not restate it; the brief adds
+  the one thing it does not pin — the per-group `register -2pass` reference,
+  which arm A can move by changing the calibrated lights, and which costs the
+  experiment its PAIRING (different canvas → different `used` cells → the 5–16%
+  paired resolving power collapses toward the 43–55% absolute). `--regdata` is
+  verified ABSENT from the groups driver, so a 12-frame reference-stability pilot
+  runs first and the pinning decision follows its numbers. Arm B before arm A:
+  it is cheap, and its falsifier is a stop condition that would otherwise fire
+  after the 13-member rebuild. A NULL is a live pre-registered outcome.
+
 None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
 does not retire, and it is run on demand rather than scheduled here.
 
