@@ -1,6 +1,15 @@
 {
  "correction_1_specification_robustness": {
   "stations": 148,
+  "join_key_caveat": {
+   "key": "(series, label) \u2014 NEVER label alone",
+   "distinct_labels_repeating_across_series": 54,
+   "stations_covered_by_a_repeating_label": 148,
+   "stations_a_label_only_join_mis_assigns": 94,
+   "max_SE_error_from_that_mis_join": 0.0178,
+   "median_station_SE": 0.0066,
+   "why_it_is_here": "a peer session's weighted fits were computed on that mis-join and reported a result this session could not reproduce. The uniqueness is now asserted in member_stations(), so the same mistake raises instead of returning a plausible number."
+  },
   "tau_between_station": 0.03004696238065097,
   "median_measurement_se": 0.006606453905010971,
   "tau_over_median_se": 4.548122610506744,
@@ -127,6 +136,7 @@
    4040
   ],
   "exptime_s": 2.5,
+  "exposure_source": "datasets/aug06/set-01/acquisition.json (EXIF, auto-derived) \u2014 matches the EXPTIME Siril wrote into the converted frames",
   "state": "debayered, UNcalibrated, UNwarped, UNregistered, UNstacked \u2014 one exposure",
   "whole_frame": {
    "major": 2.38,

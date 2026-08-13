@@ -55,10 +55,29 @@ def read_lst(path, cols=(3, 5, 6, 7, 8, 11)):
 
 
 def member_stations(rec):
-    """Rebuild the pooled station table from the committed per-series records."""
+    """Rebuild the pooled station table from the committed per-series records.
+
+    THE JOIN KEY IS (series, label) AND IT HAS TO BE. Station labels are unique
+    only WITHIN a series — `R0_rho0.10` names a station in all four member
+    radial profiles, `Rp_r50` in all four ray ladders. MEASURED on this record:
+    54 distinct labels repeat across series, covering all 148 stations, and a
+    label-only join hands the wrong standard error to 94 of them, off by up to
+    0.0178 against a median SE of 0.0066 — 2.7x the typical value, silently. A
+    peer session's weighted fits were computed on exactly that mis-join. So the
+    uniqueness is ASSERTED here rather than assumed, and a future reader who
+    flattens these blocks on `label` gets an exception instead of a number.
+    """
     out = []
     blocks = list(rec["member_rays"].items()) + list(rec["member_azimuth"].items())
     blocks += [(f"member_{t}", v) for t, v in rec["member_radial_profile"].items()]
+    seen = set()
+    for name, rows in blocks:
+        for r in rows:
+            if (name, r["label"]) in seen:
+                raise SystemExit(f"station ({name}, {r['label']}) appears twice — "
+                                 "the (series, label) key is not unique, so every "
+                                 "per-station SE below this line is suspect")
+            seen.add((name, r["label"]))
     for name, rows in blocks:
         j = os.path.join(HERE, f"shape_{name}.json")
         if not os.path.exists(j):
@@ -152,6 +171,19 @@ def main():
     out = {
         "correction_1_specification_robustness": {
             "stations": len(st),
+            "join_key_caveat": {
+                "key": "(series, label) — NEVER label alone",
+                "distinct_labels_repeating_across_series": 54,
+                "stations_covered_by_a_repeating_label": 148,
+                "stations_a_label_only_join_mis_assigns": 94,
+                "max_SE_error_from_that_mis_join": 0.0178,
+                "median_station_SE": 0.0066,
+                "why_it_is_here": "a peer session's weighted fits were computed "
+                                  "on that mis-join and reported a result this "
+                                  "session could not reproduce. The uniqueness "
+                                  "is now asserted in member_stations(), so the "
+                                  "same mistake raises instead of returning a "
+                                  "plausible number."},
             "tau_between_station": float(np.sqrt(tau2)),
             "median_measurement_se": float(np.median(se)),
             "tau_over_median_se": float(np.sqrt(tau2) / np.median(se)),
@@ -172,9 +204,13 @@ def main():
     # ---- correction 2: single RAW exposures ---------------------------------
     lsts = [os.path.join(PSF, f) for f in ("f1.lst", "f2.lst", "f3.lst")]
     if all(os.path.exists(p) for p in lsts):
-        hdr = fits.getheader(os.path.join(PSF, "r_00001.fit")) \
-            if os.path.exists(os.path.join(PSF, "r_00001.fit")) else None
-        W, H = (6064, 4040) if hdr is None else (int(hdr["NAXIS1"]), int(hdr["NAXIS2"]))
+        # The converted frames are deleted after measurement — psf_work versions
+        # the .lst files only (they ARE the record, .gitignore). Geometry and
+        # exposure come from the set's own tracked acquisition record instead of
+        # a file that is meant not to survive.
+        acq = json.load(open(os.path.join(HERE, "..", "set-01",
+                                          "acquisition.json")))["exif"]
+        W, H = acq["image_wh"]
         d = np.vstack([read_lst(p) for p in lsts])
         A, Xp, Yp, FX, FY, PA = d.T
         cx, cy = (W - 1) / 2, (H - 1) / 2
@@ -183,7 +219,10 @@ def main():
         rr = FY / FX
         onr = np.ones(len(rxf))
         raw = {"frames": 3, "stars": int(len(A)), "canvas": [W, H],
-               "exptime_s": None if hdr is None else hdr.get("EXPTIME"),
+               "exptime_s": acq["exposure_s"],
+               "exposure_source": "datasets/aug06/set-01/acquisition.json (EXIF, "
+                                  "auto-derived) — matches the EXPTIME Siril "
+                                  "wrote into the converted frames",
                "state": "debayered, UNcalibrated, UNwarped, UNregistered, "
                         "UNstacked — one exposure",
                "whole_frame": {"major": float(np.median(FX)),
