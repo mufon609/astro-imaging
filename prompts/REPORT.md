@@ -111,16 +111,43 @@ on a radial model, holding in a brightest-quartile control (−0.076, −0.035).
 Star size is purely radial there too (rho 30.4 SE, x 0.1 SE, F = 0.0). This
 rules OUT three mechanisms — within-member registration, the compose, and a
 residual of the lensfun distortion model (an uncorrected frame carries no
-residual of a correction). **It does NOT identify the cause**: an optical
-asymmetry, differential refraction and the across-field gradient of the
-projected sky rate are all in the photons of one exposure, and none is removed
-by a better distortion model. The named discriminator
-(BACKLOG:`one-sided-band`, hour-angle dependence) has never run, and the headers
-carry DATE-OBS but no site coordinates, so it needs designing. **One inherited
-claim is in tension and is flagged rather than resolved**: the registry records
-the major-axis angle tracking field azimuth in 7 of 8 zones; on these three
-frames the median PA is near-constant across 8 azimuth sectors (**spread
-15.8°**), which is the trailing signature.
+residual of a correction). **One inherited claim is in tension and is flagged
+rather than resolved**: the registry records the major-axis angle tracking field
+azimuth in 7 of 8 zones; on these three frames the median PA is near-constant
+across 8 azimuth sectors (**spread 15.8°**), the trailing signature.
+
+**ONE OF THE THREE IN-EXPOSURE CANDIDATES IS NOW ATTRIBUTED, by a prediction
+with no free parameter.** A fixed mount trails each star by 15.041·cos(dec)·t_exp
+arcsec, so across a field spanning **20.9° of declination** the trail length
+runs **1.407 → 1.867 px** — a third longer at the low-dec edge, from the EXIF
+and the members' own WCS alone. A uniformly trailed star has variance L²/12, so
+`major² − minor² = (2.3548²/12)·L² = 0.462·L²`, which predicts a slope of
+**2.266 px²** against cos²(dec). Measured on the 148 stations: **2.901 ± 0.542
+alone (1.17σ)** and **2.548 ± 0.416 with rho and x held (0.68σ)**. It is
+independent of the radial term (`corr(cos²dec, rho) = +0.011`). Variance
+partition on the anisotropy: cos²dec 0.164, rho 0.199, x 0.212, **all three
+0.519**, each at 6.1–7.4 SE.
+
+**The conversion decides the verdict, so it is stated in the record.** The
+`sqrt(w² + L²)` quadrature that reads naturally overstates the prediction by
+**2.16×** (4.905 px²), and against that number this same measurement sits **3.70σ
+LOW** — confirmation or refutation turns entirely on which was used. **Limit:**
+the regressor is 99% collinear with sensor y here, so what is tested is the
+MAGNITUDE of a y-aligned gradient, not its direction; what makes it specific is
+that its size matches a parameter-free calculation.
+
+**It does NOT close the question.** The one-sided x term and the radial term
+both survive at **6.9 and 7.4 SE** with cos²dec held — the corner defect is
+three terms and this attributes one. An optical asymmetry and differential
+refraction remain unseparated for the other two, neither removable by a better
+distortion model. **And the obvious follow-up is dead on arrival: there is no
+lever for it.** "Does the effect scale with each field's own dec range" needs
+fields with different dec ranges; the 13 members vary by **4.9%** in cos²(dec)
+span, and all 12 staged sets are one target at 2.5 s and 70 mm, so there is no
+exposure lever either. The within-frame lever is the large one (cos²dec 0.378 →
+0.732) and it has already been used. The named discriminator
+(BACKLOG:`one-sided-band`, hour-angle dependence) still has not run, and the
+headers carry DATE-OBS but no site coordinates.
 
 **So: no crop line is handed over, and the corrected prediction is why.** Under
 the two-term model the best joint trim measured — keep x_frac ≤ 0.70, no radial

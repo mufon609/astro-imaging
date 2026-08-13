@@ -547,7 +547,31 @@ exposure, and none is reachable by a better distortion model. Hour angle stays
 the discriminator, with an obstacle to design around: the headers carry DATE-OBS
 and no site coordinates, so hour angle is not directly derivable and must be
 recovered from the corpus (12 sets, one target, three nights, the same sky at
-different hour angles). **Star SIZE is a separate quantity and is purely radial
+different hour angles).
+
+**THE THIRD OF THOSE IS NOW ATTRIBUTED, and it is the one nobody had tested.** A
+fixed mount trails each star by 15.041 x cos(dec) x t_exp arcsec, so across a
+field spanning 20.9 deg of declination the trail runs **1.407 -> 1.867 px** — a
+third longer at the low-dec edge, from EXIF and the members' own WCS with
+nothing fitted. A uniform trail has variance L^2/12, so `major^2 - minor^2 =
+(2.3548^2/12) L^2` predicts a slope of **2.266 px^2** against cos^2(dec).
+MEASURED over 148 member stations: **2.901 +- 0.542 alone (1.17 sigma)** and
+**2.548 +- 0.416 with the radial and one-sided terms held (0.68 sigma)**,
+independent of the radial term (corr +0.011). Variance partition on the
+anisotropy: cos^2 dec 0.164, rho 0.199, x 0.212, **all three 0.519**, each at
+6.1-7.4 SE. **THE CONVERSION DECIDES THE VERDICT**: the `sqrt(w^2+L^2)`
+quadrature that reads naturally overstates the prediction 2.16x and the same
+measurement is 3.70 sigma LOW against it. Limit: the regressor is 99% collinear
+with sensor y here, so the MAGNITUDE is what is tested, not the direction.
+Numbers: `datasets/aug06/corner_work/sky_rate_gradient.json`. Hypothesis credit:
+a peer session named the candidate and ran the first version.
+
+**Do NOT run the scaling follow-up — it has no lever, and checking that first is
+the object-tilt lesson.** "Does the effect scale with each field's own dec range"
+needs fields whose dec ranges differ; the 13 aug06 members vary by **4.9%** in
+cos^2(dec) span, and all 12 staged sets are ONE target at 2.5 s and 70 mm, so
+there is no exposure lever either (L scales with t_exp). The large lever is
+WITHIN a frame (cos^2 dec 0.378 -> 0.732) and it is the one already used. **Star SIZE is a separate quantity and is purely radial
 in the same raws** (rho 30.4 SE, x 0.1 SE, F = 0.0). Numbers:
 `datasets/aug06/corner_work/mechanism_and_specs.json`,
 `datasets/aug06/set-01/psf_work/f{1,2,3}.lst`.

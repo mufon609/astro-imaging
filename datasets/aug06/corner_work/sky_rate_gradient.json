@@ -1,0 +1,91 @@
+{
+ "mechanism": "a fixed mount trails each star by 15.041*cos(dec)*t_exp arcsec during the exposure; across a field spanning ~20 deg of declination the trail LENGTH varies by a third, which is a star-shape gradient no processing causes",
+ "inputs_all_from_headers": {
+  "exposure_s": 2.5,
+  "pixel_scale_arcsec": 16.979,
+  "sidereal_arcsec_per_s": 15.041,
+  "source": "datasets/aug06/set-01/acquisition.json (EXIF) + each member's own solved WCS"
+ },
+ "stations": 148,
+ "dec_span_deg": [
+  32.5291,
+  50.553
+ ],
+ "predicted_trail_px": [
+  1.407107688935875,
+  1.8672101668286485
+ ],
+ "conversion": {
+  "used": "uniform trail: major^2 - minor^2 = (2.3548^2/12) * L^2",
+  "factor": 0.4620902533333333,
+  "predicted_slope_vs_cos2dec_px2": 2.266397233743727,
+  "the_wrong_one": "sqrt(w^2 + L^2) quadrature predicts 4.9047 px^2, a factor 2.16 larger, and this same measurement is 3.70 sigma LOW against it. The conversion decides the verdict."
+ },
+ "measured_slope_alone": {
+  "px2": 2.9010191990650727,
+  "se": 0.5418302116159658,
+  "sigma_from_prediction": 1.1712561457742192
+ },
+ "measured_slope_with_rho_and_x_held": {
+  "px2": 2.548358303309233,
+  "se": 0.4163369352877154,
+  "sigma_from_prediction": 0.6772425064104702
+ },
+ "variance_partition_on_major2_minus_minor2": {
+  "cos2dec": {
+   "R2": 0.16412137155947515,
+   "cos2dec": {
+    "coef": 2.9010191990650727,
+    "SE_units": 5.354111189948254
+   }
+  },
+  "rho": {
+   "R2": 0.1992249853783311,
+   "rho": {
+    "coef": 1.3233859476658154,
+    "SE_units": 6.0268873311269875
+   }
+  },
+  "x": {
+   "R2": 0.21221317984537946,
+   "x": {
+    "coef": 0.47157663881897405,
+    "SE_units": 6.271309709969892
+   }
+  },
+  "cos2dec+rho": {
+   "R2": 0.35954304336887233,
+   "cos2dec": {
+    "coef": 2.8673703456632578,
+    "SE_units": 6.024628184144201
+   },
+   "rho": {
+    "coef": 1.3107670414567298,
+    "SE_units": 6.651588742427735
+   }
+  },
+  "all_three": {
+   "R2": 0.5192660372326241,
+   "cos2dec": {
+    "coef": 2.548358303309233,
+    "SE_units": 6.120903737613754
+   },
+   "rho": {
+    "coef": 1.2599235965136077,
+    "SE_units": 7.3474143012160225
+   },
+   "x": {
+    "coef": 0.41204783123283084,
+    "SE_units": 6.916917002292417
+   }
+  }
+ },
+ "orthogonality": {
+  "corr_cos2dec_rho": 0.010628973888408277,
+  "corr_cos2dec_x": 0.1111298599920468,
+  "corr_cos2dec_y": 0.9891634376522679
+ },
+ "the_caveat_that_limits_it": "the regressor is 99% collinear with sensor y on this field, so what is tested is the MAGNITUDE of a y-aligned gradient, not its direction. Any y-aligned gradient would correlate; what makes this one specific is that its SIZE matches a parameter-free calculation to under 1 sigma.",
+ "what_it_does_NOT_explain": "the one-sided x term and the radial term both survive it at 6.9 and 7.4 SE with cos2dec held. The corner defect is three terms, and this attributes one.",
+ "reports_only": "no threshold, no verdict, exits 0."
+}
