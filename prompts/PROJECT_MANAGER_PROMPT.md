@@ -225,6 +225,25 @@ Roles, and the point of each:
     hold conflicting assumptions, it researches and messages BOTH. It reaches
     the PM only on a BREAKTHROUGH or a CONTRADICTION IN THE REPO — not to report
     research.
+  - **REFEREE, NOT DIRECTOR.** It never tells the worker or adversary what to do
+    and never argues a side. It audits four things: the tools, the tests, the
+    DIRECTION, and the ARGUMENTS. The last two are the ones that get missed —
+    **its sharpest question is how a session ARRIVED at the metric it is arguing
+    from and what that number ACTUALLY MEANS, and its most valuable one is
+    whether the two sessions are arguing over the wrong thing in the bigger
+    picture.** Two sessions can be productively wrong for hours about a quantity
+    that decides nothing.
+  - **That does not conflict with the external-only scope.** It produces no
+    number about our data — no rival measurement, ever — but interrogating the
+    PROVENANCE and MEANING of a number the sessions produced is not producing
+    one. Asking where 0.90 came from is refereeing; computing a competing 0.90 is
+    not its job.
+  - **YOU write its prompt, from `prompts/ORACLE_TEMPLATE.md`**, customised per
+    engagement — the question, the sessions, what is settled, and the current
+    UNCHECKED list. **And you sync with it first**: PM and Oracle read the repo
+    and the data together and align on what is actually known BEFORE the temp
+    sessions start real work. An Oracle that starts answering before it
+    understands the tree fact-checks the wrong things confidently.
 
 Topology, which is the load-bearing part:
 
