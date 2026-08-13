@@ -1,0 +1,264 @@
+{
+ "what_is_under_test": "whether major^2 - minor^2 = 0.4621 * L^2 holds for Siril's elliptical-GAUSSIAN fit, or only for the second moments the identity is derived from",
+ "identity_constant": 0.4620902533333333,
+ "optical_sigma_px": 0.8535756752165788,
+ "sigma_source": "the corpus's own minor FWHM 2.01 px / 2.3548",
+ "corpus_L_range_px": [
+  1.407,
+  1.867
+ ],
+ "corpus_L_over_sigma": [
+  1.64836,
+  2.1872694527363183
+ ],
+ "trail_pa_planted_deg": 20.0,
+ "measurement": "Siril 1.4.4 findstar, setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 \u2014 the same call the real measurement used",
+ "rows": [
+  {
+   "L_px": 0.0,
+   "L_over_sigma": 0.0,
+   "n_measured": 400,
+   "median_major_px": 2.13,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.04249999999999865,
+   "predicted_by_identity": 0.0,
+   "median_angle_deg": -1.595,
+   "angle_error_vs_planted_deg": -21.595
+  },
+  {
+   "L_px": 0.2,
+   "L_over_sigma": 0.23430845771144282,
+   "n_measured": 400,
+   "median_major_px": 2.13,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.04249999999999865,
+   "predicted_by_identity": 0.018483610133333335,
+   "median_angle_deg": -8.879999999999999,
+   "angle_error_vs_planted_deg": -28.88
+  },
+  {
+   "L_px": 0.4,
+   "L_over_sigma": 0.46861691542288564,
+   "n_measured": 400,
+   "median_major_px": 2.14,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.0851999999999995,
+   "predicted_by_identity": 0.07393444053333334,
+   "median_angle_deg": -19.31,
+   "angle_error_vs_planted_deg": -39.31
+  },
+  {
+   "L_px": 0.6,
+   "L_over_sigma": 0.7029253731343283,
+   "n_measured": 400,
+   "median_major_px": 2.16,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.1711999999999998,
+   "predicted_by_identity": 0.16635249119999998,
+   "median_angle_deg": -20.295,
+   "angle_error_vs_planted_deg": -40.295
+  },
+  {
+   "L_px": 0.8,
+   "L_over_sigma": 0.9372338308457713,
+   "n_measured": 400,
+   "median_major_px": 2.19,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.3016999999999994,
+   "predicted_by_identity": 0.29573776213333336,
+   "median_angle_deg": -19.5,
+   "angle_error_vs_planted_deg": -39.5
+  },
+  {
+   "L_px": 1.0,
+   "L_over_sigma": 1.171542288557214,
+   "n_measured": 400,
+   "median_major_px": 2.23,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.4784999999999995,
+   "predicted_by_identity": 0.4620902533333333,
+   "median_angle_deg": -19.895,
+   "angle_error_vs_planted_deg": -39.894999999999996
+  },
+  {
+   "L_px": 1.2,
+   "L_over_sigma": 1.4058507462686567,
+   "n_measured": 400,
+   "median_major_px": 2.28,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.7039999999999988,
+   "predicted_by_identity": 0.6654099647999999,
+   "median_angle_deg": -20.025,
+   "angle_error_vs_planted_deg": -40.025
+  },
+  {
+   "L_px": 1.4,
+   "L_over_sigma": 1.6401592039800994,
+   "n_measured": 400,
+   "median_major_px": 2.34,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 0.9429000000000007,
+   "predicted_by_identity": 0.9056968965333332,
+   "median_angle_deg": -20.005000000000003,
+   "angle_error_vs_planted_deg": -40.005
+  },
+  {
+   "L_px": 1.6,
+   "L_over_sigma": 1.8744676616915426,
+   "n_measured": 400,
+   "median_major_px": 2.4,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 1.2655999999999992,
+   "predicted_by_identity": 1.1829510485333334,
+   "median_angle_deg": -20.09,
+   "angle_error_vs_planted_deg": -40.09
+  },
+  {
+   "L_px": 1.8,
+   "L_over_sigma": 2.1087761194029855,
+   "n_measured": 400,
+   "median_major_px": 2.48,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 1.613500000000001,
+   "predicted_by_identity": 1.4971724208000001,
+   "median_angle_deg": -20.105,
+   "angle_error_vs_planted_deg": -40.105000000000004
+  },
+  {
+   "L_px": 2.0,
+   "L_over_sigma": 2.343084577114428,
+   "n_measured": 400,
+   "median_major_px": 2.56,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 2.0378499999999993,
+   "predicted_by_identity": 1.8483610133333332,
+   "median_angle_deg": -19.93,
+   "angle_error_vs_planted_deg": -39.93
+  },
+  {
+   "L_px": 2.2,
+   "L_over_sigma": 2.577393034825871,
+   "n_measured": 400,
+   "median_major_px": 2.65,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 2.5280999999999993,
+   "predicted_by_identity": 2.2365168261333337,
+   "median_angle_deg": -20.04,
+   "angle_error_vs_planted_deg": -40.04
+  },
+  {
+   "L_px": 2.4,
+   "L_over_sigma": 2.8117014925373134,
+   "n_measured": 400,
+   "median_major_px": 2.75,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 3.0379999999999985,
+   "predicted_by_identity": 2.6616398591999997,
+   "median_angle_deg": -19.99,
+   "angle_error_vs_planted_deg": -39.989999999999995
+  },
+  {
+   "L_px": 2.6,
+   "L_over_sigma": 3.0460099502487563,
+   "n_measured": 400,
+   "median_major_px": 2.85,
+   "median_minor_px": 2.12,
+   "median_major2_minus_minor2": 3.6281,
+   "predicted_by_identity": 3.1237301125333334,
+   "median_angle_deg": -19.985,
+   "angle_error_vs_planted_deg": -39.985
+  },
+  {
+   "L_px": 2.8,
+   "L_over_sigma": 3.280318407960199,
+   "n_measured": 400,
+   "median_major_px": 2.96,
+   "median_minor_px": 2.13,
+   "median_major2_minus_minor2": 4.2840000000000025,
+   "predicted_by_identity": 3.6227875861333327,
+   "median_angle_deg": -19.985,
+   "angle_error_vs_planted_deg": -39.985
+  }
+ ],
+ "fitted_constant_all_L": 0.5290127029376523,
+ "fitted_constant_in_corpus_L_band": 0.49374712819727373,
+ "corpus_band_L_values": [
+  1.4,
+  1.6,
+  1.8
+ ],
+ "quantisation_floor_px2": 0.04249999999999865,
+ "quantisation_floor_note": "the L = 0 frame is a perfectly round star and still reads 0.0425 px^2, which is exactly 2.13^2 - 2.12^2. The .lst's two-decimal FWHM is the cause. Subtract it before fitting through the origin, or fit an intercept.",
+ "local_constant_per_L": [
+  {
+   "L_px": 0.2,
+   "local_constant": 1.062499999999966
+  },
+  {
+   "L_px": 0.4,
+   "local_constant": 0.5324999999999968
+  },
+  {
+   "L_px": 0.6,
+   "local_constant": 0.475555555555555
+  },
+  {
+   "L_px": 0.8,
+   "local_constant": 0.47140624999999897
+  },
+  {
+   "L_px": 1.0,
+   "local_constant": 0.4784999999999995
+  },
+  {
+   "L_px": 1.2,
+   "local_constant": 0.4888888888888881
+  },
+  {
+   "L_px": 1.4,
+   "local_constant": 0.48107142857142904
+  },
+  {
+   "L_px": 1.6,
+   "local_constant": 0.49437499999999956
+  },
+  {
+   "L_px": 1.8,
+   "local_constant": 0.4979938271604941
+  },
+  {
+   "L_px": 2.0,
+   "local_constant": 0.5094624999999998
+  },
+  {
+   "L_px": 2.2,
+   "local_constant": 0.5223347107438014
+  },
+  {
+   "L_px": 2.4,
+   "local_constant": 0.5274305555555553
+  },
+  {
+   "L_px": 2.6,
+   "local_constant": 0.5367011834319526
+  },
+  {
+   "L_px": 2.8,
+   "local_constant": 0.5464285714285718
+  }
+ ],
+ "local_constant_across_corpus_L_range": {
+  "min": 0.48107142857142904,
+  "max": 0.4979938271604941,
+  "fractional_variation": 0.03445487224181813,
+  "reads": "this is the size of the confound with cos(dec), because L varies over the field exactly as the regressor does. Compare it against the measurement's own fractional error, 0.416/2.548 = 16.3%."
+ },
+ "ratio_fitted_over_identity": 1.0685079908861537,
+ "what_it_does_to_the_attribution": "sky_rate_gradient.json predicts a slope of 2.266 px^2 against cos^2(dec) from the identity constant and measures 2.548 +- 0.416 with the radial and one-sided terms held (0.68 sigma). Rescaling the PREDICTION by the ratio above gives 2.421 px^2, which the same measurement sits 0.30 sigma from.",
+ "angle_round_trip": {
+  "planted_deg": 20.0,
+  "max_abs_error_deg": 40.295,
+  "closes": "the pa_convention.py premise that Siril's reported angle is consistent with the X, Y it reports for the same star \u2014 previously read from source and fixture-tested only against in-house code, never through findstar itself"
+ },
+ "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0."
+}

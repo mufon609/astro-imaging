@@ -2178,10 +2178,9 @@ SILENT — pin the state, never inherit it):
   elimination does not hold: a fixed-direction term IS present in these very
   stars, at 0.0581 / 69.6 SE, alongside the radial one at 0.0395 / 51.0 SE. Both
   terms are real and the elimination was an artefact of a statistic that can
-  express only one at a time. Second, the family named here is wrong: transverse
-  coma grows LINEARLY with field height and the measured radial exponent is
-  **2.1–3.8, never near 1**, so this is not the coma family; and a free-centre
-  fit beats the centred model at F 169–999, so the field is not centred either.
+  express only one at a time. Second, the field is not CENTRED: a free-centre fit
+  beats the centred model at F 169–999. The family reading is NOT retired —
+  see the exponent-scale trap below, which is what a first pass here got wrong.
   What is NOT corrected: it is still in the optics-and-photons of a single
   unregistered exposure, and no distortion model or re-registration reaches it.
   **Consistent with the centred distortion** — distortion and coma respond
@@ -2248,7 +2247,40 @@ SILENT — pin the state, never inherit it):
   direction +30.10 → −30.10). Handedness IS flipped, so re-test before comparing
   any of this against a sky-derived direction.
 
-- **A LINEAR REGRESSOR AVERAGES A SIGN-FLIPPING PATTERN TO ZERO, AND THAT NULL IS
+- **AN ELLIPTICITY EXPONENT IS NOT A BLUR EXPONENT — THEY DIFFER BY A FACTOR OF
+  TWO, AND CONFUSING THEM RETIRES THE WRONG ABERRATION.** Seidel gives the BLUR
+  SIZE: transverse coma grows LINEARLY with field height, astigmatism
+  QUADRATICALLY. But ellipticity is not a blur size. Blurs convolve, so VARIANCES
+  add: `a² = w² + κℓ²`, giving `a² − b² = κℓ²` and
+  `e = (a²−b²)/(a²+b²) ≈ κℓ²/2w²`. **Both the ellipticity and the second-moment
+  difference go as ℓ², so the reference exponents against field radius are 2 for
+  coma and 4 for astigmatism — not 1 and 2.** MEASURED here on the ellipticity
+  amplitude per set: 2.09–3.80 (and 1.12–2.81 on the unnormalised
+  second-moment difference), i.e. **blur exponents of 0.56–1.90 clustering near
+  1**. That STRADDLES coma and falls well short of astigmatism, so the
+  coma-family reading is CONSISTENT with the radial profile and is not retired.
+  A first pass compared the ellipticity exponent (2.1–3.8) against coma's BLUR
+  exponent (1), concluded "never near 1, therefore not coma", and had the
+  conclusion exactly backwards. State which quantity's exponent you are quoting,
+  every time. (What DOES stand from that pass: the profile is not a clean power
+  law — one set peaks at ρ 0.53 and falls beyond it — and no significant negative
+  R appears anywhere, so the radial↔tangential flip that would establish
+  astigmatism is not demonstrated either. The family is UNRESOLVED between the
+  two, not settled for one.)
+
+- **SIRIL REPORTS X, Y AND `angle` ALL IN THE FITS BOTTOM-UP FRAME, CONSISTENTLY —
+  MEASURED, NOT INFERRED.** Synthetic trailed stars planted at a known position
+  angle of **+20.0°** in array coordinates come back from `findstar` at
+  **−20.0° at every L ≥ 0.4 px** (−19.89 to −20.11 across the sweep), an exact
+  sign flip. The reported Y is flipped with it: of 400 planted stars, **400 match
+  under y → H − y and 0 match as planted**. So the flip is in the frame, not in
+  the angle alone, and any quantity built from Siril's own X, Y and `angle`
+  TOGETHER — field azimuth, θ − φ, the radial/fixed decomposition — is unaffected.
+  What IS inverted is handedness and anything compared against a SKY-derived
+  direction (a drift bearing, a parallactic angle, an RA axis): convert through
+  the same flip or the sign of the answer is wrong. Note the reported Y is
+  `H − y_0based`, i.e. FITS 1-based indexing, so there is a 1 px offset on top of
+  the flip.
   NOT EVIDENCE OF ABSENCE.** `mechanism_and_specs.json`'s own model-free sided
   bands on the MAJOR axis sign-flip across |x| (−0.12, −0.17, −0.08, **+0.14,
   +0.11**) while its linear-in-x regression on the same stars reads 0.13 SE and
