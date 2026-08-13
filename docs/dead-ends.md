@@ -2110,6 +2110,38 @@ SILENT — pin the state, never inherit it):
   reassembly, i.e. pixel surgery on the deliverable. The prior blocker is SNR,
   not seams: `-tv`/`-fh` regularisation with `-alpha=` is unbracketed, and if
   regularised RL still eats the faint population, per-region RL will too.
+  **THE WORD "INSTALLED" IN THIS ENTRY'S TITLE IS LOAD-BEARING, AND THE
+  DOCUMENTED LANDSCAPE IS NOT THE SAME AS THIS RIG. STATUS: DOCTRINE — vendor
+  documentation, UNMEASURED here.** RC-Astro's BlurXTerminator technical manual
+  documents this exact capability, and the entry must not be read as "nothing
+  corrects a field-variable anisotropic PSF." Verbatim: *"Images are processed in
+  512×512 pixel 'tiles,' with overlap between tiles to avoid artifacts.
+  Individual tiles are processed independently to allow for non-stationary
+  PSFs."*; *"The PSF need not be stationary — the aberrations can vary across the
+  image. BlurXTerminator will attempt to correct for the local PSF in each part of
+  the image."*; and it *"will attempt to make the point spread function (PSF)
+  found in the image azimuthally symmetric (round)."* Its stated correctable list,
+  *"in limited amounts"*, names our candidates by name: **first- and second-order
+  coma and astigmatism; trefoil (*"common with pinched optics and in image corners
+  with some camera lenses"*); defocus (poor focus and/or field curvature);
+  longitudinal and lateral chromatic aberration; motion blur (guiding errors)**.
+  It requires LINEAR input *"ideally right after integration, channel combination,
+  and perhaps color calibration and gradient removal"* — which is where our stacks
+  sit. Stated limitation: it needs stars throughout, and *"if a particular tile
+  does not have enough stars in it, BlurXTerminator will revert to trying to
+  deduce the PSF from non-stellar features"*.
+  **So the ceiling here is a PROCUREMENT boundary, not a physics one** (RC-Astro
+  is PAID and the gap is deliberate — `TOOLS.md`). **What this does NOT do:**
+  it does not measure anything on our data, it does not establish the correction
+  would work at our magnitudes (*"limited amounts"* is the vendor's own hedge),
+  and **it does not make applying it a fix** — a correction of unknown provenance
+  applied to a finished product, while the defect's cause is unidentified, is the
+  bandaid the owner has already refused. Our defect is also measured IN-EXPOSURE
+  in sensor coordinates, and BXT runs on the stacked product where each output
+  position holds a blend of sensor-position PSFs (MEMORY's corollary); the union
+  corner is built from similar-rho samples so it is less blended there, but that
+  is an argument, not a measurement. Source: rc-astro.com BlurXTerminator
+  technical manual, fetched 2026-08-13.
 
 - **`findstar` SETTINGS ARE DUAL-PURPOSE AND THE TWO PURPOSES WANT OPPOSITE
   VALUES.** MEASURING a shape distribution needs the roundness floor DROPPED —
