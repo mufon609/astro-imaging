@@ -708,6 +708,37 @@ noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
   in-exposure trail direction cannot do; resultant 0.8894 over 21 frames, and
   theta0 rises first-frame-to-last in 6 of 6 sets (sign test p = 0.0156).
 
+**THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
+(`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
+PM-audited by re-execution). Every prediction in the sky-rate work used ONE plate
+scale, 16.979 ″/px, for all 148 stations. On a rectilinear lens `r = f·tan(θ)` the
+LOCAL scale varies across the field, and measured from each member's own solved
+WCS (differentiated numerically, full solution including SIP — not the ideal
+sec² form) it runs **15.904–17.064 ″/px, a 6.93% spread**. **Its correlation with
+ρ is −0.952**, which is why it was invisible as a separate effect and why it was
+confounded with precisely the term nobody could attribute.
+
+| joint fit, 148 stations | global scale | local scale |
+|---|---|---|
+| predicted-trail coef | 1.124 (6.1 SE) | 1.115 (6.3 SE) |
+| **radial ρ coef** | **1.2599 (7.3 SE)** | **1.0317 (5.9 SE)** |
+| one-sided x coef | 0.4120 (6.9 SE) | 0.3971 (6.7 SE) |
+| R² | 0.5193 | 0.5255 |
+
+**Absorbed: 0.2282 px², 18.1% of the radial coefficient.** Three things make it a
+subtraction rather than a knob: the radial term **SURVIVES at 5.9 SE**, so this is
+partial attribution and not an explanation; the **one-sided x term is untouched**
+(3.6%), which is what a purely radial mechanism must do and was not arranged; and
+the already-attributed sky-rate term is **undamaged**, staying consistent with
+unity (0.67σ → 0.65σ). This is playbook shape C — `docs/untracked-widefield-standards.md`
+F.2b computed these factors and they were FILED, NOT ABSORBED.
+**A TRAP THIS CREATES, recorded so the next reader does not misread it:** with the
+local scale in, the predictor itself carries a radial component, so in a fit that
+does NOT hold ρ it partly proxies for the unmodelled radial term and its slope
+inflates — the pred-only check moves 1.280 ± 0.239 (1.17σ) to 1.516 ± 0.212
+(2.44σ) while its R² *improves* 0.164 → 0.260. **Once the local scale is in, the
+pred-only slope is no longer a valid check of the conversion. Read the joint fit.**
+
 **THE ABERRATION FAMILY IS UNRESOLVED, AND A RETIREMENT OF THE COMA READING WAS
 PROPOSED AND WITHDRAWN — the withdrawal is the durable lesson.** A first pass
 measured radial exponents of 2.09–3.80 and read them against Seidel's blur
