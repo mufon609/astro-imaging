@@ -1,0 +1,72 @@
+{
+ "what": "does the position-dependent plate scale absorb part of the unattributed radial term?",
+ "the_defect": "sky_rate_gradient.py converts the sky trail to pixels with ONE scale, 16.979 arcsec/px, for all stations. A rectilinear lens has a field-dependent local scale, and the variation is radial \u2014 confounded with the radial term.",
+ "the_correction": "each station's LOCAL scale along the +RA (trail) direction, from its own member's solved WCS differentiated numerically \u2014 the full solution including SIP, not the CD matrix and not an ideal sec^2 model",
+ "stations": 148,
+ "scale_arcsec_per_px": {
+  "global_constant_used_before": 16.979,
+  "local_min": 15.90370247560428,
+  "local_max": 17.06432684129633,
+  "local_median": 16.735779858271925,
+  "spread_percent": 6.934988243875556,
+  "corr_with_rho": -0.951709425923791
+ },
+ "predicted_trail_px": {
+  "global_min_max": [
+   1.407107688935875,
+   1.8672101668286485
+  ],
+  "local_min_max": [
+   1.4331506766463877,
+   1.9607854847129946
+  ],
+  "median_ratio_local_over_global": 1.0145330561196897,
+  "max_ratio": 1.067613030742067
+ },
+ "predicted_anisotropy_px2": {
+  "global_median": 1.263586694015786,
+  "local_median": 1.2995353187720886,
+  "median_ratio": 1.0292774362996497
+ },
+ "joint_fit_aniso_on_pred_rho_x": {
+  "global_scale": {
+   "pred_coef": 1.1244093777416737,
+   "pred_SE_units": 6.1209037376134265,
+   "rho_coef": 1.2599235965136075,
+   "rho_SE_units": 7.347414301216024,
+   "x_coef": 0.4120478312328232,
+   "x_SE_units": 6.916917002292282,
+   "R2": 0.5192660372326241
+  },
+  "local_scale": {
+   "pred_coef": 1.1152522064222075,
+   "pred_SE_units": 6.313083699887491,
+   "rho_coef": 1.0317196877383656,
+   "rho_SE_units": 5.917406375985408,
+   "x_coef": 0.397099074539863,
+   "x_SE_units": 6.677521511332701,
+   "R2": 0.5255141351512419
+  }
+ },
+ "HOW_MUCH_OF_THE_RADIAL_TERM_IT_ABSORBS": {
+  "rho_coef_with_global_scale": 1.2599235965136075,
+  "rho_coef_with_local_scale": 1.0317196877383656,
+  "absolute_change_px2": -0.22820390877524188,
+  "fraction_of_the_radial_coefficient": -0.18112519632675775
+ },
+ "direct_test_measured_vs_predicted_slope_should_be_1": {
+  "global_scale": {
+   "slope": 1.2800135633209606,
+   "se": 0.23907115820159103,
+   "sigma_from_unity": 1.1712561457741626,
+   "R2": 0.16412137155947515
+  },
+  "local_scale": {
+   "slope": 1.5161319723646316,
+   "se": 0.21150108643088947,
+   "sigma_from_unity": 2.4403277594192594,
+   "R2": 0.260334317644645
+  }
+ },
+ "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0."
+}
