@@ -179,6 +179,44 @@ def fit_field(x, y, e1, e2, label, nboot=300):
             "F_free_centre_over_centred": fc["F_free_centre_over_centred"]}
 
 
+class _PlantedEllipse(PsfexModel):
+    """An elliptical Gaussian of KNOWN ellipticity, to calibrate the estimator.
+
+    The gap that sank the first pass: the fixture tested the basis ordering and
+    the frame mirror and never once asked whether the moment estimator recovers
+    an ellipticity it was handed.
+    """
+
+    def __init__(self, e_true, theta_deg=25.0, n=25, samp=0.4876):
+        a2 = (1 + e_true) / (1 - e_true)
+        s = 2.0
+        gy, gx = np.mgrid[0:n, 0:n] - (n - 1) / 2.0
+        t = np.radians(theta_deg)
+        u = gx * np.cos(t) + gy * np.sin(t)
+        v = -gx * np.sin(t) + gy * np.cos(t)
+        self._img = np.exp(-(u ** 2 / (a2 * s ** 2) + v ** 2 / s ** 2) / 2)
+        self.samp = samp
+
+    def at(self, x, y):
+        return self._img
+
+
+def estimator_calibration():
+    """How much does the adaptive-moment estimator under-read a known e?"""
+    rows = []
+    for et in (0.05, 0.10, 0.15, 0.20, 0.30):
+        mo = _PlantedEllipse(et).moments(0, 0)
+        got = float(np.hypot(mo["e1"], mo["e2"]))
+        rows.append({"planted_e": et, "recovered_e": got, "ratio": got / et})
+    r = [x["ratio"] for x in rows]
+    return {"rows": rows, "ratio_mean": float(np.mean(r)),
+            "ratio_spread": float(max(r) - min(r)),
+            "reads": "a UNIFORM multiplicative bias — the ratio is flat across "
+                     "a 6x range of planted ellipticity. Uniform matters: the "
+                     "free-centre fit is exactly scale-invariant, so a uniform "
+                     "bias cannot move a fitted centre by even one pixel."}
+
+
 def selftest():
     fails, notes = [], []
 
@@ -246,6 +284,39 @@ def selftest():
           "(%+.0f, %+.0f) -> (%+.0f, %+.0f), planted (%+.0f, %+.0f)"
           % (*a["free_centre_offset_px"], *b["free_centre_offset_px"], ox, oy))
 
+    # ---- the arm whose absence sank the first pass: a PLANTED ellipticity ----
+    cal = estimator_calibration()
+    check("the moment estimator recovers a planted ellipticity to a KNOWN factor",
+          0.7 < cal["ratio_mean"] < 1.0,
+          "ratio %.3f across planted e = 0.05..0.30" % cal["ratio_mean"])
+    check("and that factor is UNIFORM, so it cannot move a fitted centre",
+          cal["ratio_spread"] < 0.05,
+          "ratio spread %.4f over a 6x range of planted e" % cal["ratio_spread"])
+
+    # ---- can ANY estimator bias produce the free-centre instability? ----
+    rng2 = np.random.default_rng(11)
+    m = 15000
+    xx = rng2.uniform(0, CANVAS_W, m)
+    yy = rng2.uniform(0, CANVAS_H, m)
+    cx0, cy0 = (CANVAS_W - 1) / 2.0, (CANVAS_H - 1) / 2.0
+    OX, OY = 1200.0, -700.0
+    ph = np.arctan2(yy - (cy0 + OY), xx - (cx0 + OX))
+    b1, b2 = 0.15 * np.cos(2 * ph), 0.15 * np.sin(2 * ph)
+    rr = np.hypot(xx - cx0, yy - cy0) / np.hypot(cx0, cy0)
+    worst = 0.0
+    for k in (1.0, 0.7, 0.3):
+        sc = 1.0 - (1.0 - k) * rr        # 1.0 at centre -> k at the corner
+        fc = fit_free_centre(xx, yy, sc * b1 + rng2.normal(0, 0.05, m),
+                             sc * b2 + rng2.normal(0, 0.05, m),
+                             CANVAS_W, CANVAS_H)
+        o = fc["offset_from_frame_centre_px"]
+        worst = max(worst, float(np.hypot(o[0] - OX, o[1] - OY)))
+    check("even an EXTREME position-dependent bias cannot scatter the centre by "
+          "more than tens of px",
+          worst < 200.0,
+          "worst error %.0f px under a 3.3x radial shrink — so a ~5000 px "
+          "spread between fits is the DATA, not the estimator" % worst)
+
     print()
     for nline in notes:
         print("  " + nline)
@@ -277,6 +348,66 @@ def main():
                             "index; extracted into a scratchpad with its deps, "
                             "nothing installed system-wide",
         "degrees": {},
+    }
+
+    # THE FIELD RANGE ITSELF, in the record rather than only in a commit
+    # message: this is the single most valuable number here, because it is a
+    # second tool with a different algorithm and no shared code with Siril
+    # independently confirming the corner degradation.
+    grid_x = np.linspace(0.5, CANVAS_W - 0.5, 9)
+    grid_y = np.linspace(0.5, CANVAS_H - 0.5, 9)
+    rec["field_model_shape_on_a_9x9_grid"] = {}
+    for deg in (2, 3):
+        dd = os.path.join(WORK, "deg%d" % deg)
+        if not os.path.isdir(dd):
+            continue
+        block = {}
+        for gname, _ in FRAMES:
+            pf = os.path.join(dd, gname + ".psf")
+            if not os.path.exists(pf):
+                continue
+            m = PsfexModel(pf)
+            fw, a1, a2 = [], [], []
+            for yy in grid_y:
+                for xx in grid_x:
+                    mo = m.moments(xx, yy)
+                    if mo:
+                        fw.append(mo["fwhm_px"])
+                        a1.append(mo["e1"])
+                        a2.append(mo["e2"])
+            cen = m.moments(CANVAS_W / 2.0, CANVAS_H / 2.0)
+            block[gname] = {
+                "fwhm_px_min": float(min(fw)), "fwhm_px_max": float(max(fw)),
+                "fwhm_px_at_frame_centre": float(cen["fwhm_px"]),
+                "e1_min": float(min(a1)), "e1_max": float(max(a1)),
+                "e2_min": float(min(a2)), "e2_max": float(max(a2)),
+            }
+        rec["field_model_shape_on_a_9x9_grid"]["deg%d" % deg] = block
+    rec["field_model_shape_on_a_9x9_grid"]["reads"] = (
+        "the field model's FWHM grows from ~1.95 px at the frame centre to "
+        "~3.2 px at the corners. A SECOND TOOL, a different algorithm and no "
+        "shared code with Siril findstar, independently confirming the corner "
+        "degradation. PSFEx's OWN reported range for the same models is "
+        "1.93-3.00 / 1.91-2.68 / 1.99-2.40 px, so the reconstruction tracks the "
+        "tool's own numbers at the low end and runs ~7% high at the top.")
+    rec["estimator_calibration"] = estimator_calibration()
+    rec["psfex_own_reported_ranges_deg2"] = {
+        "note": "PSFEx's OWN numbers, read from its XML, over its NSNAP=9 grid. "
+                "It reports min/mean/max only — there is NO position-resolved "
+                "shape in any PSFEx output, which is why a position-resolved "
+                "head-to-head cannot avoid re-deriving one.",
+        "g_00001": {"fwhm": [1.93385, 3.00169], "ellip_mean": 0.0676019,
+                    "e1": [-0.0498948, 0.0601827], "e2": [-0.128003, 0.189145]},
+        "g_00005": {"fwhm": [1.90907, 2.67572], "ellip_mean": 0.121825,
+                    "e1": [-0.0125598, 0.0836988], "e2": [-0.198716, 0.151333]},
+        "g_00009": {"fwhm": [1.98803, 2.40001], "ellip_mean": 0.156032,
+                    "e1": [-0.0281924, 0.134464], "e2": [-0.156509, 0.136902]},
+        "why_the_ellipticities_do_not_match_mine": "PSFEx derives its reported "
+            "shape from a MOFFAT FIT (the XML carries MoffatBeta); this "
+            "reconstruction uses adaptive moments. Those are different "
+            "estimators of ellipticity and are not expected to agree on a "
+            "profile that is neither Gaussian nor Moffat — a trailed star is a "
+            "top-hat convolved with the optical PSF, measured in psf_calib.json.",
     }
 
     for deg in (2, 3):

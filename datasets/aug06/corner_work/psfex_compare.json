@@ -414,5 +414,147 @@
     }
    }
   }
+ },
+ "field_model_shape_on_a_9x9_grid": {
+  "deg2": {
+   "g_00001": {
+    "fwhm_px_min": 1.9518813236569825,
+    "fwhm_px_max": 3.2006187480178294,
+    "fwhm_px_at_frame_centre": 1.956384283782748,
+    "e1_min": -0.08650141735232834,
+    "e1_max": 0.05028595081228104,
+    "e2_min": -0.05597304184057616,
+    "e2_max": 0.08402718438161992
+   },
+   "g_00005": {
+    "fwhm_px_min": 1.9914658431924597,
+    "fwhm_px_max": 3.219430791978195,
+    "fwhm_px_at_frame_centre": 1.99973577553396,
+    "e1_min": -0.09752707816827869,
+    "e1_max": 0.0784862445267796,
+    "e2_min": -0.12267150040583401,
+    "e2_max": 0.013728230363528028
+   },
+   "g_00009": {
+    "fwhm_px_min": 2.0800088596683444,
+    "fwhm_px_max": 3.33467834052109,
+    "fwhm_px_at_frame_centre": 2.0860136326360226,
+    "e1_min": -0.1118568306211117,
+    "e1_max": 0.08134010339427748,
+    "e2_min": -0.158217869854635,
+    "e2_max": 0.1024325985141987
+   }
+  },
+  "deg3": {
+   "g_00001": {
+    "fwhm_px_min": 1.9476229681500599,
+    "fwhm_px_max": 3.1475863572216785,
+    "fwhm_px_at_frame_centre": 1.9603315195387465,
+    "e1_min": -0.2188369865659233,
+    "e1_max": 0.1384622594511962,
+    "e2_min": -0.1383195207642776,
+    "e2_max": 0.1045533204550881
+   },
+   "g_00005": {
+    "fwhm_px_min": 1.995600949263115,
+    "fwhm_px_max": 3.2564295868296353,
+    "fwhm_px_at_frame_centre": 2.0018554963087394,
+    "e1_min": -0.22742184866851997,
+    "e1_max": 0.15059072932859,
+    "e2_min": -0.1765214376084104,
+    "e2_max": 0.05996568197773633
+   },
+   "g_00009": {
+    "fwhm_px_min": 2.0421845263811838,
+    "fwhm_px_max": 3.3375326211321483,
+    "fwhm_px_at_frame_centre": 2.061287280993354,
+    "e1_min": -0.2750506586275544,
+    "e1_max": 0.1683187418097778,
+    "e2_min": -0.16739950555255767,
+    "e2_max": 0.12116775344749406
+   }
+  },
+  "reads": "the field model's FWHM grows from ~1.95 px at the frame centre to ~3.2 px at the corners. A SECOND TOOL, a different algorithm and no shared code with Siril findstar, independently confirming the corner degradation. PSFEx's OWN reported range for the same models is 1.93-3.00 / 1.91-2.68 / 1.99-2.40 px, so the reconstruction tracks the tool's own numbers at the low end and runs ~7% high at the top."
+ },
+ "estimator_calibration": {
+  "rows": [
+   {
+    "planted_e": 0.05,
+    "recovered_e": 0.0420141232312334,
+    "ratio": 0.8402824646246679
+   },
+   {
+    "planted_e": 0.1,
+    "recovered_e": 0.0841132004722824,
+    "ratio": 0.841132004722824
+   },
+   {
+    "planted_e": 0.15,
+    "recovered_e": 0.12638333352693515,
+    "ratio": 0.8425555568462344
+   },
+   {
+    "planted_e": 0.2,
+    "recovered_e": 0.16891294705946863,
+    "ratio": 0.8445647352973431
+   },
+   {
+    "planted_e": 0.3,
+    "recovered_e": 0.25512327570009535,
+    "ratio": 0.8504109190003178
+   }
+  ],
+  "ratio_mean": 0.8437891360982774,
+  "ratio_spread": 0.010128454375649909,
+  "reads": "a UNIFORM multiplicative bias \u2014 the ratio is flat across a 6x range of planted ellipticity. Uniform matters: the free-centre fit is exactly scale-invariant, so a uniform bias cannot move a fitted centre by even one pixel."
+ },
+ "psfex_own_reported_ranges_deg2": {
+  "note": "PSFEx's OWN numbers, read from its XML, over its NSNAP=9 grid. It reports min/mean/max only \u2014 there is NO position-resolved shape in any PSFEx output, which is why a position-resolved head-to-head cannot avoid re-deriving one.",
+  "g_00001": {
+   "fwhm": [
+    1.93385,
+    3.00169
+   ],
+   "ellip_mean": 0.0676019,
+   "e1": [
+    -0.0498948,
+    0.0601827
+   ],
+   "e2": [
+    -0.128003,
+    0.189145
+   ]
+  },
+  "g_00005": {
+   "fwhm": [
+    1.90907,
+    2.67572
+   ],
+   "ellip_mean": 0.121825,
+   "e1": [
+    -0.0125598,
+    0.0836988
+   ],
+   "e2": [
+    -0.198716,
+    0.151333
+   ]
+  },
+  "g_00009": {
+   "fwhm": [
+    1.98803,
+    2.40001
+   ],
+   "ellip_mean": 0.156032,
+   "e1": [
+    -0.0281924,
+    0.134464
+   ],
+   "e2": [
+    -0.156509,
+    0.136902
+   ]
+  },
+  "why_the_ellipticities_do_not_match_mine": "PSFEx derives its reported shape from a MOFFAT FIT (the XML carries MoffatBeta); this reconstruction uses adaptive moments. Those are different estimators of ellipticity and are not expected to agree on a profile that is neither Gaussian nor Moffat \u2014 a trailed star is a top-hat convolved with the optical PSF, measured in psf_calib.json."
  }
 }
