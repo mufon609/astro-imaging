@@ -19,26 +19,49 @@ not retire, and it is run on demand rather than scheduled here.
 per engagement, not items — the four-session team is OPTIONAL and specified in
 `PROJECT_MANAGER_PROMPT.md`.
 
-## Waiting on the owner, not on work
+## Waiting on the owner — NOTHING IS. All four are ruled; this section is the record of what they decided
 
-1. **The L1 judge triple** — `web/results/aug06/judge/set-01+02+03_{l1crop,l1bkgframe,l1bkgstack}_spcc-linked.png`,
-   three full-frame 16-bit PNGs on one shared crop. Preservation did not choose
-   the level; their eyes do.
-2. **Two rules in `BACKLOG.md`** — the parallel-session staging unit and the
-   blind-spot sentence.
-3. **The load-bearing unchecked premise**: that starlight preservation is the
-   right adoption gate for the L1 level choice at all. No instrument can settle
-   it.
-4. **The per-member trim — and the recommendation is to WAIT.** A joint trim
-   keeping x_frac ≤ 0.70 is predicted to lift delivered corner roundness
-   0.911 → 0.938 for 15% of every member and 4 of 20 measured union boxes losing
-   their last contributing member. Two reasons not to take it yet: the gain is
-   modest against that cost, and the defect's cause is unidentified — measured
-   as in-exposure, but not separated between an optical asymmetry, differential
-   refraction and the projected-rate gradient. A trim works regardless of cause,
-   which is what makes it seductive. The two owner statements it sits between
-   are recorded side by side in `BACKLOG.md`. If the owner wants it anyway, the
-   next step is the one-knob A/B, not adoption.
+Every item this section carried has been decided. It survived as "waiting"
+through two handoffs because the decisions landed ELSEWHERE and nobody closed the
+row — a record can go stale by being RESOLVED, not only by being contradicted,
+and nothing in a stale row is false about the past. **Close the row in the commit
+that lands the decision.**
+
+1. **The L1 judge triple — RULED, and the reason is unusual and load-bearing.**
+   The owner opened the three surfaces, reported NO visible difference, and
+   approved the on-stack level on the instruments. That is what the honest-checks
+   system exists for. `datasets/aug06/l1_work/owner_ratification.json`.
+2. **The two parallel-session rules — RULED, and in the contract.** The staging
+   unit was delegated to the manager and landed at **`b36ef3b`** (the hunk check
+   with a mechanical count in front of it; the structural option rejected with its
+   reason recorded). The blind-spot sentence was ratified as part of "(a) and (b)"
+   and landed at **`64f61d2`** with its tripwire. Both verified present in
+   `CLAUDE.md` today.
+3. **Starlight preservation as the adoption gate — NOT a pending decision.** It is
+   a logged UNCHECKED premise (`datasets/aug06/l1_work/unchecked_premises.json`)
+   and it blocks nothing. It becomes live only if someone proposes that instrument
+   as the acceptance gate for a NEW step.
+4. **The per-member trim — RULED: WAIT, and the corner defect is REAL.** The
+   owner settled the question three sessions ran without: **the degradation is
+   VISIBLE to their eye on the full-frame render** — *"they are already bad in the
+   full frame render. i can see it and no render will make it look better - just
+   more obvious."* So it is not a below-threshold residue, and the render tier
+   cannot improve it. **Because the cause is unknown, any step forward from here
+   is a BANDAID** — the owner applying `CLAUDE.md`'s own rule directly. The trim
+   stays refused, and the stated reason is the one to carry: crop and we may never
+   find the real cause, while losing frame size, SNR-over-time, and possibly final
+   quality, *"because there are issues with an unknown cause, so how deep or
+   subtle the issue is is not known."* **Keep digging is the ratified direction.**
+
+**The owner's own mechanism for the corners, recorded because it is field
+knowledge and it matches what was measured.** The far-corner stars are ALWAYS at
+the edge of a member's frame, so the union corner is built exclusively from
+worst-case samples — *"the stars being stacked are the worse images possible."*
+The corner work measured exactly that axis independently: the degradation is on
+MEMBER-OWN FIELD RADIUS (+0.53 px per unit rho, 3.6 SE) and coverage depth
+contributes nothing (0.2 SE). The open half of the owner's statement is whether
+properly centred frames would change it, which is an acquisition-side question
+and therefore NOT a route this repo takes (MEMORY: the data is a given).
 
 ## Landed during the corner-quality session — the axis is settled, and the crop line the brief asked for is REFUSED by the numbers
 
@@ -143,9 +166,20 @@ refraction remain unseparated for the other two, neither removable by a better
 distortion model. **And the obvious follow-up is dead on arrival: there is no
 lever for it.** "Does the effect scale with each field's own dec range" needs
 fields with different dec ranges; the 13 members vary by **4.9%** in cos²(dec)
-span, and all 12 staged sets are one target at 2.5 s and 70 mm, so there is no
-exposure lever either. The within-frame lever is the large one (cos²dec 0.378 →
-0.732) and it has already been used. The named discriminator
+span. Re-measured independently over all 15 recorded sets at a fixed 18.02° field
+extent, the cos²δ SPAN runs **0.3060–0.3090 — 1.0% of its mean**; same verdict,
+sharper. The within-frame lever is the large one (cos²dec 0.378 → 0.732) and it
+has already been used.
+**SCOPE CORRECTION on the exposure half of that kill: "no exposure lever either"
+is true of the STAGED corpus and FALSE of the RECORDED one.** july27 holds two
+sets at **3.0 s** (282 and 253 frames) on the same target (dec 42.39 / 43.68) at
+the same plate scale (36.18 / 35.81 ″/px against aug06's 35.58 — the same focal).
+Since `L ∝ t_exp`, 3.0 s predicts **1.44× the anisotropy** of 2.5 s, against a
+1.0% declination lever and a term the fit resolves at ~6 SE. Raws are off-rig.
+**A CANDIDATE with a named confound, not a decisive test:** a different night is
+a different optical state and two of the three terms ARE optical, so ρ and x must
+be held as the shipped instrument already holds them — and a change in the optics
+themselves is held by nothing. The named discriminator
 (BACKLOG:`one-sided-band`, hour-angle dependence) still has not run, and the
 headers carry DATE-OBS but no site coordinates.
 

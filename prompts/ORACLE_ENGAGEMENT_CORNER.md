@@ -1,7 +1,112 @@
-# The Oracle — engagement 1 (corner degradation / the in-exposure family)
+# The Oracle — engagement 1 (WHOLE-REPO STANDARDS AUDIT, corner thread secondary)
 
 Written by the PM from `prompts/ORACLE_TEMPLATE.md`. The durable half below the
 slots is the template's and is not rewritten per engagement.
+
+---
+
+## RE-SCOPED BY THE OWNER — read this before anything below it
+
+The corner questions (Q1–Q4) are now **SECONDARY**. They stay live and still get
+answered, but they are no longer the engagement.
+
+**The owner's ruling on the corners, which closes a question three sessions ran
+without:** the corner degradation **IS visible to their eye on the full-frame
+render** — *"they are already bad in the full frame render. i can see it and no
+render will make it look better - just more obvious."* So the PM's proposed
+eye-test is answered and the residue is a REAL defect, not a below-threshold
+one. **The cause is unknown, therefore any step forward from here is a BANDAID**
+(`CLAUDE.md`, no-bandaid rule, applied by the owner directly). The per-member
+trim stays on WAIT, and the owner's stated reason is the one to carry: crop and
+we may never find the real cause, while losing frame size, SNR-over-time, and
+possibly final quality — *"there are issues with an unknown cause, so how deep or
+subtle the issue is is not known."*
+
+**THE PRIMARY ENGAGEMENT — a whole-repo standards audit.** The owner's words:
+*"now is really the time to pause and audit the repo as a whole and see if
+something is not the standard or proper industry way of doing things."* The
+trigger is that **basic steps have been overlooked in documentation before, more
+than once** — and `CLAUDE.md` carries standards-first as a BINDING RULE for
+architecture, not just pixels: every contract, schema, provenance mechanism and
+data-management design must state the industry-standard way FIRST with its
+source, adopt it unless a measured constraint forces deviation, and record the
+deviation with its reason.
+
+**Your job: audit whether that rule was actually followed, stage by stage.** For
+each stage of the chain — calibration (the synthetic-flat route), debayer,
+undistort (darktable/lensfun), registration, rejection/normalization/weighting,
+sub-stack compose, plate solve, SPCC, background extraction, and the render tier
+— ask: *what does the field actually do here, per primary sources, and what do
+we do?* Name every deviation you find, and for each say whether the repo (a)
+adopted the standard, (b) deviated with a recorded measured reason, or (c)
+**deviated without noticing** — (c) is the finding that matters and is why this
+engagement exists.
+
+Two standing anchors for the audit, both from the repo's own history: the
+compose's correct industry operation is per-image resampling onto a COMMON output
+WCS using each image's own full solution (CD matrix AND distortion) — SWarp's
+model, the SDSS/CFHTLS/DES/Pan-STARRS lineage — and `SWarp` is packaged for this
+distro and NOT installed. And `docs/untracked-widefield-standards.md` already
+holds a 45-source standards review; check whether its findings were actually
+absorbed or merely filed.
+
+## THE PLAYBOOK — past incidents, as the shapes to hunt for
+
+The owner asked specifically that these be a playbook. Each is a real registered
+incident in this repo where a basic or standard step was missed. **Treat each as
+a PATTERN to search for elsewhere, not as a closed case.** All are in
+`docs/dead-ends.md` with their numbers.
+
+- **A. The scriptable sibling nobody searched for.** `tilt` and `inspector` are
+  listed by `help` and refuse in a script, while **`seqtilt` is scriptable and was
+  the answer**. Cost: an entire in-house instrument built on a metric whose origin
+  was inferred from the detections the defect suppressed. *Hunt: every "the tool
+  can't do that" in TOOLS.md and the registry.*
+- **B. A separate install artifact, required and undocumented.** SPCC needs a
+  sensor/filter DATABASE that is a DIFFERENT git repo from the Gaia catalogue;
+  missing, siril SIGSEGVs and it mimics a data bug. *Hunt: any tool whose setup is
+  described as one step.*
+- **C. A standard result known ELSEWHERE in the repo but not applied here.**
+  Fitting the lens model against a plate solution with an AFFINE nuisance
+  manufactured a decentring signal; two gnomonic projections differ by a
+  HOMOGRAPHY exactly — a result this repo already recorded for registration. Same
+  data, one knob: median 7.63 px → **0.27 px**. *Hunt: results used in one stage
+  and not another.*
+- **D. The industry operation misidentified in a tool's feature.** `register
+  -disto=` was taken for per-image reprojection; it is a SHARED-solution facility
+  and Siril's design assumes one optical state per sequence. *Hunt: any place we
+  believe a tool does the standard operation.*
+- **E. A persisted tool preference silently inherited.** `setext` and
+  `setcompress` carry across sessions — including another project's on the same
+  rig. Cost: a 9.2 GB leak and a correct master reported as "wrote no master".
+  *Hunt: every tool setting we never pin.*
+- **F. Verification done at the wrong levels or on the wrong population.** The ICC
+  identity was verified at STAR amplitudes and carries a TRC toe error below
+  linear 0.003 that a 3 s sky sits inside. A `findstar` median compared across
+  images of different depth is a detection-depth comparison, not a quality one.
+  *Hunt: every "verified identical" in the tree — at what levels, on what
+  population?*
+- **G. An ordering assumption the data violates.** The frame counter wraps
+  9999→0001, so filename sort put **0 of 456** frames in their true position.
+  Crop-before-background is pinned because `subsky` ingests zero-coverage rims.
+  *Hunt: every implicit sort or stage order.*
+- **H. A silent truncation or clip inside a tool.** `update_key` truncates a
+  string at the first `/` (and CALSET is `<session>/<set>` by construction);
+  `offset` clips at zero in 32-bit against its own help; `idiv` clips at 1.0.
+  *Hunt: every value that passes through a tool and comes back "fine".*
+- **I. A batch output assumed to share a coordinate frame.** `seqapplyreg
+  -framing=max` gives every output its OWN origin — 611.9 px apart — so an
+  instrument cross-matching pixel coordinates measured nothing, through a build,
+  a validation exercise and a shipped product. *Hunt: anything comparing two
+  tool outputs positionally.*
+- **J. An in-house summary standing in for the standard measure.** Four-corner
+  spread is the repo's background-flatness number and is not a gradient measure
+  on a structured field; the standard answer is a fitted ramp over a grid.
+  *Hunt: every acceptance measure — is it the field's measure or ours?*
+
+**What a finding looks like here:** the stage, what the standard is with its
+primary source, what we do, and which of (a)/(b)/(c) it is. Rank by
+cost-if-true. You do not fix anything and you do not direct the work.
 
 ---
 
