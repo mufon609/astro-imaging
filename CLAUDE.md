@@ -416,13 +416,22 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   `name [ref]` — and mid-flight is often the only useful time to send an audit
   finding. Send the numbers and let the running session land them; the session
   holding the data owns the record. Three hazards exist ONLY here:
-  - **Stage explicit paths — NEVER `git add -A`.** A peer's uncommitted work
-    sits in the same `git status`, so `-A` publishes their draft under your
-    message and your authorship. **The loser of the race cannot tell**: their
-    change simply leaves the modified list, which reads as "I imagined that
-    edit", not "someone committed it for me". Both sessions were using `-A` when
-    this was caught and both audited clean — five clean commits proved only that
-    nobody happened to be mid-edit.
+  - **The unit of contamination is the FILE, not the staging flag. Before
+    committing ANY file: `git diff --numstat -- <file>` and check the insertion
+    count against what you wrote, THEN `git diff -- <file>` and account for
+    every hunk.** The count test needs no judgement and catches the real case —
+    17 insertions for a one-line edit is decisive on sight; the hunk read
+    catches what a matching count cannot. `git add -p` your own hunks if a
+    peer's work is in the file, or hand over the wording. **`git add -A` is
+    never correct here, but naming one explicit path is NOT protection**: it was
+    a single named path that published 16 lines of a peer's uncommitted register
+    rows under the wrong authorship, while the committer believed the rule was
+    being followed. **The loser of the race cannot tell** — their change simply
+    leaves the modified list, which reads as "I imagined that edit", not
+    "someone committed it for me". **Name the file you committed in the message:
+    that is load-bearing, not courtesy** — it was the only reason the overwrite
+    above was caught at all, and without it the peer would have re-added their
+    rows on top and produced the silent duplication two bullets down.
   - **Your commits land in their products.** `PIPEREV` is
     `git rev-parse --short HEAD` (`stamp_headers.sh`), so a commit stamps every
     artifact built after it. Records-only may land any time — MEASURED
