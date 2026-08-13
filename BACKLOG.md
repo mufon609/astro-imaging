@@ -853,15 +853,65 @@ costs. **It is a TRADE, not a defect**, and the ringing it suppresses is real an
 recorded elsewhere in this registry; **no call has been made and none should be
 made without the owner's eyes**, since ringing is judged and blur is measured.
 
-**THE COUPLING, and it changes how every product-level shape number is read.**
-Since `e ≈ κℓ²/2w²`, a 6.26% rise in w is an **11.4% FALL in measured
-ellipticity** at fixed aberration (`1/1.0626² = 0.8856`). So corner ellipticity
-measured on a PRODUCT understates the raws' by that much **per pass**, and the
-undistort route runs two. Single-RAW measurements are unaffected, which is most
-of the corner thread's evidence — but any product-vs-member comparison inherits it.
+**THE COUPLING, and it changes how every product-level shape number is read.
+STATE THE QUANTITY WITH THE FIGURE — these are TWO different dilutions and they
+were once reported as if commensurable:**
+- **ELLIPTICITY falls 20.02%** at fixed aberration over the whole chain
+  (`1/1.1182² = 0.7998`), since `e ≈ κℓ²/2w²`.
+- **A centre-to-corner SIZE RATIO compresses 1.2874 → 1.2359**, i.e. the chain
+  understates the corner size excess by **5.2 points, not 20** — de-blurring the
+  delivered crop (centre 2.480, worst corner 3.065 px) by the measured 1.1031 px
+  chain kernel in quadrature gives raws of 2.221 and 2.860.
 
-**THE DARKTABLE HALF IS NOT MEASURED**, so 6.26% is a LOWER BOUND on the shipped
-total. That is the open half of this item.
+**The consequence is the one that matters for this repo: an isotropic blur added
+everywhere compresses a ratio toward 1, so THE RAWS' CORNER DEFECT IS WORSE THAN
+ANY PRODUCT SHOWS — +28.7% against the delivered +23.6% — and every product-side
+corner number here is CONSERVATIVE by a now-knowable amount.** Single-RAW
+measurements are unaffected, which is most of the corner thread's evidence; any
+product-vs-member or product-vs-raw comparison inherits it.
+
+**THE DARKTABLE HALF IS MEASURED AND THE CHAIN TOTAL IS CLOSED.** Full-sensor
+6064×4040 so the lens model lands at the right field radii, sky pedestal at the
+corpus's own 1053 ADU, and star amplitudes drawn from the REAL distribution of
+aug06/set-01 frame 1 (p10/p50/p90 = 211/469/1900 ADU) rather than convenient
+levels:
+
+| arm | w | cost |
+|---|---|---|
+| **nodist CONTROL** | 2.2050 | **0.00%** |
+| lensdist = the shipped warp | 2.3346 | 5.88% |
+| **chain total (darktable + Siril)** | **2.4655** | **≈ +12%** |
+
+The control at exactly 0.00% is what makes 5.88% attributable to the WARP rather
+than to the TIFF round trip, the ICC leg or the float conversion — a control that
+*can* read zero and does.
+**Quadrature is VERIFIED, not assumed:** run in actual series, predicted 2.4610
+against a measured mean of 2.4525 — **−0.35%**, so combining the two passes'
+kernels in quadrature holds to better than 1%.
+**PRECISION BOUND, and it governs every figure here:** darktable measured 5.88%
+and 5.67% on two independently generated fixtures, so **fixture-to-fixture
+variation is ~0.2 pp**. Quote these as ~6% and ~12%, never to three significant
+figures.
+**ICC checked and it does not bite, for a reason that generalises:** star
+AMPLITUDES straddle the toe (median 455 ADU = 0.00695 linear) but every actual
+PIXEL sits on the 1053 ADU pedestal = 0.01607 linear, 5× above it, so the band is
+never reached.
+**DEPTH MATCHING WAS MANDATORY AND A COMMON AMPLITUDE FLOOR WAS IMPOSSIBLE** —
+the lensdist arm detects 587 stars against the input's 393 (49% deeper), and
+darktable's float output is not in ADU (inputs 1259–2.765e4, outputs 0.010–0.42),
+so the scales are incommensurable and rank-matching on the N brightest is the
+only valid form. Unmatched 6.09% against rank-matched 5.88% is the size of the
+artefact that avoids.
+
+**A MEASUREMENT TRAP THAT NEARLY PRODUCED A FALSE NULL, and it generalises to any
+before/after on a registered sequence: `register -2pass` gives the REFERENCE
+frame no transform, so it receives no interpolation at all.** The first series
+read had "darktable only" and "darktable THEN Siril" identical at w 2.3299 — the
+Siril pass appearing to cost exactly nothing, which reads as a spectacular
+quadrature failure. The cause was that 2pass had chosen image 1 as reference and
+`S_w_00001` is an untouched frame; the earlier separate arm happened to pick
+image 5, which is why it never surfaced. **MEASURE A NON-REFERENCE FRAME,
+ALWAYS.** It was caught only because the null was too clean.
 
 **Two tool facts found by failing, both now sourced from Siril itself:**
 - **`seqapplyreg -interp=none` FAILS on a homography-registered sequence.** The
