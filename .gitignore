@@ -126,6 +126,13 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/drift_work/*.lst
 !**/drift_work/*.ssf
 
+# dtresample_work/ — the darktable half of the resample-cost probe. Synthetic
+# frames and TIFFs (98-294 MB each) are regenerable; the .lst star lists and the
+# .ssf ARE the record.
+**/dtresample_work/*
+!**/dtresample_work/*.lst
+!**/dtresample_work/*.ssf
+
 # resample_work/ — the resample-cost probe. Synthetic frames, registered copies
 # and siril logs are regenerable; the .lst star lists and the .ssf ARE the record.
 **/resample_work/*

@@ -1,0 +1,9 @@
+requires 1.4.4
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtresample_work
+load w_lensdist
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtresample_work/out_lensdist.lst
+load w_nodist
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtresample_work/out_nodist.lst
