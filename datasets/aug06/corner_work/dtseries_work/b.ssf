@@ -1,0 +1,14 @@
+requires 1.4.4
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtseries_work/ser
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+convert w -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtseries_work/ser
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtseries_work/ser
+load w_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtseries_work/series_dtonly.lst
+register w_ -2pass -transf=homography
+seqapplyreg w_ -interp=lanczos4 -prefix=S_
+load S_w_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/dtseries_work/series_both.lst
