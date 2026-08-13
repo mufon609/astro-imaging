@@ -142,11 +142,18 @@ first, attribute second, and only with a discriminating test.
 - **Hour-angle dependence** separates refraction from optics and is blocked on a
   fact: headers carry `DATE-OBS` and NO site coordinates. Recoverable from 12
   sets of one target over 3 nights, but it needs designing.
-- **Waiting on the OWNER, not on work:** the L1 judge triple in
-  `web/results/aug06/judge/` (their eyes decide; nothing measured argues against
-  the on-stack plane); two parallel-session rules in `BACKLOG.md`; and the
-  load-bearing unchecked premise that starlight preservation is the right
-  adoption gate at all.
+- **NOTHING IS CURRENTLY WAITING ON THE OWNER.** The previous manager's handoff
+  said three things were, and two of those were already decided — the L1 judge
+  triple (they opened it, reported no visible difference, and ratified the
+  on-stack level on the instruments) and both parallel-session rules (ratified
+  and landed at `b36ef3b` and `64f61d2`). The third, whether starlight
+  preservation is the right adoption gate, is a RECORDED OPEN PREMISE in
+  `datasets/aug06/l1_work/unchecked_premises.json`, not a pending decision: it
+  blocks nothing, and it becomes live again only if someone proposes using that
+  instrument as the acceptance gate for a new step. **Check a claimed
+  owner-decision against `git log` before repeating it** — a decision can be made
+  through the manager and landed in `CLAUDE.md` while the BACKLOG row recording
+  it as pending is a peer's and stays open.
 - **The render tier has NEVER run** — zero ratified render blocks, zero outputs.
   The files in `judge/` are diagnostic surfaces (solve → SPCC → one linked
   autostretch), not renders. That is the north-star gap: the pipeline stops one

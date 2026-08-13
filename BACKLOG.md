@@ -821,63 +821,32 @@ which pins registration WITHOUT touching what a default build emits. Changing th
 default changes every single-pass product's canvas, so it is a declared-delta
 change needing its own before/after.
 
-## `parallel-session-staging-unit` — "stage explicit paths" does not protect a shared FILE
+## ~~`parallel-session-staging-unit`~~ — CLOSED, both proposals ratified and landed
 
-**OWNER DECISION — a proposed `CLAUDE.md` amendment, not made here.** `CLAUDE.md` is
-the owner's file and a peer message is not the owner's approval; this item states the
-measured gap and the proposed wording for the owner to accept or reject.
+**The owner decided both. Neither is open.** This item was written by a peer
+session as two proposed `CLAUDE.md` amendments; the owner ratified both and they
+are in the contract:
 
-**The contract's rule was followed and the hazard fired anyway.** The parallel-sessions
-clause says *"Stage explicit paths — NEVER `git add -A`"*, and its stated mechanism is
-that `-A` sweeps a peer's unrelated files. MEASURED here: a peer staged **one explicit
-path** (`BACKLOG.md`, named in its own commit message) while this session had two
-uncommitted edits in that same file — a `removal-conditions` row and a
-`single-pass-reference-lottery` replication. Both were published inside commit
-`0a016e2` under that peer's message and authorship, undescribed by it. 17 insertions
-landed where the commit message accounts for one row.
+- **The staging unit** — the owner delegated the choice ("you decide"), and the
+  hunk check with a mechanical count in front of it landed at **`b36ef3b`**. The
+  clause now reads *the unit of contamination is the FILE, not the staging flag*,
+  requires `git diff --numstat` then `git diff` before committing any file, and
+  promotes "name the file you committed" from courtesy to rule. The structural
+  option was rejected with its reason recorded: per-case judgement was not what
+  failed — no check was run at all — and it would tax the files a manager edits
+  most on every peer-live session.
+- **The blind-spot sentence** — ratified as part of "(a) and (b)" and landed at
+  **`64f61d2`**: *agreement between sessions is not evidence — it is the region
+  where this practice is blind, and it is the larger region*, with the tripwire
+  that makes it actionable (a session's report NAMES the premises it did not
+  test; convergence is logged UNCHECKED, never CONFIRMED).
 
-**The unit of contamination is the FILE, not the pathspec form.** `-A` is one way to
-sweep a peer's work; naming a file both sessions have edited is another, and the rule
-as written does not cover it. Nothing was lost — no duplication, both rows verbatim,
-guards pass — so the cost here was attribution, not content.
-
-**And the detection asymmetry is the same one the clause already records for `-A`:**
-the loser's `git status` simply goes clean, which reads as *"I imagined that edit"*
-rather than *"someone committed it for me"*. It is only visible via
-`git log -S'<phrase>' -- <file>`, which nobody runs unprompted. **The only reason it was
-caught here is that the committing session NAMED the file in its message to the other**
-— which makes "say what you committed" a load-bearing practice rather than courtesy: it
-is the sole signal the losing side gets. Without it the rows would have been re-added on
-top and produced exactly the silent duplication the fourth hazard describes.
-
-**Three candidate wordings, owner's choice** (the second and third are the committing
-session's, and it argues them from having hit the trap while believing itself compliant):
-
-1. Before committing a file, `git diff --stat -- <file>` and check the diff is only
-   yours; if a peer has uncommitted work in it, `git add -p` your own hunks or hand
-   over the wording.
-2. Stronger, because in a long session the failure mode is not *seeing* a foreign hunk
-   but *mistaking one for your own*: `git diff -- <file>` and account for EVERY hunk
-   before staging.
-3. Structural, removing the per-case judgement: if `ListAgents` shows a live peer in
-   this repo, treat every shared record file as contested by default.
-
-**Closes when** the owner accepts, rejects or rewrites one of them.
-
-**A SECOND, SEPARATE `CLAUDE.md` PROPOSAL — the parallel-sessions clause states what
-the practice caught and never states where it is blind.** It currently says parallel
-sessions are supported, cites two findings that changed what a running session
-measured, and lists four hazards. All true. But a rule that advertises its successes
-without its failure mode gets over-trusted, and the failure mode is now measured: a
-second session catches errors by applying different PRIORS to the same tree, not by
-holding different evidence — so it is blind wherever both sessions share the prior,
-which is most of what any two sessions agree about. Across the L1 build/audit pair,
-not one correction on either side came from shared ground. **Proposed sentence**, to
-sit with the four hazards: *two sessions agreeing is not evidence — it is the region
-where this practice is blind, and it is the larger region.* The mechanism and its
-three worked instances are registered in `docs/dead-ends.md` (QA / scope) either way;
-this proposal is only about whether the LIMIT is stated where the practice is
-authorised. **Closes when** the owner accepts, rejects or rewrites it.
+**Why this row survived its own closure for a while, which is the reusable part:**
+the decisions were made through the manager and landed in `CLAUDE.md`, while the
+BACKLOG rows recording them as *pending* were a peer's and nobody closed them. A
+record can go stale by being RESOLVED ELSEWHERE, not only by being contradicted —
+and the manager's own handoff then reported both as still waiting on the owner.
+Close the row in the commit that lands the decision.
 
 ## `l1-set02-nonreplication` — two powered surfaces, same night, opposite answers
 
