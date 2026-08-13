@@ -93,13 +93,24 @@ unregistered, unstacked, 8074 stars) where the term is already at full size.
 
 **Three separable components, one now attributed:**
 
-1. **PROJECTED SKY-RATE GRADIENT — ATTRIBUTED.** Sky rate is 15.041·cos(δ)
-   arcsec/s; δ spans 32.5–50.6° across this field, so the in-exposure trail must
-   run 1.40 → 1.86 px. With the intrinsic width from the measured minor axis
-   that predicts roundness 0.792 → 0.865 with NO free parameters. Fitted slope
-   **0.814 ± 0.134 against a predicted 1.000 — 1.39σ, CONSISTENT.** It is
-   ORTHOGONAL to the radial term (corr +0.012), so it is a genuinely separate
-   axis. Largest single contributor, R² 0.179 alone.
+1. **PROJECTED SKY-RATE GRADIENT — ATTRIBUTED**, and **THE CONVERSION DECIDES
+   THE VERDICT — get it right or the finding inverts.** Sky rate is 15.041·cos(δ)
+   arcsec/s; δ spans ~18° across this field, so the in-exposure trail length
+   varies by about a third. A Gaussian convolved with a UNIFORM trail adds
+   VARIANCES, and a uniform segment of length L has variance L²/12, so
+   `major² − minor² = (2.3548²/12)·L²` — factor **0.4621**. Test it on
+   `major² − minor²`, which is the linear response; roundness is not.
+   **MEASURED: 2.548 ± 0.416 px² with ρ and x held, against a parameter-free
+   prediction of 2.266 — 0.68σ, CONSISTENT.** Orthogonal to the radial term
+   (corr +0.011).
+   **The previous manager got this wrong and would have refuted it.** Assuming
+   quadrature (`major² − minor² = L²`, no 1/12) over-predicts by 2.16× and the
+   same data sits 3.70σ LOW against it. A free-slope fit on roundness then
+   returned a comfortable-looking 1.39σ from wrong physics. **Read
+   `datasets/aug06/corner_work/sky_rate_gradient.json`, not that.**
+   It is also NOT the largest term on the correct response: R² alone is 0.164
+   for cos²δ against 0.199 radial and 0.212 one-sided; all three together 0.519,
+   each at 6.1–7.3 SE. Three comparable terms, one attributed.
 2. **A RADIAL term** — 4.70 SE with sky-rate in the model. Unattributed;
    candidate is optical coma.
 3. **A ONE-SIDED sensor-x term** — 6.79 SE with both others in. Unattributed and
