@@ -2172,7 +2172,18 @@ SILENT — pin the state, never inherit it):
   azimuth in 7 of 8 zones in every set, resultant 0.45–0.85 at the edges);
   RESIDUAL DISTORTION (the geometry fits a centred ptlens model to a 0.27 px
   median — entry below). What is left is radial elongation growing with field
-  radius at an asymmetric amplitude: coma with a decentred aberration field.
+  radius at an asymmetric amplitude.
+  **CORRECTED, and the correction is in two parts (see the spin-2 entry below,
+  `datasets/aug06/corner_work/pa_convention.json`).** First, the RESIDUAL-MOTION
+  elimination does not hold: a fixed-direction term IS present in these very
+  stars, at 0.0581 / 69.6 SE, alongside the radial one at 0.0395 / 51.0 SE. Both
+  terms are real and the elimination was an artefact of a statistic that can
+  express only one at a time. Second, the family named here is wrong: transverse
+  coma grows LINEARLY with field height and the measured radial exponent is
+  **2.1–3.8, never near 1**, so this is not the coma family; and a free-centre
+  fit beats the centred model at F 169–999, so the field is not centred either.
+  What is NOT corrected: it is still in the optics-and-photons of a single
+  unregistered exposure, and no distortion model or re-registration reaches it.
   **Consistent with the centred distortion** — distortion and coma respond
   differently to a decentred or tilted element, so well-centred distortion and an
   off-centre aberration field coexist without contradiction.
@@ -2181,6 +2192,74 @@ SILENT — pin the state, never inherit it):
   the bad side rounder. Drop it to 0.05. Second trap: `seqfindstar` reports
   "Sequence processing succeeded" in ~1.5 ms and writes NO star lists headless on
   1.4.4 — use per-image `findstar -out=`.
+
+- **A STAR-SHAPE ANGLE IS A SPIN-2 QUANTITY. AVERAGING IT LINEARLY, OR
+  SUMMARISING IT WITH A SCALAR, MANUFACTURES CONTRADICTIONS BETWEEN RECORDS THAT
+  BOTH MEASURED CORRECTLY.** Two entries in this tree read the same star shapes
+  in opposite directions — one "the major-axis angle tracks field azimuth"
+  (radial/optical), one "median PA is near-constant across azimuth sectors"
+  (fixed-direction/trailing) — and both were quoted as evidence. Measured with
+  ONE instrument over BOTH samples' own tracked `findstar` lists
+  (`datasets/aug06/corner_work/pa_convention.py`, record `pa_convention.json`):
+  **both terms are present in both samples at once**, radial +0.0524 / 31.1 SE
+  alongside fixed 0.0464 / 30.4 SE on the 8074-star sample, and fixed 0.0581 /
+  69.6 SE alongside radial +0.0395 / 51.0 SE on the 136k one. Each record's
+  exclusive claim is refuted BY ITS OWN DATA. **Neither measurement was wrong;
+  each reported the term its statistic and its population could see.** The
+  mechanisms, all four reusable:
+  - **Siril's `angle` is an AXIS angle mod 180** — verified in
+    `src/algos/PSF.c` at the 1.4.4 tag: `psf->angle = -FIT(6) * 180.0 / M_PI`
+    wrapped by `while (fabs(psf->angle) > 90.0)`. Only *2θ* is single-valued on
+    the circle, so the only correct mean is on the doubled angle, i.e. the
+    ellipticity components **e1 = e·cos2θ, e2 = e·sin2θ** (the distortion form
+    e = (a²−b²)/(a²+b²), the PSF-diagnostics standard). A linear mean or median
+    of θ is not a weaker summary, it is an invalid one.
+  - **ROUNDNESS DISCARDS ORIENTATION.** Every corner number in this repo was a
+    roundness or an axis length — |e| with the direction thrown away — and the
+    direction was the whole discriminator. In the component form the two
+    hypotheses are ORTHOGONAL basis functions on the azimuth circle and are
+    fitted together: `e1 = c0 + R·cos2φ`, `e2 = s0 + R·sin2φ`, stacked into one
+    ordinary 3-parameter least squares. Fixed direction and radial term then stop
+    competing, each gets its own SE, and the collinearity that forced the
+    either/or disappears (design condition 1.08–1.27).
+  - **THE POPULATION CHOOSES THE ANSWER.** The cuts one record used
+    (ρ>1200 px, bright half, roundness<0.85) roughly TRIPLE the radial amplitude
+    (0.0395 → 0.1261) while barely moving the fixed one (0.0581 → 0.0805),
+    because they select the outer field where a radial term is strongest. Two
+    records, two populations, two "conclusions" — from one field.
+  - **"NEAR-CONSTANT" NEEDS A NULL, AND THE OBVIOUS NULL IS THE WRONG ONE.** The
+    8074-star record read a 15.8° sector-median spread as near-constant and
+    therefore as trailing. Permuting θ across stars while holding positions (200
+    permutations) puts the no-information spread at **1.8 ± 0.5°** — the observed
+    15.8° is ~28 null-SDs of *structure*, so the number refuted the reading drawn
+    from it. Note the trap that inverts this: the SD of INDIVIDUAL axis angles
+    under no information is ~52°, but the relevant null is the SD of eight
+    ~1000-star sector MEDIANS, ~25× smaller. Comparing 15.8 against 52 concludes
+    the opposite of the truth.
+  Two further traps for anyone re-measuring: **a near-round star has NO defined
+  angle** — Siril parameterises the axis ratio as `r = 0.5*(cos(FIT(5)) + 1.)`,
+  whose derivative vanishes at r = 1, so the rotation of a round star is set by
+  the optimiser, and the roundness>0.95 population does carry a small real
+  orientation (0.0011 at 10.3 SE on 15487 stars — ~2% of signal, so a live hazard
+  for any UNWEIGHTED PA statistic, and an explanation of nothing here). And **a
+  FITS row-order flip cannot invert this discriminator** — a reflection maps
+  φ → −φ and θ → −θ together, so both hypotheses are invariant (verified on the
+  fixture: planted radial 0.1442 → 0.1442, planted fixed 0.1442 → 0.1442 with
+  direction +30.10 → −30.10). Handedness IS flipped, so re-test before comparing
+  any of this against a sky-derived direction.
+
+- **A LINEAR REGRESSOR AVERAGES A SIGN-FLIPPING PATTERN TO ZERO, AND THAT NULL IS
+  NOT EVIDENCE OF ABSENCE.** `mechanism_and_specs.json`'s own model-free sided
+  bands on the MAJOR axis sign-flip across |x| (−0.12, −0.17, −0.08, **+0.14,
+  +0.11**) while its linear-in-x regression on the same stars reads 0.13 SE and
+  F = 0.017 — and the published verdict "star SIZE is purely radial" follows the
+  regression. Re-measured with ρ HELD in four annuli, the +x side's median major
+  axis exceeds the −x side's in EVERY annulus and EVERY |x| band on the 18-frame
+  sample, +0.04 to +0.43 px. Before reading a regression null as absence, plot
+  the model-free bands the regression was fitted through. (Caveat carried with
+  it: the per-side detection counts are strongly imbalanced there, 2332 against
+  4599 in one band, so that re-measurement is a flag for a cleaner pass, not a
+  verdict.)
 
 - **FITTING A LENS MODEL AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE
   MANUFACTURES A DECENTRING SIGNAL. Use a HOMOGRAPHY.** The linear WCS is a
@@ -2253,7 +2332,9 @@ SILENT — pin the state, never inherit it):
   one optical state per sequence.** The industry operation this is mistaken for
   — resampling each exposure onto a COMMON output WCS using its own full
   solution (CD matrix *and* distortion) — is SWarp's model; Siril has no such
-  command and SWarp is not installed here.
+  command. SWarp IS installed: `/usr/bin/SWarp`, version 2.41.5, from the distro
+  `swarp` package — note the capital S and W, since lowercase `swarp` is not on
+  PATH and the shell misdirects to suckless-tools.
 
 - **Siril's internal plate solver DOES handle this class on STACKED members.**
   The standing belief ("cannot match ultra-wide trailed-star fields") was
