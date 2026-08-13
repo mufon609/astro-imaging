@@ -25,7 +25,14 @@ Verify everything in this document against the repo before relying on it.
    present (owner precedence ruling, in memory).
 5. `prompts/REPORT.md` — the working register: prompts ready, queue with
    acceptance criteria, done-ledger with commits. You own this file.
-6. `git log` from `8e06c5d` forward — the whole arc, every commit a record.
+6. **`git log` — READ IT, it is the transcript.** Session reports are NOT kept at
+   the repo root; durable findings graduate into `docs/dead-ends.md` / `TOOLS.md`
+   / the BACKLOG register and the transcript is deleted, because a second home
+   for a claim is a second place for it to drift. So the commit MESSAGES carry
+   the reasoning. Start at `8e06c5d` for the whole arc; `git log --oneline -40`
+   covers the recent work. Also run `git log -S'<claim>'` when you want to know
+   where a number entered the tree — that is how a widened claim was traced to a
+   ledger line rather than the commit it was blamed on.
    Session reports are NOT kept at the repo root: a session's durable findings
    graduate into `docs/dead-ends.md` / `TOOLS.md` / the BACKLOG register, and
    the transcript is then deleted, because a second home for a claim is a
@@ -40,129 +47,143 @@ manager's practice, keep it: run every guard and selftest
 session end to end, and spot-verify one or two registry numbers on disk. A
 claim you have executed is yours; one you have read is a hypothesis.
 
-## The arc so far (verify, don't trust)
+## The arc so far (verify, don't trust — re-execute before you rely on any of it)
 
-- **Rebuild verification — DONE, owner-passed.** The astrometric compose
-  holds from raws at every level: 12 sets, 3 nights, 52-member corpus;
-  defect position 0.980 roundness vs the old union's 0.458; owner passed the
-  renders; `astrometric-compose` closed. Star SHAPE is a solved axis.
-- **Tier-B hardening — DONE, audited PASS**: registration pins + per-command
-  guard, vignetting proof wired into the preflight, the aircraft keep
-  CONFIRMED via Siril's own rejection maps, and the solve contradiction gate
-  (exit 9) whose falsification is a real recorded incident.
-- **Routing generality — DONE, audited PASS**: the route key is
-  `drift_frac` (angle/angle, grid-free), floor 0.05 registered as EVIDENCE
-  not a knee; all six `fov >= 10` sites gone; 12/12 corpus routes unchanged.
-- **Iterative flat — CLEAN NULL, the arc's most valuable session**: the
-  self-referential flat-correction class is STRUCTURALLY dead (the iteration
-  returns whatever flat it is handed; 48–62× discrimination controls), and
-  the odd component decomposed — the L/R term is SKY decisively (sign sweeps
-  +0.436 → −0.03 → −0.385 across the corpus), T/B not provably instrumental,
-  the within-night-constant part UNATTRIBUTED. Registry carries it all, plus
-  the siril operator traps found on the way (`offset` clamps negatives
-  against its own help; `stat` excludes zeros so damage hides from the
-  tool's own instruments; `seqsubsky` refuses negative frames).
-- **Audit-method precedent to continue**: re-execute the falsifications
-  yourself (the solve gate's exit-9 was re-run live on the recorded
-  incident); fire tests are executed, never argued; when a brief of YOURS is
-  refuted — the iterative scheme's algebra was the previous manager's error —
-  own it plainly in the audit; a NULL with controls is registry gold.
+- **L1 background level — CLOSED, owner-ratified.** The on-stack degree-1 step
+  (arm B) is approved. It removes 85–92% of the union's dominant y-ramp
+  (across-frame 1.25/0.82/0.84% → 0.19/0.26/0.07%) while changing the NGC 7000
+  pillars' local contrast by ≤0.12% and REVEALING rather than destroying the
+  starlight relation. **The owner's stated reason is unusual and load-bearing:
+  approved because the difference is NOT visible by eye** — that is what the
+  honest-checks system exists for. `datasets/aug06/l1_work/owner_ratification.json`.
+- **Per-frame (arm A) is not a loser, it is a different job.** It changes the
+  union ramp by ~0.01% on Blue, which the registry predicted: per-frame subsky
+  does not remove combine-level structure. It addresses frame-to-frame gradient
+  variation, untested here.
+- **The catalogue-free object tilt — registered DEAD END**, two independent
+  blockers. **The flat differential — WIN**: a flat's shape reaches the object
+  ~1:1, floor exactly 0.0000. **Per-group flats — NULL at the product**
+  (composed tilt 0.7σ, zero by construction), with a member-level trade the
+  owner PAUSED pending real flats.
+- **The instrument suite is the arc's larger asset.** `starlight_preservation.py`
+  (does a step eat the unresolved starlight?), `grid_ramp.py` (background ramp,
+  mono planes only), `flat_differential.py`, `snr_regions.py` (LOCAL references
+  only — a distant one imports the Milky Way's own gradient and returns negative
+  SNR), `coverage_frame.py`, `object_tilt.py` (dead end, controls reusable),
+  `scripts/lib/wait_for.sh`. Every one has a selftest that falsifies its own
+  mechanism.
+- **A commit hook now stamps the staged numstat** (`scripts/setup/install_hooks.sh`,
+  with `--check`). It exists because the transcribe-the-number rule failed FIVE
+  times in one session under active attention. Do not paraphrase a check's
+  output; paste it.
 
-## The current issue — the program's focus
+## The current issue — corner degradation, and it is THREE things
 
-**The sky×V object tilt: the flatless route's remaining photometric defect.**
-A sky flat converges to `(mean sky) × V`; horizon-fixed sky structure cannot
-drift out, bakes in, and division tilts the OBJECT by a multiplicative
-gradient of UNMEASURED size. The 3.11%/241σ figure the repo quoted is retired
-as UNVERIFIED — no tracked record, and the catalogue-free re-measurement that
-was supposed to replace it is now a registered DEAD END (`docs/dead-ends.md`;
-`datasets/aug09/corpus_object_tilt.json`). Backgrounds look flat BY CONSTRUCTION (the
-self-fulfilling check), star shapes are untouched — the harm is photometric.
-Measured this arc: aug09's five flats form a monotonic dose curve
-(1.127 → 1.468) tracking that night's independently measured haze; the term
-composes multiplicatively to 0.08%.
+Stars in the far corners of combined products are less round and slightly
+larger: about **+21% on size and −0.11 on roundness**, centre to corner. That is
+a RESIDUE — the compose fix already removed the large version (roundness
+0.448–0.613 → 0.980).
 
-**The industry solves this with hardware** (dome/twilight flats — an external
-light source). The mission forecloses that, so the territory is genuinely
-novel. What remains after this arc's pruning:
+**Ruled out, each by measurement:** coverage depth (0.2 SE, contributes nothing);
+the compose (members carry the entire rise, compose adds a radius-INDEPENDENT
+offset); within-member registration and any lensfun distortion-model residual —
+both killed by `findstar` on three SINGLE RAW exposures (uncalibrated, unwarped,
+unregistered, unstacked, 8074 stars) where the term is already at full size.
+**Nothing the pipeline does causes it.**
 
-1. **CLOSED — the catalogue-free measurement was built, run over all 12 sets,
-   and is a DEAD END.** `scripts/qa/object_tilt.py` (+ its ramp/uniform
-   controls, its interleaved-halves null and its corpus scorer) matched the
-   same stars across each set's solved sub-stacks and fitted Siril aperture
-   photometry against sensor position. Two independent blockers, either fatal:
-   the LINEAR mode is exactly absorbed by the per-star and per-block nuisances
-   under a pure translation, so the drift is not the lever and the 0.69–3.76°
-   of field rotation leaves only a 29 px median lever on a 5769 px frame; and
-   for a FIXED camera the ATMOSPHERE is sensor-fixed too and airmass-shaped
-   like the flat's own sky term, so no sensor-frame fit can apportion them. The
-   instrument is sound — a planted Siril ramp recovers at 1.24× and a uniform
-   card moves nothing — and the pre-registered flat prediction failed 4 of 5.
-   **Do not re-propose it, in any variant** (more blocks, more depth, free
-   per-block gradients, interleaved halves): each is closed with its number in
-   the registry.
-   **What is still live for this defect, in order of strength:** the WITH/
-   WITHOUT judgement pair on finals (both flats exist for set-01/02) — it is
-   DIFFERENTIAL, so every sensor-fixed term the two arms share cancels, which
-   is exactly what defeated the absolute measurement; and
-   `flat_odd_component.py --ratio`, which already measures what DIFFERS between
-   two flats with no model and no fit. The decision rule the owner ratified
-   resolved to its third branch: the floor is reported with its numbers.
-   **A by-product worth its own item:** the per-block fit measures a real
-   within-set sensor-fixed gradient DRIFT of 0.040–0.425 mag (median 0.149),
-   monotone in block order in 10 of 12 sets — a transparency-drift measure the
-   intake-culling surface does not have.
-2. The additive lane (`--subsky-lights` / render-ladder L1 — the owner's
-   declared focus item) handles frame-to-frame additive deviations, NOT the
-   multiplicative tilt; its scope gets decided inside L1, now with the
-   negative-pixel constraints the flat session mapped.
-3. Dead, permanently (do not let any future brief resurrect them):
-   raw-domain de-sky (31×), degree ≥2 backgrounds, additive matching for the
-   corner term, GraXpert division on MW fields, and the entire
-   self-referential flat-correction class.
+**Three separable components, one now attributed:**
+
+1. **PROJECTED SKY-RATE GRADIENT — ATTRIBUTED.** Sky rate is 15.041·cos(δ)
+   arcsec/s; δ spans 32.5–50.6° across this field, so the in-exposure trail must
+   run 1.40 → 1.86 px. With the intrinsic width from the measured minor axis
+   that predicts roundness 0.792 → 0.865 with NO free parameters. Fitted slope
+   **0.814 ± 0.134 against a predicted 1.000 — 1.39σ, CONSISTENT.** It is
+   ORTHOGONAL to the radial term (corr +0.012), so it is a genuinely separate
+   axis. Largest single contributor, R² 0.179 alone.
+2. **A RADIAL term** — 4.70 SE with sky-rate in the model. Unattributed;
+   candidate is optical coma.
+3. **A ONE-SIDED sensor-x term** — 6.79 SE with both others in. Unattributed and
+   NOT explained by sky-rate.
+
+All three together reach R² 0.460. **CAVEAT the next session must carry:** the
+sky-rate predictor is 99% collinear with sensor y, so what was tested is its
+MAGNITUDE, not its direction.
+
+**THE NEXT MEASUREMENT, and it needs no new data.** The corpus has 12 sets at
+different pointings, so different δ ranges. The sky-rate model predicts the
+effect scales with each field's OWN cos(δ) span, and no set-specific tuning is
+possible because the prediction is fixed by the pointing. A set with a narrower
+δ range must show a proportionally smaller y-gradient. That is decisive and cheap.
+
+**Do NOT adopt a crop.** Best measured trim is roundness 0.911 → 0.938 at the
+crop corners for 15% of every member and 4 of 20 union boxes losing every
+contributor. Recommendation on record is WAIT, and the cause matters: if optical,
+a trim is legitimate because no installed tool corrects a field-variable
+anisotropic PSF; if atmospheric or geometric, a per-frame correction may exist
+and cutting 15% of every frame would be waste.
+
+**THE MISATTRIBUTION WARNING — read this before touching the corner work.** A
+left-side softness was chased for a long time as a lens problem and was the
+COMPOSE. The previous manager then repeated the error while scoping the corner
+brief, citing a ~7% optical term to explain a 0.92→0.58 roundness defect. Measure
+first, attribute second, and only with a discriminating test.
 
 ## Live threads you inherit
 
-- **A COMMENT_HYGIENE session is running or recently finished** (its brief is
-  in `prompts/` if unretired; its report comes to you for audit). Criteria:
-  taxonomy derived from git history with counts + verbatim examples; a
-  standing non-retiring `prompts/COMMENT_SWEEP_PROMPT.md` with detectors and
-  the revise-never-drop safety rule; the policy text audited short and
-  uncontradictory. Note: `CLAUDE.md`'s comment rule was amended around this
-  work (a date is allowed only where the date IS the information) — verify
-  that edit is coherent with the session's report when you audit it.
-- **The queue** is `prompts/REPORT.md` — medium items (real-flats HANDLED
-  wiring, `cross-set-record-home`, the guards runner, the frame-QA arcsec
-  scale, `--weight=noise` corpus arm, pooled darks, session-level mount) and
-  large items (render-ladder L1 user-gated, intake-culling with its named
-  positive controls, final-best-percent-pass). Write briefs on the owner's
-  ask, ordered by the register's criticals ranking.
-- **Standing facts**: origin is deliberately behind (push ONLY when asked);
-  the local branches are old history; strictly linear main is the practice;
-  the flatpak siril sandbox has a PRIVATE /tmp (`.ssf` under `$HOME`); every
-  siril invocation serializes on a per-user flock; `pgrep` chain scripts
-  before editing any of them (live-file trap, measured cost); `set-00` is
-  the owner's spare-frames bucket, never a light set.
-- **When a session is RUNNING in this tree, you share it — three hazards you
-  will not meet working alone.** You can reach a peer directly (`ListAgents`,
-  then `SendMessage` to its `name [ref]`), and mid-flight is often the only
-  useful time to send an audit finding.
-  (1) **Stage explicit paths, NEVER `git add -A`.** A peer's uncommitted work
-  sits in the same `git status`, and `-A` publishes their draft under your
-  message and your authorship. **The loser of the race cannot tell**: their
-  change simply leaves the modified list, which reads as "I imagined that edit",
-  not "someone committed it for me". Both sessions were using `-A` when this was
-  caught; five clean commits proved nothing, only that nobody happened to be
-  mid-edit.
-  (2) **Your commits land in their products.** `PIPEREV` is
-  `git rev-parse --short HEAD` (`stamp_headers.sh`), so any commit you make
-  stamps every artifact built after it. Records-only is fine — measured
-  pixel-neutral across a `PIPEREV` split, 0 differing pixels — but hold anything
-  on the BUILD PATH until their chain lands, since that is a second knob inside
-  a running experiment.
-  (3) **Do not edit the document a peer is running from**, exactly as you expect
-  of them; hand them the wording instead. `CLAUDE.md` is the owner's, never a
-  peer's to change and never yours on a peer's say-so.
+- **The corpus-wide sky-rate test above.** Highest value, no new data, decisive.
+- **A position-angle contradiction, logged and deliberately unresolved.** The
+  registry (136k stars, 3 frames × 6 sets × 2 nights) records the major-axis
+  angle tracking field azimuth in 7 of 8 zones — the OPTICAL signature. The
+  corner session (8074 stars, 3 frames) measured PA near-CONSTANT across 8
+  sectors, spread 15.8° — the TRAILING signature. Sample, channel (those raws
+  solve on the half-res green plane) and angle convention are all live
+  differences. **Do not resolve it from three frames.** Note the sky-rate finding
+  predicts constant PA, so both may be right about different components.
+- **Hour-angle dependence** separates refraction from optics and is blocked on a
+  fact: headers carry `DATE-OBS` and NO site coordinates. Recoverable from 12
+  sets of one target over 3 nights, but it needs designing.
+- **Waiting on the OWNER, not on work:** the L1 judge triple in
+  `web/results/aug06/judge/` (their eyes decide; nothing measured argues against
+  the on-stack plane); two parallel-session rules in `BACKLOG.md`; and the
+  load-bearing unchecked premise that starlight preservation is the right
+  adoption gate at all.
+- **The render tier has NEVER run** — zero ratified render blocks, zero outputs.
+  The files in `judge/` are diagnostic surfaces (solve → SPCC → one linked
+  autostretch), not renders. That is the north-star gap: the pipeline stops one
+  stage short of a finished image on every dataset it has.
+- **Queue:** `prompts/REPORT.md`. `COMBINE_FLAT_WINDOW_PROMPT.md` is staged, not
+  cleared — it needs the owner's word that the machine is free.
+- **Per-set stacks in `web/results/aug06` are `REGMODEL=starpair`**, not the
+  fixed astrometric route; only the unions are astrometric. set-01's carries the
+  known defect (roundness 0.569–0.746). Verified on the headers.
+
+## Spinning up the ORACLE — you will be the first to do it
+
+The four-session team below is specified and NOT YET BUILT. The owner's build
+order is **(d) the Oracle before (c) the Adversary**, because an adversary
+without a research source argues from priors — the failure it exists to fix.
+
+**Your job on first spin-up:**
+1. Write its prompt from `prompts/ORACLE_TEMPLATE.md`, filling the `<< >>` slots
+   for the engagement. Do not rewrite the durable half.
+2. **Sync with it before any temp session starts real work** — you and the Oracle
+   read the repo and the data together and align on what is actually known. An
+   Oracle that answers before it understands the tree fact-checks the wrong
+   things confidently.
+3. Remember what it is: a **referee and fact-checker**, scoped to EXTERNAL tool
+   use and documentation, that **never runs experiments** and **never produces a
+   number about our data**. It interrogates the PROVENANCE and MEANING of numbers
+   others produce. It can be wrong; its findings are citations carrying
+   MEASURED / MECHANISM / DOCTRINE status.
+4. **Watch the risk it introduces**, which is yours: `CLAUDE.md` says the practice
+   is blind wherever sessions agree, and a fact-checker both temp sessions trust
+   MANUFACTURES agreement. Unanimous deference to an Oracle claim is a converged
+   untested premise, not confirmation.
+
+**Good first engagements for it**, both live: the position-angle contradiction
+(what do Siril's own docs say the `findstar` angle convention IS, and does the
+half-res green plane change it?), and the missing site-coordinate problem (does
+any tool in the chain record or derive observer location?).
 
 ## The four-session team — AVAILABLE, never the default (owner-specified, NOT YET BUILT)
 
