@@ -825,6 +825,43 @@ evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
 (`first_frame_center`) or computed as the set's actual pointing, and the two
 `docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
 
+## `psf-homogenisation` — REJECTED BY THE OWNER, and it is a category error not a preference
+
+**OWNER RULING. PSF homogenisation — convolving each frame to a common, broader
+target PSF so corner and centre match — is REFUSED, and the reasoning binds
+wider than this one technique.** Their words: softening the centre *"is
+absolutely not a fix"*; *"the centre is most important and it would be stupid to
+take that for granted"*; it is *"not a suggested improvement but an accepted
+failure mode"*. **"Fix the root or it isn't a fix at all."**
+
+**The general rule this establishes:** matching the corner to the centre by
+DEGRADING THE CENTRE is a bandaid by construction, and so is any variant that
+buys uniformity by spending quality at the good end of the field. Cropping and
+zone down-weighting are the same act by other means and were already refused.
+**Only a treatment that RECOVERS corner detail counts as a fix.**
+
+**Why it was proposed, and the flaw worth keeping.** The Oracle argued the cause
+is localised OUTSIDE the chain (true of the corner GRADIENT — it is in the photons
+of single unprocessed RAWs), therefore no chain fix removes it, therefore the
+remaining cause questions decide nothing actionable — because *"every available
+response is identical under either aberration label"*. That equivalence listed
+four responses: homogenisation, zone down-weighting, accept it, and
+spatially-varying deconvolution. **Three of the four are ways of not fixing it.**
+Only spatially-varying deconvolution attempts recovery. The equivalence holds only
+by counting non-fixes as responses, and removing them collapses the argument for
+stopping.
+
+**And the measured half that refutes it directly:** at the frame CENTRE there is
+no aberration gradient at all, so the chain is essentially the entire degradation
+there — **~12% of PSF width, of which the Lanczos4 kernel is 0.45% and our own
+CLAMP pin is 6.26%** (`resample-cost-and-drizzle`). That is a root cause, it is
+INSIDE the chain, it is ours, and it was reachable. A treatment that adds blur at
+the centre was proposed for a chain already softening the centre by ~12%.
+
+**Closes when** nothing — this is a standing doctrine entry, not open work. It is
+recorded so the proposal is not re-made, and so the general form (uniformity
+bought by degrading the good region) is refused on sight.
+
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
 **MEASURED, and it is a cost of OUR OWN PIN rather than of Lanczos4.** Six
