@@ -498,9 +498,15 @@ session-end temperature.
   (`docs/dead-ends.md`); the re-run used `member_separation.py`.
   SUCCESSOR, unmeasured candidate: the industry operation is resampling each
   exposure onto a COMMON output WCS using its own full solution (CD matrix AND
-  distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage. Nothing
-  installed does it; SWarp is packaged for this distro at 2.41.5-3, python
-  `reproject` is absent. The route is BACKLOG:`compose-homography-smear`.
+  distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage.
+  **SWarp IS NOW INSTALLED** — `/usr/bin/SWarp` 2.41.5, and the binary is
+  `SWarp`, NOT `swarp`: the lowercase name is not on PATH and the shell
+  misdirects to `suckless-tools`, so the obvious probe reports it missing on a
+  rig where it is present. Python `reproject` is still absent. **What is open is
+  no longer availability but the COMPARISON**: does SWarp consume our per-member
+  SIP solutions, and does it beat the adopted `seqplatesolve` + `seqapplyreg`
+  route? (`TOOLS.md` § Research queue.) The route is
+  BACKLOG:`compose-homography-smear`.
 
 ## `one-sided-band` — two mechanisms left on the residual drift-axis term
 
