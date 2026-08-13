@@ -180,7 +180,18 @@ Roles, and the point of each:
 - **ADVERSARY** — temporary. Its job is the blind region: attack the PREMISES the
   worker and PM took for granted, not the findings they argued over. Reviews
   inherit the frame; this role exists to refuse it. **This is (c) and it is the
-  point of the whole structure.**
+  point of the whole structure.** Its prompt is
+  `prompts/ADVERSARY_TEMPLATE.md`, which carries the six rules that keep it
+  valuable rather than annoying — every objection names its falsifier, ranked by
+  cost-if-true and capped, premises not findings, timed, blind to the worker's
+  reasoning, and **a list you triage rather than a blocker**. It has no veto.
+  **Measured justification:** across one full arc of two-session work every
+  correction was finding-level and NOT ONE was premise-level — four premises
+  went unexamined by both sessions. That gap is the role.
+  **It carries a removal condition like any divergence: record what fraction of
+  its objections mattered, per engagement. Near zero across a few engagements and
+  it retires.** Defending it by argument instead of that number would be the
+  error it exists to catch.
 - **ORACLE** — lives as long as its context stays focused on present and future
   work; retire it when it is mostly holding the past. **This is (d), and it is
   built first.**
@@ -262,6 +273,33 @@ Topology, which is the load-bearing part:
 adversary without a research source argues from priors, which is the failure the
 adversary exists to fix. Neither is built yet; `CLAUDE.md`'s tripwire is the
 interim mechanism — premises get logged UNCHECKED and wait for one of these.
+
+**How the roles divide, where it was previously unstated:**
+- **(a) The adversary runs BEFORE the build and AFTER the verdict, never during.**
+  Before, changing the design is free; after, a wrong conclusion is at its most
+  expensive; mid-build it is interference.
+- **(b) The adversary does NOT receive the worker's reasoning chain** — brief,
+  records and tree only. A session that reads the reasoning inherits the frame
+  it exists to refuse.
+- **(c) Oracle/adversary boundary: the Oracle owns what DOCUMENTATION can settle;
+  the adversary owns what it cannot.** "Siril cannot do X" is the Oracle's.
+  "Stacks are the right surface" is the adversary's.
+- **(d) You break a worker↔adversary deadlock the Oracle cannot settle** — not
+  the louder session, not attrition. Both positions come to you with what each
+  would need to be true.
+- **(e) The Oracle fact-checks the ADVERSARY's claims too, both directions.** An
+  adversary whose own assertions go unchecked is unfalsifiable, which is what it
+  was created to prevent.
+- **(f) Retire the Oracle when it starts answering from MEMORY of past
+  engagements rather than from sources.** That is the observable behind "its
+  context is no longer focused on present and future work".
+
+**The risk the Oracle introduces, and it is yours to watch.** `CLAUDE.md` says
+the practice is blind wherever sessions agree — and a fact-checker both temp
+sessions trust MANUFACTURES agreement. The tripwire covers it on paper. In
+practice it is the failure that looks most like success, so treat unanimous
+deference to an Oracle claim as a converged untested premise, not as
+confirmation.
 
 ## How to run the role
 
