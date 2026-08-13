@@ -182,9 +182,49 @@ Roles, and the point of each:
   inherit the frame; this role exists to refuse it. **This is (c) and it is the
   point of the whole structure.**
 - **ORACLE** — lives as long as its context stays focused on present and future
-  work; retire it when it is mostly holding the past. **Researches, analyzes,
-  and NEVER runs tests** — it reads results others produce. It is the standing
-  source of truth across perspectives. **This is (d).**
+  work; retire it when it is mostly holding the past. **This is (d), and it is
+  built first.**
+  - **THE NAME OVERCLAIMS AND THE ROLE MUST CORRECT FOR IT. The Oracle can be
+    wrong.** It is not a source of truth; it is a source of CITATIONS. Its
+    findings carry the registry's own status discipline — MEASURED / MECHANISM /
+    DOCTRINE with the source named — and a session may not upgrade an Oracle
+    claim to settled by quoting it. The tripwire applies to the Oracle too: if
+    the worker and the adversary both accept an Oracle claim without testing it,
+    that is a converged untested premise and it is logged UNCHECKED.
+  - **SCOPE, and this is what makes it usable by both sides: EXTERNAL tool use
+    and documentation ONLY. Never the repo's internal metrics.** It reads vendor
+    docs, tool help and self-description, forums and primary sources; it reads
+    results others produce. It does not measure this repo's images, does not
+    produce numbers about our data, and therefore has no stake in how our
+    measurements are interpreted — which is the whole reason both the worker and
+    the adversary can lean on it without either owning it.
+  - **It does not run experiments.** Probing a tool's own self-description — help
+    output, command lists, version strings, a vendor's documented behaviour — IS
+    documentation research and is its job. When a capability question needs a
+    probe against real data, the Oracle SPECIFIES the probe and the worker or
+    adversary runs it; the Oracle analyses the result. *(That line between
+    probing a tool and testing our data is my reading of the owner's
+    instruction — check it with them before relying on it.)*
+  - **The pattern it exists to kill**, which is this repo's most expensive
+    recurring error class: a session finds that a tool does not do X, and
+    silently promotes that to "X cannot be done". The Oracle tests the CLAIM
+    against documentation, because the claim is a documented fact and not a
+    matter of opinion. Registered instances it would own — `tilt`/`inspector`
+    refuse in a script while **`seqtilt`** is scriptable and was the answer (the
+    measured cost of missing it was a whole in-house instrument built on a
+    discredited metric); `offset` clips at zero in 32-bit **against its own
+    help**; `idiv` clips at 1.0 silently; `seqfindstar` writes no star lists
+    headless; SPCC SIGSEGVs on a missing sensor DATABASE and mimics a data bug.
+    Every one is a fact about an external tool that was assumed instead of read.
+  - **Two standing jobs, not just answering questions.** (1) Hunt down
+    CONFUSING AND CONTRADICTING documentation and get rid of it — ours about
+    their tools, and theirs where it contradicts itself. (2) Flag facts about
+    external tools that this repo UNDER- or MIS-represents. Both are proactive:
+    it does not wait to be asked.
+  - **It pings, and it keeps the PM out of the traffic.** Seeing two sessions
+    hold conflicting assumptions, it researches and messages BOTH. It reaches
+    the PM only on a BREAKTHROUGH or a CONTRADICTION IN THE REPO — not to report
+    research.
 
 Topology, which is the load-bearing part:
 
