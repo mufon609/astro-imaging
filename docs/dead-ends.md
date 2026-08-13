@@ -2268,6 +2268,36 @@ SILENT — pin the state, never inherit it):
   astigmatism is not demonstrated either. The family is UNRESOLVED between the
   two, not settled for one.)
 
+- **ON A FIXED CAMERA THE STAR-DRIFT DIRECTION DOES NOT ROTATE — SO "THE ANGLE
+  DRIFTS WITH TIME, THEREFORE IT IS TRAILING" IS BACKWARDS.** The sky's apparent
+  motion, expressed in the GROUND frame, is a rigid rotation about a pole that is
+  itself fixed in that frame. The flow is therefore TIME-INDEPENDENT, and the
+  drift direction at a given sensor position is constant. What the parallactic
+  angle rotates is the orientation of celestial NORTH in the sensor frame — which
+  governs a WCS position angle and has nothing to do with the direction a star
+  moves. MEASURED over a full 1497 s set (`drift_bearing.json`, aug06/set-01, ten
+  blocks of a 10-frame cross-match): the drift bearing spans **1.027°**, per-block
+  SE 0.062°. The instrument validates against pure geometry at the same time —
+  measured drift **1.9064 px/frame** against **1.9581** predicted by
+  15.041·cos(dec)·cadence/pixel_scale with nothing fitted, 2.64%.
+  Two sessions reasoned the other way and sized the expected sweep from the
+  field-rotation rate before this was measured; a θ₀ that drifts across a set is
+  NOT evidence of trailing, and that reading is withdrawn.
+  **What it enables:** the drift bearing is a direct, site-free measurement of the
+  trail direction on a ~30 s baseline against a 2.5 s trail, so it is ~12× better
+  determined than the trail it tests. Against it, the fixed-direction term in the
+  star shapes is **misaligned by 7.85° ± 1.21, i.e. 28.4σ** — so that term is not
+  the in-exposure trail. Confounds not separated and recorded with it: the field
+  drifts 953 px over a set so the star population changes, and θ₀ is known to be
+  population-sensitive; and the fit's constant term absorbs part of the decentred
+  radial field.
+  **And it localises the first-frame anomaly to the EXPOSURE, not the sky.** The
+  first frames of a night read θ₀ **19.75° (23.9σ)** away from the rest of the set
+  while their drift bearing departs by **0.150°**. The sky was doing the normal
+  thing; only the star shapes were not — which is what vibration or settling on
+  the first exposure after setup looks like, and it reproduces across detection
+  depth and across both nights.
+
 - **SIRIL REPORTS X, Y AND `angle` ALL IN THE FITS BOTTOM-UP FRAME, CONSISTENTLY —
   MEASURED, NOT INFERRED.** Synthetic trailed stars planted at a known position
   angle of **+20.0°** in array coordinates come back from `findstar` at

@@ -1,0 +1,262 @@
+{
+ "consumer": "1 of 2 \u2014 theta0 vs drift bearing (datasets/aug06/experiments.jsonl, perframe_drift_bearing_and_site_derivation)",
+ "dataset": "aug06/set-01, 10 blocks of (frame k, frame k+10) at stride 50 over 500 frames / 1497 s",
+ "why_no_plate_solve": "every quantity is from findstar's own columns, so positions and angle share one frame by construction and no WCS or site enters",
+ "blocks": [
+  {
+   "block": 1,
+   "first_frame_index": 1,
+   "elapsed_s": 0.0,
+   "n_stars_pooled": 14118,
+   "theta0_deg": -7.201117990991854,
+   "theta0_amplitude": 0.053961824809735985,
+   "theta0_amplitude_SE_units": 31.59156703130992,
+   "radial_R": 0.027970274365564353,
+   "offset_theta0_minus_bearing_deg": -11.748821836609721,
+   "n_matched": 1889,
+   "n_shift_votes": 400,
+   "shift_px": [
+    -18.88000000000011,
+    -1.689999999999884
+   ],
+   "displacement_px": 19.170354717635963,
+   "bearing_deg_vector": -175.45229615438214,
+   "bearing_deg_axis": 4.5477038456178605,
+   "bearing_se_deg": 0.05987057846536447,
+   "bearing_star_scatter_deg": 2.602132657485671
+  },
+  {
+   "block": 2,
+   "first_frame_index": 51,
+   "elapsed_s": 150.0,
+   "n_stars_pooled": 14522,
+   "theta0_deg": 11.444727115497656,
+   "theta0_amplitude": 0.07637289915836085,
+   "theta0_amplitude_SE_units": 45.9447028691193,
+   "radial_R": 0.03445407352143168,
+   "offset_theta0_minus_bearing_deg": 6.272050590739681,
+   "n_matched": 1925,
+   "n_shift_votes": 393,
+   "shift_px": [
+    -18.789999999999964,
+    -1.8199999999999363
+   ],
+   "displacement_px": 19.077693780957897,
+   "bearing_deg_vector": -174.82732347524203,
+   "bearing_deg_axis": 5.172676524757975,
+   "bearing_se_deg": 0.05856029999727024,
+   "bearing_star_scatter_deg": 2.5693227349552266
+  },
+  {
+   "block": 3,
+   "first_frame_index": 101,
+   "elapsed_s": 300.0,
+   "n_stars_pooled": 14138,
+   "theta0_deg": 12.124907073063893,
+   "theta0_amplitude": 0.07397094513060032,
+   "theta0_amplitude_SE_units": 45.669310373740345,
+   "radial_R": 0.037061489255959715,
+   "offset_theta0_minus_bearing_deg": 7.047971372713249,
+   "n_matched": 1786,
+   "n_shift_votes": 395,
+   "shift_px": [
+    -18.679999999999836,
+    -1.8599999999999
+   ],
+   "displacement_px": 18.984480503821914,
+   "bearing_deg_vector": -174.92306429964935,
+   "bearing_deg_axis": 5.076935700350646,
+   "bearing_se_deg": 0.06274233627162662,
+   "bearing_star_scatter_deg": 2.6515597219048006
+  },
+  {
+   "block": 4,
+   "first_frame_index": 151,
+   "elapsed_s": 450.0,
+   "n_stars_pooled": 14509,
+   "theta0_deg": 11.309070358571784,
+   "theta0_amplitude": 0.07597117096532317,
+   "theta0_amplitude_SE_units": 44.59843506559049,
+   "radial_R": 0.03834872482873803,
+   "offset_theta0_minus_bearing_deg": 6.458504058204383,
+   "n_matched": 1945,
+   "n_shift_votes": 405,
+   "shift_px": [
+    -18.899999999999636,
+    -1.8099999999999454
+   ],
+   "displacement_px": 19.158614250513978,
+   "bearing_deg_vector": -175.1494336996326,
+   "bearing_deg_axis": 4.850566300367404,
+   "bearing_se_deg": 0.05916325813647497,
+   "bearing_star_scatter_deg": 2.6092271299014134
+  },
+  {
+   "block": 5,
+   "first_frame_index": 201,
+   "elapsed_s": 600.0,
+   "n_stars_pooled": 14328,
+   "theta0_deg": 12.118244603261319,
+   "theta0_amplitude": 0.07517061322771194,
+   "theta0_amplitude_SE_units": 46.60258352747966,
+   "radial_R": 0.042560022533809895,
+   "offset_theta0_minus_bearing_deg": 7.2899265944443385,
+   "n_matched": 1919,
+   "n_shift_votes": 401,
+   "shift_px": [
+    -18.88000000000011,
+    -1.75
+   ],
+   "displacement_px": 19.127877561297723,
+   "bearing_deg_vector": -175.17168199118302,
+   "bearing_deg_axis": 4.828318008816979,
+   "bearing_se_deg": 0.06088145032183779,
+   "bearing_star_scatter_deg": 2.6669966921847283
+  },
+  {
+   "block": 6,
+   "first_frame_index": 251,
+   "elapsed_s": 750.0,
+   "n_stars_pooled": 14290,
+   "theta0_deg": 12.698651965445942,
+   "theta0_amplitude": 0.07420032642137736,
+   "theta0_amplitude_SE_units": 43.040727960845246,
+   "radial_R": 0.04508748876342946,
+   "offset_theta0_minus_bearing_deg": 7.984821850532228,
+   "n_matched": 1883,
+   "n_shift_votes": 406,
+   "shift_px": [
+    -18.83499999999981,
+    -1.7699999999999818
+   ],
+   "displacement_px": 19.104619860128032,
+   "bearing_deg_vector": -175.28616988508628,
+   "bearing_deg_axis": 4.713830114913719,
+   "bearing_se_deg": 0.0618037546494319,
+   "bearing_star_scatter_deg": 2.681884188243145
+  },
+  {
+   "block": 7,
+   "first_frame_index": 301,
+   "elapsed_s": 900.0,
+   "n_stars_pooled": 14331,
+   "theta0_deg": 12.882910124413538,
+   "theta0_amplitude": 0.0746202322190834,
+   "theta0_amplitude_SE_units": 41.76657738067455,
+   "radial_R": 0.0499165781298318,
+   "offset_theta0_minus_bearing_deg": 8.331798170633732,
+   "n_matched": 1879,
+   "n_shift_votes": 409,
+   "shift_px": [
+    -18.769999999999754,
+    -1.7699999999999818
+   ],
+   "displacement_px": 19.03000262742999,
+   "bearing_deg_vector": -175.4488880462202,
+   "bearing_deg_axis": 4.5511119537798095,
+   "bearing_se_deg": 0.06262319376479927,
+   "bearing_star_scatter_deg": 2.714554733751643
+  },
+  {
+   "block": 8,
+   "first_frame_index": 351,
+   "elapsed_s": 1050.0,
+   "n_stars_pooled": 14254,
+   "theta0_deg": 13.371313331483789,
+   "theta0_amplitude": 0.07657825714414745,
+   "theta0_amplitude_SE_units": 42.85302954705577,
+   "radial_R": 0.048626310322287855,
+   "offset_theta0_minus_bearing_deg": 8.896676904762998,
+   "n_matched": 1861,
+   "n_shift_votes": 416,
+   "shift_px": [
+    -18.845000000000027,
+    -1.75
+   ],
+   "displacement_px": 19.098211958191232,
+   "bearing_deg_vector": -175.5253635732792,
+   "bearing_deg_axis": 4.474636426720792,
+   "bearing_se_deg": 0.062453573506706744,
+   "bearing_star_scatter_deg": 2.6942040194151846
+  },
+  {
+   "block": 9,
+   "first_frame_index": 401,
+   "elapsed_s": 1200.0,
+   "n_stars_pooled": 14079,
+   "theta0_deg": 12.76896391916563,
+   "theta0_amplitude": 0.07677320642947792,
+   "theta0_amplitude_SE_units": 43.114656951274995,
+   "radial_R": 0.05314080351597702,
+   "offset_theta0_minus_bearing_deg": 8.301804857776148,
+   "n_matched": 1812,
+   "n_shift_votes": 415,
+   "shift_px": [
+    -18.649999999999636,
+    -1.6399999999998727
+   ],
+   "displacement_px": 18.937529537930875,
+   "bearing_deg_vector": -175.53284093861052,
+   "bearing_deg_axis": 4.467159061389481,
+   "bearing_se_deg": 0.064888453615522,
+   "bearing_star_scatter_deg": 2.762145303863668
+  },
+  {
+   "block": 10,
+   "first_frame_index": 451,
+   "elapsed_s": 1350.0,
+   "n_stars_pooled": 13823,
+   "theta0_deg": 14.189216419360402,
+   "theta0_amplitude": 0.07429597326109537,
+   "theta0_amplitude_SE_units": 46.76210868892753,
+   "radial_R": 0.05585235850914388,
+   "offset_theta0_minus_bearing_deg": 10.04328151201392,
+   "n_matched": 1787,
+   "n_shift_votes": 421,
+   "shift_px": [
+    -18.679999999999836,
+    -1.5799999999999272
+   ],
+   "displacement_px": 18.949588386030612,
+   "bearing_deg_vector": -175.8540650926535,
+   "bearing_deg_axis": 4.145934907346486,
+   "bearing_se_deg": 0.06344202653954066,
+   "bearing_star_scatter_deg": 2.68187988863969
+  }
+ ],
+ "offset_mean_deg": 5.887801407521096,
+ "offset_sd_deg": 6.301279870212861,
+ "bearing_total_rotation_deg": -0.40176893827137405,
+ "theta0_total_rotation_deg": 21.390334410352253,
+ "slope": {
+  "slope": 0.6430810311310894,
+  "slope_se": 7.209037661706157,
+  "bearing_span_deg": 1.0267416174114885,
+  "theta0_span_deg": 21.39033441035224,
+  "unwrapped_bearing": [
+   4.5477038456178605,
+   5.172676524757975,
+   5.076935700350646,
+   4.850566300367404,
+   4.828318008816979,
+   4.713830114913719,
+   4.5511119537798095,
+   4.474636426720792,
+   4.467159061389481,
+   4.145934907346486
+  ],
+  "unwrapped_theta0": [
+   -7.201117990991854,
+   11.444727115497649,
+   12.124907073063888,
+   11.30907035857178,
+   12.11824460326131,
+   12.698651965445926,
+   12.88291012441352,
+   13.371313331483769,
+   12.768963919165607,
+   14.189216419360385
+  ]
+ },
+ "median_bearing_se_deg": 0.06212866407806932
+}
