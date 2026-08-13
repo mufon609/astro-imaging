@@ -28,22 +28,23 @@ session that wrote this brief and is who you report to.
 6. `datasets/aug06/corner_work/sky_rate_gradient.json` and
    `mechanism_and_specs.json` — for the secondary questions.
 
-**Then send the PM your SYNC REPLY before issuing findings to anyone.** Do not
-skip the sync to look responsive: an Oracle that answers before it understands
-the tree fact-checks the wrong things confidently. Structure it as:
+**Then send the PM your SYNC REPLY. It is a SHORTLIST, not an audit.** Do not
+skip the sync to look responsive, and do not go deep before it: an Oracle that
+answers before it understands the tree fact-checks the wrong things confidently,
+and one that researches everything burns the engagement on breadth. Structure it
+as:
 
-- **Per stage of the primary audit:** what the field does per primary sources,
-  what we do, and the classification — adopted / deviated-with-recorded-reason /
-  **deviated without noticing**.
+- **The ranked shortlist — at most five candidates**, in the form specified under
+  "TRIAGE FIRST" below. A few lines each. **Ranked by cost-if-true.**
 - **What you believe the PM has WRONG in this brief.** You are explicitly asked
   for this; it is not optional politeness.
 - **Anything this repo under- or mis-represents about an external tool** (your
-  standing job).
+  standing job) — as list items, not essays.
 - **Anything you could NOT settle from documentation**, with the exact probe you
   would specify for a worker to run.
 
-**Rank every finding by COST-IF-TRUE.** Be dense; no preamble, no summary of what
-you read.
+**Stop there and wait for the PM to pick.** Depth comes after the pick, on the
+picked items only. Be dense; no preamble, no summary of what you read.
 
 **Probing is your job; experimenting is not.** Installed on this rig: siril via
 `flatpak run --command=siril-cli org.siril.Siril`, `solve-field`, `astap`,
@@ -82,15 +83,35 @@ data-management design must state the industry-standard way FIRST with its
 source, adopt it unless a measured constraint forces deviation, and record the
 deviation with its reason.
 
-**Your job: audit whether that rule was actually followed, stage by stage.** For
-each stage of the chain — calibration (the synthetic-flat route), debayer,
-undistort (darktable/lensfun), registration, rejection/normalization/weighting,
-sub-stack compose, plate solve, SPCC, background extraction, and the render tier
-— ask: *what does the field actually do here, per primary sources, and what do
-we do?* Name every deviation you find, and for each say whether the repo (a)
+**TRIAGE FIRST. DO NOT SWEEP THE WHOLE CHAIN.** A stage-by-stage audit of every
+stage against primary sources is too much general research and it is explicitly
+NOT what is wanted. Your first deliverable is a **short, ranked shortlist**, and
+nothing more.
+
+**Deliverable 1 — the shortlist (this is all you do until the PM picks).** Read
+the tree and return **at most five** candidates for *"we deviated from the
+standard without noticing"*, ranked by **cost-if-true**. For each, give only:
+
+- the stage and the specific thing we do,
+- what you believe the standard is and the ONE source that anchors it,
+- which playbook shape (A–J below) it matches,
+- the cost if it is true,
+- and **the specific research it would take to settle it** — scoped, not open-ended.
+
+Keep each entry to a few lines. **Do not research any candidate to conclusion at
+this stage** — you are ranking where to look, not looking. Cite enough to justify
+the ranking and stop.
+
+**Deliverable 2 — depth, on the PM's pick only.** The PM chooses one or two from
+your shortlist and you go deep on those. Everything else stays on the list
+unresearched until it is chosen.
+
+The chain's stages, for coverage of your scan only: calibration (the
+synthetic-flat route), debayer, undistort (darktable/lensfun), registration,
+rejection/normalization/weighting, sub-stack compose, plate solve, SPCC,
+background extraction, render tier. Classify anything you do report as (a)
 adopted the standard, (b) deviated with a recorded measured reason, or (c)
-**deviated without noticing** — (c) is the finding that matters and is why this
-engagement exists.
+**deviated without noticing** — (c) is the only class worth your shortlist.
 
 Two standing anchors for the audit, both from the repo's own history: the
 compose's correct industry operation is per-image resampling onto a COMMON output
