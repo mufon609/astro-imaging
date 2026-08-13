@@ -7,8 +7,28 @@ block is the priority.
 
 ## Prompts ready to run (in this directory)
 
-None. `COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it
-does not retire, and it is run on demand rather than scheduled here.
+- **[`COMBINE_FLAT_WINDOW_PROMPT.md`](COMBINE_FLAT_WINDOW_PROMPT.md)** — STAGED,
+  not cleared: it is a multi-set member rebuild and needs the owner's word that
+  the machine is free. Arm A exists in full (the whole 12-set corpus is per-set
+  flats); arm B barely exists, so the bill is per-group flats plus a member
+  rebuild for every set entering the test combine.
+
+`COMMENT_SWEEP_PROMPT.md` is a **standing utility, not a queue item**: it does
+not retire, and it is run on demand rather than scheduled here.
+`ORACLE_TEMPLATE.md` and `ADVERSARY_TEMPLATE.md` are templates the PM customises
+per engagement, not items — the four-session team is OPTIONAL and specified in
+`PROJECT_MANAGER_PROMPT.md`.
+
+## Waiting on the owner, not on work
+
+1. **The L1 judge triple** — `web/results/aug06/judge/set-01+02+03_{l1crop,l1bkgframe,l1bkgstack}_spcc-linked.png`,
+   three full-frame 16-bit PNGs on one shared crop. Preservation did not choose
+   the level; their eyes do.
+2. **Two rules in `BACKLOG.md`** — the parallel-session staging unit and the
+   blind-spot sentence.
+3. **The load-bearing unchecked premise**: that starlight preservation is the
+   right adoption gate for the L1 level choice at all. No instrument can settle
+   it.
 
 ## Landed during the L1 build session — the arms separate on the primary surface, and the supplement splits
 
