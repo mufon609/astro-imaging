@@ -10,8 +10,14 @@ counts as enough preservation is the owner's call on the finals.
 
   Usage: starlight_preservation.py <solved.fit> <out.json>
                                    [--cells=14x10] [--margin=0] [--gsplit=11]
-                                   [--baseline=<ctrl.json>] [--offline]
+                                   [--baseline=<ctrl.json>] [--cache=<json>]
+                                   [--offline]
          starlight_preservation.py --selftest [--keep]
+  The output must live under $HOME (the Siril flatpak's private /tmp makes an
+  .ssf written elsewhere invisible to it) — the per-set home is
+  datasets/<session>/<set>/starlight_work/. The catalogue cache defaults beside
+  the record and is inherited from `--baseline`'s directory, so an arm never
+  re-queries its control's cells.
 
 THE MEASUREMENT.  On a plate-solved LINEAR surface, over an EXTERNAL lattice of
 cells fixed in the image and mapped to sky by the header WCS:
@@ -211,6 +217,13 @@ def cap_area_deg2(radius_deg):
 # ------------------------------------------------------- Siril measurement ---
 def measure_cells(surface, cells, workdir, image_h):
     """One Siril load, then boxselect+stat per cell. Every number is Siril's."""
+    home = os.path.expanduser("~")
+    if os.path.commonpath([os.path.abspath(workdir), home]) != home:
+        sys.exit(f"starlight_preservation: the work dir is {workdir}, outside "
+                 f"$HOME. The Siril flatpak has its OWN private /tmp, so an "
+                 f".ssf written there is invisible to it and every stat comes "
+                 f"back empty (CLAUDE.md, Environment). Put the output under "
+                 f"the repo — datasets/<session>/<set>/starlight_work/.")
     os.makedirs(workdir, exist_ok=True)
     ssf = os.path.join(workdir, "_starlight_stat.ssf")
     with open(ssf, "w") as fh:
@@ -428,7 +441,8 @@ def fit_family(x, y, px, py):
 
 
 # ------------------------------------------------------------------- main ---
-def run(surface, out_json, nx, ny, margin, gsplit, baseline, offline):
+def run(surface, out_json, nx, ny, margin, gsplit, baseline, offline,
+        cache_path=None):
     surface, out_json = os.path.abspath(surface), os.path.abspath(out_json)
     header = fits.getheader(surface)
     workdir = os.path.dirname(out_json) or "."
@@ -473,7 +487,16 @@ def run(surface, out_json, nx, ny, margin, gsplit, baseline, offline):
     if len(used) < 12:
         sys.exit(f"starlight_preservation: only {len(used)} usable cells — "
                  "too few for the fits to mean anything")
-    cache = os.path.join(workdir, "gaia_cells_cache.json")
+    # Default beside the record, but a `--baseline` run inherits the baseline's
+    # cache: the arm and its control share one lattice, so they share one set of
+    # catalogue cells, and an arm written to a different directory must not
+    # silently re-query (or, under --offline, fail on a cache that exists).
+    cache = cache_path or os.path.join(workdir, "gaia_cells_cache.json")
+    if not cache_path and baseline and not os.path.exists(cache):
+        inherited = os.path.join(os.path.dirname(os.path.abspath(baseline)),
+                                 "gaia_cells_cache.json")
+        if os.path.exists(inherited):
+            cache = inherited
     fetched = gaia_for_cells(used, cache, offline)
     print(f"gaia: {len(used)} cells ({fetched} fetched, "
           f"{len(used) - fetched} from cache)")
@@ -830,7 +853,7 @@ def main():
                  "archive aggregates by FLOOR(G), so a fractional split would "
                  "be silently rounded")
     run(args[0], args[1], nx, ny, int(opts.get("margin", 0)), int(gsplit),
-        opts.get("baseline"), "--offline" in argv)
+        opts.get("baseline"), "--offline" in argv, opts.get("cache"))
     return 0
 
 

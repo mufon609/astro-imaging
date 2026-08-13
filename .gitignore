@@ -97,7 +97,8 @@ __pycache__/
 # preservation instrument's records plus the background-arm surfaces it
 # measures. The JSON records are the evidence and are versioned — including
 # gaia_cells_cache.json, which is the catalogue side of every number in them
-# and is what makes a re-run reproducible with --offline. The arm .fit files
+# and is what reproduces a run offline (`--offline --cache=<that file>`; an arm
+# also inherits it from its `--baseline`'s directory). The arm .fit files
 # are derived image data (the blanket *.fit rule already excludes them).
 **/starlight_work/*
 !**/starlight_work/*.json
