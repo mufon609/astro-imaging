@@ -896,17 +896,48 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
   constant across the six sets the misalignment is fixed, |C| is the amplitude of
   the globally-correctable component and its direction is the PSF to build.
-- **FIX, PARTIAL — Cosmic Clarity per-chunk sharpening covers the SIZE half and
-  cannot touch the ROUNDNESS half.** **VERIFIED by probe, and it resolves a
-  contradiction this repo carried in two places at once:** `--auto_detect_psf`
-  reads *"Automatically measure PSF per chunk and choose the two nearest radius
-  models"* — so it IS spatially varying — while the model space is
-  `deep_nonstellar_sharp_cnn_radius_{1,2,4,8}`, a scalar RADIUS, so it is
-  ISOTROPIC. Both records were half-right: `TOOLS.md`'s "its interface is a scalar
-  radius" is true of the model space, `experiments.jsonl`'s "measures PSF per
-  chunk, field behaviour unprobed" is true of the spatial handling. It addresses
-  +21% on size and nothing of −0.11 on roundness. `--disable_gpu` gives CPU.
-  UNPROBED on a trailed star, which is neither Gaussian nor Moffat.
+- **~~FIX, PARTIAL — Cosmic Clarity~~ WITHDRAWN. NOT A HEADLESS CANDIDATE, and
+  the tree already said so.** Both the Oracle and this manager reported it as an
+  installed CPU headless partial fix after reading `--help`. **`TOOLS.md`'s
+  Cosmic Clarity row already records, MEASURED on this rig: it is a Qt tool that
+  BLOCKS on a modal dialog, ITS CLI ARGUMENTS ARE IGNORED (`--sharpening_mode
+  "Stellar Only"` was passed and the dialog showed `Both`), the non-stellar pass
+  CRASHES on real data, and the verdict is "ATTENDED and NOT scriptable".** Two
+  sessions read the help text and treated a flag's existence as evidence it
+  functions — the registry's own lesson, *a `help` listing is not evidence of
+  scriptability*, committed by the people auditing for it.
+  **What survives is only a MECHANISM note from the model filenames:** the space
+  is `deep_nonstellar_sharp_cnn_radius_{1,2,4,8}`, a scalar RADIUS, so even driven
+  from the dialog it is spatially varying but **ISOTROPIC** — size only, never
+  ellipticity. That does resolve which axis it fails on: `TOOLS.md`'s "interface
+  is a scalar radius" describes the model space and `experiments.jsonl`'s "field
+  behaviour unprobed" describes the spatial handling, and it fails the anisotropic
+  requirement on the model space AND the headless requirement on the dialog.
+- **FIX, and the one route that answers three questions as ONE operation —
+  IMCOM.** Rowe, Hirata & Rhodes 2011 (ApJ 741, 46; arXiv:1102.0292), the Roman
+  coaddition method. It builds a linear combination of the input pixels producing
+  an output image with a **USER-SPECIFIED PSF**, from undersampled DITHERED
+  exposures, handling **varying input PSFs**, while minimising output noise
+  covariance and distortion from the requested PSF. It is simultaneously the
+  drizzle question (undersampled + dithered), the spatially-varying-PSF question,
+  and the target-direction question: **nothing requires the target PSF to be
+  broader, and asking for a narrower one raises the noise covariance, which IMCOM
+  QUANTIFIES rather than forbids.** That is the principled generalisation of both
+  drizzle (output PSF fixed implicitly) and homogenisation (output PSF forced
+  broader). Computationally expensive. `pyimcom` 1.2.1 is on PyPI. **UNVERIFIED
+  here — availability only; whether it runs outside the Roman data model is the
+  highest-value open probe on the board.**
+- **TOOL FACT that removes a trap we documented today: `galsim.des.DES_PSFEx`
+  reads a PSFEx `.psf` DIRECTLY** and returns the PSF at an arbitrary position
+  (`galsim` on PyPI). `TOOLS.md` records that PSFEx exposes no position-resolved
+  shape so a comparison must re-derive one, and that its polynomial basis order is
+  `[1, X, X², Y, XY, Y²]` rather than what a reader assumes — **GalSim does that
+  re-derivation as a maintained library and the order trap does not arise.** It
+  does not remove the estimator-definition half of the 0.038-vs-0.07 gap.
+- **NOT THE ROUTE — `sf_deconvolve`** (Farrens et al. 2017): it deconvolves a
+  STACK OF POSTAGE STAMPS, one PSF per object, not a field. It restores objects,
+  not images, so for a deliverable that is a picture it does not produce the
+  product. Same for its successor (Sureau et al. 2020).
 - **FIX, root-cause, architecturally blocked — Bayer drizzle for the
   undersampling** (`resample-cost-and-drizzle`).
 - **FIX, not procured — anisotropic spatially-varying deconvolution.** Farrens et
@@ -930,6 +961,40 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   data. Owner's call, and it is not to be taken as a free win.
 - **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
   down-weighting, cropping.
+
+**THE CEILING IS A NOISE BUDGET, NOT A WALL — MEASURED.** The recoverability
+bound is where the optical transfer function NULLS, since information at a zero
+is destroyed and no regularisation returns it. Scanned on the PSFEx model's own
+corner PSF, 12 radial cuts per position, asking whether the MTF ever RECOVERS
+after its running minimum (an interior null) rather than merely falling at the
+band edge (which every PSF does):
+
+| position | cuts recovering | max recovery |
+|---|---|---|
+| centre | 0 of 12 | 0.0034 |
+| corner TL | 0 of 12 | 0.0076 |
+| corner BR | 1 of 12 | 0.0223 (model noise) |
+
+**No in-band OTF zero anywhere. The corner is ATTENUATED, not nulled.** Median
+MTF over azimuth — centre 0.837 / 0.575 / **0.265** / 0.072 against corner TL
+0.685 / 0.317 / **0.079** / 0.028 at |f| = 0.1 / 0.2 / **0.3** / 0.4 cyc/px. The
+corner runs **~3× down through the mid band**, so any restoration that flattens
+it applies ~3× gain at 0.3 cyc/px and amplifies noise by the same factor.
+**SCOPE, and it must travel with the number: this is the OTF of the PSFEx MODEL,
+not the true PSF.** The eigen-PSFs are full 25×25 images and CAN represent a
+null, so the polynomial field fit is not the obstacle — but PSFEx fits noisy
+undersampled stars and a sharp null could be smoothed away. The probe shows no
+MODELLED null; it cannot prove no true null.
+
+**DRIZZLE ON DEBAYERED INPUT IS REFUSED, and more broadly than the help note
+says — MEASURED, not inferred.** `seqapplyreg -drizzle -pixfrac=1.0
+-kernel=square` on a real 6064×4040×3 debayered RGB sequence returns verbatim
+**"This sequence is not mono / CFA, cannot drizzle"** and exits on invalid
+arguments. So the refusal is a SEQUENCE-TYPE check rather than anything
+Bayer-specific, and the architectural blocker stands. One detail recorded without
+a claim attached: the refusal names mono as acceptable, so a green-plane-only
+mono route is not refused by this check — **unprobed, and not asserted to be
+useful.**
 
 **Closes when** the C/A test settles whether a field-constant component exists,
 and the FIX path above either delivers or is measured not to.
