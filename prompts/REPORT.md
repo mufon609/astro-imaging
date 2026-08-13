@@ -291,7 +291,12 @@ vendor's own command (item closed) · `82f67f8` BACKLOG prune (closed items
 removed entirely) · `f43e482` `snr_regions` triple fix (negative-value regex,
 cross-session basename collision, flatpak-private-/tmp workdir) · `739c626`
 Tier A: set-00 skipped by the session chain, per-set compose reference pinned
-(verified bit-identical), astrometric caveat on separation records, bare
+(**verified on aug06/set-01 ONLY — this ledger previously said "verified
+bit-identical" unqualified, which widened the commit's own scope. The L1 session
+measured the pin MOVING the canvas on aug06 set-02 and set-03; set-01 was
+bit-identical because its unpinned auto-pick already landed on member 1, which is
+what the pin selects. The pin is right; the recorded scope was not**),
+astrometric caveat on separation records, bare
 `--selftest` refuses instead of masquerading as help · `fa40ef1`/`28b91cf`
 the prompt briefs.
 
