@@ -45,13 +45,30 @@ SRC=${2:-}
 # merges and squashes get their message from git; nothing to stamp
 case "$SRC" in merge|squash) exit 0 ;; esac
 
+# On --amend the index already matches HEAD, so `git diff --cached` is EMPTY and
+# the honest base is the amended commit's PARENT. Getting this wrong is not
+# cosmetic: an earlier version stripped the old block and then had nothing to
+# write back, so amending DELETED the record instead of refreshing it. Caught by
+# testing the amend path rather than reasoning about it.
+BASE=HEAD
+if [ "$SRC" = commit ] && [ -n "${3:-}" ]; then
+  BASE=$(git rev-parse --verify --quiet "$3^" || echo "")
+fi
+
+if [ -n "$BASE" ]; then
+  STAT=$(git diff --cached "$BASE" --numstat 2>/dev/null || true)
+else
+  STAT=$(git diff --cached --numstat 2>/dev/null || true)
+fi
+
+# Nothing to report: leave the message exactly as the author wrote it. Never
+# strip a previous block without a replacement in hand.
+[ -n "$STAT" ] || exit 0
+
 # Drop any block a previous run left, so --amend re-stamps rather than going
 # stale. The marker line, then the indented "<add>\t<del>\t<path>" rows.
 sed -i '/^Staged numstat (git, not typed)/d' "$MSG"
 sed -i '/^  [0-9-]\{1,\}\t[0-9-]\{1,\}\t/d' "$MSG"
-
-STAT=$(git diff --cached --numstat 2>/dev/null || true)
-[ -n "$STAT" ] || exit 0
 
 {
   printf '\nStaged numstat (git, not typed):\n'
