@@ -1707,6 +1707,18 @@ SILENT — pin the state, never inherit it):
   the acceptance criteria did not see coming while writing a criterion about
   `pgrep`. That is the more useful lesson and the weaker claim: proximity to a
   hazard in prose is not coverage of it.
+  **AND THE OPPOSITE DIRECTION IS ALSO LIVE: `pgrep` SAMPLES AN INSTANT, SO IT
+  CANNOT REFUTE AN INTERVAL CLAIM.** The entry above is the false POSITIVE
+  (`pgrep` reports alive while nothing computes); this is the false NEGATIVE, and
+  it is the one that closes an investigation early. MEASURED while diagnosing a
+  concurrency race in `run_guards.sh`: a session `pgrep`ed for a competing run,
+  saw none, and declared the race refuted — while the runner's own kept log
+  carried `[siril_run] another Siril job holds the lock — waiting` on the exact
+  path that then died. **The log recorded the INTERVAL; the process check sampled
+  one moment inside it.** For any claim of the form "nothing else was running",
+  the admissible evidence is a record covering the whole window — a lock line, a
+  timestamped log, a pidfile with its lifetime — never a point observation. Same
+  rule as reading the artifact rather than the description, applied to time.
 - **PREFER A CHECK WHOSE EVIDENCE IS READ FROM AN ARTIFACT OVER ONE A HUMAN
   TRANSCRIBES.** The registry already carries the negative — a check whose
   output is paraphrased is a check that did not run — and this is its
