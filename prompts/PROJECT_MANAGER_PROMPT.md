@@ -77,124 +77,93 @@ claim you have executed is yours; one you have read is a hypothesis.
   times in one session under active attention. Do not paraphrase a check's
   output; paste it.
 
-## The current issue — corner degradation, and it is THREE things
+## The current issue — THE CORNER THREAD IS CLOSED ON ITS FIX-PATH QUESTION
 
-Stars in the far corners of combined products are less round and slightly
-larger: about **+21% on size and −0.11 on roundness**, centre to corner. That is
-a RESIDUE — the compose fix already removed the large version (roundness
-0.448–0.613 → 0.980).
+Stars in the far corners of combined products are less round and slightly larger.
+The defect is REAL, visible to the owner on the full-frame render, and confirmed
+on single unregistered RAWs by two independent tools. **Nothing the pipeline does
+causes it** — coverage depth, the compose, within-member registration and any
+lensfun residual are each killed by measurement, and the term is at full size in
+one uncalibrated, unwarped, unregistered exposure.
 
-**Ruled out, each by measurement:** coverage depth (0.2 SE, contributes nothing);
-the compose (members carry the entire rise, compose adds a radius-INDEPENDENT
-offset); within-member registration and any lensfun distortion-model residual —
-both killed by `findstar` on three SINGLE RAW exposures (uncalibrated, unwarped,
-unregistered, unstacked, 8074 stars) where the term is already at full size.
-**Nothing the pipeline does causes it.**
+**THE GATE IS ANSWERED AND THE ONLY FIX-CLASSIFIED ROUTE IS DEAD.**
+`corner-fix-landscape` gated `rl -loadpsf=` on a genuinely FIELD-CONSTANT
+component. Asked directly — is there a single trail scale `f` making
+`C(ρ) − f·T(ρ)` a constant 2-vector — the answer is no, on **three independent
+grids**: debayered N=5, debayered N=40 (χ²/dof 53.1 with every frame in), and a
+raw CFA grid with no interpolation anywhere (χ²/dof 28.2 and 46.7 on the two
+greens). A single global PSF cannot remove this component. **Read
+`BACKLOG:one-sided-band` and `corner-fix-landscape` for the numbers; do not
+re-derive them from prose.**
 
-**Three separable components, one now attributed:**
+**WHAT THE THREAD ACTUALLY PRODUCED, and it outlives the verdict:**
 
-1. **PROJECTED SKY-RATE GRADIENT — ATTRIBUTED**, and **THE CONVERSION DECIDES
-   THE VERDICT — get it right or the finding inverts.** Sky rate is 15.041·cos(δ)
-   arcsec/s; δ spans ~18° across this field, so the in-exposure trail length
-   varies by about a third. A Gaussian convolved with a UNIFORM trail adds
-   VARIANCES, and a uniform segment of length L has variance L²/12, so
-   `major² − minor² = (2.3548²/12)·L²` — factor **0.4621**. Test it on
-   `major² − minor²`, which is the linear response; roundness is not.
-   **MEASURED: 2.548 ± 0.416 px² with ρ and x held, against a parameter-free
-   prediction of 2.266 — 0.68σ, CONSISTENT.** Orthogonal to the radial term
-   (corr +0.011).
-   **The previous manager got this wrong and would have refuted it.** Assuming
-   quadrature (`major² − minor² = L²`, no 1/12) over-predicts by 2.16× and the
-   same data sits 3.70σ LOW against it. A free-slope fit on roundness then
-   returned a comfortable-looking 1.39σ from wrong physics. **Read
-   `datasets/aug06/corner_work/sky_rate_gradient.json`, not that.**
-   It is also NOT the largest term on the correct response: R² alone is 0.164
-   for cos²δ against 0.199 radial and 0.212 one-sided; all three together 0.519,
-   each at 6.1–7.3 SE. Three comparable terms, one attributed.
-2. **A RADIAL term** — 7.35 SE with sky-rate in the model. Unattributed;
-   candidate is optical coma.
-3. **A ONE-SIDED sensor-x term** — 6.92 SE with both others in. Unattributed and
-   NOT explained by sky-rate.
+- **THE ERROR MODEL WAS WRONG BY 5.76×, AND NOBODY HAD CHECKED IT.** Every
+  per-bin significance came from a star-level bootstrap inside ONE POOLED
+  population, which captures shot noise only. Against frames as INDEPENDENT
+  realisations the scatter is 4.1–9.2× larger, and χ²/dof 35.6 becomes ~1.1.
+  **The bootstrap manufactures rejections.** A "10 to 20σ" figure was withdrawn on
+  it. **Rule: a per-bin property estimated from N frames has N independent
+  realisations; resampling stars inside a pool is not an error bar for it.** This
+  changes how every future per-bin number in this repo gets its bars.
+- **SIX COMMENSURABILITY FINDINGS, one tell.** Scalar-vs-components,
+  blur-vs-ellipticity exponents, anisotropy-vs-time ratio,
+  size-ratio-vs-ellipticity, coherent-magnitude-vs-projection, and a
+  variance-ratio quoted as a time ratio. **Every one was two numbers compared
+  without their quantity stated beside them.** Expect a seventh; state the
+  quantity every time.
+- **A SHARPER FAILURE SHAPE THAN "a check that cannot fail":** *the check's own
+  mechanism excludes the failure mode it tests for.* Four instances in one day —
+  a guard audit run as `bash scripts/…` (which sidesteps the executable bit it
+  was testing), a `grep debayer|bayer|demosaic` that cannot match a key named
+  `interpolation`, a selftest asserting variance where κ is defined on
+  anisotropy, and a `ROWORDER` value confirmed on a stack and generalised to all
+  products. These CAN fail — just never on the thing they were pointed at.
 
-All three together reach R² 0.519. **CAVEAT the next session must carry:** the
-sky-rate predictor is 99% collinear with sensor y, so what was tested is its
-MAGNITUDE, not its direction.
+**CLOSED, each with its mechanism — do not re-open without new data:** `-moffat`
+as a second estimator (β unidentified for ~40% of stars, divergent for ~10%); the
+conversion constant κ (transfers at +0.1% ± 1.1% against a 65% drop required); the
+demosaic alternative (refuted on an interpolation-free grid); the offset form of a
+short exposure (needs δ = 1021 ms against O(1–10) ms latencies); PSF
+homogenisation, cropping, zone down-weighting (owner ruling, and Zackay & Ofek
+2017 make it a measured information loss).
 
-**THE SCALING FOLLOW-UP IS DEAD — DO NOT PROPOSE IT.** "Does the effect scale
-with each field's own δ range" needs fields whose δ ranges DIFFER, and they do
-not: re-measured here over all 15 recorded sets at a fixed 18.02° field extent,
-the cos²δ SPAN runs **0.3060 to 0.3090 — 1.0% of its mean**, against a
-**within-frame** sweep of **0.307** that is the lever already used. The
-between-set lever is one percent of the one already spent. That is the
-object-tilt lesson exactly: read the lever, not the sigma
-(`BACKLOG:one-sided-band`, `prompts/REPORT.md`).
+**STILL OPEN, and honestly small:** a few-degree axis offset between the CFA and
+debayered grids, pre-registered as AMBIGUOUS between the demosaic and severe
+undersampling (S 0.83 → 0.415) and deliberately unattributed. Separating them
+needs a mosaic-planting arm requiring a synthetic colour distribution against a
+real reddened field — a confound one level down, for a term that neither creates
+nor destroys the effect. **Judged not worth it; disagree only with a design.**
 
-**THE LEVER THAT DOES EXIST IS EXPOSURE, AND THE RECORDS UNDERSTATE IT.** Both
-kill-notes say "all 12 staged sets are one target at 2.5 s and 70 mm, so there is
-no exposure lever either" — true of the STAGED corpus and not of the RECORDED
-one. **july27 holds two sets at 3.0 s** (set-01 282 frames, set-02 253) on the
-same target (dec 42.39 / 43.68) at the same plate scale (36.18 / 35.81 ″/px
-against aug06's 35.58), i.e. the same focal. Since `L ∝ t_exp`, 3.0 s predicts
-**1.44× the anisotropy** of 2.5 s — against a 1.0% declination lever, and against
-a term the fit already resolves at ~6 SE. Raws are off-rig (records only here);
-MEMORY says re-staging is minutes and "re-running is cheap."
-**State the confound before running it:** a different night means a different
-optical state, and two of the three terms ARE optical — so ρ and x must be held
-in the fit as the shipped instrument already holds them, and a night-to-night
-change in the optics themselves is NOT held by anything. That makes this a
-CANDIDATE with a named confound, not a decisive test.
-
-**Do NOT adopt a crop.** Best measured trim is roundness 0.911 → 0.938 at the
-crop corners for 15% of every member and 4 of 20 union boxes losing every
-contributor. Recommendation on record is WAIT, and the cause matters: if optical,
-a trim is legitimate because no installed tool corrects a field-variable
-anisotropic PSF; if atmospheric or geometric, a per-frame correction may exist
-and cutting 15% of every frame would be waste.
-
-**THE MISATTRIBUTION WARNING — read this before touching the corner work.** A
-left-side softness was chased for a long time as a lens problem and was the
-COMPOSE. The previous manager then repeated the error while scoping the corner
-brief, citing a ~7% optical term to explain a 0.92→0.58 roundness defect. Measure
-first, attribute second, and only with a discriminating test.
+**THE STRUCTURAL BLOCKER, unchanged:** exposure and night are perfectly aliased in
+this corpus, which blocks the C/A ratio arm AND the photometric bound from
+completely different directions. `photometric-exposure-test` is CLOSED as
+UNDERPOWERED for a STRUCTURAL reason — the QE×transmission term alone is 0.35 mag
+against a 0.25 mag requirement — so **a measured ZP cannot separate throughput
+from t_eff however well measured.** Do not re-propose a photometric arm; an Oracle
+did, and the closure was in the file it had read.
 
 ## Live threads you inherit
 
-- **NOT the corpus-wide sky-rate scaling test** — it is dead for want of a lever
-  (above), and this line previously named it the highest-value next move. The
-  live successor is the EXPOSURE lever (july27 at 3.0 s), with its confound
-  stated; it needs re-staging and it is a candidate, not a decisive test.
-- **A position-angle contradiction, logged and deliberately unresolved.** The
-  registry (136k stars, 3 frames × 6 sets × 2 nights) records the major-axis
-  angle tracking field azimuth in 7 of 8 zones — the OPTICAL signature. The
-  corner session (8074 stars, 3 frames) measured PA near-CONSTANT across 8
-  sectors, spread 15.8° — the TRAILING signature. Sample, channel (those raws
-  solve on the half-res green plane) and angle convention are all live
-  differences. **Do not resolve it from three frames.** Note the sky-rate finding
-  predicts constant PA, so both may be right about different components.
-- **Hour-angle dependence** separates refraction from optics and is blocked on a
-  fact: headers carry `DATE-OBS` and NO site coordinates. Recoverable from 12
-  sets of one target over 3 nights, but it needs designing.
-- **NOTHING IS CURRENTLY WAITING ON THE OWNER.** The previous manager's handoff
-  said three things were, and two of those were already decided — the L1 judge
-  triple (they opened it, reported no visible difference, and ratified the
-  on-stack level on the instruments) and both parallel-session rules (ratified
-  and landed at `b36ef3b` and `64f61d2`). The third, whether starlight
-  preservation is the right adoption gate, is a RECORDED OPEN PREMISE in
-  `datasets/aug06/l1_work/unchecked_premises.json`, not a pending decision: it
-  blocks nothing, and it becomes live again only if someone proposes using that
-  instrument as the acceptance gate for a new step. **Check a claimed
-  owner-decision against `git log` before repeating it** — a decision can be made
-  through the manager and landed in `CLAUDE.md` while the BACKLOG row recording
-  it as pending is a peer's and stays open.
-- **The render tier has NEVER run** — zero ratified render blocks, zero outputs.
-  The files in `judge/` are diagnostic surfaces (solve → SPCC → one linked
-  autostretch), not renders. That is the north-star gap: the pipeline stops one
-  stage short of a finished image on every dataset it has.
-- **Queue:** `prompts/REPORT.md`. `COMBINE_FLAT_WINDOW_PROMPT.md` is staged, not
-  cleared — it needs the owner's word that the machine is free.
-- **Per-set stacks in `web/results/aug06` are `REGMODEL=starpair`**, not the
-  fixed astrometric route; only the unions are astrometric. set-01's carries the
-  known defect (roundness 0.569–0.746). Verified on the headers.
+- **The phase is FOUNDATIONAL, owner-stated: *"we are not at the render tier yet —
+  still looking for tightening opportunities, fixes and general foundational
+  improvements."*** `BACKLOG:render-ladder` stays user-gated. Do NOT promote the
+  render tier on a manager's reading that it looks like the biggest open thing —
+  scope the next arm as hardening, not as progress toward an image.
+- **`BACKLOG:four-configured-catalogues-are-absent`** — measured, no work
+  proposed, scoping is the PM's. Nothing in the chain reads any of the four; the
+  one consequence is that `findcompstars` reaches a remote service for NOMAD.
+- **`BACKLOG:guards-and-ci`** — nothing runs the guards, and the bit-depth check
+  is per-FILE so a builder passing on one generated `.ssf` passes even if a new
+  emission omits `set32bits`. The mode-664 claim in it was stale and is removed.
+- **`prompts/REPORT.md` is 52 KB and stale**, last touched before the corner arc.
+  It is also structured as "Landed during the X session" narrative, which
+  `CLAUDE.md` forbids for records. **Decide deliberately whether it still earns
+  its place**: the commit-message-as-transcript practice has superseded it in
+  daily use, and a second home for a claim is a second place for it to drift.
+- **The render tier has never run** — zero ratified render blocks. That is a real
+  gap and it is NOT yours to promote; it is the owner's call when the foundation
+  is sound.
 
 ## The ORACLE — BUILT, and here is what it actually is
 
@@ -349,6 +318,14 @@ Roles, and the point of each:
 
 Topology, which is the load-bearing part:
 
+- **THE AUTHORITY LINE, OWNER-SET, and it was absent from this file until it had
+  already been relied on for a full arc: the worker may consult the Oracle
+  freely, but ONLY THE PM SIGNS OFF.** Information flows direct — what a flag
+  does, what a paper says, what a tool's help states. A decision about what to
+  RUN comes to the PM. **In practice this is what stops the Oracle drifting from
+  referee to director**, which is the failure its own role definition warns about:
+  it proposed running an arm whose owning BACKLOG item was CLOSED, and a worker
+  taking that as direction would have spent a unit on it.
 - Worker ↔ Oracle and Adversary ↔ Oracle talk **freely**; that is where research
   happens.
 - Oracle → PM only for **major summaries**, or whenever the PM pings it. PM → Oracle
