@@ -1,0 +1,79 @@
+{
+ "what": "catalogue-referenced photometric zero point, aug06/set-01 single RAW (DSC_6289 = memraw r_00003)",
+ "catalogue": "Tycho-2 MAG_VT, supplied by astrometry.net's own --tag-all tag-along into the .corr correspondence table",
+ "instrument_mag": "Siril findstar total-flux magnitude (verified: -2.5log10(A*2pi*sx*sy), offset -0.0001, MAD 0.0027)",
+ "n_matched": 37,
+ "n_saturated_by_tool_flag": 0,
+ "ZERO_POINT": {
+  "median_all": 16.731999912261962,
+  "core_V_T_gt_4p5": {
+   "n": 33,
+   "median": 16.75400001525879,
+   "mean": 16.746090852564034,
+   "sem": 0.014826861932574785,
+   "MAD": 0.06000013351440714
+  }
+ },
+ "FLATNESS_FALSIFIER": {
+  "V_T>3": {
+   "n": 36,
+   "slope_mag_per_mag": 0.06686817001149807,
+   "slope_se": 0.030327715064830712,
+   "sigma_from_flat": 2.2048535429904907
+  },
+  "V_T>4.5": {
+   "n": 33,
+   "slope_mag_per_mag": -0.037027186520637675,
+   "slope_se": 0.03569575378498628,
+   "sigma_from_flat": 1.037299471070741
+  },
+  "V_T>5.0": {
+   "n": 23,
+   "slope_mag_per_mag": -0.006780506035050338,
+   "slope_se": 0.06610945763181164,
+   "sigma_from_flat": 0.10256484136980096
+  }
+ },
+ "THE_OUTLIER_THE_FALSIFIER_CAUGHT": {
+  "MAG_VT": 1.343000054359436,
+  "ZP": 14.983000054359437,
+  "mag_below_flat_ZP": 1.7709999608993527,
+  "tool_Sat_flag": 0,
+  "reads": "the brightest star sits ~1.8 mag below the flat zero point while Siril's own Sat flag reads 0. The tool flag does NOT catch soft non-linearity; the flatness fit does. Excluding it is required and was pre-registered."
+ },
+ "VERDICT": {
+  "outcome": "UNDERPOWERED",
+  "pre_registered_outcomes": {
+   "REFUTES": "measured deficit < 0.54 mag",
+   "AMBIGUOUS": "0.54 - 0.82 mag",
+   "CONSISTENT": ">= 0.82 mag",
+   "UNDERPOWERED": "ZP prediction error > 0.25 mag"
+  },
+  "predicted_deficit_mag": 0.5696,
+  "predicted_deficit_se": 0.0124,
+  "why": "flux constrains the PRODUCT (throughput x t_eff) and no single-epoch photometry separates the factors. The zero point is measured to +-0.015 mag; the ideal zero point it must be compared against cannot be predicted to better than ~0.4-0.5 mag on this rig.",
+  "error_budget_mag": {
+   "photon flux normalisation N(V=0)": 0.02,
+   "aperture: marked f/4 vs true T-stop": 0.15,
+   "QE x transmission integral, Bayer green vs V_T band (response curve unpublished)": 0.35,
+   "gain e-/ADU at ISO 1600 (unmeasured on this rig)": 0.3,
+   "V_T -> instrument band colour term (no B_T in the index)": 0.1,
+   "quadrature total": 0.5,
+   "even with gain measured to 0.10": 0.42
+  },
+  "note": "the QE-integral term ALONE (0.35) exceeds the 0.25 threshold, so UNDERPOWERED does not depend on the other estimates being right.",
+  "what_would_unblock": [
+   "an absolute throughput calibration for this camera+lens",
+   "two nominal exposures on ONE night through the same optics -- the corpus has none; exposure and night are perfectly aliased"
+  ]
+ },
+ "DURABLE_CALIBRATION_FACT": {
+  "note": "measured here and reusable regardless of the verdict",
+  "ZP_V_T": 16.75400001525879,
+  "ZP_V_T_sem": 0.014826861932574785,
+  "conditions": "NIKON Z6_3, NIKKOR Z 24-70/4 S at 70mm, f/4, ISO 1600, 2.5 s, single debayered RAW, green layer, alt 73.8 deg (X = 1.0413), uncalibrated (no dark, no flat), Siril 16-bit scale (14-bit NEF x4)",
+  "ADU_scale_verified": "FITS is uint16 with BZERO 32768; this frame's green plane runs 969..22845 with median 1047, so the brightest pixel is ~35% of a x4-scaled 14-bit full well and NOTHING in this frame is hardware-saturated"
+ },
+ "solve_command": "solve-field k3.xyls --width 6064 --height 4040 --scale-units arcsecperpix --scale-low 15 --scale-high 19 --ra 306.65 --dec 42.54 --radius 6 --corr k3.corr --rdls k3.rdls --tag-all --no-plots --overwrite",
+ "reports_only": "MEASUREMENT. No threshold, no verdict on the science. Exits 0."
+}

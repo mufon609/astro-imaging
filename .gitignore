@@ -242,5 +242,7 @@ datasets/aug06/corner_work/psf_calib_work/
 # scripts and the JSON records ARE the record.
 **/phot_work/*
 !**/phot_work/*.json
+!**/phot_work/*.py
 !**/phot_work/*.ssf
 !**/phot_work/*.lst
+!**/phot_work/*.corr
