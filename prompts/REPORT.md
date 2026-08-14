@@ -154,6 +154,57 @@ nothing, which is worse than a wrong claim.
 convergence operating condition, the pgrep interval entry), `BACKLOG.md`'s register
 and its rules (5) and (8), `TOOLS.md` Tier 3 / Tier 6 / research queue.
 
+### The next batch's input — the cloud signature is ALIVE, on weaker evidence than its headline
+
+**Pre-registered before the run** (`datasets/aug06/cloud_work/cloud_prereg.json`,
+committed with no result attached). **Then corrected twice, and the correction is
+the finding.**
+
+**THE POSITIVE CONTROL WAS BUILT FROM THE QUANTITY UNDER TEST.** The headline read
+`Z_bg +6.07` and `Z_nstars −8.70` on aug06/set-03's 44 excluded frames against a
+matched negative control (set-01, worst 44-frame window, `Z_bg −1.80`). But
+`recipe.json`'s `stack.why` — **one key over from the `exclude` list** — records the
+criterion: *"defect-side robust z >= 3.5 flags exclude"*, census **44 of 44 flagged
+on `nstars`, 29 of 44 also on `bg`.** The exclude list IS that flagger's output, so
+on this control the signature could not have failed — which is what the item's own
+rule forbids.
+
+**WHAT SURVIVES IS NON-CIRCULAR AND IS A FLOOR.** 15 frames were flagged `nstars`
+ONLY, so their `bg` robust-z was **below 3.5** — conditioned AGAINST high bg. On
+those: **`bg` Z +4.05, n=15**, against +6.41 on the 29 circular ones. Conditioned in
+the unfavourable direction, so +4.05 bounds the effect from below rather than
+estimating it. `fwhm` was never a cull field, so **Z_fwhm 1.75 is non-circular** and
+the frames did not get softer — transparency, not seeing or focus.
+
+**WITHDRAWN:** `Z_nstars` entirely (all 44 were nstars-selected); the claim that
+star count carries the signal more strongly than background; and with it the
+proposed correction to `intake-culling`'s *"star count is measured blind on rich
+fields"* note, **which stands uncorrected.**
+
+**THE LIMIT THAT BOUNDS EVERY FUTURE CLAIM ON THIS SIGNATURE:** nothing establishes
+by OBSERVATION that these frames contain cloud. `REPORT.md` calls it a cloud block;
+`recipe.json` records an auto-cull on z-flags. **So what is validated is agreement
+with the existing auto-cull, NOT detection of cloud** — and the acceptance bar for
+this signature can only be *"agrees with, or improves on, the z-flagger"* unless a
+block is identified by a record outside the frame-QA fields.
+
+**Scope:** one set, one night, n=15 non-circular of 44 against 456. No threshold
+proposed, no cull built, no detector wired.
+
+**GENERAL LESSON, and it outlives the result: a cull is not a positive control for
+any signature that uses the fields the cull was made on — check the cull's
+provenance before using it as a control.** A partially-circular control usually
+contains a non-circular sub-population; find the frames selected without reference
+to the field under test. Here the circular headline was **1.5× larger** than the
+honest one, and the strongest-looking half was entirely selection.
+
+**Item state, checked rather than assumed** (`intake-culling`, 7 signature rows):
+**2 built** (aircraft/satellite; shake/wind, which now fires on 2 of 21 frames),
+**1 blocker stale** (cloud — `bg` IS recorded, across 13 sets), **4 open** — of
+which light-pollution/moon needs *"background gradient magnitude + bearing"*, a
+per-frame quantity **nothing records**, making it a larger unit than the cloud step
+rather than a fallback from it.
+
 ## Landed during the corner-quality session — the axis is settled, and the crop line the brief asked for is REFUSED by the numbers
 
 **The corners degrade on MEMBER-OWN FIELD RADIUS. Coverage depth contributes
