@@ -33,6 +33,8 @@
 #   the tool. That is deliberate where the tool needs root; the row says so.
 set -uo pipefail          # NOT -e: every row must run even after one fails
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
+SCRATCH=$(mktemp -d "${TMPDIR:-/tmp}/manifest_verify.XXXXXX")
+trap 'rm -rf "$SCRATCH"' EXIT
 MANIFEST="$REPO/scripts/setup/manifest.tsv"
 
 run_column() {            # <manifest-path> ; prints failures, returns count
@@ -44,7 +46,12 @@ run_column() {            # <manifest-path> ; prints failures, returns count
     if [ -z "${cmd:-}" ]; then
       printf '  FAIL %-20s (no verify command)\n' "$tool"; bad=$((bad+1)); continue
     fi
-    out=$(eval "$cmd" 2>&1); rc=$?
+    # RUN IN A SCRATCH CWD, NOT THE REPO ROOT. MEASURED: Nightlight's verify
+    # command writes `out.log` into the CURRENT DIRECTORY, so running this column
+    # from the repo root left an untracked file behind on EVERY run — a guard that
+    # dirties the tree it guards, and one that `git status` then reports as a
+    # mystery. A verify command is someone else's binary; assume side effects.
+    out=$(cd "$SCRATCH" && eval "$cmd" 2>&1); rc=$?
     if [ $rc -ne 0 ]; then
       printf '  FAIL rc=%-4s %-20s %s\n' "$rc" "$tool" "$(printf '%s' "$out" | head -1 | cut -c1-70)"
       bad=$((bad+1))
@@ -57,7 +64,10 @@ run_column() {            # <manifest-path> ; prints failures, returns count
 if [ "${1:-}" = "--selftest" ]; then
   # POSITIVE CONTROL — required by CLAUDE.md: an acceptance measure ships with
   # data on which it MUST fire. A guard nobody has seen go RED is not a guard.
-  tmp=$(mktemp); trap 'rm -f "$tmp" /tmp/.cmv.$$' EXIT
+  tmp=$(mktemp)
+  # NOTE: traps REPLACE, they do not accumulate — every trap here must re-list
+  # SCRATCH or the scratch dir leaks on every run.
+  trap 'rm -rf "$SCRATCH"; rm -f "$tmp" /tmp/.cmv.$$' EXIT
   head -1 "$MANIFEST" > "$tmp"
   printf 'planted\t0\tfixture\tnone\t/nonexistent\t/nonexistent/definitely-not-here --version\tplanted row that MUST fail\n' >> "$tmp"
   run_column "$tmp" >/dev/null
@@ -79,7 +89,7 @@ if [ "${1:-}" = "--selftest" ]; then
   exit 0
 fi
 
-trap 'rm -f /tmp/.cmv.$$' EXIT
+trap 'rm -rf "$SCRATCH"; rm -f /tmp/.cmv.$$' EXIT
 run_column "$MANIFEST"
 read -r n bad < /tmp/.cmv.$$
 if [ "$bad" -ne 0 ]; then
