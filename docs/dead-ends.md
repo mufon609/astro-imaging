@@ -1831,6 +1831,53 @@ SILENT — pin the state, never inherit it):
   so on a well-maintained tree the count is guaranteed to mislead.** Read the
   sentence. The correct instrument here is `grep -o` with context, and then human
   reading of what came back.
+- **A WRAPPER SILENTLY CHANGES THE SUBJECT WHEN THE COMMAND IS A SHELL FUNCTION,
+  AND THE VARIANT THAT RETURNS PLAUSIBLE NUMBERS IS WORSE THAN THE ONE THAT RETURNS
+  NOTHING.** MEASURED. `grep` in an agent's interactive shell is not the rig's grep:
+  the Claude Code shell snapshot shadows it — its own comment reads *"Shadow
+  find/grep with embedded bfs/ugrep"* — with
+  `ARGV0=ugrep "$CLAUDE_CODE_EXECPATH" -G --ignore-files --hidden -I --exclude-dir=.git …`.
+  **`timeout`, `time`, `env`, `xargs`, `nice` and `strace` exec a BINARY and bypass
+  the function**, so a wrapped probe and a bare one run different programs on the
+  same command string:
+  `grep` → **ugrep 7.5.0**; `/usr/bin/grep`, `timeout … grep` and
+  `env -i /bin/sh -c grep` → **GNU grep 3.12**.
+  **That one fact produced FOUR write-ups of a single search failure, three of them
+  wrong**, across three sessions: a "silent zero" that would not reproduce (it does,
+  on ugrep — `rc=2 exceeds complexity limits`, 5 stderr lines, on a two-range
+  window); an "intermittent, load-correlated" error (**deterministic at 15-min
+  loadavg 0.91 and 0.68**, and simply absent on GNU grep); and a `-c` that appeared
+  to change meaning (ugrep `-oEc` **12** matches, ugrep `-Ec` **3** lines,
+  `/usr/bin/grep -oEc` **3** lines even under `-o`).
+  **THE SAME MECHANISM FIRED TWICE IN ONE DAY WITH OPPOSITE SYMPTOMS**, which is
+  what makes the plausible-number case the dangerous one: `/usr/bin/time siril_cli …`
+  could not run a shell function at all and returned **empty output, nearly read as
+  a measurement**; `timeout grep …` ran a different program and returned **clean
+  numbers, read as the same measurement**.
+  **REPEATS DO NOT SAVE YOU — repeats of the wrong program are a precise wrong
+  answer**, and a 3-repeat ladder taken through `timeout` was published as the
+  evidence for withdrawing a correct finding.
+  **THE RULE: `type <cmd>` before wrapping anything, and in a cross-session
+  comparison name the PROGRAM and the QUANTITY beside the number.** Two sessions
+  both said "grep" and meant different programs, so each correctly deferred to the
+  other's contradicting measurement and BOTH landed wrong — deferring to a peer's
+  measurement over your own inference is normally right, and fails only when the
+  instruments differ invisibly. Same class as `bgnoise` not being `bg`, one level up.
+  **SCOPE THAT OUTLIVES THE INCIDENT: this repo's shipped scripts and guards get GNU
+  grep 3.12, never ugrep** (`env -i /bin/sh -c grep`), so nothing concluded from an
+  interactive `grep` describes how a shipped script behaves.
+  **And the agent's grep is `git grep`-shaped, which is mostly CORRECT here:** `-G`
+  (BRE, so `{n,m}` needs `-E`/`-P`) plus `--ignore-files`. Over `*.md` — agent
+  **25**, `/usr/bin/grep` **27**, `git ls-files '*.md'` **25**, the agent's set
+  *identical* to the tracked set, the whole gap being two untracked judge notes
+  under the gitignored output root. For RECORD sweeps that scope is safer than GNU
+  grep, which can lift a stale claim out of an untracked scratch file and present it
+  as the tree's position. **The residual has a DIRECTION worth carrying: a
+  declaration inside a gitignored path is HIDDEN from interactive ugrep and VISIBLE
+  to a guard's GNU grep, so it surfaces as a guard failure nobody can reproduce by
+  hand.** `check_removal_conditions.sh` was built interactively and runs under bash;
+  re-measured on both programs it reads **28 files each, `comm` empty in both
+  directions** — unaffected, by luck rather than design.
 - **A NUMBER MEASURED FROM A LIVE TREE DESCRIBES A STATE THAT MAY NEVER HAVE BEEN
   COMMITTED — and it reads as a property of the work rather than of the moment.**
   The registry already says *never EDIT a running script*; this is the other half,
