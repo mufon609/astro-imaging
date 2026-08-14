@@ -374,9 +374,30 @@ def contract_check():
                        "D2": 0.01 + 0.10 * rho * np.sin(2 * phi) + rng.normal(0, .01, npts)})
         return fs
 
+    # THE TRAIL PREDICTION IS SUBSTITUTED, AND THAT IS DELIBERATE. `per_bin` calls
+    # `trail_vectors()`, which reads `phot_work/k3.wcs` — a file GITIGNORED at
+    # .gitignore:243 and therefore ABSENT ON A FRESH CLONE. MEASURED: with k3.wcs
+    # moved aside this check raised FileNotFoundError, so as written it could not
+    # join `run_guards.sh` without making the runner go RED on a clean checkout,
+    # which is worse than the gap it closes.
+    #
+    # What the substitution costs, stated so it is not mistaken for free: the real
+    # WCS->trail path is NOT exercised here. That is acceptable because the contract
+    # under test is the ROW SCHEMA — the keys, and the declared `error_model` — and
+    # the trail values are incidental to it. The break this check exists for was a
+    # key name, not a trail number. Anything that tests the trail physics belongs in
+    # the corpus-backed selftests, which stay excluded from the runner.
+    def _planted_trail(x, y):
+        return (np.full(len(x), 0.10), np.full(len(x), 0.02), np.full(len(x), 1.6))
+
     out = []
     # cfa_control measures on the HALF-SIZED CFA grid; frame_depth on the full one.
-    cfa_rows = cfa_control.per_bin(planted(3032, 2020))
+    _real_tv = cfa_control.trail_vectors
+    cfa_control.trail_vectors = _planted_trail
+    try:
+        cfa_rows = cfa_control.per_bin(planted(3032, 2020))
+    finally:
+        cfa_control.trail_vectors = _real_tv
     full = planted(6064, 4040)
     T1f = [np.full(len(f["rho"]), 0.10) + 0.02 * f["rho"] for f in full]
     T2f = [np.full(len(f["rho"]), 0.02) + 0.01 * f["rho"] for f in full]
@@ -459,6 +480,20 @@ def main():
         return 2
     if sys.argv[1] == "--selftest":
         return selftest()
+    if sys.argv[1] == "--contract":
+        # The CORPUS-FREE subset, exposed separately so `run_guards.sh` can call
+        # it without pulling in the rest of this file's corpus-backed selftest.
+        # `--selftest` wholesale would drag in tracked records AND (through
+        # per_bin) the GITIGNORED phot_work/k3.wcs; this entry point is planted
+        # throughout and MEASURED to pass with that file absent.
+        bad = 0
+        for who, ok, msg in contract_check():
+            print("  %-24s %s" % (who, ("OK   " + msg) if ok
+                                  else "*** FAIL *** " + msg))
+            bad += (not ok)
+        print("contract: %s" % ("GREEN — every sibling feeds constancy()"
+                                if not bad else "RED — %d sibling(s)" % bad))
+        return 1 if bad else 0
     pop = population()
     T1, T2, Lpx = trail_vectors(pop["x"], pop["y"])
 
