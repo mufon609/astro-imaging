@@ -398,6 +398,26 @@ re-derived under `-moffat` before it is quotable, which the β pathology makes n
 worth doing. Numbers and the control that validates the probe environment:
 `datasets/aug06/corner_work/moffat_probe.json`.
 
+**A MEASURED ZERO POINT FOR THIS CAMERA+LENS, and the structural reason it cannot
+settle an exposure question.** **ZP_V_T = 16.754 ± 0.015** (sem; MAD 0.060, n = 33
+at V_T > 4.5, none tool-flagged saturated) for **NIKON Z6_3 + NIKKOR Z 24-70/4 S at
+70 mm, f/4, ISO 1600, 2.5 s**, single debayered UNCALIBRATED raw, green layer, alt
+73.8° (X = 1.0413). Instrument: astrometry.net solves and supplies the catalogue
+magnitude via `solve-field --tag-all` (Tycho-2 `MAG_VT` into the `.corr` table),
+Siril `findstar` supplies `mag` — read the total-flux fact above before using it.
+**WHAT IT CANNOT DO, and the reason is structural rather than a precision limit:** a
+zero point is *defined* as whatever reconciles instrumental with catalogue
+magnitudes, so it absorbs gain, aperture, transmission, extinction and exposure in
+ONE number. Measured flux constrains the PRODUCT (throughput × t_eff) and no
+single-epoch photometry separates the factors. Testing a 0.570 mag effective-exposure
+deficit needs an independent throughput prediction to better than 0.25 mag, and the
+**QE × transmission integral alone is ~0.35 mag** (Bayer green vs V_T, response curve
+unpublished) — so the verdict does not even depend on the gain, aperture or colour
+terms. **The ZP is measured 33× better than the quantity it must be differenced
+against; more photometry cannot help.** The lever that would break it is two nominal
+exposures on one night through the same optics, which this corpus does not have —
+exposure and night are perfectly aliased.
+
 **TWO CATALOGUE FACTS MEASURED ON THIS RIG, both of which blocked a real
 measurement — read before designing anything that needs a star catalogue.**
 

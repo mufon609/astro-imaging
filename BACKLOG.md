@@ -51,7 +51,7 @@ dataset, and says so.
 | `constancy_fit.py` in-house per-ρ-bin spin-2 binning + the 3-parameter constancy least squares (`C = f·T + K`) | a tool reports a FIELD-CONSTANT PSF component over a star list, or the `rl -loadpsf=` route it gates is closed either way | 2026-08-13 | **not fired — and it CORRECTED THE ERROR MODEL OF EVERY PER-BIN NUMBER IN THIS THREAD.** Every star, PA and FWHM is Siril `findstar`'s; the WCS behind the trail prediction is astrometry.net's; the conversion is `psf_calib.json`'s fitted κ. In-house: the binning, the spin-2 bookkeeping and the least squares. Reads no pixel. **THE FINDING: a star-level bootstrap inside one pooled population understates the per-bin fixed term's uncertainty by a median 5.76× (range 4.1–9.2×) against the five raws treated as INDEPENDENT realisations** — χ²/dof 35.6 on bootstrap errors becomes ~1.1 on frame-based ones, so the bootstrap manufactures rejections. A per-bin property estimated from N frames has N independent realisations; resampling stars inside a pool is not an error bar for it. **This retracts the quoted significance of the fixed term's rotation** (recorded as "10 to 20σ" from those bootstrap SEs): the rotation SURVIVES at χ² 74.6 on 4 dof with frame-based errors, but only with DSC_6239 — the first-frame-of-night anomaly, already on the record in two other quantities — excluded; with all five frames nothing rejects (χ² 3.0/4). `--selftest` recovers a planted (f, K) at two settings AND asserts a deliberately ROTATING residual CANNOT be fitted by a constant (χ²/dof 20136) |
 | `kappa_transfer.py` in-house fixture renderer + straight-line fit (tests whether the trail conversion κ survives a realistic base profile) | a tool reports the trail-to-anisotropy conversion for its OWN fitter, or the trail question closes | 2026-08-13 | **not fired — and it ANSWERED the premise it was built for.** Probed first, tool before in-house: Siril's `makepsf stars -savepsf=` runs headless and wrote a 33×33 PSF from 322 bright non-saturated stars, but that PSF measures **9 px × 3 px at half maximum** — a 3:1 elongation ~4× broader than the real stars (2.4 × 2.0 px), so it is not this frame's stellar profile and was REJECTED with a measurement rather than an opinion. The base used instead is **PSFEx's** model (`psfex_work/deg3/g_00005.psf`, PSF_FWHM 2.401 px at PSF_SAMP 0.511), cut PERPENDICULAR to its major axis — the untrailed base, since a linear smear convolves along one axis only, and no untrailed star exists on this rig to measure directly. Its minor-axis FWHM (1.89–2.11 px) BRACKETS `psf_calib`'s 2.010 px Gaussian, so the substitution changes SHAPE and not width. Four arms hold the L ladder, 7×7 supersampling, phase randomisation, amplitude range, Poisson stream, 56 px grid and the identical `findstar` call: **A** reproduces the pinned κ = 0.49374712819727373 **EXACTLY** (ratio 1.000000, so the harness did not move), **B** costs 0.14% for the discrete renderer, **C** swaps the profile, **D** re-randomises placement at matched density. `--selftest` asserts the segment adds **exactly** L²/12 anisotropy at three lengths and puts it in the cross term at 45° — it FAILED first, catching two real bugs in this file's own kernel (endpoint-sampled `linspace` inflating the segment variance by (N+1)/(N−1), and a bilinear deposit adding h²/6 to ONE axis, which does not cancel in major²−minor²); both fixed by integrating the base along the segment instead of depositing a segment kernel. Reads no deliverable pixel; the frames are FIXTURES, same standing as `psf_calib.py`'s |
 | `coherent_trail.py` in-house spin-2 coherent-anisotropy estimator + per-ρ-bin joint fit | Siril (or any tool in `TOOLS.md`) reports a coherent spin-2 moment over a star list, or the trail question it serves closes | 2026-08-13 | **not fired** — probed: `findstar` reports per-star major/minor/PA and nothing aggregate; no siril command reports a coherent moment. Every star, every PA and the CONVERSION constant are Siril's (the constant is `psf_calib.json`'s FITTED 0.49375, measured by pushing planted trails through the same `findstar` call — **not** the analytic identity 0.46209, which understates the prediction by 6.41%); in-house is only the spin-2 bookkeeping, the cut ladder and the least-squares fit. Reads no pixel. REPORTS ONLY, exits 0. **Built because the composition was MISSING while its components survived** — the estimator behind this thread's central number existed only as inline code in a lost transcript. Gated on reproducing recorded numbers before producing new ones, and it does: Gate 1A nine numbers on `psf_work/f{1,2,3}.lst` (coherent magnitude 0.586908 = 0.5869, axis 9.1573 = 9.16, projection 0.579819 = 0.5798, frac-negative 0.29329 = 0.294 …); Gate 1B the full cut ladder AND all five per-raw values at once (0.4615/0.7573/0.8026/0.7951/0.8154, ladder 0.7264/0.7276/0.7251/0.7131); Gate 2 the planted control in `--selftest` (n 2735 = 2735, projection 1.3403 = 1.3403, axis 4.9034 = 4.9). **The fixture failed twice before it passed, both times in the FLATTERING direction:** the planted sites are in ARRAY order where `findstar` reports FITS order, so as-is matching recovered 85 of 2765 as chance coincidences and read the REAL population as planted (exact relation, measured: x+0.5, (H−0.5)−y, median residual 0.000 px both axes; the selftest now asserts the unflipped match must FAIL); and `injected2`/`sites2` is the representative frame while the lower-numbered pair is the discarded first-frame anomaly, pinned by a check that it still reads its −29.3° axis |
-| `zero_point.py` in-house ZP arithmetic (`MAG_VT − m_inst` and its median/flatness fit) | an absolute throughput calibration for this camera+lens exists on the rig, **or** the corpus gains two nominal exposures on one night through the same optics | 2026-08-13 | **not fired, and the item it serves is CLOSED as UNDERPOWERED** (`photometric-exposure-test`). astrometry.net does the solve, the field↔catalogue MATCH and supplies the catalogue magnitude itself — `solve-field --tag-all` propagates the Tycho-2 index's `MAG_VT` tag-along into the `.corr` table, so there is **no in-house catalogue reader and no cross-matcher**; in-house is only the subtraction, the median and the flatness fit. Reads no deliverable pixel (the one pixel read is a DIAGNOSTIC on the FITS data range, explicitly outside the bright line). **VERIFIED not assumed, and it is what makes the result valid:** Siril `findstar`'s `mag` is a TOTAL-flux magnitude, −2.5log10(A·2π·sx·sy), offset −0.0001 with MAD 0.0027 — a peak magnitude would have been wrong by 1.76 mag, three times the signal, and nothing in the column name says which it is. `--selftest` carries a fixture that CAN fail, including the check that a planted 0.57 mag deficit moves the ZP by 0.57 |
+| `zero_point.py` in-house ZP arithmetic (`MAG_VT − m_inst` and its median/flatness fit) | an absolute throughput calibration for this camera+lens exists on the rig, **or** the corpus gains two nominal exposures on one night through the same optics | 2026-08-13 | **not fired, and the question it served is CLOSED as UNDERPOWERED for a STRUCTURAL reason — the measured ZP and that reason are now in `TOOLS.md`, since a zero point for this camera+lens outlives any one experiment.** astrometry.net does the solve, the field↔catalogue MATCH and supplies the catalogue magnitude itself — `solve-field --tag-all` propagates the Tycho-2 index's `MAG_VT` tag-along into the `.corr` table, so there is **no in-house catalogue reader and no cross-matcher**; in-house is only the subtraction, the median and the flatness fit. Reads no deliverable pixel (the one pixel read is a DIAGNOSTIC on the FITS data range, explicitly outside the bright line). **VERIFIED not assumed, and it is what makes the result valid:** Siril `findstar`'s `mag` is a TOTAL-flux magnitude, −2.5log10(A·2π·sx·sy), offset −0.0001 with MAD 0.0027 — a peak magnitude would have been wrong by 1.76 mag, three times the signal, and nothing in the column name says which it is. `--selftest` carries a fixture that CAN fail, including the check that a planted 0.57 mag deficit moves the ZP by 0.57 |
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
@@ -1060,62 +1060,6 @@ negative R values are inner annuli at 0.1–1.5 SE). So the coma reading stands 
 UNRESOLVED-but-consistent, not retired. **Standing rule from this: state which
 quantity's exponent you are quoting, every time.**
 
-## `photometric-exposure-test` — CLOSED as UNDERPOWERED, and the degeneracy is structural
-
-**The question:** the raws carry ~0.35× the geometrically predicted coherent
-trail; one surviving explanation is an EFFECTIVE EXPOSURE shorter than nominal.
-Flux is linear in time, so that predicts a photometric zero-point deficit of
-**0.570 ± 0.012 mag** (`coherent_trail.py`'s pinned inner-three bins;
-t_eff/t_nom = √0.3502 = 0.5918).
-
-**MEASURED, and the measurement is not the problem** — 37 Tycho-2 stars on one
-aug06/set-01 RAW, none tool-flagged saturated
-(`datasets/aug06/corner_work/phot_work/zero_point.json`):
-
-| | |
-|---|---|
-| **ZP (V_T > 4.5, n = 33)** | **16.754, sem 0.015, MAD 0.060** |
-
-**VERDICT: UNDERPOWERED — and for a STRUCTURAL reason, not for want of
-precision.** Measured flux constrains the PRODUCT (throughput × t_eff), and no
-single-epoch photometry separates the factors: a zero point is *defined* as
-whatever reconciles instrumental with catalogue magnitudes, so it absorbs gain,
-aperture, transmission, extinction and exposure in one number. Testing 0.570 mag
-needs an independent throughput prediction to better than 0.25 mag:
-
-| term | mag |
-|---|---|
-| photon flux normalisation N(V=0) | 0.02 |
-| aperture: marked f/4 vs true T-stop | 0.15 |
-| **QE × transmission integral, Bayer green vs V_T (response curve unpublished)** | **0.35** |
-| gain e⁻/ADU at ISO 1600, unmeasured on this rig | 0.30 |
-| V_T → instrument band colour term (no B_T in the index) | 0.10 |
-| quadrature | 0.50 (0.42 with gain measured) |
-
-**The QE-integral term ALONE exceeds the threshold**, so the verdict does not
-depend on the other estimates. The ZP is measured **33× better** than the
-quantity it must be differenced against — more photometry cannot help.
-
-**ONE BLOCKER WITH TWO FACES, and recording it as one is what stops a third arm
-being scoped into it.** The lever that would break the degeneracy is *two nominal
-exposures on one night through the same optics*. The C/A exposure arm terminated
-on exactly that missing lever, reached from a completely different direction (a
-spin-2 ratio test, not a photometric bound). Exposure and night are perfectly
-aliased in this corpus, and that does not merely block those two tests — **it
-blocks the QUESTION**.
-
-**THE SURVIVING DELIVERABLE, which did not exist before and is reusable:**
-**ZP_V_T = 16.754 ± 0.015** for NIKON Z6_3 + NIKKOR Z 24-70/4 S at 70 mm, f/4,
-ISO 1600, 2.5 s, single debayered UNCALIBRATED raw, green layer, alt 73.8°
-(X = 1.0413). **Read the ADU scale with it:** the FITS is uint16/BZERO 32768
-holding a **×4-scaled 14-bit** frame — this frame's green plane runs 969–22845
-about a median of 1047, so the brightest pixel is ~35% of full well and nothing
-in it is hardware-saturated. Do not re-derive full well from the raw integers.
-
-**Closes when** either removal condition on `zero_point.py` fires: an absolute
-throughput calibration for this camera+lens exists on the rig, or the corpus
-gains two nominal exposures on one night through the same optics.
-
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
 Two independent traps, both MEASURED, both of which have already misled a session
@@ -1159,58 +1103,6 @@ evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
 **Closes when** `field_center` is either renamed to what it is
 (`first_frame_center`) or computed as the set's actual pointing, and the two
 `docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
-
-## `psf-homogenisation` — REJECTED BY THE OWNER, and it is a category error not a preference
-
-**OWNER RULING. PSF homogenisation — convolving each frame to a common, broader
-target PSF so corner and centre match — is REFUSED, and the reasoning binds
-wider than this one technique.** Their words: softening the centre *"is
-absolutely not a fix"*; *"the centre is most important and it would be stupid to
-take that for granted"*; it is *"not a suggested improvement but an accepted
-failure mode"*. **"Fix the root or it isn't a fix at all."**
-
-**The general rule this establishes:** matching the corner to the centre by
-DEGRADING THE CENTRE is a bandaid by construction, and so is any variant that
-buys uniformity by spending quality at the good end of the field. Cropping and
-zone down-weighting are the same act by other means and were already refused.
-**Only a treatment that RECOVERS corner detail counts as a fix.**
-
-**Why it was proposed, and the flaw worth keeping.** The Oracle argued the cause
-is localised OUTSIDE the chain (true of the corner GRADIENT — it is in the photons
-of single unprocessed RAWs), therefore no chain fix removes it, therefore the
-remaining cause questions decide nothing actionable — because *"every available
-response is identical under either aberration label"*. That equivalence listed
-four responses: homogenisation, zone down-weighting, accept it, and
-spatially-varying deconvolution. **Three of the four are ways of not fixing it.**
-Only spatially-varying deconvolution attempts recovery. The equivalence holds only
-by counting non-fixes as responses, and removing them collapses the argument for
-stopping.
-
-**And the measured half that refutes it directly:** at the frame CENTRE there is
-no aberration gradient at all, so the chain is essentially the entire degradation
-there — **~12% of PSF width, of which the Lanczos4 kernel is 0.45% and our own
-CLAMP pin is 6.26%** (`resample-cost-and-drizzle`). That is a root cause, it is
-INSIDE the chain, it is ours, and it was reachable. A treatment that adds blur at
-the centre was proposed for a chain already softening the centre by ~12%.
-
-**AND THE LITERATURE AGREES WITH THE OWNER, FORMALLY — this is not an aesthetic
-preference, it is a measured information loss with a strictly better documented
-alternative.** Zackay & Ofek 2017, *"How to coadd images?"* I and II
-(arXiv:1512.06872, 1512.06879): the optimal coadd applies a matched filter to
-each image USING ITS OWN PSF and only then sums, and — verbatim — **"methods that
-either match filter after coaddition, or perform PSF homogenization prior to
-coaddition, will result in loss of sensitivity."** The proper coadd "preserves all
-the information from the original individual images on all spatial frequencies".
-So homogenisation is the OLDER standard (the DES/Pan-STARRS lineage it was
-proposed from) and the modern result supersedes it. *"An accepted failure mode"*
-is the correct technical characterisation. Implementation lead, availability
-UNVERIFIED here: `properimage` (quatrope/ProperImage) is the reference
-implementation and is pip-installable — a COADDITION route, orthogonal to the
-deconvolution question.
-
-**Closes when** nothing — this is a standing doctrine entry, not open work. It is
-recorded so the proposal is not re-made, and so the general form (uniformity
-bought by degrading the good region) is refused on sight.
 
 ## `corner-fix-landscape` — every candidate, classified against the bandaid test
 
@@ -1779,33 +1671,6 @@ diagnostic: the A/B path already has `--regdata=` (removal-conditions register),
 which pins registration WITHOUT touching what a default build emits. Changing the
 default changes every single-pass product's canvas, so it is a declared-delta
 change needing its own before/after.
-
-## ~~`parallel-session-staging-unit`~~ — CLOSED, both proposals ratified and landed
-
-**The owner decided both. Neither is open.** This item was written by a peer
-session as two proposed `CLAUDE.md` amendments; the owner ratified both and they
-are in the contract:
-
-- **The staging unit** — the owner delegated the choice ("you decide"), and the
-  hunk check with a mechanical count in front of it landed at **`b36ef3b`**. The
-  clause now reads *the unit of contamination is the FILE, not the staging flag*,
-  requires `git diff --numstat` then `git diff` before committing any file, and
-  promotes "name the file you committed" from courtesy to rule. The structural
-  option was rejected with its reason recorded: per-case judgement was not what
-  failed — no check was run at all — and it would tax the files a manager edits
-  most on every peer-live session.
-- **The blind-spot sentence** — ratified as part of "(a) and (b)" and landed at
-  **`64f61d2`**: *agreement between sessions is not evidence — it is the region
-  where this practice is blind, and it is the larger region*, with the tripwire
-  that makes it actionable (a session's report NAMES the premises it did not
-  test; convergence is logged UNCHECKED, never CONFIRMED).
-
-**Why this row survived its own closure for a while, which is the reusable part:**
-the decisions were made through the manager and landed in `CLAUDE.md`, while the
-BACKLOG rows recording them as *pending* were a peer's and nobody closed them. A
-record can go stale by being RESOLVED ELSEWHERE, not only by being contradicted —
-and the manager's own handoff then reported both as still waiting on the owner.
-Close the row in the commit that lands the decision.
 
 ## `l1-set02-nonreplication` — two powered surfaces, same night, opposite answers
 

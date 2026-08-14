@@ -1489,6 +1489,37 @@ the constraints any such tool must satisfy):
 - CLASSICAL deconvolution (makepsf + RL) where trailing is in-exposure fails —
   unstable symmetric PSF on ≈0 background. (A LEARNED deconvolver is NOT classical RL
   and is a live x86 option, not a dead-end — tool choice + CPU costs in `TOOLS.md`.)
+- **PSF HOMOGENISATION — REFUSED BY THE OWNER, and the ruling binds wider than the
+  technique.** Convolving each frame to a common, broader target PSF so corner and
+  centre match is *"absolutely not a fix"*; *"the centre is most important and it
+  would be stupid to take that for granted"*; it is *"not a suggested improvement
+  but an accepted failure mode"*. **"Fix the root or it isn't a fix at all."**
+  **The general form refused on sight: matching the corner to the centre by
+  DEGRADING THE CENTRE, and any variant buying uniformity by spending quality at
+  the good end of the field. Cropping and zone down-weighting are the same act by
+  other means. Only a treatment that RECOVERS corner detail counts as a fix.**
+  **The literature agrees formally — this is a measured information loss, not an
+  aesthetic preference.** Zackay & Ofek 2017, *"How to coadd images?"* I and II
+  (arXiv:1512.06872, 1512.06879): the optimal coadd applies a matched filter to
+  each image USING ITS OWN PSF and only then sums, and verbatim — **"methods that
+  either match filter after coaddition, or perform PSF homogenization prior to
+  coaddition, will result in loss of sensitivity."** The proper coadd *"preserves
+  all the information from the original individual images on all spatial
+  frequencies"*. So homogenisation is the OLDER standard (the DES/Pan-STARRS
+  lineage it was proposed from) and the modern result supersedes it.
+  **The argument that produced the proposal, kept because the flaw recurs:** it was
+  argued that since the cause is outside the chain, *"every available response is
+  identical under either aberration label"* — listing homogenisation, zone
+  down-weighting, accept-it, and spatially-varying deconvolution. **Three of the
+  four are ways of not fixing it**; the equivalence holds only by counting
+  non-fixes as responses. **And the measured half that refutes it directly:** at
+  the frame CENTRE there is no aberration gradient at all, so the chain is
+  essentially the entire degradation there — ~12% of PSF width, of which the
+  Lanczos4 kernel is 0.45% and our own CLAMP pin is 6.26%. A treatment that adds
+  blur at the centre was proposed for a chain already softening the centre by ~12%.
+  Implementation lead if the COADD question is ever reopened (orthogonal to
+  deconvolution, availability UNVERIFIED here): `properimage` (quatrope/ProperImage),
+  pip-installable.
 
 **Tool state / plumbing** (a persisted preference and a dropped header are both
 SILENT — pin the state, never inherit it):

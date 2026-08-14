@@ -137,7 +137,7 @@ nor destroys the effect. **Judged not worth it; disagree only with a design.**
 
 **THE STRUCTURAL BLOCKER, unchanged:** exposure and night are perfectly aliased in
 this corpus, which blocks the C/A ratio arm AND the photometric bound from
-completely different directions. `photometric-exposure-test` is CLOSED as
+completely different directions. That question is CLOSED as
 UNDERPOWERED for a STRUCTURAL reason — the QE×transmission term alone is 0.35 mag
 against a 0.25 mag requirement — so **a measured ZP cannot separate throughput
 from t_eff however well measured.** Do not re-propose a photometric arm; an Oracle
