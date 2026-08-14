@@ -57,9 +57,25 @@
 # - `scripts/setup/x86_bootstrap.sh --selftest-gaia` — a bootstrap-LAYER fire
 #   test (note the different flag), which downloads the Gaia catalogue into a
 #   scratch dir. Not a repo guard and far too heavy for this runner.
-# - `datasets/aug06/corner_work/*.py --selftest` (10 instruments) — PER-DATASET.
-#   They depend on one dataset's tracked records being present, so they are not
-#   repo guards; they are listed here so nobody concludes they were forgotten.
+# - `datasets/aug06/corner_work/*.py --selftest` — PER-DATASET, with TWO
+#   DELIBERATE EXCEPTIONS now in the roster. The rest depend on one dataset's
+#   records and are not repo guards; they are listed here so nobody concludes
+#   they were forgotten.
+#   **THE EXCEPTIONS, AND WHY THE ORIGINAL RULE WAS THE WRONG SHAPE:**
+#   `pa_convention.py` has SIX importers and `constancy_fit.py` has TWO — they
+#   are shared LIBRARIES that happen to live in a per-dataset directory, and the
+#   exclusion keyed on where a file LIVES rather than on what it IS. MEASURED
+#   COST OF THAT: a change to `decompose()` left two sibling instruments dead on
+#   their analysis path, and every check in play was structurally unable to see
+#   it — the sibling selftests never reached the shared call, the runner skipped
+#   the whole directory by this rule, and the library's own fixtures were updated
+#   in the same commit as the rename. MEASURED SAFETY OF ADDING THEM: both pass
+#   with NO arguments, and the records they read
+#   (`datasets/aug06/set-01/acquisition.json`) are TRACKED, so they are present in
+#   any clone — the exclusion's stated reason does not apply to these two. Cost
+#   ~12 s. `constancy_fit --selftest` carries `contract_check()`, which calls each
+#   sibling's OWN row builder and hands the result to the shared fitter, so this
+#   is the check that would have caught that regression.
 set -uo pipefail          # NOT -e: every check must run even after one fails
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 cd "$REPO"
@@ -83,6 +99,10 @@ CHECKS=(
   "selftest grid_ramp|python3 scripts/qa/grid_ramp.py --selftest"
   "selftest coverage_frame|python3 scripts/qa/coverage_frame.py --selftest"
   "selftest starlight_preservation [network]|python3 scripts/qa/starlight_preservation.py --selftest"
+  # THE TWO SHARED LIBRARIES UNDER corner_work/, ADDED DELIBERATELY — see the
+  # exclusion note above, which they are the stated exception to.
+  "selftest pa_convention [lib]|python3 datasets/aug06/corner_work/pa_convention.py --selftest"
+  "selftest constancy_fit [lib]|python3 datasets/aug06/corner_work/constancy_fit.py --selftest"
 )
 
 if [ "${1:-}" = "--list" ]; then
