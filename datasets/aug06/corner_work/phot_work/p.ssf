@@ -1,0 +1,5 @@
+requires 1.4.4
+set32bits
+setext fit
+load web/results/aug06/stack_set-01_full_wcs.fit
+conesearch 15 -cat=localgaia -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/phot_work/gaia_local.csv
