@@ -156,11 +156,21 @@ TOOL_SEARCH = {
         "of the cube, not the green layer the rest of the chain uses, and it is "
         "another per-image photometer — it does not close the cross-image gap. "
         "Needs a default.conv in CWD or it aborts.",
-    "SCAMP (astromatic)": "NOT PACKAGED on this distro — apt-cache policy scamp "
-        "has no candidate (source-extractor and swarp do). It is the removal "
-        "condition for this script. Note its photometric solution is per-exposure "
-        "zero points against overlaps, i.e. the nuisance term here, not the "
-        "focal-plane field.",
+    "SCAMP (astromatic)": "INSTALLED — 2.10.0, built from the Debian SOURCE "
+        "package into ~/.local/bin (scripts/setup/install_astromatic.sh). The "
+        "earlier note here said 'NOT PACKAGED on this distro' on the strength of "
+        "`apt-cache policy`, which reads the BINARY index only; `apt-cache "
+        "showsrc scamp` returns 2.10.0-2 and deb-src is configured. Availability "
+        "was never the blocker. THE CAPABILITY NOTE STANDS AND IS THE REAL "
+        "ANSWER: its photometric solution is per-exposure zero points against "
+        "overlaps — the nuisance term here, not the focal-plane field. Verified "
+        "in the source: src/preflist.h carries five astrometric order/degree "
+        "parameters and NO photometric analogue of DISTORT_DEGREES, and "
+        "src/photsolve.c solves 'a different system for each instrument' with "
+        "zero points as the unknowns. So this removal condition does NOT fire "
+        "even now that SCAMP is on PATH — it solves the catalogue-free half and "
+        "has no position-dependent term at all. Its ASTROMETRIC side is a "
+        "different question and belongs to BACKLOG:compose-homography-smear.",
     "conclusion": "no installed tool cross-matches a star across a drifting "
         "sequence headless, so the cross-match and the fit are the in-house part.",
 }
