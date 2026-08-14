@@ -259,6 +259,29 @@ headless LOCAL star-shape map.
 
 ## Tier 3 — Photometric colour calibration
 
+**TWO `findstar` PHOTOMETRY FACTS, both MEASURED, and getting either wrong is
+worth more than the signal any photometric test here is chasing.**
+
+- **`findstar`'s `mag` column is a TOTAL-FLUX magnitude, not a peak one** —
+  verified as `−2.5·log10(A·2π·σx·σy)`, offset −0.0001 with MAD 0.0027 over 37
+  matched stars. **Nothing in the column name says which it is, and reading it as
+  a PEAK magnitude puts the zero point out by 1.76 mag** — about three times the
+  size of the effect the photometric work was testing. Check it before building
+  any zero point on that column.
+- **Siril's `Sat` flag is a HARD-CLIP flag, not a LINEARITY flag, and soft
+  non-linearity below the clip is invisible to it.** MEASURED: on one aug06 raw
+  the brightest matched star (V_T 1.34) sits **1.77 mag BELOW** the flat zero
+  point while its `Sat` flag reads **0**; above V_T 4.5 the ZP-vs-magnitude slope
+  is −0.037 ± 0.036 (1.0σ from flat) and above V_T 5.0 it is −0.007 ± 0.066
+  (0.1σ). **The direction is the hazard:** a zero point built on the brightest
+  stars — the natural choice, since they have the best SNR — is biased FAINT, so
+  the mistake manufactures apparent support for a throughput or exposure deficit.
+  **Always test ZP flatness against instrumental magnitude; the tool flag will not
+  do it for you.** (Frame context, so nobody re-derives full-well from the raw
+  integers: these are ×4-scaled 14-bit frames — uint16 with BZERO 32768, green
+  plane 969–22845 about a 1047 median — so the brightest pixel is ~35% of full
+  well and nothing is hardware-saturated.)
+
 **TWO CATALOGUE FACTS MEASURED ON THIS RIG, both of which blocked a real
 measurement — read before designing anything that needs a star catalogue.**
 
