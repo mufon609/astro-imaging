@@ -150,9 +150,10 @@ did, and the closure was in the file it had read.
   improvements."*** `BACKLOG:render-ladder` stays user-gated. Do NOT promote the
   render tier on a manager's reading that it looks like the biggest open thing —
   scope the next arm as hardening, not as progress toward an image.
-- **`BACKLOG:four-configured-catalogues-are-absent`** — measured, no work
-  proposed, scoping is the PM's. Nothing in the chain reads any of the four; the
-  one consequence is that `findcompstars` reaches a remote service for NOMAD.
+- **The four absent kstars catalogues are CLOSED as accepted** (user-ratified
+  2026-08-14) — deliberately unused, the only consequence being that a NOMAD
+  lookup reaches a remote service, and nothing in the chain reads them. The
+  measured facts and the remaining hazard shape are in `TOOLS.md`.
 - **`BACKLOG:guards-and-ci`** — nothing runs the guards, and the bit-depth check
   is per-FILE so a builder passing on one generated `.ssf` passes even if a new
   emission omits `set32bits`. The mode-664 claim in it was stale and is removed.

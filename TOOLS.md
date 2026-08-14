@@ -418,6 +418,27 @@ against; more photometry cannot help.** The lever that would break it is two nom
 exposures on one night through the same optics, which this corpus does not have —
 exposure and night are perfectly aliased.
 
+**FOUR OF SIRIL'S SIX CONFIGURED CATALOGUE PATHS POINT AT FILES THAT DO NOT EXIST,
+AND THAT IS ACCEPTED (user-ratified 2026-08-14).** MEASURED — `config.1.4.ini`
+lines 18–21 name `catalogue_namedstars`, `catalogue_unnamedstars`,
+`catalogue_tycho2` and `catalogue_nomad` under `~/.local/share/kstars/`, and all
+four are ABSENT. **The one measured consequence: there is no local NOMAD, so
+anything defaulting to it reaches a REMOTE service** — `pcc`'s own help
+distinguishes "the remote NOMAD (the complete version)" from a local install, and
+`findcompstars -catalog=nomad` is the case already met (`-catalog=apass` is remote
+regardless). **Nothing in the current chain reads any of the four**, so it does not
+fire today; the owner has accepted the remote lookup and these are DELIBERATELY
+UNUSED. They are kstars-hosted with different sources and licensing from the Zenodo
+Gaia pair, which is why they were never bundled with it.
+**THE HAZARD THAT REMAINS IS THE SHAPE, NOT THE LOOKUP, and it has cost time twice
+here:** a config key pointing at a file nobody creates fails as a *blocked
+measurement* rather than as a *missing file*. SPCC defaulted to a non-existent
+`gaia_photometric.dat` and siril range-read online and **429'd**; the astrometric
+Gaia catalogue was discovered the same way. **So if one of these four is ever read,
+expect the failure to look like a data bug.** Blanking the four keys — so a future
+failure reads "not configured" instead — is a one-line hardening that has NOT been
+done.
+
 **TWO CATALOGUE FACTS MEASURED ON THIS RIG, both of which blocked a real
 measurement — read before designing anything that needs a star catalogue.**
 

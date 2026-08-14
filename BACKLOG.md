@@ -1001,32 +1001,6 @@ cross-window alike) and names `CALFLAT` as the datum that says which. Found by
 header inspection during the per-group flat arms; the fix is held off the build
 path while an experiment is in flight.
 
-## `four-configured-catalogues-are-absent` — measured, unscoped, NOT the Gaia one
-
-**MEASURED on this rig** (`scripts/setup/catalogue_ingest.json`): of the six
-catalogue paths siril's config names, only two are present. The astrometric Gaia
-half is now installed and bootstrapped; **the other four are still absent** —
-`catalogue_namedstars` and `catalogue_unnamedstars`
-(`~/.local/share/kstars/{named,unnamed}stars.dat`), `catalogue_tycho2`
-(`kstars/deepstars.dat`) and `catalogue_nomad`
-(`kstars/USNO-NOMAD-1e8.dat`). Siril's config points at all four and nothing
-creates them.
-
-**The one measured consequence:** there is no local NOMAD, so anything defaulting
-to it reaches a remote service instead — `pcc`'s own help distinguishes "the
-remote NOMAD (the complete version)" from a local install, and `findcompstars
--catalog=nomad` is the case already met. `-catalog=apass` is remote regardless.
-
-**NOT SCOPED, deliberately.** These are kstars-hosted catalogues with different
-sources and licensing from the Zenodo Gaia pair, so bundling them into the Gaia
-fix would have made that arm unbounded. Whether they are wanted at all is a
-question about what this repo's routes actually need, not a reproducibility hole:
-nothing in the current chain reads them.
-
-**Closes when** someone decides whether the pipeline needs any of them, and either
-adds them to `x86_bootstrap.sh` the way Layer B3 adds the Gaia astrometric
-catalogue, or records here that they are deliberately unused.
-
 ## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
 
 **`scripts/qa/run_guards.sh` is BUILT and GREEN** — it runs all five guards plus
