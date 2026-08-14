@@ -1878,6 +1878,37 @@ SILENT — pin the state, never inherit it):
   hand.** `check_removal_conditions.sh` was built interactively and runs under bash;
   re-measured on both programs it reads **28 files each, `comm` empty in both
   directions** — unaffected, by luck rather than design.
+- **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
+  ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
+  correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
+  top, and concluded that the work had been done AFTER a boot message and a gate —
+  then told the owner a peer *"did the work and jumped the gate anyway"*, and
+  escalated it to *"wrong in the direction that made the peer look better"*. The
+  peer had stated the true sequence four times, unprompted, against its own
+  interest. Re-checked with `%ad`, every *"already landed"* claim was true when made.
+  **THE STATED MECHANISM WAS ALSO WRONG, AND IT MATTERS BECAUSE IT MISDIRECTS THE
+  FIX.** The confession named *"`--oneline` orders by topology, not chronology"*.
+  Git's own documentation says the default IS reverse chronological, and over the
+  last 60 commits here **zero are out of timestamp order** — this history is linear
+  and the displayed ORDER was right. **So `--topo-order` is not the remedy and
+  reaching for it would leave the defect live.** The real defect: **position in a
+  commit list establishes order among COMMITS and says nothing about a commit's
+  position relative to an event that is not in the log** — a message, a boot, an
+  approval. The list omits time entirely; the reader supplies it and does not
+  notice supplying it. Same family as the truncated view above: **the display
+  presents as the object, so what it does not carry is not experienced as missing.**
+  **THE RULE: to place a commit against a non-commit event, print the time —
+  `git log --format='%h %ad' --date=format:'%H:%M:%S'` — and get the event's time
+  from its own source.** A `--oneline` list is evidence of sequence among commits
+  and of nothing else.
+  **AND THE SECOND LAYER COST MORE THAN THE FIRST: the inference was reported to a
+  third party AS THE PEER'S OWN FRAMING** — *"I took it from the PM's account
+  instead of the timestamps"* — when the peer's account had said the opposite.
+  **An inference attributed to the person it indicts is unfalsifiable by them
+  without the transcript**, and it was made in the message where its author was
+  claiming the verifier role. **State whose inference it is, especially when it is
+  adverse: "I concluded X from Y" and "they said X" are different claims and only
+  one of them is checkable.**
 - **A NUMBER MEASURED FROM A LIVE TREE DESCRIBES A STATE THAT MAY NEVER HAVE BEEN
   COMMITTED — and it reads as a property of the work rather than of the moment.**
   The registry already says *never EDIT a running script*; this is the other half,
