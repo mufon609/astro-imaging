@@ -73,9 +73,24 @@
   "statistic": "Z = (median in-block - median out-of-block) / (1.4826 * MAD out-of-block)",
 
   "PEDESTAL_TREATMENT": {
+    "STATUS": "THE PEDESTAL IS NOW MEASURED, and the assumed 1024 was WRONG by 16.8 ADU in the direction that flattered the argument.",
+    "MEASURED_pedestal": {
+      "value_ADU": 1007.2,
+      "instrument": "Siril `stat` on the 328-frame master dark (32-bit float, EXPTIME 2.5 s, matching the lights)",
+      "stability": "1007.2 / 1007.3 / 1007.3 across the aug06, aug09 and july31 master darks — spread 0.1 ADU, so it is a constant of the sensor and not a per-night value",
+      "INDEPENDENT_CROSS_CHECK": "the camera's own declared EXIF `BlackLevel` is 1008 (all four channels, 14-bit, NIKON Z6_3, read with exiftool). Two instruments sharing no code agree to 0.8 ADU (0.08%).",
+      "what_it_contains": "bias + dark current at the lights' own 2.5 s exposure, which is exactly the additive non-sky signal a light carries — so it is the correct quantity to subtract from `bg`."
+    },
     "primary_non_circular_delta": "+1.200 ADU on the 15 nstars-only frames (1052.1 - 1050.9), absolute and denominator-free",
     "fraction_of_raw_bg": "+0.114 % (denominator 1050.9 ADU, MEASURED)",
-    "fraction_of_sky_term": "+4.46 % (denominator 26.9 ADU, pedestal 1024 ASSUMED and NOT measured here)",
-    "why_stated": "the denominators differ ~39x; a reader takes whichever is printed."
+    "fraction_of_sky_term_CORRECTED": "+2.75 % (denominator 43.7 ADU = 1050.9 - 1007.2, both MEASURED — no assumption remains)",
+    "fraction_of_sky_term_WITHDRAWN": "+4.46 % (denominator 26.9 ADU, pedestal 1024 ASSUMED) — withdrawn, the pedestal was never 1024",
+    "DILUTION_CORRECTED": {
+      "measured": "24.0x",
+      "previously_claimed": "~39-40x",
+      "overstatement": "1.6x, and in the direction that made the argument stronger",
+      "what_SURVIVES": "the design conclusion is unchanged: 24x is still heavy dilution, so a threshold on RAW fractional `bg` is still measuring mostly pedestal and the signature should operate on pedestal-CORRECTED bg. Only the magnitude moves.",
+      "and_the_sky_term_is_62_percent_larger_than_assumed": "43.7 ADU against 26.9 — which also means the sky itself was being under-stated by that factor anywhere the 1024 pedestal was used."
+    }
   }
 }
