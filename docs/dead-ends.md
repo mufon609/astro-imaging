@@ -1805,6 +1805,40 @@ SILENT — pin the state, never inherit it):
   so on a well-maintained tree the count is guaranteed to mislead.** Read the
   sentence. The correct instrument here is `grep -o` with context, and then human
   reading of what came back.
+- **A NUMBER MEASURED FROM A LIVE TREE DESCRIBES A STATE THAT MAY NEVER HAVE BEEN
+  COMMITTED — and it reads as a property of the work rather than of the moment.**
+  The registry already says *never EDIT a running script*; this is the other half,
+  *never MEASURE a changing one*, and it is the more common error because measuring
+  feels passive. **FOUR MEASURED INSTANCES in one day, across three sessions:**
+  (1) falsification counts for a bootstrap edit taken mid-edit and published as
+  `psfex 0 -> 4` where the committed state is 7 — *"the numbers described a state
+  that was never committed"*; (2) concurrency trials read as *"intermittent, 2 of
+  3 RED"* while the fix was landing in stages, so the trials straddled **three**
+  code states and the rate described none of them; (3) a delivery-gap finding
+  (`install_astromatic.sh` reachable from nothing) that went false **within the
+  hour** by a peer's commit, after being written into this file; (4) **the sharpest
+  — a proxy metric calibrated against four rows scored AFTER the calibrating
+  session had itself compressed them, correlated against their PRE-compression cut
+  rates.** Mover and measurer the same session, in the same command, in the very
+  metric under calibration; it reported the strongest row at **zero** narrative
+  markers and would have shipped inverted.
+  **THE RULE: state the commit you measured at, and re-measure before citing.** A
+  number without a commit is a claim about an instant nobody can return to.
+  **AND THE MITIGATION THAT ACTUALLY WORKS IS STRUCTURAL, not vigilance:** take the
+  number from the COMMITTED artifact, never the working copy — which is what the
+  `prepare-commit-msg` numstat stamp already enforces for one class of number, and
+  the reason that hook exists at all. Every instance above was a number a hook did
+  not cover. **Corollary: a finding ABOUT the tree is perishable by construction —
+  delivery gaps, reachability, "nothing calls X" — so it carries its commit or it
+  is not a finding.**
+  **AND THE CASE THAT SAVED (4) IS THE GENERAL DEFENCE: a proxy calibrated against
+  cases whose true answer is already known.** Three predictors were built for that
+  triage — narrative markers per 100 words, word count, fraction of numbers homed
+  elsewhere — and **all three failed on the calibration set**, the first one
+  *inverting*. Without the calibration the inverted metric ships and is quoted with
+  confidence. **A metric that inverts on its own calibration set is worse than no
+  metric**, and this is the positive-control rule applied to a PROXY rather than to
+  a gate.
 - **A CLAIM CORRECTED AT ITS REPORTING SITE SURVIVES AT EVERY OTHER SITE THAT
   CARRIES IT — and the correction reads as complete because the reported instance
   is fixed.** This repo's own 14-vs-10 write-site lesson, one level up: there the
