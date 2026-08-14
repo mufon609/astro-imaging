@@ -766,6 +766,54 @@ noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
   magnitude — in which case the record's existing caveat ("what was tested is its
   MAGNITUDE, not its direction") is understated rather than merely cautious.
   **Resolving that needs no new data and gates everything downstream.**
+  **RESOLVED, and the cause is this thread's defining error applied to its own
+  attributed term** (commit `162be03`). `sky_rate_gradient.py` regresses
+  `maj² − mnr²`, a SCALAR that discards orientation — so it counts anisotropy
+  varying with cos²(δ) at ANY orientation, while a trail contributes only ALONG
+  the trail axis. The 148-station table carries `fwhm_px` and `roundness` and **no
+  angle**, so the projection was never available to it. Measured direction-free on
+  21 557 stars: scalar slope **+5.970 (4.1 SE)**, on-axis projection **+3.150
+  (2.4 SE)**, cross-channel null **+0.183 (0.3 SE)** — bootstrapped ratio 0.528,
+  90% CI [0.251, 0.694], **P(ratio<1) = 1.000, scalar inflated 1.90×.** Applying
+  that gives ≈0.59 against prediction where the published figure was 1.124 at
+  "0.65σ from unity". **The term is NOT refuted — the cos²(δ) dependence is real
+  and lies on the trail axis — but its published MAGNITUDE is unsupported.**
+  Direction established; magnitude not (the 1.90× is one member's stars, not the
+  station table, and applying it across is extrapolation).
+
+**AND THE STATION TABLE IS MEASURED ON REGISTERED PRODUCTS, WHICH MAY ADD THE
+SIGNAL — OPEN.** The same coherent measurement returns **0.98× on a member
+sub-stack and 0.53–0.54× on its own constituent RAW frames**, with an injected
+known-trail control returning **0.99×** in a raw frame (axis recovered to 0.20°).
+So the estimator and the environment are excluded. Direct test on sub_01 against
+five of its own constituents: per-raw mean **0.7264 px²** against the member's
+**1.4150** — an excess of **+0.6886**. **Real in DIRECTION** (the member exceeds
+its raws at every cut) and **NOT established in MAGNITUDE** (it falls 2.8× across
+a matched upper-|D| cut range, implied residual 0.73–1.22 px). Candidate
+mechanism, NOT established: registration cannot remove the within-exposure trail
+but its residual lies along the DRIFT direction — the same axis — so a member may
+carry trail plus residual, and their summing to ~1.0× would be coincidence rather
+than validation.
+**A SCALING ARM PROPOSED BY THE MANAGER FAILED, and how it failed is the
+finding.** Uncut, the excess looked monotone in drift span — 0.69 at 191 px, 4.31
+at 953, 5.16 at 2860, a textbook registration signature. At |D| ≤ 6 it reads
+**0.245 / 0.787 / 0.726**: flatter and NOT monotone, with the union BELOW the
+500-frame stack. **The apparent scaling was contamination growing with stacking
+depth**, and it would have been reported as established had the
+component-exceeds-the-whole check not fired first (the union's coherent term
+5.8886 against its own median |D| of 1.900).
+**THE UNDERLYING TOOL FACT, and it governs any future stack-side statistic:
+STACKED PRODUCTS CARRY HEAVY NON-STELLAR TAILS THAT THE RAWS DO NOT.** mean/median
+of |D| runs **raw 1.07, member 2.07, per-set stack 2.88, union 5.77**, with max
+|D| at **53.7 / 2368 / 1.54e4 / 3.38e4**. So every coherent statistic taken on a
+stack is tail-driven unless cut, and a matched upper-|D| cut is validated by the
+raws barely moving under it (0.7264 → 0.7131). **Before the station table is
+rebuilt on members, its box-MEDIAN summarisation must be checked against these
+tails** — a median is more robust than a mean and that has never been verified
+against this distribution.
+**WHAT IS UNTOUCHED BY ALL OF IT: the raws' deficit is rock stable at 0.53–0.54×
+under every cut**, so the open question is unchanged and unweakened — and this
+explains a discrepancy BETWEEN two measurements while explaining neither.
 
 **THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
 (`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
