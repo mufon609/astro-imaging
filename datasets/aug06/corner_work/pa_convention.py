@@ -1287,9 +1287,9 @@ def main():
             g = decompose(phi[m], u1[m], u2[m], None, nboot=120)
             rows.append({"rho_mid": float(np.median(rho[m])), "n": int(m.sum()),
                          "R_ratio": f["radial_R"],
-                         "R_ratio_SE_units": f["radial_SE_units_star_bootstrap"],
+                         "R_ratio_SE_units_star_bootstrap": f["radial_SE_units_star_bootstrap"],
                          "R_unnormalised_px2": g["radial_R"],
-                         "R_unnorm_SE_units": g["radial_SE_units_star_bootstrap"],
+                         "R_unnorm_SE_units_star_bootstrap": g["radial_SE_units_star_bootstrap"],
                          "fixed_F_ratio": f["fixed_amplitude"],
                          "fixed_theta0_deg": f["fixed_direction_theta0_deg"]})
         out = {"annuli": rows}

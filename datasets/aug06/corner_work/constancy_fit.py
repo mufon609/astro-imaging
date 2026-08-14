@@ -187,12 +187,13 @@ def run_bins_perframe(frames, T1f, T2f, mode, n=5, drop=()):
         rows.append({
             "bin": b + 1, "rho_lo": float(e[b]), "rho_hi": float(e[b + 1]),
             "n_frames": nn,
+            "error_model": "frame_based",
             "C1": float(a[:, 0].mean()), "C2": float(a[:, 1].mean()),
-            "se_C1": float(a[:, 0].std(ddof=1) / math.sqrt(nn)),
-            "se_C2": float(a[:, 1].std(ddof=1) / math.sqrt(nn)),
+            "se_C1_frame_based": float(a[:, 0].std(ddof=1) / math.sqrt(nn)),
+            "se_C2_frame_based": float(a[:, 1].std(ddof=1) / math.sqrt(nn)),
             "fixed_magnitude": float(math.hypot(a[:, 0].mean(), a[:, 1].mean())),
             "fixed_axis_deg": float(a[:, 2].mean()),
-            "fixed_axis_se_deg": float(a[:, 2].std(ddof=1) / math.sqrt(nn)),
+            "fixed_axis_se_deg_frame_based": float(a[:, 2].std(ddof=1) / math.sqrt(nn)),
             "per_frame_axis_deg": [float(v) for v in a[:, 2]],
             "T1": float(a[:, 3].mean()), "T2": float(a[:, 4].mean()),
             "T_magnitude": float(math.hypot(a[:, 3].mean(), a[:, 4].mean())),
@@ -202,14 +203,42 @@ def run_bins_perframe(frames, T1f, T2f, mode, n=5, drop=()):
     return rows
 
 
+def row_error_model(rows):
+    """The ONE error model these rows carry, or a refusal.
+
+    WHY THIS EXISTS — the defect it removes was measured in this file. `se_C1`
+    was written from a frame-based scatter by run_bins_perframe and from a
+    star-level bootstrap by run_bins, and `constancy()` consumed it without being
+    able to tell which. Both arms are DELIBERATE (the bootstrap arm is what makes
+    chi2/dof 35.6 where the frame-based one makes it ~1.1 — that contrast is the
+    finding), so the fix is not to force one model but to make every row DECLARE
+    its own and refuse a mixed or unlabelled set.
+    """
+    models = {r.get("error_model") for r in rows}
+    if models == {None}:
+        raise SystemExit("constancy_fit: rows carry no `error_model` — refusing "
+                         "to weight by an SE whose error model is unstated")
+    if len(models) != 1:
+        raise SystemExit("constancy_fit: rows MIX error models %s — a weighted "
+                         "fit across both is meaningless" % sorted(map(str, models)))
+    return models.pop()
+
+
 def axis_constancy(rows):
-    """Is the fixed-term AXIS constant across bins? Frame-based errors."""
+    """Is the fixed-term AXIS constant across bins?
+
+    Uses whichever error model the rows declare, and RECORDS it. This docstring
+    used to say "Frame-based errors" while the function accepted bootstrap rows
+    just as happily — the claim was in the prose and not in the code.
+    """
+    em = row_error_model(rows)
     m = np.array([r["fixed_axis_deg"] for r in rows])
-    s = np.array([r["fixed_axis_se_deg"] for r in rows])
+    s = np.array([r["fixed_axis_se_deg_" + em] for r in rows])
     w = 1.0 / s ** 2
     wm = float((m * w).sum() / w.sum())
     chi2 = float((((m - wm) / s) ** 2).sum())
-    return {"axes_deg": [float(v) for v in m], "ses_deg": [float(v) for v in s],
+    return {"error_model": em,
+            "axes_deg": [float(v) for v in m], "ses_deg": [float(v) for v in s],
             "span_deg": float(m.max() - m.min()), "weighted_mean_deg": wm,
             "chi2": chi2, "dof": len(m) - 1,
             "rejects_constant_axis_95pct": bool(chi2 > 9.49)}
@@ -233,12 +262,16 @@ def run_bins(pop, T1, T2, mode, n=5):
         rows.append({
             "bin": i + 1, "rho_lo": float(e[i]), "rho_hi": float(e[i + 1]),
             "rho_median": float(np.median(rho[m])), "n": int(m.sum()),
+            "error_model": "star_bootstrap",
             "C1": fit["fixed_c0"], "C2": fit["fixed_s0"],
-            "se_C1": fit["se_bootstrap"][0], "se_C2": fit["se_bootstrap"][1],
+            "se_C1_star_bootstrap": fit["se_bootstrap"][0],
+            "se_C2_star_bootstrap": fit["se_bootstrap"][1],
             "fixed_magnitude": fit["fixed_amplitude"],
             "fixed_axis_deg": fit["fixed_direction_theta0_deg"],
-            "fixed_axis_se_deg": fit["fixed_direction_se_deg_star_bootstrap"],
-            "radial_R": fit["radial_R"], "radial_SE_units": fit["radial_SE_units_star_bootstrap"],
+            "fixed_axis_se_deg_star_bootstrap":
+                fit["fixed_direction_se_deg_star_bootstrap"],
+            "radial_R": fit["radial_R"],
+            "radial_SE_units_star_bootstrap": fit["radial_SE_units_star_bootstrap"],
             "design_condition": fit["design_condition"],
             "T1": float(np.mean(T1[m])), "T2": float(np.mean(T2[m])),
             "T_magnitude": float(math.hypot(np.mean(T1[m]), np.mean(T2[m]))),
@@ -252,10 +285,17 @@ def run_bins(pop, T1, T2, mode, n=5):
 
 
 def constancy(rows):
-    """Least squares for C_i = f*T_i + K, weighted by each component's own SE."""
+    """Least squares for C_i = f*T_i + K, weighted by each component's own SE.
+
+    The SE's error model comes from the rows themselves (`row_error_model`) and
+    is RETURNED, because chi2/dof from this fit is quoted as evidence and is
+    ~30x different between the two models on the same data.
+    """
+    em = row_error_model(rows)
     nb = len(rows)
     y = np.array([r["C1"] for r in rows] + [r["C2"] for r in rows])
-    s = np.array([r["se_C1"] for r in rows] + [r["se_C2"] for r in rows])
+    s = np.array([r["se_C1_" + em] for r in rows]
+                 + [r["se_C2_" + em] for r in rows])
     X = np.zeros((2 * nb, 3))
     X[:nb, 0] = 1.0                       # K1
     X[nb:, 1] = 1.0                       # K2
@@ -280,6 +320,7 @@ def constancy(rows):
     c0, k0 = chi2_fixed_f(0.0)
     c1, k1 = chi2_fixed_f(1.0)
     return {
+        "error_model": em,
         "f": float(beta[2]), "f_se": float(math.sqrt(cov[2, 2])),
         "K1": float(beta[0]), "K2": float(beta[1]),
         "K_magnitude": float(math.hypot(beta[0], beta[1])),
@@ -309,7 +350,9 @@ def selftest():
     for f_true, k_true in ((0.55, (0.30, -0.10)), (1.00, (0.0, 0.0))):
         rows = [{"C1": f_true * t[0] + k_true[0] + rng.normal(0, 1e-4),
                  "C2": f_true * t[1] + k_true[1] + rng.normal(0, 1e-4),
-                 "se_C1": 1e-4, "se_C2": 1e-4, "T1": t[0], "T2": t[1]}
+                 "error_model": "frame_based",
+                 "se_C1_frame_based": 1e-4, "se_C2_frame_based": 1e-4,
+                 "T1": t[0], "T2": t[1]}
                 for t in T]
         r = constancy(rows)
         ck("planted f=%.2f recovered" % f_true, r["f"], f_true, 0.05)
@@ -321,7 +364,9 @@ def selftest():
         ang = np.radians(2 * (i * 12.0))
         rows.append({"C1": 0.55 * t[0] + 0.4 * math.cos(ang),
                      "C2": 0.55 * t[1] + 0.4 * math.sin(ang),
-                     "se_C1": 1e-3, "se_C2": 1e-3, "T1": t[0], "T2": t[1]})
+                     "error_model": "frame_based",
+                     "se_C1_frame_based": 1e-3, "se_C2_frame_based": 1e-3,
+                     "T1": t[0], "T2": t[1]})
     r = constancy(rows)
     print("  %-56s chi2/dof = %.1f  %s"
           % ("a ROTATING residual must NOT fit a constant", r["chi2_per_dof"],
@@ -405,7 +450,8 @@ def main():
             print("%3d %.3f-%.3f %6d %9.4f %+9.2f %8.2f %+9.4f %8.2f"
                   % (r["bin"], r["rho_lo"], r["rho_hi"], r["n"],
                      r["fixed_magnitude"], r["fixed_axis_deg"],
-                     r["fixed_axis_se_deg"], r["radial_R"], r["design_condition"]))
+                     r["fixed_axis_se_deg_star_bootstrap"], r["radial_R"],
+                     r["design_condition"]))
         f = b["constancy_fit"]
         print("  lever: |T| spread %.1f%%, axis spread %.2f deg"
               % (b["LEVER"]["trail_magnitude_spread_percent"],

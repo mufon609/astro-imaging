@@ -440,12 +440,12 @@ def bins(out_path, nbin=5):
             "rho_median": float(np.median(rho[m])),
             "FIXED_C1": C1, "FIXED_C2": C2,
             "FIXED_magnitude_px2": fit["fixed_amplitude"],
-            "FIXED_magnitude_SE_units": fit["fixed_amplitude_SE_units_star_bootstrap"],
+            "FIXED_magnitude_SE_units_star_bootstrap": fit["fixed_amplitude_SE_units_star_bootstrap"],
             "FIXED_axis_deg": fit["fixed_direction_theta0_deg"],
-            "FIXED_axis_se_deg": fit["fixed_direction_se_deg_star_bootstrap"],
+            "FIXED_axis_se_deg_star_bootstrap": fit["fixed_direction_se_deg_star_bootstrap"],
             "FIXED_projection_on_trail_axis_px2": float(proj_fixed),
             "RADIAL_R_px2": fit["radial_R"],
-            "RADIAL_SE_units": fit["radial_SE_units_star_bootstrap"],
+            "RADIAL_SE_units_star_bootstrap": fit["radial_SE_units_star_bootstrap"],
             "design_condition": fit["design_condition"],
             "ratio_fixed_projection_vs_prediction": float(proj_fixed / PRED),
             "naive_coherent_magnitude_px2": naive,
@@ -460,7 +460,7 @@ def bins(out_path, nbin=5):
     pred_block = None
     if len(inner) == 3:
         rr = [r["ratio_fixed_projection_vs_prediction"] for r in inner]
-        ss = [(r["FIXED_magnitude_px2"] / r["FIXED_magnitude_SE_units"]) / PRED
+        ss = [(r["FIXED_magnitude_px2"] / r["FIXED_magnitude_SE_units_star_bootstrap"]) / PRED
               for r in inner]
         ratio = float(np.mean(rr))
         se = float(np.sqrt(sum(s * s for s in ss)) / 3.0)
