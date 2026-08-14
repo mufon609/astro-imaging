@@ -191,9 +191,35 @@ whose cells run to thousands of characters is not a sweep of the claims inside
 them.** A false *"`sip_tpv` IS NOT INSTALLED ON THIS RIG"* — gating the SWarp route
 on the largest measured defect in any shipped product — sat at **byte 539 of a
 4,640-character cell** and survived a negative-claim sweep that read the row.
-**Window on the MATCH, not the line** (`grep -oE ".{60}PATTERN.{110}"`, never
-`grep -n | cut`), and **state your sweep's honest coverage UP FRONT** — *"the first
-260 characters of each matching row"* is not *"the rows"*.
+**Window on the MATCH, not the line** — never `grep -n | cut` — and **state your
+sweep's honest coverage UP FRONT**: *"the first 260 characters of each matching
+row"* is not *"the rows"*.
+
+**BUT THE OBVIOUS WINDOWING FORM SILENTLY RETURNS NOTHING ON THIS REPO'S LONGEST
+FILES, AND AN EARLIER VERSION OF THIS SECTION PRESCRIBED IT.** A LEADING-context
+window (`.{0,90}PATTERN.{0,160}`) backtracks catastrophically on very long lines.
+**It does not error — it exits 0 with no output, which reads as a completed sweep
+that found nothing.** MEASURED on this tree:
+```
+TOOLS.md      lines containing "darktable": 6
+  .{0,90}darktable.{0,160}   ->  0 matches, exit 0     <- SILENT ZERO
+  darktable.{0,120}          ->  16 matches
+BACKLOG.md    same leading-window form  ->  did not finish in 2 minutes
+```
+**USE A TRAILING-ONLY WINDOW — `grep -oEi "PATTERN.{0,160}"` — and POSITIVE-CONTROL
+the pattern before trusting an empty result.** Run it against a term you know is
+present; if that returns nothing, the instrument is dead and the sweep has not run.
+
+**AND AIM IT BY LINE LENGTH, NOT BY REPUTATION.** The hazard lives where the cells
+are long, and that is not where it is assumed to be:
+```
+TOOLS.md          longest line 6611
+BACKLOG.md        longest line 3165
+docs/dead-ends.md longest line  108   <- wrapped prose; the form works fine here
+```
+**`docs/dead-ends.md` is not a long-line file.** A sweep that blames its null on
+that file's "thousand-character cells" has mis-attributed the mechanism, and the
+correction matters because it moves which file is dangerous.
 
 ## What you audit
 
