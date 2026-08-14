@@ -272,12 +272,29 @@ else
 fi
 [[ $DRY -eq 0 ]] && : >"$MANIFEST" && printf 'tool\tversion\tsource\tsha256\tpath\tverify\tnotes\n' >>"$MANIFEST"
 
+# ---- Layer 0: the repo's git hooks -----------------------------------------
+# FIRST because it needs neither root nor any other layer, and because what it
+# installs is what GATES everything else. `.git/hooks/` is untracked BY GIT'S
+# DESIGN, so the hooks live under scripts/setup/hooks/ and are installed from
+# there — the tracked-source-plus-installer pattern the darktable styles and the
+# fitted lens model already use.
+#
+# MEASURED GAP THIS CLOSES: `install_hooks.sh` was referenced by NOTHING a clone
+# runs — its own usage line and one session role file, and zero mentions in this
+# script. So a fresh clone had NO pre-push guard gate and NO staged-numstat stamp:
+# the two mechanisms built to stop "nothing runs the guards" and to stop a
+# hand-typed numstat, both present only on rigs where someone ran the installer by
+# hand. The installer's own header names the clause it was violating: "a fact that
+# is not reproducible from tracked files is the bug (CLAUDE.md, Environment)."
+log "Layer 0 — git hooks (pre-push guard gate, staged-numstat stamp)"
+run "'$(dirname "$0")/install_hooks.sh'"
+
 # ---- Layer A: apt (signed) ------------------------------------------------
 log "Layer A — apt base"
 run "sudo apt update"
 run "sudo apt install -y flatpak pipx golang git unzip libssl-dev"
 run "pipx ensurepath"
-[[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2"   # 4100-series = wide-field
+[[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2 source-extractor"   # 4100-series = wide-field
 # xvfb only if you must run a GUI pyscript (we avoid): sudo apt install -y xvfb
 manifest astrometry.net apt apt-signed apt /usr/share/astrometry "solve-field --help" "4100 Tycho-2 wide-field indexes"
 # source-extractor is the INPUT STAGE both PSFEx and SCAMP consume (Layer C3), and
@@ -473,13 +490,17 @@ if [[ $DRY -eq 0 ]]; then "$(dirname "$0")/install_python_tools.sh" --manifest >
 # astromatic lane simply needs its OWN apt line for build deps, which the script
 # emits via --root-cmds rather than duplicating here.
 #
-# `source-extractor` IS NOT ADDED and that is MEASURED, not assumed: PSFEx and
-# SCAMP both consume it, and it arrives TRANSITIVELY — `astrometry.net`
-# Recommends it (not Depends), this rig has `APT::Install-Recommends "1"` with no
-# override in /etc/apt/apt.conf.d/, and dpkg marks the installed copy `auto`.
-# CAVEAT before anyone hardens the apt line: a contributor running apt with
-# --no-install-recommends would NOT get it, and the failure would surface as
-# PSFEx/SCAMP building fine and finding no input stage at run time.
+# `source-extractor` IS NAMED EXPLICITLY in Layer A's apt line, and the reason is
+# that it arrives transitively ONLY BY A RECOMMENDS. MEASURED: `astrometry.net`
+# lists it under Recommends (NOT Depends), this rig has `APT::Install-Recommends
+# "1"` with no override in /etc/apt/apt.conf.d/, and dpkg marks the installed copy
+# `auto`. So on a default apt it does arrive — and ONE common hardening flag,
+# `--no-install-recommends`, silently removes it. CLAUDE.md says a contributor GETS
+# the environment by cloning and running this script; a dependency a single flag
+# can delete does not satisfy "gets", and the failure it produces is the expensive
+# shape: PSFEx and SCAMP build cleanly and find no input stage at RUN time.
+# Standards-first: declare what you require rather than inheriting another
+# package's judgement about what is optional.
 log "Layer C3 — Astromatic lane (PSFEx, SCAMP) from Debian source"
 while IFS= read -r c; do [[ -n "$c" ]] && run "$c"; done \
   < <("$(dirname "$0")/install_astromatic.sh" --root-cmds)
