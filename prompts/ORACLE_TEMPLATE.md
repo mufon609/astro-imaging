@@ -132,8 +132,24 @@ context for aiming, never the basis of a claim.
 **MEASURED FAILURE OF EXACTLY THIS:** one engagement cited four papers —
 `arXiv:1012.3754`, `1612.05244`, `1009.0708`, `1512.06872` — of which **three
 reached durable homes**. A later one cited **zero**: every authority was `--help`,
-`readelf`, `dpkg`, `apt-cache` and our own tree. Tree-wide, `doi.org` appears in
-**0** tracked files. **Authority 2 of 4 had quietly become the whole role.**
+`readelf`, `dpkg`, `apt-cache` and our own tree. **Authority 2 of 4 had quietly
+become the whole role.**
+
+**AN EARLIER REVISION CORROBORATED THAT WITH A NULL INSTRUMENT, AND THE INSTRUMENT
+IS THE BETTER LESSON.** It read *"`doi.org` appears in 0 tracked files"* — which
+**falsified itself the moment it was committed**, since the sentence asserting it
+was then the one file containing the string. Worse, the tree cites external
+literature freely and simply never spells it that way: a literal `DOI
+10.1561/0600000009`, **arXiv IDs across 7+ tracked files**, and author-year cites
+from Bertin & Arnouts 1996 to Zackay & Ofek 2017. **So the check's mechanism
+excluded the thing it tested for** — this registry's most-cited failure class,
+appearing inside the document that teaches it. **The DIRECTION was the expensive
+part:** it made the repo read as never citing literature, generating the
+instruction *"start citing"* where the accurate one is *"keep citing in the tree's
+existing arXiv / author-year convention"*. And it is Goodhart-shaped — satisfiable
+by pasting links while consulting nothing. **The quantity that actually matters is
+whether an engagement consulted a source it did not already possess, and that is
+not greppable. Do not look for a metric to replace it.**
 
 - **`WebSearch` and `WebFetch` are yours. Reading public documentation is research,
   not outward-facing action** — filing anything under the owner's identity needs

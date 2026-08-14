@@ -1878,6 +1878,36 @@ SILENT — pin the state, never inherit it):
   hand.** `check_removal_conditions.sh` was built interactively and runs under bash;
   re-measured on both programs it reads **28 files each, `comm` empty in both
   directions** — unaffected, by luck rather than design.
+  **THE THREE MODES, re-homed here because a role doc kept the PROHIBITION and
+  deleted the DETECTOR** — *"never report a negative from a structurally-impossible
+  view"* survived a cut while every description of what makes a view structurally
+  impossible went to zero tracked files.
+  **MODE 1 — AN EXACT-COUNT WINDOW WIDER THAN THE FILE'S LONGEST LINE CANNOT MATCH,
+  AND IT EXITS CLEAN.** No error, empty stdout, `rc=1` — indistinguishable from a
+  searched null, and it reads identically on ugrep and GNU grep:
+```
+  awk longest line          docs/dead-ends.md 108   TOOLS.md 6611   BACKLOG.md 3165
+  .{60}darktable.{110}      docs/dead-ends.md ->  0  rc=1   STRUCTURALLY IMPOSSIBLE
+  .{20}darktable.{40}       docs/dead-ends.md ->  3  rc=0   the claims ARE there
+```
+  **Measure the width with one `awk '{if(length>m)m=length}END{print m}'` before
+  choosing a window — never from the file's reputation.** The registry is wrapped
+  prose; the toolkit and the register are where the long cells are.
+  **MODE 2 — two range quantifiers exceed ugrep's complexity limit, deterministically
+  (`rc=2`, five stderr lines), while GNU grep runs the same pattern fine.** `grep -P`
+  dodges it by using PCRE2 instead of ugrep's own engine. A separate width effect on
+  GNU grep is a **HANG, not an error** — superlinear in window width, `.{0,1000}`
+  9.9 s → `.{0,1600}` 39.3 s → `.{0,2000}` killed at 40 s with no output and no
+  message, so a timeout inside a pipeline reads as a null.
+  **MODE 3 — the one that returns a NUMBER, so nothing prompts a re-check.**
+  `2>&1 | wc -l` reported **"5 matches"** where there were none — those being MODE 2's
+  five stderr lines counted as data.
+  **THE DISCRIMINATOR IS THE EXIT CODE, which is why no width threshold is needed:**
+  `rc=0` empty is a real no-match; `rc=1` empty may be MODE 1's structural zero;
+  **`rc=2` is a search that did not run.**
+  **THE SAFE FORM: ONE range quantifier on the TRAILING side —
+  `grep -oE "PATTERN.{0,200}"` — positive-controlled, with the PROGRAM and the
+  QUANTITY named, and stderr never merged into a count.**
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
