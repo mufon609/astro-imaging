@@ -32,6 +32,22 @@
 # SExtractor -> SCAMP -> SWarp, all speaking TPV, is the canonical Astromatic
 # chain and it is the documented industry answer to BACKLOG:`compose-homography-smear`.
 #
+# TWO DEBIAN BUILD-DEPS DO NOT EXIST ON KALI, AND NEITHER IS ACTUALLY REQUIRED.
+# The Debian control files list `libatlas-base-dev` and `libplplot-dev`; on this
+# rig `apt-get install` returns "has no installation candidate" for both, and
+# `apt-cache search plplot` returns NOTHING — PLplot is absent from the archive
+# entirely, not merely renamed. Both are optional to these builds:
+#   libatlas-base-dev  -> ATLAS is one BLAS choice. `libatlas3-base` is now only a
+#                         TRANSITIONAL package. Both configure.ac files offer
+#                         `--enable-openblas` as a first-class alternative, so we
+#                         build against `libopenblas-dev` (0.3.33+ds-3) instead.
+#   libplplot-dev      -> `--enable-plplot` is OPT-IN in both, and PLplot drives
+#                         only the diagnostic CHECK-PLOTS. Omitting it costs the
+#                         PNG/PS diagnostic output and nothing computational — the
+#                         .psf model, the .head solutions and the XML are unaffected.
+# Recorded because the Debian dep list reads as mandatory and is not, and a reader
+# who trusts it concludes these cannot be built here. They can.
+#
 # THE CONSTRAINT THAT PUT THESE IN THEIR OWN SCRIPT — MEASURED, not assumed:
 # `autoconf`, `automake` and `libtool` are ABSENT on this rig (`make` and `gcc` are
 # present), and both packages are autotools-based. Without them `apt-get source` +
@@ -42,7 +58,7 @@ set -euo pipefail
 PREFIX="${ASTROMATIC_PREFIX:-$HOME/.local}"
 WORK="${ASTROMATIC_WORK:-$HOME/.cache/astromatic-build}"
 PKGS=(psfex scamp)
-BUILD_DEPS=(autoconf automake libtool libatlas-base-dev libfftw3-dev libplplot-dev libshp-dev libcurl4-openssl-dev pkg-config)
+BUILD_DEPS=(autoconf automake libtool libopenblas-dev libfftw3-dev libshp-dev libcurl4-openssl-dev pkg-config)
 
 MODE=plan
 for a in "$@"; do
@@ -102,7 +118,7 @@ go)
     d=$(find "$WORK" -maxdepth 1 -type d -name "$p-*" | head -1)
     [[ -n "$d" ]] || { echo "[astromatic] apt-get source $p produced nothing" >&2; exit 4; }
     ( cd "$d" && ./autogen.sh >/dev/null 2>&1 || autoreconf -i >/dev/null 2>&1 || true
-      ./configure --prefix="$PREFIX" >/dev/null
+      ./configure --prefix="$PREFIX" --enable-openblas >/dev/null
       make -j"$(nproc)" >/dev/null
       make install >/dev/null )
     log "$p installed into $PREFIX/bin"
