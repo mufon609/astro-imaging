@@ -210,9 +210,28 @@ env -i /bin/sh -c grep   -> GNU grep 3.12      what every repo script gets
 COMMAND STRING**, and that single fact generated every contradiction in this
 section's history — a "silent zero" that would not reproduce, an "intermittent,
 load-correlated" error, and a `-c` that appeared to change meaning. **None of those
-were real.** Decide which program you want and name it explicitly; note also that
-the agent's grep carries `-G` (BRE) and `--ignore-files`, so it silently applies
-ignore rules a plain `grep -r` would not.
+were real.** Decide which program you want and name it explicitly.
+
+**THE GENERAL RULE THIS EARNS, AND IT IS WORTH MORE THAN THE grep FACTS: A
+CROSS-SESSION MEASUREMENT COMPARISON NEEDS THE INSTRUMENT IDENTIFIED, NOT JUST THE
+NUMBER.** Two sessions both said "grep" and meant different programs, so each
+correctly deferred to the other's contradicting measurement and both landed wrong.
+**Deferring to a peer's measurement over your own inference is normally right** —
+it fails only when the instruments differ invisibly, and then it fails in both
+directions at once. Same class as `bgnoise` not being `bg`, one level up. **Quote
+the program and the quantity beside every number you exchange.**
+
+**AND THE AGENT'S grep IS `git grep`-SHAPED, WHICH IS MOSTLY CORRECT HERE.** It
+carries `-G` (BRE, so `{n,m}` needs `-E`/`-P`) and `--ignore-files`. Measured over
+`*.md`: agent grep **25**, `/usr/bin/grep` **27**, `git ls-files '*.md'` **25** —
+**the agent's set is identical to the TRACKED set.** The whole gap is
+`web/results/july31/judge/{INSPECTION,QUESTION}.md`, both untracked under the
+gitignored output root. **For RECORD sweeps that scope is the right one** and is
+safer than GNU grep, which can lift a stale claim out of an untracked scratch file
+and present it as the tree's position. **The narrow residual: a note written into
+`web/results/.../judge/` — where `CLAUDE.md` sends judgment surfaces — is invisible
+to a later agent grep and reads as never written.** Use `/usr/bin/grep` or an
+explicit path when the output tree is the target.
 
 **MODE 1 — AN EXACT-COUNT WINDOW WIDER THAN THE FILE'S LINE WIDTH CANNOT MATCH,
 AND IT EXITS CLEAN.** No error, empty stdout, `rc=1` — indistinguishable from a
