@@ -815,6 +815,59 @@ against this distribution.
 under every cut**, so the open question is unchanged and unweakened — and this
 explains a discrepancy BETWEEN two measurements while explaining neither.
 
+**THE "RADIUS TREND" IS ALMOST CERTAINLY A PROJECTION ARTEFACT OF INCOMPLETE
+AZIMUTH, AND THE RULING BUILT ON IT IS SUSPENDED.** Commit `a2c7ba2` recorded
+that a radial split of the deficit — by ρ quintile, **0.37 / 0.35 / 0.33 / 0.46 /
+0.73** — damages BOTH surviving hypotheses, since an exposure deficit is flat in
+radius and a field-constant optical term is flat in radius by construction. **Do
+not cite that ruling.** The numbers are not a gradient: the first three bins sit
+within 12% of each other and trend the WRONG way, then it breaks. **A threshold
+is a property of the frame's geometry, not of an aberration field** — and this
+frame has one at exactly that radius.
+
+**MECHANISM, verified here by computation rather than taken on report.** The
+statistic projects onto a fixed drift axis with weight `cos 2φ`, so a RADIAL term
+cancels only when azimuth is completely sampled. On a 6064×4040 frame
+(half-short 2020, half-long 3032, half-diagonal 3643.3) the inscribed circle
+holds only to **ρ = 0.5544**, and beyond **ρ = 0.8322** only the four corners
+remain. Computing ⟨cos 2φ⟩ over the azimuths still inside the frame:
+
+| ρ | azimuth kept | ⟨cos 2φ⟩ |
+|---|---|---|
+| ≤ 0.554 | 100% | **−0.0000** |
+| 0.620 | 70.5% | **+0.3615** |
+| 0.700 | 58.2% | +0.5290 |
+| 0.830 | 46.6% | +0.6795 |
+| 0.976 | 3.5% | +0.4047 |
+
+**Exactly zero while the circle fits, strongly positive the moment it clips** —
+because the excluded azimuths are those near ±90° where `cos 2φ = −1`, so
+removing them leaves a net positive mean and the radial term leaks into the
+drift-axis projection with a POSITIVE sign. At the corners the radial direction
+sits at **33.67°** to x, giving `cos(2·33.67°) = +0.385` at all four corners, the
+same sign, so they reinforce rather than cancel. **The geometric break at 0.554
+falls inside quintile 4 (0.490–0.626) — which is exactly where the measured data
+breaks, to the bin.** Bins 1–3 lie wholly inside the inscribed circle and are
+clean.
+
+**CONSEQUENCE, and it runs the other way from the ruling it replaces.** If bins
+4–5 are contaminated, the corpus 0.53× figure is pulled UP by them and the true
+deficit is nearer the flat inner value **~0.35 — worse than reported, and NOT
+radius-dependent.** That restores "flat in radius", which puts the
+field-constant optical term BACK on the table rather than killing it.
+
+**THE FIX IS AN INSTRUMENT ALREADY BUILT AND VALIDATED:** stop azimuthally
+averaging and run the spin-2 fit PER ρ BIN — `e1(φ) = A cos2φ + C1`,
+`e2(φ) = A sin2φ + C2` — which estimates the radial and fixed terms JOINTLY and
+is immune to incomplete azimuth by construction, because it FITS the radial term
+instead of assuming it averages away. The azimuthal average is the weaker
+statistic and it is the one that broke. Cheaper cross-check: restrict to
+ρ < 0.554 and re-run the quintiles; the rise should vanish.
+
+**This is the FOURTH basis artefact in this thread and the same family as the
+other three** — a summary statistic whose assumptions fail silently on part of
+the domain.
+
 **THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
 (`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
 PM-audited by re-execution). Every prediction in the sky-rate work used ONE plate
