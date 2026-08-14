@@ -253,3 +253,11 @@ datasets/aug06/corner_work/psf_calib_work/
 # WHOLLY, following psf_calib_work/: a synthetic fixture's intermediates are not
 # records, and the 4.3 MB of star lists are derived from tracked code alone.
 datasets/aug06/corner_work/kappa_work/
+
+# frames_work/ — the 40-frame depth arm: hard-linked raws, 40 debayered FITS
+# (~5.9 GB) and their Siril star lists, all regenerable from measure.ssf and the
+# tracked frame_map.json. Only the map, the script and the JSON record ARE the
+# record.
+**/frames_work/*
+!**/frames_work/*.json
+!**/frames_work/*.ssf
