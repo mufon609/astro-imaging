@@ -259,6 +259,31 @@ headless LOCAL star-shape map.
 
 ## Tier 3 — Photometric colour calibration
 
+**TWO CATALOGUE FACTS MEASURED ON THIS RIG, both of which blocked a real
+measurement — read before designing anything that needs a star catalogue.**
+
+- **`conesearch` IS GUI-ONLY HEADLESS, and its `help` gives no hint of it.** It
+  runs far enough to print its own search geometry (*"centre coords:
+  306.653107, 42.539787, radius: 865.668313 arcmin"*) and then aborts the whole
+  script with **`execute_idle_and_wait_for_it called headless, this should not
+  happen!`** — a string confirmed present in the installed 1.4.4 binary. `help
+  conesearch` documents the command fully, `-out=` and `-cat=localgaia`
+  included. **This is the THIRD instance of the registry's own pattern** after
+  `tilt` and `inspector`: probe before believing a capability exists, even when
+  help documents the exact flag you intend to use. (Distinct from the existing
+  record of `conesearch` timing out on a 20.6° cone against TAPVizieR — that is
+  an online-service limit; this is an unconditional headless abort.)
+- **THE ASTROMETRIC GAIA CATALOGUE IS NOT INSTALLED, and `CLAUDE.md`'s
+  Environment section says it is.** Siril's config sets
+  `catalogue_gaia_astro=~/.local/share/siril/gaia_astrometric.dat` and **that
+  file does not exist**; what is present is `catalogue_gaia_photo` →
+  `siril_catalogues/spcc`, **3.7 GB of xpsamp SPECTRAL chunks only**. So
+  `-cat=localgaia` has nothing to read even once the headless problem is solved.
+  The Environment line reads "Local Gaia catalogs at
+  `~/.local/share/siril/siril_catalogues/` (astro + SPCC xpsamp chunks)" — the
+  astro half is absent. **Owner's file, flagged not edited.** Source if it is to
+  be fetched: zenodo 14692304, per that same section.
+
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
 | **Siril SPCC** (spectrophotometric, Gaia DR3 + QE/filter curves + atmosphere) | FREE | siril-native | ✅ / ✅ / ✅ | **Default; obsoletes PCC.** Broadband star-colour truth. Our `spcc_run.py`/`spcc_cone.py` orchestrate it + the local Gaia cone. |
