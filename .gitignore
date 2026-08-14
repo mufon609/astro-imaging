@@ -151,11 +151,17 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/memraw_work/*.lst
 !**/memraw_work/*.ssf
 
-# inject_work/ — synthetic trails injected into a real frame. The injected FITS
-# and the site arrays are regenerable; the .lst records and .ssf are the record.
+# inject_work/ — synthetic trails injected into a real frame. The injected FITS is
+# image DATA and stays out. THE SITE ARRAYS ARE NOT REGENERABLE and an earlier
+# version of this comment said they were: no tracked script injects, and no seed
+# is recorded in the ledger, so the injector died with its session. sites*.npy is
+# the ONLY surviving ground truth for which detections are planted and which are
+# real — i.e. the label without which the positive control that exonerated the
+# coherent-term estimator cannot be re-run. 44 KB each, a record not image data.
 **/inject_work/*
 !**/inject_work/*.lst
 !**/inject_work/*.ssf
+!**/inject_work/sites*.npy
 
 # skyrate_work/ — the scalar-vs-projection refit of the sky-rate coefficient.
 # The member star list IS the record; the .ssf reproduces it.
