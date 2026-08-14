@@ -76,47 +76,51 @@ setuptools==80.9.0
 # a clone" true rather than nearly true.
 astropy-iers-data==0.2026.7.13.0.54.2
 
+
+# --- Headless catalogue client — Vizier / SIMBAD / Gaia via pyvo.
+# We hit exactly this wall: Siril's `conesearch` is GUI-ONLY headless (it aborts
+# unconditionally in a script) and separately timed out on a 20.6 deg cone against
+# TAPVizieR, so the workaround became astrometry.net's `--tag-all`, which only ever
+# returns what the index happens to carry. This is the tool that makes that wall a
+# non-event. Caveat kept so the package count is honest: it drags keyring/jeepney,
+# a D-Bus credential stack that is dead weight headless but harmless.
+astroquery==0.4.11
+
+# --- Retires the nside=2 nested cover `spcc_cone.py` hand-rolls, which is a
+# declared divergence with a removal condition. Debt reduction rather than new
+# capability — spcc_cone.py works — but it is 2 packages and closes a register row.
+astropy_healpix==2.0.1
+
+# --- The astropy-native reprojector, and unlike SWarp it CONSUMES SIP directly
+# through astropy's WCS, so it needs no conversion step at all. That makes it the
+# independent second arm for BACKLOG:compose-homography-smear rather than only a
+# fallback for the branch where the TPV route fails.
+reproject==0.21.0
+
+# --- DES Y3's replacement for PSFEx, modelling the PSF in SKY rather than pixel
+# coordinates. That is precisely this corpus's axis: the PSF is fixed in SENSOR
+# coordinates while the sky drifts ~1000 px across it, so which frame the model
+# lives in is the whole union-vs-member question.
+piff==1.6.0
+
 # ===== NAMED, NOT INSTALLED — each with the trigger that would change it =====
 #
-#   astropy_healpix==2.0.1   2 packages, trivially light. Retires what
-#       `spcc_cone.py` hand-rolls and would close a removal condition. But
-#       `spcc_cone.py` WORKS, so this buys debt reduction rather than capability.
-#       Trigger: a decision to close that divergence, or a Siril 1.5 bump making
-#       the native `healpix` command reachable.
-#
-#   reproject==0.21.0        20 packages — dask, zarr, dask-image, PIMS,
-#       numcodecs, tifffile, fsspec, google-crc32c: a distributed-computing
-#       framework and a chunked-array store, to reproject a FITS. It DOES consume
-#       SIP through astropy's WCS where SWarp does not — but `sip_tpv` measuring
-#       exact makes SWarp able to read the distortion, and SWarp is already
-#       installed and is what the item's own lineage names.
-#       Trigger: the TPV route failing in practice. This is its fallback.
-#
-#   piff==1.6.0              13 packages. Models the PSF in SKY rather than pixel
-#       coordinates, which is genuinely this corpus's axis — the PSF is fixed in
-#       SENSOR coordinates while the sky drifts ~1000 px across it. But it
-#       unblocks no live question today: the corner fix-path is closed by
-#       measurement and the PSF field is not the bottleneck.
-#       Trigger: a question that needs a sky-frame PSF model.
-#
-#   astroquery==0.4.11       8 packages (drags keyring/jeepney, a D-Bus credential
-#       stack that is dead weight headless). The standard headless catalogue
-#       client — Vizier/SIMBAD/Gaia via pyvo. We hit exactly this wall: Siril's
-#       `conesearch` is GUI-only headless, and the workaround was astrometry.net's
-#       `--tag-all`, which only ever returns what the index happens to carry.
-#       Trigger: the next catalogue question the tag-along cannot answer.
-#
-#   PSFEx                    NOT a PyPI candidate — lane (b). And it is the
-#       strongest "what are we missing", because it is not a tool nobody thought
-#       to want: it is ALREADY IN USE and its output is ALREADY CITED in our
-#       records — the field model that independently confirmed the corner
-#       degradation (FWHM 1.95 px centre to 3.2 px corner, a different algorithm
-#       sharing no code with Siril) and the degree-2-suffices result. It exists
-#       today only as a scratchpad extraction of a Debian binary run through
-#       `LD_LIBRARY_PATH`. That is the same gap `sip_tpv` had — verified and NOT
-#       reproducible from a clone — in a tool that has already produced
-#       load-bearing findings. Needs the .deb pinned by sha256 against the archive
-#       `Packages` index plus its six transitive deps.
+#   PSFEx / SCAMP            NOT PyPI candidates — lane (b), and both need root
+#       ONCE for build deps. See scripts/setup/install_astromatic.sh.
+#       PSFEx is the strongest "what are we missing": not a tool nobody thought to
+#       want, but one ALREADY IN USE whose output is ALREADY CITED in our records —
+#       the field model that independently confirmed the corner degradation
+#       (FWHM 1.95 px centre to 3.2 px corner, a different algorithm sharing no
+#       code with Siril) and the degree-2-suffices result. It exists today only as
+#       a scratchpad extraction of a Debian binary run through LD_LIBRARY_PATH:
+#       the same gap sip_tpv had — verified and NOT reproducible from a clone — in
+#       a tool that has already produced load-bearing findings.
+#       SCAMP's photometric mode is a scalar per exposure and cannot satisfy the
+#       object_tilt condition that names it — but that judged the WRONG HALF. Its
+#       ASTROMETRIC side writes PV%d_%d keywords and carries TPV in its pcode list
+#       (measured in src/fitswcs.c), i.e. SCAMP is the NATIVE PRODUCER of exactly
+#       the format SWarp reads and that sip_tpv converts our SIP into. That is the
+#       canonical Astromatic chain — SExtractor -> SCAMP -> SWarp, all speaking TPV.
 #
 # ===== ARGUED AGAINST ========================================================
 #

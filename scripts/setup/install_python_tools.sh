@@ -66,6 +66,10 @@ log(){ printf '[tools] %s\n' "$*"; }
 roster(){ cat <<'ROSTER'
 sip_tpv|sip_tpv|Gates the SWarp route for BACKLOG:compose-homography-smear. SWarp cannot read SIP and drops it silently; sip_tpv's forward direction is a symbolic sympy substitution, exact to 1.118e-11 px over 3600 points and flat in field radius.
 galsim|galsim|Reads a PSFEx .psf DIRECTLY and evaluates the PSF anywhere, retiring the [1,X,X2,Y,XY,Y2] basis-order trap TOOLS.md documents. Pairs with PSFEx.
+astroquery|astroquery|Siril's conesearch is GUI-ONLY headless and timed out on a 20.6 deg cone; this is the standard headless Vizier/SIMBAD/Gaia client that makes that wall a non-event.
+astropy_healpix|astropy_healpix|Retires the nside=2 nested cover spcc_cone.py hand-rolls — closes a declared divergence.
+reproject|reproject|The astropy-native reprojector, and unlike SWarp it consumes SIP directly through astropy's WCS. Independent second arm for compose-homography-smear.
+piff|piff|Models the PSF in SKY rather than pixel coordinates, which is this corpus's axis — PSF fixed in sensor coords while the sky drifts ~1000 px across it.
 astropy_iers_data|astropy_iers_data|DATE-VERSIONED and arrives transitively, so it is exactly what gets left unpinned — and unpinned means the environment drifts on every rebuild.
 ROSTER
 }
