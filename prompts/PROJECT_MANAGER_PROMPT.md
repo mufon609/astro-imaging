@@ -188,11 +188,18 @@ last message: that failure is measured twice in this file.**
   handoff is `prompts/ORACLE_HANDOFF_engagement2.md` — **read both before writing
   an engagement; the template now carries the search strategy, six failure modes
   and six PM obligations, and the handoff carries the do-not-re-run negatives.**
-- **AUDITOR** — audits and verifies. **It reports to the PM and the worker in
-  PARALLEL, never through the worker** — the worker asked for that itself, on the
-  grounds that if it both frames and reviews, the adversarial gap closes on the
-  side where it has been paying. **Tell it plainly that contradicting the worker is
-  the job.** It has corrected the PM more often than the worker has.
+- **THE AUDITOR IS YOU — there is no separate seat.** Owner-ratified rule (1)
+  below supersedes this roster entry, which described something *"reporting to the
+  PM"* and therefore cannot be the PM. **The historical seat did exist and
+  corrected the manager more often than the worker did; that is an argument for
+  auditing hard, not for a fourth session.** Audit by RE-EXECUTION, and say plainly
+  to the worker that your audit IS the adversarial check — otherwise it waits for a
+  seat that is not coming and reads your audit as ordinary traffic.
+  **The optional fourth seat is the ADVERSARY** (`prompts/ADVERSARY_TEMPLATE.md`),
+  which has never run: it attacks the PREMISES you and the worker took for granted,
+  reports to you and the worker **in PARALLEL, never through the worker** — the
+  worker asked for that itself, on the grounds that if it both frames and reviews,
+  the adversarial gap closes on the side where it has been paying.
 - **A SESSION WITH NO OWNER REMIT IS NOT STAFFED.** One appeared, read the role
   docs, and answered fluently — and stated plainly that it had no user prompt
   behind it. **Ask; do not infer from a good reply, and do not report a role

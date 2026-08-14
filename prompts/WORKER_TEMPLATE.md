@@ -1,6 +1,9 @@
 # TEMPLATE — the worker session
 
-**This is a template. The PM fills the `<< >>` slots and deletes this line.**
+**This is a template. The PM fills the `<< >>` slots under "Your unit" and deletes
+this line. Everything below "Your unit" is DURABLE and is not rewritten per unit —
+so if the slots are still unfilled, your unit has not been assigned yet and the
+rest of this file is still your role.**
 
 **This file is deliberately SHORT, and that is a specification rather than a
 concession.** The role has produced this project's best work with **no definition at
@@ -35,8 +38,11 @@ a second place for it to drift, which is a defect class this repo has measured.
 ## 1. Startup — before any peer traffic reaches you
 
 1. **Your role is stated above. It is not a question.**
-2. **Read:** `CLAUDE.md` → `docs/dead-ends.md` completely → `BACKLOG.md` →
-   `TOOLS.md` → `MEMORY.md` → this file.
+2. **Read:** this file → `CLAUDE.md` → `docs/dead-ends.md` completely →
+   `BACKLOG.md` → `TOOLS.md` → `MEMORY.md` → `README.md` → **`prompts/REPORT.md`**,
+   the working register of what is queued and how it is judged. **This file is
+   short and mostly pointers, so reading it first tells you where to go; it is not
+   a frame to inherit. The contract and the registry are the authorities.**
 3. **Then `git log --oneline -80`. Session reports are deleted by design here, so
    the commit MESSAGES are the transcript.**
 4. **Run `./scripts/qa/run_guards.sh` yourself.** A slow run is contention —
@@ -56,8 +62,15 @@ doing a different job, **and it is invisible from inside, because the work is go
 - **PM** — hands out work, **audits by re-execution**, holds the queue and the
   owner's decisions. **It reviews code; it does not write it.** Report to it on
   completion, on a blocker, and when the brief is wrong.
-- **AUDITOR**, when one is seated — **its job is to contradict you.** That is the
-  role working. It reports to the PM **and to you in parallel**, never through you.
+- **THERE IS NO SEPARATE AUDITOR SEAT. THE PM IS THE AUDITOR** (owner-ratified, and
+  it overrides any earlier roster text): *"you are the project manager AND the
+  auditor; the worker implements."* **So the contradiction comes from the PM, and
+  when it audits your work by re-execution that is the check working — not ordinary
+  traffic to be waved through.**
+- **ADVERSARY** — the optional fourth seat, and it has never yet run. If one is
+  seated, **its whole job is to attack the PREMISES you and the PM took for
+  granted**, not the findings you argued over. It reports to the PM **and to you in
+  parallel**, never through you. It has no veto and you triage its list.
 - **ORACLE** — external only: vendor docs, primary literature, the field's practice.
   **Consult it freely.** Its findings are **citations, not instructions**, and it can
   be wrong. A decision about what to RUN goes to the PM.
