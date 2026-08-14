@@ -19,7 +19,33 @@ not retire, and it is run on demand rather than scheduled here.
 per engagement, not items — the four-session team is OPTIONAL and specified in
 `PROJECT_MANAGER_PROMPT.md`.
 
-## Waiting on the owner — NOTHING IS. All four are ruled; this section is the record of what they decided
+## Waiting on the owner — THREE ARE LIVE. Build nothing on them
+
+Re-homed here from the PM prompt, which is where they were recorded and which is
+not where a successor looks for current state. **This is the file the PM prompt
+points at for "what is with the owner", so it has to actually carry them.**
+
+1. **THE REMOVAL-CONDITIONS REGISTER HAS NO KEY, NO EXIT, AND NO DESTINATION for
+   code that outlives its divergence.** Measured: **+22 rows in 9 days, 35 of 38
+   "not fired", and not one row EVER removed by its condition firing.** The only
+   exit is *"an official tool grows this capability"*, which fires on vendors'
+   schedules. **The clause-drift guard is HELD behind this — do not build a guard
+   against a schema the owner may replace.**
+   **STATED WITHOUT THE THUMB, because the framing was flagged by its own author:**
+   the same measurement reads either as a register with no exit, or as a project
+   correctly recording that it keeps finding real divergences. The owner is deciding
+   inside whichever framing reaches them.
+2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
+   `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
+   `get_selection_star`, while it returns `ImageStats.deserialize(response)`.
+   **Outward-facing action under the owner's identity needs their word.** Whether it
+   is already filed on Siril's tracker was never checked.
+3. **L2 may reopen.** Cosmic Clarity's chroma knob saturates above 0.85, but the
+   record does not say which `--denoise_mode` that was measured under. If `full`,
+   `separate` is untested. **`render-ladder` is user-gated; not the PM's to
+   promote.**
+
+## Earlier owner decisions — the record of what they ruled
 
 Every item this section carried has been decided. It survived as "waiting"
 through two handoffs because the decisions landed ELSEWHERE and nobody closed the
