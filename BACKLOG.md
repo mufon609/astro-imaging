@@ -305,151 +305,57 @@ bracketed by a same-arm repeat, judged on `star_stations.py` majFWHM per station
 symmetric sharpener cannot de-trail an elongated PSF. Until it runs, the skip is a
 hypothesis and the docstring says so.
 
-## `calibration-evidence` — the de-sky work's unfinished evidence
+## `calibration-evidence` — three live threads; the rest is closed and lives in the registry
 
-**`--desky` is off by default; it was a 31x regression
-(`docs/dead-ends.md`). The grounds it shipped on (flat odd plane 4.84%→1.98%
-set-01, 7.82%→2.42% set-02; vignetting held ≤0.12%; PRNU correlation 0.999951)
-were all measured with instruments blind to the failure: the odd plane is a
-whole-frame fit that CANCELS under a partial sign inversion, and "vignetting held"
-was a centre-vs-corner radial ratio that averages the two sides together.**
-The underlying problem the work was aimed at is still real and still uncorrected —
-a sky flat converges to `sky x V` and tilts the object. These
-evidence gaps therefore remain open for whatever the eventual fix is:
+**The problem this item exists for is REAL and UNCORRECTED: a sky flat converges to
+`sky × V`, so the object carries the sky's spatial profile.** `--desky` is off by
+default — a registered 31× regression, and the grounds it shipped on were all
+measured with instruments blind to the failure. **Every route tried to date is
+CLOSED and every mechanism is in [`docs/dead-ends.md`](docs/dead-ends.md)** — the
+catalogue-free object-tilt dead end with both its independent blockers, the
+odd-component edge-dipole sweep, the flat-differential WIN with its transfer
+function, and the domain-corrected iterative sky flat. Those entries carry the
+numbers at greater depth than this item did; do not re-derive them here.
 
-- ~~**The 3.11% / 241-sigma figure itself has NO TRACKED RECORD.**~~ **CLOSED, as
-  UNVERIFIED — and the re-measurement is a DEAD END.** The figure is now marked
-  unverified at all 13 code and doc sites plus the 13 `readiness.json` records
-  (the generator, `readiness_report.py`, was the real site — the JSONs regenerate
-  from it). The catalogue-free re-measurement the brief specified was BUILT
-  (`scripts/qa/object_tilt.py`, Siril `findstar` + Siril `psf` aperture photometry
-  at a forced radius against its own local annulus) and does not reproduce it, for
-  two independent reasons either of which is fatal:
-  **(1) GEOMETRIC.** A linear sensor-fixed mode is EXACTLY absorbed by the
-  per-star and per-block nuisances under a pure translation, so the 503-1220 px of
-  drift is not the lever — the FIELD ROTATION is, and it is only 0.69-3.76 deg per
-  set, leaving a median effective lever of **29.1 px on a 5769 px frame (0.5%, a
-  ~200x extrapolation)**. `--selftest` executes the falsification: a planted
-  +0.100 mag returns as **-0.046 +- 0.0001** on a pure-translation panel, so a
-  degenerate fit reads confidently WRONG rather than unidentified. Read the lever,
-  never the sigma.
-  **(2) PHYSICAL, and it survives any fix to (1).** For a FIXED camera every
-  sensor position maps to a fixed altitude, so atmospheric extinction and skyglow
-  across this 27-degree field are sensor-fixed TOO, and both are airmass-shaped —
-  nearly the same spatial shape as the flat's baked-in sky term. The fit measures
-  their SUM. The time-varying half is MEASURED: a within-set gradient drift of
-  **0.040-0.425 mag (median 0.149), monotone in block order in 10 of 12 sets**,
-  whose leak into a shared-gradient fit (0.74-13.45 mag) exceeds the measured
-  shared gradient in every set.
-  **The instrument is sound and the controls say so**: a Siril `imul` ramp of edge
-  ratio 1.2222 recovers at 1.24x (0.95x on the best-levered pair) and a uniform
-  card moves every number by exactly 0.00. What fails is the DATA'S GEOMETRY, and
-  the discrimination number says so: the planted ramp moves the answer 9.85 points
-  against a floor of 49.08 — **0.20x**, where the iterative-flat NULL met 48-62x.
-  **The floor is 49 PERCENTAGE POINTS**: aug09/set-01 rebuilt as interleaved
-  halves (249 even frames against 249 odd) has a predicted tilt of EXACTLY ZERO —
-  both products average a star over the same sensor positions — and measures
-  **+49.08 +- 4.97% at r=10 and +50.82 +- 5.65% at r=16, 3086 stars, 11.8 sigma**.
-  A floor the size of the measurement, read at high formal significance, is the
-  same lesson `--selftest` 4a teaches: read the lever, not the sigma.
-  **The pre-registered corpus prediction failed 4 of 5** — every set exceeds its
-  flat's own dose by 1.4-86x, and aug06/set-03, the pre-registered built-in null,
-  measures +223 +- 28% against a predicted +2.6%. Numbers:
-  `datasets/aug09/corpus_object_tilt.json`,
-  `datasets/aug09/tilt_corpus_prediction.json`, `docs/dead-ends.md`.
-- ~~**The odd-component instrument has no script.**~~ **CLOSED** —
-  `scripts/qa/flat_odd_component.py`. Siril does every pixel op (load/crop/fdiv)
-  and every measurement (stat); it reports LR / TB / corner ratio / both edge
-  dipoles at the two geometries already in use, and `--ratio B [--control]` does
-  the flat-vs-flat division that cancels vignetting and the instrumental base
-  exactly (`fdiv` only — `idiv` clips at 1.0 silently; the two-scalar control is
-  built in). It REPORTS and gates nothing, per the note below.
-  **What it found, which changes what a fix may assume:** the LEFT-RIGHT odd
-  component is SKY (monotonic within all three nights, edge dipole sweeping
-  +0.436 → 0 → −0.385 across the corpus, impossible for a sensor-fixed term) —
-  but the TOP-BOTTOM term is **not** demonstrably instrumental either, since it
-  sits above 1 on july31 (drifting +6.7% through that night) and below 1 on
-  aug06/aug09. Neither axis isolates the instrument, and the
-  constant-within-a-night part stays unattributed between optics and static sky.
-  Numbers: `datasets/aug09/corpus_flat_odd_component.json`,
-  `datasets/aug09/experiments.jsonl`.
-  Still open from this bullet: `build_sky_flat.sh`'s built-in gate remains
-  corner-vs-centre, which the registry calls SELF-FULFILLING for this defect.
-  The builder does now record both edge dipoles alongside it, so the honest
-  statement is that the gate under-claims rather than lies — but it should stop
-  claiming to check what it does not.
-- **Which arm is CORRECT rests on estimator arithmetic, and the catalogue-free
-  test that was supposed to settle it is now a DEAD END.** The Gaia check is
-  structurally impossible (trailed stars at 17″/px), and "measure the same stars in
-  consecutive time blocks and fit flux against sensor position" was BUILT and RUN
-  over all 12 sets: the linear mode is degenerate under the drift's translation, the
-  1–3.8° of field rotation leaves only a 29 px median lever, and the atmosphere is
-  sensor-fixed for a fixed camera so nothing in the sensor frame can apportion the
-  measured field between flat and sky. Do not re-propose it (`docs/dead-ends.md`;
-  `datasets/aug09/corpus_object_tilt.json`).
-  ~~**What is still available to settle it:** (a) the FLAT DIFFERENTIAL…~~
-  **(a) IS DONE — WIN with controls, and it changes what a corrective may assume.**
-  Two flats of the same optical state and different sky dose (aug09 set-01 vs
-  set-05, Δedge dipole 0.2827) on the SAME 125 set-05 lights, one knob.
-  **Delivered: −22.477 ± 0.077% object-flux tilt (r = 10 px, 914 stars, Siril
-  `psf`) and edge dipole_x −0.2356 on the pixel-ratio field (Siril `fdiv` +
-  `stat`).** The apples-to-apples form needs no model — the flats' OWN ratio
-  cropped to the delivered canvas measures −0.2383 (edge) / −0.2010 (corner)
-  against the delivered −0.2356 / −0.2021, i.e. **98.9% and 100.6%**, and 101.2%
-  after correcting by the planted card's own 97.7% recovery through the same
-  comparison. **The transfer from flat SHAPE to delivered object is ~1:1 with no
-  measurable attenuation.** Floor EXACTLY 0.0000 on both instruments (the
-  non-vacuous uniform-card version changes 74.10% of the pixels and still moves
-  no dipole), so discrimination is unbounded where the object-tilt instrument
-  managed 0.20x. Both blockers die structurally: `M_i` cancels identically, so the
-  lever is 1603 px against the absolute measurement's 29.1 px median, and the
-  sensor-fixed atmosphere cancels in the subtraction — demonstrated on the SAME
-  pure-translation panel that killed the absolute design.
-  **The shipped normalization absorbs 0.3% of it**, so nothing is hiding the
-  defect; the same pair moves the BACKGROUND dipole +48.6% as a pedestal artefact,
-  which is why the pixel field is read on `-nonorm` arms only.
-  **SCOPE — it does NOT close "which arm is correct".** A ratio cancels what the
-  two flats share, so the absolute tilt still needs the flats' COMMON sky content,
-  which is unmeasured; this gives the transfer function, not the level.
-  Numbers: `datasets/aug09/flatdiff_prediction.json` (committed before the arms),
-  `datasets/aug09/set-05/flatdiff_work/flat_differential.json`, `docs/dead-ends.md`.
-  (b) `flat_odd_component.py --ratio` is what the primary instrument invokes.
-- **A with/without judgement pair on finals** — the metric is unresolved-starlight
-  preservation and the user's eyes decide. **NOT stageable as originally written:
-  the de-skied flats it named for set-01/02 no longer exist on disk** (verified),
-  and the de-skied arm is a registered 31x regression regardless. The pairing that
-  IS stageable is two shipped-builder flats of different sky dose — within-night,
-  so the optical state is fixed; aug09 set-01 vs set-05 is the corpus maximum at
-  Δdipole 0.2827. Blocked on the render gate: `render_tier.sh` exits 7 without a
-  ratified `render` block (BACKLOG:`render-ladder`) — re-verified.
-  **THE ARMS NOW EXIST AND ARE PRESERVED, so only the gate is left.** The flat
-  differential built both, 125 frames each, registration pinned so the ONE knob is
-  the flat: `sessions/aug09/work/flatdiff/arm_A.fit` (skyflat_set-05) and
-  `arm_B.fit` (skyflat_set-01), linear, plus the production-normalization pair
-  `arm_An.fit` / `arm_Bn.fit` — which is the pair to judge, since the eyes pass
-  must see the SHIPPED normalization. Each carries its own tag on the FITS
-  (`DIAGARM`, `CALXSET`, `STACKNRM`, `REGPIN`), so a diagnostic arm cannot be
-  mistaken for a deliverable months from now. What the eyes are for: the delivered
-  difference is MEASURED at −22.5% of object flux across the frame, so this pass
-  is no longer "is there a difference" but "which arm preserves unresolved
-  starlight", which no instrument here decides.
+**THE FLAT DIFFERENTIAL IS THE ONE ROUTE THAT WORKS, AND ITS SCOPE IS THE POINT.**
+A ratio cancels what two flats share, so the sensor-fixed atmosphere cancels in the
+subtraction and the lever is 1603 px against the absolute design's 29.1 px median.
+It delivers the TRANSFER FUNCTION (flat shape reaches the object ~1:1, floor
+exactly 0.0000) and **not the LEVEL** — the absolute tilt still needs the flats'
+COMMON sky content, which is unmeasured.
 
-**ROUTES NOW CLOSED — do not re-derive them.** The DOMAIN-CORRECTED ITERATIVE
-SKY FLAT (calibrate the flat's source frames with `F0`, `seqsubsky` in that
-flat-fielded domain, restore the level, multiply back by `F0`, restack) is DEAD:
-it reconstructs whichever flat it is handed, because dividing by `F0` is what
-removes the gradient from the sky and multiplying back restores it. Measured
-NULL against positive controls that move the same code 81.7% (fixture) and 93.4%
-(real data) where the scheme moves it 1.7% / 1.2% (`docs/dead-ends.md`). It repaired `--desky`'s domain error and still
-could not work, so "run the operator in the right domain" is exhausted as an
-angle. No builder flag was added and no removal-conditions row created — there
-is no divergence to retire.
+### Live
 
-Related and open: **SPCC order-robustness is UNTESTED, not verified.** Inserting the
-background step ahead of SPCC moved K_G −1.20%/−1.48% and K_B −0.47%/−0.80% on
-unchanged star counts — larger than the chain's own recorded K scatter (0.006).
-Confounded, because the de-skied arm also removes a real ~3% object tilt. Clean test:
-SPCC the SAME stack with and without an on-stack background step only.
+1. **A with/without judgement pair on finals — BLOCKED ONLY ON THE RENDER GATE.**
+   The arms exist and are preserved: `sessions/aug09/work/flatdiff/arm_{A,B}.fit`
+   (skyflat_set-05 vs skyflat_set-01, 125 frames each, registration pinned so the
+   ONE knob is the flat) plus the production-normalization pair `arm_{An,Bn}.fit`,
+   **which is the pair to judge** — the eyes pass must see the SHIPPED
+   normalization. Each carries `DIAGARM` / `CALXSET` / `STACKNRM` / `REGPIN` on the
+   FITS so a diagnostic arm cannot later be mistaken for a deliverable.
+   `render_tier.sh` exits 7 without a ratified `render` block
+   (BACKLOG:`render-ladder`). **The question is no longer "is there a difference"** —
+   it is MEASURED at −22.5% of object flux across the frame — **but "which arm
+   preserves unresolved starlight", which no instrument here decides.** Owner's eyes.
+2. **`build_sky_flat.sh`'s gate is still corner-vs-centre, which the registry calls
+   SELF-FULFILLING for this defect** — and the script's own line 289 says so. The
+   builder now records both edge dipoles alongside it, so the honest statement is
+   that the gate UNDER-CLAIMS rather than lies; it should stop claiming to check
+   what it does not. **A shipped candidate replacement exists and no consumer knows
+   it: `scripts/qa/grid_ramp.py`** fits the low-order background ramp as
+   coefficients, which four-corner spread cannot do on a structured field. Register
+   row 67 records the same blind spot for `baseline_guard.py`. **Swapping an
+   acceptance measure is a USER RATIFICATION**, so this is a proposal to the owner,
+   not a change to make.
+3. **SPCC order-robustness is UNTESTED, not verified.** Inserting the background
+   step ahead of SPCC moved K_G −1.20%/−1.48% and K_B −0.47%/−0.80% on unchanged
+   star counts — larger than the chain's own recorded K scatter (0.006). Confounded,
+   because the de-skied arm also removes a real ~3% object tilt. **Clean test: SPCC
+   the SAME stack with and without an on-stack background step only.**
+
+**Closes when** all three are resolved: the judgement pair judged, the sky-flat gate
+either replaced by ratification or honestly re-described, and SPCC order-robustness
+measured on one knob.
 
 ## `walking-noise` — open gap, class-gated
 
