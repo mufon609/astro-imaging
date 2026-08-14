@@ -1,0 +1,63 @@
+{
+ "what": "GATE 1: does this estimator reproduce the recorded coherent-trail numbers from TRACKED inputs?",
+ "conversion_constant": {
+  "value": 0.49374712819727373,
+  "source": "psf_calib.json fitted_constant_in_corpus_L_band",
+  "analytic_identity_NOT_used": 0.4620902533333333,
+  "ratio_fitted_over_identity": 1.0685079908861537
+ },
+ "prediction_px2": 1.3555,
+ "samples": {
+  "A_psf_work_3_raws": {
+   "n": 8074,
+   "coherent_magnitude_px2": 0.5869080686535824,
+   "coherent_axis_deg": 9.157274852548227,
+   "mean_D1": 0.5571786581413226,
+   "mean_D2": 0.18442620194135467,
+   "median_absD": 1.7202000000000008,
+   "mean_absD": 1.963370225414912,
+   "mean_over_median_absD": 1.1413616006365022,
+   "projection_on_axis_px2": 0.5798185400583947,
+   "projection_axis_deg": 4.7,
+   "frac_negative_on_axis": 0.2932870943770126,
+   "recorded_coherent_magnitude_px2": 0.5869,
+   "recorded_coherent_axis_deg": 9.16,
+   "recorded_projection_px2": 0.5798,
+   "recorded_n": 8074,
+   "ratio_vs_prediction": 0.42775251940862763,
+   "recorded_ratio": 0.43
+  },
+  "B_memraw_5_constituent_raws": {
+   "population": "above-median amplitude per frame",
+   "statistic": "direction-free coherent MAGNITUDE (not the axis projection)",
+   "cut_ladder_mean_coherent_magnitude_px2": {
+    "none": 0.726381939042873,
+    "20": 0.7275656679952696,
+    "10": 0.7251009049558788,
+    "6": 0.7131349303718206
+   },
+   "recorded_cut_ladder": {
+    "none": 0.7264,
+    "20": 0.7276,
+    "10": 0.7251,
+    "6": 0.7131
+   },
+   "per_raw_none_cut": {
+    "k_00001.lst": 0.46149605057204307,
+    "k_00002.lst": 0.7572772972760908,
+    "k_00003.lst": 0.802626508305825,
+    "k_00004.lst": 0.7951132573557286,
+    "k_00005.lst": 0.8153965817046777
+   },
+   "recorded_per_raw": {
+    "DSC_6239": 0.4615,
+    "DSC_6264": 0.7573,
+    "DSC_6289": 0.8026,
+    "DSC_6314": 0.7951,
+    "DSC_6338": 0.8154
+   },
+   "ratio_vs_prediction_no_cut": 0.5358774909943733,
+   "recorded_ratio": 0.536
+  }
+ }
+}
