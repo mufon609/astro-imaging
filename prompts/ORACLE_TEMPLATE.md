@@ -224,11 +224,21 @@ TOOLS.md          longest line 6611
 BACKLOG.md        longest line 3165
 docs/dead-ends.md longest line  108
 ```
+**MODE 3 — AND IT IS THE ONE THAT DOES NOT LOOK LIKE A FAILURE. `2>&1 | wc -l`
+COUNTS THE ERROR TEXT AS RESULTS.** Modes 1 and 2 return nothing, so at least they
+present as a null someone might question. **This one returns a NUMBER.** MEASURED
+here: a two-range pattern was piped `2>&1 | wc -l` and reported as **"5 matches"**
+when there were none — five lines of ugrep's complexity error. **A positive result
+never prompts a re-check**, which is why this survived a publish and the other two
+did not.
+
 **THE RULE: window with ONE range quantifier on the TRAILING side —
-`grep -oE "PATTERN.{0,200}"` — and POSITIVE-CONTROL it.** It survives both modes:
-no second range to trip ugrep, no exact width to exceed a wrapped line. **Check the
-file's longest line with one `awk` before choosing a width**, and never trust an
-empty result you have not first shown the pattern can produce a hit with.
+`grep -oE "PATTERN.{0,200}"` — POSITIVE-CONTROL it, and NEVER MERGE STDERR INTO A
+COUNT.** That survives all three: no second range to trip ugrep, no exact width to
+exceed a wrapped line, and no error text masquerading as data. **Check the file's
+longest line with one `awk` before choosing a width**; never trust an empty result
+you have not first shown the pattern can produce a hit with; and **when a count
+comes back, confirm it is counting matches rather than diagnostics.**
 
 ## What you audit
 
