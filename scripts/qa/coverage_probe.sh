@@ -18,17 +18,44 @@
 # not merely for a foreign one — at 3 members, one member reads 21845 where the
 # contract predicted 1000.
 #
-# CONSEQUENCE, and it is why this script no longer stamps a scale: the map's
-# ADU-per-member is `65535 / max_coverage`, and max_coverage is NOT known here.
-# It equalled the stacked member count in every run measured (3->3, 4->4, and
-# twice where registration dropped a non-overlapping member and 2->2), but the
-# mechanism was NOT established — an attempt to build max_coverage < STACKCNT
-# failed three times because registration drops the members that would have
-# produced it. Stamping `65535/STACKCNT` would be a SECOND guessed constant on
-# top of the one that caused the defect, so it is deliberately not written.
+# CONSEQUENCE, and it is why this script stamps no scale: the map's
+# ADU-per-member is `65535 / max_coverage`, and max_coverage is NOT knowable
+# here. That is now MEASURED, not merely unestablished.
+#
+# `stack ... sum` NORMALISES BY THE OBSERVED MAXIMUM, not by N. Settled on a
+# PLANTED fixture that pins the geometry outright, because three attempts on
+# real members could not build the discriminating case — registration drops the
+# non-overlapping member and STACKCNT comes back reduced, so max_coverage == N
+# every time. Three frames, disjoint-then-chained halves, coverage 1,2,2,1
+# across x, so max_coverage = 2 while N = 3:
+#
+#   MEASURED levels  0.5, 1.0        (= k / max_coverage)  <- observed maximum
+#   would have been  0.333, 0.667    (= k / N)             <- N
+#
+# So `65535/STACKCNT` is WRONG, and provably: on that fixture it reads a
+# 2-member maximum as if it were 3. Stamping it would have been a second
+# guessed constant on top of the one that caused the false PASS.
+#
+# NO OTHER SIRIL STACK MODE RECOVERS AN ABSOLUTE COUNT — probed on the same
+# fixture, commands run rather than help read:
+#   sum          renormalises to the observed max (above)
+#   mean / rej   DISCARDS coverage entirely: every level collapses to the fill
+#                value (single level 1000 ADU across coverage 1 AND 2), tested
+#                with `mean none -nonorm`, `mean n 0 0 -nonorm`, `rej n 0 0
+#                -nonorm` — all three identical
+#   max / min    a binary footprint, never a count
+#   med          a median, which does not count either
+# `-output_norm` is documented for "median and mean stacking only", so sum's
+# rescale cannot be switched off.
+#
+# THE ROUTE THAT REMAINS is not another constant: either recover max_coverage
+# from the map's own level ladder (the step is 1/max_coverage, but lanczos4
+# ringing pollutes it and it is an inference from pixels), or change what
+# `--map-min` MEANS — a fraction of the maximum coverage is well defined from
+# the map alone, where a member COUNT is not. The second is a contract change
+# and is not this script's call to make.
 # `verify_framing.py --map` REFUSES a map that declares no scale, so this
-# script's output is currently refused by design. Closing that needs the
-# max_coverage question settled, not another constant.
+# script's output is refused by design until one of those lands.
 #
 #   coverage_probe.sh --out=<map.fit> <substack-dir>... [--framing=max]
 #                     [--ref=<1-based index in link order>]
