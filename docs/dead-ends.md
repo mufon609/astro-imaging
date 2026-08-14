@@ -1732,6 +1732,28 @@ SILENT — pin the state, never inherit it):
   that rate is not zero even under attention. When a check must be
   transcriptive, that is a hook or a script waiting to be written, not a
   discipline problem.
+  **AND THE SAME FAILURE APPLIES ONE LEVEL UP, TO RESULTS: a RESULT that was
+  paraphrased is a result that was NOT RECORDED — and it survives longest when it
+  flatters.** MEASURED: the headline of this repo's error-model finding was
+  published, in a register row and in a shipped docstring, as *"χ²/dof 35.6 on
+  bootstrap errors becomes ~1.1 on frame-based ones"*. Enumerating **every**
+  `chi2_per_dof` in the record it cites returns
+  `[1.5669, 1.8054, 19.2935, 30.3153, 35.5969, 40.9469]` — **nothing in [1.0, 1.2]**,
+  across **both** revisions of that file, byte-identical in each. The 35.6 is one
+  binning's bootstrap and its own frame-based counterpart is **1.8054**; the other
+  binning pairs 40.9469 → 1.5669. `git log -S` puts the entry at the commit that
+  wrote the contradicting record, so it was quoted from a computation nobody
+  persisted — not lost to a later regeneration and not from a retired arm.
+  **The finding itself was unaffected (~20× either way), which is exactly why the
+  number went unchecked for so long.** Two mechanisms kept it alive: it paired two
+  numbers without their QUANTITY stated (the binning), which is this thread's
+  registered commensurability class; and it failed in the FLATTERING direction —
+  against an assumed null of 1, "1.1" reads as a near-perfect fit, and nobody
+  re-checks a number that says the model fits. At the frame-based ν the null is
+  **ν/(ν−2)**, so the true 1.81 sits BELOW it and the honest sentence is *"the
+  errors are conservative"*, not *"the errors are right"*. **The rule: a headline
+  number must be reproducible from a tracked record by enumeration, and a pairing
+  must name the quantity both halves were computed over.**
 - **A SECOND SESSION CATCHES ERRORS NOT BY HAVING DIFFERENT EVIDENCE BUT BY
   APPLYING DIFFERENT PRIORS TO THE SAME TREE — and the maker's prior is the one
   that produced the error.** The weaker mechanism is the useful one: it means
@@ -1753,6 +1775,34 @@ SILENT — pin the state, never inherit it):
   agree about. Across that whole exchange, NOT ONE correction on either side
   came from shared ground. Two sessions agreeing is therefore not evidence —
   it is the region where the practice is blind, and it is the larger region.
+  **THE OPERATING CONDITION, without which the limit above is unusable — MEASURED
+  on the first instance of it actually firing.** Knowing agreement is the blind
+  region does not by itself find anything: *"we have converged, be careful"* names
+  nothing checkable and produces nothing. **What works is to extract the shared
+  proposition as ONE falsifiable sentence, then go look.** MEASURED: two sessions
+  independently argued for the same records split — installed-state belongs in the
+  generated inventory, capability in `TOOLS.md` — from different evidence
+  (a 24-hour staleness pattern; an availability-vs-capability row). Both rested on
+  *"`manifest.tsv` is authoritative"*, which neither had checked. Named in that
+  form it fell to one command: **21 rows, last written before the day's work,
+  omitting PSFEx, SCAMP, `source-extractor` and a 1.5 GB catalogue.** Had it stood,
+  every reader would have been redirected to an authoritative-looking inventory
+  silently missing the tool behind the field model that register row 52 cites —
+  the arm validating the κ that three rows rest on. **The rule is not "distrust
+  agreement"; it is "name the premise both sides stand on, in a form someone can
+  falsify without further interpretation, and check it."** A convergence with no
+  named premise is not a tripwire, it is a mood.
+  **AND THE SAME CHECK CAUGHT A FIX WHOSE DELIVERY PATH EXCLUDED ITS OWN
+  BENEFICIARY** — a class distinct from the check-cannot-fail family, because
+  nothing here is a check. `install_astromatic.sh` was written expressly to close
+  the *"VERIFIED and NOT REPRODUCIBLE FROM A CLONE"* gap, states that purpose in its
+  own header, and is called by nothing: `x86_bootstrap.sh` — the script `CLAUDE.md`
+  defines the environment as — mentions it, `psfex`, `scamp` and `source-extractor`
+  ZERO times each. The omission is not a design choice; that script already runs
+  `sudo apt install` 23 times, so root is not the reason. **Discharge test for any
+  install recommendation, and it is `CLAUDE.md`'s existing standard rather than a
+  new rule: a recommendation is discharged only when a CLONE reaches it, never by
+  the thing being present on this rig.**
 - **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A DETECTION-DEPTH
   COMPARISON, NOT A QUALITY ONE — flux-match the population or the deeper image loses
   every time.** `findstar` goes as faint as the image allows, and marginal fits are
