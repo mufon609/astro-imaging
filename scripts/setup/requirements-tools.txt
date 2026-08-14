@@ -8,10 +8,27 @@
 # named open question that nothing on the build path imports yet. Keeping them
 # apart means a tool experiment cannot take the chain down with it.
 #
-# EVERY ROW NEEDS A LIVE QUESTION, and every EXCLUSION is a decision with a reason.
+# EVERY ROW RECORDS A QUESTION, NOT A CAPABILITY — and the distinction is the point.
 # An installed tool nobody drives is debt; a capability sitting unnoticed is the
 # opposite failure and this repo has measured it repeatedly (`seqtilt`, SWarp's
 # weight map, `grid_ramp.py`). Name the question, and delete the row when it closes.
+#
+# INSTALLED IS NOT INTEGRATED, AND THIS FILE MUST NOT READ AS THOUGH IT WERE.
+# MEASURED 2026-08-14, immediately after installing: `grep -rl "import <tool>"`
+# across `scripts/`, `web/` and `datasets/` returns NOTHING for any of them. So on
+# the day they landed, every row below was RECORDED-ONLY. That is the normal state
+# after a procurement pass and it is not a defect — **the defect would be a future
+# reader taking "we have X installed" as capability.** Status, honestly:
+#   ACTING NOW      sip_tpv   — verified, and it gates a live candidate route
+#   ALREADY IN USE  PSFEx     — its output is already cited; the install closed a
+#                               reproducibility gap rather than unlocking anything
+#   ON NEXT USE     galsim    — inert today, but one named use fires the moment
+#                               anyone reads a PSFEx .psf again
+#   INERT           SCAMP, reproject, piff, astropy_healpix, astroquery — no arm
+#                               designed for any of them yet
+# **Carry a LAST-USED stamp beside the last-checked one.** A tool that has been
+# installed for months and never imported is a stale claim waiting to happen, and
+# nothing else in this file would catch it.
 #
 # ===========================================================================
 # THERE ARE EXACTLY TWO INSTALL LANES ON THIS RIG, AND NO THIRD — MEASURED.

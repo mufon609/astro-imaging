@@ -115,7 +115,13 @@ Ordered work — nothing here is executed on an accepted product:
    sequence"*. **So `seqplatesolve` + `seqapplyreg` is NOT "the SWarp-class
    operation natively": Siril discards per-image distortion BY DESIGN, SWarp BY
    SILENT OMISSION.**
-   **THE ROUTE IS NOW REAL, AND THERE ARE TWO INDEPENDENT WAYS IN — both installed.**
+   **THERE IS NOW A CANDIDATE ROUTE WITH ITS FIRST LINK MEASURED, AND TWO ENTRY
+   PATHS — both installed. IT IS NOT YET "THE ROUTE", AND CALLING IT ONE WOULD
+   REPEAT THE FORM OF THE ERROR ABOVE:** the line this replaces declared an
+   UNMEASURED architecture ADOPTED, and a TPV chain that nobody has run is also an
+   unmeasured architecture. What is measured is the first link (`sip_tpv`'s
+   conversion) and the components' availability; the coadd itself is untested and
+   nothing has been resampled.
    SWarp reads **TPV** natively (`fitswcs.c:801`, `:843`), so:
    (a) **convert our own SIP** — `sip_tpv` 1.1, whose forward direction is a
    symbolic sympy substitution and NOT a fit, measured exact at **1.118e-11 px max
@@ -134,6 +140,12 @@ Ordered work — nothing here is executed on an accepted product:
    `SHARE_PROJAXIS` available and bears directly on members 4.28° apart; and
    `ASTRINSTRU_KEY` defaults to `FILTER,QRUNID`, which is what defines the
    stability context below.
+   **AND SCAMP IS NOT ACTUALLY USABLE HEADLESS UNTIL ONE DEFAULT IS CHANGED, so it
+   should not be counted as installed-and-ready:** `ASTREF_CATALOG` defaults to
+   **`2MASS`, which is REMOTE**. Until `FILE` is set against a local catalogue the
+   first run reaches a network service — the same class as `conesearch` being
+   GUI-only headless, and avoidable by naming it now rather than discovering it
+   mid-run.
    **BEFORE ANY ARM: SWarp's defaults are wrong for this data and silent about it.**
    `SUBTRACT_BACK=Y` would eat a frame-filling star field; `FSCALASTRO_TYPE FIXED`
    does not track per-pixel solid angle where our ~30° gnomonic field varies ~10%
