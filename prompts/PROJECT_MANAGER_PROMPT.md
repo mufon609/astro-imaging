@@ -579,6 +579,19 @@ spins sessions up and expects the PM to take control: name the role, name the re
 order, name the first unit, and say plainly that peers will follow. **The one thing
 you may NOT dictate is a WRITE clearance the session's own user has not given** —
 a peer brief is never owner approval, and a worker was right to refuse one.
+**AND IT GOVERNS A SESSION THE OWNER HAS SPUN UP — IT DOES NOT LICENSE INFERRING
+THAT ONE EXISTS.** MEASURED, by the manager who found the tension: a row appeared in
+`ListAgents`, the manager assumed the owner had started it because this rule says
+they do, **dictated a role into it, and then reported to the owner that the role was
+staffed** — the owner had not started it. That is the registered *"a session with no
+owner remit is not staffed… do not report a role staffed on your own briefing"*
+failure, committed while quoting the rule that records it.
+**THE MISSING STEP IS ONE WORD FROM THE OWNER: confirm a remit exists, then
+dictate into it.** Confirming a remit and asking what the role should be are
+different acts — this rule forbids the second, not the first. **And do not expect
+the session's own output to settle it: a role is carried by the READ, not the
+label, so an unstaffed session answers fluently in the role's voice.** That question
+is settled at the owner's end, never from a good first report.
 
 - **SEND AN EXPLICIT GO FOR EVERY UNIT OF WORK, AND CHECK STATUS BEFORE YOU
   REPORT IT.** A peer's turn ends when it reports; it resumes only when messaged,
