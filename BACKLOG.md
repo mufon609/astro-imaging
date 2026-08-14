@@ -685,9 +685,24 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   broader, and asking for a narrower one raises the noise covariance, which IMCOM
   QUANTIFIES rather than forbids.** That is the principled generalisation of both
   drizzle (output PSF fixed implicitly) and homogenisation (output PSF forced
-  broader). Computationally expensive. `pyimcom` 1.2.1 is on PyPI. **UNVERIFIED
-  here — availability only; whether it runs outside the Roman data model is the
-  highest-value open probe on the board.**
+  broader). Computationally expensive. `pyimcom` 1.2.1 is on PyPI.
+  **THE COST IS NOW ESTIMATED AND IT IS WEEKS AND A FORK, NOT DAYS AND AN
+  ADAPTER — so "the highest-value open probe on the board" NO LONGER FITS**
+  (project's own `docs/config_README.rst`, last checked 2026-08-14; this
+  DOWNGRADES an earlier reading that the cost was a simple input adapter).
+  Mandatory config keywords include **`OBSFILE` — "path to FITS binary table of
+  observations"** — so the coupling is not merely file format but a survey
+  OBSERVATION-TABLE SCHEMA; supported inputs are `dc2_imsim`, `anlsim` and Piff
+  PSF files; and there is **no plugin system, no custom reader class and no
+  documented bring-your-own-data mechanism**, with the project noting that
+  formats are added by its maintainers in-tree. **So the honest cost is three
+  format-emulation jobs against undocumented internal schemas with no seam to
+  plug into, and adding a format means patching the package — a fork you then
+  maintain.** One favourable detail: it accepts **Piff** PSF files and `piff`
+  1.6.0 is pip-installable, so the PSF third has a real path. **The one probe
+  that could still make it cheap, NOT settled:** `furry-parakeet` holds the
+  linear-algebra and interpolation kernels separately from the Roman driver — if
+  those are usable standalone, the driver's schemas are bypassed entirely.
 - **TOOL FACT that removes a trap we documented today: `galsim.des.DES_PSFEx`
   reads a PSFEx `.psf` DIRECTLY** and returns the PSF at an arbitrary position
   (`galsim` on PyPI). `TOOLS.md` records that PSFEx exposes no position-resolved
@@ -705,9 +720,26 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   al. 2017, A&A 601 A66 (arXiv:1703.02305), python, built for a KNOWN spatially
   varying PSF, i.e. exactly what PSFEx produces; its backend `modopt` is
   pip-installable but the deconvolution code is a source integration. StarTools
-  SVDecon is GPU+GUI; BXT is PixInsight-hosted and uninstalled by choice.
-  **There is no packaged headless CPU Linux tool for the anisotropic half** — a
-  procurement-and-integration boundary, not a physics ceiling.
+  SVDecon is GPU+GUI; BXT is PixInsight-hosted and uninstalled by choice (all three
+  re-checked 2026-08-14, unchanged; `sf_deconvolve` is still not on PyPI though its
+  backend `modopt` 1.7.2 is).
+  **"THERE IS NO PACKAGED HEADLESS CPU LINUX TOOL FOR THE ANISOTROPIC HALF" IS NOW
+  FALSE AS WRITTEN** (last checked 2026-08-14). **`torchmfbd` 0.9.2** (Aug 2025,
+  `pip install torchmfbd`, A&A 2025 703 A269 / arXiv:2505.10639) is PyTorch and its
+  own description says it *"can deal with spatially variant PSFs either by
+  mosaicking the images or by defining a spatially variant PSF"*. **The SENTENCE is
+  refuted; whether the SUBSTANCE survives is open, and three checks decide it — any
+  one of which voids it:**
+  (1) **does it do NON-BLIND deconvolution with a SUPPLIED PSF field?** Its README
+  does not say, and we have a PSFEx model, so this decides whether it is usable at
+  all; (2) **MOMFBD's premise is frame-to-frame aberration DIVERSITY** — it is
+  solar-tailored, where seeing varies between frames and that variation is what
+  separates aberration from object, while **our aberration is a STATIC optical one,
+  identical in every frame**, so if blind mode is the only mode there is no
+  diversity to exploit; (3) **PyTorch CPU-only at 6064×4040 on 28 cores**,
+  tractability unmeasured. **Do not delete this parking and do not act on it — it
+  is a procurement-and-integration boundary with a named candidate, not a physics
+  ceiling and not a solution.**
 - **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Deconvolving each
   tile with its local PSF and mosaicking back is the classical overlap-add answer
   and Siril has every pixel operation for it, but the tiler and blender would be
