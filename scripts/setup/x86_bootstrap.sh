@@ -88,11 +88,12 @@ COSMIC_DATE="2025-03-29"
 NIGHTLIGHT_VER="v0.2.6"
 
 # ---------------------------------------------------------------------------
-DRY=1; DO_DATA=1; ALLOW_UNPINNED=0
+DRY=1; DO_DATA=1; ALLOW_UNPINNED=0; SELFTEST_GAIA=0
 for a in "$@"; do case "$a" in
   --go) DRY=0 ;;
   --skip-data) DO_DATA=0 ;;
   --allow-unpinned) ALLOW_UNPINNED=1 ;;
+  --selftest-gaia) SELFTEST_GAIA=1 ;;   # fire-test Layer B3 in a scratch dir; installs nothing
   -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
   *) echo "unknown arg: $a" >&2; exit 2 ;;
 esac; done
@@ -120,6 +121,143 @@ fetch(){ local url="$1" dest="$2" sha="${3:-}"
     echo "$sha  $dest" | sha256sum -c - || { echo "[bootstrap] SHA256 MISMATCH: $dest ($url)" >&2; exit 1; }
   fi
 }
+
+# ---- Layer B3's implementation, defined HERE ------------------------------
+# It lives above the guards so `--selftest-gaia` can fire-test it WITHOUT entering
+# any install layer and WITHOUT reaching the line that truncates $MANIFEST. The
+# layer itself executes in position, further down. `fetch()` above is not reused:
+# this needs resume, a decompress step, a second hash and a rename, none of which
+# it does.
+#
+# WHY THIS LAYER EXISTS. siril's config ships `catalogue_gaia_astro` pointing at
+# ~/.local/share/siril/gaia_astrometric.dat and nothing here ever created it, so a
+# fresh rig got a config naming a file the bootstrap never wrote. It surfaced as a
+# BLOCKED MEASUREMENT (`-cat=localgaia` with nothing to read), not as a missing
+# file. The published basename differs from the one siril expects, so the file is
+# RENAMED on install and THE CONFIG IS NEVER TOUCHED — the config was always right.
+#
+# TWO HASHES, BOTH SOURCE-PUBLISHED, AND THE SECOND IS NOT DECORATIVE. Zenodo
+# publishes an API md5 per file AND in-record .sha256sum sidecars, including one for
+# the DECOMPRESSED artifact. Checking that one independently is what makes bunzip2 a
+# VERIFIED step rather than a trusted one — a destination-only hash is
+# self-verification and cannot catch a corrupted decompress. Provenance for both
+# pins: scripts/setup/catalogue_ingest.json.
+GAIA_ASTRO_URL="${GAIA_ASTRO_URL:-https://zenodo.org/records/14692304/files/siril_cat_healpix8_astro.dat.bz2?download=1}"
+GAIA_ASTRO_DEST="${GAIA_ASTRO_DEST:-$HOME/.local/share/siril/gaia_astrometric.dat}"
+GAIA_ASTRO_BZ2_SHA="${GAIA_ASTRO_BZ2_SHA:-846ad4b12c50865df0cb8c5b23453f22eec78bbe9969e17d669ae19eb49d421f}"
+GAIA_ASTRO_DAT_SHA="${GAIA_ASTRO_DAT_SHA:-2fa40c93fe115235d35c5050757f2ef60a326a6f3030f87be1598c016fcb2388}"
+
+install_gaia_astro(){
+  local dest="$GAIA_ASTRO_DEST" stage bz2 dat
+  stage="$(dirname "$dest")/_fetch"; bz2="$stage/siril_cat_healpix8_astro.dat.bz2"
+  dat="$stage/siril_cat_healpix8_astro.dat"
+  # IDEMPOTENT, and it is what stops a re-run pulling 1.1 GB again.
+  if [[ -f "$dest" ]] && echo "$GAIA_ASTRO_DAT_SHA  $dest" | sha256sum -c --status -; then
+    log "gaia_astrometric.dat present and sha256-VERIFIED — no fetch"; return 0; fi
+  [[ -f "$dest" ]] && log "gaia_astrometric.dat present but FAILS its sha256 — refetching"
+  mkdir -p "$stage" "$(dirname "$dest")" || return 1
+  # RESUME IS ONLY SAFE ONTO A PARTIAL OF THE **SAME** FILE, and nothing here can
+  # tell a partial from a stale wrong one. Found by this layer's own fire test: a
+  # run that failed its decompressed-hash check left the bad archive staged, and
+  # the next `-C -` resumed ON TOP OF IT. So: reuse a staged archive only when it
+  # already matches its pin, and if a resume is refused, start from zero rather
+  # than build on whatever is there. Every failure path below deletes the archive
+  # for the same reason.
+  if [[ -f "$bz2" ]] && echo "$GAIA_ASTRO_BZ2_SHA  $bz2" | sha256sum -c --status -; then
+    log "staged archive already matches its pin — skipping the download"
+  else
+    if ! curl -fL --retry 3 -C - -o "$bz2" "$GAIA_ASTRO_URL"; then
+      log "resume refused or interrupted — restarting the download from zero"
+      rm -f "$bz2"
+      curl -fL --retry 3 -o "$bz2" "$GAIA_ASTRO_URL" \
+        || { echo "[bootstrap] gaia-astrometric: DOWNLOAD FAILED ($GAIA_ASTRO_URL)" >&2
+             rm -f "$bz2"; return 1; }
+    fi
+  fi
+  echo "$GAIA_ASTRO_BZ2_SHA  $bz2" | sha256sum -c --status - \
+    || { echo "[bootstrap] gaia-astrometric: SHA256 MISMATCH on the COMPRESSED file — refusing" >&2
+         rm -f "$bz2"; return 1; }
+  rm -f "$dat"
+  bunzip2 -k "$bz2" \
+    || { echo "[bootstrap] gaia-astrometric: DECOMPRESS FAILED" >&2; rm -f "$bz2" "$dat"; return 1; }
+  echo "$GAIA_ASTRO_DAT_SHA  $dat" | sha256sum -c --status - \
+    || { echo "[bootstrap] gaia-astrometric: SHA256 MISMATCH on the DECOMPRESSED file — refusing" >&2
+         rm -f "$dat" "$bz2"; return 1; }
+  mv -f "$dat" "$dest" || return 1
+  # RE-VERIFY AT THE INSTALLED PATH: a bad move must not pass as a good download.
+  echo "$GAIA_ASTRO_DAT_SHA  $dest" | sha256sum -c --status - \
+    || { echo "[bootstrap] gaia-astrometric: VERIFY FAILED AT THE INSTALLED PATH — refusing" >&2; return 1; }
+  rm -f "$bz2"
+  log "gaia_astrometric.dat installed and VERIFIED at $dest"
+}
+
+# ONE definition of the row, called by the layer AND by the selftest, so the test
+# exercises the real generator instead of a copy that can drift from it.
+manifest_gaia(){
+  manifest gaia-astrometric zenodo-14692304 "$GAIA_ASTRO_URL" "$GAIA_ASTRO_DAT_SHA" "$GAIA_ASTRO_DEST" \
+    "echo '$GAIA_ASTRO_DAT_SHA  $GAIA_ASTRO_DEST' | sha256sum -c --status - && echo 'gaia astrometric catalogue verified'" \
+    "ASTROMETRIC half of the local Gaia pair; siril's catalogue_gaia_astro points here and the config is NOT modified. RENAMED from the published siril_cat_healpix8_astro.dat. Compressed AND decompressed sha256 are both source-published (zenodo in-record sidecars + API md5) — scripts/setup/catalogue_ingest.json"
+}
+
+selftest_gaia(){
+  local sc bad=0 n=0 rc
+  sc="$(mktemp -d)"; DRY=0; MANIFEST="$sc/manifest.tsv"; : >"$MANIFEST"
+  mkdir -p "$sc/src" "$sc/other"
+  head -c 200000 /dev/urandom > "$sc/src/siril_cat_healpix8_astro.dat"
+  head -c 200000 /dev/urandom > "$sc/other/siril_cat_healpix8_astro.dat"
+  ( cd "$sc/src"   && bzip2 -kf siril_cat_healpix8_astro.dat )
+  ( cd "$sc/other" && bzip2 -kf siril_cat_healpix8_astro.dat )
+  local good_bz2 good_dat other_bz2
+  good_bz2="$(sha256sum "$sc/src/siril_cat_healpix8_astro.dat.bz2" | cut -d' ' -f1)"
+  good_dat="$(sha256sum "$sc/src/siril_cat_healpix8_astro.dat"     | cut -d' ' -f1)"
+  other_bz2="$(sha256sum "$sc/other/siril_cat_healpix8_astro.dat.bz2" | cut -d' ' -f1)"
+  GAIA_ASTRO_DEST="$sc/dest/gaia_astrometric.dat"
+
+  t(){ n=$((n+1)); local want="$1" name="$2"
+       if install_gaia_astro >"$sc/o.$n" 2>&1; then rc=0; else rc=1; fi
+       if { [[ "$want" == GREEN && $rc -eq 0 ]] || [[ "$want" == RED && $rc -ne 0 ]]; }; then
+         printf '  %-56s %s\n' "$name" "OK ($want)"
+       else printf '  %-56s *** FAIL *** wanted %s, rc=%s\n' "$name" "$want" "$rc"
+            sed 's/^/        /' "$sc/o.$n"; bad=1; fi; }
+
+  echo "LAYER B3 SELFTEST — scratch $sc (installs nothing, downloads nothing)"
+  GAIA_ASTRO_BZ2_SHA="$good_bz2"; GAIA_ASTRO_DAT_SHA="$good_dat"
+
+  GAIA_ASTRO_URL="file://$sc/src/NO_SUCH_FILE.bz2"
+  t RED "(a) source MISSING must fail, not pass silently"
+  [[ -e "$sc/dest/gaia_astrometric.dat" ]] && { echo "  *** FAIL *** dest created on a failed fetch"; bad=1; }
+
+  GAIA_ASTRO_URL="file://$sc/other/siril_cat_healpix8_astro.dat.bz2"
+  t RED "(b) COMPRESSED hash mismatch must abort"
+  [[ -e "$sc/dest/gaia_astrometric.dat" ]] && { echo "  *** FAIL *** dest created on a hash mismatch"; bad=1; }
+
+  # the pin matches the served bytes but the CONTENT is the other payload, so only
+  # the DECOMPRESSED hash can catch it. Proves that leg is load-bearing.
+  GAIA_ASTRO_BZ2_SHA="$other_bz2"
+  t RED "(b2) DECOMPRESSED hash mismatch must abort (2nd leg is real)"
+  [[ -e "$sc/dest/gaia_astrometric.dat" ]] && { echo "  *** FAIL *** dest created on a decompressed mismatch"; bad=1; }
+
+  GAIA_ASTRO_BZ2_SHA="$good_bz2"; GAIA_ASTRO_URL="file://$sc/src/siril_cat_healpix8_astro.dat.bz2"
+  t GREEN "(c) correct source + pins must INSTALL"
+  echo "$good_dat  $GAIA_ASTRO_DEST" | sha256sum -c --status - \
+    && printf '  %-56s %s\n' "(c2) installed file verifies at its path" "OK" \
+    || { echo "  *** FAIL *** installed file does not verify"; bad=1; }
+
+  t GREEN "(d) re-run is IDEMPOTENT (must skip the fetch)"
+  grep -q 'no fetch' "$sc/o.$n" \
+    && printf '  %-56s %s\n' "(d2) second run skipped the download" "OK" \
+    || { echo "  *** FAIL *** second run did not skip"; bad=1; }
+
+  manifest_gaia
+  grep -q '^gaia-astrometric	' "$MANIFEST" \
+    && printf '  %-56s %s\n' "(e) manifest row GENERATED into \$MANIFEST" "OK" \
+    || { echo "  *** FAIL *** no manifest row"; bad=1; }
+  echo "  row: $(cut -c1-96 "$MANIFEST" | tail -1)"
+
+  rm -rf "$sc"
+  [[ $bad -eq 0 ]] && { echo "SELFTEST PASSED"; return 0; } || { echo "SELFTEST FAILED"; return 1; }
+}
+if [[ $SELFTEST_GAIA -eq 1 ]]; then selftest_gaia; exit $?; fi
 
 # ---- guards + preflight ---------------------------------------------------
 [[ "$(uname -m)" == "x86_64" ]] || { echo "REFUSING: not x86_64 (this installer targets the x86 rig only)."; exit 1; }
@@ -268,6 +406,25 @@ manifest spcc-config siril-flatpak-config n/a n/a "$SIRIL_CFG" \
 manifest spcc-gaia-cone per-render scripts/calibrate/spcc_cone.py n/a "$SPCC_CAT_DIR" \
   "true" "FIELD-dependent: spcc_cone.py <wcs> --fetch per render (zenodo 14738271, md5-verified)"
 
+# ---- Layer B3: the ASTROMETRIC Gaia catalogue -----------------------------
+# The OTHER half of the local Gaia pair. B2 above installs the PHOTOMETRIC (SPCC
+# xpsamp) side; this is the one plate solving reads via `-cat=localgaia`. Its
+# implementation, its pins and its `--selftest-gaia` fire test are defined above
+# the guards — see the block after fetch().
+log "Layer B3 — the ASTROMETRIC Gaia catalogue (plate solving, -cat=localgaia)"
+if [[ $DRY -eq 1 ]]; then
+  printf '  (plan) fetch   %s\n' "$GAIA_ASTRO_URL"
+  printf '  (plan) verify  sha256 %.12s... on the COMPRESSED file, then %.12s... on the DECOMPRESSED one\n' \
+    "$GAIA_ASTRO_BZ2_SHA" "$GAIA_ASTRO_DAT_SHA"
+  printf '  (plan) install %s  (RENAMED from siril_cat_healpix8_astro.dat; the siril config is NOT touched)\n' \
+    "$GAIA_ASTRO_DEST"
+  printf '  (plan) re-verify at the installed path, then skip entirely on any later run\n'
+  printf '  (plan) fire-test this layer without installing: %s --selftest-gaia\n' "$(basename "$0")"
+else
+  install_gaia_astro || { echo "[bootstrap] Layer B3 FAILED — the astrometric catalogue is NOT installed" >&2; exit 1; }
+fi
+manifest_gaia
+
 # ---- Layer C: project venv (PEP 668 safe) ---------------------------------
 # $VENV defaults under /opt (root-owned parent) — create with sudo, then chown to the
 # invoking user so pip and later dep changes need no root and the venv is not a
@@ -401,6 +558,10 @@ if [[ $DRY -eq 0 ]]; then
   # A version string proves nothing here — SPCC crashes silently without the database.
   check "test -d '$HOME/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors' && echo 'SPCC sensor database present'"
   check "grep -q 'catalogue_gaia_photo=$HOME/.local/share/siril/siril_catalogues/spcc' '$HOME/.var/app/org.siril.Siril/config/siril/config.1.4.ini' && echo 'SPCC catalog path set'"
+  # The ASTROMETRIC half. Assert the CONTENT, not the presence: a truncated or
+  # half-written file exists and would pass `test -f`, and its absence was
+  # originally discovered as a blocked measurement rather than as a missing file.
+  check "echo '$GAIA_ASTRO_DAT_SHA  $GAIA_ASTRO_DEST' | sha256sum -c --status - && echo 'gaia astrometric catalogue present + sha256 verified'"
   check "darktable-cli --version"
   # The UNDISTORT route's install is only real if the DB update landed AND the
   # styles are in darktable's data.db. Prove both, not just that the binary

@@ -1460,34 +1460,31 @@ cross-window alike) and names `CALFLAT` as the datum that says which. Found by
 header inspection during the per-group flat arms; the fix is held off the build
 path while an experiment is in flight.
 
-## `bootstrap-never-fetched-the-astrometric-catalogue` — the symptom is fixed, the generator is not
+## `four-configured-catalogues-are-absent` — measured, unscoped, NOT the Gaia one
 
-**The astrometric Gaia catalogue is now INSTALLED** (`f0ebea7`, zenodo 14692304,
-at siril's own configured path with the config untouched) and `platesolve -force
--catalog=localgaia` is PROBED working — 541 matched stars, converged on iteration
-1. **That fixes this rig and does NOT fix the bug.**
+**MEASURED on this rig** (`scripts/setup/catalogue_ingest.json`): of the six
+catalogue paths siril's config names, only two are present. The astrometric Gaia
+half is now installed and bootstrapped; **the other four are still absent** —
+`catalogue_namedstars` and `catalogue_unnamedstars`
+(`~/.local/share/kstars/{named,unnamed}stars.dat`), `catalogue_tycho2`
+(`kstars/deepstars.dat`) and `catalogue_nomad`
+(`kstars/USNO-NOMAD-1e8.dat`). Siril's config points at all four and nothing
+creates them.
 
-**`scripts/setup/x86_bootstrap.sh` never fetched it.** Layer B2 installs the SPCC
-chunks and sets `catalogue_gaia_photo`; nothing creates or verifies
-`gaia_astrometric.dat`. **So a fresh rig still gets a config pointing at a file
-the bootstrap never writes** — which is precisely how this was discovered, as a
-blocked measurement rather than as a missing file.
+**The one measured consequence:** there is no local NOMAD, so anything defaulting
+to it reaches a remote service instead — `pcc`'s own help distinguishes "the
+remote NOMAD (the complete version)" from a local install, and `findcompstars
+-catalog=nomad` is the case already met. `-catalog=apass` is remote regardless.
 
-**AND THE MANIFEST ROW WAS DELIBERATELY NOT HAND-ADDED, which is the reusable
-part.** `manifest.tsv` is GENERATED: `x86_bootstrap.sh` truncates it with
-`: >"$MANIFEST"` and rewrites the header on every `--go` run. **A hand-added row
-survives in git until the next bootstrap and then vanishes silently — recreating
-this exact bug in a new form, one layer down and harder to see.** Editing a
-generated file to record a fact is not a fix; it is the same defect with a longer
-fuse.
+**NOT SCOPED, deliberately.** These are kstars-hosted catalogues with different
+sources and licensing from the Zenodo Gaia pair, so bundling them into the Gaia
+fix would have made that arm unbounded. Whether they are wanted at all is a
+question about what this repo's routes actually need, not a reproducibility hole:
+nothing in the current chain reads them.
 
-**Closes when** the bootstrap FETCHES the catalogue, verifies it against the
-sha256 recorded in `datasets/`'s ingest record, and WRITES its own manifest row —
-all three, in the script. Related and open: **five of the six configured catalogue
-paths were absent**, not one — `namedstars`, `unnamedstars`, `tycho2`/`deepstars`
-and NOMAD are all missing and only `catalogue_gaia_photo` was present. Direct
-consequence already felt: there is no local NOMAD, so `findcompstars
--catalog=nomad` reaches a remote service.
+**Closes when** someone decides whether the pipeline needs any of them, and either
+adds them to `x86_bootstrap.sh` the way Layer B3 adds the Gaia astrometric
+catalogue, or records here that they are deliberately unused.
 
 ## `guards-and-ci` — nothing runs the guards
 

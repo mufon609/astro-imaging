@@ -82,15 +82,15 @@
     "CLAUDE.md": "the stale Environment claim is in the owner's file; flagged, not edited"
   },
 
-  "REPRODUCIBILITY_GAP_STILL_OPEN": {
-    "finding": "this catalogue is installed but NOT rebuildable from tracked files, which is the condition CLAUDE.md's Environment rule exists to prevent.",
-    "root_cause": "x86_bootstrap.sh never fetched the astrometric catalogue. It installs the SPCC photometric chunks (layer B2) and sets catalogue_gaia_photo, but nothing fetches gaia_astrometric.dat or verifies its presence. So a fresh rig gets a config pointing at a file the bootstrap never creates, and no verify step fires.",
-    "why_this_record_is_not_in_manifest_tsv": "manifest.tsv is GENERATED, not hand-maintained: x86_bootstrap.sh line 135 truncates it (`: >\"$MANIFEST\"`) and rewrites the header on every --go run. A hand-added row would survive in git until the next bootstrap and then vanish silently — recreating this same bug in a new form.",
-    "the_fix_that_would_close_it": "a fetch + manifest + verify step in x86_bootstrap.sh alongside the existing layer B2 SPCC block, pinned to the sha256 in this record. NOT APPLIED — a build-path script change, out of scope for an ingest task and left for scoping.",
-    "status": "OPEN"
+  "REPRODUCIBILITY_GAP_CLOSED": {
+    "finding": "this catalogue was installed but NOT rebuildable from tracked files, which is the condition CLAUDE.md's Environment rule exists to prevent.",
+    "root_cause": "x86_bootstrap.sh never fetched the astrometric catalogue. It installs the SPCC photometric chunks (layer B2) and sets catalogue_gaia_photo, but nothing fetched gaia_astrometric.dat or verified its presence. So a fresh rig got a config pointing at a file the bootstrap never creates, and no verify step fired.",
+    "why_a_manifest_row_was_never_hand_added": "manifest.tsv is GENERATED, not hand-maintained: x86_bootstrap.sh truncates it (`: >\"$MANIFEST\"`) and rewrites the header on every --go run. A hand-added row would have survived in git until the next bootstrap and then vanished silently — recreating this same bug in a new form. The row is now emitted by the script's own manifest() helper via manifest_gaia().",
+    "the_fix": "Layer B3 in x86_bootstrap.sh: fetch, verify BOTH published sha256 (compressed then decompressed), install under siril's expected basename with the config untouched, re-verify at the installed path, and emit its own manifest row. Idempotent — it skips entirely when the destination already matches its pin. Fire-testable in isolation with `x86_bootstrap.sh --selftest-gaia`, which installs nothing and downloads nothing.",
+    "status": "CLOSED"
   },
 
-  "SECOND_FINDING_five_of_six_configured_catalogues_are_absent": {
+  "SECOND_FINDING_four_configured_catalogues_are_still_absent": {
     "note": "measured while verifying this one; the astro catalogue was not the only gap",
     "measured": {
       "catalogue_namedstars": "ABSENT /home/samsung/.local/share/kstars/namedstars.dat",
@@ -101,7 +101,7 @@
       "catalogue_gaia_photo": "PRESENT 3.7G, SPCC xpsamp chunks"
     },
     "consequence": "any command defaulting to a LOCAL NOMAD falls back to the remote service or fails. pcc's help states the remote NOMAD can be forced 'if installed locally' — locally it is not installed. Relevant to any catalogue-referenced photometry route.",
-    "status": "RECORDED, not repaired"
+    "status": "RECORDED, not repaired — BACKLOG:four-configured-catalogues-are-absent"
   },
 
   "last_checked": "2026-08-13"
