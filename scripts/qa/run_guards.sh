@@ -88,6 +88,7 @@ CHECKS=(
   "guard   check_siril_invoke|./scripts/stack/check_siril_invoke.sh"
   "guard   check_stack_rejection|./scripts/stack/check_stack_rejection.sh"
   "guard   check_registration_pins|./scripts/stack/check_registration_pins.sh"
+  "guard   check_manifest_verify|./scripts/qa/check_manifest_verify.sh"
   "selftest check_registration_pins|./scripts/stack/check_registration_pins.sh --selftest"
   "selftest wait_for|./scripts/lib/wait_for.sh --selftest"
   "selftest fingerprint|python3 scripts/lib/fingerprint.py --selftest"

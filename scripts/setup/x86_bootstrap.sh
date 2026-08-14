@@ -316,7 +316,12 @@ manifest source-extractor 2.28.2+ds-1 apt-recommends-of-astrometry.net apt /usr/
 # matcher), and without it the DB update below cannot run.
 run "sudo apt install -y darktable liblensfun-bin python3-lensfun hugin-tools"
 manifest darktable apt apt-signed apt /usr/bin/darktable-cli "darktable-cli --version" "UNDISTORT stage; must be built against lensfun"
-manifest lensfun apt apt-signed apt /usr/share/lensfun "lensfun-update-data --help" "liblensfun-bin ships lensfun-update-data (NOT python3-lensfun)"
+# verify is `command -v`, NOT `lensfun-update-data --help`: that binary exits 1
+# unprivileged with "root privileges needed for updating the system database"
+# EVEN FOR --help, so the old column could never pass as a non-root check.
+# What this row asserts is that liblensfun-bin SHIPS the binary, and presence
+# is exactly what `command -v` tests.
+manifest lensfun apt apt-signed apt /usr/share/lensfun "command -v lensfun-update-data" "liblensfun-bin ships lensfun-update-data (NOT python3-lensfun); verify is presence-only because the binary needs root even for --help"
 manifest hugin-tools apt apt-signed apt /usr/bin/cpfind "cpfind --version" "lens-model FIT route: cpfind/cpclean/autooptimiser fit ptlens a,b,c from a set's own frames (scripts/darktable/fit_lens_model.sh)"
 
 # The undistort route needs THREE things apt cannot give it, ALL
@@ -592,7 +597,10 @@ run "git clone --branch $NIGHTLIGHT_VER --depth 1 --recurse-submodules --shallow
 run "(cd '$tmp/nightlight' && go build -o '$tmp/nightlight/nightlight' ./cmd/nightlight)"   # build as user (Go cache in \$HOME); subshell isolates the cd
 run "sudo mkdir -p $OPT/nightlight-0.2.6"
 run "sudo cp '$tmp/nightlight/nightlight' $OPT/nightlight-0.2.6/nightlight"                  # then install root-owned into /opt
-manifest Nightlight "$NIGHTLIGHT_VER" "gh:mlnoga/nightlight@$NIGHTLIGHT_VER" go.sum "$OPT/nightlight-0.2.6" "nightlight version" "dormant 2023; cross-check only; built from tag v0.2.6 but the binary self-reports 'Version 0.2.5' (upstream never bumped the string) - the TAG is the pin, not the printed version"
+# verify uses the ABSOLUTE path: the binary is installed under $OPT and is NOT
+# on PATH, so a bare `nightlight version` exits 127 and the row asserted an
+# install its own check could not confirm.
+manifest Nightlight "$NIGHTLIGHT_VER" "gh:mlnoga/nightlight@$NIGHTLIGHT_VER" go.sum "$OPT/nightlight-0.2.6" "'$OPT/nightlight-0.2.6/nightlight' version" "dormant 2023; cross-check only; built from tag v0.2.6 but the binary self-reports 'Version 0.2.5' (upstream never bumped the string) - the TAG is the pin, not the printed version"
 # ($tmp is cleaned by the EXIT trap set in the guards block)
 
 # ---- rc-astro: license-gated, manual --------------------------------------
