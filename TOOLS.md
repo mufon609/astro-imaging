@@ -214,8 +214,28 @@ lens method ever reaches it, not a blocker today.
 DENSE reference catalogue (e.g. Gaia) against a prior WCS — a different model source
 from astrometry.net's sparse-index SIP — so it earns its own named test (two fits of
 the same fixed lens agreeing to ~1 px) before the reprojection route reopens.
-Unpackaged on this distro (`source-extractor`/`swarp` are packaged; `scamp` is not) —
-x86-deferred.
+**"Unpackaged on this distro" IS WRONG AS WRITTEN, and the error is the registered
+`apt-cache policy` shape — it reads the BINARY index only.** MEASURED here:
+`apt-cache policy scamp` → `Candidate: (none)`, but `apt-cache showsrc scamp` →
+**Version 2.10.0-2, Debian Astro Team**, and this rig's `deb-src …bookworm` line is
+configured and uncommented, so `apt-get source scamp` resolves and extracts. Same
+precedent as the PSFEx row below, which the same check got wrong the same way.
+**AND SETTLING AVAILABILITY DOES NOT SETTLE THE CAPABILITY — MEASURED FROM THE
+SOURCE, AND THE ANSWER IS NO.** `object_tilt.py`'s removal condition names SCAMP as
+the candidate for a *POSITION-DEPENDENT* photometric solution. SCAMP 2.10.0's own
+`src/preflist.h` carries **five** astrometric order/degree parameters —
+`DISTORTION`, `DISTORT_DEGREES`, `DISTORT_GROUPS`, `DISTORT_KEYS`,
+`FOCDISTORT_DEGREE` — and on the photometric side only `PHOTOM`, `PHOTOMFLAG_KEY`,
+`SOLVE_PHOTOM`, `MAGZERO_KEY/OUT/INTERR/REFERR`. **There is no photometric analogue
+of `DISTORT_DEGREES`.** `src/photsolve.c` confirms the shape: `photsolve_fgroups`
+*"Solve a different system for each instrument"*, keyed on `photomlabel==instru`,
+with zero points as the unknowns. **So SCAMP's photometric solution is a SCALAR per
+exposure per photometric instrument, not a function of position within a frame** —
+it does the catalogue-free half of that condition and not the position-dependent
+half, so the condition would NOT fire even with SCAMP built. Recorded because the
+useful disposition is "the named candidate does not do the thing", which is a
+different fact from "blocked on availability". Context worth carrying: the current
+SCAMP manual contains five occurrences of "photometr" and no photometry chapter.
 
 **WCS-reprojection faint-signal notes (if the model gap ever closes):** SWarp's
 **`SUBTRACT_BACK=Y` is the DEFAULT and must be turned OFF** — it subtracts a sky
