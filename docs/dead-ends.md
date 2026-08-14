@@ -2090,6 +2090,33 @@ SILENT — pin the state, never inherit it):
   fail on demand is decoration. Corollary for a fixture with a decoy: assert the
   decoy MATCHES the scanner's own pattern before trusting any result built on it
   (measured: 2 pattern matches in the raw block, 1 after masking).
+- **TWO KERNEL BUGS IN THE SAME SYNTHETIC-TRAIL FIXTURE, BOTH FOUND BY A SELFTEST
+  THAT FAILED FIRST.** The fixture deposits a trail of known length `L` and the
+  calibration recovers it from a second-moment shape, so a bias in the DEPOSIT is
+  indistinguishable from a bias in the estimator — which is why the selftest
+  asserts the ANALYTIC value rather than self-consistency.
+  - **Endpoint-sampled `linspace` inflates the segment variance by `(N+1)/(N-1)`.**
+    Sampling a segment at `N` points INCLUDING both endpoints is not a uniform
+    draw from it — the ends are over-weighted. A uniform segment's variance is
+    `L^2/12`; the endpoint-sampled deposit is `L^2/12 * (N+1)/(N-1)`, so at N=11
+    it is 20% wide and at N=101 still 2%. The fix is MIDPOINT sampling, not more
+    samples: the bias falls as `1/N` but never reaches zero, so "use enough
+    points" would have hidden it under the noise floor rather than removed it.
+  - **Bilinear deposit adds `h^2/6` to ONE axis, where it does NOT cancel.**
+    Splitting each sample across its four neighbouring pixels convolves the
+    deposit with the bilinear kernel, whose variance is `h^2/6` per axis
+    (`h` = pixel pitch). On an ISOTROPIC quantity that term is common-mode and
+    drops out — which is why it survived review. The calibration's observable is
+    `major^2 - minor^2`, a DIFFERENCE of axes, and the trail lies along one of
+    them, so the term lands on the major axis alone and survives the subtraction
+    as a pure additive bias in the very quantity being fitted.
+  **Neither bug is visible in the fixture's own output** — a slightly-too-long
+  trail still looks like a trail — and both would have propagated into the
+  transfer coefficient as an unattributable few-percent error. General form:
+  **a test that could not fail is decoration; a test that failed FIRST earned its
+  place.** The corollary specific to synthetic fixtures: the generator and the
+  estimator must each be checked against an ANALYTIC value, never against each
+  other, because a shared discretisation error is invisible to round-tripping.
 - **A RUNNING BASH SCRIPT IS A LIVE FILE, NOT A SNAPSHOT — never edit one that
   has an invocation in flight.** bash reads a script lazily and remembers a BYTE
   OFFSET, so inserting lines ABOVE the current execution point makes it resume

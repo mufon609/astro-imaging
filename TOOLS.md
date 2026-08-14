@@ -535,6 +535,25 @@ early-linear, before HEAVY denoise — a strong DEFAULT, not absolute** (Siril i
 recommends a *little* VST NR before RL; and 2026 AI tools tolerate nonlinear-stage
 decon — see the process-rule note at the end).
 
+**NO TOOL REPORTS A SUB-PSF TRAIL LENGTH — a closed negative, probed rather than
+assumed.** The question is whether any packaged tool measures the in-exposure trail
+length `L` directly, which would retire the in-house fixture calibration that
+converts trail to anisotropy (BACKLOG:`removal-conditions`, `kappa_transfer.py`).
+Answer: no.
+- **TRIPPy** takes rate, angle and dt as INPUTS and builds a trailed aperture from
+  them; it does not recover `L` from the image.
+- **`astride` / `acstools`** target satellite and cosmic-ray trails MANY PSF WIDTHS
+  long; a ~1.7 px smear inside a 2.4 px star is below what they detect at all.
+- **`source-extractor`'s `A_IMAGE`/`B_IMAGE`** are second moments with NO trail
+  model — they report a shape, not a length, and carry no error on that shape
+  (its `ERR*` family is the POSITIONAL uncertainty ellipse, a different quantity
+  sitting adjacent in the parameter list).
+**So the well-formed capability to watch for is not "a tool reports L" — nobody
+outside this project wants that — but "a tool reports a SECOND-MOMENT shape whose
+bias is characterised", which would make the `(2.3548^2/12)*L^2` identity exact
+rather than estimator-calibrated. `source-extractor`'s A/B_IMAGE are the installed
+candidate and the open question is thresholding/windowing bias, not availability.**
+
 ## Tier 6 — Noise reduction (linear on starless; and/or nonlinear)
 
 **Siril has no GENERAL chrominance-noise reduction — but it does not self-describe
