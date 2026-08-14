@@ -333,6 +333,71 @@ def constancy(rows):
     }
 
 
+def contract_check():
+    """EVERY sibling that feeds constancy() must build rows constancy() ACCEPTS.
+
+    WHY THIS EXISTS — MEASURED, and it is the check that was missing. The error-model
+    rename broke `cfa_control.py` and `frame_depth.py` on their ANALYSIS path (both
+    kept writing a bare `se_C1` while `constancy()` began requiring a declared
+    `error_model`), and EVERY check in place passed:
+
+      - their own `--selftest`s never reach `run_bins`/`constancy()` at all
+      - `corner_work/*.py` is a NAMED EXCLUSION in `scripts/qa/run_guards.sh`
+      - this file's own fixtures were updated in the SAME COMMIT as the rename,
+        so `constancy_fit --selftest` was true by construction and carried no
+        information about any other producer of the key
+
+    The three files exist to be read against each other — the register calls
+    `cfa_control` the instrument that TESTS this one and `frame_depth` the one that
+    EXTENDS it — and two of the three shipped a dead analysis path.
+
+    So: call each sibling's OWN row builder on PLANTED frames and hand the result to
+    the shared fitter. Planted, so it needs no corpus and runs anywhere the files do.
+    A sibling that stops conforming FAILS HERE instead of at someone's next real run.
+    """
+    import cfa_control
+    import frame_depth
+
+    rng = np.random.default_rng(5)
+
+    def planted(W, H, nf=5, npts=1200):
+        cx, cy = (W - 1) / 2.0, (H - 1) / 2.0
+        rmax = math.hypot(cx, cy)
+        fs = []
+        for i in range(nf):
+            x = rng.uniform(0, W, npts)
+            y = rng.uniform(0, H, npts)
+            phi = np.arctan2(y - cy, x - cx)
+            rho = np.hypot(x - cx, y - cy) / rmax
+            fs.append({"frame": "p%d" % i, "x": x, "y": y, "phi": phi, "rho": rho,
+                       "D1": 0.05 + 0.10 * rho * np.cos(2 * phi) + rng.normal(0, .01, npts),
+                       "D2": 0.01 + 0.10 * rho * np.sin(2 * phi) + rng.normal(0, .01, npts)})
+        return fs
+
+    out = []
+    # cfa_control measures on the HALF-SIZED CFA grid; frame_depth on the full one.
+    cfa_rows = cfa_control.per_bin(planted(3032, 2020))
+    full = planted(6064, 4040)
+    T1f = [np.full(len(f["rho"]), 0.10) + 0.02 * f["rho"] for f in full]
+    T2f = [np.full(len(f["rho"]), 0.02) + 0.01 * f["rho"] for f in full]
+    fd_rows = frame_depth.per_bin(full, T1f, T2f)
+    for who, rows in (("cfa_control.per_bin", cfa_rows),
+                      ("frame_depth.per_bin", fd_rows)):
+        if not rows:
+            out.append((who, False, "built NO rows — cannot check the contract"))
+            continue
+        try:
+            em = row_error_model(rows)
+            axis_constancy(rows)
+            constancy(rows)
+            out.append((who, True, "rows accepted by constancy() [%s]" % em))
+        except SystemExit as e:
+            out.append((who, False, str(e).replace("\n", " ")[:88]))
+        except KeyError as e:
+            out.append((who, False, "missing key %s" % e))
+    return out
+
+
 def selftest():
     fails = []
 
@@ -375,6 +440,12 @@ def selftest():
         fails.append("rotating residual")
 
     print()
+    print("  CONTRACT — every sibling's own row builder must feed constancy():")
+    for who, ok, msg in contract_check():
+        print("  %-56s %s" % (who, ("OK  " + msg) if ok else "*** FAIL *** " + msg))
+        if not ok:
+            fails.append("contract:" + who)
+
     if fails:
         print("SELFTEST FAILED: %s" % ", ".join(fails))
         return 1
