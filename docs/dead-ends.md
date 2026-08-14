@@ -1909,6 +1909,16 @@ SILENT — pin the state, never inherit it):
   claiming the verifier role. **State whose inference it is, especially when it is
   adverse: "I concluded X from Y" and "they said X" are different claims and only
   one of them is checkable.**
+  **AND THE GENERAL FORM, which outlives the incident: A SELF-AUDIT RUN ON THE
+  INSTRUMENT THAT FAILED INHERITS ITS FAILURE.** The confession above was prompt,
+  unforced and correctly owned — and it diagnosed itself with the same reasoning
+  that produced the error, which is how it arrived at a mechanism that was **tidy
+  and false**. One command with `%ad` would have settled it and was not reached for,
+  **because the author was explaining rather than measuring.** Tidier is the tell:
+  three separate corrections in one day were each replaced by a neater story than
+  the truth, and in every case the neatness is what stopped the next person
+  checking. **When auditing your own error, change instruments — the one you used
+  is the one under suspicion.**
 - **A NUMBER MEASURED FROM A LIVE TREE DESCRIBES A STATE THAT MAY NEVER HAVE BEEN
   COMMITTED — and it reads as a property of the work rather than of the moment.**
   The registry already says *never EDIT a running script*; this is the other half,
