@@ -1032,5 +1032,20 @@
   },
   "THE_LEVER_LIMITS_WHAT_f_CAN_EVER_BE": "the predicted trail vector varies only 5.1% in magnitude and 1.51 deg in axis across rho-equal bins, so f is nearly collinear with the constant K (design condition 131). This design can KILL the fix route and can never quote a trail scale.",
   "NOT_ATTEMPTED": "the PSFEx 2-D polynomial cross-check. It is a DIFFERENT ellipticity estimator (Moffat; psfex_compare.json already records a 0.038-vs-0.07 gap) and would need its own error model \u2014 and an unvalidated error model is precisely what this unit just showed to be worse than none."
+ },
+ "NAMED_ALTERNATIVE_TO_THE_VERDICT_demosaic": {
+  "why_it_is_here": "raised by the PM mid-flight, verified by me IN THE SCRIPTS before recording: it bears directly on this fit's verdict.",
+  "the_confound": "Siril's demosaic is a content-dependent nonlinear interpolation, and star shape varies across the field, so its contribution need NOT be common-mode across rho bins. An unmodelled rho-dependent demosaic term produces the SAME non-constancy this fit measures.",
+  "status": "'there is no field-constant optical component' remains the LEADING reading of the failed constancy fit. It is NOT the only one. Not tested here, and it does not soften the verdict.",
+  "the_processing-history_asymmetry_this_sits_on": {
+   "verified_in_the_scripts": "inject_work/m2.ssf is `load injected2` -> `findstar` with NO convert, so the PLANTED stars never passed a demosaic; memraw_work/m.ssf runs `convert r -debayer`, so the REAL stars did; psf_calib.py's measure_all loads the fixture directly, so it is mono throughout.",
+   "consequence": "the recorded contrast 'planted 0.99x against real 0.43x in the SAME frame, profile the only remaining difference' is FALSE as stated \u2014 the processing histories differ too."
+  },
+  "AND_IT_IS_MACHINE_STATE_NO_SCRIPT_CAN_PIN": {
+   "config_DOES_record_it": "the [debayer] section carries `interpolation=8` (plus use_bayer_header=true, pattern=0). So the algorithm is not unrecorded \u2014 correcting the report that there is 'no algorithm key at all'.",
+   "which_algorithm_8_is": "NOT established here. Siril's documented default is RCD; the enum mapping was not verified and is not asserted.",
+   "but_it_is_unpinnable_from_a_script": "no `setdebayer` command exists (probed) and no command-like debayer string is present in the installed 1.4.4 binary, so an .ssf cannot pin it the way it pins setext/setcompress. Every measurement in this corpus therefore inherited whatever the machine-local config held, and no tracked script records which.",
+   "class": "the same persisted-preference hazard as the FITS extension and setcompress, one step worse because the pinning mechanism does not exist."
+  }
  }
 }

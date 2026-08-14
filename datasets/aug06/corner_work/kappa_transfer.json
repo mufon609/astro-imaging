@@ -679,6 +679,7 @@
   "held": "the base's ANISOTROPY. Both bases are circularly symmetric at L=0 BY CONSTRUCTION, so every arm's only anisotropy is the planted trail.",
   "therefore_UNTESTED": "whether the fit mis-recovers the moment matrix of a trail added to a spot that is ALREADY several times more anisotropic than the trail \u2014 which is the regime real corner stars occupy. A circular base cannot exercise it at all.",
   "the_result_stands_as_measured": "kappa is robust to the base's radial PROFILE at +0.1% +- 1.1%. It is not tested against the base's ANISOTROPY.",
-  "how_it_would_be_closed": "a fifth arm whose base carries a planted anisotropy of known magnitude and direction, with the trail added on top at a range of relative angles. NOT RUN."
+  "how_it_would_be_closed": "a fifth arm whose base carries a planted anisotropy of known magnitude and direction, with the trail added on top at a range of relative angles. NOT RUN.",
+  "AND_A_PROCESSING_ASYMMETRY_FOUND_AFTER_THE_RUN": "every arm here is rendered as a MONO fixture and measured with `load` + `findstar`, no `convert -debayer` \u2014 while the REAL stars kappa is applied to went through Siril's demosaic (memraw_work/m.ssf: `convert r -debayer`). So this file establishes that kappa is robust to the base's radial PROFILE between mono fixtures; it does not establish that a mono-fixture kappa transfers to demosaiced stars. The demosaic is content-dependent and cannot be pinned from a script (no setdebayer command exists in 1.4.4; the machine-local config holds interpolation=8). Arms C and D are unaffected relative to each other \u2014 both are mono \u2014 so the +0.1% +- 1.1% stands as a comparison; the transfer to real data carries this caveat."
  }
 }
