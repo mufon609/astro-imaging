@@ -454,11 +454,26 @@ rec = {
          "raw_dark_subtracted_light": 0.426, "pre_desky_flat": 0.365,
          "desky_flat": -0.550, "master_dark": 0.0}}),
  "findstar_speck_count": int(specks),
- "gate": "smooth falloff (corners < centre), NO structured sky residual "
-         "(the Milky Way star field) on the preview, speck count ~0; the eye "
-         "check + the with/without finals comparison gate adoption "
-         "(dead-end registry: a sky flat preserves frame-filling faint structure "
-         "only when validated — that structure is UNRESOLVED STARLIGHT, not dust)",
+ "advisory": "RENAMED FROM \"gate\" BECAUSE IT NEVER GATED — this script's own "
+         "corner-asymmetry note says verbatim \"it flags for attention, it does not "
+         "gate\", nothing here exits non-zero on quality, and no consumer anywhere "
+         "reads a quality verdict from this record (the only readers, "
+         "stamp_headers.sh and backfill_substack_provenance.sh, take build.dark and "
+         "flat for the CALDARK/CALFLAT provenance keys). A field called \"gate\" "
+         "asserted an acceptance decision that does not exist. What it IS: smooth "
+         "falloff (corners < centre), no structured sky residual on the preview, "
+         "speck count ~0 — reported for a human. What actually gates adoption is "
+         "the eye check plus the with/without finals comparison.",
+ "advisory_cannot_see": "THE CORNER-VS-CENTRE READING IS SELF-FULFILLING FOR THE "
+         "DEFECT THIS BUILDER EXISTS TO AVOID, and the mechanism is structural "
+         "rather than a threshold problem: vignetting is RADIAL and therefore EVEN, "
+         "a baked sky gradient is ODD, and corner-vs-centre reads the EVEN part — "
+         "the part that is SUPPOSED to be there. A good flatness number is evidence "
+         "the flat captured vignetting, which was never in doubt, and is blind by "
+         "construction to the sky x V object tilt. Judge the flat's ODD component "
+         "instead (scripts/qa/flat_odd_component.py, shipped and NOT wired here). "
+         "The edge dipoles recorded alongside are the odd-side numbers; this "
+         "advisory does not claim to cover what they measure.",
  "preview": flat.replace(".fit", "_view.png"),
 }
 json.dump(rec, open(rec_path, "w"), indent=1)

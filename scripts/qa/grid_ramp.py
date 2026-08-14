@@ -188,13 +188,37 @@ def fit_plane(x, y, v):
     return out
 
 
-def measure(img, wdir, tag, box, pitch, nx=None, ny=None):
+def measure(img, wdir, tag, box, pitch, nx=None, ny=None, is_ratio=False):
     hdr = fits.getheader(img)
     w, h = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
     if int(hdr.get("NAXIS3", 1)) != 1:
         sys.exit(f"{img} has {hdr['NAXIS3']} layers — extract one with Siril "
                  "`split` first (this instrument measures a mono plane, so a "
                  "per-channel parse can never mis-attribute a box)")
+    # THE GUARD ABOVE COULD NOT SEE THE CASE IT IS WORDED TO PREVENT. A CFA MOSAIC
+    # IS NAXIS=2 with four filters INTERLEAVED, so it passes a NAXIS3 check while
+    # every box median blends R/G/G/B into one number — exactly the
+    # "mis-attribute a box" failure that wording promises to exclude.
+    #
+    # BUT THE BLEND IS ONLY HARMFUL IN ABSOLUTE MODE, WHICH IS WHY PRODUCTION USES
+    # --ratio. `fdiv` divides pixel by pixel, so in a ratio each pixel is
+    # same-filter over same-filter and a box median averages four filters' RATIOS,
+    # which sit near unity when the two images share optics. In ABSOLUTE mode the
+    # same median averages four filters' LEVELS, and a sky flat is the worst case:
+    # the sky has COLOUR, `sky x V` is the term being chased, and a
+    # colour-dependent gradient would collapse into one achromatic ramp silently.
+    #
+    # MEASURED, and it is why absolute mode is REFUSED rather than warned: on
+    # aug06/set-01's sky flat the plane leaves an rms residual of 15.9% against a
+    # range of 69.6% — a sky flat is dominated by RADIAL vignetting, a plane is not
+    # a radial model, and the fitted slope is read off a large unmodelled bowl.
+    if str(hdr.get("BAYERPAT", "")).strip() and not is_ratio:
+        sys.exit(f"{img} carries BAYERPAT={hdr['BAYERPAT']} — CFA MOSAIC in "
+                 "ABSOLUTE mode. Box medians would blend R/G/G/B levels, and on a "
+                 "sky flat the plane also fits through an unmodelled radial bowl "
+                 "(measured 15.9% rms residual against a 69.6% range). Use --ratio "
+                 "against a sibling from the same night and lens, which cancels "
+                 "both; or debayer and pass a single channel.")
     nx, ny, boxes = grid_geometry(w, h, box, pitch, nx, ny)
     lines = []
     for (x, y, _i, _j) in boxes:
@@ -277,7 +301,8 @@ def main(argv):
             "why": "a ratio of two flats from the same night/lens/focal/aperture "
                    "cancels vignetting and the instrumental base EXACTLY — no "
                    "model, no fit. What survives is what DIFFERS."}
-    rec["measured"] = measure(target, wdir, "t", box, pitch, nx, ny)
+    rec["measured"] = measure(target, wdir, "t", box, pitch, nx, ny,
+                              is_ratio=other is not None)
     if other:
         os.remove(target)
 
