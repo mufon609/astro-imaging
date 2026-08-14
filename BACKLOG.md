@@ -514,443 +514,29 @@ session-end temperature.
   route? (`TOOLS.md` § Research queue.) The route is
   BACKLOG:`compose-homography-smear`.
 
-## `one-sided-band` — two mechanisms left on the residual drift-axis term
+## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
 
-MEASURED on july27 (3 s subs, so the in-exposure trail is half july14's and no
-longer masks it): a one-sided along-drift band at the +1300 station only — set-02
-majFWHM 3.65 / roundness 0.684 against centre 2.56 / 0.901, elongation position
-angle (+4.3°) aligned to the drift axis; the −side and both perpendicular stations
-sit at the centre's floor. ELIMINATED:
-- **the optics and the sky** — a single RAW frame (no calibration, warp or stack)
-  is uniform across the field (0.712–0.810, +1300 marginally BETTER than centre),
-  so nothing in-exposure produces it;
-- **the lens correction misfiring** — `verify_lens_card.py` PASSES on this rig
-  (grid control fires, Siril sigma 45644.8; uniform card corner-vs-centre
-  0.000 ADU), and the community entry carries vignetting the fitted one does not,
-  so a zero photometric delta proves the FITTED distortion-only entry is the one
-  matching despite the EXIF string matching the community entry's capitalisation;
-- **the stack architecture** — the july27 route A/B returned NULL: the band sits
-  in BOTH arms at the same magnitude (register, groups row). The july31
-  full-depth ledger adds a small groups-side improvement at the same station
-  (0.12–0.18 px), mechanism unattributed and magnitude gated on the unmeasured
-  rebuild floor (`datasets/july31/experiments.jsonl`) — a modifier of the band,
-  not its driver.
+Stars in the far corners of combined products are less round and slightly larger.
+The defect is REAL, visible to the owner on the full-frame render, and confirmed on
+single unregistered RAWs by two independent tools. **Nothing the pipeline does
+causes it** — coverage depth, the compose, within-member registration and any
+lensfun distortion residual are each eliminated by measurement, and Siril
+`findstar` on THREE SINGLE RAWS (debayered, uncalibrated, unwarped, unregistered,
+unstacked, 8074 stars) carries the term at full size. An uncorrected frame cannot
+carry the RESIDUAL of a correction that has not been applied.
 
-REMAINING: distortion-model residual vs differential refraction. Two same-night
-sets 30 min apart at different pointings read a 13% and a 43% along+1300 FWHM
-excess — suggestive of refraction but confounded by the pointing change. Cheapest
-next cut: a `lensdist` vs `nodist` arm on the same 60-frame A/B input, which
-separates the model from everything else in one knob.
+**PRODUCTS UNDERSTATE IT.** An isotropic blur added everywhere compresses a ratio
+toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
+(`resample-cost-and-drizzle`). Single-RAW measurements are unaffected — which is
+most of this item's evidence — but any product-vs-member or product-vs-raw
+comparison inherits it.
 
-**THE NAMED DISCRIMINATOR — "hour-angle dependence, and it is BLOCKED on missing
-site coordinates" — IS SUPERSEDED ON BOTH HALVES. Do not re-propose it as
-written.**
-- **The refraction branch closes on ARITHMETIC, not on a measurement. MECHANISM,
-  re-derived independently here.** Differential refraction as a per-star SHAPE
-  effect is atmospheric dispersion across the passband, and we measure on the
-  DEBAYERED GREEN plane (~480–610 nm), far narrower than the 400–650 nm span
-  CTIO's 1.40″-at-z=45 figure describes. Conservatively ≤0.6″ at z=45 and ≤1.7″
-  at z=70, which at this header's **16.979 ″/px** is **≤0.035 px and ≤0.10 px**.
-  Entering as a top-hat in second moments on a 2.01 px minor axis that moves FWHM
-  by ~1e-4 to ~1e-3 px, against measured effects of **+0.5 px** centre-to-corner
-  on size and **0.11–0.14** one-sided — **two to three orders of magnitude below
-  the thing being attributed.** Geometric differential refraction is not a
-  within-exposure shape effect at all (~5.6e-4 anisotropic plate-scale change at
-  z=45, ~0.001 px on a 2.4 px star).
-- **"No site coordinates" was a RECORDS gap, not a DATA gap — and the record is
-  now filled.** It was recoverable from the corpus regardless (field rotation
-  between two solved frames constrains cos(φ)·cos(A)·sec(alt), so latitude and
-  LST are solvable from solved RA/Dec plus `DATE-OBS` across pointings), which
-  means the word BLOCKED was wrong and asking a human for it was asking for what
-  the data settles. **The owner has since supplied it as ground truth:
-  SITELAT +REDACTED_SITELAT, SITELONG −REDACTED_SITELONG** (owner-supplied; the authoritative
-  form is the decimal pair carried by their Google Maps place link,
-  `!3dREDACTED_SITELAT!4dREDACTED_SITELONG`). **A first transcription of the DMS read
-  REDACTED_SITE_DMS_LON and was wrong by 0.17" — 3.9 m of longitude**; corrected here.
-  It changes nothing measured (aug06/set-01 altitude 73.83371° → 73.83374°) and
-  is recorded because a coordinate typo is silent and this one was caught only by
-  a second source. **Trap in that URL form, for anyone re-deriving it: the `@lat,lon`
-  segment is the map VIEWPORT centre, not the place — here the two differ by
-  ~200 m in longitude. Read the `!3d`/`!4d` pair.** SITEELEV is still unrecorded.
-  Status: OWNER-SUPPLIED, TRANSCRIBED, and independently checkable — the corpus
-  can recover latitude and LST from field rotation across solved frames, so the
-  derivation `acquisition.py` gains is its own verification and gets a positive
-  control from this value at the same time. That
-  is better than the derived route because it gives the derivation a POSITIVE
-  CONTROL it did not have. **The chain now RECORDS it** —
-  `scripts/lib/acquisition.py` resolves a `site` block from the tracked
-  `scripts/setup/site.json` (per-session override, no silent default) and writes
-  `SITELAT`/`SITELONG`/`SITEELEV` (Siril's own keys — verified present in the
-  1.4.4 binary) plus a DERIVED `OBSGEO-X/Y/Z` (WCS Paper III; FITS 4.0 §8.4,
-  cross-checked against astropy at 0.000000 m) into every acquisition record —
-  13 populated at `6b41875`, corrected to the `f49b7cc` coordinates at `ebf8209`.
-  Status stays OWNER-SUPPLIED, TRANSCRIBED, UNVERIFIED;
-  `scripts/setup/verify_site.py` bounds the transcription at the DEGREE level
-  only (it refutes a flipped longitude sign at −7.78° and a lat/long transposition
-  at −50.18°, but a sub-degree digit error moves altitude by just 0.29°/0.07° and
-  is undetectable), and the derivation that would close it is not built.
-- **The replacement discriminator needs no site at all. MECHANISM, UNTESTED.**
-  Cross-match stars between consecutive frames and compare the drift BEARING to
-  the shape-fit's own direction θ₀. If the shape-derived direction tracks the
-  position-derived drift bearing, the fixed-direction term IS trailing —
-  conclusive, no site and no altitude assumption.
+### The gate is answered and it FAILS
 
-**AND THE ASTROMETRIC HALF IS NOW CLOSED TOO, BY THE OWNER'S OWN SITE.** The open
-worry was that geometric differential refraction — a real astrometric field
-distortion at this field size — could be the unattributed within-set
-"optical-state change" of **2.95–4.91 px** that
-BACKLOG:`compose-homography-smear` currently attributes to the optics. It cannot.
-Computed from the supplied site plus each product's own `DATE-OBS` and solved
-centre (astropy, set start):
-
-| set | UTC | altitude | z | sec²z | hour angle |
-|---|---|---|---|---|---|
-| aug06/set-01 | 2026-08-07T02:46:42 | **73.8°** | 16.2° | 1.08 | −1.41 h |
-| aug09/set-01 | 2026-08-10T03:49:33 | **85.3°** | 4.7° | 1.01 | −0.35 h |
-| july31/set-01 | 2026-08-01T02:51:17 | **66.8°** | 23.2° | 1.18 | −2.04 h |
-
-**Every night was shot high and near the meridian** (alt 66.8–85.3°, |HA| ≤ 2.04 h,
-sec²z 1.01–1.18) — the flat end of the curve, and the regime where the effect
-vanishes. Across half a 28.6° field the geometric term runs ~0.9–1.1 px TOTAL at
-these zenith distances, and its CHANGE across a 25-minute set is a small fraction
-of that, against a 2.95–4.91 px disagreement. Refraction is not the driver, and
-that term goes back to optics/mechanical, unattributed.
-**A side result worth keeping: the registry's "72–77° altitude" figure is now
-INDEPENDENTLY CONFIRMED** (aug06 measures 73.8° from the owner's site, where the
-inherited figure was derived without one and was therefore not independent
-evidence of anything).
-
-**ON aug06 THE DISTORTION-MODEL BRANCH IS CLOSED, and by the cheapest possible
-measurement.** Siril `findstar` on THREE SINGLE RAWS of set-01 — debayered,
-uncalibrated, unwarped, unregistered, unstacked, 8074 stars — already carries the
-one-sided term at full size: roundness **-x 0.861 / +x 0.791** at |x_frac|
-0.6-0.8 and **0.846 / 0.782** at 0.8-1.0, x at **13.8 SE** and **F = 191.8** on
-top of a radial model, surviving a brightest-quartile control (-0.076 / -0.035).
-An uncorrected frame cannot carry the RESIDUAL of a correction that has not been
-applied, so on this corpus the term is not the lensfun model's; the same
-measurement rules out within-member registration and the compose. What it does
-NOT do is name the cause — an optical asymmetry, differential refraction and the
-across-field gradient of the projected sky rate are all in the photons of one
-exposure, and none is reachable by a better distortion model. Hour angle stays
-the discriminator, with an obstacle to design around: the headers carry DATE-OBS
-and no site coordinates, so hour angle is not directly derivable and must be
-recovered from the corpus (12 sets, one target, three nights, the same sky at
-different hour angles).
-
-**THE THIRD OF THOSE IS NOW ATTRIBUTED, and it is the one nobody had tested.** A
-fixed mount trails each star by 15.041 x cos(dec) x t_exp arcsec, so across a
-field spanning 20.9 deg of declination the trail runs **1.407 -> 1.867 px** — a
-third longer at the low-dec edge, from EXIF and the members' own WCS with
-nothing fitted. A uniform trail has variance L^2/12, so `major^2 - minor^2 =
-(2.3548^2/12) L^2` predicts a slope of **2.266 px^2** against cos^2(dec).
-MEASURED over 148 member stations: **2.901 +- 0.542 alone (1.17 sigma)** and
-**2.548 +- 0.416 with the radial and one-sided terms held (0.68 sigma)**,
-independent of the radial term (corr +0.011). Variance partition on the
-anisotropy: cos^2 dec 0.164, rho 0.199, x 0.212, **all three 0.519**, each at
-6.1-7.4 SE. **THE CONVERSION DECIDES THE VERDICT**: the `sqrt(w^2+L^2)`
-quadrature that reads naturally overstates the prediction 2.16x and the same
-measurement is 3.70 sigma LOW against it. Limit: the regressor is 99% collinear
-with sensor y here, so the MAGNITUDE is what is tested, not the direction.
-Numbers: `datasets/aug06/corner_work/sky_rate_gradient.json`. Hypothesis credit:
-a peer session named the candidate and ran the first version.
-
-**Do NOT run the scaling follow-up — it has no lever, and checking that first is
-the object-tilt lesson.** "Does the effect scale with each field's own dec range"
-needs fields whose dec ranges differ; the 13 aug06 members vary by **4.9%** in
-cos^2(dec) span, and all 12 staged sets are ONE target at 2.5 s and 70 mm, so
-there is no exposure lever either (L scales with t_exp). The large lever is
-WITHIN a frame (cos^2 dec 0.378 -> 0.732) and it is the one already used.
-
-**SCOPE THAT PARENTHESIS — "(L scales with t_exp)" IS THE MULTIPLICATIVE CASE
-STATED AS THE GENERAL ONE, AND IT IS NOT.** If `t_eff = f·t_nom` the measured/
-predicted ratio is invariant and there is indeed no lever. But a shutter timing
-error is a fixed OFFSET, `t_eff = t_nom − δ`, giving a ratio `1 − δ/t_nom` that
-DOES vary with nominal exposure — so the dismissal never addressed the offset
-case at all. **The offset case is nonetheless CLOSED, by arithmetic and with no
-frames:** the pinned ratio implies `δ = 2.5 × (1 − 0.5918) = 1.0206 s`, i.e.
-**1021 ms**, against shutter latencies of O(1–10) ms. Three orders of magnitude —
-a 1021 ms error on a 2.5 s exposure is not a timing tolerance, it is a different
-exposure. **Do not re-open this as a july27 comparison** (which IS staged on this
-rig — set-01 282 frames, set-02 253): it would eliminate at 10³ what needs no
-frames, it cannot escape the night/exposure aliasing that closed the item, and the
-cross-night σ difference would have to be closed first. For the record the split
-would have been real — offset predicts px² 0.4354 at 3.0 s against multiplicative's
-0.3502. **What this leaves is that MULTIPLICATIVE is the only surviving shape of
-"the integration is genuinely short", and no mechanism produces one.**
-
-**AND THE VALIDATED DRIFT CHECK CONSTRAINS LESS THAN "same rate, same scale"
-SUGGESTS — the MOMENT ORDER differs too.** The drift check is a FIRST-moment
-measurement (centroid displacement BETWEEN frames); the trail is a SECOND-moment
-measurement WITHIN one frame. So it validates the rate and the plate scale and
-validates **nothing** about the second-moment machinery — which is where every
-surviving hypothesis now lives.
-
-**Star SIZE is a separate quantity and is purely radial
-in the same raws** (rho 30.4 SE, x 0.1 SE, F = 0.0). Numbers:
-`datasets/aug06/corner_work/mechanism_and_specs.json`,
-`datasets/aug06/set-01/psf_work/f{1,2,3}.lst`.
-
-**RESOLVED — the two records were measuring DIFFERENT QUANTITIES and neither was
-wrong** (`datasets/aug06/corner_work/pa_convention.json`, commit `57c8305`;
-PM-audited by re-execution). BACKLOG:`compose-homography-smear` read the
-major-axis angle as tracking field azimuth (radial/optical); corner_work read it
-as near-constant (trailing). **Both a fixed-direction term and a radial term are
-present in BOTH samples at once**, measured with one instrument, one convention
-and a design condition of 1.08–1.27 so neither can absorb the other:
-
-| sample | n | fixed | radial |
-|---|---|---|---|
-| corner_work's own 3 frames | 8 074 | 0.0464 (30.4 SE) | +0.0524 (31.1 SE) |
-| the registry's own 18 frames | 135 989 | 0.0581 (69.6 SE) | +0.0395 (51.0 SE) |
-
-So each record's EXCLUSIVE claim is refuted by its own data. Three differences,
-none of them the one this paragraph used to name:
-- **STATISTIC** — the registry used the elongation-weighted circular mean of the
-  DOUBLED angle (correct for an axial variable); corner_work used a linear
-  `median(theta)` of a mod-180 angle, unweighted.
-- **POPULATION, the largest single factor and it was in the registry's own
-  `_method` string all along** — its `rho>1200 px / bright half / roundness<0.85`
-  cuts TRIPLE the radial amplitude (0.0395 → 0.1261) while barely moving the
-  fixed one (0.0581 → 0.0805), because they select the outer field. **Each record
-  chose, without intending to, the population that showed its own term.**
-- **DEPTH** — tested (sigma 0.50 vs 1.00) and NOT the cause; the same frame's
-  stars cross-match at 0.0000 px and 0.0000°, so sigma changes which stars are
-  admitted, never a star's fitted angle.
-- **CHANNEL is retired as a difference**: every `.lst` in both samples carries
-  `layer=1`. The "half-res green plane" line was wrong here.
-
-**The reading that dies, and it dies on the null it never had.** "15.8° spread =
-near-constant = trailing" was intuition: permuting theta across stars with
-positions held (200 permutations) puts no-information at **1.8 ± 0.5°**, so 15.8°
-is ~28 null-SDs of STRUCTURE. A planted fixture makes it a demonstration rather
-than an argument — the naive linear median MISREADS a known-RADIAL field once PA
-noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
-
-**Two consequences for this item, and both weaken a single clean mechanism:**
-- **The field is DECENTRED** (free centre beats centred at F 169–999, offsets
-  443–531 px) — but **no optical centre is quoted**, deliberately: three
-  populations disagree by ~300 px in x while quoting 10–31 px formal errors, i.e.
-  mutually inconsistent by 10–20 of their own sigmas. That inconsistency IS the
-  result — the formal error is the error of a misspecified model, and one
-  decentred radial field plus a constant does not describe this field. The
-  phantom-decentring entry in `docs/dead-ends.md` is why this restraint is
-  mandatory here.
-- **The "fixed" term is a NEAR-CANCELLATION OF TWO LARGE VECTORS, and reading it
-  as one term was the error** (`datasets/aug06/corner_work/`, commit `39da44e`;
-  PM-audited, the decomposition closes to five decimals). Its measured amplitude
-  0.05038 at +9.45° is the RESULTANT of the in-exposure trail at **0.14492,
-  +4.70°** and a second field-constant term at **0.09559, −87.79°** — 92.49°
-  apart in θ, i.e. **185° in 2θ, anti-parallel in spin-2**. The trail is present
-  at FULL predicted strength: a pure L = 1.66 px trail pushed through the same
-  `findstar` call returns mean e1 **+0.15550** against a +0.14492 prediction, 7%,
-  and the fixture's base PSF is ~5% wider than the real one so that is an
-  UNDER-estimate.
-  **Consequence: "the fixed-direction term is NOT the in-exposure trail" (19.4 SE
-  misaligned) must be read as NOT THE TRAIL ALONE.** The 7.85° offset is the
-  resultant's direction, not a misalignment of the trail. It also dissolves two
-  things filed as puzzles: θ₀'s hypersensitivity to population (+7.7° vs +23.6°)
-  and its drift across a set — a small difference of two large vectors moves a lot
-  when anything shifts their ratio. **Unaffected:** the drift bearing IS stationary
-  (1.027° over 1497 s), the ground-frame flow retraction stands, and the
-  first-frame anomaly is still in the exposure (θ₀ departs 19.75° while the
-  bearing departs 0.150°).
-  **THE OPPOSING TERM IS WITHDRAWN — IT WAS NEVER PHYSICAL** (commit `c4b4244`;
-  this manager published it at `525ce3b` and the correction is his). The
-  ~0.096 term "perpendicular to the trail" was **the shortfall between a
-  PREDICTED trail and the smaller one the data actually carries**, and the same
-  over-prediction explains the C discrepancy completely — **one cause, two
-  symptoms**, both of them artefacts of the prediction.
-  **THE REAL DATA CARRIES 0.43× THE GEOMETRICALLY PREDICTED TRAIL**, established
-  from the 2.5 s night alone by three independent lines:
-  - **The decisive one is a distributional impossibility, not a fit.** A coherent
-    1.3555 px² on the trail axis requires EVERY star to carry at least that much
-    there unless its optical part is more than that anti-aligned. **2370 of 8074
-    stars (29.4%) have NEGATIVE projection on that axis**, and an anti-aligned
-    term above 1.3555 px² sits at the **36th percentile** of the |D| distribution
-    — requiring it of 29% of stars contradicts the distribution outright. No
-    threshold, no free parameter, and immune to every basis error this thread has
-    suffered.
-  - **Magnitude:** mean projection on the trail axis **0.5798 px² against a
-    predicted 1.3555 — ratio 0.43**, which in e units is 0.062 against the 0.049
-    the trail-error explanation requires.
-  - **Direction, with the escape hatch closed:** recovering the coherent term
-    WITHOUT assuming any direction gives 0.5869 px² at **+9.16°**, just 4.46° off
-    the measured drift bearing. The term is ON the trail axis and simply 0.43×
-    too small. Mean/median |D| = 1.14, so it is not outlier-driven.
-  **The synthetic fixture is NOT contradicted** — it measured correctly what a
-  PLANTED trail does. The real stars do not carry that trail.
-  **THE OPEN QUESTION, and it is now this item's centre: why does the data carry
-  43% of the geometrically predicted trail when the DRIFT ITSELF is confirmed to
-  2.6%** (1.9064 px/frame measured against 1.9581 predicted)? The sky does move
-  1.66 px during the exposure and the stars do not smear correspondingly.
-  Candidates, none tested and all separable: an effective exposure shorter than
-  nominal; the conversion constant not transferring from a synthetic
-  top-hat⊗Gaussian to the real PSF; `findstar` responding differently to real
-  undersampled stars than to planted ones (testable against the existing fixture).
-  **AND IT PUTS THE ONLY ATTRIBUTED TERM IN THIS THREAD IN QUESTION.** The
-  sky-rate attribution rests on the same conversion, and its coefficient reads
-  **2.548 px² against a predicted 2.266 — ratio 1.124, 0.65σ from unity** where
-  this result says the real trail is **0.43×** predicted. Those are both the real
-  trail against its own geometric prediction, in px², and they differ by 2.6×.
-  Leading reconciliation, UNTESTED: the sky-rate figure is a SLOPE against the
-  field's cos²(dec) variation and the predictor is **99% collinear with sensor
-  y**, so it may be trail plus another y-aligned term rather than the trail's
-  magnitude — in which case the record's existing caveat ("what was tested is its
-  MAGNITUDE, not its direction") is understated rather than merely cautious.
-  **Resolving that needs no new data and gates everything downstream.**
-  **RESOLVED, and the cause is this thread's defining error applied to its own
-  attributed term** (commit `162be03`). `sky_rate_gradient.py` regresses
-  `maj² − mnr²`, a SCALAR that discards orientation — so it counts anisotropy
-  varying with cos²(δ) at ANY orientation, while a trail contributes only ALONG
-  the trail axis. The 148-station table carries `fwhm_px` and `roundness` and **no
-  angle**, so the projection was never available to it. Measured direction-free on
-  21 557 stars: scalar slope **+5.970 (4.1 SE)**, on-axis projection **+3.150
-  (2.4 SE)**, cross-channel null **+0.183 (0.3 SE)** — bootstrapped ratio 0.528,
-  90% CI [0.251, 0.694], **P(ratio<1) = 1.000, scalar inflated 1.90×.** Applying
-  that gives ≈0.59 against prediction where the published figure was 1.124 at
-  "0.65σ from unity". **The term is NOT refuted — the cos²(δ) dependence is real
-  and lies on the trail axis — but its published MAGNITUDE is unsupported.**
-  Direction established; magnitude not (the 1.90× is one member's stars, not the
-  station table, and applying it across is extrapolation).
-
-**AND THE STATION TABLE IS MEASURED ON REGISTERED PRODUCTS, WHICH MAY ADD THE
-SIGNAL — OPEN.** The same coherent measurement returns **0.98× on a member
-sub-stack and 0.53–0.54× on its own constituent RAW frames**, with an injected
-known-trail control returning **0.99×** in a raw frame (axis recovered to 0.20°).
-So the estimator and the environment are excluded. Direct test on sub_01 against
-five of its own constituents: per-raw mean **0.7264 px²** against the member's
-**1.4150** — an excess of **+0.6886**. **Real in DIRECTION** (the member exceeds
-its raws at every cut) and **NOT established in MAGNITUDE** (it falls 2.8× across
-a matched upper-|D| cut range, implied residual 0.73–1.22 px). Candidate
-mechanism, NOT established: registration cannot remove the within-exposure trail
-but its residual lies along the DRIFT direction — the same axis — so a member may
-carry trail plus residual, and their summing to ~1.0× would be coincidence rather
-than validation.
-**A SCALING ARM PROPOSED BY THE MANAGER FAILED, and how it failed is the
-finding.** Uncut, the excess looked monotone in drift span — 0.69 at 191 px, 4.31
-at 953, 5.16 at 2860, a textbook registration signature. At |D| ≤ 6 it reads
-**0.245 / 0.787 / 0.726**: flatter and NOT monotone, with the union BELOW the
-500-frame stack. **The apparent scaling was contamination growing with stacking
-depth**, and it would have been reported as established had the
-component-exceeds-the-whole check not fired first (the union's coherent term
-5.8886 against its own median |D| of 1.900).
-**THE UNDERLYING TOOL FACT, and it governs any future stack-side statistic:
-STACKED PRODUCTS CARRY HEAVY NON-STELLAR TAILS THAT THE RAWS DO NOT.** mean/median
-of |D| runs **raw 1.07, member 2.07, per-set stack 2.88, union 5.77**, with max
-|D| at **53.7 / 2368 / 1.54e4 / 3.38e4**. So every coherent statistic taken on a
-stack is tail-driven unless cut, and a matched upper-|D| cut is validated by the
-raws barely moving under it (0.7264 → 0.7131). **Before the station table is
-rebuilt on members, its box-MEDIAN summarisation must be checked against these
-tails** — a median is more robust than a mean and that has never been verified
-against this distribution.
-**WHAT IS UNTOUCHED BY ALL OF IT: the raws' deficit is rock stable at 0.53–0.54×
-under every cut**, so the open question is unchanged and unweakened — and this
-explains a discrepancy BETWEEN two measurements while explaining neither.
-
-**THE "RADIUS TREND" IS ALMOST CERTAINLY A PROJECTION ARTEFACT OF INCOMPLETE
-AZIMUTH, AND THE RULING BUILT ON IT IS SUSPENDED.** Commit `a2c7ba2` recorded
-that a radial split of the deficit — by ρ quintile, **0.37 / 0.35 / 0.33 / 0.46 /
-0.73** — damages BOTH surviving hypotheses, since an exposure deficit is flat in
-radius and a field-constant optical term is flat in radius by construction. **Do
-not cite that ruling.** The numbers are not a gradient: the first three bins sit
-within 12% of each other and trend the WRONG way, then it breaks. **A threshold
-is a property of the frame's geometry, not of an aberration field** — and this
-frame has one at exactly that radius.
-
-**MECHANISM, verified here by computation rather than taken on report.** The
-statistic projects onto a fixed drift axis with weight `cos 2φ`, so a RADIAL term
-cancels only when azimuth is completely sampled. On a 6064×4040 frame
-(half-short 2020, half-long 3032, half-diagonal 3643.3) the inscribed circle
-holds only to **ρ = 0.5544**, and beyond **ρ = 0.8322** only the four corners
-remain. Computing ⟨cos 2φ⟩ over the azimuths still inside the frame:
-
-| ρ | azimuth kept | ⟨cos 2φ⟩ |
-|---|---|---|
-| ≤ 0.554 | 100% | **−0.0000** |
-| 0.620 | 70.5% | **+0.3615** |
-| 0.700 | 58.2% | +0.5290 |
-| 0.830 | 46.6% | +0.6795 |
-| 0.976 | 3.5% | +0.4047 |
-
-**Exactly zero while the circle fits, strongly positive the moment it clips** —
-because the excluded azimuths are those near ±90° where `cos 2φ = −1`, so
-removing them leaves a net positive mean and the radial term leaks into the
-drift-axis projection with a POSITIVE sign. At the corners the radial direction
-sits at **33.67°** to x, giving `cos(2·33.67°) = +0.385` at all four corners, the
-same sign, so they reinforce rather than cancel. **The geometric break at 0.554
-falls inside quintile 4 (0.490–0.626) — which is exactly where the measured data
-breaks, to the bin.** Bins 1–3 lie wholly inside the inscribed circle and are
-clean.
-
-**CONSEQUENCE, and it runs the other way from the ruling it replaces.** If bins
-4–5 are contaminated, the corpus 0.53× figure is pulled UP by them and the true
-deficit is nearer the flat inner value **~0.35 — worse than reported, and NOT
-radius-dependent.** That restores "flat in radius", which puts the
-field-constant optical term BACK on the table rather than killing it.
-
-**THE FIX IS AN INSTRUMENT ALREADY BUILT AND VALIDATED:** stop azimuthally
-averaging and run the spin-2 fit PER ρ BIN — `e1(φ) = A cos2φ + C1`,
-`e2(φ) = A sin2φ + C2` — which estimates the radial and fixed terms JOINTLY and
-is immune to incomplete azimuth by construction, because it FITS the radial term
-instead of assuming it averages away. The azimuthal average is the weaker
-statistic and it is the one that broke. Cheaper cross-check: restrict to
-ρ < 0.554 and re-run the quintiles; the rise should vanish.
-
-**This is the FOURTH basis artefact in this thread and the same family as the
-other three** — a summary statistic whose assumptions fail silently on part of
-the domain.
-
-**MEASURED, AND "ARTEFACT" WAS TOO STRONG — IT IS PARTLY ONE** (commit `d4eb83f`,
-the immune estimator rebuilt and gated on three recorded targets). Running the
-spin-2 fit per ρ bin instead of azimuthally averaging removes **most of bin 4 and
-only a third of bin 5**:
-
-| bin | ρ | naive | spin-2 fit | radial R | excess vs bin 1 remaining |
-|---|---|---|---|---|---|
-| 1 | 0.005–0.247 | 0.409 | 0.369 | −0.02 | — |
-| 2 | 0.247–0.375 | 0.351 | 0.357 | +0.13 | — |
-| 3 | 0.375–0.490 | 0.358 | 0.324 | +0.60 | — |
-| 4 | 0.490–0.626 | 0.472 | **0.392** | +1.10 | **22%** |
-| 5 | 0.626–0.976 | 0.736 | **0.603** | +0.33 | **64%** |
-
-Bin 5 still exceeds bin 1 by **7.9σ** in fixed magnitude. **So the incomplete-azimuth
-leak is real and is not the whole story.** Two reasons the residue is NOT yet a
-finding, both in the numbers: quintiles are by COUNT and stars concentrate
-centrally, so bin 5 is 3× wider in ρ and a constant-R model is misspecified across
-it; and its radial R **falls to +0.33 where bin 4 reads +1.10**, which is the outer
-fit straining rather than measuring. Settling it needs ρ-EQUAL bins or a radial
-basis inside the bin — deliberately NOT run, because the pinned prediction uses only
-the inner three bins (complete azimuth, condition 1.09–1.10, naive and fit agreeing)
-and does not depend on bin 5.
-
-**THE PINNED PREDICTION, from the inner three bins only:** trail ratio
-**0.3502 ± 0.0080**, `t_eff/t_nom` = 0.5918, **predicted ZP deficit 0.570 ± 0.012
-(stat) ± 0.013 (axis choice)**. The statistical error is a factor of ~20 below the
-~0.25 mag throughput-prediction error that decides UNDERPOWERED, so the throughput
-prediction is the entire experiment.
-
-**AND A SEPARATE FINDING THAT BEARS ON THE FIX PATH: THE "FIXED" TERM'S DIRECTION
-IS NOT FIXED.** Its axis runs **+0.04 / +13.86 / +21.94 / +15.74 / +10.49°** across
-five equal-COUNT bins, and **+6.40 / +17.31 / +22.91 / +13.80 / +17.47°** across
-ρ-EQUAL bins — so the rotation is **NOT a binning artefact** (span 16.5° ρ-equal
-against 17.4° equal-count). A single field-constant term cannot do that. It is
-consistent with the recorded near-cancellation of two large vectors, whose
-resultant rotates as their ratio changes with radius.
-
-**THE "10 TO 20σ" PREVIOUSLY QUOTED HERE IS WITHDRAWN, AND THE ERROR MODEL THAT
-PRODUCED IT WAS WRONG FOR EVERY PER-BIN NUMBER IN THIS THREAD.** Those SEs
-(1.07–1.39°) came from a star-level bootstrap inside ONE POOLED population, which
-captures shot noise only. Against the five raws treated as INDEPENDENT
-realisations the frame-to-frame scatter is **4.1–9.2× the bootstrap SE, median
-5.76×**, and χ²/dof 35.6 on bootstrap errors becomes **~1.1** on frame-based ones.
-**The bootstrap manufactures rejections.** Rule, and it generalises past this
-thread: *a per-bin property estimated from N frames has N independent
-realisations; resampling stars inside a pool is not an error bar for it.*
-
-**THE ROTATION IS REAL AND THE ONE-FRAME CONDITION IS DROPPED — MEASURED AT
-N = 40** (`frame_depth.json`). At five frames the effect appeared to hinge on
-excluding DSC_6239 (axis χ² 3.0/4 with it in, 74.6/4 without). **That was a
-small-sample artefact: one anomalous frame is 20% of five and 2.5% of forty.**
+**`corner-fix-landscape` gates its only FIX-classified route (`rl -loadpsf=`) on a
+genuinely FIELD-CONSTANT component. Asked directly — is there a single trail scale
+`f` making `C(ρ) − f·T(ρ)` a constant 2-vector — the answer is NO, unconditionally**
+(`constancy_fit.json`, `frame_depth.json`; PM-audited by re-execution).
 
 | sample | DSC_6239 | axis χ²/4 | constancy χ²/dof |
 |---|---|---|---|
@@ -958,107 +544,108 @@ small-sample artefact: one anomalous frame is 20% of five and 2.5% of forty.**
 | N = 40 | out | 686.7 — REJECTS | 129.4 |
 | N = 5 | in | 3.0 — no rejection | 1.81 |
 
-So the gate failure **no longer depends on any exclusion**. Subset bracket is
-EXACT — the original five sit inside the forty and reproduce `constancy_fit.json`
-to the digit (15.4 / 3.0 / 1.81 / 4.31 ± 1.80).
+An earlier five-frame run appeared to hinge on excluding one frame; **that was a
+small-sample artefact** — one anomalous frame is 20% of five and 2.5% of forty.
+Subset bracket EXACT: the original five sit inside the forty and reproduce
+`constancy_fit.json` to the digit (15.4 / 3.0 / 1.81 / 4.31 ± 1.80).
 
-**"FIRST FRAME OF A RUN" IS NOT A CLASS — the exclusion removes exactly one
-frame.** Sampled by design (four early-in-run and four spread from each of five
-100-frame groups): the five group starts read −36.91 / +16.84 / +17.20 / +17.50 /
-+16.29° against index ≥ 25 at +17.39 ± 1.52 (n = 20), and starts-minus-6239
-against the rest is **−0.44 ± 0.43°, 1.0σ**. DSC_6239 sits at robust **z = −25.7**
-where the next most deviant of 40 frames is −1.4, with fixed-term amplitude 0.4661
-against 0.69–0.83 elsewhere. **So the exclusion used across this thread does not
-become a systematic anywhere it has been applied**, including the injection
-rebuild. Composition note for a gated target: `psf_work/f{1,2,3}.lst` — Gate 1A's
-8074-star sample — is DSC_6239 / 6339 / 6439, so **one third of it carries the
-anomaly**; the gate still reproduces exactly because it tests the estimator rather
-than the sample, but 0.5869 / 0.5798 are not corpus-representative.
+**Three things it is NOT, each excluded by measurement rather than argument:**
+- **Not a binning artefact.** The fixed term's axis runs **+0.04 / +13.86 / +21.94 /
+  +15.74 / +10.49°** across equal-COUNT bins and **+6.40 / +17.31 / +22.91 / +13.80
+  / +17.47°** across ρ-EQUAL bins — span 16.5° against 17.4°.
+- **Not the incomplete-azimuth artefact**, this thread's most repeated failure. The
+  inscribed circle holds to ρ = 0.5544, so bins 1 and 2 lie WHOLLY inside complete
+  azimuth, and the rotation is already there between those two alone: **+12.42 ±
+  2.10 (5.9σ)** with every frame in, **+12.96 ± 0.82 (15.9σ)** without DSC_6239.
+  The axes are also non-monotone across ρ (5.99 → 18.41 → 21.30 → 13.29 → 14.08),
+  which no single radial term produces.
+- **Not a class.** "First frame of a run" is one frame: group starts read −36.91 /
+  +16.84 / +17.20 / +17.50 / +16.29° against index ≥ 25 at +17.39 ± 1.52 (n = 20),
+  starts-minus-6239 against the rest is **−0.44 ± 0.43°, 1.0σ**, and DSC_6239 sits
+  at robust **z = −25.7** where the next most deviant of 40 is −1.4. **So the
+  exclusion used across this thread does not become a systematic anywhere it has
+  been applied**, including the injection rebuild.
 
-**AND IT IS NOT THE INCOMPLETE-AZIMUTH ARTEFACT — PM-CHECKED BY RE-EXECUTION,
-because that is this thread's most repeated failure and it had to be excluded
-explicitly.** The inscribed circle holds to ρ = 0.5544, so bins 1 (ρ 0.003–0.199)
-and 2 (ρ 0.199–0.396) lie WHOLLY inside complete azimuth. The rotation is already
-there, between those two bins alone:
+**TWO LIMITS TRAVEL WITH THE VERDICT AND NEITHER IS OPTIONAL.** χ²/dof of 53–129
+means the model is badly MISSPECIFIED rather than that it measured something. And
+**this design can KILL the route but can NEVER quote a trail scale** — T varies only
+5.1% in magnitude and 1.5° in axis across the bins, so `f` is nearly collinear with
+the constant (design condition **126–132**) and is separately degenerate with any
+overall scale error in the WCS behind T.
 
-| sample | bin 1 | bin 2 | bin2 − bin1 | |
-|---|---|---|---|---|
-| N = 40, all | +5.99 ± 1.24 | +18.41 ± 1.69 | **+12.42 ± 2.10** | **5.9σ**, χ² 35.0/1 |
-| N = 40, drop 6239 | +7.06 ± 0.64 | +20.03 ± 0.51 | **+12.96 ± 0.82** | **15.9σ**, χ² 253.0/1 |
+**COMPOSITION NOTE for a gated target:** `psf_work/f{1,2,3}.lst` — Gate 1A's
+8074-star sample — is DSC_6239 / 6339 / 6439, so **one third carries the anomaly**.
+The gate reproduces exactly because it tests the estimator rather than the sample,
+but 0.5869 / 0.5798 are not corpus-representative.
 
-**So the gate failure does not depend on the clipped bins at all.** The axes are
-also NOT monotone across ρ (5.99 → 18.41 → 21.30 → 13.29 → 14.08), which no single
-radial term produces and which is what the near-cancellation reading predicts.
+### The pinned prediction
 
-**THE CONSTANCY GATE FAILS ON THE SAME CONDITION** (`constancy_fit.json`,
-PM-audited by re-execution). No single trail scale `f` makes `C(ρ) − f·T(ρ)` a
-constant 2-vector: **χ²/dof 19.3 on 7 dof** (ρ-equal), 30.3 (equal-count), with
-best-fit `f` at 5.7–7.6 — 6–8× the predicted trail, which is what a misspecified
-model returns rather than a trail measurement. **`corner-fix-landscape` gates the
-`rl -loadpsf=` route on a genuinely field-constant component, so on four frames
-that route FAILS its gate.** Two limits travel with that and neither is optional:
-the verdict flips on the one-frame exclusion above (all five → χ²/dof 1.81,
-nothing rejects); and **this design can KILL the route but can NEVER quote a trail
-scale** — T varies only 5.1% in magnitude and 1.5° in axis across the bins, so `f`
-is nearly collinear with the constant (design condition **131**) and is separately
-degenerate with any overall scale error in the WCS behind T.
+Inner three bins only (complete azimuth, condition 1.09–1.10): trail ratio
+**0.3502 ± 0.0080**, `t_eff/t_nom` = 0.5918, predicted ZP deficit **0.570 ± 0.012
+(stat) ± 0.013 (axis choice)**. The ZP that would test it is measured 33× better
+than the quantity it must be differenced against and still cannot settle it —
+the degeneracy is structural, not a precision limit (`TOOLS.md`).
 
-**FIFTH COMMENSURABILITY FINDING, recovered while rebuilding the estimator:
-THIS THREAD'S TWO MOST-QUOTED NUMBERS ARE DIFFERENT QUANTITIES AND NOTHING SAID
-SO.** Sample B is an above-median-amplitude population reporting a direction-free
-COHERENT MAGNITUDE; sample A's 0.5798 is a PROJECTION on a named axis. The
-magnitude is the norm of a mean 2-vector and is positively noise-biased; the
-projection is unbiased — **so 0.53× was the generous one.** Same family as the
-scalar-vs-components error, the blur-vs-ellipticity exponent, the
-anisotropy-vs-time ratio and the size-ratio-vs-ellipticity conflation. **The tell
-in all five is identical: two numbers compared without their quantity stated
-beside them.**
+### The decentring reading, and READ THE QUANTITY BESIDE IT
 
-**THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
-(`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
-PM-audited by re-execution). Every prediction in the sky-rate work used ONE plate
-scale, 16.979 ″/px, for all 148 stations. On a rectilinear lens `r = f·tan(θ)` the
-LOCAL scale varies across the field, and measured from each member's own solved
-WCS (differentiated numerically, full solution including SIP — not the ideal
-sec² form) it runs **15.904–17.064 ″/px, a 6.93% spread**. **Its correlation with
-ρ is −0.952**, which is why it was invisible as a separate effect and why it was
-confounded with precisely the term nobody could attribute.
+**The field is DECENTRED** — free centre beats centred at F 169–999, offsets
+443–531 px — but **no optical centre is quoted**, deliberately: three populations
+disagree by ~300 px in x while quoting 10–31 px formal errors, mutually
+inconsistent by 10–20 of their own sigmas. That inconsistency IS the result; one
+decentred radial field plus a constant does not describe this field. The
+phantom-decentring entry in `docs/dead-ends.md` is why the restraint is mandatory.
 
-| joint fit, 148 stations | global scale | local scale |
-|---|---|---|
-| predicted-trail coef | 1.124 (6.1 SE) | 1.115 (6.3 SE) |
-| **radial ρ coef** | **1.2599 (7.3 SE)** | **1.0317 (5.9 SE)** |
-| one-sided x coef | 0.4120 (6.9 SE) | 0.3971 (6.7 SE) |
-| R² | 0.5193 | 0.5255 |
+**THIS DOES NOT CONTRADICT `compose-homography-smear`, AND THE APPARENT CONFLICT IS
+A COMMENSURABILITY CASE.** That item records the decentring reading as RETRACTED
+with the centre at zero, (−6, +14) px. **The two fit different quantities:**
+`fit_ptlens_joint.py` fits a decentred POSITIONAL / DISTORTION field against
+catalogue pairs; `pa_convention.py` fits a decentred radial ELLIPTICITY field. **A
+distortion centre at zero does not refute an ellipticity-field centre at 443–531
+px.** Neither record said which it meant.
 
-**Absorbed: 0.2282 px², 18.1% of the radial coefficient.** Three things make it a
-subtraction rather than a knob: the radial term **SURVIVES at 5.9 SE**, so this is
-partial attribution and not an explanation; the **one-sided x term is untouched**
-(3.6%), which is what a purely radial mechanism must do and was not arranged; and
-the already-attributed sky-rate term is **undamaged**, staying consistent with
-unity (0.67σ → 0.65σ). This is playbook shape C — `docs/untracked-widefield-standards.md`
-F.2b computed these factors and they were FILED, NOT ABSORBED.
-**A TRAP THIS CREATES, recorded so the next reader does not misread it:** with the
-local scale in, the predictor itself carries a radial component, so in a fit that
-does NOT hold ρ it partly proxies for the unmodelled radial term and its slope
-inflates — the pred-only check moves 1.280 ± 0.239 (1.17σ) to 1.516 ± 0.212
-(2.44σ) while its R² *improves* 0.164 → 0.260. **Once the local scale is in, the
-pred-only slope is no longer a valid check of the conversion. Read the joint fit.**
+### Closed with mechanism — do NOT re-open without new data
 
-**THE ABERRATION FAMILY IS UNRESOLVED, AND A RETIREMENT OF THE COMA READING WAS
-PROPOSED AND WITHDRAWN — the withdrawal is the durable lesson.** A first pass
-measured radial exponents of 2.09–3.80 and read them against Seidel's blur
-exponents (coma 1, astigmatism 2), concluding "not coma". That compared two
-different quantities: **ellipticity is not a blur size.** Blurs convolve, so
-variances add — `a² = w² + κℓ²` gives `a² − b² = κℓ²` and
-`e = (a²−b²)/(a²+b²) ≈ κℓ²/2w²`, i.e. ellipticity goes as **ℓ²**. The reference
-exponents against field radius are therefore **2 for coma and 4 for astigmatism**.
-Converted properly the measurements are blur exponents of **0.56–1.90, clustering
-near 1** — consistent with coma and never reaching astigmatism. The
-radial↔tangential sign flip that would establish astigmatism is ABSENT (the four
-negative R values are inner annuli at 0.1–1.5 SE). So the coma reading stands as
-UNRESOLVED-but-consistent, not retired. **Standing rule from this: state which
-quantity's exponent you are quoting, every time.**
+- **`-moffat` as a second estimator** — β unidentified for ~40% of stars (piled at
+  the fitted upper bound), divergent second moment for ~10% (β ≤ 2, `minbeta`
+  defaults to 1.5). `TOOLS.md`.
+- **The conversion constant κ** — transfers at **+0.1% ± 1.1%** against the 65%
+  drop the artefact reading required. Scope: the fixture base was circular, so
+  robustness to the base's ANISOTROPY is untested.
+- **The demosaic** — the rotation and the gate failure both survive on a raw CFA
+  grid with no interpolation anywhere; the G1-vs-G2 null passes at χ² 3.00/3.
+- **The OFFSET form of a short exposure** — `t_eff = t_nom − δ` implies δ = 2.5 ×
+  (1 − 0.5918) = **1.0206 s = 1021 ms** against shutter latencies of O(1–10) ms.
+  Multiplicative is the only surviving shape and no mechanism produces one.
+  **Do NOT re-open this as a july27 comparison** (staged here: set-01 282 frames,
+  set-02 253) — it eliminates at 10³ what needs no frames, and cannot escape the
+  night/exposure aliasing that closed the question.
+- **Profile mis-specification as a rescue** — bounded at ≤20% by Veres et al. 2012
+  against a 41% length deficit, and the Moffat half runs the wrong way.
+
+### Open
+
+1. **The unattributed RADIAL term.** 18% is attributed to the gnomonic plate scale
+   (measured, parameter-free, a subtraction rather than a knob); the remainder
+   survives at 5.9 SE. Family unresolved — coma consistent, astigmatism not reached,
+   and the radial↔tangential sign flip that would establish astigmatism is ABSENT.
+2. **A few-degree axis offset between the CFA and debayered grids**, pre-registered
+   as AMBIGUOUS between the demosaic and severe undersampling (S 0.83 → 0.415) and
+   deliberately unattributed. It bounds rather than explains: whatever it is moves
+   the axis a few degrees and neither creates nor destroys the rotation. Separating
+   them needs a mosaic-planting arm requiring a synthetic colour distribution
+   against a real reddened field — judged not worth it; disagree only with a design.
+
+**THE MECHANISMS THIS THREAD PRODUCED NOW LIVE IN `docs/dead-ends.md`**, because
+they generalise past it: the stack-side non-stellar tails that govern any
+stack-side statistic; the incomplete-azimuth leak and its ⟨cos 2φ⟩ geometry; the
+per-bin error-model rule (*a per-bin property estimated from N frames has N
+independent realisations*); the plate-scale trap; the refraction-as-shape closure;
+and the magnitude-vs-projection commensurability case. Numbers and provenance for
+everything above are in the tracked records under
+`datasets/aug06/corner_work/`, which carry them directly.
+
+**Closes when** the residual radial term is attributed, or a route ships that holds
+the corner at the clean band's star shape on the owner's eyes.
 
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
