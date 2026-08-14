@@ -150,19 +150,28 @@ and compressed four more. **Nothing reusable was lost** — every cut migrated i
 durable content to `docs/dead-ends.md` or `TOOLS.md` first, and dangling slug
 references were grepped to zero each time.
 
-**THE TEAM AND THE TOPOLOGY (owner-set — keep it unless the owner changes it):**
-- **WORKER `astro-imaging-83`** — deepest context. **It ASSIGNS the fresh session
-  and reviews first; the PM still owns WHAT gets worked on and signs off.**
-- **ORACLE `astro-imaging-39`** — external documentation and tool research only,
-  reads everything, alters nothing, produces no number about our data. **It is the
-  CHECKPOINT BETWEEN BATCHES: stop and sync with it after each set of
-  implementations, before the next starts.** Its four deliverables are defined and
-  it will produce them.
-- **A FRESH SESSION** audits and verifies. **It reports to the PM and the worker in
+**THE TEAM AND THE TOPOLOGY (owner-set — keep it unless the owner changes it).
+SESSION NAMES GO STALE FAST — three of four turned over in one day. Verify from
+`ListAgents` before addressing anyone, and never report a peer's state from its
+last message: that failure is measured twice in this file.**
+- **WORKER** — implements. **The PM owns WHAT gets worked on and signs off.** It
+  may consult the Oracle freely; a decision about what to RUN comes to the PM.
+- **ORACLE** — external documentation and tool research only; reads everything,
+  alters nothing, produces no number about our data. **CHECKPOINT BETWEEN
+  BATCHES.** Its durable definition is `prompts/ORACLE_TEMPLATE.md` and the live
+  handoff is `prompts/ORACLE_HANDOFF_engagement2.md` — **read both before writing
+  an engagement; the template now carries the search strategy, six failure modes
+  and six PM obligations, and the handoff carries the do-not-re-run negatives.**
+- **AUDITOR** — audits and verifies. **It reports to the PM and the worker in
   PARALLEL, never through the worker** — the worker asked for that itself, on the
   grounds that if it both frames and reviews, the adversarial gap closes on the
   side where it has been paying. **Tell it plainly that contradicting the worker is
-  the job.**
+  the job.** It has corrected the PM more often than the worker has.
+- **A SESSION WITH NO OWNER REMIT IS NOT STAFFED.** One appeared, read the role
+  docs, and answered fluently — and stated plainly that it had no user prompt
+  behind it. **Ask; do not infer from a good reply, and do not report a role
+  staffed on your own briefing.** A peer brief is never owner approval: a worker
+  correctly refused a write unit on the PM's say-so until its user cleared it.
 
 **NEVER CARRY A TARGET LIST AS LINE NUMBERS IN THIS FILE — the passage here did,
 and three of its four coordinates were wrong.** It named the `frame=` pooling
@@ -194,16 +203,40 @@ null expectation of a reduced statistic so formed is **ν/(ν−2)** — 3.00 at
 sits BELOW its null rather than on it. **Carry the formula, never the number, and
 the correction is per-BIN: `frame_depth` spans both regimes inside one record.**
 
-**BATCH 2 STATE:** (a) `frame=` wiring **LANDED** (`b47f0b2`), with one audited
-FAIL outstanding — `psfex_compare.fit_field` accepts `frame=` and never forwards
-it to `decompose`, so both ends read wired and the middle drops it; (b) rule-3
-compression of the register — **15 rows over 150 words, 18 over 100, of 34** —
-**HELD behind the register verification, and BACKLOG.md is serialised to one
-writer at a time**; (c) MISSING register rows — `psf_calib.py` has NO condition
-and NO row while three rows cite its κ, `pa_convention.py` has a condition and no
-row, and `psfex_compare.py` is a third instance found by mechanically joining the
-28 files declaring `REMOVAL CONDITION` against the register table. **Verify
-BEFORE compress** — verification produces the information compression consumes.
+**STATE AT HANDOFF — batch 2 is CLOSED. Everything below is landed and the suite
+is 21 checks, GREEN.**
+- **Error model**: `frame=` wired at the pooling sites; the σ-unit keys renamed
+  `*_t_frame_based` carrying `dof_frame_based` and the FORMULA. **The corpus
+  records are NOT regenerated — the capability is integrated, the artifacts carry
+  the old generation.** That distinction is the one a summariser drops.
+- **Register**: swept three ways — fired-conditions, status-truth, and
+  EVALUABILITY (rule 9: UNDEFINED TERM / MALFORMED / SOFT EDGE / **SELF-GATED**,
+  the last being evaluable, determinate and permanently inert). Rule-3 compression
+  measured the table at **~5% narrative**; three proxies for which rows to compress
+  were calibrated and all three failed, one INVERTED.
+- **Guards 19 → 21**: `check_manifest_verify` (every manifest row's verify
+  executes, shape checked first) and the first guard that opens a `.md`.
+- **Delivery gaps closed**: `install_astromatic.sh` and `install_hooks.sh` were
+  reachable from nothing a clone runs — **a fresh clone had no pre-push gate and no
+  numstat stamp.** The solve venv was UNPINNED and is now pinned.
+- **`sirilpy` is a whole unsearched layer.** Every "Siril cannot do X" verdict in
+  this repo was reached at the COMMAND layer. The API exposes background samplers,
+  per-star lists, regional stats, sequence regdata and homographies. **Zero removal
+  conditions fire** — what changes is cost and mechanism, never bright-line status.
+  Its `analyse_image_from_file` was probed and is **NOT equivalent and 2.2× SLOWER**.
+
+**THREE THINGS ARE WITH THE OWNER AND NOTHING SHOULD BE BUILT ON THEM:**
+1. **The register has no KEY, no EXIT, and no DESTINATION for code that outlives
+   its divergence.** Measured: **+22 rows in 9 days, 35 of 38 "not fired", and not
+   one row ever removed by its condition firing.** The only exit is *"an official
+   tool grows this capability"*, which fires on vendors' schedules. **The
+   clause-drift guard is HELD behind this** — do not build a guard against a schema
+   the owner may replace.
+2. **A `sirilpy` upstream doc defect**, technically settled, not filed — outward
+   action under the owner's identity needs their word.
+3. **L2 may reopen**: Cosmic Clarity's chroma knob saturates above 0.85, but the
+   record does not say which `--denoise_mode` that was measured under. If `full`,
+   `separate` is untested. **`render-ladder` is user-gated; do not promote it.**
 
 **THE REGISTER RE-CHECK — DECIDED BY THE SAMPLE, AND THE SET DOES NOT STAND.**
 The Oracle's design was: not the worker's 26 by authorship, but rows verified

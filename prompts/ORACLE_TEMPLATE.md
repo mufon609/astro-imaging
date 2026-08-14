@@ -195,31 +195,40 @@ on the largest measured defect in any shipped product — sat at **byte 539 of a
 sweep's honest coverage UP FRONT**: *"the first 260 characters of each matching
 row"* is not *"the rows"*.
 
-**BUT THE OBVIOUS WINDOWING FORM SILENTLY RETURNS NOTHING ON THIS REPO'S LONGEST
-FILES, AND AN EARLIER VERSION OF THIS SECTION PRESCRIBED IT.** A LEADING-context
-window (`.{0,90}PATTERN.{0,160}`) backtracks catastrophically on very long lines.
-**It does not error — it exits 0 with no output, which reads as a completed sweep
-that found nothing.** MEASURED on this tree:
-```
-TOOLS.md      lines containing "darktable": 6
-  .{0,90}darktable.{0,160}   ->  0 matches, exit 0     <- SILENT ZERO
-  darktable.{0,120}          ->  16 matches
-BACKLOG.md    same leading-window form  ->  did not finish in 2 minutes
-```
-**USE A TRAILING-ONLY WINDOW — `grep -oEi "PATTERN.{0,160}"` — and POSITIVE-CONTROL
-the pattern before trusting an empty result.** Run it against a term you know is
-present; if that returns nothing, the instrument is dead and the sweep has not run.
+**AND THE WINDOWING FORM HAS TWO SILENT-ZERO MODES. `grep` ON THIS RIG IS
+`ugrep 7.5.0`, NOT GNU grep, and everything below follows from that.**
 
-**AND AIM IT BY LINE LENGTH, NOT BY REPUTATION.** The hazard lives where the cells
-are long, and that is not where it is assumed to be:
+**MODE 1 — TWO range quantifiers around the pattern exceed ugrep's complexity
+limit.** The discriminator is the NUMBER of ranges, not line length, not file size:
+```
+darktable.{0,110}          ->  16     ONE range, trailing   OK
+.{0,60}darktable           ->  16     ONE range, leading    OK
+.{0,60}darktable.{0,110}   ->  ERROR  TWO ranges            FAILS
+```
+**The error goes to STDERR while STDOUT is empty**, so through a pipe it reads as a
+clean zero. **And `2>&1 | wc -l` turns the error text itself into a match count —
+that mistake was made here and reported as "5 matches" when there were none.**
+
+**MODE 2 — EXACT counts wider than the file's line width are structurally
+impossible, and this one exits 0 with NO error at all**, which is worse:
+```
+.{60}darktable.{110}   TOOLS.md            ->  12   works
+.{60}darktable.{110}   docs/dead-ends.md   ->   0   CANNOT EVER MATCH
+.{20}darktable.{40}    docs/dead-ends.md   ->   3   the claims ARE there
+```
+`docs/dead-ends.md` is wrapped at **≤108 characters**; `.{60}X.{110}` needs ≥179 on
+ONE line. **So an exact-width window is structurally null on the registry and fine
+on `TOOLS.md` — the reverse of what "long lines are the hazard" predicts.**
 ```
 TOOLS.md          longest line 6611
 BACKLOG.md        longest line 3165
-docs/dead-ends.md longest line  108   <- wrapped prose; the form works fine here
+docs/dead-ends.md longest line  108
 ```
-**`docs/dead-ends.md` is not a long-line file.** A sweep that blames its null on
-that file's "thousand-character cells" has mis-attributed the mechanism, and the
-correction matters because it moves which file is dangerous.
+**THE RULE: window with ONE range quantifier on the TRAILING side —
+`grep -oE "PATTERN.{0,200}"` — and POSITIVE-CONTROL it.** It survives both modes:
+no second range to trip ugrep, no exact width to exceed a wrapped line. **Check the
+file's longest line with one `awk` before choosing a width**, and never trust an
+empty result you have not first shown the pattern can produce a hit with.
 
 ## What you audit
 
