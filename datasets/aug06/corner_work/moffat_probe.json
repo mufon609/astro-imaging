@@ -1,0 +1,68 @@
+{
+ "what": "Is Siril findstar's `-moffat` mode a usable SECOND estimator for the coherent trail anisotropy, as a robustness check on the pinned trail ratio 0.3502 +- 0.0080?",
+ "verdict": "NO. CLOSED with a measured mechanism, not deferred. In Moffat mode on this corpus the shape parameter beta is UNIDENTIFIED for ~40% of stars (piled at the fitted upper bound) and carries a DIVERGENT second moment for ~10% (beta <= 2), so the `maj^2 - minor^2 = kappa * L^2` framing the whole thread rests on is undefined for a tenth of the sample and unconstrained for a further four tenths. A second estimator whose shape parameter is unidentified on 40% of its input cannot bound the first one.",
+
+ "why_it_was_probed": "`-moffat` had NEVER been run in this repo — one grep across scripts/, datasets/, docs/, TOOLS.md and BACKLOG.md returned a single hit, `psf_calib.py:15`, noting the flag exists and not using it. It was not considered and set aside; it was never considered. That is the repo's registered 'we had the tool all along' pattern (tilt / inspector / seqtilt / conesearch / the SPCC sensor database), and this is the first instance caught BEFORE it cost a session.",
+
+ "the_hypothesis_it_was_probing_and_ITS_STATUS": {
+  "hypothesis": "kappa = 0.49375 was calibrated by pushing synthetic trailed stars through the identical `findstar` call, and the fixture's base profile is a GAUSSIAN (psf_calib.py, SIGMA_PSF = 2.01/2.3548). So kappa corrects the top-hat's flat-toppedness against a Gaussian core and corrects nothing about a real star's wings — while coherent_trail.py's own selftest reads planted 0.99x and real 0.43x IN THE SAME FRAME, where the star's profile is the only remaining difference.",
+  "status": "NOT SUPPORTED at the magnitude required, on two independent grounds, and the record is kept because the hypothesis was specific and is now bounded rather than merely dropped.",
+  "ground_1_citation": "Veres et al. 2012, PASP 124, 1197 (arXiv:1209.6106): a 2-D Gaussian fit under-reads TRAIL LENGTH by <=20%, and by ~10% at S/N ~5, against PSF-convolution trail fitting. Commensurable with our deficit because both are LENGTH ratios: t_eff/t_nom = 0.5918 is a 41% length under-read, so the published bias covers at most half of it. Regime caveat, a searched negative: Veres is well-sampled Pan-STARRS1 with trails many PSF widths long; this corpus is S ~ 0.83 with L/sigma 1.65-2.19, and NO characterisation of the marginal-trail undersampled corner was found for either fitted models or moments.",
+  "ground_2_direction": "The documented Gaussian-vs-Moffat width mismatch runs the OTHER WAY — a Gaussian fit to a Moffat profile measures BROADER, because least squares is pulled outward by wings the Gaussian cannot represent. A width over-read on both axes inflates maj^2 - minor^2 rather than suppressing it. MEASURED here and consistent: the Gaussian fit returns median FWHMx/FWHMy 2.370/2.030 px against Moffat's 2.230/1.890, i.e. the Gaussian reads 6.3%/7.4% broader.",
+  "premise_that_also_fails": "'The true core is Moffat-like' is unmotivated at this plate scale. Moffat (1969) is an empirical model of ATMOSPHERIC SEEING; at 16.979 arcsec/px the PSF is ~34 arcsec across and seeing is 2-3 arcsec, ~1-2% of it. This PSF is optics, pixel and demosaic. What survives is only that an aberration-dominated spot is not Gaussian either — which motivates a robustness check, never a claim that Moffat is the correct model."
+ },
+
+ "instrument": "Siril 1.4.4 findstar, ONE KNOB against the recorded call. Recorded: `setfindstar reset -roundness=0.05 -relax=on -maxR=1.0` (header: sigma=1.00 profile=0). Probe adds `-moffat` and changes nothing else. Frames are the psf_work triple DSC_6239 / DSC_6339 / DSC_6439, re-converted from the source NEFs with the identical `convert r -debayer` call.",
+
+ "control_that_validates_the_probe_environment": {
+  "claim": "the re-converted frames and the re-run Gaussian call reproduce the tracked measurement exactly, so any Gaussian-vs-Moffat difference is the knob and not the environment",
+  "recorded_star_counts": [2709, 2645, 2720],
+  "reproduced_star_counts": [2709, 2645, 2720],
+  "recorded_lst_bytes": [494083, 481824, 495411],
+  "reproduced_lst_bytes": [494083, 481824, 495411],
+  "result": "identical, byte-size and count"
+ },
+
+ "measured_beta_distribution": {
+  "_note": "beta is Siril's fitted Moffat shape parameter, .lst column 4. Reported as a first-class output because the two failure modes below are only visible in it.",
+  "m1": {"n": 2341, "min": 0.940, "p1": 1.550, "p5": 1.740, "median": 5.130, "p95": 10.000, "max": 10.000, "frac_beta_le_2": 0.1115, "frac_at_upper_bound_ge_9.9": 0.3985},
+  "m2": {"n": 2283, "min": 1.500, "p1": 1.570, "p5": 1.751, "median": 5.670, "p95": 10.000, "max": 10.000, "frac_beta_le_2": 0.1025, "frac_at_upper_bound_ge_9.9": 0.4117},
+  "m3": {"n": 2302, "min": 1.500, "p1": 1.570, "p5": 1.750, "median": 6.095, "p95": 10.000, "max": 10.000, "frac_beta_le_2": 0.1030, "frac_at_upper_bound_ge_9.9": 0.4248}
+ },
+
+ "the_two_failure_modes_and_their_mechanisms": {
+  "divergent_second_moment": "With I(r) proportional to [1 + (r/alpha)^2]^(-beta), the second-moment integral int r^3 I dr converges only for beta > 2, while FLUX needs only beta > 1. Siril's `minbeta` default is 1.5, so the fit ACCEPTS stars with finite flux and infinite second moment. MEASURED: 10.3-11.2% of accepted stars sit at beta <= 2. For those rows `maj^2 - minor^2 = kappa * L^2` is not mis-calibrated, it is undefined.",
+  "unidentified_shape_parameter": "Siril fits beta through a bounded reparameterisation, `beta = MOFFAT_BETA_UBOUND * 0.5 * (cos(x7) + 1.)` (src/algos/PSF.c, 1.4.4 tag) — the same construction as the axis ratio, with the same degeneracy: the derivative vanishes at BOTH bounds, so beta is unidentified wherever the fit is pushed to one. MEASURED: 39.9-42.5% of stars pile at the upper bound beta = 10.000 exactly. Mechanism predicted from source before measurement, then confirmed: at S ~ 0.83 a fifth shape parameter has too few independent samples to constrain it.",
+  "detection_loss": "Moffat mode returns 13.6-15.4% fewer stars than the identical Gaussian call (2341/2283/2302 against 2709/2645/2720), so the two modes do not even measure the same population without cross-matching."
+ },
+
+ "coherent_term_under_each_fit_REPORTED_WITH_ITS_CAVEAT": {
+  "_caveat_read_this_first": "These come from a HAND REDUCTION written for this probe, NOT from the repo's own `pa_convention.read_lst` / `coherent_trail.py` path, and the angle convention was not cross-validated against it. They are reported as scoping evidence for the CLOSE decision above and must NOT be quoted against any recorded number. The thread has produced five commensurability findings and every one was two numbers compared without their quantity stated beside them.",
+  "_second_caveat_DETECTION_DEPTH": "These frames are the psf_work triple at the RECORDED sigma=1.00 (2709/2645/2720 stars). The thread's per-raw figures 0.4615/0.7573/0.8026/0.7951/0.8154 are memraw_work at sigma=0.50 (7072 stars on the same frame, a strict superset — cross-matched dx=dy=0.0000). Depth is a THIRD incommensurability between the 0.43x and 0.53x headline numbers and is recorded in no BACKLOG, dead-ends or TOOLS entry. Do not read a number here against a number there.",
+  "_quantity": "mean spin-2 projection of D = major^2 - minor^2 on the recorded +4.70 deg trail axis, px^2, over stars cross-matched between the two fits within 1.0 px",
+  "frame_1_DSC_6239_known_anomaly": {"matched_n": 2332, "gauss_proj": 0.3095, "moffat_proj": 0.1559, "ratio": 0.5036},
+  "frame_2_DSC_6339": {"matched_n": 2278, "gauss_proj": 0.7474, "moffat_proj": 0.6566, "ratio": 0.8785},
+  "frame_3_DSC_6439": {"matched_n": 2300, "gauss_proj": 0.8476, "moffat_proj": 0.7535, "ratio": 0.8889},
+  "what_it_does_and_does_not_show": "It shows the raw anisotropy IS estimator-dependent at the 11-50% level, which is a reason to want a robustness check. It does NOT show which estimator is biased, and it CANNOT: kappa = 0.49375 is profile-specific (two profiles with identical FWHM have very different second moments) and would have to be re-derived by re-running psf_calib.py under `-moffat` before any A/B is quotable. That re-derivation is exactly what the beta pathology above makes not worth doing."
+ },
+
+ "what_is_the_tools_and_what_is_in_house": {
+  "siril": "every star, every fit, both profile modes, beta, FWHM, position angle, and the debayer",
+  "in_house": "the beta percentiles, the cross-match and the spin-2 bookkeeping in the caveated block above",
+  "reads_no_deliverable": "the frames are raw single exposures re-converted for measurement; nothing here gates, tunes or rewrites a product, and it is a DIAGNOSTIC under CLAUDE.md's ratified carve-out"
+ },
+
+ "consequences": [
+  "`-moffat` is CLOSED as a second estimator for this quantity on this corpus, with a mechanism rather than a preference. It is not a capability gap and not an untried option; it is measured unusable here.",
+  "The profile-mis-specification rescue of the trail deficit is BOUNDED, not open: Veres bounds a Gaussian trail-length under-read at <=20% against a 41% deficit, and the Moffat half of the argument points the wrong way. Roughly 26-34 percentage points of length deficit remain unexplained by it.",
+  "kappa = 0.49375 remains calibrated against a GAUSSIAN-base fixture and that scope limit is now explicit. What it does NOT cover is a real star's profile; the remaining route to testing that is a fixture whose base profile is matched to the real stars, measured through the identical Gaussian call — NOT a change of fit model.",
+  "UNCONTROLLED AND NEVER CHECKED IN THIS THREAD, raised by the Oracle and not settled here: real stars in a galactic-plane field at 17 arcsec/px are BLENDED and planted ones are not. Whether psf_calib.py plants into star-free regions or at random positions decides whether the planted-vs-real 2.30x separation is controlled for blending at all."
+ ],
+
+ "sources": {
+  "veres_2012": "Veres, Jedicke, Denneau, Wainscoat, Holman, Lin 2012, PASP 124, 1197, 'Improved Asteroid Astrometry and Photometry with Trail Fitting' (arXiv:1209.6106)",
+  "moffat_1969": "Moffat 1969, A&A 3, 455 — an empirical ATMOSPHERIC SEEING profile, which is why the label is unmotivated at this plate scale",
+  "siril_source": "src/algos/PSF.c at the 1.4.4 tag: FWHM_from_s() returns the true Moffat FWHM as a function of beta, and beta is fitted through the bounded cos() reparameterisation",
+  "attribution": "the citations, the source read and the divergence/bound mechanisms are the Oracle session's; the probe, the control and the measured distributions are this one's"
+ }
+}

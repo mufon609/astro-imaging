@@ -282,6 +282,36 @@ worth more than the signal any photometric test here is chasing.**
   plane 969–22845 about a 1047 median — so the brightest pixel is ~35% of full
   well and nothing is hardware-saturated.)
 
+**ONE `findstar` SHAPE FACT, MEASURED — `setfindstar -moffat` is NOT a usable
+second estimator on this corpus, and it is the only alternative profile the tool
+offers.** `setfindstar [ [-gaussian] | [-moffat] ]` is scriptable and runs
+headless; the `.lst` gains a fitted `beta` (col 4) and `Profile` (col 15), and
+Siril's Moffat branch returns the TRUE Moffat FWHM as a function of β, not a
+Gaussian-equivalent width (`src/algos/PSF.c`, 1.4.4). **Two failure modes make it
+unusable for any second-moment quantity here, both measured on three aug06 raws
+against the identical Gaussian call:**
+- **β is UNIDENTIFIED for ~40% of stars.** Siril fits it through a bounded
+  reparameterisation, `beta = MOFFAT_BETA_UBOUND * 0.5 * (cos(x₇) + 1.)` — the
+  same construction as the axis ratio, and the derivative vanishes at BOTH
+  bounds. MEASURED: **39.9 / 41.2 / 42.5%** of accepted stars pile at exactly
+  β = 10.000. At this sampling (S ≈ 0.83) a fifth shape parameter has too few
+  independent samples to constrain.
+- **~10% carry a DIVERGENT second moment.** With `I(r) ∝ [1+(r/α)²]^(−β)`,
+  `∫r³I dr` converges only for **β > 2** while FLUX needs only β > 1, and
+  `minbeta` defaults to **1.5** — so the fit ACCEPTS stars with finite flux and
+  infinite second moment. MEASURED: **10.3–11.2%** sit at β ≤ 2. For those rows a
+  `major²−minor² = κ·L²` framing is not mis-calibrated, it is undefined.
+
+Also measured: Moffat mode returns **13.6–15.4% fewer stars** than the identical
+Gaussian call, so the two modes do not measure the same population without a
+cross-match; and the Gaussian fit reads **6.3 / 7.4% broader** in median
+FWHMx/FWHMy, matching the documented direction (a Gaussian fitted to a
+wingier profile is pulled outward). **κ is profile-specific** — two profiles with
+identical FWHM have very different second moments — so any Moffat A/B needs κ
+re-derived under `-moffat` before it is quotable, which the β pathology makes not
+worth doing. Numbers and the control that validates the probe environment:
+`datasets/aug06/corner_work/moffat_probe.json`.
+
 **TWO CATALOGUE FACTS MEASURED ON THIS RIG, both of which blocked a real
 measurement — read before designing anything that needs a star catalogue.**
 
