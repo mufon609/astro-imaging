@@ -473,6 +473,18 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
     mechanism as the `-A` hazard. Before writing to a section a peer is also
     working, re-read the WHOLE section, not your diff; merge to what each has
     that the other does not.
+  - **A PEER'S REPORT IS ALSO A STOP. Its turn ends when it reports, and it
+    resumes only when messaged — so a stated intent ("starting X now") is a PLAN,
+    never execution.** Reading it as action leaves the work idle while your own
+    record says it is running, and nothing surfaces the gap: the peer looks
+    finished because it reported, and you look informed because you were told.
+    MEASURED: a worker ended a report with "Starting the C/A test now", sat idle
+    through an entire exchange, and went busy the instant an explicit GO arrived.
+    The manager had reported it as running to the owner, who caught it. **Send an
+    explicit GO for every unit of work, and verify status from `ListAgents` plus
+    the tree — commits, working files, running processes — before reporting it to
+    anyone.** State this as the observable rather than as a claim about session
+    internals: a report is a stop, whatever the reason.
 
 ## North star (the goal the identity above serves)
 

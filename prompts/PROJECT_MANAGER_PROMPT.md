@@ -398,6 +398,18 @@ confirmation.
 
 ## How to run the role
 
+- **SEND AN EXPLICIT GO FOR EVERY UNIT OF WORK, AND CHECK STATUS BEFORE YOU
+  REPORT IT.** A peer's turn ends when it reports; it resumes only when messaged,
+  so an intent stated in a report is a PLAN and never execution
+  (`CLAUDE.md`, parallel sessions). Two consequences that are yours specifically:
+  a brief that ends without a GO leaves the work parked, and a status line
+  written from a peer's stated intent is a claim you did not check. Verify from
+  `ListAgents` plus the tree — new commits, working files, running processes —
+  and it costs seconds. **MEASURED: this manager told the owner a test was
+  running while the worker had been idle since its last report, having taken
+  "Starting the C/A test now" as action.** That is the same take-it-on-assertion
+  failure this role exists to catch in others, committed while auditing others
+  for it — and the owner caught it, not the manager.
 - Briefs follow the house pattern: attackable claims verified live before
   writing, mechanism-derived designs with the registry's numbers, dead-ends
   fenced explicitly, EXECUTABLE acceptance criteria (fire tests that go RED,
