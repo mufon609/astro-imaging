@@ -195,26 +195,18 @@ on the largest measured defect in any shipped product — sat at **byte 539 of a
 sweep's honest coverage UP FRONT**: *"the first 260 characters of each matching
 row"* is not *"the rows"*.
 
-**AND THE WINDOWING FORM HAS TWO SILENT-ZERO MODES. `grep` ON THIS RIG IS
-`ugrep 7.5.0`, NOT GNU grep, and everything below follows from that.**
+**AND THE WINDOWING FORM HAS SILENT-ZERO MODES. `grep` ON THIS RIG IS
+`ugrep 7.5.0`, NOT GNU grep, and everything below follows from that.** Every count
+below is grep's own `-c`, re-executed; an earlier revision of this section quoted
+piped line counts and got three of its own figures wrong.
 
-**MODE 1 — TWO range quantifiers around the pattern exceed ugrep's complexity
-limit.** The discriminator is the NUMBER of ranges, not line length, not file size:
+**MODE 1 — AN EXACT-COUNT WINDOW WIDER THAN THE FILE'S LINE WIDTH CANNOT MATCH,
+AND IT EXITS CLEAN.** No error, empty stdout, `rc=1` — indistinguishable from a
+searched null:
 ```
-darktable.{0,110}          ->  16     ONE range, trailing   OK
-.{0,60}darktable           ->  16     ONE range, leading    OK
-.{0,60}darktable.{0,110}   ->  ERROR  TWO ranges            FAILS
-```
-**The error goes to STDERR while STDOUT is empty**, so through a pipe it reads as a
-clean zero. **And `2>&1 | wc -l` turns the error text itself into a match count —
-that mistake was made here and reported as "5 matches" when there were none.**
-
-**MODE 2 — EXACT counts wider than the file's line width are structurally
-impossible, and this one exits 0 with NO error at all**, which is worse:
-```
-.{60}darktable.{110}   TOOLS.md            ->  12   works
-.{60}darktable.{110}   docs/dead-ends.md   ->   0   CANNOT EVER MATCH
-.{20}darktable.{40}    docs/dead-ends.md   ->   3   the claims ARE there
+.{60}darktable.{110}   docs/dead-ends.md   ->  0  rc=1  STRUCTURALLY IMPOSSIBLE
+.{20}darktable.{40}    docs/dead-ends.md   ->  3  rc=0  the claims ARE there
+.{60}darktable.{110}   TOOLS.md            ->  3  rc=0
 ```
 `docs/dead-ends.md` is wrapped at **≤108 characters**; `.{60}X.{110}` needs ≥179 on
 ONE line. **So an exact-width window is structurally null on the registry and fine
@@ -224,21 +216,67 @@ TOOLS.md          longest line 6611
 BACKLOG.md        longest line 3165
 docs/dead-ends.md longest line  108
 ```
-**MODE 3 — AND IT IS THE ONE THAT DOES NOT LOOK LIKE A FAILURE. `2>&1 | wc -l`
-COUNTS THE ERROR TEXT AS RESULTS.** Modes 1 and 2 return nothing, so at least they
-present as a null someone might question. **This one returns a NUMBER.** MEASURED
-here: a two-range pattern was piped `2>&1 | wc -l` and reported as **"5 matches"**
-when there were none — five lines of ugrep's complexity error. **A positive result
-never prompts a re-check**, which is why this survived a publish and the other two
-did not.
+**Take that with one `awk '{if(length>m)m=length}END{print m}' <file>` before
+choosing a width — never from the file's reputation.**
+
+**MODE 2 — THE COMPLEXITY ERROR ON TWO RANGE QUANTIFIERS IS REAL, INTERMITTENT AND
+LOAD-CORRELATED. IT IS NOT A WIDTH THRESHOLD, AND AN EARLIER REVISION HERE STATED
+IT AS ONE.** A width ladder built to find the breaking point found none: `.{0,40}`
+through `.{0,110}` (two ranges, one fixture) errored `rc=2` at 50 and 60 on a pass
+taken at **15-min loadavg 11.53**, and every width 40→110 returned `rc=0` with
+empty stderr on a 3-repeat re-run at **loadavg 1.22**. The section's own example,
+10 repeats at **loadavg 3.60**, is **10/10 `rc=0`, stdout 12, stderr 0 lines**:
+```
+.{0,60}darktable.{0,110}   docs/dead-ends.md  ->  12    rc=0
+.{0,90}darktable.{0,160}   TOOLS.md           ->   6    rc=0
+.{0,90}darktable.{0,160}   BACKLOG.md         ->  14    rc=0
+```
+**That is worse than a threshold, not better: a pattern that works now can fail
+later, and the failure presents as an empty result.** Do not read these `rc=0`
+rows as a refutation of the error — they are a low-load view, and a negative from
+one is the failure this whole section is about. When it does fire it emits
+**5 stderr lines** while stdout stays empty.
+
+**A SEPARATE WIDTH EFFECT EXISTS AND IT IS A HANG, NOT AN ERROR** — superlinear in
+window width, against `TOOLS.md` (longest line 6611):
+```
+.{0,1000}x.{0,1000}  -> 231   9.9 s
+.{0,1400}x.{0,1400}  -> 231  26.6 s
+.{0,1600}x.{0,1600}  -> 231  39.3 s
+.{0,2000}x.{0,2000}  ->  --   killed at 40 s, no output, NO MESSAGE
+```
+**A width big enough to matter produces no output and no error**, so a timeout
+inside a pipeline reads as a null.
+
+**THE DISCRIMINATOR IS THE EXIT CODE, WHICH IS WHY NO THRESHOLD IS NEEDED:**
+`rc=0` with empty output is a real no-match; `rc=1` with empty output may be
+MODE 1's structural zero; **`rc=2` is a search that did not run.**
+
+**MODE 3 — AND IT IS THE ONE THAT DOES NOT LOOK LIKE A FAILURE: THE COUNT COMES
+FROM THE WRAPPER, NOT THE INSTRUMENT.** Modes 1 and 2 return nothing, so they at
+least present as a null someone might question. **This one returns a NUMBER.**
+`-c` counts matching LINES; `-o` prints one line per MATCH. On the identical
+command they are different quantities and here they disagree 4×:
+```
+grep -oE  ".{60}darktable.{110}" TOOLS.md | wc -l   ->  12   MATCHES
+grep -oEc ".{60}darktable.{110}" TOOLS.md           ->   3   matching LINES
+```
+And `2>&1 | wc -l` on a pattern that does error reports the error TEXT as a match
+count — reported here as **"5 matches"** when there were none. **A positive result
+never prompts a re-check**, which is why this class survives a publish where the
+silent nulls do not: it produced the wrong `12` in this section's own table, one
+screen below the sentence warning against it. **This is the commensurability
+failure the registry already records six times — two numbers compared without
+their quantity stated beside them.**
 
 **THE RULE: window with ONE range quantifier on the TRAILING side —
-`grep -oE "PATTERN.{0,200}"` — POSITIVE-CONTROL it, and NEVER MERGE STDERR INTO A
-COUNT.** That survives all three: no second range to trip ugrep, no exact width to
-exceed a wrapped line, and no error text masquerading as data. **Check the file's
-longest line with one `awk` before choosing a width**; never trust an empty result
-you have not first shown the pattern can produce a hit with; and **when a count
-comes back, confirm it is counting matches rather than diagnostics.**
+`grep -oE "PATTERN.{0,200}"` — POSITIVE-CONTROL it, quote grep's OWN `-c` with the
+quantity named, and NEVER MERGE STDERR INTO A COUNT.** That survives all three: a
+bounded width that cannot outrun the line or the clock, no exact width to exceed a
+wrapped line, and no error text masquerading as data. Never trust an empty result
+you have not first shown the pattern can produce a hit with; **separate stdout,
+stderr and the exit code before reading any of them** — a null, a hang and an error
+are three different findings and a pipe renders all three as zero.
 
 ## What you audit
 
