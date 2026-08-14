@@ -112,7 +112,13 @@ if [ "${1:-}" = "--list" ]; then
 fi
 
 LOGDIR=$(mktemp -d "${TMPDIR:-/tmp}/run_guards.XXXXXX")
-trap 'rm -rf "$LOGDIR"' EXIT
+# LOGS SURVIVE A RED RUN. They used to be deleted unconditionally on EXIT, and a
+# transient failure was then UNDIAGNOSABLE: a run reported "17 passed, 1 failed"
+# and by the time anyone looked the evidence was gone and the re-run was green.
+# A CI-slot runner whose failures cannot be read afterwards is most of the way to
+# useless, so the trap now only cleans up when everything passed.
+KEEPLOGS=0
+trap '[ "$KEEPLOGS" = 1 ] || rm -rf "$LOGDIR"' EXIT
 FAILED=() ; NPASS=0 ; T0=$SECONDS
 
 printf '=== run_guards: %d checks, invoked as the chain invokes them ===\n\n' "${#CHECKS[@]}"
@@ -140,7 +146,9 @@ if [ ${#FAILED[@]} -gt 0 ]; then
     printf '\n--- FAILED: %s (exit %s) — last 15 lines ---\n' "$lbl" "$rc"
     tail -15 "$log" | sed 's/^/    /'
   done
+  KEEPLOGS=1
   printf '\nrun_guards: RED. Nothing was rewritten; fix the cause and re-run.\n'
+  printf '  full output of every check KEPT at: %s\n' "$LOGDIR"
   exit 1
 fi
 
