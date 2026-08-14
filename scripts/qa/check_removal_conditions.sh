@@ -18,6 +18,26 @@
 # records — where essentially every finding this repo produces is written — were
 # behind no gate at all. This is the first check that opens one.
 #
+# STANDARDS-FIRST, AND THIS IS A DEVIATION RECORDED RATHER THAN AN INVENTION.
+# `CLAUDE.md` requires naming the industry-standard way FIRST. **What this check is
+# is REFERENTIAL INTEGRITY** — every declared X has a row in Y — and that is an
+# off-the-shelf test, not a bespoke one: dbt calls it the `relationships` test,
+# Great Expectations a foreign-key expectation, and in schema terms it is JSON
+# Schema `required` plus a cross-document key check. STATUS: DOCTRINE, sources
+# named, not measured here.
+# **THE MEASURED CONSTRAINT THAT FORCES THE DEVIATION: every one of those tools
+# needs a KEY COLUMN, and this register has none.** It is a Markdown table whose
+# divergence column is PROSE — the subject is a backticked name embedded in a
+# sentence, sometimes a brace glob (`siril_run.{sh,py}`), sometimes a path,
+# sometimes a concept with no file at all (`header_provenance_lines`). There is no
+# field to join on, so a standard validator has nothing to bind to until the
+# register is restructured into a keyed record. That restructuring is an
+# owner-level architecture decision about the repo's most-read file, not something
+# a guard should do as a side effect — so the hand-rolled join is the deviation and
+# THIS is its reason. `python3-jsonschema` 4.26.0-2 is packaged and NOT installed;
+# if the register ever gains a structured form, this file should be replaced by the
+# standard validator rather than extended.
+#
 # THE JOIN IS ON THE DIVERGENCE COLUMN, NOT THE WHOLE TABLE, AND THAT IS THE
 # WHOLE DESIGN. MEASURED, on the two cases that pull in opposite directions:
 #   - `scripts/lib/siril_run.sh` declares a condition and the register writes its
@@ -213,3 +233,21 @@ printf '    Scope: detects DECLARED-BUT-NO-ROW only. It is structurally blind to
 printf '    divergence that declares NOTHING (the register calls that the worse case;\n'
 printf '    `psf_calib.py` was one). That second detector is UNBUILT.\n'
 printf '    Not checked: whether a row is true, has fired, or can be evaluated.\n'
+printf '\n'
+printf '    YIELD — this class is a MINORITY of record-level defects, so do not read\n'
+printf '    a GREEN run as "the records are covered". Measured instances of THIS\n'
+printf '    class: 3 (`pa_convention.py` and `psfex_compare.py` at 4872db4, whose own\n'
+printf '    message reads "THREE DIVERGENCES HAD NO ROW"; `flat_odd_component.py`,\n'
+printf '    found by this check on its first run). The third in that commit was\n'
+printf '    `psf_calib.py`, which declared nothing and needed the OTHER detector.\n'
+printf '    Against that, one heavy day produced ~10 record-level defects this cannot\n'
+printf '    see: stale negative tool claims, compression of a measured result, a\n'
+printf '    circular positive control, an assumed constant, a live-tree measurement,\n'
+printf '    a constant in the wrong home, narrative-in-table.\n'
+printf '    THE BOUND IS THE MORE USEFUL HALF, and it is evidence not opinion: three\n'
+printf '    cheap proxies for narrative-in-table were built and calibrated against\n'
+printf '    rows whose answer was known, and ALL THREE FAILED — one INVERTED. So a\n'
+printf '    records gate has a small mechanical core and a large UNGATABLE remainder.\n'
+printf '    Method caveat: the classification above was made from commit MESSAGES,\n'
+printf '    not full diffs, by two readers sharing that method — UNCHECKED, not\n'
+printf '    confirmed. The instance counts are exact; the denominator is an estimate.\n'
