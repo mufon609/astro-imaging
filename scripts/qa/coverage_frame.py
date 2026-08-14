@@ -54,12 +54,14 @@ held in FITS coordinates is emitted at `y_select = H - y - h`. The record
 carries BOTH conventions for exactly that reason (the registered crop-y-flip
 trap), and `--selftest` step 2 goes RED if the convention ever flips.
 """
+import atexit
 import json
 import math
 import os
 import re
 import shutil
 import sys
+import tempfile
 
 import numpy as np
 from astropy.io import fits
@@ -262,10 +264,17 @@ def run(src, out_json, nx, ny, chan, floor, framing_record=None):
 def selftest(keep=False):
     """Plant a coverage frame this code did not choose, then make it find it —
     and make the known failure mode actually fail."""
-    work = os.path.expanduser("~/.cache/astro-imaging/coverage_frame_selftest")
-    if os.path.isdir(work):
-        shutil.rmtree(work)
-    os.makedirs(work)
+    # PER-RUN dir, NOT a fixed shared one. MEASURED RACE: a fixed path plus an
+    # entry-time rmtree let two concurrent runs clobber each other mid-flight —
+    # run A wrote a fixture, run B re-entered and wiped the dir, run A's siril
+    # then failed to load a file that had existed seconds earlier. Reproduced:
+    # two concurrent selftests -> one exit 1 (FileNotFoundError), one exit 0.
+    # siril_run's flock serialises the TOOL CALL; it does not cover the
+    # DIRECTORY LIFECYCLE around it. Stays under $HOME: the Siril flatpak has a
+    # private /tmp, so a fixture in a system temp dir is invisible to the tool.
+    os.makedirs(os.path.expanduser("~/.cache/astro-imaging"), exist_ok=True)
+    work = tempfile.mkdtemp(prefix="coverage_frame_selftest.", dir=os.path.expanduser("~/.cache/astro-imaging"))
+    atexit.register(shutil.rmtree, work, True)
     W, H, ok = 800, 500, True
     # PLANTED TRUTH: sky everywhere inside the box, hard zero outside it, and a
     # ring of half-level "edge ringing" just inside the zero — the residue the

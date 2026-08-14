@@ -54,11 +54,14 @@ headless, at which point the correction set can be pinned in the style and the
 DB strip is no longer load-bearing.
 """
 import argparse
+import atexit
 import json
 import os
 import re
 import subprocess
+import shutil
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "lib"))
 from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
@@ -202,7 +205,8 @@ def main():
     ap.add_argument("--work", help="scratch dir; MUST be under $HOME (Siril "
                                    "flatpak has a private /tmp). Default: the "
                                    "set's qa_work/lenscard_work, else "
-                                   "~/.cache/astro-imaging/lenscard_work")
+                                   "a PER-RUN mkdtemp under "
+                                   "~/.cache/astro-imaging/")
     ap.add_argument("--json", help="write the record here")
     ap.add_argument("--tol", type=float, default=1.0,
                     help="max |corner-centre| median difference to PASS (ADU)")
@@ -249,7 +253,13 @@ def main():
                             os.path.basename(os.path.abspath(a.session)),
                             a.set, "qa_work", "lenscard_work")
     else:
-        work = os.path.expanduser("~/.cache/astro-imaging/lenscard_work")
+        # PER-RUN, not a fixed shared dir: two concurrent runs on one fixed path
+        # clobber each other's fixtures mid-flight (MEASURED elsewhere in this
+        # cache dir — one run exit 1 on a file the other had just removed).
+        # Under $HOME because the Siril flatpak has a private /tmp.
+        os.makedirs(os.path.expanduser("~/.cache/astro-imaging"), exist_ok=True)
+        work = tempfile.mkdtemp(prefix="lenscard_work.", dir=os.path.expanduser("~/.cache/astro-imaging"))
+        atexit.register(shutil.rmtree, work, True)
     if not work.startswith(os.path.expanduser("~")):
         sys.exit(f"verify_lens_card: --work must be under $HOME (Siril's flatpak "
                  f"cannot see {work})")

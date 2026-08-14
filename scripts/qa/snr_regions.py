@@ -19,11 +19,14 @@ places a box outside (or partially outside) its frame is reported SKIPPED,
 never silently included. Run on LIKE surfaces only (e.g. the linear _spcc
 stacks) — the ratio is scale-free but not stretch-free.
 """
+import atexit
 import json
 import os
 import re
 import subprocess
+import shutil
 import sys
+import tempfile
 
 import numpy as np
 from astropy.io import fits
@@ -82,9 +85,11 @@ def main():
     # that path — the flatpak siril sandbox has a PRIVATE /tmp, so a caller
     # writing its record to scratch would silently strand the script where
     # siril cannot see it (measured: every stat "parse failed" with no run)
-    workdir = os.path.join(os.path.expanduser("~/.cache/astro-imaging"),
-                           "snr_regions")
-    os.makedirs(workdir, exist_ok=True)
+    # PER-RUN, not a fixed shared dir — same race as the roster selftests.
+    # Under $HOME because the Siril flatpak has a private /tmp.
+    os.makedirs(os.path.expanduser("~/.cache/astro-imaging"), exist_ok=True)
+    workdir = tempfile.mkdtemp(prefix="snr_regions.", dir=os.path.expanduser("~/.cache/astro-imaging"))
+    atexit.register(shutil.rmtree, workdir, True)
     os.makedirs(os.path.dirname(out_json) or ".", exist_ok=True)
 
     rec = {"method": "internal ratio (median_signal - median_sky) / bgnoise per "

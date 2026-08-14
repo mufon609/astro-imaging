@@ -183,6 +183,7 @@ SCOPE LIMITS, stated because they bound every number this prints:
     observed R2, i.e. p = 0.014. Cells are not independent and a null that
     assumes they are overstates every claim built on it.
 """
+import atexit
 import json
 import math
 import os
@@ -190,6 +191,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 import numpy as np
@@ -771,10 +773,18 @@ def _cell_truth(cells, wcs, pattern):
 
 
 def selftest(keep=False):
-    work = os.path.expanduser("~/.cache/astro-imaging/starlight_selftest")
-    if os.path.isdir(work):
-        shutil.rmtree(work)
-    os.makedirs(work)
+    # PER-RUN dir, NOT a fixed shared one. MEASURED RACE: a fixed path plus an
+    # entry-time rmtree let two concurrent runs clobber each other mid-flight —
+    # run A wrote a fixture, run B re-entered and wiped the dir, run A's siril
+    # then failed to load a file that had existed seconds earlier. Reproduced:
+    # two concurrent selftests -> one exit 1 (FileNotFoundError), one exit 0.
+    # siril_run's flock serialises the TOOL CALL; it does not cover the
+    # DIRECTORY LIFECYCLE around it. Stays under $HOME: the Siril flatpak has a
+    # private /tmp, so a fixture in a system temp dir is invisible to the tool.
+    os.makedirs(os.path.expanduser("~/.cache/astro-imaging"), exist_ok=True)
+    work = tempfile.mkdtemp(prefix="starlight_selftest.", dir=os.path.expanduser("~/.cache/astro-imaging"))
+    if not keep:
+        atexit.register(shutil.rmtree, work, True)
     gain, ok = 300.0, True
     pristine = os.path.join(work, "synth.fit")
     wcs, _ = _synth(pristine, gain, _band)

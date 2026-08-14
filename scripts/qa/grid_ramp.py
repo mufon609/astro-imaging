@@ -87,12 +87,15 @@ Registered in BACKLOG.md `removal-conditions`.
 REPORTS, GATES NOTHING. No thresholds and no verdict: it writes the numbers, the
 geometry they were taken at, the controls, and the reader decides.
 """
+import atexit
 import json
 import math
 import os
 import re
 import subprocess
 import sys
+import shutil
+import tempfile
 
 import numpy as np
 from astropy.io import fits
@@ -433,9 +436,22 @@ def selftest(work):
 if __name__ == "__main__":
     argv = sys.argv[1:]
     if "--selftest" in argv:
-        w = next((a.split("=", 1)[1] for a in argv if a.startswith("--work=")),
-                 os.path.join(os.path.expanduser("~"), ".cache",
-                              "astro-imaging", "grid_ramp_selftest"))
+        # PER-RUN dir, NOT a fixed shared one. MEASURED RACE: a fixed path plus an
+        # entry-time rmtree let two concurrent runs clobber each other mid-flight —
+        # run A wrote a fixture, run B re-entered and wiped the dir, run A's siril
+        # then failed to load a file that had existed seconds earlier. Reproduced:
+        # two concurrent selftests -> one exit 1 (FileNotFoundError), one exit 0.
+        # siril_run's flock serialises the TOOL CALL; it does not cover the
+        # DIRECTORY LIFECYCLE around it. Stays under $HOME: the Siril flatpak has a
+        # private /tmp, so a fixture in a system temp dir is invisible to the tool.
+        explicit = next((a.split("=", 1)[1] for a in argv
+                         if a.startswith("--work=")), None)
+        if explicit:
+            w = explicit
+        else:
+            os.makedirs(os.path.expanduser("~/.cache/astro-imaging"), exist_ok=True)
+            w = tempfile.mkdtemp(prefix="grid_ramp_selftest.", dir=os.path.expanduser("~/.cache/astro-imaging"))
+            atexit.register(shutil.rmtree, w, True)
         # under $HOME deliberately: the Siril flatpak has a private /tmp, so a
         # fixture written to a scratchpad there is invisible to the tool
         sys.exit(selftest(os.path.abspath(w)))
