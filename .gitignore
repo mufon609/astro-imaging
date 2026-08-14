@@ -230,3 +230,11 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/psfex_work/*.xml
 !**/psfex_work/*.log
 !**/psfex_work/deg*/
+
+# phot_work/ — the catalogue-referenced photometry probe. Staged frames, siril
+# logs and star lists are regenerable by re-running the .ssf; only the generated
+# scripts and the JSON records ARE the record.
+**/phot_work/*
+!**/phot_work/*.json
+!**/phot_work/*.ssf
+!**/phot_work/*.lst

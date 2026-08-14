@@ -1,0 +1,108 @@
+{
+  "what": "ingest record for the Gaia ASTROMETRIC catalogue siril's config already pointed at",
+  "why_this_record_exists": "siril's config set catalogue_gaia_astro to a file that did not exist, while CLAUDE.md's Environment section claimed 'Local Gaia catalogs at ~/.local/share/siril/siril_catalogues/ (astro + SPCC xpsamp chunks)'. The astro half was absent, so -cat=localgaia had nothing to read. The config was RIGHT and the file was MISSING; the config was not changed.",
+
+  "catalogue": {
+    "name": "Siril Astrometry Catalogue extracted from Gaia DR3",
+    "zenodo_record": 14692304,
+    "doi": "10.5281/zenodo.14692304",
+    "version": "1.0.0",
+    "record_published": "2025-01-20T10:21:31.548436+00:00",
+    "installed_path": "/home/samsung/.local/share/siril/gaia_astrometric.dat",
+    "config_key": "catalogue_gaia_astro",
+    "renamed_from": "siril_cat_healpix8_astro.dat",
+    "rename_note": "the published basename differs from the config's expected basename; the file was renamed, NOT the config. The functional probe below is what proves the rename is harmless."
+  },
+
+  "integrity": "source-verified",
+  "hash_chain": {
+    "summary": "TLS -> Zenodo API md5 -> published sidecar sha256 -> payload, with the DECOMPRESSED file independently verifiable against its own published sidecar.",
+    "closes_the_aug09_gap": "aug09's ingest can only be self-verified (a DESTINATION hash). This one is checkable against source-published hashes at every step, including the decompressed artifact, so the bunzip2 step is verified too rather than trusted.",
+    "zenodo_publishes_hashes": true,
+    "zenodo_hash_kinds": ["md5 per file in the record API", "sha256 sidecar files inside the record itself"],
+
+    "step_1_sidecars_vs_api_md5": {
+      "note": "the sidecars carry the payload hashes, so the sidecars themselves must be verified first or a corrupted sidecar would pass a corrupted payload",
+      "siril_cat_healpix8_astro.dat.bz2.sha256sum": {
+        "api_md5": "ba889d7b455f857660096ea445a13953",
+        "measured_md5": "ba889d7b455f857660096ea445a13953",
+        "match": true
+      },
+      "uncompressed_files.sha256sum": {
+        "api_md5": "02e655b1d8b8db05fa561bc356dadfc8",
+        "measured_md5": "02e655b1d8b8db05fa561bc356dadfc8",
+        "match": true
+      }
+    },
+
+    "step_2_compressed_payload": {
+      "file": "siril_cat_healpix8_astro.dat.bz2",
+      "size_bytes": 1142276749,
+      "size_expected_bytes": 1142276749,
+      "api_md5": "2e62f2365023e621afbd336c82980208",
+      "measured_md5": "2e62f2365023e621afbd336c82980208",
+      "published_sha256": "846ad4b12c50865df0cb8c5b23453f22eec78bbe9969e17d669ae19eb49d421f",
+      "sha256sum_c_result": "OK",
+      "match": true
+    },
+
+    "step_3_decompressed_payload": {
+      "file": "siril_cat_healpix8_astro.dat",
+      "size_bytes": 1521132640,
+      "published_sha256": "2fa40c93fe115235d35c5050757f2ef60a326a6f3030f87be1598c016fcb2388",
+      "sha256sum_c_result": "OK",
+      "match": true
+    },
+
+    "step_4_reverified_at_installed_path": {
+      "note": "re-hashed AFTER the move, at the config's path, so a bad move cannot pass as a good download",
+      "path": "/home/samsung/.local/share/siril/gaia_astrometric.dat",
+      "measured_sha256": "2fa40c93fe115235d35c5050757f2ef60a326a6f3030f87be1598c016fcb2388",
+      "match": true
+    }
+  },
+
+  "functional_probe": {
+    "why": "a verified hash proves the BYTES, not that siril can read the file under a different basename. Probe rather than assume — this rig has three commands (tilt, inspector, conesearch) whose help documented a capability they do not have.",
+    "command": "platesolve -force -catalog=localgaia",
+    "image": "web/results/aug06/stack_set-01_l1ctrl_wcs.fit",
+    "image_shape": "4907x3598x3, EXPTIME 2.5, STACKCNT 500",
+    "result": "Siril solve succeeded",
+    "matched_stars": 541,
+    "converged_iteration": 1,
+    "solve_wall_ms": 469.54,
+    "solved_centre": "alpha 306.65358902, delta 42.53955350",
+    "resolution_arcsec_px": 17.052,
+    "verdict": "the installed catalogue is READ AND USED. -cat=localgaia now has something to read.",
+    "scope_limit": "this is a REGISTERED STACK, not a raw trailed frame. It is NOT evidence against the standing finding that siril's internal solver cannot match ultra-wide TRAILED-star fields; that class was not tested here."
+  },
+
+  "not_changed": {
+    "siril_config": "catalogue_gaia_astro was already correct and was left untouched",
+    "CLAUDE.md": "the stale Environment claim is in the owner's file; flagged, not edited"
+  },
+
+  "REPRODUCIBILITY_GAP_STILL_OPEN": {
+    "finding": "this catalogue is installed but NOT rebuildable from tracked files, which is the condition CLAUDE.md's Environment rule exists to prevent.",
+    "root_cause": "x86_bootstrap.sh never fetched the astrometric catalogue. It installs the SPCC photometric chunks (layer B2) and sets catalogue_gaia_photo, but nothing fetches gaia_astrometric.dat or verifies its presence. So a fresh rig gets a config pointing at a file the bootstrap never creates, and no verify step fires.",
+    "why_this_record_is_not_in_manifest_tsv": "manifest.tsv is GENERATED, not hand-maintained: x86_bootstrap.sh line 135 truncates it (`: >\"$MANIFEST\"`) and rewrites the header on every --go run. A hand-added row would survive in git until the next bootstrap and then vanish silently — recreating this same bug in a new form.",
+    "the_fix_that_would_close_it": "a fetch + manifest + verify step in x86_bootstrap.sh alongside the existing layer B2 SPCC block, pinned to the sha256 in this record. NOT APPLIED — a build-path script change, out of scope for an ingest task and left for scoping.",
+    "status": "OPEN"
+  },
+
+  "SECOND_FINDING_five_of_six_configured_catalogues_are_absent": {
+    "note": "measured while verifying this one; the astro catalogue was not the only gap",
+    "measured": {
+      "catalogue_namedstars": "ABSENT /home/samsung/.local/share/kstars/namedstars.dat",
+      "catalogue_unnamedstars": "ABSENT /home/samsung/.local/share/kstars/unnamedstars.dat",
+      "catalogue_tycho2": "ABSENT /home/samsung/.local/share/kstars/deepstars.dat",
+      "catalogue_nomad": "ABSENT /home/samsung/.local/share/kstars/USNO-NOMAD-1e8.dat",
+      "catalogue_gaia_astro": "PRESENT (this record; was ABSENT before it)",
+      "catalogue_gaia_photo": "PRESENT 3.7G, SPCC xpsamp chunks"
+    },
+    "consequence": "any command defaulting to a LOCAL NOMAD falls back to the remote service or fails. pcc's help states the remote NOMAD can be forced 'if installed locally' — locally it is not installed. Relevant to any catalogue-referenced photometry route.",
+    "status": "RECORDED, not repaired"
+  },
+
+  "last_checked": "2026-08-13"
+}
