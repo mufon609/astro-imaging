@@ -679,203 +679,104 @@ evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
 (`first_frame_center`) or computed as the set's actual pointing, and the two
 `docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
 
-## `corner-fix-landscape` — every candidate, classified against the bandaid test
+## `corner-fix-landscape` — the FIX-classified route is DEAD; what is left is procurement or acceptance
 
-**The rule, adopted after a list of four "responses" turned out to contain three
-non-fixes: every candidate is classified FIX / TRADE / BANDAID before it is
-listed, and a trade or a concealment never appears in the same list as a fix.**
-If the honest answer is "no fix is available on this rig", that is the finding.
+**The classification rule, adopted after a list of four "responses" turned out to
+contain three non-fixes: every candidate is FIX / TRADE / BANDAID before it is
+listed, and a trade or a concealment never appears in the same list as a fix.** If
+the honest answer is "no fix is available on this rig", that is the finding — and
+on today's evidence it very nearly is.
 
-- **FIX — single-PSF deconvolution of the FIELD-CONSTANT component. Installed,
-  headless, no bright-line problem, and it is the one the aberration label
-  actually buys.** Under Nodal Aberration Theory a misaligned element produces
-  **field-constant coma** — a component UNIFORM across the whole field — and a
-  uniform PSF component is removable by an ordinary single-PSF deconvolution.
-  **VERIFIED ON THIS RIG by probe:** `rl [-loadpsf=] [-alpha=] [-iters=] [-stop=]
-  [-gdstep=] [-tv] [-fh] [-mul]` is scriptable, and its own help says *"a PSF may
-  be loaded using -loadpsf=<filename> (created with MAKEPSF)"*; `makepsf
-  load/save/blind/stars/manual` is scriptable too. No tiling, no new tool, no
-  in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
-  constant across the six sets the misalignment is fixed, |C| is the amplitude of
-  the globally-correctable component and its direction is the PSF to build.
-  **AND THE GATE HAS NOW BEEN RUN DIRECTLY AND IT FAILS, UNCONDITIONALLY AT
-  N = 40.** The constancy question needs neither C/A nor the trail magnitude:
-  solve for the single scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector, and
-  no `f` does — **χ²/dof 53.1 with every frame in, 129.4 with DSC_6239 dropped**,
-  and the axis rejects a constant at χ² 69.5/4 either way. An earlier five-frame
-  run appeared to hinge on that one exclusion (χ²/dof 1.81 with it in); **that was
-  a small-sample artefact and the condition is retired** — see `one-sided-band`
-  for the N = 40 table, the not-a-class test, and the PM check that the rotation
-  is already 5.9σ (15.9σ without 6239) between the two bins wholly inside the
-  inscribed circle, so it is not the incomplete-azimuth artefact either.
-  **So a single global PSF cannot remove this component and this route does not
-  deliver.** **AND THE DEMOSAIC ALTERNATIVE IS NOW REFUTED — the rotation and the
-  gate failure both survive on a raw CFA measurement with NO interpolation
-  anywhere** (`cfa_control.json`, pre-registered at `21653a1` BEFORE the run and
-  measured at `dc1fa0f`; PM-audited, the pre-registration carries reading rules
-  and no outcomes). The free null PASSES — G1 vs G2 agree at **χ² 3.00 on 3 dof**,
-  max axis difference 2.73°, so the CFA lattice injects no directional term and
-  the grid is clean. Both greens then REJECT a constant axis on that clean grid
-  (χ² 15.8/2 and 37.9/2; constancy χ²/dof 28.2 and 46.7), as does the non-green
-  channel (10.6/2). **Remove the demosaic entirely and the non-constancy persists,
-  so the demosaic is not necessary to produce it.** The fix-path answer is now the
-  same on three independent grids — debayered N=5, debayered N=40, raw CFA.
-  **What stays open and is deliberately NOT attributed:** CFA axes sit a few
-  degrees consistently ABOVE debayered (ch0 +7.45/+6.94/+3.99, χ² 27.1/3; ch3
-  +4.89/+9.67/+2.20, χ² 23.3/3), both greens differing from debayered in the SAME
-  direction while agreeing with each other. Pre-registered as AMBIGUOUS between
-  the demosaic and severe undersampling (S 0.83 → 0.415, below Kannawadi's 0.5)
-  and left there. It bounds rather than explains: whatever it is moves the axis a
-  few degrees and neither creates nor destroys the rotation.
-  Two limits stay: the design can KILL the route and can NEVER quote a
-  trail scale (`f` nearly collinear with the constant, condition 126–132, and
-  degenerate with any WCS scale error behind T); and χ²/dof of 53–129 means the
-  model is badly MISSPECIFIED rather than that it measured something.
-  This bullet defines C as *the field-constant spin-2 term*, so if there is no
-  single such term, C/A is not well defined and "does C/A hold across sets"
-  cannot be asked in that form. **What survives is the weaker, still-useful
-  question:** whether a genuinely uniform component exists at all, which is the
-  ρ→0 limit of that fit rather than a whole-field average — the bins read
-  +0.04° at ρ 0.005–0.247 and diverge outward, so the inner bin is the only
-  place C is even approximately defined. Re-scope before running, and do not
-  read a whole-field |C| as the amplitude of a correctable component.
-- **~~FIX, PARTIAL — Cosmic Clarity~~ WITHDRAWN. NOT A HEADLESS CANDIDATE, and
-  the tree already said so.** Both the Oracle and this manager reported it as an
-  installed CPU headless partial fix after reading `--help`. **`TOOLS.md`'s
-  Cosmic Clarity row already records, MEASURED on this rig: it is a Qt tool that
-  BLOCKS on a modal dialog, ITS CLI ARGUMENTS ARE IGNORED (`--sharpening_mode
-  "Stellar Only"` was passed and the dialog showed `Both`), the non-stellar pass
-  CRASHES on real data, and the verdict is "ATTENDED and NOT scriptable".** Two
-  sessions read the help text and treated a flag's existence as evidence it
-  functions — the registry's own lesson, *a `help` listing is not evidence of
-  scriptability*, committed by the people auditing for it.
-  **What survives is only a MECHANISM note from the model filenames:** the space
-  is `deep_nonstellar_sharp_cnn_radius_{1,2,4,8}`, a scalar RADIUS, so even driven
-  from the dialog it is spatially varying but **ISOTROPIC** — size only, never
-  ellipticity. That does resolve which axis it fails on: `TOOLS.md`'s "interface
-  is a scalar radius" describes the model space and `experiments.jsonl`'s "field
-  behaviour unprobed" describes the spatial handling, and it fails the anisotropic
-  requirement on the model space AND the headless requirement on the dialog.
-- **FIX, and the one route that answers three questions as ONE operation —
-  IMCOM.** Rowe, Hirata & Rhodes 2011 (ApJ 741, 46; arXiv:1102.0292), the Roman
-  coaddition method. It builds a linear combination of the input pixels producing
-  an output image with a **USER-SPECIFIED PSF**, from undersampled DITHERED
-  exposures, handling **varying input PSFs**, while minimising output noise
-  covariance and distortion from the requested PSF. It is simultaneously the
-  drizzle question (undersampled + dithered), the spatially-varying-PSF question,
-  and the target-direction question: **nothing requires the target PSF to be
-  broader, and asking for a narrower one raises the noise covariance, which IMCOM
-  QUANTIFIES rather than forbids.** That is the principled generalisation of both
-  drizzle (output PSF fixed implicitly) and homogenisation (output PSF forced
-  broader). Computationally expensive. `pyimcom` 1.2.1 is on PyPI.
-  **THE COST IS NOW ESTIMATED AND IT IS WEEKS AND A FORK, NOT DAYS AND AN
-  ADAPTER — so "the highest-value open probe on the board" NO LONGER FITS**
-  (project's own `docs/config_README.rst`, last checked 2026-08-14; this
-  DOWNGRADES an earlier reading that the cost was a simple input adapter).
-  Mandatory config keywords include **`OBSFILE` — "path to FITS binary table of
-  observations"** — so the coupling is not merely file format but a survey
-  OBSERVATION-TABLE SCHEMA; supported inputs are `dc2_imsim`, `anlsim` and Piff
-  PSF files; and there is **no plugin system, no custom reader class and no
-  documented bring-your-own-data mechanism**, with the project noting that
-  formats are added by its maintainers in-tree. **So the honest cost is three
-  format-emulation jobs against undocumented internal schemas with no seam to
-  plug into, and adding a format means patching the package — a fork you then
-  maintain.** One favourable detail: it accepts **Piff** PSF files and `piff`
-  1.6.0 is pip-installable, so the PSF third has a real path. **The one probe
-  that could still make it cheap, NOT settled:** `furry-parakeet` holds the
-  linear-algebra and interpolation kernels separately from the Roman driver — if
-  those are usable standalone, the driver's schemas are bypassed entirely.
-- **TOOL FACT that removes a trap we documented today: `galsim.des.DES_PSFEx`
-  reads a PSFEx `.psf` DIRECTLY** and returns the PSF at an arbitrary position
-  (`galsim` on PyPI). `TOOLS.md` records that PSFEx exposes no position-resolved
-  shape so a comparison must re-derive one, and that its polynomial basis order is
-  `[1, X, X², Y, XY, Y²]` rather than what a reader assumes — **GalSim does that
-  re-derivation as a maintained library and the order trap does not arise.** It
-  does not remove the estimator-definition half of the 0.038-vs-0.07 gap.
-- **NOT THE ROUTE — `sf_deconvolve`** (Farrens et al. 2017): it deconvolves a
-  STACK OF POSTAGE STAMPS, one PSF per object, not a field. It restores objects,
-  not images, so for a deliverable that is a picture it does not produce the
-  product. Same for its successor (Sureau et al. 2020).
-- **FIX, root-cause, architecturally blocked — Bayer drizzle for the
-  undersampling** (`resample-cost-and-drizzle`).
-- **FIX, not procured — anisotropic spatially-varying deconvolution.** Farrens et
-  al. 2017, A&A 601 A66 (arXiv:1703.02305), python, built for a KNOWN spatially
-  varying PSF, i.e. exactly what PSFEx produces; its backend `modopt` is
-  pip-installable but the deconvolution code is a source integration. StarTools
-  SVDecon is GPU+GUI; BXT is PixInsight-hosted and uninstalled by choice (all three
-  re-checked 2026-08-14, unchanged; `sf_deconvolve` is still not on PyPI though its
-  backend `modopt` 1.7.2 is).
-  **"THERE IS NO PACKAGED HEADLESS CPU LINUX TOOL FOR THE ANISOTROPIC HALF" IS NOW
-  FALSE AS WRITTEN** (last checked 2026-08-14). **`torchmfbd` 0.9.2** (Aug 2025,
-  `pip install torchmfbd`, A&A 2025 703 A269 / arXiv:2505.10639) is PyTorch and its
-  own description says it *"can deal with spatially variant PSFs either by
-  mosaicking the images or by defining a spatially variant PSF"*. **The SENTENCE is
-  refuted; whether the SUBSTANCE survives is open, and three checks decide it — any
-  one of which voids it:**
-  (1) **does it do NON-BLIND deconvolution with a SUPPLIED PSF field?** Its README
-  does not say, and we have a PSFEx model, so this decides whether it is usable at
-  all; (2) **MOMFBD's premise is frame-to-frame aberration DIVERSITY** — it is
-  solar-tailored, where seeing varies between frames and that variation is what
-  separates aberration from object, while **our aberration is a STATIC optical one,
-  identical in every frame**, so if blind mode is the only mode there is no
-  diversity to exploit; (3) **PyTorch CPU-only at 6064×4040 on 28 cores**,
-  tractability unmeasured. **Do not delete this parking and do not act on it — it
-  is a procurement-and-integration boundary with a named candidate, not a physics
-  ceiling and not a solution.**
-- **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Deconvolving each
-  tile with its local PSF and mosaicking back is the classical overlap-add answer
-  and Siril has every pixel operation for it, but the tiler and blender would be
-  in-house code READING AND REWRITING the deliverable's pixels. FORBIDDEN by the
-  bright line. Do not propose it.
+**THE ONE FIX-CLASSIFIED ROUTE ON THIS RIG IS DEAD BY MEASUREMENT.** Single-PSF
+deconvolution of a field-constant component (`rl -loadpsf=`, scriptable and
+verified installed) required a genuinely FIELD-CONSTANT term. Asked directly — is
+there a single trail scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector — the
+answer is NO on **three independent grids**: debayered N=5, debayered N=40, and a
+raw CFA grid with no interpolation anywhere. **A single global PSF cannot remove
+this component.** Numbers, the N=40 table, the not-a-class test and the
+complete-azimuth check live in `one-sided-band`; they are not restated here.
+
+### The remaining candidates, each with its verdict
+
+- **NOT PROCURED — anisotropic spatially-varying deconvolution.** The only class of
+  treatment that would RECOVER corner detail. Farrens et al. 2017 (A&A 601 A66) is
+  built for a known spatially varying PSF, i.e. what PSFEx produces, but its
+  backend is a source integration; StarTools SVDecon is GPU+GUI; BXT is
+  PixInsight-hosted and uninstalled by choice. **"There is no packaged headless CPU
+  Linux tool for the anisotropic half" is now FALSE AS WRITTEN** (last checked
+  2026-08-14): **`torchmfbd` 0.9.2** (pip, A&A 2025 703 A269) states it handles
+  spatially variant PSFs. **The SENTENCE is refuted; the SUBSTANCE may hold, and
+  three checks decide it — any one voids it:** does it do NON-BLIND deconvolution
+  with a supplied PSF field (unstated in its README); **MOMFBD's premise is
+  frame-to-frame aberration DIVERSITY while ours is STATIC and identical in every
+  frame**, so blind mode would have nothing to exploit; and PyTorch CPU-only at
+  6064×4040 on a no-GPU rig, with `torch` + `triton` costing 37 packages.
+  **Procurement-and-integration boundary, not a physics ceiling.**
+- **IMCOM / `pyimcom` 1.2.1 — WEEKS AND A FORK, not days and an adapter** (its own
+  `docs/config_README.rst`, 2026-08-14). It is the principled generalisation of
+  both drizzle and homogenisation — a user-specified output PSF from undersampled
+  dithered exposures with varying input PSFs, and **nothing requires the target PSF
+  to be broader**. But mandatory `OBSFILE` is a survey OBSERVATION-TABLE schema,
+  supported inputs are a small named set, and there is **no plugin system and no
+  bring-your-own-data path** — formats are added by maintainers in-tree. **The one
+  probe that could still make it cheap, unsettled:** `furry-parakeet` holds the
+  linear-algebra kernels separately from the Roman driver.
+- **~~Cosmic Clarity~~ WITHDRAWN — not a headless candidate, and the tree said so.**
+  `TOOLS.md` records it MEASURED: a Qt tool that BLOCKS on a modal dialog, **its
+  CLI arguments IGNORED**, and the non-stellar pass CRASHES on real data. **Three
+  sessions read its `--help` and reported a capability it does not honour.** What
+  survives is a mechanism note: its model space is `radius_{1,2,4,8}`, a scalar —
+  spatially varying but **ISOTROPIC**, size only, never ellipticity.
+- **NOT THE ROUTE — `sf_deconvolve`**: it deconvolves a stack of postage stamps,
+  one PSF per object, not a field. It restores objects, not images.
+- **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Siril has every
+  pixel operation for the classical overlap-add answer, but the tiler and blender
+  would be in-house code READING AND REWRITING the deliverable's pixels. FORBIDDEN
+  by the bright line. Do not propose it.
+- **TOOL FACT, and it is now INSTALLED:** `galsim.des.DES_PSFEx` reads a PSFEx
+  `.psf` directly and evaluates the PSF at an arbitrary position, so the
+  `[1, X, X², Y, XY, Y²]` basis-order trap `TOOLS.md` documents cannot arise.
 - **TRADE — `-noclamp`.** The clamp costs 6.26% of PSF width per pass against a
-  0.45% kernel, at the frame centre where there is no aberration gradient at all.
-  **By this repo's own contract the clamp is itself a bandaid — ringing is a
-  symptom of UNDERSAMPLING and the clamp suppresses the artefact instead of
-  fixing the cause** — but removing it trades an artefact for sharpness rather
-  than fixing anything, and nobody has measured the ringing it prevents on THIS
-  data. Owner's call, and it is not to be taken as a free win.
+  0.45% kernel, **at the frame centre where there is no aberration gradient at
+  all**. By this repo's own contract the clamp is itself a bandaid — ringing is a
+  symptom of UNDERSAMPLING — but removing it trades an artefact for sharpness
+  rather than fixing anything, and nobody has measured the ringing it prevents on
+  THIS data. Owner's call, not a free win.
 - **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
-  down-weighting, cropping.
+  down-weighting, cropping. Owner-REFUSED as a category, with Zackay & Ofek 2017
+  making it a measured information loss (`docs/dead-ends.md`).
 
-**THE CEILING IS A NOISE BUDGET, NOT A WALL — MEASURED.** The recoverability
-bound is where the optical transfer function NULLS, since information at a zero
-is destroyed and no regularisation returns it. Scanned on the PSFEx model's own
-corner PSF, 12 radial cuts per position, asking whether the MTF ever RECOVERS
-after its running minimum (an interior null) rather than merely falling at the
-band edge (which every PSF does):
+### The ceiling is a noise budget, not a wall — MEASURED
 
-| position | cuts recovering | max recovery |
-|---|---|---|
-| centre | 0 of 12 | 0.0034 |
-| corner TL | 0 of 12 | 0.0076 |
-| corner BR | 1 of 12 | 0.0223 (model noise) |
+Scanned on the PSFEx model's own corner PSF, 12 radial cuts per position, asking
+whether the MTF ever RECOVERS after its running minimum: **0 of 12 cuts at centre,
+0 of 12 at corner TL, 1 of 12 at corner BR (0.0223, model noise). No in-band OTF
+zero anywhere — the corner is ATTENUATED, not nulled.** Median MTF over azimuth
+runs centre 0.837 / 0.575 / **0.265** / 0.072 against corner TL 0.685 / 0.317 /
+**0.079** / 0.028 at |f| = 0.1 / 0.2 / **0.3** / 0.4 cyc/px, so the corner is ~3×
+down through the mid band and any restoration that flattens it applies ~3× gain
+there. **SCOPE, and it must travel with the number: this is the OTF of the PSFEx
+MODEL, not the true PSF.** The eigen-PSFs are full 25×25 images and CAN represent
+a null, so the polynomial field fit is not the obstacle — but PSFEx fits noisy
+undersampled stars and a sharp null could be smoothed away. It shows no MODELLED
+null; it cannot prove no true null.
 
-**No in-band OTF zero anywhere. The corner is ATTENUATED, not nulled.** Median
-MTF over azimuth — centre 0.837 / 0.575 / **0.265** / 0.072 against corner TL
-0.685 / 0.317 / **0.079** / 0.028 at |f| = 0.1 / 0.2 / **0.3** / 0.4 cyc/px. The
-corner runs **~3× down through the mid band**, so any restoration that flattens
-it applies ~3× gain at 0.3 cyc/px and amplifies noise by the same factor.
-**SCOPE, and it must travel with the number: this is the OTF of the PSFEx MODEL,
-not the true PSF.** The eigen-PSFs are full 25×25 images and CAN represent a
-null, so the polynomial field fit is not the obstacle — but PSFEx fits noisy
-undersampled stars and a sharp null could be smoothed away. The probe shows no
-MODELLED null; it cannot prove no true null.
+### Drizzle
 
-**DRIZZLE ON DEBAYERED INPUT IS REFUSED, and more broadly than the help note
-says — MEASURED, not inferred.** `seqapplyreg -drizzle -pixfrac=1.0
--kernel=square` on a real 6064×4040×3 debayered RGB sequence returns verbatim
-**"This sequence is not mono / CFA, cannot drizzle"** and exits on invalid
-arguments. So the refusal is a SEQUENCE-TYPE check rather than anything
-Bayer-specific, and the architectural blocker stands. One detail recorded without
-a claim attached: the refusal names mono as acceptable, so a green-plane-only
-mono route is not refused by this check — **unprobed, and not asserted to be
-useful.**
+**REFUSED on debayered input, MEASURED not inferred:** `seqapplyreg -drizzle` on a
+real 6064×4040×3 debayered RGB sequence returns verbatim *"This sequence is not
+mono / CFA, cannot drizzle"*. So the refusal is a SEQUENCE-TYPE check rather than
+anything Bayer-specific. **One detail recorded without a claim attached: the
+refusal names mono as acceptable, so a green-plane-only mono route is not refused
+by this check** — and `split_cfa` now provides exactly such a plane with the greens
+identified (`TOOLS.md`). Unprobed, and not asserted to be useful.
 
-**Closes when** the C/A test settles whether a field-constant component exists,
-and the FIX path above either delivers or is measured not to. **The first half is
-now known to need re-scoping before it can be run at all** — the fixed term's
-direction is not constant in ρ, so "a field-constant component" is not the thing
-the current test would measure (see the FIX bullet above and `one-sided-band`).
+**Closes when** an anisotropic treatment is procured and measured, or the owner
+accepts the corner as-is. **The in-chain question is settled: no route on this rig
+recovers corner detail, and the defect is in the photons of single unprocessed
+RAWs.** What remains is a procurement decision and an acceptance decision, both the
+owner's — see `compose-homography-smear` for the DIFFERENT defect that IS caused by
+a chain stage and does have a live candidate route.
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
@@ -982,9 +883,25 @@ ALWAYS.** It was caught only because the null was too clean.
 the untracked drift supplies ideal sub-pixel dither across 500 frames, the
 textbook case. `docs/dead-ends.md` rules drizzle out on TRAILING grounds, but the
 trail here is 1.4–1.9 px, comparable to the PSF rather than a long streak.
-**Re-open with the number, not the category.** **Closes when** the darktable half
-is measured and the shipped total is known, and the drizzle question is decided
-against that number rather than against the category.
+**Re-open with the number, not the category.**
+
+**TWO OF THIS ITEM'S THREE CLOSING CLAUSES HAVE ALREADY FIRED, INSIDE ITS OWN
+BODY, AND NOBODY FIRED THEM** — the same shape as the `guards-and-ci` row that
+outlived its fix by three days. The old condition read *"closes when the darktable
+half is measured and the shipped total is known, and the drizzle question is
+decided"*. **The darktable half IS measured above (5.88%, against a control
+reading exactly 0.00%) and the shipped total IS known (~12%, with quadrature
+verified to −0.35%).** Only the drizzle decision was ever outstanding.
+
+**Closes when** the drizzle question is decided against the measured number rather
+than against the category — i.e. whether ~1.4–1.9 px of trail on a 2.0–2.4 px PSF
+disqualifies a technique whose preconditions (undersampling, sub-pixel dither
+across 500 frames) this corpus otherwise meets textbook-perfectly. **The
+architectural blocker is measured and is not the trail:** `seqapplyreg -drizzle`
+refuses a debayered RGB sequence outright, so it is not one knob on this route.
+`split_cfa` now supplies an un-interpolated mono green plane with the greens
+identified, which is the only path the refusal does not name — unprobed, and not
+asserted to be useful (`corner-fix-landscape`).
 
 ## `star-neutral-colour` — the narrowband gap
 
