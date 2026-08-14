@@ -145,26 +145,65 @@ did, and the closure was in the file it had read.
 
 ## Live threads you inherit
 
-- **The phase is FOUNDATIONAL, owner-stated: *"we are not at the render tier yet —
-  still looking for tightening opportunities, fixes and general foundational
-  improvements."*** `BACKLOG:render-ladder` stays user-gated. Do NOT promote the
-  render tier on a manager's reading that it looks like the biggest open thing —
-  scope the next arm as hardening, not as progress toward an image.
-- **The four absent kstars catalogues are CLOSED as accepted** (user-ratified
-  2026-08-14) — deliberately unused, the only consequence being that a NOMAD
-  lookup reaches a remote service, and nothing in the chain reads them. The
-  measured facts and the remaining hazard shape are in `TOOLS.md`.
-- **`BACKLOG:guards-and-ci`** — nothing runs the guards, and the bit-depth check
-  is per-FILE so a builder passing on one generated `.ssf` passes even if a new
-  emission omits `set32bits`. The mode-664 claim in it was stale and is removed.
-- **`prompts/REPORT.md` is 52 KB and stale**, last touched before the corner arc.
-  It is also structured as "Landed during the X session" narrative, which
-  `CLAUDE.md` forbids for records. **Decide deliberately whether it still earns
-  its place**: the commit-message-as-transcript practice has superseded it in
-  daily use, and a second home for a claim is a second place for it to drift.
-- **The render tier has never run** — zero ratified render blocks. That is a real
-  gap and it is NOT yours to promote; it is the owner's call when the foundation
-  is sound.
+**BACKLOG is 1850 -> 1226 lines** through a triage that removed four closed items
+and compressed four more. **Nothing reusable was lost** — every cut migrated its
+durable content to `docs/dead-ends.md` or `TOOLS.md` first, and dangling slug
+references were grepped to zero each time.
+
+**THE TEAM AND THE TOPOLOGY (owner-set — keep it unless the owner changes it):**
+- **WORKER `astro-imaging-83`** — deepest context. **It ASSIGNS the fresh session
+  and reviews first; the PM still owns WHAT gets worked on and signs off.**
+- **ORACLE `astro-imaging-39`** — external documentation and tool research only,
+  reads everything, alters nothing, produces no number about our data. **It is the
+  CHECKPOINT BETWEEN BATCHES: stop and sync with it after each set of
+  implementations, before the next starts.** Its four deliverables are defined and
+  it will produce them.
+- **A FRESH SESSION** audits and verifies. **It reports to the PM and the worker in
+  PARALLEL, never through the worker** — the worker asked for that itself, on the
+  grounds that if it both frames and reviews, the adversarial gap closes on the
+  side where it has been paying. **Tell it plainly that contradicting the worker is
+  the job.**
+
+**IN FLIGHT RIGHT NOW:** the worker is wiring `frame=` at four pooling sites
+(`constancy_fit:232`, `coherent_trail:428`, `pa_convention` 569/570/1209/1210).
+**The library is fixed and NO CALLER PASSES `frame=` YET** — so every record still
+carries a star bootstrap, honestly named. That distinction is the one a summariser
+drops; do not drop it.
+
+**BATCH 2, agreed with the worker and not started:** (a) the `frame=` wiring above;
+(b) rule-3 compression of the register — **15 rows over 150 words, 18 over 100, of
+34**, against a header that forbids mechanism narrative in a status cell; (c) two
+MISSING register rows — `psf_calib.py` has NO condition AND NO row while THREE rows
+cite its κ (the register's own stated worse case), and `pa_convention.py` has a
+condition and no row. **Verify BEFORE compress** — verification produces the
+information compression consumes.
+
+**THE OPEN DECISION THE ORACLE SCOPED FOR YOU:** re-check the worker's 26
+earlier-verified register rows. Its judgement: not re-litigating, because the
+method genuinely differs — *derive the check's target list from the ARTIFACT, not
+from the author's description*. But the right set is **rows verified before that
+method existed, WHOEVER wrote them** (including the PM's), not the worker's by
+authorship. **Sample SIX, drawn from the artifact side — rows you pick by their
+underlying script without reading the row first — never six the worker nominates.**
+Six yielding a comparable rate to the fresh session's 8-row pass justifies the
+rest; six yielding nothing means the set stands.
+
+**UNCHECKED AND LOAD-BEARING, flagged by the Oracle against itself:** that the
+corner defect and the compose defect are independent. Its whole "compose over
+corner" priority argument rests on it and nobody has attacked it.
+
+**THE LAST THING THIS PM GOT WRONG, because it is the shape you will repeat:** I
+added two shared libraries to `run_guards.sh` on the strength of "the records they
+read are tracked". **`contract_check()` reached `k3.wcs` transitively through a
+call chain — GITIGNORED, absent on a clean checkout — so the pre-push hook briefly
+carried a dependency on an untracked file.** Three sessions reached for that
+question and none traced the actual `open()`/`fits.getheader()` calls; the worker
+did, and fixed it at `8dd3534`. **A visible record read is not the file set. Trace
+the opens.**
+
+**NOT YOURS TO PROMOTE:** the render tier. Owner-stated phase is FOUNDATIONAL —
+*"we are not at the render tier yet, still looking for tightening opportunities,
+fixes and general foundational improvements."*
 
 ## The ORACLE — BUILT, and here is what it actually is
 
