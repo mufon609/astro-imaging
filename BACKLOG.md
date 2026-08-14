@@ -722,18 +722,50 @@ noise reaches 40°, collapsing to 16.35° against the observed 15.8°.
   (1.027° over 1497 s), the ground-frame flow retraction stands, and the
   first-frame anomaly is still in the exposure (θ₀ departs 19.75° while the
   bearing departs 0.150°).
-  **THE OPEN QUESTION IS NOW THE OPPOSING TERM, AND TWO HYPOTHESES ARE DEGENERATE
-  ON THIS CORPUS.** A field-constant spin-2 term of amplitude ~0.096 rules out the
-  radial/coma family by construction. It sits **2.21° from the sensor Y axis** and
-  **2.49° from trail-perpendicular** — the measurement cannot separate them,
-  because this corpus's drift bearing (+4.70°) happens to lie near the sensor X
-  axis. (a) SENSOR-FIXED and axis-aligned — demosaic, readout, an AA filter — would
-  sit at exactly ±90° regardless of pointing. (b) DRIFT-PERPENDICULAR would follow
-  the drift. **The discriminator is a set whose drift bearing in SENSOR
-  coordinates differs materially**, which breaks the alignment; if none exists in
-  this corpus the question needs a camera-roll change and the data is a given.
-  Note (b) would be suspicious on its face — the drift direction is a property of
-  the sky and the mount, not of the lens — so an optical reading requires (a).
+  **THE OPPOSING TERM IS WITHDRAWN — IT WAS NEVER PHYSICAL** (commit `c4b4244`;
+  this manager published it at `525ce3b` and the correction is his). The
+  ~0.096 term "perpendicular to the trail" was **the shortfall between a
+  PREDICTED trail and the smaller one the data actually carries**, and the same
+  over-prediction explains the C discrepancy completely — **one cause, two
+  symptoms**, both of them artefacts of the prediction.
+  **THE REAL DATA CARRIES 0.43× THE GEOMETRICALLY PREDICTED TRAIL**, established
+  from the 2.5 s night alone by three independent lines:
+  - **The decisive one is a distributional impossibility, not a fit.** A coherent
+    1.3555 px² on the trail axis requires EVERY star to carry at least that much
+    there unless its optical part is more than that anti-aligned. **2370 of 8074
+    stars (29.4%) have NEGATIVE projection on that axis**, and an anti-aligned
+    term above 1.3555 px² sits at the **36th percentile** of the |D| distribution
+    — requiring it of 29% of stars contradicts the distribution outright. No
+    threshold, no free parameter, and immune to every basis error this thread has
+    suffered.
+  - **Magnitude:** mean projection on the trail axis **0.5798 px² against a
+    predicted 1.3555 — ratio 0.43**, which in e units is 0.062 against the 0.049
+    the trail-error explanation requires.
+  - **Direction, with the escape hatch closed:** recovering the coherent term
+    WITHOUT assuming any direction gives 0.5869 px² at **+9.16°**, just 4.46° off
+    the measured drift bearing. The term is ON the trail axis and simply 0.43×
+    too small. Mean/median |D| = 1.14, so it is not outlier-driven.
+  **The synthetic fixture is NOT contradicted** — it measured correctly what a
+  PLANTED trail does. The real stars do not carry that trail.
+  **THE OPEN QUESTION, and it is now this item's centre: why does the data carry
+  43% of the geometrically predicted trail when the DRIFT ITSELF is confirmed to
+  2.6%** (1.9064 px/frame measured against 1.9581 predicted)? The sky does move
+  1.66 px during the exposure and the stars do not smear correspondingly.
+  Candidates, none tested and all separable: an effective exposure shorter than
+  nominal; the conversion constant not transferring from a synthetic
+  top-hat⊗Gaussian to the real PSF; `findstar` responding differently to real
+  undersampled stars than to planted ones (testable against the existing fixture).
+  **AND IT PUTS THE ONLY ATTRIBUTED TERM IN THIS THREAD IN QUESTION.** The
+  sky-rate attribution rests on the same conversion, and its coefficient reads
+  **2.548 px² against a predicted 2.266 — ratio 1.124, 0.65σ from unity** where
+  this result says the real trail is **0.43×** predicted. Those are both the real
+  trail against its own geometric prediction, in px², and they differ by 2.6×.
+  Leading reconciliation, UNTESTED: the sky-rate figure is a SLOPE against the
+  field's cos²(dec) variation and the predictor is **99% collinear with sensor
+  y**, so it may be trail plus another y-aligned term rather than the trail's
+  magnitude — in which case the record's existing caveat ("what was tested is its
+  MAGNITUDE, not its direction") is understated rather than merely cautious.
+  **Resolving that needs no new data and gates everything downstream.**
 
 **THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
 (`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
