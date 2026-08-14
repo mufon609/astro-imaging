@@ -1754,6 +1754,33 @@ SILENT — pin the state, never inherit it):
   errors are conservative"*, not *"the errors are right"*. **The rule: a headline
   number must be reproducible from a tracked record by enumeration, and a pairing
   must name the quantity both halves were computed over.**
+- **THE DETECTOR CAN BE RIGHT AND THE DISPLAY THROW THE ANSWER AWAY — a distinct
+  failure from a check pointed at the wrong object, and it reads as a clean
+  negative.** Every other entry in this family is a target list built from a
+  remembered name. This one is not: the search was correct, it MATCHED, and the
+  rendering discarded the evidence. **MEASURED, twice on one claim, at opposite
+  ends of the same length problem.** A route-closing sentence — *"`sip_tpv` IS NOT
+  INSTALLED ON THIS RIG … adopting it needs a manifest row"*, false, gating the
+  SWarp route on the largest measured defect in any shipped product — sat at **byte
+  offset 539 of a 4,640-character table cell**. One sweep of that file's negative
+  claims read the row and never reached it. A second session then grepped for it,
+  **matched it correctly**, piped through `cut -c1-190` for readability, saw only
+  the first 190 characters (about an unrelated canvas result) and reported the
+  sentence did not exist anywhere in the tree — **a confident negative produced by
+  a correct detector**. The claim was 349 characters past the cut.
+  **The two failures are the same defect at both ends: a fact buried past where
+  anyone reads.** 4,640 characters hid it from the sweep; 190 characters hid it
+  from the grep. **So a length limit added for readability is part of the
+  instrument and inherits its verdict** — `grep -c` on the file or `grep -o` on the
+  pattern would both have been right, `grep -n | cut` was not.
+  **THE RULE: never report a NEGATIVE from a truncated view.** A positive survives
+  truncation — you saw the thing. A negative asserts absence over the whole object,
+  and a window cannot support that. Count, or extract the match itself; the
+  cheapest correct forms are `grep -c` and `grep -o`. **Corollary for the records:
+  a claim that cannot be found inside the cell that contains it is already lost —
+  compress so that each claim survives as a separately greppable statement, since
+  the failure here was not length alone but one sentence being unfindable inside
+  another.**
 - **A SECOND SESSION CATCHES ERRORS NOT BY HAVING DIFFERENT EVIDENCE BUT BY
   APPLYING DIFFERENT PRIORS TO THE SAME TREE — and the maker's prior is the one
   that produced the error.** The weaker mechanism is the useful one: it means
