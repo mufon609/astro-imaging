@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# pre-push — run every guard and data-free selftest before anything leaves this
+# machine. Installed by scripts/setup/install_hooks.sh from the tracked source.
+#
+# WHY PRE-PUSH AND NOT PRE-COMMIT. The suite is 16 checks in 13-18 s. On commit
+# that is a tax on every records-only edit, and this repo commits records
+# constantly — a hook people route around is worse than none. On push it fires
+# once per batch, which is the natural boundary: it is the last point at which a
+# broken pin is still local.
+#
+# WHY IT IS UNCONDITIONAL. It would be easy to skip when only docs changed. That
+# is exactly the conditional path the runner exists to catch — `check_bitdepth`
+# and `check_registration_pins` read GENERATED .ssf emissions, and a doc-looking
+# edit to a builder's heredoc is indistinguishable from prose at the path level.
+# Cheap enough that the trade is not worth taking.
+#
+# WHY IT CLOSED A REAL GAP. Five guards existed and NOTHING RAN THEM: before this,
+# `run_guards.sh` was referenced only by README, BACKLOG and itself — a runner
+# invoked by nothing but a human who remembered, which is the defect it was built
+# to fix one level up. Measured cost of that class: a stale row claiming a guard
+# could not execute survived three days AND an audit, because the audit invoked
+# the guards as `bash scripts/…`, which sidesteps the executable bit.
+#
+# BYPASS IS `git push --no-verify`, AND THERE IS ONE LEGITIMATE REASON: one check
+# (starlight_preservation's ESA Gaia control) reaches the network, so the suite
+# fails offline. Bypassing for that is fine. Bypassing because a guard is RED is
+# not — a RED guard means a pin the chain depends on is broken.
+set -euo pipefail
+
+REPO=$(git rev-parse --show-toplevel)
+RUNNER="$REPO/scripts/qa/run_guards.sh"
+
+[[ -x "$RUNNER" ]] || { echo "[pre-push] $RUNNER missing or not executable — refusing to push blind" >&2; exit 1; }
+
+echo "[pre-push] running guards + selftests (16 checks, ~15 s)…"
+if "$RUNNER"; then
+  exit 0
+fi
+
+cat >&2 <<'MSG'
+
+[pre-push] BLOCKED — a guard or selftest FAILED above.
+
+  A RED guard means a pin the chain depends on is broken. Fix it rather than
+  bypassing: these verify WIRING (bit depth, calibration, siril invocation,
+  stack rejection, registration pins), and every one of them exists because the
+  thing it checks was silently wrong once.
+
+  The ONE legitimate bypass is being offline — one check reaches the ESA Gaia
+  archive and cannot pass without network:
+
+      git push --no-verify
+
+MSG
+exit 1
