@@ -1274,8 +1274,32 @@ the constraints any such tool must satisfy):
   the same open question as BACKLOG:`one-sided-band`. Mechanical SAG of an
   extended zoom barrel is also progressive and one-sided. Refraction scales with
   zenith distance and reverses sense between a rising and a setting field; sag
-  does not. The test needs the observing SITE (this corpus's EXIF carries no GPS)
-  or the same middle-pinned build on sets shot at different altitudes.
+  does not. **THE SITE BLOCKER IS GONE — it was a RECORDS gap, not a data gap.**
+  The EXIF still carries no GPS, but the observing site is tracked:
+  `scripts/setup/site.json` (SITELAT **+REDACTED_SITELAT**, SITELONG **−REDACTED_SITELONG**,
+  positive-east), resolved into every acquisition record by
+  `scripts/lib/acquisition.py` with a per-session override and no silent default.
+  Hour angle is therefore derivable and the rising-vs-setting sense test is
+  runnable. **AND THE CORPUS CARRIES BOTH SENSES — MEASURED, not assumed:** over
+  the 23 solved products the signed hour angle spans **−2.35 h to +0.98 h**, i.e.
+  **20 pre-meridian against 3 post-meridian**, so the test is not unrunnable for
+  want of a setting field. **THREE LIMITS TRAVEL WITH THAT, because a blocker
+  replaced by an overstated capability is not an improvement.** (1) The
+  coordinates are OWNER-SUPPLIED and TRANSCRIBED, not derived, and
+  `scripts/setup/verify_site.py` bounds them at the DEGREE level ONLY — it refutes
+  a flipped longitude sign (min altitude **−7.78°**) and a lat/long transposition
+  (**−50.18°**) by putting a photographed target below the horizon, but a
+  transposed digit shifts every altitude by just **0.290° in latitude and 0.068°
+  in longitude** and is undetectable. A transcription error has already happened
+  in this chain once and was caught by a second source, not by re-reading. The
+  derivation that would close it — latitude and LST recovered from field rotation
+  across solved frames — needs per-frame solves and is unbuilt. (2) SITEELEV is
+  still unrecorded, so the derived OBSGEO triple is computed at h = 0 m. (3) The
+  whole corpus sits at **altitude 63.4–87.7°, |HA| ≤ 2.35 h** — the flat end of
+  the refraction curve — so both senses being present does not make the lever
+  large, and how much sense-reversal signal survives at these zenith distances is
+  UNQUANTIFIED. The second disjunct, the same middle-pinned build on sets shot at
+  different altitudes, is unchanged and needs no coordinate at all.
   **What that does and does not license.** It does NOT revive per-set models — a
   per-set model would be wrong for part of its own set. It establishes that the
   OPTICAL-STATE tier can be finer than the SET tier and that a state boundary is
