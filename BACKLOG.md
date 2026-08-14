@@ -95,13 +95,46 @@ band x = 45–70%. That is the smear the owner named.
 
 Ordered work — nothing here is executed on an accepted product:
 
-1. ~~Reference pinning~~ and ~~the SWarp trial~~ are RESOLVED: the compose
-   registers all members in one sweep with the reference setref-pinned
-   (deterministic level anchor), and per-image astrometric resampling is the
-   ADOPTED route (`seqplatesolve` + `seqapplyreg`, each member's own solution
-   and SIP — the SWarp-class operation natively; corpus defect position
-   measures 0.980 roundness, clean-band level). The remaining work below is
-   the OPTICS term, which no registration reaches.
+1. **Reference pinning is RESOLVED** — the compose registers all members in one
+   sweep with the reference setref-pinned (a deterministic level anchor).
+   **THE SWarp TRIAL IS NOT RESOLVED AND WAS NEVER RUN; THIS ITEM SAID IT WAS.**
+   `native-solve-and-sip` recorded SWarp as installed with the comparison OPEN
+   while this line struck it through as settled — two items contradicting each
+   other about the route for the defect the owner can see.
+   **AND THE COMPARISON AS POSED COULD NOT HAVE BEEN RUN, because BOTH candidates
+   discard the per-image distortion — by different mechanisms.** MEASURED
+   (`TOOLS.md`): SWarp has NO SIP reader at all (`A_ORDER`/`B_ORDER`/`AP_ORDER`
+   occur zero times in its 2.41.5 source; a 3-char compare truncates
+   `RA---TAN-SIP` to `TAN`; the distortion gate needs PV terms SIP does not carry,
+   so it applies nothing and warns about nothing) — **confirmed by SWarp itself,
+   which produces an IDENTICAL output canvas and CRVAL to nine decimals from a
+   TAN-SIP header and from one with SIP deleted.** And Siril's `seqapplyreg`
+   applies *"registration data previously computed"*, whose transform classes are
+   `shift | similarity | affine | homography` — there is no per-image-WCS class,
+   which is the same finding as *"Siril's own design assumes ONE optical state per
+   sequence"*. **So `seqplatesolve` + `seqapplyreg` is NOT "the SWarp-class
+   operation natively": Siril discards per-image distortion BY DESIGN, SWarp BY
+   SILENT OMISSION.**
+   **THE ROUTE IS NOW REAL, AND THERE ARE TWO INDEPENDENT WAYS IN — both installed.**
+   SWarp reads **TPV** natively (`fitswcs.c:801`, `:843`), so:
+   (a) **convert our own SIP** — `sip_tpv` 1.1, whose forward direction is a
+   symbolic sympy substitution and NOT a fit, measured exact at **1.118e-11 px max
+   over 3600 points and FLAT in field radius**, against a distortion-stripped
+   positive control at 13.82 px growing to the corner;
+   (b) **produce TPV natively** — **SCAMP 2.10.0**, which writes `PV%d_%d` and
+   carries `TPV` (verified in the built binary), making
+   **SExtractor → SCAMP → SWarp, all speaking TPV, the canonical Astromatic chain**
+   and the documented industry answer to this item.
+   **BEFORE ANY ARM: SWarp's defaults are wrong for this data and silent about it.**
+   `SUBTRACT_BACK=Y` would eat a frame-filling star field; `FSCALASTRO_TYPE FIXED`
+   does not track per-pixel solid angle where our ~30° gnomonic field varies ~10%
+   radially (`VARIABLE` does); `RESAMPLING_TYPE LANCZOS3` exposes **no clamping
+   parameter at all**, a different trade from Siril's measured 6.26% clamp rather
+   than a better one; `COMBINE_TYPE MEDIAN` is not the plain mean the compose
+   doctrine specifies. And the lineage argued from is historical — DES uses SWarp
+   on a previous-decade design, while Rubin/LSST moved to an in-house
+   warp-then-assemble and Roman uses IMCOM, every successor carrying a PSF model
+   through the step.
 2. **Interleaved rather than consecutive groups** — one knob, cheap, collapses the
    within-set pointing spread to ~0. Trades the swept-field mosaic for consistency
    (co-pointed members compose to one member's area) and changes the dwell-floor and
@@ -124,8 +157,11 @@ Ordered work — nothing here is executed on an accepted product:
 
 **What the defect IS, measured.** The softness tracks SENSOR POSITION, not time
 (R² 0.90 against sensor x, **0.05 against elapsed time**), and it sits on the side
-stars drift OUT of — Siril's own homographies give −3.87 px/frame across the sensor,
-and it is the exit edge that smears. At matched distance from the sensor centre that
+stars drift OUT of, and it is the exit edge that smears. **The −3.87 px/frame figure
+once quoted here is REFUTED by this repo's own later measurement — the drift is
+1.9064 px/frame against 1.9581 predicted (2.6%), so 3.87 was out by 2.03× and
+exceeded the physical ceiling** (`docs/dead-ends.md`; the standards doc's H.4
+"arithmetic disagreement" is closed by this, in the repo's favour). At matched distance from the sensor centre that
 side reads **2.86 px / roundness 0.821** against the other's **2.59 / 0.853**.
 Acquisition is clean (identical exposure/ISO/aperture/focal across 500 frames, 3.00 s
 interval, no gap) and refraction is ruled out (72–77° altitude, differential
@@ -289,21 +325,34 @@ What remains is the LADDER around it and the harness it feeds.
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
 
-## `learned-deconvolution` — unmeasured, and the tool is installed
+## `learned-deconvolution` — the tool it named CANNOT run the test
 
-`render_tier.sh` skips deconvolution on three grounds that all hold — classical RL is
-a measured dead end on in-exposure trailing, BlurXTerminator is not installed,
-GraXpert's is the immature path. The fourth was never checked:
-`/opt/cosmicclarity-6.6` ships `SetiAstroCosmicClarity` with
-`deep_nonstellar_sharp_cnn_radius_{1,2,4,8}`, beside the denoiser the tier already
-drives, and the registry explicitly does NOT dead-end a learned deconvolver.
+`render_tier.sh` skips deconvolution on three grounds that all hold: classical RL is
+a measured dead end on in-exposure trailing, BlurXTerminator is not installed, and
+GraXpert's is the immature path. The registry explicitly does NOT dead-end a
+LEARNED deconvolver, so the question is live.
 
-The mainstream runs deconvolution with stars PRESENT, so it goes before the
-separation. **Test:** one knob, non-stellar sharpen on the linear SPCC stack vs none,
-bracketed by a same-arm repeat, judged on `star_stations.py` majFWHM per station +
-`seqtilt` + the user's eyes at 1:1. The hypothesis under test is OBJECT detail — a
-symmetric sharpener cannot de-trail an elongated PSF. Until it runs, the skip is a
-hypothesis and the docstring says so.
+**THE ARM THIS ITEM PROPOSED IS REFUTED BY A MEASUREMENT 500 LINES AWAY, AND THE
+ITEM READ AS READY WORK.** It named `/opt/cosmicclarity-6.6`'s
+`deep_nonstellar_sharp_cnn_radius_{1,2,4,8}` and specified a non-stellar sharpen as
+the test. `TOOLS.md` records, MEASURED on this rig: Cosmic Clarity **is a Qt tool
+that BLOCKS on a modal dialog**, **its CLI arguments are IGNORED**
+(`--sharpening_mode "Stellar Only"` was passed and the dialog showed `Both`), and
+**the non-stellar pass CRASHES on real data** — the exact pass this item specified.
+Verdict there: *"ATTENDED and NOT scriptable"*. `render_tier.sh` is headless, so the
+test cannot run as written. **Two sessions independently read that binary's `--help`
+and reported a headless capability it does not honour; this item is the third
+instance of the same error, still standing.** Mechanism note that survives: the
+model space is `radius_{1,2,4,8}`, a scalar RADIUS — spatially varying but
+**ISOTROPIC**, size only and never ellipticity — so it could not address an
+anisotropic corner term even if it were drivable.
+
+**What survives is the QUESTION, not the arm:** does a learned deconvolver buy
+OBJECT detail? That is distinct from the corner question — a symmetric sharpener
+cannot de-trail an elongated PSF — and it needs a headless CPU-Linux learned
+deconvolver, which is the same procurement gap `corner-fix-landscape` tracks.
+**Closes when** such a tool is procured and one knob is run against it, or the
+question is judged not worth the procurement.
 
 ## `calibration-evidence` — three live threads; the rest is closed and lives in the registry
 
@@ -392,33 +441,22 @@ session-end temperature.
   measured on roundness-0.615 frames; july23 measures 0.80. If Siril's own blind
   solve handles this class, `solve_field.py` gains a native sibling (the external
   route stays for heavily-trailed data). One stack, one probe, record either verdict.
-- ~~**Then Siril-native SIP undistort vs the darktable warp.**~~ **RUN —
-  REFUTED AS INVOKED, and two beliefs corrected on the way.**
-  (a) The precondition is MET for MEMBERS: `seqplatesolve -order=3` solved both
-  aug06 members natively, 388/371 matched stars, residual sigx/sigy ~0.9 px,
-  centres agreeing with astrometry.net to 0.001 deg. The "Siril cannot solve this
-  class" belief was measured on single ULTRA-WIDE TRAILED frames and had widened
-  past its evidence — stacked members have round stars.
-  (b) But `register -disto=` is a SHARED-solution facility, not per-image
-  reprojection: each member undistorted by its OWN SIP then composed measured
-  3.99/6.42/6.19 px against the shipped route's 0.29/0.63/2.10/2.99, and ONE
-  member warped by its own solution disagrees with its own unwarped self by
-  8.50/9.45/6.76 px. The polynomial cancels only when every member shares it —
-  so Siril's own design assumes ONE optical state per sequence.
-  (c) The stated acceptance measures here (`seqtilt` off-axis + drift-axis
-  stations) are both MEASURED BLIND to the star-doubling defect
-  (`docs/dead-ends.md`); the re-run used `member_separation.py`.
-  SUCCESSOR, unmeasured candidate: the industry operation is resampling each
-  exposure onto a COMMON output WCS using its own full solution (CD matrix AND
-  distortion) — SWarp's model, the SDSS/CFHTLS/DES/Pan-STARRS lineage.
-  **SWarp IS NOW INSTALLED** — `/usr/bin/SWarp` 2.41.5, and the binary is
-  `SWarp`, NOT `swarp`: the lowercase name is not on PATH and the shell
-  misdirects to `suckless-tools`, so the obvious probe reports it missing on a
-  rig where it is present. Python `reproject` is still absent. **What is open is
-  no longer availability but the COMPARISON**: does SWarp consume our per-member
-  SIP solutions, and does it beat the adopted `seqplatesolve` + `seqapplyreg`
-  route? (`TOOLS.md` § Research queue.) The route is
-  BACKLOG:`compose-homography-smear`.
+- ~~**Siril-native SIP undistort vs the darktable warp.**~~ **CLOSED — RUN and
+  REFUTED AS INVOKED.** Two beliefs were corrected on the way and both are in
+  `docs/dead-ends.md`: `seqplatesolve -order=3` DOES solve members natively
+  (388/371 matched stars, centres agreeing with astrometry.net to 0.001°), so the
+  "Siril cannot solve this class" belief had widened past its evidence — it was
+  measured on single ULTRA-WIDE TRAILED frames and stacked members have round
+  stars. But `register -disto=` is a SHARED-solution facility: each member
+  undistorted by its OWN SIP then composed measures 3.99/6.42/6.19 px against the
+  shipped route's 0.29/0.63/2.10/2.99. **Siril's own design assumes ONE optical
+  state per sequence.**
+  **THE SUCCESSOR IS NOW RUNNABLE AND IT BELONGS TO
+  BACKLOG:`compose-homography-smear`** — per-image resampling onto a COMMON output
+  WCS using each exposure's full solution, which SWarp does once it is fed a
+  distortion it can read. SWarp 2.41.5, `sip_tpv` 1.1 and SCAMP 2.10.0 are all
+  installed; the two entry paths and SWarp's four wrong-for-this-data defaults are
+  recorded there, not restated here.
 
 ## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
 
@@ -1028,29 +1066,43 @@ nothing in the current chain reads them.
 adds them to `x86_bootstrap.sh` the way Layer B3 adds the Gaia astrometric
 catalogue, or records here that they are deliberately unused.
 
-## `guards-and-ci` — nothing runs the guards
+## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
 
-`check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the
-web session smoke test added to it inherits that, and so does
-`check_registration_pins.sh` (the newest of the family — `-transf=`/`-interp=` pins,
-per COMMAND, with a `--selftest` that falsifies its own rules).
+**`scripts/qa/run_guards.sh` is BUILT and GREEN** — it runs all five guards plus
+every data-free selftest, **16 checks in 13-18 s**, per-check PASS/FAIL, non-zero
+exit if any fails, `--list` for the roster. Documented at `README:444` with its
+limits in the row. **Fire-tested BOTH ways**: breaking the executable bit takes it
+RED at exit 126 while `bash scripts/…` passes blind — reproducing the registered
+trap exactly — and a planted unpinned `set16bits` takes it RED through the
+content path, so it is not only launch failure that propagates.
 
-**The "one guard cannot be run at all" claim is REMOVED — it was true, it was fixed
-at `dd7a13d` (`:100644 100755 1b9ee59 1b9ee59`, a pure mode change with the blob
-untouched), and the row outlived the defect by three days.** All five guards are
-`100755` in the index and all five pass invoked as `./scripts/stack/*.sh`.
-**Keep the lesson, which is about auditing and not about a file mode:** the audit
-that was supposed to catch this ran the guards as `bash scripts/…`, and `bash`
-sidesteps the executable bit entirely, so the check could not have failed the way
-the row described. **A guard invoked in a way that cannot reproduce the recorded
-failure is not a test of the record** — invoke it the way its own record specifies.
+**Invocation is `./scripts/…`, never `bash scripts/…`, and that is load-bearing
+rather than style:** `bash` sidesteps the executable bit, which is why an audit once
+reported five passes while a guard was non-executable and the row describing it
+outlived its fix by three days.
 
-Also open: the bit-depth check is
-per-FILE, so a builder that already emits `set32bits` in one generated `.ssf` passes
-even if a newly added emission omits it — per-block granularity needs the
-printf/heredoc blocks split on the `> "$X.ssf"` boundary every builder here uses.
-Deferred deliberately: a fragile parser is worse than a stated limit, and the limit is
-printed in the guard's own OK line.
+**STATED LIMITS, carried in the runner's own GREEN output so it cannot imply
+coverage it lacks:** these guards verify WIRING, never OUTPUT. `check_bitdepth` is
+per-FILE and static, so a builder already emitting `set32bits` in one generated
+`.ssf` passes even if a newly added emission omits the pin. One check reaches the
+network (the ESA Gaia control) and is labelled `[network]` and run unconditionally —
+**no `--skip` flag on purpose**, since a conditional path nobody exercises is the
+defect class the runner exists to catch. Four checks are excluded with reasons
+rather than dropped silently: `member_separation --selftest` (needs a live seq-dir),
+`object_tilt_null.sh` (real corpus data), `x86_bootstrap.sh --selftest-gaia`
+(downloads the catalogue), and the per-DATASET `corner_work/*.py` instruments.
+
+**AND THE ROSTER'S OWN CONSTRUCTION IS A KNOWN LIMIT, recorded in its docstring:**
+it was built from `grep -rln selftest`, so a selftest exposed under a
+non-matching flag is **silently absent rather than reported missing** —
+`--selftest-gaia` is the proof the naming is not uniform. The only mitigation that
+works is procedural: add the CHECKS row in the same commit as the selftest, since
+nothing detects a check that was never added.
+
+**REMAINS OPEN, deliberately deferred:** the bit-depth check's per-FILE granularity.
+Per-block would need the printf/heredoc blocks split on the `> "$X.ssf"` boundary
+every builder uses, and a fragile parser is worse than a stated limit. **Closes
+when** that granularity is worth the parser, or the limit is accepted permanently.
 
 ## `lunar-ladder` — lunar lucky imaging: x86 ladder + next capture remain
 
