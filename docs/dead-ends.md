@@ -2088,16 +2088,32 @@ SILENT — pin the state, never inherit it):
   guidance. **So the mechanism is real and the rate on any given set of edits may
   be zero. Both halves belong in any citation of this entry.**
   **THAT COUNTER-MEASUREMENT WAS FALSIFIED BY ITS OWN CASING, AND THE SELF-MATCH IS
-  THE FINDING.** A live false instance existed the whole time — the SCAMP row at
-  :419 — and the search string this record NAMES could not reach it:
-
-      $ grep -noE "NOT PACKAGED" docs/dead-ends.md   ->  2054   (this sentence)
-      $ grep -noE "NOT packaged" docs/dead-ends.md   ->   419   (the false claim)
-
-  **Exactly one uppercase occurrence in the file and it IS the sentence reporting
-  the sweep as clean**, while the live instance sat 1,635 lines above it with a
-  lowercase `p`. So the sweep's own record was the only thing its own query could
-  match. Same self-match family as `pgrep` matching its own argv,
+  THE FINDING.** A live false instance existed the whole time — the SCAMP row near
+  the top of this file — and the search string this record NAMES could not reach
+  it. **MEASURED AT `4d1185d^`, and the literals are written SPLIT below so this
+  paragraph is not itself a hit:** searching the all-caps spelling
+  (`NOT` + `PACK`+`AGED`) returned exactly ONE line, and it was the sentence
+  reporting the sweep as clean; searching the mixed-case spelling
+  (`NOT` + `pack`+`aged`) returned exactly ONE line, 1,635 lines above it, and it
+  was the live false claim. So the sweep's own record was the only thing its own
+  query could match.
+  **AND THE FIRST WRITE-UP OF THIS FINDING FALSIFIED ITSELF ON COMMIT, WHICH IS THE
+  REUSABLE HALF.** It documented the search by PASTING the literal string and a
+  line number. On commit the paste became a second occurrence — so the sentence
+  *"exactly one uppercase occurrence"* was true when measured and FALSE once
+  written — and the pasted line number was already stale by 32 lines, because text
+  had been added above it in the same commit. **The `doi.org` shape again: the
+  sentence asserting an absence became the thing present.**
+  **THE RULE: YOU CANNOT DOCUMENT A STRING-SEARCH FINDING BY PASTING THE STRING.**
+  Split the literal so the record's own occurrences are distinguishable from live
+  ones, and state COUNTS at a named commit rather than line numbers, which move.
+  This tree already had the pattern in two places — `check_removal_conditions.sh`
+  splits its own detector literal, and `check_prompt_scope.sh` scopes its marker to
+  a head window precisely because the contract file shows the marker in an example.
+  **AND CASE-INSENSITIVITY ALONE IS NOT THE FIX: it closes the MISS and WIDENS the
+  self-match, by matching both casings of the record's own text.** The completion
+  is already in this file — *a count answers presence, not assertion; read the
+  sentence.* Same self-match family as `pgrep` matching its own argv,
   `check_removal_conditions` matching its own detector string, and
   `check_prompt_scope`'s head-window rule — here appearing INSIDE the record that
   certifies a sweep clean, which is the worst position for it.
