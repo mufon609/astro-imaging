@@ -193,6 +193,19 @@ def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813, frame=None):
     ESTIMATED FROM N FRAMES HAS N INDEPENDENT REALISATIONS; RESAMPLING STARS
     INSIDE A POOL IS NOT AN ERROR BAR FOR IT.
 
+    READ THE 1.1 AGAINST ITS OWN NULL, WHICH IS NOT 1. A reduced statistic built
+    on an SE estimated from nf frames has ν = nf − 1 dof, so its reference is
+    F(1, ν) and E[F(1,ν)] = ν/(ν−2): 3.00 at ν=3, 2.00 at ν=4, 1.11 at ν=20,
+    1.05 at ν=39. So chi2/dof ≈ 1.1 on 5 frames sits BELOW its null of 2, not on
+    a null of 1 — consistent with the frame-based errors being conservative,
+    NOT with "the model fits and the errors are right". ν is per BIN, not per
+    record: one record here spans ν=3 to ν=39, so quote dof beside the number.
+    The 35.6 is untouched by this — it is the artefact the correction retired.
+    STATUS of that 35.6's own reference distribution: UNCHECKED — it is a
+    bootstrap-error statistic and nobody has tested which distribution it
+    should be read against.
+
+
     The defect this signature exists to prevent was measured in the very file
     that discovered the 5.76x: `constancy_fit.py` wrote the key `se_C1` from a
     correct frame-based scatter at one site and from `se_bootstrap` at another,
@@ -316,13 +329,32 @@ def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813, frame=None):
     a = np.array(per, dtype=float)
     nf = a.shape[0]
     sem = a.std(axis=0, ddof=1) / np.sqrt(nf)     # SE of the mean over frames
+    nu = nf - 1
     out.update({
         "n_frames_fitted": int(nf),
+        "dof_frame_based": int(nu),
         "fixed_amplitude_se_frame_based": float(sem[3]),
-        "fixed_amplitude_SE_units_frame_based": float(F / sem[3]) if sem[3] else None,
+        # NAMED `_t_` AND NOT `_SE_units_`: this ratio is a STUDENT-t on nu dof,
+        # not a Gaussian sigma, and "SE_units" invites exactly the wrong read.
+        "fixed_amplitude_t_frame_based": float(F / sem[3]) if sem[3] else None,
         "fixed_direction_se_deg_frame_based": float(sem[4]),
         "radial_se_frame_based": float(sem[2]),
-        "radial_SE_units_frame_based": float(abs(R) / sem[2]) if sem[2] else None,
+        "radial_t_frame_based": float(abs(R) / sem[2]) if sem[2] else None,
+        "frame_based_reference_distribution": {
+            "dof": int(nu),
+            "statistic": "Student-t on nu = n_frames_fitted - 1; its SQUARE is "
+                         "F(1, nu), not chi2_1",
+            "null_expectation_of_reduced_statistic":
+                (float(nu / (nu - 2)) if nu > 2 else None),
+            "_formula": "E[F(1,nu)] = nu/(nu-2) — NOT 1. Undefined for nu <= 2; "
+                        "the VARIANCE is undefined for nu <= 4, so a bare sigma "
+                        "on this quantity is undefined rather than approximate "
+                        "there. Read every *_t_frame_based against THIS call's "
+                        "own dof, not against a remembered value: dof is a "
+                        "property of the bin, and one record here spans nu = 3 "
+                        "to nu = 39.",
+            "sigma_equivalent_is_meaningful": bool(nu > 4),
+        },
         "error_model": "star_bootstrap+frame_based",
         "se_ratio_frame_over_bootstrap": {
             "fixed_amplitude": float(sem[3] / F_se_boot) if F_se_boot else None,

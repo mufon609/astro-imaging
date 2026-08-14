@@ -185,12 +185,13 @@ def fit_field(x, y, e1, e2, label, nboot=300, frame=None):
             # 872cd9b, one layer further out. The selftest below caught this second
             # layer before the fix was believed.
             **({"n_frames_fitted": flat["n_frames_fitted"],
-                "fixed_amplitude_SE_units_frame_based":
-                    flat["fixed_amplitude_SE_units_frame_based"],
-                "radial_flat_SE_units_frame_based":
-                    flat["radial_SE_units_frame_based"],
-                "radial_rho_SE_units_frame_based":
-                    grow["radial_SE_units_frame_based"],
+                  "dof_frame_based": flat["dof_frame_based"],
+                "fixed_amplitude_t_frame_based":
+                    flat["fixed_amplitude_t_frame_based"],
+                "radial_flat_t_frame_based":
+                    flat["radial_t_frame_based"],
+                "radial_rho_t_frame_based":
+                    grow["radial_t_frame_based"],
                 "se_ratio_frame_over_bootstrap":
                     flat["se_ratio_frame_over_bootstrap"]}
                if "n_frames_fitted" in flat else {}),

@@ -167,6 +167,18 @@ def run_bins_perframe(frames, T1f, T2f, mode, n=5, drop=()):
     bootstrap makes chi2/dof 35.6 where the frame-based error makes it ~1.1, i.e.
     it turns "cannot reject" into a spurious rejection. Independent realisations
     are the only honest error bar for a per-bin property.
+
+    READ THE 1.1 AGAINST ITS OWN NULL, WHICH IS NOT 1. A reduced statistic built
+    on an SE estimated from nf frames has ν = nf − 1 dof, so its reference is
+    F(1, ν) and E[F(1,ν)] = ν/(ν−2): 3.00 at ν=3, 2.00 at ν=4, 1.11 at ν=20,
+    1.05 at ν=39. So chi2/dof ≈ 1.1 on 5 frames sits BELOW its null of 2, not on
+    a null of 1 — consistent with the frame-based errors being conservative,
+    NOT with "the model fits and the errors are right". ν is per BIN, not per
+    record: one record here spans ν=3 to ν=39, so quote dof beside the number.
+    The 35.6 is untouched by this — it is the artefact the correction retired.
+    STATUS of that 35.6's own reference distribution: UNCHECKED — it is a
+    bootstrap-error statistic and nobody has tested which distribution it
+    should be read against.
     """
     allrho = np.concatenate([f["rho"] for f in frames])
     e = bin_edges(allrho, n, mode)
