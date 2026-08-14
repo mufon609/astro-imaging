@@ -1800,20 +1800,30 @@ SILENT — pin the state, never inherit it):
   defines the environment as — mentioned it, `psfex`, `scamp` and `source-extractor`
   ZERO times each. The omission was not a design choice; that script already runs
   `sudo apt install` 23 times, so root is not the reason.
-  **THAT INSTANCE IS CLOSED AND THE CLASS IS NOT — read it as the class, because the
-  founding anecdote dissolved under re-measurement.** `install_astromatic.sh` is now
-  invoked three times (`x86_bootstrap.sh` `--root-cmds`, `--go`, `--manifest`), so
-  the sentence above is history. **The class's live instance is `install_hooks.sh`,
-  and it is worse: that one omitted a TOOL, this omits two GATES.** MEASURED — the
-  bootstrap matches `install_hooks|hooks/|pre-push|core.hooksPath` ZERO times, and
-  the only pointer anywhere outside the hook machinery itself is a session ROLE
-  file, a document rewritten at every handoff. `.git/hooks/` is never tracked, so a
-  fresh clone gets neither `pre-push` (the guard runner gates nothing) nor
-  `prepare-commit-msg` (the staged-numstat stamp does not exist) — **the two
-  mechanisms built to close "nothing runs the guards" and to stop paraphrased
-  counts, absent on exactly the machine that has never been told to install them.**
-  The installer's own header cites *"a fact that is not reproducible from tracked
-  files is the bug"*; it is itself unreachable from the reproducibility path.
+  **BOTH INSTANCES OF THIS CLASS ARE NOW CLOSED, AND THE SPEED OF THAT IS THE
+  DURABLE PART — read what follows as a CLASS with two historical examples, never
+  as a live defect list.** `install_astromatic.sh` is invoked three times
+  (`x86_bootstrap.sh` `--root-cmds`, `--go`, `--manifest`), so the paragraph above
+  is history. The second example was **`install_hooks.sh`**, and it was worse: the
+  first omitted a TOOL, that one omitted two GATES. MEASURED while it stood — the
+  bootstrap matched `install_hooks|hooks/|pre-push|core.hooksPath` ZERO times, the
+  only pointer outside the hook machinery was a session ROLE file (a document
+  rewritten at every handoff), and since `.git/hooks/` is never tracked a fresh
+  clone got neither `pre-push` (the guard runner gated nothing) nor
+  `prepare-commit-msg` (no staged-numstat stamp) — the two mechanisms built to
+  close *"nothing runs the guards"* and to stop paraphrased counts, absent on
+  exactly the machine never told to install them. **CLOSED: the bootstrap now runs
+  `install_hooks.sh` as Layer 0, ahead of every other layer, and `--check` reports
+  both hooks ok at exit 0.**
+  **WHAT SURVIVES BOTH CLOSURES, and it is the reason the entry is kept rather than
+  deleted: each example was written into this registry and made FALSE BY THIS
+  TEAM'S OWN WORK within about an hour — twice, in one file, once by the session
+  auditing for that very class.** A `last checked` date cannot catch that, and
+  neither can re-reading; only re-executing the claim against committed HEAD can.
+  **So a delivery-gap finding is perishable by construction: state the commit it
+  was measured at, and re-measure before citing it.** The general test is unchanged
+  and does not perish — a recommendation is discharged only when a CLONE reaches
+  it, never by the thing being present on this rig.
   **Discharge test for any
   install recommendation, and it is `CLAUDE.md`'s existing standard rather than a
   new rule: a recommendation is discharged only when a CLONE reaches it, never by
