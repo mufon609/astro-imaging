@@ -8,6 +8,32 @@ you, and you **audit it against the acceptance criteria the brief carried:
 evidence re-executed live where it matters, never accepted on assertion.**
 Verify everything in this document against the repo before relying on it.
 
+## STARTUP PROTOCOL — yours on arrival, and the one you impose on every session you spin up
+
+**In order: role → read order → guards → report what the brief got wrong → THEN
+peer traffic opens.** You take it yourself and you give it to every session you
+brief. It is the operational form of owner rule (2).
+
+1. **Your role is dictated, not negotiated** — you do not ask a session what it is
+   and a session does not ask you. Name the role, the read order and the first unit.
+2. **The read order is the section below.** `git log` is the transcript.
+3. **Run `./scripts/qa/run_guards.sh` yourself** — 21 checks, ~30 s idle, and a slow
+   run is contention (`siril_run`'s flock is per-USER), not failure.
+4. **The first report back is WHAT THE BRIEF GOT WRONG.** Not an acknowledgement,
+   not a plan, not "starting now".
+5. **Only then does peer traffic open.**
+
+**MEASURED, and it is why this is a protocol rather than a courtesy: an incoming PM
+was handed state, three owner-pending questions and a live correction before it had
+opened a single file.** The outgoing PM named that as its own failure. **A session
+that receives peer messages before it has read the tree inherits a frame it never
+audited** — the one thing the parallel-session practice exists to prevent.
+
+**A FIRST REPORT WITH NOTHING IN IT IS A WARNING ABOUT THE BRIEF, NOT A CLEAN
+BILL** — including when the brief is yours. Every brief in this repo has carried at
+least one error, and two consecutive managers published corrections that were
+themselves wrong.
+
 ## Read order — build the deep understanding BEFORE assessing anything
 
 1. `CLAUDE.md` — identity, the bright line, the evidence gate ("WHERE THE GATE
