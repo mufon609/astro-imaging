@@ -46,6 +46,8 @@ dataset, and says so.
 | `compose_preflight.py` + the compose's astrometric post-assert (`run_undistort_compose.sh`) | siril itself refuses to register a sequence whose members carry no usable solution, or the chain has no star-pair path left to fall back to | 2026-08-10 | **not fired — and it fires on today's corpus.** The union's own members (`groups_set-0*_pinned/sub_*.fit`) carry NO WCS, so the guard refuses them at exit 3. Grounds: `seqplatesolve` needs every member solved with SIP order >= 2 and siril reports NOTHING when they are not — it registers what it can and exports a finished-looking product. Measured cost of the silent fallback: roundness 0.458 against 0.974 on the 28-member union. Both halves are live-tested — refusal (exit 3) on unsolved members, acceptance plus "astrometric registration + per-member undistortion CONFIRMED" on solved ones, and `--selftest` falsifies the header checks |
 | `solve_field.py` hint-contradiction gate (position > 2x the hint radius, scale outside +-20% of the header nominal; exit 9) | the solver itself refuses a solution that contradicts a supplied position/size hint — today the `astrometry` engine takes hints as search guidance only, and the blind fallback discards them entirely, so a hinted attempt that fails is followed by an unconstrained one whose answer nothing compares back | 2026-08-11 | **not fired, and it FIRES on the one measured false solve.** MEASURED: the corpus union's hinted attempt failed on a seam-contaminated framing=max canvas and the blind fallback shipped RA 6.03 Dec -65.10 at 12.96"/px, logodds 22.3 — against the product's own header pointing RA 309.77 Dec +41.70 (siril's WCS field centre, inherited from the already-solved members, so independent of this solve) and a 17"/px family. Nothing downstream could catch it: siril SPCC ran to COMPLETION on that WCS and produced plausible K factors (R 1.000 G 0.592 B 0.817, 1790/5153 stars kept). Thresholds are budgeted from mechanism, not fitted — integer-mm EXIF focal, XPIXSZ rounding, infinity-vs-marked focal and the TAN centre-to-corner ratio (1.066 at 28.6 deg) sum under 10%, doubled to 20%. Replayed over all 69 recorded solves: 1 refusal (the known-false one, on BOTH legs — 115.4 deg out and 0.740x) and 68 clean, real solves spanning 0.969-0.976 of nominal at logodds 103-574. SCOPE LIMIT: 53 of the 68 are per-member sub-stacks whose headers carry FOCALLEN/XPIXSZ but no RA/DEC, so only the scale leg and the logodds warning are live there |
 | `route.py` `DRIFT_FRAC_MIN = 0.05` — the route key's floor | a MEASURED knee exists: an undistort-vs-homography A/B on this mechanism at two drift fractions below 0.25, closing where the removable term drops under the route's own irreducible residual (0.25 px off-axis aberration at full depth). The key itself (sky excursion / field) is mechanism-derived and does not retire with the floor | 2026-08-12 | **not fired — and the floor is EVIDENCE, not a knee.** No knee has ever been measured; the residual is monotonic in drift ("scales with TIME SPAN, not frame count"). 0.05 is the smallest excursion at which the term is measured present — the 9-min/~310 px window arm, `drift_frac` 0.051, whole-frame majFWHM 3.87 px against the full span's 4.74 px at 0.247. The corpus's 12 real sets measure 0.083–0.201, nearest 1.66x the floor, so nothing sits near it. The key UNDER-COUNTS twice (the `-framing=min` trim runs 1.16–1.29x the pure translation; a probe windowed inside the longest continuous run drops the re-aim excursion), which is why the floor sits at the bottom of the measured range rather than inside it. Fire-tested: flipping the constant moves all five consumers together and back (a same-length edit needs `__pycache__` cleared or importers read stale bytecode and the test reports a false "did not move") |
+| `coherent_trail.py` in-house spin-2 coherent-anisotropy estimator + per-ρ-bin joint fit | Siril (or any tool in `TOOLS.md`) reports a coherent spin-2 moment over a star list, or the trail question it serves closes | 2026-08-13 | **not fired** — probed: `findstar` reports per-star major/minor/PA and nothing aggregate; no siril command reports a coherent moment. Every star, every PA and the CONVERSION constant are Siril's (the constant is `psf_calib.json`'s FITTED 0.49375, measured by pushing planted trails through the same `findstar` call — **not** the analytic identity 0.46209, which understates the prediction by 6.41%); in-house is only the spin-2 bookkeeping, the cut ladder and the least-squares fit. Reads no pixel. REPORTS ONLY, exits 0. **Built because the composition was MISSING while its components survived** — the estimator behind this thread's central number existed only as inline code in a lost transcript. Gated on reproducing recorded numbers before producing new ones, and it does: Gate 1A nine numbers on `psf_work/f{1,2,3}.lst` (coherent magnitude 0.586908 = 0.5869, axis 9.1573 = 9.16, projection 0.579819 = 0.5798, frac-negative 0.29329 = 0.294 …); Gate 1B the full cut ladder AND all five per-raw values at once (0.4615/0.7573/0.8026/0.7951/0.8154, ladder 0.7264/0.7276/0.7251/0.7131); Gate 2 the planted control in `--selftest` (n 2735 = 2735, projection 1.3403 = 1.3403, axis 4.9034 = 4.9). **The fixture failed twice before it passed, both times in the FLATTERING direction:** the planted sites are in ARRAY order where `findstar` reports FITS order, so as-is matching recovered 85 of 2765 as chance coincidences and read the REAL population as planted (exact relation, measured: x+0.5, (H−0.5)−y, median residual 0.000 px both axes; the selftest now asserts the unflipped match must FAIL); and `injected2`/`sites2` is the representative frame while the lower-numbered pair is the discarded first-frame anomaly, pinned by a check that it still reads its −29.3° axis |
+| `zero_point.py` in-house ZP arithmetic (`MAG_VT − m_inst` and its median/flatness fit) | an absolute throughput calibration for this camera+lens exists on the rig, **or** the corpus gains two nominal exposures on one night through the same optics | 2026-08-13 | **not fired, and the item it serves is CLOSED as UNDERPOWERED** (`photometric-exposure-test`). astrometry.net does the solve, the field↔catalogue MATCH and supplies the catalogue magnitude itself — `solve-field --tag-all` propagates the Tycho-2 index's `MAG_VT` tag-along into the `.corr` table, so there is **no in-house catalogue reader and no cross-matcher**; in-house is only the subtraction, the median and the flatness fit. Reads no deliverable pixel (the one pixel read is a DIAGNOSTIC on the FITS data range, explicitly outside the bright line). **VERIFIED not assumed, and it is what makes the result valid:** Siril `findstar`'s `mag` is a TOTAL-flux magnitude, −2.5log10(A·2π·sx·sy), offset −0.0001 with MAD 0.0027 — a peak magnitude would have been wrong by 1.76 mag, three times the signal, and nothing in the column name says which it is. `--selftest` carries a fixture that CAN fail, including the check that a planted 0.57 mag deficit moves the ZP by 0.57 |
 | `anomaly_audit.py` in-house streak kernel | a tool detects/classifies transient streaks | 2026-08-05 | **not fired** — probed siril 1.4.4's own command list: `cosme`/`find_cosme`/`find_hot`/`seqfind_cosme` are cold/hot PIXEL defect correction; no streak, trail, satellite or Hough command exists. Standing check: an extreme-elongation QA flag ADJACENT to an audited crossing is the same object until shown otherwise |
 | `star_shape.py` two-frame duplication | Siril exposes a headless single-image tilt | 2026-08-05 | **not fired** — `tilt` IS listed by `help` but REFUSES in a script ("This command cannot be used in a script: tilt", probed on-rig). Siril cannot sequence one frame, so the duplication stands. A `help` listing is not evidence of scriptability |
 | `star_stations.py` fixed-station `findstar` medians | a tool reports a headless LOCAL star-shape map | 2026-08-05 | **not fired** — `inspector` (the aberration-inspector grid, the closest native thing) also refuses in a script, probed the same way; `seqtilt` is centre-vs-corners and blind to the drift-aligned band this exists for |
@@ -963,6 +965,62 @@ negative R values are inner annuli at 0.1–1.5 SE). So the coma reading stands 
 UNRESOLVED-but-consistent, not retired. **Standing rule from this: state which
 quantity's exponent you are quoting, every time.**
 
+## `photometric-exposure-test` — CLOSED as UNDERPOWERED, and the degeneracy is structural
+
+**The question:** the raws carry ~0.35× the geometrically predicted coherent
+trail; one surviving explanation is an EFFECTIVE EXPOSURE shorter than nominal.
+Flux is linear in time, so that predicts a photometric zero-point deficit of
+**0.570 ± 0.012 mag** (`coherent_trail.py`'s pinned inner-three bins;
+t_eff/t_nom = √0.3502 = 0.5918).
+
+**MEASURED, and the measurement is not the problem** — 37 Tycho-2 stars on one
+aug06/set-01 RAW, none tool-flagged saturated
+(`datasets/aug06/corner_work/phot_work/zero_point.json`):
+
+| | |
+|---|---|
+| **ZP (V_T > 4.5, n = 33)** | **16.754, sem 0.015, MAD 0.060** |
+
+**VERDICT: UNDERPOWERED — and for a STRUCTURAL reason, not for want of
+precision.** Measured flux constrains the PRODUCT (throughput × t_eff), and no
+single-epoch photometry separates the factors: a zero point is *defined* as
+whatever reconciles instrumental with catalogue magnitudes, so it absorbs gain,
+aperture, transmission, extinction and exposure in one number. Testing 0.570 mag
+needs an independent throughput prediction to better than 0.25 mag:
+
+| term | mag |
+|---|---|
+| photon flux normalisation N(V=0) | 0.02 |
+| aperture: marked f/4 vs true T-stop | 0.15 |
+| **QE × transmission integral, Bayer green vs V_T (response curve unpublished)** | **0.35** |
+| gain e⁻/ADU at ISO 1600, unmeasured on this rig | 0.30 |
+| V_T → instrument band colour term (no B_T in the index) | 0.10 |
+| quadrature | 0.50 (0.42 with gain measured) |
+
+**The QE-integral term ALONE exceeds the threshold**, so the verdict does not
+depend on the other estimates. The ZP is measured **33× better** than the
+quantity it must be differenced against — more photometry cannot help.
+
+**ONE BLOCKER WITH TWO FACES, and recording it as one is what stops a third arm
+being scoped into it.** The lever that would break the degeneracy is *two nominal
+exposures on one night through the same optics*. The C/A exposure arm terminated
+on exactly that missing lever, reached from a completely different direction (a
+spin-2 ratio test, not a photometric bound). Exposure and night are perfectly
+aliased in this corpus, and that does not merely block those two tests — **it
+blocks the QUESTION**.
+
+**THE SURVIVING DELIVERABLE, which did not exist before and is reusable:**
+**ZP_V_T = 16.754 ± 0.015** for NIKON Z6_3 + NIKKOR Z 24-70/4 S at 70 mm, f/4,
+ISO 1600, 2.5 s, single debayered UNCALIBRATED raw, green layer, alt 73.8°
+(X = 1.0413). **Read the ADU scale with it:** the FITS is uint16/BZERO 32768
+holding a **×4-scaled 14-bit** frame — this frame's green plane runs 969–22845
+about a median of 1047, so the brightest pixel is ~35% of full well and nothing
+in it is hardware-saturated. Do not re-derive full well from the raw integers.
+
+**Closes when** either removal condition on `zero_point.py` fires: an absolute
+throughput calibration for this camera+lens exists on the rig, or the corpus
+gains two nominal exposures on one night through the same optics.
+
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
 Two independent traps, both MEASURED, both of which have already misled a session
@@ -1078,6 +1136,17 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
   constant across the six sets the misalignment is fixed, |C| is the amplitude of
   the globally-correctable component and its direction is the PSF to build.
+  **AND THE GATE MAY BE UNSATISFIABLE AS WRITTEN — C IS NOT ONE QUANTITY.**
+  Measured per ρ bin, the fixed term's DIRECTION runs 22° across the field at
+  10–20σ (`one-sided-band`, which carries the numbers — not restated here).
+  This bullet defines C as *the field-constant spin-2 term*, so if there is no
+  single such term, C/A is not well defined and "does C/A hold across sets"
+  cannot be asked in that form. **What survives is the weaker, still-useful
+  question:** whether a genuinely uniform component exists at all, which is the
+  ρ→0 limit of that fit rather than a whole-field average — the bins read
+  +0.04° at ρ 0.005–0.247 and diverge outward, so the inner bin is the only
+  place C is even approximately defined. Re-scope before running, and do not
+  read a whole-field |C| as the amplitude of a correctable component.
 - **~~FIX, PARTIAL — Cosmic Clarity~~ WITHDRAWN. NOT A HEADLESS CANDIDATE, and
   the tree already said so.** Both the Oracle and this manager reported it as an
   installed CPU headless partial fix after reading `--help`. **`TOOLS.md`'s
@@ -1179,7 +1248,10 @@ mono route is not refused by this check — **unprobed, and not asserted to be
 useful.**
 
 **Closes when** the C/A test settles whether a field-constant component exists,
-and the FIX path above either delivers or is measured not to.
+and the FIX path above either delivers or is measured not to. **The first half is
+now known to need re-scoping before it can be run at all** — the fixed term's
+direction is not constant in ρ, so "a field-constant component" is not the thing
+the current test would measure (see the FIX bullet above and `one-sided-band`).
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
