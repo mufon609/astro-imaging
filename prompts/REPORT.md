@@ -21,6 +21,22 @@ not retire, and it is run on demand rather than scheduled here.
 per engagement, not items — the four-session team is OPTIONAL and specified in
 `PROJECT_MANAGER_PROMPT.md`.
 
+## UNCHECKED — a genuine convergence premise, logged not discharged
+
+**"A size ceiling on role docs reduces the dilution it was built to prevent."**
+Named by the Oracle as one falsifiable sentence, which is the form the tripwire
+requires. All three seats have been reasoning INSIDE this premise since
+`prompts/README.md` landed: the file self-flags the mechanism DOCTRINE (Diátaxis),
+not measured, and concedes the ceiling measures a CORRELATE and not the defect.
+Its own hole (c) is a counterexample in principle — a 290-line role doc with its
+remit at line 250 is exactly the failure and is GREEN.
+**This is the first entry here that is a real convergence rather than a
+replication.** Two sessions independently running `wc` and getting the same bytes
+is confirmation by instrument; this is three parties sharing an untested frame.
+It does NOT go to the PM's audit-by-re-execution, which cannot reach a premise the
+brief rests on because the PM wrote both. Routes: the owner, a tool measurement,
+or the adversary.
+
 ## Waiting on the owner — THREE ARE LIVE. Build nothing on them
 
 Re-homed here from the PM prompt, which is where they were recorded and which is

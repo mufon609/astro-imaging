@@ -49,7 +49,7 @@
 #   ORACLE_TEMPLATE.md            245 lines  13,936 B   passes
 #   ORACLE_TEMPLATE.md @42e1f1e   565 lines  34,962 B   RED on both axes
 #   PROJECT_MANAGER_PROMPT.md @deb4ef8  668 lines  45,494 B   RED on both axes
-# 22% headroom in lines over the largest live role doc, 44% in bytes. And it fires
+# 22% headroom in lines over the largest live role doc, 43% in bytes. And it fires
 # where it should have: the Oracle's FIRST accretion commit that day took it
 # 233 -> 362, which 300 catches.
 #

@@ -138,7 +138,7 @@ The byte ceiling is the backstop. Both are proxies; see the limits below.
 | `ORACLE_TEMPLATE.md` @ `42e1f1e` | **565** | **34,962** | **RED on both axes** |
 | `PROJECT_MANAGER_PROMPT.md` @ `deb4ef8` | **668** | **45,494** | **RED on both axes** |
 
-22% headroom in lines over the largest live role doc, 44% in bytes. And it fires
+22% headroom in lines over the largest live role doc, 43% in bytes. And it fires
 where it should have: the Oracle's **first** accretion commit of that day took it
 233 → 362, which 300 catches. The PM entered the day at 419 — already over, and it
 was cut to 213 for exactly that reason.
