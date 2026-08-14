@@ -946,16 +946,48 @@ realisations the frame-to-frame scatter is **4.1–9.2× the bootstrap SE, media
 thread: *a per-bin property estimated from N frames has N independent
 realisations; resampling stars inside a pool is not an error bar for it.*
 
-**WHAT SURVIVES, WITH ITS CONDITION STATED — the rotation is real at χ² 74.6 on
-4 dof, but ONLY WITH DSC_6239 EXCLUDED.** With all five frames in, **nothing
-rejects** (axis χ² 3.0/4). DSC_6239's per-bin axes run −35.9 / −44.5 / −40.2 /
-−30.4 / −3.5° against the other four at +5 to +25° — not a marginal outlier but a
-different object. The exclusion is PRE-DOCUMENTED and not post-hoc: it is the
-first-frame-of-night anomaly, already on the record in two independent quantities
-(θ₀ departs 19.75° while the drift bearing departs 0.150°; per-raw coherent 0.4615
-against 0.7573–0.8154), and the injection work was rebuilt once for using it.
-**It is still one frame of five, and the rejection survives a 2× inflation of the
-frame-based SEs (74.6 → 18.7) but not 3× (→ 8.3), on an SE carrying 3 dof.**
+**THE ROTATION IS REAL AND THE ONE-FRAME CONDITION IS DROPPED — MEASURED AT
+N = 40** (`frame_depth.json`). At five frames the effect appeared to hinge on
+excluding DSC_6239 (axis χ² 3.0/4 with it in, 74.6/4 without). **That was a
+small-sample artefact: one anomalous frame is 20% of five and 2.5% of forty.**
+
+| sample | DSC_6239 | axis χ²/4 | constancy χ²/dof |
+|---|---|---|---|
+| N = 40 | **in** | **69.5 — REJECTS** | **53.1** |
+| N = 40 | out | 686.7 — REJECTS | 129.4 |
+| N = 5 | in | 3.0 — no rejection | 1.81 |
+
+So the gate failure **no longer depends on any exclusion**. Subset bracket is
+EXACT — the original five sit inside the forty and reproduce `constancy_fit.json`
+to the digit (15.4 / 3.0 / 1.81 / 4.31 ± 1.80).
+
+**"FIRST FRAME OF A RUN" IS NOT A CLASS — the exclusion removes exactly one
+frame.** Sampled by design (four early-in-run and four spread from each of five
+100-frame groups): the five group starts read −36.91 / +16.84 / +17.20 / +17.50 /
++16.29° against index ≥ 25 at +17.39 ± 1.52 (n = 20), and starts-minus-6239
+against the rest is **−0.44 ± 0.43°, 1.0σ**. DSC_6239 sits at robust **z = −25.7**
+where the next most deviant of 40 frames is −1.4, with fixed-term amplitude 0.4661
+against 0.69–0.83 elsewhere. **So the exclusion used across this thread does not
+become a systematic anywhere it has been applied**, including the injection
+rebuild. Composition note for a gated target: `psf_work/f{1,2,3}.lst` — Gate 1A's
+8074-star sample — is DSC_6239 / 6339 / 6439, so **one third of it carries the
+anomaly**; the gate still reproduces exactly because it tests the estimator rather
+than the sample, but 0.5869 / 0.5798 are not corpus-representative.
+
+**AND IT IS NOT THE INCOMPLETE-AZIMUTH ARTEFACT — PM-CHECKED BY RE-EXECUTION,
+because that is this thread's most repeated failure and it had to be excluded
+explicitly.** The inscribed circle holds to ρ = 0.5544, so bins 1 (ρ 0.003–0.199)
+and 2 (ρ 0.199–0.396) lie WHOLLY inside complete azimuth. The rotation is already
+there, between those two bins alone:
+
+| sample | bin 1 | bin 2 | bin2 − bin1 | |
+|---|---|---|---|---|
+| N = 40, all | +5.99 ± 1.24 | +18.41 ± 1.69 | **+12.42 ± 2.10** | **5.9σ**, χ² 35.0/1 |
+| N = 40, drop 6239 | +7.06 ± 0.64 | +20.03 ± 0.51 | **+12.96 ± 0.82** | **15.9σ**, χ² 253.0/1 |
+
+**So the gate failure does not depend on the clipped bins at all.** The axes are
+also NOT monotone across ρ (5.99 → 18.41 → 21.30 → 13.29 → 14.08), which no single
+radial term produces and which is what the near-cancellation reading predicts.
 
 **THE CONSTANCY GATE FAILS ON THE SAME CONDITION** (`constancy_fit.json`,
 PM-audited by re-execution). No single trail scale `f` makes `C(ρ) − f·T(ρ)` a
@@ -1198,17 +1230,24 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
   constant across the six sets the misalignment is fixed, |C| is the amplitude of
   the globally-correctable component and its direction is the PSF to build.
-  **AND THE GATE HAS NOW BEEN RUN DIRECTLY AND IT FAILS, ON A STATED CONDITION.**
-  The constancy question does not need C/A or the trail magnitude at all: solve
-  for the single scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector, and no `f`
-  does (**χ²/dof 19.3 on 7 dof**). **On four frames this route fails its gate.**
-  The condition is load-bearing and must travel with the verdict: the rejection
-  depends on excluding DSC_6239, and with all five frames in, nothing rejects
-  (χ²/dof 1.81). The exclusion is pre-documented rather than post-hoc, and it is
-  still one frame of five. **Do not report this route as dead without that
-  sentence.** The design can kill the route and can never quote a trail scale
-  (condition 131). Numbers and the withdrawn "10–20σ" significance:
-  `one-sided-band` and `datasets/aug06/corner_work/constancy_fit.json`.
+  **AND THE GATE HAS NOW BEEN RUN DIRECTLY AND IT FAILS, UNCONDITIONALLY AT
+  N = 40.** The constancy question needs neither C/A nor the trail magnitude:
+  solve for the single scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector, and
+  no `f` does — **χ²/dof 53.1 with every frame in, 129.4 with DSC_6239 dropped**,
+  and the axis rejects a constant at χ² 69.5/4 either way. An earlier five-frame
+  run appeared to hinge on that one exclusion (χ²/dof 1.81 with it in); **that was
+  a small-sample artefact and the condition is retired** — see `one-sided-band`
+  for the N = 40 table, the not-a-class test, and the PM check that the rotation
+  is already 5.9σ (15.9σ without 6239) between the two bins wholly inside the
+  inscribed circle, so it is not the incomplete-azimuth artefact either.
+  **So a single global PSF cannot remove this component and this route does not
+  deliver.** Two limits stay: the design can KILL the route and can NEVER quote a
+  trail scale (`f` nearly collinear with the constant, condition 126–132, and
+  degenerate with any WCS scale error behind T); and χ²/dof of 53–129 means the
+  model is badly MISSPECIFIED rather than that it measured something, so
+  **"no field-constant optical component" is the LEADING reading and not the only
+  one** — an unmodelled ρ-dependent demosaic term produces the same
+  non-constancy, and the CFA control is what separates them.
   This bullet defines C as *the field-constant spin-2 term*, so if there is no
   single such term, C/A is not well defined and "does C/A hold across sets"
   cannot be asked in that form. **What survives is the weaker, still-useful
