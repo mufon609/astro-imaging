@@ -530,6 +530,20 @@ the Oracle or the owner.
   REPORT A SEARCHED NEGATIVE AS A NEGATIVE? Both count.** What does NOT count is a
   claim with no source, a caution that names no decision it changes, or an
   inference presented where a citation was available.
+  **AND THE WINDOW YOU MEASURE IN CAN EXCLUDE THE THING BY CONSTRUCTION — this
+  manager built that instrument and a worker caught it.** With the seat empty, the
+  PM asked the worker to accumulate what it WOULD have delegated, as evidence of
+  the seat's worth. The worker returned an empty list and refused to pad it, with
+  the reason: **a BOOT generates no Oracle traffic.** Reading the contract, the
+  registry and the tree, and verifying claims against artifacts already on disk, is
+  **local by construction** — so the seat's cost is zero during a boot and becomes
+  non-zero the moment a unit touches tool documentation or *"what else exists"*,
+  which is precisely where the catalogue says the hours go. **An empty list during a
+  boot is not evidence the seat is cheap; it is evidence the boot is the wrong
+  window to measure it in.** Same shape as a check whose own mechanism excludes the
+  failure mode it tests for, one level up: **measure a role in the window where its
+  work would occur, and treat a null from any other window as uninformative rather
+  than as a negative.**
   **And the ENFORCEMENT is the self-audit, not a metric it reports about its own
   usefulness** — *"which of my own prior findings have gone stale, checked rather
   than assumed"* is checkable by you afterwards; a fraction it reports is not.
