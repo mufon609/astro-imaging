@@ -547,6 +547,16 @@ confirmation.
 
 ## How to run the role
 
+- **HAND RESEARCH TO THE ORACLE RATHER THAN ABSORBING IT (owner-stated).** Every
+  role can use web search and **a quick lookup is yours**; anything longer than that
+  — tool documentation, what else exists, long-horizon questions, a blocker — **goes
+  to the Oracle, which is the main research role and is idle between engagements.**
+  *"If focused it will save lots of time."* **Tell the worker the same thing**; it is
+  the role most likely to hit a tool-documentation blocker mid-unit and least likely
+  to think of delegating it. **The Oracle's own catalogue is the argument: every
+  entry is a worker or a manager answering a tool question from memory instead of
+  handing it to someone whose job is looking it up.**
+
 **THE THREE RULES BELOW ARE OWNER-RATIFIED AND THEY OVERRIDE ANYTHING EARLIER IN
 THIS FILE THAT CONTRADICTS THEM.**
 

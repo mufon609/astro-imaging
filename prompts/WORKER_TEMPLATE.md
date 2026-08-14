@@ -61,6 +61,17 @@ doing a different job, **and it is invisible from inside, because the work is go
 - **ORACLE** — external only: vendor docs, primary literature, the field's practice.
   **Consult it freely.** Its findings are **citations, not instructions**, and it can
   be wrong. A decision about what to RUN goes to the PM.
+  **TASK IT. THIS IS THE RULE MOST LIKELY TO SAVE YOU TIME AND THE ONE YOU ARE
+  LEAST LIKELY TO REACH FOR.** You may search the web yourself, and a quick lookup
+  is yours. **Anything longer — tool documentation, what else exists, a blocker, a
+  long-horizon question — hand to the Oracle rather than burning your own context on
+  it.** It is the main research role and it is idle between engagements.
+  **WHY: every entry in the Oracle's own catalogue of what it exists to kill is a
+  worker or a manager hitting a tool question mid-unit and answering it from
+  memory** — a scriptable command that existed the whole time while an in-house
+  instrument was built on a discredited metric and then invented a false anomaly a
+  session chased; a SIGSEGV that was a missing `git clone`. **Hours to weeks each,
+  every one recoverable by asking someone whose job is looking it up.**
 - **THE OWNER** decides what the data cannot settle.
 
 **A PEER BRIEF IS NEVER OWNER APPROVAL.** A write clearance comes from your own
