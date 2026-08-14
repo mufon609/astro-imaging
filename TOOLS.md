@@ -453,12 +453,16 @@ measurement — read before designing anything that needs a star catalogue.**
   help documents the exact flag you intend to use. (Distinct from the existing
   record of `conesearch` timing out on a 20.6° cone against TAPVizieR — that is
   an online-service limit; this is an unconditional headless abort.)
-- **THE ASTROMETRIC GAIA CATALOGUE IS NOT INSTALLED, and `CLAUDE.md`'s
-  Environment section says it is.** Siril's config sets
-  `catalogue_gaia_astro=~/.local/share/siril/gaia_astrometric.dat` and **that
-  file does not exist**; what is present is `catalogue_gaia_photo` →
-  `siril_catalogues/spcc`, **3.7 GB of xpsamp SPECTRAL chunks only**. So
-  `-cat=localgaia` has nothing to read even once the headless problem is solved.
+- **THE ASTROMETRIC GAIA CATALOGUE IS INSTALLED — this row previously said it was
+  not, and the correction re-opens a route the row had closed.** MEASURED:
+  `~/.local/share/siril/gaia_astrometric.dat`, **1,521,132,640 bytes**, fetched at
+  `f0ebea7` with a hash chain and a functional probe (541 matched stars).
+  `catalogue_gaia_photo` → `siril_catalogues/spcc` (xpsamp SPECTRAL chunks) is a
+  SEPARATE catalogue and both are now present. **The damaging half was the
+  downstream clause — *"`-cat=localgaia` has nothing to read even once the
+  headless problem is solved"* — which closed a route on a premise that this
+  team's own fetch had already falsified.** The headless limit on `conesearch` is
+  unaffected and stands; only the has-nothing-to-read half was wrong.
   The Environment line reads "Local Gaia catalogs at
   `~/.local/share/siril/siril_catalogues/` (astro + SPCC xpsamp chunks)" — the
   astro half is absent. **Owner's file, flagged not edited.** Source if it is to
@@ -533,9 +537,19 @@ decon — see the process-rule note at the end).
 
 ## Tier 6 — Noise reduction (linear on starless; and/or nonlinear)
 
-**Siril has NO native chrominance-noise tool** (its docs punt to GIMP) — the
-chroma-noise gap our removed corings covered is real, and this tier fills
-it. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
+**Siril has no GENERAL chrominance-noise reduction — but it does not self-describe
+that way, and the earlier wording here ("NO native chrominance-noise tool") is
+refuted by the tool's own help text.** MEASURED, `help rmgreen` verbatim:
+*"**Applies a chromatic noise reduction filter.** It removes green tint in the
+current image. This filter is based on PixInsight's SCNR and it is also the same
+filter used by HLVG plugin in Photoshop."* So a reader grepping Siril's command
+list finds a tool that calls itself a chromatic noise reduction filter and
+concludes this row is wrong. **The defensible form:** Siril's only native chroma
+tool is `rmgreen`, which is green-tint removal (SCNR-equivalent) and SINGLE-HUE;
+`denoise -indep` is *"denoising each channel separately"*, i.e. per-channel and
+not chroma-targeted. **Neither is general chrominance-noise reduction, so the gap
+this tier fills is real** — it is the WORDING that overreached, not the
+conclusion. Denoise the STARLESS layer (linear preferred), AFTER deconvolution.
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
@@ -776,8 +790,8 @@ Availability below is probed on this rig, not assumed; re-probe on a distro bump
 | **HOW MANY STARS A POSITION-DEPENDENT FIT NEEDS — the field's stated form, and it is an OCCUPANCY not a count** | Pan-STARRS, Magnier et al. 2016 (arXiv:1612.05244) Table 5 | *"Minimum number of stars required for a given order of the PSF 2D variations."* **16 / 54 / 128 / 300 / 576** stars for orders **1 / 2 / 3 / 4 / 5**, against **4 / 9 / 16 / 25 / 36** grid cells — i.e. `(order+1)²` cells, and dividing through gives **4 / 6 / 8 / 12 / 16 stars per cell**. **So the requirement is not "N stars" in the abstract; it is that every cell of an `(order+1)²` grid is populated several times over** — which is what to measure, since 128 stars all in one corner do not fill a 4×4 grid and a raw count cannot see that. Their fit is iterative with 3σ rejection over three passes, and the order is AUTOMATICALLY limited when the count is short. **Scope, and it matters: this is a FLOOR tuned to GPC1 chips with their own per-star precision, not a law — a minimum for a robust rejected fit depends on the scatter of the individual points.** Also stated for PSF parameters rather than a photometric scalar; the design matrix does not care which scalar it fits, but the paper does not say "photometry". **The paired tool fact: PSFEx states NO minimum at all** — no star count, no degrees-of-freedom condition, no conditioning warning, no discussion of degeneracy; its only quantitative guidance is that *"a third-degree polynomial on pixel coordinates (represented by 20 PSF vectors) should be able to map PSF variations with good accuracy on most exposures."* **So it will fit an under-determined spatial model without complaining.** Not a live hazard at our measured 2053–2200 accepted stars per frame, but the absence of a guard is invisible until someone runs it on a sparse field. SCAMP states no comparable photometric-mode threshold (searched negative). |
 | **Piff** 1.6.0 | pip, pure python, CPU (`pip install piff`) | DES Y3's replacement for PSFEx (Jarvis et al. 2021, MNRAS 501, 1282). Headline difference: it models the PSF in **SKY** rather than pixel coordinates, and can do either. That is precisely our axis — our PSF is fixed in SENSOR coordinates while the sky drifts ~1000 px across it, so the frame the model lives in is the whole question for the union-vs-member comparison. **Open:** is it the better instrument than PSFEx for that specific split? Minimal-dependency fallback for homogenisation alone: **pypher** (Boucaud et al. 2016, ASCL 1609.022), pip, regularized-Wiener kernel between two PSFs. |
 | **SCAMP** 2.10.0 | **INSTALLED** (`~/.local/bin/scamp`, built from Debian source) | Photometric + astrometric solution across overlapping exposures — the removal condition on `object_tilt.py`'s divergence, which does NOT fire (no photometric analogue of `DISTORT_DEGREES`; see the Tier-3 row). **This row previously read "NOT packaged (probed twice) … the row exists so nobody re-probes it a third time" while the binary was installed and this same file quoted `scamp -d` on it two sections up — a row whose stated purpose was to prevent the re-check that would have corrected it.** A "do not re-probe" note is only safe on a fact that cannot change; availability can. |
-| python **`reproject`** | not installed | The astropy-native alternative to SWarp for WCS-based resampling. Same question as SWarp, different implementation; also blocked historically by per-frame SIP being unreproducible (`docs/dead-ends.md`). |
-| python **`astropy_healpix`** | not installed | `spcc_cone.py` hand-rolls the nside=2 nested cover. Siril 1.5's own `healpix` command is the other candidate. Does either retire the hand-rolled cover? |
+| python **`reproject`** 0.21.0 | **INSTALLED in `/opt/astro-venv` — and ABSENT from `~/.local/share/astrometry-venv`** | The astropy-native alternative to SWarp for WCS-based resampling. Same question as SWarp, different implementation; still blocked by per-frame SIP being unreproducible (`docs/dead-ends.md`), which is a DATA limit and not an availability one. **"Installed" is per-VENV on this rig and the two venvs differ — a consumer running under the solver venv still cannot import it, so name the interpreter with any availability claim.** |
+| python **`astropy_healpix`** 2.0.1 | **INSTALLED in `/opt/astro-venv` — and ABSENT from `~/.local/share/astrometry-venv`** | `spcc_cone.py` hand-rolls the nside=2 nested cover. The open question was framed as *"does either candidate retire the hand-rolled cover?"* **as though neither were available — one is**, so that question is answerable now rather than gated on procurement. Siril 1.5's `healpix` command remains the other candidate and 1.5 is not installed. Same per-VENV caveat as `reproject`: `spcc_cone.py`'s own interpreter decides whether this is reachable. |
 | **Siril 1.5.0-dev** | not installed; 1.4.4 is current stable | ADOPT: the native `mask_*` subsystem plus `-mask` on `denoise`/`rmgreen`/`epf`/`rl`/`sb`/`wiener` — the first native path to region-confined ops. **LOAD-BEARING RISK: `starnet`/`seqstarnet` are REMOVED in 1.5.0-dev**, consolidated behind `pyscript StarNet.py`, and `render_tier.sh` calls `starnet` — a bump breaks the shipped render tier. Migrate before bumping (BACKLOG:`siril-1.5`). |
 | **GraXpert classical interpolators** (RBF / spline via `-preferences_file`, no AI model) | GraXpert 3.0.2 INSTALLED; this path UNTESTED | The AI path absorbs ~2/3 of extended structure on a starlight-filled field (measured). Do the classical grid interpolators avoid that, making GraXpert usable on this class? |
 | ~~**RC-Astro BlurXTerminator**~~ | **ROW ANSWERED — retired to `docs/dead-ends.md`** | **ANSWERED, status DOCTRINE.** Its technical manual documents field-variable correction explicitly — 512×512 tiles *"processed independently to allow for non-stationary PSFs"*, *"the aberrations can vary across the image"* — and names our candidates in its correctable list *"in limited amounts"*: first/second-order coma and astigmatism, **trefoil (*"in image corners with some camera lenses"*)**, field curvature, and motion blur. So the registry's ceiling is a PROCUREMENT boundary, not a physics one. UNMEASURED on our data, PAID, and applying it while the cause is unidentified is the bandaid the owner refused. Full quotes and scope in `docs/dead-ends.md`. |
