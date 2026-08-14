@@ -13,9 +13,17 @@
 >   criterion as *"defect-side robust z >= 3.5"* on **`bg` and `nstars`**, 44 of 44
 >   flagged on `nstars` and 29 of 44 also on `bg`, so the positive control was the
 >   output of a threshold on the two fields under test. `Z_nstars` is withdrawn
->   entirely. **And the bounding fact: nothing establishes by OBSERVATION that those
->   frames contain cloud, so on this corpus the signature can only ever be validated
->   against the auto-cull** — its acceptance bar can never be *"detects cloud"*.
+>   entirely. **And the bounding fact is a NAMING limit, not a validation one:
+>   nothing establishes by OBSERVATION that those frames contain cloud.** It DOES
+>   meet the positive-control rule — the 15 were caught by the z-flagger on
+>   `nstars` ONLY, so `bg` did not select them, and `bg` fires on them at +4.05:
+>   non-circular data on which it must fire. **What is missing is the CAUSE. So it
+>   is VALIDATED as detecting background elevation co-occurring with star loss and
+>   NOT as detecting cloud** — thin cloud, haze, moonrise, dew and a light-dome
+>   change are not separable on this corpus. **Naming it "the cloud signature" is
+>   this repo's own recurring failure one level out, and the fix is the NAME rather
+>   than a demotion to advisory.** The `+4.05` is a FLOOR and must not be wired as a
+>   threshold.
 >   A 673-file sweep for an independent sky observation found one, in the LUNAR
 >   class, where `bg` and `nstars` are meaningless — which is what makes the
 >   deep-sky NO a measured absence rather than a search that could not fire.

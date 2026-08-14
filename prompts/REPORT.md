@@ -181,12 +181,32 @@ star count carries the signal more strongly than background; and with it the
 proposed correction to `intake-culling`'s *"star count is measured blind on rich
 fields"* note, **which stands uncorrected.**
 
-**THE LIMIT THAT BOUNDS EVERY FUTURE CLAIM ON THIS SIGNATURE:** nothing establishes
-by OBSERVATION that these frames contain cloud. `REPORT.md` calls it a cloud block;
-`recipe.json` records an auto-cull on z-flags. **So what is validated is agreement
-with the existing auto-cull, NOT detection of cloud** — and the acceptance bar for
-this signature can only be *"agrees with, or improves on, the z-flagger"* unless a
-block is identified by a record outside the frame-QA fields.
+**THE LIMIT THAT BOUNDS EVERY FUTURE CLAIM ON THIS SIGNATURE, AND IT IS A NAMING
+LIMIT RATHER THAN A VALIDATION ONE:** nothing establishes by OBSERVATION that these
+frames contain cloud. `REPORT.md` calls it a cloud block; `recipe.json` records an
+auto-cull on z-flags, and no record outside the frame-QA fields identifies a
+bad-sky interval on any of the 13 deep-sky sets.
+
+**BUT IT DOES MEET THE POSITIVE-CONTROL RULE, AND AN EARLIER WORDING HERE IMPLIED
+OTHERWISE.** The rule asks for *"data on which it MUST fire"*. The 15 frames are
+data the z-flagger caught on **`nstars` only** — their `bg` z was below threshold,
+so `bg` did not select them — and `bg` fires on them at **+4.05**. That is a
+non-circular positive control and the rule is satisfied. **What the rule does not
+ask, and what is missing, is whether the physical CAUSE is identified.**
+
+**So the honest statement is: VALIDATED as detecting BACKGROUND ELEVATION
+CO-OCCURRING WITH STAR LOSS; NOT validated as detecting CLOUD.** Those frames could
+be thin cloud, haze, moonrise, dew or a light-dome change and nothing in the corpus
+separates them. **Naming it "the cloud signature" is this repo's own recurring
+failure one level out — a check whose wording promises a failure mode its mechanism
+does not establish** (`build_sky_flat`'s `gate` is the registered instance). **The
+fix is the NAME, not a demotion to advisory:** the owner is explicit that *"WHERE
+THE SMART GATING BELONGS IS THE CULL"*, and a signature meeting the control rule on
+its own terms is gate-capable there.
+
+**AND THE NUMBER MUST NOT BE WIRED AS A THRESHOLD.** `+4.05` is n=15, one night,
+and a **FLOOR** — the value the effect is at least, not the value it is. A floor is
+the worst possible quantity to install as a cut level.
 
 **Scope:** one set, one night, n=15 non-circular of 44 against 456. No threshold
 proposed, no cull built, no detector wired.
