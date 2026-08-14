@@ -63,6 +63,97 @@ contributes nothing (0.2 SE). The open half of the owner's statement is whether
 properly centred frames would change it, which is an acquisition-side question
 and therefore NOT a route this repo takes (MEMORY: the data is a given).
 
+## Landed — the artifact-first audit: a third of the register was wrong, and the method that found it
+
+**THE METHOD IS THE DELIVERABLE. Derive a check's target list from the ARTIFACT —
+the config's actual keys, the file's actual mode, the actual `open()` calls, the
+actual call sites — never from anyone's description of it, including your own.**
+The cheap tell: the check and the thing checked get named by the same person in
+the same act, so a check written against a REMEMBERED name inherits its author's
+vocabulary. Every partial target list below was produced by a session actively
+watching for this failure.
+
+**THE REGISTER: 34 rows checked, 11 defective, plus 3 divergences with no row and
+2 stale date columns.** Sampling was mechanical and stated before its output was
+read (the 28 files declaring `REMOVAL CONDITION`, tree-path order, stride 5 from
+index 3), so no session's sense of which rows looked risky could steer it; the six
+went out as FILES, not row numbers, so each row was located from its artifact. The
+six returned **4 defects**, which is what justified sweeping the other 28.
+**TWO CONDITIONS HAD FIRED WHILE THEIR ROWS READ "not fired"** — row 51's
+`rl -loadpsf=` disjunct (`corner-fix-landscape`'s own header reads *"the
+FIX-classified route is DEAD"*), cascading to rows 49/50; and row 45's BACKFILL
+clause (93 sub-stacks on this rig, **93 stamped, 0 un-stamped**). Rows 51/49/50
+were REWRITTEN rather than deleted: `contract_check()` lives in `constancy_fit.py`
+and is roster check 18 behind the pre-push hook, so deleting the file would
+silently remove a check from the gate.
+
+**A HEADLINE NUMBER THAT EXISTS IN NO RECORD.** The error-model finding shipped as
+*"χ²/dof 35.6 on bootstrap errors becomes ~1.1 on frame-based"*. Enumerating every
+`chi2_per_dof` in the cited record returns
+`[1.5669, 1.8054, 19.2935, 30.3153, 35.5969, 40.9469]` — **nothing in [1.0, 1.2]**,
+in BOTH revisions, byte-identical. 35.6 is one binning's bootstrap and its own
+counterpart is **1.8054**; the other pairs 40.9469 → 1.5669. **The finding survives
+at ~20× either way, which is why it went unchecked.** It failed in the flattering
+direction: against an assumed null of 1, "1.1" reads as a near-perfect fit.
+
+**ν IS PER-CALL, NOT A CONSTANT, AND THE NULL IS NOT 1.** `decompose`'s frame-based
+SE divides by that call's own `nf` with **no pooling across bins**, so a
+significance built on it is Student-t with ν = nf − 1 and its square is F(1, ν).
+Measured across the records ν runs **3 to 39**; the null expectation of a reduced
+statistic so formed is **ν/(ν−2)** — 3.00 at ν=3, 2.00 at ν=4, 1.05 at ν=39. The
+σ-unit keys are renamed `*_t_frame_based` and carry `dof_frame_based` plus the
+FORMULA rather than a value, because a number true for one caller in a shared
+docstring is the neutral-key defect one layer up. **The corpus record
+REGENERATION is deliberately NOT run**: the capability is integrated, the artifacts
+still carry the old generation.
+
+**THE GUARD RUNNER WAS UNSAFE TO RUN CONCURRENTLY, AND IT IS THE PRE-PUSH HOOK.**
+Five selftests wrote fixtures to FIXED shared paths under `~/.cache/astro-imaging/`,
+so two runs destroyed each other. **Three string greps each returned a different
+partial list** — `grid_ramp` builds its path with `os.path.join` split across two
+lines, so the literal never appears in source and no path grep can see the one
+whose log carried the actual failure; an AST walk found the set. Falsified both
+ways: pre-change concurrent **4 of 4 runners RED**, post-change **6 of 6 GREEN**,
+with a sequential pre-change control GREEN (which is what makes it a race and not a
+broken check). It produces false REDs, never false GREENs. The runner had also been
+deleting its own logs on exit, so the first occurrence was unattributable.
+
+**A FIX WHOSE DELIVERY PATH EXCLUDES ITS OWN BENEFICIARY — a new class.**
+`install_astromatic.sh` states in its own header that it exists to close the
+*"VERIFIED and NOT REPRODUCIBLE FROM A CLONE"* gap; `x86_bootstrap.sh` mentions it,
+`psfex`, `scamp` and `source-extractor` **zero times each**. Not a design choice —
+that script already runs `sudo apt install` 23 times. **PSFEx's field model is
+cited in register row 52, the arm validating the κ that rows 51/52/53 rest on.**
+
+**FOUR OF FIVE NEGATIVE TOOL CLAIMS IN `TOOLS.md` WERE WRONG OR OVERSTATED.** A
+negative closes routes and never self-corrects — a stale positive is caught the
+moment someone tries the thing. The Gaia astrometric catalogue IS installed
+(1,521,132,640 bytes) against a row whose downstream clause closed a route;
+`reproject` 0.21.0 and `astropy_healpix` 2.0.1 are installed; `help rmgreen` reads
+*"Applies a chromatic noise reduction filter"* against a row saying no such tool
+exists. **All three FALSE were invalidated by this team's own installs inside 24
+hours — a generator problem, which no last-checked date catches.**
+**AND "INSTALLED" IS PER-INTERPRETER:** the six tool-layer packages import in
+`/opt/astro-venv` and NOT in `~/.local/share/astrometry-venv`, while all 175 python
+invocations across `scripts/` resolve to `/usr/bin/python3`, which has none of
+them. **`sip_tpv` gates the SWarp route for `compose-homography-smear` and no
+script can import it as written.** The convention exists (`$ASTRO_VENV`) and so
+does the consumer pattern (`solve_field.py` re-execs into its venv); it was never
+applied on the read side. **Gating prerequisite on that route, not a live defect.**
+
+**THE CONVERGENCE TRIPWIRE FIRED FOR THE FIRST TIME RATHER THAN BEING CITED.** Two
+sessions argued the same records split from different evidence, both resting on
+*"`manifest.tsv` is authoritative"*, which neither had checked. **21 rows, omitting
+PSFEx, SCAMP, `source-extractor` and a 1.5 GB catalogue.** What made it fire was
+naming the SPECIFIC shared premise as one falsifiable sentence — *"we have
+converged, be careful"* names nothing checkable. The `TOOLS.md` restructure is HELD
+until the manifest is real: an omission in a file declared authoritative looks like
+nothing, which is worse than a wrong claim.
+
+**Numbers:** `docs/dead-ends.md` (QA/scope — the paraphrased-RESULT entry, the
+convergence operating condition, the pgrep interval entry), `BACKLOG.md`'s register
+and its rules (5) and (8), `TOOLS.md` Tier 3 / Tier 6 / research queue.
+
 ## Landed during the corner-quality session — the axis is settled, and the crop line the brief asked for is REFUSED by the numbers
 
 **The corners degrade on MEMBER-OWN FIELD RADIUS. Coverage depth contributes
@@ -351,9 +442,12 @@ each set's `starlight_work/starlight_l1{base,onstack,arm}.json`.
 - **`cross-set-record-home`** — night/corpus SPCC records and baselines file
   under a borrowed member set (bitten twice this rebuild). Multi-set products
   write session-level records; combine products get a baseline home.
-- **Guards runner** (`guards-and-ci`) — one command executes the five guards +
-  their selftests (`check_registration_pins.sh` joined the family); RED on a deliberately broken mechanism; named in README as
-  the pre-release step. (The unexecutable-guard half is already fixed.)
+- **Guards runner** (`guards-and-ci`) — **SHIPPED and hardened; what remains is the
+  per-block bit-depth gap the item names.** 18 checks, invoked by the pre-push
+  hook, RED on a deliberately broken mechanism, logs retained on failure, and
+  concurrency-safe (per-run `mkdtemp` under `$HOME` — `/tmp` is unusable because
+  the Siril flatpak has a private one). **Read its LIMITS block before quoting it
+  as coverage: it verifies WIRING, not output.**
 - **`frame-qa-order-dependent-scale`** — every `fwhm_arcsec` rides a ~5.6%
   scale artifact; re-derive against the stack-solve family (16.98–17.08″/px)
   and root-cause the probe arithmetic.
