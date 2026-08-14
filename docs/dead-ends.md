@@ -1908,6 +1908,23 @@ SILENT — pin the state, never inherit it):
   **THE SAFE FORM: ONE range quantifier on the TRAILING side —
   `grep -oE "PATTERN.{0,200}"` — positive-controlled, with the PROGRAM and the
   QUANTITY named, and stderr never merged into a count.**
+  **AND THE PASTE RULE IS NOT ABOUT NUMSTAT — that is the instrument it was first
+  written about, not its scope.** `CLAUDE.md` states it as *"PASTE the measured
+  numstat into the commit — never a description of it"* and *"a check whose output
+  is paraphrased is a check that did not run"*, so it reads as a rule about one
+  command. **MEASURED, in the commit that re-homed this very entry: the numstat was
+  pasted correctly and the destination check three lines below it was PARAPHRASED** —
+  *"verified homed: all six strings now 1 file"*, when the before-check and the
+  after-check had been run on **different strings** (`NEVER MERGE STDERR` was
+  silently swapped for `MODE 3`) and one of the six was in **zero** files. The
+  content was genuinely re-homed; only the sentence claiming to prove it was wrong.
+  **A verification sentence that reads as evidence and is not — the same shape as a
+  null instrument quoted as corroboration, one commit apart, by the same author.**
+  **THE RULE: paste the literal command and its literal output for EVERY check a
+  later reader would otherwise have to re-derive, per block rather than as one
+  summary line over all of them.** A per-block paste catches a swapped search string
+  on sight; a summary line cannot, because it is written from memory of what was
+  fixed rather than from a re-run.
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
