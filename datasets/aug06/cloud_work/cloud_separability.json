@@ -49,6 +49,26 @@
 
   "WHAT_WOULD_CLOSE_IT": "a cloud block identified by something independent of the frame-QA fields — an observing log, an all-sky camera, or a human note recorded at capture time — on a second night.",
 
+  "CAN_IT_BE_CLOSED_ON_THIS_CORPUS": {
+    "answer": "NO for the deep-sky class, and the boundary is sharp rather than a gap in the search.",
+    "the_one_independent_observation_that_EXISTS": {
+      "where": "datasets/july26/set-02 — `staging_crop.json` note: 'faint transparency haze near the disc late in the set (visible in the DSC_2047 preview)'; `qa_work/lunar_stack_q100.json` notes: 'late-set transparency haze visible as a glow halo (real sky…)'; referenced again in that set's experiments.jsonl.",
+      "why_it_is_a_genuine_independent_record": "it is a VISUAL observation of the sky, made from a frame preview, not derived from any per-frame QA field.",
+      "why_it_CANNOT_serve_as_the_positive_control": "july26 is the LUNAR class — 0.0004 s exposures, 809 frames, disc imaging — and it carries ZERO frame-QA records. `bg` and `nstars` are not merely absent there, they are meaningless: there is no deep-sky background and no star count on a lunar disc frame."
+    },
+    "the_13_sets_that_DO_carry_the_fields": "july31/set-01..04, aug06/set-00..03, aug09/set-01..05 — and none has an independent bad-sky record.",
+    "THE_BOUNDED_FACT": "On this corpus the cloud signature can only ever be validated against the AUTO-CULL. Its acceptance bar therefore cannot be 'detects cloud'; it can only be 'agrees with, or improves on, the existing z-flagger'. That is a permanent property of the corpus, not of this test.",
+    "CENSUS_SEARCHED_because_a_NO_is_only_as_strong_as_it": [
+      "all 673 tracked dataset record files (*.json/*.jsonl), regex sweep for cloud|haze|cirrus|overcast|fog|transparen|smoke|aurora|moonrise|moonset|dew",
+      "the SCHEMA key-union of acquisition.json / ingest.json — no conditions, weather or sky field exists in either",
+      "every acquisition.json `_note` (the only free-text field in that schema), all 20 — identical boilerplate about `mount` in two variants, no observer remark in any",
+      "tree-wide file-level sweep of the same vocabulary: 43 files carry it; every record-bearing one was read (the rest are code, doctrine, or `cloudpickle` in a lockfile)",
+      "MEMORY.md, docs/dead-ends.md, prompts/REPORT.md, README.md, docs/lunar-lucky-imaging.md for eyewitness phrasing (visible in / by eye / observed / preview shows) co-occurring with a sky term — nothing beyond the july26 record"
+    ],
+    "what_would_have_counted": "a note naming a night, set or frame range together with a sky condition, recorded from observation rather than derived from the QA fields.",
+    "THE_SEARCH_IS_NOT_A_NULL_INSTRUMENT": "the same sweep FOUND exactly that in july26/set-02, so it can detect what it looks for. The NO for the deep-sky class is a measured absence, not an instrument that cannot fire — which is the distinction this repo's own truncated-view entry exists to enforce."
+  },
+
   "instrument": "Siril bg / nstars / fwhm via the frame-QA stage. In-house part: the block statistic. REPORTS ONLY — no cull built, nothing gated, no deliverable touched.",
   "statistic": "Z = (median in-block - median out-of-block) / (1.4826 * MAD out-of-block)",
 
