@@ -164,9 +164,23 @@ def run_bins_perframe(frames, T1f, T2f, mode, n=5, drop=()):
     population captures shot noise only, and MEASURED on these five raws it
     understates the true uncertainty on the per-bin fixed term by a median factor
     of 5.76 — the frame-to-frame scatter is 4-9x the bootstrap SE. Using the
-    bootstrap makes chi2/dof 35.6 where the frame-based error makes it ~1.1, i.e.
+    bootstrap inflates chi2/dof ~20x WITHIN one binning — rho_equal 35.60 -> 1.81,
+    equal_count 40.95 -> 1.57 (dof 7) — i.e.
     it turns "cannot reject" into a spurious rejection. Independent realisations
     are the only honest error bar for a per-bin property.
+
+    THE "~1.1" THIS REPLACES WAS NEVER IN ANY RECORD. Checked every revision of
+    `constancy_fit.json`: the six chi2/dof values are byte-identical from its
+    first commit and NONE lies in [1.0, 1.2]. The 1.1 entered the tree in the
+    SAME COMMIT that wrote the record contradicting it, so the headline of this
+    finding was quoted from a computation nobody persisted. It also failed in
+    the FLATTERING direction: against an assumed null of 1, "1.1" reads as a
+    near-perfect fit where 1.81 reads as a misfit — and at nu = 4 the null is
+    2.0, so 1.81 sits BELOW it. The honest claim is that the frame-based errors
+    are CONSERVATIVE, which is not the same claim as "the errors are right".
+    And the two numbers came from DIFFERENT BINNINGS, which is the seventh
+    instance of this repo's own rule: state the quantity every time — here the
+    quantity is the binning.
 
     READ THE 1.1 AGAINST ITS OWN NULL, WHICH IS NOT 1. A reduced statistic built
     on an SE estimated from nf frames has ν = nf − 1 dof, so its reference is
@@ -226,7 +240,8 @@ def row_error_model(rows):
     was written from a frame-based scatter by run_bins_perframe and from a
     star-level bootstrap by run_bins, and `constancy()` consumed it without being
     able to tell which. Both arms are DELIBERATE (the bootstrap arm is what makes
-    chi2/dof 35.6 where the frame-based one makes it ~1.1 — that contrast is the
+    chi2/dof 35.60 where the frame-based one makes it 1.81 in the SAME binning
+    (rho_equal; equal_count is 40.95 -> 1.57) — that contrast is the
     finding), so the fix is not to force one model but to make every row DECLARE
     its own and refuse a mixed or unlabelled set.
     """

@@ -188,10 +188,24 @@ def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813, frame=None):
     rather than cosmetic. MEASURED cost of the neutral names this replaces: a
     star-level bootstrap inside ONE POOLED population understates a per-bin
     property's uncertainty by a median 5.76x (range 4.1-9.2x) against the frames
-    treated as INDEPENDENT realisations, turning chi2/dof ~1.1 into 35.6 — i.e.
+    treated as INDEPENDENT realisations, turning chi2/dof 1.81 into 35.60 WITHIN one binning (rho_equal; the
+    equal_count pair is 1.57 -> 40.95, dof 7) — i.e.
     manufacturing rejections. The rule that generalises: A PER-BIN PROPERTY
     ESTIMATED FROM N FRAMES HAS N INDEPENDENT REALISATIONS; RESAMPLING STARS
     INSIDE A POOL IS NOT AN ERROR BAR FOR IT.
+
+    THE "~1.1" THIS REPLACES WAS NEVER IN ANY RECORD. Checked every revision of
+    `constancy_fit.json`: the six chi2/dof values are byte-identical from its
+    first commit and NONE lies in [1.0, 1.2]. The 1.1 entered the tree in the
+    SAME COMMIT that wrote the record contradicting it, so the headline of this
+    finding was quoted from a computation nobody persisted. It also failed in
+    the FLATTERING direction: against an assumed null of 1, "1.1" reads as a
+    near-perfect fit where 1.81 reads as a misfit — and at nu = 4 the null is
+    2.0, so 1.81 sits BELOW it. The honest claim is that the frame-based errors
+    are CONSERVATIVE, which is not the same claim as "the errors are right".
+    And the two numbers came from DIFFERENT BINNINGS, which is the seventh
+    instance of this repo's own rule: state the quantity every time — here the
+    quantity is the binning.
 
     READ THE 1.1 AGAINST ITS OWN NULL, WHICH IS NOT 1. A reduced statistic built
     on an SE estimated from nf frames has ν = nf − 1 dof, so its reference is
