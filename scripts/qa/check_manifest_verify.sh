@@ -43,6 +43,16 @@ run_column() {            # <manifest-path> ; prints failures, returns count
     [ "$tool" = "tool" ] && continue          # header
     [ -z "${tool:-}" ] && continue
     n=$((n+1))
+    # SHAPE FIRST. MEASURED GAP THIS CLOSES: a row written with SIX arguments
+    # where the schema takes SEVEN shifts every field left — path lands in the
+    # sha256 column, verify lands in path, notes land in verify — and the row
+    # STILL PASSED this guard, because column 6 happened to hold a runnable
+    # command. A verify that executes is not evidence the row is well formed.
+    if [ "$(awk -F'\t' -v k="$tool" '$1==k{print NF; exit}' "$mf")" != "7" ]; then
+      printf '  FAIL %-20s malformed row: %s fields, schema is 7 (tool version source sha256 path verify notes)\n' \
+        "$tool" "$(awk -F'\t' -v k="$tool" '$1==k{print NF; exit}' "$mf")"
+      bad=$((bad+1)); continue
+    fi
     if [ -z "${cmd:-}" ]; then
       printf '  FAIL %-20s (no verify command)\n' "$tool"; bad=$((bad+1)); continue
     fi

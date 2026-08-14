@@ -1,0 +1,28 @@
+# Python libs for the PLATE-SOLVE venv (~/.local/share/astrometry-venv) — pinned.
+#
+# WHY THIS FILE EXISTS. `solve_field.py` auto-bootstraps that venv on first use,
+# and it did so with a bare `pip install astrometry sep astropy numpy scipy` —
+# NO VERSIONS. So a clone got whatever pip resolved on the day, for the venv that
+# holds `sep`, which CLAUDE.md calls "the sole extractor" for the trailed-field
+# solve after the in-house peak-centroid fallback was RETIRED. That is the entire
+# extraction stage of the solve path with no pin, no checksum and no manifest row
+# — the same shape as the shipped optical model that existed in no record.
+#
+# It is a SEPARATE venv from /opt/astro-venv (pinned by requirements.txt) and from
+# the tool layer (requirements-tools.txt). Keeping it separate is deliberate:
+# `solve_field.py` re-execs itself INSIDE this venv, so its contents are the solve
+# path's runtime, not the measurement layer's.
+#
+# PINS ARE THE VERSIONS MEASURED ON THIS RIG, from the venv the unpinned bootstrap
+# produced — recorded so the next clone reproduces THIS rig rather than that day's
+# resolution. They are version pins, not hash pins; the hash-capable artifact is a
+# `pip freeze` lock, same as requirements.txt says for its own layer.
+#
+# CHANGING A PIN HERE CHANGES THE SOLVE PATH. `sep` in particular is the extractor
+# whose detections feed astrometry.net; a version bump is a chain change and wants
+# the solve replayed, not just a green import.
+astrometry==4.3.0
+sep==1.4.1
+astropy==8.0.1
+numpy==2.5.1
+scipy==1.18.0

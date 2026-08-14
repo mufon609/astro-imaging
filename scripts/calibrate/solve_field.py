@@ -102,12 +102,28 @@ def bootstrap():
     # while running OUTSIDE the venv and the astrometry import then fails
     if os.path.realpath(sys.prefix) != os.path.realpath(VENV):
         if not os.path.exists(py):
+            # PINNED, from scripts/setup/requirements-solve.txt. This used to be
+            # a bare `pip install astrometry sep astropy numpy scipy` with NO
+            # versions, so a clone got whatever pip resolved that day for the venv
+            # holding `sep` — CLAUDE.md's "sole extractor" for the trailed-field
+            # solve, with the in-house fallback RETIRED. An unpinned dependency of
+            # the solve path is the machine-local-value problem in its most
+            # load-bearing place.
+            req = os.path.join(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__))), "setup", "requirements-solve.txt")
             print(f"[solve_field] creating venv {VENV} + installing "
-                  "astrometry/sep/astropy/numpy/scipy (one-time)")
+                  f"pinned deps from {os.path.relpath(req)} (one-time)")
             subprocess.run([sys.executable, "-m", "venv", VENV], check=True)
-            subprocess.run([py, "-m", "pip", "install", "--quiet",
-                            "astrometry", "sep", "astropy", "numpy", "scipy"],
-                           check=True)
+            if os.path.exists(req):
+                subprocess.run([py, "-m", "pip", "install", "--quiet",
+                                "-r", req], check=True)
+            else:
+                # A checkout without the pin file must say so rather than
+                # silently reverting to an unpinned resolve.
+                raise SystemExit(
+                    f"solve_field: {req} is missing — refusing to bootstrap the "
+                    "solve venv unpinned. Restore it from the repo; the solve "
+                    "path's extractor version is not a detail.")
         else:
             # bring an older venv up to date with the current defaults
             for pkg in ("sep", "astropy"):

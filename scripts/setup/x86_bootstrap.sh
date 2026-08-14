@@ -481,6 +481,28 @@ run "'$(dirname "$0")/install_python_tools.sh' --go"
 # manifest.tsv is generated and a hand-added row vanishes on the next --go.
 if [[ $DRY -eq 0 ]]; then "$(dirname "$0")/install_python_tools.sh" --manifest >>"$MANIFEST"; fi
 
+# ---- Layer C2b: the PLATE-SOLVE venv ---------------------------------------
+# A THIRD venv, and it is the one nothing recorded. `solve_field.py` re-execs
+# itself inside ~/.local/share/astrometry-venv, which holds `sep` — CLAUDE.md's
+# "the sole extractor" for the trailed-field solve, the in-house peak-centroid
+# fallback having been RETIRED. It had NO manifest row, and `solve_field.py`
+# created it with a bare `pip install astrometry sep astropy numpy scipy`: NO
+# VERSIONS. So the extraction stage of the solve path was whatever pip resolved
+# on the day a clone first solved a field.
+#
+# Now pinned by scripts/setup/requirements-solve.txt at the versions MEASURED on
+# this rig, and created HERE so a clone gets it deterministically instead of
+# lazily on first use. `solve_field.py` keeps its own bootstrap as the fallback
+# and installs from the SAME pin file, refusing outright if that file is missing
+# rather than silently reverting to an unpinned resolve.
+log "Layer C2b — plate-solve venv (sep, the solve path's extractor)"
+run "python3 -m venv '$HOME/.local/share/astrometry-venv'"
+run "'$HOME/.local/share/astrometry-venv/bin/pip' install -q -r '$(dirname "$0")/requirements-solve.txt'"
+manifest solve-venv venv requirements-solve.txt version-pins "$HOME/.local/share/astrometry-venv" \
+  "'$HOME/.local/share/astrometry-venv/bin/python' -c 'import sep, astrometry'" \
+  "the venv solve_field.py re-execs into. sep 1.4.1 is CLAUDE.md's 'sole extractor' for the trailed-field solve; was created UNPINNED until requirements-solve.txt existed"
+
+
 # ---- Layer C3: the ASTROMATIC lane, built from Debian source ----------------
 # WHY THIS WIRING IS THE FIX, and it is the sharpest instance of the class this
 # repo keeps measuring: `install_astromatic.sh` was written expressly to close
