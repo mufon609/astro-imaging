@@ -236,6 +236,24 @@ half, so the condition would NOT fire even with SCAMP built. Recorded because th
 useful disposition is "the named candidate does not do the thing", which is a
 different fact from "blocked on availability". Context worth carrying: the current
 SCAMP manual contains five occurrences of "photometr" and no photometry chapter.
+**GUARD, so the correction does not overshoot into a different wrong claim: this is
+NOT "SCAMP cannot do photometry".** Solving a separate system per instrument with
+zero points as the unknowns IS **relative photometric calibration across
+overlapping exposures, catalogue-free** — a real capability, and a good one. The
+precise form is: **it does the catalogue-free half and has no position-dependent
+term at all.** Write it any looser and the next reader skips it for a problem it
+would solve.
+**AND THAT CAPABILITY LANDS ON A GAP STATED IN A DIFFERENT ITEM.**
+BACKLOG:`intake-culling` records, for transparency drift, *"No per-FRAME form — the
+instrument works on sub-stacks"*, and for cloud, *"per-frame background is NOT
+recorded"*. A per-exposure relative zero point across overlapping exposures **is** a
+per-frame transparency measure, taken on the stars' own flux rather than on
+background level — which is the property that row already prefers. Our consecutive
+frames overlap ~99% (drift ~1000 px across 6064), and the catalogue input SCAMP
+needs is `source-extractor` 2.28.2, INSTALLED. **CANDIDATE, not a solution:** it is
+not built (source-reachable, above), its behaviour on trailed stars is unprobed,
+and no arm has been run. Recorded because the connection only became visible once
+the capability was narrowed correctly.
 
 **WCS-reprojection faint-signal notes (if the model gap ever closes):** SWarp's
 **`SUBTRACT_BACK=Y` is the DEFAULT and must be turned OFF** — it subtracts a sky
