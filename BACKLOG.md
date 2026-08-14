@@ -1107,8 +1107,8 @@ path while an experiment is in flight.
 
 ## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
 
-**`scripts/qa/run_guards.sh` is BUILT and GREEN** — it runs all five guards plus
-every data-free selftest, **21 checks in 28-34 s**, per-check PASS/FAIL, non-zero
+**`scripts/qa/run_guards.sh` is BUILT and GREEN** — it runs all eight guards plus
+every data-free selftest, **23 checks in 27-33 s**, per-check PASS/FAIL, non-zero
 exit if any fails, `--list` for the roster. Documented at `README:444` with its
 limits in the row. **Fire-tested BOTH ways**: breaking the executable bit takes it
 RED at exit 126 while `bash scripts/…` passes blind — reproducing the registered

@@ -1,5 +1,7 @@
 # Fresh-session brief — the flat window at the COMBINE unit
 
+**PROMPT-KIND: brief**
+
 **SELF-RETIRING.** Delete this file in the commit that lands the verdict.
 
 **STAGED, NOT CLEARED TO RUN.** The owner staged this item; before starting,

@@ -1,5 +1,7 @@
 # Implementation report — what gets built next, and how it is judged
 
+**PROMPT-KIND: register**
+
 The rebuild-verification session's findings, distilled to the work they
 demand. Companion to the prompt briefs in this directory; the audit session
 checks each item against the acceptance stated here. Ordering within each
@@ -540,7 +542,7 @@ each set's `starlight_work/starlight_l1{base,onstack,arm}.json`.
   under a borrowed member set (bitten twice this rebuild). Multi-set products
   write session-level records; combine products get a baseline home.
 - **Guards runner** (`guards-and-ci`) — **SHIPPED and hardened; what remains is the
-  per-block bit-depth gap the item names.** 21 checks, invoked by the pre-push
+  per-block bit-depth gap the item names.** 23 checks, invoked by the pre-push
   hook, RED on a deliberately broken mechanism, logs retained on failure, and
   concurrency-safe (per-run `mkdtemp` under `$HOME` — `/tmp` is unusable because
   the Siril flatpak has a private one). **Read its LIMITS block before quoting it

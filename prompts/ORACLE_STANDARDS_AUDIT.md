@@ -1,5 +1,7 @@
 # The Oracle — engagement 1
 
+**PROMPT-KIND: brief**
+
 Written by the PM from `prompts/ORACLE_TEMPLATE.md`. Customised per engagement;
 the durable half at the bottom is the template's and is not rewritten.
 

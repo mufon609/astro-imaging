@@ -1,5 +1,7 @@
 # TEMPLATE — the worker session
 
+**PROMPT-KIND: role**
+
 **This is a template. The PM fills the `<< >>` slots under "Your unit" and deletes
 this line. Everything below "Your unit" is DURABLE and is not rewritten per unit —
 so if the slots are still unfilled, your unit has not been assigned yet and the

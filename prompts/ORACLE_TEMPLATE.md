@@ -1,5 +1,7 @@
 # TEMPLATE — the Oracle session
 
+**PROMPT-KIND: role**
+
 **This is a template. The PM customizes it per engagement** — fill the `<< >>`
 slots, delete this line, and hand the result to the Oracle session. Everything
 below "Your engagement" is durable and is not rewritten per engagement.

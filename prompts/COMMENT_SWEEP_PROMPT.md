@@ -1,5 +1,7 @@
 # Comment sweep — find and fix stale comment/record prose
 
+**PROMPT-KIND: brief**
+
 **STANDING UTILITY — NON-RETIRING.** Unlike the one-shot briefs in this
 directory, this file is not consumed by its run. Run it whenever wanted; leave
 it in place afterwards.

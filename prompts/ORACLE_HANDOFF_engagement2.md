@@ -1,5 +1,7 @@
 # Oracle handoff — engagement 1 → engagement 2
 
+**PROMPT-KIND: register**
+
 > **PM ADDENDUM, added when this was moved out of a session-scoped scratchpad into
 > the repo. The body below is the outgoing Oracle's, unedited. Two facts moved
 > between it being written and it being landed:**

@@ -1,5 +1,7 @@
 # TEMPLATE — the Adversary session
 
+**PROMPT-KIND: role**
+
 **This is a template. The PM customizes it per engagement** — fill the `<< >>`
 slots, delete this line, and hand the result to the Adversary session. The
 durable half below is not rewritten per engagement.
