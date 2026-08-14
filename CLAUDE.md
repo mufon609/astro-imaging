@@ -334,6 +334,28 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
 - **Acceptance measures come from the tools and don't loosen.** The measures that
   gate a candidate are the tools' own numbers, recorded in the per-dataset
   checklist (README review-contract); loosening one needs explicit user ratification.
+  **AND EVERY ACCEPTANCE MEASURE SHIPS WITH A POSITIVE CONTROL — data on which it
+  MUST fire (user-ratified 2026-08-14).** This is the rule `intake-culling` already
+  imposes on SIGNATURES — *"a signature that cannot be made to fail on demand is
+  decoration"* — and gates were never held to it. **Measured cost of the gap:**
+  `build_sky_flat.sh` carried a record field literally named `gate` that (1) never
+  gated — its own note reads *"it flags for attention, it does not gate"*, no
+  quality path exits non-zero, and no consumer anywhere reads a quality verdict —
+  and (2) could not have caught the defect it named, because vignetting is RADIAL
+  and therefore EVEN while a baked sky gradient is ODD, so a corner-vs-centre
+  reading measures the part that is SUPPOSED to be there and is blind by
+  construction to `sky × V`. That is structural, not a threshold to tighten. **A
+  measure that cannot be shown going RED on the defect it names is an advisory;
+  call it one.** Corollary the same episode taught: a check's own mechanism can
+  exclude the failure mode its wording promises to prevent — `grid_ramp.py` refused
+  multi-layer input *"so a per-channel parse can never mis-attribute a box"* while
+  a CFA mosaic (NAXIS=2, four filters interleaved) passed it and blended R/G/G/B in
+  every box median.
+  **WHERE THE SMART GATING BELONGS IS THE CULL (user-directed).** More photons are
+  always obtainable and a bad frame stacked is permanent, so the intake pass — one
+  measured pass, one visible formula, every signature with its positive control —
+  is the place to spend gating intelligence, not the post-hoc product checks
+  (BACKLOG:`intake-culling`).
 - **Aesthetic changes need the user's eyes on FULL-FRAME LOSSLESS
   finals** — the 16-bit PNG ONLY, the full-precision surface, opened
   independently in the user's own viewers, before any bake. **Project policy —
