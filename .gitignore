@@ -145,6 +145,12 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/resample_work/*.lst
 !**/resample_work/*.ssf
 
+# ca_work/ — the C/A and july27 exposure-lever probe. Staged raws and debayered
+# frames are regenerable; the .lst star lists and the .ssf ARE the record.
+**/ca_work/*
+!**/ca_work/*.lst
+!**/ca_work/*.ssf
+
 # bearing_work/ — the per-set drift-bearing probe. Staged raws, debayered frames
 # and siril logs are regenerable; the .lst star lists and the .ssf ARE the record.
 **/bearing_work/*

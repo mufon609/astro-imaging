@@ -1,0 +1,16 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work/raw
+convert c -debayer -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+load c_00001
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work/j_00001.lst
+load c_00002
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work/j_00002.lst
+load c_00003
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work/j_00003.lst
+load c_00004
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/ca_work/j_00004.lst
