@@ -657,7 +657,33 @@ the object-tilt lesson.** "Does the effect scale with each field's own dec range
 needs fields whose dec ranges differ; the 13 aug06 members vary by **4.9%** in
 cos^2(dec) span, and all 12 staged sets are ONE target at 2.5 s and 70 mm, so
 there is no exposure lever either (L scales with t_exp). The large lever is
-WITHIN a frame (cos^2 dec 0.378 -> 0.732) and it is the one already used. **Star SIZE is a separate quantity and is purely radial
+WITHIN a frame (cos^2 dec 0.378 -> 0.732) and it is the one already used.
+
+**SCOPE THAT PARENTHESIS — "(L scales with t_exp)" IS THE MULTIPLICATIVE CASE
+STATED AS THE GENERAL ONE, AND IT IS NOT.** If `t_eff = f·t_nom` the measured/
+predicted ratio is invariant and there is indeed no lever. But a shutter timing
+error is a fixed OFFSET, `t_eff = t_nom − δ`, giving a ratio `1 − δ/t_nom` that
+DOES vary with nominal exposure — so the dismissal never addressed the offset
+case at all. **The offset case is nonetheless CLOSED, by arithmetic and with no
+frames:** the pinned ratio implies `δ = 2.5 × (1 − 0.5918) = 1.0206 s`, i.e.
+**1021 ms**, against shutter latencies of O(1–10) ms. Three orders of magnitude —
+a 1021 ms error on a 2.5 s exposure is not a timing tolerance, it is a different
+exposure. **Do not re-open this as a july27 comparison** (which IS staged on this
+rig — set-01 282 frames, set-02 253): it would eliminate at 10³ what needs no
+frames, it cannot escape the night/exposure aliasing that closed the item, and the
+cross-night σ difference would have to be closed first. For the record the split
+would have been real — offset predicts px² 0.4354 at 3.0 s against multiplicative's
+0.3502. **What this leaves is that MULTIPLICATIVE is the only surviving shape of
+"the integration is genuinely short", and no mechanism produces one.**
+
+**AND THE VALIDATED DRIFT CHECK CONSTRAINS LESS THAN "same rate, same scale"
+SUGGESTS — the MOMENT ORDER differs too.** The drift check is a FIRST-moment
+measurement (centroid displacement BETWEEN frames); the trail is a SECOND-moment
+measurement WITHIN one frame. So it validates the rate and the plate scale and
+validates **nothing** about the second-moment machinery — which is where every
+surviving hypothesis now lives.
+
+**Star SIZE is a separate quantity and is purely radial
 in the same raws** (rho 30.4 SE, x 0.1 SE, F = 0.0). Numbers:
 `datasets/aug06/corner_work/mechanism_and_specs.json`,
 `datasets/aug06/set-01/psf_work/f{1,2,3}.lst`.
@@ -903,12 +929,45 @@ prediction is the entire experiment.
 
 **AND A SEPARATE FINDING THAT BEARS ON THE FIX PATH: THE "FIXED" TERM'S DIRECTION
 IS NOT FIXED.** Its axis runs **+0.04 / +13.86 / +21.94 / +15.74 / +10.49°** across
-the five bins at SEs of 1.07–1.39° — **10 to 20σ apart. A single field-constant
-term cannot do that.** It is consistent with the recorded near-cancellation of two
-large vectors, whose resultant rotates as their ratio changes with radius.
-**`corner-fix-landscape` defines C as the field-constant spin-2 term and gates the
-`rl -loadpsf=` route on C/A being a lens property — so if C is not one quantity at
-any radius, C/A is not well defined and that route may be moot before it is run.**
+five equal-COUNT bins, and **+6.40 / +17.31 / +22.91 / +13.80 / +17.47°** across
+ρ-EQUAL bins — so the rotation is **NOT a binning artefact** (span 16.5° ρ-equal
+against 17.4° equal-count). A single field-constant term cannot do that. It is
+consistent with the recorded near-cancellation of two large vectors, whose
+resultant rotates as their ratio changes with radius.
+
+**THE "10 TO 20σ" PREVIOUSLY QUOTED HERE IS WITHDRAWN, AND THE ERROR MODEL THAT
+PRODUCED IT WAS WRONG FOR EVERY PER-BIN NUMBER IN THIS THREAD.** Those SEs
+(1.07–1.39°) came from a star-level bootstrap inside ONE POOLED population, which
+captures shot noise only. Against the five raws treated as INDEPENDENT
+realisations the frame-to-frame scatter is **4.1–9.2× the bootstrap SE, median
+5.76×**, and χ²/dof 35.6 on bootstrap errors becomes **~1.1** on frame-based ones.
+**The bootstrap manufactures rejections.** Rule, and it generalises past this
+thread: *a per-bin property estimated from N frames has N independent
+realisations; resampling stars inside a pool is not an error bar for it.*
+
+**WHAT SURVIVES, WITH ITS CONDITION STATED — the rotation is real at χ² 74.6 on
+4 dof, but ONLY WITH DSC_6239 EXCLUDED.** With all five frames in, **nothing
+rejects** (axis χ² 3.0/4). DSC_6239's per-bin axes run −35.9 / −44.5 / −40.2 /
+−30.4 / −3.5° against the other four at +5 to +25° — not a marginal outlier but a
+different object. The exclusion is PRE-DOCUMENTED and not post-hoc: it is the
+first-frame-of-night anomaly, already on the record in two independent quantities
+(θ₀ departs 19.75° while the drift bearing departs 0.150°; per-raw coherent 0.4615
+against 0.7573–0.8154), and the injection work was rebuilt once for using it.
+**It is still one frame of five, and the rejection survives a 2× inflation of the
+frame-based SEs (74.6 → 18.7) but not 3× (→ 8.3), on an SE carrying 3 dof.**
+
+**THE CONSTANCY GATE FAILS ON THE SAME CONDITION** (`constancy_fit.json`,
+PM-audited by re-execution). No single trail scale `f` makes `C(ρ) − f·T(ρ)` a
+constant 2-vector: **χ²/dof 19.3 on 7 dof** (ρ-equal), 30.3 (equal-count), with
+best-fit `f` at 5.7–7.6 — 6–8× the predicted trail, which is what a misspecified
+model returns rather than a trail measurement. **`corner-fix-landscape` gates the
+`rl -loadpsf=` route on a genuinely field-constant component, so on four frames
+that route FAILS its gate.** Two limits travel with that and neither is optional:
+the verdict flips on the one-frame exclusion above (all five → χ²/dof 1.81,
+nothing rejects); and **this design can KILL the route but can NEVER quote a trail
+scale** — T varies only 5.1% in magnitude and 1.5° in axis across the bins, so `f`
+is nearly collinear with the constant (design condition **131**) and is separately
+degenerate with any overall scale error in the WCS behind T.
 
 **FIFTH COMMENSURABILITY FINDING, recovered while rebuilding the estimator:
 THIS THREAD'S TWO MOST-QUOTED NUMBERS ARE DIFFERENT QUANTITIES AND NOTHING SAID
@@ -1138,9 +1197,17 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   in-house pixel code. **GATED on the C/A test** (`one-sided-band`): if C/A holds
   constant across the six sets the misalignment is fixed, |C| is the amplitude of
   the globally-correctable component and its direction is the PSF to build.
-  **AND THE GATE MAY BE UNSATISFIABLE AS WRITTEN — C IS NOT ONE QUANTITY.**
-  Measured per ρ bin, the fixed term's DIRECTION runs 22° across the field at
-  10–20σ (`one-sided-band`, which carries the numbers — not restated here).
+  **AND THE GATE HAS NOW BEEN RUN DIRECTLY AND IT FAILS, ON A STATED CONDITION.**
+  The constancy question does not need C/A or the trail magnitude at all: solve
+  for the single scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector, and no `f`
+  does (**χ²/dof 19.3 on 7 dof**). **On four frames this route fails its gate.**
+  The condition is load-bearing and must travel with the verdict: the rejection
+  depends on excluding DSC_6239, and with all five frames in, nothing rejects
+  (χ²/dof 1.81). The exclusion is pre-documented rather than post-hoc, and it is
+  still one frame of five. **Do not report this route as dead without that
+  sentence.** The design can kill the route and can never quote a trail scale
+  (condition 131). Numbers and the withdrawn "10–20σ" significance:
+  `one-sided-band` and `datasets/aug06/corner_work/constancy_fit.json`.
   This bullet defines C as *the field-constant spin-2 term*, so if there is no
   single such term, C/A is not well defined and "does C/A hold across sets"
   cannot be asked in that form. **What survives is the weaker, still-useful
