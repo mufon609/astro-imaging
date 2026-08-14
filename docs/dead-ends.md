@@ -3221,7 +3221,21 @@ Acquisition quality outranks processing; never bandaid what photons must fix.
   integration does not buy it back.** A 98%-lit moon 24 deg up, 72 deg off the
   field, raised the sky **4.2x** against a moonless night at the SAME hour on the
   same rig (single raw frames, matched to 3 s of clock time: R/G/B 116/219/166 ADU
-  above pedestal vs 27/52/40; the excess is colour-NEUTRAL — R/G 0.53 vs 0.52,
+  above pedestal vs 27/52/40 — **PEDESTAL UNSTATED, and that makes the 4.2× ratio
+  uncheckable rather than wrong: it is 219/52, so it is SENSITIVE to the reference.
+  The sensor pedestal is now MEASURED at 1007.2 ADU (`TOOLS.md`); if these figures
+  used the 1024 that was assumed elsewhere, both are understated by 16.8 and the
+  true ratio is (219+16.8)/(52+16.8) = 3.43, a 23% overstatement. If they used the
+  correct reference, 4.2× stands. Nobody can tell, which is the defect.** Weak
+  hint in the figures' favour and offered as a hint only, since inferring the input
+  from the tidiness of the output is backwards: a 16.8 error would generally break
+  the R/G 0.53-vs-0.52 agreement below, and it does not.
+  **THE RULE THIS COSTS: any figure quoted "above pedestal", "above background",
+  "above bias" or "net of" MUST state its denominator** — the offset form of the
+  register's state-the-denominator rule for counts, and the same discipline the
+  cloud record carries. A literal grep for the assumed value cannot find this class:
+  the assumption does not survive as a literal, it survives as a number COMPUTED
+  from it; the excess is colour-NEUTRAL — R/G 0.53 vs 0.52,
   B/G 0.75 vs 0.77 — which is what identifies moonlight rather than a light
   dome). Consequences, all measured: per-frame noise ~2.4x worse against fixed
   star flux; ~2.7x fewer stars detected per frame (700 vs 1877); and **1030

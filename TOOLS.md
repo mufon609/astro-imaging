@@ -398,6 +398,26 @@ re-derived under `-moffat` before it is quotable, which the β pathology makes n
 worth doing. Numbers and the control that validates the probe environment:
 `datasets/aug06/corner_work/moffat_probe.json`.
 
+**THE SENSOR PEDESTAL, MEASURED — a rig constant, and it was ASSUMED at 1024 until
+it was not.** **1007.2 ADU** on the 65535 scale, for **NIKON Z6_3, 14-bit**.
+Instrument: Siril `stat` on the 328-frame master dark at the lights' own 2.5 s —
+the right quantity, since it carries bias plus dark current, which is the additive
+non-sky signal a light actually has. **Stable to 0.1 ADU across three nights**
+(1007.2 / 1007.3 / 1007.3 over aug06, aug09, july31), so it is a sensor property
+and not a per-night value. **Cross-checked by two further instruments sharing no
+code: the camera's own EXIF `BlackLevel` reads 1008, and an independent astropy
+read of the same master gives 1007.24.**
+**WHY IT IS HERE RATHER THAN IN A DATASET RECORD:** it was measured inside one
+set's cloud work, and the next person needing a pedestal will not look there — they
+will look where the rig facts are, find nothing, and assume 1024, **which is exactly
+what happened.** The assumed value understated the sky term by **62%** (26.9 vs the
+measured 43.7 ADU on an aug06 background of 1050.9) and therefore overstated the
+dilution of a raw background fraction as ~39× where it is **24×**.
+**AND THE RULE IT CARRIES: any figure quoted "above pedestal", "above background",
+"above bias" or "net of" MUST state its denominator, or it cannot be checked and
+cannot be corrected when the reference moves.** This is the offset form of the
+register's state-the-denominator rule for counts.
+
 **A MEASURED ZERO POINT FOR THIS CAMERA+LENS, and the structural reason it cannot
 settle an exposure question.** **ZP_V_T = 16.754 ± 0.015** (sem; MAD 0.060, n = 33
 at V_T > 4.5, none tool-flagged saturated) for **NIKON Z6_3 + NIKKOR Z 24-70/4 S at
