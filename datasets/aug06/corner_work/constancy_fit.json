@@ -1,0 +1,1036 @@
+{
+ "what": "is the fixed spin-2 term, after trail subtraction, a CONSTANT 2-VECTOR in rho? The gate on corner-fix-landscape's only FIX-classified route.",
+ "population": "sub_01's five constituent raws, above-median amplitude per frame, |D| <= 6 px^2, pooled",
+ "n_stars": 17762,
+ "trail_prediction": {
+  "source": "astrometry.net WCS of k_00003's own star list (phot_work/k3.wcs); conversion is Siril's fitted kappa",
+  "kappa": 0.49374712819727373,
+  "L_px_range": [
+   1.3055374405952298,
+   1.9102971300289626
+  ],
+  "L_px_median": 1.5894725351347363
+ },
+ "binnings": {
+  "equal_count": {
+   "bins": [
+    {
+     "bin": 1,
+     "rho_lo": 0.004830994376225227,
+     "rho_hi": 0.24696228114103994,
+     "rho_median": 0.1710326895173138,
+     "n": 3553,
+     "C1": 0.553364380369626,
+     "C2": 0.0006861043593958775,
+     "se_C1": 0.015278696168746848,
+     "se_C2": 0.02587123493441517,
+     "fixed_magnitude": 0.5533648057123367,
+     "fixed_axis_deg": 0.03551987203124184,
+     "fixed_axis_se_deg": 1.3438521889695112,
+     "radial_R": -0.021634393442959917,
+     "radial_SE_units": 1.0229033517324764,
+     "design_condition": 1.102731959307137,
+     "T1": 1.1642699722118774,
+     "T2": 0.23709748361262023,
+     "T_magnitude": 1.188166564472205,
+     "T_axis_deg": 5.755294345862083,
+     "ratio_C_over_prediction": 0.4564780367121226
+    },
+    {
+     "bin": 2,
+     "rho_lo": 0.24696228114103994,
+     "rho_hi": 0.375002940137821,
+     "rho_median": 0.31552146277103255,
+     "n": 3552,
+     "C1": 0.42893196307642434,
+     "C2": 0.22536342880263305,
+     "se_C1": 0.017890569739457296,
+     "se_C2": 0.025000239376784722,
+     "fixed_magnitude": 0.4845320464017571,
+     "fixed_axis_deg": 13.85885289247057,
+     "fixed_axis_se_deg": 1.3934095083938314,
+     "radial_R": 0.12823724695745242,
+     "radial_SE_units": 5.729462723744134,
+     "design_condition": 1.0910952527946147,
+     "T1": 1.1919489711586284,
+     "T2": 0.23207265642487815,
+     "T_magnitude": 1.2143311194670967,
+     "T_axis_deg": 5.50882893777252,
+     "ratio_C_over_prediction": 0.3821820668609389
+    },
+    {
+     "bin": 3,
+     "rho_lo": 0.375002940137821,
+     "rho_hi": 0.48993853540144927,
+     "rho_median": 0.4314043917858957,
+     "n": 3552,
+     "C1": 0.3342284789488039,
+     "C2": 0.32141649334803146,
+     "se_C1": 0.018203187612409757,
+     "se_C2": 0.024423232188609555,
+     "fixed_magnitude": 0.46369951297858425,
+     "fixed_axis_deg": 21.940261636451662,
+     "fixed_axis_se_deg": 1.3439109628699837,
+     "radial_R": 0.5996631658879965,
+     "radial_SE_units": 27.24063702248346,
+     "design_condition": 1.0949108571166475,
+     "T1": 1.1901548892896197,
+     "T2": 0.253080638120392,
+     "T_magnitude": 1.2167655772133807,
+     "T_axis_deg": 6.002427501808327,
+     "ratio_C_over_prediction": 0.32362173072709577
+    },
+    {
+     "bin": 4,
+     "rho_lo": 0.48993853540144927,
+     "rho_hi": 0.6256591697606982,
+     "rho_median": 0.5493822381182001,
+     "n": 3552,
+     "C1": 0.45546848955933694,
+     "C2": 0.27897723083380344,
+     "se_C1": 0.02105174194323369,
+     "se_C2": 0.02301379419460674,
+     "fixed_magnitude": 0.5341159427550923,
+     "fixed_axis_deg": 15.743861879653954,
+     "fixed_axis_se_deg": 1.1099718435285386,
+     "radial_R": 1.0983885314423028,
+     "radial_SE_units": 45.202500517405525,
+     "design_condition": 1.110494086212369,
+     "T1": 1.1813843423228256,
+     "T2": 0.25684180731362577,
+     "T_magnitude": 1.208981669947756,
+     "T_axis_deg": 6.1328296859066,
+     "ratio_C_over_prediction": 0.41716000098968453
+    },
+    {
+     "bin": 5,
+     "rho_lo": 0.6256591697606982,
+     "rho_hi": 0.9755412902854244,
+     "rho_median": 0.7236676317585456,
+     "n": 3553,
+     "C1": 0.7650698306178246,
+     "C2": 0.2933579748799349,
+     "se_C1": 0.02804983769075167,
+     "se_C2": 0.03261359609178403,
+     "fixed_magnitude": 0.819384370821926,
+     "fixed_axis_deg": 10.48939780045109,
+     "fixed_axis_se_deg": 1.0715297688584458,
+     "radial_R": 0.33469674752190187,
+     "radial_SE_units": 9.78758501720667,
+     "design_condition": 1.8246544535409628,
+     "T1": 1.2152590134207084,
+     "T2": 0.26406564545365024,
+     "T_magnitude": 1.2436177607324232,
+     "T_axis_deg": 6.129660959646614,
+     "ratio_C_over_prediction": 0.6512565961423905
+    }
+   ],
+   "constancy_fit_BOOTSTRAP_ERRORS_DO_NOT_USE": {
+    "f": 1.8127255925763395,
+    "f_se": 0.4850950340878914,
+    "K1": -1.6637611869484834,
+    "K2": -0.22509487470189438,
+    "K_magnitude": 1.678918994416731,
+    "K_axis_deg": -86.1475390584995,
+    "chi2": 286.6280613563164,
+    "dof": 7,
+    "chi2_per_dof": 40.9468659080452,
+    "design_condition": 140.05175090440832,
+    "no_trail_f0": {
+     "chi2": 300.59208176938347,
+     "dof": 8,
+     "K": [
+      0.4815599116172307,
+      0.22411368157718956
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 289.43500836662065,
+     "dof": 8,
+     "K": [
+      -0.7019182206226704,
+      -0.023694678451886463
+     ]
+    }
+   },
+   "LEVER": {
+    "trail_magnitude_spread_percent": 4.666954778756138,
+    "trail_axis_spread_deg": 0.6240007481340797,
+    "reads": "f is determined only by how much T VARIES across bins. A nearly constant T is absorbed by K, so a weak lever makes f unquotable while leaving the constancy question intact \u2014 subtracting a near-constant vector cannot change the SHAPE of C(rho)."
+   },
+   "all_5_frames": {
+    "bins": [
+     {
+      "bin": 1,
+      "rho_lo": 0.004830994376225227,
+      "rho_hi": 0.24696228114103994,
+      "n_frames": 5,
+      "C1": 0.5496323885996943,
+      "C2": -0.008764012798802522,
+      "se_C1": 0.08921168662007022,
+      "se_C2": 0.18020066884651534,
+      "fixed_magnitude": 0.5497022562425435,
+      "fixed_axis_deg": -1.4388953284512103,
+      "fixed_axis_se_deg": 9.068209844070251,
+      "per_frame_axis_deg": [
+       -36.97065318937161,
+       2.843607831188376,
+       4.118423484080326,
+       10.206787590912299,
+       12.607357640934557
+      ],
+      "T1": 1.1642828828736,
+      "T2": 0.23715919406631744,
+      "T_magnitude": 1.188191531144136,
+      "T_axis_deg": 5.756690175256537
+     },
+     {
+      "bin": 2,
+      "rho_lo": 0.24696228114103994,
+      "rho_hi": 0.375002940137821,
+      "n_frames": 5,
+      "C1": 0.42690990964586606,
+      "C2": 0.22375092714009953,
+      "se_C1": 0.10868902099284668,
+      "se_C2": 0.188045690244002,
+      "fixed_magnitude": 0.4819922700105217,
+      "fixed_axis_deg": 5.721841222784617,
+      "fixed_axis_se_deg": 12.85035108965773,
+      "per_frame_axis_deg": [
+       -45.2618056874783,
+       12.38827230222114,
+       21.4622243170136,
+       18.83136778255778,
+       21.189147399608864
+      ],
+      "T1": 1.1919218857673626,
+      "T2": 0.23210078091054814,
+      "T_magnitude": 1.2143099086602696,
+      "T_axis_deg": 5.509602338009714
+     },
+     {
+      "bin": 3,
+      "rho_lo": 0.375002940137821,
+      "rho_hi": 0.48993853540144927,
+      "n_frames": 5,
+      "C1": 0.3319145983772548,
+      "C2": 0.31831592367975503,
+      "se_C1": 0.0875332999976827,
+      "se_C2": 0.17408126226137294,
+      "fixed_magnitude": 0.45988295019931974,
+      "fixed_axis_deg": 10.633542479458859,
+      "fixed_axis_se_deg": 14.189549223417604,
+      "per_frame_axis_deg": [
+       -46.05529693206064,
+       23.855889073008164,
+       27.4233635742752,
+       23.38422176512077,
+       24.559534916950806
+      ],
+      "T1": 1.1900842770617774,
+      "T2": 0.2530830424302544,
+      "T_magnitude": 1.2166970094791092,
+      "T_axis_deg": 6.002828688337473
+     },
+     {
+      "bin": 4,
+      "rho_lo": 0.48993853540144927,
+      "rho_hi": 0.6256591697606982,
+      "n_frames": 5,
+      "C1": 0.4565308801016778,
+      "C2": 0.2782235671218289,
+      "se_C1": 0.08988165251355523,
+      "se_C2": 0.1580013317029099,
+      "fixed_magnitude": 0.5346295893311623,
+      "fixed_axis_deg": 8.113140020298948,
+      "fixed_axis_se_deg": 11.215322490702391,
+      "per_frame_axis_deg": [
+       -36.625326970108674,
+       17.41288635343978,
+       22.32292081589756,
+       18.279476705092435,
+       19.175743197173635
+      ],
+      "T1": 1.1814252649513466,
+      "T2": 0.2568895538948524,
+      "T_magnitude": 1.2090318025451836,
+      "T_axis_deg": 6.1337292125303975
+     },
+     {
+      "bin": 5,
+      "rho_lo": 0.6256591697606982,
+      "rho_hi": 0.9755412902854244,
+      "n_frames": 5,
+      "C1": 0.768081521711312,
+      "C2": 0.29643422980844214,
+      "se_C1": 0.10731914354899118,
+      "se_C2": 0.16759454396863172,
+      "fixed_magnitude": 0.8232997489350334,
+      "fixed_axis_deg": 6.428082181413046,
+      "fixed_axis_se_deg": 7.5154691891046745,
+      "per_frame_axis_deg": [
+       -23.494880708759027,
+       13.98610356392378,
+       11.305927498859402,
+       14.699663233878798,
+       15.643597319162275
+      ],
+      "T1": 1.2153439656101672,
+      "T2": 0.26388905627542936,
+      "T_magnitude": 1.2436632939694667,
+      "T_axis_deg": 6.125270453894302
+     }
+    ],
+    "constancy_fit": {
+     "f": 3.6445302997524758,
+     "f_se": 2.4631378746053216,
+     "K1": -3.831551506612571,
+     "K2": -0.6823912076901397,
+     "K_magnitude": 3.8918433560663606,
+     "K_axis_deg": -84.9508121371323,
+     "chi2": 10.96844541954211,
+     "dof": 7,
+     "chi2_per_dof": 1.5669207742203015,
+     "design_condition": 141.4462950430117,
+     "no_trail_f0": {
+      "chi2": 13.157747480666078,
+      "dof": 8,
+      "K": [
+       0.49275928583012696,
+       0.22810200021981153
+      ]
+     },
+     "full_trail_f1": {
+      "chi2": 12.121154329720431,
+      "dof": 8,
+      "K": [
+       -0.6937614553299593,
+       -0.021722567838176183
+      ]
+     }
+    },
+    "axis_constancy": {
+     "axes_deg": [
+      -1.4388953284512103,
+      5.721841222784617,
+      10.633542479458859,
+      8.113140020298948,
+      6.428082181413046
+     ],
+     "ses_deg": [
+      9.068209844070251,
+      12.85035108965773,
+      14.189549223417604,
+      11.215322490702391,
+      7.5154691891046745
+     ],
+     "span_deg": 12.072437807910068,
+     "weighted_mean_deg": 5.083616286519009,
+     "chi2": 0.7777697023756626,
+     "dof": 4,
+     "rejects_constant_axis_95pct": false
+    }
+   },
+   "drop_DSC_6239": {
+    "bins": [
+     {
+      "bin": 1,
+      "rho_lo": 0.004830994376225227,
+      "rho_hi": 0.24696228114103994,
+      "n_frames": 4,
+      "C1": 0.6357605402024639,
+      "C2": 0.16719045142935454,
+      "se_C1": 0.030018509042698666,
+      "se_C2": 0.0502047071317968,
+      "fixed_magnitude": 0.6573766892183507,
+      "fixed_axis_deg": 7.44404413677889,
+      "fixed_axis_se_deg": 2.3543634076434157,
+      "per_frame_axis_deg": [
+       2.843607831188376,
+       4.118423484080326,
+       10.206787590912299,
+       12.607357640934557
+      ],
+      "T1": 1.164178639533233,
+      "T2": 0.23613039972128563,
+      "T_magnitude": 1.1878844516273388,
+      "T_axis_deg": 5.732880051192581
+     },
+     {
+      "bin": 2,
+      "rho_lo": 0.24696228114103994,
+      "rho_hi": 0.375002940137821,
+      "n_frames": 4,
+      "C1": 0.5348048840589836,
+      "C2": 0.4074375806670477,
+      "se_C1": 0.016930139828924527,
+      "se_C2": 0.051967857620745565,
+      "fixed_magnitude": 0.6723255507216426,
+      "fixed_axis_deg": 18.467752950350345,
+      "fixed_axis_se_deg": 2.1107886995820606,
+      "per_frame_axis_deg": [
+       12.38827230222114,
+       21.4622243170136,
+       18.83136778255778,
+       21.189147399608864
+      ],
+      "T1": 1.191430500407461,
+      "T2": 0.2309839067371843,
+      "T_magnitude": 1.213614519718986,
+      "T_axis_deg": 5.485941195637906
+     },
+     {
+      "bin": 3,
+      "rho_lo": 0.375002940137821,
+      "rho_hi": 0.48993853540144927,
+      "n_frames": 4,
+      "C1": 0.41835742874343873,
+      "C2": 0.49189363915479,
+      "se_C1": 0.017781811248551257,
+      "se_C2": 0.01708130366710572,
+      "fixed_magnitude": 0.6457416591995317,
+      "fixed_axis_deg": 24.805752332338734,
+      "fixed_axis_se_deg": 0.9053314767951754,
+      "per_frame_axis_deg": [
+       23.855889073008164,
+       27.4233635742752,
+       23.38422176512077,
+       24.559534916950806
+      ],
+      "T1": 1.189814736576987,
+      "T2": 0.2533283588811985,
+      "T_magnitude": 1.2164844285025627,
+      "T_axis_deg": 6.009799818570059
+     },
+     {
+      "bin": 4,
+      "rho_lo": 0.48993853540144927,
+      "rho_hi": 0.6256591697606982,
+      "n_frames": 4,
+      "C1": 0.5444381451127333,
+      "C2": 0.4349207097313226,
+      "se_C1": 0.024187607599883237,
+      "se_C2": 0.026154232223261367,
+      "fixed_magnitude": 0.6968277531836623,
+      "fixed_axis_deg": 19.297756767900854,
+      "fixed_axis_se_deg": 1.0706748492717575,
+      "per_frame_axis_deg": [
+       17.41288635343978,
+       22.32292081589756,
+       18.279476705092435,
+       19.175743197173635
+      ],
+      "T1": 1.1790111296949934,
+      "T2": 0.25617518196534217,
+      "T_magnitude": 1.2065210183828712,
+      "T_axis_deg": 6.129333783336165
+     },
+     {
+      "bin": 5,
+      "rho_lo": 0.6256591697606982,
+      "rho_hi": 0.9755412902854244,
+      "n_frames": 4,
+      "C1": 0.874646087781881,
+      "C2": 0.4621501033486181,
+      "se_C1": 0.016400804364435514,
+      "se_C2": 0.032305325280053546,
+      "fixed_magnitude": 0.9892363200455634,
+      "fixed_axis_deg": 13.908822903956063,
+      "fixed_axis_se_deg": 0.931661038565203,
+      "per_frame_axis_deg": [
+       13.98610356392378,
+       11.305927498859402,
+       14.699663233878798,
+       15.643597319162275
+      ],
+      "T1": 1.2185112115699392,
+      "T2": 0.25799282784547517,
+      "T_magnitude": 1.2455239347123548,
+      "T_axis_deg": 5.977283135684971
+     }
+    ],
+    "constancy_fit": {
+     "f": 7.594979252364351,
+     "f_se": 0.4997741795707463,
+     "K1": -8.461861889189603,
+     "K2": -1.4658104909458753,
+     "K_magnitude": 8.58788140504318,
+     "K_axis_deg": -85.08621639372852,
+     "chi2": 212.20676560897633,
+     "dof": 7,
+     "chi2_per_dof": 30.315252229853762,
+     "design_condition": 141.83843859073713,
+     "no_trail_f0": {
+      "chi2": 443.150164826666,
+      "dof": 8,
+      "K": [
+       0.612422747630863,
+       0.45078896572834865
+      ]
+     },
+     "full_trail_f1": {
+      "chi2": 386.33902593300996,
+      "dof": 8,
+      "K": [
+       -0.5823513702833635,
+       0.1984381174916608
+      ]
+     }
+    },
+    "axis_constancy": {
+     "axes_deg": [
+      7.44404413677889,
+      18.467752950350345,
+      24.805752332338734,
+      19.297756767900854,
+      13.908822903956063
+     ],
+     "ses_deg": [
+      2.3543634076434157,
+      2.1107886995820606,
+      0.9053314767951754,
+      1.0706748492717575,
+      0.931661038565203
+     ],
+     "span_deg": 17.361708195559842,
+     "weighted_mean_deg": 18.800915363069706,
+     "chi2": 95.07455421012835,
+     "dof": 4,
+     "rejects_constant_axis_95pct": true
+    }
+   }
+  },
+  "rho_equal": {
+   "bins": [
+    {
+     "bin": 1,
+     "rho_lo": 0.004830994376225227,
+     "rho_hi": 0.19897305355806505,
+     "rho_median": 0.1405117598161688,
+     "n": 2352,
+     "C1": 0.591324509141024,
+     "C2": -0.015912431142428393,
+     "se_C1": 0.019510579815322577,
+     "se_C2": 0.030864711772128385,
+     "fixed_magnitude": 0.5915385706576837,
+     "fixed_axis_deg": -0.770723315664907,
+     "fixed_axis_se_deg": 1.5004507402166873,
+     "radial_R": -0.06411158988078983,
+     "radial_SE_units": 2.542619485134633,
+     "design_condition": 1.0878210381555113,
+     "T1": 1.1594201682504506,
+     "T2": 0.2357944171367281,
+     "T_magnitude": 1.183154315251714,
+     "T_axis_deg": 5.747810417147676,
+     "ratio_C_over_prediction": 0.48708039147682775
+    },
+    {
+     "bin": 2,
+     "rho_lo": 0.19897305355806505,
+     "rho_hi": 0.3931151127399049,
+     "rho_median": 0.30466421803906163,
+     "n": 5336,
+     "C1": 0.42927994284009996,
+     "C2": 0.191831714869409,
+     "se_C1": 0.014877944230203496,
+     "se_C2": 0.021059848353866546,
+     "fixed_magnitude": 0.4701921693887912,
+     "fixed_axis_deg": 12.039183377929064,
+     "fixed_axis_se_deg": 1.2515700373478855,
+     "radial_R": 0.1264327662463267,
+     "radial_SE_units": 7.044232191694684,
+     "design_condition": 1.0949580462305937,
+     "T1": 1.186103179465944,
+     "T2": 0.23502576459005092,
+     "T_magnitude": 1.209164117215012,
+     "T_axis_deg": 5.603974476540557,
+     "ratio_C_over_prediction": 0.3790876770739293
+    },
+    {
+     "bin": 3,
+     "rho_lo": 0.3931151127399049,
+     "rho_hi": 0.5872571719217448,
+     "rho_median": 0.48615618802428884,
+     "n": 5704,
+     "C1": 0.3754738077175189,
+     "C2": 0.3070663070786527,
+     "se_C1": 0.015602522610643082,
+     "se_C2": 0.019895200946679844,
+     "fixed_magnitude": 0.4850466959219636,
+     "fixed_axis_deg": 19.63832504063264,
+     "fixed_axis_se_deg": 1.0677466625002374,
+     "radial_R": 0.8877720813399417,
+     "radial_SE_units": 52.068178947105906,
+     "design_condition": 1.0808726469737577,
+     "T1": 1.1864296012676667,
+     "T2": 0.2527681457898844,
+     "T_magnitude": 1.2130568553411711,
+     "T_axis_deg": 6.0135078253943135,
+     "ratio_C_over_prediction": 0.3554790051355633
+    },
+    {
+     "bin": 4,
+     "rho_lo": 0.5872571719217448,
+     "rho_hi": 0.7813992311035846,
+     "rho_median": 0.667780845620654,
+     "n": 3394,
+     "C1": 0.6871498891487688,
+     "C2": 0.23769228925188252,
+     "se_C1": 0.026723930111828956,
+     "se_C2": 0.028231305610629365,
+     "fixed_magnitude": 0.7270987515647142,
+     "fixed_axis_deg": 9.540517423520336,
+     "fixed_axis_se_deg": 1.0579409219649758,
+     "radial_R": 0.4935446724844378,
+     "radial_SE_units": 14.161950872015174,
+     "design_condition": 1.6801673752163546,
+     "T1": 1.2115273998869114,
+     "T2": 0.2555667128169507,
+     "T_magnitude": 1.238189398023098,
+     "T_axis_deg": 5.955837542390242,
+     "ratio_C_over_prediction": 0.5826362206041119
+    },
+    {
+     "bin": 5,
+     "rho_lo": 0.7813992311035846,
+     "rho_hi": 0.9755412902854244,
+     "rho_median": 0.8205155741379653,
+     "n": 976,
+     "C1": 0.8148454722892625,
+     "C2": 0.4990057241609938,
+     "se_C1": 0.06735158364465038,
+     "se_C2": 0.06862266705942649,
+     "fixed_magnitude": 0.9554997940636875,
+     "fixed_axis_deg": 15.74150705831475,
+     "fixed_axis_se_deg": 1.8608456807717961,
+     "radial_R": 0.35441167503312243,
+     "radial_SE_units": 4.315686969643641,
+     "design_condition": 2.00096934425535,
+     "T1": 1.2055894876978948,
+     "T2": 0.30566631509316566,
+     "T_magnitude": 1.2437354658569106,
+     "T_axis_deg": 7.113515792119912,
+     "ratio_C_over_prediction": 0.7336702979463221
+    }
+   ],
+   "constancy_fit_BOOTSTRAP_ERRORS_DO_NOT_USE": {
+    "f": 2.2452882459748897,
+    "f_se": 0.4904736086769159,
+    "K1": -2.1782798336310685,
+    "K2": -0.33561912694831797,
+    "K_magnitude": 2.2039834917660674,
+    "K_axis_deg": -85.62050621347431,
+    "chi2": 249.1780784479925,
+    "dof": 7,
+    "chi2_per_dof": 35.59686834971321,
+    "design_condition": 136.08357214998614,
+    "no_trail_f0": {
+     "chi2": 270.1342969441961,
+     "dof": 8,
+     "K": [
+      0.4798300600052897,
+      0.21866504026898084
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 255.62434842060298,
+     "dof": 8,
+     "K": [
+      -0.7040312541941371,
+      -0.02820044268669322
+     ]
+    }
+   },
+   "LEVER": {
+    "trail_magnitude_spread_percent": 5.120308469002044,
+    "trail_axis_spread_deg": 1.5095413155793551,
+    "reads": "f is determined only by how much T VARIES across bins. A nearly constant T is absorbed by K, so a weak lever makes f unquotable while leaving the constancy question intact \u2014 subtracting a near-constant vector cannot change the SHAPE of C(rho)."
+   },
+   "all_5_frames": {
+    "bins": [
+     {
+      "bin": 1,
+      "rho_lo": 0.004830994376225227,
+      "rho_hi": 0.19897305355806505,
+      "n_frames": 5,
+      "C1": 0.5863866700405289,
+      "C2": -0.026312383507200054,
+      "se_C1": 0.09070786901907187,
+      "se_C2": 0.18462464646793983,
+      "fixed_magnitude": 0.5869767187266034,
+      "fixed_axis_deg": -2.054434891204907,
+      "fixed_axis_se_deg": 8.689985500668916,
+      "per_frame_axis_deg": [
+       -35.88026957279217,
+       1.1770600092960386,
+       2.747821858335112,
+       10.77137345187642,
+       10.911839797260066
+      ],
+      "T1": 1.159397230772866,
+      "T2": 0.2358330949372033,
+      "T_magnitude": 1.1831395468800163,
+      "T_axis_deg": 5.748838839859474
+     },
+     {
+      "bin": 2,
+      "rho_lo": 0.19897305355806505,
+      "rho_hi": 0.3931151127399049,
+      "n_frames": 5,
+      "C1": 0.4266283160909416,
+      "C2": 0.18837572916383824,
+      "se_C1": 0.10548869756303224,
+      "se_C2": 0.1808288668249445,
+      "fixed_magnitude": 0.46636588150142383,
+      "fixed_axis_deg": 4.945411917543532,
+      "fixed_axis_se_deg": 12.421340368374326,
+      "per_frame_axis_deg": [
+       -44.52770135710037,
+       13.083291505745958,
+       19.017068126284805,
+       17.500847377029356,
+       19.65355393575791
+      ],
+      "T1": 1.1861070458909844,
+      "T2": 0.23505320413411318,
+      "T_magnitude": 1.209173243619768,
+      "T_axis_deg": 5.60459437410573
+     },
+     {
+      "bin": 3,
+      "rho_lo": 0.3931151127399049,
+      "rho_hi": 0.5872571719217448,
+      "n_frames": 5,
+      "C1": 0.373509817869594,
+      "C2": 0.30363671290202926,
+      "se_C1": 0.07938820682363791,
+      "se_C2": 0.16235306564147128,
+      "fixed_magnitude": 0.4813572867080404,
+      "fixed_axis_deg": 10.30293240103975,
+      "fixed_axis_se_deg": 12.629075457332547,
+      "per_frame_axis_deg": [
+       -40.13648695151563,
+       20.823215103339454,
+       24.85003260498377,
+       22.10257476693453,
+       23.87532648145662
+      ],
+      "T1": 1.1864387596735648,
+      "T2": 0.25279460605703247,
+      "T_magnitude": 1.213071326553916,
+      "T_axis_deg": 6.014073926522215
+     },
+     {
+      "bin": 4,
+      "rho_lo": 0.5872571719217448,
+      "rho_hi": 0.7813992311035846,
+      "n_frames": 5,
+      "C1": 0.691763999068036,
+      "C2": 0.23916752772812272,
+      "se_C1": 0.10851794416304562,
+      "se_C2": 0.17933030779429168,
+      "fixed_magnitude": 0.7319416211189141,
+      "fixed_axis_deg": 4.971504793937694,
+      "fixed_axis_se_deg": 8.850655989810365,
+      "per_frame_axis_deg": [
+       -30.33793434459204,
+       12.45338426770488,
+       12.313589327305174,
+       14.887389726793407,
+       15.541094992477047
+      ],
+      "T1": 1.2115512671280313,
+      "T2": 0.25552030398180603,
+      "T_magnitude": 1.238203173403498,
+      "T_axis_deg": 5.954672940055303
+     },
+     {
+      "bin": 5,
+      "rho_lo": 0.7813992311035846,
+      "rho_hi": 0.9755412902854244,
+      "n_frames": 5,
+      "C1": 0.820464409033813,
+      "C2": 0.507341087707716,
+      "se_C1": 0.12769422610948034,
+      "se_C2": 0.13921049683000003,
+      "fixed_magnitude": 0.9646537336099686,
+      "fixed_axis_deg": 13.305188999587903,
+      "fixed_axis_se_deg": 4.249107525319495,
+      "per_frame_axis_deg": [
+       -3.339125484983524,
+       19.76695591610044,
+       18.801325233032863,
+       14.899422105748764,
+       16.397367228040974
+      ],
+      "T1": 1.2059702041034448,
+      "T2": 0.30486132496559615,
+      "T_magnitude": 1.2439069742730295,
+      "T_axis_deg": 7.093390125091659
+     }
+    ],
+    "constancy_fit": {
+     "f": 4.3073122582179035,
+     "f_se": 1.8035925974365516,
+     "K1": -4.572181518554954,
+     "K2": -0.8525505214383546,
+     "K_magnitude": 4.65098766180048,
+     "K_axis_deg": -84.71882919330595,
+     "chi2": 12.637965762479801,
+     "dof": 7,
+     "chi2_per_dof": 1.8054236803542574,
+     "design_condition": 100.43174144762848,
+     "no_trail_f0": {
+      "chi2": 18.341391955535823,
+      "dof": 8,
+      "K": [
+       0.538297014510813,
+       0.2776161385237763
+      ]
+     },
+     "full_trail_f1": {
+      "chi2": 16.000552632164936,
+      "dof": 8,
+      "K": [
+       -0.6481687503789987,
+       0.01523287206662759
+      ]
+     }
+    },
+    "axis_constancy": {
+     "axes_deg": [
+      -2.054434891204907,
+      4.945411917543532,
+      10.30293240103975,
+      4.971504793937694,
+      13.305188999587903
+     ],
+     "ses_deg": [
+      8.689985500668916,
+      12.421340368374326,
+      12.629075457332547,
+      8.850655989810365,
+      4.249107525319495
+     ],
+     "span_deg": 15.359623890792811,
+     "weighted_mean_deg": 9.239278900617673,
+     "chi2": 2.963759596296187,
+     "dof": 4,
+     "rejects_constant_axis_95pct": false
+    }
+   },
+   "drop_DSC_6239": {
+    "bins": [
+     {
+      "bin": 1,
+      "rho_lo": 0.004830994376225227,
+      "rho_hi": 0.19897305355806505,
+      "n_frames": 4,
+      "C1": 0.6719088266347257,
+      "C2": 0.15243841801985392,
+      "se_C1": 0.039027303123556636,
+      "se_C2": 0.05964353886280727,
+      "fixed_magnitude": 0.688983992991165,
+      "fixed_axis_deg": 6.402023779191909,
+      "fixed_axis_se_deg": 2.583329491730429,
+      "per_frame_axis_deg": [
+       1.1770600092960386,
+       2.747821858335112,
+       10.77137345187642,
+       10.911839797260066
+      ],
+      "T1": 1.1597159869137932,
+      "T2": 0.23492178544371733,
+      "T_magnitude": 1.1832706434199647,
+      "T_axis_deg": 5.725679806889431
+     },
+     {
+      "bin": 2,
+      "rho_lo": 0.19897305355806505,
+      "rho_hi": 0.3931151127399049,
+      "n_frames": 4,
+      "C1": 0.5311076588481692,
+      "C2": 0.36755112515138294,
+      "se_C1": 0.01879415913533768,
+      "se_C2": 0.031497527678111724,
+      "fixed_magnitude": 0.6458863482743933,
+      "fixed_axis_deg": 17.313690236204508,
+      "fixed_axis_se_deg": 1.4806462435630703,
+      "per_frame_axis_deg": [
+       13.083291505745958,
+       19.017068126284805,
+       17.500847377029356,
+       19.65355393575791
+      ],
+      "T1": 1.1851718795028998,
+      "T2": 0.23395136211808026,
+      "T_magnitude": 1.208042062099388,
+      "T_axis_deg": 5.583274379881146
+     },
+     {
+      "bin": 3,
+      "rho_lo": 0.3931151127399049,
+      "rho_hi": 0.5872571719217448,
+      "n_frames": 4,
+      "C1": 0.4521460690507889,
+      "C2": 0.46554122264934206,
+      "se_C1": 0.014072868864160704,
+      "se_C2": 0.015569609643264402,
+      "fixed_magnitude": 0.6489720315575433,
+      "fixed_axis_deg": 22.912787239178595,
+      "fixed_axis_se_deg": 0.89917357247799,
+      "per_frame_axis_deg": [
+       20.823215103339454,
+       24.85003260498377,
+       22.10257476693453,
+       23.87532648145662
+      ],
+      "T1": 1.185981922033409,
+      "T2": 0.2515818376720973,
+      "T_magnitude": 1.2123722779891202,
+      "T_axis_deg": 5.988295406014771
+     },
+     {
+      "bin": 4,
+      "rho_lo": 0.5872571719217448,
+      "rho_hi": 0.7813992311035846,
+      "n_frames": 4,
+      "C1": 0.7982515504772075,
+      "C2": 0.41726128598862106,
+      "se_C1": 0.02697361674713818,
+      "se_C2": 0.02714076154196121,
+      "fixed_magnitude": 0.9007288818640955,
+      "fixed_axis_deg": 13.798864578570127,
+      "fixed_axis_se_deg": 0.8284832352157668,
+      "per_frame_axis_deg": [
+       12.45338426770488,
+       12.313589327305174,
+       14.887389726793407,
+       15.541094992477047
+      ],
+      "T1": 1.2122445060885083,
+      "T2": 0.2560120370632696,
+      "T_magnitude": 1.2389830126612134,
+      "T_axis_deg": 5.962490274255643
+     },
+     {
+      "bin": 5,
+      "rho_lo": 0.7813992311035846,
+      "rho_hi": 0.9755412902854244,
+      "n_frames": 4,
+      "C1": 0.9336994600150674,
+      "C2": 0.6449345454417914,
+      "se_C1": 0.07619753507574686,
+      "se_C2": 0.027313086498253942,
+      "fixed_magnitude": 1.134784230387715,
+      "fixed_axis_deg": 17.466267620730758,
+      "fixed_axis_se_deg": 1.1108101175828238,
+      "per_frame_axis_deg": [
+       19.76695591610044,
+       18.801325233032863,
+       14.899422105748764,
+       16.397367228040974
+      ],
+      "T1": 1.2101803911642965,
+      "T2": 0.2886896560912026,
+      "T_magnitude": 1.2441375714496474,
+      "T_axis_deg": 6.708601826671156
+     }
+    ],
+    "constancy_fit": {
+     "f": 5.717302797183353,
+     "f_se": 0.5279177834851876,
+     "K1": -6.248344648062878,
+     "K2": -0.9977602099219052,
+     "K_magnitude": 6.327506323780279,
+     "K_axis_deg": -85.46369078493807,
+     "chi2": 135.05439140762616,
+     "dof": 7,
+     "chi2_per_dof": 19.293484486803738,
+     "design_condition": 130.80750187064498,
+     "no_trail_f0": {
+      "chi2": 252.34137133646436,
+      "dof": 8,
+      "K": [
+       0.5440243839661751,
+       0.46407961552827554
+      ]
+     },
+     "full_trail_f1": {
+      "chi2": 214.90071490345025,
+      "dof": 8,
+      "K": [
+       -0.6440129254055339,
+       0.208392646111448
+      ]
+     }
+    },
+    "axis_constancy": {
+     "axes_deg": [
+      6.402023779191909,
+      17.313690236204508,
+      22.912787239178595,
+      13.798864578570127,
+      17.466267620730758
+     ],
+     "ses_deg": [
+      2.583329491730429,
+      1.4806462435630703,
+      0.89917357247799,
+      0.8284832352157668,
+      1.1108101175828238
+     ],
+     "span_deg": 16.510763459986684,
+     "weighted_mean_deg": 17.38497636540771,
+     "chi2": 74.61251844963064,
+     "dof": 4,
+     "rejects_constant_axis_95pct": true
+    }
+   }
+  }
+ },
+ "BRACKET_against_recorded_equal_count": {
+  "why": "if the equal-count arm does not reproduce, the harness moved and nothing else here is readable",
+  "recorded_axis_deg": [
+   0.04,
+   13.86,
+   21.94,
+   15.74,
+   10.49
+  ],
+  "measured_axis_deg": [
+   0.03551987203124184,
+   13.85885289247057,
+   21.940261636451662,
+   15.743861879653954,
+   10.48939780045109
+  ],
+  "recorded_ratio": [
+   0.369,
+   0.357,
+   0.324,
+   0.392,
+   0.603
+  ]
+ },
+ "HEADLINE": {
+  "step_1_rho_equal_bins": "the fixed-term AXIS still rotates on rho-EQUAL bins, so the rotation is NOT an artefact of equal-count binning: span 16.5 deg, chi2 74.6 on 4 dof (rho-equal) against 17.4 deg, chi2 95.1 (equal-count), both with the anomalous frame excluded.",
+  "step_2_constancy": "NO f makes the residual a constant 2-vector. chi2/dof = 19.3 on 7 dof (rho-equal) and 30.3 (equal-count). The best-fit f runs 5.7-7.6, i.e. 6-8x the predicted trail, which is what a MISSPECIFIED model returns rather than a trail measurement.",
+  "PRE_REGISTERED_OUTCOME_THAT_FIRED": "'No f makes the residual constant' -> there is no field-constant optical component, and corner-fix-landscape's rl -loadpsf= route dies. CONDITIONAL on excluding DSC_6239 (see below).",
+  "THE_ERROR_MODEL_IS_THE_REAL_FINDING_AND_IT_CORRECTS_ME": {
+   "what": "the per-bin fixed term's uncertainty was taken from a STAR-LEVEL bootstrap inside one pooled population. That captures shot noise only.",
+   "measured": "against the 5 raws as INDEPENDENT realisations, the frame-to-frame scatter is 4.1-9.2x the bootstrap SE, median 5.76x.",
+   "consequence": "chi2/dof 35.6 with bootstrap errors becomes ~1.1 with frame-based errors. The bootstrap turns 'cannot reject' into a spurious rejection.",
+   "what_it_retracts": "the recorded '10 to 20 sigma' on the fixed term's 22 deg rotation used those bootstrap SEs (1.07-1.39 deg). With frame-based errors the SEs are 0.83-2.58 deg on four frames, or 4.3-12.6 deg on five. The ROTATION SURVIVES but the quoted significance did not, and the finding's dependence on one frame's exclusion was never stated.",
+   "rule": "a per-bin property estimated from N frames has N independent realisations; resampling stars inside a pooled population is not an error bar for it."
+  },
+  "THE_RESULT_HINGES_ON_ONE_FRAME_AND_THAT_MUST_TRAVEL_WITH_IT": {
+   "with_all_5_frames": "axis constancy chi2 = 3.0/4 (rho-equal) \u2014 does NOT reject. Full fit chi2/dof = 1.81 \u2014 does NOT reject. Nothing is concluded.",
+   "dropping_DSC_6239": "chi2 = 74.6/4 and 19.3/7 \u2014 both reject decisively.",
+   "why_the_exclusion_is_principled_and_pre-documented": "DSC_6239 is the first-frame-of-night anomaly already on the record in two other quantities (theta0 departs 19.75 deg while the drift bearing departs 0.150 deg; and coherent_trail's own gate 1B reads it at 0.4615 against 0.757-0.815 for the other four). Its per-bin axes here are -35.9/-44.5/-40.2/-30.4/-3.5 against the other four clustering at +5 to +25 \u2014 a different object, not a marginal outlier. The injection work already had to be redone for having used this frame.",
+   "robustness": "the rejection survives a 2x inflation of the frame-based SEs (chi2 74.6 -> 18.7, still > 9.49) but not 3x (-> 8.3). With n=4 the SE estimate itself carries only 3 dof."
+  },
+  "THE_LEVER_LIMITS_WHAT_f_CAN_EVER_BE": "the predicted trail vector varies only 5.1% in magnitude and 1.51 deg in axis across rho-equal bins, so f is nearly collinear with the constant K (design condition 131). This design can KILL the fix route and can never quote a trail scale.",
+  "NOT_ATTEMPTED": "the PSFEx 2-D polynomial cross-check. It is a DIFFERENT ellipticity estimator (Moffat; psfex_compare.json already records a 0.038-vs-0.07 gap) and would need its own error model \u2014 and an unvalidated error model is precisely what this unit just showed to be worse than none."
+ }
+}

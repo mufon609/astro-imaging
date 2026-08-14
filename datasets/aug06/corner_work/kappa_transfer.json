@@ -673,5 +673,12 @@
   },
   "reads": "kappa TRANSFERS. Replacing the analytic Gaussian base with a measured one moves it by +0.1% +- 1.1% (median) or +1.2% +- 1.0% (mean) \u2014 both consistent with zero and both far inside the ~20% Veres et al. 2012 bound. The conversion-artefact outcome would have needed kappa to fall to ~0.35x, i.e. -65%. It does not."
  },
- "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0."
+ "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0.",
+ "SCOPE_LIMIT_what_this_did_NOT_test": {
+  "varied": "the base's RADIAL PROFILE \u2014 analytic Gaussian replaced by a measured PSFEx cut, wings and all (3.95% of flux beyond r=3 px against the Gaussian's 0.22%, and a 1.95x harder Gaussian fit as measured by the L=0 floor, 0.0832 vs 0.0427 px^2).",
+  "held": "the base's ANISOTROPY. Both bases are circularly symmetric at L=0 BY CONSTRUCTION, so every arm's only anisotropy is the planted trail.",
+  "therefore_UNTESTED": "whether the fit mis-recovers the moment matrix of a trail added to a spot that is ALREADY several times more anisotropic than the trail \u2014 which is the regime real corner stars occupy. A circular base cannot exercise it at all.",
+  "the_result_stands_as_measured": "kappa is robust to the base's radial PROFILE at +0.1% +- 1.1%. It is not tested against the base's ANISOTROPY.",
+  "how_it_would_be_closed": "a fifth arm whose base carries a planted anisotropy of known magnitude and direction, with the trail added on top at a range of relative angles. NOT RUN."
+ }
 }
