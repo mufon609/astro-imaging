@@ -1944,11 +1944,36 @@ SILENT — pin the state, never inherit it):
   detector, nine minutes apart, neither caught by the rule written for it.
   **THE RULE THIS ADDS: for a DELETION, read the `-` lines, not the count.**
   `git diff -- <file> | grep '^-'` is the check; the count test cannot reach it.
-  **THE CHEAP DETECTOR, and its limit is the useful half:** a block-parity scan for
-  an odd `**` count over 293 top-level bullets across the seven record files found
-  exactly one offender — this one. It catches a cut that UNBALANCES a marker and is
-  blind to one that removes a balanced span, so it is not a detector for the class;
-  it caught this instance because of how this instance happened to fail.
+  **THE CHEAP DETECTOR — AND IT HAS THREE FAILURE MODES, NOT THE ONE FIRST
+  RECORDED HERE. Read all three before running it.** A block-parity scan for an odd
+  bold-marker count over the ~294 top-level bullets in the seven record files did
+  find this cut. Measured at a PINNED commit, three variants of the same scan:
+
+      naive        (count markers per block)                294 bullets, 1 odd
+      line-scoped  (strip fenced + inline code per LINE)    294 bullets, 1 odd
+      CORRECT      (strip fenced + inline code, MULTILINE)  294 bullets, 0 odd
+
+  **Both flags are FALSE POSITIVES and the true answer is zero.**
+  **MODE 1 — THE DETECTOR MATCHES ITS OWN DOCUMENTATION.** The sentence above
+  quotes a bold marker as inline code; a naive counter counts it, so the block
+  goes odd. The instrument went RED on the sentence describing the instrument,
+  minutes after it was written. Fourth instance of the self-match family here,
+  after `pgrep` in its own argv, `check_removal_conditions`, and
+  `check_prompt_scope`'s head-window rule. **The original sweep was clean only
+  because no record file yet contained a quoted marker — documenting the detector
+  is what broke it.**
+  **MODE 2 — A LINE-SCOPED CODE STRIPPER MIS-PAIRS BACKTICKS ACROSS A WRAP**, eats
+  a real bold closer, and manufactures an imbalance in clean prose (`TOOLS.md:468`
+  is the live example, a code span wrapping a line). **Note the direction: mode 2
+  is produced BY the fix for mode 1.**
+  **THE CORRECT FORM: strip fenced blocks, then strip inline code spans ALLOWING
+  NEWLINES INSIDE THE SPAN, then count per block.**
+  **AND THE FALSE-NEGATIVE BOUND STILL STANDS:** it catches a cut that UNBALANCES
+  a marker and is blind to one removing a balanced span, so it is not a detector
+  for the class — it caught this instance by how this instance happened to fail.
+  **The first version of this paragraph stated that bound and NEITHER false
+  positive, which is the error this entry exists to teach: a positive reported
+  from an instrument its author had not falsified.** Corrected by the author.
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
