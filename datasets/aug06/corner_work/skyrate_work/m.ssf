@@ -1,0 +1,7 @@
+requires 1.4.4
+set32bits
+setcompress 0
+setext fit
+load /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_01.fit
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/skyrate_work/member.lst

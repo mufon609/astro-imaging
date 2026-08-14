@@ -145,6 +145,12 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/resample_work/*.lst
 !**/resample_work/*.ssf
 
+# skyrate_work/ — the scalar-vs-projection refit of the sky-rate coefficient.
+# The member star list IS the record; the .ssf reproduces it.
+**/skyrate_work/*
+!**/skyrate_work/*.lst
+!**/skyrate_work/*.ssf
+
 # ca_work/ — the C/A and july27 exposure-lever probe. Staged raws and debayered
 # frames are regenerable; the .lst star lists and the .ssf ARE the record.
 **/ca_work/*
