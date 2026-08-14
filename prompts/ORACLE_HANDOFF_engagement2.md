@@ -69,14 +69,35 @@ rule-3 compression, and a `manifest.tsv` completeness sweep. **The PM is holding
 
 ## 2. THE UNCHECKED LIST — LIVE
 
-1. **Corner ⟂ compose independence.** *Mine, flagged against my own priority
-   argument.* **Now PARTIALLY SUPPORTED on two independent records neither session
-   had cited:** `BACKLOG.md:88` — *"the radius trend is the members' own"* — and the
-   corner-quality REPORT — *"a roughly radius-independent +0.04 to +0.28 px … and
-   no radial trend. So the term is MEMBER-LEVEL."* **Narrowed form: the compose
-   contributes an OFFSET, not the radius trend.** Residual: whether 0.04–0.25 px
-   matters at the scale a priority argument turns on. **Goes live the moment anyone
-   proposes the SWarp/TPV route on priority grounds.**
+1. **Corner ⟂ compose independence — BACK TO UNCHECKED. The upgrade to "partially
+   supported" was quote-verification, not inference-testing, and one of its two
+   citations no longer exists.** *Flagged by its own author against their own
+   priority argument.*
+   **THE CITATION IS DEAD AND THE COORDINATE WAS WRONG.** It read `BACKLOG.md:88`
+   for *"the radius trend is the members' own"*. Line 88 is unrelated text, and the
+   phrase is in **no tracked file except this one**. `git log -S` settles it: added
+   to `BACKLOG.md` at `4a6a030`, **DELETED at `2bd3d61` (the rule-3 compression),
+   and migrated nowhere** — so the compression's *"nothing reusable was lost"* has
+   at least one counterexample, and an UNCHECKED entry has been resting on deleted
+   text. **State the artifact-derived command, never the coordinate** — third
+   instance of a wrong line number in this file's history.
+   **WHAT `BACKLOG.md` ACTUALLY SAYS** (`member_separation.py` row, artifact-read):
+   *"that product's delivered major axis at matched member-own radius runs
+   **0.04-0.25 px above its members'**"*. **That is a MAGNITUDE. It is not the
+   "no radial trend" claim the independence argument turns on** — that half rests
+   on the corner-quality REPORT alone (*"a roughly radius-independent +0.04 to
+   +0.28 px … and no radial trend"*), which is one record, not two.
+   **AND THE INFERENCE WAS NEVER TESTED, WHICH IS THE LARGER GAP.** *"The compose
+   adds an offset, not a trend"* does **not** imply the two defects are
+   INDEPENDENT: a constant offset and a radial trend can share a common cause, since
+   anything degrading a member's PSF also degrades what the compose resamples.
+   **THE FALSIFIER, and it is runnable on the shipped instrument:** measure the
+   compose's added offset **as a function of the MEMBERS' OWN corner degradation**.
+   If members with worse corner terms show a larger compose offset, the two are
+   coupled and independence FAILS; if the offset is flat against member corner
+   quality, independence holds. `member_separation.py` already bins by member-own
+   field radius and the compose delta is already measured per box.
+   **Goes live the moment anyone proposes the SWarp/TPV route on priority grounds.**
 2. **A fresh clone completes the astromatic build.** The bootstrap now reaches
    `install_astromatic.sh` (`x86_bootstrap.sh:511-515`); nobody has run a clone.
 3. **`manifest.tsv` completeness.** Falsified once, four rows added. *"Fixed the
@@ -86,6 +107,39 @@ rule-3 compression, and a `manifest.tsv` completeness sweep. **The PM is holding
    bootstrap has effectively large ν, so χ² is approximately right for it — but it
    is the artifact the correction retired, so validating it may be effort spent on
    a discarded number.]*
+5. **FIVE EXTERNAL CLAIMS AN ORACLE MADE WITHOUT AN EXTERNAL SOURCE — its own
+   self-audit at retirement, re-homed here because a retiring session's enumeration
+   otherwise dies with it.** The engagement cited **zero** external sources; every
+   authority was `--help`, `readelf`, `dpkg`, `apt-cache` or this tree.
+   **Capability was NOT the cause** — `WebSearch`/`WebFetch` were present and
+   unblocked and the question never arose. Each of these is settled only by a source
+   we do not possess:
+   - **`photutils.Background2D.background_mesh` asserted from memory** as *"the
+     astropy-affiliated standard exposure of exactly this quantity"* and recommended
+     for the research queue. **The docs were never opened.** *Whether it yields
+     fitted gradient numbers or a mesh still requiring a fit decides the
+     recommendation.* **CORRECTION TO THE SELF-REPORT, artifact-checked: it did NOT
+     land — `photutils` is in no tracked file** (it was in a deep-dive added at
+     `a3b7ecf` and retired at `e730d3b`). **The self-audit overstated its own
+     consequence, in the self-critical direction** — the reverse of the usual
+     flattering-error direction, and worth noting as such.
+   - **lensfun 0.3.95 / ACM** — checked against `apt` only. **Released? stable?
+     shipping ACM in the correcting direction? All upstream questions, unasked.** The
+     closure reads as standing on a checked negative; it stands on a checked *apt*
+     negative.
+   - **`lenstool`** — see the entry below; upstream may ship what Debian does not
+     build, which moves *unavailable* to *one build away*.
+   - **The `get_selection_stats` doc defect** — Siril's issue tracker was never
+     checked for an existing report, so the owner was advised on whether to FILE
+     without knowing whether it is already filed.
+   - **SExtractor's background estimator** — `BACK_PEARSON 2.5` and the
+     σ-clipped/object-masking account came from the config dump plus recall.
+     **Bertin & Arnouts 1996 is the authority and was not read.**
+   **THE STRUCTURAL CAUSE, and it is why no session was replaced over this:** the
+   role file gave a detailed METHOD for the inward sweep and only an ASPIRATION for
+   the outward research, and every target it was handed was locally answerable.
+   **Method beats aspiration.** Fixed at `a90c315`; the aiming was the manager's
+   error, not the role's.
 
 ---
 
