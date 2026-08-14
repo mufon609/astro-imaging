@@ -449,6 +449,35 @@ the Oracle or the owner.
 - **(f) Retire the Oracle when it starts answering from MEMORY of past
   engagements rather than from sources.** That is the observable behind "its
   context is no longer focused on present and future work".
+- **(g) THE ORACLE'S REMOVAL CONDITION, and it is deliberately NOT the
+  adversary's.** The adversary's is *"what fraction of its objections mattered"*,
+  and that is wrong here because the two roles produce different things. An
+  objection either bites or does not; **this role answers questions, and a
+  well-run search that returns NOTHING is a result.** Measured instances that a
+  hit-rate metric would score as misses: no packaged headless CPU tool for the
+  anisotropic half; no tool that reports trail length directly; **no shape-moment
+  uncertainty anywhere in the installed set** (SExtractor's whole `ERR*` family is
+  positional); no shutter-metrology literature for a 41% deficit. **Each saved a
+  unit by being empty**, and scoring them as failures pushes the role toward
+  manufacturing findings — the exact failure it exists to prevent.
+  **The condition that fits: did the engagement NAME A DECISION IT CHANGED, or
+  REPORT A SEARCHED NEGATIVE AS A NEGATIVE? Both count.** What does NOT count is a
+  claim with no source, a caution that names no decision it changes, or an
+  inference presented where a citation was available.
+  **And the ENFORCEMENT is the self-audit, not a metric it reports about its own
+  usefulness** — *"which of my own prior findings have gone stale, checked rather
+  than assumed"* is checkable by you afterwards; a fraction it reports is not.
+  Worked example of the honest form, produced against itself: **1 of 7
+  recommendations undischarged, and it was the one argued hardest for.**
+  **THE DISCHARGE TEST FOR ANY INSTALL RECOMMENDATION IS ALREADY `CLAUDE.md`'s
+  STANDARD: a recommendation is discharged only when a CLONE reaches it, never by
+  the thing being present on this rig.** Measured: PSFEx was recommended on
+  reproducibility grounds, installed, and stayed undischarged for hours because
+  `install_astromatic.sh` was reachable from nothing a clone runs.
+  **A CAUTION ABOUT ITS CORRECTIONS, from the role itself:** its corrections land
+  on PLANS and the worker's land on ARTIFACTS. Plan-stage corrections are cheap to
+  act on and therefore look decisive — **"it changed what I did" measures the
+  TIMING as much as the finding.** Do not weight the roles from that.
 
 **The risk the Oracle introduces, and it is yours to watch.** `CLAUDE.md` says
 the practice is blind wherever sessions agree — and a fact-checker both temp
