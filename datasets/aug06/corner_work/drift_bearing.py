@@ -298,9 +298,9 @@ def main():
             "elapsed_s": b * BLOCK_STRIDE * CADENCE_S,
             "n_stars_pooled": f["n_stars"],
             "theta0_deg": t0,
-            "theta0_direction_se_deg": f["fixed_direction_se_deg"],
+            "theta0_direction_se_deg": f["fixed_direction_se_deg_star_bootstrap"],
             "theta0_amplitude": f["fixed_amplitude"],
-            "theta0_amplitude_SE_units": f["fixed_amplitude_SE_units"],
+            "theta0_amplitude_SE_units": f["fixed_amplitude_SE_units_star_bootstrap"],
             "radial_R": f["radial_R"],
             "offset_theta0_minus_bearing_deg": float(
                 wrap180(t0 - mb["bearing_deg_axis"])),

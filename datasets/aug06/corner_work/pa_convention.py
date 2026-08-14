@@ -181,13 +181,35 @@ def wrap180(a):
 # the fit
 # --------------------------------------------------------------------------
 
-def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813):
+def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813, frame=None):
     """Joint fixed-direction + radial fit on the stacked [e1; e2] response.
 
-    Returns the parameters, their standard errors, and the conditioning. SEs are
-    a STAR-level bootstrap, not a row-level analytic sigma: e1 and e2 come from
-    the same star, so resampling rows would treat one measurement as two. The
-    analytic SE rides alongside so a disagreement between them is visible.
+    EVERY RETURNED SE NAMES ITS ERROR MODEL IN ITS KEY, and that is load-bearing
+    rather than cosmetic. MEASURED cost of the neutral names this replaces: a
+    star-level bootstrap inside ONE POOLED population understates a per-bin
+    property's uncertainty by a median 5.76x (range 4.1-9.2x) against the frames
+    treated as INDEPENDENT realisations, turning chi2/dof ~1.1 into 35.6 — i.e.
+    manufacturing rejections. The rule that generalises: A PER-BIN PROPERTY
+    ESTIMATED FROM N FRAMES HAS N INDEPENDENT REALISATIONS; RESAMPLING STARS
+    INSIDE A POOL IS NOT AN ERROR BAR FOR IT.
+
+    The defect this signature exists to prevent was measured in the very file
+    that discovered the 5.76x: `constancy_fit.py` wrote the key `se_C1` from a
+    correct frame-based scatter at one site and from `se_bootstrap` at another,
+    and a weighted least squares downstream consumed `se_C1` without being able
+    to tell which. One name, two quantities, one file. So the old neutral keys
+    (`radial_se`, `radial_SE_units`, `fixed_amplitude_se`,
+    `fixed_amplitude_SE_units`, `fixed_direction_se_deg`) are GONE rather than
+    aliased: a stale reader gets a KeyError, which is the loud failure. An alias
+    would have preserved exactly the silence being removed.
+
+    `frame` — per-star frame labels, len(phi). Supply them whenever the sample
+    pools MORE THAN ONE frame and the quantity is a per-bin property. The fit is
+    then ALSO run per frame and `*_frame_based` SEs are returned from the
+    between-frame scatter, with `se_ratio_frame_over_bootstrap` so the
+    understatement is visible at the call site instead of in a doc. Without
+    `frame` only `*_star_bootstrap` keys exist, and they must not be quoted as
+    the significance of a per-bin property.
 
     'Read the lever, not the sigma': the design's singular values and rank are
     reported and a rank-deficient design RAISES. A pseudo-inverse would return a
@@ -236,26 +258,81 @@ def decompose(phi, e1, e2, w=None, nboot=400, seed=20260813):
     # SE of the fixed-term amplitude, propagated through the bootstrap draws
     F_boot = np.hypot(draws[:, 0], draws[:, 1])
     th0_boot = 0.5 * np.degrees(np.arctan2(draws[:, 1], draws[:, 0]))
-    return {
+    F_se_boot = float(F_boot.std(ddof=1))
+    th0_se_boot = float(
+        0.5 * np.degrees(np.std(np.unwrap(2 * np.radians(2 * th0_boot)) / 2,
+                                ddof=1)))
+    out = {
         "n_stars": int(n),
         "fixed_c0": float(c0), "fixed_s0": float(s0),
         "fixed_amplitude": F,
-        "fixed_amplitude_se": float(F_boot.std(ddof=1)),
-        "fixed_amplitude_SE_units": float(F / F_boot.std(ddof=1)),
+        "fixed_amplitude_se_star_bootstrap": F_se_boot,
+        "fixed_amplitude_SE_units_star_bootstrap": float(F / F_se_boot),
         "fixed_direction_theta0_deg": float(
             0.5 * np.degrees(np.arctan2(s0, c0))),
-        "fixed_direction_se_deg": float(
-            0.5 * np.degrees(np.std(np.unwrap(2 * np.radians(2 * th0_boot)) / 2,
-                                    ddof=1))),
+        "fixed_direction_se_deg_star_bootstrap": th0_se_boot,
         "radial_R": float(R),
-        "radial_se": float(se_boot[2]),
-        "radial_SE_units": float(abs(R) / se_boot[2]),
+        "radial_se_star_bootstrap": float(se_boot[2]),
+        "radial_SE_units_star_bootstrap": float(abs(R) / se_boot[2]),
         "se_analytic": [float(v) for v in se_analytic],
         "se_bootstrap": [float(v) for v in se_boot],
         "design_singular_values": [float(v) for v in sv],
         "design_rank": rank,
         "design_condition": float(sv[0] / sv[-1]),
+        "error_model": "star_bootstrap",
+        "error_model_caveat":
+            "star_bootstrap captures SHOT NOISE INSIDE ONE POOLED SAMPLE only. "
+            "For a per-bin property estimated from N frames it understates the "
+            "SE (measured median 5.76x, range 4.1-9.2x) — pass frame= for the "
+            "frame-based error and do not quote these as its significance.",
     }
+    if frame is None:
+        return out
+
+    # ---- frame-based errors: the frames are INDEPENDENT realisations ----
+    frame = np.asarray(frame)
+    if len(frame) != n:
+        raise SystemExit("decompose: frame= must have one label per star "
+                         "(%d labels for %d stars)" % (len(frame), n))
+    labels = list(dict.fromkeys(frame.tolist()))
+    if len(labels) < 2:
+        raise SystemExit("decompose: frame= carries %d distinct frame(s) — a "
+                         "frame-based SE needs >= 2 independent realisations. "
+                         "Omit frame= and quote only the *_star_bootstrap keys."
+                         % len(labels))
+    per = []
+    for lab in labels:
+        m = frame == lab
+        if m.sum() < 4:                     # 3 parameters + 1
+            continue
+        sub = decompose(phi[m], e1[m], e2[m],
+                        None if w is None else np.asarray(w)[m],
+                        nboot=2, seed=seed)
+        per.append([sub["fixed_c0"], sub["fixed_s0"], sub["radial_R"],
+                    sub["fixed_amplitude"], sub["fixed_direction_theta0_deg"]])
+    if len(per) < 2:
+        raise SystemExit("decompose: only %d frame(s) carried enough stars to "
+                         "fit; a frame-based SE is not available" % len(per))
+    a = np.array(per, dtype=float)
+    nf = a.shape[0]
+    sem = a.std(axis=0, ddof=1) / np.sqrt(nf)     # SE of the mean over frames
+    out.update({
+        "n_frames_fitted": int(nf),
+        "fixed_amplitude_se_frame_based": float(sem[3]),
+        "fixed_amplitude_SE_units_frame_based": float(F / sem[3]) if sem[3] else None,
+        "fixed_direction_se_deg_frame_based": float(sem[4]),
+        "radial_se_frame_based": float(sem[2]),
+        "radial_SE_units_frame_based": float(abs(R) / sem[2]) if sem[2] else None,
+        "error_model": "star_bootstrap+frame_based",
+        "se_ratio_frame_over_bootstrap": {
+            "fixed_amplitude": float(sem[3] / F_se_boot) if F_se_boot else None,
+            "fixed_direction_deg": float(sem[4] / th0_se_boot) if th0_se_boot else None,
+            "radial_R": float(sem[2] / se_boot[2]) if se_boot[2] else None,
+            "_read": "how many times LARGER the honest error bar is. The "
+                     "recorded median across this thread's bins is 5.76x.",
+        },
+    })
+    return out
 
 
 def decompose_extended(phi, e1, e2, rho, nboot=200, seed=20260813):
@@ -766,7 +843,7 @@ def selftest():
     check("fixed fixture -> radial term is null",
           abs(f["radial_R"]) < 0.15 * 0.15,
           "planted 0.0  recovered %.4f  (%.1f SE)"
-          % (f["radial_R"], f["radial_SE_units"]))
+          % (f["radial_R"], f["radial_SE_units_star_bootstrap"]))
 
     # ---- arm 2: a RADIAL field must be recovered as radial ----
     d = _plant("radial", e_amp=0.15, pa_noise_deg=8.0, seed=12)
@@ -812,15 +889,15 @@ def selftest():
     check("BLINDED fixture -> the radial acceptance criterion FAILS as required",
           not radial_criterion,
           "R = %.4f at %.2f SE (criterion would need 0.1275..0.1725)"
-          % (f["radial_R"], f["radial_SE_units"]))
+          % (f["radial_R"], f["radial_SE_units_star_bootstrap"]))
     check("BLINDED fixture -> the fixed acceptance criterion FAILS as required",
           not fixed_criterion,
           "F = %.4f at %.2f SE" % (f["fixed_amplitude"],
-                                   f["fixed_amplitude_SE_units"]))
+                                   f["fixed_amplitude_SE_units_star_bootstrap"]))
     check("BLINDED fixture -> both terms consistent with zero",
-          f["radial_SE_units"] < 3 and f["fixed_amplitude_SE_units"] < 3,
-          "radial %.2f SE, fixed %.2f SE" % (f["radial_SE_units"],
-                                             f["fixed_amplitude_SE_units"]))
+          f["radial_SE_units_star_bootstrap"] < 3 and f["fixed_amplitude_SE_units_star_bootstrap"] < 3,
+          "radial %.2f SE, fixed %.2f SE" % (f["radial_SE_units_star_bootstrap"],
+                                             f["fixed_amplitude_SE_units_star_bootstrap"]))
 
     # ---- arm 5: the naive statistic FAILS on a known-radial field ----
     # This is the demonstration the verdict rests on, so it is planted, not
@@ -921,12 +998,12 @@ def selftest():
     r_round = measure(d, W, H, nboot=200, label="fixture:round-only")
     fr = r_round["fit_flat_radial"]
     check("round-star fixture -> no fixed direction",
-          fr["fixed_amplitude_SE_units"] < 3.0,
+          fr["fixed_amplitude_SE_units_star_bootstrap"] < 3.0,
           "F = %.5f at %.2f SE" % (fr["fixed_amplitude"],
-                                   fr["fixed_amplitude_SE_units"]))
+                                   fr["fixed_amplitude_SE_units_star_bootstrap"]))
     check("round-star fixture -> no radial term",
-          fr["radial_SE_units"] < 3.0,
-          "R = %+.5f at %.2f SE" % (fr["radial_R"], fr["radial_SE_units"]))
+          fr["radial_SE_units_star_bootstrap"] < 3.0,
+          "R = %+.5f at %.2f SE" % (fr["radial_R"], fr["radial_SE_units_star_bootstrap"]))
 
     print()
     for nline in notes:
@@ -1210,9 +1287,9 @@ def main():
             g = decompose(phi[m], u1[m], u2[m], None, nboot=120)
             rows.append({"rho_mid": float(np.median(rho[m])), "n": int(m.sum()),
                          "R_ratio": f["radial_R"],
-                         "R_ratio_SE_units": f["radial_SE_units"],
+                         "R_ratio_SE_units": f["radial_SE_units_star_bootstrap"],
                          "R_unnormalised_px2": g["radial_R"],
-                         "R_unnorm_SE_units": g["radial_SE_units"],
+                         "R_unnorm_SE_units": g["radial_SE_units_star_bootstrap"],
                          "fixed_F_ratio": f["fixed_amplitude"],
                          "fixed_theta0_deg": f["fixed_direction_theta0_deg"]})
         out = {"annuli": rows}
@@ -1317,8 +1394,8 @@ def main():
         f, ss = r["fit_flat_radial"], r["sector_summary"]
         print("%-34s %7d %9.4f %8.1f %+9.4f %8.1f %7.1f %d/%d"
               % (name, r["n_stars"], f["fixed_amplitude"],
-                 f["fixed_amplitude_SE_units"], f["radial_R"],
-                 f["radial_SE_units"], ss["naive_PA_spread_deg"],
+                 f["fixed_amplitude_SE_units_star_bootstrap"], f["radial_R"],
+                 f["radial_SE_units_star_bootstrap"], ss["naive_PA_spread_deg"],
                  ss["sectors_tracking_azimuth_within_25deg"], ss["n_sectors"]))
     return 0
 
