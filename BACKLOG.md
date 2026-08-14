@@ -121,10 +121,19 @@ Ordered work — nothing here is executed on an accepted product:
    symbolic sympy substitution and NOT a fit, measured exact at **1.118e-11 px max
    over 3600 points and FLAT in field radius**, against a distortion-stripped
    positive control at 13.82 px growing to the corner;
-   (b) **produce TPV natively** — **SCAMP 2.10.0**, which writes `PV%d_%d` and
-   carries `TPV` (verified in the built binary), making
-   **SExtractor → SCAMP → SWarp, all speaking TPV, the canonical Astromatic chain**
-   and the documented industry answer to this item.
+   (b) **produce TPV natively** — **SCAMP 2.10.0**, whose own preference table
+   offers **`PROJECTION_TYPE  SAME # SAME, TPV or TAN`** as a documented OUTPUT
+   setting (verified by `scamp -d` on the built binary, not inferred from a format
+   string), making **SExtractor → SCAMP → SWarp the canonical Astromatic chain**
+   and the documented industry answer to this item. **State the PAIR, not SCAMP
+   alone: SCAMP solves and writes `.head`; it resamples nothing.**
+   **THREE SCAMP DEFAULTS TO SET BEFORE ANY ARM, from the same table:**
+   `ASTREF_CATALOG` defaults to **`2MASS`, which is REMOTE** — set `FILE` against a
+   local catalogue or the first attempt reaches a network service, the same class
+   of surprise as `conesearch`; `MOSAIC_TYPE UNCHANGED` has `SAME_CRVAL` and
+   `SHARE_PROJAXIS` available and bears directly on members 4.28° apart; and
+   `ASTRINSTRU_KEY` defaults to `FILTER,QRUNID`, which is what defines the
+   stability context below.
    **BEFORE ANY ARM: SWarp's defaults are wrong for this data and silent about it.**
    `SUBTRACT_BACK=Y` would eat a frame-filling star field; `FSCALASTRO_TYPE FIXED`
    does not track per-pixel solid angle where our ~30° gnomonic field varies ~10%
@@ -451,12 +460,35 @@ session-end temperature.
   undistorted by its OWN SIP then composed measures 3.99/6.42/6.19 px against the
   shipped route's 0.29/0.63/2.10/2.99. **Siril's own design assumes ONE optical
   state per sequence.**
-  **THE SUCCESSOR IS NOW RUNNABLE AND IT BELONGS TO
+  **AND THE ARCHITECTURE THAT KILLED IT IS THE ONE THE STANDARDS AVOID — RECORDED
+  IN OUR OWN TREE AND NEVER CONNECTED TO IT.** `docs/untracked-widefield-standards.md`
+  §H.3(3) already says the field uses **a high-order term shared across a stability
+  context plus a low-order per-exposure term**, and that *"the shared variant does
+  not appear to have been tried"* (`:966–974`). **SCAMP's default IS that
+  architecture** — `STABILITY_TYPE INSTRUMENT`, verified by `scamp -d` — so the
+  per-frame SIP failure recorded here is precisely the failure mode it exists to
+  avoid, and the untried variant has been named in this repo the whole time.
+  **THE QUANTITATIVE HALF, and it is why this is not merely a different shape.**
+  MECHANISM, not measured: per-frame we have ~**37** Tycho-2 matches, which by the
+  Pan-STARRS occupancy yardstick (`TOOLS.md`) supports **order 1 and not order 2**.
+  But `STABILITY_TYPE INSTRUMENT` fits ONE distortion polynomial per astrometric
+  instrument using detections from **ALL** exposures in it — so the count
+  constraining the shared term is **POOLED, not per-frame**: across ~13 members
+  that is roughly **480** against the same table's **300 for order 4**, and SCAMP's
+  default `DISTORT_DEGREES` is **3**, which needs 128. **The shared-context
+  architecture does not merely dodge the sparsity failure; it moves the reachable
+  order from 1 to 3–4 on the field's own yardstick.**
+  **THE CONDITION ON THAT, and it is checkable rather than assumable:** pooling
+  helps only if the pooled OCCUPANCY fills the (order+1)² grid, not merely the
+  total count. Members 4.28° apart with ~1000 px of drift make the pooled coverage
+  far better than any single frame's, which is favourable — **but it is an
+  occupancy check, and the machinery for it exists.**
+  **THE SUCCESSOR IS NOW RUNNABLE AND BELONGS TO
   BACKLOG:`compose-homography-smear`** — per-image resampling onto a COMMON output
-  WCS using each exposure's full solution, which SWarp does once it is fed a
-  distortion it can read. SWarp 2.41.5, `sip_tpv` 1.1 and SCAMP 2.10.0 are all
-  installed; the two entry paths and SWarp's four wrong-for-this-data defaults are
-  recorded there, not restated here.
+  WCS using each exposure's full solution, which SWarp does once fed a distortion
+  it can read. SWarp 2.41.5, `sip_tpv` 1.1 and SCAMP 2.10.0 are all installed; the
+  two entry paths and the wrong-for-this-data defaults of both tools are recorded
+  there, not restated here.
 
 ## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
 
