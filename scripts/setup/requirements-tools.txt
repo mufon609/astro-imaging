@@ -32,10 +32,18 @@
 #
 # ===========================================================================
 # THERE ARE EXACTLY TWO INSTALL LANES ON THIS RIG, AND NO THIRD — MEASURED.
-# `autoconf`, `automake` and `libtool` are ABSENT and installing them needs root
-# (`make` and `gcc` ARE present). So autotools-based Debian sources — PSFEx,
-# SCAMP — CANNOT be built from `apt-get source` here, however reachable the source
-# package is. The two lanes are:
+# `make` and `gcc` are present; `autoconf`, `automake` and `libtool` were ABSENT
+# and installing them needs root. So autotools-based Debian sources — PSFEx,
+# SCAMP — cannot be built from `apt-get source` **WITHOUT ROOT**, however
+# reachable the source package is.
+# **THAT CONDITION HAS SINCE BEEN MET AND THE SENTENCE ABOVE ONCE OMITTED IT.** It
+# read "CANNOT be built … however reachable the source package is", which a reader
+# takes as a standing impossibility rather than a one-time prerequisite — and the
+# owner then ran the root-once build-dep install and BOTH ARE NOW BUILT AND
+# RUNNING (`scamp -v` → 2.10.0, `psfex -v` → 3.21.1, from ~/.local/bin). Recorded
+# rather than silently corrected because it is this file's own lesson at
+# one-day scale: a constraint stated without its condition goes stale the moment
+# the condition changes, and nobody re-reads it. The two lanes are:
 #   (a) PyPI       pin `name==version`; capture artifact sha256 via
 #                  `pip install --dry-run --report`.
 #   (b) Debian .deb  pin the .deb sha256 against the archive `Packages` index plus
@@ -92,6 +100,12 @@ setuptools==80.9.0
 # environment drifts on every rebuild. Pinning it is what makes "reproducible from
 # a clone" true rather than nearly true.
 astropy-iers-data==0.2026.7.13.0.54.2
+# DO NOT BUMP THIS REFLEXIVELY. The pin is a month behind PyPI's current by
+# design — it is the version this venv was TESTED with, and pinning what you
+# tested is the whole point. IERS data governs UT1-UTC and polar motion at the
+# MILLIARCSECOND level; this corpus works at ~17 arcsec/px, so the staleness costs
+# nothing measurable and bumping it to "fix" the date breaks reproducibility to
+# solve a non-problem.
 
 
 # --- Headless catalogue client — Vizier / SIMBAD / Gaia via pyvo.
@@ -158,8 +172,15 @@ piff==1.6.0
 #                 kernel between two MEASURED PSFs characterises the difference
 #                 without treating anything, and diagnostics sit outside the
 #                 bright line. A reason to know it exists, not to install it.
-#   scamp         Photometric mode solves a SCALAR per exposure per instrument
-#                 (`src/preflist.h` has no photometric analogue of
-#                 DISTORT_DEGREES), so it cannot satisfy the position-dependent
-#                 condition that names it — and it cannot be built here anyway
-#                 (autotools, above).
+#   scamp         ARGUED AGAINST ON ITS PHOTOMETRIC MODE ONLY, AND IT IS NOW
+#                 BUILT — do not read this row as "unavailable". Photometric mode
+#                 solves a SCALAR per exposure per instrument (`src/preflist.h`
+#                 has no photometric analogue of DISTORT_DEGREES), so it cannot
+#                 satisfy the position-dependent condition in `object_tilt.py`'s
+#                 removal-conditions row. That half stands. **The "cannot be built
+#                 here anyway" clause that used to close this row is DELETED — it
+#                 is false, and it contradicted two other sections of this same
+#                 file.** Its ASTROMETRIC side is a different question and is the
+#                 reason it was installed: SCAMP is the native producer of TPV
+#                 (`PROJECTION_TYPE  SAME # SAME, TPV or TAN`), which is the
+#                 format SWarp reads. See BACKLOG:`compose-homography-smear`.
