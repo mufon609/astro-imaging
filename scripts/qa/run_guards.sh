@@ -28,6 +28,16 @@
 #   is worse than a stated limit. The guard says so itself.
 # - These guards verify WIRING — that the code says what it must. They do not
 #   verify OUTPUT. A guard cannot tell you a render is good.
+# - RECORDS COVERAGE IS NOW NON-ZERO AND IT IS NARROW — do not read it as more.
+#   Until `check_removal_conditions` was added this suite had ZERO coverage of
+#   `.md`: MEASURED, the six shell guards contain nine recursive greps and every
+#   one is `--include`-filtered to `*.py`/`*.sh`/`*.ssf`/`*.tmpl`, and the three
+#   that mention a `.md` file do so only in comments. The consequence was that the
+#   suite could not distinguish two commits whose only changes were in records —
+#   which is where essentially every finding this repo produces is written. The
+#   new check opens exactly ONE invariant (register rule (1), declared-but-no-row)
+#   and is blind to the rest of the table, including whether a row is true, has
+#   fired, or can be evaluated at all.
 # - A green run says nothing about the checks listed under EXCLUDED below, which
 #   need live products and are named there rather than silently skipped.
 # - HOW THE ROSTER WAS BUILT IS ITSELF A LIMIT. It came from `grep -rln selftest`
@@ -89,7 +99,9 @@ CHECKS=(
   "guard   check_stack_rejection|./scripts/stack/check_stack_rejection.sh"
   "guard   check_registration_pins|./scripts/stack/check_registration_pins.sh"
   "guard   check_manifest_verify|./scripts/qa/check_manifest_verify.sh"
+  "guard   check_removal_conditions|./scripts/qa/check_removal_conditions.sh"
   "selftest check_registration_pins|./scripts/stack/check_registration_pins.sh --selftest"
+  "selftest check_removal_conditions|./scripts/qa/check_removal_conditions.sh --selftest"
   "selftest wait_for|./scripts/lib/wait_for.sh --selftest"
   "selftest fingerprint|python3 scripts/lib/fingerprint.py --selftest"
   "selftest route|python3 scripts/lib/route.py --selftest"
