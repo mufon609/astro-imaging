@@ -1796,13 +1796,85 @@ SILENT — pin the state, never inherit it):
   BENEFICIARY** — a class distinct from the check-cannot-fail family, because
   nothing here is a check. `install_astromatic.sh` was written expressly to close
   the *"VERIFIED and NOT REPRODUCIBLE FROM A CLONE"* gap, states that purpose in its
-  own header, and is called by nothing: `x86_bootstrap.sh` — the script `CLAUDE.md`
-  defines the environment as — mentions it, `psfex`, `scamp` and `source-extractor`
-  ZERO times each. The omission is not a design choice; that script already runs
-  `sudo apt install` 23 times, so root is not the reason. **Discharge test for any
+  own header, and was called by nothing: `x86_bootstrap.sh` — the script `CLAUDE.md`
+  defines the environment as — mentioned it, `psfex`, `scamp` and `source-extractor`
+  ZERO times each. The omission was not a design choice; that script already runs
+  `sudo apt install` 23 times, so root is not the reason.
+  **THAT INSTANCE IS CLOSED AND THE CLASS IS NOT — read it as the class, because the
+  founding anecdote dissolved under re-measurement.** `install_astromatic.sh` is now
+  invoked three times (`x86_bootstrap.sh` `--root-cmds`, `--go`, `--manifest`), so
+  the sentence above is history. **The class's live instance is `install_hooks.sh`,
+  and it is worse: that one omitted a TOOL, this omits two GATES.** MEASURED — the
+  bootstrap matches `install_hooks|hooks/|pre-push|core.hooksPath` ZERO times, and
+  the only pointer anywhere outside the hook machinery itself is a session ROLE
+  file, a document rewritten at every handoff. `.git/hooks/` is never tracked, so a
+  fresh clone gets neither `pre-push` (the guard runner gates nothing) nor
+  `prepare-commit-msg` (the staged-numstat stamp does not exist) — **the two
+  mechanisms built to close "nothing runs the guards" and to stop paraphrased
+  counts, absent on exactly the machine that has never been told to install them.**
+  The installer's own header cites *"a fact that is not reproducible from tracked
+  files is the bug"*; it is itself unreachable from the reproducibility path.
+  **Discharge test for any
   install recommendation, and it is `CLAUDE.md`'s existing standard rather than a
   new rule: a recommendation is discharged only when a CLONE reaches it, never by
   the thing being present on this rig.**
+- **REACHABILITY IS NOT GREPPABLE IN THIS TREE — SCREEN WIDE, THEN READ EVERY CALL
+  SITE. And note the DIRECTION of the error: an under-reporting reachability check
+  reads as "everything is reachable", which is the answer that ends the search.**
+  MEASURED over a sweep of **108 tracked `.sh`/`.py`** (untracked scratch excluded —
+  the question is what a CLONE reaches):
+  - **screen 1, basename appearing anywhere in tracked text → 4 candidates.
+    UNDER-reported**, because a mention in a comment or a record counts as a hit.
+  - **screen 2, an invocation-context regex (`./`, `bash`, `python3`, `$REPO/`,
+    `$(dirname "$0")/`) → 33 candidates. OVER-reported by 32.**
+  - **reading every call site → 1 delivery gap + 3 unclear.** Neither screen was
+    right; the resolution was reading, and the two screens disagreed by 29.
+
+  **Four ways a real invocation escapes a regex, each measured here — the list is
+  the useful part, because any one of them turns an orphan sweep into a false
+  all-clear:**
+  1. **Assembled with `os.path.join`** — `lens_preflight.py` builds
+     `os.path.join(STYLE_DIR, "verify_lens_card.py")`. Same mechanism as the
+     `grid_ramp` path split across two source lines: **the literal path never
+     appears in the file, so every path-anchored grep is blind to it.**
+  2. **Assembled with `$(dirname "$0")/`** — `x86_bootstrap.sh` invokes
+     `install_astromatic.sh` this way three times, and a literal-path grep reports
+     it orphaned. **This one flipped a live finding to false in both directions:**
+     the sweep that declared it an orphan was wrong, and so was the re-check that
+     would have "confirmed" it with the same instrument.
+  3. **Inside a string literal** — `install_cosmicclarity.sh` is named in a
+     `log "…"` operator instruction, which is a real and correct delivery path.
+  4. **Inside a data structure** — `run_session_chain.sh` appears in a lambda's
+     list at `web/serve.py`.
+
+  **And one category that is not an orphan at all: a LIBRARY.** `siril_run.py`,
+  `cp_coverage.py` and `flat_differential_report.py` are `import`ed and never
+  invoked. A reachability sweep that does not separate modules from entry points
+  reports its own dependencies as dead code.
+
+  **THE FIFTH ESCAPE IS THE ONE THAT WOULD DELETE A LIVE TOOL, AND NEITHER A CODE
+  SEARCH NOR A DOC SEARCH REACHES IT: a script can be evidenced ONLY BY ITS
+  OUTPUT.** `scripts/ingest/{fetch_session,link_heartbeat,remote_publish}.sh` are
+  referenced by no code and appear in no `.md` — and the tracked records settle it:
+  **9 `ingest_work/ingest.json` across two nights, all 9 naming `remote_publish.sh`
+  as the hash producer, covering 3,591 frames with `verified_bad = 0`.** Live
+  workflow, undocumented — a DOCUMENTATION gap, not a delete candidate.
+  **So the sweep's question "what invokes this" is the wrong one on its own; the
+  completeness question is "what does this leave behind".** Search the records
+  before classifying anything as dead.
+  **Corollary met in the same records — READ THE FIELD, NOT THE PROSE BESIDE IT.**
+  Those records carry a `_note` that opens *"source-verified: hashes computed at
+  the source by remote_publish.sh…"*, which reads as contradicting `REPORT.md`'s
+  *"local-hash verified only"*. It does not: the `_note` is a two-term GLOSSARY
+  whose first sentence defines the term that does NOT apply, and the actual
+  `integrity` field reads **`transfer-verified` in all 9**. A glossary that leads
+  with the inapplicable term invites the misread, and the field is the datum.
+  **Classify before reporting — DELIVERY GAP (meant to run, nothing reaches it),
+  OPERATOR TOOL (run by hand by design, and say where that is documented), DEAD,
+  or UNCLEAR. "Unclear" is a finding**, and it is the honest verdict when the
+  answer is an owner's decision rather than a measurement — **but exhaust the
+  OUTPUT search before settling on it: the ingest trio above was filed UNCLEAR on
+  a code-and-doc search and resolved to LIVE by one look at the records.**
 - **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A DETECTION-DEPTH
   COMPARISON, NOT A QUALITY ONE — flux-match the population or the deeper image loses
   every time.** `findstar` goes as faint as the image allows, and marginal fits are
