@@ -1925,6 +1925,23 @@ SILENT — pin the state, never inherit it):
   summary line over all of them.** A per-block paste catches a swapped search string
   on sight; a summary line cannot, because it is written from memory of what was
   fixed rather than from a re-run.
+  **AND A CORRECTLY PASTED NUMSTAT DOES NOT COVER A DESTRUCTIVE CUT, BECAUSE AN
+  AGGREGATE SAYS NOTHING ABOUT WHICH LINES WENT.** MEASURED, and the instance sat
+  in the tree for a day: `c1a20d3` pasted `37 5 docs/dead-ends.md` accurately and
+  one of those five deletions was the BULLET AND TITLE of an unrelated entry —
+  *"A LINEAR REGRESSOR AVERAGES A SIGN-FLIPPING PATTERN TO ZERO, AND THAT NULL IS"*
+  — leaving its continuation orphaned mid-paragraph inside the preceding entry
+  about Siril's top-down frame, so two unrelated subjects read as one. **The
+  numstat check FIRED and PASSED; the count was right and the content was
+  destroyed.** Same class as the cut that kept a prohibition and deleted its
+  detector, nine minutes apart, neither caught by the rule written for it.
+  **THE RULE THIS ADDS: for a DELETION, read the `-` lines, not the count.**
+  `git diff -- <file> | grep '^-'` is the check; the count test cannot reach it.
+  **THE CHEAP DETECTOR, and its limit is the useful half:** a block-parity scan for
+  an odd `**` count over 293 top-level bullets across the seven record files found
+  exactly one offender — this one. It catches a cut that UNBALANCES a marker and is
+  blind to one that removes a balanced span, so it is not a detector for the class;
+  it caught this instance because of how this instance happened to fail.
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
@@ -1992,6 +2009,24 @@ SILENT — pin the state, never inherit it):
   not cover. **Corollary: a finding ABOUT the tree is perishable by construction —
   delivery gaps, reachability, "nothing calls X" — so it carries its commit or it
   is not a finding.**
+  **THE "COMMITTED ARTIFACT" MITIGATION IS NOT SUFFICIENT AND INSTANCE (5) IS WHY:
+  IT CAN BE SATISFIED BY THE PARENT.** A calibration table justifying a size ceiling
+  was measured from four files and published in `c7c5c4d` — the same commit that
+  edited all four, inserting a two-line marker into each. Every row was the
+  PRE-EDIT state, wrong by a constant **+2 lines / +23 bytes**, and the numbers
+  were correct against `c7c5c4d^`. So the measurement WAS taken from a committed
+  artifact; it was the wrong one. The stated headroom of 26% was 25%.
+  **THE STRONGER FORM: measure at the state you are COMMITTING — after your own
+  edit — not at the state you started from.** The failure needs no concurrency and
+  no peer: the mover and the measurer are the same session in the same commit, and
+  the table is internally consistent, so nothing in it looks wrong.
+  **AND THE SECOND HOME IS WHAT MAKES IT SURVIVE A CHECK:** the same four rows were
+  duplicated verbatim into `check_prompt_scope.sh`'s header, so cross-checking
+  either against the other CONFIRMS both while both disagree with the tree — the
+  file's own destination rule (*a second home is a second place to drift*) failing
+  inside the commit that states it. **A duplicated number is not corroborated by
+  its duplicate.** Found independently by two sessions on the same boot, each
+  re-running `wc` rather than reading the table.
   **AND THE CASE THAT SAVED (4) IS THE GENERAL DEFENCE: a proxy calibrated against
   cases whose true answer is already known.** Three predictors were built for that
   triage — narrative markers per 100 words, word count, fraction of numbers homed
@@ -3114,6 +3149,8 @@ SILENT — pin the state, never inherit it):
   matrix, a `source-extractor` catalogue, a parallactic angle. Convert through the
   mirror or the sign of the answer is wrong. There is also a 1 px offset from FITS
   1-based indexing on top of the mirror.
+
+- **A LINEAR REGRESSOR AVERAGES A SIGN-FLIPPING PATTERN TO ZERO, AND THAT NULL IS
   NOT EVIDENCE OF ABSENCE.** `mechanism_and_specs.json`'s own model-free sided
   bands on the MAJOR axis sign-flip across |x| (−0.12, −0.17, −0.08, **+0.14,
   +0.11**) while its linear-in-x regression on the same stars reads 0.13 SE and

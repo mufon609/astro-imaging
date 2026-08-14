@@ -29,7 +29,12 @@ rest — a second home for a fact is a second place for it to drift.
    `prompts/ORACLE_HANDOFF_*.md` for the do-not-re-run negatives and the live
    UNCHECKED list → **`prompts/REPORT.md`**, the working register of what is
    queued and how it is judged.
-3. **`git log --oneline -80`. Session reports are deleted by design here, so the
+3. **`git log --since='<date> 00:00' --format='%h %ad %s' --date=format:'%m-%d %H:%M'`
+   — a DATE bound, never a fixed count, and never `--oneline`. A `-N` window does
+   not present as partial, it presents as the object: `-100` covered a 115-commit
+   day and silently stopped at 09:44, excluding the commits that founded two open
+   routes. And `--oneline` carries no time, so it cannot order a commit against
+   anything that is not a commit. Session reports are deleted by design here, so the
    commit MESSAGES are the transcript.**
 4. **Run `./scripts/qa/run_guards.sh` yourself.** A slow run is contention —
    `siril_run`'s flock is per-USER — not failure.

@@ -43,13 +43,13 @@
 # are the backstop. Both are proxies.
 #
 # WHY 300 / 20000, calibrated against real data on BOTH sides:
-#   ADVERSARY_TEMPLATE.md          98 lines   4,980 B   passes
-#   WORKER_TEMPLATE.md            123 lines   7,247 B   passes
-#   PROJECT_MANAGER_PROMPT.md     213 lines  13,147 B   passes
-#   ORACLE_TEMPLATE.md            238 lines  13,494 B   passes
+#   ADVERSARY_TEMPLATE.md         100 lines   5,003 B   passes
+#   WORKER_TEMPLATE.md            129 lines   7,630 B   passes
+#   PROJECT_MANAGER_PROMPT.md     215 lines  13,170 B   passes
+#   ORACLE_TEMPLATE.md            245 lines  13,936 B   passes
 #   ORACLE_TEMPLATE.md @42e1f1e   565 lines  34,962 B   RED on both axes
 #   PROJECT_MANAGER_PROMPT.md @deb4ef8  668 lines  45,494 B   RED on both axes
-# 26% headroom in lines over the largest live role doc, 48% in bytes. And it fires
+# 22% headroom in lines over the largest live role doc, 44% in bytes. And it fires
 # where it should have: the Oracle's FIRST accretion commit that day took it
 # 233 -> 362, which 300 catches.
 #

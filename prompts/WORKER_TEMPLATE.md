@@ -45,7 +45,11 @@ a second place for it to drift, which is a defect class this repo has measured.
    the working register of what is queued and how it is judged. **This file is
    short and mostly pointers, so reading it first tells you where to go; it is not
    a frame to inherit. The contract and the registry are the authorities.**
-3. **Then `git log --oneline -80`. Session reports are deleted by design here, so
+3. **Then `git log --since='<date> 00:00' --format='%h %ad %s' --date=format:'%m-%d %H:%M'`
+   — a DATE bound, never a fixed count, and never `--oneline`. A `-N` window does
+   not present as partial, it presents as the object: `-100` covered a 115-commit
+   day and silently stopped at 09:44. `--oneline` carries no time, so it cannot
+   order a commit against anything that is not a commit. Session reports are deleted by design here, so
    the commit MESSAGES are the transcript.**
 4. **Run `./scripts/qa/run_guards.sh` yourself.** A slow run is contention —
    `siril_run`'s flock is per-USER — not failure. **Anything RED, report it before
