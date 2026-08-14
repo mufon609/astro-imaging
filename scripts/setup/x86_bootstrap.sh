@@ -280,6 +280,17 @@ run "pipx ensurepath"
 [[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2"   # 4100-series = wide-field
 # xvfb only if you must run a GUI pyscript (we avoid): sudo apt install -y xvfb
 manifest astrometry.net apt apt-signed apt /usr/share/astrometry "solve-field --help" "4100 Tycho-2 wide-field indexes"
+# source-extractor is the INPUT STAGE both PSFEx and SCAMP consume (Layer C3), and
+# it is NOT installed explicitly anywhere: it arrives as a RECOMMENDS of
+# astrometry.net above. MEASURED — `apt-cache show astrometry.net` lists it under
+# Recommends (not Depends), this rig has `APT::Install-Recommends "1"` with no
+# override in /etc/apt/apt.conf.d/, and dpkg marks the installed copy `auto`. It is
+# recorded here because the manifest's job is to say what a clone ENDS UP WITH, and
+# a transitively-acquired binary that two pinned tools depend on is exactly the
+# machine-local value CLAUDE.md's Environment section warns about. THE FRAGILITY IS
+# THE POINT OF THE ROW: an apt run with --no-install-recommends omits it, and the
+# failure surfaces as PSFEx/SCAMP building cleanly and finding no input stage.
+manifest source-extractor 2.28.2+ds-1 apt-recommends-of-astrometry.net apt /usr/bin/source-extractor "source-extractor --version" "input stage for PSFEx and SCAMP (Layer C3). NOT explicitly installed — arrives as a Recommends of astrometry.net; --no-install-recommends omits it"
 
 # darktable + lensfun = the UNDISTORT stage (the wide-field UNTRACKED class).
 # darktable must be BUILT AGAINST lensfun — Debian's is; its RawTherapee is NOT
@@ -447,6 +458,35 @@ run "'$(dirname "$0")/install_python_tools.sh' --go"
 # Rows are EMITTED by the script and appended here rather than written by it —
 # manifest.tsv is generated and a hand-added row vanishes on the next --go.
 if [[ $DRY -eq 0 ]]; then "$(dirname "$0")/install_python_tools.sh" --manifest >>"$MANIFEST"; fi
+
+# ---- Layer C3: the ASTROMATIC lane, built from Debian source ----------------
+# WHY THIS WIRING IS THE FIX, and it is the sharpest instance of the class this
+# repo keeps measuring: `install_astromatic.sh` was written expressly to close
+# "VERIFIED and NOT REPRODUCIBLE FROM A CLONE" — its own header says so — and
+# NOTHING CALLED IT. So the remedy for not-reproducible-from-a-clone was itself
+# unreachable from a clone. PSFEx's field model is already cited in the corner
+# records and in BACKLOG row 52 (the arm that validated the kappa rows 51/52/53
+# all rest on), so a standing measurement was resting on a machine-local build.
+#
+# ROOT IS NOT WHY IT WAS OMITTED: this script already runs `sudo apt install` 23
+# times, including astrometry.net, darktable, liblensfun-bin and hugin-tools. The
+# astromatic lane simply needs its OWN apt line for build deps, which the script
+# emits via --root-cmds rather than duplicating here.
+#
+# `source-extractor` IS NOT ADDED and that is MEASURED, not assumed: PSFEx and
+# SCAMP both consume it, and it arrives TRANSITIVELY — `astrometry.net`
+# Recommends it (not Depends), this rig has `APT::Install-Recommends "1"` with no
+# override in /etc/apt/apt.conf.d/, and dpkg marks the installed copy `auto`.
+# CAVEAT before anyone hardens the apt line: a contributor running apt with
+# --no-install-recommends would NOT get it, and the failure would surface as
+# PSFEx/SCAMP building fine and finding no input stage at run time.
+log "Layer C3 — Astromatic lane (PSFEx, SCAMP) from Debian source"
+while IFS= read -r c; do [[ -n "$c" ]] && run "$c"; done \
+  < <("$(dirname "$0")/install_astromatic.sh" --root-cmds)
+run "'$(dirname "$0")/install_astromatic.sh' --go"
+# Rows are EMITTED by the script, same as C2 — a hand-added row vanishes on the
+# next --go, which is how manifest.tsv came to omit this lane in the first place.
+if [[ $DRY -eq 0 ]]; then "$(dirname "$0")/install_astromatic.sh" --manifest >>"$MANIFEST"; fi
 
 # ---- Layer D: pinned /opt self-contained binaries -------------------------
 log "Layer D — pinned /opt binaries"
