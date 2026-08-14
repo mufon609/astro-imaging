@@ -295,9 +295,31 @@ the constraints any such tool must satisfy):
   to a fixed altitude and azimuth, so extinction and the skyglow gradient across
   this 27-degree field are sensor-fixed exactly like the flat's residual — and
   both are functions of AIRMASS, i.e. nearly the same spatial shape. The fit sees
-  their SUM and cannot apportion it without an external anchor, and both anchors
-  are closed: a catalogue is structurally impossible here (trailed stars at
-  17"/px) and a real flat IS the fix. **The time-varying half is measured, not
+  their SUM and cannot apportion it without an external anchor. A real flat is one
+  such anchor and IS the fix. **The other anchor was recorded here as "a catalogue
+  is structurally impossible (trailed stars at 17"/px)" — THAT IS REFUTED, and the
+  two halves of the correction must be read together or the next reader reopens a
+  route that is still dead.** MEASURED: astrometry.net's own index tag-along
+  (`solve-field --tag-all`) matched **37 Tycho-2 stars on exactly such a raw** —
+  trailed, at that plate scale — so the stated mechanism fails on its own terms,
+  and that route issues no catalogue query at all. The sample is thin but real
+  against the field's own yardstick, which states the requirement as a per-cell
+  OCCUPANCY rather than a count (Pan-STARRS, Magnier et al. 2016 Table 5: 4 stars
+  per cell at order 1): these 37 occupy **4/4 cells of a 2×2 grid, minimum 5 per
+  cell** — clearing order 1 — and **8/9 cells of a 3×3, minimum 1** against a
+  requirement of 6, so order 2 fails outright. They also span only **x 1162–4384
+  of 6064 (53% of the width)**, so a linear sensor-fixed term fitted on them
+  EXTRAPOLATES to the very edges it exists to measure. The honest word is
+  **SPARSE and order-1-only, not impossible.** What IS blocked is the DEEP
+  catalogue cone route, and on TOOLING rather than on trailing — Siril's
+  `conesearch` aborts unconditionally when run headless, and separately timed out
+  on a 20.6° cone against TAPVizieR (`TOOLS.md`). **AND THE ROUTE STAYS DEAD,
+  because a catalogue kills BLOCKER 1 ONLY.** Known catalogue magnitudes fix the
+  per-star nuisance `M_i`, so the translational degeneracy does go — but the fit
+  then measures `ZP + f(sensor position)` where `f` is the flat error PLUS
+  extinction and skyglow, still a sum, still both airmass-shaped. Blocker 2 does
+  not care where the reference magnitudes came from.
+  **The time-varying half is measured, not
   argued:** letting every block carry its own gradient gives a within-set drift of
   **0.040-0.425 mag across the frame (median 0.149), MONOTONE in block order in 10
   of 12 sets**. A gradient drift `delta` enters a shared-gradient fit at about
