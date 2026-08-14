@@ -30,6 +30,17 @@
 #   verify OUTPUT. A guard cannot tell you a render is good.
 # - A green run says nothing about the checks listed under EXCLUDED below, which
 #   need live products and are named there rather than silently skipped.
+# - HOW THE ROSTER WAS BUILT IS ITSELF A LIMIT. It came from `grep -rln selftest`
+#   over `scripts/` and `web/`, with every hit then classified by RUNNING it. So
+#   a selftest exposed under a flag this grep does not match is invisible to the
+#   roster and would be silently absent rather than reported missing — and the
+#   naming is NOT uniform, which is not a worry but a measured fact:
+#   `x86_bootstrap.sh` exposes `--selftest-gaia`, not `--selftest`. That one is
+#   known and excluded on its own merits (below); the point is that others could
+#   exist. Adding a check here is a manual act, and nothing detects one that was
+#   never added. This is the same defect class the runner exists to catch, one
+#   level up — so when you add a selftest anywhere, add its row to CHECKS in the
+#   same commit.
 # - One check reaches the NETWORK (starlight_preservation's catalogue control
 #   queries the ESA Gaia archive). It is run unconditionally and labelled, so an
 #   offline failure is interpretable rather than silently skipped. There is no
