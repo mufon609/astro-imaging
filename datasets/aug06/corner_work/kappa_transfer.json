@@ -1,0 +1,677 @@
+{
+ "what": "does the trail conversion constant kappa transfer from an analytic Gaussian base to a measured one?",
+ "base_profile_source": {
+  "model": "../set-01/psfex_work/deg3/g_00005.psf",
+  "tool": "PSFEx (astromatic), via the existing psfex_work model",
+  "PSF_SAMP_px_per_sample": 0.51084346,
+  "major_axis_PA_deg": -14.97691026894755,
+  "cut_taken": "PERPENDICULAR to the major axis \u2014 the untrailed base, since a linear smear convolves along one axis only",
+  "makepsf_stars_REJECTED": "Siril's own makepsf stars -savepsf= runs headless and wrote a 33x33 PSF from 322 bright non-saturated stars, but it measures 9 px x 3 px at half maximum \u2014 a 3:1 elongation ~4x broader than the real stars (2.4 x 2.0 px). Not this frame's stellar profile, so unusable as a base."
+ },
+ "held_constant": [
+  "L ladder",
+  "7x7 supersampling",
+  "sub-pixel phase randomisation",
+  "amplitude range 3000-30000",
+  "Poisson noise + RNG stream",
+  "56 px grid",
+  "identical Siril findstar call",
+  "through-origin fit over L in [1.35, 1.95]"
+ ],
+ "arms": {
+  "A_analytic_gauss": {
+   "rows": [
+    {
+     "L_px": 0.0,
+     "n": 400,
+     "median_major_px": 2.13,
+     "median_minor_px": 2.12,
+     "median_d2": 0.04249999999999865,
+     "median_angle_deg": -1.595
+    },
+    {
+     "L_px": 0.2,
+     "n": 400,
+     "median_major_px": 2.13,
+     "median_minor_px": 2.12,
+     "median_d2": 0.04249999999999865,
+     "median_angle_deg": -8.879999999999999
+    },
+    {
+     "L_px": 0.4,
+     "n": 400,
+     "median_major_px": 2.14,
+     "median_minor_px": 2.12,
+     "median_d2": 0.0851999999999995,
+     "median_angle_deg": -19.31
+    },
+    {
+     "L_px": 0.6,
+     "n": 400,
+     "median_major_px": 2.16,
+     "median_minor_px": 2.12,
+     "median_d2": 0.1711999999999998,
+     "median_angle_deg": -20.295
+    },
+    {
+     "L_px": 0.8,
+     "n": 400,
+     "median_major_px": 2.19,
+     "median_minor_px": 2.12,
+     "median_d2": 0.3016999999999994,
+     "median_angle_deg": -19.5
+    },
+    {
+     "L_px": 1.0,
+     "n": 400,
+     "median_major_px": 2.23,
+     "median_minor_px": 2.12,
+     "median_d2": 0.4784999999999995,
+     "median_angle_deg": -19.895
+    },
+    {
+     "L_px": 1.2,
+     "n": 400,
+     "median_major_px": 2.28,
+     "median_minor_px": 2.12,
+     "median_d2": 0.7039999999999988,
+     "median_angle_deg": -20.025
+    },
+    {
+     "L_px": 1.4,
+     "n": 400,
+     "median_major_px": 2.34,
+     "median_minor_px": 2.12,
+     "median_d2": 0.9429000000000007,
+     "median_angle_deg": -20.005000000000003
+    },
+    {
+     "L_px": 1.6,
+     "n": 400,
+     "median_major_px": 2.4,
+     "median_minor_px": 2.12,
+     "median_d2": 1.2655999999999992,
+     "median_angle_deg": -20.09
+    },
+    {
+     "L_px": 1.8,
+     "n": 400,
+     "median_major_px": 2.48,
+     "median_minor_px": 2.12,
+     "median_d2": 1.613500000000001,
+     "median_angle_deg": -20.105
+    },
+    {
+     "L_px": 2.0,
+     "n": 400,
+     "median_major_px": 2.56,
+     "median_minor_px": 2.12,
+     "median_d2": 2.0378499999999993,
+     "median_angle_deg": -19.93
+    },
+    {
+     "L_px": 2.2,
+     "n": 400,
+     "median_major_px": 2.65,
+     "median_minor_px": 2.12,
+     "median_d2": 2.5280999999999993,
+     "median_angle_deg": -20.04
+    },
+    {
+     "L_px": 2.4,
+     "n": 400,
+     "median_major_px": 2.75,
+     "median_minor_px": 2.12,
+     "median_d2": 3.0379999999999985,
+     "median_angle_deg": -19.99
+    },
+    {
+     "L_px": 2.6,
+     "n": 400,
+     "median_major_px": 2.85,
+     "median_minor_px": 2.12,
+     "median_d2": 3.6281,
+     "median_angle_deg": -19.985
+    },
+    {
+     "L_px": 2.8,
+     "n": 400,
+     "median_major_px": 2.96,
+     "median_minor_px": 2.13,
+     "median_d2": 4.2840000000000025,
+     "median_angle_deg": -19.985
+    }
+   ],
+   "kappa_all_L": 0.5290127029376523,
+   "kappa_corpus_band": 0.49374712819727373,
+   "band_L_values": [
+    1.4,
+    1.6,
+    1.8
+   ],
+   "floor_px2": 0.04249999999999865,
+   "floor_major_px": 2.13,
+   "floor_minor_px": 2.12,
+   "kappa_corpus_band_floor_subtracted": 0.4779617858783892
+  },
+  "B_discrete_gauss": {
+   "rows": [
+    {
+     "L_px": 0.0,
+     "n": 400,
+     "median_major_px": 2.13,
+     "median_minor_px": 2.12,
+     "median_d2": 0.04270000000000085,
+     "median_angle_deg": -4.415
+    },
+    {
+     "L_px": 0.2,
+     "n": 400,
+     "median_major_px": 2.14,
+     "median_minor_px": 2.12,
+     "median_d2": 0.04270000000000085,
+     "median_angle_deg": -11.96
+    },
+    {
+     "L_px": 0.4,
+     "n": 400,
+     "median_major_px": 2.15,
+     "median_minor_px": 2.13,
+     "median_d2": 0.08560000000000034,
+     "median_angle_deg": -18.32
+    },
+    {
+     "L_px": 0.6,
+     "n": 400,
+     "median_major_px": 2.17,
+     "median_minor_px": 2.13,
+     "median_d2": 0.1720000000000006,
+     "median_angle_deg": -19.555
+    },
+    {
+     "L_px": 0.8,
+     "n": 400,
+     "median_major_px": 2.2,
+     "median_minor_px": 2.13,
+     "median_d2": 0.3016999999999994,
+     "median_angle_deg": -20.08
+    },
+    {
+     "L_px": 1.0,
+     "n": 400,
+     "median_major_px": 2.24,
+     "median_minor_px": 2.13,
+     "median_d2": 0.4784999999999995,
+     "median_angle_deg": -19.46
+    },
+    {
+     "L_px": 1.2,
+     "n": 400,
+     "median_major_px": 2.28,
+     "median_minor_px": 2.13,
+     "median_d2": 0.7039999999999988,
+     "median_angle_deg": -19.985
+    },
+    {
+     "L_px": 1.4,
+     "n": 400,
+     "median_major_px": 2.34,
+     "median_minor_px": 2.13,
+     "median_d2": 0.9429000000000007,
+     "median_angle_deg": -20.0
+    },
+    {
+     "L_px": 1.6,
+     "n": 400,
+     "median_major_px": 2.41,
+     "median_minor_px": 2.13,
+     "median_d2": 1.2712000000000012,
+     "median_angle_deg": -19.985
+    },
+    {
+     "L_px": 1.8,
+     "n": 400,
+     "median_major_px": 2.48,
+     "median_minor_px": 2.13,
+     "median_d2": 1.613500000000001,
+     "median_angle_deg": -20.130000000000003
+    },
+    {
+     "L_px": 2.0,
+     "n": 400,
+     "median_major_px": 2.56,
+     "median_minor_px": 2.13,
+     "median_d2": 2.0591999999999997,
+     "median_angle_deg": -20.07
+    },
+    {
+     "L_px": 2.2,
+     "n": 400,
+     "median_major_px": 2.65,
+     "median_minor_px": 2.13,
+     "median_d2": 2.5280999999999993,
+     "median_angle_deg": -20.07
+    },
+    {
+     "L_px": 2.4,
+     "n": 400,
+     "median_major_px": 2.75,
+     "median_minor_px": 2.13,
+     "median_d2": 3.0379999999999985,
+     "median_angle_deg": -19.994999999999997
+    },
+    {
+     "L_px": 2.6,
+     "n": 400,
+     "median_major_px": 2.86,
+     "median_minor_px": 2.13,
+     "median_d2": 3.6426999999999996,
+     "median_angle_deg": -19.98
+    },
+    {
+     "L_px": 2.8,
+     "n": 400,
+     "median_major_px": 2.97,
+     "median_minor_px": 2.13,
+     "median_d2": 4.2840000000000025,
+     "median_angle_deg": -19.99
+    }
+   ],
+   "kappa_all_L": 0.5299857463954828,
+   "kappa_corpus_band": 0.49443329759534416,
+   "band_L_values": [
+    1.4,
+    1.6,
+    1.8
+   ],
+   "floor_px2": 0.04270000000000085,
+   "floor_major_px": 2.13,
+   "floor_minor_px": 2.12,
+   "kappa_corpus_band_floor_subtracted": 0.4785736713126053
+  },
+  "C_discrete_real": {
+   "rows": [
+    {
+     "L_px": 0.0,
+     "n": 400,
+     "median_major_px": 2.12,
+     "median_minor_px": 2.0949999999999998,
+     "median_d2": 0.08319999999999972,
+     "median_angle_deg": 0.46499999999999997
+    },
+    {
+     "L_px": 0.2,
+     "n": 400,
+     "median_major_px": 2.12,
+     "median_minor_px": 2.1,
+     "median_d2": 0.08400000000000052,
+     "median_angle_deg": -6.0600000000000005
+    },
+    {
+     "L_px": 0.4,
+     "n": 400,
+     "median_major_px": 2.13,
+     "median_minor_px": 2.1,
+     "median_d2": 0.08560000000000034,
+     "median_angle_deg": -14.524999999999999
+    },
+    {
+     "L_px": 0.6,
+     "n": 400,
+     "median_major_px": 2.15,
+     "median_minor_px": 2.105,
+     "median_d2": 0.17039999999999988,
+     "median_angle_deg": -17.665
+    },
+    {
+     "L_px": 0.8,
+     "n": 400,
+     "median_major_px": 2.18,
+     "median_minor_px": 2.11,
+     "median_d2": 0.3003000000000009,
+     "median_angle_deg": -19.520000000000003
+    },
+    {
+     "L_px": 1.0,
+     "n": 400,
+     "median_major_px": 2.22,
+     "median_minor_px": 2.11,
+     "median_d2": 0.47630000000000106,
+     "median_angle_deg": -19.5
+    },
+    {
+     "L_px": 1.2,
+     "n": 400,
+     "median_major_px": 2.27,
+     "median_minor_px": 2.11,
+     "median_d2": 0.7008000000000001,
+     "median_angle_deg": -20.035
+    },
+    {
+     "L_px": 1.4,
+     "n": 400,
+     "median_major_px": 2.33,
+     "median_minor_px": 2.11,
+     "median_d2": 0.9768000000000008,
+     "median_angle_deg": -20.064999999999998
+    },
+    {
+     "L_px": 1.6,
+     "n": 400,
+     "median_major_px": 2.4,
+     "median_minor_px": 2.11,
+     "median_d2": 1.3079,
+     "median_angle_deg": -19.86
+    },
+    {
+     "L_px": 1.8,
+     "n": 400,
+     "median_major_px": 2.48,
+     "median_minor_px": 2.11,
+     "median_d2": 1.6632000000000016,
+     "median_angle_deg": -19.96
+    },
+    {
+     "L_px": 2.0,
+     "n": 400,
+     "median_major_px": 2.56,
+     "median_minor_px": 2.11,
+     "median_d2": 2.1015000000000006,
+     "median_angle_deg": -20.04
+    },
+    {
+     "L_px": 2.2,
+     "n": 400,
+     "median_major_px": 2.66,
+     "median_minor_px": 2.12,
+     "median_d2": 2.5812,
+     "median_angle_deg": -20.06
+    },
+    {
+     "L_px": 2.4,
+     "n": 400,
+     "median_major_px": 2.76,
+     "median_minor_px": 2.12,
+     "median_d2": 3.136000000000001,
+     "median_angle_deg": -19.985
+    },
+    {
+     "L_px": 2.6,
+     "n": 400,
+     "median_major_px": 2.87,
+     "median_minor_px": 2.12,
+     "median_d2": 3.7424999999999997,
+     "median_angle_deg": -20.04
+    },
+    {
+     "L_px": 2.8,
+     "n": 400,
+     "median_major_px": 2.98,
+     "median_minor_px": 2.12,
+     "median_d2": 4.403200000000002,
+     "median_angle_deg": -19.994999999999997
+    }
+   ],
+   "kappa_all_L": 0.544252351453163,
+   "kappa_corpus_band": 0.5098177362536379,
+   "band_L_values": [
+    1.4,
+    1.6,
+    1.8
+   ],
+   "floor_px2": 0.08319999999999972,
+   "floor_major_px": 2.12,
+   "floor_minor_px": 2.0949999999999998,
+   "kappa_corpus_band_floor_subtracted": 0.4789156072905502
+  },
+  "D_real_crowded": {
+   "rows": [
+    {
+     "L_px": 0.0,
+     "n": 386,
+     "median_major_px": 2.12,
+     "median_minor_px": 2.09,
+     "median_d2": 0.08400000000000052,
+     "median_angle_deg": 3.1799999999999997
+    },
+    {
+     "L_px": 0.2,
+     "n": 385,
+     "median_major_px": 2.12,
+     "median_minor_px": 2.09,
+     "median_d2": 0.08440000000000047,
+     "median_angle_deg": -5.53
+    },
+    {
+     "L_px": 0.4,
+     "n": 393,
+     "median_major_px": 2.13,
+     "median_minor_px": 2.1,
+     "median_d2": 0.0851999999999995,
+     "median_angle_deg": -12.86
+    },
+    {
+     "L_px": 0.6,
+     "n": 389,
+     "median_major_px": 2.15,
+     "median_minor_px": 2.11,
+     "median_d2": 0.1711999999999998,
+     "median_angle_deg": -18.43
+    },
+    {
+     "L_px": 0.8,
+     "n": 382,
+     "median_major_px": 2.18,
+     "median_minor_px": 2.1,
+     "median_d2": 0.3031000000000015,
+     "median_angle_deg": -18.35
+    },
+    {
+     "L_px": 1.0,
+     "n": 389,
+     "median_major_px": 2.22,
+     "median_minor_px": 2.11,
+     "median_d2": 0.47630000000000106,
+     "median_angle_deg": -19.88
+    },
+    {
+     "L_px": 1.2,
+     "n": 385,
+     "median_major_px": 2.27,
+     "median_minor_px": 2.11,
+     "median_d2": 0.7008000000000001,
+     "median_angle_deg": -19.65
+    },
+    {
+     "L_px": 1.4,
+     "n": 387,
+     "median_major_px": 2.33,
+     "median_minor_px": 2.11,
+     "median_d2": 0.9768000000000008,
+     "median_angle_deg": -20.25
+    },
+    {
+     "L_px": 1.6,
+     "n": 389,
+     "median_major_px": 2.4,
+     "median_minor_px": 2.11,
+     "median_d2": 1.3079,
+     "median_angle_deg": -20.07
+    },
+    {
+     "L_px": 1.8,
+     "n": 387,
+     "median_major_px": 2.48,
+     "median_minor_px": 2.11,
+     "median_d2": 1.6632000000000016,
+     "median_angle_deg": -19.99
+    },
+    {
+     "L_px": 2.0,
+     "n": 387,
+     "median_major_px": 2.56,
+     "median_minor_px": 2.11,
+     "median_d2": 2.1015000000000006,
+     "median_angle_deg": -20.01
+    },
+    {
+     "L_px": 2.2,
+     "n": 383,
+     "median_major_px": 2.66,
+     "median_minor_px": 2.12,
+     "median_d2": 2.5812,
+     "median_angle_deg": -20.0
+    },
+    {
+     "L_px": 2.4,
+     "n": 389,
+     "median_major_px": 2.76,
+     "median_minor_px": 2.12,
+     "median_d2": 3.136000000000001,
+     "median_angle_deg": -20.02
+    },
+    {
+     "L_px": 2.6,
+     "n": 386,
+     "median_major_px": 2.87,
+     "median_minor_px": 2.12,
+     "median_d2": 3.7424999999999997,
+     "median_angle_deg": -20.03
+    },
+    {
+     "L_px": 2.8,
+     "n": 393,
+     "median_major_px": 2.98,
+     "median_minor_px": 2.12,
+     "median_d2": 4.403200000000002,
+     "median_angle_deg": -19.91
+    }
+   ],
+   "kappa_all_L": 0.5442622976497218,
+   "kappa_corpus_band": 0.5098177362536379,
+   "band_L_values": [
+    1.4,
+    1.6,
+    1.8
+   ],
+   "floor_px2": 0.08400000000000052,
+   "floor_major_px": 2.12,
+   "floor_minor_px": 2.09,
+   "kappa_corpus_band_floor_subtracted": 0.4786184714351357
+  }
+ },
+ "KAPPA": {
+  "A_analytic_gauss": 0.49374712819727373,
+  "B_discrete_gauss": 0.49443329759534416,
+  "C_discrete_real": 0.5098177362536379,
+  "pinned_psf_calib": 0.49374712819727373
+ },
+ "CONTROLS": {
+  "A_reproduces_pinned": {
+   "kappa": 0.49374712819727373,
+   "pinned": 0.49374712819727373,
+   "ratio": 1.0
+  },
+  "renderer_cost_B_over_A": 1.0013897182563385
+ },
+ "THE_ONE_KNOB_C_over_B": 1.031115296508377,
+ "THE_ONE_KNOB_C_over_B_FLOOR_SUBTRACTED": 1.000714489739912,
+ "KAPPA_FLOOR_SUBTRACTED": {
+  "A": 0.4779617858783892,
+  "B": 0.4785736713126053,
+  "C": 0.4789156072905502,
+  "D": 0.4786184714351357
+ },
+ "SECOND_OUTPUT_BLENDING": {
+  "what": "the Oracle's open point: the fixture is an uncrowded 56 px grid while the real field is blended. Arm D keeps the real base and the SAME star count but places them at RANDOM, restoring clustering and changing nothing else.",
+  "density_matches_already": "the real frame carries 7200 stars on 6064x4040 = 2.94e-4 /px^2, which is 423 on a 1200x1200 fixture against the grid's 400 \u2014 so this is a placement test, not a density test",
+  "kappa_D_raw": 0.5098177362536379,
+  "kappa_D_floor_subtracted": 0.4786184714351357,
+  "D_over_C_raw": 1.0,
+  "D_over_C_floor_subtracted": 0.9993795653119438
+ },
+ "WHICH_COMPARISON_IS_RIGHT": "the FLOOR-SUBTRACTED one. Raw through-origin kappa differs between arms partly because their L=0 floors differ (0.0425 / 0.0427 / 0.0832 px^2), and that floor is fit noise rectified by findstar's major>=minor sort, not anisotropy \u2014 both bases are circular at L=0 by construction. Raw C/B = 1.031; floor-subtracted C/B = 1.001.",
+ "CONSEQUENCE": {
+  "pinned_trail_ratio": 0.3502,
+  "ratio_rescaled_by_C_over_B_raw": 0.339632242083759,
+  "ratio_rescaled_by_C_over_B_floor_subtracted": 0.34994996434099573,
+  "mag_pinned": 0.5696048228157158,
+  "mag_rescaled_raw": 0.5862388598490318,
+  "mag_rescaled_floor_subtracted": 0.5699925580050729,
+  "note": "the trail ratio is measured/predicted and kappa is in the PREDICTION, so a larger kappa lowers the ratio."
+ },
+ "BOOTSTRAPPED": {
+  "A_analytic_gauss": {
+   "median": {
+    "kappa_floor_subtracted": 0.4779617858783892,
+    "boot_se": 0.002784281100617974
+   },
+   "mean": {
+    "kappa_floor_subtracted": 0.4612858008500537,
+    "boot_se": 0.0028568001883730243
+   }
+  },
+  "B_discrete_gauss": {
+   "median": {
+    "kappa_floor_subtracted": 0.4785736713126053,
+    "boot_se": 0.0010772934975667899
+   },
+   "mean": {
+    "kappa_floor_subtracted": 0.4594551366978099,
+    "boot_se": 0.002866754980863674
+   }
+  },
+  "C_discrete_real": {
+   "median": {
+    "kappa_floor_subtracted": 0.4789156072905502,
+    "boot_se": 0.00445552991538356
+   },
+   "mean": {
+    "kappa_floor_subtracted": 0.46488170996706996,
+    "boot_se": 0.003364903416044382
+   }
+  },
+  "D_real_crowded": {
+   "median": {
+    "kappa_floor_subtracted": 0.4786184714351357,
+    "boot_se": 0.0018399665902499376
+   },
+   "mean": {
+    "kappa_floor_subtracted": 0.4880597629622994,
+    "boot_se": 0.0165898720457946
+   }
+  }
+ },
+ "HEADLINE": {
+  "profile_C_over_B": {
+   "median": {
+    "ratio": 1.000714489739912,
+    "se": 0.009578670231753532,
+    "percent": 0.07144897399120609,
+    "percent_se": 0.9578670231753533
+   },
+   "mean": {
+    "ratio": 1.0118108882365793,
+    "se": 0.009669142338402315,
+    "percent": 1.1810888236579276,
+    "percent_se": 0.9669142338402315
+   }
+  },
+  "blending_D_over_C": {
+   "median": {
+    "ratio": 0.9993795653119438,
+    "se": 0.010060113618060132,
+    "percent": -0.062043468805617064,
+    "percent_se": 1.0060113618060131
+   },
+   "mean": {
+    "ratio": 1.0498579584833985,
+    "se": 0.03648633157210094,
+    "percent": 4.985795848339847,
+    "percent_se": 3.6486331572100936
+   }
+  },
+  "reads": "kappa TRANSFERS. Replacing the analytic Gaussian base with a measured one moves it by +0.1% +- 1.1% (median) or +1.2% +- 1.0% (mean) \u2014 both consistent with zero and both far inside the ~20% Veres et al. 2012 bound. The conversion-artefact outcome would have needed kappa to fall to ~0.35x, i.e. -65%. It does not."
+ },
+ "reports_only": "MEASUREMENT. No threshold, no verdict. Exits 0."
+}
