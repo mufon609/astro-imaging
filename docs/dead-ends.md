@@ -2383,6 +2383,129 @@ SILENT — pin the state, never inherit it):
   astigmatism is not demonstrated either. The family is UNRESOLVED between the
   two, not settled for one.)
 
+- **A PER-BIN PROPERTY ESTIMATED FROM N FRAMES HAS N INDEPENDENT REALISATIONS —
+  RESAMPLING STARS INSIDE ONE POOLED POPULATION IS NOT AN ERROR BAR FOR IT, AND
+  IT MANUFACTURES REJECTIONS.** A star-level bootstrap inside a pool captures shot
+  noise only. MEASURED against five raws treated as INDEPENDENT realisations, the
+  frame-to-frame scatter is **4.1–9.2× the bootstrap SE, median 5.76×**, and a
+  χ²/dof of **35.6** on bootstrap errors becomes **~1.1** on frame-based ones. A
+  published rotation significance of "10 to 20σ" (from bootstrap SEs of 1.07–1.39°)
+  was WITHDRAWN on this alone. When a gate is a χ², the error model IS the verdict:
+  take the denominator from what varies between independent draws, never from what
+  is merely plentiful inside one draw.
+
+- **STACKED PRODUCTS CARRY HEAVY NON-STELLAR TAILS THAT THE RAWS DO NOT, SO EVERY
+  COHERENT OR AGGREGATE STATISTIC TAKEN ON A STACK IS TAIL-DRIVEN UNLESS IT IS
+  CUT.** MEASURED on the anisotropy magnitude |D|: mean/median runs **raw 1.07,
+  member 2.07, per-set stack 2.88, union 5.77**, with max |D| at **53.7 / 2368 /
+  1.54e4 / 3.38e4**. The tail GROWS WITH STACKING DEPTH, so a statistic that looks
+  monotone in depth may be measuring contamination rather than an effect — an
+  apparent registration signature reading 0.69 / 4.31 / 5.16 across increasing
+  drift span read **0.245 / 0.787 / 0.726** under a matched upper-|D| cut: flatter,
+  NOT monotone, and with the deepest product BELOW a shallower one. It would have
+  been reported as established had a component-exceeds-the-whole check not fired
+  first. A matched cut is validated by the RAWS barely moving under it (0.7264 →
+  0.7131). **A box-median summarisation is not automatically safe here either** —
+  a median is more robust than a mean, but that has never been verified against
+  this distribution, and it must be before any station table is rebuilt on stacked
+  members.
+
+- **AN AZIMUTHAL AVERAGE CANCELS A RADIAL TERM ONLY WHERE THE AZIMUTH IS
+  COMPLETELY SAMPLED — AND ON A RECTANGULAR FRAME THAT STOPS AT ρ = 0.554, WHICH
+  IS INSIDE THE FIELD.** A statistic projecting onto a fixed axis with weight
+  `cos 2φ` cancels a radial term only over full azimuth. On a 6064×4040 frame
+  (half-short 2020, half-long 3032, half-diagonal 3643.3) the inscribed circle
+  holds only to **ρ = 0.5544**, and beyond **ρ = 0.8322** only the four corners
+  remain. ⟨cos 2φ⟩ over the azimuths still inside the frame:
+
+  | ρ | azimuth kept | ⟨cos 2φ⟩ |
+  |---|---|---|
+  | ≤ 0.554 | 100% | **−0.0000** |
+  | 0.620 | 70.5% | **+0.3615** |
+  | 0.700 | 58.2% | +0.5290 |
+  | 0.830 | 46.6% | +0.6795 |
+  | 0.976 | 3.5% | +0.4047 |
+
+  **Exactly zero while the circle fits, strongly positive the moment it clips**,
+  because the azimuths excluded are those near ±90° where `cos 2φ = −1`; at the
+  corners the radial direction sits at **33.67°** to x, so `cos(2·33.67°) = +0.385`
+  at all four with the SAME sign and they reinforce rather than cancel. A radial
+  term therefore leaks into the fixed-axis projection with a POSITIVE sign, and the
+  leak switches on at a GEOMETRIC threshold, not a physical one — which is what
+  makes it read as data. MEASURED cost: a five-quintile radial split read
+  0.409 / 0.351 / 0.358 / 0.472 / 0.736 and was taken as a radius trend damaging
+  two hypotheses at once; the geometric break falls inside quintile 4
+  (0.490–0.626) **to the bin**. **THE FIX IS A DIFFERENT ESTIMATOR, NOT A CUT:**
+  fit the spin-2 pair PER ρ BIN — `e1(φ) = A·cos2φ + C1`, `e2(φ) = A·sin2φ + C2` —
+  which estimates the radial and fixed terms JOINTLY and is immune by construction,
+  because it FITS the radial term instead of assuming it averages away. Re-measured
+  that way the leak is real and PARTIAL: bin 4 drops 0.472 → 0.392 (22% of the
+  excess remaining) and bin 5 only 0.736 → 0.603 (64% remaining, still 7.9σ above
+  bin 1) — so "artefact" is too strong, it is partly one. **Read that residue with
+  its own caveat:** quintiles are by COUNT and stars concentrate centrally, so the
+  outer bin is ~3× wider in ρ and a constant-R model is misspecified across it (its
+  fitted R falls to +0.33 where bin 4 reads +1.10). Cheapest guard before trusting
+  any outer-field number from an azimuthal average: restrict to ρ < 0.554 and
+  re-run.
+
+- **ON A RECTILINEAR LENS THE PLATE SCALE IS NOT ONE NUMBER, AND IT CORRELATES
+  WITH FIELD RADIUS AT −0.952 — SO A SINGLE-SCALE PREDICTION SILENTLY LOADS A
+  RADIAL TERM.** `r = f·tan(θ)` makes the LOCAL scale vary across the field.
+  MEASURED from each member's own solved WCS (differentiated numerically, full
+  solution INCLUDING SIP — not the ideal sec² form): **15.904–17.064 ″/px, a 6.93%
+  spread**, where every prediction had used one header value of 16.979 ″/px, with
+  **correlation −0.952 against ρ**. That correlation is why it is invisible as a
+  separate effect and why it lands on precisely the radial term nobody could
+  attribute. Substituting the local scale into a joint fit over 148 stations
+  absorbs **0.2282 px², 18.1% of the radial coefficient** (radial ρ coef 1.2599 at
+  7.3 SE → 1.0317 at 5.9 SE), and it is a subtraction rather than a knob on three
+  counts: the radial term SURVIVES at 5.9 SE, so this is partial attribution and
+  not an explanation; the one-sided x term is untouched (0.4120 → 0.3971, 3.6%),
+  which is what a purely radial mechanism must do and was not arranged; and a
+  separately attributed sky-rate term is undamaged (0.67σ → 0.65σ from unity).
+  **THE TRAP IT CREATES, which is the half that generalises:** with the local scale
+  in, the PREDICTOR itself carries a radial component, so in any fit that does not
+  hold ρ it partly proxies for the unmodelled radial term and its slope inflates —
+  a predictor-only check moves **1.280 ± 0.239 (1.17σ) to 1.516 ± 0.212 (2.44σ)
+  while its R² *improves* 0.164 → 0.260**, i.e. it looks better and means less.
+  **Once a position-dependent scale is in the predictor, a predictor-only slope is
+  no longer a valid check of the conversion — read the joint fit.**
+
+- **"REFRACTION" NAMES THREE DIFFERENT QUANTITIES HERE. TWO ARE CLOSED, BY
+  DIFFERENT ARGUMENTS, AND ONE IS OPEN — NAME WHICH BEFORE CITING EITHER CLOSURE.**
+  (1) **As a per-star SHAPE (second-moment) effect it is CLOSED on arithmetic.**
+  Differential refraction as a shape term is atmospheric DISPERSION across the
+  passband, and measurement here is on the debayered GREEN plane (~480–610 nm), far
+  narrower than the 400–650 nm span the standard CTIO 1.40″-at-z=45 figure
+  describes. Conservatively **≤0.6″ at z=45 and ≤1.7″ at z=70**, which at this
+  corpus's 16.979 ″/px is **≤0.035 px and ≤0.10 px**. Entering as a top-hat in
+  second moments on a 2.01 px minor axis, that moves FWHM by ~1e-4 to ~1e-3 px
+  against measured effects of **+0.5 px centre-to-corner** on size and **0.11–0.14**
+  one-sided — **two to three orders of magnitude below what is being attributed to
+  it.** GEOMETRIC differential refraction is not a within-exposure shape effect at
+  all (~5.6e-4 anisotropic plate-scale change at z=45, ~0.001 px on a 2.4 px star).
+  (2) **As a POSITIONAL displacement it is closed separately and by different
+  arithmetic** — the nonlinear residual a projective transform cannot absorb is
+  ≈1.1″ ≈ **0.065 px** (`docs/untracked-widefield-standards.md` §F.1). (3) **As a
+  TIME-VARYING positional term leaving a registration residual in a stack it is
+  OPEN** — that is the candidate in the optical-state-boundary entry above, and
+  neither closure reaches it, because (1) is a within-exposure quantity and (2) is
+  a single-epoch one. Three quantities, one word: the shape closure does not
+  discharge the positional question and the positional closure does not discharge
+  the shape one.
+
+- **A COHERENT MAGNITUDE AND A PROJECTION ON A NAMED AXIS ARE DIFFERENT
+  QUANTITIES, AND ONLY ONE OF THEM IS UNBIASED — SO COMPARING THEM FLATTERS THE
+  BIASED ONE.** A direction-free coherent MAGNITUDE is the norm of a mean 2-vector
+  and is positively noise-biased; a PROJECTION on a stated axis is unbiased. Two
+  figures quoted side by side as the same deficit (0.53× and 0.43×) were these two
+  quantities, on differently-cut populations, with nothing beside either saying
+  which — and the more generous number was the biased one. Same family as the
+  scalar-vs-spin-2 and ellipticity-vs-blur-exponent entries above, and **the tell
+  is identical in every instance: two numbers compared with neither one's quantity
+  stated beside it.** State the quantity — magnitude, projection, scalar,
+  component, ellipticity, blur — every time a figure is quoted for comparison.
+
 - **ON A FIXED CAMERA THE STAR-DRIFT DIRECTION DOES NOT ROTATE — SO "THE ANGLE
   DRIFTS WITH TIME, THEREFORE IT IS TRAILING" IS BACKWARDS.** The sky's apparent
   motion, expressed in the GROUND frame, is a rigid rotation about a pole that is
