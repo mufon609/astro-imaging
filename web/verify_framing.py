@@ -10,11 +10,13 @@ y-origin is the OPPOSITE end from screen row order).
 Two verification modes, both tool-measured (Siril `crop` + `stat`; this
 script parses and records, it computes nothing from pixels):
 
-  --map / --map-min    crop the per-pixel COVERAGE MAP (coverage_probe.sh
-                       output: value = members*1000) with the record's
+  --map / --map-min    crop the per-pixel COVERAGE MAP with the record's
                        rect_siril_crop_args and require stat Min >=
-                       map-min*1000 — every pixel of the frame is covered by
-                       at least <map-min> members.
+                       map-min * the map's OWN declared ADU-per-member —
+                       every pixel of the frame is covered by at least
+                       <map-min> members. The scale is read from the map's
+                       COVSCALE header card and a map without one is
+                       REFUSED, never assumed (see map_scale below).
   --min-floor          no map available: crop the product STACK itself and
                        require stat Min >= <ADU> — the SIBLING-CLASS SKY
                        FLOOR rule (dead-ends: mere non-zero PASSES on
@@ -48,6 +50,65 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "lib"))
 from siril_run import SIRIL, run as siril_run   # serialized invoker (BACKLOG:removal-conditions)
+
+
+COVSCALE_KEY = "COVSCALE"      # ADU per member, stamped by the map's producer
+
+
+def map_scale(image):
+    """ADU-per-member for a coverage map, READ FROM THE MAP'S OWN HEADER.
+
+    WHY THIS IS NOT A CONSTANT — a MEASURED false PASS. This was a hard-coded
+    `* 1000.0`, matched to `coverage_probe.sh`'s `fill 1000` under `set16bits`.
+    But Siril scales FLOAT data by 65535, so a map whose pixel value IS the
+    member count reads Min 65535.3 for ONE member, and 65535.3 clears a floor
+    of 25 * 1000. MEASURED on this rig with a real SWarp `WEIGHTOUT_NAME` weight
+    map (values 0/1/2 on the coadd's own canvas), a crop covered by exactly one
+    member, `--map-min=25`: the old code printed "PASS — record VERIFIED",
+    exited 0, and wrote a method string claiming 25-member coverage.
+
+    So the scale is a property of the MAP, not of this script, and an unlabelled
+    map is REFUSED rather than assumed. The failure being closed is not "the
+    wrong constant" but "any image at all can be handed to --map and will be
+    interpreted as a coverage map": nothing upstream constrains the file
+    (web/serve.py accepts any existing .fit under web/results/), so a stack
+    pointed at --map was read as coverage too. A verification instrument that
+    can pass wrongly is worse than none, because `finish_render --crop-record`
+    trusts the record it writes.
+    """
+    from astropy.io import fits             # HEADERS ONLY — no pixel access
+    try:
+        hdr = fits.getheader(image)
+    except Exception as e:                  # noqa: BLE001 — any unreadable file
+        sys.exit(f"verify_framing: cannot read a FITS header from {image}: {e}")
+    if COVSCALE_KEY not in hdr:
+        sys.exit(
+            f"verify_framing: REFUSING {os.path.relpath(image, REPO)} — it "
+            f"carries no {COVSCALE_KEY} card, so its ADU-per-member encoding is "
+            "unknown and a coverage threshold cannot be formed from it.\n"
+            "  NO PRODUCER DECLARES ONE TODAY, so --map currently refuses every "
+            "map, INCLUDING coverage_probe.sh's own. That is deliberate and it "
+            "is not a regression: the scale this script used to assume was "
+            "MEASURED WRONG for that producer too.\n"
+            "  `stack ... sum` renormalises, so coverage_probe's `fill 1000` "
+            "cancels and its map holds members/max_coverage (measured: 3 members "
+            "-> 0, 1/3, 2/3, 1). One member reads 21845 there, not the 1000 the "
+            "old hard-coded floor assumed. A foreign member-count map (a SWarp "
+            "weight map) reads 65535 per member and cleared a 25-member floor on "
+            "1-member coverage.\n"
+            "  Fixing this means settling max_coverage in the PRODUCER and "
+            f"stamping the real {COVSCALE_KEY} — not guessing a scale here. Use "
+            "--min-floor until then (unaffected, and the mode every existing "
+            "framing record was verified through).")
+    try:
+        scale = float(hdr[COVSCALE_KEY])
+    except (TypeError, ValueError):
+        sys.exit(f"verify_framing: {os.path.relpath(image, REPO)} has a "
+                 f"non-numeric {COVSCALE_KEY} ({hdr[COVSCALE_KEY]!r})")
+    if not scale > 0:
+        sys.exit(f"verify_framing: {os.path.relpath(image, REPO)} declares "
+                 f"{COVSCALE_KEY}={scale}, which cannot scale a threshold")
+    return scale
 
 
 def run_crop_stat(image, crop_args, workdir):
@@ -91,12 +152,17 @@ def main():
 
     if "map" in opts:
         if "map-min" not in opts:
-            sys.exit("--map needs --map-min=<members> (the coverage "
-                     "threshold; map value = members*1000)")
+            sys.exit("--map needs --map-min=<members> (the coverage threshold "
+                     "in MEMBERS; the ADU-per-member scale comes from the "
+                     f"map's own {COVSCALE_KEY} card)")
         image = os.path.abspath(opts["map"])
-        floor = float(opts["map-min"]) * 1000.0
+        if not os.path.exists(image):
+            sys.exit(f"verify_framing: no such image {image}")
+        scale = map_scale(image)      # REFUSES a map that declares no scale
+        floor = float(opts["map-min"]) * scale
         method = (f"coverage map {os.path.relpath(image, REPO)}: require "
-                  f"stat Min >= {opts['map-min']} members * 1000")
+                  f"stat Min >= {opts['map-min']} members * {scale:g} ADU/member "
+                  f"({COVSCALE_KEY}, read from the map's own header)")
     elif "min-floor" in opts:
         image = os.path.join(REPO, "web", "results", session,
                              f"{product}.fit")

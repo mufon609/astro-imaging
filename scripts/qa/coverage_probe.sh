@@ -2,9 +2,33 @@
 # Per-pixel COVERAGE MAP for a sub-stack compose — the framing instrument.
 # Registers the REAL members (register -2pass stores the transforms), swaps
 # each member for a constant-filled twin (Siril `fill`), applies the STORED
-# transforms (seqapplyreg re-detects nothing), and sum-stacks: the output's
-# value/1000 = how many members cover each pixel. Siril does every pixel op;
+# transforms (seqapplyreg re-detects nothing), and sum-stacks. The output is
+# PROPORTIONAL to how many members cover each pixel. Siril does every pixel op;
 # the map is a PROBE instrument, never the deliverable.
+#
+# THE `value/1000 = members` CONTRACT THIS FILE USED TO CLAIM IS FALSE —
+# MEASURED, and it made the map UNCONSUMABLE by a fixed threshold.
+# `stack ... sum` RENORMALISES its output to full scale, so the `fill 1000`
+# constant CANCELS and does not survive into the product. Measured on this rig,
+# reading the written map directly:
+#   3 members -> raw floats 0, 0.3333, 0.6667, 1.0   (Siril `stat` Max 65535)
+#   4 members -> raw floats 0, 0.25, 0.50, 0.75, 1.0
+# i.e. the value is `members / max_coverage`, NOT `members * 1000`. A consumer
+# forming a threshold as `map-min * 1000` is therefore wrong for THIS map too,
+# not merely for a foreign one — at 3 members, one member reads 21845 where the
+# contract predicted 1000.
+#
+# CONSEQUENCE, and it is why this script no longer stamps a scale: the map's
+# ADU-per-member is `65535 / max_coverage`, and max_coverage is NOT known here.
+# It equalled the stacked member count in every run measured (3->3, 4->4, and
+# twice where registration dropped a non-overlapping member and 2->2), but the
+# mechanism was NOT established — an attempt to build max_coverage < STACKCNT
+# failed three times because registration drops the members that would have
+# produced it. Stamping `65535/STACKCNT` would be a SECOND guessed constant on
+# top of the one that caused the defect, so it is deliberately not written.
+# `verify_framing.py --map` REFUSES a map that declares no scale, so this
+# script's output is currently refused by design. Closing that needs the
+# max_coverage question settled, not another constant.
 #
 #   coverage_probe.sh --out=<map.fit> <substack-dir>... [--framing=max]
 #                     [--ref=<1-based index in link order>]
@@ -25,15 +49,19 @@
 # `-framing=min` (min's axis-aligned rectangle kept 5.50 of 15.25 Mpx on 50
 # rotated members — min discards ~2/3 of full-depth sky under rotation), and
 # coverage-thresholded crop selection (crop the MAP with the exact same args
-# as the product crop and require `stat` Min >= threshold*1000 — this same
-# check catches the numpy-vs-Siril crop y-origin flip, docs/dead-ends.md).
+# as the product crop and require `stat` Min >= the threshold in the map's OWN
+# scale — this same check catches the numpy-vs-Siril crop y-origin flip,
+# docs/dead-ends.md; see the renormalisation note above for why that scale is
+# not `*1000` and is currently undeclarable).
 #
 # MEASURED LIMITS (Siril 1.4.4; datasets/july14/set-01/qa_work/coverage_01345.json):
-# - members*1000 saturates at 65535: Siril normalizes 16-bit input to [0,1],
-#   so the sum CLIPS there regardless of a 32-bit stack output — above 65
-#   members the map cannot distinguish coverage depths (thresholds <= 65*1000
-#   stay valid; the script warns). Shrinking the fill constant would lift the
-#   ceiling but silently break the value/1000 contract consumers verify with.
+# - a 65-member depth ceiling was recorded here from `members*1000` saturating
+#   at 65535. That arithmetic assumed the false contract above: the sum is
+#   renormalised, so the fill constant cancels and there is no *1000 to clip.
+#   The ceiling is therefore UNVERIFIED as stated and the warning below quotes
+#   it — re-measure it against the renormalised scale before relying on it.
+#   What IS measured is that a 32-bit output resolves the 1/max_coverage steps
+#   cleanly at the depths tested (3 and 4 members).
 # - the apply+sum must run over the FULL sequence in ONE pass: the applied
 #   sequence's residual pure-translation regdata is CHUNK-relative (the same
 #   frame lands at different origins under different selections), so chunked
@@ -100,5 +128,8 @@ printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s/seq\n%sseqap
 sir "$W/a.ssf"
 [ -f "$OUT.fit" ] || { echo "ABORT: no coverage map — read $W/siril.log" >&2; exit 1; }
 rm -rf "$W"
-echo "=== DONE: $OUT.fit (value/1000 = member coverage; VERIFY canvas vs the compose product) ==="
+echo "=== DONE: $OUT.fit (value is PROPORTIONAL to member coverage — the sum is"
+echo "    renormalised, so value/1000 is NOT the member count; see the header note."
+echo "    verify_framing.py --map REFUSES this map until its scale is declarable."
+echo "    VERIFY canvas vs the compose product) ==="
 ls -la "$OUT.fit"
