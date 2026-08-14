@@ -416,8 +416,15 @@ the constraints any such tool must satisfy):
   without registration data (+3.55 / +3.87 / +2.86). `light_curve` is
   differential against comparison stars, not position-dependent throughput.
   **SCAMP** — the standards answer for a photometric solution across overlapping
-  exposures — is NOT packaged on this distro (`apt-cache policy scamp`: no
-  candidate; `source-extractor` and `swarp` ARE). `source-extractor` 2.28.2 IS
+  exposures — has **no apt candidate** on this distro (`apt-cache policy scamp`:
+  Installed (none), Candidate (none)) but **IS INSTALLED**, built from Debian
+  source: `/home/samsung/.local/bin/scamp`, `SCAMP version 2.10.0 (2020-12-01)`
+  (`TOOLS.md`; corrected here at the third site). **An earlier wording read "is NOT
+  packaged on this distro", which is true of the binary index and false as the
+  route-closing claim it functions as** — the identical shape `TOOLS.md` already
+  corrected for PSFEx. **It reopens nothing:** SCAMP 2.10.0's own source has no
+  position-dependent photometric solution, and the object-tilt route is dead on two
+  structural blockers regardless. `source-extractor` 2.28.2 IS
   installed and runs on these sub-stacks (47,971 objects in 3.1 s, `FLUX_APER` at
   two radii with `BACKPHOTO_TYPE LOCAL` and `ALPHA/DELTA_J2000`) — a viable
   alternative per-image photometer, not adopted because Siril `psf` gives the same
@@ -2055,6 +2062,27 @@ SILENT — pin the state, never inherit it):
   live false instances** — the remaining hits were true or generic template
   guidance. **So the mechanism is real and the rate on any given set of edits may
   be zero. Both halves belong in any citation of this entry.**
+  **THAT COUNTER-MEASUREMENT WAS FALSIFIED BY ITS OWN CASING, AND THE SELF-MATCH IS
+  THE FINDING.** A live false instance existed the whole time — the SCAMP row at
+  :419 — and the search string this record NAMES could not reach it:
+
+      $ grep -noE "NOT PACKAGED" docs/dead-ends.md   ->  2054   (this sentence)
+      $ grep -noE "NOT packaged" docs/dead-ends.md   ->   419   (the false claim)
+
+  **Exactly one uppercase occurrence in the file and it IS the sentence reporting
+  the sweep as clean**, while the live instance sat 1,635 lines above it with a
+  lowercase `p`. So the sweep's own record was the only thing its own query could
+  match. Same self-match family as `pgrep` matching its own argv,
+  `check_removal_conditions` matching its own detector string, and
+  `check_prompt_scope`'s head-window rule — here appearing INSIDE the record that
+  certifies a sweep clean, which is the worst position for it.
+  **THE RULE: a records sweep is case-INSENSITIVE (`grep -i`) or it is not a sweep,
+  and a record asserting a clean sweep states the exact query it ran** so a later
+  reader can re-run it rather than trust it. HONEST BOUND, carried because two
+  sessions agreed on it and neither could test it: nobody can now show what casing
+  the original sweep actually used. What is checkable, and all that is claimed, is
+  that the string this record names cannot reach the instance it missed. The other
+  two strings it names (`not installed`, `no FITS reader`) have NOT been re-swept.
 - **A POSITIVE CONTROL DRAWN FROM A RECORDS FIELD IS ONLY A CONTROL FOR SIGNATURES
   THAT DO NOT USE THAT FIELD — check the cull's provenance before using a cull as
   a control.** MEASURED, and the design was pre-registered before it ran, which is
