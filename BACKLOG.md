@@ -868,6 +868,55 @@ statistic and it is the one that broke. Cheaper cross-check: restrict to
 other three** — a summary statistic whose assumptions fail silently on part of
 the domain.
 
+**MEASURED, AND "ARTEFACT" WAS TOO STRONG — IT IS PARTLY ONE** (commit `d4eb83f`,
+the immune estimator rebuilt and gated on three recorded targets). Running the
+spin-2 fit per ρ bin instead of azimuthally averaging removes **most of bin 4 and
+only a third of bin 5**:
+
+| bin | ρ | naive | spin-2 fit | radial R | excess vs bin 1 remaining |
+|---|---|---|---|---|---|
+| 1 | 0.005–0.247 | 0.409 | 0.369 | −0.02 | — |
+| 2 | 0.247–0.375 | 0.351 | 0.357 | +0.13 | — |
+| 3 | 0.375–0.490 | 0.358 | 0.324 | +0.60 | — |
+| 4 | 0.490–0.626 | 0.472 | **0.392** | +1.10 | **22%** |
+| 5 | 0.626–0.976 | 0.736 | **0.603** | +0.33 | **64%** |
+
+Bin 5 still exceeds bin 1 by **7.9σ** in fixed magnitude. **So the incomplete-azimuth
+leak is real and is not the whole story.** Two reasons the residue is NOT yet a
+finding, both in the numbers: quintiles are by COUNT and stars concentrate
+centrally, so bin 5 is 3× wider in ρ and a constant-R model is misspecified across
+it; and its radial R **falls to +0.33 where bin 4 reads +1.10**, which is the outer
+fit straining rather than measuring. Settling it needs ρ-EQUAL bins or a radial
+basis inside the bin — deliberately NOT run, because the pinned prediction uses only
+the inner three bins (complete azimuth, condition 1.09–1.10, naive and fit agreeing)
+and does not depend on bin 5.
+
+**THE PINNED PREDICTION, from the inner three bins only:** trail ratio
+**0.3502 ± 0.0080**, `t_eff/t_nom` = 0.5918, **predicted ZP deficit 0.570 ± 0.012
+(stat) ± 0.013 (axis choice)**. The statistical error is a factor of ~20 below the
+~0.25 mag throughput-prediction error that decides UNDERPOWERED, so the throughput
+prediction is the entire experiment.
+
+**AND A SEPARATE FINDING THAT BEARS ON THE FIX PATH: THE "FIXED" TERM'S DIRECTION
+IS NOT FIXED.** Its axis runs **+0.04 / +13.86 / +21.94 / +15.74 / +10.49°** across
+the five bins at SEs of 1.07–1.39° — **10 to 20σ apart. A single field-constant
+term cannot do that.** It is consistent with the recorded near-cancellation of two
+large vectors, whose resultant rotates as their ratio changes with radius.
+**`corner-fix-landscape` defines C as the field-constant spin-2 term and gates the
+`rl -loadpsf=` route on C/A being a lens property — so if C is not one quantity at
+any radius, C/A is not well defined and that route may be moot before it is run.**
+
+**FIFTH COMMENSURABILITY FINDING, recovered while rebuilding the estimator:
+THIS THREAD'S TWO MOST-QUOTED NUMBERS ARE DIFFERENT QUANTITIES AND NOTHING SAID
+SO.** Sample B is an above-median-amplitude population reporting a direction-free
+COHERENT MAGNITUDE; sample A's 0.5798 is a PROJECTION on a named axis. The
+magnitude is the norm of a mean 2-vector and is positively noise-biased; the
+projection is unbiased — **so 0.53× was the generous one.** Same family as the
+scalar-vs-components error, the blur-vs-ellipticity exponent, the
+anisotropy-vs-time ratio and the size-ratio-vs-ellipticity conflation. **The tell
+in all five is identical: two numbers compared without their quantity stated
+beside them.**
+
 **THE RADIAL TERM IS NOW 18% ATTRIBUTED, TO THE GNOMONIC PLATE SCALE — MEASURED**
 (`datasets/aug06/corner_work/plate_scale_term.json`, commit `933ceba`;
 PM-audited by re-execution). Every prediction in the sky-rate work used ONE plate
