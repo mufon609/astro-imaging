@@ -1,0 +1,144 @@
+# Pinned Python TOOLS layer — installed by scripts/setup/install_python_tools.sh
+# into the project venv ($ASTRO_VENV, default /opt/astro-venv). NEVER system pip
+# (Kali enforces PEP 668).
+#
+# SEPARATE FROM requirements.txt ON PURPOSE. requirements.txt is the MEASUREMENT
+# layer the repo's own scripts import (astropy/numpy/scipy/PIL) — breaking it
+# breaks the chain. This file is the TOOL layer: candidate instruments answering a
+# named open question that nothing on the build path imports yet. Keeping them
+# apart means a tool experiment cannot take the chain down with it.
+#
+# EVERY ROW NEEDS A LIVE QUESTION, and every EXCLUSION is a decision with a reason.
+# An installed tool nobody drives is debt; a capability sitting unnoticed is the
+# opposite failure and this repo has measured it repeatedly (`seqtilt`, SWarp's
+# weight map, `grid_ramp.py`). Name the question, and delete the row when it closes.
+#
+# ===========================================================================
+# THERE ARE EXACTLY TWO INSTALL LANES ON THIS RIG, AND NO THIRD — MEASURED.
+# `autoconf`, `automake` and `libtool` are ABSENT and installing them needs root
+# (`make` and `gcc` ARE present). So autotools-based Debian sources — PSFEx,
+# SCAMP — CANNOT be built from `apt-get source` here, however reachable the source
+# package is. The two lanes are:
+#   (a) PyPI       pin `name==version`; capture artifact sha256 via
+#                  `pip install --dry-run --report`.
+#   (b) Debian .deb  pin the .deb sha256 against the archive `Packages` index plus
+#                  transitive deps, extract, run via `LD_LIBRARY_PATH`.
+# Stated here so the next person does not try `dpkg-buildpackage`, hit the same
+# wall, and rediscover it.
+# ===========================================================================
+#
+# MEASURED COSTS (`pip install --dry-run`, 2026-08-14). The pinned MEASUREMENT
+# layer is NOT moved by any of these — astropy 8.0.1, numpy 2.3.5, scipy 1.17.1
+# and Pillow 12.2.0 all resolve "already satisfied".
+#
+#   sip_tpv            3      galsim             5      astropy_healpix    2
+#   piff              13      reproject         20      torchmfbd         37
+
+# ===== INSTALLED =============================================================
+
+# --- Gates a live route, and the route is the largest measured defect we have.
+# SWarp CANNOT read SIP: a 3-char compare truncates RA---TAN-SIP to TAN, and its
+# distortion gate needs PV terms SIP does not carry, so it applies nothing and
+# warns about nothing. MEASURED from source AND confirmed by SWarp itself — an
+# identical output canvas and CRVAL to nine decimals from TAN-SIP and from
+# SIP-stripped, while TPV moves it 22x8 px. sip_tpv's FORWARD direction is a
+# symbolic sympy substitution, not a fit: exact to 1.118e-11 px max over 3600
+# points and FLAT in field radius, against a distortion-stripped positive control
+# reading 13.82 px and growing to the corner. Only route around the blindness.
+sip_tpv==1.1
+
+# --- Pairs with PSFEx and retires a documented transcription trap.
+# `galsim.des.DES_PSFEx` reads a PSFEx `.psf` directly and evaluates the PSF at an
+# arbitrary position. TOOLS.md records that PSFEx exposes NO position-resolved
+# shape, so any comparison must re-derive one — and that its polynomial basis order
+# is [1, X, X2, Y, XY, Y2], not the order a reader assumes, which transposes the
+# whole field model if taken wrong. GalSim does that re-derivation as a maintained
+# library, so the trap cannot arise. Wheel, no C++ build.
+galsim==2.8.5
+
+# --- HARD PIN, AND WITHOUT IT sip_tpv DOES NOT IMPORT AT ALL.
+# `sip_tpv/__init__.py:3` does `import pkg_resources` at module load, purely to
+# populate `__version__`. setuptools REMOVED pkg_resources at 81, and galsim pulls
+# setuptools 84 transitively — so installing the two together yields
+# `ModuleNotFoundError: No module named 'pkg_resources'` and a package that
+# installs cleanly and cannot be imported. MEASURED here: the install reported
+# "Successfully installed … sip_tpv-1.1 …" and the import check then went RED,
+# which is the whole reason that check exists. setuptools' own deprecation warning
+# states the fix verbatim: "pin to Setuptools<81".
+setuptools==80.9.0
+
+# --- PINNED EXPLICITLY BECAUSE IT IS DATE-VERSIONED AND ARRIVES TRANSITIVELY.
+# `astropy-iers-data` republishes continuously (installed here: 0.2026.7.13.0.54.2;
+# PyPI current at time of writing: 0.2026.8.10.0.32.39). It is a transitive
+# dependency of astropy and therefore of nearly everything above, which is exactly
+# why it gets left unpinned — and an unpinned date-versioned package means the
+# environment drifts on every rebuild. Pinning it is what makes "reproducible from
+# a clone" true rather than nearly true.
+astropy-iers-data==0.2026.7.13.0.54.2
+
+# ===== NAMED, NOT INSTALLED — each with the trigger that would change it =====
+#
+#   astropy_healpix==2.0.1   2 packages, trivially light. Retires what
+#       `spcc_cone.py` hand-rolls and would close a removal condition. But
+#       `spcc_cone.py` WORKS, so this buys debt reduction rather than capability.
+#       Trigger: a decision to close that divergence, or a Siril 1.5 bump making
+#       the native `healpix` command reachable.
+#
+#   reproject==0.21.0        20 packages — dask, zarr, dask-image, PIMS,
+#       numcodecs, tifffile, fsspec, google-crc32c: a distributed-computing
+#       framework and a chunked-array store, to reproject a FITS. It DOES consume
+#       SIP through astropy's WCS where SWarp does not — but `sip_tpv` measuring
+#       exact makes SWarp able to read the distortion, and SWarp is already
+#       installed and is what the item's own lineage names.
+#       Trigger: the TPV route failing in practice. This is its fallback.
+#
+#   piff==1.6.0              13 packages. Models the PSF in SKY rather than pixel
+#       coordinates, which is genuinely this corpus's axis — the PSF is fixed in
+#       SENSOR coordinates while the sky drifts ~1000 px across it. But it
+#       unblocks no live question today: the corner fix-path is closed by
+#       measurement and the PSF field is not the bottleneck.
+#       Trigger: a question that needs a sky-frame PSF model.
+#
+#   astroquery==0.4.11       8 packages (drags keyring/jeepney, a D-Bus credential
+#       stack that is dead weight headless). The standard headless catalogue
+#       client — Vizier/SIMBAD/Gaia via pyvo. We hit exactly this wall: Siril's
+#       `conesearch` is GUI-only headless, and the workaround was astrometry.net's
+#       `--tag-all`, which only ever returns what the index happens to carry.
+#       Trigger: the next catalogue question the tag-along cannot answer.
+#
+#   PSFEx                    NOT a PyPI candidate — lane (b). And it is the
+#       strongest "what are we missing", because it is not a tool nobody thought
+#       to want: it is ALREADY IN USE and its output is ALREADY CITED in our
+#       records — the field model that independently confirmed the corner
+#       degradation (FWHM 1.95 px centre to 3.2 px corner, a different algorithm
+#       sharing no code with Siril) and the degree-2-suffices result. It exists
+#       today only as a scratchpad extraction of a Debian binary run through
+#       `LD_LIBRARY_PATH`. That is the same gap `sip_tpv` had — verified and NOT
+#       reproducible from a clone — in a tool that has already produced
+#       load-bearing findings. Needs the .deb pinned by sha256 against the archive
+#       `Packages` index plus its six transitive deps.
+#
+# ===== ARGUED AGAINST ========================================================
+#
+#   properimage   CANNOT BE INSTALLED — `Failed to build 'tinynpydb' when getting
+#                 requirements to build wheel`. Recorded because an earlier note
+#                 called it "available on PyPI", which conflated AVAILABILITY with
+#                 INSTALLABILITY. Different facts.
+#   torchmfbd     37 packages including `torch` and `triton` — triton is the GPU
+#                 kernel compiler, which is what the package is oriented at, and
+#                 this rig has no NVIDIA GPU. Its three open checks are
+#                 DOCUMENTATION checks, not install checks; do not install to find
+#                 out. Chief among them: MOMFBD separates aberration from object
+#                 using frame-to-frame aberration DIVERSITY, and ours is static
+#                 and identical in every frame.
+#   pypher        2 packages and light, but its only pipeline use is PSF
+#                 homogenisation, which is OWNER-REFUSED as a category. Worth
+#                 remembering for one thing it is NOT refused for: a matching
+#                 kernel between two MEASURED PSFs characterises the difference
+#                 without treating anything, and diagnostics sit outside the
+#                 bright line. A reason to know it exists, not to install it.
+#   scamp         Photometric mode solves a SCALAR per exposure per instrument
+#                 (`src/preflist.h` has no photometric analogue of
+#                 DISTORT_DEGREES), so it cannot satisfy the position-dependent
+#                 condition that names it — and it cannot be built here anyway
+#                 (autotools, above).
