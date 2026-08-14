@@ -1,0 +1,53 @@
+{
+  "what": "PRE-REGISTRATION, written and committed BEFORE the measurement runs. Is the cloud signature in BACKLOG:`intake-culling` separable from normal variation using only fields the frame-QA record already carries?",
+
+  "why": "The item's cloud row states the blocker as 'per-frame background is NOT recorded'. That is stale as written — `bg` IS in qa_work/frameqa/records.jsonl across 13 sets. It remains TRUE for the light-pollution/moon row, which needs a gradient magnitude and bearing that no field carries. So the only open question is whether the CLOUD signature is reachable from the recorded fields.",
+
+  "declared_non_blindness": "I am NOT naive to the direction. The PM reported a rough pass (block bg +2.5 ADU on ~1051; nstars 1640 vs 1834-1905) and I have read it. This pre-registration exists to fix the statistic and the bar BEFORE running, not to claim blindness. Every number in that rough pass is treated as unverified.",
+
+  "instruments": {
+    "all_inputs_are_a_tools": "bg, nstars, fwhm are Siril's, captured per frame by the frame-QA stage into qa_work/frameqa/records.jsonl. No pixel is read here.",
+    "in_house_part": "the block statistic and the comparison only. REPORTS ONLY — builds no cull, gates nothing, rewrites nothing.",
+    "bright_line": "ALLOWED gap-filler class: outside the product pipeline, every measurement tool-sourced, derived result only, user-directed item (BACKLOG:`intake-culling`)."
+  },
+
+  "ground_truth": {
+    "positive_control": "aug06/set-03, the 44 frame numbers in recipe.json stack.exclude (7694-7738). TWO independent sources agree this is the cloud block: the ratified 44-frame exclude list, and prompts/REPORT.md:470 naming 'aug06/set-03's 44-frame cloud block'. The exact frame list is used, NOT an approximate trailing window.",
+    "negative_control": "aug06/set-01, 502 frames, ZERO excluded, chosen from the artifact by surveying recipe.json excludes across all 13 sets with frame-QA records. SAME NIGHT as set-03, which controls pedestal, sky brightness and moon phase.",
+    "negative_control_not_from_a_list": "picked by me from recipe.json excludes, not supplied."
+  },
+
+  "statistic": {
+    "definition": "For a block B of size k inside a set: Z = ( median(x in B) - median(x outside B) ) / ( 1.4826 * MAD(x outside B) ), for x in {bg, nstars, fwhm}.",
+    "why_robust": "median/MAD so a second anomalous block elsewhere in the set cannot set the scale."
+  },
+
+  "PRE_REGISTERED_BARS": {
+    "positive_must_fire": "aug06/set-03, the exact 44-frame block: |Z_bg| >= 5.",
+    "negative_must_not_fire": "aug06/set-01: the WORST contiguous 44-frame window in the set, scanned at every start index, must give |Z_bg| < 5.",
+    "why_worst_window": "the honest negative test is not a random window but the most extreme one a clean set produces on its own. If a clean set's worst 44-frame excursion reaches the same Z, the signature cannot separate cloud from normal drift and the result is a NULL."
+  },
+
+  "KILL_CONDITIONS": {
+    "signature_unusable": "the negative control's worst window reaches |Z_bg| >= 5 -> bg cannot separate cloud from normal variation -> NULL, and the cheapest step of the intake-culling batch is dead as designed.",
+    "positive_fails": "the 44-frame block gives |Z_bg| < 5 -> the signature does not fire on the data it MUST fire on -> the design is wrong, not the threshold."
+  },
+
+  "PM_CLAIM_B_UNDER_TEST": {
+    "claim": "PM: 'nstars carries it MORE strongly than bg, which contradicts the item's own note that star count is measured blind on rich fields.'",
+    "confound": "nstars also falls when seeing degrades or depth drops. Transparency and seeing are separable here because they move fwhm differently.",
+    "discriminator_pre_registered": "SUPPORTED if |Z_nstars| > |Z_bg| AND |Z_fwhm| < 3 (nstars moves, star SHAPE does not). REFUTED if |Z_fwhm| >= 3 with the same sign-consistency, i.e. the star count fell because the frames got softer.",
+    "this_is_the_PM_claim_most_likely_to_be_flattering": "stated as such by the PM, and tested rather than confirmed."
+  },
+
+  "pedestal_treatment_declared_in_advance": {
+    "primary_quantity": "delta bg in ADU, absolute. Unambiguous and denominator-free.",
+    "secondary_forms_both_reported": "fractional over RAW bg, and fractional over an above-pedestal sky term.",
+    "pedestal_is_ASSUMED_not_measured": "any above-pedestal fraction uses an assumed pedestal and will be labelled as such with the value used. I am not measuring the pedestal here and will not present a sky-term fraction as if I had.",
+    "why_it_matters": "the two denominators differ by roughly 40x, so a reader takes whichever is printed."
+  },
+
+  "reported_with_every_number": ["n", "the instrument", "the pedestal treatment"],
+
+  "what_this_does_NOT_do": "does not build or propose a cull; does not gate; does not touch a deliverable. It measures separability only."
+}
