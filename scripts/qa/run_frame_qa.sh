@@ -28,6 +28,20 @@
 # Historic records made the old way carry the Bayer caveat in their own
 # `method` string.
 #
+# THE `file` FIELD NAMES THE RAW AND THE NUMBERS ARE NOT MEASURED ON IT — so a
+# per-frame value cannot be reproduced by opening the file its own record names.
+# Every metric is regdata from `register -2pass` over the DEBAYERED conversion
+# (`convert c -debayer` -> `c_*.fit` -> `c_.seq` -> `inspect_stage.py reg --seq`),
+# while `records.jsonl`'s `file` carries the RAW's basename. Siril loads a NEF as
+# the CFA MOSAIC (channels=1), which is a different quantity from what was
+# recorded. MEASURED on 12 aug09/set-05 frames: analysing the named raw returns
+# **0.151x** the recorded star count — one star in seven — against **0.855x** on
+# the debayered conversion of those same frames
+# (`datasets/aug09/set-05/sirilpy_work/analyse_probe.json`). A discrepancy that
+# large reads as a BROKEN TOOL rather than as a wrong input, which is what makes it
+# expensive rather than merely untidy. Reproducing from this record requires doing
+# the conversion first.
+#
 # Batch sizing: the driver refuses a final batch of exactly ONE frame (Siril
 # cannot build a sequence from a single frame) — it auto-shrinks the batch by
 # one instead, and states it.

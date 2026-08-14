@@ -361,6 +361,17 @@ Design constraints, each from a measured failure here:
 
 - **Measure once.** One per-frame table, every column a tool's number, written at
   intake and never re-derived — so a different cull replays without re-measuring.
+  **AND THE TABLE MUST NAME THE ARTIFACT IT MEASURED, NOT WHAT THE FRAME WAS
+  CALLED. Today's does not, and that breaks this constraint on its own terms.**
+  `records.jsonl`'s `file` field carries the RAW's basename while every metric is
+  regdata from `register -2pass` over the DEBAYERED conversion (`run_frame_qa.sh`:
+  `convert c -debayer` → `c_.seq` → `inspect_stage.py reg --seq`). So the table
+  cannot be replayed from the file it names: Siril loads a NEF as the CFA MOSAIC,
+  and MEASURED on 12 aug09/set-05 frames that returns **0.151× the recorded star
+  count — one star in seven — against 0.855× on the debayered conversion of the
+  same frames** (`datasets/aug09/set-05/sirilpy_work/analyse_probe.json`). A
+  discrepancy that size reads as a BROKEN TOOL rather than as a wrong input, which
+  is what makes it expensive. Recording the artifact costs one field.
 - **One visible constants file**, per-dataset override in `recipe.json`. The
   aggressive-vs-conservative dial is the user's; the pipeline applies what is set
   and records it.

@@ -11,8 +11,9 @@
   },
   "what_the_record_actually_measures": {
     "finding": "records.jsonl NAMES a raw (DSC_1265.NEF) but its numbers are NOT measured on that raw.",
-    "mechanism": "run_frame_qa.sh:108 runs `convert c -debayer` then `register c -2pass`; the register log prints `Found 1482 Gaussian profile stars in image, channel #1 (FWHM 2.695465)`, reproducing the recorded nstars/fwhm exactly.",
-    "consequence": "a one-arm comparison against the NEF confounds ESTIMATOR with SAMPLING, so two arms were run."
+    "mechanism": "run_frame_qa.sh:108 runs `convert c -debayer` -> `register c -2pass`, and the recorded metrics are parsed from the resulting `c_.seq` REGDATA by `inspect_stage.py reg --seq` (fields fwhm_px/wfwhm_px/round/bg16/nstars). The CODE PATH is what establishes this.",
+    "consequence": "a one-arm comparison against the NEF confounds ESTIMATOR with SAMPLING, so two arms were run.",
+    "_correction": "An earlier wording here and in commit f702bad's message said the register LOG lines 'reproduce the recorded nstars/fwhm exactly'. That overstated the log evidence. The recorded values come from the .seq regdata, not from the printed `Found N ... (FWHM x)` lines; the star counts 1482/1463/1466 do all appear in the recorded set, but per-frame FWHM pairing was NOT verified to 3dp. The claim does not rest on it \u2014 the code path is decisive on its own, and the two arms corroborate it at 0.151x vs 0.855x."
   },
   "arm_1_raw_nef": {
     "channels": 1,
