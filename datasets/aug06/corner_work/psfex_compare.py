@@ -166,8 +166,8 @@ def fit_field(x, y, e1, e2, label, nboot=300, frame=None):
     cx, cy = (CANVAS_W - 1) / 2.0, (CANVAS_H - 1) / 2.0
     phi = azimuth(x, y, cx, cy)
     rho = np.hypot(x - cx, y - cy) / np.hypot(cx, cy)
-    flat = decompose(phi, e1, e2, None, nboot)
-    grow = decompose(phi, e1, e2, rho, nboot)
+    flat = decompose(phi, e1, e2, None, nboot, frame=frame)
+    grow = decompose(phi, e1, e2, rho, nboot, frame=frame)
     fc = fit_free_centre(x, y, e1, e2, CANVAS_W, CANVAS_H)
     return {"label": label, "n": int(len(x)),
             "fixed_amplitude": flat["fixed_amplitude"],
@@ -177,6 +177,23 @@ def fit_field(x, y, e1, e2, label, nboot=300, frame=None):
             "radial_flat_SE_units_star_bootstrap": flat["radial_SE_units_star_bootstrap"],
             "radial_R_rho": grow["radial_R"],
             "radial_rho_SE_units_star_bootstrap": grow["radial_SE_units_star_bootstrap"],
+            # The frame-based half is surfaced ONLY when it exists, so a per-frame
+            # call stays clean and a pooled one cannot hide that it had the honest
+            # error bar available. FORWARDING `frame=` WAS NOT ENOUGH: this return
+            # hand-picks keys, so it stripped the frame-based results even once
+            # decompose computed them — the same strip-the-name-back-off defect as
+            # 872cd9b, one layer further out. The selftest below caught this second
+            # layer before the fix was believed.
+            **({"n_frames_fitted": flat["n_frames_fitted"],
+                "fixed_amplitude_SE_units_frame_based":
+                    flat["fixed_amplitude_SE_units_frame_based"],
+                "radial_flat_SE_units_frame_based":
+                    flat["radial_SE_units_frame_based"],
+                "radial_rho_SE_units_frame_based":
+                    grow["radial_SE_units_frame_based"],
+                "se_ratio_frame_over_bootstrap":
+                    flat["se_ratio_frame_over_bootstrap"]}
+               if "n_frames_fitted" in flat else {}),
             "free_centre_offset_px": fc["offset_from_frame_centre_px"],
             "free_centre_offset_magnitude_px": fc["offset_magnitude_px"],
             "free_centre_1sigma_px": fc["centre_1sigma_px"],
@@ -320,6 +337,33 @@ def selftest():
           worst < 200.0,
           "worst error %.0f px under a 3.3x radial shrink — so a ~5000 px "
           "spread between fits is the DATA, not the estimator" % worst)
+
+    # ---- frame= must reach decompose, not merely be accepted ----------------
+    # MEASURED DEFECT THIS EXISTS FOR: `fit_field` gained a `frame=` parameter
+    # and a docstring describing it, both callers passed `frame=catfr` correctly,
+    # and the body never forwarded it — so the POOLED fit silently kept a
+    # star-level bootstrap. Both ENDS of the call chain were right and the middle
+    # dropped it, which is invisible from either end: the caller reads as wired,
+    # the signature reads as wired, and only the `decompose()` line shows it.
+    # A parameter that is accepted and ignored is worse than one that is absent.
+    rng = np.random.default_rng(11)
+    n = 900
+    xs = np.concatenate([rng.uniform(0, CANVAS_W, n) for _ in range(2)])
+    ys = np.concatenate([rng.uniform(0, CANVAS_H, n) for _ in range(2)])
+    fr = np.concatenate([np.full(n, 0), np.full(n, 1)])       # TWO frames
+    cxp, cyp = (CANVAS_W - 1) / 2.0, (CANVAS_H - 1) / 2.0
+    php = azimuth(xs, ys, cxp, cyp)
+    ee1 = 0.05 + 0.02 * np.cos(2 * php) + rng.normal(0, .01, len(php))
+    ee2 = 0.01 + 0.02 * np.sin(2 * php) + rng.normal(0, .01, len(php))
+    pooled = fit_field(xs, ys, ee1, ee2, "selftest:pooled", nboot=40, frame=fr)
+    check("frame= REACHES decompose (pooled fit reports a frame-based SE)",
+          "n_frames_fitted" in pooled,
+          "keys carry n_frames_fitted" if "n_frames_fitted" in
+          pooled else
+          "*** frame= accepted and dropped — the pooled fit is still a bootstrap")
+    unpooled = fit_field(xs, ys, ee1, ee2, "selftest:unpooled", nboot=40)
+    check("without frame= the fit stays a pure star bootstrap",
+          "n_frames_fitted" not in unpooled)
 
     print()
     for nline in notes:
