@@ -296,17 +296,39 @@ smallest scatter:
 | **ch0 − ch3** | **−0.005** | **0.115** | 706 |
 | every other pair | 0.28–0.85 | ~2× the scatter | — |
 
-Corroborated independently: ch0/ch3 share a background median 1047 and MAD 10 ADU
-where ch1/ch2 read 1037/9 and 1028/8, and ch0/ch3 keep 496/504 stars against
-349/211. **Likely mechanism, FLAGGED AS UNVERIFIED to the specific mapping:** siril
-writes `ROWORDER = TOP-DOWN` (confirmed present in its products, and the opposite
-of the FITS bottom-up convention), so the row order the pattern is interpreted in
-is not the raster order a reader assumes — the same y-origin family as the
-`boxselect` counts-from-the-top trap and the crop y-flip trap already registered
-here. **Cost if missed: a G1-vs-G2 null would compare RED against BLUE and return
-a confident clean answer** — and in the one design where that null is the test
-immune to every other confound. It surfaced only because the star counts looked
-wrong, not because anything checked.
+Corroborated independently on a fresh `convert` + `split_cfa` of one raw: ch0/ch3
+share background median **1047.0** and MAD **10.0** against ch1 1038/9 and ch2
+1029/8 — pairwise median difference **0.00 ADU for ch0−ch3** against 9–18 for every
+other pair — and ch0/ch3 keep 496/504 stars against 349/211.
+
+**MECHANISM, MEASURED AND PREDICTIVE — it is the row order, and the value that
+matters is `BOTTOM-UP`.** `ROWORDER` is **not a fixed siril property; it varies by
+PRODUCT CLASS.** Measured on this rig: `convert` output, all four `split_cfa`
+outputs and `convert -debayer` output are **`BOTTOM-UP`**, while STACKS are
+`TOP-DOWN` (and `injected2.fit` carries no `ROWORDER` at all). So `BAYERPAT=RGGB`
+describes the image as DISPLAYED while the array is stored bottom-up, i.e. array
+row 0 is the displayed BOTTOM row, and a raster reader walking the stored 2×2 sees
+
+    displayed   R G          stored BOTTOM-UP   G B      raster order over the
+                G B                             R G      stored block:
+                                                         ch0=G ch1=B ch2=R ch3=G
+
+**Greens at ch0 and ch3 — which is what the photometry and the backgrounds
+measure.** `TOP-DOWN` would predict greens at ch1/ch2, which is the wrong answer,
+so the mechanism reproduces the observation rather than merely being consistent
+with it. Same y-origin family as the `boxselect` counts-from-the-top trap and the
+crop y-flip trap already registered here.
+
+**STILL UNVERIFIED — the R/B half.** The row flip predicts ch1=B and ch2=R, but ch1
+carries MORE stars (349 against 211 after the cut), which runs against expectation
+for a reddened galactic-plane field. **The GREENS are settled by three independent
+measures; the red/blue assignment is not.** Do not read one as the other.
+
+**Cost if missed: a G1-vs-G2 null would compare RED against BLUE and return a
+confident clean answer** — in the one design where that null is the test immune to
+every other confound. It surfaced only because the star counts looked wrong, not
+because anything checked. **Check `ROWORDER` on the ACTUAL product class you are
+reading; a value taken from a stack does not describe a `convert` output.**
 
 **ONE `findstar` SHAPE FACT, MEASURED — `setfindstar -moffat` is NOT a usable
 second estimator on this corpus, and it is the only alternative profile the tool
