@@ -195,10 +195,24 @@ on the largest measured defect in any shipped product — sat at **byte 539 of a
 sweep's honest coverage UP FRONT**: *"the first 260 characters of each matching
 row"* is not *"the rows"*.
 
-**AND THE WINDOWING FORM HAS SILENT-ZERO MODES. `grep` ON THIS RIG IS
-`ugrep 7.5.0`, NOT GNU grep, and everything below follows from that.** Every count
-below is grep's own `-c`, re-executed; an earlier revision of this section quoted
-piped line counts and got three of its own figures wrong.
+**AND THE WINDOWING FORM HAS SILENT-ZERO MODES — BUT THE PREMISE THREE REVISIONS OF
+THIS SECTION BUILT ON IS FALSE. `grep` IS NOT `ugrep` ON THIS RIG. IT IS UGREP ONLY
+INSIDE AN AGENT'S INTERACTIVE SHELL**, because the Claude Code shell snapshot
+shadows it — *"Shadow find/grep with embedded bfs/ugrep"* — with
+`ARGV0=ugrep "$CLAUDE_CODE_EXECPATH" -G --ignore-files --hidden -I --exclude-dir=.git …`:
+```
+grep                     -> ugrep 7.5.0        the agent's shell function
+/usr/bin/grep            -> GNU grep 3.12      what the RIG has
+timeout … grep           -> GNU grep 3.12      timeout execs the BINARY, bypassing the function
+env -i /bin/sh -c grep   -> GNU grep 3.12      what every repo script gets
+```
+**SO A `timeout`-WRAPPED PROBE AND A BARE ONE RUN DIFFERENT PROGRAMS ON THE SAME
+COMMAND STRING**, and that single fact generated every contradiction in this
+section's history — a "silent zero" that would not reproduce, an "intermittent,
+load-correlated" error, and a `-c` that appeared to change meaning. **None of those
+were real.** Decide which program you want and name it explicitly; note also that
+the agent's grep carries `-G` (BRE) and `--ignore-files`, so it silently applies
+ignore rules a plain `grep -r` would not.
 
 **MODE 1 — AN EXACT-COUNT WINDOW WIDER THAN THE FILE'S LINE WIDTH CANNOT MATCH,
 AND IT EXITS CLEAN.** No error, empty stdout, `rc=1` — indistinguishable from a
@@ -206,8 +220,11 @@ searched null:
 ```
 .{60}darktable.{110}   docs/dead-ends.md   ->  0  rc=1  STRUCTURALLY IMPOSSIBLE
 .{20}darktable.{40}    docs/dead-ends.md   ->  3  rc=0  the claims ARE there
-.{60}darktable.{110}   TOOLS.md            ->  3  rc=0
+.{60}darktable.{110}   TOOLS.md            ->  rc=0, and it matches
 ```
+The first two rows read **identically on ugrep and on GNU grep** — one range each,
+so nothing in MODE 2 reaches them. That is what makes this mode the one worth
+carrying: it is a property of the PATTERN against the FILE, not of the program.
 `docs/dead-ends.md` is wrapped at **≤108 characters**; `.{60}X.{110}` needs ≥179 on
 ONE line. **So an exact-width window is structurally null on the registry and fine
 on `TOOLS.md` — the reverse of what "long lines are the hazard" predicts.**
@@ -219,26 +236,23 @@ docs/dead-ends.md longest line  108
 **Take that with one `awk '{if(length>m)m=length}END{print m}' <file>` before
 choosing a width — never from the file's reputation.**
 
-**MODE 2 — THE COMPLEXITY ERROR ON TWO RANGE QUANTIFIERS IS REAL, INTERMITTENT AND
-LOAD-CORRELATED. IT IS NOT A WIDTH THRESHOLD, AND AN EARLIER REVISION HERE STATED
-IT AS ONE.** A width ladder built to find the breaking point found none: `.{0,40}`
-through `.{0,110}` (two ranges, one fixture) errored `rc=2` at 50 and 60 on a pass
-taken at **15-min loadavg 11.53**, and every width 40→110 returned `rc=0` with
-empty stderr on a 3-repeat re-run at **loadavg 1.22**. The section's own example,
-10 repeats at **loadavg 3.60**, is **10/10 `rc=0`, stdout 12, stderr 0 lines**:
+**MODE 2 — TWO RANGE QUANTIFIERS EXCEED UGREP'S COMPLEXITY LIMIT, DETERMINISTICALLY,
+AND GNU grep RUNS THE SAME PATTERN FINE.** This is the mode that produced three
+contradictory write-ups, because whoever wrapped the probe in `timeout` measured
+GNU grep and concluded the failure was not real:
 ```
-.{0,60}darktable.{0,110}   docs/dead-ends.md  ->  12    rc=0
-.{0,90}darktable.{0,160}   TOOLS.md           ->   6    rc=0
-.{0,90}darktable.{0,160}   BACKLOG.md         ->  14    rc=0
+grep          -oEc ".{0,90}darktable.{0,160}" TOOLS.md   -> rc=2  "exceeds complexity limits"  5 stderr lines
+grep          -oEc ".{0,90}darktable.{0,160}" BACKLOG.md -> rc=2  same
+/usr/bin/grep -oEc ".{0,90}darktable.{0,160}" TOOLS.md   -> rc=0  6
+/usr/bin/grep -oEc ".{0,90}darktable.{0,160}" BACKLOG.md -> rc=0  14
 ```
-**That is worse than a threshold, not better: a pattern that works now can fail
-later, and the failure presents as an empty result.** Do not read these `rc=0`
-rows as a refutation of the error — they are a low-load view, and a negative from
-one is the failure this whole section is about. When it does fire it emits
-**5 stderr lines** while stdout stays empty.
+**3 of 3 repeats `rc=2` at 15-min loadavg 0.91**, so it is NOT load-correlated —
+an earlier revision said so, and that reading came from the binary switching under
+`timeout`, with load as a spurious correlate. **`grep -P` dodges it entirely** by
+handing the pattern to PCRE2 instead of ugrep's own engine.
 
-**A SEPARATE WIDTH EFFECT EXISTS AND IT IS A HANG, NOT AN ERROR** — superlinear in
-window width, against `TOOLS.md` (longest line 6611):
+**A SEPARATE WIDTH EFFECT EXISTS ON GNU grep AND IT IS A HANG, NOT AN ERROR** —
+superlinear in window width, against `TOOLS.md` (longest line 6611):
 ```
 .{0,1000}x.{0,1000}  -> 231   9.9 s
 .{0,1400}x.{0,1400}  -> 231  26.6 s
@@ -248,35 +262,39 @@ window width, against `TOOLS.md` (longest line 6611):
 **A width big enough to matter produces no output and no error**, so a timeout
 inside a pipeline reads as a null.
 
-**THE DISCRIMINATOR IS THE EXIT CODE, WHICH IS WHY NO THRESHOLD IS NEEDED:**
+**THE DISCRIMINATOR IS THE EXIT CODE, WHICH IS WHY NO WIDTH THRESHOLD IS NEEDED:**
 `rc=0` with empty output is a real no-match; `rc=1` with empty output may be
 MODE 1's structural zero; **`rc=2` is a search that did not run.**
 
-**MODE 3 — AND IT IS THE ONE THAT DOES NOT LOOK LIKE A FAILURE: THE COUNT COMES
-FROM THE WRAPPER, NOT THE INSTRUMENT.** Modes 1 and 2 return nothing, so they at
-least present as a null someone might question. **This one returns a NUMBER.**
-`-c` counts matching LINES; `-o` prints one line per MATCH. On the identical
-command they are different quantities and here they disagree 4×:
+**MODE 3 — THE COUNT COMES FROM THE WRAPPER, NOT THE INSTRUMENT.** Modes 1 and 2
+return nothing, so they at least present as a null someone might question. **This
+one returns a NUMBER.** `2>&1 | wc -l` on a pattern that errors reports the error
+TEXT as a match count — reported here as **"5 matches"** when there were none,
+which is exactly the 5 stderr lines MODE 2 emits. **A positive result never prompts
+a re-check**, which is why this class survives a publish where the silent nulls do
+not.
+
+**AND `-c` DOES NOT MEAN ONE THING. `-o` CHANGES WHAT IT COUNTS, AND THE TWO greps
+DISAGREE:**
 ```
-grep -oE  ".{60}darktable.{110}" TOOLS.md | wc -l   ->  12   MATCHES
-grep -oEc ".{60}darktable.{110}" TOOLS.md           ->   3   matching LINES
+grep          -oEc ".{60}darktable.{110}" TOOLS.md  ->  12   MATCHES
+grep          -Ec  ".{60}darktable.{110}" TOOLS.md  ->   3   matching LINES
+/usr/bin/grep -oEc ".{60}darktable.{110}" TOOLS.md  ->   3   LINES even under -o
 ```
-And `2>&1 | wc -l` on a pattern that does error reports the error TEXT as a match
-count — reported here as **"5 matches"** when there were none. **A positive result
-never prompts a re-check**, which is why this class survives a publish where the
-silent nulls do not: it produced the wrong `12` in this section's own table, one
-screen below the sentence warning against it. **This is the commensurability
-failure the registry already records six times — two numbers compared without
-their quantity stated beside them.**
+Independent control, no window involved: `-oEic "darktable"` on
+`docs/dead-ends.md` gives **13** against `-Eic` **12** — one line carries two
+occurrences, so `-c` under `-o` is counting matches, not lines. **A sweep quoting
+"12 hits" over 3 rows overstates its reach**; state the quantity and the program
+every time.
 
 **THE RULE: window with ONE range quantifier on the TRAILING side —
-`grep -oE "PATTERN.{0,200}"` — POSITIVE-CONTROL it, quote grep's OWN `-c` with the
-quantity named, and NEVER MERGE STDERR INTO A COUNT.** That survives all three: a
-bounded width that cannot outrun the line or the clock, no exact width to exceed a
-wrapped line, and no error text masquerading as data. Never trust an empty result
-you have not first shown the pattern can produce a hit with; **separate stdout,
-stderr and the exit code before reading any of them** — a null, a hang and an error
-are three different findings and a pipe renders all three as zero.
+`grep -oE "PATTERN.{0,200}"` — POSITIVE-CONTROL it, name the PROGRAM and the
+QUANTITY, and NEVER MERGE STDERR INTO A COUNT.** One range cannot trip the
+complexity limit, a bounded width cannot outrun the line or the clock, and no error
+text masquerades as data. Never trust an empty result you have not first shown the
+pattern can produce a hit with; **separate stdout, stderr and the exit code before
+reading any of them** — a null, a hang and an error are three different findings
+and a pipe renders all three as zero.
 
 ## What you audit
 
