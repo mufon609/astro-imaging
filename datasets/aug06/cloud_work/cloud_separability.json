@@ -1,58 +1,61 @@
 {
-  "what": "Result of the pre-registered cloud-signature separability test. Pre-registration: cloud_prereg.json, committed at 927c4e2 with no result attached.",
+  "what": "Cloud-signature separability. Pre-registration: cloud_prereg.json at 927c4e2, no result attached. FIRST RESULT AT 85a50c7 WAS CIRCULAR AND IS CORRECTED HERE — read the corrected headline, not that one.",
 
-  "instrument": "Siril bg / nstars / fwhm, captured per frame by the frame-QA stage into qa_work/frameqa/records.jsonl. In-house part: the block statistic only. REPORTS ONLY — no cull built, nothing gated, no deliverable touched.",
+  "THE_CORRECTION": {
+    "what_went_wrong": "The positive control was the OUTPUT of the quantity the signature uses. `recipe.json` `stack.why` — ONE KEY OVER from the `stack.exclude` list I read — states the criterion: 'auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude', with per-frame flags. Parsed: 44 of 44 flagged on `nstars`, 29 of 44 also on `bg`. So the block IS the output of a z-threshold on the two fields the test measured.",
+    "my_error_named": "I reported the criterion as UNDOCUMENTED. It was documented in the adjacent key of the same object. My own rule — the field is the datum, the prose beside it is not — failed on me by one field.",
+    "what_it_invalidates": "the full-44 numbers, and the claim that both pre-registered bars were met. The positive bar was met BY A CIRCULAR MEASUREMENT: on that control the signature could not have failed.",
+    "the_general_lesson": "A POSITIVE CONTROL DRAWN FROM A RECORDS FIELD IS ONLY A CONTROL FOR SIGNATURES THAT DO NOT USE THAT FIELD. Check the cull provenance before using a cull as a control."
+  },
 
+  "CORRECTED_HEADLINE": "bg separates the block at Z +4.05 on n=15 frames selected WITHOUT reference to bg, against +1.12 in a matched clean set — a 3.6x margin. Real, non-circular, and weaker than the withdrawn +6.07. Z_nstars carries NO information here and is withdrawn entirely.",
+
+  "NON_CIRCULAR_EVIDENCE": {
+    "bg_on_nstars_only_frames": {
+      "n": 15, "Z_bg": 4.05, "block_median": 1052.1, "clean_median": 1050.9,
+      "why_non_circular": "these 15 were flagged on `nstars` ONLY; `bg` was not their selection criterion.",
+      "AND_THE_BIAS_RUNS_AGAINST_THE_FINDING": "being nstars-only means their bg robust-z was BELOW the 3.5 cull threshold — they are conditioned AGAINST high bg. Removing the bg-flagged frames can only lower the subset's bg median. So +4.05 is CONSERVATIVE, not merely non-circular."
+    },
+    "fwhm_any_population": {
+      "Z_fwhm": {"n15": 1.62, "n29": 1.84, "n44": 1.75},
+      "why_non_circular": "`fwhm` was NOT a cull field for any of the 44 frames.",
+      "what_it_supports": "star SHAPE did not move while star COUNT fell. The frames did not get softer, so the loss is transparency rather than seeing or focus. This survives the circularity."
+    },
+    "negative_control_is_MATCHED_not_merely_unculled": {
+      "set": "aug06/set-01, same night", "n": 502,
+      "the_identical_detector_ran_and_found_nothing": "its cull_report.txt reads 'no frame flags at defect-side z >= 3.5' over all 502 frames",
+      "worst_44_frame_window_Z_bg": -1.80,
+      "max_POSITIVE_44_frame_Z_bg": 1.12,
+      "why_this_matters": "the baseline is not 'a set nobody culled' but 'a set the same z-flagger examined and passed'."
+    }
+  },
+
+  "CIRCULAR_KEPT_FOR_THE_RECORD_DO_NOT_QUOTE_AS_EVIDENCE": {
+    "full_44": {"Z_bg": 6.07, "Z_nstars": -8.70, "n_block": 44, "n_out": 456},
+    "bg_and_nstars_flagged_29": {"Z_bg": 6.41, "Z_nstars": -9.41, "n": 29},
+    "nstars_only_15_nstars_field": {"Z_nstars": -5.75, "n": 15},
+    "why_circular": "every frame in all three populations was selected by a threshold on nstars; 29 were also selected on bg."
+  },
+
+  "WHAT_DIES": {
+    "PM_claim_b_REFUTED_as_unsupported": "'nstars carries the signature more strongly than bg' was an artifact of selection — all 44 frames were nstars-flagged, so Z_nstars measures the cull, not the sky.",
+    "do_NOT_land_the_intake_culling_correction": "the item's note that star COUNT is 'measured blind on rich fields (detection saturates at the cap)' is NOT contradicted by this data. The earlier report said it was; that is withdrawn."
+  },
+
+  "A_FURTHER_LIMIT_NOBODY_HAS_CLOSED": {
+    "the_block_is_an_auto_cull_output_not_an_observation": "nothing in the tree establishes by observation that these frames contain cloud. `prompts/REPORT.md:470` names it a 'cloud block' and `recipe.json` records it as an auto-cull on z-flags. So the control is 'what the z-flagger flagged', and 'cloud' is an interpretation layered on that.",
+    "consequence": "a signature validated against this control is validated against the existing auto-cull, not against cloud."
+  },
+
+  "WHAT_WOULD_CLOSE_IT": "a cloud block identified by something independent of the frame-QA fields — an observing log, an all-sky camera, or a human note recorded at capture time — on a second night.",
+
+  "instrument": "Siril bg / nstars / fwhm via the frame-QA stage. In-house part: the block statistic. REPORTS ONLY — no cull built, nothing gated, no deliverable touched.",
   "statistic": "Z = (median in-block - median out-of-block) / (1.4826 * MAD out-of-block)",
 
-  "POSITIVE_CONTROL": {
-    "set": "aug06/set-03",
-    "block": "the 44 exact frame numbers in recipe.json stack.exclude (7694-7738)",
-    "n_total": 500, "n_block": 44, "n_out": 456,
-    "Z_bg": 6.07, "Z_nstars": -8.70, "Z_fwhm": 1.75,
-    "medians": {
-      "bg_in": 1052.7, "bg_out": 1050.9, "delta_bg_ADU": 1.8, "MAD_out_bg": 0.2965,
-      "nstars_in": 1607, "nstars_out": 1852, "delta_nstars": -245, "MAD_out_nstars": 28.1694,
-      "fwhm_in": 2.476, "fwhm_out": 2.437, "delta_fwhm": 0.039, "MAD_out_fwhm": 0.0222
-    },
-    "verdict_against_pre_registered_bar": "FIRES. Bar was |Z_bg| >= 5; measured 6.07."
-  },
-
-  "NEGATIVE_CONTROL": {
-    "set": "aug06/set-01",
-    "n": 502, "excluded": 0,
-    "why_this_set": "zero excludes, same night as set-03 — controls pedestal, sky brightness and moon. Chosen by surveying recipe.json excludes across all 13 sets carrying frame-QA records.",
-    "method": "every contiguous 44-frame window scanned at every start index",
-    "worst_abs_Z_bg": -1.80,
-    "max_POSITIVE_Z_bg": 1.12,
-    "verdict_against_pre_registered_bar": "DOES NOT FIRE. Bar was |Z_bg| < 5; measured worst 1.80."
-  },
-
-  "HEADLINE": "SEPARABLE. The cloud block reads Z_bg +6.07 where a clean set on the same night never exceeds +1.12 in the signature's own direction — a 5.4x margin. Both pre-registered bars are met.",
-
-  "PM_CLAIM_B": {
-    "claim": "nstars carries the signature MORE strongly than bg, contradicting the item's note that star count is measured blind on rich fields.",
-    "pre_registered_discriminator": "SUPPORTED if |Z_nstars| > |Z_bg| AND |Z_fwhm| < 3.",
-    "measured": "|Z_nstars| 8.70 > |Z_bg| 6.07, and |Z_fwhm| 1.75 < 3.",
-    "verdict": "SUPPORTED on this data. The star count fell 245 (8.7 MAD) while star SHAPE moved only 1.75 MAD — the frames did not get softer, so the loss is transparency rather than seeing or focus.",
-    "consequence": "BACKLOG:`intake-culling`'s cloud row states star COUNT is 'measured blind on rich fields (detection saturates at the cap)'. On this data it is not blind; it is the STRONGER of the two recorded signals."
-  },
-
   "PEDESTAL_TREATMENT": {
-    "primary": "delta bg = +1.800 ADU, absolute and denominator-free",
-    "fraction_of_raw_bg": "+0.171 % (denominator 1050.9 ADU, MEASURED)",
-    "fraction_of_sky_term": "+6.69 % (denominator 26.9 ADU, using pedestal 1024 which is ASSUMED and NOT measured here)",
-    "why_stated": "the two denominators differ by ~39x. A reader takes whichever is printed, so both are printed with their denominators and the assumed one is labelled."
-  },
-
-  "LIMITS_THAT_TRAVEL_WITH_THIS_RESULT": {
-    "one_set_one_night": "a single positive control. This shows the recorded fields separate THIS block on THIS night; it does not establish a rate, a threshold, or generality.",
-    "n": "44 in-block against 456 out.",
-    "CIRCULARITY_NOT_CLOSED_AND_THIS_IS_THE_MAIN_LIMIT": "how the 44 frames were selected is UNDOCUMENTED — no record in the tree states the criterion. If the operator culled by looking at bg or nstars, this test partly measures that the culler could see what they culled on.",
-    "partial_discriminator_run": "one frame inside the block's index span (455-499) was KEPT: frame 7737, bg 1052.2, nstars 1746, fwhm 2.49. Its bg is ELEVATED (block median 1052.7, clean median 1050.9), so a simple bg threshold would have culled it and did not. That is mild evidence the cull was NOT a bg threshold, which weakly protects the bg result.",
-    "and_it_cuts_AGAINST_the_more_flattering_half": "frame 7737's nstars (1746) sits between the block (1607) and clean (1852), i.e. near where an nstars criterion would cut. So the cull is MORE consistent with an nstars-like or visual criterion than a bg one — which makes the nstars finding (the stronger, more interesting result) the half MORE exposed to circularity, not less.",
-    "what_would_close_it": "a second cloud block on a different night whose cull criterion is recorded, or a block identified by an instrument independent of bg and nstars."
-  },
-
-  "NOT_DONE_DELIBERATELY": "no threshold is proposed, no cull is built, no detector is wired. The question asked was separability and only that is answered."
+    "primary_non_circular_delta": "+1.200 ADU on the 15 nstars-only frames (1052.1 - 1050.9), absolute and denominator-free",
+    "fraction_of_raw_bg": "+0.114 % (denominator 1050.9 ADU, MEASURED)",
+    "fraction_of_sky_term": "+4.46 % (denominator 26.9 ADU, pedestal 1024 ASSUMED and NOT measured here)",
+    "why_stated": "the denominators differ ~39x; a reader takes whichever is printed."
+  }
 }
