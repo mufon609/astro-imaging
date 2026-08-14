@@ -1768,6 +1768,18 @@ SILENT — pin the state, never inherit it):
   the first 190 characters (about an unrelated canvas result) and reported the
   sentence did not exist anywhere in the tree — **a confident negative produced by
   a correct detector**. The claim was 349 characters past the cut.
+  **MECHANISM CORRECTED — truncation does not merely WITHHOLD the evidence, it
+  SUBSTITUTES a familiar one, and that is why the reader stops with justification
+  rather than stopping short.** The head-end instance is the proof: that session
+  read the first ~260 characters, recognised its OWN already-settled SWarp finding
+  there, and correctly concluded the row was accounted for. Nothing looked
+  truncated; it looked answered. **A window does not present as partial — it
+  presents as the object**, so the stopping rule fires on content that is real,
+  relevant and irrelevant to the question. **The instrument fix follows from that:
+  window on the MATCH, not on the line** — `grep -oE ".{60}PATTERN.{110}"` rather
+  than `grep -n PATTERN | cut`. And state coverage as what was actually read: the
+  head-end sweep's honest coverage was *"the first 260 characters of each matching
+  row"*, never *"the rows"*.
   **The two failures are the same defect at both ends: a fact buried past where
   anyone reads.** 4,640 characters hid it from the sweep; 190 characters hid it
   from the grep. **So a length limit added for readability is part of the
@@ -1781,6 +1793,64 @@ SILENT — pin the state, never inherit it):
   compress so that each claim survives as a separately greppable statement, since
   the failure here was not length alone but one sentence being unfindable inside
   another.**
+  **SIBLING, AND IT QUALIFIES THE FIX ABOVE: `grep -c` IS NOT A SAFE FALLBACK WHEN
+  THE QUESTION IS WHAT A SENTENCE ASSERTS.** Same family — a reduction applied
+  after a correct match, discarding what the match was for. MEASURED on the same
+  claim: checking whether the false `sip_tpv` sentence was still live,
+  `grep -c "IS NOT INSTALLED ON THIS RIG"` returned **1 before the fix, 1 after,
+  and 1 at HEAD** — read as a count, "still broken". It was not: the fix RETRACTS
+  the claim while QUOTING it, so the phrase survives by design, exactly as a
+  withdrawn `~1.1` does elsewhere in this registry. **A count answers presence, not
+  assertion, and a corrected record deliberately contains the string it corrects —
+  so on a well-maintained tree the count is guaranteed to mislead.** Read the
+  sentence. The correct instrument here is `grep -o` with context, and then human
+  reading of what came back.
+- **A CLAIM CORRECTED AT ITS REPORTING SITE SURVIVES AT EVERY OTHER SITE THAT
+  CARRIES IT — and the correction reads as complete because the reported instance
+  is fixed.** This repo's own 14-vs-10 write-site lesson, one level up: there the
+  fix was applied to the read sites a grep could see while every caller kept
+  writing the old key; here the fix is applied to the row a finding was reported
+  in while every other file keeps asserting it. MEASURED: a two-lane build
+  constraint was corrected in `requirements-tools.txt` and **survived in
+  `TOOLS.md`'s PSFEx row**, still reading *"It does NOT build here:
+  `autoconf`/`automake`/`libtool` are absent… the deb-src route is blocked"* —
+  while `autoconf` and `automake` are present and PSFEx 3.21.1 is built from
+  source and installed. **The conclusion was refuted by OUTCOME, not merely by the
+  tool list.** **The rule: when a claim is corrected, grep for the CLAIM across the
+  tree, not just the row it was reported in — and the grep must be match-centred,
+  or it repeats the entry above.**
+  **AND THE COUNTER-MEASUREMENT, because it bounds the class rather than inflating
+  it:** a match-centred sweep for survivors of every negative corrected in one
+  working session (`NOT PACKAGED`, `not installed`, `no FITS reader`) found **no
+  live false instances** — the remaining hits were true or generic template
+  guidance. **So the mechanism is real and the rate on any given set of edits may
+  be zero. Both halves belong in any citation of this entry.**
+- **A POSITIVE CONTROL DRAWN FROM A RECORDS FIELD IS ONLY A CONTROL FOR SIGNATURES
+  THAT DO NOT USE THAT FIELD — check the cull's provenance before using a cull as
+  a control.** MEASURED, and the design was pre-registered before it ran, which is
+  what made the failure legible rather than invisible. A test of whether a cloud
+  signature separates from normal variation used a set's 44-frame `stack.exclude`
+  list as its positive control, and reported the selection criterion as
+  UNDOCUMENTED. **The criterion was documented in the ADJACENT KEY of the same
+  object** — `stack.why`: *"auto-cull, standing policy: defect-side robust
+  z >= 3.5 flags exclude"*, with per-frame flags showing **44 of 44 selected on
+  `nstars` and 29 of 44 also on `bg`**. So the control was the OUTPUT of a
+  threshold on the two fields under test: **on that control the signature could
+  not have failed**, which is the item's own *"a signature that cannot be made to
+  fail on demand is decoration"* arriving from the control side instead of the
+  detector side.
+  **THE RESCUE IS THE USEFUL PART, AND IT GENERALISES: a partially-circular control
+  usually contains a non-circular sub-population — find the frames selected WITHOUT
+  reference to the field you are testing.** Here 15 frames were flagged on `nstars`
+  only, so `bg` was not their criterion, and `bg` separated them at **Z +4.05
+  against +1.12 in a matched clean set** where the identical detector ran and
+  flagged nothing. **Better still, that sub-population is conditioned AGAINST the
+  effect** — nstars-only means their `bg` z was below the cull threshold — so the
+  surviving estimate is CONSERVATIVE, not merely uncontaminated. The circular
+  headline (Z +6.07 on all 44) was **1.5× larger** than the honest one, and the
+  strongest-looking result of the whole test, `Z_nstars` −8.70, was **entirely
+  selection** and had to be withdrawn.
+  **So: state which fields built the control, and quote the record that says so.**
 - **A SECOND SESSION CATCHES ERRORS NOT BY HAVING DIFFERENT EVIDENCE BUT BY
   APPLYING DIFFERENT PRIORS TO THE SAME TREE — and the maker's prior is the one
   that produced the error.** The weaker mechanism is the useful one: it means
