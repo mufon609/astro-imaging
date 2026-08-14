@@ -1089,21 +1089,80 @@ the evidence gate. Numbers and the full trade:
 `datasets/july31/set-03/pergroup_work/pergroup_flat_report.json`,
 `docs/dead-ends.md`.
 
-## `calxset-names-the-wrong-axis` — a provenance flag that overclaims
+## `calxset-is-blind-on-the-banned-case` — the provenance flag misses cross-NIGHT, and its blind case is byte-identical to a clean build
 
-`run_undistort_pipeline.sh` stamps `CALXSET=T` whenever `--flat` is not the flat
-the set's record names. The trigger is right; the NAME is not. It reads
-"cross-SET calibration", and the per-group flat arms are cross-WINDOW **within
-one set** — a later reader would take those members for another set's
-calibration. Nothing is lost today: `CALFLAT` records which flat actually ran and
-is authoritative for which case it is.
+**THIS ITEM WAS REWRITTEN AFTER ITS CENTRAL ASSERTION WAS MEASURED FALSE.** It
+read *"the trigger is right; the NAME is not"* — a comment fix. **The trigger is
+also wrong**, and it is blind on precisely the case the flag exists to catch. The
+premise all three seats had accepted was tested and failed.
+
+`run_undistort_pipeline.sh:360-361` stamps `CALFLAT`+`CALXSET=T` when `--flat`
+is not the flat the set's record names. The predicate compares
+**`basename "$FLAT"`**, so the PATH IS DISCARDED — it answers *"do these two
+flats share a filename"*, not *"is this the flat this set recorded"*.
+
+**THE HOLE IS THE RIG'S NORMAL STATE, not an edge case.** MEASURED: 19
+`skyflat*.fit` masters under `sessions/`, **12 distinct basenames**;
+`skyflat_set-01/02/03.fit` each exist in **three** sessions (aug06, aug09,
+july31). So building july31/set-03 with
+`--flat=sessions/aug06/work/masters/skyflat_set-03.fit` is a cross-NIGHT
+calibration — **banned, user-ratified, README step 1b** — and the trigger stays
+quiet. `--flat=` takes an arbitrary path (`FLAT=${a#*=}`, absolutized at :153,
+no same-session constraint), so the path is reachable through the documented CLI.
+
+**AND THE OLD ITEM'S SAFETY ARGUMENT INVERTS IN EXACTLY THAT CASE.** It claimed
+*"nothing is lost today: `CALFLAT` records which flat actually ran"*. The CALFLAT
+correction and the CALXSET flag are **inside the same `if`** — so when the trigger
+is blind, CALFLAT is not corrected either and keeps the SET's record, naming the
+flat that did **not** run. `CALFLAT` is authoritative only when the flag fires.
+
+**THE NUMBER THAT CLOSES THE AUDIT ROUTE.** The `:frames` suffix cannot
+discriminate. All three colliding masters read **`STACKCNT=500`, `NAXIS1=6064`**:
+
+    july31  STACKCNT=500 NAXIS1=6064 DATE=2026-08-11T04:31:46
+    aug06   STACKCNT=500 NAXIS1=6064 DATE=2026-08-11T14:40:12
+    aug09   STACKCNT=500 NAXIS1=6064 DATE=2026-08-11T14:19:19
+
+so the stamped value is `CALFLAT = skyflat_set-03.fit:500` **either way**. In the
+blind case the product's provenance is not merely uncorrected — it is
+**byte-identical to a correct build**, so no later header audit can distinguish a
+banned cross-night build from a clean one. That is this repo's *check that cannot
+fail* class arriving from the provenance side.
+
+**WHAT IS AND IS NOT CLAIMED: a latent false negative on a reachable path against
+a user-ratified ban.** No shipped product is known to carry it; product headers
+were not audited for the blind case and there is no evidence anyone has passed a
+colliding path. Calling it a measured corruption would be the overclaim this item
+was originally named for.
+
+**TWO SMALLER HOLES from the same probe.** The trigger **cannot fire at all** when
+the set's record names no flat (the first conjunct requires `CALFLAT` already in
+`PROV`). And it **false-positives** on a basename over 68 chars, because
+`stamp_headers.sh:202` truncates `"<basename>:<frames>"[:68]` into the name —
+LATENT, since our basenames are ~21 chars; the boundary was measured on both sides
+(at exactly 68 only the `:frames` suffix is cut and the prefix survives).
+
+**NOTHING BRANCHES ON `CALXSET`** — `flat_differential.py:441` writes it into a
+record and there are no other readers. So it is not load-bearing as a gate, and
+that cuts AGAINST the item: nothing downstream can catch the false negative
+either. Asymmetry worth carrying: that record writes `CALXSET` on **`arm_alt`
+only**, so a cross-calibrated REF arm's flag never reaches the record.
+
+**THE QUANTITY IS RIGHT; THE IMPLEMENTATION DOES NOT COMPUTE IT.** *"The flat that
+ran ≠ the flat this set's record names"* covers cross-set, cross-window and
+cross-night in one statement. `$FLAT` is already resolved to an absolute path at
+:153 and the flat record carries a path, so comparing resolved paths (or a hash)
+computes the intended quantity.
 
 **Do NOT rename the key** — products already carry it and a rename strands every
-one of them. **Closes when** the definition site states the real trigger
-("`CALFLAT` is not this set's recorded flat", covering cross-set and
-cross-window alike) and names `CALFLAT` as the datum that says which. Found by
-header inspection during the per-group flat arms; the fix is held off the build
-path while an experiment is in flight.
+one of them; nothing here requires renaming it. **GATE 1 IS OPEN** (Oracle,
+standards-first): whether a FITS-registered or tool-standard keyword already names
+"the calibration frame that actually ran", in which case this is adopted rather
+than patched. **Closes when** the predicate computes path-identity rather than
+basename-identity, the definition site states the general trigger without the
+cross-set re-narrowing, and a fire test covers the cross-night collision.
+Reproducible probe (outside the repo, refuses to run if `:361` has moved):
+`scratchpad/calxset_trigger_probe.sh`, 7/7.
 
 ## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
 
