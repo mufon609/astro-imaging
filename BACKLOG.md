@@ -1126,10 +1126,15 @@ per-FILE and static, so a builder already emitting `set32bits` in one generated
 `.ssf` passes even if a newly added emission omits the pin. One check reaches the
 network (the ESA Gaia control) and is labelled `[network]` and run unconditionally —
 **no `--skip` flag on purpose**, since a conditional path nobody exercises is the
-defect class the runner exists to catch. Four checks are excluded with reasons
+defect class the runner exists to catch. THREE checks are excluded with reasons
 rather than dropped silently: `member_separation --selftest` (needs a live seq-dir),
-`object_tilt_null.sh` (real corpus data), `x86_bootstrap.sh --selftest-gaia`
-(downloads the catalogue), and the per-DATASET `corner_work/*.py` instruments.
+`object_tilt_null.sh` (real corpus data), and `x86_bootstrap.sh --selftest-gaia`
+(downloads the catalogue). **The per-dataset `corner_work/*.py` instruments are NOT
+excluded as a class** — `pa_convention` and `constancy_fit` are IN the roster,
+marked `[lib]`, by the deliberate exception `e939f26` landed for: the exclusion
+keys on what a file IS, not where it lives. **An earlier revision of this row
+listed them as excluded, which UNDERSTATED coverage** — the same wording `README`
+already records as a corrected error, alive here at a third site.
 
 **AND THE ROSTER'S OWN CONSTRUCTION IS A KNOWN LIMIT, recorded in its docstring:**
 it was built from `grep -rln selftest`, so a selftest exposed under a
