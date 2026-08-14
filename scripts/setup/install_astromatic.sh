@@ -6,6 +6,7 @@
 #   ./install_astromatic.sh --root-cmds  print ONLY the commands needing sudo
 #   ./install_astromatic.sh --go         fetch, build and install into $PREFIX
 #   ./install_astromatic.sh --verify     run each binary, install nothing
+#   ./install_astromatic.sh --manifest   emit manifest.tsv rows on stdout
 #
 # ROOT IS NEEDED EXACTLY ONCE, FOR BUILD DEPENDENCIES, AND NOTHING ELSE.
 # `--root-cmds` prints that one apt line. After it has been run, everything below
@@ -41,12 +42,23 @@
 #                         TRANSITIONAL package. Both configure.ac files offer
 #                         `--enable-openblas` as a first-class alternative, so we
 #                         build against `libopenblas-dev` (0.3.33+ds-3) instead.
+#   liblapacke-dev     -> NOT in the Debian Build-Depends at all, and required
+#                         anyway: configure looks for LAPACKE_dpotrf, which Kali's
+#                         OpenBLAS does NOT bundle (nm on libopenblas.so: 0 hits;
+#                         on liblapacke.so.3: 4). The RUNTIME is already present;
+#                         only the dev headers and .so symlink are missing.
 #   libplplot-dev      -> `--enable-plplot` is OPT-IN in both, and PLplot drives
 #                         only the diagnostic CHECK-PLOTS. Omitting it costs the
 #                         PNG/PS diagnostic output and nothing computational — the
 #                         .psf model, the .head solutions and the XML are unaffected.
 # Recorded because the Debian dep list reads as mandatory and is not, and a reader
 # who trusts it concludes these cannot be built here. They can.
+#
+# CFLAGS="-fcommon" IS REQUIRED, not cosmetic. Both sources predate GCC 10, which
+# made `-fno-common` the default: they rely on tentative definitions, so the link
+# fails with "multiple definition of `gstr'" / "`bswapflag'" against the bundled
+# libfits. Compilation succeeds and only the LINK fails, so the error appears late
+# and looks like a source bug rather than a toolchain default.
 #
 # THE CONSTRAINT THAT PUT THESE IN THEIR OWN SCRIPT — MEASURED, not assumed:
 # `autoconf`, `automake` and `libtool` are ABSENT on this rig (`make` and `gcc` are
@@ -58,7 +70,25 @@ set -euo pipefail
 PREFIX="${ASTROMATIC_PREFIX:-$HOME/.local}"
 WORK="${ASTROMATIC_WORK:-$HOME/.cache/astromatic-build}"
 PKGS=(psfex scamp)
-BUILD_DEPS=(autoconf automake libtool libopenblas-dev libfftw3-dev libshp-dev libcurl4-openssl-dev pkg-config)
+BUILD_DEPS=(autoconf automake libtool libopenblas-dev liblapacke-dev libfftw3-dev libshp-dev libcurl4-openssl-dev pkg-config)
+
+# Debian multiarch puts the BLAS/LAPACKE headers and libraries under
+# /usr/include/<triplet> and /usr/lib/<triplet>, and neither configure searches
+# there — MEASURED: with libopenblas-dev installed, configure still exits
+# "OpenBLAS header files not found". Detected rather than hardcoded so this works
+# on a rig with a different triplet.
+MULTIARCH="$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null || echo x86_64-linux-gnu)"
+BLAS_INC="$WORK/blas-inc"
+BLAS_LIB="$WORK/blas-shim"
+
+# THE SHIM, AND IT IS NOT A HACK — it is the standard ld linker-script mechanism.
+# Both configures search ONLY -lopenblas / -lopenblasp for LAPACKE_dpotrf, because
+# upstream OpenBLAS bundles LAPACKE. Debian SPLITS them: MEASURED, `nm -D` on
+# libopenblas.so gives 0 hits for LAPACKE_dpotrf and on liblapacke.so.3 gives 4.
+# Passing LIBS="-llapacke" does not survive into the check (AC_SEARCH_LIBS resets
+# it), so the portable fix is a one-line GROUP script named libopenblas.so that
+# resolves -lopenblas to BOTH real libraries. Verified: a bare LAPACKE_dpotrf link
+# fails against the system libdir and succeeds through the shim.
 
 MODE=plan
 for a in "$@"; do
@@ -66,6 +96,7 @@ for a in "$@"; do
     --go)         MODE=go ;;
     --verify)     MODE=verify ;;
     --root-cmds)  MODE=rootcmds ;;
+    --manifest)   MODE=manifest ;;
     -h|--help)    sed -n '2,20p' "$0"; exit 0 ;;
     *) echo "unknown argument: $a" >&2; exit 2 ;;
   esac
@@ -111,20 +142,47 @@ go)
     echo "[astromatic] scratchpad binary extraction in the first place." >&2
     exit 3
   fi
-  mkdir -p "$WORK" "$PREFIX"
+  mkdir -p "$WORK" "$PREFIX" "$BLAS_LIB"
+  printf 'GROUP ( /usr/lib/%s/libopenblas.so /usr/lib/%s/liblapacke.so )\n' \
+    "$MULTIARCH" "$MULTIARCH" > "$BLAS_LIB/libopenblas.so"
+  # The headers are SPLIT too and configure takes ONE incdir: cblas.h and
+  # openblas_config.h live under /usr/include/$MULTIARCH while lapacke*.h live at
+  # /usr/include. configure bakes the incdir into config.h as LAPACKE_H, so a
+  # single wrong directory fails at COMPILE time rather than configure time.
+  mkdir -p "$BLAS_INC"
+  for h in "/usr/include/$MULTIARCH"/cblas.h "/usr/include/$MULTIARCH"/openblas_config.h \
+           /usr/include/lapacke.h /usr/include/lapacke_config.h /usr/include/lapacke_mangling.h \
+           /usr/include/lapack.h; do
+    [[ -e "$h" ]] && ln -sf "$h" "$BLAS_INC/$(basename "$h")"
+  done
   for p in "${PKGS[@]}"; do
     log "=== $p ==="
     ( cd "$WORK" && rm -rf "$p"-* && apt-get source "$p" >/dev/null 2>&1 )
     d=$(find "$WORK" -maxdepth 1 -type d -name "$p-*" | head -1)
     [[ -n "$d" ]] || { echo "[astromatic] apt-get source $p produced nothing" >&2; exit 4; }
     ( cd "$d" && ./autogen.sh >/dev/null 2>&1 || autoreconf -i >/dev/null 2>&1 || true
-      ./configure --prefix="$PREFIX" --enable-openblas >/dev/null
+      ./configure --prefix="$PREFIX" --enable-openblas \
+        --with-openblas-incdir="$BLAS_INC" --with-openblas-libdir="$BLAS_LIB" \
+        CFLAGS="-fcommon -O2" >/dev/null
       make -j"$(nproc)" >/dev/null
       make install >/dev/null )
     log "$p installed into $PREFIX/bin"
   done
   log "add to PATH if not already:  export PATH=\"$PREFIX/bin:\$PATH\""
   "$0" --verify
+  ;;
+manifest)
+  # Emitted rather than written: manifest.tsv is GENERATED by x86_bootstrap.sh and
+  # a hand-added row vanishes on the next --go.
+  for p in "${PKGS[@]}"; do
+    b="$PREFIX/bin/$p"; [[ -x "$b" ]] || b="$(command -v "$p" 2>/dev/null || true)"
+    v=$([[ -n "$b" ]] && "$b" -v 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo NOT-INSTALLED)
+    case "$p" in
+      psfex) n="spatially-varying PSF model; its field model independently confirmed the corner degradation. Built --enable-openblas + CFLAGS=-fcommon, with a BLAS/LAPACKE linker-script shim (Debian splits LAPACKE out of OpenBLAS) and an include shim (cblas.h multiarch, lapacke.h not)" ;;
+      scamp) n="writes PV%d_%d TPV headers — VERIFIED in the built binary — which is the format SWarp reads and that sip_tpv converts our SIP into. SExtractor -> SCAMP -> SWarp is the canonical Astromatic chain. Same build flags as psfex" ;;
+    esac
+    printf '%s\t%s\tdebian-source\tapt-source\t%s\t%s\t%s\n' "$p" "$v" "$b" "$p -v" "$n"
+  done
   ;;
 verify)
   fail=0
