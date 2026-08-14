@@ -2247,6 +2247,49 @@ SILENT — pin the state, never inherit it):
   direction +30.10 → −30.10). Handedness IS flipped, so re-test before comparing
   any of this against a sky-derived direction.
 
+- **COMPUTE THE COMPONENT AND THE WHOLE IN THE SAME UNITS AND COMPARE THEM — a
+  component cannot exceed the thing it is a component of, and that one check has
+  now caught THREE errors nothing else caught.** It is cheap, needs no fixture,
+  and each time the error was invisible to every other check in place:
+  - a predicted trail contribution of **0.146** against a measured *total*
+    field-constant term of **0.047–0.073** — which turned out to mean the trail
+    prediction was too large, not that something cancelled it;
+  - an unnormalised field-constant term of **25.81 px²** fitted against a median
+    a²−b² of **7.61** — which exposed a detection list half made of noise fits;
+  - **29.4% of stars carrying NEGATIVE anisotropy along an axis** a coherent
+    1.3555 px² term was supposed to occupy — which broke a degeneracy that had
+    been recorded as unbreakable.
+  The check has no threshold and no free parameter: form the ratio and see
+  whether it exceeds 1. **Do it before believing any decomposition**, because
+  a fit will happily return a component larger than its whole and report a
+  confident SE beside it.
+
+- **A SYSTEMATIC THAT CO-VARIES WITH THE LEVER YOU INTRODUCED TO BREAK A
+  DEGENERACY IS WORSE THAN THE DEGENERACY.** A second exposure was staged to
+  separate a trail-amplitude error (scales as L²) from a physical term (does
+  not) — and longer exposures at longer cadence admit more and fainter spurious
+  detections, so **the contamination scaled with the lever**. MEASURED: at
+  matched detection sigma, the 3.0 s night carried 5.3% NEGATIVE-amplitude fits
+  against 0.0% on the 2.5 s night, and median fitted amplitude 66.7 against
+  187.9. Worse, exposure and NIGHT were perfectly aliased — no 3.0 s set exists
+  on the other night — so two observations faced two unknowns. **Before staging a
+  lever, ask what else varies with it, and check that the new axis is not aliased
+  with an existing one.** The corpus-level version of this is cheap to check and
+  was not: `datasets/` holds the record of every night, and which exposures
+  co-exist on which night is one query.
+
+- **A CRITERION CHOSEN FOR A DEFECT THAT HAS NOT BEEN CHARACTERISED WILL PASS
+  THE DEFECT THROUGH.** A 297 px detection was called "a satellite or aircraft
+  trail" on its length alone, and the streak-geometry detector was reached for on
+  that basis. The detection had **fitted amplitude 47.6 ADU**, 5.3% of that
+  night's detections had **NEGATIVE** amplitude, and their position angles were
+  random (doubled-angle resultant 0.009) and spatially spread rather than
+  colinear. They were noise fits. `anomaly_audit.py` classifies streak GEOMETRY
+  and would have returned a clean bill of health while leaving every one of them
+  in place. **Characterise the defect — amplitudes, angles, spatial distribution
+  — before choosing the instrument**, and note that the wrong instrument here
+  fails SILENTLY and in the reassuring direction.
+
 - **THE STAGED CORPUS IS NOT THE CORPUS. CHECK `datasets/` BEFORE DECLARING A
   CORPUS LIMIT — the reflex is to check `sessions/`, and the reflex has now been
   wrong twice.** `sessions/` holds the nights whose raws are on the rig — three of
