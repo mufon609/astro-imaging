@@ -1154,11 +1154,59 @@ cross-night in one statement. `$FLAT` is already resolved to an absolute path at
 :153 and the flat record carries a path, so comparing resolved paths (or a hash)
 computes the intended quantity.
 
+**GATE 1: ANSWERED — A STANDARD HAS EXISTED FOR ~40 YEARS AND HALF THIS FAMILY
+REINVENTS IT.** IRAF CCDRED writes the calibration frame that actually ran, from
+source (`noao/imred/ccdred/src/`, re-read independently at the raw URL):
+`setflat.x` → `hdmpstr(OUT_IM(ccd), "flatcor", …)` with
+`"Flat field image is %s with scale=%g"` on `Memc[image]`; `setdark.x` →
+`darkcor`; `setzero.x` → `zerocor`; `timelog.x` prepends the date to each.
+
+| ours | standard analogue | verdict |
+|---|---|---|
+| `CALDARK` | IRAF `DARKCOR` | **REINVENTION** — IRAF carries identity **+ scale** |
+| `CALFLAT` | IRAF `FLATCOR` | **REINVENTION** — ours identity + DEPTH, IRAF + SCALE |
+| `CALSET` | none | legitimate; nothing standard names the SUBJECT set |
+| `CALXSET` | none anywhere | **not a reinvention — and not needed** |
+
+**No scale gap:** IRAF records `FLATSCALE` because the scale is the operator's
+free parameter; Siril `calibrate` normalizes the flat by its own level (only SHAPE
+reaches the product, never LEVEL), so there is nothing to record. Searched, empty.
+
+**THE SEARCHED NEGATIVE, which closes the standards-first obligation
+permanently: NOTHING in any surveyed standard records "calibrated with a frame
+other than the nominal one."** FITS registered conventions — 23 enumerated, none
+covering calibration provenance. MaxIm DL `CALSTAT` records WHICH STEPS ran
+(`B`/`D`/`F`), never which frame. astropy `ccdproc` keys on the function name and
+`_replace_array_with_placeholder()` rewrites the master as the literal
+`"<CCDData>"` — it deliberately erases frame identity. ESO SDP v6 §5.2.1: `PROVi`
+is science lineage and *"files used for calibration purposes … shall not be
+included"*. **Structural reason: *nominal* is a pipeline-internal concept with no
+meaning outside the pipeline that defines it, so no interchange format can carry
+it.** NOT reached, and the negative is scoped to exclude it: ESO's
+`HIERARCH ESO PRO CAL*` family, PixInsight's XISF history, ASTAP.
+
+**THE STRONGER OBJECTION THAN REDUNDANCY.** `CALFLAT` records a FACT about the
+product — this flat ran — true forever. `CALXSET` records a RELATION between the
+product and a MUTABLE external record. **If that record changes, `CALXSET` is
+silently wrong and nothing on the product can detect it.** That collides with
+`docs/combine-contract.md:124` — *"Every input the compose consumes must come
+from a member's own header or its own pixels. No record lookup, no machine state,
+no repo."* Its VALUE needs no lookup; its MEANING cannot be evaluated without one.
+
+**THREE DISPOSITIONS — the trade is the OWNER'S, not the pipeline's.**
+(1) fix the comment only — smallest reading, leaves a redundant stale-able key;
+(2) **deprecate `CALXSET` as a WRITE target, leave it readable** — nothing
+stranded, `CALFLAT` is the standard-shaped datum and is authoritative
+(Oracle-recommended); (3) record it as an accepted deviation with the
+stale-referent hazard named. **The standards-first deviation is undischarged
+either way** — `CLAUDE.md` requires it recorded with its reason, and the key was
+designed without that step. Durable home for the standards facts above once the
+disposition is ruled: `docs/combine-contract.md`, which defines these keys.
+
 **Do NOT rename the key** — products already carry it and a rename strands every
-one of them; nothing here requires renaming it. **GATE 1 IS OPEN** (Oracle,
-standards-first): whether a FITS-registered or tool-standard keyword already names
-"the calibration frame that actually ran", in which case this is adopted rather
-than patched. **Closes when** the predicate computes path-identity rather than
+one of them; nothing here requires renaming it. **Closes when** the disposition is
+ruled, the standards deviation is recorded, and — if any write path survives — the
+predicate computes path-identity rather than
 basename-identity, the definition site states the general trigger without the
 cross-set re-narrowing, and a fire test covers the cross-night collision.
 Reproducible probe (outside the repo, refuses to run if `:361` has moved):
