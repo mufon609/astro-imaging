@@ -1,5 +1,6 @@
 tool	version	source	sha256	path	verify	notes
-astrometry.net	apt	apt-signed	apt	/usr/share/astrometry	solve-field --help	4100 Tycho-2 wide-field indexes
+astrometry.net	apt	apt-signed	apt	/usr/bin/solve-field	solve-field --help	the SOLVER BINARY only — the index DATA is the separate row below, because this verify passes with the index dir empty
+astrometry-index-tycho2	2-5	apt-signed	apt	/usr/share/astrometry	query-starkd -r 306 -d 42 -R 10 -T /usr/share/astrometry/index-tycho2-19.littleendian.fits | grep -q MAG_VT	13 Tycho-2 star-kdtree indexes, index-tycho2-07..19, from the -littleendian sub-packages; the astrometry-data-tycho2 metapackage itself ships ZERO index files
 darktable	apt	apt-signed	apt	/usr/bin/darktable-cli	darktable-cli --version	UNDISTORT stage; must be built against lensfun
 lensfun	apt	apt-signed	apt	/usr/share/lensfun	command -v lensfun-update-data	liblensfun-bin ships lensfun-update-data (NOT python3-lensfun); verify is presence-only because the binary needs root even for --help
 hugin-tools	apt	apt-signed	apt	/usr/bin/cpfind	cpfind --version	lens-model FIT route: cpfind/cpclean/autooptimiser fit ptlens a,b,c from a set's own frames (scripts/darktable/fit_lens_model.sh)

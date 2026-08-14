@@ -294,9 +294,27 @@ log "Layer A — apt base"
 run "sudo apt update"
 run "sudo apt install -y flatpak pipx golang git unzip libssl-dev"
 run "pipx ensurepath"
-[[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2 source-extractor"   # 4100-series = wide-field
+# `astrometry-data-tycho2` is a METAPACKAGE THAT SHIPS NO INDEX FILES — MEASURED,
+# `dpkg -L` returns only docs/copyright/lintian. It pulls the per-scale sub-packages,
+# and on this arch the ones carrying data are the `-littleendian` variants (the
+# `amd64` siblings install and ship 0 files here). The series is `index-tycho2-NN`,
+# NOT the 4100 series an earlier comment and manifest note both named: MEASURED,
+# `ls /usr/share/astrometry` matches `4100` ZERO times. A wrong series name in an
+# inventory is a false negative waiting for whoever greps for it.
+[[ $DO_DATA -eq 1 ]] && run "sudo apt install -y astrometry.net astrometry-data-tycho2 source-extractor"
 # xvfb only if you must run a GUI pyscript (we avoid): sudo apt install -y xvfb
-manifest astrometry.net apt apt-signed apt /usr/share/astrometry "solve-field --help" "4100 Tycho-2 wide-field indexes"
+manifest astrometry.net apt apt-signed apt /usr/bin/solve-field "solve-field --help" "the SOLVER BINARY only — the index DATA is the separate row below, because this verify passes with the index dir empty"
+# THE INDEX DATA IS ITS OWN ROW BECAUSE THE SOLVER'S VERIFY CANNOT SEE IT.
+# `solve-field --help` exits 0 on a machine with no index files at all, so the row
+# above asserted nothing about the catalogue. This verify READS an actual index:
+# `query-starkd` opens the star kdtree, searches it, and `-T` pulls the tag-along
+# columns — so requiring `MAG_VT` proves the file parses, the tree holds stars at
+# that position, AND the catalogue magnitude column is present. That column is the
+# one behind the measured zero point (ZP_V_T = 16.754, `TOOLS.md` Tier 3), which is
+# why it is the right thing to assert rather than mere file existence.
+# FIRE-TESTED FOUR WAYS, ~5 ms: real index exit 0; missing index, a garbage file of
+# the same name, and a valid index queried where it holds no stars all exit 1.
+manifest astrometry-index-tycho2 2-5 apt-signed apt /usr/share/astrometry "query-starkd -r 306 -d 42 -R 10 -T /usr/share/astrometry/index-tycho2-19.littleendian.fits | grep -q MAG_VT" "13 Tycho-2 star-kdtree indexes, index-tycho2-07..19, from the -littleendian sub-packages; the astrometry-data-tycho2 metapackage itself ships ZERO index files"
 # source-extractor is the INPUT STAGE both PSFEx and SCAMP consume (Layer C3), and
 # it is NOT installed explicitly anywhere: it arrives as a RECOMMENDS of
 # astrometry.net above. MEASURED — `apt-cache show astrometry.net` lists it under
