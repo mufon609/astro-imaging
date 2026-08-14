@@ -145,6 +145,12 @@ datasets/aug06/corner_work/psf_calib_work/
 !**/resample_work/*.lst
 !**/resample_work/*.ssf
 
+# inject_work/ — synthetic trails injected into a real frame. The injected FITS
+# and the site arrays are regenerable; the .lst records and .ssf are the record.
+**/inject_work/*
+!**/inject_work/*.lst
+!**/inject_work/*.ssf
+
 # skyrate_work/ — the scalar-vs-projection refit of the sky-rate coefficient.
 # The member star list IS the record; the .ssf reproduces it.
 **/skyrate_work/*

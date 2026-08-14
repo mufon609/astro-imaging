@@ -1,0 +1,8 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/inject_work
+setfindstar reset -relax=on -sigma=0.5 -roundness=0.05 -maxR=1.0
+load injected2
+findstar -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/inject_work/injected2.lst
