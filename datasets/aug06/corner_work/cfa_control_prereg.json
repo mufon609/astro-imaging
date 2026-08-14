@@ -1,0 +1,20 @@
+{
+ "what": "CFA control pre-registration, written before the run",
+ "PRE_REGISTRATION": {
+  "outcome_1_G1_vs_G2": {
+   "why_it_carries_the_weight": "identical sampling and identical processing on both sides, so it is immune to the S = 0.83 -> 0.415 confound",
+   "statistic": "chi2 of (axis_G1 - axis_G2) against zero across rho bins, 5 dof",
+   "AGREE_if": "chi2 < 11.07 (p > 0.05) -> the CFA lattice injects no directional term",
+   "DIFFER_means": "a directional term from the lattice or the sampling, contaminating every shape measurement on this grid; outcome 2 must not then be read as though the grid were clean"
+  },
+  "outcome_2_CFA_vs_debayered": {
+   "SAME_means": "the demosaic is NOT producing the rotation; the named alternative dies and 'no field-constant optical component' stands alone",
+   "DIFFERENT_means": "AMBIGUOUS between the demosaic and severe undersampling (S ~ 0.415, below Kannawadi's 0.5). This arm cannot separate them and will not attribute."
+  },
+  "outcome_3_constancy_fit_on_CFA": {
+   "REJECTS_means": "the gate failure is independent of the demosaic",
+   "DOES_NOT_REJECT_means": "produced by the demosaic OR by the sampling change \u2014 same ambiguity, same refusal"
+  },
+  "absorbed_and_not_under_test": "T scales by 1/4 on the half-sized grid and kappa was calibrated at S ~ 0.83; both are GLOBAL scales on T absorbed by the free f, so neither touches the constancy question. f stays unquotable."
+ }
+}

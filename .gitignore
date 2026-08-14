@@ -261,3 +261,10 @@ datasets/aug06/corner_work/kappa_work/
 **/frames_work/*
 !**/frames_work/*.json
 !**/frames_work/*.ssf
+
+# cfa_work/ — the CFA control: undebayered FITS, four split_cfa channels per
+# frame and their star lists, all regenerable from measure_cfa.ssf and
+# frames_work/frame_map.json. Only the script and the JSON records ARE the record.
+**/cfa_work/*
+!**/cfa_work/*.json
+!**/cfa_work/*.ssf
