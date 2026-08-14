@@ -164,29 +164,73 @@ references were grepped to zero each time.
   side where it has been paying. **Tell it plainly that contradicting the worker is
   the job.**
 
-**IN FLIGHT RIGHT NOW:** the worker is wiring `frame=` at four pooling sites
-(`constancy_fit:232`, `coherent_trail:428`, `pa_convention` 569/570/1209/1210).
-**The library is fixed and NO CALLER PASSES `frame=` YET** — so every record still
-carries a star bootstrap, honestly named. That distinction is the one a summariser
-drops; do not drop it.
+**NEVER CARRY A TARGET LIST AS LINE NUMBERS IN THIS FILE — the passage here did,
+and three of its four coordinates were wrong.** It named the `frame=` pooling
+sites as `constancy_fit:232`, `coherent_trail:428`, `pa_convention` 569/570 and
+1209/1210. Measured: one is a `decompose()` call; the others are a prose comment,
+two dict-literal keys, and a comment plus an unrelated assignment (pa_convention
+off by +77, constancy_fit by −53). And the POPULATION was wrong, which is the
+half that mattered — `grep -rn "decompose("` returns **14 calls across 6 files**,
+of which **nine pool and seven were wired** (`b47f0b2`), including
+`drift_bearing.py` (`np.vstack(frames)`) which no list named and whose record is
+`intake-culling`'s shake/wind positive control. **State the artifact-derived
+COMMAND, never the coordinates: a line number is a remembered name and it goes
+stale silently.**
 
-**BATCH 2, agreed with the worker and not started:** (a) the `frame=` wiring above;
-(b) rule-3 compression of the register — **15 rows over 150 words, 18 over 100, of
-34**, against a header that forbids mechanism narrative in a status cell; (c) two
-MISSING register rows — `psf_calib.py` has NO condition AND NO row while THREE rows
-cite its κ (the register's own stated worse case), and `pa_convention.py` has a
-condition and no row. **Verify BEFORE compress** — verification produces the
-information compression consumes.
+**THE ERROR MODEL — the clause a summariser drops.** Every SE names its error
+model and `frame=` is now wired at the pooling sites, **but the records were NOT
+regenerated**, so every tracked `*.json` still carries a star bootstrap. The
+honest form is *"the capability is integrated, the artifacts still carry the old
+generation"*; `error_model` is what distinguishes them when they are rebuilt.
 
-**THE OPEN DECISION THE ORACLE SCOPED FOR YOU:** re-check the worker's 26
-earlier-verified register rows. Its judgement: not re-litigating, because the
-method genuinely differs — *derive the check's target list from the ARTIFACT, not
-from the author's description*. But the right set is **rows verified before that
-method existed, WHOEVER wrote them** (including the PM's), not the worker's by
-authorship. **Sample SIX, drawn from the artifact side — rows you pick by their
-underlying script without reading the row first — never six the worker nominates.**
-Six yielding a comparable rate to the fresh session's 8-row pass justifies the
-rest; six yielding nothing means the set stands.
+**ν IS PER-CALL, NOT A CONSTANT — and this is where a number in a shared
+docstring becomes the neutral-key defect one layer up.** `decompose`'s frame-based
+SE divides by that call's own `nf`, with **no pooling across bins**, so a
+significance built on it is Student-t with ν = nf − 1 and its square is F(1, ν),
+not χ²₁. Measured across the records, ν runs **3 to 39** (`constancy_fit` and
+`frame_depth`'s shallow arm 3–4; `pa_convention` 20; `cfa_control` 24–39). The
+null expectation of a reduced statistic so formed is **ν/(ν−2)** — 3.00 at ν=3,
+2.00 at ν=4, 1.05 at ν=39 — so the thread's "χ²/dof ≈ 1.1 on frame-based errors"
+sits BELOW its null rather than on it. **Carry the formula, never the number, and
+the correction is per-BIN: `frame_depth` spans both regimes inside one record.**
+
+**BATCH 2 STATE:** (a) `frame=` wiring **LANDED** (`b47f0b2`), with one audited
+FAIL outstanding — `psfex_compare.fit_field` accepts `frame=` and never forwards
+it to `decompose`, so both ends read wired and the middle drops it; (b) rule-3
+compression of the register — **15 rows over 150 words, 18 over 100, of 34** —
+**HELD behind the register verification, and BACKLOG.md is serialised to one
+writer at a time**; (c) MISSING register rows — `psf_calib.py` has NO condition
+and NO row while three rows cite its κ, `pa_convention.py` has a condition and no
+row, and `psfex_compare.py` is a third instance found by mechanically joining the
+28 files declaring `REMOVAL CONDITION` against the register table. **Verify
+BEFORE compress** — verification produces the information compression consumes.
+
+**THE REGISTER RE-CHECK — DECIDED BY THE SAMPLE, AND THE SET DOES NOT STAND.**
+The Oracle's design was: not the worker's 26 by authorship, but rows verified
+before the artifact-first method existed, WHOEVER wrote them, **sampled SIX from
+the artifact side**. The rule used, stated before its output was read: the 28
+files declaring `REMOVAL CONDITION`, sorted by tree path, stride 5 from index 3 —
+so no session's sense of which rows look risky could steer it, and the six went
+out as FILES rather than row numbers so each row is located from the artifact.
+**Result: 4 defects in 6** — three status texts FALSE, one row missing entirely,
+two SUPPORTED. That clears the justify-the-rest bar by a distance; the remaining
+20 rows are being swept by the same method.
+**The three FALSE, each re-executed by a second session before disposition:**
+row 51's condition **has FIRED** while its status says "not fired" (its second
+disjunct is *"or the `rl -loadpsf=` route it gates is closed either way"*, and
+`corner-fix-landscape`'s own header reads *"the FIX-classified route is DEAD"*),
+cascading to rows 49/50 which retire with it; row 62 asserts SCAMP has no apt
+candidate while `scamp` 2.10.0 is installed (verdict survives, sourced from the
+binary); row 75 asserts *"darktable 5.4.1 has no FITS reader"* — **it reads FITS
+and cannot write it**, so the condition has not fired but the blocker is half the
+stated size, which row 45 and `native-solve-and-sip` also reason from.
+**KNOWN LIMIT OF THE SAMPLING RULE:** it can only draw rows whose divergence is a
+declaring script, so four non-script rows are unreachable by it. Two of those were
+already cleared by the earlier 8-row pass; residual exposure is 2.
+**AND THE JOIN THAT FOUND THE MISSING ROW IS A ONE-LINE STANDING DETECTOR:**
+`grep -rln "REMOVAL CONDITION"` against the register table. It finds
+*declared-but-no-row*; it structurally CANNOT find `psf_calib.py`, which declares
+nothing at all. Two holes, two detectors — and the second is unbuilt.
 
 **UNCHECKED AND LOAD-BEARING, flagged by the Oracle against itself:** that the
 corner defect and the compose defect are independent. Its whole "compose over
