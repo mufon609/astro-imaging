@@ -1492,11 +1492,19 @@ catalogue, or records here that they are deliberately unused.
 `check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the
 web session smoke test added to it inherits that, and so does
 `check_registration_pins.sh` (the newest of the family — `-transf=`/`-interp=` pins,
-per COMMAND, with a `--selftest` that falsifies its own rules). **And one guard cannot be run at
-all: `scripts/stack/check_stack_rejection.sh` is mode 664**, so `./scripts/…` is
-permission-denied and only `bash scripts/…` works — a guard that fails to execute
-is indistinguishable from a guard that passed, which is this repo's most persistent
-defect shape. Also open: the bit-depth check is
+per COMMAND, with a `--selftest` that falsifies its own rules).
+
+**The "one guard cannot be run at all" claim is REMOVED — it was true, it was fixed
+at `dd7a13d` (`:100644 100755 1b9ee59 1b9ee59`, a pure mode change with the blob
+untouched), and the row outlived the defect by three days.** All five guards are
+`100755` in the index and all five pass invoked as `./scripts/stack/*.sh`.
+**Keep the lesson, which is about auditing and not about a file mode:** the audit
+that was supposed to catch this ran the guards as `bash scripts/…`, and `bash`
+sidesteps the executable bit entirely, so the check could not have failed the way
+the row described. **A guard invoked in a way that cannot reproduce the recorded
+failure is not a test of the record** — invoke it the way its own record specifies.
+
+Also open: the bit-depth check is
 per-FILE, so a builder that already emits `set32bits` in one generated `.ssf` passes
 even if a newly added emission omits it — per-block granularity needs the
 printf/heredoc blocks split on the `> "$X.ssf"` boundary every builder here uses.
