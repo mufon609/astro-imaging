@@ -135,11 +135,25 @@ rule-3 compression, and a `manifest.tsv` completeness sweep. **The PM is holding
    - **SExtractor's background estimator** — `BACK_PEARSON 2.5` and the
      σ-clipped/object-masking account came from the config dump plus recall.
      **Bertin & Arnouts 1996 is the authority and was not read.**
-   **THE STRUCTURAL CAUSE, and it is why no session was replaced over this:** the
-   role file gave a detailed METHOD for the inward sweep and only an ASPIRATION for
-   the outward research, and every target it was handed was locally answerable.
-   **Method beats aspiration.** Fixed at `a90c315`; the aiming was the manager's
-   error, not the role's.
+   **THE PRIMARY CAUSE IS THE BOOT, AND IT IS THE OWNER'S FINDING — the session was
+   never properly started and therefore never performed its true role.** It was
+   handed state, live corrections and pending questions before it had done the
+   calibrating read, so it never internalised what the role IS; a session in that
+   condition has nothing to push a mis-aimed target against. **That is upstream of
+   everything below, and it is why the session WAS replaced** — an earlier revision
+   of this entry argued no replacement was warranted, reasoning about the template
+   alone and missing the boot entirely.
+   **TWO CONTRIBUTING CAUSES, both real and neither sufficient:** the role file gave
+   a detailed METHOD for the inward sweep and only an ASPIRATION for the outward
+   research (**method beats aspiration**), and every target it was handed was
+   locally answerable — the manager's aiming error. Both fixed at `a90c315`, which
+   also lands the startup protocol the boot failure needed; capability was never the
+   constraint.
+   **THE GENERAL FORM: a role is carried by the READ, not by the label.** Naming a
+   session's role and then flooding it with context before it reads produces a
+   session that answers fluently in the role's voice while doing a different job —
+   and it is invisible from inside, because the work is good. **Boot first, brief
+   after.**
 
 ---
 
