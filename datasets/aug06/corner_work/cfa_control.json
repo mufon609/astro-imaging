@@ -1,0 +1,610 @@
+{
+ "what": "the per-rho-bin axis and the constancy fit on the RAW CFA lattice \u2014 no interpolation anywhere",
+ "PRE_REGISTRATION": {
+  "outcome_1_G1_vs_G2": {
+   "why_it_carries_the_weight": "identical sampling and identical processing on both sides, so it is immune to the S = 0.83 -> 0.415 confound",
+   "statistic": "chi2 of (axis_G1 - axis_G2) against zero across rho bins, 5 dof",
+   "AGREE_if": "chi2 < 11.07 (p > 0.05) -> the CFA lattice injects no directional term",
+   "DIFFER_means": "a directional term from the lattice or the sampling, contaminating every shape measurement on this grid; outcome 2 must not then be read as though the grid were clean"
+  },
+  "outcome_2_CFA_vs_debayered": {
+   "SAME_means": "the demosaic is NOT producing the rotation; the named alternative dies and 'no field-constant optical component' stands alone",
+   "DIFFERENT_means": "AMBIGUOUS between the demosaic and severe undersampling (S ~ 0.415, below Kannawadi's 0.5). This arm cannot separate them and will not attribute."
+  },
+  "outcome_3_constancy_fit_on_CFA": {
+   "REJECTS_means": "the gate failure is independent of the demosaic",
+   "DOES_NOT_REJECT_means": "produced by the demosaic OR by the sampling change \u2014 same ambiguity, same refusal"
+  },
+  "absorbed_and_not_under_test": "T scales by 1/4 on the half-sized grid and kappa was calibrated at S ~ 0.83; both are GLOBAL scales on T absorbed by the free f, so neither touches the constancy question. f stays unquotable."
+ },
+ "channel_star_counts_median": {
+  "0": 496,
+  "1": 349,
+  "2": 211,
+  "3": 504
+ },
+ "greens_identified_as": [
+  0,
+  3
+ ],
+ "how_greens_were_identified": "BY THE DATA, decisively: cross-matched star magnitudes between every channel pair. The two greens are the same filter on the same scene, so their pair must agree at ~0 offset with the smallest scatter. Measured on frame 1: ch0-ch3 gives median dmag -0.005, MAD 0.115, over 706 matches, against 0.28-0.85 mag offsets and ~2x the scatter for every other pair.",
+ "channel_pair_dmag": {
+  "0-1": {
+   "n": 564,
+   "median_dmag": -0.33999999999999986,
+   "mad_dmag": 0.2650000000000001
+  },
+  "0-2": {
+   "n": 374,
+   "median_dmag": -0.8500000000000001,
+   "mad_dmag": 0.27
+  },
+  "0-3": {
+   "n": 706,
+   "median_dmag": -0.004999999999999893,
+   "mad_dmag": 0.11499999999999932
+  },
+  "1-2": {
+   "n": 326,
+   "median_dmag": -0.44500000000000073,
+   "mad_dmag": 0.41499999999999915
+  },
+  "1-3": {
+   "n": 561,
+   "median_dmag": 0.28000000000000114,
+   "mad_dmag": 0.23000000000000043
+  },
+  "2-3": {
+   "n": 365,
+   "median_dmag": 0.8300000000000001,
+   "mad_dmag": 0.27000000000000046
+  }
+ },
+ "AND_THE_HEADER_READING_IS_A_TRAP": "the parent carries BAYERPAT=RGGB, which reads as (0,0)=R (0,1)=G (1,0)=G (1,1)=B, and split_cfa emits in raster order \u2014 so the obvious inference is that channels 1 and 2 are the greens. THE DATA SAYS 0 AND 3. Corroborated three ways: those two share a median (1047 both) and a background MAD (10 ADU both) where the other pair reads 1037/9 and 1028/8, and their star counts match (992 vs 1007) where the others are 697 and 422. Whatever the row-order convention does, split_cfa's index order cannot be mapped to BAYERPAT by inspection \u2014 verify it against the pixels.",
+ "arms": {
+  "ch0": {
+   "n_frames": 40,
+   "bins": [
+    {
+     "bin": 1,
+     "rho_lo": 0.005449890559307608,
+     "rho_hi": 0.32878156832310146,
+     "n_frames": 40,
+     "C1": 0.14004521104711412,
+     "C2": 0.11720280526804934,
+     "se_C1": 0.004786511809227188,
+     "se_C2": 0.00841398997426095,
+     "fixed_magnitude": 0.18261752024362565,
+     "fixed_axis_deg": 18.908234106350612,
+     "fixed_axis_se_deg": 1.6181023953243092,
+     "T1": 0.29366802309903794,
+     "T2": 0.05803027377191268,
+     "T_magnitude": 0.29934665601095367,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 2,
+     "rho_lo": 0.32878156832310146,
+     "rho_hi": 0.6521132460868952,
+     "n_frames": 40,
+     "C1": 0.0875377599471483,
+     "C2": 0.1360024783150727,
+     "se_C1": 0.0050091287340057015,
+     "se_C2": 0.009663576641476527,
+     "fixed_magnitude": 0.16173909089767502,
+     "fixed_axis_deg": 26.405529347875607,
+     "fixed_axis_se_deg": 2.1189220354506886,
+     "T1": 0.2914452194959923,
+     "T2": 0.05762571831187653,
+     "T_magnitude": 0.29708759546306684,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 3,
+     "rho_lo": 0.6521132460868952,
+     "rho_hi": 0.975444923850689,
+     "n_frames": 40,
+     "C1": 0.21455663429194577,
+     "C2": 0.1506229457235952,
+     "se_C1": 0.008596476121336927,
+     "se_C2": 0.010662422758007129,
+     "fixed_magnitude": 0.2621484714758811,
+     "fixed_axis_deg": 16.975159251066508,
+     "fixed_axis_se_deg": 1.0597177977216776,
+     "T1": 0.3044291390657325,
+     "T2": 0.0488507046196355,
+     "T_magnitude": 0.3083236806574188,
+     "T_axis_deg": 0.0
+    }
+   ],
+   "axis_constancy": {
+    "axes_deg": [
+     18.908234106350612,
+     26.405529347875607,
+     16.975159251066508
+    ],
+    "ses_deg": [
+     1.6181023953243092,
+     2.1189220354506886,
+     1.0597177977216776
+    ],
+    "span_deg": 9.4303700968091,
+    "weighted_mean_deg": 18.873784298036735,
+    "chi2": 15.844994259941107,
+    "dof": 2,
+    "rejects_constant_axis_95pct": true
+   },
+   "constancy_fit": {
+    "f": 6.470886214705712,
+    "f_se": 0.6654645868691835,
+    "K1": -1.7752254404034378,
+    "K2": -0.22720703460708425,
+    "K_magnitude": 1.7897062331093683,
+    "K_axis_deg": -86.35324832068049,
+    "chi2": 84.6515579347565,
+    "dof": 3,
+    "chi2_per_dof": 28.217185978252164,
+    "design_condition": 225.57535405459922,
+    "no_trail_f0": {
+     "chi2": 179.20506199788832,
+     "dof": 4,
+     "K": [
+      0.1288700753840042,
+      0.13193025931871533
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 152.23891532474192,
+     "dof": 4,
+     "K": [
+      -0.1653856807225088,
+      0.07642977885753435
+     ]
+    }
+   }
+  },
+  "ch1": {
+   "n_frames": 40,
+   "bins": [
+    {
+     "bin": 1,
+     "rho_lo": 0.005426129389096869,
+     "rho_hi": 0.3288337433857278,
+     "n_frames": 40,
+     "C1": 0.16655918649423357,
+     "C2": 0.19752409205328322,
+     "se_C1": 0.008469790463957625,
+     "se_C2": 0.010569718492014707,
+     "fixed_magnitude": 0.25837517207946814,
+     "fixed_axis_deg": 23.58771670292824,
+     "fixed_axis_se_deg": 1.7656338950582502,
+     "T1": 0.29583677373374295,
+     "T2": 0.05650358631862842,
+     "T_magnitude": 0.30118441520114636,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 2,
+     "rho_lo": 0.3288337433857278,
+     "rho_hi": 0.6522413573823588,
+     "n_frames": 40,
+     "C1": 0.08535775624460964,
+     "C2": 0.1764910028798746,
+     "se_C1": 0.007077213697579871,
+     "se_C2": 0.009914334957404645,
+     "fixed_magnitude": 0.1960485160582913,
+     "fixed_axis_deg": 30.258451886824652,
+     "fixed_axis_se_deg": 2.1488707862988226,
+     "T1": 0.29606345235841197,
+     "T2": 0.056540957614787814,
+     "T_magnitude": 0.3014140801461984,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 3,
+     "rho_lo": 0.6522413573823588,
+     "rho_hi": 0.9756489713789896,
+     "n_frames": 25,
+     "C1": 0.22421449608075927,
+     "C2": 0.19938582138759947,
+     "se_C1": 0.02225440067728591,
+     "se_C2": 0.023191546386773572,
+     "fixed_magnitude": 0.30004474003580955,
+     "fixed_axis_deg": 20.720671948822815,
+     "fixed_axis_se_deg": 2.127657611953877,
+     "T1": 0.30241950336545625,
+     "T2": 0.06549067551570766,
+     "T_magnitude": 0.3094294501098965,
+     "T_axis_deg": 0.0
+    }
+   ],
+   "axis_constancy": {
+    "axes_deg": [
+     23.58771670292824,
+     30.258451886824652,
+     20.720671948822815
+    ],
+    "ses_deg": [
+     1.7656338950582502,
+     2.1488707862988226,
+     2.127657611953877
+    ],
+    "span_deg": 9.537779938001837,
+    "weighted_mean_deg": 24.65768483713686,
+    "chi2": 10.584403995572357,
+    "dof": 2,
+    "rejects_constant_axis_95pct": true
+   },
+   "constancy_fit": {
+    "f": 6.203909961383376,
+    "f_se": 2.151915458459208,
+    "K1": -1.7137505427666566,
+    "K2": -0.16810409498020462,
+    "K_magnitude": 1.7219755833292538,
+    "K_axis_deg": -87.19885117427613,
+    "chi2": 69.40703753836495,
+    "dof": 3,
+    "chi2_per_dof": 23.135679179454982,
+    "design_condition": 444.421285671124,
+    "no_trail_f0": {
+     "chi2": 77.71855959364265,
+     "dof": 4,
+     "K": [
+      0.12467110061695758,
+      0.18749162089604376
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 75.25506141042287,
+     "dof": 4,
+     "K": [
+      -0.17166164032012646,
+      0.13017362013689737
+     ]
+    }
+   }
+  },
+  "ch2": {
+   "n_frames": 40,
+   "bins": [
+    {
+     "bin": 2,
+     "rho_lo": 0.3337099622615217,
+     "rho_hi": 0.6548796678123225,
+     "n_frames": 40,
+     "C1": 0.12652397187325856,
+     "C2": 0.1392737685325594,
+     "se_C1": 0.00678197974966307,
+     "se_C2": 0.010854978498185529,
+     "fixed_magnitude": 0.18816348758419116,
+     "fixed_axis_deg": 22.367253807342188,
+     "fixed_axis_se_deg": 1.8477818902448582,
+     "T1": 0.29558763275882705,
+     "T2": 0.05351845787406142,
+     "T_magnitude": 0.30039353184312223,
+     "T_axis_deg": 0.0
+    }
+   ],
+   "axis_constancy": {
+    "axes_deg": [
+     22.367253807342188
+    ],
+    "ses_deg": [
+     1.8477818902448582
+    ],
+    "span_deg": 0.0,
+    "weighted_mean_deg": 22.367253807342188,
+    "chi2": 0.0,
+    "dof": 0,
+    "rejects_constant_axis_95pct": false
+   },
+   "constancy_fit": {
+    "f": 0.04114029198824441,
+    "f_se": 2097152.0,
+    "K1": 0.11436341035344642,
+    "K2": 0.13707200354885984,
+    "K_magnitude": 0.1785153320714202,
+    "K_axis_deg": 25.080356635714892,
+    "chi2": 9.150786500563737e-29,
+    "dof": -1,
+    "chi2_per_dof": -9.150786500563737e-29,
+    "design_condition": 1.6670413800813362,
+    "no_trail_f0": {
+     "chi2": 1.5777218104420236e-29,
+     "dof": 0,
+     "K": [
+      0.12652397187325856,
+      0.1392737685325594
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 5.048709793414476e-29,
+     "dof": 0,
+     "K": [
+      -0.1690636608855685,
+      0.08575531065849798
+     ]
+    }
+   }
+  },
+  "ch3": {
+   "n_frames": 40,
+   "bins": [
+    {
+     "bin": 1,
+     "rho_lo": 0.005639488197138381,
+     "rho_hi": 0.3290756604011163,
+     "n_frames": 40,
+     "C1": 0.16642887636475667,
+     "C2": 0.11194171028343765,
+     "se_C1": 0.004767472700003501,
+     "se_C2": 0.009420919837873638,
+     "fixed_magnitude": 0.2005729727286719,
+     "fixed_axis_deg": 16.341512320654388,
+     "fixed_axis_se_deg": 1.4655254985794577,
+     "T1": 0.293843098907776,
+     "T2": 0.05759005785890181,
+     "T_magnitude": 0.29943343423859115,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 2,
+     "rho_lo": 0.3290756604011163,
+     "rho_hi": 0.6525118326050942,
+     "n_frames": 40,
+     "C1": 0.08470908555710413,
+     "C2": 0.15760373732753072,
+     "se_C1": 0.004285303422534709,
+     "se_C2": 0.008509218428669713,
+     "fixed_magnitude": 0.17892615011653853,
+     "fixed_axis_deg": 29.137244110863367,
+     "fixed_axis_se_deg": 1.8101624393602842,
+     "T1": 0.2918572836776284,
+     "T2": 0.05676348438013819,
+     "T_magnitude": 0.2973260284513582,
+     "T_axis_deg": 0.0
+    },
+    {
+     "bin": 3,
+     "rho_lo": 0.6525118326050942,
+     "rho_hi": 0.9759480048090721,
+     "n_frames": 40,
+     "C1": 0.22947216533877376,
+     "C2": 0.15055159846058494,
+     "se_C1": 0.012725679775707342,
+     "se_C2": 0.015356378168972847,
+     "fixed_magnitude": 0.2744508306861226,
+     "fixed_axis_deg": 15.189296993057644,
+     "fixed_axis_se_deg": 1.9298997863645497,
+     "T1": 0.3051281337280449,
+     "T2": 0.04967105918890859,
+     "T_magnitude": 0.30914461359258344,
+     "T_axis_deg": 0.0
+    }
+   ],
+   "axis_constancy": {
+    "axes_deg": [
+     16.341512320654388,
+     29.137244110863367,
+     15.189296993057644
+    ],
+    "ses_deg": [
+     1.4655254985794577,
+     1.8101624393602842,
+     1.9298997863645497
+    ],
+    "span_deg": 13.947947117805723,
+    "weighted_mean_deg": 19.801338281918216,
+    "chi2": 37.884248097179565,
+    "dof": 2,
+    "rejects_constant_axis_95pct": true
+   },
+   "constancy_fit": {
+    "f": 9.334574664247093,
+    "f_se": 0.9154246007578983,
+    "K1": -2.6118525519025497,
+    "K2": -0.38421666876753413,
+    "K_magnitude": 2.6399614015054618,
+    "K_axis_deg": -85.81576102692283,
+    "chi2": 140.21070839881807,
+    "dof": 3,
+    "chi2_per_dof": 46.73690279960602,
+    "design_condition": 322.08601075869063,
+    "no_trail_f0": {
+     "chi2": 244.18929484706524,
+     "dof": 4,
+     "K": [
+      0.1276171887378266,
+      0.13903579320860793
+     ]
+    },
+    "full_trail_f1": {
+     "chi2": 223.10444645954,
+     "dof": 4,
+     "K": [
+      -0.1658583941543411,
+      0.08298048476694103
+     ]
+    }
+   }
+  }
+ },
+ "debayered_N40_rebinned_to_3": {
+  "bins": [
+   {
+    "bin": 1,
+    "rho_lo": 0.0031896953815327596,
+    "rho_hi": 0.33011048519310404,
+    "n_frames": 40,
+    "C1": 0.5765721599902486,
+    "C2": 0.2585223017476741,
+    "se_C1": 0.014134169341523969,
+    "se_C2": 0.025948727003357448,
+    "fixed_magnitude": 0.6318775484037522,
+    "fixed_axis_deg": 11.456468155078632,
+    "fixed_axis_se_deg": 1.3945264853180324,
+    "T1": 1.1702849665034487,
+    "T2": 0.22549169339266548,
+    "T_magnitude": 1.1918109777196508,
+    "T_axis_deg": 0.0
+   },
+   {
+    "bin": 2,
+    "rho_lo": 0.33011048519310404,
+    "rho_hi": 0.6570312750046754,
+    "n_frames": 40,
+    "C1": 0.5124852928787466,
+    "C2": 0.4504007534669074,
+    "se_C1": 0.013549865814095114,
+    "se_C2": 0.022721296139995642,
+    "fixed_magnitude": 0.6822770801811918,
+    "fixed_axis_deg": 19.46956779129083,
+    "fixed_axis_se_deg": 1.5578585196167627,
+    "T1": 1.189034966883545,
+    "T2": 0.23882846843580818,
+    "T_magnitude": 1.2127832410645962,
+    "T_axis_deg": 0.0
+   },
+   {
+    "bin": 3,
+    "rho_lo": 0.6570312750046754,
+    "rho_hi": 0.9839520648162468,
+    "n_frames": 40,
+    "C1": 0.8921660037256333,
+    "C2": 0.4562643592553707,
+    "se_C1": 0.01742315536514126,
+    "se_C2": 0.02438903239315983,
+    "fixed_magnitude": 1.002066536578525,
+    "fixed_axis_deg": 12.986087031348955,
+    "fixed_axis_se_deg": 0.9393209779984024,
+    "T1": 1.2222183350532272,
+    "T2": 0.24014432045308273,
+    "T_magnitude": 1.2455869914165592,
+    "T_axis_deg": 0.0
+   }
+  ],
+  "axis_constancy": {
+   "axes_deg": [
+    11.456468155078632,
+    19.46956779129083,
+    12.986087031348955
+   ],
+   "ses_deg": [
+    1.3945264853180324,
+    1.5578585196167627,
+    0.9393209779984024
+   ],
+   "span_deg": 8.0130996362122,
+   "weighted_mean_deg": 13.90126291845279,
+   "chi2": 16.79859263191245,
+   "dof": 2,
+   "rejects_constant_axis_95pct": true
+  },
+  "constancy_fit": {
+   "f": 6.561269778186189,
+   "f_se": 0.4234795409329247,
+   "K1": -7.1821487316452775,
+   "K2": -1.1479036187887806,
+   "K_magnitude": 7.273303453143025,
+   "K_axis_deg": -85.45968497030194,
+   "chi2": 115.62841183831954,
+   "dof": 3,
+   "chi2_per_dof": 38.54280394610651,
+   "design_condition": 121.71881915316374,
+   "no_trail_f0": {
+    "chi2": 355.68350384582527,
+    "dof": 4,
+    "K": [
+     0.6268077204966025,
+     0.39649298535613126
+    ]
+   },
+   "full_trail_f1": {
+    "chi2": 288.08629829891214,
+    "dof": 4,
+    "K": [
+     -0.5633516108730345,
+     0.16111223492891008
+    ]
+   }
+  }
+ },
+ "OUTCOME_2_ch0_vs_debayered": {
+  "a": "CFA_ch0",
+  "b": "debayered_N40",
+  "n_bins": 3,
+  "diff_deg": [
+   7.45176595127198,
+   6.935961556584775,
+   3.9890722197175528
+  ],
+  "se_deg": [
+   2.1361084897560167,
+   2.629972197469209,
+   1.4160952335616266
+  ],
+  "chi2": 27.059914732174335,
+  "dof": 3,
+  "agree_at_95pct": false,
+  "max_abs_diff_deg": 7.45176595127198
+ },
+ "OUTCOME_2_ch3_vs_debayered": {
+  "a": "CFA_ch3",
+  "b": "debayered_N40",
+  "n_bins": 3,
+  "diff_deg": [
+   4.885044165575756,
+   9.667676319572536,
+   2.203209961708689
+  ],
+  "se_deg": [
+   2.0229851964955237,
+   2.3882234451602944,
+   2.1463543708152693
+  ],
+  "chi2": 23.271600165520486,
+  "dof": 3,
+  "agree_at_95pct": false,
+  "max_abs_diff_deg": 9.667676319572536
+ },
+ "OUTCOME_1_G1_vs_G2": {
+  "a": "ch0",
+  "b": "ch3",
+  "n_bins": 3,
+  "diff_deg": [
+   2.566721785696224,
+   -2.7317147629877603,
+   1.785862258008864
+  ],
+  "se_deg": [
+   2.1831216981059107,
+   2.786847439166569,
+   2.201707291221523
+  ],
+  "chi2": 3.001048660338949,
+  "dof": 3,
+  "agree_at_95pct": true,
+  "max_abs_diff_deg": 2.7317147629877603
+ },
+ "HEADLINE": {
+  "DEVIATION_FROM_THE_PRE_REGISTRATION_declared": {
+   "what": "the pre-registration named 5 rho bins (chi2 threshold 11.07 at 5 dof). This ran THREE bins, so outcome 1's threshold is 7.81 at 3 dof.",
+   "why": "forced by statistics, not chosen: the half-sized CFA grid carries ~1000 stars per frame per channel against the debayered ~7000, and at five bins the OUTER bins \u2014 where the rotation lives \u2014 collapsed below the per-frame floor on every channel. The debayered arm was RE-BINNED to three as well, so outcome 2 is like-for-like rather than 3 read against 5.",
+   "does_it_change_a_conclusion": "no. Outcome 1 reads chi2 3.00 and passes at either threshold (7.81 or 11.07)."
+  },
+  "OUTCOME_1_THE_FREE_NULL_PASSES": {
+   "result": "G1 vs G2: chi2 3.00 on 3 dof, max |axis difference| 2.73 deg -> AGREE",
+   "reads": "the CFA lattice injects NO directional term. Two independent green samplings, diagonally offset, at identical sampling and identical processing, give the same per-bin axes. The grid is clean, so outcome 2 may be read.",
+   "and_the_greens_had_to_be_found_by_the_data": "BAYERPAT=RGGB plus split_cfa's raster order reads as channels 1 and 2 being the greens. THE DATA SAYS 0 AND 3: cross-matched star magnitudes give ch0-ch3 a median offset of -0.005 mag with MAD 0.115 over 706 matches, against 0.28-0.85 mag and ~2x the scatter for every other pair; those two also share a background median (1047) and MAD (10 ADU) where the others read 1037/9 and 1028/8, and their star counts match (496 vs 504 after the amplitude cut) where the others are 349 and 211. Reading the header would have compared R against B and called it the green null."
+  },
+  "OUTCOME_3_THE_GATE_FAILURE_SURVIVES_WITH_NO_INTERPOLATION": {
+   "result": "both greens REJECT a constant axis on the raw CFA lattice \u2014 ch0 chi2 15.8/2, ch3 chi2 37.9/2; constancy fit chi2/dof 28.2 and 46.7. The non-green ch1 rejects too (10.6/2).",
+   "reads": "THE NAMED ALTERNATIVE IS REFUTED AS AN EXPLANATION. It held that an unmodelled rho-dependent demosaic term produces the non-constancy. Remove the demosaic entirely and the non-constancy PERSISTS, so the demosaic is not necessary to produce it. 'No field-constant optical component' now stands on an interpolation-free measurement, and corner-fix-landscape's rl -loadpsf= route stays failed."
+  },
+  "OUTCOME_2_THE_GRIDS_DIFFER_AND_THAT_DOES_NOT_ATTRIBUTE": {
+   "result": "CFA axes sit consistently HIGHER than debayered: ch0 +7.45/+6.94/+3.99 deg, chi2 27.1/3; ch3 +4.89/+9.67/+2.20, chi2 23.3/3. Both greens differ from debayered in the same direction while agreeing with each other.",
+   "reads": "AMBIGUOUS, exactly as pre-registered, between 'the demosaic was doing something' and 'severe undersampling is doing something' (S goes 0.83 -> 0.415, across Kannawadi's 0.5). This arm cannot separate them and does NOT attribute. What it establishes is a bound: whatever the difference is, it shifts the measured axis by a few degrees and does not create or destroy the rotation."
+  },
+  "NET": "the rotation and the gate failure are REAL on a measurement with no interpolation anywhere. The demosaic alternative dies as an explanation of them. A few-degree axis offset between the two grids remains, unattributed and unattributable by this design."
+ }
+}

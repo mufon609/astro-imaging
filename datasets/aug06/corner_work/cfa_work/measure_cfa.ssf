@@ -1,0 +1,8 @@
+requires 1.4.4
+set16bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/frames_work/raw
+convert c -out=/home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/cfa_work
+cd /home/samsung/Desktop/astro-imaging/datasets/aug06/corner_work/cfa_work
+seqsplit_cfa c

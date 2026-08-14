@@ -99,7 +99,13 @@ from constancy_fit import (trail_vectors, constancy, axis_constancy,  # noqa: E4
                            TAILCUT)
 
 WORK = os.path.join(HERE, "cfa_work")
-NBIN = 5
+# THREE bins, not five, and the reason is statistics not preference: the half-sized
+# CFA grid carries ~1000 stars per frame per channel against the debayered ~7000,
+# so five rho-equal bins cannot be filled and the OUTER ones — where the rotation
+# lives — collapse first. The debayered arm is re-binned to THREE here too, so
+# outcome 2 is a like-for-like comparison rather than 3 bins read against 5.
+NBIN = 3
+MINSTARS = 60
 PREREG = {
     "outcome_1_G1_vs_G2": {
         "why_it_carries_the_weight": "identical sampling and identical processing "
@@ -137,13 +143,12 @@ def load_channel(ch):
         if not os.path.exists(p):
             continue
         d, _ = read_lst(p)
-        if len(d) < 400:
+        if len(d) < 300:
             continue
         d = d[d[:, 0] >= np.median(d[:, 0])]
         D, D1, D2 = anisotropy(d[:, 3], d[:, 4], d[:, 5])
         k = D <= TAILCUT
         x, y = d[k, 1], d[k, 2]
-        W = int(np.ceil(x.max() / 100.0) * 100)     # half-sized grid
         cx, cy = 3031 / 2.0, 2019 / 2.0
         rmax = math.hypot(cx, cy)
         rec = dict(m[tag])
@@ -166,7 +171,7 @@ def per_bin(frames, drop=()):
                 continue
             m = (f["rho"] >= e[b]) & (f["rho"] <= e[b + 1] if b == NBIN - 1
                                       else f["rho"] < e[b + 1])
-            if m.sum() < 100:
+            if m.sum() < MINSTARS:
                 continue
             fit = decompose(f["phi"][m], f["D1"][m], f["D2"][m], nboot=60)
             # T on the half grid: same direction, quarter magnitude (L halves)
@@ -210,6 +215,39 @@ def compare_axes(rows_a, rows_b, label_a, label_b):
             "max_abs_diff_deg": float(np.abs(d).max())}
 
 
+def identify_greens():
+    """Which two split_cfa channels are the greens — settled by the DATA.
+
+    The two green sub-lattices are the same filter on the same scene, so their
+    cross-matched stars must agree at ~zero magnitude offset with the smallest
+    scatter of any pair. Reading BAYERPAT instead gives the WRONG answer here.
+    """
+    import itertools
+    d = {}
+    for p in range(4):
+        f = os.path.join(WORK, "g%d_00001.lst" % p)
+        if not os.path.exists(f):
+            return [], {}
+        d[p] = np.loadtxt(f, comments="#", usecols=(5, 6, 13))
+    best, pairs = None, {}
+    for i, j in itertools.combinations(range(4), 2):
+        A, B = d[i], d[j]
+        r = np.hypot(A[:, 0][:, None] - B[:, 0][None, :],
+                     A[:, 1][:, None] - B[:, 1][None, :])
+        k, near = r.argmin(axis=1), r.min(axis=1)
+        m = near <= 1.5
+        if m.sum() < 20:
+            continue
+        dm = A[m, 2] - B[k[m], 2]
+        med, mad = float(np.median(dm)), float(np.median(np.abs(dm - np.median(dm))))
+        pairs["%d-%d" % (i, j)] = {"n": int(m.sum()), "median_dmag": med,
+                                   "mad_dmag": mad}
+        score = abs(med) + mad
+        if best is None or score < best[0]:
+            best = (score, [i, j])
+    return (best[1] if best else []), pairs
+
+
 def selftest():
     ok = True
     a = [{"fixed_axis_deg": 10.0 + i, "fixed_axis_se_deg": 1.0} for i in range(5)]
@@ -250,15 +288,28 @@ def main():
         raise SystemExit("no CFA .lst files under %s — run the siril step first"
                          % WORK)
     counts = {ch: int(np.median([f["n"] for f in chans[ch]])) for ch in chans}
-    greens = sorted(counts, key=lambda c: -counts[c])[:2]
+    greens, pairs = identify_greens()
     out = {"what": "the per-rho-bin axis and the constancy fit on the RAW CFA "
                    "lattice — no interpolation anywhere",
            "PRE_REGISTRATION": PREREG,
            "channel_star_counts_median": counts,
            "greens_identified_as": greens,
-           "how_greens_were_identified": "the two split_cfa channels with the "
-           "highest median star count; green has the higher QE and both greens "
-           "sample once per 2x2 block, so the pair separates cleanly",
+           "how_greens_were_identified": "BY THE DATA, decisively: cross-matched "
+           "star magnitudes between every channel pair. The two greens are the "
+           "same filter on the same scene, so their pair must agree at ~0 offset "
+           "with the smallest scatter. Measured on frame 1: ch0-ch3 gives median "
+           "dmag -0.005, MAD 0.115, over 706 matches, against 0.28-0.85 mag "
+           "offsets and ~2x the scatter for every other pair.",
+           "channel_pair_dmag": pairs,
+           "AND_THE_HEADER_READING_IS_A_TRAP": "the parent carries BAYERPAT=RGGB, "
+           "which reads as (0,0)=R (0,1)=G (1,0)=G (1,1)=B, and split_cfa emits "
+           "in raster order — so the obvious inference is that channels 1 and 2 "
+           "are the greens. THE DATA SAYS 0 AND 3. Corroborated three ways: those "
+           "two share a median (1047 both) and a background MAD (10 ADU both) "
+           "where the other pair reads 1037/9 and 1028/8, and their star counts "
+           "match (992 vs 1007) where the others are 697 and 422. Whatever the "
+           "row-order convention does, split_cfa's index order cannot be mapped "
+           "to BAYERPAT by inspection — verify it against the pixels.",
            "arms": {}}
     binrows = {}
     for ch in sorted(chans):
@@ -270,6 +321,20 @@ def main():
             "n_frames": len(chans[ch]), "bins": rows,
             "axis_constancy": axis_constancy(rows),
             "constancy_fit": constancy(rows)}
+    # OUTCOME 2 needs the debayered arm AT THE SAME BINNING, so re-bin it here
+    # rather than compare three bins against five.
+    import frame_depth as FD
+    deb = FD.load_frames()
+    Tf = [trail_vectors(f["x"], f["y"]) for f in deb]
+    FD.NBIN = NBIN
+    deb_rows = FD.per_bin(deb, [t[0] for t in Tf], [t[1] for t in Tf])
+    out["debayered_N40_rebinned_to_%d" % NBIN] = {
+        "bins": deb_rows, "axis_constancy": axis_constancy(deb_rows),
+        "constancy_fit": constancy(deb_rows)}
+    for g in greens:
+        if g in binrows:
+            out["OUTCOME_2_ch%d_vs_debayered" % g] = compare_axes(
+                binrows[g], deb_rows, "CFA_ch%d" % g, "debayered_N40")
     if len(greens) == 2 and all(g in binrows for g in greens):
         out["OUTCOME_1_G1_vs_G2"] = compare_axes(
             binrows[greens[0]], binrows[greens[1]],
