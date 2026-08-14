@@ -1567,6 +1567,29 @@ the constraints any such tool must satisfy):
   deconvolution, availability UNVERIFIED here): `properimage` (quatrope/ProperImage),
   pip-installable.
 
+**EVERY RECORD-SCHEMA CHANGE CREATES A PRE-CHANGE GENERATION INDISTINGUISHABLE
+FROM A POST-CHANGE ONE UNLESS SOMETHING MARKS IT.** A CLASS, not an incident, and
+it applies to every schema this repo has ever changed. **MEASURED twice in one day
+in unrelated places:** `solve_field.py`'s hint-contradiction gate added
+`hint_available` and `header_scale_arcsec_px` expressly so *"a later audit replays
+it from the record instead of re-deriving the nominal"* — and they shipped WITH the
+gate, so only **43 of 195** records carry them and **the one false solve the gate
+exists for has none**. The mitigation postdated the case it was built to make
+auditable. Separately, an error-model rename left every pre-rename record carrying
+a neutrally-named SE no reader can attribute to a model.
+**THE GENERAL MITIGATION, arrived at for a specific case:** label BOTH sides and
+make the consumer REFUSE a mixed set. The error-model fix does exactly that — each
+row declares its `error_model` and the resolver refuses rows that mix models or
+omit the label, so a pre-change record fails LOUDLY rather than being silently
+averaged with a post-change one. **A schema change without that leaves a silent
+generation boundary; with it, the boundary is a hard stop.**
+**COROLLARY THAT MOVES OTHER ITEMS' DISPOSITIONS: the record layer is not a
+complete census of what was run.** MEASURED: **145 distinct solves on disk** against
+a register claiming ~68 and a shipped script claiming 68 then 67, none
+reconcilable. So any claim of the form "we measured N of these" carries an unstated
+and demonstrably wrong denominator. **Read every such row as a SAMPLE, never as
+COVERAGE, unless the census is stated and checkable.**
+
 **Tool state / plumbing** (a persisted preference and a dropped header are both
 SILENT — pin the state, never inherit it):
 - **Siril `stat` prints `Sigma: -nan` on a ZERO-VARIANCE selection, and a

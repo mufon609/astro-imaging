@@ -122,10 +122,16 @@ astroquery==0.4.11
 # capability — spcc_cone.py works — but it is 2 packages and closes a register row.
 astropy_healpix==2.0.1
 
-# --- The astropy-native reprojector, and unlike SWarp it CONSUMES SIP directly
-# through astropy's WCS, so it needs no conversion step at all. That makes it the
-# independent second arm for BACKLOG:compose-homography-smear rather than only a
-# fallback for the branch where the TPV route fails.
+# --- The astropy-native reprojector, and unlike SWarp it CONSUMES SIP directly.
+# SOURCE-VERIFIED, not inferred (2026-08-14): `reproject/spherical_intersect/
+# _core.py:78` calls `wcs_in.pixel_to_world(...)`, and astropy's
+# `FITSWCSAPIMixin.pixel_to_world_values` resolves to **`all_pix2world`** — the
+# SIP-AWARE path, where `wcs_pix2world` is the SIP-blind one. **That is the SAME
+# FORK SWarp GETS WRONG**, and reproject takes the other branch. So it needs no
+# conversion step at all, which makes it a genuinely INDEPENDENT second arm for
+# BACKLOG:`compose-homography-smear` rather than a fallback for the branch where
+# the TPV route fails — two routes that fail differently are worth more than two
+# that share a blind spot.
 reproject==0.21.0
 
 # --- DES Y3's replacement for PSFEx, modelling the PSF in SKY rather than pixel
