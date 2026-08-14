@@ -158,7 +158,11 @@ def to_siril_frame(x, y, e1, e2):
     return x, (CANVAS_H - y), e1, -np.asarray(e2)
 
 
-def fit_field(x, y, e1, e2, label, nboot=300):
+def fit_field(x, y, e1, e2, label, nboot=300, frame=None):
+    """`frame` — per-row labels when the sample POOLS frames. This function is
+    called BOTH per-frame (frame=None, correct) and on the concatenated
+    `per["POOLED"]` catalogue, where a star bootstrap inside the pool is the
+    understating error model."""
     cx, cy = (CANVAS_W - 1) / 2.0, (CANVAS_H - 1) / 2.0
     phi = azimuth(x, y, cx, cy)
     rho = np.hypot(x - cx, y - cy) / np.hypot(cx, cy)
@@ -456,14 +460,17 @@ def main():
             allrows.append((mx, my, me1, me2, sir[idx, 1], sir[idx, 2], se1, se2))
         if allrows:
             cat = [np.concatenate([r[k] for r in allrows]) for k in range(8)]
+            catfr = np.concatenate([np.full(len(r[0]), i)
+                                    for i, r in enumerate(allrows)])
             per["POOLED"] = {
                 "n": int(len(cat[0])),
                 "corr_e1": float(np.corrcoef(cat[2], cat[6])[0, 1]),
                 "corr_e2": float(np.corrcoef(cat[3], cat[7])[0, 1]),
                 "psfex_field_fit": fit_field(cat[0], cat[1], cat[2], cat[3],
-                                             "pooled psfex deg%d" % deg),
+                                             "pooled psfex deg%d" % deg,
+                                             frame=catfr),
                 "siril_field_fit": fit_field(cat[4], cat[5], cat[6], cat[7],
-                                             "pooled siril"),
+                                             "pooled siril", frame=catfr),
             }
         rec["degrees"]["deg%d" % deg] = per
 

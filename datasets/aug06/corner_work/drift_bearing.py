@@ -127,11 +127,16 @@ def match_and_bearing(a, b, tol=2.0):
 def theta0_of(frames):
     """The fixed-direction term's angle, from the spin-2 fit over pooled frames."""
     d = np.vstack(frames)
+    # np.vstack is where frame identity dies, so the label is built BEFORE it.
+    # Without it the SE here is a star-level bootstrap inside a pooled sample,
+    # which understates a per-frame property by a measured 4-9x.
+    fr = np.concatenate([np.full(len(a), i) for i, a in enumerate(frames)])
     A, x, y, maj, mnr, th = d.T
     cx, cy = (CANVAS_W - 1) / 2.0, (CANVAS_H - 1) / 2.0
     phi = azimuth(x, y, cx, cy)
     _, e1, e2 = components(maj, mnr, th)
-    f = decompose(phi, e1, e2, None, nboot=300)
+    f = decompose(phi, e1, e2, None, nboot=300,
+                  frame=fr if len(frames) > 1 else None)
     return f
 
 

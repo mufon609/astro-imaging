@@ -404,16 +404,21 @@ def bins(out_path, nbin=5):
     # over the 5 constituent raws -> 17 762 stars, which that commit states.
     paths = [os.path.join(MEMRAW, "k_0000%d.lst" % i) for i in range(1, 6)]
     paths = [p for p in paths if os.path.exists(p)]
-    parts = []
-    for p in paths:
+    parts, fparts = [], []
+    for fi, p in enumerate(paths):
         dd, _ = read_lst(p)
-        parts.append(dd[dd[:, 0] >= np.median(dd[:, 0])])
+        cut = dd[dd[:, 0] >= np.median(dd[:, 0])]
+        parts.append(cut)
+        # the per-row frame label, built BEFORE vstack destroys the identity
+        fparts.append(np.full(len(cut), fi))
     d = np.vstack(parts)
+    fr_all = np.concatenate(fparts)
     major, minor, theta = d[:, 3], d[:, 4], d[:, 5]
     D, D1, D2 = anisotropy(major, minor, theta)
     keep = D <= 6.0                      # the validated tail cut
     x, y = d[:, 1][keep], d[:, 2][keep]
     D, D1, D2, theta = D[keep], D1[keep], D2[keep], theta[keep]
+    fr_all = fr_all[keep]
     phi = np.arctan2(y - cy, x - cx)
     rho = np.hypot(x - cx, y - cy) / rmax
     pooled_mag, pooled_axis, _, _ = coherent(D1, D2)
@@ -425,7 +430,10 @@ def bins(out_path, nbin=5):
         m = (rho >= lo) & (rho <= hi if i == nbin - 1 else rho < hi)
         if m.sum() < 200:
             continue
-        fit = decompose(phi[m], D1[m], D2[m])
+        # frame= : this population POOLS 5 raws, so the honest per-bin error bar
+        # is the between-frame scatter, not a star bootstrap inside the pool.
+        fit = decompose(phi[m], D1[m], D2[m],
+                        frame=fr_all[m] if len(paths) > 1 else None)
         C1, C2 = fit["fixed_c0"], fit["fixed_s0"]
         proj_fixed = (C1 * np.cos(np.radians(2 * pooled_axis))
                       + C2 * np.sin(np.radians(2 * pooled_axis)))

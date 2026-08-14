@@ -635,7 +635,15 @@ def population(d, W, H, which):
 # one measurement, end to end
 # --------------------------------------------------------------------------
 
-def measure(d, W, H, form="distortion", nboot=400, label="", nperm=200):
+def measure(d, W, H, form="distortion", nboot=400, label="", nperm=200,
+            frame=None):
+    """`frame` — per-row source-frame labels, when the sample POOLS frames.
+
+    Supplying it makes `decompose` return `*_frame_based` SEs beside the
+    `*_star_bootstrap` ones, plus `se_ratio_frame_over_bootstrap`. It is
+    optional because this function is also called on single-frame FIXTURES,
+    where a frame-based SE is undefined and `decompose` refuses.
+    """
     cx, cy = (W - 1) / 2.0, (H - 1) / 2.0
     A, x, y, major, minor, theta = d.T
     phi = azimuth(x, y, cx, cy)
@@ -643,8 +651,8 @@ def measure(d, W, H, form="distortion", nboot=400, label="", nperm=200):
     e, e1, e2 = components(major, minor, theta, form)
     et, ex = tangential(phi, e1, e2)
 
-    flat = decompose(phi, e1, e2, None, nboot)
-    grow = decompose(phi, e1, e2, rho, nboot)
+    flat = decompose(phi, e1, e2, None, nboot, frame=frame)
+    grow = decompose(phi, e1, e2, rho, nboot, frame=frame)
     rows = sector_table(phi, theta, e)
 
     n = len(A)
@@ -1060,23 +1068,34 @@ def materialise_sample_a():
 
 
 def load_sample_a():
+    """-> (rows, params, frame). `frame` is the per-ROW source-file label.
+
+    It exists because `np.vstack` is where frame identity dies, and a per-bin SE
+    computed on the pooled result without it understates the uncertainty by a
+    measured 4-9x (fixed term 5.56x here). The label costs one array and makes
+    the honest error bar available to `decompose(frame=...)`.
+    """
     materialise_sample_a()
-    out, params = [], []
+    out, params, frame = [], [], []
     for p in sorted(glob.glob(os.path.join(HERE, SAMPLE_A, "*.lst"))):
         d, pr = read_lst(p)
         out.append(d)
         params.append((os.path.basename(p), pr))
-    return np.vstack(out), params
+        frame.append(np.full(len(d), os.path.basename(p), dtype=object))
+    return np.vstack(out), params, np.concatenate(frame)
 
 
 def load_sample_b():
-    out, params = [], []
+    """-> (rows, params, frame). See load_sample_a for why `frame` is carried."""
+    out, params, frame = [], [], []
     for session, setname, fn in SAMPLE_B:
         p = os.path.join(DATASETS, session, setname, "psf_work", fn)
         d, pr = read_lst(p)
         out.append(d)
         params.append((fn, pr))
-    return np.vstack(out), params
+        frame.append(np.full(len(d), "%s/%s/%s" % (session, setname, fn),
+                             dtype=object))
+    return np.vstack(out), params, np.concatenate(frame)
 
 
 def main():
@@ -1104,8 +1123,8 @@ def main():
         "canvas": [W, H],
     }
 
-    da, pa_params = load_sample_a()
-    db, pb_params = load_sample_b()
+    da, pa_params, da_frame = load_sample_a()
+    db, pb_params, db_frame = load_sample_b()
 
     rec["samples"] = {
         "a_compose_homography_smear": {
@@ -1207,7 +1226,8 @@ def main():
     }
 
     # ---------------- sample (a) full, and per night, for the record --------
-    rec["sample_a_full"] = measure(da, W, H, label="sample a, all 136k")
+    rec["sample_a_full"] = measure(da, W, H, label="sample a, all 136k",
+                                  frame=da_frame)
     per = {}
     for p in sorted(glob.glob(os.path.join(HERE, SAMPLE_A, "*.lst"))):
         key = os.path.basename(p).rsplit("_", 1)[0]
@@ -1267,7 +1287,9 @@ def main():
     # Reported on the ellipticity RATIO and on the UNNORMALISED second-moment
     # difference, because a ratio's denominator moves with seeing and with the
     # trail and can fake a change in the numerator.
-    def annular_profile(dd):
+    def annular_profile(dd, frame=None):
+        """`frame` — per-row labels when `dd` POOLS frames (it does at both
+        call sites: np.vstack(v) per set, and `da` across the whole sample)."""
         A, xx, yy, maj, mnr, th = dd.T
         cx, cy = (W - 1) / 2.0, (H - 1) / 2.0
         rho = np.hypot(xx - cx, yy - cy) / np.hypot(cx, cy)
@@ -1283,8 +1305,9 @@ def main():
             m = (rho >= lo) & (rho < hi)
             if m.sum() < 300:
                 continue
-            f = decompose(phi[m], e1[m], e2[m], None, nboot=120)
-            g = decompose(phi[m], u1[m], u2[m], None, nboot=120)
+            fm = None if frame is None else np.asarray(frame)[m]
+            f = decompose(phi[m], e1[m], e2[m], None, nboot=120, frame=fm)
+            g = decompose(phi[m], u1[m], u2[m], None, nboot=120, frame=fm)
             rows.append({"rho_mid": float(np.median(rho[m])), "n": int(m.sum()),
                          "R_ratio": f["radial_R"],
                          "R_ratio_SE_units_star_bootstrap": f["radial_SE_units_star_bootstrap"],
@@ -1317,7 +1340,7 @@ def main():
                "through zero at it, so a set sitting near zero and a negative R "
                "anywhere are both astigmatism signatures.",
         "per_set": {k: annular_profile(np.vstack(v)) for k, v in sorted(per.items())},
-        "sample_a_all": annular_profile(da),
+        "sample_a_all": annular_profile(da, frame=da_frame),
     }
 
     # ---------------- ARM 7: does theta0 really move between frames? --------

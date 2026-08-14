@@ -84,12 +84,15 @@ def population():
     acq = json.load(open(os.path.join(os.path.dirname(HERE), "set-01",
                                       "acquisition.json")))["exif"]
     W, H = acq["image_wh"]
-    parts = []
+    parts, fparts = [], []
     for i in range(1, 6):
         p = os.path.join(MEMRAW, "k_0000%d.lst" % i)
         d, _ = read_lst(p)
-        parts.append(d[d[:, 0] >= np.median(d[:, 0])])
+        cut = d[d[:, 0] >= np.median(d[:, 0])]
+        parts.append(cut)
+        fparts.append(np.full(len(cut), i))    # label BEFORE vstack
     d = np.vstack(parts)
+    fr_all = np.concatenate(fparts)
     D, D1, D2 = anisotropy(d[:, 3], d[:, 4], d[:, 5])
     k = D <= TAILCUT
     x, y = d[k, 1], d[k, 2]
@@ -97,7 +100,8 @@ def population():
     rmax = math.hypot(cx, cy)
     return {"x": x, "y": y, "D": D[k], "D1": D1[k], "D2": D2[k],
             "theta": d[k, 5], "phi": np.arctan2(y - cy, x - cx),
-            "rho": np.hypot(x - cx, y - cy) / rmax, "W": W, "H": H}
+            "rho": np.hypot(x - cx, y - cy) / rmax, "W": W, "H": H,
+            "frame": fr_all[k]}
 
 
 def trail_vectors(x, y):
@@ -258,7 +262,13 @@ def run_bins(pop, T1, T2, mode, n=5):
         m = (rho >= e[i]) & (rho <= e[i + 1] if i == n - 1 else rho < e[i + 1])
         if m.sum() < 200:
             continue
-        fit = decompose(pop["phi"][m], pop["D1"][m], pop["D2"][m])
+        # This arm POOLS the five raws. It stays the star_bootstrap arm by
+        # design — the contrast against run_bins_perframe IS the finding — but
+        # frame= makes the frame-based SE available beside it, so the ratio is
+        # visible per bin instead of only across the two functions.
+        fit = decompose(pop["phi"][m], pop["D1"][m], pop["D2"][m],
+                        frame=pop.get("frame")[m] if pop.get("frame") is not None
+                        else None)
         rows.append({
             "bin": i + 1, "rho_lo": float(e[i]), "rho_hi": float(e[i + 1]),
             "rho_median": float(np.median(rho[m])), "n": int(m.sum()),
