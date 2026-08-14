@@ -1,0 +1,153 @@
+{
+  "_what": "sirilpy analyse_image_from_file, raw output. MEASURES ONLY.",
+  "_quantity_note": "bgnoise is RMS background NOISE (models.py:1429). It is NOT records.jsonl's `bg`, which is a LEVEL. Not interchangeable.",
+  "n_ok": 12,
+  "n_failed": 0,
+  "rows": [
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00001.fit",
+      "seconds": 0.3023,
+      "bgnoise": 0.0001237782929807518,
+      "fwhm": 2.2294876684245724,
+      "wfwhm": 0.0,
+      "nbstars": 1271,
+      "roundness": 0.7805449979489316,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00002.fit",
+      "seconds": 0.3047,
+      "bgnoise": 0.00012506653403890483,
+      "fwhm": 2.240578445450273,
+      "wfwhm": 0.0,
+      "nbstars": 1271,
+      "roundness": 0.7843195537044941,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00003.fit",
+      "seconds": 0.3032,
+      "bgnoise": 0.00012432405333955558,
+      "fwhm": 2.2320984213951176,
+      "wfwhm": 0.0,
+      "nbstars": 1247,
+      "roundness": 0.7838740736390439,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00004.fit",
+      "seconds": 0.3109,
+      "bgnoise": 0.00012384577011039684,
+      "fwhm": 2.21776709394494,
+      "wfwhm": 0.0,
+      "nbstars": 1288,
+      "roundness": 0.7829903115609204,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00005.fit",
+      "seconds": 0.2952,
+      "bgnoise": 0.00012443378478910338,
+      "fwhm": 2.2315452915469574,
+      "wfwhm": 0.0,
+      "nbstars": 1256,
+      "roundness": 0.7880306986116355,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00006.fit",
+      "seconds": 0.3078,
+      "bgnoise": 0.00012368493825438092,
+      "fwhm": 2.228157477341492,
+      "wfwhm": 0.0,
+      "nbstars": 1258,
+      "roundness": 0.7842149250539094,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00007.fit",
+      "seconds": 0.302,
+      "bgnoise": 0.00012366605781420886,
+      "fwhm": 2.231908714621605,
+      "wfwhm": 0.0,
+      "nbstars": 1270,
+      "roundness": 0.7829128537645643,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00008.fit",
+      "seconds": 0.295,
+      "bgnoise": 0.00012373168709492544,
+      "fwhm": 2.210930532738267,
+      "wfwhm": 0.0,
+      "nbstars": 1274,
+      "roundness": 0.7819028666792248,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00009.fit",
+      "seconds": 0.2865,
+      "bgnoise": 0.00012376352306351878,
+      "fwhm": 2.231011337131148,
+      "wfwhm": 0.0,
+      "nbstars": 1258,
+      "roundness": 0.7784502648787035,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00010.fit",
+      "seconds": 0.2938,
+      "bgnoise": 0.00012428198678738104,
+      "fwhm": 2.2315457166930677,
+      "wfwhm": 0.0,
+      "nbstars": 1249,
+      "roundness": 0.7836389999295723,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00011.fit",
+      "seconds": 0.289,
+      "bgnoise": 0.00012414615197836698,
+      "fwhm": 2.2206731063471192,
+      "wfwhm": 0.0,
+      "nbstars": 1290,
+      "roundness": 0.786645769591685,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/datasets/aug09/set-05/sirilpy_work/deb/c_00012.fit",
+      "seconds": 0.2968,
+      "bgnoise": 0.00012365218908406088,
+      "fwhm": 2.2308126677834865,
+      "wfwhm": 0.0,
+      "nbstars": 1284,
+      "roundness": 0.783906436136318,
+      "width": 6064,
+      "height": 4040,
+      "channels": 3
+    }
+  ],
+  "failures": []
+}

@@ -268,3 +268,12 @@ datasets/aug06/corner_work/kappa_work/
 **/cfa_work/*
 !**/cfa_work/*.json
 !**/cfa_work/*.ssf
+
+# sirilpy_work/ (under datasets/<session>/<set>/) holds the analyse_image_from_file
+# probe. The debayered FITS (1.7 GB for 12 frames) are derived data and are deleted
+# after the run; the generated .ssf carry ABSOLUTE paths and are recorded inside the
+# JSON instead of tracked, so nothing machine-local enters the tree. The probe script
+# and the records ARE the record.
+**/sirilpy_work/*
+!**/sirilpy_work/*.json
+!**/sirilpy_work/*.py

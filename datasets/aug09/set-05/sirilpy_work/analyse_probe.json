@@ -1,0 +1,72 @@
+{
+  "_what": "DIAGNOSTIC PROBE of sirilpy `analyse_image_from_file` against the values run_frame_qa.sh already records. MEASURES ONLY \u2014 nothing wired, no intake table built, no gate.",
+  "_verdict": "NOT EQUIVALENT and NOT FASTER. Roundness agrees; star count and FWHM do not; the raw arm is disqualified outright.",
+  "commit_measured_at": "4f6eaa0",
+  "scope": {
+    "session": "aug09",
+    "set": "set-05",
+    "n_frames": 12,
+    "frames": "first 12 of the set with both a record and a staged raw",
+    "limit": "one set, one night, 12 frames. Timing at n=12; register -2pass is a SEQUENCE operation and its per-frame cost need not scale as this."
+  },
+  "what_the_record_actually_measures": {
+    "finding": "records.jsonl NAMES a raw (DSC_1265.NEF) but its numbers are NOT measured on that raw.",
+    "mechanism": "run_frame_qa.sh:108 runs `convert c -debayer` then `register c -2pass`; the register log prints `Found 1482 Gaussian profile stars in image, channel #1 (FWHM 2.695465)`, reproducing the recorded nstars/fwhm exactly.",
+    "consequence": "a one-arm comparison against the NEF confounds ESTIMATOR with SAMPLING, so two arms were run."
+  },
+  "arm_1_raw_nef": {
+    "channels": 1,
+    "geometry": "6064x4040",
+    "finding": "loading a NEF gives the CFA MOSAIC, not a debayered image \u2014 channels=1.",
+    "ratio_vs_recorded": {
+      "nbstars": 0.1508,
+      "fwhm": 0.8592,
+      "roundness": 0.9061
+    },
+    "verdict": "DISQUALIFIED as a drop-in: it finds ~15% of the recorded stars."
+  },
+  "arm_2_debayered": {
+    "channels": 3,
+    "geometry": "6064x4040",
+    "ratio_vs_recorded": {
+      "nbstars": 0.8554,
+      "fwhm": 0.8256,
+      "roundness": 0.9932
+    },
+    "verdict": "roundness agrees to 0.7%; star count is ~14% low and FWHM ~17% low on IDENTICAL pixels."
+  },
+  "the_gap_is_UNATTRIBUTED": {
+    "ruled_out_channel": "findstar on the same file reports channel #1 at 1482 stars / FWHM 2.695 \u2014 the recorded value \u2014 while the API reads 1271 / 2.229 on that same file.",
+    "ruled_out_persisted_state": "setfindstar reads sigma=1.00 roundness=0.50 radius=5 convergence=1 relax=off profile=Gaussian, i.e. Siril's defaults, so the persisted preference is not the difference.",
+    "status": "the API uses a different internal detection path from `findstar` at default settings on identical pixels. NOT attributed here.",
+    "discriminating_test": "sweep setfindstar sigma/roundness and see whether any setting brings findstar onto the API's numbers; if none does, the paths differ in code, not in configuration."
+  },
+  "the_quantity_trap_CONFIRMED": {
+    "api_field": "bgnoise",
+    "api_meaning": "RMS background NOISE (models.py:1429, verbatim comment)",
+    "record_field": "bg",
+    "record_meaning": "background LEVEL",
+    "api_bgnoise_median": 0.000124,
+    "recorded_bg_median": 1064.8,
+    "finding": "ImageAnalysis carries NO background-level field at all. The two differ by ~7 orders of magnitude and are not the same quantity.",
+    "consequence": "the cloud signature's Z +4.05 floor is built on LEVEL. A drop-in would swap the quantity under the signature silently."
+  },
+  "timing_per_frame_seconds": {
+    "api_on_debayered_fit": 0.299,
+    "api_on_raw_nef": 0.449,
+    "register_2pass_existing_route": 0.133,
+    "convert_debayer_paid_by_both": 0.139,
+    "verdict": "the API is ~2.2x SLOWER per frame than the step it would replace, and both routes still pay the debayer."
+  },
+  "_reproduce": {
+    "note": "the .ssf are GENERATED with absolute paths and are deliberately NOT tracked \u2014 a machine-local path in a tracked file is the class CLAUDE.md's Environment section warns about. The bodies are recorded here instead.",
+    "arm_1": "requires 1.4.0 / pyscript probe_analyse.py frames.txt arm_raw.json   (frames.txt = absolute paths to the 12 NEFs)",
+    "debayer": "requires 1.2.0 / set16bits / setcompress 0 / setext fit / cd <src> / convert c -debayer -out=<deb>   (verbatim the convert run_frame_qa.sh:108 uses)",
+    "arm_2": "requires 1.4.0 / pyscript probe_analyse.py frames_deb.txt arm_deb.json",
+    "existing_route_timing": "requires 1.2.0 / set16bits / setcompress 0 / setext fit / cd <deb> / register c -2pass -transf=homography -interp=lanczos4",
+    "channel_check": "requires 1.2.0 / setext fit / cd <deb> / load c_00001 / findstar",
+    "persisted_state_check": "requires 1.2.0 / setfindstar",
+    "invoked_via": "scripts/lib/siril_run.sh siril_cli -d <workdir> -s <script>",
+    "derived_data": "1.7 GB of debayered FITS was built and deleted; only the records are kept."
+  }
+}

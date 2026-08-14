@@ -1,0 +1,153 @@
+{
+  "_what": "sirilpy analyse_image_from_file, raw output. MEASURES ONLY.",
+  "_quantity_note": "bgnoise is RMS background NOISE (models.py:1429). It is NOT records.jsonl's `bg`, which is a LEVEL. Not interchangeable.",
+  "n_ok": 12,
+  "n_failed": 0,
+  "rows": [
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1265.NEF",
+      "seconds": 0.4692,
+      "bgnoise": 0.0002820711577849137,
+      "fwhm": 2.343035503384997,
+      "wfwhm": 0.0,
+      "nbstars": 220,
+      "roundness": 0.7117108970874307,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1266.NEF",
+      "seconds": 0.4467,
+      "bgnoise": 0.00027651990502406407,
+      "fwhm": 2.353812798855853,
+      "wfwhm": 0.0,
+      "nbstars": 225,
+      "roundness": 0.7162066371878516,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1267.NEF",
+      "seconds": 0.4484,
+      "bgnoise": 0.00027897286220217386,
+      "fwhm": 2.2952772884730708,
+      "wfwhm": 0.0,
+      "nbstars": 229,
+      "roundness": 0.7057985099110305,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1268.NEF",
+      "seconds": 0.4499,
+      "bgnoise": 0.00027767911989111865,
+      "fwhm": 2.338782747066437,
+      "wfwhm": 0.0,
+      "nbstars": 227,
+      "roundness": 0.7228854107662379,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1269.NEF",
+      "seconds": 0.4413,
+      "bgnoise": 0.0002778692634071442,
+      "fwhm": 2.319680493523839,
+      "wfwhm": 0.0,
+      "nbstars": 219,
+      "roundness": 0.7046167642069053,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1270.NEF",
+      "seconds": 0.4373,
+      "bgnoise": 0.0002768553252796303,
+      "fwhm": 2.3156584527981403,
+      "wfwhm": 0.0,
+      "nbstars": 219,
+      "roundness": 0.7239936615129251,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1271.NEF",
+      "seconds": 0.4489,
+      "bgnoise": 0.00027549818289264054,
+      "fwhm": 2.3301236354389556,
+      "wfwhm": 0.0,
+      "nbstars": 233,
+      "roundness": 0.7036130973738679,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1272.NEF",
+      "seconds": 0.4634,
+      "bgnoise": 0.0002760573414735023,
+      "fwhm": 2.3066616656063395,
+      "wfwhm": 0.0,
+      "nbstars": 215,
+      "roundness": 0.7187215434030476,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1273.NEF",
+      "seconds": 0.4443,
+      "bgnoise": 0.0002786828463559905,
+      "fwhm": 2.3635871057272904,
+      "wfwhm": 0.0,
+      "nbstars": 229,
+      "roundness": 0.7203914056987716,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1274.NEF",
+      "seconds": 0.448,
+      "bgnoise": 0.0002755167775233485,
+      "fwhm": 2.3117375949468624,
+      "wfwhm": 0.0,
+      "nbstars": 218,
+      "roundness": 0.712318304715137,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1275.NEF",
+      "seconds": 0.4733,
+      "bgnoise": 0.00027559456288592677,
+      "fwhm": 2.2777212741251653,
+      "wfwhm": 0.0,
+      "nbstars": 232,
+      "roundness": 0.7126203716399588,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    },
+    {
+      "file": "/home/samsung/Desktop/astro-imaging/sessions/aug09/set-05/DSC_1276.NEF",
+      "seconds": 2.3131,
+      "bgnoise": 0.0002806461918437412,
+      "fwhm": 2.319062961147275,
+      "wfwhm": 0.0,
+      "nbstars": 207,
+      "roundness": 0.7136866163723129,
+      "width": 6064,
+      "height": 4040,
+      "channels": 1
+    }
+  ],
+  "failures": []
+}
