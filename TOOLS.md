@@ -282,6 +282,32 @@ worth more than the signal any photometric test here is chasing.**
   plane 969–22845 about a 1047 median — so the brightest pixel is ~35% of full
   well and nothing is hardware-saturated.)
 
+**`split_cfa`'s CHANNEL ORDER CANNOT BE READ OFF `BAYERPAT` — IDENTIFY THE GREENS
+FROM THE DATA, MEASURED.** `split_cfa` writes *"four distinct files (one for each
+channel)"* with no averaging or interpolation, and `seqsplit_cfa` does the same for
+a sequence (prefix `CFA_`). **The trap: `BAYERPAT=RGGB` plus raster order reads as
+channels 1 and 2 being the greens, and on this rig THE DATA SAYS 0 AND 3.**
+Measured on one aug06 raw by cross-matched star magnitudes — two greens are the
+same filter on the same scene, so their pair must agree near zero with the
+smallest scatter:
+
+| pair | median Δmag | MAD | n |
+|---|---|---|---|
+| **ch0 − ch3** | **−0.005** | **0.115** | 706 |
+| every other pair | 0.28–0.85 | ~2× the scatter | — |
+
+Corroborated independently: ch0/ch3 share a background median 1047 and MAD 10 ADU
+where ch1/ch2 read 1037/9 and 1028/8, and ch0/ch3 keep 496/504 stars against
+349/211. **Likely mechanism, FLAGGED AS UNVERIFIED to the specific mapping:** siril
+writes `ROWORDER = TOP-DOWN` (confirmed present in its products, and the opposite
+of the FITS bottom-up convention), so the row order the pattern is interpreted in
+is not the raster order a reader assumes — the same y-origin family as the
+`boxselect` counts-from-the-top trap and the crop y-flip trap already registered
+here. **Cost if missed: a G1-vs-G2 null would compare RED against BLUE and return
+a confident clean answer** — and in the one design where that null is the test
+immune to every other confound. It surfaced only because the star counts looked
+wrong, not because anything checked.
+
 **ONE `findstar` SHAPE FACT, MEASURED — `setfindstar -moffat` is NOT a usable
 second estimator on this corpus, and it is the only alternative profile the tool
 offers.** `setfindstar [ [-gaussian] | [-moffat] ]` is scriptable and runs

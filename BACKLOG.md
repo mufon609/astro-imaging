@@ -1242,13 +1242,28 @@ If the honest answer is "no fix is available on this rig", that is the finding.
   is already 5.9σ (15.9σ without 6239) between the two bins wholly inside the
   inscribed circle, so it is not the incomplete-azimuth artefact either.
   **So a single global PSF cannot remove this component and this route does not
-  deliver.** Two limits stay: the design can KILL the route and can NEVER quote a
+  deliver.** **AND THE DEMOSAIC ALTERNATIVE IS NOW REFUTED — the rotation and the
+  gate failure both survive on a raw CFA measurement with NO interpolation
+  anywhere** (`cfa_control.json`, pre-registered at `21653a1` BEFORE the run and
+  measured at `dc1fa0f`; PM-audited, the pre-registration carries reading rules
+  and no outcomes). The free null PASSES — G1 vs G2 agree at **χ² 3.00 on 3 dof**,
+  max axis difference 2.73°, so the CFA lattice injects no directional term and
+  the grid is clean. Both greens then REJECT a constant axis on that clean grid
+  (χ² 15.8/2 and 37.9/2; constancy χ²/dof 28.2 and 46.7), as does the non-green
+  channel (10.6/2). **Remove the demosaic entirely and the non-constancy persists,
+  so the demosaic is not necessary to produce it.** The fix-path answer is now the
+  same on three independent grids — debayered N=5, debayered N=40, raw CFA.
+  **What stays open and is deliberately NOT attributed:** CFA axes sit a few
+  degrees consistently ABOVE debayered (ch0 +7.45/+6.94/+3.99, χ² 27.1/3; ch3
+  +4.89/+9.67/+2.20, χ² 23.3/3), both greens differing from debayered in the SAME
+  direction while agreeing with each other. Pre-registered as AMBIGUOUS between
+  the demosaic and severe undersampling (S 0.83 → 0.415, below Kannawadi's 0.5)
+  and left there. It bounds rather than explains: whatever it is moves the axis a
+  few degrees and neither creates nor destroys the rotation.
+  Two limits stay: the design can KILL the route and can NEVER quote a
   trail scale (`f` nearly collinear with the constant, condition 126–132, and
   degenerate with any WCS scale error behind T); and χ²/dof of 53–129 means the
-  model is badly MISSPECIFIED rather than that it measured something, so
-  **"no field-constant optical component" is the LEADING reading and not the only
-  one** — an unmodelled ρ-dependent demosaic term produces the same
-  non-constancy, and the CFA control is what separates them.
+  model is badly MISSPECIFIED rather than that it measured something.
   This bullet defines C as *the field-constant spin-2 term*, so if there is no
   single such term, C/A is not well defined and "does C/A hold across sets"
   cannot be asked in that form. **What survives is the weaker, still-useful
