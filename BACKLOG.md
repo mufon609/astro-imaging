@@ -1339,6 +1339,35 @@ cross-window alike) and names `CALFLAT` as the datum that says which. Found by
 header inspection during the per-group flat arms; the fix is held off the build
 path while an experiment is in flight.
 
+## `bootstrap-never-fetched-the-astrometric-catalogue` — the symptom is fixed, the generator is not
+
+**The astrometric Gaia catalogue is now INSTALLED** (`f0ebea7`, zenodo 14692304,
+at siril's own configured path with the config untouched) and `platesolve -force
+-catalog=localgaia` is PROBED working — 541 matched stars, converged on iteration
+1. **That fixes this rig and does NOT fix the bug.**
+
+**`scripts/setup/x86_bootstrap.sh` never fetched it.** Layer B2 installs the SPCC
+chunks and sets `catalogue_gaia_photo`; nothing creates or verifies
+`gaia_astrometric.dat`. **So a fresh rig still gets a config pointing at a file
+the bootstrap never writes** — which is precisely how this was discovered, as a
+blocked measurement rather than as a missing file.
+
+**AND THE MANIFEST ROW WAS DELIBERATELY NOT HAND-ADDED, which is the reusable
+part.** `manifest.tsv` is GENERATED: `x86_bootstrap.sh` truncates it with
+`: >"$MANIFEST"` and rewrites the header on every `--go` run. **A hand-added row
+survives in git until the next bootstrap and then vanishes silently — recreating
+this exact bug in a new form, one layer down and harder to see.** Editing a
+generated file to record a fact is not a fix; it is the same defect with a longer
+fuse.
+
+**Closes when** the bootstrap FETCHES the catalogue, verifies it against the
+sha256 recorded in `datasets/`'s ingest record, and WRITES its own manifest row —
+all three, in the script. Related and open: **five of the six configured catalogue
+paths were absent**, not one — `namedstars`, `unnamedstars`, `tycho2`/`deepstars`
+and NOMAD are all missing and only `catalogue_gaia_photo` was present. Direct
+consequence already felt: there is no local NOMAD, so `findcompstars
+-catalog=nomad` reaches a remote service.
+
 ## `guards-and-ci` — nothing runs the guards
 
 `check_bitdepth.sh` says "run it in CI / before a release" and no runner exists; the
