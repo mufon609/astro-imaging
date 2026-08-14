@@ -561,9 +561,35 @@ the constraints any such tool must satisfy):
   the same probe: **`stack` writes no negative values** (frames 99.99% negative
   produced a 100%-zero stack), and **`subsky` leaves a constant pedestal rather
   than zeroing the level** (a 500->800 ADU ramp comes back uniform at 627.00).
-  **Corollary for verification:** siril's own `stat` cannot be used to check
-  whether a siril operation damaged an image, because the damage is invisible to
-  it. Read the saved pixels with an independent reader.
+  **Corollary for verification — TRUE OF THE `stat` COMMAND, FALSE OF THE TOOL,
+  and the distinction is load-bearing because this corollary is what sends sessions
+  to an independent reader.** The COMMAND emits exactly five fields — the canonical
+  parser (`flat_odd_component.py`, the single definition every instrument imports)
+  reads `Mean, Median, Sigma, Min, Max` and there is **no pixel count**, so nothing
+  in that line reveals how many pixels were excluded. **But `sirilpy`'s `ImageStats`
+  carries fourteen, including `total` (*"total number of pixels"*) and `ngoodpix`
+  (*"number of non-zero pixels"*) — so `total − ngoodpix` IS the excluded-pixel
+  count**, per channel, per region, headless, via `get_image_stats` /
+  `get_selection_stats` / `get_seq_stats`. **The instruments CAN see the damage; the
+  five-field stdout line is what prevented it.** An independent reader is still
+  valid and is no longer the only route.
+  **AND THE SAME LAYER REMOVES A WHOLE DEFECT CLASS RATHER THAN ONE CLAIM: STDOUT
+  SCRAPING.** The API returns typed values deserialised from a binary struct — no
+  regex, no stdout, nothing to parse wrong. **`Sigma: -nan` is not a hazard when the
+  field arrives as a float**, and that defect (a copied numeric-only regex silently
+  dropping a zero-variance box) is recorded twice in this registry, in two
+  instruments, from one copied pattern. Nine further per-region statistics the
+  command never prints come with it — `avgDev`, `mad`, `sqrtbwmv`, `location`,
+  `scale`, `normValue`, `bgnoise`.
+  **WHAT DOES NOT CHANGE, AND WHY: every CLIPPING claim above STANDS.** `cmd()` is a
+  pure pass-through and the API surface contains **zero** arithmetic or pixel
+  operations — no `offset`, `idiv`, `fdiv`, `subsky`, `imul`, `isub` — so every one
+  reaches the same C path and clips identically. **The only bypass is
+  `get_image_pixeldata()` / `set_image_pixeldata()`, raw numpy over shared memory,
+  and it is closed by DOCTRINE rather than by capability: doing the arithmetic in
+  numpy on the deliverable's pixels is what the bright line forbids.** Stated
+  explicitly because a session that finds those two methods will otherwise conclude
+  the clipping problem is solved.
 
 - **`seqsubsky` REFUSES A FRAME CARRYING NEGATIVE PIXELS** — *"Failed to generate
   background samples for image 0: removing the gradient on negative images is
