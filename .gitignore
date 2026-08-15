@@ -103,6 +103,13 @@ __pycache__/
 **/starlight_work/*
 !**/starlight_work/*.json
 
+# smear_work/ (under datasets/<session>/) holds the compose-smear re-march's
+# Siril star lists and its .ssf. The JSON carries the tool's own medians per
+# position, which is the record; the .lst files are the intermediate it derived
+# them from and are not versioned (qa_work/starlight_work pattern, not psf_work's).
+**/smear_work/*
+!**/smear_work/*.json
+
 # psf_work/ (under datasets/<session>/<set>/) holds the raw-frame PSF-field
 # probe's Siril star lists and its .ssf. The .lst files ARE the record.
 **/psf_work/*
