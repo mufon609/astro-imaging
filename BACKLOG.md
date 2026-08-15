@@ -822,8 +822,9 @@ carry the RESIDUAL of a correction that has not been applied.
 **PRODUCTS UNDERSTATE IT.** An isotropic blur added everywhere compresses a ratio
 toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
 (`datasets/aug06/experiments.jsonl` → `resample_cost_arm_d_COMPLETE`, the LAST
-entry of that id — the ledger is append-only and the later one corrects the
-earlier's headline). Single-RAW measurements are unaffected — which is
+entry of that id; `datasets/README.md` carries why that qualifier is load-bearing
+and how to read this ledger for a homing check). Single-RAW measurements are
+unaffected — which is
 most of this item's evidence — but any product-vs-member or product-vs-raw
 comparison inherits it.
 
