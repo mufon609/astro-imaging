@@ -791,8 +791,8 @@ session-end temperature.
   BACKLOG:`compose-homography-smear`** — per-image resampling onto a COMMON output
   WCS using each exposure's full solution, which SWarp does once fed a distortion
   it can read. SWarp 2.41.5, `sip_tpv` 1.1 and SCAMP 2.10.0 are all installed; the
-  two entry paths and the wrong-for-this-data defaults of both tools are recorded
-  there, not restated here.
+  two entry paths are recorded there and the wrong-for-this-data defaults are in
+  `TOOLS.md`'s SWarp row. Not restated here.
 
 ## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
 
