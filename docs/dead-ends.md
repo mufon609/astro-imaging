@@ -34,6 +34,59 @@ the gap:** scope answers *how widely does this apply* — one dataset, one night
 one rig — and subject answers *what was measured*. They read as the same question
 and are not, which is why compliance on one masked drift on the other.
 
+**STANDARDS-FIRST — SUBJECT IS THE MEASURAND, and the term is not ours.** JCGM 200
+(VIM, = ISO/IEC Guide 99) defines the **measurand** as *"the quantity intended to
+be measured"* — wording changed in the 3rd edition from *"quantity subject to
+measurement"* precisely to put INTENTION above apparatus. VIM's core distinction is
+the one the three instances re-derived from scratch: **the quantity actually
+measured may differ from the measurand as defined, and where it does, a correction
+is required.** Adopt the TERM. **DEVIATION, recorded with its reason as
+`CLAUDE.md` requires:** the axes deliberately re-derive W3C PROV's
+Entity/Activity triple in PROSE, because this registry is read by people and not
+parsers — and the IVOA Provenance Data Model is NOT adopted, a machine-readable
+serialisation being the wrong instrument for a document whose failure mode is text
+nobody re-reads. **`n` is in neither standard and is a local statistical addition.**
+**PRECISION NOTE, tagged MECHANISM because it is the attackable part:** the VIM
+CONCEPT transfers exactly, its illustrated mechanism does NOT — VIM's examples are
+the measurement perturbing the system (a voltmeter loading the battery it reads),
+whereas ours is the CLAIM drifting to an adjacent subject while the measurement
+stays put. Two instances of one distinction, not one failure. (Citation and split:
+the Oracle's.)
+
+**THE POSITIVE CONTROL ON THIS AXIS — RUN BACKWARDS OVER THE THREE INSTANCES, AND
+IT CATCHES 2 OF 3. The miss is the useful half and it bounds the axis.** Every
+acceptance measure ships with data on which it MUST fire (`CLAUDE.md`); an axis is
+no exception, so the three entries that defeated n+instrument+scope were re-read
+against SUBJECT:
+- **operation → command** (*"`register -disto=` IS NOT PER-IMAGE REPROJECTION"*,
+  measured on a standalone SIP warp performed OUTSIDE siril's registration) —
+  **CAUGHT.** The measurement never invoked the command, so the mismatch survives
+  at any granularity of naming.
+- **command → design** (*"Siril's own design assumes ONE optical state per
+  sequence"*, from a `-disto=` measurement) — **CAUGHT.** One command against a
+  whole tool's design is a mismatch of KIND.
+- **flag → tool** (*"Siril `-weight` is a min-max ramp"*, true of `wfwhm`/`nbstars`
+  and FALSE of `noise`) — **MISSED.** An author names the subject `-weight`; the
+  headline says `-weight`; the axis compares them and finds a match. **The widening
+  is INSIDE the named subject, not across it.**
+**SO THE BOUND: this axis catches drift ACROSS a subject boundary and is BLIND to
+drift WITHIN one**, because it never says at what GRANULARITY the subject must be
+named, and a reader has no prompt to choose one finer than the claim. **The missing
+half is a separate discipline — enumerate the subject's own modes or values before
+asserting a behaviour OF it**, which is exactly what closed `-disto=` (three values,
+`master` UNDETERMINED) and what nobody has yet done for `-weight`.
+
+**RECORDING RATE — OWNER-RATIFIED, AND SCOPED TO THIS REGISTRY ONLY. A finding
+earns an entry here only if it would change a future decision; everything else
+lives in the commit message.** MEASURED, since 00:00 on 2026-08-14: this file ran
+**+1,139 / −59, net +1,080** (2,740 → 3,820 lines) while `BACKLOG.md` ran
+**+1,216 / −1,530, net −314** across **six** net-negative commits (largest
+`2657a3c` −413, then `0ecf111` −286). **The queue sheds and the registry does
+not.** **CARRY THE RISK RATHER THAN PRETENDING IT AWAY: this registry's value has
+repeatedly been an entry nobody expected to fire** — so the test is *would it
+change a decision*, never *is it interesting*, and a rate rule is a budget on
+WRITING, never a licence to delete what is already here.
+
 **TERMINOLOGY — the word "dust" is BANNED in this repo, and this entry says why.**
 "Cosmic dust", "MW", "IFN" and "dust-safe" were used interchangeably for FOUR
 physically unrelated things; the term was never defined and never independently
@@ -1522,8 +1575,16 @@ the constraints any such tool must satisfy):
   majority and survives. `nstars` is a blind cloud discriminant on rich fields
   (detection saturates at the star cap — the background channel carries the cloud
   signal).
-- wFWHM weighting at low FWHM spread is WORSE than none (Siril `-weight` is a
+- wFWHM weighting at low FWHM spread is WORSE than none (`-weight=wfwhm` is a
   min-max ramp → worst frame ~0 weight at any spread).
+  **SCOPED — this was written as *"Siril `-weight` is a min-max ramp"*, which is
+  TRUE of `wfwhm` and `nbstars` and FALSE of `noise`.** `-weight=noise` is
+  inverse-variance, as this repo's own shipped compose has said all along
+  (`run_undistort_compose.sh:342`, *"weighted by member noise, inverse-variance"*,
+  with the n/s² derivation at `:101-108`). **This is the instance the SUBJECT axis
+  MISSES** — the widening is inside the flag rather than across it — so it is the
+  worked example for the granularity bound stated in this file's preamble. The
+  wFWHM finding itself is unaffected. (Mode split: the Oracle's.)
 - Rejection and cosmetic correction CANNOT remove walking noise (drift-aligned
   streaks: sensor-fixed FPN dragged into lines by coherent un-dithered drift).
   The pattern is sub-sigma STRUCTURED signal, not discrete outlier pixels —
