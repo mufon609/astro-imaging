@@ -2188,6 +2188,26 @@ SILENT — pin the state, never inherit it):
   agreement"; it is "name the premise both sides stand on, in a form someone can
   falsify without further interpretation, and check it."** A convergence with no
   named premise is not a tripwire, it is a mood.
+  **AND THE OPERATIONAL TEST FOR WHETHER A SECOND MEASUREMENT COUNTS AT ALL:
+  REPLICATION BOUNDS ERROR ONLY WHEN THE TWO MEASUREMENTS DIFFER IN SOMETHING.
+  Ask what differed. If the answer is "the operator", it is n=1 wearing n=2**, and
+  the second instance reads as corroboration, which is worse than having only one.
+  MEASURED, n=2, in both directions:
+  **IT FAILED** — a worker and a manager each probed siril's DEFAULT `save`, each
+  found `DATASUM` absent, and the manager wrote *"BLOCKED, measured twice
+  independently"* into a direction. Nothing differed but the operator. The error
+  was broken by varying the SOURCE, not by repeating the probe: siril's own help
+  reads `save filename [-chksum]` and the flag works at runtime, so the default
+  had been promoted to a limit.
+  **IT WORKED** — asked to re-check a stale-negative sweep, the worker deliberately
+  did NOT re-run the phrase sweep, on the grounds that a phrase sweep is what let
+  the original claim survive, and asked the RIG instead. Same question, different
+  instrument, real null across 9 availability and 12 interpreter-scoped claims.
+  **THE CONVERSE IS ALSO REGISTERED HERE, so the rule is not "prefer docs": the
+  docs WITHOUT a probe promote a LISTING to a capability** — `tilt` and `inspector`
+  are listed by `help` and refuse at runtime. **A doc establishes the claim; a
+  probe settles it.** `save -chksum` was put through both, and siril's checksum
+  arithmetic then matched astropy's on identical bytes.
   **AND THE SAME CHECK CAUGHT A FIX WHOSE DELIVERY PATH EXCLUDED ITS OWN
   BENEFICIARY** — a class distinct from the check-cannot-fail family, because
   nothing here is a check. `install_astromatic.sh` was written expressly to close

@@ -1178,12 +1178,20 @@ other than the nominal one."** FITS registered conventions — 23 enumerated, no
 covering calibration provenance. MaxIm DL `CALSTAT` records WHICH STEPS ran
 (`B`/`D`/`F`), never which frame. astropy `ccdproc` keys on the function name and
 `_replace_array_with_placeholder()` rewrites the master as the literal
-`"<CCDData>"` — it deliberately erases frame identity. ESO SDP v6 §5.2.1: `PROVi`
-is science lineage and *"files used for calibration purposes … shall not be
-included"*. **Structural reason: *nominal* is a pipeline-internal concept with no
-meaning outside the pipeline that defines it, so no interchange format can carry
-it.** NOT reached, and the negative is scoped to exclude it: ESO's
-`HIERARCH ESO PRO CAL*` family, PixInsight's XISF history, ASTAP.
+`"<CCDData>"` — it deliberately erases frame identity. **ESO is TWO facts and
+quoting only the first inverts it:** SDP v6 §5.2.1's `PROVi` is *SCIENCE* lineage
+and *"files used for calibration purposes … shall not be included"* — **and ESO
+records calibration-master identity SEPARATELY, and more thoroughly than we do**,
+in the DICB PRO dictionary's `CAL1 NAME` / `CAL1 CATG` / `CAL1 DATAMD5`. That
+family is the precedent this item's own disposition cites for a content hash, so
+quoting `PROVi` alone filed the item's own counter-evidence as an unexamined gap.
+**Structural reason the headline still stands: *nominal* is a pipeline-internal
+concept with no meaning outside the pipeline that defines it, so no interchange
+format can carry it — ESO records what RAN, with a hash, and has no
+nominal-vs-actual concept either. That ADDS a fourth standard to the negative
+rather than breaking it.** NOT reached: PixInsight's XISF history (three fetches,
+HTTP 403 — unreachable from primary sources, and it could not change a FITS keyword
+decision) and ASTAP.
 
 **THE STRONGER OBJECTION THAN REDUNDANCY.** `CALFLAT` records a FACT about the
 product — this flat ran — true forever. `CALXSET` records a RELATION between the
@@ -1193,15 +1201,155 @@ silently wrong and nothing on the product can detect it.** That collides with
 from a member's own header or its own pixels. No record lookup, no machine state,
 no repo."* Its VALUE needs no lookup; its MEANING cannot be evaluated without one.
 
-**THREE DISPOSITIONS — the trade is the OWNER'S, not the pipeline's.**
-(1) fix the comment only — smallest reading, leaves a redundant stale-able key;
-(2) **deprecate `CALXSET` as a WRITE target, leave it readable** — nothing
-stranded, `CALFLAT` is the standard-shaped datum and is authoritative
-(Oracle-recommended); (3) record it as an accepted deviation with the
-stale-referent hazard named. **The standards-first deviation is undischarged
-either way** — `CLAUDE.md` requires it recorded with its reason, and the key was
-designed without that step. Durable home for the standards facts above once the
-disposition is ruled: `docs/combine-contract.md`, which defines these keys.
+**BEFORE THE DISPOSITION, THE PREMISE NEITHER SEAT WAS EVER GIVEN: nobody
+established that provenance should be strengthened at all.** Both seats reasoned
+inside *"this should be fixed properly"* for a whole engagement without that being
+asked. It is the largest untested premise here and it sits above the
+recommendation, not under it.
+
+**THE DISPOSITION IS JOINT (worker + Oracle) AND WAS REACHED AGAINST EACH OTHER.**
+Each half refuted a claim the other had made; both refutations are in the text.
+
+**(1) RECORD-vs-REALITY — stamp `CALFLAT`/`CALDARK` from the value that RAN.**
+`header_provenance_lines` builds them from `qa_work/skyflat_<set>_qa.json`, the
+set's RECORD; `$FLAT` never reaches the emitter. Every defect above is a patch
+over that reconstruction. MEASURED cost: `$FLAT` is absolutized at
+`run_undistort_pipeline.sh:153` and is in scope at the `:343` emitter call
+(`:360` already uses it); `header_provenance_lines` has **two** callers (`:343`,
+`run_undistort_groups.sh:389`), so an optional trailing argument is
+backward-compatible across two sites. DOCTRINE, primary source: IRAF
+`noao/imred/ccdred/src/setflat.x` stamps the frame it USED, by control flow — name
+resolved `:39`, the same string opened `:54`, scale read off the opened image's own
+`ccdmean` `:130`, stamp `:143` unreachable unless the open and both sec-checks
+passed. No record-side variable exists in the routine.
+
+**(2) IDENTITY IS A CROSS-REFERENCE, AND IT IS NOT WHAT A FITS CHECKSUM IS FOR.**
+Two mechanisms were conflated and only one answers this item:
+- **`DATASUM`/`CHECKSUM` are SELF-integrity** — a file's own checksum in its own
+  header, answering *"has this file been corrupted?"* The registered convention
+  explicitly disclaims the property identity needs: *"the CHECKSUM keyword can
+  always be updated after making modifications to the file, leaving no trace."*
+  A 32-bit 1's-complement sum is an integrity check, not an identity token.
+- **ESO `CAL1 NAME` + `CAL1 DATAMD5` are CROSS-REFERENCE identity** — a hash of a
+  DIFFERENT file, the master, carried as a VALUE inside the product's provenance,
+  answering *"which master was used?"* **That is this item's question**, and it is
+  why ESO uses MD5 rather than a FITS checksum.
+
+So: **`CALFLAT` keeps its readable name value and is paired with a content hash of
+the master as a provenance VALUE — mirroring ESO, inventing nothing.** A basename
+cannot do it alone: **19** `skyflat*.fit` masters under `sessions/` carry **12**
+distinct basenames, `skyflat_set-01/02/03.fit` each in three sessions, and
+`dark_master.fit` is the basename in **all three**. A content hash separates the
+real colliding pair where every other stamped field agrees (basename,
+`STACKCNT=500`, `NAXIS1=6064`) — measured with the FITS datasum arithmetic as the
+probe, **3443652352 vs 884799382**, which demonstrates separability; ESO's choice
+of MD5 is the shape to mirror, for the disclaimer reason above. **No deviation to
+record**: a published convention exists, the value fits the 68-char field, and it
+needs no flag and no new step — a hash is a provenance value like any other, and
+siril preserves foreign keys (MEASURED: `CALFLAT`, `CALSET` and a synthetic key
+all survived a siril round trip untouched while only the checksum CARDS dropped).
+**Stamped AFTER the warp, which is already where provenance goes**: the darktable
+TIFF round trip drops every FITS key — MEASURED, all three keys present before
+`savetif32`, absent from the TIFF under `exiftool`, `None` after the full
+`savetif32` → `darktable-cli` → `convert` leg — while `header_apply_keys` runs at
+`:383` against a warp at `:280-288`. That ordering is why `stamp_headers.sh`
+exists.
+**A session-qualified name was proposed and WITHDRAWN** — deriving
+`july31/skyflat_set-03.fit` from the path is a naming scheme this project would be
+inventing, and the standard already solves it.
+Two costs travel with it: a field with **no reader today**, and a backfill that
+must itself be validated. Named consumer, without which it should wait: a guard
+that recomputes a master's hash and checks it against the products claiming it —
+which only works while the master exists, so it is a guard with a shelf life.
+
+**(3) SELF-INTEGRITY IS A DIFFERENT QUESTION AND BELONGS IN ITS OWN ITEM — and the
+"siril cannot do it" reading is FALSE.** We emit no checksum on any product:
+`DATASUM`/`CHECKSUM` are absent from every master measured. A registered FITS
+convention from 2007, never adopted here — worth its own item, not this one.
+**What is NOT true is that the toolchain blocks it.** Siril strips the cards BY
+DEFAULT and writes them ON REQUEST — `save filename [-chksum]`, verbatim from the
+tool: *"The `-chksum` option stores checksum keywords (CHECKSUM and DATASUM) in
+the FITS header"*. PROBED at runtime rather than taken from `help`, because this
+registry records `tilt` and `inspector` as listed-and-refusing: the flag WORKS, and
+**siril's arithmetic matches `astropy`'s recompute on the same bytes to the digit,
+so the two implementations are interchangeable** — a master checksummed by siril
+verifies under astropy and vice versa. The real constraint is narrower: **`-chksum`
+exists on `save` and on NO `stack` signature** (`sum|min|max`, `med|median`,
+`rej|mean` — none carry it), and `build_sky_flat.sh:256,259` writes masters with
+`stack … -out=`. So a self-checksummed master costs one appended `load` +
+`save -chksum`, not a redesign. Structural bound for products rather than masters:
+the undistort chain round-trips every light through TIFF (`:280`, `:288`) and TIFF
+carries no FITS keywords, so a product's own checksum can only be applied at the
+FINAL save. **Bounded hazard for whoever builds it:** a siril-written `DATASUM`
+describes siril's rescaled data, so it will not match a non-siril `DATASUM` of
+nominally the same data and the mismatch reads as corruption — measured on data
+OUTSIDE siril's `[0,1]` convention (a uniform 1/65535 rescale, distinguished from
+1/65536 to 1e-9); real astro FITS in this chain are already in convention, so the
+trap fires only on out-of-convention input. One fixture, one rig.
+
+**THE ORDER IS LOAD-BEARING AND IS NOT A SEQUENCING NOTE — and there are TWO
+failure modes, not one.** A hash added at today's emitter is computed from the
+flat the RECORD names, so:
+*(i) BASENAMES DIFFER — the two known diagnostic arms, and the guard is LOUD here,
+not silent.* MEASURED: aug09/set-05 ran `skyflat_set-01.fit` against a record
+naming `skyflat_set-05.fit`; july31/set-03 ran `skyflat_set-03_g1.fit` against
+`skyflat_set-03.fit`. The guard fires on both — but it appends only
+`update_key CALFLAT` and `CALXSET`, so it overrides the NAME and would NOT touch a
+hash the emitter had already written. The product would ship a CORRECT name paired
+with a hash of a DIFFERENT file, each corroborating the other.
+*(ii) BASENAMES COLLIDE — same name, different session.* The guard is silent
+because the two strings are EQUAL, `CALFLAT` keeps the record's value, and the hash
+would be of the record's flat. Wrong, and nothing flags it.
+So a hash added before the source fix is correct on the 78 clean products and wrong
+in BOTH failure modes — trusted everywhere and misleading at its own target.
+Fix (1) is a PREREQUISITE for the hash being safe, not a parallel improvement.
+
+**SCOPE ON (ii), so the text does not imply it has happened: it is a HAZARD WITH NO
+OBSERVED INSTANCE.** The `c.ssf` audit read 12 retained work dirs and found **0
+cross-session**. Absence of evidence is weak here — 12 of 24 retained `c.ssf`
+against 93 products, with `rm -rf "$P"` at the start of every run overwriting the
+prior one — so the honest claim is a hazard on a reachable path that has not fired,
+never a defect found in the products.
+
+**(4) NO IRAF STRING-FORMAT CONVERGENCE.** `flatcor = '<date> Flat field image is
+<name> with scale=<n>'` is a human-readable sentence; nothing in this toolkit
+parses it. What is worth taking from the lineage is the SOURCE of the value, not
+its shape. AGREEMENT, not measurement — both seats judged it and neither tested it.
+
+**DEPRECATING `CALXSET` AS A WRITE TARGET COSTS NOTHING MEASURABLE:** **one** write
+site (`run_undistort_pipeline.sh:364`), **one** recorder
+(`flat_differential.py:441`), **zero** readers of that record field, and the absent
+case is already shipped — of 20 tracked records carrying the key, **13 read `True`
+and 3 read `null`**. No consumer parses `CALFLAT` either: all four read sites pass
+the whole string verbatim into a record, and only the two EMITTERS touch the `:`,
+so a value-format change strands nothing.
+
+**BACKFILL IS AVAILABLE BUT NOT VALIDATED — state it as pending, not as done.**
+Resolving each product's `CALFLAT` basename inside its own session: of **93**
+`sub_*.fit` under `sessions/`, **78** are `groups_*` products and **78 of 78** still
+have their named master on disk; of the 15 pergroup diagnostic-arm sub-stacks, 10
+do and 5 do not. State the denominator — 78-vs-93 is the split two sweeps of "the
+sub-stacks" already disagreed on. **But a backfilled hash describes the master AS
+IT EXISTS NOW**, and this corpus has a documented rebuild (the july31
+raw-frames-only reset, the reason the flat-window numbers carry INHERITED). So a
+backfill inherits the same silence one stage later. The route that settles it is
+the one this route already has: the groups chain is bit-reproducible, so a rebuild
+against the named master differencing to **0 pixels** proves that master ran.
+**Gate any backfill on that check.**
+
+**DISAGREEMENT — NONE SURVIVED, AND THAT IS REPORTED AS AGREEMENT RATHER THAN AS
+CONFIRMATION.** What remains is not a disagreement between seats: the PRIORITY
+between the two items, and whether provenance should be strengthened at all, are
+the owner's and were never ours. **Two positions both seats hold WITHOUT either
+having measured them, logged as agreement because shared judgement is the blind
+region: that IRAF string-format convergence is archaeology, and that XISF is not
+worth closing** (three fetches returned HTTP 403; unreachable from primary sources
+and it could not change a FITS keyword decision).
+
+**THE STANDARDS-FIRST DEVIATION IS UNDISCHARGED EITHER WAY** — `CLAUDE.md` requires
+it recorded with its reason and the key was designed without that step. Durable
+home for the IRAF/ESO/FITS-checksum facts once ruled: `docs/combine-contract.md`,
+which defines these keys.
 
 **Do NOT rename the key** — products already carry it and a rename strands every
 one of them; nothing here requires renaming it. **Closes when** the disposition is
@@ -1211,6 +1359,51 @@ basename-identity, the definition site states the general trigger without the
 cross-set re-narrowing, and a fire test covers the cross-night collision.
 Reproducible probe (outside the repo, refuses to run if `:361` has moved):
 `scratchpad/calxset_trigger_probe.sh`, 7/7.
+
+## `calibration-master-identity-is-a-basename` — the name cannot distinguish the file
+
+`CALFLAT`/`CALDARK` record a BASENAME, and basenames collide across sessions by
+construction here: **19** `skyflat*.fit` masters under `sessions/` carry **12**
+distinct basenames, `skyflat_set-01/02/03.fit` each in three sessions, and
+`dark_master.fit` is the basename in **all three**. Two colliding masters can also
+agree on every other stamped field — july31 and aug06 `skyflat_set-03.fit` both
+read `STACKCNT=500`, `NAXIS1=6064` — so one product's calibration provenance can be
+byte-identical to another's while naming a different file.
+
+**SEPARATE from the flag defect** (`calxset-is-blind-on-the-banned-case`) and not
+fixed by it: stamping from the value that RAN makes the string TRUE and leaves it
+AMBIGUOUS. The dark case shows the separation cleanly — no flag exists there to
+deprecate and the collision is total, so a record-vs-reality fix has nothing to
+bite on.
+
+**ORDERED, and the order is load-bearing.**
+(a) **Stamp from what RAN** — root cause; IRAF `setflat.x` stamps the frame it used
+by control flow (`:39` resolve, `:54` open, `:130` scale off the opened image,
+`:143` stamp).
+(b) **Pair the name with a CONTENT HASH of the master, carried as a provenance
+VALUE** — ESO `CAL1 NAME` + `CAL1 DATAMD5`, mirrored, inventing nothing. It fits
+the 68-char field, needs no flag and no new step, and survives the toolchain
+measured (siril preserves foreign keys; only the checksum CARDS drop). Separability
+demonstrated on the real colliding pair with the FITS datasum arithmetic as the
+probe, **3443652352 vs 884799382**; ESO's MD5 is the shape to mirror, because the
+FITS checksum convention disclaims identity in its own text — *"the CHECKSUM
+keyword can always be updated after making modifications to the file, leaving no
+trace."*
+**A session-qualified name derived from the path was proposed and WITHDRAWN** —
+that is a naming scheme this project would be inventing, and the standard already
+solves it. **(b) is unsafe before (a):** at today's emitter the hash is computed
+from the flat the RECORD names, so it is correct on all 78 clean products and wrong
+in both failure modes.
+(c) **Backfill only behind a bit-reproducible rebuild check** — a backfilled hash
+describes today's master, and this corpus has a documented rebuild.
+
+**NOT this item: SELF-integrity** (`DATASUM`/`CHECKSUM` on a file's own header).
+Different question, different mechanism, its own item — see the sibling item's
+disposition (3).
+
+**Closes when** calibration-master identity in a product's header distinguishes two
+same-named masters, and a check exists that can be made to fail on demand by
+pointing a product at the wrong one.
 
 ## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
 
