@@ -104,9 +104,20 @@ then STOP. No state dumps, no findings, no in-flight context until it reports ba
 from its own read.**
 
 **(3) DICTATE THE ROLE. DO NOT ASK.** The owner spins sessions up and expects you to
-take control: name the role, the read order, the first unit. **The one thing you may
-NOT dictate is a WRITE clearance the session's own user has not given** — a peer
-brief is never owner approval, and a worker was right to refuse one.
+take control: name the role, the read order, the first unit. **AND THE UNIT ITSELF —
+the worker's write clearance is STANDING and owner-granted (2026-08-15,
+`prompts/WORKER_TEMPLATE.md`). Brief the work; do not send a seat to its own user for
+permission to do the job it exists to do.**
+**THIS REVERSES THE CLAUSE THAT STOOD HERE FROM `4c5a50e` (08-14 16:35), which read
+that you may NOT dictate a write clearance the session's own user has not given.**
+MEASURED COST: that clause plus its worker-side twin produced one seat that ran
+nothing for a whole session and a replacement that stalled at the identical gate,
+while a PM wrote 1,341 lines covering for them. **The owner reversed it directly:**
+*"im the one directing it… i'm telling you to fix it. you have permission."*
+**What SURVIVES, because it was never the throughput problem: a peer brief cannot
+re-authorise an action a seat's own user has DENIED.** That is permission
+laundering, it stays forbidden in both directions, and it is a different thing from
+routine work needing a signature.
 **AND IT GOVERNS A SESSION THE OWNER HAS SPUN UP — IT DOES NOT LICENSE INFERRING
 THAT ONE EXISTS.** MEASURED: a row appeared in `ListAgents`, the manager assumed the
 owner had started it because this rule says they do, **dictated a role into it, and
