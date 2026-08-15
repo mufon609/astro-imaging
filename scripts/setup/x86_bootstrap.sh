@@ -101,7 +101,15 @@ esac; done
 MANIFEST="$(cd "$(dirname "$0")" && pwd)/manifest.tsv"
 log(){ printf '\033[1;34m[bootstrap]\033[0m %s\n' "$*"; }
 run(){ if [[ $DRY -eq 1 ]]; then printf '  (plan) %s\n' "$*"; else eval "$@"; fi; }
-manifest(){ [[ $DRY -eq 1 ]] || printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$@" >>"$MANIFEST"; }
+# PORTABILITY, cols 5 (path) and 6 (verify): a leading real $HOME is rewritten to
+# the LITERAL string $HOME. These args arrive already expanded — "$HOME/x" expands
+# HERE, at generation, so the tracked snapshot baked in /home/<whoever ran it> and
+# every such row then verified THAT rig from any clone. check_manifest_verify.sh
+# runs col 6 through `eval`, which re-expands per caller. Emit sites must DOUBLE
+# quote these paths: eval does not expand $HOME inside single quotes.
+manifest(){ [[ $DRY -eq 1 ]] && return 0
+  local a=("$@"); a[4]=${a[4]//$HOME/\$HOME}; a[5]=${a[5]//$HOME/\$HOME}
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "${a[@]}" >>"$MANIFEST"; }
 
 # fetch <url> <dest> <sha256|""> : require a pin (FAIL-CLOSED), download, verify sha256.
 fetch(){ local url="$1" dest="$2" sha="${3:-}"
@@ -195,7 +203,7 @@ install_gaia_astro(){
 # exercises the real generator instead of a copy that can drift from it.
 manifest_gaia(){
   manifest gaia-astrometric zenodo-14692304 "$GAIA_ASTRO_URL" "$GAIA_ASTRO_DAT_SHA" "$GAIA_ASTRO_DEST" \
-    "echo '$GAIA_ASTRO_DAT_SHA  $GAIA_ASTRO_DEST' | sha256sum -c --status - && echo 'gaia astrometric catalogue verified'" \
+    "echo \"$GAIA_ASTRO_DAT_SHA  $GAIA_ASTRO_DEST\" | sha256sum -c --status - && echo 'gaia astrometric catalogue verified'" \
     "ASTROMETRIC half of the local Gaia pair; siril's catalogue_gaia_astro points here and the config is NOT modified. RENAMED from the published siril_cat_healpix8_astro.dat. Compressed AND decompressed sha256 are both source-published (zenodo in-record sidecars + API md5) — scripts/setup/catalogue_ingest.json"
 }
 
@@ -395,7 +403,7 @@ run "bash '$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/darktable/install_st
 #   scripts/darktable/fit_lens_model.sh <session> <set> ...   (fit)
 #   scripts/darktable/install_lens_model.sh <session> <set>   (install + strip)
 log "lens model: skipped at bootstrap — per lens/focal, install it per set (see manifest note)"
-manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d $HOME/.local/share/lensfun/updates/version_1" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
+manifest lensfun-db upstream lensfun-update-data n/a "$HOME/.local/share/lensfun/updates/version_1" "test -d \"$HOME/.local/share/lensfun/updates/version_1\"" "MACHINE-LOCAL: not tracked, re-run per rig; distro DB lacks recent bodies"
 manifest dt-lens-styles repo scripts/darktable n/a "\${XDG_CONFIG_HOME:-\$HOME/.config}/darktable/data.db" "true" "lensdist/nodist; op_params is the pinned artifact; no GUI step"
 manifest dt-lens-model repo scripts/darktable n/a "$HOME/.local/share/lensfun/updates/version_1" "true" "PER LENS+FOCAL, fitted from a set's own frames (fit_lens_model.sh) and installed with install_lens_model.sh <session> <set> — which finds the vendor DB file by searching for the lens. Nothing to install at bootstrap; re-install after every lensfun-update-data; skip when the wide-untracked class is not in play"
 
@@ -451,9 +459,9 @@ fi
 #     scripts/calibrate/spcc_cone.py <solved_wcs.fit> --fetch downloads exactly the
 #     field's nside=2 cover per render (md5-verified).
 manifest spcc-database git-HEAD gitlab:free-astro/siril-spcc-database n/a "$SPCC_DB_DIR" \
-  "test -d '$SPCC_DB_DIR/osc_sensors'" "MACHINE-LOCAL sensor/filter/whiteref defs; MISSING => siril SPCC SIGSEGV (exit 139)"
+  "test -d \"$SPCC_DB_DIR/osc_sensors\"" "MACHINE-LOCAL sensor/filter/whiteref defs; MISSING => siril SPCC SIGSEGV (exit 139)"
 manifest spcc-config siril-flatpak-config n/a n/a "$SIRIL_CFG" \
-  "grep -q 'catalogue_gaia_photo=$SPCC_CAT_DIR' '$SIRIL_CFG'" "catalogue_gaia_photo -> local chunks; auto_update_spcc=false"
+  "grep -q \"catalogue_gaia_photo=$SPCC_CAT_DIR\" \"$SIRIL_CFG\"" "catalogue_gaia_photo -> local chunks; auto_update_spcc=false"
 manifest spcc-gaia-cone per-render scripts/calibrate/spcc_cone.py n/a "$SPCC_CAT_DIR" \
   "true" "FIELD-dependent: spcc_cone.py <wcs> --fetch per render (zenodo 14738271, md5-verified)"
 
@@ -517,7 +525,7 @@ log "Layer C2b — plate-solve venv (sep, the solve path's extractor)"
 run "python3 -m venv '$HOME/.local/share/astrometry-venv'"
 run "'$HOME/.local/share/astrometry-venv/bin/pip' install -q -r '$(dirname "$0")/requirements-solve.txt'"
 manifest solve-venv venv requirements-solve.txt version-pins "$HOME/.local/share/astrometry-venv" \
-  "'$HOME/.local/share/astrometry-venv/bin/python' -c 'import sep, astrometry'" \
+  "\"$HOME/.local/share/astrometry-venv/bin/python\" -c 'import sep, astrometry'" \
   "the venv solve_field.py re-execs into. sep 1.4.1 is CLAUDE.md's 'sole extractor' for the trailed-field solve; was created UNPINNED until requirements-solve.txt existed"
 
 
@@ -591,7 +599,7 @@ else
   log "siril StarNet config set (starnet_exe + starnet_weights -> /opt)"
 fi
 manifest starnet-config siril-flatpak-config n/a n/a "$SIRIL_CFG" \
-  "grep -q 'starnet_exe=$STARNET_BIN' '$SIRIL_CFG'" \
+  "grep -q 'starnet_exe=$STARNET_BIN' \"$SIRIL_CFG\"" \
   "MACHINE-LOCAL: siril starnet_exe + starnet_weights. EMPTY on a fresh flatpak => the siril 'starnet' command FAILS even with the binary installed"
 
 # DeepSNR
