@@ -821,7 +821,9 @@ carry the RESIDUAL of a correction that has not been applied.
 
 **PRODUCTS UNDERSTATE IT.** An isotropic blur added everywhere compresses a ratio
 toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
-(`resample-cost-and-drizzle`). Single-RAW measurements are unaffected — which is
+(`datasets/aug06/experiments.jsonl` → `resample_cost_arm_d_COMPLETE`, the LAST
+entry of that id — the ledger is append-only and the later one corrects the
+earlier's headline). Single-RAW measurements are unaffected — which is
 most of this item's evidence — but any product-vs-member or product-vs-raw
 comparison inherits it.
 
@@ -1207,7 +1209,9 @@ architectural blocker is measured and is not the trail:** `seqapplyreg -drizzle`
 refuses a debayered RGB sequence outright, so it is not one knob on this route.
 `split_cfa` now supplies an un-interpolated mono green plane with the greens
 identified, which is the only path the refusal does not name — unprobed, and not
-asserted to be useful (`corner-fix-landscape`).
+asserted to be useful (the refusal and its "MONO is accepted" detail are in
+`datasets/aug06/experiments.jsonl` → `two_probes_drizzle_input_and_otf_zeros`;
+`split_cfa`'s own capability is in `TOOLS.md`).
 
 ## `star-neutral-colour` — the narrowband gap
 

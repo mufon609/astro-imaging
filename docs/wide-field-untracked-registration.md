@@ -401,8 +401,11 @@ CONSEQUENCE for the one-sided term: it is not an uncorrected distortion, so no
 distortion model of any expressiveness removes it — the remaining candidates are
 aberration and sensor tilt, which are optics, not geometry.
 
-**Open:** the residual one-sided along-drift term — current measurements,
-eliminations and the hour-angle discriminator live in BACKLOG:`one-sided-band`
+**Open:** the residual one-sided along-drift term — the measurements and the
+eliminations are in `datasets/aug06/corner_work/` (`frame_depth.json` for the
+N=40 table and the not-a-class test, `shape_azimuth_m01s{1,2}.json` for the
+complete-azimuth check); the hour-angle discriminator remains OPEN work and
+lives in BACKLOG:`one-sided-band`
 (this file's earlier open items — the one-sided mechanism question and the
 july14 render's disk-bound frame selection — are superseded by that slug and by
 the chain's cull machinery + the session archive respectively).
