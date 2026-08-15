@@ -323,8 +323,16 @@ Ordered work — nothing here is executed on an accepted product:
 stars drift OUT of, and it is the exit edge that smears. **The −3.87 px/frame figure
 once quoted here is REFUTED by this repo's own later measurement — the drift is
 1.9064 px/frame against 1.9581 predicted (2.6%), so 3.87 was out by 2.03× and
-exceeded the physical ceiling** (`docs/dead-ends.md`; the standards doc's H.4
-"arithmetic disagreement" is closed by this, in the repo's favour). At matched distance from the sensor centre that
+exceeded the physical ceiling** (`docs/dead-ends.md`). **THE STANDARDS DOC'S H.4
+"ARITHMETIC DISAGREEMENT" IS CLOSED BY THIS AGAINST THE REPO, NOT IN ITS FAVOUR —
+the previous wording said the latter and mis-credited the exchange.** H.4 stated
+that −3.87 px/frame *"exceeds physics"* and predicted **1.98 px/frame** at this
+target; the repo's own later measurement returned **1.9064 measured / 1.9581
+predicted**. **The external review was right, this repo's number was wrong by
+2.03×, and the doc's prediction matched the eventual measurement to ~4%.** Recorded
+in this direction deliberately: a record that reads as though the repo won an
+exchange it lost systematically under-weights outside review, in a project that
+staffs a seat to provide it. At matched distance from the sensor centre that
 side reads **2.86 px / roundness 0.821** against the other's **2.59 / 0.853**.
 Acquisition is clean (identical exposure/ISO/aperture/focal across 500 frames, 3.00 s
 interval, no gap) and refraction is ruled out (72–77° altitude, differential
