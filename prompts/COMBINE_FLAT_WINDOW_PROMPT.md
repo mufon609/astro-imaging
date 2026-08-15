@@ -98,8 +98,8 @@ The house pattern applies in full: prediction committed BEFORE any arm exists;
 falsifiers named and evaluated by name; a floor control and a planted control
 with the discrimination reported; a selftest that falsifies its own mechanism in
 process; every number with its instrument, n and the box's `uptime`; guards and
-selftests green; `prompts/REPORT.md` updated and this file deleted in the same
-commit. If a peer session is live, apply the parallel-session rules in
+selftests green; `BACKLOG:per-group-flat-at-the-combine` updated and this file
+deleted in the same commit. If a peer session is live, apply the parallel-session rules in
 `CLAUDE.md` — count the diff before committing any file, and name the file you
 committed.
 

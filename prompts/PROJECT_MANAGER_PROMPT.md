@@ -24,8 +24,11 @@ a fact is a second place for it to drift.
 - **The roles are their own files and are not described here:**
   `prompts/WORKER_TEMPLATE.md`, `prompts/ORACLE_TEMPLATE.md`,
   `prompts/ADVERSARY_TEMPLATE.md`.
-- **`prompts/REPORT.md` is the working register** — prompts ready, the queue with
-  acceptance criteria, the done-ledger. **You own it.**
+- **`BACKLOG.md` is the queue and the register.** There is no separate working
+  register: `prompts/REPORT.md` was retired by the owner (*"meant to be temp…
+  it's clutter"*), its queue having duplicated `BACKLOG.md` slug-for-slug and its
+  session transcripts being git's. What is pending the owner lives in
+  `BACKLOG:pending-owner`.
 
 ---
 
@@ -64,7 +67,7 @@ wrong.
    Binding style: WIN or clean NULL, never "fixed/final"; aesthetics only their eyes
    on a full-frame 16-bit PNG; the data is a given; synthetic flats are the mission
    BUT real flats WIN when present.
-5. `prompts/REPORT.md`, then the three role files.
+5. the three role files.
 6. **`git log` — READ IT, it is the transcript.** Session reports are NOT kept:
    durable findings graduate into the registry / `TOOLS.md` / the register and the
    transcript is deleted, because a second home for a claim is a second place for it
@@ -162,8 +165,7 @@ in the role's voice.**
 - The owner is the gate for what data cannot settle — aesthetics, trade-offs,
   ratifications. **Everything an instrument settles, decide, record, and state the
   number and the instrument.**
-- **Keep `prompts/REPORT.md` current in the same commit as the work it records;
-  closed BACKLOG items are REMOVED entirely** (history is git's); new divergences
+- **Closed BACKLOG items are REMOVED entirely** (history is git's); new divergences
   get their removal-conditions row in the same commit.
 - When your own usage nears its end, write your successor's continuation prompt as
   this one was written, and retire this file in that commit. **Name the premises you
@@ -199,7 +201,7 @@ success.**
 
 ## State — verify it, do not inherit it
 
-**Current state is `prompts/REPORT.md` and `BACKLOG.md`, not this file.** An
+**Current state is `BACKLOG.md`, not this file.** An
 incoming PM re-verifies anyway, and accumulated narrative here is exactly what goes
 stale between handoffs.
 
@@ -211,5 +213,5 @@ stale between handoffs.
 - **NOT YOURS TO PROMOTE: the render tier.** Owner-stated phase is FOUNDATIONAL —
   *"we are not at the render tier yet, still looking for tightening opportunities,
   fixes and general foundational improvements."*
-- **What is with the owner at any time is listed in `prompts/REPORT.md`. Build
-  nothing on an open question.**
+- **What is with the owner at any time is listed in `BACKLOG:pending-owner`.
+  Build nothing on an open question.**

@@ -2485,7 +2485,8 @@ SILENT — pin the state, never inherit it):
   before classifying anything as dead.
   **Corollary met in the same records — READ THE FIELD, NOT THE PROSE BESIDE IT.**
   Those records carry a `_note` that opens *"source-verified: hashes computed at
-  the source by remote_publish.sh…"*, which reads as contradicting `REPORT.md`'s
+  the source by remote_publish.sh…"*, which read as contradicting the since-retired
+  `prompts/REPORT.md`'s
   *"local-hash verified only"*. It does not: the `_note` is a two-term GLOSSARY
   whose first sentence defines the term that does NOT apply, and the actual
   `integrity` field reads **`transfer-verified` in all 9**. A glossary that leads
@@ -2626,6 +2627,12 @@ SILENT — pin the state, never inherit it):
   proving the measurement happened. Unrelated landmine found in the same probe:
   **`setfindstar -reset` returns exit 1** on success in 1.4.4, so an `.ssf`
   ending in it fails a `set -e` caller for no reason.
+  **AND `findstar`'s DETECTION COUNT JITTERS ~0.3% BETWEEN IDENTICAL RUNS while the
+  top-30 medians hold to the third decimal** — an instrument fact to carry, not a
+  defect to chase. It bounds what a COUNT comparison can resolve and leaves a
+  rank-matched shape comparison unaffected, which is the form this registry already
+  requires for cross-level work. (Migrated from the retired `prompts/REPORT.md`,
+  which was its only home.)
 - **A NUMBER READ OFF A LOADED BOX IS NOT A MEASUREMENT — record the load with
   the reading, for EVERY tool, not just the slow neural ones.** MEASURED:
   `verify_lens_card.py`'s grid positive control read Siril sigma **14666**

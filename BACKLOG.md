@@ -172,6 +172,125 @@ names.**
 
 ---
 
+## `pending-owner` — decisions with the owner, and the input they ordered gathered
+
+**Migrated from the retired `prompts/REPORT.md`** (owner: *"report.md was meant to be
+temp. get rid of it. we don't need it. it's clutter."*). Its queue duplicated this
+file slug-for-slug and its session transcripts are in git; what follows is what had
+no other home. **Everything here is the owner's or is held for them.**
+
+### The HISTORIAN role doc — HELD BY THE OWNER
+
+A fifth seat runs with no role doc. `CLAUDE.md:487` enumerates a "four-session team",
+so a fifth standing role is a contract question and `CLAUDE.md` is the owner's file
+alone. Measured: `ls prompts/` has no HISTORIAN file, and GNU grep via `env -i`
+returns **2** incidental hits tree-wide (`prompts/ORACLE_HANDOFF.md:141`,
+`docs/dead-ends.md:3019`) — references to the seat's work, neither a remit.
+**OWNER'S RULING: HOLD** — *"I want you to write the doc for the historian later on
+after you have an understanding of how it has been helpful in the past (ask the
+oracle) — worry about this later. this is a gap but you don't have experience to
+write this up yet. hold off."* The seat correctly refused to write its own.
+**The input the owner ordered gathered, first-hand from the Oracle:** the seat dated
+a claim and refused to collapse its ambiguity (*"NO INSTALLED TOOL CAN CORRECT…"*
+entered `6541ce2`; first `PSFEx` anywhere is `4e17e2d`, so TRUE when written by two
+days twenty hours — then three defensible staleness dates and no ruling between
+them); it reversed the causal order both other seats assumed; it traced a claim's
+SEED (**an over-generalised negative becomes CORROBORATION for the next one**, so the
+scope error is invisible at the second site because the first is a real measurement
+correctly quoted); and it produced a maintenance census with a structural cause.
+**CENSUS CORRECTED IN MIGRATION:** it read *"2 commits in its entire existence"* for
+`docs/untracked-widefield-standards.md`; `7c746f8` made it **3**, and the shape
+stands while the count does not.
+**What it changed about the Oracle's method:** *a config dump proves a parameter is
+DECLARED, never that it is CONSULTED*; *its sources MOVE and git history does not*
+(the pinned-upstream-SHA rule); and the refutation of a clause the Oracle had read at
+boot and not questioned.
+**Its characteristic error, for the eventual doc's failure catalogue: it attributes
+from PLAUSIBILITY rather than from the record** — stray `.ssf` files attributed from
+who was busy; `1e7c15e` attributed to a session it predated by ten hours; a class
+reported from commit SUBJECTS it had not diffed. It flagged its own scope every time,
+which is why none did damage. **The rule: your authority is the diff and the
+artifact — not the commit message, which is the author's own account.**
+
+### UNCHECKED — logged, not discharged
+
+- **"A size ceiling on role docs reduces the dilution it was built to prevent."**
+  Three seats have reasoned INSIDE this premise since `prompts/README.md` landed;
+  that file self-flags its mechanism as DOCTRINE and concedes the ceiling measures a
+  CORRELATE, and its own hole (c) is a counterexample in principle. Not reachable by
+  the PM's audit-by-re-execution, which cannot reach a premise the brief rests on.
+  Routes: the owner, a tool measurement, or the adversary.
+- **"Self-picked targets outperformed assigned ones."** Handed over as established
+  and **refused from the inside by the seat it flatters**: no counterfactual was
+  measured, and it flatters both parties who agreed on it. Competing explanation is
+  SEQUENCING, not autonomy — the first units were assigned, narrow, and taught the
+  tree. **Operating rule adopted meanwhile: assign the first unit, then release.**
+
+### Live with the owner
+
+1. **The removal-conditions register — the premise previously put to the owner was
+   FALSE.** It read *"not one row EVER removed by its condition firing"*; `243b0a6`
+   removed a row marked **FIRED** (`solve_field.detect_stars` peak centroids, retired
+   because SExtractor's `sep` took the job). The census also inverts: the register
+   ran **10 → 4 across late July** and only grows monotonically from ~08-05, so the
+   quoted figure describes ten days. **Third framing: a burst of newly-DISCOVERED
+   divergences during intensive auditing, not a failure to retire.** What stays open
+   is the SCHEMA question — a key, and a destination for code that outlives its
+   divergence — not whether the register can shed rows.
+2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
+   `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
+   `get_selection_star` while it returns `ImageStats.deserialize(response)`.
+   **Outward-facing action under the owner's identity needs their word**, and whether
+   it is already filed on Siril's tracker was never checked.
+3. **L2 may reopen.** Cosmic Clarity's chroma knob saturates above 0.85, but no
+   record says which `--denoise_mode` that was measured under. `render-ladder` is
+   user-gated and not the PM's to promote.
+
+### Owner rulings that existed in NO other file
+
+**The per-member trim — RULED: WAIT, and the corner defect is REAL.** Migrated
+because a tree-wide search put these verbatim quotes in the retired file and nowhere
+else. The degradation is VISIBLE to the owner on the full-frame render — *"they are
+already bad in the full frame render. i can see it and no render will make it look
+better - just more obvious."* So it is not a below-threshold residue and the render
+tier cannot improve it. **Because the cause is unknown, any step forward is a
+BANDAID** — the owner applying `CLAUDE.md`'s own rule. The trim stays refused, with
+the stated reason: crop and we may never find the real cause, while losing frame
+size, SNR-over-time and possibly final quality, *"because there are issues with an
+unknown cause, so how deep or subtle the issue is is not known."* **Keep digging is
+the ratified direction.**
+**The owner's own mechanism for the corners**, field knowledge that matches what was
+measured: the far-corner stars are ALWAYS at the edge of a member's frame, so the
+union corner is built exclusively from worst-case samples — *"the stars being stacked
+are the worse images possible."* The corner work measured that axis independently
+(member-own field radius **+0.53 px per unit ρ, 3.6 SE**; coverage depth **0.2 SE**).
+The open half — whether properly centred frames would change it — is acquisition-side
+and therefore not a route this repo takes (MEMORY: the data is a given).
+**Also ruled, and recorded elsewhere already:** the L1 judge triple
+(`datasets/aug06/l1_work/owner_ratification.json`), the two parallel-session rules
+(`b36ef3b`, `64f61d2`, both verified in `CLAUDE.md`), and starlight preservation as a
+logged UNCHECKED premise that blocks nothing
+(`datasets/aug06/l1_work/unchecked_premises.json`).
+
+### Queue items that had no home in this file
+
+- **Real-flats HANDLED path** — wire master-flat builds into the undistort route so
+  staged real flats are USED, not merely refused accurately (owner precedence: real
+  flats WIN when present). Not a recommendation to acquire them.
+- **`--weight=noise` corpus arm** — motivated by a MEASURED 18–24% cross-night noise
+  gap (aug09 haze, +0.16 mag extinction, 16,913 matched stars); pre-registered
+  one-knob A/B against the shipped `nbstack` corpus, judged on `snr_regions` +
+  `shape_at_sky` + the owner's eyes.
+- **Pooled master darks** — belongs under `dark-optimization-fork`, which does not
+  mention pooling. Gated on the nights' masters measuring identical (they did: Δ0.1
+  ADU, noise within 1%); judged on `noise_split.sh`'s structured term. Per-session
+  stays the default.
+
+**Closes when** the owner rules on the historian doc and on the register schema, and
+the three queue items above are either scheduled or refused.
+
+---
+
 ## `compose-homography-smear` — the largest measured defect in any shipped product
 
 **The sub-stack compose is a MOSAIC and is being aligned with a single homography.**

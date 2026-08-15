@@ -54,7 +54,7 @@ drift — the repo already carries that rule for code; this states it for prose.
 | open work; a divergence and its removal condition | `BACKLOG.md` |
 | how the owner works and judges | `MEMORY.md` |
 | the contract itself | `CLAUDE.md` — **owner only, never a session's to edit** |
-| what is queued, with whom, and what is pending the owner | `prompts/REPORT.md` |
+| what is queued, with whom, and what is pending the owner | `BACKLOG.md` (`pending-owner` for the last) |
 | **the remit of one role, and its startup order** | **the role doc — and nothing else** |
 
 ### The discriminator — one question, and it settles almost every case

@@ -41,8 +41,9 @@ a second place for it to drift, which is a defect class this repo has measured.
 
 1. **Your role is stated above. It is not a question.**
 2. **Read:** this file → `CLAUDE.md` → `docs/dead-ends.md` completely →
-   `BACKLOG.md` → `TOOLS.md` → `MEMORY.md` → `README.md` → **`prompts/REPORT.md`**,
-   the working register of what is queued and how it is judged. **This file is
+   `BACKLOG.md` → `TOOLS.md` → `MEMORY.md` → `README.md`. **`BACKLOG.md` is the
+   queue AND what is pending the owner (`pending-owner`); there is no separate
+   working register.** **This file is
    short and mostly pointers, so reading it first tells you where to go; it is not
    a frame to inherit. The contract and the registry are the authorities.**
 3. **Then `git log --since='<date> 00:00' --format='%h %ad %s' --date=format:'%m-%d %H:%M'`
