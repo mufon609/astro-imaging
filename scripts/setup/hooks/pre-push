@@ -2,7 +2,7 @@
 # pre-push — run every guard and data-free selftest before anything leaves this
 # machine. Installed by scripts/setup/install_hooks.sh from the tracked source.
 #
-# WHY PRE-PUSH AND NOT PRE-COMMIT. The suite is 23 checks in 27-33 s. On commit
+# WHY PRE-PUSH AND NOT PRE-COMMIT. The suite is 24 checks in 27-33 s. On commit
 # that is a tax on every records-only edit, and this repo commits records
 # constantly — a hook people route around is worse than none. On push it fires
 # once per batch, which is the natural boundary: it is the last point at which a

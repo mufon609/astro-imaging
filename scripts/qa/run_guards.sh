@@ -67,6 +67,14 @@
 # - `scripts/setup/x86_bootstrap.sh --selftest-gaia` — a bootstrap-LAYER fire
 #   test (note the different flag), which downloads the Gaia catalogue into a
 #   scratch dir. Not a repo guard and far too heavy for this runner.
+# - `scripts/qa/check_solve_records.py` (the FULL run, not its selftest) — joins
+#   plate-solve RECORDS against the ARTIFACTS they name, so it needs live products
+#   under `web/results/`, which is gitignored and absent from a fresh clone. Its
+#   `--selftest` IS data-free and IS in the roster above: it plants a disagreeing
+#   record and asserts it fires, plants a matching one and asserts it does not, and
+#   asserts CRVAL is distinguishable from the centre pixel — that last arm guards
+#   the instrument's design decision rather than its code, since a future edit
+#   swapping the comparand back to CRVAL would pass every other arm.
 # - `datasets/aug06/corner_work/*.py --selftest` — PER-DATASET, with TWO
 #   DELIBERATE EXCEPTIONS now in the roster. The rest depend on one dataset's
 #   records and are not repo guards; they are listed here so nobody concludes
@@ -113,6 +121,7 @@ CHECKS=(
   "selftest flat_differential|python3 scripts/qa/flat_differential.py --selftest"
   "selftest grid_ramp|python3 scripts/qa/grid_ramp.py --selftest"
   "selftest coverage_frame|python3 scripts/qa/coverage_frame.py --selftest"
+  "selftest check_solve_records|python3 scripts/qa/check_solve_records.py --selftest"
   "selftest starlight_preservation [network]|python3 scripts/qa/starlight_preservation.py --selftest"
   # THE TWO SHARED LIBRARIES UNDER corner_work/, ADDED DELIBERATELY — see the
   # exclusion note above, which they are the stated exception to.
