@@ -1,0 +1,272 @@
+{
+ "_what": "CAMERA POINTING IN THE OBSERVER (alt/az) FRAME, per set, across every group-built set on this rig. Measures how much the observer-frame pointing CHANGES across the corpus \u2014 the quantity that decides whether a term fixed in the observer frame (a horizon-fixed sky gradient) would average down across a multi-pointing combine, or imprint.",
+ "_this_creates_a_corpus_level_under_datasets/": "datasets/<session>/<set>/ is the wrong shape by construction for a measurement spanning sessions, and web/results/ is gitignored so it cannot hold a tracked record. This PARTIALLY answers BACKLOG:cross-set-record-home \u2014 the NAMING half only. That item also covers PRODUCTS and a record SCHEMA and is NOT closed by this file.",
+ "_measured_at_commit": "0ecf111",
+ "_reads": "FITS headers and the tracked site record only. No pixel is opened. Nothing is gated.",
+ "method": {
+  "site": "scripts/setup/site.json, sitelat REDACTED_SITELAT / sitelong REDACTED_SITELONG, height 0 (siteelev_m is null there and deliberately not defaulted). That file's own provenance block marks the coordinates TRANSCRIBED, UNVERIFIED and bounded only at the DEGREE level \u2014 every altitude here inherits that.",
+  "pointing": "each group sub-stack's own WCS evaluated AT ITS CENTRE PIXEL. Never CRVAL (the tangent point; BACKLOG:pointing-record-names-the-wrong-frame) and never fingerprint.field_center (the FIRST frame's solve).",
+  "epoch": "DERIVED per group, not read. See the defect below: DATE-OBS on a sub-stack names the SET's first frame while each group's centre has drifted up to 4.9 deg of RA, so pairing them manufactures a spurious alt/az drift. Each group's epoch is recovered as t0 + dRA/15.041 hr.",
+  "statistic": "ANGULAR SEPARATION in the horizon frame, not azimuth spread. Azimuth is DEGENERATE near the zenith and one set here sits 1.60 deg from it; raw azimuth spread reads 155.6 deg corpus-wide and 141 deg within aug09, almost entirely as that artifact."
+ },
+ "control": {
+  "what": "a FIXED mount must give constant alt/az through a set, so within-set spread is the falsification.",
+  "with_DATE-OBS_as_read_deg": 3.933,
+  "with_derived_epochs_deg": 0.088,
+  "verdict": "PASSES only with derived epochs \u2014 a 45x improvement. The first form was wrong and the control is what said so.",
+  "per_set": [
+   {
+    "session": "aug06",
+    "set": "set-01",
+    "within_set_alt_spread_deg": 0.005
+   },
+   {
+    "session": "aug06",
+    "set": "set-02",
+    "within_set_alt_spread_deg": 0.007
+   },
+   {
+    "session": "aug06",
+    "set": "set-03",
+    "within_set_alt_spread_deg": 0.028
+   },
+   {
+    "session": "aug09",
+    "set": "set-01",
+    "within_set_alt_spread_deg": 0.034
+   },
+   {
+    "session": "aug09",
+    "set": "set-02",
+    "within_set_alt_spread_deg": 0.088
+   },
+   {
+    "session": "aug09",
+    "set": "set-03",
+    "within_set_alt_spread_deg": 0.014
+   },
+   {
+    "session": "aug09",
+    "set": "set-04",
+    "within_set_alt_spread_deg": 0.008
+   },
+   {
+    "session": "aug09",
+    "set": "set-05",
+    "within_set_alt_spread_deg": 0.005
+   },
+   {
+    "session": "july31",
+    "set": "set-01",
+    "within_set_alt_spread_deg": 0.019
+   },
+   {
+    "session": "july31",
+    "set": "set-02",
+    "within_set_alt_spread_deg": 0.006
+   },
+   {
+    "session": "july31",
+    "set": "set-03",
+    "within_set_alt_spread_deg": 0.006
+   },
+   {
+    "session": "july31",
+    "set": "set-04",
+    "within_set_alt_spread_deg": 0.003
+   }
+  ]
+ },
+ "result": {
+  "n_sets": 12,
+  "n_nights": 3,
+  "max_pairwise_separation_deg": 37.174,
+  "median_pairwise_separation_deg": 12.578,
+  "altitude_range_deg": [
+   65.158,
+   88.401
+  ],
+  "by_night": {
+   "aug06": {
+    "n_sets": 3,
+    "max_pairwise_separation_deg": 9.633,
+    "median_pairwise_separation_deg": 6.996,
+    "altitude_min_deg": 73.987,
+    "altitude_max_deg": 83.442
+   },
+   "aug09": {
+    "n_sets": 5,
+    "max_pairwise_separation_deg": 17.459,
+    "median_pairwise_separation_deg": 11.186,
+    "altitude_min_deg": 76.87,
+    "altitude_max_deg": 88.401
+   },
+   "july31": {
+    "n_sets": 4,
+    "max_pairwise_separation_deg": 16.629,
+    "median_pairwise_separation_deg": 9.455,
+    "altitude_min_deg": 65.158,
+    "altitude_max_deg": 81.567
+   }
+  },
+  "_the_spread_is_cross-night": "within a single night the max is 9.63-17.46 deg; the corpus figure is dominated by cross-night pairs."
+ },
+ "ratio_to_field": {
+  "_state_the_subject": "the ratio depends on WHICH field, and all three are measured from the products' own WCS rather than assumed.",
+  "single_member_width_deg": 27.09,
+  "ratio_vs_member": 1.37,
+  "three_set_union_canvas_width_deg": 33.87,
+  "ratio_vs_3set_union": 1.1,
+  "three_night_union_canvas_width_deg": 38.79,
+  "ratio_vs_3night_union": 0.96,
+  "_which_one_this_question_wants": "the SENSOR's field (single member, 27.09 deg), because a superflat is built from FRAMES and the question is whether an observer-fixed term lands on different SENSOR regions. The union canvases are composites and are the wrong subject for that. Ratio 1.37.",
+  "_robust_either_way": "0.96 to 1.37 across all three subjects \u2014 the separation is on the order of a field width whichever is named."
+ },
+ "registry_claim_checked": {
+  "claim": "altitude 63.4-87.7 deg",
+  "measured_here_deg": [
+   65.158,
+   88.401
+  ],
+  "verdict": "NOT a contradiction \u2014 different denominators. The registry figure is over 23 solved products via site_verification.json; this is over the 12 group-built sets. Neither should be quoted bare."
+ },
+ "open_constraints_NOT_resolved_by_this_measurement": [
+  "OPTICAL STATE. The leverage is cross-night, and a cross-night combine spans different optical states \u2014 focus recalibration each session is standing practice and this repo has measured the lens profile moving with it. A flat's job is to measure the optical state; one spanning nights averages over the thing it exists to measure. Pointing diversity does not answer this and it may be the constraint that actually decides the route.",
+  "THE GRADIENT IS NOT ONE TERM. The registry measures the flat's odd plane at 4.8-19.4% on a moonless night and 16.8-22.6% on a moonlit one. Combining those averages DIFFERENT gradients rather than cancelling one, which reduces any single imprint without cleanly removing it."
+ ],
+ "_what_this_record_is_not": "Neither a green nor a red light. No superflat was built, none is proposed, and the user-ratified ban is untouched. This supplies one measurement so the owner's decision is informed rather than abstract; the two constraints above are what they weigh it against.",
+ "per_set": [
+  {
+   "session": "aug06",
+   "set": "set-01",
+   "n_groups": 5,
+   "field_centre_ra_deg": 303.6626,
+   "field_centre_dec_deg": 42.5114,
+   "epoch_utc": "2026-08-07T02:46:42",
+   "altitude_deg": 73.987,
+   "azimuth_deg": 74.067,
+   "zenith_distance_deg": 16.013
+  },
+  {
+   "session": "aug06",
+   "set": "set-02",
+   "n_groups": 4,
+   "field_centre_ra_deg": 306.8689,
+   "field_centre_dec_deg": 42.6789,
+   "epoch_utc": "2026-08-07T03:13:47",
+   "altitude_deg": 76.601,
+   "azimuth_deg": 72.703,
+   "zenith_distance_deg": 13.399
+  },
+  {
+   "session": "aug06",
+   "set": "set-03",
+   "n_groups": 4,
+   "field_centre_ra_deg": 304.1053,
+   "field_centre_dec_deg": 42.6323,
+   "epoch_utc": "2026-08-07T03:40:46",
+   "altitude_deg": 83.442,
+   "azimuth_deg": 63.688,
+   "zenith_distance_deg": 6.558
+  },
+  {
+   "session": "aug09",
+   "set": "set-01",
+   "n_groups": 4,
+   "field_centre_ra_deg": 307.3855,
+   "field_centre_dec_deg": 42.3185,
+   "epoch_utc": "2026-08-10T03:49:33",
+   "altitude_deg": 84.832,
+   "azimuth_deg": 61.204,
+   "zenith_distance_deg": 5.168
+  },
+  {
+   "session": "aug09",
+   "set": "set-02",
+   "n_groups": 4,
+   "field_centre_ra_deg": 307.9773,
+   "field_centre_dec_deg": 41.5855,
+   "epoch_utc": "2026-08-10T04:16:40",
+   "altitude_deg": 88.401,
+   "azimuth_deg": 358.249,
+   "zenith_distance_deg": 1.599
+  },
+  {
+   "session": "aug09",
+   "set": "set-03",
+   "n_groups": 5,
+   "field_centre_ra_deg": 305.7032,
+   "field_centre_dec_deg": 40.8338,
+   "epoch_utc": "2026-08-10T04:42:08",
+   "altitude_deg": 83.316,
+   "azimuth_deg": 280.059,
+   "zenith_distance_deg": 6.684
+  },
+  {
+   "session": "aug09",
+   "set": "set-04",
+   "n_groups": 5,
+   "field_centre_ra_deg": 305.4417,
+   "field_centre_dec_deg": 42.0742,
+   "epoch_utc": "2026-08-10T05:09:27",
+   "altitude_deg": 77.907,
+   "azimuth_deg": 285.064,
+   "zenith_distance_deg": 12.093
+  },
+  {
+   "session": "aug09",
+   "set": "set-05",
+   "n_groups": 4,
+   "field_centre_ra_deg": 310.6172,
+   "field_centre_dec_deg": 40.9694,
+   "epoch_utc": "2026-08-10T05:35:50",
+   "altitude_deg": 76.87,
+   "azimuth_deg": 279.914,
+   "zenith_distance_deg": 13.13
+  },
+  {
+   "session": "july31",
+   "set": "set-01",
+   "n_groups": 5,
+   "field_centre_ra_deg": 310.746,
+   "field_centre_dec_deg": 41.5435,
+   "epoch_utc": "2026-08-01T02:51:17",
+   "altitude_deg": 65.158,
+   "azimuth_deg": 75.556,
+   "zenith_distance_deg": 24.842
+  },
+  {
+   "session": "july31",
+   "set": "set-02",
+   "n_groups": 5,
+   "field_centre_ra_deg": 308.7092,
+   "field_centre_dec_deg": 42.7663,
+   "epoch_utc": "2026-08-01T03:17:05",
+   "altitude_deg": 71.521,
+   "azimuth_deg": 73.335,
+   "zenith_distance_deg": 18.479
+  },
+  {
+   "session": "july31",
+   "set": "set-03",
+   "n_groups": 5,
+   "field_centre_ra_deg": 311.782,
+   "field_centre_dec_deg": 42.9828,
+   "epoch_utc": "2026-08-01T03:45:54",
+   "altitude_deg": 74.544,
+   "azimuth_deg": 72.158,
+   "zenith_distance_deg": 15.456
+  },
+  {
+   "session": "july31",
+   "set": "set-04",
+   "n_groups": 2,
+   "field_centre_ra_deg": 310.6211,
+   "field_centre_dec_deg": 43.1205,
+   "epoch_utc": "2026-08-01T04:20:30",
+   "altitude_deg": 81.567,
+   "azimuth_deg": 64.743,
+   "zenith_distance_deg": 8.433
+  }
+ ]
+}

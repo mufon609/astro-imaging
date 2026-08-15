@@ -2827,6 +2827,24 @@ SILENT — pin the state, never inherit it):
   frames across units by name. This is recorded because it is guaranteed to
   arrive, not because it has bitten yet.
 
+- **`DATE-OBS` ON A GROUP SUB-STACK NAMES THE SET'S FIRST FRAME, NOT THAT GROUP'S
+  EPOCH — SO PAIRING IT WITH THE GROUP'S OWN WCS MANUFACTURES A DRIFT.** MEASURED:
+  every `sub_*.fit` of a set carries an IDENTICAL `DATE-OBS` while each group's
+  WCS centre has moved with the sky — aug06/set-01 runs **303.663 → 308.545 deg of
+  RA across five groups**, july31/set-03 **311.782 → 316.745**. Anything that reads
+  a group's pointing and its timestamp together is therefore combining a MOVED
+  position with a FROZEN clock. **Cost when it bit: an observer-frame alt/az
+  measurement read 3.933 deg of within-set spread on a FIXED tripod, where the
+  physical answer is zero. Recovering each group's epoch from the drift itself
+  (`t0 + ΔRA / 15.041 deg/hr`) dropped it to 0.088 deg — 45x.**
+  Same family as `fingerprint.field_center` being the FIRST frame's solve rather
+  than the set's pointing: a per-set quantity stamped on a per-group artifact,
+  where the name gives no hint which it is. **The tell is that the error is
+  PLAUSIBLE** — 3.9 deg looks like a real re-aim, so nothing about the number
+  invites a re-check; only a control that knows the true answer is zero catches it.
+  Consumers wanting a group epoch must derive it; `LIVETIME` is per-group exposure
+  and does not carry wall-clock cadence, so it is not the shortcut either.
+
 - **A BASENAME IS NOT A FILE IDENTITY IN A MULTI-SESSION CORPUS — AND A CHECK THAT
   COMPARES ONE IS BLIND EXACTLY WHERE THE NAMES REPEAT.** MEASURED: **19
   `skyflat*.fit` masters under `sessions/` carry 12 DISTINCT basenames**;
