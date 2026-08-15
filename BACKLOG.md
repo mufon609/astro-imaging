@@ -824,68 +824,8 @@ toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
 (`datasets/aug06/experiments.jsonl` → `resample_cost_arm_d_COMPLETE`, the LAST
 entry of that id; `datasets/README.md` carries why that qualifier is load-bearing
 and how to read this ledger for a homing check). Single-RAW measurements are
-unaffected — which is
-most of this item's evidence — but any product-vs-member or product-vs-raw
-comparison inherits it.
-
-### The gate is answered and it FAILS
-
-**`corner-fix-landscape` gates its only FIX-classified route (`rl -loadpsf=`) on a
-genuinely FIELD-CONSTANT component. Asked directly — is there a single trail scale
-`f` making `C(ρ) − f·T(ρ)` a constant 2-vector — the answer is NO, unconditionally**
-(`constancy_fit.json`, `frame_depth.json`; PM-audited by re-execution).
-
-| sample | DSC_6239 | axis χ²/4 | constancy χ²/dof |
-|---|---|---|---|
-| N = 40 | **in** | **69.5 — REJECTS** | **53.1** |
-| N = 40 | out | 686.7 — REJECTS | 129.4 |
-| N = 5 | in | 3.0 — no rejection | 1.81 |
-
-An earlier five-frame run appeared to hinge on excluding one frame; **that was a
-small-sample artefact** — one anomalous frame is 20% of five and 2.5% of forty.
-Subset bracket EXACT: the original five sit inside the forty and reproduce
-`constancy_fit.json` to the digit (15.4 / 3.0 / 1.81 / 4.31 ± 1.80).
-
-**Three things it is NOT, each excluded by measurement rather than argument:**
-- **Not a binning artefact.** The fixed term's axis runs **+0.04 / +13.86 / +21.94 /
-  +15.74 / +10.49°** across equal-COUNT bins and **+6.40 / +17.31 / +22.91 / +13.80
-  / +17.47°** across ρ-EQUAL bins — span 16.5° against 17.4°.
-- **Not the incomplete-azimuth artefact**, this thread's most repeated failure. The
-  inscribed circle holds to ρ = 0.5544, so bins 1 and 2 lie WHOLLY inside complete
-  azimuth, and the rotation is already there between those two alone: **+12.42 ±
-  2.10 (5.9σ)** with every frame in, **+12.96 ± 0.82 (15.9σ)** without DSC_6239.
-  The axes are also non-monotone across ρ (5.99 → 18.41 → 21.30 → 13.29 → 14.08),
-  which no single radial term produces.
-- **Not a class.** "First frame of a run" is one frame: group starts read −36.91 /
-  +16.84 / +17.20 / +17.50 / +16.29° against index ≥ 25 at +17.39 ± 1.52 (n = 20),
-  starts-minus-6239 against the rest is **−0.44 ± 0.43°, 1.0σ**, and DSC_6239 sits
-  at robust **z = −25.7** where the next most deviant of 40 is −1.4. **So the
-  exclusion used across this thread does not become a systematic anywhere it has
-  been applied**, including the injection rebuild.
-
-**TWO LIMITS TRAVEL WITH THE VERDICT AND NEITHER IS OPTIONAL.** χ²/dof of 53–129
-means the model is badly MISSPECIFIED rather than that it measured something. And
-**this design can KILL the route but can NEVER quote a trail scale** — T varies only
-5.1% in magnitude and 1.5° in axis across the bins, so `f` is nearly collinear with
-the constant and is separately degenerate with any overall scale error in the WCS
-behind T.
-**THE "design condition 126–132" THIS SENTENCE CARRIED IS WITHDRAWN — IT IS IN NO
-RECORD.** Enumerated: `constancy_fit.json` holds **16** `design_condition` values,
-and they are bimodal — the five per-bin values per binning run **1.08–2.00**
-(`rho_equal` 1.0809/1.0950/1.0878/1.6802/2.0010; `equal_count`
-1.1027/1.0911/1.0949/1.1105/1.8247), and the six WHOLE-FIT values are
-**100.43, 130.81, 136.08, 140.05, 141.45, 141.84**. **Exactly one (130.81) lies in
-the quoted range and no subset spans 126–132**; both revisions of the file are
-identical on this. The COLLINEARITY the sentence exists to state is UNAFFECTED and
-is in fact understated — the whole-fit condition runs to 141.8. What is withdrawn
-is the range, which is the same class as this thread's withdrawn `~1.1` χ²/dof: a
-headline pair quoted from a computation nobody persisted, and it survived because
-nothing about it looked wrong.
-
-**COMPOSITION NOTE for a gated target:** `psf_work/f{1,2,3}.lst` — Gate 1A's
-8074-star sample — is DSC_6239 / 6339 / 6439, so **one third carries the anomaly**.
-The gate reproduces exactly because it tests the estimator rather than the sample,
-but 0.5869 / 0.5798 are not corpus-representative.
+unaffected — which is most of this item's evidence — but any product-vs-member
+or product-vs-raw comparison inherits it.
 
 ### The pinned prediction
 
