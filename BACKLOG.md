@@ -952,11 +952,47 @@ complete-azimuth check live in `one-sided-band`; they are not restated here.
   symptom of UNDERSAMPLING — but removing it trades an artefact for sharpness
   rather than fixing anything, and nobody has measured the ringing it prevents on
   THIS data. Owner's call, not a free win.
+  **AND THAT IS A TRADE WITH ONE NUMBER ON IT — CONFIRMED, not just restated.** The
+  COST replays exactly from `datasets/aug06/experiments.jsonl`
+  (`resample_cost_arm_d_siril_pass`): lanczos4 **unclamped 0.45%**, **clamped
+  6.26%**, with the nearest-neighbour control at **0.00%** validating the
+  instrument. The BENEFIT has no number anywhere — a tree-wide search for a ringing
+  measurement over `datasets/` returns none, and the record itself says only
+  *"reintroduces whatever artefact the clamp was added for."*
+  **Under this repo's own evidence gate the two halves belong in different places:**
+  whether to accept a visible artefact for sharpness is aesthetic and the owner's,
+  but the artefact's MAGNITUDE is a thing an instrument settles — so the owner is
+  currently being offered a 6.26% gain against an unquantified loss. **The fixture
+  that would close it already exists and needs no new design:** the same planted
+  synthetic frames pushed through the shipped `register -2pass` →
+  `seqapplyreg -interp=` operation verbatim, with a sharp-edge target added and the
+  overshoot measured clamped vs unclamped. Cheap, and it converts an owner decision
+  from one number to two.
 - **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
   down-weighting, cropping. Owner-REFUSED as a category, with Zackay & Ofek 2017
   making it a measured information loss (`docs/dead-ends.md`).
 
 ### The ceiling is a noise budget, not a wall — MEASURED
+
+**THIS ITEM'S THREE MEASURED THREADS ALL REPLAY FROM `datasets/aug06/experiments.jsonl`
+— checked 2026-08-14.** The OTF scan (`two_probes_drizzle_input_and_otf_zeros`):
+0 of 12 at centre with max recovery **0.0034**, 0 of 12 at corner TL max **0.0076**,
+1 of 12 at corner BR at **0.0223**; MTF ladder centre 0.837/0.575/0.265/0.072
+against corner TL 0.685/0.317/0.079/0.028. The drizzle refusal: the tool's verbatim
+string, on a sequence-TYPE check. The clamp trade: 0.45% / 6.26% with a 0.00%
+nearest-neighbour control. **And the procurement negatives still HOLD** —
+`torchmfbd`, `pyimcom`, `sf_deconvolve` and `properimage` are absent from both
+`astro-venv` and host `python3`; only `galsim` 2.8.5 imports, which is what this
+item already records.
+
+**A CONTROL FIRED ON ITS OWN AUTHOR HERE, AND IT IS WORTH KEEPING.** `4cabf36`'s
+first pass asked only whether the minimum in-band MTF fell below a threshold, read
+0.004–0.009 and printed *"IN-BAND NULL PRESENT"* — conflating a monotone ROLL-OFF,
+which every PSF has and which bounds SNR, with a true NULL, an interior minimum the
+MTF recovers from. Caught inside the session and recorded in the commit. **That
+distinction is the whole probe:** had it shipped, a noise budget would have been
+written down as an information wall, and the restoration question would have been
+closed permanently on an artefact of the test rather than on the data.
 
 Scanned on the PSFEx model's own corner PSF, 12 radial cuts per position, asking
 whether the MTF ever RECOVERS after its running minimum: **0 of 12 cuts at centre,
