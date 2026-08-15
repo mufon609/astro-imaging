@@ -43,16 +43,46 @@ Re-homed here from the PM prompt, which is where they were recorded and which is
 not where a successor looks for current state. **This is the file the PM prompt
 points at for "what is with the owner", so it has to actually carry them.**
 
-1. **THE REMOVAL-CONDITIONS REGISTER HAS NO KEY, NO EXIT, AND NO DESTINATION for
-   code that outlives its divergence.** Measured: **+22 rows in 9 days, 35 of 38
-   "not fired", and not one row EVER removed by its condition firing.** The only
-   exit is *"an official tool grows this capability"*, which fires on vendors'
-   schedules. **The clause-drift guard is HELD behind this — do not build a guard
-   against a schema the owner may replace.**
-   **STATED WITHOUT THE THUMB, because the framing was flagged by its own author:**
-   the same measurement reads either as a register with no exit, or as a project
-   correctly recording that it keeps finding real divergences. The owner is deciding
-   inside whichever framing reaches them.
+1. **THE REMOVAL-CONDITIONS REGISTER — THE PREMISE PUT TO THE OWNER IS FALSE, AND
+   THE OWNER WAS BEING ASKED TO CHOOSE BETWEEN TWO OPTIONS ON IT.** The item read:
+   *"+22 rows in 9 days, 35 of 38 'not fired', and not one row EVER removed by its
+   condition firing"*, offered as *"a register with no exit"* against *"a project
+   correctly recording that it keeps finding real divergences"*.
+   **BOTH HALVES OF THE LOAD-BEARING CLAIM ARE FALSE. `243b0a6` removed a row that
+   was marked FIRED, verbatim:**
+
+       | `solve_field.detect_stars` peak centroids | a tool's extractor returns
+       trailed sources *and* measures at least as well | **FIRED** — SExtractor
+       core (`sep`) returns trailed sources, solves at higher odds, and gives
+       identical SPCC K end-to-end (`qa_work/extractor_ab.json`).
+
+   So the exit exists, it has fired, and a row went out through it **because an
+   official tool took the job** — the register working exactly as specified.
+   **AND THE GROWTH PATTERN INVERTS BEFORE 08-05.** Census over the register's whole
+   life (`grep -c '^| \`'` on `BACKLOG.md`, every commit that touched it):
+
+       07-17  10      08-05   8      08-13  20 -> 22
+       07-21   8      08-07  10      08-14  26 -> 29 -> 30 -> 32
+       07-23   7      08-08  10
+       07-26   7      08-10  11 -> 13
+       08-03   4      08-12  15 -> 18
+
+   **It SHRANK from 10 to 4 across late July.** Monotone growth starts ~08-05, so
+   the quoted figure describes ten days and is the inverse of the six weeks before
+   it. Every row-dropping commit, by subject — none is tidying:
+
+       07-17 0860202  10->7  "superseded in-house code removed"
+       07-23 5fd7133   7->6  "the reinvention retirements are complete"
+       07-26 243b0a6   6->5  "retire(calibrate): the in-house peak-centroid
+                              extractor — sep is the sole detection path"
+       08-14 0ecf111  35->31 "gate3(calxset): the item retires"
+
+   **THE THIRD FRAMING, and neither option on the board was it:** the recent growth
+   reads as a burst of newly-DISCOVERED divergences during ten days of intensive
+   auditing, not as a failure to retire. **The clause-drift guard was HELD behind a
+   premise that does not survive its own history.** What remains genuinely open for
+   the owner is the schema question (key, destination for code that outlives its
+   divergence) — not whether the register can shed rows, which it demonstrably can.
 2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
    `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
    `get_selection_star`, while it returns `ImageStats.deserialize(response)`.
