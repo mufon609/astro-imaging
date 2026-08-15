@@ -1063,51 +1063,6 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   down-weighting, cropping. Owner-REFUSED as a category, with Zackay & Ofek 2017
   making it a measured information loss (`docs/dead-ends.md`).
 
-### The ceiling is a noise budget, not a wall — MEASURED
-
-**THIS ITEM'S THREE MEASURED THREADS ALL REPLAY FROM `datasets/aug06/experiments.jsonl`
-— checked 2026-08-14.** The OTF scan (`two_probes_drizzle_input_and_otf_zeros`):
-0 of 12 at centre with max recovery **0.0034**, 0 of 12 at corner TL max **0.0076**,
-1 of 12 at corner BR at **0.0223**; MTF ladder centre 0.837/0.575/0.265/0.072
-against corner TL 0.685/0.317/0.079/0.028. The drizzle refusal: the tool's verbatim
-string, on a sequence-TYPE check. The clamp trade: 0.45% / 6.26% with a 0.00%
-nearest-neighbour control. **And the procurement negatives still HOLD** —
-`torchmfbd`, `pyimcom`, `sf_deconvolve` and `properimage` are absent from both
-`astro-venv` and host `python3`; only `galsim` 2.8.5 imports, which is what this
-item already records.
-
-**A CONTROL FIRED ON ITS OWN AUTHOR HERE, AND IT IS WORTH KEEPING.** `4cabf36`'s
-first pass asked only whether the minimum in-band MTF fell below a threshold, read
-0.004–0.009 and printed *"IN-BAND NULL PRESENT"* — conflating a monotone ROLL-OFF,
-which every PSF has and which bounds SNR, with a true NULL, an interior minimum the
-MTF recovers from. Caught inside the session and recorded in the commit. **That
-distinction is the whole probe:** had it shipped, a noise budget would have been
-written down as an information wall, and the restoration question would have been
-closed permanently on an artefact of the test rather than on the data.
-
-Scanned on the PSFEx model's own corner PSF, 12 radial cuts per position, asking
-whether the MTF ever RECOVERS after its running minimum: **0 of 12 cuts at centre,
-0 of 12 at corner TL, 1 of 12 at corner BR (0.0223, model noise). No in-band OTF
-zero anywhere — the corner is ATTENUATED, not nulled.** Median MTF over azimuth
-runs centre 0.837 / 0.575 / **0.265** / 0.072 against corner TL 0.685 / 0.317 /
-**0.079** / 0.028 at |f| = 0.1 / 0.2 / **0.3** / 0.4 cyc/px, so the corner is ~3×
-down through the mid band and any restoration that flattens it applies ~3× gain
-there. **SCOPE, and it must travel with the number: this is the OTF of the PSFEx
-MODEL, not the true PSF.** The eigen-PSFs are full 25×25 images and CAN represent
-a null, so the polynomial field fit is not the obstacle — but PSFEx fits noisy
-undersampled stars and a sharp null could be smoothed away. It shows no MODELLED
-null; it cannot prove no true null.
-
-### Drizzle
-
-**REFUSED on debayered input, MEASURED not inferred:** `seqapplyreg -drizzle` on a
-real 6064×4040×3 debayered RGB sequence returns verbatim *"This sequence is not
-mono / CFA, cannot drizzle"*. So the refusal is a SEQUENCE-TYPE check rather than
-anything Bayer-specific. **One detail recorded without a claim attached: the
-refusal names mono as acceptable, so a green-plane-only mono route is not refused
-by this check** — and `split_cfa` now provides exactly such a plane with the greens
-identified (`TOOLS.md`). Unprobed, and not asserted to be useful.
-
 **Closes when** an anisotropic treatment is procured and measured, or the owner
 accepts the corner as-is. **The in-chain question is settled: no route on this rig
 recovers corner detail, and the defect is in the photons of single unprocessed
