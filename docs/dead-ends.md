@@ -24,6 +24,15 @@ An entry with no numbers and no hedge is MECHANISM or DOCTRINE, whatever its
 tone; the load-bearing ones are flagged in place. **Anything asserting a
 result should carry its n, its instrument and its scope — and if a claim covers
 one dataset, it says so.**
+**AND ITS SUBJECT, WHICH IS A FOURTH AXIS AND WAS MISSING: name the thing the
+instrument was pointed AT, and confirm the headline names that same thing.**
+MEASURED that the other three do not reach it — three entries drifted from the
+subject they measured to an adjacent one while carrying n, instrument and scope
+correctly, so **enforcing this rule as it previously stood passes every one of
+them** (the pattern entry under "QA / scope"). **SCOPE is the near-miss that hides
+the gap:** scope answers *how widely does this apply* — one dataset, one night,
+one rig — and subject answers *what was measured*. They read as the same question
+and are not, which is why compliance on one masked drift on the other.
 
 **TERMINOLOGY — the word "dust" is BANNED in this repo, and this entry says why.**
 "Cosmic dust", "MW", "IFN" and "dust-safe" were used interchangeably for FOUR
@@ -2248,6 +2257,37 @@ SILENT — pin the state, never inherit it):
   the same asymmetry as never reporting a negative from a truncated view, one
   level up. Before a doc reading retires a route, check whether the route is
   already running.**
+  **AND THE CAUSE UNDER IT IS OURS, NOT THE VENDOR'S — n=3, THREE FILES, TWO
+  SESSIONS, ONE EVENING. A CORRECT MEASUREMENT OF A NARROW SUBJECT, WIDENED ONE
+  STEP, THEN QUOTABLE AS CORROBORATION.** The doc reading above did not invent its
+  conclusion: it found a pre-existing over-generalisation in THIS registry and
+  quoted it as support. The widening is always from something MEASURED to
+  something ADJACENT, and the adjacency differs every time:
+
+      operation -> command   a standalone SIP warp    -> "register -disto= is not per-image"
+      command   -> design    register -disto=         -> "Siril's design assumes ONE optical
+                                                         state per sequence"
+      flag      -> tool      -weight=wfwhm|nbstars    -> "Siril's -weight is a min-max ramp"
+                             is a min-max ramp           (FALSE of -weight=noise, which is
+                                                          inverse-variance, as the shipped
+                                                          run_undistort_compose.sh says)
+
+  **In every instance the measurement is correct and the number is right.** The
+  defect is the NOUN the number gets attached to in the write-up, which is why
+  re-checking the measurement never catches it. **The check is one question asked
+  of the EVIDENCE rather than of the claim: what exactly was RUN?**
+  **THE REGISTRY'S OWN PREAMBLE DOES NOT CATCH THIS, AND THAT IS THE FINDING —
+  all three entries are FULLY COMPLIANT WITH IT AND STILL WRONG.** It required n,
+  instrument and scope; each of the three carries all three correctly. SUBJECT has
+  been added there as a fourth axis for exactly this reason.
+  **DO NOT COMPUTE A RATE FROM THESE THREE.** All three surfaced because someone
+  was working the adjacent thing — a shipped route contradicted one, a queued
+  experiment depended on another, the third was found while editing that entry's
+  tail. **None was found by looking for this class**, so three is a sample of
+  where attention happened to fall, not of how often it happens. The
+  consequence-VISIBLE case (a claim a shipped artifact contradicts) is the rare
+  one; the quiet case — wrong about a subject nobody has re-run — has no tell at
+  all.
   **AND THE SAME CHECK CAUGHT A FIX WHOSE DELIVERY PATH EXCLUDED ITS OWN
   BENEFICIARY** — a class distinct from the check-cannot-fail family, because
   nothing here is a check. `install_astromatic.sh` was written expressly to close
@@ -3413,16 +3453,33 @@ SILENT — pin the state, never inherit it):
   and `install_lens_model.sh --center X,Y` writes it (`--center 0,0` removes
   it) if a future lens ever needs one.
 
-- **Siril `register -disto=` IS NOT PER-IMAGE REPROJECTION — it cancels only
-  when every member shares the solution.** Applying each member's OWN SIP as a
-  standalone warp and then composing measured WORSE than the shipped route:
-  3.99 / 6.42 / 6.19 px (centre/mid/outer) against 0.29 / 0.63 / 2.10 / 2.99 px,
-  and worst at the CENTRE, which no distortion story explains. Isolated: warping
-  ONE member by its own solution and composing it against its own unwarped self
-  gives **8.50 / 9.45 / 6.76 px** — the polynomial is not identity-preserving
-  alone. It is designed for a sequence sharing one plate solution, where the
-  absolute warp is common and cancels — **true of `-disto=`, and it does NOT
-  generalise to Siril.**
+- **A STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS
+  WORSE THAN THE SHIPPED ROUTE — the polynomial is not identity-preserving
+  alone.** Applying each member's OWN SIP as a standalone warp and then composing
+  measured 3.99 / 6.42 / 6.19 px (centre/mid/outer) against the shipped route's
+  0.29 / 0.63 / 2.10 / 2.99 px, and worst at the CENTRE, which no distortion story
+  explains. Isolated: warping ONE member by its own solution and composing it
+  against its own unwarped self gives **8.50 / 9.45 / 6.76 px**.
+  **HEADLINE CORRECTED — it read *"Siril `register -disto=` IS NOT PER-IMAGE
+  REPROJECTION"*, and NEITHER MEASUREMENT ABOVE INVOKES `-disto=`.** Both are
+  standalone SIP warps performed outside siril's registration. The px figures are
+  untouched and stand; what did not follow from them is a claim about a siril flag
+  the evidence never ran. This is the same widening that seeded the
+  `seqplatesolve` closure — see the pattern entry under "QA / scope".
+  **AND `-disto=` IS THREE VALUES, NOT ONE.** Siril's docs and this rig's own
+  `help register` (identical wording, so not a version gap): it takes **`image`**
+  (solution in the loaded image), **`file <path>`**, or **`master`** — *"to load
+  automatically the matching distortion master corresponding to each image"*.
+  `image` and `file` are single shared solutions. **`master` is UNDETERMINED and
+  must not be resolved by reading harder:** that wording permits per-image, while
+  the platesolving page's *"**This file** can then be used to undistort image**s**"*
+  leans shared-but-auto-selected. Both readings survive the text and the binary's
+  help. **The probe that would settle it, SPECIFIED AND UNRUN:** set the
+  master-distortion path in preferences, place solutions for two frames of
+  differing solve, run `register <seq> -disto=master`, and read which solution
+  siril reports loading per image — the same console channel the compose gate
+  greps at `run_undistort_compose.sh:355`. One run distinguishes per-image from
+  auto-selected-shared.
   **CORRECTED — this entry previously read *"Siril's own design therefore assumes
   one optical state per sequence"* and *"Siril has no such command", and both are
   FALSE.** `seqplatesolve` + `seqapplyreg` IS the per-image operation: it derives

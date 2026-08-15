@@ -238,9 +238,23 @@ Ordered work — nothing here is executed on an accepted product:
    **STILL OPEN, and it is the number the owner reads:** whether the marched-column
    cost below (roundness 0.448-0.613 over x = 15-30%) has ever been re-measured
    under the astrometric route. NOT FOUND re-measured; the four-position ladder
-   spans the defect but is a different instrument. **NONE OF THIS TOUCHES THE
-   OPTICS TERM** in "What the defect IS" below — a single-frame aberration no
-   registration reaches.
+   spans the defect but is a different instrument.
+   **AND IT IS NOT MERELY UNANSWERED — IT IS UNREPRODUCIBLE BY CONSTRUCTION.** The
+   19 per-column values exist in NO tracked file: only as the prose summary in
+   `9c6991f` and in this item. Its subject — the 28-member two-night star-pair
+   union `stack_j31-3+a06-3_full_onemodel` — **no longer exists on disk**; only its
+   `qa_work/*.json` survive. So the item's owner-facing number cannot be diffed
+   column-by-column against anything, and the product it describes cannot be
+   re-measured. Neither settled nor abandoned: recorded in prose, about a deleted
+   subject. A re-march is SPECIFIED against the surviving 52-member three-night
+   astrometric union (`web/results/aug09/stack_july31+aug06+aug09_full_wcs.fit`,
+   `REGMODEL = astrometric`, `A_ORDER 3`), **on TWO axes — canvas-x AND member-own
+   rho.** Canvas-x alone cannot supersede this number: a column averages over
+   whichever members cover it, so a wider product DILUTES a band rather than
+   sharpening it, and no-band-with-rho-signal reads as fixed when it is only
+   diluted. Only no-band AND no-rho-signal supersedes.
+   **NONE OF THIS TOUCHES THE OPTICS TERM** in "What the defect IS" below — a
+   single-frame aberration no registration reaches.
    **THERE IS NOW A CANDIDATE ROUTE WITH ITS FIRST LINK MEASURED, AND TWO ENTRY
    PATHS — both installed. IT IS NOT YET "THE ROUTE", AND CALLING IT ONE WOULD
    REPEAT THE FORM OF THE ERROR ABOVE:** the line this replaces declared an
@@ -695,8 +709,20 @@ Subset bracket EXACT: the original five sit inside the forty and reproduce
 means the model is badly MISSPECIFIED rather than that it measured something. And
 **this design can KILL the route but can NEVER quote a trail scale** — T varies only
 5.1% in magnitude and 1.5° in axis across the bins, so `f` is nearly collinear with
-the constant (design condition **126–132**) and is separately degenerate with any
-overall scale error in the WCS behind T.
+the constant and is separately degenerate with any overall scale error in the WCS
+behind T.
+**THE "design condition 126–132" THIS SENTENCE CARRIED IS WITHDRAWN — IT IS IN NO
+RECORD.** Enumerated: `constancy_fit.json` holds **16** `design_condition` values,
+and they are bimodal — the five per-bin values per binning run **1.08–2.00**
+(`rho_equal` 1.0809/1.0950/1.0878/1.6802/2.0010; `equal_count`
+1.1027/1.0911/1.0949/1.1105/1.8247), and the six WHOLE-FIT values are
+**100.43, 130.81, 136.08, 140.05, 141.45, 141.84**. **Exactly one (130.81) lies in
+the quoted range and no subset spans 126–132**; both revisions of the file are
+identical on this. The COLLINEARITY the sentence exists to state is UNAFFECTED and
+is in fact understated — the whole-fit condition runs to 141.8. What is withdrawn
+is the range, which is the same class as this thread's withdrawn `~1.1` χ²/dof: a
+headline pair quoted from a computation nobody persisted, and it survived because
+nothing about it looked wrong.
 
 **COMPOSITION NOTE for a gated target:** `psf_work/f{1,2,3}.lst` — Gate 1A's
 8074-star sample — is DSC_6239 / 6339 / 6439, so **one third carries the anomaly**.
