@@ -993,14 +993,22 @@ simultaneous** astrometric solution over all exposures followed by resampling th
 each frame's own WCS. The repo names this direction already; §C.2 gives it the
 primary citations.
 
-**(6) PSF homogenisation before coaddition is absent from the repo entirely.**
+**(6) PSF homogenisation before coaddition is not performed here — and it is
+absent by DELIVERY and by DOCTRINE, not for want of an implementation.**
 DES and Pan-STARRS both convolve inputs to a common target PSF before stacking,
 because objects land at different focal-plane positions in different exposures and
 naive coaddition "results in discontinuities in the PSF variation as a function of
 position within the coadd" (§C.4). That is the professional treatment of precisely
-the exit-edge stacking penalty the repo measured at +0.08 px. No amateur tool in
-`TOOLS.md` implements it; it is worth knowing it is the standard, and that the
-standard exists because the effect is real.
+the exit-edge stacking penalty the repo measured at +0.08 px. **The earlier claim
+that no tool in `TOOLS.md` implements it is FALSE**: PSFEx 3.21.1 is installed here
+and implements homogenisation directly (`psfex -dd`: `HOMOBASIS_TYPE`,
+`HOMOPSF_PARAMS`, `HOMOKERNEL_DIR`; consulted at `makeit.c:553`/`:577`, not merely
+declared). What is missing is the APPLIER — Bertin's `PSFnormalize` is DES-internal
+and unpackaged, and 0 of SWarp's 69 C files carry any homogenisation symbol against
+`RESAMPLE` in 4 as the positive control — and the treatment is owner-REFUSED
+regardless, on the grounds that it matches corner to centre by degrading the
+centre. It is worth knowing it is the standard, and that the standard exists
+because the effect is real.
 
 **(7) Smaller items:** PixInsight's distortion-model **CSV format** (`ThinPlate,2`
 then `x,y,dx,dy` nodes — an arbitrary vector field with no symmetry assumption) is the

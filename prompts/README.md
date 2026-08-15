@@ -190,6 +190,27 @@ guard covers none of them:
    prose. `ced28ce` is the recorded instance.
 3. **Dilution under the ceiling.** A 290-line role doc whose remit is at line 250
    is exactly the failure this exists to prevent, and it is GREEN.
+4. **A CLAIM AND ITS REFUTATION, EACH ROUTED CORRECTLY, LANDING IN DIFFERENT FILES
+   WITH NOTHING BRINGING THEM BACK TOGETHER.** This is not a guard gap — it is the
+   destination rule's own mechanism, and it is not fixable by routing harder.
+   MEASURED, and the instance is this repo's: *"no installed tool can correct a
+   field-variable anisotropic PSF"* is a closed route and belongs in the registry;
+   *"PSFEx implements the correction"* is a tool capability and belongs in
+   `TOOLS.md`. Both routings were RIGHT. The two commits landed **35 minutes
+   apart** in one research arc, neither referencing the other, and the
+   contradiction stood for a day.
+   **AND THE OBVIOUS MITIGATION IS ALREADY FALSIFIED HERE: more cross-references do
+   not fix it.** `TOOLS.md` DID carry a pointer naming a third site as *"FALSE and
+   needs correcting"* — it sat unactioned, and the session that later found the
+   contradiction had READ that pointer during its own boot and still re-derived half
+   of it hours later. **The tree can carry its own correction, unactioned, and still
+   not reach a reader who has read it.**
+   **DECIDED, not omitted: no machinery is built for this.** The mitigation that
+   actually worked is a SEAT rather than a mechanism — a standing contradiction hunt
+   across our docs and the tools' own, and a check on whether a later commit
+   silently changed an earlier conclusion's standing. Both are staffed roles. If
+   this class recurs with both seats running, that is the evidence that would
+   reopen the question.
 
 **So the yield of this guard is narrow and the bound is the useful half:** it
 catches unbounded accretion, which is one of the three, and it is the only one of

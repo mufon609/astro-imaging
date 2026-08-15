@@ -2005,6 +2005,16 @@ SILENT — pin the state, never inherit it):
   claiming the verifier role. **State whose inference it is, especially when it is
   adverse: "I concluded X from Y" and "they said X" are different claims and only
   one of them is checkable.**
+  **AND THE HEDGE MUST NOT WEAKEN AS THE CLAIM BECOMES ADVERSE — n=1, and it is the
+  INVERSION that makes it worth a line.** MEASURED: one session reported the same
+  evidence to two peers within minutes, labelling the authorship inference *"an
+  inference and I will label it as one"* to the UNINVOLVED party and stating it flat
+  — *"these are your probes"* — to the party it ACCUSED. The hedge went to the
+  reader who could not act on it; the assertion went to the one being blamed; and
+  the attribution was wrong. **An adverse claim needs MORE hedging than a neutral
+  observation, not less.** The negative was provable (the files demonstrably were
+  not the reporter's) and only the positive was inference — reporting the provable
+  half and holding the other is the whole of the fix.
   **AND THE GENERAL FORM, which outlives the incident: A SELF-AUDIT RUN ON THE
   INSTRUMENT THAT FAILED INHERITS ITS FAILURE.** The confession above was prompt,
   unforced and correctly owned — and it diagnosed itself with the same reasoning
@@ -2772,7 +2782,9 @@ SILENT — pin the state, never inherit it):
   said "16-bit/color RGB, 8659 x 6009" and that was taken as the check. Look at
   the pixels before calling anything a judgment surface.
 
-- **NO INSTALLED TOOL CAN CORRECT A FIELD-VARIABLE ANISOTROPIC PSF — and a GLOBAL
+- **NO INSTALLED TOOL DELIVERS A FIELD-VARIABLE ANISOTROPIC PSF CORRECTION — the
+  MEASUREMENT is installed and the APPLIER is not, the treatment is owner-REFUSED
+  either way, and a GLOBAL
   PSF cannot close a field gradient at all.** Three arms on one raw frame, every
   arm measured with identical Siril `findstar` settings (baseline whole-frame
   FWHM major 2.340 px, roundness 0.807, 7083 detections; roundness gradient
@@ -2797,6 +2809,66 @@ SILENT — pin the state, never inherit it):
   reassembly, i.e. pixel surgery on the deliverable. The prior blocker is SNR,
   not seams: `-tv`/`-fh` regularisation with `-alpha=` is unbracketed, and if
   regularised RL still eats the faint population, per-region RL will too.
+  **THE TITLE'S EARLIER FORM — *"no installed tool CAN correct"* — WAS MADE FALSE
+  BY THIS TEAM'S OWN WORK, AND NOT BY AN EXTERNAL EVENT. THE ROUTE STAYS CLOSED ON
+  BETTER GROUNDS.** The caveat defending the entry and the fact that voids it
+  landed **35 minutes apart, in the same research arc, with neither commit
+  referencing the other** — and the session was demonstrably working across BOTH
+  files the whole time: `30da598` (08-13 15:08) wrote the load-bearing-`INSTALLED`
+  caveat into this file **and edited `TOOLS.md` in the same commit** (`+32/0` here,
+  `+2/-2` there, `+1` to `manifest.tsv`); `4e17e2d` (08-13 15:43) then wrote *"IT
+  IMPLEMENTS THE CORRECTION"* into that same `TOOLS.md` and never came back.
+  **A session wrote the defence, then landed the fact that eats it, into a file it
+  had edited 35 minutes earlier.** That the two sites were both in reach makes the
+  un-amended title sharper, not more forgivable. **MEASURED:** `psfex -dd` emits a
+  `PSF homogeneisation kernel` section carrying `HOMOBASIS_TYPE`
+  (`NONE`/`GAUSS-LAGUERRE`), `HOMOBASIS_NUMBER`, `HOMOBASIS_SCALE`,
+  `HOMOPSF_PARAMS`, `HOMOKERNEL_DIR`, `HOMOKERNEL_SUFFIX` — and the parameter is
+  CONSULTED, not merely declared: `makeit.c:553` gates on
+  `homobasis_type != HOMOBASIS_NONE` and `:577` calls `psf_homo(…)`.
+  **NO SINGLE DATE IS DEFENSIBLE HERE and the ambiguity is in the entry's own
+  load-bearing word:** PSFEx was RUN on this rig at `543f099` (08-13 16:53) from a
+  sha256-verified binary, scoped *"measurement, not adoption"*, and BUILT+INSTALLED
+  at `754e5c5` (08-14 10:42). Which one makes `INSTALLED` true is the question the
+  entry rested on without asking. **Three grounds replace the capability claim,
+  none of which can go stale the same way:**
+  (1) **NOTHING INSTALLED CAN APPLY THE KERNEL.** PSFEx writes `.homo.fits` cubes
+  and stops. Bertin's manual names `PSFnormalize` (DES-internal, unpackaged) as the
+  applier and says *"The SWarp software may also later include this possibility"* —
+  it never did. **MEASURED FROM SOURCE, not from a config dump, because a dump
+  proves a parameter is DECLARED and never that it is CONSULTED: 0 of SWarp's 69 C
+  files contain `HOMO` / `homo_` / `.homo` / `PSFnormalize` / `homogen`, against
+  `RESAMPLE` in 4 as the positive control.** That was SWarp *master*; **the gap to
+  our installed 2.41.5 is CLOSED on the binary this rig actually runs** —
+  `strings $(which SWarp)` matches `homo|psfnormalize` **0** times against
+  `RESAMPLE` **43** times. The control is what licenses reading the zero: it proves
+  config names DO survive as literals in the compiled output, so the zero is an
+  absence rather than an artifact of stripping. **The gap is a PACKAGING one rather
+  than a field one, which sharpens this ground:** `pypher` (Boucaud et al. 2016,
+  ASCL 1609.022) is a pip-installable minimal-dependency applier and is absent from
+  both interpreters here (MEASURED: host `python3` and `/opt/astro-venv`).
+  (2) **The vendor calls homogenisation EXPERIMENTAL** — its own word, DOCTRINE,
+  from the manual, which nobody on this team has read directly.
+  (3) **THE DOCTRINAL CLOSURE IS THE REAL ONE AND IS ALREADY HELD, CORRECTLY, BY
+  ITS OWN ENTRY — see *"PSF HOMOGENISATION — REFUSED BY THE OWNER, and the ruling
+  binds wider than the technique"* above.** It carries the owner's words, the
+  general form, and Zackay & Ofek 2017 making it a measured information loss rather
+  than a preference. **It is not restated here on purpose: this entry's capability
+  claim was a WEAKER, STALEABLE restatement of that closure, and the newer home is
+  the one that rotted.** A closure resting on no tool fact cannot be falsified by an
+  install. (Referenced by TITLE, not by line: three coordinates decayed under
+  commits in one day.)
+  **THE BOUND THE ORACLE ASKED TO HAVE ON THE RECORD, tagged MECHANISM — its
+  inference from the solver structure, untested, and it says this is the part most
+  worth attacking:** a target PSF *narrower* than the field's best would be
+  deconvolution rather than degradation, and PSFEx does not forbid it — the one
+  variant the owner's refusal does not obviously reach. NOT proposed: experimental,
+  unregularised, no applier, and this registry already records the blocker for
+  regional deconvolution here as **SNR, not seams**.
+  Attribution: the finding, the `homo.c`/`makeit.c` source reads, the Bertin quotes
+  and the three grounds are the Oracle's; the 35-minute self-inflicted account is
+  the historian's, and it replaced an install-date frame that looked for an external
+  cause.
   **THE WORD "INSTALLED" IN THIS ENTRY'S TITLE IS LOAD-BEARING, AND THE
   DOCUMENTED LANDSCAPE IS NOT THE SAME AS THIS RIG. STATUS: DOCTRINE — vendor
   documentation, UNMEASURED here.** RC-Astro's BlurXTerminator technical manual
