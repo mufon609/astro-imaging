@@ -16,6 +16,14 @@ only what a document cannot: searched negatives with what was actually looked at
 which of my claims are inference rather than measurement, the refs that make
 external claims re-derivable, and the errors I made.
 
+**THIS FILE IS A SNAPSHOT, NOT A LIVE RECORD — RE-VERIFY ANYTHING ITS AUTHOR
+COULD HAVE CHANGED AFTER WRITING IT, AND THE UNCHECKED LIST IN §6 HARDEST.**
+MEASURED, by the author, on this file: it states *"a correction delivered in
+conversation does not correct the tree"* in §8, and then its own §6 item 6 was
+answered in a peer message and left standing here for forty minutes — the rule
+failing on the artifact that carries it. An UNCHECKED list is written by the one
+party most likely to close an item and least likely to re-read the list.
+
 ---
 
 ## 1. SEARCHED AND EMPTY — DO NOT RE-RUN
@@ -147,9 +155,16 @@ work until the historian named it.
 **The superflat route on the `sky × V` object tilt** — the project's core open
 defect, no corrective shipped.
 
-- **The field's standard answer exists and the repo had never seen it:**
-  `superflat`, `illumination correction`, `illumcor`, `mkillum` were **0 hits**
-  across every tracked `.md`. The construction is a median of many un-registered
+- **The field's standard answer exists and the repo had never seen it.** SEARCHED,
+  and the literals are written SPLIT below so this paragraph is not itself a hit:
+  `super`+`flat`, `illumination `+`correction`, `illum`+`cor`, `mk`+`illum` each
+  returned **0 tracked `.md` files** when measured — **at a commit BEFORE this file
+  landed.** Re-measured at `51e36ab` each returns **exactly 1 file, and that file is
+  this one**: the record asserting the absence became the only thing its own query
+  could match. **The substance survives — nothing outside this file carries any of
+  the four — the stated count does not.** Same shape the registry
+  registers: *you cannot document a string-search finding by pasting the string;
+  split the literal and state counts at a named commit.* The construction is a median of many un-registered
   dark-sky frames **across many pointings**, which is what makes an
   observer-frame term average down.
 - **Our ratified ban (`README.md:85`) forbids exactly that construction**, and it
@@ -181,12 +196,36 @@ defect, no corrective shipped.
 
 **NEW, mine:**
 
-5. **That the registry's own EVIDENCE-STATUS preamble is sufficient.** It requires
-   *"n, instrument and scope"* and **never asks what the instrument was pointed
-   AT**. Three over-generalisations found tonight are all fully compliant with it
-   and all wrong. **The missing axis is the SUBJECT of the measurement.**
-6. **Whether GraXpert's `background_grid_selection` imports from a pip install**
-   rather than only from the bundled app. One `python -c`.
+5. **PARTLY DISCHARGED, and the residue is a stated BOUND rather than an open
+   question.** The premise was that the registry's EVIDENCE-STATUS preamble is
+   sufficient: it required *"n, instrument and scope"* and **never asked what the
+   instrument was pointed AT**, while three over-generalisations were fully
+   compliant with it and all wrong. SUBJECT landed as a fourth axis, and at
+   `51e36ab` it is named as the **MEASURAND** with JCGM 200 (VIM) cited and the
+   IVOA Provenance Data Model explicitly NOT adopted, deviation recorded.
+   **Its own positive control then ran and caught 2 of 3** — it catches drift
+   ACROSS a subject boundary and is **BLIND to drift WITHIN one** (`-weight` names
+   `-weight`, so the axis matches and the widening sits inside the flag's own
+   modes). **The missing half is a different discipline: enumerate a subject's own
+   modes or values before asserting a behaviour of it** — which is what closed
+   `-disto=` at three values and what nobody had done for `-weight`.
+6. **CLOSED — MEASURED, and it carries a live hazard into `TOOLS.md`.**
+   `background_grid_selection` imports from **NO interpreter on this rig**:
+   `/opt/astro-venv/bin/python`, `/usr/bin/python3` and
+   `~/.local/share/astrometry-venv/bin/python` all return
+   `ModuleNotFoundError: No module named 'graxpert'`, while
+   `/opt/graxpert-3.0.2/GraXpert-linux/` is present. Run by the Oracle, re-run
+   independently by the PM. **CONSEQUENCE: `TOOLS.md`'s GraXpert row —
+   *"Points can be produced by GraXpert's own `background_grid_selection(...)`, so
+   the route needs no in-house analysis"* — is true of GraXpert and FALSE of this
+   rig, and the hazard runs the dangerous way: a session follows it, finds no
+   importable module, and writes the point placement in numpy, which is the exact
+   bright-line crossing the sentence exists to prevent.** The route is
+   bright-line-clean only AFTER `pip install graxpert` into `$ASTRO_VENV`,
+   version-pinned to the bundled 3.0.2 since the generator's output feeds that
+   CLI, with a `scripts/setup/manifest.tsv` row. **Routed to the worker as an
+   INSTALL, not a doc edit; NOT LANDED as of `51e36ab`, so treat the row as
+   hazardous until it is.**
 7. **Whether siril `requires` has an upper bound.** MEASURED: it accepts a NEWER
    siril than its argument (`requires 1.2.0` under 1.4.4 → *"compatible"*), which
    rules out exact-match. **Upper bound untested** — and it decides whether a 1.5

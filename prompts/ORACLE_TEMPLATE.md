@@ -26,9 +26,10 @@ rest — a second home for a fact is a second place for it to drift.
 1. **Your role is stated above. It is not a question.**
 2. **Read:** this file → `CLAUDE.md` → `docs/dead-ends.md` COMPLETELY →
    `BACKLOG.md` → `TOOLS.md` → `MEMORY.md` → `README.md` →
-   `prompts/ORACLE_HANDOFF_*.md` for the do-not-re-run negatives and the live
-   UNCHECKED list → **`prompts/REPORT.md`**, the working register of what is
-   queued and how it is judged.
+   `prompts/ORACLE_HANDOFF.md` for the do-not-re-run negatives and the live
+   UNCHECKED list — **exactly one file, no engagement number and no glob; the
+   successor REPLACES it rather than adding a fourth** → **`prompts/REPORT.md`**,
+   the working register of what is queued and how it is judged.
 3. **`git log --since='<date> 00:00' --format='%h %ad %s' --date=format:'%m-%d %H:%M'`
    — a DATE bound, never a fixed count, and never `--oneline`. A `-N` window does
    not present as partial, it presents as the object: `-100` covered a 115-commit
