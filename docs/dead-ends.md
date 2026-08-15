@@ -1072,6 +1072,14 @@ the constraints any such tool must satisfy):
   *"Ignored for astrometry.net solves"*, so `-nocrop` is moot there). Side fact: Siril's
   AUTO limit mag for a 36° field is only 7.81 while detection goes far deeper — a
   population mismatch, not the blocker.
+  **SCOPE — THIS CLAIM IS ABOUT SINGLE TRAILED FRAMES ONLY, AND IT ONCE WIDENED
+  PAST THAT SILENTLY.** Every measurement above is on single 2.5 s ultra-wide
+  exposures. On STACKED MEMBERS, whose stars are round, Siril's own solver DOES
+  handle this class — `seqplatesolve -order=3`, 2/2 solved, 388 and 371 matched
+  stars (the *"Siril's internal plate solver DOES handle this class on STACKED
+  members"* entry below). **Read this entry with that one or it reads as a
+  capability claim about the tool rather than about the DATA**, which is how the
+  belief widened before.
 - **The fix: feed astrometry.net a SHAPE-BLIND xylist (its INTENDED override — solve-field
   on an xylist runs NO pixel extraction, matcher geometry-only, Lang 2010). Blind-solve
   first, label after.** Best source is SExtractor's core `sep`: returns trailed sources
@@ -2562,6 +2570,15 @@ SILENT — pin the state, never inherit it):
   treat any claimed effect under ~0.07% flat-sky / ~2% star-edge as unmeasured.
   Corollary: measure a calibration change where it is unambiguous (on the
   MASTER) rather than where it is swamped (on the finished stack).
+  **SCOPE — "THE CHAIN IS NOT PIXEL-REPRODUCIBLE" IS TRUE OF THIS COMPARISON AND
+  FALSE AS A PROPERTY OF THE CHAIN.** The floor above is between two separately
+  REGISTERED runs, and registration interpolation is what varies. Measured
+  elsewhere in this registry and not to be discovered by a reader who stops here:
+  the groups route's COMPOSE stage recomposes BIT-IDENTICALLY, the whole groups
+  route rebuilds all-nil across six pairwise directions, and every stage of the
+  render tier is bit-identical run to run including across thread counts. **So the
+  quantity that is not reproducible is a REGISTRATION SWEEP, not the chain** — cite
+  this floor for A/Bs that re-register, never as a general statement.
 - **The stretched judge surface AMPLIFIES background gradients, by a factor that
   grows with sky brightness and with stack depth — so a flat image can render as
   a visibly tinted, vignetted one.** Siril's autostretch puts its black point at
