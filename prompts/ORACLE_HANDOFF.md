@@ -262,10 +262,19 @@ the answer decides a route.**
 ## 8. PROCESS FACTS IN NO OTHER DOCUMENT
 
 - **`ListAgents` does not list the querent.** A roster that excludes the asker
-  cannot answer *"does X exist"* when X might be the asker — I reported a peer's
-  address as non-existent on exactly that. **Reply to the `from=` attribute, and
-  never relay a peer's name to a third session as an address; names are
-  per-vantage.**
+  cannot answer *"does X exist"* when X might be the asker — two seats reported a
+  peer's address as non-existent on exactly that, and in each case the row they
+  could not see was their own.
+  **The appended generalisation "names are per-vantage" is FALSE and is retracted.**
+  MEASURED, n=3 independent rosters, one axis of variation (the querent): every
+  name shared between any two is IDENTICAL, and each roster is the live set minus
+  its own asker. SUBJECT: the roster's ROW SET, not the naming scheme — the
+  distinction the retracted wording collapsed. The over-general form has a cost:
+  it forbids relaying an address that is in fact reliable, and under it a seat
+  cannot be told a peer's name at all.
+  **The correct form: a roster is every live session except the querent; all other
+  names agree across vantages and are safe to relay. Reply to the `from=`
+  attribute because the asker cannot see itself — not because names differ.**
 - **A correction delivered in conversation does not correct the tree.** I narrowed
   my own Engagement-1 negative in messages and left the landed text standing.
   **When a later finding narrows an earlier one, grep the TREE for the earlier
