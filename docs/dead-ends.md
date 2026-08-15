@@ -87,6 +87,35 @@ repeatedly been an entry nobody expected to fire** — so the test is *would it
 change a decision*, never *is it interesting*, and a rate rule is a budget on
 WRITING, never a licence to delete what is already here.
 
+**FOUR WAYS AN ENTRY'S STANDING DIFFERS FROM WHAT THE ENTRY APPEARS TO SAY.**
+"Settled" is not among them — it is the null hypothesis every entry is read under,
+and naming it changes no decision, so it is deliberately not a fifth state. Each of
+these four does change one, and each earned its place by having already happened
+here:
+- **ABANDONED CLEANLY** — the non-attribution was PRE-DECLARED, before the run and
+  before the outcome was known, then honoured. *Changes:* re-running the same data
+  is worthless; only a new DESIGN reopens it. Without the label, an open
+  unattributed question invites a retry. (`21653a1`'s CFA arm — *"this arm cannot
+  separate them and will not attribute"* — delivered exactly as declared.)
+- **UNREPRODUCIBLE BY CONSTRUCTION** — the numbers live only in prose, or the
+  subject no longer exists. *Changes:* a "re-measurement" is a FIRST measurement and
+  nothing can be diffed against the old figures. (`compose-homography-smear`'s 19
+  marched columns: in no tracked file, and their product deleted.)
+- **SILENTLY REVERSED** — a conclusion overturned with no record that anything was
+  being overturned. *Changes:* everything downstream of the reversal is suspect and
+  the reversal itself is the thing to audit. **The expensive one** — it retired a
+  measured, adopted, OWNER-PASSED compose route on a help-text reading, four days
+  after that route shipped.
+- **MOOTED** — the claim is still TRUE and its subject turned out not to exist.
+  *Changes:* it is invisible to every check keyed on truth, so no re-verification
+  pass will surface it and only a reader tracing the SUBJECT will. **The quietest**,
+  because nothing about the sentence ever becomes false. (*"lensfun cannot represent
+  decentring on this rig"* — true, and the joint refit then put the centre at
+  (−6, +14) px.)
+**All four are properties of the RECORD and not of the instrument, so no guard
+reaches any of them** — they are found only by reading an entry against the artifact
+it describes.
+
 **TERMINOLOGY — the word "dust" is BANNED in this repo, and this entry says why.**
 "Cosmic dust", "MW", "IFN" and "dust-safe" were used interchangeably for FOUR
 physically unrelated things; the term was never defined and never independently
