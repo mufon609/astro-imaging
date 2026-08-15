@@ -75,6 +75,10 @@
 #   asserts CRVAL is distinguishable from the centre pixel — that last arm guards
 #   the instrument's design decision rather than its code, since a future edit
 #   swapping the comparand back to CRVAL would pass every other arm.
+# - `scripts/qa/observer_frame_diversity.py --selftest` — plants the frozen-clock
+#   defect on REAL group sub-stacks and asserts it reproduces, so unlike
+#   check_solve_records' selftest it is NOT data-free and cannot run on a fresh
+#   clone. Excluded whole rather than partly.
 # - `datasets/aug06/corner_work/*.py --selftest` — PER-DATASET, with TWO
 #   DELIBERATE EXCEPTIONS now in the roster. The rest depend on one dataset's
 #   records and are not repo guards; they are listed here so nobody concludes

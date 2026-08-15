@@ -1,7 +1,7 @@
 {
  "_what": "CAMERA POINTING IN THE OBSERVER (alt/az) FRAME, per set, across every group-built set on this rig. Measures how much the observer-frame pointing CHANGES across the corpus \u2014 the quantity that decides whether a term fixed in the observer frame (a horizon-fixed sky gradient) would average down across a multi-pointing combine, or imprint.",
  "_this_creates_a_corpus_level_under_datasets/": "datasets/<session>/<set>/ is the wrong shape by construction for a measurement spanning sessions, and web/results/ is gitignored so it cannot hold a tracked record. This PARTIALLY answers BACKLOG:cross-set-record-home \u2014 the NAMING half only. That item also covers PRODUCTS and a record SCHEMA and is NOT closed by this file.",
- "_measured_at_commit": "0ecf111",
+ "_measured_at_commit": "e99f3e6",
  "_reads": "FITS headers and the tracked site record only. No pixel is opened. Nothing is gated.",
  "method": {
   "site": "scripts/setup/site.json, sitelat REDACTED_SITELAT / sitelong REDACTED_SITELONG, height 0 (siteelev_m is null there and deliberately not defaulted). That file's own provenance block marks the coordinates TRANSCRIBED, UNVERIFIED and bounded only at the DEGREE level \u2014 every altitude here inherits that.",
@@ -12,38 +12,38 @@
  "control": {
   "what": "a FIXED mount must give constant alt/az through a set, so within-set spread is the falsification.",
   "with_DATE-OBS_as_read_deg": 3.933,
-  "with_derived_epochs_deg": 0.088,
+  "with_derived_epochs_deg": 0.0882,
   "verdict": "PASSES only with derived epochs \u2014 a 45x improvement. The first form was wrong and the control is what said so.",
   "per_set": [
    {
     "session": "aug06",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.005
+    "within_set_alt_spread_deg": 0.0043
    },
    {
     "session": "aug06",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.007
+    "within_set_alt_spread_deg": 0.0069
    },
    {
     "session": "aug06",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.028
+    "within_set_alt_spread_deg": 0.0279
    },
    {
     "session": "aug09",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.034
+    "within_set_alt_spread_deg": 0.0337
    },
    {
     "session": "aug09",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.088
+    "within_set_alt_spread_deg": 0.0882
    },
    {
     "session": "aug09",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.014
+    "within_set_alt_spread_deg": 0.0137
    },
    {
     "session": "aug09",
@@ -53,27 +53,27 @@
    {
     "session": "aug09",
     "set": "set-05",
-    "within_set_alt_spread_deg": 0.005
+    "within_set_alt_spread_deg": 0.0053
    },
    {
     "session": "july31",
     "set": "set-01",
-    "within_set_alt_spread_deg": 0.019
+    "within_set_alt_spread_deg": 0.0194
    },
    {
     "session": "july31",
     "set": "set-02",
-    "within_set_alt_spread_deg": 0.006
+    "within_set_alt_spread_deg": 0.0059
    },
    {
     "session": "july31",
     "set": "set-03",
-    "within_set_alt_spread_deg": 0.006
+    "within_set_alt_spread_deg": 0.0063
    },
    {
     "session": "july31",
     "set": "set-04",
-    "within_set_alt_spread_deg": 0.003
+    "within_set_alt_spread_deg": 0.0036
    }
   ]
  },
@@ -268,5 +268,6 @@
    "azimuth_deg": 64.743,
    "zenith_distance_deg": 8.433
   }
- ]
+ ],
+ "_regenerated_by": "scripts/qa/observer_frame_diversity.py"
 }
