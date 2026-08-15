@@ -139,10 +139,10 @@ PY
 #                               because a prefix buried in a free-text field is not
 #                               something a gate can be relied on to parse.
 #   PIPEREV                     the repo commit the build ran under
-header_provenance_lines() {  # <repo> <session-dir> <set> [<bkglight>]
-  python3 - "$1" "$2" "$3" "${4:-none}" <<'PY'
+header_provenance_lines() {  # <repo> <session-dir> <set> [<bkglight>] [<ran-dark>] [<ran-flat>]
+  python3 - "$1" "$2" "$3" "${4:-none}" "${5:-}" "${6:-}" <<'PY'
 import json, os, subprocess, sys
-repo, session, sset, bkglight = sys.argv[1:5]
+repo, session, sset, bkglight, ran_dark, ran_flat = sys.argv[1:7]
 ses = os.path.basename(os.path.abspath(session))
 d = os.path.join(repo, "datasets", ses, sset)
 out = []
@@ -196,10 +196,47 @@ key("BKGLIGHT", bkglight)
 key("DISTPROV", "stamped")
 flat = load(os.path.join(d, "qa_work", f"skyflat_{sset}_qa.json"))
 b = flat.get("build") or {}
-if b.get("dark"):
-    key("CALDARK", os.path.basename(b["dark"])[:68])
-if flat.get("flat"):
-    key("CALFLAT", f"{os.path.basename(flat['flat'])}:{b.get('frames', '?')}"[:68])
+
+
+def master_facts(path):
+    """(frames, datasum) from the master's OWN header. Opens no pixel and NEVER
+    writes: `add_datasum()` mutates the in-memory header only, and the file is
+    not saved. Siril strips DATASUM/CHECKSUM on any load+save (measured), which
+    is why the hash is carried on the PRODUCT as a provenance value rather than
+    embedded in the master — ESO's `CAL1 NAME` + `CAL1 DATAMD5` shape."""
+    try:
+        from astropy.io import fits
+        with fits.open(path) as hl:
+            n = hl[0].header.get("STACKCNT", "?")
+            hl[0].add_datasum()
+            return n, str(hl[0].header.get("DATASUM", ""))
+    except Exception:
+        return "?", ""
+
+
+# WHICH MASTER THE KEYS DESCRIBE. The set's RECORD is right for every ordinary
+# build and WRONG the moment `--flat` names another master: the product then
+# claims a calibration it never got. The masters that RAN are passed in by the
+# builder; the record is the fallback for a caller that does not pass them, and
+# CALPROV says which happened rather than leaving the two indistinguishable — a
+# schema change without both sides labelled leaves a silent generation boundary.
+dark_path = ran_dark or b.get("dark")
+flat_path = ran_flat or flat.get("flat")
+key("CALPROV", "ran" if (ran_dark or ran_flat) else "record")
+if dark_path:
+    key("CALDARK", os.path.basename(dark_path)[:68])
+    if ran_dark:
+        _, dsum = master_facts(dark_path)
+        if dsum:
+            key("CALDSUM", dsum)
+if flat_path:
+    if ran_flat:
+        nfr, fsum = master_facts(flat_path)
+        key("CALFLAT", f"{os.path.basename(flat_path)}:{nfr}"[:68])
+        if fsum:
+            key("CALFSUM", fsum)
+    else:
+        key("CALFLAT", f"{os.path.basename(flat_path)}:{b.get('frames', '?')}"[:68])
 try:
     rev = subprocess.run(["git", "-C", repo, "rev-parse", "--short", "HEAD"],
                          capture_output=True, text=True).stdout.strip()
@@ -251,8 +288,16 @@ try:
     from astropy.io import fits
 except ImportError:
     sys.exit(0)
+# CALFSUM/CALDSUM ARE IN THIS TUPLE DELIBERATELY, and it is the half that closes
+# the defect. A basename cannot distinguish two masters — 19 flats under 12
+# basenames here, `dark_master.fit` identical across all three sessions — so a
+# cross-night union's `uniq` over CALFLAT collapses three different masters to
+# ONE value and the composite reports agreement where there is none. The content
+# hashes do not collide, so the same `uniq` reports MIXED. A provenance key
+# absent from this tuple is half-shipped.
 KEYS = ("DISTMODL", "DISTA", "DISTB", "DISTC", "DISTNORM", "DISTRHO",
-        "DISTSRC", "DISTFIT", "CALDARK", "CALFLAT", "BKGLIGHT", "DISTPROV")
+        "DISTSRC", "DISTFIT", "CALDARK", "CALFLAT", "CALDSUM", "CALFSUM",
+        "CALPROV", "BKGLIGHT", "DISTPROV")
 members = sys.argv[1:]
 vals = {k: [] for k in KEYS}
 sets = []

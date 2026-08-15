@@ -1417,8 +1417,28 @@ ruled, the standards deviation is recorded, and — if any write path survives �
 predicate computes path-identity rather than
 basename-identity, the definition site states the general trigger without the
 cross-set re-narrowing, and a fire test covers the cross-night collision.
-Reproducible probe (outside the repo, refuses to run if `:361` has moved):
-`scratchpad/calxset_trigger_probe.sh`, 7/7.
+**LANDED — every closing clause is met; the REMOVAL of this item is gate 3/4 and
+not the implementer's.** `CALFLAT`/`CALDARK` are now built from the masters the
+builder actually RAN (passed to `header_provenance_lines`, which previously read
+only the set's record and never saw `$FLAT`), so they are true by construction and
+no downstream correction exists to be blind. `CALXSET` is DEPRECATED AS A WRITE
+TARGET and no longer stamped — it encoded a relation to a MUTABLE record — and is
+left readable because products carry it. The operator NOTE that replaces the guard
+compares RESOLVED PATHS, the quantity that was always wanted. **`CALPROV` labels
+which source was used (`ran` vs `record`), so the fallback for any future caller
+that does not pass its masters is legible instead of silent** — a schema change
+without both sides labelled leaves a generation boundary nobody can see.
+**MEASURED, byte-identity on a real clean product:** record-sourced and ran-sourced
+emit `CALFLAT "skyflat_set-03.fit:500"` and `CALDARK "dark_master.fit"`
+**identically**, so no consumer moves; only the SOURCE changed. **Fire test, both
+layers.** Per-master: the three colliding `skyflat_set-03.fit` hash to
+**3443652352 / 884799382 / 369242041** while their basenames are identical.
+Composite: two members with the SAME `CALSET`, the same basename and different
+files — the rebuild-in-place case, which no other leg can reach — read
+`CALFSUM MIXED(2)`, `PROVMIX T` with the hash and **`PROVMIX F` without it**, i.e.
+the old behaviour reported "provenance consistent" for members calibrated with
+different files. Reproducible probe for the old predicate (outside the repo,
+refuses to run if the line has moved): `scratchpad/calxset_trigger_probe.sh`, 7/7.
 
 ## `calibration-master-identity-is-a-basename` — the name cannot distinguish the file
 
@@ -1460,6 +1480,30 @@ describes today's master, and this corpus has a documented rebuild.
 **NOT this item: SELF-integrity** (`DATASUM`/`CHECKSUM` on a file's own header).
 Different question, different mechanism, its own item — see the sibling item's
 disposition (3).
+
+**(a) AND (b) HAVE LANDED. (c) and (d) remain.** `CALFLAT`/`CALDARK` are built from
+the masters that RAN, and `CALFSUM`/`CALDSUM` carry the content hash as a
+provenance VALUE in ESO's placement. Both are in `stamp_headers.sh`'s composite
+`KEYS` tuple, so a union's `uniq` sees them: measured, two members with the same
+`CALSET`, same basename and different files read `CALFSUM MIXED(2)` / `PROVMIX T`
+with the hash and **`PROVMIX F` without it** — the old behaviour called that
+"provenance consistent". `CALPROV` labels `ran` vs `record` so the fallback is not
+silent.
+**A DEVIATION FROM THIS ITEM'S OWN PRESCRIPTION, FLAGGED RATHER THAN TAKEN: it
+says MD5 and the implementation uses the FITS `DATASUM` arithmetic.** Three
+reasons, and the third is the one that may make it the better quantity rather
+than merely the cheaper one: it is the FITS-REGISTERED arithmetic and siril
+implements it identically to `astropy` (measured — same value to the digit on the
+same bytes, so a master hashed by either verifies under the other); 32 bits
+separates a corpus of 19 masters with enormous margin, and it does separate the
+real colliding trio (**3443652352 / 884799382 / 369242041**); and `DATASUM` covers
+the DATA records only, so it is insensitive to header churn — two masters with
+identical pixels and different headers are the same calibration and hash the same,
+which is the behaviour wanted. **The item's stated reason for MD5 — that the FITS
+checksum convention disclaims authenticity — is about a checksum in a file's OWN
+header, which an editor can silently update. That does not reach this use: the
+hash is carried on the PRODUCT and verified by RECOMPUTING from the master.**
+If the PM or the Oracle disagrees, the change is one function.
 
 **Closes when** calibration-master identity in a product's header distinguishes two
 same-named masters, and a check exists that can be made to fail on demand by

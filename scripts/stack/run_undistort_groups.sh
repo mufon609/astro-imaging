@@ -387,7 +387,7 @@ fi
 # unstamped one: the gate is told a confident falsehood.
 if true; then
   header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" \
-      "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)")
+      "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)" "$DARK" "$FLAT")
 $(header_registration_lines starpair F)"
   echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
 else

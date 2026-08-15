@@ -340,7 +340,7 @@ rm -rf "$P/out"
 # is unconditional: it does not depend on the pre-warp capture, and a sub-stack
 # that cannot say what warped it cannot be composed safely months later
 # (stamp_headers.sh; the compose gate reads exactly these keys).
-PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] && echo subsky1-nodither || echo none)")
+PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] && echo subsky1-nodither || echo none)" "$DARK" "$FLAT")
 # The A/B keys go on ONLY when an A/B flag was passed, so an ordinary product's
 # header is unchanged. A diagnostic arm has to be able to say what it is without
 # anyone remembering which work dir it came out of — the same argument BKGLIGHT
@@ -350,19 +350,35 @@ update_key STACKNRM \"nonorm\"
 update_key DIAGARM T"
 [ -z "$REGDATA" ] || PROV="$PROV
 update_key REGPIN \"$(basename "$REGDATA")\""
-# CALFLAT must name the flat that RAN. header_provenance_lines reads the SET's
-# own flat record, which is right for every ordinary build and WRONG the moment
-# --flat names another set's master: the product then claims a calibration it
-# never got. MEASURED on the first pinned A/B pilot — the arm built with
-# skyflat_set-01 shipped CALFLAT='skyflat_set-05.fit:500'. CALXSET makes the
-# cross-set calibration README step 1b bans MACHINE-READABLE on the product,
-# rather than something a reader infers from a filename.
-FLATB=$(basename "$FLAT")
-if [[ "$PROV" == *'update_key CALFLAT'* ]] && [[ "$PROV" != *"update_key CALFLAT \"$FLATB"* ]]; then
-  PROV="$PROV
-update_key CALFLAT \"$FLATB\"
-update_key CALXSET T"
-  echo "NOTE: --flat=$FLATB is not the flat this set's record names — stamped CALFLAT=$FLATB CALXSET=T (cross-set calibration: banned for deliverables, README step 1b; DIAGNOSTIC arms only)"
+# CALFLAT/CALDARK NOW DESCRIBE THE MASTERS THAT RAN — they are passed to
+# header_provenance_lines above, so the product cannot claim a calibration it did
+# not get and there is nothing left to correct downstream. CALXSET IS DEPRECATED
+# AS A WRITE TARGET and is no longer stamped: it encoded a RELATION between the
+# product and a MUTABLE record, and that relation is unnecessary once the keys are
+# true by construction. It stays READABLE — products already carry it.
+#
+# THE GUARD IT REPLACES WAS BLIND ON THE CASE IT EXISTED TO CATCH. It compared
+# `basename "$FLAT"`, which answers "do these two flats share a filename" rather
+# than "is this the flat this set recorded" — and 19 masters here carry 12
+# distinct basenames, with `dark_master.fit` identical across all three sessions.
+# A cross-NIGHT calibration (banned for deliverables, README step 1b) makes the
+# two strings EQUAL, so the guard stayed silent on exactly the banned case. The
+# operator NOTE below compares RESOLVED PATHS, which is the quantity that was
+# always wanted; `$FLAT` has been absolute since :153.
+RECFLAT=$(python3 - "$REPO" "$SESSION" "$SET" <<'PY'
+import json, os, sys
+repo, session, sset = sys.argv[1:4]
+ses = os.path.basename(os.path.abspath(session))
+p = os.path.join(repo, "datasets", ses, sset, "qa_work", "skyflat_%s_qa.json" % sset)
+try:
+    f = (json.load(open(p)) or {}).get("flat") or ""
+    print(os.path.abspath(f) if f else "")
+except Exception:
+    print("")
+PY
+)
+if [ -n "$RECFLAT" ] && [ "$RECFLAT" != "$FLAT" ]; then
+  echo "NOTE: --flat=$FLAT is not the flat this set's record names ($RECFLAT) — CALFLAT/CALFSUM describe the flat that RAN (cross-set calibration: banned for deliverables, README step 1b; DIAGNOSTIC arms only)"
 fi
 if [ -f "$ACQHDR" ]; then
   printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload %s\n%s\nsave %s\n' \
