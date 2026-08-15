@@ -2218,6 +2218,36 @@ SILENT — pin the state, never inherit it):
   are listed by `help` and refuse at runtime. **A doc establishes the claim; a
   probe settles it.** `save -chksum` was put through both, and siril's checksum
   arithmetic then matched astropy's on identical bytes.
+  **AND THE MIRROR OF THAT IS THE EXPENSIVE DIRECTION: A LISTING'S *ABSENCE*
+  RETIRING A CAPABILITY THAT EXISTS. `listed` IS NOT `exhaustive`.** A listing's
+  PRESENCE manufacturing a capability opens a dead route and the next probe kills
+  it; a listing's ABSENCE *closes* a live one, and nothing probes a route already
+  written off. MEASURED, and it closed the named route for the largest defect in
+  any shipped product: `seqapplyreg`'s help says it applies *"registration data
+  previously computed"* and registration data is
+  `shift | similarity | affine | homography`. From that list a session concluded
+  *"there is no per-image-WCS transform class … Siril discards per-image
+  distortion BY DESIGN"* and closed the native astrometric compose. **The premise
+  is TRUE; the conclusion does not follow.** The registration data IS linear —
+  Siril COMPOSES the SIP undistortion with it: *"it is first corrected for
+  distortion and then linearly projected … in a single operation"*
+  (siril.readthedocs.io, Registration). The help text describes what the command
+  CONSUMES and has no obligation to describe the stage that ran before it.
+  **What made it survive: the corroboration was a DIFFERENT COMMAND.**
+  `register -disto=`'s 3.99/6.42/6.19 px is a shared-solution facility, which is
+  why it fails and why it says nothing about `seqplatesolve` — a real measurement,
+  correctly quoted, of the wrong subject, which reads as confirmation.
+  **The refutation was in four places at the time it was written** — a shipped
+  script (`run_undistort_compose.sh:330`, `seqplatesolve` is the DEFAULT), a
+  shipped guard built expressly to protect the capability
+  (`compose_preflight.py`), a product header (`REGMODEL = astrometric`,
+  `REGUNDIS = True`), and the vendor's own manual. **Being written down in
+  executable code did not prevent it**, which bounds "it is documented" as a
+  defence: none of those four is a document anyone re-reads at the moment of use.
+  **THE RULE: a capability surface is evidence of PRESENCE, never of ABSENCE —
+  the same asymmetry as never reporting a negative from a truncated view, one
+  level up. Before a doc reading retires a route, check whether the route is
+  already running.**
   **AND THE SAME CHECK CAUGHT A FIX WHOSE DELIVERY PATH EXCLUDED ITS OWN
   BENEFICIARY** — a class distinct from the check-cannot-fail family, because
   nothing here is a check. `install_astromatic.sh` was written expressly to close
@@ -3391,11 +3421,27 @@ SILENT — pin the state, never inherit it):
   ONE member by its own solution and composing it against its own unwarped self
   gives **8.50 / 9.45 / 6.76 px** — the polynomial is not identity-preserving
   alone. It is designed for a sequence sharing one plate solution, where the
-  absolute warp is common and cancels. **Siril's own design therefore assumes
-  one optical state per sequence.** The industry operation this is mistaken for
+  absolute warp is common and cancels — **true of `-disto=`, and it does NOT
+  generalise to Siril.**
+  **CORRECTED — this entry previously read *"Siril's own design therefore assumes
+  one optical state per sequence"* and *"Siril has no such command", and both are
+  FALSE.** `seqplatesolve` + `seqapplyreg` IS the per-image operation: it derives
+  registration from each member's OWN solution and composes that member's OWN SIP
+  undistortion with the linear projection in a SINGLE pixel mapping
+  (siril.readthedocs.io, Registration). It is the SHIPPED DEFAULT of
+  `run_undistort_compose.sh:330`, gated by `compose_preflight.py` and by an exit-4
+  assert on siril's own log; `-2pass` survives only behind `--starpair`. Measured
+  one-knob on the 28-member union (`02cf170`): star-pair 4.383 px / **0.458**
+  roundness at the defect against astrometric 2.678 / **0.974**, control
+  0.968 -> 0.961; owner-PASSED (`e04077f`). **The over-generalisation from ONE
+  command to "Siril's design" is what travelled** — it was quoted into `TOOLS.md`
+  and `BACKLOG:compose-homography-smear` to close the astrometric route, four days
+  after that route shipped. The `-disto=` measurement above is unaffected and
+  stands; only the generalisation was wrong.
+  The industry operation this WAS mistaken for
   — resampling each exposure onto a COMMON output WCS using its own full
-  solution (CD matrix *and* distortion) — is SWarp's model; Siril has no such
-  command. SWarp IS installed: `/usr/bin/SWarp`, version 2.41.5, from the distro
+  solution (CD matrix *and* distortion) — is SWarp's model, and Siril reaches it
+  by a different construction. SWarp IS installed: `/usr/bin/SWarp`, version 2.41.5, from the distro
   `swarp` package — note the capital S and W, since lowercase `swarp` is not on
   PATH and the shell misdirects to suckless-tools.
 

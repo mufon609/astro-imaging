@@ -194,20 +194,53 @@ Ordered work — nothing here is executed on an accepted product:
    `native-solve-and-sip` recorded SWarp as installed with the comparison OPEN
    while this line struck it through as settled — two items contradicting each
    other about the route for the defect the owner can see.
-   **AND THE COMPARISON AS POSED COULD NOT HAVE BEEN RUN, because BOTH candidates
-   discard the per-image distortion — by different mechanisms.** MEASURED
-   (`TOOLS.md`): SWarp has NO SIP reader at all (`A_ORDER`/`B_ORDER`/`AP_ORDER`
-   occur zero times in its 2.41.5 source; a 3-char compare truncates
-   `RA---TAN-SIP` to `TAN`; the distortion gate needs PV terms SIP does not carry,
-   so it applies nothing and warns about nothing) — **confirmed by SWarp itself,
-   which produces an IDENTICAL output canvas and CRVAL to nine decimals from a
-   TAN-SIP header and from one with SIP deleted.** And Siril's `seqapplyreg`
-   applies *"registration data previously computed"*, whose transform classes are
-   `shift | similarity | affine | homography` — there is no per-image-WCS class,
-   which is the same finding as *"Siril's own design assumes ONE optical state per
-   sequence"*. **So `seqplatesolve` + `seqapplyreg` is NOT "the SWarp-class
-   operation natively": Siril discards per-image distortion BY DESIGN, SWarp BY
-   SILENT OMISSION.**
+   **SWarp's HALF STANDS; SIRIL'S IS FALSE AND CLOSED THE ROUTE THIS CHAIN ALREADY
+   SHIPS.** MEASURED (`TOOLS.md`): SWarp has NO SIP reader at all
+   (`A_ORDER`/`B_ORDER`/`AP_ORDER` occur zero times in its 2.41.5 source; a 3-char
+   compare truncates `RA---TAN-SIP` to `TAN`; the distortion gate needs PV terms
+   SIP does not carry, so it applies nothing and warns about nothing) — **confirmed
+   by SWarp itself, which produces an IDENTICAL output canvas and CRVAL to nine
+   decimals from a TAN-SIP header and from one with SIP deleted.**
+   **"Siril discards per-image distortion BY DESIGN" is REFUTED.** It reasoned from
+   `seqapplyreg`'s help listing registration data as
+   `shift | similarity | affine | homography`. That list is TRUE and does not carry
+   the conclusion — the registration data IS linear, and the SIP undistortion is
+   COMPOSED with it. Siril's own registration manual: *"it is first corrected for
+   distortion and then linearly projected … this actually occurs in a single
+   operation (the pixel mapping is computed as the composition of this non-linear
+   correction and then the linear projection)"*, and *"undistortion will be applied
+   as defined when platesolving the sequence … if the images were plate-solved
+   using a SIP order larger than 1, then undistortion will automatically be
+   included"* (siril.readthedocs.io, Registration, 1.4.4 stable). The corroboration
+   cited was `register -disto=`, a DIFFERENT command this registry records as
+   designed for *"a sequence sharing one plate solution"* — which is why it fails
+   and why it says nothing about `seqplatesolve`.
+   **THE ARTIFACT SETTLES IT — THE ASTROMETRIC ROUTE IS THE SHIPPED DEFAULT.**
+   `run_undistort_compose.sh:330` is `seqplatesolve s`; `register -2pass` survives
+   only behind `--starpair`, which prints *"NOT the shipped route … must never
+   build a product anyone judges or ships"*. The compose greps siril's OWN log for
+   *"Astrometric registration computed"* and *"undistortion will be applied"* and
+   exits 4 if either is missing (`:351-358`), so the product cannot be BUILT
+   without the tool reporting it; the stamp (`:389-390`) separately defaults
+   `REGU=F` and flips to T only on that line. `web/results/aug06/stack_set-01+02+03_full.fit`
+   carries `REGMODEL = astrometric`, `REGUNDIS = True`.
+   **SO THE 0.458 IN THIS ITEM'S HEADLINE IS THE REGRESSION ARM'S NUMBER.** One
+   knob on the 28-member union, same members/order/reference/framing/stack, star
+   counts within 1-2% at every position (`02cf170`): star-pair 4.383 px / 0.458
+   roundness at the defect against astrometric **2.678 / 0.974**; RA301.58
+   0.725 -> 0.917; RA308.20 0.931 -> 0.946; RA314.72 control 0.968 -> 0.961 —
+   monotone in the defect's own size, control unchanged. Canvas answered separately
+   (`82fa507`): MORE sky, 800.1 vs 773.5 sq.deg. Rebuilt from raws by a fresh-eyes
+   session at 0.980 (`bac4616`) and OWNER-PASSED (`e04077f`), which recorded *"the
+   parent item's reference-pin and SWarp-trial bullets are resolved by the same
+   adoption"*. The register row for `compose_preflight.py` above already carries
+   this; the item did not.
+   **STILL OPEN, and it is the number the owner reads:** whether the marched-column
+   cost below (roundness 0.448-0.613 over x = 15-30%) has ever been re-measured
+   under the astrometric route. NOT FOUND re-measured; the four-position ladder
+   spans the defect but is a different instrument. **NONE OF THIS TOUCHES THE
+   OPTICS TERM** in "What the defect IS" below — a single-frame aberration no
+   registration reaches.
    **THERE IS NOW A CANDIDATE ROUTE WITH ITS FIRST LINK MEASURED, AND TWO ENTRY
    PATHS — both installed. IT IS NOT YET "THE ROUTE", AND CALLING IT ONE WOULD
    REPEAT THE FORM OF THE ERROR ABOVE:** the line this replaces declared an
