@@ -1774,6 +1774,23 @@ SILENT — pin the state, never inherit it):
   that rate is not zero even under attention. When a check must be
   transcriptive, that is a hook or a script waiting to be written, not a
   discipline problem.
+  **AND THE CONVERSE, WHICH IS THE HALF THAT BITES: "PREFER THE ARTIFACT" IS A
+  RULE FOR THE AUDITOR AND NOT A CONSOLATION FOR THE READER. THE ARTIFACT BEING
+  RIGHT ONLY PROTECTS READERS WHO READ ARTIFACTS — AND A RECORD EXISTS PRECISELY
+  FOR THE READERS WHO DO NOT.** MEASURED, and it is why this needs saying: in one
+  evening FOUR findings took the form *"the record is wrong, the artifact is
+  right"* — a solve record asserting RA 6.03/Dec −65.10 for a union whose header
+  reads 310.62/+43.24; a registry closing a route the shipped chain runs by
+  default; a `-weight` generalisation contradicted by the chain's own
+  `WDESC="inverse-variance"`; and a homogenisation claim contradicted by a
+  shipped guard. **Each was reported with the artifact as the reassurance, and
+  each quietly assumed a reader who would open the artifact. That is backwards
+  for a record's audience.** The correct artifact makes the defect INVISIBLE to
+  its own author and leaves it fully operative on everyone who trusts the record —
+  so a right artifact beside a wrong record is not a mitigated defect, it is a
+  defect with its warning light disconnected. **Rank by who reads what: a wrong
+  record with a right artifact is WORSE than a wrong record with a wrong artifact,
+  because the second gets caught the first time anyone builds on it.**
   **AND THE SAME FAILURE APPLIES ONE LEVEL UP, TO RESULTS: a RESULT that was
   paraphrased is a result that was NOT RECORDED — and it survives longest when it
   flatters.** MEASURED: the headline of this repo's error-model finding was
