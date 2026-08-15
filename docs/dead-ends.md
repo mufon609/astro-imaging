@@ -1316,7 +1316,11 @@ the constraints any such tool must satisfy):
   metric — trap 3 below — and its stacks are gone, so they are not quoted; the
   whole-frame and `seqtilt` evidence above is what the conclusion rests on.)
 - **astrometry.net's SIP is NOT a reproducible lens model at wide index scales — so
-  `register -disto=` has no model to eat.** Fixed tripod (distortion physically identical
+  `register -disto=` has no model to eat. SUBJECT: SINGLE TRAILED FRAMES; on stacked
+  MEMBERS this is SUPERSEDED — `seqplatesolve -order=3` residual ~0.9 px meets this
+  entry's own bar (the "Siril's internal plate solver DOES handle this class on STACKED
+  members" entry below), and members are what the shipped compose registers.** Fixed
+  tripod (distortion physically identical
   every frame), yet two solves 43 min apart disagree at the same sensor positions by
   65 px median / 128 px worst (a real lens model must agree to ~1 px). A 1500-star cap cut
   it only to 44 px (worst 132) while sharply improving the LINEAR solve (RA-drift error
