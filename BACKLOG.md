@@ -315,11 +315,25 @@ the rest comparable: 0.918–0.976 against 0.916–0.968.** x = 15–30% reads
 **0.878–0.917** against 0.448–0.613, and the four-position ladder reproduces the
 ASTROMETRIC arm — RA 294.86 **0.980** against `02cf170`'s astrometric 0.974 /
 star-pair 0.458. **What survives is one-sided and shifted left of where this item
-put it: x = 5–25% at 0.878–0.885 against its MIRROR x = 75–95% at 0.950–0.968, with
-FWHM SYMMETRIC over the same span** (2.460 at x45, 2.897 at x05, 2.717 at x95) — so
-it is not the radial field term. **NOT ATTRIBUTED, and canvas-x cannot attribute it:**
-it does not separate compose smear from the optics term below. The rho axis is the
-discriminator and is deferred. **This item's own rule — only no-band AND no-rho-signal
+put it: x = 5–25% at 0.878–0.885 against its MIRROR x = 75–95% at 0.950–0.968.**
+**CORRECTION — an earlier revision of this paragraph called the FWHM profile
+SYMMETRIC and that is FALSE.** It is U-shaped AND tilted: across the 9 mirrored
+pairs the odd (left−right) term runs +0.180 px at x05/x95 down through zero near
+x30/x70 and to −0.100 at x35/x65, and **8 of 9 pairs carry the SAME handedness in
+both quantities** — the side with the larger FWHM is the side with the worse
+roundness. So the asymmetry is not the radial field term, and it is not absent
+either.
+**MAJOR vs MINOR SPLITS IT, from the tool's own per-star `FWHMx`/`FWHMy`
+(no new data — Siril's surviving `findstar` lists, same 30 brightest):** over the
+outer pairs x05–x25 the MAJOR axis differs by **+0.206 px** mean while the MINOR
+differs by **−0.038** and does not hold a sign (+0.045, 0.000, −0.070, −0.080,
+−0.085). **Major grows, minor approximately does not — the signature of a one-sided
+anisotropic ADDITION rather than a scale change**, which keeps the convolved-blur
+family live. Note `fwhm_px` in the record is the MEAN `(FWHMx+FWHMy)/2`, not the
+major; do not read it as one.
+**STILL NOT ATTRIBUTED, and canvas-x cannot attribute it:** it does not separate
+compose smear from the optics term below. The rho axis is the discriminator and is
+deferred. **This item's own rule — only no-band AND no-rho-signal
 supersedes — fails on the first clause, so the item STANDS AMENDED, not removed.**
 
 **METHOD FACT — CANVAS-X FRACTIONS ARE NOT PORTABLE ACROSS PRODUCTS, and a band must
