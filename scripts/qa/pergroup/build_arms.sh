@@ -87,7 +87,10 @@ arm() {   # <outdir> <tag> <group> <flat> [extra args...]
     --regdata="$W/armreg_g$g.seq" --out="$out.fit" "$@" \
     > "$W/$dir/arm_${tag}_g$g.log" 2>&1 \
     || { echo "ARM $tag g$g FAILED — tail:" >&2; tail -20 "$W/$dir/arm_${tag}_g$g.log" >&2; exit 1; }
-  grep -E 'registration (PINNED|data SAVED)|NORMALIZATION DISABLED|CALXSET' \
+  # CALFSUM: the cross-set operator NOTE stopped saying CALXSET when that key was
+  # deprecated as a write target. The warning is still emitted; without this it
+  # lands in a log nobody greps for it.
+  grep -E 'registration (PINNED|data SAVED)|NORMALIZATION DISABLED|CALXSET|CALFSUM' \
     "$W/$dir/arm_${tag}_g$g.log" || true
 }
 

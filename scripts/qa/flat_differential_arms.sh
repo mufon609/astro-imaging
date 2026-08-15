@@ -135,7 +135,10 @@ arm() {  # <tag> <flat> <extra builder args...>
     --frames="$FRAMES" --regdata="$SEQ" --out="$OUT/arm_$tag" "$@" \
     > "$OUT/arm_$tag.log" 2>&1 \
     || { echo "ARM $tag FAILED — tail of $OUT/arm_$tag.log:" >&2; tail -20 "$OUT/arm_$tag.log" >&2; exit 1; }
-  grep -E 'registration (PINNED|data SAVED)|NORMALIZATION DISABLED|CALXSET' "$OUT/arm_$tag.log" || true
+  # CALFSUM is in this pattern because the cross-set operator NOTE stopped saying
+  # CALXSET when that key was deprecated as a write target — the warning is still
+  # emitted, and without this it would be emitted into a log nobody greps for it.
+  grep -E 'registration (PINNED|data SAVED)|NORMALIZATION DISABLED|CALXSET|CALFSUM' "$OUT/arm_$tag.log" || true
   ls -la "$OUT/arm_$tag.fit"
 }
 arm A  "$REF"          --nonorm

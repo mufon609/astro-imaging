@@ -2827,6 +2827,33 @@ SILENT — pin the state, never inherit it):
   frames across units by name. This is recorded because it is guaranteed to
   arrive, not because it has bitten yet.
 
+- **A BASENAME IS NOT A FILE IDENTITY IN A MULTI-SESSION CORPUS — AND A CHECK THAT
+  COMPARES ONE IS BLIND EXACTLY WHERE THE NAMES REPEAT.** MEASURED: **19
+  `skyflat*.fit` masters under `sessions/` carry 12 DISTINCT basenames**;
+  `skyflat_set-01/02/03.fit` each exist in **three** sessions and
+  `dark_master.fit` exists in **all three**. Per-session directories make repeated
+  names the NORMAL state, not an edge case, so any predicate of the form *"do
+  these two files share a filename"* answers *yes* precisely when two different
+  files are being confused — the failure is silent and it is worst on the case the
+  check exists to catch. **Two masters can also agree on every other stamped
+  field:** july31 and aug06 `skyflat_set-03.fit` both read `STACKCNT=500`,
+  `NAXIS1=6064`, so a name-plus-frame-count identity collapses too, and the
+  provenance a product ships is then byte-identical to a correct one. **The fix is
+  CONTENT, not a better name.** A FITS `DATASUM` separates the real trio at
+  **3443652352 / 884799382 / 369242041** and costs 0.05 s per 6064x4040 float
+  master via `astropy`, computed in memory so the master is never rewritten —
+  which matters because siril STRIPS `DATASUM`/`CHECKSUM` on any load+save while
+  preserving foreign keys (both measured). Carry the hash on the PRODUCT as a
+  provenance value beside the readable name, which is ESO's `CAL1 NAME` +
+  `CAL1 DATAMD5` shape. **A session-qualified name was proposed and withdrawn: it
+  is a naming scheme this project would be inventing, and deriving it by counting
+  path components from the end is itself a trap — the last two components are
+  `masters/<file>` for every session and distinguish nothing.**
+  **THE GENERAL FORM, which outlives the instance: an identity test must compare
+  something that cannot repeat.** A path can repeat under a re-clone, a basename
+  repeats by directory convention, a name-plus-count repeats whenever two runs use
+  the same depth. Content does not.
+
 - **SIRIL `update_key` SILENTLY TRUNCATES A STRING VALUE AT THE FIRST `/` — it
   begins the FITS comment field.** Probed directly on a 16x16 test FITS through
   siril 1.4.4:
