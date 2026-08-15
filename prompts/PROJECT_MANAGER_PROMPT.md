@@ -218,8 +218,12 @@ stale between handoffs.
 
 - **The corner thread is CLOSED on its fix-path question** — the only
   FIX-classified route is dead on three independent grids. Read
-  `BACKLOG:one-sided-band` and `corner-fix-landscape` **for the numbers; do not
-  re-derive them from prose.** Do not re-propose a photometric arm: exposure and
+  `BACKLOG:one-sided-band` and `corner-fix-landscape` for the FRAMING, and take
+  the NUMBERS from `datasets/aug06/corner_work/frame_depth.json` (N=40 table,
+  not-a-class test), that directory's `shape_azimuth_m01s{1,2}.json` (complete
+  azimuth), and `datasets/aug06/experiments.jsonl` →
+  `two_probes_drizzle_input_and_otf_zeros` (MTF ceiling scan). **Do not re-derive
+  them from prose.** Do not re-propose a photometric arm: exposure and
   night are perfectly aliased in this corpus and the closure is structural.
 - **NOT YOURS TO PROMOTE: the render tier.** Owner-stated phase is FOUNDATIONAL —
   *"we are not at the render tier yet, still looking for tightening opportunities,
