@@ -37,6 +37,96 @@ It does NOT go to the PM's audit-by-re-execution, which cannot reach a premise t
 brief rests on because the PM wrote both. Routes: the owner, a tool measurement,
 or the adversary.
 
+## HELD BY THE OWNER — the HISTORIAN role doc, and the input they asked to be gathered first
+
+**A fifth seat runs with no role doc. `CLAUDE.md:487` enumerates a "four-session
+team" (1 occurrence tree-wide, plus `prompts/REPORT.md:21`), so a fifth standing
+role is a contract question and `CLAUDE.md` is the owner's file alone.** The gap
+is real and measured: `ls prompts/` has no HISTORIAN file, and GNU grep via
+`env -i`, count-first, returns **2** incidental hits tree-wide —
+`prompts/ORACLE_HANDOFF.md:141` and `docs/dead-ends.md:3019`, both references to
+the seat's work, neither a remit.
+
+**OWNER'S RULING: HOLD.** Verbatim — *"I want you to write the doc for the
+historian later on after you have an understanding of how it has been helpful in
+the past (ask the oracle) — worry about this later. this is a gap but you don't
+have experience to write this up yet. hold off."* **So the doc is deferred by the
+owner, not by the PM, and the seat runs undocumented meanwhile.** The historian
+correctly refused to write its own.
+
+**The input the owner ordered is recorded HERE rather than left in a session,
+because the Oracle that supplied it was at ~79% context when it did.** First-hand,
+peer-to-peer rather than routed through a PM, and it is the material the eventual
+role doc gets written from.
+
+**WHAT THE SEAT PRODUCED THAT THE ORACLE COULD NOT — all four need commit-level
+history, which is invisible in the sentence being audited.**
+1. **It DATED a claim and refused to collapse the ambiguity.** *"NO INSTALLED TOOL
+   CAN CORRECT A FIELD-VARIABLE ANISOTROPIC PSF"* entered at `6541ce2`; the first
+   occurrence of `PSFEx` anywhere in repo history is `4e17e2d` — **so the sentence
+   was TRUE when written, by two days twenty hours.** It then gave THREE defensible
+   staleness dates depending on what the entry's own load-bearing word INSTALLED
+   means, and **declined to rule between them.** The Oracle had published "about
+   nine hours"; it is 11 on one reading and ~2 days on another.
+2. **It reversed the causal order both other seats assumed** — the 35-minute
+   self-inflicted account that replaced an install-date frame looking for an
+   external cause.
+3. **It traced a claim's SEED, and the mechanism is the reusable part.** The false
+   *"Siril discards per-image distortion BY DESIGN"* clause did not invent its
+   conclusion — it quoted a pre-existing over-generalisation in our own registry as
+   corroboration. **An over-generalised negative becomes CORROBORATION for the next
+   one, so the scope error is invisible at the second site because the first site
+   is a real measurement, correctly quoted.**
+4. **A maintenance census with a structural cause.**
+   `docs/untracked-widefield-standards.md`: **2 commits in its entire existence**,
+   least-maintained file in `docs/`, while `BACKLOG:compose-homography-smear`
+   records itself UNBLOCKED on its strength. **The destination table has no row for
+   "a research deep-dive that has since become wrong"**, so a correction aimed into
+   one has no home and no owner.
+
+**WHAT IT CHANGED ABOUT THE ORACLE'S OWN METHOD — three, all method rather than
+content.** The bound *a config dump proves a parameter is DECLARED, never that it
+is CONSULTED* (from `d87f9fb`), which sent the Oracle to `makeit.c:553,577` for the
+call site instead of resting on `psfex -dd`; the asymmetry **its sources MOVE and
+git history does not**, which produced the pinned-upstream-SHA rule now in
+`prompts/ORACLE_HANDOFF.md` §4; and the refutation of a clause the Oracle had READ
+AT BOOT and not questioned (`1e7c15e`'s native-SIP half) — **it found it, the
+Oracle confirmed it.**
+
+**ITS CHARACTERISTIC ERROR, for the eventual doc's failure catalogue: it
+attributes from PLAUSIBILITY rather than from the record — ironic, because its
+authority IS the record.** Three instances: stray `.ssf` files attributed to the
+worker *from who was busy* (they were the Oracle's); `1e7c15e` attributed to the
+Oracle when it **predated that session by ten hours**; and five instances of a
+class reported from commit SUBJECTS it had not diffed — flagged as a lead, but the
+count travelled as five until one was pinned and the diagnosis proved to be in the
+subject line and **in none of the 25 added lines**. **It flagged its own scope every
+time, which is why none did damage.** The rule the doc must carry: **your authority
+is the diff and the artifact — not the commit message, which is the author's own
+account, and not who was plausibly working on it.**
+
+**THE ONE LINE:** the seat answers *"was this MEASURED or REASONED, on what data,
+and what did it displace"* — not visible in the sentence itself, and not
+recoverable by any amount of reading the current tree. **And the PAIRING is the
+useful shape, not the seat alone:** its lead plus the Oracle's pin produced the
+`a409086` finding; the Oracle's finding plus its history produced the causal
+reversal. Neither seat had either alone.
+
+## UNCHECKED — "self-picked targets outperformed assigned ones"
+
+**Logged as UNCHECKED rather than as a finding, on the Oracle's own insistence
+against its own interest.** It was handed to this PM as established — *"it picks
+its own targets and that has measurably outperformed anything I assigned it"* —
+and the seat it flatters refused it from the inside: **no counterfactual was ever
+measured, and it flatters both parties who agreed on it**, which is where this
+repo's registry says errors land.
+
+**The competing explanation is sequencing, not autonomy:** the Oracle's first
+three units were assigned and narrow and taught it the tree; the self-picked ones
+that changed routes came after. **Operating rule adopted meanwhile — assign the
+first unit, then release** — which is what a PM can act on without the claim being
+settled either way.
+
 ## Waiting on the owner — THREE ARE LIVE. Build nothing on them
 
 Re-homed here from the PM prompt, which is where they were recorded and which is
