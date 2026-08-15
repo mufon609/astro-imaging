@@ -883,55 +883,6 @@ catalogue pairs; `pa_convention.py` fits a decentred radial ELLIPTICITY field. *
 distortion centre at zero does not refute an ellipticity-field centre at 443–531
 px.** Neither record said which it meant.
 
-### Closed with mechanism — do NOT re-open without new data
-
-**EVERY KILL BELOW REPLAYS FROM ITS OWN TRACKED RECORD — checked 2026-08-14, and
-it is a fact about this thread rather than a courtesy.** `plate_scale_term.json`
-reproduces the radial attribution to the digit (148 stations, local scale
-15.9037–17.0643″/px at 6.935% spread and **corr −0.9517** with ρ, rho coef
-**1.2599 @ 7.347 SE → 1.0317 @ 5.917 SE**, absorbed **0.2282 px² = 18.11%**);
-`kappa_transfer.json` reproduces the pinned κ at ratio **1.000000** and the
-profile transfer at **1.000714**; `cfa_control.json` reproduces the G1-vs-G2 null
-at **χ² 3.001 / 3 dof**. **Read that against `compose-homography-smear`'s
-marched-column cost, which exists in NO tracked file and whose subject is deleted:
-a thread whose kills all replay is in a different state from one whose headline
-number cannot be re-derived, and the two live in the same cluster.**
-
-- **`-moffat` as a second estimator** — β unidentified for ~40% of stars (piled at
-  the fitted upper bound), divergent second moment for ~10% (β ≤ 2, `minbeta`
-  defaults to 1.5). `TOOLS.md`.
-- **The conversion constant κ** — transfers at **+0.1% ± 1.1%** against the 65%
-  drop the artefact reading required. Scope: the fixture base was circular, so
-  robustness to the base's ANISOTROPY is untested. (The ±1.1% is quoted from
-  `kappa_transfer.json`'s own `reads` prose; the computed `percent_se` beside it
-  is **0.9579**. Immaterial to every conclusion here — recorded because the prose
-  is what travelled, which is this file's own class.)
-- **The demosaic** — the rotation and the gate failure both survive on a raw CFA
-  grid with no interpolation anywhere; the G1-vs-G2 null passes at χ² 3.00/3.
-  **ITS PRE-REGISTERED ACCEPTANCE THRESHOLD CARRIES THE WRONG dof AND IS ~42% TOO
-  PERMISSIVE — LATENT, no verdict here moves.** `21653a1` (committed BEFORE the
-  run) declares *"chi2 … across rho bins, **5 dof**"* and *"AGREE_if: **chi2 <
-  11.07** (p > 0.05)"*. 11.07 IS the 5-dof critical value; the run delivered **3
-  dof** (3 ρ bins), where p = 0.05 sits at **7.815**. Every outcome lands outside
-  the ambiguous band [7.815, 11.070] — 3.001 passes both, 23.272 and 27.060 fail
-  both — so nothing published changes. **The exposure is exactly that band, and
-  WHERE it sits is the point: outcome 1 gates how outcome 2 may be read** (outcome
-  2's own pre-registration says that if outcome 1 differs, *"outcome 2 must not
-  then be read as though the grid were clean"*), so a result in [7.815, 11.07]
-  would license the second arm on a first arm that had failed. **Mechanism, and it
-  is the transferable half:** the threshold was written from the pre-registered
-  dof, the dof changed when the binning did, and nothing re-derived it — the
-  acceptance-measure rule arriving at a PRE-REGISTRATION rather than a gate, which
-  is the one artifact nobody re-reads after the run.
-- **The OFFSET form of a short exposure** — `t_eff = t_nom − δ` implies δ = 2.5 ×
-  (1 − 0.5918) = **1.0206 s = 1021 ms** against shutter latencies of O(1–10) ms.
-  Multiplicative is the only surviving shape and no mechanism produces one.
-  **Do NOT re-open this as a july27 comparison** (staged here: set-01 282 frames,
-  set-02 253) — it eliminates at 10³ what needs no frames, and cannot escape the
-  night/exposure aliasing that closed the question.
-- **Profile mis-specification as a rescue** — bounded at ≤20% by Veres et al. 2012
-  against a 41% length deficit, and the Moffat half runs the wrong way.
-
 ### Open
 
 1. **The unattributed RADIAL term.** 18% is attributed to the gnomonic plate scale

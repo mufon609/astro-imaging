@@ -3319,6 +3319,13 @@ SILENT — pin the state, never inherit it):
   search; it is a "cannot be done" written into a record about work that can.**
   Re-staging existing data is cheap by the owner's own standing statement and is
   not an acquisition ask.
+  **AVAILABLE IS NOT WORTH RUNNING, and this entry is the one a top-down reader
+  finishes on: the lever WAS used and the question is CLOSED AGAINST it — see the
+  co-varying-systematic entry above (contamination scaled with the lever; exposure
+  and NIGHT perfectly aliased). Do NOT re-open the july27 exposure comparison.**
+  The OFFSET shape is separately dead needing no frames: `t_eff = t_nom − δ` implies
+  δ = 1.0206 s = **1021 ms** against shutter latencies of O(1–10 ms), so
+  multiplicative is the only surviving shape and no mechanism produces one.
 
 - **A WRONG-BASIS ARTEFACT SCALES DIFFERENTLY FROM A PHYSICAL EFFECT — RUN THE
   TEST AT TWO PLANTED AMPLITUDES AND THE ARTEFACT ANNOUNCES ITSELF.** "Projecting
