@@ -307,6 +307,27 @@ Cost on the accepted cross-night union, 19 columns marched at 5% steps: **roundn
 0.448–0.613 over x = 15–30% of the canvas width** against 0.916–0.968 in the clean
 band x = 45–70%. That is the smear the owner named.
 
+**RE-MARCHED UNDER THE ASTROMETRIC ROUTE. The headline does NOT reproduce; a weaker
+one-sided band survives and is UNATTRIBUTED** (`datasets/aug09/smear_work/smear_remarch.json`
+— Siril `findstar` via `shape_at_sky.py`, this item's own method and grid, on the
+surviving 52-member three-night union). **The clean band is the control that makes
+the rest comparable: 0.918–0.976 against 0.916–0.968.** x = 15–30% reads
+**0.878–0.917** against 0.448–0.613, and the four-position ladder reproduces the
+ASTROMETRIC arm — RA 294.86 **0.980** against `02cf170`'s astrometric 0.974 /
+star-pair 0.458. **What survives is one-sided and shifted left of where this item
+put it: x = 5–25% at 0.878–0.885 against its MIRROR x = 75–95% at 0.950–0.968, with
+FWHM SYMMETRIC over the same span** (2.460 at x45, 2.897 at x05, 2.717 at x95) — so
+it is not the radial field term. **NOT ATTRIBUTED, and canvas-x cannot attribute it:**
+it does not separate compose smear from the optics term below. The rho axis is the
+discriminator and is deferred. **This item's own rule — only no-band AND no-rho-signal
+supersedes — fails on the first clause, so the item STANDS AMENDED, not removed.**
+
+**METHOD FACT — CANVAS-X FRACTIONS ARE NOT PORTABLE ACROSS PRODUCTS, and a band must
+be addressed in SKY coordinates.** On the 52-member canvas this item's own defect
+point RA 294.86 sits at **x = 76.2%** and its control RA 314.72 at **x = 41.2%** — so
+"x = 15–30%" *there* addresses RA 328–320, not the sky the 0.458 was measured on.
+Marching only the stated band measures different sky and reads clean.
+
 Ordered work — nothing here is executed on an accepted product:
 
 1. **Reference pinning is RESOLVED** — the compose registers all members in one
@@ -356,24 +377,15 @@ Ordered work — nothing here is executed on an accepted product:
    parent item's reference-pin and SWarp-trial bullets are resolved by the same
    adoption"*. The register row for `compose_preflight.py` above already carries
    this; the item did not.
-   **STILL OPEN, and it is the number the owner reads:** whether the marched-column
-   cost below (roundness 0.448-0.613 over x = 15-30%) has ever been re-measured
-   under the astrometric route. NOT FOUND re-measured; the four-position ladder
-   spans the defect but is a different instrument.
-   **AND IT IS NOT MERELY UNANSWERED — IT IS UNREPRODUCIBLE BY CONSTRUCTION.** The
-   19 per-column values exist in NO tracked file: only as the prose summary in
-   `9c6991f` and in this item. Its subject — the 28-member two-night star-pair
-   union `stack_j31-3+a06-3_full_onemodel` — **no longer exists on disk**; only its
-   `qa_work/*.json` survive. So the item's owner-facing number cannot be diffed
-   column-by-column against anything, and the product it describes cannot be
-   re-measured. Neither settled nor abandoned: recorded in prose, about a deleted
-   subject. A re-march is SPECIFIED against the surviving 52-member three-night
-   astrometric union (`web/results/aug09/stack_july31+aug06+aug09_full_wcs.fit`,
-   `REGMODEL = astrometric`, `A_ORDER 3`), **on TWO axes — canvas-x AND member-own
-   rho.** Canvas-x alone cannot supersede this number: a column averages over
-   whichever members cover it, so a wider product DILUTES a band rather than
-   sharpening it, and no-band-with-rho-signal reads as fixed when it is only
-   diluted. Only no-band AND no-rho-signal supersedes.
+   **ANSWERED — re-marched; the numbers and their caveats are in the header above.**
+   What is left is the RHO AXIS, which is the discriminator and is deferred: a column
+   averages over whichever members cover it, so a wider product DILUTES a band rather
+   than sharpening it, and no-band-with-rho-signal reads as fixed when it is only
+   diluted. Only no-band AND no-rho-signal supersedes — and a band survived.
+   The ORIGINAL 19 columns stay unreproducible: their subject
+   `stack_j31-3+a06-3_full_onemodel` is deleted, so the re-march is a FIRST
+   measurement and nothing diffs column-by-column (`docs/dead-ends.md` carries this
+   as the worked example of UNREPRODUCIBLE BY CONSTRUCTION).
    **NONE OF THIS TOUCHES THE OPTICS TERM** in "What the defect IS" below — a
    single-frame aberration no registration reaches.
    **THERE IS NOW A CANDIDATE ROUTE WITH ITS FIRST LINK MEASURED, AND TWO ENTRY
@@ -981,8 +993,9 @@ verified installed) required a genuinely FIELD-CONSTANT term. Asked directly —
 there a single trail scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector — the
 answer is NO on **three independent grids**: debayered N=5, debayered N=40, and a
 raw CFA grid with no interpolation anywhere. **A single global PSF cannot remove
-this component.** Numbers, the N=40 table, the not-a-class test and the
-complete-azimuth check live in `one-sided-band`; they are not restated here.
+this component.** Numbers, the N=40 table and the not-a-class test are in
+`datasets/aug06/corner_work/frame_depth.json`; the complete-azimuth check is in
+that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
 
 ### The remaining candidates, each with its verdict
 
