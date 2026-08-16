@@ -439,6 +439,12 @@ live in CLAUDE.md "Environment".
 |---|---|
 | `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure. The FITS parse is astropy's (`read_fits` → `fits.open`, `fits_pixel_scale` → `fits.getheader`), so the hand-rolled-parser removal condition has FIRED; its row is in BACKLOG:`removal-conditions` |
 | `acquisition.py` | per-dataset acquisition record: EXIF-derived facts (exposure/focal/ISO/FOV+pixel-scale/cadence) + the `mount` (DERIVED from the measured drift signature when decisive, human-declared otherwise, provenance in `mount_source`); `resolve()` seeds `datasets/<session>/<set>/acquisition.json` and STOPS if `mount` is undeclared (no silent camera model), `timeline()` feeds the audit's capture-run segmentation. Reads EXIF only, never deliverable pixels |
+| `route.py` | THE ROUTE KEY — one definition, every consumer. The single source for which chain a set takes; `DRIFT_FRAC_MIN` and its floor live here (removal-conditions register) |
+| `fingerprint.py` | derives a set's CONFIG FINGERPRINT from the data — the MEASURE→MATCH input, and the reference ALLOWED router `CLAUDE.md` names: every input is a tool's (astrometry.net solve, Siril `findstar`, header facts), the in-house part is only the derived trail/drift geometry no tool reports |
+| `cullspec.py` | THE one meaning of `recipe.json`'s `stack.exclude` — trailing FILENAME digits, matched within one set, aborting loudly on an ambiguous exclude |
+| `frame_order.py` | emits a set's frames in CAPTURE ORDER rather than filename order, reading paths from STDIN so an `ARG_MAX` split cannot re-order chunks independently. Exists because the frame counter wraps at 9999 (`docs/dead-ends.md`) |
+| `siril_run.sh`, `siril_run.py` | single source of truth for INVOKING Siril, flock-serialised because the flatpak's instance-dir lifecycle races (removal-conditions register); `check_siril_invoke.sh` is the guard that every caller uses it |
+| `wait_for.sh` | wait for processes matching a pattern WITHOUT matching yourself — the registered `pgrep`-matches-its-own-argv deadlock, fixed at the source |
 
 **`stack/`** — build the integrated stack
 
@@ -458,6 +464,15 @@ live in CLAUDE.md "Environment".
 | `compose.py` | the convergence stage: resolves the composition record, drives the Siril align (mono-filters members to the reference member) and composes via Siril `rgbcomp` under `set32bits` — the tool owns the combine and the write; in-house guards are FITS-header-only (astropy: float32 contract, mono, geometry agreement) |
 | `fitsmeta.py` | FITS acquisition-metadata probe for the dedicated-astrocam preflight (exposure/gain/offset/filter/mono); normalizes the free-text `FILTER` keyword to a canonical token and fails loud on a mixed dir |
 | `siril/master_{bias,flat,dark}.ssf`, `siril/lights.ssf.tmpl` | siril stages for the matched-flat path |
+| `run_session_chain.sh` | the ONE-CLICK durable-core chain for EVERY light set in a session — the session-level driver that routes each set by its fingerprint and runs `baseline_guard.py` last |
+| `run_corpus_combine.sh` | THE FINAL COMBINE — every member from every night into one stack, then one finish. Skips arm variants and `set-00` by allow-list, not by a deny-list of the suffixes that happen to exist today |
+| `calibrate_light.sh` | single source of truth for the light-frame calibration command, shared by every route so no caller can drift |
+| `check_calibrate.sh` | the guard that every light calibration routes through that one command |
+| `check_siril_invoke.sh` | the guard that every Siril invocation routes through `lib/siril_run.{sh,py}` |
+| `build_master_dark.sh` | builds the session's MASTER DARK from raw `darks/`, driving the pinned Siril template; 32-bit, uncompressed, `setext` pinned |
+| `compose_preflight.py` | compose preflight: STOPS before a union silently regresses to star-pair registration — the gate that makes the astrometric compose provable rather than assumed (removal-conditions register) |
+| `stamp_headers.sh` | single source of truth for restoring the ACQUISITION FITS keywords the undistort TIFF round trip drops, and for stamping `PIPEREV` — which is why a commit landing mid-build is a second knob inside your own experiment |
+| `backfill_substack_provenance.sh` | ONE-TIME backfill of optics/calibration provenance onto sub-stacks built before those keys existed; writes with a FITS library, never siril `update_key`, which truncates a string at the first `/` |
 
 **`calibrate/`** — astrometric + photometric calibration
 
@@ -475,13 +490,28 @@ live in CLAUDE.md "Environment".
 | `install_styles.sh` | installs them headlessly into a darktable configdir (darktable has no CLI style import, and only a real export job creates its `data.db`). Verified: from a fresh config the warp reproduces to 0.000 px |
 | `fit_lens_model.sh` | fit THIS unit's radial distortion model from a set's own frames — Siril calibrates/stretches, Hugin (`cpfind`/`cpclean`/staged `autooptimiser`, hfov pinned at the solved value) fits between-frame star correspondences; prints ptlens a,b,c + the install command, records the fit to the set's `qa_work/lens_fit.json`. Run for a new lens/body/focal, or when the drift-axis stations show a centre band a DB profile cannot remove. PROVISIONAL as-written (the procedure it encodes was proven step by step; the script's first end-to-end run is the next fit) |
 | `install_lens_model.sh` | installs the PINNED model for this lens@focal (`scripts/darktable/lens_models.json` — THE authority, keyed `<lens>@<focal>` because a model is a property of the LENS AND OPTICAL STATE, not of a dataset) into the live lensfun user DB AND strips that lens's `<vignetting>`/`<tca>`, the distortion-only enforcement point. A per-set fit is a CANDIDATE promoted by an explicit act, judged at the COMBINE. The per-set-as-authority variant is a registered dead end: one shared model is what every accepted combine here ever used, and per-set models measured 2.99 px corner disagreement within a night and 5.34 px across nights. Lens + focal come from the set's `acquisition.json`; the DB FILE is found by searching for the lens. Records what it replaced in an XML marker; a different fitted entry needs `--replace`, so a deliberately staged A/B is never undone silently (the chain does NOT pass it; the preflight stops on the mismatch and says so). Machine-local like `lensfun-update-data`, which WIPES the patch: the chain re-installs per run |
+| `verify_lens_card.py` | proves darktable's lens correction is DISTORTION-ONLY on this rig — two synthetic fixtures, grid control (must differ) + uniform card (must not), because the uniform card ALONE is vacuous. Run every set by `lens_preflight --require-profile` |
+| `cp_coverage.py` | control-point RADIAL COVERAGE of a hugin fit: does it constrain the CORNER? Imported, not invoked — the corner-support deficit is a matching problem, not a pruning one (`docs/dead-ends.md`) |
 
 **`setup/`** — x86 bring-up
 
 | file | role |
 |---|---|
 | `x86_bootstrap.sh` | fail-closed integrity-checked install of the x86 toolchain into `/opt` + a venv; the emitted inventory (versions, sources, checksums) is [`scripts/setup/manifest.tsv`](scripts/setup/manifest.tsv) |
-| `requirements.txt` | pinned python deps for that venv |
+| `requirements.txt`, `requirements-solve.txt`, `requirements-tools.txt`, `requirements.lock` | FOUR pinned dependency sets across TWO venvs, and the distinction is load-bearing — `TOOLS.md`'s `sip_tpv` correction turns on which interpreter a consumer resolves to, so name the venv with any availability claim rather than saying "that venv" |
+| `install_hooks.sh`, `hooks/pre-push`, `hooks/prepare-commit-msg` | installs this repo's git hooks from tracked source — `.git/hooks/` is machine-local and untracked, so a fresh clone gets neither the guard runner (`pre-push`) nor the staged-numstat stamp (`prepare-commit-msg`) without it. Layer 0 of `x86_bootstrap.sh` |
+| `install_astromatic.sh` | PSFEx and SCAMP, built from the Debian SOURCE packages (neither is a binary candidate here); invoked three times by `x86_bootstrap.sh` |
+| `install_python_tools.sh` | the pinned Python TOOL layer, separate from the measurement layer, installable onto a rig's venv |
+| `install_cosmicclarity.sh` | installs the Cosmic Clarity Suite to `/opt`, user-owned |
+| `verify_site.py` | falsifies the tracked observing-site coordinates against the corpus's own solves — bounds them at the DEGREE level only (a flipped sign or a lat/long transposition puts a photographed target below the horizon; a transposed digit does not) |
+
+**`ingest/`** — pull a capture session from the remote host, verified
+
+| file | role |
+|---|---|
+| `remote_publish.sh` | the REMOTE half: publishes a capture directory for verified pull over HTTP, and is the SOURCE-SIDE HASH PRODUCER. **Evidenced by its output rather than by any caller** — 9 tracked `ingest_work/ingest.json` records name it, all reading `integrity: transfer-verified`; nothing in code or docs invokes it |
+| `fetch_session.sh` | the LOCAL half of that pull. **UNCLEAR, and that is the verdict rather than a gap** — no caller, no doc, and no record it left behind. Absence of evidence is exactly what the output-evidenced case warns against, so no purpose is invented for it here; the operator or the owner settles what it is |
+| `link_heartbeat.sh` | watches the link to the remote publisher (reachability, latency, progress). **UNCLEAR on the same three counts** |
 
 **`session_archive.sh`** (directly in `scripts/`) — archive a session's DERIVED
 state (`datasets/<session>/`, `web/results/<session>/`, `sessions/<session>/work/`)
@@ -539,6 +569,25 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `baseline_guard.py` | PRODUCT-level no-regression guard, run last by `run_set_chain.sh`: Siril `stat` (via `regional_stat.py`) on the finished linear stack — corner spread, edge dipole, per-channel centre level — compared against the baseline a human ACCEPTED for that set. A regression exits **8**, a user decision like the mount/route stops; nothing is blocked or rewritten. Every other guard here checks WIRING, which is why a 31x background regression once shipped with every wire intact. NOT a quality gate: it has no opinion about whether a render is good, and a deliberate improvement fails it (re-seed with `--reseed` and a note). Its measures are stack CORNERS, so it is blind to a flat that absorbed the sky gradient — a PASS is not evidence the calibration is clean |
 | `regional_stat.py` | Siril `stat` regional medians (centre + 4 corners, per channel) on a LINEAR stack — the gradient instrument (never read gradients off a stretched surface — `docs/dead-ends.md`) |
 | `diag_flat.ssf` | master-flat diagnostic (Siril) |
+| `readiness_report.py` | ONE readiness surface for a set — every ratified criterion evaluated up front, one report and one approval, so nothing undecidable surfaces three hours into a build (`CLAUDE.md`, "where the gate actually is") |
+| `run_guards.sh` | THE RUNNER for every guard — see its row under `stack/` above |
+| `check_removal_conditions.sh` | the REGISTER guard: every file declaring a `REMOVAL CONDITION` must appear in BACKLOG's divergence column. Detects declared-but-no-row only; blind to a divergence that declares nothing |
+| `check_prompt_scope.sh` | the PROMPT-SCOPE guard: every `.md` in `prompts/` declares its KIND, and the ceilinged kinds stay under their size limit |
+| `check_manifest_verify.sh` | the INVENTORY guard: every `verify` command in `scripts/setup/manifest.tsv` must actually run |
+| `check_solve_records.py` | joins every plate-solve RECORD against the ARTIFACT it names — compares the record's field CENTRE against the target's own WCS at the centre pixel, never `CRVAL` |
+| `coverage_frame.py` | proposes the VERIFIED COVERAGE FRAME of a `framing=max` union — the largest all-covered rectangle over Siril `stat` boxes. Reports only; crops nothing |
+| `member_separation.py` | measures how much a compose's MEMBERS disagree about where a star is, binned by each star's own field radius. Measures, does not gate (`docs/combine-contract.md` §5) |
+| `shape_at_sky.py` | records Siril `findstar` PSF fits in boxes placed at SKY positions by the solved WCS, so products of different framing are comparable |
+| `grid_ramp.py` | fits the low-order background RAMP over a grid of Siril `stat` boxes — the reproducible alternative to a four-corner spread on a structured field |
+| `flat_odd_component.py` | measures a sky flat's ODD component about frame centre, and the RATIO of two flats, over Siril `fdiv` + `stat` (never `idiv`, which clips at 1.0) |
+| `flat_differential.py`, `flat_differential_arms.sh`, `flat_differential_report.py` | how much of two flats' DIFFERENCE reaches the delivered object — the differential form that survives both blockers of the absolute measurement |
+| `object_tilt.py`, `object_tilt_control.py`, `object_tilt_null.sh`, `object_tilt_corpus.py` | the catalogue-free object-tilt measurement with its positive, identity and NULL controls, and the corpus aggregation that tested its pre-registered prediction. **The route is a registered DEAD END** — kept because the controls are what killed it |
+| `fit_ptlens_joint.py` | JOINT refit of ptlens (a,b,c) AND the distortion centre against a plate solution, with a PROJECTIVE nuisance — an affine one manufactures a decentring signal |
+| `mount_probe.sh` | TWO-WINDOW mount drift probe, both windows confined to one contiguous capture run (dir-endpoint windows measure re-aim + drift, which is neither mount signature) |
+| `observer_frame_diversity.py` | regenerates `datasets/corpus/observer_frame_diversity.json` — the camera's alt/az diversity across the corpus, deriving each group's epoch from the drift rather than its frozen `DATE-OBS` |
+| `pergroup_flat_report.py` | rolls the per-group flat-window arms into ONE record against the prediction committed before the arms ran |
+
+**`qa/pergroup/`** — the flat-window A/B arms (build → compose → measure, one knob: which flat calibrates each group's 100 frames). **It carries its own tracked `scripts/qa/pergroup/README.md` and is deliberately NOT restated here** — a second home is a second place to drift. Known defect, portability not documentation: five hardcoded `REPO=/home/samsung/…` paths.
 
 ## Data layout
 
