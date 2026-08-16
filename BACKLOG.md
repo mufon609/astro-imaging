@@ -238,6 +238,45 @@ artifact — not the commit message, which is the author's own account.**
    divergences during intensive auditing, not a failure to retire.** What stays open
    is the SCHEMA question — a key, and a destination for code that outlives its
    divergence — not whether the register can shed rows.
+   **INPUT GATHERED FOR THAT DECISION — IT IS INPUT, AND THE CHOICE IS THE
+   OWNER'S. Nothing below picks a schema.** (Historical pass: the HISTORIAN's, from
+   the diffs and blobs; every figure re-executed here before landing.)
+   **THE ONE-PRECEDENT PREMISE IS WRONG BY AN ORDER OF MAGNITUDE.** A per-commit
+   ladder over the 299 commits touching this file — extract the register section,
+   take each row's first cell, diff consecutive commits — shows **25 commits with a
+   key disappearing**, of which most are REWORDINGS (`c76af73` alone shows 8 keys
+   vanish whose subjects are all still here). Classified by whether the SUBJECT
+   survives in the modern register, that leaves **~12 true removals**, not one.
+   **FIVE DISTINCT DESTINATIONS FOR THE CODE ARE OBSERVED, not one, and a schema
+   offering only "retired → deleted" cannot express three of them:**
+
+   | what was removed | what became of the code |
+   |---|---|
+   | `solve_field.detect_stars` peak centroids | **DELETED + A REFUSING TOMBSTONE** — the function is gone, the `--detect` flag is KEPT and `sys.exit`s with the reason. `git grep -lw detect_stars` → 1 file |
+   | `astrometrics.write_png16` | **DELETED, trace kept as a PROHIBITION** — 0 hits in `*.py`; the only survival is `TOOLS.md`'s *"no in-house `write_png16`"*. The ban outlived the thing it banned |
+   | `crop_coverage.py`, `judgment_package.read_png16_sampled` | **FILE / FUNCTION DELETED OUTRIGHT** — 0 tracked files |
+   | hand-rolled FITS parsers, `compose.py`'s `np.stack` combine | **REPLACED IN PLACE** — the files survive; `compose.py` has **0** `np.stack` and **10** `rgbcomp` calls |
+   | per-set sky flat `--desky` | **KEPT IN PLACE, DELIBERATELY** — **9 occurrences at HEAD** in `build_sky_flat.sh` and live references in five more scripts. Row removed, code retained, default OFF, so a registered 31× regression stays reproducible |
+
+   **THE `--desky` ROW IS THE COUNTEREXAMPLE THE DECISION MOST NEEDS: the register
+   row was removed while the code was deliberately KEPT and is still runnable.** Any
+   schema that treats row-removal as implying code-removal misdescribes it.
+   **AND THE PRECEDENT IS TWO EVENTS NINE DAYS APART, NOT ONE.** The row was marked
+   **FIRED** at `02901f0` (07-17, read from the blob rather than the subject) and
+   **REMOVED** at `243b0a6` (07-26) — and the removal was synchronised with the CODE
+   change, not with the firing. The row's own text at removal already specified a
+   two-stage retirement — *"`--detect=peaks` remains the fallback until the x86 day-1
+   solve passes on sep, then delete it"* — **which the current schema has no field
+   for.** So "fired" and "removed" are distinct states with a gap that can be
+   deliberate.
+   **BOUNDS ON THIS PASS, and they are load-bearing:** **5 of the ~12 true removals
+   are UNTRACED** (`skyflat373` reuse, 16-bit stack-time intermediates, the
+   Siril-native july14 sky flat, unpinned neural stages, `frame_metrics.json`
+   CFA-sampled FWHM) — unexamined, not clean. Reword-vs-removal is a CLASSIFICATION,
+   so a divergence renamed *and* rescoped could fall either way. The ladder anchors
+   on the section heading, so a commit carrying the register under a different
+   heading would read as a mass disappearance; none was seen, and its absence was not
+   proven. Before `0a4b5ce` (07-16) there was no register, so "removed" is undefined.
 2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
    `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
    `get_selection_star` while it returns `ImageStats.deserialize(response)`.
