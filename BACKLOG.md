@@ -550,6 +550,31 @@ Every recurring defect has a signature that is measurable per frame at intake, a
 they should be measured ONCE, scored by a formula whose constants are visible and
 adjustable, and reported per frame with its reason.
 
+**THERE IS NO VENDOR DEFAULT TO ADOPT HERE, AND THAT CHANGES WHAT STANDARDS-FIRST
+REQUIRES OF THIS ITEM.** (The ORACLE's, DOCTRINE — searched negative; `15/15/20` and
+`combining expression` each occurred in ZERO tracked files before this.)
+`CLAUDE.md` requires stating the industry-standard way FIRST and deviating only on
+a measured constraint. Searched: **no vendor publishes a default combining
+expression** for per-frame quality signatures. The **15/15/20 weighting that
+circulates in the community is COMMUNITY, not vendor, and its constants are
+UNDERIVABLE** — nobody publishes what they were fitted against, so adopting them
+would be importing three magic numbers, which is the opposite of "constants visible
+and adjustable". The one vendor direction found points at a **single proprietary
+statistic** rather than a published combination.
+
+**So the standards-first answer for this item is a SEARCHED NEGATIVE, and that is a
+result rather than a gap:** there is no standard to adopt, so a visible in-house
+formula is the standards-compliant choice here and not a deviation needing a
+recorded excuse. What it still owes is what the item already demands — every
+constant visible, every signature with a positive control.
+
+**SECONDARY AND UNCONFIRMED, carried with its status because the source did not
+resolve:** the PixInsight documentation returned **403** to the Oracle, so the last
+two clauses above — the community provenance of 15/15/20 and the single-proprietary-
+statistic direction — are UNVERIFIED against primary source. The first clause (no
+published vendor combining expression) is the searched negative and is the load-
+bearing one. Do not cite the secondary clauses as established.
+
 | signature | what measures it | status |
 |---|---|---|
 | aircraft / satellite / bug | streak geometry | BUILT — `anomaly_audit.py` |
@@ -852,6 +877,34 @@ with the centre at zero, (−6, +14) px. **The two fit different quantities:**
 catalogue pairs; `pa_convention.py` fits a decentred radial ELLIPTICITY field. **A
 distortion centre at zero does not refute an ellipticity-field centre at 443–531
 px.** Neither record said which it meant.
+
+### A candidate that is DEMOTED, and it must not be listed beside the term it is a corollary of
+
+**The coadd-orientation candidate — the idea that how members are oriented in the
+coadd could be a SOURCE of the one-sided term — is demoted. It has no source term.**
+It is a COROLLARY of the single-frame optical term reaching the coadd, not an
+independent mechanism, so listing it alongside the real candidates in the "Open"
+list below would double-count one physical cause and invite an experiment that
+cannot come back negative. The single-RAW evidence at the head of this item is what
+settles it: the term is present at full size on frames that have no coadd, no
+registration and no orientation choice.
+
+**NAMED DESCRIPTIVELY ON PURPOSE, AND NO NEW TERM IS COINED FOR IT.** The thing
+being demoted is *the mechanism by which the single-frame optical term reaches the
+coadd*. A short label was proposed and argued down by its own proposer, correctly:
+the entire content of this demotion is that the thing is NOT a candidate, and giving
+it a name works against that — a named thing reads as a thing to go and study.
+**`TRANSFER FUNCTION` is also TAKEN** and must not be reused here: it occurs in two
+files (`BACKLOG.md`, `docs/dead-ends.md`) and both are the flat-differential
+result, where it means the flat-shape-to-object-tilt conversion measured at
+essentially 1:1.
+
+**WHAT DID NOT REACH ME, stated rather than filled in:** this was handed over as
+"the candidate list with discriminators, INCLUDING the demotion", and only the
+demotion was transmitted. The discriminator list is NOT recorded here because I do
+not have it — the "Open" items below are this item's own, not that list. If it
+exists it is in a session that has ended; recovering it needs its author, not a
+reconstruction.
 
 ### Open
 
@@ -1512,6 +1565,32 @@ CANVAS, not only its anchor. Two rebuilds of the identical arm are otherwise
 bit-identical in pixels (0 differing pixels of 3x3616x4896), so this is the one
 non-deterministic-looking input on the route — and it is not noise, it is a real
 dependence on the data.
+
+**THE EXPERIMENT THAT WOULD TEST THIS, AND ITS READING RULE — PRE-REGISTERED HERE
+BECAUSE THE READING IS THE HARD PART, NOT THE RUN.** (Design: the ORACLE's; the
+canvas measurements above are this item's own and are what make the confound
+concrete rather than theoretical.) Pin the reference EXPLICITLY and FAR from the
+one the auto-pick lands on, rebuild, and compare. Two things must travel with it:
+
+- **THE CANVAS-DIMENSION CHANGE IS A FIRST-ORDER SUB-PIXEL-PHASE CONFOUND, NOT A
+  COSMETIC DIFFERENCE.** The measurement above is exactly this: swapping the flat
+  moved the reference AND the canvas, 4896x3616 against 4887x3641. A different
+  canvas puts every star at a different fractional pixel phase, and resampling blur
+  is a function of that phase (the same fractional-delay mechanism that makes the
+  clamp's 6.26% a single-configuration number — BACKLOG:`resample-cost-and-drizzle`).
+  So an arm that changes the reference cannot hold the phase fixed, and any
+  star-shape delta it returns is reference-effect PLUS phase-effect.
+- **THE READING IS THEREFORE BINARY, AND ASYMMETRIC.** A NULL stays a null — if
+  nothing moves, neither term moved, and that is a real result. A POSITIVE is
+  trustworthy **in DIRECTION only**: it establishes that the reference choice
+  reaches the product, and it does NOT size the effect, because the phase term is
+  in the number. Do not quote a magnitude from this design, and do not read a
+  positive as "the reference costs X".
+
+**The design that escapes the confound entirely is the three-level separator**
+(`docs/dead-ends.md`): a single unregistered frame has no reference, no canvas
+choice and no resampling, so a term present there cannot have been made by either.
+That is the arm to reach for if a magnitude is ever needed.
 
 **REPLICATED on a second night, a second knob and a second class of calibration
 change** (12 consecutive aug06/set-01 frames, one knob — `--subsky-lights`):
