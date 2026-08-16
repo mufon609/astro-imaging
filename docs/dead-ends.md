@@ -2083,6 +2083,31 @@ SILENT — pin the state, never inherit it):
   so on a well-maintained tree the count is guaranteed to mislead.** Read the
   sentence. The correct instrument here is `grep -o` with context, and then human
   reading of what came back.
+- **THE FIRST MEMBER OF THE COLLISION FAMILY THAT IS NOT A MATCHING FAILURE: THE
+  SEARCH RETURNS THE RIGHT ANSWER ABOUT THE STRING AND THE WRONG ANSWER ABOUT THE
+  CAPABILITY, BECAUSE THE CALL CHAIN RUNS THROUGH A LIBRARY THE CALLER NEVER
+  NAMES.** Every other member of this family is a match that went wrong — an
+  unescaped `.`, a star-list numeric collision, `DISTORT_` being a suffix of
+  `undistort_`, casing in both directions, zsh's `:s` eating a ref, prose wrapped
+  across a line, a rounded figure, brace notation. **This one matches correctly and
+  the correct match is still a false negative about the question being asked.**
+  MEASURED on a route-bearing question: Montage's `montageProject.c` names NO
+  distortion function anywhere, so grepping Montage's own source for `pix2foc`
+  returns **ZERO** — while the capability is in use, because the chain runs
+  `wcsinit`→`distortinit` and `pix2wcs`→`pix2foc` inside Mink's `libwcs`. A session
+  checking the obvious way gets a confident negative and closes a route.
+  **IT CANNOT BE FIXED BY BETTER MATCHING — no casing rule, no window, no
+  brace-expansion reaches it. The only instrument that answers it is READING THE
+  CALL CHAIN**, and the tell that you need to is a negative about a CAPABILITY drawn
+  from a search for a SYMBOL.
+  **AND THE ORDINARY CASING TRAP FIRED INSIDE THE SAME UNIT, WHILE THAT ONE WAS
+  BEING REPORTED:** a case-sensitive grep for `DISTORT` in `montageProjectPP.c`
+  returns nothing while `Initialize_TwoPlane_BothDistort` is in the file. Both
+  directions of the family, one file, one session.
+  (Attribution: the framing is the historian's, the source reads the oracle's. n=1 —
+  do not compute a rate from it, and note the finding surfaced because someone was
+  working the adjacent question, not because anyone was looking for this class.)
+
 - **A WRAPPER SILENTLY CHANGES THE SUBJECT WHEN THE COMMAND IS A SHELL FUNCTION,
   AND THE VARIANT THAT RETURNS PLAUSIBLE NUMBERS IS WORSE THAN THE ONE THAT RETURNS
   NOTHING.** MEASURED. `grep` in an agent's interactive shell is not the rig's grep:

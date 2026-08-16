@@ -206,12 +206,19 @@ parameters; the only knob is `-disto=`. Record:
   distortion.** Mechanism: the SIP tweak is constrained by *matched index*
   stars, and the index at the wide scales this field needs (12–19) is
   Tycho-2-based and sparse — some positions agree (bottom 3.8 px) while others
-  are wild (TR 132.1 px). This blocks the WCS-reprojection route equally
-  (SWarp / astropy `reproject` need the same per-frame solution).
-  **CORRECTED — THAT SENTENCE IS WRONG THREE WAYS AND IT CLOSES A ROUTE, so read
-  this before acting on it.**
-  **(a) ITS PREMISE IS SCOPED AND THIS FILE NEVER SAYS SO.** The unusable-SIP
-  finding is about SINGLE TRAILED FRAMES. On STACKED MEMBERS, whose stars are
+  are wild (TR 132.1 px). **On SINGLE TRAILED FRAMES this also blocks any route that needs a
+  per-frame astrometric solution.** (The tool names that stood here are removed
+  and the scope is now stated — see the correction below.)
+  **CORRECTION — AND THE FIRST VERSION OF THIS CORRECTION OVERREACHED.** It called
+  the original sentence *"wrong three ways"*. It was not: **its premise is NARROWED,
+  not false, and about a third of it survives.** The sentence read *"This blocks the
+  WCS-reprojection route equally (SWarp / astropy `reproject` need the same
+  per-frame solution)"*. **Rescoping the premise and dropping the two tool names is
+  the correct disposition — "wrong three ways" invites DELETION of a clause that is
+  true**, and this repo's own registry rescopes a narrowed blocker rather than
+  deleting it.
+  **(a) THE PREMISE IS NARROWED, NOT FALSE, AND THIS FILE NEVER STATES THE SCOPE.**
+  The unusable-SIP finding is about SINGLE TRAILED FRAMES and it HOLDS there. On STACKED MEMBERS, whose stars are
   round, Siril's own `seqplatesolve -order=3` solves this class at ~0.9 px
   residual (`docs/dead-ends.md`), and members are what the shipped compose
   registers. MEASURED: `stacked`, `stacked member` and `seqplatesolve` each occur
@@ -223,12 +230,26 @@ parameters; the only knob is `-disto=`. Record:
   the CD matrix alone (measured from source and confirmed by SWarp itself under
   `-HEADER_ONLY Y`; `TOOLS.md`). A tool that ignores the model is a different
   problem from one that demands it, and the fix is different too.
-  **(c) THE THIRD TOOL IS NOT NAMED HERE AT ALL.** Montage consumes per-image SIP
-  through Mink's `libwcs`. **NOTHING IS PROMOTED BY SAYING SO** — `TOOLS.md`'s
-  disposition stands unchanged: NOT ADOPTED and NOT RECOMMENDED, pending a probe
-  that its SIP handling is real on OUR headers plus a manifest row. The point is
-  only that this sentence's blanket "the WCS-reprojection route" is not one route
-  with one blocker.
+  **(c) THE THIRD TOOL IS NOT NAMED HERE AT ALL, AND IT SPLITS BY ENTRY POINT — do
+  not collapse the two.** `mProject` is verified end to end through Mink's `libwcs`
+  (`wcsinit`→`distortinit`, `pix2wcs`→`pix2foc`, `wcs2pix`→`wcsc2pix`→`foc2pix`).
+  `mProjectPP`, the plane-to-plane fast path, uses **Montage's OWN distortion code
+  rather than Mink's** — `two_plane.h` / `Initialize_TwoPlane_BothDistort`, with
+  `initdata_byheader` per plane — so it has an EXPLICIT distortion path and does not
+  silently drop it, but **whether that path parses SIP specifically is NOT
+  ESTABLISHED**, and one fetch closes it. **NOTHING IS PROMOTED BY ANY OF THIS** —
+  `TOOLS.md`'s disposition stands unchanged: NOT ADOPTED and NOT RECOMMENDED,
+  pending a probe that its SIP handling is real on OUR headers plus a manifest row.
+  The point is only that this sentence's blanket "the WCS-reprojection route" is not
+  one route with one blocker.
+  **WHY IT SURVIVED, AND IT IS THE REUSABLE PART: THE SENTENCE WAS WRITTEN BY AN
+  AUDIT.** It entered at `1f5fc6c` (08-07), *"wide-field registration deep-dive
+  audited and condensed 622 → 385"* — rewritten by a compression pass rather than
+  carried forward. The SWarp SIP-drop was MEASURED seven days later (`1e7c15e`,
+  08-14). Of **20 commits that have touched this file, exactly ONE ever touched this
+  sentence — the one that wrote it.** **Being audited is what makes a reader assume a
+  file is current**, so a condense pass is where a claim most easily acquires
+  authority it was never given.
 - **Siril's own solver cannot supply the model either** — "Initial solve
   failed" at the computed 36.45° FOV with the correct centre, local Gaia and
   `-nocrop`; relaxed detection (candidates 3316 → 8694) and `-limitmag=+4`
