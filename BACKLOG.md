@@ -269,14 +269,49 @@ artifact — not the commit message, which is the author's own account.**
    solve passes on sep, then delete it"* — **which the current schema has no field
    for.** So "fired" and "removed" are distinct states with a gap that can be
    deliberate.
-   **BOUNDS ON THIS PASS, and they are load-bearing:** **5 of the ~12 true removals
-   are UNTRACED** (`skyflat373` reuse, 16-bit stack-time intermediates, the
-   Siril-native july14 sky flat, unpinned neural stages, `frame_metrics.json`
-   CFA-sampled FWHM) — unexamined, not clean. Reword-vs-removal is a CLASSIFICATION,
-   so a divergence renamed *and* rescoped could fall either way. The ladder anchors
-   on the section heading, so a commit carrying the register under a different
-   heading would read as a mass disappearance; none was seen, and its absence was not
-   proven. Before `0a4b5ce` (07-16) there was no register, so "removed" is undefined.
+   **THE FIVE UNTRACED ARE NOW TRACED, AND THEY CHANGE THE QUESTION RATHER THAN
+   EXTENDING THE ANSWER. THE REGISTER MIXES AT LEAST THREE KINDS OF THING, AND
+   "WHAT BECAME OF THE CODE" IS UNDEFINED FOR TWO OF THEM:**
+   - **CODE divergences** — the five destinations above. The question applies.
+   - **POLICY / DATA divergences** — `skyflat373` (set-01's flat reused for
+     set-02/03) was a PRACTICE, resolved by adopting the per-set-flat rule. **There
+     was never any code to have a destination.**
+   - **CONCERNS THAT WERE NEVER DIVERGENCES** — the unpinned neural stages row sat
+     at *"NOT YET CHECKED"* and was **DISSOLVED BY MEASUREMENT**, not retired: the
+     whole render tier measured BIT-IDENTICAL run to run (`docs/dead-ends.md`).
+     Nothing was retired because nothing needed to be.
+   **A schema field for "destination of the code" is therefore undefined on two of
+   the three kinds, and the register does not currently distinguish them.** That is
+   worth more to this decision than any individual destination, and it only became
+   visible once every removal was traced rather than a sample of them.
+   **THE COUNT IS ~11, NOT ~12 — one more REWORD found on re-reading.** The removed
+   `Siril-native sky flat (july14)` (*"a matching real flat exists for the set"*,
+   not fired) is today's row `per-set sky flat (build_sky_flat.sh, NOT de-skied)`
+   (*"a matching REAL flat for the set"*) — same subject, same condition, with the
+   divergence RENAMED FROM A DATASET TO A SCRIPT, which is what defeated the
+   subject-survival screen.
+   **TWO MORE DESTINATIONS, BRINGING THE OBSERVED SET TO EIGHT:** *(6)* never was
+   code; *(7)* dissolved by measurement; and *(8)* **RETIRED AHEAD OF ITS
+   ENFORCEMENT** — the 16-bit row was removed at `ff5debe` (07-26 19:42) while
+   `check_bitdepth.sh` was not created until `26d57f7` (07-29 19:06), **a three-day
+   window with neither the register row nor the guard**, on a row whose own status
+   at removal read *"FIRED … and now a MEASURED DEFECT, not just doctrine"*. **A
+   schema that pairs a retirement with its replacement would have caught it.**
+   **ONE SURVIVING DANGLE IN THE WHOLE SET, now fixed:** `docs/dead-ends.md`'s
+   in-exposure-trailing entry cited *"removal-condition register"* for the
+   CFA-sampled FWHM, and `CFA-sampled` matches **zero** rows in the register — a
+   registry pointer to a row that no longer exists. Repointed to state the fact
+   directly. **One instance across every removal traced, so it is an instance and
+   not a class.**
+   **BOUNDS, and they are load-bearing:** **nothing in the set is unexamined now**,
+   but reword-vs-removal remains a CLASSIFICATION — the reword just found was
+   renamed ACROSS CATEGORIES (dataset → script) and a second of that shape would
+   still evade the screen. The ladder anchors on the section heading, so a commit
+   carrying the register under a different heading would read as a mass
+   disappearance; none was seen, and its absence was not proven. The dangle sweep
+   keyed on the strings each row NAMED, so **a pointer referring to a removed row
+   without naming it is invisible** — the paraphrase hole again. Before `0a4b5ce`
+   (07-16) there was no register, so "removed" is undefined.
 2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
    `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
    `get_selection_star` while it returns `ImageStats.deserialize(response)`.

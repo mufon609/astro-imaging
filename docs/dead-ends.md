@@ -1517,8 +1517,12 @@ the constraints any such tool must satisfy):
   the per-frame roundness is *uniform* is also the proof the radial smear is
   introduced by register+stack, not by the frames.
   **Measure note — the floor's px numbers are not one statistic.** ~3.4 is a predicted
-  trail LENGTH; the ~3.6 per-frame FWHM was CFA-sampled (Bayer-inflated, relative-only
-  — removal-condition register); station values are debayered majFWHM medians
+  trail LENGTH; the ~3.6 per-frame FWHM was CFA-sampled (Bayer-inflated, so it is a
+  RELATIVE figure only — **the divergence that produced it is RETIRED and this
+  pointer used to send readers to a register row that no longer exists**;
+  `run_frame_qa.sh` now runs `convert c -debayer`, and `CFA-sampled` matches ZERO
+  rows in the register today, so the number is a historical one and nothing in the
+  register governs it); station values are debayered majFWHM medians
   (3.4–3.8 px at the perpendicular stations); `seqtilt`'s truncated mean mixes axes
   and reads 3.0–3.1 px on the same stacks. Compare within one statistic; the operative
   claim is edge ≈ centre, never an absolute px value across statistics.
