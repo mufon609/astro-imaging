@@ -159,6 +159,35 @@ and inventing one here would be the guessing this repo forbids. (Measured aside:
 a subsky'd and a non-subsky'd member of the same set separate by **0.00 px** —
 the step is purely additive and moves no star.)
 
+**`-weight=` IS SILENTLY IGNORED UNDER `-nonorm` — AND THE REASON IT CANNOT BITE
+HERE IS STRUCTURAL, NOT A CHECK ANYONE RUNS.** Siril drops the weighting when
+normalisation is off or set to overlap, with no abort and no log line
+(`command.c:8759,8763` — the ORACLE's source read, DOCTRINE, **not verified on
+this rig**, which has siril only as a flatpak binary). So a compose that asked for
+`--weight=noise` and also passed `-nonorm` would produce an UNWEIGHTED mean and
+say nothing.
+
+**It cannot occur here, and the reason is the invocation rather than the file.**
+The two flags never reach one `stack` command:
+
+| where | what it emits |
+|---|---|
+| `run_undistort_compose.sh` | `-weight` ×9, `nonorm` ×0 |
+| `run_pipeline.sh` `stack $2 rej 3 3 -nonorm` (masters) | no `$STACKPOL`, so no `-weight=` |
+| `run_pipeline.sh` light stacks (×3, via `$STACKPOL`) | always `-norm=addscale -output_norm` |
+
+**CORRECTION TO THE FORM THIS WAS HANDED OVER IN:** it was stated as *"they live
+on different scripts"*, and that is false — `run_pipeline.sh` is the intersection
+of the `-weight=` and `-nonorm` file sets and carries both. The separation is that
+`-nonorm` sits only on the CALIBRATION-MASTER path, which is never weighted, while
+`-weight=` is injected only into the LIGHT path, which is always `-norm=addscale`.
+A reader checking the file-level claim would find the intersection and conclude
+this contract was lying.
+
+**This is "cannot occur here", not "we checked".** If a future route ever puts
+`-weight=` on a `-nonorm` stack, the weighting vanishes silently and no guard in
+this repo sees it — the emitted `.ssf` is the only place it would be visible.
+
 Audit status on this rig: **56/56 archived sub-stacks contract-complete.**
 
 ## 5. Every combine MEASURES model compatibility — and nothing gates on it
