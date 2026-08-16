@@ -181,7 +181,8 @@ bound. **I did not re-run it.**
 `/usr/bin/python3` and `~/.local/share/astrometry-venv`**; `manifest.tsv`
 carries the `/opt` **binary** only, no module row. So the predecessor's question
 — does `background_grid_selection` import from a pip install — is ANSWERED NO
-for this rig, and what it leaves behind is the live half: **`TOOLS.md:839` still
+for this rig, and what it leaves behind is the live half: **`TOOLS.md`'s
+`GraXpert classical interpolators` row, in the research queue, still
 reads *"Points can be produced by GraXpert's own `background_grid_selection(...)`,
 so the route needs no in-house analysis"*, unhedged, in a cell whose neighbouring
 clauses are correctly hedged. That sentence sends a session to numpy on the
