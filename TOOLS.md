@@ -828,11 +828,41 @@ boundary silently. Measured gaps, `apt-cache policy` against `apt-cache showsrc`
 | `wcstools` | 3.9.7-2+b2 | 3.9.7-1 |
 | `psfex`, `scamp` | no binary candidate | 3.21.1-1, 2.10.0-2 |
 
-**`source-extractor` is the one that bites: the binary this repo RUNS is 2.28.2 and
-`apt-get source source-extractor` hands back 2.25.0** — a different upstream minor
-version. Reading that source to settle a behaviour question answers it for a
-program nobody here executes, which is this repo's own read-the-artifact rule
-failing at the package layer.
+**`source-extractor` carries the largest gap: the binary this repo RUNS is 2.28.2
+and `apt-get source source-extractor` hands back 2.25.0** — a different upstream
+minor version, so reading that source to settle a behaviour question would answer
+it for a program nobody here executes.
+**THE HAZARD IS REAL AND THIS TREE'S EXPOSURE TO IT IS CURRENTLY NIL — do not read
+the gap as a live defect.** Every `source-extractor` claim here is taken from the
+BINARY's own self-description (*"MEASURED on the installed 2.28.2 via
+`source-extractor -dp`"* — the `X2_IMAGE`/`ERRX2_IMAGE` family), which is immune by
+construction. The only occurrence of `apt-get source source-extractor` anywhere in
+the tree is the warning sentence above.
+
+**THE DISCRIMINATOR, mechanical and needing no version lookup: a tool claim is
+EXPOSED only if its evidence came from `apt-get source`; it is IMMUNE if the
+evidence came out of the installed binary** — `-dp`, `-d`, `--help`, `strings`, or
+an execution. Applied to what is in the tree today:
+
+- **IMMUNE, binary-derived:** the `source-extractor` `ERR*`/`X2` family (`-dp`);
+  SWarp's SIP-blindness VERDICT (`-HEADER_ONLY Y`, three runs); SWarp's
+  homogenisation absence (`strings $(which SWarp)`); SCAMP having no
+  position-dependent photometric solution (`scamp -d` on the built binary).
+- **IMMUNE BY CONSTRUCTION:** PSFEx 3.21.1 and SCAMP 2.10.0 — bookworm source IS
+  what was built and installed, because neither has a binary candidate.
+- **EXPOSED, and narrowly:** SWarp's SOURCE reads — the `A_ORDER`/`B_ORDER`/
+  `AP_ORDER` zero-count, the `wcs.c`/`fitswcs.c` coordinates, the `src/preflist.h`
+  defaults — read at 2.41.5-1 against an installed 2.41.5-3.
+
+**And the exposed set is not load-bearing:** same upstream 2.41.5, only the Debian
+revision differs, and both SWarp verdicts that actually gate a route are separately
+confirmed on the installed binary above. The source reads are the MECHANISM behind
+those verdicts, not the evidence for them — so the split costs the explanation some
+precision and the conclusions nothing. **FILTER STATED, since this asserts an
+absence:** searched `TOOLS.md`, `docs/dead-ends.md` and `BACKLOG.md` wrap-safe for
+`apt-get source`, *"from the … source"*, *"MEASURED FROM SOURCE"*, `read from src/`,
+`from src/preflist`. A source read phrased another way would not appear, so this is
+"none found by that query", not a census.
 
 **Consequences to carry, not to re-derive:** PSFEx 3.21.1 and SCAMP 2.10.0 were
 built here from `apt-get source`, so their provenance is **bookworm source** — and
