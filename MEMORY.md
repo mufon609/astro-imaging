@@ -112,6 +112,21 @@ technical and process knowledge lives in the operating docs, never here:
   PIPELINE: never in-house code where an official tool provides the
   processing/analysis capability.
 
+## The target is DENSITY, not line count (user-ratified 2026-08-16)
+
+What the repo is measured on is whether its lines are load-bearing, not how many
+there are. Integrating a lesson properly is worth the lines it costs, and a long
+document that earns its length is not a defect.
+
+The failure state being guarded against is a cluttered, ad-hoc repo that is hard
+to understand — not a large one. So growth is a PROMPT to ask what the lines
+bought, never a budget to stay under, and a line-count delta is not by itself
+evidence of anything.
+
+This supersedes any framing that treats net growth as a metric to minimise. The
+standing practice that survives it: a landing that adds substantially states what
+it bought. That is a statement of value, not an apology for size.
+
 ## Reference-driven quality
 
 When a dataset ships a reference finish, that is the bar: reproduce the

@@ -292,6 +292,18 @@ removal condition.
   outcome needs a stage turned off or swapped, that is the toolkit working as
   intended (each choice carries its reason).
 - Preserve the stack per pipeline experiment (`cp` to a tagged name).
+- **An experiment's SCOPE is set by BUILD-PATH OCCUPANCY, not by whether the work
+  is called an experiment (user-ratified 2026-08-16).** A read-only probe stays
+  inside whatever unit is running — a tool's `--help`, a FITS header read, `stat`
+  on a product that already exists. Anything that drives the chain, writes to the
+  build path, or runs long enough that a commit could land while it is running
+  takes **its own session**.
+  **The deciding test is mechanical and needs no judgement about importance: would
+  a commit landing during this run be unsafe?** If yes, it is a session. The hazard
+  is the one `CLAUDE.md` already states — `PIPEREV` is stamped from the commit at
+  build time, so a commit mid-run is a second knob inside your own experiment —
+  and this keys that rule to the chain actually running rather than to the label on
+  the work. A long read-only measurement can qualify on duration alone.
 
 ### New-class triage (BEFORE the first judgment package)
 

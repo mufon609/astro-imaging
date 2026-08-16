@@ -312,6 +312,21 @@ artifact — not the commit message, which is the author's own account.**
    keyed on the strings each row NAMED, so **a pointer referring to a removed row
    without naming it is invisible** — the paraphrase hole again. Before `0a4b5ce`
    (07-16) there was no register, so "removed" is undefined.
+1b. **WHETHER `BACKLOG.md` AND `docs/dead-ends.md` SHOULD REMAIN TWO FILES — HELD
+   BY THE OWNER 2026-08-16, AND RECORDED HERE AS AN OPEN QUESTION RATHER THAN A
+   DIRECTION.** The two have converged in role, and both are less useful for it.
+   **Nothing changes until the current cleanup lands.** After it, the registry may
+   be removed entirely — that is one of the options under consideration and it is
+   **NOT DECIDED**. Do not read this row as a plan to merge or to delete; read it
+   as notice that the question is live and the answer is the owner's.
+   **THE CONSEQUENCE GOVERNS WHAT IS WORTH DOING IN THE MEANTIME, which is why it
+   is recorded and not just held:** effort spent RESTRUCTURING `dead-ends.md`
+   internally is effort that may dissolve, so it should not be started. Deleting
+   entries whose test is solved and no longer valuable — the rule ratified the same
+   day, in that file's own preamble — **survives either outcome**, because the
+   content leaves the tree regardless of which file survives. Reorganisation does
+   not. Prefer the operation that is robust to the ruling.
+
 2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
    `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
    `get_selection_star` while it returns `ImageStats.deserialize(response)`.

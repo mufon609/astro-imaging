@@ -87,6 +87,20 @@ repeatedly been an entry nobody expected to fire** — so the test is *would it
 change a decision*, never *is it interesting*, and a rate rule is a budget on
 WRITING, never a licence to delete what is already here.
 
+**AND THE OTHER HALF OF THAT RULE IS NOW WRITTEN DOWN — OWNER-RATIFIED 2026-08-16.
+THIS REGISTRY IS NOT APPEND-ONLY. AN ENTRY IS DELETED WHEN THE TEST IT DOCUMENTS IS
+SOLVED AND THE TEST NO LONGER HAS VALUE.** The queue has always had this half
+written down and the registry never did, which is the whole reason this file has
+only ever grown. The two rules are siblings: the recording rate governs what may be
+WRITTEN, and this governs what may be REMOVED.
+**Read the condition as the conjunction it is.** Solved is not sufficient on its
+own — a solved problem whose entry still stops someone re-attempting the route
+retains its value and stays; that is what most of this file is. What goes is an
+entry whose test is both settled AND no longer worth anyone's time to know about.
+**It is not a licence to compress, reorganise or shorten** — the sentence above
+about a rate rule never licensing deletion stands untouched, and this is a
+different operation on a different trigger.
+
 **FOUR WAYS AN ENTRY'S STANDING DIFFERS FROM WHAT THE ENTRY APPEARS TO SAY.**
 "Settled" is not among them — it is the null hypothesis every entry is read under,
 and naming it changes no decision, so it is deliberately not a fifth state. Each of
