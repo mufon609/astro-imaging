@@ -26,10 +26,18 @@
 # could not execute survived three days AND an audit, because the audit invoked
 # the guards as `bash scripts/…`, which sidesteps the executable bit.
 #
-# BYPASS IS `git push --no-verify`, AND THERE IS ONE LEGITIMATE REASON: one check
-# (starlight_preservation's ESA Gaia control) reaches the network, so the suite
-# fails offline. Bypassing for that is fine. Bypassing because a guard is RED is
-# not — a RED guard means a pin the chain depends on is broken.
+# BYPASS IS `git push --no-verify`, AND THE REASON THIS FILE USED TO GIVE FOR IT
+# WAS FALSE. It read: "one check (starlight_preservation's ESA Gaia control)
+# reaches the network, so the suite fails offline. Bypassing for that is fine."
+# THE SUITE DOES NOT FAIL OFFLINE — the archive step is wrapped in a try/except
+# that prints a SKIPPED caveat and never touches the selftest's `ok`, so offline
+# the check exits 0 and this hook PASSES. So that bypass was documented for a
+# condition that does not occur, which is worse than no reason at all: it hands
+# an operator a sanctioned `--no-verify` habit for a case they will never meet.
+# WHAT SURVIVES: bypassing because a guard is RED is NOT legitimate — a RED guard
+# means a pin the chain depends on is broken. If you believe you need
+# `--no-verify`, read the failure; there is currently no known case where this
+# suite blocks a push for a reason outside the repo.
 set -euo pipefail
 
 REPO=$(git rev-parse --show-toplevel)
@@ -55,8 +63,12 @@ cat >&2 <<'MSG'
   stack rejection, registration pins), and every one of them exists because the
   thing it checks was silently wrong once.
 
-  The ONE legitimate bypass is being offline — one check reaches the ESA Gaia
-  archive and cannot pass without network:
+  There is no known legitimate bypass. This message used to offer one — "being
+  offline, one check reaches the ESA Gaia archive and cannot pass without
+  network" — and it was WRONG: that check SKIPS its archive step offline and
+  still exits 0, so the suite passes with no network. Read the failure above
+  instead; if it turns out something really can block a push for a reason
+  outside this repo, fix this message rather than reaching for:
 
       git push --no-verify
 

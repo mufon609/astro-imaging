@@ -52,10 +52,29 @@
 #   level up — so when you add a selftest anywhere, add its row to CHECKS in the
 #   same commit.
 # - One check reaches the NETWORK (starlight_preservation's catalogue control
-#   queries the ESA Gaia archive). It is run unconditionally and labelled, so an
-#   offline failure is interpretable rather than silently skipped. There is no
-#   --skip flag on purpose: a conditional path that nobody exercises is the
-#   defect class this runner exists to catch.
+#   queries the ESA Gaia archive). It is run unconditionally and labelled.
+#   THIS COMMENT USED TO SAY "an offline failure is interpretable rather than
+#   silently skipped. There is no --skip flag on purpose: a conditional path
+#   that nobody exercises is the defect class this runner exists to catch."
+#   BOTH HALVES WERE FALSE AGAINST THE CODE THEY DESCRIBE.
+#   (a) OFFLINE DOES NOT FAIL. The archive step sits in a try/except
+#       (starlight_preservation.py, step 5) whose handler prints "SKIPPED
+#       (archive unreachable) — the catalogue half is UNVERIFIED in this run,
+#       and a PASS below does not cover it" and NEVER TOUCHES `ok`. The
+#       selftest then returns `0 if ok else 1`, so offline the step skips, the
+#       check exits 0, this runner reports GREEN and pre-push passes. Offline
+#       is a SOFT CAVEAT, not a failure. The caveat IS printed — it is not
+#       silent — but nothing makes a reader see it, and GREEN is what gets read.
+#   (b) THERE IS A CONDITIONAL PATH. "No --skip flag" described the FLAG and
+#       not the behaviour: a try/except selected by the environment is the same
+#       branch by another spelling. And NEITHER SIDE IS EXERCISED IN BOTH
+#       STATES BY ANY ROUTINE GATE — online the handler never runs, offline the
+#       query never does. That is precisely "a conditional path that nobody
+#       exercises", inside the check whose comment claimed it was avoided.
+#   NOT CHANGED HERE, deliberately: whether the skip should go RED, or whether
+#   both branches should be exercised, is a decision about what this suite DOES
+#   and is not a comment's to take. The comment now describes the code; the
+#   behaviour question is open.
 #
 # EXCLUDED, each with the reason, because a runner that quietly drops checks is
 # worse than one that names them:
