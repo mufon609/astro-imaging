@@ -2174,7 +2174,7 @@ SILENT — pin the state, never inherit it):
   modifiers to `$name:…`, and the path's first character selects one. MEASURED,
   one knob, synthetic `R=abc`:
 
-      $R:scripts/x   bad substitution   LOUD — the only one that announces itself
+      $R:scripts/x   bad substitution   LOUD — but see the correction below
       $R:web/x       b/x                SILENT — the ref is GONE
       $R:lib/x       abcib/x            SILENT — `:l` fired
       $R:qa/x        abca/x             SILENT — `:q` fired
@@ -2182,6 +2182,40 @@ SILENT — pin the state, never inherit it):
       $R:hd/x        .d/x               SILENT — `:h` fired
       $R:docs/x      abc:docs/x         safe (`d` is not a modifier letter)
       $R:README.md   abc:README.md      safe
+
+  **CORRECTION TO THE LINE ABOVE, AND IT IS THE HALF THAT MAKES THIS PREDICTABLE:
+  `scripts/` IS NOT RELIABLY THE LOUD ONE. It announces itself on FEWER THAN HALF
+  of this repo's own paths.** `:s` is the SUBSTITUTION modifier and it takes the
+  NEXT CHARACTER as its delimiter — for `scripts/…` that delimiter is `c`. What
+  happens then depends on **where the remaining `c`s are in the rest of the path**:
+  with no second `c` the substitution is unterminated and zsh shouts; WITH one it
+  parses as a no-op, the value survives intact, and the path is simply GONE.
+  Pre-registered as a prediction and tested 4/4, two each way — and the two halves
+  differ by ONE LETTER IN A DIRECTORY NAME:
+
+      scripts/lib/route.py            no later c   -> bad substitution   LOUD
+      scripts/qa/anomaly_audit.py     no later c   -> bad substitution   LOUD
+      scripts/stack/build_sky_flat.sh c in "sta[c]k" -> the bare rev      SILENT
+      scripts/calibrate/solve_field.py c in "cali…"  -> the bare rev      SILENT
+
+  **THREE OUTCOMES, NOT TWO — counted by EVALUATING the expansion for all 113
+  tracked `scripts/` paths, reproduced independently by two sessions to the file:**
+
+      A  bad substitution                     51  45%   LOUD, you stop
+      B  bare rev, pathspec VANISHES          37  32%   the dangerous one
+      C  mangled rev (`<sha>overage.py`)      25  22%   loud, but the message
+                                                        names a path you never typed
+
+  **So B is a third of this repo's script paths, and B is where the number comes
+  back real, correct, and about the wrong scope.** That is the registered MODE 3 —
+  *the one that returns a NUMBER, so nothing prompts a re-check* — reached with no
+  range quantifier, no stderr merge and no `wc -l`, just a colon.
+  **THE FIRST VERSION OF THIS ENTRY CLAIMED `scripts/` WAS SELF-ANNOUNCING, AND A
+  READER WHO TESTED IT ON `route.py` WOULD HAVE CONFIRMED THAT AND STOPPED** — a
+  positive from the 45% that happens to be loud, generalised over the 32% that is
+  not. Corrected by the contributor of the original finding, whose own binary split
+  ("has a second `c`") was also too coarse: it predicts NOT-LOUD, and C is not
+  silent.
 
   **THE DEFENCE IS BRACES, NOT QUOTES**, and the obvious fix is the wrong one —
   parameter expansion happens INSIDE double quotes, so the modifier still fires:
@@ -2194,7 +2228,11 @@ SILENT — pin the state, never inherit it):
   necessarily fail — git can drop it and search the WHOLE TREE at that rev instead.
   `git grep -c 'desky' $R:scripts/stack/build_sky_flat.sh` returned
   **`BACKLOG.md:6` and `experiments.jsonl:2`** — real counts, for files nobody
-  asked about — while the true count in the named file is **15**. That is MODE 3 of
+  asked about — while the true count in the named file is **15 lines matching `desky`** — and
+  state the string, because the same file is elsewhere recorded at **9**, which is
+  `--desky`, a strict subset. Two sessions reported 9 and 15 for "the same" count
+  and both were right; that is the seventh quantity to move here in a day on an
+  unstated filter. That is MODE 3 of
   the registered search-failure set (*the one that returns a NUMBER, so nothing
   prompts a re-check*) reached by a new mechanism, and a second session hit the
   zero-valued version of it in the same hour, reading `--desky: 0` for a file
