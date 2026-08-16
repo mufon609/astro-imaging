@@ -1527,6 +1527,67 @@ PAUSED pending real flats. Nothing here reopens it, and this item is recorded so
 the question survives the session rather than to schedule work. **Closes when**
 the owner either rules it out of scope or unpauses the line it depends on.
 
+## `site-privacy-vs-public-repo` — the observing site is a home address, and this repo is meant to be published
+
+**THE REPO IS INTENDED TO BE PUBLIC, so this blocks publication rather than being a
+reason not to publish.** `github.com/mufon609/astro-imaging`; measured PUBLIC by one
+instrument (unauthenticated GitHub API GET, HTTP 200 — single-source, not
+independently confirmed). **The observing site is a home address at 11 cm precision
+and it sits in 20 tracked files.**
+
+**The exposure is LOCAL ONLY and this is the cheapest it will ever be.** `git grep -lF`
+on the latitude returns **19 at HEAD and 0 on `origin/main`**; the coordinates entered
+at `f49b7cc` and `ebf8209` against a last-pushed `048e69d`, i.e. after it. A history
+rewrite today touches local objects only; after a push, forks and API caches make it
+permanent.
+
+**WHY IT IS NOT A ONE-FILE PROBLEM — five constraints, each closing a naive fix:**
+
+1. **Tracking it is REQUIRED by the contract.** `CLAUDE.md` Environment: a
+   machine-local value nobody can rebuild has already cost this repo a shipped optical
+   model. `scripts/setup/site.json` exists *because* of that rule, so the file is not
+   the defect.
+2. **It is load-bearing science, not metadata.** The site resolves into hour angle,
+   altitude, azimuth and parallactic angle; the refraction-vs-mechanical-sag
+   discriminator (`docs/dead-ends.md`, optical-state boundary) is unrunnable without
+   it, and that entry records this record as what removed the blocker.
+3. **IT REGENERATES.** `acquisition.resolve()` writes the `site` block into every
+   `acquisition.json` on every chain run, so a one-time scrub is undone by the next
+   run. 16 of the 20 files are those records.
+4. **THE GEOCENTRIC FORM INVERTS.** The block carries `OBSGEO_XYZ_m`
+   `[REDACTED_OBSGEO_X, REDACTED_OBSGEO_Y, REDACTED_OBSGEO_Z]` beside the degrees, and Cartesian
+   geocentric returns lat/long to the metre — so removing `SITELAT`/`SITELONG` alone
+   leaves the position fully recoverable.
+5. **THE SITE CANNOT BE LOCATED BY STRING SEARCH IN THIS TREE, and a grep-driven
+   scrub is therefore unsafe in BOTH directions.** The exact six-decimal literal
+   returns 19 files and **MISSES a real site**: `scripts/setup/verify_site.py:22`
+   carries `REDACTED_SITELAT` in a prose comment — full precision, differing in the last
+   digit only, **0.11 m from the true value**. Widening to a 3-decimal prefix returns
+   **31 files, of which 11 are collisions** (`40.078924`, `1240.078926`, `240.078202`
+   in Siril star lists). True surface: **20 files**. Any sweep must be structural —
+   JSON keys plus a read of the code — and must ship a positive control proving it
+   finds `verify_site.py`.
+
+**THREE APPROACHES ARE DENIED (owner ruling 2026-08-16). Do not re-propose them:**
+- **Make the repo private** — denied on the project's own terms: a workspace that can
+  never be published defeats the point of building it in the open.
+- **Round the coordinate** — 3 decimals is ~111 m and the science is unaffected
+  (0.001° moves a derived altitude by 0.001°, against effects measured in whole
+  degrees). Denied anyway.
+- **Untrack the site** — it is the contract's own named failure mode, constraint 1.
+
+**A fact the solver will want, stated because the record already carries it and not
+as an argument for any approach:** `site.json` records `"status": "TRANSCRIBED,
+UNVERIFIED"`, `verify_site.py` bounds the value only at the DEGREE level by its own
+admission, and the same file names an unrun derivation that would recover latitude
+from field rotation across solved frames. The tree therefore publishes 11 cm of
+precision that nothing has verified past ~1°.
+
+**Closes when** the repo can be published with the site out of it, without breaking
+the rebuildable-from-tracked-files rule and without disabling the hour-angle
+derivations. Until then the push is HELD — not because of the commit volume, which
+is fine, but because of this.
+
 ## `capability-gaps` — real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.
