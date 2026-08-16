@@ -23,7 +23,7 @@
 # Sequential by necessity: the sub-pipeline locks one work dir per set, siril is
 # serialized, and the lensfun user DB is global machine state.
 set -euo pipefail
-REPO=/home/samsung/Desktop/astro-imaging
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)
 S=$REPO/sessions/july31
 G=$S/work/groups_set-03
 W=$S/work/pergroup

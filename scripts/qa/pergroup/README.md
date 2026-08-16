@@ -2,8 +2,19 @@
 
 The five scripts that produced `pergroup_flat_window_july31_set03`
 (`datasets/july31/experiments.jsonl`). They are kept as the RECORD OF WHAT RAN,
-not as reusable tooling: paths and the target set are hardcoded, because they are
-one-off orchestration for one measurement. The reusable parts are the shipped
+not as reusable tooling: **the TARGET SET is hardcoded** (`july31`, `set-03`,
+`groups_set-03`, `skyflat_set-03`), because they are one-off orchestration for one
+measurement.
+
+**The REPO PATH is NOT hardcoded, and this sentence used to say it was.** All five
+derived `REPO` from an absolute `/home/samsung/…` literal that existed on exactly
+one machine; they now derive it from their own location
+(`$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)`, three levels because
+this directory is three deep), which is what the other 30 scripts under `scripts/`
+already do. **The change is behaviour-preserving on the rig that produced the
+measurement** — the derived value is byte-identical to the literal it replaced —
+so these are still the record of what ran, and a clone at any path can now read
+and run them without editing five files first. The reusable parts are the shipped
 instruments they call — `build_sky_flat.sh --select=`,
 `run_undistort_pipeline.sh --regdata= --nonorm`, `flat_odd_component.py`,
 `grid_ramp.py`, `flat_differential.py`, `pergroup_flat_report.py`.

@@ -5,7 +5,7 @@
 #   ramp slope + axis:     scripts/qa/grid_ramp.py --ratio (registry 9x7, and
 #                          the frame-filling auto grid)
 set -euo pipefail
-REPO=/home/samsung/Desktop/astro-imaging
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)
 M=$REPO/sessions/july31/work/masters
 P=$M/pergroup
 REC=$REPO/datasets/july31/set-03/pergroup_work

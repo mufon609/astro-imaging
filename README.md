@@ -587,7 +587,7 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `observer_frame_diversity.py` | regenerates `datasets/corpus/observer_frame_diversity.json` — the camera's alt/az diversity across the corpus, deriving each group's epoch from the drift rather than its frozen `DATE-OBS` |
 | `pergroup_flat_report.py` | rolls the per-group flat-window arms into ONE record against the prediction committed before the arms ran |
 
-**`qa/pergroup/`** — the flat-window A/B arms (build → compose → measure, one knob: which flat calibrates each group's 100 frames). **It carries its own tracked `scripts/qa/pergroup/README.md` and is deliberately NOT restated here** — a second home is a second place to drift. Known defect, portability not documentation: five hardcoded `REPO=/home/samsung/…` paths.
+**`qa/pergroup/`** — the flat-window A/B arms (build → compose → measure, one knob: which flat calibrates each group's 100 frames). **It carries its own tracked `scripts/qa/pergroup/README.md` and is deliberately NOT restated here** — a second home is a second place to drift. Its five scripts derive `REPO` from their own location like the rest of `scripts/`; the TARGET SET (`july31`/`set-03`) stays hardcoded on purpose, because they are the record of one measurement rather than reusable tooling.
 
 ## Data layout
 

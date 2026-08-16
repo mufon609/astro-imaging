@@ -16,7 +16,7 @@
 #                  field is the flats' ratio smeared by the drift and baselined
 #                  on the -framing=min canvas, not on the 6064 px frame.
 set -euo pipefail
-REPO=/home/samsung/Desktop/astro-imaging
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)
 S=$REPO/sessions/july31
 W=$S/work/pergroup
 M=$S/work/masters

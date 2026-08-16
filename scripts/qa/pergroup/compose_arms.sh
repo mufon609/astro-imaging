@@ -17,7 +17,7 @@
 # -nonorm at the compose too, to match the arms: the pixel instrument is valid
 # only where nothing has renormalized the difference under test.
 set -euo pipefail
-REPO=/home/samsung/Desktop/astro-imaging
+REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)
 S=$REPO/sessions/july31
 W=$S/work/pergroup
 source "$REPO/scripts/lib/siril_run.sh"
