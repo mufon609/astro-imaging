@@ -183,6 +183,15 @@ in the role's voice.**
   and a peer both accepted without testing** — a two-party untested agreement
   silently becomes a one-party fact when one side retires, and nothing in the tree
   marks the transition.
+- **SESSION RETIREMENT — OWNER-RATIFIED 2026-08-16.** A session retires at roughly
+  80% context, and **the call is the PM's**. Four conditions travel with it: the
+  retiring seat writes a handoff; **the PM audits that handoff before it is used**;
+  the **owner** spins the fresh window, which the PM cannot open; and the PM
+  dictates the role and **gates all peer traffic until the new seat has reported
+  its own boot audit**.
+  **80% is a threshold, not a ceremony** — it is a prompt to start the handoff, not
+  a line to hit exactly, and a seat that cannot measure its own context reports the
+  load instead of estimating a number.
 
 ## The team — AVAILABLE, never the default
 
