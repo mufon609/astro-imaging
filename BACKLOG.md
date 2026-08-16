@@ -1245,23 +1245,24 @@ a chain stage and does have a live candidate route.
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
-**MEASURED, and it is a cost of OUR OWN PIN rather than of Lanczos4.** Six
-synthetic frames, 700 stars each, planted FWHM 2.10 px matching the corpus,
-sub-pixel shifts so interpolation has real work, through the shipped operation
-verbatim (`register -2pass -transf=homography` then `seqapplyreg -interp=`):
+**MEASURED, and it is a cost of OUR OWN PIN rather than of Lanczos4: the shipped
+resample pass costs 6.26% of PSF width and the CLAMP is essentially all of it —
+13.8× the kernel.** Lanczos4 unclamped 0.45%, clamped **6.26%**, cubic 5.39%, and a
+nearest control reading **exactly 0.00%**, which is what makes the figure
+interpolation blur rather than a fixture artefact. **The darktable warp adds 5.88%
+and the CHAIN TOTAL is ≈12%**, with quadrature verified in series to −0.35% against
+a nodist control that also reads exactly 0.00%.
+**Quote ~6% and ~12%, never three significant figures** — fixture-to-fixture
+variation is ~0.2 pp (5.88 against 5.67 on two independently generated fixtures).
 
-| arm | w | cost |
-|---|---|---|
-| input | 2.2050 | — |
-| nearest (control) | 2.2050 | **0.00%** |
-| cubic | 2.3238 | 5.39% |
-| lanczos4 **`-noclamp`** | 2.2150 | **0.45%** |
-| lanczos4 **CLAMPED — the shipped path** | 2.3431 | **6.26%** |
-
-**The clamping costs 13.8× what the Lanczos4 kernel does.** The kernel is nearly
-free on this PSF; the clamp is essentially the entire cost. The nearest control
-reading exactly 0.00% is what makes 6.26% credible as interpolation blur rather
-than a fixture artefact.
+**Full arms, controls and derivations are in `datasets/aug06/experiments.jsonl`** —
+`resample_cost_arm_d_siril_pass`, `resample_cost_series_run`,
+`resample_cost_arm_d_COMPLETE` (**read the LAST entry of each id**; two carry
+supersession chains). That ledger holds the fixture design, the rank-matched
+depth-matching that was mandatory, the ICC toe check that does not bite here, and
+the ellipticity-vs-size-ratio coupling — whose downstream consequence is stated
+where it is used, in `one-sided-band`, against its own ledger citation rather than
+a copy of it.
 
 **AND 6.26% IS A SINGLE-CONFIGURATION NUMBER FOR A QUANTITY THAT THEORY SAYS IS
 NOT CONSTANT — so it is an ESTIMATE WITH AN UNSTATED SPREAD, not a property of the
@@ -1299,92 +1300,12 @@ costs. **It is a TRADE, not a defect**, and the ringing it suppresses is real an
 recorded elsewhere in this registry; **no call has been made and none should be
 made without the owner's eyes**, since ringing is judged and blur is measured.
 
-**THE COUPLING, and it changes how every product-level shape number is read.
-STATE THE QUANTITY WITH THE FIGURE — these are TWO different dilutions and they
-were once reported as if commensurable:**
-- **ELLIPTICITY falls 20.02%** at fixed aberration over the whole chain
-  (`1/1.1182² = 0.7998`), since `e ≈ κℓ²/2w²`.
-- **A centre-to-corner SIZE RATIO compresses 1.2874 → 1.2359**, i.e. the chain
-  understates the corner size excess by **5.2 points, not 20** — de-blurring the
-  delivered crop (centre 2.480, worst corner 3.065 px) by the measured 1.1031 px
-  chain kernel in quadrature gives raws of 2.221 and 2.860.
-
-**The consequence is the one that matters for this repo: an isotropic blur added
-everywhere compresses a ratio toward 1, so THE RAWS' CORNER DEFECT IS WORSE THAN
-ANY PRODUCT SHOWS — +28.7% against the delivered +23.6% — and every product-side
-corner number here is CONSERVATIVE by a now-knowable amount.** Single-RAW
-measurements are unaffected, which is most of the corner thread's evidence; any
-product-vs-member or product-vs-raw comparison inherits it.
-
-**THE DARKTABLE HALF IS MEASURED AND THE CHAIN TOTAL IS CLOSED.** Full-sensor
-6064×4040 so the lens model lands at the right field radii, sky pedestal at the
-corpus's own 1053 ADU, and star amplitudes drawn from the REAL distribution of
-aug06/set-01 frame 1 (p10/p50/p90 = 211/469/1900 ADU) rather than convenient
-levels:
-
-| arm | w | cost |
-|---|---|---|
-| **nodist CONTROL** | 2.2050 | **0.00%** |
-| lensdist = the shipped warp | 2.3346 | 5.88% |
-| **chain total (darktable + Siril)** | **2.4655** | **≈ +12%** |
-
-The control at exactly 0.00% is what makes 5.88% attributable to the WARP rather
-than to the TIFF round trip, the ICC leg or the float conversion — a control that
-*can* read zero and does.
-**Quadrature is VERIFIED, not assumed:** run in actual series, predicted 2.4610
-against a measured mean of 2.4525 — **−0.35%**, so combining the two passes'
-kernels in quadrature holds to better than 1%.
-**PRECISION BOUND, and it governs every figure here:** darktable measured 5.88%
-and 5.67% on two independently generated fixtures, so **fixture-to-fixture
-variation is ~0.2 pp**. Quote these as ~6% and ~12%, never to three significant
-figures.
-**ICC checked and it does not bite, for a reason that generalises:** star
-AMPLITUDES straddle the toe (median 455 ADU = 0.00695 linear) but every actual
-PIXEL sits on the 1053 ADU pedestal = 0.01607 linear, 5× above it, so the band is
-never reached.
-**DEPTH MATCHING WAS MANDATORY AND A COMMON AMPLITUDE FLOOR WAS IMPOSSIBLE** —
-the lensdist arm detects 587 stars against the input's 393 (49% deeper), and
-darktable's float output is not in ADU (inputs 1259–2.765e4, outputs 0.010–0.42),
-so the scales are incommensurable and rank-matching on the N brightest is the
-only valid form. Unmatched 6.09% against rank-matched 5.88% is the size of the
-artefact that avoids.
-
-**A MEASUREMENT TRAP THAT NEARLY PRODUCED A FALSE NULL, and it generalises to any
-before/after on a registered sequence: `register -2pass` gives the REFERENCE
-frame no transform, so it receives no interpolation at all.** The first series
-read had "darktable only" and "darktable THEN Siril" identical at w 2.3299 — the
-Siril pass appearing to cost exactly nothing, which reads as a spectacular
-quadrature failure. The cause was that 2pass had chosen image 1 as reference and
-`S_w_00001` is an untouched frame; the earlier separate arm happened to pick
-image 5, which is why it never surfaced. **MEASURE A NON-REFERENCE FRAME,
-ALWAYS.** It was caught only because the null was too clean.
-
-**Two tool facts found by failing, both now sourced from Siril itself:**
-- **`seqapplyreg -interp=none` FAILS on a homography-registered sequence.** The
-  help says `none` forces the transform to a shift, and a homography cannot be
-  reduced to one, so it errors rather than degrading silently. Use
-  `-interp=nearest` for a no-blur control.
-- **Bayer drizzle and the lensfun undistort stage are MUTUALLY EXCLUSIVE as
-  currently built**, verbatim from Siril's help: *"when using -drizzle on images
-  taken with a color camera, the input images must not be debayered. In that
-  case, star detection will always occur on the green pixels."* The undistort
-  route runs darktable on debayered data. So "just try drizzle" is not a one-knob
-  experiment on this route.
-
 **Why drizzle is still live** (Oracle shortlist item 2, never opened): FWHM
 2.0–2.4 px debayered is ~1.4–1.7 px on the green CFA lattice — undersampled — and
 the untracked drift supplies ideal sub-pixel dither across 500 frames, the
 textbook case. `docs/dead-ends.md` rules drizzle out on TRAILING grounds, but the
 trail here is 1.4–1.9 px, comparable to the PSF rather than a long streak.
 **Re-open with the number, not the category.**
-
-**TWO OF THIS ITEM'S THREE CLOSING CLAUSES HAVE ALREADY FIRED, INSIDE ITS OWN
-BODY, AND NOBODY FIRED THEM** — the same shape as the `guards-and-ci` row that
-outlived its fix by three days. The old condition read *"closes when the darktable
-half is measured and the shipped total is known, and the drizzle question is
-decided"*. **The darktable half IS measured above (5.88%, against a control
-reading exactly 0.00%) and the shipped total IS known (~12%, with quadrature
-verified to −0.35%).** Only the drizzle decision was ever outstanding.
 
 **Closes when** the drizzle question is decided against the measured number rather
 than against the category — i.e. whether ~1.4–1.9 px of trail on a 2.0–2.4 px PSF
