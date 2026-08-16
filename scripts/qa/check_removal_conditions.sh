@@ -130,8 +130,43 @@ register_subjects() {     # <register-path>
 #     that writes `REMOVAL CONDITION (the derived summaries only):`.
 # What separates a DECLARATION from a DISCUSSION of one is the terminator plus the
 # absence of a backtick: prose quotes the phrase, a declaration punctuates it.
-# MEASURED: this matches 28 of 28 known declarations and drops 6 of the 7
-# self-matches this very file used to produce.
+# MEASURED: this matched 28 of 28 declarations IN ITS DERIVATION SET and drops 6 of
+# the 7 self-matches this very file used to produce.
+#
+# DO NOT READ 28 AS A CENSUS — THE LIVE COUNT IS PRINTED BY THIS CHECK (`NDECL`)
+# AND IS NOT WRITTEN ANYWHERE. It read 28 when the pattern was derived and 30 now.
+#
+# AND THE RECALL HOLE IS `A-Z` — THE PATTERN IS CASE-SENSITIVE, SO EVERY
+# Title-case declaration IS INVISIBLE TO THE JOIN. Measured by enumerating the
+# phrase independently of this pattern (any case, any of ` `/`-`/`_` between the
+# words) over the same roots and file types, then READING all 33 non-matching
+# files rather than counting them:
+#
+#     files containing the phrase at all                63
+#     files matched by DECL_PAT                          30
+#     of the 33 misses: register-slug references + discussions   25
+#                       genuine punctuated declarations           8
+#
+# So recall against declarations is 30 of 38. The 8 missed are `verify_lens_card`,
+# `install_lens_model`, `shape_at_sky`, `star_stations`,
+# `backfill_substack_provenance`, `run_lunar_pipeline` (Title case) and
+# `star_shape`, `snr_regions` (lower case, punctuated). `disk_budget.sh` reads
+# like a ninth and is NOT one — it says a FUTURE 16-bit adaptation "needs its own
+# `removal condition`", which is a statement about a condition, not one.
+#
+# THE HOLE WAS LOAD-BEARING WHEN MEASURED, AND THE POSITIVE CONTROL IS ONE
+# CHARACTER CLASS: `verify_lens_card.py` declared a condition whose ONLY appearance
+# in the register was inside ANOTHER row's status prose — the exact false negative
+# this file's own JOIN-ON-THE-DIVERGENCE-COLUMN design exists to prevent, reached
+# by a second mechanism it did not anticipate. Flipping ONLY the case of those two
+# words in that file (numstat 1/1, nothing else touched) took this check from
+# `OK: all 30` to `RED — 1 of 31`. It is GREEN again on the merits: that file is
+# now named in the divergence column of the row whose condition it shares.
+#
+# WIDENING THE PATTERN IS NOT A ONE-LINER AND IS DELIBERATELY NOT DONE HERE. The
+# registry records the trap: case-insensitivity closes the MISS and WIDENS the
+# self-match, because it then matches both casings of a file's own prose about the
+# phrase. Any widening must be re-fire-tested against the 7 self-matches above.
 DECL_PAT='(^|[^`])REMOVAL CONDITION *[:.(]'
 
 declaring_files() {       # <root>

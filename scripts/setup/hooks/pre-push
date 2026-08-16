@@ -2,9 +2,14 @@
 # pre-push — run every guard and data-free selftest before anything leaves this
 # machine. Installed by scripts/setup/install_hooks.sh from the tracked source.
 #
-# WHY PRE-PUSH AND NOT PRE-COMMIT. The suite is 24 checks in 27-33 s. On commit
-# that is a tax on every records-only edit, and this repo commits records
-# constantly — a hook people route around is worse than none. On push it fires
+# WHY PRE-PUSH AND NOT PRE-COMMIT. The suite is 24 checks and takes long enough
+# that on commit it is a tax on every records-only edit, and this repo commits
+# records constantly — a hook people route around is worse than none. NO WALL
+# TIME IS WRITTEN HERE ON PURPOSE: four figures for it have been published in
+# this repo and no two agree, each a session quoting its own runs as the range.
+# The runner prints its own wall time on every invocation; that is the figure.
+# Same reason the COUNT is derived below, one line further down the same logic.
+# On push it fires
 # once per batch, which is the natural boundary: it is the last point at which a
 # broken pin is still local.
 #
@@ -36,7 +41,7 @@ RUNNER="$REPO/scripts/qa/run_guards.sh"
 # 21, having gone stale inside the day a commit fixed the same number at five
 # other sites. A count with six homes and no guard goes stale by default, so this
 # home is now computed and the header comment above is the only prose copy left.
-echo "[pre-push] running guards + selftests ($("$RUNNER" --list | head -1 | grep -oE '[0-9]+ checks'), ~30 s)…"
+echo "[pre-push] running guards + selftests ($("$RUNNER" --list | head -1 | grep -oE '[0-9]+ checks'); the runner prints its own wall time)…"
 if "$RUNNER"; then
   exit 0
 fi
