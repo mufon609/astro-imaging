@@ -208,6 +208,27 @@ parameters; the only knob is `-disto=`. Record:
   Tycho-2-based and sparse — some positions agree (bottom 3.8 px) while others
   are wild (TR 132.1 px). This blocks the WCS-reprojection route equally
   (SWarp / astropy `reproject` need the same per-frame solution).
+  **CORRECTED — THAT SENTENCE IS WRONG THREE WAYS AND IT CLOSES A ROUTE, so read
+  this before acting on it.**
+  **(a) ITS PREMISE IS SCOPED AND THIS FILE NEVER SAYS SO.** The unusable-SIP
+  finding is about SINGLE TRAILED FRAMES. On STACKED MEMBERS, whose stars are
+  round, Siril's own `seqplatesolve -order=3` solves this class at ~0.9 px
+  residual (`docs/dead-ends.md`), and members are what the shipped compose
+  registers. MEASURED: `stacked`, `stacked member` and `seqplatesolve` each occur
+  **0 times in all 411 lines of this file**, so a reader who lands here closes the
+  route and never meets the narrowing.
+  **(b) IT IS WRONG ABOUT SWarp, IN THE OPPOSITE DIRECTION FROM WHAT IT SAYS.**
+  SWarp's blocker is not that it needs a per-frame solution — **it cannot read SIP
+  at all and drops it SILENTLY**, accepting a `TAN-SIP` header and resampling on
+  the CD matrix alone (measured from source and confirmed by SWarp itself under
+  `-HEADER_ONLY Y`; `TOOLS.md`). A tool that ignores the model is a different
+  problem from one that demands it, and the fix is different too.
+  **(c) THE THIRD TOOL IS NOT NAMED HERE AT ALL.** Montage consumes per-image SIP
+  through Mink's `libwcs`. **NOTHING IS PROMOTED BY SAYING SO** — `TOOLS.md`'s
+  disposition stands unchanged: NOT ADOPTED and NOT RECOMMENDED, pending a probe
+  that its SIP handling is real on OUR headers plus a manifest row. The point is
+  only that this sentence's blanket "the WCS-reprojection route" is not one route
+  with one blocker.
 - **Siril's own solver cannot supply the model either** — "Initial solve
   failed" at the computed 36.45° FOV with the correct centre, local Gaia and
   `-nocrop`; relaxed detection (candidates 3316 → 8694) and `-limitmag=+4`
