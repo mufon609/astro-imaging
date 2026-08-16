@@ -1782,6 +1782,21 @@ SILENT — pin the state, never inherit it):
   `starlight_preservation.py` carried the same latent copy and is fixed; the fix
   is provably neutral there (every paired block and every fit identical before
   and after, since no 235,000-px sky cell is zero-variance).
+- **`seqapplyreg -interp=none` FAILS OUTRIGHT ON A HOMOGRAPHY-REGISTERED SEQUENCE —
+  it does not degrade silently, and `-interp=nearest` is the no-blur control to use
+  instead.** Siril's help says `none` forces the transform to a SHIFT, and a
+  homography cannot be reduced to a shift, so the command errors rather than
+  quietly dropping to something cheaper. Found by failing, during the resample-cost
+  arms, where a zero-interpolation arm was wanted as the control that CAN read zero.
+  **The tree already contained `-interp=none` in four places and none of them is
+  this fact:** `run_lunar_pipeline.sh` pins it and `check_registration_pins.sh` +
+  `README` record that pin as the guard's one interpolation EXEMPTION. That is a
+  USE, not the failure — and the lunar route is SHIFT-registered, which is exactly
+  why its exemption is safe and why reading it as general clearance would be wrong.
+  (Migrated out of `BACKLOG:resample-cost-and-drizzle` before that item was shed;
+  the arms it came from are `datasets/aug06/experiments.jsonl` →
+  `resample_cost_arm_d_siril_pass`.)
+
 - **SIRIL FALLS BACK TO AN UNWEIGHTED MEAN AT ANY PIXEL WHERE EVERY SURVIVING
   SAMPLE HAS ZERO WEIGHT — so a weighted stack silently contains unweighted
   pixels.** The vendor's own stated reasoning is that it is
@@ -1874,6 +1889,27 @@ SILENT — pin the state, never inherit it):
   and therefore that the crop must be the SAME PIXEL BOX. Re-cropped that way
   the null control reads 1.0000 ± 0.0000. Applies to any paired measurement on
   separately-solved products, and the star-match test costs one Siril call.
+- **`register -2pass` GIVES THE REFERENCE FRAME NO TRANSFORM, SO IT RECEIVES NO
+  INTERPOLATION AT ALL — MEASURE A NON-REFERENCE FRAME, ALWAYS. A before/after taken
+  on the reference reads a PERFECT NULL for a stage that did nothing to it.**
+  MEASURED, and it nearly shipped as a spectacular result: a series comparing
+  "darktable only" against "darktable THEN Siril" read **identical at w 2.3299**,
+  i.e. the Siril resampling pass appearing to cost exactly nothing — which reads as
+  a quadrature failure worth investigating. The cause was that 2pass had chosen
+  image 1 as its reference and `S_w_00001` is an untouched frame. An earlier
+  separate arm happened to pick image 5, which is why the trap had never surfaced.
+  **It was caught only because the null was TOO CLEAN**, which is the weakest
+  possible defence and not one to rely on.
+  **Generalises past that experiment: this applies to ANY before/after on a
+  registered sequence**, and the reference is picked by the tool unless pinned, so
+  which frame is safe to measure changes between runs (`setref`, and
+  `BACKLOG:single-pass-reference-lottery`). **The adjacent durable text is NOT this
+  fact:** `scripts/stack/compose.py` records that *"the reference channel itself
+  gets only the identity transform"* — a true property of one stage, in a script
+  docstring, saying nothing about how to measure. (Migrated out of
+  `BACKLOG:resample-cost-and-drizzle` before that item was shed; arms in
+  `datasets/aug06/experiments.jsonl` → `resample_cost_series_run`.)
+
 - **A CHECK THAT ONLY VERIFIES THE FROZEN HALF CANNOT FAIL IN THE DIRECTION THAT
   MATTERS.** Pinning registration across an A/B is verified by the arm's canvas
   matching the donor's — and a pin that worked by accidentally DISABLING the
