@@ -371,7 +371,31 @@ the constraints any such tool must satisfy):
   splits as `a*u_i` + `a*c_j`, which the per-star and per-block nuisances absorb
   EXACTLY — `a` is formally unidentifiable at any drift size. This is the known
   low-order degeneracy of self-calibration under translational dithers, and the
-  surveys break it with camera ROTATION. Here the rotation is what an untracked
+  surveys break it with camera ROTATION.
+  **CORRECTED — "with camera ROTATION" IS SINGULAR AND THE LINEAGE NAMES THREE
+  LEVERS. Read this before proposing a new one, because the other two are already
+  spent here and the route is still dead.** (DOCTRINE — the ORACLE's read of the
+  SDSS ubercal lineage, which also names the degeneracy and its firing condition;
+  not measured here. `Bernstein` and the ubercal levers appear in no tracked `.md`,
+  so this is the first home.) The three are **camera ROTATION**, **AIRMASS
+  VARIATION**, and an **EXTERNAL ANCHOR**, plus **CONNECTING GEOMETRY** where
+  overlapping pointings tie separate fields together. Their status here:
+  - **ROTATION** — present and measured, 0.69-3.76 deg per set, and it is what
+    gives the 29.1 px median lever below. Not enough by itself.
+  - **EXTERNAL ANCHOR** — already tried and already answered in this entry: a
+    catalogue kills BLOCKER 1 ONLY, and BLOCKER 2 does not care where the
+    reference magnitudes came from.
+  - **AIRMASS VARIATION** — and this one COLLIDES with blocker 2 rather than
+    helping, which is why it must not be reached for: the sensor-fixed atmosphere
+    IS an airmass-shaped term, so varying airmass moves the confound and the
+    signal together.
+  - **CONNECTING GEOMETRY** — the only one this corpus has not spent. Re-aims
+    between sets do connect different pointings. It is NOT proposed: blocker 2 is
+    untouched by it, and this entry's controls put the instrument's floor at the
+    size of the measurement.
+  **So the correction adds no route. It exists so the next reader does not go
+  hunting for "the lever the surveys used" believing there was one.**
+  Here the rotation is what an untracked
   camera gets free: **0.69-3.76 deg per set**, which leaves a median effective
   lever of **29.1 px against a 5769 px frame — 0.5%, a ~200x extrapolation**
   (range 9.2-34.3 px). `object_tilt.py --selftest` executes this: on a
@@ -1753,6 +1777,30 @@ SILENT — pin the state, never inherit it):
   `starlight_preservation.py` carried the same latent copy and is fixed; the fix
   is provably neutral there (every paired block and every fit identical before
   and after, since no 235,000-px sky cell is zero-variance).
+- **SIRIL FALLS BACK TO AN UNWEIGHTED MEAN AT ANY PIXEL WHERE EVERY SURVIVING
+  SAMPLE HAS ZERO WEIGHT — so a weighted stack silently contains unweighted
+  pixels.** The vendor's own stated reasoning is that it is
+  "better than a black pixel".
+  (DOCTRINE — the ORACLE's source read; **not probed on this rig**, where siril is a
+  flatpak binary. The phrase and the behaviour occur in no tracked file, so this is
+  the first home.) It is filed here rather than in `TOOLS.md` Tier 1 deliberately:
+  this is not a tool-CHOICE fact, it is a SILENT-BEHAVIOUR fact, and it belongs with
+  `idiv` clipping at 1.0 and `stat` excluding zeros — the family whose defining
+  property is that the output looks healthy.
+  **Why it matters here specifically:** the compose weights by member noise
+  (inverse-variance) or by `nbstack`, and coverage at a union canvas's edges is
+  exactly where sample counts collapse — so the pixels most likely to hit the
+  fallback are the union's rim and corners, which is also where this repo's largest
+  measured defect lives. A rim pixel that quietly switches weighting scheme is
+  indistinguishable in the product from one that did not.
+  **What is NOT established, and must not be inferred:** the firing CONDITION here
+  (whether any real product has hit it), the SIZE of any resulting discontinuity,
+  and whether it applies to the plain-mean sub-stack compose at all — a plain mean
+  has no weights to zero. **The probe that would settle it costs one run:** stack a
+  fixture whose members are constructed so one region's samples all carry zero
+  weight, and compare that region against the weighted arithmetic. Until then this
+  is a vendor claim about a code path, not a finding about our products.
+
 - **Siril `idiv` CLIPS AT 1.0, SILENTLY — so a ratio of two comparable images (the
   standard flat-vs-flat instrument) loses its whole upper tail with no warning.**
   The tell is a whole-frame `stat` printing **Max exactly 65535.0**. MEASURED on a
@@ -3426,6 +3474,31 @@ SILENT — pin the state, never inherit it):
   take the denominator from what varies between independent draws, never from what
   is merely plentiful inside one draw.
 
+- **THE THREE-LEVEL SEPARATOR — SINGLE UNREGISTERED FRAME → MEMBER → COADD — IS
+  IMMUNE TO THE REGISTRATION-REFERENCE CONFOUND, BECAUSE THE FIRST LEVEL INVOLVES
+  NO REFERENCE AT ALL.** The LEVELS are already used throughout this file
+  (raw → warped single → member; raw / member / per-set / union), so what is new is
+  only the DESIGN claim about what they buy: any experiment that changes the
+  registration reference also changes the output canvas, and a canvas change is a
+  first-order sub-pixel-phase confound on every star measurement. A ladder anchored
+  at a SINGLE UNREGISTERED FRAME sidesteps it by construction — that level has no
+  reference, no canvas choice and no resampling — so a term that is present at
+  level 1 cannot have been made by the compose, and a term that appears only at
+  level 3 cannot be optical.
+  **This is the discriminator this registry already used twice without naming it:**
+  the aug06 member edge deficit was killed by marching one instrument across
+  calibrated single → warped single → member (+0.174 / +0.130 / +0.175 px, flat),
+  and the star-shape ladder located the compose smear by the same shape.
+  **BOUND, and it is what stops this being a general-purpose answer:** the levels
+  differ in DEPTH as well as in reference, so every comparison across them must be
+  flux-matched or rank-matched first — the detection-depth artefact recorded under
+  "QA / scope" manufactured a 2.6× amplification on exactly this ladder when the
+  full detected population was used instead. Level 1 is also the noisiest, so a
+  small term may simply be unmeasurable there, and "absent at level 1" must be
+  reported with the depth at which it would have been visible.
+  (The design is the ORACLE's; the two worked instances and the bound are this
+  file's own.)
+
 - **STACKED PRODUCTS CARRY HEAVY NON-STELLAR TAILS THAT THE RAWS DO NOT, SO EVERY
   COHERENT OR AGGREGATE STATISTIC TAKEN ON A STACK IS TAIL-DRIVEN UNLESS IT IS
   CUT.** MEASURED on the anisotropy magnitude |D|: mean/median runs **raw 1.07,
@@ -3525,6 +3598,32 @@ SILENT — pin the state, never inherit it):
   a single-epoch one. Three quantities, one word: the shape closure does not
   discharge the positional question and the positional closure does not discharge
   the shape one.
+
+- **THE FIT-VS-MOMENT SHAPE BIAS HAS NO ESTABLISHED SIGN — ONLY A MAGNITUDE — SO
+  "OUR GRADIENT IS A FLOOR" IS UNSUPPORTED, AND IT HAS TRIED TO ENTER TWICE, BOTH
+  TIMES IN THE FLATTERING DIRECTION.** A Gaussian PSF FIT and a weighted SECOND
+  MOMENT do not measure the same quantity on a non-Gaussian profile, and this repo
+  compares them freely (Siril `psf`/`findstar` fits against the `a²−b²` and
+  spin-2 component work). **What IS homed is the MAGNITUDE — ~0.84× a planted
+  value (`TOOLS.md` PSFEx row; `BACKLOG:removal-conditions` row 146) — and a
+  magnitude is not a direction.** The literature the figure is argued from gives
+  the same: Bernstein 2010 bounds the SIZE of the discrepancy and does not fix its
+  SIGN for an arbitrary profile. (DOCTRINE — the ORACLE's; `Bernstein` occurs in
+  no tracked `.md`, `.py` or `.sh` and exactly once tree-wide, in
+  `datasets/aug06/experiments.jsonl`, so this is the first home for the sign
+  question.)
+  **WHY IT MATTERS AND WHY IT KEEPS COMING BACK:** "our measured gradient is a
+  FLOOR" converts an unknown-sign bias into a one-sided guarantee, which makes any
+  measured star-shape gradient a lower bound on a real defect — the version that
+  makes the finding look stronger. **It is a sign claim resting on a magnitude
+  result.** Without an established sign the honest statement is that the bias could
+  inflate or deflate the gradient, so a measured gradient bounds nothing in either
+  direction until the sign is settled for THIS profile class.
+  **The test that would settle it, unrun:** plant a known anisotropy on this data's
+  own trailed profile and compare the fit-derived and moment-derived recoveries at
+  two or more planted amplitudes — the two-amplitude form this registry already
+  requires, since a basis or definition error announces itself by a ratio that
+  moves while an absolute error stays put.
 
 - **A COHERENT MAGNITUDE AND A PROJECTION ON A NAMED AXIS ARE DIFFERENT
   QUANTITIES, AND ONLY ONE OF THEM IS UNBIASED — SO COMPARING THEM FLATTERS THE
