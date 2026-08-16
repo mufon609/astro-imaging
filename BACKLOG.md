@@ -973,10 +973,16 @@ the real one. **That refusal is what made the real list safe to retrieve:** it c
 from its author's own context rather than through a relay, and the relay itself
 declined to carry it, on the stated grounds that it had been lossy twice that day.
 
-**ONE PROVENANCE DEFECT IS RECORDED WITH IT, because it is why the AMENDED form
-differs from the original.** The retraction that put focal-plane tilt back on the
-list was built on three FWHM endpoint figures that reached its author **inside a
-unit brief, verbatim, with no tracked record anywhere**. They are not wrong — they
+**ONE PROVENANCE DEFECT IS RECORDED WITH IT, AND WHAT SURFACED IT WAS A QUESTION,
+NOT A DISCLOSURE — record it that way, because the two imply different practices.**
+The receiving side asked, before landing anything, where each number lived; the
+author then answered honestly and against its own finding. Absent the question the
+amendment would have arrived with the figures in it and nobody would have looked.
+**So the next seat should rely on ASKING, never on the supplier volunteering it.**
+(That correction is the author's own, offered against its own credit.) The
+retraction that put focal-plane tilt back on the list was built on three FWHM
+endpoint figures that reached its author **inside a unit brief, verbatim, with no
+tracked record anywhere**. They are not wrong — they
 are this item's own **+0.180 px** odd term expressed as endpoints, and the
 arithmetic checks exactly (their difference IS 0.180, and the percentage quoted with
 them is that difference over their mean). **But they had no home, so they are not

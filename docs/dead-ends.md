@@ -1964,6 +1964,20 @@ SILENT — pin the state, never inherit it):
   errors are conservative"*, not *"the errors are right"*. **The rule: a headline
   number must be reproducible from a tracked record by enumeration, and a pairing
   must name the quantity both halves were computed over.**
+  **AND FOR A NUMBER ARRIVING FROM ANOTHER PARTY THE RULE HAS A SECOND HALF: ASK
+  WHERE IT LIVES BEFORE LANDING IT, AND DO NOT RELY ON THE SUPPLIER VOLUNTEERING
+  THAT IT LIVES NOWHERE.** MEASURED: three figures underpinning a retraction were
+  offered for landing, the receiving side asked what record held them, and the
+  answer was that they had reached their user **inside a brief, verbatim, with no
+  tracked record anywhere**. The supplier then said plainly that the question is
+  what surfaced it — absent the question the figures would have landed and nobody
+  would have looked. **So the discipline that works is the ASK, not the
+  disclosure**, and a record of this class should say which of the two operated.
+  The figures were not even wrong: their difference reproduced the tree's own
+  measured term exactly, which is precisely why nothing about them invited a
+  check. **A number that is arithmetically consistent with a tracked one is still
+  unhomed if no record contains it**, and that is the case a reproducibility check
+  passes and a provenance check fails.
 - **THE DETECTOR CAN BE RIGHT AND THE DISPLAY THROW THE ANSWER AWAY — a distinct
   failure from a check pointed at the wrong object, and it reads as a clean
   negative.** Every other entry in this family is a target list built from a
@@ -2151,6 +2165,45 @@ SILENT — pin the state, never inherit it):
   **The first version of this paragraph stated that bound and NEITHER false
   positive, which is the error this entry exists to teach: a positive reported
   from an instrument its author had not falsified.** Corrected by the author.
+- **IN zsh, A `<rev>:<path>` PATHSPEC BUILT FROM A SHELL PARAMETER IS SILENTLY
+  MANGLED, AND DOUBLE-QUOTING DOES NOT DEFEND — ONLY `${REV}` DOES. THE FAILURE
+  MODE THAT MATTERS IS NOT THE ERROR, IT IS THE ONE THAT RETURNS PLAUSIBLE
+  NUMBERS FOR THE WRONG FILES.** This rig's agent shells are zsh 5.9
+  (`$0=/usr/bin/zsh`, `BASH_VERSION` unset), so this fires in ordinary use and
+  NOT in the repo's shipped `#!/usr/bin/env bash` scripts. zsh applies history-style
+  modifiers to `$name:…`, and the path's first character selects one. MEASURED,
+  one knob, synthetic `R=abc`:
+
+      $R:scripts/x   bad substitution   LOUD — the only one that announces itself
+      $R:web/x       b/x                SILENT — the ref is GONE
+      $R:lib/x       abcib/x            SILENT — `:l` fired
+      $R:qa/x        abca/x             SILENT — `:q` fired
+      $R:upper/x     ABCpper/x          SILENT — `:u` fired, and it UPCASED the value
+      $R:hd/x        .d/x               SILENT — `:h` fired
+      $R:docs/x      abc:docs/x         safe (`d` is not a modifier letter)
+      $R:README.md   abc:README.md      safe
+
+  **THE DEFENCE IS BRACES, NOT QUOTES**, and the obvious fix is the wrong one —
+  parameter expansion happens INSIDE double quotes, so the modifier still fires:
+
+      git cat-file -p $R:scripts/lib/route.py       -> bad substitution
+      git cat-file -p "$R:scripts/lib/route.py"     -> bad substitution
+      git cat-file -p "${R}:scripts/lib/route.py"   -> #!/usr/bin/env python3 …
+
+  **THE EXPENSIVE DIRECTION, MEASURED HERE:** a mangled pathspec does not
+  necessarily fail — git can drop it and search the WHOLE TREE at that rev instead.
+  `git grep -c 'desky' $R:scripts/stack/build_sky_flat.sh` returned
+  **`BACKLOG.md:6` and `experiments.jsonl:2`** — real counts, for files nobody
+  asked about — while the true count in the named file is **15**. That is MODE 3 of
+  the registered search-failure set (*the one that returns a NUMBER, so nothing
+  prompts a re-check*) reached by a new mechanism, and a second session hit the
+  zero-valued version of it in the same hour, reading `--desky: 0` for a file
+  carrying 9 and nearly reporting live code as deleted.
+  **THE RULE: write `"${REV}:path"`, and treat any `<rev>:<path>` result as
+  suspect until the ref is visibly present in the output.** Same family as the
+  shell-function shadow above — the instrument changed and the numbers stayed
+  plausible — and it was found only because the advice *"quote the ref-path"* was
+  itself tested rather than adopted, by its own author, one message after issuing it.
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
