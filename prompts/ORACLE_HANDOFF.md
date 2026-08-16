@@ -2,288 +2,225 @@
 
 **PROMPT-KIND: register**
 
-**SUPERSEDES `prompts/ORACLE_HANDOFF_engagement2.md`, which must die in the same
-commit that lands this.** What was still live in it is migrated below and marked
-MIGRATED; what was stale is dropped and named as dropped, so nothing is lost
-silently.
-
-**The name carries no engagement number, deliberately.** Three handoffs would be
-three places for the same fact to drift. **The next Oracle REPLACES this file; it
-does not add a fourth.**
+**REPLACES the previous `ORACLE_HANDOFF.md` in full.** The name carries no
+engagement number, deliberately — three handoffs would be three places for one
+fact to drift. **The next Oracle REPLACES this file; it does not add to it.**
 
 **Read `prompts/ORACLE_TEMPLATE.md` first — it is the role.** This file carries
-only what a document cannot: searched negatives with what was actually looked at,
-which of my claims are inference rather than measurement, the refs that make
-external claims re-derivable, and the errors I made.
+only what a document cannot: searched negatives with what was actually looked
+at, which of my claims are inference rather than measurement, the refs that make
+external claims re-derivable, and my errors.
 
-**THIS FILE IS A SNAPSHOT, NOT A LIVE RECORD — RE-VERIFY ANYTHING ITS AUTHOR
-COULD HAVE CHANGED AFTER WRITING IT, AND THE UNCHECKED LIST IN §6 HARDEST.**
-MEASURED, by the author, on this file: it states *"a correction delivered in
-conversation does not correct the tree"* in §8, and then its own §6 item 6 was
-answered in a peer message and left standing here for forty minutes — the rule
-failing on the artifact that carries it. An UNCHECKED list is written by the one
-party most likely to close an item and least likely to re-read the list.
+**NOT HERE ON PURPOSE: my engagement's findings.** Eleven landed in the tree
+across seven commits — `TOOLS.md`, `docs/dead-ends.md`, `BACKLOG:one-sided-band`,
+`docs/combine-contract.md`. Read the tree for them. Anything restated here would
+be a second home for a fact that already has one.
 
 ---
 
 ## 1. SEARCHED AND EMPTY — DO NOT RE-RUN
 
-Each cost real tokens and each closed something by being empty. **A searched
-negative reported as a negative is a deliverable.**
+Each closed something by being empty, and each cost real tokens.
 
-**Mine, this engagement:**
-
-- **SWarp has NO homogenisation-kernel reader in its SOURCE** — not merely
-  undeclared in its config. 69 C files: `HOMO`, `homo_`, `.homo`, `PSFnormalize`,
-  `homogen` = **0 files each**, against a `RESAMPLE` positive control at 4. The
-  PSFEx manual routes `.homo` cubes to DES-internal **PSFnormalize** and says
-  *"The SWarp software may also later include this possibility."* **It did not.**
-- **The FITS registry has NO calibration-provenance convention.** 23 registered
-  conventions enumerated; none covers calibration provenance or processing
-  history.
-- **MaxIm DL `CALSTAT` records WHICH STEPS ran (`B`/`D`/`F`), never which frame.**
-  The vendor's header page carries no keyword naming a master.
-- **astropy `ccdproc` deliberately erases master identity.** `log_meta.py`'s
-  `_replace_array_with_placeholder()` rewrites a `CCDData` master as the literal
-  string `"<CCDData>"`.
-- **PixInsight XISF is UNREACHABLE from the vendor site** — three fetches
-  (release, DRAFT 8, DRAFT 3) all **HTTP 403**. Do not retry there. It also could
-  not change a FITS-keyword decision, since nothing here writes XISF.
-- **Siril `-disto=master` is NOT DETERMINED by the documentation.** Both
-  per-image and auto-selected-shared readings survive the sentence *"load
-  automatically the matching distortion master corresponding to each image"*, and
-  1.4.4's own `help register` carries the identical wording — **so it is not a
-  docs-vs-build gap and reading harder will not settle it.** The discriminating
-  probe is specified in the corner thread.
-- **IRAF's header format strings are in NO documentation page** (five tried,
-  including readthedocs and the `.hlp` sources). They are in the source:
-  `setzero.x` / `setdark.x` / `setflat.x` / `setillum.x` / `setfringe.x`, plus
-  `setheader.x` for `ccdproc`.
-
-**MIGRATED from engagement 2 — still live, NOT re-verified by me:**
-
-- No installed tool reports a propagated error on a shape moment.
-- No tool fits a linear-trail model reporting length `L` directly.
-- No shutter-metrology literature using trail length for effective exposure.
-- No documented treatment of trail-profile non-uniformity in fixed-mount imaging.
-- No upstream Siril/flatpak issue for concurrent `siril-cli` instance-dir
-  collisions (the instance dir is a **flatpak** construct, so Siril's tracker
-  will keep returning empty either way).
-- No SCAMP photometric-mode minimum-detections threshold in its documentation.
-- **No packaged headless CPU Linux tool for anisotropic spatially-varying
-  deconvolution.** **QUALIFIED BY §3 BELOW** — PSFEx *computes* a
-  spatially-varying homogenisation kernel; nothing installed *applies* it.
-- `lenstool` unpackaged — **UNCHECKED by engagement 2's own admission**: it used
-  `apt-cache policy`, the instrument that produced the SCAMP error. Completing
-  check is `apt-cache showsrc lenstool`. The PM directed not to spend on it.
-
-**DROPPED as stale:** engagement 2's §1 team roster (every seat has turned over)
-and its §5 route-gating text (superseded by §3 and §5 here).
-
----
+- **No source prescribes a superflat's pointing spread as an absolute sky angle,
+  or as a fraction of the field width.** Looked at: THELI GUI §9/§15/§18; Erben
+  et al. 2005 §3.2–3.9; Sharon et al. 2007 §II.2.2; Bernstein et al. 2017
+  §II.3/§III.4/§III.6; Pan-STARRS §III.4; AutoWISP §2.1; von der Linden et al.
+  2014 §3.1.2; IRAF `ccdred`/`quadred` flatfields plus `mkskyflat` /
+  `mkillumflat` / `mkillumcor`. **Every spread requirement found is RELATIVE** —
+  to object size, to CCD gaps, or to the range of spatial scales being solved
+  for.
+- **No source gives a rule for MIXING observing conditions inside one
+  superflat.** Every source that addresses it splits the stack by condition or
+  rejects frames.
+- **No source recovers a position-dependent instrumental throughput from
+  sky-derived stellar photometry on a camera fixed in the HORIZON frame**,
+  without a lab flat, an external anchor, or a Bouguer slope in time. Looked at:
+  SDSS ubercal §II–III; DES FGCM §III–IV; DECam detrending; Evryscope;
+  Pan-STARRS §III.4; the all-sky camera literature.
+- **FGCM never discusses the instrument/atmosphere degeneracy** — it asserts the
+  factorisation. Worth knowing, because it is the paper someone reaches for as
+  authority that the two separate.
+- **The Ali Observatory all-sky paper describes NO flat-field or vignetting
+  procedure**, and makes no statement about separating vignetting from
+  extinction on a fixed camera.
+- **No source bounds how the underfitting / ellipticity-gradient bias VARIES
+  with a blend's orientation distribution.** Bernstein 2010 gives magnitudes at
+  named configurations only. Two near-misses that do NOT transfer:
+  arXiv:1707.01285 §3.5 (galaxy shear bias under a PSF swap) and GREAT10's
+  *"additive shear biases depend linearly on PSF ellipticity"* (shear bias
+  against PSF ellipticity, not shape bias against blend composition).
+- **Nothing characterises CLAMPING on an anisotropic or motion-blurred
+  feature.** Third empty result in that family.
+- **The elapsed time of a DECam star-flat sequence is not stated** in the
+  sources read — so whether the atmosphere is constant across it is
+  unestablished.
+- **PixInsight's `ImageWeighting` and `SubframeSelector` reference docs return
+  HTTP 403.** **ACCESS-negative, not existence-negative** — `TOOLS.md` cites the
+  first, so it was reachable from somewhere, and PixInsight is uninstalled here
+  by choice so there is no local copy. Two clauses in the intake-culling finding
+  are SECONDARY until someone with access confirms them verbatim.
+- **NOT READ, named so nothing here is taken as a complete survey:** Chromey &
+  Hasselbacher 1996 (paywalled, abstract only — the 2–5%/degree twilight figure
+  is SECOND-HAND via Freudling 2007 and Wei 2014); Regnault et al. 2009;
+  Schlafly et al. 2012; Tamuz et al. 2005 in full; Penev et al. 2013; Heymans
+  et al. 2012; Jarvis et al. 2016; Filippenko 1982.
 
 ## 2. MY MECHANISM CLAIMS — UNMEASURED, LOAD-BEARING, DO NOT PROMOTE
 
-All three are cited somewhere in the tree right now. **None is measured. If a
-session quotes one as settled, that is the failure this seat exists to prevent.**
+**None is measured. If a session quotes one as settled, that is the failure this
+seat exists to prevent.**
 
-1. **Scale-based separation cannot split vignetting from a baked sky gradient
-   here.** My generalisation of the registry's own parity argument for `subsky`
-   degree 2 (*"they are the same functional form as vignetting"*). **This is what
-   closes the IRAF illumination-correction route in the superflat unit** — if it
-   is wrong, that route reopens.
-2. **Classical interpolation trades class-blindness for placement sensitivity,
-   and GraXpert's darkness-based auto-placement does not escape the absorption**
-   (`background_grid_selection` imports `find_darkest_quadrant`; on a
-   starlight-filled field the darkest cells are still starlight). **This is the
-   LIMIT clause on the GraXpert row.**
-3. **Siril 1.5's native masking reclassifies per-region RL from FORBIDDEN to
-   UNPROVEN.** My reading of the registry's own classification against a
-   documented capability. **If compressed to "1.5 unblocks per-region RL" it
-   becomes a false all-clear on a physics question nobody has run** — the
-   registry's *"the prior blocker is SNR, not seams"* is untouched.
+1. **A pure change of registration reference is a COMMON transform** —
+   `H_B⁻¹·H_m = (H_B⁻¹·H_A)·(H_A⁻¹·H_m)` — **so the relative orientation
+   mixture at a sky position is invariant and only the FIT RESIDUAL changes.**
+   Elementary, but it is what bounds the reference-swap experiment's confound
+   analysis.
+2. **A clamp is a phase-dependent NONLINEARITY acting preferentially on the
+   steepest gradients, which are star cores.** Follows from two sourced halves;
+   **no source states it for clamping.**
+3. **Clamping broadens the MINOR axis of a trailed star preferentially, so it
+   would make trailed stars ROUNDER — the sign is plausibly opposite to
+   "induces ellipticity."** Mine. **It points at a "our gradient is a floor"
+   reading which is NOT established and must not be adopted** — that reading
+   arrived twice by different mechanisms and was refused both times.
+4. **Second moments of a weighted-mean coadd are the weighted mean of the input
+   moments, so the trace is preserved EXACTLY under equal-trace orientation
+   mixing.** Exact arithmetic — **but the observable here is a Gaussian FIT, not
+   a moment trace**, and the registry already records that a fitter misreads a
+   blend.
+5. **WITHDRAWN, recorded so it is not re-adopted:** *"a bias common to both arms
+   largely cancels in the reference swap."* Too strong. What survives is only
+   that the BINARY reading is robust — a null stays a null.
 
----
+## 3. PINNED REFS — my sources move, git history does not
 
-## 3. FINDINGS THAT MOVED A ROUTE — measured half and unmeasured half
+    Montage  distort.c / wcs.c / wcsinit.c   82a5e1162c6c   2016-12-22
+             MontageLib/Project              6a34acf914b3   2023-04-10
+             MontageLib/ProjectPP            5d2f1a1583ad   2023-09-07
+    Siril    read at TAG 1.4.4 (median_and_mean.c, stacking.h, command.c);
+             master fetched only for the diff
+    GraXpert releases API: stable 3.0.2 (2024-05-03); newest tag 3.1.0rc2
+             (2025-01-01, prerelease=true)
+    Siril    GitLab tags: 1.4.4 = 2026-06-17; NO 1.5.0 tag exists
+    CosmicClarity  setiastro/cosmicclarity, newest release 2025-03-29
+    AstroSharp     deepskydetail/AstroSharp, ZERO releases, pushed 2025-12-19
 
-- **PSFEx implements spatially-varying PSF homogenisation.** `homo.c`: target is
-  a circular Moffat from `HOMOPSF_PARAMS`, kernel expanded in a Gauss-Laguerre
-  basis, solved by Cholesky (`LAPACKE_dposv`), **no guard against a target
-  narrower than the measured PSF and no regularization** — only a non-fatal
-  `warning("Not a positive definite matrix")`. `makeit.c:553,577` gates and calls
-  it, so it is **declared AND consulted**. Installed since `754e5c5`.
-  **`docs/dead-ends.md`'s "NO INSTALLED TOOL CAN CORRECT A FIELD-VARIABLE
-  ANISOTROPIC PSF" is false as worded.** The route stays closed on three better
-  grounds: no installed applier; the vendor calls homogenisation *"presently an
-  experimental feature"*; and the owner's refusal, formally backed by Zackay &
-  Ofek.
-- **Siril `-weight` is two different estimators.** `wfwhm` and `nbstars` ARE
-  min-max ramps — the worst frame gets **exactly 0, not ~0**, at any spread.
-  `noise` is **inverse-variance, mean-normalised** (the standard optimal
-  estimator) and drives nothing to zero. `nbstack` is the raw stack count.
-  **VERSION JOINT UNRESOLVED: read at siril master, we run 1.4.4.** Probe:
-  `median_and_mean.c` calls `siril_log_debug` printing per-frame weights, so one
-  debug-enabled stack settles both the version question and our own data.
-- **Siril DOES consume per-image distortion.** *"it is first corrected for
-  distortion and then linearly projected… in a single operation."* The
-  `seqapplyreg` transform-class list describes registration **data**, not the
-  pixel mapping — `listed ≠ exhaustive`. **And "distortion found but not
-  applied" is a documented state whose tell is a CONSOLE WARNING**, not a header
-  key; `run_undistort_compose.sh:352,355` already gates on that channel.
+**Papers:** arXiv 0810.0027 (Jarvis/Schechter/Jain 2008) · 1001.2333 (Bernstein
+2010) · astro-ph/0703454 (Padmanabhan ubercal) · 1706.01542 (Burke FGCM) ·
+1706.09928 (Bernstein DECam) · 2302.10929 + 1904.11991 (Evryscope) ·
+astro-ph/0501144 (Erben GaBoDS) · 0711.0808 (Sharon WOOTS) · 1407.8283 (Wei
+AST3) · astro-ph/0610705 (Freudling FORS) · 1401.2636 (Bernstein & Gruen) ·
+2501.08358 (Ali all-sky).
 
----
+**PIN THE REF ON ANY EXTERNAL CLAIM YOU HAND OVER. I read Montage at `master`
+and was rescued only by the files not having moved since 2016** — that is luck,
+not practice.
 
-## 4. PINNED REFS — my sources MOVE, git history does not
+## 4. MY ERRORS — the shapes, because a successor inherits the seat and not the lessons
 
-Every external claim above is re-derivable at:
+- **TWO OVER-READS IN ONE SESSION, BOTH IN THE SAME DIRECTION — the one that
+  made the finding look more valuable.** (a) A sentence in a register row's
+  STATUS cell widened to *"the removal condition is mis-keyed and has already
+  fired"*; the condition was in a different column and correctly keyed. (b) The
+  **absence** of an `INSTALLED` marker read as a declaration of absence.
+  **Treat a same-direction pair as a live bias, not two incidents.**
+- **MATCH-CENTRED EXTRACTION RETURNS A CELL; I ATTRIBUTED ITS PROPERTY TO THE
+  ROW.** The truncated-view failure, committed while using the instrument the
+  registry prescribes as its fix. **Fix: column-split before forming any verdict
+  on a table-borne claim.**
+- **AND THAT FIX IS NECESSARY, NOT SUFFICIENT.** A research-queue row's content
+  can continue past the table's end, in a paragraph — where a column-split on
+  the row returns **zero**. **Check whether the row is the whole cell FIRST.**
+- **I CITED A THRESHOLD AS A *RECORDED* LESSON WHEN NO TRACKED FILE CARRIES IT.**
+  The word **`recorded`** is what gave it the tree's authority. **Where the
+  figure originated I cannot establish, and neither should you.**
+- **I BUILT AN AMENDMENT ON THREE FIGURES THAT REACHED ME IN A UNIT BRIEF WITH
+  NO TRACKED RECORD**, and used them to retract an elimination. The arithmetic
+  was sound; the inputs were a message. **Found because a worker ASKED where the
+  numbers came from — not by my volunteering it.**
+- **I SOURCE-READ MONTAGE FOUR FILES DEEP AND NEVER ASKED WHETHER IT WAS
+  PACKAGED.** It is — Debian `montage` plus `python3-montagepy`. I had refused
+  the availability class as *rig state*; **"is this in the distro archive" is a
+  fact about the ARCHIVE, not the rig, and that is this seat's lane.**
+  **`0 files in the tree` is a fact about the tree and never about the rig.**
+- **NEAR MISS — I nearly reported that Montage cannot read SIP.** `wcsinit.c`
+  returns **0** for `SIP`, `TAN-SIP`, `A_ORDER`. WCSTools calls it
+  **`DISTORT_SIRTF`**. **A grep keyed on the modern name returns a confident
+  false negative on a route-closing question.**
+- **NEAR MISS — a search summary handed me *"cubic (3rd-order Lanczos) x-domain
+  interpolation … 0.04e"*.** The paper says *"cubic **u-space**"* — Fourier
+  domain, not Lanczos. **Had it landed we would carry a fabricated agreement
+  between our own measurement and the literature, which is worse than having no
+  literature.**
+- **I let three units die in deleted untracked files and did not object.** The
+  files were never cleared to land; **the findings did not need to go with them
+  and I did not say so until someone else measured it a day later.**
 
-    swarp   master  bf4f496f18c04a8d32022b45449ef8675ab9b3da
-    psfex   master  25a586d16ba02d7ac06956e64d4e60ab85ed276c
-    siril   master  5c7cfbc14fb9b4ecdc51e2cf52a800821c9873e3
-    GraXpert  tag   3.0.2   (matches the installed build)
-
-    Siril docs:  /en/stable = 1.4.4   /en/latest = 1.5.0-dev
-
-**Pin the ref on any external claim you hand over.** This was a real gap in my own
-work until the historian named it.
-
----
-
-## 5. OPEN, AND WITH THE OWNER
-
-**The superflat route on the `sky × V` object tilt** — the project's core open
-defect, no corrective shipped.
-
-- **The field's standard answer exists and the repo had never seen it.** SEARCHED,
-  and the literals are written SPLIT below so this paragraph is not itself a hit:
-  `super`+`flat`, `illumination `+`correction`, `illum`+`cor`, `mk`+`illum` each
-  returned **0 tracked `.md` files** when measured — **at a commit BEFORE this file
-  landed.** Re-measured at `51e36ab` each returns **exactly 1 file, and that file is
-  this one**: the record asserting the absence became the only thing its own query
-  could match. **The substance survives — nothing outside this file carries any of
-  the four — the stated count does not.** Same shape the registry
-  registers: *you cannot document a string-search finding by pasting the string;
-  split the literal and state counts at a named commit.* The construction is a median of many un-registered
-  dark-sky frames **across many pointings**, which is what makes an
-  observer-frame term average down.
-- **Our ratified ban (`README.md:85`) forbids exactly that construction**, and it
-  was ratified against the imprint mechanism the superflat defeats by averaging.
-  **Same measured fact, opposite conclusions; the repo has only ever seen one.**
-- **Probe RAN (worker, `e99f3e6`):** max angular separation **37.17°** corpus-wide
-  against a **27.09°** sensor field = **1.37 field widths**, dominated by
-  cross-night pairs; **within-night 9.63–17.46° = 0.36–0.64 field widths.**
-- **TWO CONSTRAINTS OPEN, NEITHER RESOLVED:** (1) a cross-night superflat spans
-  different **optical states** — but the registry records that attribution as
-  **UNATTRIBUTED** and says *"do not design a corrective… on the grounds that it
-  is optics — that is not established"*, so the objection **selects the unit**
-  (surveys build per-RUN; our stable block is the NIGHT) rather than killing the
-  route; (2) moonless-vs-moonlit gradient magnitudes differ.
-- **The ban is untouched. This is the owner's call, not the pipeline's.**
-
----
-
-## 6. THE UNCHECKED LIST
-
-**MIGRATED, still open:**
-
-1. **Corner ⟂ compose independence.** Falsifier specified in engagement 2's file;
-   goes live the moment anyone argues the SWarp/TPV route on priority grounds.
-2. **A fresh clone completes the astromatic build.** Nobody has run a clone.
-3. **`manifest.tsv` completeness.** Falsified once, four rows added — *"fixed the
-   four we found"* is not *complete*.
-4. **The 35.6's own reference distribution.** Untested by anyone.
-
-**NEW, mine:**
-
-5. **PARTLY DISCHARGED, and the residue is a stated BOUND rather than an open
-   question.** The premise was that the registry's EVIDENCE-STATUS preamble is
-   sufficient: it required *"n, instrument and scope"* and **never asked what the
-   instrument was pointed AT**, while three over-generalisations were fully
-   compliant with it and all wrong. SUBJECT landed as a fourth axis, and at
-   `51e36ab` it is named as the **MEASURAND** with JCGM 200 (VIM) cited and the
-   IVOA Provenance Data Model explicitly NOT adopted, deviation recorded.
-   **Its own positive control then ran and caught 2 of 3** — it catches drift
-   ACROSS a subject boundary and is **BLIND to drift WITHIN one** (`-weight` names
-   `-weight`, so the axis matches and the widening sits inside the flag's own
-   modes). **The missing half is a different discipline: enumerate a subject's own
-   modes or values before asserting a behaviour of it** — which is what closed
-   `-disto=` at three values and what nobody had done for `-weight`.
-6. **CLOSED — MEASURED, and it carries a live hazard into `TOOLS.md`.**
-   `background_grid_selection` imports from **NO interpreter on this rig**:
-   `/opt/astro-venv/bin/python`, `/usr/bin/python3` and
-   `~/.local/share/astrometry-venv/bin/python` all return
-   `ModuleNotFoundError: No module named 'graxpert'`, while
-   `/opt/graxpert-3.0.2/GraXpert-linux/` is present. Run by the Oracle, re-run
-   independently by the PM. **CONSEQUENCE: `TOOLS.md`'s GraXpert row —
-   *"Points can be produced by GraXpert's own `background_grid_selection(...)`, so
-   the route needs no in-house analysis"* — is true of GraXpert and FALSE of this
-   rig, and the hazard runs the dangerous way: a session follows it, finds no
-   importable module, and writes the point placement in numpy, which is the exact
-   bright-line crossing the sentence exists to prevent.** The route is
-   bright-line-clean only AFTER `pip install graxpert` into `$ASTRO_VENV`,
-   version-pinned to the bundled 3.0.2 since the generator's output feeds that
-   CLI, with a `scripts/setup/manifest.tsv` row. **Routed to the worker as an
-   INSTALL, not a doc edit; NOT LANDED as of `51e36ab`, so treat the row as
-   hazardous until it is.**
-7. **Whether siril `requires` has an upper bound.** MEASURED: it accepts a NEWER
-   siril than its argument (`requires 1.2.0` under 1.4.4 → *"compatible"*), which
-   rules out exact-match. **Upper bound untested** — and it decides whether a 1.5
-   bump fails at the version check or later on an unknown `starnet`.
-
----
-
-## 7. MY ERRORS — the shapes, because a successor inherits the seat, not the lessons
-
-- **Wide-cell partial read.** Found the half of `README.md:83` that answered my
-  question and treated it as the cell; the other half contradicted it. **The cell
-  was 639 chars — NOT extreme — so this was a STOPPING RULE, not concealment by
-  width.** (The genuine width case is the 4,506-char tail in `TOOLS.md`.)
-- **Grouped three instances by surface; they measured to two plus one different
-  mechanism.** The same error I had corrected in two other seats within the hour.
-- **Claimed "written nothing" from a two-hour-old `git status`** while two of my
-  own `.ssf` files sat in the repo ROOT — untracked and **not** gitignored.
-- **NEAR MISS:** nearly reported *"Siril destroys DATASUM"* from a probe of the
-  **DEFAULT**; `save -chksum` was documented throughout.
-- **NEAR MISS:** nearly reported `TOOLS.md` as over-claiming on `rl`/`sb`/`wiener`
-  mask-awareness, from a **summarised** vendor page that omitted them.
-- **NEAR MISS:** nearly reported GUI `messagebox` behaviour as CLI behaviour;
-  `cmdline_tools.py` settled it.
-
-**The common shape, and it is the most transferable thing here: a surface that
+**THE COMMON SHAPE, and it is the most transferable thing here: a surface that
 reports CAPABILITY has no obligation to report BEHAVIOUR — and a SUMMARY of a
-surface is a third thing again.** Three named variants met tonight:
-`listed ≠ scriptable` (`tilt`/`inspector`), `declared ≠ consulted` (a config dump),
-`listed ≠ exhaustive` (`seqapplyreg`'s transform classes). **Go to the source when
-the answer decides a route.**
+surface is a third thing again.** `listed ≠ scriptable`. `declared ≠ consulted`.
+`listed ≠ exhaustive`. **Go to the source when the answer decides a route, and
+pin it.**
 
----
+## 5. THE UNCHECKED LIST — open, not discharged
 
-## 8. PROCESS FACTS IN NO OTHER DOCUMENT
+**Migrated, still open:** corner ⟂ compose independence · a fresh clone completes
+the astromatic build · `manifest.tsv` completeness (falsified once; *"fixed the
+four we found"* is not *complete*) · the 35.6's own reference distribution.
 
-- **`ListAgents` does not list the querent.** A roster that excludes the asker
-  cannot answer *"does X exist"* when X might be the asker — two seats reported a
-  peer's address as non-existent on exactly that, and in each case the row they
-  could not see was their own.
-  **The appended generalisation "names are per-vantage" is FALSE and is retracted.**
-  MEASURED, n=3 independent rosters, one axis of variation (the querent): every
-  name shared between any two is IDENTICAL, and each roster is the live set minus
-  its own asker. SUBJECT: the roster's ROW SET, not the naming scheme — the
-  distinction the retracted wording collapsed. The over-general form has a cost:
-  it forbids relaying an address that is in fact reliable, and under it a seat
-  cannot be told a peer's name at all.
-  **The correct form: a roster is every live session except the querent; all other
-  names agree across vantages and are safe to relay. Reply to the `from=`
-  attribute because the asker cannot see itself — not because names differ.**
-- **A correction delivered in conversation does not correct the tree.** I narrowed
-  my own Engagement-1 negative in messages and left the landed text standing.
-  **When a later finding narrows an earlier one, grep the TREE for the earlier
-  claim, not the conversation.**
-- **My boot was independent; my state at retirement was NOT.** Anything I agreed
-  with the PM or the worker on after roughly 20:00 is **not** corroboration.
-  Give the same caveat when you hand a claim to a seat whose independence still
-  has value.
-- **A probe specified without controls is a probe half-specified.** My
-  alt/az probe omitted the degenerate-coordinate hazard; the worker found a
-  zenith degeneracy (a set 1.60° from zenith making raw azimuth spread
-  meaningless) and an epoch-inheritance bug worth 45×, neither of which I named.
+**Mine:** **which of Montage's THREE bundled WCS trees the build links** — I read
+`wcssubs3.9.0_montage`; `wcstools-3.8.1` and `-3.8.7` are also vendored, and no
+SHA answers this. A `config.make` read settles it.
+
+**Possibly closed, unverified by me:** whether siril `requires` has an upper
+bound. **I did not re-run it.**
+
+**MEASURED AND NOT CLOSED — `graxpert` is not importable anywhere on this rig.**
+`ModuleNotFoundError: No module named 'graxpert'` on **`/opt/astro-venv`,
+`/usr/bin/python3` and `~/.local/share/astrometry-venv`**; `manifest.tsv`
+carries the `/opt` **binary** only, no module row. So the predecessor's question
+— does `background_grid_selection` import from a pip install — is ANSWERED NO
+for this rig, and what it leaves behind is the live half: **`TOOLS.md:839` still
+reads *"Points can be produced by GraXpert's own `background_grid_selection(...)`,
+so the route needs no in-house analysis"*, unhedged, in a cell whose neighbouring
+clauses are correctly hedged. That sentence sends a session to numpy on the
+deliverable's pixels.**
+
+## 6. OPEN WITH THE OWNER
+
+**The superflat route on the `sky × V` object tilt — the project's core open
+defect, no corrective shipped.** The flat-residual line is **PAUSED by the owner
+pending real flats** (`8ccba18`). **The tree carried two contradictory readings
+of that pause's scope**; the disposition reached was that the pause holds,
+because it is a tracked owner act while the exemption's only witness was the
+document that benefited from it. **The owner rules; nothing is scheduled on that
+line.**
+
+## 7. PROCESS FACTS IN NO OTHER DOCUMENT
+
+- **`ListAgents` does not list the querent.** A roster is every live session
+  EXCEPT the asker. **The corollary that names are per-vantage is FALSE** — all
+  other names agree across vantages and are safe to relay; a worker falsified it
+  with set arithmetic over three rosters. Reply to the `from=` attribute, for
+  that narrower reason.
+- **Messages cross.** A peer can endorse as decisive something you retracted
+  between their composing and your reading. **Name it rather than quietly
+  re-sending** — the failure is silent in the other direction.
+- **A count without its stated filter is not a measurement.** Two seats measured
+  *"the same thing"* and disagreed five times in one day, every time from an
+  unstated filter.
+
+## 8. THREE OF MY CLAIMS THAT WERE CORRECTED — do not re-derive them
+
+1. **`-weight` and `--nonorm` DO co-occur in one file** (`run_pipeline.sh`). The
+   separation is by **INVOCATION** — `-nonorm` is on the calibration-master
+   stack, which never receives the weight variable. **The conclusion survives;
+   the file-level reason is false.** A false reason on a true conclusion
+   discredits the conclusion when it fails.
+2. **`TRANSFER FUNCTION` is a taken term** — it carries the flat-differential
+   result at two sites. The coadd-orientation demotion landed descriptively,
+   with no new term.
+3. **`Evryscope` is 0 files tree-wide**, so any claim about what a past session
+   published about it is team history and unsupportable as a tree fact. The
+   Evryscope fact itself is sourced and fine.
