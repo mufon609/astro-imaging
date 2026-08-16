@@ -1011,7 +1011,10 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   **Under this repo's own evidence gate the two halves belong in different places:**
   whether to accept a visible artefact for sharpness is aesthetic and the owner's,
   but the artefact's MAGNITUDE is a thing an instrument settles — so the owner is
-  currently being offered a 6.26% gain against an unquantified loss. **The fixture
+  currently being offered a 6.26% gain against an unquantified loss — **and that
+  gain is itself a SINGLE-CONFIGURATION sample, not a constant** (one planted FWHM,
+  one phase distribution; BACKLOG:`resample-cost-and-drizzle`), so both sides of
+  the offer are less determinate than they read. **The fixture
   that would close it already exists and needs no new design:** the same planted
   synthetic frames pushed through the shipped `register -2pass` →
   `seqapplyreg -interp=` operation verbatim, with a sharp-edge target added and the
@@ -1047,6 +1050,34 @@ verbatim (`register -2pass -transf=homography` then `seqapplyreg -interp=`):
 free on this PSF; the clamp is essentially the entire cost. The nearest control
 reading exactly 0.00% is what makes 6.26% credible as interpolation blur rather
 than a fixture artefact.
+
+**AND 6.26% IS A SINGLE-CONFIGURATION NUMBER FOR A QUANTITY THAT THEORY SAYS IS
+NOT CONSTANT — so it is an ESTIMATE WITH AN UNSTATED SPREAD, not a property of the
+clamp.** (DOCTRINE — the ORACLE's, from polyphase / fractional-delay filter theory;
+`polyphase`, `fractional-delay` and `single-configuration` each occurred in ZERO
+tracked files before this, so this is the first home.) A resampling kernel is a
+fractional-delay filter and its response depends on the FRACTIONAL SAMPLE PHASE,
+so the blur it costs is a function of where each star's centre falls between
+pixels — and the clamp acts on exactly the ringing that phase controls. The arm
+above planted ONE FWHM (2.10 px) and ONE set of sub-pixel shifts, so it sampled
+that distribution once. The honest reading of the table is "6.26% at this PSF width
+and this phase distribution", and neither the spread across phases nor the
+dependence on FWHM has been measured.
+
+**READ THE NEXT SENTENCE BEFORE USING THIS: IT IS NOT AN ARGUMENT ON `-noclamp` IN
+EITHER DIRECTION.** It does not make the clamp cheaper, it does not make it dearer,
+and it does not favour removing the pin. All it does is put an error bar of unknown
+width on a figure that has been quoted as exact — including in
+`corner-fix-landscape`, where the owner is being offered "a 6.26% gain against an
+unquantified loss". **Both sides of that offer are now less determinate than they
+read:** the loss was already unquantified, and the gain is a one-configuration
+sample.
+
+**What would close it, and it needs no new fixture:** re-run the existing planted
+arm across a spread of sub-pixel phases and at two or more planted FWHM, and report
+the range rather than a point. The same two-amplitude discipline this repo already
+requires elsewhere — a quantity that is constant in the right parameterisation and
+varying in the wrong one announces which it is.
 
 **This is a doctrine number.** `check_registration_pins.sh` pins lanczos4 WITH
 clamping — pinning it means asserting `-noclamp` is absent — and the guard's own

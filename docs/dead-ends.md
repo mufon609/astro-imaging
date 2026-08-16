@@ -1729,7 +1729,8 @@ the constraints any such tool must satisfy):
   non-fixes as responses. **And the measured half that refutes it directly:** at
   the frame CENTRE there is no aberration gradient at all, so the chain is
   essentially the entire degradation there — ~12% of PSF width, of which the
-  Lanczos4 kernel is 0.45% and our own CLAMP pin is 6.26%. A treatment that adds
+  Lanczos4 kernel is 0.45% and our own CLAMP pin is 6.26% (one configuration,
+  not a constant — BACKLOG:`resample-cost-and-drizzle`). A treatment that adds
   blur at the centre was proposed for a chain already softening the centre by ~12%.
   Implementation lead if the COADD question is ever reopened (orthogonal to
   deconvolution, availability UNVERIFIED here): `properimage` (quatrope/ProperImage),
