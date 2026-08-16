@@ -6,7 +6,9 @@ dataset lives here, keyed `datasets/<session>/<set>/`.
 
 Tracked today: **july31** (the validated wide-field-untracked corpus — four
 sets, full records from acquisition through seeded baselines,
-`docs/pipeline-wide-field-untracked.md`), **colonnello-m20** (mono-filter
+`docs/pipeline-wide-field-untracked.md`), **aug06** and **aug09** (the corner /
+flat-differential / object-tilt measurement records, and the largest by far),
+**corpus** (cross-session aggregates), **colonnello-m20** (mono-filter
 compose model records), **july26** and **july27** (experiment/QA records).
 The retired july14 exemplar's complete records live in git history (the
 removal commit and the `july14-all5-cov25frame-approved` tag). Arm-rig
@@ -93,9 +95,39 @@ Rules (the same contract as README "How a change is accepted"):
   never an in-house fit (a fit would read the stack's pixels). A `rect` foreground covers most terrestrial
   obstructions and needs no mask.
 - Every per-set RECORD and tool JSON lives HERE, under
-  `datasets/<session>/<set>/` (the `*_work/` pattern; only the `.json` records
-  are tracked, the scratch is gitignored). **`datasets/` holds RECORDS ONLY —
-  never image data.** Judgment surfaces live in exactly one place at the project
+  `datasets/<session>/<set>/` (the `*_work/` pattern).
+  **WHAT IS TRACKED IS WIDER THAN `.json`, AND THIS PARAGRAPH USED TO SAY
+  OTHERWISE.** It read *"only the `.json` records are tracked, the scratch is
+  gitignored"* and *"`datasets/` holds RECORDS ONLY — never image data"*.
+  MEASURED at HEAD: `datasets/` is **115.9 MB of the repo's 118.6 MB of tracked
+  bytes, 97.7%**, and it carries 537 `.json` **plus 74 `.lst` star lists (104 MB
+  on their own), 26 `.ssf`, 17 `.py`, 6 PSFEx `.psf` field models, 2 `.npy`, 2
+  `.seq`**.
+  **That is not drift into the file — it is a POLICY that changed in
+  `.gitignore` and was never reflected here.** `.gitignore` carries per-work-dir
+  un-ignore rules each with its own written rationale (the pattern is *"the
+  `.lst` star lists and the `.ssf` ARE the record"*), and **`.gitignore` is the
+  AUTHORITY for which artifacts survive in which `*_work/` directory — the rules
+  are deliberately not restated here, because a second home is a second place to
+  drift and that is the defect this correction is fixing.**
+  **The durable rule that DOES still hold, stated in the form that survives:
+  `datasets/` holds no DELIVERABLE image data** — no stacks, no renders, no
+  masters, no calibrated frames. A tool's own star list or PSF model kept as the
+  evidence for a measurement is a RECORD, and is tracked on purpose.
+- **AND SEVENTEEN TRACKED `.py` PROGRAMS LIVE UNDER `datasets/`, WHICH THE OLD
+  "records only" WORDING DENIED. Stated here as what it is rather than left as a
+  contradiction.** Fifteen sit in `datasets/aug06/corner_work/`, one in its
+  `phot_work/` subdirectory, one in `datasets/aug09/set-05/sirilpy_work/`. They
+  are the INSTRUMENTS of the corner / star-shape investigation, kept beside the
+  records they produced so a result stays reproducible from its own directory.
+  **TWO OF THEM ARE NOT PER-DATASET AT ALL: `pa_convention.py` and
+  `constancy_fit.py` are rostered by `scripts/qa/run_guards.sh` as shared `[lib]`
+  selftests and run on every guard sweep.** That is a shared library living inside
+  a dataset record directory. The runner acknowledges it in its own comments and
+  landed the exception deliberately — its exclusion rule keys on what a file IS,
+  not where it lives — so this is a KNOWN placement, not an accident. It is
+  recorded here because the file that describes what `datasets/` holds should not
+  be the last place to learn it. Judgment surfaces live in exactly one place at the project
   root: `web/results/<session>/judge/` (gitignored), named
   `<set>_<recipe-tag>_<surface>` — never "FINAL_*" variants, never scattered.
   The raw `<session>/<set>/` dir holds raw frames ONLY; bulk derived image DATA
