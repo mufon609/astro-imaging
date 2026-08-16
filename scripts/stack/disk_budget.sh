@@ -35,7 +35,11 @@
 #            a third of an OSC one instead of inheriting a colour assumption.
 #     4      bytes per sample: the 32-bit float contract, enforced end to end by
 #            check_bitdepth.sh. If a rig ever re-adopts 16-bit this term moves
-#            with it — and that adaptation needs its own removal condition.
+#            with it — and that adaptation needs its own `removal condition`.
+#            (Backticked because this sentence DISCUSSES a condition rather than
+#            declaring one: check_removal_conditions.sh separates the two on
+#            exactly that convention — prose quotes the phrase, a declaration
+#            punctuates it — and unquoted it is a false positive for the join.)
 #     2      the two frame-sets held resident at once. This is the route's
 #            structure, not the data's: `seqapplyreg lt -framing=min -prefix=r_`
 #            writes the registered set BESIDE the warped set and both stay on

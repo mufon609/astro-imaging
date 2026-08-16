@@ -147,33 +147,54 @@ register_subjects() {     # <register-path>
 #     of the 33 misses: register-slug references + discussions   25
 #                       genuine punctuated declarations           8
 #
-# So recall against declarations is 30 of 38. The 8 missed are `verify_lens_card`,
+# Recall against declarations was 30 of 38. The 8 missed were `verify_lens_card`,
 # `install_lens_model`, `shape_at_sky`, `star_stations`,
 # `backfill_substack_provenance`, `run_lunar_pipeline` (Title case) and
-# `star_shape`, `snr_regions` (lower case, punctuated). `disk_budget.sh` reads
-# like a ninth and is NOT one — it says a FUTURE 16-bit adaptation "needs its own
-# `removal condition`", which is a statement about a condition, not one.
+# `star_shape`, `snr_regions` (lower case, punctuated).
 #
-# THE HOLE WAS LOAD-BEARING WHEN MEASURED, AND THE POSITIVE CONTROL IS ONE
-# CHARACTER CLASS: `verify_lens_card.py` declared a condition whose ONLY appearance
-# in the register was inside ANOTHER row's status prose — the exact false negative
-# this file's own JOIN-ON-THE-DIVERGENCE-COLUMN design exists to prevent, reached
-# by a second mechanism it did not anticipate. Flipping ONLY the case of those two
-# words in that file (numstat 1/1, nothing else touched) took this check from
-# `OK: all 30` to `RED — 1 of 31`. It is GREEN again on the merits: that file is
-# now named in the divergence column of the row whose condition it shares.
+# THE HOLE WAS LOAD-BEARING, AND THE POSITIVE CONTROL IS ONE CHARACTER CLASS:
+# `verify_lens_card.py` declared a condition whose ONLY appearance in the register
+# was inside ANOTHER row's status prose — the exact false negative this file's own
+# JOIN-ON-THE-DIVERGENCE-COLUMN design exists to prevent, reached by a second
+# mechanism it did not anticipate. Flipping ONLY the case of those two words in
+# that file (numstat 1/1, nothing else touched) took this check from `OK: all 30`
+# to `RED — 1 of 31`. Fixed on the merits first: that file is now named in the
+# divergence column of the row whose condition it shares.
 #
-# WIDENING THE PATTERN IS NOT A ONE-LINER AND IS DELIBERATELY NOT DONE HERE. The
-# registry records the trap: case-insensitivity closes the MISS and WIDENS the
-# self-match, because it then matches both casings of a file's own prose about the
-# phrase. Any widening must be re-fire-tested against the 7 self-matches above.
-DECL_PAT='(^|[^`])REMOVAL CONDITION *[:.(]'
+# THE PATTERN IS NOW WIDENED, AND THE REGISTRY'S TRAP WAS REAL — case-insensitivity
+# closes the MISS and WIDENS the self-match, so it was fire-tested in BOTH
+# directions rather than assumed:
+#
+#     recall           30 of 38  ->  38 of 38, 0 missing, exit 0
+#     self-matches      0        ->  0   (the four sites in this header are all
+#                                        BACKTICKED, which `[^`]` excludes — the
+#                                        convention doing exactly its job)
+#     RED control      fires     ->  still fires (planted declaration, no row)
+#     suite            24/24     ->  24/24
+#
+# ONE FALSE POSITIVE WAS PREDICTED BEFORE THE CHANGE AND FOUND: `disk_budget.sh`
+# said a FUTURE 16-bit adaptation "needs its own removal condition" — prose ABOUT a
+# condition, punctuated, so widening matched it. **The fix went to the PROSE, not
+# to the pattern**: that sentence now backticks the phrase, which is this file's
+# own stated convention (prose quotes it, a declaration punctuates it) and what
+# every other discussion site in the tree already does. Tightening the pattern to
+# dodge it would have re-opened the miss.
+#
+# WHAT IS STILL NOT COVERED: the separator stays a SPACE, so a declaration written
+# `removal-condition:` or `removal_condition:` is invisible. That is deliberate —
+# `removal-conditions` is the register's slug and `removal_conditions` is this
+# file's name, so widening the separator swallows every pointer in the tree.
+DECL_PAT='(^|[^`])REMOVAL CONDITIONS? *[:.(]'
+# CASE-INSENSITIVE (`-i` below) and `S?` — both measured, both required, and the
+# separator stays a SPACE on purpose: `removal-conditions` is the register's slug
+# and `removal_conditions` is this file's own name, so widening the separator
+# would swallow every pointer in the tree as a declaration.
 
 declaring_files() {       # <root>
   local root="$1" d
   for d in "${SCAN_DIRS[@]}"; do
     [ -d "$root/$d" ] || continue
-    grep -rlE "$DECL_PAT" --include='*.py' --include='*.sh' "$root/$d" 2>/dev/null
+    grep -rliE "$DECL_PAT" --include='*.py' --include='*.sh' "$root/$d" 2>/dev/null
   done | sed "s|^$root/||" | sort -u
 }
 
