@@ -13,6 +13,35 @@ removal commit and the `july14-all5-cov25frame-approved` tag). Arm-rig
 measures are each a hypothesis until re-measured on x86 (`CLAUDE.md` binding
 rules).
 
+## `set-00` IS THE SPARE-FRAMES BUCKET — records permitted, NEVER built
+
+**Owner convention: real sets start at `01`. A `set-00` directory holds spare or
+odd frames from that night and is never a light set — it is not stacked, not
+combined, and not enumerated as lights.** It MAY carry tracked records, and some
+do.
+
+**This convention was enforced in FOUR places and written in ZERO tracked docs
+until now**, which is the gap this section closes. `run_session_chain.sh` and
+`run_corpus_combine.sh` both state it in comments and both skip `set-00`; the web
+layer excludes it separately. A convention that lives only in the code that
+enforces it is invisible to anyone reading the data model — and it has already
+cost a session: enumerating `set-00` as lights *"RED-stopped a whole session on a
+dwell-floor collision for data never meant to stack"* (`run_session_chain.sh`).
+
+**AND THE SIZE IS NOT PART OF THE CONVENTION — do not infer it from any one
+instance.** `web/serve.py` describes july23's `set-00` as *"a 3-frame test
+burst"*, and read as a general characterisation that is wrong: `datasets/aug06/set-00/`
+carries a full record set (readiness, baseline, per-set QA, star-station and SPCC
+records). The serve.py sentence is a true statement about ONE night inside an
+explanatory comment; the builders state the CONVENTION. Neither pointed at the
+other, and nothing tied either to the data model.
+
+**THE RECORDS ARE LOAD-BEARING FOR A CLOSED FINDING, so `set-00` records are not
+disposable.** `docs/dead-ends.md`'s per-set-lens-model entry — the one that REFUTED
+per-set models and reverted them — reads its `1 WIN / 3 NULL` adoption A/B partly
+off set-00 (`set-00 0.48→0.46`). Deleting a `set-00` record set would remove
+evidence under a conclusion this repo has already acted on.
+
 The per-dataset state MODEL (durable — a new dataset gets these files):
 
 | file | role | status |
