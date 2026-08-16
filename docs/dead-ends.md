@@ -2205,6 +2205,53 @@ SILENT — pin the state, never inherit it):
   confidence. **A metric that inverts on its own calibration set is worse than no
   metric**, and this is the positive-control rule applied to a PROXY rather than to
   a gate.
+- **A RANGE MEASURED IN ONE SESSION IS THAT SESSION'S SPREAD, NOT THE QUANTITY'S —
+  AND EVERY SESSION THAT PUBLISHES ONE BELIEVES IT IS PUBLISHING THE QUANTITY.**
+  The INVERSE of the `n=1 wearing n=2` rule above: there, two measurements differ in
+  nothing but the operator and read as replication; here, one operator's repeated
+  measurements read as a population bound. Both produce a number nobody can
+  reproduce, by opposite mechanisms, so a citation must say which it is.
+  **MEASURED on this repo's own guard-suite wall time, which four sessions
+  published four times and no two agreed** (written out in words below on purpose —
+  see the rule at the end of this entry):
+  a 27-to-33 band, an about-30 point estimate, a 44-to-48 band, a 41-to-43 band.
+  The first sits BELOW every later observation; the other three each exclude most
+  of what the other sessions saw. **Every one was honestly measured. Every one was
+  the author's own runs.**
+  **THE SHARPEST INSTANCE IS SELF-INFLICTED AND ARRIVED WITHIN THE HOUR.** The
+  session that refused to publish a peer's pooled range — on the correct ground
+  that it had executed only 4 of the 10 runs in it — published its OWN four as
+  41-to-43. Its next three runs, same rig, same commit family, same hand, read
+  **44** and **40**: BOTH outside the range it had just published, giving a true
+  own-session spread of **40 to 44 over seven runs**. The refusal was right and the
+  replacement would have been the fifth wrong literal. **A spread does not converge
+  by being yours.**
+  **WHY IT SURVIVES: n feels like the fix and is not.** Every one of the four was
+  quoted with its n (4, 2, 4, 4) and every one was still wrong, because n bounds
+  the SAMPLING error and says nothing about a between-operator or between-moment
+  term nobody has attributed. Here that term is still UNATTRIBUTED — load was ruled
+  out (one session's fastest run carried its highest load), the `[network]` check
+  measured dead flat at 18 s over four consecutive runs, and the per-check spread
+  within a session is ~3 s against a ~10 s spread across them.
+  **THE FIX IS NOT A BETTER RANGE, IT IS NO LITERAL.** The quantity was removed from
+  all four of its homes and replaced by the claim it was making, because the runner
+  PRINTS its own wall time on every run — the treatment `pre-push` already gives the
+  check COUNT, for the reason stated there: *a count with six homes and no guard
+  goes stale by default*. **A quantity that has produced four wrong published values
+  does not want to be a literal; it wants a derivation.**
+  **AND THE ENTRY'S OWN CONCLUSION APPLIES TO THE ENTRY.** The pooled observations
+  across sessions span roughly 39 to 50 over about a dozen runs — and that figure is
+  not published as the answer either, because **nobody ran all of them**; it is an
+  aggregate of numbers most of its quoters did not execute, which is the thing this
+  entry exists to name. Only the own-session figures above were executed by the
+  author who states them.
+  **RULE, and it is two halves:** state whether a range is a WITHIN-operator spread
+  or a POOLED one, and name who ran which; and where the quantity is cheap to
+  re-derive, publish the derivation rather than any range. **Second rule, learned by
+  breaking it twice in one session:** a record that retracts a literal by PASTING it
+  becomes a hit for every sweep hunting live instances — the acceptance grep for
+  this very cleanup went RED on its own retraction — so the four figures above are
+  spelled out in words, and a fixed-string sweep for any of them still returns zero.
 - **A CLAIM CORRECTED AT ITS REPORTING SITE SURVIVES AT EVERY OTHER SITE THAT
   CARRIES IT — and the correction reads as complete because the reported instance
   is fixed.** This repo's own 14-vs-10 write-site lesson, one level up: there the
