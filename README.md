@@ -425,7 +425,7 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure; the FITS parse itself moves to astropy on the target rig (removal register) |
+| `astrometrics.py` | minimal FITS read (feeds the plate-solve extraction) + per-set foreground geometry (`branch_mask`) — no in-house pixel analysis, the tools measure. The FITS parse is astropy's (`read_fits` → `fits.open`, `fits_pixel_scale` → `fits.getheader`), so the hand-rolled-parser removal condition has FIRED; its row is in BACKLOG:`removal-conditions` |
 | `acquisition.py` | per-dataset acquisition record: EXIF-derived facts (exposure/focal/ISO/FOV+pixel-scale/cadence) + the `mount` (DERIVED from the measured drift signature when decisive, human-declared otherwise, provenance in `mount_source`); `resolve()` seeds `datasets/<session>/<set>/acquisition.json` and STOPS if `mount` is undeclared (no silent camera model), `timeline()` feeds the audit's capture-run segmentation. Reads EXIF only, never deliverable pixels |
 
 **`stack/`** — build the integrated stack
