@@ -878,6 +878,73 @@ catalogue pairs; `pa_convention.py` fits a decentred radial ELLIPTICITY field. *
 distortion centre at zero does not refute an ellipticity-field centre at 443–531
 px.** Neither record said which it meant.
 
+### The candidate list, with discriminators — DOCTRINE, and NONE of it is measured on this corpus
+
+**Source throughout: Jarvis, Schechter & Jain 2008 (arXiv:0810.0027). Every row is
+DOCTRINE or MECHANISM from external literature. Nothing here is a claim about this
+data**, and no row may be promoted to one by being quoted.
+
+| candidate | signature | discriminator |
+|---|---|---|
+| **Decentred / misaligned optic** (§III.2) | astigmatism *"grows linearly with distance from the center of the field"* with the centre DISPLACED; ellipticity ∝ astigmatism × defocus, so odd in shape while size stays even | spin-2 fit per ρ-bin with a **FREE CENTRE** — a displaced centre is the signature |
+| **Off-axis coma** (§III.1) | *"a vector field, directed outward from the axis"* — radial, centred, linear growth | the same fit: a one-sided term is NOT coma unless the axis is displaced, which is the row above |
+| **Defocus / focal-plane tilt** (§II.1, §III.3) | *"defocus which varies linearly"* → a one-sided SIZE gradient | **ON THE LIST — an earlier elimination is RETRACTED.** It rested on the size profile being symmetric; this item records the odd left−right term at **+0.180 px**, so the convolved-blur family is live |
+| **Atmospheric dispersion** | elongation along the ELEVATION vector (horizon frame), CHROMATIC, ∝ tan(z) | **per-Bayer-channel ellipticity — the cheapest test available here**, and the only discriminator in this table that keys on colour. Cross-session direction test inherits the altitude bound below |
+| **Tracking / mount error** | fixed direction, FIELD-CONSTANT | the spin-2 fit already separates field-constant from radial; a gradient is not this |
+| **Gravity / flexure** (§V.2) | correlates with *"the direction of gravity, namely the declination and zenith distance"* | cross-session at differing altitude — inherits the altitude bound, and does NOT separate from atmospheric without the chromatic test |
+| **Registration / resampling residual** | smears along the residual direction, grows with distance from where the transform was CONSTRAINED, and moves size AND shape together | **reference swap, read BINARY** (BACKLOG:`single-pass-reference-lottery`): must move if registration, cannot move if sensor-fixed. Second separator: the **three-level ladder**, immune because level 1 uses no reference |
+
+**TWO THINGS ARE NOT CANDIDATES AND MUST NOT BE LISTED AS SUCH.** The coadd
+PSF-orientation mixing is DEMOTED — see the section below. And the **clamp acting
+across a trail is a COMPONENT TO SEPARATE OUT, not a candidate**: it is
+field-constant where it aligns with the trail axis, and a field-constant term
+cannot produce a one-sided radial gradient. Naming it explicitly is what lets the
+spin-2 fit absorb it instead of leaving it to contaminate a radial term.
+
+**WITHDRAWN with the list:** the narrowed question *"what adds an odd ellipticity
+term without an odd size term"*. The sizes are not equal, so the question presumed
+a symmetry the data does not have.
+
+**THE BAYER DISCRIMINATOR IS STATED IN THE TREE'S STRONGER FORM, NOT THE SOURCE'S.**
+The weaker warning is that the greens are channels 0 and 3, so a channel-order
+error compares RED against BLUE. `TOOLS.md` establishes something harder: **the
+order cannot be read off `BAYERPAT` at all** — *"IDENTIFY THE GREENS"* — because
+raster order and `ROWORDER` both enter and `ROWORDER` varies by product class
+(`convert` and `split_cfa` outputs against stacks, with one fixture carrying none).
+Identify the greens FROM THE DATA; "remember ch0/ch3" is not a usable instruction.
+
+**THE ALTITUDE BOUND, AND IT BINDS TWO ROWS.** `docs/dead-ends.md` records the whole
+corpus at **altitude 63.4–87.7°, |HA| ≤ 2.35 h — the flat end of the refraction
+curve**. So both hour-angle senses being present does NOT make the lever large, and
+how much sense-reversal signal survives at these zenith distances is UNQUANTIFIED.
+That bound applies to the **atmospheric** row and to the **gravity/flexure** row,
+since both are cross-session at differing altitude.
+
+**THE ASTIGMATISM × DEFOCUS ROW IS A GOOD FALSIFIER AND A WEAK CONFIRMER — read
+the direction before scheduling it.** The source is unambiguous that *"a combination
+of astigmatism and defocus is needed to produce elliptical images"* and that the
+second-moment difference is proportional to their PRODUCT, so astigmatism alone
+gives a circular PSF. Three qualifications travel with it, and a summary of this row
+lost all three in one hop:
+1. **"At best focus" is not zero defocus ACROSS A FIELD.** Field curvature makes the
+   focal surface curved, so the edges carry defocus at nominal best focus. The
+   product is generally non-zero off-axis; the vanishing is on-axis only.
+2. **The lever's SIZE is unmeasured.** Per-session refocus moves the defocus term by
+   an unknown amount. If refocus repeats to a small fraction of the depth of focus,
+   the between-session variation may be invisible.
+3. **The between-session comparison is CONFOUNDED** — temperature, optical state and
+   sky all change too, and this repo's own flat work already records per-session
+   focus recalibration as *"a live alternative explanation for a per-session-constant
+   term"*, pointing the other way.
+**THE FALSIFIER, and it is asymmetric:** if the asymmetry amplitude is CONSTANT
+across sessions — one lens, one focal length, focus recalibrated between them — then
+the astigmatism × defocus product is NOT driving it, because the defocus term should
+have moved and the effect did not. **That is a clean kill.** If it VARIES, that is
+consistent with the mechanism and does NOT confirm it, by qualification 3. Schedule
+it for the kill, not for the confirmation. **It needs no new acquisition** — between-
+session variation on one lens at one focal length is already-collected data, and
+per-session focus recalibration is already standing practice.
+
 ### A candidate that is DEMOTED, and it must not be listed beside the term it is a corollary of
 
 **The coadd-orientation candidate — the idea that how members are oriented in the
@@ -899,12 +966,24 @@ files (`BACKLOG.md`, `docs/dead-ends.md`) and both are the flat-differential
 result, where it means the flat-shape-to-object-tilt conversion measured at
 essentially 1:1.
 
-**WHAT DID NOT REACH ME, stated rather than filled in:** this was handed over as
-"the candidate list with discriminators, INCLUDING the demotion", and only the
-demotion was transmitted. The discriminator list is NOT recorded here because I do
-not have it — the "Open" items below are this item's own, not that list. If it
-exists it is in a session that has ended; recovering it needs its author, not a
-reconstruction.
+**THE LIST ARRIVED SEPARATELY AND IS NOW ABOVE.** This section previously recorded
+that only the demotion had been transmitted, and that the list was NOT here because
+reconstructing one from a one-line description would put a fabricated list beside
+the real one. **That refusal is what made the real list safe to retrieve:** it came
+from its author's own context rather than through a relay, and the relay itself
+declined to carry it, on the stated grounds that it had been lossy twice that day.
+
+**ONE PROVENANCE DEFECT IS RECORDED WITH IT, because it is why the AMENDED form
+differs from the original.** The retraction that put focal-plane tilt back on the
+list was built on three FWHM endpoint figures that reached its author **inside a
+unit brief, verbatim, with no tracked record anywhere**. They are not wrong — they
+are this item's own **+0.180 px** odd term expressed as endpoints, and the
+arithmetic checks exactly (their difference IS 0.180, and the percentage quoted with
+them is that difference over their mean). **But they had no home, so they are not
+landed:** the tree's `+0.180 px` is the number, and the endpoints and the derived
+percentage are dropped. Briefing from material with no tracked home is a
+self-documented failure mode of the seat that did it, and this was at least its
+second instance in a day.
 
 ### Open
 
