@@ -2083,6 +2083,46 @@ SILENT — pin the state, never inherit it):
   so on a well-maintained tree the count is guaranteed to mislead.** Read the
   sentence. The correct instrument here is `grep -o` with context, and then human
   reading of what came back.
+- **AN INSTRUMENT THAT RETURNS A PLAUSIBLE ANSWER WHILE MEASURING NOTHING IS THE
+  DOMINANT FAILURE MODE HERE, AND READING ITS OUTPUT NEVER CATCHES IT — RE-RUNNING
+  DOES. FOUR IN ONE SESSION, EACH IN A DIFFERENT INSTRUMENT, NONE OF THEM AN
+  ERROR.** Every one produced a well-formed result that a careful reader would
+  accept:
+  - **A DELETION FILTER BLIND TO THE CONTENT IT PROTECTS.** `CLAUDE.md` requires
+    reading the `-` lines of any deletion, `git diff | grep '^-'`. Refining that to
+    `grep -E '^-[^-]'` to drop the `--- a/file` header **silently excludes every
+    deleted markdown BULLET**, because a removed `- **item**` renders as
+    `-- **item**`. MEASURED on a 97-line cut: the refined form showed **83** lines
+    and the correct form **97**, and all 14 hidden lines were bullet TITLES — the
+    exact class the rule exists to protect, and the class of this file's own
+    registered instance where an accurate numstat passed while a title was
+    destroyed. **A limit added for readability becomes part of the instrument and
+    inherits its verdict.** Correct forms: plain `grep '^-'`, or
+    `awk '/^--- /{next} /^-/'`.
+  - **A SHELL PROBE THAT CANNOT DO WHAT IT CLAIMS.** Testing a path derivation by
+    setting `BASH_SOURCE` inside `bash -c` — it cannot be overridden that way, and
+    every arm returned `/home`: a real path, measuring nothing. Settled by
+    EXECUTING a probe carrying the line verbatim at a foreign path.
+  - **A SWEEP STRUCTURALLY UNABLE TO SEE WHAT IT WAS ASKED.** An omission sweep was
+    used to ask whether a reason for an omission had been STATED. It shows what is
+    absent and can never show what is explained — a check whose mechanism excludes
+    the thing it tests for, run by an auditor while auditing.
+  - **A COUNT RIGHT BY TWO CANCELLING ERRORS**, and the count itself gives no sign.
+  **THE COMMON SHAPE: none returned an error, and none returned an implausible
+  number.** Reading harder does not reach any of them, because the output is exactly
+  what a correct run would look like. **What reached all four was running the
+  measurement a second way — a different instrument, an execution instead of a
+  simulation, or the same query at a state known to be clean.**
+  **AND THE CONTROL THAT MAKES IT CHEAP: before believing an instrument reports a
+  defect, run it on a case whose answer is already known.** A block-parity scan read
+  ODD on an edited entry — the signature of real damage — and the same scan on the
+  PRE-EDIT file read ODD too, because the extraction began mid-span. One command,
+  and it separated an artifact from a finding.
+  (n=4, one session; surfaced from ordinary work rather than from looking for the
+  class, so do not compute a rate. The `^-[^-]` instance argues for changing the
+  form the contract prescribes, which is `CLAUDE.md`'s and not this file's to
+  amend — recorded here as the measurement, flagged there as a decision.)
+
 - **THE FIRST MEMBER OF THE COLLISION FAMILY THAT IS NOT A MATCHING FAILURE: THE
   SEARCH RETURNS THE RIGHT ANSWER ABOUT THE STRING AND THE WRONG ANSWER ABOUT THE
   CAPABILITY, BECAUSE THE CALL CHAIN RUNS THROUGH A LIBRARY THE CALLER NEVER
