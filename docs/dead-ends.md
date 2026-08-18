@@ -390,8 +390,12 @@ the constraints any such tool must satisfy):
   LEVERS. Read this before proposing a new one, because the other two are already
   spent here and the route is still dead.** (DOCTRINE — the ORACLE's read of the
   SDSS ubercal lineage, which also names the degeneracy and its firing condition;
-  not measured here. `Bernstein` and the ubercal levers appear in no tracked `.md`,
-  so this is the first home.) The three are **camera ROTATION**, **AIRMASS
+  not measured here. `Bernstein` occurred in no tracked `.md` BEFORE this entry,
+  which is why this is its first home; the string now resolves to this file and to
+  `prompts/ORACLE_HANDOFF.md`, so a bare search returns the entries asserting it
+  and cannot be read as absence. The ubercal LEVERS are a CONTENT claim rather than
+  a string one, and that search does not cover them.) The three are
+  **camera ROTATION**, **AIRMASS
   VARIATION**, and an **EXTERNAL ANCHOR**, plus **CONNECTING GEOMETRY** where
   overlapping pointings tie separate fields together. Their status here:
   - **ROTATION** — present and measured, 0.69-3.76 deg per set, and it is what
@@ -3819,10 +3823,13 @@ SILENT — pin the state, never inherit it):
   value (`TOOLS.md` PSFEx row; `BACKLOG:removal-conditions` row 146) — and a
   magnitude is not a direction.** The literature the figure is argued from gives
   the same: Bernstein 2010 bounds the SIZE of the discrepancy and does not fix its
-  SIGN for an arbitrary profile. (DOCTRINE — the ORACLE's; `Bernstein` occurs in
-  no tracked `.md`, `.py` or `.sh` and exactly once tree-wide, in
-  `datasets/aug06/experiments.jsonl`, so this is the first home for the sign
-  question.)
+  SIGN for an arbitrary profile. (DOCTRINE — the ORACLE's; `Bernstein` occurred in
+  no tracked `.md`, `.py` or `.sh`, and exactly once tree-wide in
+  `datasets/aug06/experiments.jsonl`, BEFORE this entry — which is why this is the
+  first home for the sign question. **Both counts are now stale BY CONSTRUCTION:**
+  this entry, the ubercal entry above and `prompts/ORACLE_HANDOFF.md` all carry the
+  string. **A string-search finding cannot be documented by pasting the string —
+  state it in the past tense, as here, or split the literal.**)
   **WHY IT MATTERS AND WHY IT KEEPS COMING BACK:** "our measured gradient is a
   FLOOR" converts an unknown-sign bias into a one-sided guarantee, which makes any
   measured star-shape gradient a lower bound on a real defect — the version that

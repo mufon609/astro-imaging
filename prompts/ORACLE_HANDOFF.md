@@ -222,6 +222,11 @@ line.**
 2. **`TRANSFER FUNCTION` is a taken term** — it carries the flat-differential
    result at two sites. The coadd-orientation demotion landed descriptively,
    with no new term.
-3. **`Evryscope` is 0 files tree-wide**, so any claim about what a past session
-   published about it is team history and unsupportable as a tree fact. The
-   Evryscope fact itself is sourced and fine.
+3. **`Evryscope` occurred in ZERO tracked files BEFORE this handoff** — which now
+   carries it here and in its own source lists, so a bare tree-wide search returns
+   THIS file and must not be read as absence. What the count was for still holds:
+   no tracked record outside this handoff shows what a past session published
+   about it, so such a claim is team history and unsupportable as a tree fact. The
+   Evryscope fact itself is sourced and fine. **This item committed the failure
+   item 1 above names** — a false reason carried under a surviving conclusion —
+   two items apart in one list.
