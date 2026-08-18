@@ -574,7 +574,6 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `readiness_report.py` | ONE readiness surface for a set — every ratified criterion evaluated up front, one report and one approval, so nothing undecidable surfaces three hours into a build (`CLAUDE.md`, "where the gate actually is") |
 | `run_guards.sh` | THE RUNNER for every guard — see its row under `stack/` above |
 | `check_removal_conditions.sh` | the REGISTER guard: every file declaring a `REMOVAL CONDITION` must appear in BACKLOG's divergence column. Detects declared-but-no-row only; blind to a divergence that declares nothing |
-| `check_prompt_scope.sh` | the PROMPT-SCOPE guard: every `.md` in `prompts/` declares its KIND, and the ceilinged kinds stay under their size limit |
 | `check_manifest_verify.sh` | the INVENTORY guard: every `verify` command in `scripts/setup/manifest.tsv` must actually run |
 | `check_solve_records.py` | joins every plate-solve RECORD against the ARTIFACT it names — compares the record's field CENTRE against the target's own WCS at the centre pixel, never `CRVAL` |
 | `coverage_frame.py` | proposes the VERIFIED COVERAGE FRAME of a `framing=max` union — the largest all-covered rectangle over Siril `stat` boxes. Reports only; crops nothing |
