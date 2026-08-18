@@ -2789,11 +2789,24 @@ SILENT — pin the state, never inherit it):
 
   **THE FIFTH ESCAPE IS THE ONE THAT WOULD DELETE A LIVE TOOL, AND NEITHER A CODE
   SEARCH NOR A DOC SEARCH REACHES IT: a script can be evidenced ONLY BY ITS
-  OUTPUT.** `scripts/ingest/{fetch_session,link_heartbeat,remote_publish}.sh` are
-  referenced by no code and appear in no `.md` — and the tracked records settle it:
-  **9 `ingest_work/ingest.json` across two nights, all 9 naming `remote_publish.sh`
-  as the hash producer, covering 3,591 frames with `verified_bad = 0`.** Live
-  workflow, undocumented — a DOCUMENTATION gap, not a delete candidate.
+  OUTPUT.** `scripts/ingest/{fetch_session,link_heartbeat,remote_publish}.sh` were
+  INVOKED by no code and appeared in no `.md` WHEN THIS ENTRY WAS WRITTEN — and the
+  tracked records settle it: **9 `ingest_work/ingest.json` across two nights, all 9
+  naming `remote_publish.sh` as the hash producer, covering 3,591 frames with
+  `verified_bad = 0`.** That evidence is unchanged and re-measured: still 9 of 9.
+  **THE SUPPORTING NEGATIVE HAS SINCE ROTTED AND THE FINDING HAS NOT.** `README.md`
+  carries a repo-map row for each of the three (landed 49.7 h after this entry), so
+  the `.md` half is now FALSE and the closing *"undocumented — a DOCUMENTATION gap"*
+  is false with it: the gap this entry named has been CLOSED, and the entry stood 13
+  days without knowing. **Scope the surviving half precisely — it is INVOCATION, not
+  reference:** re-measured, 0 invocation-shaped references to any of the three exist
+  outside `scripts/ingest/` itself, while `fetch_session.sh` names
+  `remote_publish.sh` at three sites as operator prose and a record string — which
+  escape #3 above counts as a real delivery path. **The durable lesson is the
+  method, not the negative:** search the records before classifying anything as
+  dead. A rot at HOUR scale is caught by the session that caused it; this one ran
+  for DAYS and was caught by nobody, which is the case a `last checked` date cannot
+  reach.
   **So the sweep's question "what invokes this" is the wrong one on its own; the
   completeness question is "what does this leave behind".** Search the records
   before classifying anything as dead.
