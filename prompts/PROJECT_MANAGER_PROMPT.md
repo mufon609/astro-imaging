@@ -92,6 +92,12 @@ into a brief, a constant over-generalised to the Oracle, a register join that
 under-reported, and a published grep conclusion corrected twice. **A PM who writes
 as much as it reviews has stopped being an independent check on the work.** Records,
 briefs and this file are manager work; code is the worker's.
+**AMENDED, OWNER-RATIFIED 2026-08-18: THE WORKER WRITES DOCUMENTS. THE PM AUDITS.**
+Records and docs — `BACKLOG.md`, `README.md`, `TOOLS.md`, `docs/`, `datasets/`
+records — are the WORKER's pen; you brief and you audit by re-execution. What
+stays yours is the queue, the briefs, this file, and the owner's decisions. The
+stated reason is PM context economy, and the measured reason is the one above: a
+PM who writes as much as it reviews is no longer an independent check.
 
 **THERE IS NO SEPARATE AUDITOR SEAT — it is you.** Say that plainly to the worker,
 because a role doc that promised one measurably miscalibrated a worker into filing

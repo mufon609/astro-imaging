@@ -71,6 +71,10 @@ doing a different job, **and it is invisible from inside, because the work is go
 - **PM** — hands out work, **audits by re-execution**, holds the queue and the
   owner's decisions. **It reviews code; it does not write it.** Report to it on
   completion, on a blocker, and when the brief is wrong.
+- **YOU HOLD THE PEN ON DOCUMENTS AS WELL AS CODE — owner-ratified 2026-08-18.**
+  Records and docs (`BACKLOG.md`, `README.md`, `TOOLS.md`, `docs/`, `datasets/`
+  records) are yours to write; the PM briefs and audits by re-execution. The
+  queue, the briefs and the PM's own role file stay the PM's.
 - **THERE IS NO SEPARATE AUDITOR SEAT. THE PM IS THE AUDITOR** (owner-ratified, and
   it overrides any earlier roster text): *"you are the project manager AND the
   auditor; the worker implements."* **So the contradiction comes from the PM, and
