@@ -164,9 +164,11 @@ begins `checkpoint:` (a message prefix, not a tag: find it with
 `git log --oneline --grep='^checkpoint:'`).
 Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 `recipe.json` carries each set's ratified STACK policy (cull/weight, consumed
-by the stack builders); its RENDER block + `baseline.json` are chain-coupled
-and PENDING the render-tier build (user-gated — the ladder plan is
-BACKLOG:`render-ladder`, re-anchored per dataset). Every tier the pipeline needs is INSTALLED on
+by the stack builders); its RENDER block is chain-coupled and PENDING
+the render-tier build (user-gated — the ladder plan is BACKLOG:`render-ladder`,
+re-anchored per dataset); `baseline.json` has SHIPPED — `scripts/qa/baseline_guard.py`
+runs last in `run_set_chain.sh`, 13 seeded baselines are tracked, and a regression
+stops the chain at exit 8 without blocking or rewriting anything. Every tier the pipeline needs is INSTALLED on
 this rig; what is missing is a deliberate gap (RC-Astro, PixInsight), never a
 platform block — per `TOOLS.md`.
 
@@ -414,8 +416,9 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   never silently defaulted — `scripts/lib/acquisition.py`),
   `geometry.json` (foreground mask/rect),
   `recipe.json` (render knobs; approved looks pin every knob),
-  `baseline.json` (written only by the no-regression harness — rides the
-  render-tier build),
+  `baseline.json` (written only by the no-regression harness,
+  `scripts/qa/baseline_guard.py` — SHIPPED and wired last in `run_set_chain.sh`;
+  the guard itself exits 0/1, the chain turns a regression into exit 8),
   and per-set tool records + scratch (`audit_work/anomaly_audit.json`,
   `qa_work/frame_metrics.json`, …). The raw `<session>/<set>/` frame dir holds
   ONLY raw frames — EVERY per-set record and tool work dir lives under
