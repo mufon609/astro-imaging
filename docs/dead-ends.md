@@ -392,7 +392,7 @@ the constraints any such tool must satisfy):
   SDSS ubercal lineage, which also names the degeneracy and its firing condition;
   not measured here. `Bernstein` occurred in no tracked `.md` BEFORE this entry,
   which is why this is its first home; the string now resolves to this file and to
-  `prompts/ORACLE_HANDOFF.md`, so a bare search returns the entries asserting it
+  `datasets/aug06/experiments.jsonl`, so a bare search returns the entries asserting it
   and cannot be read as absence. The ubercal LEVERS are a CONTENT claim rather than
   a string one, and that search does not cover them.) The three are
   **camera ROTATION**, **AIRMASS
@@ -2273,7 +2273,8 @@ SILENT — pin the state, never inherit it):
   goes odd. The instrument went RED on the sentence describing the instrument,
   minutes after it was written. Fourth instance of the self-match family here,
   after `pgrep` in its own argv, `check_removal_conditions`, and
-  `check_prompt_scope`'s head-window rule. **The original sweep was clean only
+  `check_prompt_scope`'s head-window rule (that guard is since REMOVED with the
+  role docs it policed; the mechanism it illustrates is not). **The original sweep was clean only
   because no record file yet contained a quoted marker — documenting the detector
   is what broke it.**
   **MODE 2 — A LINE-SCOPED CODE STRIPPER MIS-PAIRS BACKTICKS ACROSS A WRAP**, eats
@@ -2454,7 +2455,7 @@ SILENT — pin the state, never inherit it):
   no peer: the mover and the measurer are the same session in the same commit, and
   the table is internally consistent, so nothing in it looks wrong.
   **AND THE SECOND HOME IS WHAT MAKES IT SURVIVE A CHECK:** the same four rows were
-  duplicated verbatim into `check_prompt_scope.sh`'s header, so cross-checking
+  duplicated verbatim into `check_prompt_scope.sh`'s header (since removed), so cross-checking
   either against the other CONFIRMS both while both disagree with the tree — the
   file's own destination rule (*a second home is a second place to drift*) failing
   inside the commit that states it. **A duplicated number is not corroborated by
@@ -2556,8 +2557,9 @@ SILENT — pin the state, never inherit it):
   Split the literal so the record's own occurrences are distinguishable from live
   ones, and state COUNTS at a named commit rather than line numbers, which move.
   This tree already had the pattern in two places — `check_removal_conditions.sh`
-  splits its own detector literal, and `check_prompt_scope.sh` scopes its marker to
-  a head window precisely because the contract file shows the marker in an example.
+  splits its own detector literal, and `check_prompt_scope.sh` (since removed)
+  scoped its marker to a head window precisely because the contract file showed
+  the marker in an example.
   **AND CASE-INSENSITIVITY ALONE IS NOT THE FIX: it closes the MISS and WIDENS the
   self-match, by matching both casings of the record's own text.** The completion
   is already in this file — *a count answers presence, not assertion; read the
@@ -2812,9 +2814,8 @@ SILENT — pin the state, never inherit it):
   before classifying anything as dead.
   **Corollary met in the same records — READ THE FIELD, NOT THE PROSE BESIDE IT.**
   Those records carry a `_note` that opens *"source-verified: hashes computed at
-  the source by remote_publish.sh…"*, which read as contradicting the since-retired
-  `prompts/REPORT.md`'s
-  *"local-hash verified only"*. It does not: the `_note` is a two-term GLOSSARY
+  the source by remote_publish.sh…"*, which read as contradicting a since-retired session
+  report's *"local-hash verified only"*. It does not: the `_note` is a two-term GLOSSARY
   whose first sentence defines the term that does NOT apply, and the actual
   `integrity` field reads **`transfer-verified` in all 9**. A glossary that leads
   with the inapplicable term invites the misread, and the field is the datum.
@@ -2958,8 +2959,7 @@ SILENT — pin the state, never inherit it):
   top-30 medians hold to the third decimal** — an instrument fact to carry, not a
   defect to chase. It bounds what a COUNT comparison can resolve and leaves a
   rank-matched shape comparison unaffected, which is the form this registry already
-  requires for cross-level work. (Migrated from the retired `prompts/REPORT.md`,
-  which was its only home.)
+  requires for cross-level work. (Migrated from a retired session report, which was its only home.)
 - **A NUMBER READ OFF A LOADED BOX IS NOT A MEASUREMENT — record the load with
   the reading, for EVERY tool, not just the slow neural ones.** MEASURED:
   `verify_lens_card.py`'s grid positive control read Siril sigma **14666**
@@ -3840,7 +3840,7 @@ SILENT — pin the state, never inherit it):
   no tracked `.md`, `.py` or `.sh`, and exactly once tree-wide in
   `datasets/aug06/experiments.jsonl`, BEFORE this entry — which is why this is the
   first home for the sign question. **Both counts are now stale BY CONSTRUCTION:**
-  this entry, the ubercal entry above and `prompts/ORACLE_HANDOFF.md` all carry the
+  this entry and the ubercal entry above both carry the
   string. **A string-search finding cannot be documented by pasting the string —
   state it in the past tense, as here, or split the literal.**)
   **WHY IT MATTERS AND WHY IT KEEPS COMING BACK:** "our measured gradient is a

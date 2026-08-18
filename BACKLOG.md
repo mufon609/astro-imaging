@@ -175,52 +175,13 @@ names.**
 
 ## `pending-owner` — decisions with the owner, and the input they ordered gathered
 
-**Migrated from the retired `prompts/REPORT.md`** (owner: *"report.md was meant to be
+**Migrated from a retired session report** (owner: *"report.md was meant to be
 temp. get rid of it. we don't need it. it's clutter."*). Its queue duplicated this
 file slug-for-slug and its session transcripts are in git; what follows is what had
 no other home. **Everything here is the owner's or is held for them.**
 
-### The HISTORIAN role doc — HELD BY THE OWNER
-
-A fifth seat runs with no role doc. `CLAUDE.md:487` enumerates a "four-session team",
-so a fifth standing role is a contract question and `CLAUDE.md` is the owner's file
-alone. Measured: `ls prompts/` has no HISTORIAN file, and GNU grep via `env -i`
-returns **2** incidental hits tree-wide (`prompts/ORACLE_HANDOFF.md:141`,
-`docs/dead-ends.md:3019`) — references to the seat's work, neither a remit.
-**OWNER'S RULING: HOLD** — *"I want you to write the doc for the historian later on
-after you have an understanding of how it has been helpful in the past (ask the
-oracle) — worry about this later. this is a gap but you don't have experience to
-write this up yet. hold off."* The seat correctly refused to write its own.
-**The input the owner ordered gathered, first-hand from the Oracle:** the seat dated
-a claim and refused to collapse its ambiguity (*"NO INSTALLED TOOL CAN CORRECT…"*
-entered `6541ce2`; first `PSFEx` anywhere is `4e17e2d`, so TRUE when written by two
-days twenty hours — then three defensible staleness dates and no ruling between
-them); it reversed the causal order both other seats assumed; it traced a claim's
-SEED (**an over-generalised negative becomes CORROBORATION for the next one**, so the
-scope error is invisible at the second site because the first is a real measurement
-correctly quoted); and it produced a maintenance census with a structural cause.
-**CENSUS CORRECTED IN MIGRATION:** it read *"2 commits in its entire existence"* for
-`docs/untracked-widefield-standards.md`; `7c746f8` made it **3**, and the shape
-stands while the count does not.
-**What it changed about the Oracle's method:** *a config dump proves a parameter is
-DECLARED, never that it is CONSULTED*; *its sources MOVE and git history does not*
-(the pinned-upstream-SHA rule); and the refutation of a clause the Oracle had read at
-boot and not questioned.
-**Its characteristic error, for the eventual doc's failure catalogue: it attributes
-from PLAUSIBILITY rather than from the record** — stray `.ssf` files attributed from
-who was busy; `1e7c15e` attributed to a session it predated by ten hours; a class
-reported from commit SUBJECTS it had not diffed. It flagged its own scope every time,
-which is why none did damage. **The rule: your authority is the diff and the
-artifact — not the commit message, which is the author's own account.**
-
 ### UNCHECKED — logged, not discharged
 
-- **"A size ceiling on role docs reduces the dilution it was built to prevent."**
-  Three seats have reasoned INSIDE this premise since `prompts/README.md` landed;
-  that file self-flags its mechanism as DOCTRINE and concedes the ceiling measures a
-  CORRELATE, and its own hole (c) is a counterexample in principle. Not reachable by
-  the PM's audit-by-re-execution, which cannot reach a premise the brief rests on.
-  Routes: the owner, a tool measurement, or the adversary.
 - **"Self-picked targets outperformed assigned ones."** Handed over as established
   and **refused from the inside by the seat it flatters**: no counterfactual was
   measured, and it flatters both parties who agreed on it. Competing explanation is
