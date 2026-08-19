@@ -31,7 +31,7 @@ in /opt/astro-venv, ABSENT from host python3 — TOOLS.md); (b) the hand-rolled
 derive_compose_ref.py). Consequence bound either way: chunk SELECTION only,
 sub-arcmin error against ~29 deg pixels, and siril names any missing chunk
 loudly. Registered in BACKLOG `removal-conditions` (conditions authored by
-audit — this divergence shipped with none; PENDING OWNER RATIFICATION).
+audit — this divergence shipped with none; RATIFIED by the owner 2026-08-19).
 """
 import os
 import re

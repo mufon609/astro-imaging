@@ -43,7 +43,7 @@ ptlens + distortion centre jointly against an absolute (catalogue) reference,
 or when no OPEN item in BACKLOG `one-sided-band` / `corner-fix-landscape`
 still consumes a fitted distortion-centre quantity. Registered in BACKLOG
 `removal-conditions` (condition authored by audit — this divergence shipped
-with none; PENDING OWNER RATIFICATION on the psf_calib precedent).
+with none; RATIFIED by the owner 2026-08-19).
 """
 import json
 import os

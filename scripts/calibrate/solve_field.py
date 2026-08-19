@@ -106,8 +106,8 @@ engine itself accepts a detection-region/subarea constraint — the rung exists
 because the blind engine consumes the full xylist or nothing, so confining the
 solve to the covered region means re-deriving what is handed to it. Registered
 in BACKLOG `removal-conditions` (condition authored by audit — the rung
-shipped with a LIMITS block and no retirement trigger; PENDING OWNER
-RATIFICATION).
+shipped with a LIMITS block and no retirement trigger; RATIFIED by the owner
+2026-08-19).
 
 KNOWN LIMIT — THE RUNG IS FOREGROUND-BLIND AND THE DETECTOR IS NOT. The
 fraction is derived from `coverage_frame.py`, which measures Siril box Min over

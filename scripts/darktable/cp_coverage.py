@@ -37,7 +37,7 @@ report per-radius control-point support against the model's own normalisation,
 or when the fitting route pins control points to a corner-inclusive station
 grid by construction (corner support guaranteed rather than measured).
 Registered in BACKLOG `removal-conditions` (condition authored by audit — this
-divergence shipped with none; PENDING OWNER RATIFICATION).
+divergence shipped with none; RATIFIED by the owner 2026-08-19).
 """
 import argparse
 import json

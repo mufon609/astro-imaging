@@ -55,7 +55,7 @@ Retire the scan the day lensfun/darktable expose a headless query of the
 INSTALLED model's coefficients for a given lens@focal (Debian ships no such
 CLI today — above), or the day the chain consumes the model other than through
 the lensfun user DB. Registered in BACKLOG `removal-conditions` (condition
-authored by audit — this leg declared none; PENDING OWNER RATIFICATION).
+authored by audit — this leg declared none; RATIFIED by the owner 2026-08-19).
 
 That proof catches the silent no-op. It does NOT catch lensfun fuzzy-matching a
 correct EXIF string to a wrong DB entry — that warp is non-zero, so it passes.
