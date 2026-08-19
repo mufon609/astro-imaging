@@ -70,7 +70,7 @@
   }
  },
  "NOT_included": {
-  "july27": "has no built members (0 groups_set-NN dirs) and is deliberately outside the combine \u2014 owner-directed",
+  "july27": "EXCLUDED \u2014 owner ruling, and the fact behind it is MEASURED: july27 was shot at 3.0 s while july31, aug06, aug09 and aug14 are all 2.5 s. Same body (NIKON Z6_3), same ISO 1600, same 70 mm \u2014 exposure is the SOLE difference, so it is not a judgement call about quality. Consequences that make it a different data class rather than a thinner one: the master dark does not transfer (dark signal scales with integration time), per-frame noise and sky level differ, and in-exposure trail length differs by 20% on a fixed mount. It has 535 raws and has never been built (0 members, 0 products). Do not add it to the combine without re-deriving its own calibration, and do not read its absence as an oversight.",
   "aug06 l1arm/l1ctrl": "experiment arm dirs; run_corpus_combine.sh's allow-list (groups_set-NN only) excludes them from the deliverable"
  },
  "parameters": {
