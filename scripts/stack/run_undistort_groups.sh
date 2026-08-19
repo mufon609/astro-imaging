@@ -374,6 +374,8 @@ if [ -f "$ACQHDR" ]; then
     "$OUT.fit" "$(header_stamp_lines "$ACQHDR" "$N")" "$OUT" > "$G/h.ssf"
   sir "$SESSION" "$G/h.ssf"
   echo "stamped acquisition keywords onto $(basename "$OUT.fit") (LIVETIME = $N x EXPTIME)"
+else
+  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
 fi
 # The optics identity goes on unconditionally and through a FITS library, not
 # siril: CALSET is `<session>/<set>` and siril's update_key cuts a string value
@@ -385,14 +387,10 @@ fi
 # composite denies it, and the compose gate's MIXED-BACKGROUND warning reads that
 # key. A composite that misdescribes its own processing state is worse than an
 # unstamped one: the gate is told a confident falsehood.
-if true; then
-  header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" \
-      "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)" "$DARK" "$FLAT")
+header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" \
+    "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)" "$DARK" "$FLAT")
 $(header_registration_lines starpair F)"
-  echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
-else
-  echo "WARNING: no acquisition-header capture — $OUT.fit ships without FOCALLEN/XPIXSZ (solve loses its scale hint)" >&2
-fi
+echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
 rm -rf "$G/final" "$G/finalseq"
 echo "=== DONE: $OUT.fit (sub-stacks kept in $G for re-composition) ==="
 ls -la "$OUT.fit"

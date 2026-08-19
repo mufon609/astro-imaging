@@ -314,9 +314,20 @@ header_registration_lines() {  # <model> <undistorted T|F> [<ref-id>] [<ref-sour
 #   CALSETS   the distinct sets, comma-joined, truncated to the 68-char FITS
 #             string limit with a trailing "+N" when it does not fit
 #   PROVMIX   T when any provenance key differs across members
-header_composite_provenance_lines() {  # <member.fit>...
+#   PIPEREV   the commit the COMPOSE ran under — left inherited it reads the
+#             reference member's build rev instead (measured on both corpora:
+#             datasets/corpus/piperev_inheritance.json)
+#   DATE-OBS  the EARLIEST member start (FITS convention: start of observation;
+#             equals the ISO of the EXPSTART siril writes) — left inherited it
+#             reads the reference SET's start, false for a multi-night product
+# and DELETES GRPSIZE + FILENAME: single-member facts (one group's size,
+# siril's scratch name) that are false-by-construction on a composite.
+# CALSET rides the KEYS tuple like its siblings (common value or MIXED(n)) —
+# otherwise the SINGULAR key survives from the reference, which is the exact
+# falsehood the worked example above describes.
+header_composite_provenance_lines() {  # <repo> <member.fit>...
   python3 - "$@" <<'PY2'
-import os, sys
+import os, subprocess, sys
 try:
     from astropy.io import fits
 except ImportError:
@@ -330,10 +341,12 @@ except ImportError:
 # absent from this tuple is half-shipped.
 KEYS = ("DISTMODL", "DISTA", "DISTB", "DISTC", "DISTNORM", "DISTRHO",
         "DISTSRC", "DISTFIT", "CALDARK", "CALFLAT", "CALDSUM", "CALFSUM",
-        "CALPROV", "BKGLIGHT", "DISTPROV")
-members = sys.argv[1:]
+        "CALPROV", "BKGLIGHT", "DISTPROV", "CALSET")
+repo = sys.argv[1]
+members = sys.argv[2:]
 vals = {k: [] for k in KEYS}
 sets = []
+dates = []
 for m in members:
     try:
         h = fits.getheader(m)
@@ -344,6 +357,8 @@ for m in members:
             vals[k].append(h[k])
     if "CALSET" in h:
         sets.append(str(h["CALSET"]))
+    if "DATE-OBS" in h:
+        dates.append(str(h["DATE-OBS"]))
 out = ["update_key NMEMBER %d" % len(members)]
 mixed = False
 for k in KEYS:
@@ -374,6 +389,17 @@ if uniq_sets:
     if len(uniq_sets) > 1:
         mixed = True
 out.append('update_key PROVMIX "%s"' % ("T" if mixed else "F"))
+if dates:
+    out.append('update_key DATE-OBS "%s"' % min(dates))
+try:
+    rev = subprocess.run(["git", "-C", repo, "rev-parse", "--short", "HEAD"],
+                         capture_output=True, text=True).stdout.strip()
+    if rev:
+        out.append('update_key PIPEREV "%s"' % rev)
+except OSError:
+    pass
+out.append("delete_key GRPSIZE")
+out.append("delete_key FILENAME")
 print("\n".join(out))
 PY2
 }
@@ -406,6 +432,9 @@ with fits.open(path, mode="update") as hd:
     h = hd[0].header
     for line in block.splitlines():
         parts = shlex.split(line.strip())
+        if len(parts) == 2 and parts[0] == "delete_key":
+            h.pop(parts[1], None)
+            continue
         if len(parts) < 3 or parts[0] != "update_key":
             continue
         k, v = parts[1], " ".join(parts[2:])

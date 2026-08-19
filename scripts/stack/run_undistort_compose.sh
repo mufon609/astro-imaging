@@ -432,7 +432,7 @@ if [ -n "${REF0:-}" ] && [ "$REF0" -ge 0 ] 2>/dev/null && [ "$REF0" -lt "$n" ]; 
 else
   echo "WARNING: could not read the reference from $W/seq/s_.seq — REGREF unstamped" >&2
 fi
-header_apply_keys "$OUT.fit" "$(header_composite_provenance_lines "${MEMBERS[@]}")
+header_apply_keys "$OUT.fit" "$(header_composite_provenance_lines "$REPO" "${MEMBERS[@]}")
 $(header_registration_lines "$REGM" "$REGU" "$REFID" "$REFSRC")"
 echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members${REFID:+, REGREF=$REFID [$REFSRC]})"
 [ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
