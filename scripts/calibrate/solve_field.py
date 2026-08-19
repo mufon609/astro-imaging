@@ -72,10 +72,21 @@ All three are framing=max unions carrying uncovered rim BY CONSTRUCTION, so rim
 presence cannot decide anything: --central helps one and costs the other two 12
 and 31 points. A canvas that already solves confidently never reaches this rung
 and therefore cannot be regressed by it — true by construction, not by
-measurement. It also means this design never asks what makes a union starve
-(canvas size or seam fraction), which is a question the registry logs UNCHECKED.
+measurement. It also means this design never asks what makes a union starve,
+which is just as well: BOTH candidates the registry logged for that question
+have since been directionally REFUTED (canvas size and seam fraction — see
+docs/dead-ends.md). The rung is unaffected either way, because it responds to a
+solve that actually starved rather than to a predicted cause.
 The derived value BEATS a hand-picked one: on the corpus 0.694 posts 134 where
 0.5 posts 106.
+
+AND THE PRODUCT THAT MOTIVATED THIS RUNG NO LONGER NEEDS IT. The four-night
+corpus composed against a derived, central registration reference solves at
+logodds 507 on the FIRST attempt with no --central at all; the rung never fires.
+Its NO SOLUTION was tracking the REFERENCE, not the seams. So this is a GENERAL
+SAFETY NET for any union that starves — measured to rescue the old reference's
+canvas from NO SOLUTION to 112 (shipped 400 stars) and 134 (200) — and not the
+fix for that product. The reference derivation was.
 
 THE FLOOR THE RUNG USES IS UNTUNED BECAUSE THE DATA IS BIMODAL — NOT BECAUSE IT
 IS ROBUST. It takes half the covered population's median Siril Min. On all three
@@ -669,9 +680,12 @@ def main():
     # therefore cannot decide whether to apply it, and this is a LADDER rather
     # than a predictor: a canvas that already solves confidently never reaches
     # this rung and cannot be regressed by it. That is true by construction, not
-    # by measurement, and it is why this design does not rest on the UNCHECKED
-    # question of what makes a union starve (canvas size or seam fraction —
-    # docs/dead-ends.md). It never asks.
+    # by measurement, and it is why this design does not rest on any account of
+    # what makes a union starve. It never asks — which is just as well: canvas
+    # size and seam fraction were both logged as candidates and both are now
+    # directionally refuted (docs/dead-ends.md). The rung responds to a solve
+    # that starved, not to a predicted cause, so a wrong account cannot mislead
+    # it.
     #
     # The trigger is NO SOLUTION *or* FLOOR-CLASS. A floor-class SUCCESS must
     # escalate too: the corpus returned logodds 63 — a solve, below

@@ -31,11 +31,26 @@
 #              measured 110. A number borrowed from a different artifact AND a
 #              different knob is the failure this repo has paid for repeatedly;
 #              the message below now states the mechanism and carries no number.
-#              WHAT DECIDES WHETHER IT BITES IS UNMEASURED. Two points (41.6
-#              green, 48.2 starved) are consistent with canvas size or with seam
-#              fraction and do not separate them. Logged UNCHECKED, jointly held:
-#              a --central derivation should key on a measured coverage rim
-#              rather than on megapixels, so that it does not rest on this.
+#              WHAT DECIDES WHETHER IT BITES: BOTH EARLIER CANDIDATES ARE NOW
+#              DIRECTIONALLY REFUTED, by one knob on the four-night corpus — the
+#              same 77 members composed against a different registration
+#              reference (STACKCNT/LIVETIME/NMEMBER/HISTORY byte-identical):
+#                  ref = member 1  (0.746 deg from the median pointing)
+#                      48.25 Mpx, 818/1040 boxes covered  ->  NO SOLUTION
+#                  ref = member 36 (0.162 deg from the median pointing)
+#                      48.55 Mpx, 803/1040 boxes covered  ->  logodds 507
+#              CANVAS SIZE predicted larger-is-worse: the LARGER canvas solves.
+#              SEAM FRACTION predicted less-coverage-is-worse: the canvas with
+#              WORSE coverage and MORE uncovered boxes solves. Both fail on
+#              direction, and the effect is the whole range from no solution to
+#              507. What survives is whatever the REFERENCE carries — a more
+#              central anchor giving a smaller maximum off-axis angle is the
+#              TAN-breakdown reading. THAT IS THE SURVIVING HYPOTHESIS, NOT THE
+#              CAUSE: n=1, and moving --ref moves canvas geometry, tangent point
+#              and orientation together, so centrality is not isolated from
+#              them. A --central derivation still keys on the measured coverage
+#              rim, which is a CEILING (never include rim) and is unaffected by
+#              which of these is the mechanism.
 #   --ref      the registration reference sets the composed canvas and, through
 #              `-norm=addscale`, the composite's raw channel BALANCE. Within one
 #              night the members share a balance family and the auto pick is
@@ -171,7 +186,7 @@ check_cmd() {
       [ "$union" = 1 ] || return 0
       case "$c" in
         *--central=*) ;;
-        *) echo "renders a framing=max UNION and carries no --central= — the coverage seams false-detect and the SIP fit extrapolates into the corners, so the solve can starve. LATENT, not present: measured causal on the 48.2 Mpx corpus (no --central -> NO SOLUTION) and harmless on the 41.6 Mpx night combine (110, green). What decides which is UNMEASURED — see the header. Determine it here rather than leaving it to canvas size"; return 1;;
+        *) echo "renders a framing=max UNION and carries no --central= — a union canvas can starve the solve, and this site leaves the parameter undetermined. LATENT, not present, and DO NOT READ IT AS A SEAM DIAGNOSIS: the one corpus that starved is now known to have starved on its REGISTRATION REFERENCE, not its seams (same 77 members, central reference, no --central at all -> logodds 507). Seam fraction and canvas size are both directionally refuted — see the header. solve_field derives --central as a RESCUE rung when a solve actually starves; determining it here is belt-and-braces, not a fix for a diagnosed cause"; return 1;;
       esac;;
     run_undistort_compose.sh)
       [ "$multi" = 1 ] || return 0

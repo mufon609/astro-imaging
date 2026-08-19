@@ -4108,6 +4108,46 @@ SILENT — pin the state, never inherit it):
   facts worth keeping are the tool facts: it exists and is honoured in 0.3.4,
   and `install_lens_model.sh --center X,Y` writes it (`--center 0,0` removes
   it) if a future lens ever needs one.
+- **WHAT MAKES A `framing=max` UNION STARVE THE SOLVE: CANVAS SIZE AND SEAM
+  FRACTION ARE BOTH DIRECTIONALLY REFUTED. The registration REFERENCE is the only
+  candidate left standing — and it is a SURVIVING HYPOTHESIS, not a cause.**
+  Two accounts were carried while a coverage-derived `--central` rescue was built:
+  that big canvases starve, and that seam-contaminated ones do. **One knob killed
+  both.** The four-night corpus composed twice from the SAME 77 members, same
+  `-framing=max`, same `-weight=nbstack`, `STACKCNT 8349` / `LIVETIME 20872.5` /
+  `NMEMBER 77` and byte-identical siril HISTORY — only the reference differs:
+
+      reference member 1  (july31/set-01/sub_01, 0.746 deg from the median pointing)
+          canvas 8515x5666 = 48.25 Mpx, 818/1040 boxes covered, rect 64.8%
+          -> NO SOLUTION  (400 stars, no --central, position-hinted)
+      reference member 36 (aug09/set-02/sub_02, 0.162 deg from the median pointing)
+          canvas 8540x5685 = 48.55 Mpx, 803/1040 boxes covered, rect 61.2%
+          -> logodds 507  (400 stars, no --central, FIRST attempt)
+
+  **SIZE predicted larger-is-worse and the LARGER canvas solves. SEAM FRACTION
+  predicted less-coverage-is-worse and the canvas with WORSE coverage and MORE
+  uncovered boxes solves.** Both fail on DIRECTION, not on magnitude, and the
+  effect spans the entire range from no solution to the highest logodds this
+  corpus has produced. Coverage measured by `coverage_frame.py` (Siril
+  `boxselect`+`stat`), both canvases on the same 40x26 grid.
+  **WHAT SURVIVES IS WHATEVER THE REFERENCE CARRIES.** A more central anchor
+  gives a smaller maximum off-axis angle across the members, which is a
+  TAN-projection-breakdown reading rather than a seam one. **DO NOT PROMOTE THAT
+  TO THE MECHANISM.** It is n=1, and moving `--ref` moves canvas geometry, tangent
+  point and orientation TOGETHER — centrality is not isolated from them by this
+  measurement, only from size and seam fraction, and those two are refuted rather
+  than centrality being confirmed. The honest status is: **two corpses, one
+  survivor, and the survivor is a bundle.**
+  **CONSEQUENCE FOR THE COVERAGE RUNG (`solve_field.py`), which is NOT devalued:**
+  it responds to a solve that ACTUALLY STARVED, never to a predicted cause, so a
+  wrong account of the cause cannot mislead it. It measurably rescued the member-1
+  canvas from NO SOLUTION to logodds 112 (shipped 400 stars) and 134 (200). But
+  **the product that motivated it no longer needs it** — the member-36 canvas
+  solves at 507 with the rung never firing. It is a GENERAL SAFETY NET for any
+  union that starves; the REFERENCE DERIVATION is what fixed this product. An
+  earlier revision of this repo's own guard attributed that starvation to coverage
+  seams; that attribution was wrong and is corrected in place.
+
 - **`--max-stars` DOES NOT HAVE A DERIVABLE OPTIMUM, AND TWO POINTS ON ITS CURVE
   ARE NOT A TREND.** A `--max-stars` derivation was SCOPED and then REFUSED on
   measurement; this entry is what the investigation produced instead.
