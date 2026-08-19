@@ -56,9 +56,9 @@ of the sequence file it wrote, Siril's `findstar` fitted every PSF, darktable
 warped the frames upstream. The in-house part is the cross-match and the median
 by field zone — a DERIVED result no tool provides (Siril reports within-sequence
 registration residuals, never member-to-member star-position disagreement). It
-reads no deliverable pixel, reimplements no tool's analysis, and gates a build
-on a tool-sourced number, which is the pipeline deciding what the data settled:
-it announces the number and its instrument.
+reads no deliverable pixel, reimplements no tool's analysis, and gates NOTHING
+(user-ratified — the banded era below is retired): it announces the number and
+its instrument, and the consumer stamps it on the product.
 
 REMOVAL CONDITION: retire this the day an official tool reports headless
 member-to-member POST-REGISTRATION positional residuals across a sequence

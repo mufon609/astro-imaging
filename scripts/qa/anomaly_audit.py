@@ -112,8 +112,11 @@ THRESHOLDS: every magic number is derived or PROVISIONAL — see the inline
 comment at each site. All lengths are extracted-green px.
 
 COMPLIANCE self-audit (allowed iff ALL hold):
-  (a) outside the final-product pipeline, never gates/processes the
-      deliverable: YES — emits a report; no gate, no pixel output.
+  (a) never gates/processes the deliverable ITSELF: YES — emits a report, no
+      pixel output, culls nothing. Its RECORD is a load-bearing input (the
+      dwell floor, header above): that decision is the groups builder's, a
+      data-settled call under the evidence gate, announced and recorded by
+      the consumer.
   (b) every pixel + standard measurement tool-sourced: YES — decode, green
       extraction, subsky, the star table, and the background level + noise
       (findstar's report) are all Siril; the kernel only reads those products.

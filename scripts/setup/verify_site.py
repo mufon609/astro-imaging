@@ -78,6 +78,21 @@ def solved_products():
                           construction, and it agrees with the header's own
                           OBJCTRA/OBJCTDEC to 0.000-0.031 deg on 7 of 9 products
                           and 0.13-0.18 deg on the other two.
+
+    COMPOSITE ROWS ARE DUPLICATE REFERENCE-SET EPOCHS, NOT PRODUCT EPOCHS.
+    The glob matches multi-set unions and night combines (9 of the 29 matching
+    products today); a composite's DATE-OBS is inherited from its registration
+    reference member (datasets/corpus/piperev_inheritance.json), so each
+    composite row re-states its reference set's START — a composite has no
+    single epoch at all. MEASURED: the record's min altitude 63.4433 is the
+    july31 night combine at that inherited epoch, and the per-set set-01 row
+    reads 63.558 at the same instant (union-vs-set centre, 0.115 deg), so
+    every headline number is per-set-anchored: composite rows add duplication,
+    not error, to the RANGE, while any PER-COMPOSITE altitude read from this
+    record is misattributed by up to ~8 deg against the span midpoint
+    (71.64 deg for that product; EXPSTART/EXPEND in the same headers carry the
+    true span). n_solved_products is a snapshot of the products on disk at
+    run time.
     """
     import warnings
     from astropy.io import fits
