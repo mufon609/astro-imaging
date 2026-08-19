@@ -4290,6 +4290,28 @@ SILENT — pin the state, never inherit it):
   difference that is a representation change. **Evaluate the WCS; never read its
   cards as the answer.**
 
+- **THE `_wcs` HEADERS CARRY BOTH MATRIX FORMS, AND ASTROPY SILENTLY PREFERS
+  THE WRONG ONE FOR THE SOLVE — the fifth silent way this corpus's WCS
+  misleads a reader.** `solve_field.py --inject` writes the solve's CD matrix
+  into a copy of the stack whose header KEEPS siril's PC1_1..PC2_2 + CDELT1/2
+  (the stack's own canvas WCS). FITS-WCS declares the forms mutually
+  exclusive; on a header carrying both, `astropy.wcs.WCS` resolves toward
+  PC+CDELT with no warning. MEASURED on the corpus `_wcs`: as-is centre dec
+  +41.003 (the PC solution) against CD-only +41.257 — 0.25 deg = 913 arcsec —
+  and across all 34 solved products the as-is evaluation sits at median 101 /
+  worst 913 arcsec from the headers' own OBJCTRA/OBJCTDEC, where CD-only
+  reads median 1.7 / worst 36.5. **A consumer that evaluates a `_wcs` product
+  with astropy is reading the STACK's canvas WCS, not the solve, unless it
+  strips PC*/CDELT*/CROTA* first** (`spcc_cone.py` now does — its contract is
+  the solve). This is what `verify_site.py`'s own docstring recorded without
+  a mechanism: 7 of 9 products agreeing with OBJCTRA to 0.031 deg *"and
+  0.13-0.18 deg on the other two"* — the two are this skew, immaterial at
+  that instrument's DEGREE-level bound. The inject-side fix (strip the
+  leftover form when writing the CD) is BACKLOG:`wcs-dual-matrix-inject`, and
+  it is NOT colour-neutral by construction: siril's SPCC reads the `_wcs`
+  header, and WHICH form siril prefers on a dual-matrix header is unmeasured
+  — the item carries that probe and the SPCC A/B.
+
 - **A PROVENANCE STAMP BUILT AS AN ALLOW-LIST IS A DENY-LIST FOR EVERY KEY IT
   OMITS — siril `stack` propagates the REFERENCE member's ENTIRE header, so a
   route's leak surface = (reference header) − (keys siril recomputes) − (the
