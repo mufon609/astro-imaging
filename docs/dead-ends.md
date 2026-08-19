@@ -1703,6 +1703,28 @@ the constraints any such tool must satisfy):
   it does not isolate it. **Do not cite the K_B pair as evidence about the
   shipped route, and do not cite the astrometric numbers as evidence about
   star-pair.**
+  **AND THE BALANCE HALF IS REAL AT THE COMPOSE AND IMMATERIAL AT THE
+  DELIVERABLE — SPCC ABSORBS IT, MEASURED, 64x.** The compose is not the product:
+  `spcc_run` fits K factors against the Gaia catalogue afterwards, and the
+  reference's balance imprint is most of what it removes. Same two arms, Siril
+  `stat` (box 400 / margin 200) on the linear surface before and after:
+  B/G **0.7427 vs 0.5260 (delta -0.2167)** at the compose, **0.9962 vs 0.9927
+  (delta -0.0034)** after SPCC; R/G +0.0437 -> -0.0016. The mechanism is visible
+  in siril's own K factors, which move to compensate: B 0.862 -> 0.923,
+  G 0.678 -> 0.672. Both arms carry the SAME documented sensor gap (no matching
+  sensor; generic response), so it cancels rather than confounds.
+  **CONSEQUENCE FOR THE CHOICE OF REFERENCE: it is a GEOMETRY decision, not a
+  colour one.** What survives SPCC is the canvas (SPCC does not touch it); what
+  does not survive is the balance. A reference criterion should therefore be
+  argued on coverage, not on channel balance — the raw compose numbers make it
+  look like a colour decision and it is not.
+  **BOUNDS, and they are load-bearing:** 4 members / 2 nights, so the canvas
+  difference here is 24x7 px on ~7000x4600 (0.34% / 0.15%) and NOTHING here
+  measures what it is at 77 members. The residual B/G 0.0034 is ~3 steps of the
+  instrument's resolution (`stat` medians resolve ~0.1 ADU on ~105), so it is
+  small, not zero. The arms' absolute LEVELS differ (104.5 vs 54.8) and that is
+  NOT attributed here — different canvases sample different sky, so level and
+  sky are confounded in this pair.
   **AUTO IS INDEX 0, NOT A RANKING** — verified across ten `compose_gate_*.json`
   records at 13/17/22/25/52/77 members, every one `reference_member = s_00001`,
   and confirmed by a probe whose auto arm measured **0 differing pixels of
