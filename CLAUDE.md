@@ -401,7 +401,10 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   `web/results/<session>/judge/`, named `<set>_<recipe-tag>_<surface>`
   (e.g. `set-01_168sp_spcc-linked.png`) — NEVER "FINAL_*" or adjective
   variants, and never scattered across directories. `datasets/` holds tracked
-  RECORDS ONLY — never image data. All bulk derived image DATA is gitignored:
+  RECORDS ONLY — never DELIVERABLE image data (a tool's own star lists or PSF
+  models kept as a measurement's evidence are RECORDS and are tracked on
+  purpose; `.gitignore` is the authority for what survives in each `*_work/` —
+  `datasets/README.md`). All bulk derived image DATA is gitignored:
   masters + pipeline intermediates stay in the session tree (`<session>/work/`),
   and stacks/renders/judgment surfaces live at the web-servable output root
   `web/results/<session>/` (stacks named
@@ -464,8 +467,13 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
     above was caught at all, and without it the peer would have re-added their
     rows on top and produced the silent duplication two bullets down.
   - **Your commits land in their products.** `PIPEREV` is
-    `git rev-parse --short HEAD` (`stamp_headers.sh`), so a commit stamps every
-    artifact built after it. Records-only may land any time — MEASURED
+    `git rev-parse --short HEAD` (`stamp_headers.sh`) — stamped on members and
+    per-set finals at build and on composites at compose — so a commit stamps
+    every undistort-chain artifact built after it. (Standard-route and rgbcomp
+    products carry no stamp at all, and composites that predate the compose
+    stamp — the kept experiment arms — still carry their reference MEMBER's
+    rev: `datasets/corpus/piperev_inheritance.json`.) Records-only may land
+    any time — MEASURED
     pixel-neutral across a `PIPEREV` split, 0 differing of 69,359,745 pixels.
     Anything on the BUILD PATH waits for the chain to finish: that is a second
     knob inside a running experiment, on top of the live-file trap.
