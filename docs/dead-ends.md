@@ -4290,6 +4290,41 @@ SILENT — pin the state, never inherit it):
   difference that is a representation change. **Evaluate the WCS; never read its
   cards as the answer.**
 
+- **A PROVENANCE STAMP BUILT AS AN ALLOW-LIST IS A DENY-LIST FOR EVERY KEY IT
+  OMITS — siril `stack` propagates the REFERENCE member's ENTIRE header, so a
+  route's leak surface = (reference header) − (keys siril recomputes) − (the
+  allow-lists that route applies).** MEASURED on the four-night corpus (77
+  members, reference = member 36): five reference-specific keys survive on the
+  composite — `PIPEREV` (7 distinct values across members), the SINGULAR
+  `CALSET` (17), `DATE-OBS` (17), `GRPSIZE` (10), `FILENAME` (50) — and all five
+  propagate into `_spcc`. The leaks are REFERENCE-keyed, not first-member-keyed
+  (the old/new corpus pair discriminates: each leaks its own reference's
+  values). The acquisition block (`EXPTIME`…`INSTRUME`) is inherited the same
+  way and reads 1 distinct across all 77 today — nothing false until a corpus
+  mixes values (july27's 3.0 s vs 2.5 s is the standing `EXPTIME` trigger).
+  What siril RECOMPUTES is verified, not assumed: `STACKCNT`/`LIVETIME` equal
+  the member sums exactly; `EXPSTART`/`EXPEND` carry the true span beside the
+  false `DATE-OBS`. **The route classes differ because the allow-lists applied
+  differ:** groups per-set finals get BOTH stamps post-stack (measured: set-01's
+  final reads the build-era `PIPEREV` while its own reference sub carries an
+  older one; residual leak `GRPSIZE`/`FILENAME`); `run_undistort_compose`
+  products get the composite tuple ONLY (the five-key leak class);
+  `run_pipeline.sh` and `compose.py` apply NEITHER — absent, not false. The
+  singular `CALSET` is the sharpest instance: the commit that built the
+  composite tuple names CALSET inheritance as the defect it fixes, added the
+  plural `CALSETS`, and never replaced the singular — its own worked example
+  still ships on the product. **The wrong-mechanism trap that rode with it:**
+  two sessions confirmed to each other that a per-set final's `DATE-OBS` is
+  right only because `setref s 1` picks the earliest group. Both missed that a
+  SECOND stamp call carries it (`header_stamp_lines` ends with `DATE-OBS` and is
+  applied to the final), and the fallback is empty anyway — every sub of a set
+  carries the SAME `DATE-OBS` (measured 4/4 and 5/5; all stamped from one
+  set-level capture). Reading the artifact (which function emits which keys,
+  applied where) settled in minutes what two agreeing readers had settled
+  wrongly. Full census, values, intent trace and the tracked-record carriers:
+  `datasets/corpus/piperev_inheritance.json`; the fix decision is
+  BACKLOG:`composite-header-identity`.
+
 - **A STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS
   WORSE THAN THE SHIPPED ROUTE — the polynomial is not identity-preserving
   alone.** Applying each member's OWN SIP as a standalone warp and then composing

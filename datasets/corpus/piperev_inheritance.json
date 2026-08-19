@@ -1,5 +1,5 @@
 {
- "_what": "DEFECT \u2014 a COMPOSITE's PIPEREV is not the code that built it. It is inherited from whichever member was the registration reference.",
+ "_what": "DEFECT — a COMPOSITE inherits its registration REFERENCE MEMBER's header for every key the stamps do not replace. PIPEREV was the found instance; the census below measures the full leak surface. General form: leak surface of a route = (reference header) − (keys siril recomputes) − (the stamp allow-lists that route applies).",
  "measured": {
   "old_corpus": {
    "PIPEREV": "5b48421",
@@ -14,9 +14,35 @@
   "HEAD_when_the_new_one_was_built": "9106bc4",
   "reading": "both composites carry their reference member's stamp exactly; neither carries the building code's"
  },
- "mechanism": "siril `stack` propagates the reference image's header into the output. stamp_headers.sh's header_composite_provenance_lines exists precisely to REPLACE inherited keys, and its KEYS tuple (DISTMODL DISTA DISTB DISTC DISTNORM DISTRHO ...) does NOT include PIPEREV. So the inherited value survives unchallenged.",
- "why_it_matters": "CLAUDE.md states 'PIPEREV is git rev-parse --short HEAD (stamp_headers.sh), so a commit stamps every artifact built after it'. That is TRUE for members and FALSE for composites. Any reasoning that dates a composite from its PIPEREV \u2014 including a scope decision about whether a rebuild is needed \u2014 is reading the wrong commit. This is the same failure class the stamper's own docstring describes for CALSET: 'worse than an absent stamp: a gate reading it is told a confident falsehood.'",
+ "leak_census": {
+  "method": "every header key of stack_july31+aug06+aug09+aug14_full.fit classified against its reference member (aug09/groups_set-02/sub_02) and all 77 members' headers (sessions/*/work/groups_set-0[1-9]/sub_*.fit; count = NMEMBER = 77, member PIPEREV census matches rebuild_scope.json's era census exactly)",
+  "reference_specific_leaks_live": {
+   "PIPEREV": {"composite": "1791bb4", "distinct_across_members": 7},
+   "CALSET": {"composite": "aug09/set-02", "distinct_across_members": 17, "note": "the SINGULAR key. ebbce14's GAP 2 names CALSET inheritance as the defect it fixes, added the plural CALSETS, and never replaced the singular — its own worked example still ships on the product. CALSET is not in the KEYS tuple."},
+   "DATE-OBS": {"composite": "2026-08-10T04:16:40", "distinct_across_members": 17, "note": "the reference SET's start on an aug01-aug15 product. siril's own EXPSTART/EXPEND on the composite carry the true span (JD 2461253.619 -> 2461267.709)."},
+   "GRPSIZE": {"composite": 114, "distinct_across_members": 10, "note": "the reference sub-stack's group size. No active consumer reads a composite's GRPSIZE (the resume guard reads sub_NN.fit only); latent for readers."},
+   "FILENAME": {"composite": "w_03_08.tif", "distinct_across_members": 50, "note": "siril-internal card; trivia but reference-specific."}
+  },
+  "reference_keyed_not_first_member": "the old/new corpus pair discriminates: old (ref = member 1) leaks july31/set-01 / 2026-08-01 / 100 / 5b48421; new (ref = 36, first member still 1) leaks aug09/set-02 / 2026-08-10 / 114 / 1791bb4 — each matches its own reference",
+  "inherited_uniform_today": "the acquisition block — EXPTIME APERTURE ISOSPEED FOCALLEN XPIXSZ YPIXSZ XBINNING YBINNING INSTRUME (+ CUNIT1/2 EQUINOX LONPOLE MIPS-FLO) — reads 1 distinct value across all 77, so it mis-asserts nothing until a corpus mixes values. Standing trigger: july27 is 3.0 s against this corpus's uniform 2.5 s, so EXPTIME fires on any future mixed corpus (BACKLOG:final-best-percent-pass class).",
+  "recomputed_by_siril_verified": "STACKCNT 8349 = sum(member STACKCNT) exactly; LIVETIME 20872.5 = sum exactly (the stamp docstring's 'summed correctly' is MEASURED, not assumed); EXPSTART/EXPEND; OBJCTRA/OBJCTDEC/RA/DEC; the composite WCS (new CRPIX/CRVAL/PC/CDELT; CTYPE RA---TAN against members' RA---TAN-SIP — the registry's WCS-trap family)",
+  "replaced_correctly": "the 15-key composite tuple behaves as designed: CALFLAT MIXED(13), CALFSUM MIXED(5), DISTA/B/C common, NMEMBER 77, CALSETS, PROVMIX T",
+  "propagates_to_spcc": "stack_july31+aug06+aug09+aug14_full_spcc.fit carries all five leaks (measured)"
+ },
+ "route_classes": {
+  "run_undistort_groups_finals": "BOTH allow-lists applied post-stack (header_stamp_lines + header_provenance_lines, run_undistort_groups.sh). MEASURED: aug06 stack_set-01_full.fit reads PIPEREV 1791bb4 while its own reference sub_01 carries a1dc91b — the re-stamp is live. Residual leak: GRPSIZE (reads sub_01's 100) and FILENAME. DATE-OBS is STAMPED there (_STAMP_KEYS ends with it), not inherited — and every sub of a set carries the SAME DATE-OBS anyway (measured 4/4 aug09/set-02, 5/5 july31/set-01; all stamped from one set-level acq_header capture), so reference choice cannot move it today. That hazard activates only if per-group epochs ever land — observer_frame_diversity.py's registered removal condition.",
+  "run_undistort_compose_products": "the composite KEYS tuple + registration lines ONLY — the leak class above: PIPEREV, singular CALSET, DATE-OBS, GRPSIZE, FILENAME, and the uniform-today acquisition block",
+  "run_pipeline_and_compose_py": "NO stamps at all (grep: zero hits in run_pipeline.sh, compose.py, finish_render.sh, render_tier.sh, build_sky_flat.sh) — PIPEREV absent rather than false, and rgbcomp composites never received the ebbce14 composite-identity fix. CLAUDE.md's PIPEREV sentence is in practice scoped to the undistort chain."
+ },
+ "intent": "oversight with a traceable moment, not a weighed exclusion: PIPEREV stamping entered a307999 (2026-08-09); the composite tuple entered ebbce14 (2026-08-10) with a message that enumerates GAP 2 entirely in calibration/optics terms and never mentions PIPEREV; git log -S PIPEREV on stamp_headers.sh returns only a307999",
+ "carriers_in_tracked_records": {
+  "list": ["datasets/aug06/corner_work/corner_quality.json (stack_set-01+02+03_full_wcs, PIPEREV a1dc91b)", "datasets/aug06/l1_work/starlight_ctrl_union.json (union surface, header.PIPEREV a1dc91b)", "datasets/aug06/l1_work/starlight_armB_bkgstack.json (union surface, header.PIPEREV a1dc91b)", "datasets/aug06/experiments.jsonl l1_background_level_perframe_vs_onstack control fingerprint (3-set union, PIPEREV a1dc91b)"],
+  "use_class": "identity fingerprint (verifying the artifact unchanged) — valid as a fingerprint, wrong if ever read as build-code. A reader dating a union from any of these is reading the reference member.",
+  "conclusions_resting_on_one": "ZERO found. Sweep = git grep piperev over tracked files + all commit messages matching piperev; the one claim resting on composite-PIPEREV semantics was this record's own withdrawn 'uniform stamp' clause in rebuild_scope.json. Escape class: reasoning that used a composite's PIPEREV without writing the word nearby."
+ },
+ "mechanism": "siril `stack` propagates the reference image's header into the output. stamp_headers.sh's header_composite_provenance_lines exists precisely to REPLACE inherited keys, and its KEYS tuple (DISTMODL DISTA DISTB DISTC DISTNORM DISTRHO ...) does NOT include PIPEREV — nor CALSET, DATE-OBS, GRPSIZE, FILENAME, nor the acquisition block. An allow-list of keys to fix is a deny-list-by-omission of keys to leak.",
+ "why_it_matters": "CLAUDE.md states 'PIPEREV is git rev-parse --short HEAD (stamp_headers.sh), so a commit stamps every artifact built after it'. That is TRUE for members and per-set groups finals and FALSE for run_undistort_compose products. Any reasoning that dates or attributes a composite from PIPEREV, CALSET or DATE-OBS — including a scope decision about whether a rebuild is needed — is reading the reference member. This is the same failure class the stamper's own docstring describes for CALSET: 'worse than an absent stamp: a gate reading it is told a confident falsehood.'",
  "how_it_was_found": "the REGREF stamp added in this unit names the member whose header leaked, which is what made the inheritance diagnosable rather than merely puzzling",
- "NOT_FIXED": "adding PIPEREV to the composite KEYS tuple is a build-path change and would alter every composite's header. Owner's call, not taken here.",
- "credit": "found by the auditing session, not by the session that built the products"
+ "NOT_FIXED": "extending the composite KEYS tuple (and deciding CALSET/DATE-OBS/GRPSIZE semantics) is a build-path change and would alter every composite's header. Owner's call — the fix decision and candidates live in BACKLOG:composite-header-identity.",
+ "credit": "PIPEREV instance found by the auditing session, not by the session that built the products; the census, route classes, intent trace and carrier sweep by the third (takeover) session, measured on the tree at 34cd19d"
 }
