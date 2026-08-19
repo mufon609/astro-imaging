@@ -36,16 +36,39 @@
 #              fraction and do not separate them. Logged UNCHECKED, jointly held:
 #              a --central derivation should key on a measured coverage rim
 #              rather than on megapixels, so that it does not rest on this.
-#   --ref      run_undistort_compose.sh's own header: `register -2pass`'s AUTO
-#              reference sets the output canvas ORIENTATION and, through
+#   --ref      the registration reference sets the composed canvas and, through
 #              `-norm=addscale`, the composite's raw channel BALANCE. Within one
 #              night the members share a balance family and the auto pick is
 #              harmless; across NIGHTS the families genuinely differ (measured
 #              on this rig: K_G 0.662-0.668 one night vs 0.697 another, both
 #              chain-clean), so the auto pick silently decides the composite's
-#              starting balance from argument order. Measured cost of the wrong
-#              family: K_B 0.846 with a rotated frame map, against 0.951 and an
-#              exact map from the right reference.
+#              starting balance from argument order.
+#              MEASURED ON THE SHIPPED ROUTE (`seqplatesolve`), one knob — same 4
+#              members over 2 nights, same framing/weight/order, only --ref moved:
+#                  canvas        7071x4629  ->  7095x4622
+#                  north          +9.6244   ->   +7.7633  deg
+#                  centre median  [39.9, 157.4, 116.9] -> [26.9, 90.5, 47.6]
+#                  B/G             0.7427   ->    0.5260
+#              (Siril `stat` via scripts/qa/regional_stat.py, box 400/margin 200;
+#              canvas + orientation from the product WCS at its CENTRE PIXEL.)
+#              AN EARLIER REVISION CITED K_B 0.846 vs 0.951 HERE. That pair is a
+#              STAR-PAIR-route measurement (`docs/dead-ends.md`: "`setref <n>`
+#              AFTER the 2pass"), and `register -2pass` is the regression arm
+#              behind --starpair, not what this guard's sites build. Two readers
+#              quoted it on the astrometric route inside one work unit; the
+#              numbers above replace it and were taken where the rule applies.
+#              STATED LIMIT: the two arms' canvases differ by 24x7 px, so the
+#              centre box samples slightly different sky. That BOUNDS the balance
+#              shift; it does not isolate it. And the canvas does not INHERIT the
+#              reference's orientation on this route (m_1's own north is -164.85,
+#              its canvas +9.62) — it tracks without equalling, uncharacterised
+#              at two points. The rule needs only that the knob MOVES the product.
+#              AUTO IS INDEX 0 — the first member in link order, not a ranking:
+#              ten compose_gate records at 13/17/22/25/52/77 members all read
+#              reference_member = s_00001, and the auto arm measured 0 differing
+#              pixels of 98,194,977 against an explicit --ref=1. So the reference
+#              is whatever sorts FIRST: appending a night re-bases nothing,
+#              reordering the session arguments re-bases everything.
 #
 # SCOPE — per COMMAND, not per file, for the shell emitters (section A). The
 # same reason check_registration_pins.sh gives: an emitter that determines a
