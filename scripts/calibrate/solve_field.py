@@ -390,11 +390,26 @@ def contradictions(match, pos, pos_src, nominal):
     return out
 
 
-def inject(src, dst, wcs, logodds):
+def inject(src, dst, wcs, logodds, central=None, max_stars=None):
     """Write a WCS-injected copy via astropy: the solver's WCS cards replace any
     existing ones; every other header card and the exact pixel data are preserved
     (do_not_scale_image_data keeps BITPIX/BZERO/BSCALE untouched, so the linear
-    stack round-trips unchanged for SPCC)."""
+    stack round-trips unchanged for SPCC).
+
+    SOLVCENT / SOLVMAXS PUT THE RESOLVED DETECTION PARAMETERS ON THE ARTIFACT.
+    Both are caller-supplied with a default that is wrong for the deep product,
+    and neither was recoverable from the product afterwards: the sidecar
+    `solve_<stem>.json` carries `central` but is a SEPARATE file that a copied,
+    archived or re-hosted stack does not bring with it, and it never carried
+    max-stars at all. MEASURED consequence of not stamping max-stars: the
+    four-night corpus solved at logodds 63 (floor-class, against a confident
+    floor of 100) because finish_render.sh hardcodes --max-stars=400, and the
+    product could not be asked which value it had been solved with.
+
+    SOLVCENT is 0.0 when no --central was applied — the WHOLE frame was
+    searched. It is written in both cases: absent-because-unset and
+    absent-because-old are otherwise indistinguishable on an artifact.
+    """
     from astropy.io import fits
     with fits.open(src, do_not_scale_image_data=True) as hdul:
         hdr = hdul[0].header
@@ -404,6 +419,10 @@ def inject(src, dst, wcs, logodds):
                         f"(astrometry.net, logodds {logodds:.0f})")
         for k, (v, com) in wcs.items():
             hdr[k] = (v.decode() if isinstance(v, bytes) else v, com)
+        hdr["SOLVCENT"] = (float(central or 0.0),
+                           "--central fraction; 0 = whole frame")
+        hdr["SOLVMAXS"] = (int(max_stars),
+                           "--max-stars handed to the solver")
         hdul.writeto(dst, overwrite=True)
 
 
@@ -558,7 +577,8 @@ def main():
         json.dump(wcs, open(opts["json"], "w"), indent=1)
         print(f"[solve_field] wrote {opts['json']}")
     if "inject" in opts:
-        inject(src, opts["inject"], wcs, m.logodds)
+        inject(src, opts["inject"], wcs, m.logodds,
+               central=central, max_stars=max_stars)
         print(f"[solve_field] wrote {opts['inject']} (WCS-injected copy)")
     # durable per-solve record next to the session's other capture files
     # (spcc_run writes work/spcc_<set>.json; a wrong solve needs the same
@@ -569,7 +589,7 @@ def main():
         wdir = os.path.dirname(src) or "."
     rec = {"input": src, "detector": detector,
            "n_stars_detected": len(stars),
-           "central": central,
+           "central": central, "max_stars": max_stars,
            "position_hint": winning[2], "position_hint_source": pos_src,
            "attempt": winning[0],
            "field_width_arcmin_arg": width_arcmin,

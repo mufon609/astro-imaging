@@ -118,7 +118,7 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/stamp_headers.sh"   # composite provenance + registration-model stamp
-OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0; SUBDIRS=()
+OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0 REFSRC_DECL=auto; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
   --weight=nbstack|--weight=noise) WEIGHT="-weight=${a#*=}";;
@@ -175,6 +175,7 @@ if [ -n "$REF" ]; then
       for ((i=1; i<=n; i++)); do echo "   $i  ${MEMBERS[$i]}" >&2; done; exit 1; }
   fi
   SETREF="setref s $RIDX\n"
+  REFSRC_DECL=pinned
   echo "reference PINNED: member $RIDX -> ${MEMBERS[$RIDX]}"
 else
   echo "reference: AUTO (register -2pass picks it) — pin it with --ref= for a"
@@ -391,9 +392,26 @@ grep -qi "undistortion will be applied" "$W/compose.log" 2>/dev/null && REGU=T
 # Applied with a FITS library, not siril `update_key`: CALSET/CALSETS are
 # `<session>/<set>` and siril cuts a string value at the first `/` (it begins the
 # FITS comment field). See header_apply_keys.
+# THE REFERENCE SIRIL ACTUALLY USED, read from the sequence file IT wrote —
+# never the value this script asked for. Under --ref the two agree; under AUTO
+# nothing was asked and only siril knows, and that is exactly the case the
+# record has been missing. The `.seq` S-line's 7th field is `reference_image`,
+# 0-based (the same field scripts/qa/member_separation.py parses). This runs
+# BEFORE the `rm -rf "$W"` at the end, which is the only window it exists in.
+REFID= REFSRC=
+REF0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$W/seq/s_.seq" 2>/dev/null || true)
+if [ -n "${REF0:-}" ] && [ "$REF0" -ge 0 ] 2>/dev/null && [ "$REF0" -lt "$n" ]; then
+  RM=${MEMBERS[$((REF0 + 1))]}
+  # <1-based index>:<night>/<group dir>/<file> — a basename alone cannot identify
+  # a member (sub_01.fit exists in every group dir), so the path tail rides along.
+  REFID="$((REF0 + 1)):$(echo "$RM" | awk -F/ '{print $(NF-3)"/"$(NF-1)"/"$NF}')"
+  REFSRC=${REFSRC_DECL:-auto}
+else
+  echo "WARNING: could not read the reference from $W/seq/s_.seq — REGREF unstamped" >&2
+fi
 header_apply_keys "$OUT.fit" "$(header_composite_provenance_lines "${MEMBERS[@]}")
-$(header_registration_lines "$REGM" "$REGU")"
-echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members)"
+$(header_registration_lines "$REGM" "$REGU" "$REFID" "$REFSRC")"
+echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members${REFID:+, REGREF=$REFID [$REFSRC]})"
 [ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
 # the gate's worst measured separation rides ON the product, not only beside it
 python3 - "$OUT.fit" "$GATEJSON" <<'PY'

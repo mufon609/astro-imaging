@@ -261,8 +261,41 @@ PY
 #   REGUNDIS  T when siril reported applying per-member SIP undistortion, F when
 #             it did not. Sourced from the tool's OWN log, never assumed: the
 #             route silently degrades to a linear map when a member lacks SIP.
-header_registration_lines() {  # <model> <undistorted T|F>
+# header_registration_lines <model> <undistorted T|F> [<ref-id>] [<ref-source>]
+#
+# REGREF / REGREFSR PUT THE RESOLVED REGISTRATION REFERENCE ON THE ARTIFACT.
+# WHY, MEASURED RATHER THAN ARGUED: the composite recorded which MODEL registered
+# it and never which MEMBER it registered AGAINST, and the compose deletes its
+# scratch (`rm -rf "$W"`) so the `.seq` that held the answer does not outlive the
+# run. The cost of that gap, in one episode: a tracked record asserted the wrong
+# mechanism for the auto-pick ("ranks over the whole member pool" — it takes
+# index 0), it was reported to the owner as a defect, the truth had to be
+# reconstructed from `compose_gate_*.json` files that survived only because they
+# are written OUTSIDE the scratch dir, and the tracked field was revised twice.
+# A stamped reference makes all of that one header read.
+#
+# It is siril's OWN reference, parsed from the `.seq` it wrote, not the value the
+# caller asked for — so it is true under `auto`, where nothing was asked.
+# REGREFSR records how it got there: pinned (operator --ref) | derived (the
+# chain's rule) | auto (siril chose, nothing determined it).
+#
+# PRODUCTS BUILT BEFORE THIS CHANGE CARRY NO REGREF, AND THAT IS EXPECTED — they
+# are NOT backfilled. Writing a header onto an accepted product is a byte-change
+# to a deliverable for tidiness, which does not earn the declared-delta the
+# contract requires, and `baseline_guard.py` compares products. Their reference
+# is not lost: `datasets/corpus/corpus4_build_record.json` records it (s_00001,
+# evidenced by ten `compose_gate_*.json` records and a probe whose positive
+# control measured 0 differing pixels of 98,194,977 between the auto arm and an
+# explicit --ref=1). Look there rather than re-deriving it.
+#
+# THE CHAIN ENDS AT THE FITS. The judge PNG — the only surface a verdict may be
+# taken on — carries none of this, because PNG has no header. Provenance is
+# recoverable from the FITS beside it, never from the image a human looks at.
+header_registration_lines() {  # <model> <undistorted T|F> [<ref-id>] [<ref-source>]
   printf 'update_key REGMODEL "%s"\nupdate_key REGUNDIS "%s"\n' "$1" "$2"
+  [ -n "${3:-}" ] && printf 'update_key REGREF "%s"\n' "$3"
+  [ -n "${4:-}" ] && printf 'update_key REGREFSR "%s"\n' "$4"
+  return 0
 }
 
 # header_composite_provenance_lines <member.fit>...  -> update_key lines
