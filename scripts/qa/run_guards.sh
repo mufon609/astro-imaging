@@ -132,6 +132,7 @@ CHECKS=(
   "guard   check_manifest_verify|./scripts/qa/check_manifest_verify.sh"
   "guard   check_removal_conditions|./scripts/qa/check_removal_conditions.sh"
   "selftest check_registration_pins|./scripts/stack/check_registration_pins.sh --selftest"
+  "selftest check_compose_flags|./scripts/stack/check_compose_flags.sh --selftest"
   "selftest check_removal_conditions|./scripts/qa/check_removal_conditions.sh --selftest"
   "selftest wait_for|./scripts/lib/wait_for.sh --selftest"
   "selftest fingerprint|python3 scripts/lib/fingerprint.py --selftest"
@@ -149,6 +150,18 @@ CHECKS=(
   "selftest pa_convention [lib]|python3 datasets/aug06/corner_work/pa_convention.py --selftest"
   "selftest constancy_fit [lib]|python3 datasets/aug06/corner_work/constancy_fit.py --selftest"
 )
+
+# check_compose_flags's SELFTEST is in the roster above; its FULL RUN is NOT,
+# and this is a named omission rather than a forgotten row (the roster's own
+# stated failure mode). The guard is RED on this tree BY DESIGN: it reports that
+# three emitted commands leave --central / --ref undetermined
+# (run_corpus_combine.sh x2, run_session_chain.sh x1). Adding it here now would
+# turn pre-push red for every push until those are fixed, and the fix is
+# pixel-affecting — it changes the union solve and the multi-night composite's
+# reference, so it is gated on an A/B against the hand-built control, not on a
+# guard's convenience. ADD THE ROW IN THE COMMIT THAT GREENS IT. Until then the
+# selftest above proves the rules still fire, which is the half that can be
+# proven on a red tree.
 
 if [ "${1:-}" = "--list" ]; then
   printf 'run_guards: %d checks\n' "${#CHECKS[@]}"
