@@ -1800,8 +1800,10 @@ the owner amends `CLAUDE.md`'s "a commit stamps every artifact built after it"
 **What.** Two live sites derive WHICH SET a finish is routed as from sort
 position: `run_corpus_combine.sh:87` (`ls -d set-* | tail -1`; ASCII sorts
 digits before letters, so set-0a/0b's existence selects the spare bucket — two
-corpus records filed under `datasets/aug14/set-0b/qa_work/` and sit there
-tracked) and `run_session_chain.sh:117` (`--set="${SETS[-1]}"`, last set by
+corpus records filed under `datasets/aug14/set-0b/qa_work/`, since RELOCATED to
+`datasets/corpus/`, the corpus-record home their siblings use; the spcc one
+keeps the `set-0b` token in its name as the defect's own evidence) and
+`run_session_chain.sh:117` (`--set="${SETS[-1]}"`, last set by
 enumeration order, for the night combine's finish). Same shape smaller:
 `run_undistort_pipeline.sh:277` picks the acquisition-header donor frame —
 whose `DATE-OBS` the stamp restores — by GLOB order, on the route where
@@ -1824,14 +1826,21 @@ how the set-0b mis-filing happened.
 `CALSETS` naming its real sets, so a consumer handed `--set=X` can check
 X ∈ CALSETS, or refuse a singular set claim on `NMEMBER` > 1.
 
-**Closes when** the two routing sites derive the set from the data or record
-they serve (the corpus level has NO record home — the filing half rides
-`cross-set-record-home`, whose missing corpus-level reservation
-`datasets/corpus/corpus4_build_record.json` `_home` already names), the
-signature check lands where policy-by-name meets data-by-path, and the owner
-disposes of the two set-0b records (move under `datasets/corpus/`, or leave
-with a tombstone). The record-routing halves are pixel-neutral; the
-SPCC-spec-resolution half can change colour and is the owner's.
+**DONE (routing + check + relocation; measured colour-neutral):** both sites
+now derive session/set from the composed product's OWN `REGREF` (loud exit if
+absent or unstaged), `finish_render.sh` refuses a composite whose `--set` is
+neither in the CALSETS window nor the reference set (fire-tested both ways:
+the set-0b case stops at exit 1 with the named error before any tool runs),
+and the two mis-filed records are relocated to `datasets/corpus/`. Zero
+recipe.json carried an `spcc` block and zero geometry.json existed at the
+change, so no existing product's pixels could differ.
+
+**What remains OPEN here:** the glob-order acquisition-header donor
+(`run_undistort_pipeline.sh:277` — the fix is `frame_order.py`'s capture-order
+emit, but it re-times the ACQHDR donor on wrapped sets and deserves its own
+look), the starmask glob pick (`render_tier.sh:269`), and the real corpus-level
+record HOME (`cross-set-record-home` — records still file under the reference
+set's `qa_work/`, contributing but per-set-shaped).
 
 ## `capability-gaps` — real capabilities the pipeline lacks
 
