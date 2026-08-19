@@ -1,0 +1,44 @@
+{
+ "_what": "SCOPE MEASUREMENT for the ground-up rebuild \u2014 what actually changes under the current chain, measured per level BEFORE the rebuild rather than discovered during it.",
+ "why": "The 77-member corpus was built across SIX code eras (july31 5b48421; aug06/aug09 a mix of 82f67f8, f43e482, a1dc91b, 1791bb4, 3f1980d; aug14 e8aab41). Nobody had shown those eras agree. A full from-raws rebuild was proposed to make provenance uniform; this measured whether it was REPAIR or VERIFICATION first.",
+ "era_equivalence": {
+  "result": "ALL SIX ERAS PRODUCE BIT-IDENTICAL MEMBER PIXELS.",
+  "tests": [
+   {
+    "set": "aug09/set-03",
+    "eras": "82f67f8 + f43e482",
+    "differing": 0,
+    "of": 345491202
+   },
+   {
+    "set": "july31/set-01",
+    "eras": "5b48421",
+    "differing": 0,
+    "of": 345464670
+   },
+   {
+    "set": "aug06/set-01",
+    "eras": "a1dc91b + 3f1980d + 1791bb4",
+    "differing": 0,
+    "of": 346610448
+   }
+  ],
+  "total_pixels_compared": 1037566320,
+  "positive_control": "one pixel +0.01 -> 1 differing, max 0.01 \u2014 the comparison resolves a single pixel",
+  "reading": "the heterogeneous PIPEREV stamps are a LABELLING inconsistency, not a data one. A from-raws rebuild would reproduce these members exactly, at ~13 h, and buys a uniform stamp rather than a corrected pixel."
+ },
+ "what_the_current_chain_actually_changes": {
+  "members": "NOTHING \u2014 calibrate/warp/register/reject were not touched by the unit. Proven above.",
+  "per_set_stacks": "PIXELS UNCHANGED \u2014 composed by run_undistort_groups' own inline star-pair compose (final.ssf), NOT by run_undistort_compose, so the --ref work does not reach them. They gain SOLVCENT/SOLVMAXS at render.",
+  "night_combines": "PIXELS IDENTICAL \u2014 MEASURED: aug14's 25-member night recomposed under the current chain gives 0 differing of 124,943,751, same 7977x5221 canvas. The --ref derivation STANDS DOWN on a single night by design ('single night \u2014 AUTO is harmless'), so only the REGREF stamp is added (auto, index 1).",
+  "corpus_combine": "THE ONLY PIXEL CHANGE. Multi-night, so the derivation FIRES: canvas 8515x5666 -> 8540x5685, +0.63% area, same sky, REGREF=36:aug09/groups_set-02/sub_02.fit REGREFSR=derived. Plus the coverage rung makes its solve confident (was NO SOLUTION at the shipped invocation, now logodds 112)."
+ },
+ "rebuild_plan_predictions": {
+  "_note": "pre-registered so a deviation is a FINDING rather than a surprise",
+  "per_set_renders": "pixel-identical products; new SOLVCENT/SOLVMAXS keys only",
+  "night_combines": "pixel-identical; new REGREF/REGREFSR keys only",
+  "corpus": "canvas +0.63%, confident solve, derived reference \u2014 a DECLARED DELTA, and the baseline must be re-seeded when it is accepted"
+ },
+ "not_rebuilt": "members (from-raws). Skipped on the measurement above, not on convenience: it would cost ~13 h to reproduce pixels shown identical across 1.04 billion comparisons.",
+ "july27": "out of scope \u2014 3.0 s exposure against the corpus's uniform 2.5 s (see NOT_included in corpus4_build_record.json)"
+}
