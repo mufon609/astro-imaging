@@ -56,6 +56,7 @@
 set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/stack/calibrate_light.sh"  # the ONE light-calibrate command (check_calibrate.sh)
 SESSION=${1:?usage: fit_lens_model.sh <session-dir> <set> --dark= --flat= --hfov= [--frames=12]}
 SET=${2:?missing <set>}
 DARK= FLAT= HFOV= FRAMES=12 OUTJSON=
@@ -92,8 +93,13 @@ for i in range($FRAMES):
     s = src[round(i*(len(src)-1)/($FRAMES-1))]
     os.symlink(os.path.abspath(s), os.path.join(dst, os.path.basename(s)))
 PY
-printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\ncalibrate c -dark=%s -flat=%s -cfa -equalize_cfa -debayer -prefix=pp_\n' \
-  "$P/nef" "$P/proc" "$P/proc" "$DARK" "$FLAT" > "$P/c.ssf"
+# The shared command injects -cc=dark 3 3, which the hand-written line here
+# omitted entirely. On THIS path that also protects the fit: hot pixels sit at
+# fixed sensor positions across drifting frames, so uncorrected they offer
+# cpfind zero-motion correspondences the star field contradicts. This script
+# is PROVISIONAL as-written; its first end-to-end run tests this leg too.
+printf 'requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd %s\nconvert c -out=%s\ncd %s\n%s\n' \
+  "$P/nef" "$P/proc" "$P/proc" "$(calibrate_light_cmd c "$DARK" -flat="$FLAT" -cfa -equalize_cfa -debayer -prefix=pp_)" > "$P/c.ssf"
 sir "$P/c.ssf"
 i=0
 for f in "$P/proc"/pp_c_*.fit; do

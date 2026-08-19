@@ -38,6 +38,7 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
+source "$REPO/scripts/stack/calibrate_light.sh"  # the ONE light-calibrate command (check_calibrate.sh)
 S="${1:?usage: run_lunar_pipeline.sh <session-dir> <set> <stage> [options]}"
 SET="${2:?set name required}"
 STAGE="${3:?stage required: prep|stage|calibrate|register|verify|stack|sharpen|wb|surfaces}"
@@ -102,8 +103,11 @@ stage)
   ;;
 
 calibrate)
-  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd work/crop_%s\nlink moon -out=.\ncalibrate moon -dark=../masters/dark_master_crop_%s -cfa -debayer -cc=dark\nclose\n' \
-    "$SET" "$SET" > "$W/calibrate_$SET.gen.ssf"
+  # the shared command injects -cc=dark 3 3 — the hand-written line here read
+  # bare `-cc=dark`, which siril's own help defines as HOT-ONLY at sigma 3:
+  # the cold pixels went uncorrected on this route
+  printf 'requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\ncd work/crop_%s\nlink moon -out=.\n%s\nclose\n' \
+    "$SET" "$(calibrate_light_cmd moon "../masters/dark_master_crop_$SET" -cfa -debayer)" > "$W/calibrate_$SET.gen.ssf"
   siril_run "$S" "$W/calibrate_$SET.gen.ssf" > "$W/calibrate_$SET.log" 2>&1
   echo "CALIBRATE OK: $(ls "$CROP"/pp_moon_*.fit | wc -l) frames"
   ;;
@@ -118,7 +122,7 @@ register)
     exit 0
   fi
   if [[ -f "$CROP/pp_moon_.seq" ]]; then
-    printf 'requires 1.4.0\ncd work/crop_%s\nselect pp_moon 1 %s\nsetref pp_moon %s\nclose\n' "$SET" "$n" "$mid" > "$W/setref_$SET.gen.ssf"
+    printf 'requires 1.4.0\nsetcompress 0\ncd work/crop_%s\nselect pp_moon 1 %s\nsetref pp_moon %s\nclose\n' "$SET" "$n" "$mid" > "$W/setref_$SET.gen.ssf"
     siril_run "$S" "$W/setref_$SET.gen.ssf" > "$W/setref_$SET.log" 2>&1
     echo "reference set to frame $mid of $n (mid-sequence: max |shift| stays under the +/- min(w,h)/2 aliasing bound)"
   else
@@ -143,7 +147,7 @@ verify)
   [[ -f "$seq" ]] || { echo "VERIFY FAIL: no .seq" >&2; exit 1; }
   n=$(ls "$CROP"/pp_moon_*.fit | wc -l)
   # selection repair (failed runs leave deselection debris + a broken counter)
-  printf 'requires 1.4.0\ncd work/crop_%s\nselect pp_moon 1 %s\nclose\n' "$SET" "$n" > "$W/verifysel_$SET.gen.ssf"
+  printf 'requires 1.4.0\nsetcompress 0\ncd work/crop_%s\nselect pp_moon 1 %s\nclose\n' "$SET" "$n" > "$W/verifysel_$SET.gen.ssf"
   siril_run "$S" "$W/verifysel_$SET.gen.ssf" > /dev/null 2>&1
   # null-H refusal + aliasing margin + span sanity, from the tool's own regdata
   read -r bw bh < <(python3 -c "import json;b=json.load(open('$DS/staging_crop.json'))['box_xywh'];print(b[2],b[3])")
@@ -189,7 +193,7 @@ wb)
   read -r dx dy dr <<<"$D"
   half=$(python3 -c "print(int($dr/1.4142/2)*2)")
   bx=$((dx-half)); by=$((dy-half)); bw=$((half*2)); bh=$((half*2))
-  printf 'requires 1.4.0\ncd ../../web/results/%s\nload stack_%s_%s\nboxselect %s %s %s %s\nstat main\nclose\n' \
+  printf 'requires 1.4.0\nsetcompress 0\ncd ../../web/results/%s\nload stack_%s_%s\nboxselect %s %s %s %s\nstat main\nclose\n' \
     "$SESSION" "$SET" "$SRC" $bx $by $bw $bh > "$W/wbmeasure_$SET.gen.ssf"
   siril_run "$S" "$W/wbmeasure_$SET.gen.ssf" > "$W/wbmeasure_$SET.log" 2>&1
   eval "$(grep 'layer:' "$W/wbmeasure_$SET.log" | sed -E 's/.*(Red|Green|Blue) layer:.*Median: ([0-9.]+),.*/med_\1=\2/' | tr 'RGB' 'rgb' | sed 's/reen//;s/lue//;s/ed//')"
@@ -210,7 +214,7 @@ surfaces)
   mkdir -p "$RESULTS/judge"
   maxall=0
   for t in "$@"; do
-    printf 'requires 1.4.0\ncd ../../web/results/%s\nload stack_%s_%s\nstat main\nclose\n' "$SESSION" "$SET" "$t" > "$W/surfstat.gen.ssf"
+    printf 'requires 1.4.0\nsetcompress 0\ncd ../../web/results/%s\nload stack_%s_%s\nstat main\nclose\n' "$SESSION" "$SET" "$t" > "$W/surfstat.gen.ssf"
     m=$(siril_run "$S" "$W/surfstat.gen.ssf" 2>&1 | grep 'layer:' | sed -E 's/.*Max: ([0-9.]+),.*/\1/' | sort -rn | head -1)
     maxall=$(python3 -c "print(max($maxall,$m))")
   done

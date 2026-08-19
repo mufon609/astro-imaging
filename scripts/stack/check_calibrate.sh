@@ -16,19 +16,24 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 grep -q -- '-cc=dark 3 3' calibrate_light.sh \
   || fail "calibrate_light.sh no longer injects -cc=dark 3 3"
 
-for b in run_pipeline.sh run_undistort_pipeline.sh; do
+for b in run_pipeline.sh run_undistort_pipeline.sh run_lunar_pipeline.sh \
+         ../darktable/fit_lens_model.sh; do
   grep -q 'calibrate_light_cmd' "$b" || fail "$b does not call calibrate_light_cmd"
 done
 
-# A LIGHT calibrate uses sequence name 'light' or 'c'; flats/darks use other
-# names and legitimately calibrate without -cc. Any hand-written light calibrate
-# outside the shared function (and this guard) is a divergence.
+# Any hand-written `calibrate <seq> -dark=` outside the shared function is a
+# divergence, WHATEVER the sequence name and WHEREVER under scripts/ it lives.
+# The previous pattern keyed on `light|c` and the previous scan root was this
+# directory, and BOTH holes fired at once: `calibrate moon -dark= ... -cc=dark`
+# (bare -cc=dark is HOT-ONLY at sigma 3 per siril's own help — the mandated
+# `3 3` adds the cold pixels) and scripts/darktable's `calibrate c -dark=`
+# with no -cc at all.
 # Exclusion: build_sky_flat.sh calibrates lights as FLAT SOURCE frames (dark-
 # subtract only, deliberately no -cc — star/speck rejection is the winsorized
 # flat stack's job, and the lights themselves get -cc=dark 3 3 in their own
 # calibration), so its `calibrate c -dark=` is not a light-calibrate bypass.
-hand=$(grep -rnE 'calibrate +(light|c) +-dark=' --include='*.sh' --include='*.tmpl' . \
-       | grep -vE 'calibrate_light\.sh:|check_calibrate\.sh:|build_sky_flat\.sh:' || true)
+hand=$(grep -rnE 'calibrate +[A-Za-z0-9_]+ +-dark=' --include='*.sh' --include='*.tmpl' .. \
+       | grep -vE '/calibrate_light\.sh:|/check_calibrate\.sh:|/build_sky_flat\.sh:' || true)
 [ -z "$hand" ] || { echo "FAIL: hand-written light calibrate bypasses calibrate_light_cmd:" >&2
                     echo "$hand" >&2; exit 1; }
 
