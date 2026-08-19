@@ -48,6 +48,15 @@ the pinned `lensdist` and `nodist` styles (the same one-knob pair the route
 ships, differing only in the module's enabled bit) and let Siril measure the
 difference. Zero difference = no profile matched = STOP.
 
+REMOVAL CONDITION (the pinned-model XML scan): check_pinned_model reads the
+lensfun user-DB XML as TEXT and compares the literal a/b/c for this exact
+lens@focal — deliberately not lensfun's fuzzy matcher, which stays the tool's.
+Retire the scan the day lensfun/darktable expose a headless query of the
+INSTALLED model's coefficients for a given lens@focal (Debian ships no such
+CLI today — above), or the day the chain consumes the model other than through
+the lensfun user DB. Registered in BACKLOG `removal-conditions` (condition
+authored by audit — this leg declared none; PENDING OWNER RATIFICATION).
+
 That proof catches the silent no-op. It does NOT catch lensfun fuzzy-matching a
 correct EXIF string to a wrong DB entry — that warp is non-zero, so it passes.
 Checks 1 and 2 above bound that risk (the EXIF must be uniform and must match

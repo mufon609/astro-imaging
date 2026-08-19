@@ -101,6 +101,14 @@ coverage_frame.py makes the rung print why and stand down; it never raises. A
 rescue path that can itself throw converts a recoverable failure into a hard
 error, which is worse than having no rescue.
 
+REMOVAL CONDITION (the coverage rung): retire it the day the astrometry.net
+engine itself accepts a detection-region/subarea constraint — the rung exists
+because the blind engine consumes the full xylist or nothing, so confining the
+solve to the covered region means re-deriving what is handed to it. Registered
+in BACKLOG `removal-conditions` (condition authored by audit — the rung
+shipped with a LIMITS block and no retirement trigger; PENDING OWNER
+RATIFICATION).
+
 KNOWN LIMIT — THE RUNG IS FOREGROUND-BLIND AND THE DETECTOR IS NOT. The
 fraction is derived from `coverage_frame.py`, which measures Siril box Min over
 the whole canvas and has NO notion of the terrestrial foreground (zero
