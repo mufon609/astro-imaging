@@ -55,6 +55,50 @@ for during a failed union solve excludes nothing while reading like a recovery
 attempt. Fraction-of-frame is what both this file and finish_render.sh
 describe.
 
+THE COVERAGE RUNG — --central IS DERIVED, BUT ONLY AS A RESCUE. When a solve
+returns NO SOLUTION or lands FLOOR-CLASS (logodds < LOGODDS_FLOOR) and the
+caller named no --central, this measures the canvas's covered region with
+scripts/qa/coverage_frame.py (Siril does every pixel read: one `load` plus
+`boxselect`+`stat` per grid box), takes the largest CENTRED box inscribed in
+the covered rectangle, and re-solves with that fraction. The better of the two
+solutions wins, so the rung cannot lower a result it was called to rescue.
+
+WHY A LADDER AND NOT A DERIVED DECISION — measured, same stack, same hint,
+--central the only knob:
+    probe union   32.7 Mpx   no --central 144   at 0.692 -> 113   (-31)
+    night combine 41.6 Mpx   no --central 114   at 0.617 -> 102   (-12)
+    four-night    48.2 Mpx   no --central NO SOLUTION  at 0.694 -> 134
+All three are framing=max unions carrying uncovered rim BY CONSTRUCTION, so rim
+presence cannot decide anything: --central helps one and costs the other two 12
+and 31 points. A canvas that already solves confidently never reaches this rung
+and therefore cannot be regressed by it — true by construction, not by
+measurement. It also means this design never asks what makes a union starve
+(canvas size or seam fraction), which is a question the registry logs UNCHECKED.
+The derived value BEATS a hand-picked one: on the corpus 0.694 posts 134 where
+0.5 posts 106.
+
+THE FLOOR THE RUNG USES IS UNTUNED BECAUSE THE DATA IS BIMODAL — NOT BECAUSE IT
+IS ROBUST. It takes half the covered population's median Siril Min. On all three
+canvases measured, boxes are either 0 or >=133 with `edge_band_boxes = 0`, so
+every cut from ~30 to ~130 yields the identical rectangle and the floor is
+IRRELEVANT rather than validated. A canvas with a GRADED rim — partial-depth
+edges instead of a hard covered/empty split — would exercise it, and none of
+these three do. That case is UNTESTED.
+
+THE DEPENDENCY IS SOFT BY CONTRACT. A missing, erroring or unusable
+coverage_frame.py makes the rung print why and stand down; it never raises. A
+rescue path that can itself throw converts a recoverable failure into a hard
+error, which is worse than having no rescue.
+
+WHICH RECORD IS THE DURABLE ONE. The rung writes `<stem>_coverage.json` beside
+the product, matching `compose_gate_*.json` and `solve_*.json` — but
+`web/results/` is GITIGNORED, so that file is WORKING EVIDENCE and may not
+survive. **`SOLVCENT` on the injected artifact is the durable record of the
+value used**; the JSON is only the evidence for how it was derived. Do not
+re-derive from the JSON a number the header already carries — that is the
+failure this repo already paid for, when a composite's registration reference
+had to be reconstructed from gate records that outlived their run by luck.
+
 Index scales load CACHED-FIRST: the field-derived set splits into scales
 whose index series are fully cached vs those needing download, and the
 cached tier is attempted first (a narrow field's derived set reaches the
@@ -390,6 +434,99 @@ def contradictions(match, pos, pos_src, nominal):
     return out
 
 
+# --------------------------------------------------------------------------
+# THE COVERAGE RUNG's instrument. SOFT BY CONTRACT: every failure path returns
+# (None, reason) and never raises, because this sits on a RESCUE path — a
+# fallback that can itself throw converts a recoverable solve failure into a
+# hard error, which is worse than having no fallback at all.
+#
+# Every pixel here is Siril's: scripts/qa/coverage_frame.py drives one `load`
+# plus `boxselect`+`stat` per grid box and reports the largest all-covered
+# rectangle. The in-house part is one geometric step that instrument does not
+# provide — the largest CENTRED box inscribed in that rectangle, which is what
+# --central takes (it keeps |dx| <= frac*w/2, |dy| <= frac*h/2 about the frame
+# centre, so an off-centre rectangle cannot be used directly).
+COVERAGE_GRID = "40x26"          # 1040 boxes: ~2 s at 32.7 Mpx, ~3 s at 48.2 Mpx,
+                                 # and a frac resolution of ~1/20 per axis, which
+                                 # is the +-0.05 this rung needs and no finer.
+
+
+def _tail(r):
+    """Last meaningful line of a failed subprocess — a bare exit code is not a
+    diagnosis, and this sits on a path that SKIPS rather than raising, so the
+    message is the only trace the failure leaves."""
+    for stream in (r.stderr, r.stdout):
+        lines = [ln.strip() for ln in (stream or "").splitlines() if ln.strip()]
+        if lines:
+            return lines[-1][:160]
+    return "no output"
+
+
+def wdir_for(src):
+    """The session work dir beside the product, else the product's own dir. Both
+    are under $HOME, which the Siril flatpak requires of anything it must read."""
+    w = os.path.normpath(os.path.join(os.path.dirname(src), "..", "work"))
+    return w if os.path.isdir(w) else (os.path.dirname(src) or ".")
+
+
+def derive_central_from_coverage(src, workdir):
+    """-> (frac, info) or (None, reason). Never raises."""
+    cf = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                      "..", "qa", "coverage_frame.py")
+    if not os.path.isfile(cf):
+        return None, "scripts/qa/coverage_frame.py is not present"
+    out = os.path.join(workdir,
+                       os.path.splitext(os.path.basename(src))[0] + "_coverage.json")
+    try:
+        # Pass 1 measures only (no --floor) so the floor is DERIVED from this
+        # canvas's own distribution rather than carried in from another.
+        # NOTE THE `=`: coverage_frame parses only `--opt=value` (it keeps argv
+        # entries containing "="), so `--grid 40x26` silently drops the option
+        # AND leaves "40x26" as a positional. Measured: it exits 1.
+        r = subprocess.run([sys.executable, cf, src, out, f"--grid={COVERAGE_GRID}"],
+                           capture_output=True, text=True, timeout=1800)
+        if r.returncode != 0 or not os.path.isfile(out):
+            return None, f"coverage_frame exited {r.returncode}: {_tail(r)}"
+        rec = json.load(open(out))
+        vals = sorted(c["min"].get(rec.get("channel", "Green"), 0.0)
+                      for c in rec.get("cells", []))
+        nz = [v for v in vals if v > 0.0]
+        if not nz or len(nz) == len(vals):
+            return None, ("no uncovered box on this canvas — nothing to exclude"
+                          if nz else "no covered box at all")
+        # THE FLOOR: half the covered population's median Min. It separates two
+        # populations rather than sitting on a tuned edge — on the canvases
+        # measured here the boxes are 0 or >=133 with ZERO in between, so every
+        # cut from ~30 to ~130 gives the same rectangle. See the caveat in the
+        # record: that makes the floor IRRELEVANT on bimodal data, not validated.
+        floor = 0.5 * nz[len(nz) // 2]
+        r = subprocess.run([sys.executable, cf, src, out, f"--grid={COVERAGE_GRID}",
+                            f"--floor={floor:.3f}"],
+                           capture_output=True, text=True, timeout=1800)
+        if r.returncode != 0:
+            return None, f"coverage_frame (floored) exited {r.returncode}: {_tail(r)}"
+        rec = json.load(open(out))
+        W, H = rec["canvas_wh"]
+        x, y, bw, bh = rec["rect_fits"]
+        cx, cy = W / 2.0, H / 2.0
+        hw = min(cx - x, x + bw - cx)
+        hh = min(cy - y, y + bh - cy)
+        if hw <= 0 or hh <= 0:
+            return None, ("the covered rectangle does not contain the frame "
+                          "centre — no centred box exists")
+        frac = min(2.0 * hw / W, 2.0 * hh / H)
+        if not 0.0 < frac < 1.0:
+            return None, f"derived fraction {frac:.3f} is not a usable restriction"
+        return frac, {"floor": round(floor, 3), "record": out,
+                      "covered_frac_of_canvas": rec.get("rect_frac_of_canvas"),
+                      "edge_band_boxes": rec.get("edge_band_boxes"),
+                      "frac_x": round(2.0 * hw / W, 4),
+                      "frac_y": round(2.0 * hh / H, 4),
+                      "binding_axis": "y" if (2.0 * hh / H) < (2.0 * hw / W) else "x"}
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as e:
+        return None, f"{type(e).__name__}: {e}"
+
+
 def inject(src, dst, wcs, logodds, central=None, max_stars=None):
     """Write a WCS-injected copy via astropy: the solver's WCS cards replace any
     existing ones; every other header card and the exact pixel data are preserved
@@ -510,13 +647,78 @@ def main():
         attempts.append((tlabel, tset, pos))
         if pos is not None and pos_src == "header":
             attempts.append((f"{tlabel} + blind", tset, None))
-    m = winning = None
-    for alabel, aset, apos in attempts:
-        print(f"[solve_field] attempt [{alabel}]")
-        m = solve(stars, hint=hint, scales=aset, pos=apos, required=False)
-        if m is not None:
-            winning = (alabel, sorted(aset), apos)
-            break
+    def run_attempts(star_list, tag=""):
+        for alabel, aset, apos in attempts:
+            print(f"[solve_field] attempt [{alabel}{tag}]")
+            mm = solve(star_list, hint=hint, scales=aset, pos=apos, required=False)
+            if mm is not None:
+                return mm, (alabel + tag, sorted(aset), apos)
+        return None, None
+
+    m, winning = run_attempts(stars)
+
+    # ---- THE COVERAGE RUNG ---------------------------------------------------
+    # A UNION CANVAS THAT STARVES IS RESCUED BY RESTRICTING DETECTION TO THE
+    # COVERED REGION — but only one that starves. MEASURED, same stack, same
+    # hint, --central the only knob:
+    #     probe  32.7 Mpx   no --central 144   at 0.692 -> 113   (-31)
+    #     night  41.6 Mpx   no --central 114   at 0.617 -> 102   (-12)
+    #     corpus 48.2 Mpx   no --central NO SOLUTION   at 0.694 -> 134
+    # So --central HELPS ONE AND HARMS TWO, and every one of the three is a
+    # framing=max union carrying uncovered rim by construction. Rim presence
+    # therefore cannot decide whether to apply it, and this is a LADDER rather
+    # than a predictor: a canvas that already solves confidently never reaches
+    # this rung and cannot be regressed by it. That is true by construction, not
+    # by measurement, and it is why this design does not rest on the UNCHECKED
+    # question of what makes a union starve (canvas size or seam fraction —
+    # docs/dead-ends.md). It never asks.
+    #
+    # The trigger is NO SOLUTION *or* FLOOR-CLASS. A floor-class SUCCESS must
+    # escalate too: the corpus returned logodds 63 — a solve, below
+    # LOGODDS_FLOOR — and a no-solution-only trigger would ship that unrescued,
+    # which is the artifact whose bad solve this rung exists for.
+    #
+    # The coverage-derived value is not merely safe, it BEATS the hand-picked
+    # one: on the corpus 0.694 posts 134 against 0.5's 106.
+    #
+    # An explicit --central from the caller wins outright and this never runs:
+    # a stated restriction is intent, not a default to second-guess.
+    coverage_note = None
+    if central is None and (m is None or m.logodds < LOGODDS_FLOOR):
+        why = "NO SOLUTION" if m is None else f"logodds {m.logodds:.0f} < {LOGODDS_FLOOR:.0f}"
+        print(f"[solve_field] {why} — trying the COVERAGE RUNG "
+              "(restrict detection to the measured covered region)")
+        frac, info = derive_central_from_coverage(src, wdir_for(src))
+        if frac is None:
+            # SOFT: the rescue path must not turn a recoverable failure into a
+            # hard error, so a missing or unhappy instrument is stated and skipped.
+            print(f"[solve_field] coverage rung SKIPPED — {info}")
+            coverage_note = f"skipped: {info}"
+        else:
+            print(f"[solve_field] coverage rung: --central={frac:.3f} "
+                  f"(covered {info['covered_frac_of_canvas']:.1%} of canvas, "
+                  f"binding axis {info['binding_axis']}, floor {info['floor']}, "
+                  f"edge-band boxes {info['edge_band_boxes']})")
+            stars2, _h2, _w2 = fn(src, central=frac, max_stars=max_stars)
+            print(f"[solve_field] {len(stars2)} stars via sep within the "
+                  f"central {frac:.3f} of frame")
+            m2, winning2 = run_attempts(stars2, tag=" +coverage-central")
+            # KEEP THE BETTER, not simply the later: a rescue that lands lower
+            # than a floor-class original is not an improvement, and silently
+            # preferring it would be a rung that can regress its own input.
+            if m2 is not None and (m is None or m2.logodds > m.logodds):
+                print(f"[solve_field] coverage rung ACCEPTED "
+                      f"({'no prior solution' if m is None else f'{m.logodds:.0f} -> {m2.logodds:.0f}'})")
+                m, winning, central = m2, winning2, frac
+                coverage_note = {"applied": True, "central": round(frac, 4), **info}
+            else:
+                got = "no solution" if m2 is None else f"{m2.logodds:.0f}"
+                print(f"[solve_field] coverage rung REJECTED — it returned {got}, "
+                      f"not better than the existing {m.logodds:.0f}" if m is not None
+                      else f"[solve_field] coverage rung REJECTED — {got}")
+                coverage_note = {"applied": False, "central_tried": round(frac, 4),
+                                 "logodds_tried": (None if m2 is None else round(m2.logodds, 1)),
+                                 **info}
     if m is None:
         sys.exit("solve_field: NO SOLUTION")
     print(f"[solve_field] SOLVED: RA {m.center_ra_deg:.3f} "
@@ -584,12 +786,11 @@ def main():
     # (spcc_run writes work/spcc_<set>.json; a wrong solve needs the same
     # after-the-fact trail: what was detected, hinted, loaded, and found)
     stem = os.path.splitext(os.path.basename(src))[0]
-    wdir = os.path.normpath(os.path.join(os.path.dirname(src), "..", "work"))
-    if not os.path.isdir(wdir):
-        wdir = os.path.dirname(src) or "."
+    wdir = wdir_for(src)
     rec = {"input": src, "detector": detector,
            "n_stars_detected": len(stars),
            "central": central, "max_stars": max_stars,
+           "coverage_rung": coverage_note,
            "position_hint": winning[2], "position_hint_source": pos_src,
            "attempt": winning[0],
            "field_width_arcmin_arg": width_arcmin,
