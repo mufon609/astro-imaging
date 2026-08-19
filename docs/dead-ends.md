@@ -1684,8 +1684,41 @@ the constraints any such tool must satisfy):
   the composite's raw channel balance — `setref <n>` AFTER the 2pass re-bases
   both (a set-02-referenced compose read K_B 0.846 = that set's own balance and
   a rotated frame map; set-03-family reference restored K_B 0.951 and an exact
-  map); and a crop-coverage guard of `Min > 0` PASSES on lanczos edge-ringing
-  residue (Min 7–26 on a ~90 sky) — require the SIBLING-CLASS SKY FLOOR
+  map);
+  **SCOPE OF THOSE TWO NUMBERS, ADDED BECAUSE THEY WERE QUOTED OUT OF IT TWICE:
+  they are STAR-PAIR-route measurements** — the sentence says so in its own
+  wording (*"AFTER the 2pass"*) and `register -2pass` is now the REGRESSION ARM
+  behind `--starpair`, not the shipped route. The shipped route is
+  `seqplatesolve`. The mechanism was RE-MEASURED there and the practical claim
+  SURVIVES while the stated mechanism does not: one knob (4 members, 2 nights,
+  same framing/weight/order, only `--ref` moved) gives canvas 7071×4629 →
+  7095×4622, north +9.6244° → +7.7633°, centre-median R/G/B [39.9, 157.4, 116.9]
+  → [26.9, 90.5, 47.6], B/G 0.7427 → 0.5260 (Siril `stat` via
+  `scripts/qa/regional_stat.py`, box 400 margin 200). **So the reference is LIVE
+  on the astrometric route — but the canvas does NOT inherit the reference's
+  orientation there**: m_1's own north is −164.85° and its canvas is +9.62°. It
+  TRACKS the reference without equalling it, and the relation is uncharacterised
+  (two points). The `-framing=max` canvas differed by 24×7 px between arms, so
+  the centre box samples slightly different sky — that BOUNDS the balance shift,
+  it does not isolate it. **Do not cite the K_B pair as evidence about the
+  shipped route, and do not cite the astrometric numbers as evidence about
+  star-pair.**
+  **AUTO IS INDEX 0, NOT A RANKING** — verified across ten `compose_gate_*.json`
+  records at 13/17/22/25/52/77 members, every one `reference_member = s_00001`,
+  and confirmed by a probe whose auto arm measured **0 differing pixels of
+  98,194,977** against an explicit `--ref=1`. A build record asserting the
+  auto-pick *"ranks over the whole member pool"* was wrong. The consequence is
+  narrower and sharper than a ranking: **the reference is whatever sorts FIRST**,
+  so appending a night re-bases nothing and reordering the arguments re-bases
+  everything.
+  **THE REFERENCE IS NOW ON THE ARTIFACT** (`REGREF`/`REGREFSR`, siril's own
+  value parsed from the `.seq`) — before that it survived only in
+  `compose_gate_*.json`, which outlive the run only because they are written
+  outside the scratch dir `rm -rf "$W"` deletes. Products built earlier carry no
+  `REGREF` and are not backfilled; the corpus's is in
+  `datasets/corpus/corpus4_build_record.json`.
+  Also measured alongside: a crop-coverage guard of `Min > 0` PASSES on
+  lanczos edge-ringing residue (Min 7–26 on a ~90 sky) — require the SIBLING-CLASS SKY FLOOR
   (Min ≈ 80s here), never mere non-zero.
   **THE SAME PIN ALSO MOVES THE CANVAS SIZE, AND A ONE-SET VERIFICATION OF IT
   CAN BE FOOLED BY COINCIDENCE.** MEASURED on aug06, identical members proven
@@ -2658,6 +2691,43 @@ SILENT — pin the state, never inherit it):
   are listed by `help` and refuse at runtime. **A doc establishes the claim; a
   probe settles it.** `save -chksum` was put through both, and siril's checksum
   arithmetic then matched astropy's on identical bytes.
+  **AND THE TEST ABOVE IS NOT SUFFICIENT — MEASURED, ON A CASE THAT PASSES IT AND
+  STILL FAILED. "ASK WHAT DIFFERED" IS ANSWERED CORRECTLY AND THE CONVERGENCE IS
+  STILL WRONG, WHEN WHAT DIFFERED IS THE APPARATUS AND WHAT IS SHARED IS THE
+  INFERENCE.** Two sessions asked whether siril's registration reference still
+  matters on the SHIPPED astrometric route. Both measured composite-versus-member
+  orientation, with DIFFERENT conventions and independently: −0.44°/+0.32° and
+  −0.45°/−0.73° for the composites against members at −164.77°/+164.35°/−176.57°
+  and −164.85°/+165.07°. Both concluded *"the composite inherits no member's
+  orientation, therefore the reference does not matter"*, and one wrote it into a
+  tracked record. **The measurements were right, agreed to the degree, and were
+  taken by different means — the replication test above is satisfied.** The
+  conclusion was false: a one-knob probe (same 4 members, 2 nights, same framing
+  and weight, only `--ref` moved) gives canvas 7071×4629 → 7095×4622, north
+  +9.6244° → +7.7633°, centre-median G 157.4 → 90.5, B/G 0.7427 → 0.5260.
+  **THE MECHANISM: an OBSERVATIONAL comparison cannot isolate a knob, and neither
+  session moved one.** Composite-versus-member is a comparison between two
+  populations; *"does the reference change the product"* is causal. Measuring the
+  observation more carefully, twice, by two conventions, leaves the causal step
+  entirely untouched — so the second measurement corroborated the first exactly
+  where it was already blind. **THE SHARPER RULE: vary what the CONCLUSION rests
+  on, not what the apparatus measures. If the claim is causal, the differing thing
+  must be the knob.** The existing entry's *"different KIND of check"* is right and
+  under-specified: every worked example above is a different READER of the same
+  tree, and here two different readers with two different instruments both missed
+  it. What caught it was an EXPERIMENT.
+  **COMPANION, FOUND INSIDE THAT SAME PROBE — AN INSTRUMENT WHOSE FAILURE SIGNAL
+  IS ITS OWN ARTEFACT.** The probe's pre-registration declared bit-identity by
+  `md5sum`, and all three arms differed, which by its own stated rule voided it.
+  The difference was the FITS `DATE` card alone — siril stamps a write time, so
+  two pixel-identical products NEVER md5-match. **md5 of a FITS is not a pixel
+  comparison.** Read at face value it would have reported the positive control
+  failing and buried a live finding. Same shape as `stat` printing *"stats
+  failed"* on an all-zero difference (which is that test's SUCCESS signal), one
+  level up: there the artefact is in the tool's output, here it is in the choice
+  of instrument. The comparison that settled it was per-pixel with a planted
+  +0.01 control: **0 differing of 98,194,977 between the auto arm and an explicit
+  `--ref=1`, control 1 differing.**
   **AND THE MIRROR OF THAT IS THE EXPENSIVE DIRECTION: A LISTING'S *ABSENCE*
   RETIRING A CAPABILITY THAT EXISTS. `listed` IS NOT `exhaustive`.** A listing's
   PRESENCE manufacturing a capability opens a dead route and the next probe kills
