@@ -3,6 +3,8 @@
  "detector": "sep",
  "n_stars_detected": 400,
  "central": null,
+ "max_stars": 400,
+ "coverage_rung": null,
  "position_hint": [
   313.704668434673,
   42.7637151522581,
@@ -15,6 +17,14 @@
   10.501835244022098,
   26.254588110055245
  ],
+ "header_scale_arcsec_px": 17.50305874003683,
+ "hint_available": [
+  313.704668434673,
+  42.7637151522581,
+  15.0
+ ],
+ "contradictions": [],
+ "contradiction_accepted": false,
  "index_scales": [
   11,
   12,

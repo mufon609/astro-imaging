@@ -2,7 +2,7 @@
  "_what": "SCOPE MEASUREMENT for the ground-up rebuild \u2014 what actually changes under the current chain, measured per level BEFORE the rebuild rather than discovered during it.",
  "why": "The 77-member corpus was built across SIX code eras (july31 5b48421; aug06/aug09 a mix of 82f67f8, f43e482, a1dc91b, 1791bb4, 3f1980d; aug14 e8aab41). Nobody had shown those eras agree. A full from-raws rebuild was proposed to make provenance uniform; this measured whether it was REPAIR or VERIFICATION first.",
  "era_equivalence": {
-  "result": "ALL SIX ERAS PRODUCE BIT-IDENTICAL MEMBER PIXELS.",
+  "result": "SIX OF SEVEN ERAS ARE MEASURED EQUIVALENT. THE SEVENTH IS A CODE-PATH ARGUMENT, NOT A MEASUREMENT \u2014 this field previously said 'ALL SIX ERAS ... Proven above', which was wrong on BOTH counts and is corrected here.",
   "tests": [
    {
     "set": "aug09/set-03",
@@ -25,7 +25,9 @@
   ],
   "total_pixels_compared": 1037566320,
   "positive_control": "one pixel +0.01 -> 1 differing, max 0.01 \u2014 the comparison resolves a single pixel",
-  "reading": "the heterogeneous PIPEREV stamps are a LABELLING inconsistency, not a data one. A from-raws rebuild would reproduce these members exactly, at ~13 h, and buys a uniform stamp rather than a corrected pixel."
+  "reading": "the heterogeneous PIPEREV stamps are a LABELLING inconsistency, not a data one. A from-raws rebuild would reproduce these members exactly, at ~13 h, and buys a uniform stamp rather than a corrected pixel.",
+  "era_count_correction": "There are SEVEN eras across the 77 members, not six: e8aab41 x25 (all aug14), 5b48421 x17, f43e482 x14, 82f67f8 x10, a1dc91b x6, 1791bb4 x3, 3f1980d x2. The three tests below cover six of them. e8aab41 \u2014 the LARGEST at 25 of 77 members, 32% \u2014 is NOT among them.",
+  "how_the_seventh_closes": "MECHANISM, not measurement: every member-building script is UNCHANGED between e8aab41 and HEAD \u2014 run_undistort_groups.sh, run_undistort_pipeline.sh, calibrate_light.sh, build_master_dark.sh, build_sky_flat.sh, stack_rejection.sh, install_lens_model.sh, siril_run.sh. stamp_headers.sh IS sourced by the groups builder and DID change, so it was checked specifically: the builder calls header_registration_lines with two args and the additions are guarded on a third, so member headers are unaffected. That is a sound argument and it is NOT the same evidence as a pixel comparison. Recorded as MECHANISM so a later reader does not quote it as measured."
  },
  "what_the_current_chain_actually_changes": {
   "members": "NOTHING \u2014 calibrate/warp/register/reject were not touched by the unit. Proven above.",
@@ -39,6 +41,7 @@
   "night_combines": "pixel-identical; new REGREF/REGREFSR keys only",
   "corpus": "canvas +0.63%, confident solve, derived reference \u2014 a DECLARED DELTA, and the baseline must be re-seeded when it is accepted"
  },
- "not_rebuilt": "members (from-raws). Skipped on the measurement above, not on convenience: it would cost ~13 h to reproduce pixels shown identical across 1.04 billion comparisons.",
- "july27": "out of scope \u2014 3.0 s exposure against the corpus's uniform 2.5 s (see NOT_included in corpus4_build_record.json)"
+ "not_rebuilt": "members (from-raws). Skipped on the evidence above: six eras measured equivalent over 1,037,566,320 px, the seventh closed by code-path argument. A from-raws rebuild would cost ~13 h.",
+ "july27": "out of scope \u2014 3.0 s exposure against the corpus's uniform 2.5 s (see NOT_included in corpus4_build_record.json)",
+ "WITHDRAWN_CLAIM_uniform_stamp": "This record previously said a from-raws rebuild 'buys a uniform stamp rather than a corrected pixel'. IT BUYS NEITHER. MEASURED: a composite's PIPEREV is INHERITED FROM ITS REGISTRATION REFERENCE MEMBER, not from the code that built it. Old corpus PIPEREV 5b48421 = its reference member 1's; new corpus PIPEREV 1791bb4 = its reference member 36's; HEAD when the new one was built was 9106bc4 \u2014 neither. siril's `stack` propagates the reference member's header and stamp_headers.sh's composite KEYS tuple does not list PIPEREV, so nothing overrides it. No rebuild could make a composite's stamp uniform, because the stamp is not the building code's. See datasets/corpus/piperev_inheritance.json."
 }

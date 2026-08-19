@@ -3,6 +3,8 @@
  "detector": "sep",
  "n_stars_detected": 400,
  "central": null,
+ "max_stars": 400,
+ "coverage_rung": null,
  "position_hint": [
   310.440385103334,
   40.3185966424717,

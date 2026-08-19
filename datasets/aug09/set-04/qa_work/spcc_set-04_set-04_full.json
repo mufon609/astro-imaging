@@ -8,7 +8,7 @@
  "input": "../../web/results/aug09/stack_set-04_full_wcs.fit",
  "output": "../../web/results/aug09/stack_set-04_full_spcc.fit",
  "input_size": 216950400,
- "input_mtime": 1786464699,
+ "input_mtime": 1787164951,
  "k_factors": {
   "R": 1.0,
   "G": 0.645,

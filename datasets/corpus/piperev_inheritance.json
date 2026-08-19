@@ -1,0 +1,22 @@
+{
+ "_what": "DEFECT \u2014 a COMPOSITE's PIPEREV is not the code that built it. It is inherited from whichever member was the registration reference.",
+ "measured": {
+  "old_corpus": {
+   "PIPEREV": "5b48421",
+   "reference_member": "1 = july31/groups_set-01/sub_01",
+   "that_member_PIPEREV": "5b48421"
+  },
+  "new_corpus": {
+   "PIPEREV": "1791bb4",
+   "reference_member": "36 = aug09/groups_set-02/sub_02",
+   "that_member_PIPEREV": "1791bb4"
+  },
+  "HEAD_when_the_new_one_was_built": "9106bc4",
+  "reading": "both composites carry their reference member's stamp exactly; neither carries the building code's"
+ },
+ "mechanism": "siril `stack` propagates the reference image's header into the output. stamp_headers.sh's header_composite_provenance_lines exists precisely to REPLACE inherited keys, and its KEYS tuple (DISTMODL DISTA DISTB DISTC DISTNORM DISTRHO ...) does NOT include PIPEREV. So the inherited value survives unchallenged.",
+ "why_it_matters": "CLAUDE.md states 'PIPEREV is git rev-parse --short HEAD (stamp_headers.sh), so a commit stamps every artifact built after it'. That is TRUE for members and FALSE for composites. Any reasoning that dates a composite from its PIPEREV \u2014 including a scope decision about whether a rebuild is needed \u2014 is reading the wrong commit. This is the same failure class the stamper's own docstring describes for CALSET: 'worse than an absent stamp: a gate reading it is told a confident falsehood.'",
+ "how_it_was_found": "the REGREF stamp added in this unit names the member whose header leaked, which is what made the inheritance diagnosable rather than merely puzzling",
+ "NOT_FIXED": "adding PIPEREV to the composite KEYS tuple is a build-path change and would alter every composite's header. Owner's call, not taken here.",
+ "credit": "found by the auditing session, not by the session that built the products"
+}
