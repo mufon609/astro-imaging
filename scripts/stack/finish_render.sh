@@ -5,7 +5,7 @@
 # solve, Siril SPCC, Siril autostretch/savepng) and this only orchestrates them.
 #
 #   finish_render.sh <stack.fit> <png-name> [--session=D --set=S] [--ra=R --dec=D --radius-deg=N]
-#                    [--central=F] [--crop-record=J] [--mtf=lo,mid,hi]
+#                    [--central=F] [--max-stars=N] [--crop-record=J] [--mtf=lo,mid,hi]
 #
 # --mtf=lo,mid,hi replaces the data-dependent `autostretch -linked` with a
 # PINNED midtone transfer applied identically. A multi-surface judgment set
@@ -43,11 +43,12 @@ source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLO
 STACK=${1:?usage: finish_render.sh <stack.fit> <png-name> [--ra= --dec= --radius-deg=]}
 NAME=${2:?missing <png-name>}
 shift 2
-RA= DEC= RAD= SESSION= SET= CENTRAL= CROPREC= FIELDW= MTF=
+RA= DEC= RAD= SESSION= SET= CENTRAL= CROPREC= FIELDW= MTF= MAXSTARS=400
 for a in "$@"; do case "$a" in
   --ra=*) RA=${a#*=};; --dec=*) DEC=${a#*=};; --radius-deg=*) RAD=${a#*=};;
   --session=*) SESSION=${a#*=};; --set=*) SET=${a#*=};;
   --central=*) CENTRAL=${a#*=};;
+  --max-stars=*) MAXSTARS=${a#*=};;
   --crop-record=*) CROPREC=${a#*=};;
   --mtf=*) MTF=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
@@ -140,7 +141,19 @@ echo "[finish $NAME] 1/4 solve"
 # header's own pointing/scale (exit 9), and that refusal writes no WCS, so the
 # `[ -f "$WCS" ]` check below stops this stage; CONTRADICT/REFUS are in the grep
 # so the operator sees WHY rather than a bare "SOLVE FAILED".
-python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --max-stars=400 \
+# --max-stars: 400 IS PRESERVED, NOT ENDORSED. It was hardcoded here with no way
+# for a caller to reach it, which is the defect this exposes; changing the value
+# is a separate question and the data does not support a confident answer.
+# MEASURED on the four-night corpus at the derived --central=0.694, only this
+# knob moving, deterministic to every digit across repeat runs:
+#     100 -> logodds 84 (floor-class)   200 -> 134   300 -> 148
+#     400 -> 112                        800 -> 116
+# NON-MONOTONE, so two points are not a trend and no value here is safely
+# "better" on one stack (docs/dead-ends.md carries the entry). Raising it is
+# right elsewhere in this tree for a DIFFERENT quantity — run_undistort_groups.sh
+# uses 1500 because the SOLUTION'S DISTORTION TERMS are what that stage consumes,
+# and logodds is match confidence, not SIP quality. Pass --max-stars= to override.
+python3 "$REPO/scripts/calibrate/solve_field.py" "$STACK" --max-stars="$MAXSTARS" \
   --session="$SESSION" --set="$SET" \
   ${RA:+--ra=$RA} ${DEC:+--dec=$DEC} ${RAD:+--radius-deg=$RAD} \
   ${CENTRAL:+--central=$CENTRAL} \

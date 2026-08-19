@@ -4108,6 +4108,61 @@ SILENT — pin the state, never inherit it):
   facts worth keeping are the tool facts: it exists and is honoured in 0.3.4,
   and `install_lens_model.sh --center X,Y` writes it (`--center 0,0` removes
   it) if a future lens ever needs one.
+- **`--max-stars` DOES NOT HAVE A DERIVABLE OPTIMUM, AND TWO POINTS ON ITS CURVE
+  ARE NOT A TREND.** A `--max-stars` derivation was SCOPED and then REFUSED on
+  measurement; this entry is what the investigation produced instead.
+  MEASURED on the four-night corpus at the coverage-derived `--central=0.694`,
+  only this knob moving, and **deterministic** (three repeat runs at N=400 return
+  `RA 309.682 Dec +41.281 scale 16.85 logodds 112`, every digit):
+
+      100 -> logodds  84   (floor-class)
+      200 -> logodds 134
+      300 -> logodds 148   <- best
+      400 -> logodds 112
+      800 -> logodds 116
+
+  **NON-MONOTONE and reproducible**, so the scatter is real rather than run-to-run
+  variance. The pair that motivated the derivation — 400 -> 63 and 200 -> 106 at
+  `--central=0.5` — reads as *"fewer is better"* and does not survive five points:
+  300 beats 200, and 800 beats 400. **A rule fitted to this would encode which
+  quads happen to match on one stack.** Do not tune this knob by intuition, and do
+  not read two of its points as a direction.
+  **THE SPATIAL-CLUSTERING ACCOUNT IS NOT VISIBLE IN THE DETECTIONS.** The
+  derivation was to key on *"brightest-first selection clusters those stars in the
+  band and leaves the corners carrying almost no constraint"*. Measured, sep's own
+  detections on a 20x13 occupancy grid, at `--central=0.694`:
+
+      N=100   85/260 cells   evenness 0.791   sd_x/w 0.186  sd_y/h 0.197
+      N=200  140/260         evenness 0.874   sd_x/w 0.187  sd_y/h 0.190
+      N=400  208/260         evenness 0.933   sd_x/w 0.184  sd_y/h 0.193
+      N=800  248/260         evenness 0.964   sd_x/w 0.190  sd_y/h 0.196
+      N=1600 258/260         evenness 0.986   sd_x/w 0.191  sd_y/h 0.198
+
+  Occupancy RISES with N and the spread is flat across a 16x range. On the full
+  frame the outer ring holds 42/43/44 of 62 cells at N=200/400/800 — flat — and
+  the ~30% of outer cells that never fill at ANY N are the union's **uncovered
+  rim**, not a selection effect. So the corner starvation is a COVERAGE fact and
+  does not vary with the star count.
+  **AND THIS DOES NOT REFUTE THE DOCSTRING, WHICH IS ABOUT A DIFFERENT QUANTITY —
+  read this bound before citing the entry.** `solve_field.py` says *"raise this
+  when the SOLUTION'S DISTORTION TERMS are the product being consumed rather than
+  just its position"*: that is a claim about **SIP fit quality**. Everything above
+  is **logodds**, which is MATCH CONFIDENCE. The first was not measured here.
+  `run_undistort_groups.sh:340` uses `--max-stars=1500` on exactly that reasoning
+  and is the standing counter-case: **more stars IS right somewhere in this tree,
+  just not for this quantity on this canvas.** An entry that blurred the two would
+  retire a correct practice.
+  **WHAT WAS DONE INSTEAD:** `finish_render.sh` had hardcoded 400 with no way for
+  a caller to reach it — the actual defect, which was never *"the pipeline needs a
+  smarter value"* but *"the pipeline forbids any value"*. It is now
+  `--max-stars=`, default UNCHANGED at 400 (preserved, not endorsed). The default
+  was NOT moved to 300 on the strength of one stack: that is the knob-thrash the
+  contract forbids.
+  **THE RESIDUAL CASE IS COVERED BY A WARNING, NOT BY A GAP.** A canvas still
+  below `LOGODDS_FLOOR` after the coverage rung gets `solve_field`'s FLOOR-CLASS
+  warning — which is how the original logodds 63 was caught. That is the right
+  status quo; no rung was left unbuilt over an unhandled hole.
+
 - **A `-SIP` CTYPE IS NOT EVIDENCE OF SIP, AND ASTROPY DOES NOT WARN.** MEASURED on
   the shipped four-night corpus and reproduced on a probe build:
 
