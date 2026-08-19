@@ -2622,6 +2622,31 @@ SILENT — pin the state, never inherit it):
   `check_removal_conditions` matching its own detector string, and
   `check_prompt_scope`'s head-window rule — here appearing INSIDE the record that
   certifies a sweep clean, which is the worst position for it.
+- **PROXIMITY TO A RULE IS NOT PROTECTION FROM IT — AND MAY BE THE OPPOSITE, BECAUSE
+  WRITING THE RULE CREATES THE FEELING OF HAVING HANDLED IT.** Distinct from the
+  self-match family above, which is about a detector matching its own text; this is
+  about the AUTHOR of a rule breaking it, and the interval is measured in minutes.
+  THREE WORKED INSTANCES, all inside one unit, each by whoever had just written the
+  relevant rule:
+  (1) a session handed a peer a numbered trap list including *"every `.ssf` must live
+  under `$HOME` — the Siril flatpak has a private `/tmp`"*, then ONE MESSAGE LATER
+  pointed `coverage_frame.py`'s output at a `/tmp` scratchpad, where the tool writes
+  its `.ssf` beside the record — both runs died silently and the numbers had to be
+  re-taken;
+  (2) a session shipped a guard whose entire purpose is catching format drift in
+  emitted commands, then invoked `coverage_frame.py --grid 40x26` as two arguments
+  against an emitter that parses only `--opt=value`, so the option was dropped, the
+  rescue rung never fired, and a soft-failure contract reported a clean skip;
+  (3) a commit whose SUBJECT names a stale-citation defect fixed that citation in the
+  file's header and left it in the runtime message, so the guard kept PRINTING the
+  wrong-route number while the message asserted it was fixed.
+  **The generalisation is not "be careful" — it is that a freshly-written rule is a
+  WORSE predictor of the author's compliance than an old one, so the check that
+  matters is the one run against the artifact, not against the intention.** Instance
+  (1) was caught by a silent failure, (2) only by a positive control that had to
+  fire, (3) only by re-reading the tool's OUTPUT rather than its diff. None was
+  caught by the author remembering the rule they had just written.
+
   **THE RULE: a records sweep is case-INSENSITIVE (`grep -i`) or it is not a sweep,
   and a record asserting a clean sweep states the exact query it ran** so a later
   reader can re-run it rather than trust it. HONEST BOUND, carried because two
