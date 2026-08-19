@@ -138,6 +138,7 @@ CHECKS=(
   "selftest fingerprint|python3 scripts/lib/fingerprint.py --selftest"
   "selftest route|python3 scripts/lib/route.py --selftest"
   "selftest compose_preflight|python3 scripts/stack/compose_preflight.py --selftest"
+  "selftest derive_compose_ref|python3 scripts/stack/derive_compose_ref.py --selftest"
   "selftest lens_preflight|python3 scripts/stack/lens_preflight.py --selftest"
   "selftest object_tilt|python3 scripts/qa/object_tilt.py --selftest"
   "selftest flat_differential|python3 scripts/qa/flat_differential.py --selftest"

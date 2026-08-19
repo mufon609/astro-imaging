@@ -178,9 +178,32 @@ if [ -n "$REF" ]; then
   REFSRC_DECL=pinned
   echo "reference PINNED: member $RIDX -> ${MEMBERS[$RIDX]}"
 else
-  echo "reference: AUTO (register -2pass picks it) — pin it with --ref= for a"
-  echo "  multi-night compose; the auto pick decides canvas orientation and the"
-  echo "  composite's raw channel balance"
+  # DERIVE IT WHEN THE MEMBERS SPAN MORE THAN ONE NIGHT. Siril's auto pick is
+  # INDEX 0 — the first member in link order, measured across ten compose_gate
+  # records at 13/17/22/25/52/77 members — so without this the reference, and
+  # with it the composed canvas, is a function of ARGUMENT ORDER. Reordering the
+  # session arguments re-bases the product with nothing in any record to show it.
+  # No choice of reference is materially BETTER (SPCC absorbs the balance 64x and
+  # -framing=max includes every member either way, so the sky union is identical);
+  # what is defective is that it is undetermined. scripts/stack/derive_compose_ref.py
+  # carries the rule, its measurements and its selftest. Single-night sets are
+  # left on AUTO deliberately: their members share a balance family, and not
+  # touching them keeps every single-night product bit-identical.
+  DIDX=$(python3 "$REPO/scripts/stack/derive_compose_ref.py" "${MEMBERS[@]:1:$n}"            --json="$W/derive_ref.json") || {
+    echo "ABORT: derive_compose_ref refused the members (above)" >&2; exit 3; }
+  if [ "${DIDX:-0}" -gt 0 ] 2>/dev/null; then
+    RIDX=$DIDX
+    SETREF="setref s $RIDX\n"
+    REFSRC_DECL=derived
+    echo "reference DERIVED: member $RIDX -> ${MEMBERS[$RIDX]}"
+    echo "  (multi-night; most-central member by centre-pixel pointing. Override"
+    echo "   with --ref=<path|index>; the rule + its numbers are in"
+    echo "   scripts/stack/derive_compose_ref.py)"
+  else
+    echo "reference: AUTO (siril picks it — measured to be index 0, the first"
+    echo "  member in link order). Single night, or nothing measurable to derive"
+    echo "  from; pin it with --ref= to override."
+  fi
 fi
 
 # ---- T0/T1: the members' own optics provenance, from THEIR OWN HEADERS -------
