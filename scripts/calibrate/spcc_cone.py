@@ -20,6 +20,18 @@ Zenodo record (md5-verified, decompressed in place).
 Pure numpy; the HEALPix ang2pix (nested) is the standard algorithm — no
 healpy. Validated against a hand-checked reference cover (an 11-chunk
 cover for a 33.5 deg cone).
+
+REMOVAL CONDITION (two clauses, each evaluated separately): (a) the nested
+ang2pix cover retires when siril 1.5's `healpix` command is adopted and its
+pixel list is verified to map to the zenodo chunk names (BACKLOG `siril-1.5`),
+or when astropy_healpix is adopted into this script's interpreter (installed
+in /opt/astro-venv, ABSENT from host python3 — TOOLS.md); (b) the hand-rolled
+`_tan_pix2sky` gnomonic step retires when the projection moves to astropy WCS
+(already imported here for the header read; used for exactly this in
+derive_compose_ref.py). Consequence bound either way: chunk SELECTION only,
+sub-arcmin error against ~29 deg pixels, and siril names any missing chunk
+loudly. Registered in BACKLOG `removal-conditions` (conditions authored by
+audit — this divergence shipped with none; PENDING OWNER RATIFICATION).
 """
 import os
 import re

@@ -37,6 +37,13 @@ bottom-up, so y is flipped on the way in.
 A FIT IS A CANDIDATE. This one is judged like every other: the residual
 displacement field through the production warp first, then star_stations +
 seqtilt at the COMBINE and the owner's eyes. Never on its own residual.
+
+REMOVAL CONDITION: retire the joint least squares when hugin/lensfun fit
+ptlens + distortion centre jointly against an absolute (catalogue) reference,
+or when no OPEN item in BACKLOG `one-sided-band` / `corner-fix-landscape`
+still consumes a fitted distortion-centre quantity. Registered in BACKLOG
+`removal-conditions` (condition authored by audit — this divergence shipped
+with none; PENDING OWNER RATIFICATION on the psf_calib precedent).
 """
 import json
 import os

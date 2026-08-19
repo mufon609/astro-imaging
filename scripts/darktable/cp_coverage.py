@@ -31,6 +31,13 @@ or EXTRAPOLATED, and it rides on every sub-stack as DISTRHO.
 
 The tool does the fitting; this reads hugin's OWN control-point coordinates out
 of its OWN project file and reports where they are. It fits nothing.
+
+REMOVAL CONDITION: retire the radial-coverage analysis when hugin/lensfun
+report per-radius control-point support against the model's own normalisation,
+or when the fitting route pins control points to a corner-inclusive station
+grid by construction (corner support guaranteed rather than measured).
+Registered in BACKLOG `removal-conditions` (condition authored by audit — this
+divergence shipped with none; PENDING OWNER RATIFICATION).
 """
 import argparse
 import json
