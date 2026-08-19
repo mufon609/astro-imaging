@@ -1,0 +1,61 @@
+{
+ "_what": "RE-MEASUREMENT of set-05's mount signature after the shipped two-window probe returned NO SOLUTION. Same instruments, one different input frame.",
+ "why_the_shipped_probe_failed": {
+  "mechanism": "mount_probe.sh's WINDOW RULE selects the FIRST and LAST frame of the longest contiguous capture run. It is a boundary rule (a re-aim can only happen across a run boundary) and it is BLIND TO FRAME QUALITY. set-05's capture run ENDS inside cloud block 4 (DSC_5196-5253), so window B was DSC_5253.",
+  "measured": "window A DSC_4676 SOLVED (logodds 114). Window B DSC_5253 yielded only 96 stars to the extractor (sep/SExtractor core) and returned NO SOLUTION. The chain then reported 'mount underivable' and exited 4 \u2014 which reads as a MOUNT problem and is a CLOUD problem.",
+  "generality": "any set whose capture run ends (or begins) inside an obscuration hits this. The set's own frame QA already knows which frames are clean; the window rule does not consult it. NOT FIXED HERE \u2014 a change to a shipped build-path script is the owner's call under the standing no-change-without-A/B rule."
+ },
+ "method": "identical to mount_probe.sh: Siril 1.4.4 `load <raw>` + `extract_Green` -> scripts/calibrate/solve_field.py (astrometry.net, blind, sep/SExtractor core). The ONLY difference is which frame supplies the second window.",
+ "windows": {
+  "A": {
+   "frame": "DSC_4676.NEF",
+   "epoch": "2026-08-15T01:00:46.99-04:00",
+   "nstars_qa": 1622,
+   "logodds": 114
+  },
+  "C": {
+   "frame": "DSC_5192.NEF",
+   "epoch": "2026-08-15T01:26:34.99-04:00",
+   "nstars_qa": 1250,
+   "logodds": 207,
+   "why_this_frame": "the LAST frame of set-05 outside every flagged cloud run (n=517); maximises separation while staying solvable"
+  }
+ },
+ "field_centres": {
+  "_convention": "WCS evaluated AT THE CENTRE PIXEL of the solved green plane \u2014 never CRVAL, which is the tangent point (BACKLOG:pointing-record-names-the-wrong-frame). Reading CRVAL here gives 0.90x sidereal and a false CONTRADICT.",
+  "A": {
+   "ra_deg": 306.8059,
+   "dec_deg": 40.6064
+  },
+  "C": {
+   "ra_deg": 313.2627,
+   "dec_deg": 40.5962
+  }
+ },
+ "result": {
+  "span_s": 1548.0,
+  "ra_rate_deg_per_hr": 15.0157,
+  "sidereal_deg_per_hr": 15.041,
+  "ratio": 0.9983,
+  "dec_drift_arcsec": -36.6,
+  "sky_separation_deg": 4.9012,
+  "sidereal_predicted_deg": 4.9102,
+  "verdict": "FIXED \u2014 RA advances at sidereal to 0.17%, Dec constant to 37 arcsec over 25.8 min. Same signature the other four sets of this session measured independently (set-01 15.0784 deg/hr)."
+ },
+ "corroboration": "sets 01-04 of this session each derived 'fixed' from their OWN two-window solves, and set-05 is contiguous with them in frame number (DSC_2276-5253, no gaps) and separated from set-04 by 6 minutes. Five independent measurements.",
+ "route_key_also_blocked_and_why": {
+  "what_happened": "the same NO SOLUTION on DSC_5253 blocks the ROUTE key as well as the mount: fingerprint.inter_frame_drift stays empty, so drift_frac (sky excursion / field) cannot be computed and run_set_chain.sh exits 5 'route still underivable'.",
+  "derived_from_this_record_instead": {
+   "measured_excursion_deg": 4.9012,
+   "over_s": 1548.0,
+   "full_run_span_s": 1731.0,
+   "extrapolated_excursion_deg": 5.481,
+   "field_deg": 28.6,
+   "drift_frac": 0.1916,
+   "floor": 0.05,
+   "verdict": "0.1916 >= 0.05 -> undistort-groups, by the same rule the chain applies",
+   "corroboration": "the other four sets of this session derived drift_frac 0.198 on identical geometry (same field, mount, lens, 28.6 deg field); set-01 measured 5.67 deg over 1797 s against this set's 5.481 deg over 1731 s \u2014 the same rate"
+  },
+  "action": "run with --route=groups, a documented CLI override, rather than letting an unsolvable frame pick the route. The override asserts what this record MEASURED; it does not substitute judgement for a measurement."
+ }
+}

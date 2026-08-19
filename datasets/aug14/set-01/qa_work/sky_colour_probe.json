@@ -1,0 +1,42 @@
+{
+ "tool": "Siril 1.4.4 seqstat (main) per channel over `convert -debayer`; pedestal from datasets/aug14/darks/qa_work/pedestal.json",
+ "question": "is the excess background that CLEARED between set-01 and set-02 broadband (aerosol scattering a light dome) or a narrow emission line (airglow)?",
+ "design": {
+  "hazy_arm": "set-01 DSC_2835-2870 (8 frames, the set's last clean block)",
+  "clear_arm": "set-02 DSC_2936-2971 (8 frames, after the clearing)",
+  "why_these": "~5 min apart, so only ~8% of the drifting field turns over between them \u2014 the two arms see almost the same sky, and a whole-frame MEDIAN is set by the ~92% that did not change"
+ },
+ "clear_sky_adu": {
+  "R": 24.29,
+  "G": 42.71,
+  "B": 31.05
+ },
+ "excess_adu": {
+  "R": {
+   "value": 1.625,
+   "stderr": 0.183,
+   "pct_of_that_channel_clear_sky": 6.7
+  },
+  "G": {
+   "value": 3.0,
+   "stderr": 0.177,
+   "pct_of_that_channel_clear_sky": 7.0
+  },
+  "B": {
+   "value": 1.625,
+   "stderr": 0.206,
+   "pct_of_that_channel_clear_sky": 5.2
+  }
+ },
+ "result": "R +6.7%, G +7.0%, B +5.2% \u2014 flat across all three channels, each above 2 sigma. A BROADBAND, near-neutral addition.",
+ "reading": [
+  "AIRGLOW IS EXCLUDED: the 557.7 nm OI line would load overwhelmingly into G, not appear at 5-7% in all three channels.",
+  "RAYLEIGH SCATTERING OF A NEUTRAL SOURCE IS EXCLUDED: that goes as lambda^-4 and would be blue-ENHANCED; the excess is blue-DEFICIENT relative to the ambient sky (excess B/G 0.54 vs ambient B/G 0.73).",
+  "Near-neutral broadband scattering with measurable extinction alongside it is the AEROSOL (Mie) signature \u2014 haze scattering the ground light dome."
+ ],
+ "limits": [
+  "RAW CFA channel levels with NO colour calibration (no white balance, no SPCC). Ratios are comparable BETWEEN THE TWO ARMS because the instrument is identical; they are NOT physical spectral ratios and must not be read as such.",
+  "per-frame medians are integer-quantised; the 8-frame means give the sub-ADU precision the stderrs report",
+  "this identifies the excess as broadband aerosol scattering; it does not independently measure the SOURCE of the light being scattered"
+ ]
+}

@@ -1,0 +1,79 @@
+{
+ "session": "aug14",
+ "set": "set-05",
+ "route": "undistort-groups",
+ "overall": "YELLOW",
+ "criteria": [
+  {
+   "criterion": "mount",
+   "status": "GREEN",
+   "value": "fixed (declared)",
+   "instrument": "drift-solves",
+   "detail": "declared fixed matches the measured fixed signature \u2014 RA advances 15.0157 deg/hr vs sidereal 15.041"
+  },
+  {
+   "criterion": "route",
+   "status": "GREEN",
+   "value": "undistort-groups \u2014 drift_frac 0.1916 vs floor 0.05",
+   "instrument": "fingerprint: drift_frac (sky excursion / field), floor 0.05",
+   "detail": "fixed mount: the sky sweeps 0.192 of the field over the set (rate from a 1548 s probe window inside a 1731 s set) (4.90 deg at 0.190 deg/min across a 28.6 deg field), at or above the 0.05 floor the distortion term is measured at \u2014 the frame-to-frame map is distort o H o distort^-1, so the route undistorts before the homography; groups is the STANDING shape"
+  },
+  {
+   "criterion": "frame_qa",
+   "status": "GREEN",
+   "value": "144 flag(s); 226 excluded (hand-ratified)",
+   "instrument": "Siril register regdata; robust z >= 3.5",
+   "detail": "HAND-RATIFIED (owner-directed): the four cloud passages of this set, each extended to its full ingress/egress ramp. 226 of 578 frames; 352 kept.\nWHY WIDER THAN THE STANDING AUTO-CULL, which would excl"
+  },
+  {
+   "criterion": "obstruction_audit",
+   "status": "GREEN",
+   "value": "floor 0 vs group 118 (100% headroom)",
+   "instrument": "anomaly_audit + GESD fraction 0.3 (stack_rejection.sh)",
+   "detail": "0 object(s), longest dwell 0 frame(s)"
+  },
+  {
+   "criterion": "optics",
+   "status": "GREEN",
+   "value": "uniform; installed == pinned (NIKKOR Z 24-70mm f/4 S@70); warp proven",
+   "instrument": "lens_preflight.py (exiftool + darktable render diff via Siril stat)",
+   "detail": ""
+  },
+  {
+   "criterion": "masters",
+   "status": "YELLOW",
+   "value": "master dark present; flatless: per-set sky flat route (carries the open sky x V object tilt \u2014 mechanism real, magnitude UNMEASURED; real flats fix it)",
+   "instrument": "session staging + build_sky_flat.sh",
+   "detail": ""
+  },
+  {
+   "criterion": "flat_quality",
+   "status": "GREEN",
+   "value": "builds this run \u2014 builder validation gates enforce (regional stat, speck count, preview)",
+   "instrument": "build_sky_flat.sh gates",
+   "detail": ""
+  },
+  {
+   "criterion": "disk",
+   "status": "GREEN",
+   "value": "717G free covers even the 318G single-pass peak",
+   "instrument": "df + disk_budget.sh (undistort_peak_gib)",
+   "detail": ""
+  },
+  {
+   "criterion": "spcc",
+   "status": "YELLOW",
+   "value": "database present; sensor-null generic curve (no recipe spcc block)",
+   "instrument": "filesystem + siril config + recipe.json",
+   "detail": ""
+  },
+  {
+   "criterion": "baseline",
+   "status": "YELLOW",
+   "value": "none yet \u2014 nothing to regress against; the first accepted product seeds it",
+   "instrument": "baseline_guard.py (Siril stat)",
+   "detail": ""
+  }
+ ],
+ "generated_by": "scripts/qa/readiness_report.py \u2014 decision logic over tool outputs and tracked records; no pixel read, no measurement made here"
+}

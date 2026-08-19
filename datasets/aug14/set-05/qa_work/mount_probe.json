@@ -1,0 +1,36 @@
+{
+ "tool": "Siril decode/extract_Green (camera raw) + astrometry.net solves (solve_field.py --json WCS, evaluated at the frame-center pixel via astropy); epochs from EXIF; consumed by scripts/lib/fingerprint.py",
+ "domain_note": "camera-raw solves run on the extracted GREEN plane (half-res grid): px figures are green-px at the solve's own scale; the mount verdict rides the scale-free RA rate",
+ "_WINDOW_SUBSTITUTED_READ_THIS": {
+  "what": "NOT a standard mount_probe.sh run. Window B is DSC_5192, NOT the DSC_5253 the shipped window rule selects. solve_a below IS the shipped probe's own window A output; solve_b was produced by the identical method on a substituted frame.",
+  "why": "the shipped rule takes first/last of the longest capture run and is BLIND TO FRAME QUALITY. set-05's run ENDS inside cloud block 4, so window B was DSC_5253 \u2014 96 stars to the extractor, NO SOLUTION blind AND with a 5 deg position hint plus scale hint. The probe therefore cannot complete on this set, and its failure blocked the mount gate (exit 4) and then the route key (exit 5).",
+  "substitute": "DSC_5192 \u2014 the LAST frame of set-05 outside every flagged cloud run (n=517, 1250 stars), solved logodds 207 against window A's 114. Maximises the baseline while staying solvable: 1548 s of the run's 1731 s.",
+  "verification": "RA 15.0157 deg/hr = 0.9983x sidereal, Dec constant to 37 arcsec, sky separation 4.9012 deg against 4.9102 predicted (0.18%). The other four sets of this session measured the same signature independently.",
+  "detail": "datasets/aug14/set-05/qa_work/mount_remeasure.json",
+  "if_you_re_run_mount_probe.sh": "it will overwrite this file and FAIL again \u2014 the underlying frame is opaque. Fixing the window rule to prefer a solvable frame is the real repair and is NOT done here (build-path change, owner's call)."
+ },
+ "solve_a": {
+  "frame": "DSC_4676.NEF",
+  "time_s": 1786770046.99,
+  "ra_deg": 306.805919,
+  "dec_deg": 40.606376,
+  "scale_arcsec_px": 36.2388
+ },
+ "solve_b": {
+  "frame": "DSC_5192.NEF",
+  "time_s": 1786771594.99,
+  "ra_deg": 313.262674,
+  "dec_deg": 40.596208,
+  "scale_arcsec_px": 35.9524
+ },
+ "window": {
+  "rule": "SUBSTITUTED \u2014 see _WINDOW_SUBSTITUTED_READ_THIS. The shipped rule (longest contiguous capture run, first/last) selected DSC_4676 -> DSC_5253; DSC_5253 does not solve.",
+  "dir_frames": 578,
+  "n_runs": 1,
+  "run_frames": 578,
+  "run_span_s": 1731.0,
+  "first": "DSC_4676.NEF",
+  "last": "DSC_5192.NEF",
+  "shipped_rule_would_have_used": "DSC_5253.NEF"
+ }
+}

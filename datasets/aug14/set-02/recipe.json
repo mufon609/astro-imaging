@@ -1,0 +1,36 @@
+{
+ "stack": {
+  "weight": null,
+  "exclude": [
+   2876,
+   2877,
+   2878,
+   2879,
+   2880,
+   2881,
+   2882,
+   2883,
+   2884,
+   2885,
+   2886,
+   2887,
+   2888,
+   2889,
+   2890,
+   2891,
+   2892,
+   2893,
+   2894,
+   2895,
+   2896,
+   2897,
+   2898,
+   2899,
+   2900,
+   2901,
+   2902,
+   2903
+  ],
+  "why": "HAND-RATIFIED (owner-directed): the set opens inside the tail of the haze that covered set-01, and clears ~1 minute in. 28 of 600 frames; 572 kept.\nWHY WIDER THAN THE STANDING AUTO-CULL, which would exclude 19 (n 1-17, 20, 25): the auto-cull's robust z is scaled by this set's own pooled MAD, 0.667 ADU against 0.593 on its uncontaminated population \u2014 1.12x desensitised by the contamination itself, the same mechanism as set-05 at 2.2x. Five frames survived it that read above clean-scale z 3.5: DSC_2893, 2894, 2896, 2899, 2903. Extending to DSC_2903 takes the clearing tail out as ONE contiguous span rather than leaving singletons.\nTHE CLEARING IS THE EVIDENCE IT IS ATMOSPHERIC, not sky content: bg falls 3 ADU in the first 60 frames (3 min) and only 1 ADU across the remaining 540 (27 min), while nstars rises 1584 -> 1730. Under a FIXED mount the pointing alt/az is constant, so airmass cannot account for it. Mount derived 'fixed' by two independent instruments: the chain's two-window astrometry.net drift solve (fingerprint.json, 18.82 px/min green-plane against 18.78 expected sidereal) and the per-frame registration homographies (37.72 px/min at the frame centre against 37.56 predicted at the SOLVED scale 18.096 arcsec/px, dec +41.143) \u2014 0.4%.\nAFTER this cull: 0 frames above clean-scale z 3.5 remain.\nInstrument: Siril 1.4.4 register -2pass regdata via scripts/qa/inspect_stage.py; qa_work/frame_metrics.json. Pedestal 1007.0 ADU from this session's own darks (darks/qa_work/pedestal.json). Cause: broadband aerosol haze, not moonlight \u2014 the moon was 21-46 deg below the horizon all night (set-01/qa_work/sky_colour_probe.json).\nExclude numbers are trailing filename digits (cullspec). Hand-ratified: the chain's auto-cull must not overwrite this."
+ }
+}

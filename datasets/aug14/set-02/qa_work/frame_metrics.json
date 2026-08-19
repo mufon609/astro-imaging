@@ -1,0 +1,302 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 600,
+ "registered": 600,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 17.5031,
+ "pixel_scale_source": "header FOCALLEN/XPIXSZ (nominal)",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.733,
+   "min": 2.649,
+   "max": 2.799
+  },
+  "roundness": {
+   "median": 0.7786,
+   "min": 0.7678,
+   "max": 0.7909
+  },
+  "nstars": {
+   "median": 1714,
+   "min": 1549,
+   "max": 1811
+  },
+  "bg16": {
+   "median": 1056,
+   "min": 1055,
+   "max": 1061
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.678,
+   "round": 0.7808,
+   "stars": 1708,
+   "bg16": 1057
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.7,
+   "round": 0.7793,
+   "stars": 1717,
+   "bg16": 1057
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.713,
+   "round": 0.7805,
+   "stars": 1698,
+   "bg16": 1057
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.728,
+   "round": 0.778,
+   "stars": 1745,
+   "bg16": 1056
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.742,
+   "round": 0.7783,
+   "stars": 1741,
+   "bg16": 1056
+  },
+  {
+   "block": 6,
+   "frames": 76,
+   "fwhm": 2.756,
+   "round": 0.7782,
+   "stars": 1716,
+   "bg16": 1056
+  },
+  {
+   "block": 7,
+   "frames": 76,
+   "fwhm": 2.764,
+   "round": 0.7771,
+   "stars": 1693,
+   "bg16": 1056
+  },
+  {
+   "block": 8,
+   "frames": 68,
+   "fwhm": 2.773,
+   "round": 0.7777,
+   "stars": 1677,
+   "bg16": 1056
+  }
+ ],
+ "flagged_defect_side_z": [
+  {
+   "file": "DSC_2876.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.655,
+   "bg": 1061.0,
+   "round": 0.7757,
+   "nstars": 1561
+  },
+  {
+   "file": "DSC_2877.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.66,
+   "bg": 1060.8,
+   "round": 0.7812,
+   "nstars": 1577
+  },
+  {
+   "file": "DSC_2878.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.657,
+   "bg": 1060.6,
+   "round": 0.7813,
+   "nstars": 1566
+  },
+  {
+   "file": "DSC_2879.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.651,
+   "bg": 1060.6,
+   "round": 0.7862,
+   "nstars": 1549
+  },
+  {
+   "file": "DSC_2880.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.655,
+   "bg": 1060.7,
+   "round": 0.7816,
+   "nstars": 1561
+  },
+  {
+   "file": "DSC_2881.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.663,
+   "bg": 1060.6,
+   "round": 0.7804,
+   "nstars": 1572
+  },
+  {
+   "file": "DSC_2882.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.66,
+   "bg": 1060.2,
+   "round": 0.7855,
+   "nstars": 1581
+  },
+  {
+   "file": "DSC_2883.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.667,
+   "bg": 1060.0,
+   "round": 0.7837,
+   "nstars": 1607
+  },
+  {
+   "file": "DSC_2884.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.675,
+   "bg": 1060.1,
+   "round": 0.7824,
+   "nstars": 1624
+  },
+  {
+   "file": "DSC_2885.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.651,
+   "bg": 1060.8,
+   "round": 0.7779,
+   "nstars": 1567
+  },
+  {
+   "file": "DSC_2886.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.649,
+   "bg": 1060.2,
+   "round": 0.7827,
+   "nstars": 1580
+  },
+  {
+   "file": "DSC_2887.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.669,
+   "bg": 1060.0,
+   "round": 0.7805,
+   "nstars": 1576
+  },
+  {
+   "file": "DSC_2888.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.669,
+   "bg": 1059.4,
+   "round": 0.7812,
+   "nstars": 1609
+  },
+  {
+   "file": "DSC_2889.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.662,
+   "bg": 1060.0,
+   "round": 0.7819,
+   "nstars": 1592
+  },
+  {
+   "file": "DSC_2890.NEF",
+   "flags": [
+    "bg",
+    "nstars"
+   ],
+   "fwhm": 2.661,
+   "bg": 1060.3,
+   "round": 0.777,
+   "nstars": 1587
+  },
+  {
+   "file": "DSC_2891.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.658,
+   "bg": 1059.3,
+   "round": 0.781,
+   "nstars": 1631
+  },
+  {
+   "file": "DSC_2892.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.661,
+   "bg": 1059.2,
+   "round": 0.7792,
+   "nstars": 1614
+  },
+  {
+   "file": "DSC_2895.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.669,
+   "bg": 1059.2,
+   "round": 0.775,
+   "nstars": 1641
+  },
+  {
+   "file": "DSC_2900.NEF",
+   "flags": [
+    "bg"
+   ],
+   "fwhm": 2.667,
+   "bg": 1059.3,
+   "round": 0.781,
+   "nstars": 1636
+  }
+ ],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

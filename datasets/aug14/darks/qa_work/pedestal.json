@@ -1,0 +1,27 @@
+{
+ "tool": "Siril 1.4.4 seqstat (main) over `convert -debayer` of this session's own darks",
+ "what": "the sensor PEDESTAL in the same units and the same debayered domain as the lights' register-regdata background, so `sky = bg - pedestal` is valid",
+ "why_it_matters": "bg reads ~1058 ADU on a clear frame and the pedestal is ~1007, so the SKY is only ~50 ADU. A background change quoted as a fraction of bg understates it by ~21x: the set-01 cloud event is +0.5% of bg and +10% of sky.",
+ "frames": {
+  "n": 8,
+  "of": 399,
+  "exif": "NIKON Z6_3 / 2.5 s / ISO 1600 \u2014 matched to the lights",
+  "sampling": "4 from the pre-lights block (DSC_2076-2226), 4 from the post-lights block (DSC_5255-5405)"
+ },
+ "pedestal_adu": {
+  "R": 1007.14,
+  "G": 1007.39,
+  "B": 1007.2,
+  "median_all_frames_all_channels": 1007.0
+ },
+ "stability_across_the_session": {
+  "pre_lights_G": 1007.437,
+  "post_lights_G": 1007.347,
+  "drift_G_adu": -0.09,
+  "reading": "the pedestal moved 0.09 ADU between the darks shot before the lights and those shot after, against sky changes of 3-70 ADU \u2014 so every background change measured in the lights is SKY, not sensor drift. This is the control that makes the sky numbers mean anything."
+ },
+ "limits": [
+  "per-frame medians are integer-quantised (16-bit data); the means above average 8 frames to recover sub-ADU precision",
+  "dark CURRENT at 2.5 s is not separated from the offset here \u2014 the figure is the combined zero-light level, which is exactly what `bg - pedestal` needs"
+ ]
+}

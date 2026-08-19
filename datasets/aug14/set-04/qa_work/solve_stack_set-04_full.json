@@ -1,0 +1,52 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_set-04_full.fit",
+ "detector": "sep",
+ "n_stars_detected": 400,
+ "central": null,
+ "position_hint": [
+  312.591496985145,
+  39.5488942719204,
+  15.0
+ ],
+ "position_hint_source": "header",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "header_scale_arcsec_px": 17.50305874003683,
+ "hint_available": [
+  312.591496985145,
+  39.5488942719204,
+  15.0
+ ],
+ "contradictions": [],
+ "contradiction_accepted": false,
+ "index_scales": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18
+ ],
+ "scales_solved": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18
+ ],
+ "ra_deg": 312.6050485132818,
+ "dec_deg": 39.583484581289056,
+ "scale_arcsec_px": 17.034273819615496,
+ "logodds": 102.28645324707031,
+ "parity": "sky-true",
+ "cd_det": -2.2389389240867116e-05,
+ "injected": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_set-04_full_wcs.fit"
+}

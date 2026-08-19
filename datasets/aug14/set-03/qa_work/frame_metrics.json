@@ -1,0 +1,99 @@
+{
+ "tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_stage.py; flagged at defect-side robust z >= 3.5 (scripts/qa/cull_report.py rule)",
+ "method": "raw -> DEBAYERED FITS -> register -2pass in batches; per-frame FWHM/roundness/background/#stars pooled (reference-independent). Measured on the green layer at full resolution, so absolute FWHM is real (no Bayer-mosaic inflation).",
+ "frames_total": 600,
+ "registered": 600,
+ "match_failed": 0,
+ "pixel_scale_arcsec": 17.5031,
+ "pixel_scale_source": "header FOCALLEN/XPIXSZ (nominal)",
+ "distribution": {
+  "fwhm_px": {
+   "median": 2.826,
+   "min": 2.765,
+   "max": 2.868
+  },
+  "roundness": {
+   "median": 0.7738,
+   "min": 0.7634,
+   "max": 0.7851
+  },
+  "nstars": {
+   "median": 1661,
+   "min": 1538,
+   "max": 1736
+  },
+  "bg16": {
+   "median": 1057,
+   "min": 1056,
+   "max": 1059
+  }
+ },
+ "temporal_trend_contiguous_blocks": [
+  {
+   "block": 1,
+   "frames": 76,
+   "fwhm": 2.792,
+   "round": 0.7732,
+   "stars": 1673,
+   "bg16": 1058
+  },
+  {
+   "block": 2,
+   "frames": 76,
+   "fwhm": 2.807,
+   "round": 0.7733,
+   "stars": 1686,
+   "bg16": 1057
+  },
+  {
+   "block": 3,
+   "frames": 76,
+   "fwhm": 2.819,
+   "round": 0.7735,
+   "stars": 1672,
+   "bg16": 1057
+  },
+  {
+   "block": 4,
+   "frames": 76,
+   "fwhm": 2.83,
+   "round": 0.7736,
+   "stars": 1669,
+   "bg16": 1057
+  },
+  {
+   "block": 5,
+   "frames": 76,
+   "fwhm": 2.83,
+   "round": 0.774,
+   "stars": 1597,
+   "bg16": 1058
+  },
+  {
+   "block": 6,
+   "frames": 76,
+   "fwhm": 2.827,
+   "round": 0.7746,
+   "stars": 1644,
+   "bg16": 1057
+  },
+  {
+   "block": 7,
+   "frames": 76,
+   "fwhm": 2.838,
+   "round": 0.775,
+   "stars": 1672,
+   "bg16": 1056
+  },
+  {
+   "block": 8,
+   "frames": 68,
+   "fwhm": 2.842,
+   "round": 0.7736,
+   "stars": 1625,
+   "bg16": 1057
+  }
+ ],
+ "flagged_defect_side_z": [],
+ "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames auto-cull in chain runs (recipe.json stack.exclude, written with the flags as the why, reported at the end); a hand-ratified stack block is never overwritten and always wins"
+}

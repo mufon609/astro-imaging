@@ -53,9 +53,15 @@
 # raw links during the run, and the spent b*/ batch dirs at the end
 # (records.jsonl already carries each frame's file name and batch).
 #
-# PROVISIONAL AS-WRITTEN: generalized from the driver that produced set-02's
-# record (same stages); the generalized artifact itself has not yet run end to
-# end — its first as-written run is the next set's prep on the x86 rig.
+# AS-WRITTEN STATUS: run end to end on this rig over 2,978 frames (5 sets of
+# 578-600). That run is what exposed the rollup population bug fixed below —
+# four clean sets passed and the one set carrying unregistered frames died at
+# `st.median`, which is why the defect survived to a set that was 32% obscured.
+# A set with ZERO unregistered frames produces a byte-identical record before
+# and after that fix (verified on a 600-frame set); the added keys appear only
+# when there is something to report. `distribution` and every z flag are over
+# the REGISTERED frames alone — `registered` / `match_failed` /
+# `match_failed_frames` carry the rest, and records.jsonl keeps every frame.
 #
 # This REPORTS; the cull applies per the STANDING USER POLICY: flagged
 # defect-side frames exclude like any obstruction (the chain writes
@@ -156,25 +162,52 @@ for e in entries:
 with open(f"{P}/records.jsonl", "w") as f:
     for r in flat: f.write(json.dumps(r) + "\n")
 
-def med(k): return round(st.median(r[k] for r in flat), 4)
-def mn(k):  return round(min(r[k] for r in flat), 4)
-def mx(k):  return round(max(r[k] for r in flat), 4)
-blocks = [{"block": b, "frames": len(rows),
+# THE ANALYSIS POPULATION, DEFINED ONCE. A frame siril could not register
+# carries NO regdata at all: inspect_stage sets every metric to None (its
+# `has` test is nstars>0 or fwhm>0). That is not a missing measurement, it is
+# the EXTREME of the defect being measured — zero stars found. Pooling it into
+# a median is a TypeError, not a wrong number, and under `set -e` that killed
+# this rollup before cull_report ran and before the record was written.
+# MEASURED: aug14/set-05, 40 of 578 frames unregistered inside four cloud
+# blocks, lost the whole set's tracked summary while records.jsonl sat
+# complete on disk — so the failure LOOKED like the measurement had failed
+# when only the rollup had. cull_report.py has always filtered to
+# `registered`; this rollup did not, so ONE script carried TWO populations of
+# the same frames. records.jsonl still keeps every frame (the failures are
+# evidence, and naming them is what lets a reader find the worst of a set).
+kept = [r for r in flat if r["registered"] and r["bg"] is not None]
+failed = [r for r in flat if not (r["registered"] and r["bg"] is not None)]
+
+def med(k): return round(st.median(r[k] for r in kept), 4)
+def mn(k):  return round(min(r[k] for r in kept), 4)
+def mx(k):  return round(max(r[k] for r in kept), 4)
+blocks = []
+for b in sorted({r["batch"] for r in flat}):
+    rows = [r for r in kept if r["batch"] == b]
+    nf = sum(1 for r in failed if r["batch"] == b)
+    if not rows:
+        # a whole batch inside an obscuration: state it, never omit the block
+        blocks.append({"block": b, "frames": 0, "match_failed": nf,
+                       "note": "every frame in this block failed registration "
+                               "(no regdata) — nothing to summarise"})
+        continue
+    blk = {"block": b, "frames": len(rows),
            "fwhm": round(st.median(r["fwhm"] for r in rows), 3),
            "round": round(st.median(r["round"] for r in rows), 4),
            "stars": int(st.median(r["nstars"] for r in rows)),
            "bg16": int(st.median(r["bg"] for r in rows))}
-          for b in sorted({r["batch"] for r in flat})
-          if (rows := [r for r in flat if r["batch"] == b])]
+    if nf:
+        blk["match_failed"] = nf
+    blocks.append(blk)
 
 # defect-side robust z (same rule cull_report prints; recorded per flagged frame)
 def rz(vals):
     m = st.median(vals); mad = st.median(abs(v - m) for v in vals) * 1.4826
     return m, max(mad, 1e-9)
 side = {"fwhm": +1, "bg": +1, "round": -1, "nstars": -1}
-stats = {k: rz([r[k] for r in flat]) for k in side}
+stats = {k: rz([r[k] for r in kept]) for k in side} if kept else {}
 flagged = []
-for r in flat:
+for r in kept:
     flags = [k for k, s in side.items()
              if (r[k] - stats[k][0]) / stats[k][1] * s >= Z]
     if flags:
@@ -224,17 +257,34 @@ rec = {"tool": "Siril 1.4.4 register (2-pass) regdata via scripts/qa/inspect_sta
         "fwhm_px": {"median": med("fwhm"), "min": mn("fwhm"), "max": mx("fwhm")},
         "roundness": {"median": med("round"), "min": mn("round"), "max": mx("round")},
         "nstars": {"median": int(med("nstars")), "min": int(mn("nstars")), "max": int(mx("nstars"))},
-        "bg16": {"median": int(med("bg")), "min": int(mn("bg")), "max": int(mx("bg"))}},
+        "bg16": {"median": int(med("bg")), "min": int(mn("bg")), "max": int(mx("bg"))}}
+       if kept else {"fwhm_px": {"median": None}, "roundness": {"median": None},
+                     "nstars": {"median": None}, "bg16": {"median": None},
+                     "note": "no frame in this set registered — nothing to summarise"},
        "temporal_trend_contiguous_blocks": blocks,
        "flagged_defect_side_z": flagged,
        "cull_note": "STANDING POLICY (user-ratified): flagged defect-side frames "
                     "auto-cull in chain runs (recipe.json stack.exclude, written with "
                     "the flags as the why, reported at the end); a hand-ratified "
                     "stack block is never overwritten and always wins"}
+# Name them. A count says a third of the set is gone; only the names say WHICH,
+# and these are the worst frames in the set by construction.
+if failed:
+    rec["match_failed_frames"] = [r["file"] for r in failed]
 json.dump(rec, open(OUT, "w"), indent=1)
 print(f"wrote {OUT}  ({len(flagged)} flagged frame(s))")
 PY
-python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" | tee "$P/cull_report.txt" | tail -20
+# cull_report REFUSES a population under 8 registered frames — it cannot pool a
+# robust scale from fewer. That is a DATA condition, not a driver failure: the
+# tracked record above is already written, so state it and carry on to the
+# cleanup and the fingerprint refresh rather than dying under `set -e`/pipefail.
+# Same root cause as the rollup above — a legitimate state of the data must not
+# be able to kill the step that records it.
+crc=0
+python3 "$REPO/scripts/qa/cull_report.py" "$P/records.jsonl" --z "$Z" \
+  > "$P/cull_report.txt" 2>&1 || crc=$?
+tail -20 "$P/cull_report.txt"
+[ "$crc" -eq 0 ] || echo "run_frame_qa: cull_report exited $crc — see $P/cull_report.txt; the frame_metrics.json record stands" >&2
 rm -rf "$P"/b*
 
 # Roundness just landed -> refresh the set's fingerprint so the mount

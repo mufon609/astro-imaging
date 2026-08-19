@@ -1,0 +1,93 @@
+{
+ "_what": "BUILD RECORD for the four-night corpus combine \u2014 the cross-session product. Written because the product itself lives in gitignored web/results/ and NOTHING tracked said what it was built with; the previous three-night combine's parameters had to be recovered by `git log -S` archaeology.",
+ "_home": "datasets/corpus/ \u2014 the multi-SESSION level. datasets/<session>/<set>/ is the wrong shape for a product spanning sessions, and web/results/ is gitignored. BACKLOG:cross-set-record-home covers the SESSION level (datasets/<session>/render_<tag>.json, reserved in datasets/README.md and blocked by finish_render.sh requiring --set); this file is the corpus level, which has no reservation at all.",
+ "product": {
+  "path": "web/results/aug14/stack_corpus4_full_wnbstack.fit",
+  "md5": "b9d24f3f9efc9895ecd13ff2c94e4684",
+  "canvas": [
+   8515,
+   5666
+  ],
+  "megapixels": 48.2,
+  "stackcnt": 8349,
+  "livetime_s": 20872.5,
+  "livetime_h": 5.8,
+  "judge_surface": "web/results/aug14/judge/july31+aug06+aug09+aug14_full_spcc-linked.png (16-bit RGB 8515x5666, verified from the PNG IHDR)"
+ },
+ "membership": {
+  "july31": {
+   "members": 17,
+   "frames": 1760,
+   "sets": [
+    "set-01",
+    "set-02",
+    "set-03",
+    "set-04"
+   ],
+   "distsrc": [
+    "pinned:Nikkor Z 24-70mm f/4 S@70"
+   ]
+  },
+  "aug06": {
+   "members": 13,
+   "frames": 1454,
+   "sets": [
+    "set-01",
+    "set-02",
+    "set-03"
+   ],
+   "distsrc": [
+    "pinned:Nikkor Z 24-70mm f/4 S@70"
+   ]
+  },
+  "aug09": {
+   "members": 22,
+   "frames": 2451,
+   "sets": [
+    "set-01",
+    "set-02",
+    "set-03",
+    "set-04",
+    "set-05"
+   ],
+   "distsrc": [
+    "pinned:Nikkor Z 24-70mm f/4 S@70"
+   ]
+  },
+  "aug14": {
+   "members": 25,
+   "frames": 2684,
+   "sets": [
+    "set-01",
+    "set-02",
+    "set-03",
+    "set-04",
+    "set-05"
+   ],
+   "distsrc": [
+    "pinned:Nikkor Z 24-70mm f/4 S@70"
+   ]
+  }
+ },
+ "NOT_included": {
+  "july27": "has no built members (0 groups_set-NN dirs) and is deliberately outside the combine \u2014 owner-directed",
+  "aug06 l1arm/l1ctrl": "experiment arm dirs; run_corpus_combine.sh's allow-list (groups_set-NN only) excludes them from the deliverable"
+ },
+ "parameters": {
+  "weight": "nbstack \u2014 the INCUMBENT, retained by a measured A/B (datasets/aug14/experiments.jsonl, compose_weight_nbstack_vs_noise): --weight=noise measured +0.188% SNR against a +5.43% prediction, a NULL under the pre-registered <1% rule.",
+  "framing": "max",
+  "reference": "NOT PINNED \u2014 run_corpus_combine.sh passes no --ref, while run_undistort_compose.sh states 'on a multi-night compose it must be pinned'. The auto-pick ranks over the whole member pool, so ADDING A NIGHT CAN SILENTLY RE-BASE the canvas orientation and channel balance. Unresolved; owner's call.",
+  "optical_era": "pinned:Nikkor Z 24-70mm f/4 S@70, a=0.00350093 b=0.01453356 c=0.00043983 \u2014 UNIFORM across all 77 members, verified from DISTSRC/DISTA in every header",
+  "piperev": "5b48421"
+ },
+ "solve": {
+  "result": "RA 309.845 Dec +41.305, scale 17.03 arcsec/px, logodds 106",
+  "settings": "--central=0.5 --ra=309.836 --dec=41.258 --radius-deg=10, max-stars at the DEFAULT 200",
+  "DEFECT_FOUND_IN_finish_render": "finish_render.sh line 143 hardcodes --max-stars=400 and does not expose it. On this Milky-Way field that produced logodds 63 \u2014 FLOOR-CLASS, below the confident-match floor of 100 \u2014 where the default 200 gives 106. solve_field.py's own docstring gives the mechanism: brightest-first selection clusters stars in the galactic band, so 400 over-constrains the order-3 SIP fit and leaves the corners extrapolating. The rendered surface above was produced by running finish_render's stages MANUALLY with max-stars=200; the shipped script would still emit a floor-class solve. NOT FIXED \u2014 build-path change, owner's call.",
+  "also": "run_corpus_combine.sh never passes --central either, though finish_render accepts it and a framing=max union's coverage seams false-detect. Two blind attempts burned 89 minutes before --central solved it in 6 seconds."
+ },
+ "known_gaps": {
+  "spcc_sensor": "no matching sensor for this chip; siril's generic response applied, so K factors (R 1.000 G 0.663 B 0.831, 1638/3895 stars) calibrate against a DEFAULT curve. Stated per run by the tool.",
+  "noise_arm": "stack_corpus4_full_wnoise.fit exists as a FITS with no render \u2014 it is the losing A/B arm, kept for audit, not a deliverable."
+ }
+}

@@ -1,0 +1,99 @@
+{
+ "tool": "Siril 1.4.4 \u2014 un-registered lights: CFA convert -> calibrate -dark -> stack (-norm=mul); Siril stat regional crops + findstar + autostretch preview",
+ "flat": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/masters/skyflat_set-04.fit",
+ "build": {
+  "frames": 600,
+  "rejection": "wins",
+  "dark": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/masters/dark_master.fit",
+  "method": "UN-registered, dark-subtracted (pedestal-free), CFA, multiplicative norm",
+  "desky": "off (flat carries any sensor-fixed sky gradient present in the source frames)",
+  "frame_source": "ALL raw frames in the set dir"
+ },
+ "regional_stat_ADU": {
+  "center": {
+   "mean": 45.6,
+   "median": 50.8,
+   "sigma": 10.6
+  },
+  "TL": {
+   "mean": 26.8,
+   "median": 26.8,
+   "sigma": 6.8
+  },
+  "TR": {
+   "mean": 21.7,
+   "median": 21.7,
+   "sigma": 5.7
+  },
+  "BL": {
+   "mean": 26.7,
+   "median": 26.9,
+   "sigma": 6.8
+  },
+  "BR": {
+   "mean": 23.3,
+   "median": 23.4,
+   "sigma": 6.0
+  }
+ },
+ "region_geometry_px": {
+  "box": 400,
+  "corner_margin": 200
+ },
+ "corner_asymmetry": {
+  "ratio": 1.24,
+  "brightest": "BL",
+  "darkest": "TR",
+  "radial_expectation": 1.0,
+  "note": "excess over 1.00 is non-radial: decentering (repeats across sets, same darkest corner) or a baked sky gradient (moves). WARN threshold 1.20 is PROVISIONAL from the measured corpus (july23 1.126/1.159/1.229/1.320, july27 set-01 1.332) \u2014 it flags for attention, it does not gate."
+ },
+ "edge_regional_stat_ADU": {
+  "center": {
+   "mean": 45.6,
+   "median": 45.7,
+   "sigma": 10.5
+  },
+  "TL": {
+   "mean": 14.0,
+   "median": 14.4,
+   "sigma": 3.6
+  },
+  "TR": {
+   "mean": 10.8,
+   "median": 11.1,
+   "sigma": 3.0
+  },
+  "BL": {
+   "mean": 14.4,
+   "median": 14.8,
+   "sigma": 3.6
+  },
+  "BR": {
+   "mean": 12.1,
+   "median": 12.4,
+   "sigma": 3.3
+  }
+ },
+ "edge_region_geometry_px": {
+  "box": 80,
+  "corner_margin": 2,
+  "note": "baseline_guard.py's edge_dipole_x geometry"
+ },
+ "odd_component": {
+  "edge_dipole_x": -0.2163,
+  "edge_dipole_y": -0.0645,
+  "instrument": "Siril `stat` medians on 4 corner crops at the edge geometry; ((TR+BR)-(TL+BL))/2 normalised to the 4-corner mean (baseline_guard.py convention), and its top-bottom sibling",
+  "how_to_read": "Vignetting is an EVEN RADIAL function, so it contributes EQUALLY to x and y. |edge_dipole_x| materially above |edge_dipole_y| is NON-RADIAL by construction and cannot be vignetting \u2014 on a sky flat that is the horizon-fixed sky gradient integrating into the flat, which then leaves the OBJECT carrying a multiplicative tilt it never had (docs/dead-ends.md, the sky-flat entry). The corner-vs-centre gate above CANNOT see this: it averages the two sides together, which is why the registry calls that gate self-fulfilling for this defect.",
+  "not_a_pass_fail": "REPORTED, not gated. The `sky x V` contamination this measures is a known-OPEN defect with no shipped corrective (`--desky` was a 31x regression), so failing on it would block every flat this route builds. A pass/fail line on this term is a user ratification (BACKLOG:`calibration-evidence`), not this script's to invent.",
+  "reference_values_july31_docs_dead_ends": {
+   "raw_dark_subtracted_light": 0.426,
+   "pre_desky_flat": 0.365,
+   "desky_flat": -0.55,
+   "master_dark": 0.0
+  }
+ },
+ "findstar_speck_count": 1,
+ "advisory": "RENAMED FROM \"gate\" BECAUSE IT NEVER GATED \u2014 this script's own corner-asymmetry note says verbatim \"it flags for attention, it does not gate\", nothing here exits non-zero on quality, and no consumer anywhere reads a quality verdict from this record (the only readers, stamp_headers.sh and backfill_substack_provenance.sh, take build.dark and flat for the CALDARK/CALFLAT provenance keys). A field called \"gate\" asserted an acceptance decision that does not exist. What it IS: smooth falloff (corners < centre), no structured sky residual on the preview, speck count ~0 \u2014 reported for a human. What actually gates adoption is the eye check plus the with/without finals comparison.",
+ "advisory_cannot_see": "THE CORNER-VS-CENTRE READING IS SELF-FULFILLING FOR THE DEFECT THIS BUILDER EXISTS TO AVOID, and the mechanism is structural rather than a threshold problem: vignetting is RADIAL and therefore EVEN, a baked sky gradient is ODD, and corner-vs-centre reads the EVEN part \u2014 the part that is SUPPOSED to be there. A good flatness number is evidence the flat captured vignetting, which was never in doubt, and is blind by construction to the sky x V object tilt. Judge the flat's ODD component instead (scripts/qa/flat_odd_component.py, shipped and NOT wired here). The edge dipoles recorded alongside are the odd-side numbers; this advisory does not claim to cover what they measure.",
+ "preview": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/masters/skyflat_set-04_view.png"
+}

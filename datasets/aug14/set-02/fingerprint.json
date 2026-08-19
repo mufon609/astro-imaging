@@ -1,0 +1,59 @@
+{
+ "measured_by": "header facts (acquisition.py) + astrometry.net solves (solve_field.py) + Siril findstar/register metrics (frame_metrics.json); this module computes only the derived trail/drift geometry and records it",
+ "declared_mount": "fixed",
+ "plate_scale_arcsec_px": 35.5736,
+ "plate_scale_source": "solved",
+ "field_center": {
+  "ra_deg": 303.457119,
+  "dec_deg": 41.122138,
+  "source": "solved"
+ },
+ "in_exposure_trail": {
+  "predicted_if_fixed_px": 0.8,
+  "measured_roundness": 0.7786,
+  "measured_fwhm_px": 2.733,
+  "check": {
+   "predicted_if_fixed_px": 0.8,
+   "implied_trail_max_px": 2.34,
+   "margin": 0.3,
+   "population_ok": true,
+   "decisive": false,
+   "signature": null,
+   "reason": "predicted-if-fixed trail 0.8 px vs up to 2.3 px of measured elongation \u2014 within 10x: not decisive; the two-window drift solve is the instrument near the boundary"
+  },
+  "note": "predicted = 15.041 * cos(dec) * exposure / plate_scale \u2014 the smear a FIXED mount would put in every sub; no registration removes it"
+ },
+ "inter_frame_drift": {
+  "span_s": 1797.0,
+  "ra_rate_deg_per_hr": 15.0288,
+  "dec_drift_arcsec": -67.72,
+  "sky_sep_arcsec": 20341.15,
+  "drift_px": 571.8,
+  "drift_px_per_min": 19.09,
+  "sidereal_px_per_min_expected": 19.11
+ },
+ "mount_check": {
+  "verdict": "CONFIRM",
+  "declared": "fixed",
+  "measured": "fixed",
+  "method": "drift-solves",
+  "reason": "declared fixed matches the measured fixed signature \u2014 RA advances 15.0288 deg/hr vs sidereal 15.041"
+ },
+ "label": "untracked, 28.6 deg field, sky sweeps 0.198 of it",
+ "route": {
+  "route": "undistort-groups",
+  "key": "drift_frac",
+  "value": 0.1976,
+  "threshold": 0.05,
+  "terms": {
+   "sky_sep_deg": 5.6503,
+   "drift_deg_per_min": 0.1887,
+   "probe_span_s": 1797.0,
+   "set_span_s": 1797.0,
+   "fov_deg": 28.6,
+   "span_extrapolated": false
+  },
+  "provenance": "drift_frac = sky excursion / field width, from astrometry.net two-window solves (scripts/qa/mount_probe.sh) + header facts (scripts/lib/acquisition.py); threshold and derivation in scripts/lib/route.py",
+  "reason": "fixed mount: the sky sweeps 0.198 of the field over the set (5.65 deg at 0.189 deg/min across a 28.6 deg field), at or above the 0.05 floor the distortion term is measured at \u2014 the frame-to-frame map is distort o H o distort^-1, so the route undistorts before the homography; groups is the STANDING shape"
+ }
+}
