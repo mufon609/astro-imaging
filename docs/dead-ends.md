@@ -4108,6 +4108,45 @@ SILENT — pin the state, never inherit it):
   facts worth keeping are the tool facts: it exists and is honoured in 0.3.4,
   and `install_lens_model.sh --center X,Y` writes it (`--center 0,0` removes
   it) if a future lens ever needs one.
+- **A `-SIP` CTYPE IS NOT EVIDENCE OF SIP, AND ASTROPY DOES NOT WARN.** MEASURED on
+  the shipped four-night corpus and reproduced on a probe build:
+
+      corpus `_wcs.fit`    CTYPE1 = 'RA---TAN-SIP'   SIP cards 0    A_ORDER absent
+      corpus `_spcc.fit`   CTYPE1 = 'RA---TAN'       SIP cards 0    A_ORDER absent
+      a member             CTYPE1 = 'RA---TAN-SIP'   SIP cards 44   A_ORDER = 3
+
+  `solve_field.py`'s injected WCS carries the `-SIP` projection label with **no SIP
+  coefficient cards at all**. `WCS(h, naxis=2)` builds it silently and returns
+  `wcs.sip is None` — no exception, no warning. **The header states a claim the file
+  does not back, and the standard reader resolves it quietly to a plain TAN.**
+  THREE THINGS ARE ESTABLISHED AND NOTHING ELSE IS:
+  (a) the label is untrue on `_wcs.fit`, and nothing in the tool chain says so;
+  (b) **`compose_preflight.py` is NOT foolable by it** — checked, because it is the
+  guard that could be: it tests `A_ORDER` FIRST and only then CTYPE, and its
+  `--selftest` carries a `linear` case (the SIP-labelled header minus `A_ORDER`)
+  asserting `NO_SIP`. A TAN-SIP-labelled linear header is correctly REJECTED;
+  (c) **siril's own `load`/`save` relabels it to `RA---TAN`**, which is the honest
+  label — so `_spcc` disagreeing with `_wcs` on CTYPE is siril being correct, not an
+  SPCC defect. (The same round-trip PRESERVES every repo provenance key tested:
+  REGREF, REGREFSR, SOLVCENT, SOLVMAXS, REGMODEL, REGUNDIS, DISTA, CALSETS,
+  PIPEREV, STACKCNT.)
+  **WHETHER astrometry.net COMPUTES SIP IT DOES NOT SURFACE IS OPEN, AND IS
+  DELIBERATELY LEFT WITH NO VERDICT.** `wcs_fields` arrives from the engine's C
+  extension, so neither reader has looked where the answer is; recording "the
+  solver cannot emit SIP" from that would be the promote-a-limit error this
+  registry already carries twice (`tilt`/`inspector` listed-but-refusing, and
+  `seqapplyreg`'s help closing the astrometric route).
+  **THIS IS THE THIRD WAY THIS CORPUS'S WCS MISLEADS A READER, and all three are
+  silent.** (1) `WCS(h)` on a member RAISES on 3-axis+SIP, so a probe without
+  `naxis=2` reports every member unsolved — measured, 0 of 77, when all 77 carry
+  `RA---TAN-SIP`. (2) `CRVAL` is the TANGENT POINT, not the pointing: median
+  **1.877 deg** and max **5.814 deg** from the centre-pixel value across those 77,
+  enough to select a different member or fake a mount contradiction
+  (BACKLOG:`pointing-record-names-the-wrong-frame`). (3) this entry. A fourth is
+  recorded elsewhere: SPCC drops `WCSAXES/LATPOLE/CD1_1..CD2_2` while the WCS still
+  resolves, so a literal key-by-key comparison of `_wcs` against `_spcc` reports a
+  difference that is a representation change. **Evaluate the WCS; never read its
+  cards as the answer.**
 
 - **A STANDALONE PER-MEMBER SIP WARP, APPLIED OUTSIDE SIRIL'S REGISTRATION, IS
   WORSE THAN THE SHIPPED ROUTE — the polynomial is not identity-preserving
