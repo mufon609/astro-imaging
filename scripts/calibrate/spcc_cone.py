@@ -12,26 +12,33 @@ Usage:
   spcc_cone.py <solved_stack.fit> [--radius-deg=N] [--fetch]
   spcc_cone.py --ra=R --dec=D --radius-deg=N [--fetch]
 
-Center comes from CRVAL1/CRVAL2; the cone radius defaults to half the frame
-diagonal + 1 deg margin, derived from FOCALLEN/XPIXSZ/NAXIS in the header
-(override with --radius-deg). `--fetch` downloads any missing chunk from the
-Zenodo record (md5-verified, decompressed in place).
+Centre = the full WCS evaluated at the image-centre pixel (astropy; CRVAL
+alone is the tangent point, not the pointing); the cone radius defaults to the
+centre-to-corner maximum + 0.5 deg margin (override with --radius-deg).
+`--fetch` downloads any missing chunk from the Zenodo record (md5-verified,
+decompressed in place).
 
-Pure numpy; the HEALPix ang2pix (nested) is the standard algorithm — no
-healpy. Validated against a hand-checked reference cover (an 11-chunk
-cover for a 33.5 deg cone).
+The HEALPix ang2pix (nested) is the standard algorithm in numpy — no healpy.
+Validated against a hand-checked reference cover (an 11-chunk cover for a
+33.5 deg cone).
 
 REMOVAL CONDITION (two clauses, each evaluated separately): (a) the nested
 ang2pix cover retires when siril 1.5's `healpix` command is adopted and its
 pixel list is verified to map to the zenodo chunk names (BACKLOG `siril-1.5`),
 or when astropy_healpix is adopted into this script's interpreter (installed
-in /opt/astro-venv, ABSENT from host python3 — TOOLS.md); (b) the hand-rolled
-`_tan_pix2sky` gnomonic step retires when the projection moves to astropy WCS
-(already imported here for the header read; used for exactly this in
-derive_compose_ref.py). Consequence bound either way: chunk SELECTION only,
-sub-arcmin error against ~29 deg pixels, and siril names any missing chunk
-loudly. Registered in BACKLOG `removal-conditions` (conditions authored by
-audit — this divergence shipped with none; RATIFIED by the owner 2026-08-19).
+in /opt/astro-venv, ABSENT from host python3 — TOOLS.md). NOT FIRED.
+(b) FIRED, owner-directed, the day it was ratified: the hand-rolled
+`_tan_pix2sky` gnomonic step moved to astropy WCS built from the CD ALONE.
+Measured A/B over every solved product on disk: chunk lists identical on all
+34; the retired hand-roll carried up to 162 arcsec centre and 0.33 deg radius
+error against the CD-only evaluation, whose centres agree with the headers'
+own OBJCTRA/OBJCTDEC at median 1.7 / worst 36.5 arcsec (the hand-roll: median
+17.8 / worst 151.6). The swap's first attempt exposed the dual-matrix trap
+the in-function comment states (astropy fed the leftover PC+CDELT: 0.25 deg
+skew) — registry + BACKLOG `wcs-dual-matrix-inject`. Consequence bound
+stands: chunk SELECTION only, and siril names any missing chunk loudly.
+Registered in BACKLOG `removal-conditions` (conditions authored by audit —
+this divergence shipped with none; RATIFIED by the owner 2026-08-19).
 """
 import os
 import re
@@ -115,35 +122,6 @@ def cone_chunks(ra0, dec0, radius_deg, n_r=80, n_pa=720):
     return sorted(set(ang2pix_nest_nside2(ra, dec).tolist()))
 
 
-def _hdr(path):
-    from astropy.io import fits
-    hdr = fits.getheader(path)
-
-    def val(key):
-        try:
-            return float(hdr[key])
-        except (KeyError, ValueError, TypeError):
-            return None
-    return val
-
-
-def _tan_pix2sky(cx, cy, w):
-    """(ra, dec) deg at pixel (cx, cy) via the TAN (gnomonic) WCS in dict w
-    (CRPIX/CRVAL/CD). SIP distortion is ignored — sub-arcmin, negligible at
-    the nside=2 (~29 deg) pixel scale this feeds."""
-    u, v = cx - w["CRPIX1"], cy - w["CRPIX2"]
-    xi = np.radians(w["CD1_1"] * u + w["CD1_2"] * v)      # intermediate, rad
-    eta = np.radians(w["CD2_1"] * u + w["CD2_2"] * v)
-    ra0, dec0 = np.radians(w["CRVAL1"]), np.radians(w["CRVAL2"])
-    rho = np.hypot(xi, eta)
-    c = np.arctan(rho)
-    sc = np.where(rho > 1e-12, np.sin(c) / np.where(rho > 1e-12, rho, 1.0), 1.0)
-    dec = np.arcsin(np.cos(c) * np.sin(dec0) + eta * sc * np.cos(dec0))
-    ra = ra0 + np.arctan2(xi * sc,
-                          np.cos(c) * np.cos(dec0) - eta * sc * np.sin(dec0))
-    return np.degrees(ra) % 360.0, np.degrees(dec)
-
-
 def _angsep(ra1, dec1, ra2, dec2):
     """Angular separation (deg), haversine."""
     r1, d1, r2, d2 = map(np.radians, (ra1, dec1, ra2, dec2))
@@ -153,26 +131,46 @@ def _angsep(ra1, dec1, ra2, dec2):
 
 
 def field_from_header(path):
-    """(ra, dec, radius_deg) = the true IMAGE-CENTRE sky coords + the
-    footprint radius, projected through the CD-matrix WCS. CRVAL alone is
-    the reference pixel (astrometry.net places CRPIX off-centre — often a
-    corner), so the centre must be projected, not read. Needs the CD-matrix
-    WCS (the solve_field-injected `_wcs.fit`); siril's SPCC re-save drops
-    CD1_1, so point this at the `_wcs.fit`, not the `_spcc.fit`."""
-    val = _hdr(path)
-    keys = {k: val(k) for k in ("CRPIX1", "CRPIX2", "CRVAL1", "CRVAL2",
-                                "CD1_1", "CD1_2", "CD2_1", "CD2_2",
-                                "NAXIS1", "NAXIS2")}
-    if any(keys[k] is None for k in keys):
-        missing = [k for k in keys if keys[k] is None]
+    """(ra, dec, radius_deg) = the WCS evaluated at the IMAGE-CENTRE pixel +
+    the centre-to-corner maximum + 0.5 deg margin (astropy WCS — the same
+    evaluate-at-centre-pixel form as derive_compose_ref/verify_site). CRVAL
+    alone is the reference pixel (astrometry.net places CRPIX off-centre —
+    often a corner), so the centre must be projected, not read. The presence
+    check stays EXPLICIT: astropy builds an identity WCS from a bare header,
+    which would return a silently wrong field where this exits loudly. Needs
+    the CD-matrix WCS (the solve_field-injected `_wcs.fit`); siril's SPCC
+    re-save drops CD1_1, so point this at the `_wcs.fit`, not `_spcc.fit`."""
+    import warnings
+    from astropy.io import fits
+    from astropy.wcs import WCS
+    hdr = fits.getheader(path)
+    need = ("CRPIX1", "CRPIX2", "CRVAL1", "CRVAL2",
+            "CD1_1", "CD1_2", "CD2_1", "CD2_2", "NAXIS1", "NAXIS2")
+    missing = [k for k in need if k not in hdr]
+    if missing:
         sys.exit(f"spcc_cone: {path} lacks a CD-matrix WCS ({missing}). Point "
                  "at the solve_field `_wcs.fit`, or pass --ra/--dec/--radius-deg.")
-    nx, ny = keys["NAXIS1"], keys["NAXIS2"]
-    ra, dec = _tan_pix2sky(nx / 2.0, ny / 2.0, keys)         # true centre
-    corners = _tan_pix2sky(np.array([0.5, nx + 0.5, 0.5, nx + 0.5]),
-                           np.array([0.5, 0.5, ny + 0.5, ny + 0.5]), keys)
-    radius = float(_angsep(ra, dec, corners[0], corners[1]).max()) + 0.5
-    return float(ra), float(dec), radius
+    nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
+    # The _wcs headers carry BOTH matrix forms: siril's PC+CDELT (the stack's
+    # own canvas WCS) beside the solve-injected CD — non-standard (FITS-WCS
+    # says mutually exclusive) — and astropy resolves the conflict toward
+    # PC+CDELT: MEASURED 0.25 deg centre skew on the corpus against both the
+    # CD evaluation and the header's own OBJCTRA/OBJCTDEC. This function's
+    # contract is the SOLVE, so the leftover form is stripped in memory and
+    # the WCS is built from the CD alone.
+    for k in list(hdr):
+        if k.startswith(("PC", "CDELT", "CROTA")):
+            del hdr[k]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        w = WCS(hdr, naxis=2)
+        ra, dec = (float(v) for v in
+                   w.pixel_to_world_values((nx - 1) / 2.0, (ny - 1) / 2.0))
+        cras, cdecs = w.pixel_to_world_values(
+            np.array([-0.5, nx - 0.5, -0.5, nx - 0.5]),
+            np.array([-0.5, -0.5, ny - 0.5, ny - 0.5]))
+    radius = float(_angsep(ra, dec, cras, cdecs).max()) + 0.5
+    return ra % 360.0, dec, radius
 
 
 def zenodo_files():
@@ -226,9 +224,6 @@ def main():
         ra, dec, radius = field_from_header(args[0])
         if "radius-deg" in opts:
             radius = float(opts["radius-deg"])
-        if radius is None:
-            sys.exit("spcc_cone: no FOCALLEN/XPIXSZ/NAXIS in header — pass "
-                     "--radius-deg")
     else:
         sys.exit(__doc__)
 
