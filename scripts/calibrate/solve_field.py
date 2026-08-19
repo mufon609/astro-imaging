@@ -217,8 +217,7 @@ def bootstrap():
 def detect_stars_sep(path, central=None, max_stars=200):
     """Official extraction: SExtractor's core (`sep`) — detection,
     deblending and windowed centroids are the tool's own measurement; this
-    function only ranks, de-crowds and converts to FITS convention (the
-    same post-processing the peaks fallback applies to its candidates)."""
+    function only ranks, de-crowds and converts to FITS convention."""
     import astrometrics as am
     import numpy as np
     import sep
@@ -652,9 +651,7 @@ def main():
     stars, h, w = fn(src, central=central, max_stars=max_stars)
     # Print the RETAINED BOX in pixels, not just the fraction: a restriction
     # that restricts nothing is then impossible to mistake for one that does.
-    print(f"[solve_field] {len(stars)} stars via "
-          + ("sep (SExtractor core)" if detector == "sep"
-             else "in-house peak centroids (fallback)")
+    print(f"[solve_field] {len(stars)} stars via sep (SExtractor core)"
           + (f" (central {central:g} of frame = the middle "
              f"{int(central * w)}x{int(central * h)} px of {w}x{h})"
              if central else ""))

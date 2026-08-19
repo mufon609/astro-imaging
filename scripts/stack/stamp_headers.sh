@@ -199,9 +199,10 @@ b = flat.get("build") or {}
 
 
 def master_facts(path):
-    """(frames, datasum) from the master's OWN header. Opens no pixel and NEVER
-    writes: `add_datasum()` mutates the in-memory header only, and the file is
-    not saved. Siril strips DATASUM/CHECKSUM on any load+save (measured), which
+    """(frames, datasum) from the master's own file. Reads the data block ONCE
+    to hash it (`add_datasum()` computes over the data bytes) and NEVER
+    writes: the sum lands in the in-memory header only, and the file is not
+    saved. Siril strips DATASUM/CHECKSUM on any load+save (measured), which
     is why the hash is carried on the PRODUCT as a provenance value rather than
     embedded in the master — ESO's `CAL1 NAME` + `CAL1 DATAMD5` shape."""
     try:

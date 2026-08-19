@@ -53,8 +53,6 @@ import shutil
 import struct
 import sys
 
-import numpy as np
-
 # objective gate/defect metrics for the candidate-vs-control delta table:
 # (label, path-into-metrics, lower_is_better). Star BRIGHTNESS and the
 # other aesthetic dimensions are deliberately excluded — the harness
