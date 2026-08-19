@@ -12,10 +12,30 @@
 #              coverage SEAMS that false-detect, and brightest-first selection
 #              on a Milky-Way field clusters the star list in the band so an
 #              order-3 SIP (20 free parameters per axis) extrapolates freely in
-#              the corners. Omitted, the union solve starves. MEASURED on the
-#              four-night corpus: logodds 63 against a confident floor of 100.
-#              web/serve.py already derives it from the product tag; the shell
-#              emitters do not, which is the divergence this guard names.
+#              the corners. web/serve.py already derives it from the product
+#              tag; the shell emitters do not, which is the divergence this
+#              guard names.
+#              CAUSAL, by one-knob A/B on ONE stack (same --max-stars=200, same
+#              --ra/--dec/--radius-deg=10, --central the only knob):
+#                  four-night corpus, 48.2 Mpx, --central=0.5  ->  logodds 106
+#                  four-night corpus, 48.2 Mpx, no --central   ->  NO SOLUTION
+#              AND IT DOES NOT BITE EVERY UNION, which is why this guard flags a
+#              LATENT risk and not a present defect at every site:
+#                  aug14 night combine, 41.6 Mpx, no --central, 400 stars -> 110
+#              i.e. green, above the confident floor of 100, with the flag absent.
+#              A separate one-knob arm on the same corpus isolates --max-stars
+#              (--central=0.5 held): 200 stars -> 106, 400 stars -> 63. THAT 63
+#              IS THE --max-stars ARM AND IS NOT EVIDENCE ABOUT --central — an
+#              earlier revision of this header cited it as though it were, and
+#              the flag message below quoted it at the NIGHT site, which had
+#              measured 110. A number borrowed from a different artifact AND a
+#              different knob is the failure this repo has paid for repeatedly;
+#              the message below now states the mechanism and carries no number.
+#              WHAT DECIDES WHETHER IT BITES IS UNMEASURED. Two points (41.6
+#              green, 48.2 starved) are consistent with canvas size or with seam
+#              fraction and do not separate them. Logged UNCHECKED, jointly held:
+#              a --central derivation should key on a measured coverage rim
+#              rather than on megapixels, so that it does not rest on this.
 #   --ref      run_undistort_compose.sh's own header: `register -2pass`'s AUTO
 #              reference sets the output canvas ORIENTATION and, through
 #              `-norm=addscale`, the composite's raw channel BALANCE. Within one
@@ -116,7 +136,7 @@ check_cmd() {
       [ "$union" = 1 ] || return 0
       case "$c" in
         *--central=*) ;;
-        *) echo "renders a framing=max UNION and carries no --central= — the coverage seams false-detect and the solve starves (measured: logodds 63 against a confident floor of 100)"; return 1;;
+        *) echo "renders a framing=max UNION and carries no --central= — the coverage seams false-detect and the SIP fit extrapolates into the corners, so the solve can starve. LATENT, not present: measured causal on the 48.2 Mpx corpus (no --central -> NO SOLUTION) and harmless on the 41.6 Mpx night combine (110, green). What decides which is UNMEASURED — see the header. Determine it here rather than leaving it to canvas size"; return 1;;
       esac;;
     run_undistort_compose.sh)
       [ "$multi" = 1 ] || return 0
