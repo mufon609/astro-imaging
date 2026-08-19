@@ -113,8 +113,22 @@ else
   echo "[session chain] ===== night combine: ${#GROUPDIRS[@]} sets -> $(basename "$NIGHT") ====="
   "$REPO/scripts/stack/run_undistort_compose.sh" --out="$NIGHT" --framing=max \
     --weight=nbstack "${GROUPDIRS[@]}"
+  # --set is the night combine's OWN reference set (REGREF, the stamped
+  # anchor) — a contributing set by construction, never sort position
+  # (BACKLOG:set-identity-by-sort-order; the retired "${SETS[-1]}" routed by
+  # enumeration order).
+  NSET=$(python3 - "$NIGHT" <<'PY'
+import re, sys
+from astropy.io import fits          # HEADER only — no pixel access
+r = str(fits.getheader(sys.argv[1]).get("REGREF", ""))
+m = re.match(r"\d+:[^/]+/groups_(set-[0-9a-z]+)/", r)
+if not m:
+    sys.exit(f"no parseable REGREF on {sys.argv[1]} (got {r!r}) — cannot route the finish")
+print(m.group(1))
+PY
+) || exit 1
   "$REPO/scripts/stack/finish_render.sh" "$NIGHT" "${NAME}_full" \
-    --session="$SESSION" --set="${SETS[-1]}"
+    --session="$SESSION" --set="$NSET"
   echo "[session chain] night render -> web/results/$SES/judge/${NAME}_full_spcc-linked.png"
 fi
 echo "[session chain] DONE — ${#SETS[@]} set(s) + the night combine, each at its judge surface"

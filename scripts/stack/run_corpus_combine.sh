@@ -83,7 +83,29 @@ fi
 # The render is part of the deliverable, not a follow-up: a combine nobody can
 # look at is not finished. finish_render.sh solves -> SPCC -> linked stretch ->
 # full-frame 16-bit PNG, which is the only surface a verdict may be taken on.
+# --session/--set route the SPCC spec + record filing and derive from the
+# product's OWN registration reference (REGREF, the stamped anchor) — a
+# CONTRIBUTING set by construction. The retired `ls -d set-* | tail -1` was
+# sort-position identity: ASCII orders digits before letters, so set-0a/0b's
+# creation made the LAST name a spare bucket and two corpus records filed
+# under a set with zero members in the product
+# (BACKLOG:set-identity-by-sort-order).
+read -r REFSES REFSET < <(python3 - "$OUT" <<'PY'
+import re, sys
+from astropy.io import fits          # HEADER only — no pixel access
+r = str(fits.getheader(sys.argv[1]).get("REGREF", ""))
+m = re.match(r"\d+:([^/]+)/groups_(set-[0-9a-z]+)/", r)
+if not m:
+    sys.exit(f"no parseable REGREF on {sys.argv[1]} (got {r!r}) — cannot route the finish")
+print(m.group(1), m.group(2))
+PY
+) || exit 1
+REFDIR=
+for s in "${SESSIONS[@]}"; do
+  [ "$(basename "$(cd "$s" && pwd)")" = "$REFSES" ] && REFDIR=$(cd "$s" && pwd)
+done
+[ -n "$REFDIR" ] || { echo "[corpus] REGREF names session '$REFSES', which is not among the staged sessions" >&2; exit 1; }
 "$REPO/scripts/stack/finish_render.sh" "$OUT" "${NAME}_full" \
-  --session="$(cd "${SESSIONS[-1]}" && pwd)" --set="$(basename "$(ls -d "$(cd "${SESSIONS[-1]}" && pwd)"/set-* | tail -1)")"
+  --session="$REFDIR" --set="$REFSET"
 echo "[corpus] DONE -> $OUT"
 echo "[corpus] render -> web/results/${NAMES[-1]}/judge/${NAME}_full_spcc-linked.png"

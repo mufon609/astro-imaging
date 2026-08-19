@@ -68,6 +68,36 @@ fi
 [ -f "$STACK" ] || { echo "no such stack: $STACK" >&2; exit 1; }
 STACK=$(cd "$(dirname "$STACK")" && pwd)/$(basename "$STACK")
 
+# A composite's SPCC spec + records must route by a CONTRIBUTING set — the
+# name is POLICY while the stack path is DATA, and nothing else checks them
+# against each other (BACKLOG:set-identity-by-sort-order; the fired case filed
+# two corpus records under a zero-member spare set). Header-only: NMEMBER>1
+# requires <session>/<set> in the CALSETS window (whose LAST element may carry
+# the +N truncation tail) OR equal to the REGREF set; a wrong set matches
+# neither and stops here. STATED LIMIT (fire-tested): a genuinely contributing
+# set that fell outside the truncated window and is not the reference ALSO
+# stops — the header cannot prove it; route by the reference set instead
+# (the chain callers derive exactly that).
+python3 - "$STACK" "$(basename "$SESSION")/$SET" <<'PY' || exit 1
+import re, sys
+from astropy.io import fits          # HEADER only — no pixel access
+h = fits.getheader(sys.argv[1])
+n = h.get("NMEMBER")
+if not n or int(n) <= 1:
+    sys.exit(0)                      # single-member product: nothing to check
+claim = sys.argv[2]
+raw = str(h.get("CALSETS", ""))
+window = [re.sub(r"\+\d+$", "", t) for t in raw.split(",") if t]
+m = re.match(r"\d+:([^/]+)/groups_(set-[0-9a-z]+)/", str(h.get("REGREF", "")))
+refset = f"{m.group(1)}/{m.group(2)}" if m else ""
+if claim not in window and claim != refset:
+    sys.exit(f"finish_render: --set names {claim}, which is neither in the "
+             f"composite's CALSETS window ({raw or 'absent'}) nor its "
+             f"registration reference set ({refset or 'absent'}) — a "
+             f"composite's SPCC spec + records route by a CONTRIBUTING set "
+             f"(NMEMBER={n})")
+PY
+
 # The item-12 CONSUME side: apply a user-drawn, VERIFIED framing to the
 # LINEAR stack before anything else (crop-before-stretch doctrine; the
 # record's siril args target the source product's canvas — checked). An
