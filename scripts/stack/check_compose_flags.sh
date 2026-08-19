@@ -86,14 +86,16 @@
 # linked index and aborts if it does not resolve; solve_field.py refuses a
 # --central outside (0,1). Presence is this guard's question; validity is theirs.
 #
-# AMENDMENT CONDITION, and it is not hypothetical — it is the next unit of this
-# same work. Deriving `--central` / `--ref` INSIDE the callee (from the union's
-# zero-coverage rims and from the members' DATE-OBS spread) makes the caller's
-# flag unnecessary, at which point RULE 1 and RULE 2 become FALSE as written:
-# they would fail a correct tree. When that lands, the rules move from "the
-# caller passes it" to "the callee derives it", and the assertion becomes the
-# presence of the derivation site plus a caller override that still parses.
-# Do not delete this guard then — re-point it, or it takes its coverage with it.
+# AMENDMENT CONDITION — RULE 2's HAS ALREADY FIRED, and this is what it became.
+# The condition read: deriving a parameter INSIDE the callee makes the caller's
+# flag unnecessary, at which point the rule is FALSE as written and would fail a
+# correct tree. `derive_compose_ref.py` landed and did exactly that, so RULE 2 no
+# longer asks "does the caller pass --ref"; it asks "is the reference
+# DETERMINED", which either layer may satisfy. The caller override still parses
+# and still counts.
+# RULE 1's CONDITION IS STILL PENDING on the same event for `--central`. When a
+# --central derivation lands in the callee, re-point RULE 1 the same way rather
+# than deleting it, or it takes its coverage with it.
 #
 # WHAT COUNTS AS A COMMAND. Shell prose and shell commands both name these
 # scripts in these files: run_set_chain.sh prints three `say "  5.
@@ -113,6 +115,16 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 # asserted COMPLETE below: a new composer that is in neither list fails this
 # guard rather than defaulting into the harmless class. That completeness check
 # is the whole reason this is a register and not a heuristic.
+# THE CALLEE'S DERIVATION SATISFIES RULE 2 AS FULLY AS A CALLER FLAG. What the
+# rule requires is that the reference be DETERMINED — not that a particular layer
+# determines it. This is checked, not assumed: if the derivation is removed from
+# the compose, every multi-night call site goes RED again, which is correct.
+COMPOSE_CALLEE='scripts/stack/run_undistort_compose.sh'
+REF_DERIVER='derive_compose_ref.py'
+callee_derives_ref() {
+  [ -f "$COMPOSE_CALLEE" ] && grep -q "$REF_DERIVER" "$COMPOSE_CALLEE"
+}
+
 MULTINIGHT='scripts/stack/run_corpus_combine.sh'          # <session-dir>... , >= 2 group dirs across nights
 SINGLENIGHT='scripts/stack/run_session_chain.sh web/serve.py'  # one session, loops its SETS
 
@@ -150,10 +162,10 @@ union_capable() {
 }
 
 # ---- the rules, pure so --selftest can falsify them ---------------------
-# $1 kind  $2 union-capable(0|1)  $3 multi-night(0|1)  $4 command
+# $1 kind  $2 union-capable(0|1)  $3 multi-night(0|1)  $4 command  $5 callee-derives-ref(0|1)
 # echoes a reason and returns 1 when the command leaves the parameter undetermined.
 check_cmd() {
-  local kind=$1 union=$2 multi=$3 c=$4
+  local kind=$1 union=$2 multi=$3 c=$4 derived=${5:-0}
   case "$kind" in
     finish_render.sh)
       [ "$union" = 1 ] || return 0
@@ -163,9 +175,10 @@ check_cmd() {
       esac;;
     run_undistort_compose.sh)
       [ "$multi" = 1 ] || return 0
+      [ "$derived" = 1 ] && return 0      # the callee determines it — RULE 2 satisfied
       case "$c" in
         *--ref=*) ;;
-        *) echo "composes across NIGHTS and carries no --ref= — register -2pass's auto pick then decides the composite's orientation and channel balance from argument order (measured: K_B 0.846 + a rotated map, against 0.951 and an exact map)"; return 1;;
+        *) echo "composes across NIGHTS and leaves the reference UNDETERMINED — no --ref= here and the callee does not derive one, so siril's auto pick takes it, and that is measured to be INDEX 0: the first member in link order. Reordering the session arguments then re-bases the composed canvas with nothing in any record to show it"; return 1;;
       esac;;
   esac
   return 0
@@ -176,26 +189,31 @@ check_cmd() {
 # guard whose checks do nothing (this repo's most persistent defect shape).
 if [ "${1:-}" = "--selftest" ]; then
   bad=0
-  while IFS=$'\t' read -r want kind union multi c; do
+  while IFS=$'\t' read -r want kind union multi derived c; do
     [ -n "${want:-}" ] || continue
-    got=PASS; check_cmd "$kind" "$union" "$multi" "$c" >/dev/null || got=FAIL
-    if [ "$got" = "$want" ]; then echo "  selftest ok   [$got] union=$union multi=$multi  $c"
+    got=PASS; check_cmd "$kind" "$union" "$multi" "$c" "$derived" >/dev/null || got=FAIL
+    if [ "$got" = "$want" ]; then echo "  selftest ok   [$got] union=$union multi=$multi derived=$derived  $c"
     else echo "  selftest WRONG (wanted $want, got $got): $c" >&2; bad=1; fi
   done <<EOF
-FAIL	finish_render.sh	1	0	finish_render.sh \$OUT \${NAME}_full --session=\$S --set=\$T
-PASS	finish_render.sh	1	0	finish_render.sh \$OUT \${NAME}_full --session=\$S --set=\$T --central=0.35
-PASS	finish_render.sh	0	0	finish_render.sh \$STACK \$NAME --session=\$S --set=\$T
-PASS	finish_render.sh	0	0	finish_render.sh \$STACK \$NAME --central=0.35
-FAIL	run_undistort_compose.sh	1	1	run_undistort_compose.sh --out=\$OUT --framing=max --weight=nbstack \$DIRS
-PASS	run_undistort_compose.sh	1	1	run_undistort_compose.sh --out=\$OUT --framing=max --ref=\$M --weight=nbstack \$DIRS
-PASS	run_undistort_compose.sh	1	0	run_undistort_compose.sh --out=\$NIGHT --framing=max --weight=nbstack \$DIRS
-PASS	run_undistort_compose.sh	0	0	run_undistort_compose.sh --out=\$OUT --framing=min \$DIRS
+FAIL	finish_render.sh	1	0	0	finish_render.sh \$OUT \${NAME}_full --session=\$S --set=\$T
+PASS	finish_render.sh	1	0	0	finish_render.sh \$OUT \${NAME}_full --session=\$S --set=\$T --central=0.35
+PASS	finish_render.sh	0	0	0	finish_render.sh \$STACK \$NAME --session=\$S --set=\$T
+PASS	finish_render.sh	0	0	0	finish_render.sh \$STACK \$NAME --central=0.35
+FAIL	run_undistort_compose.sh	1	1	0	run_undistort_compose.sh --out=\$OUT --framing=max --weight=nbstack \$DIRS
+PASS	run_undistort_compose.sh	1	1	0	run_undistort_compose.sh --out=\$OUT --framing=max --ref=\$M --weight=nbstack \$DIRS
+PASS	run_undistort_compose.sh	1	1	1	run_undistort_compose.sh --out=\$OUT --framing=max --weight=nbstack \$DIRS
+PASS	run_undistort_compose.sh	1	1	1	run_undistort_compose.sh --out=\$OUT --framing=max --ref=\$M \$DIRS
+PASS	run_undistort_compose.sh	1	0	0	run_undistort_compose.sh --out=\$NIGHT --framing=max --weight=nbstack \$DIRS
+PASS	run_undistort_compose.sh	0	0	0	run_undistort_compose.sh --out=\$OUT --framing=min \$DIRS
 EOF
   [ "$bad" = 0 ] || fail "the rules do not fire as stated"
-  echo "OK: 8 rule cases (5 determined/not-applicable, 3 undetermined) all verdict as stated"
+  echo "OK: 10 rule cases (8 determined/not-applicable, 2 undetermined) all verdict as stated"
   echo "    Both rules are falsified in BOTH directions: each fires on the bare"
   echo "    command and stands down on the same command carrying its flag, and"
   echo "    each stands down when its predicate (union / multi-night) is false."
+  echo "    RULE 2 additionally stands down when the CALLEE derives the reference"
+  echo "    (derived=1) and FIRES on the identical command when it does not,"
+  echo "    which is the amendment its own condition called for."
   exit 0
 fi
 
@@ -213,12 +231,13 @@ for f in $files; do
   nfile=$((nfile + 1))
   union=0; union_capable "$f" && union=1
   multi=0; listed_in "$f" "$MULTINIGHT" && multi=1
+  derived=0; callee_derives_ref && derived=1
   while IFS=$'\t' read -r kind c; do
     [ -n "${kind:-}" ] || continue
     ncmd=$((ncmd + 1))
     [ "$kind" = run_undistort_compose.sh ] && composers="$composers $f"
-    if why=$(check_cmd "$kind" "$union" "$multi" "$c"); then
-      echo "  ok   $f: $kind (union=$union multi=$multi)"
+    if why=$(check_cmd "$kind" "$union" "$multi" "$c" "$derived"); then
+      echo "  ok   $f: $kind (union=$union multi=$multi derived=$derived)"
     else
       echo "  FLAG $f: $kind $why" >&2; bad=1
     fi
@@ -253,7 +272,7 @@ for f in $(printf '%s\n' $composers | sort -u); do
     || { echo "  FLAG $f: emits a compose and is in NEITHER register list — classify it multi-night or single-night; it cannot default into the unchecked class" >&2; bad=1; }
 done
 
-[ "$bad" = 0 ] || fail "the commands above leave --central / --ref undetermined — the union solve starves and the multi-night composite takes its balance from argument order"
+[ "$bad" = 0 ] || fail "the commands above leave --central / --ref undetermined — the union solve can starve, and the multi-night composite takes its CANVAS from argument order (its balance does not survive SPCC; the canvas does)"
 
 # A parse that finds nothing asserts nothing. These floors are the canary: they
 # fail when the emission style changes out from under the extractor, and they
@@ -264,8 +283,9 @@ done
 
 cat <<EOF
 OK: $ncmd compose/finish commands in $nfile shell files, every one determined
-    (--central on every framing=max union render; --ref on every multi-night
-    compose), and every composing file classified in the register.
+    (--central on every framing=max union render; the reference on every
+    multi-night compose — passed by the caller or derived by the callee), and
+    every composing file classified in the register.
     Scope: section A per COMMAND, section B per FILE, both static. Neither
     proves the emitted command is the one that ran. Rules are falsified by
     --selftest.
