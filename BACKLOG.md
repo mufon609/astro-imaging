@@ -1761,6 +1761,75 @@ the rebuildable-from-tracked-files rule and without disabling the hour-angle
 derivations. Until then the push is HELD — not because of the commit volume, which
 is fine, but because of this.
 
+## `composite-header-identity` — a composite inherits its reference member's identity for every key outside the stamp allow-lists
+
+**What.** siril `stack` propagates the reference member's header; the composite
+tuple replaces 15 provenance keys and nothing else, so `run_undistort_compose.sh`
+products ship the reference's `PIPEREV`, singular `CALSET`, `DATE-OBS`,
+`GRPSIZE` and `FILENAME`, plus the whole acquisition block (uniform today;
+july27's 3.0 s makes `EXPTIME` fire on any future mixed corpus). Census with
+values, route classes, intent trace and the four tracked-record carriers:
+`datasets/corpus/piperev_inheritance.json`; mechanism entry in the registry.
+Separate half of the same gap: `compose.py` rgbcomp composites and
+`run_pipeline.sh` stacks apply NO stamp at all — absent, not false.
+
+**Fix candidates (build-path, owner-gated; each is a header-only edit,
+pixel-neutral by construction).** (a) add `PIPEREV` = HEAD-at-compose to the
+composite tuple's emissions; (b) singular `CALSET`: delete on composites, or
+`MIXED(n)` like its tuple siblings; (c) `DATE-OBS` := earliest member start —
+equals the ISO of the `EXPSTART` siril already writes and matches the FITS
+convention (start of observation); (d) delete `GRPSIZE`/`FILENAME` on
+composites; (e) decide whether rgbcomp composites get the tuple at all.
+Retrofit of existing products is a backfill on the
+`backfill_substack_provenance.sh` precedent. Adjacent defect to fold into the
+same unit: `run_undistort_groups.sh:388` is `if true; then`, so its no-ACQHDR
+warning is unreachable and the true no-ACQHDR case silently skips the
+acquisition stamp — a warning that cannot fire.
+
+**Closes when** the chosen keys are emitted at the next compose and read back
+from the product (the A/B is header-only: stamp emitted vs header read-back,
+pixels untouched), the register/guard coverage names the tuple's key set, and
+the owner amends `CLAUDE.md`'s "a commit stamps every artifact built after it"
+(their file) to scope members + per-set finals vs compose products.
+
+## `set-identity-by-sort-order` — routing identity from sort position, and the consumers a wrong set name reaches
+
+**What.** Two live sites derive WHICH SET a finish is routed as from sort
+position: `run_corpus_combine.sh:87` (`ls -d set-* | tail -1`; ASCII sorts
+digits before letters, so set-0a/0b's existence selects the spare bucket — two
+corpus records filed under `datasets/aug14/set-0b/qa_work/` and sit there
+tracked) and `run_session_chain.sh:117` (`--set="${SETS[-1]}"`, last set by
+enumeration order, for the night combine's finish). Same shape smaller:
+`run_undistort_pipeline.sh:277` picks the acquisition-header donor frame —
+whose `DATE-OBS` the stamp restores — by GLOB order, on the route where
+filename order ≠ capture order is a registered dead end (`frame_order.py`
+exists for it); `render_tier.sh:269` picks a starmask cache by glob order.
+
+**Why it matters — the name is POLICY, the path is DATA, and nothing checks
+them against each other.** A wrong `--set` changes OUTPUT at four consumers:
+`spcc_run.py` (recipe `spcc` block → SPCC params → `_spcc` pixels; the corpus
+case fired-by-absence only because set-0b has no recipe.json),
+`solve_field.py:587-589` (`am.configure` loads that set's `geometry.json`
+foreground → detection exclusion → the solve itself; fired-by-absence, zero
+geometry.json exist in `datasets/` today), `render_tier.sh` (a RATIFIED render
+block under a wrong set applies silently; exit-7 protects only unratified
+names), `baseline_guard.py` (wrong baseline → wrong exit-8 verdict).
+Filing-only consumers (record homes under `datasets/<s>/<set>/qa_work/`) are
+how the set-0b mis-filing happened.
+
+**Detectable signature, header-only:** a composite carries `NMEMBER` > 1 and
+`CALSETS` naming its real sets, so a consumer handed `--set=X` can check
+X ∈ CALSETS, or refuse a singular set claim on `NMEMBER` > 1.
+
+**Closes when** the two routing sites derive the set from the data or record
+they serve (the corpus level has NO record home — the filing half rides
+`cross-set-record-home`, whose missing corpus-level reservation
+`datasets/corpus/corpus4_build_record.json` `_home` already names), the
+signature check lands where policy-by-name meets data-by-path, and the owner
+disposes of the two set-0b records (move under `datasets/corpus/`, or leave
+with a tombstone). The record-routing halves are pixel-neutral; the
+SPCC-spec-resolution half can change colour and is the owner's.
+
 ## `capability-gaps` — real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.
