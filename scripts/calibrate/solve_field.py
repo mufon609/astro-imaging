@@ -101,6 +101,23 @@ coverage_frame.py makes the rung print why and stand down; it never raises. A
 rescue path that can itself throw converts a recoverable failure into a hard
 error, which is worse than having no rescue.
 
+KNOWN LIMIT — THE RUNG IS FOREGROUND-BLIND AND THE DETECTOR IS NOT. The
+fraction is derived from `coverage_frame.py`, which measures Siril box Min over
+the whole canvas and has NO notion of the terrestrial foreground (zero
+references to `astrometrics`, `branch_mask` or `CTX`). `detect_stars_sep`
+DOES exclude it — `branch_mask` is applied whenever `CTX.foreground` is set,
+which `--session`/`--set` install through `am.configure`. So on a dataset that
+declares a foreground the two disagree about what is usable: terrain is bright
+and passes the coverage floor, so it counts as covered and INFLATES the derived
+fraction, and detection then discards that same region. The rung would hand the
+solver a box sized to include ground it cannot use.
+LATENT, NOT LIVE: `find datasets -name geometry.json` returns ZERO and no
+tracked record declares a foreground, so `CTX.foreground` is None everywhere
+today and `keep_mask` stays None. It cannot be exercised until a foreground
+exists, which is also why it is recorded rather than fixed — a build-path change
+with no way to test it is worse than a stated limit. When a foreground is first
+declared, this is the thing to check before trusting a derived `--central`.
+
 WHICH RECORD IS THE DURABLE ONE. The rung writes `<stem>_coverage.json` beside
 the product, matching `compose_gate_*.json` and `solve_*.json` — but
 `web/results/` is GITIGNORED, so that file is WORKING EVIDENCE and may not

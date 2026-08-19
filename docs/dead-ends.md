@@ -2775,6 +2775,28 @@ SILENT — pin the state, never inherit it):
   of instrument. The comparison that settled it was per-pixel with a planted
   +0.01 control: **0 differing of 98,194,977 between the auto arm and an explicit
   `--ref=1`, control 1 differing.**
+  **AND A DISTINCT FAILURE MODE THE REPLICATION TEST ABOVE DOES NOT REACH: ONE
+  READER'S NUMBER TRAVELLING UNEXAMINED. CITATION IS NOT REPLICATION.** That test
+  asks what DIFFERED between two measurements and calls it n=1 if the answer is
+  "the operator". This is worse: there is only ONE measurement, and it acquires
+  the appearance of several by being quoted. MEASURED instance, three sessions: a
+  rebuild verification — 98 products, **7,253,511,213 px, zero differing** — was
+  produced by one session, cited by a second to the owner and to a third, and
+  adopted by the third as a stated premise. **Nobody re-ran it.** Each citation
+  raised the apparent support while the evidence base did not move, and the
+  originating session was the one that had to point at it.
+  **THE HAZARD IS NOT THAT IT WAS WRONG — IT REPRODUCED EXACTLY**, and that is the
+  point rather than a mitigation. Re-run independently: 97 products,
+  7,107,861,513 px, zero differing, one file GONE. The delta is
+  **145,649,700 px = 8540x5685x3**, precisely the one product deliberately deleted
+  in between and announced in that commit. The figure survived contact — and
+  **nothing in the practice would have caught it if it had not.** A number that is
+  never re-run is indistinguishable from one that cannot be.
+  **THE TELL, and it is checkable:** a figure whose apparent support is rising
+  while its measurement count stays at one. **THE RULE: when you cite a number you
+  did not measure, either re-run it or mark it as another session's single
+  measurement in the same breath.** Naming the source is not enough — all three
+  sessions here attributed it correctly and it still hardened into a premise.
   **AND THE MIRROR OF THAT IS THE EXPENSIVE DIRECTION: A LISTING'S *ABSENCE*
   RETIRING A CAPABILITY THAT EXISTS. `listed` IS NOT `exhaustive`.** A listing's
   PRESENCE manufacturing a capability opens a dead route and the next probe kills
