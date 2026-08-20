@@ -42,10 +42,10 @@ date is the exact state that let a fired condition sit unnoticed. (3) Status is
 the current verdict and its evidence, not a history of the divergence; mechanism
 narrative belongs in `docs/dead-ends.md` and the script's own docstring.
 **AND A COMPRESSION PASS HAS ALREADY MEASURED HOW MUCH OF THIS TABLE VIOLATES IT: about 5%.**
-A full read of all 37 rows (6,961 status words) found narrative in **TWO** — both
+A full read of the 37 rows then present (6,961 status words) found narrative in **TWO** — both
 recounting how a finding was reached, both with the mechanism already homed. The
 other 35 are verdicts, measurements and tool names, which is what it COSTS to
-record 37 divergences with their evidence. **A long row is not a violating row.**
+record those 37 divergences with their evidence. **A long row is not a violating row.**
 The recognisable case is a row that RECOUNTS HOW A CONCLUSION WAS REACHED whose
 mechanism lives in `docs/dead-ends.md` or `TOOLS.md` — i.e. prose that RESTATES
 what a destination already carries. **Three cheap proxies for that were each built
@@ -98,7 +98,7 @@ fit and nobody re-checks a number that says the model fits. **Before quoting a
 figure in a row, open the record and find it.**
 (9) **A CONDITION MUST BE EVALUABLE — "has this fired?" must have a determinate
 answer — and that is a SEPARATE axis from whether it has fired or whether its
-status text is true.** A full sweep of the condition column (all 37 read
+status text is true.** A full sweep of the condition column (the 37 rows then present, read
 programmatically, so none skipped and none taken from the status text) found
 **31 clean and four defect shapes**:
 - **UNEVALUABLE / UNDEFINED TERM** — the trigger names an event nothing in the tree
