@@ -1844,32 +1844,6 @@ look), the starmask glob pick (`render_tier.sh:269`), and the real corpus-level
 record HOME (`cross-set-record-home` — records still file under the reference
 set's `qa_work/`, contributing but per-set-shaped).
 
-## `wcs-dual-matrix-inject` — the solve inject leaves two WCS matrix forms on one header
-
-**What.** `solve_field.py --inject` copies the stack and writes the solve's CD
-matrix; siril's PC1_1..PC2_2 + CDELT1/2 from the stack survive beside it.
-FITS-WCS declares the forms mutually exclusive; astropy resolves the conflict
-toward PC+CDELT silently — MEASURED 0.25 deg centre skew on the corpus `_wcs`,
-median 101 / worst 913 arcsec across all 34 solved products (registry entry,
-WCS family). Every astropy consumer of a `_wcs` product inherits the ambiguity
-unless it strips the leftover form: `spcc_cone.py` now strips (its contract is
-the solve); `verify_site.py`'s two documented 0.13-0.18 deg outliers are this
-skew, immaterial at its degree-level bound; `check_solve_records.py` joins
-record-vs-artifact through the same read.
-
-**Fix candidate.** Strip PC*/CDELT*/CROTA* in `inject()` when writing the CD —
-the standards-first form (one matrix, the solve's). NOT colour-neutral by
-construction: siril's SPCC consumes the `_wcs` header, and which form siril
-prefers on a dual-matrix header is UNMEASURED — if siril reads PC+CDELT today,
-the strip moves the WCS SPCC sees by the measured 0.25 deg.
-
-**Closes when** (a) one probe settles which matrix form siril's SPCC/platesolve
-read uses on a dual-matrix header (load a dual-matrix `_wcs` copy, read the
-centre siril reports in its own log), then (b) the inject strip lands with an
-SPCC A/B on one stack — K factors + `_spcc` pixels compared pre/post-strip —
-plus a decision on backfilling the existing `_wcs` files (header-only, the
-composite-identity backfill's discipline).
-
 ## `capability-gaps` — real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.

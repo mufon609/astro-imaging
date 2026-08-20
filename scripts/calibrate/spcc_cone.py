@@ -35,7 +35,8 @@ error against the CD-only evaluation, whose centres agree with the headers'
 own OBJCTRA/OBJCTDEC at median 1.7 / worst 36.5 arcsec (the hand-roll: median
 17.8 / worst 151.6). The swap's first attempt exposed the dual-matrix trap
 the in-function comment states (astropy fed the leftover PC+CDELT: 0.25 deg
-skew) — registry + BACKLOG `wcs-dual-matrix-inject`. Consequence bound
+skew) — registry entry (WCS family) + the probe record
+datasets/corpus/wcs_dual_matrix_probe.json. Consequence bound
 stands: chunk SELECTION only, and siril names any missing chunk loudly.
 Registered in BACKLOG `removal-conditions` (conditions authored by audit —
 this divergence shipped with none; RATIFIED by the owner 2026-08-19).

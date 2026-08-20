@@ -4306,11 +4306,18 @@ SILENT — pin the state, never inherit it):
   the solve). This is what `verify_site.py`'s own docstring recorded without
   a mechanism: 7 of 9 products agreeing with OBJCTRA to 0.031 deg *"and
   0.13-0.18 deg on the other two"* — the two are this skew, immaterial at
-  that instrument's DEGREE-level bound. The inject-side fix (strip the
-  leftover form when writing the CD) is BACKLOG:`wcs-dual-matrix-inject`, and
-  it is NOT colour-neutral by construction: siril's SPCC reads the `_wcs`
-  header, and WHICH form siril prefers on a dual-matrix header is unmeasured
-  — the item carries that probe and the SPCC A/B.
+  that instrument's DEGREE-level bound. **CLOSED, MEASURED ON SIRIL'S OWN
+  SPCC (owner-directed probe): siril prefers the CD** — dual-matrix and
+  CD-only runs identical at every reported figure (48.31 deg cone, 1946
+  stars, both colour regressions to six decimals, K 1.000/0.669/0.899) with
+  OUTPUT PIXELS bit-identical, while PC-only degrades to a wrong solution
+  (1462 stars, near-flat regressions). So the strip is colour-neutral on both
+  halves: `inject()` now deletes PC*/CDELT*/CROTA* when writing the CD, and
+  the 34 on-disk `_wcs` products are backfilled the same way (204 cards
+  removed, every data block sha-unchanged; `spcc_cone.py` keeps an in-memory
+  strip for archived pre-backfill files). `_spcc` products were single-form
+  all along — siril's re-save converts the CD it used into PC+CDELT. Full
+  numbers: `datasets/corpus/wcs_dual_matrix_probe.json`.
 
 - **A PROVENANCE STAMP BUILT AS AN ALLOW-LIST IS A DENY-LIST FOR EVERY KEY IT
   OMITS — siril `stack` propagates the REFERENCE member's ENTIRE header, so a
