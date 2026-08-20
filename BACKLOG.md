@@ -194,90 +194,7 @@ no other home. **Everything here is the owner's or is held for them.**
 
 ### Live with the owner
 
-1. **The removal-conditions register — the premise previously put to the owner was
-   FALSE.** It read *"not one row EVER removed by its condition firing"*; `243b0a6`
-   removed a row marked **FIRED** (`solve_field.detect_stars` peak centroids, retired
-   because SExtractor's `sep` took the job). The census also inverts: the register
-   ran **10 → 4 across late July** and only grows monotonically from ~08-05, so the
-   quoted figure describes ten days. **Third framing: a burst of newly-DISCOVERED
-   divergences during intensive auditing, not a failure to retire.** What stays open
-   is the SCHEMA question — a key, and a destination for code that outlives its
-   divergence — not whether the register can shed rows.
-   **INPUT GATHERED FOR THAT DECISION — IT IS INPUT, AND THE CHOICE IS THE
-   OWNER'S. Nothing below picks a schema.** (Historical pass: the HISTORIAN's, from
-   the diffs and blobs; every figure re-executed here before landing.)
-   **THE ONE-PRECEDENT PREMISE IS WRONG BY AN ORDER OF MAGNITUDE.** A per-commit
-   ladder over the 299 commits touching this file — extract the register section,
-   take each row's first cell, diff consecutive commits — shows **25 commits with a
-   key disappearing**, of which most are REWORDINGS (`c76af73` alone shows 8 keys
-   vanish whose subjects are all still here). Classified by whether the SUBJECT
-   survives in the modern register, that leaves **~12 true removals**, not one.
-   **FIVE DISTINCT DESTINATIONS FOR THE CODE ARE OBSERVED, not one, and a schema
-   offering only "retired → deleted" cannot express three of them:**
-
-   | what was removed | what became of the code |
-   |---|---|
-   | `solve_field.detect_stars` peak centroids | **DELETED + A REFUSING TOMBSTONE** — the function is gone, the `--detect` flag is KEPT and `sys.exit`s with the reason. `git grep -lw detect_stars` → 1 file |
-   | `astrometrics.write_png16` | **DELETED, trace kept as a PROHIBITION** — 0 hits in `*.py`; the only survival is `TOOLS.md`'s *"no in-house `write_png16`"*. The ban outlived the thing it banned |
-   | `crop_coverage.py`, `judgment_package.read_png16_sampled` | **FILE / FUNCTION DELETED OUTRIGHT** — 0 tracked files |
-   | hand-rolled FITS parsers, `compose.py`'s `np.stack` combine | **REPLACED IN PLACE** — the files survive; `compose.py` has **0** `np.stack` and **10** `rgbcomp` calls |
-   | per-set sky flat `--desky` | **KEPT IN PLACE, DELIBERATELY** — **9 occurrences at HEAD** in `build_sky_flat.sh` and live references in five more scripts. Row removed, code retained, default OFF, so a registered 31× regression stays reproducible |
-
-   **THE `--desky` ROW IS THE COUNTEREXAMPLE THE DECISION MOST NEEDS: the register
-   row was removed while the code was deliberately KEPT and is still runnable.** Any
-   schema that treats row-removal as implying code-removal misdescribes it.
-   **AND THE PRECEDENT IS TWO EVENTS NINE DAYS APART, NOT ONE.** The row was marked
-   **FIRED** at `02901f0` (07-17, read from the blob rather than the subject) and
-   **REMOVED** at `243b0a6` (07-26) — and the removal was synchronised with the CODE
-   change, not with the firing. The row's own text at removal already specified a
-   two-stage retirement — *"`--detect=peaks` remains the fallback until the x86 day-1
-   solve passes on sep, then delete it"* — **which the current schema has no field
-   for.** So "fired" and "removed" are distinct states with a gap that can be
-   deliberate.
-   **THE FIVE UNTRACED ARE NOW TRACED, AND THEY CHANGE THE QUESTION RATHER THAN
-   EXTENDING THE ANSWER. THE REGISTER MIXES AT LEAST THREE KINDS OF THING, AND
-   "WHAT BECAME OF THE CODE" IS UNDEFINED FOR TWO OF THEM:**
-   - **CODE divergences** — the five destinations above. The question applies.
-   - **POLICY / DATA divergences** — `skyflat373` (set-01's flat reused for
-     set-02/03) was a PRACTICE, resolved by adopting the per-set-flat rule. **There
-     was never any code to have a destination.**
-   - **CONCERNS THAT WERE NEVER DIVERGENCES** — the unpinned neural stages row sat
-     at *"NOT YET CHECKED"* and was **DISSOLVED BY MEASUREMENT**, not retired: the
-     whole render tier measured BIT-IDENTICAL run to run (`docs/dead-ends.md`).
-     Nothing was retired because nothing needed to be.
-   **A schema field for "destination of the code" is therefore undefined on two of
-   the three kinds, and the register does not currently distinguish them.** That is
-   worth more to this decision than any individual destination, and it only became
-   visible once every removal was traced rather than a sample of them.
-   **THE COUNT IS ~11, NOT ~12 — one more REWORD found on re-reading.** The removed
-   `Siril-native sky flat (july14)` (*"a matching real flat exists for the set"*,
-   not fired) is today's row `per-set sky flat (build_sky_flat.sh, NOT de-skied)`
-   (*"a matching REAL flat for the set"*) — same subject, same condition, with the
-   divergence RENAMED FROM A DATASET TO A SCRIPT, which is what defeated the
-   subject-survival screen.
-   **TWO MORE DESTINATIONS, BRINGING THE OBSERVED SET TO EIGHT:** *(6)* never was
-   code; *(7)* dissolved by measurement; and *(8)* **RETIRED AHEAD OF ITS
-   ENFORCEMENT** — the 16-bit row was removed at `ff5debe` (07-26 19:42) while
-   `check_bitdepth.sh` was not created until `26d57f7` (07-29 19:06), **a three-day
-   window with neither the register row nor the guard**, on a row whose own status
-   at removal read *"FIRED … and now a MEASURED DEFECT, not just doctrine"*. **A
-   schema that pairs a retirement with its replacement would have caught it.**
-   **ONE SURVIVING DANGLE IN THE WHOLE SET, now fixed:** `docs/dead-ends.md`'s
-   in-exposure-trailing entry cited *"removal-condition register"* for the
-   CFA-sampled FWHM, and `CFA-sampled` matches **zero** rows in the register — a
-   registry pointer to a row that no longer exists. Repointed to state the fact
-   directly. **One instance across every removal traced, so it is an instance and
-   not a class.**
-   **BOUNDS, and they are load-bearing:** **nothing in the set is unexamined now**,
-   but reword-vs-removal remains a CLASSIFICATION — the reword just found was
-   renamed ACROSS CATEGORIES (dataset → script) and a second of that shape would
-   still evade the screen. The ladder anchors on the section heading, so a commit
-   carrying the register under a different heading would read as a mass
-   disappearance; none was seen, and its absence was not proven. The dangle sweep
-   keyed on the strings each row NAMED, so **a pointer referring to a removed row
-   without naming it is invisible** — the paraphrase hole again. Before `0a4b5ce`
-   (07-16) there was no register, so "removed" is undefined.
-1b. **WHETHER `BACKLOG.md` AND `docs/dead-ends.md` SHOULD REMAIN TWO FILES — HELD
+1. **WHETHER `BACKLOG.md` AND `docs/dead-ends.md` SHOULD REMAIN TWO FILES — HELD
    BY THE OWNER 2026-08-16, AND RECORDED HERE AS AN OPEN QUESTION RATHER THAN A
    DIRECTION.** The two have converged in role, and both are less useful for it.
    **Nothing changes until the current cleanup lands.** After it, the registry may
@@ -341,8 +258,8 @@ logged UNCHECKED premise that blocks nothing
   ADU, noise within 1%); judged on `noise_split.sh`'s structured term. Per-session
   stays the default.
 
-**Closes when** the owner rules on the historian doc and on the register schema, and
-the three queue items above are either scheduled or refused.
+**Closes when** the owner rules on the two-file question, and the three queue
+items above are either scheduled or refused.
 
 ---
 

@@ -82,7 +82,7 @@ door to one (`tilt`/`inspector` refuse in scripts): **Off-axis
 aberration[FWHM]** = centre vs corners (the RADIAL term — this defect);
 **Sensor tilt[FWHM]** = best vs worst corner (the ASYMMETRIC term);
 **Truncated mean[FWHM]**; **Stars**. Driven + recorded by
-`scripts/qa/star_shape.py` (`qa_work/registration_qa.json`).
+`scripts/qa/star_shape.py` (`qa_work/star_shape_*.json`).
 
 | production A/B + full depth | stars | truncated mean FWHM | **off-axis aberration** | sensor tilt |
 |---|---|---|---|---|
@@ -163,8 +163,7 @@ records `qa_work/star_stations_*.json`) — cells are [n, majFWHM px, roundness]
 54 lights = every 7th of 373, spanning the FULL 43-min window (the residual
 scales with TIME SPAN, not frame count). Calibrated with the validated master
 dark + sky flat, debayered before registration, `-framing=min`, identical stack
-parameters; the only knob is `-disto=`. Record:
-`qa_work/registration_qa.json` (july14 set-01, session archived).
+parameters; the only knob is `-disto=`.
 
 | | stars | roundness | majFWHM | radial (centre → edge) |
 |---|---|---|---|---|

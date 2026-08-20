@@ -26,7 +26,6 @@
 | Test | Settles | Bracket / metric | Pass |
 |---|---|---|---|
 | One real trailed ultra-wide stack solved 3 ways: (a) `solve_field.py` sep-xylist, (b) `astap_cli` + W08/G05 (`-z auto -speed slow`), (c) Siril `platesolve -localasnet -blindpos -blindres` + `setfindstar -relax=on -roundness=0.1 -maxR=large` | can native/ASTAP retire `solve_field.py`? (class-gated: the mildly-trailed class first — the dead-end was measured at roundness 0.615, july23-class data reads 0.80) | solve success · residual RMS · wall-clock | (a) is the baseline; retire only if (c) matches |
-| Then Siril-native SIP (`register -disto=`) vs the darktable warp | the fitted lens model's removal condition, on a DIFFERENT SIP source than the index-constrained fit the registry killed | `seqtilt` off-axis + drift-axis stations + full-frame finals | precondition: the probe above solves this class |
 
 ### Phase 4 — render toolkit, per tier (BACKLOG:`render-ladder`)
 The ladder skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), riders,
