@@ -30,11 +30,11 @@
 #
 # --session/--set route the SPCC run: the set's recipe.json "spcc" block (if
 # any) resolves the sensor spec, and the K-factor record lands under the RIGHT
-# set's name in <session>/work/spcc_<set>_<tag>.{json,log} (one predictable
-# place per result). --session resolves like before: relative to the CWD.
+# set's name in datasets/<session>/<set>/qa_work/spcc_<set>_<tag>.json (siril
+# log in <session>/work/). --session resolves like before: relative to the CWD.
 #
 # SPCC uses the sensor-null generic default (the sp168 precedent) unless a set
-# recipe carries a sensor spec; K factors are captured to work/spcc_<name>.json.
+# recipe carries a sensor spec; K factors are captured to the qa_work record.
 # The linked stretch is MANDATORY after SPCC (unlinked autostretch on a
 # calibrated stack is the chroma-blotch engine — docs/dead-ends.md).
 set -euo pipefail

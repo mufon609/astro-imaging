@@ -13,9 +13,9 @@ siril's log; they record what the raw stack's balance actually was (a raw
 OSC stack's G channel runs hot — the Bayer imbalance — so K G sits well
 below R) and are the first thing to compare when a
 new stack of the same sky calibrates differently. This runner captures them
-so they survive: the full siril log lands in work/spcc_<set>.log and the
-parsed factors + stack identity in work/spcc_<set>.json (--tag suffixes
-both, so an experiment run never overwrites the set's canonical record).
+so they survive: the siril log lands in work/spcc_<set>.log and the parsed
+factors + stack identity in datasets/<session>/<set>/qa_work/spcc_<set>.json
+(--tag suffixes both — an experiment never overwrites the canonical record).
 
 The sensor/filter/white-reference spec resolves CLI > recipe > sensor-null
 and the provenance is printed. `datasets/<session>/<set>/recipe.json` may

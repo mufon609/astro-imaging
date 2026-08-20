@@ -1144,7 +1144,7 @@ def _stage_registry():
             + (["--fetch"] if a.get("fetch") else []),
         },
         "spcc": {
-            "desc": "Siril SPCC on the solved stack; K factors captured to work/spcc_<set>.json",
+            "desc": "Siril SPCC on the solved stack; K factors captured to datasets/<session>/<set>/qa_work/spcc_<set>.json",
             "phase": "finish",
             "params": [
                 {"name": "session", "kind": "session", "req": True},
@@ -1415,7 +1415,7 @@ _STAGE_DOCS = {
         "detail": {
             "process": ["spcc on the solved stack (recipe spec or sensor-null default)"],
             "gates": ["mono stacks refuse (no colour to calibrate)"],
-            "records": ["<session>/work/spcc_<set>*.json + stack_*_spcc.fit"]},
+            "records": ["datasets/<session>/<set>/qa_work/spcc_<set>*.json + stack_*_spcc.fit"]},
     },
     "finish_render": {
         "summary": "stack -> solve -> SPCC -> linked autostretch -> judge PNG16",

@@ -829,8 +829,8 @@ def main():
                central=central, max_stars=max_stars)
         print(f"[solve_field] wrote {opts['inject']} (WCS-injected copy)")
     # durable per-solve record next to the session's other capture files
-    # (spcc_run writes work/spcc_<set>.json; a wrong solve needs the same
-    # after-the-fact trail: what was detected, hinted, loaded, and found)
+    # (spcc_run keeps its siril log there the same way; a wrong solve needs
+    # an after-the-fact trail: what was detected, hinted, loaded, and found)
     stem = os.path.splitext(os.path.basename(src))[0]
     wdir = wdir_for(src)
     rec = {"input": src, "detector": detector,
