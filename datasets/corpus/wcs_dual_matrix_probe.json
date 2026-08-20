@@ -1,0 +1,19 @@
+{
+ "_what": "PROBE — which WCS matrix form siril uses on a dual-matrix header, and whether stripping the leftover form is colour-neutral. Settles BACKLOG:wcs-dual-matrix-inject clause (a) and delivers the clause-(b) SPCC A/B in the same run.",
+ "context": "solve_field.py --inject wrote the solve's CD matrix into a copy whose header kept siril's PC1_1..PC2_2 + CDELT1/2 (the stack's own canvas WCS). FITS-WCS declares the forms mutually exclusive; astropy silently prefers PC+CDELT (measured 0.25 deg centre skew, registry entry). Whether SIRIL's own read preferred CD or PC decided whether the inject-side strip could change SPCC.",
+ "method": "three header variants of web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit, data blocks verified sha-identical to the source before running: A = dual-matrix as-is; B = CD-only (PC*/CDELT*/CROTA* deleted); C = PC-only (CD* deleted). Each run through the exact chain invocation mirrored from spcc_run.py (`load` -> `spcc -catalog=localgaia` -> `save`, sensor-null default), siril 1.4.4 flatpak, local Gaia xpsamp chunks.",
+ "measured": {
+  "A_dual": {"cone_radius_deg": 48.31, "stars": 1946, "regression_RG": "0.450675 + 0.263365 (sigma 0.131697)", "regression_BG": "0.191689 + 0.561333 (sigma 0.073581)", "K": [1.000, 0.669, 0.899], "out_data_sha16": "aca3617b46509d59"},
+  "B_cd_only": {"cone_radius_deg": 48.31, "stars": 1946, "regression_RG": "0.450675 + 0.263365 (sigma 0.131697)", "regression_BG": "0.191689 + 0.561333 (sigma 0.073581)", "K": [1.000, 0.669, 0.899], "out_data_sha16": "aca3617b46509d59"},
+  "C_pc_only": {"cone_radius_deg": 48.49, "stars": 1462, "regression_RG": "0.584202 + 0.003382 (sigma 0.159530)", "regression_BG": "0.678626 + 0.007174 (sigma 0.175466)", "K": [1.000, 0.587, 0.856], "out_data_sha16": "c68ded6c845c1924"}
+ },
+ "verdicts": {
+  "siril_prefers": "CD. A and B are identical at every reported figure — cone radius, 1946 matched stars, both regressions to six decimals, K to printed precision — and their OUTPUT PIXELS are bit-identical (same data sha).",
+  "strip_is_colour_neutral": "MEASURED, both halves: K identical AND output pixels bit-identical between dual-matrix and CD-only. The inject-side strip cannot change what SPCC sees.",
+  "pc_only_is_the_wrong_solution": "C matches 25% fewer stars and its colour regressions collapse toward flat (slopes 0.003, 0.007) — the PC solution's 0.25 deg offset lands apertures off-star; K 0.587/0.856 is a junk fit, not an alternative calibration.",
+  "bonus_shipped_product_reproduced": "variant A's output data sha equals the SHIPPED stack_july31+aug06+aug09+aug14_full_spcc.fit data block exactly (aca3617b46509d59) — an independent re-execution of the SPCC-determinism claim, and proof the shipped product was built through the CD path.",
+  "bonus_spcc_resave_is_single_form": "siril's save writes PC+CDELT (converted from the CD it used) with the known RA---TAN-SIP label — so _spcc products are single-form already; only _wcs products carried the dual matrices."
+ },
+ "acted_on": "solve_field.inject() now strips PC*/CDELT*/CROTA* when writing the CD (the standards form: one matrix, the solve's), and the existing *_wcs.fit products were backfilled the same way, data blocks verified sha-unchanged per file. spcc_cone.py retains its in-memory strip for any pre-backfill or archived file.",
+ "scratch": "sessions/aug14/work/wcsprobe/ (gitignored) held the variants; the three spcc_*.log files and .ssf remain there, the ~580 MB fits copies were deleted after this record landed."
+}

@@ -151,13 +151,13 @@ def field_from_header(path):
         sys.exit(f"spcc_cone: {path} lacks a CD-matrix WCS ({missing}). Point "
                  "at the solve_field `_wcs.fit`, or pass --ra/--dec/--radius-deg.")
     nx, ny = int(hdr["NAXIS1"]), int(hdr["NAXIS2"])
-    # The _wcs headers carry BOTH matrix forms: siril's PC+CDELT (the stack's
-    # own canvas WCS) beside the solve-injected CD — non-standard (FITS-WCS
-    # says mutually exclusive) — and astropy resolves the conflict toward
-    # PC+CDELT: MEASURED 0.25 deg centre skew on the corpus against both the
-    # CD evaluation and the header's own OBJCTRA/OBJCTDEC. This function's
-    # contract is the SOLVE, so the leftover form is stripped in memory and
-    # the WCS is built from the CD alone.
+    # A _wcs header carrying BOTH matrix forms (siril's PC+CDELT beside the
+    # solve-injected CD) makes astropy silently prefer PC+CDELT: MEASURED
+    # 0.25 deg centre skew toward the stack's canvas WCS. inject() now strips
+    # the leftover form at write time and the on-disk products are backfilled
+    # (datasets/corpus/wcs_dual_matrix_probe.json), so this in-memory strip is
+    # belt-and-braces for archived or pre-backfill files. The contract either
+    # way: the WCS is built from the SOLVE's CD alone.
     for k in list(hdr):
         if k.startswith(("PC", "CDELT", "CROTA")):
             del hdr[k]

@@ -587,6 +587,16 @@ def inject(src, dst, wcs, logodds, central=None, max_stars=None):
         hdr = hdul[0].header
         for k in wcs:                        # drop any prior value we replace
             hdr.remove(k, ignore_missing=True, remove_all=True)
+        # The solve writes a CD matrix; the stack's own PC+CDELT(+CROTA) must
+        # not survive beside it — FITS-WCS declares the forms mutually
+        # exclusive, astropy silently prefers the leftover PC+CDELT (measured
+        # 0.25 deg centre skew toward the stack's canvas WCS), and siril uses
+        # the CD (measured: SPCC on dual vs CD-only, same 1946 stars, same K,
+        # output pixels bit-identical — datasets/corpus/
+        # wcs_dual_matrix_probe.json).
+        for k in list(hdr):
+            if k.startswith(("PC1_", "PC2_", "CDELT", "CROTA")):
+                hdr.remove(k, ignore_missing=True, remove_all=True)
         hdr.add_comment("WCS injected by solve_field.py "
                         f"(astrometry.net, logodds {logodds:.0f})")
         for k, (v, com) in wcs.items():
