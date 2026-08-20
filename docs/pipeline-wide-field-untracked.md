@@ -68,10 +68,10 @@ instruments disagree or nothing measures does the chain stop and ask — exit 4.
 
 `scripts/qa/run_frame_qa.sh` drives Siril `register -2pass` in disk-bounded
 batches and pools the tool's own regdata: per-frame FWHM, roundness, background,
-star count. **Order rule:** the drift probe runs BEFORE frame QA so
-`fwhm_arcsec` rides the SOLVED plate scale, not the EXIF nominal (measured 6.0%
-apart on the validation corpus: 16.979 vs 18.0031 ″/px —
-BACKLOG:`frame-qa-order-dependent-scale`).
+star count. **Order rule:** the drift probe runs BEFORE frame QA so the pooled
+record prefers a solved px→arcsec scale over the header nominal; that probe
+figure is itself a measured ~5.6%-high ARTIFACT, still carried by every record
+it seeded (BACKLOG:`frame-qa-order-dependent-scale`).
 
 Defect-side outliers (robust z ≥ 3.5 on fwhm+, bg+, round−, nstars−) are
 flagged. **Standing cull policy:** flagged frames auto-exclude like any

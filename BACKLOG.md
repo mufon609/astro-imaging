@@ -1514,14 +1514,16 @@ directory.
 ## `frame-qa-order-dependent-scale` — the same data measures differently by run order
 
 `qa_work/frame_metrics.json` prefers the solved plate scale only if the fingerprint
-already carries one, so running frame QA BEFORE the mount probe makes every
-`fwhm_arcsec` inherit the nominal scale instead of the solved one — a 2.8% error
-(17.5031 nominal vs 18.003 solved). It is self-documented via `pixel_scale_source`
+already carries one, so running frame QA BEFORE the mount probe makes the pooled
+record's px→arcsec scale keep the nominal instead of a solved one — 17.5031
+nominal vs 18.003 probe, 2.9% apart. It is self-documented via `pixel_scale_source`
 and never re-derived once written. **AMENDED (measured during the optics-state
 audit): the 18.003 "solved" figure is itself an artifact** — all nine stack
 solves across three sessions read 16.98–17.08 ″/px, so the probe pipeline's
-green-plane scale arithmetic inflates by ~5.6% and every `fwhm_arcsec` in the
-corpus rides it (px figures unaffected; `datasets/aug06/experiments.jsonl`,
+green-plane scale arithmetic inflates by ~5.6%; the 13 pooled records it seeded
+(july31/aug06/aug09) carry its figure, aug14's five kept the nominal (the order
+defect recurred) and per-frame arcsec columns embed the nominal throughout
+(px figures unaffected; `datasets/aug06/experiments.jsonl`,
 `solved_scale_artifact_18_vs_17`). **Closes when** the scale is re-derived from
 a direct full-frame solve (or the record refreshed against the stack solve)
 and the probe-pipeline arithmetic's error is root-caused.

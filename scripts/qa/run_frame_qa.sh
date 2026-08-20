@@ -214,14 +214,14 @@ for r in kept:
         flagged.append({"file": r["file"], "flags": flags,
                         **{k: r[k] for k in side}})
 
-# Plate scale for the arcsec column. inspect_stage derives it from the header's
-# FOCALLEN/XPIXSZ (206.265*px/fl), which is a NOMINAL figure: a zoom's marked
-# focal length is approximate and breathes with focus, so it is documented as a
-# solve HINT, not a measurement. When mount_probe has SOLVED this set, prefer
-# the solve — measured 18.003 vs nominal 17.503 on july31/set-01, 2.8% low, and
-# every fwhm_arcsec inherits the error. The solve runs on the EXTRACTED GREEN
-# plane (half the full-res grid) while these frames are debayered at full res,
-# so the recorded green-px scale halves into this domain.
+# The pooled record's px→arcsec scale (pixel_scale_arcsec + its source); the
+# per-frame fwhm_arcsec columns embed inspect_stage's header nominal either
+# way. The nominal (FOCALLEN/XPIXSZ, 206.265*px/fl) is a solve HINT, not a
+# measurement — a zoom's marked focal length is approximate and breathes with
+# focus. When the fingerprint carries a mount_probe solve, prefer it — though
+# that figure is itself the measured ~5.6%-high ARTIFACT
+# (BACKLOG:`frame-qa-order-dependent-scale`). The solve reads the EXTRACTED
+# GREEN plane (half the full-res grid), so its scale halves into this domain.
 scale = entries[0].get("pixel_scale_arcsec")
 scale_source = "header FOCALLEN/XPIXSZ (nominal)"
 try:
