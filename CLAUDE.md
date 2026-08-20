@@ -198,7 +198,7 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   runs headless via an `.ssf` wrapper (`requires 1.4.0` + `pyscript foo.py`).
   `help` lists a command whether or not it is scriptable: `tilt` and `inspector`
   are listed and REFUSE at runtime, so probe before believing a capability exists.
-- **Host python3 3.13** (`/usr/bin/python3`): numpy 2.4.6, scipy 1.17.1, PIL,
+- **Host python3 3.14.6** (`/usr/bin/python3`): numpy 2.4.6, scipy 1.17.1, PIL,
   **astropy 8.0.1** (FITS I/O + WCS/SIP + ICRS→Galactic). NOT installed: `rawpy`,
   `astropy_healpix`, `reproject`. In-house code reads FITS **headers** only —
   every pixel op and every standard measurement is a tool's.
