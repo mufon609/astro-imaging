@@ -404,26 +404,25 @@ def solve(stars, hint=None, scales=None, pos=None, required=True):
 # changes is that its answer must now survive the hints rather than replace them.
 
 # The hint radius is the declared position uncertainty. Twice it is already
-# generous — every hinted solve in this corpus lands within 0.27 deg of a 15 deg
-# hint (68 records replayed) — while the measured false solve sat ~110 deg out,
-# 7x the radius. So this separates by two orders of magnitude and is not a
-# tuned number.
+# generous — replayed hinted solves land deep inside it (census: the
+# hint-contradiction-gate row in BACKLOG:`removal-conditions`) — while the
+# measured false solve sat ~110 deg out, 7x the radius. So this separates by
+# two orders of magnitude and is not a tuned number.
 POSITION_RADIUS_FACTOR = 2.0
 # Scale tolerance around the header nominal. Budgeted from MECHANISM, not fitted:
 # integer-mm EXIF focal (70 +-0.5 mm = +-0.7%), XPIXSZ rounding, a real lens's
 # infinity focal differing from its marked value by a few %, and the TAN
 # projection's own centre-to-corner scale ratio across a 28.6 deg field
 # (1/cos^2(14.3 deg) = 1.066). Those sum to well under 10%; 20% doubles it. The
-# corpus then VERIFIES the headroom rather than setting the number: 67 real
-# solves span 0.969-0.976 of nominal (a -2.4 to -3.1% systematic, 8x inside the
-# band) and the false one sat at 0.740.
+# corpus census that VERIFIES the headroom lives in the hint-contradiction-gate
+# row (BACKLOG:`removal-conditions`); the false solve sat at 0.740 of nominal.
 SCALE_TOLERANCE = 0.20
 # A WARNING, never a refusal: nothing contradicts a solve that had no hint to
-# contradict, and a genuinely hard field may legitimately land below this. 100 is
-# this file's own confident-match threshold (the logodds_callback stops there);
-# all 67 real solves in the corpus cleared it at 103-574, and the false one sat
-# at 22.3 — just above astrometry.net's ~20.7 default acceptance floor, which is
-# why the engine returned it at all.
+# contradict, and a genuinely hard field may legitimately land below this —
+# real floor-class solves exist in the corpus (census: the register row above).
+# 100 is this file's own confident-match threshold (the logodds_callback stops
+# there); the measured false solve sat at 22.3 — just above astrometry.net's
+# ~20.7 default acceptance floor, which is why the engine returned it at all.
 LOGODDS_FLOOR = 100.0
 
 
@@ -790,9 +789,8 @@ def main():
     if m.logodds < LOGODDS_FLOOR:
         print(f"[solve_field] WARNING: logodds {m.logodds:.1f} is below the "
               f"confident-match floor of {LOGODDS_FLOOR:.0f} — this match is "
-              "FLOOR-CLASS. Every real solve in this corpus posts 103-574; the "
-              "one measured FALSE solve posted 22.3. Treat the position and "
-              "scale below as unconfirmed.")
+              "FLOOR-CLASS. The one measured FALSE solve posted 22.3. Treat "
+              "the position and scale below as unconfirmed.")
     bad = contradictions(m, pos, pos_src, nominal)
     if bad:
         print("", file=sys.stderr)
