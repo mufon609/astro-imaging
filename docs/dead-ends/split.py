@@ -64,6 +64,7 @@ PHASE2_RELEASED = {
     "stacking-compose.md",
     "registration-distortion.md",
     "plate-solving-wcs.md",
+    "siril-behaviors.md",
 }
 
 
