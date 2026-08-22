@@ -209,12 +209,7 @@ no other home. **Everything here is the owner's or is held for them.**
    content leaves the tree regardless of which file survives. Reorganisation does
    not. Prefer the operation that is robust to the ruling.
 
-2. **A `sirilpy` upstream doc defect**, technically settled, unfiled.
-   `get_selection_stats` is annotated `-> Optional[PSFStar]` with prose copied from
-   `get_selection_star` while it returns `ImageStats.deserialize(response)`.
-   **Outward-facing action under the owner's identity needs their word**, and whether
-   it is already filed on Siril's tracker was never checked.
-3. **L2 may reopen.** Cosmic Clarity's chroma knob saturates above 0.85, but no
+2. **L2 may reopen.** Cosmic Clarity's chroma knob saturates above 0.85, but no
    record says which `--denoise_mode` that was measured under. `render-ladder` is
    user-gated and not the PM's to promote.
 

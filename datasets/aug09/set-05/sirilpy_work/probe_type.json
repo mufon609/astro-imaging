@@ -1,0 +1,15 @@
+{
+  "_what": "get_selection_stats runtime type/behavior probe (probe_type.py). MEASURES ONLY.",
+  "_image": "web/results/aug06/stack_set-01+02+03_full_spcc.fit (7355x4590, 3 layers, 32-bit)",
+  "_siril": "1.4.4 flatpak, siril-cli via siril_run.sh",
+  "sirilpy_version": "1.0.25",
+  "shape_used": [2000, 2000, 128, 128],
+  "returned_type": "ImageStats",
+  "returned_module": "sirilpy.models",
+  "isinstance_ImageStats": true,
+  "isinstance_PSFStar": false,
+  "returned_fields": ["avgDev", "bgnoise", "location", "mad", "max", "mean", "median", "min", "ngoodpix", "normValue", "scale", "sigma", "sqrtbwmv", "total"],
+  "median_by_channel": {"0": 0.0010359494481235743, "1": 0.0010376388672739267, "2": 0.001036345143802464},
+  "channel_arg_effective": true,
+  "_channel_note": "Three DISTINCT medians = the channel argument selects the channel on this build; upstream #1673 (closed 2025-06) reported green returned for every channel, whose signature would be three identical values."
+}

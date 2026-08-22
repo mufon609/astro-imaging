@@ -713,6 +713,17 @@ the constraints any such tool must satisfy):
   `get_selection_stats` / `get_seq_stats`. **The instruments CAN see the damage; the
   five-field stdout line is what prevented it.** An independent reader is still
   valid and is no longer the only route.
+  **CODE AGAINST THE MEASURED OBJECT, NOT THE ANNOTATION — `get_selection_stats`
+  has carried a defect in each half of its surface.** Upstream (present in the
+  1.4.4 source and on master, unfiled as of 2026-08-22 — issues and MRs searched)
+  its annotation reads `-> Optional[PSFStar]` with Args prose copied verbatim from
+  `get_selection_star`, while its own Returns: line and its code agree on
+  `ImageStats` — verified BY EXECUTION: sirilpy 1.0.25 on a real SPCC stack
+  returns `sirilpy.models.ImageStats`, all fourteen stats fields, zero star-model
+  fields (`datasets/aug09/set-05/sirilpy_work/probe_type.json`). The behavioral
+  half is FIXED on this build: #1673 (channel argument ignored, green returned
+  for every channel; closed 2025-06) — the same probe reads three DISTINCT
+  per-channel medians on an SPCC stack.
   **AND THE SAME LAYER REMOVES A WHOLE DEFECT CLASS RATHER THAN ONE CLAIM: STDOUT
   SCRAPING.** The API returns typed values deserialised from a binary struct — no
   regex, no stdout, nothing to parse wrong. **`Sigma: -nan` is not a hazard when the
