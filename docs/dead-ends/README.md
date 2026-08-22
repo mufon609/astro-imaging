@@ -13,6 +13,21 @@ entry merges/deletions/updates, no fixing of "above"/"below" cross-references,
 no re-ordering inside a group (original order kept). That is phase 2, entry by
 entry, with this grouping as its work surface.
 
+## Phase 2 status
+
+Phase 2 works file by file: every entry audited against the artifact it
+describes (the contract's four standing states), then removed only on the
+owner-ratified conjunction (solved AND no longer worth knowing), merged,
+updated, or revised — with every re-measurement stamped to the commit it was
+taken at. A file that has had its pass is RELEASED in `split.py`'s
+`PHASE2_RELEASED` set: maintained in place from then on, never regenerated,
+excluded from the byte check.
+
+| file | status |
+|---|---|
+| `verification-traps.md` | DONE, audited at `614ad33`: 0 removed, 0 merged, 1 entry split into 3, 12 revisions — full dispositions in this file's phase-2 commit |
+| all other files | phase 1 (verbatim; regenerated + byte-checked by `split.py`) |
+
 Why these groups: the original's seven implicit sections were already
 stage-shaped EXCEPT `QA / scope`, which held 2,586 of 4,653 lines (56%) and
 mixed four different subjects — star-shape/optics investigation method, WCS and
@@ -126,6 +141,9 @@ The sha256 pins the source state this split was derived from. Any edit to
 `docs/dead-ends.md` invalidates the manifest's line numbers — re-run
 `split.py` (it fails loudly on drift via the block-start validation and the
 byte comparison; re-derive the manifest against the new state if it does).
+Files released to phase 2 (`PHASE2_RELEASED` in `split.py`) are never
+regenerated and are excluded from the byte check — the check then proves the
+remaining files still carry their original spans verbatim.
 `run_guards.sh` with this directory present: 24 passed, 0 failed.
 
 ## Merge constraints (inputs to the later decision, measured)

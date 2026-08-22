@@ -1,14 +1,13 @@
 # Verification traps — checks and search instruments that lie
 
-Phase-1 split of `docs/dead-ends.md` (organize-only; the original file stays
-the live registry until the merge is decided). Content below the marker is
-VERBATIM from the original, so in-text "above"/"below"/section references may
-point at entries now homed in a sibling file — `README.md` in this directory
-carries the index, the assignment rule, and the block manifest that resolves
-them. Do not edit below the marker while the refactor is in phase 1; the split
-is re-derivable from the manifest and verified byte-identical by `split.py`.
+Phase-2 file of the dead-ends registry split (`README.md` in this directory
+holds the index and the per-file dispositions). Entries below are maintained
+IN PLACE — no longer byte-verbatim with `docs/dead-ends.md`; revisions are in
+git and `split.py` no longer regenerates this file. Cross-references to
+entries in sibling files are written as (`<file>.md`, entry) pointers;
+unmarked "above"/"below" references resolve within this file.
 
-<!-- == verbatim content from docs/dead-ends.md below this marker == -->
+<!-- phase-2: maintained in place; not regenerated from the manifest -->
 - **A CHECK THAT ONLY VERIFIES THE FROZEN HALF CANNOT FAIL IN THE DIRECTION THAT
   MATTERS.** Pinning registration across an A/B is verified by the arm's canvas
   matching the donor's — and a pin that worked by accidentally DISABLING the
@@ -38,7 +37,8 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   an instance of a named warning failing; it is a trap that the person writing
   the acceptance criteria did not see coming while writing a criterion about
   `pgrep`. That is the more useful lesson and the weaker claim: proximity to a
-  hazard in prose is not coverage of it.
+  hazard in prose is not coverage of it. (The brief itself is since retired
+  with the role docs — zero tracked matches; the lesson is not.)
   **AND THE OPPOSITE DIRECTION IS ALSO LIVE: `pgrep` SAMPLES AN INSTANT, SO IT
   CANNOT REFUTE AN INTERVAL CLAIM.** The entry above is the false POSITIVE
   (`pgrep` reports alive while nothing computes); this is the false NEGATIVE, and
@@ -73,8 +73,13 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   truncated; it looked answered. **A window does not present as partial — it
   presents as the object**, so the stopping rule fires on content that is real,
   relevant and irrelevant to the question. **The instrument fix follows from that:
-  window on the MATCH, not on the line** — `grep -oE ".{60}PATTERN.{110}"` rather
-  than `grep -n PATTERN | cut`. And state coverage as what was actually read: the
+  window on the MATCH, not on the line — and use the TRAILING-RANGE form,
+  `grep -oE "PATTERN.{0,200}"`, never `grep -n PATTERN | cut`.** (This entry
+  first recommended the exact-count two-sided window `.{60}PATTERN.{110}`,
+  RETRACTED: that form was later measured STRUCTURALLY IMPOSSIBLE on wrapped
+  prose — MODE 1 of the three-modes entry below; this registry's own longest
+  line is 108 — and the two-range `{0,n}` repair hits ugrep's complexity limit,
+  MODE 2.) And state coverage as what was actually read: the
   head-end sweep's honest coverage was *"the first 260 characters of each matching
   row"*, never *"the rows"*.
   **The two failures are the same defect at both ends: a fact buried past where
@@ -97,7 +102,8 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   `grep -c "IS NOT INSTALLED ON THIS RIG"` returned **1 before the fix, 1 after,
   and 1 at HEAD** — read as a count, "still broken". It was not: the fix RETRACTS
   the claim while QUOTING it, so the phrase survives by design, exactly as a
-  withdrawn `~1.1` does elsewhere in this registry. **A count answers presence, not
+  withdrawn `~1.1` does elsewhere in this registry (the paraphrased-result
+  entry, `evidence-provenance.md`). **A count answers presence, not
   assertion, and a corrected record deliberately contains the string it corrects —
   so on a well-maintained tree the count is guaranteed to mislead.** Read the
   sentence. The correct instrument here is `grep -o` with context, and then human
@@ -107,8 +113,8 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   DOES. FOUR IN ONE SESSION, EACH IN A DIFFERENT INSTRUMENT, NONE OF THEM AN
   ERROR.** Every one produced a well-formed result that a careful reader would
   accept:
-  - **A DELETION FILTER BLIND TO THE CONTENT IT PROTECTS.** `CLAUDE.md` requires
-    reading the `-` lines of any deletion, `git diff | grep '^-'`. Refining that to
+  - **A DELETION FILTER BLIND TO THE CONTENT IT PROTECTS.** `CLAUDE.md` then
+    required reading the `-` lines of any deletion, `git diff | grep '^-'`. Refining that to
     `grep -E '^-[^-]'` to drop the `--- a/file` header **silently excludes every
     deleted markdown BULLET**, because a removed `- **item**` renders as
     `-- **item**`. MEASURED on a 97-line cut: the refined form showed **83** lines
@@ -138,9 +144,11 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   PRE-EDIT file read ODD too, because the extraction began mid-span. One command,
   and it separated an artifact from a finding.
   (n=4, one session; surfaced from ordinary work rather than from looking for the
-  class, so do not compute a rate. The `^-[^-]` instance argues for changing the
-  form the contract prescribes, which is `CLAUDE.md`'s and not this file's to
-  amend — recorded here as the measurement, flagged there as a decision.)
+  class, so do not compute a rate. The decision the `^-[^-]` instance flagged is
+  CLOSED: `CLAUDE.md` no longer prescribes any grep form — its check is
+  whole-hunk accounting, `git diff -- <file>` with every hunk accounted for
+  (zero `^-` literals in the contract at `614ad33`) — and the measurement stays
+  as the reason a header-dropping refinement must never come back.)
 
 - **THE FIRST MEMBER OF THE COLLISION FAMILY THAT IS NOT A MATCHING FAILURE: THE
   SEARCH RETURNS THE RIGHT ANSWER ABOUT THE STRING AND THE WRONG ANSWER ABOUT THE
@@ -214,8 +222,9 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   hand.** `check_removal_conditions.sh` was built interactively and runs under bash;
   re-measured on both programs it reads **28 files each, `comm` empty in both
   directions** — unaffected, by luck rather than design.
-  **THE THREE MODES, re-homed here because a role doc kept the PROHIBITION and
-  deleted the DETECTOR** — *"never report a negative from a structurally-impossible
+- **A SEARCH THAT DID NOT RUN HAS THREE MODES, AND THE EXIT CODE IS THE
+  DISCRIMINATOR — re-homed as its own entry after a role doc kept the PROHIBITION
+  and deleted the DETECTOR:** *"never report a negative from a structurally-impossible
   view"* survived a cut while every description of what makes a view structurally
   impossible went to zero tracked files.
   **MODE 1 — AN EXACT-COUNT WINDOW WIDER THAN THE FILE'S LONGEST LINE CANNOT MATCH,
@@ -244,11 +253,11 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   **THE SAFE FORM: ONE range quantifier on the TRAILING side —
   `grep -oE "PATTERN.{0,200}"` — positive-controlled, with the PROGRAM and the
   QUANTITY named, and stderr never merged into a count.**
-  **AND THE PASTE RULE IS NOT ABOUT NUMSTAT — that is the instrument it was first
+- **THE PASTE RULE IS NOT ABOUT NUMSTAT — that is the instrument it was first
   written about, not its scope.** `CLAUDE.md` states it as *"PASTE the measured
   numstat into the commit — never a description of it"* and *"a check whose output
   is paraphrased is a check that did not run"*, so it reads as a rule about one
-  command. **MEASURED, in the commit that re-homed this very entry: the numstat was
+  command. **MEASURED, in the commit that re-homed the three-modes entry above: the numstat was
   pasted correctly and the destination check three lines below it was PARAPHRASED** —
   *"verified homed: all six strings now 1 file"*, when the before-check and the
   after-check had been run on **different strings** (`NEVER MERGE STDERR` was
@@ -293,8 +302,9 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   because no record file yet contained a quoted marker — documenting the detector
   is what broke it.**
   **MODE 2 — A LINE-SCOPED CODE STRIPPER MIS-PAIRS BACKTICKS ACROSS A WRAP**, eats
-  a real bold closer, and manufactures an imbalance in clean prose (`TOOLS.md:468`
-  is the live example, a code span wrapping a line). **Note the direction: mode 2
+  a real bold closer, and manufactures an imbalance in clean prose (the live
+  example was a `TOOLS.md` code span wrapping a line; its line ref is dropped
+  as stale — line numbers do not survive edits). **Note the direction: mode 2
   is produced BY the fix for mode 1.**
   **THE CORRECT FORM: strip fenced blocks, then strip inline code spans ALLOWING
   NEWLINES INSIDE THE SPAN, then count per block.**
@@ -381,6 +391,10 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   shell-function shadow above — the instrument changed and the numbers stayed
   plausible — and it was found only because the advice *"quote the ref-path"* was
   itself tested rather than adopted, by its own author, one message after issuing it.
+  **RE-MEASURED at `614ad33` over the current tracked `scripts/` paths — an
+  independent third reproduction of the classifier: 115 paths, A=51 B=37 C=27.**
+  A and B are IDENTICAL to the 113-path census (the two paths added since both
+  classify C), so B remains a third of this repo's script paths (32%).
 - **`git log --oneline` CARRIES NO TIME, SO IT CANNOT ORDER A COMMIT AGAINST
   ANYTHING THAT IS NOT A COMMIT — and the failure is not the ordering, which was
   correct.** MEASURED: a session ran `git log --oneline -5`, saw a commit at the
@@ -481,7 +495,11 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   reference:** re-measured, 0 invocation-shaped references to any of the three exist
   outside `scripts/ingest/` itself, while `fetch_session.sh` names
   `remote_publish.sh` at three sites as operator prose and a record string — which
-  escape #3 above counts as a real delivery path. **The durable lesson is the
+  escape #3 above counts as a real delivery path. (Both halves re-verified at
+  `614ad33`: 9 of 9 records name `remote_publish.sh`, and 0 invocation-shaped
+  references exist outside `scripts/ingest/` — the re-verifying sweep itself
+  first reported 8, all of them its own path-prefix filter failing to match, a
+  live instance of the plausible-number class this file records.) **The durable lesson is the
   method, not the negative:** search the records before classifying anything as
   dead. A rot at HOUR scale is caught by the session that caused it; this one ran
   for DAYS and was caught by nobody, which is the case a `last checked` date cannot
@@ -511,7 +529,8 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
      1.4.4's actual wording, so the fallback supplied 0 unconditionally.
   2. The uniform lens card — warping a uniform field yields a uniform field, so
      corner==centre passes whether vignetting was stripped OR the module never
-     fired; needed a GRID positive control that MUST differ.
+     fired; needed a GRID positive control that MUST differ (full entry:
+     `registration-distortion.md`, the darktable lens STYLE entry).
   3. `lens_preflight.check_pinned_model`'s mutation test, TWICE — a counted-less
      `str.replace` moved the live element AND the decoy together (a mutation
      that changes every copy cannot distinguish "reads the right copy" from
@@ -527,7 +546,8 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   decoy MATCHES the scanner's own pattern before trusting any result built on it
   (measured: 2 pattern matches in the raw block, 1 after masking).
 - **TWO KERNEL BUGS IN THE SAME SYNTHETIC-TRAIL FIXTURE, BOTH FOUND BY A SELFTEST
-  THAT FAILED FIRST.** The fixture deposits a trail of known length `L` and the
+  THAT FAILED FIRST** (fixture: `datasets/aug06/corner_work/kappa_transfer.py`).
+  The fixture deposits a trail of known length `L` and the
   calibration recovers it from a second-moment shape, so a bias in the DEPOSIT is
   indistinguishable from a bias in the estimator — which is why the selftest
   asserts the ANALYTIC value rather than self-consistency.
@@ -586,4 +606,6 @@ is re-derivable from the manifest and verified byte-identical by `split.py`.
   top-30 medians hold to the third decimal** — an instrument fact to carry, not a
   defect to chase. It bounds what a COUNT comparison can resolve and leaves a
   rank-matched shape comparison unaffected, which is the form this registry already
-  requires for cross-level work. (Migrated from a retired session report, which was its only home.)
+  requires for cross-level work (`star-shape-optics.md`, the detection-depth
+  entry). (This entry is the jitter figure's sole home — its original record
+  was retired.)
