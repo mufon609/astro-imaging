@@ -249,8 +249,10 @@ print(f"compose gate T0: {len(rows) - len(outside)}/{len(rows)} members are "
       "self-describing (contract-complete)")
 for r in outside:
     print(f"  OUTSIDE THE CONTRACT: {r['file']} missing {','.join(r['missing'])} — "
-          "run scripts/stack/backfill_substack_provenance.sh. T2 still measures it; "
-          "a header describes, only the measurement decides.")
+          "rebuild the member, or restore the retired backfill_substack_provenance.sh "
+          "from git history (retired at its fired condition: 93/93 on-rig sub-stacks "
+          "stamped). T2 still measures it; a header describes, only the measurement "
+          "decides.")
 prov = sorted({r["prov"] or "unstamped" for r in rows})
 if prov != ["stamped"]:
     print(f"  provenance class: {', '.join(prov)} — `backfill` values were "

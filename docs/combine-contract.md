@@ -70,7 +70,9 @@ Losing any of these loses the night.
     21.6%, which is the reason the tier is *one arm per set*: the arms are
     evidence, and evidence lives with the investigation, not in the archive.
     An UN-STAMPED archived sub-stack is **outside this contract** until
-    `backfill_substack_provenance.sh` brings it in (§4, §5).
+    backfilled in (§4, §5) — the one-time `backfill_substack_provenance.sh` is
+    RETIRED at its fired condition (93/93 on-rig sub-stacks stamped); an archive
+    restore predating the stamp recovers it from git history.
 
 ## 2. REGENERATES — on-rig working copies, delete freely
 
@@ -264,8 +266,9 @@ against 0.40 for the PASSING one.
    differ (§0.2).
 2. **The old night's members** — from cache, or rebuilt from §1. Either way they
    must carry §3's headers (an old archive predating the stamp is brought inside
-   the contract by `backfill_substack_provenance.sh`, which marks reconstructed
-   values `backfill:<provenance>` so they never read as stamped-at-build).
+   the contract by the RETIRED `backfill_substack_provenance.sh` — recover it
+   from git history; it marks reconstructed values `backfill:<provenance>` so
+   they never read as stamped-at-build).
 3. **A §5 compatibility measurement** before anything composes.
 
 An archive that predates the stamp is outside the contract until backfilled, and

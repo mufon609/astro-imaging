@@ -473,7 +473,6 @@ live in CLAUDE.md "Environment".
 | `build_master_dark.sh` | builds the session's MASTER DARK from raw `darks/`, driving the pinned Siril template; 32-bit, uncompressed, `setext` pinned |
 | `compose_preflight.py` | compose preflight: STOPS before a union silently regresses to star-pair registration — the gate that makes the astrometric compose provable rather than assumed (removal-conditions register) |
 | `stamp_headers.sh` | single source of truth for restoring the ACQUISITION FITS keywords the undistort TIFF round trip drops, and for stamping `PIPEREV` — which is why a commit landing mid-build is a second knob inside your own experiment |
-| `backfill_substack_provenance.sh` | ONE-TIME backfill of optics/calibration provenance onto sub-stacks built before those keys existed; writes with a FITS library, never siril `update_key`, which truncates a string at the first `/` |
 
 **`calibrate/`** — astrometric + photometric calibration
 
