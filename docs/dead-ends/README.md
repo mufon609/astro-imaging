@@ -15,17 +15,21 @@ entry, with this grouping as its work surface.
 
 ## Phase 2 status
 
-Phase 2 works file by file: every entry audited against the artifact it
-describes (the contract's four standing states), then removed only on the
-owner-ratified conjunction (solved AND no longer worth knowing), merged,
-updated, or revised — with every re-measurement stamped to the commit it was
-taken at. A file that has had its pass is RELEASED in `split.py`'s
-`PHASE2_RELEASED` set: maintained in place from then on, never regenerated,
-excluded from the byte check.
+Phase 2 works file by file, and its point is DECLUTTERING (owner-directed):
+remove duplicate info (in-file and cross-file — one home per claim), remove
+clearly stale info, and remove the investigation notes around any problem that
+is since FIXED and properly implemented — once a tool or mechanism ships, the
+figuring-out archaeology is no longer load-bearing; the durable
+rule/mechanism/tool-fact stays, compact, with its grounding numbers. Fact-check
+along the way (re-measurements stamped to the commit they were taken at), but
+the bias is removal. Pre-compression forms are never lost: git holds them, and
+the live `docs/dead-ends.md` is untouched until the merge. A file that has had
+its pass is RELEASED in `split.py`'s `PHASE2_RELEASED` set: maintained in
+place from then on, never regenerated, excluded from the byte check.
 
 | file | status |
 |---|---|
-| `verification-traps.md` | DONE, audited at `614ad33`: 0 removed, 0 merged, 1 entry split into 3, 12 revisions — full dispositions in this file's phase-2 commit |
+| `verification-traps.md` | DONE, audited + decluttered at `614ad33`: 15 → 14 entries (kernel-bugs fixture folded into check-cannot-fail as its analytic-value corollary; mechanism notes live in `kappa_transfer.py` itself), duplicates removed (the readability-limit punchline ×2, the decoration line ×2, the proximity-lesson paragraph duplicating `evidence-provenance.md`'s entry), fixed-and-implemented scaffolding cut (sip_tpv incident detail, regex-gate blow-by-blow, `^-[^-]` contract decision now closed, correction-of-this-entry meta, session attributions); cut safety pre-checked: 0 external references to any removed material |
 | all other files | phase 1 (verbatim; regenerated + byte-checked by `split.py`) |
 
 Why these groups: the original's seven implicit sections were already
