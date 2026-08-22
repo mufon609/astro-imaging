@@ -567,9 +567,10 @@ def main():
                 # blocked. Announced as CANDIDATE, never silent; any OTHER
                 # installed model (community revert via lensfun-update-data,
                 # another set's state left behind) still STOPS below — exactly
-                # the silent-wrong cases the assert exists for. Per-set optical
-                # states: BACKLOG:`optical-state-models`; its closing condition
-                # is the standing per-state wiring this bridges.
+                # the silent-wrong cases the assert exists for. Per-set models
+                # as AUTHORITY are a registered dead end (the fitted-lensfun
+                # register row); --from-fit exists only as the explicit
+                # candidate-A/B path, judged at the combine.
                 try:
                     fit = json.load(open(os.path.join(
                         am.dataset_dir(a.session, a.set),

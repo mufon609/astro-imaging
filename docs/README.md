@@ -105,8 +105,9 @@ durable findings have all graduated into the operating docs — `docs/dead-ends.
 (the mechanisms and the blind instruments), `docs/combine-contract.md` (the
 contract, the gate thresholds, the scope tiers, the standards comparison, the
 history), `TOOLS.md` (the hugin, darktable and
-embedded-model rows) and BACKLOG `optical-state-models` — so the reports were
-retired rather than left to contradict them.
+embedded-model rows) and the removal-conditions register's fitted-lensfun row
+(the since-pruned `optical-state-models` item's close lives in git) — so the
+reports were retired rather than left to contradict them.
 
 Recover any of them at the commit before their removal:
 

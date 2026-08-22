@@ -153,10 +153,10 @@ records `qa_work/star_stations_*.json`) — cells are [n, majFWHM px, roundness]
   all-station spread 1.70 → **0.52 px**, truncated-mean **3.27 → 3.06 px**,
   stars +10%, sensor tilt 0.51 → 0.31. Approved on the user's eyes, full-frame
   lossless. The model is the PINNED registry entry for this lens@focal,
-  fitted from its own frames or explicitly inherited, carried in
-  `qa_work/lens_fit.json` and installed per run by the chain
-  (BACKLOG:`optical-state-models`; the repo-global pinned file was removed
-  when granularity measured per-set).
+  fitted from the class's own frames, pinned in
+  `scripts/darktable/lens_models.json` (THE authority — restored when the
+  per-set-authority method was refuted at its root and reverted) and installed
+  per run by the chain.
 
 ## The experiment — one knob, on the real frames
 
@@ -375,9 +375,10 @@ Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
   entry; the darktable-style inertness entry; the ICC contract.
 - **`BACKLOG.md`** — `one-sided-band` (the open residual term),
   `native-solve-and-sip` (the Siril-native SIP comparator, the fitted model's
-  removal-condition test), `route-recommendation`, and
-  `optical-state-models` (the per-set model doctrine; the retired pinned-model
-  register row records why the old method died).
+  removal-condition test), `route-recommendation`, and the RE-INSTATED
+  fitted-lensfun register row (per-set-model authority is a registered dead
+  end; the row records why, and the pruned `optical-state-models` item's close
+  lives in git).
 
 ## Sources
 

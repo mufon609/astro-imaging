@@ -173,12 +173,14 @@ homography, and homographies COMPOSE (the fact §6 rests on).
 
 - `darktable-cli` (lensfun) applies the **distortion-only** model: the
   coefficients of the PINNED model for this lens@focal — fitted once from real frames
-  (`fit_lens_model.sh`) or explicitly inherited — carried in the set's
-  `qa_work/lens_fit.json` and installed per run by the chain
-  (`install_lens_model.sh`), with the lens's vignetting/TCA stripped from the
-  user DB. The model is PER-SET (focus recalibrates; measured:
-  BACKLOG:`optical-state-models` — a shared model cost set-01 a 2x field-term
-  elevation its own fit removed). Styles are pinned in-repo
+  (`fit_lens_model.sh`), pinned in `scripts/darktable/lens_models.json` (THE
+  authority) and installed per run by the chain (`install_lens_model.sh`), with
+  the lens's vignetting/TCA stripped from the user DB. The model is ONE SHARED
+  pin per lens@focal; a per-set fit is a CANDIDATE promoted by an explicit act
+  and judged at the COMBINE (per-set-as-authority is a registered dead end: its
+  founding number was a compose artifact, and per-set models measured 2.99 px
+  within-night / 5.34 px cross-night corner disagreement where one shared model
+  composes clean). Styles are pinned in-repo
   and installed headlessly; `--style-overwrite` is required or the style is
   silently ignored. Re-install after every `lensfun-update-data` (it reverts
   the DB); `verify_lens_card.py` proves the state (grid control + uniform
@@ -186,13 +188,14 @@ homography, and homographies COMPOSE (the fact §6 rests on).
 - `lens_preflight.py --require-profile` runs FIRST and makes darktable PROVE it
   corrects the set (a lens lensfun cannot match warps nothing and says
   nothing), and asserts installed == the set's own recorded coefficients.
-- **The model is per LENS@FOCAL and its optical state, NOT per set** — focus is recalibrated
-  every session (user-stated operating fact) and the profile moves with it,
-  so a fitted model describes the night it was fitted from. The per-state
-  fitting strategy and its discriminators (displacement vs blur; session vs
-  set granularity) are BACKLOG:`optical-state-models`. Members each warped
-  under their own correct model remain composable — the compose requires
-  correct rectification per member, not a shared model.
+- **The model is per LENS@FOCAL, NOT per set** — focus is recalibrated every
+  session (user-stated operating fact), but treating each SET as its own
+  optical state was REFUTED at its root and reverted: fits are not reproducible
+  past the control points' ρ≈1.0 support (four fits of ONE set span 0.36–6.30 px
+  at the corner), so members warped under DIFFERENT models cannot be composed
+  clean — measured 2.99 px within-night / 5.34 px cross-night disagreement
+  against 0.14–0.93 px under one shared model. A state-CHANGE detector, not a
+  per-set default, is the open successor (BACKLOG:`compose-homography-smear`).
 - **ICC discipline:** the 32-bit float leg ships the TIFF untagged and exports
   `--icc-type LIN_REC709` — a measured perfect identity (ratio 1.0000 every
   level/channel). `SRGB` belongs only on the 8/16-bit probe legs. Never
