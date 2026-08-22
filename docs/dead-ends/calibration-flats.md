@@ -361,8 +361,9 @@ the constraints any such tool must satisfy):
   which sky lands in a box, and the term a background-extraction stage
   actually targets. Changing an acceptance measure needs user ratification, so
   this is recorded as the CANDIDATE, not as a swap. Numbers:
-  `datasets/july31/experiments.jsonl`
-  (`background_residual_decomposition_set02_vs_set03`).
+  `background_residual_decomposition_set02_vs_set03` at
+  `git show c7db472:datasets/july31/experiments.jsonl` (swept in the july31
+  raws-only reset; carried as INHERITED).
 
 - **NEVER store a calibration master at 16-bit integer.** A master
   dark/bias/flat is a many-frame MEAN, so its precision is far finer than one

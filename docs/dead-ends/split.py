@@ -65,7 +65,19 @@ PHASE2_RELEASED = {
     "registration-distortion.md",
     "plate-solving-wcs.md",
     "siril-behaviors.md",
+    "measurement-discipline.md",
+    "separation-deconv-psf.md",
+    "stretch-colour-judgment.md",
+    "background-extraction.md",
+    "00-registry-contract.md",
+    "acquisition-checklist.md",
+    "terminology-dust.md",
+    "lunar-planetary.md",
+    "intake-frame-qa.md",
 }
+# All 17 files are released: phase 2 is complete. The manifest remains the
+# provenance map (which original block went where); the byte check is now
+# vacuous and this script is retained for that map + the release record.
 
 
 def fail(msg: str) -> None:
