@@ -171,7 +171,7 @@ names.**
 | `check_solve_records.py` record-vs-artifact pointing join | an official tool reports, headless, whether a plate-solve record's stated solution matches the WCS of the file it names | 2026-08-14 | **not fired** — probed: astrometry.net validates a solve against an IMAGE and knows nothing of our records; siril has no record concept; no tool joins a JSON provenance record to a FITS header. Reads headers and records only, opens no pixel, gates nothing, always exits 0. **It compares the record's field CENTRE against the target's own WCS EVALUATED AT THE CENTRE PIXEL, never `CRVAL`** — `CRVAL` is the tangent point (BACKLOG:`pointing-record-names-the-wrong-frame`) and MEASURED 1.662 deg from the centre on the one product that matters, against a clean-population spread of 0.012–0.364 deg over 22 pairs, so a CRVAL join carries ~5x the signal range as baseline error. `--selftest` falsifies on three arms, the third asserting CRVAL and centre-pixel are distinguishable so a comparand swap goes RED. Found one live case on 23 pairs: a record asserting RA 6.03 / Dec −65.10 for a product whose own WCS reads **115.4 deg** away, the false solve the registry already documents; no threshold was tuned, the gap is three orders of magnitude |
 | `scripts/qa/fit_ptlens_joint.py` joint ptlens(a,b,c) + distortion-centre least squares with a projective nuisance | hugin/lensfun fit ptlens + distortion centre jointly against an absolute (catalogue) reference, or no OPEN item in `one-sided-band` / `corner-fix-landscape` still consumes a fitted distortion-centre quantity | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — this divergence shipped with NONE** (no `REMOVAL CONDITION` literal anywhere, no row: the register's hole (b) NO-CONDITION-ANYWHERE, live in the tree until now; found by audit, the third instance beside `psf_calib.py`'s precedent). **RATIFIED (owner 2026-08-19).** Not fired: hugin's own d,e stage diverges (d = 6.3e6, the file's docstring) and both consuming items are OPEN. Not invoked by any chain; its model reaches production only through the explicit user-judged promote path (`fit_lens_model.sh`) |
 | `scripts/darktable/cp_coverage.py` control-point radial-coverage analysis (rho percentiles + the pre-registered corner-true criterion) | hugin/lensfun report per-radius control-point support against the model's own normalisation, or the fitting route pins control points to a corner-inclusive station grid by construction | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — shipped with none; hole (b); RATIFIED (owner 2026-08-19).** Not fired. Imported by `fit_lens_model.sh` only; the CLI's corner-support gate-exit has NO caller (README: imported, not invoked), so the exit-1 path is dead in practice and the analysis is promote-path evidence |
-| `scripts/calibrate/spcc_cone.py` hand-rolled nside=2 nested ang2pix cover + `_tan_pix2sky` gnomonic step | (a) cover: siril 1.5 `healpix` adopted AND its pixel list verified to map to the zenodo chunk names (`siril-1.5`), or `astropy_healpix` adopted into this script's interpreter (installed in `/opt/astro-venv`, ABSENT from host python3 — `TOOLS.md`); (b) projection: the step moves to astropy WCS (already imported in this file; used for exactly this in `derive_compose_ref.py`) | 2026-08-19 | **ROW + CONDITIONS NEWLY AUTHORED — shipped with none; hole (b); RATIFIED (owner 2026-08-19). Two clauses, evaluated separately (rule 6). CLAUSE (b) FIRED the same day, owner-directed:** `_tan_pix2sky` deleted, the projection is astropy WCS built from the CD ALONE (the header's leftover PC+CDELT must be stripped — the dual-matrix trap this firing exposed, registry + `wcs-dual-matrix-inject`). MEASURED A/B, all 34 solved products: chunk lists identical 34/34; new centres agree with the headers' own OBJCTRA/OBJCTDEC at median 1.7 / worst 36.5 arcsec against the retired hand-roll's 17.8 / 151.6. **Clause (a) NOT FIRED** — the ang2pix cover stands until siril 1.5 `healpix` or astropy_healpix adoption. Consequence bound held: chunk SELECTION only, siril names any missing chunk loudly |
+| `scripts/calibrate/spcc_cone.py` hand-rolled nside=2 nested ang2pix cover + `_tan_pix2sky` gnomonic step | (a) cover: siril 1.5 `healpix` adopted AND its pixel list verified to map to the zenodo chunk names (`siril-1.5`), or `astropy_healpix` adopted into this script's interpreter (installed in `/opt/astro-venv`, ABSENT from host python3 — `TOOLS.md`); (b) projection: the step moves to astropy WCS (already imported in this file; used for exactly this in `derive_compose_ref.py`) | 2026-08-19 | **ROW + CONDITIONS NEWLY AUTHORED — shipped with none; hole (b); RATIFIED (owner 2026-08-19). Two clauses, evaluated separately (rule 6). CLAUSE (b) FIRED the same day, owner-directed:** `_tan_pix2sky` deleted, the projection is astropy WCS built from the CD ALONE (the header's leftover PC+CDELT must be stripped — the dual-matrix trap this firing exposed — registry entry; the shed `wcs-dual-matrix-inject` item's close is `7078d0e`). MEASURED A/B, all 34 solved products: chunk lists identical 34/34; new centres agree with the headers' own OBJCTRA/OBJCTDEC at median 1.7 / worst 36.5 arcsec against the retired hand-roll's 17.8 / 151.6. **Clause (a) NOT FIRED** — the ang2pix cover stands until siril 1.5 `healpix` or astropy_healpix adoption. Consequence bound held: chunk SELECTION only, siril names any missing chunk loudly |
 | `scripts/stack/lens_preflight.py` pinned-model XML scan — reads the lensfun user-DB XML as TEXT and compares literal a/b/c for the exact lens@focal (deliberately not the fuzzy matcher, which stays the tool's) | lensfun/darktable expose a headless query of the INSTALLED model's coefficients for a given lens@focal, or the chain consumes the model other than through the lensfun user DB | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — the leg declared none; RATIFIED (owner 2026-08-19).** Not fired: Debian ships no lensfun query CLI (`lenstool` unpackaged, `python3-lensfun` exposes DB-path helpers only, `liblensfun-bin` update/adapter utilities only — the file's own probe list) |
 | `scripts/calibrate/solve_field.py` coverage rescue rung — re-solves on the largest centred box inside Siril's measured covered rectangle when a blind solve starves | the astrometry.net engine accepts a detection-region/subarea constraint of its own | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — the rung shipped (a515053) with a LIMITS block and no retirement trigger; RATIFIED (owner 2026-08-19).** Not fired. Standing: a GENERAL SAFETY NET, not the fix for the corpus starvation (the reference derivation was — bf3491e); fires only on NO SOLUTION or floor-class, keeps the strictly better result, soft-by-contract |
 | `datasets/aug09/smear_work/rho_march.py` member-attribution bookkeeping (WCS projection + least squares over the re-march's recorded `findstar` measurements) | an official tool reports, headless, coadd star-shape statistics attributed by contributing-member field position — or neither `compose-homography-smear` nor `one-sided-band` still consumes a member-attribution quantity | 2026-08-22 | **not fired** — same gap family as `shape_at_sky.py`/`member_separation.py`, at the attribution step: no siril/PSFEx/SCAMP surface decomposes a union's star shape by contributing member. Every star, FWHMx/FWHMy and amplitude is Siril `findstar`'s (the re-march's own lists); every geometry is the member's own solved WCS; in-house is the projection bookkeeping and the least squares. Reads headers and records only, no pixel, gates nothing, exits 0 (STOP conditions exit 3). Pre-registered BLIND, reading rules frozen before the run (`rho_march_prereg.json`); two controls fired blind on the author's geometry misconceptions — per-set ballhead roll, then meridian convergence dRA·sin(dec) — each verified header-only on all 12 sets before proceeding, both amendments committed before any band data was read. RESULT (`rho_march.json`, replicated at two depths): the union's surviving one-sided band is MEMBER-BORNE — composition-unexplained residual −0.05 ± 0.04 px major / +0.011 ± 0.011 roundness (−1.3/+1.0 SE, perm p 0.21/0.33); the left band samples members' own +x EDGES (pair Δsigned-x up to 1.89 of ±1) and member-own ρ is near zero and wrong-signed (−0.02), so the carrier is member +x-edge proximity (the exit-edge family), not raw radial optics and not the compose |
@@ -249,20 +249,16 @@ logged UNCHECKED premise that blocks nothing
 
 ### Queue items that had no home in this file
 
-- **Real-flats HANDLED path** — wire master-flat builds into the undistort route so
-  staged real flats are USED, not merely refused accurately (owner precedence: real
-  flats WIN when present). Not a recommendation to acquire them.
 - **`--weight=noise` corpus arm** — motivated by a MEASURED 18–24% cross-night noise
   gap (aug09 haze, +0.16 mag extinction, 16,913 matched stars); pre-registered
   one-knob A/B against the shipped `nbstack` corpus, judged on `snr_regions` +
   `shape_at_sky` + the owner's eyes.
-- **Pooled master darks** — belongs under `dark-optimization-fork`, which does not
-  mention pooling. Gated on the nights' masters measuring identical (they did: Δ0.1
-  ADU, noise within 1%); judged on `noise_split.sh`'s structured term. Per-session
-  stays the default.
 
-**Closes when** the owner rules on the two-file question, and the three queue
-items above are either scheduled or refused.
+(The real-flats HANDLED path re-homed into `route-recommendation`'s flat-source
+bullet; pooled master darks re-homed into `dark-optimization-fork`.)
+
+**Closes when** the owner rules on the two-file question and the
+`--weight=noise` arm is scheduled or refused.
 
 ---
 
@@ -331,39 +327,18 @@ Ordered work — nothing here is executed on an accepted product:
 
 1. **Reference pinning is RESOLVED** — the compose registers all members in one
    sweep with the reference setref-pinned (a deterministic level anchor).
-   **THE SWarp TRIAL IS NOT RESOLVED AND WAS NEVER RUN; THIS ITEM SAID IT WAS.**
-   `native-solve-and-sip` recorded SWarp as installed with the comparison OPEN
-   while this line struck it through as settled — two items contradicting each
-   other about the route for the defect the owner can see.
-   **SWarp's HALF STANDS; SIRIL'S IS FALSE AND CLOSED THE ROUTE THIS CHAIN ALREADY
-   SHIPS.** MEASURED (`TOOLS.md`): SWarp has NO SIP reader at all
-   (`A_ORDER`/`B_ORDER`/`AP_ORDER` occur zero times in its 2.41.5 source; a 3-char
-   compare truncates `RA---TAN-SIP` to `TAN`; the distortion gate needs PV terms
-   SIP does not carry, so it applies nothing and warns about nothing) — **confirmed
-   by SWarp itself, which produces an IDENTICAL output canvas and CRVAL to nine
-   decimals from a TAN-SIP header and from one with SIP deleted.**
-   **"Siril discards per-image distortion BY DESIGN" is REFUTED.** It reasoned from
-   `seqapplyreg`'s help listing registration data as
-   `shift | similarity | affine | homography`. That list is TRUE and does not carry
-   the conclusion — the registration data IS linear, and the SIP undistortion is
-   COMPOSED with it. Siril's own registration manual: *"it is first corrected for
-   distortion and then linearly projected … this actually occurs in a single
-   operation (the pixel mapping is computed as the composition of this non-linear
-   correction and then the linear projection)"*, and *"undistortion will be applied
-   as defined when platesolving the sequence … if the images were plate-solved
-   using a SIP order larger than 1, then undistortion will automatically be
-   included"* (siril.readthedocs.io, Registration, 1.4.4 stable). The corroboration
-   cited was `register -disto=`, a DIFFERENT command this registry records as
-   designed for *"a sequence sharing one plate solution"* — which is why it fails
-   and why it says nothing about `seqplatesolve`.
-   **THE ARTIFACT SETTLES IT — THE ASTROMETRIC ROUTE IS THE SHIPPED DEFAULT.**
-   `run_undistort_compose.sh:330` is `seqplatesolve s`; `register -2pass` survives
-   only behind `--starpair`, which prints *"NOT the shipped route … must never
-   build a product anyone judges or ships"*. The compose greps siril's OWN log for
-   *"Astrometric registration computed"* and *"undistortion will be applied"* and
-   exits 4 if either is missing (`:351-358`), so the product cannot be BUILT
-   without the tool reporting it; the stamp (`:389-390`) separately defaults
-   `REGU=F` and flips to T only on that line. `web/results/aug06/stack_set-01+02+03_full.fit`
+   **THE ASTROMETRIC ROUTE IS THE SHIPPED DEFAULT, settled by the artifact.**
+   Two closed wrong beliefs from the route fight are homed and not restated
+   here: *"Siril discards per-image distortion by design"* is REFUTED (the SIP
+   undistortion is COMPOSED with the linear projection at `seqplatesolve`;
+   `register -disto=` is the different, shared-solution command) and the SWarp
+   trial was never run — SWarp has NO SIP reader at all; mechanisms + quotes in
+   `docs/dead-ends.md` and `TOOLS.md`. The compose is `seqplatesolve s`;
+   `register -2pass` survives only behind `--starpair`, which prints *"NOT the
+   shipped route … must never build a product anyone judges or ships"*; the
+   compose greps siril's OWN log for *"Astrometric registration computed"* and
+   *"undistortion will be applied"* and exits 4 if either is missing, and the
+   stamp defaults `REGU=F`, flipping to T only on that line. `web/results/aug06/stack_set-01+02+03_full.fit`
    carries `REGMODEL = astrometric`, `REGUNDIS = True`.
    **SO THE 0.458 IN THIS ITEM'S HEADLINE IS THE REGRESSION ARM'S NUMBER.** One
    knob on the 28-member union, same members/order/reference/framing/stack, star
@@ -404,6 +379,18 @@ Ordered work — nothing here is executed on an accepted product:
    string), making **SExtractor → SCAMP → SWarp the canonical Astromatic chain**
    and the documented industry answer to this item. **State the PAIR, not SCAMP
    alone: SCAMP solves and writes `.head`; it resamples nothing.**
+   **WHY THE SHARED CONTEXT CHANGES THE REACHABLE ORDER** (moved from
+   `native-solve-and-sip`, its one home now): per-frame ~37 Tycho-2 matches
+   support order 1 by the Pan-STARRS occupancy yardstick (`TOOLS.md`), but
+   `STABILITY_TYPE INSTRUMENT` fits ONE distortion polynomial per astrometric
+   instrument from ALL exposures — pooled across ~13 members that is ~480
+   against the table's 300-for-order-4, and SCAMP's default `DISTORT_DEGREES`
+   is 3 (needs 128). The condition is OCCUPANCY, not count: pooling helps only
+   if the pooled coverage fills the (order+1)² grid — members 4.28° apart with
+   ~1000 px of drift make it favourable, and it is checkable before any arm.
+   The standards doc already named the architecture (§H.3(3): a high-order term
+   shared across a stability context plus low-order per-exposure, *"the shared
+   variant does not appear to have been tried"*) — SCAMP's default IS it.
    **THREE SCAMP DEFAULTS TO SET BEFORE ANY ARM, from the same table:**
    `ASTREF_CATALOG` defaults to **`2MASS`, which is REMOTE** — set `FILE` against a
    local catalogue or the first attempt reaches a network service, the same class
@@ -653,11 +640,11 @@ What remains is the LADDER around it and the harness it feeds.
   MATCHED background landing so curve shape is the knob, not brightness.
 - **L4 thresholded `satu`.**
 - **Riders:** seed `datasets/GENERIC.json` (still the `{"render": {}, "why": {}}`
-  stub) with the six current knobs and a per-knob class-risk note; first
-  `baseline.json` via the no-regression harness; per-arm output tree
-  (`web/results/<session>/exp_<param>_<stamp>/`) and the `<final>_stages/` labeled
-  sequence, both binding requirements the tier does not yet emit;
-  `judgment_package.py` re-wire (its PNG8 pairing predates the 16-bit-only policy).
+  stub) with the six current knobs and a per-knob class-risk note; per-arm output
+  tree (`web/results/<session>/exp_<param>_<stamp>/`) and the `<final>_stages/`
+  labeled sequence, both binding requirements the tier does not yet emit;
+  `judgment_package.py` re-wire (its `.metrics.json` producer — the old chain's
+  renderer — no longer exists; the PNG16-only surface is already enforced).
 - **Two known limits:** a set can carry only ONE ratified `render` block (keyed by
   name), so two kept looks are not expressible; and a mono set STOPS loudly — the
   luminance-only variant is unbuilt.
@@ -665,32 +652,19 @@ What remains is the LADDER around it and the harness it feeds.
 One knob per arm, hypothesis pre-registered, judged on full-frame lossless PNG16.
 **Closes when** an approved, re-baselined render comes out of a laddered arm.
 
-## `learned-deconvolution` — the tool it named CANNOT run the test
+## `learned-deconvolution` — the question, not an arm
 
-`render_tier.sh` skips deconvolution on three grounds that all hold: classical RL is
-a measured dead end on in-exposure trailing, BlurXTerminator is not installed, and
-GraXpert's is the immature path. The registry explicitly does NOT dead-end a
-LEARNED deconvolver, so the question is live.
-
-**THE ARM THIS ITEM PROPOSED IS REFUTED BY A MEASUREMENT 500 LINES AWAY, AND THE
-ITEM READ AS READY WORK.** It named `/opt/cosmicclarity-6.6`'s
-`deep_nonstellar_sharp_cnn_radius_{1,2,4,8}` and specified a non-stellar sharpen as
-the test. `TOOLS.md` records, MEASURED on this rig: Cosmic Clarity **is a Qt tool
-that BLOCKS on a modal dialog**, **its CLI arguments are IGNORED**
-(`--sharpening_mode "Stellar Only"` was passed and the dialog showed `Both`), and
-**the non-stellar pass CRASHES on real data** — the exact pass this item specified.
-Verdict there: *"ATTENDED and NOT scriptable"*. `render_tier.sh` is headless, so the
-test cannot run as written. **Two sessions independently read that binary's `--help`
-and reported a headless capability it does not honour; this item is the third
-instance of the same error, still standing.** Mechanism note that survives: the
-model space is `radius_{1,2,4,8}`, a scalar RADIUS — spatially varying but
-**ISOTROPIC**, size only and never ellipticity — so it could not address an
-anisotropic corner term even if it were drivable.
-
-**What survives is the QUESTION, not the arm:** does a learned deconvolver buy
-OBJECT detail? That is distinct from the corner question — a symmetric sharpener
-cannot de-trail an elongated PSF — and it needs a headless CPU-Linux learned
-deconvolver, which is the same procurement gap `corner-fix-landscape` tracks.
+`render_tier.sh` skips deconvolution on grounds that hold (classical RL is a
+measured dead end on in-exposure trailing; BXT uninstalled by choice; GraXpert's
+immature), and the registry deliberately does NOT dead-end a LEARNED
+deconvolver — so the question is live: does one buy OBJECT detail? (Distinct
+from the corner question — a symmetric sharpener cannot de-trail an elongated
+PSF.) The arm this item once specified is REFUTED: Cosmic Clarity's non-stellar
+sharpen is measured ATTENDED-only with its CLI ignored and the pass crashing on
+real data (`TOOLS.md`, the one home — this item was the third session to
+believe its `--help`), and its model space is isotropic radius-only either way.
+What it needs is a headless CPU-Linux learned deconvolver — the same
+procurement gap `corner-fix-landscape` tracks (`torchmfbd` checks there).
 **Closes when** such a tool is procured and one knob is run against it, or the
 question is judged not worth the procurement.
 
@@ -773,53 +747,26 @@ Siril-FAQ doctrine fork: non-cooled cameras "should" use dark optimisation, whil
 base doctrine and both vendors say matched darks need none. A/B on one set, one
 knob, judged on dark-residual / walking-noise metrics (feeds the
 BACKLOG:`walking-noise` mechanism work). Low priority — our darks are same-night,
-session-end temperature.
+session-end temperature. Pooled masters across nights ride this fork (re-homed
+from `pending-owner`): gated on the nights' masters measuring identical
+(measured: Δ0.1 ADU, noise within 1%); judged on `noise_split.sh`'s structured
+term; per-session stays the default.
 
-## `native-solve-and-sip` — two probes, in order
+## `native-solve-and-sip` — one probe left
 
 - **`platesolve -localasnet` on the mildly-trailed class.** The solver dead-end was
   measured on roundness-0.615 frames; july23 measures 0.80. If Siril's own blind
   solve handles this class, `solve_field.py` gains a native sibling (the external
   route stays for heavily-trailed data). One stack, one probe, record either verdict.
 - ~~**Siril-native SIP undistort vs the darktable warp.**~~ **CLOSED — RUN and
-  REFUTED AS INVOKED.** Two beliefs were corrected on the way and both are in
-  `docs/dead-ends.md`: `seqplatesolve -order=3` DOES solve members natively
-  (388/371 matched stars, centres agreeing with astrometry.net to 0.001°), so the
-  "Siril cannot solve this class" belief had widened past its evidence — it was
-  measured on single ULTRA-WIDE TRAILED frames and stacked members have round
-  stars. But `register -disto=` is a SHARED-solution facility: each member
-  undistorted by its OWN SIP then composed measures 3.99/6.42/6.19 px against the
-  shipped route's 0.29/0.63/2.10/2.99. **Siril's own design assumes ONE optical
-  state per sequence.**
-  **AND THE ARCHITECTURE THAT KILLED IT IS THE ONE THE STANDARDS AVOID — RECORDED
-  IN OUR OWN TREE AND NEVER CONNECTED TO IT.** `docs/untracked-widefield-standards.md`
-  §H.3(3) already says the field uses **a high-order term shared across a stability
-  context plus a low-order per-exposure term**, and that *"the shared variant does
-  not appear to have been tried"* (`:966–974`). **SCAMP's default IS that
-  architecture** — `STABILITY_TYPE INSTRUMENT`, verified by `scamp -d` — so the
-  per-frame SIP failure recorded here is precisely the failure mode it exists to
-  avoid, and the untried variant has been named in this repo the whole time.
-  **THE QUANTITATIVE HALF, and it is why this is not merely a different shape.**
-  MECHANISM, not measured: per-frame we have ~**37** Tycho-2 matches, which by the
-  Pan-STARRS occupancy yardstick (`TOOLS.md`) supports **order 1 and not order 2**.
-  But `STABILITY_TYPE INSTRUMENT` fits ONE distortion polynomial per astrometric
-  instrument using detections from **ALL** exposures in it — so the count
-  constraining the shared term is **POOLED, not per-frame**: across ~13 members
-  that is roughly **480** against the same table's **300 for order 4**, and SCAMP's
-  default `DISTORT_DEGREES` is **3**, which needs 128. **The shared-context
-  architecture does not merely dodge the sparsity failure; it moves the reachable
-  order from 1 to 3–4 on the field's own yardstick.**
-  **THE CONDITION ON THAT, and it is checkable rather than assumable:** pooling
-  helps only if the pooled OCCUPANCY fills the (order+1)² grid, not merely the
-  total count. Members 4.28° apart with ~1000 px of drift make the pooled coverage
-  far better than any single frame's, which is favourable — **but it is an
-  occupancy check, and the machinery for it exists.**
-  **THE SUCCESSOR IS NOW RUNNABLE AND BELONGS TO
-  BACKLOG:`compose-homography-smear`** — per-image resampling onto a COMMON output
-  WCS using each exposure's full solution, which SWarp does once fed a distortion
-  it can read. SWarp 2.41.5, `sip_tpv` 1.1 and SCAMP 2.10.0 are all installed; the
-  two entry paths are recorded there and the wrong-for-this-data defaults are in
-  `TOOLS.md`'s SWarp row. Not restated here.
+  REFUTED AS INVOKED**: per-member SIP composed 3.99/6.42/6.19 px against the
+  shipped route's 0.29–2.99 (`register -disto=` is a SHARED-solution facility —
+  Siril's design assumes ONE optical state per sequence), while `seqplatesolve
+  -order=3` DOES solve members natively — both corrected beliefs are in
+  `docs/dead-ends.md`. The shared-context successor (SExtractor → SCAMP → SWarp
+  via TPV, with the pooled-occupancy order argument) lives in
+  BACKLOG:`compose-homography-smear`, its one home; the wrong-for-this-data
+  SWarp defaults are in `TOOLS.md`'s SWarp row. Not restated here.
 
 ## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
 
@@ -945,38 +892,11 @@ registration and no orientation choice.
 
 **NAMED DESCRIPTIVELY ON PURPOSE, AND NO NEW TERM IS COINED FOR IT.** The thing
 being demoted is *the mechanism by which the single-frame optical term reaches the
-coadd*. A short label was proposed and argued down by its own proposer, correctly:
-the entire content of this demotion is that the thing is NOT a candidate, and giving
-it a name works against that — a named thing reads as a thing to go and study.
-**`TRANSFER FUNCTION` is also TAKEN** and must not be reused here: it occurs in two
-files (`BACKLOG.md`, `docs/dead-ends.md`) and both are the flat-differential
-result, where it means the flat-shape-to-object-tilt conversion measured at
-essentially 1:1.
-
-**THE LIST ARRIVED SEPARATELY AND IS NOW ABOVE.** This section previously recorded
-that only the demotion had been transmitted, and that the list was NOT here because
-reconstructing one from a one-line description would put a fabricated list beside
-the real one. **That refusal is what made the real list safe to retrieve:** it came
-from its author's own context rather than through a relay, and the relay itself
-declined to carry it, on the stated grounds that it had been lossy twice that day.
-
-**ONE PROVENANCE DEFECT IS RECORDED WITH IT, AND WHAT SURFACED IT WAS A QUESTION,
-NOT A DISCLOSURE — record it that way, because the two imply different practices.**
-The receiving side asked, before landing anything, where each number lived; the
-author then answered honestly and against its own finding. Absent the question the
-amendment would have arrived with the figures in it and nobody would have looked.
-**So the next seat should rely on ASKING, never on the supplier volunteering it.**
-(That correction is the author's own, offered against its own credit.) The
-retraction that put focal-plane tilt back on the list was built on three FWHM
-endpoint figures that reached its author **inside a unit brief, verbatim, with no
-tracked record anywhere**. They are not wrong — they
-are this item's own **+0.180 px** odd term expressed as endpoints, and the
-arithmetic checks exactly (their difference IS 0.180, and the percentage quoted with
-them is that difference over their mean). **But they had no home, so they are not
-landed:** the tree's `+0.180 px` is the number, and the endpoints and the derived
-percentage are dropped. Briefing from material with no tracked home is a
-self-documented failure mode of the seat that did it, and this was at least its
-second instance in a day.
+coadd*; the entire content of the demotion is that it is NOT a candidate, and a
+named thing reads as a thing to go and study. **`TRANSFER FUNCTION` is also
+TAKEN** and must not be reused here: it occurs in two files (`BACKLOG.md`,
+`docs/dead-ends.md`) and both are the flat-differential result, where it means
+the flat-shape-to-object-tilt conversion measured at essentially 1:1.
 
 ### Open
 
@@ -1105,12 +1025,11 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   bring-your-own-data path** — formats are added by maintainers in-tree. **The one
   probe that could still make it cheap, unsettled:** `furry-parakeet` holds the
   linear-algebra kernels separately from the Roman driver.
-- **~~Cosmic Clarity~~ WITHDRAWN — not a headless candidate, and the tree said so.**
-  `TOOLS.md` records it MEASURED: a Qt tool that BLOCKS on a modal dialog, **its
-  CLI arguments IGNORED**, and the non-stellar pass CRASHES on real data. **Three
-  sessions read its `--help` and reported a capability it does not honour.** What
-  survives is a mechanism note: its model space is `radius_{1,2,4,8}`, a scalar —
-  spatially varying but **ISOTROPIC**, size only, never ellipticity.
+- **~~Cosmic Clarity~~ WITHDRAWN — not a headless candidate** (`TOOLS.md`, the
+  one home, measured: attended-only, CLI ignored, non-stellar pass crashes;
+  three sessions believed its `--help`). Surviving mechanism note: model space
+  `radius_{1,2,4,8}` — spatially varying but ISOTROPIC, size only, never
+  ellipticity.
 - **NOT THE ROUTE — `sf_deconvolve`**: it deconvolves a stack of postage stamps,
   one PSF per object, not a field. It restores objects, not images.
 - **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Siril has every
@@ -1133,13 +1052,9 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   instrument. The BENEFIT has no number anywhere — a tree-wide search for a ringing
   measurement over `datasets/` returns none, and the record itself says only
   *"reintroduces whatever artefact the clamp was added for."*
-  **Under this repo's own evidence gate the two halves belong in different places:**
-  whether to accept a visible artefact for sharpness is aesthetic and the owner's,
-  but the artefact's MAGNITUDE is a thing an instrument settles — so the owner is
-  currently being offered a 6.26% gain against an unquantified loss — **and that
-  gain is itself a SINGLE-CONFIGURATION sample, not a constant** (one planted FWHM,
-  one phase distribution; BACKLOG:`resample-cost-and-drizzle`), so both sides of
-  the offer are less determinate than they read. **The fixture
+  The both-sides-indeterminate framing of the owner's choice (a
+  single-configuration gain against an unquantified loss) is homed in
+  BACKLOG:`resample-cost-and-drizzle` and not restated here. **The fixture
   that would close it already exists and needs no new design:** the same planted
   synthetic frames pushed through the shipped `register -2pass` →
   `seqapplyreg -interp=` operation verbatim, with a sharp-edge target added and the
@@ -1361,7 +1276,9 @@ describes today's master, and this corpus has a documented rebuild.
 Different question, different mechanism, its own item — see the sibling item's
 disposition (3).
 
-**(a) AND (b) HAVE LANDED. (c) and (d) remain.** `CALFLAT`/`CALDARK` are built from
+**(a) AND (b) HAVE LANDED. (c) remains** (a "(d)" once cited here was never
+defined anywhere — the sentence entered at `e4f4a6a` already dangling; one
+occurrence ever). `CALFLAT`/`CALDARK` are built from
 the masters that RAN, and `CALFSUM`/`CALDSUM` carry the content hash as a
 provenance VALUE in ESO's placement. Both are in `stamp_headers.sh`'s composite
 `KEYS` tuple, so a union's `uniq` sees them: measured, two members with the same
@@ -1391,54 +1308,6 @@ should re-derive this rather than assume it carries.
 **Closes when** calibration-master identity in a product's header distinguishes two
 same-named masters, and a check exists that can be made to fail on demand by
 pointing a product at the wrong one.
-
-## `guards-and-ci` — the runner EXISTS; what remains is a per-block bit-depth gap
-
-**`scripts/qa/run_guards.sh` is BUILT and GREEN** — it runs all eight guards plus
-every data-free selftest, **24 checks**, per-check PASS/FAIL, non-zero
-exit if any fails, `--list` for the roster. Documented in `README.md`'s
-`scripts/` repo map, in the `qa/run_guards.sh` row, with its limits. **The WALL
-TIME is deliberately not written in any doc** — four figures for it have been
-published here and no two agree, each a session quoting its own runs as the
-range; the runner prints the live figure and every check's duration itself, and
-the spread between runs is UNATTRIBUTED (README carries what was ruled out).
-**Fire-tested BOTH ways**: breaking the executable bit takes it
-RED at exit 126 while `bash scripts/…` passes blind — reproducing the registered
-trap exactly — and a planted unpinned `set16bits` takes it RED through the
-content path, so it is not only launch failure that propagates.
-
-**Invocation is `./scripts/…`, never `bash scripts/…`, and that is load-bearing
-rather than style:** `bash` sidesteps the executable bit, which is why an audit once
-reported five passes while a guard was non-executable and the row describing it
-outlived its fix by three days.
-
-**STATED LIMITS, carried in the runner's own GREEN output so it cannot imply
-coverage it lacks:** these guards verify WIRING, never OUTPUT. `check_bitdepth` is
-per-FILE and static, so a builder already emitting `set32bits` in one generated
-`.ssf` passes even if a newly added emission omits the pin. One check reaches the
-network (the ESA Gaia control) and is labelled `[network]` and run unconditionally —
-**no `--skip` flag on purpose**, since a conditional path nobody exercises is the
-defect class the runner exists to catch. THREE checks are excluded with reasons
-rather than dropped silently: `member_separation --selftest` (needs a live seq-dir),
-`object_tilt_null.sh` (real corpus data), and `x86_bootstrap.sh --selftest-gaia`
-(downloads the catalogue). **The per-dataset `corner_work/*.py` instruments are NOT
-excluded as a class** — `pa_convention` and `constancy_fit` are IN the roster,
-marked `[lib]`, by the deliberate exception `e939f26` landed for: the exclusion
-keys on what a file IS, not where it lives. **An earlier revision of this row
-listed them as excluded, which UNDERSTATED coverage** — the same wording `README`
-already records as a corrected error, alive here at a third site.
-
-**AND THE ROSTER'S OWN CONSTRUCTION IS A KNOWN LIMIT, recorded in its docstring:**
-it was built from `grep -rln selftest`, so a selftest exposed under a
-non-matching flag is **silently absent rather than reported missing** —
-`--selftest-gaia` is the proof the naming is not uniform. The only mitigation that
-works is procedural: add the CHECKS row in the same commit as the selftest, since
-nothing detects a check that was never added.
-
-**REMAINS OPEN, deliberately deferred:** the bit-depth check's per-FILE granularity.
-Per-block would need the printf/heredoc blocks split on the `> "$X.ssf"` boundary
-every builder uses, and a fragile parser is worse than a stated limit. **Closes
-when** that granularity is worth the parser, or the limit is accepted permanently.
 
 ## `lunar-ladder` — lunar lucky imaging: x86 ladder + next capture remain
 
@@ -1511,9 +1380,11 @@ undistort groups; below the floor → standard). Remaining:
 - **The undistort route's FLAT source is the per-set sky flat only.** A session
   with real flats staged is refused (`run_set_chain.sh` exit 6; readiness goes
   RED first on the one-click path) with the two commands that resolve it by
-  hand. Closes when the chain builds a master flat from a staged `flats*`/`calib`
-  dir and passes it as `--flat=` — the builder already takes any master, so this
-  is chain wiring, not a builder change.
+  hand (owner precedence: real flats WIN when present — the wiring makes staged
+  flats USED, never a recommendation to acquire them). Closes when the chain
+  builds a master flat from a staged `flats*`/`calib` dir and passes it as
+  `--flat=` — the builder already takes any master, so this is chain wiring,
+  not a builder change.
 - **The undistort builders take camera raws only** (the route's first stage is
   darktable's lens correction, and darktable reads raws). A FITS
   dedicated-astrocam set now routes here on its measured drift and is refused by
@@ -1637,10 +1508,10 @@ the flat rather than of the geometry. Prediction: the split follows set-02's
 FLAT, not set-02's sky. It also explains union-vs-per-set without sky span — the
 union is where the most confound accumulates, not where the most sky is.
 
-**FENCED.** Testing that reaches into the flat-residual line, which the owner has
-PAUSED pending real flats. Nothing here reopens it, and this item is recorded so
-the question survives the session rather than to schedule work. **Closes when**
-the owner either rules it out of scope or unpauses the line it depends on.
+**FENCED.** Testing it reaches into the flat-residual line, which the owner has
+PAUSED pending real flats (`per-group-flat-at-the-combine` carries the pause).
+Recorded so the question survives, not to schedule work. **Closes when** the
+flat-residual line unpauses — this item rides that pause.
 
 ## `site-privacy-vs-public-repo` — the observing site is a home address, and this repo is meant to be published
 
@@ -1703,73 +1574,44 @@ the rebuildable-from-tracked-files rule and without disabling the hour-angle
 derivations. Until then the push is HELD — not because of the commit volume, which
 is fine, but because of this.
 
-## `composite-header-identity` — a composite inherits its reference member's identity for every key outside the stamp allow-lists
+## `composite-header-identity` — the tuple shipped; the rgbcomp/standard-route half and the next-compose read-back remain
 
-**What.** siril `stack` propagates the reference member's header; the composite
-tuple replaces 15 provenance keys and nothing else, so `run_undistort_compose.sh`
-products ship the reference's `PIPEREV`, singular `CALSET`, `DATE-OBS`,
-`GRPSIZE` and `FILENAME`, plus the whole acquisition block (uniform today;
-july27's 3.0 s makes `EXPTIME` fire on any future mixed corpus). Census with
-values, route classes, intent trace and the four tracked-record carriers:
-`datasets/corpus/piperev_inheritance.json`; mechanism entry in the registry.
-Separate half of the same gap: `compose.py` rgbcomp composites and
-`run_pipeline.sh` stacks apply NO stamp at all — absent, not false.
+**LANDED (`ebbce14`):** the composite stamp now writes `PIPEREV` =
+HEAD-at-compose, rides `CALSET` (plus `CALFSUM`/`CALDSUM`) in the MIXED-tuple,
+sets `DATE-OBS` to the earliest member start (FITS convention, equals the ISO
+of siril's own `EXPSTART`), and deletes `GRPSIZE`/`FILENAME` on composites —
+the former candidates (a)–(d), with `CLAUDE.md`'s stamp-scope amended by the
+owner. Census + intent trace: `datasets/corpus/piperev_inheritance.json`;
+mechanism entry in the registry. Acquisition-block inheritance stays uniform
+today; july27's 3.0 s makes `EXPTIME` fire on any future mixed corpus.
 
-**Fix candidates (build-path, owner-gated; each is a header-only edit,
-pixel-neutral by construction).** (a) add `PIPEREV` = HEAD-at-compose to the
-composite tuple's emissions; (b) singular `CALSET`: delete on composites, or
-`MIXED(n)` like its tuple siblings; (c) `DATE-OBS` := earliest member start —
-equals the ISO of the `EXPSTART` siril already writes and matches the FITS
-convention (start of observation); (d) delete `GRPSIZE`/`FILENAME` on
-composites; (e) decide whether rgbcomp composites get the tuple at all.
-Retrofit of existing products is a backfill on the
-`backfill_substack_provenance.sh` precedent.
+**OPEN:** (e) whether `compose.py` rgbcomp composites and `run_pipeline.sh`
+stacks get the tuple at all — today they apply NO stamp (absent, not false);
+the read-back at the next real compose (header-only A/B: stamp emitted vs
+header read back, pixels untouched); and register/guard coverage naming the
+tuple's key set. Retrofit of existing products would ride the retired
+`backfill_substack_provenance.sh` precedent (recover from git).
 
-**Closes when** the chosen keys are emitted at the next compose and read back
-from the product (the A/B is header-only: stamp emitted vs header read-back,
-pixels untouched), the register/guard coverage names the tuple's key set, and
-the owner amends `CLAUDE.md`'s "a commit stamps every artifact built after it"
-(their file) to scope members + per-set finals vs compose products.
+**Closes when** the next compose reads back the chosen keys from its product
+and the rgbcomp/standard-route stamping decision is made and recorded.
 
-## `set-identity-by-sort-order` — routing identity from sort position, and the consumers a wrong set name reaches
+## `set-identity-by-sort-order` — the routing fix landed; three glob-order picks remain
 
-**What.** Two live sites derive WHICH SET a finish is routed as from sort
-position: `run_corpus_combine.sh:87` (`ls -d set-* | tail -1`; ASCII sorts
-digits before letters, so set-0a/0b's existence selects the spare bucket — two
-corpus records filed under `datasets/aug14/set-0b/qa_work/`, since RELOCATED to
-`datasets/corpus/`, the corpus-record home their siblings use; the spcc one
-keeps the `set-0b` token in its name as the defect's own evidence) and
-`run_session_chain.sh:117` (`--set="${SETS[-1]}"`, last set by
-enumeration order, for the night combine's finish). Same shape smaller:
-`run_undistort_pipeline.sh:277` picks the acquisition-header donor frame —
-whose `DATE-OBS` the stamp restores — by GLOB order, on the route where
-filename order ≠ capture order is a registered dead end (`frame_order.py`
-exists for it); `render_tier.sh:269` picks a starmask cache by glob order.
-
-**Why it matters — the name is POLICY, the path is DATA, and nothing checks
-them against each other.** A wrong `--set` changes OUTPUT at four consumers:
-`spcc_run.py` (recipe `spcc` block → SPCC params → `_spcc` pixels; the corpus
-case fired-by-absence only because set-0b has no recipe.json),
-`solve_field.py:587-589` (`am.configure` loads that set's `geometry.json`
-foreground → detection exclusion → the solve itself; fired-by-absence, zero
-geometry.json exist in `datasets/` today), `render_tier.sh` (a RATIFIED render
-block under a wrong set applies silently; exit-7 protects only unratified
-names), `baseline_guard.py` (wrong baseline → wrong exit-8 verdict).
-Filing-only consumers (record homes under `datasets/<s>/<set>/qa_work/`) are
-how the set-0b mis-filing happened.
-
-**Detectable signature, header-only:** a composite carries `NMEMBER` > 1 and
-`CALSETS` naming its real sets, so a consumer handed `--set=X` can check
-X ∈ CALSETS, or refuse a singular set claim on `NMEMBER` > 1.
-
-**DONE (routing + check + relocation; measured colour-neutral):** both sites
-now derive session/set from the composed product's OWN `REGREF` (loud exit if
-absent or unstaged), `finish_render.sh` refuses a composite whose `--set` is
-neither in the CALSETS window nor the reference set (fire-tested both ways:
-the set-0b case stops at exit 1 with the named error before any tool runs),
-and the two mis-filed records are relocated to `datasets/corpus/`. Zero
-recipe.json carried an `spcc` block and zero geometry.json existed at the
-change, so no existing product's pixels could differ.
+**FIXED (measured colour-neutral):** the two set-identity-from-sort-position
+sites (`run_corpus_combine.sh`, `run_session_chain.sh`) now derive session/set
+from the composed product's OWN `REGREF` (loud exit if absent or unstaged), and
+`finish_render.sh` refuses a composite whose `--set` is neither in the CALSETS
+window nor the reference set — fire-tested both ways (the set-0b case stops at
+exit 1 with the named error before any tool runs); the two mis-filed records
+are relocated to `datasets/corpus/` (the spcc one keeps the `set-0b` token in
+its name as the defect's own evidence). Why it mattered — the name is POLICY,
+the path is DATA: a wrong `--set` reaches `spcc_run.py` (recipe spec → SPCC
+params → `_spcc` pixels), `solve_field.py` (that set's `geometry.json`
+foreground → the solve itself), `render_tier.sh` (a RATIFIED block under a
+wrong set applies silently; exit-7 protects only unratified names), and
+`baseline_guard.py` (wrong baseline → wrong exit-8 verdict); both corpus
+firings were by-absence only. Header-only signature for any future consumer:
+check `--set` ∈ `CALSETS`, or refuse a singular set claim on `NMEMBER` > 1.
 
 **What remains OPEN here:** the glob-order acquisition-header donor
 (`run_undistort_pipeline.sh:277` — the fix is `frame_order.py`'s capture-order
