@@ -63,6 +63,7 @@ PHASE2_RELEASED = {
     "star-shape-optics.md",
     "stacking-compose.md",
     "registration-distortion.md",
+    "plate-solving-wcs.md",
 }
 
 
