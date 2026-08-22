@@ -30,5 +30,11 @@
     "amended_control": "WITHIN-SET rotation spread must be < 2 deg (a member disagreeing with its own set's roll is a solve/geometry bug -> STOP); the between-set spread is reported as measured geometry, not a stop.",
     "consequence_for_reading": "Between-set roll spread partially DECOHERES the members' sensor-fixed one-sided axes on the union canvas (extreme-pair projection factor cos 32.5 deg = 0.84), so a small T1 composition lever is partly expected geometry; this is stated with the T1 result rather than read as 'members cannot matter'."
   },
+  "amendment_2_within_set_bound": {
+    "blind_status": "Amendment 1's flat 2-deg within-set stop FIRED on july31/set-02 at 3.264 deg — again inside member_geometry, before any band data was read. Still blind.",
+    "what_was_wrong": "Within a set the camera is fixed but the solved rotation is camera-vs-NORTH, and north's angle CONVERGES with the meridians: a set sweeping dRA at declination dec rotates north by ~dRA*sin(dec). Verified across all 12 sets header-only: measured within-set spreads 0.69-3.26 deg, mechanism predictions 1.20-3.44 deg, every set at or below prediction+1.5.",
+    "amended_control": "Within-set rotation spread must be <= RAspan*sin(dec) + 1.5 deg (catches flip/axis-swap-class solve defects with huge headroom); the per-set prediction and measurement are recorded.",
+    "note": "Two controls have now fired on their author's geometry misconceptions rather than on the data — recorded as evidence the controls run, not as defects of the members."
+  },
   "instrument": "rho_march.py beside this record — headers and recorded tool measurements only; reads no pixel; reports only; exits 0."
 }
