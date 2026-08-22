@@ -216,17 +216,24 @@ no other home. **Everything here is the owner's or is held for them.**
 
 ### Owner rulings that existed in NO other file
 
-**The per-member trim — RULED: WAIT, and the corner defect is REAL.** Migrated
-because a tree-wide search put these verbatim quotes in the retired file and nowhere
-else. The degradation is VISIBLE to the owner on the full-frame render — *"they are
-already bad in the full frame render. i can see it and no render will make it look
-better - just more obvious."* So it is not a below-threshold residue and the render
-tier cannot improve it. **Because the cause is unknown, any step forward is a
-BANDAID** — the owner applying `CLAUDE.md`'s own rule. The trim stays refused, with
-the stated reason: crop and we may never find the real cause, while losing frame
-size, SNR-over-time and possibly final quality, *"because there are issues with an
-unknown cause, so how deep or subtle the issue is is not known."* **Keep digging is
-the ratified direction.**
+**The per-member trim — RE-RULED (owner 2026-08-22): DIRECTED TEST, superseding
+the WAIT ruling.** The WAIT stood on the cause being unknown; that premise
+weakened when the surviving union band was ATTRIBUTED member-borne with the
+compose exonerated (`datasets/aug09/smear_work/rho_march.json` — the rim is
+built exclusively from the members' own frame edges), so trimming *"each side by
+about 5% ... so the worse part of each image never makes it into the stack"*
+(owner's words) is a mechanism-matched mitigation, not a blind step. The
+degradation itself remains VISIBLE to the owner on the full-frame render and is
+not a below-threshold residue. Directed as a measured TEST, sequenced AFTER the
+dead-ends cleanup: one knob (per-side trim fraction), control untrimmed, judged
+at the COMBINE on the shape march + a rho_march re-run + the coverage/area cost,
+plus the owner's eyes on full-frame lossless; still a TRADE by doctrine (ships
+less sky — the rim thins or moves inward). The 80%-keep datapoint (4 of 20
+union boxes left with NO contributing member) is why ~5%/side is the first arm,
+bracketed mild. **If the trim WINS, the corner-chase dead-ends material prunes
+(owner-directed)**, keeping only entries load-bearing elsewhere (lensfun
+ρ-normalization/corner support, the per-set-model refutation, the error-model
+rules).
 **The owner's own mechanism for the corners**, field knowledge that matches what was
 measured: the far-corner stars are ALWAYS at the edge of a member's frame, so the
 union corner is built exclusively from worst-case samples — *"the stars being stacked
@@ -428,7 +435,10 @@ Ordered work — nothing here is executed on an accepted product:
    No fit here constrains past ρ 1.47–1.51 against a corner at 1.80. The per-set trap
    is registered; a candidate is judged at the COMBINE, never per-set.
 4. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
-   cause. Last resort, and it must be called what it is.
+   cause. Last resort, and it must be called what it is. The MEMBER-side variant
+   (per-member edge trim) became an owner-DIRECTED TEST 2026-08-22 after the
+   member-borne attribution — see `corner-fix-landscape` and the `pending-owner`
+   trim ruling; still called what it is.
 5. **Which single model** — the pinned july14 fit is the default on history and
    provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
    COMBINE, one knob, never on a per-set product (a compose artifact
@@ -617,19 +627,20 @@ What remains is the LADDER around it and the harness it feeds.
   same-sky linear corner probe AND the user's eyes on a like-encoded
   framing=max union pair — user-ratified requirement: the max union is the
   deliverable (manual crop later), no yield excuses.
-  **BOTH OWNER STATEMENTS STAND SIDE BY SIDE UNTIL THE OWNER RESOLVES THEM, and
-  neither is assumed away.** That one governs the FINAL FRAMING. The owner has
-  since said they are *"more worried about stacking bad sections than about not
-  stacking enough"*, which governs what goes INTO the combine — a different act,
-  and the two collide only if a per-member trim is adopted, since that trades
-  area BEFORE the compose rather than cropping the picture after it. Measured
+  **THE COLLISION MOVED FROM HELD TO SCHEDULED (owner 2026-08-22): the
+  per-member trim is now a DIRECTED TEST** (the `pending-owner` trim ruling
+  carries the design; adoption rides the test's verdict at the combine). The
+  max-union statement governs the FINAL FRAMING unchanged; *"more worried about
+  stacking bad sections than about not stacking enough"* governs what goes INTO
+  the combine, and the trim trades area BEFORE the compose. Measured
   cost of the collision, so the choice is made against numbers: a +x member trim
   keeping 80% of each member leaves 4 of 20 measured union boxes with no
   contributing member at all; a radial cut to rho 0.80 costs 3.3% of the
   delivered crop's area and 9.4% of the member-contributions inside it
-  (`datasets/aug06/corner_work/`). **Not recommended on today's evidence** — the
-  predicted gain is corner roundness 0.911 -> 0.938 and the cause is measured
-  in-exposure but unidentified. The composite-level arm
+  (`datasets/aug06/corner_work/`). **Those 20%-class cuts stay not-recommended**
+  (predicted gain corner roundness 0.911 -> 0.938 against memberless boxes); the
+  DIRECTED TEST is the mild ~5%/side bracket, and the band's carrier is now
+  located member-edge, exit-edge family (`rho_march.json`). The composite-level arm
   is DEMOTED for this defect (a composite plane structurally cannot fit a
   corner-local term — measured, july23 subsky-on-combine probe); on-stack
   background remains the render-stage question for the sky's own gradient.
@@ -1135,8 +1146,12 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   overshoot measured clamped vs unclamped. Cheap, and it converts an owner decision
   from one number to two.
 - **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
-  down-weighting, cropping. Owner-REFUSED as a category, with Zackay & Ofek 2017
-  making it a measured information loss (`docs/dead-ends.md`).
+  down-weighting — owner-REFUSED, with Zackay & Ofek 2017 making homogenisation a
+  measured information loss (`docs/dead-ends.md`). **Cropping LEFT this category
+  (owner 2026-08-22): the per-member edge trim is a DIRECTED TEST** after the
+  member-borne attribution (`rho_march.json`) — a TRADE judged at the combine,
+  sequenced after the dead-ends cleanup; the `pending-owner` trim ruling carries
+  the design.
 
 **Closes when** an anisotropic treatment is procured and measured, or the owner
 accepts the corner as-is. **The in-chain question is settled: no route on this rig
