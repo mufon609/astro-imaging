@@ -61,6 +61,7 @@ PHASE2_RELEASED = {
     "evidence-provenance.md",
     "calibration-flats.md",
     "star-shape-optics.md",
+    "stacking-compose.md",
 }
 
 
