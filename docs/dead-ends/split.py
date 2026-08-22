@@ -60,6 +60,7 @@ PHASE2_RELEASED = {
     "verification-traps.md",
     "evidence-provenance.md",
     "calibration-flats.md",
+    "star-shape-optics.md",
 }
 
 
