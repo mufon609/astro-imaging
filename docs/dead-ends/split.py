@@ -58,6 +58,7 @@ TITLES = {
 # regenerated, excluded from the byte check.
 PHASE2_RELEASED = {
     "verification-traps.md",
+    "evidence-provenance.md",
 }
 
 
