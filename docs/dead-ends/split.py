@@ -59,6 +59,7 @@ TITLES = {
 PHASE2_RELEASED = {
     "verification-traps.md",
     "evidence-provenance.md",
+    "calibration-flats.md",
 }
 
 
