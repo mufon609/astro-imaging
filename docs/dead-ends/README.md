@@ -29,6 +29,7 @@ place from then on, never regenerated, excluded from the byte check.
 
 | file | status |
 |---|---|
+| `registration-distortion.md` | DONE, audited + decluttered at `9957337`: 15 → 15 entries, 383 → ~290 file lines; the route-fight corrections kept as the BACKLOG-named mechanism home (the item's ordered-work section says "mechanisms + quotes in docs/dead-ends.md — not restated here") with the `-disto=master` UNDETERMINED status verified still accurate (the item's one open probe is `-localasnet`, not master); a surviving site of the corrected over-generalisation found in BACKLOG's closed bullet and logged above (out of scope to fix here); dtstyle/ICC entries compressed to measured mechanism + `CLAUDE.md` Environment as the operational home; trap-1/2/3 entry kept structurally intact (five external citation sites); per-set-models resolution stated with the `lens_models.json` authority (verified on disk, 4 keys); stale CFA-register-row bookkeeping and correction-journey narrative cut |
 | `stacking-compose.md` | DONE, audited + decluttered at `9957337`: 13 → 13 entries, 443 → ~300 file lines; the mosaic entry reconciled against the shipped state (astrometric route SHIPPED + owner-PASSED with -2pass demoted to the regression arm, reference pinning RESOLVED via setref — both verified in BACKLOG:`compose-homography-smear`'s ordered-work section; the surviving band's member-borne attribution from `db2a230` stated with the compose exonerated; the "measured case for SWarp" wording superseded — the SWarp trial never ran, no SIP reader) and its 125 lines → ~85 across two entries' worth of content; fixed-and-implemented compressions (frame_order.py wrap fix, observer_frame_diversity epoch derivation, member_separation rebuild + user-ratified threshold removal → combine-contract §5); reference-route scope narrative flattened to per-route facts; inbound identities preserved (the ref-probe canvas/north/B-G numbers evidence-provenance cites, the optical-state-boundary material star-shape-optics points at) |
 | `star-shape-optics.md` | DONE, audited + decluttered at `9957337`: 19 → 19 entries, 464 → ~290 file lines; the LIVE wrong number fixed (the χ²/dof "35.6 → ~1.1" pairing survived here after its register correction — replaced with the true within-binning pairs 35.60→1.81 / 40.95→1.57, a measured instance of the claim-survives-other-sites class); in-file duplicate cut (B113's trap note duplicated the dual-purpose entry); `db2a230` reconciliation applied as preface status (raw-frame term stands pipeline-exonerated, union carrier = member +x-edge — BACKLOG:`one-sided-band` is the status home); correction-journey narrative flattened to resolved readings (drift-direction, one-sided eliminations); string-search bookkeeping and attributions cut; fit-vs-moment sign test verified still unrun; register row cited by name not number |
 | `calibration-flats.md` | DONE, audited + decluttered at `9957337`: 10 blocks → 11 entries (the alt-az bake-in block split at its transfer-function seam), 661 → ~360 file lines; the `sky × V` defect is OPEN so most dead ends here stay live — cuts are the 3.11%/241σ caveat de-duplicated to one home (the absolute-measurement dead end; six homes outside the registry verified consistent), the desky entry's stale "baseline.json never built" corrected (guard shipped, 13 baselines), correction-of-this-entry meta and lineage/string-search bookkeeping removed, instrument-provenance narrative dropped; status pointers to BACKLOG:`calibration-evidence` and BACKLOG:`per-group-flat-at-the-combine`; ramp-slope candidate verified still unswapped |
@@ -100,6 +101,17 @@ carries a real second subject are flagged here as the phase-2 review list
 - `spcc-sigsegv-database` → siril-behaviors (also `CLAUDE.md` Environment, SPCC prerequisites)
 
 ## Facts landed after the pin (phase-2 inputs)
+
+- SURVIVING-SITE finding, out of this refactor's scope to fix (BACKLOG is not
+  this workspace's file): BACKLOG:`native-solve-and-sip`'s CLOSED bullet
+  asserts *"`register -disto=` is a SHARED-solution facility — Siril's design
+  assumes ONE optical state per sequence"* — the registry corrected both
+  halves (`-disto=` is three values with `master` UNDETERMINED, probe
+  specified and unrun; the design claim is FALSE — `seqplatesolve` +
+  `seqapplyreg` is the per-image operation and the shipped default). The
+  registry's careful form is kept (`registration-distortion.md`, the
+  standalone-SIP-warp entry); the BACKLOG bullet is a surviving site of the
+  corrected over-generalisation.
 
 - The one-sided band on the 52-member union is ATTRIBUTED member-borne — the
   compose is exonerated. Record `datasets/aug09/smear_work/rho_march.json`;

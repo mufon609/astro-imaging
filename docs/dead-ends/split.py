@@ -62,6 +62,7 @@ PHASE2_RELEASED = {
     "calibration-flats.md",
     "star-shape-optics.md",
     "stacking-compose.md",
+    "registration-distortion.md",
 }
 
 
