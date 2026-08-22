@@ -174,6 +174,7 @@ names.**
 | `scripts/calibrate/spcc_cone.py` hand-rolled nside=2 nested ang2pix cover + `_tan_pix2sky` gnomonic step | (a) cover: siril 1.5 `healpix` adopted AND its pixel list verified to map to the zenodo chunk names (`siril-1.5`), or `astropy_healpix` adopted into this script's interpreter (installed in `/opt/astro-venv`, ABSENT from host python3 — `TOOLS.md`); (b) projection: the step moves to astropy WCS (already imported in this file; used for exactly this in `derive_compose_ref.py`) | 2026-08-19 | **ROW + CONDITIONS NEWLY AUTHORED — shipped with none; hole (b); RATIFIED (owner 2026-08-19). Two clauses, evaluated separately (rule 6). CLAUSE (b) FIRED the same day, owner-directed:** `_tan_pix2sky` deleted, the projection is astropy WCS built from the CD ALONE (the header's leftover PC+CDELT must be stripped — the dual-matrix trap this firing exposed, registry + `wcs-dual-matrix-inject`). MEASURED A/B, all 34 solved products: chunk lists identical 34/34; new centres agree with the headers' own OBJCTRA/OBJCTDEC at median 1.7 / worst 36.5 arcsec against the retired hand-roll's 17.8 / 151.6. **Clause (a) NOT FIRED** — the ang2pix cover stands until siril 1.5 `healpix` or astropy_healpix adoption. Consequence bound held: chunk SELECTION only, siril names any missing chunk loudly |
 | `scripts/stack/lens_preflight.py` pinned-model XML scan — reads the lensfun user-DB XML as TEXT and compares literal a/b/c for the exact lens@focal (deliberately not the fuzzy matcher, which stays the tool's) | lensfun/darktable expose a headless query of the INSTALLED model's coefficients for a given lens@focal, or the chain consumes the model other than through the lensfun user DB | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — the leg declared none; RATIFIED (owner 2026-08-19).** Not fired: Debian ships no lensfun query CLI (`lenstool` unpackaged, `python3-lensfun` exposes DB-path helpers only, `liblensfun-bin` update/adapter utilities only — the file's own probe list) |
 | `scripts/calibrate/solve_field.py` coverage rescue rung — re-solves on the largest centred box inside Siril's measured covered rectangle when a blind solve starves | the astrometry.net engine accepts a detection-region/subarea constraint of its own | 2026-08-19 | **ROW + CONDITION NEWLY AUTHORED — the rung shipped (a515053) with a LIMITS block and no retirement trigger; RATIFIED (owner 2026-08-19).** Not fired. Standing: a GENERAL SAFETY NET, not the fix for the corpus starvation (the reference derivation was — bf3491e); fires only on NO SOLUTION or floor-class, keeps the strictly better result, soft-by-contract |
+| `datasets/aug09/smear_work/rho_march.py` member-attribution bookkeeping (WCS projection + least squares over the re-march's recorded `findstar` measurements) | an official tool reports, headless, coadd star-shape statistics attributed by contributing-member field position — or neither `compose-homography-smear` nor `one-sided-band` still consumes a member-attribution quantity | 2026-08-22 | **not fired** — same gap family as `shape_at_sky.py`/`member_separation.py`, at the attribution step: no siril/PSFEx/SCAMP surface decomposes a union's star shape by contributing member. Every star, FWHMx/FWHMy and amplitude is Siril `findstar`'s (the re-march's own lists); every geometry is the member's own solved WCS; in-house is the projection bookkeeping and the least squares. Reads headers and records only, no pixel, gates nothing, exits 0 (STOP conditions exit 3). Pre-registered BLIND, reading rules frozen before the run (`rho_march_prereg.json`); two controls fired blind on the author's geometry misconceptions — per-set ballhead roll, then meridian convergence dRA·sin(dec) — each verified header-only on all 12 sets before proceeding, both amendments committed before any band data was read. RESULT (`rho_march.json`, replicated at two depths): the union's surviving one-sided band is MEMBER-BORNE — composition-unexplained residual −0.05 ± 0.04 px major / +0.011 ± 0.011 roundness (−1.3/+1.0 SE, perm p 0.21/0.33); the left band samples members' own +x EDGES (pair Δsigned-x up to 1.89 of ±1) and member-own ρ is near zero and wrong-signed (−0.02), so the carrier is member +x-edge proximity (the exit-edge family), not raw radial optics and not the compose |
 
 ---
 
@@ -298,10 +299,20 @@ differs by **−0.038** and does not hold a sign (+0.045, 0.000, −0.070, −0.
 anisotropic ADDITION rather than a scale change**, which keeps the convolved-blur
 family live. Note `fwhm_px` in the record is the MEAN `(FWHMx+FWHMy)/2`, not the
 major; do not read it as one.
-**STILL NOT ATTRIBUTED, and canvas-x cannot attribute it:** it does not separate
-compose smear from the optics term below. The rho axis is the discriminator and is
-deferred. **This item's own rule — only no-band AND no-rho-signal
-supersedes — fails on the first clause, so the item STANDS AMENDED, not removed.**
+**ATTRIBUTED — MEMBER-BORNE; the compose is EXONERATED for the surviving band**
+(`datasets/aug09/smear_work/rho_march.json` — pre-registered blind, reading rules
+frozen before the run, replicated at two selection depths): after
+member-composition controls the canvas-tied residual is **−0.05 ± 0.04 px major /
++0.011 ± 0.011 roundness** (−1.3/+1.0 SE, permutation p 0.21/0.33). The left band
+samples the members' own **+x EDGES** — pair Δ(mean member-own signed-x) up to
+**1.89 of a ±1 range**, because canvas-edge sky is reachable only by member frame
+edges — and the channel split says member-own ρ composition is near zero and
+WRONG-SIGNED (−0.02), so the carrier is member +x-EDGE proximity (the exit-edge
+family, `one-sided-band`), NOT raw-frame radial optics and NOT the compose. The
+fitted member-radial slope, +0.435 px/unit ρ, independently reproduces
+corner_work's union measurement (+0.53 px/unit ρ). No compose change removes what
+rides in with member edges; the surviving-band question re-scopes to the member
+edge term.
 
 **METHOD FACT — CANVAS-X FRACTIONS ARE NOT PORTABLE ACROSS PRODUCTS, and a band must
 be addressed in SKY coordinates.** On the 52-member canvas this item's own defect
@@ -359,10 +370,9 @@ Ordered work — nothing here is executed on an accepted product:
    adoption"*. The register row for `compose_preflight.py` above already carries
    this; the item did not.
    **ANSWERED — re-marched; the numbers and their caveats are in the header above.**
-   What is left is the RHO AXIS, which is the discriminator and is deferred: a column
-   averages over whichever members cover it, so a wider product DILUTES a band rather
-   than sharpening it, and no-band-with-rho-signal reads as fixed when it is only
-   diluted. Only no-band AND no-rho-signal supersedes — and a band survived.
+   The RHO AXIS has now RUN and ATTRIBUTED the surviving band — member-borne, the
+   compose exonerated for it; verdict + numbers in the header above
+   (`rho_march.json`, design + frozen reading rules in `rho_march_prereg.json`).
    The ORIGINAL 19 columns stay unreproducible: their subject
    `stack_j31-3+a06-3_full_onemodel` is deleted, so the re-march is a FIRST
    measurement and nothing diffs column-by-column (`docs/dead-ends.md` carries this

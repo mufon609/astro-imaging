@@ -113,10 +113,11 @@ Rules (the same contract as README "How a change is accepted"):
   `datasets/` holds no DELIVERABLE image data** — no stacks, no renders, no
   masters, no calibrated frames. A tool's own star list or PSF model kept as the
   evidence for a measurement is a RECORD, and is tracked on purpose.
-- **AND EIGHTEEN TRACKED `.py` PROGRAMS LIVE UNDER `datasets/`, WHICH THE OLD
+- **AND NINETEEN TRACKED `.py` PROGRAMS LIVE UNDER `datasets/`, WHICH THE OLD
   "records only" WORDING DENIED. Stated here as what it is rather than left as a
   contradiction.** Fifteen sit in `datasets/aug06/corner_work/`, one in its
-  `phot_work/` subdirectory, two in `datasets/aug09/set-05/sirilpy_work/`. They
+  `phot_work/` subdirectory, two in `datasets/aug09/set-05/sirilpy_work/`, one
+  in `datasets/aug09/smear_work/`. They
   are the INSTRUMENTS of the corner / star-shape investigation, kept beside the
   records they produced so a result stays reproducible from its own directory.
   **TWO OF THEM ARE NOT PER-DATASET AT ALL: `pa_convention.py` and
