@@ -24,5 +24,11 @@
     "STOP_CONDITIONS": "orientation control fails; or any recorded position projects in-frame to ZERO members (geometry bug — the union cannot have measured sky no member covers); or the enumeration re-check against the gate record fails at run time."
   },
   "cannot_conclude": "This arm attributes the band to member-sampling or not. It cannot identify a compose-side mechanism, cannot calibrate member amplitudes (no cross-instrument amplitude import — products understate raws, measured), and does not touch the optics term's own attribution (one-sided-band's open half).",
+  "amendment_1_orientation_control": {
+    "blind_status": "The original control FIRED (rotation spread 32.491 deg > 2) and the run STOPPED inside member_geometry — before any star list or band quantity was read. No analysis output existed when this amendment was written.",
+    "what_was_wrong": "The control asserted ONE shared orientation across all 52 members. Measured header-only: rotation clusters BY SET (within-set spread ~1-2 deg; e.g. aug09/set-02 +14.3..+17.3, july31/set-01 -13.6..-15.2, aug06/set-01 -5.9..-6.9) and a linear rotation~RA fit leaves 8.7 deg RMS — so the spread is the per-aim ROLL of a re-aimed ballhead camera, one roll per set, not a solve defect and not smooth pointing geometry. The premise 'pooling needs shared orientation' was mistaken: member-own (signed_x, rho) are computed through each member's OWN WCS, exact per member at any roll.",
+    "amended_control": "WITHIN-SET rotation spread must be < 2 deg (a member disagreeing with its own set's roll is a solve/geometry bug -> STOP); the between-set spread is reported as measured geometry, not a stop.",
+    "consequence_for_reading": "Between-set roll spread partially DECOHERES the members' sensor-fixed one-sided axes on the union canvas (extreme-pair projection factor cos 32.5 deg = 0.84), so a small T1 composition lever is partly expected geometry; this is stated with the T1 result rather than read as 'members cannot matter'."
+  },
   "instrument": "rho_march.py beside this record — headers and recorded tool measurements only; reads no pixel; reports only; exits 0."
 }
