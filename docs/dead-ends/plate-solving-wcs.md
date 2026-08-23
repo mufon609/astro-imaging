@@ -1,11 +1,12 @@
 # Plate solving and WCS consumption
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Entries are maintained IN PLACE.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **Siril's internal solver fails ultra-wide TRAILED fields — the blocker is
   its star MATCHER, not detection or catalogue depth (both tested and
   ELIMINATED).** Measured (36.45° field, correct centre from a blind solve,

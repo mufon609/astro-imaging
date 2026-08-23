@@ -1,14 +1,15 @@
 # Star-shape, PSF, and optics measurement
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Entries are maintained IN PLACE.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 The one-sided band is an OPEN question — status home: BACKLOG:`one-sided-band`
 (the raw-frame term is real and pipeline-exonerated; the UNION band's carrier
 is attributed member +x-edge proximity — BACKLOG:`compose-homography-smear`).
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A
   DETECTION-DEPTH COMPARISON, NOT A QUALITY ONE — flux-match the population or
   the deeper image loses every time.** `findstar` goes as faint as the image

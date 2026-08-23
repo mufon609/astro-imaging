@@ -1,11 +1,12 @@
 # Star separation, deconvolution, PSF treatment
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Cross-references to sibling files are
-written as (`<file>.md`) pointers.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
+Cross-references to sibling files are written as (`<file>.md`) pointers.
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **MECHANISM, NOT MEASURED:** a mask+inpaint separator is reported to
   destroy resolved-object structure (inpainting HII knots out as stars and
   screening them back as blobs), where a learned separator

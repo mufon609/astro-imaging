@@ -1,8 +1,11 @@
 # start	dest	slug
-# One row per top-level block of docs/dead-ends.md (entry bullet, bold meta
-# block, or section header). A block runs from its start line to the line
-# before the next row's start (last block runs to EOF). split.py validates
-# every start is a real block start and that reassembly is byte-identical.
+# Provenance map of the registry split: one row per top-level block of the
+# PRE-SPLIT single-file docs/dead-ends.md (4,653 lines, sha256 613d2fcb5277
+# 07bc3ce9202e8d9445baa5db81fe6c405cd3bda7635cd29cd979 — recover it with
+# `git log -- docs/dead-ends.md`; the split commit is 70cc291). A block runs
+# from its start line to the line before the next row's start. Line numbers
+# refer to that historical file, not to the current topic files, which have
+# since been decluttered in place.
 1	00-registry-contract.md	doc-title-and-contract
 133	terminology-dust.md	dust-terminology
 204	calibration-flats.md	gain-flat-header-and-constraints

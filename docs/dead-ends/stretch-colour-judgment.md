@@ -1,11 +1,12 @@
 # Stretch, colour, and judgment surfaces
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Cross-references to sibling files are
-written as (`<file>.md`) pointers.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
+Cross-references to sibling files are written as (`<file>.md`) pointers.
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **A LAYER THAT HOLDS A SMALL RESIDUAL AMPLIFIES ANY ERROR IN THE LAYER THAT
   HOLDS THE LIGHT — and a single per-channel gain cannot correct a layer with
   two populations.** MEASURED on a separation (Siril `stat main` under

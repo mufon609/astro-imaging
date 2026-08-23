@@ -22,8 +22,9 @@ session** (the repo drives industry tools; it never processes pixels itself —
 - **Cite sources** (links). Prefer primary + recent (2025–2026).
 - **Graduate durable findings.** docs/ is the deep record; the *operating*
   docs are the distilled truth. When a finding is solid, fold it into the
-  right operating doc — a `TOOLS.md` tier entry, a `docs/dead-ends.md` dead-end, a
-  `MEMORY.md` note — and record that graduation in the writeup. Don't let
+  right operating doc — a `TOOLS.md` tier entry, a dead-end registry entry
+  (`docs/dead-ends/`), a `MEMORY.md` note — and record that graduation in the
+  writeup. Don't let
   docs/ and the operating docs drift.
 - **Retire fully-graduated deep-dives.** A writeup earns deletion when every
   durable finding is enforced in code or documented in an operating doc with
@@ -44,7 +45,7 @@ session** (the repo drives industry tools; it never processes pixels itself —
 - **Sources** — cited links.
 - **Verdict / recommendation** — adopt / skip / alternatives, and why.
 - **Status** — PROVISIONAL (mechanism/research) vs EMPIRICALLY TESTED.
-- **Graduation** — what this changed in TOOLS.md / `docs/dead-ends.md` / MEMORY (or "none yet").
+- **Graduation** — what this changed in TOOLS.md / the dead-end registry (`docs/dead-ends/`) / MEMORY (or "none yet").
 ```
 
 ## Index

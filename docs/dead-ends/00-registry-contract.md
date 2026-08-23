@@ -1,11 +1,11 @@
 # Registry contract — evidence classes, subject axis, write/delete rules
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). This file governs how every entry in
-this directory is read, cited, written, and deleted.
+Part of the dead-end registry — `docs/dead-ends.md` is the index. This file
+governs how every entry in this directory is read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 Durable, arch-independent field lessons: the processing dead-ends never to
 re-attempt (each with its mechanism), and the acquisition choices that outrank
 any processing knob. **Read the registry before proposing ANY experiment** —

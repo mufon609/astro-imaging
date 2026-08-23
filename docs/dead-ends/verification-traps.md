@@ -1,11 +1,12 @@
 # Verification traps — checks and search instruments that lie
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Entries are maintained IN PLACE.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **A CHECK THAT ONLY VERIFIES THE FROZEN HALF CANNOT FAIL IN THE DIRECTION THAT
   MATTERS.** Pinning registration across an A/B is verified by the arm's canvas
   matching the donor's — and a pin that worked by accidentally DISABLING the

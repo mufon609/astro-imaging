@@ -1,12 +1,13 @@
 # Siril and tool silent behaviours
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Entries are maintained IN PLACE.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 The defining property of this family: the output looks healthy.
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **SIRIL `offset` CLIPS AT ZERO IN 32-BIT FLOAT — its own help says it does
   not — and `stat` EXCLUDES zero pixels, so the two COMPOUND into a
   corruption that reads back as clean numbers.** `help offset` states *"In

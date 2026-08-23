@@ -1,14 +1,15 @@
 # Stacking, groups, and the sub-stack compose
 
-Phase-2 file of the dead-ends registry split (`README.md` here holds the index
-and dispositions; pre-compression forms live in git and in the live
-`docs/dead-ends.md` until the merge). Entries are maintained IN PLACE.
+Part of the dead-end registry — `docs/dead-ends.md` is the index, and
+`00-registry-contract.md` governs how entries are read, cited, written and
+deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
+the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 Compose-defect status home: BACKLOG:`compose-homography-smear` (astrometric
 route SHIPPED; surviving union band attributed member-borne, compose
 exonerated for it).
 
-<!-- phase-2: maintained in place; not regenerated from the manifest -->
+<!-- registry content below; docs/dead-ends.md is the index -->
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

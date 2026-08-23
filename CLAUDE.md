@@ -138,8 +138,11 @@ in "Environment" below and the x86 build order is
 the orchestration + records + discipline around the tools.
 
 **Read order, every session:** (1) this file; (2) [`docs/dead-ends.md`]
-(docs/dead-ends.md) — the **DEAD-END registry** (never re-attempt those — read it
-before proposing any experiment) + the acquisition checklist;
+(docs/dead-ends.md) — the **DEAD-END registry** index (the registry is
+`docs/dead-ends/`, one file per pipeline stage + the cross-cutting
+disciplines; never re-attempt a registered dead end — read the contract file
+and the files your work touches before proposing any experiment) + the
+acquisition checklist (`docs/dead-ends/acquisition-checklist.md`);
 (2b) `TOOLS.md` — the tier-by-tier tool audit (every option per pipeline
 stage, when/why, cost/Linux/CPU/headless) — the TOOLKIT the x86 render is
 built from; (2c) `MEMORY.md` — the collaboration context (who the user is,
@@ -155,8 +158,8 @@ the WHOLE chain for that class — every stage with its tool, its record, and it
 measured why — is
 [`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md).
 `docs/` holds research deep-dives (one cited `.md` per major investigation — see
-`docs/README.md`), whose durable findings graduate into TOOLS /
-`docs/dead-ends.md` / MEMORY. (4) `BACKLOG.md` — the ordered open queue + the
+`docs/README.md`), whose durable findings graduate into TOOLS / the dead-end
+registry (`docs/dead-ends/`) / MEMORY. (4) `BACKLOG.md` — the ordered open queue + the
 **removal-condition register**; read it before starting work, since an item you
 are about to do may be gated on another. Full history lives in `git log` — the
 complete pre-reset chain AND the old NOTES.md are at the commit whose message
@@ -228,7 +231,8 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   (`lens_preflight.py`, `verify_lens_card.py`), where it matches Siril's own
   `savetif` tag; using it on the float leg carries a TRC toe error that inflates a
   3 s-class sky. NEVER strip with siril `icc_remove` before `savetif32` — measured
-  applying a global ~1/12.92 scale to every pixel (`docs/dead-ends.md`).
+  applying a global ~1/12.92 scale to every pixel
+  (`docs/dead-ends/registration-distortion.md`).
 - **Plate solving**: siril's internal solver cannot match ultra-wide trailed-star
   fields (a DATA issue, not arch) — use `scripts/calibrate/solve_field.py`, which
   extracts with **SExtractor's core (`sep` 1.4.1)**, the sole extractor (the
@@ -254,14 +258,15 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   `(null)` sensor response and SIGSEGVs in aperture photometry (exit 139) on ANY
   star count — the crash prints nothing useful, so it looks like a data/field bug
   but is a missing-database bug. `auto_update_spcc` in the config auto-downloads it
-  online but can fail silently; the manual clone is deterministic. (`docs/dead-ends.md`.)
+  online but can fail silently; the manual clone is deterministic.
+  (`docs/dead-ends/siril-behaviors.md`.)
 
 ## Binding rules (the contract in README, distilled for agents)
 
 - **One knob per experiment**, control bracketed, hypothesis
   pre-registered BEFORE the run (the experiment record + the dead-end
-  registry, `docs/dead-ends.md`). A measurement that kills a hypothesis becomes
-  a dead-end entry in `docs/dead-ends.md` WITH ITS NUMBERS before anything else
+  registry, `docs/dead-ends/`). A measurement that kills a hypothesis becomes
+  a dead-end entry in the registry WITH ITS NUMBERS before anything else
   is tried.
 - **Nothing is final until it is empirically tested on real data.** A
   mechanism analysis, a doc reading, or a comparison of source is a
@@ -293,7 +298,8 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   star-shape profile that a tool already provided, whose origin was inferred
   from the very detections the defect suppressed — so a worse defect made the
   metric look better, and it invented an anomaly a whole session was scoped to
-  chase (`docs/dead-ends.md`, trap 3).
+  chase (`docs/dead-ends/registration-distortion.md`, the comparison-traps
+  entry, trap 3).
 - **Re-check the removal conditions — a divergence nobody re-checks never ends.**
   Every adaptation and gap-filler carries one; the register of them all, with
   status, is in [`BACKLOG.md`](BACKLOG.md). Re-check it when a tool version
@@ -330,7 +336,7 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   experiment is one knob, control bracketed, hypothesis required, judged on
   full-frame lossless finals, closed with a verdict into the tracked
   per-dataset `experiments.jsonl` (a killed hypothesis also becomes a
-  dead-end entry in `docs/dead-ends.md` with its numbers). Comparisons report measured deltas with an
+  dead-end entry in the registry, `docs/dead-ends/`, with its numbers). Comparisons report measured deltas with an
   objective WIN | NULL | needs-eyes verdict — NEVER "fixed/final/matched/
   close" language; aesthetics are the user's eyes on the finals.
 - **Acceptance measures come from the tools and don't loosen.** The measures that
@@ -389,9 +395,10 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   information: a doctrine ratification stamp (which rule supersedes which), or
   a last-checked stamp on a claim that goes stale (rig inventory, tool version,
   measured-on-this-rig). Both are register data, not narrative.
-- **Maintain the dead-end registry (`docs/dead-ends.md`) IN PLACE**: add/refine
-  the mechanism entries (data/physics/tool-doctrine); never append chronological
-  session narrative. The durable stage-design "why" lives in each kept
+- **Maintain the dead-end registry (`docs/dead-ends/`, index at
+  `docs/dead-ends.md`) IN PLACE**: add/refine the mechanism entries
+  (data/physics/tool-doctrine) in the stage file they belong to; never append
+  chronological session narrative. The durable stage-design "why" lives in each kept
   script's docstring — keep it there, update in place.
 - **Workspace + naming discipline (one predictable place per result).**
   Raw `<session>/<set>/` holds raws ONLY. EVERY per-set tool run — QA,
@@ -526,5 +533,6 @@ session dir and be carried — by those tools — to its best honest outcome via
 operating loop above (measure → match → recommend → report → the user decides →
 execute → record). Every divergence from the standard workflow is a measured
 adaptation carrying its removal condition; the tools are a toolkit the data picks
-from per dataset; finals as close to lossless as possible; and acquisition quality (the checklist in
-`docs/dead-ends.md`) outranks processing — never bandaid what photons must fix.
+from per dataset; finals as close to lossless as possible; and acquisition quality (the checklist:
+`docs/dead-ends/acquisition-checklist.md`) outranks processing — never bandaid
+what photons must fix.
