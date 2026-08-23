@@ -115,7 +115,7 @@ mkdir -p "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 W="$(dirname "$OUT")/.covprobe_$(basename "$OUT")"
 rm -rf "$W"; mkdir -p "$W/in" "$W/seq" "$W/const"
-sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_run_logged "$W" "$1" "$W/siril.log"; }
 
 n=0
 for d in "${DIRS[@]}"; do

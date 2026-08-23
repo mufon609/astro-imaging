@@ -138,7 +138,7 @@ mkdir -p "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 W="$(dirname "$OUT")/.compose_$(basename "$OUT")"
 rm -rf "$W"; mkdir -p "$W/in" "$W/seq"
-sir(){ siril_cli -d "$W" -s "$1" >> "$W/compose.log" 2>&1; }
+sir(){ siril_run_logged "$W" "$1" "$W/compose.log"; }
 
 # Gather every sub-stack into one dir as uniquely-named symlinks (siril `link`
 # takes ALL images in the CWD, so the dir must hold ONLY the members; the

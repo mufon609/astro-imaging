@@ -11,7 +11,14 @@
 #   run_undistort_groups.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                           [--group=<derived>] [--chunk=12] [--out=<stack.fit>] [--plan] \
 #                           [--framing=min|max] [--subsky-lights] [--regdata-dir=<dir>]
-#                           [--tag=<arm>]
+#                           [--tag=<arm>] [--crop-lr=<fraction>]
+#
+# --crop-lr=<fraction>  passed straight through to the per-group sub-pipeline:
+#     trim that fraction of each frame's WIDTH off each side, full height kept,
+#     after the darktable warp and before registration (Siril `seqcrop`; the
+#     insertion point's mechanism is in run_undistort_pipeline.sh). Members built
+#     with it carry FRAMECRP + DIAGARM, and their canvas is narrower than the
+#     canonical members' by construction — so ALWAYS pair it with --tag.
 #
 # --tag=<arm>  build into `work/groups_<set>_<arm>` instead of the canonical
 #     `work/groups_<set>`. REQUIRED for any A/B arm: the work dir is derived
@@ -63,14 +70,15 @@ source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLO
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 source "$REPO/scripts/stack/disk_budget.sh"   # per-set disk derivation, shared with
                                               # the single-pass builder and the router
-SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--subsky-lights]}
+SESSION=${1:?usage: run_undistort_groups.sh <session-dir> <set> --dark= --flat= [--group=<derived>] [--chunk=12] [--out=] [--plan] [--subsky-lights] [--crop-lr=<fraction>]}
 SET=${2:?missing <set>}
-DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min SUBSKYOPT= RDDIR= TAG=
+DARK= FLAT= GROUP= CHUNK=12 OUT= PLAN=0 FRAMING=min SUBSKYOPT= RDDIR= TAG= CROPOPT=
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --group=*) GROUP=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --plan) PLAN=1;;
   --framing=*) FRAMING=${a#*=};;
   --subsky-lights) SUBSKYOPT=--subsky-lights;;
+  --crop-lr=*) CROPOPT=--crop-lr=${a#*=};;
   --regdata-dir=*) RDDIR=${a#*=};;
   --tag=*) TAG=${a#*=};;
   *) echo "unknown arg $a" >&2; exit 1;;
@@ -103,7 +111,7 @@ mkdir -p "$G" "$(dirname "$OUT")"
 # script's own CWD, so a relative --out lands the final INSIDE the work tree
 # and the existence check fails on a stack that actually built.
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
-sir(){ siril_cli -d "$1" -s "$2" >> "$G/siril_final.log" 2>&1; }
+sir(){ siril_run_logged "$1" "$2" "$G/siril_final.log"; }
 
 # CAPTURE ORDER, not filename order. Groups are consecutive TIME blocks, and the
 # camera's frame counter wraps at 9999 -> 0001: on aug09/set-02 (456 frames, one
@@ -317,7 +325,7 @@ except Exception: print(0)" "$SUB.fit")
   RDOPT=; [ -z "$RDDIR" ] || RDOPT=--regdata=$RDDIR/g$(printf %02d "$g").seq
   "$REPO/scripts/stack/run_undistort_pipeline.sh" "$SESSION" "$SET" \
     --dark="$DARK" --flat="$FLAT" --select="$G/g$g.list" --chunk="$CHUNK" --out="$SUB.fit" \
-    $SUBSKYOPT $RDOPT
+    $SUBSKYOPT $CROPOPT $RDOPT
   [ -f "$SUB.fit" ] || { echo "ABORT: group $g produced no sub-stack" >&2; exit 1; }
   # Stamp the INTENDED group size beside the tool's own STACKCNT. Intended, not
   # STACKCNT itself: registration may legitimately drop a frame, so STACKCNT can be

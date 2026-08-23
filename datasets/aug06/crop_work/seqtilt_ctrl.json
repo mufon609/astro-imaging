@@ -1,0 +1,10 @@
+{
+ "input": "web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+ "label": "ctrl_full",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 33465,
+ "truncated_mean_fwhm_px": 2.99,
+ "sensor_tilt_fwhm_px": 0.11,
+ "sensor_tilt_pct": 4,
+ "off_axis_aberration_fwhm_px": 0.44
+}

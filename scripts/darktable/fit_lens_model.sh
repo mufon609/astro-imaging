@@ -79,7 +79,7 @@ FLAT="$(cd "$(dirname "$FLAT")" && pwd)/$(basename "$FLAT")"
 
 W=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$W/lens_fit_work
-sir(){ siril_cli -d "$P" -s "$1" >> "$P/siril.log" 2>&1; }
+sir(){ siril_run_logged "$P" "$1" "$P/siril.log"; }
 
 rm -rf "$P"; mkdir -p "$P/nef" "$P/proc" "$P/st"
 mapfile -t SRC < <(find "$SESSION/$SET" -maxdepth 1 -type f \

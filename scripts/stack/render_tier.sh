@@ -142,7 +142,7 @@ CC=/opt/cosmicclarity-6.6
 PRODUCT=$RES/render_${NAME}
 JUDGE=$RES/judge/${NAME}_render
 say(){ echo "[render $NAME] $*"; }
-sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_run_logged "$W" "$1" "$W/siril.log"; }
 # a measurement invocation: its own log, so a parse can never pick up an earlier
 # stage's numbers
 mir(){ siril_cli -d "$W" -s "$1" > "$2" 2>&1; }

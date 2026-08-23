@@ -35,7 +35,7 @@ mkdir -p "$(dirname "$OUT")"
 rm -rf "$WORK"; mkdir -p "$WORK/in" "$WORK/seq"
 W="$(cd "$WORK" && pwd)"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
-sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_run_logged "$W" "$1" "$W/siril.log"; }
 
 n=0
 for d in "${DIRS[@]}"; do

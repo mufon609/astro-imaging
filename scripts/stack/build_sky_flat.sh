@@ -186,7 +186,7 @@ STEM=$(basename "$OUT")
 W=$SESSION/work/flatbuild_$SET
 QA_DIR=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 mkdir -p "$QA_DIR"
-sir(){ siril_cli -d "$W" -s "$1" >> "$W/siril.log" 2>&1; }
+sir(){ siril_run_logged "$W" "$1" "$W/siril.log"; }
 
 if [ -n "$SELECT" ]; then
   mapfile -t SRC < <(grep -v '^[[:space:]]*$' "$SELECT" | sort)

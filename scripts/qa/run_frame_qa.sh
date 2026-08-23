@@ -81,7 +81,7 @@ esac; done
 SESSION=$(cd "$SESSION" && pwd)
 Q=$REPO/datasets/$(basename "$SESSION")/$SET/qa_work
 P=$Q/frameqa
-sir(){ siril_cli -d "$1" -s "$2" >> "$P/siril.log" 2>&1; }
+sir(){ siril_run_logged "$1" "$2" "$P/siril.log"; }
 
 # lights class: camera raws, or dedicated-astrocam FITS (registered as-is —
 # a mono FITS set measures true, non-CFA FWHM; an OSC-FITS set re-decides
