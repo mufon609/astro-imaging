@@ -168,12 +168,26 @@ def to_common(xy, M):
     return np.column_stack([p[0] / p[2], p[1] / p[2]])
 
 
-def own_rho(xy, w, h):
+def own_rho(xy, w, h, norm_px=0.0):
     """Each star's radius in ITS OWN member, 0 at the optical axis, 1 at the
-    frame corner. This is what a residual distortion is a function of."""
+    frame corner. This is what a residual distortion is a function of.
+
+    norm_px OVERRIDES the per-member half-diagonal with one shared constant, and
+    exists for exactly one job: COMPARING TWO PRODUCTS WHOSE MEMBERS DIFFER IN
+    SIZE. The default self-normalisation makes rho mean "fraction of THIS
+    member's own diagonal", which is the right basis inside one product and the
+    WRONG one across two — a member cropped 5% per side has a 6.7% smaller
+    half-diagonal, so a star at the SAME optical field radius lands at a 7.2%
+    higher rho and migrates outward into a worse-named zone. That biases the
+    cropped product to look BETTER in every zone, because each of its bins then
+    holds stars from smaller (better-behaved) physical radii. Pinning both
+    products to ONE normaliser makes a zone name the same optical radius in
+    both; the smaller product simply runs out of stars past its own edge, which
+    shows up honestly as a low n rather than as a flattering median."""
     if len(xy) == 0:
         return xy
-    return np.hypot(xy[:, 0] - w / 2.0, xy[:, 1] - h / 2.0) / ((w * w + h * h) ** 0.5 / 2.0)
+    half = norm_px if norm_px > 0 else ((w * w + h * h) ** 0.5 / 2.0)
+    return np.hypot(xy[:, 0] - w / 2.0, xy[:, 1] - h / 2.0) / half
 
 
 def match(a, b, tol):
@@ -249,6 +263,10 @@ def main():
     # number is then an upper bound on nothing; it is NOT the star-pair-era
     # quantity and must not be compared against those profiles.
     ap.add_argument("--regmodel", default="", choices=["", "starpair", "astrometric"])
+    ap.add_argument("--norm-px", dest="norm_px", type=float, default=0.0,
+                    help="shared half-diagonal in px for the rho bins, instead of "
+                         "each member's own — REQUIRED to compare two products "
+                         "whose members differ in size (see own_rho)")
     ap.add_argument("--tol", type=float, default=12.0)
     ap.add_argument("--min-n", type=int, default=100)
     ap.add_argument("--selftest", action="store_true")
@@ -303,7 +321,7 @@ def main():
     stars = detect(list(zip(tags, files)), work)
     n_det = {t: len(stars[t]) for t in tags}
     common = {t: to_common(stars[t], Hc[t]) for t in tags}
-    rho = {t: own_rho(stars[t], *dims[t]) for t in tags}
+    rho = {t: own_rho(stars[t], *dims[t], norm_px=a.norm_px) for t in tags}
 
     if a.selftest:
         sys.exit(0 if selftest(stars, tags, Hc, dims, a.tol) else 1)
@@ -345,8 +363,13 @@ def main():
            "reference_member": tags[ref], "members": len(files),
            "member_dims": {t: list(dims[t]) for t in tags}, "detected": n_det,
            "zones_def": {n: [lo, hi] for n, lo, hi in ZONES},
-           "zone_basis": "max(rho_a, rho_b), each star's radius in its OWN member "
-                         "normalised by that member's half-diagonal",
+           "zone_basis": ("max(rho_a, rho_b), each star's radius in its own member "
+                          + (f"normalised by the SHARED constant half-diagonal "
+                             f"{a.norm_px:.1f} px (--norm-px), so a zone names the same "
+                             f"optical radius in every product compared"
+                             if a.norm_px > 0 else
+                             "normalised by that member's half-diagonal")),
+           "norm_px": a.norm_px or None,
            "tol_px": a.tol, "min_n": a.min_n,
            **({"regmodel_caveat":
                "ASTROMETRIC compose: separations are computed through the "

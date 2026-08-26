@@ -118,11 +118,18 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../.. && pwd)
 source "$REPO/scripts/lib/siril_run.sh"   # serialized siril-cli invoker (BACKLOG:removal-conditions)
 source "$REPO/scripts/stack/stamp_headers.sh"   # composite provenance + registration-model stamp
-OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0 REFSRC_DECL=auto; SUBDIRS=()
+OUT= FRAMING=min WEIGHT= REF= GATEJSON= STARPAIR=0 REFSRC_DECL=auto KEEPWORK=0; SUBDIRS=()
 for a in "$@"; do case "$a" in
   --out=*) OUT=${a#*=};; --framing=*) FRAMING=${a#*=};;
   --weight=nbstack|--weight=noise) WEIGHT="-weight=${a#*=}";;
   --ref=*) REF=${a#*=};;
+  # --keep-work: do not delete the compose scratch at the end. The linked
+  # members + the s_.seq the registration wrote are the ONLY inputs
+  # member_separation.py needs, and they exist nowhere else — without this
+  # flag, re-binning or re-measuring the member disagreement costs a full
+  # re-compose. The r_ registered copies are the bulk and are NOT needed by
+  # that measurement; delete them by hand if the space matters.
+  --keep-work) KEEPWORK=1;;
   --gate-json=*) GATEJSON=${a#*=};;
   --starpair) STARPAIR=1;;
   --*) echo "unknown arg $a" >&2; exit 1;;
@@ -457,6 +464,6 @@ fits.setval(sys.argv[1], "NDISTMOD", value=len(models),
 fits.setval(sys.argv[1], "MSEPVERD", value=str(d.get("verdict", ""))[:20],
             comment="compose gate verdict")
 PY
-rm -rf "$W"
+[ "$KEEPWORK" = 1 ] && echo "compose scratch KEPT at $W (--keep-work): s_*.fit + s_.seq are what member_separation.py reads" || rm -rf "$W"
 echo "=== DONE: $OUT.fit ($n sub-stacks, framing=$FRAMING) ==="
 ls -la "$OUT.fit"
