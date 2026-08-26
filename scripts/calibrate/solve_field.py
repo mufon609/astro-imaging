@@ -5,6 +5,23 @@ Usage: solve_field.py <stack.fit> [--inject=<out.fit>] [--json=<wcs.json>]
                      [--ra=<deg> --dec=<deg> [--radius-deg=<N>]] [--central=<frac>]
                      [--field-width-arcmin=<N>] [--scales=<lo>-<hi>]
                      [--max-stars=<N>] [--accept-contradiction]
+                     [--scale-band=<lo>,<hi>] [--sip-order=<N>]
+
+--scale-band=<lo>,<hi> (arcsec/px) replaces the wide header-derived size-hint
+envelope (0.6-1.5x nominal) with an explicit search band. WHY IT EXISTS,
+measured on the aug06+aug14 members: with the wide envelope the engine
+intermittently accepts a WRONG-SCALE optimum — a linear scale 0.5-1.4% off the
+one-lens population, patched by SIP terms ~10x larger than a healthy fit's —
+whose sky positions bow away from a correct solution by tens of px at the
+field edges (worst measured: 72 px p95; scale 16.791 against a 17.02-17.08
+sibling population). One optic has one scale, so when the caller knows the
+population band, handing it to the engine excludes that whole failure class
+at the search stage rather than detecting it afterwards.
+
+--sip-order=<N> sets the SIP distortion order the engine fits (default 3,
+the previous hardcode). The knob exists so the member-solve model question —
+is the residual field TAN+SIP3-representable? — is testable as an experiment
+instead of by editing this file.
 
 EXIT 9 = the accepted solution CONTRADICTS the hints this file carries; nothing
 is injected and no record is written. It is a user decision, in the chain's gate
@@ -352,7 +369,7 @@ def scale_set(path, width_arcmin=None):
     return sel or set(_SCALE_FALLBACK)
 
 
-def solve(stars, hint=None, scales=None, pos=None, required=True):
+def solve(stars, hint=None, scales=None, pos=None, required=True, sip_order=3):
     import astrometry
     scales = set(scales) if scales else set(_SCALE_FALLBACK)
     solver = astrometry.Solver(
@@ -368,7 +385,7 @@ def solve(stars, hint=None, scales=None, pos=None, required=True):
         position_hint=(astrometry.PositionHint(
             ra_deg=pos[0], dec_deg=pos[1], radius_deg=pos[2]) if pos else None),
         solution_parameters=astrometry.SolutionParameters(
-            sip_order=3,
+            sip_order=sip_order,
             # Stop at the first astronomically-confident match instead of
             # grinding every quad of every loaded scale. Field-derived
             # scale sets can be large (dense low scales for narrow fields),
@@ -666,6 +683,17 @@ def main():
              if central else ""))
     hint = scale_hint(src, width_arcmin)
     nominal = header_scale(src, width_arcmin)
+    sip_order = int(opts.get("sip-order", 3))
+    scale_band = None
+    if "scale-band" in opts:
+        lo, hi = (float(v) for v in opts["scale-band"].split(",", 1))
+        if not 0 < lo < hi:
+            sys.exit(f"solve_field: --scale-band={opts['scale-band']} is not "
+                     "an increasing positive pair (arcsec/px)")
+        scale_band = (lo, hi)
+        hint = scale_band
+        print(f"[solve_field] scale band OVERRIDDEN to {lo:.3f}-{hi:.3f} "
+              "arcsec/px (--scale-band; the wide header envelope not used)")
     if "scales" in opts:
         lo, hi = (int(v) for v in opts["scales"].split("-", 1))
         scales = set(range(lo, hi + 1))
@@ -692,7 +720,8 @@ def main():
     def run_attempts(star_list, tag=""):
         for alabel, aset, apos in attempts:
             print(f"[solve_field] attempt [{alabel}{tag}]")
-            mm = solve(star_list, hint=hint, scales=aset, pos=apos, required=False)
+            mm = solve(star_list, hint=hint, scales=aset, pos=apos,
+                       required=False, sip_order=sip_order)
             if mm is not None:
                 return mm, (alabel + tag, sorted(aset), apos)
         return None, None
@@ -839,6 +868,8 @@ def main():
            "attempt": winning[0],
            "field_width_arcmin_arg": width_arcmin,
            "scale_hint_arcsec_px": list(hint) if hint else None,
+           "scale_band_arg": list(scale_band) if scale_band else None,
+           "sip_order": sip_order,
            # The gate's own evidence, so a later audit replays it from the
            # record instead of re-deriving the nominal from the hint's 0.6x end.
            "header_scale_arcsec_px": nominal,
