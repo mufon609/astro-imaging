@@ -1,0 +1,10 @@
+{
+ "input": "web/results/aug14/stack_aug06+aug14_crop5lr_wcs.fit",
+ "label": "xnight_arm",
+ "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+ "stars": 37061,
+ "truncated_mean_fwhm_px": 3.23,
+ "sensor_tilt_fwhm_px": 0.39,
+ "sensor_tilt_pct": 12,
+ "off_axis_aberration_fwhm_px": 0.35
+}

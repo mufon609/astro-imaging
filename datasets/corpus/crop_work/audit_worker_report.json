@@ -1,0 +1,50 @@
+{
+ "id": "crop5lr_rim_fix_WORKER_AUDIT_REPORT",
+ "role": "worker (astro-imaging-c2) report to director (astro-imaging-f6), per the pre-registration audit_prereg.json; the director owns the ledger",
+ "1_ROOT_CAUSE_AUDIT": {
+  "verdict": "MECHANISM CONFIRMED by independent derivation; two quantified claims need correction before the ledger entry is cited",
+  "independent_instrument": "astropy WCS on each member's OWN solved header (header-only), all 38 members x 30 sweep positions x both products — audit_member_coverage.json. Reproduces the director's memprobe edge distances to the pixel: aug06/set-02 sub_04 370.2->72.6 px (director: 370->73), aug14/set-01 sub_05 400.1->97.1 (400->97), aug14/set-04 sub_04 600.0->302.5 (600->302); at midx02 full-box(350px margin) grain: ctrl 7 members/4 sets -> arm 2/1 (set-04 only) — exactly the director's blend.",
+  "correction_A_set_diversity_is_not_a_per_position_predictor": "the 11x split survives ONLY as an aggregate at full-box grain (my margins: lose>=2 sets n=6 median +0.117 vs n=24 +0.013, ~9x; the director's 7/23 +0.133/+0.012 not exactly reproduced at margin 0/100/350 px). Per position it has counterexamples BOTH ways: midx01 fails (+0.193) while losing NO set — it is single-set (aug14/set-04) sky in BOTH products (ctrl 2 members -> arm 1); lox10/hix10/midx10 lose 2 sets each and stay under +0.10. And 'member COUNT does not predict it' is REFUTED at point grain: Spearman rho vs dFWHM is -0.582 (members) vs -0.581 (sets) — identical. The operative variable is WHICH sets retain full-box reach and their LOCAL PSF there: the left rim's surviving deep set is aug14/set-04 (locally 3.34-3.44 px / rnd 0.65-0.69); the right rim's survivors are aug06 set-01/03 (locally clean), so it degrades only mildly.",
+  "correction_B_hix01_is_a_coverage_straddle": "the headline +0.343 was measured in a box whose CENTER is covered by ZERO arm members (n=17 stars, box_center_offset 1.622 deg — the fits came from a box corner). Real defect, overstated magnitude; do not cite +0.343 as blended-sky PSF.",
+  "new_findings_the_sweep_could_not_see": "the 11x7 dgrid (audit_dgrid_{arm,ctrl}.json) shows the defect extends BEYOND the swept rows: left band fails to fx 0.227 at four heights (+0.125..+0.295) and is gray at fx 0.318; the RIGHT rim fails at g10y4 (fx 0.956, +0.100) with gray neighbours — not left-only; the BOTTOM rim fails mid-canvas at g07y0 (fx 0.682, +0.160) and IMPROVES at g05y0 (-0.115) — sign depends on who survives, as the mechanism predicts.",
+  "control_own_rim_premise_now_measured": "'the control looks fine' holds at the owner's visual threshold, not by the instrument: the control's own x01 band is single-set set-04 sky (point-grain 1-3 members) reading FWHM 3.28-3.38 / rnd 0.75-0.82 against its interior 2.53-2.84 / 0.93-0.97. The defect class exists in the control at lower amplitude; the crop deepened it past the visible line. Sharpens (does not contradict) the not_a_new_class_of_zone claim."
+ },
+ "2_PROPOSAL_AUDIT_CRITERION_6": {
+  "verdict": "DIRECTOR'S PREDICTION CONFIRMED IN SUBSTANCE — the proposal fails",
+  "measured": "coverage_frame.py on the arm (grid 40x26, Green floor 40 vs clean population from 70.1 — a hard 0-to-70 gap, 0 edge-band boxes): rect FITS [1188, 844, 6138, 4220], 59.6% of canvas. It still CONTAINS 4 of the 6 failing positions: midx02 +0.230 (the named degraded zone), hix02 +0.185, lox02 +0.155, lox03 +0.133. hix01/midx01 fall outside only because the coverage taper trims the extreme edge — the defect extends into covered sky far past the floor. Records: audit_coverage_arm{,_nofloor}.json."
+ },
+ "3_THE_FIX_THAT_WORKS": {
+  "shape": "trim the ARM to the intersection of (a) the MEASURED-PARITY rectangle — largest rectangle of 700px Siril findstar boxes where the arm reads dFWHM <= +0.05 AND droundness > -0.04 vs the control at the same sky (bars taken FROM THE PREREG, not from my data; the droundness PASS bar -0.02 was deliberately not used for exclusion because the director's own sweep shows interior wobble past it, e.g. hix04 -0.022) — with (b) the sky-floor coverage rectangle. Control untouched per CRITERION_5.",
+  "delivered_rect": "FITS x=2889 y=844 w=4311 h=4220 (siril crop 2889 426 4311 4220), 18.19 Mpx = 41.8% of the arm canvas, fx 0.365-0.909, fy 0.154-0.922",
+  "positive_control": "all 6 positions with dFWHM >= +0.10 fall OUTSIDE; the 15 surviving sweep positions all read <= +0.047",
+  "alternatives_measured_and_rejected": {
+   "framing_min_equivalent": "all-38-member intersection rect = FITS [2574,1266,2970,2743] = 8.1 Mpx (18.7% of arm canvas, fx 0.325-0.700). Excludes the defect but discards the measured-clean right band (fx 0.75-0.91 passes at <= +0.050) — 10.1 Mpx of clean sky thrown away vs the parity frame. Zero-parameter fallback if the owner prefers tool-native provenance over extent.",
+   "set_diversity_floor": "no count threshold separates: at full-box grain the failing lox03 has 18 members/6 sets while the passing lox09 has 7/4; midx01 fails at the same diversity in both products. A frame keyed on diversity alone either ships defects or discards clean sky wholesale."
+  },
+  "verification_chain": "framing record datasets/aug14/framing_stack_aug06+aug14_crop5lr.json VERIFIED by web/verify_framing.py (Siril crop+stat, worst-channel Green Min 76.1 vs floor 40) -> finish_render.sh --crop-record (verified-crop -> solve logodds 103, 16.98 arcsec/px -> SPCC full cone, K R 1.000 G 0.608 B 0.831, 3618/5914 stars -> autostretch -linked -> 16-bit PNG)"
+ },
+ "4_PREREG_SCORE": {
+  "C1": "NO position at/over the fail bars across 50 boxes ON THE DELIVERED PRODUCT including its own flush rim (audit_c1_{dlv,ctrl}.json): worst dFWHM +0.063 (fail >= +0.10), worst droundness -0.026 (fail <= -0.04). NOT a clean strict pass: 5 of 50 sit between the pass and fail bars (lox10 +0.055, hix01 +0.063, plus three droundness -0.025/-0.026), clustered at the frame boundary, within single-measurement wobble (~+-0.03) of the pass bar. The prereg leaves the band between bars undefined — scored by the director.",
+  "C2": "fix is pure EXCLUSION: a verified crop of the linear stack, standard finish; no stretch/darkening/blur; contributors at surviving sky unchanged",
+  "C3": "interior: dgrid g04-g08 within +-0.03 dFWHM; delivered mid-row reads -0.020..+0.010",
+  "C4": "cost: delivered 18.19 Mpx vs arm 43.5 (58.2% of the arm canvas discarded) vs control 47.5 (61.7%); amplitude-matched stars inside the delivered frame: control 28605 vs arm 28524 (-0.28%, arm fewer in 19/36 boxes, p=0.608 — indistinguishable; the earlier -3.43% deficit lived in the now-excluded rim)",
+  "C5": "every protected artifact byte-unchanged (size+mtime vs prefix_baseline.txt; control judge PNG md5 695b4bca45f7130090f88fb4917f7078 MATCH; member dir counts match); nothing re-baselined; worker committed NOTHING",
+  "C6": "answered above — prediction confirmed, proposal recorded insufficient"
+ },
+ "5_GUARDS_AND_A_FINDING": {
+  "run_guards": "RED once — coverage_frame selftest step 3b: flatpak failed to LAUNCH ('error: Extension org.freedesktop.Platform.GL.default has invalid merge-dirs', siril echoed 0 selections). Single selftest re-run PASS; full battery re-run 24 passed, 0 failed, 28s wall.",
+  "mechanism": "the 6d9e568 launch retry lives ONLY in siril_run.sh (SIRIL_LAUNCH_TRIES, ini-mtime discrimination). siril_run.py — the invoker behind coverage_frame, shape_at_sky, spcc_run, verify_framing, starlight_preservation — mirrors the LOCK but has NO retry; its docstring says so. The guard battery went RED on exactly the uncovered half. Not patched: outside this GO's scope; the .py retry needs the same ran-vs-never-launched discrimination and that design call is the director's."
+ },
+ "6_PREMISES_NAMED_UNTESTED": [
+  "header WCS == the geometry seqapplyreg used (SHARED with the director's memprobe method; convergence UNCHECKED against siril's internal regdata; mitigated by pixel-level agreement with independent probes and by per-box placement verification via the tool's own per-star RA/Dec)",
+  "PNG-left == canvas-low-x orientation: accepted from the director's measurement, NOT re-verified; immaterial to the fix (all worker measurements are in canvas/sky coordinates)",
+  "median FWHM/roundness of the top-30 findstar fits captures the owner's 'smear' (SHARED, unchecked — the owner's eyes on the delivered PNG are the test)",
+  "single-measurement wobble ~+-0.03 px estimated from region-to-region scatter, not from repeat runs",
+  "the frame is 700px-box-grain; a sub-box defect at the boundary would be inside it (mitigated by the flush-rim C1 re-sweep reading no fail)"
+ ],
+ "artifacts": {
+  "delivered": ["web/results/aug14/stack_aug06+aug14_crop5lr_parity.fit", "web/results/aug14/stack_aug06+aug14_crop5lr_parity_wcs.fit", "web/results/aug14/stack_aug06+aug14_crop5lr_parity_spcc.fit", "web/results/aug14/judge/aug06+aug14_crop5lr_parity_spcc-linked.png"],
+  "records": ["datasets/aug14/framing_stack_aug06+aug14_crop5lr.json (verified)", "datasets/aug14/set-01/qa_work/solve_stack_aug06+aug14_crop5lr_parity.json", "datasets/aug14/set-01/qa_work/spcc_set-01_aug06+aug14_crop5lr_parity.json", "datasets/corpus/crop_work/audit_member_coverage.json", "datasets/corpus/crop_work/audit_coverage_arm.json", "datasets/corpus/crop_work/audit_coverage_arm_nofloor.json", "datasets/corpus/crop_work/audit_coverage_arm_framing.json (the FAILED proposal's rect, kept as evidence)", "datasets/corpus/crop_work/audit_dgrid_arm.json", "datasets/corpus/crop_work/audit_dgrid_ctrl.json", "datasets/corpus/crop_work/audit_c1_dlv.json", "datasets/corpus/crop_work/audit_c1_ctrl.json", "datasets/corpus/crop_work/dgrid_{arm,ctrl}/ + c1_{dlv,ctrl}/ (findstar lists)"],
+  "instruments_used": "tracked only: shape_at_sky.py (measure(), y-convention pinned to the verified one, re-verified per box), coverage_frame.py, verify_framing.py, finish_render.sh; one-off drivers in session scratch, method fully stated in each record"
+ }
+}

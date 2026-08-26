@@ -1,0 +1,96 @@
+{
+ "id": "crop5lr_rim_fix_DIRECTOR_AUDIT",
+ "status": "AUDITED against datasets/corpus/crop_work/audit_prereg.json, written before the product existed. VERDICT: the rim defect is FIXED, by exclusion, at a large and stated canvas cost. Two of my own prior claims are CORRECTED by the worker and I confirmed both.",
+ "roles": {
+  "director": "astro-imaging-f6 (this audit)",
+  "worker": "astro-imaging-c2 (audit of the proposal + the build)"
+ },
+ "delivered": "web/results/aug14/stack_aug06+aug14_crop5lr_parity{,_wcs,_spcc}.fit + judge/aug06+aug14_crop5lr_parity_spcc-linked.png \u2014 4311x4220, 18.19 Mpx",
+ "independence_of_this_audit": "my grid is 35 positions on the DELIVERED canvas out to fx/fy 0.075, with ZERO sky-position overlap with either the worker's 63-position fitting set or its 50-position test set (checked). The worker's own test set also had zero overlap with its fitting set, so the frame was not scored on the data it was fitted to.",
+ "C1_defect_gone": {
+  "verdict": "PASS",
+  "n": 35,
+  "at_or_over_my_fail_bars(dFWHM>=+0.10 or droundness<=-0.04)": 0,
+  "median_dFWHM": 0.005,
+  "worst_dFWHM": 0.063,
+  "median_droundness": -0.004,
+  "worst_droundness": -0.037,
+  "for_scale_the_defect_being_fixed": "+0.230 to +0.343 px dFWHM at midx02/hix01 before the fix",
+  "strict_band": "30 of 35 inside |dFWHM|<=0.05 and droundness>=-0.02"
+ },
+ "C2_removed_not_hidden": {
+  "verdict": "PASS, decisively",
+  "test": "pixel comparison of the delivered product against the arm composite it came from",
+  "result": "0 of 54,577,260 pixels differ \u2014 the delivered product is a BIT-EXACT crop of the arm at [2889,844,4311,4220]. The fix removes sky; it does not touch a retained pixel. No stretch, blur, vignette or reprocess is involved."
+ },
+ "C3_interior_not_paid_for_the_rim": {
+  "verdict": "PASS",
+  "n": 15,
+  "max_abs_dFWHM": 0.023,
+  "max_abs_droundness": 0.018
+ },
+ "C4_cost_stated": {
+  "verdict": "PASS (reports a number, whatever it is)",
+  "canvas": {
+   "control_Mpx": 47.49,
+   "cropped_arm_Mpx": 43.49,
+   "delivered_Mpx": 18.19
+  },
+  "delivered_keeps": "41.8% of the cropped arm's canvas, 38.3% of the control's",
+  "amplitude_matched_stars_inside_the_delivered_frame": {
+   "control": 21961,
+   "delivered": 21856,
+   "delta_pct": -0.48
+  },
+  "reading": "the -3.43% star deficit measured earlier lived in the excluded rim; inside the frame the two are level."
+ },
+ "C5_nothing_destroyed": {
+  "verdict": "PASS",
+  "checked": "all 9 protected artifacts byte-identical by size+mtime against my pre-fix baseline; control judge PNG md5 695b4bca45f7130090f88fb4917f7078 MATCH; 5685 raws unchanged; member counts 5/4/4/5/5/6/6/3 unchanged"
+ },
+ "C6_proposal_audit": {
+  "verdict": "PASS \u2014 and MY PROPOSAL FAILED, as I predicted in the prereg",
+  "measured": "coverage_frame.py on the arm returns rect [1188,844,6138,4220] (59.6% of canvas). midx02, hix02, lox02 and lox03 \u2014 the named degraded positions \u2014 are ALL still inside it. The sky-floor criterion answers 'is this covered sky at all', and the degraded zone is covered sky, so it clears the floor.",
+  "consequence": "the crop-to-verified-coverage fix I offered the owner would have shipped the defect. Recorded as insufficient for this defect class."
+ },
+ "THE_GRAY_BAND_I_RESERVED_FOR_MYSELF": {
+  "positions": 5,
+  "values": {
+   "d12": [
+    -0.057,
+    -0.037
+   ],
+   "d17": [
+    0.058,
+    -0.002
+   ],
+   "d37": [
+    0.063,
+    -0.023
+   ],
+   "d41": [
+    0.027,
+    -0.022
+   ],
+   "d47": [
+    0.006,
+    -0.021
+   ]
+  },
+  "null_control_run_to_score_them": "the delivered product is a bit-exact crop of the arm, so measuring both at the same sky through INDEPENDENTLY SOLVED WCS isolates pure box-placement and fit wobble: n=35, dFWHM sd 0.002 px, droundness sd 0.000. The wobble is therefore NOT an explanation \u2014 these five are real differences, not noise.",
+  "scored": "PASS WITH A STATED RESIDUAL. All five sit at the delivered frame's own outermost boxes (fx or fy at 0.07/0.93), none reaches a fail bar, and the worst is +0.063 px FWHM / -0.037 roundness \u2014 4x to 5x smaller than the defect being fixed. The frame was fitted at 700 px box grain and I probed at 600 px flush to the edge, i.e. just outside the grain it was fitted on. Called a residual, not a clean pass."
+ },
+ "CORRECTIONS_TO_MY_OWN_EARLIER_CLAIMS_both_confirmed": {
+  "1_set_diversity": "I told the owner 'member COUNT does not predict it; SET diversity does'. TOO STRONG. Re-measured with Spearman: at POINT grain members rho=+0.576 vs sets rho=+0.581 (p=0.001 both) \u2014 indistinguishable. Only at full-box (350 px) grain do they separate, members +0.329 (p=0.076, not significant) vs sets +0.492 (p=0.006). So set diversity is the better predictor at the grain a measurement box actually uses, and an AGGREGATE marker rather than a per-position rule; the worker's counterexamples stand (midx01 fails losing no set; the x10 band loses 2 sets and passes).",
+  "2_hix01": "my headline +0.343 px is overstated: the arm box CENTRE there is covered by ZERO members (n=17, box offset 1.62 deg) \u2014 a coverage straddle. The defect is real; that particular magnitude is not representative. midx02 (+0.230, n=568) is the honest headline.",
+  "3_the_control_is_not_clean_either": "CONFIRMED. The control's own left band reads FWHM 3.28-3.38 and roundness 0.75-0.82 against its interior 2.55-2.59 and 0.94-0.97. 'The original looks fine' is true at the owner's visual threshold, not by the instrument \u2014 the crop raised an existing defect above that threshold rather than creating a new class."
+ },
+ "A_REAL_GAP_IN_MY_OWN_COMMITTED_WORK_worker_found_it": {
+  "finding": "the bounded launch retry I landed in 6d9e568 exists ONLY in scripts/lib/siril_run.sh. scripts/lib/siril_run.py has ZERO occurrences of it and mirrors only the lock.",
+  "verified": "grep: 5 matches in .sh, 0 in .py. 18 scripts route through the .py \u2014 including coverage_frame, shape_at_sky, spcc_run, verify_lens_card, anomaly_audit, member_separation, star_shape.",
+  "evidence_it_matters": "run_guards went RED once during the worker's run on exactly that half \u2014 coverage_frame's selftest, flatpak 'GL.default has invalid merge-dirs', 0 selections; a re-run passed and the full battery read 24 passed 0 failed.",
+  "status": "NOT PATCHED \u2014 outside the worker's GO. The .py needs the same ran-vs-never-launched discrimination the .sh gets from the config-ini mtime. Owner's call."
+ },
+ "guards": "24 passed, 0 failed (worker's re-run after the flatpak launch failure).",
+ "what_this_does_NOT_settle": "whether trading 58% of the cropped arm's canvas for a clean rim is worth it. That is a trade-off with no measurable answer and belongs to the owner."
+}

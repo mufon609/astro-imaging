@@ -1,0 +1,5 @@
+# 2 stars found using the following parameters:
+# sigma=1.00 roundness=0.10 radius=5 relax=1 profile=0 minbeta=1.5 max_stars=0 layer=1 minA=0.00 maxA=0.00 maxR=1.00
+# star#	layer	B	A	beta	X	Y	FWHMx [px]	FWHMy [px]	FWHMx ["]	FWHMy ["]	angle	RMSE	mag	Sat	Profile	RA	Dec
+1	1	  0.001801	  0.020840	     -1.00	    780.24	    782.31	      3.39	      2.80	     59.37	     49.07	25.03	 5.419e-04	      1.62	0	Gaussian	332.835372	47.146420
+2	1	  0.001136	  0.001024	     -1.00	    786.62	    709.81	      9.93	      9.47	    173.75	    165.69	71.71	 7.017e-04	      2.46	0	Gaussian	332.926658	47.464329

@@ -1,0 +1,40 @@
+{
+ "product": "stack_aug06+aug14_crop5lr_wcs",
+ "canvas_wh": [
+  7922,
+  5490
+ ],
+ "rect_fits": [
+  1188,
+  844,
+  6138,
+  4220
+ ],
+ "rect_siril_crop_args": [
+  1188,
+  426,
+  6138,
+  4220
+ ],
+ "source": "DERIVED by scripts/qa/coverage_frame.py from Siril stat over a 40x26 grid, floor 40.0 on Green",
+ "status": "unverified",
+ "radec_corners_deg": [
+  [
+   330.2009184872006,
+   49.6753235965712
+  ],
+  [
+   286.43551115052526,
+   49.562439951113255
+  ],
+  [
+   291.9828109080426,
+   30.902501719944077
+  ],
+  [
+   324.7811855913245,
+   30.959918243344408
+  ]
+ ],
+ "scale_deg_per_px": 0.004719875130398565
+}

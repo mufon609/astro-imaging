@@ -1,0 +1,77 @@
+{
+ "product": "stack_aug06+aug14_crop5lr",
+ "canvas_wh": [
+  7922,
+  5490
+ ],
+ "rect_fits": [
+  2889,
+  844,
+  4311,
+  4220
+ ],
+ "rect_siril_crop_args": [
+  2889,
+  426,
+  4311,
+  4220
+ ],
+ "radec_corners_deg": [
+  [
+   318.43562968587855,
+   51.30716127552153
+  ],
+  [
+   287.2507467698477,
+   49.72323766305776
+  ],
+  [
+   292.6205586585833,
+   30.98480573008249
+  ],
+  [
+   315.8395988391566,
+   31.78449396263287
+  ]
+ ],
+ "scale_deg_per_px": 0.004719875130398565,
+ "source": "DERIVED by the crop5lr rim-degradation audit (worker): intersection of (a) the MEASURED-PARITY rectangle \u2014 largest rectangle of 700px Siril findstar boxes (11x7 grid, datasets/corpus/crop_work/audit_dgrid_{arm,ctrl}.json) where the arm reads dFWHM <= +0.05 px and droundness > -0.04 vs the control at the same sky \u2014 with (b) the sky-floor coverage rectangle (audit_coverage_arm.json, Green floor 40, clean population from 70.1). Positive control: all 6 sweep positions with dFWHM >= +0.10 fall outside; the 15 surviving sweep positions all read <= +0.047.",
+ "status": "verified",
+ "verified_by": {
+  "method": "product stack sky floor: require stat Min >= 40.0 ADU (sibling-class floor rule \u2014 never mere non-zero); floor applied to the Green layer only (the low channel clips to zero on fully-covered sky in this class \u2014 all layers are still measured below)",
+  "image": "web/results/aug14/stack_aug06+aug14_crop5lr.fit",
+  "crop_args": [
+   2889,
+   426,
+   4311,
+   4220
+  ],
+  "floor": 40.0,
+  "floor_channel": "Green",
+  "measured": [
+   {
+    "layer": "Red",
+    "mean": 24.6,
+    "median": 21.3,
+    "min": 7.9,
+    "max": 52234.8
+   },
+   {
+    "layer": "Green",
+    "mean": 93.2,
+    "median": 87.9,
+    "min": 76.1,
+    "max": 65535.0
+   },
+   {
+    "layer": "Blue",
+    "mean": 46.1,
+    "median": 42.3,
+    "min": 31.5,
+    "max": 60439.3
+   }
+  ],
+  "worst_min": 76.1,
+  "verdict": "PASS"
+ }
+}

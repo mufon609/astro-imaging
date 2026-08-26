@@ -1,0 +1,45 @@
+{
+ "id": "crop5lr_rim_fix_AUDIT_PREREGISTRATION",
+ "status": "WRITTEN BEFORE THE FIXED PRODUCT EXISTS, by the DIRECTOR session, while the worker session (astro-imaging-c2) audits the proposal and builds. Pre-registered so the bar cannot be fitted to whatever comes back.",
+ "why_a_prereg_for_an_audit": "the defect being fixed was one MY OWN comparison grid could not see \u2014 it admitted only positions whose box fits inside BOTH canvases, which structurally excludes a cropped product's rim. An audit designed after seeing the result is free to repeat that mistake in a new form. The criteria below are fixed now.",
+ "what_is_being_audited": "the worker's fix for the rim degradation in stack_aug06+aug14_crop5lr (root cause: crop removes the frame-edge band through which good members reach the union rim, collapsing contributing SET diversity there).",
+ "the_reference_for_'unbroken'": "web/results/aug14/judge/aug06+aug14_full_spcc-linked.png and its stack web/results/aug14/stack_aug06+aug14_full_wcs.fit \u2014 the owner's 'original un broken image'. It is the comparison target, NOT a thing to modify.",
+ "CRITERION_1_the_defect_is_gone_where_the_product_still_shows_sky": {
+  "test": "re-run the xsweep protocol (shape_at_sky, 700 px boxes, top 30) on the DELIVERED product against the CONTROL at the same sky, sampling the DELIVERED product's OWN rim \u2014 positions admitted by the delivered canvas, not by the intersection of both",
+  "pass": "at every sampled position that survives in the delivered product, dFWHM vs the control is within the interior band already measured, |dFWHM| <= 0.05 px, and droundness >= -0.02",
+  "fail": "any surviving position still shows dFWHM >= +0.10 px or droundness <= -0.04 \u2014 i.e. the degraded zone was left inside the frame",
+  "current_failing_values_for_reference": {
+   "hix01": 0.343,
+   "midx02": 0.23,
+   "hix02": 0.185,
+   "lox02": 0.155,
+   "interior": "+-0.02"
+  }
+ },
+ "CRITERION_2_it_was_removed_not_hidden": {
+  "test": "the fix must work by EXCLUDING the degraded sky from the canvas, or by changing which members contribute there \u2014 never by a stretch, a darkening, a blur, a compression, or a vignette that masks it (CLAUDE.md no-bandaids)",
+  "pass": "the delivered canvas geometry or member set explains the improvement, and the same sky measured in the CONTROL is either outside the delivered frame or now backed by restored contributor diversity",
+  "fail": "the numbers improve while the same sky is still inside the frame with the same contributors \u2014 that would be a rendering change, not a fix"
+ },
+ "CRITERION_3_the_interior_is_not_paid_for_the_rim": {
+  "test": "the canvas-middle positions (x04-x08 of the sweep) must stay unchanged against the control",
+  "pass": "|dFWHM| <= 0.05 px and |droundness| <= 0.02 there",
+  "note": "a fix that trims the rim should not touch the interior at all; movement there means something else changed"
+ },
+ "CRITERION_4_the_cost_is_stated": {
+  "test": "canvas Mpx and amplitude-matched stars per Mpx of the delivered product vs the control, plus how much sky the trim discarded",
+  "pass": "reported with numbers, whatever they are \u2014 this criterion cannot fail on the value, only on the value being absent"
+ },
+ "CRITERION_5_nothing_was_destroyed": {
+  "test": "the control stack, its _wcs/_spcc intermediates, its judge PNG, every canonical member dir, and every raw are byte-unchanged; no re-baselining",
+  "pass": "verified by mtime/size and by git status showing no deletion of tracked records"
+ },
+ "CRITERION_6_the_proposal_audit_is_answered_on_evidence": {
+  "test": "the worker must state whether coverage_frame.py's rectangle still contains the degraded zone. My prediction, recorded here so it can be scored: IT DOES \u2014 coverage_frame keys on a SKY FLOOR ('is this covered sky at all'), and the degraded zone is covered sky (2 members), so it should clear the floor and remain inside the frame, leaving the defect shipped.",
+  "if_my_prediction_is_right": "the proposal I gave the owner was insufficient and must be recorded as such",
+  "if_my_prediction_is_wrong": "record what the floor actually excluded and why I mis-predicted it"
+ },
+ "what_would_make_me_reject_a_PASSING_result": "a threshold chosen after seeing which value passes; a positive control that cannot be shown firing on data where the defect is present; agreement with my own root cause reached without independent measurement (convergence between two sessions is UNCHECKED, not confirmed \u2014 CLAUDE.md).",
+ "director": "astro-imaging-f6",
+ "worker": "astro-imaging-c2"
+}

@@ -1,0 +1,28 @@
+{
+ "image": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04_crop5lr/sub_04.fit",
+ "label": "set-04_crop5lr_04",
+ "instrument": "Siril findstar (setfindstar reset -roundness=0.10 -relax=on -maxR=1.0), 500 px boxes placed by the product's own WCS (y-origin top, verified by the tool's own per-star RA/Dec); FWHM = median (FWHMx+FWHMy)/2, roundness = median min/max, over the 30 brightest fits",
+ "positions": [
+  {
+   "label": "midx02",
+   "ra": 326.679896,
+   "dec": 39.451557,
+   "pixel_xy": [
+    4918.5,
+    2368.8
+   ],
+   "crop": [
+    4669,
+    1348,
+    500,
+    500
+   ],
+   "n": 176,
+   "box_center_offset_deg": 0.063,
+   "top_n": 30,
+   "fwhm_px": 3.43,
+   "roundness": 0.654,
+   "faintest_admitted_A": 0.000241
+  }
+ ]
+}

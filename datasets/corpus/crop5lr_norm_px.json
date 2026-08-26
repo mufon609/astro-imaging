@@ -1,0 +1,14 @@
+{
+ "norm_px": 3513.8,
+ "basis": "median half-diagonal of the 38 CONTROL members; used for BOTH products so a zone names the same optical radius in each",
+ "control_halfdiag_px": [
+  3359.3,
+  3513.8,
+  3528.5
+ ],
+ "arm_halfdiag_px": [
+  3123.4,
+  3272.0,
+  3284.8
+ ]
+}

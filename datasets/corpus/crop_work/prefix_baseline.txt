@@ -1,0 +1,21 @@
+# baseline captured by director astro-imaging-f6 BEFORE the worker's fix run
+569946240  1787527645  web/results/aug14/stack_aug06+aug14_full.fit
+569949120  1787513930  web/results/aug14/stack_aug06+aug14_full_wcs.fit
+569949120  1787513937  web/results/aug14/stack_aug06+aug14_full_spcc.fit
+195435434  1787513943  web/results/aug14/judge/aug06+aug14_full_spcc-linked.png
+521910720  1787527684  web/results/aug14/stack_aug06+aug14_crop5lr.fit
+521913600  1787527689  web/results/aug14/stack_aug06+aug14_crop5lr_wcs.fit
+178352253  1787527702  web/results/aug14/judge/aug06+aug14_crop5lr_spcc-linked.png
+163287139  1787165073  web/results/aug06/judge/set-01+02+03_full_spcc-linked.png
+149360388  1787507363  web/results/aug06/judge/set-01+02+03_crop5lr_spcc-linked.png
+# member dirs (count of sub_*.fit)
+5  sessions/aug06/work/groups_set-01
+4  sessions/aug06/work/groups_set-02
+4  sessions/aug06/work/groups_set-03
+5  sessions/aug14/work/groups_set-01
+5  sessions/aug14/work/groups_set-02
+6  sessions/aug14/work/groups_set-03
+6  sessions/aug14/work/groups_set-04
+3  sessions/aug14/work/groups_set-05
+# md5 of the control's judge PNG (the 'unbroken image')
+695b4bca45f7130090f88fb4917f7078  web/results/aug14/judge/aug06+aug14_full_spcc-linked.png
