@@ -176,3 +176,32 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   residual sigx/sigy ~0.9 px, centres agreeing with astrometry.net to
   0.001°. Stacked members have round stars; single 2.5 s ultra-wide frames
   do not. Keep `solve_field.py` for frames; Siril is usable for members.
+- **MEMBER (SUB-STACK) BLIND SOLVES WERE CONSUMED UNGUARDED BY THE
+  ASTROMETRIC COMPOSE, AND THE SOLVER INTERMITTENTLY ACCEPTS A WRONG-SCALE
+  OPTIMUM — a linear scale 0.3–1.4% off the one-lens population, patched by
+  SIP terms ~10× a healthy fit's, whose sky positions bow tens of px at the
+  field edges.** MEASURED on the aug06+aug14 pair (both chains carried them;
+  the UNCROPPED chain held the worst: 16.791″/px in a 17.02–17.08 sibling
+  population): same-star cross-chain bow 6.5 px median / 72 px p95; a
+  tight-band re-solve (`solve_field.py --scale-band`, the search-stage
+  exclusion) collapsed the worst member's edge bow 31.5 → 1.4 px (n=1655
+  matched stars) and restored exact twin agreement for the 0.3–0.5% class,
+  while a healthy member moved 0.000 px. The compose-level cost it explained:
+  the crop arm's +25% cross-night centre pair-separation regression healed to
+  control level (0.895 → 0.78 px) after repair. GUARD: a FIXED scale band is
+  WRONG — refraction drifts the effective scale ~0.5% within a night
+  (set-04 runs 17.03 → 16.94 across its own groups) — so
+  `scripts/qa/member_solve_audit.py` flags against each set's own Theil-Sen
+  scale trend + a SIP-magnitude ratio (selftested; register row in
+  BACKLOG:`removal-conditions`). LIMITS, all measured: (1) a ~0.1–0.2%
+  TAN+SIP3 fit-variance floor remains — twins of identical pixels landed
+  16.973 vs 16.944, both stable at logodds 270+, `--sip-order=4` no help —
+  showing as 3–10 px mutual member disagreement at mid/outer field in EVERY
+  build; deep coverage dilutes it (77-member corpus interior unchanged
+  ±0.03 px after repairing 3 members; only 1–3-member rim slivers move,
+  roundness +0.040 where the misplacement doubling left). (2) The compose's
+  `seqplatesolve` SKIPS already-solved members — a repair must land in the
+  member FILE's header or it never reaches the product. (3) The compose
+  gate's `findstar` lists exclude bright stars (99.7% of Gaia G 6–10 absent —
+  trailed/saturated cores fail the fitter), so catalog arbitration through
+  those lists measures matching floors, not solution error.

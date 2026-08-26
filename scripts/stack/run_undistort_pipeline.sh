@@ -9,7 +9,7 @@
 #
 #   run_undistort_pipeline.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                             [--frames=N | --select=<list-file>] [--chunk=12] [--out=<stack.fit>]
-#                             [--regdata=<lt_.seq>] [--nonorm] [--crop-lr=<fraction>]
+#                             [--regdata=<lt_.seq>] [--nonorm]
 #
 # --select=<file> (one raw path per line) processes exactly those frames in
 # order — the group-composition driver (run_undistort_groups.sh) uses it to
@@ -96,14 +96,13 @@ source "$REPO/scripts/stack/calibrate_light.sh"   # shared light-calibration com
 source "$REPO/scripts/stack/stack_rejection.sh"   # shared integration rejection (doctrine-driven by sub count)
 source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared with the ROUTER, or they drift
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
-SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--subsky-lights] [--crop-lr=<fraction>]}
+SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0 REGDATA= NONORM=0 CROPLR=0
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0 REGDATA= NONORM=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
   --regdata=*) REGDATA=${a#*=};; --nonorm) NONORM=1;;
-  --crop-lr=*) CROPLR=${a#*=};;
   --subsky-lights) SUBSKYL=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
@@ -312,53 +311,12 @@ for i, (c, j, f) in enumerate(fs, 1):
 print(f"one sequence: {len(fs)} frames")
 PY
 rm -f "$P/out"/*.seq
-# --crop-lr=<fraction>: trim that fraction of the WIDTH off each side of every
-# frame, full height kept. Siril `seqcrop` does the pixel work; nothing in-house
-# touches a pixel.
-#
-# THE INSERTION POINT IS LOAD-BEARING AND IS HERE FOR A MEASURED REASON: after
-# the darktable warp, before `register`. Cropping the RAW would change the frame
-# geometry darktable's lens correction is defined over — the ptlens model is
-# normalised by the half-short-side (DISTNORM 2020 for this 6064x4040 sensor) and
-# lensfun autoscales to the frame it is handed, so a pre-warp crop silently warps
-# with a different map and the pinned model no longer describes what ran. After
-# `seqapplyreg` would be a different experiment entirely (it would trim the
-# COMPOSED canvas, not each frame's own contribution), and it is the frame's own
-# edge samples this knob exists to withhold.
-#
-# X ORIGIN, PROBED NOT ASSUMED (registry: Siril's crop y-origin is the opposite
-# end of numpy's, so neither axis is taken on faith). MEASURED on a real warped
-# frame of this set, `seqcrop lt_ 303 0 5458 4040`: the output matches the input
-# columns [303:5761] EXACTLY, bit for bit, at the single offset 303 — so x counts
-# from the same end as the FITS/numpy column index and full height is preserved
-# untouched. A symmetric trim is invariant to that convention anyway; the probe
-# is what makes that a fact rather than a hope.
-if [ "$CROPLR" != 0 ]; then
-  read -r CW CH < <(python3 -c "
-from astropy.io import fits            # HEADER only — no pixel access
-h = fits.getheader('$P/out/lt_00001.fit'); print(h['NAXIS1'], h['NAXIS2'])")
-  # DERIVED from the frame's OWN width at this stage, never a constant: the
-  # sensor is one dataset's property and this builder takes any.
-  CX=$(python3 -c "print(round($CW * $CROPLR))")
-  CNW=$((CW - 2*CX))
-  [ "$CNW" -gt 0 ] || { echo "ABORT: --crop-lr=$CROPLR removes the whole frame ($CW px wide)" >&2; exit 1; }
-  CROPDESC="${CX}px/side of ${CW} (${CROPLR} nominal)"
-  echo "FRAME CROP: $CROPDESC -> ${CNW}x${CH}, full height kept (Siril seqcrop, before register)"
-  printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nseqcrop lt_ %d 0 %d %d -prefix=cr_\n' \
-    "$P/out" "$CX" "$CNW" "$CH" > "$P/x.ssf"
-  sir "$P/x.ssf"
-  # Every frame must have been cropped. `seqcrop` processes only SELECTED images,
-  # and a silently short output would stack a mixed-geometry sequence.
-  NIN=$(ls "$P/out"/lt_*.fit 2>/dev/null | wc -l); NOUT=$(ls "$P/out"/cr_lt_*.fit 2>/dev/null | wc -l)
-  [ "$NIN" -eq "$NOUT" ] && [ "$NOUT" -gt 0 ] || { echo "ABORT: seqcrop produced $NOUT of $NIN frames — read $P/siril.log" >&2; exit 1; }
-  rm -f "$P/out"/lt_*.fit "$P/out"/*.seq
-  # Rename back to lt_ so EVERY downstream stage — register, seqapplyreg, the
-  # --regdata pin that reads lt_.seq — is byte-identical to the uncropped route.
-  # One knob: the frames' width. Nothing else moves.
-  for f in "$P/out"/cr_lt_*.fit; do mv "$f" "$P/out/$(basename "$f" | sed 's/^cr_//')"; done
-  rm -f "$P/out"/*.seq
-  echo "  cropped $NOUT frame(s); sequence handed to register as lt_ (downstream unchanged)"
-fi
+# The pre-registration frame-width crop (--crop-lr, Siril `seqcrop` between
+# the darktable warp and register) is RETIRED — refuted at the cross-night
+# combine: it starves a framing=max union's rims, whose only supply is the
+# frame-edge bands it deletes. Mechanism + numbers:
+# docs/dead-ends/stacking-compose.md (the frame-width-cropping entry);
+# implementation recoverable at 6d9e568.
 REJ=$(stack_rejection_for "$FRAMES")
 # The A/B knobs. Both default to the production clause, so an ordinary build
 # emits exactly the command it always did.
@@ -395,12 +353,6 @@ PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] &
 # and DISTPROV are on the product rather than in a build log.
 [ "$NONORM" = 0 ] || PROV="$PROV
 update_key STACKNRM \"nonorm\"
-update_key DIAGARM T"
-# FRAMECRP states the trim on the product itself: a sub-stack whose canvas is
-# narrower than its siblings must be able to say why without anyone remembering
-# which arm it came from — the same argument as BKGLIGHT and STACKNRM.
-[ "$CROPLR" = 0 ] || PROV="$PROV
-update_key FRAMECRP \"$CROPDESC\"
 update_key DIAGARM T"
 [ -z "$REGDATA" ] || PROV="$PROV
 update_key REGPIN \"$(basename "$REGDATA")\""

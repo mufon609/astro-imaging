@@ -294,3 +294,28 @@ exonerated for it).
   the separation of the same star as two members place it is the defect, in
   px, with no fitter in the way. (Box medians are blind to it too — that
   cost this investigation two prior sessions.)
+- **PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired `--crop-lr` knob)
+  STARVES A framing=max UNION'S RIMS — a 5%/side crop is a ~100% cut of the
+  rim's cross-set supply, because rim sky is covered ONLY through members'
+  frame-edge bands.** MEASURED at the cross-night combine (aug06+aug14, 38
+  members, 4138 frames, same reference pinned, one knob): every hypothesis
+  the knob was built on failed — cross-night centre member agreement WORSE
+  (pair separation 0.718 → 0.895 px, +25%, later attributed to the unguarded
+  member solves, `plate-solving-wcs.md`), amplitude-matched stars −3.43%,
+  roundness NULL — and the union's smeared left rim fell from 7 members / 4
+  sets to 2–3 members of ONE set: aug14/set-04's own field-edge PSF
+  (3.34–3.44 px / roundness 0.65–0.69, measured on the members, identical
+  cropped vs uncropped at n≈1800 matched stars) standing nearly alone where
+  the control still blended aug06/set-02's 2.735/0.814. Composite tracked its
+  contributors, 3.257 → 3.487. After the member-solve repair the
+  geometry-class rim positions healed (+0.133 → +0.055, +0.155 → +0.102) but
+  the composition core stayed (+0.22…+0.32): the sharp sets' data for that
+  sky no longer exists in the cropped frames, and nothing downstream can
+  restore it. Owner-rejected as a route; a rim-trim workaround (crop the
+  product to a measured-parity frame) was built, passed its pre-registered
+  bars, and was REJECTED as symptom-treatment — the records live under
+  `datasets/corpus/crop_work/`. The knob's implementation (Siril `seqcrop`
+  after the darktable warp, before register — that insertion point was
+  correct and probed bit-identical) is recoverable at `6d9e568`. What the
+  knob DID buy: removing rim dilution exposed the latent member-solve defect
+  both chains carried (`plate-solving-wcs.md`).
