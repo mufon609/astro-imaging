@@ -1,0 +1,312 @@
+{
+ "id": "go2_compose_nooutnorm",
+ "engagement": "BACKLOG output-norm-zero-point, stage 1 (compose tier), GO #2 \u2014 director astro-imaging-64, worker astro-imaging-fe",
+ "tree_state": "PIPEREV fcd0977 + the uncommitted E1-E5 edits (run_undistort_compose.sh: stack line without -output_norm, post-assert on siril's log line, STACKNRM/ANCSRC/ANCREF/ANCLOC*/ANCSCL* stamp; finish_render.sh + 3 docs wording); guards 24 passed, 0 failed, 207 s wall, BEFORE the build",
+ "commands": {
+  "S2_compose": "scripts/stack/run_undistort_compose.sh --out=web/results/aug06/stack_set-01+02+03_nooutnorm.fit --framing=max --weight=nbstack --keep-work sessions/aug06/work/groups_set-01 sessions/aug06/work/groups_set-02 sessions/aug06/work/groups_set-03  (run_session_chain.sh:114's line + --keep-work; rc 0; 11:04:xx-11:05:39)",
+  "S3_finish": "scripts/stack/finish_render.sh web/results/aug06/stack_set-01+02+03_nooutnorm.fit set-01+02+03_nooutnorm --session=sessions/aug06 --set=set-01  (--set derived from the product's REGREF by run_session_chain.sh:120-128's own python; rc 0; 11:06:03-11:06:16)",
+  "S4b_seqstat": "Siril seqstat full on a link-ed 4-image sequence [product, E2, restack diag, E0 control] (out-of-tree symlinks)",
+  "restack_diagnostic": "hand .ssf restack_diag.ssf in the kept scratch: setref untouched; `stack r_s mean none -norm=addscale -weight=nbstack -out=web/results/aug06/stack_set-01+02+03_nooutnorm_restack` on the SAME r_ copies with the M lines already cached (normalization 1.13 ms)"
+ },
+ "canonical_reference_record": "datasets/aug06/set-03/qa_work/spcc_set-03_set-01+02+03_full.json (K 1.000/0.649/0.855, 2313/4518)",
+ "header_read_back": {
+  "STACKNRM": "addscale",
+  "ANCSRC": "r_s_.seq M-line IKSS loc/scale of REGREF; [0,1] float, x65535=ADU16 (67 chars, intact)",
+  "ANCREF": 1,
+  "ANCLOCR": 0.00111621,
+  "ANCLOCG": 0.00197157,
+  "ANCLOCB": 0.00153994,
+  "ANCSCLR": 5.74096e-05,
+  "ANCSCLG": 6.94207e-05,
+  "ANCSCLB": 6.20931e-05,
+  "REGREF": "1:aug06/groups_set-01/sub_01.fit",
+  "REGREFSR": "auto",
+  "REGMODEL": "astrometric",
+  "REGUNDIS": true,
+  "NMEMBER": 13,
+  "STACKCNT": 1454,
+  "CALSETS": "aug06/set-01,aug06/set-02,aug06/set-03",
+  "PIPEREV": "fcd0977",
+  "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unnormalized output, image weighting from image count, unequalized RGB, filter all",
+  "compose_log": {
+   "line_2231": "Input normalization ....... additive + scaling",
+   "line_2232": "Output normalization ...... disabled",
+   "enabled_lines": 0
+  },
+  "r_s_seq_S_line": "S 'r_s_' 1 13 13 5 0 6 1 0 0 (RS0 = REF0 = 0, no warning)",
+  "M_lines_ref": [
+   "M0-0 ... 0.00111621 5.74096e-05 ...",
+   "M1-0 ... 0.00197157 6.94207e-05 ...",
+   "M2-0 ... 0.00153994 6.20931e-05 ..."
+  ],
+  "astropy_VerifyWarning": "'Card is too long, comment will be truncated' \u2014 pre-existing (E0/E3 logs carry it), from the MAXMSEP fits.setval comment, not the ANC* keys"
+ },
+ "seqstat_product_x65535": {
+  "location": [
+   72.808,
+   128.792,
+   100.545
+  ],
+  "median": [
+   72.965,
+   129.059,
+   100.72
+  ],
+  "raw": {
+   "location": [
+    0.001110979,
+    0.001965233,
+    0.001534217
+   ],
+   "scale": [
+    3.367102e-05,
+    4.532323e-05,
+    3.68102e-05
+   ],
+   "max": [
+    0.8922852,
+    1.0,
+    0.9450143
+   ]
+  },
+  "R_over_G": 0.5653,
+  "B_over_G": 0.7807
+ },
+ "pixel_identity": {
+  "product_vs_E2": {
+   "differing": 87798306,
+   "total": 101278350,
+   "max_abs_diff": 5.960464e-07,
+   "max_abs_diff_ADU16": 0.0391
+  },
+  "positive_control": {
+   "one_pixel_plus_0.01": "differing 87798307, max 0.00999999978"
+  },
+  "restack_diag_vs_E2": {
+   "differing": 0,
+   "max_abs_diff": 0.0
+  },
+  "restack_diag_vs_product": {
+   "differing": 87798306,
+   "max_abs_diff": 5.960464e-07
+  },
+  "reading": "P1 (0 differing) NOT MET numerically; the mechanism is named and confirmed by control: E2 and the diagnostic re-stack both used the M-line statistics CACHED in r_s_.seq (written by siril with %lg, 6 significant digits) and are bit-identical to each other; the fresh build computed the normalization from full-precision statistics. The two differ by <= 5.96e-7 in [0,1] (0.039 ADU16, 5 float32 ULP at 1.0) on 86.7% of covered pixels \u2014 below every measurement here (seqstat agrees to the 6th digit: 1.110979e-03 vs 1.110977e-03)."
+ },
+ "M3_style_counts_vs_control": {
+  "ch0": {
+   "covered": 30133416,
+   "clamped_ge1": 0,
+   "clamped_pct_of_covered": 0.0,
+   "inframe_zeros_new_eq0_ctl_ne0": 0,
+   "positions": [],
+   "ctl_inframe_zeros_ctl_eq0_new_ne0": 1,
+   "ctl_positions": [
+    [
+     5771,
+     4313
+    ]
+   ],
+   "zero_pixels_new": 3626034,
+   "zero_pixels_ctl": 3626035
+  },
+  "ch1": {
+   "covered": 30133416,
+   "clamped_ge1": 4,
+   "clamped_pct_of_covered": 1.3274299866964967e-05,
+   "inframe_zeros_new_eq0_ctl_ne0": 0,
+   "positions": [],
+   "ctl_inframe_zeros_ctl_eq0_new_ne0": 0,
+   "ctl_positions": [],
+   "zero_pixels_new": 3626034,
+   "zero_pixels_ctl": 3626034
+  },
+  "ch2": {
+   "covered": 30133416,
+   "clamped_ge1": 0,
+   "clamped_pct_of_covered": 0.0,
+   "inframe_zeros_new_eq0_ctl_ne0": 0,
+   "positions": [],
+   "ctl_inframe_zeros_ctl_eq0_new_ne0": 0,
+   "ctl_positions": [],
+   "zero_pixels_new": 3626034,
+   "zero_pixels_ctl": 3626034
+  }
+ },
+ "clamped_components_ch1": [
+  {
+   "size": 3,
+   "x": 2824.7,
+   "y_fits": 506.3,
+   "pixels_xy1": [
+    [
+     2824,
+     506
+    ],
+    [
+     2825,
+     506
+    ],
+    [
+     2825,
+     507
+    ]
+   ],
+   "control_max": 1.0,
+   "control_min": 0.9880943894386292
+  },
+  {
+   "size": 1,
+   "x": 5362.0,
+   "y_fits": 2834.0,
+   "pixels_xy1": [
+    [
+     5362,
+     2834
+    ]
+   ],
+   "control_max": 0.9902693629264832,
+   "control_min": 0.9902693629264832
+  }
+ ],
+ "H3b_on_kept_r_copies": {
+  "mapping": "copy -> product is the r_s_.seq R-line translation (h02, h12) in siril's top-down frame with a +1 px x term (product col = copy col + h02 + 1); POSITIVE CONTROL: the composite predicted from the 13 mapped copies with siril's own coefficients (a_m = scale_ref/scale_m, loc, STACKCNT weights, non-zero mean) reproduces the product to 3 decimals at every unclamped pixel of the 5x5 window around the star and exceeds 1.0 exactly where the product is clamped (1.028/1.033/1.020)",
+  "comp1": [
+   {
+    "xy1": [
+     2824,
+     506
+    ],
+    "copies_max": 1.0018,
+    "n_members_ge_0.999": 1,
+    "predicted_unclamped": 1.0283
+   },
+   {
+    "xy1": [
+     2825,
+     506
+    ],
+    "copies_max": 1.0079,
+    "n_members_ge_0.999": 1,
+    "predicted_unclamped": 1.0328
+   },
+   {
+    "xy1": [
+     2825,
+     507
+    ],
+    "copies_max": 0.9947,
+    "n_members_ge_0.999": 0,
+    "predicted_unclamped": 1.0205,
+    "note": "exceeds 1 through a_m > 1 on a 0.9947 member value, not through a saturated member pixel"
+   }
+  ],
+  "comp2": {
+   "xy1": [
+    5362,
+    2834
+   ],
+   "copies_max": 1.0412,
+   "n_members_ge_0.999": 4,
+   "predicted_unclamped": 1.0227
+  },
+  "verdict": "MET for both components (each sits on a star saturated in >= 1 covering member; comp2, OPEN before the build, is backed by 4 members). Stated limit: one of comp1's three pixels clamps by scaling, not by a saturated member \u2014 the bar's per-component wording is satisfied, its mechanism sentence is incomplete."
+ },
+ "spcc": {
+  "record": "datasets/aug06/set-01/qa_work/spcc_set-01_set-01+02+03_nooutnorm.json",
+  "K": [
+   1.0,
+   0.649,
+   0.855
+  ],
+  "b_offsets": [
+   0.000425383,
+   0.000261437,
+   0.000224063
+  ],
+  "n_photometry": 4518,
+  "n_kept": 2310,
+  "sensor": "sensor-null generic default (as the canonical)",
+  "solve": {
+   "record": "web/results/aug06/solve_stack_set-01+02+03_nooutnorm.json (copy in datasets/aug06/set-01/qa_work/)",
+   "ra": 307.2951,
+   "dec": 42.7342,
+   "scale": 17.0742,
+   "logodds": 156.2,
+   "attempt": "cached"
+  }
+ },
+ "judge_surface": {
+  "path": "web/results/aug06/judge/set-01+02+03_nooutnorm_spcc-linked.png",
+  "IHDR": "7355x4590, bit depth 16, colour type 2 (RGB)",
+  "bytes": 163281486,
+  "aesthetic_half": "awaiting the owner's eyes on the 16-bit final"
+ },
+ "scores_vs_frozen_bars": {
+  "P1_pixel_identity_vs_E2": "NOT MET numerically (87,798,306 differing, max 5.96e-7); mechanism confirmed by control (cached 6-digit M-line stats vs full precision); no measurement here resolves it",
+  "P2_header_keys": "MET \u2014 every value as predicted",
+  "P3_location": "MET \u2014 72.808/128.792/100.545",
+  "P4_H1": "MET \u2014 K 1.000/0.649/0.855, dK 0.000/0.000 (bar 0.009/0.018), 2310 kept as predicted",
+  "P5_H2_numeric": "MET \u2014 R/G 0.5653 (bar 0.5662 +/-0.5%: -0.15%), B/G 0.7807 (bar 0.7811: -0.05%)",
+  "P6_H3": "MET \u2014 (a) 4 clamped px in ch1 = 0.00001% (bar 0.04%); (b) both components backed; (c) 0 in-frame zeros per channel; control: 1 in-frame zero at (5771,4313), 1 pixel == 1.0 at (2825,506)"
+ },
+ "declared_delta_vs_canonical_union": {
+  "canonical": "web/results/aug06/stack_set-01+02+03_full.fit (= E0 control to the pixel)",
+  "level_location_x65535": {
+   "canonical": [
+    40.347,
+    94.58,
+    67.215
+   ],
+   "new": [
+    72.808,
+    128.792,
+    100.545
+   ],
+   "ratio": [
+    1.8045,
+    1.3617,
+    1.4959
+   ],
+   "reading": "the new level is the reference member's own sky (ANCLOC* x65535 = 73.151/129.207/100.920 minus the 0.3-0.5% coverage term); the old one was that minus the darkest pixel, over the brightest"
+  },
+  "R_over_G": {
+   "canonical": 0.4266,
+   "new": 0.5653
+  },
+  "B_over_G": {
+   "canonical": 0.7107,
+   "new": 0.7807
+  },
+  "K": {
+   "canonical": [
+    1.0,
+    0.649,
+    0.855
+   ],
+   "new": [
+    1.0,
+    0.649,
+    0.855
+   ]
+  },
+  "n_kept": {
+   "canonical": 2313,
+   "new": 2310
+  },
+  "logodds": {
+   "canonical": 155.51,
+   "new": 156.2
+  },
+  "baselines": "none sits on the union; no re-seed in this stage"
+ },
+ "deletions": [
+  "web/results/aug06/.compose_stack_set-01+02+03_nooutnorm/seq/r_s_00001..00013.fit (13 registered copies, 3.8 GB -> scratch 4.4 MB) after H3(b) and the re-stack diagnostic; .seq files, logs, s_ links, msep lists, hand .ssf kept"
+ ],
+ "outputs_new_tags": [
+  "web/results/aug06/stack_set-01+02+03_nooutnorm.fit (+_wcs, +_spcc)",
+  "web/results/aug06/stack_set-01+02+03_nooutnorm_restack.fit (diagnostic, kept for audit)",
+  "web/results/aug06/compose_gate_stack_set-01+02+03_nooutnorm.json",
+  "web/results/aug06/judge/set-01+02+03_nooutnorm_spcc-linked.png",
+  "datasets/aug06/set-01/qa_work/{spcc,solve}_..._nooutnorm.json"
+ ]
+}

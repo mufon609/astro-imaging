@@ -16,8 +16,8 @@
 #   product and recorded by the caller — per-product autostretch there
 #   renders statistically identical skies at different brightnesses
 #   (measured, docs/dead-ends.md).
-# - INDEPENDENT PRODUCTS (separately output-normalized stacks with honestly
-#   different sky levels — per-set stacks beside their combine): keep the
+# - INDEPENDENT PRODUCTS (separately normalized stacks, each at its own
+#   reference's sky — per-set stacks beside their combine): keep the
 #   per-product `autostretch -linked` default, the sky-anchored pinned rule.
 #   One raw triplet there renders honest sky-level differences as gross
 #   brightness differences (measured washed-out/crushed at a 45% sky-median

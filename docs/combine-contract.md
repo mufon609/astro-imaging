@@ -133,7 +133,7 @@ every compose (`run_undistort_compose.sh` T0), not asserted:
 | gate T2 | star positions | member pixels |
 | `--weight=nbstack` | member depth | `STACKCNT` header |
 | `--weight=noise` | member noise | member pixels (Siril) |
-| `-norm=addscale -output_norm` | level + scale | member pixels (Siril) |
+| `-norm=addscale` (no `-output_norm`; the reference's IKSS location/scale is stamped as `ANCLOC*`/`ANCSCL*` with `ANCREF`, `ANCSRC`) | level + scale | member pixels (Siril) |
 | `register -2pass` / `seqapplyreg` | geometry | member pixels (Siril) |
 | `--ref` choice | which member is deepest/most central | `STACKCNT` header |
 | the product's onward solve | plate scale | `FOCALLEN XPIXSZ` header |

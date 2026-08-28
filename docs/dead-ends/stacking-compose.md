@@ -353,6 +353,7 @@ exonerated for it).
   whose G peak is the global max, 65535.0 in both); and the composite's own
   location sits 0.34–0.44 ADU16 (0.3–0.5%) below the reference's on both
   arms, nearly channel-independent — the coverage/gradient term a
-  three-channel closure cannot see. Design consequence is the owner's
-  (record the anchor / drop `-output_norm` at both tiers with the group
-  reference pinned / demote the guard measure).
+  three-channel closure cannot see. Design consequence RATIFIED and staged in
+  BACKLOG:`output-norm-zero-point`: the compose tier ships without
+  `-output_norm`, the anchor stamped (`ANCLOC*`/`ANCSCL*`/`ANCREF`,
+  `STACKNRM=addscale`); stages 2-3 (per-set final, sub-stacks) open.

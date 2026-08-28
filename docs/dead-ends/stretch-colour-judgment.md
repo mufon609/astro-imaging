@@ -119,9 +119,9 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   "refutes" correct hypotheses until re-run like-for-like. Multi-surface
   judgment sets pin ONE stretch RULE for every member — and the rule must be
   SKY-ANCHORED per product, not one raw MTF triplet (separately
-  output-normalized stacks put their sky at different normalized levels, so
-  a single triplet renders honest sky-level differences as gross brightness
-  differences). With healthy 32-bit statistics, per-product
+  normalized stacks, each at its own reference's sky, sit at different
+  levels, so a single triplet renders honest sky-level differences as gross
+  brightness differences). With healthy 32-bit statistics, per-product
   `autostretch -linked` at identical parameters IS the pinned rule (its
   16-bit failure was the MAD collapse, not the rule); the render tier's
   stretch policy is the durable home.

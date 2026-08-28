@@ -85,7 +85,11 @@
 # decides the composite's starting balance and orientation. Pinning it makes
 # that a recorded choice instead of a function of argument order. SPCC
 # afterwards re-derives colour from the catalogue, so this governs the LINEAR
-# composite the finish stage receives, not the final colour.
+# composite the finish stage receives, not the final colour. The reference's
+# per-channel IKSS location/scale — the composite's own sky and dispersion by
+# construction, now that the stack is not output-normalized — is stamped on
+# the product as ANCLOC*/ANCSCL* (ANCREF, ANCSRC) from siril's own r_s_.seq
+# M lines (the anchor stamp below).
 # Pick the member whose canvas the product should inherit — normally the
 # deepest/most-central one. Accepts a sub-stack PATH (preferred; resolved to
 # its linked index) or a bare 1-based index into the linked order.
@@ -365,7 +369,20 @@ else
 fi
 printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\n%s\n%bseqapplyreg s -framing=%s -prefix=r_ -interp=lanczos4\n' \
   "$W/in" "$W/seq" "$W/seq" "$REGCMD" "$SETREF" "$FRAMING" > "$W/compose.ssf"
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nstack r_s mean none -norm=addscale %s -output_norm -out=%s\n' \
+# NO -output_norm. It is a global min-max rescale — ONE (min, max) over all three
+# channels, (v − min)/(max − min) — so the product's level and R:G:B balance were
+# set by a single darkest pixel (lanczos4 undershoot beside whichever bright star
+# rings deepest: a geometry lottery) and the reference's level CANCELLED (four
+# setref runs moved products ≤2.4% where "the reference is the anchor" predicted
+# 1.7-2.3×). Without it the product's sky is the reference member's own IKSS
+# location per channel (measured 0.3-0.5% under it, the coverage/gradient term)
+# and values outside [0,1] clamp (measured: 4 pixels of 30.1 M, one saturated
+# core). Registry: docs/dead-ends/stacking-compose.md, the -output_norm
+# zero-point entry; BACKLOG:output-norm-zero-point.
+# REMOVAL CONDITION: siril offers a reference-anchored (or per-channel,
+# non-min-max) output normalization — then -output_norm returns and the ANC*
+# anchor keys retire with it.
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nstack r_s mean none -norm=addscale %s -out=%s\n' \
   "$W/seq" "$WEIGHT" "$OUT" > "$W/stack.ssf"
 # State the weighting explicitly: "plain mean" printed unconditionally would be
 # a WRONG RECORD whenever --weight=nbstack was passed, and this log is the
@@ -408,7 +425,17 @@ python3 "$REPO/scripts/qa/member_separation.py" "$W/seq" \
   --regmodel="$([ "$STARPAIR" = 1 ] && echo starpair || echo astrometric)"
 
 sir "$W/stack.ssf"
-[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $W/stack.log" >&2; exit 1; }
+[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $W/compose.log" >&2; exit 1; }
+# POST-ASSERT on siril's OWN log line (the pattern of the astrometric greps
+# above): `stack` prints exactly one of "Output normalization ...... enabled" /
+# "...... disabled". Both siril runs of this compose append to compose.log and
+# only `stack` prints the line; the scratch is recreated per run, so no stale
+# line can reach this grep.
+grep -q "Output normalization ...... disabled" "$W/compose.log" \
+  && ! grep -q "Output normalization ...... enabled" "$W/compose.log" || {
+  echo "ABORT: siril did not report 'Output normalization ...... disabled' — the" >&2
+  echo "  product's zero point would be the min-max lottery this route retired" >&2
+  echo "  (docs/dead-ends/stacking-compose.md). Read $W/compose.log" >&2; exit 4; }
 
 # ---- STAMP THE COMPOSITE'S OWN IDENTITY -------------------------------------
 # siril's `stack` propagates the REFERENCE member's header, so without this a
@@ -441,9 +468,38 @@ if [ -n "${REF0:-}" ] && [ "$REF0" -ge 0 ] 2>/dev/null && [ "$REF0" -lt "$n" ]; 
 else
   echo "WARNING: could not read the reference from $W/seq/s_.seq — REGREF unstamped" >&2
 fi
+# THE NORMALIZATION ANCHOR, from the statistics siril itself wrote. `stack
+# -norm=addscale` maps every member onto the r_s_ sequence's REFERENCE — its
+# IKSS location and scale per channel (normalization.c
+# compute_factors_from_estimators), computed on the registered r_ copies and
+# cached in r_s_.seq as `M<layer>-<image0>` lines: total ngoodpix mean median
+# sigma avgDev mad sqrtbwmv location scale min max normValue bgnoise. With
+# -output_norm gone the product's sky IS that location, so the anchor is a
+# recorded physical number. The index is r_s_.seq's OWN S-line reference
+# (field 7, 0-based) — the sequence `stack` normalized against (a `setref r_s N`
+# before `stack` moved the normalization, measured) — never s_.seq's: whether
+# `setref s N` propagates into r_s_ on the --ref/derived path is unmeasured, so a
+# disagreement is printed, and what r_s_.seq says is what is stamped. Same
+# window as REGREF: r_s_.seq exists only until the `rm -rf "$W"` below. Values
+# are siril's own [0,1] floats as written; ×65535 for ADU16.
+ANCHOR= ANCREF=
+RS0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$W/seq/r_s_.seq" 2>/dev/null || true)
+if [ -n "${RS0:-}" ] && [ "$RS0" -ge 0 ] 2>/dev/null && [ "$RS0" -lt "$n" ]; then
+  [ "$RS0" = "${REF0:-}" ] || echo "WARNING: r_s_.seq reference $RS0 != s_.seq reference ${REF0:-?} (0-based) — the stack normalized against $RS0; ANCREF stamps that, REGREF stamps the registration's" >&2
+  ANCREF=$((RS0 + 1))
+  ANCHOR=$(awk -v r="$RS0" '$1=="M0-"r{l0=$10;s0=$11} $1=="M1-"r{l1=$10;s1=$11} $1=="M2-"r{l2=$10;s2=$11}
+    END{ if (l0!="" && l1!="" && l2!="") printf "update_key ANCLOCR %s\nupdate_key ANCLOCG %s\nupdate_key ANCLOCB %s\nupdate_key ANCSCLR %s\nupdate_key ANCSCLG %s\nupdate_key ANCSCLB %s\n", l0, l1, l2, s0, s1, s2 }' "$W/seq/r_s_.seq")
+  [ -n "$ANCHOR" ] || echo "WARNING: no M lines for reference $RS0 in $W/seq/r_s_.seq — ANCLOC*/ANCSCL* unstamped" >&2
+else
+  echo "WARNING: could not read the reference from $W/seq/r_s_.seq — anchor unstamped" >&2
+fi
 header_apply_keys "$OUT.fit" "$(header_composite_provenance_lines "$REPO" "${MEMBERS[@]}")
-$(header_registration_lines "$REGM" "$REGU" "$REFID" "$REFSRC")"
-echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members${REFID:+, REGREF=$REFID [$REFSRC]})"
+$(header_registration_lines "$REGM" "$REGU" "$REFID" "$REFSRC")
+update_key STACKNRM addscale
+update_key ANCSRC \"r_s_.seq M-line IKSS loc/scale of ANCREF; [0,1] float, x65535=ADU16\"
+${ANCREF:+update_key ANCREF $ANCREF}
+$ANCHOR"
+echo "stamped composite provenance onto $(basename "$OUT.fit") (REGMODEL=$REGM REGUNDIS=$REGU, ${#MEMBERS[@]} members${REFID:+, REGREF=$REFID [$REFSRC]}, STACKNRM=addscale${ANCREF:+, ANCREF=$ANCREF}${ANCHOR:+ + ANCLOC/ANCSCL R,G,B})"
 [ -f "$OUT.fit" ] || { echo "STACK FAILED — read $W/compose.log" >&2; exit 1; }
 # the gate's worst measured separation rides ON the product, not only beside it
 python3 - "$OUT.fit" "$GATEJSON" <<'PY'

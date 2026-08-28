@@ -208,3 +208,17 @@ The defining property of this family: the output looks healthy.
   exists and the true minimum where none does. A union's darkest NON-zero
   pixel — the quantity `-output_norm` subtracts — is not reportable by
   `stat`; it needs a diagnostic read.
+- **`stack -norm=addscale` on a sequence whose `.seq` already carries M lines
+  normalizes on those CACHED statistics (written with 6 significant digits);
+  a fresh registration normalizes on full-precision ones — so a hand re-stack
+  from a kept scratch and a fresh chain build of the same members are NOT
+  pixel-identical.** MEASURED (n = 1 build, 13-member aug06 union,
+  `datasets/corpus/pedestal_work/go2_compose_nooutnorm.json`): 87,798,306 of
+  101,278,350 pixels differ by ≤5.96e-7 (0.039 ADU16, ≤5 float32 ULP at 1.0),
+  invisible at `seqstat`'s sixth digit; a re-stack on the fresh scratch with
+  its just-cached M lines is bit-identical to the earlier hand re-stack and
+  differs from the fresh build identically. The cache mechanism is INFERRED
+  from that two-way identity, not read from the source. Reading rule: a
+  fresh-vs-re-stack pixel comparison at this level is float rounding, never
+  a knob; a fresh-vs-fresh comparison of the same configuration is
+  bit-identical (E0: 0 differing).

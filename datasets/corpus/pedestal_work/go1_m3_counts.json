@@ -1,0 +1,217 @@
+{
+ "id": "go1_m3_counts",
+ "engagement": "BACKLOG output-norm-zero-point, GO #1 pre-measurements on existing artifacts (no build)",
+ "instrument": "DIAGNOSTIC numpy/scipy (astropy.io.fits read, scipy.ndimage.label 8-connectivity default) on two existing products \u2014 Siril's stat cannot report a count of ==1.0 pixels or of in-frame zeros (its min/max include zeros); per CLAUDE.md diagnostics are outside the bright line. Siril seqstat full supplied the locations/medians (e2_no_output_norm_full.json).",
+ "inputs": {
+  "E2": "web/results/aug06/stack_set-01+02+03_pedestal_e2nonorm.fit (the full arm re-stacked WITHOUT -output_norm on the E0 kept registration, hand .ssf e2_full_nooutnorm.ssf)",
+  "control": "web/results/aug06/stack_set-01+02+03_pedestalctl.fit (E0: 0 differing pixels vs the shipped union stack_set-01+02+03_full.fit)",
+  "canvas": [
+   7355,
+   4590
+  ],
+  "dtype": "float32"
+ },
+ "frozen_bars": {
+  "H1": "|dK_G| <= 0.009 and |dK_B| <= 0.018 vs the canonical union's 0.649/0.855 (datasets/aug06/set-03/qa_work/spcc_set-03_set-01+02+03_full.json); source: within-night spread of the four chain-clean aug06 products (set-01 0.640/0.860, set-02 0.644/0.845, set-03 0.640/0.842, union 0.649/0.855)",
+  "H2_numeric": "product linear R/G = 0.5662 and B/G = 0.7811 within +/-0.5% (the reference's own IKSS ratios from the kept scratch's r_s_.seq M lines: 0.00111621/0.00197157/0.00153994 = 73.151/129.207/100.920 ADU16)",
+  "H3": "(a) clamped (==1.0) pixels <= 0.04% of covered per channel; (b) every clamped component backed by a covering member >= 0.999 (needs r_ copies, GO #2); (c) in-frame zeros = 0 per channel, defined as (product == 0) & (control != 0)"
+ },
+ "H2_numeric_preview": {
+  "E2_location_x65535": [
+   72.808,
+   128.792,
+   100.545
+  ],
+  "E2_median_x65535": [
+   72.965,
+   129.059,
+   100.72
+  ],
+  "R_over_G": {
+   "location": 0.5653,
+   "median": 0.5654,
+   "bar": 0.5662,
+   "delta_pct": -0.15
+  },
+  "B_over_G": {
+   "location": 0.7807,
+   "median": 0.7804,
+   "bar": 0.7811,
+   "delta_pct": -0.05
+  },
+  "control_output_normed_for_contrast": {
+   "R_over_G": 0.4266,
+   "B_over_G": 0.7107
+  },
+  "verdict": "MET"
+ },
+ "counts": {
+  "E2_vs_ctl_ch0": {
+   "covered": 30133416,
+   "n_ge1": 0,
+   "frac_pct": 0.0,
+   "n_components": 0,
+   "components": [],
+   "inframe_zeros": 0,
+   "inframe_zero_pos_xy1": []
+  },
+  "E2_vs_ctl_ch1": {
+   "covered": 30133416,
+   "n_ge1": 4,
+   "frac_pct": 1.3274299866964967e-05,
+   "n_components": 2,
+   "components": [
+    {
+     "size": 3,
+     "x": 2824.7,
+     "y_fits": 506.3,
+     "other_peak_in_comp": 1.0,
+     "other_min_in_comp": 0.9880943894386292,
+     "this_max_in_comp": 1.0
+    },
+    {
+     "size": 1,
+     "x": 5362.0,
+     "y_fits": 2834.0,
+     "other_peak_in_comp": 0.9902693629264832,
+     "other_min_in_comp": 0.9902693629264832,
+     "this_max_in_comp": 1.0
+    }
+   ],
+   "inframe_zeros": 0,
+   "inframe_zero_pos_xy1": []
+  },
+  "E2_vs_ctl_ch2": {
+   "covered": 30133416,
+   "n_ge1": 0,
+   "frac_pct": 0.0,
+   "n_components": 0,
+   "components": [],
+   "inframe_zeros": 0,
+   "inframe_zero_pos_xy1": []
+  },
+  "ctl_vs_E2_ch0": {
+   "covered": 30133415,
+   "n_ge1": 0,
+   "frac_pct": 0.0,
+   "n_components": 0,
+   "components": [],
+   "inframe_zeros": 1,
+   "inframe_zero_pos_xy1": [
+    [
+     5771,
+     4313
+    ]
+   ]
+  },
+  "ctl_vs_E2_ch1": {
+   "covered": 30133416,
+   "n_ge1": 1,
+   "frac_pct": 3.318574966741242e-06,
+   "n_components": 1,
+   "components": [
+    {
+     "size": 1,
+     "x": 2825.0,
+     "y_fits": 506.0,
+     "other_peak_in_comp": 1.0,
+     "other_min_in_comp": 1.0,
+     "this_max_in_comp": 1.0
+    }
+   ],
+   "inframe_zeros": 0,
+   "inframe_zero_pos_xy1": []
+  },
+  "ctl_vs_E2_ch2": {
+   "covered": 30133416,
+   "n_ge1": 0,
+   "frac_pct": 0.0,
+   "n_components": 0,
+   "components": [],
+   "inframe_zeros": 0,
+   "inframe_zero_pos_xy1": []
+  }
+ },
+ "H3_preview": {
+  "a_clamped": {
+   "E2_ch0": 0,
+   "E2_ch1": 4,
+   "E2_ch2": 0,
+   "covered_per_channel": 30133416,
+   "fraction_pct_ch1": 1e-05,
+   "verdict": "MET (<= 0.04%)"
+  },
+  "components_ch1": [
+   {
+    "size": 3,
+    "x": 2824.7,
+    "y_fits": 506.3,
+    "control_max_in_comp": 1.0,
+    "control_min_in_comp": 0.9881,
+    "note": "the control's global-max star"
+   },
+   {
+    "size": 1,
+    "x": 5362.0,
+    "y_fits": 2834.0,
+    "control_value": 0.99027,
+    "note": "H3(b) OPEN until the r_ copies are read (GO #2)"
+   }
+  ],
+  "c_inframe_zeros": {
+   "E2": [
+    0,
+    0,
+    0
+   ],
+   "verdict": "MET"
+  },
+  "control_symmetric": {
+   "inframe_zeros_ctl_eq0_and_E2_ne0": [
+    1,
+    0,
+    0
+   ],
+   "position_xy1": [
+    5771,
+    4313
+   ],
+   "E2_value_there": 0.000475,
+   "eq1_pixels": [
+    0,
+    1,
+    0
+   ],
+   "eq1_position_xy1": [
+    2825,
+    506
+   ],
+   "reading": "exactly one in-frame zero (its darkest pixel) and one 1.0 (its brightest) per output-normed product, as the min-max formula constructs"
+  },
+  "zero_pixels_per_channel": {
+   "E2": [
+    3626034,
+    3626034,
+    3626034
+   ],
+   "control": [
+    3626035,
+    3626034,
+    3626034
+   ]
+  }
+ },
+ "M1_M2_records": {
+  "M1_determinism": [
+   "datasets/aug06/set-03/qa_work/spcc_set-03__set-01+02+03_full_detA.json",
+   "datasets/aug06/set-03/qa_work/spcc_set-03__set-01+02+03_full_detB.json"
+  ],
+  "M1_result": "K 1.000/0.649/0.855, b 0.000412068/9.14489e-05/0.000150451, 2313/4518 kept in both runs and in the canonical record: spread 0.000 to every recorded digit",
+  "M2_preview": [
+   "datasets/aug06/set-03/qa_work/spcc_set-03_set-01+02+03_pedestal_e2nonorm.json",
+   "datasets/aug06/set-03/qa_work/solve_stack_set-01+02+03_pedestal_e2nonorm.json"
+  ],
+  "M2_result": "K 1.000/0.649/0.855, 2310/4518 kept, logodds 155.96; judge PNG web/results/aug06/judge/set-01+02+03_pedestal_e2nonorm_spcc-linked.png 16-bit RGB 7355x4590 (IHDR)",
+  "M2_caveat": "finish_render.sh's --set membership check exits 0 when NMEMBER is absent; the hand-stacked E2 carries the reference member's inherited header, so the check was bypassed, not passed"
+ }
+}
