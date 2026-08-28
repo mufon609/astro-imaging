@@ -1,0 +1,316 @@
+{
+ "id": "refinal_nooutnorm",
+ "engagement": "BACKLOG output-norm-zero-point stage 2 (per-set final, run_undistort_groups.sh:372) + stage 4 (baseline guard ADVISORY), GO #4 \u2014 director astro-imaging-64, worker astro-imaging-fe; tree = a83b792 + the uncommitted stage-2/4 edits; guards 25 passed, 0 failed (83 s) BEFORE the build",
+ "shipped_build_recorded_before_the_run": {
+  "product": "web/results/aug06/stack_set-01_full.fit",
+  "PIPEREV": "1791bb4",
+  "DATE": "2026-08-11T13:22:03",
+  "canvas": [
+   4907,
+   3598
+  ],
+  "final_ssf_verbatim": "requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/final\nlink s -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/finalseq\ncd /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/finalseq\nregister s -2pass\nseqapplyreg s -framing=min -prefix=r_\nstack r_s mean none -norm=addscale -output_norm -out=/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01_full\n",
+  "h_ssf_verbatim": "requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\nload /home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01_full.fit\nupdate_key FOCALLEN 70.0\nupdate_key XPIXSZ 5.94000005722046\nupdate_key YPIXSZ 5.94000005722046\nupdate_key EXPTIME 2.5\nupdate_key APERTURE 4.0\nupdate_key ISOSPEED 1600.0\nupdate_key INSTRUME \"Nikon Z6_3\"\nupdate_key DATE-OBS \"2026-08-07T02:46:42\"\nupdate_key LIVETIME 1250.0\nsave /home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01_full\n",
+  "siril_final_log_bytes_before": 51627,
+  "note": "the run REWRITES $G/final.ssf and $G/h.ssf and APPENDS to siril_final.log; the shipped scripts are kept here verbatim (also reproducible from groups.sh at PIPEREV 1791bb4)"
+ },
+ "commands": {
+  "plan": "scripts/stack/run_undistort_groups.sh sessions/aug06 set-01 --dark=sessions/aug06/work/masters/dark_master.fit --flat=sessions/aug06/work/masters/skyflat_set-01.fit --out=web/results/aug06/stack_set-01_nooutnorm.fit --plan  -> group size DERIVED 100; five 'resume: sub_0N.fit exists at group size 100 \u2014 will be REUSED'; rc 0",
+  "build": "same command without --plan: five groups skipped (resume), final: register + stack 5 sub-stacks; rc 0; 11:35:13-11:35:25",
+  "finish": "scripts/stack/finish_render.sh web/results/aug06/stack_set-01_nooutnorm.fit set-01_nooutnorm --session=sessions/aug06 --set=set-01; rc 0; 11:35:25-11:35:33",
+  "guard": "python3 scripts/qa/baseline_guard.py sessions/aug06 set-01 web/results/aug06/stack_set-01_nooutnorm_spcc.fit  (no seed); rc 0 (PASS with advisory)"
+ },
+ "header_read_back": {
+  "NAXIS": [
+   4907,
+   3598
+  ],
+  "STACKNRM": "addscale",
+  "ANCSRC": "r_s_.seq M-line IKSS loc/scale of ANCREF; [0,1] float, x65535=ADU16",
+  "ANCREF": 1,
+  "ANCLOCR": 0.00111682,
+  "ANCLOCG": 0.00197347,
+  "ANCLOCB": 0.00154052,
+  "ANCSCLR": 5.8239e-05,
+  "ANCSCLG": 7.01574e-05,
+  "ANCSCLB": 6.19526e-05,
+  "REGREF": "1:aug06/groups_set-01/sub_01.fit",
+  "REGREFSR": "pinned",
+  "REGMODEL": "starpair",
+  "REGUNDIS": false,
+  "STACKCNT": 500,
+  "GRPSIZE": 100,
+  "PIPEREV": "a83b792",
+  "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unnormalized output, no image weighting, unequalized RGB, filter all",
+  "descendants": "_wcs.fit and _spcc.fit carry STACKNRM/ANCREF/ANCLOC*/REGREF (the guard reads STACKNRM from _spcc)",
+  "log_lines_appended_this_run": "siril_final.log 51627 -> 103622 bytes; in the appended tail: 'Trial #1: After sequence analysis, we are choosing image 1 as new reference for registration', 'Running command: setref', 'Output normalization ...... disabled' (the post-assert passed; no RS0 != REF0 warning -> r_s_.seq and s_.seq references both 0)"
+ },
+ "predictions_scored": {
+  "a_reference_and_canvas": "MET: 2pass chose image 1 (as the shipped log), setref propagated (ANCREF 1 = REGREF, no warning); canvas 4907x3598 = shipped",
+  "b_level_vs_anchor": {
+   "seqstat_location_x65535": [
+    72.97,
+    129.024,
+    100.712
+   ],
+   "median": [
+    73.133,
+    129.299,
+    100.894
+   ],
+   "ANCLOC_x65535": [
+    73.191,
+    129.331,
+    100.958
+   ],
+   "location_over_ANCLOC": [
+    0.99698,
+    0.99762,
+    0.99757
+   ],
+   "R_over_G": {
+    "new": 0.5656,
+    "ANC": 0.5659,
+    "delta_pct": -0.06
+   },
+   "B_over_G": {
+    "new": 0.7806,
+    "ANC": 0.7806,
+    "delta_pct": -0.01
+   },
+   "verdict": "MET (\u00b10.5%); the composite sits 0.24-0.30% under the reference's location \u2014 smaller than the union's 0.3-0.5%, as predicted for framing=min"
+  },
+  "c_one_knob_identity": {
+   "mu_darkest_nonzero": 0.0008967113099060953,
+   "mu_ADU16": 58.766,
+   "M_brightest": 0.983444094657898,
+   "D": 0.9825473833479919,
+   "reconstruction": "clamp((new - mu)/(M - mu)) vs stack_set-01_full.fit",
+   "differing_gt_1e-6": 0,
+   "differing_gt_1e-7": 0,
+   "max_abs_diff": 4.406820397484523e-08,
+   "total_pixels": 52966158,
+   "positive_control_one_pixel_plus_0.01": 1,
+   "phase1_solve_for_comparison": "D 0.983/0.984/0.982, mu 58.9 (whole-member stats)",
+   "verdict": "MET: 0 pixels differ above 1e-6 (or 1e-7), max |diff| 4.4e-8 \u2014 the re-final IS the shipped product's pre-output-norm composite; the three other textual knobs (setref, -transf=homography, -interp=lanczos4) moved no pixel"
+  },
+  "d_counts": {
+   "ch0": {
+    "covered": 17655386,
+    "new_clamped_ge1": 0,
+    "new_max": 0.8552713990211487,
+    "new_inframe_zeros": 0,
+    "shipped_eq1": 0,
+    "shipped_eq1_pos": [],
+    "shipped_inframe_zeros": 1,
+    "shipped_inframe_zero_pos": [
+     [
+      2546,
+      2439
+     ]
+    ],
+    "new_value_at_shipped_zero": [
+     0.0008967113099060953
+    ]
+   },
+   "ch1": {
+    "covered": 17655386,
+    "new_clamped_ge1": 0,
+    "new_max": 0.983444094657898,
+    "new_inframe_zeros": 0,
+    "shipped_eq1": 1,
+    "shipped_eq1_pos": [
+     [
+      3566,
+      3476
+     ]
+    ],
+    "shipped_inframe_zeros": 0,
+    "shipped_inframe_zero_pos": [],
+    "new_value_at_shipped_zero": []
+   },
+   "ch2": {
+    "covered": 17655386,
+    "new_clamped_ge1": 0,
+    "new_max": 0.8676154613494873,
+    "new_inframe_zeros": 0,
+    "shipped_eq1": 0,
+    "shipped_eq1_pos": [],
+    "shipped_inframe_zeros": 0,
+    "shipped_inframe_zero_pos": [],
+    "new_value_at_shipped_zero": []
+   }
+  },
+  "d_verdict": "MET: 0 clamped pixels (new max 0.98344 < 1), 0 in-frame zeros; the shipped product carries exactly one pixel == 1.0 (ch1, 3566,3476) and one in-frame zero (ch0, 2546,2439 \u2014 where the new product reads 58.77 ADU16 = mu)",
+  "e_guard": {
+   "table": {
+    "corner_spread_pct": [
+     0.297,
+     0.699
+    ],
+    "edge_dipole_x": [
+     0.0025,
+     0.0046
+    ],
+    "centre_ch0": [
+     101.1,
+     43.0
+    ],
+    "centre_ch1": [
+     101.3,
+     43.3
+    ],
+    "centre_ch2": [
+     100.9,
+     42.9
+    ],
+    "stacknrm": [
+     "addscale",
+     "addscale+output_norm"
+    ]
+   },
+   "advisory_lines": [
+    "centre ch0 101.1 vs baseline 43.0 (+135.1%)",
+    "centre ch1 101.3 vs baseline 43.3 (+133.9%)",
+    "centre ch2 100.9 vs baseline 42.9 (+135.2%)"
+   ],
+   "exit": 0,
+   "result": "PASS (with advisory)",
+   "verdict": "ADVISORY behaviour MET (level rows shown, not counted; exit 0); corner_spread 0.297 and dipole +0.0025 PASS and moved the predicted way (both shrink with the level ratio: 0.699 x 43.0/101.1 = 0.297 exactly); the LEVEL MAGNITUDE NOT MET: predicted x~1.8 (the pre-SPCC G ratio 129.0/71.5), measured x2.35 post-SPCC \u2014 SPCC's per-channel background offsets are not level-invariant: b_R stays ~28 ADU16 in both products (27.9 vs 28.4) while b_G/b_B move -2.9->+18.3 / +6.1->+14.3, so the neutralized level tracks the R channel's pre-SPCC level + ~28, and R moved x5.0 (14.5 -> 73.0) because R had the smallest margin over the min-max pedestal. U-P5 named this term; it is real."
+  },
+  "f_spcc": {
+   "new": {
+    "K": [
+     1.0,
+     0.64,
+     0.86
+    ],
+    "b_offsets": [
+     0.000425779,
+     0.000278914,
+     0.000217422
+    ],
+    "b_x65535": [
+     27.9,
+     18.28,
+     14.25
+    ],
+    "n_photometry": 5550,
+    "n_kept": 2808,
+    "record": "datasets/aug06/set-01/qa_work/spcc_set-01_set-01_nooutnorm.json"
+   },
+   "canonical": {
+    "K": [
+     1.0,
+     0.64,
+     0.86
+    ],
+    "b_x65535": [
+     28.4,
+     -2.92,
+     6.13
+    ],
+    "n_kept": 2809,
+    "record": "datasets/aug06/set-01/qa_work/spcc_set-01_set-01_full.json"
+   },
+   "solve": "RA 306.6155 Dec +42.5132 17.0722 arcsec/px logodds 210.454 \u2014 identical to the shipped product's solve to every digit",
+   "verdict": "MET: K unchanged, n_kept 2808 vs 2809"
+  },
+  "g_judge": {
+   "path": "web/results/aug06/judge/set-01_nooutnorm_spcc-linked.png",
+   "IHDR": "4907x3598, bit depth 16, colour type 2 (RGB)",
+   "bytes": 96662303,
+   "aesthetic_half": "the owner's eyes; nothing replaces the canonical"
+  }
+ },
+ "seqstat_x65535": {
+  "new": {
+   "location": [
+    72.97,
+    129.024,
+    100.712
+   ],
+   "median": [
+    73.133,
+    129.299,
+    100.894
+   ],
+   "min": [
+    58.77,
+    118.15,
+    78.0
+   ],
+   "max": [
+    56050.2,
+    64450.0,
+    56859.2
+   ]
+  },
+  "shipped": {
+   "location": [
+    14.457,
+    71.506,
+    42.691
+   ],
+   "median": [
+    14.633,
+    71.785,
+    42.876
+   ],
+   "min": [
+    0.0,
+    60.43,
+    19.58
+   ],
+   "max": [
+    56986.0,
+    65535.0,
+    57809.3
+   ]
+  },
+  "new_spcc": {
+   "location": [
+    100.873,
+    100.86,
+    100.86
+   ],
+   "median": [
+    101.037,
+    101.036,
+    101.017
+   ]
+  },
+  "shipped_spcc": {
+   "location": [
+    42.855,
+    42.842,
+    42.843
+   ],
+   "median": [
+    43.021,
+    43.021,
+    43.001
+   ]
+  }
+ },
+ "declared_delta_vs_shipped": {
+  "linear_level": "x5.05/1.80/2.36 (R/G/B) = the min-max pedestal (mu 58.77 ADU16 subtracted, /0.9825) removed; R:G:B 0.5656:1:0.7806 (was 0.2022:1:0.5970) = the pinned member's own balance",
+  "post_spcc_level": "x2.35 all channels (100.9 vs 42.9)",
+  "K": "identical 1.000/0.640/0.860",
+  "structure": "corner_spread 0.297 vs 0.699, dipole +0.0025 vs +0.0046 \u2014 both the additive-offset arithmetic, within tolerance",
+  "baseline": "datasets/aug06/set-01/baseline.json UNCHANGED (no re-seed); the guard's first live ADVISORY"
+ },
+ "side_effects": {
+  "work_dir": "sessions/aug06/work/groups_set-01/: final.ssf and h.ssf rewritten (shipped copies above), siril_final.log appended (+51995 bytes), final/ finalseq/ recreated then deleted; members and the canonical product untouched",
+  "tracked_files_modified_by_the_guard_run": [
+   "datasets/aug06/set-01/qa_work/baseline_corners.json",
+   "datasets/aug06/set-01/qa_work/baseline_edge.json \u2014 baseline_guard's own regional_stat scratch records (it always writes them for the product it measures; they now describe stack_set-01_nooutnorm_spcc.fit) \u2014 director's call: restore (git checkout) or commit as this run's measurement"
+  ],
+  "new_products": [
+   "web/results/aug06/stack_set-01_nooutnorm.fit (+_wcs, +_spcc)",
+   "web/results/aug06/judge/set-01_nooutnorm_spcc-linked.png",
+   "web/results/aug06/solve_stack_set-01_nooutnorm.json",
+   "datasets/aug06/set-01/qa_work/{spcc,solve}_..._nooutnorm.json"
+  ]
+ }
+}

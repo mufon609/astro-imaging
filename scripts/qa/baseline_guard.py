@@ -4,6 +4,7 @@ not have when a 31x background regression shipped and stayed in for six days.
 
 Usage:
   baseline_guard.py <session-dir> <set> <stack.fit> [--seed] [--note="why"]
+  baseline_guard.py --selftest        (data-free: the compare rule on planted measures)
 
   --seed   record the CURRENT measures as the set's baseline (first run, or after
            a human has ratified a deliberate change). Refuses to overwrite an
@@ -50,12 +51,28 @@ and ratifiable per dataset. Defaults on seed are deliberately loose enough to
 pass ordinary run-to-run variation and tight enough that the --desky regression
 trips them by more than an order of magnitude.
 
+THE LEVEL MEASURE IS ADVISORY WHILE THE PRODUCT'S NORMALIZATION STATEMENT
+DIFFERS FROM THE BASELINE'S. `centre_median_per_channel` was measured to move
++56% and -49% on UNCHANGED data under `-output_norm` (a global min-max rescale
+keyed to one darkest pixel; docs/dead-ends/stacking-compose.md, the zero-point
+entry), and a product built without it sits at its reference's own sky, ~x1.8
+above a rescaled one — a level fail there says only that the anchor changed by
+design (BACKLOG:output-norm-zero-point). So the seed records the product's
+STACKNRM header (absent = "addscale+output_norm", the pre-change default every
+existing baseline and product share, which keeps the rule inert on them), and
+the compare counts the centre-median rows as FAILS only when the two statements
+are equal; when they differ the rows print as ADVISORY, not counted. Re-seeding
+on acceptance records the new statement and re-arms the check. No threshold is
+added: the rule is the equality of two recorded strings. corner_spread_pct and
+edge_dipole_x are always hard — they are the structure measures.
+
 REMOVAL CONDITION: retire when a tool reports a headless product-level
 regression verdict against a stored reference. Nothing does today.
 """
 import argparse
 import hashlib
 import json
+from astropy.io import fits          # HEADER only (STACKNRM) — no pixel access
 import os
 import subprocess
 import sys
@@ -72,6 +89,83 @@ DEFAULT_TOL = {
     "edge_dipole_x_max_abs": 0.050,
     "centre_median_max_frac_change": 0.25,
 }
+# The normalization statement a product or baseline carries when it has none:
+# every pre-change stack and all 13 seeded baselines (flat_differential.py
+# assumes the same default), so the advisory rule is inert on them.
+DEFAULT_NRM = "addscale+output_norm"
+
+
+def compare(now, b, tol):
+    """The rule, PURE: (fails, advisories) of the measured `now` against the
+    baseline's measures `b` under `tol`. The four checks are the ones this guard
+    always ran; the only routing is the centre-median loop, which appends to
+    `advisories` instead of `fails` when the two normalization statements
+    differ (docstring: THE LEVEL MEASURE IS ADVISORY ...)."""
+    spread, dip = now["corner_spread_pct"], now["edge_dipole_x"]
+    chans = now["centre_median_per_channel"]
+    fails, advisories = [], []
+    level = (fails if now.get("stacknrm", DEFAULT_NRM) == b.get("stacknrm", DEFAULT_NRM)
+             else advisories)
+
+    if spread > tol["corner_spread_pct_max_abs"]:
+        fails.append(f"corner_spread_pct {spread} exceeds absolute ceiling "
+                     f"{tol['corner_spread_pct_max_abs']}")
+    if spread - b["corner_spread_pct"] > tol["corner_spread_pct_max_over_baseline"]:
+        fails.append(f"corner_spread_pct {spread} is "
+                     f"{spread - b['corner_spread_pct']:+.3f} over baseline "
+                     f"{b['corner_spread_pct']} (allowed "
+                     f"+{tol['corner_spread_pct_max_over_baseline']})")
+    if abs(dip) > tol["edge_dipole_x_max_abs"]:
+        fails.append(f"edge_dipole_x {dip:+.4f} exceeds |{tol['edge_dipole_x_max_abs']}| "
+                     "— a left-right edge asymmetry of this size is the --desky "
+                     "signature (docs/dead-ends.md)")
+    for ch, v in chans.items():
+        bv = b["centre_median_per_channel"].get(ch)
+        if bv and abs(v - bv) / bv > tol["centre_median_max_frac_change"]:
+            level.append(f"centre {ch} {v:.1f} vs baseline {bv:.1f} "
+                         f"({100*(v-bv)/bv:+.1f}%)")
+    return fails, advisories
+
+
+def selftest():
+    """Data-free: the rule must go RED on a real level regression under a
+    matching statement, stay quiet on ordinary variation, go ADVISORY (not RED)
+    on a level move under a changed statement, and stay RED on structure
+    regardless of the statement. Also: a baseline WITHOUT the field (all 13
+    seeded today) behaves as the default statement."""
+    base = {"corner_spread_pct": 0.7, "edge_dipole_x": 0.004,
+            "centre_median_per_channel": {"ch0": 43.0, "ch1": 43.3, "ch2": 42.9},
+            "stacknrm": DEFAULT_NRM}
+    old_base = {k: v for k, v in base.items() if k != "stacknrm"}   # no field
+
+    def now(level=1.0, spread=0.7, dip=0.004, nrm=DEFAULT_NRM):
+        return {"corner_spread_pct": spread, "edge_dipole_x": dip,
+                "centre_median_per_channel": {k: v * level for k, v in
+                                              base["centre_median_per_channel"].items()},
+                "stacknrm": nrm}
+    cases = [  # (label, now, baseline, expected fails, advisory expected)
+        ("same STACKNRM, centre +30% -> RED",            now(1.30), base, 1 * 3, False),
+        ("STACKNRM differs, centre +80% -> ADVISORY",   now(1.80, nrm="addscale"), base, 0, True),
+        ("STACKNRM differs, corner_spread +2.0 -> RED", now(1.80, spread=2.7, nrm="addscale"), base, 1, True),
+        ("same STACKNRM, centre +10% -> PASS",           now(1.10), base, 0, False),
+        ("STACKNRM differs, edge_dipole +0.10 -> RED",  now(1.80, dip=0.104, nrm="addscale"), base, 1, True),
+        ("baseline without the field, default product +30% -> RED", now(1.30), old_base, 3, False),
+        ("baseline without the field, addscale product +80% -> ADVISORY", now(1.80, nrm="addscale"), old_base, 0, True),
+    ]
+    bad = 0
+    for label, n, bl, nf, adv in cases:
+        fails, advisories = compare(n, bl, DEFAULT_TOL)
+        ok = (len(fails) == nf) and (bool(advisories) == adv)
+        print(f"  selftest {'ok  ' if ok else 'WRONG'} [{len(fails)} fail, "
+              f"{len(advisories)} advisory] {label}")
+        bad |= not ok
+    if bad:
+        print("baseline_guard --selftest: FAIL — the rule does not fire as stated")
+        return 1
+    print("OK: baseline_guard compare rule — 7 cases: RED on level under a matching "
+          "STACKNRM, ADVISORY under a differing one, RED on structure either way, "
+          "PASS on ordinary variation, field-less baselines read as the default")
+    return 0
 
 
 def _measure(stack, workdir, tag, box, margin):
@@ -117,6 +211,8 @@ def _sha(path, blocks=64):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
+        return selftest()
     ap = argparse.ArgumentParser()
     ap.add_argument("session")
     ap.add_argument("set")
@@ -139,8 +235,11 @@ def main():
     edge, _ = _measure(stack, work, "edge", 80, 2)
     spread, dip = _derive(corners, edge)
     chans = {k: v["median"] for k, v in craw["center"].items()}
+    # the product's own normalization statement, header-only; absent = the
+    # pre-change default (see DEFAULT_NRM)
+    nrm = str(fits.getheader(stack).get("STACKNRM", DEFAULT_NRM))
     now = {"corner_spread_pct": spread, "edge_dipole_x": dip,
-           "centre_median_per_channel": chans,
+           "centre_median_per_channel": chans, "stacknrm": nrm,
            "stack": os.path.relpath(stack, REPO), "stack_id": _sha(stack)}
 
     if a.seed or a.reseed:
@@ -167,25 +266,7 @@ def main():
                  "once a human has accepted this product.")
     base = json.load(open(bpath))
     b, tol = base["measures"], base.get("tolerances", DEFAULT_TOL)
-    fails = []
-
-    if spread > tol["corner_spread_pct_max_abs"]:
-        fails.append(f"corner_spread_pct {spread} exceeds absolute ceiling "
-                     f"{tol['corner_spread_pct_max_abs']}")
-    if spread - b["corner_spread_pct"] > tol["corner_spread_pct_max_over_baseline"]:
-        fails.append(f"corner_spread_pct {spread} is "
-                     f"{spread - b['corner_spread_pct']:+.3f} over baseline "
-                     f"{b['corner_spread_pct']} (allowed "
-                     f"+{tol['corner_spread_pct_max_over_baseline']})")
-    if abs(dip) > tol["edge_dipole_x_max_abs"]:
-        fails.append(f"edge_dipole_x {dip:+.4f} exceeds |{tol['edge_dipole_x_max_abs']}| "
-                     "— a left-right edge asymmetry of this size is the --desky "
-                     "signature (docs/dead-ends.md)")
-    for ch, v in chans.items():
-        bv = b["centre_median_per_channel"].get(ch)
-        if bv and abs(v - bv) / bv > tol["centre_median_max_frac_change"]:
-            fails.append(f"centre {ch} {v:.1f} vs baseline {bv:.1f} "
-                         f"({100*(v-bv)/bv:+.1f}%)")
+    fails, advisories = compare(now, b, tol)
 
     print(f"baseline_guard {sess}/{a.set}")
     print(f"  {'':22}{'now':>10}{'baseline':>12}")
@@ -194,6 +275,13 @@ def main():
     for ch, v in sorted(chans.items()):
         print(f"  {'centre_'+ch:22}{v:10.1f}"
               f"{b['centre_median_per_channel'].get(ch, float('nan')):12.1f}")
+    print(f"  {'stacknrm':22}{nrm:>10}  {b.get('stacknrm', DEFAULT_NRM)}")
+    if advisories:
+        print(f"\nADVISORY — the level anchor changed by design (baseline STACKNRM "
+              f"{b.get('stacknrm', DEFAULT_NRM)!r}, product {nrm!r}): the centre-median "
+              "rows are shown, not counted; re-seed on acceptance to re-arm:")
+        for f in advisories:
+            print(f"  ~ {f}")
     if fails:
         print("\nREGRESSION — this product no longer measures like the accepted one:")
         for f in fails:
@@ -201,7 +289,7 @@ def main():
         print("\nIf the change is DELIBERATE and a human has judged it better, re-seed:")
         print(f"  {sys.argv[0]} {a.session} {a.set} {a.stack} --reseed --note='...'")
         return 1
-    print("\nPASS")
+    print("\nPASS" + (" (with advisory)" if advisories else ""))
     return 0
 
 

@@ -358,21 +358,37 @@ echo "=== final: register + stack $K sub-stacks ==="
 rm -rf "$G/final" "$G/finalseq"; mkdir -p "$G/final" "$G/finalseq"
 for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
 # setref 1 (time order) AFTER the 2pass: -norm=addscale matches every member's
-# background TO THE REFERENCE, and -output_norm then rescales the result by its
-# own darkest and brightest non-zero pixels — so the reference's level CANCELS
-# and the product's level is set by a single resampling-undershoot pixel
-# (MEASURED, one knob, four setref runs: <=2.4% moves where "the reference is
-# the level anchor" predicted 1.7-2.3x; docs/dead-ends/stacking-compose.md,
-# the -output_norm zero-point entry). The pin still matters, for GEOMETRY: it
+# background TO THE REFERENCE and, with NO -output_norm, the product's level IS
+# the pinned reference's own IKSS location per channel — stamped below as
+# ANCLOC*/ANCSCL* (ANCREF, ANCSRC). -output_norm was a global min-max rescale
+# that cancelled the reference's level and set the product's by a single
+# resampling-undershoot pixel (MEASURED, one knob, four setref runs: <=2.4%
+# moves where "the reference is the level anchor" predicted 1.7-2.3x;
+# docs/dead-ends/stacking-compose.md, the -output_norm zero-point entry;
+# BACKLOG:output-norm-zero-point stage 2). The pin also matters for GEOMETRY: it
 # fixes the registration, hence which pixel lands darkest, which is what made
 # 2pass's auto-pick a lottery across rebuilds (measured 67-vs-43 ADU on two
 # builds of one set, a false baseline regression). Member 1 changes nothing
 # else: registration quality is per-member, and the canvas orientation
 # re-bases with setref (registry, pre-cropped-stacks entry).
-printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass -transf=homography\nsetref s 1\nseqapplyreg s -framing=%s -prefix=r_ -interp=lanczos4\nstack r_s mean none -norm=addscale -output_norm -out=%s\n' \
+# REMOVAL CONDITION: siril offers a reference-anchored (or per-channel,
+# non-min-max) output normalization — then -output_norm returns and the ANC*
+# anchor keys retire with it (the compose tier's condition, same wording).
+printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out=%s\ncd %s\nregister s -2pass -transf=homography\nsetref s 1\nseqapplyreg s -framing=%s -prefix=r_ -interp=lanczos4\nstack r_s mean none -norm=addscale -out=%s\n' \
   "$G/final" "$G/finalseq" "$G/finalseq" "$FRAMING" "$OUT" > "$G/final.ssf"
+# siril_final.log is APPEND-ONLY across every run in this work dir (sir() ->
+# siril_run_logged >>), and the canonical dirs already hold one "Output
+# normalization ...... enabled" line from their original build, so the
+# post-assert reads ONLY what THIS run appends: byte offset taken before the
+# run, grep scoped to the tail. `stack` prints exactly one of enabled|disabled.
+LOGOFF=$(stat -c %s "$G/siril_final.log" 2>/dev/null || echo 0)
 sir "$SESSION" "$G/final.ssf"
 [ -f "$OUT.fit" ] || { echo "FINAL STACK MISSING — read $G/siril_final.log" >&2; exit 1; }
+tail -c +$((LOGOFF + 1)) "$G/siril_final.log" | grep -q "Output normalization ...... disabled" \
+  && ! tail -c +$((LOGOFF + 1)) "$G/siril_final.log" | grep -q "Output normalization ...... enabled" || {
+  echo "ABORT: siril did not report 'Output normalization ...... disabled' for the" >&2
+  echo "  per-set final — its zero point would be the min-max lottery this route" >&2
+  echo "  retired (docs/dead-ends/stacking-compose.md). Read $G/siril_final.log" >&2; exit 1; }
 ACQHDR=$SESSION/work/acq_header_$SET.json      # captured by the per-group sub-pipeline
 if [ -f "$ACQHDR" ]; then
   # The per-set stack is SINGLE-set, so the plain per-set provenance is the
@@ -398,10 +414,39 @@ fi
 # composite denies it, and the compose gate's MIXED-BACKGROUND warning reads that
 # key. A composite that misdescribes its own processing state is worse than an
 # unstamped one: the gate is told a confident falsehood.
+# THE REFERENCE AND THE ANCHOR, from the sequence files siril wrote (the reads
+# run_undistort_compose.sh makes; the mechanism comments live there). s_.seq's
+# S line carries the reference `setref s 1` set (0-based). MEASURED on four
+# kept compose scratches that `setref s N` before seqapplyreg propagates into
+# r_s_.seq (setref s 16 -> r_s_ reference 15, x4); r_s_.seq's OWN S line is what
+# `stack` normalized against and is what ANCREF stamps — a disagreement is
+# printed. Window: before the `rm -rf "$G/finalseq"` below. The per-set product
+# carried no REGREF before this; the pin's member is stamped, source `pinned`.
+REFID= REFSRC= ANCHOR= ANCREF=
+REF0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$G/finalseq/s_.seq" 2>/dev/null || true)
+RS0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$G/finalseq/r_s_.seq" 2>/dev/null || true)
+if [ -n "${RS0:-}" ] && [ "$RS0" -ge 0 ] 2>/dev/null && [ "$RS0" -lt "$K" ]; then
+  [ "$RS0" = "${REF0:-}" ] || echo "WARNING: r_s_.seq reference $RS0 != s_.seq reference ${REF0:-?} (0-based) — the stack normalized against $RS0; ANCREF stamps that, REGREF the pin" >&2
+  ANCREF=$((RS0 + 1))
+  ANCHOR=$(awk -v r="$RS0" '$1=="M0-"r{l0=$10;s0=$11} $1=="M1-"r{l1=$10;s1=$11} $1=="M2-"r{l2=$10;s2=$11}
+    END{ if (l0!="" && l1!="" && l2!="") printf "update_key ANCLOCR %s\nupdate_key ANCLOCG %s\nupdate_key ANCLOCB %s\nupdate_key ANCSCLR %s\nupdate_key ANCSCLG %s\nupdate_key ANCSCLB %s\n", l0, l1, l2, s0, s1, s2 }' "$G/finalseq/r_s_.seq")
+  [ -n "$ANCHOR" ] || echo "WARNING: no M lines for reference $RS0 in $G/finalseq/r_s_.seq — ANCLOC*/ANCSCL* unstamped" >&2
+else
+  echo "WARNING: could not read the reference from $G/finalseq/r_s_.seq — anchor unstamped" >&2
+fi
+if [ -n "${REF0:-}" ] && [ "$REF0" -ge 0 ] 2>/dev/null && [ "$REF0" -lt "$K" ]; then
+  # <1-based index>:<night>/<group dir>/<file>, the compose tier's form
+  REFID="$((REF0 + 1)):$(echo "$G/sub_$(printf %02d $((REF0 + 1))).fit" | awk -F/ '{print $(NF-3)"/"$(NF-1)"/"$NF}')"
+  REFSRC=pinned
+fi
 header_apply_keys "$OUT.fit" "$(header_provenance_lines "$REPO" "$SESSION" "$SET" \
     "$([ -n "$SUBSKYOPT" ] && echo subsky1-nodither || echo none)" "$DARK" "$FLAT")
-$(header_registration_lines starpair F)"
-echo "stamped optics provenance + REGMODEL=starpair onto $(basename "$OUT.fit")"
+$(header_registration_lines starpair F "$REFID" "$REFSRC")
+update_key STACKNRM addscale
+update_key ANCSRC \"r_s_.seq M-line IKSS loc/scale of ANCREF; [0,1] float, x65535=ADU16\"
+${ANCREF:+update_key ANCREF $ANCREF}
+$ANCHOR"
+echo "stamped optics provenance + REGMODEL=starpair${REFID:+, REGREF=$REFID [pinned]}, STACKNRM=addscale${ANCREF:+, ANCREF=$ANCREF} onto $(basename "$OUT.fit")"
 rm -rf "$G/final" "$G/finalseq"
 echo "=== DONE: $OUT.fit (sub-stacks kept in $G for re-composition) ==="
 ls -la "$OUT.fit"
