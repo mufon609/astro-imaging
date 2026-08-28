@@ -1,0 +1,8 @@
+requires 1.2.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/.cache/astro-imaging/pedestal_probe/products/in
+link s -out=/home/samsung/.cache/astro-imaging/pedestal_probe/products/seq
+cd /home/samsung/.cache/astro-imaging/pedestal_probe/products/seq
+seqstat s /home/samsung/.cache/astro-imaging/pedestal_probe/products/stats.csv full

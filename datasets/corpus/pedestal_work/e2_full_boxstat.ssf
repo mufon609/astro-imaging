@@ -1,0 +1,9 @@
+requires 1.2.0
+set32bits
+setcompress 0
+setext fit
+load /home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_pedestal_e2nonorm.fit
+stat main
+boxselect 1839 1147 3677 2295
+stat main
+boxselect -clear

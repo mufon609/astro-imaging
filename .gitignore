@@ -307,3 +307,14 @@ datasets/corpus/corpus_sweep_old/
 datasets/corpus/corpus_sweep_new/
 # within-night crop5 A/B evidence (route NULL/closed; its top-level JSONs stay):
 datasets/aug06/crop_work/*/
+# pedestal zero-point investigation (route OPEN; ledger
+# pedestal_8pct_hypothesis_C_output_norm_minmax): the record is the JSON + the
+# arithmetic deriving (mu, D) from Siril's own seqstat / .seq M-line numbers;
+# the seqstat CSVs are the instrument's raw reading (40-115 lines each) and
+# the hand .ssf are the exact commands — kept. Registered r_ copies, kept
+# compose scratches and products never enter (they live under web/results/).
+datasets/corpus/pedestal_work/*
+!datasets/corpus/pedestal_work/*.json
+!datasets/corpus/pedestal_work/*.py
+!datasets/corpus/pedestal_work/*.csv
+!datasets/corpus/pedestal_work/*.ssf

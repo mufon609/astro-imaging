@@ -1,0 +1,225 @@
+{
+ "id": "e2_no_output_norm_full",
+ "arm": "aug06 FULL, the E0 kept registered copies, ONE knob: `-output_norm` removed (reference restored to 1 with `setref r_s 1`; S-line read back 0)",
+ "status": "RUN. Three of four predictions MET; the location prediction NOT MET by 0.3-0.5% (a real, nearly channel-independent offset, recorded); the RIM mechanism NOT MET although its numeric test passed.",
+ "commands": [
+  "e2_full_nooutnorm.ssf: setref r_s 1; stack r_s mean none -norm=addscale -weight=nbstack -out=web/results/aug06/stack_set-01+02+03_pedestal_e2nonorm  (Siril log: 'Output normalization ...... disabled')",
+  "e2_full_boxstat.ssf: load; stat main; boxselect 1839 1147 3677 2295 (central 50% of 7355x4590); stat main",
+  "Siril seqstat full on control + E2 (seqstat_e2_full.csv)"
+ ],
+ "predictions_pre_registered": {
+  "location": "73.14/129.22/100.92 (= loc_ref) within 0.1%",
+  "darkest_pixel_ch0": "31.4 +/- 0.3 ADU16",
+  "max": "65535.0 clamped (M = 1.0345 > 1)",
+  "rim": "central-50% min >= ~55 vs global 31.4 places the darkest pixel at the union's rim"
+ },
+ "measured": {
+  "location_x65535": [
+   72.808,
+   128.792,
+   100.545
+  ],
+  "ratio_to_loc_ref": [
+   0.99531,
+   0.99679,
+   0.99628
+  ],
+  "offset_below_loc_ref_ADU16": [
+   0.343,
+   0.415,
+   0.375
+  ],
+  "median_x65535": [
+   72.965,
+   129.059,
+   100.72
+  ],
+  "max_x65535": [
+   58475.9,
+   65535.0,
+   61931.5
+  ],
+  "E2_over_E0_R_max": 1.0328,
+  "siril_stat_main_whole_frame": {
+   "R": {
+    "median": 73.0,
+    "min": 0.0,
+    "max": 58475.9,
+    "bgnoise": 1.6
+   },
+   "G": {
+    "median": 129.1,
+    "min": 0.0,
+    "max": 65535.0,
+    "bgnoise": 2.0
+   },
+   "B": {
+    "median": 100.7,
+    "min": 0.0,
+    "max": 61931.5,
+    "bgnoise": 1.5
+   },
+   "note": "Siril stat min INCLUDES zeros (the padding) -> 0.0; the non-zero minimum is not reportable by the tool"
+  },
+  "siril_stat_main_central_box_1839_1147_3677_2295": {
+   "R": {
+    "median": 72.9,
+    "min": 57.3,
+    "max": 52274.1
+   },
+   "G": {
+    "median": 129.0,
+    "min": 120.0,
+    "max": 65535.0
+   },
+   "B": {
+    "median": 100.6,
+    "min": 87.5,
+    "max": 61931.5
+   }
+  },
+  "closure_with_the_composite_s_OWN_location": {
+   "D_GR_BR_GB": [
+    1.0323,
+    1.0323,
+    1.0323
+   ],
+   "mu_ADU16": [
+    31.16,
+    31.16,
+    31.16
+   ],
+   "note": "L measured instead of assumed = loc_ref: D agrees to 4 decimals across channel pairs and mu equals the darkest non-zero pixel to 0.001 ADU16"
+  },
+  "DIAGNOSTIC_numpy_darkest_nonzero_pixel": {
+   "value_ADU16": 31.159,
+   "channel": 0,
+   "x": 5770,
+   "y_fits_row": 4312,
+   "canvas": [
+    7355,
+    4590
+   ],
+   "distance_to_edge_px": {
+    "x": 1584,
+    "y": 277
+   },
+   "zeros_in_5x5": 0,
+   "5x5_neighbourhood_ch0": [
+    [
+     5419.6,
+     2327.8,
+     645.0,
+     153.2,
+     84.4
+    ],
+    [
+     9552.4,
+     1650.1,
+     204.1,
+     82.6,
+     80.9
+    ],
+    [
+     11236.7,
+     1074.1,
+     31.2,
+     79.9,
+     87.5
+    ],
+    [
+     6281.7,
+     902.0,
+     170.1,
+     112.5,
+     92.3
+    ],
+    [
+     1895.4,
+     825.1,
+     321.7,
+     147.5,
+     103.2
+    ]
+   ],
+   "next_darkest": [
+    [
+     45.71,
+     0,
+     6781,
+     1709,
+     0
+    ],
+    [
+     48.25,
+     0,
+     7188,
+     1091,
+     0
+    ],
+    [
+     49.43,
+     0,
+     6133,
+     595,
+     0
+    ],
+    [
+     50.11,
+     0,
+     4995,
+     915,
+     0
+    ],
+    [
+     50.83,
+     0,
+     6791,
+     57,
+     0
+    ],
+    [
+     51.94,
+     0,
+     6781,
+     1708,
+     0
+    ],
+    [
+     52.41,
+     0,
+     6920,
+     51,
+     3
+    ],
+    [
+     52.41,
+     0,
+     6920,
+     52,
+     3
+    ],
+    [
+     52.56,
+     0,
+     6993,
+     4401,
+     0
+    ]
+   ],
+   "columns": "value ch x y zeros_in_3x3",
+   "per_channel_nonzero_min": [
+    31.159,
+    107.799,
+    77.331
+   ],
+   "why_numpy": "Siril's stat/seqstat min includes zeros, so the darkest NON-ZERO pixel and its position are not reportable by the tool; this is a one-off diagnostic (CLAUDE.md: diagnostics are outside the bright line), not a pipeline measurement"
+  }
+ },
+ "verdicts": {
+  "location": "NOT MET at the stated 0.1%: the pre-norm composite's IKSS location is 0.34/0.42/0.38 ADU16 (0.47/0.32/0.37%) BELOW the reference's in R/G/B \u2014 the coverage/gradient term U1, nearly channel-independent, now measured. With the measured L the closure is exact (D 1.0323 x3, mu 31.16 = the darkest pixel 31.159).",
+  "darkest_pixel": "MET: 31.159 vs 31.4 +/- 0.3 (and 31.16 from the closure with measured L)",
+  "max": "MET: G 65535.0 = clamped; R max 58475.9 / 56616.7 = 1.0328 = D",
+  "rim": "numeric test MET (57.3 vs 31.2) but the MECHANISM NOT MET: the darkest pixel is 1584 px from the x edge and 277 px from the y edge with no zero within 5x5 \u2014 it is lanczos4 resampling UNDERSHOOT two pixels from an 11,237-ADU16 star (R sky 73), the first negative lobe of the kernel; the second-darkest (45.7) is also interior. The 'rim resampling blend' reading (U2) is refuted; the darkest pixel is a resampling artifact beside a bright star \u2014 still a geometry/sub-pixel-phase lottery, now with a named carrier."
+ }
+}

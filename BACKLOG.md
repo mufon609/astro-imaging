@@ -1424,10 +1424,16 @@ and the probe-pipeline arithmetic's error is root-caused.
 ## `single-pass-reference-lottery` — the groups route pins it, the single-pass route does not
 
 `run_undistort_groups.sh` pins `setref s 1` after its `register -2pass` because
-"2pass's auto-pick made that a lottery across rebuilds" — with `-norm=addscale
--output_norm` the reference IS the product's level anchor, and two builds of one
-set measured 67 vs 43 ADU. `run_undistort_pipeline.sh` runs the same unpinned
-`register lt -2pass` and has no such pin.
+"2pass's auto-pick made that a lottery across rebuilds" — two builds of one set
+measured 67 vs 43 ADU. **The mechanism is NOT the reference's level** (that
+reading is refuted: under `-norm=addscale -output_norm` the reference's level
+cancels — four `setref` runs moved products ≤2.4% where the anchor reading
+predicted 1.7–2.3×; `docs/dead-ends/stacking-compose.md`, the `-output_norm`
+zero-point entry). The pin works through GEOMETRY: the reference fixes the
+registration, hence which single resampling-undershoot pixel lands darkest,
+and `-output_norm` subtracts that pixel from every channel.
+`run_undistort_pipeline.sh` runs the same unpinned `register lt -2pass` and has
+no such pin.
 
 **MEASURED that it moves the product, not just the level** (12 frames of
 aug09/set-05, one knob — the flat): `skyflat_set-05` → reference image 1 and a

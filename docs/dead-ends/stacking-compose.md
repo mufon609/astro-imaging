@@ -319,3 +319,40 @@ exonerated for it).
   correct and probed bit-identical) is recoverable at `6d9e568`. What the
   knob DID buy: removing rim dilution exposed the latent member-solve defect
   both chains carried (`plate-solving-wcs.md`).
+- **THE DELIVERED ZERO POINT OF ANY `-output_norm` STACK IS (the composite's
+  sky − its darkest non-zero pixel) OVER (brightest − darkest), ONE global
+  (min, max) across all three channels — so the linear product's LEVEL and
+  its R:G:B BALANCE are set by a single pixel, and the normalization
+  reference's level CANCELS.** MEASURED (Siril 1.4.4 tag source
+  `median_and_mean.c` `norm_to_0_1_range`, read independently by two
+  sessions; instruments Siril `seqstat full`, `stat`+`boxselect`, the
+  kept-scratch `r_s_.seq` M lines; `datasets/corpus/pedestal_work/`, ledger
+  aug14 `pedestal_8pct_hypothesis_C_output_norm_minmax`): the model
+  O_c = (L_c − μ)/D closes on six framing=max products (D across channel
+  pairs within 0.1–0.4%, n = 13/38 members) and EXACTLY on the two aug06 arms
+  re-stacked without `-output_norm` (D 1.0323 ×3 / 1.0645 ×3; μ 31.16 / 47.39
+  = the darkest pixel to 0.001 ADU16). The crop5lr "+8.3% pedestal" is
+  (L−μ) 1.12–1.28× times D 0.97 — the reference member's own group-tier level
+  plus a darkest pixel that moved 31.2 → 47.4; on the aug14 pair the reference
+  level was identical (66.55 vs 66.56) and R still HALVED from μ 25.9 → 46.8,
+  and re-solving the members moved it back to 27.3. **The reference is NOT
+  the level anchor**: one knob, `setref` on the same registered copies (4
+  runs, 2 arms), moved the products ≤2.4% where the anchor reading predicted
+  1.7–2.3× and a 42% drop (director re-measure by Siril `stat` medians:
+  1.0222/1.0243/1.0089 for setref 4); the `setref s 1` pin works by fixing
+  the registration GEOMETRY (which pixel is darkest), not the level. **The
+  darkest pixel is lanczos4 undershoot two columns from a bright star**
+  (11,237- and 1,977-ADU16 neighbours, 285–1584 px from any edge, no zero
+  within 5×5 — a numpy DIAGNOSTIC, because Siril's `stat` min INCLUDES zeros
+  and cannot report the darkest non-zero pixel), not a rim blend.
+  **Consumers that read the lottery as signal:** `baseline_guard.py`
+  `centre_median_per_channel` (25% tolerance; +56% and −49% moves with the
+  data unchanged) and any cross-product level/colour comparison on linear
+  stacks. **Two traps:** "maxima agree, so `-output_norm` is excluded" tests
+  the max half of a min–max formula (those maxima are the R value of the star
+  whose G peak is the global max, 65535.0 in both); and the composite's own
+  location sits 0.34–0.44 ADU16 (0.3–0.5%) below the reference's on both
+  arms, nearly channel-independent — the coverage/gradient term a
+  three-channel closure cannot see. Design consequence is the owner's
+  (record the anchor / drop `-output_norm` at both tiers with the group
+  reference pinned / demote the guard measure).

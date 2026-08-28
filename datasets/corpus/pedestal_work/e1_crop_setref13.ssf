@@ -1,0 +1,7 @@
+requires 1.2.0
+set32bits
+setcompress 0
+setext fit
+cd /home/samsung/Desktop/astro-imaging/web/results/aug06/.compose_stack_set-01+02+03_pedestalcrop/seq
+setref r_s 13
+stack r_s mean none -norm=addscale -weight=nbstack -output_norm -out=/home/samsung/Desktop/astro-imaging/web/results/aug06/stack_set-01+02+03_pedestalcrop_e1ref13

@@ -1,0 +1,123 @@
+{
+ "id": "e1_setref_only_full",
+ "arm": "aug06 FULL, the E0 kept registered copies (r_s), ONE knob: the normalization reference (`setref r_s N` before `stack`), registration and canvas untouched",
+ "status": "RUN twice (N=4 the max-anchor member, N=13). Model prediction MET to the 4th decimal; hypothesis B (the reference IS the level anchor) REFUTED.",
+ "commands": [
+  "e1_full_setref4.ssf: setref r_s 4; stack r_s mean none -norm=addscale -weight=nbstack -output_norm -out=web/results/aug06/stack_set-01+02+03_pedestal_e1ref4",
+  "e1_full_setref13.ssf: setref r_s 13; same stack line -out=..._pedestal_e1ref13",
+  "Siril reused the cached M lines (normalization computation time 0.59 / 0.79 ms) -> identical inputs by construction; r_s_.seq S-line reference read back 3 and 12 (0-based)"
+ ],
+ "instrument": "Siril seqstat full on control + both products (seqstat_e0_e1_full.csv), IKSS location per channel x65535",
+ "predictions_pre_registered": {
+  "model_member_stat_phase1": {
+   "setref4": [
+    1.007,
+    1.017,
+    0.999
+   ],
+   "setref13": [
+    1.005,
+    0.984,
+    0.975
+   ]
+  },
+  "model_refined_exact_M_before_the_run": {
+   "setref4": [
+    1.0227,
+    1.0239,
+    1.0083
+   ],
+   "setref13": [
+    1.0185,
+    0.9898,
+    0.9825
+   ]
+  },
+  "hypothesis_B": {
+   "setref4": [
+    2.3234,
+    1.7004,
+    1.9192
+   ],
+   "setref13": [
+    1.3296,
+    1.155,
+    1.2083
+   ]
+  },
+  "kill_rule": ">=10% move kills the model; <=3% move kills B"
+ },
+ "measured": {
+  "control_location": [
+   40.347,
+   94.58,
+   67.215
+  ],
+  "setref4_location": [
+   41.262,
+   96.854,
+   67.779
+  ],
+  "setref13_location": [
+   41.093,
+   93.623,
+   66.046
+  ],
+  "ratio_setref4_over_control": [
+   1.0227,
+   1.024,
+   1.0084
+  ],
+  "ratio_setref13_over_control": [
+   1.0185,
+   0.9899,
+   0.9826
+  ],
+  "closure_against_the_new_reference_M_lines": {
+   "setref4": {
+    "loc_ref": [
+     169.96,
+     219.7,
+     193.69
+    ],
+    "D": [
+     0.8948,
+     0.8948,
+     0.8948
+    ],
+    "mu": [
+     133.04,
+     133.04,
+     133.04
+    ],
+    "predicted_mu_D": [
+     133.03,
+     0.8949
+    ]
+   },
+   "setref13": {
+    "loc_ref": [
+     97.26,
+     149.23,
+     121.94
+    ],
+    "D": [
+     0.9893,
+     0.9891,
+     0.9895
+    ],
+    "mu": [
+     56.6,
+     56.62,
+     56.58
+    ],
+    "predicted_mu_D": [
+     56.6,
+     0.9894
+    ]
+   }
+  }
+ },
+ "verdict": "PREDICTION MET: measured ratios equal the exact-M model prediction to +/-0.0001 and sit within 1.6% of the member-stat pre-registration; largest move 2.4% (kill rule: <=3% kills B). Hypothesis B predicted 2.32x on R for setref 4 and got 1.023x. The normalization reference does NOT anchor the delivered level under -output_norm: its level cancels through the min subtraction; what survives is the reference's per-channel balance and scale ratio (kappa), worth <=2.4% here.",
+ "consequence": "run_undistort_groups.sh:360-364 ('the reference IS the product's level anchor') and BACKLOG single-pass-reference-lottery rest on the refuted reading; the `setref s 1` pin still stabilizes the level, but by fixing the registration geometry (which pixel is darkest), not by anchoring to member 1's sky."
+}

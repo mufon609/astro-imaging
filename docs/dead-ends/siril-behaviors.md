@@ -201,3 +201,10 @@ The defining property of this family: the output looks healthy.
   matrix, a `source-extractor` catalogue, a parallactic angle: convert
   through the mirror or the sign of the answer is wrong. There is also a
   1 px offset from FITS 1-based indexing on top of the mirror.
+- **`stat` / `seqstat` MIN and MAX INCLUDE zero pixels — computed before the
+  non-null reassignment — so "every estimator excludes zeros" is true of the
+  level/dispersion estimators only.** MEASURED on 20+ products and members
+  (`datasets/corpus/pedestal_work/`): min reads 0.0 wherever zero padding
+  exists and the true minimum where none does. A union's darkest NON-zero
+  pixel — the quantity `-output_norm` subtracts — is not reportable by
+  `stat`; it needs a diagnostic read.
