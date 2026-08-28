@@ -181,6 +181,69 @@ names.**
 
 ---
 
+
+## `output-norm-zero-point` — OWNER-RATIFIED direction: drop `-output_norm` at both stacking tiers and pin the group-tier reference, so every linear product's zero point is its reference's physical sky
+
+**The measured basis** (`docs/dead-ends/stacking-compose.md`, the `-output_norm`
+zero-point entry; `datasets/corpus/pedestal_work/`; ledger aug14
+`pedestal_8pct_hypothesis_C_output_norm_minmax`): under `-norm=addscale
+-output_norm` a stack's delivered level is (sky − its darkest non-zero pixel) /
+(brightest − darkest), one global (min, max) across all three channels; the
+darkest pixel is lanczos4 undershoot beside whichever bright star rings deepest —
+a geometry lottery — so the linear product's LEVEL and R:G:B BALANCE are set by
+one pixel and the normalization reference's level cancels (four `setref` runs
+moved products ≤2.4%). The group tier adds a second draw: each sub-stack's
+reference FRAME is auto-picked by an unpinned `register lt -2pass`. Consumers
+that read the lottery as signal: `baseline_guard.py` `centre_median_per_channel`
+(+56% and −49% moves on unchanged data) and every cross-product level/colour
+comparison on linear stacks (the crop5lr "+8.3% pedestal" was one).
+
+**Standards-first, recorded:** `-output_norm` is a display convenience (a min-max
+stretch into the [0,1] container) that Siril's OSC script applies to a
+VIEWING-READY stack; the standard for a LINEAR PHOTOMETRIC product — what this
+chain makes, SPCC calibrates, the guard measures — is a defined, reproducible
+zero point tied to the normalization reference, with display scaling kept
+separate. `-norm=addscale` already establishes that anchor; `-output_norm`
+randomizes it. Dropping it is a deviation from one vendor script's default and a
+move TOWARD the standard. Removal condition: Siril offering a reference-anchored
+(or per-channel, non-min-max) output normalization.
+
+**The work, staged by cost:**
+1. COMPOSE TIER (cheap: one recompose ~1 min per 38-77 members + finish):
+   `run_undistort_compose.sh` stack line drops `-output_norm` (values outside
+   [0,1] are then CLAMPED — E2 measured the only casualty is the brightest
+   star's already-saturated core, max 65535.0; predicted ≤0.04% of pixels,
+   MEASURE the count on the first rebuild). Product level = the reference
+   member's sky exactly (E2: 73.0/129.1/100.7 vs 73.14/129.22/100.92, the
+   0.3-0.5% residual being the coverage/gradient term). Stamp REGREF's
+   per-channel location (Siril's own M line) on the product — the anchor is
+   then a recorded, physical number.
+2. GROUP TIER for every FUTURE build (script-only, no rebuild forced):
+   `run_undistort_pipeline.sh` pins the group reference (`setref lt 1` after the
+   2pass, time order — the same pin `run_undistort_groups.sh` already applies to
+   its final compose) and drops `-output_norm` from the group stack. Existing
+   members keep their (now fixed, recorded) levels; a from-raws rebuild of
+   existing members is REPAIR-or-VERIFICATION per `datasets/corpus/rebuild_scope.json`
+   and is the owner's call, not implied by this item.
+3. GUARD: `centre_median_per_channel` is ADVISORY until the first tier-1
+   product is re-baselined (it cannot go RED on a real regression without going
+   RED on a lottery draw); after re-seeding it is a real measure again.
+
+**Acceptance — OWNER-STATED and binding for this item:** the goal is the best
+natural image from the data, not matching the new product to the old one. Every
+rebuild under this item is a DECLARED DELTA (README "How a change is accepted"):
+report SPCC K-factor deltas and the per-product render deltas in like encodings;
+objective-better-or-equal commits; any aesthetic movement goes to the owner's
+eyes on the full-frame 16-bit finals — improvement is the expected outcome, not
+a deviation to be explained away. Baselines RE-SEED to the accepted improved
+product; the old baselines recorded lottery draws and are not a target.
+Pre-registered hypotheses to score on the first rebuild: (H1) SPCC K factors
+move < the sensor-null default's own run-to-run spread; (H2) the linked render
+is visually indistinguishable at fit-to-screen AND the linear stack's R:G:B
+balance now equals the reference member's (currently distorted by the
+channel-independent μ); (H3) clamp casualties confined to in-frame-saturated
+cores. Run as its own session (build-path occupancy rule); paired director /
+worker, plan audited before any script edit.
 ## `pending-owner` — decisions with the owner, and the input they ordered gathered
 
 **Migrated from a retired session report** (owner: *"report.md was meant to be
