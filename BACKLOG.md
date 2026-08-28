@@ -182,7 +182,7 @@ names.**
 ---
 
 
-## `output-norm-zero-point` — OWNER-RATIFIED direction: drop `-output_norm` at both stacking tiers and pin the group-tier reference, so every linear product's zero point is its reference's physical sky
+## `output-norm-zero-point` — OWNER-RATIFIED direction: drop `-output_norm` at every undistort stack line (three, not two) and pin the sub-stack reference, so every linear product's zero point is its reference's physical sky
 
 **The measured basis** (`docs/dead-ends/stacking-compose.md`, the `-output_norm`
 zero-point entry; `datasets/corpus/pedestal_work/`; ledger aug14
@@ -208,26 +208,50 @@ randomizes it. Dropping it is a deviation from one vendor script's default and a
 move TOWARD the standard. Removal condition: Siril offering a reference-anchored
 (or per-channel, non-min-max) output normalization.
 
-**The work, staged by cost:**
+**The work, staged by cost (three undistort stack lines carry the flag —
+`run_undistort_compose.sh:368`, `run_undistort_groups.sh:372`,
+`run_undistort_pipeline.sh:323` — plus the standard route's, which is outside
+this item):**
 1. COMPOSE TIER (cheap: one recompose ~1 min per 38-77 members + finish):
    `run_undistort_compose.sh` stack line drops `-output_norm` (values outside
    [0,1] are then CLAMPED — E2 measured the only casualty is the brightest
    star's already-saturated core, max 65535.0; predicted ≤0.04% of pixels,
    MEASURE the count on the first rebuild). Product level = the reference
-   member's sky exactly (E2: 73.0/129.1/100.7 vs 73.14/129.22/100.92, the
-   0.3-0.5% residual being the coverage/gradient term). Stamp REGREF's
-   per-channel location (Siril's own M line) on the product — the anchor is
-   then a recorded, physical number.
-2. GROUP TIER for every FUTURE build (script-only, no rebuild forced):
+   member's M-line location minus the E2-measured 0.3-0.5% coverage/gradient
+   term (E2: 73.0/129.1/100.7 vs 73.14/129.22/100.92) — the term is real and
+   nearly channel-independent, so "exactly" is not the prediction. Stamp
+   REGREF's per-channel location (Siril's own M line) and what normalized the
+   product (`STACKNRM`) on it, and assert Siril's own "Output normalization
+   ...... disabled" log line — the anchor is then a recorded, physical number.
+2. PER-SET FINAL COMPOSE — `run_undistort_groups.sh:372`, the line that builds
+   every `stack_<set>_full.fit`. **OWNER-RULED 2026-08-28: IN SCOPE, sequenced
+   after the compose tier.** Same line class (composes sub-stacks under
+   `setref s 1` + `-norm=addscale -output_norm`), and all 13 tracked baselines
+   sit on products of THIS line, none on a compose-tier product — stage 4's
+   guard re-arm is reachable only through it. Cost: a re-final per set is
+   minutes on the existing sub-stacks, no from-raws. Declared delta: the
+   shipped products' on-disk `final.ssf` predates `setref s 1`,
+   `-transf=homography` and `-interp=lanczos4` (aug06/set-01's carries none of
+   the three), so a re-final under HEAD is a FOUR-knob delta against the
+   shipped product and is declared as such; 13 re-seeds on acceptance.
+3. GROUP SUB-STACK TIER for every FUTURE build (script-only, no rebuild forced):
    `run_undistort_pipeline.sh` pins the group reference (`setref lt 1` after the
    2pass, time order — the same pin `run_undistort_groups.sh` already applies to
-   its final compose) and drops `-output_norm` from the group stack. Existing
-   members keep their (now fixed, recorded) levels; a from-raws rebuild of
-   existing members is REPAIR-or-VERIFICATION per `datasets/corpus/rebuild_scope.json`
-   and is the owner's call, not implied by this item.
-3. GUARD: `centre_median_per_channel` is ADVISORY until the first tier-1
-   product is re-baselined (it cannot go RED on a real regression without going
-   RED on a lottery draw); after re-seeding it is a real measure again.
+   its final compose) and drops `-output_norm` from the group stack. This is
+   the closure `single-pass-reference-lottery` names, and that item's caveat
+   carries: the pin moves the canvas (measured 4896x3616 vs 4887x3641), so the
+   first build under it reads as two terms — canvas direction-only, level on
+   the numbers — and is the measurement of the untested premise that the
+   sub-stack tier behaves as the compose tier did (inferred from the same code
+   path, never built). Existing members keep their (now fixed, recorded)
+   levels; a from-raws rebuild of existing members is REPAIR-or-VERIFICATION
+   per `datasets/corpus/rebuild_scope.json` and is the owner's call, not
+   implied by this item.
+4. GUARD: `centre_median_per_channel` is ADVISORY until the first per-set
+   product (stage 2) is re-seeded under the new zero point — it cannot go RED
+   on a real regression without going RED on a lottery draw, and no
+   compose-tier product has a baseline to re-seed; after re-seeding it is a
+   real measure again.
 
 **Acceptance — OWNER-STATED and binding for this item:** the goal is the best
 natural image from the data, not matching the new product to the old one. Every
@@ -237,12 +261,28 @@ objective-better-or-equal commits; any aesthetic movement goes to the owner's
 eyes on the full-frame 16-bit finals — improvement is the expected outcome, not
 a deviation to be explained away. Baselines RE-SEED to the accepted improved
 product; the old baselines recorded lottery draws and are not a target.
-Pre-registered hypotheses to score on the first rebuild: (H1) SPCC K factors
-move < the sensor-null default's own run-to-run spread; (H2) the linked render
-is visually indistinguishable at fit-to-screen AND the linear stack's R:G:B
-balance now equals the reference member's (currently distorted by the
-channel-independent μ); (H3) clamp casualties confined to in-frame-saturated
-cores. Run as its own session (build-path occupancy rule); paired director /
+Pre-registered hypotheses to score on the first rebuild, bars frozen before
+any product under this item exists: (H1) SPCC K factors move less than the
+within-night spread across the four canonical chain-clean aug06 products
+under sensor-null — set-01 0.640/0.860, set-02 0.644/0.845, set-03
+0.640/0.842, union 0.649/0.855 — i.e. |ΔK_G| ≤ 0.009 and |ΔK_B| ≤ 0.018
+against the union's 0.649/0.855 (the earlier wording, "the sensor-null
+default's own run-to-run spread", had no measured source in the tree; SPCC's
+determinism spread on an identical input is measured beside H1 and does not
+move the bar); (H2) the linked render is visually indistinguishable at
+fit-to-screen AND the linear stack's R:G:B balance now equals the reference
+member's — R/G 0.5662, B/G 0.7811 from the kept scratch's own M lines, within
+±0.5% (currently 0.427:1:0.711, distorted by the channel-independent μ); (H3)
+clamp casualties confined to in-frame-saturated cores, three counts: (a)
+clamped pixels ≤ 0.04% of covered pixels per channel; (b) every connected
+clamped component backed by a covering member at ≥ 0.999 in its registered
+copy (a `--keep-work` build) — an unbacked component is a casualty and H3 is
+NOT MET; (c) in-frame zeros, (product == 0) AND (control != 0), equal 0 per
+channel: without `-output_norm` a negative pre-norm value clamps to 0, and 0
+reads as NO COVERAGE to every consumer (Siril `stat` excludes it; the coverage
+records), so an undershoot could become a coverage hole with no trace. (a) and
+(c) are diagnostic reads — Siril's `stat` reports neither.
+Run as its own session (build-path occupancy rule); paired director /
 worker, plan audited before any script edit.
 ## `pending-owner` — decisions with the owner, and the input they ordered gathered
 
