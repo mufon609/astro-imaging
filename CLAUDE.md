@@ -408,9 +408,12 @@ AI tool runs CPU-only, so budget wall-clock rather than assuming it is free
   `web/results/<session>/judge/`, named `<set>_<recipe-tag>_<surface>`
   (e.g. `set-01_168sp_spcc-linked.png`) — NEVER "FINAL_*" or adjective
   variants, and never scattered across directories. `datasets/` holds tracked
-  RECORDS ONLY — never DELIVERABLE image data (a tool's own star lists or PSF
-  models kept as a measurement's evidence are RECORDS and are tracked on
-  purpose; `.gitignore` is the authority for what survives in each `*_work/` —
+  RECORDS ONLY — never DELIVERABLE image data (the tracked RECORD of a
+  measurement is its JSON — instrument, inputs, exact command, the tool's own
+  numbers; a tool's bulk output kept as evidence is tracked only while
+  irreplaceable, via a `.gitignore` block carrying its rationale, and leaves
+  the tree when its route closes — `.gitignore` is the authority for what
+  survives in each `*_work/`, and a dir with no block tracks NOTHING —
   `datasets/README.md`). All bulk derived image DATA is gitignored:
   masters + pipeline intermediates stay in the session tree (`<session>/work/`),
   and stacks/renders/judgment surfaces live at the web-servable output root

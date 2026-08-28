@@ -95,24 +95,26 @@ Rules (the same contract as README "How a change is accepted"):
   obstructions and needs no mask.
 - Every per-set RECORD and tool JSON lives HERE, under
   `datasets/<session>/<set>/` (the `*_work/` pattern).
-  **WHAT IS TRACKED IS WIDER THAN `.json`, AND THIS PARAGRAPH USED TO SAY
-  OTHERWISE.** It read *"only the `.json` records are tracked, the scratch is
-  gitignored"* and *"`datasets/` holds RECORDS ONLY — never image data"*.
-  MEASURED at HEAD: `datasets/` is **115.9 MB of the repo's 118.6 MB of tracked
-  bytes, 97.7%**, and it carries 537 `.json` **plus 74 `.lst` star lists (104 MB
-  on their own), 26 `.ssf`, 17 `.py`, 6 PSFEx `.psf` field models, 2 `.npy`, 2
-  `.seq`**.
-  **That is not drift into the file — it is a POLICY that changed in
-  `.gitignore` and was never reflected here.** `.gitignore` carries per-work-dir
-  un-ignore rules each with its own written rationale (the pattern is *"the
-  `.lst` star lists and the `.ssf` ARE the record"*), and **`.gitignore` is the
-  AUTHORITY for which artifacts survive in which `*_work/` directory — the rules
-  are deliberately not restated here, because a second home is a second place to
-  drift and that is the defect this correction is fixing.**
-  **The durable rule that DOES still hold, stated in the form that survives:
-  `datasets/` holds no DELIVERABLE image data** — no stacks, no renders, no
-  masters, no calibrated frames. A tool's own star list or PSF model kept as the
-  evidence for a measurement is a RECORD, and is tracked on purpose.
+  **`datasets/` holds no DELIVERABLE image data** — no stacks, no renders, no
+  masters, no calibrated frames. The RECORD of a measurement is its tracked
+  JSON: instrument, inputs, exact command, and the tool's own numbers. A tool's
+  bulk output (star lists, per-star tables) is EVIDENCE, tracked only while
+  irreplaceable — the question is OPEN, or the numbers exist nowhere else
+  (`inject_work/sites*.npy` is the model) — and only via a `.gitignore` block
+  carrying its written rationale. **`.gitignore` is the AUTHORITY for which
+  artifacts survive in which `*_work/` directory** — the rules are deliberately
+  not restated here, because a second home is a second place to drift — **and a
+  directory with no block tracks NOTHING by default** (measured cost of a
+  missing block: one investigation's 615 bulk `.lst`, 76.8 MB, entered tracking
+  by default). When a route closes into the registry, its bulk evidence leaves
+  the tree in the same commit as the registry entry; the removal commit is the
+  recovery path (`git show <adding-commit>:<path>` — per-record resolvers are
+  indexed in `datasets/corpus/README.md`).
+  MEASURED at the convention's adoption commit: `datasets/` is **119.7 MB of
+  the repo's 122.3 MB of tracked bytes, 97.9%**, carrying 678 `.json`, **76
+  `.lst` star lists (104.3 MB on their own — dirs whose `.gitignore` blocks
+  keep the list as the record), 26 `.ssf`, 19 `.py`, 7 `.jsonl`, 6 PSFEx
+  `.psf` field models, 2 `.npy`**.
 - **AND NINETEEN TRACKED `.py` PROGRAMS LIVE UNDER `datasets/`, WHICH THE OLD
   "records only" WORDING DENIED. Stated here as what it is rather than left as a
   contradiction.** Fifteen sit in `datasets/aug06/corner_work/`, one in its

@@ -284,3 +284,26 @@ datasets/aug06/corner_work/kappa_work/
 **/sirilpy_work/*
 !**/sirilpy_work/*.json
 !**/sirilpy_work/*.py
+
+# --- measurement-evidence dirs under datasets/ (crop5lr + corpus sweeps) ---
+# The tracked RECORD of a measurement is its JSON summary (instrument + inputs
+# + exact command + the tool's own numbers); bulk findstar .lst output is
+# EVIDENCE and retires to git history when its route closes (recovery:
+# `git show 2654d31:<path>`, aug06 within-night arc `git show 6d9e568:<path>`;
+# resolvers indexed in datasets/corpus/README.md). These dirs once tracked
+# 615 .lst (76.8 MB) BY DEFAULT because no block existed here — a new *_work/
+# dir gets its block BEFORE its first commit.
+# crop5lr cross-night A/B evidence (route RETIRED; the engagement's JSON
+# records at crop_work/ top level stay tracked):
+datasets/corpus/crop_work/*/
+# ledger-cited probe dirs whose small records ARE the content (dir-level
+# negation per the pergroup_work rule above — negating files INSIDE an
+# excluded dir matches nothing; negating the DIR itself lets git descend):
+!datasets/corpus/crop_work/memprobe/
+!datasets/corpus/crop_work/setq/
+# corpus rebuild verification sweeps (route KEPT; corpus_sweep_{old,new}.json
+# are the ledger-cited records; lists regenerable while the products live):
+datasets/corpus/corpus_sweep_old/
+datasets/corpus/corpus_sweep_new/
+# within-night crop5 A/B evidence (route NULL/closed; its top-level JSONs stay):
+datasets/aug06/crop_work/*/
