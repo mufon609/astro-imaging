@@ -49,8 +49,11 @@ for d in "$SESSION"/*/; do
   # set-00 is the SPARE-FRAMES bucket, never a light set (owner convention:
   # real sets start at 01). Enumerating it as lights RED-stopped a whole
   # session on a dwell-floor collision for data never meant to stack.
+  # set-0<letter> (set-0a, set-0b, ...) are the SAME bucket class — owner-ruled
+  # 2026-08-28: spare frames of unrelated targets shot the same night; they
+  # carry no dataset state and are never built or combined.
   case "$name" in
-    darks|dark|biases|bias|flats|flat|flats_*|darkflats|darkflat|calib|work|reference|set-00|.*) continue;;
+    darks|dark|biases|bias|flats|flat|flats_*|darkflats|darkflat|calib|work|reference|set-00|set-0[a-z]|.*) continue;;
   esac
   n=$(find "$d" -maxdepth 1 -type f \
     \( -iname '*.nef' -o -iname '*.dng' -o -iname '*.cr2' -o -iname '*.cr3' \

@@ -333,8 +333,9 @@ Siril calibrate (CFA, master dark + validated sky flat, -equalize_cfa -debayer)
        (copies Make/Model/LensModel/FocalLength — savetif carries none and
         darktable needs them to match the profile — and STRIPS the ICC tag)
   → darktable-cli --style lensdist --style-overwrite --icc-type LIN_REC709
-  → Siril register -2pass → seqapplyreg -framing=min
-  → stack (rejection doctrine-selected by sub count) -norm=addscale -output_norm
+  → Siril register -2pass → setref 1 (the pinned reference frame) → seqapplyreg -framing=min
+  → stack (rejection doctrine-selected by sub count) -norm=addscale — no -output_norm;
+    the sub-stack's level is its reference frame's own sky, stamped ANCLOC*/ANCSCL*
 ```
 
 - **ICC, the float-leg contract:** untagged TIFF in + `LIN_REC709` out — a

@@ -11,7 +11,7 @@
 #
 #   stack_rejection_for <n_frames>   ->  the `rej ...` clause for `stack`
 # e.g.
-#   stack r_lt $(stack_rejection_for "$N") -norm=addscale -output_norm -out=...
+#   stack r_lt $(stack_rejection_for "$N") -norm=addscale -out=...
 #
 # n is the input sub count the builder has at stack-command generation (the
 # registered count is <= this and lands in the same band in every real case;

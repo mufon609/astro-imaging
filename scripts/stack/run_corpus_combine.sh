@@ -56,7 +56,7 @@ for S in "${SESSIONS[@]}"; do
     # deliverable with nothing to show for it. A canonical member dir is
     # `groups_set-NN` and nothing else.
     case "$(basename "$gd")" in
-      groups_set-00) continue;;
+      groups_set-00|groups_set-0[a-z]) continue;;   # spare buckets (set-00, set-0<letter>): never members
       groups_set-[0-9][0-9]) ;;
       *) echo "[corpus]   skipping $(basename "$gd") — not a canonical groups_set-NN member dir (arm variants are not the corpus)"; continue;;
     esac

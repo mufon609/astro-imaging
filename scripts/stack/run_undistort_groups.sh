@@ -37,6 +37,9 @@
 #     MEASURED here that this route needs it, one knob (--subsky-lights) over 12
 #     consecutive aug06/set-01 frames: `register -2pass` chose reference index 8
 #     unflagged and 11 flagged, delivering a 6038x4033 canvas against 6037x4030.
+#     (The reference half of that is since closed by the sub-pipeline's own
+#     `setref lt 1`; the flag still pins the TRANSFORMS, which move with the
+#     calibration's star lists.)
 #     Subtracting a plane per frame changes each frame's statistics and therefore
 #     the QUALITY ranking the 2pass picks its reference from — a second knob
 #     inside a one-knob experiment, and on a WCS-addressed instrument it is the

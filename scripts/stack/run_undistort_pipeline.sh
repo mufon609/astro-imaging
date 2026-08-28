@@ -9,7 +9,7 @@
 #
 #   run_undistort_pipeline.sh <session-dir> <set> --dark=<master> --flat=<master> \
 #                             [--frames=N | --select=<list-file>] [--chunk=12] [--out=<stack.fit>]
-#                             [--regdata=<lt_.seq>] [--nonorm]
+#                             [--regdata=<lt_.seq>] [--nonorm] [--keep-out]
 #
 # --select=<file> (one raw path per line) processes exactly those frames in
 # order — the group-composition driver (run_undistort_groups.sh) uses it to
@@ -19,10 +19,12 @@
 # controlled A/B on this route moves ONE knob — the calibration — and everything
 # downstream of it must then be held fixed by construction, not by hope:
 #
-# --regdata=<file>  PIN THE REGISTRATION. Absent, each arm runs its own
-#     `register -2pass`, whose FIRST pass re-chooses the reference frame from
-#     image quality — and the calibration changes that choice. MEASURED here,
-#     12 frames of aug09/set-05, one knob (the flat): with `skyflat_set-05` the
+# --regdata=<file>  PIN THE REGISTRATION (the TRANSFORMS half). Absent, each
+#     arm runs its own `register -2pass`, whose star lists — and so its
+#     homographies — move with the calibration. Before the reference pin below
+#     the 2pass's FIRST pass also re-chose the reference frame from image
+#     quality, and the calibration changed that choice: MEASURED here, 12
+#     frames of aug09/set-05, one knob (the flat): with `skyflat_set-05` the
 #     2pass chose image 1 and delivered a 4896x3616 canvas; with
 #     `skyflat_set-01` it chose image 2 and delivered 4887x3641. Two arms whose
 #     canvases differ are not pixel-comparable at all, and the difference is a
@@ -34,10 +36,11 @@
 #     Both arms estimate the SAME geometric truth — the frames, the lens model
 #     and the warp are identical — so sharing one estimate removes a nuisance
 #     difference rather than introducing one.
-#     (run_undistort_groups.sh:`setref s 1` pins the same lottery a weaker way,
-#     for the same measured reason. This route's default is still unpinned;
-#     BACKLOG:`single-pass-reference-lottery`.)
-# --nonorm  stack with `-nonorm` instead of `-norm=addscale -output_norm`.
+#     (The REFERENCE half of that lottery is closed on this route: `setref lt 1`
+#     after the 2pass, the groups route's own pin, time order — the production
+#     path only; a donor lt_.seq carries the donor's reference verbatim and is
+#     never re-pinned. BACKLOG:output-norm-zero-point stage 3.)
+# --nonorm  stack with `-nonorm` instead of `-norm=addscale`.
 #     DIAGNOSTIC ONLY, never a deliverable: the per-frame normalization
 #     coefficients are computed from the frames' OWN statistics, so on a
 #     calibration A/B they are computed from data that differs BETWEEN the arms
@@ -46,6 +49,10 @@
 #     production clause to MEASURE the absorption. The flag stamps
 #     STACKNRM='nonorm' on the product so a diagnostic stack cannot be mistaken
 #     for a shipped one later.
+# --keep-out  DIAGNOSTIC: keep $P/out (the lt_ frames, the r_lt_ registered
+#     copies and both .seq files, ~55 GB for a 100-frame group) instead of
+#     deleting it after the stack — the only way to attribute a clamped or
+#     zeroed pixel of the sub-stack to the frames that made it. Delete by hand.
 #
 # Ordering is load-bearing: darks/flats are sensor-grid properties, so
 # calibration finishes in SENSOR space, debayer follows (a CFA mosaic cannot be
@@ -79,7 +86,9 @@
 #
 # The stack rejection is doctrine-selected by sub count (stack_rejection.sh:
 # percentile / winsorized / GESD — a deep stack gets GESD), with
-# `-norm=addscale -output_norm`.
+# `-norm=addscale` and NO `-output_norm` (a global min-max rescale keyed to one
+# darkest pixel; the sub-stack's level is its pinned reference frame's own sky,
+# stamped as ANCLOC*/ANCSCL* — BACKLOG:output-norm-zero-point stage 3).
 # ICC on the FLOAT leg: the TIFF ships UNTAGGED (exiftool strips the profile
 # in the same pass that copies the lens EXIF) and darktable exports
 # --icc-type LIN_REC709 — measured a PERFECT identity round trip (ratio
@@ -98,11 +107,11 @@ source "$REPO/scripts/stack/disk_budget.sh"       # per-set disk peak — shared
 source "$REPO/scripts/stack/stamp_headers.sh"     # shared restore of the acquisition keys the warp's TIFF hop drops
 SESSION=${1:?usage: run_undistort_pipeline.sh <session-dir> <set> --dark= --flat= [--frames=N] [--chunk=12] [--out=] [--subsky-lights]}
 SET=${2:?missing <set>}
-DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0 REGDATA= NONORM=0
+DARK= FLAT= FRAMES=0 CHUNK=12 OUT= SELECT= SUBSKYL=0 REGDATA= NONORM=0 KEEPOUT=0
 for a in "${@:3}"; do case "$a" in
   --dark=*) DARK=${a#*=};; --flat=*) FLAT=${a#*=};; --frames=*) FRAMES=${a#*=};;
   --chunk=*) CHUNK=${a#*=};; --out=*) OUT=${a#*=};; --select=*) SELECT=${a#*=};;
-  --regdata=*) REGDATA=${a#*=};; --nonorm) NONORM=1;;
+  --regdata=*) REGDATA=${a#*=};; --nonorm) NONORM=1;; --keep-out) KEEPOUT=1;;
   --subsky-lights) SUBSKYL=1;;
   *) echo "unknown arg $a" >&2; exit 1;;
 esac; done
@@ -320,10 +329,27 @@ rm -f "$P/out"/*.seq
 REJ=$(stack_rejection_for "$FRAMES")
 # The A/B knobs. Both default to the production clause, so an ordinary build
 # emits exactly the command it always did.
-NORMCLAUSE='-norm=addscale -output_norm'
+# NO -output_norm on the production path: it is a global min-max rescale — ONE
+# (min, max) over all three channels — whose zero point is one darkest pixel
+# (docs/dead-ends/stacking-compose.md, the -output_norm zero-point entry;
+# BACKLOG:output-norm-zero-point stage 3). Without it the sub-stack's level is
+# its pinned reference FRAME's own IKSS location per channel, stamped below as
+# ANCLOC*/ANCSCL* (ANCREF, ANCSRC); values outside [0,1] clamp. The --nonorm
+# diagnostic arm is untouched.
+# REMOVAL CONDITION: siril offers a reference-anchored (or per-channel,
+# non-min-max) output normalization — then -output_norm returns and the ANC*
+# anchor keys retire with it (the compose tier's condition, same wording).
+NORMCLAUSE='-norm=addscale'
 [ "$NONORM" = 0 ] || { NORMCLAUSE='-nonorm'
   echo "STACK NORMALIZATION DISABLED (-nonorm) — DIAGNOSTIC arm, not a deliverable"; }
-REGCMD='register lt -2pass -transf=homography\n'
+# setref lt 1 AFTER the 2pass — the groups route's own pin (`setref s 1`), time
+# order. The 2pass's quality pick is a lottery (12 of 13 canonical aug06 groups
+# picked a frame other than 1 — 9/2/29/5/51, 25/77/11/18, 68/9/1/3, read from
+# the members' inherited FILENAME cards) and with no -output_norm the reference
+# frame is also the LEVEL anchor, so it must be a recorded choice. NOT on the
+# --regdata path: the donor lt_.seq carries the donor's reference verbatim, and
+# the printf's %b then emits neither register nor setref.
+REGCMD='register lt -2pass -transf=homography\nsetref lt 1\n'
 if [ -n "$REGDATA" ] && [ -f "$REGDATA" ]; then
   # Siril reads the registration data from <seq>.seq beside the images; the file
   # names (lt_NNNNN.fit) and the count are identical across arms by construction,
@@ -334,13 +360,55 @@ fi
 printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\n%bseqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4\nstack r_lt %s %s -out=%s\n' \
   "$P/out" "$REGCMD" "$REJ" "$NORMCLAUSE" "$OUT" > "$P/s.ssf"
 sir "$P/s.ssf"
+[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
+# POST-ASSERT on siril's own log line. $P is recreated per run (rm -rf above)
+# and every sir() of this run appends to $P/siril.log; only `stack` prints the
+# line (on the -nonorm arm too), so no offset scoping is needed here.
+grep -q "Output normalization ...... disabled" "$P/siril.log" \
+  && ! grep -q "Output normalization ...... enabled" "$P/siril.log" || {
+  echo "ABORT: siril did not report 'Output normalization ...... disabled' — the" >&2
+  echo "  sub-stack's zero point would be the min-max lottery this route retired" >&2
+  echo "  (docs/dead-ends/stacking-compose.md). Read $P/siril.log" >&2; exit 1; }
+# THE REFERENCE AND THE ANCHOR — captured into variables NOW: `rm -rf "$P/out"`
+# below deletes lt_.seq / r_lt_.seq, and the stamp (header_apply_keys "$PROV")
+# runs after the acquisition-key save. `stack` normalized on the r_lt sequence,
+# whose .seq holds siril's own M lines (M<layer>-<image0>: total ngoodpix mean
+# median sigma avgDev mad sqrtbwmv location scale min max normValue bgnoise);
+# its S line (field 7, 0-based) is the reference the stack used and is what
+# ANCREF stamps; lt_.seq's is the pin (or the donor's under --regdata); a
+# disagreement is printed. REGREF names the FRAME as <1-based index>:<raw
+# basename> from ALL, the ordered list this run stacked (= SRC under --select;
+# an even stride over SRC under --frames=N) (FILENAME already
+# carries the reference's w_<chunk>_<j>.tif; this says which raw). Values are
+# siril's own [0,1] floats; x65535 for ADU16.
+REFID= REFSRC= ANCHOR= ANCREF=
+REF0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$P/out/lt_.seq" 2>/dev/null || true)
+RS0=$(awk '$1=="S" && NF>=7 {print $7; exit}' "$P/out/r_lt_.seq" 2>/dev/null || true)
+if [ -n "${RS0:-}" ] && [ "$RS0" -ge 0 ] 2>/dev/null && [ "$RS0" -lt "${#ALL[@]}" ]; then
+  [ "$RS0" = "${REF0:-}" ] || echo "WARNING: r_lt_.seq reference $RS0 != lt_.seq reference ${REF0:-?} (0-based) — the stack normalized against $RS0; ANCREF stamps that, REGREF the pin" >&2
+  ANCREF=$((RS0 + 1))
+  ANCHOR=$(awk -v r="$RS0" '$1=="M0-"r{l0=$10;s0=$11} $1=="M1-"r{l1=$10;s1=$11} $1=="M2-"r{l2=$10;s2=$11}
+    END{ if (l0!="" && l1!="" && l2!="") printf "update_key ANCLOCR %s\nupdate_key ANCLOCG %s\nupdate_key ANCLOCB %s\nupdate_key ANCSCLR %s\nupdate_key ANCSCLG %s\nupdate_key ANCSCLB %s\n", l0, l1, l2, s0, s1, s2 }' "$P/out/r_lt_.seq")
+  [ -n "$ANCHOR" ] || echo "WARNING: no M lines for reference $RS0 in $P/out/r_lt_.seq — ANCLOC*/ANCSCL* unstamped" >&2
+else
+  echo "WARNING: could not read the reference from $P/out/r_lt_.seq — anchor unstamped" >&2
+fi
+if [ -n "${REF0:-}" ] && [ "$REF0" -ge 0 ] 2>/dev/null && [ "$REF0" -lt "${#ALL[@]}" ]; then
+  REFID="$((REF0 + 1)):$(basename "${ALL[$REF0]}")"
+  REFSRC=$([ -n "$REGDATA" ] && echo regdata || echo pinned)
+fi
+# the .seq files die with $P/out below; the run log carries the anchor too
+echo "anchor: REGREF=${REFID:-unstamped} [${REFSRC:-?}] ANCREF=${ANCREF:-unstamped} ANCLOC R,G,B = $(printf '%s\n' "$ANCHOR" | awk '/ANCLOC/{printf "%s ", $3}')"
 if [ -n "$REGDATA" ] && [ ! -f "$REGDATA" ]; then
   mkdir -p "$(dirname "$REGDATA")"
   cp "$P/out/lt_.seq" "$REGDATA"
   echo "registration data SAVED to $REGDATA — hand it to every other arm of this A/B"
 fi
-rm -rf "$P/out"
-[ -f "$OUT.fit" ] || { echo "STACK MISSING — read $P/siril.log" >&2; exit 1; }
+if [ "$KEEPOUT" = 1 ]; then
+  echo "work dir KEPT at $P/out (--keep-out): lt_ frames, r_lt_ registered copies, lt_.seq and r_lt_.seq — delete by hand"
+else
+  rm -rf "$P/out"
+fi
 # restore the acquisition keywords the warp dropped (Siril's own update_key),
 # and stamp the OPTICS + CALIBRATION provenance beside them. The provenance half
 # is unconditional: it does not depend on the pre-warp capture, and a sub-stack
@@ -354,6 +422,16 @@ PROV=$(header_provenance_lines "$REPO" "$SESSION" "$SET" "$([ "$SUBSKYL" = 1 ] &
 [ "$NONORM" = 0 ] || PROV="$PROV
 update_key STACKNRM \"nonorm\"
 update_key DIAGARM T"
+[ "$NONORM" = 0 ] && PROV="$PROV
+update_key STACKNRM \"addscale\""
+# REGMODEL/REGUNDIS/REGREF/REGREFSR + the anchor, on the sub-stack too — INFORMATIONAL
+# (the compose gate's REQUIRED list is untouched); the union's ANCREF then
+# points at a member that can say its own anchor.
+PROV="$PROV
+$(header_registration_lines starpair F "$REFID" "$REFSRC")
+update_key ANCSRC \"r_lt_.seq M-line IKSS loc/scale of ANCREF; [0,1] float, x65535=ADU16\"
+${ANCREF:+update_key ANCREF $ANCREF}
+$ANCHOR"
 [ -z "$REGDATA" ] || PROV="$PROV
 update_key REGPIN \"$(basename "$REGDATA")\""
 # CALFLAT/CALDARK NOW DESCRIBE THE MASTERS THAT RAN — they are passed to

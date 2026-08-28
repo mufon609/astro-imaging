@@ -1,0 +1,312 @@
+{
+ "id": "stage3_group1_probe",
+ "engagement": "BACKLOG output-norm-zero-point stage 3 (sub-stack tier, run_undistort_pipeline.sh), GO #6 \u2014 director astro-imaging-64, worker astro-imaging-fe; tree = 1496431 + the uncommitted stage-3 edits (+ the director's BACKLOG/run_session_chain/run_corpus_combine hunks); guards 25 passed, 0 failed (209 s, then 66 s after the ALL-array fix) BEFORE the probe",
+ "command": "scripts/stack/run_undistort_pipeline.sh sessions/aug06 set-01 --dark=sessions/aug06/work/masters/dark_master.fit --flat=sessions/aug06/work/masters/skyflat_set-01.fit --select=sessions/aug06/work/groups_set-01/g1.list --chunk=12 --out=sessions/aug06/work/groups_set-01_stage3/sub_01.fit --keep-out   (the same 100 frames as the canonical sub_01.fit; rc 0; 11:58-12:10:40, ~12 min)",
+ "log_lines": {
+  "pick": "Trial #1: After sequence analysis, we are choosing image 9 as new reference for registration",
+  "setref": "Running command: setref",
+  "normalization": [
+   "Input normalization ....... additive + scaling",
+   "Output normalization ...... disabled",
+   "Rejection parameters ...... outliers=0.300 significance=0.050"
+  ],
+  "anchor_echo": "anchor: REGREF=1:DSC_6239.NEF [pinned] ANCREF=1 ANCLOC R,G,B = 0.000404182 0.00074296 0.000567634",
+  "enabled_lines": 0
+ },
+ "seq_lines": {
+  "lt_seq_S": "S 'lt_' 1 100 100 5 0 6 0 0 0",
+  "r_lt_seq_S": "S 'r_lt_' 1 100 100 5 0 6 0 0 0",
+  "r_lt_M_index0": [
+   "M0-0 23034330 23033467 0.000418915 0.000405008 0.000592715 -999999 0.000113002 -999999 0.000404182 0.000171755 -0.00948932 0.330829 1 0.000118929",
+   "M1-0 23034330 23033467 0.000767852 0.000744261 0.000758399 -999999 0.000120322 -999999 0.00074296 0.000179627 -5.47667e-05 0.354399 1 0.000116651",
+   "M2-0 23034330 23033467 0.00058637 0.000568594 0.000661304 -999999 0.000121437 -999999 0.000567634 0.000182999 -0.00284997 0.344987 1 0.000121747"
+  ],
+  "reading": "REF0 = RS0 = 0: setref propagated on the star-pair route too (third route); the 2pass's own pick was image 9, reproducing the canonical build's (FILENAME w_01_09.tif)"
+ },
+ "header_read_back": {
+  "NAXIS": [
+   5830,
+   3951
+  ],
+  "STACKNRM": "addscale",
+  "ANCSRC": "r_lt_.seq M-line IKSS loc/scale of ANCREF; [0,1] float, x65535=ADU16 (68 chars, intact)",
+  "ANCREF": 1,
+  "ANCLOCR": 0.000404182,
+  "ANCLOCG": 0.00074296,
+  "ANCLOCB": 0.000567634,
+  "ANCSCLR": 0.000171755,
+  "ANCSCLG": 0.000179627,
+  "ANCSCLB": 0.000182999,
+  "ANCLOC_x65535": [
+   26.488,
+   48.69,
+   37.2
+  ],
+  "ANCSCL_x65535": [
+   11.256,
+   11.7719,
+   11.9928
+  ],
+  "REGREF": "1:DSC_6239.NEF",
+  "REGREFSR": "pinned",
+  "REGMODEL": "starpair",
+  "REGUNDIS": false,
+  "STACKCNT": 100,
+  "GRPSIZE": null,
+  "PIPEREV": "1496431",
+  "FILENAME": "w_01_01.tif (the old sub_01: w_01_09.tif)",
+  "HISTORY": "mean stacking with GESDT rejection (outliers=0.300 significance=0.050), additive+scaling normalized input, unnormalized output, no image weighting, unequalized RGB, filter all",
+  "note": "GRPSIZE is stamped by run_undistort_groups.sh after the sub-pipeline returns; a direct pipeline run carries none"
+ },
+ "canvas": {
+  "new": [
+   5830,
+   3951
+  ],
+  "old_sub_01": [
+   5830,
+   3958
+  ],
+  "reading": "DIRECTION-ONLY: the pin (frame 1 vs the 2pass's frame 9) re-based the framing=min intersection; 7 rows fewer"
+ },
+ "seqstat_x65535": {
+  "new": {
+   "location": [
+    26.28,
+    48.358,
+    36.995
+   ],
+   "median": [
+    26.336,
+    48.45,
+    37.056
+   ],
+   "min": [
+    0.0,
+    34.5,
+    17.97
+   ],
+   "max": [
+    22083.1,
+    25607.3,
+    23445.3
+   ],
+   "bgnoise": [
+    0.938,
+    1.04,
+    0.929
+   ]
+  },
+  "old_sub_01": {
+   "location": [
+    73.142,
+    129.22,
+    100.924
+   ],
+   "median": [
+    73.284,
+    129.459,
+    101.076
+   ],
+   "min": [
+    0.0,
+    91.93,
+    42.22
+   ],
+   "max": [
+    56266.2,
+    65535.0,
+    60460.5
+   ],
+   "bgnoise": [
+    2.404,
+    2.663,
+    2.381
+   ]
+  },
+  "lt_frames": {
+   "frame1_location": [
+    26.47,
+    48.67,
+    37.18
+   ],
+   "frame9_location": [
+    26.65,
+    48.53,
+    37.42
+   ],
+   "frame100_location": [
+    26.62,
+    48.88,
+    37.38
+   ],
+   "per_frame_min_R_min_med_max": [
+    -1032.79,
+    -548.43,
+    -270.45
+   ],
+   "per_frame_min_G": [
+    -94.55,
+    -6.85,
+    -4.01
+   ],
+   "per_frame_min_B": [
+    -625.76,
+    -135.02,
+    -49.9
+   ],
+   "frames_with_min_lt_0": [
+    100,
+    100,
+    100
+   ],
+   "frames_with_min_eq_0": [
+    0,
+    0,
+    0
+   ],
+   "per_frame_max_R": [
+    17873,
+    25894
+   ],
+   "per_frame_max_G": [
+    22517,
+    28274
+   ],
+   "per_frame_max_B": [
+    20767,
+    28205
+   ]
+  },
+  "r_lt_copies_M_lines": {
+   "copies_with_min_lt_0": [
+    100,
+    100,
+    100
+   ],
+   "max_R": [
+    17285,
+    26149
+   ],
+   "max_G": [
+    21355,
+    26221
+   ],
+   "max_B": [
+    19361,
+    28509
+   ]
+  }
+ },
+ "level_reading": {
+  "new_over_ANCLOC": [
+   0.99215,
+   0.99318,
+   0.99449
+  ],
+  "R_over_G": {
+   "new": 0.5435,
+   "ANC": 0.544,
+   "delta_pct": -0.1
+  },
+  "B_over_G": {
+   "new": 0.765,
+   "ANC": 0.764,
+   "delta_pct": 0.13
+  },
+  "old_over_new": [
+   2.783,
+   2.672,
+   2.728
+  ],
+  "bgnoise_old_over_new": [
+   2.563,
+   2.561,
+   2.563
+  ],
+  "reading": "the new level IS the pinned frame's own sky (26.3/48.4/37.0 vs frame 1's 26.5/48.7/37.2; the burst's sky is flat to +/-0.5% across frames 1/9/100). The OLD member sat 2.6-2.8x higher: -output_norm divided by (max - min) with the group's brightest pixel at ~0.39 of the 16-bit range \u2014 14-bit raws saturate at 16383/65535 = 0.25, times the flat correction \u2014 so it STRETCHED every member by ~2.6 (bgnoise old/new 2.56 = the same factor). The union's E2-era levels (~73/129/101 for this reference) were that stretch; stage-3 members carry the physical sky."
+ },
+ "clamps": {
+  "per_channel_ge1": [
+   0,
+   0,
+   0
+  ],
+  "max": [
+   0.33697,
+   0.39074,
+   0.35775
+  ],
+  "prediction": "> 0 on saturated cores",
+  "verdict": "NOT MET in the benign direction: nothing reaches 1.0 because 14-bit raw saturation sits at 0.25 of the 16-bit container (per-frame max 17.9-28.3k ADU16 after flat correction), so the [0,1] clamp cannot fire on this camera's data at the sub-stack tier; the union-tier clamps (4 px) came from members that -output_norm had rescaled to max 1.0"
+ },
+ "holes": {
+  "per_channel_eq0": [
+   3,
+   0,
+   0
+  ],
+  "covered_pixels": 23033467,
+  "fraction": 1.3e-07,
+  "rule": "MET if every hole coincides with a pixel <= 0 in >= 50% of the r_lt copies; NOT MET if any hole sits on a pixel positive in most copies",
+  "attribution_R": [
+   {
+    "xy1": [
+     3308,
+     554
+    ],
+    "n_cov": 100,
+    "n_le0": 56,
+    "frac_le0": 0.56,
+    "copies_min": -0.0012626,
+    "copies_median": -7.38e-05,
+    "copies_median_ADU16": -4.84
+   },
+   {
+    "xy1": [
+     1874,
+     2913
+    ],
+    "n_cov": 100,
+    "n_le0": 47,
+    "frac_le0": 0.47,
+    "copies_min": -0.00090478,
+    "copies_median": 2.82e-05,
+    "copies_median_ADU16": 1.85
+   },
+   {
+    "xy1": [
+     117,
+     3366
+    ],
+    "n_cov": 100,
+    "n_le0": 43,
+    "frac_le0": 0.43,
+    "copies_min": -0.00086056,
+    "copies_median": 4.32e-05,
+    "copies_median_ADU16": 2.83
+   }
+  ],
+  "sky_noise_holes": "0, as predicted: the R sky sits at 26.3 ADU16 with a stack bgnoise of 0.94 (28 sigma) and a per-frame scale of 11.3 ADU16 (2.3 sigma per frame, ~1% of frames <= 0 at a sky pixel) \u2014 a sky pixel cannot reach 43-56% of frames <= 0",
+  "verdict": "LETTER: NOT MET for 2 of 3 holes (47% and 43% of copies <= 0 against the 50% bar; hole 1 at 56% MET). READING: all three are sites whose value in the frames is ~0 (copies' medians -4.8/+1.8/+2.8 ADU16 on a 26.5 ADU16 sky, 0.2-0.4 sigma of the per-frame noise; a true-zero site shows 50% +/- 5% of frames <= 0 by the binomial scatter of n=100), i.e. dead/cold sensor sites whose normalized GESD mean is <= 0 and clamps to 0 \u2014 the data's own zeros that -output_norm was hiding by shifting them positive; NOT sky. Fitness to land is the director's/owner's call on that reading; not self-ratified."
+ },
+ "U_S3_negatives_survive_the_darktable_leg": "YES: every lt frame (100/100, all three channels) has min < 0 (R -270 to -1033 ADU16, G -4 to -95, B -50 to -626); no frame has min == 0; the r_lt copies likewise (100/100 min < 0)",
+ "two_term_reading": {
+  "canvas": "MOVED (pin): 5830x3958 -> 5830x3951; direction-only",
+  "level": "NORM: the new member = the pinned frame's own sky (26.3/48.4/37.0); the old = that sky x2.6-2.8 (the min-max stretch of a 14-bit-in-16-bit stack)",
+  "pick_reproducibility": "MET: the 2pass chose image 9 again"
+ },
+ "side_effects": {
+  "lens_preflight_json": "rewritten by the run; sha256 compared below (restored if changed)",
+  "work_dir": "$P/out (54 GB, 100 lt_ + 100 r_lt_ frames + both .seq) DELETED after the readouts; lt_.seq and r_lt_.seq copied out of tree first",
+  "products": "sessions/aug06/work/groups_set-01_stage3/sub_01.fit (276 MB, arm dir, gitignored) kept for audit"
+ },
+ "records_out_of_tree": "~/.cache/astro-imaging/pedestal_probe/go6/{probe_run.log,readout.json,seqstat/stats.csv,lt_stats.csv,r_lt_.seq,lt_.seq}",
+ "director_audit": {
+  "hole_mechanism_CORRECTED": "NOT dead/cold sensor sites (that reading is refuted by the drift geometry \u2014 a sensor-fixed site cannot occupy one canvas position in ~50 of 100 registered frames while the sky drifts ~1.9 px/frame). All three are lanczos4 UNDERSHOOT PITS on the dark side of a bright star at a fixed SKY position \u2014 the darkest-pixel mechanism datasets/corpus/pedestal_work/e2_no_output_norm_full.json named. Diagnostic read of the kept sub_01 (0-based x,y; ADU16): (3307,553) 3x3 R [[997.5,753.5,235.7],[30.5,0,23.8],[50.0,43.2,38.9]], G within 3 px 12,426; (1873,2912) 3x3 R [[246.4,626.5,599.8],[3.0,0,25.8],[26.4,22.9,23.7]], G within 3 px 4,514; (116,3365) 3x3 R [[19.6,46.9,327.6],[21.5,0,326.5],[30.6,21.1,461.7]], G within 3 px 8,933. R reaches 0 because its sky is the lowest (26.5 ADU16 ~ the pit depth); G/B skies of 48/37 keep their pits positive.",
+  "rule_reading": "The pre-registered 50%-of-copies letter was statistically naive: at a zero-mean site the <=0 fraction of 100 copies is binomial with sigma ~5%, so 56/47/43% are all within 1.4 sigma of 50% and ~40 sigma from a sky pixel's ~1%. Intent of the rule (no hole on a sky pixel) MET for all three; letter NOT MET for two \u2014 recorded as a flaw of the rule, not softened after the fact.",
+  "verdict": "stage 3 FIT TO LAND: no sky hole; 3 pits of 23,033,467 px, R only, each 1 px beside a bright star; the same pits existed under -output_norm (shifted positive by mu, one of them mapped to exactly 0 as the product's darkest pixel). A pedestal would keep a resampling artefact as negative data and add a non-physical offset to the whole product \u2014 not adopted.",
+  "level_offset": "0.55-0.79% under the anchor (bar 0.3%) NOT MET \u2014 recorded open (U-S7), unattributed; the ratios R/G, B/G met their bar.",
+  "stretch_finding": "the canonical members were -output_norm rescaled by 1/(max-min) with the group's max at ~0.37-0.39 of the 16-bit container (14-bit raws saturate at 0.25 x the flat's corner correction): every canonical member sits ~2.6-2.8x its physical sky; the from-raws campaign brings every level to the frames' own sky. Ratio quantities (K, SPCC, the sky-anchored stretch) are scale-invariant; baseline_guard's level rows are ADVISORY under the STACKNRM change (stage 4)."
+ }
+}
