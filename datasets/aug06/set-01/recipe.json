@@ -3,5 +3,10 @@
   "weight": null,
   "exclude": [],
   "why": "pre-burst frames DSC_6237/6238 DELETED from staging at user order (originals off-rig; re-stageable) \u2014 previously hand-excluded on the measured basis: 49 s pre-burst across a 43 s timer pause, re-aim residual +3.0/-1.6 px (tripod never moved), footprints 35 px west of the burst start = pure drift-span cost vs 2/502 depth. The shipped stack (500 frames, 5x100 groups) is unchanged; solve record: qa_work/mount_probe/solve_aim_green.json. Exclude list emptied because cullspec hard-aborts on excludes matching no staged frame."
+ },
+ "spcc": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
  }
 }

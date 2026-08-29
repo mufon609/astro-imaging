@@ -5,5 +5,10 @@
    264
   ],
   "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_0264.NEF: fwhm,round). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ },
+ "spcc": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
  }
 }

@@ -48,5 +48,10 @@
    7738
   ],
   "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_7694.NEF: nstars; DSC_7695.NEF: nstars; DSC_7696.NEF: nstars; DSC_7697.NEF: nstars; DSC_7698.NEF: nstars; DSC_7699.NEF: nstars; DSC_7700.NEF: nstars; DSC_7701.NEF: nstars; DSC_7702.NEF: bg,nstars; DSC_7703.NEF: bg,nstars; DSC_7704.NEF: bg,nstars; DSC_7705.NEF: bg,nstars; DSC_7706.NEF: bg,nstars; DSC_7707.NEF: bg,nstars; DSC_7708.NEF: bg,nstars; DSC_7709.NEF: bg,nstars; DSC_7710.NEF: bg,nstars; DSC_7711.NEF: bg,nstars; DSC_7712.NEF: bg,nstars; DSC_7713.NEF: bg,nstars; DSC_7714.NEF: bg,nstars; DSC_7715.NEF: bg,nstars; DSC_7716.NEF: bg,nstars; DSC_7717.NEF: bg,nstars; DSC_7718.NEF: bg,nstars; DSC_7719.NEF: bg,nstars; DSC_7720.NEF: bg,nstars; DSC_7721.NEF: bg,nstars; DSC_7722.NEF: bg,nstars; DSC_7723.NEF: bg,nstars; DSC_7724.NEF: bg,nstars; DSC_7725.NEF: bg,nstars; DSC_7726.NEF: bg,nstars; DSC_7727.NEF: bg,nstars; DSC_7728.NEF: bg,nstars; DSC_7729.NEF: bg,nstars; DSC_7730.NEF: nstars; DSC_7731.NEF: bg,nstars; DSC_7732.NEF: nstars; DSC_7733.NEF: nstars; DSC_7734.NEF: nstars; DSC_7735.NEF: nstars; DSC_7736.NEF: nstars; DSC_7738.NEF: nstars). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ },
+ "spcc": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
  }
 }

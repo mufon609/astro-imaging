@@ -11,5 +11,10 @@
    3788
   ],
   "why": "auto-cull, standing policy: defect-side robust z >= 3.5 flags exclude (DSC_3782.NEF: fwhm; DSC_3783.NEF: fwhm,round; DSC_3784.NEF: fwhm,round; DSC_3785.NEF: fwhm,round; DSC_3786.NEF: fwhm,round; DSC_3787.NEF: fwhm; DSC_3788.NEF: fwhm,round). Exclude numbers are trailing filename digits (cullspec). A hand-ratified stack block overrides this write."
+ },
+ "spcc": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
  }
 }

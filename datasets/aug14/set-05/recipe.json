@@ -230,5 +230,10 @@
    5253
   ],
   "why": "HAND-RATIFIED (owner-directed): the four cloud passages of this set, each extended to its full ingress/egress ramp. 226 of 578 frames; 352 kept.\nWHY WIDER THAN THE STANDING AUTO-CULL, which would exclude 184: the auto-cull's robust z is scaled by this set's OWN pooled MAD, and 32% contamination inflates that MAD to 1.631 ADU against 0.741 on the set's uncontaminated population \u2014 2.2x. The shipped z>=3.5 is therefore z>=7.7 on a clean scale, and it cut each block's core while keeping its ramps. MEASURED on the 42 frames that survived the auto-cull: sky 1.05-1.12x the clean level (51.2 ADU over a 1007.0 ADU pedestal measured on this session's own darks) and star counts median 1263 against 1556 on truly clean frames, -19%; worst survivor DSC_5050 at -37% with sky 1.12x. All 42 lie within 18 frames of a cut block and every one is contiguous with it.\nSECOND REASON: culling only a block's core splices its two shoulders together in the post-cull sequence \u2014 DSC_4830-4879's halves became 24 ADJACENT contaminated frames, 0.182 of a 132-frame group. Under GESD's 0.30 outlier-fraction cap, so eligible for rejection, but 18% of a group carrying ~10% excess sky.\nAFTER this cull: 0 frames above clean-scale z 3.5 remain; 352 frames give 3 groups of [118,117,117], all above the 50-frame GESD threshold.\nInstrument: Siril 1.4.4 register -2pass regdata (bg/nstars per frame) via scripts/qa/inspect_stage.py; qa_work/frame_metrics.json. Pedestal: Siril seqstat over this session's darks, darks/qa_work/pedestal.json. Cause: broadband aerosol haze (set-01/qa_work/sky_colour_probe.json) \u2014 moon 21-46 deg below horizon, so not moonlight.\nExclude numbers are trailing filename digits (cullspec). Hand-ratified: the chain's auto-cull must not overwrite this."
+ },
+ "spcc": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
  }
 }
