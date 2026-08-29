@@ -378,7 +378,7 @@ printf 'requires 1.2.0\nset32bits\nsetcompress 0\nsetext fit\ncd %s\nlink s -out
 # location per channel (measured 0.3-0.5% under it, the coverage/gradient term)
 # and values outside [0,1] clamp (measured: 4 pixels of 30.1 M, one saturated
 # core). Registry: docs/dead-ends/stacking-compose.md, the -output_norm
-# zero-point entry; BACKLOG:output-norm-zero-point.
+# zero-point entry (mechanism, the shipped design, the accepted campaign).
 # REMOVAL CONDITION: siril offers a reference-anchored (or per-channel,
 # non-min-max) output normalization — then -output_norm returns and the ANC*
 # anchor keys retire with it.

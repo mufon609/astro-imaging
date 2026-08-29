@@ -368,7 +368,7 @@ for f in "$G"/sub_*.fit; do ln -sf "$f" "$G/final/$(basename "$f")"; done
 # resampling-undershoot pixel (MEASURED, one knob, four setref runs: <=2.4%
 # moves where "the reference is the level anchor" predicted 1.7-2.3x;
 # docs/dead-ends/stacking-compose.md, the -output_norm zero-point entry;
-# BACKLOG:output-norm-zero-point stage 2). The pin also matters for GEOMETRY: it
+# the shipped design in the same entry). The pin also matters for GEOMETRY: it
 # fixes the registration, hence which pixel lands darkest, which is what made
 # 2pass's auto-pick a lottery across rebuilds (measured 67-vs-43 ADU on two
 # builds of one set, a false baseline regression). Member 1 changes nothing

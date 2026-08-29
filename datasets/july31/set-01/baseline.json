@@ -1,15 +1,16 @@
 {
  "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
  "measures": {
-  "corner_spread_pct": 0.398,
+  "corner_spread_pct": 0.221,
   "edge_dipole_x": 0.0028,
   "centre_median_per_channel": {
-   "ch0": 125.7,
-   "ch1": 125.8,
-   "ch2": 125.3
+   "ch0": 90.6,
+   "ch1": 90.6,
+   "ch2": 90.5
   },
+  "stacknrm": "addscale",
   "stack": "web/results/july31/stack_set-01_full_spcc.fit",
-  "stack_id": "96013bb147de89ba7f66ba33a6ceaed3"
+  "stack_id": "c7c5d3e7f2649468544f69d2dcb02df7"
  },
  "tolerances": {
   "corner_spread_pct_max_abs": 3.0,
@@ -17,6 +18,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "user accepted the july31 five-surface judgment set (linear diagnostic products: four per-set stacks + the 1760-frame combine), 2026-08-07",
+ "note": "OWNER-ACCEPTED 2026-08-29: from-raws rebuild under PIPEREV 77e3a78 (BACKLOG output-norm-zero-point campaign; record datasets/corpus/campaign_zeropoint/campaign_record.json); STACKNRM addscale \u2014 the level rows re-arm on this seed",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

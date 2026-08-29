@@ -39,7 +39,7 @@
 #     (The REFERENCE half of that lottery is closed on this route: `setref lt 1`
 #     after the 2pass, the groups route's own pin, time order — the production
 #     path only; a donor lt_.seq carries the donor's reference verbatim and is
-#     never re-pinned. BACKLOG:output-norm-zero-point stage 3.)
+#     never re-pinned. the -output_norm zero-point entry in docs/dead-ends/stacking-compose.md.)
 # --nonorm  stack with `-nonorm` instead of `-norm=addscale`.
 #     DIAGNOSTIC ONLY, never a deliverable: the per-frame normalization
 #     coefficients are computed from the frames' OWN statistics, so on a
@@ -88,7 +88,7 @@
 # percentile / winsorized / GESD — a deep stack gets GESD), with
 # `-norm=addscale` and NO `-output_norm` (a global min-max rescale keyed to one
 # darkest pixel; the sub-stack's level is its pinned reference frame's own sky,
-# stamped as ANCLOC*/ANCSCL* — BACKLOG:output-norm-zero-point stage 3).
+# stamped as ANCLOC*/ANCSCL* — the zero-point entry, docs/dead-ends/stacking-compose.md).
 # ICC on the FLOAT leg: the TIFF ships UNTAGGED (exiftool strips the profile
 # in the same pass that copies the lens EXIF) and darktable exports
 # --icc-type LIN_REC709 — measured a PERFECT identity round trip (ratio
@@ -332,7 +332,7 @@ REJ=$(stack_rejection_for "$FRAMES")
 # NO -output_norm on the production path: it is a global min-max rescale — ONE
 # (min, max) over all three channels — whose zero point is one darkest pixel
 # (docs/dead-ends/stacking-compose.md, the -output_norm zero-point entry;
-# BACKLOG:output-norm-zero-point stage 3). Without it the sub-stack's level is
+# docs/dead-ends/stacking-compose.md, the zero-point entry). Without it the sub-stack's level is
 # its pinned reference FRAME's own IKSS location per channel, stamped below as
 # ANCLOC*/ANCSCL* (ANCREF, ANCSRC); values outside [0,1] clamp. The --nonorm
 # diagnostic arm is untouched.

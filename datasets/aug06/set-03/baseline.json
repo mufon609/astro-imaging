@@ -1,15 +1,16 @@
 {
  "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
  "measures": {
-  "corner_spread_pct": 1.022,
-  "edge_dipole_x": 0.0071,
+  "corner_spread_pct": 0.573,
+  "edge_dipole_x": 0.0028,
   "centre_median_per_channel": {
-   "ch0": 49.2,
-   "ch1": 49.3,
-   "ch2": 49.0
+   "ch0": 35.0,
+   "ch1": 35.1,
+   "ch2": 35.0
   },
+  "stacknrm": "addscale",
   "stack": "web/results/aug06/stack_set-03_full_spcc.fit",
-  "stack_id": "41155519a2249598ebab4ea98edd6e8b"
+  "stack_id": "5edf98e7035eec80ba45471c477b913f"
  },
  "tolerances": {
   "corner_spread_pct_max_abs": 3.0,
@@ -17,6 +18,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "user-accepted own-model adoption (per-set optical state); pinned-model control preserved as *-pinned",
+ "note": "OWNER-ACCEPTED 2026-08-29: from-raws rebuild under PIPEREV 77e3a78 (BACKLOG output-norm-zero-point campaign; record datasets/corpus/campaign_zeropoint/campaign_record.json); STACKNRM addscale \u2014 the level rows re-arm on this seed",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

@@ -487,7 +487,7 @@ and Siril's).
   inside the 25% tolerance). So the guard is not expected to fire, but the
   README's acceptance rule ("any render the change alters is a declared
   delta … then re-baseline and tag") applies to all 13 baselines, the same
-  shape as `output-norm-zero-point` stage 4. A curve landing is a
+  shape as the zero-point item's stage 4 (closed; `docs/dead-ends/stacking-compose.md`). A curve landing is a
   BUILD-PATH change for the finish stage only (no member or compose rebuild;
   `PIPEREV` stamps on members/composites are unaffected; `_spcc` products
   carry none).
@@ -586,7 +586,7 @@ on the 4920×3580 product and one that must fail fast):
 
 - **A (control)** — today's runner, no spec. Must reproduce the shipped
   record for that product to the digit (SPCC measured deterministic on
-  re-runs: `output-norm-zero-point` H1). Reference numbers on today's
+  re-runs: the zero-point campaign's H1, `datasets/corpus/campaign_zeropoint/campaign_record.json`). Reference numbers on today's
   july31/set-01 `_full`: K 1.000/0.687/0.927, 3077/5119 stars, R/G
   `0.4887 + 0.2395·x` σ 0.140, B/G `0.2862 + 0.4620·x` σ 0.110, intercept
   share 0.71/0.39, "imprecise solution" fired.

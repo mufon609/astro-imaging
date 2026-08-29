@@ -353,7 +353,19 @@ exonerated for it).
   whose G peak is the global max, 65535.0 in both); and the composite's own
   location sits 0.34–0.44 ADU16 (0.3–0.5%) below the reference's on both
   arms, nearly channel-independent — the coverage/gradient term a
-  three-channel closure cannot see. Design consequence RATIFIED and staged in
-  BACKLOG:`output-norm-zero-point`: the compose tier ships without
-  `-output_norm`, the anchor stamped (`ANCLOC*`/`ANCSCL*`/`ANCREF`,
-  `STACKNRM=addscale`); stages 2-3 (per-set final, sub-stacks) open.
+  three-channel closure cannot see. **Design consequence SHIPPED at every undistort
+  stack line and OWNER-ACCEPTED 2026-08-29** (the queue item `output-norm-zero-point`
+  is closed; its measured record is `datasets/corpus/campaign_zeropoint/campaign_record.json`
+  + ledger aug06 `output_norm_zero_point_*`): no `-output_norm` at the compose,
+  per-set-final and sub-stack tiers, the sub-stack reference pinned (`setref lt 1`),
+  the anchor stamped (`ANCLOC*`/`ANCSCL*`/`ANCREF`/`ANCSRC`, `STACKNRM=addscale`),
+  Siril's own "Output normalization ...... disabled" asserted; `baseline_guard`'s
+  level rows advisory while STACKNRM differs from the baseline's. From-raws rebuild of
+  the whole corpus under one HEAD: level = the anchor on 99/99 products (finals
+  0.1-0.4% under; members 0.25-0.87% under, unattributed), 0 clamps, 0 holes on every
+  composed product (29 single-pixel undershoot pits on 21 of 77 members, all beside
+  bright stars), K old-vs-new scattered (finals ΔK_G −0.004 ± 0.003), finals visually
+  indistinguishable from their `-output_norm` twins; every canonical member had been
+  STRETCHED ×2.6-2.8 by its group's min-max (14-bit raws saturate at 0.25 of the
+  container). The standard route (`run_pipeline.sh`) still stacks with `-output_norm`
+  — BACKLOG:`standard-route-output-norm`.

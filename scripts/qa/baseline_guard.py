@@ -57,7 +57,7 @@ DIFFERS FROM THE BASELINE'S. `centre_median_per_channel` was measured to move
 keyed to one darkest pixel; docs/dead-ends/stacking-compose.md, the zero-point
 entry), and a product built without it sits at its reference's own sky, ~x1.8
 above a rescaled one — a level fail there says only that the anchor changed by
-design (BACKLOG:output-norm-zero-point). So the seed records the product's
+design (docs/dead-ends/stacking-compose.md, the zero-point entry). So the seed records the product's
 STACKNRM header (absent = "addscale+output_norm", the pre-change default every
 existing baseline and product share, which keeps the rule inert on them), and
 the compare counts the centre-median rows as FAILS only when the two statements
