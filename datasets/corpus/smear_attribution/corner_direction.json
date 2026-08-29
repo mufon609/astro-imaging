@@ -1,0 +1,6904 @@
+{
+ "id": "corner_direction",
+ "item": "GO #8 (owner: 'test what you need before turning the knobs'; director astro-imaging-45; worker this session) \u2014 a MEASUREMENT: the direction of the corner elongation on the raws, the members and the corpus; pre-registered at datasets/aug06/experiments.jsonl line 104, RESULT line 105; this record carries every number.",
+ "preregistration_verbatim": {
+  "id": "corner_direction",
+  "status": "PRE-REGISTERED BEFORE ANY CORNER BOX IS MEASURED. Owner-directed ('test what you need before turning the knobs'); director astro-imaging-45; worker this session. A MEASUREMENT: no knob, no build, no product touched.",
+  "relates_to": [
+   "night_dependence_single_raws",
+   "left_band_member_attribution",
+   "drift_span_discriminator_exit_edge",
+   "pa_convention_contradiction_one_instrument"
+  ],
+  "record": "datasets/corpus/smear_attribution/corner_direction.json",
+  "question": "The owner sees long trailing at ALL FOUR corners of the corpus, and the director's corner boxes read FWHM 2.67-3.03 vs centre 2.52 with the elongation DIRECTION differing per corner (drift-aligned at BL, near-tangential at BR, radial-or-drift at TL, round at TR). Along the mid-row the radial and drift directions coincide, so GO #5-#7 could not separate them; the corners can: is the corner elongation RADIAL (coma-like optics), TANGENTIAL (astigmatism-like), aligned to the sensor x-AXIS (a sensor-axis mechanism: drift/readout/demosaic), or MIXED \u2014 and is it night-dependent like the mid-row?",
+  "angle_convention": "Siril findstar's angle is read in the image's y-DOWN (top-origin) frame, x-axis = 0, axis angle mod 180 \u2014 CHECKED on GO #6's corpus band where local +RA is tilted 8-14 deg from horizontal: the y-down deviations are 0.9-7.6 deg, the y-up 19-36 deg, so y-down is the tool's frame (the director's convention). Radial = the axis from the frame centre to the box centre in that frame, tangential = radial + 90, all compared mod 180 via the top-30 e-weighted axial mean of the major axis (the GO #5 method).",
+  "step1_raws": "the 18 converted raws of GO #7 (sessions/<night>/work/rawshape/<set>/out/c_0000N.fit, debayered, uncalibrated, unwarped, 6064x4040): four 800-px boxes centred at y-down pixels TL (600,600), TR (5464,600), BL (600,3440), BR (5464,3440) \u2014 rho = 0.78 of the half-diagonal (2816 px of 3643) \u2014 via a hand .ssf of shape_at_sky's own form (load / crop / findstar per box, gate 'setfindstar reset -roundness=0.10 -relax=on -maxR=1.0') through the serialized invoker, lists kept. Per box: n, top-30 FWHM (x+y)/2, roundness, e, the axial-mean major-axis angle and its deviation from (a) radial, (b) tangential, (c) the sensor x-axis; per set the median over its 3 raws.",
+  "step2_members": "the corresponding canonical members: sub_01 of each set (its reference frame is the set's first raw by construction) plus the member holding the middle raw (aug14/set-04 sub_04, aug14/set-05 sub_02, aug09/set-05 sub_02, aug06/set-02 sub_02, july31/set-01 sub_03, july31/set-03 sub_03; from the members' STACKCNT and the culled capture order). Boxes in the MEMBER's own pixel frame at (600,600), (W-600,600), (600,H-600), (W-600,H-600) \u2014 the assumed mapping: the member canvas is the reference frame's undistorted geometry minus a framing=min crop (5767-5832 x 3927-3952 vs the raw's 6064x4040), so a member corner box sits ~(6064-W)/2 = 116-149 px further from the raw's x-edges and ~44-57 px from its y-edges than the raw box does (rho 0.78 -> ~0.74) and the undistort's scale is inside that; stated, not corrected. Same statistics; then member minus raw per corner in size and direction.",
+  "step3_corpus_BL": "the corpus's BL boxes at y-down corpus pixels (700,4200) and (1300,4900): RA/Dec re-derived from the corpus WCS at FITS (x, 5677 - y_down); shape_at_sky on the corpus (lists kept; the tool's own placement check must return these pixels); GO #6's coverage method over the 77 members (full 800-px box), shape_at_sky on every covering member at that sky, the member corner/edge each contributes from (distance to its edges, exit/entry role), corpus vs the covering members' median/best.",
+  "rules_pre_registered": {
+   "OPTICS_RADIAL": "a set's four raw corners each within 20 deg of their radial direction (coma-like)",
+   "OPTICS_TANGENTIAL": "each within 20 deg of tangential (astigmatism-like)",
+   "AXIS": "each within 20 deg of the sensor x-axis at all four corners (a sensor-axis mechanism, not a lens symmetry)",
+   "MIXED": "otherwise, reported per corner",
+   "night_dependence": "whether the corner readings order by night as the mid-row did (aug14 > aug09 > july31/set-03 > aug06 > july31/set-01 at +2400)",
+   "stacking_adds": "member minus raw per corner: size, and the direction change \u2014 a rotation of the elongation toward the drift axis = a drift-coupled addition; toward radial/tangential = the optics dominating",
+   "corpus_BL_attribution": "GO #6's rules with the allowance CORRECTED to the measured compose floor: MEMBER-BORNE if the corpus is within +0.265 px FWHM (0.165 + 0.10) and 0.03 roundness of the covering members' MEDIAN; COMPOSE-ADDED if worse than the BEST by > 0.20 / 0.05 AND worse than the median by > 0.265 / 0.03; else NEITHER, reported"
+  },
+  "no_destructive_steps": "raws, members and the corpus read only; .ssf, logs and lists under sessions/<night>/work/{rawshape,corner_attr}/ (gitignored); tracked outputs: this ledger's two entries and the corpus record"
+ },
+ "angle_convention_check": {
+  "x05pct_-": {
+   "major_axis": 21.79,
+   "dev_ydown": 7.58,
+   "dev_yup": 36.0,
+   "ra_dir_ydown": 14.21
+  },
+  "x10pct_-": {
+   "major_axis": 15.86,
+   "dev_ydown": 2.96,
+   "dev_yup": 28.76,
+   "ra_dir_ydown": 12.9
+  },
+  "x15pct_DEFECT": {
+   "major_axis": 12.36,
+   "dev_ydown": 0.87,
+   "dev_yup": 23.85,
+   "ra_dir_ydown": 11.49
+  },
+  "x20pct_DEFECT": {
+   "major_axis": 12.38,
+   "dev_ydown": 2.38,
+   "dev_yup": 22.38,
+   "ra_dir_ydown": 10.0
+  },
+  "x25pct_DEFECT": {
+   "major_axis": 11.0,
+   "dev_ydown": 2.58,
+   "dev_yup": 19.42,
+   "ra_dir_ydown": 8.42
+  },
+  "x50pct_clean": {
+   "major_axis": 14.18,
+   "dev_ydown": 14.44,
+   "dev_yup": 13.92,
+   "ra_dir_ydown": 179.74
+  },
+  "x90pct_-": {
+   "major_axis": 167.85,
+   "dev_ydown": 1.15,
+   "dev_yup": 25.45,
+   "ra_dir_ydown": 166.7
+  },
+  "x95pct_-": {
+   "major_axis": 139.33,
+   "dev_ydown": 26.08,
+   "dev_yup": 55.26,
+   "ra_dir_ydown": 165.41
+  }
+ },
+ "instrument": "hand .ssf of shape_at_sky's own form (load / crop / findstar per box, gate 'setfindstar reset -roundness=0.10 -relax=on -maxR=1.0') through scripts/lib/siril_run.py; per box the top-30-by-amplitude median of (FWHMx+FWHMy)/2, min/max roundness, e, and the e-weighted axial-mean major-axis angle (Siril's axis angle, y-down frame) vs radial / tangential / x-axis; raws = GO #7's 18 converted frames; members = sub_01 + the middle-raw member of each set; the corpus's BL via shape_at_sky.py at RA/Dec re-derived from the corpus WCS at FITS (x, 5677 - y_down)",
+ "raw_boxes_ydown": {
+  "TL": [
+   600,
+   600
+  ],
+  "TR": [
+   5464,
+   600
+  ],
+  "BL": [
+   600,
+   3440
+  ],
+  "BR": [
+   5464,
+   3440
+  ],
+  "box_px": 800,
+  "rho": 0.77
+ },
+ "raws_per_set_medians": {
+  "aug14/set-04": {
+   "TL": {
+    "n": 62,
+    "fwhm": 2.465,
+    "roundness": 0.873,
+    "e": 0.135,
+    "angle": 144.5,
+    "dev": {
+     "radial": 65.8,
+     "tangential": 24.2,
+     "xaxis": 35.5
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     68.03,
+     68.58,
+     60.77
+    ],
+    "per_raw_dev_x": [
+     37.75,
+     38.3,
+     30.49
+    ]
+   },
+   "TR": {
+    "n": 29,
+    "fwhm": 2.915,
+    "roundness": 0.685,
+    "e": 0.361,
+    "angle": 167.2,
+    "dev": {
+     "radial": 17.5,
+     "tangential": 72.5,
+     "xaxis": 12.8
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     17.01,
+     19.22,
+     16.22
+    ],
+    "per_raw_dev_x": [
+     13.27,
+     11.06,
+     14.06
+    ]
+   },
+   "BL": {
+    "n": 29,
+    "fwhm": 2.24,
+    "roundness": 0.763,
+    "e": 0.264,
+    "angle": 136.0,
+    "dev": {
+     "radial": 13.7,
+     "tangential": 76.3,
+     "xaxis": 44.0
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     11.81,
+     18.14,
+     11.09
+    ],
+    "per_raw_dev_x": [
+     42.09,
+     48.42,
+     41.37
+    ]
+   },
+   "BR": {
+    "n": 35,
+    "fwhm": 2.745,
+    "roundness": 0.619,
+    "e": 0.446,
+    "angle": 23.9,
+    "dev": {
+     "radial": 6.4,
+     "tangential": 83.6,
+     "xaxis": 23.9
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     6.61,
+     5.26,
+     7.34
+    ],
+    "per_raw_dev_x": [
+     23.67,
+     25.02,
+     22.94
+    ]
+   }
+  },
+  "aug14/set-05": {
+   "TL": {
+    "n": 47,
+    "fwhm": 2.485,
+    "roundness": 0.859,
+    "e": 0.151,
+    "angle": 159.3,
+    "dev": {
+     "radial": 51.0,
+     "tangential": 39.0,
+     "xaxis": 20.7
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     28.86,
+     65.28,
+     57.39
+    ],
+    "per_raw_dev_x": [
+     1.42,
+     35.0,
+     27.11
+    ]
+   },
+   "TR": {
+    "n": 27,
+    "fwhm": 2.905,
+    "roundness": 0.731,
+    "e": 0.303,
+    "angle": 168.9,
+    "dev": {
+     "radial": 19.2,
+     "tangential": 70.8,
+     "xaxis": 11.1
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     18.23,
+     19.38,
+     19.81
+    ],
+    "per_raw_dev_x": [
+     12.05,
+     10.9,
+     10.47
+    ]
+   },
+   "BL": {
+    "n": 26,
+    "fwhm": 2.333,
+    "roundness": 0.819,
+    "e": 0.197,
+    "angle": 143.0,
+    "dev": {
+     "radial": 6.7,
+     "tangential": 83.3,
+     "xaxis": 37.0
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     15.63,
+     1.75,
+     6.24
+    ],
+    "per_raw_dev_x": [
+     45.91,
+     28.53,
+     36.52
+    ]
+   },
+   "BR": {
+    "n": 27,
+    "fwhm": 2.78,
+    "roundness": 0.586,
+    "e": 0.489,
+    "angle": 27.1,
+    "dev": {
+     "radial": 3.2,
+     "tangential": 86.8,
+     "xaxis": 27.1
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     2.83,
+     3.2,
+     3.51
+    ],
+    "per_raw_dev_x": [
+     27.45,
+     27.08,
+     26.77
+    ]
+   }
+  },
+  "aug09/set-05": {
+   "TL": {
+    "n": 49,
+    "fwhm": 2.41,
+    "roundness": 0.846,
+    "e": 0.166,
+    "angle": 148.9,
+    "dev": {
+     "radial": 61.4,
+     "tangential": 28.6,
+     "xaxis": 31.1
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     63.61,
+     51.97,
+     68.35
+    ],
+    "per_raw_dev_x": [
+     33.33,
+     21.69,
+     38.07
+    ]
+   },
+   "TR": {
+    "n": 23,
+    "fwhm": 2.6,
+    "roundness": 0.744,
+    "e": 0.287,
+    "angle": 169.2,
+    "dev": {
+     "radial": 19.5,
+     "tangential": 70.5,
+     "xaxis": 10.8
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     14.79,
+     24.39,
+     19.34
+    ],
+    "per_raw_dev_x": [
+     15.49,
+     5.89,
+     10.94
+    ]
+   },
+   "BL": {
+    "n": 31,
+    "fwhm": 2.245,
+    "roundness": 0.807,
+    "e": 0.211,
+    "angle": 140.4,
+    "dev": {
+     "radial": 9.3,
+     "tangential": 80.7,
+     "xaxis": 39.6
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     4.45,
+     19.24,
+     12.82
+    ],
+    "per_raw_dev_x": [
+     25.83,
+     49.52,
+     43.1
+    ]
+   },
+   "BR": {
+    "n": 38,
+    "fwhm": 2.57,
+    "roundness": 0.654,
+    "e": 0.401,
+    "angle": 28.2,
+    "dev": {
+     "radial": 2.1,
+     "tangential": 87.9,
+     "xaxis": 28.2
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     1.47,
+     0.2,
+     5.09
+    ],
+    "per_raw_dev_x": [
+     28.81,
+     30.48,
+     25.19
+    ]
+   }
+  },
+  "aug06/set-02": {
+   "TL": {
+    "n": 71,
+    "fwhm": 2.263,
+    "roundness": 0.857,
+    "e": 0.153,
+    "angle": 159.8,
+    "dev": {
+     "radial": 50.5,
+     "tangential": 39.5,
+     "xaxis": 20.2
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     48.66,
+     42.01,
+     60.97
+    ],
+    "per_raw_dev_x": [
+     18.38,
+     11.73,
+     30.69
+    ]
+   },
+   "TR": {
+    "n": 37,
+    "fwhm": 2.322,
+    "roundness": 0.759,
+    "e": 0.27,
+    "angle": 7.7,
+    "dev": {
+     "radial": 38.0,
+     "tangential": 52.0,
+     "xaxis": 7.7
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     37.3,
+     40.7,
+     35.8
+    ],
+    "per_raw_dev_x": [
+     7.02,
+     10.42,
+     5.52
+    ]
+   },
+   "BL": {
+    "n": 45,
+    "fwhm": 2.058,
+    "roundness": 0.802,
+    "e": 0.217,
+    "angle": 150.6,
+    "dev": {
+     "radial": 0.9,
+     "tangential": 89.1,
+     "xaxis": 29.4
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     7.51,
+     14.73,
+     27.87
+    ],
+    "per_raw_dev_x": [
+     37.79,
+     45.01,
+     2.41
+    ]
+   },
+   "BR": {
+    "n": 54,
+    "fwhm": 2.215,
+    "roundness": 0.729,
+    "e": 0.306,
+    "angle": 33.5,
+    "dev": {
+     "radial": 3.2,
+     "tangential": 86.8,
+     "xaxis": 33.5
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     4.55,
+     0.54,
+     4.5
+    ],
+    "per_raw_dev_x": [
+     34.83,
+     30.82,
+     34.78
+    ]
+   }
+  },
+  "july31/set-01": {
+   "TL": {
+    "n": 47,
+    "fwhm": 2.285,
+    "roundness": 0.865,
+    "e": 0.144,
+    "angle": 160.0,
+    "dev": {
+     "radial": 50.3,
+     "tangential": 39.7,
+     "xaxis": 20.0
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     41.61,
+     50.82,
+     58.27
+    ],
+    "per_raw_dev_x": [
+     11.33,
+     20.54,
+     27.99
+    ]
+   },
+   "TR": {
+    "n": 18,
+    "fwhm": 2.295,
+    "roundness": 0.823,
+    "e": 0.192,
+    "angle": 33.2,
+    "dev": {
+     "radial": 63.5,
+     "tangential": 26.5,
+     "xaxis": 33.2
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     65.22,
+     63.06,
+     62.19
+    ],
+    "per_raw_dev_x": [
+     34.94,
+     32.78,
+     31.91
+    ]
+   },
+   "BL": {
+    "n": 32,
+    "fwhm": 2.317,
+    "roundness": 0.852,
+    "e": 0.159,
+    "angle": 152.8,
+    "dev": {
+     "radial": 3.1,
+     "tangential": 86.9,
+     "xaxis": 27.2
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     6.22,
+     0.02,
+     3.03
+    ],
+    "per_raw_dev_x": [
+     24.06,
+     30.26,
+     27.25
+    ]
+   },
+   "BR": {
+    "n": 30,
+    "fwhm": 2.257,
+    "roundness": 0.879,
+    "e": 0.128,
+    "angle": 49.3,
+    "dev": {
+     "radial": 19.0,
+     "tangential": 71.0,
+     "xaxis": 49.3
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     23.73,
+     20.63,
+     12.81
+    ],
+    "per_raw_dev_x": [
+     54.01,
+     50.91,
+     43.09
+    ]
+   }
+  },
+  "july31/set-03": {
+   "TL": {
+    "n": 52,
+    "fwhm": 2.243,
+    "roundness": 0.863,
+    "e": 0.146,
+    "angle": 154.9,
+    "dev": {
+     "radial": 55.4,
+     "tangential": 34.6,
+     "xaxis": 25.1
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     61.09,
+     48.36,
+     56.68
+    ],
+    "per_raw_dev_x": [
+     30.81,
+     18.08,
+     26.4
+    ]
+   },
+   "TR": {
+    "n": 22,
+    "fwhm": 2.4,
+    "roundness": 0.735,
+    "e": 0.299,
+    "angle": 12.1,
+    "dev": {
+     "radial": 42.4,
+     "tangential": 47.6,
+     "xaxis": 12.1
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     39.29,
+     46.89,
+     41.12
+    ],
+    "per_raw_dev_x": [
+     9.01,
+     16.61,
+     10.84
+    ]
+   },
+   "BL": {
+    "n": 24,
+    "fwhm": 2.2,
+    "roundness": 0.845,
+    "e": 0.167,
+    "angle": 141.0,
+    "dev": {
+     "radial": 8.7,
+     "tangential": 81.3,
+     "xaxis": 39.0
+    },
+    "rho": 0.773,
+    "radial_dir": 149.72,
+    "per_raw_dev_radial": [
+     14.58,
+     3.7,
+     14.88
+    ],
+    "per_raw_dev_x": [
+     44.86,
+     26.58,
+     45.16
+    ]
+   },
+   "BR": {
+    "n": 25,
+    "fwhm": 2.32,
+    "roundness": 0.731,
+    "e": 0.304,
+    "angle": 30.6,
+    "dev": {
+     "radial": 0.3,
+     "tangential": 89.7,
+     "xaxis": 30.6
+    },
+    "rho": 0.773,
+    "radial_dir": 30.28,
+    "per_raw_dev_radial": [
+     4.71,
+     1.83,
+     1.89
+    ],
+    "per_raw_dev_x": [
+     34.99,
+     28.45,
+     28.39
+    ]
+   }
+  }
+ },
+ "verdict_per_set": {
+  "aug14/set-04": {
+   "per_corner": {
+    "TL": "none",
+    "TR": "radial",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  },
+  "aug14/set-05": {
+   "per_corner": {
+    "TL": "none",
+    "TR": "radial",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  },
+  "aug09/set-05": {
+   "per_corner": {
+    "TL": "none",
+    "TR": "radial",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  },
+  "aug06/set-02": {
+   "per_corner": {
+    "TL": "none",
+    "TR": "x-axis",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  },
+  "july31/set-01": {
+   "per_corner": {
+    "TL": "x-axis",
+    "TR": "none",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  },
+  "july31/set-03": {
+   "per_corner": {
+    "TL": "none",
+    "TR": "x-axis",
+    "BL": "radial",
+    "BR": "radial"
+   },
+   "rule": "MIXED"
+  }
+ },
+ "raws_per_frame": {
+  "aug14/set-04/c_00001": {
+   "raw": "DSC_4076.NEF",
+   "image": "sessions/aug14/work/rawshape/set-04/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 68,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.402,
+      "roundness": 0.86,
+      "e": 0.1496,
+      "major_axis_deg": 142.25,
+      "concentration": 0.574,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 68.03,
+      "tangential": 21.97,
+      "xaxis": 37.75
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 32,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.938,
+      "roundness": 0.691,
+      "e": 0.3531,
+      "major_axis_deg": 166.73,
+      "concentration": 0.931,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 17.01,
+      "tangential": 72.99,
+      "xaxis": 13.27
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 26,
+     "top30": {
+      "n_top": 26,
+      "fwhm": 2.355,
+      "roundness": 0.816,
+      "e": 0.2006,
+      "major_axis_deg": 137.91,
+      "concentration": 0.411,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 11.81,
+      "tangential": 78.19,
+      "xaxis": 42.09
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 65,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.64,
+      "roundness": 0.619,
+      "e": 0.4457,
+      "major_axis_deg": 23.67,
+      "concentration": 0.934,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 6.61,
+      "tangential": 83.39,
+      "xaxis": 23.67
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_01/BR.lst"
+    }
+   }
+  },
+  "aug14/set-04/c_00002": {
+   "raw": "DSC_4376.NEF",
+   "image": "sessions/aug14/work/rawshape/set-04/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 62,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.465,
+      "roundness": 0.873,
+      "e": 0.1352,
+      "major_axis_deg": 141.7,
+      "concentration": 0.335,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 68.58,
+      "tangential": 21.42,
+      "xaxis": 38.3
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 27,
+     "top30": {
+      "n_top": 27,
+      "fwhm": 2.805,
+      "roundness": 0.676,
+      "e": 0.3731,
+      "major_axis_deg": 168.94,
+      "concentration": 0.894,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 19.22,
+      "tangential": 70.78,
+      "xaxis": 11.06
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 41,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.055,
+      "roundness": 0.716,
+      "e": 0.3218,
+      "major_axis_deg": 131.58,
+      "concentration": 0.791,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 18.14,
+      "tangential": 71.86,
+      "xaxis": 48.42
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 35,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.745,
+      "roundness": 0.648,
+      "e": 0.4081,
+      "major_axis_deg": 25.02,
+      "concentration": 0.908,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 5.26,
+      "tangential": 84.74,
+      "xaxis": 25.02
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_02/BR.lst"
+    }
+   }
+  },
+  "aug14/set-04/c_00003": {
+   "raw": "DSC_4675.NEF",
+   "image": "sessions/aug14/work/rawshape/set-04/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 46,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.56,
+      "roundness": 0.875,
+      "e": 0.1328,
+      "major_axis_deg": 149.51,
+      "concentration": 0.413,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 60.77,
+      "tangential": 29.23,
+      "xaxis": 30.49
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 29,
+     "top30": {
+      "n_top": 29,
+      "fwhm": 2.915,
+      "roundness": 0.685,
+      "e": 0.3612,
+      "major_axis_deg": 165.94,
+      "concentration": 0.928,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 16.22,
+      "tangential": 73.78,
+      "xaxis": 14.06
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 29,
+     "top30": {
+      "n_top": 29,
+      "fwhm": 2.24,
+      "roundness": 0.763,
+      "e": 0.2636,
+      "major_axis_deg": 138.63,
+      "concentration": 0.446,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 11.09,
+      "tangential": 78.91,
+      "xaxis": 41.37
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 30,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.812,
+      "roundness": 0.612,
+      "e": 0.4551,
+      "major_axis_deg": 22.94,
+      "concentration": 0.969,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 7.34,
+      "tangential": 82.66,
+      "xaxis": 22.94
+     },
+     "lst": "sessions/aug14/work/rawshape/set-04/corners_03/BR.lst"
+    }
+   }
+  },
+  "aug14/set-05/c_00001": {
+   "raw": "DSC_4676.NEF",
+   "image": "sessions/aug14/work/rawshape/set-05/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 60,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.485,
+      "roundness": 0.853,
+      "e": 0.1582,
+      "major_axis_deg": 1.42,
+      "concentration": 0.295,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 28.86,
+      "tangential": 61.14,
+      "xaxis": 1.42
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 27,
+     "top30": {
+      "n_top": 27,
+      "fwhm": 2.905,
+      "roundness": 0.731,
+      "e": 0.3032,
+      "major_axis_deg": 167.95,
+      "concentration": 0.873,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 18.23,
+      "tangential": 71.77,
+      "xaxis": 12.05
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 23,
+     "top30": {
+      "n_top": 23,
+      "fwhm": 2.42,
+      "roundness": 0.815,
+      "e": 0.2021,
+      "major_axis_deg": 134.09,
+      "concentration": 0.236,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 15.63,
+      "tangential": 74.37,
+      "xaxis": 45.91
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 56,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.712,
+      "roundness": 0.579,
+      "e": 0.4975,
+      "major_axis_deg": 27.45,
+      "concentration": 0.956,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 2.83,
+      "tangential": 87.17,
+      "xaxis": 27.45
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_01/BR.lst"
+    }
+   }
+  },
+  "aug14/set-05/c_00002": {
+   "raw": "DSC_4902.NEF",
+   "image": "sessions/aug14/work/rawshape/set-05/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 46,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.525,
+      "roundness": 0.859,
+      "e": 0.1512,
+      "major_axis_deg": 145.0,
+      "concentration": 0.511,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 65.28,
+      "tangential": 24.72,
+      "xaxis": 35.0
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 28,
+     "top30": {
+      "n_top": 28,
+      "fwhm": 2.995,
+      "roundness": 0.724,
+      "e": 0.3119,
+      "major_axis_deg": 169.1,
+      "concentration": 0.948,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 19.38,
+      "tangential": 70.62,
+      "xaxis": 10.9
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 29,
+     "top30": {
+      "n_top": 29,
+      "fwhm": 2.24,
+      "roundness": 0.819,
+      "e": 0.1972,
+      "major_axis_deg": 151.47,
+      "concentration": 0.493,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 1.75,
+      "tangential": 88.25,
+      "xaxis": 28.53
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 27,
+     "top30": {
+      "n_top": 27,
+      "fwhm": 2.875,
+      "roundness": 0.586,
+      "e": 0.4889,
+      "major_axis_deg": 27.08,
+      "concentration": 0.967,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 3.2,
+      "tangential": 86.8,
+      "xaxis": 27.08
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_02/BR.lst"
+    }
+   }
+  },
+  "aug14/set-05/c_00003": {
+   "raw": "DSC_5192.NEF",
+   "image": "sessions/aug14/work/rawshape/set-05/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 47,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.47,
+      "roundness": 0.87,
+      "e": 0.1384,
+      "major_axis_deg": 152.89,
+      "concentration": 0.616,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 57.39,
+      "tangential": 32.61,
+      "xaxis": 27.11
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 21,
+     "top30": {
+      "n_top": 21,
+      "fwhm": 2.825,
+      "roundness": 0.743,
+      "e": 0.289,
+      "major_axis_deg": 169.53,
+      "concentration": 0.938,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 19.81,
+      "tangential": 70.19,
+      "xaxis": 10.47
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 26,
+     "top30": {
+      "n_top": 26,
+      "fwhm": 2.333,
+      "roundness": 0.857,
+      "e": 0.1536,
+      "major_axis_deg": 143.48,
+      "concentration": 0.226,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 6.24,
+      "tangential": 83.76,
+      "xaxis": 36.52
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 16,
+     "top30": {
+      "n_top": 16,
+      "fwhm": 2.78,
+      "roundness": 0.588,
+      "e": 0.4864,
+      "major_axis_deg": 26.77,
+      "concentration": 0.966,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 3.51,
+      "tangential": 86.49,
+      "xaxis": 26.77
+     },
+     "lst": "sessions/aug14/work/rawshape/set-05/corners_03/BR.lst"
+    }
+   }
+  },
+  "aug09/set-05/c_00001": {
+   "raw": "DSC_1265.NEF",
+   "image": "sessions/aug09/work/rawshape/set-05/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 49,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.41,
+      "roundness": 0.832,
+      "e": 0.1817,
+      "major_axis_deg": 146.67,
+      "concentration": 0.622,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 63.61,
+      "tangential": 26.39,
+      "xaxis": 33.33
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 24,
+     "top30": {
+      "n_top": 24,
+      "fwhm": 2.623,
+      "roundness": 0.744,
+      "e": 0.2875,
+      "major_axis_deg": 164.51,
+      "concentration": 0.736,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 14.79,
+      "tangential": 75.21,
+      "xaxis": 15.49
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 31,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.245,
+      "roundness": 0.793,
+      "e": 0.2273,
+      "major_axis_deg": 154.17,
+      "concentration": 0.34,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 4.45,
+      "tangential": 85.55,
+      "xaxis": 25.83
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 48,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.54,
+      "roundness": 0.654,
+      "e": 0.4008,
+      "major_axis_deg": 28.81,
+      "concentration": 0.912,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 1.47,
+      "tangential": 88.53,
+      "xaxis": 28.81
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_01/BR.lst"
+    }
+   }
+  },
+  "aug09/set-05/c_00002": {
+   "raw": "DSC_1514.NEF",
+   "image": "sessions/aug09/work/rawshape/set-05/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 62,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.268,
+      "roundness": 0.846,
+      "e": 0.1659,
+      "major_axis_deg": 158.31,
+      "concentration": 0.503,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 51.97,
+      "tangential": 38.03,
+      "xaxis": 21.69
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 23,
+     "top30": {
+      "n_top": 23,
+      "fwhm": 2.59,
+      "roundness": 0.728,
+      "e": 0.3078,
+      "major_axis_deg": 174.11,
+      "concentration": 0.873,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 24.39,
+      "tangential": 65.61,
+      "xaxis": 5.89
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 40,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.14,
+      "roundness": 0.807,
+      "e": 0.2107,
+      "major_axis_deg": 130.48,
+      "concentration": 0.515,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 19.24,
+      "tangential": 70.76,
+      "xaxis": 49.52
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 35,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.57,
+      "roundness": 0.649,
+      "e": 0.4069,
+      "major_axis_deg": 30.48,
+      "concentration": 0.92,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 0.2,
+      "tangential": 89.8,
+      "xaxis": 30.48
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_02/BR.lst"
+    }
+   }
+  },
+  "aug09/set-05/c_00003": {
+   "raw": "DSC_1764.NEF",
+   "image": "sessions/aug09/work/rawshape/set-05/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 42,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.575,
+      "roundness": 0.87,
+      "e": 0.1382,
+      "major_axis_deg": 141.93,
+      "concentration": 0.523,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 68.35,
+      "tangential": 21.65,
+      "xaxis": 38.07
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 21,
+     "top30": {
+      "n_top": 21,
+      "fwhm": 2.6,
+      "roundness": 0.762,
+      "e": 0.2648,
+      "major_axis_deg": 169.06,
+      "concentration": 0.76,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 19.34,
+      "tangential": 70.66,
+      "xaxis": 10.94
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 26,
+     "top30": {
+      "n_top": 26,
+      "fwhm": 2.28,
+      "roundness": 0.827,
+      "e": 0.1874,
+      "major_axis_deg": 136.9,
+      "concentration": 0.406,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 12.82,
+      "tangential": 77.18,
+      "xaxis": 43.1
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 38,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.6,
+      "roundness": 0.669,
+      "e": 0.3819,
+      "major_axis_deg": 25.19,
+      "concentration": 0.904,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 5.09,
+      "tangential": 84.91,
+      "xaxis": 25.19
+     },
+     "lst": "sessions/aug09/work/rawshape/set-05/corners_03/BR.lst"
+    }
+   }
+  },
+  "aug06/set-02/c_00001": {
+   "raw": "DSC_6739.NEF",
+   "image": "sessions/aug06/work/rawshape/set-02/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 53,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.28,
+      "roundness": 0.851,
+      "e": 0.1605,
+      "major_axis_deg": 161.62,
+      "concentration": 0.573,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 48.66,
+      "tangential": 41.34,
+      "xaxis": 18.38
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 37,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.322,
+      "roundness": 0.765,
+      "e": 0.2617,
+      "major_axis_deg": 7.02,
+      "concentration": 0.875,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 37.3,
+      "tangential": 52.7,
+      "xaxis": 7.02
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 45,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.058,
+      "roundness": 0.802,
+      "e": 0.2168,
+      "major_axis_deg": 142.21,
+      "concentration": 0.553,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 7.51,
+      "tangential": 82.49,
+      "xaxis": 37.79
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 66,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.18,
+      "roundness": 0.671,
+      "e": 0.3786,
+      "major_axis_deg": 34.83,
+      "concentration": 0.903,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 4.55,
+      "tangential": 85.45,
+      "xaxis": 34.83
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_01/BR.lst"
+    }
+   }
+  },
+  "aug06/set-02/c_00002": {
+   "raw": "DSC_6990.NEF",
+   "image": "sessions/aug06/work/rawshape/set-02/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 71,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.237,
+      "roundness": 0.861,
+      "e": 0.1484,
+      "major_axis_deg": 168.27,
+      "concentration": 0.563,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 42.01,
+      "tangential": 47.99,
+      "xaxis": 11.73
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 41,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.322,
+      "roundness": 0.735,
+      "e": 0.2981,
+      "major_axis_deg": 10.42,
+      "concentration": 0.912,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 40.7,
+      "tangential": 49.3,
+      "xaxis": 10.42
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 45,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.025,
+      "roundness": 0.77,
+      "e": 0.2555,
+      "major_axis_deg": 134.99,
+      "concentration": 0.194,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 14.73,
+      "tangential": 75.27,
+      "xaxis": 45.01
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 54,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.35,
+      "roundness": 0.765,
+      "e": 0.2615,
+      "major_axis_deg": 30.82,
+      "concentration": 0.877,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 0.54,
+      "tangential": 89.46,
+      "xaxis": 30.82
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_02/BR.lst"
+    }
+   }
+  },
+  "aug06/set-02/c_00003": {
+   "raw": "DSC_7238.NEF",
+   "image": "sessions/aug06/work/rawshape/set-02/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 81,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.263,
+      "roundness": 0.857,
+      "e": 0.1532,
+      "major_axis_deg": 149.31,
+      "concentration": 0.741,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 60.97,
+      "tangential": 29.03,
+      "xaxis": 30.69
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 33,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.348,
+      "roundness": 0.759,
+      "e": 0.2695,
+      "major_axis_deg": 5.52,
+      "concentration": 0.841,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 35.8,
+      "tangential": 54.2,
+      "xaxis": 5.52
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 38,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.167,
+      "roundness": 0.827,
+      "e": 0.1883,
+      "major_axis_deg": 177.59,
+      "concentration": 0.104,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 27.87,
+      "tangential": 62.13,
+      "xaxis": 2.41
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 36,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.215,
+      "roundness": 0.729,
+      "e": 0.306,
+      "major_axis_deg": 34.78,
+      "concentration": 0.924,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 4.5,
+      "tangential": 85.5,
+      "xaxis": 34.78
+     },
+     "lst": "sessions/aug06/work/rawshape/set-02/corners_03/BR.lst"
+    }
+   }
+  },
+  "july31/set-01/c_00001": {
+   "raw": "DSC_3790.NEF",
+   "image": "sessions/july31/work/rawshape/set-01/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 42,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.285,
+      "roundness": 0.833,
+      "e": 0.1803,
+      "major_axis_deg": 168.67,
+      "concentration": 0.657,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 41.61,
+      "tangential": 48.39,
+      "xaxis": 11.33
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 20,
+     "top30": {
+      "n_top": 20,
+      "fwhm": 2.223,
+      "roundness": 0.799,
+      "e": 0.2212,
+      "major_axis_deg": 34.94,
+      "concentration": 0.896,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 65.22,
+      "tangential": 24.78,
+      "xaxis": 34.94
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 40,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.387,
+      "roundness": 0.852,
+      "e": 0.159,
+      "major_axis_deg": 155.94,
+      "concentration": 0.677,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 6.22,
+      "tangential": 83.78,
+      "xaxis": 24.06
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 33,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.203,
+      "roundness": 0.856,
+      "e": 0.1547,
+      "major_axis_deg": 54.01,
+      "concentration": 0.722,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 23.73,
+      "tangential": 66.27,
+      "xaxis": 54.01
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_01/BR.lst"
+    }
+   }
+  },
+  "july31/set-01/c_00002": {
+   "raw": "DSC_4040.NEF",
+   "image": "sessions/july31/work/rawshape/set-01/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 47,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.302,
+      "roundness": 0.887,
+      "e": 0.1192,
+      "major_axis_deg": 159.46,
+      "concentration": 0.559,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 50.82,
+      "tangential": 39.18,
+      "xaxis": 20.54
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 18,
+     "top30": {
+      "n_top": 18,
+      "fwhm": 2.3,
+      "roundness": 0.863,
+      "e": 0.1464,
+      "major_axis_deg": 32.78,
+      "concentration": 0.715,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 63.06,
+      "tangential": 26.94,
+      "xaxis": 32.78
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 31,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.317,
+      "roundness": 0.851,
+      "e": 0.1602,
+      "major_axis_deg": 149.74,
+      "concentration": 0.494,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 0.02,
+      "tangential": 89.98,
+      "xaxis": 30.26
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 30,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.257,
+      "roundness": 0.88,
+      "e": 0.1273,
+      "major_axis_deg": 50.91,
+      "concentration": 0.799,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 20.63,
+      "tangential": 69.37,
+      "xaxis": 50.91
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_02/BR.lst"
+    }
+   }
+  },
+  "july31/set-01/c_00003": {
+   "raw": "DSC_4289.NEF",
+   "image": "sessions/july31/work/rawshape/set-01/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 71,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.257,
+      "roundness": 0.865,
+      "e": 0.144,
+      "major_axis_deg": 152.01,
+      "concentration": 0.448,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 58.27,
+      "tangential": 31.73,
+      "xaxis": 27.99
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 16,
+     "top30": {
+      "n_top": 16,
+      "fwhm": 2.295,
+      "roundness": 0.823,
+      "e": 0.1922,
+      "major_axis_deg": 31.91,
+      "concentration": 0.83,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 62.19,
+      "tangential": 27.81,
+      "xaxis": 31.91
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 32,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.287,
+      "roundness": 0.854,
+      "e": 0.1571,
+      "major_axis_deg": 152.75,
+      "concentration": 0.637,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 3.03,
+      "tangential": 86.97,
+      "xaxis": 27.25
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 26,
+     "top30": {
+      "n_top": 26,
+      "fwhm": 2.285,
+      "roundness": 0.879,
+      "e": 0.1278,
+      "major_axis_deg": 43.09,
+      "concentration": 0.551,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 12.81,
+      "tangential": 77.19,
+      "xaxis": 43.09
+     },
+     "lst": "sessions/july31/work/rawshape/set-01/corners_03/BR.lst"
+    }
+   }
+  },
+  "july31/set-03/c_00001": {
+   "raw": "DSC_4790.NEF",
+   "image": "sessions/july31/work/rawshape/set-03/out/c_00001.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00001\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00001\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00001\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00001\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 40,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.243,
+      "roundness": 0.867,
+      "e": 0.1413,
+      "major_axis_deg": 149.19,
+      "concentration": 0.535,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 61.09,
+      "tangential": 28.91,
+      "xaxis": 30.81
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 23,
+     "top30": {
+      "n_top": 23,
+      "fwhm": 2.355,
+      "roundness": 0.728,
+      "e": 0.3077,
+      "major_axis_deg": 9.01,
+      "concentration": 0.778,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 39.29,
+      "tangential": 50.71,
+      "xaxis": 9.01
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 33,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.215,
+      "roundness": 0.84,
+      "e": 0.1725,
+      "major_axis_deg": 135.14,
+      "concentration": 0.399,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 14.58,
+      "tangential": 75.42,
+      "xaxis": 44.86
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 24,
+     "top30": {
+      "n_top": 24,
+      "fwhm": 2.293,
+      "roundness": 0.686,
+      "e": 0.3606,
+      "major_axis_deg": 34.99,
+      "concentration": 0.93,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 4.71,
+      "tangential": 85.29,
+      "xaxis": 34.99
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_01/BR.lst"
+    }
+   }
+  },
+  "july31/set-03/c_00002": {
+   "raw": "DSC_5040.NEF",
+   "image": "sessions/july31/work/rawshape/set-03/out/c_00002.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00002\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00002\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00002\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00002\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 52,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.24,
+      "roundness": 0.856,
+      "e": 0.154,
+      "major_axis_deg": 161.92,
+      "concentration": 0.555,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 48.36,
+      "tangential": 41.64,
+      "xaxis": 18.08
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 13,
+     "top30": {
+      "n_top": 13,
+      "fwhm": 2.4,
+      "roundness": 0.737,
+      "e": 0.2962,
+      "major_axis_deg": 16.61,
+      "concentration": 0.827,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 46.89,
+      "tangential": 43.11,
+      "xaxis": 16.61
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 24,
+     "top30": {
+      "n_top": 24,
+      "fwhm": 2.2,
+      "roundness": 0.886,
+      "e": 0.1207,
+      "major_axis_deg": 153.42,
+      "concentration": 0.374,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 3.7,
+      "tangential": 86.3,
+      "xaxis": 26.58
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 25,
+     "top30": {
+      "n_top": 25,
+      "fwhm": 2.32,
+      "roundness": 0.788,
+      "e": 0.2336,
+      "major_axis_deg": 28.45,
+      "concentration": 0.796,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 1.83,
+      "tangential": 88.17,
+      "xaxis": 28.45
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_02/BR.lst"
+    }
+   }
+  },
+  "july31/set-03/c_00003": {
+   "raw": "DSC_5289.NEF",
+   "image": "sessions/july31/work/rawshape/set-03/out/c_00003.fit",
+   "wh": [
+    6064,
+    4040
+   ],
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00003\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00003\ncrop 5064 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00003\ncrop 200 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out/c_00003\ncrop 5064 3040 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/corners_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 78,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.255,
+      "roundness": 0.863,
+      "e": 0.1458,
+      "major_axis_deg": 153.6,
+      "concentration": 0.517,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 56.68,
+      "tangential": 33.32,
+      "xaxis": 26.4
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      5064,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      600
+     ],
+     "n": 22,
+     "top30": {
+      "n_top": 22,
+      "fwhm": 2.56,
+      "roundness": 0.735,
+      "e": 0.2988,
+      "major_axis_deg": 10.84,
+      "concentration": 0.796,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 41.12,
+      "tangential": 48.88,
+      "xaxis": 10.84
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3440
+     ],
+     "n": 24,
+     "top30": {
+      "n_top": 24,
+      "fwhm": 2.08,
+      "roundness": 0.845,
+      "e": 0.1665,
+      "major_axis_deg": 134.84,
+      "concentration": 0.766,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.72,
+      "tangential": 59.72,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 14.88,
+      "tangential": 75.12,
+      "xaxis": 45.16
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      5064,
+      3040,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5464,
+      3440
+     ],
+     "n": 25,
+     "top30": {
+      "n_top": 25,
+      "fwhm": 2.38,
+      "roundness": 0.731,
+      "e": 0.304,
+      "major_axis_deg": 28.39,
+      "concentration": 0.914,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.28,
+      "tangential": 120.28,
+      "xaxis": 0.0,
+      "rho": 0.773
+     },
+     "deviation": {
+      "radial": 1.89,
+      "tangential": 88.11,
+      "xaxis": 28.39
+     },
+     "lst": "sessions/july31/work/rawshape/set-03/corners_03/BR.lst"
+    }
+   }
+  }
+ },
+ "members_corners": {
+  "aug14/set-04/sub_01": {
+   "image": "sessions/aug14/work/groups_set-04/sub_01.fit",
+   "wh": [
+    5828,
+    3952
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_4076.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01\ncrop 4828 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01\ncrop 200 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01\ncrop 4828 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 655,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.812,
+      "roundness": 0.973,
+      "e": 0.0269,
+      "major_axis_deg": 54.52,
+      "concentration": 0.066,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.74,
+      "tangential": 120.74,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 23.78,
+      "tangential": 66.22,
+      "xaxis": 54.52
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4828,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5228,
+      600
+     ],
+     "n": 426,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.145,
+      "roundness": 0.826,
+      "e": 0.1886,
+      "major_axis_deg": 171.7,
+      "concentration": 0.927,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.26,
+      "tangential": 59.26,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 22.44,
+      "tangential": 67.56,
+      "xaxis": 8.3
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3352
+     ],
+     "n": 489,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.565,
+      "roundness": 0.97,
+      "e": 0.03,
+      "major_axis_deg": 87.81,
+      "concentration": 0.23,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.26,
+      "tangential": 59.26,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 61.45,
+      "tangential": 28.55,
+      "xaxis": 87.81
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4828,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5228,
+      3352
+     ],
+     "n": 622,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.987,
+      "roundness": 0.772,
+      "e": 0.2535,
+      "major_axis_deg": 24.21,
+      "concentration": 0.972,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.74,
+      "tangential": 120.74,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 6.53,
+      "tangential": 83.47,
+      "xaxis": 24.21
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 118.0,
+    "dy_per_side": 44.0
+   }
+  },
+  "aug14/set-04/sub_04": {
+   "image": "sessions/aug14/work/groups_set-04/sub_04.fit",
+   "wh": [
+    5829,
+    3951
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_4376.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_04/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04\ncrop 4829 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_04/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04\ncrop 200 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_04/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04\ncrop 4829 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-04_sub_04/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 633,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.657,
+      "roundness": 0.941,
+      "e": 0.0609,
+      "major_axis_deg": 123.22,
+      "concentration": 0.571,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 87.5,
+      "tangential": 2.5,
+      "xaxis": 56.78
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_04/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4829,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5229,
+      600
+     ],
+     "n": 372,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.083,
+      "roundness": 0.813,
+      "e": 0.2043,
+      "major_axis_deg": 169.04,
+      "concentration": 0.94,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 19.76,
+      "tangential": 70.24,
+      "xaxis": 10.96
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_04/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3351
+     ],
+     "n": 550,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.498,
+      "roundness": 0.988,
+      "e": 0.0117,
+      "major_axis_deg": 71.79,
+      "concentration": 0.723,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 77.49,
+      "tangential": 12.51,
+      "xaxis": 71.79
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_04/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4829,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5229,
+      3351
+     ],
+     "n": 579,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.03,
+      "roundness": 0.785,
+      "e": 0.2371,
+      "major_axis_deg": 22.25,
+      "concentration": 0.933,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 8.47,
+      "tangential": 81.53,
+      "xaxis": 22.25
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-04_sub_04/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 117.5,
+    "dy_per_side": 44.5
+   }
+  },
+  "aug14/set-05/sub_01": {
+   "image": "sessions/aug14/work/groups_set-05/sub_01.fit",
+   "wh": [
+    5784,
+    3940
+   ],
+   "stackcnt": 118,
+   "regref": "1:DSC_4676.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01\ncrop 4784 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01\ncrop 200 2940 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01\ncrop 4784 2940 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 712,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.737,
+      "roundness": 0.956,
+      "e": 0.0445,
+      "major_axis_deg": 88.15,
+      "concentration": 0.071,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.87,
+      "tangential": 120.87,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 57.28,
+      "tangential": 32.72,
+      "xaxis": 88.15
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4784,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5184,
+      600
+     ],
+     "n": 512,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.268,
+      "roundness": 0.813,
+      "e": 0.2036,
+      "major_axis_deg": 168.2,
+      "concentration": 0.909,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.13,
+      "tangential": 59.13,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 19.07,
+      "tangential": 70.93,
+      "xaxis": 11.8
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2940,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3340
+     ],
+     "n": 501,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.63,
+      "roundness": 0.96,
+      "e": 0.0406,
+      "major_axis_deg": 161.41,
+      "concentration": 0.343,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.13,
+      "tangential": 59.13,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 12.28,
+      "tangential": 77.72,
+      "xaxis": 18.59
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4784,
+      2940,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5184,
+      3340
+     ],
+     "n": 622,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.05,
+      "roundness": 0.731,
+      "e": 0.3039,
+      "major_axis_deg": 25.15,
+      "concentration": 0.971,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.87,
+      "tangential": 120.87,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 5.72,
+      "tangential": 84.28,
+      "xaxis": 25.15
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 140.0,
+    "dy_per_side": 50.0
+   }
+  },
+  "aug14/set-05/sub_02": {
+   "image": "sessions/aug14/work/groups_set-05/sub_02.fit",
+   "wh": [
+    5667,
+    3898
+   ],
+   "stackcnt": 117,
+   "regref": "1:DSC_4794.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02\ncrop 4667 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02\ncrop 200 2898 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02\ncrop 4667 2898 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/corner_attr/set-05_sub_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 708,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.848,
+      "roundness": 0.943,
+      "e": 0.0582,
+      "major_axis_deg": 18.77,
+      "concentration": 0.214,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 31.13,
+      "tangential": 121.13,
+      "xaxis": 0.0,
+      "rho": 0.759
+     },
+     "deviation": {
+      "radial": 12.36,
+      "tangential": 77.64,
+      "xaxis": 18.77
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4667,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5067,
+      600
+     ],
+     "n": 451,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.185,
+      "roundness": 0.831,
+      "e": 0.1829,
+      "major_axis_deg": 173.57,
+      "concentration": 0.906,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 148.87,
+      "tangential": 58.87,
+      "xaxis": 0.0,
+      "rho": 0.759
+     },
+     "deviation": {
+      "radial": 24.7,
+      "tangential": 65.3,
+      "xaxis": 6.43
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2898,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3298
+     ],
+     "n": 538,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.612,
+      "roundness": 0.981,
+      "e": 0.0192,
+      "major_axis_deg": 170.8,
+      "concentration": 0.433,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 148.87,
+      "tangential": 58.87,
+      "xaxis": 0.0,
+      "rho": 0.759
+     },
+     "deviation": {
+      "radial": 21.93,
+      "tangential": 68.07,
+      "xaxis": 9.2
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4667,
+      2898,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5067,
+      3298
+     ],
+     "n": 627,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.285,
+      "roundness": 0.713,
+      "e": 0.3257,
+      "major_axis_deg": 27.23,
+      "concentration": 0.959,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 31.13,
+      "tangential": 121.13,
+      "xaxis": 0.0,
+      "rho": 0.759
+     },
+     "deviation": {
+      "radial": 3.9,
+      "tangential": 86.1,
+      "xaxis": 27.23
+     },
+     "lst": "sessions/aug14/work/corner_attr/set-05_sub_02/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 198.5,
+    "dy_per_side": 71.0
+   }
+  },
+  "aug09/set-05/sub_01": {
+   "image": "sessions/aug09/work/groups_set-05/sub_01.fit",
+   "wh": [
+    5772,
+    3932
+   ],
+   "stackcnt": 125,
+   "regref": "1:DSC_1265.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01\ncrop 4772 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01\ncrop 200 2932 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01\ncrop 4772 2932 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 788,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.672,
+      "roundness": 0.934,
+      "e": 0.0681,
+      "major_axis_deg": 139.94,
+      "concentration": 0.63,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.86,
+      "tangential": 120.86,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 70.92,
+      "tangential": 19.08,
+      "xaxis": 40.06
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4772,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      600
+     ],
+     "n": 453,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.915,
+      "roundness": 0.875,
+      "e": 0.1332,
+      "major_axis_deg": 174.27,
+      "concentration": 0.881,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.14,
+      "tangential": 59.14,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 25.13,
+      "tangential": 64.87,
+      "xaxis": 5.73
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2932,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3332
+     ],
+     "n": 592,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.515,
+      "roundness": 0.977,
+      "e": 0.0231,
+      "major_axis_deg": 176.47,
+      "concentration": 0.221,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.14,
+      "tangential": 59.14,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 27.33,
+      "tangential": 62.67,
+      "xaxis": 3.53
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4772,
+      2932,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      3332
+     ],
+     "n": 661,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.822,
+      "roundness": 0.866,
+      "e": 0.1427,
+      "major_axis_deg": 26.59,
+      "concentration": 0.97,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.86,
+      "tangential": 120.86,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 4.27,
+      "tangential": 85.73,
+      "xaxis": 26.59
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 146.0,
+    "dy_per_side": 54.0
+   }
+  },
+  "aug09/set-05/sub_02": {
+   "image": "sessions/aug09/work/groups_set-05/sub_02.fit",
+   "wh": [
+    5772,
+    3933
+   ],
+   "stackcnt": 125,
+   "regref": "1:DSC_1390.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02\ncrop 4772 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02\ncrop 200 2933 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02\ncrop 4772 2933 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/corner_attr/set-05_sub_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 752,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.62,
+      "roundness": 0.933,
+      "e": 0.0693,
+      "major_axis_deg": 136.93,
+      "concentration": 0.486,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.87,
+      "tangential": 120.87,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 73.94,
+      "tangential": 16.06,
+      "xaxis": 43.07
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4772,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      600
+     ],
+     "n": 422,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.925,
+      "roundness": 0.848,
+      "e": 0.1635,
+      "major_axis_deg": 172.63,
+      "concentration": 0.9,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.13,
+      "tangential": 59.13,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 23.5,
+      "tangential": 66.5,
+      "xaxis": 7.37
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2933,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3333
+     ],
+     "n": 598,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.497,
+      "roundness": 0.975,
+      "e": 0.0255,
+      "major_axis_deg": 66.16,
+      "concentration": 0.217,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.13,
+      "tangential": 59.13,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 82.97,
+      "tangential": 7.03,
+      "xaxis": 66.16
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4772,
+      2933,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      3333
+     ],
+     "n": 633,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.785,
+      "roundness": 0.89,
+      "e": 0.1166,
+      "major_axis_deg": 28.1,
+      "concentration": 0.933,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.87,
+      "tangential": 120.87,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 2.77,
+      "tangential": 87.23,
+      "xaxis": 28.1
+     },
+     "lst": "sessions/aug09/work/corner_attr/set-05_sub_02/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 146.0,
+    "dy_per_side": 53.5
+   }
+  },
+  "aug06/set-02/sub_01": {
+   "image": "sessions/aug06/work/groups_set-02/sub_01.fit",
+   "wh": [
+    5767,
+    3927
+   ],
+   "stackcnt": 125,
+   "regref": "1:DSC_6739.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01\ncrop 4767 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01\ncrop 200 2927 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01\ncrop 4767 2927 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 753,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.505,
+      "roundness": 0.9,
+      "e": 0.105,
+      "major_axis_deg": 136.59,
+      "concentration": 0.896,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.84,
+      "tangential": 120.84,
+      "xaxis": 0.0,
+      "rho": 0.762
+     },
+     "deviation": {
+      "radial": 74.25,
+      "tangential": 15.75,
+      "xaxis": 43.41
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4767,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5167,
+      600
+     ],
+     "n": 677,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.677,
+      "roundness": 0.859,
+      "e": 0.1513,
+      "major_axis_deg": 13.48,
+      "concentration": 0.858,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.16,
+      "tangential": 59.16,
+      "xaxis": 0.0,
+      "rho": 0.762
+     },
+     "deviation": {
+      "radial": 44.32,
+      "tangential": 45.68,
+      "xaxis": 13.48
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2927,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3327
+     ],
+     "n": 606,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.43,
+      "roundness": 0.986,
+      "e": 0.0141,
+      "major_axis_deg": 48.33,
+      "concentration": 0.659,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.16,
+      "tangential": 59.16,
+      "xaxis": 0.0,
+      "rho": 0.762
+     },
+     "deviation": {
+      "radial": 79.17,
+      "tangential": 10.83,
+      "xaxis": 48.33
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4767,
+      2927,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5167,
+      3327
+     ],
+     "n": 757,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.578,
+      "roundness": 0.901,
+      "e": 0.1037,
+      "major_axis_deg": 29.79,
+      "concentration": 0.957,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.84,
+      "tangential": 120.84,
+      "xaxis": 0.0,
+      "rho": 0.762
+     },
+     "deviation": {
+      "radial": 1.05,
+      "tangential": 88.95,
+      "xaxis": 29.79
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 148.5,
+    "dy_per_side": 56.5
+   }
+  },
+  "aug06/set-02/sub_02": {
+   "image": "sessions/aug06/work/groups_set-02/sub_02.fit",
+   "wh": [
+    5772,
+    3929
+   ],
+   "stackcnt": 125,
+   "regref": "1:DSC_6866.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_02/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02\ncrop 4772 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_02/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02\ncrop 200 2929 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_02/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02\ncrop 4772 2929 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/corner_attr/set-02_sub_02/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 763,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.53,
+      "roundness": 0.884,
+      "e": 0.1223,
+      "major_axis_deg": 137.13,
+      "concentration": 0.642,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.83,
+      "tangential": 120.83,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 73.7,
+      "tangential": 16.3,
+      "xaxis": 42.87
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_02/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4772,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      600
+     ],
+     "n": 645,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.663,
+      "roundness": 0.847,
+      "e": 0.1642,
+      "major_axis_deg": 11.43,
+      "concentration": 0.89,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.17,
+      "tangential": 59.17,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 42.26,
+      "tangential": 47.74,
+      "xaxis": 11.43
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_02/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2929,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3329
+     ],
+     "n": 641,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.427,
+      "roundness": 0.984,
+      "e": 0.0165,
+      "major_axis_deg": 52.02,
+      "concentration": 0.667,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.17,
+      "tangential": 59.17,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 82.85,
+      "tangential": 7.15,
+      "xaxis": 52.02
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_02/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4772,
+      2929,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5172,
+      3329
+     ],
+     "n": 760,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.613,
+      "roundness": 0.901,
+      "e": 0.1036,
+      "major_axis_deg": 26.41,
+      "concentration": 0.931,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.83,
+      "tangential": 120.83,
+      "xaxis": 0.0,
+      "rho": 0.763
+     },
+     "deviation": {
+      "radial": 4.42,
+      "tangential": 85.58,
+      "xaxis": 26.41
+     },
+     "lst": "sessions/aug06/work/corner_attr/set-02_sub_02/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 146.0,
+    "dy_per_side": 55.5
+   }
+  },
+  "july31/set-01/sub_01": {
+   "image": "sessions/july31/work/groups_set-01/sub_01.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_3790.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01\ncrop 4832 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01\ncrop 200 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01\ncrop 4832 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 621,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.535,
+      "roundness": 0.949,
+      "e": 0.0526,
+      "major_axis_deg": 145.83,
+      "concentration": 0.49,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 64.89,
+      "tangential": 25.11,
+      "xaxis": 34.17
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4832,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      600
+     ],
+     "n": 452,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.478,
+      "roundness": 0.892,
+      "e": 0.1138,
+      "major_axis_deg": 40.54,
+      "concentration": 0.906,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 71.26,
+      "tangential": 18.74,
+      "xaxis": 40.54
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3352
+     ],
+     "n": 604,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.493,
+      "roundness": 0.976,
+      "e": 0.0239,
+      "major_axis_deg": 151.8,
+      "concentration": 0.535,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 2.52,
+      "tangential": 87.48,
+      "xaxis": 28.2
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4832,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      3352
+     ],
+     "n": 501,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.435,
+      "roundness": 0.984,
+      "e": 0.0163,
+      "major_axis_deg": 83.2,
+      "concentration": 0.883,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 52.48,
+      "tangential": 37.52,
+      "xaxis": 83.2
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 116.0,
+    "dy_per_side": 44.0
+   }
+  },
+  "july31/set-01/sub_03": {
+   "image": "sessions/july31/work/groups_set-01/sub_03.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_3990.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03\ncrop 4832 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03\ncrop 200 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03\ncrop 4832 2952 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-01_sub_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 637,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.545,
+      "roundness": 0.935,
+      "e": 0.067,
+      "major_axis_deg": 144.58,
+      "concentration": 0.778,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 66.14,
+      "tangential": 23.86,
+      "xaxis": 35.42
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4832,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      600
+     ],
+     "n": 387,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.48,
+      "roundness": 0.926,
+      "e": 0.0768,
+      "major_axis_deg": 42.78,
+      "concentration": 0.874,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 73.5,
+      "tangential": 16.5,
+      "xaxis": 42.78
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3352
+     ],
+     "n": 585,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.45,
+      "roundness": 0.98,
+      "e": 0.0197,
+      "major_axis_deg": 170.14,
+      "concentration": 0.152,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.28,
+      "tangential": 59.28,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 20.86,
+      "tangential": 69.14,
+      "xaxis": 9.86
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4832,
+      2952,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      3352
+     ],
+     "n": 465,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.42,
+      "roundness": 0.986,
+      "e": 0.0146,
+      "major_axis_deg": 86.05,
+      "concentration": 0.744,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.72,
+      "tangential": 120.72,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 55.33,
+      "tangential": 34.67,
+      "xaxis": 86.05
+     },
+     "lst": "sessions/july31/work/corner_attr/set-01_sub_03/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 116.0,
+    "dy_per_side": 44.0
+   }
+  },
+  "july31/set-03/sub_01": {
+   "image": "sessions/july31/work/groups_set-03/sub_01.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_4790.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_01/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01\ncrop 4832 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_01/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01\ncrop 200 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_01/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01\ncrop 4832 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_01/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 631,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.583,
+      "roundness": 0.921,
+      "e": 0.082,
+      "major_axis_deg": 140.79,
+      "concentration": 0.726,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.71,
+      "tangential": 120.71,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 69.92,
+      "tangential": 20.08,
+      "xaxis": 39.21
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_01/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4832,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      600
+     ],
+     "n": 407,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.64,
+      "roundness": 0.875,
+      "e": 0.133,
+      "major_axis_deg": 13.94,
+      "concentration": 0.861,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.29,
+      "tangential": 59.29,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 44.65,
+      "tangential": 45.35,
+      "xaxis": 13.94
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_01/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3351
+     ],
+     "n": 565,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.422,
+      "roundness": 0.975,
+      "e": 0.0249,
+      "major_axis_deg": 108.08,
+      "concentration": 0.14,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.29,
+      "tangential": 59.29,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 41.21,
+      "tangential": 48.79,
+      "xaxis": 71.92
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_01/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4832,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      3351
+     ],
+     "n": 584,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.562,
+      "roundness": 0.915,
+      "e": 0.089,
+      "major_axis_deg": 28.72,
+      "concentration": 0.914,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.71,
+      "tangential": 120.71,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 1.99,
+      "tangential": 88.01,
+      "xaxis": 28.72
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_01/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 116.0,
+    "dy_per_side": 44.5
+   }
+  },
+  "july31/set-03/sub_03": {
+   "image": "sessions/july31/work/groups_set-03/sub_03.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": 100,
+   "regref": "1:DSC_4990.NEF",
+   "rc": 0,
+   "ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nsetfindstar reset -roundness=0.10 -relax=on -maxR=1.0\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03\ncrop 200 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_03/TL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03\ncrop 4832 200 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_03/TR.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03\ncrop 200 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_03/BL.lst\nload /home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03\ncrop 4832 2951 800 800\nfindstar -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/corner_attr/set-03_sub_03/BR.lst\nsetfindstar reset",
+   "corners": {
+    "TL": {
+     "box": [
+      200,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      600
+     ],
+     "n": 650,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.598,
+      "roundness": 0.938,
+      "e": 0.0643,
+      "major_axis_deg": 136.45,
+      "concentration": 0.687,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.71,
+      "tangential": 120.71,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 74.26,
+      "tangential": 15.74,
+      "xaxis": 43.55
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_03/TL.lst"
+    },
+    "TR": {
+     "box": [
+      4832,
+      200,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      600
+     ],
+     "n": 367,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.658,
+      "roundness": 0.876,
+      "e": 0.1313,
+      "major_axis_deg": 12.23,
+      "concentration": 0.794,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.29,
+      "tangential": 59.29,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 42.94,
+      "tangential": 47.06,
+      "xaxis": 12.23
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_03/TR.lst"
+    },
+    "BL": {
+     "box": [
+      200,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      600,
+      3351
+     ],
+     "n": 552,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.435,
+      "roundness": 0.967,
+      "e": 0.0335,
+      "major_axis_deg": 54.66,
+      "concentration": 0.6,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 149.29,
+      "tangential": 59.29,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 85.37,
+      "tangential": 4.63,
+      "xaxis": 54.66
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_03/BL.lst"
+    },
+    "BR": {
+     "box": [
+      4832,
+      2951,
+      800,
+      800
+     ],
+     "centre_ydown": [
+      5232,
+      3351
+     ],
+     "n": 576,
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.578,
+      "roundness": 0.905,
+      "e": 0.099,
+      "major_axis_deg": 28.79,
+      "concentration": 0.911,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "directions": {
+      "radial": 30.71,
+      "tangential": 120.71,
+      "xaxis": 0.0,
+      "rho": 0.765
+     },
+     "deviation": {
+      "radial": 1.92,
+      "tangential": 88.08,
+      "xaxis": 28.79
+     },
+     "lst": "sessions/july31/work/corner_attr/set-03_sub_03/BR.lst"
+    }
+   },
+   "raw_offset_assumed": {
+    "dx_per_side": 116.0,
+    "dy_per_side": 44.5
+   }
+  }
+ },
+ "members_vs_raw": {
+  "aug14/set-04": {
+   "sub_01": {
+    "TL": {
+     "n": 655,
+     "fwhm": 2.812,
+     "roundness": 0.973,
+     "e": 0.0269,
+     "angle": 54.52,
+     "dev": {
+      "radial": 23.78,
+      "tangential": 66.22,
+      "xaxis": 54.52
+     },
+     "member_minus_raw": {
+      "fwhm": 0.347,
+      "roundness": 0.1
+     },
+     "rotation_from_raw_deg": 90.0
+    },
+    "TR": {
+     "n": 426,
+     "fwhm": 3.145,
+     "roundness": 0.826,
+     "e": 0.1886,
+     "angle": 171.7,
+     "dev": {
+      "radial": 22.44,
+      "tangential": 67.56,
+      "xaxis": 8.3
+     },
+     "member_minus_raw": {
+      "fwhm": 0.23,
+      "roundness": 0.141
+     },
+     "rotation_from_raw_deg": 4.5
+    },
+    "BL": {
+     "n": 489,
+     "fwhm": 2.565,
+     "roundness": 0.97,
+     "e": 0.03,
+     "angle": 87.81,
+     "dev": {
+      "radial": 61.45,
+      "tangential": 28.55,
+      "xaxis": 87.81
+     },
+     "member_minus_raw": {
+      "fwhm": 0.325,
+      "roundness": 0.207
+     },
+     "rotation_from_raw_deg": 48.2
+    },
+    "BR": {
+     "n": 622,
+     "fwhm": 2.987,
+     "roundness": 0.772,
+     "e": 0.2535,
+     "angle": 24.21,
+     "dev": {
+      "radial": 6.53,
+      "tangential": 83.47,
+      "xaxis": 24.21
+     },
+     "member_minus_raw": {
+      "fwhm": 0.242,
+      "roundness": 0.153
+     },
+     "rotation_from_raw_deg": 0.3
+    }
+   },
+   "sub_04": {
+    "TL": {
+     "n": 633,
+     "fwhm": 2.657,
+     "roundness": 0.941,
+     "e": 0.0609,
+     "angle": 123.22,
+     "dev": {
+      "radial": 87.5,
+      "tangential": 2.5,
+      "xaxis": 56.78
+     },
+     "member_minus_raw": {
+      "fwhm": 0.192,
+      "roundness": 0.068
+     },
+     "rotation_from_raw_deg": 21.3
+    },
+    "TR": {
+     "n": 372,
+     "fwhm": 3.083,
+     "roundness": 0.813,
+     "e": 0.2043,
+     "angle": 169.04,
+     "dev": {
+      "radial": 19.76,
+      "tangential": 70.24,
+      "xaxis": 10.96
+     },
+     "member_minus_raw": {
+      "fwhm": 0.168,
+      "roundness": 0.128
+     },
+     "rotation_from_raw_deg": 1.8
+    },
+    "BL": {
+     "n": 550,
+     "fwhm": 2.498,
+     "roundness": 0.988,
+     "e": 0.0117,
+     "angle": 71.79,
+     "dev": {
+      "radial": 77.49,
+      "tangential": 12.51,
+      "xaxis": 71.79
+     },
+     "member_minus_raw": {
+      "fwhm": 0.258,
+      "roundness": 0.225
+     },
+     "rotation_from_raw_deg": 64.2
+    },
+    "BR": {
+     "n": 579,
+     "fwhm": 3.03,
+     "roundness": 0.785,
+     "e": 0.2371,
+     "angle": 22.25,
+     "dev": {
+      "radial": 8.47,
+      "tangential": 81.53,
+      "xaxis": 22.25
+     },
+     "member_minus_raw": {
+      "fwhm": 0.285,
+      "roundness": 0.166
+     },
+     "rotation_from_raw_deg": 1.7
+    }
+   }
+  },
+  "aug14/set-05": {
+   "sub_01": {
+    "TL": {
+     "n": 712,
+     "fwhm": 2.737,
+     "roundness": 0.956,
+     "e": 0.0445,
+     "angle": 88.15,
+     "dev": {
+      "radial": 57.28,
+      "tangential": 32.72,
+      "xaxis": 88.15
+     },
+     "member_minus_raw": {
+      "fwhm": 0.252,
+      "roundness": 0.097
+     },
+     "rotation_from_raw_deg": 71.2
+    },
+    "TR": {
+     "n": 512,
+     "fwhm": 3.268,
+     "roundness": 0.813,
+     "e": 0.2036,
+     "angle": 168.2,
+     "dev": {
+      "radial": 19.07,
+      "tangential": 70.93,
+      "xaxis": 11.8
+     },
+     "member_minus_raw": {
+      "fwhm": 0.363,
+      "roundness": 0.082
+     },
+     "rotation_from_raw_deg": 0.7
+    },
+    "BL": {
+     "n": 501,
+     "fwhm": 2.63,
+     "roundness": 0.96,
+     "e": 0.0406,
+     "angle": 161.41,
+     "dev": {
+      "radial": 12.28,
+      "tangential": 77.72,
+      "xaxis": 18.59
+     },
+     "member_minus_raw": {
+      "fwhm": 0.297,
+      "roundness": 0.141
+     },
+     "rotation_from_raw_deg": 18.4
+    },
+    "BR": {
+     "n": 622,
+     "fwhm": 3.05,
+     "roundness": 0.731,
+     "e": 0.3039,
+     "angle": 25.15,
+     "dev": {
+      "radial": 5.72,
+      "tangential": 84.28,
+      "xaxis": 25.15
+     },
+     "member_minus_raw": {
+      "fwhm": 0.27,
+      "roundness": 0.145
+     },
+     "rotation_from_raw_deg": 1.9
+    }
+   },
+   "sub_02": {
+    "TL": {
+     "n": 708,
+     "fwhm": 2.848,
+     "roundness": 0.943,
+     "e": 0.0582,
+     "angle": 18.77,
+     "dev": {
+      "radial": 12.36,
+      "tangential": 77.64,
+      "xaxis": 18.77
+     },
+     "member_minus_raw": {
+      "fwhm": 0.363,
+      "roundness": 0.084
+     },
+     "rotation_from_raw_deg": 39.5
+    },
+    "TR": {
+     "n": 451,
+     "fwhm": 3.185,
+     "roundness": 0.831,
+     "e": 0.1829,
+     "angle": 173.57,
+     "dev": {
+      "radial": 24.7,
+      "tangential": 65.3,
+      "xaxis": 6.43
+     },
+     "member_minus_raw": {
+      "fwhm": 0.28,
+      "roundness": 0.1
+     },
+     "rotation_from_raw_deg": 4.7
+    },
+    "BL": {
+     "n": 538,
+     "fwhm": 2.612,
+     "roundness": 0.981,
+     "e": 0.0192,
+     "angle": 170.8,
+     "dev": {
+      "radial": 21.93,
+      "tangential": 68.07,
+      "xaxis": 9.2
+     },
+     "member_minus_raw": {
+      "fwhm": 0.279,
+      "roundness": 0.162
+     },
+     "rotation_from_raw_deg": 27.8
+    },
+    "BR": {
+     "n": 627,
+     "fwhm": 3.285,
+     "roundness": 0.713,
+     "e": 0.3257,
+     "angle": 27.23,
+     "dev": {
+      "radial": 3.9,
+      "tangential": 86.1,
+      "xaxis": 27.23
+     },
+     "member_minus_raw": {
+      "fwhm": 0.505,
+      "roundness": 0.127
+     },
+     "rotation_from_raw_deg": 0.1
+    }
+   }
+  },
+  "aug09/set-05": {
+   "sub_01": {
+    "TL": {
+     "n": 788,
+     "fwhm": 2.672,
+     "roundness": 0.934,
+     "e": 0.0681,
+     "angle": 139.94,
+     "dev": {
+      "radial": 70.92,
+      "tangential": 19.08,
+      "xaxis": 40.06
+     },
+     "member_minus_raw": {
+      "fwhm": 0.262,
+      "roundness": 0.088
+     },
+     "rotation_from_raw_deg": 9.0
+    },
+    "TR": {
+     "n": 453,
+     "fwhm": 2.915,
+     "roundness": 0.875,
+     "e": 0.1332,
+     "angle": 174.27,
+     "dev": {
+      "radial": 25.13,
+      "tangential": 64.87,
+      "xaxis": 5.73
+     },
+     "member_minus_raw": {
+      "fwhm": 0.315,
+      "roundness": 0.131
+     },
+     "rotation_from_raw_deg": 5.1
+    },
+    "BL": {
+     "n": 592,
+     "fwhm": 2.515,
+     "roundness": 0.977,
+     "e": 0.0231,
+     "angle": 176.47,
+     "dev": {
+      "radial": 27.33,
+      "tangential": 62.67,
+      "xaxis": 3.53
+     },
+     "member_minus_raw": {
+      "fwhm": 0.27,
+      "roundness": 0.17
+     },
+     "rotation_from_raw_deg": 36.1
+    },
+    "BR": {
+     "n": 661,
+     "fwhm": 2.822,
+     "roundness": 0.866,
+     "e": 0.1427,
+     "angle": 26.59,
+     "dev": {
+      "radial": 4.27,
+      "tangential": 85.73,
+      "xaxis": 26.59
+     },
+     "member_minus_raw": {
+      "fwhm": 0.252,
+      "roundness": 0.212
+     },
+     "rotation_from_raw_deg": 1.6
+    }
+   },
+   "sub_02": {
+    "TL": {
+     "n": 752,
+     "fwhm": 2.62,
+     "roundness": 0.933,
+     "e": 0.0693,
+     "angle": 136.93,
+     "dev": {
+      "radial": 73.94,
+      "tangential": 16.06,
+      "xaxis": 43.07
+     },
+     "member_minus_raw": {
+      "fwhm": 0.21,
+      "roundness": 0.087
+     },
+     "rotation_from_raw_deg": 12.0
+    },
+    "TR": {
+     "n": 422,
+     "fwhm": 2.925,
+     "roundness": 0.848,
+     "e": 0.1635,
+     "angle": 172.63,
+     "dev": {
+      "radial": 23.5,
+      "tangential": 66.5,
+      "xaxis": 7.37
+     },
+     "member_minus_raw": {
+      "fwhm": 0.325,
+      "roundness": 0.104
+     },
+     "rotation_from_raw_deg": 3.4
+    },
+    "BL": {
+     "n": 598,
+     "fwhm": 2.497,
+     "roundness": 0.975,
+     "e": 0.0255,
+     "angle": 66.16,
+     "dev": {
+      "radial": 82.97,
+      "tangential": 7.03,
+      "xaxis": 66.16
+     },
+     "member_minus_raw": {
+      "fwhm": 0.252,
+      "roundness": 0.168
+     },
+     "rotation_from_raw_deg": 74.2
+    },
+    "BR": {
+     "n": 633,
+     "fwhm": 2.785,
+     "roundness": 0.89,
+     "e": 0.1166,
+     "angle": 28.1,
+     "dev": {
+      "radial": 2.77,
+      "tangential": 87.23,
+      "xaxis": 28.1
+     },
+     "member_minus_raw": {
+      "fwhm": 0.215,
+      "roundness": 0.236
+     },
+     "rotation_from_raw_deg": 0.1
+    }
+   }
+  },
+  "aug06/set-02": {
+   "sub_01": {
+    "TL": {
+     "n": 753,
+     "fwhm": 2.505,
+     "roundness": 0.9,
+     "e": 0.105,
+     "angle": 136.59,
+     "dev": {
+      "radial": 74.25,
+      "tangential": 15.75,
+      "xaxis": 43.41
+     },
+     "member_minus_raw": {
+      "fwhm": 0.242,
+      "roundness": 0.043
+     },
+     "rotation_from_raw_deg": 23.2
+    },
+    "TR": {
+     "n": 677,
+     "fwhm": 2.677,
+     "roundness": 0.859,
+     "e": 0.1513,
+     "angle": 13.48,
+     "dev": {
+      "radial": 44.32,
+      "tangential": 45.68,
+      "xaxis": 13.48
+     },
+     "member_minus_raw": {
+      "fwhm": 0.355,
+      "roundness": 0.1
+     },
+     "rotation_from_raw_deg": 5.8
+    },
+    "BL": {
+     "n": 606,
+     "fwhm": 2.43,
+     "roundness": 0.986,
+     "e": 0.0141,
+     "angle": 48.33,
+     "dev": {
+      "radial": 79.17,
+      "tangential": 10.83,
+      "xaxis": 48.33
+     },
+     "member_minus_raw": {
+      "fwhm": 0.372,
+      "roundness": 0.184
+     },
+     "rotation_from_raw_deg": 77.7
+    },
+    "BR": {
+     "n": 757,
+     "fwhm": 2.578,
+     "roundness": 0.901,
+     "e": 0.1037,
+     "angle": 29.79,
+     "dev": {
+      "radial": 1.05,
+      "tangential": 88.95,
+      "xaxis": 29.79
+     },
+     "member_minus_raw": {
+      "fwhm": 0.363,
+      "roundness": 0.172
+     },
+     "rotation_from_raw_deg": 3.7
+    }
+   },
+   "sub_02": {
+    "TL": {
+     "n": 763,
+     "fwhm": 2.53,
+     "roundness": 0.884,
+     "e": 0.1223,
+     "angle": 137.13,
+     "dev": {
+      "radial": 73.7,
+      "tangential": 16.3,
+      "xaxis": 42.87
+     },
+     "member_minus_raw": {
+      "fwhm": 0.267,
+      "roundness": 0.027
+     },
+     "rotation_from_raw_deg": 22.7
+    },
+    "TR": {
+     "n": 645,
+     "fwhm": 2.663,
+     "roundness": 0.847,
+     "e": 0.1642,
+     "angle": 11.43,
+     "dev": {
+      "radial": 42.26,
+      "tangential": 47.74,
+      "xaxis": 11.43
+     },
+     "member_minus_raw": {
+      "fwhm": 0.341,
+      "roundness": 0.088
+     },
+     "rotation_from_raw_deg": 3.7
+    },
+    "BL": {
+     "n": 641,
+     "fwhm": 2.427,
+     "roundness": 0.984,
+     "e": 0.0165,
+     "angle": 52.02,
+     "dev": {
+      "radial": 82.85,
+      "tangential": 7.15,
+      "xaxis": 52.02
+     },
+     "member_minus_raw": {
+      "fwhm": 0.369,
+      "roundness": 0.182
+     },
+     "rotation_from_raw_deg": 81.4
+    },
+    "BR": {
+     "n": 760,
+     "fwhm": 2.613,
+     "roundness": 0.901,
+     "e": 0.1036,
+     "angle": 26.41,
+     "dev": {
+      "radial": 4.42,
+      "tangential": 85.58,
+      "xaxis": 26.41
+     },
+     "member_minus_raw": {
+      "fwhm": 0.398,
+      "roundness": 0.172
+     },
+     "rotation_from_raw_deg": 7.1
+    }
+   }
+  },
+  "july31/set-01": {
+   "sub_01": {
+    "TL": {
+     "n": 621,
+     "fwhm": 2.535,
+     "roundness": 0.949,
+     "e": 0.0526,
+     "angle": 145.83,
+     "dev": {
+      "radial": 64.89,
+      "tangential": 25.11,
+      "xaxis": 34.17
+     },
+     "member_minus_raw": {
+      "fwhm": 0.25,
+      "roundness": 0.084
+     },
+     "rotation_from_raw_deg": 14.2
+    },
+    "TR": {
+     "n": 452,
+     "fwhm": 2.478,
+     "roundness": 0.892,
+     "e": 0.1138,
+     "angle": 40.54,
+     "dev": {
+      "radial": 71.26,
+      "tangential": 18.74,
+      "xaxis": 40.54
+     },
+     "member_minus_raw": {
+      "fwhm": 0.183,
+      "roundness": 0.069
+     },
+     "rotation_from_raw_deg": 7.3
+    },
+    "BL": {
+     "n": 604,
+     "fwhm": 2.493,
+     "roundness": 0.976,
+     "e": 0.0239,
+     "angle": 151.8,
+     "dev": {
+      "radial": 2.52,
+      "tangential": 87.48,
+      "xaxis": 28.2
+     },
+     "member_minus_raw": {
+      "fwhm": 0.176,
+      "roundness": 0.124
+     },
+     "rotation_from_raw_deg": 1.0
+    },
+    "BR": {
+     "n": 501,
+     "fwhm": 2.435,
+     "roundness": 0.984,
+     "e": 0.0163,
+     "angle": 83.2,
+     "dev": {
+      "radial": 52.48,
+      "tangential": 37.52,
+      "xaxis": 83.2
+     },
+     "member_minus_raw": {
+      "fwhm": 0.178,
+      "roundness": 0.105
+     },
+     "rotation_from_raw_deg": 33.9
+    }
+   },
+   "sub_03": {
+    "TL": {
+     "n": 637,
+     "fwhm": 2.545,
+     "roundness": 0.935,
+     "e": 0.067,
+     "angle": 144.58,
+     "dev": {
+      "radial": 66.14,
+      "tangential": 23.86,
+      "xaxis": 35.42
+     },
+     "member_minus_raw": {
+      "fwhm": 0.26,
+      "roundness": 0.07
+     },
+     "rotation_from_raw_deg": 15.4
+    },
+    "TR": {
+     "n": 387,
+     "fwhm": 2.48,
+     "roundness": 0.926,
+     "e": 0.0768,
+     "angle": 42.78,
+     "dev": {
+      "radial": 73.5,
+      "tangential": 16.5,
+      "xaxis": 42.78
+     },
+     "member_minus_raw": {
+      "fwhm": 0.185,
+      "roundness": 0.103
+     },
+     "rotation_from_raw_deg": 9.6
+    },
+    "BL": {
+     "n": 585,
+     "fwhm": 2.45,
+     "roundness": 0.98,
+     "e": 0.0197,
+     "angle": 170.14,
+     "dev": {
+      "radial": 20.86,
+      "tangential": 69.14,
+      "xaxis": 9.86
+     },
+     "member_minus_raw": {
+      "fwhm": 0.133,
+      "roundness": 0.128
+     },
+     "rotation_from_raw_deg": 17.3
+    },
+    "BR": {
+     "n": 465,
+     "fwhm": 2.42,
+     "roundness": 0.986,
+     "e": 0.0146,
+     "angle": 86.05,
+     "dev": {
+      "radial": 55.33,
+      "tangential": 34.67,
+      "xaxis": 86.05
+     },
+     "member_minus_raw": {
+      "fwhm": 0.163,
+      "roundness": 0.107
+     },
+     "rotation_from_raw_deg": 36.8
+    }
+   }
+  },
+  "july31/set-03": {
+   "sub_01": {
+    "TL": {
+     "n": 631,
+     "fwhm": 2.583,
+     "roundness": 0.921,
+     "e": 0.082,
+     "angle": 140.79,
+     "dev": {
+      "radial": 69.92,
+      "tangential": 20.08,
+      "xaxis": 39.21
+     },
+     "member_minus_raw": {
+      "fwhm": 0.34,
+      "roundness": 0.058
+     },
+     "rotation_from_raw_deg": 14.1
+    },
+    "TR": {
+     "n": 407,
+     "fwhm": 2.64,
+     "roundness": 0.875,
+     "e": 0.133,
+     "angle": 13.94,
+     "dev": {
+      "radial": 44.65,
+      "tangential": 45.35,
+      "xaxis": 13.94
+     },
+     "member_minus_raw": {
+      "fwhm": 0.24,
+      "roundness": 0.14
+     },
+     "rotation_from_raw_deg": 1.8
+    },
+    "BL": {
+     "n": 565,
+     "fwhm": 2.422,
+     "roundness": 0.975,
+     "e": 0.0249,
+     "angle": 108.08,
+     "dev": {
+      "radial": 41.21,
+      "tangential": 48.79,
+      "xaxis": 71.92
+     },
+     "member_minus_raw": {
+      "fwhm": 0.222,
+      "roundness": 0.13
+     },
+     "rotation_from_raw_deg": 32.9
+    },
+    "BR": {
+     "n": 584,
+     "fwhm": 2.562,
+     "roundness": 0.915,
+     "e": 0.089,
+     "angle": 28.72,
+     "dev": {
+      "radial": 1.99,
+      "tangential": 88.01,
+      "xaxis": 28.72
+     },
+     "member_minus_raw": {
+      "fwhm": 0.242,
+      "roundness": 0.184
+     },
+     "rotation_from_raw_deg": 1.9
+    }
+   },
+   "sub_03": {
+    "TL": {
+     "n": 650,
+     "fwhm": 2.598,
+     "roundness": 0.938,
+     "e": 0.0643,
+     "angle": 136.45,
+     "dev": {
+      "radial": 74.26,
+      "tangential": 15.74,
+      "xaxis": 43.55
+     },
+     "member_minus_raw": {
+      "fwhm": 0.355,
+      "roundness": 0.075
+     },
+     "rotation_from_raw_deg": 18.5
+    },
+    "TR": {
+     "n": 367,
+     "fwhm": 2.658,
+     "roundness": 0.876,
+     "e": 0.1313,
+     "angle": 12.23,
+     "dev": {
+      "radial": 42.94,
+      "tangential": 47.06,
+      "xaxis": 12.23
+     },
+     "member_minus_raw": {
+      "fwhm": 0.258,
+      "roundness": 0.141
+     },
+     "rotation_from_raw_deg": 0.1
+    },
+    "BL": {
+     "n": 552,
+     "fwhm": 2.435,
+     "roundness": 0.967,
+     "e": 0.0335,
+     "angle": 54.66,
+     "dev": {
+      "radial": 85.37,
+      "tangential": 4.63,
+      "xaxis": 54.66
+     },
+     "member_minus_raw": {
+      "fwhm": 0.235,
+      "roundness": 0.122
+     },
+     "rotation_from_raw_deg": 86.3
+    },
+    "BR": {
+     "n": 576,
+     "fwhm": 2.578,
+     "roundness": 0.905,
+     "e": 0.099,
+     "angle": 28.79,
+     "dev": {
+      "radial": 1.92,
+      "tangential": 88.08,
+      "xaxis": 28.79
+     },
+     "member_minus_raw": {
+      "fwhm": 0.258,
+      "roundness": 0.174
+     },
+     "rotation_from_raw_deg": 1.8
+    }
+   }
+  }
+ },
+ "corpus_BL": {
+  "positions": [
+   {
+    "label": "BL_700_4200",
+    "x_ydown": 700,
+    "y_ydown": 4200,
+    "x_fits": 700,
+    "y_fits": 1477,
+    "ra": 329.503885,
+    "dec": 33.28158
+   },
+   {
+    "label": "BL_1300_4900",
+    "x_ydown": 1300,
+    "y_ydown": 4900,
+    "x_fits": 1300,
+    "y_fits": 777,
+    "ra": 325.719038,
+    "dec": 30.645792
+   }
+  ],
+  "corpus": {
+   "positions": [
+    {
+     "label": "BL_700_4200",
+     "ra": 329.503885,
+     "dec": 33.28158,
+     "pixel_xy": [
+      699.0,
+      1476.0
+     ],
+     "crop": [
+      299,
+      3801,
+      800,
+      800
+     ],
+     "n": 550,
+     "box_center_offset_deg": 0.215,
+     "top_n": 30,
+     "fwhm_px": 3.033,
+     "roundness": 0.832,
+     "faintest_admitted_A": 7.2e-05
+    },
+    {
+     "label": "BL_1300_4900",
+     "ra": 325.719038,
+     "dec": 30.645792,
+     "pixel_xy": [
+      1299.0,
+      776.0
+     ],
+     "crop": [
+      899,
+      4501,
+      800,
+      800
+     ],
+     "n": 466,
+     "box_center_offset_deg": 0.119,
+     "top_n": 30,
+     "fwhm_px": 2.732,
+     "roundness": 0.83,
+     "faintest_admitted_A": 4.2e-05
+    }
+   ],
+   "angles": {
+    "BL_700_4200": {
+     "top30": {
+      "n_top": 30,
+      "fwhm": 3.033,
+      "roundness": 0.832,
+      "e": 0.1821,
+      "major_axis_deg": 22.67,
+      "concentration": 0.978,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "pixel_ydown": [
+      700.0,
+      4200.0
+     ],
+     "radial": 159.12,
+     "tangential": 69.12,
+     "ra_dir_ydown": 10.53,
+     "dev": {
+      "radial": 43.55,
+      "tangential": 46.45,
+      "RA": 12.14,
+      "xaxis": 22.67
+     }
+    },
+    "BL_1300_4900": {
+     "top30": {
+      "n_top": 30,
+      "fwhm": 2.732,
+      "roundness": 0.83,
+      "e": 0.1837,
+      "major_axis_deg": 18.58,
+      "concentration": 0.963,
+      "fraction_fy_gt_fx": 0.0
+     },
+     "pixel_ydown": [
+      1300.0,
+      4900.0
+     ],
+     "radial": 145.24,
+     "tangential": 55.24,
+     "ra_dir_ydown": 7.93,
+     "dev": {
+      "radial": 53.34,
+      "tangential": 36.66,
+      "RA": 10.65,
+      "xaxis": 18.58
+     }
+    }
+   }
+  },
+  "coverage": {
+   "BL_700_4200": [],
+   "BL_1300_4900": []
+  },
+  "member_shape": {},
+  "verdict": {
+   "BL_700_4200": {
+    "n": 0,
+    "corpus": [
+     3.033,
+     0.832
+    ],
+    "verdict": "UNATTRIBUTABLE (no full-box covering member)"
+   },
+   "BL_1300_4900": {
+    "n": 0,
+    "corpus": [
+     2.732,
+     0.83
+    ],
+    "verdict": "UNATTRIBUTABLE (no full-box covering member)"
+   }
+  }
+ },
+ "corpus_BL_supplement_400px_top15": {
+  "corpus": {
+   "BL_700_4200": {
+    "label": "BL_700_4200",
+    "ra": 329.503885,
+    "dec": 33.28158,
+    "pixel_xy": [
+     699.0,
+     1476.0
+    ],
+    "crop": [
+     499,
+     4001,
+     400,
+     400
+    ],
+    "n": 158,
+    "box_center_offset_deg": 0.075,
+    "top_n": 15,
+    "fwhm_px": 3.065,
+    "roundness": 0.814,
+    "faintest_admitted_A": 7.4e-05
+   },
+   "BL_1300_4900": {
+    "label": "BL_1300_4900",
+    "ra": 325.719038,
+    "dec": 30.645792,
+    "pixel_xy": [
+     1299.0,
+     776.0
+    ],
+    "crop": [
+     1099,
+     4701,
+     400,
+     400
+    ],
+    "n": 108,
+    "box_center_offset_deg": 0.033,
+    "top_n": 15,
+    "fwhm_px": 2.66,
+    "roundness": 0.854,
+    "faintest_admitted_A": 7.6e-05
+   }
+  },
+  "corpus_angles": {
+   "BL_700_4200": {
+    "top30": {
+     "n_top": 30,
+     "fwhm": 3.143,
+     "roundness": 0.814,
+     "e": 0.2031,
+     "major_axis_deg": 15.92,
+     "concentration": 0.953,
+     "fraction_fy_gt_fx": 0.0
+    },
+    "pixel_ydown": [
+     700.0,
+     4200.0
+    ],
+    "radial": 159.12,
+    "tangential": 69.12,
+    "ra_dir_ydown": 10.53,
+    "dev": {
+     "radial": 36.8,
+     "tangential": 53.2,
+     "RA": 5.39,
+     "xaxis": 15.92
+    }
+   },
+   "BL_1300_4900": {
+    "top30": {
+     "n_top": 30,
+     "fwhm": 2.633,
+     "roundness": 0.85,
+     "e": 0.1613,
+     "major_axis_deg": 27.02,
+     "concentration": 0.6,
+     "fraction_fy_gt_fx": 0.0
+    },
+    "pixel_ydown": [
+     1300.0,
+     4900.0
+    ],
+    "radial": 145.24,
+    "tangential": 55.24,
+    "ra_dir_ydown": 7.93,
+    "dev": {
+     "radial": 61.78,
+     "tangential": 28.22,
+     "RA": 19.09,
+     "xaxis": 27.02
+    }
+   }
+  },
+  "coverage": {
+   "BL_700_4200": [
+    {
+     "member": "aug14/set-04/sub_05",
+     "path": "sessions/aug14/work/groups_set-04/sub_05.fit",
+     "x": 5472.3,
+     "y_down": 294.7,
+     "naxis": [
+      5828,
+      3951
+     ],
+     "nearest_edge_px": 294.7,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.87
+    },
+    {
+     "member": "aug14/set-04/sub_06",
+     "path": "sessions/aug14/work/groups_set-04/sub_06.fit",
+     "x": 5238.0,
+     "y_down": 304.5,
+     "naxis": [
+      5829,
+      3951
+     ],
+     "nearest_edge_px": 304.5,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.81
+    },
+    {
+     "member": "july31/set-03/sub_04",
+     "path": "sessions/july31/work/groups_set-03/sub_04.fit",
+     "x": 5611.2,
+     "y_down": 316.0,
+     "naxis": [
+      5832,
+      3951
+     ],
+     "nearest_edge_px": 220.8,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.9
+    },
+    {
+     "member": "july31/set-03/sub_05",
+     "path": "sessions/july31/work/groups_set-03/sub_05.fit",
+     "x": 5383.5,
+     "y_down": 265.9,
+     "naxis": [
+      5832,
+      3951
+     ],
+     "nearest_edge_px": 265.9,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.85
+    }
+   ],
+   "BL_1300_4900": [
+    {
+     "member": "july31/set-01/sub_04",
+     "path": "sessions/july31/work/groups_set-01/sub_04.fit",
+     "x": 5524.7,
+     "y_down": 373.0,
+     "naxis": [
+      5832,
+      3952
+     ],
+     "nearest_edge_px": 307.3,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.87
+    },
+    {
+     "member": "july31/set-01/sub_05",
+     "path": "sessions/july31/work/groups_set-01/sub_05.fit",
+     "x": 5301.2,
+     "y_down": 289.8,
+     "naxis": [
+      5832,
+      3952
+     ],
+     "nearest_edge_px": 289.8,
+     "x_edge_role": "entry",
+     "zone": "TR",
+     "rho": 0.83
+    }
+   ]
+  },
+  "members": {
+   "aug14/set-04/sub_05": {
+    "positions": [
+     {
+      "label": "BL_700_4200",
+      "ra": 329.503885,
+      "dec": 33.28158,
+      "pixel_xy": [
+       5471.3,
+       3655.3
+      ],
+      "crop": [
+       5271,
+       96,
+       400,
+       400
+      ],
+      "n": 86,
+      "box_center_offset_deg": 0.114,
+      "top_n": 15,
+      "fwhm_px": 2.925,
+      "roundness": 0.831,
+      "faintest_admitted_A": 0.000167
+     }
+    ],
+    "angles": {
+     "BL_700_4200": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 3.06,
+       "roundness": 0.794,
+       "e": 0.2262,
+       "major_axis_deg": 2.94,
+       "concentration": 0.966,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5472.3,
+       294.7
+      ],
+      "radial": 146.69,
+      "tangential": 56.69,
+      "ra_dir_ydown": 178.02,
+      "dev": {
+       "radial": 36.25,
+       "tangential": 53.75,
+       "RA": 4.92,
+       "xaxis": 2.94
+      }
+     }
+    }
+   },
+   "aug14/set-04/sub_06": {
+    "positions": [
+     {
+      "label": "BL_700_4200",
+      "ra": 329.503885,
+      "dec": 33.28158,
+      "pixel_xy": [
+       5237.0,
+       3645.5
+      ],
+      "crop": [
+       5037,
+       105,
+       400,
+       400
+      ],
+      "n": 89,
+      "box_center_offset_deg": 0.136,
+      "top_n": 15,
+      "fwhm_px": 2.975,
+      "roundness": 0.852,
+      "faintest_admitted_A": 0.000152
+     }
+    ],
+    "angles": {
+     "BL_700_4200": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 3.107,
+       "roundness": 0.848,
+       "e": 0.1632,
+       "major_axis_deg": 175.49,
+       "concentration": 0.935,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5238.0,
+       304.5
+      ],
+      "radial": 144.28,
+      "tangential": 54.28,
+      "ra_dir_ydown": 177.37,
+      "dev": {
+       "radial": 31.21,
+       "tangential": 58.79,
+       "RA": 1.88,
+       "xaxis": 4.51
+      }
+     }
+    }
+   },
+   "july31/set-01/sub_04": {
+    "positions": [
+     {
+      "label": "BL_1300_4900",
+      "ra": 325.719038,
+      "dec": 30.645792,
+      "pixel_xy": [
+       5523.7,
+       3578.0
+      ],
+      "crop": [
+       5324,
+       174,
+       400,
+       400
+      ],
+      "n": 61,
+      "box_center_offset_deg": 0.094,
+      "top_n": 15,
+      "fwhm_px": 2.43,
+      "roundness": 0.921,
+      "faintest_admitted_A": 0.00024
+     }
+    ],
+    "angles": {
+     "BL_1300_4900": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 2.46,
+       "roundness": 0.922,
+       "e": 0.0812,
+       "major_axis_deg": 58.63,
+       "concentration": 0.413,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5524.7,
+       373.0
+      ],
+      "radial": 148.43,
+      "tangential": 58.43,
+      "ra_dir_ydown": 20.79,
+      "dev": {
+       "radial": 89.8,
+       "tangential": 0.2,
+       "RA": 37.84,
+       "xaxis": 58.63
+      }
+     }
+    }
+   },
+   "july31/set-01/sub_05": {
+    "positions": [
+     {
+      "label": "BL_1300_4900",
+      "ra": 325.719038,
+      "dec": 30.645792,
+      "pixel_xy": [
+       5300.2,
+       3661.2
+      ],
+      "crop": [
+       5100,
+       91,
+       400,
+       400
+      ],
+      "n": 71,
+      "box_center_offset_deg": 0.082,
+      "top_n": 15,
+      "fwhm_px": 2.44,
+      "roundness": 0.92,
+      "faintest_admitted_A": 0.000252
+     }
+    ],
+    "angles": {
+     "BL_1300_4900": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 2.455,
+       "roundness": 0.922,
+       "e": 0.0807,
+       "major_axis_deg": 53.01,
+       "concentration": 0.561,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5301.2,
+       289.8
+      ],
+      "radial": 144.74,
+      "tangential": 54.74,
+      "ra_dir_ydown": 20.16,
+      "dev": {
+       "radial": 88.27,
+       "tangential": 1.73,
+       "RA": 32.85,
+       "xaxis": 53.01
+      }
+     }
+    }
+   },
+   "july31/set-03/sub_04": {
+    "positions": [
+     {
+      "label": "BL_700_4200",
+      "ra": 329.503885,
+      "dec": 33.28158,
+      "pixel_xy": [
+       5610.2,
+       3634.0
+      ],
+      "crop": [
+       5410,
+       117,
+       400,
+       400
+      ],
+      "n": 64,
+      "box_center_offset_deg": 0.043,
+      "top_n": 15,
+      "fwhm_px": 2.555,
+      "roundness": 0.842,
+      "faintest_admitted_A": 0.000274
+     }
+    ],
+    "angles": {
+     "BL_700_4200": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 2.587,
+       "roundness": 0.835,
+       "e": 0.1786,
+       "major_axis_deg": 27.44,
+       "concentration": 0.847,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5611.2,
+       316.0
+      ],
+      "radial": 148.38,
+      "tangential": 58.38,
+      "ra_dir_ydown": 12.79,
+      "dev": {
+       "radial": 59.06,
+       "tangential": 30.94,
+       "RA": 14.65,
+       "xaxis": 27.44
+      }
+     }
+    }
+   },
+   "july31/set-03/sub_05": {
+    "positions": [
+     {
+      "label": "BL_700_4200",
+      "ra": 329.503885,
+      "dec": 33.28158,
+      "pixel_xy": [
+       5382.5,
+       3684.1
+      ],
+      "crop": [
+       5183,
+       67,
+       400,
+       400
+      ],
+      "n": 75,
+      "box_center_offset_deg": 0.091,
+      "top_n": 15,
+      "fwhm_px": 2.575,
+      "roundness": 0.842,
+      "faintest_admitted_A": 0.000263
+     }
+    ],
+    "angles": {
+     "BL_700_4200": {
+      "top30": {
+       "n_top": 30,
+       "fwhm": 2.6,
+       "roundness": 0.884,
+       "e": 0.1232,
+       "major_axis_deg": 30.62,
+       "concentration": 0.759,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "pixel_ydown": [
+       5383.5,
+       265.9
+      ],
+      "radial": 145.28,
+      "tangential": 55.28,
+      "ra_dir_ydown": 12.11,
+      "dev": {
+       "radial": 65.34,
+       "tangential": 24.66,
+       "RA": 18.51,
+       "xaxis": 30.62
+      }
+     }
+    }
+   }
+  },
+  "verdict": {
+   "BL_700_4200": {
+    "n": 4,
+    "corpus": [
+     3.065,
+     0.814
+    ],
+    "median": [
+     2.75,
+     0.842
+    ],
+    "best": [
+     2.555,
+     0.852
+    ],
+    "worst": [
+     2.975,
+     0.831
+    ],
+    "corpus_minus_median": [
+     0.315,
+     -0.028
+    ],
+    "corpus_minus_best": [
+     0.51,
+     -0.038
+    ],
+    "verdict_supplement": "NEITHER by the letter",
+    "by_night_median": {
+     "aug14": 2.95,
+     "july31": 2.565
+    },
+    "zones": [
+     "TR"
+    ],
+    "roles": [
+     "entry"
+    ],
+    "rows": [
+     {
+      "member": "aug14/set-04/sub_05",
+      "n": 86,
+      "fwhm": 2.925,
+      "roundness": 0.831,
+      "zone": "TR",
+      "rho": 0.87,
+      "role": "entry",
+      "edge": 294.7,
+      "dev_RA": 4.92,
+      "e": 0.2262
+     },
+     {
+      "member": "aug14/set-04/sub_06",
+      "n": 89,
+      "fwhm": 2.975,
+      "roundness": 0.852,
+      "zone": "TR",
+      "rho": 0.81,
+      "role": "entry",
+      "edge": 304.5,
+      "dev_RA": 1.88,
+      "e": 0.1632
+     },
+     {
+      "member": "july31/set-03/sub_04",
+      "n": 64,
+      "fwhm": 2.555,
+      "roundness": 0.842,
+      "zone": "TR",
+      "rho": 0.9,
+      "role": "entry",
+      "edge": 220.8,
+      "dev_RA": 14.65,
+      "e": 0.1786
+     },
+     {
+      "member": "july31/set-03/sub_05",
+      "n": 75,
+      "fwhm": 2.575,
+      "roundness": 0.842,
+      "zone": "TR",
+      "rho": 0.85,
+      "role": "entry",
+      "edge": 265.9,
+      "dev_RA": 18.51,
+      "e": 0.1232
+     }
+    ]
+   },
+   "BL_1300_4900": {
+    "n": 2,
+    "corpus": [
+     2.66,
+     0.854
+    ],
+    "median": [
+     2.435,
+     0.921
+    ],
+    "best": [
+     2.43,
+     0.921
+    ],
+    "worst": [
+     2.44,
+     0.92
+    ],
+    "corpus_minus_median": [
+     0.225,
+     -0.067
+    ],
+    "corpus_minus_best": [
+     0.23,
+     -0.067
+    ],
+    "verdict_supplement": "NEITHER by the letter",
+    "by_night_median": {
+     "july31": 2.435
+    },
+    "zones": [
+     "TR"
+    ],
+    "roles": [
+     "entry"
+    ],
+    "rows": [
+     {
+      "member": "july31/set-01/sub_04",
+      "n": 61,
+      "fwhm": 2.43,
+      "roundness": 0.921,
+      "zone": "TR",
+      "rho": 0.87,
+      "role": "entry",
+      "edge": 307.3,
+      "dev_RA": 37.84,
+      "e": 0.0812
+     },
+     {
+      "member": "july31/set-01/sub_05",
+      "n": 71,
+      "fwhm": 2.44,
+      "roundness": 0.92,
+      "zone": "TR",
+      "rho": 0.83,
+      "role": "entry",
+      "edge": 289.8,
+      "dev_RA": 32.85,
+      "e": 0.0807
+     }
+    ]
+   }
+  }
+ },
+ "reading": "STEP 1, RAW CORNERS (18 raws, y-down frame, rho 0.77; radial directions TL 30.3 / BL 149.7 / BR 30.3 / TR 149.7 deg): every set is MIXED by the rule, with ONE pattern on all six: the two BOTTOM corners are RADIAL \u2014 BR within 0.3-19 deg of radial on every set and the strongest elongation on the frame (e 0.30-0.49 on aug14/aug09/aug06/july31-set-03, 0.13 on july31/set-01), BL within 0.9-14 deg (e 0.16-0.26) \u2014 while the two TOP corners are NOT radial: TR sits 7-13 deg from the sensor x-axis on aug06/aug14/aug09/july31-set-03 (17-20 deg from radial on aug14/aug09, an ambiguity of the 30-deg gap between the radial and x directions there) and 33 deg from everything on july31/set-01; TL is 50-66 deg from radial, 24-40 from tangential and 20-36 from x on every set, with the weakest ellipticity (e 0.14-0.17). So the optical (coma-like, radial) term is present on the bottom half of the sensor and weak-to-absent on the top half \u2014 a top/bottom asymmetry under one lens \u2014 and the field-constant drift trail (x-axis) shows through where the optical term is weak. Not OPTICS-RADIAL, not OPTICS-TANGENTIAL, not AXIS. NIGHT DEPENDENCE at the corners: the two RIGHT (entry-side) corners order like the mid-row \u2014 TR aug14 2.91 > aug09 2.60 > july31/set-03 2.40 > aug06 2.32 > july31/set-01 2.30; BR aug14 2.75-2.78 > aug09 2.57 > july31/set-03 2.32 > july31/set-01 2.26 > aug06 2.22 \u2014 and TL follows it (aug14 2.47-2.49 > aug09 2.41 > the rest 2.24-2.29); BL, the exit-side bottom corner, does NOT (spread 0.28 px, aug14/set-04 fourth of six). The soft night is soft on its right half and its top-left, not at BL. STEP 2, MEMBER CORNERS (sub_01 + the member holding the middle raw, boxes 600 px from the MEMBER's edges \u2014 116-199 px further from the raw's x-edges, 44-71 px in y, by the framing=min crop; stated, not corrected): stacking adds +0.13..+0.37 px FWHM at every corner (the GO #7 floor) and ROUNDS every corner (+0.03..+0.23 roundness): the exit-side BL corners become nearly round on every member (e 0.01-0.04, roundness 0.96-0.99, from raw e 0.16-0.26) and TL nearly so (e 0.03-0.12); the entry-side corners keep their elongation \u2014 BR stays RADIAL on every member (1-8 deg, e 0.10-0.33) with rotation 0-10 deg from the raw, TR keeps the raw's direction to 0-10 deg (x-axis-near on aug06/aug09/aug14/july31-03, e 0.13-0.20). Direction change under stacking: where the raw term was strong (BR, TR) the member keeps it \u2014 the OPTICS dominate; where it was weak (BL, TL) the residual member angle is ill-defined (e <= 0.06, rotations 1-90 deg) \u2014 no drift-coupled rotation toward the x-axis is visible at any corner. The members' worst corners are the RIGHT ones: TR 2.48-3.27 / BR 2.42-3.29 px, night-ordered (aug14 > aug09 > july31-03 ~ aug06 > july31-01). STEP 3, THE CORPUS'S BL: at y-down (700,4200) the corpus reads 3.033/0.832 and at (1300,4900) 2.732/0.830 (800-px, top-30; elongation 12 / 11 deg off local +RA, e 0.18), and NO member holds a full 800-px box at either \u2014 the corpus's bottom-left corner is built from members' PARTIAL coverage: UNATTRIBUTABLE by GO #6's rule. SUPPLEMENT (400-px boxes, top-15, outside the pre-registered rule): the members that reach (700,4200) are aug14/set-04 sub_05/sub_06 and july31/set-03 sub_04/sub_05, those reaching (1300,4900) july31/set-01 sub_04/sub_05 \u2014 every one contributes from its own TOP-RIGHT corner zone (rho 0.81-0.90, the ENTRY side, 221-307 px from its edge): the corpus's bottom-left corner IS the members' top-right corners (the canvas is rotated ~180 deg relative to the members \u2014 the RA flip GO #6 measured, and Dec too). Corpus vs the reaching members at 400 px: (700,4200) 3.065/0.814 vs median 2.750/0.842 (aug14 2.925/2.975 at 0.83-0.85, july31-03 2.555/2.575 at 0.84) \u2014 +0.315 px over the median (0.05 past the corrected +0.265 allowance), roundness -0.028 (within 0.03): NEITHER by the letter, the corpus sitting between its aug14 and july31 contributors plus the floor; (1300,4900) 2.660/0.854 vs july31/set-01's 2.430/0.921 and 2.440/0.920 \u2014 +0.225 (within 0.265) but roundness -0.067 (past 0.03): NEITHER, and here the corpus's elongation lies 19 deg off +RA while both members' lie 33-38 deg off \u2014 at the corpus's very rim, fed by two members of one set from their entry-side corner, the compose adds a roundness loss with the elongation turned toward the drift axis: the one drift-coupled addition this test found, at the thinnest coverage. WHAT THIS PICKS: the corners are the same story as the mid-row \u2014 the members' entry-side (right) corners carry a night-ordered optical elongation that is in the raws (radial at the bottom, x-near at the top), stacking rounds the weak (exit-side) corners and keeps the strong ones, and the corpus's worst corner is those right-hand member corners composed at rho 0.8-0.9 \u2014 member selection/weighting by measured shape reaches it; the rim-only drift-coupled roundness loss at (1300,4900) is a separate, compose-side term where only two members reach.",
+ "premises_untested": [
+  "Siril's angle frame: y-down established on the corpus band (0.9-7.6 deg vs 19-36 deg), not on the raws themselves; a raw carries no WCS to repeat it",
+  "the raw corner boxes are pixel-addressed at 600 px from the raw's edges; the member boxes at 600 px from the MEMBER's edges sit 116-199 px further in x and 44-71 px in y from the raw's edges (the framing=min crop), so member-vs-raw compares slightly different sensor positions on a steep gradient; the undistort's own rescale is inside that",
+  "top-30 statistics on 16-60 stars per raw corner box (n 13-81) \u2014 the top-30 is the whole population at some corners; the 3-raw medians carry the set",
+  "the corpus BL supplement uses 400-px boxes and top-15 on both sides (like for like) but the compose floor +0.165 was measured at 800 px / top-30 (GO #6) \u2014 the corrected allowance is carried over, not re-measured at 400 px",
+  "the '~180 deg rotated' relation corpus<->members is read from the coverage geometry (corpus BL <- member TR zones; RA falls with corpus x, rises with member x), not from a header",
+  "what makes the top/bottom optical asymmetry and its per-night strength (tilt, decentring, focus, temperature) is not measured"
+ ],
+ "no_destructive_steps": "raws, members and the corpus read only; .ssf, logs and lists under sessions/<night>/work/rawshape/<set>/corners_NN/ and sessions/<night>/work/corner_attr/ (gitignored)",
+ "written_at": "2026-08-29 13:14:18"
+}
