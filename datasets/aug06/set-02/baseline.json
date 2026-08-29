@@ -10,7 +10,7 @@
   },
   "stacknrm": "addscale",
   "stack": "web/results/aug06/stack_set-02_full_spcc.fit",
-  "stack_id": "54475934f601327bc589392c92c509a0"
+  "stack_id": "3f0408d48763fd73213c396aab4cc710"
  },
  "tolerances": {
   "corner_spread_pct_max_abs": 3.0,
@@ -18,6 +18,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "OWNER-ACCEPTED 2026-08-29: from-raws rebuild under PIPEREV 77e3a78 (BACKLOG output-norm-zero-point campaign; record datasets/corpus/campaign_zeropoint/campaign_record.json); STACKNRM addscale \u2014 the level rows re-arm on this seed",
+ "note": "OWNER-ACCEPTED 2026-08-29: 'Nikon Z f' proxy pin (spcc-sensor-curve stage 2, 41eecff) on the from-raws campaign product (77e3a78); \u0394K_G +0.008 (+1.25%) / \u0394K_B +0.017 (+2.00%) vs the index-0 model (pin_record.json); STACKNRM addscale.",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

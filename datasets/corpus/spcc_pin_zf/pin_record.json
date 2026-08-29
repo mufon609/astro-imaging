@@ -2831,5 +2831,255 @@
   "run-to-run determinism is assumed from the july31/set-01 repeat (arm zf2 = arm zf to the digit); no product was run twice here",
   "the driver's first pass keyed its done-list by tag alone and skipped 13 products whose tag repeats across nights; the key was corrected (session/set/tag), the 9 finished results migrated by their own .ssf session path, and the 13 run in a second pass (10:40:33-10:41:49) \u2014 nothing was overwritten or run twice (every product's pre-run assertion: canonical _spcc and PNG absent)",
   "the SPCC wall times (2.1-5.0 s) and PNG saves (2.8-7.2 s) are from a local-catalogue run on this rig; the doc's 'five full runs of ~2-3 min' was an estimate, not a measurement"
- ]
+ ],
+ "status": {
+  "owner_acceptance": "2026-08-29: the 22-product delta ACCEPTED ('accept the delta, re-seed and delete the twins', relayed by the director)",
+  "baselines_reseeded": {
+   "july31/set-01": {
+    "seed_line": [
+     0.221,
+     0.0028
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "8efe08dfe5827fede0f1401d1a55146e",
+    "centre": {
+     "ch0": 90.6,
+     "ch1": 90.6,
+     "ch2": 90.5
+    },
+    "ceiling_block": false
+   },
+   "july31/set-02": {
+    "seed_line": [
+     0.225,
+     0.0051
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "62d07d3758e1a9b2c42c792d397758b9",
+    "centre": {
+     "ch0": 89.0,
+     "ch1": 89.1,
+     "ch2": 88.9
+    },
+    "ceiling_block": false
+   },
+   "july31/set-03": {
+    "seed_line": [
+     0.647,
+     0.0059
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "3058a90bc4e353c30af98c9a22405527",
+    "centre": {
+     "ch0": 93.1,
+     "ch1": 93.2,
+     "ch2": 92.9
+    },
+    "ceiling_block": false
+   },
+   "july31/set-04": {
+    "seed_line": [
+     0.759,
+     0.0027
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "d8fa862dbc9d39c8f62a57575946b21e",
+    "centre": {
+     "ch0": 92.8,
+     "ch1": 92.8,
+     "ch2": 92.6
+    },
+    "ceiling_block": false
+   },
+   "aug06/set-01": {
+    "seed_line": [
+     0.269,
+     0.0013
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "d526372469872cad88a51920fbb7c471",
+    "centre": {
+     "ch0": 37.2,
+     "ch1": 37.3,
+     "ch2": 37.1
+    },
+    "ceiling_block": false
+   },
+   "aug06/set-02": {
+    "seed_line": [
+     0.275,
+     -0.0014
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "3f0408d48763fd73213c396aab4cc710",
+    "centre": {
+     "ch0": 36.3,
+     "ch1": 36.5,
+     "ch2": 36.3
+    },
+    "ceiling_block": false
+   },
+   "aug06/set-03": {
+    "seed_line": [
+     0.573,
+     0.0028
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "3c20cad7ee666345bde702f4a717a9b3",
+    "centre": {
+     "ch0": 35.0,
+     "ch1": 35.1,
+     "ch2": 35.0
+    },
+    "ceiling_block": false
+   },
+   "aug09/set-01": {
+    "seed_line": [
+     0.714,
+     0.0012
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "f73363f7cd0f989d8e207203cff473d9",
+    "centre": {
+     "ch0": 42.2,
+     "ch1": 42.4,
+     "ch2": 42.2
+    },
+    "ceiling_block": false
+   },
+   "aug09/set-02": {
+    "seed_line": [
+     0.474,
+     -0.0059
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "38c85e0926e16d943cf030a59dde0d0c",
+    "centre": {
+     "ch0": 42.2,
+     "ch1": 42.4,
+     "ch2": 42.2
+    },
+    "ceiling_block": false
+   },
+   "aug09/set-03": {
+    "seed_line": [
+     0.464,
+     0.0081
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "90b00bef31f41f37959bdd06fae814e8",
+    "centre": {
+     "ch0": 43.0,
+     "ch1": 43.3,
+     "ch2": 43.0
+    },
+    "ceiling_block": false
+   },
+   "aug09/set-04": {
+    "seed_line": [
+     0.682,
+     -0.0056
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "a038e80407a60dff19c6625f2aa313aa",
+    "centre": {
+     "ch0": 43.9,
+     "ch1": 44.2,
+     "ch2": 43.9
+    },
+    "ceiling_block": false
+   },
+   "aug09/set-05": {
+    "seed_line": [
+     1.119,
+     0.0022
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "de85e9dd482a58466a703e233f4ba2a9",
+    "centre": {
+     "ch0": 45.1,
+     "ch1": 45.3,
+     "ch2": 45.1
+    },
+    "ceiling_block": false
+   },
+   "aug14/set-01": {
+    "seed_line": [
+     0.232,
+     -0.0046
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "c22044f385769b73318a05dcb5635812",
+    "centre": {
+     "ch0": 42.8,
+     "ch1": 43.0,
+     "ch2": 42.8
+    },
+    "ceiling_block": false
+   },
+   "aug14/set-02": {
+    "seed_line": [
+     1.961,
+     -0.0108
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "444d41add1cac49fc02420f216758ee1",
+    "centre": {
+     "ch0": 40.9,
+     "ch1": 41.1,
+     "ch2": 40.9
+    },
+    "ceiling_block": false
+   },
+   "aug14/set-03": {
+    "seed_line": [
+     0.494,
+     0.0012
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "9dc4563880a2ebfd3f97aedeb57e51a6",
+    "centre": {
+     "ch0": 40.1,
+     "ch1": 40.4,
+     "ch2": 40.2
+    },
+    "ceiling_block": false
+   },
+   "aug14/set-04": {
+    "seed_line": [
+     1.25,
+     0.0
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "a06d15b5f081bfc8548b94dc5539b040",
+    "centre": {
+     "ch0": 40.4,
+     "ch1": 40.5,
+     "ch2": 40.3
+    },
+    "ceiling_block": false
+   },
+   "aug14/set-05": {
+    "seed_line": [
+     4.381,
+     -0.0302
+    ],
+    "equal_to_go3b_compare": true,
+    "stack_id": "6d1080722b6eae19b0b7997927f14c3b",
+    "centre": {
+     "ch0": 39.6,
+     "ch1": 39.9,
+     "ch2": 39.6
+    },
+    "ceiling_block": true
+   }
+  },
+  "twins_disposed": {
+   "count": 44,
+   "bytes": 8559911176,
+   "manifest": "datasets/corpus/spcc_pin_zf/moveaside_manifest.json (block 'disposed')",
+   "free_bytes_before": 718546112512,
+   "free_bytes_after": 727106203648
+  }
+ }
 }

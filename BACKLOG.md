@@ -1624,8 +1624,11 @@ to 0.1 ADU16 whatever K. The index-0 products and PNGs are kept as `_idx0_` twin
 (`moveaside_manifest.json`, 44 files, 8.56 GB).
 
 **Remaining.**
-- On the owner's acceptance of the delta: re-seed the 17 baselines on the pinned
-  products; dispose of the 44 `_idx0_` twins.
+- DONE, owner-accepted 2026-08-29: the 17 baselines re-seeded on the pinned
+  products (seed lines equal to the compare measures; stack_id = the pinned
+  product's sha; aug14/set-05's ceiling verdict carried forward) and the 44
+  `_idx0_` twins disposed under the manifest's identities (0 mismatches,
+  8,559,911,176 B; `moveaside_manifest.json` "disposed").
 - The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's
   issue #3 asks for it) — the owner's call; the Butcher Z6 stays local (CC BY-NC-SA).
 - OPEN, closed by no proxy: the B/G fit's intercept (share 0.39–0.44 and σ > 0.10

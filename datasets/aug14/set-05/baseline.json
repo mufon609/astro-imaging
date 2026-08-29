@@ -2,7 +2,7 @@
  "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
  "measures": {
   "corner_spread_pct": 4.381,
-  "edge_dipole_x": -0.0289,
+  "edge_dipole_x": -0.0302,
   "centre_median_per_channel": {
    "ch0": 39.6,
    "ch1": 39.9,
@@ -10,7 +10,7 @@
   },
   "stacknrm": "addscale",
   "stack": "web/results/aug14/stack_set-05_full_spcc.fit",
-  "stack_id": "1e7154c6f5addd9292c0074ae5e4f377"
+  "stack_id": "6d1080722b6eae19b0b7997927f14c3b"
  },
  "tolerances": {
   "corner_spread_pct_max_abs": 3.0,
@@ -18,6 +18,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "OWNER-ACCEPTED 2026-08-29 (first seed 2026-08-29, re-seeded with the ceiling verdict): CEILING examined manually by the director \u2014 a true 4.38% corner spread, left corners bright (right/left 0.976, top/bottom 0.998: a left-right slope, not radial); the background map is the FIELD, the Milky Way star cloud in the left third and the dark rift on the right, identical in shape to the never-seeded -output_norm product (8.2% on the same measure, pedestal-inflated); the set\u2019s own sky flat carries a 23% right/left corner asymmetry (readiness WARN 1.361, the open sky x V term) so the flat/sky split is NOT separable here; no processing defect; product accepted. STACKNRM addscale.",
+ "note": "OWNER-ACCEPTED 2026-08-29 (first seed 2026-08-29, re-seeded with the ceiling verdict): CEILING examined manually by the director \u2014 a true 4.38% corner spread, left corners bright (right/left 0.976, top/bottom 0.998: a left-right slope, not radial); the background map is the FIELD, the Milky Way star cloud in the left third and the dark rift on the right, identical in shape to the never-seeded -output_norm product (8.2% on the same measure, pedestal-inflated); the set\u2019s own sky flat carries a 23% right/left corner asymmetry (readiness WARN 1.361, the open sky x V term) so the flat/sky split is NOT separable here; no processing defect; product accepted. STACKNRM addscale. RE-SEEDED, OWNER-ACCEPTED 2026-08-29: 'Nikon Z f' proxy pin (spcc-sensor-curve stage 2, 41eecff) on the from-raws campaign product (77e3a78); \u0394K_G +0.010 (+1.60%) / \u0394K_B +0.021 (+2.48%) vs the index-0 model (pin_record.json); STACKNRM addscale. The ceiling verdict above carries forward on the pinned product (same field, same flat).",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

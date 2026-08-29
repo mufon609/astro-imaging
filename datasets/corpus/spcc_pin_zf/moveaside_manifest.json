@@ -545,5 +545,23 @@
    "session": "aug09",
    "set": "set-02"
   }
- ]
+ ],
+ "disposed": {
+  "owner_acceptance": "2026-08-29, relayed by the director (astro-imaging-45): 'accept the delta, re-seed and delete the twins' \u2014 after the 17 canonical baselines were re-seeded on the pinned products",
+  "method": "for every manifest target: bytes and head+tail+size sha256[:32] re-computed and asserted equal to this manifest's identity in a full pass BEFORE any rm, then re-asserted immediately before each os.remove; nothing outside the 44 manifest targets touched",
+  "count": 44,
+  "bytes": 8559911176,
+  "identity_mismatches": 0,
+  "after": {
+   "every_target_absent": true,
+   "every_canonical_present": true,
+   "canonical_bytes_equal_go3b_records": true,
+   "canonical_mtimes_in_go3b_window": "2026-08-29 10:37-10:42",
+   "n_canonical_checked": 44
+  },
+  "free_bytes_before": 718546112512,
+  "free_bytes_after": 727106203648,
+  "freed_bytes": 8560091136,
+  "disposed_at": "2026-08-29 11:14:52"
+ }
 }
