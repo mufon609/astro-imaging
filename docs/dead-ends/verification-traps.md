@@ -329,3 +329,36 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   defect to chase: it bounds what a COUNT comparison can resolve and leaves a
   rank-matched shape comparison unaffected (`star-shape-optics.md`, the
   detection-depth entry). (This entry is the jitter figure's sole home.)
+- **`shape_at_sky`'s CROP-FLIP CHECK PASSED THE WRONG CONVENTION ON MID-ROW BOX
+  SETS — a verification whose tolerance is wider than the defect it verifies
+  against.** The instrument places 800-px boxes by the product's WCS, crops with
+  Siril, and checks the tool's own median star RA/Dec against the target; the
+  Siril-crop y-origin was resolved by trying "bottom" first and accepting it if
+  every box verified within tol = box/2 × scale × 1.5 = **2.83° (≈ 600 px)**.
+  The wrong convention mirrors a box about the canvas centre row, displacing
+  it by **2·|y0 − H/2| px** — so for any box set lying within **~300 px of the
+  centre row** every mirrored box is INSIDE the tolerance, the wrong
+  convention verifies, and displaced boxes ship. The check cannot fail on the
+  defect it names for exactly the box sets a mid-canvas march produces.
+  MEASURED (GO #6, `datasets/corpus/smear_attribution/left_band_member_attribution.json`):
+  all **8 corpus boxes** were bottom-placed, displaced **+136..+270 px** (the
+  record's own `box_center_offset_deg` 1.2–1.5° said so and nobody read it);
+  **96 of 190 member boxes** (49 of 77 members) displaced **8–602 px, median
+  349**; the same corpus file re-measured with verified placement differs by
+  **−0.048..+0.015 px FWHM**, n by −20..+19 (GO #10) — and the RE-RUN of all
+  198 boxes with the fixed instrument (GO #11, ledger line 108) moved the
+  member medians by **≤ 0.015 px** and the x50 calibration from +0.165 to
+  +0.145 px: a column-wise band is insensitive to a vertical displacement, so
+  GO #6's verdict survived its own placement defect. Not affected: box sets
+  with a far-from-centre position (the 52-member re-march's ladder, GO #10's
+  corners — the wrong pass misses by 19.8° and fails decisively) and every
+  pixel-addressed instrument (`star_stations`, the hand crops). FIX (the
+  current rule): run BOTH conventions, accept the smaller median offset, and
+  REQUIRE the passes to differ by more than the tolerance at some box — else
+  REFUSE and say why (add one sentinel box > box·0.375 px from the centre row).
+  Its `--selftest` (in `run_guards`' roster) evaluates the retired rule and the
+  current rule on the same plants: the mid-row control passes the wrong
+  convention under the old rule and is refused under the new. General form:
+  **a placement check must be shown to FAIL on a planted wrong placement of the
+  size the instrument actually produces — a tolerance sized to the box, not
+  to the error, verifies nothing about the error.**

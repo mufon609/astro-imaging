@@ -13094,7 +13094,305 @@
    "the depth prediction assumed noise ~ 1/sqrt(members) at equal per-member noise; what bgnoise measures on this field and how the removed members' noise compares are the two untested terms above",
    "REGREFSR 'derived' (canonical) vs 'pinned' (arm) name the same member; that the two mechanisms reach the same registration state is read from the identical REGREF/ANCREF and the unchanged right-side readings, not tested directly",
    "the y-down angle convention (verified on the corpus band in GO #8) and the major-axis rule (fraction_fy_gt_fx = 0 at 61 of 62 rows; 0.033 at one) carry as before"
-  ]
+  ],
+  "kept57_targets_v2_corrected_placement": {
+   "x10pct_-": {
+    "n57": 3,
+    "median57": [
+     2.725,
+     0.808
+    ],
+    "best57": [
+     2.473,
+     0.933
+    ],
+    "worst57": [
+     2.765,
+     0.801
+    ],
+    "v1_median57": [
+     2.725,
+     0.808
+    ],
+    "dmedian": [
+     0.0,
+     0.0
+    ]
+   },
+   "x15pct_DEFECT": {
+    "n57": 9,
+    "median57": [
+     2.605,
+     0.862
+    ],
+    "best57": [
+     2.39,
+     0.944
+    ],
+    "worst57": [
+     2.732,
+     0.793
+    ],
+    "v1_median57": [
+     2.605,
+     0.862
+    ],
+    "dmedian": [
+     0.0,
+     0.0
+    ]
+   },
+   "x20pct_DEFECT": {
+    "n57": 25,
+    "median57": [
+     2.547,
+     0.875
+    ],
+    "best57": [
+     2.278,
+     0.957
+    ],
+    "worst57": [
+     2.967,
+     0.745
+    ],
+    "v1_median57": [
+     2.56,
+     0.874
+    ],
+    "dmedian": [
+     -0.013,
+     0.001
+    ]
+   },
+   "x25pct_DEFECT": {
+    "n57": 41,
+    "median57": [
+     2.538,
+     0.882
+    ],
+    "best57": [
+     2.22,
+     0.98
+    ],
+    "worst57": [
+     3.04,
+     0.752
+    ],
+    "v1_median57": [
+     2.538,
+     0.877
+    ],
+    "dmedian": [
+     0.0,
+     0.005
+    ]
+   },
+   "x50pct_clean": {
+    "n57": 57,
+    "median57": [
+     2.323,
+     0.949
+    ],
+    "best57": [
+     2.217,
+     0.963
+    ],
+    "worst57": [
+     2.505,
+     0.917
+    ],
+    "v1_median57": [
+     2.333,
+     0.948
+    ],
+    "dmedian": [
+     -0.01,
+     0.001
+    ]
+   },
+   "x90pct_-": {
+    "n57": 2,
+    "median57": [
+     2.551,
+     0.96
+    ],
+    "best57": [
+     2.545,
+     0.965
+    ],
+    "worst57": [
+     2.558,
+     0.955
+    ],
+    "v1_median57": [
+     2.536,
+     0.966
+    ],
+    "dmedian": [
+     0.015,
+     -0.006
+    ]
+   }
+  },
+  "calibration_v2_corrected_placement": {
+   "arm_x50_minus_kept57_median": [
+    0.157,
+    0.004
+   ],
+   "arm_x90_minus_kept57_median": [
+    0.186,
+    0.022
+   ],
+   "v1": [
+    [
+     0.147,
+     0.005
+    ],
+    [
+     0.201,
+     0.016
+    ]
+   ]
+  },
+  "v2_rescoring": {
+   "what": "GO #11: the kept-57 targets re-derived from GO #6's corrected-placement member readings; the MECHANISM verdicts re-scored against target_v2 + the arm's x50 floor re-derived on the same basis; the LETTER verdicts and every arm-vs-canonical delta are unchanged (measured with verified placement on both products in GO #10)",
+   "per_position": {
+    "x10pct_-": {
+     "target_v1": [
+      2.725,
+      0.808
+     ],
+     "target_v2": [
+      2.725,
+      0.808
+     ],
+     "predicted_v1": [
+      2.872,
+      0.813
+     ],
+     "predicted_v2": [
+      2.882,
+      0.812
+     ],
+     "arm": [
+      2.763,
+      0.891
+     ],
+     "arm_minus_predicted_v1": [
+      -0.109,
+      0.078
+     ],
+     "arm_minus_predicted_v2": [
+      -0.119,
+      0.079
+     ],
+     "MECHANISM_held_v1": false,
+     "MECHANISM_held_v2": false,
+     "moved_past_a_bar": false
+    },
+    "x15pct_DEFECT": {
+     "target_v1": [
+      2.605,
+      0.862
+     ],
+     "target_v2": [
+      2.605,
+      0.862
+     ],
+     "predicted_v1": [
+      2.752,
+      0.867
+     ],
+     "predicted_v2": [
+      2.762,
+      0.866
+     ],
+     "arm": [
+      2.748,
+      0.886
+     ],
+     "arm_minus_predicted_v1": [
+      -0.004,
+      0.019
+     ],
+     "arm_minus_predicted_v2": [
+      -0.014,
+      0.02
+     ],
+     "MECHANISM_held_v1": true,
+     "MECHANISM_held_v2": true,
+     "moved_past_a_bar": false
+    },
+    "x20pct_DEFECT": {
+     "target_v1": [
+      2.56,
+      0.874
+     ],
+     "target_v2": [
+      2.547,
+      0.875
+     ],
+     "predicted_v1": [
+      2.707,
+      0.879
+     ],
+     "predicted_v2": [
+      2.704,
+      0.879
+     ],
+     "arm": [
+      2.79,
+      0.879
+     ],
+     "arm_minus_predicted_v1": [
+      0.083,
+      0.0
+     ],
+     "arm_minus_predicted_v2": [
+      0.086,
+      0.0
+     ],
+     "MECHANISM_held_v1": true,
+     "MECHANISM_held_v2": true,
+     "moved_past_a_bar": false
+    },
+    "x25pct_DEFECT": {
+     "target_v1": [
+      2.538,
+      0.877
+     ],
+     "target_v2": [
+      2.538,
+      0.882
+     ],
+     "predicted_v1": [
+      2.685,
+      0.882
+     ],
+     "predicted_v2": [
+      2.695,
+      0.886
+     ],
+     "arm": [
+      2.755,
+      0.879
+     ],
+     "arm_minus_predicted_v1": [
+      0.07,
+      -0.003
+     ],
+     "arm_minus_predicted_v2": [
+      0.06,
+      -0.007
+     ],
+     "MECHANISM_held_v1": true,
+     "MECHANISM_held_v2": true,
+     "moved_past_a_bar": false
+    }
+   },
+   "moved_past_a_bar": []
+  }
  },
  "status": "HALF (a) DONE (the ranking, director-confirmed k = 20); HALF (b) DONE \u2014 the _sel57 arm composed, finished and MEASURED against the canonical (half_b_arm); the aesthetic verdict is the owner's"
 }
