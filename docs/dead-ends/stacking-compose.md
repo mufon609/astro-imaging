@@ -6,10 +6,37 @@ deleted. Entries are maintained IN PLACE (pre-compression forms are in git;
 the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 Compose-defect status home: BACKLOG:`compose-homography-smear` (astrometric
-route SHIPPED; surviving union band attributed member-borne, compose
-exonerated for it).
+route SHIPPED; the surviving union band is ATTRIBUTED member-borne, night-
+dominated and in the photons — registration refuted across a 9× drift span —
+and answered by member selection: the decision map with every form's numbers is
+`docs/corner-smear-member-selection.md`).
 
 <!-- registry content below; docs/dead-ends.md is the index -->
+- **THE UNION'S LEFT-BAND / BOTTOM-CORNER SMEAR IS NOT A REGISTRATION OR
+  COMPOSE DEFECT — it is what the MEMBERS carry on their entry side, and the
+  only lever is what enters the mean.** MEASURED by four pre-registered
+  discriminators (`datasets/aug06/experiments.jsonl` 98–105): (1) three nested
+  arms of one set with 26.1 / 104.3 / 235.7 px of stacked drift span read the
+  exit-side blur FLAT (ΔFWHM(L−S) −0.025..+0.055 px, roundness within 0.018) —
+  a registration error growing with the span is refuted; (2) the union's band
+  is built exclusively from the members' entry-side columns 400–1470 px from
+  their entry edge, which read on the members what the union reads (2.66–2.75
+  vs 2.89–2.98 px = the compose floor + 0.03–0.11); (3) the term is in SINGLE
+  RAWS and night-ordered (along+2400: aug14 raws 2.94–3.03 px / 0.53 against
+  july31/set-01's 2.18 / 0.80; member − raw within the stacking floor on 11 of
+  12 pairings); (4) the bottom corners are radial (coma-like, bottom-right
+  strongest, e 0.30–0.49), the top corners not — the lens's asymmetric term,
+  with the union's bottom-left corner being the members' top-right corners
+  through the ~180° member↔canvas flip. Consequences: no reference choice,
+  kernel, or registration model can remove it; a rank cull (worst quartile)
+  and a per-member entry-side crop both move the band 2.97 → 2.79 px, and the
+  THRESHOLD form (crop beyond the onset where FWHM(+dx) − FWHM(−dx) > 0.20 px)
+  does it with no seam at 27 boundaries at full depth — owner-approved. What
+  selection cannot fix: the lens's SYMMETRIC radial softening (67/77 members
+  rise > 0.20 px on the exit side too — every frame has it, so excluding it
+  buys nothing and costs depth). The decision map, the refuted rule forms with
+  their numbers, the constant's measured continuum and the encoding
+  recommendation: `docs/corner-smear-member-selection.md`.
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

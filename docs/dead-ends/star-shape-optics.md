@@ -7,7 +7,9 @@ the pre-split single-file registry is `docs/dead-ends.md`'s own history).
 Cross-references to sibling files are written as (`<file>.md`) pointers.
 The one-sided band is an OPEN question — status home: BACKLOG:`one-sided-band`
 (the raw-frame term is real and pipeline-exonerated; the UNION band's carrier
-is attributed member +x-edge proximity — BACKLOG:`compose-homography-smear`).
+is the members' own entry-side columns, night-dominated and in the photons —
+attributed and answered by member selection, `docs/corner-smear-member-selection.md`;
+BACKLOG:`compose-homography-smear`).
 
 <!-- registry content below; docs/dead-ends.md is the index -->
 - **A STAR-SHAPE MEDIAN COMPARED ACROSS IMAGES OF DIFFERENT DEPTH IS A

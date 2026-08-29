@@ -52,6 +52,16 @@ session** (the repo drives industry tools; it never processes pixels itself —
 
 _(add each writeup here, newest first; retired writeups live in git history)_
 
+- [corner-smear-member-selection](corner-smear-member-selection.md) — the
+  decision map for the corpus's left-band / bottom-corner star smear: mechanism
+  attributed by four pre-registered measurements (registration REFUTED across a
+  9× drift span; the band is the members' own entry-side columns; it is in the
+  single raws and night-dominated; the corners are the lens's asymmetric term),
+  every selection form built with its numbers (sel57 rank → crop20 partial →
+  cropT threshold, owner-approved; the SWarp tapered form stopped; the frame-level
+  threshold under test), the constant's measured continuum, the owner rulings
+  that shape the rule, and the encoding recommendation. EMPIRICALLY TESTED for
+  attribution and the portion rule; the frame rule pending.
 - [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
   step-by-step process document for the validated class (camera raws, fixed
   mount, wide field): every stage from staging to seeded baseline with the

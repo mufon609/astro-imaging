@@ -232,6 +232,21 @@ homography, and homographies COMPOSE (the fact §6 rests on).
   sub-stacks in one pass (validation: 17 sub-stacks → 1,760 frames / 73.3 min),
   reference chosen central in pointing and time, `--weight=nbstack` when member
   depths differ. This is the product the standing route keeps buildable.
+- **Member selection before the compose — the smear fix lives HERE, not in
+  registration.** The multi-night corpus's left-band / bottom-corner star
+  smear was attributed by four pre-registered measurements to the members
+  themselves (registration REFUTED across a 9× drift span; the band is the
+  members' own entry-side columns; it is in the single raws, night-dominated;
+  the corners are the lens's asymmetric term), so what enters the mean is the
+  lever: a PORTION rule (crop a member's entry-side columns beyond the onset
+  where FWHM(+dx) − FWHM(−dx) > 0.20 px — `cropT`, owner-approved) and a
+  FRAME rule (exclude a member whose interior+exit-side FWHM exceeds the
+  corpus's 25th percentile by > 0.20 px — under test). Both are quality
+  THRESHOLDS that exclude nothing on an equal-quality corpus (never a rank or a
+  fixed percentage); coverage lost at the rim is an accepted, reported cost
+  (the owner crops or adds sessions). Not yet encoded as a stage — the
+  decision map, every form's numbers and the encoding recommendation:
+  `docs/corner-smear-member-selection.md`.
 
 **Multi-session accumulation — the standing practice for ONE target shot
 across sessions (user-ratified).** Sessions accumulate FULL (~500-frame)
@@ -344,6 +359,11 @@ running).
   INSIDE the flatless route and is now quantified: a flat's shape reaches the
   delivered object ~1:1, so better sky-flat construction buys object improvement
   one-for-one (§4; register row in BACKLOG).
+- Corpus left-band / bottom-corner star smear — ATTRIBUTED (member-borne,
+  night-dominated, in the photons; registration refuted) and answered by
+  member selection: the portion rule `cropT` is owner-approved, the frame rule
+  is under test, neither is encoded as a chain stage yet
+  (`docs/corner-smear-member-selection.md`; BACKLOG:`compose-homography-smear`).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets
   (BACKLOG:`one-sided-band`).
