@@ -246,8 +246,15 @@ homography, and homographies COMPOSE (the fact §6 rests on).
   gated. The portion rule is a quality THRESHOLD that excludes nothing on an
   equal-quality corpus (never a rank or a fixed percentage); coverage lost at
   the rim is an accepted, reported cost
-  (the owner crops or adds sessions). Not yet encoded as a stage — the
-  decision map, every form's numbers and the encoding recommendation:
+  (the owner crops or adds sessions). ENCODED as a chain stage:
+  `scripts/stack/run_member_crop.sh` (profile → the rule with its constant
+  from `datasets/corpus/recipe.json` `member_selection.portion_rule.bar_px`
+  → Siril-cropped copies in a curated dir, MEMC* stamped, verified, a tracked
+  record under `datasets/corpus/member_selection/`), reached through
+  `run_corpus_combine.sh --portion-rule[=<bar>]` — without the flag the chain
+  is unchanged. SCOPE: the corpus combine only; the per-set finals are not
+  run through it until measured there. `S_i` is reported as an advisory, never
+  a gate. The decision map, every form's numbers and the encoding design:
   `docs/corner-smear-member-selection.md`.
 
 **Multi-session accumulation — the standing practice for ONE target shot
@@ -363,8 +370,10 @@ running).
   one-for-one (§4; register row in BACKLOG).
 - Corpus left-band / bottom-corner star smear — ATTRIBUTED (member-borne,
   night-dominated, in the photons; registration refuted) and answered by
-  member selection: the portion rule `cropT` is owner-approved, the frame rule
-  measured a NULL on top of it (reported, not gated), the stage is not encoded yet
+  member selection: the portion rule `cropT` is owner-approved and encoded as
+  the `run_member_crop.sh` stage (`run_corpus_combine.sh --portion-rule`; the
+  bar in `datasets/corpus/recipe.json`), the frame rule measured a NULL on top
+  of it (reported, not gated)
   (`docs/corner-smear-member-selection.md`; BACKLOG:`compose-homography-smear`).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets

@@ -1,0 +1,16 @@
+{
+ "_what": "the corpus-level recipe: knobs that apply to the cross-night combine and to nothing else. Per-set recipes live in datasets/<session>/<set>/recipe.json; this file holds only what a set cannot carry. A constant that shapes a product lives HERE, visible and tracked, never as a script default.",
+ "member_selection": {
+  "portion_rule": {
+   "bar_px": 0.2,
+   "stations_px": [600, 1200, 1800, 2400],
+   "radius_px": 400,
+   "top_n": 30,
+   "half_width_px": 300,
+   "instrument": "Siril findstar via star_stations geometry",
+   "rule": "per member, onset = the smallest station dx where FWHM(+dx) - FWHM(-dx) > bar_px and stays above outward; x_c = onset - half_width_px; the entry-side columns beyond W/2 + x_c are removed (Siril crop of a copy); a member with no station over the bar is untouched",
+   "scope": "the corpus combine only (run_corpus_combine.sh --portion-rule); the per-set finals are not run through it until measured there",
+   "provenance": "datasets/corpus/smear_attribution/cropT_arm.json + bar_placement_0p20"
+  }
+ }
+}

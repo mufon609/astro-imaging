@@ -145,6 +145,7 @@ CHECKS=(
   "selftest grid_ramp|python3 scripts/qa/grid_ramp.py --selftest"
   "selftest coverage_frame|python3 scripts/qa/coverage_frame.py --selftest"
   "selftest shape_at_sky|python3 scripts/qa/shape_at_sky.py --selftest"
+  "selftest run_member_crop [siril]|./scripts/stack/run_member_crop.sh --selftest"
   "selftest check_solve_records|python3 scripts/qa/check_solve_records.py --selftest"
   "selftest baseline_guard|python3 scripts/qa/baseline_guard.py --selftest"
   "selftest spcc_run|python3 scripts/calibrate/spcc_run.py --selftest"

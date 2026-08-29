@@ -362,6 +362,63 @@ for m in members:
         dates.append(str(h["DATE-OBS"]))
 out = ["update_key NMEMBER %d" % len(members)]
 mixed = False
+# THE PORTION-RULE STAGE'S KEYS (run_member_crop.sh). A stage-cropped copy carries
+# MEMCROP (int x_c px), MEMCRULE, MEMCPROV, MEMCSCOR; an untouched member carries
+# none. The GO #12/#13 ARM copies predate the stage and carry MEMCROP as a PROSE
+# string with none of the other three ("entry cols beyond +1500 px removed (...)")
+# — LEGACY. Behaviour, ruled:
+#   NCROPPED  stamped on EVERY composite this emitter stamps: 0 = "composed under
+#             this code, nothing cropped"; the key's ABSENCE marks a composite
+#             stamped before the stage existed. It does NOT distinguish
+#             "--portion-rule not used" from "used, cropped nothing" — both stamp
+#             0; the stage RECORD carries that fact.
+#   MEMCROP   a non-int (legacy) value counts in NCROPPED and never crashes this
+#             emitter; all-legacy stamps MEMCRULE "LEGACY(n)"; legacy mixed with
+#             structured joins the REFUSED path below with the legacy count named.
+#   MEMCXCS   the x_c histogram over the STRUCTURED crops only (legacy carry no int).
+#   MEMCRULE  the ONE rule the cropped members were cropped under, or
+#             "REFUSED:MIXED(n)" when their rule identities disagree — the refusal
+#             IS the stamp (plus stderr + exit 1): a hard stop is the CALLER's
+#             check, because the compose applies whatever lines were printed
+#             (header_apply_keys consumes this emitter inside $(), where the exit
+#             status dies). Stated, not hidden.
+crops = []            # (x_c int | None, rule, prov); x_c None = legacy prose MEMCROP
+for m in members:
+    try:
+        h = fits.getheader(m)
+    except Exception:
+        continue
+    if "MEMCROP" not in h:
+        continue
+    try:
+        xc = int(str(h["MEMCROP"]).strip())
+    except (TypeError, ValueError):
+        xc = None
+    crops.append((xc, str(h.get("MEMCRULE", "")), str(h.get("MEMCPROV", ""))))
+out.append("update_key NCROPPED %d" % len(crops))
+if crops:
+    structured = [c for c in crops if c[0] is not None]
+    n_legacy = len(crops) - len(structured)
+    hist = {}
+    for xc, _, _ in structured:
+        hist[xc] = hist.get(xc, 0) + 1
+    if hist:
+        out.append('update_key MEMCXCS "%s"' % "/".join("%dx%d" % (xc, n) for xc, n in sorted(hist.items(), reverse=True))[:68])
+    provs = list(dict.fromkeys(p for _, _, p in structured if p))
+    if provs:
+        out.append('update_key MEMCPROV "%s"' % (provs[0] if len(provs) == 1 else "MIXED(%d)" % len(provs))[:68])
+    rules = list(dict.fromkeys(r for _, r, _ in structured if r))
+    if any(not r for _, r, _ in structured):
+        rules.append("UNSTATED(%d)" % sum(1 for _, r, _ in structured if not r))
+    if n_legacy:
+        rules.append("LEGACY(%d)" % n_legacy)
+    if len(rules) == 1:
+        out.append('update_key MEMCRULE "%s"' % rules[0][:68])
+    else:
+        out.append('update_key MEMCRULE "REFUSED:MIXED(%d)"' % len(rules))
+        print("\n".join(out))
+        print("REFUSED: the cropped members carry %d rule identities (%s) — one rule per compose; the refusal is in the stamp" % (len(rules), "; ".join(rules)), file=sys.stderr)
+        sys.exit(1)
 for k in KEYS:
     v = vals[k]
     if not v:

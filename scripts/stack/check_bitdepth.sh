@@ -136,7 +136,11 @@ done
 #    - stack/check_registration_pins.sh: a sibling GUARD. It READS every .ssf
 #      and .ssf emitter to check the registration pins and generates none, so
 #      the word appears only in its search patterns.
-SSF_NOT_EMITTERS='stack/build_master_dark\.sh|qa/baseline_guard\.py|setup/x86_bootstrap\.sh|stack/check_registration_pins\.sh'
+#    - stack/member_profile.py: generates no .ssf — its Siril runs go through
+#      qa/star_stations.py measure() (which pins setcompress 0 in the .ssf it
+#      writes), and the crop .ssf is run_member_crop.sh's (pinned there); the
+#      word appears only in its docstring.
+SSF_NOT_EMITTERS='stack/build_master_dark\.sh|qa/baseline_guard\.py|setup/x86_bootstrap\.sh|stack/check_registration_pins\.sh|stack/member_profile\.py'
 for f in $(grep -rl '\.ssf' --include='*.sh' --include='*.py' --include='*.ssf' \
              --include='*.tmpl' "$S" web | sort); do
   case "$f" in *check_bitdepth.sh) continue;; esac
