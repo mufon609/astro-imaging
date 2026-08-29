@@ -1,0 +1,50 @@
+{
+ "input": "sessions/aug06/work/spanarm/sub_L.fit",
+ "detector": "sep",
+ "n_stars_detected": 1500,
+ "central": null,
+ "max_stars": 1500,
+ "coverage_rung": null,
+ "position_hint": null,
+ "position_hint_source": "none",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "scale_band_arg": null,
+ "sip_order": 3,
+ "header_scale_arcsec_px": 17.50305874003683,
+ "hint_available": null,
+ "contradictions": [],
+ "contradiction_accepted": false,
+ "index_scales": [
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "scales_solved": [
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 303.6861603506204,
+ "dec_deg": 42.50781645238154,
+ "scale_arcsec_px": 17.074281255523577,
+ "logodds": 199.00344848632812,
+ "parity": "sky-true",
+ "cd_det": -2.2494682129068194e-05,
+ "injected": "sessions/aug06/work/spanarm/sub_L_wcs.fit"
+}

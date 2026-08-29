@@ -1,0 +1,3026 @@
+{
+ "id": "drift_span_discriminator",
+ "item": "GO #5 (owner-directed 'go ahead with step 1'; director astro-imaging-45; worker this session) \u2014 the discriminator pre-registered in datasets/aug06/experiments.jsonl exit_edge_registration_vs_fixed_lens_residual, pre-registered again as drift_span_discriminator_exit_edge (line 98) before the first build",
+ "instrument": "scripts/stack/run_undistort_pipeline.sh (calibrate -> darktable undistort -> Siril register -2pass -transf=homography, setref lt 1, seqapplyreg -framing=min lanczos4, stack r_lt rej w 3 3 -norm=addscale, no -output_norm) x3 arms; scripts/calibrate/solve_field.py --max-stars=1500 --inject; scripts/qa/shape_at_sky.py --box=800 --top=30 (Siril findstar, open gate) at 7 sky positions from sub_01's own WCS; scripts/qa/star_shape.py (Siril seqtilt); the arm spans read from each arm's own lt_.seq homographies (h02); angles: top-30-by-A axial mean on the doubled angle (Siril's angle is an axis angle mod 180), e-weighted, vs the local +RA direction from the arm's own WCS in y-down convention (y-up reported beside it)",
+ "knob": "the stacked drift span; held: aug06/set-01 group 1's own frames (DSC_6239..DSC_6338, capture order, no cull), reference frame 1 = DSC_6239 pinned in every arm, 12 frames -> rej w 3 3, masters dark_master.fit + skyflat_set-01.fit, the pinned lens model, the same builder",
+ "frame_lists_verbatim": {
+  "S": [
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6239.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6240.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6241.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6242.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6243.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6244.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6245.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6246.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6247.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6248.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6249.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6250.NEF"
+  ],
+  "M": [
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6239.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6243.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6247.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6251.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6255.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6259.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6263.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6267.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6271.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6275.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6279.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6283.NEF"
+  ],
+  "L": [
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6239.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6248.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6257.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6266.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6275.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6284.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6293.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6302.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6311.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6320.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6329.NEF",
+   "/home/samsung/Desktop/astro-imaging/sessions/aug06/set-01/DSC_6338.NEF"
+  ]
+ },
+ "group1_first_last": [
+  "DSC_6239.NEF",
+  "DSC_6338.NEF"
+ ],
+ "arms": {
+  "S": {
+   "product": "sessions/aug06/work/spanarm/sub_S.fit",
+   "bytes": 292006080,
+   "mtime": "2026-08-29 12:20:14",
+   "header": {
+    "NAXIS1": 6038,
+    "NAXIS2": 4030,
+    "NAXIS3": 3,
+    "STACKCNT": 12,
+    "REGREF": "1:DSC_6239.NEF",
+    "REGREFSR": "pinned",
+    "FILENAME": "w_01_01.tif",
+    "CALDARK": "dark_master.fit",
+    "CALFLAT": "skyflat_set-01.fit:500",
+    "STACKNRM": "addscale",
+    "ANCREF": 1,
+    "ANCLOCR": 0.000403941,
+    "ANCLOCG": 0.000742741,
+    "ANCLOCB": 0.000567395,
+    "REGMODEL": "starpair",
+    "DISTA": 0.00350093,
+    "DISTB": 0.01453356,
+    "DISTC": 0.00043983,
+    "DISTNORM": 2020.0,
+    "PIPEREV": "a95dec2"
+   },
+   "stack_line": "stack r_lt rej w 3 3 -norm=addscale -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/spanarm/sub_S",
+   "span_measured": {
+    "n": 12,
+    "h02_first": -18.9861,
+    "h02_last": 7.08287,
+    "span_x_px": 26.07,
+    "span_y_px": 2.32,
+    "mean_step_x_px": 2.37,
+    "identity_frame_index_1based": 9,
+    "h02": [
+     -18.99,
+     -16.71,
+     -14.31,
+     -11.88,
+     -9.55,
+     -7.17,
+     -4.77,
+     -2.4,
+     0.0,
+     2.33,
+     4.74,
+     7.08
+    ]
+   },
+   "reg_lines": [
+    "register lt -2pass -transf=homography",
+    "setref lt 1",
+    "seqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4"
+   ],
+   "checks": {
+    "REGREF_1_DSC_6239_pinned": true,
+    "STACKCNT_12": true,
+    "rej_w_3_3": true,
+    "norm_addscale_no_output_norm": true,
+    "log_output_normalization_disabled": true,
+    "setref_lt_1": true
+   },
+   "copied": {
+    "lt_.seq": 3465,
+    "r_lt_.seq": 6367,
+    "s.ssf": 347,
+    "siril.log": 146226,
+    "c.ssf": 544
+   },
+   "seq_S_lines": {
+    "lt_.seq": [
+     "S",
+     "'lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ],
+    "r_lt_.seq": [
+     "S",
+     "'r_lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "seq_R_sample": {
+    "lt_.seq": [
+     [
+      "R1",
+      "2.39204",
+      "2.48026",
+      "0.914292",
+      "0",
+      "0.00080651",
+      "1863",
+      "H",
+      "1.0007",
+      "0.00122608",
+      "-18.9861",
+      "-0.000953735",
+      "1.00038",
+      "1.72607",
+      "1.1451e-07",
+      "8.39958e-09",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38363",
+      "2.41629",
+      "0.905541",
+      "0",
+      "0.000811031",
+      "1885",
+      "H",
+      "1.00065",
+      "0.00108959",
+      "-16.7106",
+      "-0.000826894",
+      "1.00037",
+      "1.3252",
+      "1.03867e-07",
+      "1.17555e-08",
+      "1"
+     ]
+    ],
+    "r_lt_.seq": [
+     [
+      "R1",
+      "2.39204",
+      "2.48026",
+      "0.914292",
+      "0",
+      "0.00080651",
+      "1863",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38363",
+      "2.41629",
+      "0.905541",
+      "0",
+      "0.000811031",
+      "1885",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ]
+    ]
+   },
+   "seq_R_count": {
+    "lt_.seq": 12,
+    "r_lt_.seq": 12
+   }
+  },
+  "M": {
+   "product": "sessions/aug06/work/spanarm/sub_M.fit",
+   "bytes": 286159680,
+   "mtime": "2026-08-29 12:24:10",
+   "header": {
+    "NAXIS1": 5960,
+    "NAXIS2": 4001,
+    "NAXIS3": 3,
+    "STACKCNT": 12,
+    "REGREF": "1:DSC_6239.NEF",
+    "REGREFSR": "pinned",
+    "FILENAME": "w_01_01.tif",
+    "CALDARK": "dark_master.fit",
+    "CALFLAT": "skyflat_set-01.fit:500",
+    "STACKNRM": "addscale",
+    "ANCREF": 1,
+    "ANCLOCR": 0.000404028,
+    "ANCLOCG": 0.000742826,
+    "ANCLOCB": 0.000567478,
+    "REGMODEL": "starpair",
+    "DISTA": 0.00350093,
+    "DISTB": 0.01453356,
+    "DISTC": 0.00043983,
+    "DISTNORM": 2020.0,
+    "PIPEREV": "a95dec2"
+   },
+   "stack_line": "stack r_lt rej w 3 3 -norm=addscale -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/spanarm/sub_M",
+   "span_measured": {
+    "n": 12,
+    "h02_first": -18.9832,
+    "h02_last": 85.3166,
+    "span_x_px": 104.3,
+    "span_y_px": 8.14,
+    "mean_step_x_px": 9.482,
+    "identity_frame_index_1based": 3,
+    "h02": [
+     -18.98,
+     -9.55,
+     0.0,
+     9.47,
+     18.94,
+     28.48,
+     37.93,
+     47.43,
+     56.92,
+     66.39,
+     75.86,
+     85.32
+    ]
+   },
+   "reg_lines": [
+    "register lt -2pass -transf=homography",
+    "setref lt 1",
+    "seqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4"
+   ],
+   "checks": {
+    "REGREF_1_DSC_6239_pinned": true,
+    "STACKCNT_12": true,
+    "rej_w_3_3": true,
+    "norm_addscale_no_output_norm": true,
+    "log_output_normalization_disabled": true,
+    "setref_lt_1": true
+   },
+   "copied": {
+    "lt_.seq": 3475,
+    "r_lt_.seq": 6369,
+    "s.ssf": 347,
+    "siril.log": 146112,
+    "c.ssf": 544
+   },
+   "seq_S_lines": {
+    "lt_.seq": [
+     "S",
+     "'lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ],
+    "r_lt_.seq": [
+     "S",
+     "'r_lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "seq_R_sample": {
+    "lt_.seq": [
+     [
+      "R1",
+      "2.39254",
+      "2.47061",
+      "0.914419",
+      "0",
+      "0.000806374",
+      "1869",
+      "H",
+      "1.0007",
+      "0.00122514",
+      "-18.9832",
+      "-0.000953833",
+      "1.00038",
+      "1.72608",
+      "1.14758e-07",
+      "7.72124e-09",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38497",
+      "2.41259",
+      "0.903553",
+      "0",
+      "0.000802425",
+      "1889",
+      "H",
+      "1.00037",
+      "0.000618934",
+      "-9.54724",
+      "-0.000473087",
+      "1.0002",
+      "0.769685",
+      "5.93442e-08",
+      "4.90785e-09",
+      "1"
+     ]
+    ],
+    "r_lt_.seq": [
+     [
+      "R1",
+      "2.39254",
+      "2.47061",
+      "0.914419",
+      "0",
+      "0.000806374",
+      "1869",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38497",
+      "2.41259",
+      "0.903553",
+      "0",
+      "0.000802425",
+      "1889",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ]
+    ]
+   },
+   "seq_R_count": {
+    "lt_.seq": 12,
+    "r_lt_.seq": 12
+   }
+  },
+  "L": {
+   "product": "sessions/aug06/work/spanarm/sub_L.fit",
+   "bytes": 276419520,
+   "mtime": "2026-08-29 12:25:39",
+   "header": {
+    "NAXIS1": 5830,
+    "NAXIS2": 3951,
+    "NAXIS3": 3,
+    "STACKCNT": 12,
+    "REGREF": "1:DSC_6239.NEF",
+    "REGREFSR": "pinned",
+    "FILENAME": "w_01_01.tif",
+    "CALDARK": "dark_master.fit",
+    "CALFLAT": "skyflat_set-01.fit:500",
+    "STACKNRM": "addscale",
+    "ANCREF": 1,
+    "ANCLOCR": 0.000404182,
+    "ANCLOCG": 0.00074296,
+    "ANCLOCB": 0.000567634,
+    "REGMODEL": "starpair",
+    "DISTA": 0.00350093,
+    "DISTB": 0.01453356,
+    "DISTC": 0.00043983,
+    "DISTNORM": 2020.0,
+    "PIPEREV": "a95dec2"
+   },
+   "stack_line": "stack r_lt rej w 3 3 -norm=addscale -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/spanarm/sub_L",
+   "span_measured": {
+    "n": 12,
+    "h02_first": -214.352,
+    "h02_last": 21.3767,
+    "span_x_px": 235.73,
+    "span_y_px": 19.53,
+    "mean_step_x_px": 21.43,
+    "identity_frame_index_1based": 11,
+    "h02": [
+     -214.35,
+     -192.87,
+     -171.32,
+     -149.96,
+     -128.45,
+     -107.02,
+     -85.54,
+     -64.2,
+     -42.78,
+     -21.36,
+     0.0,
+     21.38
+    ]
+   },
+   "reg_lines": [
+    "register lt -2pass -transf=homography",
+    "setref lt 1",
+    "seqapplyreg lt -framing=min -prefix=r_ -interp=lanczos4"
+   ],
+   "checks": {
+    "REGREF_1_DSC_6239_pinned": true,
+    "STACKCNT_12": true,
+    "rej_w_3_3": true,
+    "norm_addscale_no_output_norm": true,
+    "log_output_normalization_disabled": true,
+    "setref_lt_1": true
+   },
+   "copied": {
+    "lt_.seq": 3417,
+    "r_lt_.seq": 6364,
+    "s.ssf": 347,
+    "siril.log": 145920,
+    "c.ssf": 544
+   },
+   "seq_S_lines": {
+    "lt_.seq": [
+     "S",
+     "'lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ],
+    "r_lt_.seq": [
+     "S",
+     "'r_lt_'",
+     "1",
+     "12",
+     "12",
+     "5",
+     "0",
+     "6",
+     "0",
+     "0",
+     "0"
+    ]
+   },
+   "seq_R_sample": {
+    "lt_.seq": [
+     [
+      "R1",
+      "2.39204",
+      "2.4852",
+      "0.914292",
+      "0",
+      "0.00080651",
+      "1863",
+      "H",
+      "1.00792",
+      "0.0138404",
+      "-214.352",
+      "-0.0107681",
+      "1.00445",
+      "17.895",
+      "1.28748e-06",
+      "1.29037e-07",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38757",
+      "2.46548",
+      "0.90424",
+      "0",
+      "0.000816424",
+      "1869",
+      "H",
+      "1.00715",
+      "0.0124284",
+      "-192.868",
+      "-0.00967358",
+      "1.00399",
+      "15.7602",
+      "1.16114e-06",
+      "1.08702e-07",
+      "1"
+     ]
+    ],
+    "r_lt_.seq": [
+     [
+      "R1",
+      "2.39204",
+      "2.4852",
+      "0.914292",
+      "0",
+      "0.00080651",
+      "1863",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ],
+     [
+      "R1",
+      "2.38757",
+      "2.46548",
+      "0.90424",
+      "0",
+      "0.000816424",
+      "1869",
+      "H",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1",
+      "0",
+      "0",
+      "0",
+      "1"
+     ]
+    ]
+   },
+   "seq_R_count": {
+    "lt_.seq": 12,
+    "r_lt_.seq": 12
+   }
+  }
+ },
+ "P": {
+  "product": "sessions/aug06/work/groups_set-01/sub_01.fit",
+  "bytes_before": 276425280,
+  "mtime_before": "2026-08-28 15:16:25",
+  "bytes_after": 276425280,
+  "mtime_after": "2026-08-28 15:16:25",
+  "role": "100 consecutive, GESD, span 236 px \u2014 not one-knob vs S/M/L"
+ },
+ "spans_measured_px": {
+  "S": 26.07,
+  "M": 104.3,
+  "L": 235.73
+ },
+ "span_steps_px_per_frame": {
+  "S": 2.37,
+  "M": 9.482,
+  "L": 21.43
+ },
+ "span_note": "the ledger's 1.9064 px/frame (raw-frame cross-match) predicted 21/84/189; Siril's 2pass homographies in the UNDISTORTED frame give 2.37 px/frame -> 26.1/104.3/235.7 (ratio 1 : 4.00 : 9.04 = the frame-index ratio 11:44:99); the undistorted frame's scale (lensfun autoscale) is the difference; L's canvas equals sub_01's (5830x3951) as the same span + reference + framing=min require",
+ "exit_side": "negative dx (low x, low RA): RA increases with +x on sub_01's WCS, so on the fixed mount the sliding RA window carries a star toward -x \u2014 stars enter right, leave left; the ledger's measured drift direction on this set agrees",
+ "stations": {
+  "xc": 2915.5,
+  "yc": 1976.0,
+  "stations": [
+   {
+    "label": "dx-2400",
+    "dx": -2400,
+    "x_fits": 515.5,
+    "y_fits": 1976.0,
+    "ra": 288.382296,
+    "dec": 42.635625
+   },
+   {
+    "label": "dx-1800",
+    "dx": -1800,
+    "x_fits": 1115.5,
+    "y_fits": 1976.0,
+    "ra": 292.141029,
+    "dec": 42.793187
+   },
+   {
+    "label": "dx-1200",
+    "dx": -1200,
+    "x_fits": 1715.5,
+    "y_fits": 1976.0,
+    "ra": 295.967266,
+    "dec": 42.827334
+   },
+   {
+    "label": "dx+0",
+    "dx": 0,
+    "x_fits": 2915.5,
+    "y_fits": 1976.0,
+    "ra": 303.681744,
+    "dec": 42.508695
+   },
+   {
+    "label": "dx+1200",
+    "dx": 1200,
+    "x_fits": 4115.5,
+    "y_fits": 1976.0,
+    "ra": 311.238489,
+    "dec": 41.684247
+   },
+   {
+    "label": "dx+1800",
+    "dx": 1800,
+    "x_fits": 4715.5,
+    "y_fits": 1976.0,
+    "ra": 314.875334,
+    "dec": 41.099845
+   },
+   {
+    "label": "dx+2400",
+    "dx": 2400,
+    "x_fits": 5315.5,
+    "y_fits": 1976.0,
+    "ra": 318.38244,
+    "dec": 40.415957
+   }
+  ]
+ },
+ "measure": {
+  "S": {
+   "solve": {
+    "rc": 0,
+    "wall_s": 73.5,
+    "tail": "[solve_field] 1500 stars via sep (SExtractor core)\n[solve_field] attempt [cached]\n[solve_field] index scales [12, 13, 14, 15, 16, 17, 18, 19] | scale hint: 10.5-26.3 arcsec/px\n[solve_field] SOLVED: RA 303.020 Dec +42.513 scale 17.07 arcsec/px logodds 225\n[solve_field] parity: det(CD) -2.25e-05 -> displayed image is sky-true\n[solve_field] wrote sessions/aug06/work/spanarm/sub_S_wcs.fit (WCS-injected copy)\n[solve_field] record -> sessions/aug06/work/spanarm/solve_sub_S.json\n[solve_field] tracked record -> /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/qa_work/solve_sub_S.json\n"
+   },
+   "wcs": {
+    "NAXIS1": 6038,
+    "NAXIS2": 4030,
+    "CRVAL1": 304.43289393582387,
+    "CRVAL2": 42.458649396196755,
+    "CRPIX1": 3240.6883428210954,
+    "CRPIX2": 2004.1438709388176,
+    "CD1_1": 0.004713677076770273,
+    "CD1_2": -0.00052250949755519,
+    "CD2_1": -0.00052282705959906,
+    "CD2_2": -0.00471462997539116,
+    "A_ORDER": 3
+   },
+   "station_pixels": {
+    "dx-2400": {
+     "x": 723.5,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx-1800": {
+     "x": 1323.5,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx-1200": {
+     "x": 1923.5,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx+0": {
+     "x": 3123.4,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx+1200": {
+     "x": 4323.4,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx+1800": {
+     "x": 4923.4,
+     "y": 2006.0,
+     "fits": true
+    },
+    "dx+2400": {
+     "x": 5523.5,
+     "y": 2006.0,
+     "fits": true
+    }
+   },
+   "shape_rc": 0,
+   "shape_wall_s": 1.3,
+   "shape_cmd": "python3 scripts/qa/shape_at_sky.py sessions/aug06/work/spanarm/sub_S_wcs.fit --box=800 --top=30 --lst-dir=sessions/aug06/work/spanarm/S/lists --json=sessions/aug06/work/spanarm/S/shape.json --label=S --pos 288.382296,42.635625,dx-2400 --pos 292.141029,42.793187,dx-1800 --pos 295.967266,42.827334,dx-1200 --pos 303.681744,42.508695,dx+0 --pos 311.238489,41.684247,dx+1200 --pos 314.875334,41.099845,dx+1800 --pos 318.38244,40.415957,dx+2400",
+   "seqtilt_rc": 0,
+   "seqtilt_wall_s": 1.9,
+   "seqtilt": {
+    "input": "sessions/aug06/work/spanarm/sub_S_wcs.fit",
+    "label": "S",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 11691,
+    "truncated_mean_fwhm_px": 2.53,
+    "sensor_tilt_fwhm_px": 0.16,
+    "sensor_tilt_pct": 6,
+    "off_axis_aberration_fwhm_px": 0.2
+   },
+   "angles": {
+    "dx-2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 56.68,
+     "concentration_eweighted": 0.037,
+     "major_axis_axial_mean_deg_unweighted": 167.78,
+     "concentration_unweighted": 0.086,
+     "raw_angle_axial_mean_deg_eweighted": 56.68,
+     "raw_concentration": 0.037,
+     "median_e": 0.0273,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60609,
+      "dy": 0.04718,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 61.13,
+     "dev_from_RA_yup": 52.23,
+     "raw_dev_from_RA_ydown": 61.13
+    },
+    "dx-1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.8,
+     "concentration_eweighted": 0.779,
+     "major_axis_axial_mean_deg_unweighted": 2.4,
+     "concentration_unweighted": 0.686,
+     "raw_angle_axial_mean_deg_eweighted": 7.8,
+     "raw_concentration": 0.779,
+     "median_e": 0.0448,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59726,
+      "dy": 0.02058,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 9.77,
+     "dev_from_RA_yup": 5.83,
+     "raw_dev_from_RA_ydown": 9.77
+    },
+    "dx-1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 2.51,
+     "concentration_eweighted": 0.901,
+     "major_axis_axial_mean_deg_unweighted": 2.22,
+     "concentration_unweighted": 0.868,
+     "raw_angle_axial_mean_deg_eweighted": 2.51,
+     "raw_concentration": 0.901,
+     "median_e": 0.0776,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59039,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 1.91,
+     "dev_from_RA_yup": 3.11,
+     "raw_dev_from_RA_ydown": 1.91
+    },
+    "dx+0": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 170.73,
+     "concentration_eweighted": 0.542,
+     "major_axis_axial_mean_deg_unweighted": 172.42,
+     "concentration_unweighted": 0.425,
+     "raw_angle_axial_mean_deg_eweighted": 170.73,
+     "raw_concentration": 0.542,
+     "median_e": 0.0625,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58249,
+      "dy": -0.05941,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 15.09,
+     "dev_from_RA_yup": 3.45,
+     "raw_dev_from_RA_ydown": 15.09
+    },
+    "dx+1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 48.31,
+     "concentration_eweighted": 0.688,
+     "major_axis_axial_mean_deg_unweighted": 48.91,
+     "concentration_unweighted": 0.532,
+     "raw_angle_axial_mean_deg_eweighted": 48.31,
+     "raw_concentration": 0.688,
+     "median_e": 0.0661,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5826,
+      "dy": -0.11128,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 37.5,
+     "dev_from_RA_yup": 59.12,
+     "raw_dev_from_RA_ydown": 37.5
+    },
+    "dx+1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 30.23,
+     "concentration_eweighted": 0.906,
+     "major_axis_axial_mean_deg_unweighted": 30.65,
+     "concentration_unweighted": 0.87,
+     "raw_angle_axial_mean_deg_eweighted": 30.23,
+     "raw_concentration": 0.906,
+     "median_e": 0.1112,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58581,
+      "dy": -0.13637,
+      "angle_ydown": 13.1,
+      "angle_yup": 166.9
+     },
+     "dev_from_RA_ydown": 17.13,
+     "dev_from_RA_yup": 43.33,
+     "raw_dev_from_RA_ydown": 17.13
+    },
+    "dx+2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 31.32,
+     "concentration_eweighted": 0.821,
+     "major_axis_axial_mean_deg_unweighted": 32.49,
+     "concentration_unweighted": 0.725,
+     "raw_angle_axial_mean_deg_eweighted": 31.32,
+     "raw_concentration": 0.821,
+     "median_e": 0.1325,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59122,
+      "dy": -0.16081,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 16.1,
+     "dev_from_RA_yup": 46.54,
+     "raw_dev_from_RA_ydown": 16.1
+    }
+   },
+   "shape_positions": [
+    {
+     "label": "dx-2400",
+     "ra": 288.382296,
+     "dec": 42.635625,
+     "pixel_xy": [
+      722.5,
+      2005.0
+     ],
+     "crop": [
+      322,
+      1605,
+      800,
+      800
+     ],
+     "n": 291,
+     "box_center_offset_deg": 0.389,
+     "top_n": 30,
+     "fwhm_px": 2.535,
+     "roundness": 0.973,
+     "faintest_admitted_A": 0.000348
+    },
+    {
+     "label": "dx-1800",
+     "ra": 292.141029,
+     "dec": 42.793187,
+     "pixel_xy": [
+      1322.5,
+      2005.0
+     ],
+     "crop": [
+      922,
+      1605,
+      800,
+      800
+     ],
+     "n": 398,
+     "box_center_offset_deg": 0.328,
+     "top_n": 30,
+     "fwhm_px": 2.5,
+     "roundness": 0.956,
+     "faintest_admitted_A": 0.000464
+    },
+    {
+     "label": "dx-1200",
+     "ra": 295.967266,
+     "dec": 42.827334,
+     "pixel_xy": [
+      1922.5,
+      2005.0
+     ],
+     "crop": [
+      1522,
+      1605,
+      800,
+      800
+     ],
+     "n": 474,
+     "box_center_offset_deg": 0.152,
+     "top_n": 30,
+     "fwhm_px": 2.38,
+     "roundness": 0.925,
+     "faintest_admitted_A": 0.000446
+    },
+    {
+     "label": "dx+0",
+     "ra": 303.681744,
+     "dec": 42.508695,
+     "pixel_xy": [
+      3122.4,
+      2005.0
+     ],
+     "crop": [
+      2722,
+      1605,
+      800,
+      800
+     ],
+     "n": 537,
+     "box_center_offset_deg": 0.188,
+     "top_n": 30,
+     "fwhm_px": 2.245,
+     "roundness": 0.939,
+     "faintest_admitted_A": 0.000382
+    },
+    {
+     "label": "dx+1200",
+     "ra": 311.238489,
+     "dec": 41.684247,
+     "pixel_xy": [
+      4322.4,
+      2005.0
+     ],
+     "crop": [
+      3922,
+      1605,
+      800,
+      800
+     ],
+     "n": 392,
+     "box_center_offset_deg": 0.113,
+     "top_n": 30,
+     "fwhm_px": 2.245,
+     "roundness": 0.936,
+     "faintest_admitted_A": 0.00051
+    },
+    {
+     "label": "dx+1800",
+     "ra": 314.875334,
+     "dec": 41.099845,
+     "pixel_xy": [
+      4922.4,
+      2005.0
+     ],
+     "crop": [
+      4522,
+      1605,
+      800,
+      800
+     ],
+     "n": 307,
+     "box_center_offset_deg": 0.312,
+     "top_n": 30,
+     "fwhm_px": 2.413,
+     "roundness": 0.894,
+     "faintest_admitted_A": 0.000265
+    },
+    {
+     "label": "dx+2400",
+     "ra": 318.38244,
+     "dec": 40.415957,
+     "pixel_xy": [
+      5522.5,
+      2005.0
+     ],
+     "crop": [
+      5122,
+      1605,
+      800,
+      800
+     ],
+     "n": 327,
+     "box_center_offset_deg": 0.256,
+     "top_n": 30,
+     "fwhm_px": 2.465,
+     "roundness": 0.875,
+     "faintest_admitted_A": 0.00042
+    }
+   ]
+  },
+  "M": {
+   "solve": {
+    "rc": 0,
+    "wall_s": 76.4,
+    "tail": "[solve_field] 1500 stars via sep (SExtractor core)\n[solve_field] attempt [cached]\n[solve_field] index scales [12, 13, 14, 15, 16, 17, 18, 19] | scale hint: 10.5-26.3 arcsec/px\n[solve_field] SOLVED: RA 303.316 Dec +42.504 scale 17.07 arcsec/px logodds 225\n[solve_field] parity: det(CD) -2.25e-05 -> displayed image is sky-true\n[solve_field] wrote sessions/aug06/work/spanarm/sub_M_wcs.fit (WCS-injected copy)\n[solve_field] record -> sessions/aug06/work/spanarm/solve_sub_M.json\n[solve_field] tracked record -> /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/qa_work/solve_sub_M.json\n"
+   },
+   "wcs": {
+    "NAXIS1": 5960,
+    "NAXIS2": 4001,
+    "CRVAL1": 304.432912679453,
+    "CRVAL2": 42.45867743304818,
+    "CRPIX1": 3162.7197184947213,
+    "CRPIX2": 1993.1422166620312,
+    "CD1_1": 0.00471353872262428,
+    "CD1_2": -0.00052252974407033,
+    "CD2_1": -0.00052290716478467,
+    "CD2_2": -0.00471473578658852,
+    "A_ORDER": 3
+   },
+   "station_pixels": {
+    "dx-2400": {
+     "x": 645.5,
+     "y": 1995.0,
+     "fits": true
+    },
+    "dx-1800": {
+     "x": 1245.5,
+     "y": 1995.0,
+     "fits": true
+    },
+    "dx-1200": {
+     "x": 1845.5,
+     "y": 1995.1,
+     "fits": true
+    },
+    "dx+0": {
+     "x": 3045.5,
+     "y": 1995.0,
+     "fits": true
+    },
+    "dx+1200": {
+     "x": 4245.5,
+     "y": 1995.0,
+     "fits": true
+    },
+    "dx+1800": {
+     "x": 4845.5,
+     "y": 1995.0,
+     "fits": true
+    },
+    "dx+2400": {
+     "x": 5445.5,
+     "y": 1995.0,
+     "fits": true
+    }
+   },
+   "shape_rc": 0,
+   "shape_wall_s": 1.3,
+   "shape_cmd": "python3 scripts/qa/shape_at_sky.py sessions/aug06/work/spanarm/sub_M_wcs.fit --box=800 --top=30 --lst-dir=sessions/aug06/work/spanarm/M/lists --json=sessions/aug06/work/spanarm/M/shape.json --label=M --pos 288.382296,42.635625,dx-2400 --pos 292.141029,42.793187,dx-1800 --pos 295.967266,42.827334,dx-1200 --pos 303.681744,42.508695,dx+0 --pos 311.238489,41.684247,dx+1200 --pos 314.875334,41.099845,dx+1800 --pos 318.38244,40.415957,dx+2400",
+   "seqtilt_rc": 0,
+   "seqtilt_wall_s": 1.9,
+   "seqtilt": {
+    "input": "sessions/aug06/work/spanarm/sub_M_wcs.fit",
+    "label": "M",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 11654,
+    "truncated_mean_fwhm_px": 2.54,
+    "sensor_tilt_fwhm_px": 0.16,
+    "sensor_tilt_pct": 6,
+    "off_axis_aberration_fwhm_px": 0.18
+   },
+   "angles": {
+    "dx-2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 9.39,
+     "concentration_eweighted": 0.244,
+     "major_axis_axial_mean_deg_unweighted": 159.83,
+     "concentration_unweighted": 0.174,
+     "raw_angle_axial_mean_deg_eweighted": 9.39,
+     "raw_concentration": 0.244,
+     "median_e": 0.0192,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60608,
+      "dy": 0.04719,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 13.84,
+     "dev_from_RA_yup": 4.94,
+     "raw_dev_from_RA_ydown": 13.84
+    },
+    "dx-1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.62,
+     "concentration_eweighted": 0.914,
+     "major_axis_axial_mean_deg_unweighted": 10.66,
+     "concentration_unweighted": 0.809,
+     "raw_angle_axial_mean_deg_eweighted": 7.62,
+     "raw_concentration": 0.914,
+     "median_e": 0.0634,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59727,
+      "dy": 0.02058,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 9.59,
+     "dev_from_RA_yup": 5.65,
+     "raw_dev_from_RA_ydown": 9.59
+    },
+    "dx-1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 4.42,
+     "concentration_eweighted": 0.947,
+     "major_axis_axial_mean_deg_unweighted": 6.64,
+     "concentration_unweighted": 0.861,
+     "raw_angle_axial_mean_deg_eweighted": 4.42,
+     "raw_concentration": 0.947,
+     "median_e": 0.0831,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5904,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 3.82,
+     "dev_from_RA_yup": 5.02,
+     "raw_dev_from_RA_ydown": 3.82
+    },
+    "dx+0": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 176.52,
+     "concentration_eweighted": 0.755,
+     "major_axis_axial_mean_deg_unweighted": 0.97,
+     "concentration_unweighted": 0.622,
+     "raw_angle_axial_mean_deg_eweighted": 176.52,
+     "raw_concentration": 0.755,
+     "median_e": 0.0627,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58251,
+      "dy": -0.05942,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 9.3,
+     "dev_from_RA_yup": 2.34,
+     "raw_dev_from_RA_ydown": 9.3
+    },
+    "dx+1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 47.4,
+     "concentration_eweighted": 0.792,
+     "major_axis_axial_mean_deg_unweighted": 47.28,
+     "concentration_unweighted": 0.552,
+     "raw_angle_axial_mean_deg_eweighted": 47.4,
+     "raw_concentration": 0.792,
+     "median_e": 0.0564,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5826,
+      "dy": -0.11128,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 36.59,
+     "dev_from_RA_yup": 58.21,
+     "raw_dev_from_RA_ydown": 36.59
+    },
+    "dx+1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.03,
+     "concentration_eweighted": 0.868,
+     "major_axis_axial_mean_deg_unweighted": 29.03,
+     "concentration_unweighted": 0.754,
+     "raw_angle_axial_mean_deg_eweighted": 27.03,
+     "raw_concentration": 0.868,
+     "median_e": 0.115,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58579,
+      "dy": -0.13637,
+      "angle_ydown": 13.11,
+      "angle_yup": 166.89
+     },
+     "dev_from_RA_ydown": 13.92,
+     "dev_from_RA_yup": 40.14,
+     "raw_dev_from_RA_ydown": 13.92
+    },
+    "dx+2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 26.63,
+     "concentration_eweighted": 0.893,
+     "major_axis_axial_mean_deg_unweighted": 26.13,
+     "concentration_unweighted": 0.846,
+     "raw_angle_axial_mean_deg_eweighted": 26.63,
+     "raw_concentration": 0.893,
+     "median_e": 0.1385,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59118,
+      "dy": -0.1608,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 11.41,
+     "dev_from_RA_yup": 41.85,
+     "raw_dev_from_RA_ydown": 11.41
+    }
+   },
+   "shape_positions": [
+    {
+     "label": "dx-2400",
+     "ra": 288.382296,
+     "dec": 42.635625,
+     "pixel_xy": [
+      644.5,
+      1994.0
+     ],
+     "crop": [
+      244,
+      1594,
+      800,
+      800
+     ],
+     "n": 286,
+     "box_center_offset_deg": 0.32,
+     "top_n": 30,
+     "fwhm_px": 2.518,
+     "roundness": 0.981,
+     "faintest_admitted_A": 0.000371
+    },
+    {
+     "label": "dx-1800",
+     "ra": 292.141029,
+     "dec": 42.793187,
+     "pixel_xy": [
+      1244.5,
+      1994.0
+     ],
+     "crop": [
+      844,
+      1594,
+      800,
+      800
+     ],
+     "n": 409,
+     "box_center_offset_deg": 0.321,
+     "top_n": 30,
+     "fwhm_px": 2.512,
+     "roundness": 0.938,
+     "faintest_admitted_A": 0.000391
+    },
+    {
+     "label": "dx-1200",
+     "ra": 295.967266,
+     "dec": 42.827334,
+     "pixel_xy": [
+      1844.5,
+      1994.1
+     ],
+     "crop": [
+      1444,
+      1594,
+      800,
+      800
+     ],
+     "n": 467,
+     "box_center_offset_deg": 0.148,
+     "top_n": 30,
+     "fwhm_px": 2.422,
+     "roundness": 0.92,
+     "faintest_admitted_A": 0.00039
+    },
+    {
+     "label": "dx+0",
+     "ra": 303.681744,
+     "dec": 42.508695,
+     "pixel_xy": [
+      3044.5,
+      1994.0
+     ],
+     "crop": [
+      2644,
+      1594,
+      800,
+      800
+     ],
+     "n": 557,
+     "box_center_offset_deg": 0.186,
+     "top_n": 30,
+     "fwhm_px": 2.292,
+     "roundness": 0.939,
+     "faintest_admitted_A": 0.000342
+    },
+    {
+     "label": "dx+1200",
+     "ra": 311.238489,
+     "dec": 41.684247,
+     "pixel_xy": [
+      4244.5,
+      1994.0
+     ],
+     "crop": [
+      3844,
+      1594,
+      800,
+      800
+     ],
+     "n": 394,
+     "box_center_offset_deg": 0.098,
+     "top_n": 30,
+     "fwhm_px": 2.243,
+     "roundness": 0.945,
+     "faintest_admitted_A": 0.000299
+    },
+    {
+     "label": "dx+1800",
+     "ra": 314.875334,
+     "dec": 41.099845,
+     "pixel_xy": [
+      4844.5,
+      1994.0
+     ],
+     "crop": [
+      4444,
+      1594,
+      800,
+      800
+     ],
+     "n": 328,
+     "box_center_offset_deg": 0.222,
+     "top_n": 30,
+     "fwhm_px": 2.445,
+     "roundness": 0.891,
+     "faintest_admitted_A": 0.000364
+    },
+    {
+     "label": "dx+2400",
+     "ra": 318.38244,
+     "dec": 40.415957,
+     "pixel_xy": [
+      5444.5,
+      1994.0
+     ],
+     "crop": [
+      5045,
+      1594,
+      800,
+      800
+     ],
+     "n": 323,
+     "box_center_offset_deg": 0.193,
+     "top_n": 30,
+     "fwhm_px": 2.485,
+     "roundness": 0.87,
+     "faintest_admitted_A": 0.000418
+    }
+   ]
+  },
+  "L": {
+   "solve": {
+    "rc": 0,
+    "wall_s": 78.6,
+    "tail": "[solve_field] 1500 stars via sep (SExtractor core)\n[solve_field] attempt [cached]\n[solve_field] index scales [12, 13, 14, 15, 16, 17, 18, 19] | scale hint: 10.5-26.3 arcsec/px\n[solve_field] SOLVED: RA 303.686 Dec +42.508 scale 17.07 arcsec/px logodds 199\n[solve_field] parity: det(CD) -2.25e-05 -> displayed image is sky-true\n[solve_field] wrote sessions/aug06/work/spanarm/sub_L_wcs.fit (WCS-injected copy)\n[solve_field] record -> sessions/aug06/work/spanarm/solve_sub_L.json\n[solve_field] tracked record -> /home/samsung/Desktop/astro-imaging/datasets/aug06/set-01/qa_work/solve_sub_L.json\n"
+   },
+   "wcs": {
+    "NAXIS1": 5830,
+    "NAXIS2": 3951,
+    "CRVAL1": 304.4328705473217,
+    "CRVAL2": 42.45876538205871,
+    "CRPIX1": 3032.729962238785,
+    "CRPIX2": 1974.1062587048593,
+    "CD1_1": 0.004713521499889572,
+    "CD1_2": -0.00052254041405092,
+    "CD2_1": -0.00052262829826182,
+    "CD2_2": -0.00471443436127751,
+    "A_ORDER": 3
+   },
+   "station_pixels": {
+    "dx-2400": {
+     "x": 515.4,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx-1800": {
+     "x": 1115.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx-1200": {
+     "x": 1715.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+0": {
+     "x": 2915.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+1200": {
+     "x": 4115.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+1800": {
+     "x": 4715.5,
+     "y": 1976.1,
+     "fits": true
+    },
+    "dx+2400": {
+     "x": 5315.4,
+     "y": 1976.1,
+     "fits": true
+    }
+   },
+   "shape_rc": 0,
+   "shape_wall_s": 1.3,
+   "shape_cmd": "python3 scripts/qa/shape_at_sky.py sessions/aug06/work/spanarm/sub_L_wcs.fit --box=800 --top=30 --lst-dir=sessions/aug06/work/spanarm/L/lists --json=sessions/aug06/work/spanarm/L/shape.json --label=L --pos 288.382296,42.635625,dx-2400 --pos 292.141029,42.793187,dx-1800 --pos 295.967266,42.827334,dx-1200 --pos 303.681744,42.508695,dx+0 --pos 311.238489,41.684247,dx+1200 --pos 314.875334,41.099845,dx+1800 --pos 318.38244,40.415957,dx+2400",
+   "seqtilt_rc": 0,
+   "seqtilt_wall_s": 1.8,
+   "seqtilt": {
+    "input": "sessions/aug06/work/spanarm/sub_L_wcs.fit",
+    "label": "L",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 11380,
+    "truncated_mean_fwhm_px": 2.54,
+    "sensor_tilt_fwhm_px": 0.16,
+    "sensor_tilt_pct": 6,
+    "off_axis_aberration_fwhm_px": 0.19
+   },
+   "angles": {
+    "dx-2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 175.27,
+     "concentration_eweighted": 0.204,
+     "major_axis_axial_mean_deg_unweighted": 165.01,
+     "concentration_unweighted": 0.229,
+     "raw_angle_axial_mean_deg_eweighted": 175.27,
+     "raw_concentration": 0.204,
+     "median_e": 0.0217,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60609,
+      "dy": 0.04714,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 0.28,
+     "dev_from_RA_yup": 9.18,
+     "raw_dev_from_RA_ydown": 0.28
+    },
+    "dx-1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 8.52,
+     "concentration_eweighted": 0.953,
+     "major_axis_axial_mean_deg_unweighted": 10.68,
+     "concentration_unweighted": 0.797,
+     "raw_angle_axial_mean_deg_eweighted": 8.52,
+     "raw_concentration": 0.953,
+     "median_e": 0.0637,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59728,
+      "dy": 0.02056,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 10.49,
+     "dev_from_RA_yup": 6.55,
+     "raw_dev_from_RA_ydown": 10.49
+    },
+    "dx-1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 5.58,
+     "concentration_eweighted": 0.949,
+     "major_axis_axial_mean_deg_unweighted": 7.38,
+     "concentration_unweighted": 0.851,
+     "raw_angle_axial_mean_deg_eweighted": 5.58,
+     "raw_concentration": 0.949,
+     "median_e": 0.069,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59042,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 4.98,
+     "dev_from_RA_yup": 6.18,
+     "raw_dev_from_RA_ydown": 4.98
+    },
+    "dx+0": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 177.99,
+     "concentration_eweighted": 0.844,
+     "major_axis_axial_mean_deg_unweighted": 0.57,
+     "concentration_unweighted": 0.702,
+     "raw_angle_axial_mean_deg_eweighted": 177.99,
+     "raw_concentration": 0.844,
+     "median_e": 0.0659,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58252,
+      "dy": -0.05939,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 7.83,
+     "dev_from_RA_yup": 3.81,
+     "raw_dev_from_RA_ydown": 7.83
+    },
+    "dx+1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 48.07,
+     "concentration_eweighted": 0.729,
+     "major_axis_axial_mean_deg_unweighted": 51.78,
+     "concentration_unweighted": 0.554,
+     "raw_angle_axial_mean_deg_eweighted": 48.07,
+     "raw_concentration": 0.729,
+     "median_e": 0.0466,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58258,
+      "dy": -0.11126,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 37.26,
+     "dev_from_RA_yup": 58.88,
+     "raw_dev_from_RA_ydown": 37.26
+    },
+    "dx+1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 28.44,
+     "concentration_eweighted": 0.878,
+     "major_axis_axial_mean_deg_unweighted": 31.43,
+     "concentration_unweighted": 0.749,
+     "raw_angle_axial_mean_deg_eweighted": 28.44,
+     "raw_concentration": 0.878,
+     "median_e": 0.1158,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58576,
+      "dy": -0.13636,
+      "angle_ydown": 13.1,
+      "angle_yup": 166.9
+     },
+     "dev_from_RA_ydown": 15.34,
+     "dev_from_RA_yup": 41.54,
+     "raw_dev_from_RA_ydown": 15.34
+    },
+    "dx+2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.96,
+     "concentration_eweighted": 0.927,
+     "major_axis_axial_mean_deg_unweighted": 26.88,
+     "concentration_unweighted": 0.868,
+     "raw_angle_axial_mean_deg_eweighted": 27.96,
+     "raw_concentration": 0.927,
+     "median_e": 0.1506,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59113,
+      "dy": -0.1608,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 12.74,
+     "dev_from_RA_yup": 43.18,
+     "raw_dev_from_RA_ydown": 12.74
+    }
+   },
+   "shape_positions": [
+    {
+     "label": "dx-2400",
+     "ra": 288.382296,
+     "dec": 42.635625,
+     "pixel_xy": [
+      514.4,
+      1975.0
+     ],
+     "crop": [
+      114,
+      1575,
+      800,
+      800
+     ],
+     "n": 276,
+     "box_center_offset_deg": 0.338,
+     "top_n": 30,
+     "fwhm_px": 2.51,
+     "roundness": 0.978,
+     "faintest_admitted_A": 0.000405
+    },
+    {
+     "label": "dx-1800",
+     "ra": 292.141029,
+     "dec": 42.793187,
+     "pixel_xy": [
+      1114.5,
+      1975.0
+     ],
+     "crop": [
+      714,
+      1575,
+      800,
+      800
+     ],
+     "n": 395,
+     "box_center_offset_deg": 0.348,
+     "top_n": 30,
+     "fwhm_px": 2.498,
+     "roundness": 0.938,
+     "faintest_admitted_A": 0.000359
+    },
+    {
+     "label": "dx-1200",
+     "ra": 295.967266,
+     "dec": 42.827334,
+     "pixel_xy": [
+      1714.5,
+      1975.0
+     ],
+     "crop": [
+      1314,
+      1575,
+      800,
+      800
+     ],
+     "n": 465,
+     "box_center_offset_deg": 0.096,
+     "top_n": 30,
+     "fwhm_px": 2.435,
+     "roundness": 0.933,
+     "faintest_admitted_A": 0.000405
+    },
+    {
+     "label": "dx+0",
+     "ra": 303.681744,
+     "dec": 42.508695,
+     "pixel_xy": [
+      2914.5,
+      1975.0
+     ],
+     "crop": [
+      2514,
+      1575,
+      800,
+      800
+     ],
+     "n": 545,
+     "box_center_offset_deg": 0.152,
+     "top_n": 30,
+     "fwhm_px": 2.277,
+     "roundness": 0.936,
+     "faintest_admitted_A": 0.000301
+    },
+    {
+     "label": "dx+1200",
+     "ra": 311.238489,
+     "dec": 41.684247,
+     "pixel_xy": [
+      4114.5,
+      1975.0
+     ],
+     "crop": [
+      3714,
+      1575,
+      800,
+      800
+     ],
+     "n": 398,
+     "box_center_offset_deg": 0.098,
+     "top_n": 30,
+     "fwhm_px": 2.228,
+     "roundness": 0.954,
+     "faintest_admitted_A": 0.000353
+    },
+    {
+     "label": "dx+1800",
+     "ra": 314.875334,
+     "dec": 41.099845,
+     "pixel_xy": [
+      4714.5,
+      1975.1
+     ],
+     "crop": [
+      4314,
+      1575,
+      800,
+      800
+     ],
+     "n": 330,
+     "box_center_offset_deg": 0.222,
+     "top_n": 30,
+     "fwhm_px": 2.415,
+     "roundness": 0.89,
+     "faintest_admitted_A": 0.000415
+    },
+    {
+     "label": "dx+2400",
+     "ra": 318.38244,
+     "dec": 40.415957,
+     "pixel_xy": [
+      5314.4,
+      1975.1
+     ],
+     "crop": [
+      4914,
+      1575,
+      800,
+      800
+     ],
+     "n": 345,
+     "box_center_offset_deg": 0.144,
+     "top_n": 30,
+     "fwhm_px": 2.55,
+     "roundness": 0.859,
+     "faintest_admitted_A": 0.000397
+    }
+   ]
+  },
+  "P": {
+   "solve": "P carries the WCS the groups build injected (solve_field.py --max-stars=1500, the same code path); not re-solved",
+   "wcs": {
+    "NAXIS1": 5830,
+    "NAXIS2": 3951,
+    "CRVAL1": 304.433056473281,
+    "CRVAL2": 42.45864846860434,
+    "CRPIX1": 3032.770840602769,
+    "CRPIX2": 1974.1304661981267,
+    "CD1_1": 0.004713538491770585,
+    "CD1_2": -0.00052264191965368,
+    "CD2_1": -0.00052270863379809,
+    "CD2_2": -0.00471457612065416,
+    "A_ORDER": 3
+   },
+   "station_pixels": {
+    "dx-2400": {
+     "x": 515.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx-1800": {
+     "x": 1115.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx-1200": {
+     "x": 1715.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+0": {
+     "x": 2915.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+1200": {
+     "x": 4115.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+1800": {
+     "x": 4715.5,
+     "y": 1976.0,
+     "fits": true
+    },
+    "dx+2400": {
+     "x": 5315.5,
+     "y": 1976.0,
+     "fits": true
+    }
+   },
+   "shape_rc": 0,
+   "shape_wall_s": 1.3,
+   "shape_cmd": "python3 scripts/qa/shape_at_sky.py sessions/aug06/work/groups_set-01/sub_01.fit --box=800 --top=30 --lst-dir=sessions/aug06/work/spanarm/P/lists --json=sessions/aug06/work/spanarm/P/shape.json --label=P --pos 288.382296,42.635625,dx-2400 --pos 292.141029,42.793187,dx-1800 --pos 295.967266,42.827334,dx-1200 --pos 303.681744,42.508695,dx+0 --pos 311.238489,41.684247,dx+1200 --pos 314.875334,41.099845,dx+1800 --pos 318.38244,40.415957,dx+2400",
+   "seqtilt_rc": 0,
+   "seqtilt_wall_s": 2.9,
+   "seqtilt": {
+    "input": "sessions/aug06/work/groups_set-01/sub_01.fit",
+    "label": "P",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 22097,
+    "truncated_mean_fwhm_px": 2.64,
+    "sensor_tilt_fwhm_px": 0.17,
+    "sensor_tilt_pct": 6,
+    "off_axis_aberration_fwhm_px": 0.25
+   },
+   "angles": {
+    "dx-2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 23.9,
+     "concentration_eweighted": 0.302,
+     "major_axis_axial_mean_deg_unweighted": 18.78,
+     "concentration_unweighted": 0.282,
+     "raw_angle_axial_mean_deg_eweighted": 23.9,
+     "raw_concentration": 0.302,
+     "median_e": 0.0162,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60607,
+      "dy": 0.04713,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 28.35,
+     "dev_from_RA_yup": 19.45,
+     "raw_dev_from_RA_ydown": 28.35
+    },
+    "dx-1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 10.26,
+     "concentration_eweighted": 0.966,
+     "major_axis_axial_mean_deg_unweighted": 12.88,
+     "concentration_unweighted": 0.916,
+     "raw_angle_axial_mean_deg_eweighted": 10.26,
+     "raw_concentration": 0.966,
+     "median_e": 0.0631,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59726,
+      "dy": 0.02055,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 12.23,
+     "dev_from_RA_yup": 8.29,
+     "raw_dev_from_RA_ydown": 12.23
+    },
+    "dx-1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.27,
+     "concentration_eweighted": 0.982,
+     "major_axis_axial_mean_deg_unweighted": 5.89,
+     "concentration_unweighted": 0.924,
+     "raw_angle_axial_mean_deg_eweighted": 7.27,
+     "raw_concentration": 0.982,
+     "median_e": 0.0755,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5904,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 6.67,
+     "dev_from_RA_yup": 7.87,
+     "raw_dev_from_RA_ydown": 6.67
+    },
+    "dx+0": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 1.64,
+     "concentration_eweighted": 0.793,
+     "major_axis_axial_mean_deg_unweighted": 3.88,
+     "concentration_unweighted": 0.763,
+     "raw_angle_axial_mean_deg_eweighted": 1.64,
+     "raw_concentration": 0.793,
+     "median_e": 0.0656,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58251,
+      "dy": -0.0594,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 4.18,
+     "dev_from_RA_yup": 7.46,
+     "raw_dev_from_RA_ydown": 4.18
+    },
+    "dx+1200": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 46.18,
+     "concentration_eweighted": 0.856,
+     "major_axis_axial_mean_deg_unweighted": 50.99,
+     "concentration_unweighted": 0.778,
+     "raw_angle_axial_mean_deg_eweighted": 46.18,
+     "raw_concentration": 0.856,
+     "median_e": 0.0601,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58259,
+      "dy": -0.11127,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 35.37,
+     "dev_from_RA_yup": 56.99,
+     "raw_dev_from_RA_ydown": 35.37
+    },
+    "dx+1800": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 31.6,
+     "concentration_eweighted": 0.923,
+     "major_axis_axial_mean_deg_unweighted": 33.55,
+     "concentration_unweighted": 0.873,
+     "raw_angle_axial_mean_deg_eweighted": 31.6,
+     "raw_concentration": 0.923,
+     "median_e": 0.1199,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58577,
+      "dy": -0.13638,
+      "angle_ydown": 13.11,
+      "angle_yup": 166.89
+     },
+     "dev_from_RA_ydown": 18.49,
+     "dev_from_RA_yup": 44.71,
+     "raw_dev_from_RA_ydown": 18.49
+    },
+    "dx+2400": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.19,
+     "concentration_eweighted": 0.946,
+     "major_axis_axial_mean_deg_unweighted": 27.29,
+     "concentration_unweighted": 0.925,
+     "raw_angle_axial_mean_deg_eweighted": 27.19,
+     "raw_concentration": 0.946,
+     "median_e": 0.1411,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59115,
+      "dy": -0.16084,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 11.97,
+     "dev_from_RA_yup": 42.41,
+     "raw_dev_from_RA_ydown": 11.97
+    }
+   },
+   "shape_positions": [
+    {
+     "label": "dx-2400",
+     "ra": 288.382296,
+     "dec": 42.635625,
+     "pixel_xy": [
+      514.5,
+      1975.0
+     ],
+     "crop": [
+      115,
+      1575,
+      800,
+      800
+     ],
+     "n": 583,
+     "box_center_offset_deg": 0.244,
+     "top_n": 30,
+     "fwhm_px": 2.522,
+     "roundness": 0.984,
+     "faintest_admitted_A": 5.5e-05
+    },
+    {
+     "label": "dx-1800",
+     "ra": 292.141029,
+     "dec": 42.793187,
+     "pixel_xy": [
+      1114.5,
+      1975.0
+     ],
+     "crop": [
+      714,
+      1575,
+      800,
+      800
+     ],
+     "n": 726,
+     "box_center_offset_deg": 0.14,
+     "top_n": 30,
+     "fwhm_px": 2.505,
+     "roundness": 0.939,
+     "faintest_admitted_A": 0.000137
+    },
+    {
+     "label": "dx-1200",
+     "ra": 295.967266,
+     "dec": 42.827334,
+     "pixel_xy": [
+      1714.5,
+      1975.0
+     ],
+     "crop": [
+      1315,
+      1575,
+      800,
+      800
+     ],
+     "n": 890,
+     "box_center_offset_deg": 0.109,
+     "top_n": 30,
+     "fwhm_px": 2.43,
+     "roundness": 0.927,
+     "faintest_admitted_A": -0.000338
+    },
+    {
+     "label": "dx+0",
+     "ra": 303.681744,
+     "dec": 42.508695,
+     "pixel_xy": [
+      2914.5,
+      1975.0
+     ],
+     "crop": [
+      2514,
+      1575,
+      800,
+      800
+     ],
+     "n": 1030,
+     "box_center_offset_deg": 0.119,
+     "top_n": 30,
+     "fwhm_px": 2.288,
+     "roundness": 0.936,
+     "faintest_admitted_A": 0.000102
+    },
+    {
+     "label": "dx+1200",
+     "ra": 311.238489,
+     "dec": 41.684247,
+     "pixel_xy": [
+      4114.5,
+      1975.0
+     ],
+     "crop": [
+      3715,
+      1575,
+      800,
+      800
+     ],
+     "n": 770,
+     "box_center_offset_deg": 0.14,
+     "top_n": 30,
+     "fwhm_px": 2.235,
+     "roundness": 0.942,
+     "faintest_admitted_A": 0.000102
+    },
+    {
+     "label": "dx+1800",
+     "ra": 314.875334,
+     "dec": 41.099845,
+     "pixel_xy": [
+      4714.5,
+      1975.0
+     ],
+     "crop": [
+      4315,
+      1575,
+      800,
+      800
+     ],
+     "n": 656,
+     "box_center_offset_deg": 0.288,
+     "top_n": 30,
+     "fwhm_px": 2.42,
+     "roundness": 0.887,
+     "faintest_admitted_A": 9.8e-05
+    },
+    {
+     "label": "dx+2400",
+     "ra": 318.38244,
+     "dec": 40.415957,
+     "pixel_xy": [
+      5314.5,
+      1975.0
+     ],
+     "crop": [
+      4914,
+      1575,
+      800,
+      800
+     ],
+     "n": 661,
+     "box_center_offset_deg": 0.218,
+     "top_n": 30,
+     "fwhm_px": 2.552,
+     "roundness": 0.868,
+     "faintest_admitted_A": 0.00011
+    }
+   ]
+  }
+ },
+ "table": [
+  {
+   "station": "dx-2400",
+   "dx": -2400,
+   "S": {
+    "n": 291,
+    "top_n": 30,
+    "fwhm_px": 2.535,
+    "roundness": 0.973,
+    "faintest_admitted_A": 0.000348
+   },
+   "M": {
+    "n": 286,
+    "top_n": 30,
+    "fwhm_px": 2.518,
+    "roundness": 0.981,
+    "faintest_admitted_A": 0.000371
+   },
+   "L": {
+    "n": 276,
+    "top_n": 30,
+    "fwhm_px": 2.51,
+    "roundness": 0.978,
+    "faintest_admitted_A": 0.000405
+   },
+   "P": {
+    "n": 583,
+    "top_n": 30,
+    "fwhm_px": 2.522,
+    "roundness": 0.984,
+    "faintest_admitted_A": 5.5e-05
+   },
+   "dFWHM_L_minus_S": -0.025,
+   "dFWHM_M_minus_S": -0.017,
+   "dround_S_minus_L": -0.005,
+   "dround_S_minus_M": -0.008,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 56.68,
+     "concentration_eweighted": 0.037,
+     "major_axis_axial_mean_deg_unweighted": 167.78,
+     "concentration_unweighted": 0.086,
+     "raw_angle_axial_mean_deg_eweighted": 56.68,
+     "raw_concentration": 0.037,
+     "median_e": 0.0273,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60609,
+      "dy": 0.04718,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 61.13,
+     "dev_from_RA_yup": 52.23,
+     "raw_dev_from_RA_ydown": 61.13
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 9.39,
+     "concentration_eweighted": 0.244,
+     "major_axis_axial_mean_deg_unweighted": 159.83,
+     "concentration_unweighted": 0.174,
+     "raw_angle_axial_mean_deg_eweighted": 9.39,
+     "raw_concentration": 0.244,
+     "median_e": 0.0192,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60608,
+      "dy": 0.04719,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 13.84,
+     "dev_from_RA_yup": 4.94,
+     "raw_dev_from_RA_ydown": 13.84
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 175.27,
+     "concentration_eweighted": 0.204,
+     "major_axis_axial_mean_deg_unweighted": 165.01,
+     "concentration_unweighted": 0.229,
+     "raw_angle_axial_mean_deg_eweighted": 175.27,
+     "raw_concentration": 0.204,
+     "median_e": 0.0217,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60609,
+      "dy": 0.04714,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 0.28,
+     "dev_from_RA_yup": 9.18,
+     "raw_dev_from_RA_ydown": 0.28
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 23.9,
+     "concentration_eweighted": 0.302,
+     "major_axis_axial_mean_deg_unweighted": 18.78,
+     "concentration_unweighted": 0.282,
+     "raw_angle_axial_mean_deg_eweighted": 23.9,
+     "raw_concentration": 0.302,
+     "median_e": 0.0162,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.60607,
+      "dy": 0.04713,
+      "angle_ydown": 175.55,
+      "angle_yup": 4.45
+     },
+     "dev_from_RA_ydown": 28.35,
+     "dev_from_RA_yup": 19.45,
+     "raw_dev_from_RA_ydown": 28.35
+    }
+   }
+  },
+  {
+   "station": "dx-1800",
+   "dx": -1800,
+   "S": {
+    "n": 398,
+    "top_n": 30,
+    "fwhm_px": 2.5,
+    "roundness": 0.956,
+    "faintest_admitted_A": 0.000464
+   },
+   "M": {
+    "n": 409,
+    "top_n": 30,
+    "fwhm_px": 2.512,
+    "roundness": 0.938,
+    "faintest_admitted_A": 0.000391
+   },
+   "L": {
+    "n": 395,
+    "top_n": 30,
+    "fwhm_px": 2.498,
+    "roundness": 0.938,
+    "faintest_admitted_A": 0.000359
+   },
+   "P": {
+    "n": 726,
+    "top_n": 30,
+    "fwhm_px": 2.505,
+    "roundness": 0.939,
+    "faintest_admitted_A": 0.000137
+   },
+   "dFWHM_L_minus_S": -0.002,
+   "dFWHM_M_minus_S": 0.012,
+   "dround_S_minus_L": 0.018,
+   "dround_S_minus_M": 0.018,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.8,
+     "concentration_eweighted": 0.779,
+     "major_axis_axial_mean_deg_unweighted": 2.4,
+     "concentration_unweighted": 0.686,
+     "raw_angle_axial_mean_deg_eweighted": 7.8,
+     "raw_concentration": 0.779,
+     "median_e": 0.0448,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59726,
+      "dy": 0.02058,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 9.77,
+     "dev_from_RA_yup": 5.83,
+     "raw_dev_from_RA_ydown": 9.77
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.62,
+     "concentration_eweighted": 0.914,
+     "major_axis_axial_mean_deg_unweighted": 10.66,
+     "concentration_unweighted": 0.809,
+     "raw_angle_axial_mean_deg_eweighted": 7.62,
+     "raw_concentration": 0.914,
+     "median_e": 0.0634,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59727,
+      "dy": 0.02058,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 9.59,
+     "dev_from_RA_yup": 5.65,
+     "raw_dev_from_RA_ydown": 9.59
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 8.52,
+     "concentration_eweighted": 0.953,
+     "major_axis_axial_mean_deg_unweighted": 10.68,
+     "concentration_unweighted": 0.797,
+     "raw_angle_axial_mean_deg_eweighted": 8.52,
+     "raw_concentration": 0.953,
+     "median_e": 0.0637,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59728,
+      "dy": 0.02056,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 10.49,
+     "dev_from_RA_yup": 6.55,
+     "raw_dev_from_RA_ydown": 10.49
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 10.26,
+     "concentration_eweighted": 0.966,
+     "major_axis_axial_mean_deg_unweighted": 12.88,
+     "concentration_unweighted": 0.916,
+     "raw_angle_axial_mean_deg_eweighted": 10.26,
+     "raw_concentration": 0.966,
+     "median_e": 0.0631,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59726,
+      "dy": 0.02055,
+      "angle_ydown": 178.03,
+      "angle_yup": 1.97
+     },
+     "dev_from_RA_ydown": 12.23,
+     "dev_from_RA_yup": 8.29,
+     "raw_dev_from_RA_ydown": 12.23
+    }
+   }
+  },
+  {
+   "station": "dx-1200",
+   "dx": -1200,
+   "S": {
+    "n": 474,
+    "top_n": 30,
+    "fwhm_px": 2.38,
+    "roundness": 0.925,
+    "faintest_admitted_A": 0.000446
+   },
+   "M": {
+    "n": 467,
+    "top_n": 30,
+    "fwhm_px": 2.422,
+    "roundness": 0.92,
+    "faintest_admitted_A": 0.00039
+   },
+   "L": {
+    "n": 465,
+    "top_n": 30,
+    "fwhm_px": 2.435,
+    "roundness": 0.933,
+    "faintest_admitted_A": 0.000405
+   },
+   "P": {
+    "n": 890,
+    "top_n": 30,
+    "fwhm_px": 2.43,
+    "roundness": 0.927,
+    "faintest_admitted_A": -0.000338
+   },
+   "dFWHM_L_minus_S": 0.055,
+   "dFWHM_M_minus_S": 0.042,
+   "dround_S_minus_L": -0.008,
+   "dround_S_minus_M": 0.005,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 2.51,
+     "concentration_eweighted": 0.901,
+     "major_axis_axial_mean_deg_unweighted": 2.22,
+     "concentration_unweighted": 0.868,
+     "raw_angle_axial_mean_deg_eweighted": 2.51,
+     "raw_concentration": 0.901,
+     "median_e": 0.0776,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59039,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 1.91,
+     "dev_from_RA_yup": 3.11,
+     "raw_dev_from_RA_ydown": 1.91
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 4.42,
+     "concentration_eweighted": 0.947,
+     "major_axis_axial_mean_deg_unweighted": 6.64,
+     "concentration_unweighted": 0.861,
+     "raw_angle_axial_mean_deg_eweighted": 4.42,
+     "raw_concentration": 0.947,
+     "median_e": 0.0831,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5904,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 3.82,
+     "dev_from_RA_yup": 5.02,
+     "raw_dev_from_RA_ydown": 3.82
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 5.58,
+     "concentration_eweighted": 0.949,
+     "major_axis_axial_mean_deg_unweighted": 7.38,
+     "concentration_unweighted": 0.851,
+     "raw_angle_axial_mean_deg_eweighted": 5.58,
+     "raw_concentration": 0.949,
+     "median_e": 0.069,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59042,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 4.98,
+     "dev_from_RA_yup": 6.18,
+     "raw_dev_from_RA_ydown": 4.98
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 7.27,
+     "concentration_eweighted": 0.982,
+     "major_axis_axial_mean_deg_unweighted": 5.89,
+     "concentration_unweighted": 0.924,
+     "raw_angle_axial_mean_deg_eweighted": 7.27,
+     "raw_concentration": 0.982,
+     "median_e": 0.0755,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5904,
+      "dy": -0.00617,
+      "angle_ydown": 0.6,
+      "angle_yup": 179.4
+     },
+     "dev_from_RA_ydown": 6.67,
+     "dev_from_RA_yup": 7.87,
+     "raw_dev_from_RA_ydown": 6.67
+    }
+   }
+  },
+  {
+   "station": "dx+0",
+   "dx": 0,
+   "S": {
+    "n": 537,
+    "top_n": 30,
+    "fwhm_px": 2.245,
+    "roundness": 0.939,
+    "faintest_admitted_A": 0.000382
+   },
+   "M": {
+    "n": 557,
+    "top_n": 30,
+    "fwhm_px": 2.292,
+    "roundness": 0.939,
+    "faintest_admitted_A": 0.000342
+   },
+   "L": {
+    "n": 545,
+    "top_n": 30,
+    "fwhm_px": 2.277,
+    "roundness": 0.936,
+    "faintest_admitted_A": 0.000301
+   },
+   "P": {
+    "n": 1030,
+    "top_n": 30,
+    "fwhm_px": 2.288,
+    "roundness": 0.936,
+    "faintest_admitted_A": 0.000102
+   },
+   "dFWHM_L_minus_S": 0.032,
+   "dFWHM_M_minus_S": 0.047,
+   "dround_S_minus_L": 0.003,
+   "dround_S_minus_M": 0.0,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 170.73,
+     "concentration_eweighted": 0.542,
+     "major_axis_axial_mean_deg_unweighted": 172.42,
+     "concentration_unweighted": 0.425,
+     "raw_angle_axial_mean_deg_eweighted": 170.73,
+     "raw_concentration": 0.542,
+     "median_e": 0.0625,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58249,
+      "dy": -0.05941,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 15.09,
+     "dev_from_RA_yup": 3.45,
+     "raw_dev_from_RA_ydown": 15.09
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 176.52,
+     "concentration_eweighted": 0.755,
+     "major_axis_axial_mean_deg_unweighted": 0.97,
+     "concentration_unweighted": 0.622,
+     "raw_angle_axial_mean_deg_eweighted": 176.52,
+     "raw_concentration": 0.755,
+     "median_e": 0.0627,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58251,
+      "dy": -0.05942,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 9.3,
+     "dev_from_RA_yup": 2.34,
+     "raw_dev_from_RA_ydown": 9.3
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 177.99,
+     "concentration_eweighted": 0.844,
+     "major_axis_axial_mean_deg_unweighted": 0.57,
+     "concentration_unweighted": 0.702,
+     "raw_angle_axial_mean_deg_eweighted": 177.99,
+     "raw_concentration": 0.844,
+     "median_e": 0.0659,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58252,
+      "dy": -0.05939,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 7.83,
+     "dev_from_RA_yup": 3.81,
+     "raw_dev_from_RA_ydown": 7.83
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 1.64,
+     "concentration_eweighted": 0.793,
+     "major_axis_axial_mean_deg_unweighted": 3.88,
+     "concentration_unweighted": 0.763,
+     "raw_angle_axial_mean_deg_eweighted": 1.64,
+     "raw_concentration": 0.793,
+     "median_e": 0.0656,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58251,
+      "dy": -0.0594,
+      "angle_ydown": 5.82,
+      "angle_yup": 174.18
+     },
+     "dev_from_RA_ydown": 4.18,
+     "dev_from_RA_yup": 7.46,
+     "raw_dev_from_RA_ydown": 4.18
+    }
+   }
+  },
+  {
+   "station": "dx+1200",
+   "dx": 1200,
+   "S": {
+    "n": 392,
+    "top_n": 30,
+    "fwhm_px": 2.245,
+    "roundness": 0.936,
+    "faintest_admitted_A": 0.00051
+   },
+   "M": {
+    "n": 394,
+    "top_n": 30,
+    "fwhm_px": 2.243,
+    "roundness": 0.945,
+    "faintest_admitted_A": 0.000299
+   },
+   "L": {
+    "n": 398,
+    "top_n": 30,
+    "fwhm_px": 2.228,
+    "roundness": 0.954,
+    "faintest_admitted_A": 0.000353
+   },
+   "P": {
+    "n": 770,
+    "top_n": 30,
+    "fwhm_px": 2.235,
+    "roundness": 0.942,
+    "faintest_admitted_A": 0.000102
+   },
+   "dFWHM_L_minus_S": -0.017,
+   "dFWHM_M_minus_S": -0.002,
+   "dround_S_minus_L": -0.018,
+   "dround_S_minus_M": -0.009,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 48.31,
+     "concentration_eweighted": 0.688,
+     "major_axis_axial_mean_deg_unweighted": 48.91,
+     "concentration_unweighted": 0.532,
+     "raw_angle_axial_mean_deg_eweighted": 48.31,
+     "raw_concentration": 0.688,
+     "median_e": 0.0661,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5826,
+      "dy": -0.11128,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 37.5,
+     "dev_from_RA_yup": 59.12,
+     "raw_dev_from_RA_ydown": 37.5
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 47.4,
+     "concentration_eweighted": 0.792,
+     "major_axis_axial_mean_deg_unweighted": 47.28,
+     "concentration_unweighted": 0.552,
+     "raw_angle_axial_mean_deg_eweighted": 47.4,
+     "raw_concentration": 0.792,
+     "median_e": 0.0564,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.5826,
+      "dy": -0.11128,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 36.59,
+     "dev_from_RA_yup": 58.21,
+     "raw_dev_from_RA_ydown": 36.59
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 48.07,
+     "concentration_eweighted": 0.729,
+     "major_axis_axial_mean_deg_unweighted": 51.78,
+     "concentration_unweighted": 0.554,
+     "raw_angle_axial_mean_deg_eweighted": 48.07,
+     "raw_concentration": 0.729,
+     "median_e": 0.0466,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58258,
+      "dy": -0.11126,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 37.26,
+     "dev_from_RA_yup": 58.88,
+     "raw_dev_from_RA_ydown": 37.26
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 46.18,
+     "concentration_eweighted": 0.856,
+     "major_axis_axial_mean_deg_unweighted": 50.99,
+     "concentration_unweighted": 0.778,
+     "raw_angle_axial_mean_deg_eweighted": 46.18,
+     "raw_concentration": 0.856,
+     "median_e": 0.0601,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58259,
+      "dy": -0.11127,
+      "angle_ydown": 10.81,
+      "angle_yup": 169.19
+     },
+     "dev_from_RA_ydown": 35.37,
+     "dev_from_RA_yup": 56.99,
+     "raw_dev_from_RA_ydown": 35.37
+    }
+   }
+  },
+  {
+   "station": "dx+1800",
+   "dx": 1800,
+   "S": {
+    "n": 307,
+    "top_n": 30,
+    "fwhm_px": 2.413,
+    "roundness": 0.894,
+    "faintest_admitted_A": 0.000265
+   },
+   "M": {
+    "n": 328,
+    "top_n": 30,
+    "fwhm_px": 2.445,
+    "roundness": 0.891,
+    "faintest_admitted_A": 0.000364
+   },
+   "L": {
+    "n": 330,
+    "top_n": 30,
+    "fwhm_px": 2.415,
+    "roundness": 0.89,
+    "faintest_admitted_A": 0.000415
+   },
+   "P": {
+    "n": 656,
+    "top_n": 30,
+    "fwhm_px": 2.42,
+    "roundness": 0.887,
+    "faintest_admitted_A": 9.8e-05
+   },
+   "dFWHM_L_minus_S": 0.002,
+   "dFWHM_M_minus_S": 0.032,
+   "dround_S_minus_L": 0.004,
+   "dround_S_minus_M": 0.003,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 30.23,
+     "concentration_eweighted": 0.906,
+     "major_axis_axial_mean_deg_unweighted": 30.65,
+     "concentration_unweighted": 0.87,
+     "raw_angle_axial_mean_deg_eweighted": 30.23,
+     "raw_concentration": 0.906,
+     "median_e": 0.1112,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58581,
+      "dy": -0.13637,
+      "angle_ydown": 13.1,
+      "angle_yup": 166.9
+     },
+     "dev_from_RA_ydown": 17.13,
+     "dev_from_RA_yup": 43.33,
+     "raw_dev_from_RA_ydown": 17.13
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.03,
+     "concentration_eweighted": 0.868,
+     "major_axis_axial_mean_deg_unweighted": 29.03,
+     "concentration_unweighted": 0.754,
+     "raw_angle_axial_mean_deg_eweighted": 27.03,
+     "raw_concentration": 0.868,
+     "median_e": 0.115,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58579,
+      "dy": -0.13637,
+      "angle_ydown": 13.11,
+      "angle_yup": 166.89
+     },
+     "dev_from_RA_ydown": 13.92,
+     "dev_from_RA_yup": 40.14,
+     "raw_dev_from_RA_ydown": 13.92
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 28.44,
+     "concentration_eweighted": 0.878,
+     "major_axis_axial_mean_deg_unweighted": 31.43,
+     "concentration_unweighted": 0.749,
+     "raw_angle_axial_mean_deg_eweighted": 28.44,
+     "raw_concentration": 0.878,
+     "median_e": 0.1158,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58576,
+      "dy": -0.13636,
+      "angle_ydown": 13.1,
+      "angle_yup": 166.9
+     },
+     "dev_from_RA_ydown": 15.34,
+     "dev_from_RA_yup": 41.54,
+     "raw_dev_from_RA_ydown": 15.34
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 31.6,
+     "concentration_eweighted": 0.923,
+     "major_axis_axial_mean_deg_unweighted": 33.55,
+     "concentration_unweighted": 0.873,
+     "raw_angle_axial_mean_deg_eweighted": 31.6,
+     "raw_concentration": 0.923,
+     "median_e": 0.1199,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.58577,
+      "dy": -0.13638,
+      "angle_ydown": 13.11,
+      "angle_yup": 166.89
+     },
+     "dev_from_RA_ydown": 18.49,
+     "dev_from_RA_yup": 44.71,
+     "raw_dev_from_RA_ydown": 18.49
+    }
+   }
+  },
+  {
+   "station": "dx+2400",
+   "dx": 2400,
+   "S": {
+    "n": 327,
+    "top_n": 30,
+    "fwhm_px": 2.465,
+    "roundness": 0.875,
+    "faintest_admitted_A": 0.00042
+   },
+   "M": {
+    "n": 323,
+    "top_n": 30,
+    "fwhm_px": 2.485,
+    "roundness": 0.87,
+    "faintest_admitted_A": 0.000418
+   },
+   "L": {
+    "n": 345,
+    "top_n": 30,
+    "fwhm_px": 2.55,
+    "roundness": 0.859,
+    "faintest_admitted_A": 0.000397
+   },
+   "P": {
+    "n": 661,
+    "top_n": 30,
+    "fwhm_px": 2.552,
+    "roundness": 0.868,
+    "faintest_admitted_A": 0.00011
+   },
+   "dFWHM_L_minus_S": 0.085,
+   "dFWHM_M_minus_S": 0.02,
+   "dround_S_minus_L": 0.016,
+   "dround_S_minus_M": 0.005,
+   "angles": {
+    "S": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 31.32,
+     "concentration_eweighted": 0.821,
+     "major_axis_axial_mean_deg_unweighted": 32.49,
+     "concentration_unweighted": 0.725,
+     "raw_angle_axial_mean_deg_eweighted": 31.32,
+     "raw_concentration": 0.821,
+     "median_e": 0.1325,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59122,
+      "dy": -0.16081,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 16.1,
+     "dev_from_RA_yup": 46.54,
+     "raw_dev_from_RA_ydown": 16.1
+    },
+    "M": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 26.63,
+     "concentration_eweighted": 0.893,
+     "major_axis_axial_mean_deg_unweighted": 26.13,
+     "concentration_unweighted": 0.846,
+     "raw_angle_axial_mean_deg_eweighted": 26.63,
+     "raw_concentration": 0.893,
+     "median_e": 0.1385,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59118,
+      "dy": -0.1608,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 11.41,
+     "dev_from_RA_yup": 41.85,
+     "raw_dev_from_RA_ydown": 11.41
+    },
+    "L": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.96,
+     "concentration_eweighted": 0.927,
+     "major_axis_axial_mean_deg_unweighted": 26.88,
+     "concentration_unweighted": 0.868,
+     "raw_angle_axial_mean_deg_eweighted": 27.96,
+     "raw_concentration": 0.927,
+     "median_e": 0.1506,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59113,
+      "dy": -0.1608,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 12.74,
+     "dev_from_RA_yup": 43.18,
+     "raw_dev_from_RA_ydown": 12.74
+    },
+    "P": {
+     "n_top": 30,
+     "major_axis_axial_mean_deg_eweighted": 27.19,
+     "concentration_eweighted": 0.946,
+     "major_axis_axial_mean_deg_unweighted": 27.29,
+     "concentration_unweighted": 0.925,
+     "raw_angle_axial_mean_deg_eweighted": 27.19,
+     "raw_concentration": 0.946,
+     "median_e": 0.1411,
+     "fraction_fy_gt_fx": 0.0,
+     "ra_dir": {
+      "dx": 0.59115,
+      "dy": -0.16084,
+      "angle_ydown": 15.22,
+      "angle_yup": 164.78
+     },
+     "dev_from_RA_ydown": 11.97,
+     "dev_from_RA_yup": 42.41,
+     "raw_dev_from_RA_ydown": 11.97
+    }
+   }
+  }
+ ],
+ "verdict": {
+  "exit_side_dFWHM_L_minus_S": {
+   "dx-2400": -0.025,
+   "dx-1800": -0.002,
+   "dx-1200": 0.055
+  },
+  "exit_side_dround_S_minus_L": {
+   "dx-2400": -0.005,
+   "dx-1800": 0.018,
+   "dx-1200": -0.008
+  },
+  "exit_side_monotone_fall_S_M_L": {
+   "dx-2400": false,
+   "dx-1800": false,
+   "dx-1200": true
+  },
+  "entry_side_dFWHM_L_minus_S": {
+   "dx+1200": -0.017,
+   "dx+1800": 0.002,
+   "dx+2400": 0.085
+  },
+  "entry_side_dround_S_minus_L": {
+   "dx+1200": -0.018,
+   "dx+1800": 0.004,
+   "dx+2400": 0.016
+  },
+  "centre_dFWHM_L_minus_S": 0.032,
+  "centre_dround_S_minus_L": 0.003,
+  "kill_rule_for_H_fixed_fires": false,
+  "H_reg_exit_ordering_holds": false,
+  "H_fixed_flat_exit_within_0.05_0.02": false,
+  "H_fixed_flat_entry_within_0.05_0.02": false,
+  "reading": "H_reg (exit-edge registration) NOT SUPPORTED: across a 9x change of stacked drift span (26 -> 236 px) the exit-side blur at matched sensor position is flat \u2014 dFWHM(L-S) -0.025 / -0.002 / +0.055 px and dround(S-L) -0.005 / +0.018 / -0.008 at dx -2400/-1800/-1200; the S<M<L ordering holds at one exit station of three (dx-1200) and is reversed at dx-2400 (S the worst); the kill rule for H_fixed does not fire (largest exit dFWHM 0.055 < 0.10, largest dround 0.018 < 0.03, and the entry side is not flat). H_fixed's literal +-0.05 px flatness is exceeded by 0.005 px at ONE exit station (dx-1200, +0.055; the other two -0.025 / -0.002; roundness within 0.018 everywhere) and FAILS outright at the far ENTRY station: dx+2400 FWHM rises monotonically with span, S 2.465 -> M 2.485 -> L 2.550 (+0.085 px), roundness 0.875 -> 0.870 -> 0.859 \u2014 a span dependence on the side neither hypothesis placed it (the ledger's lens-asymmetry side). By the pre-registered rules: NEITHER, reported as measured \u2014 the exit-edge registration hypothesis is refuted for the exit-side blur; the span-dependent term is on the entry (right) side, where the optics' own ellipticity is largest (top-30 median e 0.13-0.15 vs 0.06-0.08 on the left) and NOT drift-aligned (major axis 27-48 deg from the local +RA direction vs 2-12 deg on the exit side).",
+  "angle_prediction": "H_reg predicted the exit-side major axis drift-aligned in L and losing alignment in S. MEASURED: the exit-side stations are drift-aligned at EVERY span \u2014 dx-1200 deviation from +RA (y-down) S 1.9 / M 3.8 / L 5.0 / P 6.7 deg, dx-1800 S 9.8 / M 9.6 / L 10.5 / P 12.2 deg, concentration R 0.78-0.98 \u2014 S does not lose the alignment; dx-2400's angle is ill-defined (median e 0.02-0.03, R 0.04-0.30). Entry side: 11-37 deg off +RA on every arm, R 0.69-0.95, e 0.11-0.15 \u2014 the elongation there is not the drift direction.",
+  "L_vs_P_depth_and_rejection_at_fixed_span": "FWHM within 0.012 px at every station (P-L: +0.012, +0.007, -0.005, +0.011, +0.007, +0.005, +0.002) and roundness within 0.009 except dx-2400 (+0.006) and dx+2400 (+0.009); 100 frames GESD vs 12 winsorized at the same 236-px span changes nothing the instrument resolves. seqtilt: P 2.64 / 0.17 / 0.25 on 22,097 stars vs S 2.53 / 0.16 / 0.20, M 2.54 / 0.16 / 0.18, L 2.54 / 0.16 / 0.19 on 11.4-11.7k \u2014 the whole-frame numbers are flat across spans; P's higher truncated mean rides its deeper detection (the detection-depth trap), not a like-for-like comparison.",
+  "mechanism_offered_MECHANISM_not_measured": "a fixed sensor-coordinate PSF field plus span AVERAGING: a matched sky position is built from frames in which that sky sat at sensor x, x+step, ..., x+span, so the stacked PSF is the lens PSF averaged over that sensor range \u2014 flat where the PSF gradient is small (the exit/left side here) and growing with span where it is steep (the far right, where the top-30 ellipticity climbs 0.11 -> 0.15 between +1800 and +2400). Testable with the same arms: the +2400 station's FWHM(L) should equal the mean of the single-frame PSF over [x, x+236]. Not run."
+ },
+ "records_paths": {
+  "arms": "sessions/aug06/work/spanarm/{S,M,L}/ (build.log, c.ssf, s.ssf, siril.log, lt_.seq, r_lt_.seq, solve.log, shape.json, shape.log, seqtilt.json, lists/<station>.lst) + sub_<arm>.fit, sub_<arm>_wcs.fit \u2014 session scratch, gitignored",
+  "solve_records": [
+   "datasets/aug06/set-01/qa_work/solve_sub_L.json",
+   "datasets/aug06/set-01/qa_work/solve_sub_M.json",
+   "datasets/aug06/set-01/qa_work/solve_sub_S.json"
+  ],
+  "state": "scratchpad span_state.json (not tracked)"
+ },
+ "premises_untested": [
+  "that the 2pass homography's h02 (per-frame x translation in the 2pass's own reference frame) is the stacked span \u2014 the relative spans (1:4:9) are exact, the absolute scale is the undistorted frame's, not the raw frame's",
+  "that matched SKY (sub_01's WCS) is matched SENSOR position across arms: all three arms pin the same reference frame and framing=min, so the reference frame's sensor geometry is the canvas of every arm; the arm's own solve places the box (box_center_offset 0.11-0.39 deg = the tool's own verification), residual solve-to-solve differences are inside an 800-px box",
+  "the y-down convention for the +RA direction (the y-up variant is recorded beside every angle; the drift axis is 2-15 deg from horizontal, so the ambiguity is <= 30 deg at the far stations and <= 12 deg on the exit side)",
+  "the major-axis rule (angle when FWHMx >= FWHMy, else +90) \u2014 moot here: FWHMx >= FWHMy for every top-30 star at every station on every arm (fraction 0.0)",
+  "that 30 stars per station resolve 0.05 px: the between-arm scatter at flat stations is 0.002-0.03 px, consistent with that; no bootstrap was run",
+  "the +2400 entry-side rise is one station on one set; the span-averaging mechanism offered is MECHANISM, not measured",
+  "the M build was killed twice ~30 s into its preflight by something outside this session (no lock, no Siril process, no partial product each time) and completed in the foreground; S and L ran once"
+ ]
+}
