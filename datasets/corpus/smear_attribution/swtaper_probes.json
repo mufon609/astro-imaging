@@ -1,0 +1,142 @@
+{
+ "id": "swtaper_probes",
+ "item": "GO #15 (director astro-imaging-45; worker astro-imaging-7f) \u2014 the PROBE PHASE of the SWarp weighted (tapered per-member weight) form, pre-registered at datasets/aug06/experiments.jsonl line 115. STOPPED by the director at 15:48 on the owner's redirection (verbatim in the director's message: the focus is the smears in the corners, not the rim; the edges are ruled to be fixed with more frames; the aim is to keep out frames or portions of frames that degrade the others) \u2014 the tapered form's purpose (keeping rim coverage at t_min) is void by the owner's word. The probes that had run stand as ENGINE FACTS for a quality-weighted form if one is wanted later; only the probe already running (P3's four SWarp coadds) was finished; P3's Siril comparison (stat / shape_at_sky / Deneb overshoot) was NOT run.",
+ "scratch": "sessions/aug14/work/swarp/ (members/: the two probe symlinks; probes/work/: the driver's split/norm/head/weight outputs; probes/p1, p2, p2b, p2c, p2d, p4, p6, p7, p3_*: each probe's config, log, coadd) \u2014 kept, gitignored",
+ "tracked_code": "scripts/stack/swarp_weight_maps.py (head / weight / coadd-head / norm subcommands + --selftest; CD-only .head after P2b/P2c/P5) and scripts/stack/swarp_compose.sh (split -> norm -> head -> weight -> coadd -> rgb -> stamp; split/norm/head/weight exercised by the probes; coadd/rgb/stamp written, not exercised at arm scale) \u2014 both new, uncommitted, each with the REMOVAL CONDITION literal 'retire when Siril's compose accepts per-member weight maps'",
+ "probe_members": {
+  "m1": "july31/set-01/sub_01 (5832x3952, STACKCNT 100, flat weight; the reference/anchor)",
+  "m2": "aug14/set-04/sub_06 (5829x3951, STACKCNT 100, GO #13 x_c 1500 -> taper)"
+ },
+ "probes": {
+  "P1_cube_read": {
+   "ran": true,
+   "command": "SWarp <the 3-plane member symlink> (no .head; automatic grid)",
+   "measured": "'WARNING: Maximum number of dimensions supported by this version of the software exceeded'; SWarp reads the FIRST plane only: coadd median of the covered area 0.00089471 = the member's R-plane median 0.00089479 (G 0.0017745, B 0.0014761); a 2-D 6837x5352 coadd written",
+   "verdict": "informational \u2014 the per-channel split (D1) is required; SWarp takes plane 1 (R) silently apart from the warning"
+  },
+  "P2_output_head_pins_grid": {
+   "ran": true,
+   "command": "lone m1 G channel, coadd.head = the canonical raw compose product's TAN (CRVAL 309.917065/41.647340, CRPIX 4260/2931, CD from PC x CDELT), MAP_WEIGHT, RESCALE_WEIGHTS N, SUBTRACT_BACK N",
+   "expected": "NAXIS 8540x5677 and CRPIX/CRVAL/CD/CTYPE returned to 1e-6",
+   "measured": "grid 8540x5677; header == coadd.head on NAXIS1/2, CRPIX1/2, CRVAL1/2, CD1_1..CD2_2, CTYPE: True; covered px 23,056,270; weight median 100.000 (STACKCNT); the member's covered-area centroid RA 310.745 Dec 41.561 vs its own frame centre 310.764/41.549",
+   "verdict": "PASS \u2014 the output .head alone pins the grid; no IMAGE_SIZE/CENTER/PIXEL_SCALE needed"
+  },
+  "P2b_c_d_matrix_precedence_and_TPV": {
+   "ran": true,
+   "command": "three lone-m1 runs with edited .heads: b = CD only (+PV); c = CD + deliberately WRONG PC/CDELT (CDELT 1, PC identity); d = CD, PV removed, CTYPE TAN",
+   "measured": "p2b == p2 (CD+PC/CDELT+PV) pixel-identical (max|diff| 0, 23,056,270 px); p2c == p2 pixel-identical \u2014 SWarp IGNORES PC/CDELT when CD is present; p2d differs from p2 over 95.9 % of the overlap (max |diff| 0.383, covered area 23,102,062 vs 23,056,270, bbox shifted) \u2014 SWarp APPLIES the TPV PV terms",
+   "verdict": "CD precedence proven; TPV applied; the writer emits CD-only .heads (the registry's dual-matrix trap avoided)"
+  },
+  "P3_engine_vs_siril": {
+   "ran": "SWarp half only",
+   "command": "m1+m2 G channels, D4 normalisation (BACK_DEFAULT list 0.0,-5.521047e-04; FLXSCALE m2 1.318445), MAP_WEIGHT (m1 flat 100, m2 taper x_c 1500 tmin 0.02), RESCALE_WEIGHTS N, COMBINE WEIGHTED, {NONE,VARIABLE} x {LANCZOS3,LANCZOS4} onto coadd.head; the Siril compose of the same two members: run_undistort_compose.sh --framing=max --weight=nbstack --ref=m1 (sessions/aug14/work/swarp/probes/siril2/siril2.fit, 7304x5455x3, REGREF 1 pinned, STACKNRM addscale, ANCLOCG 0.00177297, worst zone 4.37 px)",
+   "measured_coadd_facts": {
+    "p3_NONE_LANCZOS3": {
+     "grid": [
+      8540,
+      5677
+     ],
+     "covered_px": 28731616,
+     "two_member_px": 15513520,
+     "median_covered": 0.001773893367499113,
+     "median_two_member": 0.0017724203644320369,
+     "weight_max": 157.5275115966797
+    },
+    "p3_NONE_LANCZOS4": {
+     "grid": [
+      8540,
+      5677
+     ],
+     "covered_px": 28708777,
+     "two_member_px": 15498310,
+     "median_covered": 0.001773915020748973,
+     "median_two_member": 0.0017724379431456327,
+     "weight_max": 157.5275115966797
+    },
+    "p3_VARIABLE_LANCZOS3": {
+     "grid": [
+      8540,
+      5677
+     ],
+     "covered_px": 28731616,
+     "two_member_px": 15552022,
+     "median_covered": 0.0017653130926191807,
+     "median_two_member": 0.001766135566867888,
+     "weight_max": 161.341796875
+    },
+    "p3_VARIABLE_LANCZOS4": {
+     "grid": [
+      8540,
+      5677
+     ],
+     "covered_px": 28708777,
+     "two_member_px": 15536805,
+     "median_covered": 0.0017653362592682242,
+     "median_two_member": 0.0017661518650129437,
+     "weight_max": 161.34169006347656
+    }
+   },
+   "reading": "each SWarp run 2-3 s; the NONE coadds' covered-area median 0.0017739 = the reference's G location 0.0017730 (+0.05 %) and Siril's ANCLOCG 0.0017730 \u2014 the D4 normalisation lands the zero point on the reference member's own sky; VARIABLE reads 0.0017653 (-0.49 %: the Jacobian scaling); LANCZOS3 vs LANCZOS4 differ in covered area by 22,839 px (the kernel's support) and in level by < 0.002 %",
+   "not_run": "the Siril comparison \u2014 stat sky level at the centre/edge boxes, shape_at_sky at x25/x50/x75 (+ sentinel), Deneb overshoot \u2014 STOPPED before it started; the four coadds and siril2.fit are on disk for it (positions in probes/p3_positions.json)",
+   "verdict": "OPEN (engine coadds exist; the comparison was not made)"
+  },
+  "P4_back_default_sign": {
+   "ran": true,
+   "command": "lone m1 G with -SUBTRACT_BACK Y -BACK_TYPE MANUAL -BACK_DEFAULT 1.773006e-03 (its own G location from seqstat), FLXSCALE 1",
+   "expected": "|median(covered)| < 1e-5 (SWarp subtracts)",
+   "measured": "median(covered) 1.49e-06 (= 0.10 ADU16); 23,056,270 px",
+   "verdict": "PASS \u2014 SWarp SUBTRACTS the per-image BACK_DEFAULT; the D4 sign holds (back_i = loc_i - loc_ref*(s_i/s_ref))"
+  },
+  "P4b_seqstat_columns": {
+   "ran": true,
+   "command": "Siril: link n -out=seq; seqstat n <csv> full on the linked 2-member sequence",
+   "measured": "tab-separated columns: image chan mean median sigma min max noise avgDev mad sqrtbwmv location scale \u2014 location and scale PRESENT per channel (m1 G location 1.773006e-03 scale 3.568171e-05; m2 G 7.926653e-04 / 2.706347e-05); Siril logged 'g_unlink() failed' x6 and 'unblocking the main thread after conversion error' on the symlinked link, the CSV complete regardless",
+   "norm_csv": [
+    "member,channel,location,scale,fscale,back_default",
+    "sub_001_july31_set-01_sub_01,R,8.938899000e-04,3.015608000e-05,1.000000000,0.000000000e+00",
+    "sub_001_july31_set-01_sub_01,G,1.773006000e-03,3.568171000e-05,1.000000000,0.000000000e+00",
+    "sub_001_july31_set-01_sub_01,B,1.475137000e-03,3.292394000e-05,1.000000000,0.000000000e+00",
+    "sub_074_aug14_set-04_sub_06,R,4.560786000e-04,2.257994000e-05,1.335525249,-2.132385098e-04",
+    "sub_074_aug14_set-04_sub_06,G,7.926653000e-04,2.706347000e-05,1.318445491,-5.521047430e-04",
+    "sub_074_aug14_set-04_sub_06,B,5.620653000e-04,2.345671000e-05,1.403604342,-4.888982487e-04"
+   ],
+   "verdict": "PASS \u2014 no --keep-work fallback needed; the writer's `norm` subcommand derives fscale and back_default from it"
+  },
+  "P5_sip_tpv_exact": {
+   "ran": true,
+   "command": "astropy pixel->world of each member's SIP header vs its TPV .head on a 60x60 grid, separation / pixel scale",
+   "measured": "with the FIRST writer form (CD + consistent PC/CDELT + PV): max 2.24e+04 / 2.32e+04 px \u2014 astropy applies the PV terms on the PC/CDELT basis and the sky is garbage off-centre while exact at CRPIX (the dual-matrix trap in a new guise); with CD-only .heads: july31/set-01/sub_01 max 4.76e-11 px (median 3.16e-11), aug14/set-04/sub_06 max 3.83e-11 px (median 1.90e-11); PV terms 16 / 17",
+   "verdict": "PASS on the CD-only form (TOOLS: 1.1e-11 px on one class; here 4-5e-11); the writer now emits CD-only"
+  },
+  "P6_map_weight_no_rescale": {
+   "ran": true,
+   "command": "planted 400x400 fixtures (a=100 w3, b=200 w1, Gaussian noise sigma 1, identical TAN WCS), COMBINE WEIGHTED, LANCZOS3",
+   "expected": "N: 125.0; Y: != 125 (150 if equalised)",
+   "measured": "RESCALE_WEIGHTS N: median 125.005 mean 125.003 (out-weight 4.000 = 3+1); RESCALE_WEIGHTS Y: median 149.926 (out-weight 2.080)",
+   "verdict": "PASS \u2014 N uses the maps as given; the Y control FAILS as it must (SWarp re-derives each map from the image noise)"
+  },
+  "P6b_fscale_weight_interaction": {
+   "ran": true,
+   "command": "a=100 with FLXSCALE 2 (via .head) and c=300, weights 1:1, RESCALE_WEIGHTS N",
+   "expected": "250 if the weight is used as given; 280 if SWarp divides the weight by f^2",
+   "measured": "median 280.011 mean 280.006 (out-weight 1.250 = 1/4 + 1)",
+   "verdict": "SWarp DIVIDES the weight by FLXSCALE^2 (inverse-variance consistent) \u2014 a quality-weighted arm must pre-multiply each map by f_i^2 to restore nbstack weighting (not implemented; the arm did not run)"
+  },
+  "P7_head_and_weight_beside_a_symlink": {
+   "ran": true,
+   "command": "lone run whose input is a SYMLINK to the m1 G channel file, with <symlink>.head (CRVAL1 +0.5 deg) and <symlink>.weight.fits (a symlink) beside the symlink only",
+   "measured": "log: 'Looking for link_m1G.fit ... Looking for link_m1G.weight.fits ... Reading .../p7/link_m1G.weight.fits'; the coadd's covered-area centroid RA 311.282 vs p2's 310.745 (+0.537 deg) at the same Dec",
+   "verdict": "PASS \u2014 SWarp resolves .head and .weight.fits by the GIVEN path, beside the symlink"
+  }
+ },
+ "engine_facts_summary": [
+  "SWarp reads the CD matrix and ignores PC/CDELT when CD is present; it applies TPV; a .head must be CD-only (astropy misreads TPV with both forms)",
+  "the output coadd.head alone pins the grid",
+  "MAP_WEIGHT + RESCALE_WEIGHTS N uses the maps as given; RESCALE_WEIGHTS Y silently re-derives them; FLXSCALE f divides a map's weight by f^2",
+  "BACK_DEFAULT per-image lists are subtracted; seqstat full carries IKSS location/scale per channel, so Siril's addscale can be re-created (the NONE coadds land on the reference's own sky to +0.05 %)",
+  "SWarp reads only the first plane of a 3-plane FITS (per-channel split needed)",
+  "a two-member 23-Mpx-each coadd onto the 48-Mpx canonical grid takes 2-3 s per channel"
+ ],
+ "stopped": "owner's redirection via the director, 15:48 \u2014 the next unit follows from the owner's focus (the corner smears, all four corners, both sides of the members); the two tracked scripts stay uncommitted in the tree; ledger line 115 stands and the redirection is the director's superseding line",
+ "written_at": "2026-08-29 15:50:48"
+}
