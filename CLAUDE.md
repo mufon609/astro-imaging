@@ -147,10 +147,13 @@ acquisition checklist (`docs/dead-ends/acquisition-checklist.md`);
 stage, when/why, cost/Linux/CPU/headless) — the TOOLKIT the x86 render is
 built from; (2c) `MEMORY.md` — the collaboration context (who the user is,
 how they judge/work) + residual lessons migrated off the machine-local
-auto-memory so they transfer with the repo; (3) `README.md` — the process
-contract (review
-contract + standing audits, per-set geometry, experiment discipline, north
-star). The DURABLE stage design (calibrate → [undistort] → register → stack →
+auto-memory so they transfer with the repo; (3) `README.md` — its first
+screen is the human entry map ("Start here", by intent: the three data
+classes and which one is validated) and the rest is the process contract
+(review contract + standing audits, experiment discipline, north star);
+`CONTRIBUTING.md` is the human-addressed pointer sheet (rig setup in order,
+the rules by section, the commit protocol, where each result is written) —
+it restates nothing, so it never outranks this file. The DURABLE stage design (calibrate → [undistort] → register → stack →
 solve → SPCC → compose) lives in the kept scripts' own docstrings; the
 **undistort** stage is the wide-field-untracked route and is documented in
 [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md);
@@ -170,7 +173,8 @@ Per-dataset state is the tracked `datasets/<session>/<set>/` records;
 by the stack builders); its RENDER block is chain-coupled and PENDING
 the render-tier build (user-gated — the ladder plan is BACKLOG:`render-ladder`,
 re-anchored per dataset); `baseline.json` has SHIPPED — `scripts/qa/baseline_guard.py`
-runs last in `run_set_chain.sh`, 13 seeded baselines are tracked, and a regression
+runs last in `run_set_chain.sh`, 18 seeded baselines are tracked (`git ls-files |
+grep baseline.json`, every one non-empty), and a regression
 stops the chain at exit 8 without blocking or rewriting anything. Every tier the pipeline needs is INSTALLED on
 this rig; what is missing is a deliberate gap (RC-Astro, PixInsight), never a
 platform block — per `TOOLS.md`.
