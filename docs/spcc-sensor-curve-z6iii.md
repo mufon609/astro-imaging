@@ -18,8 +18,10 @@
   x86-64, CPU-only, headless. Written read-only during a running from-raws
   campaign: **no Siril was invoked** — every statement about the tool is a
   source read of tag 1.4.4 (cloned to the session scratchpad; upstream paths
-  cited as `src/...`) or a read of the 44 SPCC logs already on disk under
-  `sessions/*/work/spcc_*.log`. Evidence classes follow
+  cited as `src/...`) or a read of the 48 SPCC logs on disk under
+  `sessions/*/work/spcc_*.log`, plus the H0 probe record
+  (`datasets/july31/set-01/qa_work/spcc_h0_probe.json`), which is the one
+  Siril run this investigation cites. Evidence classes follow
   `docs/dead-ends/00-registry-contract.md`: **MEASURED** / **MECHANISM** /
   **DOCTRINE**, and every claim below carries one.
 
@@ -98,7 +100,14 @@ response" — is false.** There is no default curve in the code path.
   rig's `config.1.4.ini` line 69: `is_mono=true`, every `*pref=` empty,
   `oscfilterpref=No filter`, `is_dslr=false`). A name that matches nothing
   returns −1 and the command **errors**: *"Either the sensor or a filter was
-  not specified as argument or guessable from previous use."*
+  not specified as argument or guessable from previous use."* A `spcc` run
+  never stores a name: `do_pcc` only reads `is_mono` (`command.c:9942`), the
+  writers of every `*pref`/`is_mono`/`is_dslr` are the GUI combo and switch
+  callbacks (`gui/photometric_cc.c:1059, 1400-1471`), and the config is
+  rewritten after every headless script (`command_line_processor.c:404`)
+  with the in-memory values unchanged — MECHANISM from source, MEASURED by
+  H0's zero-change diff of `config.1.4.ini` lines 62-70 after each arm (only
+  `wd=` moved).
 - **But the lists are loaded AFTER the names are resolved** —
   `load_spcc_metadata_if_needed()` sits at `command.c:10205`, after the lookups
   at 10152–10188 — and both lookup helpers begin `if (!list) return 0;`. In
@@ -109,7 +118,7 @@ response" — is false.** There is no default curve in the code path.
   *"SPCC will use …"* prints the argument or preference string, not the entry
   chosen, so it cannot reveal this. Upstream `master` at `ee7b942` (2026-08-23)
   has the same order.
-- **MEASURED on this rig — all 44 logs**: every one prints
+- **MEASURED on this rig — all 48 logs**: every one prints
   `SPCC will use mono senor "(null)" and filters "(null)", "(null)" and "(null)`
   and only THEN `SPCC JSON metadata loaded` (e.g.
   `sessions/july31/work/spcc_set-01_set-01_full.log:52-53`) — the order the
@@ -127,13 +136,13 @@ response" — is false.** There is no default curve in the code path.
 - **Self-consistency (MEASURED, derived from the logs):** with K normalised
   to R, `a + b·wrg = K_G` and `abg + bbg·wbg = K_G/K_B`, so the white
   reference's catalogue colour under the model in force can be recovered from
-  each log: across all 44 runs **wrg = 0.826–0.830, wbg = 0.983–0.986** — one
+  each log: across all 48 runs **wrg = 0.826–0.830, wbg = 0.983–0.986** — one
   identical response model behind every run, as the mechanism requires.
-- **What the fits look like under that model (MEASURED, 44 logs):** the
-  "imprecise solution" warning fired **44 of 44** times; R/G sigma 0.118–0.211
-  (median 0.143), B/G 0.074–0.173 (median 0.102) against the 0.1 line. Slopes
-  are 0.18–0.26 (R/G) and 0.46–0.61 (B/G) with intercepts 0.42–0.50 and
-  0.14–0.31. A correct response gives a line through the origin
+- **What the fits look like under that model (MEASURED, 48 logs):** the
+  "imprecise solution" warning fired **48 of 48** times; R/G sigma 0.118–0.211
+  (median 0.144), B/G 0.074–0.173 (median 0.098) against the 0.1 line. Slopes
+  are 0.18–0.26 (R/G) and 0.46–0.60 (B/G) with intercepts 0.42–0.50 and
+  0.15–0.31. A correct response gives a line through the origin
   (`Image = gain-ratio × Catalog`), so the **intercept's share of the K
   prediction, `a/(a + b·w)`** — computable from the log as `a/K_G` for R/G and
   `abg·K_B/K_G` for B/G — is a model-mismatch scalar: **0.66–0.77 (median
@@ -151,20 +160,53 @@ response" — is false.** There is no default curve in the code path.
   log prints the name that was asked for. So a `recipe.json` `spcc` block, the
   fix every record's `sensor_match_note` prescribes, would change nothing and
   would make the record claim `named: <sensor>` for a run that used a Canon
-  DSLR behind a triband filter. **MECHANISM, not yet probed** — the probe is
-  one minute and is Stage 0's first step (§4).
+  DSLR behind a triband filter. **MECHANISM, and still so after H0** — every
+  named arm of the probe ran WITH the preload; the counterfactual (a named
+  arm without `spcc_list`) has not been run (§5).
 - **The tool-native cure is one line**: `spcc_list oscsensor` earlier in the
   same `.ssf` calls `load_spcc_metadata_if_needed()` (`command.c:11453`) and
   populates the lists for the life of the process; the subsequent `spcc` then
   matches names exactly (`g_strcmp0` on `model` for OSC sensors, `name` for
   everything else — `spcc_list` prints exactly those strings), and a null spec
-  fails loudly instead of falling through. Two consequences of loading first
-  (source read): a sensor flagged `is_dslr` then REQUIRES `-osclpf=` naming an
-  existing LPF — the literal fallback `"Full spectrum"` matches no entry (the
-  entry is `"Full spectrum (no filter)"`), the −1 check is gated on a flag not
-  yet set, and the worker dereferences `g_list_nth(list, -1)` → NULL — a
-  SIGSEGV of the exit-139 family; and the mono/OSC branch is still decided by
-  `is_mono` unless `-oscsensor=` is given.
+  fails loudly instead of falling through. **MEASURED — H0, record
+  `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs
+  `sessions/july31/work/h0_{null,d750,d500}.log`**, on the shipped
+  `stack_set-01_full_wcs.fit` (PIPEREV 77e3a78), no `save`: with
+  `spcc_list oscsensor` preceding `spcc`, `SPCC JSON metadata loaded` (log line
+  52/56) precedes `SPCC will use OSC sensor "Nikon D750"` / `"Nikon D500"`
+  (105/109 — the load line is printed by `spcc_list`; `spcc` prints no second
+  one); both model strings appear verbatim in the `spcc_list` block (47 OSC
+  sensors, no Z-body); **the two names give different K — D750 1.000/0.697/0.945,
+  D500 1.000/0.700/0.955 (Δ −0.003/−0.010, above the 0.002 printed
+  precision) — against the shipped index-0 run's 1.000/0.687/0.927 on the same
+  input** (3077/5119 stars in all three); the spec-less arm exits 1 with
+  Siril's own *"Either the sensor or a filter was not specified as argument or
+  guessable from previous use"* and writes no K; the input's bytes and mtime
+  and `git status` are unchanged after every arm. H0 PASS on all four
+  clauses. The quoting form Siril's own `help spcc` documents and the probe
+  used is the WHOLE token: `"-oscsensor=Nikon D750" "-oscfilter=No filter"
+  "-whiteref=Average Spiral Galaxy"` — *"the entire argument must be enclosed
+  in quotation marks"*. Two consequences of loading first (source read): a
+  sensor flagged `is_dslr` then REQUIRES `-osclpf=` naming an existing LPF —
+  the literal fallback `"Full spectrum"` matches no entry (the entry is
+  `"Full spectrum (no filter)"`), the −1 check is gated on a flag not yet set,
+  and the worker dereferences `g_list_nth(list, -1)` → NULL — a SIGSEGV of the
+  exit-139 family; per entry on this clone (per-channel read of the JSON):
+  `Nikon_D7200` carries `is_dslr: true` on its RED object, as do the ten SVO
+  D-bodies, and the loader propagates a flag on any channel to all three
+  (`spcc_json.c:248-261`); `Nikon_D750` and `Nikon_D500` carry none, which is
+  why the probe could name them bare. And the mono/OSC branch is still decided
+  by `is_mono` unless `-oscsensor=` is given.
+- **H0's side reading — reported, not scored (the §4 bars are scored on the
+  Z f arm and stand as written):** under either Nikon D-body curve the R/G fit
+  moves toward the origin — `0.3265 + 0.6247·x` σ 0.095 (D750),
+  `0.3484 + 0.5727·x` σ 0.093 (D500), against `0.4887 + 0.2395·x` σ 0.140 — an
+  intercept share of 0.47/0.50 from 0.71 and a slope/K_G of 0.90/0.82 from
+  0.35; the B/G fit does not — σ 0.107/0.108 against 0.110, intercept share
+  0.42/0.38 against 0.39 — so the "imprecise solution" line still fires on
+  B/G. The white-reference colour back-derived from the two arms moves as the
+  response changes (R/G 0.593/0.614, B/G 0.706/0.709, against 0.828/0.985 under
+  the index-0 model), the check §1.1(ii) requires.
 - **The inherited "grounding is immaterial" number is UNCHECKED in subject.**
   The previous rig measured `-oscsensor "Sony IMX571" -oscfilter "Optolong
   L-Pro"` vs null on `siril-m8m20/lpro_180s`: K G 0.912→0.898 (−1.5%), R
@@ -246,8 +288,10 @@ beyondvisible, the DPReview/CN/SGL threads reachable). What does exist:
   response at 656 nm** where every stock Nikon body measures 25–30%, and its
   three objects are mis-named "Sony IMX183 Red/Green/Blue"), Fujifilm X-Trans
   5 HR, Samsung ISOCELL, ZWO Seestars. **No Z-series body.** `spcc_list
-  oscsensor` lists these `model` strings; the SVO Nikon entries carry
-  `is_dslr: true` (the loader propagates it from any channel).
+  oscsensor` lists these `model` strings (H0 measured 47). `is_dslr`, read per
+  channel: the ten SVO D-bodies and `Nikon_D7200` carry `true` on their RED
+  object — the loader propagates any channel's flag to all three — while
+  `Nikon_D750` and `Nikon_D500` carry none.
 - **The one professionally measured 2020s Nikon full-frame Bayer body: the
   Nikon Z f**, in ASWF `rawtoaces-data` (`data/camera/Nikon_Z_f_380_780_5.json`,
   from Weta Digital's physlight release, commit `cf6452c` 2025-09-15):
@@ -307,7 +351,7 @@ beyondvisible, the DPReview/CN/SGL threads reachable). What does exist:
 
 | # | Option | What it is | Deviation / risk | Cost | Class |
 |---|---|---|---|---|---|
-| 0 | **Fix the runner** (prerequisite to everything) | `spcc_list oscsensor` before `spcc` in the generated `.ssf`; assert in the log that `SPCC JSON metadata loaded` precedes `SPCC will use`; require a named `-oscsensor` (a null spec then fails loudly, as Siril intends); pass `-oscfilter="No filter"` and `-whiteref="Average Spiral Galaxy"` explicitly; refuse `is_dslr` entries unless `-osclpf=` names an existing LPF | none — it makes the tool do what its docs say; the record's `sensor_match` becomes true | ~20 lines in `spcc_run.py`; a 1-minute probe | MECHANISM until the probe runs |
+| 0 | **Fix the runner** (prerequisite to everything) | `spcc_list oscsensor` before `spcc` in the generated `.ssf`; assert in the log that `SPCC JSON metadata loaded` precedes `SPCC will use` AND that the requested model string appears verbatim in the `spcc_list` block; require a named `-oscsensor` (a null spec then fails loudly, as Siril intends); pass `"-oscfilter=No filter"` and `"-whiteref=Average Spiral Galaxy"` explicitly, whole-token quoted as Siril's `help spcc` states; refuse `is_dslr` entries (read from the JSON objects, not the model name) unless `-osclpf=` names an existing LPF | none — it makes the tool do what its docs say; the record's `sensor_match` becomes true | ~20 lines in `spcc_run.py` | MEASURED by H0 for the preload + name path (§1.2); the counterfactual — a named arm without the preload — unrun |
 | A1 | **Proxy: Nikon Z f (Weta / ASWF `rawtoaces-data`)** converted to a local `osc_sensors/Nikon_Zf.json` (three objects, `model "Nikon Z f"`, no `is_dslr`, marker 3 — professionally measured, tabulated, 5 nm — `dataSource` the ASWF URL + Zenodo DOI) | the newest professionally measured Nikon full-frame Bayer body, body filters inside, 380–780 nm, Apache-2.0 → **contributable upstream** | a different die (IMX410-class vs IMX820); Nikon dye/hot-mirror continuity assumed; "lightsaber" method undocumented; "relative" undefined (QE vs responsivity — §1.6) | ~30 min conversion with `utils/process_osc_sensor.py`; machine-local file fetched by the bootstrap; an upstream MR after the §4 test | DOCTRINE (proxy) → MEASURED by §4 |
 | A1′ | **Proxy: Nikon Z6 (Butcher)** as `Nikon_Z6.json`, marker 2 | the nearest Z-body by name, **through this project's lens model** | DIY grating, 400–715 nm, two-decimal values, unstated lamp calibration; CC BY-NC-SA — fine to use locally, **not** redistributable inside a GPLv3 database without the author | ~30 min; local only | DOCTRINE → MEASURED by §4 |
 | A2 | **Proxy: Nikon D750** (in the database) | slit/grating measurement at HdM Stuttgart, 360–830 nm at 1 nm, marker 3, inter-channel scale intact | 2014 DSLR; earlier dye and hot-mirror generation | zero | DOCTRINE |
@@ -476,8 +520,8 @@ and Siril's).
   `STACKNRM` header and re-measures corner spread, edge dipole and
   per-channel centre medians with Siril `stat` (tolerance
   `centre_median_max_frac_change 0.25`; level rows ADVISORY while `STACKNRM`
-  differs). Present on disk: 44 `_spcc.fit`, 41 judge PNGs; 55 tracked K
-  records.
+  differs). Present on disk after the rig cleanup (`06e5622`): 22 `_spcc.fit`, 22 judge
+  PNGs — the canonical products; 55 tracked K records.
 - **What a curve changes and what re-baselining it implies.** A curve
   changes exactly six numbers per product — K_R,K_G,K_B and B0..B2 — applied
   globally, so every `_spcc.fit`, every judge PNG and every render-tier output
@@ -491,7 +535,7 @@ and Siril's).
   BUILD-PATH change for the finish stage only (no member or compose rebuild;
   `PIPEREV` stamps on members/composites are unaffected; `_spcc` products
   carry none).
-- **Measured vs assumed in this audit.** MEASURED: the 44 log lines, the 55
+- **Measured vs assumed in this audit.** MEASURED: the 48 log lines, the 55
   records, the recipe grep, the parse identity, the config values, the
   baseline targets. Source-read MECHANISM: the resolution order and index-0
   fallback, the named-path failure, the `is_dslr` LPF crash, `spcc_list` as
@@ -528,7 +572,7 @@ item's to settle; both are named so the §4 verdict is not over-read.
 - `src/core/command.c` `do_pcc` 9933–10214 (name resolution 10151–10188, metadata load 10205; `process_spcc_list` 11449), `src/core/command_list.h:241-242` (syntax), `src/core/settings.c:268-290, 408-420` (`photometry/*pref`, `is_mono` default TRUE, `is_dslr`), `src/gui/photometric_cc.c:648-676` (`get_favourite_*`: `if (!list) return 0`), `src/algos/spcc.c` (grid, `flux_to_relcount`, `get_spectrum_from_args`, atmosphere), `src/algos/photometric_cc.c:296-571` (photometry, integration, repeated-median fits, K, warnings; ICC profile disabled 882–887), `src/io/spcc_json.c` (loader, channel bits 166–185, directory walk 734–766, sorts 855–861), `src/core/siril_app_dirs.c:161-163` (hard-coded path), `src/io/siril_git.c` + `src/gui/callbacks.c:1636` (GUI-only fetch + hard reset) — https://gitlab.com/free-astro/siril/-/tree/1.4.4 ; master `ee7b942` (2026-08-23) same order.
 - SPCC documentation: https://siril.readthedocs.io/en/stable/processing/color-calibration/spcc.html ; command reference `spcc` / `spcc_list`.
 - Siril lead developer on additions (pixls.us 50560, 56806, 55670); pyscript quoting thread 54615 (a different mechanism: unescaped quotes).
-- The 44 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
+- The 48 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the H0 probe: record `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs and scripts `sessions/july31/work/h0_{help,null,d750,d500}.{log,ssf}`, `h0_config_before.ini`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
 
 **siril-spcc-database** (clone `3426f09`, https://gitlab.com/free-astro/siril-spcc-database)
 - `README.md`, `spcc-database-schema.json`, `utils/README.md`, `utils/process_osc_sensor.py`, `svo-converter.py`, `LICENSE.md` (GPLv3); MRs !109 (D750), !81 (D500), !54 (D7200), !72 (Canon EOS R, open); issues #2, #3 (*"Add new sensors"* → rawtoaces, butcherg/ssf-data), #4 (relative QE); submission wizard https://siril-contrib-doc.readthedocs.io/en/latest/SPCCDatabase.html.
@@ -566,8 +610,9 @@ item's to settle; both are named so the §4 verdict is not over-read.
 ## 3. Verdict / recommendation
 
 Adopt **Option 0 now** (runner fix; the null path becomes a loud error and
-named curves are honoured — this retires a false statement in every record
-and is independent of any curve), then **A1 — the Weta-measured Nikon Z f —
+named curves are honoured — H0 measured both on the shipped july31/set-01
+input; this retires a false statement in every record and is independent of
+any curve), then **A1 — the Weta-measured Nikon Z f —
 under the §4 test** with A1′ (Butcher Z6) and A2 (D750) as its control arms;
 on a WIN, contribute the Z f conversion upstream (Apache-2.0 → GPLv3 is
 one-way compatible; issue #3 asks for exactly this) and pin it in the
@@ -593,11 +638,16 @@ on the 4920×3580 product and one that must fail fast):
 - **A0** — Option 0 runner with NO spec: must **error** with Siril's own
   "not specified as argument or guessable from previous use" line and write
   no product.
-- **B** — Option 0 runner, `-oscsensor="Nikon Z f"` (A1, converted to a
-  photon-based curve: divided by λ, renormalised — §1.6), `-oscfilter="No
-  filter"`, `-whiteref="Average Spiral Galaxy"`.
-- **B′** — same, `-oscsensor="Nikon Z6"` (A1′, same conversion).
-- **B″** — same, `-oscsensor="Nikon D750"` (A2, as the database ships it).
+- **B** — Option 0 runner, `"-oscsensor=Nikon Z f"` (A1, converted to a
+  photon-based curve: divided by λ, renormalised — §1.6),
+  `"-oscfilter=No filter"`, `"-whiteref=Average Spiral Galaxy"` — every
+  argument whole-token quoted, the form Siril's `help spcc` documents and H0
+  exercised.
+- **B′** — same, `"-oscsensor=Nikon Z6"` (A1′, same conversion).
+- **B″** — same, `"-oscsensor=Nikon D750"` (A2, as the database ships it).
+  H0 already ran this arm once without `save` (K 1.000/0.697/0.945, R/G
+  `0.3265 + 0.6247·x` σ 0.095, B/G `0.3112 + 0.6040·x` σ 0.107, 3077/5119): the
+  six-arm run must reproduce it to the digit, the determinism check.
 - **B°** (convention probe, one extra run) — the Z f curve as shipped
   (energy-based, no `/λ`): measures how much the QE-vs-responsivity
   convention moves K and the fit; expected small by §1.1(ii); it decides
@@ -643,10 +693,18 @@ fast failure, two finishes; no from-raws, no compose.
 
 ## 5. UNCHECKED — premises this work rests on and did not test
 
-- **The index-0 fallback fires on the installed binary** — source order +
-  the log order on 44 runs + the constant back-derived white-reference colour;
-  no run was made. Settled by H0 (one minute).
-- **Names are honoured after `spcc_list`** — source read only. Settled by H0.
+- **That the preload is WHAT makes names resolve** — H0 measured that
+  `spcc_list` + a name resolves and that no name errors; it did not run a
+  named arm WITHOUT `spcc_list`, so "a bare `-oscsensor=` silently uses index
+  0" rests on the source order plus the 48 shipped logs' order, not on a
+  measurement. One more one-minute arm settles it.
+- **The `-oscsensor="Nikon D750"` quoting form** (value-only quotes) is
+  neither Siril's documented form nor exercised — only the whole-token form
+  was; the runner uses the whole-token form.
+- **"Nothing written" in H0** was checked by the input's bytes/mtime and
+  `git status` only; Siril's own cache directories were not inventoried. The
+  3077 kept stars are equal in count to the shipped run's, not verified as
+  the same set.
 - **The binary is tag 1.4.4** — assumed from the flatpak's version string and
   matching message strings.
 - **Sensor lineage** — Z6 III = IMX820AQJ is a teardown (TechInsights); Z6 =
@@ -680,9 +738,11 @@ fast failure, two finishes; no from-raws, no compose.
 
 ## 6. Status
 
-**PROVISIONAL.** Mechanism from source; the run-time behaviour is MEASURED
-only through the 44 existing logs; no arm of §4 has run. Nothing here changes
-a product.
+**PROVISIONAL, with H0 RUN AND PASSED** (`spcc_h0_probe.json`: the preload
+resolves names, two names give two K, the null spec errors, nothing written).
+The resolution mechanism is MEASURED through the 48 shipped logs and the
+probe; the curve test (§4 H1–H4) has not run; stage 0's runner fix is in
+progress. Nothing here changes a product.
 
 ## 7. Graduation
 
