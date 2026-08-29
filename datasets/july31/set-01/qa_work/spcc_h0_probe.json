@@ -1,0 +1,296 @@
+{
+ "id": "spcc_h0_probe",
+ "item": "BACKLOG spcc-sensor-curve stage 0, docs/spcc-sensor-curve-z6iii.md section 4 H0 (resolution positive control); GO #1(a), director astro-imaging-45, worker astro-imaging-0c",
+ "instrument": "Siril 1.4.4 flatpak siril-cli: spcc_list oscsensor + spcc (localgaia), through scripts/lib/siril_run.py; no save, no product written; the input's mtime/bytes unchanged after every arm",
+ "input": {
+  "path": "web/results/july31/stack_set-01_full_wcs.fit",
+  "bytes": 211374720,
+  "mtime": "2026-08-28 13:19:28",
+  "mtime_after_probe_unchanged": true,
+  "PIPEREV": "77e3a78"
+ },
+ "quoting_form_siril_own_help": "log: The names of sensors and filters can be specified using the following options: <b>-monosensor=</b>, <b>-rfilter=</b>, <b>-gfilter=</b>, <b>-bfilter=</b> or <b>-oscsensor=</b>, <b>-oscfilter=</b>, <b>-osclpf=</b>; the name of the white reference can be specified using the <b>-whiteref=</b> option. In all cases the name must be provided exactly as it is in the combo boxes in the SPCC tool. Note that sensor, filter and white reference names may contain spaces: in this case when using them as arguments to the <b>spcc</b> command, the entire argument must be enclosed in quotation marks, for example \"-whiteref=Average Spiral Galaxy\".",
+ "quoting_used": "whole-token: \"-oscsensor=Nikon D750\" \"-oscfilter=No filter\" \"-whiteref=Average Spiral Galaxy\" (spcc_run.py's form; the doc's -oscsensor=\"Nikon D750\" form was NOT used)",
+ "ssf_verbatim": {
+  "help": "requires 1.4.0\nhelp spcc\nhelp spcc_list\n",
+  "null": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc_list oscsensor\nspcc -catalog=localgaia\nclose\n",
+  "d750": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc_list oscsensor\nspcc -catalog=localgaia \"-oscsensor=Nikon D750\" \"-oscfilter=No filter\" \"-whiteref=Average Spiral Galaxy\"\nclose\n",
+  "d500": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc_list oscsensor\nspcc -catalog=localgaia \"-oscsensor=Nikon D500\" \"-oscfilter=No filter\" \"-whiteref=Average Spiral Galaxy\"\nclose\n"
+ },
+ "config_snapshot": "sessions/july31/work/h0_config_before.ini; photometry prefs lines 62-70 before = after every arm (redpref/greenpref/bluepref/lpfpref empty, oscfilterpref=No filter, monosensorpref/oscsensorpref empty, is_mono=true, is_dslr=false); the only config diff after each arm is line 2 wd= (the -d working directory)",
+ "arms": {
+  "null": {
+   "log": "sessions/july31/work/h0_null.log",
+   "exit": 1,
+   "wall_s": 0.5,
+   "log_lines": 111,
+   "metadata_loaded_lines": [
+    52
+   ],
+   "use_lines": [],
+   "use_line_verbatim": [],
+   "spcc_list_block_lines": [
+    52,
+    102
+   ],
+   "spcc_list_has_Nikon_D750": true,
+   "spcc_list_has_Nikon_D500": true,
+   "spcc_list_D750_line": [
+    73
+   ],
+   "spcc_list_D500_line": [
+    69
+   ],
+   "K": null,
+   "K_lines": [],
+   "fits": null,
+   "fit_lines": [],
+   "n_photometry": null,
+   "n_outside": 0,
+   "n_failed": 0,
+   "n_kept": null,
+   "b_offsets": null,
+   "imprecise_solution": false,
+   "error_lines": [
+    "log: Either the sensor or a filter was not specified as argument or guessable from previous use. Ensure all necessary data is set.",
+    "log: Error in line 7 ('spcc'): invalid arguments.",
+    "log: Script execution failed.",
+    "progress: Script execution failed., 100.00%"
+   ],
+   "config_prefs_62_70_changed": false,
+   "config_diff_other": [
+    "< wd=/home/samsung/.cache/astro-imaging/starlight_selftest.kazes7g2",
+    "> wd=/home/samsung/Desktop/astro-imaging/sessions/july31"
+   ]
+  },
+  "d750": {
+   "log": "sessions/july31/work/h0_d750.log",
+   "exit": 0,
+   "wall_s": 2.9,
+   "log_lines": 2918,
+   "metadata_loaded_lines": [
+    52
+   ],
+   "use_lines": [
+    105
+   ],
+   "use_line_verbatim": [
+    "log: SPCC will use OSC sensor \"Nikon D750\" and filter \"No filter\""
+   ],
+   "spcc_list_block_lines": [
+    52,
+    102
+   ],
+   "spcc_list_has_Nikon_D750": true,
+   "spcc_list_has_Nikon_D500": true,
+   "spcc_list_D750_line": [
+    73
+   ],
+   "spcc_list_D500_line": [
+    69
+   ],
+   "K": [
+    1.0,
+    0.697,
+    0.945
+   ],
+   "K_lines": [
+    2888,
+    2889,
+    2890,
+    2894,
+    2895,
+    2896
+   ],
+   "fits": {
+    "RG": {
+     "a": 0.326512,
+     "b": 0.624652,
+     "sigma": 0.094971
+    },
+    "BG": {
+     "a": 0.311216,
+     "b": 0.603959,
+     "sigma": 0.107378
+    }
+   },
+   "fit_lines": [
+    2885,
+    2886
+   ],
+   "n_photometry": 5119,
+   "n_outside": 1943,
+   "n_failed": 99,
+   "n_kept": 3077,
+   "b_offsets": [
+    0.000487488,
+    0.000144687,
+    -1.36602e-05
+   ],
+   "imprecise_solution": true,
+   "error_lines": [],
+   "config_prefs_62_70_changed": false,
+   "config_diff_other": [
+    "< wd=/home/samsung/.cache/astro-imaging/starlight_selftest.kazes7g2",
+    "> wd=/home/samsung/Desktop/astro-imaging/sessions/july31"
+   ]
+  },
+  "d500": {
+   "log": "sessions/july31/work/h0_d500.log",
+   "exit": 0,
+   "wall_s": 2.8,
+   "log_lines": 2920,
+   "metadata_loaded_lines": [
+    56
+   ],
+   "use_lines": [
+    109
+   ],
+   "use_line_verbatim": [
+    "log: SPCC will use OSC sensor \"Nikon D500\" and filter \"No filter\""
+   ],
+   "spcc_list_block_lines": [
+    56,
+    106
+   ],
+   "spcc_list_has_Nikon_D750": true,
+   "spcc_list_has_Nikon_D500": true,
+   "spcc_list_D750_line": [
+    77
+   ],
+   "spcc_list_D500_line": [
+    73
+   ],
+   "K": [
+    1.0,
+    0.7,
+    0.955
+   ],
+   "K_lines": [
+    2890,
+    2891,
+    2892,
+    2896,
+    2897,
+    2898
+   ],
+   "fits": {
+    "RG": {
+     "a": 0.348368,
+     "b": 0.572696,
+     "sigma": 0.093184
+    },
+    "BG": {
+     "a": 0.282016,
+     "b": 0.636251,
+     "sigma": 0.108004
+    }
+   },
+   "fit_lines": [
+    2887,
+    2888
+   ],
+   "n_photometry": 5119,
+   "n_outside": 1943,
+   "n_failed": 99,
+   "n_kept": 3077,
+   "b_offsets": [
+    0.000487488,
+    0.000138717,
+    -2.91895e-05
+   ],
+   "imprecise_solution": true,
+   "error_lines": [],
+   "config_prefs_62_70_changed": false,
+   "config_diff_other": [
+    "< wd=/home/samsung/.cache/astro-imaging/starlight_selftest.kazes7g2",
+    "> wd=/home/samsung/Desktop/astro-imaging/sessions/july31"
+   ]
+  }
+ },
+ "reference_shipped_index0_model": {
+  "record": "datasets/july31/set-01/qa_work/spcc_set-01_set-01_full.json (campaign run, same input)",
+  "K": [
+   1.0,
+   0.687,
+   0.927
+  ],
+  "n_photometry": 5119,
+  "n_kept": 3077,
+  "fit_RG": "0.488722 + 0.239501 x, sigma 0.140369",
+  "fit_BG": "0.286155 + 0.461961 x, sigma 0.110041",
+  "B": [
+   0.000487488,
+   0.000162371,
+   1.16624e-05
+  ]
+ },
+ "verdict": {
+  "a_loaded_precedes_use": {
+   "d750": [
+    [
+     52
+    ],
+    [
+     105
+    ]
+   ],
+   "d500": [
+    [
+     56
+    ],
+    [
+     109
+    ]
+   ],
+   "MET": true,
+   "note": "the load line is printed by spcc_list (the deliberate preload); no second load line follows the spcc command"
+  },
+  "b_names_verbatim_in_spcc_list": {
+   "d750_has_D750": true,
+   "d500_has_D500": true,
+   "MET": true
+  },
+  "c_K_differs_gt_0.002": {
+   "K_d750": [
+    1.0,
+    0.697,
+    0.945
+   ],
+   "K_d500": [
+    1.0,
+    0.7,
+    0.955
+   ],
+   "delta": [
+    0.0,
+    -0.003,
+    -0.01
+   ],
+   "MET": true
+  },
+  "d_null_errors_no_K": {
+   "exit": 1,
+   "error_lines": [
+    "log: Either the sensor or a filter was not specified as argument or guessable from previous use. Ensure all necessary data is set.",
+    "log: Error in line 7 ('spcc'): invalid arguments.",
+    "log: Script execution failed.",
+    "progress: Script execution failed., 100.00%"
+   ],
+   "K_lines": [],
+   "spcc_list_block_printed": [
+    52,
+    102
+   ],
+   "MET": true
+  },
+  "H0": "PASS"
+ },
+ "premises_not_tested": [
+  "that spcc_list oscsensor is what makes the names resolve (the doc's mechanism): the arms ran WITH the preload only \u2014 no named arm was run without spcc_list first, so 'named arm without preload errors' is the doc's claim, not this probe's measurement",
+  "that the whole-token quoting is the only working form: the doc's -oscsensor=\"Nikon D750\" form was not exercised",
+  "that no file was written anywhere by spcc without save (only the input's mtime/bytes and git status were checked; Siril's own cache dirs were not inventoried)",
+  "that D750/D500 carry no is_dslr flag (taken from the director's per-channel read of the clone, not re-read here)",
+  "that the 3077 kept stars are the same set as the shipped run's (counts equal: 5119 \u2212 1943 outside \u2212 99 failed; identity not checked)"
+ ]
+}
