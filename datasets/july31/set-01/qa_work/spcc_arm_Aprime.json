@@ -1,0 +1,103 @@
+{
+ "id": "spcc_arm_Aprime",
+ "item": "BACKLOG spcc-sensor-curve section-4 test, arm A-prime (the doc's unrun counterfactual: a bare name WITHOUT the spcc_list preload, no save); GO #2a",
+ "instrument": "Siril 1.4.4 flatpak siril-cli through scripts/lib/siril_run.py (-d sessions/july31); hand .ssf; no product written",
+ "input": {
+  "path": "web/results/july31/stack_set-01_full_wcs.fit",
+  "bytes": 211374720,
+  "mtime": "2026-08-28 13:19:28",
+  "PIPEREV": "77e3a78"
+ },
+ "ssf_verbatim": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc -catalog=localgaia \"-oscsensor=Nikon D750\" \"-oscfilter=No filter\" \"-whiteref=Average Spiral Galaxy\"\nclose\n",
+ "log": "sessions/july31/work/arm_Aprime.log",
+ "exit": 0,
+ "wall_s": 1.7,
+ "log_lines": 2876,
+ "use_lines": [
+  52
+ ],
+ "use_line_verbatim": [
+  "log: SPCC will use OSC sensor \"Nikon D750\" and filter \"No filter\""
+ ],
+ "loaded_lines": [
+  53
+ ],
+ "K": [
+  1.0,
+  0.681,
+  0.911
+ ],
+ "fits": {
+  "RG": {
+   "a": 0.531138,
+   "b": 0.607751,
+   "sigma": 0.24763
+  },
+  "BG": {
+   "a": -0.005469,
+   "b": 0.502601,
+   "sigma": 0.10711
+  }
+ },
+ "n_photometry": 5119,
+ "n_outside": 1943,
+ "n_failed": 99,
+ "n_kept": 3077,
+ "B": [
+  0.000487488,
+  0.000173222,
+  3.61536e-05
+ ],
+ "imprecise_solution": true,
+ "derived_white": {
+  "w_rg": 0.2466,
+  "w_bg": 1.4982,
+  "formula": "w_rg=(K_G-a_rg)/b_rg; w_bg=(K_G/K_B-a_bg)/b_bg"
+ },
+ "prediction": "source-predicted (docs/spcc-sensor-curve-z6iii.md section 1.2): the names resolve BEFORE the database loads, so the run silently uses index 0 of the OSC lists (Canon EOS 1D Mark III x Antila RGB_ultra_ii) while echoing \"Nikon D750\"; K then differs from B-double-prime's 0.697/0.945",
+ "B_double_prime_for_comparison": {
+  "record": "datasets/july31/set-01/qa_work/spcc_set-01_arm_d750.json",
+  "K": [
+   1.0,
+   0.697,
+   0.945
+  ],
+  "RG": {
+   "a": 0.326512,
+   "b": 0.624652,
+   "sigma": 0.094971
+  },
+  "BG": {
+   "a": 0.311216,
+   "b": 0.603959,
+   "sigma": 0.107378
+  },
+  "resolution_check": {
+   "loaded_line": 52,
+   "listed_line": 73,
+   "use_line": 105
+  }
+ },
+ "verdict": {
+  "echoes_Nikon_D750": true,
+  "use_before_loaded": true,
+  "K_differs_from_B_double_prime": true,
+  "K_differs_from_control": true,
+  "dK_vs_B_double_prime": [
+   0.0,
+   -0.016,
+   -0.034
+  ],
+  "dK_vs_control": [
+   0.0,
+   -0.006,
+   -0.016
+  ],
+  "reading": "MEASURED: a bare name without the preload is NOT honoured \u2014 the log echoes \"Nikon D750\" (line 52) before the metadata loads (53), and K 1.000/0.681/0.911 with R/G fit 0.531138+0.607751x sigma 0.247630 (the worst sigma of the three arms) differs from both the index-0 control (0.687/0.927) and the preloaded D750 run (0.697/0.945); WHICH model was in force is the source's prediction (index 0 of the OSC lists), not read from the log \u2014 the echo names the requested string, not the resolved entry",
+  "MET": true
+ },
+ "premises_not_tested": [
+  "the identity of the model in force (Canon EOS 1D Mark III x Antila RGB_ultra_ii) \u2014 predicted from the 1.4.4 source's byte-sorted lists, not printed by Siril; a probe naming that pair explicitly WITH the preload would test it (K should equal this arm's 0.681/0.911)",
+  "that a bare name without preload is deterministic across runs (one run)"
+ ]
+}

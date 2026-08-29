@@ -1,0 +1,99 @@
+{
+ "id": "spcc_arm_A",
+ "item": "BACKLOG spcc-sensor-curve section-4 test, arm A (control = the shipped runner's exact command shape: no spcc_list, no spec, no save); GO #2a, director astro-imaging-45, worker astro-imaging-0c",
+ "instrument": "Siril 1.4.4 flatpak siril-cli through scripts/lib/siril_run.py (-d sessions/july31); hand .ssf; no product written",
+ "input": {
+  "path": "web/results/july31/stack_set-01_full_wcs.fit",
+  "bytes": 211374720,
+  "mtime": "2026-08-28 13:19:28",
+  "PIPEREV": "77e3a78"
+ },
+ "ssf_verbatim": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc -catalog=localgaia\nclose\n",
+ "log": "sessions/july31/work/arm_A.log",
+ "exit": 0,
+ "wall_s": 1.8,
+ "log_lines": 2847,
+ "use_lines": [
+  53
+ ],
+ "use_line_verbatim": [
+  "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)"
+ ],
+ "loaded_lines": [
+  54
+ ],
+ "K": [
+  1.0,
+  0.687,
+  0.927
+ ],
+ "fits": {
+  "RG": {
+   "a": 0.488722,
+   "b": 0.239501,
+   "sigma": 0.140369
+  },
+  "BG": {
+   "a": 0.286155,
+   "b": 0.461961,
+   "sigma": 0.110041
+  }
+ },
+ "n_photometry": 5119,
+ "n_outside": 1943,
+ "n_failed": 99,
+ "n_kept": 3077,
+ "B": [
+  0.000487488,
+  0.000162371,
+  1.16624e-05
+ ],
+ "imprecise_solution": true,
+ "derived_white": {
+  "w_rg": 0.8279,
+  "w_bg": 0.9848,
+  "formula": "w_rg=(K_G-a_rg)/b_rg; w_bg=(K_G/K_B-a_bg)/b_bg"
+ },
+ "prediction": "reproduces the shipped record to the digit (determinism) and shows the index-0 mechanism: the use line BEFORE the loaded line",
+ "verdict": {
+  "K_to_the_digit": true,
+  "fits_to_the_digit": true,
+  "counts": true,
+  "B_to_the_digit": true,
+  "use_before_loaded": true,
+  "line_numbers_vs_shipped": "use 53 / loaded 54 here vs 52 / 53 in the shipped log \u2014 one line of preamble differs, the order is the same",
+  "MET": true
+ },
+ "shipped_reference": {
+  "record": "datasets/july31/set-01/qa_work/spcc_set-01_set-01_full.json (campaign run, same input)",
+  "K": [
+   1.0,
+   0.687,
+   0.927
+  ],
+  "RG": {
+   "a": 0.488722,
+   "b": 0.239501,
+   "sigma": 0.140369
+  },
+  "BG": {
+   "a": 0.286155,
+   "b": 0.461961,
+   "sigma": 0.110041
+  },
+  "n_photometry": 5119,
+  "n_kept": 3077,
+  "B": [
+   0.000487488,
+   0.000162371,
+   1.16624e-05
+  ],
+  "log_use_loaded_lines": [
+   52,
+   53
+  ]
+ },
+ "premises_not_tested": [
+  "that the model in force is the same object every time (index 0 by byte order): inferred from identical K/fits/B, not from a printed model name \u2014 the '(null)' line names nothing"
+ ]
+}
