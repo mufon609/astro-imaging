@@ -93,6 +93,7 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   by the drift-axis station tool `seqtilt` cannot replace. Production:
   `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
+- [`spcc-sensor-curve-z6iii.md`](spcc-sensor-curve-z6iii.md) — SPCC's response model on this rig: headless Siril resolves sensor/filter/white-reference names before loading its database, so every calibration ran against index 0 of each list (MEASURED 44/44 logs; mechanism from 1.4.4 source); no Z6 III curve exists (IMX820AQJ); options, the Weta Nikon Z f proxy, the pre-registered six-arm test (BACKLOG `spcc-sensor-curve`).
   "provisional until x86" flag collapsed into one ordered, bracketed protocol.
   Now half record, half protocol: the executed phases state their outcome and
   the operating doc holding it; the open phases key to BACKLOG slugs
