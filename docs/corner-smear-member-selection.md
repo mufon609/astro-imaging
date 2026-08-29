@@ -181,6 +181,59 @@ compose the curated set — with a positive control (a planted asymmetric member
 that MUST be cropped) and a removal condition (Siril's `stack` offers per-member
 spatial weights or a per-member quality cull of its own). On the owner's word.
 
+### Encoding design — READY, UNBUILT (awaits the owner's go)
+
+Hook point: a MEMBER stage between the per-set sub-stacks and the compose — its
+own script, never inside `run_undistort_compose.sh`, whose contract is "dirs of
+`sub_*.fit` → link, gate (T0/T1), preflight, register, stack" and which never
+modifies a member; both arms reached it through exactly that door (a curated dir
+of symlinks + cropped copies in canonical order), and a stage inside it would
+re-crop on every compose and hide the copies where nothing can measure them.
+`run_corpus_combine.sh` enumerates the `groups_set-NN` dirs and hands them to the
+compose; the stage sits there.
+
+- `scripts/stack/run_member_crop.sh <session-dir>... --out=<curated dir> --bar=0.20
+  [--ref=<member>]`: enumerate the canonical member dirs with the combine's own
+  allow-list (one shared function, not a copy of its loop); profile every member at
+  the ±600..±2400 stations with `star_stations.py`'s geometry (the GO #13 driver as
+  a script, one Siril run per member, lists kept); apply the asymmetry rule with the
+  constant VISIBLE on the command line and stamped; write the interior score S_i
+  beside it as an ADVISORY (reported, never a gate — the GO #16 NULL); write the
+  curated dir (symlinks for untouched members, Siril-cropped 32-bit copies for the
+  rest, canonical order) and a tracked JSON record (the per-member table, the rule,
+  x_c per member, the cut, what was cropped and why); assert per copy what GO #12/#13
+  verified (kept pixels identical to the original's first kept columns, CRPIX/CRVAL/
+  SIP unchanged, provenance keys present, a single matrix form).
+- Positive control: a planted member whose profile crosses the bar at a known
+  station MUST come out cropped at onset − 300; a flat-profile member MUST come out
+  a symlink.
+- `run_corpus_combine.sh` gains one flag (`--portion-rule=<bar>`, or the recipe
+  key) that runs the stage and passes the curated dir to the compose; with it absent
+  the chain is byte-for-byte the current one (the canonical stays reproducible).
+- Provenance, per member: structured keys written by Siril `update_key` at crop time
+  — MEMCROP = x_c (int), MEMCRULE = "asym>0.20px@r400 top30", MEMCPROV = the
+  record's path/sha, MEMCSCOR = S_i; untouched members carry NONE (their absence is
+  the fact that they are originals — the stage never writes to an original).
+  Composite: `header_composite_provenance_lines()` (`stamp_headers.sh`) aggregates
+  MEMCROP as it does CALPROV/DISTPROV — NCROPPED, MEMCRULE (identical across the
+  cropped members or the stamp refuses: one rule per compose), MEMCXCS (the
+  "2100x15/1500x11/900x1" histogram), MEMCPROV. The T0 gate's required tuple is
+  unchanged (a cropped copy carries every required key: 27/27, 14/14 measured).
+- The reference: pinned by PATH as today; the stage refuses to crop the pinned
+  reference unless the rule crops it, and then says so (the anchor's IKSS statistics
+  change with its columns — a cropped anchor is UNTESTED; 36 was uncropped in both
+  arms).
+- The constant lives in the corpus recipe block (a tracked file), not a script
+  default. Removal condition (the register row): "retire when Siril's compose accepts
+  per-member weight maps or a per-member region mask" — a mask is the crop without
+  the coverage cost — the same condition the SWarp scaffolding carries.
+- Cautions carried from the measurements: the profile is CENTRE-ROW only (x_c and S_i
+  alike) — a member soft in its top/bottom rows passes both rules, stated in the
+  docstring; a canonical rebuild under the stage changes the canvas (cropT −16 × −6
+  px) and every rim-fed corner as cropT did, so the baseline guard's corner-spread
+  rows move by the rim change, not by a regression — re-seed after the owner's
+  acceptance, not before.
+
 ## Status
 
 EMPIRICALLY TESTED for the attribution (§2), the portion rule (§3, cropT —
