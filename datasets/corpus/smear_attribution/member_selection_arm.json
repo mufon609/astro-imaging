@@ -13392,6 +13392,82 @@
     }
    },
    "moved_past_a_bar": []
+  },
+  "inspection_notes_step0_GO12": {
+   "rule": "owner's standing rule (GO #12): both the worker and the director eye-inspect every product before the owner sees it \u2014 measurements alone never clear a product. This block is the WORKER's retroactive pass on sel57 (the owner has already seen it); the director's independent pass is recorded beside it.",
+   "surface": "8-bit scratch composites cut at the SAME SKY from the two 16-bit judge PNGs by each product's own WCS (sessions/aug14/work/crop20/inspect/tiles.py -> sessions/aug14/work/crop20/inspect/sel57_vs_full/*.png; 1:1 tiles 1000x700 at the 8 corner boxes, 1900x800 at the band x05-x25, 1400x800 at x25-x35, 2000x460 at six rim stations, 1500x1000 at NGC 7000 and the Sadr region, 1000x700 at x50, the whole frame at 1400 px wide, and the director's BL rim region 1400x1200). NOT a judgment surface.",
+   "per_class": {
+    "seams / coverage steps": "FOUND on sel57, not in the canonical \u2014 the bottom-left rim (canonical y-down x 0-1400, y 3400-4600 = arm origin (-25,3344)) is a STAIRCASE of vertical coverage strips with hard edges: from the arm's left data edge inward a dark, visibly noisier strip ~180 px wide, a step, a second strip ~150 px wide, a second step, then the field; the canonical has one smooth diagonal boundary there. The same strips are visible in the corner_700_4200 tile; at corner_1300_4900 both products carry a vertical coverage boundary ~150 px in from the data edge, darker and noisier on sel57. Elsewhere (top rim, top-left/right steps, bottom-right steps) the stepped union outline is the same on both.",
+    "rim holes": "not found (the arm's bottom-centre coverage ends ~200 px higher than the canonical's at the same sky \u2014 a coverage loss with the aug14 members, not a hole)",
+    "magenta casts / colour shift": "not found \u2014 Siril stat on the linear _spcc (400-px boxes): centre R/G/B medians 42.2/42.4/42.2 on BOTH; the 8 corner boxes 41.9-42.8 on both, sel57 minus canonical within 0.1-0.2 ADU16; R/G and B/G 0.995-1.002 on both products at every box",
+    "gradients": "not found beyond the canonical's (the Milky Way band; identical at fit)",
+    "rings / clamped cores": "not found \u2014 Deneb, Sadr and the bright field stars read alike on both at 1:1",
+    "banding": "not found",
+    "star shape": "the band x05-x25 reads slightly tighter on sel57 at 1:1 (the GO #10 measurement), otherwise alike"
+   },
+   "per_tile": {
+    "rim_BL_region_director": "sel57: staircase \u2014 dark noisy strip, hard vertical edge, second strip, second edge, then field; canonical: one diagonal boundary, smooth level. CONFIRMED",
+    "corner_700_4200": "sel57: the same two vertical strips at the left of the tile (darker, noisier), the field beyond; canonical: smooth field to the diagonal boundary",
+    "corner_1300_4900": "both: a vertical coverage boundary ~150 px in; sel57's outer strip darker and noisier",
+    "corner_1150_850": "alike",
+    "corner_7300_600": "alike (the thin-coverage noisy strip at the far right in both)",
+    "corner_7000_4900": "alike (thin-coverage noise at the outer edge in both)",
+    "corner_700_1400": "alike",
+    "corner_7750_1100": "alike (thin-coverage strip at the right in both)",
+    "corner_7500_4400": "alike",
+    "band_x05-x25": "alike; sel57 marginally tighter stars",
+    "band_x25-x35": "alike",
+    "rim_top_left": "the same stepped outline on both",
+    "rim_top_centre": "the same diagonal boundary, the arm's ~150-220 rows higher",
+    "rim_top_right": "alike",
+    "rim_bottom_left": "the same stepped outline; alike",
+    "rim_bottom_centre": "the arm's coverage ends higher (canvas loss), no defect at its edge",
+    "rim_bottom_right": "the same stepped outline; alike",
+    "object_NGC7000": "alike (nebula, dark lanes, Deneb's core)",
+    "object_Sadr_Cygnus": "alike",
+    "centre_x50": "alike",
+    "whole_frame": "alike at fit; the arm's outline differs at the top-left and bottom-left, and the left strips are faintly visible even at fit"
+   },
+   "worker_profile_G_median_per_100px_column_8bit_PNG": {
+    "region": "canonical y-down x 0..1400, y 3400..4600 and the same sky on the arm (arm origin (-25,3344)); columns on the canonical's x grid",
+    "sel57": [
+     0.0,
+     0.0,
+     42.0,
+     52.0,
+     58.0,
+     66.0,
+     71.0,
+     76.0,
+     73.0,
+     72.0,
+     71.0,
+     70.0,
+     70.0,
+     69.0
+    ],
+    "full": [
+     0.0,
+     0.0,
+     64.0,
+     65.0,
+     65.0,
+     67.0,
+     70.0,
+     72.0,
+     71.0,
+     70.0,
+     70.0,
+     69.0,
+     69.0,
+     68.0
+    ],
+    "reading": "the arm's first covered columns read 42/52/58/66 against the canonical's 64/65/65/67 (-34/-20/-11/-1 %), then 71/76/73/72 against 70/72/71/70 (+1..+6 %): a staircase of level steps at the strip edges, with visibly higher noise in the outer strips"
+   },
+   "director_finding_independent": "per-100-px-column G medians (8-bit PNG, diagnostic) canonical 15.5 / 63.6 / 65.1 / 65.2 / 67.3 / 69.5 / 72.1 vs arm 0.6 / 51.5 / 51.8 / 60.5 / 67.4 / 72.3 / 75.4 \u2014 a -21 % level step at x+200..300 with a hard vertical edge, a second step at x+400, and visibly higher noise in the outer strips; mechanism: with the aug14 members gone that sky is covered by the frame EDGES of a few july31 members, each strip one member's edge with its own level (the sky x V edge residual) and noise; no station sat there, so GO #10 could not see it. Everything else in the director's pass (TL/TR/BR corners, the band x10, the centre, the top edge, whole frame at fit) reads like the canonical.",
+   "agreement": "the worker sees it \u2014 same structure, same mechanism; the column grids differ (the director's binned from the arm origin, the worker's from the canonical's x grid) so the numbers differ in detail, the sign and size of the steps agree (arm -20..-34 % in the first strips, above the canonical further in). Worker's additions: the strips are also in the (700,4200) corner tile; (1300,4900) carries a weaker vertical boundary in BOTH products (the canonical has thin coverage there too, fed by more members); the linear-domain colour is unchanged everywhere measured.",
+   "consequence_for_GO12": "the seam/level test at every crop boundary of the crop20 arm is load-bearing (pre-registered in the crop20 ledger entry): Siril stat in 200-px boxes either side of each cropped member's new right edge on the linear _spcc.fit, a > 5 % level step or a visible edge at 1:1 FAILS the hard-crop form",
+   "regional_stat_note": "scripts/qa/regional_stat.py's canvas-corner boxes (margin 200) fall on EMPTY canvas on both products (BL/BR medians constant, sigma 0) \u2014 the canvas corners are outside the coverage; the coverage-corner boxes above are the colour comparison. Records: sessions/aug14/work/crop20/inspect/regional_stat/{sel57,full}.json, corner_stat/corner_stat.json"
   }
  },
  "status": "HALF (a) DONE (the ranking, director-confirmed k = 20); HALF (b) DONE \u2014 the _sel57 arm composed, finished and MEASURED against the canonical (half_b_arm); the aesthetic verdict is the owner's"
