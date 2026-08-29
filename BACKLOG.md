@@ -238,7 +238,7 @@ no other home. **Everything here is the owner's or is held for them.**
 ### Owner rulings that existed in NO other file
 
 **The per-member trim — RE-RULED (owner 2026-08-22): DIRECTED TEST, superseding
-the WAIT ruling.** The WAIT stood on the cause being unknown; that premise
+the WAIT ruling — EXECUTED (6d9e568, 2654d31, d9e6081; outcome below).** The WAIT stood on the cause being unknown; that premise
 weakened when the surviving union band was ATTRIBUTED member-borne with the
 compose exonerated (`datasets/aug09/smear_work/rho_march.json` — the rim is
 built exclusively from the members' own frame edges), so trimming *"each side by
@@ -255,6 +255,37 @@ bracketed mild. **If the trim WINS, the corner-chase dead-ends material prunes
 (owner-directed)**, keeping only entries load-bearing elsewhere (lensfun
 ρ-normalization/corner support, the per-set-model refutation, the error-model
 rules).
+**OUTCOME — RAN, REFUTED, NO TRIM SHIPS** (ledgers: `datasets/aug06/experiments.jsonl`
+`frame_crop_5pct_per_side_before_registration` + its correction; `datasets/aug14/
+experiments.jsonl` `crop5lr_cross_night_combine_aug06_plus_aug14`,
+`crop5lr_cross_night_RIM_DEGRADATION_root_cause`, `member_solve_scale_band_fix`;
+records `datasets/corpus/crop_work/`). Ran 2026-08-23 (6d9e568) as `--crop-lr=0.05`
+— Siril `seqcrop`, 303 px/side of 6064, after undistort, before `register` — one
+knob against the accepted aug06 union: shared-sky shape NULL (18 sky-addressed
+boxes: median ΔFWHM +0.0025 px, Δroundness −0.002; star stations within 0.03 px /
+0.011) at a measured coverage cost (canvas −8.7%, amplitude-matched stars −1.09%,
+−5.5 to −11.6% in three outer boxes); the discarded sky is only modestly worse than
+the outer band kept (FWHM 2.784 vs 2.748 px, roundness 0.885 vs 0.924) — the crop
+removes bad sky, it does not improve the sky that remains; the aesthetic verdict
+was the owner's. The cross-night arm (aug06+aug14, 38 members, 4138 frames, same
+reference pinned; 2654d31) FAILED all three owner hypotheses — alignment (cross-night
+centre pair separation 0.718 → 0.895 px, +25%), stars (amplitude-matched −3.43%),
+roundness (0.932 → 0.929, NULL) — and the owner saw a smeared left rim the
+shared-interior grid could not: ROOT CAUSE, the crop damages no member (same member,
+same sky, cropped vs not: FWHM within 0.005 px) but changes WHO reaches the rim — rim
+sky is covered only through members' frame-edge bands, so the 5%/side crop drops the
+diverse good contributors (7 members from 4 sets → 2–3 from one set; composite FWHM
+3.257 → 3.487; median ΔFWHM +0.133 px where ≥2 sets are lost vs +0.012 elsewhere). The
+smear also unmasked a real chain defect in BOTH chains — unguarded wrong-scale member
+solves (16.79–16.99″/px against a 17.00–17.08 population; cross-chain bow 31.5 → 1.4 px
+once fixed) — closed by `solve_field.py --scale-band` + `member_solve_audit.py`
+(d9e6081), which healed the arm's centre regression (0.895 → 0.78 px) and part of the
+rim; the structural cost stayed. The +8.3% "pedestal" between the arms was a PROPERTY
+of `-output_norm`'s single-pixel min/max zero point (0f924f5) and became the
+`output-norm-zero-point` campaign (closed, owner-accepted). The knob is REFUTED (H1/H2/H3
++ rim) and registered — `docs/dead-ends/stacking-compose.md`, the retired `--crop-lr`
+rule; the arms were deleted in the rig cleanup (06e5622), the records stand; the
+corner-chase prune conditional on a WIN did not fire.
 **The owner's own mechanism for the corners**, field knowledge that matches what was
 measured: the far-corner stars are ALWAYS at the edge of a member's frame, so the
 union corner is built exclusively from worst-case samples — *"the stars being stacked
@@ -444,9 +475,10 @@ Ordered work — nothing here is executed on an accepted product:
    is registered; a candidate is judged at the COMBINE, never per-set.
 4. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
    cause. Last resort, and it must be called what it is. The MEMBER-side variant
-   (per-member edge trim) became an owner-DIRECTED TEST 2026-08-22 after the
-   member-borne attribution — see `corner-fix-landscape` and the `pending-owner`
-   trim ruling; still called what it is.
+   (per-member edge trim) was an owner-DIRECTED TEST (2026-08-22) that RAN (6d9e568)
+   and is REFUTED: NULL on shared sky, canvas −8.7%, and at a framing=max union's rim
+   it starves contributor diversity (`docs/dead-ends/stacking-compose.md`, the retired
+   `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No trim ships.
 5. **Which single model** — the pinned july14 fit is the default on history and
    provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
    COMBINE, one knob, never on a per-set product (a compose artifact
@@ -635,20 +667,25 @@ What remains is the LADDER around it and the harness it feeds.
   same-sky linear corner probe AND the user's eyes on a like-encoded
   framing=max union pair — user-ratified requirement: the max union is the
   deliverable (manual crop later), no yield excuses.
-  **THE COLLISION MOVED FROM HELD TO SCHEDULED (owner 2026-08-22): the
-  per-member trim is now a DIRECTED TEST** (the `pending-owner` trim ruling
-  carries the design; adoption rides the test's verdict at the combine). The
+  **THE COLLISION IS SETTLED BY MEASUREMENT: the per-member trim was an
+  owner-DIRECTED TEST (2026-08-22) that RAN (6d9e568) and is REFUTED — no trim
+  enters the combine** (the `pending-owner` ruling carries the outcome;
+  `docs/dead-ends/stacking-compose.md`, the retired `--crop-lr` rule). The
   max-union statement governs the FINAL FRAMING unchanged; *"more worried about
   stacking bad sections than about not stacking enough"* governs what goes INTO
-  the combine, and the trim trades area BEFORE the compose. Measured
+  the combine, and the trim, tested, traded area BEFORE the compose for no shape
+  gain (canvas −8.7%, amplitude-matched stars −1.1% within one night; the rim
+  starved across nights). Measured
   cost of the collision, so the choice is made against numbers: a +x member trim
   keeping 80% of each member leaves 4 of 20 measured union boxes with no
   contributing member at all; a radial cut to rho 0.80 costs 3.3% of the
   delivered crop's area and 9.4% of the member-contributions inside it
   (`datasets/aug06/corner_work/`). **Those 20%-class cuts stay not-recommended**
   (predicted gain corner roundness 0.911 -> 0.938 against memberless boxes); the
-  DIRECTED TEST is the mild ~5%/side bracket, and the band's carrier is now
-  located member-edge, exit-edge family (`rho_march.json`). The composite-level arm
+  mild ~5%/side bracket was the DIRECTED TEST that RAN (6d9e568) and failed — it
+  removes the worst sky without improving what remains and concentrates the rim
+  onto whichever set still reaches it; the band's carrier is located
+  member-edge, exit-edge family (`rho_march.json`). The composite-level arm
   is DEMOTED for this defect (a composite plane structurally cannot fit a
   corner-local term — measured, july23 subsky-on-combine probe); on-stack
   background remains the render-stage question for the sky's own gradient.
@@ -1084,10 +1121,11 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
 - **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
   down-weighting — owner-REFUSED, with Zackay & Ofek 2017 making homogenisation a
   measured information loss (`docs/dead-ends.md`). **Cropping LEFT this category
-  (owner 2026-08-22): the per-member edge trim is a DIRECTED TEST** after the
-  member-borne attribution (`rho_march.json`) — a TRADE judged at the combine,
-  sequenced after the dead-ends cleanup; the `pending-owner` trim ruling carries
-  the design.
+  (owner 2026-08-22) as a DIRECTED TEST; the test RAN (6d9e568) and REFUTED it** —
+  NULL on shared sky, −8.7% canvas, a starved rim at the cross-night union (root
+  cause: contributor diversity, not member damage) — so it is not a candidate either:
+  a measured dead end, registered (`docs/dead-ends/stacking-compose.md`, the retired
+  `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No trim ships.
 
 **Closes when** an anisotropic treatment is procured and measured, or the owner
 accepts the corner as-is. **The in-chain question is settled: no route on this rig
