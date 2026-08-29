@@ -1,6 +1,6 @@
 # How the field actually stacks UNTRACKED camera-lens wide-field — a cited reading
 
-Answer to `RESEARCH_UNTRACKED_STACKING_PROMPT.md`. Research only: no processing, no
+Answer to the research prompt (retired; `git show 4a96a90:RESEARCH_UNTRACKED_STACKING_PROMPT.md`). Research only: no processing, no
 experiments, no pixel work was done for this document.
 
 ## Method, and one disclosure

@@ -16,6 +16,11 @@ line numbers are not. Every entry carries its evidence class
 (MEASURED / MECHANISM / DOCTRINE), its n, instrument, scope and subject, per
 the contract.
 
+**Resolving an older citation.** Records written before the split cite
+"`docs/dead-ends.md`, <entry name>" — this index holds no entries. Find the
+entry with `grep -rn -i '<a phrase from the name>' docs/dead-ends/`; the table
+below narrows it to one stage file first.
+
 | file | scope |
 |---|---|
 | [`00-registry-contract.md`](dead-ends/00-registry-contract.md) | how entries are read, cited, written, deleted — evidence classes, the SUBJECT axis, the owner-ratified write/delete rules |

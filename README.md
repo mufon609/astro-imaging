@@ -1,50 +1,62 @@
 # Astrophotography processing pipeline
 
-> **STATUS.** The durable core — calibrate → [undistort] → register → stack →
-> solve → SPCC → compose — runs today, and the **first render tier is BUILT**
-> (`scripts/stack/render_tier.sh`: separate → denoise the starless → stretch →
-> screen-recombine, user-gated by a ratified recipe block, every pixel op and
-> every measurement a tool's). The LADDER around it — one knob per arm into
-> `exp_<param>_<stamp>/`, the no-regression harness, and the `GENERIC.json` knob
-> schema — is still UNBUILT (BACKLOG:`render-ladder`).
->
-> Siril 1.4.4's native render surface (`subsky`, GHS via `ght`/`autoghs`,
-> `mtf`/`asinh`, `denoise`, `satu`, `synthstar`/`unclipstars`, `rl`/`sb`/
-> `wiener`, `epf`, `pm`, `rgbcomp`, `ccm`, plus `wavelet`/`wrecons` and
-> `starnet`) is present and scriptable, as are StarNet2, Cosmic Clarity, DeepSNR
-> and GraXpert under `/opt`. RC-Astro BXT/NXT/SXT and PixInsight are UNINSTALLED
-> by choice (both are paid and both run on this hardware) — a deliberate gap, not
-> a platform block, so a **learned deconvolver is an open, unmeasured option**
-> (Cosmic Clarity ships non-stellar sharpen models beside the denoiser the render
-> tier already drives; BACKLOG:`learned-deconvolution`). Per-tool evidence:
-> [`TOOLS.md`](TOOLS.md).
->
-> **Numbers inherited from a previous rig are HYPOTHESES until re-measured
-> here** — the order is
-> [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
+**Three data classes; one is validated.** The **wide-field UNTRACKED class**
+(camera raws, fixed tripod, drifting sky) is VALIDATED end to end — its chain,
+stage by stage with the measured reason for each step, is
+[`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md),
+and its one-click driver is `scripts/stack/run_set_chain.sh <session> <set> --plan`.
+The **lunar lucky-imaging class** is [`docs/lunar-lucky-imaging.md`](docs/lunar-lucky-imaging.md)
++ `scripts/stack/run_lunar_pipeline.sh`. The **tracked-mount standard route**
+(calibrate → register → stack, `scripts/stack/run_pipeline.sh`) runs and still
+carries BACKLOG:`standard-route-output-norm`.
+
+**Start here — by what you want to do.**
+
+| you want to… | go to |
+|---|---|
+| **run a dataset** to a finished stack | [`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md) §1 (staging, with a worked first run) → "Running it" below: `run_set_chain.sh … --plan`, then `--yes` |
+| **set up the rig** — tools, catalogs, styles, hooks | [`CONTRIBUTING.md`](CONTRIBUTING.md) "Set up the rig": the installers in order, each with its verify command |
+| **change the chain** or add a script | [`CONTRIBUTING.md`](CONTRIBUTING.md) (how to work here) → [`CLAUDE.md`](CLAUDE.md) (the binding rules — the owner's file) |
+| **see what is open**, and who decides it | [`BACKLOG.md`](BACKLOG.md) — items by slug; `pending-owner` holds the owner's decisions; `removal-conditions` is the register every divergence lives in |
+| **know why X was NOT done** before proposing it | [`docs/dead-ends.md`](docs/dead-ends.md) — the dead-end registry index (`docs/dead-ends/`, one file per stage) + the acquisition checklist |
+| **pick a tool** for a stage | [`TOOLS.md`](TOOLS.md) — the toolkit, tier by tier, with cost / Linux / CPU / headless |
+| **read the research** behind a decision | [`docs/README.md`](docs/README.md) — the deep-dive index, and which document to read when |
+
+**Status, in three facts.**
+
+- The durable core — calibrate → [undistort] → register → stack → solve → SPCC
+  → compose — runs today, validated by a blackbox rebuild of the july31 corpus.
+- The render tier's FIRST rung runs (`scripts/stack/render_tier.sh`: separate →
+  denoise the starless → stretch → screen-recombine, user-gated by a ratified
+  recipe block, every pixel op and every measurement a tool's); the LADDER
+  around it — one knob per arm into `exp_<param>_<stamp>/`, the no-regression
+  sweep, the `GENERIC.json` knob schema — is UNBUILT (BACKLOG:`render-ladder`).
+  Every "render" statement in this file means exactly this.
+- Numbers inherited from a previous rig are HYPOTHESES until re-measured here —
+  the order is [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
+  Siril 1.4.4's native render surface, StarNet2, Cosmic Clarity, DeepSNR and
+  GraXpert are installed and driven; RC-Astro and PixInsight are uninstalled by
+  choice — a deliberate gap, not a platform block, so a learned deconvolver is
+  an open, unmeasured option (BACKLOG:`learned-deconvolution`; per-tool
+  evidence: [`TOOLS.md`](TOOLS.md)).
 
 This repo is a **checklist + knowledge workspace** for astrophotography
-processing — official tools do ALL pixel work (processing AND analysis); the
-repo's own code never processes or analyzes the deliverable's pixels (full
-identity + the ALLOWED/FORBIDDEN line + the anti-drift test: `CLAUDE.md` "What
-this repo IS"). It tracks the **process** (Siril/Python orchestration + notes),
-never image data (`.gitignore`). This file is the **process contract**: what each
-step is for, what the industry tool does there, where we diverge and why, and how
-every step is reviewed (tools measure, the checklist records, the user judges).
-[`docs/dead-ends.md`](docs/dead-ends.md) holds the **dead-end registry** (every
-measured lesson with its numbers) + the acquisition checklist; the x86 build
-order is [`docs/x86-empirical-test-plan.md`](docs/x86-empirical-test-plan.md).
-
-**New contributor start here:** (1) [`docs/dead-ends.md`](docs/dead-ends.md) —
-the dead-end registry (read it before proposing ANY experiment — if it does not
-work, the mechanism why is there); (2) this file top to bottom — the process
-contract; (3) the kept scripts' docstrings for each stage's technical why.
-Full chronological history lives in git (`git log`; the complete pre-reset
-chain + the old NOTES.md are at the commit whose message begins
-`checkpoint:` — `git log --oneline --grep='^checkpoint:'`; it is a message
-prefix, not a tag). Each dataset's
-approved recipe lives in `datasets/<session>/<set>/recipe.json` (see
-"Per-dataset state" below).
+processing — official tools do ALL pixel work (processing AND analysis). **The
+top rule, in two sentences:** in-house code never reads, transforms or gates the
+deliverable's pixels, and never reimplements a measurement an official tool
+already provides. Deciding FROM the tools' own numbers — thresholding, routing,
+culling on what an instrument measured — is the pipeline's job; what the data
+cannot settle (aesthetics, priorities, trade-offs) is the user's. The canonical
+long form — the ALLOWED/FORBIDDEN test, where the gate actually is, the
+anti-drift test — is `CLAUDE.md` "What this repo IS". The repo tracks the
+**process** (Siril/Python orchestration + records), never image data
+(`.gitignore`). This file is the **process contract**: what each step is for,
+what the industry tool does there, where we diverge and why, and how every step
+is reviewed (tools measure, the checklist records, the user judges). Each
+stage's technical why lives in the kept script's own docstring. Full history
+lives in git (`git log`; the complete pre-reset chain + the old NOTES.md are at
+the commit whose message begins `checkpoint:` —
+`git log --oneline --grep='^checkpoint:'`; a message prefix, not a tag).
 
 ## The operating loop (per dataset)
 
@@ -81,13 +93,13 @@ follows, in order — linear until step 6:
 | # | standard step | our implementation | status |
 |---|---|---|---|
 | 1 | calibrate (bias/dark/flat) → register → integrate; per-frame quality assessment (SubframeSelector/weighting) | `run_pipeline.sh`: masters + per-set calibrate → 2-pass/sweep register → 32-bit rej stack; per-frame quality MEASURED at registration on every path (`inspect_stage.py` reg: .seq regdata distribution + outliers, WARN-only, records persisted before cleanup); weighting/culling POLICY = the optional per-dataset `"stack"` recipe block (`-weight=wfwhm\|nbstars`, exclude via `unselect`+`-filter-incl`), resolved by run_pipeline at stack time with provenance printed — ABSENT block is the generic default (unweighted, rejection by sub count via `stack_rejection.sh`: percentile ≤6 / winsorized ≤50 / GESD >50; deterministic generated scripts) | COMPLIANT (matched darks/biases; flats when optics match; frame QA measured + policy surface per-dataset only: siril's `-weight` is a min-max ramp = SOFT-CULLING (it drives the worst frame toward zero weight at any spread, adding sky noise for no crispness gain at low spread) — weighting stays off generically, adopted only through a measured ladder on a recorded trigger) |
-| 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends.md` paraxial-band entry). The chain is scripted as `run_undistort_pipeline.sh`. It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG:`route-recommendation` |
-| 1b | — | **flatless sets** — a set without a matching flat loudly STOPS; the validated flatless route is the PER-SET sky flat (`build_sky_flat.sh`: the set's own un-registered, dark-subtracted lights, winsorized, validation gates built in). **A flat calibrates ONLY the exact frames it was built from** — cross-set reuse and any shared/union flat on a multi-set combine are banned (user-ratified; the measured imprint mechanism is in `docs/dead-ends.md`: the flat's low-order term carries its source set's sky gradient) | real flat (primary, shot at the session's optical state) → per-set sky flat (validated route) → GraXpert `-correction Division` (vignetting-only fallback, x86); never an in-house fit |
+| 1a | (no standard step — a telescope's distortion is not modelled this way) | **undistort, between calibration and registration** — a wide UNTRACKED field drifting far cannot be registered by one homography: the real map is `distort ∘ H ∘ distort⁻¹`, so unmodelled radial lens distortion smears the edges. An OFFICIAL measured lens profile (darktable-cli + lensfun) applied to the calibrated, debayered frames removes it. Order is forced: darks/flats are sensor-grid properties, so calibration finishes in SENSOR space first, and a CFA mosaic cannot be interpolated | ADAPTATION, measured + shipped — off-axis aberration 0.57 → **0.25 px** and the centre station at the perpendicular-station level (**3.67 px** majFWHM) with the model FITTED from the set's own frames; a community profile's paraxial error writes an along-drift centre band `seqtilt` cannot see (`star_stations.py` is the band measure — `docs/dead-ends/registration-distortion.md`, "A community lens profile can fix the edges yet WRITE A NEW DEFECT into the centre"). The chain is scripted as `run_undistort_pipeline.sh`. It is a DIVERGENCE for a camera-lens data class the standard workflow does not address, not a bandaid: it fixes the cause (an unmodelled lens), and it is skipped for any set whose fingerprint does not call for it. Removal condition: a distortion model that Siril's own `register -disto=` can consume reproducibly. Route + traps: [`docs/wide-field-untracked-registration.md`](docs/wide-field-untracked-registration.md); routing it automatically is BACKLOG:`route-recommendation` |
+| 1b | — | **flatless sets** — a set without a matching flat loudly STOPS; the validated flatless route is the PER-SET sky flat (`build_sky_flat.sh`: the set's own un-registered, dark-subtracted lights, winsorized, validation gates built in). **A flat calibrates ONLY the exact frames it was built from** — cross-set reuse and any shared/union flat on a multi-set combine are banned (user-ratified; the measured imprint mechanism is `docs/dead-ends/calibration-flats.md`, "A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE ALT-AZ FRAME": the flat's low-order term carries its source set's sky gradient) | real flat (primary, shot at the session's optical state) → per-set sky flat (validated route) → GraXpert `-correction Division` (vignetting-only fallback, x86); never an in-house fit |
 | 1c | multi-channel targets: dual-band OSC line extraction (the standard Ha/OIII workflow) and mono filter-wheel channels, composed to one linear stack | `composition.json` routes it: `dualband-osc` — CFA calibrate → `seqextract_HaOIII -resample=oiii` (honest half size, no invented detail) → same-reference per-line stacks; `mono-filters` — sibling per-filter sets aligned to the composition's reference member (one interpolation pass). Both: the composition record drives the Siril align (mono-filters members to the reference) and Siril `rgbcomp` composes + writes the cube (`compose.py` orchestrates; guards are FITS-header-only) → SPCC (narrowband mode per recipe where lines demand it) | COMPLIANT (2× drizzle full-size dual-band variant + LRGB post-stretch L-join still BACKLOG) |
-| 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG:`render-ladder` L1 — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT, now MEASURED rather than assumed (`docs/dead-ends.md`, Background): a full extraction model cannot distinguish frame-filling faint structure from a sky gradient and absorbs what it can reach — but "only a first-degree plane preserves it" was mechanism, and the bound is smaller than that implied. Over this field a **plane can represent 10.0% of the Gaia unresolved-starlight predictor's spatial variance, a quadratic 36.2%, a cubic 43.5%** (`starlight_preservation.py`, aug06/set-01, 140-cell external lattice) — so degree 2 is a real but bounded cost, not erasure, and the number is recomputed per field. The diffuse field IS stars (`docs/dead-ends.md` terminology entry: at 17"/px it is the integrated light of stars below the detection limit); BGE on the starless layer ERASES it (never reorder) |
+| 2 | linear gradient removal, star-ful (DBE/GraXpert); Siril doctrine adds: per-frame degree-1 on the subs when the gradient rotates with the session | **not in the shipped chain yet** — the wiped arm chain's `bgelin_mode` (gx = GraXpert BGE; plane = `subsky 1`) re-lands with the render-tier build. The LEVEL (per-frame `seqsubsky 1` vs on-stack `subsky 1 -dither`) is BACKLOG:`render-ladder` L1 — Siril's own background docs recommend per-frame degree-1 for session-rotated gradients | GAP (user-gated build; item-7 A/B first). CLASS LIMIT, now MEASURED rather than assumed (`docs/dead-ends/background-extraction.md`, "DEGREE 2 DOES NOT ERASE THIS FIELD'S STARLIGHT"): a full extraction model cannot distinguish frame-filling faint structure from a sky gradient and absorbs what it can reach — but "only a first-degree plane preserves it" was mechanism, and the bound is smaller than that implied. Over this field a **plane can represent 10.0% of the Gaia unresolved-starlight predictor's spatial variance, a quadratic 36.2%, a cubic 43.5%** (`starlight_preservation.py`, aug06/set-01, 140-cell external lattice) — so degree 2 is a real but bounded cost, not erasure, and the number is recomputed per field. The diffuse field IS stars (`docs/dead-ends/terminology-dust.md`, sense 2 UNRESOLVED STARLIGHT: at 17"/px it is the integrated light of stars below the detection limit); BGE on the starless layer ERASES it (never reorder) |
 | 3 | photometric color calibration (SPCC/PCC via plate solve) | `solve_field.py` (blind astrometry.net solve, WCS inject) + `spcc_run.py` (siril `spcc` with local Gaia catalogs, K factors captured to the tracked `datasets/<session>/<set>/qa_work/spcc_<set>.json`, siril log in session `work/`) → `stack_<set>_spcc.fit` | COMPLIANT, with ONE stated sensor deviation: the database carries no Z6 III entry, so every canonical set's `recipe.json` `spcc` block pins the **Nikon Z f proxy** (register row; ΔK vs the accidental model +1.4% G / +2.2% B over 17 finals) — a named sensor is REQUIRED, because headless Siril 1.4.4 resolves names BEFORE loading its database and a spec-less run silently used index 0 of every list, "Generic mono sensor" × Antlia R/G/B (MEASURED, `docs/spcc-sensor-curve-z6iii.md` §1.2); `spcc_run.py` preloads `spcc_list`, asserts the resolution on Siril's own log and records `sensor_match` per run; the readiness report reads RED without a pin. SPCC calibrates the raw stack directly; spcc rerun measured pixel-deterministic. Both vendors' doctrine orders BGE before SPCC; the repo's mechanism claim (per-star local-annulus photometry cancels a smooth background, so the K fit is order-robust) is CHECKED, not assumed, when the render build inserts the background step before SPCC — the recorded K delta is the check. SPCC is BROADBAND-only: a mono/single-filter set skips it (no colour to calibrate) |
 | 4 | deconvolution (optional, data permitting) | skipped | COMPLIANT-SKIP — measured dead end on this data (in-exposure trailing, PSF unstable on ≈0 background) |
-| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective instrument (the noise-split structured term) are pre-registered as BACKLOG:`render-ladder`'s L2 | GAP until laddered + judged. The general CHROMA-noise fill is INSTALLED and unmeasured: Cosmic Clarity's `--color_denoise_strength` runs here (NXT-AI3 is the paid alternative, uninstalled by choice — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends.md`) |
+| 5 | linear noise reduction (Siril doctrine: NL denoisers work best on unstretched data) | RUNNABLE NOW on this rig, user-gated: Siril native `denoise` (NL-Bayes) and the installed GraXpert `-cmd denoising` are both verified on-rig (probe: 1024² tile — GraXpert 71 s ≈ 13–14 min full-frame extrapolated; Siril seconds-class). The ladder + its objective instrument (the noise-split structured term) are pre-registered as BACKLOG:`render-ladder`'s L2 | GAP until laddered + judged. The general CHROMA-noise fill is INSTALLED and unmeasured: Cosmic Clarity's `--color_denoise_strength` runs here (NXT-AI3 is the paid alternative, uninstalled by choice — `TOOLS.md`); Siril has no native general-chroma tool (`docs/dead-ends/stretch-colour-judgment.md`, "Siril has NO native GENERAL chrominance-noise tool") |
 | 6–8 | star separation → stretch (starless hard / stars gently; narrowband per-line + palette colour) → recombine + export | **Separation is BUILT and shipping**: StarNet2 is installed and driven by `render_tier.sh` via siril's `starnet`. `synthstar` outputs a star MASK that needs a starless layer to recombine (on-rig probe + official docs), so it is not a substitute. **The rest is present** (on-rig probe): stretch (`ght`/`autoghs`/`mtf`/`asinh`, linked after SPCC), star desaturation (`unclipstars`, linear-only), thresholded `satu`, `pm`, `rgbcomp`, 16-bit `savepng`. The no-separation build is pre-registered as BACKLOG:`render-ladder`'s L1; the ladder rides BACKLOG:`render-ladder` | GAP (user-gated LADDER; the tier itself is built) |
 
 Principles that keep this honest:
@@ -183,7 +195,7 @@ it, each answering a question it can actually answer:
    Siril `isub`: StarNet2 (also across thread counts), Cosmic Clarity denoise, and
    Siril's stretch + `asinh` + `pm` recombine are all **bit-identical**, so the
    render tier reproduces byte for byte and byte-identity IS the available bar here
-   (`docs/dead-ends.md`). The general caution still stands for tools not yet
+   (`docs/dead-ends/measurement-discipline.md`, "Do NOT assume neural / ONNX / multi-threaded means non-reproducible"). The general caution still stands for tools not yet
    measured (RC-Astro BXT/NXT/SXT are uninstalled) — and the no-unseeded-step rule
    already cost `subsky` its `-dither`, which is what made `seqsubsky`'s opt-OUT
    dither a defect when it shipped. Verify **cheaply** (a fast canary + the
@@ -246,7 +258,7 @@ only **~55–70% of the 32-bit arm's extended faint contrast** (NAN-region contr
 and a 16-bit calibration MASTER additionally stores a sensor-fixed ±0.5 ADU
 quantization pattern (0.2889 ADU RMS against a 0.4213 ADU floor, **+21%**) that
 is subtracted identically into every light. Mechanisms + numbers:
-[`docs/dead-ends.md`](docs/dead-ends.md) "Calibration masters".
+[`docs/dead-ends/calibration-flats.md`](docs/dead-ends/calibration-flats.md), "NEVER store a calibration master at 16-bit integer" (the master's quantization pattern), and [`docs/dead-ends/background-extraction.md`](docs/dead-ends/background-extraction.md), the 16-bit-intermediates contrast measurement.
 Lossy/display files exist ONLY as OUTPUT surfaces: a lossy preview jpg
 (never a judgment surface), the q100/4:4:4 final jpg, and judgment panels.
 GUARDS on the surviving core: `compose.py` asserts float32 inputs;
@@ -271,15 +283,16 @@ removal condition.
 ## The experiment discipline
 
 - One knob per experiment, values bracketing the control; hypothesis
-  pre-registered *before* the run (`docs/dead-ends.md`). Each value is rendered
+  pre-registered *before* the run (`CLAUDE.md` "Binding rules"; a killed
+  hypothesis lands in the dead-end registry, `docs/dead-ends/`). Each value is rendered
   as a full-frame lossless final + stage sequence into
   `web/results/<session>/exp_<param>_<stamp>/`, appended to the tracked per-dataset
   `experiments.jsonl`, and STOPs for user judgment. (The ladder that automates
   this rides the render-tier build — user-gated; the discipline is binding now.)
 - The verdict round-trips: once judged, the ledger entry is closed
   win|null|deadend with its reason. A measurement that kills a hypothesis
-  becomes a dead end **written into `docs/dead-ends.md` with its numbers**
-  before anything else is tried (the ledger indexes it; `docs/dead-ends.md`
+  becomes a dead end **written into the dead-end registry (`docs/dead-ends/`, the stage file it belongs to) with its numbers**
+  before anything else is tried (the ledger indexes it; the registry entry
   states the mechanism).
 - Comparisons are honest: `judgment_package.py --control=<label>` embeds the
   measured candidate-vs-control deltas + an objective **WIN | NULL | needs-eyes**
@@ -328,108 +341,78 @@ unresolved starlight), starless denoise strength (the proven chroma killer), bla
 point (crushes faint extended signal), starless target, star peak, and
 linked-vs-unlinked stretch — are the *class risks the rebuilt chain must
 re-surface as knobs*, and their mechanisms are all in
-[`docs/dead-ends.md`](docs/dead-ends.md). The DISCIPLINE below is binding
+the dead-end registry (`docs/dead-ends/stretch-colour-judgment.md` and
+`docs/dead-ends/background-extraction.md`; the index is
+[`docs/dead-ends.md`](docs/dead-ends.md)). The DISCIPLINE below is binding
 now; the file and the harness get re-seeded by the rebuild.
 (Narrowband-palette colour is not laddered — the star-neutral colour
-balance is a GAP, `docs/dead-ends.md`.)
+balance is a GAP — `docs/dead-ends/stretch-colour-judgment.md`, the
+SPCC-narrowband entry; BACKLOG:`star-neutral-colour`.)
 
 ## Per-dataset state (`datasets/<session>/<set>/`, tracked)
 
-Session data dirs are gitignored (several hold third-party raws that must
-never be committed), so everything the repo versions about a dataset lives
-in `datasets/<session>/<set>/` — see `datasets/README.md` for the contract:
-
-- `geometry.json` — the only per-set **composition fact**: the terrestrial
-  **foreground** (`rect` fractions or a derived pixel-`mask` npz, session-
-  relative) plus optional `starsep` overrides. Resolved
-  by `astrometrics.configure()` in the entry points that need it (inspect_stage,
-  solve_field, compose). No file: foreground **none** (whole
-  frame is eligible sky).
-  A new set NEVER inherits another set's foreground silently. A configured
-  foreground must TOUCH A FRAME BORDER (terrestrial obstructions are
-  border-anchored by construction; the foreground is excluded from the
-  measured sky scope, so a floating interior one would carve graded sky out
-  of that scope) — refused loudly at configure time.
-- `recipe.json` — the processing knobs: the `render` dict (the render chain
-  resolves CLI > recipe > `datasets/GENERIC.json` and prints the provenance; a
-  dataset with no recipe renders data-class-blind generic and says so — the
-  render dict's schema is PENDING the render-tier build) plus the optional `spcc` spec
-  (sensor/filter names or narrowband wavelengths, same resolution order in
-  `spcc_run.py`). An **approved** recipe pins every knob so a later
-  generic-default change cannot silently restyle it.
-- `GENERIC.json` (one per repo, beside this contract's per-set dirs) —
-  the tracked base layer every render inherits: the generic value AND a
-  per-knob "why" note naming what it encodes (most were measured on one
-  underexposed DSLR wide-field) and its known class limits. Tweakable at
-  any time — but a change restyles every non-approved dataset, so it
-  lands as a declared delta. The knob SCHEMA stays in code; the render chain
-  hard-fails on any file/schema drift (pending the render-tier build).
-- `baseline.json` — the measured no-regression record (pinned stack sha,
-  expected tool measures, artifact hashes), written only by the no-regression
-  harness (rides the render-tier build).
-- `composition.json` — only for multi-line/multi-filter targets: how the
-  composed linear stack is BUILT (kind, extraction, lines, palette
-  channel mapping). Absent = ordinary single-stack set.
-- `experiments.jsonl` — the tuning-experiment ledger (append-only): one
-  record per ladder (param, values, control, hypothesis, pinned stack,
-  verdict), closed by `--verdict`. The durable tracked index of what was
-  tried; heavy per-value finals stay in gitignored `web/results/<session>/exp_*/`.
-
-The background is NOT a per-set composition fact: sky scope is selected
-STATISTICALLY (dark blocks, foreground excluded — see the review contract),
-so no galactic band or object region is ever configured per set (a bright
-object has no fixed geometry a mask could scope — see `docs/dead-ends.md`).
-
-A rectangular foreground (`rect`) covers most terrestrial obstructions; a
-non-rectangular pixel `mask` npz is still honoured by `geometry.json`, but the
-mask-DERIVATION step is a documented gap — an official tool or a hand-drawn
-mask, never an in-house fit (in-house derivation would read the stack pixels).
+Session data dirs are gitignored, so everything the repo versions about a
+dataset lives in `datasets/<session>/<set>/`. **The contract is
+[`datasets/README.md`](datasets/README.md)** — the file-by-file model
+(`acquisition.json`, `geometry.json`, `recipe.json`, `composition.json`,
+`experiments.jsonl`, `baseline.json` — SHIPPED, written only by
+`scripts/qa/baseline_guard.py --seed` and compared last in `run_set_chain.sh`,
+exit 8 on a regression — plus the `*_work/` tool records), its rules, and the
+`set-00` spare-frames convention. Not restated here: a second copy drifted.
 
 ## Running it
 
 ```bash
-# stack builder (session dir, set name; ~15 min) — the standard class
-#   calibrate -> register -> stack
-scripts/stack/run_pipeline.sh sessions/<session> <set>
+# ONE-CLICK chain for one light set — preflight → frame QA → obstruction audit
+#   → cull → route-by-fingerprint stack → solve → SPCC → diagnostic judge
+#   surface. The route is DERIVED: a fixed tripod above the measured excursion
+#   floor takes the undistort GROUPS route, a tracked set the standard route.
+#   --plan prints the derived plan (route + reason, gates, disk math, the exact
+#   commands) and runs NOTHING; --yes is the ONE approval, given after the
+#   readiness report. The script's docstring is the authority on every exit.
+scripts/stack/run_set_chain.sh sessions/<session> <set> --plan
+scripts/stack/run_set_chain.sh sessions/<session> <set> --yes
+scripts/stack/run_session_chain.sh sessions/<session> [--plan] [--yes]      # every set of a night
+# It STOPS only where a decision is the user's, one line each: exit 2 mount
+#   declared-vs-measured CONTRADICT · 4 mount underivable (the instruments
+#   disagree, or nothing measured) · 5 unroutable fingerprint · 6 real flats
+#   staged on the undistort route · 7 readiness RED (nothing built) · 8 the
+#   finished product regressed against its accepted baseline · 9 FITS lights on
+#   the undistort route. Built products skip, so a re-run after the decision
+#   resumes where it stopped.
 
-# flatless set: build + validate the PER-SET sky flat FIRST (the ratified rule:
-#   a flat calibrates only the exact frames it was built from — dead-ends entry)
+# Stages alone — what the chain calls, for laddering one stage by itself:
+scripts/qa/run_frame_qa.sh sessions/<session> <set>                          # frame QA → datasets/<session>/<set>/qa_work/frame_metrics.json
 scripts/stack/build_sky_flat.sh sessions/<session> <set> --dark=<master> --out=sessions/<session>/work/masters/skyflat_<set>.fit
-
-# wide-field UNTRACKED class: calibrate -> UNDISTORT -> register -> stack
-#   (a far-drifting set cannot be registered by one homography; the warp uses
-#   the lensfun model — fitted per rig/lens via scripts/darktable/
-#   fit_lens_model.sh + install_lens_model.sh where the community entry is
-#   inadequate). The whole chain, step by step with its measured basis:
-#   docs/pipeline-wide-field-untracked.md; registration route + traps:
-#   docs/wide-field-untracked-registration.md. Auto-routing by fingerprint is
-#   BUILT (run_set_chain.sh); remaining wiring: BACKLOG:`route-recommendation`.
-scripts/stack/run_undistort_pipeline.sh sessions/<session> <set> --dark=<master> --flat=<master> [--frames=N]
-# the STANDING stack route for the class: balanced consecutive groups ->
-#   per-group GESD stacks -> register + stack the sub-stacks, which STAY on
-#   disk so the cross-set combine (run_undistort_compose.sh) remains buildable
-#   — single-pass forecloses it (composing per-set finals is a registered dead
-#   end) for a quality delta measured NULL. Group size derives from frame count
-#   and the obstruction audit's dwell floor; disk peak is per-group, derived
-#   from the set's own frame geometry (disk_budget.sh). Valid post-undistort ONLY.
+#   flatless set: the PER-SET sky flat — a flat calibrates only the exact frames
+#   it was built from (docs/dead-ends/calibration-flats.md, the alt-az-gradient entry)
 scripts/stack/run_undistort_groups.sh sessions/<session> <set> --dark=<master> --flat=<master> [--group=N] [--plan]
-
-# color-calibrate the stack once per stack rebuild (~1 min, local catalogs)
+#   the STANDING stack route for the wide-field UNTRACKED class: calibrate →
+#   UNDISTORT (darktable-cli + the lens model FITTED from the set's own frames:
+#   scripts/darktable/fit_lens_model.sh + install_lens_model.sh) → balanced
+#   consecutive groups → per-group GESD stacks → register + stack the sub-stacks,
+#   which STAY on disk so the cross-set combine (run_undistort_compose.sh)
+#   remains buildable. Group size derives from frame count and the obstruction
+#   audit's dwell floor; disk peak is per-group (disk_budget.sh). Registration
+#   route + traps: docs/wide-field-untracked-registration.md
+scripts/stack/run_undistort_pipeline.sh sessions/<session> <set> --dark=<master> --flat=<master> [--frames=N]
+#   single pass over the whole set — the --route=single operator override, and
+#   the sub-stack builder the groups route calls
+scripts/stack/run_pipeline.sh sessions/<session> <set>                       # the STANDARD (tracked-mount) route: calibrate → register → stack
 python3 scripts/calibrate/solve_field.py web/results/<session>/stack_<set>.fit \
-    --inject=web/results/<session>/stack_<set>_wcs.fit
-# NEW FIELD: make sure the local Gaia chunks cover it before SPCC (a southern
-# field needs southern chunks); --fetch downloads any missing ones
-python3 scripts/calibrate/spcc_cone.py web/results/<session>/stack_<set>_wcs.fit --fetch
-# then siril spcc (spcc_run.py) → _spcc.fit
+    --inject=web/results/<session>/stack_<set>_wcs.fit                          # blind solve + WCS inject
+python3 scripts/calibrate/spcc_cone.py web/results/<session>/stack_<set>_wcs.fit --fetch   # NEW FIELD: fetch the Gaia chunks it needs first
+# then siril spcc (scripts/calibrate/spcc_run.py) → _spcc.fit
 
-# final render — UNBUILT, user-gated (ladder: BACKLOG:`render-ladder`;
-# the neural tiers are installed and driven; what is unbuilt is the LADDER —
-# TOOLS.md, BACKLOG:`render-ladder`). Everything ABOVE
-# (stack → solve → spcc → compose) is the durable core and runs today.
+# Render: the render tier's first rung runs (scripts/stack/render_tier.sh,
+#   user-gated by a ratified recipe block); the LADDER is unbuilt —
+#   BACKLOG:`render-ladder` ("Status", top of this file).
 ```
 
-Environment specifics (siril invocation, catalogs, GraXpert, the x86 target)
-live in CLAUDE.md "Environment".
+Rig setup, in order and each step with its verify command:
+[`CONTRIBUTING.md`](CONTRIBUTING.md) "Set up the rig". The environment itself
+(siril invocation, catalogs, the three SPCC prerequisites, the x86 target):
+`CLAUDE.md` "Environment".
 
 ## Repo map (`scripts/`, by stage directory)
 
@@ -442,7 +425,7 @@ live in CLAUDE.md "Environment".
 | `route.py` | THE ROUTE KEY — one definition, every consumer. The single source for which chain a set takes; `DRIFT_FRAC_MIN` and its floor live here (removal-conditions register) |
 | `fingerprint.py` | derives a set's CONFIG FINGERPRINT from the data — the MEASURE→MATCH input, and the reference ALLOWED router `CLAUDE.md` names: every input is a tool's (astrometry.net solve, Siril `findstar`, header facts), the in-house part is only the derived trail/drift geometry no tool reports |
 | `cullspec.py` | THE one meaning of `recipe.json`'s `stack.exclude` — trailing FILENAME digits, matched within one set, aborting loudly on an ambiguous exclude |
-| `frame_order.py` | emits a set's frames in CAPTURE ORDER rather than filename order, reading paths from STDIN so an `ARG_MAX` split cannot re-order chunks independently. Exists because the frame counter wraps at 9999 (`docs/dead-ends.md`) |
+| `frame_order.py` | emits a set's frames in CAPTURE ORDER rather than filename order, reading paths from STDIN so an `ARG_MAX` split cannot re-order chunks independently. Exists because the frame counter wraps at 9999 (`docs/dead-ends/stacking-compose.md`, "THE FRAME COUNTER WRAPS AT 9999 → 0001") |
 | `siril_run.sh`, `siril_run.py` | single source of truth for INVOKING Siril, flock-serialised because the flatpak's instance-dir lifecycle races (removal-conditions register); `check_siril_invoke.sh` is the guard that every caller uses it |
 | `wait_for.sh` | wait for processes matching a pattern WITHOUT matching yourself — the registered `pgrep`-matches-its-own-argv deadlock, fixed at the source |
 
@@ -450,11 +433,11 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `lens_preflight.py` | optics guard, run first by `run_pipeline.sh`: reads EVERY frame's camera/lens/focal via exiftool and STOPS on a MIXED-optics set (`acquisition.json` derives optics from the FIRST FRAME ONLY, so it structurally cannot see a zoom bump mid-set) or on a set whose frames contradict the tracked record. With `--require-profile` it also makes darktable PROVE it corrects the set — rendering one frame through the pinned `lensdist`/`nodist` pair and asking Siril for the difference — because darktable silently applies NO correction to a lens lensfun cannot match and never says so | Also asserts the installed distortion coefficients equal the PINNED model for this lens@focal (`scripts/darktable/lens_models.json` — THE authority): `lensfun-update-data` reverting the DB, or a candidate fit left installed, still warps — so the warp-happened proof passes while the set stacks with different optics than every product it will be compared against. The per-set-record variant was REFUTED and reverted (`docs/dead-ends.md`): its founding evidence was a compose artifact, and per-set models broke the combine.
+| `lens_preflight.py` | optics guard, run first by `run_pipeline.sh`: reads EVERY frame's camera/lens/focal via exiftool and STOPS on a MIXED-optics set (`acquisition.json` derives optics from the FIRST FRAME ONLY, so it structurally cannot see a zoom bump mid-set) or on a set whose frames contradict the tracked record. With `--require-profile` it also makes darktable PROVE it corrects the set — rendering one frame through the pinned `lensdist`/`nodist` pair and asking Siril for the difference — because darktable silently applies NO correction to a lens lensfun cannot match and never says so | Also asserts the installed distortion coefficients equal the PINNED model for this lens@focal (`scripts/darktable/lens_models.json` — THE authority): `lensfun-update-data` reverting the DB, or a candidate fit left installed, still warps — so the warp-happened proof passes while the set stacks with different optics than every product it will be compared against. The per-set-record variant was REFUTED and reverted (`docs/dead-ends/registration-distortion.md`, "PER-SET LENS-DISTORTION MODELS — REFUTED AT THE ROOT, REVERTED"): its founding evidence was a compose artifact, and per-set models broke the combine.
 | `run_pipeline.sh` | stack builder: preflight → masters → calibrate → register (2-pass/sweep) → rejection stack; forks camera-raw vs dedicated-astrocam FITS, loudly STOPS a flatless set demanding a matching flat (synthetic-flat is a documented gap — BACKLOG), and routes a `composition.json` dual-band set through line extraction → same-reference per-line stacks → compose |
 | `run_undistort_pipeline.sh` | stack builder for the wide-field UNTRACKED class: `lens_preflight --require-profile` → chunked calibrate (CFA, sensor space) → debayer → darktable lens warp (distortion only via the stripped lensfun DB, incl. the fitted entry) → register 2-pass → rejection stack. Guards up front: the 1-frame-final-chunk trap (Siril cannot sequence one frame) and the uncompressed disk peak — registration holds the warped set and the registered set at once, so the budget is `W x H x channels x 4 bytes x 2`, DERIVED per set from the tracked `acquisition.json` geometry (exiftool for raws, FITS `NAXIS` for astrocam frames) rather than a per-camera constant, and it STOPS if the geometry is not on record instead of assuming a frame size. The derivation AND the arithmetic live in `scripts/stack/disk_budget.sh`, shared with `run_set_chain.sh` (plan disclosure + a forced `--route=single`) so a forced route and the builder cannot disagree; `--frames=N` selects an even stride that preserves the full time span; `--select=<list>` processes an exact frame block (the groups driver's hook — whole-set single-pass runs only as the `--route=single` operator override) |
 | `run_undistort_groups.sh` | the STANDING stack route for the undistort class: consecutive balanced GROUPS each run the full chain and rejection-stack (intermediates deleted per group), then the sub-stacks register + stack into the final — and stay on disk, keeping the cross-set combine buildable (single-pass deletes them and crops to `-framing=min`; composing per-set finals is a registered dead end). Valid ONLY post-undistort (homographies compose; pre-undistort composition was a measured dead end). Declared cost: one extra interpolation pass, measured NULL (9/9 drift-axis stations within 0.05 px). Removal condition: a measured quality cost of the extra pass at established magnitude, or cross-set composition leaving the project's goals |
-| `build_sky_flat.sh` | PER-SET sky-flat builder for flatless sets (the ratified rule: a flat calibrates only the exact frames it was built from — `docs/dead-ends.md` imprint entry): the set's own un-registered lights, dark-subtracted, CFA, `-norm=mul`, `--rej=wins` default (specks measured 101→0 vs median; `median` kept as the attribution arm); validation gates built in (regional `stat`, `findstar` speck count, autostretch preview, tracked qa record). Removal condition: a matching real flat for the set |
+| `build_sky_flat.sh` | PER-SET sky-flat builder for flatless sets (the ratified rule: a flat calibrates only the exact frames it was built from — `docs/dead-ends/calibration-flats.md`, "A SKY FLAT BAKES IN ANY SKY GRADIENT THAT IS FIXED IN THE ALT-AZ FRAME"): the set's own un-registered lights, dark-subtracted, CFA, `-norm=mul`, `--rej=wins` default (specks measured 101→0 vs median; `median` kept as the attribution arm); validation gates built in (regional `stat`, `findstar` speck count, autostretch preview, tracked qa record). Removal condition: a matching real flat for the set |
 | `run_undistort_compose.sh` | compose already-built undistort SUB-STACKS across sets into one deep stack (register `-2pass` → `-framing=min\|max` → PLAIN MEAN — sigma rejection across sub-stack composes is a measured dead end); valid post-undistort only (homographies compose) |
 | `render_tier.sh` | the RENDER TIER past the diagnostic judge surface: Siril `starnet` separation → Cosmic Clarity denoise on the starless → per-channel-black-point / common-gain `mtf` stretch → `asinh -human` stars → `pm` screen recombine → 16-bit PNG. User-gated: with no ratified `render` block for the name it measures, writes `render_proposed`, prints it and STOPS (exit 7). Knobs resolve CLI > recipe > `GENERIC.json` > built-in with the provenance PRINTED; the recipe pins only scale-free FRACTIONS and the absolute mtf triplet is re-derived every run from the layer actually being stretched (measured: deriving it from the star-ful input stack put the sky at 0.063 for a 0.100 target and cast it +5.6% in B/G). Every measurement is Siril's own — `findstar` for the separation gate, `pm`+`isub`+`bgnoise` for the recombine residual, `wavelet`/`wrecons`+`bgnoise` for the per-scale denoise profile, `stat main` for the colour record. Refuses to overwrite an existing product without `--overwrite`, and reuses cached layers so ratifying costs one stretch, not another separation + denoise |
 | `check_bitdepth.sh` | the 32-bit guard, run in CI / before a release: no `set16bits` anywhere under `scripts/` outside four documented instrument exemptions, and every master template + product builder must EMIT `set32bits` and `setcompress 0` (comment lines stripped, since a pin that exists only in prose is the failure mode it is guarding against). Both are PERSISTED siril preferences, so an unpinned script inherits whatever ran last |
@@ -486,12 +469,12 @@ live in CLAUDE.md "Environment".
 
 | file | role |
 |---|---|
-| `lensdist.dtstyle`, `nodist.dtstyle` | the darktable lens-module styles: `lensdist` = module ENABLED, `nodist` = DISABLED (the one-knob control). The styles carry ONLY that bit — darktable ignores a style's lens `op_params` (modify_flags included) and re-detects the lens per image with its DEFAULT correction set (measured, `docs/dead-ends.md`); distortion-only is enforced in the lensfun DB by `install_lens_model.sh`. The `op_params` blob stays pinned for byte-reproducibility — never re-create it by hand in the GUI |
+| `lensdist.dtstyle`, `nodist.dtstyle` | the darktable lens-module styles: `lensdist` = module ENABLED, `nodist` = DISABLED (the one-knob control). The styles carry ONLY that bit — darktable ignores a style's lens `op_params` (modify_flags included) and re-detects the lens per image with its DEFAULT correction set (measured — `docs/dead-ends/registration-distortion.md`, "A darktable lens STYLE carries NOTHING but the enabled bit"); distortion-only is enforced in the lensfun DB by `install_lens_model.sh`. The `op_params` blob stays pinned for byte-reproducibility — never re-create it by hand in the GUI |
 | `install_styles.sh` | installs them headlessly into a darktable configdir (darktable has no CLI style import, and only a real export job creates its `data.db`). Verified: from a fresh config the warp reproduces to 0.000 px |
 | `fit_lens_model.sh` | fit THIS unit's radial distortion model from a set's own frames — Siril calibrates/stretches, Hugin (`cpfind`/`cpclean`/staged `autooptimiser`, hfov pinned at the solved value) fits between-frame star correspondences; prints ptlens a,b,c + the install command, records the fit to the set's `qa_work/lens_fit.json`. Run for a new lens/body/focal, or when the drift-axis stations show a centre band a DB profile cannot remove. PROVISIONAL as-written (the procedure it encodes was proven step by step; the script's first end-to-end run is the next fit) |
 | `install_lens_model.sh` | installs the PINNED model for this lens@focal (`scripts/darktable/lens_models.json` — THE authority, keyed `<lens>@<focal>` because a model is a property of the LENS AND OPTICAL STATE, not of a dataset) into the live lensfun user DB AND strips that lens's `<vignetting>`/`<tca>`, the distortion-only enforcement point. A per-set fit is a CANDIDATE promoted by an explicit act, judged at the COMBINE. The per-set-as-authority variant is a registered dead end: one shared model is what every accepted combine here ever used, and per-set models measured 2.99 px corner disagreement within a night and 5.34 px across nights. Lens + focal come from the set's `acquisition.json`; the DB FILE is found by searching for the lens. Records what it replaced in an XML marker; a different fitted entry needs `--replace`, so a deliberately staged A/B is never undone silently (the chain does NOT pass it; the preflight stops on the mismatch and says so). Machine-local like `lensfun-update-data`, which WIPES the patch: the chain re-installs per run |
 | `verify_lens_card.py` | proves darktable's lens correction is DISTORTION-ONLY on this rig — two synthetic fixtures, grid control (must differ) + uniform card (must not), because the uniform card ALONE is vacuous. Run every set by `lens_preflight --require-profile` |
-| `cp_coverage.py` | control-point RADIAL COVERAGE of a hugin fit: does it constrain the CORNER? Imported, not invoked — the corner-support deficit is a matching problem, not a pruning one (`docs/dead-ends.md`) |
+| `cp_coverage.py` | control-point RADIAL COVERAGE of a hugin fit: does it constrain the CORNER? Imported, not invoked — the corner-support deficit is a matching problem, not a pruning one (`docs/dead-ends/registration-distortion.md`, "CORNER CONTROL POINTS CANNOT BE RECOVERED BY REORDERING OR RELAXING") |
 
 **`setup/`** — x86 bring-up
 
@@ -504,7 +487,7 @@ live in CLAUDE.md "Environment".
 | `install_python_tools.sh` | the pinned Python TOOL layer, separate from the measurement layer, installable onto a rig's venv |
 | `install_cosmicclarity.sh` | installs the Cosmic Clarity Suite to `/opt`, user-owned |
 | `verify_site.py` | falsifies the tracked observing-site coordinates against the corpus's own solves — bounds them at the DEGREE level only (a flipped sign or a lat/long transposition puts a photographed target below the horizon; a transposed digit does not) |
-| `site.json` | the tracked OBSERVING SITE — latitude, longitude and the derived geocentric triple. It is TRACKED because `CLAUDE.md`'s environment rule requires a machine-local value to be rebuildable from the repo, and it is LOAD-BEARING SCIENCE rather than metadata: `scripts/lib/acquisition.py` resolves it into every `acquisition.json`, and hour angle, altitude, azimuth and parallactic angle all derive from it — the refraction-vs-mechanical-sag discriminator in `docs/dead-ends.md` is unrunnable without it. **Its own `status` records the value as TRANSCRIBED and UNVERIFIED, and `verify_site.py` bounds it at the DEGREE level only**, so precision beyond that is not evidence. **A live owner item governs this file — BACKLOG:`site-privacy-vs-public-repo` — and the push is HELD on it. Read that item before touching, moving, scrubbing or re-proposing anything about it: three approaches are already owner-DENIED, and a string-search scrub is unsafe in both directions by its own measurement.** |
+| `site.json` | the tracked OBSERVING SITE — latitude, longitude and the derived geocentric triple. It is TRACKED because `CLAUDE.md`'s environment rule requires a machine-local value to be rebuildable from the repo, and it is LOAD-BEARING SCIENCE rather than metadata: `scripts/lib/acquisition.py` resolves it into every `acquisition.json`, and hour angle, altitude, azimuth and parallactic angle all derive from it — the refraction-vs-mechanical-sag discriminator (`docs/dead-ends/stacking-compose.md`, inside "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK") is unrunnable without it. **Its own `status` records the value as TRANSCRIBED and UNVERIFIED, and `verify_site.py` bounds it at the DEGREE level only**, so precision beyond that is not evidence. **A live owner item governs this file — BACKLOG:`site-privacy-vs-public-repo` — and the push is HELD on it. Read that item before touching, moving, scrubbing or re-proposing anything about it: three approaches are already owner-DENIED, and a string-search scrub is unsafe in both directions by its own measurement.** |
 
 **`ingest/`** — pull a capture session from the remote host, verified
 
@@ -562,13 +545,13 @@ the durable output data tree lives beneath it at `web/results/<session>/`.
 | `judgment_package.py` | assembles a judgment set from render FINALS (DORMANT pending the render rebuild): refuses starless layers (a hand-linked package once shipped starless PNG16s as finals), embeds the measured candidate-vs-`--control` deltas + an objective WIN\|NULL\|needs-eyes verdict (no "fixed/final/matched/close" language), writes the QUESTION.md skeleton. One re-wire rides the rebuild: its `.metrics.json` producer (the old chain's renderer) no longer exists; the PNG16-only surface itself is already enforced (the script refuses non-16-bit candidates) — BACKLOG |
 | `cull_report.py` | frame-cull analysis over pooled per-frame registration records (WARN-only): robust-z defect-side flags at the calibrated threshold — reports candidates for a with/without cull ladder, never decides |
 | `run_frame_qa.sh` | the per-set frame-QA driver: raw → CFA FITS → `register -2pass` (analysis pass only, disk-bounded batches, 1-frame-batch guard) → `inspect_stage` persists Siril's per-frame regdata → flattened records + `cull_report` flags + the tracked `frame_metrics.json`. **The cull is NOT the user's per-frame decision under the standing policy** — this script MEASURES and FLAGS only; `run_set_chain.sh` then auto-culls the flagged defect-side frames (robust z >= 3.5) and WRITES `recipe.json`'s stack block itself, recording the flags as the `why`. What stays the user's is the POLICY and the override: a hand-ratified recipe block wins over the auto-cull. The `run_set_chain.sh` row below states this correctly and this row contradicted it. PROVISIONAL as-written (generalized from the driver that produced set-02's record; first fresh run = the next set's prep) |
-| `star_shape.py` | orchestration + record: runs Siril `seqtilt` and records its report — off-axis aberration (centre vs corners = the RADIAL term) and sensor tilt (best vs worst corner = the ASYMMETRIC term). The tool's own spatial star-shape analysis and the only headless one (`tilt`/`inspector` are GUI-only); it computes nothing. Never re-derive this by binning a `findstar` list by radius — that is circular and fails silently (`docs/dead-ends.md`, trap 3) |
+| `star_shape.py` | orchestration + record: runs Siril `seqtilt` and records its report — off-axis aberration (centre vs corners = the RADIAL term) and sensor tilt (best vs worst corner = the ASYMMETRIC term). The tool's own spatial star-shape analysis and the only headless one (`tilt`/`inspector` are GUI-only); it computes nothing. Never re-derive this by binning a `findstar` list by radius — that is circular and fails silently (`docs/dead-ends/registration-distortion.md`, "Three traps that make a registration comparison lie", trap 3) |
 | `star_stations.py` | orchestration + record: Siril `crop` + `findstar` (open gate) at fixed equal-area stations along/perpendicular to the measured drift axis — the band measure `seqtilt` cannot see (a drift-aligned defect leaves centre-vs-corners clean while the centre station degrades); geometry is fixed and EXTERNAL (geometric centre + the solves' drift axis) so the trap-3 circularity cannot bite; records medians of the tool's own per-star fits, removal-conditioned on a tool shipping a headless local star-shape map |
-| `coverage_probe.sh` | per-pixel COVERAGE MAP for any sub-stack compose (the framing instrument): register the real members, swap in `fill` constant twins, apply the STORED transforms, `stack sum` → value/1000 = members covering each pixel. Measured: `-framing=min` keeps 36% of the true common area on rotated members; coverage-thresholded crops verify against this map (`stat` Min ≥ threshold — also the numpy-vs-Siril crop y-flip guard, `docs/dead-ends.md`) |
+| `coverage_probe.sh` | per-pixel COVERAGE MAP for any sub-stack compose (the framing instrument): register the real members, swap in `fill` constant twins, apply the STORED transforms, `stack sum` → value/1000 = members covering each pixel. Measured: `-framing=min` keeps 36% of the true common area on rotated members; coverage-thresholded crops verify against this map (`stat` Min ≥ threshold — also the numpy-vs-Siril crop y-flip guard — `docs/dead-ends/siril-behaviors.md`, "Never export a numpy/FITS-row-order pixel box to Siril `crop`") |
 | `snr_regions.py` | normalization-invariant regional SNR: (signal − sky region mean) / `bgnoise`, computed WITHIN each stack (per-stack `-output_norm` cancels); boxes WCS-anchored so the same sky is measured in every stack. Removal condition: a tool exposing headless regional SNR |
 | `noise_split.sh` | background-noise composition: half-split difference over a compose's sub-stacks (one registration; A−B cancels all static content) — interleaved split reads pure RANDOM σ, timehalf excess reads the drift-phase STRUCTURED component (the walking-noise measure). Measured: random σ scales √N exactly; the visible background is floored by depth-independent structure |
 | `baseline_guard.py` | PRODUCT-level no-regression guard, run last by `run_set_chain.sh`: Siril `stat` (via `regional_stat.py`) on the finished linear stack — corner spread, edge dipole, per-channel centre level — compared against the baseline a human ACCEPTED for that set. A regression exits **8**, a user decision like the mount/route stops; nothing is blocked or rewritten. Every other guard here checks WIRING, which is why a 31x background regression once shipped with every wire intact. NOT a quality gate: it has no opinion about whether a render is good, and a deliberate improvement fails it (re-seed with `--reseed` and a note). Its measures are stack CORNERS, so it is blind to a flat that absorbed the sky gradient — a PASS is not evidence the calibration is clean |
-| `regional_stat.py` | Siril `stat` regional medians (centre + 4 corners, per channel) on a LINEAR stack — the gradient instrument (never read gradients off a stretched surface — `docs/dead-ends.md`) |
+| `regional_stat.py` | Siril `stat` regional medians (centre + 4 corners, per channel) on a LINEAR stack — the gradient instrument (never read gradients off a stretched surface — `docs/dead-ends/stretch-colour-judgment.md`, "The stretched judge surface AMPLIFIES background gradients") |
 | `diag_flat.ssf` | master-flat diagnostic (Siril) |
 | `readiness_report.py` | ONE readiness surface for a set — every ratified criterion evaluated up front, one report and one approval, so nothing undecidable surfaces three hours into a build (`CLAUDE.md`, "where the gate actually is") |
 | `run_guards.sh` | THE RUNNER for every guard — see its row under `stack/` above |
@@ -595,6 +578,9 @@ Three stores, joined by the session name — each a different lifecycle:
 `sessions/` is TRANSIENT staging (raws re-stage from off-rig; freed when a
 set's chain completes), `web/results/` is the DURABLE output tree (servable
 by the local web front end), `datasets/` is the TRACKED record.
+`.gitignore` is the AUTHORITY for what survives inside each `datasets/**/*_work/`
+directory (a dir with no block tracks nothing); the rule is stated once, there,
+and `datasets/README.md` explains it.
 
 ```
 sessions/<session>/  one acquisition session (transient staging, gitignored)
@@ -642,26 +628,31 @@ scripts/                                 the pipeline (tracked)
    tool is open — recover the actual recipe/mechanisms first (measured lesson:
    two judgment rounds were burned tuning toward an unstudied reference whose
    maker's recipe was published in the dataset's own repo).
-1. Lay it out as a session dir: `sessions/<session>/{darks,flats,biases,darkflats}/`
-   (calibration, each an internally-uniform group) + one `<session>/<set>/` per
-   single-pointing light set. Any siril-readable camera raw works with no
-   conversion, as do dedicated-astrocam **FITS** frames (`darkflats/` = darks
-   matched to the flat exposure). A master-only corpus stages prebuilt masters
-   as `sessions/<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only; the
-   normalized filename token is the identity — such masters carry no headers).
-2. `scripts/stack/run_pipeline.sh sessions/<session> <set>` — forks on the data class
-   (camera raw vs FITS) → `stack_<set>.fit` (matched-flat path; a flatless set
-   hard-stops — synthetic-flat is a gap, BACKLOG).
-   Flats match lights by filter on the FITS path; mono lights never debayer.
-   A wide-field UNTRACKED set uses `run_undistort_pipeline.sh` instead (the
-   undistort class), after the per-set prep: `run_frame_qa.sh` + the anomaly
-   audit → the cull policy → the ratified `recipe.json` stack
-   block the builder consumes.
-3. Plate-solve (`solve_field.py`) → SPCC (`spcc_run.py`) → render (UNBUILT,
-   user-gated — BACKLOG:`render-ladder`; the toolkit map is `TOOLS.md`).
-   A **mono** (single-filter) set skips SPCC and renders luminance-only.
+1. Stage it as a session dir — the layout, with a worked first run, is
+   [`docs/pipeline-wide-field-untracked.md`](docs/pipeline-wide-field-untracked.md)
+   §1: `sessions/<session>/<set>/` holds raw frames ONLY (any siril-readable
+   camera raw, or dedicated-astrocam FITS), one `<set>/` per single-pointing
+   light set; `sessions/<session>/{darks,flats,biases,darkflats}/` hold the
+   calibration groups, each internally uniform (`darkflats/` = darks matched
+   to the flat exposure). A master-only corpus stages prebuilt masters as
+   `sessions/<session>/calib/{dark,flat}_<token>.fits` instead (FITS sets only;
+   the normalized filename token is the identity — such masters carry no
+   headers). Flats match lights by filter on the FITS path; mono lights never
+   debayer.
+2. `scripts/stack/run_set_chain.sh sessions/<session> <set> --plan`, read the
+   plan, then `--yes`. The chain measures the set (acquisition facts, frame QA,
+   obstruction audit), derives mount and route from the fingerprint, builds
+   the masters, stacks, solves, colour-calibrates and writes the diagnostic
+   judge surface; it STOPS only where a decision is the user's ("Running it"
+   above lists the exits). A flatless set takes the per-set sky-flat route
+   (row 1b); real flats staged on the undistort route stop it by name (exit
+   6). A **mono** (single-filter) set skips SPCC. A multi-line / multi-filter
+   target declares its `composition.json` first (row 1c).
+3. Render: the render tier's first rung (`scripts/stack/render_tier.sh`) is
+   user-gated on a ratified `render` block in the set's recipe; the ladder is
+   BACKLOG:`render-ladder`; the toolkit map is `TOOLS.md`.
 4. A set with no `datasets/<session>/<set>/` state **degrades loudly**
    (whole-frame gate, no foreground mask, GENERIC knobs, printed as such) —
    safe, just generic. Add `geometry.json` once solved, pin a `recipe.json`
-   when a look is chosen, and record the no-regression baseline (rides the
-   render-tier build).
+   when a look is chosen, and seed the no-regression baseline on acceptance
+   (`scripts/qa/baseline_guard.py --seed`; `datasets/README.md`).

@@ -145,7 +145,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - Frame QA (Siril `register -2pass` regdata, 1601 frames): 100% registration,
   zero match failures, per-set medians FWHM 2.633/2.648/2.675/2.718 px
   (CFA-sampled), roundness 0.798–0.803, background stable to 0.1%
-  (`datasets/july23/set-0N/qa_work/frame_metrics.json`). The 3 s subs halve
+  (`datasets/july23/set-0<N>/qa_work/frame_metrics.json`, archived — `git show 3554aa3:datasets/july23/`). The 3 s subs halve
   july14's in-exposure trail exactly as the acquisition checklist predicts
   (roundness 0.80 vs 0.615 at 6 s).
 - Anomaly audit: satellites only in sets 01–02 (5 + 1 objects), no aircraft so
@@ -153,7 +153,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - Fixed-mount fingerprint: set-01 sweeps RA 306.56°→313.44° in 27.2 min
   (15.18°/hr RA ≈ sidereal), Dec constant 43.69→43.66; the camera was re-aimed
   ~6.2° back between sets (set-02 starts at RA 307.25°) — four nearly
-  coincident footprints (`datasets/july23/set-0N/fingerprint.json`, all four
+  coincident footprints (`datasets/july23/set-0<N>/fingerprint.json`, archived — `git show 3554aa3:datasets/july23/`; all four
   verdicts CONFIRM fixed).
 - Stacks (single-pass undistort chain, ~2 h/set wall-clock serial): 399/400/
   400/398 of eligible frames registered AND stacked — zero registration loss
@@ -224,7 +224,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 ## Sources
 
 - siril.org/download/ + /download/2026-06-17-siril-1-4-4/ (stable version)
-- gitlab.com/free-astro/siril @1.4.4: `scripts/OSC_Preprocessing*.ssf`,
+- gitlab.com/free-astro/siril @1.4.4: `<siril-repo>/scripts/OSC_Preprocessing*.ssf`,
   `src/core/settings.c`, `src/gui/stacking.c`, `src/gui/uifiles/siril.ui`
 - gitlab.com/free-astro/siril-scripts: `preprocessing/OSC_Preprocessing_
   Without{Flat,Dark,DBF}.ssf`, `DSA-OSC_Preprocessing_with_BGE_and_Undistort.ssf`
@@ -246,7 +246,7 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - deepskystacker.free.fr technical/FAQ (2026 archive) + github.com/
   deepskystacker/DSS · astropixelprocessor.com (features, Mabula mosaic
   tutorial part 2, downloads)
-- Repo records: `datasets/july23/*` (QA/audit/solves; session since archived —
+- Repo records: `git show 3554aa3:datasets/july23/` (QA/audit/solves; session since archived —
   the records live in the archive + git history), `docs/dead-ends.md`
   (SIP/solver/weighting mechanisms); the 1.4.4 syntax audit this doc builds on
   is graduated into `TOOLS.md` Tier 1 (deep-dive retired — git history)

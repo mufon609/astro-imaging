@@ -32,7 +32,8 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   the weakest possible defence. **Generalises to ANY before/after on a
   registered sequence**: the reference is picked by the tool unless pinned,
   so which frame is safe to measure changes between runs (`setref`;
-  BACKLOG:`single-pass-reference-lottery`).
+  closed — the reference pin shipped: `run_undistort_compose.sh --ref`,
+  `REGREFSR` pinned).
 - **A POSITIVE CONTROL DRAWN FROM A RECORDS FIELD IS ONLY A CONTROL FOR
   SIGNATURES THAT DO NOT USE THAT FIELD — check the cull's provenance
   before using a cull as a control.** MEASURED (pre-registered, which is

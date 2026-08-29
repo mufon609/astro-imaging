@@ -48,6 +48,19 @@ session** (the repo drives industry tools; it never processes pixels itself —
 - **Graduation** — what this changed in TOOLS.md / the dead-end registry (`docs/dead-ends/`) / MEMORY (or "none yet").
 ```
 
+## Which document, when (the operating docs)
+
+| document | audience | read it when |
+|---|---|---|
+| `../README.md` | everyone | first: which class is validated, the intent map ("Start here"), the process contract and how a change is accepted |
+| `../CONTRIBUTING.md` | contributors | before setting up the rig or changing anything: the setup order with its verify commands, the rules as pointers, the commit protocol, where each result is written |
+| `../CLAUDE.md` | agents — the owner's file | every session, in full: the bright line, where the gate is, the environment, the binding rules, the parallel-session hazards |
+| `pipeline-wide-field-untracked.md` | anyone running data | before the first run and whenever a stage stops: every stage with its tool, its record and its measured why; the complete stop list |
+| `../TOOLS.md` | anyone choosing a tool | when a stage needs a tool or a setting: the audit by tier, cost / Linux / CPU / headless, what is installed and why a gap is deliberate |
+| `../BACKLOG.md` | anyone starting work | before starting any item: the open queue by slug, `pending-owner`, the removal-condition register |
+| `dead-ends.md` → `dead-ends/` | anyone proposing an experiment | before proposing ANY experiment: the registry index, its contract, the stage files |
+| this file | anyone reading the research | when a decision cites a deep-dive: the index below, newest first |
+
 ## Index
 
 _(add each writeup here, newest first; retired writeups live in git history)_
@@ -62,6 +75,7 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   threshold under test), the constant's measured continuum, the owner rulings
   that shape the rule, and the encoding recommendation. EMPIRICALLY TESTED for
   attribution and the portion rule; the frame rule pending.
+- [`spcc-sensor-curve-z6iii.md`](spcc-sensor-curve-z6iii.md) — SPCC's response model on this rig: headless Siril resolves sensor/filter/white-reference names before loading its database, so every calibration ran against index 0 of each list (MEASURED 44/44 logs; mechanism from 1.4.4 source); no Z6 III curve exists (IMX820AQJ); options, the Weta Nikon Z f proxy, the pre-registered six-arm test (BACKLOG `spcc-sensor-curve`).
 - [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
   step-by-step process document for the validated class (camera raws, fixed
   mount, wide field): every stage from staging to seeded baseline with the
@@ -69,6 +83,27 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   it is done that way (mount bands, dwell floor, desky regression, plain-mean
   compose, ICC legs, SPCC traps, stretch regimes, the complete stop list).
   EMPIRICALLY TESTED — validated end to end by the july31 blackbox rebuild.
+- [combine-contract](combine-contract.md) — the multi-night COMBINE CONTRACT:
+  what a night must keep to be stackable with a night years later. The two
+  measured facts it rests on (the chain regenerates identically from raws +
+  tracked records; a distortion model describes ONE optical state — 4.07 px
+  cross-night disagreement under a shared one), the archival keep-set per set,
+  what regenerates, the self-describing sub-stack, the dependency rule
+  (combining needs only the stamped files), the compatibility measurement every
+  combine makes without gating on it, what a future night needs to join an old
+  archive, and the failure shape the contract exists to prevent. It binds every
+  calibration, model and route decision: a change that improves a per-set
+  product and degrades cross-night combinability is a regression.
+- [untracked-widefield-standards](untracked-widefield-standards.md) — how the
+  field actually stacks untracked camera-lens wide-field: an unanchored,
+  45-source reading of Siril's and PixInsight's docs, the FITS distortion
+  conventions (SIP / TPV / TNX), the survey lineage (SCAMP+SWarp, Pan-STARRS,
+  DES, HST) and the forums, written before the repo was opened, with the repo
+  comparison quarantined in its final section. Durable findings graduated — the
+  lensfun `acm` version boundary and the `<center>` kill into
+  `dead-ends/registration-distortion.md`, the hugin and darktable+lensfun rows
+  into `TOOLS.md`, the open term into BACKLOG `one-sided-band`; the deep-dive
+  keeps the citations and the reasoning behind them.
 - [lunar-lucky-imaging](lunar-lucky-imaging.md) — the LUNAR data class:
   lucky-imaging model mapped onto the repo's stage design (no solve/SPCC/BGE
   — documented skips), the 2025-26 stacker/finisher audit (Siril 1.4.4
@@ -98,23 +133,22 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   homography — Szeliski); radial LENS DISTORTION is, so the class is
   undistort→homography. The model source decides everything: a per-frame SIP fit and
   a community DB profile's paraxial region are both measured failure modes
-  (`dead-ends.md`); the adopted route corrects with a model **fitted from the set's
+  (`dead-ends/registration-distortion.md`); the adopted route corrects with a model **fitted from the set's
   own frames** (Hugin between-frame fit → lensfun entry → darktable warp), measured
   by the drift-axis station tool `seqtilt` cannot replace. Production:
   `scripts/stack/run_undistort_pipeline.sh` + `scripts/darktable/fit_lens_model.sh`.
 - [x86-empirical-test-plan](x86-empirical-test-plan.md) — the capstone: every
-- [`spcc-sensor-curve-z6iii.md`](spcc-sensor-curve-z6iii.md) — SPCC's response model on this rig: headless Siril resolves sensor/filter/white-reference names before loading its database, so every calibration ran against index 0 of each list (MEASURED 44/44 logs; mechanism from 1.4.4 source); no Z6 III curve exists (IMX820AQJ); options, the Weta Nikon Z f proxy, the pre-registered six-arm test (BACKLOG `spcc-sensor-curve`).
   "provisional until x86" flag collapsed into one ordered, bracketed protocol.
   Now half record, half protocol: the executed phases state their outcome and
   the operating doc holding it; the open phases key to BACKLOG slugs
   (`native-solve-and-sip`, `render-ladder`) plus the audit-layer candidate
   detectors (Phase 5, none validated).
 
-## Retired root reports — recover by commit, not by path
+## Retired reports — recover by commit, not by path
 
 The combine-corner / compose-smear arc produced five root-level reports. Their
-durable findings have all graduated into the operating docs — `docs/dead-ends.md`
-(the mechanisms and the blind instruments), `docs/combine-contract.md` (the
+durable findings have all graduated into the operating docs — the dead-end
+registry (`dead-ends/`; the mechanisms and the blind instruments), `docs/combine-contract.md` (the
 contract, the gate thresholds, the scope tiers, the standards comparison, the
 history), `TOOLS.md` (the hugin, darktable and
 embedded-model rows) and the removal-conditions register's fitted-lensfun row
@@ -134,21 +168,8 @@ they existed; those citations resolve the same way. Citing a COMMIT rather than 
 working-tree path is the standing convention here — a bare path in a long-lived
 record goes dangling the first time a session is reset.
 
-
-## `untracked-widefield-standards.md` — how the field actually stacks untracked
-## camera-lens wide-field (fresh-eyes standards reading)
-
-An unanchored reading of Siril's own docs, PixInsight's, the FITS distortion
-conventions (SIP / TPV / TNX), the survey lineage (SCAMP+SWarp, Pan-STARRS, DES,
-HST) and the forums, written before the repo was opened and with the repo
-comparison quarantined in its own final section. 45 cited sources. Its durable
-findings have graduated into `docs/dead-ends.md` (the lensfun `acm` version
-boundary and the `<center>` kill), `TOOLS.md` (the hugin and darktable+lensfun
-rows) and BACKLOG `one-sided-band`; the deep-dive keeps the citations and the
-reasoning behind them.
-
-The aug06 member-edge chase and this arc's prompts were retired the same way the
-compose-smear arc's were — findings graduated, recovery by commit:
+The aug06 member-edge chase and the untracked-standards arc's prompts were
+retired the same way — findings graduated, recovery by commit:
 
     git show 53edcc2:AUG06_MEMBER_EDGE_report.md
     git show 53edcc2:CHASE_AUG06_MEMBER_EDGE_PROMPT.md

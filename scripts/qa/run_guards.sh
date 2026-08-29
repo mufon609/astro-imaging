@@ -37,7 +37,10 @@
 #   which is where essentially every finding this repo produces is written. The
 #   new check opens exactly ONE invariant (register rule (1), declared-but-no-row)
 #   and is blind to the rest of the table, including whether a row is true, has
-#   fired, or can be evaluated at all.
+#   fired, or can be evaluated at all. `check_doc_pointers` opens a SECOND: every
+#   backticked repo path, BACKLOG slug and relative link in a tracked or new
+#   `.md` resolves — existence only, still wiring, never whether a target says
+#   what its citation claims.
 # - A green run says nothing about the checks listed under EXCLUDED below, which
 #   need live products and are named there rather than silently skipped.
 # - HOW THE ROSTER WAS BUILT IS ITSELF A LIMIT. It came from `grep -rln selftest`
@@ -131,9 +134,11 @@ CHECKS=(
   "guard   check_registration_pins|./scripts/stack/check_registration_pins.sh"
   "guard   check_manifest_verify|./scripts/qa/check_manifest_verify.sh"
   "guard   check_removal_conditions|./scripts/qa/check_removal_conditions.sh"
+  "guard   check_doc_pointers|python3 scripts/qa/check_doc_pointers.py"
   "selftest check_registration_pins|./scripts/stack/check_registration_pins.sh --selftest"
   "selftest check_compose_flags|./scripts/stack/check_compose_flags.sh --selftest"
   "selftest check_removal_conditions|./scripts/qa/check_removal_conditions.sh --selftest"
+  "selftest check_doc_pointers|python3 scripts/qa/check_doc_pointers.py --selftest"
   "selftest wait_for|./scripts/lib/wait_for.sh --selftest"
   "selftest fingerprint|python3 scripts/lib/fingerprint.py --selftest"
   "selftest route|python3 scripts/lib/route.py --selftest"

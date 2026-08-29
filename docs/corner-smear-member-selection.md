@@ -158,7 +158,7 @@ continuum is a policy, and the policy is the owner's (§5).
 ## Sources
 
 - Records: `datasets/aug06/experiments.jsonl` lines 98–116 (117–118 pending);
-  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, swtaper_probes}.json` (+ `cropTselT_arm.json` when the frame rule lands);
+  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes}.json`;
   `datasets/aug06/set-01/qa_work/drift_span_discriminator.json`.
 - Instruments: `scripts/qa/shape_at_sky.py`, `scripts/qa/star_stations.py`,
   `scripts/qa/star_shape.py` (seqtilt), Siril `stat`/`bgnoise`.

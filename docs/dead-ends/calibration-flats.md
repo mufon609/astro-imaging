@@ -245,7 +245,8 @@ the constraints any such tool must satisfy):
   measured the cost of losing it (~+1% at the framing=max full-coverage
   corners, ≤0.2% in the min-framed control). Do not re-couple the halves, and
   do not cite this entry against the lights-side step.
-  Numbers: `datasets/july31/set-01/qa_work/desky_regression.json`. The
+  Numbers: `git show 895f268:datasets/july31/set-01/qa_work/desky_regression.json`
+  (deleted with the july31 reset). The
   `sky × V` mechanism itself remains REAL and UNCORRECTED; its magnitude is
   unmeasured (the dead end above is the sole home of that caveat).
 

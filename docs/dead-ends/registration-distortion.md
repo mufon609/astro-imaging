@@ -25,7 +25,7 @@ Operational forms of the darktable/lensfun and ICC contracts live in
   collapses `seqtilt`'s off-axis aberration 0.57 → 0.25 px at FULL depth —
   remove the drift *or* remove the distortion and the homography becomes
   exact, the same statement twice
-  ([`wide-field-untracked-registration.md`](wide-field-untracked-registration.md)).
+  ([`wide-field-untracked-registration.md`](../wide-field-untracked-registration.md)).
 - **astrometry.net's SIP is NOT a reproducible lens model at wide index
   scales — so `register -disto=` has no model to eat. SUBJECT: SINGLE TRAILED
   FRAMES; on stacked MEMBERS this is SUPERSEDED** — `seqplatesolve -order=3`

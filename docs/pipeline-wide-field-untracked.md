@@ -34,6 +34,15 @@ elsewhere: records in
 `datasets/<session>/<set>/`, bulk intermediates in `sessions/<session>/work/`,
 products in `web/results/<session>/`.
 
+First run, worked (a july31-shaped night: Nikon NEF lights + matched darks):
+
+    sessions/july31/set-01/DSC_3782.NEF, DSC_3783.NEF, …   # one pointing, raws only
+    sessions/july31/darks/DSC_5550.NEF, …                  # same exposure / ISO / thermal window
+    scripts/stack/run_set_chain.sh sessions/july31 set-01 --plan   # prints the plan, runs nothing
+    scripts/stack/run_set_chain.sh sessions/july31 set-01 --yes    # one approval, then unattended
+
+Records land in `datasets/july31/set-01/`, the stack in `web/results/july31/`.
+
 ## 2. MEASURE — what the dataset is
 
 ### 2.1 Acquisition facts → `acquisition.json`
