@@ -318,3 +318,15 @@ datasets/corpus/pedestal_work/*
 !datasets/corpus/pedestal_work/*.py
 !datasets/corpus/pedestal_work/*.csv
 !datasets/corpus/pedestal_work/*.ssf
+# datasets/corpus/campaign_zeropoint/ — the output-norm-zero-point from-raws
+# campaign (BACKLOG:output-norm-zero-point; ledger aug06
+# output_norm_zero_point_campaign_from_raws). The RECORD is tracked: the driver
+# (.sh), the move-aside manifest, the unchecked premises, campaign_record.json
+# and readout_scripts/*.py (the diagnostics every count and table in the record
+# came from — tracked so the sha256 the record quotes resolves to text).
+# readout_work/ is the readouts' scratch and tracks nothing: symlink sequences
+# + Siril .ssf/logs/CSVs, the per-tier JSON intermediates the record was
+# assembled from, and the eye-inspection panels (~120 MB of 8-bit PNGs derived
+# from the 16-bit judge surfaces) — reproducible from the scripts on the
+# products, none a deliverable.
+datasets/corpus/campaign_zeropoint/readout_work/

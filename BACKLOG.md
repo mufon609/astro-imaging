@@ -321,6 +321,37 @@ this item):**
    `run_guards`) proves RED on a real level regression under a matching
    statement. First live run: aug06/set-01 `_nooutnorm` → ADVISORY, exit 0.
 
+**THE FROM-RAWS CAMPAIGN (owner-directed: "properly test everything") — RUN,
+MEASURED, INSPECTED** (record `datasets/corpus/campaign_zeropoint/campaign_record.json`;
+ledger aug06 `output_norm_zero_point_campaign_from_raws`; manifest of the 142
+moved-aside `_outnorm` predecessors beside it): every product rebuilt by the chain's
+own scripts under ONE HEAD (77e3a78) — 77 members, 17 per-set finals, 4 nights, the
+corpus — in 12.888 h, no stop, guard 12/12 PASS (aug09/set-05 1.119 vs its 3.030
+baseline, which had sat over the 3.0 ceiling since it was seeded — the seed never
+checked the ceiling). Level = the anchor on 99/99 (finals 0.10-0.37% under, MET;
+members 0.25-0.87% under — the 0.3% letter NOT MET on that tier, open, unattributed);
+R/G, B/G within 0.22% of the anchor's everywhere; 0 clamps on 99; 0 holes on all 22
+composed products; 29 single-pixel undershoot pits on 21 of 77 members, every one
+beside a bright star (G > 10x sky within 5x5), none on sky. K old-vs-new SCATTERED,
+not systematic (finals ΔK_G mean −0.004 ± 0.003 sem, sd 0.012; ΔK_B −0.001 ± 0.002):
+G 18/22 inside the frozen bar — NOT MET july31/set-01 −0.028, july31/set-03 −0.038,
+aug09/set-04 +0.010, aug09 night +0.012 — B 22/22; 21/22 inside their own night's old
+spread. Post-SPCC level DOWN ×0.53-0.95 on 21 of 22 (the ×2.35 of stage 2 was the old
+stretched members); b_R 10-11 ADU16 (aug06/09/14) and 32-35 (july31), the "~28-33
+constant" refuted. Sky footprints (U-S5, header-only WCS): the pinned reference takes
+the framing=min crop in member 1's frame instead of the auto pick's — a DIFFERENT crop
+of equal area (per-set IoU 0.895-0.991, up to 42 deg² symmetric difference on
+july31/set-01), nights 0.98-0.997, corpus 0.994. Eye inspection, two independent
+readers on all 22 finals: nothing in any final that is not in its `_outnorm` twin;
+pre-existing and called out — the unions' coverage-edge casts and level blocks, the
+green excess in the brightest Milky Way band (its magnitude DISPUTED between the two
+instruments — PNG 0.91-0.98 B/G vs linear-product ~1.000 — kept open for the
+`spcc-sensor-curve` item's H3), the R black pixels on union rims. Every SPCC in this
+campaign, like every one before it, ran against the accidental index-0 model
+(`spcc-sensor-curve`); old-vs-new K comparisons are therefore like-for-like.
+AWAITING the owner's acceptances and the 13 re-seeds; the `_outnorm` predecessors
+stay on disk until then.
+
 **Acceptance — OWNER-STATED and binding for this item:** the goal is the best
 natural image from the data, not matching the new product to the old one. Every
 rebuild under this item is a DECLARED DELTA (README "How a change is accepted"):

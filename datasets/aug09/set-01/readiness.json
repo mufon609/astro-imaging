@@ -56,7 +56,7 @@
   {
    "criterion": "disk",
    "status": "GREEN",
-   "value": "904G free covers even the 275G single-pass peak",
+   "value": "489G free covers even the 275G single-pass peak",
    "instrument": "df + disk_budget.sh (undistort_peak_gib)",
    "detail": ""
   },

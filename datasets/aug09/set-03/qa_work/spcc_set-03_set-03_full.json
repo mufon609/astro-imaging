@@ -7,18 +7,18 @@
  "sensor_match_note": "The K factors below calibrate against a DEFAULT response curve, not this sensor's. Resolve a name from `spcc_list oscsensor` into recipe.json's `spcc` block when one exists for this chip; if none exists, that is a documented database GAP, not a tuning choice \u2014 contributing the curve to the siril-spcc-database is the fix.",
  "input": "../../web/results/aug09/stack_set-03_full_wcs.fit",
  "output": "../../web/results/aug09/stack_set-03_full_spcc.fit",
- "input_size": 211996800,
- "input_mtime": 1787164943,
+ "input_size": 212425920,
+ "input_mtime": 1787958405,
  "k_factors": {
   "R": 1.0,
-  "G": 0.647,
-  "B": 0.853
+  "G": 0.642,
+  "B": 0.851
  },
  "b_offsets": {
-  "R": 0.000434811,
-  "G": -0.000121289,
-  "B": 0.000222624
+  "R": 0.000163269,
+  "G": 9.21185e-05,
+  "B": 0.000149593
  },
- "n_photometry": 5285,
- "n_kept": 3242
+ "n_photometry": 5235,
+ "n_kept": 3210
 }

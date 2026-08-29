@@ -1,0 +1,95 @@
+{
+ "_what": "UNCHECKED premises of the output-norm-zero-point engagement that no tree record, ledger line or commit message carries \u2014 logged, not discharged (CLAUDE.md: convergence between sessions is logged UNCHECKED and goes to a different kind of check). Source: worker astro-imaging-fe's close-out; director-verified against the tree that none is already written.",
+ "premises": [
+  {
+   "id": "U-A",
+   "premise": "Siril's log text 'Output normalization ...... disabled|enabled' (six dots) is stable across Siril versions",
+   "status": "observed on 1.4.4 only; three post-asserts (compose.sh, groups.sh, pipeline.sh) depend on it",
+   "failure_mode": "a wording change ABORTS loudly (exit 4/1), never passes silently",
+   "check": "first build after any Siril upgrade; the siril-1.5 BACKLOG item"
+  },
+  {
+   "id": "U-D",
+   "premise": "H1's yardstick \u2014 the within-night K spread of chain-clean products (G 0.009, B 0.018) \u2014 was a choice, not a measurement",
+   "status": "two aug06 arm records sit outside the stated context range (pinnedmodel 0.672/0.874, crop5lr 0.654/0.861)",
+   "check": "the campaign's 17-set old-vs-new K table"
+  },
+  {
+   "id": "U-F",
+   "premise": "SPCC K factors are parsed at 3 decimals; a sub-0.0005 K move is invisible",
+   "status": "instrument resolution, not a data claim",
+   "check": "none needed unless a K delta is argued below 0.001"
+  },
+  {
+   "id": "U-G/U-P8",
+   "premise": "SPCC's b_offsets carry a constant ~28 ADU16 in R so the neutralized level tracks R's pre-SPCC level (the stage-2 x2.35 mechanism)",
+   "status": "inferred from four b-offsets on two products; not from Siril's SPCC source",
+   "check": "a third product's b-offsets (any campaign per-set product vs its _outnorm)"
+  },
+  {
+   "id": "U-P6",
+   "premise": "the per-set final's h.ssf siril `save` round-trip is pixel-neutral",
+   "status": "bounded by the stage-2 identity test (<=4.4e-8) but never measured alone",
+   "check": "stat before/after a save on one product if ever needed"
+  },
+  {
+   "id": "U-P9",
+   "premise": "solve records identical to every digit ('attempt: cached') mean solve_field re-solved rather than served a name-keyed cache",
+   "status": "not established",
+   "check": "read solve_field.py's cache keying; diff the WCS of a campaign _wcs product against its _outnorm twin"
+  },
+  {
+   "id": "U-S2",
+   "premise": "`stack -nonorm` also prints the 'Output normalization ...... disabled' line",
+   "status": "read from stacking.c, never observed on the rig",
+   "check": "the next --nonorm diagnostic arm's log"
+  },
+  {
+   "id": "U-S5",
+   "premise": "a pinned-reference canvas change (5830x3958 -> 5830x3951) is a re-basing of the same sky intersection, not a different intersection",
+   "status": "unmeasured in sky terms",
+   "check": "solve both sub_01s and compare footprints on the sky"
+  },
+  {
+   "id": "U-C1",
+   "premise": "the driver's `exec >>` interleaves cleanly with the chain's own logging",
+   "status": "live: the first sets' logs read cleanly",
+   "check": "the campaign log at the end"
+  },
+  {
+   "id": "U-C2",
+   "premise": "QA/readiness/audit steps are read-only when their records exist",
+   "status": "the plans said 'done' for every set",
+   "check": "git status after the campaign: which tracked records changed"
+  },
+  {
+   "id": "U-C3",
+   "premise": "no script keys on the moved `_full` product PATHS",
+   "status": "chain scripts grep'd; web/serve.py not",
+   "check": "web listings after the campaign"
+  },
+  {
+   "id": "U-C4",
+   "premise": "the corpus reference re-derives to the same night (aug09) and its PNG lands in aug09's judge dir",
+   "status": "derive_compose_ref picks the most central member; re-based canvases may change it",
+   "check": "the corpus product's REGREF and the judge dir it lands in"
+  },
+  {
+   "id": "U-C5",
+   "premise": "the per-group build rate is unchanged by the pin and the anchor read",
+   "status": "july31/set-01 measured ~9 min per 100-frame group, under budget",
+   "check": "the campaign's per-group timestamps"
+  },
+  {
+   "id": "U-C6",
+   "premise": "lens_preflight.json and the per-set solve/SPCC records are overwritten by name during the campaign with equivalent content",
+   "status": "the probe left lens_preflight.json identical (sha256)",
+   "check": "git diff after the campaign"
+  }
+ ],
+ "worker_out_of_tree_evidence": {
+  "~/.cache/astro-imaging/pedestal_probe/go6/{lt_.seq,r_lt_.seq}": "the ONLY copies of the stage-3 probe's per-frame M lines (100 frames x 3 layers); index-0 lines are quoted in stage3_group1_probe.json; keep until the campaign readouts are done",
+  "~/.cache/astro-imaging/pedestal_probe/go7/{plans_sessions.log,plan_corpus.log,group_plans.log}": "the four session plans in full + the 17 groups.sh --plan lines; copy into the campaign record when it lands",
+  "~/.cache/astro-imaging/pedestal_probe/readout_scripts/": "the diagnostic readout scripts (identity test, clamp/hole attribution, the copy->product mapping x + h02 + 1 in Siril's top-down frame) copied from the retired worker's session scratch before it vanished"
+ }
+}
