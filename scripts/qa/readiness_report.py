@@ -467,8 +467,12 @@ def evaluate(session, set_name, route=None, forced_route=None,
             bits.append("config not verified")
             status = YELLOW
         if not sensor:
-            bits.append("sensor-null generic curve (no recipe spcc block)")
-            status = YELLOW
+            bits.append("no recipe spcc block — spcc_run.py REFUSES a spec-less "
+                        "run (headless Siril applied index 0 of its lists: "
+                        "docs/spcc-sensor-curve-z6iii.md); add {\"spcc\": "
+                        "{\"oscsensor\": \"<spcc_list oscsensor model>\"}} to "
+                        "recipe.json")
+            status = RED
         rows.append(_row("spcc", status,
                          "database present" + ("; " + "; ".join(bits) if bits
                                                else "; chunks + config + "

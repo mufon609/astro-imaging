@@ -215,7 +215,7 @@ else
 
   echo "[finish $NAME] 3/4 SPCC"
   python3 "$REPO/scripts/calibrate/spcc_run.py" "$SESSION" "$SET" \
-    --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail' || true
+    --in="$WCS" --out="$SPCC" --tag="$NAME" 2>&1 | grep -iE 'K factors|fail|REFUSED|NOT VERIFIED|SENSOR' || true
   [ -f "$SPCC" ] || { echo "[finish $NAME] SPCC FAILED" >&2; exit 1; }
   SRC=$SPCC
   LINKED=" -linked"

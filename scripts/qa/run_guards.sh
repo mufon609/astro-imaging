@@ -146,6 +146,7 @@ CHECKS=(
   "selftest coverage_frame|python3 scripts/qa/coverage_frame.py --selftest"
   "selftest check_solve_records|python3 scripts/qa/check_solve_records.py --selftest"
   "selftest baseline_guard|python3 scripts/qa/baseline_guard.py --selftest"
+  "selftest spcc_run|python3 scripts/calibrate/spcc_run.py --selftest"
   "selftest starlight_preservation [network]|python3 scripts/qa/starlight_preservation.py --selftest"
   # THE TWO SHARED LIBRARIES UNDER corner_work/, ADDED DELIBERATELY — see the
   # exclusion note above, which they are the stated exception to.
