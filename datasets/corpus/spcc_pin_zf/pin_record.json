@@ -1,0 +1,2835 @@
+{
+ "id": "spcc_pin_zf_stage2",
+ "item": "BACKLOG spcc-sensor-curve stage 2 (GO #3b, director astro-imaging-45, worker this session): the 22 canonical SPCC products re-calibrated under the recipe pin \"Nikon Z f\" \u2014 ONE knob (the response curve); the existing canonical _wcs.fit is the input everywhere (no re-solve); the index-0 products and PNGs moved aside first",
+ "instrument": "scripts/calibrate/spcc_run.py (Siril 1.4.4 flatpak siril-cli, spcc_list preload + spcc -catalog=localgaia, spec from recipe.json, log assertions) through scripts/lib/siril_run.py; the judge PNG through finish_render.sh:232's own lines (autostretch -linked; savepng) in a second siril-cli process; scripts/qa/baseline_guard.py compare mode (Siril stat); scripts/qa/readiness_report.py; PNG IHDR read from the file header; K/b/n from the runner's records, fits from the Siril logs (the old logs copied to .idx0.log before each run)",
+ "head_at_run": "199360c",
+ "pin": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy",
+  "source": "recipe.json spcc block in all 17 canonical sets (commit 199360c)"
+ },
+ "moveaside_manifest": "datasets/corpus/spcc_pin_zf/moveaside_manifest.json",
+ "routing": [
+  {
+   "session": "july31",
+   "set": "set-01",
+   "tag": "set-01_full",
+   "kind": "set",
+   "record": "datasets/july31/set-01/qa_work/spcc_set-01_set-01_full.json",
+   "wcs": "web/results/july31/stack_set-01_full_wcs.fit",
+   "wcs_bytes": 211374720,
+   "wcs_mtime": "2026-08-28 13:19:28",
+   "spcc": "web/results/july31/stack_set-01_full_spcc.fit",
+   "spcc_bytes": 211374720,
+   "png": "web/results/july31/judge/set-01_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/july31/work/spcc_set-01_set-01_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/july31/stack_set-01_idx0_spcc.fit",
+   "idx0_png": "web/results/july31/judge/set-01_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.687,
+    "B": 0.927
+   },
+   "old_b": {
+    "R": 0.000487488,
+    "G": 0.000162371,
+    "B": 1.16624e-05
+   },
+   "old_n": [
+    5119,
+    3077
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "july31",
+   "set": "set-02",
+   "tag": "set-02_full",
+   "kind": "set",
+   "record": "datasets/july31/set-02/qa_work/spcc_set-02_set-02_full.json",
+   "wcs": "web/results/july31/stack_set-02_full_wcs.fit",
+   "wcs_bytes": 212780160,
+   "wcs_mtime": "2026-08-28 14:00:37",
+   "spcc": "web/results/july31/stack_set-02_full_spcc.fit",
+   "spcc_bytes": 212780160,
+   "png": "web/results/july31/judge/set-02_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/july31/work/spcc_set-02_set-02_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/july31/stack_set-02_idx0_spcc.fit",
+   "idx0_png": "web/results/july31/judge/set-02_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.665,
+    "B": 0.887
+   },
+   "old_b": {
+    "R": 0.000497063,
+    "G": 0.000200797,
+    "B": 5.09948e-05
+   },
+   "old_n": [
+    4987,
+    2936
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "july31",
+   "set": "set-03",
+   "tag": "set-03_full",
+   "kind": "set",
+   "record": "datasets/july31/set-03/qa_work/spcc_set-03_set-03_full.json",
+   "wcs": "web/results/july31/stack_set-03_full_wcs.fit",
+   "wcs_bytes": 212463360,
+   "wcs_mtime": "2026-08-28 14:43:30",
+   "spcc": "web/results/july31/stack_set-03_full_spcc.fit",
+   "spcc_bytes": 212463360,
+   "png": "web/results/july31/judge/set-03_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/july31/work/spcc_set-03_set-03_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/july31/stack_set-03_idx0_spcc.fit",
+   "idx0_png": "web/results/july31/judge/set-03_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.648,
+    "B": 0.863
+   },
+   "old_b": {
+    "R": 0.000529905,
+    "G": 0.00023615,
+    "B": 8.64152e-05
+   },
+   "old_n": [
+    4982,
+    2978
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "july31",
+   "set": "set-04",
+   "tag": "set-04_full",
+   "kind": "set",
+   "record": "datasets/july31/set-04/qa_work/spcc_set-04_set-04_full.json",
+   "wcs": "web/results/july31/stack_set-04_full_wcs.fit",
+   "wcs_bytes": 249865920,
+   "wcs_mtime": "2026-08-28 15:05:23",
+   "spcc": "web/results/july31/stack_set-04_full_spcc.fit",
+   "spcc_bytes": 249865920,
+   "png": "web/results/july31/judge/set-04_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/july31/work/spcc_set-04_set-04_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/july31/stack_set-04_idx0_spcc.fit",
+   "idx0_png": "web/results/july31/judge/set-04_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.672,
+    "B": 0.863
+   },
+   "old_b": {
+    "R": 0.000535643,
+    "G": 0.000195976,
+    "B": 7.23248e-05
+   },
+   "old_n": [
+    4741,
+    2795
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "july31",
+   "set": "set-01",
+   "tag": "set-01+02+03+04_full",
+   "kind": "night",
+   "record": "datasets/july31/set-01/qa_work/spcc_set-01_set-01+02+03+04_full.json",
+   "wcs": "web/results/july31/stack_set-01+02+03+04_full_wcs.fit",
+   "wcs_bytes": 455186880,
+   "wcs_mtime": "2026-08-28 15:05:57",
+   "spcc": "web/results/july31/stack_set-01+02+03+04_full_spcc.fit",
+   "spcc_bytes": 455186880,
+   "png": "web/results/july31/judge/set-01+02+03+04_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/july31/work/spcc_set-01_set-01+02+03+04_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/july31/stack_set-01+02+03+04_idx0_spcc.fit",
+   "idx0_png": "web/results/july31/judge/set-01+02+03+04_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.688,
+    "B": 0.892
+   },
+   "old_b": {
+    "R": 0.00048623,
+    "G": 0.000160621,
+    "B": 6.43804e-05
+   },
+   "old_n": [
+    4177,
+    2069
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug06",
+   "set": "set-01",
+   "tag": "set-01_full",
+   "kind": "set",
+   "record": "datasets/aug06/set-01/qa_work/spcc_set-01_set-01_full.json",
+   "wcs": "web/results/aug06/stack_set-01_full_wcs.fit",
+   "wcs_bytes": 212670720,
+   "wcs_mtime": "2026-08-28 15:52:14",
+   "spcc": "web/results/aug06/stack_set-01_full_spcc.fit",
+   "spcc_bytes": 212670720,
+   "png": "web/results/aug06/judge/set-01_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug06/work/spcc_set-01_set-01_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug06/stack_set-01_idx0_spcc.fit",
+   "idx0_png": "web/results/aug06/judge/set-01_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.649,
+    "B": 0.87
+   },
+   "old_b": {
+    "R": 0.000166453,
+    "G": 8.85522e-05,
+    "B": 7.62783e-05
+   },
+   "old_n": [
+    5548,
+    2813
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug06",
+   "set": "set-02",
+   "tag": "set-02_full",
+   "kind": "set",
+   "record": "datasets/aug06/set-02/qa_work/spcc_set-02_set-02_full.json",
+   "wcs": "web/results/aug06/stack_set-02_full_wcs.fit",
+   "wcs_bytes": 212572800,
+   "wcs_mtime": "2026-08-28 16:35:32",
+   "spcc": "web/results/aug06/stack_set-02_full_spcc.fit",
+   "spcc_bytes": 212572800,
+   "png": "web/results/aug06/judge/set-02_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug06/work/spcc_set-02_set-02_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug06/stack_set-02_idx0_spcc.fit",
+   "idx0_png": "web/results/aug06/judge/set-02_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.64,
+    "B": 0.848
+   },
+   "old_b": {
+    "R": 0.000158054,
+    "G": 9.83433e-05,
+    "B": 8.41907e-05
+   },
+   "old_n": [
+    5156,
+    3072
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug06",
+   "set": "set-03",
+   "tag": "set-03_full",
+   "kind": "set",
+   "record": "datasets/aug06/set-03/qa_work/spcc_set-03_set-03_full.json",
+   "wcs": "web/results/aug06/stack_set-03_full_wcs.fit",
+   "wcs_bytes": 213347520,
+   "wcs_mtime": "2026-08-28 17:14:44",
+   "spcc": "web/results/aug06/stack_set-03_full_spcc.fit",
+   "spcc_bytes": 213347520,
+   "png": "web/results/aug06/judge/set-03_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug06/work/spcc_set-03_set-03_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug06/stack_set-03_idx0_spcc.fit",
+   "idx0_png": "web/results/aug06/judge/set-03_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.644,
+    "B": 0.85
+   },
+   "old_b": {
+    "R": 0.000151374,
+    "G": 8.89444e-05,
+    "B": 8.34762e-05
+   },
+   "old_n": [
+    5491,
+    3186
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug06",
+   "set": "set-01",
+   "tag": "set-01+02+03_full",
+   "kind": "night",
+   "record": "datasets/aug06/set-01/qa_work/spcc_set-01_set-01+02+03_full.json",
+   "wcs": "web/results/aug06/stack_set-01+02+03_full_wcs.fit",
+   "wcs_bytes": 405887040,
+   "wcs_mtime": "2026-08-28 17:15:14",
+   "spcc": "web/results/aug06/stack_set-01+02+03_full_spcc.fit",
+   "spcc_bytes": 405887040,
+   "png": "web/results/aug06/judge/set-01+02+03_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug06/work/spcc_set-01_set-01+02+03_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug06/stack_set-01+02+03_idx0_spcc.fit",
+   "idx0_png": "web/results/aug06/judge/set-01+02+03_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.649,
+    "B": 0.855
+   },
+   "old_b": {
+    "R": 0.000166312,
+    "G": 8.77582e-05,
+    "B": 8.45196e-05
+   },
+   "old_n": [
+    4510,
+    2302
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-01",
+   "tag": "set-01_full",
+   "kind": "set",
+   "record": "datasets/aug09/set-01/qa_work/spcc_set-01_set-01_full.json",
+   "wcs": "web/results/aug09/stack_set-01_full_wcs.fit",
+   "wcs_bytes": 212924160,
+   "wcs_mtime": "2026-08-28 17:53:17",
+   "spcc": "web/results/aug09/stack_set-01_full_spcc.fit",
+   "spcc_bytes": 212924160,
+   "png": "web/results/aug09/judge/set-01_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-01_set-01_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-01_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-01_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.66,
+    "B": 0.922
+   },
+   "old_b": {
+    "R": 0.000162272,
+    "G": 7.98578e-05,
+    "B": 9.56026e-05
+   },
+   "old_n": [
+    5080,
+    3064
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-02",
+   "tag": "set-02_full",
+   "kind": "set",
+   "record": "datasets/aug09/set-02/qa_work/spcc_set-02_set-02_full.json",
+   "wcs": "web/results/aug09/stack_set-02_full_wcs.fit",
+   "wcs_bytes": 216403200,
+   "wcs_mtime": "2026-08-28 18:27:27",
+   "spcc": "web/results/aug09/stack_set-02_full_spcc.fit",
+   "spcc_bytes": 216403200,
+   "png": "web/results/aug09/judge/set-02_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-02_set-02_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-02_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-02_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.651,
+    "B": 0.877
+   },
+   "old_b": {
+    "R": 0.000155478,
+    "G": 9.13605e-05,
+    "B": 0.000122281
+   },
+   "old_n": [
+    5153,
+    3136
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-03",
+   "tag": "set-03_full",
+   "kind": "set",
+   "record": "datasets/aug09/set-03/qa_work/spcc_set-03_set-03_full.json",
+   "wcs": "web/results/aug09/stack_set-03_full_wcs.fit",
+   "wcs_bytes": 212425920,
+   "wcs_mtime": "2026-08-28 19:06:45",
+   "spcc": "web/results/aug09/stack_set-03_full_spcc.fit",
+   "spcc_bytes": 212425920,
+   "png": "web/results/aug09/judge/set-03_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-03_set-03_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-03_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-03_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.642,
+    "B": 0.851
+   },
+   "old_b": {
+    "R": 0.000163269,
+    "G": 9.21185e-05,
+    "B": 0.000149593
+   },
+   "old_n": [
+    5235,
+    3210
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-04",
+   "tag": "set-04_full",
+   "kind": "set",
+   "record": "datasets/aug09/set-04/qa_work/spcc_set-04_set-04_full.json",
+   "wcs": "web/results/aug09/stack_set-04_full_wcs.fit",
+   "wcs_bytes": 212898240,
+   "wcs_mtime": "2026-08-28 19:45:14",
+   "spcc": "web/results/aug09/stack_set-04_full_spcc.fit",
+   "spcc_bytes": 212898240,
+   "png": "web/results/aug09/judge/set-04_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-04_set-04_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-04_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-04_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.655,
+    "B": 0.849
+   },
+   "old_b": {
+    "R": 0.000166675,
+    "G": 8.21462e-05,
+    "B": 0.000153855
+   },
+   "old_n": [
+    5314,
+    2964
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-05",
+   "tag": "set-05_full",
+   "kind": "set",
+   "record": "datasets/aug09/set-05/qa_work/spcc_set-05_set-05_full.json",
+   "wcs": "web/results/aug09/stack_set-05_full_wcs.fit",
+   "wcs_bytes": 213560640,
+   "wcs_mtime": "2026-08-28 20:24:02",
+   "spcc": "web/results/aug09/stack_set-05_full_spcc.fit",
+   "spcc_bytes": 213560640,
+   "png": "web/results/aug09/judge/set-05_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-05_set-05_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-05_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-05_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.642,
+    "B": 0.843
+   },
+   "old_b": {
+    "R": 0.000169029,
+    "G": 9.26777e-05,
+    "B": 0.000166143
+   },
+   "old_n": [
+    5276,
+    3187
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-01",
+   "tag": "set-01+02+03+04+05_full",
+   "kind": "night",
+   "record": "datasets/aug09/set-01/qa_work/spcc_set-01_set-01+02+03+04+05_full.json",
+   "wcs": "web/results/aug09/stack_set-01+02+03+04+05_full_wcs.fit",
+   "wcs_bytes": 459475200,
+   "wcs_mtime": "2026-08-28 20:25:15",
+   "spcc": "web/results/aug09/stack_set-01+02+03+04+05_full_spcc.fit",
+   "spcc_bytes": 459475200,
+   "png": "web/results/aug09/judge/set-01+02+03+04+05_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-01_set-01+02+03+04+05_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug09/stack_set-01+02+03+04+05_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/set-01+02+03+04+05_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.664,
+    "B": 0.896
+   },
+   "old_b": {
+    "R": 0.000161882,
+    "G": 7.63962e-05,
+    "B": 0.000110544
+   },
+   "old_n": [
+    4175,
+    2160
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-01",
+   "tag": "set-01_full",
+   "kind": "set",
+   "record": "datasets/aug14/set-01/qa_work/spcc_set-01_set-01_full.json",
+   "wcs": "web/results/aug14/stack_set-01_full_wcs.fit",
+   "wcs_bytes": 197755200,
+   "wcs_mtime": "2026-08-28 21:09:33",
+   "spcc": "web/results/aug14/stack_set-01_full_spcc.fit",
+   "spcc_bytes": 197755200,
+   "png": "web/results/aug14/judge/set-01_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-01_set-01_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-01_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-01_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.639,
+    "B": 0.851
+   },
+   "old_b": {
+    "R": 0.00016524,
+    "G": 0.000102562,
+    "B": 0.000136487
+   },
+   "old_n": [
+    5240,
+    2962
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-02",
+   "tag": "set-02_full",
+   "kind": "set",
+   "record": "datasets/aug14/set-02/qa_work/spcc_set-02_set-02_full.json",
+   "wcs": "web/results/aug14/stack_set-02_full_wcs.fit",
+   "wcs_bytes": 202118400,
+   "wcs_mtime": "2026-08-28 21:57:22",
+   "spcc": "web/results/aug14/stack_set-02_full_spcc.fit",
+   "spcc_bytes": 202118400,
+   "png": "web/results/aug14/judge/set-02_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-02_set-02_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-02_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-02_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.622,
+    "B": 0.84
+   },
+   "old_b": {
+    "R": 0.000154082,
+    "G": 0.000116016,
+    "B": 0.000134128
+   },
+   "old_n": [
+    5388,
+    2832
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-03",
+   "tag": "set-03_full",
+   "kind": "set",
+   "record": "datasets/aug14/set-03/qa_work/spcc_set-03_set-03_full.json",
+   "wcs": "web/results/aug14/stack_set-03_full_wcs.fit",
+   "wcs_bytes": 198354240,
+   "wcs_mtime": "2026-08-28 22:45:13",
+   "spcc": "web/results/aug14/stack_set-03_full_spcc.fit",
+   "spcc_bytes": 198354240,
+   "png": "web/results/aug14/judge/set-03_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-03_set-03_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-03_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-03_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.632,
+    "B": 0.842
+   },
+   "old_b": {
+    "R": 0.000155937,
+    "G": 0.000105481,
+    "B": 0.00012836
+   },
+   "old_n": [
+    5319,
+    2685
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-04",
+   "tag": "set-04_full",
+   "kind": "set",
+   "record": "datasets/aug14/set-04/qa_work/spcc_set-04_set-04_full.json",
+   "wcs": "web/results/aug14/stack_set-04_full_wcs.fit",
+   "wcs_bytes": 198633600,
+   "wcs_mtime": "2026-08-28 23:36:27",
+   "spcc": "web/results/aug14/stack_set-04_full_spcc.fit",
+   "spcc_bytes": 198633600,
+   "png": "web/results/aug14/judge/set-04_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-04_set-04_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-04_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-04_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.621,
+    "B": 0.838
+   },
+   "old_b": {
+    "R": 0.000153131,
+    "G": 0.00011366,
+    "B": 0.000131611
+   },
+   "old_n": [
+    5476,
+    3310
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-05",
+   "tag": "set-05_full",
+   "kind": "set",
+   "record": "datasets/aug14/set-05/qa_work/spcc_set-05_set-05_full.json",
+   "wcs": "web/results/aug14/stack_set-05_full_wcs.fit",
+   "wcs_bytes": 210902400,
+   "wcs_mtime": "2026-08-29 00:04:51",
+   "spcc": "web/results/aug14/stack_set-05_full_spcc.fit",
+   "spcc_bytes": 210902400,
+   "png": "web/results/aug14/judge/set-05_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-05_set-05_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-05_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-05_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.625,
+    "B": 0.846
+   },
+   "old_b": {
+    "R": 0.000156115,
+    "G": 0.000111909,
+    "B": 0.000117434
+   },
+   "old_n": [
+    5294,
+    3179
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug14",
+   "set": "set-01",
+   "tag": "set-01+02+03+04+05_full",
+   "kind": "night",
+   "record": "datasets/aug14/set-01/qa_work/spcc_set-01_set-01+02+03+04+05_full.json",
+   "wcs": "web/results/aug14/stack_set-01+02+03+04+05_full_wcs.fit",
+   "wcs_bytes": 499302720,
+   "wcs_mtime": "2026-08-29 00:06:05",
+   "spcc": "web/results/aug14/stack_set-01+02+03+04+05_full_spcc.fit",
+   "spcc_bytes": 499302720,
+   "png": "web/results/aug14/judge/set-01+02+03+04+05_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug14/work/spcc_set-01_set-01+02+03+04+05_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_set-01+02+03+04+05_idx0_spcc.fit",
+   "idx0_png": "web/results/aug14/judge/set-01+02+03+04+05_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.632,
+    "B": 0.886
+   },
+   "old_b": {
+    "R": 0.000164925,
+    "G": 0.00010777,
+    "B": 0.000113588
+   },
+   "old_n": [
+    4223,
+    2068
+   ],
+   "old_sensor_spec": null
+  },
+  {
+   "session": "aug09",
+   "set": "set-02",
+   "tag": "july31+aug06+aug09+aug14_full",
+   "kind": "corpus",
+   "record": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_full.json",
+   "wcs": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit",
+   "wcs_bytes": 581791680,
+   "wcs_mtime": "2026-08-29 01:29:30",
+   "spcc": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+   "spcc_bytes": 581791680,
+   "png": "web/results/aug09/judge/july31+aug06+aug09+aug14_full_spcc-linked.png",
+   "png_exists": true,
+   "old_log": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_full.log",
+   "old_log_exists": true,
+   "idx0_spcc": "web/results/aug14/stack_july31+aug06+aug09+aug14_idx0_spcc.fit",
+   "idx0_png": "web/results/aug09/judge/july31+aug06+aug09+aug14_idx0_spcc-linked.png",
+   "old_K": {
+    "R": 1.0,
+    "G": 0.671,
+    "B": 0.9
+   },
+   "old_b": {
+    "R": 0.000156728,
+    "G": 7.17631e-05,
+    "B": 0.000111255
+   },
+   "old_n": [
+    3899,
+    1915
+   ],
+   "old_sensor_spec": null
+  }
+ ],
+ "products": [
+  {
+   "product": "set-01_full",
+   "session": "july31",
+   "set": "set-01",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.687,
+    0.927
+   ],
+   "new_K": [
+    1.0,
+    0.697,
+    0.947
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.02,
+   "dK_G_pct": 1.46,
+   "dK_B_pct": 2.16,
+   "n_old": [
+    5119,
+    3077
+   ],
+   "n_new": [
+    5119,
+    3077
+   ],
+   "b_old": [
+    0.000487488,
+    0.000162371,
+    1.16624e-05
+   ],
+   "b_new": [
+    0.000487488,
+    0.000144378,
+    -1.71261e-05
+   ],
+   "sigma_old": [
+    0.140369,
+    0.110041
+   ],
+   "sigma_new": [
+    0.09561,
+    0.107511
+   ],
+   "share_old": {
+    "RG": 0.7113857350800582,
+    "BG": 0.38612181222707426
+   },
+   "share_new": {
+    "RG": 0.4765294117647059,
+    "BG": 0.4392979469153515
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4920,
+    "h": 3580,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.12,
+    "png": 2.9
+   }
+  },
+  {
+   "product": "set-02_full",
+   "session": "july31",
+   "set": "set-02",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.665,
+    0.887
+   ],
+   "new_K": [
+    1.0,
+    0.675,
+    0.907
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.02,
+   "dK_G_pct": 1.5,
+   "dK_B_pct": 2.25,
+   "n_old": [
+    4987,
+    2936
+   ],
+   "n_new": [
+    4987,
+    2936
+   ],
+   "b_old": [
+    0.000497063,
+    0.000200797,
+    5.09948e-05
+   ],
+   "b_new": [
+    0.000497063,
+    0.000183413,
+    2.04428e-05
+   ],
+   "sigma_old": [
+    0.142301,
+    0.105254
+   ],
+   "sigma_new": [
+    0.090015,
+    0.101795
+   ],
+   "share_old": {
+    "RG": 0.7097172932330826,
+    "BG": 0.36718598796992474
+   },
+   "share_new": {
+    "RG": 0.47685185185185186,
+    "BG": 0.4179308192592593
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4917,
+    "h": 3606,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.27,
+    "png": 2.89
+   }
+  },
+  {
+   "product": "set-03_full",
+   "session": "july31",
+   "set": "set-03",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.648,
+    0.863
+   ],
+   "new_K": [
+    1.0,
+    0.657,
+    0.881
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.018,
+   "dK_G_pct": 1.39,
+   "dK_B_pct": 2.09,
+   "n_old": [
+    4982,
+    2978
+   ],
+   "n_new": [
+    4982,
+    2978
+   ],
+   "b_old": [
+    0.000529905,
+    0.00023615,
+    8.64152e-05
+   ],
+   "b_new": [
+    0.000529905,
+    0.000219421,
+    5.80794e-05
+   ],
+   "sigma_old": [
+    0.148876,
+    0.105527
+   ],
+   "sigma_new": [
+    0.092497,
+    0.103193
+   ],
+   "share_old": {
+    "RG": 0.7010941358024692,
+    "BG": 0.36635948148148145
+   },
+   "share_new": {
+    "RG": 0.46699695585996953,
+    "BG": 0.421746902587519
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 56,
+    "listed_line": 80,
+    "use_line": 112
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4911,
+    "h": 3605,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.41,
+    "png": 2.96
+   }
+  },
+  {
+   "product": "set-04_full",
+   "session": "july31",
+   "set": "set-04",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.672,
+    0.863
+   ],
+   "new_K": [
+    1.0,
+    0.684,
+    0.885
+   ],
+   "dK_G": 0.012,
+   "dK_B": 0.022,
+   "dK_G_pct": 1.79,
+   "dK_B_pct": 2.55,
+   "n_old": [
+    4741,
+    2795
+   ],
+   "n_new": [
+    4741,
+    2795
+   ],
+   "b_old": [
+    0.000535643,
+    0.000195976,
+    7.23248e-05
+   ],
+   "b_new": [
+    0.000535643,
+    0.000175716,
+    3.90465e-05
+   ],
+   "sigma_old": [
+    0.152616,
+    0.11489
+   ],
+   "sigma_new": [
+    0.089743,
+    0.110525
+   ],
+   "share_old": {
+    "RG": 0.6748749999999999,
+    "BG": 0.30063349851190474
+   },
+   "share_new": {
+    "RG": 0.4230570175438596,
+    "BG": 0.3587704605263158
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 5462,
+    "h": 3812,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.61,
+    "png": 3.37
+   }
+  },
+  {
+   "product": "set-01+02+03+04_full",
+   "session": "july31",
+   "set": "set-01",
+   "kind": "night",
+   "old_K": [
+    1.0,
+    0.688,
+    0.892
+   ],
+   "new_K": [
+    1.0,
+    0.698,
+    0.912
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.02,
+   "dK_G_pct": 1.45,
+   "dK_B_pct": 2.24,
+   "n_old": [
+    4177,
+    2069
+   ],
+   "n_new": [
+    4177,
+    2069
+   ],
+   "b_old": [
+    0.00048623,
+    0.000160621,
+    6.43804e-05
+   ],
+   "b_new": [
+    0.00048623,
+    0.000142018,
+    3.4087e-05
+   ],
+   "sigma_old": [
+    0.154879,
+    0.122782
+   ],
+   "sigma_new": [
+    0.130831,
+    0.119782
+   ],
+   "share_old": {
+    "RG": 0.6853546511627907,
+    "BG": 0.31670019186046516
+   },
+   "share_new": {
+    "RG": 0.43912750716332377,
+    "BG": 0.36589361604584525
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 53 < loaded 56",
+   "resolution_lines": {
+    "loaded_line": 60,
+    "listed_line": 84,
+    "use_line": 116
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 7407,
+    "h": 5121,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 4.47,
+    "png": 5.5
+   }
+  },
+  {
+   "product": "set-01_full",
+   "session": "aug06",
+   "set": "set-01",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.649,
+    0.87
+   ],
+   "new_K": [
+    1.0,
+    0.656,
+    0.886
+   ],
+   "dK_G": 0.007,
+   "dK_B": 0.016,
+   "dK_G_pct": 1.08,
+   "dK_B_pct": 1.84,
+   "n_old": [
+    5548,
+    2813
+   ],
+   "n_new": [
+    5548,
+    2813
+   ],
+   "b_old": [
+    0.000166453,
+    8.85522e-05,
+    7.62783e-05
+   ],
+   "b_new": [
+    0.000166453,
+    8.33397e-05,
+    6.7296e-05
+   ],
+   "sigma_old": [
+    0.139793,
+    0.113281
+   ],
+   "sigma_new": [
+    0.102295,
+    0.110234
+   ],
+   "share_old": {
+    "RG": 0.7668135593220339,
+    "BG": 0.3632792912172573
+   },
+   "share_new": {
+    "RG": 0.5832469512195122,
+    "BG": 0.42001532317073165
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4909,
+    "h": 3610,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.42,
+    "png": 2.96
+   }
+  },
+  {
+   "product": "set-02_full",
+   "session": "aug06",
+   "set": "set-02",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.64,
+    0.848
+   ],
+   "new_K": [
+    1.0,
+    0.648,
+    0.865
+   ],
+   "dK_G": 0.008,
+   "dK_B": 0.017,
+   "dK_G_pct": 1.25,
+   "dK_B_pct": 2.0,
+   "n_old": [
+    5156,
+    3072
+   ],
+   "n_new": [
+    5156,
+    3072
+   ],
+   "b_old": [
+    0.000158054,
+    9.83433e-05,
+    8.41907e-05
+   ],
+   "b_new": [
+    0.000158054,
+    9.26186e-05,
+    7.49423e-05
+   ],
+   "sigma_old": [
+    0.1528,
+    0.114985
+   ],
+   "sigma_new": [
+    0.129457,
+    0.112347
+   ],
+   "share_old": {
+    "RG": 0.7474500000000001,
+    "BG": 0.31506115
+   },
+   "share_new": {
+    "RG": 0.5475200617283951,
+    "BG": 0.37564360339506175
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4904,
+    "h": 3612,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.28,
+    "png": 2.97
+   }
+  },
+  {
+   "product": "set-03_full",
+   "session": "aug06",
+   "set": "set-03",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.644,
+    0.85
+   ],
+   "new_K": [
+    1.0,
+    0.653,
+    0.867
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.017,
+   "dK_G_pct": 1.4,
+   "dK_B_pct": 2.0,
+   "n_old": [
+    5491,
+    3186
+   ],
+   "n_new": [
+    5491,
+    3186
+   ],
+   "b_old": [
+    0.000151374,
+    8.89444e-05,
+    8.34762e-05
+   ],
+   "b_new": [
+    0.000151374,
+    8.31407e-05,
+    7.4309e-05
+   ],
+   "sigma_old": [
+    0.130921,
+    0.126727
+   ],
+   "sigma_new": [
+    0.093419,
+    0.122599
+   ],
+   "share_old": {
+    "RG": 0.7458695652173912,
+    "BG": 0.3116385093167702
+   },
+   "share_new": {
+    "RG": 0.5468866768759572,
+    "BG": 0.37136809800918835
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4911,
+    "h": 3620,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.36,
+    "png": 2.96
+   }
+  },
+  {
+   "product": "set-01+02+03_full",
+   "session": "aug06",
+   "set": "set-01",
+   "kind": "night",
+   "old_K": [
+    1.0,
+    0.649,
+    0.855
+   ],
+   "new_K": [
+    1.0,
+    0.659,
+    0.873
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.018,
+   "dK_G_pct": 1.54,
+   "dK_B_pct": 2.11,
+   "n_old": [
+    4510,
+    2302
+   ],
+   "n_new": [
+    4510,
+    2302
+   ],
+   "b_old": [
+    0.000166312,
+    8.77582e-05,
+    8.45196e-05
+   ],
+   "b_new": [
+    0.000166312,
+    8.08151e-05,
+    7.43013e-05
+   ],
+   "sigma_old": [
+    0.137192,
+    0.082587
+   ],
+   "sigma_new": [
+    0.081124,
+    0.079702
+   ],
+   "share_old": {
+    "RG": 0.7105192604006163,
+    "BG": 0.2947615793528505
+   },
+   "share_new": {
+    "RG": 0.475701062215478,
+    "BG": 0.3499259544764795
+   },
+   "imprecise_old": true,
+   "imprecise_new": false,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 53 < loaded 54",
+   "resolution_lines": {
+    "loaded_line": 56,
+    "listed_line": 80,
+    "use_line": 112
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 7356,
+    "h": 4598,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 3.67,
+    "png": 5.19
+   }
+  },
+  {
+   "product": "set-01_full",
+   "session": "aug09",
+   "set": "set-01",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.66,
+    0.922
+   ],
+   "new_K": [
+    1.0,
+    0.669,
+    0.943
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.021,
+   "dK_G_pct": 1.36,
+   "dK_B_pct": 2.28,
+   "n_old": [
+    5080,
+    3064
+   ],
+   "n_new": [
+    5080,
+    3064
+   ],
+   "b_old": [
+    0.000162272,
+    7.98578e-05,
+    9.56026e-05
+   ],
+   "b_new": [
+    0.000162272,
+    7.15849e-05,
+    8.33059e-05
+   ],
+   "sigma_old": [
+    0.149711,
+    0.114278
+   ],
+   "sigma_new": [
+    0.112896,
+    0.11362
+   ],
+   "share_old": {
+    "RG": 0.7487742424242424,
+    "BG": 0.3024187939393939
+   },
+   "share_new": {
+    "RG": 0.5472137518684604,
+    "BG": 0.3622261748878923
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 55",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4904,
+    "h": 3618,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.38,
+    "png": 2.97
+   }
+  },
+  {
+   "product": "set-02_full",
+   "session": "aug09",
+   "set": "set-02",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.651,
+    0.877
+   ],
+   "new_K": [
+    1.0,
+    0.66,
+    0.895
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.018,
+   "dK_G_pct": 1.38,
+   "dK_B_pct": 2.05,
+   "n_old": [
+    5153,
+    3136
+   ],
+   "n_new": [
+    5153,
+    3136
+   ],
+   "b_old": [
+    0.000155478,
+    9.13605e-05,
+    0.000122281
+   ],
+   "b_new": [
+    0.000155478,
+    8.37308e-05,
+    0.000111568
+   ],
+   "sigma_old": [
+    0.131865,
+    0.122841
+   ],
+   "sigma_new": [
+    0.095666,
+    0.120209
+   ],
+   "share_old": {
+    "RG": 0.7500599078341014,
+    "BG": 0.31196142857142856
+   },
+   "share_new": {
+    "RG": 0.5498621212121212,
+    "BG": 0.3741018636363636
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 5030,
+    "h": 3585,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.49,
+    "png": 3.0
+   }
+  },
+  {
+   "product": "set-03_full",
+   "session": "aug09",
+   "set": "set-03",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.642,
+    0.851
+   ],
+   "new_K": [
+    1.0,
+    0.651,
+    0.87
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.019,
+   "dK_G_pct": 1.4,
+   "dK_B_pct": 2.23,
+   "n_old": [
+    5235,
+    3210
+   ],
+   "n_new": [
+    5235,
+    3210
+   ],
+   "b_old": [
+    0.000163269,
+    9.21185e-05,
+    0.000149593
+   ],
+   "b_new": [
+    0.000163269,
+    8.40086e-05,
+    0.000138392
+   ],
+   "sigma_old": [
+    0.136374,
+    0.127804
+   ],
+   "sigma_new": [
+    0.092851,
+    0.124025
+   ],
+   "share_old": {
+    "RG": 0.7389595015576323,
+    "BG": 0.29317215109034267
+   },
+   "share_new": {
+    "RG": 0.5321689708141322,
+    "BG": 0.35583935483870965
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4902,
+    "h": 3611,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.44,
+    "png": 2.93
+   }
+  },
+  {
+   "product": "set-04_full",
+   "session": "aug09",
+   "set": "set-04",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.655,
+    0.849
+   ],
+   "new_K": [
+    1.0,
+    0.664,
+    0.869
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.02,
+   "dK_G_pct": 1.37,
+   "dK_B_pct": 2.36,
+   "n_old": [
+    5314,
+    2964
+   ],
+   "n_new": [
+    5314,
+    2964
+   ],
+   "b_old": [
+    0.000166675,
+    8.21462e-05,
+    0.000153855
+   ],
+   "b_new": [
+    0.000166675,
+    7.36759e-05,
+    0.000141685
+   ],
+   "sigma_old": [
+    0.157682,
+    0.131055
+   ],
+   "sigma_new": [
+    0.114268,
+    0.128155
+   ],
+   "share_old": {
+    "RG": 0.7101251908396946,
+    "BG": 0.3007559816793893
+   },
+   "share_new": {
+    "RG": 0.48655572289156623,
+    "BG": 0.3580319262048193
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4902,
+    "h": 3619,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.56,
+    "png": 2.96
+   }
+  },
+  {
+   "product": "set-05_full",
+   "session": "aug09",
+   "set": "set-05",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.642,
+    0.843
+   ],
+   "new_K": [
+    1.0,
+    0.652,
+    0.862
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.019,
+   "dK_G_pct": 1.56,
+   "dK_B_pct": 2.25,
+   "n_old": [
+    5276,
+    3187
+   ],
+   "n_new": [
+    5276,
+    3187
+   ],
+   "b_old": [
+    0.000169029,
+    9.26777e-05,
+    0.000166143
+   ],
+   "b_new": [
+    0.000169029,
+    8.40588e-05,
+    0.000154223
+   ],
+   "sigma_old": [
+    0.146344,
+    0.129804
+   ],
+   "sigma_new": [
+    0.098744,
+    0.126311
+   ],
+   "share_old": {
+    "RG": 0.7026448598130841,
+    "BG": 0.2678639065420561
+   },
+   "share_new": {
+    "RG": 0.47321165644171775,
+    "BG": 0.3294876012269939
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 56,
+    "listed_line": 80,
+    "use_line": 112
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4897,
+    "h": 3634,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.39,
+    "png": 3.0
+   }
+  },
+  {
+   "product": "set-01+02+03+04+05_full",
+   "session": "aug09",
+   "set": "set-01",
+   "kind": "night",
+   "old_K": [
+    1.0,
+    0.664,
+    0.896
+   ],
+   "new_K": [
+    1.0,
+    0.676,
+    0.92
+   ],
+   "dK_G": 0.012,
+   "dK_B": 0.024,
+   "dK_G_pct": 1.81,
+   "dK_B_pct": 2.68,
+   "n_old": [
+    4175,
+    2160
+   ],
+   "n_new": [
+    4175,
+    2160
+   ],
+   "b_old": [
+    0.000161882,
+    7.63962e-05,
+    0.000110544
+   ],
+   "b_new": [
+    0.000161882,
+    6.61405e-05,
+    9.65871e-05
+   ],
+   "sigma_old": [
+    0.161231,
+    0.088399
+   ],
+   "sigma_new": [
+    0.095728,
+    0.084394
+   ],
+   "share_old": {
+    "RG": 0.6888268072289156,
+    "BG": 0.2679809156626506
+   },
+   "share_new": {
+    "RG": 0.43976627218934905,
+    "BG": 0.32842366863905326
+   },
+   "imprecise_old": true,
+   "imprecise_new": false,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 53 < loaded 58",
+   "resolution_lines": {
+    "loaded_line": 56,
+    "listed_line": 80,
+    "use_line": 112
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 7746,
+    "h": 4943,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 4.14,
+    "png": 5.73
+   }
+  },
+  {
+   "product": "set-01_full",
+   "session": "aug14",
+   "set": "set-01",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.639,
+    0.851
+   ],
+   "new_K": [
+    1.0,
+    0.647,
+    0.868
+   ],
+   "dK_G": 0.008,
+   "dK_B": 0.017,
+   "dK_G_pct": 1.25,
+   "dK_B_pct": 2.0,
+   "n_old": [
+    5240,
+    2962
+   ],
+   "n_new": [
+    5240,
+    2962
+   ],
+   "b_old": [
+    0.00016524,
+    0.000102562,
+    0.000136487
+   ],
+   "b_new": [
+    0.00016524,
+    9.55907e-05,
+    0.00012586
+   ],
+   "sigma_old": [
+    0.137757,
+    0.134849
+   ],
+   "sigma_new": [
+    0.1,
+    0.13197
+   ],
+   "share_old": {
+    "RG": 0.7378200312989046,
+    "BG": 0.31869084350547733
+   },
+   "share_new": {
+    "RG": 0.5376553323029366,
+    "BG": 0.3755112890262751
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4651,
+    "h": 3543,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.37,
+    "png": 2.76
+   }
+  },
+  {
+   "product": "set-02_full",
+   "session": "aug14",
+   "set": "set-02",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.622,
+    0.84
+   ],
+   "new_K": [
+    1.0,
+    0.631,
+    0.859
+   ],
+   "dK_G": 0.009,
+   "dK_B": 0.019,
+   "dK_G_pct": 1.45,
+   "dK_B_pct": 2.26,
+   "n_old": [
+    5388,
+    2832
+   ],
+   "n_new": [
+    5388,
+    2832
+   ],
+   "b_old": [
+    0.000154082,
+    0.000116016,
+    0.000134128
+   ],
+   "b_new": [
+    0.000154082,
+    0.00010862,
+    0.000122857
+   ],
+   "sigma_old": [
+    0.144777,
+    0.121834
+   ],
+   "sigma_new": [
+    0.107124,
+    0.118107
+   ],
+   "share_old": {
+    "RG": 0.7220932475884244,
+    "BG": 0.2819847588424437
+   },
+   "share_new": {
+    "RG": 0.5088019017432647,
+    "BG": 0.34346795087163234
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4719,
+    "h": 3569,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.48,
+    "png": 2.87
+   }
+  },
+  {
+   "product": "set-03_full",
+   "session": "aug14",
+   "set": "set-03",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.632,
+    0.842
+   ],
+   "new_K": [
+    1.0,
+    0.642,
+    0.863
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.021,
+   "dK_G_pct": 1.58,
+   "dK_B_pct": 2.49,
+   "n_old": [
+    5319,
+    2685
+   ],
+   "n_new": [
+    5319,
+    2685
+   ],
+   "b_old": [
+    0.000155937,
+    0.000105481,
+    0.00012836
+   ],
+   "b_new": [
+    0.000155937,
+    9.73503e-05,
+    0.000115883
+   ],
+   "sigma_old": [
+    0.160027,
+    0.13221
+   ],
+   "sigma_new": [
+    0.112509,
+    0.127964
+   ],
+   "share_old": {
+    "RG": 0.7066835443037975,
+    "BG": 0.2529703734177215
+   },
+   "share_new": {
+    "RG": 0.47961370716510904,
+    "BG": 0.3120833831775701
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4652,
+    "h": 3553,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.3,
+    "png": 2.83
+   }
+  },
+  {
+   "product": "set-04_full",
+   "session": "aug14",
+   "set": "set-04",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.621,
+    0.838
+   ],
+   "new_K": [
+    1.0,
+    0.631,
+    0.858
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.02,
+   "dK_G_pct": 1.61,
+   "dK_B_pct": 2.39,
+   "n_old": [
+    5476,
+    3310
+   ],
+   "n_new": [
+    5476,
+    3310
+   ],
+   "b_old": [
+    0.000153131,
+    0.00011366,
+    0.000131611
+   ],
+   "b_new": [
+    0.000153131,
+    0.000106009,
+    0.000119935
+   ],
+   "sigma_old": [
+    0.158985,
+    0.139098
+   ],
+   "sigma_new": [
+    0.119331,
+    0.133673
+   ],
+   "share_old": {
+    "RG": 0.6967729468599034,
+    "BG": 0.2161864573268921
+   },
+   "share_new": {
+    "RG": 0.46545483359746437,
+    "BG": 0.2828476545166403
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4652,
+    "h": 3558,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.58,
+    "png": 2.83
+   }
+  },
+  {
+   "product": "set-05_full",
+   "session": "aug14",
+   "set": "set-05",
+   "kind": "set",
+   "old_K": [
+    1.0,
+    0.625,
+    0.846
+   ],
+   "new_K": [
+    1.0,
+    0.635,
+    0.867
+   ],
+   "dK_G": 0.01,
+   "dK_B": 0.021,
+   "dK_G_pct": 1.6,
+   "dK_B_pct": 2.48,
+   "n_old": [
+    5294,
+    3179
+   ],
+   "n_new": [
+    5294,
+    3179
+   ],
+   "b_old": [
+    0.000156115,
+    0.000111909,
+    0.000117434
+   ],
+   "b_new": [
+    0.000156115,
+    0.000104198,
+    0.000105123
+   ],
+   "sigma_old": [
+    0.149504,
+    0.14076
+   ],
+   "sigma_new": [
+    0.102422,
+    0.136797
+   ],
+   "share_old": {
+    "RG": 0.6852336,
+    "BG": 0.1993230144
+   },
+   "share_new": {
+    "RG": 0.44281574803149604,
+    "BG": 0.2646043039370079
+   },
+   "imprecise_old": true,
+   "imprecise_new": true,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 52 < loaded 53",
+   "resolution_lines": {
+    "loaded_line": 52,
+    "listed_line": 76,
+    "use_line": 108
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 4844,
+    "h": 3628,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 2.73,
+    "png": 3.02
+   }
+  },
+  {
+   "product": "set-01+02+03+04+05_full",
+   "session": "aug14",
+   "set": "set-01",
+   "kind": "night",
+   "old_K": [
+    1.0,
+    0.632,
+    0.886
+   ],
+   "new_K": [
+    1.0,
+    0.644,
+    0.909
+   ],
+   "dK_G": 0.012,
+   "dK_B": 0.023,
+   "dK_G_pct": 1.9,
+   "dK_B_pct": 2.6,
+   "n_old": [
+    4223,
+    2068
+   ],
+   "n_new": [
+    4223,
+    2068
+   ],
+   "b_old": [
+    0.000164925,
+    0.00010777,
+    0.000113588
+   ],
+   "b_new": [
+    0.000164925,
+    9.79651e-05,
+    9.97265e-05
+   ],
+   "sigma_old": [
+    0.149421,
+    0.082245
+   ],
+   "sigma_new": [
+    0.081746,
+    0.077609
+   ],
+   "share_old": {
+    "RG": 0.6610268987341772,
+    "BG": 0.22682160759493672
+   },
+   "share_new": {
+    "RG": 0.3983695652173913,
+    "BG": 0.288121947204969
+   },
+   "imprecise_old": true,
+   "imprecise_new": false,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 55 < loaded 58",
+   "resolution_lines": {
+    "loaded_line": 60,
+    "listed_line": 84,
+    "use_line": 116
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 7983,
+    "h": 5212,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 5.01,
+    "png": 6.03
+   }
+  },
+  {
+   "product": "july31+aug06+aug09+aug14_full",
+   "session": "aug09",
+   "set": "set-02",
+   "kind": "corpus",
+   "old_K": [
+    1.0,
+    0.671,
+    0.9
+   ],
+   "new_K": [
+    1.0,
+    0.683,
+    0.922
+   ],
+   "dK_G": 0.012,
+   "dK_B": 0.022,
+   "dK_G_pct": 1.79,
+   "dK_B_pct": 2.44,
+   "n_old": [
+    3899,
+    1915
+   ],
+   "n_new": [
+    3899,
+    1915
+   ],
+   "b_old": [
+    0.000156728,
+    7.17631e-05,
+    0.000111255
+   ],
+   "b_new": [
+    0.000156728,
+    6.20966e-05,
+    9.80141e-05
+   ],
+   "sigma_old": [
+    0.134053,
+    0.096814
+   ],
+   "sigma_new": [
+    0.069158,
+    0.094527
+   ],
+   "share_old": {
+    "RG": 0.6745305514157973,
+    "BG": 0.25783591654247395
+   },
+   "share_new": {
+    "RG": 0.41583894582723274,
+    "BG": 0.31319921522694
+   },
+   "imprecise_old": true,
+   "imprecise_new": false,
+   "old_use_line": "log: SPCC will use mono senor \"(null)\" and filters \"(null)\", \"(null)\" and \"(null)",
+   "new_use_line": "log: SPCC will use OSC sensor \"Nikon Z f\" and filter \"No filter\"",
+   "old_order": "use 56 < loaded 57",
+   "resolution_lines": {
+    "loaded_line": 60,
+    "listed_line": 84,
+    "use_line": 116
+   },
+   "sensor_match_verified": true,
+   "sources_recipe_x3": true,
+   "ihdr": {
+    "w": 8540,
+    "h": 5677,
+    "bit_depth": 16,
+    "colour_type": 2
+   },
+   "wall_s": {
+    "spcc": 5.02,
+    "png": 7.18
+   }
+  }
+ ],
+ "aggregate_dK": {
+  "set": {
+   "n": 17,
+   "dK_G_mean_sd": [
+    0.0093,
+    0.0011
+   ],
+   "dK_B_mean_sd": [
+    0.0191,
+    0.0017
+   ],
+   "dK_G_pct_mean_sd": [
+    1.4371,
+    0.1653
+   ],
+   "dK_B_pct_mean_sd": [
+    2.2165,
+    0.2006
+   ]
+  },
+  "night": {
+   "n": 4,
+   "dK_G_mean_sd": [
+    0.011,
+    0.0012
+   ],
+   "dK_B_mean_sd": [
+    0.0212,
+    0.0028
+   ],
+   "dK_G_pct_mean_sd": [
+    1.675,
+    0.2142
+   ],
+   "dK_B_pct_mean_sd": [
+    2.4075,
+    0.2756
+   ]
+  },
+  "corpus": {
+   "n": 1,
+   "dK_G_mean_sd": [
+    0.012,
+    null
+   ],
+   "dK_B_mean_sd": [
+    0.022,
+    null
+   ],
+   "dK_G_pct_mean_sd": [
+    1.79,
+    null
+   ],
+   "dK_B_pct_mean_sd": [
+    2.44,
+    null
+   ]
+  }
+ },
+ "guard": {
+  "july31/set-01": {
+   "rc": 0,
+   "wall_s": 4.49,
+   "verdict_lines": [
+    "  centre_ch0                  90.6        90.6",
+    "  centre_ch1                  90.6        90.6",
+    "  centre_ch2                  90.5        90.5",
+    "PASS"
+   ]
+  },
+  "july31/set-02": {
+   "rc": 0,
+   "wall_s": 4.43,
+   "verdict_lines": [
+    "  centre_ch0                  89.0        89.0",
+    "  centre_ch1                  89.1        89.1",
+    "  centre_ch2                  88.9        88.9",
+    "PASS"
+   ]
+  },
+  "july31/set-03": {
+   "rc": 0,
+   "wall_s": 4.32,
+   "verdict_lines": [
+    "  centre_ch0                  93.1        93.1",
+    "  centre_ch1                  93.2        93.2",
+    "  centre_ch2                  92.9        92.9",
+    "PASS"
+   ]
+  },
+  "july31/set-04": {
+   "rc": 0,
+   "wall_s": 4.3,
+   "verdict_lines": [
+    "  centre_ch0                  92.8        92.8",
+    "  centre_ch1                  92.8        92.8",
+    "  centre_ch2                  92.6        92.6",
+    "PASS"
+   ]
+  },
+  "aug06/set-01": {
+   "rc": 0,
+   "wall_s": 4.15,
+   "verdict_lines": [
+    "  centre_ch0                  37.2        37.2",
+    "  centre_ch1                  37.3        37.3",
+    "  centre_ch2                  37.1        37.1",
+    "PASS"
+   ]
+  },
+  "aug06/set-02": {
+   "rc": 0,
+   "wall_s": 4.39,
+   "verdict_lines": [
+    "  centre_ch0                  36.3        36.3",
+    "  centre_ch1                  36.5        36.5",
+    "  centre_ch2                  36.3        36.3",
+    "PASS"
+   ]
+  },
+  "aug06/set-03": {
+   "rc": 0,
+   "wall_s": 4.53,
+   "verdict_lines": [
+    "  centre_ch0                  35.0        35.0",
+    "  centre_ch1                  35.1        35.1",
+    "  centre_ch2                  35.0        35.0",
+    "PASS"
+   ]
+  },
+  "aug09/set-01": {
+   "rc": 0,
+   "wall_s": 4.37,
+   "verdict_lines": [
+    "  centre_ch0                  42.2        42.2",
+    "  centre_ch1                  42.4        42.4",
+    "  centre_ch2                  42.2        42.2",
+    "PASS"
+   ]
+  },
+  "aug09/set-02": {
+   "rc": 0,
+   "wall_s": 4.47,
+   "verdict_lines": [
+    "  centre_ch0                  42.2        42.2",
+    "  centre_ch1                  42.4        42.4",
+    "  centre_ch2                  42.2        42.2",
+    "PASS"
+   ]
+  },
+  "aug09/set-03": {
+   "rc": 0,
+   "wall_s": 4.64,
+   "verdict_lines": [
+    "  centre_ch0                  43.0        43.0",
+    "  centre_ch1                  43.3        43.3",
+    "  centre_ch2                  43.0        43.0",
+    "PASS"
+   ]
+  },
+  "aug09/set-04": {
+   "rc": 0,
+   "wall_s": 4.42,
+   "verdict_lines": [
+    "  centre_ch0                  43.9        43.9",
+    "  centre_ch1                  44.2        44.2",
+    "  centre_ch2                  43.9        43.9",
+    "PASS"
+   ]
+  },
+  "aug09/set-05": {
+   "rc": 0,
+   "wall_s": 4.51,
+   "verdict_lines": [
+    "  centre_ch0                  45.1        45.1",
+    "  centre_ch1                  45.3        45.3",
+    "  centre_ch2                  45.1        45.1",
+    "PASS"
+   ]
+  },
+  "aug14/set-01": {
+   "rc": 0,
+   "wall_s": 4.26,
+   "verdict_lines": [
+    "  centre_ch0                  42.8        42.8",
+    "  centre_ch1                  43.0        43.0",
+    "  centre_ch2                  42.8        42.8",
+    "PASS"
+   ]
+  },
+  "aug14/set-02": {
+   "rc": 0,
+   "wall_s": 4.22,
+   "verdict_lines": [
+    "  centre_ch0                  40.9        40.9",
+    "  centre_ch1                  41.1        41.1",
+    "  centre_ch2                  40.9        40.9",
+    "PASS"
+   ]
+  },
+  "aug14/set-03": {
+   "rc": 0,
+   "wall_s": 4.41,
+   "verdict_lines": [
+    "  centre_ch0                  40.1        40.1",
+    "  centre_ch1                  40.4        40.4",
+    "  centre_ch2                  40.2        40.2",
+    "PASS"
+   ]
+  },
+  "aug14/set-04": {
+   "rc": 0,
+   "wall_s": 4.47,
+   "verdict_lines": [
+    "  centre_ch0                  40.4        40.4",
+    "  centre_ch1                  40.5        40.5",
+    "  centre_ch2                  40.3        40.3",
+    "PASS"
+   ]
+  },
+  "aug14/set-05": {
+   "rc": 0,
+   "wall_s": 4.39,
+   "verdict_lines": [
+    "  centre_ch0                  39.6        39.6",
+    "  centre_ch1                  39.9        39.9",
+    "  centre_ch2                  39.6        39.6",
+    "PASS"
+   ]
+  }
+ },
+ "readiness_spcc_rows": {
+  "aug06/set-01": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug06/set-01 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug06/set-02": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug06/set-02 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug06/set-03": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug06/set-03 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug09/set-01": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug09/set-01 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug09/set-02": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug09/set-02 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug09/set-03": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug09/set-03 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug09/set-04": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug09/set-04 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug09/set-05": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug09/set-05 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug14/set-01": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug14/set-01 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug14/set-02": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug14/set-02 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug14/set-03": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug14/set-03 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug14/set-04": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug14/set-04 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "aug14/set-05": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS aug14/set-05 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "july31/set-02": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS july31/set-02 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "july31/set-03": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS july31/set-03 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  },
+  "july31/set-04": {
+   "rc": 0,
+   "spcc_row": [
+    "  GREEN   spcc               database present; chunks + config + sensor spec all present",
+    "                            [filesystem + siril config + recipe.json]"
+   ],
+   "overall": "READINESS july31/set-04 \u2014 route: undistort-groups \u2014 overall: YELLOW"
+  }
+ },
+ "old_logs_copied_to": [
+  "sessions/july31/work/spcc_set-01_set-01_full.idx0.log",
+  "sessions/july31/work/spcc_set-02_set-02_full.idx0.log",
+  "sessions/july31/work/spcc_set-03_set-03_full.idx0.log",
+  "sessions/july31/work/spcc_set-04_set-04_full.idx0.log",
+  "sessions/july31/work/spcc_set-01_set-01+02+03+04_full.idx0.log",
+  "sessions/aug06/work/spcc_set-01_set-01_full.idx0.log",
+  "sessions/aug06/work/spcc_set-02_set-02_full.idx0.log",
+  "sessions/aug06/work/spcc_set-03_set-03_full.idx0.log",
+  "sessions/aug06/work/spcc_set-01_set-01+02+03_full.idx0.log",
+  "sessions/aug09/work/spcc_set-01_set-01_full.idx0.log",
+  "sessions/aug09/work/spcc_set-02_set-02_full.idx0.log",
+  "sessions/aug09/work/spcc_set-03_set-03_full.idx0.log",
+  "sessions/aug09/work/spcc_set-04_set-04_full.idx0.log",
+  "sessions/aug09/work/spcc_set-05_set-05_full.idx0.log",
+  "sessions/aug09/work/spcc_set-01_set-01+02+03+04+05_full.idx0.log",
+  "sessions/aug14/work/spcc_set-01_set-01_full.idx0.log",
+  "sessions/aug14/work/spcc_set-02_set-02_full.idx0.log",
+  "sessions/aug14/work/spcc_set-03_set-03_full.idx0.log",
+  "sessions/aug14/work/spcc_set-04_set-04_full.idx0.log",
+  "sessions/aug14/work/spcc_set-05_set-05_full.idx0.log",
+  "sessions/aug14/work/spcc_set-01_set-01+02+03+04+05_full.idx0.log",
+  "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_full.idx0.log"
+ ],
+ "png_ssf": [
+  "sessions/july31/work/pin_png_set-01_full.ssf",
+  "sessions/july31/work/pin_png_set-02_full.ssf",
+  "sessions/july31/work/pin_png_set-03_full.ssf",
+  "sessions/july31/work/pin_png_set-04_full.ssf",
+  "sessions/july31/work/pin_png_set-01+02+03+04_full.ssf",
+  "sessions/aug06/work/pin_png_set-01_full.ssf",
+  "sessions/aug06/work/pin_png_set-02_full.ssf",
+  "sessions/aug06/work/pin_png_set-03_full.ssf",
+  "sessions/aug06/work/pin_png_set-01+02+03_full.ssf",
+  "sessions/aug09/work/pin_png_set-01_full.ssf",
+  "sessions/aug09/work/pin_png_set-02_full.ssf",
+  "sessions/aug09/work/pin_png_set-03_full.ssf",
+  "sessions/aug09/work/pin_png_set-04_full.ssf",
+  "sessions/aug09/work/pin_png_set-05_full.ssf",
+  "sessions/aug09/work/pin_png_set-01+02+03+04+05_full.ssf",
+  "sessions/aug14/work/pin_png_set-01_full.ssf",
+  "sessions/aug14/work/pin_png_set-02_full.ssf",
+  "sessions/aug14/work/pin_png_set-03_full.ssf",
+  "sessions/aug14/work/pin_png_set-04_full.ssf",
+  "sessions/aug14/work/pin_png_set-05_full.ssf",
+  "sessions/aug14/work/pin_png_set-01+02+03+04+05_full.ssf",
+  "sessions/aug09/work/pin_png_july31+aug06+aug09+aug14_full.ssf"
+ ],
+ "premises_untested": [
+  "the guard's centre rows are BLIND to K by construction: SPCC's background offsets pin the neutralised sky of every channel to the R level (K_R = 1, b_R identical old/new on every product), so the level rows read identical to the baseline to 0.1 ADU16 on all 17 sets; its PASS is not a measurement of the +1.4%/+2.2% K change \u2014 the structure rows are within-channel ratios (scale-invariant) and moved only through the offsets (two dipoles: aug14/set-05 -0.0289 -> -0.0302, july31/set-02 +0.0045 -> +0.0051)",
+  "kept-star SET identity between the old and new run of each product is by count only (n_kept equal on all 22); the photometry does not see the curve, which the equal counts are consistent with, not proof of",
+  "the PNGs were checked by IHDR (16-bit RGB, canvas = NAXIS1 x NAXIS2) and size; their content was not viewed \u2014 H4 on the 21 products other than july31/set-01 is the owner's",
+  "routing of the 4 unions through set-01 of each night and of the corpus through aug09/set-02 follows the campaign's records (input identity + commit a34626a), not a re-derivation of finish_render's CALSETS/REGREF rule",
+  "the idx0 identities are bytes + head/tail/size sha256[:32] (baseline_guard's form) taken before and after the rename, not a full sha256",
+  "the old logs survive only as untracked session scratch (<name>.idx0.log); the old sigma/intercept-share numbers in this record are reproducible from those copies alone \u2014 git holds the old K/b/n records, not the logs",
+  "run-to-run determinism is assumed from the july31/set-01 repeat (arm zf2 = arm zf to the digit); no product was run twice here",
+  "the driver's first pass keyed its done-list by tag alone and skipped 13 products whose tag repeats across nights; the key was corrected (session/set/tag), the 9 finished results migrated by their own .ssf session path, and the 13 run in a second pass (10:40:33-10:41:49) \u2014 nothing was overwritten or run twice (every product's pre-run assertion: canonical _spcc and PNG absent)",
+  "the SPCC wall times (2.1-5.0 s) and PNG saves (2.8-7.2 s) are from a local-catalogue run on this rig; the doc's 'five full runs of ~2-3 min' was an estimate, not a measurement"
+ ]
+}

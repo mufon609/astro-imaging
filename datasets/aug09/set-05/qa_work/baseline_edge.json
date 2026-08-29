@@ -18,12 +18,12 @@
    "ch1": {
     "mean": 47.6,
     "median": 45.4,
-    "sigma": 29.9
+    "sigma": 30.4
    },
    "ch2": {
-    "mean": 47.6,
+    "mean": 47.7,
     "median": 45.2,
-    "sigma": 37.2
+    "sigma": 38.0
    }
   },
   "TL": {
@@ -35,12 +35,12 @@
    "ch1": {
     "mean": 45.6,
     "median": 44.8,
-    "sigma": 5.6
+    "sigma": 5.7
    },
    "ch2": {
     "mean": 45.6,
     "median": 45.1,
-    "sigma": 4.1
+    "sigma": 4.2
    }
   },
   "TR": {
@@ -74,7 +74,7 @@
    "ch2": {
     "mean": 45.5,
     "median": 45.3,
-    "sigma": 1.7
+    "sigma": 1.8
    }
   },
   "BR": {
@@ -91,7 +91,7 @@
    "ch2": {
     "mean": 46.0,
     "median": 45.3,
-    "sigma": 4.4
+    "sigma": 4.5
    }
   }
  }

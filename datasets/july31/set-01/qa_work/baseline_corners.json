@@ -16,14 +16,14 @@
     "sigma": 71.8
    },
    "ch1": {
-    "mean": 92.3,
+    "mean": 92.4,
     "median": 90.6,
-    "sigma": 65.8
+    "sigma": 66.7
    },
    "ch2": {
     "mean": 92.3,
     "median": 90.5,
-    "sigma": 78.0
+    "sigma": 79.7
    }
   },
   "TL": {
@@ -35,12 +35,12 @@
    "ch1": {
     "mean": 93.3,
     "median": 90.6,
-    "sigma": 54.7
+    "sigma": 55.5
    },
    "ch2": {
-    "mean": 93.7,
+    "mean": 93.8,
     "median": 90.7,
-    "sigma": 69.0
+    "sigma": 70.4
    }
   },
   "TR": {
@@ -52,12 +52,12 @@
    "ch1": {
     "mean": 91.5,
     "median": 90.8,
-    "sigma": 13.0
+    "sigma": 13.2
    },
    "ch2": {
     "mean": 91.4,
     "median": 90.7,
-    "sigma": 15.1
+    "sigma": 15.5
    }
   },
   "BL": {
@@ -69,12 +69,12 @@
    "ch1": {
     "mean": 91.7,
     "median": 90.6,
-    "sigma": 11.8
+    "sigma": 11.9
    },
    "ch2": {
     "mean": 91.7,
     "median": 90.6,
-    "sigma": 13.3
+    "sigma": 13.6
    }
   },
   "BR": {
@@ -84,14 +84,14 @@
     "sigma": 8.8
    },
    "ch1": {
-    "mean": 91.4,
+    "mean": 91.5,
     "median": 90.6,
-    "sigma": 8.6
+    "sigma": 8.7
    },
    "ch2": {
     "mean": 91.4,
     "median": 90.7,
-    "sigma": 8.7
+    "sigma": 8.9
    }
   }
  }

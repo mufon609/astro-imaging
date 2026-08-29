@@ -18,12 +18,12 @@
    "ch1": {
     "mean": 95.2,
     "median": 93.6,
-    "sigma": 16.2
+    "sigma": 16.4
    },
    "ch2": {
-    "mean": 95.1,
-    "median": 93.5,
-    "sigma": 17.9
+    "mean": 95.2,
+    "median": 93.6,
+    "sigma": 18.2
    }
   },
   "TL": {
@@ -35,12 +35,12 @@
    "ch1": {
     "mean": 94.4,
     "median": 92.6,
-    "sigma": 13.4
+    "sigma": 13.5
    },
    "ch2": {
     "mean": 93.9,
     "median": 92.4,
-    "sigma": 11.1
+    "sigma": 11.4
    }
   },
   "TR": {
@@ -57,7 +57,7 @@
    "ch2": {
     "mean": 93.9,
     "median": 93.2,
-    "sigma": 6.7
+    "sigma": 6.9
    }
   },
   "BL": {
@@ -74,7 +74,7 @@
    "ch2": {
     "mean": 92.8,
     "median": 92.4,
-    "sigma": 2.3
+    "sigma": 2.4
    }
   },
   "BR": {
@@ -91,7 +91,7 @@
    "ch2": {
     "mean": 93.4,
     "median": 93.0,
-    "sigma": 2.4
+    "sigma": 2.5
    }
   }
  }

@@ -1,23 +1,37 @@
 {
  "set": "set-05",
  "catalog": "localgaia",
- "sensor_spec": null,
- "sensor_spec_source": null,
- "sensor_match": "NO MATCHING SENSOR \u2014 siril's generic/default response was applied",
- "sensor_match_note": "The K factors below calibrate against a DEFAULT response curve, not this sensor's. Resolve a name from `spcc_list oscsensor` into recipe.json's `spcc` block when one exists for this chip; if none exists, that is a documented database GAP, not a tuning choice \u2014 contributing the curve to the siril-spcc-database is the fix.",
+ "sensor_spec": {
+  "oscsensor": "Nikon Z f",
+  "oscfilter": "No filter",
+  "whiteref": "Average Spiral Galaxy"
+ },
+ "sensor_spec_source": {
+  "oscsensor": "recipe",
+  "oscfilter": "recipe",
+  "whiteref": "recipe"
+ },
+ "sensor_match": "named: Nikon Z f \u2014 verified: listed by spcc_list, metadata loaded before resolution, echoed by spcc",
+ "resolution_check": {
+  "loaded_line": 56,
+  "listed_line": 80,
+  "use_line": 112
+ },
+ "sensor_match_note": "Resolution is verified per run because headless Siril 1.4.4 resolves sensor/filter/white-reference names BEFORE loading its database, so a spec-less run applied index 0 of each list \u2014 \"Generic mono sensor\" x Antlia R/G/B \u2014 MEASURED, datasets/july31/set-01/qa_work/spcc_h0_probe.json (H0: with the preload, \"Nikon D750\" K 1.000/0.697/0.945 and \"Nikon D500\" 1.000/0.700/0.955 vs the index-0 1.000/0.687/0.927 on the same input; the spec-less arm errors, exit 1, no K); the preload + assertions retire when Siril loads before resolving (REMOVAL CONDITION in the docstring).",
+ "sensor_is_dslr": false,
  "input": "../../web/results/aug09/stack_set-05_full_wcs.fit",
  "output": "../../web/results/aug09/stack_set-05_full_spcc.fit",
  "input_size": 213560640,
  "input_mtime": 1787963042,
  "k_factors": {
   "R": 1.0,
-  "G": 0.642,
-  "B": 0.843
+  "G": 0.652,
+  "B": 0.862
  },
  "b_offsets": {
   "R": 0.000169029,
-  "G": 9.26777e-05,
-  "B": 0.000166143
+  "G": 8.40588e-05,
+  "B": 0.000154223
  },
  "n_photometry": 5276,
  "n_kept": 3187
