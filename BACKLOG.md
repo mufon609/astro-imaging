@@ -179,6 +179,7 @@ names.**
 | `scripts/qa/member_solve_audit.py` per-set Theil-Sen scale trend + SIP-magnitude consistency check over each member's own solver-written WCS | the member solve itself refuses population-inconsistent solutions (e.g. `solve_field.py` growing a required neighbor-band check), making a post-hoc audit redundant | 2026-08-24 | **not fired — NEW, and its basis is measured, not doctrinal:** the astrometric compose registered members by unguarded blind solves, and both aug06+aug14 chains carried wrong-optimum fits — solved 16.791 arcsec/px in a 17.02–17.08 sibling population with SIP terms ~10x the siblings', edge-of-field sky positions bowed 31.5 px (median star-matched, n=1655) against the same member re-solved under a tight `--scale-band`, healthy member moved 0.000 px. A FIXED band is wrong (refraction drifts the effective scale ~0.5%/night — set-04 runs 17.03→16.94 across its own groups), hence the per-set trend. Every number read is the solver's own WCS or a header fact; in-house is the trend + flag rules; REPORTS ONLY, exits 0. `--selftest`: catches a planted wrong-optimum on both rules, does NOT flag a planted refraction drift, and proves a set-median rule would (trend rule load-bearing). Stated limit: blind to the ~0.1–0.2% TAN+SIP3 fit-variance floor (twins of identical data landed 16.973 vs 16.944, both stable, logodds 270+), which is the model's, not an outlier's |
 | `run_undistort_compose.sh` + `run_undistort_groups.sh` (final compose) + `run_undistort_pipeline.sh` (sub-stacks, with the `setref lt 1` pin) stacks without `-output_norm` + the normalization-anchor stamp (`ANCLOC*`/`ANCSCL*`/`ANCREF`/`ANCSRC`, `STACKNRM=addscale`, `REGREF`/`REGREFSR=pinned` on the per-set final) | Siril offers a reference-anchored (or per-channel, non-min-max) output normalization — then `-output_norm` returns and the ANC* keys retire | 2026-08-28 | **not fired — NEW.** A deviation from Siril's OSC-script default TOWARD the linear-photometric standard (a defined, reproducible zero point tied to the normalization reference, display scaling separate); basis `docs/dead-ends/stacking-compose.md`, the `-output_norm` zero-point entry (E0-E3; the item `output-norm-zero-point` CLOSED, owner-accepted 2026-08-29 after the from-raws campaign — record `datasets/corpus/campaign_zeropoint/campaign_record.json`, 12 baselines re-seeded + aug14's 5 seeded on the accepted products). First product under it, aug06 set-01+02+03 `_nooutnorm` (ledger aug06 `output_norm_zero_point_compose_tier`; `datasets/corpus/pedestal_work/go2_compose_nooutnorm.json`): ANCLOC read back 0.00111621/0.00197157/0.00153994 = the M lines to the digit; level 72.808/128.792/100.545 ADU16 = the reference's −0.47/−0.32/−0.37%; H1 ΔK 0.000/0.000; H2 R/G 0.5653, B/G 0.7807; H3 4 clamped px of 30.1 M, both components member-backed, 0 in-frame zeros; against the hand-stacked E2 preview 87,798,306 px differ by ≤5.96e-7 (0.039 ADU16) — cached 6-digit M-line statistics vs a fresh stack (`siril-behaviors.md`), not a knob. The post-assert greps Siril's own "Output normalization ...... disabled" and exits 4 otherwise; the wording is observed on 1.4.4 only, and a change aborts loudly rather than passing. `check_removal_conditions` already matches both basenames through older rows (`derive_compose_ref.py`, `compose_preflight.py`, the `--tag=` row), so this row is owed by the register's rule, not enforced by the guard. Per-set final under it, aug06/set-01 `_nooutnorm` from the existing five members (ledger aug06 `output_norm_zero_point_perset_final_set01`; `datasets/aug06/set-01/qa_work/refinal_nooutnorm.json`): ONE pixel-moving knob proven — clamp((new − 58.766 ADU16)/0.98255) reproduces the shipped `stack_set-01_full.fit` with 0 of 52,966,158 pixels differing above 1e-7 (`-transf=homography`/`-interp=lanczos4` are Siril's defaults, the 2pass re-picked image 1); level = the pinned member's own sky (ANCLOC ×0.997-0.998), R/G 0.5656 B/G 0.7806 vs the anchor's 0.5659/0.7806; 0 clamped, 0 in-frame zeros; K 1.000/0.640/0.860 unchanged; `baseline_guard` ADVISORY on the level rows (×2.35 post-SPCC — SPCC's b-offsets carry a constant ~28 ADU16 in R, so the neutralized level tracks R's pre-SPCC level, not G's), structure measures 0.297 / +0.0025 PASS and shrink with the pedestal exactly (0.699 × 43.0/101.1 = 0.297) |
 | `scripts/calibrate/spcc_run.py` `spcc_list oscsensor` preload before `spcc` in the generated `.ssf` + the post-run log-order assertion (`SPCC JSON metadata loaded` before `SPCC will use`; the model listed verbatim by `spcc_list`; the model echoed by `spcc`) + the on-disk database preflight (the model exists as an `OSC_SENSOR`; an `is_dslr` model requires `-osclpf=`) | Siril loads the SPCC metadata before resolving names in `do_pcc` (1.4.4 resolves at `command.c:10152-10188` and loads at `:10205`; upstream master `ee7b942` still resolves first) — then the preload and the assertion retire; re-check at every version bump (BACKLOG `siril-1.5`) | 2026-08-29 | **not fired — NEW.** MEASURED (`datasets/july31/set-01/qa_work/spcc_h0_probe.json`, the H0 probe): a spec-less headless run resolves to index 0 of each list — "Generic mono sensor" × Antlia R/G/B, the model behind every shipped K record — and its log prints `SPCC will use mono senor "(null)"` at line 52 BEFORE `SPCC JSON metadata loaded` at 53; with `spcc_list oscsensor` first the load line precedes the use line (52 < 105, 56 < 109), "Nikon D750" and "Nikon D500" are listed verbatim and echoed, K 1.000/0.697/0.945 vs 1.000/0.700/0.955 (ΔK_G −0.003, ΔK_B −0.010) against the index-0 1.000/0.687/0.927 on the same input, the R/G fit sigma 0.140 → 0.095/0.093; the spec-less arm errors with Siril's own "Either the sensor or a filter was not specified ..." (exit 1, no K); the photometry prefs persist nothing. The spec-less refusal itself is Siril's own contract (no row); `readiness_report.py` reads RED on a set without a recipe `spcc` block until stage 2 pins a curve. |
+| The **Nikon Z f proxy response** — `scripts/setup/spcc_curves/convert_curves.py` + `fetch_sources.sh` (`Nikon_Zf.json` / `Nikon_Zf_energy.json` tracked, `Nikon_Z6.json` cache-only by licence) installed as untracked `OSC_SENSOR` files in the siril-spcc-database clone and pinned by every canonical set's `recipe.json` `spcc` block (`{"oscsensor": "Nikon Z f", "oscfilter": "No filter", "whiteref": "Average Spiral Galaxy"}`) | a curve measured on THIS body (a grating on a CALSPEC standard — `docs/spcc-sensor-curve-z6iii.md` §1.5 B1, owner-gated) or an upstream "Nikon Z6 III" `OSC_SENSOR` entry lands — then the recipes name it and these files retire; re-check whenever the siril-spcc-database clone is updated | 2026-08-29 | **not fired — NEW.** A proxy by dye family, not by die: the Z f / Z6 share Nikon's CFA dyes and hot-mirror generation with the Z6 III (IMX820AQJ) by assumption, measured by no one. MEASURED on july31/set-01 (`spcc_set-01_arm_{zf,z6,d750,zfe}.json`): the four named curves within 0.002 (G) / 0.006 (B) on K; every real OSC curve moves the R/G fit toward the origin (σ 0.140 → 0.095–0.099, intercept share 0.71 → 0.42–0.48) and none the B/G (σ 0.107–0.108, share 0.39–0.44, "imprecise solution" fires); energy-vs-photon convention ΔK ≤ 0.002. Pinned on the owner's H4 approval of `set-01_arm_zf_spcc-linked.png`; all 22 canonical products re-calibrated from their existing `_wcs.fit` (41eecff): ΔK_G +0.0093 ± 0.0011 (+1.44 ± 0.17%), ΔK_B +0.0191 ± 0.0017 (+2.22 ± 0.20%) over the 17 finals vs the accidental index-0 model, n_kept and b_R identical on all 22; records `datasets/corpus/spcc_pin_zf/pin_record.json`, `scripts/setup/spcc_curves/RECORD.json`. |
 
 ---
 
@@ -1587,123 +1588,57 @@ Each lands as a measured declared delta when its gate opens.
   step. `rgbcomp -lum=` is the headless mechanism when an L corpus arrives; the CLI
   `-lum` blend colour space is undocumented — resolve before first use.
 
-## `spcc-sensor-curve` — every shipped colour calibration ran against an accidental response model; name the sensor, then test a Nikon Z proxy under a pre-registered bar
+## `spcc-sensor-curve` — the accidental response model is retired and the Nikon Z f proxy is pinned; the B/G residual and the body-measured curve remain
 
-Research and audit: `docs/spcc-sensor-curve-z6iii.md` (cited, evidence-classed;
-its §4 is the acceptance test below). DRAFT — nothing under this item has run.
+Research: `docs/spcc-sensor-curve-z6iii.md` (evidence-classed; §4 the
+pre-registered test, §5 the untested premises); the headless resolution trap is
+a `docs/dead-ends/siril-behaviors.md` entry. Stages 0–2 SHIPPED: runner 25cfed6,
+curves 5cd01e0, recipes 199360c, the 22 re-calibrations 41eecff.
 
-**The measured basis.** Every SPCC record (55) reads *"NO MATCHING SENSOR —
-siril's generic/default response was applied"*. No such path exists in Siril
-1.4.4: `do_pcc` resolves sensor/filter/white-reference names BEFORE it loads
-the database (`command.c:10152-10188` vs `:10205`), the lookup helpers return
-**index 0 on an empty list** (`gui/photometric_cc.c:649,664`), and headless
-`siril-cli` loads nothing at startup — so a fresh process uses the first
-byte-sorted entry of every list whatever name was given or stored, while the
-log prints the name that was asked for. MEASURED on all 44 logs on this rig
-(`sessions/*/work/spcc_*.log`): 44/44 print `SPCC will use mono senor "(null)"
-and filters "(null)", "(null)" and "(null)` and only THEN `SPCC JSON metadata
-loaded`; the model that resolved is **"Generic mono sensor" × Antlia LRGB-V
-Pro R/G/B** (sharp mono filters standing in for Bayer dyes) with "Average
-Spiral Galaxy" first by luck of the alphabet; the white reference's catalogue
-colour back-derived from each log is one value across all 44 (R/G 0.826–0.830,
-B/G 0.983–0.986). The fits show it: Siril's "imprecise solution" warning fired
-44/44 (R/G σ median 0.143, B/G 0.102 against the 0.1 line), and the intercept
-carries **71% (median; 0.66–0.77) of the red K prediction and 29% (0.20–0.40)
-of the blue** where a correct model is a line through the origin. A
-`recipe.json` `spcc` block — the fix every record prescribes — would have
-changed nothing and made the record claim `named: <sensor>` for a run that
-used **Canon EOS 1D Mark III × "Antila RGB_ultra_ii"** (index 0 of the OSC
-lists). The inherited "grounding moves K ≤1.5%" (commit `cf96f60`, another
-rig, logs untracked) compared two unknown curves and is UNCHECKED in subject.
-Consumers: every `_spcc.fit` (44 on disk), every judge PNG (41), the render
-tier's input, and all 13 baselines (seeded on `_spcc` products; the guard's
-level rows move by ΔK, structure rows are scale-invariant).
+**Measured basis.** Headless Siril 1.4.4 resolves sensor/filter/white-reference
+names BEFORE loading its database, so every spec-less run used index 0 of every
+list — "Generic mono sensor" × Antlia R/G/B × "Average Spiral Galaxy": that model
+named explicitly (A‴, `spcc_arm_A3.json`) reproduces the shipped july31/set-01 run
+to the digit (K 1.000/0.687/0.927, R/G 0.488722+0.239501x σ 0.140369). A bare
+`-oscsensor=` WITHOUT the `spcc_list` preload is echoed and NOT honoured (A′ =
+Canon EOS 1D Mark III × Antila RGB_ultra_ii, K 0.681/0.911); with the preload the
+names resolve and a spec-less run errors (H0). On set-01 the four named proxies —
+Z f 0.697/0.947, Z6 0.696/0.943, D750 0.697/0.945, Z f (energy) 0.698/0.949 — sit
+within 0.002 (G) / 0.006 (B); any real OSC curve moves the R/G fit toward the
+origin (σ 0.140 → 0.095–0.099, intercept share 0.71 → 0.42–0.48) and none moves
+the B/G fit (σ 0.107–0.108, share 0.39–0.44, "imprecise solution" fires);
+energy vs photon convention ΔK ≤ 0.002. H1 by the letter: neither WIN nor NULL —
+the residual intercept is not curve-driven. H3 unresolved by resolution: the
+field's band is 1.2% above the sky and Siril `stat` prints 0.1 ADU16, 5–10×
+coarser than the predicted departure (`spcc_h3_band_excess.json`). H4: the owner
+approved `set-01_arm_zf_spcc-linked.png` beside the index-0 surface; pin "Nikon Z f".
 
-**Standards-first, with sources.** The reference implementation (PixInsight
-SPCC) is the same model — three response curves × Gaia XP spectra, two
-robust repeated-median lines, three scalars — and its default for an unlisted
-OSC is *"a generic Sony color image sensor"* with an ideal QE; its guidance
-when unlisted: *"selecting an ideal QE curve and similar filters to yours"*
-(https://pixinsight.com/doc/docs/SPCC/SPCC.html). Siril's docs: *"pick the
-closest option"* (https://siril.readthedocs.io/en/stable/processing/color-calibration/spcc.html).
-The field's curve standard is a whole-camera measurement (monochromator —
-Jiang et al. 2013, the source of every DSLR entry in both tools; NIST-traceable
-in Burggraaff et al. 2019 — or a grating on a known-spectrum source: Buil,
-Pieri/AAVSO, Makabe 2025). A data-derived curve from this project's own star
-photometry is out of bounds: the bright line's independence rule, circular
-with SPCC's own fit, and ill-posed by theorem (Weiler et al. 2018: photometry
-constrains only the projection onto the calibrators' SEDs; Gaia resolved 3–5
-basis functions from 100–200 CALSPEC-class spectra; Garrappa & Ofek 2025 hold
-the detector shape fixed and fit one peak shift). What exists for this body:
-**nothing** — the Z6 III's sensor is the Sony IMX820AQJ (TechInsights
-teardown), a new die; the nearest measured curves are the **Nikon Z f**
-(Weta Digital "lightsaber" rig, 380–780 nm at 5 nm, Apache-2.0, in ASWF
-`rawtoaces-data` — the source the database's own issue #3 names) and the
-**Nikon Z6 measured through this project's lens model** (Butcher `ssf-data`,
-DIY grating, 400–715 nm, CC BY-NC-SA); both share Nikon's dye family, neither
-shares the die, and the Z6 III's own hot mirror is measured by no one.
+**Delta declared (41eecff; `datasets/corpus/spcc_pin_zf/pin_record.json`).** All
+22 canonical products re-calibrated from their existing `_wcs.fit` (one knob):
+over the 17 finals ΔK_G +0.0093 ± 0.0011 (+1.44 ± 0.17%), ΔK_B +0.0191 ± 0.0017
+(+2.22 ± 0.20%); nights +1.7/+2.4%, corpus +1.8/+2.4%; n_kept and b_R identical
+on all 22; R/G σ 0.131–0.161 → 0.069–0.131 on every product; B/G σ moves ≤ 0.006
+and the warning fires 22/22. Guard 17/17 PASS — blind by construction: SPCC's
+offsets pin the neutralised sky to the R level, so the centre rows read identical
+to 0.1 ADU16 whatever K. The index-0 products and PNGs are kept as `_idx0_` twins
+(`moveaside_manifest.json`, 44 files, 8.56 GB).
 
-**The work, staged by cost.**
-0. **Runner fix (`spcc_run.py`), ~20 lines, gates everything:** emit
-   `spcc_list oscsensor` before `spcc` in the generated `.ssf` (loads the
-   metadata into the process — `command.c:11453`); assert on the log that
-   `SPCC JSON metadata loaded` precedes `SPCC will use` and exit non-zero
-   otherwise; require a named `-oscsensor` — a null spec then fails with
-   Siril's own *"not specified as argument or guessable from previous use"*
-   instead of falling through; pass `-oscfilter="No filter"` and
-   `-whiteref="Average Spiral Galaxy"` explicitly; refuse an `is_dslr` entry
-   unless `-osclpf=` names an existing LPF (the literal fallback `"Full
-   spectrum"` matches no entry and the worker dereferences `g_list_nth(list,
-   -1)` — exit-139 family). Probe (1 min, first thing after the campaign): two
-   different `-oscsensor` names on one `_wcs.fit` must give different K; the
-   null spec must error. The `sensor_match` wording becomes true or the run
-   does not happen.
-1. **Proxy curves, local install, ~1 h:** convert the Weta Z f
-   (`Nikon_Zf.json`, `model "Nikon Z f"`, marker 3, no `is_dslr`, photon-based
-   — divided by λ and renormalised, the convention stated in the file's
-   `comment`) and the Butcher Z6 (`Nikon_Z6.json`, marker 2) with the
-   database's own `utils/process_osc_sensor.py`; machine-local files under
-   the clone's `osc_sensors/`, fetched by `x86_bootstrap.sh` as manifest rows
-   (untracked upstream files survive the GUI's hard reset; this rig runs
-   `auto_update_spcc=false` anyway). Run the acceptance test below.
-2. **On a WIN:** pin the curve in every set's `recipe.json` `spcc` block
-   (`{"oscsensor": "Nikon Z f", "oscfilter": "No filter", "whiteref":
-   "Average Spiral Galaxy"}`), re-run the finish stage only (no member or
-   compose rebuild), declare the delta per product, re-seed the 13 baselines
-   on acceptance, open the upstream MR for the Z f conversion (Apache-2.0 →
-   GPLv3 is compatible; the Butcher file stays local). Sweep the false
-   "generic default" wording: `README.md` stage 3, `TOOLS.md`,
-   `docs/pipeline-wide-field-untracked.md` §7 + stop list,
-   `finish_render.sh:36`, `readiness_report.py`'s YELLOW text,
-   `spcc_run.py`'s docstring/record strings, `corpus4_build_record.json`
-   `spcc_sensor`. Registry entry in `siril-behaviors.md` for the trap.
-3. **Owner-gated, the standards-grade endpoint:** measure this body + this
-   lens with an objective grating (SA-100/200-class, ~$250) on Vega
-   (CALSPEC) — an official spectroscopy tool for the extraction, the
-   grating's efficiency divided out — marker 5 locally and the first
-   "Nikon Z6 III" entry upstream. Not required to retire the accident; the
-   only route to a curve of the actual die and hot mirror.
+**Remaining.**
+- On the owner's acceptance of the delta: re-seed the 17 baselines on the pinned
+  products; dispose of the 44 `_idx0_` twins.
+- The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's
+  issue #3 asks for it) — the owner's call; the Butcher Z6 stays local (CC BY-NC-SA).
+- OPEN, closed by no proxy: the B/G fit's intercept (share 0.39–0.44 and σ > 0.10
+  under every curve). Suspects, none measured: the photometry in a dense 17″/px
+  field (7.9/17.9 px apertures on blended stars — §4's NULL branch); Gaia XP's
+  BP/RP junction at 640–680 nm and its systematics below 400 nm (§1.6); the blue
+  edge of the response (UV cut / hot mirror) that no proxy measures on this body.
+  Discriminator: a body-measured curve (§1.5 B1 — owner-gated, NOT implied by this
+  item) or the same pin on a sparse field (MECHANISM: a crowding-driven intercept
+  would fall there, a curve-driven one would not).
+- Removal conditions (register): the `spcc_list` preload + log assertion
+  (`spcc_run.py` row); the Z f proxy in the recipes + `scripts/setup/spcc_curves/`.
 
-**Acceptance — the pre-registered test (`docs/spcc-sensor-curve-z6iii.md`
-§4), one product, july31/set-01's canonical final from its `_wcs.fit`:** arms
-A (today's runner, must reproduce the shipped K 1.000/0.687/0.927, 3077/5119,
-σ 0.140/0.110, intercept share 0.71/0.39), A0 (fixed runner, null spec, must
-error), B (Z f), B′ (Z6), B″ (D750, already in the database), B° (Z f without
-the /λ conversion — the convention's magnitude). H0 STOP: names not honoured
-(all arms one K). H1 the grade: intercept share on B ≤ 0.25 (R/G) and ≤ 0.15
-(B/G) = WIN; unchanged ±0.05 on all three curves = NULL (the geometry is not
-curve-driven; the photometry in a dense 17″/px field is the suspect); σ < 0.10
-on both fits so the warning stops = WIN on its own; `n_kept` within ±5%. H2
-ΔK declared (expected ≲5%; >10% re-check the white reference). H3 band vs
-outer sky by `regional_stat.py`: shift must equal ΔK exactly, else something
-other than K moved. H4 the owner's eyes on the 16-bit judge PNG. A NULL on
-H1 for all three proxies closes stages 1–2 and leaves stage 3.
-
-**Removal conditions (rows owed to the register on adoption, rule (1)):**
-- `spcc_list`-first preload + log-order assertion in `spcc_run.py` — retire
-  when Siril loads the SPCC metadata before resolving names in `do_pcc`
-  (upstream `master` at `ee7b942`, 2026-08-23, still resolves first;
-  re-check at every version bump — BACKLOG `siril-1.5`).
-- The proxy curve (Z f or Z6) in the recipes — retire when a curve measured
-  on this body (stage 3) or an upstream "Nikon Z6 III" entry lands.
-- The loud-null refusal is Siril's own contract, not a deviation — no row.
+**Closes when** the owner accepts the delta (re-seed + twin disposal done) and the
+B/G residual has an owner — B1 scheduled, or the residual registered as a
+property of dense fields with its discriminator run.

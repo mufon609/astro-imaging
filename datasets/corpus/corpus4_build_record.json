@@ -87,7 +87,7 @@
   "also": "run_corpus_combine.sh never passes --central either, though finish_render accepts it and a framing=max union's coverage seams false-detect. Two blind attempts burned 89 minutes before --central solved it in 6 seconds."
  },
  "known_gaps": {
-  "spcc_sensor": "no matching sensor for this chip; siril's generic response applied, so K factors (R 1.000 G 0.663 B 0.831, 1638/3895 stars) calibrate against a DEFAULT curve. Stated per run by the tool.",
+  "spcc_sensor": "CORRECTED IN PLACE (the original wording, kept at the end, stated a mechanism that does not exist): this run named no sensor, and headless Siril 1.4.4 resolves sensor/filter/white-reference names BEFORE loading its database, so its K factors (R 1.000 G 0.663 B 0.831, 1638/3895 stars) were fitted against index 0 of every list \u2014 'Generic mono sensor' x Antlia R/G/B x 'Average Spiral Galaxy' \u2014 not a generic default (MEASURED: datasets/july31/set-01/qa_work/spcc_arm_A3.json, that model named explicitly, reproduces a spec-less run to the digit; docs/spcc-sensor-curve-z6iii.md section 1.2). The corpus4 product was built under that model and was deleted in the rig cleanup (datasets/corpus/rig_cleanup_record.json); the canonical products were re-calibrated under the 'Nikon Z f' recipe pin (datasets/corpus/spcc_pin_zf/pin_record.json). Original text: 'no matching sensor for this chip; siril's generic response applied, so K factors (R 1.000 G 0.663 B 0.831, 1638/3895 stars) calibrate against a DEFAULT curve. Stated per run by the tool.'",
   "noise_arm": "stack_corpus4_full_wnoise.fit exists as a FITS with no render \u2014 it is the losing A/B arm, kept for audit, not a deliverable."
  }
 }

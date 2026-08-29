@@ -258,10 +258,17 @@ mechanics).
   the nside=2 cover and fetches missing chunks, md5-verified) and THREE
   machine-local prerequisites — the chunks, the `catalogue_gaia_photo` config
   path, and the cloned `siril-spcc-database`. Missing the third SEGFAULTS
-  silently (exit 139) looking like a data bug. Sensor spec comes from
-  `recipe.json` when the database has an entry; otherwise the sensor-null
-  generic curve, stated in the report. Validation: neutral everywhere,
-  R/G 0.9986–1.0000, B/G 0.9959–0.9969.
+  silently (exit 139) looking like a data bug. The sensor spec is
+  REQUIRED and comes from `recipe.json`'s `spcc` block — every canonical set
+  pins the Nikon Z f proxy (no Z6 III curve exists; register row). There is
+  no default: headless Siril resolves names BEFORE loading its database, so a
+  spec-less run silently used index 0 of every list, "Generic mono sensor" ×
+  Antlia R/G/B (`docs/spcc-sensor-curve-z6iii.md` §1.2, MEASURED) —
+  `spcc_run.py` preloads `spcc_list`, asserts the resolution on the log and
+  refuses without a name. Validation: neutral everywhere, R/G 0.9986–1.0000,
+  B/G 0.9959–0.9969 (measured under the index-0 model; the pin moves K, not
+  the neutralised background — band/sky medians identical across five curves
+  on july31/set-01, `spcc_h3_band_excess.json`).
 
 ## 8. JUDGE SURFACE — the diagnostic end of the chain
 
@@ -343,6 +350,9 @@ running).
 - Session FWHM walk (+9.9%) / roundness walk (−6.5%) — airmass refuted by
   bounding (field rose while FWHM rose); dew refuted (star counts flat);
   cause open (`datasets/july31/experiments.jsonl`).
-- SPCC sensor-null — no Z6III database entry; K factors ride the generic curve.
+- SPCC sensor — no Z6 III database entry; every recipe pins the Nikon Z f proxy
+  (ΔK vs the accidental index-0 model +1.4% G / +2.2% B over 17 finals); the
+  B/G fit's "imprecise solution" persists under every curve tried — open
+  (BACKLOG:`spcc-sensor-curve`); a body-measured curve (grating) is the only closure.
 - `mount` is modelled per set but is a session-level fact (one tripod pays for
   up to four probes) — BACKLOG.

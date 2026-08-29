@@ -437,6 +437,30 @@ SIRIL_CFG="$HOME/.var/app/org.siril.Siril/config/siril/config.1.4.ini"
 run "mkdir -p '$(dirname "$SPCC_DB_DIR")'"
 run "[ -d '$SPCC_DB_DIR/.git' ] || git clone --depth 1 '$SPCC_DB_URL' '$SPCC_DB_DIR'"
 
+# (4) The Nikon Z f PROXY response (BACKLOG spcc-sensor-curve; register row): no Z6 III
+#     curve exists upstream, so every canonical recipe.json pins "Nikon Z f" — an
+#     OSC_SENSOR entry this clone does not ship. Rebuilt from tracked files:
+#     fetch_sources.sh pulls the two sha256-pinned sources (Weta/ASWF Nikon Z f,
+#     Apache-2.0; Butcher Nikon Z6, CC BY-NC-SA 4.0 — fetched + converted machine-
+#     locally, NEVER tracked or redistributed), then convert_curves.py --install writes
+#     Nikon_Zf.json / Nikon_Zf_energy.json / Nikon_Z6.json into the clone's osc_sensors/
+#     as NEW files. Idempotent: it refuses to overwrite a file the clone tracks and
+#     re-copies its own three; the GUI's hard reset leaves untracked files alone
+#     (auto_update_spcc=false here anyway). --out is the CACHE, never the repo: the
+#     tracked scripts/setup/spcc_curves/Nikon_Zf*.json are the record (sha256s in
+#     RECORD.json) and the verify row below fails unless the installed Z f file equals
+#     the tracked one byte for byte — the generator is the clone's own
+#     utils/process_osc_sensor.py and the clone is --depth 1 of upstream HEAD, so a
+#     generator change surfaces HERE, not as a silently different curve.
+SPCC_CURVES="$(cd "$(dirname "$0")" && pwd)/spcc_curves"
+SPCC_CURVE_CACHE="$HOME/.cache/astro-imaging/spcc_curves"
+run "bash '$SPCC_CURVES/fetch_sources.sh' '$SPCC_CURVE_CACHE'"
+run "python3 '$SPCC_CURVES/convert_curves.py' --cache='$SPCC_CURVE_CACHE' --db='$SPCC_DB_DIR' --out='$SPCC_CURVE_CACHE' --install --summary='$SPCC_CURVE_CACHE/convert_summary.json' >/dev/null"
+manifest spcc-proxy-curve "Nikon Z f (Weta cf6452c) + Nikon Z6 (Butcher dce9021)" scripts/setup/spcc_curves \
+  "$(sha256sum "$SPCC_CURVES/Nikon_Zf.json" | cut -d' ' -f1)" "$SPCC_DB_DIR/osc_sensors/Nikon_Zf.json" \
+  "cmp -s \"$SPCC_DB_DIR/osc_sensors/Nikon_Zf.json\" \"$SPCC_CURVES/Nikon_Zf.json\" && test -f \"$SPCC_DB_DIR/osc_sensors/Nikon_Z6.json\"" \
+  "MACHINE-LOCAL proxy OSC_SENSOR entries pinned by every canonical recipe.json spcc block; the installed Z f must equal the tracked file byte for byte; Butcher Z6 never tracked (CC BY-NC-SA 4.0)"
+
 # (2) Siril's config is created on its first run — trigger it, then point
 #     catalogue_gaia_photo at the local Gaia chunk dir (a fresh flatpak defaults it to a
 #     non-existent gaia_photometric.dat, so siril range-reads ONLINE and 429s), and set
@@ -686,6 +710,7 @@ if [[ $DRY -eq 0 ]]; then
   # SPCC prereqs: the sensor DATABASE (its absence is the SIGSEGV) + the config path.
   # A version string proves nothing here — SPCC crashes silently without the database.
   check "test -d '$HOME/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors' && echo 'SPCC sensor database present'"
+  check "cmp -s '$HOME/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors/Nikon_Zf.json' '$(cd "$(dirname "$0")" && pwd)/spcc_curves/Nikon_Zf.json' && test -f '$HOME/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors/Nikon_Z6.json' && echo 'SPCC proxy curves installed (Nikon Z f == tracked; Nikon Z6 present)'"
   check "grep -q 'catalogue_gaia_photo=$HOME/.local/share/siril/siril_catalogues/spcc' '$HOME/.var/app/org.siril.Siril/config/siril/config.1.4.ini' && echo 'SPCC catalog path set'"
   # The ASTROMETRIC half. Assert the CONTENT, not the presence: a truncated or
   # half-written file exists and would pass `test -f`, and its absence was

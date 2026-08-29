@@ -1413,7 +1413,7 @@ _STAGE_DOCS = {
     "spcc": {
         "summary": "Siril SPCC colour calibration; K factors captured",
         "detail": {
-            "process": ["spcc on the solved stack (recipe spec or sensor-null default)"],
+            "process": ["spcc on the solved stack (the recipe's spcc block names the sensor — REQUIRED, no default exists; spcc_run.py refuses a spec-less run)"],
             "gates": ["mono stacks refuse (no colour to calibrate)"],
             "records": ["datasets/<session>/<set>/qa_work/spcc_<set>*.json + stack_*_spcc.fit"]},
     },

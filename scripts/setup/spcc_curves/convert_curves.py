@@ -49,6 +49,13 @@ nothing.
 --install copies the three files into <db>/osc_sensors/ as NEW files (refuses
 to overwrite a file git tracks there: the GUI's hard reset would revert an
 edit and leave a new file; this rig runs auto_update_spcc=false).
+
+REMOVAL CONDITION: retire the Nikon Z f proxy — the recipes' spcc block and
+these converted files (Nikon_Zf.json, Nikon_Zf_energy.json, the cache-only
+Nikon_Z6.json) — when a curve measured on this body (a grating measurement,
+docs/spcc-sensor-curve-z6iii.md section 1.5 B1) or an upstream "Nikon Z6 III"
+OSC_SENSOR entry lands; re-check whenever the siril-spcc-database clone is
+updated (BACKLOG removal-conditions, the proxy-curve row).
 """
 import csv
 import hashlib

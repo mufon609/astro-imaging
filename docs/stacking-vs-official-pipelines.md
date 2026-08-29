@@ -165,7 +165,8 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
 - Blind solves on all four stacks + combine: 17.05–17.07″/px, centers RA
   309.6–310.8, Dec +41.9…+43.8 (the ~1.8° southward re-aim walk across the
   night); logodds 157–414.
-- SPCC (sensor-null generic spec, local Gaia XP): K factors R 1.000 across
+- SPCC (spec-less run = the accidental index-0 model, "Generic mono sensor" ×
+  Antlia R/G/B — `docs/spcc-sensor-curve-z6iii.md` §1.2; local Gaia XP): K factors R 1.000 across
   the board, G 0.686–0.728, B 0.883–0.967, ~2900–3120 of ~5100–5510
   photometry stars kept per product — one tight family, and the same ballpark
   as july14 set-01's tracked record (G 0.708, B 0.945): same sensor, sane.

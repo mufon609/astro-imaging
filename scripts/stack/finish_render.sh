@@ -33,8 +33,12 @@
 # set's name in datasets/<session>/<set>/qa_work/spcc_<set>_<tag>.json (siril
 # log in <session>/work/). --session resolves like before: relative to the CWD.
 #
-# SPCC uses the sensor-null generic default (the sp168 precedent) unless a set
-# recipe carries a sensor spec; K factors are captured to the qa_work record.
+# SPCC has NO default sensor: a named -oscsensor is REQUIRED and spcc_run.py
+# refuses a spec-less run — headless Siril resolves the names BEFORE loading
+# its database, so a spec-less run silently used index 0 of every list
+# (docs/spcc-sensor-curve-z6iii.md section 1.2, MEASURED). The set's recipe.json
+# spcc block carries the pinned proxy ("Nikon Z f"); K factors + sensor_match
+# are captured to the qa_work record.
 # The linked stretch is MANDATORY after SPCC (unlinked autostretch on a
 # calibrated stack is the chroma-blotch engine — docs/dead-ends.md).
 set -euo pipefail
