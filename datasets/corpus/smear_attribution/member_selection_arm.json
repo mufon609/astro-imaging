@@ -10478,5 +10478,2623 @@
    }
   }
  },
- "status": "HALF (a) DONE \u2014 awaiting the director's confirmation of the exclusion set before half (b)"
+ "half_b_arm": {
+  "status": "RUN END TO END. The arm composed and finished (sessions/aug14/work/sel57/build.log: START 13:23:44, COMPOSE EXIT 0 13:25:01, FINISH EXIT 0 13:26:08) by the outgoing worker astro-imaging-81; MEASURED against the canonical corpus by worker astro-imaging-7f under GO #10 (director astro-imaging-45): Siril findstar via shape_at_sky.py at the 23 march positions + 8 corner boxes on both products, Siril stat/bgnoise at the x50 crop, Siril seqtilt on both. No product written; nothing canonical touched.",
+  "naming_slip": "the pre-registration (ledger line 106, half_b_arm_plan) names the family `_sel75`; the artifact that exists and was measured is `_sel57` (57 = 77 - 20; a transposition in the plan text, recorded here, the plan text stands unedited).",
+  "compose_line": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_july31+aug06+aug09+aug14_sel57.fit --framing=max --weight=nbstack --ref=sessions/aug09/work/groups_set-02/sub_02.fit sessions/aug14/work/sel57/members  (framing/weight = run_corpus_combine.sh's defaults FRAMING=max WEIGHT=nbstack, plus the pin; run_arm.sh in the same dir)",
+  "finish_line": "scripts/stack/finish_render.sh web/results/aug14/stack_july31+aug06+aug09+aug14_sel57.fit july31+aug06+aug09+aug14_sel57 --session=sessions/aug09 --set=set-02  -> solve (scripts/calibrate/solve_field.py) -> spcc_cone (full coverage) -> spcc_run (Nikon Z f, recipe) -> autostretch -linked -> web/results/aug09/judge/july31+aug06+aug09+aug14_sel57_spcc-linked.png",
+  "build_log_assertions": [
+   "linked 57 sub-stacks",
+   "reference PINNED: member 36 -> sessions/aug09/work/groups_set-02/sub_02.fit",
+   "compose gate T0: 57/57 self-describing, IDENTICAL model",
+   "compose_preflight: 57/57 TAN+SIP",
+   "compose: astrometric registration + per-member undistortion CONFIRMED in siril's log",
+   "stamped: REGMODEL=astrometric REGUNDIS=T, 57 members, REGREF=36:aug09/groups_set-02/sub_02.fit [pinned], STACKNRM=addscale, ANCREF=36",
+   "one astropy VerifyWarning (a header comment truncated at stamping) \u2014 cosmetic",
+   "compose gate record web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_sel57.json: 57 members, 1596 pairs (= C(57,2)), reference s_00036, worst zone 10.75 px (s_00011|s_00016) \u2014 MEASURED, not gated"
+  ],
+  "curated_members": {
+   "dir": "sessions/aug14/work/sel57/members",
+   "n_links": 57,
+   "link_targets_equal_half_a_kept_set": true,
+   "excluded_in_dir": 0,
+   "kept_missing": 0,
+   "reference_link": "sub_036_aug09_set-02_sub_02.fit -> sessions/aug09/work/groups_set-02/sub_02.fit = the canonical's REGREF member (index 36 in july31->aug06->aug09->aug14 order on both sequences: every excluded member sorts after it)",
+   "kept_stackcnt_sum": 6196,
+   "product_STACKCNT": 6196,
+   "canonical_STACKCNT": 8349,
+   "excluded_frames": 2153,
+   "excluded_frames_by_set": {
+    "aug14/set-03": 600,
+    "aug14/set-04": 600,
+    "aug14/set-05": 352,
+    "aug14/set-02 sub_04+05": 228,
+    "aug09/set-05 sub_02+03+04": 373
+   }
+  },
+  "headers": {
+   "sel57": {
+    "NAXIS1": 8515,
+    "NAXIS2": 5477,
+    "NMEMBER": 57,
+    "STACKCNT": 6196,
+    "REGREF": "36:aug09/groups_set-02/sub_02.fit",
+    "REGREFSR": "pinned",
+    "PIPEREV": "4d02864",
+    "STACKNRM": "addscale",
+    "REGMODEL": "astrometric",
+    "REGUNDIS": true
+   },
+   "full": {
+    "NAXIS1": 8540,
+    "NAXIS2": 5677,
+    "NMEMBER": 77,
+    "STACKCNT": 8349,
+    "REGREF": "36:aug09/groups_set-02/sub_02.fit",
+    "REGREFSR": "derived",
+    "PIPEREV": "77e3a78",
+    "STACKNRM": "addscale",
+    "REGMODEL": "astrometric",
+    "REGUNDIS": true
+   }
+  },
+  "canvas_change": "8540x5677 -> 8515x5477 (-25 x -200 px); header-only WCS mapping: the arm's row 0 sits at canonical rows 149-224 (the framing=max union lost its top strip with the aug14 members); every one of the 31 boxes still fits as a full 800-px box on the arm (nearest edge 411 px at x95)",
+  "solve": {
+   "sel57": {
+    "record": "datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_sel57.json",
+    "scale_arcsec_px": 16.969,
+    "logodds": 527.5,
+    "attempt": "cached",
+    "coverage_rung": null,
+    "parity": "sky-true"
+   },
+   "full": {
+    "record": "datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_full.json",
+    "scale_arcsec_px": 17.002,
+    "logodds": 103.9,
+    "attempt": "cached +coverage-central",
+    "coverage_rung_central": 0.7696,
+    "parity": "sky-true"
+   },
+   "note": "two solve paths; the box placement below is verified per product by the tool's own per-star RA/Dec, so the comparison does not rest on the solves agreeing"
+  },
+  "spcc": {
+   "sel57": {
+    "K": [
+     1.0,
+     0.685,
+     0.93
+    ],
+    "n_kept": 1948,
+    "n_photometry": 3917,
+    "record": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_sel57.json"
+   },
+   "full": {
+    "K": [
+     1.0,
+     0.683,
+     0.922
+    ],
+    "n_kept": 1915,
+    "n_photometry": 3899,
+    "record": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_full.json"
+   },
+   "sensor": "Nikon Z f (recipe), verified 57/81/113 and 60/84/116"
+  },
+  "measurement": {
+   "instrument": "Siril findstar (setfindstar reset -roundness=0.10 -relax=on -maxR=1.0), 800 px boxes placed by the product's own WCS (y-origin top, verified by the tool's own per-star RA/Dec); FWHM = median (FWHMx+FWHMy)/2, roundness = median min/max, over the 30 brightest fits",
+   "driver": "sessions/aug14/work/sel57/measure/run_measure.sh (shape_at_sky x2 -> Siril stat+bgnoise at the x50 crop x2 -> star_shape.py x2; driver.log); bookkeeping sessions/aug14/work/sel57/measure/analyze.py (angles/e over the kept lists \u2014 the GO #5/#6/#8 method, reproduces GO #6's corpus angle block to the digit on its own lists: CONTROL PASS 8/8); half_b_block.json",
+   "positions": {
+    "march_23": "datasets/aug09/smear_work/smear_remarch.json (RA/Dec verbatim)",
+    "corners_8": [
+     {
+      "label": "corner_700_1400",
+      "ra": 333.463235,
+      "dec": 45.549861,
+      "source": "canonical FITS (700,4277) = y-down (700,1400)"
+     },
+     {
+      "label": "corner_1150_850",
+      "ra": 331.627264,
+      "dec": 48.497503,
+      "source": "canonical FITS (1150,4827) = y-down (1150,850)"
+     },
+     {
+      "label": "corner_7300_600",
+      "ra": 288.176608,
+      "dec": 49.556825,
+      "source": "canonical FITS (7300,5077) = y-down (7300,600)"
+     },
+     {
+      "label": "corner_7750_1100",
+      "ra": 286.248693,
+      "dec": 46.815666,
+      "source": "canonical FITS (7750,4577) = y-down (7750,1100)"
+     },
+     {
+      "label": "corner_700_4200",
+      "ra": 329.503885,
+      "dec": 33.28158,
+      "source": "canonical FITS (700,1477) = y-down (700,4200)"
+     },
+     {
+      "label": "corner_1300_4900",
+      "ra": 325.719038,
+      "dec": 30.645792,
+      "source": "canonical FITS (1300,777) = y-down (1300,4900)"
+     },
+     {
+      "label": "corner_7000_4900",
+      "ra": 295.32659,
+      "dec": 30.705621,
+      "source": "canonical FITS (7000,777) = y-down (7000,4900)"
+     },
+     {
+      "label": "corner_7500_4400",
+      "ra": 292.269907,
+      "dec": 32.566586,
+      "source": "canonical FITS (7500,1277) = y-down (7500,4400)"
+     }
+    ],
+    "corner_convention": "RA/Dec re-derived from the CANONICAL's WCS at FITS (x, 5677 - y_down), astropy 0-based (x-1, y-1); reproduces corner_direction.json's two BL values to six decimals"
+   },
+   "lists": {
+    "sel57": "sessions/aug14/work/sel57/measure/lists_sel57/<label>.lst",
+    "full": "sessions/aug14/work/sel57/measure/lists_full/<label>.lst",
+    "shape_json": [
+     "sessions/aug14/work/sel57/measure/shape_sel57.json",
+     "sessions/aug14/work/sel57/measure/shape_full.json"
+    ]
+   },
+   "placement": {
+    "y_origin_accepted": "top on both products; the bottom pass placed boxes 19.81 (sel57) / 19.93 (full) deg off target against tol 2.83 and was rejected by the tool's own check",
+    "worst_box_center_offset_deg": {
+     "sel57": 0.636,
+     "full": 0.615
+    },
+    "tolerance_deg": {
+     "sel57": 2.827364386258432,
+     "full": 2.8337188550582146
+    },
+    "out_of_canvas": 0
+   },
+   "rows": {
+    "x05pct_-": {
+     "ra": 332.88138,
+     "dec": 39.57462,
+     "sel57": {
+      "n": 473,
+      "fwhm": 2.78,
+      "roundness": 0.884,
+      "median_e": 0.1221,
+      "major_axis_deg": 28.08,
+      "concentration": 0.904,
+      "ra_dir_ydown": 14.77,
+      "dev_from_RA_ydown": 13.3,
+      "dev_from_RA_yup": 42.85,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.1e-05,
+      "box_center_offset_deg": 0.636,
+      "pixel_xy": [
+       419.8,
+       2825.8
+      ],
+      "crop": [
+       20,
+       2251,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x05pct_-.lst"
+     },
+     "full": {
+      "n": 513,
+      "fwhm": 2.912,
+      "roundness": 0.86,
+      "median_e": 0.1501,
+      "major_axis_deg": 22.68,
+      "concentration": 0.942,
+      "ra_dir_ydown": 14.21,
+      "dev_from_RA_ydown": 8.47,
+      "dev_from_RA_yup": 36.89,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.1e-05,
+      "box_center_offset_deg": 0.615,
+      "pixel_xy": [
+       435.3,
+       2973.7
+      ],
+      "crop": [
+       35,
+       2303,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x05pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.132,
+      0.024
+     ]
+    },
+    "x10pct_-": {
+     "ra": 330.53494,
+     "dec": 40.01095,
+     "sel57": {
+      "n": 846,
+      "fwhm": 2.763,
+      "roundness": 0.891,
+      "median_e": 0.1145,
+      "major_axis_deg": 27.65,
+      "concentration": 0.961,
+      "ra_dir_ydown": 13.45,
+      "dev_from_RA_ydown": 14.2,
+      "dev_from_RA_yup": 41.1,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.7e-05,
+      "box_center_offset_deg": 0.043,
+      "pixel_xy": [
+       848.3,
+       2817.8
+      ],
+      "crop": [
+       448,
+       2259,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x10pct_-.lst"
+     },
+     "full": {
+      "n": 899,
+      "fwhm": 2.967,
+      "roundness": 0.858,
+      "median_e": 0.1524,
+      "major_axis_deg": 19.03,
+      "concentration": 0.969,
+      "ra_dir_ydown": 12.9,
+      "dev_from_RA_ydown": 6.14,
+      "dev_from_RA_yup": 31.93,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.5e-05,
+      "box_center_offset_deg": 0.028,
+      "pixel_xy": [
+       862.6,
+       2970.0
+      ],
+      "crop": [
+       463,
+       2307,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x10pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.204,
+      0.033
+     ]
+    },
+    "x15pct_DEFECT": {
+     "ra": 328.11623,
+     "dec": 40.40642,
+     "sel57": {
+      "n": 987,
+      "fwhm": 2.748,
+      "roundness": 0.886,
+      "median_e": 0.1204,
+      "major_axis_deg": 21.99,
+      "concentration": 0.976,
+      "ra_dir_ydown": 12.04,
+      "dev_from_RA_ydown": 9.95,
+      "dev_from_RA_yup": 34.02,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.5e-05,
+      "box_center_offset_deg": 0.031,
+      "pixel_xy": [
+       1276.5,
+       2809.9
+      ],
+      "crop": [
+       877,
+       2267,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x15pct_DEFECT.lst"
+     },
+     "full": {
+      "n": 1007,
+      "fwhm": 2.935,
+      "roundness": 0.852,
+      "median_e": 0.1591,
+      "major_axis_deg": 16.87,
+      "concentration": 0.964,
+      "ra_dir_ydown": 11.49,
+      "dev_from_RA_ydown": 5.38,
+      "dev_from_RA_yup": 28.36,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 2e-05,
+      "box_center_offset_deg": 0.065,
+      "pixel_xy": [
+       1289.9,
+       2966.3
+      ],
+      "crop": [
+       890,
+       2311,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x15pct_DEFECT.lst"
+     },
+     "arm_minus_canonical": [
+      -0.187,
+      0.034
+     ]
+    },
+    "x20pct_DEFECT": {
+     "ra": 325.6308,
+     "dec": 40.75644,
+     "sel57": {
+      "n": 1049,
+      "fwhm": 2.79,
+      "roundness": 0.879,
+      "median_e": 0.1285,
+      "major_axis_deg": 19.66,
+      "concentration": 0.974,
+      "ra_dir_ydown": 10.54,
+      "dev_from_RA_ydown": 9.13,
+      "dev_from_RA_yup": 30.2,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.3e-05,
+      "box_center_offset_deg": 0.237,
+      "pixel_xy": [
+       1704.6,
+       2802.0
+      ],
+      "crop": [
+       1305,
+       2275,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x20pct_DEFECT.lst"
+     },
+     "full": {
+      "n": 1058,
+      "fwhm": 2.925,
+      "roundness": 0.839,
+      "median_e": 0.1735,
+      "major_axis_deg": 15.74,
+      "concentration": 0.96,
+      "ra_dir_ydown": 10.0,
+      "dev_from_RA_ydown": 5.75,
+      "dev_from_RA_yup": 25.74,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 3.9e-05,
+      "box_center_offset_deg": 0.238,
+      "pixel_xy": [
+       1717.2,
+       2962.6
+      ],
+      "crop": [
+       1317,
+       2314,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x20pct_DEFECT.lst"
+     },
+     "arm_minus_canonical": [
+      -0.135,
+      0.04
+     ]
+    },
+    "x25pct_DEFECT": {
+     "ra": 323.08554,
+     "dec": 41.05669,
+     "sel57": {
+      "n": 1138,
+      "fwhm": 2.755,
+      "roundness": 0.879,
+      "median_e": 0.1285,
+      "major_axis_deg": 18.4,
+      "concentration": 0.965,
+      "ra_dir_ydown": 8.96,
+      "dev_from_RA_ydown": 9.45,
+      "dev_from_RA_yup": 27.36,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.4e-05,
+      "box_center_offset_deg": 0.054,
+      "pixel_xy": [
+       2132.5,
+       2794.3
+      ],
+      "crop": [
+       1732,
+       2283,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x25pct_DEFECT.lst"
+     },
+     "full": {
+      "n": 1125,
+      "fwhm": 2.877,
+      "roundness": 0.848,
+      "median_e": 0.164,
+      "major_axis_deg": 15.76,
+      "concentration": 0.962,
+      "ra_dir_ydown": 8.42,
+      "dev_from_RA_ydown": 7.34,
+      "dev_from_RA_yup": 24.18,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.6e-05,
+      "box_center_offset_deg": 0.056,
+      "pixel_xy": [
+       2144.4,
+       2958.9
+      ],
+      "crop": [
+       1744,
+       2318,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x25pct_DEFECT.lst"
+     },
+     "arm_minus_canonical": [
+      -0.122,
+      0.031
+     ]
+    },
+    "x30pct_DEFECT": {
+     "ra": 320.48859,
+     "dec": 41.30325,
+     "sel57": {
+      "n": 1135,
+      "fwhm": 2.703,
+      "roundness": 0.901,
+      "median_e": 0.104,
+      "major_axis_deg": 17.39,
+      "concentration": 0.951,
+      "ra_dir_ydown": 7.31,
+      "dev_from_RA_ydown": 10.08,
+      "dev_from_RA_yup": 24.7,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 2.6e-05,
+      "box_center_offset_deg": 0.118,
+      "pixel_xy": [
+       2560.2,
+       2786.5
+      ],
+      "crop": [
+       2160,
+       2290,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x30pct_DEFECT.lst"
+     },
+     "full": {
+      "n": 1120,
+      "fwhm": 2.785,
+      "roundness": 0.886,
+      "median_e": 0.1206,
+      "major_axis_deg": 17.4,
+      "concentration": 0.963,
+      "ra_dir_ydown": 6.78,
+      "dev_from_RA_ydown": 10.62,
+      "dev_from_RA_yup": 24.18,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 8e-06,
+      "box_center_offset_deg": 0.121,
+      "pixel_xy": [
+       2571.6,
+       2955.1
+      ],
+      "crop": [
+       2172,
+       2322,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x30pct_DEFECT.lst"
+     },
+     "arm_minus_canonical": [
+      -0.082,
+      0.015
+     ]
+    },
+    "x35pct_-": {
+     "ra": 317.84931,
+     "dec": 41.49271,
+     "sel57": {
+      "n": 1176,
+      "fwhm": 2.6,
+      "roundness": 0.944,
+      "median_e": 0.0579,
+      "major_axis_deg": 19.96,
+      "concentration": 0.935,
+      "ra_dir_ydown": 5.6,
+      "dev_from_RA_ydown": 14.36,
+      "dev_from_RA_yup": 25.55,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 2.8e-05,
+      "box_center_offset_deg": 0.099,
+      "pixel_xy": [
+       2987.7,
+       2778.8
+      ],
+      "crop": [
+       2588,
+       2298,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x35pct_-.lst"
+     },
+     "full": {
+      "n": 1167,
+      "fwhm": 2.688,
+      "roundness": 0.926,
+      "median_e": 0.0763,
+      "major_axis_deg": 21.94,
+      "concentration": 0.906,
+      "ra_dir_ydown": 5.07,
+      "dev_from_RA_ydown": 16.87,
+      "dev_from_RA_yup": 27.02,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6e-06,
+      "box_center_offset_deg": 0.067,
+      "pixel_xy": [
+       2998.7,
+       2951.4
+      ],
+      "crop": [
+       2599,
+       2326,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x35pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.088,
+      0.018
+     ]
+    },
+    "x40pct_-": {
+     "ra": 315.17807,
+     "dec": 41.62235,
+     "sel57": {
+      "n": 1149,
+      "fwhm": 2.493,
+      "roundness": 0.966,
+      "median_e": 0.0344,
+      "major_axis_deg": 27.05,
+      "concentration": 0.895,
+      "ra_dir_ydown": 3.85,
+      "dev_from_RA_ydown": 23.21,
+      "dev_from_RA_yup": 30.9,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.3e-05,
+      "box_center_offset_deg": 0.141,
+      "pixel_xy": [
+       3415.1,
+       2771.2
+      ],
+      "crop": [
+       3015,
+       2306,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x40pct_-.lst"
+     },
+     "full": {
+      "n": 1152,
+      "fwhm": 2.542,
+      "roundness": 0.959,
+      "median_e": 0.0414,
+      "major_axis_deg": 31.03,
+      "concentration": 0.847,
+      "ra_dir_ydown": 3.32,
+      "dev_from_RA_ydown": 27.71,
+      "dev_from_RA_yup": 34.35,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.5e-05,
+      "box_center_offset_deg": 0.145,
+      "pixel_xy": [
+       3425.8,
+       2947.7
+      ],
+      "crop": [
+       3026,
+       2329,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x40pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.049,
+      0.007
+     ]
+    },
+    "x45pct_clean": {
+     "ra": 312.48605,
+     "dec": 41.69018,
+     "sel57": {
+      "n": 1130,
+      "fwhm": 2.473,
+      "roundness": 0.969,
+      "median_e": 0.0317,
+      "major_axis_deg": 20.71,
+      "concentration": 0.862,
+      "ra_dir_ydown": 2.06,
+      "dev_from_RA_ydown": 18.64,
+      "dev_from_RA_yup": 22.77,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.2e-05,
+      "box_center_offset_deg": 0.144,
+      "pixel_xy": [
+       3842.3,
+       2763.5
+      ],
+      "crop": [
+       3442,
+       2314,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x45pct_clean.lst"
+     },
+     "full": {
+      "n": 1123,
+      "fwhm": 2.52,
+      "roundness": 0.971,
+      "median_e": 0.0299,
+      "major_axis_deg": 31.12,
+      "concentration": 0.883,
+      "ra_dir_ydown": 1.54,
+      "dev_from_RA_ydown": 29.58,
+      "dev_from_RA_yup": 32.66,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.5e-05,
+      "box_center_offset_deg": 0.148,
+      "pixel_xy": [
+       3852.9,
+       2943.9
+      ],
+      "crop": [
+       3453,
+       2333,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x45pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.047,
+      -0.002
+     ]
+    },
+    "x50pct_clean": {
+     "ra": 309.78499,
+     "dec": 41.69505,
+     "sel57": {
+      "n": 1189,
+      "fwhm": 2.48,
+      "roundness": 0.953,
+      "median_e": 0.0484,
+      "major_axis_deg": 6.12,
+      "concentration": 0.922,
+      "ra_dir_ydown": 0.27,
+      "dev_from_RA_ydown": 5.85,
+      "dev_from_RA_yup": 6.39,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6e-05,
+      "box_center_offset_deg": 0.091,
+      "pixel_xy": [
+       4269.2,
+       2755.9
+      ],
+      "crop": [
+       3869,
+       2321,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x50pct_clean.lst"
+     },
+     "full": {
+      "n": 1174,
+      "fwhm": 2.522,
+      "roundness": 0.967,
+      "median_e": 0.034,
+      "major_axis_deg": 10.91,
+      "concentration": 0.917,
+      "ra_dir_ydown": 179.74,
+      "dev_from_RA_ydown": 11.17,
+      "dev_from_RA_yup": 10.65,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.1e-05,
+      "box_center_offset_deg": 0.115,
+      "pixel_xy": [
+       4279.8,
+       2940.2
+      ],
+      "crop": [
+       3880,
+       2337,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x50pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.042,
+      -0.014
+     ]
+    },
+    "x55pct_clean": {
+     "ra": 307.08688,
+     "dec": 41.63669,
+     "sel57": {
+      "n": 1222,
+      "fwhm": 2.507,
+      "roundness": 0.948,
+      "median_e": 0.0529,
+      "major_axis_deg": 0.34,
+      "concentration": 0.829,
+      "ra_dir_ydown": 178.47,
+      "dev_from_RA_ydown": 1.86,
+      "dev_from_RA_yup": 1.19,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.2e-05,
+      "box_center_offset_deg": 0.08,
+      "pixel_xy": [
+       4696.0,
+       2748.2
+      ],
+      "crop": [
+       4296,
+       2329,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x55pct_clean.lst"
+     },
+     "full": {
+      "n": 1197,
+      "fwhm": 2.522,
+      "roundness": 0.955,
+      "median_e": 0.0464,
+      "major_axis_deg": 5.17,
+      "concentration": 0.846,
+      "ra_dir_ydown": 177.95,
+      "dev_from_RA_ydown": 7.22,
+      "dev_from_RA_yup": 3.12,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.1e-05,
+      "box_center_offset_deg": 0.075,
+      "pixel_xy": [
+       4706.8,
+       2936.4
+      ],
+      "crop": [
+       4307,
+       2341,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x55pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.015,
+      -0.007
+     ]
+    },
+    "x60pct_clean": {
+     "ra": 304.40362,
+     "dec": 41.51572,
+     "sel57": {
+      "n": 1181,
+      "fwhm": 2.575,
+      "roundness": 0.939,
+      "median_e": 0.0632,
+      "major_axis_deg": 3.63,
+      "concentration": 0.87,
+      "ra_dir_ydown": 176.7,
+      "dev_from_RA_ydown": 6.93,
+      "dev_from_RA_yup": 0.33,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.2e-05,
+      "box_center_offset_deg": 0.07,
+      "pixel_xy": [
+       5122.6,
+       2740.5
+      ],
+      "crop": [
+       4723,
+       2336,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x60pct_clean.lst"
+     },
+     "full": {
+      "n": 1181,
+      "fwhm": 2.592,
+      "roundness": 0.945,
+      "median_e": 0.0562,
+      "major_axis_deg": 5.34,
+      "concentration": 0.889,
+      "ra_dir_ydown": 176.18,
+      "dev_from_RA_ydown": 9.16,
+      "dev_from_RA_yup": 1.51,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.6e-05,
+      "box_center_offset_deg": 0.082,
+      "pixel_xy": [
+       5133.6,
+       2932.7
+      ],
+      "crop": [
+       4734,
+       2344,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x60pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.017,
+      -0.006
+     ]
+    },
+    "x65pct_clean": {
+     "ra": 301.74675,
+     "dec": 41.33361,
+     "sel57": {
+      "n": 1218,
+      "fwhm": 2.632,
+      "roundness": 0.923,
+      "median_e": 0.0797,
+      "major_axis_deg": 6.43,
+      "concentration": 0.926,
+      "ra_dir_ydown": 174.96,
+      "dev_from_RA_ydown": 11.47,
+      "dev_from_RA_yup": 1.39,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.2e-05,
+      "box_center_offset_deg": 0.157,
+      "pixel_xy": [
+       5549.0,
+       2732.9
+      ],
+      "crop": [
+       5149,
+       2344,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x65pct_clean.lst"
+     },
+     "full": {
+      "n": 1208,
+      "fwhm": 2.68,
+      "roundness": 0.93,
+      "median_e": 0.0723,
+      "major_axis_deg": 4.18,
+      "concentration": 0.959,
+      "ra_dir_ydown": 174.44,
+      "dev_from_RA_ydown": 9.74,
+      "dev_from_RA_yup": 1.39,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 2.8e-05,
+      "box_center_offset_deg": 0.143,
+      "pixel_xy": [
+       5560.4,
+       2928.9
+      ],
+      "crop": [
+       5160,
+       2348,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x65pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.048,
+      -0.007
+     ]
+    },
+    "x70pct_clean": {
+     "ra": 299.12715,
+     "dec": 41.09265,
+     "sel57": {
+      "n": 1195,
+      "fwhm": 2.705,
+      "roundness": 0.93,
+      "median_e": 0.0726,
+      "major_axis_deg": 7.45,
+      "concentration": 0.983,
+      "ra_dir_ydown": 173.28,
+      "dev_from_RA_ydown": 14.17,
+      "dev_from_RA_yup": 0.73,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -0.000336,
+      "box_center_offset_deg": 0.155,
+      "pixel_xy": [
+       5975.2,
+       2725.1
+      ],
+      "crop": [
+       5575,
+       2352,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x70pct_clean.lst"
+     },
+     "full": {
+      "n": 1175,
+      "fwhm": 2.74,
+      "roundness": 0.923,
+      "median_e": 0.0803,
+      "major_axis_deg": 2.58,
+      "concentration": 0.947,
+      "ra_dir_ydown": 172.75,
+      "dev_from_RA_ydown": 9.84,
+      "dev_from_RA_yup": 4.67,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 1.3e-05,
+      "box_center_offset_deg": 0.174,
+      "pixel_xy": [
+       5987.1,
+       2925.2
+      ],
+      "crop": [
+       5587,
+       2352,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x70pct_clean.lst"
+     },
+     "arm_minus_canonical": [
+      -0.035,
+      0.007
+     ]
+    },
+    "x75pct_-": {
+     "ra": 296.55476,
+     "dec": 40.79583,
+     "sel57": {
+      "n": 1116,
+      "fwhm": 2.743,
+      "roundness": 0.941,
+      "median_e": 0.0605,
+      "major_axis_deg": 5.62,
+      "concentration": 0.979,
+      "ra_dir_ydown": 171.65,
+      "dev_from_RA_ydown": 13.97,
+      "dev_from_RA_yup": 2.73,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -0.000155,
+      "box_center_offset_deg": 0.061,
+      "pixel_xy": [
+       6401.3,
+       2717.4
+      ],
+      "crop": [
+       6001,
+       2360,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x75pct_-.lst"
+     },
+     "full": {
+      "n": 1129,
+      "fwhm": 2.763,
+      "roundness": 0.929,
+      "median_e": 0.0732,
+      "major_axis_deg": 0.98,
+      "concentration": 0.942,
+      "ra_dir_ydown": 171.12,
+      "dev_from_RA_ydown": 9.87,
+      "dev_from_RA_yup": 7.9,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6.2e-05,
+      "box_center_offset_deg": 0.08,
+      "pixel_xy": [
+       6413.8,
+       2921.5
+      ],
+      "crop": [
+       6014,
+       2356,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x75pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.02,
+      0.012
+     ]
+    },
+    "x80pct_-": {
+     "ra": 294.03842,
+     "dec": 40.44678,
+     "sel57": {
+      "n": 1122,
+      "fwhm": 2.77,
+      "roundness": 0.951,
+      "median_e": 0.0504,
+      "major_axis_deg": 179.37,
+      "concentration": 0.978,
+      "ra_dir_ydown": 170.1,
+      "dev_from_RA_ydown": 9.26,
+      "dev_from_RA_yup": 10.53,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 3.9e-05,
+      "box_center_offset_deg": 0.111,
+      "pixel_xy": [
+       6827.1,
+       2709.6
+      ],
+      "crop": [
+       6427,
+       2367,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x80pct_-.lst"
+     },
+     "full": {
+      "n": 1109,
+      "fwhm": 2.807,
+      "roundness": 0.959,
+      "median_e": 0.0422,
+      "major_axis_deg": 179.85,
+      "concentration": 0.974,
+      "ra_dir_ydown": 169.56,
+      "dev_from_RA_ydown": 10.28,
+      "dev_from_RA_yup": 10.59,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 1.5e-05,
+      "box_center_offset_deg": 0.124,
+      "pixel_xy": [
+       6840.3,
+       2917.7
+      ],
+      "crop": [
+       6440,
+       2359,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x80pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.037,
+      -0.008
+     ]
+    },
+    "x85pct_-": {
+     "ra": 291.58577,
+     "dec": 40.04958,
+     "sel57": {
+      "n": 1076,
+      "fwhm": 2.8,
+      "roundness": 0.967,
+      "median_e": 0.0335,
+      "major_axis_deg": 175.72,
+      "concentration": 0.967,
+      "ra_dir_ydown": 168.64,
+      "dev_from_RA_ydown": 7.09,
+      "dev_from_RA_yup": 15.64,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.9e-05,
+      "box_center_offset_deg": 0.075,
+      "pixel_xy": [
+       7252.7,
+       2701.7
+      ],
+      "crop": [
+       6853,
+       2375,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x85pct_-.lst"
+     },
+     "full": {
+      "n": 1071,
+      "fwhm": 2.812,
+      "roundness": 0.966,
+      "median_e": 0.0345,
+      "major_axis_deg": 177.44,
+      "concentration": 0.951,
+      "ra_dir_ydown": 168.09,
+      "dev_from_RA_ydown": 9.35,
+      "dev_from_RA_yup": 14.47,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.7e-05,
+      "box_center_offset_deg": 0.076,
+      "pixel_xy": [
+       7266.8,
+       2914.0
+      ],
+      "crop": [
+       6867,
+       2363,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x85pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.012,
+      0.001
+     ]
+    },
+    "x90pct_-": {
+     "ra": 289.2031,
+     "dec": 39.60869,
+     "sel57": {
+      "n": 925,
+      "fwhm": 2.737,
+      "roundness": 0.982,
+      "median_e": 0.0186,
+      "major_axis_deg": 4.65,
+      "concentration": 0.537,
+      "ra_dir_ydown": 167.26,
+      "dev_from_RA_ydown": 17.39,
+      "dev_from_RA_yup": 8.09,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.5e-05,
+      "box_center_offset_deg": 0.149,
+      "pixel_xy": [
+       7678.2,
+       2693.7
+      ],
+      "crop": [
+       7278,
+       2383,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x90pct_-.lst"
+     },
+     "full": {
+      "n": 929,
+      "fwhm": 2.743,
+      "roundness": 0.979,
+      "median_e": 0.0211,
+      "major_axis_deg": 174.82,
+      "concentration": 0.518,
+      "ra_dir_ydown": 166.7,
+      "dev_from_RA_ydown": 8.12,
+      "dev_from_RA_yup": 18.47,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.7e-05,
+      "box_center_offset_deg": 0.149,
+      "pixel_xy": [
+       7693.2,
+       2910.3
+      ],
+      "crop": [
+       7293,
+       2367,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x90pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      -0.006,
+      0.003
+     ]
+    },
+    "x95pct_-": {
+     "ra": 286.89541,
+     "dec": 39.12876,
+     "sel57": {
+      "n": 507,
+      "fwhm": 2.705,
+      "roundness": 0.979,
+      "median_e": 0.0214,
+      "major_axis_deg": 148.58,
+      "concentration": 0.322,
+      "ra_dir_ydown": 165.98,
+      "dev_from_RA_ydown": 17.4,
+      "dev_from_RA_yup": 45.45,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.8e-05,
+      "box_center_offset_deg": 0.488,
+      "pixel_xy": [
+       8103.4,
+       2685.7
+      ],
+      "crop": [
+       7703,
+       2391,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/x95pct_-.lst"
+     },
+     "full": {
+      "n": 492,
+      "fwhm": 2.705,
+      "roundness": 0.973,
+      "median_e": 0.0273,
+      "major_axis_deg": 143.33,
+      "concentration": 0.352,
+      "ra_dir_ydown": 165.41,
+      "dev_from_RA_ydown": 22.08,
+      "dev_from_RA_yup": 51.25,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 8.5e-05,
+      "box_center_offset_deg": 0.463,
+      "pixel_xy": [
+       8119.6,
+       2906.6
+      ],
+      "crop": [
+       7720,
+       2370,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/x95pct_-.lst"
+     },
+     "arm_minus_canonical": [
+      0.0,
+      0.006
+     ]
+    },
+    "LADDER_defect_RA294.86": {
+     "ra": 294.86,
+     "dec": 44.99,
+     "sel57": {
+      "n": 1089,
+      "fwhm": 2.698,
+      "roundness": 0.974,
+      "median_e": 0.0261,
+      "major_axis_deg": 175.44,
+      "concentration": 0.839,
+      "ra_dir_ydown": 169.77,
+      "dev_from_RA_ydown": 5.67,
+      "dev_from_RA_yup": 14.8,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6.3e-05,
+      "box_center_offset_deg": 0.108,
+      "pixel_xy": [
+       6523.8,
+       3651.7
+      ],
+      "crop": [
+       6124,
+       1425,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/LADDER_defect_RA294.86.lst"
+     },
+     "full": {
+      "n": 1092,
+      "fwhm": 2.725,
+      "roundness": 0.985,
+      "median_e": 0.0147,
+      "major_axis_deg": 169.19,
+      "concentration": 0.601,
+      "ra_dir_ydown": 169.19,
+      "dev_from_RA_ydown": 0.0,
+      "dev_from_RA_yup": 21.62,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 3.7e-05,
+      "box_center_offset_deg": 0.09,
+      "pixel_xy": [
+       6529.0,
+       3858.2
+      ],
+      "crop": [
+       6129,
+       1419,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/LADDER_defect_RA294.86.lst"
+     },
+     "arm_minus_canonical": [
+      -0.027,
+      -0.011
+     ]
+    },
+    "LADDER_RA301.58": {
+     "ra": 301.58,
+     "dec": 44.99,
+     "sel57": {
+      "n": 1204,
+      "fwhm": 2.6,
+      "roundness": 0.928,
+      "median_e": 0.0747,
+      "major_axis_deg": 177.5,
+      "concentration": 0.97,
+      "ra_dir_ydown": 174.47,
+      "dev_from_RA_ydown": 3.02,
+      "dev_from_RA_yup": 8.03,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.1e-05,
+      "box_center_offset_deg": 0.104,
+      "pixel_xy": [
+       5504.5,
+       3510.3
+      ],
+      "crop": [
+       5105,
+       1567,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/LADDER_RA301.58.lst"
+     },
+     "full": {
+      "n": 1203,
+      "fwhm": 2.623,
+      "roundness": 0.944,
+      "median_e": 0.0571,
+      "major_axis_deg": 175.59,
+      "concentration": 0.899,
+      "ra_dir_ydown": 173.92,
+      "dev_from_RA_ydown": 1.66,
+      "dev_from_RA_yup": 10.49,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -0.000225,
+      "box_center_offset_deg": 0.086,
+      "pixel_xy": [
+       5509.3,
+       3706.5
+      ],
+      "crop": [
+       5109,
+       1570,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/LADDER_RA301.58.lst"
+     },
+     "arm_minus_canonical": [
+      -0.023,
+      -0.016
+     ]
+    },
+    "LADDER_RA308.20": {
+     "ra": 308.2,
+     "dec": 44.99,
+     "sel57": {
+      "n": 1190,
+      "fwhm": 2.5,
+      "roundness": 0.953,
+      "median_e": 0.048,
+      "major_axis_deg": 175.41,
+      "concentration": 0.885,
+      "ra_dir_ydown": 179.15,
+      "dev_from_RA_ydown": 3.74,
+      "dev_from_RA_yup": 5.43,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.5e-05,
+      "box_center_offset_deg": 0.168,
+      "pixel_xy": [
+       4510.1,
+       3454.8
+      ],
+      "crop": [
+       4110,
+       1622,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/LADDER_RA308.20.lst"
+     },
+     "full": {
+      "n": 1178,
+      "fwhm": 2.507,
+      "roundness": 0.963,
+      "median_e": 0.0376,
+      "major_axis_deg": 179.6,
+      "concentration": 0.951,
+      "ra_dir_ydown": 178.61,
+      "dev_from_RA_ydown": 0.99,
+      "dev_from_RA_yup": 1.79,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -0.001179,
+      "box_center_offset_deg": 0.193,
+      "pixel_xy": [
+       4514.4,
+       3641.5
+      ],
+      "crop": [
+       4114,
+       1635,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/LADDER_RA308.20.lst"
+     },
+     "arm_minus_canonical": [
+      -0.007,
+      -0.01
+     ]
+    },
+    "LADDER_control_RA314.72": {
+     "ra": 314.72,
+     "dec": 44.99,
+     "sel57": {
+      "n": 1138,
+      "fwhm": 2.49,
+      "roundness": 0.977,
+      "median_e": 0.0238,
+      "major_axis_deg": 15.93,
+      "concentration": 0.875,
+      "ra_dir_ydown": 3.77,
+      "dev_from_RA_ydown": 12.16,
+      "dev_from_RA_yup": 19.69,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -2.6e-05,
+      "box_center_offset_deg": 0.359,
+      "pixel_xy": [
+       3532.4,
+       3479.8
+      ],
+      "crop": [
+       3132,
+       1597,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/LADDER_control_RA314.72.lst"
+     },
+     "full": {
+      "n": 1158,
+      "fwhm": 2.545,
+      "roundness": 0.98,
+      "median_e": 0.02,
+      "major_axis_deg": 28.72,
+      "concentration": 0.818,
+      "ra_dir_ydown": 3.23,
+      "dev_from_RA_ydown": 25.49,
+      "dev_from_RA_yup": 31.95,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 1.9e-05,
+      "box_center_offset_deg": 0.346,
+      "pixel_xy": [
+       3536.2,
+       3657.3
+      ],
+      "crop": [
+       3136,
+       1620,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/LADDER_control_RA314.72.lst"
+     },
+     "arm_minus_canonical": [
+      -0.055,
+      -0.003
+     ]
+    },
+    "corner_700_1400": {
+     "ra": 333.463235,
+     "dec": 45.549861,
+     "sel57": {
+      "n": 696,
+      "fwhm": 2.77,
+      "roundness": 0.925,
+      "median_e": 0.0783,
+      "major_axis_deg": 35.31,
+      "concentration": 0.953,
+      "ra_dir_ydown": 16.93,
+      "dev_from_RA_ydown": 18.38,
+      "dev_from_RA_yup": 52.25,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6.1e-05,
+      "box_center_offset_deg": 0.396,
+      "pixel_xy": [
+       699.4,
+       4125.9
+      ],
+      "crop": [
+       299,
+       951,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_700_1400.lst"
+     },
+     "full": {
+      "n": 712,
+      "fwhm": 2.83,
+      "roundness": 0.895,
+      "median_e": 0.1101,
+      "major_axis_deg": 29.82,
+      "concentration": 0.978,
+      "ra_dir_ydown": 16.37,
+      "dev_from_RA_ydown": 13.45,
+      "dev_from_RA_yup": 46.19,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 3.3e-05,
+      "box_center_offset_deg": 0.423,
+      "pixel_xy": [
+       699.0,
+       4276.0
+      ],
+      "crop": [
+       299,
+       1001,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_700_1400.lst"
+     },
+     "arm_minus_canonical": [
+      -0.06,
+      0.03
+     ]
+    },
+    "corner_1150_850": {
+     "ra": 331.627264,
+     "dec": 48.497503,
+     "sel57": {
+      "n": 893,
+      "fwhm": 2.825,
+      "roundness": 0.893,
+      "median_e": 0.1129,
+      "major_axis_deg": 27.06,
+      "concentration": 0.93,
+      "ra_dir_ydown": 16.5,
+      "dev_from_RA_ydown": 10.55,
+      "dev_from_RA_yup": 43.56,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.3e-05,
+      "box_center_offset_deg": 0.243,
+      "pixel_xy": [
+       1156.4,
+       4670.7
+      ],
+      "crop": [
+       756,
+       406,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_1150_850.lst"
+     },
+     "full": {
+      "n": 934,
+      "fwhm": 2.913,
+      "roundness": 0.878,
+      "median_e": 0.1294,
+      "major_axis_deg": 29.45,
+      "concentration": 0.978,
+      "ra_dir_ydown": 15.95,
+      "dev_from_RA_ydown": 13.5,
+      "dev_from_RA_yup": 45.4,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.5e-05,
+      "box_center_offset_deg": 0.211,
+      "pixel_xy": [
+       1149.0,
+       4826.0
+      ],
+      "crop": [
+       749,
+       451,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_1150_850.lst"
+     },
+     "arm_minus_canonical": [
+      -0.088,
+      0.015
+     ]
+    },
+    "corner_7300_600": {
+     "ra": 288.176608,
+     "dec": 49.556825,
+     "sel57": {
+      "n": 789,
+      "fwhm": 2.712,
+      "roundness": 0.965,
+      "median_e": 0.0354,
+      "major_axis_deg": 43.22,
+      "concentration": 0.803,
+      "ra_dir_ydown": 163.92,
+      "dev_from_RA_ydown": 59.3,
+      "dev_from_RA_yup": 27.14,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 1.9e-05,
+      "box_center_offset_deg": 0.088,
+      "pixel_xy": [
+       7301.9,
+       4856.9
+      ],
+      "crop": [
+       6902,
+       220,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_7300_600.lst"
+     },
+     "full": {
+      "n": 788,
+      "fwhm": 2.683,
+      "roundness": 0.976,
+      "median_e": 0.0242,
+      "major_axis_deg": 33.1,
+      "concentration": 0.696,
+      "ra_dir_ydown": 163.25,
+      "dev_from_RA_ydown": 49.85,
+      "dev_from_RA_yup": 16.35,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -9.7e-05,
+      "box_center_offset_deg": 0.084,
+      "pixel_xy": [
+       7299.0,
+       5076.0
+      ],
+      "crop": [
+       6899,
+       201,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_7300_600.lst"
+     },
+     "arm_minus_canonical": [
+      0.029,
+      -0.011
+     ]
+    },
+    "corner_7750_1100": {
+     "ra": 286.248693,
+     "dec": 46.815666,
+     "sel57": {
+      "n": 723,
+      "fwhm": 2.715,
+      "roundness": 0.983,
+      "median_e": 0.0168,
+      "major_axis_deg": 28.44,
+      "concentration": 0.41,
+      "ra_dir_ydown": 163.31,
+      "dev_from_RA_ydown": 45.12,
+      "dev_from_RA_yup": 11.75,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 6e-05,
+      "box_center_offset_deg": 0.101,
+      "pixel_xy": [
+       7746.5,
+       4354.3
+      ],
+      "crop": [
+       7347,
+       723,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_7750_1100.lst"
+     },
+     "full": {
+      "n": 716,
+      "fwhm": 2.708,
+      "roundness": 0.987,
+      "median_e": 0.0129,
+      "major_axis_deg": 11.46,
+      "concentration": 0.093,
+      "ra_dir_ydown": 162.67,
+      "dev_from_RA_ydown": 28.79,
+      "dev_from_RA_yup": 5.88,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 1.4e-05,
+      "box_center_offset_deg": 0.089,
+      "pixel_xy": [
+       7749.0,
+       4576.0
+      ],
+      "crop": [
+       7349,
+       701,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_7750_1100.lst"
+     },
+     "arm_minus_canonical": [
+      0.007,
+      -0.004
+     ]
+    },
+    "corner_700_4200": {
+     "ra": 329.503885,
+     "dec": 33.28158,
+     "sel57": {
+      "n": 373,
+      "fwhm": 2.8,
+      "roundness": 0.844,
+      "median_e": 0.1683,
+      "major_axis_deg": 27.76,
+      "concentration": 0.968,
+      "ra_dir_ydown": 11.08,
+      "dev_from_RA_ydown": 16.69,
+      "dev_from_RA_yup": 38.84,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.4e-05,
+      "box_center_offset_deg": 0.37,
+      "pixel_xy": [
+       666.7,
+       1322.9
+      ],
+      "crop": [
+       267,
+       3754,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_700_4200.lst"
+     },
+     "full": {
+      "n": 550,
+      "fwhm": 3.033,
+      "roundness": 0.832,
+      "median_e": 0.1821,
+      "major_axis_deg": 22.67,
+      "concentration": 0.978,
+      "ra_dir_ydown": 10.53,
+      "dev_from_RA_ydown": 12.15,
+      "dev_from_RA_yup": 33.2,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 7.2e-05,
+      "box_center_offset_deg": 0.215,
+      "pixel_xy": [
+       699.0,
+       1476.0
+      ],
+      "crop": [
+       299,
+       3801,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_700_4200.lst"
+     },
+     "arm_minus_canonical": [
+      -0.233,
+      0.012
+     ]
+    },
+    "corner_1300_4900": {
+     "ra": 325.719038,
+     "dec": 30.645792,
+     "sel57": {
+      "n": 451,
+      "fwhm": 2.712,
+      "roundness": 0.829,
+      "median_e": 0.1857,
+      "major_axis_deg": 24.92,
+      "concentration": 0.949,
+      "ra_dir_ydown": 8.46,
+      "dev_from_RA_ydown": 16.46,
+      "dev_from_RA_yup": 33.39,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.3e-05,
+      "box_center_offset_deg": 0.095,
+      "pixel_xy": [
+       1260.7,
+       615.6
+      ],
+      "crop": [
+       861,
+       4461,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_1300_4900.lst"
+     },
+     "full": {
+      "n": 466,
+      "fwhm": 2.732,
+      "roundness": 0.83,
+      "median_e": 0.1837,
+      "major_axis_deg": 18.58,
+      "concentration": 0.963,
+      "ra_dir_ydown": 7.93,
+      "dev_from_RA_ydown": 10.64,
+      "dev_from_RA_yup": 26.51,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 4.2e-05,
+      "box_center_offset_deg": 0.119,
+      "pixel_xy": [
+       1299.0,
+       776.0
+      ],
+      "crop": [
+       899,
+       4501,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_1300_4900.lst"
+     },
+     "arm_minus_canonical": [
+      -0.02,
+      -0.001
+     ]
+    },
+    "corner_7000_4900": {
+     "ra": 295.32659,
+     "dec": 30.705621,
+     "sel57": {
+      "n": 866,
+      "fwhm": 2.76,
+      "roundness": 0.858,
+      "median_e": 0.1523,
+      "major_axis_deg": 145.91,
+      "concentration": 0.937,
+      "ra_dir_ydown": 172.75,
+      "dev_from_RA_ydown": 26.84,
+      "dev_from_RA_yup": 41.35,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": 5.5e-05,
+      "box_center_offset_deg": 0.087,
+      "pixel_xy": [
+       6968.3,
+       566.0
+      ],
+      "crop": [
+       6568,
+       4511,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_7000_4900.lst"
+     },
+     "full": {
+      "n": 915,
+      "fwhm": 2.76,
+      "roundness": 0.86,
+      "median_e": 0.15,
+      "major_axis_deg": 141.08,
+      "concentration": 0.907,
+      "ra_dir_ydown": 172.26,
+      "dev_from_RA_ydown": 31.17,
+      "dev_from_RA_yup": 46.66,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -0.000167,
+      "box_center_offset_deg": 0.083,
+      "pixel_xy": [
+       6999.0,
+       776.0
+      ],
+      "crop": [
+       6599,
+       4501,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_7000_4900.lst"
+     },
+     "arm_minus_canonical": [
+      0.0,
+      -0.002
+     ]
+    },
+    "corner_7500_4400": {
+     "ra": 292.269907,
+     "dec": 32.566586,
+     "sel57": {
+      "n": 919,
+      "fwhm": 2.755,
+      "roundness": 0.881,
+      "median_e": 0.1256,
+      "major_axis_deg": 137.03,
+      "concentration": 0.968,
+      "ra_dir_ydown": 170.75,
+      "dev_from_RA_ydown": 33.72,
+      "dev_from_RA_yup": 52.22,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -6.2e-05,
+      "box_center_offset_deg": 0.259,
+      "pixel_xy": [
+       7471.7,
+       1061.8
+      ],
+      "crop": [
+       7072,
+       4015,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_sel57/corner_7500_4400.lst"
+     },
+     "full": {
+      "n": 928,
+      "fwhm": 2.74,
+      "roundness": 0.885,
+      "median_e": 0.122,
+      "major_axis_deg": 137.07,
+      "concentration": 0.935,
+      "ra_dir_ydown": 170.25,
+      "dev_from_RA_ydown": 33.18,
+      "dev_from_RA_yup": 52.68,
+      "fraction_fy_gt_fx": 0.0,
+      "faintest_admitted_A": -6.1e-05,
+      "box_center_offset_deg": 0.24,
+      "pixel_xy": [
+       7499.0,
+       1276.0
+      ],
+      "crop": [
+       7099,
+       4001,
+       800,
+       800
+      ],
+      "lst": "sessions/aug14/work/sel57/measure/lists_full/corner_7500_4400.lst"
+     },
+     "arm_minus_canonical": [
+      0.015,
+      -0.004
+     ]
+    }
+   }
+  },
+  "canonical_repeat": {
+   "vs_director_march_shape_corpus_now": "IDENTICAL on all 8 positions to the printed digit (x05 2.912/0.860, x10 2.967/0.858, x15 2.935/0.852, x20 2.925/0.839, x25 2.877/0.848, x50 2.522/0.967, x90 2.743/0.979, x95 2.705/0.973)",
+   "vs_GO6_record": {
+    "x05pct_-": {
+     "go6": [
+      2.96,
+      0.854,
+      497
+     ],
+     "now": [
+      2.912,
+      0.86,
+      513
+     ],
+     "dfwhm": -0.048,
+     "dround": 0.006
+    },
+    "x10pct_-": {
+     "go6": [
+      2.975,
+      0.851,
+      888
+     ],
+     "now": [
+      2.967,
+      0.858,
+      899
+     ],
+     "dfwhm": -0.008,
+     "dround": 0.007
+    },
+    "x15pct_DEFECT": {
+     "go6": [
+      2.95,
+      0.846,
+      996
+     ],
+     "now": [
+      2.935,
+      0.852,
+      1007
+     ],
+     "dfwhm": -0.015,
+     "dround": 0.006
+    },
+    "x20pct_DEFECT": {
+     "go6": [
+      2.935,
+      0.843,
+      1047
+     ],
+     "now": [
+      2.925,
+      0.839,
+      1058
+     ],
+     "dfwhm": -0.01,
+     "dround": -0.004
+    },
+    "x25pct_DEFECT": {
+     "go6": [
+      2.89,
+      0.848,
+      1106
+     ],
+     "now": [
+      2.877,
+      0.848,
+      1125
+     ],
+     "dfwhm": -0.013,
+     "dround": 0.0
+    },
+    "x50pct_clean": {
+     "go6": [
+      2.542,
+      0.973,
+      1190
+     ],
+     "now": [
+      2.522,
+      0.967,
+      1174
+     ],
+     "dfwhm": -0.02,
+     "dround": -0.006
+    },
+    "x90pct_-": {
+     "go6": [
+      2.728,
+      0.971,
+      928
+     ],
+     "now": [
+      2.743,
+      0.979,
+      929
+     ],
+     "dfwhm": 0.015,
+     "dround": 0.008
+    },
+    "x95pct_-": {
+     "go6": [
+      2.705,
+      0.971,
+      512
+     ],
+     "now": [
+      2.705,
+      0.973,
+      492
+     ],
+     "dfwhm": 0.0,
+     "dround": 0.002
+    }
+   },
+   "explanation": "see placement_finding \u2014 GO #6's corpus boxes were placed with the other crop convention, displaced +136..+270 px vertically"
+  },
+  "placement_finding_INSTRUMENT": {
+   "what": "shape_at_sky.py resolves the Siril-crop y-convention by trying 'bottom' first and accepting it when every box's median-star offset is within tol = box/2 * scale * 1.5 = 2.83 deg (~600 px). A wrong convention mirrors a box about the canvas centre row, displacing it by 2*(y0 - H/2); for any position set whose boxes ALL lie within ~300 px of the centre row that displacement is inside the tolerance, so the wrong convention verifies and ships displaced boxes. The check cannot fail on the defect it names for mid-row position sets.",
+   "GO6_corpus": "all 8 corpus boxes were placed with the bottom convention (crop y = y_fits): displacements +136..+270 px; the same file measured today with the verified convention differs by -0.048..+0.015 px FWHM, n by -20..+19",
+   "GO6_members": "of 190 member (position) boxes, 93 bottom / 91 top / 6 unclassified; 48 of 77 members carry at least one bottom-placed box; implied displacement 8-602 px, median 342 px (a box displaced 600 px overlaps the intended one by 25%)",
+   "today": "both products resolved to 'top' because the corner boxes (y-down 600-1400 / 4200-4900) mirror by thousands of px and fail the bottom pass decisively; offsets 0.03-0.64 deg",
+   "not_affected": [
+    "GO #5 (stations on the centre row: identical crop under both conventions)",
+    "GO #7 and half (a) (star_stations, pixel-addressed)",
+    "GO #8 members (hand-placed pixel crops) and its corpus BL boxes (far from the centre row: bottom fails)",
+    "the 52-member re-march smear_remarch.json (ladder positions far from the centre row: y-origin top recorded)"
+   ],
+   "affected": [
+    "GO #6's corpus readings (<= 0.05 px here) and its member readings at x10-x25/x50/x90 (size unmeasured; up to 600-px displacement on a member with a top/bottom PSF asymmetry) \u2014 hence the kept-57 targets below, the +0.165 floor GO #6 quoted, and GO #6's per-night medians; GO #6's qualitative verdict (member-borne, night-dominated) is a HYPOTHESIS until re-measured with the corrected placement"
+   ],
+   "suggested_fix_not_applied": "accept the convention whose offsets are SMALLER, and require the two passes to differ by more than the tolerance (or seed the position set with one far-from-centre-row sentinel); a mid-row-only positive control (all boxes within 300 px of H/2) must FAIL the check before the fix ships \u2014 not edited here (director's/owner's call)"
+  },
+  "kept57_targets_from_GO6_record": {
+   "x10pct_-": {
+    "n77": 4,
+    "median77": [
+     2.745,
+     0.804
+    ],
+    "n57": 3,
+    "median57": [
+     2.725,
+     0.808
+    ],
+    "best57": [
+     2.473,
+     0.933
+    ],
+    "worst57": [
+     2.765,
+     0.801
+    ]
+   },
+   "x15pct_DEFECT": {
+    "n77": 13,
+    "median77": [
+     2.68,
+     0.822
+    ],
+    "n57": 9,
+    "median57": [
+     2.605,
+     0.862
+    ],
+    "best57": [
+     2.39,
+     0.944
+    ],
+    "worst57": [
+     2.732,
+     0.793
+    ]
+   },
+   "x20pct_DEFECT": {
+    "n77": 36,
+    "median77": [
+     2.661,
+     0.835
+    ],
+    "n57": 25,
+    "median57": [
+     2.56,
+     0.874
+    ],
+    "best57": [
+     2.278,
+     0.957
+    ],
+    "worst57": [
+     2.938,
+     0.764
+    ]
+   },
+   "x25pct_DEFECT": {
+    "n77": 58,
+    "median77": [
+     2.693,
+     0.835
+    ],
+    "n57": 41,
+    "median57": [
+     2.538,
+     0.877
+    ],
+    "best57": [
+     2.22,
+     0.98
+    ],
+    "worst57": [
+     3.018,
+     0.769
+    ]
+   },
+   "x50pct_clean": {
+    "n77": 77,
+    "median77": [
+     2.377,
+     0.954
+    ],
+    "n57": 57,
+    "median57": [
+     2.333,
+     0.948
+    ],
+    "best57": [
+     2.217,
+     0.969
+    ],
+    "worst57": [
+     2.505,
+     0.916
+    ]
+   },
+   "x90pct_-": {
+    "n77": 2,
+    "median77": [
+     2.536,
+     0.966
+    ],
+    "n57": 2,
+    "median57": [
+     2.536,
+     0.966
+    ],
+    "best57": [
+     2.527,
+     0.968
+    ],
+    "worst57": [
+     2.545,
+     0.965
+    ]
+   }
+  },
+  "calibration": {
+   "arm_x50_minus_kept57_median": [
+    0.147,
+    0.005
+   ],
+   "arm_x90_minus_kept57_median": [
+    0.201,
+    0.016
+   ],
+   "canonical_x50_minus_median77": [
+    0.145,
+    0.013
+   ],
+   "canonical_x90_minus_median77": [
+    0.207,
+    0.013
+   ],
+   "canonical_x50_minus_kept57_median": [
+    0.189,
+    0.019
+   ],
+   "reading": "the arm's compose floor at x50 is +0.147 px / +0.005 roundness over the kept-57 median (x90 +0.201 / +0.016); the canonical's, re-measured with the corrected placement, is +0.145 / +0.013 over the 77 median (x90 +0.207 / +0.013; GO #6 quoted +0.165 / +0.192 from its displaced boxes). The floor did not move with 77 -> 57 members."
+  },
+  "verdicts": {
+   "rules": {
+    "MECHANISM": "arm within +-0.10 px FWHM / 0.03 roundness of kept-57 median + the arm's own x50 floor (+0.147 / +0.005); the x90-floor prediction recorded beside it",
+    "LETTER": "x10-x25 FWHM <= 2.80 (from 2.88-2.97); corner (700,4200) improves by >= 0.15 px; corner (1300,4900) = null control (both coverers kept), unchanged within 0.05 px / 0.02; x50 unchanged within 0.05 px"
+   },
+   "per_position": {
+    "x10pct_-": {
+     "canonical": [
+      2.967,
+      0.858
+     ],
+     "arm": [
+      2.763,
+      0.891
+     ],
+     "kept57_median": [
+      2.725,
+      0.808
+     ],
+     "predicted_x50floor": [
+      2.872,
+      0.813
+     ],
+     "arm_minus_predicted": [
+      -0.109,
+      0.078
+     ],
+     "predicted_x90floor": [
+      2.926,
+      0.824
+     ],
+     "MECHANISM_held": false,
+     "LETTER_fwhm_le_2p80": true,
+     "predicted_gain_fwhm": 0.097,
+     "realised_gain_fwhm": 0.204,
+     "fraction_realised": 2.1
+    },
+    "x15pct_DEFECT": {
+     "canonical": [
+      2.935,
+      0.852
+     ],
+     "arm": [
+      2.748,
+      0.886
+     ],
+     "kept57_median": [
+      2.605,
+      0.862
+     ],
+     "predicted_x50floor": [
+      2.752,
+      0.867
+     ],
+     "arm_minus_predicted": [
+      -0.004,
+      0.019
+     ],
+     "predicted_x90floor": [
+      2.806,
+      0.878
+     ],
+     "MECHANISM_held": true,
+     "LETTER_fwhm_le_2p80": true,
+     "predicted_gain_fwhm": 0.185,
+     "realised_gain_fwhm": 0.187,
+     "fraction_realised": 1.01
+    },
+    "x20pct_DEFECT": {
+     "canonical": [
+      2.925,
+      0.839
+     ],
+     "arm": [
+      2.79,
+      0.879
+     ],
+     "kept57_median": [
+      2.56,
+      0.874
+     ],
+     "predicted_x50floor": [
+      2.707,
+      0.879
+     ],
+     "arm_minus_predicted": [
+      0.083,
+      0.0
+     ],
+     "predicted_x90floor": [
+      2.761,
+      0.89
+     ],
+     "MECHANISM_held": true,
+     "LETTER_fwhm_le_2p80": true,
+     "predicted_gain_fwhm": 0.22,
+     "realised_gain_fwhm": 0.135,
+     "fraction_realised": 0.61
+    },
+    "x25pct_DEFECT": {
+     "canonical": [
+      2.877,
+      0.848
+     ],
+     "arm": [
+      2.755,
+      0.879
+     ],
+     "kept57_median": [
+      2.538,
+      0.877
+     ],
+     "predicted_x50floor": [
+      2.685,
+      0.882
+     ],
+     "arm_minus_predicted": [
+      0.07,
+      -0.003
+     ],
+     "predicted_x90floor": [
+      2.739,
+      0.893
+     ],
+     "MECHANISM_held": true,
+     "LETTER_fwhm_le_2p80": true,
+     "predicted_gain_fwhm": 0.194,
+     "realised_gain_fwhm": 0.122,
+     "fraction_realised": 0.63
+    },
+    "corner_700_4200": {
+     "canonical": [
+      3.033,
+      0.832
+     ],
+     "arm": [
+      2.8,
+      0.844
+     ],
+     "gain_fwhm": 0.233,
+     "dround": 0.012,
+     "LETTER_gain_ge_0p15": true
+    },
+    "corner_1300_4900_null_control": {
+     "canonical": [
+      2.732,
+      0.83
+     ],
+     "arm": [
+      2.712,
+      0.829
+     ],
+     "dfwhm": -0.02,
+     "dround": -0.001,
+     "unchanged_within_0p05_0p02": true
+    },
+    "x50pct_clean": {
+     "canonical": [
+      2.522,
+      0.967
+     ],
+     "arm": [
+      2.48,
+      0.953
+     ],
+     "dfwhm": -0.042,
+     "dround": -0.014,
+     "LETTER_unchanged_within_0p05": true
+    }
+   },
+   "summary": {
+    "MECHANISM": "HELD at x15 (-0.004/+0.019), x20 (+0.083/0.000), x25 (+0.070/-0.003); NOT HELD at x10 \u2014 the arm is BETTER than the full-box-coverer prediction by 0.109 px and rounder by 0.078 (3 full-box coverers vs ~30 partial ones the compose also blends: GO #6's premise (b), and the kept-57 targets carry the placement finding). With the x90 floor: x10 -0.163, x15 -0.058, x20 +0.029, x25 +0.016.",
+    "LETTER": "HELD on all six: x10 2.763, x15 2.748, x20 2.790, x25 2.755 (all <= 2.80; roundness +0.031..+0.040); (700,4200) 3.033 -> 2.800 = +0.233 px (>= 0.15), roundness +0.012; null control (1300,4900) 2.732 -> 2.712 / 0.830 -> 0.829 (unchanged); x50 2.522 -> 2.480 = -0.042 (inside 0.05; the kept median sits 0.044 below the 77 median \u2014 the membership shift, called as such)",
+    "fraction_of_predicted_gain_realised": {
+     "x10": 2.1,
+     "x15": 1.01,
+     "x20": 0.61,
+     "x25": 0.63,
+     "note": "predicted gain = canonical - (kept-57 median + the canonical's x50 floor); realised = canonical - arm"
+    }
+   }
+  },
+  "whole_arm_reading": {
+   "left_band_x05_x35": "better at every position: dFWHM -0.132 (x05) / -0.204 (x10) / -0.187 (x15) / -0.135 (x20) / -0.122 (x25) / -0.082 (x30) / -0.088 (x35), roundness +0.015..+0.040; the band's excess over the product's own x50 shrinks 22-36 % (x10 +0.445 -> +0.283, x15 +0.413 -> +0.268, x20 +0.403 -> +0.310, x25 +0.355 -> +0.275) \u2014 reduced, not removed: the arm's band still reads 2.75-2.79 / 0.88-0.89 against its clean band 2.47-2.51 / 0.95-0.97; the elongation stays drift-aligned (dev 9-14 deg from local +RA, median e 0.115-0.129 vs 0.150-0.173 on the canonical)",
+   "centre_and_right_x40_x95": "within -0.055..0.000 px and +-0.016 roundness (x40 -0.049, x45 -0.047, x50 -0.042, x55 -0.015, x60 -0.017, x65 -0.048, x70 -0.035, x75 -0.020, x80 -0.037, x85 -0.012, x90 -0.006, x95 0.000) \u2014 the right/exit side unchanged, as the excluded members' entry-side columns build only the left",
+   "ladder": "RA294.86 -0.027, RA301.58 -0.023, RA308.20 -0.007, control RA314.72 -0.055 \u2014 within the scatter",
+   "corners": "TL pair improved: (700,1400) -0.060/+0.030, (1150,850) -0.088/+0.015; BL (700,4200) -0.233/+0.012 (its aug14/set-04 sub_05/06 feeders excluded, july31/set-03 sub_04/05 kept; n 550 -> 373); null control (1300,4900) -0.020/-0.001; TR pair (7300,600) +0.029/-0.011, (7750,1100) +0.007/-0.004 and BR pair (7000,4900) 0.000/-0.002, (7500,4400) +0.015/-0.004 unchanged",
+   "excess_reduction_table": {
+    "x05pct_-": {
+     "canonical_excess_over_own_x50": 0.39,
+     "arm_excess_over_own_x50": 0.3,
+     "reduction_pct": 23.1
+    },
+    "x10pct_-": {
+     "canonical_excess_over_own_x50": 0.445,
+     "arm_excess_over_own_x50": 0.283,
+     "reduction_pct": 36.4
+    },
+    "x15pct_DEFECT": {
+     "canonical_excess_over_own_x50": 0.413,
+     "arm_excess_over_own_x50": 0.268,
+     "reduction_pct": 35.1
+    },
+    "x20pct_DEFECT": {
+     "canonical_excess_over_own_x50": 0.403,
+     "arm_excess_over_own_x50": 0.31,
+     "reduction_pct": 23.1
+    },
+    "x25pct_DEFECT": {
+     "canonical_excess_over_own_x50": 0.355,
+     "arm_excess_over_own_x50": 0.275,
+     "reduction_pct": 22.5
+    },
+    "x30pct_DEFECT": {
+     "canonical_excess_over_own_x50": 0.263,
+     "arm_excess_over_own_x50": 0.223,
+     "reduction_pct": 15.2
+    },
+    "x35pct_-": {
+     "canonical_excess_over_own_x50": 0.166,
+     "arm_excess_over_own_x50": 0.12,
+     "reduction_pct": 27.7
+    },
+    "corner_700_4200": {
+     "canonical_excess_over_own_x50": 0.511,
+     "arm_excess_over_own_x50": 0.32,
+     "reduction_pct": 37.4
+    },
+    "corner_1150_850": {
+     "canonical_excess_over_own_x50": 0.391,
+     "arm_excess_over_own_x50": 0.345,
+     "reduction_pct": 11.8
+    },
+    "corner_700_1400": {
+     "canonical_excess_over_own_x50": 0.308,
+     "arm_excess_over_own_x50": 0.29,
+     "reduction_pct": 5.8
+    }
+   },
+   "cost": "20 members / 2153 frames (25.8 % of the canonical's frames); canvas -25 x -200 px; detected stars in the 800-px boxes down 0-6 % at the interior, -32 % at (700,4200); seqtilt star count 43,607 -> 42,465 (-2.6 %); background noise at the x50 crop +0.2..+2.7 % (bgnoise) against the predicted +16.2 % \u2014 see depth"
+  },
+  "depth": {
+   "crop_x50": {
+    "sel57": [
+     3869,
+     2321,
+     800,
+     800
+    ],
+    "full": [
+     3880,
+     2337,
+     800,
+     800
+    ]
+   },
+   "ssf": [
+    "sessions/aug14/work/sel57/measure/depth_sel57.ssf",
+    "sessions/aug14/work/sel57/measure/depth_full.ssf"
+   ],
+   "logs": [
+    "sessions/aug14/work/sel57/measure/depth_sel57.log",
+    "sessions/aug14/work/sel57/measure/depth_full.log"
+   ],
+   "bgnoise_RGB": {
+    "sel57": [
+     0.304,
+     0.496,
+     0.299
+    ],
+    "full": [
+     0.296,
+     0.495,
+     0.296
+    ],
+    "ratio_arm_over_canonical": [
+     1.027,
+     1.002,
+     1.0101
+    ]
+   },
+   "stat_sigma_RGB": {
+    "sel57": [
+     15.8,
+     22.4,
+     18.5
+    ],
+    "full": [
+     15.4,
+     22.1,
+     18.6
+    ],
+    "ratio_arm_over_canonical": [
+     1.026,
+     1.0136,
+     0.9946
+    ],
+    "note": "stat Sigma on an 800-px crop of a Milky Way field is star-dominated (15-22 vs bgnoise 0.3-0.5 ADU16) \u2014 recorded, not the depth measure"
+   },
+   "siril_lines": {
+    "sel57": [
+     "log: Red layer: Mean: 33.0, Median: 32.0, Sigma: 15.8, Min: 29.9, Max: 3178.2, bgnoise: 0.3",
+     "log: Green layer: Mean: 57.8, Median: 56.1, Sigma: 22.4, Min: 54.7, Max: 4645.5, bgnoise: 0.5",
+     "log: Blue layer: Mean: 39.9, Median: 38.8, Sigma: 18.5, Min: 37.6, Max: 4080.6, bgnoise: 0.3",
+     "log: Background noise value (channel: #0): 0.304 (4.636e-06)",
+     "log: Background noise value (channel: #1): 0.496 (7.564e-06)",
+     "log: Background noise value (channel: #2): 0.299 (4.565e-06)",
+     "RC 0"
+    ],
+    "full": [
+     "log: Red layer: Mean: 33.0, Median: 31.9, Sigma: 15.4, Min: 30.0, Max: 2815.0, bgnoise: 0.3",
+     "log: Green layer: Mean: 57.8, Median: 56.1, Sigma: 22.1, Min: 54.8, Max: 4107.2, bgnoise: 0.5",
+     "log: Blue layer: Mean: 39.9, Median: 38.8, Sigma: 18.6, Min: 37.6, Max: 3697.5, bgnoise: 0.3",
+     "log: Background noise value (channel: #0): 0.296 (4.511e-06)",
+     "log: Background noise value (channel: #1): 0.495 (7.557e-06)",
+     "log: Background noise value (channel: #2): 0.296 (4.510e-06)",
+     "RC 0"
+    ]
+   },
+   "predicted_ratio": 1.1623,
+   "predicted_ratio_by_frames": 1.1608,
+   "verdict": "the predicted +16.2 % noise cost DID NOT OCCUR at x50: bgnoise ratio 1.027 / 1.002 / 1.010 (R/G/B), stat Sigma 1.026 / 1.014 / 0.995 \u2014 NULL against the prediction. Mechanisms offered, MECHANISM not measured: (1) Siril's bgnoise on a 17 arcsec/px Milky Way crop reads unresolved-star/nebular texture that does not average down with depth (sky 32-56 ADU16 against bgnoise 0.3-0.5); (2) under nbstack (count) weighting the removed aug14/aug09-set-05 members may carry above-average per-frame noise, so their removal lowers the weighted variance nearly as much as it lowers the frame count. A discriminator: the same two crops at a dark, star-poor box, or bgnoise on the two products' luminance after star removal \u2014 not run."
+  },
+  "seqtilt": {
+   "sel57": {
+    "input": "web/results/aug14/stack_july31+aug06+aug09+aug14_sel57_wcs.fit",
+    "label": "sel57",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 42465,
+    "truncated_mean_fwhm_px": 2.81,
+    "sensor_tilt_fwhm_px": 0.21,
+    "sensor_tilt_pct": 7,
+    "off_axis_aberration_fwhm_px": 0.21
+   },
+   "full": {
+    "input": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit",
+    "label": "full",
+    "measured_by": "Siril seqtilt (this script only runs it and records its report)",
+    "stars": 43607,
+    "truncated_mean_fwhm_px": 2.91,
+    "sensor_tilt_fwhm_px": 0.24,
+    "sensor_tilt_pct": 8,
+    "off_axis_aberration_fwhm_px": 0.2
+   },
+   "note": "reported, not scored (the truncated mean rides detection depth): arm 42,465 stars / 2.81 / tilt 0.21 (7 %) / off-axis 0.21 vs canonical 43,607 / 2.91 / 0.24 (8 %) / 0.20"
+  },
+  "aesthetic_verdict": "the owner's, on web/results/aug09/judge/july31+aug06+aug09+aug14_sel57_spcc-linked.png beside july31+aug06+aug09+aug14_full_spcc-linked.png \u2014 not made here",
+  "no_destructive_steps": "no product written or modified; scratch under sessions/aug14/work/sel57/measure/ (gitignored); tracked outputs: this block and the ledger RESULT line",
+  "premises_untested": [
+   "the kept-57 prediction targets come from GO #6's member readings, ~half of which were box-displaced (placement_finding_INSTRUMENT); their size error is unmeasured \u2014 the MECHANISM verdicts are provisional on a re-measurement of the members with the corrected placement; the LETTER verdicts and every arm-vs-canonical delta are measured with verified placement on both products and do not depend on it",
+   "the MECHANISM comparator is the median of FULL-box coverers; the compose blends partial coverers too (x10: 3 full vs ~30 partial), which is the likeliest reason x10 outperforms its prediction",
+   "top-30 by amplitude rank-matches depth between a 57- and a 77-member product (n differs by 0-6 % inside, -32 % at (700,4200)); no common-amplitude-floor supplement was run because no verdict sat inside the floor's scatter",
+   "'within the scatter' for the null control and the ladder = 0.05 px / 0.02 roundness, taken from the tree's measured run-to-run agreement (GO #6's director-vs-worker marches), not from a bootstrap here",
+   "the depth prediction assumed noise ~ 1/sqrt(members) at equal per-member noise; what bgnoise measures on this field and how the removed members' noise compares are the two untested terms above",
+   "REGREFSR 'derived' (canonical) vs 'pinned' (arm) name the same member; that the two mechanisms reach the same registration state is read from the identical REGREF/ANCREF and the unchanged right-side readings, not tested directly",
+   "the y-down angle convention (verified on the corpus band in GO #8) and the major-axis rule (fraction_fy_gt_fx = 0 at 61 of 62 rows; 0.033 at one) carry as before"
+  ]
+ },
+ "status": "HALF (a) DONE (the ranking, director-confirmed k = 20); HALF (b) DONE \u2014 the _sel57 arm composed, finished and MEASURED against the canonical (half_b_arm); the aesthetic verdict is the owner's"
 }
