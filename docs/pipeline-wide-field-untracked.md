@@ -241,9 +241,11 @@ homography, and homographies COMPOSE (the fact §6 rests on).
   lever: a PORTION rule (crop a member's entry-side columns beyond the onset
   where FWHM(+dx) − FWHM(−dx) > 0.20 px — `cropT`, owner-approved) and a
   FRAME rule (exclude a member whose interior+exit-side FWHM exceeds the
-  corpus's 25th percentile by > 0.20 px — under test). Both are quality
-  THRESHOLDS that exclude nothing on an equal-quality corpus (never a rank or a
-  fixed percentage); coverage lost at the rim is an accepted, reported cost
+  corpus's 25th percentile by > 0.20 px) measured as a NULL on top of it — the
+  soft members' interiors were not degrading anything — so it is reported, not
+  gated. The portion rule is a quality THRESHOLD that excludes nothing on an
+  equal-quality corpus (never a rank or a fixed percentage); coverage lost at
+  the rim is an accepted, reported cost
   (the owner crops or adds sessions). Not yet encoded as a stage — the
   decision map, every form's numbers and the encoding recommendation:
   `docs/corner-smear-member-selection.md`.
@@ -362,7 +364,7 @@ running).
 - Corpus left-band / bottom-corner star smear — ATTRIBUTED (member-borne,
   night-dominated, in the photons; registration refuted) and answered by
   member selection: the portion rule `cropT` is owner-approved, the frame rule
-  is under test, neither is encoded as a chain stage yet
+  measured a NULL on top of it (reported, not gated), the stage is not encoded yet
   (`docs/corner-smear-member-selection.md`; BACKLOG:`compose-homography-smear`).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets

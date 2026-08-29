@@ -7,9 +7,8 @@ which forms of fix were built and measured, what rule stands, why each
 alternative was rejected, and what is still open. This is the document a
 contributor reads BEFORE touching member selection, the crop rule, or the
 compose's weighting; the numbers live in `datasets/aug06/experiments.jsonl`
-(lines 98–116 landed; 117–118 are the frame rule's pre-registration and verdict,
-pending) and `datasets/corpus/smear_attribution/*.json`, and this page is the
-map of them.
+(lines 98–119) and `datasets/corpus/smear_attribution/*.json`, and this page is
+the map of them.
 
 **Context.** Siril 1.4.4 flatpak; the undistort chain (`docs/pipeline-wide-field-untracked.md`);
 77 per-set sub-stacks ("members", STACKCNT 8349 frames) from four nights composed
@@ -81,7 +80,7 @@ night-dependent entry-side excess and the frames that are softer than the rest.
 | **crop20** (109–110) | the same 20 members kept, only their entry-side columns beyond centre+900 px removed (Siril `crop` of copies, MEMCROP stamped) | 2.79/2.81/2.82/2.79 | 2.527 | 2.805 | 1.003/0.992/0.993 (full depth) | reproduces sel57's band gain at full depth and canvas, no seam at 20 boundaries; still a rank |
 | **cropT** (111–114) | THRESHOLD: crop a member's entry columns beyond the onset where FWHM(+dx) − FWHM(−dx) > 0.20 px, x_c = onset − 300; intrinsic, rankless; 27 of 77 cropped (x_c 2100 ×15 / 1500 ×11 / 900 ×1) | 2.79/2.805/2.81/2.79 | 2.515 | 2.817 | 1.007/0.996/1.010 | = crop20 within 0.01 px, no seam at 27/27; **OWNER-APPROVED 2026-08-29** as a positive test |
 | SWarp tapered weight (115–116) | per-member MAP_WEIGHT tapering the same columns to 2 % instead of removing them (keeps rim coverage) | not built | — | — | — | STOPPED by the owner: the rim is out of scope (§5); engine facts kept in `swtaper_probes.json` + the register row |
-| **cropTselT** (117–118, building) | cropT + a FRAME-level threshold: exclude a member whole when S = mean FWHM over {centre, −600..−2400} exceeds the corpus's 25th percentile by > 0.20 px; predicted 13 members (aug14 set-03 sub_03–06, set-04, set-05) | predicted ≤ cropT | predicted −0.02..−0.05 | ≈ cropT | to be read per the bgnoise regime probe | pending |
+| **cropTselT** (117–119) | cropT + a FRAME-level threshold: exclude a member whole when S = mean FWHM over {centre, −600..−2400} exceeds the corpus's 25th percentile (2.444) by > 0.20 px; 13 members excluded (aug14 set-03 sub_03–06, set-04, set-05 — all inside cropT's 27) | 2.80/2.80/2.81/2.77 (= cropT within 0.024) | 2.510 (−0.017: NULL within the 0.02 bar) | 2.823 (= cropT) | −16.2 % of the frames (STACKCNT 8349 → 6997) | **NULL** on top of the portion rule: every station within 0.024 px of cropT, the top-left corners unchanged; REJECTED as a gate — the 13 members' degrading part was their entry zone, already removed |
 
 Forms refuted BEFORE building, from the same profiles (`cropT_arm.json`):
 the intrinsic gradient FWHM(+dx) − FWHM(centre) > 0.20 trips on 66/77 members
@@ -141,10 +140,15 @@ continuum is a policy, and the policy is the owner's (§5).
   available at each field position and nothing worse.
 - Exclusion costs coverage where the excluded columns were the only cover (the
   bottom-left rim staircase: first-covered-column levels 39/53/58/66 vs the
-  canonical's 64/65/65/67 on the 8-bit profile) and depth where many members
-  cover — measured small at the centre (bgnoise +0.2..+2.7 % for 26 % of the
-  frames removed), with the premise that `bgnoise` is photon-limited on this
-  field still to be probed (GO #16).
+  canonical's 64/65/65/67 on the 8-bit profile) and depth wherever the excluded
+  data was not the only cover. **`bgnoise` is BLIND to that depth cost on this
+  field** (MEASURED, GO #16: one member's centre box reads only 2.44/1.77/2.49×
+  the canonical's against the 8.8× a photon-limited mean would give — the
+  Milky Way's unresolved texture sets the floor), so sel57's "+0.2..+2.7 %" was
+  a blind reading, not a free cull; every cull's depth cost is its STACKCNT
+  fraction (sel57 −25.8 %, cropTselT −16.2 %), and the portion rule's cost is
+  the 6.44 % of pixel-frames it removes, mostly where the band's depth was
+  never at stake.
 - Weighting instead of exclusion ("make the most of what we have") is the
   standards-first alternative (inverse-variance; SWarp MAP_WEIGHT or Siril
   `-weight=noise`). It is queued behind the exclusion rules because a scalar
@@ -165,23 +169,25 @@ continuum is a policy, and the policy is the owner's (§5).
 
 ## Verdict / recommendation
 
-Member selection by measured quality is the fix for this class: a PORTION rule
-(the entry-side asymmetry threshold, cropT — approved) and a FRAME rule (the
-interior+exit-side threshold, cropTselT — under test), both intrinsic or
-corpus-relative, both excluding nothing on an equal-quality corpus. Encode them
-as ONE stage between the per-set sub-stacks and the compose — profile every
-member with `star_stations.py`, apply the two rules with their constants
-visible in the record, write cropped COPIES (never touch a member), compose the
-curated set — with a positive control (a planted soft member that MUST be
-excluded) and a removal condition (Siril's `stack` offers per-member spatial
-weights or a per-member quality cull of its own). Only after the frame rule's
-verdict and the owner's word.
+Member selection by measured quality is the fix for this class, and on this
+corpus the PORTION rule alone carries it: the entry-side asymmetry threshold
+(cropT — approved) removes the degrading part of the soft members and keeps
+their interiors, which the frame rule showed are not degrading anything (NULL at
+−16.2 % of the frames). Encode the portion rule as ONE stage between the per-set
+sub-stacks and the compose — profile every member with `star_stations.py`, apply
+the rule with its constant visible in the record, report the frame score S_i
+beside it (an advisory, not a gate), write cropped COPIES (never touch a member),
+compose the curated set — with a positive control (a planted asymmetric member
+that MUST be cropped) and a removal condition (Siril's `stack` offers per-member
+spatial weights or a per-member quality cull of its own). On the owner's word.
 
 ## Status
 
-EMPIRICALLY TESTED for the attribution (§2) and the portion rule (§3, cropT —
-owner-approved); the frame rule is PRE-REGISTERED and building; the encoding
-is UNBUILT. Open: the constant's placement (§4); the +2400 outermost station's
+EMPIRICALLY TESTED for the attribution (§2), the portion rule (§3, cropT —
+owner-approved) and the frame rule (a NULL on top of it — not encoded as a gate;
+its score stays a reported measurement with a re-test condition: a corpus whose
+soft night is soft in its INTERIOR beyond the entry zone); the encoding is
+UNBUILT. Open: the constant's placement (§4); the +2400 outermost station's
 blind spot (a defect confined to a member's last ~100–500 px is invisible to
 every form above); the depth measure's regime; weighting vs exclusion (§6).
 
