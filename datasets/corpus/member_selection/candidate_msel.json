@@ -1,0 +1,1001 @@
+{
+ "id": "candidate_msel_17C",
+ "what": "the FIRST full --portion-rule combine (stage -> compose -> derived-reference check -> finish): the CANDIDATE canonical for the owner, built end to end by run_corpus_combine.sh from the tracked profile cache; nothing canonical touched (asserted below).",
+ "command": "scripts/stack/run_corpus_combine.sh --portion-rule --out=web/results/aug14/stack_july31+aug06+aug09+aug14_msel.fit sessions/july31 sessions/aug06 sessions/aug09 sessions/aug14",
+ "code_state": "HEAD 851dbc5 + the uncommitted TAG fix in run_corpus_combine.sh (the finish/curated/record names derive from --out's basename; PIPEREV stamps HEAD, hence 851dbc5)",
+ "wall_s": 170.2,
+ "build_log": "/tmp/claude-1000/-home-samsung-Desktop-astro-imaging/97a61de4-2d46-42f0-a131-f97551a440c1/scratchpad/build17C.log (scratch; key lines copied below)",
+ "key_log_lines": {
+  "stage": [
+   "  [profile] 0 profiled, 77 cached (sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_06.fit, sub_01.fit, sub_02.fit, sub_03.fit, sub_04.fit, sub_05.fit, sub_06.fit, sub_01.fit, sub_02.fit, sub_03.fit)",
+   "  [plan] 77 members: 27 to crop ({'900': 1, '1500': 11, '2100': 15}), 50 untouched; p25(S) 2.444; record -> /home/samsung/Desktop/astro-imaging/datasets/corpus/member_selection/july31+aug06+aug09+aug14_msel_portion.json",
+   "  [verify] 77 entries, failures 0; max_rel_sip 4.49e-15, max_sky_sep 4.41e-13 deg",
+   "[member_crop] DONE: 27 cropped ({'900': 1, '1500': 11, '2100': 15}), 50 untouched; curated dir /home/samsung/Desktop/astro-imaging/sessions/aug14/work/curated_july31+aug06+aug09+aug14_msel; record /home/samsung/Desktop/astro-imaging/datasets/corpus/member_selection/july31+aug06+aug09+aug14_msel_portion.json; verified=true",
+   "[corpus] portion rule applied: composing from sessions/aug14/work/curated_july31+aug06+aug09+aug14_msel"
+  ],
+  "reference": [
+   "[derive_compose_ref] 4 nights \u2014 reference DERIVED",
+   "[derive_compose_ref] member 35 (aug09/work/groups_set-02/sub_01.fit) at 0.1973 deg from the median pointing [308.4594, 41.5446]; runner-up 0.4334 deg",
+   "reference DERIVED: member 35 -> /home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_01.fit",
+   "   scripts/stack/derive_compose_ref.py)",
+   "[corpus] derived reference sub_035_aug09_set-02_sub_01.fit: uncropped in the stage record"
+  ],
+  "compose": [
+   "compose gate T0: 77/77 members are self-describing (contract-complete)",
+   "compose_preflight: 77/77 members carry a TAN+SIP solution \u2014 astrometric registration is available",
+   "compose: astrometric registration + per-member undistortion CONFIRMED in siril's log",
+   "stamped composite provenance onto stack_july31+aug06+aug09+aug14_msel.fit (REGMODEL=astrometric REGUNDIS=T, 77 members, REGREF=35:aug09/groups_set-02/sub_01.fit [derived], STACKNRM=addscale, ANCREF=35 + ANCLOC/ANCSCL R,G,B)",
+   "=== DONE: /home/samsung/Desktop/astro-imaging/web/results/aug14/stack_july31+aug06+aug09+aug14_msel.fit (77 sub-stacks, framing=max) ==="
+  ],
+  "finish": [
+   "[solve_field] SOLVED: RA 310.007 Dec +41.286 scale 17.01 arcsec/px logodds 176",
+   "[spcc_cone] MISSING: none \u2014 SPCC has full coverage",
+   "[spcc_run] K factors: R 1.000 G 0.687 B 0.926 (1943/3905 stars kept) -> datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_msel.json",
+   "[finish july31+aug06+aug09+aug14_msel] 4/4 linked stretch -> PNG",
+   "[finish july31+aug06+aug09+aug14_msel] DONE -> /home/samsung/Desktop/astro-imaging/web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png",
+   "[corpus] DONE -> web/results/aug14/stack_july31+aug06+aug09+aug14_msel.fit",
+   "[corpus] render -> web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png"
+  ]
+ },
+ "stage": {
+  "record": "datasets/corpus/member_selection/july31+aug06+aug09+aug14_msel_portion.json",
+  "curated_dir": "sessions/aug14/work/curated_july31+aug06+aug09+aug14_msel",
+  "profiled_cached": "0 profiled, 77 cached",
+  "cropped_untouched": [
+   27,
+   50
+  ],
+  "x_c_histogram": {
+   "2100": 15,
+   "1500": 11,
+   "900": 1
+  },
+  "verify": "27/27, exit 0, max_rel_sip 4.49e-15, max_sky_sep 4.41e-13 deg",
+  "spot_check_vs_cropT": "sub_044/sub_065/sub_070 copies pixel-identical to cropT's; sub_036 symlink same target"
+ },
+ "compose": {
+  "T0": "77/77 self-describing, identical model",
+  "preflight": "77/77 TAN+SIP",
+  "registration": "astrometric + per-member undistortion CONFIRMED",
+  "NMEMBER": 77,
+  "STACKCNT": 8349,
+  "canvas": "8520x5668 (cropT 8524x5671, canonical 8540x5677)"
+ },
+ "derived_reference": {
+  "predicted": "36 = aug09/set-02/sub_02 (the canonical's own derived choice)",
+  "measured": "35 = aug09/set-02/sub_01 at 0.1973 deg from the median pointing [308.4594, 41.5446]; runner-up 0.4334 deg",
+  "check_output_verbatim": "[corpus] derived reference sub_035_aug09_set-02_sub_01.fit: uncropped in the stage record",
+  "reference_cropped": false,
+  "mechanism": "derive_compose_ref.py picks the member whose CENTRE-PIXEL pointing is closest to the median pointing of all members; the 27 cropped copies keep columns 0..round(W/2+x_c), so each cropped member's centre pixel moves (W-kept)/2 columns toward its exit side and its pointing with it; the median pointing of the 77 moves, and the nearest member flipped from 36 to its set-mate 35. The rule is deterministic and order-independent on the CURATED members, as designed; the prediction that it would reproduce the canonical's pick was wrong. By the derivation's own doctrine no reference is materially better (colour absorbed by SPCC, sky union identical at framing=max, the bounding box moves by empty corner) \u2014 measured here: canvas -4x-3 px vs cropT, ANCLOCG 0.000851 vs 0.000858.",
+  "consequence": "the pixel-identity prediction is VOID as pre-registered; the comparison to cropT is by sky (below)"
+ },
+ "identity_vs_cropT": {
+  "shapes": "msel (3,5668,8520) vs cropT (3,5671,8524) \u2014 different canvas, no pixel comparison possible",
+  "verdict": "VOID (different derived reference), per the pre-registration's own clause"
+ },
+ "header_table": {
+  "msel": {
+   "NAXIS1": "8520",
+   "NAXIS2": "5668",
+   "NMEMBER": "77",
+   "STACKCNT": "8349",
+   "LIVETIME": "20872.5",
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "derived",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": "True",
+   "STACKNRM": "addscale",
+   "ANCREF": "35",
+   "ANCLOCR": "0.000490821",
+   "ANCLOCG": "0.000851173",
+   "ANCLOCB": "0.000597341",
+   "NCROPPED": "27",
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "MEMCPROV": "datasets/corpus/member_selection/july31+aug06+aug09+aug14_msel_porti",
+   "PIPEREV": "851dbc5",
+   "CALSETS": "july31/set-01,july31/set-02,july31/set-03,july31/set-04+13",
+   "PROVMIX": "True",
+   "DATE-OBS": "2026-08-01T02:51:17"
+  },
+  "cropT": {
+   "NAXIS1": "8524",
+   "NAXIS2": "5671",
+   "NMEMBER": "77",
+   "STACKCNT": "8349",
+   "LIVETIME": "20872.5",
+   "REGREF": "36:aug09/groups_set-02/sub_02.fit",
+   "REGREFSR": "pinned",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": "True",
+   "STACKNRM": "addscale",
+   "ANCREF": "36",
+   "ANCLOCR": "0.000490979",
+   "ANCLOCG": "0.000857614",
+   "ANCLOCB": "0.000595604",
+   "NCROPPED": null,
+   "MEMCRULE": null,
+   "MEMCXCS": null,
+   "MEMCPROV": null,
+   "PIPEREV": "a65e859",
+   "CALSETS": "july31/set-01,july31/set-02,july31/set-03,july31/set-04+13",
+   "PROVMIX": "True",
+   "DATE-OBS": "2026-08-01T02:51:17"
+  },
+  "canonical": {
+   "NAXIS1": "8540",
+   "NAXIS2": "5677",
+   "NMEMBER": "77",
+   "STACKCNT": "8349",
+   "LIVETIME": "20872.5",
+   "REGREF": "36:aug09/groups_set-02/sub_02.fit",
+   "REGREFSR": "derived",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": "True",
+   "STACKNRM": "addscale",
+   "ANCREF": "36",
+   "ANCLOCR": "0.000490977",
+   "ANCLOCG": "0.000857618",
+   "ANCLOCB": "0.000595602",
+   "NCROPPED": null,
+   "MEMCRULE": null,
+   "MEMCXCS": null,
+   "MEMCPROV": null,
+   "PIPEREV": "77e3a78",
+   "CALSETS": "july31/set-01,july31/set-02,july31/set-03,july31/set-04+13",
+   "PROVMIX": "True",
+   "DATE-OBS": "2026-08-01T02:51:17"
+  }
+ },
+ "shape_31_positions": {
+  "instrument": "scripts/qa/shape_at_sky.py on stack_..._msel_wcs.fit at the 23 march + 8 corner sky positions of cropT_arm.json, 800 px / top-30; lists kept under sessions/aug14/work/msel17C/measure/lists_msel/; y-origin top (placement passes differ by 19.7 deg, decisive)",
+  "rows_msel_cropT_canonical_[fwhm_px,roundness,n]": {
+   "x05pct_-": {
+    "msel": [
+     2.772,
+     0.892,
+     477
+    ],
+    "cropT": [
+     2.835,
+     0.883,
+     475
+    ],
+    "canonical": [
+     2.912,
+     0.86,
+     513
+    ]
+   },
+   "x10pct_-": {
+    "msel": [
+     2.775,
+     0.892,
+     849
+    ],
+    "cropT": [
+     2.79,
+     0.887,
+     840
+    ],
+    "canonical": [
+     2.967,
+     0.858,
+     899
+    ]
+   },
+   "x15pct_DEFECT": {
+    "msel": [
+     2.805,
+     0.883,
+     982
+    ],
+    "cropT": [
+     2.805,
+     0.885,
+     998
+    ],
+    "canonical": [
+     2.935,
+     0.852,
+     1007
+    ]
+   },
+   "x20pct_DEFECT": {
+    "msel": [
+     2.805,
+     0.873,
+     1058
+    ],
+    "cropT": [
+     2.81,
+     0.877,
+     1059
+    ],
+    "canonical": [
+     2.925,
+     0.839,
+     1058
+    ]
+   },
+   "x25pct_DEFECT": {
+    "msel": [
+     2.795,
+     0.879,
+     1130
+    ],
+    "cropT": [
+     2.792,
+     0.877,
+     1131
+    ],
+    "canonical": [
+     2.877,
+     0.848,
+     1125
+    ]
+   },
+   "x30pct_DEFECT": {
+    "msel": [
+     2.728,
+     0.904,
+     1133
+    ],
+    "cropT": [
+     2.715,
+     0.908,
+     1155
+    ],
+    "canonical": [
+     2.785,
+     0.886,
+     1120
+    ]
+   },
+   "x35pct_-": {
+    "msel": [
+     2.658,
+     0.932,
+     1170
+    ],
+    "cropT": [
+     2.642,
+     0.928,
+     1182
+    ],
+    "canonical": [
+     2.688,
+     0.926,
+     1167
+    ]
+   },
+   "x40pct_-": {
+    "msel": [
+     2.56,
+     0.965,
+     1156
+    ],
+    "cropT": [
+     2.533,
+     0.964,
+     1149
+    ],
+    "canonical": [
+     2.542,
+     0.959,
+     1152
+    ]
+   },
+   "x45pct_clean": {
+    "msel": [
+     2.527,
+     0.971,
+     1125
+    ],
+    "cropT": [
+     2.51,
+     0.969,
+     1128
+    ],
+    "canonical": [
+     2.52,
+     0.971,
+     1123
+    ]
+   },
+   "x50pct_clean": {
+    "msel": [
+     2.525,
+     0.967,
+     1177
+    ],
+    "cropT": [
+     2.515,
+     0.967,
+     1184
+    ],
+    "canonical": [
+     2.522,
+     0.967,
+     1174
+    ]
+   },
+   "x55pct_clean": {
+    "msel": [
+     2.535,
+     0.954,
+     1206
+    ],
+    "cropT": [
+     2.522,
+     0.959,
+     1216
+    ],
+    "canonical": [
+     2.522,
+     0.955,
+     1197
+    ]
+   },
+   "x60pct_clean": {
+    "msel": [
+     2.6,
+     0.947,
+     1199
+    ],
+    "cropT": [
+     2.595,
+     0.954,
+     1204
+    ],
+    "canonical": [
+     2.592,
+     0.945,
+     1181
+    ]
+   },
+   "x65pct_clean": {
+    "msel": [
+     2.685,
+     0.939,
+     1211
+    ],
+    "cropT": [
+     2.675,
+     0.931,
+     1225
+    ],
+    "canonical": [
+     2.68,
+     0.93,
+     1208
+    ]
+   },
+   "x70pct_clean": {
+    "msel": [
+     2.768,
+     0.937,
+     1186
+    ],
+    "cropT": [
+     2.74,
+     0.927,
+     1197
+    ],
+    "canonical": [
+     2.74,
+     0.923,
+     1175
+    ]
+   },
+   "x75pct_-": {
+    "msel": [
+     2.777,
+     0.94,
+     1123
+    ],
+    "cropT": [
+     2.755,
+     0.936,
+     1122
+    ],
+    "canonical": [
+     2.763,
+     0.929,
+     1129
+    ]
+   },
+   "x80pct_-": {
+    "msel": [
+     2.785,
+     0.954,
+     1118
+    ],
+    "cropT": [
+     2.77,
+     0.957,
+     1108
+    ],
+    "canonical": [
+     2.807,
+     0.959,
+     1109
+    ]
+   },
+   "x85pct_-": {
+    "msel": [
+     2.757,
+     0.966,
+     1073
+    ],
+    "cropT": [
+     2.772,
+     0.969,
+     1060
+    ],
+    "canonical": [
+     2.812,
+     0.966,
+     1071
+    ]
+   },
+   "x90pct_-": {
+    "msel": [
+     2.72,
+     0.972,
+     925
+    ],
+    "cropT": [
+     2.728,
+     0.961,
+     914
+    ],
+    "canonical": [
+     2.743,
+     0.979,
+     929
+    ]
+   },
+   "x95pct_-": {
+    "msel": [
+     2.7,
+     0.978,
+     492
+    ],
+    "cropT": [
+     2.715,
+     0.962,
+     496
+    ],
+    "canonical": [
+     2.705,
+     0.973,
+     492
+    ]
+   },
+   "LADDER_defect_RA294.86": {
+    "msel": [
+     2.728,
+     0.988,
+     1092
+    ],
+    "cropT": [
+     2.72,
+     0.987,
+     1084
+    ],
+    "canonical": [
+     2.725,
+     0.985,
+     1092
+    ]
+   },
+   "LADDER_RA301.58": {
+    "msel": [
+     2.613,
+     0.948,
+     1204
+    ],
+    "cropT": [
+     2.635,
+     0.952,
+     1212
+    ],
+    "canonical": [
+     2.623,
+     0.944,
+     1203
+    ]
+   },
+   "LADDER_RA308.20": {
+    "msel": [
+     2.533,
+     0.971,
+     1191
+    ],
+    "cropT": [
+     2.518,
+     0.964,
+     1190
+    ],
+    "canonical": [
+     2.507,
+     0.963,
+     1178
+    ]
+   },
+   "LADDER_control_RA314.72": {
+    "msel": [
+     2.56,
+     0.976,
+     1159
+    ],
+    "cropT": [
+     2.555,
+     0.981,
+     1144
+    ],
+    "canonical": [
+     2.545,
+     0.98,
+     1158
+    ]
+   },
+   "corner_700_1400": {
+    "msel": [
+     2.808,
+     0.936,
+     691
+    ],
+    "cropT": [
+     2.768,
+     0.921,
+     685
+    ],
+    "canonical": [
+     2.83,
+     0.895,
+     712
+    ]
+   },
+   "corner_1150_850": {
+    "msel": [
+     2.86,
+     0.894,
+     888
+    ],
+    "cropT": [
+     2.848,
+     0.894,
+     889
+    ],
+    "canonical": [
+     2.913,
+     0.878,
+     934
+    ]
+   },
+   "corner_7300_600": {
+    "msel": [
+     2.67,
+     0.987,
+     790
+    ],
+    "cropT": [
+     2.667,
+     0.979,
+     798
+    ],
+    "canonical": [
+     2.683,
+     0.976,
+     788
+    ]
+   },
+   "corner_7750_1100": {
+    "msel": [
+     2.69,
+     0.976,
+     718
+    ],
+    "cropT": [
+     2.685,
+     0.987,
+     713
+    ],
+    "canonical": [
+     2.708,
+     0.987,
+     716
+    ]
+   },
+   "corner_700_4200": {
+    "msel": [
+     2.8,
+     0.844,
+     384
+    ],
+    "cropT": [
+     2.817,
+     0.822,
+     380
+    ],
+    "canonical": [
+     3.033,
+     0.832,
+     550
+    ]
+   },
+   "corner_1300_4900": {
+    "msel": [
+     2.728,
+     0.828,
+     459
+    ],
+    "cropT": [
+     2.725,
+     0.832,
+     464
+    ],
+    "canonical": [
+     2.732,
+     0.83,
+     466
+    ]
+   },
+   "corner_7000_4900": {
+    "msel": [
+     2.723,
+     0.881,
+     911
+    ],
+    "cropT": [
+     2.745,
+     0.846,
+     916
+    ],
+    "canonical": [
+     2.76,
+     0.86,
+     915
+    ]
+   },
+   "corner_7500_4400": {
+    "msel": [
+     2.75,
+     0.881,
+     914
+    ],
+    "cropT": [
+     2.732,
+     0.866,
+     912
+    ],
+    "canonical": [
+     2.74,
+     0.885,
+     928
+    ]
+   }
+  },
+  "summary": {
+   "band_x10_x25_msel": [
+    2.775,
+    2.805,
+    2.805,
+    2.795
+   ],
+   "band_x10_x25_cropT": [
+    2.79,
+    2.805,
+    2.81,
+    2.792
+   ],
+   "band_x10_x25_canonical": [
+    2.967,
+    2.935,
+    2.925,
+    2.877
+   ],
+   "centre_x50": {
+    "msel": 2.525,
+    "cropT": 2.515,
+    "canonical": 2.522
+   },
+   "corner_700_4200": {
+    "msel": [
+     2.8,
+     0.844
+    ],
+    "cropT": [
+     2.817,
+     0.822
+    ],
+    "canonical": [
+     3.033,
+     0.832
+    ]
+   },
+   "max_abs_delta_msel_vs_cropT_over_31": 0.063,
+   "note": "the 0.063 is x05, the rim station (n 477); every interior station is within 0.028 px / 0.016 roundness of cropT \u2014 the product-to-product repeat of a different reference's resampling, not a change of the rule's effect; vs the canonical the band gain (-0.12..-0.19 px, +0.03 roundness) and the BL-corner gain (-0.23 px) reproduce cropT's"
+  }
+ },
+ "depth_x50": {
+  "instrument": "Siril stat + bgnoise at the x50 crop [3895 2327 800 800] on the _wcs (the cropT method)",
+  "msel": {
+   "stat_sigma": [
+    15.7,
+    22.4,
+    18.9
+   ],
+   "bgnoise": [
+    0.301,
+    0.501,
+    0.303
+   ]
+  },
+  "cropT": {
+   "stat_sigma": [
+    15.5,
+    22.2,
+    18.7
+   ],
+   "bgnoise": [
+    0.298,
+    0.493,
+    0.299
+   ]
+  },
+  "reading": "STRUCTURE-LIMITED on this field (GO #16) \u2014 reported, not scored as depth; STACKCNT 8349 = the canonical's, the portion rule's cost is the 6.44 % of pixel-frames it removes"
+ },
+ "seqtilt": {
+  "msel": {
+   "stars": 43432,
+   "truncated_mean_fwhm_px": 2.86,
+   "sensor_tilt_fwhm_px": 0.23,
+   "sensor_tilt_pct": 8,
+   "off_axis_aberration_fwhm_px": 0.16
+  },
+  "cropT": {
+   "stars": 43396,
+   "truncated_mean_fwhm_px": 2.86,
+   "sensor_tilt_fwhm_px": 0.23,
+   "sensor_tilt_pct": 8,
+   "off_axis_aberration_fwhm_px": 0.16
+  }
+ },
+ "finish": {
+  "solve": "RA 310.007 Dec +41.286, 17.01 arcsec/px, logodds 176",
+  "spcc": "Nikon Z f / No filter / Average Spiral Galaxy; K R 1.000 G 0.687 B 0.926 (1943/3905 stars) \u2014 cropT 1.000/0.687/0.925: within 0.002",
+  "spcc_record": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_msel.json",
+  "judge_png": "web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png (16-bit, 8520x5668)",
+  "products": [
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_msel.fit",
+   "..._msel_wcs.fit",
+   "..._msel_spcc.fit"
+  ]
+ },
+ "canonical_untouched": {
+  "asserted": true,
+  "files": {
+   "web/results/aug09/judge/july31+aug06+aug09+aug14_cropT_spcc-linked.png": {
+    "before": {
+     "size": 215209331,
+     "mtime_ns": 1788030295932152094
+    },
+    "after": {
+     "size": 215209331,
+     "mtime_ns": 1788030295932152094
+    }
+   },
+   "web/results/aug09/judge/july31+aug06+aug09+aug14_full_spcc-linked.png": {
+    "before": {
+     "size": 215405441,
+     "mtime_ns": 1788014333571494818
+    },
+    "after": {
+     "size": 215405441,
+     "mtime_ns": 1788014333571494818
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT.fit": {
+    "before": {
+     "size": 580086720,
+     "mtime_ns": 1788030229562318280
+    },
+    "after": {
+     "size": 580086720,
+     "mtime_ns": 1788030229562318280
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT_spcc.fit": {
+    "before": {
+     "size": 580089600,
+     "mtime_ns": 1788030288784042387
+    },
+    "after": {
+     "size": 580089600,
+     "mtime_ns": 1788030288784042387
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT_wcs.fit": {
+    "before": {
+     "size": 580089600,
+     "mtime_ns": 1788030281731934150
+    },
+    "after": {
+     "size": 580089600,
+     "mtime_ns": 1788030281731934150
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit": {
+    "before": {
+     "size": 581788800,
+     "mtime_ns": 1787976486563299452
+    },
+    "after": {
+     "size": 581788800,
+     "mtime_ns": 1787976486563299452
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full_coverage.json": {
+    "before": {
+     "size": 259664,
+     "mtime_ns": 1787981367570023499
+    },
+    "after": {
+     "size": 259664,
+     "mtime_ns": 1787981367570023499
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit": {
+    "before": {
+     "size": 581791680,
+     "mtime_ns": 1788014326359388134
+    },
+    "after": {
+     "size": 581791680,
+     "mtime_ns": 1788014326359388134
+    }
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit": {
+    "before": {
+     "size": 581791680,
+     "mtime_ns": 1787981370794071076
+    },
+    "after": {
+     "size": 581791680,
+     "mtime_ns": 1787981370794071076
+    }
+   }
+  }
+ },
+ "eye_inspection_worker": {
+  "surface": "the 16-bit judge PNG read as 8-bit RGB tiles at 1:1 (PIL; a diagnostic read), whole frame at 8x down; cropT's PNG cut at the same record positions for x15, the BL corner, the 3-way rim and one seam",
+  "whole_frame": "the union canvas with the framing=max staircase outline on the left and bottom rims; Milky Way structure and NGC 7000 as on cropT; no banding, no gradient, no cast at 8x",
+  "band_x05_x25": "x05 is the rim: the first-covered columns read darker and noisier (the accepted coverage cost); x10-x25 dense fields, stars round at 1:1, no systematic elongation; x15 msel vs x15 cropT: indistinguishable (the tile window shifts a few px from the 4x3-px canvas change)",
+  "corners_1to1": "TL (700,1400) round, rim noise at the left edge; TR (7300,600) round; BL (700,4200) the coverage staircase strips visible, stars small with the faint residual elongation of the outermost strip \u2014 msel vs cropT tile: the same strips, the same stars, indistinguishable; BR (7000,4900) and (7500,4400) round, rim noise at the edge; (1300,4900) rim noise + staircase",
+  "seams": "aug14/set-03/sub_03 boundary and aug09/set-04/sub_01 boundary: no step, no density change, no seam in msel; the cropT tile of the first is the same",
+  "x50_and_NGC7000": "x50 tight round stars; NGC 7000 shows the nebula with its red H-alpha tone, the dark lanes, round stars, no clamped cores",
+  "rim_3way": "the bottom-left rim (1300,4900): three coverage levels stepping from the noisy outer strips to the interior \u2014 identical in shape and level to the cropT tile",
+  "verdict": "no defect found; the candidate is visually indistinguishable from the owner-approved cropT at every tile viewed; the director's inspection follows before the owner sees it"
+ },
+ "premises_untested": [
+  "the derived reference's flip 36->35 is explained by the crops moving the centre-pixel pointings \u2014 the mechanism is read from derive_compose_ref.py, not re-measured with an uncropped-vs-cropped pointing table",
+  "the eye inspection is on 8-bit tiles cut from the 16-bit PNG (the owner judges the 16-bit PNG itself)",
+  "shape positions were placed by the record's sky coordinates on msel's own WCS (verified by the instrument's placement check, 19.7 deg decisive); tile windows used cropT's pixel_xy, so msel tiles sit a few px off the exact station"
+ ],
+ "no_destructive_steps": "the _full and cropT families untouched (9/9 sizes+mtimes equal); nothing staged or committed; the docs worker's README/docs edits in the tree are theirs, untouched",
+ "eye_inspection_director": {
+  "surface": "own instrument (sessions/aug14/work/msel17C/inspect/director/director_tiles_msel.py \u2014 the GO #13 script re-pointed): 3-way tiles msel | cropT | canonical at the same sky by each product's WCS \u2014 whole frame at fit, x15, x20, x50, NGC 7000, the four sky corners, (700,4200) and (1300,4900), the bottom-left rim at half scale and 1:1, two crop boundaries (aug14/set-04/sub_02 x_c 900, aug09/set-05/sub_04) msel vs cropT. Scratch, not a judgment surface",
+  "rim_G_median_per_100px_col_own_code": {
+   "msel": [
+    0,
+    0,
+    36,
+    50,
+    57,
+    65,
+    70,
+    76,
+    74,
+    72,
+    71,
+    70,
+    70,
+    69
+   ],
+   "cropT": [
+    0,
+    0,
+    37,
+    50,
+    57,
+    65,
+    70,
+    76,
+    74,
+    72,
+    71,
+    70,
+    70,
+    69
+   ],
+   "canonical": [
+    0,
+    0,
+    61,
+    64,
+    64,
+    66,
+    69,
+    73,
+    72,
+    70,
+    70,
+    69,
+    69,
+    68
+   ],
+   "reading": "msel = cropT within 1 unit; the staircase is the same"
+  },
+  "colour_RGB_median_400px": {
+   "NGC7000": {
+    "msel": [
+     76,
+     74,
+     73
+    ],
+    "cropT": [
+     76,
+     74,
+     73
+    ]
+   },
+   "x50": {
+    "msel": [
+     63,
+     67,
+     63
+    ],
+    "cropT": [
+     63,
+     67,
+     63
+    ]
+   },
+   "x15": {
+    "msel": [
+     69,
+     68,
+     69
+    ],
+    "cropT": [
+     69,
+     68,
+     69
+    ]
+   },
+   "reading": "identical"
+  },
+  "per_tile": {
+   "whole_frame": "the same field, tonality and outline as cropT (canvas 8520\u00d75668 vs 8524\u00d75671); no banding, gradient or cast",
+   "x15": "msel = cropT; both visibly tighter than the canonical",
+   "corner_700_4200": "the two coverage strips as on cropT; stars alike",
+   "TL_a": "alike across all three",
+   "BR_a": "alike; the same dust patch and thin-coverage noise",
+   "seam_aug14_set-04_sub_02 (x_c 900)": "no edge, no step",
+   "rim_BL_1to1": "identical staircase to cropT",
+   "NGC7000": "identical"
+  },
+  "found": "nothing beyond cropT's known staircase; no new defect",
+  "disagreement_with_worker": "none",
+  "on_the_derived_reference_35": "the compose's own deterministic derivation on the CURATED members (the crops move the centre-pixel pointings and the median with them); by the derivation's doctrine not a quality difference; measured: every interior station within 0.028 px / 0.016 roundness of cropT, the rim station 0.063 \u2014 the resampling term of a different anchor, not a change in the rule's effect. A future canonical rebuild under the stage derives 35 again (deterministic on the same curated members), so the product the owner judges is the product the chain will make",
+  "premises_shared_UNCHECKED": [
+   "8-bit PIL read of the 16-bit judge PNG (the owner judges the 16-bit surface)",
+   "WCS placement + y-down convention (the same instrument and control as GO #13)",
+   "the 36\u219235 mechanism is read from derive_compose_ref.py's rule, not re-measured with a cropped-vs-uncropped pointing table"
+  ]
+ },
+ "written_at_director": "2026-08-29 18:45"
+}

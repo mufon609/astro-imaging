@@ -71,6 +71,17 @@ done
 
 NAME=$(IFS=+; echo "${NAMES[*]}")
 OUT=${OUT:-$REPO/web/results/${NAMES[-1]}/stack_${NAME}_full.fit}
+# THE PRODUCT TAG derives from the OUTPUT's basename (stack_<tag>.fit -> <tag>), and
+# every name downstream — the finish's _wcs/_spcc/judge PNG, the curated dir, the
+# stage record — is built from it, so a --out can never write its finish products
+# onto ANOTHER product's names (the tag was "${NAME}_full" whatever --out said, so a
+# candidate's finish would have overwritten the canonical's _wcs/_spcc/PNG). With no
+# --out the default above is stack_${NAME}_full.fit, hence TAG == "${NAME}_full" and
+# the default path is byte-for-byte the previous behaviour. An --out that is not of
+# the form stack_<tag>.fit is refused: the finish could not name its products.
+TAG=$(basename "$OUT"); TAG=${TAG#stack_}; TAG=${TAG%.fit}
+[ -n "$TAG" ] && [ "$(basename "$OUT")" = "stack_${TAG}.fit" ] \
+  || { echo "[corpus] --out must be named stack_<tag>.fit (got '$(basename "$OUT")'): the finish products derive their names from <tag>" >&2; exit 1; }
 TOTAL=$(for g in "${GROUPDIRS[@]}"; do ls "$g"/sub_*.fit; done | wc -l)
 echo "[corpus] $TOTAL members from ${#GROUPDIRS[@]} group dir(s) across ${#NAMES[@]} night(s) -> $(basename "$OUT")"
 if [ -n "$PLAN" ]; then
@@ -84,11 +95,15 @@ if [ -n "$PORTION" ]; then
   # No --ref is pinned here (the compose derives its reference afterwards), so the
   # stage's reference refusal does not apply; the DERIVED reference is checked back
   # against the stage record after the compose below (reference_cropped) instead.
-  PRECORD="$REPO/datasets/corpus/member_selection/${NAME}_portion.json"
-  CURATED="${SESSIONS[-1]%/}/work/curated_${NAME}_portion"
+  # Named from TAG: the curated dir curated_<tag>; the stage record keeps the _portion
+  # suffix (<tag>_portion.json) because it is the STAGE's record of what it cropped
+  # for that product, and the bare <tag>.json name is left to the product's own
+  # candidate/acceptance records in the same dir.
+  PRECORD="$REPO/datasets/corpus/member_selection/${TAG}_portion.json"
+  CURATED="${SESSIONS[-1]%/}/work/curated_${TAG}"
   "$REPO/scripts/stack/run_member_crop.sh" "${SESSIONS[@]}" --out="$CURATED" ${PBAR:+--bar="$PBAR"} \
     --recipe="$REPO/datasets/corpus/recipe.json" --record="$PRECORD" \
-    --tag="${NAME}_portion" || { echo "[corpus] the portion-rule stage FAILED (exit $?) — nothing composed" >&2; exit 1; }
+    --tag="${TAG}_portion" || { echo "[corpus] the portion-rule stage FAILED (exit $?) — nothing composed" >&2; exit 1; }
   GROUPDIRS=("$(cd "$CURATED" && pwd)")
   echo "[corpus] portion rule applied: composing from $CURATED"
 fi
@@ -154,7 +169,7 @@ for s in "${SESSIONS[@]}"; do
   [ "$(basename "$(cd "$s" && pwd)")" = "$REFSES" ] && REFDIR=$(cd "$s" && pwd)
 done
 [ -n "$REFDIR" ] || { echo "[corpus] REGREF names session '$REFSES', which is not among the staged sessions" >&2; exit 1; }
-"$REPO/scripts/stack/finish_render.sh" "$OUT" "${NAME}_full" \
+"$REPO/scripts/stack/finish_render.sh" "$OUT" "$TAG" \
   --session="$REFDIR" --set="$REFSET"
 echo "[corpus] DONE -> $OUT"
-echo "[corpus] render -> web/results/${NAMES[-1]}/judge/${NAME}_full_spcc-linked.png"
+echo "[corpus] render -> web/results/${REFSES}/judge/${TAG}_spcc-linked.png"
