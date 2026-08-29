@@ -1,0 +1,1210 @@
+{
+ "id": "spcc_h3_band_excess",
+ "item": "BACKLOG spcc-sensor-curve section-4 test, H3 (band excess vs K) + the B determinism repeat + the H4 surface; GO #2c, director astro-imaging-45, worker astro-imaging-0c",
+ "instrument": "Siril 1.4.4 flatpak siril-cli through scripts/lib/siril_run.py (-d sessions/july31): `boxselect x y 400 400` + `stat` (medians printed by Siril in 16-bit units, one decimal); the grid on the canonical A product chose the boxes before any arm product was read; one process per product; no product modified",
+ "ssf_verbatim": {
+  "h3_grid.ssf (head; 45 boxselect+stat pairs)": "requires 1.4.0\nsetcompress 0\nsetext fit\nload ../../web/results/july31/stack_set-01_full_spcc\nboxselect <x> <y> 400 400\\nstat\\n x45 ...\\nclose",
+  "h3_<product>.ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nload ../../web/results/july31/stack_set-01_full_spcc\nboxselect 2200 2200 400 400\nstat\nboxselect 1400 600 400 400\nstat\nclose\n",
+  "h4_arm_zf.ssf": "requires 1.4.0\nsetcompress 0\nsetext fit\nload ../../web/results/july31/stack_set-01_arm_zf_spcc\nautostretch -linked\nsavepng ../../web/results/july31/judge/set-01_arm_zf_spcc-linked\n"
+ },
+ "box_placement": {
+  "canvas": [
+   4920,
+   3580
+  ],
+  "margin_px": 600,
+  "box_px": 400,
+  "step_px": 400,
+  "grid_boxes": 45,
+  "grid_G_medians": [
+   90.3,
+   90.3,
+   89.9,
+   90.2,
+   90.7,
+   90.6,
+   90.6,
+   90.6,
+   90.7,
+   90.5,
+   90.1,
+   90.1,
+   90.3,
+   90.6,
+   90.7,
+   90.5,
+   90.6,
+   90.6,
+   90.3,
+   90.3,
+   90.3,
+   90.5,
+   90.7,
+   90.7,
+   90.6,
+   90.7,
+   90.6,
+   90.4,
+   90.4,
+   90.3,
+   90.6,
+   90.6,
+   90.7,
+   90.7,
+   90.7,
+   90.7,
+   90.4,
+   90.3,
+   90.2,
+   90.1,
+   91.0,
+   90.5,
+   90.7,
+   90.7,
+   90.7
+  ],
+  "grid": [
+   {
+    "x": 600,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     86.2,
+     86.9,
+     86.8
+    ]
+   },
+   {
+    "x": 1000,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     86.1,
+     87.4,
+     86.7
+    ]
+   },
+   {
+    "x": 1400,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 89.9,
+    "min_RGB": [
+     86.1,
+     87.3,
+     86.0
+    ]
+   },
+   {
+    "x": 1800,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.2,
+    "min_RGB": [
+     86.9,
+     87.6,
+     86.8
+    ]
+   },
+   {
+    "x": 2200,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     73.1,
+     88.1,
+     78.6
+    ]
+   },
+   {
+    "x": 2600,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     84.6,
+     87.8,
+     85.6
+    ]
+   },
+   {
+    "x": 3000,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     86.6,
+     87.8,
+     83.0
+    ]
+   },
+   {
+    "x": 3400,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     82.7,
+     88.1,
+     87.1
+    ]
+   },
+   {
+    "x": 3800,
+    "y": 600,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     84.1,
+     88.3,
+     87.5
+    ]
+   },
+   {
+    "x": 600,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.5,
+    "min_RGB": [
+     86.4,
+     87.3,
+     86.5
+    ]
+   },
+   {
+    "x": 1000,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.1,
+    "min_RGB": [
+     86.3,
+     87.2,
+     82.0
+    ]
+   },
+   {
+    "x": 1400,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.1,
+    "min_RGB": [
+     87.0,
+     87.5,
+     87.1
+    ]
+   },
+   {
+    "x": 1800,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     83.9,
+     87.7,
+     87.1
+    ]
+   },
+   {
+    "x": 2200,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     87.3,
+     88.1,
+     87.3
+    ]
+   },
+   {
+    "x": 2600,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.2,
+     88.1,
+     81.9
+    ]
+   },
+   {
+    "x": 3000,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.5,
+    "min_RGB": [
+     86.4,
+     88.0,
+     86.7
+    ]
+   },
+   {
+    "x": 3400,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     85.7,
+     87.7,
+     87.0
+    ]
+   },
+   {
+    "x": 3800,
+    "y": 1000,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     84.5,
+     88.3,
+     87.0
+    ]
+   },
+   {
+    "x": 600,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     86.4,
+     87.4,
+     80.8
+    ]
+   },
+   {
+    "x": 1000,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     87.0,
+     87.6,
+     86.9
+    ]
+   },
+   {
+    "x": 1400,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     87.2,
+     87.7,
+     86.4
+    ]
+   },
+   {
+    "x": 1800,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.5,
+    "min_RGB": [
+     83.0,
+     88.0,
+     87.3
+    ]
+   },
+   {
+    "x": 2200,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     83.4,
+     88.3,
+     87.5
+    ]
+   },
+   {
+    "x": 2600,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.3,
+     88.4,
+     85.7
+    ]
+   },
+   {
+    "x": 3000,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     87.2,
+     88.0,
+     87.1
+    ]
+   },
+   {
+    "x": 3400,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     85.6,
+     88.2,
+     87.5
+    ]
+   },
+   {
+    "x": 3800,
+    "y": 1400,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     87.3,
+     88.0,
+     87.4
+    ]
+   },
+   {
+    "x": 600,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.4,
+    "min_RGB": [
+     86.6,
+     87.6,
+     85.1
+    ]
+   },
+   {
+    "x": 1000,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.4,
+    "min_RGB": [
+     86.9,
+     87.9,
+     86.9
+    ]
+   },
+   {
+    "x": 1400,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     87.0,
+     87.8,
+     87.3
+    ]
+   },
+   {
+    "x": 1800,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     84.3,
+     88.1,
+     87.2
+    ]
+   },
+   {
+    "x": 2200,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.6,
+    "min_RGB": [
+     84.9,
+     88.2,
+     87.2
+    ]
+   },
+   {
+    "x": 2600,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.6,
+     88.4,
+     87.2
+    ]
+   },
+   {
+    "x": 3000,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     86.8,
+     87.8,
+     87.1
+    ]
+   },
+   {
+    "x": 3400,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.6,
+     88.2,
+     87.0
+    ]
+   },
+   {
+    "x": 3800,
+    "y": 1800,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.5,
+     88.2,
+     87.7
+    ]
+   },
+   {
+    "x": 600,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.4,
+    "min_RGB": [
+     86.5,
+     87.6,
+     86.9
+    ]
+   },
+   {
+    "x": 1000,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.3,
+    "min_RGB": [
+     86.5,
+     87.4,
+     85.0
+    ]
+   },
+   {
+    "x": 1400,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.2,
+    "min_RGB": [
+     86.6,
+     87.1,
+     86.9
+    ]
+   },
+   {
+    "x": 1800,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.1,
+    "min_RGB": [
+     86.0,
+     86.9,
+     80.7
+    ]
+   },
+   {
+    "x": 2200,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 91.0,
+    "min_RGB": [
+     80.7,
+     87.9,
+     86.6
+    ]
+   },
+   {
+    "x": 2600,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.5,
+    "min_RGB": [
+     86.2,
+     87.4,
+     84.3
+    ]
+   },
+   {
+    "x": 3000,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.4,
+     88.0,
+     87.4
+    ]
+   },
+   {
+    "x": 3400,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.4,
+     88.1,
+     87.1
+    ]
+   },
+   {
+    "x": 3800,
+    "y": 2200,
+    "w": 400,
+    "h": 400,
+    "G_median": 90.7,
+    "min_RGB": [
+     87.5,
+     88.1,
+     87.3
+    ]
+   }
+  ],
+  "boxes_with_zero_min": 0,
+  "no_padding_inside_margin": true,
+  "band_box": {
+   "x": 2200,
+   "y": 2200,
+   "w": 400,
+   "h": 400,
+   "G_median": 91.0
+  },
+  "sky_box": {
+   "x": 1400,
+   "y": 600,
+   "w": 400,
+   "h": 400,
+   "G_median": 89.9
+  },
+  "selection_honoured_control": "the 45 G medians vary (89.9-91.0); a whole-frame stat would be constant",
+  "grid_range_note": "the whole interior spans 89.9-91.0 ADU16 in G (1.2%): this SPCC'd field carries only a ~1% band at 400-px block medians"
+ },
+ "products": {
+  "A": {
+   "product": "web/results/july31/stack_set-01_full_spcc.fit",
+   "bytes": 211374720,
+   "mtime": "2026-08-28 13:19:32",
+   "band": {
+    "R": 91.2,
+    "G": 91.0,
+    "B": 91.0
+   },
+   "sky": {
+    "R": 90.0,
+    "G": 89.9,
+    "B": 90.0
+   },
+   "band_full": {
+    "R": {
+     "mean": 93.5,
+     "median": 91.2,
+     "sigma": 56.1,
+     "min": 80.7,
+     "max": 8648.0
+    },
+    "G": {
+     "mean": 93.3,
+     "median": 91.0,
+     "sigma": 53.4,
+     "min": 87.9,
+     "max": 8337.2
+    },
+    "B": {
+     "mean": 93.2,
+     "median": 91.0,
+     "sigma": 59.7,
+     "min": 86.6,
+     "max": 9603.7
+    }
+   },
+   "sky_full": {
+    "R": {
+     "mean": 91.3,
+     "median": 90.0,
+     "sigma": 21.3,
+     "min": 86.1,
+     "max": 4356.7
+    },
+    "G": {
+     "mean": 91.3,
+     "median": 89.9,
+     "sigma": 22.0,
+     "min": 87.3,
+     "max": 4285.0
+    },
+    "B": {
+     "mean": 91.5,
+     "median": 90.0,
+     "sigma": 27.1,
+     "min": 86.0,
+     "max": 5130.5
+    }
+   },
+   "log": "sessions/july31/work/h3_stack_set-01_full_spcc.log",
+   "exit": 0
+  },
+  "B\u2033": {
+   "product": "web/results/july31/stack_set-01_arm_d750_spcc.fit",
+   "bytes": 211374720,
+   "mtime": "2026-08-29 10:04:28",
+   "band": {
+    "R": 91.2,
+    "G": 91.0,
+    "B": 91.0
+   },
+   "sky": {
+    "R": 90.0,
+    "G": 89.9,
+    "B": 90.0
+   },
+   "band_full": {
+    "R": {
+     "mean": 93.5,
+     "median": 91.2,
+     "sigma": 56.1,
+     "min": 80.7,
+     "max": 8648.0
+    },
+    "G": {
+     "mean": 93.3,
+     "median": 91.0,
+     "sigma": 54.2,
+     "min": 87.9,
+     "max": 8457.0
+    },
+    "B": {
+     "mean": 93.2,
+     "median": 91.0,
+     "sigma": 60.8,
+     "min": 86.5,
+     "max": 9779.9
+    }
+   },
+   "sky_full": {
+    "R": {
+     "mean": 91.3,
+     "median": 90.0,
+     "sigma": 21.3,
+     "min": 86.1,
+     "max": 4356.7
+    },
+    "G": {
+     "mean": 91.4,
+     "median": 89.9,
+     "sigma": 22.3,
+     "min": 87.2,
+     "max": 4345.9
+    },
+    "B": {
+     "mean": 91.5,
+     "median": 90.0,
+     "sigma": 27.6,
+     "min": 85.9,
+     "max": 5223.9
+    }
+   },
+   "log": "sessions/july31/work/h3_stack_set-01_arm_d750_spcc.log",
+   "exit": 0
+  },
+  "B": {
+   "product": "web/results/july31/stack_set-01_arm_zf_spcc.fit",
+   "bytes": 211374720,
+   "mtime": "2026-08-29 10:11:56",
+   "band": {
+    "R": 91.2,
+    "G": 91.0,
+    "B": 91.0
+   },
+   "sky": {
+    "R": 90.0,
+    "G": 89.9,
+    "B": 90.0
+   },
+   "band_full": {
+    "R": {
+     "mean": 93.5,
+     "median": 91.2,
+     "sigma": 56.1,
+     "min": 80.7,
+     "max": 8648.0
+    },
+    "G": {
+     "mean": 93.3,
+     "median": 91.0,
+     "sigma": 54.2,
+     "min": 87.9,
+     "max": 8459.1
+    },
+    "B": {
+     "mean": 93.2,
+     "median": 91.0,
+     "sigma": 61.0,
+     "min": 86.5,
+     "max": 9804.0
+    }
+   },
+   "sky_full": {
+    "R": {
+     "mean": 91.3,
+     "median": 90.0,
+     "sigma": 21.3,
+     "min": 86.1,
+     "max": 4356.7
+    },
+    "G": {
+     "mean": 91.4,
+     "median": 89.9,
+     "sigma": 22.3,
+     "min": 87.2,
+     "max": 4347.0
+    },
+    "B": {
+     "mean": 91.5,
+     "median": 90.0,
+     "sigma": 27.6,
+     "min": 85.9,
+     "max": 5236.6
+    }
+   },
+   "log": "sessions/july31/work/h3_stack_set-01_arm_zf_spcc.log",
+   "exit": 0
+  },
+  "B\u2032": {
+   "product": "web/results/july31/stack_set-01_arm_z6_spcc.fit",
+   "bytes": 211374720,
+   "mtime": "2026-08-29 10:11:58",
+   "band": {
+    "R": 91.2,
+    "G": 91.0,
+    "B": 91.0
+   },
+   "sky": {
+    "R": 90.0,
+    "G": 89.9,
+    "B": 90.0
+   },
+   "band_full": {
+    "R": {
+     "mean": 93.5,
+     "median": 91.2,
+     "sigma": 56.1,
+     "min": 80.7,
+     "max": 8648.0
+    },
+    "G": {
+     "mean": 93.3,
+     "median": 91.0,
+     "sigma": 54.1,
+     "min": 87.9,
+     "max": 8443.6
+    },
+    "B": {
+     "mean": 93.2,
+     "median": 91.0,
+     "sigma": 60.7,
+     "min": 86.5,
+     "max": 9765.5
+    }
+   },
+   "sky_full": {
+    "R": {
+     "mean": 91.3,
+     "median": 90.0,
+     "sigma": 21.3,
+     "min": 86.1,
+     "max": 4356.7
+    },
+    "G": {
+     "mean": 91.4,
+     "median": 89.9,
+     "sigma": 22.2,
+     "min": 87.2,
+     "max": 4339.2
+    },
+    "B": {
+     "mean": 91.5,
+     "median": 90.0,
+     "sigma": 27.5,
+     "min": 85.9,
+     "max": 5216.3
+    }
+   },
+   "log": "sessions/july31/work/h3_stack_set-01_arm_z6_spcc.log",
+   "exit": 0
+  },
+  "B\u00b0": {
+   "product": "web/results/july31/stack_set-01_arm_zfe_spcc.fit",
+   "bytes": 211374720,
+   "mtime": "2026-08-29 10:12:00",
+   "band": {
+    "R": 91.2,
+    "G": 91.0,
+    "B": 91.0
+   },
+   "sky": {
+    "R": 90.0,
+    "G": 89.9,
+    "B": 90.0
+   },
+   "band_full": {
+    "R": {
+     "mean": 93.5,
+     "median": 91.2,
+     "sigma": 56.1,
+     "min": 80.7,
+     "max": 8648.0
+    },
+    "G": {
+     "mean": 93.3,
+     "median": 91.0,
+     "sigma": 54.2,
+     "min": 87.9,
+     "max": 8463.6
+    },
+    "B": {
+     "mean": 93.2,
+     "median": 91.0,
+     "sigma": 61.1,
+     "min": 86.5,
+     "max": 9827.2
+    }
+   },
+   "sky_full": {
+    "R": {
+     "mean": 91.3,
+     "median": 90.0,
+     "sigma": 21.3,
+     "min": 86.1,
+     "max": 4356.7
+    },
+    "G": {
+     "mean": 91.4,
+     "median": 89.9,
+     "sigma": 22.3,
+     "min": 87.2,
+     "max": 4349.3
+    },
+    "B": {
+     "mean": 91.5,
+     "median": 90.0,
+     "sigma": 27.7,
+     "min": 85.9,
+     "max": 5248.9
+    }
+   },
+   "log": "sessions/july31/work/h3_stack_set-01_arm_zfe_spcc.log",
+   "exit": 0
+  }
+ },
+ "E_band_minus_sky_ADU16": {
+  "A": {
+   "R": 1.2,
+   "G": 1.1,
+   "B": 1.0
+  },
+  "B\u2033": {
+   "R": 1.2,
+   "G": 1.1,
+   "B": 1.0
+  },
+  "B": {
+   "R": 1.2,
+   "G": 1.1,
+   "B": 1.0
+  },
+  "B\u2032": {
+   "R": 1.2,
+   "G": 1.1,
+   "B": 1.0
+  },
+  "B\u00b0": {
+   "R": 1.2,
+   "G": 1.1,
+   "B": 1.0
+  }
+ },
+ "K": {
+  "A": [
+   1.0,
+   0.687,
+   0.927
+  ],
+  "B\u2033": [
+   1.0,
+   0.697,
+   0.945
+  ],
+  "B": [
+   1.0,
+   0.697,
+   0.947
+  ],
+  "B\u2032": [
+   1.0,
+   0.696,
+   0.943
+  ],
+  "B\u00b0": [
+   1.0,
+   0.698,
+   0.949
+  ]
+ },
+ "max_K_channel_per_arm": {
+  "A": "R",
+  "B\u2033": "R",
+  "B": "R",
+  "B\u2032": "R",
+  "B\u00b0": "R"
+ },
+ "prediction": "E_c(arm)/E_c(A) = K_c(arm)/K_c(A) per channel (SPCC = affine per channel, offsets cancel); the max-K channel (R on every arm) is the null control at 1.000 with identical band/sky medians; bar |ratio \u2212 K ratio| <= 0.005",
+ "rows": [
+  {
+   "arm": "B\u2033",
+   "channel": "R",
+   "E_A": 1.2,
+   "E_arm": 1.2,
+   "ratio": 1.0,
+   "K_ratio": 1.0,
+   "abs_diff": 0.0,
+   "within_0.005": true,
+   "print_resolution_on_ratio": 0.118
+  },
+  {
+   "arm": "B\u2033",
+   "channel": "G",
+   "E_A": 1.1,
+   "E_arm": 1.1,
+   "ratio": 1.0,
+   "K_ratio": 1.0146,
+   "abs_diff": 0.015,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.129
+  },
+  {
+   "arm": "B\u2033",
+   "channel": "B",
+   "E_A": 1.0,
+   "E_arm": 1.0,
+   "ratio": 1.0,
+   "K_ratio": 1.0194,
+   "abs_diff": 0.019,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.141
+  },
+  {
+   "arm": "B",
+   "channel": "R",
+   "E_A": 1.2,
+   "E_arm": 1.2,
+   "ratio": 1.0,
+   "K_ratio": 1.0,
+   "abs_diff": 0.0,
+   "within_0.005": true,
+   "print_resolution_on_ratio": 0.118
+  },
+  {
+   "arm": "B",
+   "channel": "G",
+   "E_A": 1.1,
+   "E_arm": 1.1,
+   "ratio": 1.0,
+   "K_ratio": 1.0146,
+   "abs_diff": 0.015,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.129
+  },
+  {
+   "arm": "B",
+   "channel": "B",
+   "E_A": 1.0,
+   "E_arm": 1.0,
+   "ratio": 1.0,
+   "K_ratio": 1.0216,
+   "abs_diff": 0.022,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.141
+  },
+  {
+   "arm": "B\u2032",
+   "channel": "R",
+   "E_A": 1.2,
+   "E_arm": 1.2,
+   "ratio": 1.0,
+   "K_ratio": 1.0,
+   "abs_diff": 0.0,
+   "within_0.005": true,
+   "print_resolution_on_ratio": 0.118
+  },
+  {
+   "arm": "B\u2032",
+   "channel": "G",
+   "E_A": 1.1,
+   "E_arm": 1.1,
+   "ratio": 1.0,
+   "K_ratio": 1.0131,
+   "abs_diff": 0.013,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.129
+  },
+  {
+   "arm": "B\u2032",
+   "channel": "B",
+   "E_A": 1.0,
+   "E_arm": 1.0,
+   "ratio": 1.0,
+   "K_ratio": 1.0173,
+   "abs_diff": 0.017,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.141
+  },
+  {
+   "arm": "B\u00b0",
+   "channel": "R",
+   "E_A": 1.2,
+   "E_arm": 1.2,
+   "ratio": 1.0,
+   "K_ratio": 1.0,
+   "abs_diff": 0.0,
+   "within_0.005": true,
+   "print_resolution_on_ratio": 0.118
+  },
+  {
+   "arm": "B\u00b0",
+   "channel": "G",
+   "E_A": 1.1,
+   "E_arm": 1.1,
+   "ratio": 1.0,
+   "K_ratio": 1.016,
+   "abs_diff": 0.016,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.129
+  },
+  {
+   "arm": "B\u00b0",
+   "channel": "B",
+   "E_A": 1.0,
+   "E_arm": 1.0,
+   "ratio": 1.0,
+   "K_ratio": 1.0237,
+   "abs_diff": 0.024,
+   "within_0.005": false,
+   "print_resolution_on_ratio": 0.141
+  }
+ ],
+ "verdict": {
+  "R_null_control": "MET on all four arms: band 91.2 / sky 90.0 identical to A to the printed digit (b_R identical on every arm)",
+  "G_B": "UNRESOLVED at the instrument's print resolution: E is 1.0-1.2 ADU16 (band 91.0-91.2 vs sky 89.9-90.0) and Siril's stat prints 0.1 ADU16, so a ratio carries \u00b10.13 (sqrt(2)x0.1/1.1) against a predicted departure of 0.015-0.024 and a bar of 0.005 \u2014 the four arms read IDENTICAL to A in every channel (ratio 1.000 by the printed digits), consistent with the prediction (a 2% K difference on a 1.1 ADU16 excess is 0.02 ADU16, 5x below the printed resolution) but not a test of it",
+  "reading": "the pre-registered method has ~zero power on this field: the band chosen by the tool is only 1.2% above the sky in a background-neutralized product. A resolving variant needs Siril's own higher-precision numbers on the same boxes \u2014 `crop` the band and sky boxes to scratch files and `seqstat \u2026 full` them (7 significant digits) \u2014 or a field with a stronger band; not run (outside this GO's method)"
+ },
+ "raw_colour_not_scored": {
+  "A": {
+   "band_RG": 1.0022,
+   "band_BG": 1.0,
+   "sky_RG": 1.0011,
+   "sky_BG": 1.0011
+  },
+  "B\u2033": {
+   "band_RG": 1.0022,
+   "band_BG": 1.0,
+   "sky_RG": 1.0011,
+   "sky_BG": 1.0011
+  },
+  "B": {
+   "band_RG": 1.0022,
+   "band_BG": 1.0,
+   "sky_RG": 1.0011,
+   "sky_BG": 1.0011
+  },
+  "B\u2032": {
+   "band_RG": 1.0022,
+   "band_BG": 1.0,
+   "sky_RG": 1.0011,
+   "sky_BG": 1.0011
+  },
+  "B\u00b0": {
+   "band_RG": 1.0022,
+   "band_BG": 1.0,
+   "sky_RG": 1.0011,
+   "sky_BG": 1.0011
+  }
+ },
+ "determinism_repeat": {
+  "arm": "arm_zf2 (Nikon Z f, second run)",
+  "record": "datasets/july31/set-01/qa_work/spcc_set-01_arm_zf2.json",
+  "identical_to_arm_zf": {
+   "K": true,
+   "b_offsets": true,
+   "counts": true,
+   "resolution_lines": true,
+   "fits_from_log": "R/G 0.332141+0.592525x s0.095610, B/G 0.323327+0.522722x s0.107511 \u2014 equal to arm_zf's",
+   "derived_white": "w_rg 0.6158, w_bg 0.7895 \u2014 equal (same K and fits)"
+  },
+  "product": "stack_set-01_arm_zf2_spcc.fit written then DELETED; record kept"
+ },
+ "H4_surface": {
+  "png": "web/results/july31/judge/set-01_arm_zf_spcc-linked.png",
+  "ihdr": {
+   "w": 4920,
+   "h": 3580,
+   "bit_depth": 16,
+   "colour_type": 2
+  },
+  "bytes": 97445573,
+  "mtime": "2026-08-29 10:16:48",
+  "canvas_matches_product": true,
+  "stretch": "autostretch -linked (finish_render.sh:228-232's own lines), -d sessions/july31, relative paths as the runner's",
+  "beside": "web/results/july31/judge/set-01_full_spcc-linked.png (13:19:35 08-28, untouched)"
+ },
+ "premises_not_tested": [
+  "that SPCC's per-channel map is affine with a constant offset \u2014 assumed for the prediction, not read from source",
+  "that the band/sky boxes are representative of what a viewer sees \u2014 they are the tool's brightest/darkest 400-px block medians inside a 600-px margin, on a field whose band is ~1%",
+  "that the identical medians across arms are not a stale-selection artefact: the grid's varying medians show boxselect+stat honour the selection within one process; each product ran in its own process with the same two boxes",
+  "the stat print precision (one decimal in 16-bit units) \u2014 observed, not a documented limit"
+ ]
+}
