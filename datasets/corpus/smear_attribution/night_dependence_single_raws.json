@@ -1,0 +1,6184 @@
+{
+ "id": "night_dependence_single_raws",
+ "item": "GO #7 (owner: 'one knob at a time'; director astro-imaging-45; worker this session) \u2014 a MEASUREMENT: is the members' night-dependent entry-side softness in the PHOTONS (the single raws) or added by the CHAIN for that night? Pre-registered in datasets/aug06/experiments.jsonl (line 102) before any raw was converted; the RESULT entry is line 103; this record carries every number.",
+ "preregistration_verbatim": {
+  "id": "night_dependence_single_raws",
+  "status": "PRE-REGISTERED BEFORE ANY RAW IS CONVERTED OR MEASURED. Owner-directed ('one knob at a time'); director astro-imaging-45; worker this session. A MEASUREMENT: no build, no product; the last attribution step before a knob.",
+  "relates_to": [
+   "left_band_member_attribution",
+   "drift_span_discriminator_exit_edge",
+   "lens_asymmetry_and_exit_edge_penalty_are_different_effects"
+  ],
+  "record": "datasets/corpus/smear_attribution/night_dependence_single_raws.json",
+  "question": "The members' entry-side softness at the corpus's left band is NIGHT-dominated under one lens (GO #6: aug14 members 3.1-3.4 px / 0.66-0.75 vs july31 members 2.2-2.7 / 0.80-0.98 at the same entry-side columns). Is it in the PHOTONS (present in the single raw frames of that night) or does the CHAIN add it for that night (the per-set lens model + darktable warp, or the member registration)? Photons -> the knob is member selection/weighting by measured shape at the compose; chain -> the lens model/warp for that night.",
+  "method": "the corner_work single-raw state (datasets/aug06/corner_work/mechanism_and_specs.json: 'debayered, UNcalibrated, UNwarped, UNregistered, UNstacked \u2014 one exposure'): 3 raws per set in capture order (first, middle, last of the culled set) for 6 sets = 18 raws, converted with the frame-QA conversion (Siril `convert c -debayer`, set16bits, no calibration) into sessions/<night>/work/rawshape/<set>/; then scripts/qa/star_stations.py's own station geometry and Siril script (its stations_for + measure functions called with a KEPT work dir so the per-star lists survive): --angle-deg 0, --offsets=1200,1800,2400, --radius=400 -> centre, along+-1200/1800/2400 (the sensor x-axis) and perp+-1200/1800/2400 (y-axis), 800-px boxes, gate 'setfindstar reset -roundness=0.05 -sigma=0.5 -relax=on'. Every raw of every night is measured at the SAME sensor positions by construction.",
+  "statistics": "per raw and station: star_stations' own all-star medians (majFWHM = FWHMx median, roundness = FWHMy/FWHMx median, its linear angle median) AND, for the like-for-like comparison with GO #6's member readings, the top-30-by-amplitude median of (FWHMx+FWHMy)/2 and of min/max roundness from the same list (shape_at_sky's statistic), plus the top-30 e-weighted axial-mean major-axis angle (the GO #5 method) vs the x-axis (= the drift axis on the sensor; the RA direction is +x on every member, and no step of the chain mirrors x: Siril convert, savetif32, darktable's warp, convert, register). Per set: the median over its 3 raws.",
+  "sets_and_raws": {
+   "aug14/set-04": {
+    "n_frames": 600,
+    "n_kept": 600,
+    "raws": [
+     "sessions/aug14/set-04/DSC_4076.NEF",
+     "sessions/aug14/set-04/DSC_4376.NEF",
+     "sessions/aug14/set-04/DSC_4675.NEF"
+    ]
+   },
+   "aug14/set-05": {
+    "n_frames": 578,
+    "n_kept": 352,
+    "raws": [
+     "sessions/aug14/set-05/DSC_4676.NEF",
+     "sessions/aug14/set-05/DSC_4902.NEF",
+     "sessions/aug14/set-05/DSC_5192.NEF"
+    ]
+   },
+   "aug09/set-05": {
+    "n_frames": 500,
+    "n_kept": 498,
+    "raws": [
+     "sessions/aug09/set-05/DSC_1265.NEF",
+     "sessions/aug09/set-05/DSC_1514.NEF",
+     "sessions/aug09/set-05/DSC_1764.NEF"
+    ]
+   },
+   "aug06/set-02": {
+    "n_frames": 500,
+    "n_kept": 498,
+    "raws": [
+     "sessions/aug06/set-02/DSC_6739.NEF",
+     "sessions/aug06/set-02/DSC_6990.NEF",
+     "sessions/aug06/set-02/DSC_7238.NEF"
+    ]
+   },
+   "july31/set-01": {
+    "n_frames": 507,
+    "n_kept": 500,
+    "raws": [
+     "sessions/july31/set-01/DSC_3790.NEF",
+     "sessions/july31/set-01/DSC_4040.NEF",
+     "sessions/july31/set-01/DSC_4289.NEF"
+    ]
+   },
+   "july31/set-03": {
+    "n_frames": 500,
+    "n_kept": 500,
+    "raws": [
+     "sessions/july31/set-03/DSC_4790.NEF",
+     "sessions/july31/set-03/DSC_5040.NEF",
+     "sessions/july31/set-03/DSC_5289.NEF"
+    ]
+   }
+  },
+  "members_reference_GO6": "the sets' members' entry-side readings from left_band_member_attribution.json (top-30, 800-px boxes at the band's sky positions, member dx from centre 1519-2477 px): paired to the raw stations by nearest dx (dx < 2100 -> along+1800, dx >= 2100 -> along+2400), median per set per station",
+  "rules_pre_registered": {
+   "PHOTONS": "at along+1800/+2400 the soft night's raws (aug14/set-04, set-05) read FWHM within the stacking/resampling floor band of their own members' entry-side readings at matched sensor x \u2014 member minus raw within [-0.04, +0.45] px (floor 0.16-0.25 per GO #5's single-frame-vs-stack ledger, +-0.20) \u2014 AND the by-night ORDERING of the raws (aug14 > aug09 > aug06 >= july31) reproduces the members' ordering",
+   "CHAIN": "aug14's raws read like july31's raws at +1800/+2400 (within 0.15 px / 0.03 roundness) while their members differ by >= 0.4 px \u2014 the night term enters after the raw",
+   "controls": "exit-side stations (along-1200/-1800/-2400) and the centre: all nights' raws agree within 0.15 px / 0.03 (the lens's clean side); perp stations reported",
+   "field_constant": "the in-exposure trail (2.5 s x the drift, ~0.78 px predicted on the raw grid) is the same on every night and cancels in the comparison",
+   "neither": "reported as measured"
+  },
+  "no_destructive_steps": "raws read only (symlinked into the scratch dir; nothing written beside them); converted frames, .ssf, logs and lists under sessions/<night>/work/rawshape/ (gitignored); the tracked outputs are this ledger's two entries and the corpus record"
+ },
+ "instrument": "Siril `convert c -debayer` (set16bits, no calibration \u2014 the frame-QA conversion) on 3 raws per set staged as symlinks; scripts/qa/star_stations.py's own image_dims / measure functions (Siril crop + findstar, gate 'setfindstar reset -roundness=0.05 -sigma=0.5 -relax=on') called with a KEPT work dir so the per-star lists survive, on the tool's own box arithmetic (stations_for) restricted to the stations that fit the 6064x4040 frame: centre, along+-1200/1800/2400 (x-axis), perp+-1200 (perp+-1800/2400 do not fit the 4040-px height and are skipped, reported); 800-px boxes; per station the tool's all-star medians AND the top-30-by-amplitude median of (FWHMx+FWHMy)/2 and min/max roundness (shape_at_sky's statistic, = GO #6's member numbers), the e-weighted axial-mean major-axis angle vs the x-axis; per set the median over its 3 raws",
+ "sets_and_raws": {
+  "aug14/set-04": {
+   "n_frames": 600,
+   "n_kept": 600,
+   "raws": [
+    "sessions/aug14/set-04/DSC_4076.NEF",
+    "sessions/aug14/set-04/DSC_4376.NEF",
+    "sessions/aug14/set-04/DSC_4675.NEF"
+   ]
+  },
+  "aug14/set-05": {
+   "n_frames": 578,
+   "n_kept": 352,
+   "raws": [
+    "sessions/aug14/set-05/DSC_4676.NEF",
+    "sessions/aug14/set-05/DSC_4902.NEF",
+    "sessions/aug14/set-05/DSC_5192.NEF"
+   ]
+  },
+  "aug09/set-05": {
+   "n_frames": 500,
+   "n_kept": 498,
+   "raws": [
+    "sessions/aug09/set-05/DSC_1265.NEF",
+    "sessions/aug09/set-05/DSC_1514.NEF",
+    "sessions/aug09/set-05/DSC_1764.NEF"
+   ]
+  },
+  "aug06/set-02": {
+   "n_frames": 500,
+   "n_kept": 498,
+   "raws": [
+    "sessions/aug06/set-02/DSC_6739.NEF",
+    "sessions/aug06/set-02/DSC_6990.NEF",
+    "sessions/aug06/set-02/DSC_7238.NEF"
+   ]
+  },
+  "july31/set-01": {
+   "n_frames": 507,
+   "n_kept": 500,
+   "raws": [
+    "sessions/july31/set-01/DSC_3790.NEF",
+    "sessions/july31/set-01/DSC_4040.NEF",
+    "sessions/july31/set-01/DSC_4289.NEF"
+   ]
+  },
+  "july31/set-03": {
+   "n_frames": 500,
+   "n_kept": 500,
+   "raws": [
+    "sessions/july31/set-03/DSC_4790.NEF",
+    "sessions/july31/set-03/DSC_5040.NEF",
+    "sessions/july31/set-03/DSC_5289.NEF"
+   ]
+  }
+ },
+ "conversion_ssf_verbatim": {
+  "aug14/set-04": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-04/out\n",
+  "aug14/set-05": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/aug14/work/rawshape/set-05/out\n",
+  "aug09/set-05": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/aug09/work/rawshape/set-05/out\n",
+  "aug06/set-02": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/aug06/work/rawshape/set-02/out\n",
+  "july31/set-01": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-01/out\n",
+  "july31/set-03": "requires 1.2.0\nset16bits\nsetcompress 0\nsetext fit\ncd /home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/nef\nconvert c -debayer -out=/home/samsung/Desktop/astro-imaging/sessions/july31/work/rawshape/set-03/out\n"
+ },
+ "stations_skipped": [
+  "perp+1800",
+  "perp-1800",
+  "perp+2400",
+  "perp-2400"
+ ],
+ "per_set_station_medians": {
+  "aug14/set-04": {
+   "along-2400": {
+    "n_median": 121,
+    "fwhm": 2.533,
+    "roundness": 0.752,
+    "dev_from_x": 2.62,
+    "e": 0.277,
+    "R": 0.883,
+    "tool_all_star": {
+     "majFWHM": 3.12,
+     "roundness": 0.746,
+     "angle_median": -2.4
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.428,
+      0.778
+     ],
+     [
+      "DSC_4376.NEF",
+      2.533,
+      0.73
+     ],
+     [
+      "DSC_4675.NEF",
+      2.555,
+      0.752
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 170,
+    "fwhm": 2.59,
+    "roundness": 0.734,
+    "dev_from_x": 2.38,
+    "e": 0.3,
+    "R": 0.957,
+    "tool_all_star": {
+     "majFWHM": 3.16,
+     "roundness": 0.734,
+     "angle_median": -1.8
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.518,
+      0.734
+     ],
+     [
+      "DSC_4376.NEF",
+      2.598,
+      0.736
+     ],
+     [
+      "DSC_4675.NEF",
+      2.59,
+      0.709
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 170,
+    "fwhm": 2.29,
+    "roundness": 0.842,
+    "dev_from_x": 11.93,
+    "e": 0.17,
+    "R": 0.714,
+    "tool_all_star": {
+     "majFWHM": 2.73,
+     "roundness": 0.81,
+     "angle_median": 0.2
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.272,
+      0.842
+     ],
+     [
+      "DSC_4376.NEF",
+      2.29,
+      0.849
+     ],
+     [
+      "DSC_4675.NEF",
+      2.423,
+      0.832
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 150,
+    "fwhm": 2.085,
+    "roundness": 0.867,
+    "dev_from_x": 54.75,
+    "e": 0.141,
+    "R": 0.378,
+    "tool_all_star": {
+     "majFWHM": 2.39,
+     "roundness": 0.836,
+     "angle_median": 1.0
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.123,
+      0.867
+     ],
+     [
+      "DSC_4376.NEF",
+      2.085,
+      0.858
+     ],
+     [
+      "DSC_4675.NEF",
+      1.99,
+      0.873
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 138,
+    "fwhm": 2.467,
+    "roundness": 0.82,
+    "dev_from_x": 17.03,
+    "e": 0.196,
+    "R": 0.871,
+    "tool_all_star": {
+     "majFWHM": 2.9,
+     "roundness": 0.8,
+     "angle_median": 15.1
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.36,
+      0.851
+     ],
+     [
+      "DSC_4376.NEF",
+      2.467,
+      0.82
+     ],
+     [
+      "DSC_4675.NEF",
+      2.502,
+      0.765
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 100,
+    "fwhm": 2.785,
+    "roundness": 0.585,
+    "dev_from_x": 5.06,
+    "e": 0.49,
+    "R": 0.955,
+    "tool_all_star": {
+     "majFWHM": 3.71,
+     "roundness": 0.607,
+     "angle_median": 4.0
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.735,
+      0.586
+     ],
+     [
+      "DSC_4376.NEF",
+      2.81,
+      0.575
+     ],
+     [
+      "DSC_4675.NEF",
+      2.785,
+      0.585
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 80,
+    "fwhm": 2.942,
+    "roundness": 0.535,
+    "dev_from_x": 2.75,
+    "e": 0.555,
+    "R": 0.977,
+    "tool_all_star": {
+     "majFWHM": 3.92,
+     "roundness": 0.556,
+     "angle_median": 3.0
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.837,
+      0.535
+     ],
+     [
+      "DSC_4376.NEF",
+      3.035,
+      0.546
+     ],
+     [
+      "DSC_4675.NEF",
+      2.942,
+      0.528
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 125,
+    "fwhm": 2.232,
+    "roundness": 0.802,
+    "dev_from_x": 69.48,
+    "e": 0.218,
+    "R": 0.59,
+    "tool_all_star": {
+     "majFWHM": 2.8,
+     "roundness": 0.788,
+     "angle_median": -17.9
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.232,
+      0.861
+     ],
+     [
+      "DSC_4376.NEF",
+      2.337,
+      0.802
+     ],
+     [
+      "DSC_4675.NEF",
+      2.21,
+      0.794
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 150,
+    "fwhm": 2.217,
+    "roundness": 0.84,
+    "dev_from_x": 72.39,
+    "e": 0.172,
+    "R": 0.753,
+    "tool_all_star": {
+     "majFWHM": 2.56,
+     "roundness": 0.813,
+     "angle_median": 37.7
+    },
+    "per_raw": [
+     [
+      "DSC_4076.NEF",
+      2.217,
+      0.87
+     ],
+     [
+      "DSC_4376.NEF",
+      2.217,
+      0.829
+     ],
+     [
+      "DSC_4675.NEF",
+      2.17,
+      0.84
+     ]
+    ]
+   }
+  },
+  "aug14/set-05": {
+   "along-2400": {
+    "n_median": 88,
+    "fwhm": 2.582,
+    "roundness": 0.725,
+    "dev_from_x": 1.28,
+    "e": 0.311,
+    "R": 0.926,
+    "tool_all_star": {
+     "majFWHM": 3.15,
+     "roundness": 0.72,
+     "angle_median": -0.2
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.51,
+      0.736
+     ],
+     [
+      "DSC_4902.NEF",
+      2.598,
+      0.723
+     ],
+     [
+      "DSC_5192.NEF",
+      2.582,
+      0.725
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 125,
+    "fwhm": 2.637,
+    "roundness": 0.728,
+    "dev_from_x": 2.72,
+    "e": 0.308,
+    "R": 0.948,
+    "tool_all_star": {
+     "majFWHM": 3.29,
+     "roundness": 0.736,
+     "angle_median": 3.2
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.597,
+      0.728
+     ],
+     [
+      "DSC_4902.NEF",
+      2.703,
+      0.723
+     ],
+     [
+      "DSC_5192.NEF",
+      2.637,
+      0.741
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 157,
+    "fwhm": 2.407,
+    "roundness": 0.837,
+    "dev_from_x": 4.15,
+    "e": 0.175,
+    "R": 0.769,
+    "tool_all_star": {
+     "majFWHM": 2.81,
+     "roundness": 0.808,
+     "angle_median": -2.0
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.312,
+      0.813
+     ],
+     [
+      "DSC_4902.NEF",
+      2.465,
+      0.887
+     ],
+     [
+      "DSC_5192.NEF",
+      2.407,
+      0.837
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 180,
+    "fwhm": 2.152,
+    "roundness": 0.882,
+    "dev_from_x": 57.12,
+    "e": 0.125,
+    "R": 0.366,
+    "tool_all_star": {
+     "majFWHM": 2.41,
+     "roundness": 0.831,
+     "angle_median": 6.3
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.048,
+      0.831
+     ],
+     [
+      "DSC_4902.NEF",
+      2.22,
+      0.882
+     ],
+     [
+      "DSC_5192.NEF",
+      2.152,
+      0.9
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 130,
+    "fwhm": 2.49,
+    "roundness": 0.787,
+    "dev_from_x": 14.95,
+    "e": 0.235,
+    "R": 0.894,
+    "tool_all_star": {
+     "majFWHM": 3.13,
+     "roundness": 0.773,
+     "angle_median": 11.5
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.49,
+      0.815
+     ],
+     [
+      "DSC_4902.NEF",
+      2.612,
+      0.787
+     ],
+     [
+      "DSC_5192.NEF",
+      2.453,
+      0.768
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 113,
+    "fwhm": 2.868,
+    "roundness": 0.574,
+    "dev_from_x": 4.23,
+    "e": 0.504,
+    "R": 0.972,
+    "tool_all_star": {
+     "majFWHM": 3.95,
+     "roundness": 0.612,
+     "angle_median": 3.0
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.938,
+      0.55
+     ],
+     [
+      "DSC_4902.NEF",
+      2.868,
+      0.62
+     ],
+     [
+      "DSC_5192.NEF",
+      2.78,
+      0.574
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 80,
+    "fwhm": 3.027,
+    "roundness": 0.53,
+    "dev_from_x": 2.12,
+    "e": 0.561,
+    "R": 0.975,
+    "tool_all_star": {
+     "majFWHM": 4.11,
+     "roundness": 0.544,
+     "angle_median": 2.1
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.993,
+      0.54
+     ],
+     [
+      "DSC_4902.NEF",
+      3.105,
+      0.53
+     ],
+     [
+      "DSC_5192.NEF",
+      3.027,
+      0.513
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 123,
+    "fwhm": 2.302,
+    "roundness": 0.798,
+    "dev_from_x": 70.47,
+    "e": 0.222,
+    "R": 0.575,
+    "tool_all_star": {
+     "majFWHM": 2.79,
+     "roundness": 0.798,
+     "angle_median": -12.7
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.213,
+      0.798
+     ],
+     [
+      "DSC_4902.NEF",
+      2.34,
+      0.849
+     ],
+     [
+      "DSC_5192.NEF",
+      2.302,
+      0.788
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 129,
+    "fwhm": 2.178,
+    "roundness": 0.81,
+    "dev_from_x": 69.75,
+    "e": 0.207,
+    "R": 0.674,
+    "tool_all_star": {
+     "majFWHM": 2.57,
+     "roundness": 0.79,
+     "angle_median": 45.4
+    },
+    "per_raw": [
+     [
+      "DSC_4676.NEF",
+      2.15,
+      0.805
+     ],
+     [
+      "DSC_4902.NEF",
+      2.292,
+      0.81
+     ],
+     [
+      "DSC_5192.NEF",
+      2.178,
+      0.813
+     ]
+    ]
+   }
+  },
+  "aug09/set-05": {
+   "along-2400": {
+    "n_median": 98,
+    "fwhm": 2.385,
+    "roundness": 0.744,
+    "dev_from_x": 4.44,
+    "e": 0.288,
+    "R": 0.839,
+    "tool_all_star": {
+     "majFWHM": 2.97,
+     "roundness": 0.735,
+     "angle_median": -2.7
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.433,
+      0.723
+     ],
+     [
+      "DSC_1514.NEF",
+      2.385,
+      0.768
+     ],
+     [
+      "DSC_1764.NEF",
+      2.385,
+      0.744
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 137,
+    "fwhm": 2.518,
+    "roundness": 0.742,
+    "dev_from_x": 1.55,
+    "e": 0.29,
+    "R": 0.928,
+    "tool_all_star": {
+     "majFWHM": 3.05,
+     "roundness": 0.733,
+     "angle_median": -0.9
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.525,
+      0.742
+     ],
+     [
+      "DSC_1514.NEF",
+      2.515,
+      0.752
+     ],
+     [
+      "DSC_1764.NEF",
+      2.518,
+      0.707
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 162,
+    "fwhm": 2.303,
+    "roundness": 0.835,
+    "dev_from_x": 1.36,
+    "e": 0.178,
+    "R": 0.643,
+    "tool_all_star": {
+     "majFWHM": 2.63,
+     "roundness": 0.823,
+     "angle_median": -2.9
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.225,
+      0.835
+     ],
+     [
+      "DSC_1514.NEF",
+      2.303,
+      0.841
+     ],
+     [
+      "DSC_1764.NEF",
+      2.325,
+      0.814
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 131,
+    "fwhm": 1.953,
+    "roundness": 0.826,
+    "dev_from_x": 34.38,
+    "e": 0.189,
+    "R": 0.163,
+    "tool_all_star": {
+     "majFWHM": 2.23,
+     "roundness": 0.827,
+     "angle_median": 6.9
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      1.863,
+      0.803
+     ],
+     [
+      "DSC_1514.NEF",
+      1.99,
+      0.839
+     ],
+     [
+      "DSC_1764.NEF",
+      1.953,
+      0.826
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 130,
+    "fwhm": 2.28,
+    "roundness": 0.803,
+    "dev_from_x": 18.12,
+    "e": 0.215,
+    "R": 0.688,
+    "tool_all_star": {
+     "majFWHM": 2.72,
+     "roundness": 0.783,
+     "angle_median": 19.9
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.2,
+      0.792
+     ],
+     [
+      "DSC_1514.NEF",
+      2.28,
+      0.803
+     ],
+     [
+      "DSC_1764.NEF",
+      2.325,
+      0.82
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 106,
+    "fwhm": 2.55,
+    "roundness": 0.638,
+    "dev_from_x": 5.5,
+    "e": 0.421,
+    "R": 0.946,
+    "tool_all_star": {
+     "majFWHM": 3.34,
+     "roundness": 0.666,
+     "angle_median": 7.0
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.55,
+      0.657
+     ],
+     [
+      "DSC_1514.NEF",
+      2.555,
+      0.638
+     ],
+     [
+      "DSC_1764.NEF",
+      2.535,
+      0.627
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 81,
+    "fwhm": 2.675,
+    "roundness": 0.587,
+    "dev_from_x": 4.01,
+    "e": 0.487,
+    "R": 0.974,
+    "tool_all_star": {
+     "majFWHM": 3.5,
+     "roundness": 0.607,
+     "angle_median": 4.8
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.675,
+      0.582
+     ],
+     [
+      "DSC_1514.NEF",
+      2.708,
+      0.587
+     ],
+     [
+      "DSC_1764.NEF",
+      2.63,
+      0.602
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 123,
+    "fwhm": 2.303,
+    "roundness": 0.832,
+    "dev_from_x": 74.5,
+    "e": 0.181,
+    "R": 0.572,
+    "tool_all_star": {
+     "majFWHM": 2.63,
+     "roundness": 0.818,
+     "angle_median": 2.1
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.312,
+      0.832
+     ],
+     [
+      "DSC_1514.NEF",
+      2.26,
+      0.803
+     ],
+     [
+      "DSC_1764.NEF",
+      2.303,
+      0.862
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 123,
+    "fwhm": 2.03,
+    "roundness": 0.847,
+    "dev_from_x": 88.9,
+    "e": 0.164,
+    "R": 0.452,
+    "tool_all_star": {
+     "majFWHM": 2.33,
+     "roundness": 0.812,
+     "angle_median": 17.8
+    },
+    "per_raw": [
+     [
+      "DSC_1265.NEF",
+      2.03,
+      0.847
+     ],
+     [
+      "DSC_1514.NEF",
+      2.065,
+      0.853
+     ],
+     [
+      "DSC_1764.NEF",
+      2.02,
+      0.796
+     ]
+    ]
+   }
+  },
+  "aug06/set-02": {
+   "along-2400": {
+    "n_median": 138,
+    "fwhm": 2.272,
+    "roundness": 0.828,
+    "dev_from_x": 2.76,
+    "e": 0.186,
+    "R": 0.794,
+    "tool_all_star": {
+     "majFWHM": 2.7,
+     "roundness": 0.807,
+     "angle_median": -1.7
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.312,
+      0.852
+     ],
+     [
+      "DSC_6990.NEF",
+      2.24,
+      0.818
+     ],
+     [
+      "DSC_7238.NEF",
+      2.272,
+      0.828
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 171,
+    "fwhm": 2.34,
+    "roundness": 0.847,
+    "dev_from_x": 4.17,
+    "e": 0.164,
+    "R": 0.915,
+    "tool_all_star": {
+     "majFWHM": 2.71,
+     "roundness": 0.808,
+     "angle_median": 2.2
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.33,
+      0.847
+     ],
+     [
+      "DSC_6990.NEF",
+      2.34,
+      0.853
+     ],
+     [
+      "DSC_7238.NEF",
+      2.38,
+      0.831
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 184,
+    "fwhm": 2.132,
+    "roundness": 0.831,
+    "dev_from_x": 11.38,
+    "e": 0.183,
+    "R": 0.793,
+    "tool_all_star": {
+     "majFWHM": 2.43,
+     "roundness": 0.826,
+     "angle_median": 5.9
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.132,
+      0.831
+     ],
+     [
+      "DSC_6990.NEF",
+      2.137,
+      0.828
+     ],
+     [
+      "DSC_7238.NEF",
+      2.105,
+      0.846
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 149,
+    "fwhm": 1.748,
+    "roundness": 0.779,
+    "dev_from_x": 7.83,
+    "e": 0.244,
+    "R": 0.412,
+    "tool_all_star": {
+     "majFWHM": 2.15,
+     "roundness": 0.783,
+     "angle_median": 7.2
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      1.802,
+      0.808
+     ],
+     [
+      "DSC_6990.NEF",
+      1.748,
+      0.779
+     ],
+     [
+      "DSC_7238.NEF",
+      1.745,
+      0.774
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 139,
+    "fwhm": 1.853,
+    "roundness": 0.766,
+    "dev_from_x": 33.94,
+    "e": 0.26,
+    "R": 0.43,
+    "tool_all_star": {
+     "majFWHM": 2.3,
+     "roundness": 0.773,
+     "angle_median": 24.3
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      1.817,
+      0.78
+     ],
+     [
+      "DSC_6990.NEF",
+      1.853,
+      0.766
+     ],
+     [
+      "DSC_7238.NEF",
+      1.875,
+      0.741
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 137,
+    "fwhm": 2.26,
+    "roundness": 0.731,
+    "dev_from_x": 13.61,
+    "e": 0.304,
+    "R": 0.918,
+    "tool_all_star": {
+     "majFWHM": 2.81,
+     "roundness": 0.723,
+     "angle_median": 12.3
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.228,
+      0.731
+     ],
+     [
+      "DSC_6990.NEF",
+      2.305,
+      0.735
+     ],
+     [
+      "DSC_7238.NEF",
+      2.26,
+      0.686
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 107,
+    "fwhm": 2.373,
+    "roundness": 0.653,
+    "dev_from_x": 10.53,
+    "e": 0.402,
+    "R": 0.939,
+    "tool_all_star": {
+     "majFWHM": 2.95,
+     "roundness": 0.666,
+     "angle_median": 9.4
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.308,
+      0.653
+     ],
+     [
+      "DSC_6990.NEF",
+      2.373,
+      0.679
+     ],
+     [
+      "DSC_7238.NEF",
+      2.373,
+      0.643
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 196,
+    "fwhm": 2.13,
+    "roundness": 0.872,
+    "dev_from_x": 53.92,
+    "e": 0.136,
+    "R": 0.719,
+    "tool_all_star": {
+     "majFWHM": 2.42,
+     "roundness": 0.831,
+     "angle_median": 30.1
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      2.07,
+      0.874
+     ],
+     [
+      "DSC_6990.NEF",
+      2.13,
+      0.864
+     ],
+     [
+      "DSC_7238.NEF",
+      2.138,
+      0.872
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 131,
+    "fwhm": 1.79,
+    "roundness": 0.786,
+    "dev_from_x": 26.51,
+    "e": 0.236,
+    "R": 0.259,
+    "tool_all_star": {
+     "majFWHM": 2.17,
+     "roundness": 0.806,
+     "angle_median": 3.9
+    },
+    "per_raw": [
+     [
+      "DSC_6739.NEF",
+      1.782,
+      0.786
+     ],
+     [
+      "DSC_6990.NEF",
+      1.79,
+      0.775
+     ],
+     [
+      "DSC_7238.NEF",
+      1.887,
+      0.816
+     ]
+    ]
+   }
+  },
+  "july31/set-01": {
+   "along-2400": {
+    "n_median": 90,
+    "fwhm": 2.188,
+    "roundness": 0.874,
+    "dev_from_x": 14.13,
+    "e": 0.134,
+    "R": 0.372,
+    "tool_all_star": {
+     "majFWHM": 2.47,
+     "roundness": 0.854,
+     "angle_median": 7.3
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.188,
+      0.874
+     ],
+     [
+      "DSC_4040.NEF",
+      2.24,
+      0.866
+     ],
+     [
+      "DSC_4289.NEF",
+      2.18,
+      0.902
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 127,
+    "fwhm": 2.22,
+    "roundness": 0.89,
+    "dev_from_x": 20.99,
+    "e": 0.116,
+    "R": 0.772,
+    "tool_all_star": {
+     "majFWHM": 2.47,
+     "roundness": 0.854,
+     "angle_median": 15.1
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.22,
+      0.891
+     ],
+     [
+      "DSC_4040.NEF",
+      2.238,
+      0.858
+     ],
+     [
+      "DSC_4289.NEF",
+      2.158,
+      0.89
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 150,
+    "fwhm": 2.085,
+    "roundness": 0.86,
+    "dev_from_x": 9.76,
+    "e": 0.149,
+    "R": 0.662,
+    "tool_all_star": {
+     "majFWHM": 2.41,
+     "roundness": 0.829,
+     "angle_median": 11.2
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.133,
+      0.86
+     ],
+     [
+      "DSC_4040.NEF",
+      2.085,
+      0.872
+     ],
+     [
+      "DSC_4289.NEF",
+      2.07,
+      0.852
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 118,
+    "fwhm": 1.988,
+    "roundness": 0.852,
+    "dev_from_x": 3.85,
+    "e": 0.159,
+    "R": 0.602,
+    "tool_all_star": {
+     "majFWHM": 2.27,
+     "roundness": 0.844,
+     "angle_median": -1.0
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.16,
+      0.872
+     ],
+     [
+      "DSC_4040.NEF",
+      1.988,
+      0.852
+     ],
+     [
+      "DSC_4289.NEF",
+      1.885,
+      0.819
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 74,
+    "fwhm": 1.805,
+    "roundness": 0.772,
+    "dev_from_x": 49.01,
+    "e": 0.254,
+    "R": 0.69,
+    "tool_all_star": {
+     "majFWHM": 2.19,
+     "roundness": 0.811,
+     "angle_median": 40.3
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      1.938,
+      0.8
+     ],
+     [
+      "DSC_4040.NEF",
+      1.805,
+      0.772
+     ],
+     [
+      "DSC_4289.NEF",
+      1.757,
+      0.758
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 50,
+    "fwhm": 2.032,
+    "roundness": 0.799,
+    "dev_from_x": 36.18,
+    "e": 0.221,
+    "R": 0.753,
+    "tool_all_star": {
+     "majFWHM": 2.29,
+     "roundness": 0.799,
+     "angle_median": 37.4
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.032,
+      0.799
+     ],
+     [
+      "DSC_4040.NEF",
+      2.01,
+      0.749
+     ],
+     [
+      "DSC_4289.NEF",
+      2.125,
+      0.8
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 43,
+    "fwhm": 2.178,
+    "roundness": 0.804,
+    "dev_from_x": 33.71,
+    "e": 0.215,
+    "R": 0.826,
+    "tool_all_star": {
+     "majFWHM": 2.47,
+     "roundness": 0.815,
+     "angle_median": 25.9
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.178,
+      0.811
+     ],
+     [
+      "DSC_4040.NEF",
+      2.103,
+      0.804
+     ],
+     [
+      "DSC_4289.NEF",
+      2.228,
+      0.72
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 109,
+    "fwhm": 2.045,
+    "roundness": 0.82,
+    "dev_from_x": 34.56,
+    "e": 0.195,
+    "R": 0.858,
+    "tool_all_star": {
+     "majFWHM": 2.36,
+     "roundness": 0.804,
+     "angle_median": 35.1
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.105,
+      0.82
+     ],
+     [
+      "DSC_4040.NEF",
+      2.045,
+      0.825
+     ],
+     [
+      "DSC_4289.NEF",
+      2.022,
+      0.791
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 152,
+    "fwhm": 2.038,
+    "roundness": 0.849,
+    "dev_from_x": 10.89,
+    "e": 0.162,
+    "R": 0.683,
+    "tool_all_star": {
+     "majFWHM": 2.28,
+     "roundness": 0.838,
+     "angle_median": -10.3
+    },
+    "per_raw": [
+     [
+      "DSC_3790.NEF",
+      2.072,
+      0.876
+     ],
+     [
+      "DSC_4040.NEF",
+      2.038,
+      0.849
+     ],
+     [
+      "DSC_4289.NEF",
+      1.915,
+      0.824
+     ]
+    ]
+   }
+  },
+  "july31/set-03": {
+   "along-2400": {
+    "n_median": 92,
+    "fwhm": 2.33,
+    "roundness": 0.84,
+    "dev_from_x": 3.89,
+    "e": 0.172,
+    "R": 0.828,
+    "tool_all_star": {
+     "majFWHM": 2.63,
+     "roundness": 0.822,
+     "angle_median": 2.7
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.228,
+      0.883
+     ],
+     [
+      "DSC_5040.NEF",
+      2.33,
+      0.84
+     ],
+     [
+      "DSC_5289.NEF",
+      2.342,
+      0.792
+     ]
+    ]
+   },
+   "along-1800": {
+    "n_median": 122,
+    "fwhm": 2.345,
+    "roundness": 0.822,
+    "dev_from_x": 6.7,
+    "e": 0.194,
+    "R": 0.919,
+    "tool_all_star": {
+     "majFWHM": 2.72,
+     "roundness": 0.803,
+     "angle_median": 7.8
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.342,
+      0.851
+     ],
+     [
+      "DSC_5040.NEF",
+      2.345,
+      0.816
+     ],
+     [
+      "DSC_5289.NEF",
+      2.385,
+      0.822
+     ]
+    ]
+   },
+   "along-1200": {
+    "n_median": 144,
+    "fwhm": 2.118,
+    "roundness": 0.841,
+    "dev_from_x": 7.46,
+    "e": 0.172,
+    "R": 0.68,
+    "tool_all_star": {
+     "majFWHM": 2.4,
+     "roundness": 0.822,
+     "angle_median": 6.2
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.087,
+      0.842
+     ],
+     [
+      "DSC_5040.NEF",
+      2.118,
+      0.838
+     ],
+     [
+      "DSC_5289.NEF",
+      2.225,
+      0.841
+     ]
+    ]
+   },
+   "centre": {
+    "n_median": 93,
+    "fwhm": 1.788,
+    "roundness": 0.793,
+    "dev_from_x": 8.43,
+    "e": 0.228,
+    "R": 0.309,
+    "tool_all_star": {
+     "majFWHM": 2.12,
+     "roundness": 0.799,
+     "angle_median": 10.2
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      1.772,
+      0.772
+     ],
+     [
+      "DSC_5040.NEF",
+      1.788,
+      0.797
+     ],
+     [
+      "DSC_5289.NEF",
+      1.847,
+      0.793
+     ]
+    ]
+   },
+   "along+1200": {
+    "n_median": 62,
+    "fwhm": 1.908,
+    "roundness": 0.755,
+    "dev_from_x": 36.51,
+    "e": 0.274,
+    "R": 0.51,
+    "tool_all_star": {
+     "majFWHM": 2.27,
+     "roundness": 0.763,
+     "angle_median": 25.5
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      1.798,
+      0.723
+     ],
+     [
+      "DSC_5040.NEF",
+      1.958,
+      0.816
+     ],
+     [
+      "DSC_5289.NEF",
+      1.908,
+      0.755
+     ]
+    ]
+   },
+   "along+1800": {
+    "n_median": 79,
+    "fwhm": 2.185,
+    "roundness": 0.718,
+    "dev_from_x": 17.34,
+    "e": 0.32,
+    "R": 0.83,
+    "tool_all_star": {
+     "majFWHM": 2.68,
+     "roundness": 0.726,
+     "angle_median": 14.7
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.165,
+      0.698
+     ],
+     [
+      "DSC_5040.NEF",
+      2.185,
+      0.753
+     ],
+     [
+      "DSC_5289.NEF",
+      2.34,
+      0.718
+     ]
+    ]
+   },
+   "along+2400": {
+    "n_median": 58,
+    "fwhm": 2.453,
+    "roundness": 0.659,
+    "dev_from_x": 10.8,
+    "e": 0.395,
+    "R": 0.958,
+    "tool_all_star": {
+     "majFWHM": 3.05,
+     "roundness": 0.671,
+     "angle_median": 9.5
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.413,
+      0.652
+     ],
+     [
+      "DSC_5040.NEF",
+      2.453,
+      0.659
+     ],
+     [
+      "DSC_5289.NEF",
+      2.485,
+      0.668
+     ]
+    ]
+   },
+   "perp-1200": {
+    "n_median": 98,
+    "fwhm": 2.09,
+    "roundness": 0.851,
+    "dev_from_x": 53.93,
+    "e": 0.16,
+    "R": 0.613,
+    "tool_all_star": {
+     "majFWHM": 2.38,
+     "roundness": 0.831,
+     "angle_median": 34.2
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      2.065,
+      0.866
+     ],
+     [
+      "DSC_5040.NEF",
+      2.09,
+      0.851
+     ],
+     [
+      "DSC_5289.NEF",
+      2.183,
+      0.813
+     ]
+    ]
+   },
+   "perp+1200": {
+    "n_median": 93,
+    "fwhm": 1.745,
+    "roundness": 0.76,
+    "dev_from_x": 40.76,
+    "e": 0.268,
+    "R": 0.406,
+    "tool_all_star": {
+     "majFWHM": 2.14,
+     "roundness": 0.797,
+     "angle_median": 8.0
+    },
+    "per_raw": [
+     [
+      "DSC_4790.NEF",
+      1.745,
+      0.76
+     ],
+     [
+      "DSC_5040.NEF",
+      1.787,
+      0.783
+     ],
+     [
+      "DSC_5289.NEF",
+      1.715,
+      0.732
+     ]
+    ]
+   }
+  }
+ },
+ "per_raw": {
+  "aug14/set-04": [
+   {
+    "raw": "DSC_4076.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-04/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 194,
+      "tool_majFWHM": 2.38,
+      "tool_roundness": 0.841,
+      "tool_angle_median": 1.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.123,
+       "roundness_median": 0.867,
+       "major_axis_deg": 40.75,
+       "concentration": 0.378,
+       "median_e": 0.1415,
+       "dev_from_x_axis": 40.75,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 121,
+      "tool_majFWHM": 2.82,
+      "tool_roundness": 0.808,
+      "tool_angle_median": 11.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.36,
+       "roundness_median": 0.851,
+       "major_axis_deg": 16.76,
+       "concentration": 0.871,
+       "median_e": 0.1602,
+       "dev_from_x_axis": 16.76,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 161,
+      "tool_majFWHM": 2.73,
+      "tool_roundness": 0.81,
+      "tool_angle_median": 2.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.272,
+       "roundness_median": 0.842,
+       "major_axis_deg": 176.16,
+       "concentration": 0.714,
+       "median_e": 0.1704,
+       "dev_from_x_axis": 3.84,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 111,
+      "tool_majFWHM": 3.63,
+      "tool_roundness": 0.606,
+      "tool_angle_median": 2.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.735,
+       "roundness_median": 0.586,
+       "major_axis_deg": 3.11,
+       "concentration": 0.962,
+       "median_e": 0.4889,
+       "dev_from_x_axis": 3.11,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 136,
+      "tool_majFWHM": 3.16,
+      "tool_roundness": 0.734,
+      "tool_angle_median": -2.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.518,
+       "roundness_median": 0.734,
+       "major_axis_deg": 177.62,
+       "concentration": 0.951,
+       "median_e": 0.2996,
+       "dev_from_x_axis": 2.38,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 3.88,
+      "tool_roundness": 0.565,
+      "tool_angle_median": 2.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.837,
+       "roundness_median": 0.535,
+       "major_axis_deg": 3.72,
+       "concentration": 0.983,
+       "median_e": 0.5551,
+       "dev_from_x_axis": 3.72,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 93,
+      "tool_majFWHM": 3.14,
+      "tool_roundness": 0.763,
+      "tool_angle_median": -5.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.428,
+       "roundness_median": 0.778,
+       "major_axis_deg": 171.85,
+       "concentration": 0.788,
+       "median_e": 0.2461,
+       "dev_from_x_axis": 8.15,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 150,
+      "tool_majFWHM": 2.53,
+      "tool_roundness": 0.813,
+      "tool_angle_median": 45.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.217,
+       "roundness_median": 0.87,
+       "major_axis_deg": 66.47,
+       "concentration": 0.767,
+       "median_e": 0.1389,
+       "dev_from_x_axis": 66.47,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 146,
+      "tool_majFWHM": 2.76,
+      "tool_roundness": 0.788,
+      "tool_angle_median": -28.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.232,
+       "roundness_median": 0.861,
+       "major_axis_deg": 121.95,
+       "concentration": 0.59,
+       "median_e": 0.1487,
+       "dev_from_x_axis": 58.05,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_4376.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-04/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 133,
+      "tool_majFWHM": 2.39,
+      "tool_roundness": 0.836,
+      "tool_angle_median": 6.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.085,
+       "roundness_median": 0.858,
+       "major_axis_deg": 99.21,
+       "concentration": 0.095,
+       "median_e": 0.1515,
+       "dev_from_x_axis": 80.79,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 156,
+      "tool_majFWHM": 2.9,
+      "tool_roundness": 0.8,
+      "tool_angle_median": 15.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.467,
+       "roundness_median": 0.82,
+       "major_axis_deg": 19.48,
+       "concentration": 0.802,
+       "median_e": 0.1958,
+       "dev_from_x_axis": 19.48,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 227,
+      "tool_majFWHM": 2.67,
+      "tool_roundness": 0.833,
+      "tool_angle_median": 0.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.29,
+       "roundness_median": 0.849,
+       "major_axis_deg": 168.07,
+       "concentration": 0.587,
+       "median_e": 0.1622,
+       "dev_from_x_axis": 11.93,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 100,
+      "tool_majFWHM": 3.71,
+      "tool_roundness": 0.618,
+      "tool_angle_median": 4.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.81,
+       "roundness_median": 0.575,
+       "major_axis_deg": 5.06,
+       "concentration": 0.955,
+       "median_e": 0.5028,
+       "dev_from_x_axis": 5.06,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 170,
+      "tool_majFWHM": 3.19,
+      "tool_roundness": 0.755,
+      "tool_angle_median": -1.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.598,
+       "roundness_median": 0.736,
+       "major_axis_deg": 0.22,
+       "concentration": 0.957,
+       "median_e": 0.2974,
+       "dev_from_x_axis": 0.22,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 80,
+      "tool_majFWHM": 4.04,
+      "tool_roundness": 0.556,
+      "tool_angle_median": 3.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 3.035,
+       "roundness_median": 0.546,
+       "major_axis_deg": 2.28,
+       "concentration": 0.971,
+       "median_e": 0.5405,
+       "dev_from_x_axis": 2.28,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 121,
+      "tool_majFWHM": 3.07,
+      "tool_roundness": 0.746,
+      "tool_angle_median": 0.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.533,
+       "roundness_median": 0.73,
+       "major_axis_deg": 177.38,
+       "concentration": 0.891,
+       "median_e": 0.3046,
+       "dev_from_x_axis": 2.62,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 131,
+      "tool_majFWHM": 2.56,
+      "tool_roundness": 0.802,
+      "tool_angle_median": 37.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.217,
+       "roundness_median": 0.829,
+       "major_axis_deg": 72.39,
+       "concentration": 0.753,
+       "median_e": 0.1851,
+       "dev_from_x_axis": 72.39,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 118,
+      "tool_majFWHM": 2.81,
+      "tool_roundness": 0.786,
+      "tool_angle_median": -17.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.337,
+       "roundness_median": 0.802,
+       "major_axis_deg": 101.14,
+       "concentration": 0.649,
+       "median_e": 0.2176,
+       "dev_from_x_axis": 78.86,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_4675.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-04/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 150,
+      "tool_majFWHM": 2.41,
+      "tool_roundness": 0.832,
+      "tool_angle_median": -4.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.99,
+       "roundness_median": 0.873,
+       "major_axis_deg": 125.25,
+       "concentration": 0.383,
+       "median_e": 0.1354,
+       "dev_from_x_axis": 54.75,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 138,
+      "tool_majFWHM": 2.94,
+      "tool_roundness": 0.759,
+      "tool_angle_median": 15.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.502,
+       "roundness_median": 0.765,
+       "major_axis_deg": 17.03,
+       "concentration": 0.899,
+       "median_e": 0.2623,
+       "dev_from_x_axis": 17.03,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 170,
+      "tool_majFWHM": 2.86,
+      "tool_roundness": 0.805,
+      "tool_angle_median": -5.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.423,
+       "roundness_median": 0.832,
+       "major_axis_deg": 166.98,
+       "concentration": 0.758,
+       "median_e": 0.182,
+       "dev_from_x_axis": 13.02,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 84,
+      "tool_majFWHM": 3.82,
+      "tool_roundness": 0.607,
+      "tool_angle_median": 4.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.785,
+       "roundness_median": 0.585,
+       "major_axis_deg": 6.16,
+       "concentration": 0.954,
+       "median_e": 0.4899,
+       "dev_from_x_axis": 6.16,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 201,
+      "tool_majFWHM": 3.14,
+      "tool_roundness": 0.73,
+      "tool_angle_median": -0.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.59,
+       "roundness_median": 0.709,
+       "major_axis_deg": 176.63,
+       "concentration": 0.961,
+       "median_e": 0.3307,
+       "dev_from_x_axis": 3.37,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 58,
+      "tool_majFWHM": 3.92,
+      "tool_roundness": 0.55,
+      "tool_angle_median": 3.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.942,
+       "roundness_median": 0.528,
+       "major_axis_deg": 2.75,
+       "concentration": 0.977,
+       "median_e": 0.5635,
+       "dev_from_x_axis": 2.75,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 163,
+      "tool_majFWHM": 3.12,
+      "tool_roundness": 0.742,
+      "tool_angle_median": -2.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.555,
+       "roundness_median": 0.752,
+       "major_axis_deg": 178.84,
+       "concentration": 0.883,
+       "median_e": 0.2771,
+       "dev_from_x_axis": 1.16,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 177,
+      "tool_majFWHM": 2.56,
+      "tool_roundness": 0.814,
+      "tool_angle_median": 36.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.17,
+       "roundness_median": 0.84,
+       "major_axis_deg": 75.69,
+       "concentration": 0.705,
+       "median_e": 0.1723,
+       "dev_from_x_axis": 75.69,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 125,
+      "tool_majFWHM": 2.8,
+      "tool_roundness": 0.798,
+      "tool_angle_median": 4.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.21,
+       "roundness_median": 0.794,
+       "major_axis_deg": 110.52,
+       "concentration": 0.549,
+       "median_e": 0.2263,
+       "dev_from_x_axis": 69.48,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-04/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ],
+  "aug14/set-05": [
+   {
+    "raw": "DSC_4676.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-05/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 224,
+      "tool_majFWHM": 2.4,
+      "tool_roundness": 0.828,
+      "tool_angle_median": 29.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.048,
+       "roundness_median": 0.831,
+       "major_axis_deg": 57.12,
+       "concentration": 0.366,
+       "median_e": 0.1835,
+       "dev_from_x_axis": 57.12,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 144,
+      "tool_majFWHM": 2.91,
+      "tool_roundness": 0.775,
+      "tool_angle_median": 14.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.49,
+       "roundness_median": 0.815,
+       "major_axis_deg": 17.07,
+       "concentration": 0.836,
+       "median_e": 0.2016,
+       "dev_from_x_axis": 17.07,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 157,
+      "tool_majFWHM": 2.73,
+      "tool_roundness": 0.801,
+      "tool_angle_median": 4.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.312,
+       "roundness_median": 0.813,
+       "major_axis_deg": 179.93,
+       "concentration": 0.62,
+       "median_e": 0.2041,
+       "dev_from_x_axis": 0.07,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 113,
+      "tool_majFWHM": 3.95,
+      "tool_roundness": 0.565,
+      "tool_angle_median": 3.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.938,
+       "roundness_median": 0.55,
+       "major_axis_deg": 3.11,
+       "concentration": 0.974,
+       "median_e": 0.5353,
+       "dev_from_x_axis": 3.11,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 125,
+      "tool_majFWHM": 3.23,
+      "tool_roundness": 0.736,
+      "tool_angle_median": 3.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.597,
+       "roundness_median": 0.728,
+       "major_axis_deg": 2.72,
+       "concentration": 0.948,
+       "median_e": 0.3076,
+       "dev_from_x_axis": 2.72,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 95,
+      "tool_majFWHM": 4.1,
+      "tool_roundness": 0.544,
+      "tool_angle_median": 2.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.993,
+       "roundness_median": 0.54,
+       "major_axis_deg": 3.32,
+       "concentration": 0.982,
+       "median_e": 0.549,
+       "dev_from_x_axis": 3.32,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 86,
+      "tool_majFWHM": 3.13,
+      "tool_roundness": 0.72,
+      "tool_angle_median": -2.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.51,
+       "roundness_median": 0.736,
+       "major_axis_deg": 178.72,
+       "concentration": 0.968,
+       "median_e": 0.297,
+       "dev_from_x_axis": 1.28,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 148,
+      "tool_majFWHM": 2.58,
+      "tool_roundness": 0.779,
+      "tool_angle_median": 43.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.15,
+       "roundness_median": 0.805,
+       "major_axis_deg": 69.89,
+       "concentration": 0.572,
+       "median_e": 0.2133,
+       "dev_from_x_axis": 69.89,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 145,
+      "tool_majFWHM": 2.77,
+      "tool_roundness": 0.798,
+      "tool_angle_median": 3.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.213,
+       "roundness_median": 0.798,
+       "major_axis_deg": 106.59,
+       "concentration": 0.575,
+       "median_e": 0.2223,
+       "dev_from_x_axis": 73.41,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_4902.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-05/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 180,
+      "tool_majFWHM": 2.46,
+      "tool_roundness": 0.832,
+      "tool_angle_median": 6.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.22,
+       "roundness_median": 0.882,
+       "major_axis_deg": 51.73,
+       "concentration": 0.605,
+       "median_e": 0.1248,
+       "dev_from_x_axis": 51.73,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 130,
+      "tool_majFWHM": 3.18,
+      "tool_roundness": 0.773,
+      "tool_angle_median": 11.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.612,
+       "roundness_median": 0.787,
+       "major_axis_deg": 11.79,
+       "concentration": 0.903,
+       "median_e": 0.2348,
+       "dev_from_x_axis": 11.79,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 152,
+      "tool_majFWHM": 2.81,
+      "tool_roundness": 0.826,
+      "tool_angle_median": -2.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.465,
+       "roundness_median": 0.887,
+       "major_axis_deg": 174.74,
+       "concentration": 0.774,
+       "median_e": 0.1196,
+       "dev_from_x_axis": 5.26,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 124,
+      "tool_majFWHM": 4.07,
+      "tool_roundness": 0.628,
+      "tool_angle_median": 2.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.868,
+       "roundness_median": 0.62,
+       "major_axis_deg": 4.23,
+       "concentration": 0.97,
+       "median_e": 0.4445,
+       "dev_from_x_axis": 4.23,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 128,
+      "tool_majFWHM": 3.29,
+      "tool_roundness": 0.744,
+      "tool_angle_median": 3.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.703,
+       "roundness_median": 0.723,
+       "major_axis_deg": 2.93,
+       "concentration": 0.96,
+       "median_e": 0.3139,
+       "dev_from_x_axis": 2.93,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 80,
+      "tool_majFWHM": 4.24,
+      "tool_roundness": 0.574,
+      "tool_angle_median": 2.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 3.105,
+       "roundness_median": 0.53,
+       "major_axis_deg": 2.02,
+       "concentration": 0.975,
+       "median_e": 0.5613,
+       "dev_from_x_axis": 2.02,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 104,
+      "tool_majFWHM": 3.27,
+      "tool_roundness": 0.72,
+      "tool_angle_median": -0.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.598,
+       "roundness_median": 0.723,
+       "major_axis_deg": 177.16,
+       "concentration": 0.88,
+       "median_e": 0.3132,
+       "dev_from_x_axis": 2.84,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 129,
+      "tool_majFWHM": 2.57,
+      "tool_roundness": 0.813,
+      "tool_angle_median": 47.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.292,
+       "roundness_median": 0.81,
+       "major_axis_deg": 69.75,
+       "concentration": 0.678,
+       "median_e": 0.2075,
+       "dev_from_x_axis": 69.75,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 123,
+      "tool_majFWHM": 2.87,
+      "tool_roundness": 0.823,
+      "tool_angle_median": -35.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.34,
+       "roundness_median": 0.849,
+       "major_axis_deg": 109.53,
+       "concentration": 0.636,
+       "median_e": 0.1618,
+       "dev_from_x_axis": 70.47,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_5192.NEF",
+    "fit": "sessions/aug14/work/rawshape/set-05/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 128,
+      "tool_majFWHM": 2.41,
+      "tool_roundness": 0.831,
+      "tool_angle_median": 5.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.152,
+       "roundness_median": 0.9,
+       "major_axis_deg": 60.26,
+       "concentration": 0.087,
+       "median_e": 0.1049,
+       "dev_from_x_axis": 60.26,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 115,
+      "tool_majFWHM": 3.13,
+      "tool_roundness": 0.765,
+      "tool_angle_median": 11.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.453,
+       "roundness_median": 0.768,
+       "major_axis_deg": 14.95,
+       "concentration": 0.894,
+       "median_e": 0.2584,
+       "dev_from_x_axis": 14.95,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 197,
+      "tool_majFWHM": 2.82,
+      "tool_roundness": 0.808,
+      "tool_angle_median": -2.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.407,
+       "roundness_median": 0.837,
+       "major_axis_deg": 175.85,
+       "concentration": 0.769,
+       "median_e": 0.1755,
+       "dev_from_x_axis": 4.15,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 80,
+      "tool_majFWHM": 3.86,
+      "tool_roundness": 0.612,
+      "tool_angle_median": 4.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.78,
+       "roundness_median": 0.574,
+       "major_axis_deg": 5.51,
+       "concentration": 0.972,
+       "median_e": 0.5042,
+       "dev_from_x_axis": 5.51,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 123,
+      "tool_majFWHM": 3.33,
+      "tool_roundness": 0.709,
+      "tool_angle_median": 1.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.637,
+       "roundness_median": 0.741,
+       "major_axis_deg": 2.66,
+       "concentration": 0.925,
+       "median_e": 0.2915,
+       "dev_from_x_axis": 2.66,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 55,
+      "tool_majFWHM": 4.11,
+      "tool_roundness": 0.543,
+      "tool_angle_median": -0.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 3.027,
+       "roundness_median": 0.513,
+       "major_axis_deg": 2.12,
+       "concentration": 0.966,
+       "median_e": 0.5832,
+       "dev_from_x_axis": 2.12,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 88,
+      "tool_majFWHM": 3.15,
+      "tool_roundness": 0.731,
+      "tool_angle_median": 2.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.582,
+       "roundness_median": 0.725,
+       "major_axis_deg": 1.18,
+       "concentration": 0.926,
+       "median_e": 0.3112,
+       "dev_from_x_axis": 1.18,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 128,
+      "tool_majFWHM": 2.48,
+      "tool_roundness": 0.79,
+      "tool_angle_median": 45.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.178,
+       "roundness_median": 0.813,
+       "major_axis_deg": 57.82,
+       "concentration": 0.674,
+       "median_e": 0.2041,
+       "dev_from_x_axis": 57.82,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 102,
+      "tool_majFWHM": 2.79,
+      "tool_roundness": 0.788,
+      "tool_angle_median": -12.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.302,
+       "roundness_median": 0.788,
+       "major_axis_deg": 109.82,
+       "concentration": 0.549,
+       "median_e": 0.2335,
+       "dev_from_x_axis": 70.18,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug14/work/rawshape/set-05/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ],
+  "aug09/set-05": [
+   {
+    "raw": "DSC_1265.NEF",
+    "fit": "sessions/aug09/work/rawshape/set-05/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 132,
+      "tool_majFWHM": 2.21,
+      "tool_roundness": 0.826,
+      "tool_angle_median": 6.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.863,
+       "roundness_median": 0.803,
+       "major_axis_deg": 156.12,
+       "concentration": 0.163,
+       "median_e": 0.2159,
+       "dev_from_x_axis": 23.88,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 108,
+      "tool_majFWHM": 2.7,
+      "tool_roundness": 0.777,
+      "tool_angle_median": 22.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.2,
+       "roundness_median": 0.792,
+       "major_axis_deg": 25.26,
+       "concentration": 0.688,
+       "median_e": 0.2288,
+       "dev_from_x_axis": 25.26,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 159,
+      "tool_majFWHM": 2.51,
+      "tool_roundness": 0.823,
+      "tool_angle_median": -2.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.225,
+       "roundness_median": 0.835,
+       "major_axis_deg": 178.64,
+       "concentration": 0.55,
+       "median_e": 0.1779,
+       "dev_from_x_axis": 1.36,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 106,
+      "tool_majFWHM": 3.26,
+      "tool_roundness": 0.666,
+      "tool_angle_median": 5.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.55,
+       "roundness_median": 0.657,
+       "major_axis_deg": 5.5,
+       "concentration": 0.94,
+       "median_e": 0.3969,
+       "dev_from_x_axis": 5.5,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 115,
+      "tool_majFWHM": 3.05,
+      "tool_roundness": 0.734,
+      "tool_angle_median": -0.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.525,
+       "roundness_median": 0.742,
+       "major_axis_deg": 179.88,
+       "concentration": 0.943,
+       "median_e": 0.2902,
+       "dev_from_x_axis": 0.12,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 97,
+      "tool_majFWHM": 3.46,
+      "tool_roundness": 0.619,
+      "tool_angle_median": 4.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.675,
+       "roundness_median": 0.582,
+       "major_axis_deg": 4.01,
+       "concentration": 0.976,
+       "median_e": 0.4936,
+       "dev_from_x_axis": 4.01,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 77,
+      "tool_majFWHM": 3.05,
+      "tool_roundness": 0.72,
+      "tool_angle_median": -3.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.433,
+       "roundness_median": 0.723,
+       "major_axis_deg": 175.56,
+       "concentration": 0.825,
+       "median_e": 0.3128,
+       "dev_from_x_axis": 4.44,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 107,
+      "tool_majFWHM": 2.31,
+      "tool_roundness": 0.823,
+      "tool_angle_median": 8.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.03,
+       "roundness_median": 0.847,
+       "major_axis_deg": 75.47,
+       "concentration": 0.159,
+       "median_e": 0.1641,
+       "dev_from_x_axis": 75.47,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 123,
+      "tool_majFWHM": 2.63,
+      "tool_roundness": 0.819,
+      "tool_angle_median": -3.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.312,
+       "roundness_median": 0.832,
+       "major_axis_deg": 105.53,
+       "concentration": 0.694,
+       "median_e": 0.1813,
+       "dev_from_x_axis": 74.47,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_1514.NEF",
+    "fit": "sessions/aug09/work/rawshape/set-05/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 131,
+      "tool_majFWHM": 2.28,
+      "tool_roundness": 0.842,
+      "tool_angle_median": 7.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.99,
+       "roundness_median": 0.839,
+       "major_axis_deg": 34.38,
+       "concentration": 0.085,
+       "median_e": 0.1739,
+       "dev_from_x_axis": 34.38,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 141,
+      "tool_majFWHM": 2.75,
+      "tool_roundness": 0.783,
+      "tool_angle_median": 19.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.28,
+       "roundness_median": 0.803,
+       "major_axis_deg": 18.08,
+       "concentration": 0.67,
+       "median_e": 0.2154,
+       "dev_from_x_axis": 18.08,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 221,
+      "tool_majFWHM": 2.63,
+      "tool_roundness": 0.827,
+      "tool_angle_median": -6.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.303,
+       "roundness_median": 0.841,
+       "major_axis_deg": 166.45,
+       "concentration": 0.655,
+       "median_e": 0.1709,
+       "dev_from_x_axis": 13.55,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 113,
+      "tool_majFWHM": 3.35,
+      "tool_roundness": 0.668,
+      "tool_angle_median": 7.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.555,
+       "roundness_median": 0.638,
+       "major_axis_deg": 5.08,
+       "concentration": 0.946,
+       "median_e": 0.4212,
+       "dev_from_x_axis": 5.08,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 137,
+      "tool_majFWHM": 2.98,
+      "tool_roundness": 0.733,
+      "tool_angle_median": -2.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.515,
+       "roundness_median": 0.752,
+       "major_axis_deg": 178.45,
+       "concentration": 0.923,
+       "median_e": 0.2776,
+       "dev_from_x_axis": 1.55,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 81,
+      "tool_majFWHM": 3.6,
+      "tool_roundness": 0.601,
+      "tool_angle_median": 3.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.708,
+       "roundness_median": 0.587,
+       "major_axis_deg": 2.44,
+       "concentration": 0.974,
+       "median_e": 0.4871,
+       "dev_from_x_axis": 2.44,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 98,
+      "tool_majFWHM": 2.97,
+      "tool_roundness": 0.735,
+      "tool_angle_median": -2.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.385,
+       "roundness_median": 0.768,
+       "major_axis_deg": 173.69,
+       "concentration": 0.839,
+       "median_e": 0.2579,
+       "dev_from_x_axis": 6.31,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 123,
+      "tool_majFWHM": 2.36,
+      "tool_roundness": 0.812,
+      "tool_angle_median": 17.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.065,
+       "roundness_median": 0.853,
+       "major_axis_deg": 91.1,
+       "concentration": 0.452,
+       "median_e": 0.1575,
+       "dev_from_x_axis": 88.9,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 118,
+      "tool_majFWHM": 2.63,
+      "tool_roundness": 0.812,
+      "tool_angle_median": 2.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.26,
+       "roundness_median": 0.803,
+       "major_axis_deg": 105.5,
+       "concentration": 0.572,
+       "median_e": 0.2161,
+       "dev_from_x_axis": 74.5,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_1764.NEF",
+    "fit": "sessions/aug09/work/rawshape/set-05/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 123,
+      "tool_majFWHM": 2.23,
+      "tool_roundness": 0.827,
+      "tool_angle_median": -4.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.953,
+       "roundness_median": 0.826,
+       "major_axis_deg": 133.03,
+       "concentration": 0.322,
+       "median_e": 0.1887,
+       "dev_from_x_axis": 46.97,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 130,
+      "tool_majFWHM": 2.72,
+      "tool_roundness": 0.806,
+      "tool_angle_median": 12.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.325,
+       "roundness_median": 0.82,
+       "major_axis_deg": 18.12,
+       "concentration": 0.792,
+       "median_e": 0.1956,
+       "dev_from_x_axis": 18.12,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 162,
+      "tool_majFWHM": 2.67,
+      "tool_roundness": 0.8,
+      "tool_angle_median": -1.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.325,
+       "roundness_median": 0.814,
+       "major_axis_deg": 0.26,
+       "concentration": 0.643,
+       "median_e": 0.2035,
+       "dev_from_x_axis": 0.26,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 100,
+      "tool_majFWHM": 3.34,
+      "tool_roundness": 0.659,
+      "tool_angle_median": 8.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.535,
+       "roundness_median": 0.627,
+       "major_axis_deg": 7.15,
+       "concentration": 0.961,
+       "median_e": 0.4362,
+       "dev_from_x_axis": 7.15,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 193,
+      "tool_majFWHM": 3.05,
+      "tool_roundness": 0.714,
+      "tool_angle_median": 3.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.518,
+       "roundness_median": 0.707,
+       "major_axis_deg": 2.63,
+       "concentration": 0.928,
+       "median_e": 0.3339,
+       "dev_from_x_axis": 2.63,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 70,
+      "tool_majFWHM": 3.5,
+      "tool_roundness": 0.607,
+      "tool_angle_median": 4.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.63,
+       "roundness_median": 0.602,
+       "major_axis_deg": 5.73,
+       "concentration": 0.973,
+       "median_e": 0.4674,
+       "dev_from_x_axis": 5.73,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 131,
+      "tool_majFWHM": 2.96,
+      "tool_roundness": 0.744,
+      "tool_angle_median": 0.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.385,
+       "roundness_median": 0.744,
+       "major_axis_deg": 178.75,
+       "concentration": 0.889,
+       "median_e": 0.2879,
+       "dev_from_x_axis": 1.25,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 156,
+      "tool_majFWHM": 2.33,
+      "tool_roundness": 0.8,
+      "tool_angle_median": 34.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.02,
+       "roundness_median": 0.796,
+       "major_axis_deg": 90.45,
+       "concentration": 0.5,
+       "median_e": 0.2246,
+       "dev_from_x_axis": 89.55,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 125,
+      "tool_majFWHM": 2.71,
+      "tool_roundness": 0.818,
+      "tool_angle_median": 19.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.303,
+       "roundness_median": 0.862,
+       "major_axis_deg": 79.24,
+       "concentration": 0.276,
+       "median_e": 0.147,
+       "dev_from_x_axis": 79.24,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug09/work/rawshape/set-05/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ],
+  "aug06/set-02": [
+   {
+    "raw": "DSC_6739.NEF",
+    "fit": "sessions/aug06/work/rawshape/set-02/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 189,
+      "tool_majFWHM": 2.12,
+      "tool_roundness": 0.79,
+      "tool_angle_median": 7.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.802,
+       "roundness_median": 0.808,
+       "major_axis_deg": 1.45,
+       "concentration": 0.412,
+       "median_e": 0.2097,
+       "dev_from_x_axis": 1.45,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 143,
+      "tool_majFWHM": 2.19,
+      "tool_roundness": 0.78,
+      "tool_angle_median": 19.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.817,
+       "roundness_median": 0.78,
+       "major_axis_deg": 33.94,
+       "concentration": 0.41,
+       "median_e": 0.2438,
+       "dev_from_x_axis": 33.94,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 170,
+      "tool_majFWHM": 2.43,
+      "tool_roundness": 0.826,
+      "tool_angle_median": 5.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.132,
+       "roundness_median": 0.831,
+       "major_axis_deg": 4.75,
+       "concentration": 0.805,
+       "median_e": 0.1827,
+       "dev_from_x_axis": 4.75,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 132,
+      "tool_majFWHM": 2.81,
+      "tool_roundness": 0.732,
+      "tool_angle_median": 11.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.228,
+       "roundness_median": 0.731,
+       "major_axis_deg": 10.79,
+       "concentration": 0.918,
+       "median_e": 0.3037,
+       "dev_from_x_axis": 10.79,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 154,
+      "tool_majFWHM": 2.67,
+      "tool_roundness": 0.805,
+      "tool_angle_median": 2.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.33,
+       "roundness_median": 0.847,
+       "major_axis_deg": 3.44,
+       "concentration": 0.928,
+       "median_e": 0.1641,
+       "dev_from_x_axis": 3.44,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 110,
+      "tool_majFWHM": 2.95,
+      "tool_roundness": 0.68,
+      "tool_angle_median": 9.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.308,
+       "roundness_median": 0.653,
+       "major_axis_deg": 8.97,
+       "concentration": 0.959,
+       "median_e": 0.4017,
+       "dev_from_x_axis": 8.97,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 117,
+      "tool_majFWHM": 2.7,
+      "tool_roundness": 0.825,
+      "tool_angle_median": 3.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.312,
+       "roundness_median": 0.852,
+       "major_axis_deg": 177.24,
+       "concentration": 0.584,
+       "median_e": 0.159,
+       "dev_from_x_axis": 2.76,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 127,
+      "tool_majFWHM": 2.18,
+      "tool_roundness": 0.823,
+      "tool_angle_median": 3.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.782,
+       "roundness_median": 0.786,
+       "major_axis_deg": 167.41,
+       "concentration": 0.171,
+       "median_e": 0.2363,
+       "dev_from_x_axis": 12.59,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 270,
+      "tool_majFWHM": 2.42,
+      "tool_roundness": 0.833,
+      "tool_angle_median": 29.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.07,
+       "roundness_median": 0.874,
+       "major_axis_deg": 44.01,
+       "concentration": 0.719,
+       "median_e": 0.1338,
+       "dev_from_x_axis": 44.01,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_6990.NEF",
+    "fit": "sessions/aug06/work/rawshape/set-02/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 148,
+      "tool_majFWHM": 2.15,
+      "tool_roundness": 0.78,
+      "tool_angle_median": 4.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.748,
+       "roundness_median": 0.779,
+       "major_axis_deg": 21.19,
+       "concentration": 0.47,
+       "median_e": 0.2444,
+       "dev_from_x_axis": 21.19,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 133,
+      "tool_majFWHM": 2.3,
+      "tool_roundness": 0.773,
+      "tool_angle_median": 24.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.853,
+       "roundness_median": 0.766,
+       "major_axis_deg": 42.18,
+       "concentration": 0.631,
+       "median_e": 0.2599,
+       "dev_from_x_axis": 42.18,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 184,
+      "tool_majFWHM": 2.48,
+      "tool_roundness": 0.812,
+      "tool_angle_median": 8.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.137,
+       "roundness_median": 0.828,
+       "major_axis_deg": 15.17,
+       "concentration": 0.793,
+       "median_e": 0.1869,
+       "dev_from_x_axis": 15.17,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 137,
+      "tool_majFWHM": 2.78,
+      "tool_roundness": 0.723,
+      "tool_angle_median": 12.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.305,
+       "roundness_median": 0.735,
+       "major_axis_deg": 14.9,
+       "concentration": 0.905,
+       "median_e": 0.2986,
+       "dev_from_x_axis": 14.9,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 171,
+      "tool_majFWHM": 2.77,
+      "tool_roundness": 0.808,
+      "tool_angle_median": 2.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.34,
+       "roundness_median": 0.853,
+       "major_axis_deg": 4.17,
+       "concentration": 0.89,
+       "median_e": 0.1576,
+       "dev_from_x_axis": 4.17,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 107,
+      "tool_majFWHM": 2.95,
+      "tool_roundness": 0.666,
+      "tool_angle_median": 9.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.373,
+       "roundness_median": 0.679,
+       "major_axis_deg": 10.57,
+       "concentration": 0.939,
+       "median_e": 0.3693,
+       "dev_from_x_axis": 10.57,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 143,
+      "tool_majFWHM": 2.82,
+      "tool_roundness": 0.807,
+      "tool_angle_median": -2.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.24,
+       "roundness_median": 0.818,
+       "major_axis_deg": 1.29,
+       "concentration": 0.819,
+       "median_e": 0.1984,
+       "dev_from_x_axis": 1.29,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 137,
+      "tool_majFWHM": 2.17,
+      "tool_roundness": 0.806,
+      "tool_angle_median": -11.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.79,
+       "roundness_median": 0.775,
+       "major_axis_deg": 145.27,
+       "concentration": 0.339,
+       "median_e": 0.2498,
+       "dev_from_x_axis": 34.73,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 196,
+      "tool_majFWHM": 2.42,
+      "tool_roundness": 0.831,
+      "tool_angle_median": 33.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.13,
+       "roundness_median": 0.864,
+       "major_axis_deg": 61.85,
+       "concentration": 0.261,
+       "median_e": 0.1452,
+       "dev_from_x_axis": 61.85,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_7238.NEF",
+    "fit": "sessions/aug06/work/rawshape/set-02/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 149,
+      "tool_majFWHM": 2.15,
+      "tool_roundness": 0.783,
+      "tool_angle_median": 7.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.745,
+       "roundness_median": 0.774,
+       "major_axis_deg": 7.83,
+       "concentration": 0.392,
+       "median_e": 0.2509,
+       "dev_from_x_axis": 7.83,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 139,
+      "tool_majFWHM": 2.31,
+      "tool_roundness": 0.757,
+      "tool_angle_median": 28.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.875,
+       "roundness_median": 0.741,
+       "major_axis_deg": 25.99,
+       "concentration": 0.43,
+       "median_e": 0.2906,
+       "dev_from_x_axis": 25.99,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 206,
+      "tool_majFWHM": 2.39,
+      "tool_roundness": 0.827,
+      "tool_angle_median": 3.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.105,
+       "roundness_median": 0.846,
+       "major_axis_deg": 11.38,
+       "concentration": 0.691,
+       "median_e": 0.1655,
+       "dev_from_x_axis": 11.38,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 138,
+      "tool_majFWHM": 2.83,
+      "tool_roundness": 0.705,
+      "tool_angle_median": 12.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.26,
+       "roundness_median": 0.686,
+       "major_axis_deg": 13.61,
+       "concentration": 0.951,
+       "median_e": 0.3603,
+       "dev_from_x_axis": 13.61,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 175,
+      "tool_majFWHM": 2.71,
+      "tool_roundness": 0.817,
+      "tool_angle_median": 2.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.38,
+       "roundness_median": 0.831,
+       "major_axis_deg": 5.01,
+       "concentration": 0.915,
+       "median_e": 0.1835,
+       "dev_from_x_axis": 5.01,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 2.96,
+      "tool_roundness": 0.662,
+      "tool_angle_median": 9.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.373,
+       "roundness_median": 0.643,
+       "major_axis_deg": 10.53,
+       "concentration": 0.936,
+       "median_e": 0.4155,
+       "dev_from_x_axis": 10.53,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 138,
+      "tool_majFWHM": 2.68,
+      "tool_roundness": 0.794,
+      "tool_angle_median": -1.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.272,
+       "roundness_median": 0.828,
+       "major_axis_deg": 173.55,
+       "concentration": 0.794,
+       "median_e": 0.1861,
+       "dev_from_x_axis": 6.45,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 131,
+      "tool_majFWHM": 2.17,
+      "tool_roundness": 0.8,
+      "tool_angle_median": 9.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.887,
+       "roundness_median": 0.816,
+       "major_axis_deg": 26.51,
+       "concentration": 0.259,
+       "median_e": 0.2004,
+       "dev_from_x_axis": 26.51,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 173,
+      "tool_majFWHM": 2.42,
+      "tool_roundness": 0.829,
+      "tool_angle_median": 30.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.138,
+       "roundness_median": 0.872,
+       "major_axis_deg": 53.92,
+       "concentration": 0.729,
+       "median_e": 0.1361,
+       "dev_from_x_axis": 53.92,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/aug06/work/rawshape/set-02/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ],
+  "july31/set-01": [
+   {
+    "raw": "DSC_3790.NEF",
+    "fit": "sessions/july31/work/rawshape/set-01/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 153,
+      "tool_majFWHM": 2.38,
+      "tool_roundness": 0.863,
+      "tool_angle_median": -3.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.16,
+       "roundness_median": 0.872,
+       "major_axis_deg": 178.96,
+       "concentration": 0.797,
+       "median_e": 0.136,
+       "dev_from_x_axis": 1.04,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 79,
+      "tool_majFWHM": 2.22,
+      "tool_roundness": 0.796,
+      "tool_angle_median": 38.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.938,
+       "roundness_median": 0.8,
+       "major_axis_deg": 49.96,
+       "concentration": 0.746,
+       "median_e": 0.219,
+       "dev_from_x_axis": 49.96,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 150,
+      "tool_majFWHM": 2.41,
+      "tool_roundness": 0.829,
+      "tool_angle_median": 9.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.133,
+       "roundness_median": 0.86,
+       "major_axis_deg": 6.49,
+       "concentration": 0.736,
+       "median_e": 0.1492,
+       "dev_from_x_axis": 6.49,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 76,
+      "tool_majFWHM": 2.34,
+      "tool_roundness": 0.799,
+      "tool_angle_median": 37.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.032,
+       "roundness_median": 0.799,
+       "major_axis_deg": 41.35,
+       "concentration": 0.795,
+       "median_e": 0.2206,
+       "dev_from_x_axis": 41.35,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 127,
+      "tool_majFWHM": 2.46,
+      "tool_roundness": 0.828,
+      "tool_angle_median": 15.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.22,
+       "roundness_median": 0.891,
+       "major_axis_deg": 20.99,
+       "concentration": 0.663,
+       "median_e": 0.1144,
+       "dev_from_x_axis": 20.99,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 61,
+      "tool_majFWHM": 2.47,
+      "tool_roundness": 0.818,
+      "tool_angle_median": 25.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.178,
+       "roundness_median": 0.811,
+       "major_axis_deg": 33.71,
+       "concentration": 0.826,
+       "median_e": 0.2069,
+       "dev_from_x_axis": 33.71,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 2.46,
+      "tool_roundness": 0.854,
+      "tool_angle_median": 8.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.188,
+       "roundness_median": 0.874,
+       "major_axis_deg": 19.83,
+       "concentration": 0.372,
+       "median_e": 0.1343,
+       "dev_from_x_axis": 19.83,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 153,
+      "tool_majFWHM": 2.33,
+      "tool_roundness": 0.853,
+      "tool_angle_median": -8.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.072,
+       "roundness_median": 0.876,
+       "major_axis_deg": 169.11,
+       "concentration": 0.73,
+       "median_e": 0.1311,
+       "dev_from_x_axis": 10.89,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 122,
+      "tool_majFWHM": 2.42,
+      "tool_roundness": 0.804,
+      "tool_angle_median": 35.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.105,
+       "roundness_median": 0.82,
+       "major_axis_deg": 34.56,
+       "concentration": 0.867,
+       "median_e": 0.1954,
+       "dev_from_x_axis": 34.56,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_4040.NEF",
+    "fit": "sessions/july31/work/rawshape/set-01/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 118,
+      "tool_majFWHM": 2.27,
+      "tool_roundness": 0.844,
+      "tool_angle_median": -1.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.988,
+       "roundness_median": 0.852,
+       "major_axis_deg": 176.15,
+       "concentration": 0.602,
+       "median_e": 0.1588,
+       "dev_from_x_axis": 3.85,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 74,
+      "tool_majFWHM": 2.19,
+      "tool_roundness": 0.813,
+      "tool_angle_median": 40.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.805,
+       "roundness_median": 0.772,
+       "major_axis_deg": 49.01,
+       "concentration": 0.569,
+       "median_e": 0.2535,
+       "dev_from_x_axis": 49.01,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 175,
+      "tool_majFWHM": 2.43,
+      "tool_roundness": 0.826,
+      "tool_angle_median": 11.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.085,
+       "roundness_median": 0.872,
+       "major_axis_deg": 9.76,
+       "concentration": 0.565,
+       "median_e": 0.1365,
+       "dev_from_x_axis": 9.76,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 50,
+      "tool_majFWHM": 2.29,
+      "tool_roundness": 0.787,
+      "tool_angle_median": 40.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.01,
+       "roundness_median": 0.749,
+       "major_axis_deg": 36.18,
+       "concentration": 0.753,
+       "median_e": 0.2815,
+       "dev_from_x_axis": 36.18,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 106,
+      "tool_majFWHM": 2.47,
+      "tool_roundness": 0.856,
+      "tool_angle_median": 18.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.238,
+       "roundness_median": 0.858,
+       "major_axis_deg": 23.76,
+       "concentration": 0.772,
+       "median_e": 0.1514,
+       "dev_from_x_axis": 23.76,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 43,
+      "tool_majFWHM": 2.44,
+      "tool_roundness": 0.815,
+      "tool_angle_median": 38.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.103,
+       "roundness_median": 0.804,
+       "major_axis_deg": 37.33,
+       "concentration": 0.883,
+       "median_e": 0.2154,
+       "dev_from_x_axis": 37.33,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 99,
+      "tool_majFWHM": 2.47,
+      "tool_roundness": 0.854,
+      "tool_angle_median": 7.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.24,
+       "roundness_median": 0.866,
+       "major_axis_deg": 14.13,
+       "concentration": 0.389,
+       "median_e": 0.1433,
+       "dev_from_x_axis": 14.13,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 152,
+      "tool_majFWHM": 2.28,
+      "tool_roundness": 0.838,
+      "tool_angle_median": -16.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.038,
+       "roundness_median": 0.849,
+       "major_axis_deg": 170.66,
+       "concentration": 0.683,
+       "median_e": 0.1624,
+       "dev_from_x_axis": 9.34,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 109,
+      "tool_majFWHM": 2.36,
+      "tool_roundness": 0.814,
+      "tool_angle_median": 27.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.045,
+       "roundness_median": 0.825,
+       "major_axis_deg": 31.24,
+       "concentration": 0.72,
+       "median_e": 0.1901,
+       "dev_from_x_axis": 31.24,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_4289.NEF",
+    "fit": "sessions/july31/work/rawshape/set-01/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 95,
+      "tool_majFWHM": 2.16,
+      "tool_roundness": 0.815,
+      "tool_angle_median": 11.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.885,
+       "roundness_median": 0.819,
+       "major_axis_deg": 11.02,
+       "concentration": 0.541,
+       "median_e": 0.1976,
+       "dev_from_x_axis": 11.02,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 49,
+      "tool_majFWHM": 2.11,
+      "tool_roundness": 0.811,
+      "tool_angle_median": 40.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.757,
+       "roundness_median": 0.758,
+       "major_axis_deg": 46.65,
+       "concentration": 0.69,
+       "median_e": 0.2702,
+       "dev_from_x_axis": 46.65,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 135,
+      "tool_majFWHM": 2.36,
+      "tool_roundness": 0.833,
+      "tool_angle_median": 13.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.07,
+       "roundness_median": 0.852,
+       "major_axis_deg": 12.21,
+       "concentration": 0.662,
+       "median_e": 0.1588,
+       "dev_from_x_axis": 12.21,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 41,
+      "tool_majFWHM": 2.29,
+      "tool_roundness": 0.811,
+      "tool_angle_median": 24.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.125,
+       "roundness_median": 0.8,
+       "major_axis_deg": 30.86,
+       "concentration": 0.667,
+       "median_e": 0.2189,
+       "dev_from_x_axis": 30.86,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 145,
+      "tool_majFWHM": 2.49,
+      "tool_roundness": 0.854,
+      "tool_angle_median": 9.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.158,
+       "roundness_median": 0.89,
+       "major_axis_deg": 16.63,
+       "concentration": 0.787,
+       "median_e": 0.1159,
+       "dev_from_x_axis": 16.63,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 31,
+      "tool_majFWHM": 2.58,
+      "tool_roundness": 0.72,
+      "tool_angle_median": 20.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.228,
+       "roundness_median": 0.72,
+       "major_axis_deg": 27.23,
+       "concentration": 0.744,
+       "median_e": 0.3166,
+       "dev_from_x_axis": 27.23,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 87,
+      "tool_majFWHM": 2.47,
+      "tool_roundness": 0.849,
+      "tool_angle_median": 3.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.18,
+       "roundness_median": 0.902,
+       "major_axis_deg": 6.72,
+       "concentration": 0.336,
+       "median_e": 0.1024,
+       "dev_from_x_axis": 6.72,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 120,
+      "tool_majFWHM": 2.19,
+      "tool_roundness": 0.824,
+      "tool_angle_median": -10.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.915,
+       "roundness_median": 0.824,
+       "major_axis_deg": 167.85,
+       "concentration": 0.509,
+       "median_e": 0.1909,
+       "dev_from_x_axis": 12.15,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 2.35,
+      "tool_roundness": 0.795,
+      "tool_angle_median": 35.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.022,
+       "roundness_median": 0.791,
+       "major_axis_deg": 44.23,
+       "concentration": 0.858,
+       "median_e": 0.2301,
+       "dev_from_x_axis": 44.23,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-01/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ],
+  "july31/set-03": [
+   {
+    "raw": "DSC_4790.NEF",
+    "fit": "sessions/july31/work/rawshape/set-03/out/c_00001.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 105,
+      "tool_majFWHM": 2.12,
+      "tool_roundness": 0.799,
+      "tool_angle_median": 18.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.772,
+       "roundness_median": 0.772,
+       "major_axis_deg": 11.11,
+       "concentration": 0.307,
+       "median_e": 0.2527,
+       "dev_from_x_axis": 11.11,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 62,
+      "tool_majFWHM": 2.12,
+      "tool_roundness": 0.752,
+      "tool_angle_median": 31.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.798,
+       "roundness_median": 0.723,
+       "major_axis_deg": 36.51,
+       "concentration": 0.29,
+       "median_e": 0.3131,
+       "dev_from_x_axis": 36.51,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 144,
+      "tool_majFWHM": 2.39,
+      "tool_roundness": 0.813,
+      "tool_angle_median": 6.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.087,
+       "roundness_median": 0.842,
+       "major_axis_deg": 0.63,
+       "concentration": 0.639,
+       "median_e": 0.1707,
+       "dev_from_x_axis": 0.63,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 85,
+      "tool_majFWHM": 2.68,
+      "tool_roundness": 0.726,
+      "tool_angle_median": 15.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.165,
+       "roundness_median": 0.698,
+       "major_axis_deg": 17.34,
+       "concentration": 0.83,
+       "median_e": 0.345,
+       "dev_from_x_axis": 17.34,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 111,
+      "tool_majFWHM": 2.61,
+      "tool_roundness": 0.845,
+      "tool_angle_median": 10.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.342,
+       "roundness_median": 0.851,
+       "major_axis_deg": 14.19,
+       "concentration": 0.824,
+       "median_e": 0.1602,
+       "dev_from_x_axis": 14.19,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 79,
+      "tool_majFWHM": 3.02,
+      "tool_roundness": 0.67,
+      "tool_angle_median": 9.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.413,
+       "roundness_median": 0.652,
+       "major_axis_deg": 10.92,
+       "concentration": 0.962,
+       "median_e": 0.404,
+       "dev_from_x_axis": 10.92,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 96,
+      "tool_majFWHM": 2.58,
+      "tool_roundness": 0.849,
+      "tool_angle_median": 3.1,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.228,
+       "roundness_median": 0.883,
+       "major_axis_deg": 3.89,
+       "concentration": 0.515,
+       "median_e": 0.1239,
+       "dev_from_x_axis": 3.89,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 92,
+      "tool_majFWHM": 2.12,
+      "tool_roundness": 0.789,
+      "tool_angle_median": 7.9,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.745,
+       "roundness_median": 0.76,
+       "major_axis_deg": 42.84,
+       "concentration": 0.406,
+       "median_e": 0.2683,
+       "dev_from_x_axis": 42.84,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 98,
+      "tool_majFWHM": 2.38,
+      "tool_roundness": 0.831,
+      "tool_angle_median": 33.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.065,
+       "roundness_median": 0.866,
+       "major_axis_deg": 52.61,
+       "concentration": 0.465,
+       "median_e": 0.1432,
+       "dev_from_x_axis": 52.61,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_01/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_5040.NEF",
+    "fit": "sessions/july31/work/rawshape/set-03/out/c_00002.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 93,
+      "tool_majFWHM": 2.09,
+      "tool_roundness": 0.818,
+      "tool_angle_median": 10.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.788,
+       "roundness_median": 0.797,
+       "major_axis_deg": 171.57,
+       "concentration": 0.316,
+       "median_e": 0.2232,
+       "dev_from_x_axis": 8.43,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 81,
+      "tool_majFWHM": 2.27,
+      "tool_roundness": 0.798,
+      "tool_angle_median": 25.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.958,
+       "roundness_median": 0.816,
+       "major_axis_deg": 35.09,
+       "concentration": 0.51,
+       "median_e": 0.2004,
+       "dev_from_x_axis": 35.09,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 147,
+      "tool_majFWHM": 2.4,
+      "tool_roundness": 0.826,
+      "tool_angle_median": 4.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.118,
+       "roundness_median": 0.838,
+       "major_axis_deg": 7.46,
+       "concentration": 0.68,
+       "median_e": 0.1751,
+       "dev_from_x_axis": 7.46,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 79,
+      "tool_majFWHM": 2.63,
+      "tool_roundness": 0.733,
+      "tool_angle_median": 12.4,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.185,
+       "roundness_median": 0.753,
+       "major_axis_deg": 13.13,
+       "concentration": 0.822,
+       "median_e": 0.2769,
+       "dev_from_x_axis": 13.13,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 122,
+      "tool_majFWHM": 2.72,
+      "tool_roundness": 0.803,
+      "tool_angle_median": 7.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.345,
+       "roundness_median": 0.816,
+       "major_axis_deg": 6.7,
+       "concentration": 0.934,
+       "median_e": 0.2003,
+       "dev_from_x_axis": 6.7,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 58,
+      "tool_majFWHM": 3.05,
+      "tool_roundness": 0.692,
+      "tool_angle_median": 10.3,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.453,
+       "roundness_median": 0.659,
+       "major_axis_deg": 10.8,
+       "concentration": 0.958,
+       "median_e": 0.3949,
+       "dev_from_x_axis": 10.8,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 2.63,
+      "tool_roundness": 0.822,
+      "tool_angle_median": 2.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.33,
+       "roundness_median": 0.84,
+       "major_axis_deg": 2.57,
+       "concentration": 0.828,
+       "median_e": 0.1721,
+       "dev_from_x_axis": 2.57,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 116,
+      "tool_majFWHM": 2.14,
+      "tool_roundness": 0.808,
+      "tool_angle_median": 8.0,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.787,
+       "roundness_median": 0.783,
+       "major_axis_deg": 21.87,
+       "concentration": 0.37,
+       "median_e": 0.2399,
+       "dev_from_x_axis": 21.87,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 90,
+      "tool_majFWHM": 2.38,
+      "tool_roundness": 0.851,
+      "tool_angle_median": 34.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.09,
+       "roundness_median": 0.851,
+       "major_axis_deg": 54.91,
+       "concentration": 0.613,
+       "median_e": 0.1596,
+       "dev_from_x_axis": 54.91,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_02/perp-1200.lst"
+     }
+    }
+   },
+   {
+    "raw": "DSC_5289.NEF",
+    "fit": "sessions/july31/work/rawshape/set-03/out/c_00003.fit",
+    "image_wh": [
+     6064,
+     4040
+    ],
+    "stations": {
+     "centre": {
+      "box": [
+       2632,
+       1620,
+       800,
+       800
+      ],
+      "n": 78,
+      "tool_majFWHM": 2.12,
+      "tool_roundness": 0.786,
+      "tool_angle_median": 6.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.847,
+       "roundness_median": 0.793,
+       "major_axis_deg": 178.26,
+       "concentration": 0.309,
+       "median_e": 0.2283,
+       "dev_from_x_axis": 1.74,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/centre.lst"
+     },
+     "along+1200": {
+      "box": [
+       3832,
+       1620,
+       800,
+       800
+      ],
+      "n": 61,
+      "tool_majFWHM": 2.29,
+      "tool_roundness": 0.763,
+      "tool_angle_median": 24.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.908,
+       "roundness_median": 0.755,
+       "major_axis_deg": 40.64,
+       "concentration": 0.73,
+       "median_e": 0.2735,
+       "dev_from_x_axis": 40.64,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along+1200.lst"
+     },
+     "along-1200": {
+      "box": [
+       1432,
+       1620,
+       800,
+       800
+      ],
+      "n": 108,
+      "tool_majFWHM": 2.46,
+      "tool_roundness": 0.822,
+      "tool_angle_median": 9.2,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.225,
+       "roundness_median": 0.841,
+       "major_axis_deg": 8.34,
+       "concentration": 0.789,
+       "median_e": 0.1719,
+       "dev_from_x_axis": 8.34,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along-1200.lst"
+     },
+     "along+1800": {
+      "box": [
+       4432,
+       1620,
+       800,
+       800
+      ],
+      "n": 58,
+      "tool_majFWHM": 2.79,
+      "tool_roundness": 0.714,
+      "tool_angle_median": 14.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.34,
+       "roundness_median": 0.718,
+       "major_axis_deg": 19.65,
+       "concentration": 0.865,
+       "median_e": 0.3202,
+       "dev_from_x_axis": 19.65,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along+1800.lst"
+     },
+     "along-1800": {
+      "box": [
+       832,
+       1620,
+       800,
+       800
+      ],
+      "n": 132,
+      "tool_majFWHM": 2.75,
+      "tool_roundness": 0.799,
+      "tool_angle_median": 6.7,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.385,
+       "roundness_median": 0.822,
+       "major_axis_deg": 2.73,
+       "concentration": 0.919,
+       "median_e": 0.194,
+       "dev_from_x_axis": 2.73,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along-1800.lst"
+     },
+     "along+2400": {
+      "box": [
+       5032,
+       1620,
+       800,
+       800
+      ],
+      "n": 44,
+      "tool_majFWHM": 3.06,
+      "tool_roundness": 0.671,
+      "tool_angle_median": 7.8,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.485,
+       "roundness_median": 0.668,
+       "major_axis_deg": 8.63,
+       "concentration": 0.934,
+       "median_e": 0.3824,
+       "dev_from_x_axis": 8.63,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along+2400.lst"
+     },
+     "along-2400": {
+      "box": [
+       232,
+       1620,
+       800,
+       800
+      ],
+      "n": 92,
+      "tool_majFWHM": 2.74,
+      "tool_roundness": 0.772,
+      "tool_angle_median": 2.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.342,
+       "roundness_median": 0.792,
+       "major_axis_deg": 8.58,
+       "concentration": 0.877,
+       "median_e": 0.229,
+       "dev_from_x_axis": 8.58,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/along-2400.lst"
+     },
+     "perp+1200": {
+      "box": [
+       2632,
+       2820,
+       800,
+       800
+      ],
+      "n": 93,
+      "tool_majFWHM": 2.17,
+      "tool_roundness": 0.797,
+      "tool_angle_median": 11.5,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 1.715,
+       "roundness_median": 0.732,
+       "major_axis_deg": 40.76,
+       "concentration": 0.587,
+       "median_e": 0.3024,
+       "dev_from_x_axis": 40.76,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/perp+1200.lst"
+     },
+     "perp-1200": {
+      "box": [
+       2632,
+       420,
+       800,
+       800
+      ],
+      "n": 101,
+      "tool_majFWHM": 2.38,
+      "tool_roundness": 0.817,
+      "tool_angle_median": 35.6,
+      "top30": {
+       "top_n": 30,
+       "fwhm_xy_median": 2.183,
+       "roundness_median": 0.813,
+       "major_axis_deg": 53.93,
+       "concentration": 0.614,
+       "median_e": 0.2038,
+       "dev_from_x_axis": 53.93,
+       "fraction_fy_gt_fx": 0.0
+      },
+      "lst": "sessions/july31/work/rawshape/set-03/stations_03/perp-1200.lst"
+     }
+    }
+   }
+  ]
+ },
+ "members_GO6_entry_side": {
+  "aug14/set-04": {
+   "+1800": {
+    "n": 4,
+    "fwhm": 3.18,
+    "roundness": 0.73,
+    "dx": [
+     1700.9,
+     1909.5
+    ]
+   },
+   "+2400": {
+    "n": 6,
+    "fwhm": 3.314,
+    "roundness": 0.671,
+    "dx": [
+     2111.7,
+     2325.7
+    ]
+   }
+  },
+  "aug14/set-05": {
+   "+1800": {
+    "n": 1,
+    "fwhm": 3.28,
+    "roundness": 0.723,
+    "dx": [
+     1778.8,
+     1778.8
+    ]
+   },
+   "+2400": {
+    "n": 2,
+    "fwhm": 3.369,
+    "roundness": 0.671,
+    "dx": [
+     2201.9,
+     2205.8
+    ]
+   }
+  },
+  "aug09/set-05": {
+   "+1800": {
+    "n": 5,
+    "fwhm": 3.018,
+    "roundness": 0.774,
+    "dx": [
+     1640.2,
+     2049.5
+    ]
+   },
+   "+2400": {
+    "n": 4,
+    "fwhm": 3.029,
+    "roundness": 0.75,
+    "dx": [
+     2157.7,
+     2457.9
+    ]
+   }
+  },
+  "aug06/set-02": {
+   "+1800": {
+    "n": 2,
+    "fwhm": 2.652,
+    "roundness": 0.841,
+    "dx": [
+     1847.0,
+     2096.8
+    ]
+   },
+   "+2400": {
+    "n": 2,
+    "fwhm": 2.665,
+    "roundness": 0.812,
+    "dx": [
+     2272.1,
+     2348.8
+    ]
+   }
+  },
+  "july31/set-01": {
+   "+1800": {
+    "n": 7,
+    "fwhm": 2.318,
+    "roundness": 0.947,
+    "dx": [
+     1519.1,
+     1956.2
+    ]
+   },
+   "+2400": {
+    "n": 5,
+    "fwhm": 2.42,
+    "roundness": 0.95,
+    "dx": [
+     2119.5,
+     2362.2
+    ]
+   }
+  },
+  "july31/set-03": {
+   "+1800": {
+    "n": 7,
+    "fwhm": 2.623,
+    "roundness": 0.862,
+    "dx": [
+     1624.7,
+     2062.2
+    ]
+   },
+   "+2400": {
+    "n": 5,
+    "fwhm": 2.725,
+    "roundness": 0.808,
+    "dx": [
+     2247.5,
+     2477.9
+    ]
+   }
+  }
+ },
+ "raw_vs_member": {
+  "aug14/set-04": {
+   "+1800": {
+    "raw_fwhm": 2.785,
+    "raw_round": 0.585,
+    "member_fwhm": 3.18,
+    "member_round": 0.73,
+    "member_minus_raw_fwhm": 0.395,
+    "member_minus_raw_round": 0.145,
+    "in_floor_band": true,
+    "n_members": 4
+   },
+   "+2400": {
+    "raw_fwhm": 2.942,
+    "raw_round": 0.535,
+    "member_fwhm": 3.314,
+    "member_round": 0.671,
+    "member_minus_raw_fwhm": 0.372,
+    "member_minus_raw_round": 0.136,
+    "in_floor_band": true,
+    "n_members": 6
+   }
+  },
+  "aug14/set-05": {
+   "+1800": {
+    "raw_fwhm": 2.868,
+    "raw_round": 0.574,
+    "member_fwhm": 3.28,
+    "member_round": 0.723,
+    "member_minus_raw_fwhm": 0.412,
+    "member_minus_raw_round": 0.149,
+    "in_floor_band": true,
+    "n_members": 1
+   },
+   "+2400": {
+    "raw_fwhm": 3.027,
+    "raw_round": 0.53,
+    "member_fwhm": 3.369,
+    "member_round": 0.671,
+    "member_minus_raw_fwhm": 0.342,
+    "member_minus_raw_round": 0.141,
+    "in_floor_band": true,
+    "n_members": 2
+   }
+  },
+  "aug09/set-05": {
+   "+1800": {
+    "raw_fwhm": 2.55,
+    "raw_round": 0.638,
+    "member_fwhm": 3.018,
+    "member_round": 0.774,
+    "member_minus_raw_fwhm": 0.468,
+    "member_minus_raw_round": 0.136,
+    "in_floor_band": false,
+    "n_members": 5
+   },
+   "+2400": {
+    "raw_fwhm": 2.675,
+    "raw_round": 0.587,
+    "member_fwhm": 3.029,
+    "member_round": 0.75,
+    "member_minus_raw_fwhm": 0.354,
+    "member_minus_raw_round": 0.163,
+    "in_floor_band": true,
+    "n_members": 4
+   }
+  },
+  "aug06/set-02": {
+   "+1800": {
+    "raw_fwhm": 2.26,
+    "raw_round": 0.731,
+    "member_fwhm": 2.652,
+    "member_round": 0.841,
+    "member_minus_raw_fwhm": 0.392,
+    "member_minus_raw_round": 0.11,
+    "in_floor_band": true,
+    "n_members": 2
+   },
+   "+2400": {
+    "raw_fwhm": 2.373,
+    "raw_round": 0.653,
+    "member_fwhm": 2.665,
+    "member_round": 0.812,
+    "member_minus_raw_fwhm": 0.292,
+    "member_minus_raw_round": 0.159,
+    "in_floor_band": true,
+    "n_members": 2
+   }
+  },
+  "july31/set-01": {
+   "+1800": {
+    "raw_fwhm": 2.032,
+    "raw_round": 0.799,
+    "member_fwhm": 2.318,
+    "member_round": 0.947,
+    "member_minus_raw_fwhm": 0.286,
+    "member_minus_raw_round": 0.148,
+    "in_floor_band": true,
+    "n_members": 7
+   },
+   "+2400": {
+    "raw_fwhm": 2.178,
+    "raw_round": 0.804,
+    "member_fwhm": 2.42,
+    "member_round": 0.95,
+    "member_minus_raw_fwhm": 0.242,
+    "member_minus_raw_round": 0.146,
+    "in_floor_band": true,
+    "n_members": 5
+   }
+  },
+  "july31/set-03": {
+   "+1800": {
+    "raw_fwhm": 2.185,
+    "raw_round": 0.718,
+    "member_fwhm": 2.623,
+    "member_round": 0.862,
+    "member_minus_raw_fwhm": 0.438,
+    "member_minus_raw_round": 0.144,
+    "in_floor_band": true,
+    "n_members": 7
+   },
+   "+2400": {
+    "raw_fwhm": 2.453,
+    "raw_round": 0.659,
+    "member_fwhm": 2.725,
+    "member_round": 0.808,
+    "member_minus_raw_fwhm": 0.272,
+    "member_minus_raw_round": 0.149,
+    "in_floor_band": true,
+    "n_members": 5
+   }
+  }
+ },
+ "verdict": {
+  "raw_night_ordering": {
+   "plus1800": [
+    "aug14",
+    "aug09",
+    "aug06",
+    "july31"
+   ],
+   "plus2400": [
+    "aug14",
+    "aug09",
+    "july31",
+    "aug06"
+   ],
+   "sets_plus2400": [
+    "aug14/set-05",
+    "aug14/set-04",
+    "aug09/set-05",
+    "july31/set-03",
+    "aug06/set-02",
+    "july31/set-01"
+   ]
+  },
+  "member_night_ordering": {
+   "plus1800": [
+    "aug14",
+    "aug09",
+    "aug06",
+    "july31"
+   ],
+   "plus2400": [
+    "aug14",
+    "aug09",
+    "july31",
+    "aug06"
+   ],
+   "sets_plus2400": [
+    "aug14/set-05",
+    "aug14/set-04",
+    "aug09/set-05",
+    "july31/set-03",
+    "aug06/set-02",
+    "july31/set-01"
+   ]
+  },
+  "ordering_reproduced": true,
+  "photons_rule": {
+   "aug14/set-04": {
+    "plus1800": {
+     "raw_fwhm": 2.785,
+     "raw_round": 0.585,
+     "member_fwhm": 3.18,
+     "member_round": 0.73,
+     "member_minus_raw_fwhm": 0.395,
+     "member_minus_raw_round": 0.145,
+     "in_floor_band": true,
+     "n_members": 4
+    },
+    "plus2400": {
+     "raw_fwhm": 2.942,
+     "raw_round": 0.535,
+     "member_fwhm": 3.314,
+     "member_round": 0.671,
+     "member_minus_raw_fwhm": 0.372,
+     "member_minus_raw_round": 0.136,
+     "in_floor_band": true,
+     "n_members": 6
+    },
+    "in_band_both": true
+   },
+   "aug14/set-05": {
+    "plus1800": {
+     "raw_fwhm": 2.868,
+     "raw_round": 0.574,
+     "member_fwhm": 3.28,
+     "member_round": 0.723,
+     "member_minus_raw_fwhm": 0.412,
+     "member_minus_raw_round": 0.149,
+     "in_floor_band": true,
+     "n_members": 1
+    },
+    "plus2400": {
+     "raw_fwhm": 3.027,
+     "raw_round": 0.53,
+     "member_fwhm": 3.369,
+     "member_round": 0.671,
+     "member_minus_raw_fwhm": 0.342,
+     "member_minus_raw_round": 0.141,
+     "in_floor_band": true,
+     "n_members": 2
+    },
+    "in_band_both": true
+   }
+  },
+  "chain_rule": {
+   "aug14/set-04 vs july31/set-01 +1800": {
+    "raw_dFWHM": 0.753,
+    "raw_dround": -0.214,
+    "raws_alike": false,
+    "members_dFWHM": 0.862,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-04 vs july31/set-01 +2400": {
+    "raw_dFWHM": 0.764,
+    "raw_dround": -0.269,
+    "raws_alike": false,
+    "members_dFWHM": 0.894,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-04 vs july31/set-03 +1800": {
+    "raw_dFWHM": 0.6,
+    "raw_dround": -0.133,
+    "raws_alike": false,
+    "members_dFWHM": 0.557,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-04 vs july31/set-03 +2400": {
+    "raw_dFWHM": 0.489,
+    "raw_dround": -0.124,
+    "raws_alike": false,
+    "members_dFWHM": 0.589,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-05 vs july31/set-01 +1800": {
+    "raw_dFWHM": 0.836,
+    "raw_dround": -0.225,
+    "raws_alike": false,
+    "members_dFWHM": 0.962,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-05 vs july31/set-01 +2400": {
+    "raw_dFWHM": 0.849,
+    "raw_dround": -0.274,
+    "raws_alike": false,
+    "members_dFWHM": 0.949,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-05 vs july31/set-03 +1800": {
+    "raw_dFWHM": 0.683,
+    "raw_dround": -0.144,
+    "raws_alike": false,
+    "members_dFWHM": 0.657,
+    "members_differ_ge_0p4": true
+   },
+   "aug14/set-05 vs july31/set-03 +2400": {
+    "raw_dFWHM": 0.574,
+    "raw_dround": -0.129,
+    "raws_alike": false,
+    "members_dFWHM": 0.644,
+    "members_differ_ge_0p4": true
+   }
+  },
+  "controls": {
+   "along-2400": {
+    "fwhm_range": [
+     2.188,
+     2.582
+    ],
+    "fwhm_spread": 0.394,
+    "round_range": [
+     0.725,
+     0.874
+    ],
+    "round_spread": 0.149,
+    "within_0p15_0p03": false
+   },
+   "along-1800": {
+    "fwhm_range": [
+     2.22,
+     2.637
+    ],
+    "fwhm_spread": 0.417,
+    "round_range": [
+     0.728,
+     0.89
+    ],
+    "round_spread": 0.162,
+    "within_0p15_0p03": false
+   },
+   "along-1200": {
+    "fwhm_range": [
+     2.085,
+     2.407
+    ],
+    "fwhm_spread": 0.322,
+    "round_range": [
+     0.831,
+     0.86
+    ],
+    "round_spread": 0.029,
+    "within_0p15_0p03": false
+   },
+   "centre": {
+    "fwhm_range": [
+     1.748,
+     2.152
+    ],
+    "fwhm_spread": 0.404,
+    "round_range": [
+     0.779,
+     0.882
+    ],
+    "round_spread": 0.103,
+    "within_0p15_0p03": false
+   }
+  },
+  "PHOTONS": true,
+  "CHAIN": false
+ },
+ "reading": "PHOTONS. The night term is in the single raw frames \u2014 debayered, uncalibrated, unwarped, unregistered, one 2.5 s exposure \u2014 at the same sensor stations on every night: at along+2400 aug14/set-04 reads 2.942 px / 0.535 and aug14/set-05 3.027 / 0.530 (median of 3 raws, top-30) against july31/set-01 2.178 / 0.804 \u2014 a 0.76-0.85 px raw difference, the members' difference being 0.89-0.95 px (GO #6); at along+1800 2.785-2.868 / 0.57-0.59 vs 2.032 / 0.799. The PHOTONS rule holds: member minus raw at +1800/+2400 lies in the stacking/resampling floor band [-0.04, +0.45] on 11 of the 12 set x station pairings (aug14/set-04 +0.395/+0.372, aug14/set-05 +0.412/+0.342, aug06/set-02 +0.392/+0.292, july31/set-01 +0.286/+0.242, july31/set-03 +0.438/+0.272; the one miss aug09/set-05 +1800 at +0.468 overshoots by 0.018 with n=5 members), the roundness gain member-over-raw is a uniform +0.11..+0.16 (stacking rounds the trailed single frame, as the GO #5 lineage measured), and the by-night ordering of the raws at +2400 reproduces the members' ordering SET BY SET: aug14/set-05 > aug14/set-04 > aug09/set-05 > july31/set-03 > aug06/set-02 > july31/set-01 in both (at +1800 the same to the night). The CHAIN rule fails on every pairing: no aug14 raw reads like a july31 raw at +1800/+2400 (dFWHM +0.49..+0.85 px, droundness -0.12..-0.27) while the members differ by 0.56-0.96 px \u2014 the night term is already in the raw, the chain adds the same floor to every night. THE PRE-REGISTERED CONTROL EXPECTATION FAILED, and that is a finding: the exit side and the centre are NOT night-invariant. Across the six sets the raws spread 0.39-0.42 px FWHM / 0.15-0.16 roundness at along-2400/-1800 (aug14 2.53-2.64 / 0.73-0.75 vs july31/set-01 2.19-2.22 / 0.87-0.89), 0.32 px at -1200 and 0.40 px at the centre (aug14 2.09-2.15, july31/set-01 1.99, aug09 1.95, july31/set-03 1.79, aug06 1.75) \u2014 aug14 is softer EVERYWHERE on the sensor, not only on the entry side. The entry-side EXCESS over the exit side (along+2400 minus along-2400) is itself night-dependent: aug14 +0.41 / +0.45 px, aug09 +0.29, july31/set-03 +0.12, aug06 +0.10, july31/set-01 -0.01 \u2014 so the 'lens asymmetric aberration' on the entry side is not a fixed property of the lens: it is absent on july31/set-01's raws and largest on aug14's, under one lens at one focal length. Not measured here: what varied by night (focus position, temperature, tilt/decentring state, seeing) \u2014 the state that sets it is upstream of every processing knob. ANGLES: at +1800/+2400 the top-30 major axis is 2-6 deg from the sensor x-axis (the drift axis) on every night, with ellipticity e 0.49-0.56 on aug14, 0.42-0.49 on aug09, 0.30-0.40 on aug06/july31-set-03 and 0.21-0.22 on july31/set-01; at the centre 4-57 deg off with e 0.12-0.24 (the in-exposure trail plus whatever the night adds, near-round); on the exit side 1-14 deg off with e 0.13-0.31. The in-exposure trail (2.5 s x the drift, ~0.78 px on the raw grid) is a field-constant on every night and cancels in every comparison above. WHAT THIS PICKS: the knob is member selection / weighting by MEASURED shape at the compose (the photons of aug14 \u2014 and, to a lesser degree, aug09 \u2014 carry the softness into every member of those nights; no lens-model or warp change for a night can remove what the raw already holds). It also re-reads GO #5's entry-side span dependence on aug06/set-01: a night whose raws are asymmetric at +2400 (aug06 +0.10 excess) shows the span-averaging term there; july31/set-01, symmetric in the raw, would be predicted not to \u2014 untested.",
+ "premises_untested": [
+  "orientation: +x on the raw = +x on the member = +RA (the entry side): no step of the chain mirrors x (Siril convert, savetif32, darktable's warp, convert, register) and the data carry the signature (the large-e, drift-aligned side is +x on every raw); a vertical flip between raw and member would not change this; not verified by a solve of a raw",
+  "matched sensor x: the members' GO #6 readings sit at member dx 1519-2477 from THEIR canvas centre (the undistorted, framing=min'd geometry, 5.5-5.8k wide) and are paired to the raw stations at +1800/+2400 from the 6064-px raw centre by nearest dx \u2014 a few hundred px of mismatch on a steep PSF gradient; the ordering test is robust to it, the +-0.20 band less so",
+  "three raws per set (first/middle/last) stand for the set; the within-set spread is 0.05-0.20 px at +2400 (per_raw)",
+  "the gate differs from shape_at_sky's (-roundness=0.05 -sigma=0.5 vs 0.10 -maxR=1.0): the top-30 brightest are insensitive to the faint-end gate; not measured",
+  "the floor band [-0.04, +0.45] was taken from the GO #5 lineage's single-frame-vs-stack figures (+0.16-0.25) +-0.20; aug09/set-05 at +1800 sits 0.018 outside it",
+  "what varies by night (focus, temperature, tilt, seeing) is not measured; the corner_work single-raw state is the same, that record's numbers are on aug06 only",
+  "a transient flatpak launch failure ('Extension org.freedesktop.Platform.GL.default has invalid merge-dirs') killed the run once at july31/set-01 raw 3; the four completed sets were kept, the two july31 sets re-run in full (the same numbers for the two raws already printed)"
+ ],
+ "no_destructive_steps": "raws read via symlinks only; converted frames, .ssf, logs, station work dirs and lists under sessions/<night>/work/rawshape/ (gitignored)",
+ "written_at": "2026-08-29 13:02:12"
+}
