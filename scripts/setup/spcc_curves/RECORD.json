@@ -1,0 +1,229 @@
+{
+ "id": "spcc_curves_stage1",
+ "item": "BACKLOG spcc-sensor-curve stage 1 (GO stage 1, director astro-imaging-45, researcher astro-imaging-52); docs/spcc-sensor-curve-z6iii.md sections 1.4-1.6 and 4 (arms B, B', B\u00b0)",
+ "instrument": "scripts/setup/spcc_curves/fetch_sources.sh (curl, sha256-pinned) + convert_curves.py (the database's own utils/process_osc_sensor.py generates the objects; hand-checked against spcc-database-schema.json's required set \u2014 jsonschema is not installed in host python3 or /opt/astro-venv); no Siril was run",
+ "fetched_at_utc": "2026-08-29T14:05:25Z",
+ "sources": {
+  "Nikon_Z_f_380_780_5.json": {
+   "url": "https://raw.githubusercontent.com/AcademySoftwareFoundation/rawtoaces-data/cf6452c3ce44112f6cf3f1c2d7bf6381a4c90638/data/camera/Nikon_Z_f_380_780_5.json",
+   "repo_commit": "cf6452c3ce44112f6cf3f1c2d7bf6381a4c90638 (2025-09-15, 'add camera files from https://github.com/wetadigital/physlight (#17)')",
+   "sha256": "ba357c75362fdcdba789a445b77ef6ffdd2ee6a713200ca00dcc94e9ca38f4ec",
+   "licence": "Apache-2.0 (rawtoaces-data LICENSE, sha256 c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4, copied to scripts/setup/spcc_curves/LICENSE.rawtoaces-data)",
+   "doi": "10.5281/zenodo.6590768 (Weta Digital physlight camera SSFs)",
+   "format": "physlight schema 0.1.0: spectral_data.data.main['<nm>'] = [R,G,B], units 'relative', 81 points 380-780 nm at 5 nm; header laboratory/equipment 'wetadigital'/'lightsaber'"
+  },
+  "Nikon_Z6_ssf.csv": {
+   "url": "https://raw.githubusercontent.com/butcherg/ssf-data/dce9021f98bc28942a8f84ca3cdb5e791f3a1931/Nikon/Z6/spectroscope/Nikon_Z6_ssf.csv",
+   "file_commit": "dce9021f98bc28942a8f84ca3cdb5e791f3a1931 (2020-09-20, the file's last commit per the GitHub API)",
+   "sha256": "6cb4dc7b550acd6c3793f13b0a188145ccc3fcb2e50d559c4c37c06e181bb642",
+   "readme_sha256": "17ba60d99cf514343249bf744f3080f16d482d2827f7dc36df29082325284234",
+   "licence": "CC BY-NC-SA 4.0, copyright 2020 Glenn Butcher (README) \u2014 converted file installed machine-locally, NOT tracked, NOT redistributed",
+   "format": "CSV wavelength,R,G,B; 64 rows 400-715 nm at 5 nm; two-decimal values; README: NIKKOR Z 24-70mm f/4 S, transmissive glass-substrate ruled diffraction grating spectroscope, single image, 2020-08-27, ssftool"
+  }
+ },
+ "conversion": {
+  "photon_based": "v_ph(l) = v_src(l) / l[nm]; then all three channels divided by one global max (max 1.0, inter-channel scale preserved); rounded to 6 significant digits; values.range 1; wavelength units nm. Reason: Siril multiplies the Gaia XP flux by wavelength (photon counting, src/algos/spcc.c flux_to_relcount) and treats the curve as QE; a response per unit incident POWER is QE*lambda/hc, so QE-shape = response/lambda (docs/spcc-sensor-curve-z6iii.md section 1.6)",
+  "energy_as_shipped": "source values verbatim (no /lambda, no renormalisation), values.range 1 \u2014 model 'Nikon Z f (energy)', the arm B\u00b0 twin that measures the convention's effect on K",
+  "generator": "the database's utils/process_osc_sensor.py fed a 6-column WebPlotDigitizer-style CSV (w,R,w,G,w,B), argv recorded per file below; after generation only dataQualityMarker and comment were overwritten (the generator hard-codes 2 and 'Covers all cameras using this chip'); names kept as generated ('<model> Red/Green/Blue'); no numeric value touched after generation; no is_dslr (whole-camera curves: the body's hot mirror is inside; an is_dslr model would require -osclpf= after the runner's preload)",
+  "wavelength_note": "the generator emits wavelengths as floats (380.0 ...); Siril reads numbers"
+ },
+ "generator_argv": {
+  "Nikon_Zf.json": [
+   "/usr/bin/python3",
+   "/home/samsung/.var/app/org.siril.Siril/data/siril-spcc-database/utils/process_osc_sensor.py",
+   "/home/samsung/.cache/astro-imaging/spcc_curves/Nikon_Zf.wpd.csv",
+   "--manufacturer",
+   "Nikon",
+   "--model",
+   "Z f",
+   "--dataSource",
+   "https://github.com/AcademySoftwareFoundation/rawtoaces-data/blob/cf6452c3ce44112f6cf3f1c2d7bf6381a4c90638/data/camera/Nikon_Z_f_380_780_5.json (Weta Digital physlight camera SSF, 'lightsaber' rig, doi:10.5281/zenodo.6590768; Apache-2.0)"
+  ],
+  "Nikon_Zf_energy.json": [
+   "/usr/bin/python3",
+   "/home/samsung/.var/app/org.siril.Siril/data/siril-spcc-database/utils/process_osc_sensor.py",
+   "/home/samsung/.cache/astro-imaging/spcc_curves/Nikon_Zf_energy.wpd.csv",
+   "--manufacturer",
+   "Nikon",
+   "--model",
+   "Z f (energy)",
+   "--dataSource",
+   "https://github.com/AcademySoftwareFoundation/rawtoaces-data/blob/cf6452c3ce44112f6cf3f1c2d7bf6381a4c90638/data/camera/Nikon_Z_f_380_780_5.json (Weta Digital physlight camera SSF, 'lightsaber' rig, doi:10.5281/zenodo.6590768; Apache-2.0)"
+  ],
+  "Nikon_Z6.json": [
+   "/usr/bin/python3",
+   "/home/samsung/.var/app/org.siril.Siril/data/siril-spcc-database/utils/process_osc_sensor.py",
+   "/home/samsung/.cache/astro-imaging/spcc_curves/Nikon_Z6.wpd.csv",
+   "--manufacturer",
+   "Nikon",
+   "--model",
+   "Z6",
+   "--dataSource",
+   "https://github.com/butcherg/ssf-data/blob/dce9021f98bc28942a8f84ca3cdb5e791f3a1931/Nikon/Z6/spectroscope/Nikon_Z6_ssf.csv (Glenn Butcher, DIY transmissive-grating spectroscope + ssftool, 2020-08-27, lens NIKKOR Z 24-70mm f/4 S; CC BY-NC-SA 4.0)"
+  ]
+ },
+ "schema_check": {
+  "method": "hand check of the required set: root array of 3; type OSC_SENSOR; model/name/manufacturer/dataSource non-empty strings; dataQualityMarker int 1-5; version int >=1; channel RED/GREEN/BLUE one each; wavelength.value numbers >=0 strictly increasing, units in the enum; values.value finite numbers >=0; values.range >0; 5-2000 points; equal lengths; identical model across the three; is_dslr absent",
+  "result": {
+   "Nikon_Zf.json": "PASS",
+   "Nikon_Zf_energy.json": "PASS",
+   "Nikon_Z6.json": "PASS"
+  }
+ },
+ "outputs": {
+  "Nikon_Zf.json": {
+   "model": "Nikon Z f",
+   "names": [
+    "Nikon Z f Red",
+    "Nikon Z f Green",
+    "Nikon Z f Blue"
+   ],
+   "tracked_or_cache_path": "~/Desktop/astro-imaging/scripts/setup/spcc_curves/Nikon_Zf.json",
+   "sha256": "dc76101672792076495d45fe04a479889f4872d12755f0cb7ad683a53ae2d639",
+   "stats": {
+    "RED": {
+     "peak": 0.714697,
+     "peak_nm": 590.0,
+     "at_655nm_over_peak": 0.2752355193879364,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    },
+    "GREEN": {
+     "peak": 0.913141,
+     "peak_nm": 535.0,
+     "at_655nm_over_peak": 0.0181585319244235,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    },
+    "BLUE": {
+     "peak": 1.0,
+     "peak_nm": 460.0,
+     "at_655nm_over_peak": 0.00772907,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    }
+   }
+  },
+  "Nikon_Zf_energy.json": {
+   "model": "Nikon Z f (energy)",
+   "names": [
+    "Nikon Z f (energy) Red",
+    "Nikon Z f (energy) Green",
+    "Nikon Z f (energy) Blue"
+   ],
+   "tracked_or_cache_path": "~/Desktop/astro-imaging/scripts/setup/spcc_curves/Nikon_Zf_energy.json",
+   "sha256": "69abe26225af7e0534d3801267da479493354bce53b67ee8c1cc6e47760d5296",
+   "stats": {
+    "RED": {
+     "peak": 0.8583134558037098,
+     "peak_nm": 590.0,
+     "at_655nm_over_peak": 0.30555882508375826,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    },
+    "GREEN": {
+     "peak": 0.9944059723360894,
+     "peak_nm": 535.0,
+     "at_655nm_over_peak": 0.0222315097124893,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    },
+    "BLUE": {
+     "peak": 0.9364437225671239,
+     "peak_nm": 470.0,
+     "at_655nm_over_peak": 0.01100420816110779,
+     "n": 81,
+     "range_nm": [
+      380.0,
+      780.0
+     ]
+    }
+   }
+  },
+  "Nikon_Z6.json": {
+   "model": "Nikon Z6",
+   "names": [
+    "Nikon Z6 Red",
+    "Nikon Z6 Green",
+    "Nikon Z6 Blue"
+   ],
+   "tracked_or_cache_path": "~/.cache/astro-imaging/spcc_curves/Nikon_Z6.json",
+   "sha256": "ca4792a6e6ab4ae26e91ac89d63a7ff194ca64503c0c5617e38823aef8c29f2d",
+   "stats": {
+    "RED": {
+     "peak": 0.507203,
+     "peak_nm": 595.0,
+     "at_655nm_over_peak": 0.25155608306733207,
+     "n": 64,
+     "range_nm": [
+      400.0,
+      715.0
+     ]
+    },
+    "GREEN": {
+     "peak": 0.857823,
+     "peak_nm": 525.0,
+     "at_655nm_over_peak": 0.01652636965900891,
+     "n": 64,
+     "range_nm": [
+      400.0,
+      715.0
+     ]
+    },
+    "BLUE": {
+     "peak": 1.0,
+     "peak_nm": 455.0,
+     "at_655nm_over_peak": 0.00708833,
+     "n": 64,
+     "range_nm": [
+      400.0,
+      715.0
+     ]
+    }
+   }
+  }
+ },
+ "installed": {
+  "Nikon_Zf.json": {
+   "path": "~/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors/Nikon_Zf.json",
+   "sha256": "dc76101672792076495d45fe04a479889f4872d12755f0cb7ad683a53ae2d639"
+  },
+  "Nikon_Zf_energy.json": {
+   "path": "~/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors/Nikon_Zf_energy.json",
+   "sha256": "69abe26225af7e0534d3801267da479493354bce53b67ee8c1cc6e47760d5296"
+  },
+  "Nikon_Z6.json": {
+   "path": "~/.var/app/org.siril.Siril/data/siril-spcc-database/osc_sensors/Nikon_Z6.json",
+   "sha256": "ca4792a6e6ab4ae26e91ac89d63a7ff194ca64503c0c5617e38823aef8c29f2d"
+  }
+ },
+ "install_note": "three NEW untracked files in the clone's osc_sensors/ (git status: ?? only); the GUI's hard reset (auto_update_spcc, GUI-only; this rig pins it false) reverts tracked files and leaves new ones; the runner's preflight (spcc_run.preflight_spec) accepts all three models with is_dslr False; the database now lists 50 OSC_SENSOR models",
+ "family_check_655nm_over_red_peak": {
+  "Nikon_Zf.json": 0.275,
+  "Nikon_Zf_energy.json": 0.306,
+  "Nikon_Z6.json": 0.252
+ },
+ "premises_untested": [
+  "which convention the Weta 'relative' values carry (per unit power, i.e. responsivity \u2014 assumed, the physlight rendering use case; or per photon): the (energy) twin measures the magnitude of the difference in arm B\u00b0, not which is right",
+  "that Butcher's ssftool 'powercalibrate' reference makes the Z6 values per unit power (the ssftool README says power compensation; the lamp reference file's provenance is unstated)",
+  "that the Nikon Z f / Z6 CFA dyes and hot mirror are those of the Z6 III (IMX820AQJ): assumed by every proxy, measured by no one (docs section 1.4a)",
+  "that Siril lists and resolves the three models exactly as written: the runner's preflight reads the same JSON the loader reads, but no Siril run was made here \u2014 the worker's arm runs assert the spcc_list block",
+  "that dividing by wavelength in nm before the global renormalisation is numerically equivalent to the physical QE shape to 6 significant digits (rounding after normalisation)",
+  "that the 5 nm grids interpolate acceptably onto Siril's 2 nm grid (Akima; zero outside 380-780 / 400-715 nm \u2014 the Z6 curve is zero for 337-399 nm and 716-1019 nm by construction)"
+ ]
+}
