@@ -225,7 +225,7 @@
   ],
   "n_photometry": 4518,
   "n_kept": 2310,
-  "sensor": "sensor-null generic default (as the canonical)",
+  "sensor": "CORRECTED IN PLACE (original wording: 'sensor-null generic default (as the canonical)'): no sensor was named, and headless Siril 1.4.4 resolves sensor/filter/white-reference names BEFORE loading its database, so this run \u2014 like the canonical it mirrors \u2014 was fitted against index 0 of every list, 'Generic mono sensor' x Antlia R/G/B x 'Average Spiral Galaxy', not a generic default (MEASURED: datasets/july31/set-01/qa_work/spcc_arm_A3.json, that model named explicitly, reproduces a spec-less run to the digit; docs/spcc-sensor-curve-z6iii.md section 1.2). The K/b/n values in this record are that run's, unchanged.",
   "solve": {
    "record": "web/results/aug06/solve_stack_set-01+02+03_nooutnorm.json (copy in datasets/aug06/set-01/qa_work/)",
    "ra": 307.2951,
