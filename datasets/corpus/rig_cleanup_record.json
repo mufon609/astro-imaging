@@ -1,0 +1,324 @@
+{
+ "_what": "RIG CLEANUP record (owner-directed): free disk before the spcc-sensor-curve unit continues. Keep rule = every raw frame + the canonical accepted products + the canonical members and masters; every other derived artifact on the rig deleted. Instrument: os.lstat per file / du -sb per dir (symlinks counted as links, never followed; shutil.rmtree + os.unlink), df before/after; the keep set verified by (path, size, mtime) against a snapshot taken before the first delete.",
+ "owner_directive_verbatim": "free the disk space - in fact stop and clean up as much as you can now before we continue. all i care about is keeping the raw images. the rest can go, you decide if it stays.",
+ "keep_rule": {
+  "raw_frames": "sessions/<night>/{set-*,darks}/ \u2014 27 dirs, never entered",
+  "canonical_products": "web/results/<session>/stack_<set>_full{,_wcs,_spcc}.fit for the 17 sets, the 4 night unions and the corpus (web/results/aug14/stack_july31+aug06+aug09+aug14_full*), plus their 22 judge PNGs (*_full_spcc-linked.png; the corpus PNG under aug09/judge) \u2014 90 files, 20.57 GB; the small solve/compose-gate JSONs beside them stay (no consumer, zero cost)",
+  "canonical_members_and_masters": "sessions/<night>/work/groups_set-0N/ (17 dirs, the compose tiers' inputs; rebuild cost ~10.5 h at 8.18 min per 100 frames) + sessions/<night>/work/masters/ \u2014 414 files, 23.93 GB",
+  "small_scratch_kept": "logs, .ssf, .json, .lst, .seq, .cat, .npz, .pto, .txt under sessions/*/work and datasets/*_work; ~/.cache/astro-imaging/{siril-cli.lock, pedestal_probe, extprobe, datasum_probe, ...} (\u2264 7 MB each)"
+ },
+ "deleted": {
+  "web_images": {
+   "n": 193,
+   "GB": 57.32
+  },
+  "web_scratch_dirs": {
+   "n": 8,
+   "GB": 0.06,
+   "dirs": [
+    [
+     "web/results/aug06/.compose_stack_set-01+02+03_pedestalcrop",
+     4421494
+    ],
+    [
+     "web/results/aug06/.compose_stack_set-01+02+03_nooutnorm",
+     4421090
+    ],
+    [
+     "web/results/aug06/.compose_stack_set-01+02+03_pedestalctl",
+     4421866
+    ],
+    [
+     "web/results/aug09/.finish_july31+aug06+aug09_full",
+     3506
+    ],
+    [
+     "web/results/aug14/.compose_stack_aug06+aug14_full_solvefix",
+     12836503
+    ],
+    [
+     "web/results/aug14/.compose_stack_aug06+aug14_crop5lr_solvefix",
+     12836809
+    ],
+    [
+     "web/results/aug14/.compose_stack_aug06+aug14_full",
+     12833213
+    ],
+    [
+     "web/results/aug14/.compose_stack_aug06+aug14_crop5lr",
+     12833750
+    ]
+   ]
+  },
+  "work_dirs": {
+   "n": 42,
+   "GB": 64.45,
+   "dirs": [
+    [
+     "sessions/july31/work/groups_set-01_outnorm",
+     1382005525
+    ],
+    [
+     "sessions/july31/work/groups_set-02_outnorm",
+     1386527162
+    ],
+    [
+     "sessions/july31/work/groups_set-03_outnorm",
+     1386967987
+    ],
+    [
+     "sessions/july31/work/groups_set-04_outnorm",
+     545884130
+    ],
+    [
+     "sessions/july31/work/pergroup",
+     9501313031
+    ],
+    [
+     "sessions/aug06/work/groups_set-01_crop5lr",
+     1247001460
+    ],
+    [
+     "sessions/aug06/work/groups_set-01_l1arm",
+     1386603041
+    ],
+    [
+     "sessions/aug06/work/groups_set-01_l1ctrl",
+     1386603077
+    ],
+    [
+     "sessions/aug06/work/groups_set-01_outnorm",
+     1386639389
+    ],
+    [
+     "sessions/aug06/work/groups_set-01_stage3",
+     276419520
+    ],
+    [
+     "sessions/aug06/work/groups_set-02_crop5lr",
+     978742154
+    ],
+    [
+     "sessions/aug06/work/groups_set-02_l1arm",
+     1094532036
+    ],
+    [
+     "sessions/aug06/work/groups_set-02_l1ctrl",
+     1094532109
+    ],
+    [
+     "sessions/aug06/work/groups_set-02_outnorm",
+     1094520049
+    ],
+    [
+     "sessions/aug06/work/groups_set-03_crop5lr",
+     982454604
+    ],
+    [
+     "sessions/aug06/work/groups_set-03_l1arm",
+     1092159123
+    ],
+    [
+     "sessions/aug06/work/groups_set-03_l1ctrl",
+     1092159199
+    ],
+    [
+     "sessions/aug06/work/groups_set-03_outnorm",
+     1092146696
+    ],
+    [
+     "sessions/aug06/work/l1_msep",
+     8640976
+    ],
+    [
+     "sessions/aug06/work/l1_pilot",
+     876848476
+    ],
+    [
+     "sessions/aug06/work/l1_planes",
+     848845440
+    ],
+    [
+     "sessions/aug09/work/flatdiff",
+     1887093921
+    ],
+    [
+     "sessions/aug09/work/groups_set-01_outnorm",
+     1094589207
+    ],
+    [
+     "sessions/aug09/work/groups_set-02_outnorm",
+     1093945990
+    ],
+    [
+     "sessions/aug09/work/groups_set-03_outnorm",
+     1382111905
+    ],
+    [
+     "sessions/aug09/work/groups_set-03_rev2",
+     1382127469
+    ],
+    [
+     "sessions/aug09/work/groups_set-04_outnorm",
+     1388286959
+    ],
+    [
+     "sessions/aug09/work/groups_set-05_outnorm",
+     1090406526
+    ],
+    [
+     "sessions/aug14/work/groups_set-01_crop5lr",
+     1232242347
+    ],
+    [
+     "sessions/aug14/work/groups_set-01_outnorm",
+     1372523369
+    ],
+    [
+     "sessions/aug14/work/groups_set-02_crop5lr",
+     1232661015
+    ],
+    [
+     "sessions/aug14/work/groups_set-02_outnorm",
+     1378373956
+    ],
+    [
+     "sessions/aug14/work/groups_set-03_crop5lr",
+     1494672731
+    ],
+    [
+     "sessions/aug14/work/groups_set-03_outnorm",
+     1664695228
+    ],
+    [
+     "sessions/aug14/work/groups_set-04_crop5lr",
+     1489525774
+    ],
+    [
+     "sessions/aug14/work/groups_set-04_outnorm",
+     1659896867
+    ],
+    [
+     "sessions/aug14/work/groups_set-05_crop5lr",
+     711086397
+    ],
+    [
+     "sessions/aug14/work/groups_set-05_outnorm",
+     794922423
+    ],
+    [
+     "sessions/aug14/work/refprobe",
+     3931932760
+    ],
+    [
+     "sessions/aug14/work/solvefix",
+     8028873918
+    ],
+    [
+     "sessions/aug14/work/solvefix_members",
+     12476
+    ],
+    [
+     "sessions/aug14/work/wcsprobe",
+     380407
+    ]
+   ]
+  },
+  "datasets_images": {
+   "n": 994,
+   "GB": 32.69
+  },
+  "datasets_nef_duplicates": {
+   "n": 129,
+   "GB": 2.23
+  },
+  "cache_dirs": {
+   "n": 6,
+   "GB": 5.44,
+   "dirs": [
+    [
+     "/home/samsung/.cache/astro-imaging/normprobe",
+     1484883214
+    ],
+    [
+     "/home/samsung/.cache/astro-imaging/setrefverify",
+     1274639650
+    ],
+    [
+     "/home/samsung/.cache/astro-imaging/b3_rejmap",
+     843983919
+    ],
+    [
+     "/home/samsung/.cache/astro-imaging/b3_rejmap_without",
+     841740359
+    ],
+    [
+     "/home/samsung/.cache/astro-imaging/b3_rejdiff",
+     560881399
+    ],
+    [
+     "/home/samsung/.cache/astro-imaging/cropsolve",
+     432146292
+    ]
+   ]
+  },
+  "archive_dirs": {
+   "n": 2,
+   "GB": 66.52,
+   "dirs": [
+    [
+     "/home/samsung/astro-archive/july31_2026-08-06T180054",
+     12959499735
+    ],
+    [
+     "/home/samsung/astro-archive/pre-rebuild-7568d5d",
+     53561831320
+    ]
+   ]
+  }
+ },
+ "deleted_web_images_by_session": {
+  "aug06": {
+   "n": 71,
+   "GB": 0.0
+  },
+  "aug09": {
+   "n": 31,
+   "GB": 0.0
+  },
+  "aug14": {
+   "n": 71,
+   "GB": 0.0
+  },
+  "july31": {
+   "n": 20,
+   "GB": 0.0
+  }
+ },
+ "web_image_families_deleted": "every _outnorm (142-move manifest), _l1arm/_l1ctrl/_l1crop/_l1bkgframe/_l1bkgstack/_l1ctrlcrop, _crop5lr(+_parity,+_solvefix), _solvefix/_presolvefix, _pedestal*/_pedestalcrop*/_pedestalctl, _nooutnorm(+_restack) stage-1/2 products, _detA/_detB, _wnoise/_wnbstack + stack_corpus4_*, _rev2, the 3-night stack_july31+aug06+aug09_*, and the aug06+aug14 unions \u2014 with their _wcs/_spcc/judge PNGs",
+ "datasets_nef_duplicates": "133 NEF outside the raw dirs (129 under datasets/*_work, 4 in the july31 archive) \u2014 each md5-matched to a raw in sessions/ before deletion",
+ "free_bytes_before": 500361482240,
+ "free_bytes_after": 728073379840,
+ "freed_GB": 227.71,
+ "verification_after": {
+  "raw_frames": "11390 files, 289406345027 bytes \u2014 every (path, size, mtime) equal to the snapshot",
+  "canonical_products": "90/90 equal",
+  "members_and_masters": "414/414 equal",
+  "git_status": "only the untracked GO #1(a) record (datasets/july31/set-01/qa_work/spcc_h0_probe.json)"
+ },
+ "consequences_for_other_records": [
+  "datasets/corpus/campaign_zeropoint/moveaside_manifest.json: every _outnorm TARGET is now absent (its identities \u2014 bytes + sha256 \u2014 stay in the manifest); campaign_record.json state_at_done.twins_present=true describes the moment of that record",
+  "~/astro-archive: both dirs deleted under README's session_archive contract (a HOLDING AREA \u2026 deleted once its comparison is done): pre-rebuild-7568d5d (326-file MANIFEST.md5, superseded by the 08-19 and 08-28 rebuilds) and july31_2026-08-06T180054 (superseded twice; its 7 SPCC logs all index-0 '(null)' runs)",
+  "experiment arm products are gone; every arm's tracked record stands; an open item that needs an arm rebuilds it (owner: re-running is cheap)"
+ ],
+ "not_deleted_outside_the_project_reported_to_the_owner": {
+  "/home/samsung/Desktop/tempMedia": "325G",
+  "/home/samsung/Videos": "230G",
+  "/home/samsung/Desktop/Archive": "43G",
+  "/home/samsung/anaconda3": "24G",
+  "/home/samsung/Desktop/nikon": "21G (camera dumps \u2014 possibly raws)",
+  "~/.cache/pip, whisper, huggingface": "5.4G, 4.8G, 2.9G",
+  "/home/samsung/Desktop/july31+aug06+aug09_full_spcc-linked.png": "204M \u2014 the owner's own copy of a superseded judge PNG"
+ },
+ "stale_process_killed": "PID 665886 \u2014 a 4 d 18 h old zsh poll loop from a dead session (`until [ -f web/results/aug14/judge/july31+aug06+aug09+aug14_solvefix_spcc-linked.png ] \u2026; do sleep 30`), whose target is deleted"
+}
