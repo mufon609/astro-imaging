@@ -149,6 +149,7 @@ CHECKS=(
   "selftest flat_differential|python3 scripts/qa/flat_differential.py --selftest"
   "selftest grid_ramp|python3 scripts/qa/grid_ramp.py --selftest"
   "selftest coverage_frame|python3 scripts/qa/coverage_frame.py --selftest"
+  "selftest regional_stat [siril]|python3 scripts/qa/regional_stat.py --selftest"
   "selftest shape_at_sky|python3 scripts/qa/shape_at_sky.py --selftest"
   "selftest run_member_crop [siril]|./scripts/stack/run_member_crop.sh --selftest"
   "selftest check_solve_records|python3 scripts/qa/check_solve_records.py --selftest"

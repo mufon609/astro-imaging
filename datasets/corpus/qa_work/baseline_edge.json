@@ -1,0 +1,138 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+ "domain": "linear (run this on the pre-stretch surface; cross-arm comparisons use the _spcc stack)",
+ "box_px": 80,
+ "corner_margin_px": 2,
+ "image_wh": [
+  8520,
+  5668
+ ],
+ "channels": 3,
+ "regions": {
+  "center": {
+   "ch0": {
+    "mean": 42.6,
+    "median": 42.1,
+    "sigma": 2.7,
+    "min": 41.5,
+    "max": 100.2
+   },
+   "ch1": {
+    "mean": 42.8,
+    "median": 42.3,
+    "sigma": 2.9,
+    "min": 41.7,
+    "max": 99.7
+   },
+   "ch2": {
+    "mean": 42.5,
+    "median": 42.1,
+    "sigma": 2.4,
+    "min": 41.4,
+    "max": 92.3
+   }
+  },
+  "TL": {
+   "ch0": {
+    "mean": 41.8,
+    "median": 41.3,
+    "sigma": 3.9,
+    "min": 36.4,
+    "max": 150.7
+   },
+   "ch1": {
+    "mean": 42.1,
+    "median": 41.4,
+    "sigma": 4.4,
+    "min": 38.0,
+    "max": 149.5
+   },
+   "ch2": {
+    "mean": 42.2,
+    "median": 41.5,
+    "sigma": 4.5,
+    "min": 37.1,
+    "max": 155.8
+   }
+  },
+  "TR": {
+   "ch0": {
+    "mean": 43.7,
+    "median": 42.3,
+    "sigma": 14.3,
+    "min": 39.0,
+    "max": 562.0
+   },
+   "ch1": {
+    "mean": 44.0,
+    "median": 42.3,
+    "sigma": 16.2,
+    "min": 39.8,
+    "max": 628.1
+   },
+   "ch2": {
+    "mean": 44.0,
+    "median": 42.2,
+    "sigma": 17.5,
+    "min": 39.2,
+    "max": 680.9
+   }
+  },
+  "BL": {
+   "ch0": {
+    "mean": 43.3,
+    "median": 43.2,
+    "sigma": 3.0,
+    "min": 38.9,
+    "max": 177.4
+   },
+   "ch1": {
+    "mean": 43.7,
+    "median": 43.5,
+    "sigma": 3.1,
+    "min": 40.6,
+    "max": 181.3
+   },
+   "ch2": {
+    "mean": 44.1,
+    "median": 43.9,
+    "sigma": 3.7,
+    "min": 39.5,
+    "max": 209.9
+   }
+  },
+  "BR": {
+   "ch0": {
+    "mean": 41.8,
+    "median": 41.6,
+    "sigma": 2.0,
+    "min": 35.7,
+    "max": 62.7
+   },
+   "ch1": {
+    "mean": 42.0,
+    "median": 41.8,
+    "sigma": 1.6,
+    "min": 37.7,
+    "max": 56.8
+   },
+   "ch2": {
+    "mean": 41.9,
+    "median": 41.8,
+    "sigma": 1.9,
+    "min": 36.1,
+    "max": 59.7
+   }
+  }
+ },
+ "placement": {
+  "source": "rect",
+  "rect_siril_crop_args": [
+   852,
+   436,
+   6816,
+   4578
+  ],
+  "note": "regions placed INSIDE the rectangle (corners `margin` px in from its edges, centre at its centre)"
+ }
+}

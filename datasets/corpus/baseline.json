@@ -1,0 +1,52 @@
+{
+ "tool": "Siril stat via scripts/qa/regional_stat.py; this file orchestrates and compares, it reads no pixel",
+ "measures": {
+  "corner_spread_pct": 0.474,
+  "edge_dipole_x": -0.0095,
+  "centre_median_per_channel": {
+   "ch0": 42.1,
+   "ch1": 42.3,
+   "ch2": 42.1
+  },
+  "stacknrm": "addscale",
+  "stack": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+  "stack_id": "1ff0ecea761330664aabe18a19e83a71",
+  "canvas_wh": [
+   8520,
+   5668
+  ],
+  "placement": {
+   "source": "coverage",
+   "rect_siril_crop_args": [
+    852,
+    436,
+    6816,
+    4578
+   ],
+   "rect_fits": [
+    852,
+    654,
+    6816,
+    4578
+   ],
+   "coverage_record": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_coverage.json",
+   "coverage_record_sha": "0fbc185c441a6240ce09fd89b46491a6",
+   "coverage_source": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit",
+   "coverage_source_stack_id": "54b3a840768374c5e891361055e66b20",
+   "coverage_floor": 27.15,
+   "coverage_channel": "Green",
+   "coverage_grid": [
+    40,
+    26
+   ]
+  }
+ },
+ "tolerances": {
+  "corner_spread_pct_max_abs": 3.0,
+  "corner_spread_pct_max_over_baseline": 1.0,
+  "edge_dipole_x_max_abs": 0.05,
+  "centre_median_max_frac_change": 0.25
+ },
+ "note": "first corpus seed on the owner-approved product (msel candidate \u2261 this rebuild, 0 differing pixels); the portion rule's coverage staircase is IN this baseline by design; regions placed inside the coverage record's largest covered rectangle [852,436,6816,4578] (floor 27.15 Green, grid 40x26)",
+ "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
+}

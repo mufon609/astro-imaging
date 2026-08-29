@@ -5,6 +5,7 @@ not have when a 31x background regression shipped and stayed in for six days.
 Usage:
   baseline_guard.py <session-dir> <set> <stack.fit> [--seed] [--note="why"]
   baseline_guard.py --baseline=<slot.json> <stack.fit> [--seed] [--reseed] [--note="why"]
+                    [--coverage=<coverage.json> | --rect=x,y,w,h]   (a rect SOURCE, required to seed)
   baseline_guard.py --selftest        (data-free: the compare rule on planted measures,
                                        and the slot routing on a scratch tree)
 
@@ -30,6 +31,26 @@ Two rules exist ONLY for an explicit slot (the per-set default path is untouched
     line ("no corpus baseline ... first build; seed after the owner's acceptance")
     and exits 0 — a first build must never seed itself: the seed is the human's
     acceptance, not the chain's.
+  THE RECTANGLE. A union's canvas has EMPTY corners (framing=max leaves
+    uncovered triangles around the rotated members' quad), so the per-set
+    canvas-edge corner regions measure the compose's pedestal there, not sky —
+    MEASURED on the corpus: three of four canvas-edge corner boxes read a Green
+    median of 6.1e-5 against 6.0e-4 of covered sky, and the first seed died on
+    Siril's `Sigma: -nan` for a constant layer (regional_stat.py's docstring has
+    the verbatim lines). An explicit slot therefore REQUIRES a rectangle source
+    to SEED: --coverage=<coverage_frame.py record> (its `rect_siril_crop_args`,
+    the largest fully covered axis-aligned rectangle at the record's own
+    floor/channel/grid) or --rect=x,y,w,h (Siril crop convention); regional_stat
+    places the five regions INSIDE it (corners `margin` in from its edges, centre
+    at its centre). The seeded baseline RECORDS the rectangle and its provenance
+    (the coverage record's path + head/tail sha, its source product + that
+    product's stack_id, floor/channel/grid). On COMPARE the guard REUSES the
+    stored rectangle and never recomputes it — a recomputed rectangle would move
+    the boxes and compare unlike regions; a --coverage/--rect given on a compare
+    is ignored with a printed note — and REFUSES loudly if the stored rectangle
+    falls outside the new product's canvas (the regions could not be the same;
+    re-seed on acceptance). corner_spread_pct / edge_dipole_x keep their meaning
+    inside the rectangle. Per-set slots are untouched: canvas placement, as seeded.
   IDENTITY. The slot keys on the PRODUCT it was seeded from — the recorded
     `stack` path (its tag) with the seeded file's `stack_id` beside it. A
     differently-tagged product (a candidate or arm built with --out=<other tag>
@@ -309,24 +330,51 @@ def selftest_slot(base, now):
     a = parse_args(["sessions/selftest-ghost", "set-zz", "x.fit"])
     check("default (no flag) still derives datasets/<session>/<set>/baseline.json (string only, nothing touched)",
           resolve_slot(a)[0] == os.path.join(REPO, "datasets", "selftest-ghost", "set-zz", "baseline.json") and not os.path.exists(ghost))
+    # THE RECTANGLE rules (docstring), on the slot the flag cases seeded above
+    def rr(a, canvas, seeding):
+        try:
+            return resolve_rect(a, slot, True, canvas, seeding)
+        except SystemExit as e:
+            return ("SystemExit", str(e))
+    r = rr(args(seed=True), (1000, 800), True)
+    check("explicit slot, --seed with NO rect source -> REFUSED, naming the coverage_frame.py command", isinstance(r, tuple) and r[0] == "SystemExit" and "coverage_frame.py" in r[1], str(r)[:90])
+    r = rr(args(seed=True, rect="100,100,800,600"), (1000, 800), True)
+    check("explicit slot, --seed --rect inside the canvas -> the rect and its placement", r == ([100, 100, 800, 600], {"source": "rect", "rect_siril_crop_args": [100, 100, 800, 600]}), str(r)[:90])
+    r = rr(args(seed=True, rect="500,500,800,600"), (1000, 800), True)
+    check("explicit slot, --seed --rect outside the canvas -> REFUSED", isinstance(r, tuple) and "does not fit" in r[1])
+    go(args(reseed=True, note="with rect"), dict(ident, stack_id="withrect", placement={"source": "rect", "rect_siril_crop_args": [100, 100, 800, 600]}))
+    r = rr(args(), (1000, 800), False)
+    check("compare: the STORED rect is reused (never recomputed)", r[0] == [100, 100, 800, 600], str(r[0]))
+    r = rr(args(coverage="/nonexistent/coverage.json"), (1000, 800), False)
+    check("compare with --coverage given: ignored, the stored rect still reused", r[0] == [100, 100, 800, 600])
+    r = rr(args(), (800, 600), False)
+    check("compare on a product whose canvas cannot hold the stored rect -> REFUSED loudly", isinstance(r, tuple) and "REFUSED" in r[1] and "outside" in r[1], str(r)[:80])
+    check("rect_fits_canvas: the corpus rect [852,445,6816,4578] fits 8520x5668 and not 8000x5000", rect_fits_canvas([852, 445, 6816, 4578], (8520, 5668)) and not rect_fits_canvas([852, 445, 6816, 4578], (8000, 5000)))
     shutil.rmtree(T, ignore_errors=True)
     if bad:
         print("baseline_guard --selftest: FAIL — the explicit-slot routing does not behave as stated")
         return 1
-    print("OK: baseline_guard explicit slot — 11 cases: --baseline reads/writes only its path, "
+    print("OK: baseline_guard explicit slot — 18 cases: --baseline reads/writes only its path, "
           "the optional session/set derive nothing, an absent slot is a first build (exit 0, "
-          "never seeded), a differently-tagged product is 'not compared' (exit 0), and seed / "
-          "re-seed refusal / PASS / REGRESSION / ceiling run through the flag as for a set")
+          "never seeded), a differently-tagged product is 'not compared' (exit 0), seed / "
+          "re-seed refusal / PASS / REGRESSION / ceiling run through the flag as for a set, and "
+          "THE RECTANGLE: a seed needs a rect source (refused with the coverage_frame command), "
+          "a rect must fit the canvas, a compare reuses the stored rect (a passed source is ignored) "
+          "and refuses when the stored rect falls outside the new canvas")
     return 0
 
 
-def _measure(stack, workdir, tag, box, margin):
+def _measure(stack, workdir, tag, box, margin, rect=None):
     """Siril `stat` on five regions via regional_stat.py. Returns per-channel
     medians. The .ssf and Siril workdir land beside the record, which must be
-    under $HOME — the Siril flatpak has a private /tmp."""
+    under $HOME — the Siril flatpak has a private /tmp. `rect` (Siril crop
+    convention) places the regions inside a rectangle (docstring: THE RECTANGLE)."""
     out = os.path.join(workdir, f"baseline_{tag}.json")
+    if os.path.exists(out):
+        os.remove(out)          # never read a stale record if regional_stat refuses
     r = subprocess.run([sys.executable, REGIONAL, stack, out,
-                        f"--box={box}", f"--margin={margin}"],
+                        f"--box={box}", f"--margin={margin}"]
+                       + ([f"--rect={','.join(str(int(v)) for v in rect)}"] if rect else []),
                        capture_output=True, text=True)
     if not os.path.exists(out):
         sys.exit(f"baseline_guard: regional_stat produced no record for {tag}\n"
@@ -360,6 +408,80 @@ def _sha(path, blocks=64):
             fh.seek(-blocks * 4096, os.SEEK_END)
             h.update(fh.read())
     return h.hexdigest()[:32]
+
+
+def parse_rect(s):
+    try:
+        x, y, w, h = (int(v) for v in s.split(","))
+    except ValueError:
+        sys.exit(f"baseline_guard: --rect wants x,y,w,h integers (got {s!r})")
+    return [x, y, w, h]
+
+
+def rect_fits_canvas(rect, canvas_wh):
+    x, y, w, h = rect; W, H = canvas_wh
+    return x >= 0 and y >= 0 and w > 0 and h > 0 and x + w <= W and y + h <= H
+
+
+def coverage_placement(path, canvas_wh):
+    """The rectangle + provenance from a coverage_frame.py record, for an explicit slot's seed."""
+    rec = json.load(open(path))
+    r = rec.get("rect_siril_crop_args")
+    if not r:
+        sys.exit(f"baseline_guard: {path} proposes no rectangle (rect_fits {rec.get('rect_fits')!r}) — "
+                 "run coverage_frame.py with a floor that yields one")
+    if [int(v) for v in rec.get("canvas_wh", [])] != [int(v) for v in canvas_wh]:
+        sys.exit(f"baseline_guard: the coverage record's canvas {rec.get('canvas_wh')} is not this product's "
+                 f"{list(canvas_wh)} — a rectangle from another canvas would place the regions elsewhere")
+    src = rec.get("source")
+    return [int(v) for v in r], {"source": "coverage", "rect_siril_crop_args": [int(v) for v in r], "rect_fits": rec.get("rect_fits"),
+                                  "coverage_record": os.path.relpath(os.path.abspath(path), REPO), "coverage_record_sha": _sha(path),
+                                  "coverage_source": src, "coverage_source_stack_id": (_sha(src) if src and os.path.exists(src) else None),
+                                  "coverage_floor": rec.get("floor"), "coverage_channel": rec.get("channel"), "coverage_grid": rec.get("grid")}
+
+
+def coverage_hint(stack):
+    base = stack[:-9] + ".fit" if stack.endswith("_spcc.fit") else stack
+    return (f"python3 scripts/qa/coverage_frame.py {base} {base[:-4]}_coverage.json --grid=40x26 --channel=Green "
+            "--floor=<the sibling-class sky floor; the corpus's previous record used 27.15>   then seed with --coverage=<that json>")
+
+
+def resolve_rect(a, bpath, explicit, canvas_wh, seeding):
+    """(rect, placement) for this run — docstring: THE RECTANGLE. Per-set: none.
+    Explicit slot, seeding: a rect source is REQUIRED (--coverage or --rect).
+    Explicit slot, comparing: the baseline's STORED rectangle, reused, never
+    recomputed; refused if it falls outside this product's canvas."""
+    if not explicit:
+        return None, None
+    if seeding:
+        if getattr(a, "coverage", "") and getattr(a, "rect", ""):
+            sys.exit("baseline_guard: give --coverage OR --rect, not both")
+        if getattr(a, "coverage", ""):
+            rect, pl = coverage_placement(a.coverage, canvas_wh)
+        elif getattr(a, "rect", ""):
+            rect, pl = parse_rect(a.rect), {"source": "rect"}
+            pl["rect_siril_crop_args"] = rect
+        else:
+            sys.exit("baseline_guard: REFUSED — an explicit slot needs a rectangle source to seed (a union canvas has "
+                     "empty corners; docstring: THE RECTANGLE). Produce one:\n  " + coverage_hint(a.stack))
+        if not rect_fits_canvas(rect, canvas_wh):
+            sys.exit(f"baseline_guard: REFUSED — rect {rect} does not fit the {list(canvas_wh)} canvas")
+        return rect, pl
+    if not os.path.exists(bpath):
+        return None, None                      # first build: run() prints the line; nothing is measured
+    b = json.load(open(bpath))["measures"]
+    pl = b.get("placement") or {}
+    stored = pl.get("rect_siril_crop_args")
+    if not stored:
+        sys.exit(f"baseline_guard: REFUSED — the slot {bpath} was seeded without a rectangle; re-seed it with "
+                 "--coverage on the accepted product (docstring: THE RECTANGLE)")
+    if getattr(a, "coverage", "") or getattr(a, "rect", ""):
+        print(f"note: --coverage/--rect ignored on a compare — the baseline's stored rect {stored} is reused so the "
+              "same regions are compared")
+    if not rect_fits_canvas(stored, canvas_wh):
+        sys.exit(f"baseline_guard: REFUSED — the baseline's stored rect {stored} falls outside this product's canvas "
+                 f"{list(canvas_wh)}: the regions cannot be the same ones; re-seed on acceptance with --reseed")
+    return [int(v) for v in stored], pl
 
 
 def resolve_slot(a):
@@ -428,7 +550,8 @@ def run(now, a, bpath, label):
         return 0
     fails, advisories, ceiling = compare(now, b, tol)
 
-    print(f"baseline_guard {label}" + ("  (the seeded file itself: same stack_id)" if b.get("stack_id") == now["stack_id"] else ""))
+    print(f"baseline_guard {label}" + ("  (the seeded file itself: same stack_id)" if b.get("stack_id") == now["stack_id"] else "")
+          + (f"  rect {b['placement']['rect_siril_crop_args']} (stored, reused)" if b.get("placement", {}).get("rect_siril_crop_args") else ""))
     print(f"  {'':22}{'now':>10}{'baseline':>12}")
     print(f"  {'corner_spread_pct':22}{spread:10.3f}{b['corner_spread_pct']:12.3f}")
     print(f"  {'edge_dipole_x':22}{dip:+10.4f}{b['edge_dipole_x']:+12.4f}")
@@ -460,6 +583,8 @@ def parse_args(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument("paths", nargs="+", help="<session-dir> <set> <stack.fit>, or with --baseline: <stack.fit>")
     ap.add_argument("--baseline", default="", help="explicit slot (see THE CORPUS SLOT)")
+    ap.add_argument("--coverage", default="", help="rect source for an explicit slot's seed: a coverage_frame.py record")
+    ap.add_argument("--rect", default="", help="rect source for an explicit slot's seed: x,y,w,h (Siril crop convention)")
     ap.add_argument("--seed", action="store_true")
     ap.add_argument("--reseed", action="store_true")
     ap.add_argument("--note", default="")
@@ -480,13 +605,23 @@ def main():
         return selftest()
     a = parse_args(sys.argv[1:])
     bpath, work, label = resolve_slot(a)
-    os.makedirs(work, exist_ok=True)
     stack = os.path.abspath(a.stack)
     if not os.path.exists(stack):
         sys.exit(f"baseline_guard: no such stack: {stack}")
+    explicit, seeding = bool(a.baseline), bool(a.seed or a.reseed)
+    hdr = fits.getheader(stack)                                        # HEADER only
+    canvas_wh = (int(hdr["NAXIS1"]), int(hdr["NAXIS2"]))
+    if explicit and not seeding and not os.path.exists(bpath):
+        # ABSENT SLOT = FIRST BUILD: report and stop BEFORE measuring (a canvas-edge
+        # measurement of a union would refuse on its empty corners for nothing).
+        print(f"no corpus baseline at {label} — first build; seed after the owner's acceptance:\n  "
+              f"{seed_hint(a, os.path.relpath(stack, REPO))} --seed --coverage=<coverage record> --note='why'")
+        return 0
+    rect, placement = resolve_rect(a, bpath, explicit, canvas_wh, seeding)
+    os.makedirs(work, exist_ok=True)
 
-    corners, craw = _measure(stack, work, "corners", 400, 200)
-    edge, _ = _measure(stack, work, "edge", 80, 2)
+    corners, craw = _measure(stack, work, "corners", 400, 200, rect)
+    edge, _ = _measure(stack, work, "edge", 80, 2, rect)
     spread, dip = _derive(corners, edge)
     chans = {k: v["median"] for k, v in craw["center"].items()}
     # the product's own normalization statement, header-only; absent = the
@@ -494,7 +629,9 @@ def main():
     nrm = str(fits.getheader(stack).get("STACKNRM", DEFAULT_NRM))
     now = {"corner_spread_pct": spread, "edge_dipole_x": dip,
            "centre_median_per_channel": chans, "stacknrm": nrm,
-           "stack": os.path.relpath(stack, REPO), "stack_id": _sha(stack)}
+           "stack": os.path.relpath(stack, REPO), "stack_id": _sha(stack), "canvas_wh": list(canvas_wh)}
+    if placement:
+        now["placement"] = placement
     return run(now, a, bpath, label)
 
 

@@ -1,0 +1,597 @@
+{
+ "_what": "PROMOTE manifest (GO #18B, owner-approved): the pre-stage canonical corpus family stack_july31+aug06+aug09+aug14_full* moved aside to _nosel (no member selection \u2014 a chain shape, per the naming rule) so the same names can be rebuilt under --portion-rule from the owner-approved msel candidate's chain. Nothing is deleted in this step; the _nosel family is the pre-stage canonical and its disposal is a later owner call. The two TRACKED finish records under datasets/aug09/set-02/qa_work are renamed with git mv so the promote commit shows the old and the new side by side.",
+ "owner_words_verbatim": "1. web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png is aprroved. 2. cleanup is also approved. 3. approved",
+ "rule": "web/results/aug14/stack_<x>_full{,_wcs,_spcc}.fit + _full_coverage.json -> _nosel; web/results/aug09/judge/<x>_full_spcc-linked.png -> _nosel; the bulk-side compose_gate_stack_<x>_full.json / solve_stack_<x>_full.json beside the stack -> _nosel; datasets/aug09/set-02/qa_work/{solve_stack,spcc_set-02}_<x>_full.json -> _nosel (git mv)",
+ "head_at_move": "36d9bab",
+ "moved_at": "2026-08-29 19:31:05",
+ "summary": {
+  "stack": {
+   "n": 1,
+   "bytes": 581788800
+  },
+  "stack_wcs": {
+   "n": 1,
+   "bytes": 581791680
+  },
+  "stack_spcc": {
+   "n": 1,
+   "bytes": 581791680
+  },
+  "coverage_record": {
+   "n": 1,
+   "bytes": 259664
+  },
+  "judge_png": {
+   "n": 1,
+   "bytes": 215405441
+  },
+  "compose_gate_record": {
+   "n": 1,
+   "bytes": 953209
+  },
+  "solve_record": {
+   "n": 1,
+   "bytes": 1445
+  },
+  "tracked_finish_record": {
+   "n": 2,
+   "bytes": 2954
+  }
+ },
+ "total_moves": 9,
+ "total_bytes": 1961994873,
+ "verification": "every source absent and every target present; bytes + head+tail sha identical before and after the rename",
+ "moves": [
+  {
+   "class": "stack",
+   "from": "web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit",
+   "to": "web/results/aug14/stack_july31+aug06+aug09+aug14_nosel.fit",
+   "kind": "file",
+   "bytes": 581788800,
+   "headtail_sha256_32": "421ef3a4982e0ce79951d0e3531a8268",
+   "mtime": "2026-08-29 00:08:06"
+  },
+  {
+   "class": "stack_wcs",
+   "from": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit",
+   "to": "web/results/aug14/stack_july31+aug06+aug09+aug14_nosel_wcs.fit",
+   "kind": "file",
+   "bytes": 581791680,
+   "headtail_sha256_32": "35fcf30cd5c229bf340454638c786539",
+   "mtime": "2026-08-29 01:29:30"
+  },
+  {
+   "class": "stack_spcc",
+   "from": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+   "to": "web/results/aug14/stack_july31+aug06+aug09+aug14_nosel_spcc.fit",
+   "kind": "file",
+   "bytes": 581791680,
+   "headtail_sha256_32": "f6014dc1e070e12e541cc983ed11e0a3",
+   "mtime": "2026-08-29 10:38:46"
+  },
+  {
+   "class": "coverage_record",
+   "from": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_coverage.json",
+   "to": "web/results/aug14/stack_july31+aug06+aug09+aug14_nosel_coverage.json",
+   "kind": "file",
+   "bytes": 259664,
+   "headtail_sha256_32": "8495cd47fc3aa8633a4366d63e10aa6e",
+   "mtime": "2026-08-29 01:29:27"
+  },
+  {
+   "class": "judge_png",
+   "from": "web/results/aug09/judge/july31+aug06+aug09+aug14_full_spcc-linked.png",
+   "to": "web/results/aug09/judge/july31+aug06+aug09+aug14_nosel_spcc-linked.png",
+   "kind": "file",
+   "bytes": 215405441,
+   "headtail_sha256_32": "9919020438e90341466e31cba615039b",
+   "mtime": "2026-08-29 10:38:53"
+  },
+  {
+   "class": "compose_gate_record",
+   "from": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_full.json",
+   "to": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_nosel.json",
+   "kind": "file",
+   "bytes": 953209,
+   "headtail_sha256_32": "1696cacd3f35e57b660ddfb9aa71abbe",
+   "mtime": "2026-08-29 00:07:42"
+  },
+  {
+   "class": "solve_record",
+   "from": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_full.json",
+   "to": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_nosel.json",
+   "kind": "file",
+   "bytes": 1445,
+   "headtail_sha256_32": "a453f5c0d620e3d7599e2de0b508f8af",
+   "mtime": "2026-08-29 01:29:30"
+  },
+  {
+   "class": "tracked_finish_record",
+   "from": "datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_full.json",
+   "to": "datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_nosel.json",
+   "kind": "git-mv",
+   "bytes": 1445,
+   "headtail_sha256_32": "a453f5c0d620e3d7599e2de0b508f8af",
+   "mtime": "2026-08-29 01:29:30"
+  },
+  {
+   "class": "tracked_finish_record",
+   "from": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_full.json",
+   "to": "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_nosel.json",
+   "kind": "git-mv",
+   "bytes": 1509,
+   "headtail_sha256_32": "44e0d9b0f60d91ceae24c93bb0e0b97d",
+   "mtime": "2026-08-29 10:38:46"
+  }
+ ],
+ "disposed": {
+  "owner_acceptance": "2026-08-29, relayed by the director (astro-imaging-45), verbatim: '1. web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png is aprroved. 2. cleanup is also approved. 3. approved' \u2014 executed only after the rebuilt _full compared 0 differing pixels against the approved msel candidate on the stack and the _spcc product (ledger 127)",
+  "method": "every path enumerated in the pre-registered inventory (ledger 126), re-verified under the disposal roots and against the KEEP patterns at disposal time, listed with its bytes, then removed (files: unlink; dirs: rmtree); nothing outside the list; the director-inspection PNG dirs copied to sessions/aug14/work/inspect_director_archive/ first (byte-verified)",
+  "disposed_at": "2026-08-29 19:40:58",
+  "summary": {
+   "web_arm_families": {
+    "n": 24,
+    "bytes": 7693325947
+   },
+   "web_orphans": {
+    "n": 7,
+    "bytes": 2434445
+   },
+   "web_msel_family": {
+    "n": 6,
+    "bytes": 1954535431
+   },
+   "scratch_dirs": {
+    "n": 36,
+    "bytes": 38967659804
+   }
+  },
+  "total_items": 73,
+  "total_bytes": 48617955627,
+  "items": [
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_sel57.fit",
+    "kind": "file",
+    "bytes": 559650240
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_sel57_wcs.fit",
+    "kind": "file",
+    "bytes": 559653120
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_sel57_spcc.fit",
+    "kind": "file",
+    "bytes": 559653120
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_sel57_spcc-linked.png",
+    "kind": "file",
+    "bytes": 210585762
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_sel57.json",
+    "kind": "file",
+    "bytes": 525078
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_sel57.json",
+    "kind": "file",
+    "bytes": 1104
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_crop20.fit",
+    "kind": "file",
+    "bytes": 580049280
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_crop20_wcs.fit",
+    "kind": "file",
+    "bytes": 580052160
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_crop20_spcc.fit",
+    "kind": "file",
+    "bytes": 580052160
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_crop20_spcc-linked.png",
+    "kind": "file",
+    "bytes": 215394188
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_crop20.json",
+    "kind": "file",
+    "bytes": 951743
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_crop20.json",
+    "kind": "file",
+    "bytes": 1108
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT.fit",
+    "kind": "file",
+    "bytes": 580086720
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT_wcs.fit",
+    "kind": "file",
+    "bytes": 580089600
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropT_spcc.fit",
+    "kind": "file",
+    "bytes": 580089600
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_cropT_spcc-linked.png",
+    "kind": "file",
+    "bytes": 215209331
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_cropT.json",
+    "kind": "file",
+    "bytes": 952529
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_cropT.json",
+    "kind": "file",
+    "bytes": 1106
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropTselT.fit",
+    "kind": "file",
+    "bytes": 559365120
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropTselT_wcs.fit",
+    "kind": "file",
+    "bytes": 559368000
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_cropTselT_spcc.fit",
+    "kind": "file",
+    "bytes": 559368000
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_cropTselT_spcc-linked.png",
+    "kind": "file",
+    "bytes": 211565537
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_cropTselT.json",
+    "kind": "file",
+    "bytes": 660228
+   },
+   {
+    "class": "web_arm_families",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_cropTselT.json",
+    "kind": "file",
+    "bytes": 1113
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_outnorm.json",
+    "kind": "file",
+    "bytes": 953492
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/solve_july31+aug06+aug09+aug14_outnorm.json",
+    "kind": "file",
+    "bytes": 1053
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_outnorm.json",
+    "kind": "file",
+    "bytes": 1440
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_outnorm_coverage.json",
+    "kind": "file",
+    "bytes": 261754
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_solvefix.json",
+    "kind": "file",
+    "bytes": 953496
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_solvefix.json",
+    "kind": "file",
+    "bytes": 1452
+   },
+   {
+    "class": "web_orphans",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_solvefix_coverage.json",
+    "kind": "file",
+    "bytes": 261758
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_msel.fit",
+    "kind": "file",
+    "bytes": 579504960
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_msel_wcs.fit",
+    "kind": "file",
+    "bytes": 579507840
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_msel_spcc.fit",
+    "kind": "file",
+    "bytes": 579507840
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_msel_spcc-linked.png",
+    "kind": "file",
+    "bytes": 215061157
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_msel.json",
+    "kind": "file",
+    "bytes": 952532
+   },
+   {
+    "class": "web_msel_family",
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_msel.json",
+    "kind": "file",
+    "bytes": 1102
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/cropT",
+    "kind": "dir",
+    "bytes": 6236063226
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/crop20",
+    "kind": "dir",
+    "bytes": 4335290317
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/swarp",
+    "kind": "dir",
+    "bytes": 5397466145
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/msel17B",
+    "kind": "dir",
+    "bytes": 12042227154
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/cropTselT",
+    "kind": "dir",
+    "bytes": 209576282
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/sel57",
+    "kind": "dir",
+    "bytes": 10257791
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/zoneT",
+    "kind": "dir",
+    "bytes": 43213623
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/zone20",
+    "kind": "dir",
+    "bytes": 34018439
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/rawshape",
+    "kind": "dir",
+    "bytes": 883527475
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/rank_attr",
+    "kind": "dir",
+    "bytes": 17653484
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/smear_attr",
+    "kind": "dir",
+    "bytes": 7511593
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/smear_attr_v2",
+    "kind": "dir",
+    "bytes": 11208056
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/corner_attr",
+    "kind": "dir",
+    "bytes": 1785431
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/curated_july31+aug06+aug09+aug14_msel",
+    "kind": "dir",
+    "bytes": 6016219395
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug14/work/msel17C",
+    "kind": "dir",
+    "bytes": 59453367
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/rawshape",
+    "kind": "dir",
+    "bytes": 883172062
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/zoneT",
+    "kind": "dir",
+    "bytes": 26777756
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/zone20",
+    "kind": "dir",
+    "bytes": 9271412
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/rank_attr",
+    "kind": "dir",
+    "bytes": 10768158
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/smear_attr",
+    "kind": "dir",
+    "bytes": 6097268
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/smear_attr_v2",
+    "kind": "dir",
+    "bytes": 8295857
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/july31/work/corner_attr",
+    "kind": "dir",
+    "bytes": 1519622
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/spanarm",
+    "kind": "dir",
+    "bytes": 1712049188
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/rawshape",
+    "kind": "dir",
+    "bytes": 441891490
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/zoneT",
+    "kind": "dir",
+    "bytes": 23588422
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/rank_attr",
+    "kind": "dir",
+    "bytes": 9966367
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/smear_attr",
+    "kind": "dir",
+    "bytes": 2913738
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/smear_attr_v2",
+    "kind": "dir",
+    "bytes": 4828085
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug06/work/corner_attr",
+    "kind": "dir",
+    "bytes": 952199
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/rawshape",
+    "kind": "dir",
+    "bytes": 441730149
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/zoneT",
+    "kind": "dir",
+    "bytes": 39142297
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/zone20",
+    "kind": "dir",
+    "bytes": 6350568
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/rank_attr",
+    "kind": "dir",
+    "bytes": 15991589
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/smear_attr",
+    "kind": "dir",
+    "bytes": 6511646
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/smear_attr_v2",
+    "kind": "dir",
+    "bytes": 9534373
+   },
+   {
+    "class": "scratch_dirs",
+    "path": "sessions/aug09/work/corner_attr",
+    "kind": "dir",
+    "bytes": 835780
+   }
+  ],
+  "df_after_bytes": {
+   "avail": 718536257536,
+   "used": 1147815075840,
+   "size": 1966309933056
+  }
+ }
+}
