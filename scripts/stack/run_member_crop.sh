@@ -69,11 +69,16 @@
 # four MEMC* keys and identical kept pixels; a FLAT one MUST be a symlink with no
 # MEMC* keys; a member with a SYMMETRIC rise on both sides (the refuted intrinsic
 # form) MUST NOT crop; the pinned-reference refusal MUST fire (exit 3) and
-# --allow-ref-crop MUST lift it aloud; and the CACHE path MUST serve a run entirely
+# --allow-ref-crop MUST lift it aloud; the CACHE path MUST serve a run entirely
 # from a seeded cache (0 profiled, cache file byte-identical, verdicts equal to the
-# table-driven run). It does NOT exercise `profile`'s Siril findstar leg or the
-# cache miss-then-write path: their acceptance test is GO #17B's reproduction of
-# cropT.
+# table-driven run); and verify's SIP criterion has a positive control in BOTH
+# directions — the fixture's 17-digit coefficients make the Siril crop re-serialize
+# them at 15 digits (the real-member effect measured at GO #17B: 36/1107 values
+# moved <= 4.49e-15 on the 27 copies) and verify MUST pass with max_rel_sip > 0,
+# while a scratch copy with one coefficient altered by 1e-6 relative (the change a
+# re-solve or a wrong crop makes) MUST fail both assertions. `profile`'s Siril
+# findstar leg and the cache miss-then-write path were exercised at GO #17B on the
+# real 77 (identity + determinism held), not here.
 #
 # REMOVAL CONDITION: retire when Siril's compose accepts per-member weight maps or a
 # per-member region mask (a mask is the crop without the coverage cost). Registered
@@ -127,7 +132,9 @@ h = fits.getheader(copy) if os.path.isfile(copy) else {}
 check("B: kept width = round(W/2 + x_c) = 4500", h.get("NAXIS1") == 4500, f"NAXIS1 {h.get('NAXIS1')}")
 check("B: MEMCROP 1500, MEMCRULE the pinned literal, MEMCSCOR, MEMCPROV", int(h.get("MEMCROP", -1)) == 1500 and str(h.get("MEMCRULE", "")) == "asym>0.20px@r400 top30" and h.get("MEMCSCOR") is not None and bool(h.get("MEMCPROV")), f"{h.get('MEMCROP')} {h.get('MEMCRULE')!r} {h.get('MEMCSCOR')} {h.get('MEMCPROV')!r}")
 check("B: kept pixels identical to the original's first 4500 columns", os.path.isfile(copy) and np.array_equal(fits.getdata(f"{D}/sub_01.fit")[..., :4500], fits.getdata(copy)))
-check("B: CRPIX/CRVAL/SIP unchanged, T0 keys present, single matrix form", listing.get(k1, {}).get("ok") is True, str([k for k, v in listing.get(k1, {}).get("checks", {}).items() if not v]))
+check("B: CRPIX/CRVAL unchanged, SIP within tolerance, T0 keys present, single matrix form", listing.get(k1, {}).get("ok") is True, str([k for k, v in listing.get(k1, {}).get("checks", {}).items() if not v]))
+l1 = listing.get(k1, {}); c1 = l1.get("checks", {})
+check("B: Siril's 15-digit SIP re-serialization EXERCISED (max_rel_sip > 0) and PASSES both assertions", (l1.get("max_rel_sip") or 0) > 0 and c1.get("SIP keys/orders identical, values within 1e-12 rel") is True and c1.get("pixel->world agreement < 1e-9 deg") is True, f"max_rel_sip {l1.get('max_rel_sip')} max_sky_sep_deg {l1.get('max_sky_sep_deg')}")
 check("B: flat member untouched -> symlink, no MEMC* keys", (not r2["cropped"]) and os.path.islink(os.path.join(cur, k2)) and listing.get(k2, {}).get("ok") is True)
 check("B: SYMMETRIC rise on both sides (the refuted intrinsic form) -> NOT cropped", (not r3["cropped"]) and os.path.islink(os.path.join(cur, k3)), f"asym {r3['asymmetry']}")
 check("B: advisory S_i reported for every member, never gating", all(v["S_advisory"] is not None for v in tab.values()) and rec["advisory_S"]["p25"] is not None, f"S {[v['S_advisory'] for v in tab.values()]}")
@@ -152,6 +159,28 @@ b = json.load(open(f"{T}/recB.json"))["table"]; d = json.load(open(f"{T}/recD.js
 same = set(b) == set(d) and all(b[k]["onset"] == d[k]["onset"] and b[k]["x_c"] == d[k]["x_c"] and b[k]["cropped"] == d[k]["cropped"] for k in b)
 print(f"  {'PASS' if same else 'FAIL'}  D: cache-served verdicts identical to case B (onset/x_c/cropped per member)")
 sys.exit(0 if same else 1)
+PY
+  # E. NEGATIVE control for the SIP criterion: a scratch copy of case B's cropped member
+  # with ONE coefficient altered by 1e-6 RELATIVE (astropy header write — the change a
+  # re-solve or a wrong crop would make) MUST FAIL both assertions and exit verify 2.
+  python3 - "$T" "$PROF" <<'PY' || fails=$((fails+1))
+import json, os, shutil, subprocess, sys
+from astropy.io import fits
+T, PROF = sys.argv[1], sys.argv[2]
+plan = json.load(open(f"{T}/curB/.stage/plan.json"))
+crop = [a for a in plan["actions"] if a["action"] == "crop"]
+neg = f"{T}/neg"; os.makedirs(neg, exist_ok=True)
+for a in crop:
+    shutil.copy2(os.path.join(plan["curated"], a["name"]), os.path.join(neg, a["name"]))
+    with fits.open(os.path.join(neg, a["name"]), mode="update") as hd:
+        hd[0].header["A_2_0"] = float(hd[0].header["A_2_0"]) * (1 + 1e-6)
+json.dump({**plan, "curated": neg, "actions": crop}, open(f"{T}/neg_plan.json", "w"))
+shutil.copy2(f"{T}/recB.json", f"{T}/recE.json")
+rc = subprocess.run([sys.executable, PROF, "verify", f"--plan={T}/neg_plan.json", f"--record={T}/recE.json"], capture_output=True, text=True).returncode
+r = json.load(open(f"{T}/recE.json")); l = [v for v in r["curated_listing"].values() if "checks" in v][0]; c = l["checks"]
+ok = rc == 2 and c["SIP keys/orders identical, values within 1e-12 rel"] is False and c["pixel->world agreement < 1e-9 deg"] is False
+print(f"  {'PASS' if ok else 'FAIL'}  E: NEGATIVE — one coefficient altered by 1e-6 relative FAILS both SIP assertions, verify exit 2 rc={rc} max_rel_sip {l['max_rel_sip']:.2e} max_sky_sep_deg {l['max_sky_sep_deg']:.2e}")
+sys.exit(0 if ok else 1)
 PY
   echo "run_member_crop --selftest: $([ $fails -eq 0 ] && echo PASS || echo "$fails FAILED")  (scratch: $T)"
   return $fails

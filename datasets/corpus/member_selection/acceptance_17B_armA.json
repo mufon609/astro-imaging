@@ -1,0 +1,3538 @@
+{
+ "id": "member_selection_acceptance_17B_armA",
+ "stage": "run_member_crop.sh \u2014 the portion rule (asymmetry) as a chain stage; member_profile.py plan",
+ "rule": {
+  "form": "asymmetry",
+  "bar_px": 0.2,
+  "stations_px": [
+   600,
+   1200,
+   1800,
+   2400
+  ],
+  "radius_px": 400,
+  "top_n": 30,
+  "half_width_px": 300,
+  "text": "onset = smallest dx where FWHM(+dx) - FWHM(-dx) > bar and stays above outward; x_c = onset - half_width; entry-side columns beyond round(W/2 + x_c) removed from a copy; no station over the bar -> untouched; a station skipped for width vetoes the tail (no crop on incomplete outward evidence)"
+ },
+ "advisory_S": {
+  "definition": "mean of the top-N FWHM over the centre + exit-side stations (interior) \u2014 REPORTED, not a gate (GO #16: the frame-level threshold on top of the portion rule was a NULL)",
+  "p25": 2.444
+ },
+ "instrument": "Siril findstar via star_stations geometry (gate 'setfindstar reset -roundness=0.05 -sigma=0.5 -relax=on'), centre and along +-600/1200/1800/2400 at radius 400, top-30-by-amplitude median of (FWHMx+FWHMy)/2 and min/max roundness; lists kept \u2014 ADAPTED read-only from sessions/aug14/work/cropT/zone/zone_profiles.json (GO #13's own measurement; re-keyed by realpath, no value changed)",
+ "profiles": "/tmp/claude-1000/-home-samsung-Desktop-astro-imaging/97a61de4-2d46-42f0-a131-f97551a440c1/scratchpad/armA_profiles.json",
+ "profile_cache": null,
+ "reference": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_02.fit",
+ "members": 77,
+ "cropped": 27,
+ "untouched": 50,
+ "x_c_histogram": {
+  "900": 1,
+  "1500": 11,
+  "2100": 15
+ },
+ "table": {
+  "sub_001_july31_set-01_sub_01.fit": {
+   "index": 1,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01.fit",
+   "name": "sub_001_july31_set-01_sub_01.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.435,
+   "entry": {
+    "600": 2.31,
+    "1200": 2.26,
+    "1800": 2.32,
+    "2400": 2.405
+   },
+   "exit": {
+    "600": 2.485,
+    "1200": 2.46,
+    "1800": 2.467,
+    "2400": 2.478
+   },
+   "asymmetry": {
+    "600": -0.175,
+    "1200": -0.2,
+    "1800": -0.147,
+    "2400": -0.073
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.465,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_002_july31_set-01_sub_02.fit": {
+   "index": 2,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_02.fit",
+   "name": "sub_002_july31_set-01_sub_02.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.375,
+   "entry": {
+    "600": 2.33,
+    "1200": 2.26,
+    "1800": 2.325,
+    "2400": 2.42
+   },
+   "exit": {
+    "600": 2.46,
+    "1200": 2.45,
+    "1800": 2.472,
+    "2400": 2.495
+   },
+   "asymmetry": {
+    "600": -0.13,
+    "1200": -0.19,
+    "1800": -0.147,
+    "2400": -0.075
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4504,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_003_july31_set-01_sub_03.fit": {
+   "index": 3,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03.fit",
+   "name": "sub_003_july31_set-01_sub_03.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.368,
+   "entry": {
+    "600": 2.288,
+    "1200": 2.248,
+    "1800": 2.31,
+    "2400": 2.43
+   },
+   "exit": {
+    "600": 2.435,
+    "1200": 2.44,
+    "1800": 2.47,
+    "2400": 2.49
+   },
+   "asymmetry": {
+    "600": -0.147,
+    "1200": -0.192,
+    "1800": -0.16,
+    "2400": -0.06
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4406,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_004_july31_set-01_sub_04.fit": {
+   "index": 4,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_04.fit",
+   "name": "sub_004_july31_set-01_sub_04.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.353,
+   "entry": {
+    "600": 2.26,
+    "1200": 2.23,
+    "1800": 2.342,
+    "2400": 2.44
+   },
+   "exit": {
+    "600": 2.425,
+    "1200": 2.42,
+    "1800": 2.462,
+    "2400": 2.51
+   },
+   "asymmetry": {
+    "600": -0.165,
+    "1200": -0.19,
+    "1800": -0.12,
+    "2400": -0.07
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.434,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_005_july31_set-01_sub_05.fit": {
+   "index": 5,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_05.fit",
+   "name": "sub_005_july31_set-01_sub_05.fit",
+   "wh": [
+    5832,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.337,
+   "entry": {
+    "600": 2.225,
+    "1200": 2.225,
+    "1800": 2.353,
+    "2400": 2.462
+   },
+   "exit": {
+    "600": 2.368,
+    "1200": 2.422,
+    "1800": 2.458,
+    "2400": 2.495
+   },
+   "asymmetry": {
+    "600": -0.143,
+    "1200": -0.197,
+    "1800": -0.105,
+    "2400": -0.033
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.416,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_006_july31_set-02_sub_01.fit": {
+   "index": 6,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_01.fit",
+   "name": "sub_006_july31_set-02_sub_01.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.312,
+   "entry": {
+    "600": 2.217,
+    "1200": 2.228,
+    "1800": 2.353,
+    "2400": 2.48
+   },
+   "exit": {
+    "600": 2.35,
+    "1200": 2.405,
+    "1800": 2.505,
+    "2400": 2.495
+   },
+   "asymmetry": {
+    "600": -0.133,
+    "1200": -0.177,
+    "1800": -0.152,
+    "2400": -0.015
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4134,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_007_july31_set-02_sub_02.fit": {
+   "index": 7,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_02.fit",
+   "name": "sub_007_july31_set-02_sub_02.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.278,
+   "entry": {
+    "600": 2.212,
+    "1200": 2.23,
+    "1800": 2.385,
+    "2400": 2.525
+   },
+   "exit": {
+    "600": 2.345,
+    "1200": 2.393,
+    "1800": 2.538,
+    "2400": 2.488
+   },
+   "asymmetry": {
+    "600": -0.133,
+    "1200": -0.163,
+    "1800": -0.153,
+    "2400": 0.037
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4084,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_008_july31_set-02_sub_03.fit": {
+   "index": 8,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_03.fit",
+   "name": "sub_008_july31_set-02_sub_03.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.272,
+   "entry": {
+    "600": 2.228,
+    "1200": 2.235,
+    "1800": 2.408,
+    "2400": 2.55
+   },
+   "exit": {
+    "600": 2.333,
+    "1200": 2.4,
+    "1800": 2.498,
+    "2400": 2.505
+   },
+   "asymmetry": {
+    "600": -0.105,
+    "1200": -0.165,
+    "1800": -0.09,
+    "2400": 0.045
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4016,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_009_july31_set-02_sub_04.fit": {
+   "index": 9,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_04.fit",
+   "name": "sub_009_july31_set-02_sub_04.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.245,
+   "entry": {
+    "600": 2.228,
+    "1200": 2.245,
+    "1800": 2.422,
+    "2400": 2.565
+   },
+   "exit": {
+    "600": 2.34,
+    "1200": 2.395,
+    "1800": 2.542,
+    "2400": 2.502
+   },
+   "asymmetry": {
+    "600": -0.112,
+    "1200": -0.15,
+    "1800": -0.12,
+    "2400": 0.063
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4048,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_010_july31_set-02_sub_05.fit": {
+   "index": 10,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_05.fit",
+   "name": "sub_010_july31_set-02_sub_05.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.265,
+   "entry": {
+    "600": 2.215,
+    "1200": 2.25,
+    "1800": 2.448,
+    "2400": 2.61
+   },
+   "exit": {
+    "600": 2.337,
+    "1200": 2.395,
+    "1800": 2.518,
+    "2400": 2.535
+   },
+   "asymmetry": {
+    "600": -0.122,
+    "1200": -0.145,
+    "1800": -0.07,
+    "2400": 0.075
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.41,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_011_july31_set-03_sub_01.fit": {
+   "index": 11,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01.fit",
+   "name": "sub_011_july31_set-03_sub_01.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.26,
+   "entry": {
+    "600": 2.24,
+    "1200": 2.272,
+    "1800": 2.52,
+    "2400": 2.658
+   },
+   "exit": {
+    "600": 2.342,
+    "1200": 2.417,
+    "1800": 2.558,
+    "2400": 2.565
+   },
+   "asymmetry": {
+    "600": -0.102,
+    "1200": -0.145,
+    "1800": -0.038,
+    "2400": 0.093
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4284,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_012_july31_set-03_sub_02.fit": {
+   "index": 12,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_02.fit",
+   "name": "sub_012_july31_set-03_sub_02.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.26,
+   "entry": {
+    "600": 2.24,
+    "1200": 2.295,
+    "1800": 2.53,
+    "2400": 2.672
+   },
+   "exit": {
+    "600": 2.35,
+    "1200": 2.433,
+    "1800": 2.59,
+    "2400": 2.562
+   },
+   "asymmetry": {
+    "600": -0.11,
+    "1200": -0.138,
+    "1800": -0.06,
+    "2400": 0.11
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.439,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_013_july31_set-03_sub_03.fit": {
+   "index": 13,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03.fit",
+   "name": "sub_013_july31_set-03_sub_03.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.278,
+   "entry": {
+    "600": 2.232,
+    "1200": 2.335,
+    "1800": 2.585,
+    "2400": 2.73
+   },
+   "exit": {
+    "600": 2.36,
+    "1200": 2.438,
+    "1800": 2.575,
+    "2400": 2.583
+   },
+   "asymmetry": {
+    "600": -0.128,
+    "1200": -0.103,
+    "1800": 0.01,
+    "2400": 0.147
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4468,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_014_july31_set-03_sub_04.fit": {
+   "index": 14,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_04.fit",
+   "name": "sub_014_july31_set-03_sub_04.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.283,
+   "entry": {
+    "600": 2.248,
+    "1200": 2.312,
+    "1800": 2.547,
+    "2400": 2.74
+   },
+   "exit": {
+    "600": 2.32,
+    "1200": 2.46,
+    "1800": 2.62,
+    "2400": 2.6
+   },
+   "asymmetry": {
+    "600": -0.072,
+    "1200": -0.148,
+    "1800": -0.073,
+    "2400": 0.14
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4566,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_015_july31_set-03_sub_05.fit": {
+   "index": 15,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_05.fit",
+   "name": "sub_015_july31_set-03_sub_05.fit",
+   "wh": [
+    5832,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.283,
+   "entry": {
+    "600": 2.25,
+    "1200": 2.317,
+    "1800": 2.585,
+    "2400": 2.76
+   },
+   "exit": {
+    "600": 2.315,
+    "1200": 2.493,
+    "1800": 2.64,
+    "2400": 2.635
+   },
+   "asymmetry": {
+    "600": -0.065,
+    "1200": -0.176,
+    "1800": -0.055,
+    "2400": 0.125
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4732,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_016_july31_set-04_sub_01.fit": {
+   "index": 16,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_01.fit",
+   "name": "sub_016_july31_set-04_sub_01.fit",
+   "wh": [
+    5763,
+    3924
+   ],
+   "stackcnt": null,
+   "centre": 2.315,
+   "entry": {
+    "600": 2.29,
+    "1200": 2.427,
+    "1800": 2.735,
+    "2400": 2.817
+   },
+   "exit": {
+    "600": 2.368,
+    "1200": 2.5,
+    "1800": 2.708,
+    "2400": 2.65
+   },
+   "asymmetry": {
+    "600": -0.078,
+    "1200": -0.073,
+    "1800": 0.027,
+    "2400": 0.167
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.5082,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_017_july31_set-04_sub_02.fit": {
+   "index": 17,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_02.fit",
+   "name": "sub_017_july31_set-04_sub_02.fit",
+   "wh": [
+    5762,
+    3923
+   ],
+   "stackcnt": null,
+   "centre": 2.277,
+   "entry": {
+    "600": 2.288,
+    "1200": 2.42,
+    "1800": 2.752,
+    "2400": 2.848
+   },
+   "exit": {
+    "600": 2.38,
+    "1200": 2.5,
+    "1800": 2.735,
+    "2400": 2.653
+   },
+   "asymmetry": {
+    "600": -0.092,
+    "1200": -0.08,
+    "1800": 0.017,
+    "2400": 0.195
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.509,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_018_aug06_set-01_sub_01.fit": {
+   "index": 18,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_01.fit",
+   "name": "sub_018_aug06_set-01_sub_01.fit",
+   "wh": [
+    5830,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.288,
+   "entry": {
+    "600": 2.217,
+    "1200": 2.235,
+    "1800": 2.42,
+    "2400": 2.552
+   },
+   "exit": {
+    "600": 2.37,
+    "1200": 2.43,
+    "1800": 2.507,
+    "2400": 2.522
+   },
+   "asymmetry": {
+    "600": -0.153,
+    "1200": -0.195,
+    "1800": -0.087,
+    "2400": 0.03
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4234,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_019_aug06_set-01_sub_02.fit": {
+   "index": 19,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_02.fit",
+   "name": "sub_019_aug06_set-01_sub_02.fit",
+   "wh": [
+    5830,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.278,
+   "entry": {
+    "600": 2.217,
+    "1200": 2.285,
+    "1800": 2.425,
+    "2400": 2.575
+   },
+   "exit": {
+    "600": 2.36,
+    "1200": 2.42,
+    "1800": 2.525,
+    "2400": 2.522
+   },
+   "asymmetry": {
+    "600": -0.143,
+    "1200": -0.135,
+    "1800": -0.1,
+    "2400": 0.053
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.421,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_020_aug06_set-01_sub_03.fit": {
+   "index": 20,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_03.fit",
+   "name": "sub_020_aug06_set-01_sub_03.fit",
+   "wh": [
+    5830,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.272,
+   "entry": {
+    "600": 2.238,
+    "1200": 2.268,
+    "1800": 2.498,
+    "2400": 2.603
+   },
+   "exit": {
+    "600": 2.337,
+    "1200": 2.43,
+    "1800": 2.532,
+    "2400": 2.542
+   },
+   "asymmetry": {
+    "600": -0.099,
+    "1200": -0.162,
+    "1800": -0.034,
+    "2400": 0.061
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4226,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_021_aug06_set-01_sub_04.fit": {
+   "index": 21,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_04.fit",
+   "name": "sub_021_aug06_set-01_sub_04.fit",
+   "wh": [
+    5830,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.277,
+   "entry": {
+    "600": 2.232,
+    "1200": 2.257,
+    "1800": 2.537,
+    "2400": 2.625
+   },
+   "exit": {
+    "600": 2.34,
+    "1200": 2.42,
+    "1800": 2.565,
+    "2400": 2.565
+   },
+   "asymmetry": {
+    "600": -0.108,
+    "1200": -0.163,
+    "1800": -0.028,
+    "2400": 0.06
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4334,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_022_aug06_set-01_sub_05.fit": {
+   "index": 22,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_05.fit",
+   "name": "sub_022_aug06_set-01_sub_05.fit",
+   "wh": [
+    5830,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.285,
+   "entry": {
+    "600": 2.225,
+    "1200": 2.27,
+    "1800": 2.518,
+    "2400": 2.61
+   },
+   "exit": {
+    "600": 2.342,
+    "1200": 2.415,
+    "1800": 2.587,
+    "2400": 2.545
+   },
+   "asymmetry": {
+    "600": -0.117,
+    "1200": -0.145,
+    "1800": -0.069,
+    "2400": 0.065
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4348,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_023_aug06_set-02_sub_01.fit": {
+   "index": 23,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01.fit",
+   "name": "sub_023_aug06_set-02_sub_01.fit",
+   "wh": [
+    5767,
+    3927
+   ],
+   "stackcnt": null,
+   "centre": 2.27,
+   "entry": {
+    "600": 2.245,
+    "1200": 2.27,
+    "1800": 2.575,
+    "2400": 2.672
+   },
+   "exit": {
+    "600": 2.328,
+    "1200": 2.462,
+    "1800": 2.565,
+    "2400": 2.578
+   },
+   "asymmetry": {
+    "600": -0.083,
+    "1200": -0.192,
+    "1800": 0.01,
+    "2400": 0.094
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4406,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_024_aug06_set-02_sub_02.fit": {
+   "index": 24,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02.fit",
+   "name": "sub_024_aug06_set-02_sub_02.fit",
+   "wh": [
+    5772,
+    3929
+   ],
+   "stackcnt": null,
+   "centre": 2.272,
+   "entry": {
+    "600": 2.232,
+    "1200": 2.268,
+    "1800": 2.522,
+    "2400": 2.663
+   },
+   "exit": {
+    "600": 2.3,
+    "1200": 2.442,
+    "1800": 2.595,
+    "2400": 2.575
+   },
+   "asymmetry": {
+    "600": -0.068,
+    "1200": -0.174,
+    "1800": -0.073,
+    "2400": 0.088
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4368,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_025_aug06_set-02_sub_03.fit": {
+   "index": 25,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_03.fit",
+   "name": "sub_025_aug06_set-02_sub_03.fit",
+   "wh": [
+    5774,
+    3929
+   ],
+   "stackcnt": null,
+   "centre": 2.28,
+   "entry": {
+    "600": 2.245,
+    "1200": 2.337,
+    "1800": 2.577,
+    "2400": 2.688
+   },
+   "exit": {
+    "600": 2.317,
+    "1200": 2.435,
+    "1800": 2.61,
+    "2400": 2.555
+   },
+   "asymmetry": {
+    "600": -0.072,
+    "1200": -0.098,
+    "1800": -0.033,
+    "2400": 0.133
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4394,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_026_aug06_set-02_sub_04.fit": {
+   "index": 26,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_04.fit",
+   "name": "sub_026_aug06_set-02_sub_04.fit",
+   "wh": [
+    5774,
+    3930
+   ],
+   "stackcnt": null,
+   "centre": 2.26,
+   "entry": {
+    "600": 2.24,
+    "1200": 2.295,
+    "1800": 2.593,
+    "2400": 2.667
+   },
+   "exit": {
+    "600": 2.33,
+    "1200": 2.425,
+    "1800": 2.625,
+    "2400": 2.572
+   },
+   "asymmetry": {
+    "600": -0.09,
+    "1200": -0.13,
+    "1800": -0.032,
+    "2400": 0.095
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4424,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_027_aug06_set-03_sub_01.fit": {
+   "index": 27,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_01.fit",
+   "name": "sub_027_aug06_set-03_sub_01.fit",
+   "wh": [
+    5799,
+    3939
+   ],
+   "stackcnt": null,
+   "centre": 2.288,
+   "entry": {
+    "600": 2.255,
+    "1200": 2.373,
+    "1800": 2.495,
+    "2400": 2.683
+   },
+   "exit": {
+    "600": 2.35,
+    "1200": 2.465,
+    "1800": 2.623,
+    "2400": 2.64
+   },
+   "asymmetry": {
+    "600": -0.095,
+    "1200": -0.092,
+    "1800": -0.128,
+    "2400": 0.043
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4732,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_028_aug06_set-03_sub_02.fit": {
+   "index": 28,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_02.fit",
+   "name": "sub_028_aug06_set-03_sub_02.fit",
+   "wh": [
+    5799,
+    3939
+   ],
+   "stackcnt": null,
+   "centre": 2.278,
+   "entry": {
+    "600": 2.248,
+    "1200": 2.342,
+    "1800": 2.62,
+    "2400": 2.683
+   },
+   "exit": {
+    "600": 2.34,
+    "1200": 2.47,
+    "1800": 2.63,
+    "2400": 2.613
+   },
+   "asymmetry": {
+    "600": -0.092,
+    "1200": -0.128,
+    "1800": -0.01,
+    "2400": 0.07
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4662,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_029_aug06_set-03_sub_03.fit": {
+   "index": 29,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_03.fit",
+   "name": "sub_029_aug06_set-03_sub_03.fit",
+   "wh": [
+    5799,
+    3939
+   ],
+   "stackcnt": null,
+   "centre": 2.285,
+   "entry": {
+    "600": 2.268,
+    "1200": 2.328,
+    "1800": 2.605,
+    "2400": 2.695
+   },
+   "exit": {
+    "600": 2.337,
+    "1200": 2.488,
+    "1800": 2.68,
+    "2400": 2.618
+   },
+   "asymmetry": {
+    "600": -0.069,
+    "1200": -0.16,
+    "1800": -0.075,
+    "2400": 0.077
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4816,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_030_aug06_set-03_sub_04.fit": {
+   "index": 30,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_04.fit",
+   "name": "sub_030_aug06_set-03_sub_04.fit",
+   "wh": [
+    5698,
+    3901
+   ],
+   "stackcnt": null,
+   "centre": 2.295,
+   "entry": {
+    "600": 2.257,
+    "1200": 2.35,
+    "1800": 2.593,
+    "2400": 2.68
+   },
+   "exit": {
+    "600": 2.34,
+    "1200": 2.448,
+    "1800": 2.655,
+    "2400": 2.647
+   },
+   "asymmetry": {
+    "600": -0.083,
+    "1200": -0.098,
+    "1800": -0.062,
+    "2400": 0.033
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.477,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_031_aug09_set-01_sub_01.fit": {
+   "index": 31,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_01.fit",
+   "name": "sub_031_aug09_set-01_sub_01.fit",
+   "wh": [
+    5772,
+    3930
+   ],
+   "stackcnt": null,
+   "centre": 2.538,
+   "entry": {
+    "600": 2.393,
+    "1200": 2.292,
+    "1800": 2.36,
+    "2400": 2.44
+   },
+   "exit": {
+    "600": 2.595,
+    "1200": 2.533,
+    "1800": 2.51,
+    "2400": 2.512
+   },
+   "asymmetry": {
+    "600": -0.202,
+    "1200": -0.241,
+    "1800": -0.15,
+    "2400": -0.072
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.5376,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_032_aug09_set-01_sub_02.fit": {
+   "index": 32,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_02.fit",
+   "name": "sub_032_aug09_set-01_sub_02.fit",
+   "wh": [
+    5772,
+    3930
+   ],
+   "stackcnt": null,
+   "centre": 2.52,
+   "entry": {
+    "600": 2.323,
+    "1200": 2.292,
+    "1800": 2.333,
+    "2400": 2.455
+   },
+   "exit": {
+    "600": 2.555,
+    "1200": 2.528,
+    "1800": 2.517,
+    "2400": 2.513
+   },
+   "asymmetry": {
+    "600": -0.232,
+    "1200": -0.236,
+    "1800": -0.184,
+    "2400": -0.058
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.5266,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_033_aug09_set-01_sub_03.fit": {
+   "index": 33,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_03.fit",
+   "name": "sub_033_aug09_set-01_sub_03.fit",
+   "wh": [
+    5774,
+    3930
+   ],
+   "stackcnt": null,
+   "centre": 2.445,
+   "entry": {
+    "600": 2.335,
+    "1200": 2.272,
+    "1800": 2.382,
+    "2400": 2.458
+   },
+   "exit": {
+    "600": 2.495,
+    "1200": 2.49,
+    "1800": 2.512,
+    "2400": 2.522
+   },
+   "asymmetry": {
+    "600": -0.16,
+    "1200": -0.218,
+    "1800": -0.13,
+    "2400": -0.064
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4928,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_034_aug09_set-01_sub_04.fit": {
+   "index": 34,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_04.fit",
+   "name": "sub_034_aug09_set-01_sub_04.fit",
+   "wh": [
+    5772,
+    3930
+   ],
+   "stackcnt": null,
+   "centre": 2.348,
+   "entry": {
+    "600": 2.31,
+    "1200": 2.26,
+    "1800": 2.377,
+    "2400": 2.49
+   },
+   "exit": {
+    "600": 2.432,
+    "1200": 2.455,
+    "1800": 2.505,
+    "2400": 2.53
+   },
+   "asymmetry": {
+    "600": -0.122,
+    "1200": -0.195,
+    "1800": -0.128,
+    "2400": -0.04
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.454,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_035_aug09_set-02_sub_01.fit": {
+   "index": 35,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_01.fit",
+   "name": "sub_035_aug09_set-02_sub_01.fit",
+   "wh": [
+    5805,
+    3919
+   ],
+   "stackcnt": null,
+   "centre": 2.333,
+   "entry": {
+    "600": 2.237,
+    "1200": 2.22,
+    "1800": 2.39,
+    "2400": 2.522
+   },
+   "exit": {
+    "600": 2.38,
+    "1200": 2.46,
+    "1800": 2.553,
+    "2400": 2.567
+   },
+   "asymmetry": {
+    "600": -0.143,
+    "1200": -0.24,
+    "1800": -0.163,
+    "2400": -0.045
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4586,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_036_aug09_set-02_sub_02.fit": {
+   "index": 36,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_02.fit",
+   "name": "sub_036_aug09_set-02_sub_02.fit",
+   "wh": [
+    5805,
+    3919
+   ],
+   "stackcnt": null,
+   "centre": 2.302,
+   "entry": {
+    "600": 2.215,
+    "1200": 2.27,
+    "1800": 2.487,
+    "2400": 2.547
+   },
+   "exit": {
+    "600": 2.355,
+    "1200": 2.435,
+    "1800": 2.57,
+    "2400": 2.567
+   },
+   "asymmetry": {
+    "600": -0.14,
+    "1200": -0.165,
+    "1800": -0.083,
+    "2400": -0.02
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4458,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_037_aug09_set-02_sub_03.fit": {
+   "index": 37,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_03.fit",
+   "name": "sub_037_aug09_set-02_sub_03.fit",
+   "wh": [
+    5805,
+    3919
+   ],
+   "stackcnt": null,
+   "centre": 2.272,
+   "entry": {
+    "600": 2.235,
+    "1200": 2.262,
+    "1800": 2.51,
+    "2400": 2.57
+   },
+   "exit": {
+    "600": 2.348,
+    "1200": 2.447,
+    "1800": 2.585,
+    "2400": 2.592
+   },
+   "asymmetry": {
+    "600": -0.113,
+    "1200": -0.185,
+    "1800": -0.075,
+    "2400": -0.022
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4488,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_038_aug09_set-02_sub_04.fit": {
+   "index": 38,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_04.fit",
+   "name": "sub_038_aug09_set-02_sub_04.fit",
+   "wh": [
+    5808,
+    3920
+   ],
+   "stackcnt": null,
+   "centre": 2.265,
+   "entry": {
+    "600": 2.235,
+    "1200": 2.26,
+    "1800": 2.513,
+    "2400": 2.6
+   },
+   "exit": {
+    "600": 2.342,
+    "1200": 2.455,
+    "1800": 2.575,
+    "2400": 2.585
+   },
+   "asymmetry": {
+    "600": -0.107,
+    "1200": -0.195,
+    "1800": -0.062,
+    "2400": 0.015
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4444,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_039_aug09_set-03_sub_01.fit": {
+   "index": 39,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_01.fit",
+   "name": "sub_039_aug09_set-03_sub_01.fit",
+   "wh": [
+    5832,
+    3947
+   ],
+   "stackcnt": null,
+   "centre": 2.282,
+   "entry": {
+    "600": 2.272,
+    "1200": 2.377,
+    "1800": 2.603,
+    "2400": 2.708
+   },
+   "exit": {
+    "600": 2.328,
+    "1200": 2.46,
+    "1800": 2.565,
+    "2400": 2.585
+   },
+   "asymmetry": {
+    "600": -0.056,
+    "1200": -0.083,
+    "1800": 0.038,
+    "2400": 0.123
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.444,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_040_aug09_set-03_sub_02.fit": {
+   "index": 40,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_02.fit",
+   "name": "sub_040_aug09_set-03_sub_02.fit",
+   "wh": [
+    5832,
+    3947
+   ],
+   "stackcnt": null,
+   "centre": 2.285,
+   "entry": {
+    "600": 2.283,
+    "1200": 2.362,
+    "1800": 2.66,
+    "2400": 2.732
+   },
+   "exit": {
+    "600": 2.35,
+    "1200": 2.465,
+    "1800": 2.597,
+    "2400": 2.623
+   },
+   "asymmetry": {
+    "600": -0.067,
+    "1200": -0.103,
+    "1800": 0.063,
+    "2400": 0.109
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.464,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_041_aug09_set-03_sub_03.fit": {
+   "index": 41,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_03.fit",
+   "name": "sub_041_aug09_set-03_sub_03.fit",
+   "wh": [
+    5832,
+    3947
+   ],
+   "stackcnt": null,
+   "centre": 2.315,
+   "entry": {
+    "600": 2.312,
+    "1200": 2.36,
+    "1800": 2.665,
+    "2400": 2.78
+   },
+   "exit": {
+    "600": 2.355,
+    "1200": 2.48,
+    "1800": 2.63,
+    "2400": 2.658
+   },
+   "asymmetry": {
+    "600": -0.043,
+    "1200": -0.12,
+    "1800": 0.035,
+    "2400": 0.122
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4876,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_042_aug09_set-03_sub_04.fit": {
+   "index": 42,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_04.fit",
+   "name": "sub_042_aug09_set-03_sub_04.fit",
+   "wh": [
+    5832,
+    3947
+   ],
+   "stackcnt": null,
+   "centre": 2.325,
+   "entry": {
+    "600": 2.31,
+    "1200": 2.433,
+    "1800": 2.703,
+    "2400": 2.812
+   },
+   "exit": {
+    "600": 2.36,
+    "1200": 2.442,
+    "1800": 2.655,
+    "2400": 2.677
+   },
+   "asymmetry": {
+    "600": -0.05,
+    "1200": -0.009,
+    "1800": 0.048,
+    "2400": 0.135
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4918,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_043_aug09_set-03_sub_05.fit": {
+   "index": 43,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_05.fit",
+   "name": "sub_043_aug09_set-03_sub_05.fit",
+   "wh": [
+    5832,
+    3947
+   ],
+   "stackcnt": null,
+   "centre": 2.33,
+   "entry": {
+    "600": 2.33,
+    "1200": 2.487,
+    "1800": 2.8,
+    "2400": 2.848
+   },
+   "exit": {
+    "600": 2.36,
+    "1200": 2.498,
+    "1800": 2.682,
+    "2400": 2.665
+   },
+   "asymmetry": {
+    "600": -0.03,
+    "1200": -0.011,
+    "1800": 0.118,
+    "2400": 0.183
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.507,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_044_aug09_set-04_sub_01.fit": {
+   "index": 44,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_01.fit",
+   "name": "sub_044_aug09_set-04_sub_01.fit",
+   "wh": [
+    5831,
+    3953
+   ],
+   "stackcnt": null,
+   "centre": 2.345,
+   "entry": {
+    "600": 2.353,
+    "1200": 2.547,
+    "1800": 2.752,
+    "2400": 2.86
+   },
+   "exit": {
+    "600": 2.39,
+    "1200": 2.522,
+    "1800": 2.695,
+    "2400": 2.587
+   },
+   "asymmetry": {
+    "600": -0.037,
+    "1200": 0.025,
+    "1800": 0.057,
+    "2400": 0.273
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.5078,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5016,
+   "removed_columns": 815,
+   "removed_fraction": 0.14
+  },
+  "sub_045_aug09_set-04_sub_02.fit": {
+   "index": 45,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_02.fit",
+   "name": "sub_045_aug09_set-04_sub_02.fit",
+   "wh": [
+    5831,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.357,
+   "entry": {
+    "600": 2.373,
+    "1200": 2.455,
+    "1800": 2.83,
+    "2400": 2.917
+   },
+   "exit": {
+    "600": 2.405,
+    "1200": 2.558,
+    "1800": 2.728,
+    "2400": 2.695
+   },
+   "asymmetry": {
+    "600": -0.032,
+    "1200": -0.103,
+    "1800": 0.102,
+    "2400": 0.222
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.5486,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5016,
+   "removed_columns": 815,
+   "removed_fraction": 0.14
+  },
+  "sub_046_aug09_set-04_sub_03.fit": {
+   "index": 46,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_03.fit",
+   "name": "sub_046_aug09_set-04_sub_03.fit",
+   "wh": [
+    5830,
+    3953
+   ],
+   "stackcnt": null,
+   "centre": 2.365,
+   "entry": {
+    "600": 2.403,
+    "1200": 2.473,
+    "1800": 2.822,
+    "2400": 2.94
+   },
+   "exit": {
+    "600": 2.387,
+    "1200": 2.565,
+    "1800": 2.765,
+    "2400": 2.747
+   },
+   "asymmetry": {
+    "600": 0.016,
+    "1200": -0.092,
+    "1800": 0.057,
+    "2400": 0.193
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.5658,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_047_aug09_set-04_sub_04.fit": {
+   "index": 47,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_04.fit",
+   "name": "sub_047_aug09_set-04_sub_04.fit",
+   "wh": [
+    5831,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.38,
+   "entry": {
+    "600": 2.395,
+    "1200": 2.525,
+    "1800": 2.885,
+    "2400": 2.943
+   },
+   "exit": {
+    "600": 2.388,
+    "1200": 2.528,
+    "1800": 2.763,
+    "2400": 2.715
+   },
+   "asymmetry": {
+    "600": 0.007,
+    "1200": -0.003,
+    "1800": 0.122,
+    "2400": 0.228
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.5548,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5016,
+   "removed_columns": 815,
+   "removed_fraction": 0.14
+  },
+  "sub_048_aug09_set-04_sub_05.fit": {
+   "index": 48,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_05.fit",
+   "name": "sub_048_aug09_set-04_sub_05.fit",
+   "wh": [
+    5830,
+    3953
+   ],
+   "stackcnt": null,
+   "centre": 2.397,
+   "entry": {
+    "600": 2.402,
+    "1200": 2.585,
+    "1800": 2.908,
+    "2400": 2.953
+   },
+   "exit": {
+    "600": 2.397,
+    "1200": 2.55,
+    "1800": 2.795,
+    "2400": 2.72
+   },
+   "asymmetry": {
+    "600": 0.005,
+    "1200": 0.035,
+    "1800": 0.113,
+    "2400": 0.233
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.5718,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5015,
+   "removed_columns": 815,
+   "removed_fraction": 0.14
+  },
+  "sub_049_aug09_set-05_sub_01.fit": {
+   "index": 49,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01.fit",
+   "name": "sub_049_aug09_set-05_sub_01.fit",
+   "wh": [
+    5772,
+    3932
+   ],
+   "stackcnt": null,
+   "centre": 2.415,
+   "entry": {
+    "600": 2.443,
+    "1200": 2.635,
+    "1800": 2.955,
+    "2400": 2.988
+   },
+   "exit": {
+    "600": 2.427,
+    "1200": 2.595,
+    "1800": 2.81,
+    "2400": 2.788
+   },
+   "asymmetry": {
+    "600": 0.016,
+    "1200": 0.04,
+    "1800": 0.145,
+    "2400": 0.2
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.607,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_050_aug09_set-05_sub_02.fit": {
+   "index": 50,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02.fit",
+   "name": "sub_050_aug09_set-05_sub_02.fit",
+   "wh": [
+    5772,
+    3933
+   ],
+   "stackcnt": null,
+   "centre": 2.435,
+   "entry": {
+    "600": 2.45,
+    "1200": 2.637,
+    "1800": 2.998,
+    "2400": 3.0
+   },
+   "exit": {
+    "600": 2.435,
+    "1200": 2.595,
+    "1800": 2.825,
+    "2400": 2.772
+   },
+   "asymmetry": {
+    "600": 0.015,
+    "1200": 0.042,
+    "1800": 0.173,
+    "2400": 0.228
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6124,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4986,
+   "removed_columns": 786,
+   "removed_fraction": 0.136
+  },
+  "sub_051_aug09_set-05_sub_03.fit": {
+   "index": 51,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_03.fit",
+   "name": "sub_051_aug09_set-05_sub_03.fit",
+   "wh": [
+    5772,
+    3932
+   ],
+   "stackcnt": null,
+   "centre": 2.435,
+   "entry": {
+    "600": 2.478,
+    "1200": 2.638,
+    "1800": 2.975,
+    "2400": 3.07
+   },
+   "exit": {
+    "600": 2.44,
+    "1200": 2.588,
+    "1800": 2.795,
+    "2400": 2.795
+   },
+   "asymmetry": {
+    "600": 0.038,
+    "1200": 0.05,
+    "1800": 0.18,
+    "2400": 0.275
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6106,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4986,
+   "removed_columns": 786,
+   "removed_fraction": 0.136
+  },
+  "sub_052_aug09_set-05_sub_04.fit": {
+   "index": 52,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_04.fit",
+   "name": "sub_052_aug09_set-05_sub_04.fit",
+   "wh": [
+    5772,
+    3933
+   ],
+   "stackcnt": null,
+   "centre": 2.438,
+   "entry": {
+    "600": 2.482,
+    "1200": 2.65,
+    "1800": 2.987,
+    "2400": 3.062
+   },
+   "exit": {
+    "600": 2.448,
+    "1200": 2.61,
+    "1800": 2.825,
+    "2400": 2.78
+   },
+   "asymmetry": {
+    "600": 0.034,
+    "1200": 0.04,
+    "1800": 0.162,
+    "2400": 0.282
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6202,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4986,
+   "removed_columns": 786,
+   "removed_fraction": 0.136
+  },
+  "sub_053_aug14_set-01_sub_01.fit": {
+   "index": 53,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_01.fit",
+   "name": "sub_053_aug14_set-01_sub_01.fit",
+   "wh": [
+    5797,
+    3944
+   ],
+   "stackcnt": null,
+   "centre": 2.272,
+   "entry": {
+    "600": 2.26,
+    "1200": 2.375,
+    "1800": 2.59,
+    "2400": 2.737
+   },
+   "exit": {
+    "600": 2.328,
+    "1200": 2.465,
+    "1800": 2.63,
+    "2400": 2.572
+   },
+   "asymmetry": {
+    "600": -0.068,
+    "1200": -0.09,
+    "1800": -0.04,
+    "2400": 0.165
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4534,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_054_aug14_set-01_sub_02.fit": {
+   "index": 54,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_02.fit",
+   "name": "sub_054_aug14_set-01_sub_02.fit",
+   "wh": [
+    5797,
+    3943
+   ],
+   "stackcnt": null,
+   "centre": 2.295,
+   "entry": {
+    "600": 2.288,
+    "1200": 2.375,
+    "1800": 2.712,
+    "2400": 2.75
+   },
+   "exit": {
+    "600": 2.345,
+    "1200": 2.48,
+    "1800": 2.675,
+    "2400": 2.618
+   },
+   "asymmetry": {
+    "600": -0.057,
+    "1200": -0.105,
+    "1800": 0.037,
+    "2400": 0.132
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4826,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_055_aug14_set-01_sub_03.fit": {
+   "index": 55,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_03.fit",
+   "name": "sub_055_aug14_set-01_sub_03.fit",
+   "wh": [
+    5797,
+    3943
+   ],
+   "stackcnt": null,
+   "centre": 2.315,
+   "entry": {
+    "600": 2.303,
+    "1200": 2.387,
+    "1800": 2.728,
+    "2400": 2.79
+   },
+   "exit": {
+    "600": 2.35,
+    "1200": 2.515,
+    "1800": 2.69,
+    "2400": 2.66
+   },
+   "asymmetry": {
+    "600": -0.047,
+    "1200": -0.128,
+    "1800": 0.038,
+    "2400": 0.13
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.506,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_056_aug14_set-01_sub_04.fit": {
+   "index": 56,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_04.fit",
+   "name": "sub_056_aug14_set-01_sub_04.fit",
+   "wh": [
+    5704,
+    3909
+   ],
+   "stackcnt": null,
+   "centre": 2.33,
+   "entry": {
+    "600": 2.337,
+    "1200": 2.478,
+    "1800": 2.73,
+    "2400": 2.84
+   },
+   "exit": {
+    "600": 2.353,
+    "1200": 2.47,
+    "1800": 2.695,
+    "2400": 2.65
+   },
+   "asymmetry": {
+    "600": -0.016,
+    "1200": 0.008,
+    "1800": 0.035,
+    "2400": 0.19
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.4996,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_057_aug14_set-01_sub_05.fit": {
+   "index": 57,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_05.fit",
+   "name": "sub_057_aug14_set-01_sub_05.fit",
+   "wh": [
+    5795,
+    3943
+   ],
+   "stackcnt": null,
+   "centre": 2.365,
+   "entry": {
+    "600": 2.355,
+    "1200": 2.52,
+    "1800": 2.785,
+    "2400": 2.842
+   },
+   "exit": {
+    "600": 2.39,
+    "1200": 2.512,
+    "1800": 2.723,
+    "2400": 2.663
+   },
+   "asymmetry": {
+    "600": -0.035,
+    "1200": 0.008,
+    "1800": 0.062,
+    "2400": 0.179
+   },
+   "onset": null,
+   "x_c": null,
+   "cropped": false,
+   "S_advisory": 2.5306,
+   "clamps": {},
+   "skipped": []
+  },
+  "sub_058_aug14_set-02_sub_01.fit": {
+   "index": 58,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_01.fit",
+   "name": "sub_058_aug14_set-02_sub_01.fit",
+   "wh": [
+    5791,
+    3941
+   ],
+   "stackcnt": null,
+   "centre": 2.365,
+   "entry": {
+    "600": 2.39,
+    "1200": 2.595,
+    "1800": 2.775,
+    "2400": 2.958
+   },
+   "exit": {
+    "600": 2.42,
+    "1200": 2.56,
+    "1800": 2.73,
+    "2400": 2.68
+   },
+   "asymmetry": {
+    "600": -0.03,
+    "1200": 0.035,
+    "1800": 0.045,
+    "2400": 0.278
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.551,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4996,
+   "removed_columns": 795,
+   "removed_fraction": 0.137
+  },
+  "sub_059_aug14_set-02_sub_02.fit": {
+   "index": 59,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_02.fit",
+   "name": "sub_059_aug14_set-02_sub_02.fit",
+   "wh": [
+    5791,
+    3941
+   ],
+   "stackcnt": null,
+   "centre": 2.365,
+   "entry": {
+    "600": 2.403,
+    "1200": 2.61,
+    "1800": 2.907,
+    "2400": 2.98
+   },
+   "exit": {
+    "600": 2.43,
+    "1200": 2.565,
+    "1800": 2.783,
+    "2400": 2.71
+   },
+   "asymmetry": {
+    "600": -0.027,
+    "1200": 0.045,
+    "1800": 0.124,
+    "2400": 0.27
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.5706,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4996,
+   "removed_columns": 795,
+   "removed_fraction": 0.137
+  },
+  "sub_060_aug14_set-02_sub_03.fit": {
+   "index": 60,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_03.fit",
+   "name": "sub_060_aug14_set-02_sub_03.fit",
+   "wh": [
+    5793,
+    3942
+   ],
+   "stackcnt": null,
+   "centre": 2.4,
+   "entry": {
+    "600": 2.435,
+    "1200": 2.528,
+    "1800": 2.973,
+    "2400": 2.98
+   },
+   "exit": {
+    "600": 2.433,
+    "1200": 2.625,
+    "1800": 2.828,
+    "2400": 2.755
+   },
+   "asymmetry": {
+    "600": 0.002,
+    "1200": -0.097,
+    "1800": 0.145,
+    "2400": 0.225
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6082,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4996,
+   "removed_columns": 797,
+   "removed_fraction": 0.138
+  },
+  "sub_061_aug14_set-02_sub_04.fit": {
+   "index": 61,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_04.fit",
+   "name": "sub_061_aug14_set-02_sub_04.fit",
+   "wh": [
+    5793,
+    3942
+   ],
+   "stackcnt": null,
+   "centre": 2.413,
+   "entry": {
+    "600": 2.442,
+    "1200": 2.538,
+    "1800": 2.88,
+    "2400": 3.04
+   },
+   "exit": {
+    "600": 2.44,
+    "1200": 2.597,
+    "1800": 2.815,
+    "2400": 2.777
+   },
+   "asymmetry": {
+    "600": 0.002,
+    "1200": -0.059,
+    "1800": 0.065,
+    "2400": 0.263
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6084,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4996,
+   "removed_columns": 797,
+   "removed_fraction": 0.138
+  },
+  "sub_062_aug14_set-02_sub_05.fit": {
+   "index": 62,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_05.fit",
+   "name": "sub_062_aug14_set-02_sub_05.fit",
+   "wh": [
+    5793,
+    3942
+   ],
+   "stackcnt": null,
+   "centre": 2.435,
+   "entry": {
+    "600": 2.44,
+    "1200": 2.64,
+    "1800": 2.933,
+    "2400": 3.067
+   },
+   "exit": {
+    "600": 2.465,
+    "1200": 2.627,
+    "1800": 2.823,
+    "2400": 2.788
+   },
+   "asymmetry": {
+    "600": -0.025,
+    "1200": 0.013,
+    "1800": 0.11,
+    "2400": 0.279
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6276,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4996,
+   "removed_columns": 797,
+   "removed_fraction": 0.138
+  },
+  "sub_063_aug14_set-03_sub_01.fit": {
+   "index": 63,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_01.fit",
+   "name": "sub_063_aug14_set-03_sub_01.fit",
+   "wh": [
+    5828,
+    3955
+   ],
+   "stackcnt": null,
+   "centre": 2.435,
+   "entry": {
+    "600": 2.488,
+    "1200": 2.698,
+    "1800": 2.913,
+    "2400": 3.165
+   },
+   "exit": {
+    "600": 2.45,
+    "1200": 2.6,
+    "1800": 2.812,
+    "2400": 2.735
+   },
+   "asymmetry": {
+    "600": 0.038,
+    "1200": 0.098,
+    "1800": 0.101,
+    "2400": 0.43
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6064,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5014,
+   "removed_columns": 814,
+   "removed_fraction": 0.14
+  },
+  "sub_064_aug14_set-03_sub_02.fit": {
+   "index": 64,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_02.fit",
+   "name": "sub_064_aug14_set-03_sub_02.fit",
+   "wh": [
+    5828,
+    3956
+   ],
+   "stackcnt": null,
+   "centre": 2.462,
+   "entry": {
+    "600": 2.51,
+    "1200": 2.647,
+    "1800": 3.112,
+    "2400": 3.147
+   },
+   "exit": {
+    "600": 2.488,
+    "1200": 2.663,
+    "1800": 2.848,
+    "2400": 2.742
+   },
+   "asymmetry": {
+    "600": 0.022,
+    "1200": -0.016,
+    "1800": 0.264,
+    "2400": 0.405
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.6406,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1414,
+   "removed_fraction": 0.243
+  },
+  "sub_065_aug14_set-03_sub_03.fit": {
+   "index": 65,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_03.fit",
+   "name": "sub_065_aug14_set-03_sub_03.fit",
+   "wh": [
+    5827,
+    3955
+   ],
+   "stackcnt": null,
+   "centre": 2.45,
+   "entry": {
+    "600": 2.552,
+    "1200": 2.618,
+    "1800": 3.053,
+    "2400": 3.163
+   },
+   "exit": {
+    "600": 2.483,
+    "1200": 2.633,
+    "1800": 2.835,
+    "2400": 2.833
+   },
+   "asymmetry": {
+    "600": 0.069,
+    "1200": -0.015,
+    "1800": 0.218,
+    "2400": 0.33
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.6468,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1413,
+   "removed_fraction": 0.242
+  },
+  "sub_066_aug14_set-03_sub_04.fit": {
+   "index": 66,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_04.fit",
+   "name": "sub_066_aug14_set-03_sub_04.fit",
+   "wh": [
+    5827,
+    3955
+   ],
+   "stackcnt": null,
+   "centre": 2.475,
+   "entry": {
+    "600": 2.533,
+    "1200": 2.675,
+    "1800": 2.987,
+    "2400": 3.195
+   },
+   "exit": {
+    "600": 2.493,
+    "1200": 2.617,
+    "1800": 2.868,
+    "2400": 2.822
+   },
+   "asymmetry": {
+    "600": 0.04,
+    "1200": 0.058,
+    "1800": 0.119,
+    "2400": 0.373
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.655,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5014,
+   "removed_columns": 813,
+   "removed_fraction": 0.14
+  },
+  "sub_067_aug14_set-03_sub_05.fit": {
+   "index": 67,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_05.fit",
+   "name": "sub_067_aug14_set-03_sub_05.fit",
+   "wh": [
+    5828,
+    3955
+   ],
+   "stackcnt": null,
+   "centre": 2.48,
+   "entry": {
+    "600": 2.512,
+    "1200": 2.723,
+    "1800": 3.112,
+    "2400": 3.192
+   },
+   "exit": {
+    "600": 2.475,
+    "1200": 2.655,
+    "1800": 2.917,
+    "2400": 2.805
+   },
+   "asymmetry": {
+    "600": 0.037,
+    "1200": 0.068,
+    "1800": 0.195,
+    "2400": 0.387
+   },
+   "onset": 2400,
+   "x_c": 2100,
+   "cropped": true,
+   "S_advisory": 2.6664,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 5014,
+   "removed_columns": 814,
+   "removed_fraction": 0.14
+  },
+  "sub_068_aug14_set-03_sub_06.fit": {
+   "index": 68,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_06.fit",
+   "name": "sub_068_aug14_set-03_sub_06.fit",
+   "wh": [
+    5827,
+    3956
+   ],
+   "stackcnt": null,
+   "centre": 2.495,
+   "entry": {
+    "600": 2.507,
+    "1200": 2.688,
+    "1800": 3.138,
+    "2400": 3.215
+   },
+   "exit": {
+    "600": 2.498,
+    "1200": 2.653,
+    "1800": 2.88,
+    "2400": 2.845
+   },
+   "asymmetry": {
+    "600": 0.009,
+    "1200": 0.035,
+    "1800": 0.258,
+    "2400": 0.37
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.6742,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1413,
+   "removed_fraction": 0.242
+  },
+  "sub_069_aug14_set-04_sub_01.fit": {
+   "index": 69,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01.fit",
+   "name": "sub_069_aug14_set-04_sub_01.fit",
+   "wh": [
+    5828,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.535,
+   "entry": {
+    "600": 2.62,
+    "1200": 2.72,
+    "1800": 3.098,
+    "2400": 3.24
+   },
+   "exit": {
+    "600": 2.502,
+    "1200": 2.627,
+    "1800": 2.853,
+    "2400": 2.848
+   },
+   "asymmetry": {
+    "600": 0.118,
+    "1200": 0.093,
+    "1800": 0.245,
+    "2400": 0.392
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.673,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1414,
+   "removed_fraction": 0.243
+  },
+  "sub_070_aug14_set-04_sub_02.fit": {
+   "index": 70,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_02.fit",
+   "name": "sub_070_aug14_set-04_sub_02.fit",
+   "wh": [
+    5828,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.527,
+   "entry": {
+    "600": 2.605,
+    "1200": 2.855,
+    "1800": 3.09,
+    "2400": 3.29
+   },
+   "exit": {
+    "600": 2.52,
+    "1200": 2.65,
+    "1800": 2.88,
+    "2400": 2.79
+   },
+   "asymmetry": {
+    "600": 0.085,
+    "1200": 0.205,
+    "1800": 0.21,
+    "2400": 0.5
+   },
+   "onset": 1200,
+   "x_c": 900,
+   "cropped": true,
+   "S_advisory": 2.6734,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 3814,
+   "removed_columns": 2014,
+   "removed_fraction": 0.346
+  },
+  "sub_071_aug14_set-04_sub_03.fit": {
+   "index": 71,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_03.fit",
+   "name": "sub_071_aug14_set-04_sub_03.fit",
+   "wh": [
+    5828,
+    3952
+   ],
+   "stackcnt": null,
+   "centre": 2.533,
+   "entry": {
+    "600": 2.592,
+    "1200": 2.83,
+    "1800": 3.218,
+    "2400": 3.29
+   },
+   "exit": {
+    "600": 2.518,
+    "1200": 2.675,
+    "1800": 2.855,
+    "2400": 2.853
+   },
+   "asymmetry": {
+    "600": 0.074,
+    "1200": 0.155,
+    "1800": 0.363,
+    "2400": 0.437
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.6868,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1414,
+   "removed_fraction": 0.243
+  },
+  "sub_072_aug14_set-04_sub_04.fit": {
+   "index": 72,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04.fit",
+   "name": "sub_072_aug14_set-04_sub_04.fit",
+   "wh": [
+    5829,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.538,
+   "entry": {
+    "600": 2.592,
+    "1200": 2.757,
+    "1800": 3.185,
+    "2400": 3.275
+   },
+   "exit": {
+    "600": 2.547,
+    "1200": 2.72,
+    "1800": 2.857,
+    "2400": 2.838
+   },
+   "asymmetry": {
+    "600": 0.045,
+    "1200": 0.037,
+    "1800": 0.328,
+    "2400": 0.437
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.7,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1415,
+   "removed_fraction": 0.243
+  },
+  "sub_073_aug14_set-04_sub_05.fit": {
+   "index": 73,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_05.fit",
+   "name": "sub_073_aug14_set-04_sub_05.fit",
+   "wh": [
+    5828,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.533,
+   "entry": {
+    "600": 2.623,
+    "1200": 2.725,
+    "1800": 3.17,
+    "2400": 3.283
+   },
+   "exit": {
+    "600": 2.525,
+    "1200": 2.68,
+    "1800": 2.83,
+    "2400": 2.81
+   },
+   "asymmetry": {
+    "600": 0.098,
+    "1200": 0.045,
+    "1800": 0.34,
+    "2400": 0.473
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.6756,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1414,
+   "removed_fraction": 0.243
+  },
+  "sub_074_aug14_set-04_sub_06.fit": {
+   "index": 74,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_06.fit",
+   "name": "sub_074_aug14_set-04_sub_06.fit",
+   "wh": [
+    5829,
+    3951
+   ],
+   "stackcnt": null,
+   "centre": 2.54,
+   "entry": {
+    "600": 2.605,
+    "1200": 2.805,
+    "1800": 3.13,
+    "2400": 3.317
+   },
+   "exit": {
+    "600": 2.54,
+    "1200": 2.69,
+    "1800": 2.875,
+    "2400": 2.87
+   },
+   "asymmetry": {
+    "600": 0.065,
+    "1200": 0.115,
+    "1800": 0.255,
+    "2400": 0.447
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.703,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4414,
+   "removed_columns": 1415,
+   "removed_fraction": 0.243
+  },
+  "sub_075_aug14_set-05_sub_01.fit": {
+   "index": 75,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01.fit",
+   "name": "sub_075_aug14_set-05_sub_01.fit",
+   "wh": [
+    5784,
+    3940
+   ],
+   "stackcnt": null,
+   "centre": 2.58,
+   "entry": {
+    "600": 2.677,
+    "1200": 2.788,
+    "1800": 3.3,
+    "2400": 3.31
+   },
+   "exit": {
+    "600": 2.547,
+    "1200": 2.768,
+    "1800": 2.935,
+    "2400": 2.81
+   },
+   "asymmetry": {
+    "600": 0.13,
+    "1200": 0.02,
+    "1800": 0.365,
+    "2400": 0.5
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.728,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4392,
+   "removed_columns": 1392,
+   "removed_fraction": 0.241
+  },
+  "sub_076_aug14_set-05_sub_02.fit": {
+   "index": 76,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02.fit",
+   "name": "sub_076_aug14_set-05_sub_02.fit",
+   "wh": [
+    5667,
+    3898
+   ],
+   "stackcnt": null,
+   "centre": 2.6,
+   "entry": {
+    "600": 2.69,
+    "1200": 2.828,
+    "1800": 3.2,
+    "2400": 3.377
+   },
+   "exit": {
+    "600": 2.587,
+    "1200": 2.7,
+    "1800": 2.98,
+    "2400": 2.917
+   },
+   "asymmetry": {
+    "600": 0.103,
+    "1200": 0.128,
+    "1800": 0.22,
+    "2400": 0.46
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.7568,
+   "clamps": {},
+   "skipped": [],
+   "kept_width": 4334,
+   "removed_columns": 1333,
+   "removed_fraction": 0.235
+  },
+  "sub_077_aug14_set-05_sub_03.fit": {
+   "index": 77,
+   "member": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_03.fit",
+   "name": "sub_077_aug14_set-05_sub_03.fit",
+   "wh": [
+    5511,
+    3843
+   ],
+   "stackcnt": null,
+   "centre": 2.615,
+   "entry": {
+    "600": 2.67,
+    "1200": 2.88,
+    "1800": 3.312,
+    "2400": 3.337
+   },
+   "exit": {
+    "600": 2.567,
+    "1200": 2.73,
+    "1800": 2.935,
+    "2400": 2.865
+   },
+   "asymmetry": {
+    "600": 0.103,
+    "1200": 0.15,
+    "1800": 0.377,
+    "2400": 0.472
+   },
+   "onset": 1800,
+   "x_c": 1500,
+   "cropped": true,
+   "S_advisory": 2.7424,
+   "clamps": {
+    "along+2400": 45,
+    "along-2400": 44
+   },
+   "skipped": [],
+   "kept_width": 4256,
+   "removed_columns": 1255,
+   "removed_fraction": 0.228
+  }
+ },
+ "curated_dir": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/msel17B/armA/members",
+ "curated_listing": {
+  "sub_001_july31_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_002_july31_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_003_july31_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_004_july31_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_005_july31_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_006_july31_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_007_july31_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_008_july31_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_009_july31_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_010_july31_set-02_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-02/sub_05.fit",
+   "ok": true
+  },
+  "sub_011_july31_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_012_july31_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_013_july31_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_014_july31_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_015_july31_set-03_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-03/sub_05.fit",
+   "ok": true
+  },
+  "sub_016_july31_set-04_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_01.fit",
+   "ok": true
+  },
+  "sub_017_july31_set-04_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/july31/work/groups_set-04/sub_02.fit",
+   "ok": true
+  },
+  "sub_018_aug06_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_019_aug06_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_020_aug06_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_021_aug06_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_022_aug06_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_023_aug06_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_024_aug06_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_025_aug06_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_026_aug06_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_027_aug06_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_028_aug06_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_029_aug06_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_030_aug06_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug06/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_031_aug09_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_032_aug09_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_033_aug09_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_034_aug09_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_035_aug09_set-02_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_01.fit",
+   "ok": true
+  },
+  "sub_036_aug09_set-02_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_02.fit",
+   "ok": true
+  },
+  "sub_037_aug09_set-02_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_03.fit",
+   "ok": true
+  },
+  "sub_038_aug09_set-02_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-02/sub_04.fit",
+   "ok": true
+  },
+  "sub_039_aug09_set-03_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_01.fit",
+   "ok": true
+  },
+  "sub_040_aug09_set-03_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_02.fit",
+   "ok": true
+  },
+  "sub_041_aug09_set-03_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_03.fit",
+   "ok": true
+  },
+  "sub_042_aug09_set-03_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_04.fit",
+   "ok": true
+  },
+  "sub_043_aug09_set-03_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-03/sub_05.fit",
+   "ok": true
+  },
+  "sub_044_aug09_set-04_sub_01.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_01.fit",
+   "kept_width": 5016,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_045_aug09_set-04_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_02.fit",
+   "kept_width": 5016,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_046_aug09_set-04_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_03.fit",
+   "ok": true
+  },
+  "sub_047_aug09_set-04_sub_04.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_04.fit",
+   "kept_width": 5016,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_048_aug09_set-04_sub_05.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-04/sub_05.fit",
+   "kept_width": 5015,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_049_aug09_set-05_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_01.fit",
+   "ok": true
+  },
+  "sub_050_aug09_set-05_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_02.fit",
+   "kept_width": 4986,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_051_aug09_set-05_sub_03.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_03.fit",
+   "kept_width": 4986,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_052_aug09_set-05_sub_04.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug09/work/groups_set-05/sub_04.fit",
+   "kept_width": 4986,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_053_aug14_set-01_sub_01.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_01.fit",
+   "ok": true
+  },
+  "sub_054_aug14_set-01_sub_02.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_02.fit",
+   "ok": true
+  },
+  "sub_055_aug14_set-01_sub_03.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_03.fit",
+   "ok": true
+  },
+  "sub_056_aug14_set-01_sub_04.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_04.fit",
+   "ok": true
+  },
+  "sub_057_aug14_set-01_sub_05.fit": {
+   "symlink_to": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-01/sub_05.fit",
+   "ok": true
+  },
+  "sub_058_aug14_set-02_sub_01.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_01.fit",
+   "kept_width": 4996,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_059_aug14_set-02_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_02.fit",
+   "kept_width": 4996,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_060_aug14_set-02_sub_03.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_03.fit",
+   "kept_width": 4996,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_061_aug14_set-02_sub_04.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_04.fit",
+   "kept_width": 4996,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_062_aug14_set-02_sub_05.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-02/sub_05.fit",
+   "kept_width": 4996,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_063_aug14_set-03_sub_01.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_01.fit",
+   "kept_width": 5014,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_064_aug14_set-03_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_02.fit",
+   "kept_width": 4414,
+   "ok": true,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": true,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_065_aug14_set-03_sub_03.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_03.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_066_aug14_set-03_sub_04.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_04.fit",
+   "kept_width": 5014,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_067_aug14_set-03_sub_05.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_05.fit",
+   "kept_width": 5014,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_068_aug14_set-03_sub_06.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-03/sub_06.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_069_aug14_set-04_sub_01.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_01.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_070_aug14_set-04_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_02.fit",
+   "kept_width": 3814,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_071_aug14_set-04_sub_03.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_03.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_072_aug14_set-04_sub_04.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_04.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_073_aug14_set-04_sub_05.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_05.fit",
+   "kept_width": 4414,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_074_aug14_set-04_sub_06.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-04/sub_06.fit",
+   "kept_width": 4414,
+   "ok": true,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": true,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_075_aug14_set-05_sub_01.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_01.fit",
+   "kept_width": 4392,
+   "ok": true,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": true,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_076_aug14_set-05_sub_02.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_02.fit",
+   "kept_width": 4334,
+   "ok": true,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": true,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  },
+  "sub_077_aug14_set-05_sub_03.fit": {
+   "cropped_copy_of": "/home/samsung/Desktop/astro-imaging/sessions/aug14/work/groups_set-05/sub_03.fit",
+   "kept_width": 4256,
+   "ok": false,
+   "checks": {
+    "naxis1==kept_width": true,
+    "bitpix-32": true,
+    "CRPIX/CRVAL unchanged": true,
+    "SIP unchanged": false,
+    "T0 provenance keys present": true,
+    "single matrix form": true,
+    "MEMCROP==x_c": true,
+    "MEMCRULE present": true,
+    "MEMCPROV present": true,
+    "MEMCSCOR==S": true,
+    "kept pixels identical": true
+   }
+  }
+ },
+ "verified": false,
+ "verify_failures": [
+  "sub_044_aug09_set-04_sub_01.fit: SIP unchanged",
+  "sub_045_aug09_set-04_sub_02.fit: SIP unchanged",
+  "sub_047_aug09_set-04_sub_04.fit: SIP unchanged",
+  "sub_048_aug09_set-04_sub_05.fit: SIP unchanged",
+  "sub_050_aug09_set-05_sub_02.fit: SIP unchanged",
+  "sub_051_aug09_set-05_sub_03.fit: SIP unchanged",
+  "sub_052_aug09_set-05_sub_04.fit: SIP unchanged",
+  "sub_058_aug14_set-02_sub_01.fit: SIP unchanged",
+  "sub_059_aug14_set-02_sub_02.fit: SIP unchanged",
+  "sub_060_aug14_set-02_sub_03.fit: SIP unchanged",
+  "sub_061_aug14_set-02_sub_04.fit: SIP unchanged",
+  "sub_062_aug14_set-02_sub_05.fit: SIP unchanged",
+  "sub_063_aug14_set-03_sub_01.fit: SIP unchanged",
+  "sub_065_aug14_set-03_sub_03.fit: SIP unchanged",
+  "sub_066_aug14_set-03_sub_04.fit: SIP unchanged",
+  "sub_067_aug14_set-03_sub_05.fit: SIP unchanged",
+  "sub_068_aug14_set-03_sub_06.fit: SIP unchanged",
+  "sub_069_aug14_set-04_sub_01.fit: SIP unchanged",
+  "sub_070_aug14_set-04_sub_02.fit: SIP unchanged",
+  "sub_071_aug14_set-04_sub_03.fit: SIP unchanged",
+  "sub_072_aug14_set-04_sub_04.fit: SIP unchanged",
+  "sub_073_aug14_set-04_sub_05.fit: SIP unchanged",
+  "sub_077_aug14_set-05_sub_03.fit: SIP unchanged"
+ ],
+ "verify_after_tolerance_fix": {
+  "passed": "27/27",
+  "symlinks_ok": "50/50",
+  "max_rel_sip": 4.4927580864853434e-15,
+  "max_sky_sep_deg": 4.4147745240653356e-13,
+  "verify_exit": 0,
+  "criterion": "SIP: key sets + orders identical and every coefficient within 1e-12 relative (Siril 1.4.4 re-serializes at 15 significant digits; measured max 4.49e-15); pixel->world agreement at the copy's 4 corners + centre < 1e-9 deg (measured max 4.41e-13); MEMCROP/CRPIX/CRVAL/matrix form exact; kept pixels identical. Re-run of member_profile.py verify over the EXISTING curated dir against the originals (no re-crop); the original verified=false verdict fields above are left as written."
+ }
+}

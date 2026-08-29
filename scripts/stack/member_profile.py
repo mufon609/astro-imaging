@@ -31,6 +31,20 @@ is the orchestrating half). Four subcommands, none of which touches an original:
       were measured.
   member_profile.py verify   --plan=<json> --record=<json>
       Per-copy assertions after the Siril crops (below), written into the record.
+      SIP IS ASSERTED TWO WAYS, NEVER BY EXACT EQUALITY (ruled after the GO #17B
+      acceptance): (1) key sets and orders identical AND every coefficient equal
+      to a RELATIVE tolerance of 1e-12 — MEASURED on this rig: Siril 1.4.4's
+      crop+save writes SIP values at 15 significant digits, so 36 of 1107
+      coefficients across 27 real cropped copies moved, none by more than
+      4.49e-15 relative; 1e-12 is a thousandfold margin over that and a
+      millionfold below any change a re-solve or a wrong crop makes; (2) the
+      PHYSICAL assertion: pixel->world agreement between the original's WCS and
+      the copy's at 5 kept-region points < 1e-9 deg (measured max 4.41e-13; at
+      16.97"/px the bar is 2e-7 px). Exact equality was the criterion until 17B:
+      it flagged 23/27 copies that are byte-identical in data to the
+      owner-approved cropT copies, which carry the same re-serialized values and
+      had passed a KEYS-level check that never measured values. MEMCROP, CRPIX/
+      CRVAL and the matrix-form checks stay exact.
   member_profile.py fixtures --out=<dir>
       The selftest's synthetic members + their profile table, a cache seeded
       with their real sha256s, and a selftest recipe (no Siril).
@@ -89,9 +103,15 @@ columns cover the same sky.
 SELFTEST COVERAGE (run_member_crop.sh --selftest): rule -> plan -> record ->
 Siril crop + stamp -> verify on synthetic members with a PRE-WRITTEN profile
 table (--profiles), plus the CACHE-HIT path (a seeded cache serves every member:
-0 profiled, no findstar, verdicts identical). NOT covered: `profile`'s Siril
-findstar leg and the cache MISS-then-write path — GO #17B's reproduction of
-cropT is their acceptance test (arm 2, the fresh profile).
+0 profiled, no findstar, verdicts identical). The SIP criterion has a positive
+control in each direction: the fixture carries 17-significant-digit coefficients
+that do NOT round-trip through Siril's 15-digit writer, so the crop re-serializes
+them (the real-member effect: 36/1107 values moved <= 4.49e-15 on the 27
+cropT/17B copies) and verify MUST pass with max_rel_sip > 0; and a NEGATIVE
+copy with one coefficient altered by 1e-6 relative (the change a re-solve or a
+wrong crop makes) MUST fail both assertions. Exercised at GO #17B on the real
+77 (identity + determinism held), not by the selftest: `profile`'s Siril
+findstar leg and the cache MISS-then-write path.
 
 REMOVAL CONDITION: retire when Siril's compose accepts per-member weight maps or
 a per-member region mask (a mask is the crop without the coverage cost).
@@ -108,6 +128,24 @@ sys.path.insert(0, os.path.join(REPO, "scripts", "qa"))
 sys.path.insert(0, os.path.join(REPO, "scripts", "lib"))
 T0_REQUIRED = ("DISTMODL", "DISTA", "DISTB", "DISTC", "DISTNORM", "DISTPROV", "DISTSRC", "CALSET",
                "BKGLIGHT", "STACKCNT", "EXPTIME", "LIVETIME", "FOCALLEN", "XPIXSZ", "DATE-OBS", "INSTRUME")
+SIP_REL_TOL = 1e-12        # verify's coefficient tolerance: 1000x the measured 4.49e-15 re-serialization (docstring)
+SKY_SEP_TOL_DEG = 1e-9     # verify's physical bar: pixel->world agreement at 5 kept-region points (2e-7 px at 16.97"/px)
+
+
+def sky_sep_deg(hi, ho):
+    """Max pixel->world separation (deg) between the original's WCS and the copy's at the copy's
+    four corners + centre (1-based FITS pixels; the crop starts at 0 0 so pixel frames coincide,
+    which the CRPIX check asserts separately). Diagnostic astropy read of headers only."""
+    import warnings
+    import numpy as np
+    from astropy.wcs import WCS
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wi, wo = WCS(hi, naxis=2), WCS(ho, naxis=2)
+    W, H = int(ho["NAXIS1"]), int(ho["NAXIS2"])
+    pts = np.array([[1, 1], [W, 1], [1, H], [W, H], [W / 2.0, H / 2.0]], float)
+    si, so = wi.all_pix2world(pts, 1), wo.all_pix2world(pts, 1)
+    return float(np.hypot((si[:, 0] - so[:, 0]) * np.cos(np.radians(si[:, 1])), si[:, 1] - so[:, 1]).max())
 
 
 def opts_of(argv):
@@ -332,7 +370,13 @@ def verify(o):
         checks["bitpix-32"] = ho["BITPIX"] == -32
         checks["CRPIX/CRVAL unchanged"] = all(abs(float(ho[k]) - float(hi[k])) < 1e-6 for k in ("CRPIX1", "CRPIX2", "CRVAL1", "CRVAL2"))
         sipk = lambda h: sorted(k for k in h if k[:2] in ("A_", "B_", "AP", "BP"))
-        checks["SIP unchanged"] = sipk(hi) == sipk(ho) and all(float(hi[k]) == float(ho[k]) for k in sipk(hi))
+        ks = sipk(hi); same_keys = ks == sipk(ho)
+        same_orders = same_keys and all(int(hi[k]) == int(ho[k]) for k in ks if k.endswith("ORDER"))
+        rel = lambda a, b: (abs(a - b) / max(abs(a), abs(b))) if (a or b) else 0.0
+        max_rel = max((rel(float(hi[k]), float(ho[k])) for k in ks if not k.endswith("ORDER")), default=0.0) if same_keys else None
+        checks["SIP keys/orders identical, values within 1e-12 rel"] = same_orders and max_rel is not None and max_rel <= SIP_REL_TOL
+        sky = sky_sep_deg(hi, ho)
+        checks["pixel->world agreement < 1e-9 deg"] = sky < SKY_SEP_TOL_DEG
         checks["T0 provenance keys present"] = all(k in ho for k in T0_REQUIRED if k in hi)
         checks["single matrix form"] = ("CD1_1" in ho) != ("CDELT1" in ho)
         checks["MEMCROP==x_c"] = int(ho.get("MEMCROP", -999)) == int(a["x_c"])
@@ -344,10 +388,15 @@ def verify(o):
         ok = all(checks.values())
         if not ok:
             fails.append(f"{a['name']}: " + ", ".join(k for k, v in checks.items() if not v))
-        listing[a["name"]] = {"cropped_copy_of": a["src"], "kept_width": W, "ok": ok, "checks": checks}
+        listing[a["name"]] = {"cropped_copy_of": a["src"], "kept_width": W, "ok": ok, "checks": checks, "max_rel_sip": max_rel, "max_sky_sep_deg": sky}
+    copies = [v for v in listing.values() if "checks" in v]
     rec["curated_listing"] = listing; rec["verified"] = not fails; rec["verify_failures"] = fails
+    rec["verify_criterion"] = {"sip_rel_tol": SIP_REL_TOL, "sky_sep_tol_deg": SKY_SEP_TOL_DEG,
+                               "text": "SIP: key sets + orders identical and every coefficient within 1e-12 relative (Siril 1.4.4 re-serializes at 15 significant digits, measured max 4.49e-15); pixel->world agreement at the copy's 4 corners + centre < 1e-9 deg (measured max 4.41e-13); MEMCROP/CRPIX/CRVAL/matrix form exact; kept pixels identical"}
+    rec["verify_max_rel_sip"] = max((v["max_rel_sip"] for v in copies if v["max_rel_sip"] is not None), default=0.0)
+    rec["verify_max_sky_sep_deg"] = max((v["max_sky_sep_deg"] for v in copies), default=0.0)
     json.dump(rec, open(o["record"], "w"), indent=1)
-    print(f"  [verify] {len(listing)} entries, failures {len(fails)}" + (": " + "; ".join(fails) if fails else ""))
+    print(f"  [verify] {len(listing)} entries, failures {len(fails)}; max_rel_sip {rec['verify_max_rel_sip']:.2e}, max_sky_sep {rec['verify_max_sky_sep_deg']:.2e} deg" + (": " + "; ".join(fails) if fails else ""))
     sys.exit(0 if not fails else 2)
 
 
@@ -381,10 +430,15 @@ def fixtures(o):
                      # tool's reason, not the stage's. Real members are dense already
                      # (their headers are Siril products; GO #12/#13 measured SIP
                      # identical through the same crop).
-                     "A_ORDER": 2, "A_0_0": 0.0, "A_0_1": 0.0, "A_0_2": -2e-7, "A_1_0": 0.0, "A_1_1": 0.0, "A_2_0": 1e-7,
-                     "B_ORDER": 2, "B_0_0": 0.0, "B_0_1": 0.0, "B_0_2": 1e-7, "B_1_0": 0.0, "B_1_1": 0.0, "B_2_0": 2e-7,
-                     "AP_ORDER": 2, "AP_0_0": 0.0, "AP_0_1": 0.0, "AP_0_2": 0.0, "AP_1_0": 0.0, "AP_1_1": 0.0, "AP_2_0": -1e-7,
-                     "BP_ORDER": 2, "BP_0_0": 0.0, "BP_0_1": 0.0, "BP_0_2": -1e-7, "BP_1_0": 0.0, "BP_1_1": 0.0, "BP_2_0": 0.0,
+                     # ... and with 17-significant-digit coefficients that do NOT round-trip through
+                     # Siril's 15-digit SIP writer (AP_0_0 is the measured real-member value, GO #17B):
+                     # the crop MUST re-serialize them, so verify's tolerance criterion is EXERCISED by
+                     # the positive case — a fixture whose values round-trip would test nothing, and
+                     # the selftest asserts max_rel_sip > 0 on the cropped copy.
+                     "A_ORDER": 2, "A_0_0": 0.0, "A_0_1": 0.0, "A_0_2": -2.3456789012345678e-7, "A_1_0": 0.0, "A_1_1": 0.0, "A_2_0": 1.2345678901234567e-6,
+                     "B_ORDER": 2, "B_0_0": 0.0, "B_0_1": 0.0, "B_0_2": 1.0987654321098765e-7, "B_1_0": 0.0, "B_1_1": 0.0, "B_2_0": 2.3456789012345679e-7,
+                     "AP_ORDER": 2, "AP_0_0": -0.01198645646714617, "AP_0_1": 0.0, "AP_0_2": 0.0, "AP_1_0": 0.0, "AP_1_1": 0.0, "AP_2_0": -1.1234567890123456e-7,
+                     "BP_ORDER": 2, "BP_0_0": 0.0, "BP_0_1": 0.0, "BP_0_2": -1.3456789012345678e-7, "BP_1_0": 0.0, "BP_1_1": 0.0, "BP_2_0": 0.0,
                      "DISTMODL": "ptlens", "DISTA": 0.005185, "DISTB": 0.010655, "DISTC": 0.004969, "DISTNORM": "half-diagonal", "DISTPROV": "stamped",
                      "DISTSRC": "selftest", "CALSET": "selftest/set-01", "BKGLIGHT": "none", "STACKCNT": 100, "EXPTIME": 2.5, "LIVETIME": 250.0,
                      "FOCALLEN": 70.0, "XPIXSZ": 5.94, "DATE-OBS": "2026-08-29T00:00:00", "INSTRUME": "selftest"}.items():
