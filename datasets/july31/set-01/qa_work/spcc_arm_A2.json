@@ -1,0 +1,123 @@
+{
+ "id": "spcc_arm_A2",
+ "item": "BACKLOG spcc-sensor-curve section-4 test, GO #2b-prep \u2014 A-double-prime: the OSC index-0 model (Canon EOS 1D Mark III x Antila RGB_ultra_ii x Full spectrum (no filter) LPF x Average Spiral Galaxy) named explicitly WITH the preload; director astro-imaging-45, worker astro-imaging-0c",
+ "instrument": "Siril 1.4.4 flatpak siril-cli through scripts/lib/siril_run.py (-d sessions/july31); hand .ssf with the spcc_list oscsensor preload; whole-token quoting; no save, no product written",
+ "input": {
+  "path": "web/results/july31/stack_set-01_full_wcs.fit",
+  "bytes": 211374720,
+  "mtime": "2026-08-28 13:19:28",
+  "PIPEREV": "77e3a78"
+ },
+ "ssf_verbatim": "requires 1.4.0\nsetcompress 0\nsetext fit\nset32bits\nload ../../web/results/july31/stack_set-01_full_wcs\nspcc_list oscsensor\nspcc -catalog=localgaia \"-oscsensor=Canon EOS 1D Mark III\" \"-oscfilter=Antila RGB_ultra_ii\" \"-osclpf=Full spectrum (no filter)\" \"-whiteref=Average Spiral Galaxy\"\nclose\n",
+ "log": "sessions/july31/work/arm_A2.log",
+ "exit": 0,
+ "wall_s": 1.8,
+ "log_lines": 2945,
+ "siril_own_lists_index0": {
+  "Mono Sensors": "Generic mono sensor (15 entries)",
+  "Red Filters": "Antlia R (13)",
+  "Green Filters": "Antlia G (13)",
+  "Blue Filters": "Antlia B (11)",
+  "OSC Filters": "Antila RGB_ultra_ii (35)",
+  "OSC Low-Pass Filters": "Baader BCF astromod LPF (13; 'Full spectrum (no filter)' is index 2)",
+  "White References": "Average Spiral Galaxy (148)",
+  "OSC Sensors": "Canon EOS 1D Mark III (47; H0 null-arm block line 54)",
+  "source": "sessions/july31/work/arm_lists.log (spcc_list x7, this GO)"
+ },
+ "lpf_values": {
+  "entry": "Full spectrum (no filter) (Full_spectrum_LPF.json, model 'Generic / None')",
+  "n": 10,
+  "min": 1.0,
+  "max": 1.0,
+  "reading": "unity across the band \u2014 naming it equals applying no LPF exactly"
+ },
+ "use_lines": [
+  108
+ ],
+ "use_line_verbatim": [
+  "log: SPCC will use OSC sensor \"Canon EOS 1D Mark III\", filter \"Antila RGB_ultra_ii\" and DSLR LPF \"Full spectrum (no filter)\""
+ ],
+ "loaded_lines": [
+  52
+ ],
+ "K": [
+  1.0,
+  0.681,
+  0.911
+ ],
+ "fits": {
+  "RG": {
+   "a": 0.531138,
+   "b": 0.607751,
+   "sigma": 0.24763
+  },
+  "BG": {
+   "a": -0.005469,
+   "b": 0.502601,
+   "sigma": 0.10711
+  }
+ },
+ "n_photometry": 5119,
+ "n_outside": 1943,
+ "n_failed": 99,
+ "n_kept": 3077,
+ "B": [
+  0.000487488,
+  0.000173222,
+  3.61536e-05
+ ],
+ "imprecise_solution": true,
+ "derived_white": {
+  "w_rg": 0.2466,
+  "w_bg": 1.4982,
+  "formula": "w_rg=(K_G-a_rg)/b_rg; w_bg=(K_G/K_B-a_bg)/b_bg"
+ },
+ "errors": [],
+ "finished": true,
+ "prediction": "equals arm A-prime (the bare-name no-preload run) to the digit IF the 'Full spectrum (no filter)' LPF is unity \u2014 its JSON values are 10 points all 1.0 (min 1.0, max 1.0), so the prediction is exact: K 1.000/0.681/0.911, R/G 0.531138+0.607751x sigma 0.247630, B/G -0.005469+0.502601x sigma 0.107110",
+ "reference": {
+  "name": "arm A-prime (spcc_arm_Aprime.json)",
+  "K": [
+   1.0,
+   0.681,
+   0.911
+  ],
+  "RG": {
+   "a": 0.531138,
+   "b": 0.607751,
+   "sigma": 0.24763
+  },
+  "BG": {
+   "a": -0.005469,
+   "b": 0.502601,
+   "sigma": 0.10711
+  },
+  "B": [
+   0.000487488,
+   0.000173222,
+   3.61536e-05
+  ],
+  "n": [
+   5119,
+   3077
+  ]
+ },
+ "verdict": {
+  "K_equal": true,
+  "RG_fit_equal": true,
+  "BG_fit_equal": true,
+  "B_equal": true,
+  "counts_equal": true,
+  "loaded_before_use": true,
+  "dK_vs_ref": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "MET": true
+ },
+ "premises_not_tested": [
+  "that Siril's list order is the loader's byte order and stable across processes (read once here; the doc's claim)",
+  "that no other resolved quantity (limit magnitude, atmosphere off, bgtol defaults) differed between this arm and its reference \u2014 the .ssf lines differ only in the names passed"
+ ]
+}
