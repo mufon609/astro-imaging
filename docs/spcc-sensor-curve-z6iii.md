@@ -659,11 +659,11 @@ Weta-measured **Nikon Z f** (professional rig, 380–780 nm, Apache-2.0,
 upstream-contributable) over the DIY Z6 and the 2014 D750. **The owner's
 eyes on the H4 surface — the only verdict on colour — approved it
 (2026-08-29, H4 WIN on set-01), and the pin is "Nikon Z f"**: a provenance
-choice on data that cannot distinguish the proxies. Stage 2 is in progress
-(the `spcc` block pinned in all 17 canonical sets' recipes, SPCC re-run on
-the existing `_wcs.fit` products with the old `_spcc`/PNG moved aside — no
-re-solve, one knob — the guard, a declared ΔK per product, 17 re-seeds on
-acceptance). The upstream MR
+choice on data that cannot distinguish the proxies. Stage 2 landed (199360c: the `spcc` block
+pinned in all 17 canonical sets' recipes; 41eecff: SPCC re-run on the
+existing `_wcs.fit` products with the old `_spcc`/PNG moved aside — no
+re-solve, one knob — the guard 17/17 PASS, ΔK declared per product; the 17
+re-seeds and the twins' disposal await the owner's acceptance). The upstream MR
 for the Z f conversion is the owner's call and has not been made. **B1 is NOT implied by this result:** a
 curve measured on this body would be expected to move K by the same ≲2%
 and leave the B/G residual where every proxy leaves it; it remains the
@@ -873,18 +873,26 @@ every arm.
 
 ## 6. Status
 
-**TEST RUN AND JUDGED — the pin is "Nikon Z f"; stage 2 in progress.**
-H0 MET, determinism MET, H1 scored (neither WIN nor NULL by the letter; the
-residual is not curve-driven), H2 declared (+1.5% / +2.2% on B), H3
-unresolved at the instrument's print resolution, **H4 WIN — owner-approved
-2026-08-29 on set-01**. Stage 0 is adopted (25cfed6); stage 1's curves are
-installed and tracked (`scripts/setup/spcc_curves/`); stage 2 — the `spcc`
-block pinned in all 17 canonical sets' recipes, SPCC re-run on the existing
-`_wcs.fit` products with the old `_spcc`/PNG moved aside (no re-solve, one
-knob), the guard, a declared ΔK per product, 17 re-seeds on acceptance — is
-running. The upstream
-MR for the Z f conversion is the owner's call, not yet made. Until stage 2
-lands, no canonical product has changed.
+**TEST RUN, JUDGED AND PINNED — the 22 canonical products are
+re-calibrated under "Nikon Z f".** H0 MET, determinism MET, H1 scored
+(neither WIN nor NULL by the letter; the residual is not curve-driven), H2
+declared, H3 unresolved at the instrument's print resolution, **H4 WIN —
+owner-approved 2026-08-29 on set-01**. Stage 0 adopted (25cfed6); stage 1's
+curves installed and tracked (`scripts/setup/spcc_curves/`); **stage 2
+landed** (199360c: the `spcc` block in all 17 canonical sets' recipes;
+41eecff: SPCC re-run on the existing `_wcs.fit` of every canonical product —
+17 per-set finals, 4 nights, the corpus — no re-solve, one knob; record
+`datasets/corpus/spcc_pin_zf/pin_record.json`). Declared delta over the 17
+finals: ΔK_G +0.0093 ± 0.0011 (+1.44 ± 0.17%), ΔK_B +0.0191 ± 0.0017
+(+2.22 ± 0.20%); nights +0.011/+0.021, the corpus +0.012/+0.022; `n_kept`
+equal old/new on all 22. The index-0 predecessors are kept as `_idx0_`
+twins (`moveaside_manifest.json`); the guard passes 17/17 and is blind to a
+K change by construction (the offsets pin every channel's neutralised sky
+to the R level, so the level rows read identical to 0.1 ADU16; the
+structure rows are scale-invariant); readiness reads the `spcc` row GREEN
+on every set. Pending the owner's acceptance: the 17 re-seeds and the
+twins' disposal. The upstream MR for the Z f conversion is the owner's
+call, not yet made.
 
 ## 7. Graduation
 
@@ -894,7 +902,13 @@ not-persisted preferences are a `docs/dead-ends/siril-behaviors.md` entry
 (it changes every future SPCC invocation and every reading of an old K
 record); `TOOLS.md`'s SPCC row carries the `spcc_list`-first rule and the
 `is_dslr` → `-osclpf=` requirement; the runner's removal-condition row
-landed with 25cfed6. Remaining: the "generic default" wording sweep of the
-sites in §1.7 (README stage 3, the pipeline doc §7 and its stop list,
-`finish_render.sh:36`, `corpus4_build_record.json`) and the proxy curve's
-register row — both with stage 2, whose pin changes those statements anyway.
+landed with 25cfed6; the "generic default" wording is swept from every
+site (5c3dd40: README stage 3, the pipeline doc §7 and its stop list,
+`finish_render.sh`, `corpus4_build_record.json`, `datasets/README.md`,
+`stacking-vs-official-pipelines.md`, `web/serve.py`); the proxy curve's
+register row and its REMOVAL CONDITION live in `convert_curves.py` and the
+register; `x86_bootstrap.sh` rebuilds the curve install from tracked files.
+What this deep-dive still holds that no operating doc does: the mechanism
+derivation (§1.1), the sensor-identity and curve-provenance survey (§1.4),
+the options ledger (§1.5), the standards reading (§1.6) and the arm table
+(§4.1).
