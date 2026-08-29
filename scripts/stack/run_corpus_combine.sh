@@ -171,5 +171,33 @@ done
 [ -n "$REFDIR" ] || { echo "[corpus] REGREF names session '$REFSES', which is not among the staged sessions" >&2; exit 1; }
 "$REPO/scripts/stack/finish_render.sh" "$OUT" "$TAG" \
   --session="$REFDIR" --set="$REFSET"
+
+# THE NO-REGRESSION GUARD, LAST — exactly as run_set_chain.sh runs it for a set, but
+# against the CORPUS SLOT datasets/corpus/baseline.json (baseline_guard.py, THE
+# CORPUS SLOT): the combine's product has no set, and the per-set derivation would
+# land on the reference set's own baseline. Nothing is blocked or rewritten — the
+# stack and the judge surface are built — but a regression is the user's decision,
+# so it exits 8 the way the set chain does. Slot ABSENT = a first build: one line,
+# exit 0; a first build must never seed itself (the seed is the owner's acceptance).
+# A candidate or arm built with --out=<other tag> runs this block too: the guard
+# reports it as "different product — not compared" (the slot keys on the product
+# it was seeded from), never as a regression.
+BASEPROD=${OUT%.fit}_spcc.fit
+[ -f "$BASEPROD" ] || BASEPROD=$OUT
+CORPUS_BASELINE="$REPO/datasets/corpus/baseline.json"
+GUARD_RC=0
+if [ ! -f "$CORPUS_BASELINE" ]; then
+  echo "[corpus] no-regression: no corpus baseline — first build; seed after the owner's acceptance:"
+  echo "    python3 scripts/qa/baseline_guard.py --baseline=datasets/corpus/baseline.json $BASEPROD --seed --note='why'"
+else
+  echo "[corpus] no-regression: comparing $(basename "$BASEPROD") against the corpus baseline (datasets/corpus/baseline.json)"
+  python3 "$REPO/scripts/qa/baseline_guard.py" --baseline="$CORPUS_BASELINE" "$BASEPROD" || GUARD_RC=$?
+fi
 echo "[corpus] DONE -> $OUT"
 echo "[corpus] render -> web/results/${REFSES}/judge/${TAG}_spcc-linked.png"
+if [ "$GUARD_RC" != 0 ]; then
+  echo "[corpus] STOP: the product REGRESSED against the corpus baseline (above). Nothing was blocked or rewritten —"
+  echo "  the stack and judge surface are built. Find the cause, or if the change is deliberate and judged better,"
+  echo "  re-seed with --reseed and a note. Re-running keeps flagging until one of those happens."
+  exit 8
+fi

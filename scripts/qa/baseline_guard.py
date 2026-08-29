@@ -4,13 +4,40 @@ not have when a 31x background regression shipped and stayed in for six days.
 
 Usage:
   baseline_guard.py <session-dir> <set> <stack.fit> [--seed] [--note="why"]
-  baseline_guard.py --selftest        (data-free: the compare rule on planted measures)
+  baseline_guard.py --baseline=<slot.json> <stack.fit> [--seed] [--reseed] [--note="why"]
+  baseline_guard.py --selftest        (data-free: the compare rule on planted measures,
+                                       and the slot routing on a scratch tree)
 
   --seed   record the CURRENT measures as the set's baseline (first run, or after
            a human has ratified a deliberate change). Refuses to overwrite an
            existing baseline unless --reseed is also given.
   default  measure the stack, compare against datasets/<session>/<set>/baseline.json,
            print the table, exit 0 (PASS) or 1 (REGRESSION).
+  --baseline=<path>  an EXPLICIT slot: read and write exactly that file, derive
+           nothing from a session/set (the positional session and set are then
+           OPTIONAL — the slot path is the identity, and the log line names it);
+           the Siril scratch goes to <slot dir>/qa_work. --seed / --reseed / the
+           ceiling / the level rows behave exactly as for a set.
+
+THE CORPUS SLOT (datasets/corpus/baseline.json). The multi-night combine's product
+has no set: run_corpus_combine.sh files its finish under the REFERENCE set, and
+the per-set derivation would land the corpus baseline on that set's own
+baseline.json — overwriting the set product's accepted measures with the
+corpus's. The corpus is a first-class product and gets its own slot, the same
+schema and contract block as the per-set files, written only by this script.
+Two rules exist ONLY for an explicit slot (the per-set default path is untouched):
+  ABSENT SLOT = FIRST BUILD. A compare against a missing explicit slot prints one
+    line ("no corpus baseline ... first build; seed after the owner's acceptance")
+    and exits 0 — a first build must never seed itself: the seed is the human's
+    acceptance, not the chain's.
+  IDENTITY. The slot keys on the PRODUCT it was seeded from — the recorded
+    `stack` path (its tag) with the seeded file's `stack_id` beside it. A
+    differently-tagged product (a candidate or arm built with --out=<other tag>
+    runs the same guard block) is reported as "different product — not compared",
+    exit 0, never as a regression: it is not this slot's product. The path is the
+    key rather than stack_id alone because every rebuild changes stack_id (the
+    header carries PIPEREV), and the guard's whole purpose is to compare a
+    rebuild against the accepted one.
 
 WHY THIS EXISTS. Every guard the repo had before this one — check_bitdepth,
 check_calibrate, check_stack_rejection — verifies WIRING: that the code is
@@ -226,6 +253,70 @@ def selftest():
           "the absolute ceiling WARNS on a crossing only (never fails; silent over a "
           "baseline already over it) while the --desky class still goes RED through "
           "the over-baseline rule")
+    return selftest_slot(base, now)
+
+
+def selftest_slot(base, now):
+    """THE EXPLICIT SLOT, on a scratch tree under $HOME/.cache, no Siril: --baseline
+    writes and reads ONLY the given path (a per-set baseline planted beside it is
+    byte-identical after, and no datasets/<session>/<set> is created for the
+    session/set the flag makes optional); an absent slot prints the first-build
+    line and exits 0 (never seeds); a differently-tagged product is 'not compared'
+    (exit 0, never a regression); seed / re-seed refusal / PASS / REGRESSION /
+    ceiling all run through the flag with the same verdicts as a set."""
+    import contextlib, io, shutil
+    T = os.path.join(os.path.expanduser("~"), ".cache", "astro-imaging", "baseline_guard_selftest")
+    shutil.rmtree(T, ignore_errors=True); os.makedirs(os.path.join(T, "sets", "set-01"))
+    sibling = os.path.join(T, "sets", "set-01", "baseline.json")
+    open(sibling, "w").write('{"planted": "per-set baseline beside the slot"}\n'); sib0 = open(sibling, "rb").read()
+    slot = os.path.join(T, "corpus", "baseline.json")
+    ghost = os.path.join(REPO, "datasets", "selftest-ghost")          # must never be created
+    ident = dict(base, stack="web/results/x/stack_corpus_spcc.fit", stack_id="seedsha")
+    def args(**kw):
+        return parse_args(["--baseline=" + kw.pop("slot", slot), kw.pop("session", "selftest-ghost"),
+                           kw.pop("set", "set-zz"), kw.pop("stack", "x.fit")] + [f"--{k}" if v is True else f"--{k}={v}" for k, v in kw.items()])
+    def go(a, rec):
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                rc = run(rec, a, *resolve_slot(a)[::2])
+        except SystemExit as e:
+            rc = ("SystemExit", str(e))
+        return rc, out.getvalue()
+    bad = 0
+    def check(label, ok, detail=""):
+        nonlocal bad
+        print(f"  selftest {'ok  ' if ok else 'WRONG'} {label} {detail}"); bad |= not ok
+    rc, o = go(args(), ident)
+    check("--baseline, absent slot, no --seed -> the first-build line, exit 0, nothing written",
+          rc == 0 and "first build" in o and not os.path.exists(slot), f"rc={rc}")
+    rc, o = go(args(seed=True, note="selftest seed"), ident)
+    check("--baseline --seed -> writes ONLY the slot", rc == 0 and os.path.exists(slot) and json.load(open(slot))["measures"]["stack_id"] == "seedsha", f"rc={rc}")
+    check("  the per-set baseline planted beside it is byte-identical", open(sibling, "rb").read() == sib0)
+    check("  no datasets/<session>/<set> was derived for the optional session/set", not os.path.exists(ghost))
+    rc, o = go(args(seed=True), ident)
+    check("--baseline --seed again without --reseed -> REFUSED", isinstance(rc, tuple) and "exists" in rc[1], f"rc={rc}")
+    rc, o = go(args(), dict(ident, stack_id="rebuild1"))
+    check("--baseline, same product tag rebuilt, same measures -> PASS 0", rc == 0 and "PASS" in o, f"rc={rc}")
+    rc, o = go(args(), dict(ident, stack_id="rebuild2", corner_spread_pct=2.7))
+    check("--baseline, same tag, corner_spread +2.0 -> REGRESSION 1", rc == 1 and "REGRESSION" in o, f"rc={rc}")
+    rc, o = go(args(), dict(ident, stack_id="rebuild3", corner_spread_pct=3.5))
+    check("--baseline, same tag, spread 3.5 vs 0.7 -> RED over-baseline (+2.8) with the CEILING block", rc == 1 and "CEILING" in o, f"rc={rc}")
+    rc, o = go(args(), dict(ident, stack="web/results/x/stack_candidate_spcc.fit", stack_id="cand", corner_spread_pct=9.9))
+    check("--baseline, DIFFERENT product tag (a candidate/arm), even a wild measure -> 'not compared', exit 0", rc == 0 and "not compared" in o and "REGRESSION" not in o, f"rc={rc}")
+    rc, o = go(args(reseed=True, note="accepted"), dict(ident, stack_id="accepted2"))
+    check("--baseline --reseed -> replaces the slot", rc == 0 and json.load(open(slot))["measures"]["stack_id"] == "accepted2", f"rc={rc}")
+    a = parse_args(["sessions/selftest-ghost", "set-zz", "x.fit"])
+    check("default (no flag) still derives datasets/<session>/<set>/baseline.json (string only, nothing touched)",
+          resolve_slot(a)[0] == os.path.join(REPO, "datasets", "selftest-ghost", "set-zz", "baseline.json") and not os.path.exists(ghost))
+    shutil.rmtree(T, ignore_errors=True)
+    if bad:
+        print("baseline_guard --selftest: FAIL — the explicit-slot routing does not behave as stated")
+        return 1
+    print("OK: baseline_guard explicit slot — 11 cases: --baseline reads/writes only its path, "
+          "the optional session/set derive nothing, an absent slot is a first build (exit 0, "
+          "never seeded), a differently-tagged product is 'not compared' (exit 0), and seed / "
+          "re-seed refusal / PASS / REGRESSION / ceiling run through the flag as for a set")
     return 0
 
 
@@ -271,38 +362,31 @@ def _sha(path, blocks=64):
     return h.hexdigest()[:32]
 
 
-def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
-        return selftest()
-    ap = argparse.ArgumentParser()
-    ap.add_argument("session")
-    ap.add_argument("set")
-    ap.add_argument("stack")
-    ap.add_argument("--seed", action="store_true")
-    ap.add_argument("--reseed", action="store_true")
-    ap.add_argument("--note", default="")
-    a = ap.parse_args()
-
+def resolve_slot(a):
+    """The slot this run reads and writes: (bpath, work, label). Default: the per-set
+    contract datasets/<session>/<set>/baseline.json with its qa_work beside it.
+    --baseline=<path>: EXACTLY that file — nothing derived from a session or set,
+    the scratch beside the slot, the label its repo-relative path."""
+    if a.baseline:
+        bpath = os.path.abspath(a.baseline)
+        return bpath, os.path.join(os.path.dirname(bpath), "qa_work"), os.path.relpath(bpath, REPO)
     sess = os.path.basename(os.path.normpath(a.session))
     dsdir = os.path.join(REPO, "datasets", sess, a.set)
-    work = os.path.join(dsdir, "qa_work")
-    os.makedirs(work, exist_ok=True)
-    bpath = os.path.join(dsdir, "baseline.json")
-    stack = os.path.abspath(a.stack)
-    if not os.path.exists(stack):
-        sys.exit(f"baseline_guard: no such stack: {stack}")
+    return os.path.join(dsdir, "baseline.json"), os.path.join(dsdir, "qa_work"), f"{sess}/{a.set}"
 
-    corners, craw = _measure(stack, work, "corners", 400, 200)
-    edge, _ = _measure(stack, work, "edge", 80, 2)
-    spread, dip = _derive(corners, edge)
-    chans = {k: v["median"] for k, v in craw["center"].items()}
-    # the product's own normalization statement, header-only; absent = the
-    # pre-change default (see DEFAULT_NRM)
-    nrm = str(fits.getheader(stack).get("STACKNRM", DEFAULT_NRM))
-    now = {"corner_spread_pct": spread, "edge_dipole_x": dip,
-           "centre_median_per_channel": chans, "stacknrm": nrm,
-           "stack": os.path.relpath(stack, REPO), "stack_id": _sha(stack)}
 
+def seed_hint(a, stack):
+    return (f"{sys.argv[0]} --baseline={a.baseline} {stack}" if a.baseline
+            else f"{sys.argv[0]} {a.session} {a.set} {stack}")
+
+
+def run(now, a, bpath, label):
+    """Seed or compare `now` (the measured record) against the slot. Pure of Siril,
+    so the selftest can drive every branch on planted measures; the explicit-slot
+    rules (docstring: THE CORPUS SLOT) live here."""
+    explicit = bool(a.baseline)
+    spread, dip, chans, nrm = (now["corner_spread_pct"], now["edge_dipole_x"],
+                               now["centre_median_per_channel"], now["stacknrm"])
     if a.seed or a.reseed:
         if os.path.exists(bpath) and not a.reseed:
             sys.exit(f"baseline_guard: {bpath} exists — pass --reseed to replace "
@@ -317,6 +401,7 @@ def main():
                             "only whether the product still measures like the one "
                             "a human accepted. A deliberate improvement fails it; "
                             "re-seed with --reseed and a note."}
+        os.makedirs(os.path.dirname(bpath), exist_ok=True)
         json.dump(rec, open(bpath, "w"), indent=1)
         print(f"seeded {bpath}")
         print(f"  corner_spread_pct {spread}   edge_dipole_x {dip:+.4f}")
@@ -325,13 +410,25 @@ def main():
         return 0
 
     if not os.path.exists(bpath):
+        if explicit:
+            # ABSENT SLOT = FIRST BUILD (docstring): report, never seed, exit 0.
+            print(f"no corpus baseline at {label} — first build; seed after the owner's "
+                  f"acceptance:\n  {seed_hint(a, now['stack'])} --seed --note='why'")
+            return 0
         sys.exit(f"baseline_guard: no baseline at {bpath} — seed one with --seed "
                  "once a human has accepted this product.")
     base = json.load(open(bpath))
     b, tol = base["measures"], base.get("tolerances", DEFAULT_TOL)
+    if explicit and b.get("stack") != now["stack"]:
+        # IDENTITY (docstring): the slot keys on the product it was seeded from.
+        print(f"baseline_guard {label}: different product — not compared. The slot was "
+              f"seeded from {b.get('stack')} (stack_id {b.get('stack_id')}); this is "
+              f"{now['stack']} (stack_id {now['stack_id']}). A differently-tagged build "
+              "is not this slot's product; nothing is judged.")
+        return 0
     fails, advisories, ceiling = compare(now, b, tol)
 
-    print(f"baseline_guard {sess}/{a.set}")
+    print(f"baseline_guard {label}" + ("  (the seeded file itself: same stack_id)" if b.get("stack_id") == now["stack_id"] else ""))
     print(f"  {'':22}{'now':>10}{'baseline':>12}")
     print(f"  {'corner_spread_pct':22}{spread:10.3f}{b['corner_spread_pct']:12.3f}")
     print(f"  {'edge_dipole_x':22}{dip:+10.4f}{b['edge_dipole_x']:+12.4f}")
@@ -352,11 +449,53 @@ def main():
         for f in fails:
             print(f"  - {f}")
         print("\nIf the change is DELIBERATE and a human has judged it better, re-seed:")
-        print(f"  {sys.argv[0]} {a.session} {a.set} {a.stack} --reseed --note='...'")
+        print(f"  {seed_hint(a, now['stack'])} --reseed --note='...'")
         return 1
     tags = [t for t, on in (("advisory", advisories), ("ceiling warning", ceiling)) if on]
     print("\nPASS" + (f" (with {' + '.join(tags)})" if tags else ""))
     return 0
+
+
+def parse_args(argv):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("paths", nargs="+", help="<session-dir> <set> <stack.fit>, or with --baseline: <stack.fit>")
+    ap.add_argument("--baseline", default="", help="explicit slot (see THE CORPUS SLOT)")
+    ap.add_argument("--seed", action="store_true")
+    ap.add_argument("--reseed", action="store_true")
+    ap.add_argument("--note", default="")
+    a = ap.parse_args(argv)
+    if a.baseline:
+        if len(a.paths) not in (1, 3):
+            ap.error("with --baseline give <stack.fit> (a session and set are optional)")
+        a.session, a.set, a.stack = (a.paths[0], a.paths[1], a.paths[2]) if len(a.paths) == 3 else ("", "", a.paths[0])
+    else:
+        if len(a.paths) != 3:
+            ap.error("<session-dir> <set> <stack.fit> are required without --baseline")
+        a.session, a.set, a.stack = a.paths
+    return a
+
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
+        return selftest()
+    a = parse_args(sys.argv[1:])
+    bpath, work, label = resolve_slot(a)
+    os.makedirs(work, exist_ok=True)
+    stack = os.path.abspath(a.stack)
+    if not os.path.exists(stack):
+        sys.exit(f"baseline_guard: no such stack: {stack}")
+
+    corners, craw = _measure(stack, work, "corners", 400, 200)
+    edge, _ = _measure(stack, work, "edge", 80, 2)
+    spread, dip = _derive(corners, edge)
+    chans = {k: v["median"] for k, v in craw["center"].items()}
+    # the product's own normalization statement, header-only; absent = the
+    # pre-change default (see DEFAULT_NRM)
+    nrm = str(fits.getheader(stack).get("STACKNRM", DEFAULT_NRM))
+    now = {"corner_spread_pct": spread, "edge_dipole_x": dip,
+           "centre_median_per_channel": chans, "stacknrm": nrm,
+           "stack": os.path.relpath(stack, REPO), "stack_id": _sha(stack)}
+    return run(now, a, bpath, label)
 
 
 if __name__ == "__main__":
