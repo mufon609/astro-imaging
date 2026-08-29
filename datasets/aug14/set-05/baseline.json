@@ -18,6 +18,6 @@
   "edge_dipole_x_max_abs": 0.05,
   "centre_median_max_frac_change": 0.25
  },
- "note": "OWNER-ACCEPTED 2026-08-29: first seed \u2014 from-raws rebuild under PIPEREV 77e3a78 (BACKLOG output-norm-zero-point campaign; record datasets/corpus/campaign_zeropoint/campaign_record.json); STACKNRM addscale \u2014 the level rows arm on this seed",
+ "note": "OWNER-ACCEPTED 2026-08-29 (first seed 2026-08-29, re-seeded with the ceiling verdict): CEILING examined manually by the director \u2014 a true 4.38% corner spread, left corners bright (right/left 0.976, top/bottom 0.998: a left-right slope, not radial); the background map is the FIELD, the Milky Way star cloud in the left third and the dark rift on the right, identical in shape to the never-seeded -output_norm product (8.2% on the same measure, pedestal-inflated); the set\u2019s own sky flat carries a 23% right/left corner asymmetry (readiness WARN 1.361, the open sky x V term) so the flat/sky split is NOT separable here; no processing defect; product accepted. STACKNRM addscale.",
  "_contract": "A no-regression RECORD, not a quality gate. It asks only whether the product still measures like the one a human accepted. A deliberate improvement fails it; re-seed with --reseed and a note."
 }

@@ -66,6 +66,27 @@ on acceptance records the new statement and re-arms the check. No threshold is
 added: the rule is the equality of two recorded strings. corner_spread_pct and
 edge_dipole_x are always hard — they are the structure measures.
 
+THE ABSOLUTE CORNER-SPREAD CEILING WARNS; IT DOES NOT STOP (owner-directed).
+`corner_spread_pct_max_abs` is the one threshold here that is SELF-DERIVED — it
+compares the product to a number, not to a human-accepted prior measurement —
+and the guard's own contract (above) is that it is a no-regression RECORD, never
+a quality gate. It misfired on aug14/set-05: a Milky Way band across the frame
+puts a true 4.38% corner spread on the product (left corners bright), the same
+measure read 8.2% on that set's -output_norm product (never seeded), and the
+guard cannot separate sky structure from a flat error (its register row calls
+the corner measures self-fulfilling for flat contamination). So when the ceiling
+is exceeded the guard prints a CEILING block that tells the human to EXAMINE THE
+IMAGE MANUALLY — the four corners at 1:1 on the 16-bit judge surface, the shape
+of the background map (radial = flat/vignetting; a left-right or top-bottom
+slope = sky or sky x V, compare readiness.json's flat-quality row; blocky =
+coverage), and whether the field itself carries the gradient — and records the
+verdict in the baseline note on the next seed. The check that carries the
+--desky class (0.4% -> 12.4%) is the OVER-BASELINE rule (+1.0 over the accepted
+product), which stays hard, as do the dipole cap and the level rows; the
+--selftest keeps that case as the positive control. Exit stays 0 on a ceiling
+warning alone: one product of seventeen needed the look, and the look takes a
+moment.
+
 REMOVAL CONDITION: retire when a tool reports a headless product-level
 regression verdict against a stored reference. Nothing does today.
 """
@@ -96,20 +117,22 @@ DEFAULT_NRM = "addscale+output_norm"
 
 
 def compare(now, b, tol):
-    """The rule, PURE: (fails, advisories) of the measured `now` against the
-    baseline's measures `b` under `tol`. The four checks are the ones this guard
-    always ran; the only routing is the centre-median loop, which appends to
-    `advisories` instead of `fails` when the two normalization statements
-    differ (docstring: THE LEVEL MEASURE IS ADVISORY ...)."""
+    """The rule, PURE: (fails, advisories, ceiling) of the measured `now` against
+    the baseline's measures `b` under `tol`. The four checks are the ones this
+    guard always ran; the routing is (1) the centre-median loop, which appends
+    to `advisories` instead of `fails` when the two normalization statements
+    differ (docstring: THE LEVEL MEASURE IS ADVISORY ...), and (2) the absolute
+    corner-spread ceiling, which appends to `ceiling` — a warning to examine the
+    image, never a fail (docstring: THE ABSOLUTE CORNER-SPREAD CEILING WARNS)."""
     spread, dip = now["corner_spread_pct"], now["edge_dipole_x"]
     chans = now["centre_median_per_channel"]
-    fails, advisories = [], []
+    fails, advisories, ceiling = [], [], []
     level = (fails if now.get("stacknrm", DEFAULT_NRM) == b.get("stacknrm", DEFAULT_NRM)
              else advisories)
 
     if spread > tol["corner_spread_pct_max_abs"]:
-        fails.append(f"corner_spread_pct {spread} exceeds absolute ceiling "
-                     f"{tol['corner_spread_pct_max_abs']}")
+        ceiling.append(f"corner_spread_pct {spread} exceeds the absolute ceiling "
+                       f"{tol['corner_spread_pct_max_abs']}")
     if spread - b["corner_spread_pct"] > tol["corner_spread_pct_max_over_baseline"]:
         fails.append(f"corner_spread_pct {spread} is "
                      f"{spread - b['corner_spread_pct']:+.3f} over baseline "
@@ -124,7 +147,24 @@ def compare(now, b, tol):
         if bv and abs(v - bv) / bv > tol["centre_median_max_frac_change"]:
             level.append(f"centre {ch} {v:.1f} vs baseline {bv:.1f} "
                          f"({100*(v-bv)/bv:+.1f}%)")
-    return fails, advisories
+    return fails, advisories, ceiling
+
+
+def ceiling_block(spread, ceiling):
+    """The owner-directed warning, printed wherever the ceiling is exceeded
+    (compare and seed alike). Loud by design: it must not read as a pass."""
+    return (f"\nCEILING — corner_spread_pct {spread} exceeds the absolute ceiling "
+            f"{ceiling}: EXAMINE THE IMAGE MANUALLY before accepting this product "
+            "(owner-directed):\n"
+            "  (1) the four corners at 1:1 on the 16-bit judge surface;\n"
+            "  (2) the background map's SHAPE — radial = flat/vignetting; a left-right\n"
+            "      or top-bottom slope = sky or sky x V (compare the flat-quality row in\n"
+            "      readiness.json); blocky = coverage;\n"
+            "  (3) whether the field itself carries the gradient (a Milky Way band across\n"
+            "      the frame is legitimate).\n"
+            "  Record the verdict in the baseline note on the next seed. This measure\n"
+            "  cannot separate sky structure from a flat error (its register row); it\n"
+            "  warns, it does not stop.")
 
 
 def selftest():
@@ -143,28 +183,35 @@ def selftest():
                 "centre_median_per_channel": {k: v * level for k, v in
                                               base["centre_median_per_channel"].items()},
                 "stacknrm": nrm}
-    cases = [  # (label, now, baseline, expected fails, advisory expected)
-        ("same STACKNRM, centre +30% -> RED",            now(1.30), base, 1 * 3, False),
-        ("STACKNRM differs, centre +80% -> ADVISORY",   now(1.80, nrm="addscale"), base, 0, True),
-        ("STACKNRM differs, corner_spread +2.0 -> RED", now(1.80, spread=2.7, nrm="addscale"), base, 1, True),
-        ("same STACKNRM, centre +10% -> PASS",           now(1.10), base, 0, False),
-        ("STACKNRM differs, edge_dipole +0.10 -> RED",  now(1.80, dip=0.104, nrm="addscale"), base, 1, True),
-        ("baseline without the field, default product +30% -> RED", now(1.30), old_base, 3, False),
-        ("baseline without the field, addscale product +80% -> ADVISORY", now(1.80, nrm="addscale"), old_base, 0, True),
+    hi_base = dict(base, corner_spread_pct=4.4)      # a seed taken over the ceiling (aug14/set-05: 4.381)
+    lo_base = dict(base, corner_spread_pct=0.4)      # the --desky class's accepted product (0.4%)
+    cases = [  # (label, now, baseline, expected fails, advisory expected, ceiling expected)
+        ("same STACKNRM, centre +30% -> RED",            now(1.30), base, 1 * 3, False, False),
+        ("STACKNRM differs, centre +80% -> ADVISORY",   now(1.80, nrm="addscale"), base, 0, True, False),
+        ("STACKNRM differs, corner_spread +2.0 -> RED", now(1.80, spread=2.7, nrm="addscale"), base, 1, True, False),
+        ("same STACKNRM, centre +10% -> PASS",           now(1.10), base, 0, False, False),
+        ("STACKNRM differs, edge_dipole +0.10 -> RED",  now(1.80, dip=0.104, nrm="addscale"), base, 1, True, False),
+        ("baseline without the field, default product +30% -> RED", now(1.30), old_base, 3, False, False),
+        ("baseline without the field, addscale product +80% -> ADVISORY", now(1.80, nrm="addscale"), old_base, 0, True, False),
+        ("same STACKNRM, spread 4.4 vs baseline 4.4 -> PASS with CEILING warning", now(spread=4.4), hi_base, 0, False, True),
+        ("spread 12.4 vs baseline 0.4 (--desky) -> RED via over-baseline, ceiling too", now(spread=12.4), lo_base, 1, False, True),
+        ("spread 2.9 vs baseline 0.4 -> RED via over-baseline, no ceiling", now(spread=2.9), lo_base, 1, False, False),
     ]
     bad = 0
-    for label, n, bl, nf, adv in cases:
-        fails, advisories = compare(n, bl, DEFAULT_TOL)
-        ok = (len(fails) == nf) and (bool(advisories) == adv)
+    for label, n, bl, nf, adv, ceil in cases:
+        fails, advisories, ceiling = compare(n, bl, DEFAULT_TOL)
+        ok = (len(fails) == nf) and (bool(advisories) == adv) and (bool(ceiling) == ceil)
         print(f"  selftest {'ok  ' if ok else 'WRONG'} [{len(fails)} fail, "
-              f"{len(advisories)} advisory] {label}")
+              f"{len(advisories)} advisory, {len(ceiling)} ceiling] {label}")
         bad |= not ok
     if bad:
         print("baseline_guard --selftest: FAIL — the rule does not fire as stated")
         return 1
-    print("OK: baseline_guard compare rule — 7 cases: RED on level under a matching "
+    print("OK: baseline_guard compare rule — 10 cases: RED on level under a matching "
           "STACKNRM, ADVISORY under a differing one, RED on structure either way, "
-          "PASS on ordinary variation, field-less baselines read as the default")
+          "PASS on ordinary variation, field-less baselines read as the default, "
+          "the absolute ceiling WARNS (never fails) while the --desky class still "
+          "goes RED through the over-baseline rule")
     return 0
 
 
@@ -259,6 +306,8 @@ def main():
         json.dump(rec, open(bpath, "w"), indent=1)
         print(f"seeded {bpath}")
         print(f"  corner_spread_pct {spread}   edge_dipole_x {dip:+.4f}")
+        if spread > DEFAULT_TOL["corner_spread_pct_max_abs"]:
+            print(ceiling_block(spread, DEFAULT_TOL["corner_spread_pct_max_abs"]))
         return 0
 
     if not os.path.exists(bpath):
@@ -266,7 +315,7 @@ def main():
                  "once a human has accepted this product.")
     base = json.load(open(bpath))
     b, tol = base["measures"], base.get("tolerances", DEFAULT_TOL)
-    fails, advisories = compare(now, b, tol)
+    fails, advisories, ceiling = compare(now, b, tol)
 
     print(f"baseline_guard {sess}/{a.set}")
     print(f"  {'':22}{'now':>10}{'baseline':>12}")
@@ -282,6 +331,8 @@ def main():
               "rows are shown, not counted; re-seed on acceptance to re-arm:")
         for f in advisories:
             print(f"  ~ {f}")
+    if ceiling:
+        print(ceiling_block(spread, tol["corner_spread_pct_max_abs"]))
     if fails:
         print("\nREGRESSION — this product no longer measures like the accepted one:")
         for f in fails:
@@ -289,7 +340,8 @@ def main():
         print("\nIf the change is DELIBERATE and a human has judged it better, re-seed:")
         print(f"  {sys.argv[0]} {a.session} {a.set} {a.stack} --reseed --note='...'")
         return 1
-    print("\nPASS" + (" (with advisory)" if advisories else ""))
+    tags = [t for t, on in (("advisory", advisories), ("ceiling warning", ceiling)) if on]
+    print("\nPASS" + (f" (with {' + '.join(tags)})" if tags else ""))
     return 0
 
 
