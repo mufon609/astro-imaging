@@ -515,7 +515,7 @@ measurement — read before designing anything that needs a star catalogue.**
 
 | Tool | Cost | Runs | Linux/CPU/Headless | When & why |
 |---|---|---|---|---|
-| **Siril SPCC** (spectrophotometric, Gaia DR3 + QE/filter curves + atmosphere) | FREE | siril-native | ✅ / ✅ / ✅ | **Default; obsoletes PCC.** Broadband star-colour truth. Our `spcc_run.py`/`spcc_cone.py` orchestrate it + the local Gaia cone. |
+| **Siril SPCC** (spectrophotometric, Gaia DR3 + QE/filter curves + atmosphere) | FREE | siril-native | ✅ / ✅ / ✅ | **Default; obsoletes PCC.** Broadband star-colour truth. Our `spcc_run.py`/`spcc_cone.py` orchestrate it + the local Gaia cone. **Headless trap (1.4.4; `master` `ee7b942` same):** `spcc` resolves sensor/filter/white-reference names BEFORE loading its database, so a fresh `siril-cli` process silently applies index 0 of every list while echoing the requested name — run `spcc_list oscsensor` first in the same script; `spcc_run.py` preloads, requires a named sensor and asserts the log per run (MEASURED: `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, `spcc_arm_{A,Aprime,A2,A3}.json`; registry `docs/dead-ends/siril-behaviors.md`). An `is_dslr` sensor needs `-osclpf=` naming a real LPF (`"Full spectrum (no filter)"`) after the preload, or Siril NULL-derefs (exit 139). |
 | **PixInsight SPCC** | PAID | GUI-app | ✅ / ✅ / ❌ | The reference implementation; cross-check only. |
 
 **Note:** SPCC is the WRONG step for the narrowband O3 sphere (it equalizes

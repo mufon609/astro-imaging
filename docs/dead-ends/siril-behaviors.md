@@ -222,3 +222,46 @@ The defining property of this family: the output looks healthy.
   fresh-vs-re-stack pixel comparison at this level is float rounding, never
   a knob; a fresh-vs-fresh comparison of the same configuration is
   bit-identical (E0: 0 differing).
+- **HEADLESS `spcc` RESOLVES THE SENSOR / FILTER / WHITE-REFERENCE NAMES
+  BEFORE IT LOADS ITS DATABASE, SO A FRESH `siril-cli` PROCESS APPLIES INDEX 0
+  OF EVERY LIST — WHATEVER NAME WAS GIVEN OR STORED — WHILE THE LOG ECHOES THE
+  NAME IT WAS ASKED FOR.** Mechanism (1.4.4 source; `master` `ee7b942` same
+  order): `do_pcc` looks the names up at `command.c:10152-10188`,
+  `load_spcc_metadata_if_needed()` runs at `:10205`, the lookup helpers return
+  0 on an empty list (`gui/photometric_cc.c:649,664`), and nothing loads the
+  lists at CLI startup. MEASURED (`docs/spcc-sensor-curve-z6iii.md`; records
+  `datasets/july31/set-01/qa_work/spcc_arm_{A,Aprime,A2,A3}.json`,
+  `spcc_h0_probe.json`): 48 of 48 shipped SPCC logs print `SPCC will use mono
+  senor "(null)" …` BEFORE `SPCC JSON metadata loaded`; naming the byte-order
+  index-0 model explicitly WITH a preload — "Generic mono sensor" × "Antlia
+  R"/"Antlia G"/"Antlia B" × "Average Spiral Galaxy" — reproduces the shipped
+  run to the digit (K 1.000/0.687/0.927, both fits, B offsets, 3077/5119); a
+  bare `"-oscsensor=Nikon D750"` WITHOUT the preload echoes "Nikon D750" (line
+  52, load at 53) yet gives K 1.000/0.681/0.911, which "Canon EOS 1D Mark III"
+  × "Antila RGB_ultra_ii" × a unity LPF reproduces to the digit — the OSC
+  lists' index 0. **So every K record written before the fix (55 tracked,
+  `sensor_spec: null`) is a Bayer camera modelled as a mono chip behind Antlia
+  LRGB filters, and no product records the sensor** (the ICC source profile is
+  disabled in 1.4.4, `photometric_cc.c:882-887`). **The cure is one line:
+  `spcc_list oscsensor` earlier in the SAME script** loads the metadata for
+  the process; names then match exactly (`model` for OSC sensors, `name` for
+  everything else — the strings `spcc_list` prints) and a spec-less run errors
+  loudly (*"Either the sensor or a filter was not specified as argument or
+  guessable from previous use"*, exit 1, no K). `scripts/calibrate/spcc_run.py`
+  preloads, requires a named sensor, and asserts the log per run (load before
+  use; the model verbatim in the list block; the model echoed). Two riders,
+  source-read: (a) after a preload an `is_dslr` sensor REQUIRES `-osclpf=`
+  naming a real LPF — the literal fallback "Full spectrum" matches no entry
+  (the entry is "Full spectrum (no filter)") and the worker dereferences
+  `g_list_nth(list, -1)` → NULL, the exit-139 family; the runner refuses such
+  a model without `--osclpf`; on this clone `Nikon_D7200` and the ten SVO
+  D-bodies carry the flag on their RED object (propagated to all three),
+  `Nikon_D750`/`Nikon_D500` none; (b) a `spcc` run never stores a name — only
+  the GUI combos write `photometry/*pref` (`gui/photometric_cc.c:1059,
+  1400-1471`) — while `config.1.4.ini` is rewritten after EVERY headless
+  script (`command_line_processor.c:404`) with its values unchanged
+  (MEASURED: lines 62-70 identical after each arm, only `wd=` moves), so the
+  file's mtime is not evidence of a preference change and only GUI use can
+  make a spec-less run "inherit" a name. Quoting is the whole token
+  (`"-oscsensor=Nikon D750"`), per Siril's own `help spcc`. Removal: when
+  Siril loads before resolving (BACKLOG `spcc-sensor-curve`, `siril-1.5`).

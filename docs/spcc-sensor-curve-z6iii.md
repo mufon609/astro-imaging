@@ -133,6 +133,19 @@ response" — is false.** There is no default curve in the code path.
   list, `spcc_json.c:166-185`) × white reference index 0 = **"Average Spiral
   Galaxy"** (first by byte order, so the intended default by luck). A Bayer
   camera was modelled as a mono CMOS behind a mono LRGB filter set.
+  **MEASURED — arm A‴ (`datasets/july31/set-01/qa_work/spcc_arm_A3.json`):**
+  naming exactly that model WITH the preload (`"-monosensor=Generic mono
+  sensor" "-rfilter=Antlia R" "-gfilter=Antlia G" "-bfilter=Antlia B"
+  "-whiteref=Average Spiral Galaxy"`) reproduces arm A — the shipped command
+  shape, no preload, no spec (`spcc_arm_A.json`) — to the digit: K
+  1.000/0.687/0.927, R/G `0.488722 + 0.239501·x` σ 0.140369, B/G
+  `0.286155 + 0.461961·x` σ 0.110041, B offsets +4.87488e-04/+1.62371e-04/
+  +1.16624e-05, 3077/5119, ΔK 0/0/0. Siril's own lists, read in-process
+  (`sessions/july31/work/arm_lists.log`): index 0 = Generic mono sensor (of
+  15), Antlia R/G/B (13/13/11), Average Spiral Galaxy (148); OSC sensors:
+  Canon EOS 1D Mark III (47), OSC filters: Antila RGB_ultra_ii (35), OSC LPF:
+  Baader BCF astromod LPF (13). The model behind every shipped K record is a
+  measurement, no longer the source's byte-order prediction.
 - **Self-consistency (MEASURED, derived from the logs):** with K normalised
   to R, `a + b·wrg = K_G` and `abg + bbg·wbg = K_G/K_B`, so the white
   reference's catalogue colour under the model in force can be recovered from
@@ -160,9 +173,19 @@ response" — is false.** There is no default curve in the code path.
   log prints the name that was asked for. So a `recipe.json` `spcc` block, the
   fix every record's `sensor_match_note` prescribes, would change nothing and
   would make the record claim `named: <sensor>` for a run that used a Canon
-  DSLR behind a triband filter. **MECHANISM, and still so after H0** — every
-  named arm of the probe ran WITH the preload; the counterfactual (a named
-  arm without `spcc_list`) has not been run (§5).
+  DSLR behind a triband filter. **MEASURED — arms A′ and A″
+  (`spcc_arm_Aprime.json`, `spcc_arm_A2.json`):** a bare
+  `"-oscsensor=Nikon D750"` WITHOUT the preload echoes `SPCC will use OSC
+  sensor "Nikon D750"` at log line 52, loads at 53, and gives K
+  1.000/0.681/0.911, R/G `0.531138 + 0.607751·x` σ 0.247630 (the worst of
+  any arm), B/G `−0.005469 + 0.502601·x` σ 0.107110 — ΔK −0.016/−0.034
+  against the same name WITH the preload (0.697/0.945) and −0.006/−0.016
+  against the shipped model; naming `"Canon EOS 1D Mark III"` ×
+  `"Antila RGB_ultra_ii"` × `"Full spectrum (no filter)"` (a unity LPF — 10
+  values, all 1.0 — so naming it equals the bare run's NO LPF, `is_dslr`
+  having come from the preference) WITH the preload reproduces that run to
+  the digit, ΔK 0/0/0. The counterfactual is closed: without the preload a
+  name is echoed and not honoured.
 - **The tool-native cure is one line**: `spcc_list oscsensor` earlier in the
   same `.ssf` calls `load_spcc_metadata_if_needed()` (`command.c:11453`) and
   populates the lists for the life of the process; the subsequent `spcc` then
@@ -514,7 +537,9 @@ and Siril's).
 - **Consumers of the SPCC product.** `stack_<…>_spcc.fit` is the linear
   product the render tier consumes (`render_tier.sh <linear-spcc-stack.fit>`),
   the judge surface is stretched from it (`*_spcc-linked.png`), and **every
-  one of the 13 tracked baselines is seeded on a `_spcc` product**
+  one of the 17 canonical baselines is seeded on a `_spcc` product** (18
+  `baseline.json` files; the eighteenth, aug06/set-00, is a spare whose
+  target is not on disk)
   (`baseline.json` → `measures.stack = …_spcc.fit`; `run_set_chain.sh:801`
   `BASEPROD=$RESULTS/stack_${NAME}_spcc.fit`). The guard reads only the
   `STACKNRM` header and re-measures corner spread, edge dipole and
@@ -530,7 +555,7 @@ and Siril's).
   only by the offset; the centre-median rows move by ΔK (expected ≲5%,
   inside the 25% tolerance). So the guard is not expected to fire, but the
   README's acceptance rule ("any render the change alters is a declared
-  delta … then re-baseline and tag") applies to all 13 baselines, the same
+  delta … then re-baseline and tag") applies to all 17 baselines, the same
   shape as the zero-point item's stage 4 (closed; `docs/dead-ends/stacking-compose.md`). A curve landing is a
   BUILD-PATH change for the finish stage only (no member or compose rebuild;
   `PIPEREV` stamps on members/composites are unaffected; `_spcc` products
@@ -565,6 +590,15 @@ band that is redder than the sky in the flat divides the band's red down in
 every light — a per-channel, band-shaped effect; discriminator: the master
 flat's own R/G, B/G at the band position against the field. Neither is this
 item's to settle; both are named so the §4 verdict is not over-read.
+MEASURED since, on july31/set-01's tool-chosen boxes (§4 H3,
+`spcc_h3_band_excess.json`): the linear `_spcc` product's brightest band
+reads R/G 1.0022, B/G 1.0000 against the darkest sky box's 1.0011/1.0011 —
+neutral to 0.2% — identically on the shipped model and every proxy; and the
+campaign record (`datasets/corpus/campaign_zeropoint/campaign_record.json`,
+`inspection_disagreement_RESOLVED`) measured the corpus finals' visible band
+cast as the sky-anchored stretch amplifying sub-percent linear residuals
+~10× (linear B/G 0.9993 vs 0.9941 on the PNG, same blocks). The green
+excess is a property of the judgment surface, not of K.
 
 ## 2. Sources
 
@@ -572,7 +606,7 @@ item's to settle; both are named so the §4 verdict is not over-read.
 - `src/core/command.c` `do_pcc` 9933–10214 (name resolution 10151–10188, metadata load 10205; `process_spcc_list` 11449), `src/core/command_list.h:241-242` (syntax), `src/core/settings.c:268-290, 408-420` (`photometry/*pref`, `is_mono` default TRUE, `is_dslr`), `src/gui/photometric_cc.c:648-676` (`get_favourite_*`: `if (!list) return 0`), `src/algos/spcc.c` (grid, `flux_to_relcount`, `get_spectrum_from_args`, atmosphere), `src/algos/photometric_cc.c:296-571` (photometry, integration, repeated-median fits, K, warnings; ICC profile disabled 882–887), `src/io/spcc_json.c` (loader, channel bits 166–185, directory walk 734–766, sorts 855–861), `src/core/siril_app_dirs.c:161-163` (hard-coded path), `src/io/siril_git.c` + `src/gui/callbacks.c:1636` (GUI-only fetch + hard reset) — https://gitlab.com/free-astro/siril/-/tree/1.4.4 ; master `ee7b942` (2026-08-23) same order.
 - SPCC documentation: https://siril.readthedocs.io/en/stable/processing/color-calibration/spcc.html ; command reference `spcc` / `spcc_list`.
 - Siril lead developer on additions (pixls.us 50560, 56806, 55670); pyscript quoting thread 54615 (a different mechanism: unescaped quotes).
-- The 48 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the H0 probe: record `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs and scripts `sessions/july31/work/h0_{help,null,d750,d500}.{log,ssf}`, `h0_config_before.ini`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
+- The 48 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the H0 probe: record `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs and scripts `sessions/july31/work/h0_{help,null,d750,d500}.{log,ssf}`, `h0_config_before.ini`; the §4 arms: `spcc_arm_{A,Aprime,A2,A3}.json`, `spcc_set-01_arm_{d750,zf,zf2,z6,zfe}.json`, `spcc_h3_band_excess.json` (logs `sessions/july31/work/arm_*.log`, `arm_lists.log`, `h3_*.log`, `h4_arm_zf.log`); the runner at 25cfed6 and its smoke record `spcc_set-01_smoke_d750.json`; the curves `scripts/setup/spcc_curves/RECORD.json`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
 
 **siril-spcc-database** (clone `3426f09`, https://gitlab.com/free-astro/siril-spcc-database)
 - `README.md`, `spcc-database-schema.json`, `utils/README.md`, `utils/process_osc_sensor.py`, `svo-converter.py`, `LICENSE.md` (GPLv3); MRs !109 (D750), !81 (D500), !54 (D7200), !72 (Canon EOS R, open); issues #2, #3 (*"Add new sensors"* → rawtoaces, butcherg/ssf-data), #4 (relative QE); submission wizard https://siril-contrib-doc.readthedocs.io/en/latest/SPCCDatabase.html.
@@ -609,17 +643,33 @@ item's to settle; both are named so the §4 verdict is not over-read.
 
 ## 3. Verdict / recommendation
 
-Adopt **Option 0 now** (runner fix; the null path becomes a loud error and
-named curves are honoured — H0 measured both on the shipped july31/set-01
-input; this retires a false statement in every record and is independent of
-any curve), then **A1 — the Weta-measured Nikon Z f —
-under the §4 test** with A1′ (Butcher Z6) and A2 (D750) as its control arms;
-on a WIN, contribute the Z f conversion upstream (Apache-2.0 → GPLv3 is
-one-way compatible; issue #3 asks for exactly this) and pin it in the
-recipes' `spcc` block with its removal condition; **B1** is the
-standards-grade endpoint, owner-gated on a grating and a night, and the only
-path to a Z6 III entry. **C is out of bounds** as a calibration. The drafted
-queue item is BACKLOG `spcc-sensor-curve`.
+**Option 0 is adopted** (`spcc_run.py` at 25cfed6: a named sensor is
+required, `spcc_list` is preloaded, the log is asserted per run) and the
+index-0 model behind every shipped K record is MEASURED to the digit (§1.2).
+**The §4 test has run (results in §4): the data cannot distinguish the
+proxies.** The four named curves agree within 0.002 on K_G and 0.006 on K_B
+(0.004 across the three photon-convention arms, 0.943–0.947, and for every
+pair but B°–B′) and within 0.06 on the fit's intercept share; against the
+shipped model any of them moves K by +1.5% (G) / +2.2% (B). What a real OSC curve changes is the R/G fit (σ 0.140
+→ 0.095–0.099, intercept share 0.71 → 0.42–0.48); what none changes is the
+B/G fit (σ 0.107–0.108 against 0.110; share 0.39–0.44 against 0.39) — that
+residual is not curve-driven. **So the pin is a provenance choice, not a
+measurement**, and the recommendation stands on provenance: the
+Weta-measured **Nikon Z f** (professional rig, 380–780 nm, Apache-2.0,
+upstream-contributable) over the DIY Z6 and the 2014 D750. **The owner's
+eyes on the H4 surface — the only verdict on colour — approved it
+(2026-08-29, H4 WIN on set-01), and the pin is "Nikon Z f"**: a provenance
+choice on data that cannot distinguish the proxies. Stage 2 is in progress
+(the `spcc` block pinned in all 17 canonical sets' recipes, SPCC re-run on
+the existing `_wcs.fit` products with the old `_spcc`/PNG moved aside — no
+re-solve, one knob — the guard, a declared ΔK per product, 17 re-seeds on
+acceptance). The upstream MR
+for the Z f conversion is the owner's call and has not been made. **B1 is NOT implied by this result:** a
+curve measured on this body would be expected to move K by the same ≲2%
+and leave the B/G residual where every proxy leaves it; it remains the
+standards-grade route to a Z6 III database entry, not a fix for anything
+measured here. **C is out of bounds** as a calibration. The queue item is
+BACKLOG `spcc-sensor-curve`.
 
 ## 4. Pre-registered test — what decides "improvement" when a curve is tried
 
@@ -691,46 +741,131 @@ three curves is the finding that the fit geometry is not curve-driven and
 closes A1/A1′/A2 without a B1 capture being implied. Cost: five SPCC runs, one
 fast failure, two finishes; no from-raws, no compose.
 
+### 4.1 Results (MEASURED — every number from the committed records)
+
+Records: `datasets/july31/set-01/qa_work/spcc_arm_{A,Aprime,A2,A3}.json`,
+`spcc_set-01_arm_{d750,zf,zf2,z6,zfe}.json`, `spcc_h3_band_excess.json`;
+logs under `sessions/july31/work/`; input `stack_set-01_full_wcs.fit`
+(PIPEREV 77e3a78) for every arm, one `siril-cli` process each, whole-token
+quoting. Shares and derived whites are computed from the logged fit lines and
+K as in §1.2 (`share = a/K_G` for R/G, `a·K_B/K_G` for B/G).
+
+| arm | model in force | K R/G/B | R/G `a + b·x` (σ) | share, b/K_G | B/G `a + b·x` (σ) | share, b/(K_G/K_B) | derived white R/G, B/G | B ×1e-4 R/G/B | kept |
+|---|---|---|---|---|---|---|---|---|---|
+| A — shipped shape (no preload, no spec) | index 0: Generic mono sensor × Antlia R/G/B × Average Spiral Galaxy | 1.000/0.687/0.927 | 0.488722 + 0.239501x (0.140369) | 0.711, 0.35 | 0.286155 + 0.461961x (0.110041) | 0.386, 0.62 | 0.828, 0.985 | 4.875/1.624/0.117 | 3077/5119 |
+| A‴ — that model named, preload | same | identical to A to the digit, ΔK 0/0/0 | | | | | | | |
+| A′ — bare "Nikon D750", no preload | echoes D750; in force: Canon EOS 1D Mark III × Antila RGB_ultra_ii, no LPF | 1.000/0.681/0.911 | 0.531138 + 0.607751x (0.247630) | 0.780, 0.89 | −0.005469 + 0.502601x (0.107110) | −0.007, 0.67 | 0.247, 1.498 | 4.875/1.732/0.362 | 3077/5119 |
+| A″ — that model named + unity LPF, preload | same | identical to A′ to the digit, ΔK 0/0/0 | | | | | | | |
+| A0 — runner, no spec | — | refused before Siril (25cfed6); Siril's own error measured in H0's null arm (exit 1, no K) | | | | | | | |
+| B″ — "Nikon D750" | as named (verified: listed 73, loaded 52, echoed 105) | 1.000/0.697/0.945 | 0.326512 + 0.624652x (0.094971) | 0.468, 0.90 | 0.311216 + 0.603959x (0.107378) | 0.422, 0.82 | 0.593, 0.706 | 4.875/1.447/−0.137 | 3077/5119 |
+| B — "Nikon Z f" (photon) | as named (76/52/108) | 1.000/0.697/0.947 | 0.332141 + 0.592525x (0.095610) | 0.477, 0.85 | 0.323327 + 0.522722x (0.107511) | 0.439, 0.71 | 0.616, 0.790 | 4.875/1.444/−0.171 | 3077/5119 |
+| B (repeat, `arm_zf2`) | as named | identical to B to the digit — determinism MET | | | | | | | |
+| B′ — "Nikon Z6" (photon) | as named (78/52/108) | 1.000/0.696/0.943 | 0.293398 + 0.800298x (0.098586) | 0.422, 1.15 | 0.289986 + 0.505276x (0.107934) | 0.393, 0.69 | 0.503, 0.887 | 4.875/1.467/−0.116 | 3077/5119 |
+| B° — "Nikon Z f (energy)" | as named (77/52/108) | 1.000/0.698/0.949 | 0.333028 + 0.528019x (0.095192) | 0.477, 0.76 | 0.323303 + 0.587083x (0.107399) | 0.440, 0.80 | 0.691, 0.702 | 4.875/1.437/−0.205 | 3077/5119 |
+
+The "imprecise solution" line fired on every arm (σ_bg > 0.1 on all; A′ on
+R/G as well). `b_R` is +4.87488e-04 on every arm; R is the max-K channel on
+every arm.
+
+- **H0 — MET.** Every named arm: `SPCC JSON metadata loaded` (line 52)
+  before `SPCC will use OSC sensor "<model>"` (105/108), the model verbatim
+  in the `spcc_list` block, the model echoed; K differs between named curves
+  — B–B′ 0.004 on K_B, B–B″ and B′–B″ exactly 0.002 (at the bar), B–B°
+  0.002; the spec-less arm is refused by the runner before Siril, and
+  Siril's own error was measured in H0's null arm.
+- **H1 on B — NEITHER WIN NOR NULL by the letter.** Bars: share ≤ 0.25 (R/G)
+  and ≤ 0.15 (B/G) — measured **0.477 / 0.439**; σ < 0.10 on both —
+  measured **0.0956 / 0.1075** (R/G passes, B/G fails, so the warning still
+  fires); `n_kept` 3077 = A. The NULL branch (unchanged ±0.05 on all three)
+  is not met either: the R/G share moved −0.234 (B), −0.289 (B′), −0.243
+  (B″), σ_rg 0.140 → 0.096/0.099/0.095. The third branch's premise — "the
+  arms differ" — is not met: the three proxies agree within 0.06 on the R/G
+  share (0.422–0.477), within 0.05 on B/G (0.393–0.439), within 0.002 on
+  K_G and 0.006 on K_B.
+  Reading: the accidental mono model was wrong in a way ANY real OSC curve
+  fixes on R/G, and the B/G fit does not improve with any curve (σ 0.107–
+  0.108 against 0.110; share 0.39–0.44 against 0.39) — the residual is NOT
+  curve-driven; the doc's own NULL-branch suspect, the photometry in a dense
+  17″/px field (with the XP spectra's own systematics beside it, §1.6),
+  stands. The pre-registered bars had no branch for "moved, agree, none
+  meets the bar" — a gap in the bars, recorded.
+- **H2 — declared.** ΔK on B against A: G +0.010 (+1.5%), B +0.020 (+2.2%);
+  the four named arms within 0.002 of each other on K_G and 0.006 on K_B
+  (0.943 Z6 → 0.949 Z f-energy; 0.004 across the three photon-convention arms
+  and for every pair but B°–B′); no white-reference flag
+  (< 10%); the back-derived white differs per curve (R/G 0.50–0.69, B/G
+  0.70–0.89) as §1.1(ii) requires. **B° against B (the convention):** ΔK ≤
+  0.002 (G +0.001, B +0.002), shares identical to three decimals (0.477/0.439
+  vs 0.477/0.440), slopes ±12% (R/G 0.5925 → 0.5280, B/G 0.5227 → 0.5871), σ
+  unchanged (0.0956/0.1075 vs 0.0952/0.1074) — the QE-vs-responsivity
+  convention tilts the fitted line and moves K by ≤ 0.002.
+- **Determinism — MET.** B run twice (`arm_zf`, `arm_zf2`): K, both fits, B
+  offsets, counts and derived white identical to the digit.
+- **H3 — UNRESOLVED BY RESOLUTION, not a result either way.** Scored by the
+  refinement pre-registered before the run: the background-subtracted band
+  excess per channel, `E_c = median(band) − median(sky)`, whose arm/A ratio
+  must equal `K_c(arm)/K_c(A)` exactly — SPCC's map is affine per channel
+  (`photometric_cc.c:800-827`, `buf = buf·kw + offset`), so the offsets
+  cancel — with the max-K channel (R on every arm) the null control at
+  1.000. Boxes chosen by the tool before any arm product was read: the
+  brightest and darkest interior 400-px blocks of a 45-box grid on the
+  canonical A product (G medians 91.0 at (2200,2200) and 89.9 at
+  (1400,600)); the band sits 1.2% above the sky. In the neutralised products
+  E = 1.2/1.1/1.0 ADU16 (R/G/B) and Siril `stat` prints one decimal in
+  16-bit units, so a ratio carries ±0.13 against predicted departures of
+  0.015–0.024 and a bar of 0.005: all five products (A, B″, B, B′, B°) read
+  IDENTICAL at both boxes to the printed digit; the R null control holds
+  exactly. The 0.005 bar was pre-registered without knowing the field's band
+  excess or the tool's print resolution — a flaw of the bar, recorded. The
+  resolving variant — `crop` the two boxes to scratch files and `seqstat …
+  full` them (7 significant digits) — is named, not run: it changes no
+  decision. Raw linear colour, identical on all five products: band R/G
+  1.0022, B/G 1.0000; sky 1.0011/1.0011 — the band is neutral to 0.2% on
+  this linear product.
+- **H4 — WIN, owner-approved 2026-08-29** (a ratification stamp):
+  `web/results/july31/judge/set-01_arm_zf_spcc-linked.png` (4920×3580, 16-bit
+  RGB, the finish's own `autostretch -linked` + `savepng`) judged beside the
+  untouched canonical `set-01_full_spcc-linked.png`; the pin is "Nikon Z f".
+
 ## 5. UNCHECKED — premises this work rests on and did not test
 
-- **That the preload is WHAT makes names resolve** — H0 measured that
-  `spcc_list` + a name resolves and that no name errors; it did not run a
-  named arm WITHOUT `spcc_list`, so "a bare `-oscsensor=` silently uses index
-  0" rests on the source order plus the 48 shipped logs' order, not on a
-  measurement. One more one-minute arm settles it.
-- **The `-oscsensor="Nikon D750"` quoting form** (value-only quotes) is
-  neither Siril's documented form nor exercised — only the whole-token form
-  was; the runner uses the whole-token form.
-- **"Nothing written" in H0** was checked by the input's bytes/mtime and
-  `git status` only; Siril's own cache directories were not inventoried. The
-  3077 kept stars are equal in count to the shipped run's, not verified as
-  the same set.
 - **The binary is tag 1.4.4** — assumed from the flatpak's version string and
-  matching message strings.
+  matching message strings; every predicted behaviour has since reproduced.
 - **Sensor lineage** — Z6 III = IMX820AQJ is a teardown (TechInsights); Z6 =
   IMX410 has no teardown (consensus only); Z f = Z6 II sensor is "believed"
   (Wikipedia); **Z6 III CFA dyes and hot mirror = Z f's / Z6's is assumed by
-  everyone and measured by no one.**
+  everyone and measured by no one.** The §4 result that the proxies agree
+  within 0.002/0.006 on K_G/K_B does not test this — a wrong dye family would
+  move the fits, not necessarily K.
 - **The Weta "lightsaber" method** is undocumented and its "relative" units
-  undefined (QE vs responsivity); B° measures the convention's effect, it
-  does not settle which is right — physics does (§1.6), and the §4 arms apply
-  one stated convention.
+  undefined (QE vs responsivity); B° measured the convention's effect (ΔK ≤
+  0.002, slopes ±12%), not which convention is right — physics does (§1.6).
 - **Butcher's Z6 curve provenance** — lamp power calibration unstated;
   two-decimal values; grating efficiency handling unstated.
 - **The D750 entry's convention** — used as the database ships it.
-- **The director's band numbers** (0.989 / 0.960 / ~1.00) — untracked;
-  re-measured only by H3.
-- **That the green excess is attributable to K at all** — §1.8 names two
-  alternatives with discriminators; this item does not run them.
-- **That the "imprecise solution" σ is model-driven rather than
-  photometry-driven** — the reason H1 has a NULL branch and three curves.
-- **Shared with the director and REFUTED here rather than confirmed:** "the
+- **What H3 could not measure:** the affine map is source-read
+  (`photometric_cc.c:800-827`), but its consequence on the products —
+  `E_c(arm)/E_c(A) = K_c(arm)/K_c(A)` — was not resolved at `stat`'s print
+  resolution on a 1.2% band; the `crop` + `seqstat … full` variant is named,
+  not run. The director's band numbers (0.989 / 0.960 / ~1.00) were not
+  re-measured by this test; the campaign record measured the corpus finals'
+  cast as PNG-side amplification (§1.8).
+- **What drives the B/G residual** — common to every curve, so not the
+  curve; the photometry in a dense 17″/px field and the XP spectra's own
+  systematics (§1.6) are the suspects; neither is tested.
+- **The bars' gap** — H1 had no branch for "moved, agree, none meets the
+  bar" and H3's bar was set without the field's band excess or the tool's
+  print resolution; both recorded as flaws of the pre-registration, not of
+  the arms.
+- **B1** — untested and, by §4, not implied; whether a curve of this body
+  would move K beyond the proxies' ≲2% is unknown.
+- **Shared with the director and REFUTED rather than confirmed:** "the
   sensor-null default applies siril's generic response" (no such path exists);
-  "K factors ride a generic curve" (they rode Generic-mono × Antlia RGB);
-  "contributing the curve to the database is the fix" (necessary, not
-  sufficient — without Option 0 a contributed curve is not what runs);
-  "the local database's Nikon coverage is the D200" (it is 13 D-bodies — the
-  gap is the Z line, not Nikon).
+  "K factors ride a generic curve" (they rode Generic-mono × Antlia RGB —
+  now measured); "contributing the curve to the database is the fix"
+  (necessary, not sufficient — without Option 0 a contributed curve is not
+  what runs); "the local database's Nikon coverage is the D200" (it is 13
+  D-bodies — the gap is the Z line, not Nikon).
 - **Shared premise not tested by either session:** that SPCC (three scalars
   + three offsets against Gaia XP through a response model, one airmass, one
   white reference) is the right instrument for a 28.6° field — the industry
@@ -738,17 +873,28 @@ fast failure, two finishes; no from-raws, no compose.
 
 ## 6. Status
 
-**PROVISIONAL, with H0 RUN AND PASSED** (`spcc_h0_probe.json`: the preload
-resolves names, two names give two K, the null spec errors, nothing written).
-The resolution mechanism is MEASURED through the 48 shipped logs and the
-probe; the curve test (§4 H1–H4) has not run; stage 0's runner fix is in
-progress. Nothing here changes a product.
+**TEST RUN AND JUDGED — the pin is "Nikon Z f"; stage 2 in progress.**
+H0 MET, determinism MET, H1 scored (neither WIN nor NULL by the letter; the
+residual is not curve-driven), H2 declared (+1.5% / +2.2% on B), H3
+unresolved at the instrument's print resolution, **H4 WIN — owner-approved
+2026-08-29 on set-01**. Stage 0 is adopted (25cfed6); stage 1's curves are
+installed and tracked (`scripts/setup/spcc_curves/`); stage 2 — the `spcc`
+block pinned in all 17 canonical sets' recipes, SPCC re-run on the existing
+`_wcs.fit` products with the old `_spcc`/PNG moved aside (no re-solve, one
+knob), the guard, a declared ΔK per product, 17 re-seeds on acceptance — is
+running. The upstream
+MR for the Z f conversion is the owner's call, not yet made. Until stage 2
+lands, no canonical product has changed.
 
 ## 7. Graduation
 
-None yet. When §4 runs: the headless resolution trap and the index-0 model
-earn a `docs/dead-ends/siril-behaviors.md` entry (it changes a decision:
-every future SPCC invocation, and every reading of an old K record); the
-false "generic default" wording is swept from the seven sites in §1.7;
-`TOOLS.md`'s SPCC row gains the `spcc_list`-first rule and the `is_dslr`/LPF
-requirement; the item's removal-condition rows go into BACKLOG's register.
+Graduated: the headless resolution trap, the measured index-0 models, the
+`spcc_list`-first cure, the `is_dslr`/LPF NULL-dereference and the
+not-persisted preferences are a `docs/dead-ends/siril-behaviors.md` entry
+(it changes every future SPCC invocation and every reading of an old K
+record); `TOOLS.md`'s SPCC row carries the `spcc_list`-first rule and the
+`is_dslr` → `-osclpf=` requirement; the runner's removal-condition row
+landed with 25cfed6. Remaining: the "generic default" wording sweep of the
+sites in §1.7 (README stage 3, the pipeline doc §7 and its stop list,
+`finish_render.sh:36`, `corpus4_build_record.json`) and the proxy curve's
+register row — both with stage 2, whose pin changes those statements anyway.
