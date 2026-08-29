@@ -305,7 +305,13 @@ logged UNCHECKED premise that blocks nothing
 - **`--weight=noise` corpus arm** — motivated by a MEASURED 18–24% cross-night noise
   gap (aug09 haze, +0.16 mag extinction, 16,913 matched stars); pre-registered
   one-knob A/B against the shipped `nbstack` corpus, judged on `snr_regions` +
-  `shape_at_sky` + the owner's eyes.
+  `shape_at_sky` + the owner's eyes. Repositioned by the member-selection work:
+  weighting is the standards-first ALTERNATIVE to exclusion and is queued BEHIND the
+  exclusion rules, because a scalar per-frame weight cannot address portions of a
+  member (`docs/corner-smear-member-selection.md` §6); the per-pixel (SWarp) branch is
+  closed by the owner's stop, this scalar branch stays open. Read any bgnoise-based
+  judgment of it against the field's regime: member/canonical bgnoise ratio 1.8–2.5×
+  where a photon-limited mean would read 8.8× — bgnoise is structure-limited here.
 
 (The real-flats HANDLED path re-homed into `route-recommendation`'s flat-source
 bullet; pooled master darks re-homed into `dark-optimization-fork`.)
@@ -315,7 +321,24 @@ bullet; pooled master darks re-homed into `dark-optimization-fork`.)
 
 ---
 
-## `compose-homography-smear` — the largest measured defect in any shipped product
+## `compose-homography-smear` — the union's smear is ATTRIBUTED TO THE MEMBERS, not the compose; the reprojection route and the model questions are what stay open
+
+**STATE (measured; the map is `docs/corner-smear-member-selection.md`).** The
+surviving left-band / bottom-corner smear of the multi-night union is NOT a
+registration or compose defect: the drift-span discriminator this item named RAN
+(three nested arms, 26.1 / 104.3 / 235.7 px of span — the exit-side blur flat within
+ΔFWHM −0.025..+0.055 px across 9×), the band is built exclusively from the members'
+own ENTRY-side columns and reads on them what the union reads, it is present in
+single raws and night-ordered (aug14 softest), and the corners are the lens's
+asymmetric term. Member SELECTION removes it: the per-member entry-side THRESHOLD
+crop `cropT` (27 of 77 members' columns beyond the asymmetry onset; band 2.97 → 2.79
+px at full depth, no seam) is owner-approved (2026-08-29); a frame-level threshold
+on top of it is a measured NULL. What this item still holds open, below: the
+SCAMP/SWarp reprojection route (untested as a coadd; its motivation as a smear fix
+is gone, the route itself is untouched), interleaved groups, the corner-true shared
+model, which single model, the state-change detector, the candidate model with corner
+support. The historical body follows; where it names the compose or the exit edge as
+the carrier, the measured state above overrides it.
 
 **The sub-stack compose is a MOSAIC and is being aligned with a single homography.**
 A group is a consecutive time block, so within one 1497 s burst the sky sweeps 6.25°
@@ -363,8 +386,8 @@ member-composition controls the canvas-tied residual is **−0.05 ± 0.04 px maj
 samples the members' own **+x EDGES** — pair Δ(mean member-own signed-x) up to
 **1.89 of a ±1 range**, because canvas-edge sky is reachable only by member frame
 edges — and the channel split says member-own ρ composition is near zero and
-WRONG-SIGNED (−0.02), so the carrier is member +x-EDGE proximity (the exit-edge
-family, `one-sided-band`), NOT raw-frame radial optics and NOT the compose. The
+WRONG-SIGNED (−0.02), so the carrier is member +x-EDGE proximity — their ENTRY
+side, measured later as night-dominated and in the photons (`docs/corner-smear-member-selection.md` §2) — NOT the compose. The
 fitted member-radial slope, +0.435 px/unit ρ, independently reproduces
 corner_work's union measurement (+0.53 px/unit ρ). No compose change removes what
 rides in with member edges; the surviving-band question re-scopes to the member
@@ -479,7 +502,11 @@ Ordered work — nothing here is executed on an accepted product:
    (per-member edge trim) was an owner-DIRECTED TEST (2026-08-22) that RAN (6d9e568)
    and is REFUTED: NULL on shared sky, canvas −8.7%, and at a framing=max union's rim
    it starves contributor diversity (`docs/dead-ends/stacking-compose.md`, the retired
-   `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No trim ships.
+   `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No BLANKET trim
+   ships. What DID ship is not a trim of that kind: a per-member THRESHOLD crop of
+   the columns a member's own profile measures as asymmetrically degraded (`cropT`,
+   owner-approved 2026-08-29) — selection by measured quality, full depth kept
+   elsewhere, no seam at 27 boundaries (`docs/corner-smear-member-selection.md` §3).
 5. **Which single model** — the pinned july14 fit is the default on history and
    provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
    COMBINE, one knob, never on a per-set product (a compose artifact
@@ -492,8 +519,9 @@ Ordered work — nothing here is executed on an accepted product:
    the quantity is attributed (`docs/combine-contract.md` §5).
 
 **What the defect IS, measured.** The softness tracks SENSOR POSITION, not time
-(R² 0.90 against sensor x, **0.05 against elapsed time**), and it sits on the side
-stars drift OUT of, and it is the exit edge that smears. **The −3.87 px/frame figure
+(R² 0.90 against sensor x, **0.05 against elapsed time**) — and, corrected by the
+later member attribution, it is the members' ENTRY side that carries the union's
+band (`docs/corner-smear-member-selection.md` §2). **The −3.87 px/frame figure
 once quoted here is REFUTED by this repo's own later measurement — the drift is
 1.9064 px/frame against 1.9581 predicted (2.6%), so 3.87 was out by 2.03× and
 exceeded the physical ceiling** (`docs/dead-ends.md`). **THE STANDARDS DOC'S H.4
@@ -511,19 +539,17 @@ Acquisition is clean (identical exposure/ISO/aperture/focal across 500 frames, 3
 interval, no gap) and refraction is ruled out (72–77° altitude, differential
 refraction across the field changes 0.09 px over the run, in the wrong direction).
 
-**Two hypotheses, not yet separated** (ledger
-`exit_edge_registration_vs_fixed_lens_residual`) — both predict the measured
-sensor-position collapse, and they differ only in DRIFT-SPAN dependence:
-1. an uncorrected asymmetric (decentring) distortion term fixed in sensor
-   coordinates — lensfun's `ptlens` is purely radial and has no tangential terms, so
-   it cannot remove a left-right asymmetry by construction;
-2. a registration failure at the exit edge — stars there are transient, so the
-   global homography is least constrained on that side.
-
-**The discriminator:** stack the same sensor region from sub-blocks of decreasing
-drift span (50 / 25 / 12 consecutive frames) and measure blur at MATCHED sensor x.
-Flat ⇒ fixed residual. Falling with span ⇒ registration. Stacking only the low-drift
-half of a set would be a BANDAID as a fix, but is the cheap end of this arm as a test.
+**Two hypotheses — SEPARATED (ledger `drift_span_discriminator_exit_edge`, lines
+98–99):** (1) an uncorrected asymmetric term fixed in sensor coordinates — lensfun's
+`ptlens` is purely radial and has no tangential terms, so it cannot remove a
+left-right asymmetry by construction; (2) a registration failure at the exit edge.
+The discriminator this item named RAN: three nested arms of aug06/set-01 with
+26.1 / 104.3 / 235.7 px of stacked drift span, blur at matched sensor x — FLAT on
+the exit side across 9× (ΔFWHM(L−S) −0.025..+0.055 px, roundness within 0.018), so
+(2) is REFUTED and (1) stands, further attributed to the photons of single raws with
+a night ordering (aug14 raws 2.94–3.03 px / 0.53 at along+2400 against july31's
+2.18 / 0.80). No compose change removes it; member selection does
+(`docs/corner-smear-member-selection.md`).
 
 **UNBLOCKED — the standards research is done** (`docs/untracked-widefield-standards.md`,
 fresh-eyes session, 45 cited sources). What it settles:
@@ -836,7 +862,11 @@ causes it** — coverage depth, the compose, within-member registration and any
 lensfun distortion residual are each eliminated by measurement, and Siril
 `findstar` on THREE SINGLE RAWS (debayered, uncalibrated, unwarped, unregistered,
 unstacked, 8074 stars) carries the term at full size. An uncorrected frame cannot
-carry the RESIDUAL of a correction that has not been applied.
+carry the RESIDUAL of a correction that has not been applied. CONFIRMED again on 18
+single raws across 6 sets with an explicit NIGHT ordering (aug14 softest), and the
+UNION band's carrier — the members' own entry-side columns — is attributed and
+answered by member selection (`docs/corner-smear-member-selection.md`); the raw-frame
+RADIAL term below stays the open question of this item.
 
 **PRODUCTS UNDERSTATE IT.** An isotropic blur added everywhere compresses a ratio
 toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
@@ -885,7 +915,7 @@ data**, and no row may be promoted to one by being quoted.
 | **Atmospheric dispersion** | elongation along the ELEVATION vector (horizon frame), CHROMATIC, ∝ tan(z) | **per-Bayer-channel ellipticity — the cheapest test available here**, and the only discriminator in this table that keys on colour. Cross-session direction test inherits the altitude bound below |
 | **Tracking / mount error** | fixed direction, FIELD-CONSTANT | the spin-2 fit already separates field-constant from radial; a gradient is not this |
 | **Gravity / flexure** (§V.2) | correlates with *"the direction of gravity, namely the declination and zenith distance"* | cross-session at differing altitude — inherits the altitude bound, and does NOT separate from atmospheric without the chromatic test |
-| **Registration / resampling residual** | smears along the residual direction, grows with distance from where the transform was CONSTRAINED, and moves size AND shape together | **reference swap, read BINARY** (BACKLOG:`single-pass-reference-lottery`): must move if registration, cannot move if sensor-fixed. Second separator: the **three-level ladder**, immune because level 1 uses no reference |
+| **Registration / resampling residual** | smears along the residual direction, grows with distance from where the transform was CONSTRAINED, and moves size AND shape together | **REFUTED as the union band's carrier** — the 9× drift-span discriminator read the exit-side blur flat (ledger 98–99); the signature stands as a signature. Its separators as written: **reference swap, read BINARY** (BACKLOG:`single-pass-reference-lottery`): must move if registration, cannot move if sensor-fixed. Second separator: the **three-level ladder**, immune because level 1 uses no reference |
 
 **TWO THINGS ARE NOT CANDIDATES AND MUST NOT BE LISTED AS SUCH.** The coadd
 PSF-orientation mixing is DEMOTED — see the section below. And the **clamp acting
@@ -1126,14 +1156,22 @@ that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
   NULL on shared sky, −8.7% canvas, a starved rim at the cross-night union (root
   cause: contributor diversity, not member damage) — so it is not a candidate either:
   a measured dead end, registered (`docs/dead-ends/stacking-compose.md`, the retired
-  `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No trim ships.
+  `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No BLANKET trim
+  ships. The per-member THRESHOLD crop that later shipped (`cropT`, owner-approved
+  2026-08-29) is a different thing from that symmetric trim: it removes only the
+  columns a member's own profile measures as asymmetrically degraded, keeps full
+  depth elsewhere, and is a FIX-class SELECTION by measured quality, not a bandaid
+  (`docs/corner-smear-member-selection.md` §3).
 
 **Closes when** an anisotropic treatment is procured and measured, or the owner
-accepts the corner as-is. **The in-chain question is settled: no route on this rig
-recovers corner detail, and the defect is in the photons of single unprocessed
-RAWs.** What remains is a procurement decision and an acceptance decision, both the
-owner's — see `compose-homography-smear` for the DIFFERENT defect that IS caused by
-a chain stage and does have a live candidate route.
+accepts the corner as-is. **The in-chain question is settled only for RECOVERY: no
+route on this rig recovers corner detail from a frame, and the defect is in the
+photons of single unprocessed RAWs.** Member SELECTION is the third route this item
+did not name: it removes the degrading portions before the mean and moved the union's
+band 2.97 → 2.79 px (`cropT`); what it cannot remove is the lens's SYMMETRIC radial
+softening, which every frame carries — the procurement / acceptance decision above
+applies to THAT. `compose-homography-smear` no longer names a chain-caused defect
+(its smear is attributed to the members).
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 
@@ -1235,19 +1273,27 @@ rig (already x86).
   zenodo chunk names) and `eqcrop ra1 dec1 ra2 dec2` (the natural consumer of a
   framing record's RA/Dec form).
 
-## `final-best-percent-pass` — one target, many sessions, stack the best N%
+## `final-best-percent-pass` — one target, many sessions: the FINAL pass selects by measured quality — thresholds, not a percentile
 
-The standing multi-session practice's endgame (user-ratified; walkthrough §6):
-after many ~500-frame sets accumulate on one target, a FINAL pass analyzes
-ALL sessions' raws and stacks only the best percentile. Unbuilt mechanics: a
-cross-session frame-quality surface (per-set `frame_metrics.json` exists;
-nothing ranks across sessions), a global best-N% selection the builders can
-consume (`cullspec` excludes are per-set), and the ladder itself — N% arms,
-one knob per arm, judged on full-frame lossless finals; README's
-reference-standard row 1 soft-culling caution applies (selection adopted
-through a measured ladder, never a default). Gated on the corpus existing.
-**Closes when** a final-pass product ships from a measured best-N% ladder
-across at least two sessions' raws with its per-set selection recorded.
+The standing multi-session practice's endgame (user-ratified): after many
+~500-frame sets accumulate on one target, a FINAL pass re-selects from ALL
+sessions' data. The owner's ruling (2026-08-29) fixes its FORM: a best-N% ladder is
+a RANK rule and on an equal-quality corpus would drop N% for nothing ("consider
+what happens if ALL the images were to be the same quality … should we have cut off
+thresholds opposed to blanket cut rules?"), so the pass selects by QUALITY
+THRESHOLDS that exclude nothing on an equal corpus. MEASURED at the MEMBER tier on
+the 77-member four-night corpus (the corpus gate has fired): a PORTION threshold
+(crop a member's entry-side columns beyond the onset where FWHM(+dx) − FWHM(−dx)
+> 0.20 px — `cropT`, owner-approved) carries the gain, band 2.97 → 2.79 px at full
+depth; a FRAME threshold (exclude a member whose interior+exit-side FWHM exceeds
+the corpus's 25th percentile by > 0.20 px) is a NULL on top of it at −16.2 % of the
+frames — reported, not gated (`docs/corner-smear-member-selection.md`). Unbuilt:
+the per-FRAME cross-session quality surface (per-set `frame_metrics.json` exists;
+nothing ranks or thresholds across sessions; `cullspec` excludes are per-set), and
+the encoding of the member-tier rules as a chain stage. Selection is adopted only
+through a measured arm with a pre-registered prediction, never as a default.
+**Closes when** a final-pass product ships from measured THRESHOLD selection across
+at least two sessions' data with its per-set selection recorded.
 
 ## `session-level-mount` — one tripod pays for up to four probes
 
