@@ -74,13 +74,21 @@ a quality gate. It misfired on aug14/set-05: a Milky Way band across the frame
 puts a true 4.38% corner spread on the product (left corners bright), the same
 measure read 8.2% on that set's -output_norm product (never seeded), and the
 guard cannot separate sky structure from a flat error (its register row calls
-the corner measures self-fulfilling for flat contamination). So when the ceiling
-is exceeded the guard prints a CEILING block that tells the human to EXAMINE THE
-IMAGE MANUALLY — the four corners at 1:1 on the 16-bit judge surface, the shape
-of the background map (radial = flat/vignetting; a left-right or top-bottom
-slope = sky or sky x V, compare readiness.json's flat-quality row; blocky =
+the corner measures self-fulfilling for flat contamination). So the ceiling is
+a CROSSING warning: when the product exceeds it AND the accepted baseline did
+not, the guard prints a CEILING block that tells the human to EXAMINE THE IMAGE
+MANUALLY — the four corners at 1:1 on the 16-bit judge surface, the shape of
+the background map (radial = flat/vignetting; a left-right or top-bottom slope
+= sky or sky x V, compare readiness.json's flat-quality row; blocky =
 coverage), and whether the field itself carries the gradient — and records the
-verdict in the baseline note on the next seed. The check that carries the
+verdict in the baseline note on the next seed (the seed itself prints the block
+when it is taken over the ceiling). A product that stays over a ceiling its
+accepted baseline already sat over prints nothing: that baseline was examined
+at seed and carries the verdict, so the block would repeat on every run with no
+new information — the decoration the acceptance-measures rule names
+(owner-approved 2026-08-29, after aug14/set-05's seed at 4.381 made it print on
+every run); growth beyond the baseline is the over-baseline rule's. The check
+that carries the
 --desky class (0.4% -> 12.4%) is the OVER-BASELINE rule (+1.0 over the accepted
 product), which stays hard, as do the dipole cap and the level rows; the
 --selftest keeps that case as the positive control. Exit stays 0 on a ceiling
@@ -122,17 +130,20 @@ def compare(now, b, tol):
     guard always ran; the routing is (1) the centre-median loop, which appends
     to `advisories` instead of `fails` when the two normalization statements
     differ (docstring: THE LEVEL MEASURE IS ADVISORY ...), and (2) the absolute
-    corner-spread ceiling, which appends to `ceiling` — a warning to examine the
-    image, never a fail (docstring: THE ABSOLUTE CORNER-SPREAD CEILING WARNS)."""
+    corner-spread ceiling, which appends to `ceiling` only on a CROSSING (product
+    over it, baseline under it) — a warning to examine the image, never a fail
+    (docstring: THE ABSOLUTE CORNER-SPREAD CEILING WARNS)."""
     spread, dip = now["corner_spread_pct"], now["edge_dipole_x"]
     chans = now["centre_median_per_channel"]
     fails, advisories, ceiling = [], [], []
     level = (fails if now.get("stacknrm", DEFAULT_NRM) == b.get("stacknrm", DEFAULT_NRM)
              else advisories)
 
-    if spread > tol["corner_spread_pct_max_abs"]:
-        ceiling.append(f"corner_spread_pct {spread} exceeds the absolute ceiling "
-                       f"{tol['corner_spread_pct_max_abs']}")
+    if (spread > tol["corner_spread_pct_max_abs"]
+            and b["corner_spread_pct"] <= tol["corner_spread_pct_max_abs"]):
+        ceiling.append(f"corner_spread_pct {spread} crosses the absolute ceiling "
+                       f"{tol['corner_spread_pct_max_abs']} (the accepted baseline "
+                       f"{b['corner_spread_pct']} was under it)")
     if spread - b["corner_spread_pct"] > tol["corner_spread_pct_max_over_baseline"]:
         fails.append(f"corner_spread_pct {spread} is "
                      f"{spread - b['corner_spread_pct']:+.3f} over baseline "
@@ -183,8 +194,9 @@ def selftest():
                 "centre_median_per_channel": {k: v * level for k, v in
                                               base["centre_median_per_channel"].items()},
                 "stacknrm": nrm}
-    hi_base = dict(base, corner_spread_pct=4.4)      # a seed taken over the ceiling (aug14/set-05: 4.381)
+    hi_base = dict(base, corner_spread_pct=4.4)      # a seed taken over the ceiling (aug14/set-05: 4.381), examined at seed
     lo_base = dict(base, corner_spread_pct=0.4)      # the --desky class's accepted product (0.4%)
+    mid_base = dict(base, corner_spread_pct=2.6)     # an accepted product under the ceiling
     cases = [  # (label, now, baseline, expected fails, advisory expected, ceiling expected)
         ("same STACKNRM, centre +30% -> RED",            now(1.30), base, 1 * 3, False, False),
         ("STACKNRM differs, centre +80% -> ADVISORY",   now(1.80, nrm="addscale"), base, 0, True, False),
@@ -193,9 +205,10 @@ def selftest():
         ("STACKNRM differs, edge_dipole +0.10 -> RED",  now(1.80, dip=0.104, nrm="addscale"), base, 1, True, False),
         ("baseline without the field, default product +30% -> RED", now(1.30), old_base, 3, False, False),
         ("baseline without the field, addscale product +80% -> ADVISORY", now(1.80, nrm="addscale"), old_base, 0, True, False),
-        ("same STACKNRM, spread 4.4 vs baseline 4.4 -> PASS with CEILING warning", now(spread=4.4), hi_base, 0, False, True),
-        ("spread 12.4 vs baseline 0.4 (--desky) -> RED via over-baseline, ceiling too", now(spread=12.4), lo_base, 1, False, True),
+        ("same STACKNRM, spread 4.9 vs baseline 4.4 (seeded over the ceiling) -> PASS, no ceiling", now(spread=4.9), hi_base, 0, False, False),
+        ("spread 12.4 vs baseline 0.4 (--desky) -> RED via over-baseline, ceiling too (a crossing)", now(spread=12.4), lo_base, 1, False, True),
         ("spread 2.9 vs baseline 0.4 -> RED via over-baseline, no ceiling", now(spread=2.9), lo_base, 1, False, False),
+        ("spread 3.5 vs baseline 2.6 -> PASS with CEILING warning (a crossing inside the +1.0 allowance)", now(spread=3.5), mid_base, 0, False, True),
     ]
     bad = 0
     for label, n, bl, nf, adv, ceil in cases:
@@ -207,11 +220,12 @@ def selftest():
     if bad:
         print("baseline_guard --selftest: FAIL — the rule does not fire as stated")
         return 1
-    print("OK: baseline_guard compare rule — 10 cases: RED on level under a matching "
+    print("OK: baseline_guard compare rule — 11 cases: RED on level under a matching "
           "STACKNRM, ADVISORY under a differing one, RED on structure either way, "
           "PASS on ordinary variation, field-less baselines read as the default, "
-          "the absolute ceiling WARNS (never fails) while the --desky class still "
-          "goes RED through the over-baseline rule")
+          "the absolute ceiling WARNS on a crossing only (never fails; silent over a "
+          "baseline already over it) while the --desky class still goes RED through "
+          "the over-baseline rule")
     return 0
 
 

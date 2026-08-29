@@ -361,7 +361,7 @@ exonerated for it).
   the anchor stamped (`ANCLOC*`/`ANCSCL*`/`ANCREF`/`ANCSRC`, `STACKNRM=addscale`),
   Siril's own "Output normalization ...... disabled" asserted; `baseline_guard`'s
   level rows advisory while STACKNRM differs from the baseline's, and its absolute
-  corner-spread ceiling a manual-examination WARNING (owner-directed after it misfired
+  corner-spread ceiling a manual-examination WARNING on a crossing only (owner-directed after it misfired
   on aug14/set-05's Milky Way gradient — a true 4.38% spread the measure cannot tell
   from a flat error; the over-baseline rule still catches the `--desky` class). From-raws rebuild of
   the whole corpus under one HEAD: level = the anchor on 99/99 products (finals
