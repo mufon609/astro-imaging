@@ -157,7 +157,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   search string, and one of the six was in ZERO files; the content was right
   and the sentence claiming to prove it was not.
   **A CORRECTLY PASTED NUMSTAT DOES NOT COVER A DESTRUCTIVE CUT — an aggregate
-  says nothing about which lines went.** MEASURED: `c1a20d3` pasted
+  says nothing about which lines went.** MEASURED: `bb17e66` pasted
   `37 5 docs/dead-ends.md` accurately while one of the five deletions was the
   bullet and TITLE of an unrelated entry, leaving its continuation orphaned
   inside the preceding entry — the count was right and the content was
@@ -197,7 +197,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   path are: with no second `c` the substitution is unterminated and zsh
   shouts; with one it parses as a no-op and the path is simply GONE. Three
   outcomes over the tracked `scripts/` paths — measured at 113 paths by two
-  sessions, re-measured at `614ad33` by a third (115 paths, A=51 B=37 C=27:
+  sessions, re-measured at `9ecc77a` by a third (115 paths, A=51 B=37 C=27:
   A and B identical, both added paths class C):
 
       A  bad substitution                     51  45%   LOUD, you stop
@@ -264,7 +264,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
      (`scripts/ingest/{fetch_session,link_heartbeat,remote_publish}.sh`) was
      invoked by no code, and its tracked records settle it as LIVE: 9 of 9
      `ingest_work/ingest.json` name `remote_publish.sh` as the hash producer
-     (re-verified at `614ad33`, with 0 invocation-shaped references outside
+     (re-verified at `9ecc77a`, with 0 invocation-shaped references outside
      `scripts/ingest/`). **Search the records before classifying anything as
      dead — the completeness question is "what does this leave behind", not
      only "what invokes this".**

@@ -16,7 +16,7 @@ the tree when its route closes; recover any pruned file with
 | record | instrument | question / route status |
 |---|---|---|
 | `corpus4_build_record.json` | run_corpus_combine parameters + product headers | what the four-night corpus product was built with (the product itself is gitignored) — KEPT route |
-| `solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json`, `spcc_set-0b_july31+aug06+aug09+aug14_outnorm_presolvefix.json` (renamed from `…_full.json` 2026-08-30; the `set-0b` in the SPCC name is the sort-order defect's own trace, kept) | `solve_field.py` / Siril SPCC | NOT the canonical's: the finish records of the four-night product as it stood on 2026-08-19 — its FIRST `_full` build (with `-output_norm`, before the member-solve fix, generic SPCC response), filed under aug14/set-0b by the sort-order defect and relocated here (a265cfc): solve RA 309.858 / Dec +41.327 / 16.952 arcsec/px / logodds 507; SPCC K 1.000/0.669/0.899 on a 582,612,480-byte `_wcs`. That product was replaced in place by the member-solve-fix rebuild (2026-08-26; `_full` re-finished at 309.761 / +41.296 / 17.006 / logodds 105 on 582,917,760 bytes — the file the zero-point campaign moved aside as `_outnorm` and later disposed); its pixels are gone, the records kept — each carries an `_identity` block with the numbers. The CANONICAL's finish records live under `datasets/aug09/set-02/qa_work/` (BACKLOG:`cross-set-record-home`) |
+| `solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json`, `spcc_set-0b_july31+aug06+aug09+aug14_outnorm_presolvefix.json` (renamed from `…_full.json` 2026-08-30; the `set-0b` in the SPCC name is the sort-order defect's own trace, kept) | `solve_field.py` / Siril SPCC | NOT the canonical's: the finish records of the four-night product as it stood on 2026-08-19 — its FIRST `_full` build (with `-output_norm`, before the member-solve fix, generic SPCC response), filed under aug14/set-0b by the sort-order defect and relocated here (75bbe2f): solve RA 309.858 / Dec +41.327 / 16.952 arcsec/px / logodds 507; SPCC K 1.000/0.669/0.899 on a 582,612,480-byte `_wcs`. That product was replaced in place by the member-solve-fix rebuild (2026-08-26; `_full` re-finished at 309.761 / +41.296 / 17.006 / logodds 105 on 582,917,760 bytes — the file the zero-point campaign moved aside as `_outnorm` and later disposed); its pixels are gone, the records kept — each carries an `_identity` block with the numbers. The CANONICAL's finish records live under `datasets/aug09/set-02/qa_work/` (BACKLOG:`cross-set-record-home`) |
 | `solve_audit_corpus.json` | `scripts/qa/member_solve_audit.py` over all 77 members | the wrong-scale member-solve class (ledger `corpus4_member_solve_fix`; guard's register row in BACKLOG:`removal-conditions`) — fix KEPT |
 | `corpus_sweep_{old,new}.json` | Siril findstar, 44+39 WCS-placed 700 px boxes | rebuild verification, superseded vs repaired corpus (ledger `corpus4_member_solve_fix` P2/P3) — KEPT route |
 | `crop5lr_norm_px.json`, `crop5lr_sep_{crop5lr,full}_normmatched.json` | `member_separation.py --norm-px` (shared 3513.8 px normaliser) | the crop5lr H1 alignment verdict + the cross-size normaliser-bias method fix (ledger `crop5lr_cross_night_combine_aug06_plus_aug14`) — route RETIRED |
@@ -58,9 +58,9 @@ from their lists to the printed digit).
   and `corpus_sweep_{old,new}/*.lst` — recover: `git show 2654d31:<path>`.
   This resolver also serves the paths `audit_worker_report.json` cites in its
   `artifacts` block (`dgrid_{arm,ctrl}/ + c1_{dlv,ctrl}/ (findstar lists)`).
-- `git show 6d9e568:datasets/aug06/crop_work/lst_{arm,ctrl}/` — the within-night
+- `git show 690746c:datasets/aug06/crop_work/lst_{arm,ctrl}/` — the within-night
   arc's `*.lst` star lists, pruned when the route closed; recover any one file
-  with `git show 6d9e568:<path>`.
+  with `git show 690746c:<path>`.
 
 ## Subject drift note (registry-contract MOOTED class)
 
