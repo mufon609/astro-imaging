@@ -1,0 +1,1117 @@
+{
+ "id": "repeat_floor_corpus_compose",
+ "what": "THE SAME-REFERENCE REPEAT FLOOR AT THE CORPUS TIER \u2014 ONE knob: none. An IDENTICAL compose of the canonical's curated dir (77 members: 27 Siril-cropped copies + 50 symlinks), reference PINNED to the canonical's own derived member 35, nbstack, framing max, then the same finish (solve + SPCC + judge PNG). Every 'unchanged' verdict since rowmin rested on a \u00b10.04 px floor that was a PREMISE (two untargeted rowmin stations read \u00b10.038); this measures the floor. The july31 per-set rebuild floor (`rebuild_repeat_floor_set01`, c7db472) was ZERO at n=5 members; this is its live successor at n=77.",
+ "ledger": "datasets/aug06/experiments.jsonl id `repeat_floor_corpus_compose` (pre-registration line 140 before the compose; the verdict line follows it)",
+ "head_at_compose": "HEAD at compose: 002fbfc  2026-08-30T13:20:31-04:00",
+ "commands": {
+  "compose": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_july31+aug06+aug09+aug14_repeat.fit --framing=max --weight=nbstack --ref=sessions/aug09/work/groups_set-02/sub_01.fit sessions/aug14/work/curated_july31+aug06+aug09+aug14_full   (2026-08-30T13:20:31 -04:00, 123 s, rc 0; log sessions/aug14/work/repeat/compose.log: 'reference PINNED: member 35', 'compose gate T0: 77/77', 'astrometric registration + per-member undistortion CONFIRMED', 'weighted by stacked-image count (nbstack)')",
+  "finish": "scripts/stack/finish_render.sh web/results/aug14/stack_july31+aug06+aug09+aug14_repeat.fit july31+aug06+aug09+aug14_repeat --session=sessions/aug09 --set=set-02   (22 s, rc 0; solve 'SOLVED: RA 310.007 Dec +41.286 scale 17.01 arcsec/px logodds 176' = the canonical's; SPCC 'K factors: R 1.000 G 0.687 B 0.926 (1943/3905 stars kept)' = the canonical's; records datasets/aug09/set-02/qa_work/{solve_stack_,spcc_set-02_}july31+aug06+aug09+aug14_repeat.json \u2014 the cross-set-record-home wart, as stated in the GO)",
+  "isub_stat": "sessions/aug14/work/repeat/isub_stat_{stack,spcc}.ssf through scripts/lib/siril_run (python invoker): requires 1.4.0 / setcompress 0 / set32bits / load A / isub B / stat / load B / isub A / stat / load A / fmul 1.01 / isub A / stat / load A / fmul 0.99 / isub A / stat \u2014 the rf1/rf2 method of rebuild_repeat_floor_set01 (both directions because a one-way nil would only prove A <= B if isub clipped; the x0.99 control proves it does not)",
+  "pixel_count": "astropy fits.getdata on both files, (a != b).sum() per plane \u2014 a DIAGNOSTIC cross-check of the tool's all-nil reading",
+  "shape": "scripts/qa/shape_at_sky.py <repeat_wcs> --pos=RA,DEC,label x58 (the 31 boxes + 27 crop-boundary seams of cropT_arm.json measurement.rows) --box=800 --top=30 --json=sessions/aug14/work/repeat/shape_repeat.json --lst-dir=sessions/aug14/work/repeat/lists_repeat (31 s) against the canonical's own values measured in the wnoise run (weight_noise_arm.json collateral table, 'canonical' column)",
+  "guard": "python3 scripts/qa/baseline_guard.py --baseline=datasets/corpus/baseline.json web/results/aug14/stack_july31+aug06+aug09+aug14_repeat_spcc.fit"
+ },
+ "untouched_assertions": {
+  "curated_dir": "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full: 77 entries (27 files, 50 symlinks) \u2014 `ls -la --time-style=full-iso` listing identical before/after on every entry; the only changed line is `..` (sessions/aug14/work, where the compose created and removed its scratch)",
+  "canonical_family_and_reference": "stack_..._full.fit 579,504,960 B 2026-08-29 19:34:40; _wcs 579,507,840 B 19:34:47; _spcc 579,507,840 B 19:34:54; judge PNG 215,061,157 B 19:35:01; reference sessions/aug09/work/groups_set-02/sub_01.fit 273,009,600 B 2026-08-28 18:01:56 \u2014 size + mtime identical before/after"
+ },
+ "P1_compose_output_vs_canonical": {
+  "astropy": "0 differing pixels of 144,874,080 (3 x 5668 x 8520, >f4), per plane [0, 0, 0], max |diff| 0.0",
+  "siril_stat_sections_verbatim": {
+   "repeat_minus_canonical": [
+    "Statistics computation failed for channel 0 (all nil?).",
+    "Statistics computation failed for channel 1 (all nil?).",
+    "Statistics computation failed for channel 2 (all nil?)."
+   ],
+   "canonical_minus_repeat": [
+    "Statistics computation failed for channel 0 (all nil?).",
+    "Statistics computation failed for channel 1 (all nil?).",
+    "Statistics computation failed for channel 2 (all nil?)."
+   ],
+   "positive_control_(repeat_x1.01)_minus_repeat": [
+    "Red layer: Mean: 0.3, Median: 0.3, Sigma: 0.3, Min: 0.0, Max: 196.7, bgnoise: 0.0",
+    "Green layer: Mean: 0.6, Median: 0.6, Sigma: 0.4, Min: 0.0, Max: 250.7, bgnoise: 0.0",
+    "Blue layer: Mean: 0.4, Median: 0.4, Sigma: 0.3, Min: 0.0, Max: 220.5, bgnoise: 0.0"
+   ],
+   "clip_control_(repeat_x0.99)_minus_repeat": [
+    "Red layer: Mean: -0.3, Median: -0.3, Sigma: 0.3, Min: -196.7, Max: 0.0, bgnoise: 0.0",
+    "Green layer: Mean: -0.6, Median: -0.6, Sigma: 0.4, Min: -250.7, Max: 0.0, bgnoise: 0.0",
+    "Blue layer: Mean: -0.4, Median: -0.4, Sigma: 0.3, Min: -220.5, Max: 0.0, bgnoise: 0.0"
+   ]
+  },
+  "reading": "all nil on all three channels in BOTH directions = a measured zero; the x1.01 control prints real means/maxima on all three channels (the guard can fail), the x0.99 control prints NEGATIVE means/minima (isub does not clip) \u2014 HELD"
+ },
+ "P2_finish": {
+  "wcs": "_wcs: 0 differing pixels of 144,874,080; the 56 WCS cards (CRVAL/CRPIX/CD/CTYPE/SIP A_,B_,AP_,BP_, OBJCTRA/DEC) identical to the canonical's _wcs",
+  "spcc": {
+   "astropy": "0 differing pixels of 144,874,080, per plane [0, 0, 0]",
+   "header_cards_differing": "DATE, PIPEREV, REGREFSR only (HISTORY/COMMENT excluded)",
+   "siril_stat_sections_verbatim": {
+    "repeat_minus_canonical": [
+     "Statistics computation failed for channel 0 (all nil?).",
+     "Statistics computation failed for channel 1 (all nil?).",
+     "Statistics computation failed for channel 2 (all nil?)."
+    ],
+    "canonical_minus_repeat": [
+     "Statistics computation failed for channel 0 (all nil?).",
+     "Statistics computation failed for channel 1 (all nil?).",
+     "Statistics computation failed for channel 2 (all nil?)."
+    ],
+    "positive_control_(repeat_x1.01)_minus_repeat": [
+     "Red layer: Mean: 0.4, Median: 0.4, Sigma: 0.3, Min: 0.1, Max: 196.8, bgnoise: 0.0",
+     "Green layer: Mean: 0.4, Median: 0.4, Sigma: 0.3, Min: 0.0, Max: 172.2, bgnoise: 0.0",
+     "Blue layer: Mean: 0.4, Median: 0.4, Sigma: 0.3, Min: 0.1, Max: 204.3, bgnoise: 0.0"
+    ],
+    "clip_control_(repeat_x0.99)_minus_repeat": [
+     "Red layer: Mean: -0.4, Median: -0.4, Sigma: 0.3, Min: -196.8, Max: -0.1, bgnoise: 0.0",
+     "Green layer: Mean: -0.4, Median: -0.4, Sigma: 0.3, Min: -172.2, Max: -0.0, bgnoise: 0.0",
+     "Blue layer: Mean: -0.4, Median: -0.4, Sigma: 0.3, Min: -204.3, Max: -0.1, bgnoise: 0.0"
+    ]
+   }
+  },
+  "judge_png": "sha256 f8c1ce32e45152e8\u2026 on BOTH july31+aug06+aug09+aug14_repeat_spcc-linked.png and _full_spcc-linked.png (215,061,157 B each) \u2014 the judgment surface is byte-identical",
+  "shape_58_stations": {
+   "result": "max |dFWHM| 0.000 px, max |dround| 0.000, max |dn| 0 \u2014 0 of 58 stations with any nonzero delta (fwhm, roundness AND star count identical at every station)",
+   "placement": "y-origin top, max pass difference 19.712 deg vs tolerance 2.834 (decisive, as on every arm)",
+   "table": {
+    "x05pct_-": {
+     "canonical": [
+      2.772,
+      0.892,
+      477
+     ],
+     "repeat": [
+      2.772,
+      0.892,
+      477
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x10pct_-": {
+     "canonical": [
+      2.775,
+      0.892,
+      849
+     ],
+     "repeat": [
+      2.775,
+      0.892,
+      849
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x15pct_DEFECT": {
+     "canonical": [
+      2.805,
+      0.883,
+      982
+     ],
+     "repeat": [
+      2.805,
+      0.883,
+      982
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x20pct_DEFECT": {
+     "canonical": [
+      2.805,
+      0.873,
+      1058
+     ],
+     "repeat": [
+      2.805,
+      0.873,
+      1058
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x25pct_DEFECT": {
+     "canonical": [
+      2.795,
+      0.879,
+      1130
+     ],
+     "repeat": [
+      2.795,
+      0.879,
+      1130
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x30pct_DEFECT": {
+     "canonical": [
+      2.728,
+      0.904,
+      1133
+     ],
+     "repeat": [
+      2.728,
+      0.904,
+      1133
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x35pct_-": {
+     "canonical": [
+      2.658,
+      0.932,
+      1170
+     ],
+     "repeat": [
+      2.658,
+      0.932,
+      1170
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x40pct_-": {
+     "canonical": [
+      2.56,
+      0.965,
+      1156
+     ],
+     "repeat": [
+      2.56,
+      0.965,
+      1156
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x45pct_clean": {
+     "canonical": [
+      2.527,
+      0.971,
+      1125
+     ],
+     "repeat": [
+      2.527,
+      0.971,
+      1125
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x50pct_clean": {
+     "canonical": [
+      2.525,
+      0.967,
+      1177
+     ],
+     "repeat": [
+      2.525,
+      0.967,
+      1177
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x55pct_clean": {
+     "canonical": [
+      2.535,
+      0.954,
+      1206
+     ],
+     "repeat": [
+      2.535,
+      0.954,
+      1206
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x60pct_clean": {
+     "canonical": [
+      2.6,
+      0.947,
+      1199
+     ],
+     "repeat": [
+      2.6,
+      0.947,
+      1199
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x65pct_clean": {
+     "canonical": [
+      2.685,
+      0.939,
+      1211
+     ],
+     "repeat": [
+      2.685,
+      0.939,
+      1211
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x70pct_clean": {
+     "canonical": [
+      2.768,
+      0.937,
+      1186
+     ],
+     "repeat": [
+      2.768,
+      0.937,
+      1186
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x75pct_-": {
+     "canonical": [
+      2.777,
+      0.94,
+      1123
+     ],
+     "repeat": [
+      2.777,
+      0.94,
+      1123
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x80pct_-": {
+     "canonical": [
+      2.785,
+      0.954,
+      1118
+     ],
+     "repeat": [
+      2.785,
+      0.954,
+      1118
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x85pct_-": {
+     "canonical": [
+      2.757,
+      0.966,
+      1073
+     ],
+     "repeat": [
+      2.757,
+      0.966,
+      1073
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x90pct_-": {
+     "canonical": [
+      2.72,
+      0.972,
+      925
+     ],
+     "repeat": [
+      2.72,
+      0.972,
+      925
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "x95pct_-": {
+     "canonical": [
+      2.7,
+      0.978,
+      492
+     ],
+     "repeat": [
+      2.7,
+      0.978,
+      492
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "LADDER_defect_RA294.86": {
+     "canonical": [
+      2.728,
+      0.988,
+      1092
+     ],
+     "repeat": [
+      2.728,
+      0.988,
+      1092
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "LADDER_RA301.58": {
+     "canonical": [
+      2.613,
+      0.948,
+      1204
+     ],
+     "repeat": [
+      2.613,
+      0.948,
+      1204
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "LADDER_RA308.20": {
+     "canonical": [
+      2.533,
+      0.971,
+      1191
+     ],
+     "repeat": [
+      2.533,
+      0.971,
+      1191
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "LADDER_control_RA314.72": {
+     "canonical": [
+      2.56,
+      0.976,
+      1159
+     ],
+     "repeat": [
+      2.56,
+      0.976,
+      1159
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_700_1400": {
+     "canonical": [
+      2.808,
+      0.936,
+      691
+     ],
+     "repeat": [
+      2.808,
+      0.936,
+      691
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_1150_850": {
+     "canonical": [
+      2.86,
+      0.894,
+      888
+     ],
+     "repeat": [
+      2.86,
+      0.894,
+      888
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_7300_600": {
+     "canonical": [
+      2.67,
+      0.987,
+      790
+     ],
+     "repeat": [
+      2.67,
+      0.987,
+      790
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_7750_1100": {
+     "canonical": [
+      2.69,
+      0.976,
+      718
+     ],
+     "repeat": [
+      2.69,
+      0.976,
+      718
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_700_4200": {
+     "canonical": [
+      2.8,
+      0.844,
+      384
+     ],
+     "repeat": [
+      2.8,
+      0.844,
+      384
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_1300_4900": {
+     "canonical": [
+      2.728,
+      0.828,
+      459
+     ],
+     "repeat": [
+      2.728,
+      0.828,
+      459
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_7000_4900": {
+     "canonical": [
+      2.723,
+      0.881,
+      911
+     ],
+     "repeat": [
+      2.723,
+      0.881,
+      911
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "corner_7500_4400": {
+     "canonical": [
+      2.75,
+      0.881,
+      914
+     ],
+     "repeat": [
+      2.75,
+      0.881,
+      914
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-04_sub_01": {
+     "canonical": [
+      2.658,
+      0.918,
+      1152
+     ],
+     "repeat": [
+      2.658,
+      0.918,
+      1152
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-04_sub_02": {
+     "canonical": [
+      2.677,
+      0.913,
+      1134
+     ],
+     "repeat": [
+      2.677,
+      0.913,
+      1134
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-04_sub_04": {
+     "canonical": [
+      2.75,
+      0.881,
+      1144
+     ],
+     "repeat": [
+      2.75,
+      0.881,
+      1144
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-04_sub_05": {
+     "canonical": [
+      2.778,
+      0.88,
+      1108
+     ],
+     "repeat": [
+      2.778,
+      0.88,
+      1108
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-05_sub_02": {
+     "canonical": [
+      2.8,
+      0.875,
+      1082
+     ],
+     "repeat": [
+      2.8,
+      0.875,
+      1082
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-05_sub_03": {
+     "canonical": [
+      2.795,
+      0.879,
+      1050
+     ],
+     "repeat": [
+      2.795,
+      0.879,
+      1050
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug09_set-05_sub_04": {
+     "canonical": [
+      2.788,
+      0.882,
+      979
+     ],
+     "repeat": [
+      2.788,
+      0.882,
+      979
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-02_sub_01": {
+     "canonical": [
+      2.663,
+      0.935,
+      1176
+     ],
+     "repeat": [
+      2.663,
+      0.935,
+      1176
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-02_sub_02": {
+     "canonical": [
+      2.708,
+      0.91,
+      1147
+     ],
+     "repeat": [
+      2.708,
+      0.91,
+      1147
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-02_sub_03": {
+     "canonical": [
+      2.717,
+      0.906,
+      1147
+     ],
+     "repeat": [
+      2.717,
+      0.906,
+      1147
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-02_sub_04": {
+     "canonical": [
+      2.765,
+      0.888,
+      1147
+     ],
+     "repeat": [
+      2.765,
+      0.888,
+      1147
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-02_sub_05": {
+     "canonical": [
+      2.8,
+      0.879,
+      1122
+     ],
+     "repeat": [
+      2.8,
+      0.879,
+      1122
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_01": {
+     "canonical": [
+      2.695,
+      0.913,
+      1145
+     ],
+     "repeat": [
+      2.695,
+      0.913,
+      1145
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_02": {
+     "canonical": [
+      2.587,
+      0.957,
+      1155
+     ],
+     "repeat": [
+      2.587,
+      0.957,
+      1155
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_03": {
+     "canonical": [
+      2.663,
+      0.932,
+      1168
+     ],
+     "repeat": [
+      2.663,
+      0.932,
+      1168
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_04": {
+     "canonical": [
+      2.78,
+      0.879,
+      1161
+     ],
+     "repeat": [
+      2.78,
+      0.879,
+      1161
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_05": {
+     "canonical": [
+      2.8,
+      0.879,
+      1108
+     ],
+     "repeat": [
+      2.8,
+      0.879,
+      1108
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-03_sub_06": {
+     "canonical": [
+      2.752,
+      0.898,
+      1135
+     ],
+     "repeat": [
+      2.752,
+      0.898,
+      1135
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_01": {
+     "canonical": [
+      2.675,
+      0.925,
+      1174
+     ],
+     "repeat": [
+      2.675,
+      0.925,
+      1174
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_02": {
+     "canonical": [
+      2.585,
+      0.952,
+      1143
+     ],
+     "repeat": [
+      2.585,
+      0.952,
+      1143
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_03": {
+     "canonical": [
+      2.728,
+      0.906,
+      1131
+     ],
+     "repeat": [
+      2.728,
+      0.906,
+      1131
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_04": {
+     "canonical": [
+      2.775,
+      0.893,
+      1164
+     ],
+     "repeat": [
+      2.775,
+      0.893,
+      1164
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_05": {
+     "canonical": [
+      2.8,
+      0.875,
+      1132
+     ],
+     "repeat": [
+      2.8,
+      0.875,
+      1132
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-04_sub_06": {
+     "canonical": [
+      2.8,
+      0.876,
+      1101
+     ],
+     "repeat": [
+      2.8,
+      0.876,
+      1101
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-05_sub_01": {
+     "canonical": [
+      2.625,
+      0.939,
+      1161
+     ],
+     "repeat": [
+      2.625,
+      0.939,
+      1161
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-05_sub_02": {
+     "canonical": [
+      2.712,
+      0.909,
+      1131
+     ],
+     "repeat": [
+      2.712,
+      0.909,
+      1131
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    },
+    "seam_aug14_set-05_sub_03": {
+     "canonical": [
+      2.768,
+      0.894,
+      1158
+     ],
+     "repeat": [
+      2.768,
+      0.894,
+      1158
+     ],
+     "dFWHM": 0.0,
+     "dround": 0.0,
+     "dn": 0
+    }
+   }
+  },
+  "reading": "HELD \u2014 solve, SPCC and the stretch are deterministic on this product; the station instrument reads identical values on identical pixels"
+ },
+ "P3_if_P1_failed": "NOT APPLICABLE \u2014 P1 held. CONSEQUENCE for the standing verdicts: the same-reference repeat floor is ZERO, so rowmin's \u00b10.038 at two untargeted stations (x85 +0.038, the bottom-right corner \u22120.038) was NOT repeat variance \u2014 it is the measurement's sensitivity to a CHANGED member set (six re-cropped members, canvas 8522x5665 vs 8520x5668, boxes re-placed by a re-solved WCS); the \u00b10.04 'floor' rowmin and wnoise quoted was a premise and is now RETIRED: an identical-input arm reads 0.000 everywhere, and any nonzero station delta between two arms is the arms' difference, not noise. wnoise's 58 rows (\u22120.015..+0.016) are therefore small REAL responses to the weight change (or to the WCS re-solve of a different product), not noise \u2014 its NULL verdict stands (nothing beyond \u00b10.016), its 'floor \u00b10.04' wording is superseded by 'floor 0.000'.",
+ "P4_headers": {
+  "repeat": {
+   "NAXIS1": 8520,
+   "NAXIS2": 5668,
+   "STACKCNT": 8349,
+   "NMEMBER": 77,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "pinned",
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "PIPEREV": "002fbfc",
+   "STACKNRM": "addscale",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": true,
+   "ANCREF": 35,
+   "ANCLOCR": 0.000490821,
+   "ANCLOCG": 0.000851173,
+   "ANCLOCB": 0.000597341,
+   "DATE-OBS": "2026-08-01T02:51:17",
+   "CALSET": "MIXED(17)",
+   "CALFSUM": "MIXED(17)",
+   "CALDSUM": "MIXED(4)"
+  },
+  "canonical": {
+   "NAXIS1": 8520,
+   "NAXIS2": 5668,
+   "STACKCNT": 8349,
+   "NMEMBER": 77,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "derived",
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "PIPEREV": "36d9bab",
+   "STACKNRM": "addscale",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": true,
+   "ANCREF": 35,
+   "ANCLOCR": 0.000490821,
+   "ANCLOCG": 0.000851173,
+   "ANCLOCB": 0.000597341,
+   "DATE-OBS": "2026-08-01T02:51:17",
+   "CALSET": "MIXED(17)",
+   "CALFSUM": "MIXED(17)",
+   "CALDSUM": "MIXED(4)"
+  },
+  "differing": "REGREFSR 'pinned' vs 'derived' (the stated difference \u2014 the arm pins the member the canonical derived) and PIPEREV 002fbfc vs 36d9bab (HEAD at each compose; 002fbfc = the director's records-only site-privacy closure commit, on top of f4907e3); everything else identical incl. ANCLOC R/G/B and DATE-OBS; canvas 8520x5668; HISTORY 'image weighting from image count'"
+ },
+ "P5_guard": {
+  "line": "baseline_guard datasets/corpus/baseline.json: different product \u2014 not compared. The slot was seeded from web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit (stack_id 1ff0ecea761330664aabe18a19e83a71); this is web/results/aug14/stack_july31+aug06+aug09+aug14_repeat_spcc.fit (stack_id a50d786aedc8e881dc29e13f8786176e). A differently-tagged build is not this slot's product; nothing is judged.",
+  "exit": 0,
+  "slot_records": "datasets/corpus/qa_work/baseline_corners.json 81eb41d7f3372020\u2026 and baseline_edge.json fa937801a913ba70\u2026 \u2014 sha256 identical before/after, git status clean on datasets/corpus/qa_work/"
+ },
+ "verdict": "BIT-IDENTICAL \u2014 the same-reference repeat floor at the corpus tier (n = 77 members, 27 cropped copies, reference pinned, nbstack, framing max) is ZERO: compose output, solved _wcs, colour-calibrated _spcc and the judge PNG all identical to the canonical's to the byte/pixel, and the 58-station instrument reads identical values. A compose-tier A/B on this chain may be judged on BYTES; every nonzero station delta between two arms is the knob's effect (or the arm's own WCS placement), never repeat noise. The \u00b10.04 premise is retired.",
+ "eyes": "not required \u2014 a bit-identical NULL (the judge PNG is byte-identical to the owner-approved canonical's)",
+ "products": "web/results/aug14/stack_july31+aug06+aug09+aug14_repeat{.fit,_wcs.fit,_spcc.fit} (579.5 MB x3), web/results/aug09/judge/july31+aug06+aug09+aug14_repeat_spcc-linked.png (215 MB), compose_gate/solve records beside them, sessions/aug14/work/repeat/ (logs, .ssf, star lists, shape_repeat.json) \u2014 KEPT until the director has inspected this record; disposal is the director's call",
+ "register_row_wording_for_the_director": "run_undistort_groups.sh row, first disjunct: the quality cost of the extra pass retires only on a measured repeat floor \u2014 `rebuild_repeat_floor_set01` measured the per-set REBUILD floor ZERO (rf1/rf2/accepted bit-identical, july31/set-01, c7db472) and `repeat_floor_corpus_compose` (this record) measures the corpus-tier COMPOSE floor ZERO (77 members, 27 cropped copies, pinned reference: compose, solve, SPCC and judge PNG bit-identical to the canonical, 58 stations \u0394 0.000) \u2014 the disjunct is no longer self-gated on an unrun experiment: a station delta between two arms is the knob's, and the along+1300 groups gain (0.12\u20130.18 px) sits far above a zero floor; what stays open is only whether that gain is worth the pass, an owner reading, not a measurement",
+ "premises_not_tested": [
+  "determinism at n = 77 is measured ONCE more (this arm) \u2014 n = 2 corpus-tier composes total (the promote's rebuild and this), same rig, Siril 1.4.4; not across a Siril or darktable version change",
+  "the curated copies' CONTENT unchanged since the promote \u2014 asserted by size + mtime, not re-hashed",
+  "the canonical's 58-station values were re-used from the wnoise run (its shape_full.json on the canonical _wcs), not re-measured in this arm \u2014 identical pixels + identical WCS make a re-measure identical by the instrument's measured determinism (0/693 at 17B), which is the premise",
+  "a repeat with a DERIVED reference (no --ref) would re-derive 35 \u2014 the derivation is deterministic by its own selftest, not exercised here"
+ ],
+ "written_at": "2026-08-30T13:26:48-04:00",
+ "disposed": {
+  "by": "worker, director astro-imaging-4f's call under the standing cleanup approval \u2014 a NULL bit-identical to the canonical keeps nothing but its record",
+  "items": [
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_repeat.gen.ssf",
+    "kind": "file",
+    "bytes": 323,
+    "headtail_sha256_32": "602078c24b2c59f8dab5f4a261789fe5",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_repeat.log",
+    "kind": "file",
+    "bytes": 121559,
+    "headtail_sha256_32": "122faaffdc4e1e30c966d8249472484a",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "sessions/aug14/work/repeat",
+    "kind": "dir",
+    "bytes": 10096487,
+    "headtail_sha256_32": null,
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_repeat_spcc-linked.png",
+    "kind": "file",
+    "bytes": 215061157,
+    "headtail_sha256_32": "83acbccd209e1241a7b04b1c0086923d",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_repeat.json",
+    "kind": "file",
+    "bytes": 952534,
+    "headtail_sha256_32": "c1c5f602115dbb7d5208c79343de58c9",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_repeat.json",
+    "kind": "file",
+    "bytes": 1106,
+    "headtail_sha256_32": "f3ea0ff626df24fa6040198002a9e605",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_repeat.fit",
+    "kind": "file",
+    "bytes": 579504960,
+    "headtail_sha256_32": "c28d2f10f688317ec0b2da24091790c6",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_repeat_spcc.fit",
+    "kind": "file",
+    "bytes": 579507840,
+    "headtail_sha256_32": "a50d786aedc8e881dc29e13f8786176e",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_repeat_wcs.fit",
+    "kind": "file",
+    "bytes": 579507840,
+    "headtail_sha256_32": "d0fe0719321d3565a440ee4fd21a17b1",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   }
+  ],
+  "n_items": 9,
+  "total_bytes": 1964753806,
+  "df_avail_bytes_before": 693219323904,
+  "df_avail_bytes_after": 695184277504,
+  "freed_bytes": 1964953600,
+  "guards": "every item presence-checked, `git ls-files --error-unmatch` confirmed UNTRACKED, refused if under datasets/ scripts/ docs/ or carrying a canonical-family name (_full/nosel/curated); bytes + head/tail sha256 (size + first/last 256 KiB) recorded before rm; the keep set (the canonical stack/_wcs/_spcc/judge PNG, the curated dir, the two finish records, this record) asserted present with size + mtime unchanged after",
+  "kept": [
+   "datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_repeat.json",
+   "datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_repeat.json",
+   "the ledger lines 140\u2013141",
+   "this record"
+  ],
+  "consequence": "the record's `commands` and `P2_finish.shape_58_stations.table` name paths under sessions/aug14/work/repeat/ (logs, .ssf, star lists) that now dangle \u2014 the numbers here are the durable part; the product is re-derivable to the byte by the recorded compose command",
+  "written_at": "2026-08-30T13:33:30-04:00"
+ }
+}

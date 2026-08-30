@@ -62,8 +62,10 @@ and answered by member selection: the decision map with every form's numbers is
   band ≤ 0.007, x50 0.000, six seams clean (Siril `stat` steps ≤ 0.24 %), at
   +1.205 % pixel-frames (7.646 vs 6.441 %) and a rim step (x05 +0.038 px). Two
   untargeted stations moved ±0.038 in opposite directions far from any removed
-  column (x85 +0.038, the bottom-right corner −0.038): the same-reference repeat
-  is ~±0.04 px here, a PREMISE to re-measure, not the 0.03 assumed. HYPOTHESIS,
+  column (x85 +0.038, the bottom-right corner −0.038) — not repeat noise: the
+  same-reference compose repeat floor is ZERO (an identical compose of the
+  canonical's curated members is bit-identical, `repeat_floor.json`), so those two
+  are the changed member set read at re-placed boxes. HYPOTHESIS,
   untested: dilution — a +0.3-px excess is a small share of an nbstack-weighted
   mean under deep coverage, where cropT's 0.18-px band gain came from the THIN
   band (coverers x10 4→1, x15 13→3, x20 36→7). What the rows DID find, open and
@@ -108,9 +110,10 @@ and answered by member selection: the decision map with every form's numbers is
   the quietest — the 18–24 % aug09 haze figure is a THROUGHPUT gap on the stars,
   which a background-noise weight does not see. The one-knob arm (nbstack → noise,
   the same curated members, reference pinned 35) is a CLEAN NULL: all 58 stations
-  within −0.015..+0.016 px / ±0.012 roundness of the canonical (floor ±0.04 / 0.02),
+  within −0.015..+0.016 px / ±0.012 roundness of the canonical — real, small
+  responses, since the compose repeat floor is ZERO (`repeat_floor.json`) —
   the band +0.003..+0.013, the corners 0.000 at six of eight and +0.007
-  (corner_700_1400) / −0.015 (corner_7750_1100) at two (floor ±0.04), the 27
+  (corner_700_1400) / −0.015 (corner_7750_1100) at two, the 27
   seams identical, SPCC K within 0.004, depth unchanged within the
   structure-limited reading. CAVEAT — the per-member weights above are
   RECONSTRUCTED, not printed: Siril prints no per-image weight; they are the
