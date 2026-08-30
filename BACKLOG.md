@@ -288,292 +288,38 @@ bullet; pooled master darks re-homed into `dark-optimization-fork`.)
 
 ---
 
-## `compose-homography-smear` — the union's smear is ATTRIBUTED TO THE MEMBERS, not the compose; the reprojection route and the model questions are what stay open
+## `compose-homography-smear` — the smear is CLOSED by member selection; the reprojection route and the model questions stay open
 
-**STATE (measured; the map is `docs/corner-smear-member-selection.md`).** The
-surviving left-band / bottom-corner smear of the multi-night union is NOT a
-registration or compose defect: the drift-span discriminator this item named RAN
-(three nested arms, 26.1 / 104.3 / 235.7 px of span — the exit-side blur flat within
-ΔFWHM −0.025..+0.055 px across 9×), the band is built exclusively from the members'
-own ENTRY-side columns and reads on them what the union reads, it is present in
-single raws and night-ordered (aug14 softest), and the corners are the lens's
-asymmetric term. Member SELECTION removes it: the per-member entry-side THRESHOLD
-crop `cropT` (27 of 77 members' columns beyond the asymmetry onset; band 2.97 → 2.79
-px at full depth, no seam) is owner-approved (2026-08-29); a frame-level threshold
-on top of it is a measured NULL. **Member selection IS the chain:**
-`run_corpus_combine.sh --portion-rule` runs the encoded stage
-(`run_member_crop.sh`), the corpus canonical `stack_july31+aug06+aug09+aug14_full`
-is built under it (0 differing pixels from the owner-approved candidate; the
-pre-stage canonical moved aside as `_nosel`), and the corpus baseline slot guards
-it (`datasets/corpus/baseline.json`) — `docs/corner-smear-member-selection.md`,
-"The stage as built". What this item still holds open, below: the
-SCAMP/SWarp reprojection route (untested as a coadd; its motivation as a smear fix
-is gone, the route itself is untouched), interleaved groups, the corner-true shared
-model, which single model, the state-change detector, the candidate model with corner
-support. The historical body follows; where it names the compose or the exit edge as
-the carrier, the measured state above overrides it.
+CLOSED, homed: the union's band and corners are member-borne, in the photons, night-ordered —
+`docs/dead-ends/stacking-compose.md`, "THE UNION'S LEFT-BAND / BOTTOM-CORNER SMEAR IS NOT A
+REGISTRATION OR COMPOSE DEFECT" and "THE SUB-STACK COMPOSE IS A MOSAIC, NOT A STACK" (the
+astrometric compose is the shipped route, owner-PASSED); the decision map
+`docs/corner-smear-member-selection.md` (cropT owner-approved 2026-08-29, §5); the attribution
+records `datasets/aug09/smear_work/{smear_remarch,rho_march,rho_march_prereg}.json`; the blanket
+trim (owner-directed 2026-08-22, RAN, REFUTED — BACKLOG:`pending-owner`;
+`docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired
+`--crop-lr` knob)"). Geometry: `docs/dead-ends/registration-distortion.md`, "FITTING A LENS MODEL
+AGAINST A PLATE SOLUTION WITH AN AFFINE NUISANCE" (a centred ptlens model fits to a 0.27 px median;
+the `<center>` entry beside it). Optics: `docs/dead-ends/star-shape-optics.md`, "THE ONE-SIDED
+STAR-SHAPE GRADIENT IS IN THE OPTICS-AND-PHOTONS OF A SINGLE EXPOSURE". The drift arithmetic:
+`docs/untracked-widefield-standards.md` §H.4. The SCAMP/SWarp facts and defaults: `TOOLS.md`, the
+SCAMP and SWarp rows. The canvas-x trap: `docs/dead-ends/measurement-discipline.md`.
 
-**The sub-stack compose is a MOSAIC and is being aligned with a single homography.**
-A group is a consecutive time block, so within one 1497 s burst the sky sweeps 6.25°
-and a set's five members solve to centres **4.28° apart**. MEASURED at RA 294.86 /
-Dec +44.99 (Siril `findstar`, 800 px boxes placed by each product's own solved WCS,
-30 brightest fits so depth is rank-matched): all five aug06/set-01 members read
-**2.42–2.54 px / roundness 0.924–0.942** at own-field radius 0.41–0.62, and their own
-5-member compose reads **3.48 / 0.582**; the 13-member union 0.530, the 28-member
-cross-night union 0.458. Control at RA 314.72: compose **2.43 / 0.949** against members
-at 0.903–0.958. Mechanism and the full numbers: [`docs/dead-ends.md`](docs/dead-ends.md).
+OPEN — each settled at the COMBINE, one knob, or withdrawn with its reason:
+1. The SCAMP/SWarp TPV reprojection as a COADD against the shipped `seqplatesolve` compose — U
+   (no defect motivates it now).
+2. Interleaved rather than consecutive groups — D (stations + the dwell-floor / rejection
+   denominators); a trade, not a free win.
+3. A corner-true shared model — N: no fit constrains past ρ 1.47–1.51 against a corner at 1.80
+   (`docs/combine-contract.md`; `docs/dead-ends/registration-distortion.md`, "CORNER CONTROL POINTS
+   CANNOT BE RECOVERED BY REORDERING OR RELAXING").
+4. Which single model — the pinned july14 fit or a fresh fit — D; the corner-supported candidate
+   a,b,c (ledger `ptlens_joint_refit_free_centre`) judged at the combine on star_stations + seqtilt,
+   then the owner's eyes (U).
+5. A state-CHANGE detector with a RELATIVE trigger — D once the member-separation quantity is
+   attributed (`docs/combine-contract.md` §5).
 
-Cost on the accepted cross-night union, 19 columns marched at 5% steps: **roundness
-0.448–0.613 over x = 15–30% of the canvas width** against 0.916–0.968 in the clean
-band x = 45–70%. That is the smear the owner named.
-
-**RE-MARCHED UNDER THE ASTROMETRIC ROUTE. The headline does NOT reproduce; a weaker
-one-sided band survives and is UNATTRIBUTED** (`datasets/aug09/smear_work/smear_remarch.json`
-— Siril `findstar` via `shape_at_sky.py`, this item's own method and grid, on the
-surviving 52-member three-night union). **The clean band is the control that makes
-the rest comparable: 0.918–0.976 against 0.916–0.968.** x = 15–30% reads
-**0.878–0.917** against 0.448–0.613, and the four-position ladder reproduces the
-ASTROMETRIC arm — RA 294.86 **0.980** against `02cf170`'s astrometric 0.974 /
-star-pair 0.458. **What survives is one-sided and shifted left of where this item
-put it: x = 5–25% at 0.878–0.885 against its MIRROR x = 75–95% at 0.950–0.968.**
-**CORRECTION — an earlier revision of this paragraph called the FWHM profile
-SYMMETRIC and that is FALSE.** It is U-shaped AND tilted: across the 9 mirrored
-pairs the odd (left−right) term runs +0.180 px at x05/x95 down through zero near
-x30/x70 and to −0.100 at x35/x65, and **8 of 9 pairs carry the SAME handedness in
-both quantities** — the side with the larger FWHM is the side with the worse
-roundness. So the asymmetry is not the radial field term, and it is not absent
-either.
-**MAJOR vs MINOR SPLITS IT, from the tool's own per-star `FWHMx`/`FWHMy`
-(no new data — Siril's surviving `findstar` lists, same 30 brightest):** over the
-outer pairs x05–x25 the MAJOR axis differs by **+0.206 px** mean while the MINOR
-differs by **−0.038** and does not hold a sign (+0.045, 0.000, −0.070, −0.080,
-−0.085). **Major grows, minor approximately does not — the signature of a one-sided
-anisotropic ADDITION rather than a scale change**, which keeps the convolved-blur
-family live. Note `fwhm_px` in the record is the MEAN `(FWHMx+FWHMy)/2`, not the
-major; do not read it as one.
-**ATTRIBUTED — MEMBER-BORNE; the compose is EXONERATED for the surviving band**
-(`datasets/aug09/smear_work/rho_march.json` — pre-registered blind, reading rules
-frozen before the run, replicated at two selection depths): after
-member-composition controls the canvas-tied residual is **−0.05 ± 0.04 px major /
-+0.011 ± 0.011 roundness** (−1.3/+1.0 SE, permutation p 0.21/0.33). The left band
-samples the members' own **+x EDGES** — pair Δ(mean member-own signed-x) up to
-**1.89 of a ±1 range**, because canvas-edge sky is reachable only by member frame
-edges — and the channel split says member-own ρ composition is near zero and
-WRONG-SIGNED (−0.02), so the carrier is member +x-EDGE proximity — their ENTRY
-side, measured later as night-dominated and in the photons (`docs/corner-smear-member-selection.md` §2) — NOT the compose. The
-fitted member-radial slope, +0.435 px/unit ρ, independently reproduces
-corner_work's union measurement (+0.53 px/unit ρ). No compose change removes what
-rides in with member edges; the surviving-band question re-scopes to the member
-edge term.
-
-**METHOD FACT — CANVAS-X FRACTIONS ARE NOT PORTABLE ACROSS PRODUCTS, and a band must
-be addressed in SKY coordinates.** On the 52-member canvas this item's own defect
-point RA 294.86 sits at **x = 76.2%** and its control RA 314.72 at **x = 41.2%** — so
-"x = 15–30%" *there* addresses RA 328–320, not the sky the 0.458 was measured on.
-Marching only the stated band measures different sky and reads clean.
-
-Ordered work — nothing here is executed on an accepted product:
-
-1. **Reference pinning is RESOLVED** — the compose registers all members in one
-   sweep with the reference setref-pinned (a deterministic level anchor).
-   **THE ASTROMETRIC ROUTE IS THE SHIPPED DEFAULT, settled by the artifact.**
-   Two closed wrong beliefs from the route fight are homed and not restated
-   here: *"Siril discards per-image distortion by design"* is REFUTED (the SIP
-   undistortion is COMPOSED with the linear projection at `seqplatesolve`;
-   `register -disto=` is the different, shared-solution command) and the SWarp
-   trial was never run — SWarp has NO SIP reader at all; mechanisms + quotes in
-   `docs/dead-ends.md` and `TOOLS.md`. The compose is `seqplatesolve s`;
-   `register -2pass` survives only behind `--starpair`, which prints *"NOT the
-   shipped route … must never build a product anyone judges or ships"*; the
-   compose greps siril's OWN log for *"Astrometric registration computed"* and
-   *"undistortion will be applied"* and exits 4 if either is missing, and the
-   stamp defaults `REGU=F`, flipping to T only on that line. `web/results/aug06/stack_set-01+02+03_full.fit`
-   carries `REGMODEL = astrometric`, `REGUNDIS = True`.
-   **SO THE 0.458 IN THIS ITEM'S HEADLINE IS THE REGRESSION ARM'S NUMBER.** One
-   knob on the 28-member union, same members/order/reference/framing/stack, star
-   counts within 1-2% at every position (`02cf170`): star-pair 4.383 px / 0.458
-   roundness at the defect against astrometric **2.678 / 0.974**; RA301.58
-   0.725 -> 0.917; RA308.20 0.931 -> 0.946; RA314.72 control 0.968 -> 0.961 —
-   monotone in the defect's own size, control unchanged. Canvas answered separately
-   (`82fa507`): MORE sky, 800.1 vs 773.5 sq.deg. Rebuilt from raws by a fresh-eyes
-   session at 0.980 (`bac4616`) and OWNER-PASSED (`e04077f`), which recorded *"the
-   parent item's reference-pin and SWarp-trial bullets are resolved by the same
-   adoption"*. The register row for `compose_preflight.py` above already carries
-   this; the item did not.
-   **ANSWERED — re-marched; the numbers and their caveats are in the header above.**
-   The RHO AXIS has now RUN and ATTRIBUTED the surviving band — member-borne, the
-   compose exonerated for it; verdict + numbers in the header above
-   (`rho_march.json`, design + frozen reading rules in `rho_march_prereg.json`).
-   The ORIGINAL 19 columns stay unreproducible: their subject
-   `stack_j31-3+a06-3_full_onemodel` is deleted, so the re-march is a FIRST
-   measurement and nothing diffs column-by-column (`docs/dead-ends.md` carries this
-   as the worked example of UNREPRODUCIBLE BY CONSTRUCTION).
-   **NONE OF THIS TOUCHES THE OPTICS TERM** in "What the defect IS" below — a
-   single-frame aberration no registration reaches.
-   **THERE IS NOW A CANDIDATE ROUTE WITH ITS FIRST LINK MEASURED, AND TWO ENTRY
-   PATHS — both installed. IT IS NOT YET "THE ROUTE", AND CALLING IT ONE WOULD
-   REPEAT THE FORM OF THE ERROR ABOVE:** the line this replaces declared an
-   UNMEASURED architecture ADOPTED, and a TPV chain that nobody has run is also an
-   unmeasured architecture. What is measured is the first link (`sip_tpv`'s
-   conversion) and the components' availability; the coadd itself is untested and
-   nothing has been resampled.
-   SWarp reads **TPV** natively (`fitswcs.c:801`, `:843`), so:
-   (a) **convert our own SIP** — `sip_tpv` 1.1, whose forward direction is a
-   symbolic sympy substitution and NOT a fit, measured exact at **1.118e-11 px max
-   over 3600 points and FLAT in field radius**, against a distortion-stripped
-   positive control at 13.82 px growing to the corner;
-   (b) **produce TPV natively** — **SCAMP 2.10.0**, whose own preference table
-   offers **`PROJECTION_TYPE  SAME # SAME, TPV or TAN`** as a documented OUTPUT
-   setting (verified by `scamp -d` on the built binary, not inferred from a format
-   string), making **SExtractor → SCAMP → SWarp the canonical Astromatic chain**
-   and the documented industry answer to this item. **State the PAIR, not SCAMP
-   alone: SCAMP solves and writes `.head`; it resamples nothing.**
-   **WHY THE SHARED CONTEXT CHANGES THE REACHABLE ORDER** (moved from
-   `native-solve-and-sip`, its one home now): per-frame ~37 Tycho-2 matches
-   support order 1 by the Pan-STARRS occupancy yardstick (`TOOLS.md`), but
-   `STABILITY_TYPE INSTRUMENT` fits ONE distortion polynomial per astrometric
-   instrument from ALL exposures — pooled across ~13 members that is ~480
-   against the table's 300-for-order-4, and SCAMP's default `DISTORT_DEGREES`
-   is 3 (needs 128). The condition is OCCUPANCY, not count: pooling helps only
-   if the pooled coverage fills the (order+1)² grid — members 4.28° apart with
-   ~1000 px of drift make it favourable, and it is checkable before any arm.
-   The standards doc already named the architecture (§H.3(3): a high-order term
-   shared across a stability context plus low-order per-exposure, *"the shared
-   variant does not appear to have been tried"*) — SCAMP's default IS it.
-   **THREE SCAMP DEFAULTS TO SET BEFORE ANY ARM, from the same table:**
-   `ASTREF_CATALOG` defaults to **`2MASS`, which is REMOTE** — set `FILE` against a
-   local catalogue or the first attempt reaches a network service, the same class
-   of surprise as `conesearch`; `MOSAIC_TYPE UNCHANGED` has `SAME_CRVAL` and
-   `SHARE_PROJAXIS` available and bears directly on members 4.28° apart; and
-   `ASTRINSTRU_KEY` defaults to `FILTER,QRUNID`, which is what defines the
-   stability context below.
-   **AND SCAMP IS NOT ACTUALLY USABLE HEADLESS UNTIL ONE DEFAULT IS CHANGED, so it
-   should not be counted as installed-and-ready:** `ASTREF_CATALOG` defaults to
-   **`2MASS`, which is REMOTE**. Until `FILE` is set against a local catalogue the
-   first run reaches a network service — the same class as `conesearch` being
-   GUI-only headless, and avoidable by naming it now rather than discovering it
-   mid-run.
-   **BEFORE ANY ARM: SWarp's defaults are wrong for this data and silent about it.**
-   `SUBTRACT_BACK=Y` would eat a frame-filling star field; `FSCALASTRO_TYPE FIXED`
-   does not track per-pixel solid angle where our ~30° gnomonic field varies ~10%
-   radially (`VARIABLE` does); `RESAMPLING_TYPE LANCZOS3` exposes **no clamping
-   parameter at all**, a different trade from Siril's measured 6.26% clamp rather
-   than a better one; `COMBINE_TYPE MEDIAN` is not the plain mean the compose
-   doctrine specifies. And the lineage argued from is historical — DES uses SWarp
-   on a previous-decade design, while Rubin/LSST moved to an in-house
-   warp-then-assemble and Roman uses IMCOM, every successor carrying a PSF model
-   through the step.
-2. **Interleaved rather than consecutive groups** — one knob, cheap, collapses the
-   within-set pointing spread to ~0. Trades the swept-field mosaic for consistency
-   (co-pointed members compose to one member's area) and changes the dwell-floor and
-   transient-rejection denominators, so it is a real trade, not a free win.
-3. **A corner-true shared model** — reduces the residual the homography must absorb.
-   No fit here constrains past ρ 1.47–1.51 against a corner at 1.80. The per-set trap
-   is registered; a candidate is judged at the COMBINE, never per-set.
-4. **Compose-input edge shrink / min framing** — ships less sky rather than fixing the
-   cause. Last resort, and it must be called what it is. The MEMBER-side variant
-   (per-member edge trim) was an owner-DIRECTED TEST (2026-08-22) that RAN (7775fdd)
-   and is REFUTED: NULL on shared sky, canvas −8.7%, and at a framing=max union's rim
-   it starves contributor diversity (`docs/dead-ends/stacking-compose.md`, the retired
-   `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No BLANKET trim
-   ships. What DID ship is not a trim of that kind: a per-member THRESHOLD crop of
-   the columns a member's own profile measures as asymmetrically degraded (`cropT`,
-   owner-approved 2026-08-29) — selection by measured quality, full depth kept
-   elsewhere, no seam at 27 boundaries (`docs/corner-smear-member-selection.md` §3).
-5. **Which single model** — the pinned july14 fit is the default on history and
-   provenance; a fresh per-set fit is a legitimate CANDIDATE. Settled at the
-   COMBINE, one knob, never on a per-set product (a compose artifact
-   masquerades as optics there — the registry's per-set-model entries).
-6. **A state-CHANGE detector** — a genuine mid-campaign refocus needs a new
-   model; the trigger reads from the member-separation MEASUREMENT and must be
-   RELATIVE (members cluster and one or two break away at 2.5–3× the cluster's
-   own scatter in five sets, ~15× in the sixth) — a shape that survives an
-   instrument change where a constant does not. No threshold is invented until
-   the quantity is attributed (`docs/combine-contract.md` §5).
-
-**What the defect IS, measured.** The softness tracks SENSOR POSITION, not time
-(R² 0.90 against sensor x, **0.05 against elapsed time**) — and, corrected by the
-later member attribution, it is the members' ENTRY side that carries the union's
-band (`docs/corner-smear-member-selection.md` §2). **The −3.87 px/frame figure
-once quoted here is REFUTED by this repo's own later measurement — the drift is
-1.9064 px/frame against 1.9581 predicted (2.6%), so 3.87 was out by 2.03× and
-exceeded the physical ceiling** (`docs/dead-ends.md`). **THE STANDARDS DOC'S H.4
-"ARITHMETIC DISAGREEMENT" IS CLOSED BY THIS AGAINST THE REPO, NOT IN ITS FAVOUR —
-the previous wording said the latter and mis-credited the exchange.** H.4 stated
-that −3.87 px/frame *"exceeds physics"* and predicted **1.98 px/frame** at this
-target; the repo's own later measurement returned **1.9064 measured / 1.9581
-predicted**. **The external review was right, this repo's number was wrong by
-2.03×, and the doc's prediction matched the eventual measurement to ~4%.** Recorded
-in this direction deliberately: a record that reads as though the repo won an
-exchange it lost systematically under-weights outside review, in a project that
-staffs a seat to provide it. At matched distance from the sensor centre that
-side reads **2.86 px / roundness 0.821** against the other's **2.59 / 0.853**.
-Acquisition is clean (identical exposure/ISO/aperture/focal across 500 frames, 3.00 s
-interval, no gap) and refraction is ruled out (72–77° altitude, differential
-refraction across the field changes 0.09 px over the run, in the wrong direction).
-
-**Two hypotheses — SEPARATED (ledger `drift_span_discriminator_exit_edge`, lines
-98–99):** (1) an uncorrected asymmetric term fixed in sensor coordinates — lensfun's
-`ptlens` is purely radial and has no tangential terms, so it cannot remove a
-left-right asymmetry by construction; (2) a registration failure at the exit edge.
-The discriminator this item named RAN: three nested arms of aug06/set-01 with
-26.1 / 104.3 / 235.7 px of stacked drift span, blur at matched sensor x — FLAT on
-the exit side across 9× (ΔFWHM(L−S) −0.025..+0.055 px, roundness within 0.018), so
-(2) is REFUTED and (1) stands, further attributed to the photons of single raws with
-a night ordering (aug14 raws 2.94–3.03 px / 0.53 at along+2400 against july31's
-2.18 / 0.80). No compose change removes it; member selection does
-(`docs/corner-smear-member-selection.md`).
-
-**UNBLOCKED — the standards research is done** (`docs/untracked-widefield-standards.md`,
-fresh-eyes session, 45 cited sources). What it settles:
-- **No astronomical standard fits a radial model.** SIP, TPV and TNX are all general
-  bivariate polynomials; PixInsight uses thin-plate splines; HST needs a residual
-  LOOKUP TABLE on top of its polynomial. A radial-only profile is nobody's answer.
-- **The tool question is answered, and both lensfun routes are now measured, not
-  guessed** (`docs/dead-ends.md`): `acm` (the only lensfun model with Brown's
-  tangential k4,k5) is ABSENT from 0.3.4 and appears only in v0.3.95; `<center>`
-  DOES exist and work in 0.3.4, and installing it without refitting a,b,c about it
-  is a LOSS at every sign (2.589 → 4.235–7.610 px).
-- **THE DECENTRING READING IS RETRACTED — it was the wrong nuisance transform.**
-  The joint refit has been RUN (`scripts/qa/fit_ptlens_joint.py`, 970
-  catalogue-matched pairs, 6 frames, 2 nights, 6 pointings) and the answer is
-  that the centre belongs at zero: (−6, +14) px, with Brown's tangential pair
-  contributing a 2.89 px peak and buying 0.05 px of median. A **centred** ptlens
-  model describes this lens to a **0.27 px median**. The earlier 8.35/6.71/8.54 px
-  "irreducible" residual and the ~180–240 px centre were the unabsorbed
-  projective term of an AFFINE nuisance where the geometry requires a HOMOGRAPHY
-  (two TAN projections of the same sky differ by a homography exactly). Same
-  data, one knob: affine 14.24 px RMS / 7.63 median against homography 3.19 /
-  **0.27**. `docs/dead-ends.md` carries the trap.
-
-**What this leaves the item — now MEASURED, not inferred.** The GEOMETRY is not the
-open term (a centred radial model fits it to a 0.27 px median), and the star-shape
-gradient has since been characterised directly on single raw frames (Siril
-`findstar`, 3 frames x 6 sets x 2 nights, 136k stars, roundness floor dropped to
-0.05 because the default 0.50 truncates the tail under study):
-- **It is REAL, not a detection artefact** — it survives inside amplitude quartiles
-  in 6/6 sets, though median star brightness varies 2–10x across x.
-- **It is ANISOTROPIC, not defocus** — the MINOR axis is symmetric left-vs-right
-  (2.08 vs 2.00 px) while the MAJOR axis is not (2.46 vs 2.63). Sensor tilt as a
-  tilted focal plane would inflate both.
-- **It is RADIAL, not residual motion** — the major-axis angle tracks the field
-  azimuth in 7 of 8 zones in every set (resultant 0.45–0.85 at the edges), where
-  in-exposure trailing would hold one fixed sensor direction.
-So it is a field aberration of the coma family with an asymmetric amplitude — in
-the optics. No distortion model and no re-registration removes it. The candidate a,b,c from this fit
-(a=0.005185 b=0.010655 c=0.004969) differ from the shipped model and are the
-first ones with CORNER support (catalogue pairs reach ρ ≈ 1.8; cpfind stops at
-ρ ≈ 1.0–1.5) — a CANDIDATE, judged at the COMBINE on star_stations + seqtilt and
-the owner's eyes, never on its own residual.
-
-**Closes when** what this item still holds is settled: the SCAMP/SWarp reprojection
-route is measured as a coadd against the shipped astrometric compose (one knob, at the
-combine) or withdrawn with its reason; the interleaved-groups knob (ordered work 2) is
-measured or withdrawn; and the model questions — the corner-true shared model, which
-single model, the candidate a,b,c with corner support, the state-change detector's
-relative trigger (ordered work 3, 5, 6) — are each settled at the COMBINE or withdrawn.
-The smear that named this item is closed by member selection (owner-approved,
-`docs/corner-smear-member-selection.md`) and is not part of the closure.
+**Closes when** 1–5 are each measured at the combine or withdrawn.
 
 ## `intake-culling` — one measured intake pass, one visible formula
 
@@ -837,194 +583,32 @@ term; per-session stays the default.
   BACKLOG:`compose-homography-smear`, its one home; the wrong-for-this-data
   SWarp defaults are in `TOOLS.md`'s SWarp row. Not restated here.
 
-## `one-sided-band` — the fix-path gate is ANSWERED; what is left is one unattributed term
+## `one-sided-band` — one unattributed radial term
 
-Stars in the far corners of combined products are less round and slightly larger.
-The defect is REAL, visible to the owner on the full-frame render, and confirmed on
-single unregistered RAWs by two independent tools. **Nothing the pipeline does
-causes it** — coverage depth, the compose, within-member registration and any
-lensfun distortion residual are each eliminated by measurement, and Siril
-`findstar` on THREE SINGLE RAWS (debayered, uncalibrated, unwarped, unregistered,
-unstacked, 8074 stars) carries the term at full size. An uncorrected frame cannot
-carry the RESIDUAL of a correction that has not been applied. CONFIRMED again on 18
-single raws across 6 sets with an explicit NIGHT ordering (aug14 softest), and the
-UNION band's carrier — the members' own entry-side columns — is attributed and
-answered by member selection (`docs/corner-smear-member-selection.md`); the raw-frame
-RADIAL term below stays the open question of this item.
+CLOSED, homed: the term is in single raws and no chain stage causes it —
+`docs/dead-ends/star-shape-optics.md`, "THE ONE-SIDED STAR-SHAPE GRADIENT IS IN THE
+OPTICS-AND-PHOTONS OF A SINGLE EXPOSURE", "THE THREE-LEVEL SEPARATOR", "ON A RECTILINEAR LENS
+THE PLATE SCALE IS NOT ONE NUMBER" (18 % to the gnomonic scale; the remainder at 5.9 SE), "AN
+ELLIPTICITY EXPONENT IS NOT A BLUR EXPONENT", and "THE ONE-SIDED RADIAL TERM'S CANDIDATE
+FAMILIES AND THEIR DISCRIMINATORS ARE DOCTRINE" (the table, the astigmatism × defocus falsifier,
+the altitude bound, the centre commensurability); the union's band → BACKLOG:`compose-homography-smear`.
+Records: `datasets/aug06/corner_work/` — `coherent_trail_bins.json` (trail ratio 0.3502, the
+predicted ZP deficit 0.570), `phot_work/zero_point.json` (the structural degeneracy),
+`cfa_control.json` (the CFA-axis arm, non-attributing by pre-declared design), `pa_convention.json`;
+ledger `corner_radial_term_family_and_centre`.
 
-**PRODUCTS UNDERSTATE IT.** An isotropic blur added everywhere compresses a ratio
-toward 1, so the raws' corner defect is **+28.7% against the delivered +23.6%**
-(`datasets/aug06/experiments.jsonl` → `resample_cost_arm_d_COMPLETE`, the LAST
-entry of that id; `datasets/README.md` carries why that qualifier is load-bearing
-and how to read this ledger for a homing check). Single-RAW measurements are
-unaffected — which is most of this item's evidence — but any product-vs-member
-or product-vs-raw comparison inherits it.
+OPEN:
+1. The residual RADIAL term's family — N: coma-consistent, astigmatism not reached, the
+   radial↔tangential sign flip absent; no installed instrument separates them here.
+2. Unrun discriminators — D: per-Bayer-channel ellipticity (greens identified FROM THE DATA,
+   `TOOLS.md`); whether the ±2400 FWHM asymmetry (night-ordered per-set medians −0.070 … +0.472 px,
+   `datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_portion.json`) is the odd
+   ELLIPTICITY term — a per-set roundness asymmetry from `datasets/corpus/member_selection/profiles.json`
+   `top30_round`, no new run. Cross-session altitude (atmospheric / gravity) — N, the lever
+   unquantified at 63–88°.
 
-### The pinned prediction
-
-Inner three bins only (complete azimuth, condition 1.09–1.10): trail ratio
-**0.3502 ± 0.0080**, `t_eff/t_nom` = 0.5918, predicted ZP deficit **0.570 ± 0.012
-(stat) ± 0.013 (axis choice)**. The ZP that would test it is measured 33× better
-than the quantity it must be differenced against and still cannot settle it —
-the degeneracy is structural, not a precision limit (`TOOLS.md`).
-
-### The decentring reading, and READ THE QUANTITY BESIDE IT
-
-**The field is DECENTRED** — free centre beats centred at F 169–999, offsets
-443–531 px — but **no optical centre is quoted**, deliberately: three populations
-disagree by ~300 px in x while quoting 10–31 px formal errors, mutually
-inconsistent by 10–20 of their own sigmas. That inconsistency IS the result; one
-decentred radial field plus a constant does not describe this field. The
-phantom-decentring entry in `docs/dead-ends.md` is why the restraint is mandatory.
-
-**THIS DOES NOT CONTRADICT `compose-homography-smear`, AND THE APPARENT CONFLICT IS
-A COMMENSURABILITY CASE.** That item records the decentring reading as RETRACTED
-with the centre at zero, (−6, +14) px. **The two fit different quantities:**
-`fit_ptlens_joint.py` fits a decentred POSITIONAL / DISTORTION field against
-catalogue pairs; `pa_convention.py` fits a decentred radial ELLIPTICITY field. **A
-distortion centre at zero does not refute an ellipticity-field centre at 443–531
-px.** Neither record said which it meant.
-
-### The candidate list, with discriminators — DOCTRINE, and NONE of it is measured on this corpus
-
-**Source throughout: Jarvis, Schechter & Jain 2008 (arXiv:0810.0027). Every row is
-DOCTRINE or MECHANISM from external literature. Nothing here is a claim about this
-data**, and no row may be promoted to one by being quoted.
-
-| candidate | signature | discriminator |
-|---|---|---|
-| **Decentred / misaligned optic** (§III.2) | astigmatism *"grows linearly with distance from the center of the field"* with the centre DISPLACED; ellipticity ∝ astigmatism × defocus, so odd in shape while size stays even | spin-2 fit per ρ-bin with a **FREE CENTRE** — a displaced centre is the signature |
-| **Off-axis coma** (§III.1) | *"a vector field, directed outward from the axis"* — radial, centred, linear growth | the same fit: a one-sided term is NOT coma unless the axis is displaced, which is the row above |
-| **Defocus / focal-plane tilt** (§II.1, §III.3) | *"defocus which varies linearly"* → a one-sided SIZE gradient | **ON THE LIST — an earlier elimination is RETRACTED.** It rested on the size profile being symmetric; this item records the odd left−right term at **+0.180 px**, so the convolved-blur family is live |
-| **Atmospheric dispersion** | elongation along the ELEVATION vector (horizon frame), CHROMATIC, ∝ tan(z) | **per-Bayer-channel ellipticity — the cheapest test available here**, and the only discriminator in this table that keys on colour. Cross-session direction test inherits the altitude bound below |
-| **Tracking / mount error** | fixed direction, FIELD-CONSTANT | the spin-2 fit already separates field-constant from radial; a gradient is not this |
-| **Gravity / flexure** (§V.2) | correlates with *"the direction of gravity, namely the declination and zenith distance"* | cross-session at differing altitude — inherits the altitude bound, and does NOT separate from atmospheric without the chromatic test |
-| **Registration / resampling residual** | smears along the residual direction, grows with distance from where the transform was CONSTRAINED, and moves size AND shape together | **REFUTED as the union band's carrier** — the 9× drift-span discriminator read the exit-side blur flat (ledger 98–99); the signature stands as a signature. Its separators as written: **reference swap, read BINARY** (closed — the reference pin shipped: `run_undistort_compose.sh --ref`, `REGREFSR` pinned): must move if registration, cannot move if sensor-fixed. Second separator: the **three-level ladder**, immune because level 1 uses no reference |
-
-**TWO THINGS ARE NOT CANDIDATES AND MUST NOT BE LISTED AS SUCH.** The coadd
-PSF-orientation mixing is DEMOTED — see the section below. And the **clamp acting
-across a trail is a COMPONENT TO SEPARATE OUT, not a candidate**: it is
-field-constant where it aligns with the trail axis, and a field-constant term
-cannot produce a one-sided radial gradient. Naming it explicitly is what lets the
-spin-2 fit absorb it instead of leaving it to contaminate a radial term.
-
-**WITHDRAWN with the list:** the narrowed question *"what adds an odd ellipticity
-term without an odd size term"*. The sizes are not equal, so the question presumed
-a symmetry the data does not have.
-
-**THE BAYER DISCRIMINATOR IS STATED IN THE TREE'S STRONGER FORM, NOT THE SOURCE'S.**
-The weaker warning is that the greens are channels 0 and 3, so a channel-order
-error compares RED against BLUE. `TOOLS.md` establishes something harder: **the
-order cannot be read off `BAYERPAT` at all** — *"IDENTIFY THE GREENS"* — because
-raster order and `ROWORDER` both enter and `ROWORDER` varies by product class
-(`convert` and `split_cfa` outputs against stacks, with one fixture carrying none).
-Identify the greens FROM THE DATA; "remember ch0/ch3" is not a usable instruction.
-
-**THE ALTITUDE BOUND, AND IT BINDS TWO ROWS.** `docs/dead-ends.md` records the whole
-corpus at **altitude 63.4–87.7°, |HA| ≤ 2.35 h — the flat end of the refraction
-curve**. So both hour-angle senses being present does NOT make the lever large, and
-how much sense-reversal signal survives at these zenith distances is UNQUANTIFIED.
-That bound applies to the **atmospheric** row and to the **gravity/flexure** row,
-since both are cross-session at differing altitude.
-
-**THE ASTIGMATISM × DEFOCUS ROW IS A GOOD FALSIFIER AND A WEAK CONFIRMER — read
-the direction before scheduling it.** The source is unambiguous that *"a combination
-of astigmatism and defocus is needed to produce elliptical images"* and that the
-second-moment difference is proportional to their PRODUCT, so astigmatism alone
-gives a circular PSF. Three qualifications travel with it, and a summary of this row
-lost all three in one hop:
-1. **"At best focus" is not zero defocus ACROSS A FIELD.** Field curvature makes the
-   focal surface curved, so the edges carry defocus at nominal best focus. The
-   product is generally non-zero off-axis; the vanishing is on-axis only.
-2. **The lever's SIZE is unmeasured.** Per-session refocus moves the defocus term by
-   an unknown amount. If refocus repeats to a small fraction of the depth of focus,
-   the between-session variation may be invisible.
-3. **The between-session comparison is CONFOUNDED** — temperature, optical state and
-   sky all change too, and this repo's own flat work already records per-session
-   focus recalibration as *"a live alternative explanation for a per-session-constant
-   term"*, pointing the other way.
-**THE FALSIFIER, and it is asymmetric:** if the asymmetry amplitude is CONSTANT
-across sessions — one lens, one focal length, focus recalibrated between them — then
-the astigmatism × defocus product is NOT driving it, because the defocus term should
-have moved and the effect did not. **That is a clean kill.** If it VARIES, that is
-consistent with the mechanism and does NOT confirm it, by qualification 3. Schedule
-it for the kill, not for the confirmation. **It needs no new acquisition** — between-
-session variation on one lens at one focal length is already-collected data, and
-per-session focus recalibration is already standing practice.
-**THE BETWEEN-SESSION VARIATION IS IN HAND, AND IT VARIES — so the kill does NOT fire
-(read off the stage record 2026-08-29).** The member-selection stage profiles every
-member's entry-minus-exit FWHM asymmetry at ±2400 px
-(`datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_portion.json`,
-`table`, field `asymmetry["2400"]`, 77 members); the per-set MEDIANS of that field run
-july31/set-01 **−0.070**, aug09/set-01..02 −0.061 / −0.021, july31/set-02..04 +0.045 /
-+0.125 / +0.181, aug06/set-01..03 +0.060 / +0.095 / +0.057, aug09/set-03..05 +0.123 /
-+0.228 / +0.252, aug14/set-01..05 +0.165 / +0.270 / +0.380 / +0.442 / **+0.472** px —
-night-ordered, not constant. By this row's own reading that is CONSISTENT with
-astigmatism × defocus and CONFIRMS nothing (qualification 3). **UNCHECKED, stated
-exactly:** that the FWHM asymmetry at ±2400 is the same quantity as this item's odd
-ELLIPTICITY term — the FWHM odd term is what `compose-homography-smear` records at
-+0.180 px; the ellipticity odd term is `pa_convention.py`'s. A per-set ROUNDNESS
-asymmetry from the same `findstar` station lists (the profile cache keeps
-`top30_round` per station) would check it without a new run.
-
-### A candidate that is DEMOTED, and it must not be listed beside the term it is a corollary of
-
-**The coadd-orientation candidate — the idea that how members are oriented in the
-coadd could be a SOURCE of the one-sided term — is demoted. It has no source term.**
-It is a COROLLARY of the single-frame optical term reaching the coadd, not an
-independent mechanism, so listing it alongside the real candidates in the "Open"
-list below would double-count one physical cause and invite an experiment that
-cannot come back negative. The single-RAW evidence at the head of this item is what
-settles it: the term is present at full size on frames that have no coadd, no
-registration and no orientation choice.
-
-**NAMED DESCRIPTIVELY ON PURPOSE, AND NO NEW TERM IS COINED FOR IT.** The thing
-being demoted is *the mechanism by which the single-frame optical term reaches the
-coadd*; the entire content of the demotion is that it is NOT a candidate, and a
-named thing reads as a thing to go and study. **`TRANSFER FUNCTION` is also
-TAKEN** and must not be reused here: it occurs in two files (`BACKLOG.md`,
-`docs/dead-ends.md`) and both are the flat-differential result, where it means
-the flat-shape-to-object-tilt conversion measured at essentially 1:1.
-
-### Open
-
-1. **The unattributed RADIAL term.** 18% is attributed to the gnomonic plate scale
-   (measured, parameter-free, a subtraction rather than a knob); the remainder
-   survives at 5.9 SE. Family unresolved — coma consistent, astigmatism not reached,
-   and the radial↔tangential sign flip that would establish astigmatism is ABSENT.
-2. **A few-degree axis offset between the CFA and debayered grids**, pre-registered
-   as AMBIGUOUS between the demosaic and severe undersampling (S 0.83 → 0.415) and
-   deliberately unattributed. It bounds rather than explains: whatever it is moves
-   the axis a few degrees and neither creates nor destroys the rotation. Separating
-   them needs a mosaic-planting arm requiring a synthetic colour distribution
-   against a real reddened field — judged not worth it; disagree only with a design.
-   **THIS IS AN ABANDONMENT THAT ITS OWN DESIGN PRE-AUTHORISED, AND THE DISTINCTION
-   IS WORTH MORE THAN THE ITEM.** `90cf6ee` declared, BEFORE the run and before
-   anyone knew which way it would go: *"DIFFERENT_means: AMBIGUOUS between the
-   demosaic and severe undersampling. **This arm cannot separate them and will not
-   attribute.**"* It came out DIFFERENT (χ² 27.060 and 23.272 at 3 dof, offsets
-   2.2–9.7°) and was reported as non-attributing, exactly as pre-declared. **So the
-   refusal to attribute is a RESULT, not a stall — nothing dangles, and re-opening
-   it needs a new design rather than more of the same data.**
-   **CONTRAST IT WITH THE COMPOSE CASE IN `compose-homography-smear`**, where a
-   conclusion was reversed with no record of the reversal and a shipped route was
-   retired by a doc reading. **Pre-declared non-attribution and undocumented
-   reversal both leave a question open; only one of them leaves a reader able to
-   tell which.** That is the difference between "settled", "abandoned" and
-   "unreproducible by construction", and this cluster now carries a worked example
-   of each.
-
-**THE MECHANISMS THIS THREAD PRODUCED NOW LIVE IN `docs/dead-ends.md`**, because
-they generalise past it: the stack-side non-stellar tails that govern any
-stack-side statistic; the incomplete-azimuth leak and its ⟨cos 2φ⟩ geometry; the
-per-bin error-model rule (*a per-bin property estimated from N frames has N
-independent realisations*); the plate-scale trap; the refraction-as-shape closure;
-and the magnitude-vs-projection commensurability case. Numbers and provenance for
-everything above are in the tracked records under
-`datasets/aug06/corner_work/`, which carry them directly.
-
-**Closes when** the residual radial term is attributed, or a route ships that holds
-the corner at the clean band's star shape on the owner's eyes.
+**Closes when** the residual radial term is attributed, or a route ships that holds the corner at
+the clean band's star shape on the owner's eyes (U).
 
 ## `pointing-record-names-the-wrong-frame` — two header fields that are not the pointing
 
@@ -1070,112 +654,29 @@ evaluate the WCS at the centre; never `CRVAL`, never `field_center`.
 (`first_frame_center`) or computed as the set's actual pointing, and the two
 `docs/`+`BACKLOG` sites that cite a "solved centre" name which one they mean.
 
-## `corner-fix-landscape` — the FIX-classified route is DEAD; what is left is procurement or acceptance
+## `corner-fix-landscape` — procurement or acceptance
 
-**The classification rule, adopted after a list of four "responses" turned out to
-contain three non-fixes: every candidate is FIX / TRADE / BANDAID before it is
-listed, and a trade or a concealment never appears in the same list as a fix.** If
-the honest answer is "no fix is available on this rig", that is the finding — and
-on today's evidence it very nearly is.
+Rule: every candidate is FIX / TRADE / BANDAID before it is listed; a trade or a concealment never
+shares a list with a fix. CLOSED, homed: no route on this rig RECOVERS corner detail — a single
+global PSF cannot (no field-constant trail scale on three grids:
+`datasets/aug06/corner_work/{constancy_fit,frame_depth,cfa_control}.json`);
+`docs/dead-ends/separation-deconv-psf.md`, "NO INSTALLED TOOL DELIVERS A FIELD-VARIABLE ANISOTROPIC
+PSF CORRECTION" (per-region tiling is pixel surgery, FORBIDDEN) and "PSF HOMOGENISATION — REFUSED BY
+THE OWNER" (zone down-weighting is the same act); the blanket trim (owner-directed 2026-08-22, RAN,
+REFUTED — BACKLOG:`pending-owner`). The FIX-class route that shipped is member SELECTION (cropT,
+owner-approved 2026-08-29; `docs/corner-smear-member-selection.md`); what it cannot remove is the
+lens's SYMMETRIC radial softening, and this item is about THAT. The procurement facts:
+`TOOLS.md`, Tier 5, the anisotropic row.
 
-**THE ONE FIX-CLASSIFIED ROUTE ON THIS RIG IS DEAD BY MEASUREMENT.** Single-PSF
-deconvolution of a field-constant component (`rl -loadpsf=`, scriptable and
-verified installed) required a genuinely FIELD-CONSTANT term. Asked directly — is
-there a single trail scale `f` making `C(ρ) − f·T(ρ)` a constant 2-vector — the
-answer is NO on **three independent grids**: debayered N=5, debayered N=40, and a
-raw CFA grid with no interpolation anywhere. **A single global PSF cannot remove
-this component.** Numbers, the N=40 table and the not-a-class test are in
-`datasets/aug06/corner_work/frame_depth.json`; the complete-azimuth check is in
-that directory's `shape_azimuth_m01s{1,2}.json`. Not restated here.
+OPEN:
+1. Procurement — N: `torchmfbd` (three documentation checks decide it), `pyimcom` (a survey
+   OBSFILE schema and no bring-your-own-data path — weeks and a fork; `furry-parakeet`'s kernels
+   the one cheap probe); `galsim.des.DES_PSFEx` is installed for PSF evaluation.
+2. `-noclamp` — a TRADE, U after D: the cost is measured (BACKLOG:`resample-cost-and-drizzle`),
+   the ringing it prevents is not — the planted fixture with a sharp-edge target closes it.
 
-### The remaining candidates, each with its verdict
-
-- **NOT PROCURED — anisotropic spatially-varying deconvolution.** The only class of
-  treatment that would RECOVER corner detail. Farrens et al. 2017 (A&A 601 A66) is
-  built for a known spatially varying PSF, i.e. what PSFEx produces, but its
-  backend is a source integration; StarTools SVDecon is GPU+GUI; BXT is
-  PixInsight-hosted and uninstalled by choice. **"There is no packaged headless CPU
-  Linux tool for the anisotropic half" is now FALSE AS WRITTEN** (last checked
-  2026-08-14): **`torchmfbd` 0.9.2** (pip, A&A 2025 703 A269) states it handles
-  spatially variant PSFs. **The SENTENCE is refuted; the SUBSTANCE may hold, and
-  three checks decide it — any one voids it:** does it do NON-BLIND deconvolution
-  with a supplied PSF field (unstated in its README); **MOMFBD's premise is
-  frame-to-frame aberration DIVERSITY while ours is STATIC and identical in every
-  frame**, so blind mode would have nothing to exploit; and PyTorch CPU-only at
-  6064×4040 on a no-GPU rig, with `torch` + `triton` costing 37 packages.
-  **Procurement-and-integration boundary, not a physics ceiling.**
-- **IMCOM / `pyimcom` 1.2.1 — WEEKS AND A FORK, not days and an adapter** (its own
-  `config_README.rst` under the pyimcom repo's docs, 2026-08-14). It is the principled generalisation of
-  both drizzle and homogenisation — a user-specified output PSF from undersampled
-  dithered exposures with varying input PSFs, and **nothing requires the target PSF
-  to be broader**. But mandatory `OBSFILE` is a survey OBSERVATION-TABLE schema,
-  supported inputs are a small named set, and there is **no plugin system and no
-  bring-your-own-data path** — formats are added by maintainers in-tree. **The one
-  probe that could still make it cheap, unsettled:** `furry-parakeet` holds the
-  linear-algebra kernels separately from the Roman driver.
-- **~~Cosmic Clarity~~ WITHDRAWN — not a headless candidate** (`TOOLS.md`, the
-  one home, measured: attended-only, CLI ignored, non-stellar pass crashes;
-  three sessions believed its `--help`). Surviving mechanism note: model space
-  `radius_{1,2,4,8}` — spatially varying but ISOTROPIC, size only, never
-  ellipticity.
-- **NOT THE ROUTE — `sf_deconvolve`**: it deconvolves a stack of postage stamps,
-  one PSF per object, not a field. It restores objects, not images.
-- **CLOSED ON DOCTRINE, not capability — tiled deconvolution.** Siril has every
-  pixel operation for the classical overlap-add answer, but the tiler and blender
-  would be in-house code READING AND REWRITING the deliverable's pixels. FORBIDDEN
-  by the bright line. Do not propose it.
-- **TOOL FACT, and it is now INSTALLED:** `galsim.des.DES_PSFEx` reads a PSFEx
-  `.psf` directly and evaluates the PSF at an arbitrary position, so the
-  `[1, X, X², Y, XY, Y²]` basis-order trap `TOOLS.md` documents cannot arise.
-- **TRADE — `-noclamp`.** The clamp costs 6.26% of PSF width per pass against a
-  0.45% kernel, **at the frame centre where there is no aberration gradient at
-  all**. By this repo's own contract the clamp is itself a bandaid — ringing is a
-  symptom of UNDERSAMPLING — but removing it trades an artefact for sharpness
-  rather than fixing anything, and nobody has measured the ringing it prevents on
-  THIS data. Owner's call, not a free win.
-  **AND THAT IS A TRADE WITH ONE NUMBER ON IT — CONFIRMED, not just restated.** The
-  COST replays exactly from `datasets/aug06/experiments.jsonl`
-  (`resample_cost_arm_d_siril_pass`): lanczos4 **unclamped 0.45%**, **clamped
-  6.26%**, with the nearest-neighbour control at **0.00%** validating the
-  instrument. The BENEFIT has no number anywhere — a tree-wide search for a ringing
-  measurement over `datasets/` returns none, and the record itself says only
-  *"reintroduces whatever artefact the clamp was added for."*
-  The both-sides-indeterminate framing of the owner's choice (a
-  single-configuration gain against an unquantified loss) is homed in
-  BACKLOG:`resample-cost-and-drizzle` and not restated here. **The fixture
-  that would close it already exists and needs no new design:** the same planted
-  synthetic frames pushed through the shipped `register -2pass` →
-  `seqapplyreg -interp=` operation verbatim, with a sharp-edge target added and the
-  overshoot measured clamped vs unclamped. Cheap, and it converts an owner decision
-  from one number to two.
-- **BANDAID / accepted failure mode, NOT candidates:** PSF homogenisation, zone
-  down-weighting — owner-REFUSED, with Zackay & Ofek 2017 making homogenisation a
-  measured information loss (`docs/dead-ends.md`). **Cropping LEFT this category
-  (owner 2026-08-22) as a DIRECTED TEST; the test RAN (7775fdd) and REFUTED it** —
-  NULL on shared sky, −8.7% canvas, a starved rim at the cross-night union (root
-  cause: contributor diversity, not member damage) — so it is not a candidate either:
-  a measured dead end, registered (`docs/dead-ends/stacking-compose.md`, the retired
-  `--crop-lr` rule; the `pending-owner` ruling carries the outcome). No BLANKET trim
-  ships. The per-member THRESHOLD crop that later shipped — the `run_member_crop.sh`
-  stage behind `run_corpus_combine.sh --portion-rule` (the `cropT` arm's rule verbatim,
-  owner-approved 2026-08-29; the arm's files are disposed, its record
-  `datasets/corpus/smear_attribution/cropT_arm.json` stands) — is a different thing
-  from that symmetric trim: it removes only the
-  columns a member's own profile measures as asymmetrically degraded, keeps full
-  depth elsewhere, and is a FIX-class SELECTION by measured quality, not a bandaid
-  (`docs/corner-smear-member-selection.md` §3).
-
-**Closes when** an anisotropic treatment is procured and measured, or the owner
-accepts the corner as-is. **The in-chain question is settled only for RECOVERY: no
-route on this rig recovers corner detail from a frame, and the defect is in the
-photons of single unprocessed RAWs.** Member SELECTION is the third route this item
-did not name: it removes the degrading portions before the mean and moved the union's
-band 2.97 → 2.79 px (`run_member_crop.sh`, the `--portion-rule` stage — the shipped
-form of the `cropT` arm; the canonical built under it reads 2.775 at the same station,
-ledger 123–128); what it cannot remove is the lens's SYMMETRIC radial
-softening, which every frame carries — the procurement / acceptance decision above
-applies to THAT. `compose-homography-smear` no longer names a chain-caused defect
-(its smear is attributed to the members).
+**Closes when** an anisotropic treatment is procured and measured, or the owner accepts the
+corner as-is (U).
 
 ## `resample-cost-and-drizzle` — the clamp costs 14× the kernel, and it is a pinned doctrine
 

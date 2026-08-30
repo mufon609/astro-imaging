@@ -153,3 +153,9 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   variance on the final stacks (Deneb-box excess 0/0/0 → +2.5/+5.8/+10 ADU
   across sets) remains measured and stands — a lights-built flat both bakes
   in and partially cancels a time-varying glow, inconsistently per set.
+- **CANVAS-X FRACTIONS ARE NOT PORTABLE ACROSS PRODUCTS — A BAND IS ADDRESSED IN
+  SKY COORDINATES.** MEASURED: the union defect point RA 294.86 sat at x = 76.2 % of one
+  canvas and its control RA 314.72 at 41.2 %, so "x = 15–30 %" on a different product
+  addressed RA 328–320 — different sky, which read clean. `shape_at_sky.py` places its
+  boxes by each product's own WCS for this reason; a station is a sky position, and a
+  canvas fraction is only the address it had on one product.

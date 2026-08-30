@@ -51,9 +51,11 @@ BACKLOG:`compose-homography-smear`).
   Siril-debayered RAWs (no dark, flat, warp, registration or stack), 3 frames
   × 6 sets × 2 nights, 136k stars. Candidates ELIMINATED by measurement: a
   DETECTION/BRIGHTNESS artefact (the gradient survives inside amplitude
-  quartiles in 6/6 sets); PURE DEFOCUS / tilted focal plane (that inflates
+  quartiles in 6/6 sets); PURE DEFOCUS / tilted focal plane ON THE RAWS (that inflates
   BOTH axes on the soft side — the MINOR axis measures symmetric left-vs-right
-  while the major does not); RESIDUAL DISTORTION (the geometry fits a centred
+  while the major does not; on the UNION the odd size term +0.180 px re-opened
+  defocus in the candidate families below, since attributed to the members'
+  entry-side columns — `stacking-compose.md`, the union-smear entry); RESIDUAL DISTORTION (the geometry fits a centred
   ptlens model to a 0.27 px median — `registration-distortion.md`, the
   affine-nuisance entry). The RESIDUAL-MOTION elimination did NOT hold: a
   fixed-direction term IS present in these very stars (0.0581 / 69.6 SE)
@@ -349,3 +351,35 @@ BACKLOG:`compose-homography-smear`).
   plot the model-free bands the regression was fitted through.** (Caveat
   carried: the per-side detection counts are strongly imbalanced, so that
   re-measurement is a flag for a cleaner pass, not a verdict.)
+- **THE ONE-SIDED RADIAL TERM'S CANDIDATE FAMILIES AND THEIR DISCRIMINATORS ARE
+  DOCTRINE (Jarvis, Schechter & Jain 2008, arXiv:0810.0027), NOT MEASUREMENTS ON THIS
+  CORPUS — no row is promoted to a finding by being quoted.** Decentred / misaligned
+  optic: astigmatism grows linearly from a DISPLACED centre, ellipticity ∝ astigmatism ×
+  defocus (odd in shape, even in size) — a spin-2 fit per ρ-bin with a FREE centre.
+  Off-axis coma: radial, centred, linear — a one-sided term is not coma unless the axis
+  is displaced. Defocus / focal-plane tilt: a one-sided SIZE gradient — on the list.
+  Atmospheric dispersion: along the elevation vector, CHROMATIC, ∝ tan z — the
+  per-Bayer-channel ellipticity is the cheapest discriminator here, with the greens
+  identified FROM THE DATA (`TOOLS.md`, "IDENTIFY THE GREENS"). Tracking / mount:
+  field-constant — the spin-2 fit separates it. Gravity / flexure: cross-session at
+  differing altitude. Registration / resampling residual: REFUTED as the union band's
+  carrier by the 9× drift-span discriminator (`stacking-compose.md`). NOT candidates:
+  the coadd's orientation mixing (a corollary of the single-frame term reaching the
+  coadd, not a source) and the clamp acting across a trail (field-constant — a component
+  the spin-2 fit absorbs, named so it does not contaminate a radial term). The
+  astigmatism × defocus row is a good FALSIFIER and a weak confirmer: a CONSTANT
+  asymmetry amplitude across sessions with refocus between them kills it; variation is
+  consistent and confirms nothing (field curvature keeps off-axis defocus non-zero at
+  best focus, the lever's size is unmeasured, sessions are confounded). MEASURED: the
+  per-set ±2400 entry-minus-exit FWHM asymmetry runs night-ordered, −0.070 … +0.472 px
+  (`datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_portion.json`), so
+  the kill does not fire; UNCHECKED that this FWHM asymmetry is the odd ELLIPTICITY term
+  — a per-set roundness asymmetry from the profile cache's `top30_round` checks it with
+  no new run. The altitude bound binds the atmospheric and gravity rows: the corpus sits
+  63–88° above the horizon within 2.4 h of the meridian, so the sense-reversal lever is
+  UNQUANTIFIED. Commensurability: the DISTORTION centre ((−6, +14) px, the centred
+  ptlens fit — `registration-distortion.md`, the affine-nuisance entry) and the
+  ELLIPTICITY-field centre (a free-centre fit wins at F 169–999 with offsets 443–531 px,
+  three populations disagreeing by ~300 px at 10–20 of their own sigmas — no centre is
+  quoted) are different quantities; a distortion centre at zero refutes nothing about the
+  other. Records: `datasets/aug06/corner_work/`.

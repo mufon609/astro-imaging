@@ -40,6 +40,10 @@ and answered by member selection: the decision map with every form's numbers is
   128), guarded by the corpus slot `datasets/corpus/baseline.json`. The decision
   map, the refuted rule forms with their numbers, the constant's measured
   continuum and the stage as built: `docs/corner-smear-member-selection.md`.
+  On the union the odd term is anisotropic: over the outer pairs x05–x25 the MAJOR
+  axis differs by +0.206 px (mean) while the MINOR differs by −0.038 and holds no
+  sign — an addition, not a scale change (`datasets/aug09/smear_work/smear_remarch.json`;
+  its `fwhm_px` is the MEAN of FWHMx and FWHMy, never the major).
 - **A ROW-RESOLVED CROP (x_c = min over the member's top / centre / bottom rows)
   BUYS NOTHING ON THIS CORPUS — the bottom row reaches the bar ~600 px earlier,
   but the columns that removes sit under deep four-night coverage.** MEASURED
@@ -222,7 +226,7 @@ and answered by member selection: the decision map with every form's numbers is
   products), so the sense test is runnable — with limits: the coordinates
   are owner-transcribed and bounded at the DEGREE level only
   (`verify_site.py`), SITEELEV is unrecorded (OBSGEO at h = 0), and the
-  corpus sits at altitude 63.4–87.7°, the flat end of the refraction curve,
+  corpus sits at altitude 63–88°, the flat end of the refraction curve,
   so the surviving lever is UNQUANTIFIED; the second disjunct — the same
   middle-pinned build on sets at different altitudes — needs no coordinate
   at all. **What this does and does not license:** it does NOT revive
