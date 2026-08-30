@@ -119,15 +119,18 @@ and answered by member selection: the decision map with every form's numbers is
   the band +0.003..+0.013, the corners 0.000 at six of eight and +0.007
   (corner_700_1400) / −0.015 (corner_7750_1100) at two, the 27
   seams identical, SPCC K within 0.004, depth unchanged within the
-  structure-limited reading. CAVEAT — the per-member weights above are
-  RECONSTRUCTED, not printed: Siril prints no per-image weight; they are the
-  `.seq` M-line statistics through `compute_noise_weights()` as READ from the
-  1.4.4 source, unverified on this rig. Positive control named, NOT run: a
-  two-member compose with a planted noise ratio (one member and a copy of it
-  carrying added Gaussian noise of known σ, Siril `bgnoise` measured on both)
-  whose composite mean must match the reconstructed weights; until it runs,
-  "Siril's own weights" here means "Siril's own statistics through the source
-  formula". Consequence: nbstack
+  structure-limited reading. The weights above are RECONSTRUCTED (Siril prints
+  no per-image weight) and the reconstruction is MEASURED to be what Siril
+  applies: a planted-noise two-member control
+  (`datasets/corpus/smear_attribution/noise_weight_control.json` — a curated
+  member and a copy carrying N(0, 4.5e-5) plus a +0.001 LOCAL patch, since
+  addscale cancels a global offset) read the noisy copy's weight off the
+  composite's patch at 0.3536 against 0.3537 reconstructed from the `.seq`
+  (Green; R/B within 0.0007), the nbstack control at 0.500 ± 0.001; and the
+  weight is on the REGISTERED image's noise — one lanczos4 pass resampled a
+  third of the planted white noise away (5.00e-5 → 3.41e-5), and the addscale
+  scale term halves a 1/bgnoise² ratio (pscale 0.617: (2.19 / 1.62)² = 1.83).
+  Consequence: nbstack
   stays the chain's default; a per-member weight is not the lever for a
   night-quality difference here — the weights differ by ~10 % while the members'
   FWHM differ by ~0.3 px, so the weighted mean moves ~0.01 px; the lever that

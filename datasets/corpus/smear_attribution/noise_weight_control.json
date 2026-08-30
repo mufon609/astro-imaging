@@ -1,0 +1,315 @@
+{
+ "id": "noise_weight_positive_control",
+ "what": "THE POSITIVE CONTROL of the wnoise record's premise (A): are the weights reconstructed from the registered sequence's .seq statistics through compute_noise_weights() (as READ from the Siril 1.4.4 source) the weights Siril actually applied? ONE knob \u2014 a two-member compose with a PLANTED noise ratio and a planted LOCAL offset that lets the noisy member's weight be read directly off the composite; a fixture, not a deliverable.",
+ "ledger": "datasets/aug06/experiments.jsonl id noise_weight_positive_control (pre-registration line 146 before the compose; the verdict line follows)",
+ "fixture": {
+  "source": "sessions/aug06/work/groups_set-01/sub_01.fit",
+  "clean_copy": "sessions/aug14/work/wnoise_ctrl/members/sub_01.fit",
+  "noisy_copy": "sessions/aug14/work/wnoise_ctrl/members/sub_02.fit",
+  "sigma_add": 4.5e-05,
+  "seed": 20260830,
+  "patch_value": 0.001,
+  "patch_fits_xy0_xy1": [
+   2715,
+   1775,
+   3115,
+   2175
+  ],
+  "patch_interior_stat_box_fits": [
+   2735,
+   1795,
+   360,
+   360
+  ],
+  "planted_noise_sigma_measured_green": 4.501080547925085e-05,
+  "patch_mean_measured_green": 0.0010000969050452113,
+  "sha256_clean": "600f9b04f30dfd7c",
+  "sha256_noisy": "44380abf14618dd2",
+  "bytes": [
+   276425280,
+   276425280
+  ]
+ },
+ "why_a_LOCAL_patch": "the compose normalises every member to the reference (-norm=addscale: x' = (x - location_i) x (scale_ref/scale_i) + location_ref, per layer), so a GLOBAL planted offset is cancelled by the location term; a 400x400 patch is 0.7 % of the pixels, leaves the IKSS location/scale intact, and survives \u2014 the composite at the patch reads clean + w_noisy x (the patch as normalised)",
+ "arms": {
+  "noise": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_wctrl_noise.fit --framing=max --weight=noise --ref=<clean copy> --keep-work sessions/aug14/work/wnoise_ctrl/members (5 s; T0 2/2; 'astrometric registration + per-member undistortion CONFIRMED'; 'weighted by member noise, inverse-variance (noise)')",
+  "nbstack_negative_control": "the same with --weight=nbstack -> stack_wctrl_nbstack.fit (5 s; 'weighted by stacked-image count (nbstack)')",
+  "scratch_kept": "web/results/aug14/.compose_stack_wctrl_{noise,nbstack}/seq/ (r_s_.seq, r_s_00001/2.fit)"
+ },
+ "instruments": {
+  "bgnoise_originals": "Siril bgnoise on the two fixture members: clean R/G/B 0.938/1.040/0.929 ADU16 (1.431e-05/1.587e-05/1.417e-05), noisy 3.208/3.277/3.203 (4.896e-05/5.001e-05/4.888e-05)",
+  "bgnoise_registered": "Siril bgnoise on r_s_00001/2: clean 1.343e-05/1.557e-05/1.366e-05, noisy 3.069e-05/3.411e-05/3.142e-05 \u2014 EQUAL to the .seq M-line bgnoise to 4 digits (the probe's finding again)",
+  "seq_M_lines": {
+   "0-0": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000419651,
+    "median": 0.000402025,
+    "sigma": 0.000591542,
+    "location": 0.000401128,
+    "scale": 2.22704e-05,
+    "min": 0.0,
+    "max": 0.3423,
+    "normValue": 1.0,
+    "bgnoise": 1.3432e-05
+   },
+   "0-1": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000426653,
+    "median": 0.000404031,
+    "sigma": 0.000598146,
+    "location": 0.000402864,
+    "scale": 3.86683e-05,
+    "min": 0.0,
+    "max": 0.342314,
+    "normValue": 1.0,
+    "bgnoise": 3.06903e-05
+   },
+   "1-0": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000767593,
+    "median": 0.000739336,
+    "sigma": 0.000781029,
+    "location": 0.000737872,
+    "scale": 2.70207e-05,
+    "min": 0.0,
+    "max": 0.401951,
+    "normValue": 1.0,
+    "bgnoise": 1.55667e-05
+   },
+   "1-1": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000775108,
+    "median": 0.000741974,
+    "sigma": 0.000786221,
+    "location": 0.000740208,
+    "scale": 4.38042e-05,
+    "min": 0.0,
+    "max": 0.401928,
+    "normValue": 1.0,
+    "bgnoise": 3.41095e-05
+   },
+   "2-0": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000585881,
+    "median": 0.000565488,
+    "sigma": 0.000688474,
+    "location": 0.000564536,
+    "scale": 2.41661e-05,
+    "min": 0.0,
+    "max": 0.347106,
+    "normValue": 1.0,
+    "bgnoise": 1.36569e-05
+   },
+   "2-1": {
+    "total": 23453862,
+    "ngoodpix": 22950313,
+    "mean": 0.000593185,
+    "median": 0.000567424,
+    "sigma": 0.000694093,
+    "location": 0.000566176,
+    "scale": 4.02588e-05,
+    "min": 0.0,
+    "max": 0.347136,
+    "normValue": 1.0,
+    "bgnoise": 3.14188e-05
+   }
+  },
+  "readout": "Siril stat over the patch INTERIOR (Siril crop [2760, 1846, 360, 360] on the 5862x4001 canvas; the reference's padding offset (25, 0) from a diagnostic numpy bbox) and a control box 1200 px left, on both composites and both registered members; means per channel in readout.json"
+ },
+ "normalisation_model_tested_by_the_nbstack_arm": "x_norm(noisy) = (x - location_noisy) x pscale + location_ref with pscale = scale_ref/scale_noisy = 0.5759/0.6169/0.6003 (R/G/B): the noisy patch 116.2 ADU16 (Green) normalises to 90.9; the plain mean then predicts the nbstack composite's patch at (50.8 + 90.9)/2 = 70.9 against 70.5 measured \u2014 and the weight read off it is 0.5008/0.5011/0.4991 (R/G/B) against 0.500: the model holds to 0.1 %",
+ "per_channel": {
+  "Red": {
+   "seq_scale_ref": 2.22704e-05,
+   "seq_scale_noisy": 3.86683e-05,
+   "pscale_noisy": 0.5759,
+   "seq_bgnoise_ref": 1.3432e-05,
+   "seq_bgnoise_noisy": 3.06903e-05,
+   "bgnoise_cmd_registered_ref": 1.343e-05,
+   "bgnoise_cmd_registered_noisy": 3.069e-05,
+   "w_ratio_clean_over_noisy_reconstructed": 1.7317,
+   "w_ratio_from_bgnoise_cmd": 1.7322,
+   "w_noisy_normalised_reconstructed": 0.3661,
+   "patch_means_ADU16": {
+    "clean_reg": 27.7,
+    "noisy_reg": 93.0,
+    "noisy_normalised_model": 64.64,
+    "comp_noise": 41.2,
+    "comp_nbstack": 46.2
+   },
+   "ctrl_means_ADU16": {
+    "clean_reg": 27.4,
+    "noisy_reg": 27.4,
+    "comp_noise": 27.2,
+    "comp_nbstack": 27.1
+   },
+   "w_noisy_actual_noise_arm": 0.3654,
+   "w_noisy_actual_nbstack_arm": 0.5008,
+   "P1_delta_actual_minus_reconstructed": -0.0007,
+   "P3_delta_nbstack_minus_0p5": 0.0008
+  },
+  "Green": {
+   "seq_scale_ref": 2.70207e-05,
+   "seq_scale_noisy": 4.38042e-05,
+   "pscale_noisy": 0.6169,
+   "seq_bgnoise_ref": 1.55667e-05,
+   "seq_bgnoise_noisy": 3.41095e-05,
+   "bgnoise_cmd_registered_ref": 1.557e-05,
+   "bgnoise_cmd_registered_noisy": 3.411e-05,
+   "w_ratio_clean_over_noisy_reconstructed": 1.8269,
+   "w_ratio_from_bgnoise_cmd": 1.8262,
+   "w_noisy_normalised_reconstructed": 0.3537,
+   "patch_means_ADU16": {
+    "clean_reg": 50.8,
+    "noisy_reg": 116.2,
+    "noisy_normalised_model": 90.11,
+    "comp_noise": 64.7,
+    "comp_nbstack": 70.5
+   },
+   "ctrl_means_ADU16": {
+    "clean_reg": 50.3,
+    "noisy_reg": 50.3,
+    "comp_noise": 50.0,
+    "comp_nbstack": 49.9
+   },
+   "w_noisy_actual_noise_arm": 0.3536,
+   "w_noisy_actual_nbstack_arm": 0.5011,
+   "P1_delta_actual_minus_reconstructed": -0.0002,
+   "P3_delta_nbstack_minus_0p5": 0.0011
+  },
+  "Blue": {
+   "seq_scale_ref": 2.41661e-05,
+   "seq_scale_noisy": 4.02588e-05,
+   "pscale_noisy": 0.6003,
+   "seq_bgnoise_ref": 1.36569e-05,
+   "seq_bgnoise_noisy": 3.14188e-05,
+   "bgnoise_cmd_registered_ref": 1.366e-05,
+   "bgnoise_cmd_registered_noisy": 3.142e-05,
+   "w_ratio_clean_over_noisy_reconstructed": 1.9071,
+   "w_ratio_from_bgnoise_cmd": 1.9063,
+   "w_noisy_normalised_reconstructed": 0.344,
+   "patch_means_ADU16": {
+    "clean_reg": 38.3,
+    "noisy_reg": 103.7,
+    "noisy_normalised_model": 76.97,
+    "comp_noise": 51.6,
+    "comp_nbstack": 57.6
+   },
+   "ctrl_means_ADU16": {
+    "clean_reg": 38.3,
+    "noisy_reg": 38.3,
+    "comp_noise": 38.1,
+    "comp_nbstack": 38.0
+   },
+   "w_noisy_actual_noise_arm": 0.3439,
+   "w_noisy_actual_nbstack_arm": 0.4991,
+   "P1_delta_actual_minus_reconstructed": -0.0001,
+   "P3_delta_nbstack_minus_0p5": -0.0009
+  }
+ },
+ "outcomes": {
+  "P1": "HELD \u2014 the noisy member's weight READ OFF THE COMPOSITE (noise arm) equals the .seq-reconstructed normalised weight within 0.0007 on every channel: Red 0.3654 vs 0.3661, Green 0.3536 vs 0.3537, Blue 0.3439 vs 0.3440 (criterion 0.005)",
+  "P2": "ORDERING HELD, MAGNITUDE PREDICTION FAILED, DERIVATIONS AGREE: w_clean/w_noisy = 1.732/1.827/1.907 (R/G/B) \u2014 the clean member above the noisy one \u2014 and the ratio from the bgnoise COMMAND on the registered members equals the .seq-reconstructed ratio to 0.1 % (1.732/1.826/1.906); but the pre-registered >= 2.5 did not occur, for two measured reasons: (a) the addscale scale term \u2014 the noisy copy's IKSS scale grew x1.62 (2.70e-5 -> 4.38e-5, Green), so pscale 0.617 halves the 1/bgnoise^2 ratio ((2.19/1.62)^2 = 1.83); (b) the registration RESAMPLED AWAY a third of the planted WHITE noise \u2014 bgnoise 5.00e-5 on the unregistered copy, 3.41e-5 on r_s_00002 (-32 %; the probe's 2.3 % was for the members' natural, already-correlated noise) \u2014 Siril weights by the noise AFTER registration",
+  "P3": "HELD \u2014 nbstack: 0.5008/0.5011/0.4991 (criterion 0.500 +- 0.005) \u2014 the plain mean, STACKCNT 100 = 100",
+  "P4": "HELD \u2014 T0 2/2, astrometric + undistortion CONFIRMED on both; HISTORY 'image weighting from noise' / 'image weighting from image count'; STACKCNT 200, NMEMBER 2, REGREF 1 pinned, STACKNRM addscale, canvas 5862x4001"
+ },
+ "verdict": "PREMISE (A) DISCHARGED: the weights reconstructed from the .seq statistics through compute_noise_weights() ARE the weights Siril applied \u2014 read off a planted patch to 0.0007 (Green 0.3536 actual vs 0.3537 reconstructed), with the nbstack control at 0.500 +- 0.001 proving the read-off can fail. The wnoise record's 'actual weights' (july31 0.900 ... aug14 1.094) are therefore Siril's own, and its NULL verdict stands as measured. Two facts for the registry: the weight is (scale/bgnoise)^2 on the REGISTERED image \u2014 a member's white noise is reduced by the resample (~32 % here) before it is weighted \u2014 and a planted global offset is invisible to a compose-level readout (addscale cancels it), a local patch is the readout that works.",
+ "registry_wording_one_sentence": "the .seq statistics through compute_noise_weights() ARE the weights Siril applies \u2014 MEASURED by a planted-noise two-member control (`datasets/corpus/smear_attribution/noise_weight_control.json`): the noisy copy's weight read off a planted local patch 0.3536 against 0.3537 reconstructed (Green; R/B within 0.0007), the nbstack control 0.500 \u00b1 0.001, and the weight is on the REGISTERED image's noise (a resampled white-noise copy read 3.41e-5 against 5.00e-5 unregistered).",
+ "premises_not_tested": [
+  "a two-member sequence exercises the same weighting code path as 77 members (no member-count branch was seen in the source read; not exercised at n = 77 here)",
+  "the patch's 0.7 % of pixels left the IKSS location/scale of the noisy copy untouched \u2014 inferred from the nbstack readout (0.500 +- 0.001), not measured separately",
+  "the resample's -32 % on white noise generalises to other transforms only as a direction (one near-identity lanczos4 pass measured)"
+ ],
+ "scratch_disposable_on_the_directors_word": [
+  "web/results/aug14/stack_wctrl_noise.fit (281,456,640 B)",
+  "web/results/aug14/stack_wctrl_nbstack.fit (281,456,640 B)",
+  "web/results/aug14/.compose_stack_wctrl_{noise,nbstack}/ (kept scratch; the two .seq files are the record's source and are copied into this record as seq_M_lines)",
+  "the compose_gate_stack_wctrl_*.json beside the products",
+  "sessions/aug14/work/wnoise_ctrl/ (the fixture members 2 x 276,425,280 B, the .ssf/logs, readout.json, analysis.json, fixture.json)"
+ ],
+ "written_at": "2026-08-30T14:00:22-04:00",
+ "disposed": {
+  "by": "worker, director astro-imaging-4f's call under the standing cleanup approval \u2014 the record carries the .seq lines and every number; the fixture is re-derivable from the recorded source member, sigma, seed and patch",
+  "items": [
+   {
+    "path": "sessions/aug14/work/wnoise_ctrl",
+    "kind": "dir",
+    "bytes": 552892415,
+    "headtail_sha256_32": null,
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/.compose_stack_wctrl_nbstack",
+    "kind": "dir",
+    "bytes": 563625138,
+    "headtail_sha256_32": null,
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/.compose_stack_wctrl_noise",
+    "kind": "dir",
+    "bytes": 563625179,
+    "headtail_sha256_32": null,
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_wctrl_nbstack.json",
+    "kind": "file",
+    "bytes": 2458,
+    "headtail_sha256_32": "0edb7791fdb2b41573b1c509dd73b226",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_wctrl_noise.json",
+    "kind": "file",
+    "bytes": 2456,
+    "headtail_sha256_32": "82227edda8edcfb40a72621f5057a6b8",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/stack_wctrl_nbstack.fit",
+    "kind": "file",
+    "bytes": 281456640,
+    "headtail_sha256_32": "6843c5161bae36e29d03b3c4c4fcf4ee",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   },
+   {
+    "path": "web/results/aug14/stack_wctrl_noise.fit",
+    "kind": "file",
+    "bytes": 281456640,
+    "headtail_sha256_32": "e4927b81e9518744611ce217db1150cc",
+    "tracked": false,
+    "present": true,
+    "removed": true
+   }
+  ],
+  "n_items": 7,
+  "total_bytes": 2243060926,
+  "df_avail_bytes_before": 692836392960,
+  "df_avail_bytes_after": 695079641088,
+  "freed_bytes": 2243248128,
+  "guards": "every item presence-checked, `git ls-files --error-unmatch` confirmed UNTRACKED, refused unless named wctrl/wnoise_ctrl and outside datasets/ scripts/ docs/ and outside the canonical family; bytes + head/tail sha256 per file recorded before rm; the keep set (the canonical stack/_spcc, the source member aug06/set-01/sub_01, the curated dir, this record) asserted present with size + mtime unchanged after",
+  "kept": [
+   "this record (with the .seq M lines, the readout means and the per-channel analysis)",
+   "the ledger lines 146\u2013147"
+  ],
+  "consequence": "the record's readout/analysis/fixture paths under sessions/aug14/work/wnoise_ctrl/ now dangle \u2014 the numbers here are the durable part",
+  "written_at": "2026-08-30T14:07:47-04:00"
+ }
+}

@@ -278,8 +278,8 @@ no other home. **Everything here is the owner's or is held for them.**
   58 stations within −0.015..+0.016 px of the canonical (corners: six at 0.000, +0.007 / −0.015 at
   two — real, small responses: the compose repeat floor is ZERO, `repeat_floor.json`), seams identical, SPCC K within 0.004 — nothing gained, nothing degraded; nbstack
   stays the chain's default. The motivating 18–24 % cross-night gap is a THROUGHPUT gap on the stars,
-  which a background-noise weight does not see. The weights are Siril's `.seq` statistics through the
-  source formula, unverified on this rig — the positive control is queued (named in the registry entry).
+  which a background-noise weight does not see. The weights are Siril's own — the `.seq` statistics
+  through the source formula, MEASURED by a planted-noise two-member control (`noise_weight_control.json`).
 
 (The real-flats HANDLED path re-homed into `route-recommendation`'s flat-source
 bullet; pooled master darks re-homed into `dark-optimization-fork`.)
