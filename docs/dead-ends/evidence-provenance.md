@@ -307,3 +307,36 @@ denominator until a stated-method census was homed in the register row).
   `datasets/corpus/piperev_inheritance.json`; fix status:
   BACKLOG:`composite-header-identity` (the composite tuple has shipped; the
   rgbcomp/standard-route half and the next-compose read-back remain).
+- **THE OBSERVING SITE IS A HOME ADDRESS, AND EVERY FORM OF IT INVERTS — a tracked
+  record may carry NONE of them: not the decimal pair, not the sexagesimal, not the
+  geocentric OBSGEO triple (Cartesian returns lat/long to the metre), not a
+  horizon-frame quantity finer than a whole degree beside a pointing and a timestamp
+  (an altitude at 0.001° recovers the latitude to ~0.001°), not a DOCUMENTED
+  perturbation of the value (one arithmetic step from the site is the site).**
+  MEASURED on this tree: the pair had reached 23 tracked files because
+  `acquisition.site_facts()` wrote it, with the derived triple, into every
+  `acquisition.json` on every chain run, and a near-literal one digit off sat in a
+  code comment; a string scrub is unsafe in both directions — the exact literal misses
+  the near-literal, a 3-decimal prefix collides with Siril star lists (pixel
+  coordinates a digit from the site); the first history rewrite's exact-forms list was
+  complete for the direct forms and blind to the derived class, which a second reader's
+  scan of every object found (`datasets/corpus/history_rewrite/site_privacy_history_rewrite.json`).
+  THE PROCESS THAT HOLDS: the numbers live only in the gitignored
+  `scripts/setup/site.local.json` (template `scripts/setup/site.example.json`;
+  per-session `sessions/<session>/site.local.json`), read through the ONE loader in
+  `scripts/lib/acquisition.py`; a record's `site` block carries the config's sha256 and
+  provenance and no coordinate; consumers round horizon-frame quantities to whole
+  degrees; `scripts/qa/check_site_privacy.py` (`run_guards` + the pre-push hook, a
+  positive control for every form, the perturbed class included) goes RED on any form
+  in the tree or the index; a missing config is a null block that says so. The history
+  was rewritten in two `git filter-repo` passes; the commit maps live under
+  `datasets/corpus/history_rewrite/`, and records, ledgers and `PIPEREV` header
+  values keep the pre-rewrite hashes (the products' headers carry them forever) while
+  prose citations follow the map. OWNER RULINGS (register data): the site is a
+  documented machine-local prerequisite, gitignored (2026-08-30 — superseding the
+  2026-08-16 denial of untracking it); "make the repo private" and "round the
+  coordinate" stay denied (2026-08-16). NOT DERIVABLE from the data on hand: no raw
+  carries a GPS fix; the from-frames derivation (trail angle + solved pointing +
+  `DATE-OBS` → latitude and LST, degree-level, per-frame solves) is the transcription's
+  VERIFY step, not a source — unbuilt, the guard's retirement path. Records:
+  `datasets/corpus/site_privacy_process.json`, `datasets/corpus/history_rewrite/`.

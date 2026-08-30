@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""One-off SCRUB for the site-privacy process (owner-directed; BACKLOG
-`site-privacy-vs-public-repo`) — kept beside its record,
+"""One-off SCRUB for the site-privacy process (owner-directed; docs/dead-ends/evidence-provenance.md,
+"THE OBSERVING SITE IS A HOME ADDRESS") — kept beside its record,
 datasets/corpus/site_privacy_process.json.
 
     python3 datasets/corpus/site_privacy_scrub.py [--dry]

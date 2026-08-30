@@ -10,7 +10,7 @@ this tree is meant to be published. It had reached 23 tracked files — 20
 acquisition.json `site` blocks, a corpus record, the tracked site file and the
 verifier's own record — plus a near-literal in a code comment, and it REGENERATES:
 the chain used to write the coordinates into every record on every run. The
-owner-directed process (BACKLOG:`site-privacy-vs-public-repo`): the numbers live in
+owner-directed process (docs/dead-ends/evidence-provenance.md, "THE OBSERVING SITE IS A HOME ADDRESS"): the numbers live in
 a GITIGNORED config (scripts/setup/site.local.json, or sessions/<session>/site.local.json;
 template scripts/setup/site.example.json), read through scripts/lib/acquisition.py
 (the one loader); the tracked `site` block carries the config's sha256 and

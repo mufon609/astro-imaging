@@ -31,7 +31,7 @@ shot, split by provenance and kept honest:
           sha256 (a rebuild proves the same site without revealing it), status,
           verified and whether an elevation was recorded — and NO coordinate in
           any form: the site is a home address and this tree is meant to be
-          published (BACKLOG:`site-privacy-vs-public-repo`;
+          published (docs/dead-ends/evidence-provenance.md, "THE OBSERVING SITE IS A HOME ADDRESS";
           scripts/qa/check_site_privacy.py is the guard). NEVER defaulted: a
           session with no config gets a null block that says so. An
           owner-supplied coordinate transcribed by hand has no check in its
@@ -373,7 +373,7 @@ def site_config_candidates(session_dir=None):
     a session shot somewhere else), then the rig (`scripts/setup/site.local.json`).
     No tracked path is a candidate: the former `scripts/setup/site.json` and the
     documented `datasets/<session>/site.json` override were tracked, which is how
-    a home address reached 23 tracked files (BACKLOG:`site-privacy-vs-public-repo`,
+    a home address reached 23 tracked files (docs/dead-ends/evidence-provenance.md, "THE OBSERVING SITE IS A HOME ADDRESS",
     owner-directed to a gitignored config)."""
     here = os.path.dirname(os.path.abspath(__file__))
     out = []
@@ -441,7 +441,7 @@ def site_facts(session_dir):
     elevation was recorded. What it deliberately does NOT carry: SITELAT /
     SITELONG / SITEELEV, the OBSGEO triple, or any other form of the value —
     this record is tracked, the site is a home address, and the tree is meant to
-    be published (owner-directed; BACKLOG:`site-privacy-vs-public-repo`). The
+    be published (owner-directed; docs/dead-ends/evidence-provenance.md, "THE OBSERVING SITE IS A HOME ADDRESS"). The
     numbers stay in the config; runtime consumers take them from
     site_coordinates(). The config's own provenance says whether it has been
     independently verified — an owner-supplied coordinate transcribed by hand

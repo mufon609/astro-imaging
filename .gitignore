@@ -71,7 +71,7 @@
 # scripts/setup/site.example.json (null values). scripts/qa/check_site_privacy.py
 # goes RED on any form of the value (decimal, sexagesimal, geocentric, a numeric
 # `site` block) in the tree or the index. Owner-directed: the site had reached 23
-# tracked files (BACKLOG:`site-privacy-vs-public-repo`).
+# tracked files (docs/dead-ends/evidence-provenance.md, "THE OBSERVING SITE IS A HOME ADDRESS").
 **/site.local.json
 
 # --- durable outputs (web-servable, image data — never tracked) ---
