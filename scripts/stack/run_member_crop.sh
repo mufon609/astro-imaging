@@ -53,7 +53,14 @@
 # (run_corpus_combine.sh --portion-rule) — within one night the rule crops every
 # member alike, and the gain exists only where another member's better columns
 # cover the same sky; the per-set finals are not run through it until measured.
-# CENTRE-ROW ONLY: the stations sit on the member's centre row. A station skipped
+# CENTRE-ROW ONLY — MEASURED TO STAY SO: the stations sit on the member's centre
+# row. The rows were profiled (datasets/corpus/smear_attribution/row_profiles.json):
+# the bottom row crosses the bar ~600 px earlier on 5/5 cropped members, and the
+# row-resolved crop built on that (x_c = min over rows, rowmin_arm.json) was a
+# clean NULL — probes at the removed columns −0.004..−0.033 px, corners <= 0.02,
+# at +1.2 % pixel-frames — so the centre row stands; the top row's SYMMETRIC
+# 0.4–0.5 px softness on the soft nights is the open case this rule is blind to
+# by design (docs/dead-ends/stacking-compose.md). A station skipped
 # for member width VETOES the rule's outward tail (no crop on incomplete outward
 # evidence) and is warned aloud per member. THE PINNED REFERENCE (--ref) is
 # refused for cropping — exit 3 — unless --allow-ref-crop, and then the crop is

@@ -7,7 +7,7 @@ which forms of fix were built and measured, what rule stands, why each
 alternative was rejected, and what is still open. This is the document a
 contributor reads BEFORE touching member selection, the crop rule, or the
 compose's weighting; the numbers live in `datasets/aug06/experiments.jsonl`
-(lines 98–128), `datasets/corpus/smear_attribution/*.json` (the arms) and
+(lines 98–132), `datasets/corpus/smear_attribution/*.json` (the arms) and
 `datasets/corpus/member_selection/*.json` (the stage, its acceptance, the
 candidate, the promote), and this page is the map of them.
 
@@ -73,7 +73,7 @@ kernel. Selection cannot remove the lens's symmetric radial softening (every
 frame has it, the best available at the edge is the edge); it can remove the
 night-dependent entry-side excess and the frames that are softer than the rest.
 
-### 3. Forms built and measured (all against the pre-stage canonical; the arms share the pinned reference 36, the chain derives 35)
+### 3. Forms built and measured (all against the pre-stage canonical except the rowmin row, which is against the chain canonical; the arms share the pinned reference 36, the chain derives 35, rowmin pins 35)
 
 | form | rule | band x10–x25 | centre x50 | BL corner | depth cost | verdict |
 |---|---|---|---|---|---|---|
@@ -85,6 +85,7 @@ night-dependent entry-side excess and the frames that are softer than the rest.
 | **cropTselT** (117–119) | cropT + a FRAME-level threshold: exclude a member whole when S = mean FWHM over {centre, −600..−2400} exceeds the corpus's 25th percentile (2.444) by > 0.20 px; 13 members excluded (aug14 set-03 sub_03–06, set-04, set-05 — all inside cropT's 27) | 2.80/2.80/2.81/2.77 (= cropT within 0.024) | 2.510 (−0.017: NULL within the 0.02 bar) | 2.823 (= cropT) | −16.2 % of the frames (STACKCNT 8349 → 6997) | **NULL** on top of the portion rule: every station within 0.024 px of cropT, the top-left corners unchanged; REJECTED as a gate — the 13 members' degrading part was their entry zone, already removed |
 | **the encoded stage, acceptance** (120–122) | `run_member_crop.sh` on the same 77: arm 1 with cropT's own recorded profiles, arm 2 with a fresh Siril `findstar` profile | = cropT by identity | = cropT | = cropT | none (no compose; the curated dir only) | **IDENTITY 27/27** — every copy pixel-identical to cropT's, 50/50 symlinks to the same targets, 77/77 onset/x_c equal, reference 36 untouched with the refusal path silent; **DETERMINISM 0/693** — the fresh profile re-measured every station identically (77 × 9, max Δ 0.000 px), 77/77 verdicts, the on-the-bar member 2.988/2.788 → 0.200 both times; the stage IS cropT |
 | **the chain: `--portion-rule` → the canonical** (123–128) | `run_corpus_combine.sh --portion-rule`: stage (0 profiled / 77 cached) → compose → derived-reference check → finish, 170 s; then the `_full` rebuild under it | 2.775/2.805/2.805/2.795 (= cropT within 0.028 at every interior station; the x05 rim station 0.063) | 2.525 | 2.800 / 0.844 | full depth (STACKCNT 8349; 6.44 % of pixel-frames removed) | **OWNER-APPROVED 2026-08-29 and PROMOTED**: the rebuilt `stack_july31+aug06+aug09+aug14_full` is 0 differing pixels from the approved candidate on the stack and the `_spcc` (144,874,080 px each), its judge PNG byte-identical; the pre-stage canonical moved aside as `_nosel`. Reference DERIVED as 35, not the arms' 36: the compose picks the member whose centre-pixel pointing is nearest the median pointing, and the 27 crops move each cropped member's centre (W − kept)/2 columns toward its exit side, moving the median with it — deterministic, not a quality difference |
+| **rowmin** (131–132) | the chain's selection with x_c = MIN over the member's three profiled rows on the six row-profiled members (900 ×5; the on-the-bar member 1500), reference pinned 35, nbstack; every other member as the chain | 2.772/2.812/2.798/2.792 (= the canonical within 0.007) | 2.525 (0.000) | 2.810 / 0.834 (+0.010) | STACKCNT 8349; 7.65 % of pixel-frames removed (+1.2 %) | **CLEAN NULL** — at the removed columns' own sky positions (pinned through both WCS: 600–1500 px inward of the corner boxes) −0.004..−0.033 px against a pre-registered ≥ 0.10; six seams clean; x05 (rim) and x85 read +0.038 while the bottom-right corner read −0.038 — the same-reference repeat is ~±0.04 here; `rowmin_arm.json` |
 
 Forms refuted BEFORE building, from the same profiles (`cropT_arm.json`):
 the intrinsic gradient FWHM(+dx) − FWHM(centre) > 0.20 trips on 66/77 members
@@ -161,11 +162,24 @@ continuum is a policy, and the policy is the owner's (§5).
   `-weight=noise`). It is queued behind the exclusion rules because a scalar
   per-frame weight cannot address portions, and a per-pixel weight needs the
   SWarp engine whose control arm was never built.
+- The profile stays on the centre row by MEASUREMENT, not omission
+  (`row_profiles.json`, `rowmin_arm.json`): profiled on the top and bottom rows,
+  the bottom row crosses the bar ~600 px earlier on 5/5 cropped members, but the
+  row-resolved crop (§3, rowmin) was a clean NULL — the columns it removes sit
+  under deep four-night coverage (dilution, a hypothesis) — at +1.2 %
+  pixel-frames. What the rows found instead is the open case: the TOP row of the
+  soft nights' members is 0.4–0.5 px softer SYMMETRICALLY (entry ≈ exit), which
+  the asymmetry rule is blind to by design, and it feeds the canonical's
+  bottom-left region through the flip. A corpus-relative ROW-level exclusion is
+  the candidate knob, unrun (the frame-level analogue was a NULL at the centre
+  row, where the night difference is ~0.3 px; at the top row it is ~0.5 px). The
+  +2400 blind spot is bounded (same-aperture Δ median +0.008 px; per-member
+  calls unresolvable at r 200, scatter ±0.12 px).
 
 ## Sources
 
-- Records: `datasets/aug06/experiments.jsonl` lines 98–128;
-  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes}.json`;
+- Records: `datasets/aug06/experiments.jsonl` lines 98–132;
+  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes, row_profiles, rowmin_arm, rowmin_curated}.json`;
   `datasets/aug06/set-01/qa_work/drift_span_discriminator.json`;
   `datasets/corpus/member_selection/{acceptance_17B_armA, acceptance_17B_armB, candidate_msel, promote_manifest, profiles, july31+aug06+aug09+aug14_full_portion}.json`;
   `datasets/corpus/recipe.json` (the constants); `datasets/corpus/baseline.json`
@@ -308,11 +322,13 @@ gate; its score is reported with a re-test condition: a corpus whose soft night
 is soft in its INTERIOR beyond the entry zone); the encoded stage (identity
 27/27 and determinism 0/693 against cropT); the chain (`--portion-rule` →
 the owner-approved candidate → the promoted canonical, 0 differing pixels,
-guarded by the corpus baseline slot). Open: the constant's placement (§4, a
-policy in a continuum — the owner's); the +2400 outermost station's blind spot (a
-defect confined to a member's last ~100–500 px is invisible to every form
-above); the depth measure's regime (§6); weighting vs exclusion (§6); the
-per-set finals are not run through the stage until measured there.
+guarded by the corpus baseline slot); the rows and the outer station (§3
+rowmin, §6: the row-resolved crop a clean NULL; the +2400 blind spot bounded at
++0.008 px median). Open: the constant's placement (§4, a policy in a continuum —
+the owner's); the TOP-ROW symmetric softness of the soft nights (§6 — the
+uniformly-soft case, blind by design; a corpus-relative row-level exclusion is
+the unrun candidate); the depth measure's regime (§6); weighting vs exclusion
+(§6); the per-set finals are not run through the stage until measured there.
 
 ## Graduation
 

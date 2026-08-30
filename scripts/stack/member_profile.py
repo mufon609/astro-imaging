@@ -80,8 +80,13 @@ THE RULE (the asymmetry rule, cropT — owner-approved, ledger lines 111/112/114
   FWHM(+dx) - FWHM(centre) > bar trips on 66/77 members' entry side AND 67/77
   exit side — it measures the lens's radial term, present on both sides — so a
   member with a SYMMETRIC rise on both sides must NOT crop under this rule.
-  CENTRE-ROW ONLY: every station sits on the member's centre row; a member soft in
-  its top/bottom rows passes.
+  CENTRE-ROW ONLY, AND MEASURED TO STAY SO: every station sits on the member's
+  centre row; a member soft in its top/bottom rows passes. The rows were profiled
+  (datasets/corpus/smear_attribution/row_profiles.json): the bottom row crosses the
+  bar ~600 px earlier on 5/5 cropped members, and the row-resolved crop (x_c = min
+  over rows, rowmin_arm.json) was a clean NULL at the corners it aimed at (probes
+  −0.004..−0.033 px, corners <= 0.02, +1.2 % pixel-frames); the top row's SYMMETRIC
+  0.4–0.5 px softness on the soft nights is the open case (blind by design).
   THE PINNED REFERENCE is refused for cropping unless --allow-ref-crop is given,
   and then the crop is said aloud: the compose's zero point is the reference's own
   IKSS location/scale (ANCLOC), and a cropped anchor is untested.

@@ -40,6 +40,46 @@ and answered by member selection: the decision map with every form's numbers is
   128), guarded by the corpus slot `datasets/corpus/baseline.json`. The decision
   map, the refuted rule forms with their numbers, the constant's measured
   continuum and the stage as built: `docs/corner-smear-member-selection.md`.
+- **A ROW-RESOLVED CROP (x_c = min over the member's top / centre / bottom rows)
+  BUYS NOTHING ON THIS CORPUS — the bottom row reaches the bar ~600 px earlier,
+  but the columns that removes sit under deep four-night coverage.** MEASURED
+  (`datasets/corpus/smear_attribution/row_profiles.json`, `rowmin_arm.json`;
+  `datasets/aug06/experiments.jsonl` 129–132). The stage's own profile re-run on
+  the members' TOP (box y 0..800) and BOTTOM (H−800..H) rows, six
+  corner_direction members + two controls, centre row from the cache: the
+  bottom row crosses the 0.20-px asymmetry bar at 1200 on 5/5 cropped members
+  (centre row 1800 ×4 / 2400 ×1; bottom-row asymmetry at 1200 +0.284 / +0.352 /
+  +0.289 / +0.290 / +0.202 against +0.093 / +0.037 / +0.020 / +0.128 / +0.042)
+  with the SAME far-station asymmetry (bottom − centre at 2400 +0.006..+0.102),
+  and the on-the-bar member aug09/set-05/sub_01 (0.200, uncropped) crosses on
+  both rows. The arm built on it — ONE knob: x_c 900 on the five, 1500 on the
+  on-the-bar member, every other member as the chain, reference pinned 35,
+  nbstack — is a CLEAN NULL: with the rows PINNED through both WCS (member top
+  row → the canonical's bottom-left region, member bottom row → top-left, the
+  removed columns 600–1500 px INWARD of the corner boxes, canvas x ~2400–3500),
+  the top-30 FWHM at the removed columns' own sky positions moved −0.004..−0.033
+  px (pre-registered ≥ 0.10 on ≥ 6/10 → 0/10), the corner boxes ≤ 0.02, the
+  band ≤ 0.007, x50 0.000, six seams clean (Siril `stat` steps ≤ 0.24 %), at
+  +1.205 % pixel-frames (7.646 vs 6.441 %) and a rim step (x05 +0.038 px). Two
+  untargeted stations moved ±0.038 in opposite directions far from any removed
+  column (x85 +0.038, the bottom-right corner −0.038): the same-reference repeat
+  is ~±0.04 px here, a PREMISE to re-measure, not the 0.03 assumed. HYPOTHESIS,
+  untested: dilution — a +0.3-px excess is a small share of an nbstack-weighted
+  mean under deep coverage, where cropT's 0.18-px band gain came from the THIN
+  band (coverers x10 4→1, x15 13→3, x20 36→7). What the rows DID find, open and
+  not a crop question: the TOP row of the aug14 / aug09-set-05 members is 0.4–0.5
+  px softer than their centre row SYMMETRICALLY (centre station 2.947–3.067 vs
+  2.535–2.600; aug14/set-04/sub_01's top row entry 600..2400 3.07 / 3.42 / 3.45 /
+  2.91 against exit 3.15 / 3.33 / 3.05 / 2.63; controls +0.05 / +0.19) — the
+  uniformly-soft case the asymmetry rule is blind to BY DESIGN (the threshold
+  ruling), feeding the canonical's bottom-left region through the flip. The
+  candidate knob, named not run: a corpus-relative ROW-level exclusion (the
+  frame-level analogue was a NULL at the centre row, where the night difference
+  is ~0.3 px; at the top row it is ~0.5 px). Companion NULL: the +2400 station's
+  blind spot (the last 86–116 px of a member's entry side) is BOUNDED —
+  same-aperture Δ(+2700 − +2400) median +0.008 px on 30 members — and per-member
+  calls there are unresolvable at r 200 (that box's asymmetry scatters ±0.12 px
+  against the r-400 reading, half the bar; a 400-px box cannot be placed there).
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

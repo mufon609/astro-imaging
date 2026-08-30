@@ -55,7 +55,11 @@ Two rules exist ONLY for an explicit slot (the per-set default path is untouched
     `stack` path (its tag) with the seeded file's `stack_id` beside it. A
     differently-tagged product (a candidate or arm built with --out=<other tag>
     runs the same guard block) is reported as "different product — not compared",
-    exit 0, never as a regression: it is not this slot's product. The path is the
+    exit 0, never as a regression: it is not this slot's product. The check runs
+    BEFORE the measurement — before any Siril run and before anything under the
+    slot's qa_work is touched (MEASURED cost of the reverse order: an arm's guard
+    run overwrote the slot's two tracked qa_work records, 33 + 54 lines, and only
+    then said "not compared"). The path is the
     key rather than stack_id alone because every rebuild changes stack_id (the
     header carries PIPEREV), and the guard's whole purpose is to compare a
     rebuild against the accepted one.
@@ -327,6 +331,25 @@ def selftest_slot(base, now):
     check("--baseline, DIFFERENT product tag (a candidate/arm), even a wild measure -> 'not compared', exit 0", rc == 0 and "not compared" in o and "REGRESSION" not in o, f"rc={rc}")
     rc, o = go(args(reseed=True, note="accepted"), dict(ident, stack_id="accepted2"))
     check("--baseline --reseed -> replaces the slot", rc == 0 and json.load(open(slot))["measures"]["stack_id"] == "accepted2", f"rc={rc}")
+    # IDENTITY BEFORE MEASUREMENT: the real CLI on a differently-tagged product must stop
+    # before any Siril run and before touching the slot's qa_work — plant the slot's two
+    # records, sha them, run main() on a header-only scratch FITS, assert nothing moved.
+    import numpy as np
+    qa = os.path.join(os.path.dirname(slot), "qa_work"); os.makedirs(qa, exist_ok=True)
+    planted = {}
+    for nm in ("baseline_corners.json", "baseline_edge.json"):
+        p = os.path.join(qa, nm); open(p, "w").write('{"planted": "%s"}\n' % nm)
+        planted[nm] = hashlib.sha256(open(p, "rb").read()).hexdigest()
+    fx = os.path.join(T, "x", "stack_candidate_spcc.fit"); os.makedirs(os.path.dirname(fx), exist_ok=True)
+    hh = fits.Header(); hh["STACKNRM"] = "addscale"
+    fits.PrimaryHDU(np.zeros((2, 8, 8), dtype=np.float32), header=hh).writeto(fx, overwrite=True)
+    before = sorted(os.listdir(qa))
+    r = subprocess.run([sys.executable, os.path.abspath(__file__), f"--baseline={slot}", fx], capture_output=True, text=True)
+    after = {nm: hashlib.sha256(open(os.path.join(qa, nm), "rb").read()).hexdigest() for nm in planted}
+    check("main(): DIFFERENT product tag -> 'not compared', exit 0 (the real CLI, no Siril)", r.returncode == 0 and "not compared" in r.stdout, f"rc={r.returncode} {r.stdout[-100:]!r} {r.stderr[-100:]!r}")
+    check("  the slot's two qa_work records are byte-identical (sha before == after)", after == planted)
+    check("  nothing else written under the slot's qa_work, no .ssf (no Siril run)", sorted(os.listdir(qa)) == before and not any(f.endswith(".ssf") for f in os.listdir(qa)))
+    check("  same product tag -> no refusal (a rebuild still reaches the measurement)", slot_identity_refusal(slot, "web/results/x/stack_corpus_spcc.fit", lambda: "x", "L") is None)
     a = parse_args(["sessions/selftest-ghost", "set-zz", "x.fit"])
     check("default (no flag) still derives datasets/<session>/<set>/baseline.json (string only, nothing touched)",
           resolve_slot(a)[0] == os.path.join(REPO, "datasets", "selftest-ghost", "set-zz", "baseline.json") and not os.path.exists(ghost))
@@ -354,9 +377,10 @@ def selftest_slot(base, now):
     if bad:
         print("baseline_guard --selftest: FAIL — the explicit-slot routing does not behave as stated")
         return 1
-    print("OK: baseline_guard explicit slot — 18 cases: --baseline reads/writes only its path, "
+    print("OK: baseline_guard explicit slot — 22 cases: --baseline reads/writes only its path, "
           "the optional session/set derive nothing, an absent slot is a first build (exit 0, "
-          "never seeded), a differently-tagged product is 'not compared' (exit 0), seed / "
+          "never seeded), a differently-tagged product is 'not compared' (exit 0) BEFORE any "
+          "measurement (the real CLI: the slot's qa_work records byte-identical, no Siril run), seed / "
           "re-seed refusal / PASS / REGRESSION / ceiling run through the flag as for a set, and "
           "THE RECTANGLE: a seed needs a rect source (refused with the coverage_frame command), "
           "a rect must fit the canvas, a compare reuses the stored rect (a passed source is ignored) "
@@ -600,6 +624,25 @@ def parse_args(argv):
     return a
 
 
+def slot_identity_refusal(bpath, stack_rel, stack_sha, label):
+    """IDENTITY BEFORE MEASUREMENT (docstring: THE CORPUS SLOT). Returns the
+    "different product — not compared" line when the seeded slot at `bpath` was
+    seeded from a different product PATH than `stack_rel`, else None. Reads the
+    slot only; `stack_sha` is a callable so the product's head/tail sha is computed
+    only when the line is needed. run() keeps the same check on the measured record
+    (the selftest drives it on planted measures); this one runs first in main() so
+    a differently-tagged product never reaches Siril or the slot's qa_work."""
+    if not os.path.exists(bpath):
+        return None
+    b = json.load(open(bpath)).get("measures", {})
+    if b.get("stack") == stack_rel:
+        return None
+    return (f"baseline_guard {label}: different product — not compared. The slot was "
+            f"seeded from {b.get('stack')} (stack_id {b.get('stack_id')}); this is "
+            f"{stack_rel} (stack_id {stack_sha()}). A differently-tagged build "
+            "is not this slot's product; nothing is judged.")
+
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
         return selftest()
@@ -617,6 +660,13 @@ def main():
         print(f"no corpus baseline at {label} — first build; seed after the owner's acceptance:\n  "
               f"{seed_hint(a, os.path.relpath(stack, REPO))} --seed --coverage=<coverage record> --note='why'")
         return 0
+    if explicit and not seeding:
+        # IDENTITY BEFORE MEASUREMENT: a differently-tagged product stops HERE —
+        # before any Siril run, before anything under <slot dir>/qa_work is touched.
+        line = slot_identity_refusal(bpath, os.path.relpath(stack, REPO), lambda: _sha(stack), label)
+        if line:
+            print(line)
+            return 0
     rect, placement = resolve_rect(a, bpath, explicit, canvas_wh, seeding)
     os.makedirs(work, exist_ok=True)
 

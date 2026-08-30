@@ -2230,5 +2230,59 @@
   "reading": "indistinguishable from the canonical at the whole frame and the bottom-left corner (same footprint, same coverage strips, same stars); no new defect",
   "disagreement_with_worker": "none",
   "verdict_carried": "CLEAN NULL on the target; not a WIN; the two DEGRADED rows (x05 the rim \u2014 a coverage change; x85 the untouched right side, with the bottom-right corner moving \u22120.038 the other way in the same run) read as the same-reference repeat being ~\u00b10.04, not the 0.03 assumed \u2014 a premise to re-measure with an identical rebuild before the floor is quoted again"
+ },
+ "disposed": {
+  "by": "the director's call (astro-imaging-45) under the owner's standing cleanup approval (ledger 128: '2. cleanup is also approved.'), executed by the worker after the NULL was recorded",
+  "items": [
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_rowmin.fit",
+    "bytes": 579335040
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_rowmin_wcs.fit",
+    "bytes": 579337920
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_rowmin_spcc.fit",
+    "bytes": 579337920
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_rowmin.json",
+    "bytes": 952307
+   },
+   {
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_rowmin.json",
+    "bytes": 1103
+   },
+   {
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_rowmin_spcc-linked.png",
+    "bytes": 215106902
+   },
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_rowmin.gen.ssf",
+    "bytes": 323
+   },
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_rowmin.log",
+    "bytes": 121513
+   },
+   {
+    "path": "sessions/aug14/work/rowmin",
+    "bytes": 6128915208
+   },
+   {
+    "path": "datasets/corpus/qa_work/row_profiles_work",
+    "bytes": 35604736
+   }
+  ],
+  "total_bytes": 8118712972,
+  "df_avail_bytes_before": 710271660032,
+  "df_avail_bytes_after": 718393135104,
+  "kept": [
+   "every tracked record (rowmin_arm.json, rowmin_curated.json, row_profiles.json, the ledger, the two finish records under datasets/aug09/set-02/qa_work/)",
+   "sessions/aug14/work/inspect_director_archive/rowmin/: both products' inspection tiles + build_rowmin.sh, stage/plan.json, stage/crop.ssf, seam_stat.py, tiles.py (the arm is rebuildable from these + the chain's curated dir)"
+  ],
+  "consequence": "every `lst` path in rowmin_arm.json's collateral table and in row_profiles.json (sessions/aug14/work/rowmin/measure/lists_*/, datasets/corpus/qa_work/row_profiles_work/) now dangles \u2014 the station numbers are the durable part (the profiles.json convention)",
+  "written_at": "2026-08-29T21:28:57-04:00"
  }
 }
