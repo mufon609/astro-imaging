@@ -109,8 +109,18 @@ and answered by member selection: the decision map with every form's numbers is
   which a background-noise weight does not see. The one-knob arm (nbstack → noise,
   the same curated members, reference pinned 35) is a CLEAN NULL: all 58 stations
   within −0.015..+0.016 px / ±0.012 roundness of the canonical (floor ±0.04 / 0.02),
-  the band +0.003..+0.013, corners 0.000, the 27 seams identical, SPCC K within
-  0.004, depth unchanged within the structure-limited reading. Consequence: nbstack
+  the band +0.003..+0.013, the corners 0.000 at six of eight and +0.007
+  (corner_700_1400) / −0.015 (corner_7750_1100) at two (floor ±0.04), the 27
+  seams identical, SPCC K within 0.004, depth unchanged within the
+  structure-limited reading. CAVEAT — the per-member weights above are
+  RECONSTRUCTED, not printed: Siril prints no per-image weight; they are the
+  `.seq` M-line statistics through `compute_noise_weights()` as READ from the
+  1.4.4 source, unverified on this rig. Positive control named, NOT run: a
+  two-member compose with a planted noise ratio (one member and a copy of it
+  carrying added Gaussian noise of known σ, Siril `bgnoise` measured on both)
+  whose composite mean must match the reconstructed weights; until it runs,
+  "Siril's own weights" here means "Siril's own statistics through the source
+  formula". Consequence: nbstack
   stays the chain's default; a per-member weight is not the lever for a
   night-quality difference here — the weights differ by ~10 % while the members'
   FWHM differ by ~0.3 px, so the weighted mean moves ~0.01 px; the lever that

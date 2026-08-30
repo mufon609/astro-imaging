@@ -1,0 +1,70 @@
+{
+ "input": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit",
+ "detector": "sep",
+ "n_stars_detected": 400,
+ "central": null,
+ "max_stars": 400,
+ "coverage_rung": null,
+ "position_hint": [
+  309.832652872874,
+  41.2567844813497,
+  15.0
+ ],
+ "position_hint_source": "header",
+ "attempt": "cached",
+ "field_width_arcmin_arg": null,
+ "scale_hint_arcsec_px": [
+  10.501835244022098,
+  26.254588110055245
+ ],
+ "header_scale_arcsec_px": 17.50305874003683,
+ "hint_available": [
+  309.832652872874,
+  41.2567844813497,
+  15.0
+ ],
+ "contradictions": [],
+ "contradiction_accepted": false,
+ "index_scales": [
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "scales_solved": [
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19
+ ],
+ "ra_deg": 309.8580691536907,
+ "dec_deg": 41.32698261815116,
+ "scale_arcsec_px": 16.951853363572216,
+ "logodds": 507.32391357421875,
+ "parity": "sky-true",
+ "cd_det": -2.2173250961423974e-05,
+ "injected": "/home/samsung/Desktop/astro-imaging/web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit",
+ "_identity": {
+  "_what": "identity of this record, established by the director's audit (GO #1 W5) and the worker's re-measurement against the tree \u2014 the record above is unedited",
+  "this_record": {
+   "solution": "RA 309.8580691536907 Dec 41.32698261815116, 16.951853363572216 arcsec/px, logodds 507.32391357421875, 400 stars, attempt cached, hint 309.833/41.257 (header)",
+   "bytes": 1061,
+   "sha256": "69c00f143483566ca177ee8efad53c8cee40d9a2c3857468f126da877360a3da",
+   "schema": "pre-d9e6081 solve_field.py: no scale_band_arg / sip_order keys (the canonical's record carries both)",
+   "provenance": "written 2026-08-19 under datasets/aug14/set-0b/qa_work/ (8003d22, 14:59 -0400) by the finish of the four-night product as it stood that day \u2014 set-0b is the sort-order defect (BACKLOG set-identity-by-sort-order); relocated to datasets/corpus/ at a265cfc (2026-08-19 17:20 -0400), file unchanged since"
+  },
+  "product": "the FIRST stack_july31+aug06+aug09+aug14_full build (edeb9d4, 2026-08-19): with -output_norm, before the member-solve fix (d9e6081, 2026-08-26), SPCC on the generic index-0 response. Its _wcs measured 582,612,480 bytes (the sibling SPCC record's input_size = 48,549,900 px x 12 B + a 4-block header; 8540 x 5685 is one factorization \u2014 a reading, not a header) against 582,917,760 bytes for the product the zero-point campaign later moved aside as _outnorm",
+  "not_the_canonical": "the canonical's solve \u2014 datasets/aug09/set-02/qa_work/solve_stack_july31+aug06+aug09+aug14_full.json (838e3e8): RA 310.0073523388325 Dec 41.28645694481868, 17.008613334320074 arcsec/px, logodds 176.3838348388672 \u2014 0.1192 deg from this record's centre; nor the _nosel's (309.85928536196917 / 41.23160783617296 / 17.00225468432835 / 103.91248321533203)",
+  "not_the_outnorm_product_either": "the product the campaign moved aside as _outnorm \u2014 datasets/corpus/campaign_zeropoint/moveaside_manifest.json moves[126] stack_\u2026_full.fit -> stack_\u2026_outnorm.fit (582,914,880 B, headtail a88d90fa4f4c83c1350a7f071d94df2e), moves[127] _wcs (582,917,760 B), moves[130] the bulk-side solve record -> solve_stack_\u2026_outnorm.json (1,440 B, sha256 6a25aa4575861de39bbfd222fb3c300358f0a0279da8c07df8d0d4bc7b383987), all 2026-08-28T12:28:49 \u2014 is the member-solve-fix rebuild promoted to _full: its finish record at 6d46e8e (2026-08-26) reads RA 309.76087867222367 Dec 41.2963419137614, 17.005980060568973 arcsec/px, logodds 104.87761688232422 on a 582,917,760-byte _wcs (SPCC K 1.000/0.669/0.898, n 1926/3892, input_mtime 1787761592 = 2026-08-26T12:26:32-04:00). This record's product was REPLACED IN PLACE by that promotion (no manifest names it: ledger corpus4_member_solve_fix built the repair beside it as _solvefix and 6d46e8e re-finished _full); neither the _outnorm files nor this record's product exist on disk (ls 2026-08-30: web/results/aug14/stack_\u2026_outnorm.fit and solve_stack_\u2026_outnorm.json absent) \u2014 products gone, record kept",
+  "check_solve_records_mechanism": "scripts/qa/check_solve_records.py never opens this file: scan() globs `<root>/**/solve_*.json` (line 66) and --root defaults to web/results (lines 199-200), so datasets/ is outside its sweep \u2014 today's run compares 44 pairs under web/results, none with logodds 507. Were it scanned it would PASS: the join compares the record's ra/dec with the `injected` target's WCS at the centre pixel (the canonical's _wcs, which exists: centre 309.9985 / 41.1776), and this record sits 0.1829 deg from it against a 1.0 deg threshold and a clean population that today runs to 0.9222 deg (solve_stack_set-03_outnorm.json); record-to-record it is 0.1192 deg from the canonical's. Pointing only \u2014 scale, parity and logodds are invisible to the join (its own caveat (e))",
+  "disposition": "RENAMED by the director 2026-08-30 to `datasets/corpus/solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json` (the worker held the GO's `_outnorm` tag: it would have attached this record to the 2026-08-26 product above, which it is not); the tag names this product's chain shape — `-output_norm` compose, pre-member-solve-fix — not a version",
+  "audited_by": "datasets/aug06/experiments.jsonl id `session_audit_backlog_cleanup` (the director's ledger line 137); every number re-read from the tree by the worker 2026-08-30",
+  "written_at": "2026-08-30T10:42:00-04:00"
+ }
+}

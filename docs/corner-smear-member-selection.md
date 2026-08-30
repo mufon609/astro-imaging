@@ -7,7 +7,7 @@ which forms of fix were built and measured, what rule stands, why each
 alternative was rejected, and what is still open. This is the document a
 contributor reads BEFORE touching member selection, the crop rule, or the
 compose's weighting; the numbers live in `datasets/aug06/experiments.jsonl`
-(lines 98–132), `datasets/corpus/smear_attribution/*.json` (the arms) and
+(lines 98–136), `datasets/corpus/smear_attribution/*.json` (the arms) and
 `datasets/corpus/member_selection/*.json` (the stage, its acceptance, the
 candidate, the promote), and this page is the map of them.
 
@@ -182,8 +182,8 @@ continuum is a policy, and the policy is the owner's (§5).
 
 ## Sources
 
-- Records: `datasets/aug06/experiments.jsonl` lines 98–132;
-  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes, row_profiles, rowmin_arm, rowmin_curated}.json`;
+- Records: `datasets/aug06/experiments.jsonl` lines 98–136;
+  `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes, row_profiles, rowmin_arm, rowmin_curated, weight_noise_arm}.json`;
   `datasets/aug06/set-01/qa_work/drift_span_discriminator.json`;
   `datasets/corpus/member_selection/{acceptance_17B_armA, acceptance_17B_armB, candidate_msel, promote_manifest, profiles, july31+aug06+aug09+aug14_full_portion}.json`;
   `datasets/corpus/recipe.json` (the constants); `datasets/corpus/baseline.json`

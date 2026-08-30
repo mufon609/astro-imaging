@@ -307,7 +307,9 @@ The defining property of this family: the output looks healthy.
   (per layer/image: total, ngoodpix, mean, median, sigma, avgdev, mad, sqrtbwmv,
   location, scale, min, max, normValue, bgnoise) through the source formula
   `1/(pscale² · bgnoise²)` with `pscale = scale_ref/scale_i`, normalized to the
-  mean — so keep the compose scratch's `.seq` (`--keep-work`) when a weighted
+  mean (a formula READ from the source and unverified on this rig — the positive
+  control lives in `stacking-compose.md`, the noise-weight entry) — so keep the
+  compose scratch's `.seq` (`--keep-work`) when a weighted
   compose must be audited; the registered FITS themselves are not needed once it is
   read. The only header trace is Siril's HISTORY card: "image weighting from
   noise" vs "image weighting from image count" (nbstack); no key carries it

@@ -2918,5 +2918,28 @@
   ],
   "consequence": "the `lst` paths in the collateral table (sessions/aug14/work/wnoise/measure/lists_*/) now dangle \u2014 the station numbers are the durable part",
   "written_at": "2026-08-29T21:51:15-04:00"
+ },
+ "audit_corrections": {
+  "_what": "corrections to this record from the director's audit of the wnoise unit (GO #1 W4) and the worker's re-measurement; every number below was re-read today from this record's own blocks, the archive files or the tree \u2014 nothing above this block is edited",
+  "i_r_s_premise_superseded": {
+   "premise_as_written": "the r_s FITS were deleted after reading the .seq: the weights are re-derivable only by re-running the compose",
+   "superseded_by": "the arm's registered-sequence file is ARCHIVED and re-derives the weights through the formula with no compose run: sessions/aug14/work/inspect_director_archive/wnoise/measure/r_s_wnoise.seq \u2014 38252 bytes, sha256 9056648504240d90f24e4c603ddbf646a5b3301071234e6518cdd8fed5d07569, 231 M lines (77 members x 3 layers); the 3-member probe's sessions/aug14/work/inspect_director_archive/wnoise/probe/r_s_probe3.seq \u2014 1703 bytes, sha256 e5d27de3dfe5d9309800ceae0a83bc6b29fd463b375d6237c437fa70b36cb5d2, 9 M lines (3 x 3). This record's `disposed.kept` block already lists both archives; the premise predates it and is superseded, not deleted"
+  },
+  "ii_premise_A_weights_reconstructed": {
+   "statement": "the `actual_weights` are RECONSTRUCTED, not printed: Siril prints no per-image weight for -weight=noise; the numbers are the .seq M-line statistics (per layer/image scale and bgnoise) through compute_noise_weights() as READ from the Siril 1.4.4 source (src/stacking/median_and_mean.c) \u2014 a formula unverified on this rig",
+   "positive_control_named_not_run": "a two-member compose with a PLANTED noise ratio: one member and a copy of it carrying added Gaussian noise of known sigma, Siril `bgnoise` measured on both, whose composite mean must match the reconstructed weights; until it runs, 'Siril's own weights' in this record means 'Siril's own statistics through the source formula'",
+   "where_stated": "docs/dead-ends/stacking-compose.md, the noise-weight entry (the control's home); docs/dead-ends/siril-behaviors.md, the weighted-stacking entry (the clause)"
+  },
+  "iii_verdict_corners": {
+   "verdict_as_written": "the corners 0.000",
+   "measured_per_this_record": "0.000 at six of eight; +0.007 px at corner_700_1400 (2.808 -> 2.815) and -0.015 px at corner_7750_1100 (2.690 -> 2.675); roundness deltas -0.008..+0.012; floor +-0.04 px / 0.02 (predictions_vs_outcomes.P4_corners and collateral_table_wnoise_minus_canonical, both unchanged)"
+  },
+  "iv_header_differences": {
+   "as_written": "commit 5ea4599 / ledger line 135: 'the only header difference is Siril's HISTORY card'",
+   "per_this_record_headers_block": "the two products ALSO differ in REGREFSR (full 'derived', wnoise 'pinned' \u2014 the arm pinned the canonical's own derived member 35) and PIPEREV (full 36d9bab, wnoise 4f9e462 \u2014 HEAD at each build); the HISTORY-card difference stands ('image weighting from image count' vs 'from noise')",
+   "DATE": "NOT in this record's `headers` block (no DATE key anywhere in this file: grep -c DATE = 0) and the wnoise product is disposed, so it cannot be re-measured \u2014 expected to differ (Siril writes the file's creation DATE) but UNMEASURED; stated as an expectation, not a reading"
+  },
+  "audited_by": "datasets/aug06/experiments.jsonl id `session_audit_backlog_cleanup` (the director's ledger line 137); the archive bytes/sha256 and this record's own blocks re-measured by the worker",
+  "written_at": "2026-08-30T10:36:00-04:00"
  }
 }

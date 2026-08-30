@@ -45,5 +45,49 @@
  "how_it_was_found": "the REGREF stamp added in this unit names the member whose header leaked, which is what made the inheritance diagnosable rather than merely puzzling",
  "FIXED": "owner-directed. The stamp now emits the composite's own identity (stamp_headers.sh: CALSET joins the KEYS tuple, PIPEREV = HEAD at compose, DATE-OBS = earliest member start = the ISO of EXPSTART, GRPSIZE/FILENAME deleted via a new delete_key applier verb). A/B at the emitter: old vs new on the same 77 members differs by exactly the intended five lines, 18 pre-existing lines byte-identical.",
  "BACKFILLED": "15 files, every DATA BLOCK verified bit-identical by sha256 before/after (scripts/stack/backfill_composite_identity.sh): the corpus trio (PIPEREV = 9106bc4, the RECORDED build commit; CALSET MIXED(17); DATE-OBS 2026-08-01T02:51:17), the july31/aug09/aug14 night trios and the superseded 3-night trio (CALSET MIXED(4)/MIXED(5)/MIXED(5)/MIXED(12); PIPEREV DELETED — their build commits are unrecorded, and an absent stamp beats a confidently false one). EXCLUDED deliberately: the aug06 union trio (the pre-registered l1 experiment in datasets/aug06/experiments.jsonl pins its header values as the control fingerprint — a backfill would break a live control) and the wnbstack/wnoise experiment-arm trios (wnbstack is md5-pinned in corpus4_build_record.json). The leak_census fields above describe the PRE-backfill state and stay as the defect's measurement.",
- "credit": "PIPEREV instance found by the auditing session, not by the session that built the products; the census, route classes, intent trace and carrier sweep by the third (takeover) session, measured on the tree at 34cd19d"
+ "credit": "PIPEREV instance found by the auditing session, not by the session that built the products; the census, route classes, intent trace and carrier sweep by the third (takeover) session, measured on the tree at 34cd19d",
+ "readback_canonical": {
+  "_what": "BACKLOG composite-header-identity (e): the read-back of the composite stamp's key tuple from the CANONICAL corpus product, header-only, both the compose output and the finished _spcc; the read is the command below, run verbatim (astropy 8.0.1 fits.getheader)",
+  "command": "python3 -c \"from astropy.io import fits;import json;K=['CALSET','CALFSUM','CALDSUM','GRPSIZE','FILENAME','PIPEREV','DATE-OBS','NCROPPED','NMEMBER','STACKCNT'];P=['web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit','web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit'];print(json.dumps({p:{k:fits.getheader(p).get(k,'ABSENT') for k in K} for p in P},indent=1))\"",
+  "read": {
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full.fit": {
+    "CALSET": "MIXED(17)",
+    "CALFSUM": "MIXED(17)",
+    "CALDSUM": "MIXED(4)",
+    "GRPSIZE": "ABSENT",
+    "FILENAME": "ABSENT",
+    "PIPEREV": "36d9bab",
+    "DATE-OBS": "2026-08-01T02:51:17",
+    "NCROPPED": 27,
+    "NMEMBER": 77,
+    "STACKCNT": 8349
+   },
+   "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit": {
+    "CALSET": "MIXED(17)",
+    "CALFSUM": "MIXED(17)",
+    "CALDSUM": "MIXED(4)",
+    "GRPSIZE": "ABSENT",
+    "FILENAME": "ABSENT",
+    "PIPEREV": "36d9bab",
+    "DATE-OBS": "2026-08-01T02:51:17",
+    "NCROPPED": 27,
+    "NMEMBER": 77,
+    "STACKCNT": 8349
+   }
+  },
+  "identity": {
+   "baseline_slot": "datasets/corpus/baseline.json",
+   "slot_stack": "web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+   "slot_stack_id": "1ff0ecea761330664aabe18a19e83a71",
+   "recomputed_stack_id_of_spcc": "1ff0ecea761330664aabe18a19e83a71",
+   "recomputed_with": "scripts/qa/baseline_guard.py _sha(): sha256 of size + head 256 KiB + tail 256 KiB, first 32 hex",
+   "match": true,
+   "compose_output_stack_id": "54b3a840768374c5e891361055e66b20",
+   "slot_coverage_source_stack_id": "54b3a840768374c5e891361055e66b20",
+   "compose_output_match": true
+  },
+  "reading": "GRPSIZE and FILENAME ABSENT on both files (the composite deletes them: candidate (d) holds); CALSET / CALFSUM / CALDSUM present as MIXED(17) / MIXED(17) / MIXED(4) on both (the tuple rides: 17 CALSETs, 17 distinct flat DATASUMs, 4 distinct dark DATASUMs = one master dark per night; candidates (b)/(c) hold); PIPEREV 36d9bab on both = HEAD at the promote compose (838e3e8's parent); DATE-OBS 2026-08-01T02:51:17 on both = the earliest member start (candidate (a)); NCROPPED 27 / NMEMBER 77 / STACKCNT 8349 on both. The finish (solve + SPCC) preserved all ten values \u2014 the _spcc reads identical to the compose output. The rgbcomp / standard-route half of (e) stays open (no such product exists on the rig)",
+  "audited_by": "datasets/aug06/experiments.jsonl id `session_audit_backlog_cleanup` (the director's ledger line 137); read and hashed by the worker 2026-08-30",
+  "written_at": "2026-08-30T10:40:00-04:00"
+ }
 }

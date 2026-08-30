@@ -158,13 +158,13 @@ names.**
 | `grid_ramp.py` least-squares plane over Siril `stat` box medians | an official tool reports, headless, the FITTED low-order background ramp of an image as NUMBERS — a slope or plane coefficients, not a subtracted image, not a background-model image, not a star-shape tilt | 2026-08-12 | **not fired.** Probed on this rig rather than reasoned about: siril `bg` returns ONE scalar for the whole image; `subsky`/`seqsubsky` fit a polynomial or RBF and SUBTRACT it, reporting no coefficients; `tilt`/`seqtilt` compute "the FWHM difference between the best and worst corner truncated mean values" — a STAR-SHAPE measure, not a background level (and `seqtilt` IS scriptable, so the GUI-sibling search was run, not assumed); GraXpert 3.0.2 `-bg` writes the background MODEL as an IMAGE; ASTAP CLI-2026.07.16 `-analyse`/`-extract` report HFD, star counts and per-star rows only. Siril measures every box median; in-house is the plane. Fills the instrument gap `docs/dead-ends.md` names — the grid-fitted ramp slope is the registry's CANDIDATE replacement for four-corner spread, which is "not a gradient measure on a structured field" — and it REPORTS ONLY: no thresholds, no verdict, and swapping an acceptance measure stays a user ratification. `--selftest` falsifies the mechanism in process: blinding the position axis drives a planted +0.15 %/1000px to 0.000000 and turns step 1's own acceptance check RED, restoring it turns it GREEN; a uniform card through the whole Siril path reads slope 0/0 (−7e-15) so LEVEL cannot masquerade as GRADIENT; and an ORDERING CONTROL re-measures the two extreme boxes in their own Siril invocations, since the 63–77 medians are parsed from one run in emission order |
 | `starlight_preservation.py` per-cell floor vs Gaia catalogue regression on an external lattice | an official tool reports, headless, the AGREEMENT between a star catalogue's predicted diffuse surface brightness and an image's own measured per-region background — the JOINT, not the two halves | 2026-08-12 | **not fired. BASIS NOTE (2026-08-14): the 2026-08-12 date stands deliberately — the 2026-08-14 sweep confirmed only that this instrument's `--selftest` PASSES inside `run_guards.sh`, and did NOT re-probe the tool landscape below.** "Selftest green" and "condition re-probed" are different statuses and collapsing them is how a stale condition survives; the date column tracks the second. Probed on this rig at the date shown, each with the command run rather than the help read: Siril `stat`/`bg`/`bgnoise` measure the image only (`bg` is one scalar for the frame) and `conesearch` returns the catalogue only — and at this field size it is not even usable, 20.6 deg radius at G<=17 against TAPVizieR, killed at 600 s with no output; `jsonmetadata -stats_from_loaded` ignores a selection and stats the whole frame; `source-extractor` 2.28.2 `-CHECKIMAGE_TYPE BACKGROUND` writes a local background MAP (1.7 s on 4907x3598) but compares it to nothing; GraXpert 3.0.2 `-bg` writes a background MODEL image; ASTAP CLI-2026.07.16 `-analyse`/`-extract` report HFD, star counts and per-star rows. Every pixel and every per-cell number is Siril's (`boxselect`+`stat`, PROBED identical to the `crop`+`stat` route to every printed digit in ONE load); the catalogue aggregate is the ESA Gaia archive's own server-side GROUP BY; in-house is the lattice, the WCS projection and the fits. MEASURES and gates nothing — no threshold, no verdict, always exits 0. `--selftest` falsifies the mechanism in process on a planted fixture: 299.14 recovered against 300.00 planted at R2 0.99993, an orthogonal predictor returns R2 0.00017, Siril `subsky 2` collapses the planted relation to 26.9% (RED) and the pristine copy re-reads 299.14 (GREEN); a catalogue control checks the archive's binned sum against its ungrouped total (agree to 1e-6) and the plane/pole flux contrast (6.3x). It caught a real defect on its first run — `boxselect` counts y from the TOP, and the mirrored lattice still recovered 54% of the planted relation at R2 0.30, which is exactly the kind of half-right number a fixture-free instrument would have shipped |
 | GraXpert `-correction Division` synthetic flat | a matching real flat exists | 2026-08-05 | **not fired** — not adopted; no pipeline script calls it. Vignetting-only fallback |
-| `baseline_guard.py` derived summaries (corner spread, edge dipole) over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-29 | **not fired** — nothing does. **Two owner-directed rule changes, both keeping it a no-regression RECORD:** the centre-median rows are ADVISORY while the product's `STACKNRM` differs from the baseline's (re-armed on re-seed; 18 of the 19 tracked baselines carry `addscale` — the 17 per-set seeds and the corpus slot `datasets/corpus/baseline.json` (seeded 838e3e8; the slot itself 26eda85); aug06/set-00's, a spare-frames bucket the chain never built, carries no `STACKNRM`; `git ls-files | grep baseline.json` = 19 on 2026-08-29); the absolute corner-spread ceiling WARNS on a CROSSING only — product over it, accepted baseline under it: a `CEILING … EXAMINE THE IMAGE MANUALLY` block, exit 0; a baseline seeded over it was examined at seed and carries the verdict in its note, so a product staying over it prints nothing (owner-approved 2026-08-29 after aug14/set-05's 4.381 seed made the block print on every run) — after it misfired on aug14/set-05's field (a Milky Way band puts a true 4.38% spread on the product; the same measure read 8.2% on the never-seeded `-output_norm` twin; the guard cannot separate sky structure from a flat error). The over-baseline (+1.0), dipole and level rules stay hard; `--selftest` (29 cases — 11 compare-rule + 18 explicit-slot — in `run_guards`) keeps the `--desky` class (0.4→12.4%) going RED through the over-baseline rule. WIRED into `run_set_chain.sh` as the last step: it measures the finished product, and a regression exits **8** (a user decision, like the mount/route stops) without blocking or rewriting anything. Also a web stage for seeding/re-seeding. It is a no-regression RECORD, never a quality gate — a deliberate improvement fails it and the human re-seeds with a note. Blind spot to state when reading a PASS: both measures are STACK corners, which `docs/dead-ends.md` calls self-fulfilling for flat contamination, so it cannot see the open `sky x V` object tilt |
+| `baseline_guard.py` derived summaries (corner spread, edge dipole) over Siril `stat` | a tool reports a headless PRODUCT-level regression verdict against a stored reference | 2026-08-29 | **not fired** — nothing does. **Two owner-directed rule changes, both keeping it a no-regression RECORD:** the centre-median rows are ADVISORY while the product's `STACKNRM` differs from the baseline's (re-armed on re-seed; 18 of the 19 tracked baselines carry `addscale` — the 17 per-set seeds and the corpus slot `datasets/corpus/baseline.json` (seeded 838e3e8; the slot itself 26eda85); aug06/set-00's, a spare-frames bucket the chain never built, carries no `STACKNRM`; `git ls-files | grep baseline.json` = 19 on 2026-08-29); the absolute corner-spread ceiling WARNS on a CROSSING only — product over it, accepted baseline under it: a `CEILING … EXAMINE THE IMAGE MANUALLY` block, exit 0; a baseline seeded over it was examined at seed and carries the verdict in its note, so a product staying over it prints nothing (owner-approved 2026-08-29 after aug14/set-05's 4.381 seed made the block print on every run) — after it misfired on aug14/set-05's field (a Milky Way band puts a true 4.38% spread on the product; the same measure read 8.2% on the never-seeded `-output_norm` twin; the guard cannot separate sky structure from a flat error). The over-baseline (+1.0), dipole and level rules stay hard; `--selftest` (33 cases — 11 compare-rule + 22 explicit-slot, the four added at 4f9e462 for identity-before-measurement — in `run_guards`) keeps the `--desky` class (0.4→12.4%) going RED through the over-baseline rule. WIRED into `run_set_chain.sh` as the last step: it measures the finished product, and a regression exits **8** (a user decision, like the mount/route stops) without blocking or rewriting anything. Also a web stage for seeding/re-seeding. It is a no-regression RECORD, never a quality gate — a deliberate improvement fails it and the human re-seeds with a note. Blind spot to state when reading a PASS: both measures are STACK corners, which `docs/dead-ends.md` calls self-fulfilling for flat contamination, so it cannot see the open `sky x V` object tilt |
 | `snr_regions.py` in-house SNR ratio over Siril `stat`/`bgnoise` | a tool exposes headless REGIONAL SNR | 2026-08-05 | **not fired** — `stat` and `bgnoise` are whole-image/selection; no regional-SNR command in 1.4.4. Every input number is the tool's; only the ratio is in-house. *(Was missing from this register until 2026-08-05.)* |
 | `fingerprint.py` derived trail/drift geometry | an official tool reports headless trail/drift geometry with a declared-vs-measured mount cross-check | 2026-08-05 | **not fired. BASIS NOTE (2026-08-14): date held deliberately — the 2026-08-14 sweep confirmed only that `--selftest` PASSES in `run_guards.sh` and did NOT re-probe the tool landscape.** Same distinction as the `starlight_preservation.py` row: selftest-green is not condition-re-probed. No solver here exposes inter-epoch drift rate vs sidereal. The record schema and the STOP-on-CONTRADICT contract stay wherever it lands. *(Was missing from this register until 2026-08-05.)* |
 | `inspect_stage.py` + `cull_report.py` robust-z per-frame flagging | a tool ships headless per-frame outlier flagging over its own registration metrics (SubframeSelector-class, scriptable) | 2026-08-05 | **not fired** — siril has `seqstat` (per-frame statistics to a file) and `select`/`unselect`, but no outlier GRADING over its own regdata. Persisting the tool's regdata is not a divergence and stays regardless. *(Was missing from this register until 2026-08-05.)* |
 | prebuilt-master ingest (`run_pipeline.sh` `<session>/calib/`) | never — this is a supported INPUT class, not a divergence. **DECLARED NON-DIVERGENCE: it is trivially evaluable (it cannot fire) and is retained as an explicit marker, but it must not be counted as a live divergence — the table's row count overstates them by one** | 2026-08-05 | **CONDITION WRITTEN 2026-08-05, previously absent.** The code calls it "the adaptation for master-only data", which made it look like an unconditioned divergence. It is not one: a corpus that ships masters instead of raw calibration is a data class the repo accepts. What IS a stated limit: such masters carry no exposure/gain/filter headers, so the filename token is the whole identity and the exposure match is unverifiable — printed per run. Raw calibration dirs take precedence |
 | 16-bit in four instruments (`coverage_probe.sh`, `run_frame_qa.sh`, `fit_lens_model.sh`, `run_lunar_pipeline.sh`) | the leg stops terminating in an integer/8-bit product | 2026-08-12 | **not fired** — each re-verified: `coverage_probe` switches to `set32bits` before its sum stack, `run_frame_qa` saves no product at all (analysis-only register), `fit_lens_model` terminates in `savetif8` for Hugin, `run_lunar_pipeline` pins it on its convert+seqcrop stage step only. Exemptions are enforced by name in `check_bitdepth.sh`, which reports FOUR |
-| `run_undistort_groups.sh` group composition (one extra interpolation pass) | a measured quality cost of the extra pass at established magnitude (the along+1300 ledger resolving AGAINST groups), or the combine unit stops being CROSS-SET — i.e. `BACKLOG:final-best-percent-pass` and the cross-night combine contract are both closed or withdrawn (the previous wording, *"cross-set composition leaving the project's goals"*, named no observable state and was UNEVALUABLE; "the project's goals" occurs twice in the tree and never as something a reader could see having happened). **SELF-GATED on its first disjunct** — the measured cost retires only on `rebuild_repeat_floor_set01`, an experiment THIS project must run | 2026-08-29 | **RE-CHECKED 2026-08-29, second disjunct: NOT FIRED, and it is half-satisfied in the direction that KEEPS groups.** `final-best-percent-pass` is SHIPPED at the MEMBER tier (the portion rule is the corpus chain) and explicitly NOT closed — its per-FRAME cross-session surface is the open half; and the cross-night combine contract is more load-bearing than when this row was written: the canonical is a 77-member, four-night compose (NMEMBER 77, STACKCNT 8349, ledger 123–128). First disjunct unchanged (self-gated on `rebuild_repeat_floor_set01`). **CONDITION REWRITTEN — the old trigger (free disk ≥ the single-pass peak) fired and was judged the WRONG condition: disk cannot retire groups.** Single-pass deletes the sub-stacks the cross-set combine composes and crops to `-framing=min` (composing per-set finals is a registered dead end), so a big disk buys nothing back; groups is the STANDING route (`force_route`), single-pass operator-only (`--route=single`, printed FORCED). Quality, two consistent accounts: the item-scoped one-knob A/B (60 frames even-stride) is **NULL — the route does not cause the one-sided band** (9/9 stations within 0.05 px majFWHM / 0.014 roundness; the band sits in BOTH arms at 1.27x/1.24x); the full-depth ledger records a small along+1300 improvement UNDER groups (0.12–0.18 px, direction replicates across two sets and two group sizes) whose proposed baseline mechanism was FALSIFIED (g250 landed outside the interval) and whose magnitude is UNESTABLISHED until the pre-registered `rebuild_repeat_floor_set01` runs (`datasets/july31/experiments.jsonl`). Peak math stays data-dependent, `W × H × channels × 4 × 2`: 560 MiB/frame at 6064×4040 OSC, 8 MiB mono astrocam, 1378 MiB at 61 MP |
+| `run_undistort_groups.sh` group composition (one extra interpolation pass) | a measured quality cost of the extra pass at established magnitude (the along+1300 ledger resolving AGAINST groups), or the combine unit stops being CROSS-SET — i.e. `BACKLOG:final-best-percent-pass` and the cross-night combine contract are both closed or withdrawn (the previous wording, *"cross-set composition leaving the project's goals"*, named no observable state and was UNEVALUABLE; "the project's goals" occurs twice in the tree and never as something a reader could see having happened). **SELF-GATED on its first disjunct** — the measured cost retires only on a from-raws A/B at established magnitude; the FLOOR that A/B is judged against RAN — `rebuild_repeat_floor_set01` (2026-08-06, this rig: two from-raws rebuilds of july31/set-01 through the groups route, rf1/rf2, bit-identical to each other and to the accepted stack under Siril `isub` + `stat` in both directions with a ×1.01 positive control; along+1300 repeat spread 0.00 px) — and its record survives only at `git show c7db472:datasets/july31/experiments.jsonl` (swept in the july31 ledger reset; no live ledger carries the id — 2026-08-30 audit, ledger `session_audit_backlog_cleanup`) | 2026-08-29 | **RE-CHECKED 2026-08-29, second disjunct: NOT FIRED, and it is half-satisfied in the direction that KEEPS groups.** `final-best-percent-pass` is SHIPPED at the MEMBER tier (the portion rule is the corpus chain) and explicitly NOT closed — its per-FRAME cross-session surface is the open half; and the cross-night combine contract is more load-bearing than when this row was written: the canonical is a 77-member, four-night compose (NMEMBER 77, STACKCNT 8349, ledger 123–128). First disjunct unchanged (self-gated on the A/B; its floor is the measured zero above). **CONDITION REWRITTEN — the old trigger (free disk ≥ the single-pass peak) fired and was judged the WRONG condition: disk cannot retire groups.** Single-pass deletes the sub-stacks the cross-set combine composes and crops to `-framing=min` (composing per-set finals is a registered dead end), so a big disk buys nothing back; groups is the STANDING route (`force_route`), single-pass operator-only (`--route=single`, printed FORCED). Quality, two consistent accounts: the item-scoped one-knob A/B (60 frames even-stride) is **NULL — the route does not cause the one-sided band** (9/9 stations within 0.05 px majFWHM / 0.014 roundness; the band sits in BOTH arms at 1.27x/1.24x); the full-depth ledger records a small along+1300 improvement UNDER groups (0.12–0.18 px, direction replicates across two sets and two group sizes) whose proposed baseline mechanism was FALSIFIED (g250 landed outside the interval) and whose magnitude is NOT rebuild variance — the rebuild floor RAN and measured ZERO (`rebuild_repeat_floor_set01`, at `git show c7db472:datasets/july31/experiments.jsonl`; swept in the july31 ledger reset) — but stays UNESTABLISHED against the post-hoc station-selection objection that entry itself raised. Peak math stays data-dependent, `W × H × channels × 4 × 2`: 560 MiB/frame at 6064×4040 OSC, 8 MiB mono astrocam, 1378 MiB at 61 MP |
 | `scripts/lib/siril_run.{sh,py}` flock-serialized siril-cli invoker | flatpak fixes the instance-dir lifecycle race, or Siril invocations stop being per-frame process spawns (e.g. pyscript batching) so there is no window to collide in | 2026-07-28 | **not fired** — the race is a flatpak lifecycle bug, unfixed at 1.4.4/current flatpak, and every builder still spawns one siril-cli per step. MEASURED serializing: 4 concurrent jobs 1.74 s vs 0.47 s single (3.7x, matching serialized 1.88 s not concurrent 0.47 s), 3 of 4 reporting the wait; shell and python share ONE lock (cross-language test 0.93 s = 2x single). The lock is per-USER so it serializes across sessions on this rig. Every participant is now adopted: the one hold-out (the JWST scripts — cut with JWST, `git show e40c007:scripts/jwst/`) went with the JWST cut, so `check_siril_invoke.sh` carries no exemption and any bypass FAILS rather than being reported |
 | `scripts/lib/siril_run.sh` bounded LAUNCH retry (`SIRIL_LAUNCH_TRIES`, default 4) — the complement the invoker's own note reserved for "a non-participating third party" | `flatpak run` stops failing to launch an INSTALLED app: this rig completes a full-session build at `SIRIL_LAUNCH_TRIES=1` with no launch failure in any siril log | 2026-08-23 | **not fired** — NEW, and it exists because the failure was MEASURED here: two 1454-frame undistort builds died mid-chunk on `error: Extension org.freedesktop.Platform.GL.default has invalid merge-dirs` raised by `flatpak run` itself, Siril never started, and the builder died SILENTLY because the caller had redirected siril's output into a work-dir log. TRIGGER UNIDENTIFIED and the obvious hypothesis is REFUTED: 0 failures in 55 locked invocations under concurrent `flatpak list`/`info` AND concurrent `flatpak run`, 0 across the 100-minute build that then completed, no flatpak timers, repo untouched since 2026-07-18. The lock cannot prevent it — there is no second siril-cli to serialize against. Retry is SAFE because the launcher refused to start the app, so nothing ran. Discriminated on Siril's config-ini mtime, with the positive control the acceptance rule demands: siril-ran-script-OK exit 0 / ini CHANGED; siril-ran-script-FAILED exit 1 / ini CHANGED (must NEVER retry — it would repeat a whole stack); launch-failed exit 1 / ini UNCHANGED (must retry). BOTH failure branches exit 1, so the exit code alone cannot separate them; nanosecond `stat -c %y` prevents two runs inside one second aliasing the two. All four branches live-tested, disable knob included |
 | `scripts/stack/stamp_headers.sh` — capture + `update_key` restore of the acquisition keys the undistort warp drops | the warp stage stops being a TIFF round trip: darktable gains a FITS **WRITER** — it has READ FITS since 5.4.1 (MEASURED: full-resolution export from a 6064x4040 `.fit`), and `.fits` output returns *"unknown extension"*, so the round trip is held open by the write side ALONE. The earlier wording *"gains FITS I/O"* became AMBIGUOUS the moment that was measured: half-satisfied, with the text not saying which half, or the distortion is consumed natively (Siril `register -disto=`, BACKLOG:`native-solve-and-sip`) so the keys are never dropped | 2026-08-14 | **not fired — but the long-stated reason is FALSE and the blocker is HALF the size this row asserted. darktable 5.4.1 READS FITS; it cannot WRITE it.** MEASURED both directions on two independent inputs: `darktable-cli <6064x4040 .fit> out.tif` exports, and the TIFF is **6064x4040** (exiftool) at 11.4 MB deflate RGB — the image was parsed, not fallen back on; `darktable-cli … out.fits` returns **`unknown extension '.fits'`** and writes nothing, and the format-plugin dir carries avif/copy/exr/j2k/jpeg/jpegxl/pdf/pfm/png/ppm/tiff/webp/xcf with no fits. So the round trip survives on the WRITE side alone. **This governs the shared condition wherever it appears** — the `header_provenance_lines` row above and BACKLOG:`native-solve-and-sip` both reason from the larger "no FITS I/O" premise; only a WRITER is missing. NOT tested: photometric fidelity of the read (dimensions and structure only). Values are Siril's own (read from the raw into the calibrated frame's header); in-house code only READS the header and hands them back to `update_key`. LIVETIME is the one derived value (n_frames × EXPTIME, both tool-sourced) because the per-frame EXPTIME Siril would sum was destroyed upstream. MEASURED restored on july27 set-01: 9 keys, LIVETIME 789.0 s = 263 × 3 s, and the solve regained its hint (`scale hint: 10.5-26.3 arcsec/px`, index scales 11-19, vs the prior blind WIDE-FIELD fallback) |
@@ -240,98 +240,50 @@ no other home. **Everything here is the owner's or is held for them.**
 
 ### Owner rulings that existed in NO other file
 
-**The per-member trim — RE-RULED (owner 2026-08-22): DIRECTED TEST, superseding
-the WAIT ruling — EXECUTED (6d9e568, 2654d31, d9e6081; outcome below).** The WAIT stood on the cause being unknown; that premise
-weakened when the surviving union band was ATTRIBUTED member-borne with the
-compose exonerated (`datasets/aug09/smear_work/rho_march.json` — the rim is
-built exclusively from the members' own frame edges), so trimming *"each side by
-about 5% ... so the worse part of each image never makes it into the stack"*
-(owner's words) is a mechanism-matched mitigation, not a blind step. The
-degradation itself remains VISIBLE to the owner on the full-frame render and is
-not a below-threshold residue. Directed as a measured TEST, sequenced AFTER the
-dead-ends cleanup: one knob (per-side trim fraction), control untrimmed, judged
-at the COMBINE on the shape march + a rho_march re-run + the coverage/area cost,
-plus the owner's eyes on full-frame lossless; still a TRADE by doctrine (ships
-less sky — the rim thins or moves inward). The 80%-keep datapoint (4 of 20
-union boxes left with NO contributing member) is why ~5%/side is the first arm,
-bracketed mild. **If the trim WINS, the corner-chase dead-ends material prunes
-(owner-directed)**, keeping only entries load-bearing elsewhere (lensfun
-ρ-normalization/corner support, the per-set-model refutation, the error-model
-rules).
-**OUTCOME — RAN, REFUTED, NO TRIM SHIPS** (ledgers: `datasets/aug06/experiments.jsonl`
-`frame_crop_5pct_per_side_before_registration` + its correction; `datasets/aug14/
-experiments.jsonl` `crop5lr_cross_night_combine_aug06_plus_aug14`,
-`crop5lr_cross_night_RIM_DEGRADATION_root_cause`, `member_solve_scale_band_fix`;
-records `datasets/corpus/crop_work/`). Ran 2026-08-23 (6d9e568) as `--crop-lr=0.05`
-— Siril `seqcrop`, 303 px/side of 6064, after undistort, before `register` — one
-knob against the accepted aug06 union: shared-sky shape NULL (18 sky-addressed
-boxes: median ΔFWHM +0.0025 px, Δroundness −0.002; star stations within 0.03 px /
-0.011) at a measured coverage cost (canvas −8.7%, amplitude-matched stars −1.09%,
-−5.5 to −11.6% in three outer boxes); the discarded sky is only modestly worse than
-the outer band kept (FWHM 2.784 vs 2.748 px, roundness 0.885 vs 0.924) — the crop
-removes bad sky, it does not improve the sky that remains; the aesthetic verdict
-was the owner's. The cross-night arm (aug06+aug14, 38 members, 4138 frames, same
-reference pinned; 2654d31) FAILED all three owner hypotheses — alignment (cross-night
-centre pair separation 0.718 → 0.895 px, +25%), stars (amplitude-matched −3.43%),
-roundness (0.932 → 0.929, NULL) — and the owner saw a smeared left rim the
-shared-interior grid could not: ROOT CAUSE, the crop damages no member (same member,
-same sky, cropped vs not: FWHM within 0.005 px) but changes WHO reaches the rim — rim
-sky is covered only through members' frame-edge bands, so the 5%/side crop drops the
-diverse good contributors (7 members from 4 sets → 2–3 from one set; composite FWHM
-3.257 → 3.487; median ΔFWHM +0.133 px where ≥2 sets are lost vs +0.012 elsewhere). The
-smear also unmasked a real chain defect in BOTH chains — unguarded wrong-scale member
-solves (16.79–16.99″/px against a 17.00–17.08 population; cross-chain bow 31.5 → 1.4 px
-once fixed) — closed by `solve_field.py --scale-band` + `member_solve_audit.py`
-(d9e6081), which healed the arm's centre regression (0.895 → 0.78 px) and part of the
-rim; the structural cost stayed. The +8.3% "pedestal" between the arms was a PROPERTY
-of `-output_norm`'s single-pixel min/max zero point (0f924f5) and became the
-`output-norm-zero-point` campaign (closed, owner-accepted). The knob is REFUTED (H1/H2/H3
-+ rim) and registered — `docs/dead-ends/stacking-compose.md`, the retired `--crop-lr`
-rule; the arms were deleted in the rig cleanup (06e5622), the records stand; the
-corner-chase prune conditional on a WIN did not fire.
-**The owner's own mechanism for the corners**, field knowledge that matches what was
-measured: the far-corner stars are ALWAYS at the edge of a member's frame, so the
-union corner is built exclusively from worst-case samples — *"the stars being stacked
-are the worse images possible."* The corner work measured that axis independently
-(member-own field radius **+0.53 px per unit ρ, 3.6 SE**; coverage depth **0.2 SE**).
-The open half — whether properly centred frames would change it — is acquisition-side
-and therefore not a route this repo takes (MEMORY: the data is a given).
-**Also ruled, and recorded elsewhere already:** the L1 judge triple
-(`datasets/aug06/l1_work/owner_ratification.json`), the two parallel-session rules
-(`b36ef3b`, `64f61d2`, both verified in `CLAUDE.md`), and starlight preservation as a
-logged UNCHECKED premise that blocks nothing
-(`datasets/aug06/l1_work/unchecked_premises.json`).
+- **The per-member trim — RULED, RAN, REFUTED; no trim ships.** Owner 2026-08-22, verbatim: trim
+  *"each side by about 5% ... so the worse part of each image never makes it into the stack"* — a
+  DIRECTED TEST superseding the WAIT ruling once the band was attributed member-borne
+  (`datasets/aug09/smear_work/rho_march.json`); executed 6d9e568, 2654d31, d9e6081. The owner's
+  mechanism for the corners, verbatim: the far-corner stars are always at a member's frame edge —
+  *"the stars being stacked are the worse images possible"* (measured on that axis: member-own field
+  radius +0.53 px per unit ρ, 3.6 SE; coverage depth 0.2 SE). OUTCOME: RAN, REFUTED (H1/H2/H3 + rim)
+  — diverse good contributors 7 members from 4 sets → 2–3 from one set, composite FWHM 3.257 →
+  3.487, median ΔFWHM +0.133 px where ≥ 2 sets are lost vs +0.012 elsewhere; the corner-chase prune
+  conditional on a WIN did not fire. Two chain defects it unmasked were fixed and KEPT: the
+  unguarded wrong-scale member solves (`solve_field.py --scale-band` + `member_solve_audit.py`,
+  d9e6081; cross-chain bow 31.5 → 1.4 px) and `-output_norm`'s single-pixel zero point (the closed
+  `output-norm-zero-point` campaign). Registry: `docs/dead-ends/stacking-compose.md`,
+  "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired `--crop-lr` knob)"; ledgers
+  `datasets/aug06/experiments.jsonl` `frame_crop_5pct_per_side_before_registration` (+ its
+  correction), `datasets/aug14/experiments.jsonl` `crop5lr_cross_night_combine_aug06_plus_aug14`,
+  `crop5lr_cross_night_RIM_DEGRADATION_root_cause`, `member_solve_scale_band_fix`; records
+  `datasets/corpus/crop_work/`; the arms were disposed in the rig cleanup (06e5622), the records
+  stand. The open half — whether properly centred frames would change the corners — is
+  acquisition-side and not a route this repo takes (MEMORY: the data is a given).
+- **Also ruled, and recorded elsewhere already:** the L1 judge triple
+  (`datasets/aug06/l1_work/owner_ratification.json`), the two parallel-session rules
+  (`b36ef3b`, `64f61d2`, both verified in `CLAUDE.md`), and starlight preservation as a
+  logged UNCHECKED premise that blocks nothing
+  (`datasets/aug06/l1_work/unchecked_premises.json`).
 
 ### Queue items that had no home in this file
 
-- **`--weight=noise` corpus arm — MEASURED NULL, closed**
-  (`datasets/corpus/smear_attribution/weight_noise_arm.json`, ledger 134–136). The
-  motivating measurement stands as what it is: an 18–24 % cross-night THROUGHPUT gap
-  (aug09 haze, +0.16 mag extinction, 16,913 matched stars — a photometric measure on
-  the stars). Siril's `-weight=noise` does not see it: its weight is
-  1/(pscale² · bgnoise²) on the registered image's non-null pixels — (scale/bgnoise)²
-  in normalized units — and a throughput gap is not a background-noise gap. Probed
-  BEFORE the knob was turned (a 3-member compose; the `.seq` statistics against Siril
-  `bgnoise` on whole frames and covered crops): the zero-filled `framing=max` margins
-  do not enter (ngoodpix = the nonzero count to the pixel). The one-knob arm (nbstack
-  → noise, the chain's curated members, reference pinned 35): Siril's own weights
-  july31 0.900 / aug06 0.971 / aug09 0.988 / aug14 1.094 (Green, mean 1) — the
-  SHARPEST night is the NOISIEST by Siril's estimator (bgnoise 1.457 ADU16 against
-  0.96–1.01), so ~10 % of the weight moved from the sharp night to the soft one — and
-  all 58 stations (31 boxes + the 27 crop-boundary seams) sit within −0.015..+0.016 px
-  of the nbstack canonical (floor ±0.04), corners 0.000, seams identical, SPCC K within
-  0.004: nothing gained, nothing degraded. nbstack stays the chain's default and the
-  compose docstring carries the measurement (`docs/dead-ends/stacking-compose.md`);
-  the per-pixel (SWarp) branch stays closed by the owner's stop. Read any
-  bgnoise-based depth judgment against the field's regime: member/canonical bgnoise
-  ratio 1.8–2.5× where a photon-limited mean would read 8.8× — bgnoise is
-  structure-limited here.
+- **`--weight=noise` corpus arm — MEASURED NULL, closed** (ledger 134–136;
+  `datasets/corpus/smear_attribution/weight_noise_arm.json`; mechanism entry
+  `docs/dead-ends/stacking-compose.md` "SIRIL'S NOISE WEIGHT IS (scale/bgnoise)² ON THE REGISTERED
+  IMAGE'S NON-NULL PIXELS"; the map `docs/corner-smear-member-selection.md` §6). One knob, nbstack →
+  noise on the chain's curated members, reference pinned 35: the reconstructed weights july31 0.900 /
+  aug06 0.971 / aug09 0.988 / aug14 1.094 (the sharpest night the noisiest by Siril's estimator); all
+  58 stations within −0.015..+0.016 px of the canonical (corners: six at 0.000, +0.007 / −0.015 at
+  two; floor ±0.04), seams identical, SPCC K within 0.004 — nothing gained, nothing degraded; nbstack
+  stays the chain's default. The motivating 18–24 % cross-night gap is a THROUGHPUT gap on the stars,
+  which a background-noise weight does not see. The weights are Siril's `.seq` statistics through the
+  source formula, unverified on this rig — the positive control is queued (named in the registry entry).
 
 (The real-flats HANDLED path re-homed into `route-recommendation`'s flat-source
 bullet; pooled master darks re-homed into `dark-optimization-fork`.)
 
-**Closes when** the owner rules on the two-file question (the `--weight=noise`
-arm is MEASURED — a NULL — and no longer held here).
+**Closes when** the owner rules on the two-file question.
 
 ---
 
@@ -1559,8 +1511,10 @@ undistort groups; below the floor → standard). Remaining:
 
 `datasets/corpus/` now IS the corpus-level home and holds the corpus records —
 `baseline.json`, `recipe.json`, `member_selection/` (the stage records + the profile
-cache), `smear_attribution/`, `solve_stack_july31+aug06+aug09+aug14_full.json` and the
-rest (`datasets/corpus/README.md`). What is still wrong is the FINISH stage:
+cache), `smear_attribution/`, the first build's finish records
+(`solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json` — NOT the canonical's;
+renamed 2026-08-30, its `_identity` block carries the numbers) and the rest
+(`datasets/corpus/README.md`). What is still wrong is the FINISH stage:
 `finish_render.sh:66` hard-requires `--session=` and `--set=` ("SPCC spec routing +
 record naming"), so a combine's finish records file under the REFERENCE set. The live
 wart: the promote of the member-selection canonical (838e3e8) wrote
@@ -1629,7 +1583,7 @@ independently confirmed). **The observing site is a home address at 11 cm precis
 and it sits in 23 tracked files by the exact literal (2026-08-29; 20 at the first count).**
 
 **The exposure is LOCAL ONLY and this is the cheapest it will ever be.** `git grep -lF`
-on the latitude returns **23 at HEAD and 0 on `origin/main`** (2026-08-29; 19 at the first count) — and HEAD is **422 commits ahead of `origin/main`**, all unpushed, the push HELD; the coordinates entered
+on the latitude returns **23 at HEAD and 0 on `origin/main`** (2026-08-29; 19 at the first count) — and HEAD is **429 commits ahead of `origin/main`** (e1fd422, 2026-08-30, `git rev-list --count origin/main..HEAD`; +1 per commit; 422 at the 2026-08-29 count), all unpushed, the push HELD — origin measured **PUBLIC** on 2026-08-30 by the host's own API (`gh repo view --json isPrivate,visibility` → `isPrivate false, visibility PUBLIC`), so the hold's premise stands; the coordinates entered
 at `f49b7cc` and `ebf8209` against a last-pushed `048e69d`, i.e. after it. A history
 rewrite today touches local objects only; after a push, forks and API caches make it
 permanent.
@@ -1695,21 +1649,23 @@ today; july27's 3.0 s makes `EXPTIME` fire on any future mixed corpus.
 **OPEN:** (e) whether `compose.py` rgbcomp composites and `run_pipeline.sh`
 stacks get the tuple at all — today they apply NO stamp (absent, not false);
 the read-back at the next real compose — TWO real composes have run since (the
-candidate at ccdad26, the promote at 838e3e8) and the read-back is HALF-DONE:
+candidate at ccdad26, the promote at 838e3e8) and the read-back is DONE:
 `datasets/corpus/member_selection/candidate_msel.json` records `PIPEREV`, `DATE-OBS`
-and `NCROPPED` read back from the product, and no record reads back
-`CALSET`/`CALFSUM`/`CALDSUM` or asserts `GRPSIZE`/`FILENAME` absent, so the
-header-only A/B (stamp emitted vs header read back, pixels untouched) is still owed
-for those; and register/guard coverage naming the
-tuple's key set. The compose stamps no WEIGHT key either: the weighting is
+and `NCROPPED` read back from the product, and the rest is READ BACK on the
+canonical (PIPEREV 36d9bab, stack_id 1ff0ecea…; `datasets/corpus/piperev_inheritance.json`
+`readback_canonical`, 2026-08-30): `CALSET` 'MIXED(17)', `CALFSUM` 'MIXED(17)',
+`CALDSUM` 'MIXED(4)', `GRPSIZE` and `FILENAME` absent, `DATE-OBS` 2026-08-01T02:51:17,
+`NCROPPED` 27 — the stamp emitted equals the header read back for every key of the
+tuple, so the header-only A/B (pixels untouched) is done; still owed: register/guard
+coverage naming the tuple's key set. The compose stamps no WEIGHT key either: the weighting is
 recoverable only from Siril's own HISTORY card ("image weighting from image count"
 vs "from noise" — the wnoise arm, `datasets/corpus/smear_attribution/weight_noise_arm.json`);
 if a weight ever becomes a chain choice it gets a stamped key (STACKWGT). Retrofit
 of existing products would ride the retired
 `backfill_substack_provenance.sh` precedent (recover from git).
 
-**Closes when** the next compose reads back the chosen keys from its product
-and the rgbcomp/standard-route stamping decision is made and recorded.
+**Closes when** the rgbcomp/standard-route stamping decision is made and recorded
+and a guard names the tuple's key set (the read-back half is done, above).
 
 ## `set-identity-by-sort-order` — the routing fix landed; three glob-order picks remain
 

@@ -1,0 +1,42 @@
+{
+ "set": "set-0b",
+ "catalog": "localgaia",
+ "sensor_spec": null,
+ "sensor_spec_source": null,
+ "sensor_match": "NO MATCHING SENSOR \u2014 siril's generic/default response was applied",
+ "sensor_match_note": "The K factors below calibrate against a DEFAULT response curve, not this sensor's. Resolve a name from `spcc_list oscsensor` into recipe.json's `spcc` block when one exists for this chip; if none exists, that is a documented database GAP, not a tuning choice \u2014 contributing the curve to the siril-spcc-database is the fix.",
+ "input": "../../web/results/aug14/stack_july31+aug06+aug09+aug14_full_wcs.fit",
+ "output": "../../web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit",
+ "input_size": 582612480,
+ "input_mtime": 1787165330,
+ "k_factors": {
+  "R": 1.0,
+  "G": 0.669,
+  "B": 0.899
+ },
+ "b_offsets": {
+  "R": 0.000416957,
+  "G": -0.000132352,
+  "B": 0.00019361
+ },
+ "n_photometry": 3896,
+ "n_kept": 1946,
+ "_identity": {
+  "_what": "identity of this record, established by the director's audit (GO #1 W5) and the worker's re-measurement against the tree \u2014 the record above is unedited",
+  "this_record": {
+   "K": "1.000 / 0.669 / 0.899",
+   "n_kept_over_n_photometry": "1946 / 3896",
+   "sensor": "NO MATCHING SENSOR \u2014 the generic index-0 response (BACKLOG spcc-sensor-curve; the pin came 41eecff)",
+   "input": "stack_july31+aug06+aug09+aug14_full_wcs.fit at 582,612,480 bytes, mtime 1787165330 = 2026-08-19T14:48:50-04:00",
+   "bytes": 936,
+   "sha256": "29f4a1b8aed3bd681cec4a7763b99ef0cf40892c8e0a4bef1a9502e76c429178",
+   "provenance": "written 2026-08-19 under datasets/aug14/set-0b/qa_work/ (8003d22, 14:59 -0400) by the finish of the four-night product as it stood that day \u2014 set-0b is the sort-order defect (BACKLOG set-identity-by-sort-order); relocated to datasets/corpus/ at a265cfc (2026-08-19 17:20 -0400), file unchanged since"
+  },
+  "product": "the FIRST stack_july31+aug06+aug09+aug14_full build (edeb9d4, 2026-08-19): with -output_norm, before the member-solve fix (d9e6081, 2026-08-26), SPCC on the generic index-0 response. Its _wcs measured 582,612,480 bytes (the sibling SPCC record's input_size = 48,549,900 px x 12 B + a 4-block header; 8540 x 5685 is one factorization \u2014 a reading, not a header) against 582,917,760 bytes for the product the zero-point campaign later moved aside as _outnorm",
+  "not_the_canonical": "the promote's record \u2014 datasets/aug09/set-02/qa_work/spcc_set-02_july31+aug06+aug09+aug14_full.json (838e3e8): K 1.000/0.687/0.926, n 1943/3905, Nikon Z f pinned, input_size 579,507,840 (mtime 1788046487 = 2026-08-29T19:34:47-04:00); nor the _nosel's (41eecff: K 1.000/0.683/0.922, n 1915/3899, input_size 581,791,680)",
+  "not_the_outnorm_product_either": "the product the campaign moved aside as _outnorm \u2014 datasets/corpus/campaign_zeropoint/moveaside_manifest.json moves[126] stack_\u2026_full.fit -> stack_\u2026_outnorm.fit (582,914,880 B, headtail a88d90fa4f4c83c1350a7f071d94df2e), moves[127] _wcs (582,917,760 B), moves[130] the bulk-side solve record -> solve_stack_\u2026_outnorm.json (1,440 B, sha256 6a25aa4575861de39bbfd222fb3c300358f0a0279da8c07df8d0d4bc7b383987), all 2026-08-28T12:28:49 \u2014 is the member-solve-fix rebuild promoted to _full: its finish record at 6d46e8e (2026-08-26) reads RA 309.76087867222367 Dec 41.2963419137614, 17.005980060568973 arcsec/px, logodds 104.87761688232422 on a 582,917,760-byte _wcs (SPCC K 1.000/0.669/0.898, n 1926/3892, input_mtime 1787761592 = 2026-08-26T12:26:32-04:00). This record's product was REPLACED IN PLACE by that promotion (no manifest names it: ledger corpus4_member_solve_fix built the repair beside it as _solvefix and 6d46e8e re-finished _full); neither the _outnorm files nor this record's product exist on disk (ls 2026-08-30: web/results/aug14/stack_\u2026_outnorm.fit and solve_stack_\u2026_outnorm.json absent) \u2014 products gone, record kept",
+  "disposition": "RENAMED by the director 2026-08-30 to `datasets/corpus/spcc_set-0b_july31+aug06+aug09+aug14_outnorm_presolvefix.json` (the worker held the GO's `_outnorm` tag: it would have attached this record to the 2026-08-26 product above, which it is not); the tag names this product's chain shape — `-output_norm` compose, pre-member-solve-fix — not a version",
+  "audited_by": "datasets/aug06/experiments.jsonl id `session_audit_backlog_cleanup` (the director's ledger line 137); every number re-read from the tree by the worker 2026-08-30",
+  "written_at": "2026-08-30T10:42:00-04:00"
+ }
+}
