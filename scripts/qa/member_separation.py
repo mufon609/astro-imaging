@@ -60,11 +60,6 @@ reads no deliverable pixel, reimplements no tool's analysis, and gates NOTHING
 (user-ratified — the banded era below is retired): it announces the number and
 its instrument, and the consumer stamps it on the product.
 
-REMOVAL CONDITION: retire this the day an official tool reports headless
-member-to-member POST-REGISTRATION positional residuals across a sequence
-(a scriptable Siril registration-residual map, or a PixInsight equivalent).
-Registered in BACKLOG.md `removal-conditions`.
-
 NO THRESHOLDS, NO VERDICT — this MEASURES, it does not gate (user-ratified).
 It carried PASS/WARN/BLOCK bands anchored to six products the owner had judged.
 They were removed for three measured reasons, not for convenience:

@@ -47,11 +47,6 @@ reason rather than for want of precision. The zero point below is measured to
 +-0.015 mag; the prediction it would have to be compared against cannot be made
 to better than ~0.4-0.5 mag. Improving the photometry cannot help.
 
-REMOVAL CONDITION. This file becomes able to answer its question if either (a) an
-absolute throughput calibration for this camera+lens exists on the rig, or (b) the
-corpus gains two nominal exposures on one night through the same optics. Delete it
-if the trail question closes by another route.
-
 REPORTS ONLY: no threshold, no verdict, exits 0. --selftest exits 1 on failure.
 """
 import json

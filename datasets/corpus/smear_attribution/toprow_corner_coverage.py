@@ -25,10 +25,6 @@ values within 0.10 px, or the U5 prediction it yields is not usable.
 U5: the 29 members over S_top p25 + 0.20 lose their top 800 rows -> coverage and the
 estimate recomputed from what remains. DILUTION (rowmin): at each probe the six rowmin
 members' REMOVED-column share of the weighted coverage.
-
-REMOVAL CONDITION: a tool reports, headless, a per-member coverage / placement map of a
-compose (which member lands on which canvas box) — Siril's compose gate record does
-not (measured here: member dims, detected counts, optics and pairwise separations only).
 """
 import datetime, json, os, re, statistics, sys, warnings
 import numpy as np

@@ -22,8 +22,7 @@ pre-registration (reported, not scored).
 
 Every pixel op and every star is Siril's (load, crop, findstar via star_stations.measure);
 the top-30 arithmetic is member_profile.py's own (imported). In-house: box placement and
-bookkeeping. Removal condition: a tool reporting a headless row-resolved star-shape map
-(the star_stations.py row of the register) retires this with row_profiles.py.
+bookkeeping.
 """
 import datetime, json, os, statistics, sys
 
