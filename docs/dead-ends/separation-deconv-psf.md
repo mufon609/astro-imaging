@@ -47,7 +47,13 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   that refutes it directly:** at the frame CENTRE there is no aberration
   gradient at all, so the chain is essentially the entire degradation
   there — ~12% of PSF width, of which the Lanczos4 kernel is 0.45% and the
-  CLAMP pin 6.26% (one configuration, not a constant). A treatment that
+  CLAMP pin 6.26% (one configuration, not a constant: 13.8× the kernel, cubic
+  5.39%, a nearest control at exactly 0.00%, ~0.2 pp between two independent
+  fixtures, 5.88 vs 5.67; a resampling kernel is a fractional-delay filter
+  whose blur depends on each star's FRACTIONAL SAMPLE PHASE, and ONE FWHM,
+  2.10 px, with ONE phase set was planted, so the phase spread and the FWHM
+  dependence are unmeasured — ledger `resample_cost_arm_d_siril_pass`,
+  `resample_cost_series_run`). A treatment that
   adds blur at the centre was proposed for a chain already softening the
   centre by ~12%. Implementation lead if the COADD question is ever
   reopened (orthogonal to deconvolution; availability UNVERIFIED here):

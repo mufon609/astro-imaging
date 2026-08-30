@@ -23,13 +23,3 @@ recorded operations, both in this path's git history:
   lines.
 
 Pre-compression forms of every entry are in git; nothing was lost.
-
-## Pending, out of this directory's scope
-
-- BACKLOG:`native-solve-and-sip`'s CLOSED bullet asserts *"`register -disto=`
-  is a SHARED-solution facility — Siril's design assumes ONE optical state
-  per sequence"* — both halves corrected in this registry
-  (`registration-distortion.md`, the standalone-SIP-warp entry: `master` is
-  UNDETERMINED with its probe specified and unrun; the design claim is
-  FALSE). A surviving site of the corrected over-generalisation, awaiting a
-  BACKLOG-scoped edit.

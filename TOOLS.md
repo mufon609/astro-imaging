@@ -270,8 +270,10 @@ term at all.** Write it any looser and the next reader skips it for a problem it
 would solve.
 **AND THAT CAPABILITY LANDS ON A GAP STATED IN A DIFFERENT ITEM.**
 BACKLOG:`intake-culling` records, for transparency drift, *"No per-FRAME form — the
-instrument works on sub-stacks"*, and for cloud, *"per-frame background is NOT
-recorded"*. A per-exposure relative zero point across overlapping exposures **is** a
+instrument works on sub-stacks"* (the cloud row's former blocker, per-frame background
+not recorded, is CLOSED: `bg` is recorded per frame and its separability measured —
+`datasets/aug06/cloud_work/cloud_separability.json`). A per-exposure relative zero point
+across overlapping exposures **is** a
 per-frame transparency measure, taken on the stars' own flux rather than on
 background level — which is the property that row already prefers. Our consecutive
 frames overlap ~99% (drift ~1000 px across 6064), and the catalogue input SCAMP
@@ -561,7 +563,9 @@ fields (the retention rule stands regardless of rig).
 reduction** (NR destroys the fine low-contrast detail decon needs; BXT
 explicitly dislikes denoised data). Classical RL is a measured dead end on this
 data (unstable PSF on in-exposure trailing) — but a LEARNED deconvolver is a
-live, installed, still-unmeasured option (BACKLOG:`learned-deconvolution`), and
+PROCUREMENT question: the installed candidate, Cosmic Clarity's sharpen, is
+ATTENDED-only with its CLI ignored (its Tier 5 row), so nothing headless here is
+one (BACKLOG:`corner-fix-landscape`, OPEN item 1), and
 `BlurXTerminator` "correct only" can even fix the elongated/trailed stars
 that were the base rig's core data problem.
 
@@ -900,8 +904,9 @@ Steffenhir/GraXpert releases + CI, hnsky.org) + on-rig probes:
   tools. That choice is deliberate and worth keeping: free public tools mean any
   contributor can reproduce and troubleshoot the same result.
 - Consequence: denoise = Cosmic Clarity / GraXpert / Siril native; separation =
-  StarNet2; learned deconvolution = Cosmic Clarity's non-stellar sharpen, which
-  is UNMEASURED here (BACKLOG:`learned-deconvolution`).
+  StarNet2; learned deconvolution = NONE headless — Cosmic Clarity's non-stellar
+  sharpen is ATTENDED-only and crashed on real data (its Tier 5 row; the
+  procurement question is BACKLOG:`corner-fix-landscape`, OPEN item 1).
 
 ## Research queue — candidates to investigate, and the question each would answer
 

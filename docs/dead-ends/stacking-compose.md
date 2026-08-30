@@ -354,7 +354,12 @@ and answered by member selection: the decision map with every form's numbers is
   whatever sorts FIRST: appending a night re-bases nothing, reordering the
   arguments re-bases everything. It is now stamped on the artifact
   (`REGREF`/`REGREFSR`); products built earlier carry none and are not
-  backfilled.
+  backfilled. The NAME that pick yields is POLICY, the path is DATA: a wrong
+  `--set` reaches `spcc_run.py` (recipe → SPCC params), `solve_field.py` (that
+  set's `geometry.json` foreground), `render_tier.sh` (a ratified block under
+  a wrong set applies silently) and `baseline_guard.py` (wrong baseline →
+  wrong exit 8); header-only signature for any consumer: `--set` ∈ `CALSETS`,
+  or refuse a singular set claim on `NMEMBER` > 1.
   **Two guard rules measured alongside:** a crop-coverage guard of `Min > 0`
   PASSES on lanczos edge-ringing residue (Min 7–26 on a ~90 sky) — require
   the SIBLING-CLASS SKY FLOOR, never mere non-zero; and **the same reference

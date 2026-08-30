@@ -29,8 +29,9 @@
 
 ### Phase 4 — render toolkit, per tier (BACKLOG:`render-ladder`)
 The ladder skeleton (L1 background → L2 denoise → L3 stretch → L4 satu), riders,
-and limits live in BACKLOG:`render-ladder`; the learned-deconvolution bracket is
-BACKLOG:`learned-deconvolution`; the chroma budget instrument is `noise_split.sh`
+and limits live in BACKLOG:`render-ladder`; the learned-deconvolution question is
+BACKLOG:`corner-fix-landscape` (OPEN item 1 — a procurement; nothing installed runs
+headless); the chroma budget instrument is `noise_split.sh`
 (BACKLOG:`walking-noise`); the narrowband star-neutral bracket is
 BACKLOG:`star-neutral-colour`. One doctrine row stays here because it brackets the
 ladder itself: **workflow order** — linear-first default vs the nonlinear-stage

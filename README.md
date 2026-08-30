@@ -37,8 +37,9 @@ carries BACKLOG:`standard-route-output-norm`.
   Siril 1.4.4's native render surface, StarNet2, Cosmic Clarity, DeepSNR and
   GraXpert are installed and driven; RC-Astro and PixInsight are uninstalled by
   choice — a deliberate gap, not a platform block, so a learned deconvolver is
-  an open, unmeasured option (BACKLOG:`learned-deconvolution`; per-tool
-  evidence: [`TOOLS.md`](TOOLS.md)).
+  a PROCUREMENT question — the installed candidate, Cosmic Clarity's sharpen, is
+  ATTENDED-only with its CLI ignored (its Tier 5 row) — BACKLOG:`corner-fix-landscape`,
+  OPEN item 1 (per-tool evidence: [`TOOLS.md`](TOOLS.md)).
 
 This repo is a **checklist + knowledge workspace** for astrophotography
 processing — official tools do ALL pixel work (processing AND analysis). **The
