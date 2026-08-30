@@ -300,3 +300,16 @@ The defining property of this family: the output looks healthy.
   make a spec-less run "inherit" a name. Quoting is the whole token
   (`"-oscsensor=Nikon D750"`), per Siril's own `help spcc`. Removal: when
   Siril loads before resolving (BACKLOG `spcc-sensor-curve`, `siril-1.5`).
+- **WEIGHTED STACKING PRINTS NO PER-IMAGE WEIGHT — `-weight=noise` logs only
+  "Computing weights based on noise..."** (wfwhm and nbstars have a
+  `siril_debug_print` per image; noise has none — `src/stacking/median_and_mean.c`).
+  The weights are re-derivable only from the registered sequence's `.seq` M lines
+  (per layer/image: total, ngoodpix, mean, median, sigma, avgdev, mad, sqrtbwmv,
+  location, scale, min, max, normValue, bgnoise) through the source formula
+  `1/(pscale² · bgnoise²)` with `pscale = scale_ref/scale_i`, normalized to the
+  mean — so keep the compose scratch's `.seq` (`--keep-work`) when a weighted
+  compose must be audited; the registered FITS themselves are not needed once it is
+  read. The only header trace is Siril's HISTORY card: "image weighting from
+  noise" vs "image weighting from image count" (nbstack); no key carries it
+  (BACKLOG:`composite-header-identity`). MEASURED on the wnoise arm
+  (`datasets/corpus/smear_attribution/weight_noise_arm.json`).

@@ -80,6 +80,43 @@ and answered by member selection: the decision map with every form's numbers is
   same-aperture Δ(+2700 − +2400) median +0.008 px on 30 members — and per-member
   calls there are unresolvable at r 200 (that box's asymmetry scatters ±0.12 px
   against the r-400 reading, half the bar; a 400-px box cannot be placed there).
+- **SIRIL'S NOISE WEIGHT IS (scale/bgnoise)² ON THE REGISTERED IMAGE'S NON-NULL
+  PIXELS — coverage does not enter, and on this corpus it is nearly uniform: the
+  sharpest night is the noisiest.** SOURCE (Siril 1.4.4
+  `src/stacking/median_and_mean.c`, `compute_noise_weights()`):
+  `pweights[layer][i] = 1 / (coeff.pscale[layer][i]² × seq->stats[layer][idx]->bgnoise²)`,
+  divided by the mean over frames per layer; `pscale_i = scale_ref/scale_i` is the
+  addscale normalization, so the weight is `(scale_i / (scale_ref · bgnoise_i))²`
+  — the member's dispersion-to-noise ratio squared, NOT `1/bgnoise²` (on a
+  3-member probe 0.889 / 1.031 / 1.080 against 0.594 / 1.092 / 1.316 for
+  `1/bgnoise²`). MEASURED (`datasets/corpus/smear_attribution/weight_noise_arm.json`,
+  `datasets/aug06/experiments.jsonl` 134–136): the registered sequence's `.seq`
+  statistics carry `ngoodpix` equal to each registered image's NONZERO-pixel count
+  to the pixel (22,999,612 / 22,888,326 / 22,854,455 against totals 37,047,290 /
+  28,399,680 / 29,704,448; zero fractions 0.379 / 0.194 / 0.231), the `.seq` bgnoise
+  equals Siril `bgnoise` on the whole registered frame (Green 2.2003e-05 /
+  1.6224e-05 / 1.4778e-05 vs 2.2e-05 / 1.622e-05 / 1.478e-05), and the
+  whole/centre-crop ratio (1.121 / 0.996 / 1.031) is the member's own noise gradient
+  — identical on the unregistered original (1.119 / 1.002 / 1.036) — so the
+  zero-filled `framing=max` margins do not enter. Two side terms: resampling lowers a
+  non-reference member's noise ~2.3 % (registered/original 0.998 / 0.977 / 0.976:
+  ~+5 % weight for everyone but the reference), and the pscale term above. On the
+  77-member corpus Siril's own weights (Green, mean 1) run july31 0.900, aug06
+  0.971, aug09 0.988, aug14 1.094 (nbstack 0.955 / 1.032 / 1.027 / 0.990): by
+  Siril's estimator the NOISIEST night is july31 (bgnoise 1.457 ADU16 against
+  0.96–1.01), the night with the SHARPEST members, and the softest night (aug14) is
+  the quietest — the 18–24 % aug09 haze figure is a THROUGHPUT gap on the stars,
+  which a background-noise weight does not see. The one-knob arm (nbstack → noise,
+  the same curated members, reference pinned 35) is a CLEAN NULL: all 58 stations
+  within −0.015..+0.016 px / ±0.012 roundness of the canonical (floor ±0.04 / 0.02),
+  the band +0.003..+0.013, corners 0.000, the 27 seams identical, SPCC K within
+  0.004, depth unchanged within the structure-limited reading. Consequence: nbstack
+  stays the chain's default; a per-member weight is not the lever for a
+  night-quality difference here — the weights differ by ~10 % while the members'
+  FWHM differ by ~0.3 px, so the weighted mean moves ~0.01 px; the lever that
+  measured is exclusion of the degrading PORTIONS (the portion rule). The compose
+  stamps no weight key — the weighting is recoverable only from Siril's HISTORY
+  card (BACKLOG:`composite-header-identity`; `siril-behaviors.md`).
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

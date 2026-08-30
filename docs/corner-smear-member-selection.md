@@ -157,11 +157,15 @@ continuum is a policy, and the policy is the owner's (§5).
   fraction (sel57 −25.8 %, cropTselT −16.2 %), and the portion rule's cost is
   the 6.44 % of pixel-frames it removes, mostly where the band's depth was
   never at stake.
-- Weighting instead of exclusion ("make the most of what we have") is the
-  standards-first alternative (inverse-variance; SWarp MAP_WEIGHT or Siril
-  `-weight=noise`). It is queued behind the exclusion rules because a scalar
-  per-frame weight cannot address portions, and a per-pixel weight needs the
-  SWarp engine whose control arm was never built.
+- Weighting instead of exclusion ("make the most of what we have") was the
+  standards-first alternative and is MEASURED a NULL (`weight_noise_arm.json`,
+  ledger 134–136): Siril's `-weight=noise` — (scale/bgnoise)² on the registered
+  image's non-null pixels, probed before the knob was turned — moved ~10 % of the
+  weight from the sharpest night (july31 0.900, the noisiest by Siril's estimator)
+  to the softest (aug14 1.094), and no station of 58 moved beyond +0.016 px against
+  the nbstack canonical. On this corpus excluding the degrading PORTIONS is the
+  lever; weighting whole members is not. The per-pixel weight (SWarp) stays closed
+  by the owner's stop.
 - The profile stays on the centre row by MEASUREMENT, not omission
   (`row_profiles.json`, `rowmin_arm.json`): profiled on the top and bottom rows,
   the bottom row crosses the bar ~600 px earlier on 5/5 cropped members, but the
@@ -327,8 +331,9 @@ rowmin, §6: the row-resolved crop a clean NULL; the +2400 blind spot bounded at
 +0.008 px median). Open: the constant's placement (§4, a policy in a continuum —
 the owner's); the TOP-ROW symmetric softness of the soft nights (§6 — the
 uniformly-soft case, blind by design; a corpus-relative row-level exclusion is
-the unrun candidate); the depth measure's regime (§6); weighting vs exclusion
-(§6); the per-set finals are not run through the stage until measured there.
+the unrun candidate); the depth measure's regime (§6); the per-set finals are not
+run through the stage until measured there. Weighting vs exclusion is MEASURED
+(§6): a NULL.
 
 ## Graduation
 

@@ -2847,5 +2847,76 @@
   "reading": "indistinguishable from the canonical; no defect",
   "disagreement_with_worker": "none",
   "verdict_carried": "CLEAN NULL, nothing degraded; the arm's premise refuted by Siril's own estimator (the sharpest night is the noisiest; weights differ ~10 % between nights); nbstack stays the chain's default; the compose docstring corrected to the measurement"
+ },
+ "disposed": {
+  "by": "the director's call (astro-imaging-45) under the owner's standing cleanup approval (ledger 128), executed by the worker after the NULL was recorded and verified",
+  "items": [
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise.fit",
+    "bytes": 579504960
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise_wcs.fit",
+    "bytes": 579507840
+   },
+   {
+    "path": "web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise_spcc.fit",
+    "bytes": 579507840
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_july31+aug06+aug09+aug14_wnoise.json",
+    "bytes": 952534
+   },
+   {
+    "path": "web/results/aug14/solve_stack_july31+aug06+aug09+aug14_wnoise.json",
+    "bytes": 1108
+   },
+   {
+    "path": "web/results/aug09/judge/july31+aug06+aug09+aug14_wnoise_spcc-linked.png",
+    "bytes": 214995818
+   },
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_wnoise.gen.ssf",
+    "bytes": 323
+   },
+   {
+    "path": "sessions/aug09/work/spcc_set-02_july31+aug06+aug09+aug14_wnoise.log",
+    "bytes": 120983
+   },
+   {
+    "path": "sessions/aug14/work/wnoise",
+    "bytes": 105262425
+   },
+   {
+    "path": "sessions/aug14/work/wnoise_probe",
+    "bytes": 1626419574
+   },
+   {
+    "path": "web/results/aug14/.compose_stack_july31+aug06+aug09+aug14_wnoise",
+    "bytes": 25976137
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_corpus4_full_wnoise.json",
+    "bytes": 953205
+   },
+   {
+    "path": "web/results/aug14/compose_gate_stack_01+02+03+04+05_full_wnoise.json",
+    "bytes": 103821
+   },
+   {
+    "path": "web/results/aug14/solve_stack_01+02+03+04+05_full_wnoise.json",
+    "bytes": 1022
+   }
+  ],
+  "total_bytes": 3713307590,
+  "df_avail_bytes_before": 714575233024,
+  "df_avail_bytes_after": 718289944576,
+  "also_disposed": "the three ORPHAN records of the earlier pre-member-selection wnoise arm under web/results/aug14/ (compose_gate_stack_corpus4_full_wnoise.json, compose_gate_stack_01+02+03+04+05_full_wnoise.json, solve_stack_01+02+03+04+05_full_wnoise.json \u2014 products long gone), listed above",
+  "kept": [
+   "every tracked record (weight_noise_arm.json, the ledger, the two finish records under datasets/aug09/set-02/qa_work/)",
+   "sessions/aug14/work/inspect_director_archive/wnoise/: both products' inspection tiles, the arm's measure JSONs (shape/seam/seqtilt/x50/weights_actual/collateral), the arm's r_s_.seq (the weights' source), build_wnoise.sh + build.log, and probe/ (the 3-member probe's r_s_.seq, s_.seq, compose.log, stack.ssf, probe_record.json, bgnoise logs, the 77-member stat77.log + weights_pred.json)"
+  ],
+  "consequence": "the `lst` paths in the collateral table (sessions/aug14/work/wnoise/measure/lists_*/) now dangle \u2014 the station numbers are the durable part",
+  "written_at": "2026-08-29T21:51:15-04:00"
  }
 }
