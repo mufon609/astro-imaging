@@ -261,8 +261,9 @@ denominator until a stated-method census was homed in the register row).
   nothing says what it measures on a 5×100 groups build.
 - **A BASENAME IS NOT A FILE IDENTITY IN A MULTI-SESSION CORPUS — AND A CHECK
   THAT COMPARES ONE IS BLIND EXACTLY WHERE THE NAMES REPEAT.** Per-session
-  directories make repeated names the NORMAL state (19 `skyflat*.fit` masters
-  carry 12 distinct basenames; `dark_master.fit` exists in every session), so
+  directories make repeated names the NORMAL state (24 `skyflat*.fit` masters
+  carry 12 distinct basenames; `dark_master.fit` is the basename in all four
+  sessions carrying masters — july27 carries none), so
   "do these two files share a filename" answers yes precisely when two
   different files are being confused — and two masters can agree on every
   other stamped field too (same `STACKCNT`, same `NAXIS1`), so
@@ -271,6 +272,15 @@ denominator until a stated-method census was homed in the register row).
   computed in memory (siril strips `DATASUM`/`CHECKSUM` on any load+save,
   measured) and carried on the product beside the readable name — ESO's
   `CAL1 NAME` + `CAL1 DATAMD5` shape — by `scripts/stack/stamp_headers.sh`.
+  **THE BOUND, so a growing corpus revisits it rather than inheriting it
+  silently: `DATASUM` is 32-bit, so the birthday collision probability over n
+  masters is ≈ C(n,2)/2³²** — **at n = 24 masters that is 6.4e-8** (the cruder
+  n²/2³³ upper bound gives 6.7e-8): an enormous margin, and the hash does
+  separate the real colliding trio (3443652352 / 884799382 / 369242041). A
+  corpus larger by orders of magnitude should re-derive this from the formula
+  rather than assume it carries — the figure this entry replaced read "~2e-8
+  at 19 masters" against a true 4.0e-8, i.e. it had been carried and scaled
+  rather than computed.
 - **THE STAGED CORPUS IS NOT THE CORPUS. CHECK `datasets/` BEFORE DECLARING A
   CORPUS LIMIT — the reflex is to check `sessions/`, and the reflex has been
   wrong twice.** `sessions/` holds the nights whose raws are on the rig;

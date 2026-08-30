@@ -150,7 +150,7 @@ a declared NON-divergence kept as a marker.
 ---
 
 
-## `standard-route-output-norm` — the tracked-mount route still stacks with `-output_norm`
+## `standard-route-output-norm` — WATCHLIST (no tracked-mount dataset exists): the tracked-mount route still stacks with `-output_norm`
 
 `run_pipeline.sh` (×3 light stacks via `$STACKPOL`) and `scripts/stack/siril/lights.ssf.tmpl:37`
 carry `-norm=addscale -output_norm`, the global min-max rescale the undistort route retired
@@ -159,7 +159,7 @@ zero-point entry). The route is untested by that closure: no current dataset is 
 so it has no product to declare a delta on. Work, when a tracked set exists: the same shape as
 the undistort tiers — drop the flag, assert Siril's own "Output normalization ...... disabled"
 line, stamp `STACKNRM`/`ANC*`/`REGREF` (the standard route stamps nothing today —
-`docs/combine-contract.md`:179, `stamp-key-inheritance`'s open (e)), guard advisory under the
+`docs/combine-contract.md`:179, BACKLOG:`composite-header-identity`'s open (e)), guard advisory under the
 STACKNRM change; one product, pre-registered as the undistort tiers were. Removal condition:
 the same as the undistort rows' (Siril offering a reference-anchored output normalization).
 **Closes when** the standard route ships without `-output_norm` on a measured product, or
@@ -175,21 +175,15 @@ it flatters both parties; the competing explanation is SEQUENCING (rule adopted:
    registry internally (effort that may dissolve); deleting entries whose test is solved and no longer valuable
    survives either outcome — prefer the operation robust to the ruling.
 
-Owner rulings that existed in NO other file:
+Owner rulings kept here because the quote is the record:
 - **The per-member trim — RULED, RAN, REFUTED; no trim ships.** Owner 2026-08-22, verbatim: trim *"each side by
-  about 5% ... so the worse part of each image never makes it into the stack"* — a DIRECTED TEST superseding the
-  WAIT ruling once the band was attributed member-borne (`datasets/aug09/smear_work/rho_march.json`); executed
-  7775fdd, 0d92327, c6230cc. The owner's mechanism for the corners, verbatim: *"the stars being stacked are the
-  worse images possible"* (measured on that axis: member-own field radius +0.53 px per unit ρ, 3.6 SE; coverage
-  depth 0.2 SE). Outcome and numbers: `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING
-  (the retired `--crop-lr` knob)"; ledgers `frame_crop_5pct_per_side_before_registration`
-  (`datasets/aug06/experiments.jsonl`), `crop5lr_cross_night_combine_aug06_plus_aug14`,
-  `crop5lr_cross_night_RIM_DEGRADATION_root_cause`, `member_solve_scale_band_fix` (`datasets/aug14/experiments.jsonl`);
-  records `datasets/corpus/crop_work/` (the arms disposed in the rig cleanup, 8d234c8). The open half — properly
-  centred frames — is acquisition-side, not a route this repo takes (MEMORY: the data is a given).
-- **Also ruled, and recorded elsewhere already:** the L1 judge triple (`datasets/aug06/l1_work/owner_ratification.json`),
-  the two parallel-session rules (`b36ef3b`, `64f61d2`, both verified in `CLAUDE.md`), and starlight preservation as a
-  logged UNCHECKED premise that blocks nothing (`datasets/aug06/l1_work/unchecked_premises.json`).
+  about 5% ... so the worse part of each image never makes it into the stack"*, and the mechanism, verbatim: *"the
+  stars being stacked are the worse images possible"*. Outcome, numbers and ledgers:
+  `docs/dead-ends/stacking-compose.md`, "PRE-REGISTRATION FRAME-WIDTH CROPPING (the retired `--crop-lr` knob)". The
+  open half — properly centred frames — is acquisition-side, not a route this repo takes (MEMORY: the data is a given).
+- **Recorded elsewhere, pointers kept because nothing else carries them:** the L1 judge triple and starlight
+  preservation as a logged UNCHECKED premise that blocks nothing — `datasets/aug06/l1_work/owner_ratification.json`,
+  `datasets/aug06/l1_work/unchecked_premises.json`.
 
 **Closes when** the owner rules on the two-file question.
 
@@ -232,7 +226,10 @@ OPEN — each settled at the COMBINE, one knob, or withdrawn with its reason:
 
 USER-DIRECTED. More photons are always obtainable; a bad frame stacked is permanent. Every recurring defect has a
 signature measurable per frame at intake: measure ONCE, score by a formula whose constants are visible and
-adjustable, report per frame with its reason.
+adjustable, report per frame with its reason. **The decision FORM is a THRESHOLD, not a rank or a percentile**
+(owner-ratified 2026-08-29 — BACKLOG:`final-best-percent-pass`: a rank rule cuts N% from an equal-quality corpus
+for nothing). The shipped auto-cull already conforms — `cull_report.py` flags on robust z vs the pooled
+median/MAD, defect side only — so this is the form to extend, not to choose.
 
 Standards-first: a SEARCHED NEGATIVE — no vendor publishes a default combining expression for per-frame quality
 signatures (the community 15/15/20 weighting has underivable constants; the PixInsight source returned 403, so that
@@ -269,8 +266,8 @@ action per frame with its reason, and each signature has a control that demonstr
 ## `render-ladder` — the render tier's remaining tiers, user-gated
 
 The first tier is BUILT (`scripts/stack/render_tier.sh`: separate → denoise the starless → stretch →
-screen-recombine, every pixel op and every measurement a tool's, gated by a ratified `render` block) — and NO block
-is ratified: 0 of 24 tracked `recipe.json` carry one, `datasets/GENERIC.json` is the `{"render": {}, "why": {}}`
+screen-recombine, every pixel op and every measurement a tool's, gated by a ratified `render` block; it exits 7
+without one) — and NO block is ratified: 0 of 24 tracked `recipe.json` carry one (re-measured 2026-08-30), `datasets/GENERIC.json` is the `{"render": {}, "why": {}}`
 stub, and the tier has never run on this corpus (`datasets/aug06/l1_work/owner_ratification.json`). What remains
 is the LADDER around it and the harness it feeds.
 
@@ -334,7 +331,7 @@ OPEN:
 **Closes when** the pair is judged, the gate is replaced by ratification or re-described, and SPCC
 order-robustness is measured on one knob.
 
-## `walking-noise` — open gap, class-gated
+## `walking-noise` — WATCHLIST (class-gated): open gap
 
 Faint DRIFT-ALIGNED streaks visible at native 1:1 and below whole-frame statistics: a
 sensor-fixed pattern (readout FPN + residual warm pixels) dragged into lines by
@@ -355,16 +352,6 @@ acquisition-side fix and removes the driver). First-contact levers: matched
 shutter-mode darks; then drift-axis-aligned pattern removal or an AI denoiser weighed
 against preservation of the unresolved starlight — a bandaid, last resort.
 
-## `dark-optimization-fork` — `-opt` vs matched darks on the uncooled body
-
-Siril-FAQ doctrine fork: non-cooled cameras "should" use dark optimisation, while
-base doctrine and both vendors say matched darks need none. A/B on one set, one
-knob, judged on dark-residual / walking-noise metrics (feeds the
-BACKLOG:`walking-noise` mechanism work). Low priority — our darks are same-night,
-session-end temperature. Pooled masters across nights ride this fork (re-homed
-from `pending-owner`): gated on the nights' masters measuring identical
-(measured: Δ0.1 ADU, noise within 1%); judged on `noise_split.sh`'s structured
-term; per-session stays the default.
 
 ## `native-solve-and-sip` — one probe left
 
@@ -497,7 +484,7 @@ OPEN:
 
 **Closes when** 1 reports a range and 2 is decided against the measured number rather than the category.
 
-## `star-neutral-colour` — the narrowband gap
+## `star-neutral-colour` — WATCHLIST (needs a narrowband corpus): the narrowband gap
 
 SPCC-narrowband equalises O3=Ha and erases the O3 sphere; Siril has no single command
 for a star-colour-neutral balance. Headless path identified and the tool half
@@ -505,7 +492,7 @@ confirmed on 1.4.4: measure mean star colour in the examine layer → apply a di
 `ccm`. UNTESTED design — do not cite as a method. Run it against a bracket (SPCC,
 Nightlight) when a narrowband corpus arrives.
 
-## `siril-1.5` — one load-bearing migration risk
+## `siril-1.5` — WATCHLIST (fires on a version bump): one load-bearing migration risk
 
 1.4.4 is current stable; 1.5.0 is dev master. The trigger is a version bump, not the
 rig (already x86).
@@ -542,7 +529,9 @@ corpus is built under it, 0 differing pixels from the owner-approved candidate;
 guarded by `datasets/corpus/baseline.json`; the selection recorded per member in
 `datasets/corpus/member_selection/<tag>_portion.json`). Unbuilt: the per-FRAME
 cross-session quality surface (per-set `frame_metrics.json` exists; nothing ranks
-or thresholds across sessions; `cullspec` excludes are per-set). Selection is
+or thresholds across sessions; `cullspec` excludes are per-set) — the same surface
+BACKLOG:`intake-culling` is designing at intake, and its threshold form is this
+ruling's. Selection is
 adopted only through a measured arm with a pre-registered prediction, never as a
 default.
 **Closes when** the per-FRAME surface ships the same way — a final-pass product
@@ -556,7 +545,7 @@ night still pays for a drift probe per set. **Closes when** a decisive
 session-level measurement seeds every sibling set's record (provenance kept per
 set — a re-aimed set still cross-checks).
 
-## `per-group-flat-at-the-combine` — the trade is only decidable at the combine unit
+## `per-group-flat-at-the-combine` — WATCHLIST (owner-PAUSED pending real flats): the trade is only decidable at the combine unit
 
 **PAUSED BY THE OWNER pending real flats** — the flat-residual research line is
 on hold until real flats exist to compare actual frames against the current
@@ -593,91 +582,15 @@ the evidence gate. Numbers and the full trade:
 `datasets/july31/set-03/pergroup_work/pergroup_flat_report.json`,
 `docs/dead-ends.md`.
 
-## `calibration-master-identity-is-a-basename` — the name cannot distinguish the file
 
-`CALFLAT`/`CALDARK` record a BASENAME, and basenames collide across sessions by
-construction here: **19** `skyflat*.fit` masters under `sessions/` carry **12**
-distinct basenames, `skyflat_set-01/02/03.fit` each in three sessions, and
-`dark_master.fit` is the basename in **all three**. Two colliding masters can also
-agree on every other stamped field — july31 and aug06 `skyflat_set-03.fit` both
-read `STACKCNT=500`, `NAXIS1=6064` — so one product's calibration provenance can be
-byte-identical to another's while naming a different file.
-
-**SEPARATE from the record-vs-reality defect** (fixed at `ea41e5a`; the mechanism
-is homed in `docs/dead-ends.md`, *"a basename is not a file identity in a
-multi-session corpus"*) and not
-fixed by it: stamping from the value that RAN makes the string TRUE and leaves it
-AMBIGUOUS. The dark case shows the separation cleanly — no flag exists there to
-deprecate and the collision is total, so a record-vs-reality fix has nothing to
-bite on.
-
-**ORDERED, and the order is load-bearing.**
-(a) **Stamp from what RAN** — root cause; IRAF `setflat.x` stamps the frame it used
-by control flow (`:39` resolve, `:54` open, `:130` scale off the opened image,
-`:143` stamp).
-(b) **Pair the name with a CONTENT HASH of the master, carried as a provenance
-VALUE** — ESO `CAL1 NAME` + `CAL1 DATAMD5`, mirrored, inventing nothing. It fits
-the 68-char field, needs no flag and no new step, and survives the toolchain
-measured (siril preserves foreign keys; only the checksum CARDS drop). Separability
-demonstrated on the real colliding pair with the FITS datasum arithmetic as the
-probe, **3443652352 vs 884799382**; ESO's MD5 is the shape to mirror, because the
-FITS checksum convention disclaims identity in its own text — *"the CHECKSUM
-keyword can always be updated after making modifications to the file, leaving no
-trace."*
-**A session-qualified name derived from the path was proposed and WITHDRAWN** —
-that is a naming scheme this project would be inventing, and the standard already
-solves it. **(b) is unsafe before (a):** at today's emitter the hash is computed
-from the flat the RECORD names, so it is correct on all 78 clean products and wrong
-in both failure modes.
-(c) **Backfill only behind a bit-reproducible rebuild check** — a backfilled hash
-describes today's master, and this corpus has a documented rebuild.
-
-**NOT this item: SELF-integrity** (`DATASUM`/`CHECKSUM` on a file's own header).
-Different question, different mechanism, its own item — see the sibling item's
-disposition (3).
-
-**(a) AND (b) HAVE LANDED. (c) remains** (a "(d)" once cited here was never
-defined anywhere — the sentence entered at `ea41e5a` already dangling; one
-occurrence ever). `CALFLAT`/`CALDARK` are built from
-the masters that RAN, and `CALFSUM`/`CALDSUM` carry the content hash as a
-provenance VALUE in ESO's placement. Both are in `stamp_headers.sh`'s composite
-`KEYS` tuple, so a union's `uniq` sees them: measured, two members with the same
-`CALSET`, same basename and different files read `CALFSUM MIXED(2)` / `PROVMIX T`
-with the hash and **`PROVMIX F` without it** — the old behaviour called that
-"provenance consistent". `CALPROV` labels `ran` vs `record` so the fallback is not
-silent.
-**STANDARDS-FIRST DEVIATION, RECORDED WITH ITS REASON: ESO's field is
-`CAL1 DATAMD5` and this uses the FITS `DATASUM` arithmetic instead.** It is a
-deviation from the mirrored standard, so it is recorded rather than assumed.
-**The reason is functional, not cost.** `DATASUM` covers the DATA records ONLY,
-so it is insensitive to header churn: two masters with identical pixels and
-different headers ARE the same calibration and hash the same, while **an MD5 over
-the file would report a false mismatch on any header touch** — a defect, not
-conservatism. Two supporting facts: it is the FITS-REGISTERED arithmetic and siril
-implements it identically to `astropy` (measured, same value to the digit on the
-same bytes, so a master hashed by either verifies under the other), and it does
-separate the real colliding trio (**3443652352 / 884799382 / 369242041**).
-The convention's own disclaimer does not reach this use — it warns that a checksum
-**in a file's OWN header** can be silently rewritten by an editor, whereas this one
-is carried on the PRODUCT and verified by RECOMPUTING from the master.
-**THE BOUND, so a growing corpus revisits rather than inherits it silently:
-`DATASUM` is 32-bit, so the birthday collision risk scales as n²/2³³.** At 19
-masters that is ~2e-8 — enormous margin. A corpus larger by orders of magnitude
-should re-derive this rather than assume it carries.
-
-**Closes when** calibration-master identity in a product's header distinguishes two
-same-named masters, and a check exists that can be made to fail on demand by
-pointing a product at the wrong one.
-
-## `lunar-ladder` — lunar lucky imaging: x86 ladder + next capture remain
+## `lunar-ladder` — WATCHLIST (needs the next lunar capture + a PSS venv): x86 ladder remains
 
 **STATE: the first corpus is processed end to end and the chain is codified as
 `scripts/stack/run_lunar_pipeline.sh`** (PROVISIONAL as-written — its first
 fresh run is the next lunar corpus). Both sets' finals are user-ratified:
 sb deconvolution + per-set disc-neutral WB (satu closed-fail; wiener arm
-PAUSED on user order — equal on-disc, frame-edge artifact noted). Session
-raws/intermediates freed (re-stageable); stacks + judge surfaces in
-`web/results/july26/` (freed with the july26 raws — rebuildable); every mechanism in `docs/dead-ends.md`.
+PAUSED on user order — equal on-disc, frame-edge artifact noted). Session raws, stacks and judge
+surfaces are freed and re-stageable; every mechanism is in `docs/lunar-lucky-imaging.md`.
 
 **Remains open:**
 - **The x86 quality ladder** (best 10/15/20/25% vs the shipped q100 controls,
@@ -760,9 +673,11 @@ cache), `smear_attribution/`, the first build's finish records
 (`solve_stack_july31+aug06+aug09+aug14_outnorm_presolvefix.json` — NOT the canonical's;
 its `_identity` block carries the numbers) and the rest
 (`datasets/corpus/README.md`). What is still wrong is the FINISH stage:
-`finish_render.sh:66` hard-requires `--session=` and `--set=` ("SPCC spec routing +
+`finish_render.sh` hard-requires `--session=` and `--set=` ("SPCC spec routing +
 record naming"), so a combine's finish records file under the REFERENCE set. The live
-wart: the promote of the member-selection canonical (e4468e1) wrote
+wart, MEASURED — 24 files matching `*july31+aug06+aug09+aug14*` sit under
+`datasets/aug09/set-02/qa_work/` alone (plus 1 under aug14/set-05, 4 under
+`datasets/corpus/`): the promote of the member-selection canonical (e4468e1) wrote
 `solve_stack_july31+aug06+aug09+aug14_full.json` and
 `spcc_set-02_july31+aug06+aug09+aug14_full.json` under
 `datasets/aug09/set-02/qa_work/` (their `_nosel` predecessors moved aside beside them)
@@ -790,7 +705,7 @@ defect recurred) and per-frame arcsec columns embed the nominal throughout
 a direct full-frame solve (or the record refreshed against the stack solve)
 and the probe-pipeline arithmetic's error is root-caused.
 
-## `l1-set02-nonreplication` — two powered surfaces, same night, opposite answers
+## `l1-set02-nonreplication` — WATCHLIST (rides the flat pause): two powered surfaces, same night, opposite answers
 
 **OPEN QUESTION, not a scheduled item, and it touches a PAUSED line — see the fence.**
 
@@ -844,7 +759,7 @@ OPEN — three glob-order picks: the acquisition-header donor (`scripts/stack/ru
 re-times the ACQHDR donor on wrapped sets); the starmask pick (`scripts/stack/render_tier.sh:269`); the corpus-level
 record home (BACKLOG:`cross-set-record-home`). **Closes when** each pick is order-independent or recorded harmless.
 
-## `capability-gaps` — real capabilities the pipeline lacks
+## `capability-gaps` — WATCHLIST (each gated on a data class we do not have): real capabilities the pipeline lacks
 
 Each lands as a measured declared delta when its gate opens.
 
@@ -856,60 +771,30 @@ Each lands as a measured declared delta when its gate opens.
   step. `rgbcomp -lum=` is the headless mechanism when an L corpus arrives; the CLI
   `-lum` blend colour space is undocumented — resolve before first use.
 
-## `spcc-sensor-curve` — the accidental response model is retired and the Nikon Z f proxy is pinned; the B/G residual and the body-measured curve remain
+## `spcc-sensor-curve` — the Nikon Z f proxy is pinned; the B/G residual remains
 
-Research: `docs/spcc-sensor-curve-z6iii.md` (evidence-classed; §4 the
-pre-registered test, §5 the untested premises); the headless resolution trap is
-a `docs/dead-ends/siril-behaviors.md` entry. Stages 0–2 SHIPPED: runner 91fc93a,
-curves 9521128, recipes 2295ba5, the 22 re-calibrations 7b9d1c6.
+SHIPPED and owner-accepted 2026-08-29: the accidental index-0 response model is
+retired, "Nikon Z f" is pinned in every canonical `recipe.json`, all 22 products were
+re-calibrated as a declared delta, the 17 baselines re-seeded and the 44 `_idx0_` twins
+disposed. Every number, the four-proxy comparison and the H0–H4 outcomes:
+`datasets/corpus/spcc_pin_zf/pin_record.json` and `docs/spcc-sensor-curve-z6iii.md`
+(evidence-classed; §4 the pre-registered test, §5 the untested premises). The headless
+name-resolution trap is a `docs/dead-ends/siril-behaviors.md` entry. The proxy's
+divergence carries its removal condition in the register.
 
-**Measured basis.** Headless Siril 1.4.4 resolves sensor/filter/white-reference
-names BEFORE loading its database, so every spec-less run used index 0 of every
-list — "Generic mono sensor" × Antlia R/G/B × "Average Spiral Galaxy": that model
-named explicitly (A‴, `spcc_arm_A3.json`) reproduces the shipped july31/set-01 run
-to the digit (K 1.000/0.687/0.927, R/G 0.488722+0.239501x σ 0.140369). A bare
-`-oscsensor=` WITHOUT the `spcc_list` preload is echoed and NOT honoured (A′ =
-Canon EOS 1D Mark III × Antila RGB_ultra_ii, K 0.681/0.911); with the preload the
-names resolve and a spec-less run errors (H0). On set-01 the four named proxies —
-Z f 0.697/0.947, Z6 0.696/0.943, D750 0.697/0.945, Z f (energy) 0.698/0.949 — sit
-within 0.002 (G) / 0.006 (B); any real OSC curve moves the R/G fit toward the
-origin (σ 0.140 → 0.095–0.099, intercept share 0.71 → 0.42–0.48) and none moves
-the B/G fit (σ 0.107–0.108, share 0.39–0.44, "imprecise solution" fires);
-energy vs photon convention ΔK ≤ 0.002. H1 by the letter: neither WIN nor NULL —
-the residual intercept is not curve-driven. H3 unresolved by resolution: the
-field's band is 1.2% above the sky and Siril `stat` prints 0.1 ADU16, 5–10×
-coarser than the predicted departure (`spcc_h3_band_excess.json`). H4: the owner
-approved `set-01_arm_zf_spcc-linked.png` beside the index-0 surface; pin "Nikon Z f".
+**The proxy is by dye family, not by die** — Z f / Z6 share Nikon's CFA dyes and
+hot-mirror generation with the Z6 III by assumption, measured by no one.
 
-**Delta declared (7b9d1c6; `datasets/corpus/spcc_pin_zf/pin_record.json`).** All
-22 canonical products re-calibrated from their existing `_wcs.fit` (one knob):
-over the 17 finals ΔK_G +0.0093 ± 0.0011 (+1.44 ± 0.17%), ΔK_B +0.0191 ± 0.0017
-(+2.22 ± 0.20%); nights +1.7/+2.4%, corpus +1.8/+2.4%; n_kept and b_R identical
-on all 22; R/G σ 0.131–0.161 → 0.069–0.131 on every product; B/G σ moves ≤ 0.006
-and the warning fires 22/22. Guard 17/17 PASS — blind by construction: SPCC's
-offsets pin the neutralised sky to the R level, so the centre rows read identical
-to 0.1 ADU16 whatever K. The index-0 products and PNGs are kept as `_idx0_` twins
-(`moveaside_manifest.json`, 44 files, 8.56 GB).
+OPEN:
+1. The B/G fit's intercept — closed by no proxy (share 0.39–0.44, σ > 0.10 under every
+   curve). Suspects, none measured: photometry in a dense 17″/px field (blended stars,
+   §4's NULL branch); Gaia XP's BP/RP junction at 640–680 nm and its systematics below
+   400 nm (§1.6); the blue edge of the response that no proxy measures on this body.
+   **Discriminator: the same pin on a SPARSE field** — a crowding-driven intercept
+   would fall there, a curve-driven one would not. (A body-measured curve, §1.5 B1, is
+   owner-gated and NOT implied by this item.)
+2. The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's issue #3
+   asks for it) — U, the owner's call. The Butcher Z6 stays local (CC BY-NC-SA).
 
-**Remaining.**
-- DONE, owner-accepted 2026-08-29: the 17 baselines re-seeded on the pinned
-  products (seed lines equal to the compare measures; stack_id = the pinned
-  product's sha; aug14/set-05's ceiling verdict carried forward) and the 44
-  `_idx0_` twins disposed under the manifest's identities (0 mismatches,
-  8,559,911,176 B; `moveaside_manifest.json` "disposed").
-- The upstream MR for the Z f conversion (Apache-2.0 → GPLv3; the database's
-  issue #3 asks for it) — the owner's call; the Butcher Z6 stays local (CC BY-NC-SA).
-- OPEN, closed by no proxy: the B/G fit's intercept (share 0.39–0.44 and σ > 0.10
-  under every curve). Suspects, none measured: the photometry in a dense 17″/px
-  field (7.9/17.9 px apertures on blended stars — §4's NULL branch); Gaia XP's
-  BP/RP junction at 640–680 nm and its systematics below 400 nm (§1.6); the blue
-  edge of the response (UV cut / hot mirror) that no proxy measures on this body.
-  Discriminator: a body-measured curve (§1.5 B1 — owner-gated, NOT implied by this
-  item) or the same pin on a sparse field (MECHANISM: a crowding-driven intercept
-  would fall there, a curve-driven one would not).
-- Removal conditions (register): the `spcc_list` preload + log assertion
-  (`spcc_run.py` row); the Z f proxy in the recipes + `scripts/setup/spcc_curves/`.
-
-**Closes when** the owner accepts the delta (re-seed + twin disposal done) and the
-B/G residual has an owner — B1 scheduled, or the residual registered as a
-property of dense fields with its discriminator run.
+**Closes when** the B/G residual has an owner — the sparse-field discriminator run, or
+the residual registered as a property of dense fields.

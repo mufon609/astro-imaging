@@ -213,7 +213,16 @@ rejection unless needed — the Bad Pixel Map takes care of hot/bad pixels".
    gains a native sibling (solve_field.py stays for the trailed class).
 3. **`-opt` dark optimization vs matched darks (uncooled body)** — FAQ
    doctrine fork; A/B on one set, judged on dark-residual metrics (ties into
-   the BACKLOG:`walking-noise` mechanism work).
+   the BACKLOG:`walking-noise` mechanism work). Low priority: our darks are
+   same-night, shot at session-end temperature, which is the condition base
+   doctrine says needs no optimisation.
+   **POOLED MASTERS ACROSS NIGHTS RIDE THIS SAME FORK, and the decision rule
+   is:** pooling is gated on the nights' masters measuring identical, judged
+   on `noise_split.sh`'s structured term, and **per-session stays the
+   default** until it is. The gate is currently SATISFIED on level and not
+   yet decided: the three nights' pedestals agree to 0.1 ADU (`TOOLS.md`, the
+   sensor-pedestal entry — cited, not restated) and their noise agrees within
+   1%. Level agreement is not the whole test; the structured term is.
 4. **Bayer-drizzle colour route for OSC** (SPCC page recommendation) —
    structurally incompatible with the darktable warp (drizzle needs CFA input;
    the warp needs demosaiced frames), so it becomes live only if test 1 moves
