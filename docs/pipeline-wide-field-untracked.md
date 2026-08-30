@@ -255,15 +255,21 @@ homography, and homographies COMPOSE (the fact §6 rests on).
   gated. The portion rule is a quality THRESHOLD that excludes nothing on an
   equal-quality corpus (never a rank or a fixed percentage); coverage lost at
   the rim is an accepted, reported cost
-  (the owner crops or adds sessions). ENCODED as a chain stage:
-  `scripts/stack/run_member_crop.sh` (profile → the rule with its constant
-  from `datasets/corpus/recipe.json` `member_selection.portion_rule.bar_px`
-  → Siril-cropped copies in a curated dir, MEMC* stamped, verified, a tracked
-  record under `datasets/corpus/member_selection/`), reached through
-  `run_corpus_combine.sh --portion-rule[=<bar>]` — without the flag the chain
-  is unchanged. SCOPE: the corpus combine only; the per-set finals are not
-  run through it until measured there. `S_i` is reported as an advisory, never
-  a gate. The decision map, every form's numbers and the encoding design:
+  (the owner crops or adds sessions). THE COMBINE RUNS IT:
+  `run_corpus_combine.sh --portion-rule` runs `scripts/stack/run_member_crop.sh`
+  first (profile through the tracked cache → the rule with every constant from
+  `datasets/corpus/recipe.json` `member_selection.portion_rule` → Siril-cropped
+  copies in a curated dir, MEMC* stamped, verified, a tracked record under
+  `datasets/corpus/member_selection/`), composes the curated members with a
+  DERIVED reference, and runs `baseline_guard.py` LAST against the corpus's own
+  slot `datasets/corpus/baseline.json` (exit 8 on a regression, nothing
+  rewritten; the slot's regions sit inside the coverage rectangle because a
+  union's corners are empty). The corpus canonical is built this way — 0
+  differing pixels from the owner-approved candidate; without the flag the
+  compose is the pre-stage chain (the `_nosel` family). SCOPE: the corpus
+  combine only; the per-set finals are not run through it until measured
+  there. `S_i` is reported as an advisory, never a gate. The decision map,
+  every form's numbers and the stage as built:
   `docs/corner-smear-member-selection.md`.
 
 **Multi-session accumulation — the standing practice for ONE target shot
@@ -377,13 +383,17 @@ running).
   INSIDE the flatless route and is now quantified: a flat's shape reaches the
   delivered object ~1:1, so better sky-flat construction buys object improvement
   one-for-one (§4; register row in BACKLOG).
-- Corpus left-band / bottom-corner star smear — ATTRIBUTED (member-borne,
-  night-dominated, in the photons; registration refuted) and answered by
-  member selection: the portion rule `cropT` is owner-approved and encoded as
-  the `run_member_crop.sh` stage (`run_corpus_combine.sh --portion-rule`; the
-  bar in `datasets/corpus/recipe.json`), the frame rule measured a NULL on top
-  of it (reported, not gated)
-  (`docs/corner-smear-member-selection.md`; BACKLOG:`compose-homography-smear`).
+- Corpus left-band / bottom-corner star smear — CLOSED by member selection:
+  attributed (member-borne, night-dominated, in the photons; registration
+  refuted), the portion rule is the chain (`run_corpus_combine.sh
+  --portion-rule` → `run_member_crop.sh`; the bar in
+  `datasets/corpus/recipe.json`), the corpus canonical is built under it and
+  guarded by the corpus slot (`baseline_guard.py
+  --baseline=datasets/corpus/baseline.json`); the frame rule measured a NULL on
+  top of it (reported, not gated). Still open there: the outermost station's
+  blind spot and weighting vs exclusion (`docs/corner-smear-member-selection.md`;
+  BACKLOG:`compose-homography-smear` keeps only the reprojection route and the
+  model questions).
 - One-sided along-drift band — reproduced across nights and routes; mechanism
   open; the named discriminator needs matched-time, different-hour-angle sets
   (BACKLOG:`one-sided-band`).

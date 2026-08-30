@@ -34,9 +34,12 @@ and answered by member selection: the decision map with every form's numbers is
   does it with no seam at 27 boundaries at full depth — owner-approved. What
   selection cannot fix: the lens's SYMMETRIC radial softening (67/77 members
   rise > 0.20 px on the exit side too — every frame has it, so excluding it
-  buys nothing and costs depth). The decision map, the refuted rule forms with
-  their numbers, the constant's measured continuum and the encoding
-  recommendation: `docs/corner-smear-member-selection.md`.
+  buys nothing and costs depth). The fix is IN THE CHAIN: `run_corpus_combine.sh
+  --portion-rule` runs the stage (`run_member_crop.sh`) and the corpus canonical
+  is built under it, 0 differing pixels from the owner-approved arm (ledger
+  128), guarded by the corpus slot `datasets/corpus/baseline.json`. The decision
+  map, the refuted rule forms with their numbers, the constant's measured
+  continuum and the stage as built: `docs/corner-smear-member-selection.md`.
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

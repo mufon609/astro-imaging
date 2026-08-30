@@ -7,14 +7,16 @@ which forms of fix were built and measured, what rule stands, why each
 alternative was rejected, and what is still open. This is the document a
 contributor reads BEFORE touching member selection, the crop rule, or the
 compose's weighting; the numbers live in `datasets/aug06/experiments.jsonl`
-(lines 98–119) and `datasets/corpus/smear_attribution/*.json`, and this page is
-the map of them.
+(lines 98–128), `datasets/corpus/smear_attribution/*.json` (the arms) and
+`datasets/corpus/member_selection/*.json` (the stage, its acceptance, the
+candidate, the promote), and this page is the map of them.
 
 **Context.** Siril 1.4.4 flatpak; the undistort chain (`docs/pipeline-wide-field-untracked.md`);
 77 per-set sub-stacks ("members", STACKCNT 8349 frames) from four nights composed
 by `run_undistort_compose.sh` (per-member astrometric registration, lanczos4,
-mean with `-norm=addscale -weight=nbstack`, reference member 36 =
-aug09/set-02/sub_02 pinned). Every star-shape number below is Siril `findstar`
+mean with `-norm=addscale -weight=nbstack`; the arms pinned reference member
+36 = aug09/set-02/sub_02, the chain DERIVES its reference on the curated members
+— 35 = aug09/set-02/sub_01, §3). Every star-shape number below is Siril `findstar`
 through `scripts/qa/shape_at_sky.py` (800-px boxes placed by each product's own
 WCS, top-30 FWHM in px and roundness) or `star_stations.py` on a member; depth is
 Siril `bgnoise`; rim levels are an 8-bit diagnostic. Owner rulings are quoted
@@ -71,7 +73,7 @@ kernel. Selection cannot remove the lens's symmetric radial softening (every
 frame has it, the best available at the edge is the edge); it can remove the
 night-dependent entry-side excess and the frames that are softer than the rest.
 
-### 3. Forms built and measured (all against the canonical, same pinned reference)
+### 3. Forms built and measured (all against the pre-stage canonical; the arms share the pinned reference 36, the chain derives 35)
 
 | form | rule | band x10–x25 | centre x50 | BL corner | depth cost | verdict |
 |---|---|---|---|---|---|---|
@@ -81,6 +83,8 @@ night-dependent entry-side excess and the frames that are softer than the rest.
 | **cropT** (111–114) | THRESHOLD: crop a member's entry columns beyond the onset where FWHM(+dx) − FWHM(−dx) > 0.20 px, x_c = onset − 300; intrinsic, rankless; 27 of 77 cropped (x_c 2100 ×15 / 1500 ×11 / 900 ×1) | 2.79/2.805/2.81/2.79 | 2.515 | 2.817 | 1.007/0.996/1.010 | = crop20 within 0.01 px, no seam at 27/27; **OWNER-APPROVED 2026-08-29** as a positive test |
 | SWarp tapered weight (115–116) | per-member MAP_WEIGHT tapering the same columns to 2 % instead of removing them (keeps rim coverage) | not built | — | — | — | STOPPED by the owner: the rim is out of scope (§5); engine facts kept in `swtaper_probes.json` + the register row |
 | **cropTselT** (117–119) | cropT + a FRAME-level threshold: exclude a member whole when S = mean FWHM over {centre, −600..−2400} exceeds the corpus's 25th percentile (2.444) by > 0.20 px; 13 members excluded (aug14 set-03 sub_03–06, set-04, set-05 — all inside cropT's 27) | 2.80/2.80/2.81/2.77 (= cropT within 0.024) | 2.510 (−0.017: NULL within the 0.02 bar) | 2.823 (= cropT) | −16.2 % of the frames (STACKCNT 8349 → 6997) | **NULL** on top of the portion rule: every station within 0.024 px of cropT, the top-left corners unchanged; REJECTED as a gate — the 13 members' degrading part was their entry zone, already removed |
+| **the encoded stage, acceptance** (120–122) | `run_member_crop.sh` on the same 77: arm 1 with cropT's own recorded profiles, arm 2 with a fresh Siril `findstar` profile | = cropT by identity | = cropT | = cropT | none (no compose; the curated dir only) | **IDENTITY 27/27** — every copy pixel-identical to cropT's, 50/50 symlinks to the same targets, 77/77 onset/x_c equal, reference 36 untouched with the refusal path silent; **DETERMINISM 0/693** — the fresh profile re-measured every station identically (77 × 9, max Δ 0.000 px), 77/77 verdicts, the on-the-bar member 2.988/2.788 → 0.200 both times; the stage IS cropT |
+| **the chain: `--portion-rule` → the canonical** (123–128) | `run_corpus_combine.sh --portion-rule`: stage (0 profiled / 77 cached) → compose → derived-reference check → finish, 170 s; then the `_full` rebuild under it | 2.775/2.805/2.805/2.795 (= cropT within 0.028 at every interior station; the x05 rim station 0.063) | 2.525 | 2.800 / 0.844 | full depth (STACKCNT 8349; 6.44 % of pixel-frames removed) | **OWNER-APPROVED 2026-08-29 and PROMOTED**: the rebuilt `stack_july31+aug06+aug09+aug14_full` is 0 differing pixels from the approved candidate on the stack and the `_spcc` (144,874,080 px each), its judge PNG byte-identical; the pre-stage canonical moved aside as `_nosel`. Reference DERIVED as 35, not the arms' 36: the compose picks the member whose centre-pixel pointing is nearest the median pointing, and the 27 crops move each cropped member's centre (W − kept)/2 columns toward its exit side, moving the median with it — deterministic, not a quality difference |
 
 Forms refuted BEFORE building, from the same profiles (`cropT_arm.json`):
 the intrinsic gradient FWHM(+dx) − FWHM(centre) > 0.20 trips on 66/77 members
@@ -98,7 +102,10 @@ aug09/set-01 have soft centres (2.44–2.54) with the sharpest edges in the corp
 (aug14 +0.27..+0.47 and aug09/set-04/05 +0.23..+0.28 against ≤ 0.13 elsewhere)
 and then MEASURED to sit in a continuum, not a gap: the values around it run
 …0.147 | 0.165 … 0.200 | 0.222 … 0.233 | 0.263…, the step at the bar (0.022) is
-the profile's own run-to-run scatter, and the eight kept members just under it
+a step between DIFFERENT members at flat stations — not measurement scatter:
+`findstar` on identical input is deterministic (two independent profiles of the
+77 at 17B differed at 0 of 693 station values; the on-the-bar member read
+2.988/2.788 → 0.200 both times) — and the eight kept members just under it
 have corners indistinguishable from the five cropped just over it (BR-corner
 medians 2.718 vs 2.757 px; the 42 clearly-under read 2.547). Two kept members are
 individually worse than four cropped ones because their EXIT sides are soft too
@@ -157,11 +164,15 @@ continuum is a policy, and the policy is the owner's (§5).
 
 ## Sources
 
-- Records: `datasets/aug06/experiments.jsonl` lines 98–116 (117–118 pending);
+- Records: `datasets/aug06/experiments.jsonl` lines 98–128;
   `datasets/corpus/smear_attribution/{left_band_member_attribution, night_dependence_single_raws, corner_direction, member_selection_arm, crop20_arm, cropT_arm, cropTselT_arm, swtaper_probes}.json`;
-  `datasets/aug06/set-01/qa_work/drift_span_discriminator.json`.
+  `datasets/aug06/set-01/qa_work/drift_span_discriminator.json`;
+  `datasets/corpus/member_selection/{acceptance_17B_armA, acceptance_17B_armB, candidate_msel, promote_manifest, profiles, july31+aug06+aug09+aug14_full_portion}.json`;
+  `datasets/corpus/recipe.json` (the constants); `datasets/corpus/baseline.json`
+  (the corpus's no-regression slot).
 - Instruments: `scripts/qa/shape_at_sky.py`, `scripts/qa/star_stations.py`,
-  `scripts/qa/star_shape.py` (seqtilt), Siril `stat`/`bgnoise`.
+  `scripts/qa/star_shape.py` (seqtilt), `scripts/qa/regional_stat.py`, Siril
+  `stat`/`bgnoise`.
 - Siril `crop`, `findstar`, `stack -norm=addscale -weight=nbstack`:
   https://siril.readthedocs.io/en/stable/Commands.html
 - SWarp (the stopped route): https://astromatic.github.io/swarp/ ; the engine
@@ -173,82 +184,149 @@ Member selection by measured quality is the fix for this class, and on this
 corpus the PORTION rule alone carries it: the entry-side asymmetry threshold
 (cropT — approved) removes the degrading part of the soft members and keeps
 their interiors, which the frame rule showed are not degrading anything (NULL at
-−16.2 % of the frames). Encode the portion rule as ONE stage between the per-set
-sub-stacks and the compose — profile every member with `star_stations.py`, apply
-the rule with its constant visible in the record, report the frame score S_i
-beside it (an advisory, not a gate), write cropped COPIES (never touch a member),
-compose the curated set — with a positive control (a planted asymmetric member
-that MUST be cropped) and a removal condition (Siril's `stack` offers per-member
-spatial weights or a per-member quality cull of its own). On the owner's word.
+−16.2 % of the frames). It is encoded as ONE stage between the per-set
+sub-stacks and the compose, its constant visible in the recipe, the frame score
+S_i reported beside it as an advisory, every copy verified, a positive control in
+the guard suite, a removal condition in the register — and the corpus canonical
+is built under it. What follows is that stage as it stands.
 
-### Encoding design — READY, UNBUILT (awaits the owner's go)
+### The stage as built
 
 Hook point: a MEMBER stage between the per-set sub-stacks and the compose — its
 own script, never inside `run_undistort_compose.sh`, whose contract is "dirs of
 `sub_*.fit` → link, gate (T0/T1), preflight, register, stack" and which never
-modifies a member; both arms reached it through exactly that door (a curated dir
-of symlinks + cropped copies in canonical order), and a stage inside it would
-re-crop on every compose and hide the copies where nothing can measure them.
-`run_corpus_combine.sh` enumerates the `groups_set-NN` dirs and hands them to the
-compose; the stage sits there.
+modifies a member. `run_corpus_combine.sh --portion-rule[=<bar>]` runs the stage
+first and hands the compose the curated dir; without the flag the compose is the
+pre-stage chain (the `_nosel` family is that product).
 
-- `scripts/stack/run_member_crop.sh <session-dir>... --out=<curated dir> --bar=0.20
-  [--ref=<member>]`: enumerate the canonical member dirs with the combine's own
-  allow-list (one shared function, not a copy of its loop); profile every member at
-  the ±600..±2400 stations with `star_stations.py`'s geometry (the GO #13 driver as
-  a script, one Siril run per member, lists kept); apply the asymmetry rule with the
-  constant VISIBLE on the command line and stamped; write the interior score S_i
-  beside it as an ADVISORY (reported, never a gate — the GO #16 NULL); write the
-  curated dir (symlinks for untouched members, Siril-cropped 32-bit copies for the
-  rest, canonical order) and a tracked JSON record (the per-member table, the rule,
-  x_c per member, the cut, what was cropped and why); assert per copy what GO #12/#13
-  verified (kept pixels identical to the original's first kept columns, CRPIX/CRVAL/
-  SIP unchanged, provenance keys present, a single matrix form).
-- Positive control: a planted member whose profile crosses the bar at a known
-  station MUST come out cropped at onset − 300; a flat-profile member MUST come out
-  a symlink.
-- `run_corpus_combine.sh` gains one flag (`--portion-rule=<bar>`, or the recipe
-  key) that runs the stage and passes the curated dir to the compose; with it absent
-  the chain is byte-for-byte the current one (the canonical stays reproducible).
-- Provenance, per member: structured keys written by Siril `update_key` at crop time
-  — MEMCROP = x_c (int), MEMCRULE = "asym>0.20px@r400 top30", MEMCPROV = the
-  record's path/sha, MEMCSCOR = S_i; untouched members carry NONE (their absence is
-  the fact that they are originals — the stage never writes to an original).
-  Composite: `header_composite_provenance_lines()` (`stamp_headers.sh`) aggregates
-  MEMCROP as it does CALPROV/DISTPROV — NCROPPED, MEMCRULE (identical across the
-  cropped members or the stamp refuses: one rule per compose), MEMCXCS (the
-  "2100x15/1500x11/900x1" histogram), MEMCPROV. The T0 gate's required tuple is
-  unchanged (a cropped copy carries every required key: 27/27, 14/14 measured).
-- The reference: pinned by PATH as today; the stage refuses to crop the pinned
-  reference unless the rule crops it, and then says so (the anchor's IKSS statistics
-  change with its columns — a cropped anchor is UNTESTED; 36 was uncropped in both
-  arms).
-- The constant lives in the corpus recipe block (a tracked file), not a script
-  default. Removal condition (the register row): "retire when Siril's compose accepts
-  per-member weight maps or a per-member region mask" — a mask is the crop without
-  the coverage cost — the same condition the SWarp scaffolding carries.
-- Cautions carried from the measurements: the profile is CENTRE-ROW only (x_c and S_i
-  alike) — a member soft in its top/bottom rows passes both rules, stated in the
-  docstring; a canonical rebuild under the stage changes the canvas (cropT −16 × −6
-  px) and every rim-fed corner as cropT did, so the baseline guard's corner-spread
-  rows move by the rim change, not by a regression — re-seed after the owner's
-  acceptance, not before.
+- **Scripts.** `scripts/stack/run_member_crop.sh` (the stage) +
+  `scripts/stack/member_profile.py` (profile / rule / verify) +
+  `scripts/lib/member_dirs.sh` (the ONE member-dir enumerator, shared with the
+  combine). Profile = Siril `findstar` at `star_stations.py`'s geometry, one run
+  per member, through the tracked profile CACHE
+  (`datasets/corpus/member_selection/profiles.json`, keyed by content sha256 +
+  measuring geometry; a run says which members it profiled — the canonical build
+  reads "0 profiled, 77 cached"). Verdict = a pure function of a member's own
+  profile and the recipe constants, so adding a night never changes an earlier
+  verdict.
+- **The constants** live in `datasets/corpus/recipe.json`
+  `member_selection.portion_rule` — `bar_px` 0.20, `stations_px` 600/1200/1800/2400,
+  `radius_px` 400, `top_n` 30, `half_width_px` 300 — never a script default; a
+  missing key is a hard stop naming it; `--bar`/`--half-width` override aloud.
+- **The rule**, per member: onset = the smallest station dx where FWHM(+dx) −
+  FWHM(−dx) > bar and stays above outward; x_c = onset − half-width; the
+  entry-side columns beyond W/2 + x_c are removed from a Siril-cropped 32-bit
+  COPY (`crop 0 0 round(W/2+x_c) H`); no station over the bar → a symlink to the
+  untouched original. Originals are never written. A station skipped for member
+  width vetoes the outward tail (no crop on incomplete evidence), warned per
+  member. The profile is CENTRE-ROW only (x_c and S_i alike): a member soft in
+  its top/bottom rows passes both rules — stated in the docstring.
+- **Provenance.** Per cropped copy, by Siril `update_key`: MEMCROP = x_c,
+  MEMCRULE = "asym>0.20px@r400 top30" (the aggregation identity key), MEMCSCOR
+  = S_i, MEMCPROV = the record path (via `header_apply_keys` — Siril truncates a
+  string at `/`). Untouched members carry none. The composite aggregates
+  NCROPPED / MEMCRULE (identical across the cropped members or the stamp
+  refuses) / MEMCXCS ("2100x15/1500x11/900x1") / MEMCPROV
+  (`stamp_headers.sh`); the canonical reads NCROPPED 27.
+- **Verify, per copy**: kept pixels identical to the original's first kept
+  columns; CRPIX/CRVAL and the matrix form exact; the T0 keys present; the four
+  MEMC* keys; SIP asserted two ways (below). Per symlink: resolves to the
+  original, no MEMC* keys. The verdict lands in the stage record
+  (`datasets/corpus/member_selection/<tag>_portion.json`).
+- **Naming.** The product TAG derives from `--out`'s basename `stack_<tag>.fit`:
+  the curated dir is `curated_<tag>`, the stage record `<tag>_portion.json`, the
+  finish's `_wcs`/`_spcc`/judge PNG carry the tag; with no `--out` the TAG is
+  `<NAME>_full` — the canonical. A `--out` candidate therefore never writes onto
+  the canonical's names.
+- **The reference.** A PINNED reference (`--ref`) is refused for cropping — exit 3
+  — unless `--allow-ref-crop` says it aloud (a cropped anchor is untested). The
+  corpus combine DERIVES its reference after the stage
+  (`derive_compose_ref.py`: nearest centre-pixel pointing to the median) and
+  reads it back against the stage record: a cropped derived anchor is a loud
+  line + `reference_cropped` in the record, never a refusal. On this corpus the
+  derived reference 35 is uncropped (§3).
+- **The guard, last.** `run_corpus_combine.sh` ends with `baseline_guard.py
+  --baseline=datasets/corpus/baseline.json` against the finished `_spcc` — the
+  corpus's own slot, because the combine files its finish under the reference
+  SET and the per-set derivation would overwrite that set's baseline. Slot absent
+  = first build (one line, exit 0; a build never seeds itself); a regression
+  exits 8, nothing rewritten. The slot was seeded on the promoted product: corner
+  spread 0.474 %, edge dipole −0.0095, centre medians 42.1/42.3/42.1, STACKNRM
+  addscale, canvas 8520×5668.
+- **Positive controls** (`run_member_crop.sh --selftest`, in `run_guards`): a
+  planted member crossing the bar at +1800 MUST crop at 1500 with the four
+  MEMC* keys and kept-pixel identity; a flat member MUST be a symlink with none;
+  a SYMMETRIC both-sides rise MUST NOT crop (the refuted intrinsic form); the
+  pinned-reference refusal MUST fire and `--allow-ref-crop` lift it aloud; the
+  cache path MUST serve a run with 0 profiled, verdicts identical, cache
+  byte-identical.
+- **Removal condition** (the register row): retire when Siril's compose accepts
+  per-member weight maps or a per-member region mask — a mask is the crop
+  without the coverage cost; the same condition the SWarp scaffolding carries.
+
+Two facts measured only after the stage existed (both in the dead-end registry,
+`docs/dead-ends/siril-behaviors.md`):
+
+- **Siril re-serializes SIP at 15 significant digits on crop+save.** The
+  solver's headers carry 17-digit reprs, so across the 27 copies 36 of 1107 SIP
+  coefficient values changed — max 4.49e-15 relative, max pixel→world effect
+  4.41e-13 deg; key sets and orders identical. The owner-approved cropT copies
+  carry the same re-serialized values behind a KEYS-only check that never
+  measured values. Verify's criterion (ruled at 17B): key sets + orders
+  identical AND every coefficient within 1e-12 relative (a thousandfold over the
+  re-serialization, a millionfold below what a re-solve or a wrong crop does),
+  AND pixel→world agreement between the original's WCS and the copy's < 1e-9 deg
+  at the copy's four corners + centre; positive controls in both directions
+  (17-digit fixture coefficients MUST pass with max_rel_sip > 0 — measured
+  2.46e-15; one coefficient altered by 1e-6 relative MUST fail both — measured
+  rel 1.00e-06, sky 5.06e-08 deg). Real run: max_rel_sip 4.49e-15, 27/27.
+- **A union's corners are EMPTY, so the corpus baseline measures inside the
+  coverage rectangle.** `framing=max` leaves uncovered triangles around the
+  rotated members' quad: three of the four per-set canvas-edge corner boxes
+  read a Green median of 6.1e-5 against 6.0e-4 of covered sky — a coverage
+  ratio, not flatness — and Siril prints `Sigma: -nan` for a constant layer,
+  which the first seed's numeric-only regex dropped (`KeyError 'ch1'`). The
+  corpus slot therefore REQUIRES a rectangle source to seed
+  (`--coverage=<coverage_frame.py record>` or `--rect=`), places its five
+  regions inside it — here [852, 436, 6816, 4578], floor 27.15 Green, grid
+  40×26 — records the rectangle with its provenance, and REUSES it on compare
+  (a recomputed rectangle would compare unlike regions). The rim staircase is
+  outside the rectangle by construction and is not in the baseline's measures;
+  `regional_stat.py` accepts nan sigma and refuses loudly on a constant layer.
+
+Caution carried: the stage changes the canvas (8520×5668 against the pre-stage
+8540×5677) and every rim-fed corner, so the per-set style corner rows would
+move by the rim change, not by a regression — which is why the corpus slot's
+rectangle rule exists, and why a re-seed follows the owner's acceptance, never
+precedes it.
 
 ## Status
 
-EMPIRICALLY TESTED for the attribution (§2), the portion rule (§3, cropT —
-owner-approved) and the frame rule (a NULL on top of it — not encoded as a gate;
-its score stays a reported measurement with a re-test condition: a corpus whose
-soft night is soft in its INTERIOR beyond the entry zone); the encoding is
-UNBUILT. Open: the constant's placement (§4); the +2400 outermost station's
-blind spot (a defect confined to a member's last ~100–500 px is invisible to
-every form above); the depth measure's regime; weighting vs exclusion (§6).
+EMPIRICALLY TESTED end to end: the attribution (§2); the portion rule (§3,
+cropT — owner-approved); the frame rule (a NULL on top of it — not encoded as a
+gate; its score is reported with a re-test condition: a corpus whose soft night
+is soft in its INTERIOR beyond the entry zone); the encoded stage (identity
+27/27 and determinism 0/693 against cropT); the chain (`--portion-rule` →
+the owner-approved candidate → the promoted canonical, 0 differing pixels,
+guarded by the corpus baseline slot). Open: the constant's placement (§4, a
+policy in a continuum — the owner's); the +2400 outermost station's blind spot (a
+defect confined to a member's last ~100–500 px is invisible to every form
+above); the depth measure's regime (§6); weighting vs exclusion (§6); the
+per-set finals are not run through the stage until measured there.
 
 ## Graduation
 
-BACKLOG `compose-homography-smear` (the item this closes as a registration
-question), `one-sided-band`, `corner-fix-landscape`, `final-best-percent-pass`
-(the frame rule is its threshold form) point here; the dead-end registry
-carries the refuted registration mechanism (`docs/dead-ends/stacking-compose.md`)
-and the shape_at_sky trap (`docs/dead-ends/verification-traps.md`);
-`docs/pipeline-wide-field-untracked.md` names the selection stage.
+- The chain: `run_corpus_combine.sh --portion-rule` runs `run_member_crop.sh`;
+  the constants in `datasets/corpus/recipe.json`; the corpus slot
+  `datasets/corpus/baseline.json` seeded; `docs/pipeline-wide-field-untracked.md`
+  §6 (the stage) and §11 (the smear item, closed by it).
+- BACKLOG: `compose-homography-smear` (member selection is the chain; only the
+  reprojection route and the model questions stay open), `final-best-percent-pass`
+  (the member-tier threshold form has shipped; the per-frame cross-session
+  surface stays open), the register row for `run_member_crop.sh` +
+  `member_profile.py` (in the chain; the condition unchanged).
+- The dead-end registry: `docs/dead-ends/stacking-compose.md` (the attributed
+  mechanism, now closed by the stage), `docs/dead-ends/siril-behaviors.md` (the
+  15-digit SIP re-serialization; the constant-layer `Sigma: -nan` lines and the
+  empty-corner rectangle rule), `docs/dead-ends/verification-traps.md` (the
+  shape_at_sky trap).

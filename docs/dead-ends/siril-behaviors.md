@@ -89,7 +89,42 @@ The defining property of this family: the output looks healthy.
   patches, synthetic uniform cards, clipped rims. Found twice, in two
   instruments, from ONE COPIED REGEX — the copied-pattern propagation is
   the durable half; the fix is provably neutral where no cell is
-  zero-variance.
+  zero-variance. MEASURED AGAIN on the corpus union (ledger 127–128;
+  `regional_stat.py`'s docstring has the verbatim lines): for a CONSTANT crop
+  of a non-constant image Siril prints ALL THREE layer lines, each `Sigma:
+  -nan` (`Mean: 10.2, Median: 10.2, Sigma: -nan, Min: 10.2, Max: 10.2,
+  bgnoise: 0.0`), while a wholly constant image collapses to ONE line — the
+  numeric-only regex dropped the nan lines, one channel survived, and the
+  corpus baseline's first seed died downstream on `KeyError 'ch1'`. Where the
+  constant crops came from: `framing=max` leaves a union's corners EMPTY
+  (uncovered triangles around the rotated members' quad — three of the four
+  canvas-edge corner boxes read a Green median of 6.1e-5 against 6.0e-4 of
+  covered sky, a coverage ratio, not flatness). Consequences: `regional_stat.py`
+  accepts nan sigma (recorded null), records min/max, and REFUSES loudly with no
+  partial record on fewer layer lines than layers or on any constant layer
+  (sigma nan or min == max), naming region, crop box and layers; a union's
+  regions are placed INSIDE the coverage rectangle (`--rect`/`--coverage`), and
+  the corpus baseline slot requires that rectangle to seed
+  (`baseline_guard.py`, THE RECTANGLE). The rule for when Siril collapses to one
+  line was not characterised further.
+- **Siril `crop` + save RE-SERIALIZES SIP COEFFICIENTS AT 15 SIGNIFICANT
+  DIGITS — a copy's WCS is not byte-equal to its original's when nothing
+  moved.** MEASURED (ledger 121–122;
+  `datasets/corpus/member_selection/acceptance_17B_arm{A,B}.json`): the
+  solver's headers carry 17-digit reprs, and across 27 cropped copies 36 of
+  1107 SIP coefficient values changed — max 4.49e-15 relative (`AP_0_0`
+  −0.01198645646714617 → −0.0119864564671462), max pixel→world effect 4.41e-13
+  deg; key sets and orders identical (45/45 per member). Consequence: an
+  exact-equality "SIP unchanged" check is over-strict by ~1e-15 and flagged
+  23 of 27 correct copies; the owner-approved arm carried the same values
+  behind a KEYS-only check that never measured values. The criterion that
+  stands (`member_profile.py` verify): key sets + orders identical AND every
+  coefficient within 1e-12 relative, AND pixel→world agreement < 1e-9 deg at
+  the copy's four corners + centre — with positive controls in both
+  directions (17-digit fixture coefficients MUST pass with max_rel_sip > 0,
+  measured 2.46e-15; one coefficient altered by 1e-6 relative MUST fail both,
+  measured rel 1.00e-06 / sky 5.06e-08 deg). SCOPE: Siril 1.4.4, `crop` then
+  `save` of 32-bit FITS; n = 27 real copies + the fixture.
 - **`seqapplyreg -interp=none` FAILS OUTRIGHT ON A HOMOGRAPHY-REGISTERED
   SEQUENCE — it does not degrade silently, and `-interp=nearest` is the
   no-blur control to use instead.** Siril's help says `none` forces the

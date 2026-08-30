@@ -72,9 +72,11 @@ _(add each writeup here, newest first; retired writeups live in git history)_
   single raws and night-dominated; the corners are the lens's asymmetric term),
   every selection form built with its numbers (sel57 rank → crop20 partial →
   cropT threshold, owner-approved; the SWarp tapered form stopped; the frame-level
-  threshold under test), the constant's measured continuum, the owner rulings
-  that shape the rule, and the encoding recommendation. EMPIRICALLY TESTED for
-  attribution and the portion rule; the frame rule pending.
+  threshold a measured NULL), the constant's measured continuum, the owner rulings
+  that shape the rule, and the stage as built — `run_corpus_combine.sh
+  --portion-rule` → `run_member_crop.sh`, acceptance-tested pixel-identical to the
+  approved arm, the corpus canonical built under it and guarded by the corpus
+  baseline slot. EMPIRICALLY TESTED end to end.
 - [`spcc-sensor-curve-z6iii.md`](spcc-sensor-curve-z6iii.md) — SPCC's response model on this rig: headless Siril resolves sensor/filter/white-reference names before loading its database, so every calibration ran against index 0 of each list (MEASURED 44/44 logs; mechanism from 1.4.4 source); no Z6 III curve exists (IMX820AQJ); options, the Weta Nikon Z f proxy, the pre-registered six-arm test (BACKLOG `spcc-sensor-curve`).
 - [pipeline-wide-field-untracked](pipeline-wide-field-untracked.md) — THE
   step-by-step process document for the validated class (camera raws, fixed
