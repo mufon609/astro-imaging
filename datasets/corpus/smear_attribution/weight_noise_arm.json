@@ -1,0 +1,2851 @@
+{
+ "id": "weight_noise_arm",
+ "what": "ONE knob: the corpus compose's per-member weight, nbstack -> noise (Siril `stack ... -weight=noise`); the same curated dir the canonical was built from (read-only), reference PINNED 35, framing max, finish identical. A measurement arm, no chain change. Ledger datasets/aug06/experiments.jsonl 134 (pre-registration, after the probe) and 135 (verdict).",
+ "step1_probe": {
+  "source": "Siril 1.4.4 src/stacking/median_and_mean.c compute_noise_weights(): pweights[layer][i] = 1/(coeff.pscale[layer][i]^2 * seq->stats[layer][idx]->bgnoise^2), normalized by the mean over frames per layer; bgnoise is the sequence's per-image statistic of the REGISTERED image; the only log line is 'Computing weights based on noise...' (no per-image weight is printed); docs preprocessing/stacking: 'Noise: weights individual frames based on background noise values.'",
+  "measured": {
+   "seq_stats": {
+    "0-0": {
+     "total": 37047290,
+     "ngoodpix": 22999612,
+     "median": 0.000894918,
+     "sigma": 0.000633106,
+     "location": 0.000893949,
+     "scale": 2.97542e-05,
+     "min": 0.0,
+     "max": 0.407385,
+     "bgnoise": 1.8342e-05
+    },
+    "0-1": {
+     "total": 28399680,
+     "ngoodpix": 22888326,
+     "median": 0.000498899,
+     "sigma": 0.000545597,
+     "location": 0.000498084,
+     "scale": 2.31768e-05,
+     "min": 0.0,
+     "max": 0.34771,
+     "bgnoise": 1.36622e-05
+    },
+    "0-2": {
+     "total": 29704448,
+     "ngoodpix": 22854455,
+     "median": 0.000447043,
+     "sigma": 0.000541782,
+     "location": 0.000446228,
+     "scale": 2.19031e-05,
+     "min": 0.0,
+     "max": 0.301154,
+     "bgnoise": 1.27584e-05
+    },
+    "1-0": {
+     "total": 37047290,
+     "ngoodpix": 22999612,
+     "median": 0.00177461,
+     "sigma": 0.000798027,
+     "location": 0.00177307,
+     "scale": 3.53616e-05,
+     "min": 0.0,
+     "max": 0.495699,
+     "bgnoise": 2.20029e-05
+    },
+    "1-1": {
+     "total": 28399680,
+     "ngoodpix": 22888326,
+     "median": 0.000886897,
+     "sigma": 0.000714609,
+     "location": 0.000885514,
+     "scale": 2.80803e-05,
+     "min": 0.0,
+     "max": 0.39679,
+     "bgnoise": 1.62237e-05
+    },
+    "1-2": {
+     "total": 29704448,
+     "ngoodpix": 22854455,
+     "median": 0.000785396,
+     "sigma": 0.000722248,
+     "location": 0.000784007,
+     "scale": 2.61841e-05,
+     "min": 0.0,
+     "max": 0.372245,
+     "bgnoise": 1.47784e-05
+    },
+    "2-0": {
+     "total": 37047290,
+     "ngoodpix": 22999612,
+     "median": 0.00147624,
+     "sigma": 0.000692522,
+     "location": 0.0014752,
+     "scale": 3.25663e-05,
+     "min": 0.0,
+     "max": 0.462801,
+     "bgnoise": 1.97565e-05
+    },
+    "2-1": {
+     "total": 28399680,
+     "ngoodpix": 22888326,
+     "median": 0.000601679,
+     "sigma": 0.000626634,
+     "location": 0.00060082,
+     "scale": 2.42378e-05,
+     "min": 0.0,
+     "max": 0.343953,
+     "bgnoise": 1.38334e-05
+    },
+    "2-2": {
+     "total": 29704448,
+     "ngoodpix": 22854455,
+     "median": 0.000567212,
+     "sigma": 0.000629305,
+     "location": 0.000566314,
+     "scale": 2.31287e-05,
+     "min": 0.0,
+     "max": 0.34445,
+     "bgnoise": 1.29558e-05
+    }
+   },
+   "probe": {
+    "1": {
+     "canvas": [
+      6742,
+      5495
+     ],
+     "nonzero_px": 22999612,
+     "zero_fraction": 0.3792,
+     "crop_siril": [
+      2397,
+      1756,
+      2000,
+      2000
+     ],
+     "bgnoise_whole_norm": [
+      1.834e-05,
+      2.2e-05,
+      1.976e-05
+     ],
+     "bgnoise_crop_norm": [
+      1.626e-05,
+      1.963e-05,
+      1.734e-05
+     ],
+     "seq_bgnoise_norm": [
+      1.8342e-05,
+      2.20029e-05,
+      1.97565e-05
+     ],
+     "orig_bgnoise_whole_norm": [
+      1.848e-05,
+      2.205e-05,
+      2.009e-05
+     ],
+     "orig_bgnoise_crop_norm": [
+      1.645e-05,
+      1.971e-05,
+      1.776e-05
+     ]
+    },
+    "2": {
+     "canvas": [
+      6228,
+      4560
+     ],
+     "nonzero_px": 22888326,
+     "zero_fraction": 0.1941,
+     "crop_siril": [
+      2136,
+      1274,
+      2000,
+      2000
+     ],
+     "bgnoise_whole_norm": [
+      1.366e-05,
+      1.622e-05,
+      1.383e-05
+     ],
+     "bgnoise_crop_norm": [
+      1.255e-05,
+      1.629e-05,
+      1.293e-05
+     ],
+     "seq_bgnoise_norm": [
+      1.36622e-05,
+      1.62237e-05,
+      1.38334e-05
+     ],
+     "orig_bgnoise_whole_norm": [
+      1.442e-05,
+      1.66e-05,
+      1.441e-05
+     ],
+     "orig_bgnoise_crop_norm": [
+      1.317e-05,
+      1.656e-05,
+      1.341e-05
+     ]
+    },
+    "3": {
+     "canvas": [
+      6304,
+      4712
+     ],
+     "nonzero_px": 22854455,
+     "zero_fraction": 0.2306,
+     "crop_siril": [
+      2144,
+      1352,
+      2000,
+      2000
+     ],
+     "bgnoise_whole_norm": [
+      1.276e-05,
+      1.478e-05,
+      1.296e-05
+     ],
+     "bgnoise_crop_norm": [
+      1.146e-05,
+      1.434e-05,
+      1.187e-05
+     ],
+     "seq_bgnoise_norm": [
+      1.27584e-05,
+      1.47784e-05,
+      1.29558e-05
+     ],
+     "orig_bgnoise_whole_norm": [
+      1.35e-05,
+      1.514e-05,
+      1.352e-05
+     ],
+     "orig_bgnoise_crop_norm": [
+      1.202e-05,
+      1.461e-05,
+      1.23e-05
+     ]
+    }
+   },
+   "implied_weights": {
+    "0": [
+     0.9335314085352886,
+     1.0209193273460375,
+     1.0455492641186739
+    ],
+    "1": [
+     0.8888265514546141,
+     1.0309004465063143,
+     1.0802730020390718
+    ],
+    "2": [
+     0.9083433108398985,
+     1.026270219259096,
+     1.0653864699010054
+    ]
+   },
+   "names": {
+    "0": "july31/set-01/sub_01 (ref)",
+    "1": "aug09/set-03/sub_01",
+    "2": "aug14/set-04/sub_02"
+   }
+  },
+  "verdict": "the zero-filled margins do NOT enter: the .seq statistics' ngoodpix equals the nonzero-pixel count of every registered image to the pixel, the .seq bgnoise equals Siril `bgnoise` on the whole registered frame, and the whole/centre-crop ratio is the member's own noise gradient (identical on the unregistered original: 1.119 vs 1.121 on july31); two side terms measured: resampling lowers a non-reference member's noise ~2.3 % (REG/ORIG 0.998/0.977/0.976), and the pscale term makes the weight (scale_i/(scale_ref*bgnoise_i))^2 \u2014 the member's dispersion-to-noise ratio squared \u2014 not 1/bgnoise^2 (probe implied weights G 0.889/1.031/1.080 vs 0.594/1.092/1.316 for 1/bgnoise^2)"
+ },
+ "predicted_weights": {
+  "proxy": "w \u221d (sqrt(BWMV)/bgnoise)^2 on the ORIGINAL member (Siril stat main + bgnoise, Green): sqrt(BWMV) stands in for the IKSS scale the addscale pscale uses (printed nowhere at full precision \u2014 1 decimal here), so this is a DIRECTION, not the weight; the actual weights are reconstructed from the arm's r_s_.seq M lines after the build",
+  "by_night": {
+   "july31": {
+    "n": 17,
+    "bgnoise_G_adu16_median": 1.457,
+    "bgnoise_min_max": [
+     1.244,
+     1.479
+    ],
+    "sqrtbwmv_median": 2.4,
+    "proxy_w_mean": 0.891,
+    "w_invnoise_mean": 0.541,
+    "nbstack_mean": 0.955
+   },
+   "aug06": {
+    "n": 13,
+    "bgnoise_G_adu16_median": 0.963,
+    "bgnoise_min_max": [
+     0.936,
+     1.04
+    ],
+    "sqrtbwmv_median": 1.8,
+    "proxy_w_mean": 0.991,
+    "w_invnoise_mean": 1.146,
+    "nbstack_mean": 1.032
+   },
+   "aug09": {
+    "n": 22,
+    "bgnoise_G_adu16_median": 1.006,
+    "bgnoise_min_max": [
+     0.942,
+     1.088
+    ],
+    "sqrtbwmv_median": 1.8,
+    "proxy_w_mean": 0.991,
+    "w_invnoise_mean": 1.079,
+    "nbstack_mean": 1.027
+   },
+   "aug14": {
+    "n": 25,
+    "bgnoise_G_adu16_median": 0.983,
+    "bgnoise_min_max": [
+     0.885,
+     1.01
+    ],
+    "sqrtbwmv_median": 1.8,
+    "proxy_w_mean": 1.087,
+    "w_invnoise_mean": 1.166,
+    "nbstack_mean": 0.99
+   }
+  }
+ },
+ "actual_weights": {
+  "formula": "w_i = 1/(pscale_i^2 * bgnoise_i^2), pscale_i = scale_ref/scale_i, normalized by the mean over the 77 per layer (Siril 1.4.4 median_and_mean.c compute_noise_weights); every number from the kept r_s_.seq M lines (Siril's own registered-image statistics, nulls excluded: ngoodpix = the nonzero count)",
+  "by_night": {
+   "july31": {
+    "n": 17,
+    "w_noise_G_mean": 0.9,
+    "w_noise_G_min_max": [
+     0.752,
+     1.141
+    ],
+    "w_nbstack_mean": 0.955,
+    "bgnoise_G_norm_median": 2.17432e-05
+   },
+   "aug06": {
+    "n": 13,
+    "w_noise_G_mean": 0.971,
+    "w_noise_G_min_max": [
+     0.913,
+     1.057
+    ],
+    "w_nbstack_mean": 1.032,
+    "bgnoise_G_norm_median": 1.45275e-05
+   },
+   "aug09": {
+    "n": 22,
+    "w_noise_G_mean": 0.988,
+    "w_noise_G_min_max": [
+     0.949,
+     1.052
+    ],
+    "w_nbstack_mean": 1.028,
+    "bgnoise_G_norm_median": 1.4929049999999999e-05
+   },
+   "aug14": {
+    "n": 25,
+    "w_noise_G_mean": 1.094,
+    "w_noise_G_min_max": [
+     0.991,
+     1.344
+    ],
+    "w_nbstack_mean": 0.99,
+    "bgnoise_G_norm_median": 1.46078e-05
+   }
+  },
+  "reference_35": {
+   "night": "aug09",
+   "stackcnt": 114,
+   "cropped": false,
+   "bgnoise_G_norm": 1.49254e-05,
+   "scale_G": 2.58007e-05,
+   "ngoodpix_G": 22684456,
+   "total_G": 34536656,
+   "w_noise": [
+    0.9725,
+    0.9826,
+    0.9882
+   ],
+   "w_nbstack": 1.0514
+  },
+  "cropped_vs_untouched_mean_G": [
+   1.079,
+   0.958
+  ],
+  "per_member": {
+   "sub_001_july31_set-01_sub_01.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.18853e-05,
+    "scale_G": 3.53528e-05,
+    "ngoodpix_G": 23124257,
+    "total_G": 35299359,
+    "w_noise": [
+     0.9143,
+     0.858,
+     0.8868
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_002_july31_set-01_sub_02.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.17938e-05,
+    "scale_G": 3.2959e-05,
+    "ngoodpix_G": 23166378,
+    "total_G": 34700023,
+    "w_noise": [
+     0.8762,
+     0.752,
+     0.8044
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_003_july31_set-01_sub_03.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.20767e-05,
+    "scale_G": 3.33956e-05,
+    "ngoodpix_G": 23228121,
+    "total_G": 34052278,
+    "w_noise": [
+     0.8724,
+     0.7524,
+     0.7991
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_004_july31_set-01_sub_04.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.21336e-05,
+    "scale_G": 3.3528e-05,
+    "ngoodpix_G": 23300112,
+    "total_G": 33188540,
+    "w_noise": [
+     0.8737,
+     0.7545,
+     0.8059
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_005_july31_set-01_sub_05.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.18985e-05,
+    "scale_G": 3.8781e-05,
+    "ngoodpix_G": 23399785,
+    "total_G": 32586604,
+    "w_noise": [
+     0.9912,
+     1.0313,
+     0.9777
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_006_july31_set-02_sub_01.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.16487e-05,
+    "scale_G": 3.56304e-05,
+    "ngoodpix_G": 23108268,
+    "total_G": 31824300,
+    "w_noise": [
+     0.9417,
+     0.8907,
+     0.9009
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_007_july31_set-02_sub_02.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.15772e-05,
+    "scale_G": 3.39244e-05,
+    "ngoodpix_G": 23120181,
+    "total_G": 31202759,
+    "w_noise": [
+     0.9462,
+     0.8128,
+     0.8373
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_008_july31_set-02_sub_03.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.18464e-05,
+    "scale_G": 3.40416e-05,
+    "ngoodpix_G": 23152878,
+    "total_G": 30555421,
+    "w_noise": [
+     0.9215,
+     0.7984,
+     0.829
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_009_july31_set-02_sub_04.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.19958e-05,
+    "scale_G": 3.38068e-05,
+    "ngoodpix_G": 23204845,
+    "total_G": 29870820,
+    "w_noise": [
+     0.9012,
+     0.7768,
+     0.8235
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_010_july31_set-02_sub_05.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.17432e-05,
+    "scale_G": 3.52682e-05,
+    "ngoodpix_G": 23271922,
+    "total_G": 29145850,
+    "w_noise": [
+     0.9442,
+     0.8651,
+     0.8787
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_011_july31_set-03_sub_01.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.18707e-05,
+    "scale_G": 4.07325e-05,
+    "ngoodpix_G": 23181467,
+    "total_G": 26636007,
+    "w_noise": [
+     1.1013,
+     1.1406,
+     1.0684
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_012_july31_set-03_sub_02.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.15997e-05,
+    "scale_G": 3.51527e-05,
+    "ngoodpix_G": 23238672,
+    "total_G": 25914630,
+    "w_noise": [
+     0.966,
+     0.8709,
+     0.9103
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_013_july31_set-03_sub_03.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.15826e-05,
+    "scale_G": 3.75811e-05,
+    "ngoodpix_G": 23096231,
+    "total_G": 24626554,
+    "w_noise": [
+     1.0429,
+     0.997,
+     0.9531
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_014_july31_set-03_sub_04.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.15809e-05,
+    "scale_G": 3.60661e-05,
+    "ngoodpix_G": 23356301,
+    "total_G": 24397635,
+    "w_noise": [
+     1.0019,
+     0.9184,
+     0.9101
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_015_july31_set-03_sub_05.fit": {
+    "night": "july31",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 2.16131e-05,
+    "scale_G": 3.93449e-05,
+    "ngoodpix_G": 23521731,
+    "total_G": 24421390,
+    "w_noise": [
+     1.0702,
+     1.0897,
+     1.0421
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_016_july31_set-04_sub_01.fit": {
+    "night": "july31",
+    "stackcnt": 130,
+    "cropped": false,
+    "bgnoise_G_norm": 1.92877e-05,
+    "scale_G": 3.28021e-05,
+    "ngoodpix_G": 22723069,
+    "total_G": 24608904,
+    "w_noise": [
+     1.0388,
+     0.951,
+     0.9485
+    ],
+    "w_nbstack": 1.1989
+   },
+   "sub_017_july31_set-04_sub_02.fit": {
+    "night": "july31",
+    "stackcnt": 130,
+    "cropped": false,
+    "bgnoise_G_norm": 1.8521e-05,
+    "scale_G": 3.30318e-05,
+    "ngoodpix_G": 22767832,
+    "total_G": 25586526,
+    "w_noise": [
+     1.0974,
+     1.0459,
+     0.9709
+    ],
+    "w_nbstack": 1.1989
+   },
+   "sub_018_aug06_set-01_sub_01.fit": {
+    "night": "aug06",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.57502e-05,
+    "scale_G": 2.70182e-05,
+    "ngoodpix_G": 23287455,
+    "total_G": 31789952,
+    "w_noise": [
+     0.9255,
+     0.9676,
+     0.985
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_019_aug06_set-01_sub_02.fit": {
+    "night": "aug06",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.57093e-05,
+    "scale_G": 2.64137e-05,
+    "ngoodpix_G": 23220888,
+    "total_G": 30934464,
+    "w_noise": [
+     0.8977,
+     0.9296,
+     0.9656
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_020_aug06_set-01_sub_03.fit": {
+    "night": "aug06",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.57337e-05,
+    "scale_G": 2.62169e-05,
+    "ngoodpix_G": 23171922,
+    "total_G": 30233892,
+    "w_noise": [
+     0.8876,
+     0.913,
+     0.9588
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_021_aug06_set-01_sub_04.fit": {
+    "night": "aug06",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.56429e-05,
+    "scale_G": 2.64816e-05,
+    "ngoodpix_G": 23133994,
+    "total_G": 29314176,
+    "w_noise": [
+     0.9063,
+     0.9424,
+     0.9774
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_022_aug06_set-01_sub_05.fit": {
+    "night": "aug06",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.5673e-05,
+    "scale_G": 2.70433e-05,
+    "ngoodpix_G": 23124302,
+    "total_G": 28704965,
+    "w_noise": [
+     0.9247,
+     0.979,
+     0.9964
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_023_aug06_set-02_sub_01.fit": {
+    "night": "aug06",
+    "stackcnt": 125,
+    "cropped": false,
+    "bgnoise_G_norm": 1.45275e-05,
+    "scale_G": 2.49288e-05,
+    "ngoodpix_G": 22757195,
+    "total_G": 27270172,
+    "w_noise": [
+     0.9187,
+     0.9682,
+     1.0074
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_024_aug06_set-02_sub_02.fit": {
+    "night": "aug06",
+    "stackcnt": 125,
+    "cropped": false,
+    "bgnoise_G_norm": 1.44253e-05,
+    "scale_G": 2.41415e-05,
+    "ngoodpix_G": 22758840,
+    "total_G": 26313150,
+    "w_noise": [
+     0.8935,
+     0.921,
+     0.9803
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_025_aug06_set-02_sub_03.fit": {
+    "night": "aug06",
+    "stackcnt": 124,
+    "cropped": false,
+    "bgnoise_G_norm": 1.4172e-05,
+    "scale_G": 2.40344e-05,
+    "ngoodpix_G": 22782053,
+    "total_G": 25522253,
+    "w_noise": [
+     0.9006,
+     0.9457,
+     0.9907
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_026_aug06_set-02_sub_04.fit": {
+    "night": "aug06",
+    "stackcnt": 124,
+    "cropped": false,
+    "bgnoise_G_norm": 1.40372e-05,
+    "scale_G": 2.45797e-05,
+    "ngoodpix_G": 22830093,
+    "total_G": 24673544,
+    "w_noise": [
+     0.9341,
+     1.0082,
+     1.0227
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_027_aug06_set-03_sub_01.fit": {
+    "night": "aug06",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.46598e-05,
+    "scale_G": 2.57262e-05,
+    "ngoodpix_G": 23055002,
+    "total_G": 23664828,
+    "w_noise": [
+     0.9649,
+     1.0126,
+     1.0329
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_028_aug06_set-03_sub_02.fit": {
+    "night": "aug06",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.43651e-05,
+    "scale_G": 2.47655e-05,
+    "ngoodpix_G": 22963192,
+    "total_G": 23341500,
+    "w_noise": [
+     0.9311,
+     0.9773,
+     1.0075
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_029_aug06_set-03_sub_03.fit": {
+    "night": "aug06",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.42747e-05,
+    "scale_G": 2.48345e-05,
+    "ngoodpix_G": 22916218,
+    "total_G": 24026200,
+    "w_noise": [
+     0.9377,
+     0.9953,
+     1.0172
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_030_aug06_set-03_sub_04.fit": {
+    "night": "aug06",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.41077e-05,
+    "scale_G": 2.52908e-05,
+    "ngoodpix_G": 22300328,
+    "total_G": 24211114,
+    "w_noise": [
+     0.9883,
+     1.0568,
+     1.0506
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_031_aug09_set-01_sub_01.fit": {
+    "night": "aug09",
+    "stackcnt": 125,
+    "cropped": false,
+    "bgnoise_G_norm": 1.44348e-05,
+    "scale_G": 2.50689e-05,
+    "ngoodpix_G": 22621054,
+    "total_G": 24885096,
+    "w_noise": [
+     0.9909,
+     0.9918,
+     1.0091
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_032_aug09_set-01_sub_02.fit": {
+    "night": "aug09",
+    "stackcnt": 125,
+    "cropped": false,
+    "bgnoise_G_norm": 1.42462e-05,
+    "scale_G": 2.42062e-05,
+    "ngoodpix_G": 22617305,
+    "total_G": 25778610,
+    "w_noise": [
+     0.9626,
+     0.9493,
+     0.9832
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_033_aug09_set-01_sub_03.fit": {
+    "night": "aug09",
+    "stackcnt": 124,
+    "cropped": false,
+    "bgnoise_G_norm": 1.42006e-05,
+    "scale_G": 2.42874e-05,
+    "ngoodpix_G": 22652939,
+    "total_G": 26760142,
+    "w_noise": [
+     0.966,
+     0.9619,
+     0.9882
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_034_aug09_set-01_sub_04.fit": {
+    "night": "aug09",
+    "stackcnt": 124,
+    "cropped": false,
+    "bgnoise_G_norm": 1.40801e-05,
+    "scale_G": 2.48639e-05,
+    "ngoodpix_G": 22698352,
+    "total_G": 27679500,
+    "w_noise": [
+     0.9973,
+     1.0254,
+     1.0179
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_035_aug09_set-02_sub_01.fit": {
+    "night": "aug09",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.49254e-05,
+    "scale_G": 2.58007e-05,
+    "ngoodpix_G": 22684456,
+    "total_G": 34536656,
+    "w_noise": [
+     0.9725,
+     0.9826,
+     0.9882
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_036_aug09_set-02_sub_02.fit": {
+    "night": "aug09",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.48503e-05,
+    "scale_G": 2.54668e-05,
+    "ngoodpix_G": 22681870,
+    "total_G": 35146958,
+    "w_noise": [
+     0.9595,
+     0.967,
+     0.9741
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_037_aug09_set-02_sub_03.fit": {
+    "night": "aug09",
+    "stackcnt": 114,
+    "cropped": false,
+    "bgnoise_G_norm": 1.47473e-05,
+    "scale_G": 2.52546e-05,
+    "ngoodpix_G": 22711539,
+    "total_G": 35943584,
+    "w_noise": [
+     0.966,
+     0.9643,
+     0.9786
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_038_aug09_set-02_sub_04.fit": {
+    "night": "aug09",
+    "stackcnt": 113,
+    "cropped": false,
+    "bgnoise_G_norm": 1.47432e-05,
+    "scale_G": 2.55872e-05,
+    "ngoodpix_G": 22780999,
+    "total_G": 36707152,
+    "w_noise": [
+     0.9788,
+     0.9904,
+     0.999
+    ],
+    "w_nbstack": 1.0422
+   },
+   "sub_039_aug09_set-03_sub_01.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.61239e-05,
+    "scale_G": 2.80824e-05,
+    "ngoodpix_G": 23012048,
+    "total_G": 30759792,
+    "w_noise": [
+     0.9883,
+     0.9974,
+     0.9967
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_040_aug09_set-03_sub_02.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.59222e-05,
+    "scale_G": 2.71598e-05,
+    "ngoodpix_G": 22976073,
+    "total_G": 31427739,
+    "w_noise": [
+     0.9695,
+     0.9568,
+     0.9804
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_041_aug09_set-03_sub_03.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.57677e-05,
+    "scale_G": 2.69093e-05,
+    "ngoodpix_G": 22960493,
+    "total_G": 32113620,
+    "w_noise": [
+     0.9716,
+     0.9577,
+     0.9791
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_042_aug09_set-03_sub_04.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.5642e-05,
+    "scale_G": 2.70462e-05,
+    "ngoodpix_G": 22960395,
+    "total_G": 32546445,
+    "w_noise": [
+     0.9886,
+     0.9831,
+     0.9953
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_043_aug09_set-03_sub_05.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.56266e-05,
+    "scale_G": 2.76524e-05,
+    "ngoodpix_G": 22987153,
+    "total_G": 33280608,
+    "w_noise": [
+     1.0104,
+     1.0297,
+     1.0128
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_044_aug09_set-04_sub_01.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.58522e-05,
+    "scale_G": 2.75416e-05,
+    "ngoodpix_G": 19952006,
+    "total_G": 21321120,
+    "w_noise": [
+     1.0273,
+     0.9926,
+     1.0227
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_045_aug09_set-04_sub_02.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.56888e-05,
+    "scale_G": 2.6982e-05,
+    "ngoodpix_G": 19867256,
+    "total_G": 21752472,
+    "w_noise": [
+     1.0058,
+     0.9726,
+     1.0054
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_046_aug09_set-04_sub_03.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": false,
+    "bgnoise_G_norm": 1.61049e-05,
+    "scale_G": 2.75961e-05,
+    "ngoodpix_G": 22987713,
+    "total_G": 26121955,
+    "w_noise": [
+     0.9804,
+     0.9655,
+     0.9872
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_047_aug09_set-04_sub_04.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.56655e-05,
+    "scale_G": 2.7023e-05,
+    "ngoodpix_G": 19795229,
+    "total_G": 22891680,
+    "w_noise": [
+     1.0038,
+     0.9785,
+     1.0137
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_048_aug09_set-04_sub_05.fit": {
+    "night": "aug09",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.55994e-05,
+    "scale_G": 2.7903e-05,
+    "ngoodpix_G": 19782252,
+    "total_G": 23544015,
+    "w_noise": [
+     1.0488,
+     1.0521,
+     1.0405
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_049_aug09_set-05_sub_01.fit": {
+    "night": "aug09",
+    "stackcnt": 125,
+    "cropped": false,
+    "bgnoise_G_norm": 1.49327e-05,
+    "scale_G": 2.61806e-05,
+    "ngoodpix_G": 22658616,
+    "total_G": 31026770,
+    "w_noise": [
+     1.0175,
+     1.0107,
+     1.0209
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_050_aug09_set-05_sub_02.fit": {
+    "night": "aug09",
+    "stackcnt": 125,
+    "cropped": true,
+    "bgnoise_G_norm": 1.46918e-05,
+    "scale_G": 2.51834e-05,
+    "ngoodpix_G": 19584891,
+    "total_G": 27176500,
+    "w_noise": [
+     1.0058,
+     0.9661,
+     1.021
+    ],
+    "w_nbstack": 1.1528
+   },
+   "sub_051_aug09_set-05_sub_03.fit": {
+    "night": "aug09",
+    "stackcnt": 124,
+    "cropped": true,
+    "bgnoise_G_norm": 1.44007e-05,
+    "scale_G": 2.51095e-05,
+    "ngoodpix_G": 19610742,
+    "total_G": 27865674,
+    "w_noise": [
+     1.021,
+     0.9997,
+     1.0321
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_052_aug09_set-05_sub_04.fit": {
+    "night": "aug09",
+    "stackcnt": 124,
+    "cropped": true,
+    "bgnoise_G_norm": 1.42402e-05,
+    "scale_G": 2.5228e-05,
+    "ngoodpix_G": 19665830,
+    "total_G": 28196532,
+    "w_noise": [
+     1.0486,
+     1.032,
+     1.0544
+    ],
+    "w_nbstack": 1.1436
+   },
+   "sub_053_aug14_set-01_sub_01.fit": {
+    "night": "aug14",
+    "stackcnt": 112,
+    "cropped": false,
+    "bgnoise_G_norm": 1.51032e-05,
+    "scale_G": 2.80263e-05,
+    "ngoodpix_G": 22869499,
+    "total_G": 28069176,
+    "w_noise": [
+     1.0695,
+     1.1323,
+     1.0344
+    ],
+    "w_nbstack": 1.0329
+   },
+   "sub_054_aug14_set-01_sub_02.fit": {
+    "night": "aug14",
+    "stackcnt": 112,
+    "cropped": false,
+    "bgnoise_G_norm": 1.51092e-05,
+    "scale_G": 2.64546e-05,
+    "ngoodpix_G": 22823846,
+    "total_G": 27335880,
+    "w_noise": [
+     0.994,
+     1.008,
+     0.9956
+    ],
+    "w_nbstack": 1.0329
+   },
+   "sub_055_aug14_set-01_sub_03.fit": {
+    "night": "aug14",
+    "stackcnt": 112,
+    "cropped": false,
+    "bgnoise_G_norm": 1.50746e-05,
+    "scale_G": 2.61699e-05,
+    "ngoodpix_G": 22805658,
+    "total_G": 26567889,
+    "w_noise": [
+     0.9801,
+     0.991,
+     0.9904
+    ],
+    "w_nbstack": 1.0329
+   },
+   "sub_056_aug14_set-01_sub_04.fit": {
+    "night": "aug14",
+    "stackcnt": 112,
+    "cropped": false,
+    "bgnoise_G_norm": 1.49057e-05,
+    "scale_G": 2.63829e-05,
+    "ngoodpix_G": 22243857,
+    "total_G": 25088960,
+    "w_noise": [
+     1.0394,
+     1.0302,
+     1.0236
+    ],
+    "w_nbstack": 1.0329
+   },
+   "sub_057_aug14_set-01_sub_05.fit": {
+    "night": "aug14",
+    "stackcnt": 112,
+    "cropped": false,
+    "bgnoise_G_norm": 1.48779e-05,
+    "scale_G": 2.67023e-05,
+    "ngoodpix_G": 22842634,
+    "total_G": 24699684,
+    "w_noise": [
+     1.0219,
+     1.0592,
+     1.0367
+    ],
+    "w_nbstack": 1.0329
+   },
+   "sub_058_aug14_set-02_sub_01.fit": {
+    "night": "aug14",
+    "stackcnt": 115,
+    "cropped": true,
+    "bgnoise_G_norm": 1.45573e-05,
+    "scale_G": 2.60618e-05,
+    "ngoodpix_G": 19835633,
+    "total_G": 20436130,
+    "w_noise": [
+     1.0406,
+     1.0539,
+     1.0584
+    ],
+    "w_nbstack": 1.0606
+   },
+   "sub_059_aug14_set-02_sub_02.fit": {
+    "night": "aug14",
+    "stackcnt": 115,
+    "cropped": true,
+    "bgnoise_G_norm": 1.44858e-05,
+    "scale_G": 2.54431e-05,
+    "ngoodpix_G": 19753113,
+    "total_G": 19921460,
+    "w_noise": [
+     1.013,
+     1.0144,
+     1.0378
+    ],
+    "w_nbstack": 1.0606
+   },
+   "sub_060_aug14_set-02_sub_03.fit": {
+    "night": "aug14",
+    "stackcnt": 114,
+    "cropped": true,
+    "bgnoise_G_norm": 1.43473e-05,
+    "scale_G": 2.52472e-05,
+    "ngoodpix_G": 19715970,
+    "total_G": 20422080,
+    "w_noise": [
+     1.0101,
+     1.0182,
+     1.0431
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_061_aug14_set-02_sub_04.fit": {
+    "night": "aug14",
+    "stackcnt": 114,
+    "cropped": true,
+    "bgnoise_G_norm": 1.43299e-05,
+    "scale_G": 2.56149e-05,
+    "ngoodpix_G": 19660416,
+    "total_G": 20906032,
+    "w_noise": [
+     1.0285,
+     1.0507,
+     1.0569
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_062_aug14_set-02_sub_05.fit": {
+    "night": "aug14",
+    "stackcnt": 114,
+    "cropped": true,
+    "bgnoise_G_norm": 1.42798e-05,
+    "scale_G": 2.65218e-05,
+    "ngoodpix_G": 19653717,
+    "total_G": 21633842,
+    "w_noise": [
+     1.0854,
+     1.1343,
+     1.1113
+    ],
+    "w_nbstack": 1.0514
+   },
+   "sub_063_aug14_set-03_sub_01.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.49772e-05,
+    "scale_G": 2.74892e-05,
+    "ngoodpix_G": 19950349,
+    "total_G": 22719554,
+    "w_noise": [
+     1.0656,
+     1.1077,
+     1.0765
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_064_aug14_set-03_sub_02.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.49078e-05,
+    "scale_G": 2.63103e-05,
+    "ngoodpix_G": 17558111,
+    "total_G": 20410364,
+    "w_noise": [
+     1.0288,
+     1.0242,
+     1.0436
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_065_aug14_set-03_sub_03.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.4909e-05,
+    "scale_G": 2.62149e-05,
+    "ngoodpix_G": 17493439,
+    "total_G": 20920842,
+    "w_noise": [
+     1.0198,
+     1.0166,
+     1.0409
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_066_aug14_set-03_sub_04.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.48589e-05,
+    "scale_G": 2.71413e-05,
+    "ngoodpix_G": 19802908,
+    "total_G": 24160115,
+    "w_noise": [
+     1.059,
+     1.0971,
+     1.055
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_067_aug14_set-03_sub_05.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.48536e-05,
+    "scale_G": 2.65611e-05,
+    "ngoodpix_G": 19793921,
+    "total_G": 24783775,
+    "w_noise": [
+     1.0296,
+     1.0515,
+     1.059
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_068_aug14_set-03_sub_06.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.461e-05,
+    "scale_G": 2.69201e-05,
+    "ngoodpix_G": 17400273,
+    "total_G": 22210089,
+    "w_noise": [
+     1.0947,
+     1.1164,
+     1.0972
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_069_aug14_set-04_sub_01.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.47657e-05,
+    "scale_G": 2.74839e-05,
+    "ngoodpix_G": 17475337,
+    "total_G": 23140371,
+    "w_noise": [
+     1.0969,
+     1.1392,
+     1.0974
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_070_aug14_set-04_sub_02.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.46078e-05,
+    "scale_G": 2.59153e-05,
+    "ngoodpix_G": 15067181,
+    "total_G": 20612718,
+    "w_noise": [
+     1.0349,
+     1.0349,
+     1.0495
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_071_aug14_set-04_sub_03.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.44241e-05,
+    "scale_G": 2.53861e-05,
+    "ngoodpix_G": 17420688,
+    "total_G": 24317784,
+    "w_noise": [
+     1.0124,
+     1.0185,
+     1.0413
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_072_aug14_set-04_sub_04.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.44329e-05,
+    "scale_G": 2.55957e-05,
+    "ngoodpix_G": 17371947,
+    "total_G": 23868836,
+    "w_noise": [
+     1.0228,
+     1.0342,
+     1.0461
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_073_aug14_set-04_sub_05.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.42811e-05,
+    "scale_G": 2.624e-05,
+    "ngoodpix_G": 17405319,
+    "total_G": 24754884,
+    "w_noise": [
+     1.0743,
+     1.1101,
+     1.0789
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_074_aug14_set-04_sub_06.fit": {
+    "night": "aug14",
+    "stackcnt": 100,
+    "cropped": true,
+    "bgnoise_G_norm": 1.42077e-05,
+    "scale_G": 2.72445e-05,
+    "ngoodpix_G": 17411634,
+    "total_G": 24921207,
+    "w_noise": [
+     1.1108,
+     1.2091,
+     1.1069
+    ],
+    "w_nbstack": 0.9223
+   },
+   "sub_075_aug14_set-05_sub_01.fit": {
+    "night": "aug14",
+    "stackcnt": 118,
+    "cropped": true,
+    "bgnoise_G_norm": 1.37739e-05,
+    "scale_G": 2.71328e-05,
+    "ngoodpix_G": 17379837,
+    "total_G": 19130697,
+    "w_noise": [
+     1.1976,
+     1.276,
+     1.1123
+    ],
+    "w_nbstack": 1.0883
+   },
+   "sub_076_aug14_set-05_sub_02.fit": {
+    "night": "aug14",
+    "stackcnt": 117,
+    "cropped": true,
+    "bgnoise_G_norm": 1.34755e-05,
+    "scale_G": 2.65758e-05,
+    "ngoodpix_G": 16908273,
+    "total_G": 19262240,
+    "w_noise": [
+     1.224,
+     1.2789,
+     1.1155
+    ],
+    "w_nbstack": 1.0791
+   },
+   "sub_077_aug14_set-05_sub_03.fit": {
+    "night": "aug14",
+    "stackcnt": 117,
+    "cropped": true,
+    "bgnoise_G_norm": 1.314e-05,
+    "scale_G": 2.65659e-05,
+    "ngoodpix_G": 16337729,
+    "total_G": 19265400,
+    "w_noise": [
+     1.2537,
+     1.3441,
+     1.1519
+    ],
+    "w_nbstack": 1.0791
+   }
+  }
+ },
+ "build": {
+  "compose_line": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise.fit --framing=max --weight=noise --ref=sessions/aug09/work/groups_set-02/sub_01.fit --keep-work sessions/aug14/work/curated_july31+aug06+aug09+aug14_full",
+  "finish_line": "scripts/stack/finish_render.sh web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise.fit july31+aug06+aug09+aug14_wnoise --session=sessions/aug09 --set=set-02",
+  "log": "reference PINNED 35, T0 77/77, astrometric + undistortion CONFIRMED, weighted by member noise; finish DONE rc 0; SPCC K 1.000/0.685/0.922 (1941/3905) vs the canonical 1.000/0.687/0.926 (1943/3905); compose scratch kept for its r_s_.seq (the weights' source), the 77 r_s FITS (23 GB) deleted after reading it",
+  "canonical_untouched": "stack_..._full.fit/_wcs/_spcc/judge PNG sizes+mtimes identical before/after; the chain's curated dir 77 entries identical (listing diffed)"
+ },
+ "headers": {
+  "full": {
+   "NAXIS1": 8520,
+   "NAXIS2": 5668,
+   "NMEMBER": 77,
+   "STACKCNT": 8349,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "derived",
+   "PIPEREV": "36d9bab",
+   "STACKNRM": "addscale",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": true,
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "ANCLOCG": 0.000851173,
+   "ANCREF": 35,
+   "HISTORY_stacking": [
+    "rmalized output, image weighting from image count, unequalized RGB, filt"
+   ]
+  },
+  "wnoise": {
+   "NAXIS1": 8520,
+   "NAXIS2": 5668,
+   "NMEMBER": 77,
+   "STACKCNT": 8349,
+   "REGREF": "35:aug09/groups_set-02/sub_01.fit",
+   "REGREFSR": "pinned",
+   "PIPEREV": "4f9e462",
+   "STACKNRM": "addscale",
+   "REGMODEL": "astrometric",
+   "REGUNDIS": true,
+   "NCROPPED": 27,
+   "MEMCRULE": "asym>0.20px@r400 top30",
+   "MEMCXCS": "2100x15/1500x11/900x1",
+   "ANCLOCG": 0.000851173,
+   "ANCREF": 35,
+   "HISTORY_stacking": [
+    "rmalized output, image weighting from noise, unequalized RGB, filter all"
+   ]
+  }
+ },
+ "guard": {
+  "line": "baseline_guard datasets/corpus/baseline.json: different product \u2014 not compared. The slot was seeded from web/results/aug14/stack_july31+aug06+aug09+aug14_full_spcc.fit (stack_id 1ff0ecea761330664aabe18a19e83a71); this is web/results/aug14/stack_july31+aug06+aug09+aug14_wnoise_spcc.fit (stack_id fccd6d2bf94efcd0041273771f4df2cd). A differently-tagged build is not this slot's product; nothing is judged.",
+  "rc": 0,
+  "qa_work_records": "sha256 of datasets/corpus/qa_work/baseline_corners.json + baseline_edge.json IDENTICAL before and after \u2014 the fixed guard's first live exercise"
+ },
+ "instrument": {
+  "shape": "scripts/qa/shape_at_sky.py on each product's _wcs.fit at the 31 boxes + the chain's 27 crop-boundary stations (cropT_arm.json's positions), 800 px / top-30, y-origin top (max pass difference 19.7 deg vs tol 2.83 on both), lists kept under sessions/aug14/work/wnoise/measure/lists_*/",
+  "seam": "Siril stat 200-px L/R boxes about each seam column on each _spcc (the cropT placement), Green medians",
+  "depth": "Siril stat + bgnoise at the x50 crop of each _spcc (structure-limited, reported not scored)",
+  "tilt": "Siril seqtilt via scripts/qa/star_shape.py on each _wcs"
+ },
+ "floor": "\u00b10.04 px FWHM / 0.02 roundness (rowmin's measured same-reference repeat)",
+ "collateral_table_wnoise_minus_canonical": {
+  "x05pct_-": {
+   "canonical": [
+    2.772,
+    0.892,
+    477
+   ],
+   "wnoise": [
+    2.788,
+    0.886,
+    480
+   ],
+   "dFWHM": 0.016,
+   "dround": -0.006,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x10pct_-": {
+   "canonical": [
+    2.775,
+    0.892,
+    849
+   ],
+   "wnoise": [
+    2.788,
+    0.887,
+    852
+   ],
+   "dFWHM": 0.013,
+   "dround": -0.005,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x15pct_DEFECT": {
+   "canonical": [
+    2.805,
+    0.883,
+    982
+   ],
+   "wnoise": [
+    2.808,
+    0.881,
+    986
+   ],
+   "dFWHM": 0.003,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x20pct_DEFECT": {
+   "canonical": [
+    2.805,
+    0.873,
+    1058
+   ],
+   "wnoise": [
+    2.808,
+    0.876,
+    1052
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x25pct_DEFECT": {
+   "canonical": [
+    2.795,
+    0.879,
+    1130
+   ],
+   "wnoise": [
+    2.802,
+    0.88,
+    1128
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x30pct_DEFECT": {
+   "canonical": [
+    2.728,
+    0.904,
+    1133
+   ],
+   "wnoise": [
+    2.737,
+    0.902,
+    1132
+   ],
+   "dFWHM": 0.009,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x35pct_-": {
+   "canonical": [
+    2.658,
+    0.932,
+    1170
+   ],
+   "wnoise": [
+    2.667,
+    0.929,
+    1168
+   ],
+   "dFWHM": 0.009,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x40pct_-": {
+   "canonical": [
+    2.56,
+    0.965,
+    1156
+   ],
+   "wnoise": [
+    2.572,
+    0.965,
+    1150
+   ],
+   "dFWHM": 0.012,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x45pct_clean": {
+   "canonical": [
+    2.527,
+    0.971,
+    1125
+   ],
+   "wnoise": [
+    2.54,
+    0.969,
+    1124
+   ],
+   "dFWHM": 0.013,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x50pct_clean": {
+   "canonical": [
+    2.525,
+    0.967,
+    1177
+   ],
+   "wnoise": [
+    2.53,
+    0.969,
+    1179
+   ],
+   "dFWHM": 0.005,
+   "dround": 0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x55pct_clean": {
+   "canonical": [
+    2.535,
+    0.954,
+    1206
+   ],
+   "wnoise": [
+    2.538,
+    0.959,
+    1205
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.005,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x60pct_clean": {
+   "canonical": [
+    2.6,
+    0.947,
+    1199
+   ],
+   "wnoise": [
+    2.603,
+    0.95,
+    1196
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x65pct_clean": {
+   "canonical": [
+    2.685,
+    0.939,
+    1211
+   ],
+   "wnoise": [
+    2.688,
+    0.94,
+    1214
+   ],
+   "dFWHM": 0.003,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x70pct_clean": {
+   "canonical": [
+    2.768,
+    0.937,
+    1186
+   ],
+   "wnoise": [
+    2.777,
+    0.937,
+    1191
+   ],
+   "dFWHM": 0.009,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x75pct_-": {
+   "canonical": [
+    2.777,
+    0.94,
+    1123
+   ],
+   "wnoise": [
+    2.783,
+    0.939,
+    1126
+   ],
+   "dFWHM": 0.006,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x80pct_-": {
+   "canonical": [
+    2.785,
+    0.954,
+    1118
+   ],
+   "wnoise": [
+    2.785,
+    0.951,
+    1117
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x85pct_-": {
+   "canonical": [
+    2.757,
+    0.966,
+    1073
+   ],
+   "wnoise": [
+    2.763,
+    0.963,
+    1071
+   ],
+   "dFWHM": 0.006,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x90pct_-": {
+   "canonical": [
+    2.72,
+    0.972,
+    925
+   ],
+   "wnoise": [
+    2.718,
+    0.978,
+    925
+   ],
+   "dFWHM": -0.002,
+   "dround": 0.006,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "x95pct_-": {
+   "canonical": [
+    2.7,
+    0.978,
+    492
+   ],
+   "wnoise": [
+    2.695,
+    0.977,
+    492
+   ],
+   "dFWHM": -0.005,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "LADDER_defect_RA294.86": {
+   "canonical": [
+    2.728,
+    0.988,
+    1092
+   ],
+   "wnoise": [
+    2.732,
+    0.988,
+    1092
+   ],
+   "dFWHM": 0.004,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "LADDER_RA301.58": {
+   "canonical": [
+    2.613,
+    0.948,
+    1204
+   ],
+   "wnoise": [
+    2.623,
+    0.952,
+    1205
+   ],
+   "dFWHM": 0.01,
+   "dround": 0.004,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "LADDER_RA308.20": {
+   "canonical": [
+    2.533,
+    0.971,
+    1191
+   ],
+   "wnoise": [
+    2.535,
+    0.974,
+    1183
+   ],
+   "dFWHM": 0.002,
+   "dround": 0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "LADDER_control_RA314.72": {
+   "canonical": [
+    2.56,
+    0.976,
+    1159
+   ],
+   "wnoise": [
+    2.572,
+    0.976,
+    1154
+   ],
+   "dFWHM": 0.012,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_700_1400": {
+   "canonical": [
+    2.808,
+    0.936,
+    691
+   ],
+   "wnoise": [
+    2.815,
+    0.932,
+    697
+   ],
+   "dFWHM": 0.007,
+   "dround": -0.004,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_1150_850": {
+   "canonical": [
+    2.86,
+    0.894,
+    888
+   ],
+   "wnoise": [
+    2.86,
+    0.888,
+    895
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.006,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_7300_600": {
+   "canonical": [
+    2.67,
+    0.987,
+    790
+   ],
+   "wnoise": [
+    2.67,
+    0.989,
+    798
+   ],
+   "dFWHM": 0.0,
+   "dround": 0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_7750_1100": {
+   "canonical": [
+    2.69,
+    0.976,
+    718
+   ],
+   "wnoise": [
+    2.675,
+    0.976,
+    716
+   ],
+   "dFWHM": -0.015,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_700_4200": {
+   "canonical": [
+    2.8,
+    0.844,
+    384
+   ],
+   "wnoise": [
+    2.8,
+    0.845,
+    385
+   ],
+   "dFWHM": 0.0,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_1300_4900": {
+   "canonical": [
+    2.728,
+    0.828,
+    459
+   ],
+   "wnoise": [
+    2.728,
+    0.824,
+    456
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.004,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_7000_4900": {
+   "canonical": [
+    2.723,
+    0.881,
+    911
+   ],
+   "wnoise": [
+    2.723,
+    0.873,
+    911
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.008,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "corner_7500_4400": {
+   "canonical": [
+    2.75,
+    0.881,
+    914
+   ],
+   "wnoise": [
+    2.75,
+    0.893,
+    916
+   ],
+   "dFWHM": 0.0,
+   "dround": 0.012,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-04_sub_01": {
+   "canonical": [
+    2.658,
+    0.918,
+    1152
+   ],
+   "wnoise": [
+    2.667,
+    0.916,
+    1151
+   ],
+   "dFWHM": 0.009,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-04_sub_02": {
+   "canonical": [
+    2.677,
+    0.913,
+    1134
+   ],
+   "wnoise": [
+    2.685,
+    0.911,
+    1133
+   ],
+   "dFWHM": 0.008,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-04_sub_04": {
+   "canonical": [
+    2.75,
+    0.881,
+    1144
+   ],
+   "wnoise": [
+    2.755,
+    0.881,
+    1141
+   ],
+   "dFWHM": 0.005,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-04_sub_05": {
+   "canonical": [
+    2.778,
+    0.88,
+    1108
+   ],
+   "wnoise": [
+    2.785,
+    0.88,
+    1111
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-05_sub_02": {
+   "canonical": [
+    2.8,
+    0.875,
+    1082
+   ],
+   "wnoise": [
+    2.8,
+    0.874,
+    1081
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-05_sub_03": {
+   "canonical": [
+    2.795,
+    0.879,
+    1050
+   ],
+   "wnoise": [
+    2.797,
+    0.877,
+    1046
+   ],
+   "dFWHM": 0.002,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug09_set-05_sub_04": {
+   "canonical": [
+    2.788,
+    0.882,
+    979
+   ],
+   "wnoise": [
+    2.788,
+    0.879,
+    980
+   ],
+   "dFWHM": 0.0,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-02_sub_01": {
+   "canonical": [
+    2.663,
+    0.935,
+    1176
+   ],
+   "wnoise": [
+    2.675,
+    0.932,
+    1173
+   ],
+   "dFWHM": 0.012,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-02_sub_02": {
+   "canonical": [
+    2.708,
+    0.91,
+    1147
+   ],
+   "wnoise": [
+    2.712,
+    0.907,
+    1146
+   ],
+   "dFWHM": 0.004,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-02_sub_03": {
+   "canonical": [
+    2.717,
+    0.906,
+    1147
+   ],
+   "wnoise": [
+    2.725,
+    0.905,
+    1146
+   ],
+   "dFWHM": 0.008,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-02_sub_04": {
+   "canonical": [
+    2.765,
+    0.888,
+    1147
+   ],
+   "wnoise": [
+    2.772,
+    0.886,
+    1146
+   ],
+   "dFWHM": 0.007,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-02_sub_05": {
+   "canonical": [
+    2.8,
+    0.879,
+    1122
+   ],
+   "wnoise": [
+    2.807,
+    0.88,
+    1121
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_01": {
+   "canonical": [
+    2.695,
+    0.913,
+    1145
+   ],
+   "wnoise": [
+    2.698,
+    0.912,
+    1146
+   ],
+   "dFWHM": 0.003,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_02": {
+   "canonical": [
+    2.587,
+    0.957,
+    1155
+   ],
+   "wnoise": [
+    2.598,
+    0.955,
+    1152
+   ],
+   "dFWHM": 0.011,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_03": {
+   "canonical": [
+    2.663,
+    0.932,
+    1168
+   ],
+   "wnoise": [
+    2.675,
+    0.932,
+    1164
+   ],
+   "dFWHM": 0.012,
+   "dround": 0.0,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_04": {
+   "canonical": [
+    2.78,
+    0.879,
+    1161
+   ],
+   "wnoise": [
+    2.79,
+    0.88,
+    1158
+   ],
+   "dFWHM": 0.01,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_05": {
+   "canonical": [
+    2.8,
+    0.879,
+    1108
+   ],
+   "wnoise": [
+    2.807,
+    0.88,
+    1104
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-03_sub_06": {
+   "canonical": [
+    2.752,
+    0.898,
+    1135
+   ],
+   "wnoise": [
+    2.763,
+    0.895,
+    1133
+   ],
+   "dFWHM": 0.011,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_01": {
+   "canonical": [
+    2.675,
+    0.925,
+    1174
+   ],
+   "wnoise": [
+    2.685,
+    0.919,
+    1177
+   ],
+   "dFWHM": 0.01,
+   "dround": -0.006,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_02": {
+   "canonical": [
+    2.585,
+    0.952,
+    1143
+   ],
+   "wnoise": [
+    2.595,
+    0.949,
+    1141
+   ],
+   "dFWHM": 0.01,
+   "dround": -0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_03": {
+   "canonical": [
+    2.728,
+    0.906,
+    1131
+   ],
+   "wnoise": [
+    2.737,
+    0.905,
+    1129
+   ],
+   "dFWHM": 0.009,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_04": {
+   "canonical": [
+    2.775,
+    0.893,
+    1164
+   ],
+   "wnoise": [
+    2.783,
+    0.889,
+    1160
+   ],
+   "dFWHM": 0.008,
+   "dround": -0.004,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_05": {
+   "canonical": [
+    2.8,
+    0.875,
+    1132
+   ],
+   "wnoise": [
+    2.807,
+    0.878,
+    1131
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-04_sub_06": {
+   "canonical": [
+    2.8,
+    0.876,
+    1101
+   ],
+   "wnoise": [
+    2.807,
+    0.879,
+    1099
+   ],
+   "dFWHM": 0.007,
+   "dround": 0.003,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-05_sub_01": {
+   "canonical": [
+    2.625,
+    0.939,
+    1161
+   ],
+   "wnoise": [
+    2.637,
+    0.938,
+    1162
+   ],
+   "dFWHM": 0.012,
+   "dround": -0.001,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-05_sub_02": {
+   "canonical": [
+    2.712,
+    0.909,
+    1131
+   ],
+   "wnoise": [
+    2.725,
+    0.907,
+    1132
+   ],
+   "dFWHM": 0.013,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  },
+  "seam_aug14_set-05_sub_03": {
+   "canonical": [
+    2.768,
+    0.894,
+    1158
+   ],
+   "wnoise": [
+    2.772,
+    0.892,
+    1158
+   ],
+   "dFWHM": 0.004,
+   "dround": -0.002,
+   "flag": "",
+   "lst_full": null,
+   "lst_wnoise": null
+  }
+ },
+ "degraded_rows": [],
+ "improved_rows": [],
+ "seams": {
+  "seam_aug09_set-04_sub_01": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug09_set-04_sub_02": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug09_set-04_sub_04": {
+   "canonical_step_pct_green": -0.24,
+   "wnoise_step_pct_green": -0.24
+  },
+  "seam_aug09_set-04_sub_05": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug09_set-05_sub_02": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug09_set-05_sub_03": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug09_set-05_sub_04": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug14_set-02_sub_01": {
+   "canonical_step_pct_green": 0.24,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-02_sub_02": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug14_set-02_sub_03": {
+   "canonical_step_pct_green": -0.71,
+   "wnoise_step_pct_green": -0.71
+  },
+  "seam_aug14_set-02_sub_04": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug14_set-02_sub_05": {
+   "canonical_step_pct_green": 0.47,
+   "wnoise_step_pct_green": 0.47
+  },
+  "seam_aug14_set-03_sub_01": {
+   "canonical_step_pct_green": 0.24,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-03_sub_02": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug14_set-03_sub_03": {
+   "canonical_step_pct_green": 0.47,
+   "wnoise_step_pct_green": 0.47
+  },
+  "seam_aug14_set-03_sub_04": {
+   "canonical_step_pct_green": 0.24,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-03_sub_05": {
+   "canonical_step_pct_green": 0.24,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-03_sub_06": {
+   "canonical_step_pct_green": -0.47,
+   "wnoise_step_pct_green": -0.47
+  },
+  "seam_aug14_set-04_sub_01": {
+   "canonical_step_pct_green": 0.47,
+   "wnoise_step_pct_green": 0.47
+  },
+  "seam_aug14_set-04_sub_02": {
+   "canonical_step_pct_green": -0.24,
+   "wnoise_step_pct_green": -0.24
+  },
+  "seam_aug14_set-04_sub_03": {
+   "canonical_step_pct_green": -0.71,
+   "wnoise_step_pct_green": -0.71
+  },
+  "seam_aug14_set-04_sub_04": {
+   "canonical_step_pct_green": 0.0,
+   "wnoise_step_pct_green": 0.0
+  },
+  "seam_aug14_set-04_sub_05": {
+   "canonical_step_pct_green": 0.47,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-04_sub_06": {
+   "canonical_step_pct_green": 0.24,
+   "wnoise_step_pct_green": 0.24
+  },
+  "seam_aug14_set-05_sub_01": {
+   "canonical_step_pct_green": 0.47,
+   "wnoise_step_pct_green": 0.47
+  },
+  "seam_aug14_set-05_sub_02": {
+   "canonical_step_pct_green": -0.24,
+   "wnoise_step_pct_green": -0.24
+  },
+  "seam_aug14_set-05_sub_03": {
+   "canonical_step_pct_green": -0.24,
+   "wnoise_step_pct_green": -0.24
+  }
+ },
+ "seqtilt": {
+  "full": {
+   "stars": 43432,
+   "truncated_mean_fwhm_px": 2.86,
+   "sensor_tilt_fwhm_px": 0.23,
+   "sensor_tilt_pct": 8,
+   "off_axis_aberration_fwhm_px": 0.16
+  },
+  "wnoise": {
+   "stars": 43396,
+   "truncated_mean_fwhm_px": 2.87,
+   "sensor_tilt_fwhm_px": 0.24,
+   "sensor_tilt_pct": 8,
+   "off_axis_aberration_fwhm_px": 0.16
+  }
+ },
+ "depth_x50": {
+  "full": {
+   "crop": [
+    3894,
+    2324,
+    800,
+    800
+   ],
+   "stat": [
+    [
+     "Red",
+     "43.1",
+     "42.1",
+     "15.7"
+    ],
+    [
+     "Green",
+     "43.4",
+     "42.3",
+     "15.4"
+    ],
+    [
+     "Blue",
+     "43.2",
+     "42.1",
+     "17.5"
+    ]
+   ],
+   "bgnoise": [
+    [
+     "0",
+     "0.301"
+    ],
+    [
+     "1",
+     "0.343"
+    ],
+    [
+     "2",
+     "0.278"
+    ]
+   ]
+  },
+  "wnoise": {
+   "crop": [
+    3894,
+    2324,
+    800,
+    800
+   ],
+   "stat": [
+    [
+     "Red",
+     "43.1",
+     "42.1",
+     "15.5"
+    ],
+    [
+     "Green",
+     "43.4",
+     "42.3",
+     "15.2"
+    ],
+    [
+     "Blue",
+     "43.2",
+     "42.1",
+     "17.4"
+    ]
+   ],
+   "bgnoise": [
+    [
+     "0",
+     "0.300"
+    ],
+    [
+     "1",
+     "0.340"
+    ],
+    [
+     "2",
+     "0.277"
+    ]
+   ]
+  }
+ },
+ "predictions_vs_outcomes": {
+  "P1_band": "HELD in the registered direction (no gain): x10-x25 [0.013, 0.003, 0.003, 0.007] px (mean +0.006), roundness [-0.005, -0.002, 0.003, 0.001]; the director's expected \u22120.00..\u22120.05 gain did NOT occur",
+  "P2_centre": "HELD: x40-x65 [0.012, 0.013, 0.005, 0.003, 0.003, 0.003]",
+  "P3_right": "HELD: x70-x95 [0.009, 0.006, 0.0, 0.006, -0.002, -0.005]",
+  "P4_corners": "HELD: [('corner_700_1400', 0.007), ('corner_1150_850', 0.0), ('corner_7300_600', 0.0), ('corner_7750_1100', -0.015), ('corner_700_4200', 0.0), ('corner_1300_4900', 0.0), ('corner_7000_4900', 0.0), ('corner_7500_4400', 0.0)]",
+  "P5_seams": "HELD: 27 seam stations within \u00b10.013 px; Siril stat steps identical to the canonical's at 26 of 27 and within 0.23 % at the 27th (seam_aug14_set-04_sub_05 +0.47 -> +0.24)",
+  "P6_provenance": "HELD: STACKCNT 8349, NMEMBER 77, REGREF 35 pinned, NCROPPED 27, MEMCRULE/MEMCXCS as the canonical, STACKNRM addscale, canvas 8520x5668 identical; SPCC K 1.000/0.685/0.922 vs 1.000/0.687/0.926 (\u0394K_G \u22120.002, \u0394K_B \u22120.004); the weighting is recorded ONLY in Siril's own HISTORY card ('image weighting from noise' vs 'from image count') \u2014 the compose stamps no weight key of its own",
+  "P7_guard": "HELD: the line printed, exit 0, the slot's two qa_work records byte-identical",
+  "P8_weights": "HELD: by night (Green, mean 1) july31 0.9 < aug06 0.971 \u2248 aug09 0.988 < aug14 1.094 (nbstack 0.955/1.032/1.027/0.990); the reference 35 at 0.983; the 27 cropped copies average 1.079 against 0.958 for the untouched \u2014 noise weighting favours the soft nights' members",
+  "depth": "x50 bgnoise 0.300/0.340/0.277 vs 0.301/0.343/0.278 (\u22120.3/\u22120.9/\u22120.4 %, structure-limited); stat \u03c3 15.5/15.2/17.4 vs 15.7/15.4/17.5; seqtilt 43,396 stars, truncated-mean FWHM 2.87 vs 2.86, tilt 0.24 vs 0.23 px (8 %), off-axis 0.16 = 0.16"
+ },
+ "verdict": "CLEAN NULL, nothing degraded: with ~10 % of the weight moved from the sharpest night (july31, 0.900) to the softest (aug14, 1.094) \u2014 the direction Siril's own estimator gives, the reverse of the premise \u2014 every one of the 58 stations sits within +0.016/\u22120.015 px and \u00b10.012 roundness of the nbstack canonical (floor \u00b10.04 / 0.02), the band +0.003..+0.013, the corners 0.000, the seams identical, K within 0.004, depth unchanged within the structure-limited reading. Noise weighting neither helps nor harms this corpus at the star measures; nbstack stays the chain's default.",
+ "mechanism_reading": "the weights differ by only ~10 % between nights while the members' FWHM differ by ~0.3 px, so the weighted mean moves by ~0.01-0.02 px \u2014 under the repeat floor; Siril's inverse-variance weight in normalized units, (scale/bgnoise)^2, is close to uniform on this corpus because the addscale normalization equalizes the members' dispersion and the soft night is also the quiet one",
+ "eye_inspection_worker": "8-bit tiles from both judge PNGs (sessions/aug14/work/wnoise/inspect/{wnoise,full}/): whole frame at 1/4, four canvas corners 1000\u00b2 at 1:1, band x10-x25, x50, NGC 7000, and 6 of the 27 seam stations 800\u00b2 \u2014 indistinguishable from the canonical at every tile: same footprint and rims, no seam or step at any boundary, no colour change, NGC 7000 identical. Director's inspection pending.",
+ "outcome_routing_applied": "NULL -> the compose docstring's 'Prefer it for a MULTI-NIGHT compose' note replaced by the measurement (run_undistort_compose.sh, wording only)",
+ "premises_untested": [
+  "the \u00b10.04 floor is rowmin's single measurement, not re-measured here",
+  "the proxy weight (sqrt(BWMV)/bgnoise)^2 predicted the direction correctly but its magnitudes (july31 0.891, aug14 1.087) match the actual (0.900, 1.094) by luck of the 1-decimal sqrt(BWMV) \u2014 the IKSS scale is printed nowhere",
+  "the r_s FITS were deleted after reading the .seq: the weights are re-derivable only by re-running the compose",
+  "an earlier wnoise arm's records exist under web/results/aug14/ (compose_gate_stack_corpus4_full_wnoise.json, compose_gate_stack_01+02+03+04+05_full_wnoise.json, solve_stack_01+02+03+04+05_full_wnoise.json \u2014 a pre-member-selection chain shape, its product gone); not read, not compared"
+ ],
+ "written_at": "2026-08-29T21:45:24-04:00",
+ "eye_inspection_director": {
+  "surface": "own tiles (the GO #13 script re-pointed), wnoise | canonical at the same sky by WCS: whole frame, x15, the bottom-left rim; own per-100-px-column G medians and R/G/B medians",
+  "rim_G_median_per_100px_col": {
+   "wnoise": [
+    0,
+    0,
+    43,
+    49,
+    57,
+    65,
+    70,
+    76,
+    75,
+    72,
+    72,
+    71,
+    70,
+    70
+   ],
+   "canonical": [
+    0,
+    0,
+    43,
+    49,
+    57,
+    65,
+    70,
+    76,
+    74,
+    72,
+    71,
+    70,
+    69,
+    69
+   ]
+  },
+  "colour": "identical within 1 unit at NGC 7000 / x50 / x15",
+  "reading": "indistinguishable from the canonical; no defect",
+  "disagreement_with_worker": "none",
+  "verdict_carried": "CLEAN NULL, nothing degraded; the arm's premise refuted by Siril's own estimator (the sharpest night is the noisiest; weights differ ~10 % between nights); nbstack stays the chain's default; the compose docstring corrected to the measurement"
+ }
+}

@@ -110,10 +110,15 @@
 #   is the same. True for members from one night/sky; the Siril doctrine that
 #   nbstack is "for stacks-of-stacks" is about that regime.
 # - `noise` weights by the MEMBER's measured noise, which already carries
-#   s/sqrt(n) — so it yields n/s^2 in BOTH regimes and is strictly more
-#   general. Prefer it for a MULTI-NIGHT compose, where sky brightness (and
-#   therefore per-frame noise for a fixed object flux) differs between members
-#   and count-weighting would over-weight the noisier night's frames.
+#   s/sqrt(n) — so it yields n/s^2 in BOTH regimes and is more general on paper.
+#   MEASURED on the four-night corpus (datasets/corpus/smear_attribution/
+#   weight_noise_arm.json): a clean NULL. Siril's weight is 1/(pscale^2*bgnoise^2)
+#   on the registered image's non-null pixels (the margins do not enter), i.e.
+#   (scale/bgnoise)^2 in normalized units; it moved ~10 % of weight from the
+#   SHARPEST night (july31 0.90 — the noisiest by Siril's estimator) to the
+#   SOFTEST (aug14 1.09), and no station of 58 moved beyond +0.016 px against
+#   the nbstack canonical. "Prefer it for a multi-night compose" did not hold
+#   here; nbstack stays the chain's default.
 #   Caveat: Siril's noise estimator conflates revealed texture with noise
 #   (docs/dead-ends.md), which is tolerable here only because every member
 #   shows the SAME field, so the texture term is common and largely cancels in
