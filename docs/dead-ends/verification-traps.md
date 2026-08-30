@@ -362,3 +362,31 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   **a placement check must be shown to FAIL on a planted wrong placement of the
   size the instrument actually produces — a tolerance sized to the box, not
   to the error, verifies nothing about the error.**
+
+- **PYTHON INVALIDATES A `.pyc` ON (mtime, size) — SO A SAME-LENGTH EDIT ALONE
+  DOES NOT HIDE A CHANGE, AND A FIRE-TEST BUILT ON THAT BELIEF IS TESTING
+  NOTHING.** The instruction "clear `__pycache__` before a constant-flip test,
+  or importers read stale bytecode" is safe advice with the WRONG mechanism
+  attached. MEASURED: `0.05 -> 0.06` propagated IMMEDIATELY with a stale `.pyc`
+  present and no clear, because the edit moved mtime. Reproducing the trap needs
+  BOTH keys held — `touch -r` after a same-length edit — and it then fires:
+  source read 0.07 while the importer returned 0.06. Clear the cache anyway (it
+  is free), but do not claim a same-length edit by itself can mask the change:
+  that is the kind of stated-but-false mechanism that makes the next reader's
+  control useless.
+
+- **A HEADLINE NUMBER THAT WAS PARAPHRASED IS A NUMBER THAT WAS NEVER RECORDED —
+  AND IT SURVIVES BECAUSE IT FAILS IN THE FLATTERING DIRECTION.** MEASURED:
+  `BACKLOG.md`'s register and a script docstring both published *"χ²/dof 35.6
+  becomes ~1.1 on frame-based errors"*. Enumerating every `chi2_per_dof` in the
+  cited record returns six values with **nothing in [1.0, 1.2]**, in EITHER
+  revision — so it was not regenerated away, it was never there. The real
+  within-binning pairs are **35.60 → 1.81** and **40.95 → 1.57**, and the
+  published pairing had crossed two different binnings. It entered in the same
+  commit that wrote the record contradicting it. **Nobody re-checks a number
+  that says the model fits:** against an assumed null of 1, "1.1" reads as a
+  near-perfect fit, while the true 1.81 at ν = 4 sits BELOW its own null of
+  ν/(ν−2) = 2.0 — i.e. the errors are conservative, which is a different claim
+  entirely. This is the paste rule one level up: **before quoting a figure in a
+  record, a row or a docstring, open the record and FIND it.** A figure that
+  exists only in prose is a result that was not recorded.

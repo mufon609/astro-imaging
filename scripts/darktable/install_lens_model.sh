@@ -50,6 +50,15 @@
 # compact-*.xml …) are lensfun's business, not ours. `lensfun-update-data`
 # OVERWRITES this patch: re-run after any DB update.
 #
+# NEVER RUN THIS WHILE A BUILD IS IN FLIGHT. The lensfun user DB is GLOBAL,
+# unscoped, single-valued machine state that nothing reverts, and every live
+# darktable warp is reading it — so a QA or verification step that calls this
+# mutates state a running multi-hour arm build depends on. Installing an
+# IDENTICAL model still risks a torn read. Verify a pin from the build's OWN
+# per-group output instead: that tests the model which actually ran, rather
+# than re-installing one. (Caught live, no damage: a queued pin-verification
+# was killed on firing and the DB verified after.)
+#
 # SAFETY: the edit records the COEFFICIENTS it replaced in an XML comment inside
 # the block, so the patch is self-describing and reversible, and a block already
 # carrying a marker with DIFFERENT coefficients STOPS rather than being silently

@@ -96,12 +96,23 @@ register_subjects() {     # <register-path>
       }
       return t "\n"
     }
-    /^\| divergence \| retires when/ { intable = 1; next }
+    # The header locates the table AND names the join column by position, so a
+    # new column (the class column) does not silently shift the join onto it.
+    # Hardcoding index 2 read the class column and reported 58 of 58 missing.
+    !intable && /^\|/ && /\| *divergence *\|/ && /\| *retires when *\|/ {
+      intable = 1
+      nh = split($0, hcell, "|")
+      for (i = 1; i <= nh; i++) {
+        h = hcell[i]; gsub(/^[ \t]+|[ \t]+$/, "", h)
+        if (h == "divergence") dcol = i
+      }
+      next
+    }
     /^\|---/                          { next }
     intable && /^$/                   { exit }
     intable && /^\|/ {
       split($0, cell, "|")
-      col1 = cell[2]
+      col1 = cell[dcol]
       n = split(col1, toks, /[ \t]+/)
       for (i = 1; i <= n; i++) if (toks[i] != "") printf "%s", expand_token(toks[i])
     }

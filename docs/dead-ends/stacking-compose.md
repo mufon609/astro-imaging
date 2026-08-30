@@ -567,3 +567,21 @@ and answered by member selection: the decision map with every form's numbers is
   STRETCHED ×2.6-2.8 by its group's min-max (14-bit raws saturate at 0.25 of the
   container). The standard route (`run_pipeline.sh`) still stacks with `-output_norm`
   — BACKLOG:`standard-route-output-norm`.
+
+- **SWarp 2.41.5 ENGINE FACTS, MEASURED ON THIS RIG (P1–P7), for anyone who
+  re-opens the per-member weight-map route.** The route itself is STOPPED
+  (BACKLOG:`removal-conditions`, the `swarp_compose.sh` row), so these are kept
+  as engine behaviour, not as a recommendation. **(1)** SWarp reads only the
+  **FIRST PLANE of a cube** — a 3-layer FITS silently becomes its first channel.
+  **(2)** It reads **CD and IGNORES PC/CDELT when CD is present**. **(3)** It
+  applies **TPV** terms. **(4)** A `.head` **pins the output grid EXACTLY**
+  (`P2_output_head_pins_grid`) — which is what makes a SWarp weight map land on
+  the product's own canvas, unlike a `register -2pass` coverage map. **(5)** It
+  **SUBTRACTS** the `BACK_DEFAULT` list rather than treating it as a floor.
+  **(6)** With `RESCALE_WEIGHTS N` a planted 3:1 `MAP_WEIGHT` mean reproduces to
+  **0.004 %**; with `Y` it FAILS — that pair is the positive control, so the
+  knob is not a preference. **(7)** It **DIVIDES a map's weight by FLXSCALE²**,
+  so a quality-weighted arm must pre-multiply by f². Riding with them:
+  `sip_tpv` is exact on **CD-only** heads (≤ 4.8e-11 px), and a head carrying
+  **CD *and* PC/CDELT makes astropy misread the TPV sky** — the dual-matrix
+  trap. Probes: `datasets/corpus/smear_attribution/swtaper_probes.json`.
