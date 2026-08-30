@@ -244,7 +244,7 @@ parameters; the only knob is `-disto=`.
   **WHY IT SURVIVED, AND IT IS THE REUSABLE PART: THE SENTENCE WAS WRITTEN BY AN
   AUDIT.** It entered at `1f5fc6c` (08-07), *"wide-field registration deep-dive
   audited and condensed 622 → 385"* — rewritten by a compression pass rather than
-  carried forward. The SWarp SIP-drop was MEASURED seven days later (`ddc05d4`,
+  carried forward. The SWarp SIP-drop was MEASURED seven days later (`e59d4d2`,
   08-14). Of **20 commits that have touched this file, exactly ONE ever touched this
   sentence — the one that wrote it.** **Being audited is what makes a reader assume a
   file is current**, so a condense pass is where a claim most easily acquires

@@ -1,0 +1,17 @@
+old                                      new                                      ref
+50dfd207333554259d3248edfa1df77d71388724 50dfd207333554259d3248edfa1df77d71388724 refs/heads/fix/calibration-bitdepth-and-flat-gradient
+7fb028f03afda7aa79a3ad2667288f95b3a61f8a 7fb028f03afda7aa79a3ad2667288f95b3a61f8a refs/heads/fix/lens-guard-and-flat-odd-component
+052e26e37b0f178c44a90205b8e8d8f4202207e3 09131c1331a1c8a5d10ef87d1976ab62f6e81ea6 refs/heads/main
+8b2c4dc9861294f4d9ecd3bb2b246b05f297ca37 8b2c4dc9861294f4d9ecd3bb2b246b05f297ca37 refs/heads/measure/july31-rebuild-floor-and-audit-wiring
+ee23e490f107ec40a4c49df6537c50eb2a3807f4 ee23e490f107ec40a4c49df6537c50eb2a3807f4 refs/tags/B5-approved
+ec88fd8993ca034f21da1e11e0611d9e510a370f ec88fd8993ca034f21da1e11e0611d9e510a370f refs/tags/B6-approved
+27f708f92b2a3c9deda97c72c64c4bc34c56352f 27f708f92b2a3c9deda97c72c64c4bc34c56352f refs/tags/B7-approved
+da5494b71d6b49867c957ff54324536151a41573 da5494b71d6b49867c957ff54324536151a41573 refs/tags/baselines-20260709
+116ccb1708f882e20f20404b0f107cbdbb0b5ead 116ccb1708f882e20f20404b0f107cbdbb0b5ead refs/tags/baselines-20260712
+4304fff7df673c56f956c91d88a6f467449f677e 4304fff7df673c56f956c91d88a6f467449f677e refs/tags/hoo-180s-approved-20260709
+aac7c18a09ff50dca0ae67f07c543d2544116af2 aac7c18a09ff50dca0ae67f07c543d2544116af2 refs/tags/july14-all5-cov25frame-approved
+631f6c78e922687a397e4f21810ff56e99d6142c 631f6c78e922687a397e4f21810ff56e99d6142c refs/tags/july26-q100-controls-approved
+3df1cc5fc85429ee7f5ee2e89fa86371c387e4fd 3df1cc5fc85429ee7f5ee2e89fa86371c387e4fd refs/tags/lmc-180mm-approved-20260710
+83fd416ba1ac310146a9224f40e13eb3412b618b 83fd416ba1ac310146a9224f40e13eb3412b618b refs/tags/m20-rgb-approved-20260710
+7be5ab7b9f0b05b5c9e4cf61842aa002ce961ec5 7be5ab7b9f0b05b5c9e4cf61842aa002ce961ec5 refs/tags/set-03-baseline-20260709
+3df1cc5fc85429ee7f5ee2e89fa86371c387e4fd 3df1cc5fc85429ee7f5ee2e89fa86371c387e4fd refs/tags/smc-180mm-approved-20260710

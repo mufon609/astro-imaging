@@ -46,9 +46,20 @@ WHAT IT CHECKS, in two independent halves:
   sitelat_sexagesimal / sitelong_sexagesimal holding a non-null string, is RED —
   that is the shape the leak had, whatever the value.
 
+  PERTURBED forms (the class the first history rewrite missed): a value one
+  DOCUMENTED arithmetic step from the site IS the site. verify_site.py's
+  PERTURBATIONS table applies +0.63 deg to the latitude, +0.09 deg to the
+  longitude and a /10 decimal shift, and the old site_verification.json, the
+  old site.json's prose and verify_site.py's own comment carried the perturbed
+  values — anyone holding the table subtracts the step. The guard derives
+  lat+0.63, lon+0.09, lat/10 and lon/10 in the same variants as the primary
+  forms (their prefixes measured collision-free on this tree). Add a form here
+  whenever a new documented perturbation is introduced anywhere.
+
 LIMITS, stated. It cannot see a value written in a form it does not derive (a
 different rounding of the sexagesimal seconds, a UTM or MGRS grid reference, a
-what3words string) — add the form here when one is found. It scans TRACKED
+what3words string, an UNDOCUMENTED arithmetic offset) — add the form here when
+one is found. It scans TRACKED
 content and the index, not history: the 429 unpushed commits that carry the
 literal are the owner's separate decision (a history rewrite), and this guard
 running RED on HEAD's ancestors would be permanent noise, so it does not look
@@ -126,6 +137,32 @@ def forms_from_config(cfg):
 
     add_num("lat_decimal", lat)
     add_num("lon_decimal", lon)
+
+    # PERTURBED forms — a value one DOCUMENTED arithmetic step from the site IS the
+    # site: verify_site.py's PERTURBATIONS table applies +0.63 deg (lat), +0.09 deg
+    # (lon) and a /10 decimal shift, and the tracked records once carried the
+    # perturbed pairs (the first history rewrite missed them; the GO #3 scan found
+    # them in 416 commits). Same variants as the primary forms; the 5-decimal
+    # prefixes (and the 4-decimal ones of the two 7-digit values) MEASURED against
+    # the tracked non-.lst/.seq tree: 0 collisions for all four.
+    def add_pert(name, v, prefixes):
+        seen = set()
+        for txt in (repr(v), "%.6f" % v):
+            for t in (txt, txt.lstrip("-")):
+                if t not in seen and len(t) >= 6:
+                    seen.add(t)
+                    forms.append((name, "exact", t))
+        s = repr(abs(v))
+        if "." in s:
+            ip, fp = s.split(".", 1)
+            for nd in prefixes:
+                if len(fp) > nd:
+                    forms.append(("%s_prefix%d" % (name, nd), "prefix", "%s.%s" % (ip, fp[:nd])))
+
+    add_pert("lat_plus_0p63", lat + 0.63, (5, 4))
+    add_pert("lon_plus_0p09", lon + 0.09, (5, 4))
+    add_pert("lat_div10", lat / 10.0, (5,))
+    add_pert("lon_div10", lon / 10.0, (5,))
     for key, name in (("sitelat_sexagesimal", "lat_sexagesimal_config"),
                       ("sitelong_sexagesimal", "lon_sexagesimal_config")):
         v = cfg.get(key)
@@ -408,6 +445,17 @@ def selftest():
             ("planted OBSGEO component, full repr, negative", "leak_obsgeo2.txt", "Y=%r\n" % xyz[1], "obsgeo_Y"),
             ("planted NEAR-literal (5-decimal prefix, last digit off)", "leak_near.py",
              "# transposed: 12.345671 -> ...\n", "lat_decimal_prefix5"),
+            # the PERTURBED class: one documented arithmetic step from the site
+            ("planted lat+0.63 (verify_site's transposed-digit perturbation)", "leak_p1.md",
+             "perturbed %r\n" % (cfg["sitelat_deg"] + 0.63), "lat_plus_0p63"),
+            ("planted lon+0.09, unsigned 6-decimal", "leak_p2.txt",
+             "lon %.6f\n" % abs(cfg["sitelong_deg"] + 0.09), "lon_plus_0p09"),
+            ("planted lat/10 (decimal-shift perturbation)", "leak_p3.json",
+             json.dumps({"lat": cfg["sitelat_deg"] / 10.0}), "lat_div10"),
+            ("planted lon/10", "leak_p4.txt",
+             "%r\n" % (cfg["sitelong_deg"] / 10.0), "lon_div10"),
+            ("planted perturbed FIRST-LANDED transcription (lat+0.63, last digit off)", "leak_p5.py",
+             "# %.6f -> ...\n" % (cfg["sitelat_deg"] + 0.63 + 0.000001), "lat_plus_0p63_prefix5"),
         ]
         for label, name, text, expect in arms:
             plant(name, text)

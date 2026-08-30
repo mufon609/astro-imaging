@@ -197,7 +197,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
   path are: with no second `c` the substitution is unterminated and zsh
   shouts; with one it parses as a no-op and the path is simply GONE. Three
   outcomes over the tracked `scripts/` paths — measured at 113 paths by two
-  sessions, re-measured at `9ecc77a` by a third (115 paths, A=51 B=37 C=27:
+  sessions, re-measured at `e09c58f` by a third (115 paths, A=51 B=37 C=27:
   A and B identical, both added paths class C):
 
       A  bad substitution                     51  45%   LOUD, you stop
@@ -264,7 +264,7 @@ Cross-references to sibling files are written as (`<file>.md`) pointers.
      (`scripts/ingest/{fetch_session,link_heartbeat,remote_publish}.sh`) was
      invoked by no code, and its tracked records settle it as LIVE: 9 of 9
      `ingest_work/ingest.json` name `remote_publish.sh` as the hash producer
-     (re-verified at `9ecc77a`, with 0 invocation-shaped references outside
+     (re-verified at `e09c58f`, with 0 invocation-shaped references outside
      `scripts/ingest/`). **Search the records before classifying anything as
      dead — the completeness question is "what does this leave behind", not
      only "what invokes this".**

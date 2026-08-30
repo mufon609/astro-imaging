@@ -1,45 +1,44 @@
 {
  "id": "site_privacy_history_rewrite",
- "status": "EXECUTED (director astro-imaging-4f; owner's word 2026-08-30: 'let's try and right this wrong' — decision 1 of the site-privacy report). The unpushed history is rewritten so that no form of the observing site exists in any blob or commit message on any ref; the working tree at HEAD is byte-identical to the pre-rewrite HEAD's tree; the push is a fast-forward from the last-pushed 048e69d, pending the worker's independent verification.",
- "tool": "git-filter-repo 2.47.0 as the single-file script from the PyPI wheel (git_filter_repo-2.47.0-py3-none-any.whl sha256 2cd04929b9024e83e65db571cbe36aec65ead0cb5f9ec5abe42158654af5ad83; git_filter_repo.py sha256 67447413e273fc76809289111748870b6f6072f08b17efe94863a92d810b7d94), run as `python3 <path> --force --replace-text <forms> --replace-message <forms>`; not installed on the rig; git 2.53.0",
+ "status": "EXECUTED IN TWO PASSES (director astro-imaging-4f; owner's word 2026-08-30: 'let's try and right this wrong' — decision 1 of the site-privacy report). Pass 1 removed every direct form of the observing site from the unpushed history; the worker's independent verification then found a DERIVED class that survived (the perturbed values verify_site.py's falsification test carried — each one documented arithmetic step from the site), and pass 2 removed it. Afterwards no form of either class exists in any blob or commit message on any ref; the working tree at HEAD is byte-identical to the tree before each pass; the push is a fast-forward from the last-pushed 048e69d.",
+ "tool": "git-filter-repo 2.47.0 as the single-file script from the PyPI wheel (git_filter_repo-2.47.0-py3-none-any.whl sha256 2cd04929b9024e83e65db571cbe36aec65ead0cb5f9ec5abe42158654af5ad83; git_filter_repo.py sha256 67447413e273fc76809289111748870b6f6072f08b17efe94863a92d810b7d94), run as `python3 <path> --force --replace-text <forms> --replace-message <forms>`; not installed on the rig; git 2.53.0. Its commit-map is CUMULATIVE across runs (see `maps`).",
  "backups_outside_the_repo_and_carrying_the_coordinates": {
-  "bundle": "~/astro-imaging-prerewrite-2026-08-30.bundle — `git bundle create --all`, verified; 61,973,564 bytes, sha256 b6adc31b9d4aa56e1f74d2d9844f14c6cebf7543e7e3b9e0832e4c5982c0d400",
-  "mirror": "~/astro-imaging-prerewrite-2026-08-30.git — `git clone --mirror`, main at 052e26e (the pre-rewrite HEAD)",
+  "bundle": "~/astro-imaging-prerewrite-2026-08-30.bundle — `git bundle create --all` of the ORIGINAL history, verified ('The bundle records a complete history'); 61,973,564 bytes, sha256 b6adc31b9d4aa56e1f74d2d9844f14c6cebf7543e7e3b9e0832e4c5982c0d400",
+  "mirror": "~/astro-imaging-prerewrite-2026-08-30.git — `git clone --mirror` of the ORIGINAL history, main at 052e26e (the pre-rewrite HEAD)",
   "note": "both stay on this machine; they are the only copies of the pre-rewrite history and they contain the site"
  },
- "forms_replaced": "12 patterns, EXACT forms — the census over every commit showed a near-literal prefix would also have hit three tracked Siril star lists whose pixel coordinates sit a digit from the site, so the rewrite uses exact values only: the decimal latitude (both transcriptions), the decimal longitude (both transcriptions) and the map-viewport longitude, the sexagesimal pair in d/°/colon spellings with the JSON-escaped quote, and the three geocentric OBSGEO components at any decimal length; each replaced by a non-numeric REDACTED_* token (a historical JSON blob is INVALID JSON where a number stood — the honest marker; nothing automated parses historical blobs). The pattern file lives in the session scratchpad and is not tracked: it names the values.",
- "census_before": {
-  "paths_over_all_history": 27,
-  "paths": ["scripts/setup/site.json", "the 20 acquisition.json records", "scripts/setup/site_verification.json", "datasets/corpus/observer_frame_diversity.json", "scripts/setup/verify_site.py", "BACKLOG.md", "docs/dead-ends.md", "docs/dead-ends/stacking-compose.md"],
-  "star_lists_hit_by_the_final_forms": 0,
-  "commit_messages": 6,
-  "commits_at_or_before_the_last_push_carrying_any_form": 0,
-  "first_carriers": "4686cec / f49b7cc (2026-08-13), both after the last push 048e69d"
+ "pass_1": {
+  "forms_replaced": "12 patterns, EXACT forms — the census over every commit showed a near-literal prefix would also have hit three tracked Siril star lists whose pixel coordinates sit a digit from the site (datasets/corpus/crop_work/{dgrid_ctrl/g06y3,fsweep_arm_fix/midx09,fsweep_ctrl_fix/midx01}.lst), so exact values only: the decimal latitude (both transcriptions), the decimal longitude (both transcriptions) and the map-viewport longitude, the sexagesimal pair in d/°/colon spellings with the JSON-escaped quote, and the three geocentric OBSGEO components at any decimal length; each → a non-numeric REDACTED_* token (a historical JSON blob is INVALID JSON where a number stood — the honest marker; nothing automated parses historical blobs). The pattern file lives in the session scratchpad and is not tracked: it names the values.",
+  "census_before": {"paths_over_all_history": 27, "paths": ["scripts/setup/site.json", "the 20 acquisition.json records", "scripts/setup/site_verification.json", "datasets/corpus/observer_frame_diversity.json", "scripts/setup/verify_site.py", "BACKLOG.md", "docs/dead-ends.md", "docs/dead-ends/stacking-compose.md"], "star_lists_hit_by_the_final_forms": 0, "commit_messages": 6, "commits_at_or_before_the_last_push_carrying_any_form": 0, "first_carriers": "4686cec / f49b7cc (2026-08-13), both after the last push 048e69d"},
+  "run": {"commits_before": 1142, "commits_after": 1142, "rewritten": 421, "unchanged": 721, "wall_s": 35.0, "head_before": "052e26e37b0f178c44a90205b8e8d8f4202207e3", "head_after_intermediate": "b75494ce1498", "tree_identity": "HEAD^{tree} ba055dc49d4e426e8530c7d0b9e199a0810faa85 == the pre-rewrite 052e26e^{tree} read from the mirror"},
+  "verification_director": "0 hits for every one of the 12 patterns over every ref's blobs and every commit message; the 6 messages that carried a form carry REDACTED_SITE; the rewritten site(chain) commit's site.json blob reads `\"sitelat_deg\": REDACTED_SITELAT`; git fsck --no-dangling exit 0; tags 12, local branches 4 (all predating the push), reflog 0",
+  "verification_worker_GO3": "own scanner over every object in the pack (`git cat-file --batch-all-objects`: 6885 objects, 364.6 MB; 0 unreachable, reflog 0, refs/original 0, replace 0) + every message, with the guard's 40 derived forms + the historical variants: 0 objects, 0 messages; map integrity 421/421 rewritten reachable, parents consistent, author/committer identical, messages equal modulo forms→REDACTED and cited hashes→new; ten old→new pairs diffed against the mirror: every differing path inside the 27 census paths; 19 refs both sides, only refs/heads/main differs. FINDING: the perturbed values (below) survived — pass 2."
  },
- "run": {
-  "commits_before": 1142, "commits_after": 1142, "rewritten": 421, "unchanged": 721, "wall_s": 35.0,
-  "head_before": "052e26e37b0f178c44a90205b8e8d8f4202207e3", "head_after": "b75494ce1498",
-  "origin": "removed by the tool by design, re-added (https://github.com/mufon609/astro-imaging.git), fetched; origin/main 048e69d is an ancestor of HEAD — a fast-forward push",
-  "tags": 12, "local_branches": 4, "all_refs_other_than_main_predate_the_last_push": true, "reflog_after": 0
+ "pass_2": {
+  "trigger": "the worker's GO #3 verification: verify_site.py's falsification table perturbs the real pair by documented constants (`a + 0.63`, `o + 0.09`, `a / 10.0`), and the PERTURBED values — one arithmetic step from the site at 1e-6 — sat in 8 reachable blobs over 3 paths (scripts/setup/site.json ×3 versions in the bounding-check prose, scripts/setup/site_verification.json ×2 in the old perturbation rows, scripts/setup/verify_site.py ×3 in the docstring example) and 1 message, carried by 416 commits, all post-push; HEAD carried none (the site-privacy unit had already removed the class from the current records)",
+  "forms_replaced": "4 patterns, EXACT: latitude + 0.63 (both transcriptions), longitude + 0.09 (both), latitude ÷ 10 (both), longitude ÷ 10 (for completeness — the census found it nowhere); each → REDACTED_SITELAT_PLUS / REDACTED_SITELONG_PLUS / REDACTED_SITELAT_DIV10 / REDACTED_SITELONG_DIV10; census before the run: 3 paths + 1 message, 0 star lists, HEAD clean",
+  "run": {"commits_before": 1143, "commits_after": 1143, "rewritten": 422, "unchanged": 721, "wall_s": 18.8, "head_before": "6738b7efb365b25a7be057e5c4b62e8db224bc3d", "head_after": "e0f6b94b821a", "tree_identity": "HEAD^{tree} 1711aeac4cd15245f887a62d6b00abf1f13adbb1 before and after the pass — the pass changed no current file", "origin": "removed by the tool by design, re-added and fetched; origin/main 048e69d an ancestor of HEAD (fast-forward)", "tags": 12, "local_branches": 4, "reflog_after": 0},
+  "verification_director": "0 hits for all 16 patterns of both passes over every ref's blobs and every commit message; the rewritten site(chain) commit (now 1e0477c) carries REDACTED_SITELAT_PLUS in its message; git fsck --no-dangling exit 0",
+  "verification_worker_GO4": "pending at the time of writing — the commit that lands this record quotes its verdict lines",
+  "guard_extension": "scripts/qa/check_site_privacy.py gains the derived perturbed forms (lat+0.63, lon+0.09, lat÷10, lon÷10 in the primary forms' variants, each named, with a selftest arm) — worker GO #4, in the same commit; the LIMITS paragraph gains the class: a value one documented arithmetic step from the site is the site"
  },
- "verification_director": {
-  "forms_over_all_refs_blobs_and_messages": "0 hits for every one of the 12 patterns (git grep -P over `git rev-list --all`; git log --all -P --grep)",
-  "redaction_landed": "6 rewritten messages carry REDACTED_SITE (366c321, bb72565, 85f5030, 86ec80d, f992ba6, 8a84712); the rewritten site(chain) commit's scripts/setup/site.json blob reads `\"sitelat_deg\": REDACTED_SITELAT` (5 tokens)",
-  "fsck": "git fsck --no-dangling exit 0",
-  "tree_identity": "HEAD^{tree} ba055dc49d4e426e8530c7d0b9e199a0810faa85 == the pre-rewrite 052e26e^{tree} read from the mirror — the rewrite changed no file at HEAD (no current file carried a form after the site-privacy unit)",
-  "guards": "run_guards on the remapped tree — the commit records the line"
+ "maps": {
+  "commit_map.tsv": "the pass-1 snapshot of filter-repo's commit-map: ORIGINAL → INTERMEDIATE (1142 rows; 721 identical)",
+  "commit_map_pass2.tsv": "filter-repo's commit-map after pass 2 — CUMULATIVE by the tool's design: ORIGINAL → FINAL (1143 rows; 721 identical). A reader holding an original hash (a product's PIPEREV, a record, an old chat) uses this file directly; a reader holding an INTERMEDIATE hash (they existed for about two hours on 2026-08-30 and are cited only in the ledger line for pass 1 and this record's pass_1 block) chains commit_map.tsv⁻¹ then this file",
+  "ref_map.tsv / ref_map_pass2.tsv": "the tool's ref maps for each pass"
  },
  "citation_remap": {
-  "rule": "PROSE (*.md) commit citations follow the rewrite: every 7-40-hex token that resolved as a commit BEFORE the rewrite (captured pre-run: 69 tokens over the tracked *.md, 58 distinct, 37 after the last push) is replaced by the rewritten hash at the same length from the commit map. RECORDS AND LEDGERS (JSON/JSONL) ARE NOT TOUCHED and PIPEREV header VALUES are not remapped anywhere — the products' FITS headers carry the old hash forever, so a record or a sentence quoting a PIPEREV must keep matching the header; the tracked map resolves any old hash.",
-  "applied": "58 replacements of 38 tokens over 9 files (BACKLOG.md 32, docs/spcc-sensor-curve-z6iii.md 11, TOOLS.md 3, datasets/corpus/README.md 3, docs/dead-ends/README.md 3, docs/dead-ends/verification-traps.md 3, README.md 1, docs/dead-ends/stacking-compose.md 1, docs/wide-field-untracked-registration.md 1); 28 PIPEREV values excluded (e.g. 36d9bab, 77e3a78 stay as the headers read)",
-  "map": "datasets/corpus/history_rewrite/commit_map.tsv (1142 rows, old → new; 721 identical) and ref_map.tsv, copied from .git/filter-repo/",
-  "script": "session scratchpad remap_prose_citations.py, not tracked; the rule above is the durable part"
+  "rule": "PROSE (*.md) commit citations follow the rewrite: every 7-40-hex token that resolved as a commit BEFORE each pass is replaced by that commit's final hash at the same length. RECORDS AND LEDGERS (JSON/JSONL) ARE NOT TOUCHED and PIPEREV header VALUES are not remapped anywhere — the products' FITS headers carry the old hash forever, so a record or a sentence quoting a PIPEREV must keep matching the header; the tracked maps resolve any old hash.",
+  "pass_1": "58 replacements of 38 tokens over 9 files (69 tokens captured, 58 distinct, 37 after the push); 28 PIPEREV values excluded (e.g. 36d9bab, 77e3a78)",
+  "pass_2": "57 replacements of 37 tokens over 9 files (64 tokens captured before the pass; 27 unchanged pre-push commits; 0 not in the map); afterwards no intermediate hash is cited in any tracked *.md; check_doc_pointers OK",
+  "scripts": "session scratchpad remap_prose_citations.py / remap_pass2.py, not tracked; the rule above is the durable part"
  },
  "consequences_stated": [
-  "every commit hash after 048e69d changed: a hash quoted in an old chat, a product header (PIPEREV) or a record resolves through the map, not `git show` directly",
-  "historical JSON blobs that carried the site are invalid JSON at those keys (REDACTED_* tokens)",
-  "the pre-rewrite objects are gone from this repository (reflog expired, gc'd); the bundle and the mirror are the way back and carry the site — they stay local"
+  "every commit hash after 048e69d changed twice: a hash quoted in an old chat, a product header (PIPEREV) or a record resolves through commit_map_pass2.tsv (original → final), not `git show` directly",
+  "historical JSON blobs that carried the site or its perturbed twins are invalid JSON at those keys (REDACTED_* tokens)",
+  "the pre-rewrite objects are gone from this repository (reflog expired, gc'd after each pass); the bundle and the mirror are the way back and carry the site — they stay local",
+  "the agreement hazard, measured once more: the director's exact-forms list was complete for the DIRECT forms and blind to the DERIVED class; the second reader (the worker, scanning every object with the guard's own form derivation plus the falsification constants) found it — a class the guard now derives too"
  ],
- "next": "worker astro-imaging-93 verifies independently from the bundle/mirror (the forms over all refs, the tree identity, the map's integrity, the guards); then `git push origin main` (fast-forward); the BACKLOG item closes on the push",
- "written_at": "2026-08-30T12:05:00-04:00"
+ "next": "the worker's GO #4 report (the guard extension + the re-verification of the final history), then `git push origin main` (fast-forward); the BACKLOG item closes on the push",
+ "written_at": "2026-08-30T12:40:00-04:00"
 }

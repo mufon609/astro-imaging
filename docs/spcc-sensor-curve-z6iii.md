@@ -545,7 +545,7 @@ and Siril's).
   `STACKNRM` header and re-measures corner spread, edge dipole and
   per-channel centre medians with Siril `stat` (tolerance
   `centre_median_max_frac_change 0.25`; level rows ADVISORY while `STACKNRM`
-  differs). Present on disk after the rig cleanup (`4faf181`): 22 `_spcc.fit`, 22 judge
+  differs). Present on disk after the rig cleanup (`8d234c8`): 22 `_spcc.fit`, 22 judge
   PNGs — the canonical products; 55 tracked K records.
 - **What a curve changes and what re-baselining it implies.** A curve
   changes exactly six numbers per product — K_R,K_G,K_B and B0..B2 — applied
@@ -606,7 +606,7 @@ excess is a property of the judgment surface, not of K.
 - `src/core/command.c` `do_pcc` 9933–10214 (name resolution 10151–10188, metadata load 10205; `process_spcc_list` 11449), `src/core/command_list.h:241-242` (syntax), `src/core/settings.c:268-290, 408-420` (`photometry/*pref`, `is_mono` default TRUE, `is_dslr`), `src/gui/photometric_cc.c:648-676` (`get_favourite_*`: `if (!list) return 0`), `src/algos/spcc.c` (grid, `flux_to_relcount`, `get_spectrum_from_args`, atmosphere), `src/algos/photometric_cc.c:296-571` (photometry, integration, repeated-median fits, K, warnings; ICC profile disabled 882–887), `src/io/spcc_json.c` (loader, channel bits 166–185, directory walk 734–766, sorts 855–861), `src/core/siril_app_dirs.c:161-163` (hard-coded path), `src/io/siril_git.c` + `src/gui/callbacks.c:1636` (GUI-only fetch + hard reset) — https://gitlab.com/free-astro/siril/-/tree/1.4.4 ; master `ee7b942` (2026-08-23) same order.
 - SPCC documentation: https://siril.readthedocs.io/en/stable/processing/color-calibration/spcc.html ; command reference `spcc` / `spcc_list`.
 - Siril lead developer on additions (pixls.us 50560, 56806, 55670); pyscript quoting thread 54615 (a different mechanism: unescaped quotes).
-- The 48 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the H0 probe: record `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs and scripts `sessions/july31/work/h0_{help,null,d750,d500}.{log,ssf}`, `h0_config_before.ini`; the §4 arms: `spcc_arm_{A,Aprime,A2,A3}.json`, `spcc_set-01_arm_{d750,zf,zf2,z6,zfe}.json`, `spcc_h3_band_excess.json` (logs `sessions/july31/work/arm_*.log`, `arm_lists.log`, `h3_*.log`, `h4_arm_zf.log`); the runner at d795ec9 and its smoke record `spcc_set-01_smoke_d750.json`; the curves `scripts/setup/spcc_curves/RECORD.json`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
+- The 48 logs `sessions/{july31,aug06,aug09,aug14}/work/spcc_*.log`; the H0 probe: record `datasets/july31/set-01/qa_work/spcc_h0_probe.json`, logs and scripts `sessions/july31/work/h0_{help,null,d750,d500}.{log,ssf}`, `h0_config_before.ini`; the §4 arms: `spcc_arm_{A,Aprime,A2,A3}.json`, `spcc_set-01_arm_{d750,zf,zf2,z6,zfe}.json`, `spcc_h3_band_excess.json` (logs `sessions/july31/work/arm_*.log`, `arm_lists.log`, `h3_*.log`, `h4_arm_zf.log`); the runner at 91fc93a and its smoke record `spcc_set-01_smoke_d750.json`; the curves `scripts/setup/spcc_curves/RECORD.json`; the 55 records `datasets/*/*/qa_work/spcc_*.json`, `datasets/corpus/spcc_set-0b_*.json`; `~/.var/app/org.siril.Siril/config/siril/config.1.4.ini` lines 22–23, 62–70, 158–160; commit `cf96f60` (the previous rig's grounding measurement).
 
 **siril-spcc-database** (clone `3426f09`, https://gitlab.com/free-astro/siril-spcc-database)
 - `README.md`, `spcc-database-schema.json`, `utils/README.md`, `utils/process_osc_sensor.py`, `svo-converter.py`, `LICENSE.md` (GPLv3); MRs !109 (D750), !81 (D500), !54 (D7200), !72 (Canon EOS R, open); issues #2, #3 (*"Add new sensors"* → rawtoaces, butcherg/ssf-data), #4 (relative QE); submission wizard https://siril-contrib-doc.readthedocs.io/en/latest/SPCCDatabase.html.
@@ -643,7 +643,7 @@ excess is a property of the judgment surface, not of K.
 
 ## 3. Verdict / recommendation
 
-**Option 0 is adopted** (`spcc_run.py` at d795ec9: a named sensor is
+**Option 0 is adopted** (`spcc_run.py` at 91fc93a: a named sensor is
 required, `spcc_list` is preloaded, the log is asserted per run) and the
 index-0 model behind every shipped K record is MEASURED to the digit (§1.2).
 **The §4 test has run (results in §4): the data cannot distinguish the
@@ -659,8 +659,8 @@ Weta-measured **Nikon Z f** (professional rig, 380–780 nm, Apache-2.0,
 upstream-contributable) over the DIY Z6 and the 2014 D750. **The owner's
 eyes on the H4 surface — the only verdict on colour — approved it
 (2026-08-29, H4 WIN on set-01), and the pin is "Nikon Z f"**: a provenance
-choice on data that cannot distinguish the proxies. Stage 2 landed (7bdd51d: the `spcc` block
-pinned in all 17 canonical sets' recipes; 6564f24: SPCC re-run on the
+choice on data that cannot distinguish the proxies. Stage 2 landed (2295ba5: the `spcc` block
+pinned in all 17 canonical sets' recipes; 7b9d1c6: SPCC re-run on the
 existing `_wcs.fit` products with the old `_spcc`/PNG moved aside — no
 re-solve, one knob — the guard 17/17 PASS, ΔK declared per product; the 17
 re-seeds and the twins' disposal await the owner's acceptance). The upstream MR
@@ -756,7 +756,7 @@ K as in §1.2 (`share = a/K_G` for R/G, `a·K_B/K_G` for B/G).
 | A‴ — that model named, preload | same | identical to A to the digit, ΔK 0/0/0 | | | | | | | |
 | A′ — bare "Nikon D750", no preload | echoes D750; in force: Canon EOS 1D Mark III × Antila RGB_ultra_ii, no LPF | 1.000/0.681/0.911 | 0.531138 + 0.607751x (0.247630) | 0.780, 0.89 | −0.005469 + 0.502601x (0.107110) | −0.007, 0.67 | 0.247, 1.498 | 4.875/1.732/0.362 | 3077/5119 |
 | A″ — that model named + unity LPF, preload | same | identical to A′ to the digit, ΔK 0/0/0 | | | | | | | |
-| A0 — runner, no spec | — | refused before Siril (d795ec9); Siril's own error measured in H0's null arm (exit 1, no K) | | | | | | | |
+| A0 — runner, no spec | — | refused before Siril (91fc93a); Siril's own error measured in H0's null arm (exit 1, no K) | | | | | | | |
 | B″ — "Nikon D750" | as named (verified: listed 73, loaded 52, echoed 105) | 1.000/0.697/0.945 | 0.326512 + 0.624652x (0.094971) | 0.468, 0.90 | 0.311216 + 0.603959x (0.107378) | 0.422, 0.82 | 0.593, 0.706 | 4.875/1.447/−0.137 | 3077/5119 |
 | B — "Nikon Z f" (photon) | as named (76/52/108) | 1.000/0.697/0.947 | 0.332141 + 0.592525x (0.095610) | 0.477, 0.85 | 0.323327 + 0.522722x (0.107511) | 0.439, 0.71 | 0.616, 0.790 | 4.875/1.444/−0.171 | 3077/5119 |
 | B (repeat, `arm_zf2`) | as named | identical to B to the digit — determinism MET | | | | | | | |
@@ -877,10 +877,10 @@ every arm.
 re-calibrated under "Nikon Z f".** H0 MET, determinism MET, H1 scored
 (neither WIN nor NULL by the letter; the residual is not curve-driven), H2
 declared, H3 unresolved at the instrument's print resolution, **H4 WIN —
-owner-approved 2026-08-29 on set-01**. Stage 0 adopted (d795ec9); stage 1's
+owner-approved 2026-08-29 on set-01**. Stage 0 adopted (91fc93a); stage 1's
 curves installed and tracked (`scripts/setup/spcc_curves/`); **stage 2
-landed** (7bdd51d: the `spcc` block in all 17 canonical sets' recipes;
-6564f24: SPCC re-run on the existing `_wcs.fit` of every canonical product —
+landed** (2295ba5: the `spcc` block in all 17 canonical sets' recipes;
+7b9d1c6: SPCC re-run on the existing `_wcs.fit` of every canonical product —
 17 per-set finals, 4 nights, the corpus — no re-solve, one knob; record
 `datasets/corpus/spcc_pin_zf/pin_record.json`). Declared delta over the 17
 finals: ΔK_G +0.0093 ± 0.0011 (+1.44 ± 0.17%), ΔK_B +0.0191 ± 0.0017
@@ -902,8 +902,8 @@ not-persisted preferences are a `docs/dead-ends/siril-behaviors.md` entry
 (it changes every future SPCC invocation and every reading of an old K
 record); `TOOLS.md`'s SPCC row carries the `spcc_list`-first rule and the
 `is_dslr` → `-osclpf=` requirement; the runner's removal-condition row
-landed with d795ec9; the "generic default" wording is swept from every
-site (d46cafe: README stage 3, the pipeline doc §7 and its stop list,
+landed with 91fc93a; the "generic default" wording is swept from every
+site (85c6f96: README stage 3, the pipeline doc §7 and its stop list,
 `finish_render.sh`, `corpus4_build_record.json`, `datasets/README.md`,
 `stacking-vs-official-pipelines.md`, `web/serve.py`); the proxy curve's
 register row and its REMOVAL CONDITION live in `convert_curves.py` and the

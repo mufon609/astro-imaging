@@ -10,12 +10,12 @@ deleted. Entries are maintained IN PLACE, in the stage file they belong to.
 
 This directory replaced the single-file registry (4,653 lines) in two
 recorded operations, both in this path's git history:
-- **The split** (commit `f8cffb8`): every top-level block moved verbatim to
+- **The split** (commit `fcd0103`): every top-level block moved verbatim to
   one topic file; `manifest.tsv` is the map (its line numbers refer to the
   pre-split file, pinned at sha256 `613d2fcb…` — recover it with
   `git log -- docs/dead-ends.md`), and the split was verified by byte-exact
   reconstruction (`split.py`, retired with the refactor — in git history).
-- **The declutter** (ten per-file commits, `ae4fdf9`…`1bc5c22`): every entry
+- **The declutter** (ten per-file commits, `55d5c7e`…`310db27`): every entry
   audited against the tree, duplicates / stale claims / fixed-and-implemented
   scaffolding removed, every re-measurement stamped to the commit it was
   taken at; per-file dispositions are in those commit messages

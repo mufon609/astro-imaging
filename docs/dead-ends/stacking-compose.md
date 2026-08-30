@@ -435,7 +435,7 @@ and answered by member selection: the decision map with every form's numbers is
   bars, and was REJECTED as symptom-treatment — the records live under
   `datasets/corpus/crop_work/`. The knob's implementation (Siril `seqcrop`
   after the darktable warp, before register — that insertion point was
-  correct and probed bit-identical) is recoverable at `690746c`. What the
+  correct and probed bit-identical) is recoverable at `7775fdd`. What the
   knob DID buy: removing rim dilution exposed the latent member-solve defect
   both chains carried (`plate-solving-wcs.md`).
 - **THE DELIVERED ZERO POINT OF ANY `-output_norm` STACK IS (the composite's
