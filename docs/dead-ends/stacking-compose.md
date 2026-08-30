@@ -175,6 +175,29 @@ and answered by member selection: the decision map with every form's numbers is
   aggregation stamp cannot express a row crop (NCROPPED/MEMCXCS count columns only) —
   a limit, recorded. The dilution hypothesis of the row-resolved crop is COUNTED: the
   six members' removed columns were 3.0–5.6 % of the weighted coverage at every probe.
+- **THE PORTION RULE IS CORPUS-ONLY: INSIDE ONE SET NOTHING REPLACES THE REMOVED
+  BAND — a per-set compose through the stage is a clean NULL at a 19 % canvas
+  cost.** MEASURED (`datasets/aug14/set-04/qa_work/portion_perset.json`,
+  `datasets/aug06/experiments.jsonl` 150–151): aug14/set-04's six members (all
+  cropped by the chain, x_c 900 ×1 / 1500 ×5) composed twice at framing=max with
+  the same pinned reference — the chain's cropped copies against the originals.
+  Nine of the 18 entry-side stations hold no stars in the cropped arm (the sky is
+  outside its union: pointings drift ~200 px per member, so the removed columns
+  are LOST, not replaced — the corpus mechanism, another night's sharp columns
+  over the same sky, has no counterpart inside a set); the seven fully covered
+  shared stations read 0.03–0.08 px lower, inside the pair's own −0.09..+0.04
+  spread at stations whose contributors are IDENTICAL in both arms — the crop
+  changes the register inputs (the cropped arm's union is 87 px taller), so the
+  zero repeat floor holds for identical composes only; the two in-band readings
+  (−0.245, −0.240) are coverage-edge boxes. Cost: canvas 5657 × 4346 against
+  7003 × 4259 (−19.2 %), the covered rectangle −23.7 % wide; at the deliverable's
+  `-framing=min` the stage-fed product is 41 % narrower (2722 vs 4594 px). The
+  seams at the four measurable boundaries are one stat quantum (≤ 0.25 %).
+  Stated limits: shape_at_sky refused the midline stations (its two y-conventions
+  differed by 2.04° against a 2.83° tolerance — unscored anchors at ±1500 px were
+  added); the composite stamp truncates MEMCPROV/REGREF at the 68-char FITS string
+  limit; the per-set chain's own final carries "no image weighting" against this
+  compose's nbstack and does not reproduce it (a route difference, noted).
 - **A `-framing=min` CANVAS IS SIZED BY TIME SPAN, NOT FRAME COUNT — so a
   metric taken at a margin relative to each canvas's own edge is not
   like-for-like across sets.** The intersection keeps only what every frame

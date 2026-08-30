@@ -335,10 +335,13 @@ the owner-approved candidate → the promoted canonical, 0 differing pixels,
 guarded by the corpus baseline slot); the rows and the outer station (§3
 rowmin, §6: the row-resolved crop a clean NULL; the +2400 blind spot bounded at
 +0.008 px median). Open: the constant's placement (§4, a policy in a continuum —
-the owner's); the depth measure's regime (§6); the per-set finals are not run
-through the stage until measured there. MEASURED and closed: weighting vs
+the owner's); the depth measure's regime (§6). MEASURED and closed: weighting vs
 exclusion (§6, a NULL); the top row (§6 — corpus-wide softening, the row-level
-exclusion a TRADE not adopted); the repeat floor (zero, `repeat_floor.json`).
+exclusion a TRADE not adopted); the repeat floor (zero, `repeat_floor.json`); the
+stage on a PER-SET compose (a clean NULL — inside one set nothing replaces the
+removed band, the gain sits inside the pair's own spread, the canvas loses 19 %
+at max framing and 41 % of its width at the deliverable's min framing;
+`datasets/aug14/set-04/qa_work/portion_perset.json`) — the stage is corpus-only.
 
 ## Graduation
 

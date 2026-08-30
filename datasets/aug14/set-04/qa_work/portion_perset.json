@@ -1,0 +1,2040 @@
+{
+ "_what": "The per-set test of the member-selection stage (the run_member_crop.sh register row's own named test): ONE knob \u2014 the stage \u2014 on ONE per-set compose, aug14/set-04 (six members, all column-cropped by the chain: x_c 1500 x5 / 900 x1). A = the chain's curated copies, B = the six originals; framing=max, nbstack, reference PINNED --ref=1 (sub_01) in both; a third and fourth compose at framing=min. Pre-registered at ledger line 150 (datasets/aug06/experiments.jsonl); the verdict line follows it. Nothing here touched a product, member, record or raw of the chain.",
+ "pre_registration": "datasets/aug06/experiments.jsonl line 150 (id portion_rule_perset_aug14_set04)",
+ "arms": {
+  "A_msel": {
+   "members": [
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_sub_01.fit",
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_070_aug14_set-04_sub_02.fit",
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_071_aug14_set-04_sub_03.fit",
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_072_aug14_set-04_sub_04.fit",
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_073_aug14_set-04_sub_05.fit",
+    "sessions/aug14/work/curated_july31+aug06+aug09+aug14_full/sub_074_aug14_set-04_sub_06.fit"
+   ],
+   "product": "web/results/aug14/stack_set04msel.fit",
+   "header": {
+    "NAXIS1": 5657,
+    "NAXIS2": 4346,
+    "PIPEREV": "16cea71",
+    "REGREF": "1:aug14/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_s",
+    "NMEMBER": 6,
+    "STACKCNT": 600,
+    "NCROPPED": 6,
+    "MEMCXCS": "1500x5/900x1",
+    "MEMCRULE": "asym>0.20px@r400 top30",
+    "MEMCPROV": "datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_porti",
+    "DATE": "2026-08-30T18:32:29",
+    "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unno rmalized output, image weighting from image count, unequalized RGB, filt er all"
+   }
+  },
+  "B_nosel": {
+   "members": [
+    "sessions/aug14/work/groups_set-04/sub_01.fit",
+    "sessions/aug14/work/groups_set-04/sub_02.fit",
+    "sessions/aug14/work/groups_set-04/sub_03.fit",
+    "sessions/aug14/work/groups_set-04/sub_04.fit",
+    "sessions/aug14/work/groups_set-04/sub_05.fit",
+    "sessions/aug14/work/groups_set-04/sub_06.fit"
+   ],
+   "product": "web/results/aug14/stack_set04nosel.fit",
+   "header": {
+    "NAXIS1": 7003,
+    "NAXIS2": 4259,
+    "PIPEREV": "16cea71",
+    "REGREF": "1:aug14/groups_set-04/sub_01.fit",
+    "NMEMBER": 6,
+    "STACKCNT": 600,
+    "NCROPPED": 0,
+    "MEMCXCS": null,
+    "MEMCRULE": null,
+    "MEMCPROV": null,
+    "DATE": "2026-08-30T18:32:47",
+    "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unno rmalized output, image weighting from image count, unequalized RGB, filt er all"
+   }
+  },
+  "A_min": {
+   "product": "web/results/aug14/stack_set04msel_min.fit",
+   "header": {
+    "NAXIS1": 2722,
+    "NAXIS2": 3541,
+    "PIPEREV": "16cea71",
+    "REGREF": "1:aug14/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_s",
+    "NMEMBER": 6,
+    "STACKCNT": 600,
+    "NCROPPED": 6,
+    "MEMCXCS": "1500x5/900x1",
+    "MEMCRULE": "asym>0.20px@r400 top30",
+    "MEMCPROV": "datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_porti",
+    "DATE": "2026-08-30T18:33:04",
+    "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unno rmalized output, image weighting from image count, unequalized RGB, filt er all"
+   }
+  },
+  "B_min": {
+   "product": "web/results/aug14/stack_set04nosel_min.fit",
+   "header": {
+    "NAXIS1": 4594,
+    "NAXIS2": 3583,
+    "PIPEREV": "16cea71",
+    "REGREF": "1:aug14/groups_set-04/sub_01.fit",
+    "NMEMBER": 6,
+    "STACKCNT": 600,
+    "NCROPPED": 0,
+    "MEMCXCS": null,
+    "MEMCRULE": null,
+    "MEMCPROV": null,
+    "DATE": "2026-08-30T18:33:10",
+    "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unno rmalized output, image weighting from image count, unequalized RGB, filt er all"
+   }
+  },
+  "existing_perset_final_reference_figure": {
+   "product": "web/results/aug14/stack_set-04_full.fit",
+   "header": {
+    "NAXIS1": 4652,
+    "NAXIS2": 3558,
+    "PIPEREV": "77e3a78",
+    "REGREF": "1:aug14/groups_set-04/sub_01.fit",
+    "NMEMBER": null,
+    "STACKCNT": 600,
+    "NCROPPED": null,
+    "MEMCXCS": null,
+    "MEMCRULE": null,
+    "MEMCPROV": null,
+    "DATE": "2026-08-29T03:36:25",
+    "HISTORY": "mean stacking without rejection, additive+scaling normalized input, unno rmalized output, no image weighting, unequalized RGB, filter all"
+   }
+  }
+ },
+ "commands": {
+  "compose": "scripts/stack/run_undistort_compose.sh --out=web/results/aug14/stack_set04{msel,nosel}[_min].fit --framing={max,min} --weight=nbstack --ref=1 sessions/aug14/work/perset04/{A,B}",
+  "finish": "scripts/stack/finish_render.sh web/results/aug14/stack_set04{msel,nosel}.fit set04{msel,nosel} --session=sessions/aug14 --set=set-04 (max composes only)",
+  "shape": "python3 scripts/qa/shape_at_sky.py web/results/aug14/stack_set04{msel,nosel}_wcs.fit $(cat sessions/aug14/work/perset04/stations66.args) --box=800 --top=30 --json=... --lst-dir=...  \u2014 54 stations = the six members' cached centre-row stations (centre, along +-600/+-1200/+-1800/+-2400; member pixel (box_x+400, H/2) -> sky through the member's own WCS) + 12 UNSCORED anchor stations at member (W/2, H/2 +- 1500): the tool REFUSED the 54-station set alone because every station lies on the canvas midline and its two y-conventions could not be told apart (differ by 2.04 deg vs tol 2.83); with the anchors the passes differ by 15.0 deg and 'y-origin top' resolved on both products",
+  "seams_rims": "Siril stat (through siril_run) on both _spcc: two 200x200 boxes at member x = kept_width -+ 150, y = H/2 -> sky through the member's WCS -> each product's canvas (sessions/aug14/work/perset04/measure/stat_{A,B}.ssf); rim: five 200x200 boxes at x 100..900 from each horizontal canvas edge at mid-height",
+  "coverage": "python3 scripts/qa/coverage_frame.py <union.fit> <out.json> --grid=40x26 --floor=27 (Green; the corpus slot's floor convention, ~2/3 of this sky's 40.4 ADU16)",
+  "logs": "sessions/aug14/work/perset04/{compose_*.log,finish_*.log,measure/}"
+ },
+ "stations": [
+  {
+   "station": "m1_centre",
+   "group": "centre",
+   "ra": 308.96169,
+   "dec": 39.88827,
+   "canvas_x_A": 2706.5,
+   "canvas_x_B": 3978.2,
+   "n_A": 1083,
+   "n_B": 1086,
+   "fwhm_A": 2.692,
+   "fwhm_B": 2.703,
+   "round_A": 0.991,
+   "round_B": 0.985,
+   "dFWHM_A_minus_B": -0.011,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongp600",
+   "group": "near+600",
+   "ra": 312.62076,
+   "dec": 40.33472,
+   "canvas_x_A": 2104.6,
+   "canvas_x_B": 3377.2,
+   "n_A": 1044,
+   "n_B": 1054,
+   "fwhm_A": 2.708,
+   "fwhm_B": 2.71,
+   "round_A": 0.978,
+   "round_B": 0.975,
+   "dFWHM_A_minus_B": -0.002,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongm600",
+   "group": "near-600",
+   "ra": 305.3504,
+   "dec": 39.32762,
+   "canvas_x_A": 3308.2,
+   "canvas_x_B": 4582.6,
+   "n_A": 1061,
+   "n_B": 1052,
+   "fwhm_A": 2.79,
+   "fwhm_B": 2.835,
+   "round_A": 0.979,
+   "round_B": 0.968,
+   "dFWHM_A_minus_B": -0.045,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongp1200",
+   "group": "entry",
+   "ra": 316.29647,
+   "dec": 40.66272,
+   "canvas_x_A": 1502.5,
+   "canvas_x_B": 2779.8,
+   "n_A": 1024,
+   "n_B": 1043,
+   "fwhm_A": 2.79,
+   "fwhm_B": 2.752,
+   "round_A": 0.957,
+   "round_B": 0.94,
+   "dFWHM_A_minus_B": 0.038,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongm1200",
+   "group": "exit",
+   "ra": 301.81563,
+   "dec": 38.66019,
+   "canvas_x_A": 3909.2,
+   "canvas_x_B": 5190.1,
+   "n_A": 1091,
+   "n_B": 1076,
+   "fwhm_A": 2.913,
+   "fwhm_B": 2.925,
+   "round_A": 0.926,
+   "round_B": 0.928,
+   "dFWHM_A_minus_B": -0.012,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongp1800",
+   "group": "entry",
+   "ra": 319.95688,
+   "dec": 40.87142,
+   "canvas_x_A": 900.8,
+   "canvas_x_B": 2186.4,
+   "n_A": 955,
+   "n_B": 991,
+   "fwhm_A": 2.893,
+   "fwhm_B": 2.93,
+   "round_A": 0.918,
+   "round_B": 0.889,
+   "dFWHM_A_minus_B": -0.037,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongm1800",
+   "group": "exit",
+   "ra": 298.38259,
+   "dec": 37.89615,
+   "canvas_x_A": 4509.2,
+   "canvas_x_B": 5800.4,
+   "n_A": 991,
+   "n_B": 988,
+   "fwhm_A": 2.945,
+   "fwhm_B": 2.965,
+   "round_A": 0.935,
+   "round_B": 0.914,
+   "dFWHM_A_minus_B": -0.02,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m1_alongp2400",
+   "group": "entry",
+   "ra": 323.57078,
+   "dec": 40.96329,
+   "canvas_x_A": 299.7,
+   "canvas_x_B": 1597.2,
+   "n_A": 0,
+   "n_B": 927,
+   "fwhm_A": null,
+   "fwhm_B": 3.328,
+   "round_A": null,
+   "round_B": 0.772,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m1_alongm2400",
+   "group": "exit",
+   "ra": 295.07205,
+   "dec": 37.0477,
+   "canvas_x_A": 5107.9,
+   "canvas_x_B": 6413.2,
+   "n_A": 807,
+   "n_B": 800,
+   "fwhm_A": 2.795,
+   "fwhm_B": 2.882,
+   "round_A": 0.963,
+   "round_B": 0.957,
+   "dFWHM_A_minus_B": -0.087,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_centre",
+   "group": "centre",
+   "ra": 310.21315,
+   "dec": 39.88526,
+   "canvas_x_A": 2504.8,
+   "canvas_x_B": 3778.3,
+   "n_A": 1074,
+   "n_B": 1067,
+   "fwhm_A": 2.688,
+   "fwhm_B": 2.693,
+   "round_A": 0.986,
+   "round_B": 0.979,
+   "dFWHM_A_minus_B": -0.005,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongp600",
+   "group": "near+600",
+   "ra": 313.8722,
+   "dec": 40.3319,
+   "canvas_x_A": 1902.1,
+   "canvas_x_B": 3177.2,
+   "n_A": 1040,
+   "n_B": 1055,
+   "fwhm_A": 2.722,
+   "fwhm_B": 2.728,
+   "round_A": 0.975,
+   "round_B": 0.96,
+   "dFWHM_A_minus_B": -0.006,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongm600",
+   "group": "near-600",
+   "ra": 306.60198,
+   "dec": 39.3245,
+   "canvas_x_A": 3106.2,
+   "canvas_x_B": 4381.6,
+   "n_A": 1070,
+   "n_B": 1068,
+   "fwhm_A": 2.752,
+   "fwhm_B": 2.745,
+   "round_A": 0.989,
+   "round_B": 0.975,
+   "dFWHM_A_minus_B": 0.007,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongp1200",
+   "group": "entry",
+   "ra": 317.54799,
+   "dec": 40.66021,
+   "canvas_x_A": 1298.3,
+   "canvas_x_B": 2578.9,
+   "n_A": 1035,
+   "n_B": 1038,
+   "fwhm_A": 2.835,
+   "fwhm_B": 2.86,
+   "round_A": 0.937,
+   "round_B": 0.919,
+   "dFWHM_A_minus_B": -0.025,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongm1200",
+   "group": "exit",
+   "ra": 303.0675,
+   "dec": 38.65702,
+   "canvas_x_A": 3706.0,
+   "canvas_x_B": 4987.1,
+   "n_A": 1089,
+   "n_B": 1057,
+   "fwhm_A": 2.865,
+   "fwhm_B": 2.892,
+   "round_A": 0.941,
+   "round_B": 0.944,
+   "dFWHM_A_minus_B": -0.027,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongp1800",
+   "group": "entry",
+   "ra": 321.20855,
+   "dec": 40.8694,
+   "canvas_x_A": 693.8,
+   "canvas_x_B": 1983.6,
+   "n_A": 896,
+   "n_B": 973,
+   "fwhm_A": 2.958,
+   "fwhm_B": 3.038,
+   "round_A": 0.896,
+   "round_B": 0.872,
+   "dFWHM_A_minus_B": -0.08,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongm1800",
+   "group": "exit",
+   "ra": 299.63494,
+   "dec": 37.8929,
+   "canvas_x_A": 4303.8,
+   "canvas_x_B": 5594.2,
+   "n_A": 1053,
+   "n_B": 1060,
+   "fwhm_A": 2.967,
+   "fwhm_B": 2.985,
+   "round_A": 0.932,
+   "round_B": 0.909,
+   "dFWHM_A_minus_B": -0.018,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m2_alongp2400",
+   "group": "entry",
+   "ra": 324.8227,
+   "dec": 40.962,
+   "canvas_x_A": 88.9,
+   "canvas_x_B": 1391.4,
+   "n_A": 0,
+   "n_B": 870,
+   "fwhm_A": null,
+   "fwhm_B": 3.373,
+   "round_A": null,
+   "round_B": 0.755,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m2_alongm2400",
+   "group": "exit",
+   "ra": 296.32515,
+   "dec": 37.04435,
+   "canvas_x_A": 4899.2,
+   "canvas_x_B": 6202.9,
+   "n_A": 908,
+   "n_B": 893,
+   "fwhm_A": 2.875,
+   "fwhm_B": 2.922,
+   "round_A": 0.954,
+   "round_B": 0.949,
+   "dFWHM_A_minus_B": -0.047,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_centre",
+   "group": "centre",
+   "ra": 311.46361,
+   "dec": 39.88524,
+   "canvas_x_A": 2302.5,
+   "canvas_x_B": 3578.0,
+   "n_A": 1077,
+   "n_B": 1090,
+   "fwhm_A": 2.685,
+   "fwhm_B": 2.695,
+   "round_A": 0.985,
+   "round_B": 0.971,
+   "dFWHM_A_minus_B": -0.01,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongp600",
+   "group": "near+600",
+   "ra": 315.12254,
+   "dec": 40.33201,
+   "canvas_x_A": 1698.8,
+   "canvas_x_B": 2976.8,
+   "n_A": 1044,
+   "n_B": 1046,
+   "fwhm_A": 2.745,
+   "fwhm_B": 2.738,
+   "round_A": 0.968,
+   "round_B": 0.947,
+   "dFWHM_A_minus_B": 0.007,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongm600",
+   "group": "near-600",
+   "ra": 307.85258,
+   "dec": 39.32441,
+   "canvas_x_A": 2903.9,
+   "canvas_x_B": 4180.5,
+   "n_A": 1085,
+   "n_B": 1070,
+   "fwhm_A": 2.708,
+   "fwhm_B": 2.718,
+   "round_A": 0.985,
+   "round_B": 0.985,
+   "dFWHM_A_minus_B": -0.01,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongp1200",
+   "group": "entry",
+   "ra": 318.79828,
+   "dec": 40.66054,
+   "canvas_x_A": 1093.1,
+   "canvas_x_B": 2377.4,
+   "n_A": 989,
+   "n_B": 991,
+   "fwhm_A": 2.877,
+   "fwhm_B": 2.92,
+   "round_A": 0.92,
+   "round_B": 0.902,
+   "dFWHM_A_minus_B": -0.043,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongm1200",
+   "group": "exit",
+   "ra": 304.31818,
+   "dec": 38.6569,
+   "canvas_x_A": 3502.7,
+   "canvas_x_B": 4784.1,
+   "n_A": 1059,
+   "n_B": 1068,
+   "fwhm_A": 2.837,
+   "fwhm_B": 2.88,
+   "round_A": 0.938,
+   "round_B": 0.947,
+   "dFWHM_A_minus_B": -0.043,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongp1800",
+   "group": "entry",
+   "ra": 322.45896,
+   "dec": 40.87,
+   "canvas_x_A": 485.6,
+   "canvas_x_B": 1779.9,
+   "n_A": 740,
+   "n_B": 969,
+   "fwhm_A": 3.03,
+   "fwhm_B": 3.275,
+   "round_A": 0.87,
+   "round_B": 0.822,
+   "dFWHM_A_minus_B": -0.245,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongm1800",
+   "group": "exit",
+   "ra": 300.88563,
+   "dec": 37.89278,
+   "canvas_x_A": 4098.5,
+   "canvas_x_B": 5388.5,
+   "n_A": 1086,
+   "n_B": 1093,
+   "fwhm_A": 2.975,
+   "fwhm_B": 2.98,
+   "round_A": 0.92,
+   "round_B": 0.913,
+   "dFWHM_A_minus_B": -0.005,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m3_alongp2400",
+   "group": "entry",
+   "ra": 326.07347,
+   "dec": 40.96294,
+   "canvas_x_A": -123.3,
+   "canvas_x_B": 1184.7,
+   "n_A": 0,
+   "n_B": 820,
+   "fwhm_A": null,
+   "fwhm_B": 3.385,
+   "round_A": null,
+   "round_B": 0.744,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m3_alongm2400",
+   "group": "exit",
+   "ra": 297.57574,
+   "dec": 37.04423,
+   "canvas_x_A": 4691.0,
+   "canvas_x_B": 5993.3,
+   "n_A": 975,
+   "n_B": 969,
+   "fwhm_A": 2.943,
+   "fwhm_B": 2.975,
+   "round_A": 0.95,
+   "round_B": 0.935,
+   "dFWHM_A_minus_B": -0.032,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_centre",
+   "group": "centre",
+   "ra": 312.71058,
+   "dec": 39.88141,
+   "canvas_x_A": 2100.2,
+   "canvas_x_B": 3378.0,
+   "n_A": 1058,
+   "n_B": 1073,
+   "fwhm_A": 2.705,
+   "fwhm_B": 2.71,
+   "round_A": 0.978,
+   "round_B": 0.966,
+   "dFWHM_A_minus_B": -0.005,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongp600",
+   "group": "near+600",
+   "ra": 316.36926,
+   "dec": 40.32853,
+   "canvas_x_A": 1495.3,
+   "canvas_x_B": 2776.4,
+   "n_A": 1038,
+   "n_B": 1046,
+   "fwhm_A": 2.792,
+   "fwhm_B": 2.765,
+   "round_A": 0.953,
+   "round_B": 0.936,
+   "dFWHM_A_minus_B": 0.027,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongm600",
+   "group": "near-600",
+   "ra": 309.09971,
+   "dec": 39.32019,
+   "canvas_x_A": 2701.8,
+   "canvas_x_B": 3979.9,
+   "n_A": 1069,
+   "n_B": 1079,
+   "fwhm_A": 2.698,
+   "fwhm_B": 2.708,
+   "round_A": 0.987,
+   "round_B": 0.981,
+   "dFWHM_A_minus_B": -0.01,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongp1200",
+   "group": "entry",
+   "ra": 320.04466,
+   "dec": 40.65733,
+   "canvas_x_A": 887.4,
+   "canvas_x_B": 2175.6,
+   "n_A": 954,
+   "n_B": 988,
+   "fwhm_A": 2.897,
+   "fwhm_B": 2.96,
+   "round_A": 0.917,
+   "round_B": 0.889,
+   "dFWHM_A_minus_B": -0.063,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongm1200",
+   "group": "exit",
+   "ra": 305.56539,
+   "dec": 38.65225,
+   "canvas_x_A": 3299.8,
+   "canvas_x_B": 4582.0,
+   "n_A": 1068,
+   "n_B": 1075,
+   "fwhm_A": 2.833,
+   "fwhm_B": 2.848,
+   "round_A": 0.941,
+   "round_B": 0.956,
+   "dFWHM_A_minus_B": -0.015,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongp1800",
+   "group": "entry",
+   "ra": 323.70482,
+   "dec": 40.86696,
+   "canvas_x_A": 276.8,
+   "canvas_x_B": 1575.9,
+   "n_A": 0,
+   "n_B": 914,
+   "fwhm_A": null,
+   "fwhm_B": 3.343,
+   "round_A": null,
+   "round_B": 0.764,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m4_alongm1800",
+   "group": "exit",
+   "ra": 302.13274,
+   "dec": 37.8877,
+   "canvas_x_A": 3894.0,
+   "canvas_x_B": 5183.9,
+   "n_A": 1066,
+   "n_B": 1082,
+   "fwhm_A": 2.925,
+   "fwhm_B": 2.938,
+   "round_A": 0.922,
+   "round_B": 0.924,
+   "dFWHM_A_minus_B": -0.013,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m4_alongp2400",
+   "group": "entry",
+   "ra": 327.3185,
+   "dec": 40.95996,
+   "canvas_x_A": -336.1,
+   "canvas_x_B": 977.5,
+   "n_A": 0,
+   "n_B": 751,
+   "fwhm_A": null,
+   "fwhm_B": 3.382,
+   "round_A": null,
+   "round_B": 0.739,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m4_alongm2400",
+   "group": "exit",
+   "ra": 298.82248,
+   "dec": 37.03868,
+   "canvas_x_A": 4484.0,
+   "canvas_x_B": 5785.3,
+   "n_A": 1012,
+   "n_B": 1011,
+   "fwhm_A": 2.962,
+   "fwhm_B": 2.987,
+   "round_A": 0.932,
+   "round_B": 0.914,
+   "dFWHM_A_minus_B": -0.025,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_centre",
+   "group": "centre",
+   "ra": 313.96779,
+   "dec": 39.87933,
+   "canvas_x_A": 1895.4,
+   "canvas_x_B": 3175.7,
+   "n_A": 1070,
+   "n_B": 1086,
+   "fwhm_A": 2.722,
+   "fwhm_B": 2.73,
+   "round_A": 0.975,
+   "round_B": 0.96,
+   "dFWHM_A_minus_B": -0.008,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongp600",
+   "group": "near+600",
+   "ra": 317.62666,
+   "dec": 40.32628,
+   "canvas_x_A": 1289.0,
+   "canvas_x_B": 2573.6,
+   "n_A": 1045,
+   "n_B": 1043,
+   "fwhm_A": 2.857,
+   "fwhm_B": 2.873,
+   "round_A": 0.929,
+   "round_B": 0.91,
+   "dFWHM_A_minus_B": -0.016,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongm600",
+   "group": "near-600",
+   "ra": 310.35666,
+   "dec": 39.31824,
+   "canvas_x_A": 2497.5,
+   "canvas_x_B": 3777.4,
+   "n_A": 1077,
+   "n_B": 1091,
+   "fwhm_A": 2.7,
+   "fwhm_B": 2.698,
+   "round_A": 0.989,
+   "round_B": 0.976,
+   "dFWHM_A_minus_B": 0.002,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongp1200",
+   "group": "entry",
+   "ra": 321.30204,
+   "dec": 40.65491,
+   "canvas_x_A": 678.7,
+   "canvas_x_B": 1971.2,
+   "n_A": 895,
+   "n_B": 962,
+   "fwhm_A": 2.958,
+   "fwhm_B": 3.038,
+   "round_A": 0.895,
+   "round_B": 0.872,
+   "dFWHM_A_minus_B": -0.08,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongm1200",
+   "group": "exit",
+   "ra": 306.82211,
+   "dec": 38.65039,
+   "canvas_x_A": 3095.0,
+   "canvas_x_B": 4378.1,
+   "n_A": 1071,
+   "n_B": 1073,
+   "fwhm_A": 2.757,
+   "fwhm_B": 2.755,
+   "round_A": 0.978,
+   "round_B": 0.969,
+   "dFWHM_A_minus_B": 0.002,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongp1800",
+   "group": "entry",
+   "ra": 324.96189,
+   "dec": 40.86442,
+   "canvas_x_A": 64.7,
+   "canvas_x_B": 1368.9,
+   "n_A": 0,
+   "n_B": 863,
+   "fwhm_A": null,
+   "fwhm_B": 3.38,
+   "round_A": null,
+   "round_B": 0.753,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m5_alongm1800",
+   "group": "exit",
+   "ra": 303.38941,
+   "dec": 37.88588,
+   "canvas_x_A": 3687.6,
+   "canvas_x_B": 4977.7,
+   "n_A": 1063,
+   "n_B": 1051,
+   "fwhm_A": 2.905,
+   "fwhm_B": 2.91,
+   "round_A": 0.929,
+   "round_B": 0.928,
+   "dFWHM_A_minus_B": -0.005,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m5_alongp2400",
+   "group": "entry",
+   "ra": 328.5749,
+   "dec": 40.95739,
+   "canvas_x_A": -552.7,
+   "canvas_x_B": 767.1,
+   "n_A": 0,
+   "n_B": 709,
+   "fwhm_A": null,
+   "fwhm_B": 3.388,
+   "round_A": null,
+   "round_B": 0.737,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m5_alongm2400",
+   "group": "exit",
+   "ra": 300.07938,
+   "dec": 37.03689,
+   "canvas_x_A": 4275.2,
+   "canvas_x_B": 5575.7,
+   "n_A": 1057,
+   "n_B": 1049,
+   "fwhm_A": 2.98,
+   "fwhm_B": 3.025,
+   "round_A": 0.918,
+   "round_B": 0.914,
+   "dFWHM_A_minus_B": -0.045,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_centre",
+   "group": "centre",
+   "ra": 315.21365,
+   "dec": 39.87658,
+   "canvas_x_A": 1691.5,
+   "canvas_x_B": 2974.8,
+   "n_A": 1057,
+   "n_B": 1067,
+   "fwhm_A": 2.76,
+   "fwhm_B": 2.74,
+   "round_A": 0.958,
+   "round_B": 0.947,
+   "dFWHM_A_minus_B": 0.02,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongp600",
+   "group": "near+600",
+   "ra": 318.87215,
+   "dec": 40.32396,
+   "canvas_x_A": 1083.6,
+   "canvas_x_B": 2371.8,
+   "n_A": 1000,
+   "n_B": 1001,
+   "fwhm_A": 2.897,
+   "fwhm_B": 2.968,
+   "round_A": 0.911,
+   "round_B": 0.887,
+   "dFWHM_A_minus_B": -0.071,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongm600",
+   "group": "near-600",
+   "ra": 311.60287,
+   "dec": 39.31506,
+   "canvas_x_A": 2294.2,
+   "canvas_x_B": 3576.2,
+   "n_A": 1110,
+   "n_B": 1121,
+   "fwhm_A": 2.698,
+   "fwhm_B": 2.7,
+   "round_A": 0.985,
+   "round_B": 0.965,
+   "dFWHM_A_minus_B": -0.002,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongp1200",
+   "group": "entry",
+   "ra": 322.54724,
+   "dec": 40.65298,
+   "canvas_x_A": 470.6,
+   "canvas_x_B": 1767.7,
+   "n_A": 727,
+   "n_B": 968,
+   "fwhm_A": 3.035,
+   "fwhm_B": 3.275,
+   "round_A": 0.869,
+   "round_B": 0.821,
+   "dFWHM_A_minus_B": -0.24,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongm1200",
+   "group": "exit",
+   "ra": 308.06858,
+   "dec": 38.6468,
+   "canvas_x_A": 2891.4,
+   "canvas_x_B": 4175.8,
+   "n_A": 1103,
+   "n_B": 1102,
+   "fwhm_A": 2.715,
+   "fwhm_B": 2.712,
+   "round_A": 0.985,
+   "round_B": 0.968,
+   "dFWHM_A_minus_B": 0.003,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongp1800",
+   "group": "entry",
+   "ra": 326.20698,
+   "dec": 40.86279,
+   "canvas_x_A": -147.0,
+   "canvas_x_B": 1162.6,
+   "n_A": 0,
+   "n_B": 818,
+   "fwhm_A": null,
+   "fwhm_B": 3.385,
+   "round_A": null,
+   "round_B": 0.741,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m6_alongm1800",
+   "group": "exit",
+   "ra": 304.63596,
+   "dec": 37.88191,
+   "canvas_x_A": 3482.8,
+   "canvas_x_B": 4773.3,
+   "n_A": 1064,
+   "n_B": 1065,
+   "fwhm_A": 2.853,
+   "fwhm_B": 2.89,
+   "round_A": 0.933,
+   "round_B": 0.935,
+   "dFWHM_A_minus_B": -0.037,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "m6_alongp2400",
+   "group": "entry",
+   "ra": 329.82014,
+   "dec": 40.95592,
+   "canvas_x_A": -769.2,
+   "canvas_x_B": 557.1,
+   "n_A": 0,
+   "n_B": 630,
+   "fwhm_A": null,
+   "fwhm_B": 3.342,
+   "round_A": null,
+   "round_B": 0.749,
+   "dFWHM_A_minus_B": null,
+   "scored": false,
+   "note": "A: box uncovered (n=0) \u2014 the sky is outside As union"
+  },
+  {
+   "station": "m6_alongm2400",
+   "group": "exit",
+   "ra": 301.32581,
+   "dec": 37.03259,
+   "canvas_x_A": 4068.3,
+   "canvas_x_B": 5368.4,
+   "n_A": 1067,
+   "n_B": 1068,
+   "fwhm_A": 3.0,
+   "fwhm_B": 3.022,
+   "round_A": 0.915,
+   "round_B": 0.912,
+   "dFWHM_A_minus_B": -0.022,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m1_up",
+   "group": "anchor",
+   "ra": 307.12728,
+   "dec": 46.82515,
+   "canvas_x_A": 2755.0,
+   "canvas_x_B": 3947.0,
+   "n_A": 1000,
+   "n_B": 1016,
+   "fwhm_A": 2.797,
+   "fwhm_B": 2.772,
+   "round_A": 0.962,
+   "round_B": 0.966,
+   "dFWHM_A_minus_B": 0.025,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m1_dn",
+   "group": "anchor",
+   "ra": 310.44907,
+   "dec": 32.94081,
+   "canvas_x_A": 2659.6,
+   "canvas_x_B": 4010.6,
+   "n_A": 1014,
+   "n_B": 1003,
+   "fwhm_A": 3.255,
+   "fwhm_B": 3.26,
+   "round_A": 0.962,
+   "round_B": 0.949,
+   "dFWHM_A_minus_B": -0.005,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m2_up",
+   "group": "anchor",
+   "ra": 308.377,
+   "dec": 46.82192,
+   "canvas_x_A": 2574.4,
+   "canvas_x_B": 3768.3,
+   "n_A": 1035,
+   "n_B": 1051,
+   "fwhm_A": 2.788,
+   "fwhm_B": 2.772,
+   "round_A": 0.961,
+   "round_B": 0.95,
+   "dFWHM_A_minus_B": 0.016,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m2_dn",
+   "group": "anchor",
+   "ra": 311.70063,
+   "dec": 32.93748,
+   "canvas_x_A": 2436.9,
+   "canvas_x_B": 3789.7,
+   "n_A": 1017,
+   "n_B": 1015,
+   "fwhm_A": 3.085,
+   "fwhm_B": 3.092,
+   "round_A": 0.99,
+   "round_B": 0.952,
+   "dFWHM_A_minus_B": -0.007,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m3_up",
+   "group": "anchor",
+   "ra": 309.62795,
+   "dec": 46.82265,
+   "canvas_x_A": 2393.1,
+   "canvas_x_B": 3588.9,
+   "n_A": 1024,
+   "n_B": 1035,
+   "fwhm_A": 2.783,
+   "fwhm_B": 2.777,
+   "round_A": 0.955,
+   "round_B": 0.948,
+   "dFWHM_A_minus_B": 0.006,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m3_dn",
+   "group": "anchor",
+   "ra": 312.95196,
+   "dec": 32.93791,
+   "canvas_x_A": 2213.4,
+   "canvas_x_B": 3568.3,
+   "n_A": 1021,
+   "n_B": 1026,
+   "fwhm_A": 3.06,
+   "fwhm_B": 3.133,
+   "round_A": 0.99,
+   "round_B": 0.959,
+   "dFWHM_A_minus_B": -0.073,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m4_up",
+   "group": "anchor",
+   "ra": 310.87847,
+   "dec": 46.8199,
+   "canvas_x_A": 2211.3,
+   "canvas_x_B": 3409.3,
+   "n_A": 1062,
+   "n_B": 1063,
+   "fwhm_A": 2.788,
+   "fwhm_B": 2.805,
+   "round_A": 0.936,
+   "round_B": 0.924,
+   "dFWHM_A_minus_B": -0.017,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m4_dn",
+   "group": "anchor",
+   "ra": 314.20261,
+   "dec": 32.93444,
+   "canvas_x_A": 1989.2,
+   "canvas_x_B": 3346.6,
+   "n_A": 1003,
+   "n_B": 1008,
+   "fwhm_A": 3.12,
+   "fwhm_B": 3.135,
+   "round_A": 0.96,
+   "round_B": 0.949,
+   "dFWHM_A_minus_B": -0.015,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m5_up",
+   "group": "anchor",
+   "ra": 312.13329,
+   "dec": 46.81719,
+   "canvas_x_A": 2028.3,
+   "canvas_x_B": 3228.7,
+   "n_A": 1044,
+   "n_B": 1033,
+   "fwhm_A": 2.798,
+   "fwhm_B": 2.797,
+   "round_A": 0.921,
+   "round_B": 0.93,
+   "dFWHM_A_minus_B": 0.001,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m5_dn",
+   "group": "anchor",
+   "ra": 315.45675,
+   "dec": 32.93176,
+   "canvas_x_A": 1763.3,
+   "canvas_x_B": 3123.6,
+   "n_A": 943,
+   "n_B": 952,
+   "fwhm_A": 3.155,
+   "fwhm_B": 3.225,
+   "round_A": 0.958,
+   "round_B": 0.908,
+   "dFWHM_A_minus_B": -0.07,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m6_up",
+   "group": "anchor",
+   "ra": 313.38169,
+   "dec": 46.81479,
+   "canvas_x_A": 1845.5,
+   "canvas_x_B": 3048.5,
+   "n_A": 1073,
+   "n_B": 1059,
+   "fwhm_A": 2.805,
+   "fwhm_B": 2.805,
+   "round_A": 0.912,
+   "round_B": 0.93,
+   "dFWHM_A_minus_B": 0.0,
+   "scored": true,
+   "note": null
+  },
+  {
+   "station": "anchor_m6_dn",
+   "group": "anchor",
+   "ra": 316.70618,
+   "dec": 32.93007,
+   "canvas_x_A": 1537.2,
+   "canvas_x_B": 2900.7,
+   "n_A": 916,
+   "n_B": 945,
+   "fwhm_A": 3.268,
+   "fwhm_B": 3.228,
+   "round_A": 0.917,
+   "round_B": 0.916,
+   "dFWHM_A_minus_B": 0.04,
+   "scored": true,
+   "note": null
+  }
+ ],
+ "groups_A_minus_B": {
+  "entry": {
+   "n_scored": 9,
+   "n_total": 18,
+   "median": -0.063,
+   "min": -0.245,
+   "max": 0.038
+  },
+  "near+600": {
+   "n_scored": 6,
+   "n_total": 6,
+   "median": -0.002,
+   "min": -0.071,
+   "max": 0.027
+  },
+  "centre": {
+   "n_scored": 6,
+   "n_total": 6,
+   "median": -0.005,
+   "min": -0.011,
+   "max": 0.02
+  },
+  "near-600": {
+   "n_scored": 6,
+   "n_total": 6,
+   "median": -0.002,
+   "min": -0.045,
+   "max": 0.007
+  },
+  "exit": {
+   "n_scored": 18,
+   "n_total": 18,
+   "median": -0.02,
+   "min": -0.087,
+   "max": 0.003
+  },
+  "anchor": {
+   "n_scored": 12,
+   "n_total": 12,
+   "median": 0.0,
+   "min": -0.073,
+   "max": 0.04
+  }
+ },
+ "outcomes": {
+  "P1_entry_band": {
+   "predicted": "A lower than B by 0.10..0.30 on >= 2/3 of the counted entry stations, never higher by > 0.02",
+   "counted": "9 of 18 (9 uncovered in A: all six +2400 and m4/m5/m6 +1800 \u2014 n = 0, the sky lies outside A's union)",
+   "in_band_0.10_0.30": [
+    [
+     "m3_alongp1800",
+     -0.245,
+     "n 740 vs 969, canvas x 486 in A \u2014 the 800-px box straddles A's covered rectangle (x >= 423): a coverage-edge reading, the box's usable area shifted inward"
+    ],
+    [
+     "m6_alongp1200",
+     -0.24,
+     "n 727 vs 968, canvas x 471 in A \u2014 the 800-px box straddles A's covered rectangle (x >= 423): a coverage-edge reading, the box's usable area shifted inward"
+    ]
+   ],
+   "fully_covered_shared": [
+    [
+     "m1_alongp1200",
+     0.038,
+     "n 1024 vs 1043"
+    ],
+    [
+     "m1_alongp1800",
+     -0.037,
+     "n 955 vs 991"
+    ],
+    [
+     "m2_alongp1200",
+     -0.025,
+     "n 1035 vs 1038"
+    ],
+    [
+     "m2_alongp1800",
+     -0.08,
+     "n 896 vs 973"
+    ],
+    [
+     "m3_alongp1200",
+     -0.043,
+     "n 989 vs 991"
+    ],
+    [
+     "m4_alongp1200",
+     -0.063,
+     "n 954 vs 988"
+    ],
+    [
+     "m5_alongp1200",
+     -0.08,
+     "n 895 vs 962"
+    ]
+   ],
+   "higher_than_0.02": [
+    [
+     "m1_alongp1200",
+     0.038
+    ]
+   ],
+   "median": -0.063,
+   "result": "FAILED as pre-registered: 2 of 9 in band (both coverage-edge readings), the seven fully covered shared stations 0.03..0.08 px lower (6 of 7) and one HIGHER by 0.038 (m1 +1200, the reference member's own station); the 0.03..0.08 gains sit inside the spread the same pair shows where the contributors are identical (exit side \u22120.087..+0.003, anchors \u22120.073..+0.040) \u2014 not resolvable above the pair's floor"
+  },
+  "P2_centre_exit": {
+   "predicted": "within +-0.02",
+   "centre": [
+    [
+     "m1_centre",
+     -0.011
+    ],
+    [
+     "m2_centre",
+     -0.005
+    ],
+    [
+     "m3_centre",
+     -0.01
+    ],
+    [
+     "m4_centre",
+     -0.005
+    ],
+    [
+     "m5_centre",
+     -0.008
+    ],
+    [
+     "m6_centre",
+     0.02
+    ]
+   ],
+   "centre_result": "6/6 within +-0.02 \u2014 HELD",
+   "exit": [
+    [
+     "m1_alongm1200",
+     -0.012
+    ],
+    [
+     "m1_alongm1800",
+     -0.02
+    ],
+    [
+     "m1_alongm2400",
+     -0.087
+    ],
+    [
+     "m2_alongm1200",
+     -0.027
+    ],
+    [
+     "m2_alongm1800",
+     -0.018
+    ],
+    [
+     "m2_alongm2400",
+     -0.047
+    ],
+    [
+     "m3_alongm1200",
+     -0.043
+    ],
+    [
+     "m3_alongm1800",
+     -0.005
+    ],
+    [
+     "m3_alongm2400",
+     -0.032
+    ],
+    [
+     "m4_alongm1200",
+     -0.015
+    ],
+    [
+     "m4_alongm1800",
+     -0.013
+    ],
+    [
+     "m4_alongm2400",
+     -0.025
+    ],
+    [
+     "m5_alongm1200",
+     0.002
+    ],
+    [
+     "m5_alongm1800",
+     -0.005
+    ],
+    [
+     "m5_alongm2400",
+     -0.045
+    ],
+    [
+     "m6_alongm1200",
+     0.003
+    ],
+    [
+     "m6_alongm1800",
+     -0.037
+    ],
+    [
+     "m6_alongm2400",
+     -0.022
+    ]
+   ],
+   "exit_result": "9/18 within +-0.02 \u2014 FAILED, one-sided: A LOWER, median -0.020, min -0.087 (m1 \u22122400), max +0.003",
+   "near_600": {
+    "+600": [
+     [
+      "m1_alongp600",
+      -0.002
+     ],
+     [
+      "m2_alongp600",
+      -0.006
+     ],
+     [
+      "m3_alongp600",
+      0.007
+     ],
+     [
+      "m4_alongp600",
+      0.027
+     ],
+     [
+      "m5_alongp600",
+      -0.016
+     ],
+     [
+      "m6_alongp600",
+      -0.071
+     ]
+    ],
+    "-600": [
+     [
+      "m1_alongm600",
+      -0.045
+     ],
+     [
+      "m2_alongm600",
+      0.007
+     ],
+     [
+      "m3_alongm600",
+      -0.01
+     ],
+     [
+      "m4_alongm600",
+      -0.01
+     ],
+     [
+      "m5_alongm600",
+      0.002
+     ],
+     [
+      "m6_alongm600",
+      -0.002
+     ]
+    ]
+   },
+   "anchors_unscored": [
+    [
+     "anchor_m1_up",
+     0.025
+    ],
+    [
+     "anchor_m1_dn",
+     -0.005
+    ],
+    [
+     "anchor_m2_up",
+     0.016
+    ],
+    [
+     "anchor_m2_dn",
+     -0.007
+    ],
+    [
+     "anchor_m3_up",
+     0.006
+    ],
+    [
+     "anchor_m3_dn",
+     -0.073
+    ],
+    [
+     "anchor_m4_up",
+     -0.017
+    ],
+    [
+     "anchor_m4_dn",
+     -0.015
+    ],
+    [
+     "anchor_m5_up",
+     0.001
+    ],
+    [
+     "anchor_m5_dn",
+     -0.07
+    ],
+    [
+     "anchor_m6_up",
+     0.0
+    ],
+    [
+     "anchor_m6_dn",
+     0.04
+    ]
+   ],
+   "reading": "The exit-side stations have IDENTICAL contributor sets in A and B: a removed column is member +x > x_c, member +x lands at canvas \u2212x (the 180-degree flip), so no removed column lands right of canvas x ~1206 in A (m1's centre 2706 \u2212 1500) and the exit stations sit at canvas x 2900..5100. The A\u2212B difference there is therefore the FLOOR OF THIS PAIR, not the knob: the crop changes the register inputs (six seqplatesolve solutions on cropped copies, the anchor included), and the union of the same six members is 87 px TALLER in A (4346 vs 4259) \u2014 the transforms differ. The pre-registered zero floor was measured on IDENTICAL composes and does not carry to a pair whose registration inputs differ. Which drives it \u2014 the cropped ANCHOR or the cropped members' solves \u2014 is one knob each, not run."
+  },
+  "P3_rim_coverage": {
+   "canvas": {
+    "A": [
+     5657,
+     4346
+    ],
+    "B": [
+     7003,
+     4259
+    ],
+    "width_delta_px": -1346,
+    "width_delta_pct": -19.2,
+    "height_delta_px": 87
+   },
+   "covered_rectangle_green_ge_27": {
+    "A": {
+     "rect_fits": [
+      423,
+      334,
+      5076,
+      3841
+     ],
+     "frac": 0.793,
+     "Mpx": 19.5
+    },
+    "B": {
+     "rect_fits": [
+      175,
+      326,
+      6650,
+      3749
+     ],
+     "frac": 0.836,
+     "Mpx": 24.93
+    },
+    "width_delta_px": -1574,
+    "width_delta_pct": -23.7
+   },
+   "rim_green_medians_x100_300_500_700_900": {
+    "A": {
+     "left": [
+      6.6,
+      40.4,
+      40.2,
+      40.4,
+      40.5
+     ],
+     "right": [
+      39.6,
+      40.0,
+      39.9,
+      40.0,
+      40.1
+     ]
+    },
+    "B": {
+     "left": [
+      40.4,
+      40.5,
+      40.5,
+      40.4,
+      40.3
+     ],
+     "right": [
+      39.4,
+      40.1,
+      40.0,
+      39.9,
+      40.0
+     ]
+    }
+   },
+   "uncovered_entry_stations_in_A": [
+    "m1_alongp2400",
+    "m2_alongp2400",
+    "m3_alongp2400",
+    "m4_alongp1800",
+    "m4_alongp2400",
+    "m5_alongp1800",
+    "m5_alongp2400",
+    "m6_alongp1800",
+    "m6_alongp2400"
+   ],
+   "reading": "The cost is not a rim, it is the band: A's canvas is 1346 px (19.2 %) narrower and its covered rectangle 1574 px (23.7 %) narrower; A's first 200 px at the left edge read 6.6 vs a 40.4 sky (a thin ragged rim), the right rim identical within 0.2. Nine of the 18 entry stations hold NO stars in A. Within a set the six pointings drift only ~200 px per member (centres at canvas 2706/2504/2302/2100/1895/1691 in A), so each member's removed +x sky is covered by the others only with their own +x columns \u2014 removed as well \u2014 or by nothing: the removed band is LOST, not replaced. The corpus mechanism (another night's sharp columns over the same sky) has no counterpart inside a set."
+  },
+  "P4_headers": {
+   "A": {
+    "NCROPPED": 6,
+    "MEMCXCS": "1500x5/900x1",
+    "MEMCRULE": "asym>0.20px@r400 top30",
+    "MEMCPROV": "datasets/corpus/member_selection/july31+aug06+aug09+aug14_full_porti",
+    "REGREF": "1:aug14/curated_july31+aug06+aug09+aug14_full/sub_069_aug14_set-04_s",
+    "STACKCNT": 600,
+    "NMEMBER": 6,
+    "PIPEREV": "16cea71"
+   },
+   "B": {
+    "NCROPPED": 0,
+    "MEMCXCS": null,
+    "MEMCRULE": null,
+    "REGREF": "1:aug14/groups_set-04/sub_01.fit",
+    "STACKCNT": 600,
+    "NMEMBER": 6,
+    "PIPEREV": "16cea71"
+   },
+   "normalization_weight_from_HISTORY": "additive+scaling normalized input; image weighting from image count (both)",
+   "result": "HELD as predicted. Defect noticed (not this unit's knob): the compose stamp truncates MEMCPROV and REGREF at 68 characters (A's MEMCPROV ends '..._full_porti', REGREF '...sub_069_aug14_set-04_s') \u2014 a FITS string-card limit without CONTINUE; the corpus canonical's same keys should be checked"
+  },
+  "P5_seams": {
+   "predicted": "A-minus-B step <= 0.5 % Green at each of A's six boundaries",
+   "quantization": "Siril stat prints 0.1 ADU16 resolution on this 32-bit product = 0.25 % per quantum at a 40 ADU16 sky \u2014 the bound resolves at two quanta",
+   "boxes": {
+    "A": {
+     "seam_sub_01_left": [
+      1252,
+      1904,
+      200,
+      200
+     ],
+     "seam_sub_01_right": [
+      951,
+      1895,
+      200,
+      200
+     ],
+     "seam_sub_02_left": [
+      1651,
+      1942,
+      200,
+      200
+     ],
+     "seam_sub_02_right": [
+      1349,
+      1928,
+      200,
+      200
+     ],
+     "seam_sub_03_left": [
+      841,
+      1921,
+      200,
+      200
+     ],
+     "seam_sub_03_right": [
+      538,
+      1903,
+      200,
+      200
+     ],
+     "seam_sub_04_left": [
+      635,
+      1925,
+      200,
+      200
+     ],
+     "seam_sub_04_right": [
+      330,
+      1903,
+      200,
+      200
+     ],
+     "seam_sub_05_left": [
+      426,
+      1927,
+      200,
+      200
+     ],
+     "seam_sub_05_right": [
+      118,
+      1900,
+      200,
+      200
+     ],
+     "seam_sub_06_left": [
+      217,
+      1925,
+      200,
+      200
+     ],
+     "seam_sub_06_right": [
+      -92,
+      1893,
+      200,
+      200
+     ]
+    },
+    "B": {
+     "seam_sub_01_left": [
+      2531,
+      1968,
+      200,
+      200
+     ],
+     "seam_sub_01_right": [
+      2234,
+      1975,
+      200,
+      200
+     ],
+     "seam_sub_02_left": [
+      2927,
+      1985,
+      200,
+      200
+     ],
+     "seam_sub_02_right": [
+      2628,
+      1987,
+      200,
+      200
+     ],
+     "seam_sub_03_left": [
+      2128,
+      2006,
+      200,
+      200
+     ],
+     "seam_sub_03_right": [
+      1829,
+      2004,
+      200,
+      200
+     ],
+     "seam_sub_04_left": [
+      1926,
+      2021,
+      200,
+      200
+     ],
+     "seam_sub_04_right": [
+      1626,
+      2015,
+      200,
+      200
+     ],
+     "seam_sub_05_left": [
+      1721,
+      2034,
+      200,
+      200
+     ],
+     "seam_sub_05_right": [
+      1419,
+      2023,
+      200,
+      200
+     ],
+     "seam_sub_06_left": [
+      1516,
+      2043,
+      200,
+      200
+     ],
+     "seam_sub_06_right": [
+      1214,
+      2028,
+      200,
+      200
+     ]
+    }
+   },
+   "green_median": {
+    "sub_01": {
+     "A": [
+      40.4,
+      40.7
+     ],
+     "B": [
+      40.4,
+      40.6
+     ]
+    },
+    "sub_02": {
+     "A": [
+      40.4,
+      40.4
+     ],
+     "B": [
+      40.5,
+      40.4
+     ]
+    },
+    "sub_03": {
+     "A": [
+      40.7,
+      40.4
+     ],
+     "B": [
+      40.6,
+      40.3
+     ]
+    },
+    "sub_04": {
+     "A": [
+      40.4,
+      40.4
+     ],
+     "B": [
+      40.3,
+      40.3
+     ]
+    },
+    "sub_05": {
+     "A": [
+      40.3,
+      40.1
+     ],
+     "B": [
+      40.3,
+      40.4
+     ]
+    },
+    "sub_06": {
+     "A": [
+      40.5,
+      null
+     ],
+     "B": [
+      40.4,
+      40.4
+     ]
+    }
+   },
+   "green_mean": {
+    "sub_01": {
+     "A": [
+      41.1,
+      41.8
+     ],
+     "B": [
+      41.1,
+      41.7
+     ]
+    },
+    "sub_02": {
+     "A": [
+      41.8,
+      41.1
+     ],
+     "B": [
+      41.8,
+      41.1
+     ]
+    },
+    "sub_03": {
+     "A": [
+      42.3,
+      41.1
+     ],
+     "B": [
+      42.2,
+      41.1
+     ]
+    },
+    "sub_04": {
+     "A": [
+      41.2,
+      41.2
+     ],
+     "B": [
+      41.2,
+      41.2
+     ]
+    },
+    "sub_05": {
+     "A": [
+      41.2,
+      34.3
+     ],
+     "B": [
+      41.2,
+      42.5
+     ]
+    },
+    "sub_06": {
+     "A": [
+      41.2,
+      null
+     ],
+     "B": [
+      41.2,
+      43.3
+     ]
+    }
+   },
+   "step_A_minus_B_pct": {
+    "median_based": {
+     "sub_01": 0.248,
+     "sub_02": 0.247,
+     "sub_03": 0.002,
+     "sub_04": 0.0,
+     "sub_05": -0.744,
+     "sub_06": null
+    },
+    "mean_based": {
+     "sub_01": 0.243,
+     "sub_02": 0.0,
+     "sub_03": -0.23,
+     "sub_04": 0.0,
+     "sub_05": -19.903,
+     "sub_06": null
+    }
+   },
+   "result": "HELD at the four measurable boundaries (sub_01..04: <= 0.25 %, one quantum, on both statistics). sub_05's boundary lies at canvas x ~270 in A where the coverage thins: its outer box (x 118..318) reads mean 34.3 vs 41.2 (\u221216.7 %, partial coverage; median 40.1) \u2014 a rim reading, not a seam. sub_06's boundary lies ~60 px from A's left canvas edge; its outer box falls outside the canvas \u2014 that boundary IS A's rim. Two of the six 'seams' are the coverage cost of P3 in another form."
+  },
+  "P6_min_framing": {
+   "predicted": "A-min narrower than B-min by roughly the largest removed column count (~1414 px)",
+   "A_min": [
+    2722,
+    3541
+   ],
+   "B_min": [
+    4594,
+    3583
+   ],
+   "existing_final": [
+    4652,
+    3558
+   ],
+   "width_delta_px": -1872,
+   "width_delta_pct": -40.7,
+   "pixels_Mpx": {
+    "A_min": 9.64,
+    "B_min": 16.46,
+    "existing_final": 16.55
+   },
+   "result": "MEASURED, and the prediction UNDER-shot: the intersection is 1872 px (40.7 %) narrower \u2014 the removed columns plus the drift between the members' kept extents \u2014 and holds 41.4 % fewer pixels. A per-set DELIVERABLE through the stage at framing=min would be 41 % narrower than the current final for a station gain (<= 0.08 px) the pair's own floor absorbs."
+  }
+ },
+ "DEGRADED_rows": {
+  "rule": "A higher than B beyond the pair's floor",
+  "none": true,
+  "largest_A_higher": [
+   [
+    "anchor_m6_dn",
+    0.04
+   ],
+   [
+    "m1_alongp1200",
+    0.038
+   ],
+   [
+    "m4_alongp600",
+    0.027
+   ],
+   [
+    "anchor_m1_up",
+    0.025
+   ],
+   [
+    "m6_centre",
+    0.02
+   ]
+  ]
+ },
+ "verdict": "CLEAN NULL on the target at the per-set tier \u2014 P1 FAILED as pre-registered (2 of 9 in band, both coverage-edge readings; the seven fully covered shared stations 0.03..0.08 px, inside the pair's own \u22120.09..+0.04 spread at identical-contributor stations; one station higher by 0.038 > 0.02), P2's exit side FAILED one-sided in the SHARPER direction (median \u22120.020, \u22120.087 max) \u2014 the floor of this pair, its own row (cropped anchor vs cropped members' solves), not a degradation \u2014 P4 and P5 held (4/4 measurable seams), P3/P6 the cost: \u221219 % canvas width, \u221224 % covered width, \u221241 % at framing=min. By the pre-registered routing the register row's clause closes as measured: the stage stays CORPUS-ONLY; a per-set deliverable does not run through it. Mechanism (measured here, the corpus reading confirmed by its absence): the stage buys sharpness only where ANOTHER member's sharp columns cover the removed sky \u2014 across nights that is the corpus; inside a set the pointings drift ~200 px per member and the removed band is lost outright.",
+ "observations_not_this_units_knob": [
+  "B does NOT reproduce the chain's existing per-set final: B-min 4594x3583 vs stack_set-04_full 4652x3558 (PIPEREV 77e3a78, HISTORY 'no image weighting' vs B's 'image weighting from image count'; same REGREF, STACKCNT 600, the same six inputs) \u2014 the registration transforms differ between the two code states; the per-set finals' reproducibility check; not chased",
+  "finish solves: A 16.970 arcsec/px (logodds 145), B 16.819 (508), the existing final 17.036 (104); the member family is 17.0..17.08 \u2014 B's is 1.2 % low, the wrong-scale-optimum class the member-solve audit flagged; it moves only the WCS placement (shape_at_sky's placement check: median offset 0.16 deg on both) and the SPCC star matching (K 1.000/0.638/0.880 A vs 1.000/0.646/0.894 B; 2848/4910 vs 2595/4675 stars), not the pixels",
+  "the compose stamp truncates MEMCPROV/REGREF at 68 characters (P4)"
+ ],
+ "premises_untested": [
+  "which of (a) the cropped ANCHOR (A's reference is the column-cropped copy of sub_01) and (b) the six cropped members' own seqplatesolve solutions drives the identical-contributor offsets (exit side \u22120.02 median, \u22120.087 max; A's union 87 px taller) \u2014 one knob each; a rebuild of A with sub_01's ORIGINAL as the anchor and the five cropped copies would separate them",
+  "the coverage-edge reading at the two in-band stations (m3 +1800, m6 +1200: n 25 % lower in A, the box straddling A's covered rectangle) \u2014 read as a box-area shift, not a sharpness gain; a box placed fully inside A's covered rectangle at those columns would test it",
+  "coverage_frame's floor 27 (the corpus slot's convention): the covered-rectangle widths differ by 1574 px, far beyond any floor choice, but the exact rectangle edges depend on it",
+  "the y-convention resolution of shape_at_sky on these canvases rests on the 12 anchor stations (passes differ 15.0/14.75 deg vs tol 2.83/2.81) \u2014 the tool's own check, accepted as its verdict"
+ ],
+ "eyes": "NOT run \u2014 the GO conditions both inspections on a P1 WIN; the judge PNGs exist (web/results/aug14/judge/set04{msel,nosel}_spcc-linked.png) for whoever rules",
+ "footprint": {
+  "products_bytes": 2549065374,
+  "products": [
+   "web/results/aug14/stack_set04{msel,nosel}{.fit,_wcs.fit,_spcc.fit,_min.fit}",
+   "web/results/aug14/judge/set04{msel,nosel}_spcc-linked.png",
+   "web/results/aug14/compose_gate_stack_set04*.json"
+  ],
+  "scratch": "sessions/aug14/work/perset04/ (21 MB)",
+  "finish_records": [
+   "datasets/aug14/set-04/qa_work/solve_stack_set04{msel,nosel}.json",
+   "datasets/aug14/set-04/qa_work/spcc_set-04_set04{msel,nosel}.json"
+  ],
+  "disposed": "nothing \u2014 kept until the director rules",
+  "free_after_GB": 638
+ },
+ "head": "16cea71",
+ "written_at": "2026-08-30T14:45:42-04:00"
+}
